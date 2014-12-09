@@ -113,6 +113,7 @@ def addStorageGroups(numGroups, sampleType):
         for property in storageGroup:
             property[0] = property[0].replace(str(storageIdx-1), str(storageIdx));
             property[1] = property[1].replace(str(storageIdx-1), str(storageIdx));
+            property[5] = property[5].replace(str(storageIdx-1), str(storageIdx));
         addPropertiesToSamples([sampleType], storageGroup);
 ##
 ## Manage properties scripts

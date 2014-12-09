@@ -6,6 +6,7 @@ import random
 from datetime import datetime
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.DataType as DataType
 
+
 import java.lang.Class as Class
 import java.sql.Connection as Connection
 import java.sql.DriverManager as DriverManager
@@ -24,7 +25,6 @@ def process(tr):
     for adaptor in adaptors:
         while adaptor.next():
             entity = adaptor.getEntity()
-            entity.getIdentifier(tr)
             if not entity.isInOpenBIS(tr):
                 entity.write(tr)
                 #print entity.getIdentifier(tr) + " - Updated"
@@ -89,13 +89,14 @@ def getSampleForUpdate(sampleIdentifier, sampleType, tr):
          print "Cache failed " + sampleIdentifier + ":" + str(sampleType)
          sample = tr.getSampleForUpdate(sampleIdentifier)
          if sample is None and sampleType is not None:
-             print "Create"
+             #print "Cache Create " + sampleIdentifier + ":" + str(sampleType)
              sample = tr.createNewSample(sampleIdentifier, sampleType)
          
          if sample is not None:
              sampleCache[sampleIdentifier] = sample
     else:
-        print "Cache hit " + sampleIdentifier + ":" + str(sampleType)
+        pass
+        #print "Cache hit " + sampleIdentifier + ":" + str(sampleType)
         
     if sampleIdentifier not in sampleCache:
          return None
@@ -167,10 +168,10 @@ class AntibodyOpenBISDTO(OpenBISDTO):
             sample.setPropertyValue(propertyCode, propertyValue)
     
     def getIdentifier(self, tr):
-        antibodyID2Antibody[self.values["NAME"]] = self.values
         return self.values["ANTIBODY_ID_NR"]
     
     def isInOpenBIS(self, tr):
+        antibodyID2Antibody[self.values["NAME"]] = self.values
         code = self.values["ANTIBODY_ID_NR"]
         sample = getSampleForUpdate("/INVENTORY/"+self.values["ANTIBODY_ID_NR"], None, tr)
         if sample is not None:
@@ -198,7 +199,7 @@ class AntibodyBoxAdaptor(FileMakerEntityAdaptor):
                 if antibodyID in antibodyID2Antibody:
                     antibodyNumber = antibodyID2Antibody[antibodyID]["ANTIBODY_ID_NR"]
                     values = {}
-                    values["FREEZER"] = result.getString("location")
+                    values["STORAGE_NAME"] = result.getString("location")
                     values["STORAGE_ROW"] = None
                     values["STORAGE_COLUMN"] = None
                     values["STORAGE_BOX_NAME"] = result.getString("box label")
@@ -206,7 +207,6 @@ class AntibodyBoxAdaptor(FileMakerEntityAdaptor):
                     values["STORAGE_BOX_POSITION"] = result.getString("position")
                     
                     allboxes = []
-                    print "if key " + antibodyNumber
                     if antibodyNumber in antibodyBoxes:
                         allboxes = antibodyBoxes[antibodyNumber]
                     else:
@@ -234,27 +234,68 @@ class AntibodyBoxAdaptor(FileMakerEntityAdaptor):
         self.entities.append(AntibodyBoxOpenBISDTO(values, self.definition))
 
 class AntibodyBoxOpenBISDTO(OpenBISDTO):
+    
     def write(self, tr):
         sample = getSampleForUpdate("/INVENTORY/"+self.values["ANTIBODY_ID_NR"], None, tr)
-        
+        #Delete old boxes
+        for boxNum in range(1, definitions.numberOfStorageGroups+1):
+            for propertyCode in definitions.stogageGroupPropertyCodes:
+                sample.setPropertyValue(propertyCode + "_" + str(boxNum), None)
+        #Add new boxes
         boxNum = 1
-#         for box in self.values["*BOXESLIST"]:
-#             print "Box N" + str(boxNum)
-#             for propertyCode, propertyValue in box.iteritems():
-#                 if propertyCode == "FREEZER":
-#                     propertyValue = definitions.getVocaularyTermCodeForVocabularyAndTermLabel("FREEZER", propertyValue)
-#                 if propertyValue is not None:
-#                     propertyValue =  unicode(propertyValue)
-#                     sample.setPropertyValue(propertyCode + "_" + str(boxNum), propertyValue)
-#                 boxNum += 1
+        for box in self.values["*BOXESLIST"]:
+            boxNum += 1
+            for propertyCode, propertyValue in box.iteritems():
+                if propertyCode == "STORAGE_NAME":
+                    freezerName = definitions.getVocaularyTermCodeForVocabularyAndTermLabel("FREEZER", propertyValue)
+                    if freezerName is None:
+                        print repr("NOT FOUND FEEZER: " + self.values["ANTIBODY_ID_NR"] + " : '" + unicode(propertyValue) + "'")
+                        propertyValue = None
+                    else:
+                        propertyValue = freezerName
+                if propertyCode == "STORAGE_USER":
+                    storageUser = definitions.getVocaularyTermCodeForVocabularyAndTermLabel("ALL_LAB_MEMBERS", propertyValue)
+                    if storageUser is None:
+                        print repr("NOT FOUND USER: " + self.values["ANTIBODY_ID_NR"] + " : '" + unicode(propertyValue) + "'")
+                        propertyValue = None
+                    else:
+                        propertyValue = storageUser
+                
+                if propertyValue is not None:
+                    propertyValue =  unicode(propertyValue)
+                    sample.setPropertyValue(propertyCode + "_" + str(boxNum), propertyValue)
     
-    def isInOpenBIS(self, tr):
-        code = self.values["ANTIBODY_ID_NR"]
+    def isBoxPressent(self, boxSignature, tr):
         sample = getSampleForUpdate("/INVENTORY/"+self.values["ANTIBODY_ID_NR"], None, tr)
         if sample is not None:
-            return False
-        else :
-            return False
+            for boxNum in range(1, definitions.numberOfStorageGroups+1):
+                storedSignature = "";
+                for propertyCode in definitions.stogageGroupPropertyCodes:
+                    propertyValue = sample.getPropertyValue(propertyCode + "_" + str(boxNum))
+                    if propertyValue is not None:
+                        propertyValue = unicode(propertyValue)
+                        storedSignature += propertyValue
+                if storedSignature == boxSignature:
+                    #print "Found Box " + storedSignature.encode('ascii', 'ignore')
+                    return True
+        return False
+    
+    def isInOpenBIS(self, tr):
+        for box in self.values["*BOXESLIST"]:
+            boxSignature = "";
+            for propertyCode in definitions.stogageGroupPropertyCodes:
+                propertyValue = box[propertyCode]
+                if propertyCode == "STORAGE_NAME":
+                    propertyValue = definitions.getVocaularyTermCodeForVocabularyAndTermLabel("FREEZER", propertyValue)                        
+                if propertyCode == "STORAGE_USER":
+                    propertyValue = definitions.getVocaularyTermCodeForVocabularyAndTermLabel("LAB_MEMBERS_INITIALS", propertyValue)
+                    
+                if propertyValue is not None:
+                    propertyValue = unicode(propertyValue)
+                    boxSignature += propertyValue
+            if not self.isBoxPressent(boxSignature, tr):
+                return False
+        return True
     
 fmConnString = "jdbc:filemaker://127.0.0.1/"
 fmUser = "designer"

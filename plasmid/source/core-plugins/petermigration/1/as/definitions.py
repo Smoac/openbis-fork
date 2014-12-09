@@ -3,22 +3,23 @@
 
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.DataType as DataType
 
-numberOfStorageGroups = 10
-
+numberOfStorageGroups = 15
+stogageGroupPropertyCodes = ["STORAGE_NAME", "STORAGE_ROW", "STORAGE_COLUMN", "STORAGE_BOX_NAME", "STORAGE_USER", "STORAGE_BOX_POSITION"] #This is duplicated below, needs cleanup
 storageGroupDefinition = [
-    ["STORAGE_NAMES_0",        "Physical Storage 0",        "location",         DataType.CONTROLLEDVOCABULARY,      "FREEZER",    "Storage Name", None],
-    ["STORAGE_ROW_0",          "Physical Storage 0",        "Storage Row",      DataType.INTEGER,                    None,                "Storage Row", None],
-    ["STORAGE_COLUMN_0",       "Physical Storage 0",        "Storage Column",   DataType.INTEGER,                    None,                "Storage Column", None],
-    ["STORAGE_BOX_NAME_0",     "Physical Storage 0",        "box label",        DataType.VARCHAR,                    None,                "Storage Box Name", None],
-    ["STORAGE_USER_0",         "Physical Storage 0",        "frozen by",        DataType.VARCHAR,                    None,                "Storage User Id", None],
-    ["STORAGE_BOX_POSITION_0", "Physical Storage 0",        "position",         DataType.VARCHAR,                    None,                "Storage User Id", None]
+    ["STORAGE_NAME_0",         "Physical Storage 0",        "location",         DataType.CONTROLLEDVOCABULARY,      "FREEZER",            "Storage Name 0",       None],
+    ["STORAGE_ROW_0",          "Physical Storage 0",        "Storage Row",      DataType.INTEGER,                    None,                "Storage Row 0",        None],
+    ["STORAGE_COLUMN_0",       "Physical Storage 0",        "Storage Column",   DataType.INTEGER,                    None,                "Storage Column 0",     None],
+    ["STORAGE_BOX_NAME_0",     "Physical Storage 0",        "box label",        DataType.VARCHAR,                    None,                "Storage Box Name 0",   None],
+    ["STORAGE_USER_0",         "Physical Storage 0",        "frozen by",        DataType.CONTROLLEDVOCABULARY,      "ALL_LAB_MEMBERS",    "Storage User Id 0",    None],
+    ["STORAGE_BOX_POSITION_0", "Physical Storage 0",        "position",         DataType.VARCHAR,                    None,                "Storage Box Position 0",    None]
 ];
 
 def getVocaularyTermCodeForVocabularyAndTermLabel(vocabularyCode, termLabel):
     vocabulary = vocacbularyDefinitions[vocabularyCode]
     for term in vocabulary:
         if term[1] == termLabel:
-            return term[0] #print repr("NOT FOUND: " + unicode(vocabularyCode) + " : " + unicode(termLabel))
+            #print repr("NOT FOUND: " + unicode(vocabularyCode) + " : '" + unicode(termLabel) + "'")
+            return term[0]
     return None
     
 def getPropertyDefinitionByCode(definition, code):
@@ -283,7 +284,7 @@ vocacbularyDefinitions = {
                                         ["YG", "YG"],
                                         ["JB", "JB"],
                                         ["MKI", "MKi"]
-																		]
+                                    ],
                             "BLOCK" : [
                                        ["1BSA_01TRITON-X100",  "1% BSA; 0.1% Triton-X100"],
                                     ],
