@@ -619,7 +619,7 @@ vocacbularyDefinitions = {
                         "FREEZER" : [
                                 ["G9_FRIDGE-1",  "G9 Fridge 1"],
                                 ["G9_FRIDGE-2",  "G9 Fridge 2"],
-                                ["G9_FREEZER-A",  "-20 Small Peter Lab"],
+                                ["G9_FREEZER-A",  "-20C Small Peter Lab"],
                                 ["G9_FREEZER-B",  "G9 Freezer B"],
                                 ["G9_FREEZER-C",  "G9 Freezer C"],
                                 ["G10_FREEZER-D",  "G10 Freezer D"],
