@@ -105,7 +105,7 @@
     </bean>
     
     <bean id="data-set-command-executor-provider" class="ch.systemsx.cisd.openbis.dss.generic.server.KeyBasedDataSetCommandExecutorProvider">
-        <constructor-arg value="${data-set-command-executor-mapping}"/>
+        <constructor-arg value="${data-set-command-queue-mapping}"/>
         <constructor-arg value="${commandqueue-dir}"/>
     </bean>
     

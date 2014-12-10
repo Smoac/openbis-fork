@@ -82,6 +82,12 @@ import ch.systemsx.cisd.openbis.generic.shared.util.UuidUtil;
 public class DataStoreService extends AbstractServiceWithLogger<IDataStoreService> implements
         IDataStoreServiceInternal, InitializingBean
 {
+    private static final String COPYING_TO_ARCHIVE_PROCESSING_PLUGIN_KEY = "Copying data sets to archive";
+
+    private static final String ARCHIVING_PROCESSING_PLUGIN_KEY = "Archiving";
+
+    private static final String UNARCHIVING_PROCESSING_PLUGIN_KEY = "Unarchiving";
+
     private final SessionTokenManager sessionTokenManager;
 
     private final OpenbisSessionTokenCache sessionTokenCache;
@@ -320,10 +326,9 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
     public void unarchiveDatasets(String sessionToken, String userSessionToken,
             List<DatasetDescription> datasets, String userId, String userEmailOrNull)
     {
-        String description = "Unarchiving";
         IProcessingPluginTask task = new UnarchiveProcessingPluginTask(getArchiverPlugin());
 
-        scheduleTask(sessionToken, userSessionToken, description, task, datasets, userId,
+        scheduleTask(sessionToken, userSessionToken, UNARCHIVING_PROCESSING_PLUGIN_KEY, task, datasets, userId,
                 userEmailOrNull);
     }
 
@@ -339,12 +344,10 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
             List<DatasetDescription> datasets, String userId, String userEmailOrNull,
             boolean removeFromDataStore)
     {
-        String description = removeFromDataStore ? "Archiving" : "Copying data sets to archive";
-        IProcessingPluginTask task =
-                new ArchiveProcessingPluginTask(getArchiverPlugin(), removeFromDataStore);
+        String description = removeFromDataStore ? ARCHIVING_PROCESSING_PLUGIN_KEY : COPYING_TO_ARCHIVE_PROCESSING_PLUGIN_KEY;
+        IProcessingPluginTask task = new ArchiveProcessingPluginTask(getArchiverPlugin(), removeFromDataStore);
 
-        scheduleTask(sessionToken, userSessionToken, description, task, datasets, userId,
-                userEmailOrNull);
+        scheduleTask(sessionToken, userSessionToken, description, task, datasets, userId, userEmailOrNull);
     }
 
     @Override
