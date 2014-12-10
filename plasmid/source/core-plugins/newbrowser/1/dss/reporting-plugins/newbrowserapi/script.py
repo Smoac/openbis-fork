@@ -66,29 +66,40 @@ def process(tr, parameters, tableBuilder):
 		row.setCell("MESSAGE", "Operation Failed");
 
 def init(tr, parameters, tableBuilder):
-	inventorySpace = tr.getSpace("INVENTORY");
+	inventorySpace = tr.getSpace("DEFAULT_LAB_NOTEBOOK");
 	if inventorySpace == None:
-		tr.createNewSpace("INVENTORY", None);
-		tr.createNewProject("/INVENTORY/MATERIALS");
-		tr.createNewExperiment("/INVENTORY/MATERIALS/ANTIBODY", 		"ANTIBODY");
-		tr.createNewExperiment("/INVENTORY/MATERIALS/BACTERIA", 		"BACTERIA");
-		tr.createNewExperiment("/INVENTORY/MATERIALS/CHEMICAL", 		"CHEMICAL");
-		tr.createNewExperiment("/INVENTORY/MATERIALS/ENZYME", 			"ENZYME");
-		tr.createNewExperiment("/INVENTORY/MATERIALS/CELL_LINE",		"CELL_LINE");
-		tr.createNewExperiment("/INVENTORY/MATERIALS/FLY", 				"FLY");
-		tr.createNewExperiment("/INVENTORY/MATERIALS/MEDIA", 			"MEDIA");
-		tr.createNewExperiment("/INVENTORY/MATERIALS/OLIGO", 			"OLIGO");
-		tr.createNewExperiment("/INVENTORY/MATERIALS/PLASMID", 			"PLASMID");
-		tr.createNewExperiment("/INVENTORY/MATERIALS/YEAST", 			"YEAST");
-		tr.createNewExperiment("/INVENTORY/MATERIALS/SOLUTION_BUFFER", 	"SOLUTION_BUFFER");
-		tr.createNewExperiment("/INVENTORY/MATERIALS/RNA", 				"RNA");
+		tr.createNewSpace("MATERIALS", None);
 		
-		tr.createNewProject("/INVENTORY/METHODS");
-		tr.createNewExperiment("/INVENTORY/METHODS/GENERAL_PROTOCOL", 			"GENERAL_PROTOCOL");
-		tr.createNewExperiment("/INVENTORY/METHODS/PCR_PROTOCOL", 				"PCR_PROTOCOL");
-		tr.createNewExperiment("/INVENTORY/METHODS/WESTERN_BLOTTING_PROTOCOL", 	"WESTERN_BLOTTING_PROTOCOL");
+		tr.createNewProject("/MATERIALS/REAGENTS");
+		tr.createNewExperiment("/MATERIALS/REAGENTS/ANTIBODIES", 		"ANTIBODY");
+		tr.createNewExperiment("/MATERIALS/REAGENTS/CHEMICALS", 		"BACTERIA");
+		tr.createNewExperiment("/MATERIALS/REAGENTS/ENZYMES", 			"CHEMICAL");
+		tr.createNewExperiment("/MATERIALS/REAGENTS/MEDIA", 			"MEDIA");
+		tr.createNewExperiment("/MATERIALS/REAGENTS/SOLUTIONS_BUFFERS",	"SOLUTION_BUFFER");
+		
+		tr.createNewProject("/MATERIALS/BACTERIA");
+		tr.createNewExperiment("/MATERIALS/BACTERIA/BACTERIA_COLLECTION_1",		"BACTERIA");
+		tr.createNewProject("/MATERIALS/CELL_LINES");
+		tr.createNewExperiment("/MATERIALS/CELL_LINES/CELL_LINE_COLLECTION_1",	"CELL_LINE");
+		tr.createNewProject("/MATERIALS/FLIES");
+		tr.createNewExperiment("/MATERIALS/FLIES/FLY_COLLECTION_1",				"FLY");
+		tr.createNewProject("/MATERIALS/YEASTS");
+		tr.createNewExperiment("/MATERIALS/YEASTS/YEAST_COLLECTION_1",			"YEAST");
+		tr.createNewProject("/MATERIALS/PLASMIDS");
+		tr.createNewExperiment("/MATERIALS/PLASMIDS/PLASMID_COLLECTION_1",		"PLASMID");
+		tr.createNewProject("/MATERIALS/POLYNUCLEOTIDES");
+		tr.createNewExperiment("/MATERIALS/POLYNUCLEOTIDES/OLIGO_COLLECTION_1",	"OLIGO");
+		tr.createNewExperiment("/MATERIALS/POLYNUCLEOTIDES/RNA_COLLECTION_1",	"RNA");
+		
+		tr.createNewSpace("METHODS", None);
+		
+		tr.createNewProject("/METHODS/PROTOCOLS");
+		tr.createNewExperiment("/METHODS/PROTOCOLS/GENERAL_PROTOCOL", 			"GENERAL_PROTOCOL");
+		tr.createNewExperiment("/METHODS/PROTOCOLS/PCR_PROTOCOL", 				"PCR_PROTOCOL");
+		tr.createNewExperiment("/METHODS/PROTOCOLS/WESTERN_BLOTTING_PROTOCOL", 	"WESTERN_BLOTTING_PROTOCOL");
 		
 		tr.createNewSpace("DEFAULT_LAB_NOTEBOOK", None);
+		
 		tr.createNewProject("/DEFAULT_LAB_NOTEBOOK/DEFAULT_PROJECT");
 		tr.createNewExperiment("/DEFAULT_LAB_NOTEBOOK/DEFAULT_PROJECT/DEFAULT_EXPERIMENT", 	"DEFAULT_EXPERIMENT");
 	

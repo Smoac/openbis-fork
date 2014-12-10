@@ -32,7 +32,7 @@ $.extend(DefaultProfile.prototype, {
 		//
 		
 		this.searchDomains = [ { "@id" : -1, "@type" : "GobalSearch", label : "Global", name : "global"}];
-		this.inventorySpaces = ["INVENTORY"];
+		this.inventorySpaces = ["MATERIALS", "METHODS"];
 		
 		this.isInventorySpace = function(spaceCode) {
 			return ($.inArray(spaceCode, this.inventorySpaces) !== -1);
