@@ -332,8 +332,7 @@ class DocumentsAdaptor(FileMakerEntityAdaptor):
         
         if result.next():
             fileData = result.getBytes("fileData");
-            if fileData is not None:
-                values["*DATA"] = fileData
+            values["*DATA"] = fileData
         
         self.entities.append(DocumentOpenBISDTO(values, self.definition))
 
@@ -341,15 +340,18 @@ class DocumentOpenBISDTO(OpenBISDTO):
     def write(self, tr):
         sampleIdentifier = "/INVENTORY/"+self.values["ID_NR"];
         dataSetSample = getSampleForUpdate(sampleIdentifier, None, tr)
-        if dataSetSample is not None:
+        if dataSetSample is not None and self.values["*DATA"] is not None and self.values["FILE"] is not None:
             dataSet = tr.createNewDataSet("DOCUMENT")
             dataSet.setSample(dataSetSample)
             setEntityProperties(tr, self.definition, dataSet, self.values)
-            tr.createNewFile(dataSet, "Test")
+            absolutePath = tr.createNewFile(dataSet, self.values["FILE"])
+            f = open(absolutePath, 'wb')
+            f.write(self.values["*DATA"])
+            f.close()
             #incoming = tr.getIncoming()
             #tr.moveFile(incoming.getAbsolutePath(), dataSet)
         else:
-            print "Document missing sample: " + sampleIdentifier
+            print "Document missing something SERIAL: " + self.values["SERIAL"]
     
     def getIdentifier(self, tr):
         return self.values["SERIAL"]
@@ -366,8 +368,9 @@ class DocumentOpenBISDTO(OpenBISDTO):
             return None
     
     def isInOpenBIS(self, tr):
-        dataset = self.getDocumentBySerial(tr, self.values["SERIAL"])
-        return dataset is not None
+        return False
+        #dataset = self.getDocumentBySerial(tr, self.values["SERIAL"])
+        #return dataset is not None
         
 fmConnString = "jdbc:filemaker://127.0.0.1/"
 fmUser = "designer"
