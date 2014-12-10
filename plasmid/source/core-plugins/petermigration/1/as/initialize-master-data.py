@@ -80,9 +80,9 @@ def addPropertiesToSamples(sampleTypeCodes, properties):
     
 def addProperties(entity, properties):
     for property in properties:
-        addProperty(entity, property[0], property[1], property[2], property[3], property[4], property[5], property[6], property[7]);
+        addProperty(entity, property[0], property[1], property[2], property[3], property[4], property[5], property[6], property[7], property[8]);
     
-def addProperty(entity, propertyCode, section, propertyLabel, dataType, vocabularyCode, propertyDescription, managedScript, dynamicScript):
+def addProperty(entity, propertyCode, section, propertyLabel, dataType, vocabularyCode, propertyDescription, managedScript, dynamicScript, isMandatory):
     property = None;
     
     if propertyCode in propertiesCache:
@@ -92,6 +92,7 @@ def addProperty(entity, propertyCode, section, propertyLabel, dataType, vocabula
     
     propertyAssignment = tr.assignPropertyType(entity, property);
     propertyAssignment.setSection(section);
+    propertyAssignment.setMandatory(isMandatory);
     if managedScript != None:
         propertyAssignment.setManaged(True);
         propertyAssignment.setShownEdit(True);
