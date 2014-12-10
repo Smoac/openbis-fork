@@ -351,5 +351,9 @@ siRNADefinition = [
 # Data Set Types
 #
 documentDefinition = [
-    ["NOTES", "General information", "Notes", DataType.MULTILINE_VARCHAR, None, "Notes regarding the dataset", None, None, False]
+    ["NOTES",                           "General",                  "Notes",                            DataType.MULTILINE_VARCHAR,         None,  "", None, None, False],
+    ["CREATION_DATE",                   "General",                  "date created",                     DataType.TIMESTAMP,                 None,  "", None, None, False],
+    ["MODIFICATION_DATE",               "General",                  "date modified",                    DataType.TIMESTAMP,                 None,  "", None, None, False],
+    ["INFO",                            "General",                  "info",                             DataType.VARCHAR,                   None,  "", None, None, False]
+ 
 ];
