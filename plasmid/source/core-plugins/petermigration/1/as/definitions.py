@@ -354,6 +354,9 @@ documentDefinition = [
     ["NOTES",                           "General",                  "Notes",                            DataType.MULTILINE_VARCHAR,         None,  "", None, None, False],
     ["CREATION_DATE",                   "General",                  "date created",                     DataType.TIMESTAMP,                 None,  "", None, None, False],
     ["MODIFICATION_DATE",               "General",                  "date modified",                    DataType.TIMESTAMP,                 None,  "", None, None, False],
-    ["INFO",                            "General",                  "info",                             DataType.VARCHAR,                   None,  "", None, None, False]
+    ["INFO",                            "General",                  "info",                             DataType.VARCHAR,                   None,  "", None, None, False],
+    ["ID_NR",                           "General",                  "id_nr",                            DataType.VARCHAR,                   None,  "", None, None, False],
+    ["FILE",                            "General",                  "file",                             DataType.VARCHAR,                   None,  "", None, None, False],
+    ["SERIAL",                          "General",                  "serial",                           DataType.INTEGER,                   None,  "", None, None, False]
  
 ];
