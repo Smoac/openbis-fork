@@ -45,6 +45,7 @@ import ch.systemsx.cisd.etlserver.plugins.BlastDatabaseCreationMaintenanceTask;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.ISearchDomainService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.BlastUtils;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.AlignmentMatch;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.BlastScore;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetFileBlastSearchResultLocation;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.EntityPropertyBlastSearchResultLocation;
@@ -162,35 +163,21 @@ public class BlastDatabase extends AbstractSearchDomainService
             {
                 Row row = new Row(line);
                 SearchDomainSearchResult sequenceSearchResult = new SearchDomainSearchResult();
-                sequenceSearchResult.setScore(row.bitscore);
-                AlignmentMatch alignmentMatch = new AlignmentMatch();
-                alignmentMatch.setSequenceStart(row.sstart);
-                alignmentMatch.setSequenceEnd(row.send);
-                alignmentMatch.setQueryStart(row.qstart);
-                alignmentMatch.setQueryEnd(row.qend);
-                alignmentMatch.setNumberOfMismatches(row.numberOfMismatchs);
-                alignmentMatch.setTotalNumberOfGaps(row.totalNumberOfGaps);
+                sequenceSearchResult.setScore(createBlastScore(row));
+                AlignmentMatch alignmentMatch = createAlignmentMatch(row);
                 Matcher matcher = STITLE_PATTERN.matcher(row.title);
                 if (matcher.matches())
                 {
-                    DataSetFileBlastSearchResultLocation resultLocation = new DataSetFileBlastSearchResultLocation();
-                    resultLocation.setIdentifier(matcher.group(1));
-                    resultLocation.setDataSetCode(matcher.group(2));
-                    resultLocation.setPathInDataSet(matcher.group(3));
-                    resultLocation.setAlignmentMatch(alignmentMatch);
-                    sequenceSearchResult.setResultLocation(resultLocation);
+                    sequenceSearchResult.setResultLocation(
+                            createDataSetFileBlastSearchResultLocation(matcher, alignmentMatch));
                     result.add(sequenceSearchResult);
                 } else
                 {
                     matcher = ENTITY_PROPERTY_TITLE_PATTERN.matcher(row.title);
                     if (matcher.matches())
                     {
-                        EntityPropertyBlastSearchResultLocation resultLocation = new EntityPropertyBlastSearchResultLocation();
-                        resultLocation.setEntityKind(EntityKind.valueOf(matcher.group(1)));
-                        resultLocation.setPermId(matcher.group(2));
-                        resultLocation.setPropertyType(matcher.group(3));
-                        resultLocation.setAlignmentMatch(alignmentMatch);
-                        sequenceSearchResult.setResultLocation(resultLocation);
+                        sequenceSearchResult.setResultLocation(
+                                createEntityPropertyBlastSearchResultLocation(matcher, alignmentMatch));
                         result.add(sequenceSearchResult);
                     }
                 }
@@ -200,6 +187,47 @@ public class BlastDatabase extends AbstractSearchDomainService
             FileUtilities.delete(queryFile);
         }
         return result;
+    }
+
+    private EntityPropertyBlastSearchResultLocation createEntityPropertyBlastSearchResultLocation(Matcher matcher, AlignmentMatch alignmentMatch)
+    {
+        EntityPropertyBlastSearchResultLocation resultLocation = new EntityPropertyBlastSearchResultLocation();
+        resultLocation.setEntityKind(EntityKind.valueOf(matcher.group(1)));
+        resultLocation.setPermId(matcher.group(2));
+        resultLocation.setPropertyType(matcher.group(3));
+        resultLocation.setAlignmentMatch(alignmentMatch);
+        return resultLocation;
+    }
+
+    private DataSetFileBlastSearchResultLocation createDataSetFileBlastSearchResultLocation(Matcher matcher, AlignmentMatch alignmentMatch)
+    {
+        DataSetFileBlastSearchResultLocation resultLocation = new DataSetFileBlastSearchResultLocation();
+        resultLocation.setIdentifier(matcher.group(1));
+        resultLocation.setDataSetCode(matcher.group(2));
+        resultLocation.setPathInDataSet(matcher.group(3));
+        resultLocation.setAlignmentMatch(alignmentMatch);
+        return resultLocation;
+    }
+
+    private AlignmentMatch createAlignmentMatch(Row row)
+    {
+        AlignmentMatch alignmentMatch = new AlignmentMatch();
+        alignmentMatch.setSequenceStart(row.sstart);
+        alignmentMatch.setSequenceEnd(row.send);
+        alignmentMatch.setQueryStart(row.qstart);
+        alignmentMatch.setQueryEnd(row.qend);
+        alignmentMatch.setNumberOfMismatches(row.numberOfMismatchs);
+        alignmentMatch.setTotalNumberOfGaps(row.totalNumberOfGaps);
+        return alignmentMatch;
+    }
+
+    private BlastScore createBlastScore(Row row)
+    {
+        BlastScore blastScore = new BlastScore();
+        blastScore.setScore(row.score);
+        blastScore.setBitScore(row.bitscore);
+        blastScore.setEvalue(row.evalue);
+        return blastScore;
     }
     
     private List<String> createCommand(SequenceType sequenceType, File queryFile, Map<String, String> parameters)
@@ -223,7 +251,7 @@ public class BlastDatabase extends AbstractSearchDomainService
         command.add("-query");
         command.add(queryFile.getAbsolutePath());
         command.add("-outfmt");
-        command.add("6 stitle bitscore sstart send qstart qend mismatch gaps");
+        command.add("6 stitle bitscore score evalue sstart send qstart qend mismatch gaps");
         if (parameters.containsKey("task") == false)
         {
             parameters.put("task", defaultTask);
@@ -304,6 +332,8 @@ public class BlastDatabase extends AbstractSearchDomainService
     {
         private String title;
         private double bitscore;
+        private double score;
+        private double evalue;
         private int sstart;
         private int send;
         private int qstart;
@@ -317,6 +347,8 @@ public class BlastDatabase extends AbstractSearchDomainService
             String[] cells = line.split("\t");
             title = cells[len++];
             bitscore = asDouble(cells);
+            score = asDouble(cells);
+            evalue = asDouble(cells);
             sstart = asInt(cells);
             send = asInt(cells);
             qstart = asInt(cells);

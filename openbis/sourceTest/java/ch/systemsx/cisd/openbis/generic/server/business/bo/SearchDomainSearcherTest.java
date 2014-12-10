@@ -34,6 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.AlignmentMatch;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetFileSearchResultLocation;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.EntityPropertyBlastSearchResultLocation;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ISearchDomainResultScore;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchDomain;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchDomainSearchResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IPermIdHolder;
@@ -139,22 +140,22 @@ public class SearchDomainSearcherTest extends AbstractBOTest
                 createSearcher().searchForEntitiesWithSequences(SEQUENCE_DATABASE, SEQUENCE_SNIPPET, OPTIONAL_PARAMETERS);
 
         assertEquals("E1", results.get(0).getEntity().getPermId());
-        assertEquals("Search Domain: test-db, Score: 11.5, Result location: "
+        assertEquals("Search Domain: test-db, Score: [11.5], Result location: "
                 + "[Experiment perm id: E1, property type: S, alignment in sequence: [42-45], "
                 + "alignment in query: [7-10], number of mismatches: 0, total number of gaps: 0]", 
                 results.get(0).getSearchResult().toString());
         assertEquals("S2", results.get(1).getEntity().getPermId());
-        assertEquals("Search Domain: test-db, Score: 10.5, Result location: "
+        assertEquals("Search Domain: test-db, Score: [10.5], Result location: "
                 + "[Sample perm id: S2, property type: OLIGO, alignment in sequence: [42-45], "
                 + "alignment in query: [7-10], number of mismatches: 0, total number of gaps: 0]", 
                 results.get(1).getSearchResult().toString());
         assertEquals("S1", results.get(2).getEntity().getPermId());
-        assertEquals("Search Domain: test-db, Score: 9.5, Result location: "
+        assertEquals("Search Domain: test-db, Score: [9.5], Result location: "
                 + "[Sample perm id: S1, property type: OLIGO, alignment in sequence: [42-45], "
                 + "alignment in query: [7-10], number of mismatches: 0, total number of gaps: 0]", 
                 results.get(2).getSearchResult().toString());
         assertEquals("DS1", results.get(3).getEntity().getPermId());
-        assertEquals("Search Domain: test-db, Score: 0.5, Result location: "
+        assertEquals("Search Domain: test-db, Score: [0.5], Result location: "
                 + "[Data set perm id: DS1, property type: SEQ, alignment in sequence: [42-45], "
                 + "alignment in query: [7-10], number of mismatches: 0, total number of gaps: 0]", 
                 results.get(3).getSearchResult().toString());
@@ -175,22 +176,22 @@ public class SearchDomainSearcherTest extends AbstractBOTest
         List<SearchDomainSearchResultWithFullEntity> results =
                 createSearcher().searchForEntitiesWithSequences(SEQUENCE_DATABASE, SEQUENCE_SNIPPET, OPTIONAL_PARAMETERS);
 
-        assertEquals("Search Domain: test-db, Score: 14.5, Result location: [Data set: ds3, path: ds3/path, "
+        assertEquals("Search Domain: test-db, Score: [14.5], Result location: [Data set: ds3, path: ds3/path, "
                 + "identifier: [id-ds3], position: 42]",
                 results.get(0).getSearchResult().toString());
         assertEquals(ds3.getCode(), ((AbstractExternalData) results.get(0).getEntity()).getCode());
         assertEquals("/G1/P1/exp1", ((AbstractExternalData) results.get(0).getEntity()).getExperiment().getIdentifier());
-        assertEquals("Search Domain: test-db, Score: 13.5, Result location: [Data set: ds3, path: ds3/path, "
+        assertEquals("Search Domain: test-db, Score: [13.5], Result location: [Data set: ds3, path: ds3/path, "
                 + "identifier: [id-ds3], position: 42]",
                 results.get(1).getSearchResult().toString());
         assertEquals(ds3.getCode(), ((AbstractExternalData) results.get(1).getEntity()).getCode());
         assertEquals("/G1/P1/exp1", ((AbstractExternalData) results.get(1).getEntity()).getExperiment().getIdentifier());
-        assertEquals("Search Domain: test-db, Score: 1.5, Result location: [Data set: ds2, path: ds2/path, "
+        assertEquals("Search Domain: test-db, Score: [1.5], Result location: [Data set: ds2, path: ds2/path, "
                 + "identifier: [id-ds2], position: 42]",
                 results.get(2).getSearchResult().toString());
         assertEquals(ds2.getCode(), ((AbstractExternalData) results.get(2).getEntity()).getCode());
         assertEquals("/G1/P1/exp1", ((AbstractExternalData) results.get(2).getEntity()).getExperiment().getIdentifier());
-        assertEquals("Search Domain: test-db, Score: 0.5, Result location: [Data set: ds1, path: ds1/path, "
+        assertEquals("Search Domain: test-db, Score: [0.5], Result location: [Data set: ds1, path: ds1/path, "
                 + "identifier: [id-ds1], position: 42]",
                 results.get(3).getSearchResult().toString());
         assertEquals(ds1.getCode(), ((AbstractExternalData) results.get(3).getEntity()).getCode());
@@ -241,7 +242,7 @@ public class SearchDomainSearcherTest extends AbstractBOTest
                         SearchDomain searchDomain = new SearchDomain();
                         searchDomain.setName("test-db");
                         result.setSearchDomain(searchDomain);
-                        result.setScore(score++);
+                        result.setScore(new SimpleScore(score++));
                         DataSetFileSearchResultLocation resultLocation = new DataSetFileSearchResultLocation();
                         resultLocation.setDataSetCode(foundDataSet);
                         resultLocation.setPathInDataSet(foundDataSet + "/path");
@@ -254,7 +255,7 @@ public class SearchDomainSearcherTest extends AbstractBOTest
                 }
             });
     }
-
+    
     private void prepareSearchForEntityPropertiesWithSequences(final DataStorePE dataStore,
             final IDataStoreService service, final double initialScore, final String... foundLocations)
     {
@@ -271,7 +272,7 @@ public class SearchDomainSearcherTest extends AbstractBOTest
                         SearchDomain searchDomain = new SearchDomain();
                         searchDomain.setName("test-db");
                         result.setSearchDomain(searchDomain);
-                        result.setScore(score++);
+                        result.setScore(new SimpleScore(score++));
                         EntityPropertyBlastSearchResultLocation resultLocation = new EntityPropertyBlastSearchResultLocation();
                         String[] splittedLocation = foundLocation.split(":");
                         resultLocation.setEntityKind(EntityKind.valueOf(splittedLocation[0]));
@@ -391,5 +392,29 @@ public class SearchDomainSearcherTest extends AbstractBOTest
             permIds.add(permIdHolder.getPermId());
         }
         return permIds;
+    }
+    
+    private static final class SimpleScore implements ISearchDomainResultScore
+    {
+        private static final long serialVersionUID = 1L;
+        private final double score;
+
+        SimpleScore(double score)
+        {
+            this.score = score;
+        }
+
+        @Override
+        public double getScore()
+        {
+            return score;
+        }
+
+        @Override
+        public String toString()
+        {
+            return Double.toString(score);
+        }
+        
     }
 }

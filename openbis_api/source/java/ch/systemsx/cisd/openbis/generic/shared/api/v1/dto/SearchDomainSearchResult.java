@@ -34,7 +34,7 @@ public class SearchDomainSearchResult implements Serializable, Comparable<Search
     
     private ISearchDomainResultLocation resultLocation;
     
-    private double score;
+    private ISearchDomainResultScore score;
 
     public SearchDomain getSearchDomain()
     {
@@ -46,12 +46,12 @@ public class SearchDomainSearchResult implements Serializable, Comparable<Search
         this.searchDomain = searchDomain;
     }
     
-    public double getScore()
+    public ISearchDomainResultScore getScore()
     {
         return score;
     }
 
-    public void setScore(double score)
+    public void setScore(ISearchDomainResultScore score)
     {
         this.score = score;
     }
@@ -69,14 +69,14 @@ public class SearchDomainSearchResult implements Serializable, Comparable<Search
     @Override
     public int compareTo(SearchDomainSearchResult searchResult)
     {
-        return Double.compare(score, searchResult.getScore());
+        return Double.compare(score.getScore(), searchResult.getScore().getScore());
     }
 
     @Override
     public String toString()
     {
-        return "Search Domain: " + getSearchDomain() + ", Score: " + score 
-                + ", Result location: [" + resultLocation + "]";
+        return "Search Domain: " + getSearchDomain() + ", Score: [" + score 
+                + "], Result location: [" + resultLocation + "]";
     }
 
 }
