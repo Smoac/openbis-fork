@@ -112,7 +112,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkDataSetUrl;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleLevel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
@@ -1078,17 +1077,6 @@ public class Translator
         return result;
     }
 
-    public static Person translate(ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person person)
-    {
-        Person result = new Person();
-        result.setUserId(person.getUserId());
-        result.setFirstName(person.getFirstName());
-        result.setLastName(person.getLastName());
-        result.setEmail(person.getEmail());
-        result.setActive(person.isActive());
-        return result;
-    }
-    
     public static Deletion translate(ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion deletion)
     {
         Deletion result = new Deletion();

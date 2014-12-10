@@ -106,6 +106,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.metaproject.IMetapr
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.project.IProjectId;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.sample.ISampleId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelatedEntities;
@@ -116,7 +117,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListMaterialCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchDomainSearchResultWithFullEntity;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentHolderPE;
@@ -1353,15 +1353,8 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
     }
 
     @Override
-    public List<ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Person> listPersons(String sessionToken)
+    public List<Person> listPersons(String sessionToken)
     {
-        List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person> persons = commonServer.listPersons(sessionToken);
-        List<ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Person> personsResult = new ArrayList<ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Person>();
-        
-        for(Person person:persons) {
-            personsResult.add(Translator.translate(person));
-        }
-        
-        return personsResult;
+        return commonServer.listPersons(sessionToken);
     }
 }
