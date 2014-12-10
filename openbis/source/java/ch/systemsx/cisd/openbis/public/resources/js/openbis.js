@@ -1434,6 +1434,37 @@ openbis.prototype.registerPerson = function(userId, action) {
 }
 
 /**
+ * @see IGeneralInformationChangingService.registerSpace(String, String, String)
+ * @method
+ */
+openbis.prototype.registerSpace = function(spaceCode, spaceDescription, action) {
+	this._internal.ajaxRequest({
+		url: this._internal.generalInfoChangingServiceUrl,
+		data: { "method" : "registerSpace",
+				"params" : [ this.getSession(),
+				             spaceCode,
+				             spaceDescription ] },
+		success: action
+	});
+}
+
+/**
+ * @see IGeneralInformationChangingService.registerPersonSpaceRole(String, String, String, String)
+ * @method
+ */
+openbis.prototype.registerPersonSpaceRole = function(spaceCode, userID, roleCode, action) {
+	this._internal.ajaxRequest({
+		url: this._internal.generalInfoChangingServiceUrl,
+		data: { "method" : "registerPersonSpaceRole",
+				"params" : [ this.getSession(),
+				             spaceCode,
+				             userID,
+				             roleCode ] },
+		success: action
+	});
+}
+
+/**
  * ============================================================================
  * ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.IQueryApiServer methods
  * ============================================================================

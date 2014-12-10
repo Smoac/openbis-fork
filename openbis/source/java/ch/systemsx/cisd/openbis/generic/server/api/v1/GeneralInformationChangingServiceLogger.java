@@ -23,7 +23,6 @@ import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.openbis.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerLogger;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationChangingService;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Deletion;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DeletionType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.MetaprojectAssignmentsIds;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.NewVocabularyTerm;
@@ -235,7 +234,19 @@ class GeneralInformationChangingServiceLogger extends AbstractServerLogger imple
     @Override
     public void registerPerson(String sessionToken, String userID)
     {
-        logAccess(sessionToken, "userID", userID);
+        logAccess(sessionToken, "registerPerson", "userID(%s)", userID);
+    }
+
+    @Override
+    public void registerSpace(String sessionToken, String spaceCode, String spaceDescription)
+    {
+        logAccess(sessionToken, "registerSpace", "spaceCode(%s), spaceDescription(%s)", spaceCode, spaceDescription);
+    }
+
+    @Override
+    public void registerPersonSpaceRole(String sessionToken, String spaceCode, String userID, String roleCode)
+    {
+        logAccess(sessionToken, "registerPersonSpaceRole", "spaceCode(%s), userID(%s), roleCode(%s)", spaceCode, userID, roleCode);
     }
     
 }

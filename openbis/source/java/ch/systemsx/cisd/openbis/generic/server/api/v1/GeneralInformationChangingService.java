@@ -45,10 +45,13 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.metaproject.IMetapr
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchRegistrationResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.util.EntityHelper;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientService;
 
@@ -337,6 +340,19 @@ public class GeneralInformationChangingService extends
     public void registerPerson(String sessionToken, String userID)
     {
         server.registerPerson(sessionToken, userID);
+    }
+    
+    @Override
+    public void registerSpace(String sessionToken, String spaceCode, String spaceDescription) {
+        server.registerSpace(sessionToken,spaceCode, spaceDescription);
+    }
+    
+    @Override
+    public void registerPersonSpaceRole(String sessionToken, String spaceCode, String userID, String roleCode)
+    {
+        Grantee grantee = Grantee.createPerson(userID);
+        SpaceIdentifier spaceIdentifier = new SpaceIdentifier(spaceCode);
+        server.registerSpaceRole(sessionToken, RoleCode.valueOf(roleCode), spaceIdentifier, grantee);
     }
     
 }

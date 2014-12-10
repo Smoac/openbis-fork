@@ -270,4 +270,23 @@ public interface IGeneralInformationChangingService extends IRpcService
      */
     public void registerPerson(String sessionToken, String userID);
 
+    /**
+     * Registers a space.
+     * 
+     * @param spaceCode space code
+     * @param spaceDescription space description
+     * @since 1.7
+     */
+    void registerSpace(String sessionToken, String spaceCode, String spaceDescription);
+
+    /**
+     * Registers a space role for a given person.
+     * 
+     * @param spaceCode space code
+     * @param userID user id
+     * @param roleCode openBIS role
+     * @since 1.7
+     */
+    void registerPersonSpaceRole(String sessionToken, String spaceCode, String userID, String roleCode);
+
 }
