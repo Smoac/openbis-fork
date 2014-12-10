@@ -5,17 +5,11 @@ import definitionsVoc
 import re
 import random
 from datetime import datetime
+from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto import SearchCriteria, SearchSubCriteria
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.DataType as DataType
 
-
 import java.lang.Class as Class
-import java.sql.Connection as Connection
 import java.sql.DriverManager as DriverManager
-import java.sql.PreparedStatement as PreparedStatement
-import java.sql.ResultSet as ResultSet
-import java.sql.SQLException as SQLException
-import java.util.ArrayList as ArrayList
-import java.util.List as List
 
 ##
 ## Generic Process Method
@@ -35,7 +29,41 @@ def process(tr):
     print "FINISH!"
 
 ##
-## Generic Adaptor Pattern
+## Help Methods
+##
+def setEntityProperties(tr, definition, entity, properties):
+    for propertyCode, propertyValue in properties.iteritems():
+            propertyDefinition = definitions.getPropertyDefinitionByCode(definition, propertyCode)
+            if propertyValue is not None:
+                propertyValue =  unicode(propertyValue)
+            
+            if propertyDefinition is not None and propertyDefinition[3] == DataType.CONTROLLEDVOCABULARY and propertyValue is not None:
+                possiblePropertyValue = definitionsVoc.getVocaularyTermCodeForVocabularyAndTermLabel(propertyDefinition[4], propertyValue)
+                if possiblePropertyValue is not None:
+                    propertyValue = possiblePropertyValue
+                else:  #We rely on the Add Hock Terms if is None
+                    #Create new vocabulary term
+                    vocabulary = tr.getVocabularyForUpdate(propertyDefinition[4])
+                    term = tr.createNewVocabularyTerm()
+                    codeToUse = re.sub(r'\W+','',propertyValue)
+                    labelToUse = propertyValue
+                    if len(codeToUse) is 0:
+                        codeToUse = "None" + str(random.random())
+                    if len(codeToUse) > 60:
+                        codeToUse = codeToUse[:60]
+                    term.setCode(codeToUse)
+                    term.setLabel(labelToUse)
+                    term.setOrdinal(vocabulary.getTerms().size())
+                    vocabulary.addTerm(term)
+                    #Uses new vocabulary term
+                    propertyValue = codeToUse
+                    #print "CREATED FOR VOCABULARY " + propertyDefinition[4] + " NEW TERM WITH CODE " + codeToUse
+            
+            if propertyDefinition is not None: #Sometimes special fields are added for other purposes, these should not be set
+                entity.setPropertyValue(propertyCode, propertyValue)
+
+##
+## Generic Pattern
 ##
 class EntityAdaptor:
     entities = None
@@ -82,17 +110,36 @@ class OpenBISDTO:
 ##
 ## Costumer specific logic
 ##
+experimentCache = {}
 sampleCache = {}
 antibodyID2Antibody = {}
 
+def getExperimentForUpdate(experimentIdentifier, experimentType, tr):
+    if experimentIdentifier not in experimentCache:
+        #print "Cache failed " + experimentIdentifier + ":" + str(experimentType)
+        experiment = tr.getExperimentForUpdate(experimentIdentifier)
+        if experiment is None and experimentType is not None:
+            #print "Cache Create " + experimentIdentifier + ":" + str(experimentType)
+            experiment = tr.createNewExperiment(experimentIdentifier,         experimentType)
+        if experiment is not None:
+             experimentCache[experimentIdentifier] = experiment
+    else:
+        pass
+        #print "Cache hit " + experimentIdentifier + ":" + str(experimentType)
+    if experimentIdentifier not in experimentCache:
+         return None
+    else:
+         return experimentCache[experimentIdentifier]
+     
 def getSampleForUpdate(sampleIdentifier, sampleType, tr):
     if sampleIdentifier not in sampleCache:
          print "Cache failed " + sampleIdentifier + ":" + str(sampleType)
          sample = tr.getSampleForUpdate(sampleIdentifier)
          if sample is None and sampleType is not None:
              #print "Cache Create " + sampleIdentifier + ":" + str(sampleType)
+             experiment = getExperimentForUpdate("/INVENTORY/MATERIALS/" + sampleType, sampleType, tr)
              sample = tr.createNewSample(sampleIdentifier, sampleType)
-         
+             sample.setExperiment(experiment)
          if sample is not None:
              sampleCache[sampleIdentifier] = sample
     else:
@@ -139,34 +186,7 @@ class AntibodyAdaptor(FileMakerEntityAdaptor):
 class AntibodyOpenBISDTO(OpenBISDTO):
     def write(self, tr):
         sample = getSampleForUpdate("/INVENTORY/"+self.values["ANTIBODY_ID_NR"],"ANTIBODY", tr)
-        
-        for propertyCode, propertyValue in self.values.iteritems():
-            propertyDefinition = definitions.getPropertyDefinitionByCode(self.definition, propertyCode)
-            if propertyValue is not None:
-                propertyValue =  unicode(propertyValue)
-            
-            if propertyDefinition[3] == DataType.CONTROLLEDVOCABULARY and propertyValue is not None:
-                posiblePropertyValue = definitionsVoc.getVocaularyTermCodeForVocabularyAndTermLabel(propertyDefinition[4], propertyValue)
-                if posiblePropertyValue is not None:
-                    propertyValue = posiblePropertyValue
-                else:  #We rely on the Add Hock Terms if is None
-                    #Create new vocabulary term
-                    vocabulary = tr.getVocabularyForUpdate(propertyDefinition[4])
-                    term = tr.createNewVocabularyTerm()
-                    codeToUse = re.sub(r'\W+','',propertyValue)
-                    labelToUse = propertyValue
-                    if len(codeToUse) is 0:
-                        codeToUse = "None" + str(random.random())
-                    if len(codeToUse) > 60:
-                        codeToUse = codeToUse[:60]
-                    term.setCode(codeToUse)
-                    term.setLabel(labelToUse)
-                    term.setOrdinal(vocabulary.getTerms().size())
-                    vocabulary.addTerm(term)
-                    #Uses new vocabulary term
-                    propertyValue = codeToUse
-                    #print "CREATED FOR VOCABULARY " + propertyDefinition[4] + " NEW TERM WITH CODE " + codeToUse
-            sample.setPropertyValue(propertyCode, propertyValue)
+        setEntityProperties(tr, self.definition, sample, self.values);
     
     def getIdentifier(self, tr):
         return self.values["ANTIBODY_ID_NR"]
@@ -298,6 +318,57 @@ class AntibodyBoxOpenBISDTO(OpenBISDTO):
                 return False
         return True
     
+class DocumentsAdaptor(FileMakerEntityAdaptor):
+    
+    def init(self):
+        self.selectQuery = "SELECT * FROM documents"
+        self.definition = definitions.documentDefinition
+        FileMakerEntityAdaptor.init(self)
+    
+    def addEntity(self, values):
+        preparedStatement = self.connection.prepareStatement("SELECT GetAs(file, 'FILE') AS fileData FROM documents WHERE serial = ?");
+        preparedStatement.setString(1, values["SERIAL"]);
+        result = preparedStatement.executeQuery();
+        
+        if result.next():
+            fileData = result.getBytes("fileData");
+            if fileData is not None:
+                values["*DATA"] = fileData
+        
+        self.entities.append(DocumentOpenBISDTO(values, self.definition))
+
+class DocumentOpenBISDTO(OpenBISDTO):
+    def write(self, tr):
+        sampleIdentifier = "/INVENTORY/"+self.values["ID_NR"];
+        dataSetSample = getSampleForUpdate(sampleIdentifier, None, tr)
+        if dataSetSample is not None:
+            dataSet = tr.createNewDataSet("DOCUMENT")
+            dataSet.setSample(dataSetSample)
+            setEntityProperties(tr, self.definition, dataSet, self.values)
+            tr.createNewFile(dataSet, "Test")
+            #incoming = tr.getIncoming()
+            #tr.moveFile(incoming.getAbsolutePath(), dataSet)
+        else:
+            print "Document missing sample: " + sampleIdentifier
+    
+    def getIdentifier(self, tr):
+        return self.values["SERIAL"]
+    
+    def getDocumentBySerial(self, tr, serial):
+        criteria = SearchCriteria()
+        criteria.setOperator(criteria.SearchOperator.MATCH_ANY_CLAUSES)
+        criteria.addMatchClause(criteria.MatchClause.createAttributeMatch(criteria.MatchClauseAttribute.TYPE, "DOCUMENT"))
+        criteria.addMatchClause(criteria.MatchClause.createPropertyMatch("SERIAL", serial))
+        datasets = tr.getSearchService().searchForDataSets(criteria)
+        if datasets:
+            return datasets[0]
+        else:
+            return None
+    
+    def isInOpenBIS(self, tr):
+        dataset = self.getDocumentBySerial(tr, self.values["SERIAL"])
+        return dataset is not None
+        
 fmConnString = "jdbc:filemaker://127.0.0.1/"
 fmUser = "designer"
 fmPass = "seattle"
@@ -306,11 +377,12 @@ fmConnStringServer = "jdbc:filemaker://fm.ethz.ch/"
 fmUserServer= "sistemp"
 fmPassServer = "ibcimsb2014"
 
-adaptors = [AntibodyAdaptor(fmConnString, fmUser, fmPass, "BOXIT_antibodies_Peter.fmp12"), AntibodyBoxAdaptor(fmConnString, fmUser, fmPass, "BOXIT_antibody_boxes_Peter")]
+adaptors = [AntibodyAdaptor(fmConnString, fmUser, fmPass, "BOXIT_antibodies_Peter"), 
+            AntibodyBoxAdaptor(fmConnString, fmUser, fmPass, "BOXIT_antibody_boxes_Peter"),
+            DocumentsAdaptor(fmConnString, fmUser, fmPass, "BOXIT_documents_Peter")]
 
 def createDataHierarchy(tr):
     inventorySpace = tr.getSpace("INVENTORY")
     if inventorySpace == None:
         tr.createNewSpace("INVENTORY", None)
         tr.createNewProject("/INVENTORY/MATERIALS")
-        tr.createNewExperiment("/INVENTORY/MATERIALS/ANTIBODY",         "ANTIBODY")
