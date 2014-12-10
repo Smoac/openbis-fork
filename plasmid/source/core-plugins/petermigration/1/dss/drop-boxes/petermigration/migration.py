@@ -368,9 +368,8 @@ class DocumentOpenBISDTO(OpenBISDTO):
             return None
     
     def isInOpenBIS(self, tr):
-        return False
-        #dataset = self.getDocumentBySerial(tr, self.values["SERIAL"])
-        #return dataset is not None
+        dataset = self.getDocumentBySerial(tr, self.values["SERIAL"])
+        return dataset is not None
         
 fmConnString = "jdbc:filemaker://127.0.0.1/"
 fmUser = "designer"
