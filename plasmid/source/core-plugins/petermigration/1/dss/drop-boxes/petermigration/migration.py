@@ -1,6 +1,7 @@
 # some_file.py
 import sys
 import definitions
+import definitionsVoc
 import re
 import random
 from datetime import datetime
@@ -145,7 +146,7 @@ class AntibodyOpenBISDTO(OpenBISDTO):
                 propertyValue =  unicode(propertyValue)
             
             if propertyDefinition[3] == DataType.CONTROLLEDVOCABULARY and propertyValue is not None:
-                posiblePropertyValue = definitions.getVocaularyTermCodeForVocabularyAndTermLabel(propertyDefinition[4], propertyValue)
+                posiblePropertyValue = definitionsVoc.getVocaularyTermCodeForVocabularyAndTermLabel(propertyDefinition[4], propertyValue)
                 if posiblePropertyValue is not None:
                     propertyValue = posiblePropertyValue
                 else:  #We rely on the Add Hock Terms if is None
@@ -247,14 +248,14 @@ class AntibodyBoxOpenBISDTO(OpenBISDTO):
             boxNum += 1
             for propertyCode, propertyValue in box.iteritems():
                 if propertyCode == "STORAGE_NAME":
-                    freezerName = definitions.getVocaularyTermCodeForVocabularyAndTermLabel("FREEZER", propertyValue)
+                    freezerName = definitionsVoc.getVocaularyTermCodeForVocabularyAndTermLabel("FREEZER", propertyValue)
                     if freezerName is None:
                         #print repr("NOT FOUND FEEZER: " + self.values["ANTIBODY_ID_NR"] + " : '" + unicode(propertyValue) + "'")
                         propertyValue = None
                     else:
                         propertyValue = freezerName
                 if propertyCode == "STORAGE_USER":
-                    storageUser = definitions.getVocaularyTermCodeForVocabularyAndTermLabel("ALL_LAB_MEMBERS", propertyValue)
+                    storageUser = definitionsVoc.getVocaularyTermCodeForVocabularyAndTermLabel("ALL_LAB_MEMBERS", propertyValue)
                     if storageUser is None:
                         #print repr("NOT FOUND USER: " + self.values["ANTIBODY_ID_NR"] + " : '" + unicode(propertyValue) + "'")
                         propertyValue = None
@@ -286,9 +287,9 @@ class AntibodyBoxOpenBISDTO(OpenBISDTO):
             for propertyCode in definitions.stogageGroupPropertyCodes:
                 propertyValue = box[propertyCode]
                 if propertyCode == "STORAGE_NAME":
-                    propertyValue = definitions.getVocaularyTermCodeForVocabularyAndTermLabel("FREEZER", propertyValue)
+                    propertyValue = definitionsVoc.getVocaularyTermCodeForVocabularyAndTermLabel("FREEZER", propertyValue)
                 if propertyCode == "STORAGE_USER":
-                    propertyValue = definitions.getVocaularyTermCodeForVocabularyAndTermLabel("LAB_MEMBERS_INITIALS", propertyValue)
+                    propertyValue = definitionsVoc.getVocaularyTermCodeForVocabularyAndTermLabel("LAB_MEMBERS_INITIALS", propertyValue)
                     
                 if propertyValue is not None:
                     propertyValue = unicode(propertyValue)

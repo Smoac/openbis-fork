@@ -19,10 +19,10 @@
 ##
 PATH_TO_MANAGE_PROPERTIES_SCRIPTS = "/Users/juanf/Documents/workspace/openbis/source/core-plugins/petermigration/1/compatibility/";
 #PATH_TO_MANAGE_PROPERTIES_SCRIPTS = "/Users/barillac/openbis-peter/servers/core-plugins/petermigration/1/compatibility/";
-#PATH_TO_MANAGE_PROPERTIES_SCRIPTS = None;
 
 # MasterDataRegistrationTransaction Class
 import definitions
+import definitionsVoc
 import os
 import copy
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.DataType as DataType
@@ -80,9 +80,9 @@ def addPropertiesToSamples(sampleTypeCodes, properties):
     
 def addProperties(entity, properties):
     for property in properties:
-        addProperty(entity, property[0], property[1], property[2], property[3], property[4], property[5], property[6]);
+        addProperty(entity, property[0], property[1], property[2], property[3], property[4], property[5], property[6], property[7]);
     
-def addProperty(entity, propertyCode, section, propertyLabel, dataType, vocabularyCode, propertyDescription, managedScript):
+def addProperty(entity, propertyCode, section, propertyLabel, dataType, vocabularyCode, propertyDescription, managedScript, dynamicScript):
     property = None;
     
     if propertyCode in propertiesCache:
@@ -96,6 +96,10 @@ def addProperty(entity, propertyCode, section, propertyLabel, dataType, vocabula
         propertyAssignment.setManaged(True);
         propertyAssignment.setShownEdit(True);
         propertyAssignment.setScriptName(managedScript);
+    if dynamicScript != None:
+        propertyAssignment.setDynamic(True);
+        propertyAssignment.setShownEdit(True);
+        propertyAssignment.setScriptName(dynamicScript);
 
 def createProperty(propertyCode, dataType, propertyLabel, propertyDescription, vocabularyCode):
     property = tr.getOrCreateNewPropertyType(propertyCode, dataType);
@@ -115,40 +119,38 @@ def addStorageGroups(numGroups, sampleType):
             property[1] = property[1].replace(str(storageIdx-1), str(storageIdx));
             property[5] = property[5].replace(str(storageIdx-1), str(storageIdx));
         addPropertiesToSamples([sampleType], storageGroup);
+
+#Valid Script Types: DYNAMIC_PROPERTY, MANAGED_PROPERTY, ENTITY_VALIDATION 
+def createScript(path, name, description, scriptType, entityType):
+    scriptAsString = open(path, 'r').read();
+    script = tr.getOrCreateNewScript(name);
+    script.setName(name);
+    script.setDescription(description);
+    script.setScript(scriptAsString);
+    script.setScriptType(scriptType);
+    script.setEntityForScript(entityType);
+    return script;
+    
 ##
 ## Manage properties scripts
 ##
-commentsScriptName = None;
-
-if PATH_TO_MANAGE_PROPERTIES_SCRIPTS != None:
-    commentsScriptName = "COMMENTS";
-    commentsScriptAsString = open(PATH_TO_MANAGE_PROPERTIES_SCRIPTS + "comments.py", 'r').read();
-    commentsScript = tr.getOrCreateNewScript(commentsScriptName);
-    commentsScript.setName(commentsScriptName);
-    commentsScript.setDescription("Comments Handler");
-    commentsScript.setScript(commentsScriptAsString);
-    commentsScript.setScriptType("MANAGED_PROPERTY");
-    commentsScript.setEntityForScript("SAMPLE");
+commentsScript = createScript(PATH_TO_MANAGE_PROPERTIES_SCRIPTS + "comments.py",
+                                  definitions.commentsScriptName,
+                                  "Comments Handler",
+                                  "MANAGED_PROPERTY",
+                                  "SAMPLE");
 
 ##
 ## Vocabulary Types
 ##
-for vocabularyCode, vocabularyValues in definitions.vocacbularyDefinitions.iteritems():
+for vocabularyCode, vocabularyValues in definitionsVoc.vocacbularyDefinitions.iteritems():
     createVocabularyWithTerms(vocabularyCode, vocabularyValues)
 
 ##
 ## Experiment Types
 ##
 createExperimentTypeWithProperties("ANTIBODY", "BOX TO HOLD SAMPLES OF THIS TYPE FOR ORGANIZATIONAL PURPOSES", []);
-createExperimentTypeWithProperties("DEFAULT_EXPERIMENT", "Default Experiment", [
-    ["NAME",                   "General", "Name",                     DataType.VARCHAR,             None,    "Name", None],
-    ["EXPERIMENTAL_GOALS",     "General", "Experimental goals",       DataType.MULTILINE_VARCHAR,   None,    "Goal of the experiment", None],
-    ["GRANT",                  "General", "Grant",                    DataType.VARCHAR,             None,    "grant name", None],
-    ["START_DATE",             "General", "Start Date",               DataType.TIMESTAMP,           None,    "Start Date", None],
-    ["END_DATE",               "General", "End Date",                 DataType.TIMESTAMP,           None,    "End Date", None],
-    ["EXPERIMENTAL_RESULTS",   "General", "Experimental results",     DataType.MULTILINE_VARCHAR,   None,    "Brief summary of the results obtained", None],
-    ["XMLCOMMENTS",            "Comments","Comments List",            DataType.XML,                 None,    "Several comments can be added by different users", commentsScriptName]
-]);
+createExperimentTypeWithProperties("DEFAULT_EXPERIMENT", "Default Experiment", definitions.experimentDefinition);
 
 ##
 ## Sample Types
