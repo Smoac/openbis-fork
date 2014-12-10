@@ -328,6 +328,9 @@ siRNADefinition = [
     ["DRAWER",                          "General",                  "Drawer",                           DataType.VARCHAR,                   None,  "", None],
 ];
 
+documentDefinition = [
+    ["NOTES", "General information", "Notes", DataType.MULTILINE_VARCHAR, None, "Notes regarding the dataset", None],
+];
 
 vocacbularyDefinitions = {
                           "ALL_LAB_MEMBERS" : [

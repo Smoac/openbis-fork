@@ -286,7 +286,7 @@ class AntibodyBoxOpenBISDTO(OpenBISDTO):
             for propertyCode in definitions.stogageGroupPropertyCodes:
                 propertyValue = box[propertyCode]
                 if propertyCode == "STORAGE_NAME":
-                    propertyValue = definitions.getVocaularyTermCodeForVocabularyAndTermLabel("FREEZER", propertyValue)                        
+                    propertyValue = definitions.getVocaularyTermCodeForVocabularyAndTermLabel("FREEZER", propertyValue)
                 if propertyCode == "STORAGE_USER":
                     propertyValue = definitions.getVocaularyTermCodeForVocabularyAndTermLabel("LAB_MEMBERS_INITIALS", propertyValue)
                     

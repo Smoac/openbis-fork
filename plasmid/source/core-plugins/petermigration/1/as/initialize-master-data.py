@@ -140,7 +140,6 @@ for vocabularyCode, vocabularyValues in definitions.vocacbularyDefinitions.iteri
 ## Experiment Types
 ##
 createExperimentTypeWithProperties("ANTIBODY", "BOX TO HOLD SAMPLES OF THIS TYPE FOR ORGANIZATIONAL PURPOSES", []);
-
 createExperimentTypeWithProperties("DEFAULT_EXPERIMENT", "Default Experiment", [
     ["NAME",                   "General", "Name",                     DataType.VARCHAR,             None,    "Name", None],
     ["EXPERIMENTAL_GOALS",     "General", "Experimental goals",       DataType.MULTILINE_VARCHAR,   None,    "Goal of the experiment", None],
@@ -161,6 +160,4 @@ addStorageGroups(definitions.numberOfStorageGroups, "ANTIBODY");
 ##
 ## Data set Types
 ##
-createDataSetTypeWithProperties("DOCUMENT", "PHYSICAL", "", [
-    ["NOTES", "General information", "Notes", DataType.MULTILINE_VARCHAR, None, "Notes regarding the dataset", None],
-]);
+createDataSetTypeWithProperties("DOCUMENT", "PHYSICAL", "", definitions.documentDefinition);
