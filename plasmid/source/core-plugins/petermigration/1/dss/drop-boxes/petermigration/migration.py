@@ -321,7 +321,7 @@ class AntibodyBoxOpenBISDTO(OpenBISDTO):
 class DocumentsAdaptor(FileMakerEntityAdaptor):
     
     def init(self):
-        self.selectQuery = "SELECT * FROM documents"
+        self.selectQuery = "SELECT CAST(file AS VARCHAR(1000)) AS file, info, id_nr, serial, \"date created\", \"date modified\" FROM documents"
         self.definition = definitions.documentDefinition
         FileMakerEntityAdaptor.init(self)
     
