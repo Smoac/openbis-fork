@@ -25,7 +25,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.InitializingBean;
 
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
@@ -87,7 +86,7 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
 
     private final OpenbisSessionTokenCache sessionTokenCache;
 
-    private final IDataSetCommandExecutorFactory commandExecutorFactory;
+    private final IDataSetCommandExecutorProvider dataSetCommandExecutorProvider;
 
     private final MailClientParameters mailClientParameters;
 
@@ -103,53 +102,26 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
 
     private File storeRoot;
 
-    private File commandQueueDirOrNull;
-
-    private IDataSetCommandExecutor commandExecutor;
-
     private PutDataSetService putService;
 
     private ConfigProvider config;
 
-    public DataStoreService(SessionTokenManager sessionTokenManager, OpenbisSessionTokenCache sessionTokenCache,
-            MailClientParameters mailClientParameters, IPluginTaskInfoProvider pluginTaskParameters)
-    {
-        this(sessionTokenManager, sessionTokenCache, new IDataSetCommandExecutorFactory()
-            {
-                @Override
-                public IDataSetCommandExecutor create(File store, File queueDir)
-                {
-                    return new DataSetCommandExecutor(store, queueDir);
-                }
-            }, mailClientParameters, pluginTaskParameters);
-    }
 
-    DataStoreService(SessionTokenManager sessionTokenManager,
-            OpenbisSessionTokenCache sessionTokenCache, IDataSetCommandExecutorFactory commandExecutorFactory,
-            MailClientParameters mailClientParameters, IPluginTaskInfoProvider pluginTaskParameters)
+    public DataStoreService(SessionTokenManager sessionTokenManager, OpenbisSessionTokenCache sessionTokenCache,
+            MailClientParameters mailClientParameters, IPluginTaskInfoProvider pluginTaskParameters, 
+            IDataSetCommandExecutorProvider dataSetCommandExecutorProvider)
     {
         this.sessionTokenManager = sessionTokenManager;
         this.sessionTokenCache = sessionTokenCache;
-        this.commandExecutorFactory = commandExecutorFactory;
         this.mailClientParameters = mailClientParameters;
         this.pluginTaskInfoProvider = pluginTaskParameters;
+        this.dataSetCommandExecutorProvider = dataSetCommandExecutorProvider;
         storeRoot = pluginTaskParameters.getStoreRoot();
     }
 
     void setShareIdManager(IShareIdManager shareIdManager)
     {
         this.shareIdManager = shareIdManager;
-    }
-
-    public final void setCommandQueueDir(String queueDirOrNull)
-    {
-        if (StringUtils.isBlank(queueDirOrNull))
-        {
-            this.commandQueueDirOrNull = null;
-        } else
-        {
-            this.commandQueueDirOrNull = new File(queueDirOrNull);
-        }
     }
 
     public void setCifexAdminUserOrNull(String cifexAdminUserOrNull)
@@ -188,22 +160,13 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
                 operationLog.info("Creates root directory of the data store: " + storeRootPath);
             }
         }
-        if (commandQueueDirOrNull == null)
-        {
-            commandQueueDirOrNull = storeRoot;
-        }
-        commandExecutor = commandExecutorFactory.create(storeRoot, commandQueueDirOrNull);
         migrateStore();
     }
 
     @Override
     public void initialize()
     {
-        commandExecutor.start();
-        if (operationLog.isInfoEnabled())
-        {
-            operationLog.info("Command executor started.");
-        }
+        dataSetCommandExecutorProvider.init(storeRoot);
         getShareIdManager().isKnown(""); // initializes ShareIdManager: reading all share ids from
                                          // the data base
         if (operationLog.isInfoEnabled())
@@ -315,6 +278,7 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
         {
             throw new InvalidSessionException("User failed to be authenticated by CIFEX.");
         }
+        IDataSetCommandExecutor commandExecutor = dataSetCommandExecutorProvider.getDefaultExecutor();
         commandExecutor.scheduleUploadingDataSetsToCIFEX(serviceFactory, mailClientParameters,
                 dataSets, context, cifexAdminUserOrNull, cifexAdminPasswordOrNull);
     }
@@ -347,6 +311,7 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
 
         IProcessingPluginTask task = plugins.getPluginInstance(serviceKey);
         DatastoreServiceDescription pluginDescription = plugins.getPluginDescription(serviceKey);
+        IDataSetCommandExecutor commandExecutor = dataSetCommandExecutorProvider.getExecutor(task, serviceKey);
         commandExecutor.scheduleProcessDatasets(task, datasets, parameterBindings, userId,
                 userEmailOrNull, userSessionToken, pluginDescription, mailClientParameters);
     }
@@ -426,6 +391,7 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
         DatastoreServiceDescription pluginDescription =
                 DatastoreServiceDescription.processing(description, description, null, null);
         Map<String, String> parameterBindings = Collections.<String, String> emptyMap();
+        IDataSetCommandExecutor commandExecutor = dataSetCommandExecutorProvider.getExecutor(processingTask, description);
         commandExecutor.scheduleProcessDatasets(processingTask, datasets, parameterBindings,
                 userId, userEmailOrNull, userSessionToken, pluginDescription, mailClientParameters);
     }
@@ -498,7 +464,7 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
     @Override
     public IDataSetDeleter getDataSetDeleter()
     {
-        return commandExecutor;
+        return dataSetCommandExecutorProvider.getDefaultExecutor();
     }
 
     @Override
