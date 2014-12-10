@@ -98,6 +98,11 @@
         <constructor-arg value="86400"/>
     </bean>
     
+    <bean id="data-set-command-executor-provider" class="ch.systemsx.cisd.openbis.dss.generic.server.KeyBasedDataSetCommandExecutorProvider">
+        <constructor-arg value="${data-set-command-queue-mapping}"/>
+        <constructor-arg value="${commandqueue-dir}"/>
+    </bean>
+    
     <bean id="data-store-service" class="ch.systemsx.cisd.openbis.dss.generic.server.DataStoreService">
         <constructor-arg ref="session-token-manager" />
         <constructor-arg ref="as-session-token-cache" />
@@ -110,10 +115,10 @@
             </bean>
         </constructor-arg>
         <constructor-arg ref="plugin-tasks" />
+        <constructor-arg ref="data-set-command-executor-provider"/>
         
         <property name="cifexAdminUserOrNull" value="${cifex-admin-username}" />
         <property name="cifexAdminPasswordOrNull" value="${cifex-admin-password}" />
-        <property name="commandQueueDir" value="${commandqueue-dir}"/>
         <property name="config" ref="config-provider"/>
     </bean>
     

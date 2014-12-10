@@ -1,5 +1,5 @@
 /*
- * Copyright 2009 ETH Zuerich, CISD
+ * Copyright 2014 ETH Zuerich, SIS
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,17 +18,18 @@ package ch.systemsx.cisd.openbis.dss.generic.server;
 
 import java.io.File;
 
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IProcessingPluginTask;
+
 /**
- * Factory of {@link IDataSetCommandExecutor} operating on a specified data store.
- * 
+ * Provider and factory of {@link IDataSetCommandExecutor} based on specified processing task.
+ *
  * @author Franz-Josef Elmer
  */
-interface IDataSetCommandExecutorFactory
+public interface IDataSetCommandExecutorProvider
 {
-    /**
-     * Creates command executor for the specified data store. The file of the command queue will be
-     * located in <var>commandQueueDir</var> or <var>commandQueueDir-nameOrNull</var> 
-     * if <var>nameOrNull</var> isn't an empty string.
-     */
-    IDataSetCommandExecutor create(File store, File commandQueueDir, String nameOrNull);
+    public void init(File storeRoot);
+    
+    public IDataSetCommandExecutor getDefaultExecutor();
+    
+    public IDataSetCommandExecutor getExecutor(IProcessingPluginTask processingTask, String processingTaskKey);
 }

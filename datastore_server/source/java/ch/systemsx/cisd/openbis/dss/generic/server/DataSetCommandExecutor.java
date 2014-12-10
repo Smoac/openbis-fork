@@ -20,6 +20,7 @@ import java.io.File;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.StopWatch;
 import org.apache.log4j.Logger;
 
@@ -59,10 +60,13 @@ class DataSetCommandExecutor implements IDataSetCommandExecutor
 
     private IHierarchicalContentProvider hierarchicalContentProvider;
 
-    public DataSetCommandExecutor(File store, File queueDir)
+    private String name;
+
+    public DataSetCommandExecutor(File store, File queueDir, String name)
     {
         this.store = store;
-        File queueFile = getCommandQueueFile(queueDir);
+        this.name = name;
+        File queueFile = getCommandQueueFile(queueDir, name);
         commandQueue = PersistentExtendedBlockingQueueFactory.<IDataSetCommand> createSmartPersist(queueFile);
     }
 
@@ -73,12 +77,27 @@ class DataSetCommandExecutor implements IDataSetCommandExecutor
 
     private static File getCommandQueueFile(File store)
     {
-        return new File(store, "commandQueue");
+        return getCommandQueueFile(store, null);
     }
 
+    private static File getCommandQueueFile(File store, String nameOrNull)
+    {
+        String fileName = "commandQueue";
+        if (StringUtils.isNotBlank(nameOrNull))
+        {
+            fileName += "-" + nameOrNull;
+        }
+        return new File(store, fileName);
+    }
+    
     @Override
     public void start()
     {
+        String threadName = "Data Set Command Execution";
+        if (StringUtils.isNotBlank(name))
+        {
+            threadName += " - " + name;
+        }
         Thread thread = new Thread(new Runnable()
             {
                 @Override
@@ -127,7 +146,7 @@ class DataSetCommandExecutor implements IDataSetCommandExecutor
                     }
                     operationLog.info("Executor stopped");
                 }
-            }, "Data Set Command Execution");
+            }, threadName);
         thread.setDaemon(true);
         thread.start();
     }
