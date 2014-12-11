@@ -290,16 +290,27 @@ function ServerFacade(openbisServer) {
 		this.openbisServer.createReportFromAggregationService(dataStoreCode, "newbrowserapi", parameters, callbackFunction);
 	}
 
- 	this.createELNUser = function(userId, userPass) {
- 		var _this = this;
- 		_this.createReportFromAggregationService(
-				profile.getDefaultDataStoreCode(),
-				{
-					"method" : "registerUserPassword",
-					"userId" : userId,
-					"password" : userPass
-				},
-				function(data){
+	this.registerUserPassword = function(userId, userPass, callbackFunction) {
+		this.createReportFromAggregationService(
+			profile.getDefaultDataStoreCode(),
+			{
+				"method" : "registerUserPassword",
+				"userId" : userId,
+				"password" : userPass
+			},
+			function(data){
+				if(data.result.rows[0][0].value == "OK") {
+					callbackFunction(true);
+				} else {
+					callbackFunction(false);
+				}
+			});
+	}
+	
+	this.createELNUser = function(userId, userPass) {
+	 		var _this = this;
+	 		_this.registerUserPassword(userId, userPass, function(isSuccess){
+				if(isSuccess) {
 					_this.openbisServer.registerPerson(userId, function(data) {
 						_this.openbisServer.registerSpace(userId, "Space for user " + userId, function(data) {
 							_this.openbisServer.registerPersonSpaceRole(userId, userId, "ADMIN", function(data) {
@@ -307,8 +318,10 @@ function ServerFacade(openbisServer) {
 							});
 						});
 					});
-				});
- 	}
+				}
+			});
+	}
+	
 	//
 	// Configuration Related Functions
 	//
