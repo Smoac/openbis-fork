@@ -85,9 +85,9 @@ public abstract class SystemTestCase extends AssertJUnit
     private static final String ROOT_DIR_KEY = "root-dir";
 
     private static final String DATA_SET_IMPORTED_LOG_MARKER = "Successfully registered data set";
-    
-    public static final ILogMonitoringStopCondition FINISHED_POST_REGISTRATION_CONDITION 
-            = new RegexCondition(".*Post registration of (\\d*). of \\1 data sets: (.*)");
+
+    public static final ILogMonitoringStopCondition FINISHED_POST_REGISTRATION_CONDITION = new RegexCondition(
+            ".*Post registration of (\\d*). of \\1 data sets: (.*)");
 
     // this message appears if the dropbox has successfully completed the registration, even if no
     // datasets have been imported
@@ -265,7 +265,7 @@ public abstract class SystemTestCase extends AssertJUnit
                 @Override
                 public String toString()
                 {
-                    return "Log message contains '" + DATA_SET_IMPORTED_LOG_MARKER 
+                    return "Log message contains '" + DATA_SET_IMPORTED_LOG_MARKER
                             + "' or '" + REGISTRATION_FINISHED_LOG_MARKER + "'";
                 }
             });
@@ -273,9 +273,12 @@ public abstract class SystemTestCase extends AssertJUnit
 
     protected void waitUntilDataSetImported(ILogMonitoringStopCondition stopCondition) throws Exception
     {
-        final int maxLoops = dataSetImportWaitDurationInSeconds();
+        waitUntil(stopCondition, dataSetImportWaitDurationInSeconds());
+    }
 
-        for (int loops = 0; loops < maxLoops; loops++)
+    protected void waitUntil(ILogMonitoringStopCondition stopCondition, int maxWaitDurationInSeconds) throws Exception
+    {
+        for (int loops = 0; loops < maxWaitDurationInSeconds; loops++)
         {
             Thread.sleep(1000);
             List<ParsedLogEntry> logEntries = getLogEntries();
@@ -288,10 +291,9 @@ public abstract class SystemTestCase extends AssertJUnit
                 }
             }
         }
-        fail("Log monitoring stop condition [" + stopCondition + "] never fulfilled after " + maxLoops + " seconds.");
-
+        fail("Log monitoring stop condition [" + stopCondition + "] never fulfilled after " + maxWaitDurationInSeconds + " seconds.");
     }
-    
+
     protected List<ParsedLogEntry> getLogEntries()
     {
         List<ParsedLogEntry> result = new ArrayList<ParsedLogEntry>();

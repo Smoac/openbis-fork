@@ -47,13 +47,17 @@ public class TestInitializer
     static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             TestInitializer.class);
 
-    public static final String LUCENE_INDEX_TEMPLATE_PATH = "targets/tempLuceneIndices";
+    private static final String LUCENE_INDEX_TEMPLATE_PATH = "targets/tempLuceneIndices";
 
-    public static final String LUCENE_INDEX_PATH = "targets/lucene/indices";
+    private static final String LUCENE_INDEX_PATH = "targets/lucene/indices";
 
-    public static final String SCRIPT_FOLDER_TEST_DB = "../openbis/sourceTest";
+    private static final String SCRIPT_FOLDER_TEST_DB_PROPERTY_NAME = "scriptFolderTestDB";
 
-    public static final String SCRIPT_FOLDER_EMPTY_DB = "../openbis/source";
+    private static final String SCRIPT_FOLDER_EMPTY_DB_PROPERTY_NAME = "scriptFolderEmptyDB";
+
+    private static final String DEFAULT_SCRIPT_FOLDER_TEST_DB = "../openbis/sourceTest";
+
+    private static final String DEFAULT_SCRIPT_FOLDER_EMPTY_DB = "../openbis/source";
 
     public static void init()
     {
@@ -62,22 +66,22 @@ public class TestInitializer
 
     public static void initWithoutIndex()
     {
-        init(IndexMode.NO_INDEX, SCRIPT_FOLDER_TEST_DB);
+        init(IndexMode.NO_INDEX, getScriptFolderTestDB());
     }
 
     public static void initWithIndex()
     {
-        init(IndexMode.SKIP_IF_MARKER_FOUND, SCRIPT_FOLDER_TEST_DB);
+        init(IndexMode.SKIP_IF_MARKER_FOUND, getScriptFolderTestDB());
     }
 
     public static void initEmptyDbNoIndex()
     {
-        init(IndexMode.NO_INDEX, SCRIPT_FOLDER_EMPTY_DB);
+        init(IndexMode.NO_INDEX, getScriptFolderEmptyDB());
     }
 
     public static void initEmptyDbWithIndex()
     {
-        init(IndexMode.SKIP_IF_MARKER_FOUND, SCRIPT_FOLDER_EMPTY_DB);
+        init(IndexMode.SKIP_IF_MARKER_FOUND, getScriptFolderEmptyDB());
     }
 
     private static boolean firstTry = true;
@@ -97,7 +101,7 @@ public class TestInitializer
                 FileUtilities.deleteRecursively(temporaryFile);
                 temporaryFile.mkdirs();
 
-                System.setProperty("script-folder", SCRIPT_FOLDER_TEST_DB);
+                System.setProperty("script-folder", scriptFolder);
 
                 IndexCreationUtil.main(databaseKind, temporaryFile.getAbsolutePath(), "true");
             } catch (Exception ex)
@@ -170,6 +174,39 @@ public class TestInitializer
         } catch (IOException ex)
         {
             throw new IOExceptionUnchecked(ex);
+        }
+    }
+
+    public static String getScriptFolderTestDBPropertyName()
+    {
+        return TestInitializer.class.getName() + "." + SCRIPT_FOLDER_TEST_DB_PROPERTY_NAME;
+    }
+
+    public static String getScriptFolderEmptyDBPropertyName()
+    {
+        return TestInitializer.class.getName() + "." + SCRIPT_FOLDER_EMPTY_DB_PROPERTY_NAME;
+    }
+
+    private static String getScriptFolderTestDB()
+    {
+        return getSystemProperty(getScriptFolderTestDBPropertyName(), DEFAULT_SCRIPT_FOLDER_TEST_DB);
+    }
+
+    private static String getScriptFolderEmptyDB()
+    {
+        return getSystemProperty(getScriptFolderEmptyDBPropertyName(), DEFAULT_SCRIPT_FOLDER_EMPTY_DB);
+    }
+
+    private static String getSystemProperty(String propertyName, String defaultValue)
+    {
+        String propertyValue = System.getProperty(propertyName);
+
+        if (propertyValue != null && false == propertyValue.trim().isEmpty())
+        {
+            return propertyValue.trim();
+        } else
+        {
+            return defaultValue;
         }
     }
 
