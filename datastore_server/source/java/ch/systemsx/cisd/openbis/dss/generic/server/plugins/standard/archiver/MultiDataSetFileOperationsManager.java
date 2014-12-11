@@ -18,7 +18,9 @@ package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver;
 
 import java.io.File;
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -224,7 +226,8 @@ public class MultiDataSetFileOperationsManager extends AbstractDataSetFileOperat
     @Override
     public String generateContainerPath(List<DatasetDescription> dataSets)
     {
-        String name = packageManager.getName(dataSets.get(0).getDataSetCode());
+        String timestamp = new SimpleDateFormat("yyyyMMdd-HHmmss").format(new Date());
+        String name = packageManager.getName(dataSets.get(0).getDataSetCode() + "-" + timestamp);
 
         if (withSharding)
         {

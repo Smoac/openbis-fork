@@ -25,6 +25,7 @@ import static ch.systemsx.cisd.openbis.dss.generic.shared.utils.ShareFactory.UNA
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -537,10 +538,10 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
 
         assertEquals("INFO  OPERATION.AbstractDatastorePlugin - "
                 + "Archiving of the following datasets has been requested: [Dataset 'ds2']\n"
-                + "INFO  OPERATION.MultiDataSetFileOperationsManager - Archive dataset ds2 in ds2.tar\n"
-                + "INFO  OPERATION.MultiDataSetFileOperationsManager - Data sets archived: ds2.tar\n"
+                + "INFO  OPERATION.MultiDataSetFileOperationsManager - Archive dataset ds2 in ds2-yyyyMMdd-HHmmss.tar\n"
+                + "INFO  OPERATION.MultiDataSetFileOperationsManager - Data sets archived: ds2-yyyyMMdd-HHmmss.tar\n"
                 + "INFO  OPERATION.MultiDataSetFileOperationsManager - Copy archive container from '"
-                + staging.getAbsolutePath() + "/ds2.tar' to '" + archive.getAbsolutePath() + "\n"
+                + staging.getAbsolutePath() + "/ds2-yyyyMMdd-HHmmss.tar' to '" + archive.getAbsolutePath() + "\n"
                 + "INFO  OPERATION.MultiDataSetFileOperationsManager - Copying archive container took 0:??:??.???\n" 
                 + "INFO  OPERATION.AbstractDatastorePlugin - Start sanity check on [Dataset 'ds2']\n"  
                 + "INFO  OPERATION.AbstractDatastorePlugin - Sanity check finished.",
@@ -564,12 +565,29 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
                 + "      >experiment\texperiment_code\tE\n"
                 + "      >experiment\texperiment_type_code\tMET\n"
                 + "      >experiment\tregistration_timestamp\t\n"
-                + "      >experiment\tregistrator\t\n", new File(archive, ds2.getDataSetCode() + ".tar"));
+                + "      >experiment\tregistrator\t\n", getArchiveFile(ds2));
         assertEquals("[ds2]: AVAILABLE true\n", statusUpdater.toString());
-        assertEquals("Containers:\nMultiDataSetArchiverContainerDTO [id=0, path=ds2.tar]\n"
+        assertEquals("Containers:\nMultiDataSetArchiverContainerDTO [id=0, path=ds2-yyyyMMdd-HHmmss.tar]\n"
                 + "Data sets:\nMultiDataSetArchiverDataSetDTO [id=1, code=ds2, containerId=0, sizeInBytes=20]\n"
-                + "committed: true, rolledBack: false", transaction.toString());
+                + "committed: true, rolledBack: false", removeTimeInformationFromContent(transaction.toString()));
         context.assertIsSatisfied();
+    }
+
+    private File getArchiveFile(final DatasetDescription dataSet)
+    {
+        File[] files = archive.listFiles(new FileFilter()
+        {
+            
+            @Override
+            public boolean accept(File pathname)
+            {
+                String name = pathname.getName();
+                return name.startsWith(dataSet.getDataSetCode()) && name.endsWith(".tar");
+            }
+        });
+        assertNotNull(files);
+        assertEquals(1, files.length);
+        return files[0];
     }
 
     @Test
@@ -586,18 +604,18 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
 
         assertEquals("INFO  OPERATION.AbstractDatastorePlugin - "
                 + "Archiving of the following datasets has been requested: [Dataset 'ds1', Dataset 'ds2']\n"
-                + "INFO  OPERATION.MultiDataSetFileOperationsManager - Archive dataset ds1 in ds1.tar\n"
-                + "INFO  OPERATION.MultiDataSetFileOperationsManager - Archive dataset ds2 in ds1.tar\n"
-                + "INFO  OPERATION.MultiDataSetFileOperationsManager - Data sets archived: ds1.tar\n"
+                + "INFO  OPERATION.MultiDataSetFileOperationsManager - Archive dataset ds1 in ds1-yyyyMMdd-HHmmss.tar\n"
+                + "INFO  OPERATION.MultiDataSetFileOperationsManager - Archive dataset ds2 in ds1-yyyyMMdd-HHmmss.tar\n"
+                + "INFO  OPERATION.MultiDataSetFileOperationsManager - Data sets archived: ds1-yyyyMMdd-HHmmss.tar\n"
                 + "INFO  OPERATION.MultiDataSetFileOperationsManager - Copy archive container from '"
-                + staging.getAbsolutePath() + "/ds1.tar' to '" + archive.getAbsolutePath()+ "\n"
+                + staging.getAbsolutePath() + "/ds1-yyyyMMdd-HHmmss.tar' to '" + archive.getAbsolutePath()+ "\n"
                 + "INFO  OPERATION.MultiDataSetFileOperationsManager - Copying archive container took 0:??:??.???\n" 
                 + "INFO  OPERATION.AbstractDatastorePlugin - Start sanity check on [Dataset 'ds1', Dataset 'ds2']\n"  
                 + "INFO  OPERATION.AbstractDatastorePlugin - Sanity check finished.",
                 getLogContent());
         assertEquals("[]", status.getErrorStatuses().toString());
         assertEquals("[]", Arrays.asList(staging.list()).toString());
-        assertEquals("[ds1.tar]", Arrays.asList(archive.list()).toString());
+        assertEquals("[ds1-yyyyMMdd-HHmmss.tar]", removeTimeInformationFromContent(Arrays.asList(archive.list()).toString()));
         assertContent(":\n"
                 + "  ds1:\n"
                 + "    data:\n"
@@ -632,12 +650,12 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
                 + "      >experiment\texperiment_code\tE\n"
                 + "      >experiment\texperiment_type_code\tMET\n"
                 + "      >experiment\tregistration_timestamp\t\n"
-                + "      >experiment\tregistrator\t\n", new File(archive, ds1.getDataSetCode() + ".tar"));
+                + "      >experiment\tregistrator\t\n", getArchiveFile(ds1));
         assertEquals("[ds1, ds2]: AVAILABLE true\n", statusUpdater.toString());
-        assertEquals("Containers:\nMultiDataSetArchiverContainerDTO [id=0, path=ds1.tar]\n"
+        assertEquals("Containers:\nMultiDataSetArchiverContainerDTO [id=0, path=ds1-yyyyMMdd-HHmmss.tar]\n"
                 + "Data sets:\nMultiDataSetArchiverDataSetDTO [id=1, code=ds1, containerId=0, sizeInBytes=10]\n"
                 + "MultiDataSetArchiverDataSetDTO [id=2, code=ds2, containerId=0, sizeInBytes=20]\n"
-                + "committed: true, rolledBack: false", transaction.toString());
+                + "committed: true, rolledBack: false", removeTimeInformationFromContent(transaction.toString()));
         context.assertIsSatisfied();
     }
 
@@ -683,10 +701,10 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
 
         assertEquals("INFO  OPERATION.AbstractDatastorePlugin - "
                 + "Archiving of the following datasets has been requested: [Dataset 'ds1', Dataset 'ds2']\n"
-                + "INFO  OPERATION.MultiDataSetFileOperationsManager - Archive dataset ds1 in ds1.tar\n"
-                + "INFO  OPERATION.MultiDataSetFileOperationsManager - Data sets archived: ds1.tar\n"
+                + "INFO  OPERATION.MultiDataSetFileOperationsManager - Archive dataset ds1 in ds1-yyyyMMdd-HHmmss.tar\n"
+                + "INFO  OPERATION.MultiDataSetFileOperationsManager - Data sets archived: ds1-yyyyMMdd-HHmmss.tar\n"
                 + "INFO  OPERATION.MultiDataSetFileOperationsManager - Copy archive container from '"
-                + staging.getAbsolutePath() + "/ds1.tar' to '" + archive.getAbsolutePath()+ "\n"
+                + staging.getAbsolutePath() + "/ds1-yyyyMMdd-HHmmss.tar' to '" + archive.getAbsolutePath()+ "\n"
                 + "INFO  OPERATION.MultiDataSetFileOperationsManager - Copying archive container took 0:??:??.???\n" 
                 + "INFO  OPERATION.AbstractDatastorePlugin - Start sanity check on [Dataset 'ds1']\n"  
                 + "INFO  OPERATION.AbstractDatastorePlugin - Sanity check finished.",
@@ -712,13 +730,13 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
                 + "      >experiment\texperiment_code\tE\n"
                 + "      >experiment\texperiment_type_code\tMET\n"
                 + "      >experiment\tregistration_timestamp\t\n"
-                + "      >experiment\tregistrator\t\n", new File(archive, ds1.getDataSetCode() + ".tar"));
+                + "      >experiment\tregistrator\t\n", getArchiveFile(ds1));
         assertEquals("[ds1, ds2]: ARCHIVED true\n", statusUpdater.toString());
         assertEquals("Containers:\nMultiDataSetArchiverContainerDTO [id=0, path=path]\n"
-                + "MultiDataSetArchiverContainerDTO [id=2, path=ds1.tar]\n"
+                + "MultiDataSetArchiverContainerDTO [id=2, path=ds1-yyyyMMdd-HHmmss.tar]\n"
                 + "Data sets:\nMultiDataSetArchiverDataSetDTO [id=1, code=ds2, containerId=0, sizeInBytes=20]\n"
                 + "MultiDataSetArchiverDataSetDTO [id=3, code=ds1, containerId=2, sizeInBytes=10]\n"
-                + "committed: true, rolledBack: false", transaction.toString());
+                + "committed: true, rolledBack: false", removeTimeInformationFromContent(transaction.toString()));
         assertEquals("[Dataset 'ds1', Dataset 'ds2']\n", dataSetDeleter.toString());
         context.assertIsSatisfied();
     }
@@ -763,11 +781,11 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
         ProcessingStatus status = archiver.archive(Arrays.asList(ds1, ds2), archiverContext, true);
         assertEquals("INFO  OPERATION.AbstractDatastorePlugin - "
                 + "Archiving of the following datasets has been requested: [Dataset 'ds1', Dataset 'ds2']\n"
-                + "INFO  OPERATION.MultiDataSetFileOperationsManager - Archive dataset ds1 in ds1.tar\n"
-                + "INFO  OPERATION.MultiDataSetFileOperationsManager - Archive dataset ds2 in ds1.tar\n"
-                + "INFO  OPERATION.MultiDataSetFileOperationsManager - Data sets archived: ds1.tar\n"
+                + "INFO  OPERATION.MultiDataSetFileOperationsManager - Archive dataset ds1 in ds1-yyyyMMdd-HHmmss.tar\n"
+                + "INFO  OPERATION.MultiDataSetFileOperationsManager - Archive dataset ds2 in ds1-yyyyMMdd-HHmmss.tar\n"
+                + "INFO  OPERATION.MultiDataSetFileOperationsManager - Data sets archived: ds1-yyyyMMdd-HHmmss.tar\n"
                 + "INFO  OPERATION.MultiDataSetFileOperationsManager - Copy archive container from '"
-                + staging.getAbsolutePath() + "/ds1.tar' to '" + archive.getAbsolutePath() + "\n"
+                + staging.getAbsolutePath() + "/ds1-yyyyMMdd-HHmmss.tar' to '" + archive.getAbsolutePath() + "\n"
                 + "INFO  OPERATION.MultiDataSetFileOperationsManager - Copying archive container took 0:??:??.???\n" 
                 + "INFO  OPERATION.AbstractDatastorePlugin - Start sanity check on [Dataset 'ds1', Dataset 'ds2']\n"
                 + "INFO  OPERATION.AbstractDatastorePlugin - Sanity check finished.",
@@ -1092,7 +1110,13 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
 
     private String getLogContent()
     {
-        return logRecorder.getLogContent().replaceAll("0:\\d{2}:\\d{2}\\.\\d{3}", "0:??:??.???");
+        return removeTimeInformationFromContent(logRecorder.getLogContent());
+    }
+
+    private String removeTimeInformationFromContent(String content)
+    {
+        return content.replaceAll("0:\\d{2}:\\d{2}\\.\\d{3}", "0:??:??.???")
+                .replaceAll("\\d{8}-\\d{6}\\.tar", "yyyyMMdd-HHmmss.tar");
     }
 
 }
