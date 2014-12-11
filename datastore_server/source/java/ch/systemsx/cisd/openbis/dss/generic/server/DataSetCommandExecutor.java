@@ -17,6 +17,9 @@
 package ch.systemsx.cisd.openbis.dss.generic.server;
 
 import java.io.File;
+import java.io.FilenameFilter;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -46,6 +49,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
  */
 class DataSetCommandExecutor implements IDataSetCommandExecutor
 {
+    private static final String COMMAND_QUEUE_FILE_PREFIX = "commandQueue";
+
     private final static Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             DataSetCommandExecutor.class);
 
@@ -82,7 +87,7 @@ class DataSetCommandExecutor implements IDataSetCommandExecutor
 
     private static File getCommandQueueFile(File store, String nameOrNull)
     {
-        String fileName = "commandQueue";
+        String fileName = COMMAND_QUEUE_FILE_PREFIX;
         if (StringUtils.isNotBlank(nameOrNull))
         {
             fileName += "-" + nameOrNull;
@@ -212,28 +217,54 @@ class DataSetCommandExecutor implements IDataSetCommandExecutor
      */
     public static void listQueuedCommands(File store)
     {
-        final File queueFile = getCommandQueueFile(store);
-        final IExtendedBlockingQueue<IDataSetCommand> commandQueue =
-                PersistentExtendedBlockingQueueFactory.<IDataSetCommand> createSmartPersist(queueFile);
-        if (commandQueue.isEmpty())
+        List<File> commandQueueFiles = listCommandQueueFiles(store);
+        for (File queueFile : commandQueueFiles)
         {
-            System.out.println("Command queue is empty.");
-        } else
-        {
-            System.out.println("Found " + commandQueue.size() + " items in command queue:");
-            for (final IDataSetCommand cmd : commandQueue)
+            if (commandQueueFiles.size() != 1)
             {
-                try
+                String fileName = queueFile.getName();
+                String queueName = "Default command queue";
+                if (fileName.length() > COMMAND_QUEUE_FILE_PREFIX.length())
                 {
-                    System.out.println(cmd.getDescription());
-                } catch (RuntimeException ex)
+                    queueName = "Command queue '" + fileName.substring(COMMAND_QUEUE_FILE_PREFIX.length() + 1) + "'";
+                }
+                System.out.println("======= " + queueName + " (" + queueFile + ")");
+            }
+            final IExtendedBlockingQueue<IDataSetCommand> commandQueue =
+                    PersistentExtendedBlockingQueueFactory.<IDataSetCommand> createSmartPersist(queueFile);
+            if (commandQueue.isEmpty())
+            {
+                System.out.println("Command queue is empty.");
+            } else
+            {
+                System.out.println("Found " + commandQueue.size() + " items in command queue:");
+                for (final IDataSetCommand cmd : commandQueue)
                 {
-                    System.err.printf("Error showing description of command '%s':\n", cmd
-                            .getClass().getSimpleName());
-                    ex.printStackTrace();
+                    try
+                    {
+                        System.out.println(cmd.getDescription());
+                    } catch (RuntimeException ex)
+                    {
+                        System.err.printf("Error showing description of command '%s':\n", cmd
+                                .getClass().getSimpleName());
+                        ex.printStackTrace();
+                    }
                 }
             }
         }
+    }
+    
+    private static List<File> listCommandQueueFiles(File store)
+    {
+        File[] commandQueueFiles = store.listFiles(new FilenameFilter()
+            {
+                @Override
+                public boolean accept(File file, String name)
+                {
+                    return name.startsWith(COMMAND_QUEUE_FILE_PREFIX);
+                }
+            });
+        return commandQueueFiles == null ? Collections.<File>emptyList() : Arrays.asList(commandQueueFiles);
     }
 
 }
