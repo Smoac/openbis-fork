@@ -290,6 +290,25 @@ function ServerFacade(openbisServer) {
 		this.openbisServer.createReportFromAggregationService(dataStoreCode, "newbrowserapi", parameters, callbackFunction);
 	}
 
+ 	this.createELNUser = function(userId, userPass) {
+ 		var _this = this;
+ 		_this.createReportFromAggregationService(
+				profile.getDefaultDataStoreCode(),
+				{
+					"method" : "registerUserPassword",
+					"userId" : userId,
+					"password" : userPass
+				},
+				function(data){
+					_this.openbisServer.registerPerson(userId, function(data) {
+						_this.openbisServer.registerSpace(userId, "Space for user " + userId, function(data) {
+							_this.openbisServer.registerPersonSpaceRole(userId, userId, "ADMIN", function(data) {
+								window.alert("WORKS!");
+							});
+						});
+					});
+				});
+ 	}
 	//
 	// Configuration Related Functions
 	//

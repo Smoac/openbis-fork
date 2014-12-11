@@ -22,6 +22,7 @@ from java.io import FileOutputStream
 from java.lang import System
 from net.lingala.zip4j.core import ZipFile
 import time
+import subprocess
 
 def process(tr, parameters, tableBuilder):
 	method = parameters.get("method");
@@ -30,6 +31,8 @@ def process(tr, parameters, tableBuilder):
 	
 	if method == "init":
 		isOk = init(tr, parameters, tableBuilder);
+	if method == "registerUserPassword":
+		isOk = registerUserPassword(tr, parameters, tableBuilder);
 	if method == "insertProject":
 		isOk = insertUpdateProject(tr, parameters, tableBuilder);
 	if method == "updateProject":
@@ -103,6 +106,12 @@ def init(tr, parameters, tableBuilder):
 		tr.createNewProject("/DEFAULT_LAB_NOTEBOOK/DEFAULT_PROJECT");
 		tr.createNewExperiment("/DEFAULT_LAB_NOTEBOOK/DEFAULT_PROJECT/DEFAULT_EXPERIMENT", 	"DEFAULT_EXPERIMENT");
 	
+	return True;
+
+def registerUserPassword(tr, parameters, tableBuilder):
+	userId = parameters.get("userId"); #String
+	password = parameters.get("password"); #String
+	subprocess.call(['../openBIS-server/jetty/bin/passwd.sh', 'add', userId, '-p', password])
 	return True;
 	
 def getThreadProperties(transaction):
