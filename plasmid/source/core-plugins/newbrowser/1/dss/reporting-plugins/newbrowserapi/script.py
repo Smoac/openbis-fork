@@ -23,6 +23,7 @@ from java.lang import System
 from net.lingala.zip4j.core import ZipFile
 import time
 import subprocess
+import os.path
 
 def process(tr, parameters, tableBuilder):
 	method = parameters.get("method");
@@ -111,8 +112,12 @@ def init(tr, parameters, tableBuilder):
 def registerUserPassword(tr, parameters, tableBuilder):
 	userId = parameters.get("userId"); #String
 	password = parameters.get("password"); #String
-	subprocess.call(['../openBIS-server/jetty/bin/passwd.sh', 'add', userId, '-p', password])
-	return True;
+	path = '../openBIS-server/jetty/bin/passwd.sh';
+	if os.path.isfile(path):
+		subprocess.call([path, 'add', userId, '-p', password])
+		return True;
+	else:
+		return False;
 	
 def getThreadProperties(transaction):
   threadPropertyDict = {}
