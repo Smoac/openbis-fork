@@ -69,7 +69,12 @@ public class SearchDomainSearchResult implements Serializable, Comparable<Search
     @Override
     public int compareTo(SearchDomainSearchResult searchResult)
     {
-        return Double.compare(score.getScore(), searchResult.getScore().getScore());
+        return Double.compare(getScore(score), getScore(searchResult.getScore()));
+    }
+    
+    private double getScore(ISearchDomainResultScore resultScore)
+    {
+        return resultScore == null ? 0 : resultScore.getScore();
     }
 
     @Override
