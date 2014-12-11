@@ -118,7 +118,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
         }
     }
 
-    private static final class MockMultiDataSetArchiverDBTransaction 
+    private static final class MockMultiDataSetArchiverDBTransaction
             implements IMultiDataSetArchiverDBTransaction, IMultiDataSetArchiverReadonlyQueryDAO
     {
         private int id;
@@ -128,9 +128,9 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
         private List<MultiDataSetArchiverDataSetDTO> dataSets = new ArrayList<MultiDataSetArchiverDataSetDTO>();
 
         private List<MultiDataSetArchiverContainerDTO> uncommittedContainers = new ArrayList<MultiDataSetArchiverContainerDTO>();
-        
+
         private List<MultiDataSetArchiverDataSetDTO> uncommittedDataSets = new ArrayList<MultiDataSetArchiverDataSetDTO>();
-        
+
         private boolean committed;
 
         private boolean rolledBack;
@@ -235,7 +235,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
             rolledBack = true;
             clearUncommitted();
         }
-        
+
         private void clearUncommitted()
         {
             uncommittedContainers.clear();
@@ -542,8 +542,8 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
                 + "INFO  OPERATION.MultiDataSetFileOperationsManager - Data sets archived: ds2-yyyyMMdd-HHmmss.tar\n"
                 + "INFO  OPERATION.MultiDataSetFileOperationsManager - Copy archive container from '"
                 + staging.getAbsolutePath() + "/ds2-yyyyMMdd-HHmmss.tar' to '" + archive.getAbsolutePath() + "\n"
-                + "INFO  OPERATION.MultiDataSetFileOperationsManager - Copying archive container took 0:??:??.???\n" 
-                + "INFO  OPERATION.AbstractDatastorePlugin - Start sanity check on [Dataset 'ds2']\n"  
+                + "INFO  OPERATION.MultiDataSetFileOperationsManager - Copying archive container took 0:??:??.???\n"
+                + "INFO  OPERATION.AbstractDatastorePlugin - Start sanity check on [Dataset 'ds2']\n"
                 + "INFO  OPERATION.AbstractDatastorePlugin - Sanity check finished.",
                 getLogContent());
         assertEquals("[]", status.getErrorStatuses().toString());
@@ -576,15 +576,15 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
     private File getArchiveFile(final DatasetDescription dataSet)
     {
         File[] files = archive.listFiles(new FileFilter()
-        {
-            
-            @Override
-            public boolean accept(File pathname)
             {
-                String name = pathname.getName();
-                return name.startsWith(dataSet.getDataSetCode()) && name.endsWith(".tar");
-            }
-        });
+
+                @Override
+                public boolean accept(File pathname)
+                {
+                    String name = pathname.getName();
+                    return name.startsWith(dataSet.getDataSetCode()) && name.endsWith(".tar");
+                }
+            });
         assertNotNull(files);
         assertEquals(1, files.length);
         return files[0];
@@ -608,9 +608,9 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
                 + "INFO  OPERATION.MultiDataSetFileOperationsManager - Archive dataset ds2 in ds1-yyyyMMdd-HHmmss.tar\n"
                 + "INFO  OPERATION.MultiDataSetFileOperationsManager - Data sets archived: ds1-yyyyMMdd-HHmmss.tar\n"
                 + "INFO  OPERATION.MultiDataSetFileOperationsManager - Copy archive container from '"
-                + staging.getAbsolutePath() + "/ds1-yyyyMMdd-HHmmss.tar' to '" + archive.getAbsolutePath()+ "\n"
-                + "INFO  OPERATION.MultiDataSetFileOperationsManager - Copying archive container took 0:??:??.???\n" 
-                + "INFO  OPERATION.AbstractDatastorePlugin - Start sanity check on [Dataset 'ds1', Dataset 'ds2']\n"  
+                + staging.getAbsolutePath() + "/ds1-yyyyMMdd-HHmmss.tar' to '" + archive.getAbsolutePath() + "\n"
+                + "INFO  OPERATION.MultiDataSetFileOperationsManager - Copying archive container took 0:??:??.???\n"
+                + "INFO  OPERATION.AbstractDatastorePlugin - Start sanity check on [Dataset 'ds1', Dataset 'ds2']\n"
                 + "INFO  OPERATION.AbstractDatastorePlugin - Sanity check finished.",
                 getLogContent());
         assertEquals("[]", status.getErrorStatuses().toString());
@@ -704,9 +704,9 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
                 + "INFO  OPERATION.MultiDataSetFileOperationsManager - Archive dataset ds1 in ds1-yyyyMMdd-HHmmss.tar\n"
                 + "INFO  OPERATION.MultiDataSetFileOperationsManager - Data sets archived: ds1-yyyyMMdd-HHmmss.tar\n"
                 + "INFO  OPERATION.MultiDataSetFileOperationsManager - Copy archive container from '"
-                + staging.getAbsolutePath() + "/ds1-yyyyMMdd-HHmmss.tar' to '" + archive.getAbsolutePath()+ "\n"
-                + "INFO  OPERATION.MultiDataSetFileOperationsManager - Copying archive container took 0:??:??.???\n" 
-                + "INFO  OPERATION.AbstractDatastorePlugin - Start sanity check on [Dataset 'ds1']\n"  
+                + staging.getAbsolutePath() + "/ds1-yyyyMMdd-HHmmss.tar' to '" + archive.getAbsolutePath() + "\n"
+                + "INFO  OPERATION.MultiDataSetFileOperationsManager - Copying archive container took 0:??:??.???\n"
+                + "INFO  OPERATION.AbstractDatastorePlugin - Start sanity check on [Dataset 'ds1']\n"
                 + "INFO  OPERATION.AbstractDatastorePlugin - Sanity check finished.",
                 getLogContent());
         assertEquals("[]", status.getErrorStatuses().toString());
@@ -748,6 +748,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
         properties.setProperty(MINIMUM_CONTAINER_SIZE_IN_BYTES, "15");
         final String containerPath = "data-set-path";
         prepareFileOperationsGenerateContainerPath(containerPath, ds2);
+        prepareIsReplicatedArchiveDefined(false);
         context.checking(new Expectations()
             {
                 {
@@ -786,7 +787,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
                 + "INFO  OPERATION.MultiDataSetFileOperationsManager - Data sets archived: ds1-yyyyMMdd-HHmmss.tar\n"
                 + "INFO  OPERATION.MultiDataSetFileOperationsManager - Copy archive container from '"
                 + staging.getAbsolutePath() + "/ds1-yyyyMMdd-HHmmss.tar' to '" + archive.getAbsolutePath() + "\n"
-                + "INFO  OPERATION.MultiDataSetFileOperationsManager - Copying archive container took 0:??:??.???\n" 
+                + "INFO  OPERATION.MultiDataSetFileOperationsManager - Copying archive container took 0:??:??.???\n"
                 + "INFO  OPERATION.AbstractDatastorePlugin - Start sanity check on [Dataset 'ds1', Dataset 'ds2']\n"
                 + "INFO  OPERATION.AbstractDatastorePlugin - Sanity check finished.",
                 getLogContent());
@@ -814,7 +815,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
         assertContent("ds2:\n  data:\n    >01234567890123456789\n", new File(share, ds2.getDataSetCode()));
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testUnarchiveWithDataSetsFromDifferentContainers()
     {
@@ -827,15 +828,15 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
         transaction.commit();
         properties.setProperty(MINIMUM_CONTAINER_SIZE_IN_BYTES, "15");
         MultiDataSetArchiver archiver = createArchiver(null);
-        
+
         ProcessingStatus status = archiver.unarchive(Arrays.asList(ds1, ds2), archiverContext);
-        
+
         assertEquals("[ERROR: \"Unarchiving failed: Datasets selected for unarchiving do not all "
-                + "belong to one container, but to 2 different containers: {0=[ds1], 1=[ds2]}\"]", 
+                + "belong to one container, but to 2 different containers: {0=[ds1], 1=[ds2]}\"]",
                 status.getErrorStatuses().toString());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testGetDataSetCodesForUnarchiving()
     {
@@ -846,9 +847,9 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
         transaction.insertDataset(ds2, c1);
         transaction.commit();
         MultiDataSetArchiver archiver = createArchiver(null);
-        
+
         List<String> codes = archiver.getDataSetCodesForUnarchiving(Arrays.asList(ds2.getDataSetCode()));
-        
+
         assertEquals("[ds1, ds2]", codes.toString());
         context.assertIsSatisfied();
     }
@@ -864,7 +865,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
         transaction.insertDataset(ds2, c2);
         transaction.commit();
         MultiDataSetArchiver archiver = createArchiver(null);
-        
+
         try
         {
             archiver.getDataSetCodesForUnarchiving(Arrays.asList(ds1.getDataSetCode(), ds2.getDataSetCode()));
@@ -876,7 +877,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
         }
         context.assertIsSatisfied();
     }
-    
+
     private RecordingMatcher<HostAwareFile> prepareFreeSpace(final long... freeSpaceValues)
     {
         final RecordingMatcher<HostAwareFile> recorder = new RecordingMatcher<HostAwareFile>();
@@ -1032,6 +1033,17 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(e);
         }
+    }
+
+    private void prepareIsReplicatedArchiveDefined(final boolean defined)
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(fileOperations).isReplicatedArchiveDefined();
+                    will(returnValue(defined));
+                }
+            });
     }
 
     private void prepareFileOperationsGenerateContainerPath(final String containerPath, final DatasetDescription... dataSets)

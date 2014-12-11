@@ -21,6 +21,7 @@ import java.util.Map;
 
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.resource.IInitializable;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IProcessingPluginTask;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.ISessionWorkspaceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
@@ -69,4 +70,7 @@ public interface IDataStoreServiceInternal extends IInitializable, IDataStoreSer
      */
     public TableModel internalCreateReportFromAggregationService(String userSessionToken,
             String serviceKey, Map<String, Object> parameters, String userId, String userEmailOrNull);
+    
+    public void scheduleTask(String taskKey, IProcessingPluginTask task, Map<String, String> parameterBindings,
+            List<DatasetDescription> datasets, String userId, String userEmailOrNull, String userSessionToken);
 }

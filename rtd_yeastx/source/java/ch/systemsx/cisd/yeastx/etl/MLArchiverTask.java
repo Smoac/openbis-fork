@@ -183,7 +183,7 @@ public class MLArchiverTask extends AbstractArchiverProcessingPlugin
 
     @Override
     protected DatasetProcessingStatuses doArchive(List<DatasetDescription> datasets,
-            ArchiverTaskContext context)
+            ArchiverTaskContext context, boolean removeFromDataStore)
     {
         // does nothing
         return createStatuses(Status.OK, datasets, Operation.ARCHIVE);

@@ -68,7 +68,7 @@ public class AbstractArchiverProcessingPluginTest extends AbstractFileSystemTest
     interface IAbstractArchiverMethods
     {
         public DatasetProcessingStatuses doArchive(List<DatasetDescription> datasets,
-                ArchiverTaskContext context);
+                ArchiverTaskContext context, boolean removeFromDataStore);
 
         public DatasetProcessingStatuses doUnarchive(List<DatasetDescription> datasets,
                 ArchiverTaskContext context);
@@ -150,7 +150,7 @@ public class AbstractArchiverProcessingPluginTest extends AbstractFileSystemTest
 
         @Override
         public DatasetProcessingStatuses doArchive(List<DatasetDescription> datasets,
-                ArchiverTaskContext context)
+                ArchiverTaskContext context, boolean removeFromDataStore)
         {
             DatasetProcessingStatuses result = new DatasetProcessingStatuses();
             for (DatasetDescription datasetDescription : datasets)
@@ -240,9 +240,9 @@ public class AbstractArchiverProcessingPluginTest extends AbstractFileSystemTest
 
         @Override
         public DatasetProcessingStatuses doArchive(List<DatasetDescription> datasets,
-                ArchiverTaskContext context)
+                ArchiverTaskContext context, boolean removeFromDataStore)
         {
-            return methods.doArchive(datasets, context);
+            return methods.doArchive(datasets, context, false);
         }
 
         @Override

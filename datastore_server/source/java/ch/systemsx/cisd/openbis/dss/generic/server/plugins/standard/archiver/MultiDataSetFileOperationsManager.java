@@ -26,6 +26,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.commons.lang.time.StopWatch;
 import org.apache.log4j.Logger;
@@ -63,17 +64,23 @@ public class MultiDataSetFileOperationsManager extends AbstractDataSetFileOperat
     public static final String STAGING_DESTINATION_KEY = "staging-destination";
 
     public static final String FINAL_DESTINATION_KEY = "final-destination";
+    
+    public static final String REPLICATED_DESTINATION_KEY = "replicated-destination";
 
     public static final String WITH_SHARDING_KEY = "with-sharding";
 
     private transient ArchiveDestination stageArchive;
 
     private transient ArchiveDestination finalArchive;
+    
+    private transient ArchiveDestination finalReplicatedArchive;
 
     private final ArchiveDestinationFactory stageArchivefactory;
 
     private final ArchiveDestinationFactory finalArchivefactory;
 
+    private final ArchiveDestinationFactory finalReplicatedArchivefactory;
+    
     private final boolean withSharding;
 
     protected IMultiDataSetPackageManager packageManager;
@@ -92,25 +99,31 @@ public class MultiDataSetFileOperationsManager extends AbstractDataSetFileOperat
                 PropertyUtils.getLong(properties, TIMEOUT_KEY, DEFAULT_TIMEOUT_SECONDS);
         long timeoutInMillis = timeoutInSeconds * DateUtils.MILLIS_PER_SECOND;
 
-        String stagingHostFile = PropertyUtils.getMandatoryProperty(properties, STAGING_DESTINATION_KEY);
-
-        String finalHostFile = PropertyUtils.getMandatoryProperty(properties, FINAL_DESTINATION_KEY);
-
-        if (false == new File(stagingHostFile).isDirectory())
+        stageArchivefactory = createArchiveFactory(STAGING_DESTINATION_KEY, "stage area", 
+                properties, pathCopierFactory, sshCommandExecutorFactory, timeoutInMillis);
+        finalArchivefactory = createArchiveFactory(FINAL_DESTINATION_KEY, "final destination", 
+                properties, pathCopierFactory, sshCommandExecutorFactory, timeoutInMillis);
+        if (StringUtils.isNotBlank(properties.getProperty(REPLICATED_DESTINATION_KEY)))
         {
-            throw new ConfigurationFailureException("Archiving stage area '" + stagingHostFile + "' is not an existing directory");
+            finalReplicatedArchivefactory = createArchiveFactory(REPLICATED_DESTINATION_KEY, "final cloned destination", 
+                    properties, pathCopierFactory, sshCommandExecutorFactory, timeoutInMillis);
+        } else
+        {
+            finalReplicatedArchivefactory = finalArchivefactory; 
         }
+    }
 
+    private ArchiveDestinationFactory createArchiveFactory(String key, String name, Properties properties, IPathCopierFactory pathCopierFactory,
+            ISshCommandExecutorFactory sshCommandExecutorFactory, long timeoutInMillis)
+    {
+        String finalHostFile = PropertyUtils.getMandatoryProperty(properties, key);
         if (false == new File(finalHostFile).isDirectory())
         {
-            throw new ConfigurationFailureException("Archiving final destination '" + finalHostFile + "' is not an existing directory");
+            throw new ConfigurationFailureException("Archiving " + name + " '" + finalHostFile + "' is not an existing directory");
         }
-
-        this.stageArchivefactory =
-                new ArchiveDestinationFactory(properties, pathCopierFactory, sshCommandExecutorFactory, stagingHostFile, timeoutInMillis);
-        this.finalArchivefactory =
+        
+        return
                 new ArchiveDestinationFactory(properties, pathCopierFactory, sshCommandExecutorFactory, finalHostFile, timeoutInMillis);
-
     }
 
     private ArchiveDestination getStageArchive()
@@ -131,6 +144,15 @@ public class MultiDataSetFileOperationsManager extends AbstractDataSetFileOperat
         return finalArchive;
     }
 
+    private ArchiveDestination getFinalReplicatedArchive()
+    {
+        if (finalReplicatedArchive == null)
+        {
+            finalReplicatedArchive = finalReplicatedArchivefactory.createArchiveDestination();
+        }
+        return finalReplicatedArchive;
+    }
+    
     @Override
     public Status deleteContainerFromStage(String containerPath)
     {
@@ -238,6 +260,30 @@ public class MultiDataSetFileOperationsManager extends AbstractDataSetFileOperat
             return name;
         }
 
+    }
+    
+
+    @Override
+    public boolean isReplicatedArchiveDefined()
+    {
+        return finalArchivefactory != finalReplicatedArchivefactory;
+    }
+
+    @Override
+    public String getOriginalArchiveFilePath(String containerPath)
+    {
+        return getFilePath(getFinalArchive(), containerPath);
+    }
+
+    @Override
+    public String getReplicatedArchiveFilePath(String containerPath)
+    {
+        return getFilePath(getFinalReplicatedArchive(), containerPath);
+    }
+    
+    private String getFilePath(ArchiveDestination archive, String containerPath)
+    {
+        return new File(archive.getDestination(), containerPath).getAbsolutePath();
     }
 
     /**

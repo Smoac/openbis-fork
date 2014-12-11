@@ -317,9 +317,8 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
 
         IProcessingPluginTask task = plugins.getPluginInstance(serviceKey);
         DatastoreServiceDescription pluginDescription = plugins.getPluginDescription(serviceKey);
-        IDataSetCommandExecutor commandExecutor = dataSetCommandExecutorProvider.getExecutor(task, serviceKey);
-        commandExecutor.scheduleProcessDatasets(task, datasets, parameterBindings, userId,
-                userEmailOrNull, userSessionToken, pluginDescription, mailClientParameters);
+        scheduleTask(userSessionToken, serviceKey, task, datasets, userId, userEmailOrNull, 
+                pluginDescription, parameterBindings);
     }
 
     @Override
@@ -393,8 +392,25 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
         sessionTokenManager.assertValidSessionToken(sessionToken);
         DatastoreServiceDescription pluginDescription =
                 DatastoreServiceDescription.processing(description, description, null, null);
-        Map<String, String> parameterBindings = Collections.<String, String> emptyMap();
-        IDataSetCommandExecutor commandExecutor = dataSetCommandExecutorProvider.getExecutor(processingTask, description);
+        Map<String, String> parameterBindings = new HashMap<String, String>();
+//        parameterBindings.put("sessionToken", sessionToken);
+        scheduleTask(userSessionToken, description, processingTask, datasets, userId, userEmailOrNull, 
+                pluginDescription, parameterBindings);
+    }
+    
+    @Override
+    public void scheduleTask(String taskKey, IProcessingPluginTask task, Map<String, String> parameterBindings,
+            List<DatasetDescription> datasets, String userId, String userEmailOrNull, String userSessionToken)
+    {
+        DatastoreServiceDescription description = DatastoreServiceDescription.processing(taskKey, taskKey, null, null);
+        scheduleTask(userSessionToken, taskKey, task, datasets, userId, userEmailOrNull, description, parameterBindings);
+    }
+
+    private void scheduleTask(String userSessionToken, String taskKey, IProcessingPluginTask processingTask, 
+            List<DatasetDescription> datasets, String userId, String userEmailOrNull, 
+            DatastoreServiceDescription pluginDescription, Map<String, String> parameterBindings)
+    {
+        IDataSetCommandExecutor commandExecutor = dataSetCommandExecutorProvider.getExecutor(processingTask, taskKey);
         commandExecutor.scheduleProcessDatasets(processingTask, datasets, parameterBindings,
                 userId, userEmailOrNull, userSessionToken, pluginDescription, mailClientParameters);
     }
@@ -448,8 +464,12 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
 
     private static ArchiverTaskContext createContext(DataSetProcessingContext context)
     {
-        return new ArchiverTaskContext(context.getDirectoryProvider(),
+        ArchiverTaskContext archiverTaskContext = new ArchiverTaskContext(context.getDirectoryProvider(),
                 context.getHierarchicalContentProviderUnfiltered());
+        archiverTaskContext.setUserId(context.getUserId());
+        archiverTaskContext.setUserEmail(context.getUserEmailOrNull());
+        archiverTaskContext.setUserSessionToken(context.trySessionToken());
+        return archiverTaskContext;
     }
 
     @Override

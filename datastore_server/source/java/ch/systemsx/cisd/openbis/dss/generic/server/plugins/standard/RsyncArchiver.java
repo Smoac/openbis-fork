@@ -210,7 +210,7 @@ public class RsyncArchiver extends AbstractArchiverProcessingPlugin
 
     @Override
     protected DatasetProcessingStatuses doArchive(List<DatasetDescription> datasets,
-            ArchiverTaskContext context) throws UserFailureException
+            ArchiverTaskContext context, boolean removeFromDataStore) throws UserFailureException
     {
         DatasetProcessingStatuses statuses = new DatasetProcessingStatuses();
         DefaultFileBasedHierarchicalContentFactory contentFactory = new DefaultFileBasedHierarchicalContentFactory();

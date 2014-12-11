@@ -121,9 +121,10 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
 
     /**
      * NOTE: this method is not allowed to throw exception as this will leave data sets in the openBIS database with an inconsistent status.
+     * @param removeFromDataStore TODO
      */
     abstract protected DatasetProcessingStatuses doArchive(List<DatasetDescription> datasets,
-            ArchiverTaskContext context);
+            ArchiverTaskContext context, boolean removeFromDataStore);
 
     /**
      * NOTE: this method is not allowed to throw exception as this will leave data sets in the openBIS database with an inconsistent status.
@@ -217,10 +218,12 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
     {
         DatasetProcessingStatuses statuses = safeArchive(singleBatch, context, removeFromDataStore);
 
-        DataSetArchivingStatus successStatus = (removeFromDataStore) ? ARCHIVED : AVAILABLE;
-
-        asyncUpdateStatuses(statuses.getSuccessfulDatasetCodes(), successStatus, true);
-        asyncUpdateStatuses(statuses.getFailedDatasetCodes(), AVAILABLE, false);
+        if (statuses.isStatusUpdatingSupressed() == false)
+        {
+            DataSetArchivingStatus successStatus = removeFromDataStore ? ARCHIVED : AVAILABLE;
+            asyncUpdateStatuses(statuses.getSuccessfulDatasetCodes(), successStatus, true);
+            asyncUpdateStatuses(statuses.getFailedDatasetCodes(), AVAILABLE, false);
+        }
 
         return statuses;
     }
@@ -276,10 +279,11 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
             final ArchiverTaskContext context, boolean removeFromDataStore)
     {
         GroupedDatasets groupedDataSets = groupByArchiveDifferencies(datasets, context);
-        DatasetProcessingStatuses statuses = doArchive(groupedDataSets.getDifferentInArchive(), context);
+        List<DatasetDescription> dataSetDifferentInArchive = groupedDataSets.getDifferentInArchive();
+        DatasetProcessingStatuses statuses = doArchive(dataSetDifferentInArchive, context, removeFromDataStore);
 
         deletePermanentlyFromArchive(getDataSetsFailedToBeArchived(datasets, statuses));
-        if (removeFromDataStore)
+        if (removeFromDataStore && statuses.isStatusUpdatingSupressed() == false)
         {
             removeFromDataStore(getArchivedDataSets(datasets, statuses), context);
         }
@@ -468,6 +472,8 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
 
         private final ProcessingStatus processingStatus;
 
+        private boolean statusUpdatingSupressed;
+
         public DatasetProcessingStatuses()
         {
             this.successfulDatasetCodes = new ArrayList<String>();
@@ -554,6 +560,16 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
         public ProcessingStatus getProcessingStatus()
         {
             return processingStatus;
+        }
+
+        public void setStatusUpdatingSupressed(boolean needsToWaitForReplication)
+        {
+            this.statusUpdatingSupressed = needsToWaitForReplication;
+        }
+
+        public boolean isStatusUpdatingSupressed()
+        {
+            return statusUpdatingSupressed;
         }
     }
 
