@@ -736,8 +736,34 @@ vocacbularyDefinitions = {
                                 ["SV40",  "SV40"],
                                 ["TET_ON",  "tet on"],
                                 ["TET_OFF",  "tet off"],
-                                ["RIM1",  "rim1"],
+                                ["RIM1",  "rim1"]
                             ],
+                        "EXON_OR_THREE_PRIME" : [
+                                ["EXON",  "exon"],
+                                ["3P",  "3'"],
+                                ["5P",  "5'"]
+                            ], 
+                        "SIRNA_SPECIES" : [
+                                ["HUMAN",  "Human"],
+                                ["MOUSE",  "Mouse'"]
+                            ], 
+                        "SIRNA_COMPANY" : [
+                                ["AMBION",  "Ambion"],
+                                ["DHARMACON",  "Dharmacon'"],
+                                ["INVITORGEN",  "Invitrogen'"],
+                                ["MICROSYNTH",  "Microsynth'"],
+                                ["QIAGEN",  "Qiagen'"],
+                                ["GIFT",  "Gift'"]
+                            ], 
+                       "SIRNA_FREEZER_LOCATION" : [
+                                ["BIGLABFREEZER",  "BigLab freezer"],
+                                ["SMALLLAB_BIGFREEZER",  "SmallLab Big freezer'"],
+                                ["FREEZER_G17",  "Freezer G17'"],
+                                ["G93-FRANK",  "G9.3--Frank'"],
+                                ["FREEZER-G17_BOX_NATHALIE",  "Freezer G17 Box Nathalie'"],
+                                ["BOX-THIBAULT-BIGFREEZER-SMALLLAB",  "Box thibault Big freezer small lab'"],
+                                ["BOX-NATHALIE",  "Box Nathalie'"]
+                            ], 
                         "FREEZER" : [
                                 ["G9_FRIDGE-1",  "G9 Fridge 1"],
                                 ["G9_FRIDGE-2",  "G9 Fridge 2"],

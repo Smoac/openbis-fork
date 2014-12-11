@@ -36,6 +36,10 @@ def setEntityProperties(tr, definition, entity, properties):
             propertyDefinition = definitions.getPropertyDefinitionByCode(definition, propertyCode)
             if propertyValue is not None:
                 propertyValue =  unicode(propertyValue)
+
+            if propertyDefinition is not None and propertyDefinition[3] == DataType.TIMESTAMP and propertyValue is not None:
+                date_val = datetime.strptime(propertyValue, "%Y")
+                propertyValue = datetime.strftime(date_val, "%Y-%m-%d")
             
             if propertyDefinition is not None and propertyDefinition[3] == DataType.CONTROLLEDVOCABULARY and propertyValue is not None:
                 possiblePropertyValue = definitionsVoc.getVocaularyTermCodeForVocabularyAndTermLabel(propertyDefinition[4], propertyValue)
@@ -45,19 +49,19 @@ def setEntityProperties(tr, definition, entity, properties):
                     #Create new vocabulary term
                     vocabulary = tr.getVocabularyForUpdate(propertyDefinition[4])
                     term = tr.createNewVocabularyTerm()
-                    codeToUse = re.sub(r'\W+','',propertyValue)
+                    codeToUse = re.sub(r'\W+','_',propertyValue)
                     labelToUse = propertyValue
                     if len(codeToUse) is 0:
                         codeToUse = "None" + str(random.random())
                     if len(codeToUse) > 60:
-                        codeToUse = codeToUse[:60]
+                        codeToUse = codeToUse[:50]
                     term.setCode(codeToUse)
                     term.setLabel(labelToUse)
                     term.setOrdinal(vocabulary.getTerms().size())
                     vocabulary.addTerm(term)
                     #Uses new vocabulary term
                     propertyValue = codeToUse
-                    #print "CREATED FOR VOCABULARY " + propertyDefinition[4] + " NEW TERM WITH CODE " + codeToUse
+                    print repr(entity.getCode() + ", CREATED FOR VOCABULARY: " + propertyDefinition[4] + ", FOUND VALUE: " + labelToUse + ", NEW TERM WITH CODE: " + codeToUse)
             
             if propertyDefinition is not None: #Sometimes special fields are added for other purposes, these should not be set
                 entity.setPropertyValue(propertyCode, propertyValue)
@@ -108,7 +112,7 @@ class OpenBISDTO:
         pass
 
 ##
-## Costumer specific logic
+## Costumer specific logic: generic part
 ##
 experimentCache = {}
 sampleCache = {}
@@ -133,7 +137,7 @@ def getExperimentForUpdate(experimentIdentifier, experimentType, tr):
      
 def getSampleForUpdate(sampleIdentifier, sampleType, tr):
     if sampleIdentifier not in sampleCache:
-         print "Cache failed " + sampleIdentifier + ":" + str(sampleType)
+         #print "Cache failed " + sampleIdentifier + ":" + str(sampleType)
          sample = tr.getSampleForUpdate(sampleIdentifier)
          if sample is None and sampleType is not None:
              #print "Cache Create " + sampleIdentifier + ":" + str(sampleType)
@@ -172,7 +176,10 @@ class FileMakerEntityAdaptor(EntityAdaptor):
             self.addEntity(values)
         result.close()
         preparedStatement.close()
-    
+
+##
+## Customer specific logic: different sample types
+##
 class AntibodyAdaptor(FileMakerEntityAdaptor):
     
     def init(self):
@@ -317,6 +324,175 @@ class AntibodyBoxOpenBISDTO(OpenBISDTO):
             if not self.isBoxPressent(boxSignature, tr):
                 return False
         return True
+
+class CellAdaptor(FileMakerEntityAdaptor):
+    
+    def init(self):
+        self.selectQuery = "SELECT * FROM \"boxit cells\""
+        self.definition = definitions.cellDefinition
+        FileMakerEntityAdaptor.init(self)
+    
+    def addEntity(self, values):
+        self.entities.append(CellOpenBISDTO(values, self.definition))
+        
+class CellOpenBISDTO(OpenBISDTO):
+    def write(self, tr):
+        code = self.values["CELL_ID_NR_COPY"]
+        if code is not None and code.startswith("c_"):
+            sample = getSampleForUpdate("/INVENTORY/"+code,"CELL", tr)
+            setEntityProperties(tr, self.definition, sample, self.values);
+    
+    def getIdentifier(self, tr):
+        code = self.values["CELL_ID_NR_COPY"]
+        return code
+    
+    def isInOpenBIS(self, tr):
+        antibodyID2Antibody[self.values["NAME"]] = self.values
+        code = self.values["CELL_ID_NR_COPY"]
+        if code is not None and code.startswith("c_"):
+            sample = getSampleForUpdate("/INVENTORY/"+ code, None, tr)
+            if sample is not None:
+                lastModificationData = self.values["MODIFICATION_DATE"].strip()
+                lastModificationData = str(datetime.strptime(lastModificationData, "%Y-%m-%d"))[:10]
+                lastModificationOpenBIS = sample.getPropertyValue("MODIFICATION_DATE")[:10]
+                return lastModificationOpenBIS == lastModificationData
+            else :
+                return False
+
+class StrainAdaptor(FileMakerEntityAdaptor):
+    
+    def init(self):
+        self.selectQuery = "SELECT * FROM \"boxit strains\""
+        self.definition = definitions.strainDefinition
+        FileMakerEntityAdaptor.init(self)
+    
+    def addEntity(self, values):
+        self.entities.append(StrainOpenBISDTO(values, self.definition))
+        
+class StrainOpenBISDTO(OpenBISDTO):
+    def write(self, tr):
+        code = self.values["STRAIN_ID_NR"]
+        if code is not None:
+            sample = getSampleForUpdate("/INVENTORY/"+code,"STRAIN", tr)
+            setEntityProperties(tr, self.definition, sample, self.values);
+    
+    def getIdentifier(self, tr):
+        code = self.values["STRAIN_ID_NR"]
+        return code
+    
+    def isInOpenBIS(self, tr):
+        antibodyID2Antibody[self.values["NAME"]] = self.values
+        code = self.values["STRAIN_ID_NR"]
+        if code is not None:
+            sample = getSampleForUpdate("/INVENTORY/"+ code, None, tr)
+            if sample is not None:
+                lastModificationData = self.values["MODIFICATION_DATE"].strip()
+                lastModificationData = str(datetime.strptime(lastModificationData, "%Y-%m-%d"))[:10]
+                lastModificationOpenBIS = sample.getPropertyValue("MODIFICATION_DATE")[:10]
+                return lastModificationOpenBIS == lastModificationData
+            else :
+                return False
+
+class PlasmidAdaptor(FileMakerEntityAdaptor):
+    
+    def init(self):
+        self.selectQuery = "SELECT * FROM \"boxit plasmids\""
+        self.definition = definitions.plasmidDefinition
+        FileMakerEntityAdaptor.init(self)
+    
+    def addEntity(self, values):
+        self.entities.append(PlasmidOpenBISDTO(values, self.definition))
+        
+class PlasmidOpenBISDTO(OpenBISDTO):
+    def write(self, tr):
+        code = self.values["PLASMID_ID_NR"]
+        if code is not None:
+            sample = getSampleForUpdate("/INVENTORY/"+code,"PLASMID", tr)
+            setEntityProperties(tr, self.definition, sample, self.values);
+    
+    def getIdentifier(self, tr):
+        code = self.values["PLASMID_ID_NR"]
+        return code
+    
+    def isInOpenBIS(self, tr):
+        antibodyID2Antibody[self.values["NAME"]] = self.values
+        code = self.values["PLASMID_ID_NR"]
+        if code is not None:
+            sample = getSampleForUpdate("/INVENTORY/"+ code, None, tr)
+            if sample is not None:
+                lastModificationData = self.values["MODIFICATION_DATE"].strip()
+                lastModificationData = str(datetime.strptime(lastModificationData, "%Y-%m-%d"))[:10]
+                lastModificationOpenBIS = sample.getPropertyValue("MODIFICATION_DATE")[:10]
+                return lastModificationOpenBIS == lastModificationData
+            else :
+                return False
+
+class ChemicalAdaptor(FileMakerEntityAdaptor):
+    
+    def init(self):
+        self.selectQuery = "SELECT * FROM \"Chemicals\""
+        self.definition = definitions.chemicalDefinition
+        FileMakerEntityAdaptor.init(self)
+    
+    def addEntity(self, values):
+        self.entities.append(ChemicalOpenBISDTO(values, self.definition))
+        
+class ChemicalOpenBISDTO(OpenBISDTO):
+    def write(self, tr):
+        code = "CHEM_" + self.values["RECORD_NUMBER"]
+        if code is not None:
+            sample = getSampleForUpdate("/INVENTORY/"+code,"CHEMICAL", tr)
+            setEntityProperties(tr, self.definition, sample, self.values);
+    
+    def getIdentifier(self, tr):
+        code = "CHEM_" + self.values["RECORD_NUMBER"]
+        return code
+    
+    def isInOpenBIS(self, tr):
+        code = "CHEM_" + self.values["RECORD_NUMBER"]
+        if code is not None:
+            sample = getSampleForUpdate("/INVENTORY/"+ code, None, tr)
+            if sample is not None:
+                lastModificationData = self.values["MODIFICATION_DATE"].strip()
+                lastModificationData = str(datetime.strptime(lastModificationData, "%Y-%m-%d"))[:10]
+                lastModificationOpenBIS = sample.getPropertyValue("MODIFICATION_DATE")[:10]
+                return lastModificationOpenBIS == lastModificationData
+            else :
+                return False
+
+class SirnaAdaptor(FileMakerEntityAdaptor):
+    
+    def init(self):
+        self.selectQuery = "SELECT * FROM \"siRNA\""
+        self.definition = definitions.siRNADefinition
+        FileMakerEntityAdaptor.init(self)
+    
+    def addEntity(self, values):
+        self.entities.append(SirnaOpenBISDTO(values, self.definition))
+        
+class SirnaOpenBISDTO(OpenBISDTO):
+    def write(self, tr):
+        code = self.values["SIRNA_OLIGONUMBER"]
+        if code is not None:
+            sample = getSampleForUpdate("/INVENTORY/"+code,"SIRNA", tr)
+            setEntityProperties(tr, self.definition, sample, self.values);
+    
+    def getIdentifier(self, tr):
+        code = self.values["SIRNA_OLIGONUMBER"]
+        return code
+    
+    def isInOpenBIS(self, tr):
+        code = self.values["SIRNA_OLIGONUMBER"]
+        if code is not None:
+            sample = getSampleForUpdate("/INVENTORY/"+ code, None, tr)
+            if sample is not None:
+                lastModificationData = self.values["MODIFICATION_DATE"].strip()
+                lastModificationData = str(datetime.strptime(lastModificationData, "%Y-%m-%d"))[:10]
+                lastModificationOpenBIS = sample.getPropertyValue("MODIFICATION_DATE")[:10]
+                return lastModificationOpenBIS == lastModificationData
+            else :
+                return False
+
     
 class DocumentsAdaptor(FileMakerEntityAdaptor):
     
@@ -379,8 +555,13 @@ fmConnStringServer = "jdbc:filemaker://fm.ethz.ch/"
 fmUserServer= "sistemp"
 fmPassServer = "ibcimsb2014"
 
-adaptors = [AntibodyAdaptor(fmConnString, fmUser, fmPass, "BOXIT_antibodies_Peter"), 
-            AntibodyBoxAdaptor(fmConnString, fmUser, fmPass, "BOXIT_antibody_boxes_Peter"),
+#adaptors = [#AntibodyAdaptor(fmConnString, fmUser, fmPass, "BOXIT_antibodies_Peter"), 
+            #AntibodyBoxAdaptor(fmConnString, fmUser, fmPass, "BOXIT_antibody_boxes_Peter"),
+            #CellAdaptor(fmConnString, fmUser, fmPass, "BOXIT_cells_Peter"),
+            #PlasmidAdaptor(fmConnString, fmUser, fmPass, "BOXIT_plasmids_Peter"),
+            #StrainAdaptor(fmConnString, fmUser, fmPass, "BOXIT_strains_Peter"),
+            #ChemicalAdaptor(fmConnString, fmUser, fmPass, "BOXIT_Main_Menu_Peter"),]
+adaptors = [SirnaAdaptor(fmConnString, fmUser, fmPass, "BOXIT_Main_Menu_Peter"),
             DocumentsAdaptor(fmConnString, fmUser, fmPass, "BOXIT_documents_Peter")]
 
 def createDataHierarchy(tr):
