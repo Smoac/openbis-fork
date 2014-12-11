@@ -312,12 +312,28 @@ function ServerFacade(openbisServer) {
 	 		_this.registerUserPassword(userId, userPass, function(isSuccess){
 				if(isSuccess) {
 					_this.openbisServer.registerPerson(userId, function(data) {
-						_this.openbisServer.registerSpace(userId, "Space for user " + userId, function(data) {
-							_this.openbisServer.registerPersonSpaceRole(userId, userId, "ADMIN", function(data) {
-								window.alert("WORKS!");
+						if(data.error) {
+							Util.showError(data.error.message);
+						} else {
+							_this.openbisServer.registerSpace(userId, "Space for user " + userId, function(data) {
+								if(data.error) {
+									Util.showError(data.error.message);
+								} else {
+									_this.openbisServer.registerPersonSpaceRole(userId, userId, "ADMIN", function(data) {
+										if(data.error) {
+											Util.showError(data.error.message);
+										} else {
+											Util.showSuccess("User " + userId + " created successfully.");
+										}
+									});
+								}
+								
 							});
-						});
+						}
+						
 					});
+				} else {
+					Util.showError("User password can't be set.");
 				}
 			});
 	}
