@@ -114,7 +114,8 @@ def registerUserPassword(tr, parameters, tableBuilder):
 	password = parameters.get("password"); #String
 	path = '../openBIS-server/jetty/bin/passwd.sh';
 	if os.path.isfile(path):
-		subprocess.call([path, 'add', userId, '-p', password])
+		subprocess.call([path, 'add', userId, '-p', password]) #Adds the user, if the user exists, will fail
+		subprocess.call([path, 'change', userId, '-p', password]) #Changes the user pass, works always
 		return True;
 	else:
 		return False;
