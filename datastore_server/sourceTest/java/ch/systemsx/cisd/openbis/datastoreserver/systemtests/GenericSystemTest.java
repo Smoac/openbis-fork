@@ -28,11 +28,22 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService
 public class GenericSystemTest extends SystemTestCase
 {
 
+    protected String getDBScriptFolder()
+    {
+        return "sourceTest";
+    }
+
+    protected String getDBKind()
+    {
+        return "test";
+    }
+
     @Override
     @BeforeSuite
     public void beforeSuite() throws Exception
     {
-        System.setProperty(TestInitializer.getScriptFolderTestDBPropertyName(), "sourceTest");
+        System.setProperty(TestInitializer.getScriptFolderTestDBPropertyName(), getDBScriptFolder());
+        System.setProperty(TestInitializer.getDBKindPropertyName(), getDBKind());
         super.beforeSuite();
     }
 

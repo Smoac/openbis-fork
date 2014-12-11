@@ -21,7 +21,6 @@ import java.util.List;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.openbis.datastoreserver.systemtests.GenericDropboxSystemTest;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
@@ -31,7 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 /**
  * @author pkupczyk
  */
-public class DemoDropboxTest extends GenericDropboxSystemTest
+public class DemoDropboxTest extends DSUDropboxSystemTest
 {
 
     @Override
@@ -47,7 +46,7 @@ public class DemoDropboxTest extends GenericDropboxSystemTest
     }
 
     @Test
-    public void testDropbox1() throws Exception
+    public void testDropbox() throws Exception
     {
         importData("demo-data");
         waitUntilDataImported();
@@ -60,21 +59,6 @@ public class DemoDropboxTest extends GenericDropboxSystemTest
 
         List<Experiment> experiments = getGeneralInformationService().searchForExperiments(sessionToken, criteria);
         Assert.assertEquals(experiments.size(), 2);
-    }
-
-    @Test(enabled = false)
-    public void testDropbox2() throws Exception
-    {
-        // WARNING: this test fails and shows that transaction is not rolled back after testDropbox1 is executed
-        // (the newly created experiments still exist)
-
-        String sessionToken = getGeneralInformationService().tryToAuthenticateForAllServices("test", "password");
-
-        SearchCriteria criteria = new SearchCriteria();
-        criteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, "DEMO-EXPERIMENT*"));
-
-        List<Experiment> experiments = getGeneralInformationService().searchForExperiments(sessionToken, criteria);
-        Assert.assertEquals(experiments.size(), 0);
     }
 
 }

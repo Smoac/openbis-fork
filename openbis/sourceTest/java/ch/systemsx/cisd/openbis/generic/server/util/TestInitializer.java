@@ -51,9 +51,13 @@ public class TestInitializer
 
     private static final String LUCENE_INDEX_PATH = "targets/lucene/indices";
 
+    private static final String DB_KIND_PROPERTY_NAME = "dbKind";
+
     private static final String SCRIPT_FOLDER_TEST_DB_PROPERTY_NAME = "scriptFolderTestDB";
 
     private static final String SCRIPT_FOLDER_EMPTY_DB_PROPERTY_NAME = "scriptFolderEmptyDB";
+
+    private static final String DEFAULT_DB_KIND = "test";
 
     private static final String DEFAULT_SCRIPT_FOLDER_TEST_DB = "../openbis/sourceTest";
 
@@ -141,10 +145,8 @@ public class TestInitializer
         // and in the right place when we run tests
         restoreSearchIndex();
 
-        String projectName = System.getProperty("ant.project.name", "");
-
         System.setProperty("database.create-from-scratch", "true");
-        System.setProperty("database.kind", projectName.isEmpty() ? "test" : "test_" + projectName);
+        System.setProperty("database.kind", getDBKind());
         System.setProperty("script-folder", scriptFolder);
         System.setProperty("hibernate.search.index-mode", hibernateIndexMode.name());
         System.setProperty("hibernate.search.index-base", LUCENE_INDEX_PATH);
@@ -177,6 +179,11 @@ public class TestInitializer
         }
     }
 
+    public static String getDBKindPropertyName()
+    {
+        return TestInitializer.class.getName() + "." + DB_KIND_PROPERTY_NAME;
+    }
+
     public static String getScriptFolderTestDBPropertyName()
     {
         return TestInitializer.class.getName() + "." + SCRIPT_FOLDER_TEST_DB_PROPERTY_NAME;
@@ -185,6 +192,11 @@ public class TestInitializer
     public static String getScriptFolderEmptyDBPropertyName()
     {
         return TestInitializer.class.getName() + "." + SCRIPT_FOLDER_EMPTY_DB_PROPERTY_NAME;
+    }
+
+    private static String getDBKind()
+    {
+        return getSystemProperty(getDBKindPropertyName(), DEFAULT_DB_KIND);
     }
 
     private static String getScriptFolderTestDB()
