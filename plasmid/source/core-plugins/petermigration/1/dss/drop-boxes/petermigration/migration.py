@@ -61,7 +61,7 @@ def setEntityProperties(tr, definition, entity, properties):
                     vocabulary.addTerm(term)
                     #Uses new vocabulary term
                     propertyValue = codeToUse
-                    print repr(entity.getCode() + ", CREATED FOR VOCABULARY: " + propertyDefinition[4] + ", FOUND VALUE: " + labelToUse + ", NEW TERM WITH CODE: " + codeToUse)
+                    #print repr(entity.getCode() + ", CREATED FOR VOCABULARY: " + propertyDefinition[4] + ", FOUND VALUE: " + labelToUse + ", NEW TERM WITH CODE: " + codeToUse)
             
             if propertyDefinition is not None: #Sometimes special fields are added for other purposes, these should not be set
                 entity.setPropertyValue(propertyCode, propertyValue)
@@ -203,30 +203,32 @@ class FMPeterBoxAdaptor(FileMakerEntityAdaptor):
     entityCodeFieldName = None
 
     def init(self):
+        print "Reading boxes for: " + self.__class__.__name__
         emptyBox = 0
         boxes = {}
         EntityAdaptor.init(self)
         preparedStatement = self.connection.prepareStatement(self.selectBoxQuery)
         result = preparedStatement.executeQuery()
         while result.next():
-            entityId = unicode(entityIdFieldName)
+            entityId = unicode(result.getString(self.entityIdFieldName))
             if entityId is not None:
                 if entityId in sampleID2Sample:
-                    antibodyNumber = sampleID2Sample[entityId][entityCodeFieldName]
-                    values = {}
-                    values["STORAGE_NAME"] = result.getString("location")
-                    values["STORAGE_ROW"] = None
-                    values["STORAGE_COLUMN"] = None
-                    values["STORAGE_BOX_NAME"] = result.getString("box label")
-                    values["STORAGE_USER"] = result.getString("frozen by")
-                    values["STORAGE_BOX_POSITION"] = result.getString("position")
-                    
-                    allboxes = []
-                    if antibodyNumber in boxes:
-                        allboxes = boxes[antibodyNumber]
-                    else:
-                        boxes[antibodyNumber] = allboxes
-                    allboxes.append(values)
+                    antibodyNumber = sampleID2Sample[entityId][self.entityCodeFieldName]
+                    if antibodyNumber is not None:
+                        values = {}
+                        values["STORAGE_NAME"] = result.getString("location")
+                        values["STORAGE_ROW"] = None
+                        values["STORAGE_COLUMN"] = None
+                        values["STORAGE_BOX_NAME"] = result.getString("box label")
+                        values["STORAGE_USER"] = result.getString("frozen by")
+                        values["STORAGE_BOX_POSITION"] = result.getString("position")
+                        
+                        allBoxes = []
+                        if antibodyNumber in boxes:
+                            allBoxes = boxes[antibodyNumber]
+                        else:
+                            boxes[antibodyNumber] = allBoxes
+                        allBoxes.append(values)
                 else:
                     #The antibody is not there. What the *#%$&
                     emptyBox += 1
@@ -236,17 +238,14 @@ class FMPeterBoxAdaptor(FileMakerEntityAdaptor):
         
         print "Not found: " + str(emptyBox)
         
-        for antibodyCode, allAntibodyBoxes in boxes.iteritems():
+        for entiyCode, allBoxes in boxes.iteritems():
             self.addEntity({
-                        "ANTIBODY_ID_NR" : antibodyCode,
-                        "*BOXESLIST" : allAntibodyBoxes
+                        "*CODE" : entiyCode,
+                        "*BOXESLIST" : allBoxes
             })
         
         result.close()
         preparedStatement.close()
-    
-    def addEntity(self, values):
-        self.entities.append(AntibodyBoxOpenBISDTO(values, self.definition))
 
 ##
 ## Antibodies
@@ -269,53 +268,10 @@ class AntibodyOpenBISDTO(FMPeterOpenBISDTO):
     def getIdentifier(self, tr):
         return self.values["ANTIBODY_ID_NR"]
     
-class AntibodyBoxAdaptor(FileMakerEntityAdaptor):
-    
-    def init(self):
-        emptyAntibodyBox = 0
-        antibodyBoxes = {}
-        
-        self.selectQuery = "SELECT * FROM \"antibody boxes\""
-        EntityAdaptor.init(self)
-        
-        preparedStatement = self.connection.prepareStatement(self.selectQuery)
-        result = preparedStatement.executeQuery()
-        while result.next():
-            antibodyID = unicode(result.getString("antibody ID"))
-            if antibodyID is not None:
-                if antibodyID in sampleID2Sample:
-                    antibodyNumber = sampleID2Sample[antibodyID]["ANTIBODY_ID_NR"]
-                    values = {}
-                    values["STORAGE_NAME"] = result.getString("location")
-                    values["STORAGE_ROW"] = None
-                    values["STORAGE_COLUMN"] = None
-                    values["STORAGE_BOX_NAME"] = result.getString("box label")
-                    values["STORAGE_USER"] = result.getString("frozen by")
-                    values["STORAGE_BOX_POSITION"] = result.getString("position")
-                    
-                    allboxes = []
-                    if antibodyNumber in antibodyBoxes:
-                        allboxes = antibodyBoxes[antibodyNumber]
-                    else:
-                        antibodyBoxes[antibodyNumber] = allboxes
-                    allboxes.append(values)
-                else:
-                    #The antibody is not there. What the *#%$&
-                    emptyAntibodyBox += 1
-            else:
-                #The antibody is not there. What the *#%$&
-                emptyAntibodyBox += 1
-        
-        print "Antibody not found: " + str(emptyAntibodyBox)
-        
-        for antibodyCode, allAntibodyBoxes in antibodyBoxes.iteritems():
-            self.addEntity({
-                        "ANTIBODY_ID_NR" : antibodyCode,
-                        "*BOXESLIST" : allAntibodyBoxes
-            })
-        
-        result.close()
-        preparedStatement.close()
+class AntibodyBoxAdaptor(FMPeterBoxAdaptor):
+    selectBoxQuery = "SELECT * FROM \"antibody boxes\""
+    entityIdFieldName = "antibody ID"
+    entityCodeFieldName = "ANTIBODY_ID_NR"
     
     def addEntity(self, values):
         self.entities.append(AntibodyBoxOpenBISDTO(values, self.definition))
@@ -323,7 +279,7 @@ class AntibodyBoxAdaptor(FileMakerEntityAdaptor):
 class AntibodyBoxOpenBISDTO(OpenBISDTO):
     
     def write(self, tr):
-        sample = getSampleForUpdate("/INVENTORY/"+self.values["ANTIBODY_ID_NR"], None, tr)
+        sample = getSampleForUpdate("/INVENTORY/"+self.values["*CODE"], None, tr)
         #Delete old boxes
         for boxNum in range(1, definitions.numberOfStorageGroups+1):
             for propertyCode in definitions.stogageGroupPropertyCodes:
@@ -353,7 +309,7 @@ class AntibodyBoxOpenBISDTO(OpenBISDTO):
                     sample.setPropertyValue(propertyCode + "_" + str(boxNum), propertyValue)
     
     def isBoxPressent(self, boxSignature, tr):
-        sample = getSampleForUpdate("/INVENTORY/"+self.values["ANTIBODY_ID_NR"], None, tr)
+        sample = getSampleForUpdate("/INVENTORY/"+self.values["*CODE"], None, tr)
         if sample is not None:
             for boxNum in range(1, definitions.numberOfStorageGroups+1):
                 storedSignature = "";
@@ -592,14 +548,14 @@ fmConnStringServer = "jdbc:filemaker://fm.ethz.ch/"
 fmUserServer= "sistemp"
 fmPassServer = "ibcimsb2014"
 
-#adaptors = [#AntibodyAdaptor(fmConnString, fmUser, fmPass, "BOXIT_antibodies_Peter"), 
-            #AntibodyBoxAdaptor(fmConnString, fmUser, fmPass, "BOXIT_antibody_boxes_Peter"),
+adaptors = [AntibodyAdaptor(fmConnString, fmUser, fmPass, "BOXIT_antibodies_Peter"), 
+            AntibodyBoxAdaptor(fmConnString, fmUser, fmPass, "BOXIT_antibody_boxes_Peter"),
             #CellAdaptor(fmConnString, fmUser, fmPass, "BOXIT_cells_Peter"),
             #PlasmidAdaptor(fmConnString, fmUser, fmPass, "BOXIT_plasmids_Peter"),
             #StrainAdaptor(fmConnString, fmUser, fmPass, "BOXIT_strains_Peter"),
             #SirnaAdaptor(fmConnString, fmUser, fmPass, "BOXIT_Main_Menu_Peter"),
-            #ChemicalAdaptor(fmConnString, fmUser, fmPass, "BOXIT_Main_Menu_Peter"),]
-adaptors = [OligoAdaptor(fmConnString, fmUser, fmPass, "BOXIT_oligos_Peter"),
+            #ChemicalAdaptor(fmConnString, fmUser, fmPass, "BOXIT_Main_Menu_Peter"),
+            #OligoAdaptor(fmConnString, fmUser, fmPass, "BOXIT_oligos_Peter"),
             DocumentsAdaptor(fmConnString, fmUser, fmPass, "BOXIT_documents_Peter")]
 
 def createDataHierarchy(tr):
