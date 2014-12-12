@@ -427,7 +427,7 @@ vocacbularyDefinitions = {
                                 ["DELETION",  "Deletion"],
                                 ["INTEGRATION",  "Integration"]
                                     ],
-                         "STRAIN_BACKGROUD" : [
+                         "STRAIN_BACKGROUND" : [
                                 ["W303",  "W303"],
                                 ["K699",  "K699"],
                                 ["K700",  "K700"],
