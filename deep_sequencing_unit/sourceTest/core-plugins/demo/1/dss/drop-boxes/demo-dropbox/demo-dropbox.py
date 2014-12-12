@@ -8,8 +8,7 @@ def process(tr):
             openFile = open(file.getAbsolutePath())
             content = openFile.read().strip()
             
-            experiment = tr.createNewExperiment("/CISD/DEFAULT/" + content, "SIRNA_HCS")
-            experiment.setPropertyValue("DESCRIPTION", "some description")
+            experiment = tr.createNewExperiment("/TEST/TEST-PROJECT/" + content, "UNKNOWN")
         finally:
             if openFile:
                 openFile.close()

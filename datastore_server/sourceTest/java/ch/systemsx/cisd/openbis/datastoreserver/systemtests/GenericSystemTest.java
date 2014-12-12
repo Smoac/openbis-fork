@@ -16,10 +16,7 @@
 
 package ch.systemsx.cisd.openbis.datastoreserver.systemtests;
 
-import org.testng.annotations.BeforeSuite;
-
 import ch.systemsx.cisd.openbis.generic.server.api.v1.ResourceNames;
-import ch.systemsx.cisd.openbis.generic.server.util.TestInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 
 /**
@@ -27,25 +24,6 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService
  */
 public class GenericSystemTest extends SystemTestCase
 {
-
-    protected String getDBScriptFolder()
-    {
-        return "sourceTest";
-    }
-
-    protected String getDBKind()
-    {
-        return "test";
-    }
-
-    @Override
-    @BeforeSuite
-    public void beforeSuite() throws Exception
-    {
-        System.setProperty(TestInitializer.getScriptFolderTestDBPropertyName(), getDBScriptFolder());
-        System.setProperty(TestInitializer.getDBKindPropertyName(), getDBKind());
-        super.beforeSuite();
-    }
 
     protected IGeneralInformationService getGeneralInformationService()
     {

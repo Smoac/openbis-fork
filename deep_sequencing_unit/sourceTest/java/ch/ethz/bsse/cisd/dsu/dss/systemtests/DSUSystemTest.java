@@ -16,6 +16,8 @@
 
 package ch.ethz.bsse.cisd.dsu.dss.systemtests;
 
+import org.testng.annotations.BeforeSuite;
+
 import ch.systemsx.cisd.openbis.datastoreserver.systemtests.GenericSystemTest;
 
 /**
@@ -25,9 +27,11 @@ public class DSUSystemTest extends GenericSystemTest
 {
 
     @Override
-    protected String getDBKind()
+    @BeforeSuite
+    public void beforeSuite() throws Exception
     {
-        return DSUContants.DB_KIND;
+        DSUTestInitializer.init();
+        super.beforeSuite();
     }
 
 }

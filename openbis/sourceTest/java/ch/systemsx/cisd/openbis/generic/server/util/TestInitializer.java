@@ -51,17 +51,15 @@ public class TestInitializer
 
     private static final String LUCENE_INDEX_PATH = "targets/lucene/indices";
 
-    private static final String DB_KIND_PROPERTY_NAME = "dbKind";
+    private static String dbKind = "test";
 
-    private static final String SCRIPT_FOLDER_TEST_DB_PROPERTY_NAME = "scriptFolderTestDB";
+    private static String dbKindForIndexing;
 
-    private static final String SCRIPT_FOLDER_EMPTY_DB_PROPERTY_NAME = "scriptFolderEmptyDB";
+    private static boolean createDBFromScratch = true;
 
-    private static final String DEFAULT_DB_KIND = "test";
+    private static String scriptFolderForTestDB = "../openbis/sourceTest";
 
-    private static final String DEFAULT_SCRIPT_FOLDER_TEST_DB = "../openbis/sourceTest";
-
-    private static final String DEFAULT_SCRIPT_FOLDER_EMPTY_DB = "../openbis/source";
+    private static String scriptFolderForEmptyDB = "../openbis/source";
 
     public static void init()
     {
@@ -96,9 +94,18 @@ public class TestInitializer
 
         if (firstTry && System.getProperty("rebuild-index", "true").equals("true"))
         {
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmssS");
-            String timestamp = dateFormat.format(new Date());
-            String databaseKind = "indexing_" + timestamp;
+            String databaseKind = null;
+
+            if (getDBKindForIndexing() != null)
+            {
+                databaseKind = getDBKindForIndexing();
+            } else
+            {
+                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmssS");
+                String timestamp = dateFormat.format(new Date());
+                databaseKind = "indexing_" + timestamp;
+            }
+
             try
             {
                 File temporaryFile = new File(LUCENE_INDEX_TEMPLATE_PATH);
@@ -107,7 +114,7 @@ public class TestInitializer
 
                 System.setProperty("script-folder", scriptFolder);
 
-                IndexCreationUtil.main(databaseKind, temporaryFile.getAbsolutePath(), "true");
+                IndexCreationUtil.main(databaseKind, temporaryFile.getAbsolutePath(), String.valueOf(getCreateDBFromScratch()));
             } catch (Exception ex)
             {
                 operationLog.error(ex);
@@ -145,7 +152,7 @@ public class TestInitializer
         // and in the right place when we run tests
         restoreSearchIndex();
 
-        System.setProperty("database.create-from-scratch", "true");
+        System.setProperty("database.create-from-scratch", String.valueOf(getCreateDBFromScratch()));
         System.setProperty("database.kind", getDBKind());
         System.setProperty("script-folder", scriptFolder);
         System.setProperty("hibernate.search.index-mode", hibernateIndexMode.name());
@@ -179,47 +186,54 @@ public class TestInitializer
         }
     }
 
-    public static String getDBKindPropertyName()
+    public static boolean getCreateDBFromScratch()
     {
-        return TestInitializer.class.getName() + "." + DB_KIND_PROPERTY_NAME;
+        return createDBFromScratch;
     }
 
-    public static String getScriptFolderTestDBPropertyName()
+    public static void setCreateDBFromScratch(boolean createDBFromScratch)
     {
-        return TestInitializer.class.getName() + "." + SCRIPT_FOLDER_TEST_DB_PROPERTY_NAME;
+        TestInitializer.createDBFromScratch = createDBFromScratch;
     }
 
-    public static String getScriptFolderEmptyDBPropertyName()
+    public static String getDBKind()
     {
-        return TestInitializer.class.getName() + "." + SCRIPT_FOLDER_EMPTY_DB_PROPERTY_NAME;
+        return dbKind;
     }
 
-    private static String getDBKind()
+    public static void setDBKind(String dbKind)
     {
-        return getSystemProperty(getDBKindPropertyName(), DEFAULT_DB_KIND);
+        TestInitializer.dbKind = dbKind;
     }
 
-    private static String getScriptFolderTestDB()
+    public static String getDBKindForIndexing()
     {
-        return getSystemProperty(getScriptFolderTestDBPropertyName(), DEFAULT_SCRIPT_FOLDER_TEST_DB);
+        return dbKindForIndexing;
     }
 
-    private static String getScriptFolderEmptyDB()
+    public static void setDBKindForIndexing(String dbKindForIndexing)
     {
-        return getSystemProperty(getScriptFolderEmptyDBPropertyName(), DEFAULT_SCRIPT_FOLDER_EMPTY_DB);
+        TestInitializer.dbKindForIndexing = dbKindForIndexing;
     }
 
-    private static String getSystemProperty(String propertyName, String defaultValue)
+    public static String getScriptFolderTestDB()
     {
-        String propertyValue = System.getProperty(propertyName);
+        return scriptFolderForTestDB;
+    }
 
-        if (propertyValue != null && false == propertyValue.trim().isEmpty())
-        {
-            return propertyValue.trim();
-        } else
-        {
-            return defaultValue;
-        }
+    public static void setScriptFolderForTestDB(String scriptFolderForTestDB)
+    {
+        TestInitializer.scriptFolderForTestDB = scriptFolderForTestDB;
+    }
+
+    public static String getScriptFolderEmptyDB()
+    {
+        return scriptFolderForEmptyDB;
+    }
+
+    public static void setScriptFolderForEmptyDB(String scriptFolderForEmptyDB)
+    {
+        TestInitializer.scriptFolderForEmptyDB = scriptFolderForEmptyDB;
     }
 
 }

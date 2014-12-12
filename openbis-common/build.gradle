@@ -4,6 +4,7 @@ apply from: '../gradle/javaproject.gradle'
 
 dependencies {
 	compile project(':common'),
+		project(':dbmigration'),
 		'googlecode:jsonrpc4j:+',
 		'reflections:reflections:+',
 		'cisd:cisd-jhdf5:+',
