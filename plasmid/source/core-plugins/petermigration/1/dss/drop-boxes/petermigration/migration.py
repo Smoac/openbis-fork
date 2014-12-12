@@ -427,6 +427,41 @@ class PlasmidOpenBISDTO(OpenBISDTO):
             else :
                 return False
 
+class OligoAdaptor(FileMakerEntityAdaptor):
+    
+    def init(self):
+        self.selectQuery = "SELECT * FROM \"boxit oligos\""
+        self.definition = definitions.oligoDefinition
+        FileMakerEntityAdaptor.init(self)
+    
+    def addEntity(self, values):
+        self.entities.append(OligoOpenBISDTO(values, self.definition))
+        
+class OligoOpenBISDTO(OpenBISDTO):
+    def write(self, tr):
+        code = self.values["OLIGO_ID_NR"]
+        if code is not None:
+            sample = getSampleForUpdate("/INVENTORY/"+code,"OLIGO", tr)
+            setEntityProperties(tr, self.definition, sample, self.values);
+    
+    def getIdentifier(self, tr):
+        code = self.values["OLIGO_ID_NR"]
+        return code
+    
+    def isInOpenBIS(self, tr):
+        antibodyID2Antibody[self.values["NAME"]] = self.values
+        code = self.values["OLIGO_ID_NR"]
+        if code is not None:
+            sample = getSampleForUpdate("/INVENTORY/"+ code, None, tr)
+            if sample is not None:
+                lastModificationData = self.values["MODIFICATION_DATE"].strip()
+                lastModificationData = str(datetime.strptime(lastModificationData, "%Y-%m-%d"))[:10]
+                lastModificationOpenBIS = sample.getPropertyValue("MODIFICATION_DATE")[:10]
+                return lastModificationOpenBIS == lastModificationData
+            else :
+                return False
+
+
 class ChemicalAdaptor(FileMakerEntityAdaptor):
     
     def init(self):
@@ -472,17 +507,17 @@ class SirnaAdaptor(FileMakerEntityAdaptor):
         
 class SirnaOpenBISDTO(OpenBISDTO):
     def write(self, tr):
-        code = self.values["SIRNA_OLIGONUMBER"]
+        code = "SI_" + self.values["SIRNA_OLIGONUMBER"]
         if code is not None:
             sample = getSampleForUpdate("/INVENTORY/"+code,"SIRNA", tr)
             setEntityProperties(tr, self.definition, sample, self.values);
     
     def getIdentifier(self, tr):
-        code = self.values["SIRNA_OLIGONUMBER"]
+        code = "SI_" +self.values["SIRNA_OLIGONUMBER"]
         return code
     
     def isInOpenBIS(self, tr):
-        code = self.values["SIRNA_OLIGONUMBER"]
+        code = "SI_" + self.values["SIRNA_OLIGONUMBER"]
         if code is not None:
             sample = getSampleForUpdate("/INVENTORY/"+ code, None, tr)
             if sample is not None:
@@ -560,8 +595,9 @@ fmPassServer = "ibcimsb2014"
             #CellAdaptor(fmConnString, fmUser, fmPass, "BOXIT_cells_Peter"),
             #PlasmidAdaptor(fmConnString, fmUser, fmPass, "BOXIT_plasmids_Peter"),
             #StrainAdaptor(fmConnString, fmUser, fmPass, "BOXIT_strains_Peter"),
+            #SirnaAdaptor(fmConnString, fmUser, fmPass, "BOXIT_Main_Menu_Peter"),
             #ChemicalAdaptor(fmConnString, fmUser, fmPass, "BOXIT_Main_Menu_Peter"),]
-adaptors = [SirnaAdaptor(fmConnString, fmUser, fmPass, "BOXIT_Main_Menu_Peter"),
+adaptors = [OligoAdaptor(fmConnString, fmUser, fmPass, "BOXIT_oligos_Peter"),
             DocumentsAdaptor(fmConnString, fmUser, fmPass, "BOXIT_documents_Peter")]
 
 def createDataHierarchy(tr):

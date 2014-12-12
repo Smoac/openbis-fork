@@ -16,6 +16,14 @@ def getPropertyDefinitionByCode(definition, code):
 # Scripts
 #
 commentsScriptName = "COMMENTS";
+adenosineScriptName = "ADENOSINE_COUNT"
+cytosineScriptName= "CYTOSINE_COUNT"
+gcScriptName= "GC"
+guanosineScriptName= "GUANOSINE_COUNT"
+lengthScriptName= "SEQUENCE_LENGTH"
+nucelotideScriptName= "ONUCLEOTIDE_COUNT"
+thymidineScriptName= "THYMIDINE_COUNT"
+tmScriptName= "TM"
 
 #
 # Storage 
@@ -89,7 +97,6 @@ antibodyDefinition = [
     ["MODIFICATION_DATE",              "General",                "modification date",                  DataType.TIMESTAMP,                  None,  "", None, None, False],
     ["FROZEN",                         "General",                "frozen",                             DataType.TIMESTAMP,                  None,  "", None, None, False]
 ];
-
 
 cellDefinition = [
     ["CO2",                             "General",                "%CO2",                                DataType.CONTROLLEDVOCABULARY,       "CO2",  "", None, None, False],
@@ -207,7 +214,7 @@ strainDefinition = [
 ];
 
 oligoDefinition = [
-    #["ADENOSINE",                       "General",                  "adenosine",                        DataType.XML,                       None, "", adenineScriptName],
+    ["ADENOSINE",                       "Calculated fields",        "adenosine",                        DataType.INTEGER,                   None, "", adenosineScriptName, None, False],
     ["AMOUNT",                          "General",                  "amount",                           DataType.REAL,                      None, "", None, None, False],
     ["BARCODE",                         "General",                  "barcode",                          DataType.VARCHAR,                   None, "", None, None, False],
     ["BARCODE_LABEL",                   "General",                  "barcode label",                    DataType.VARCHAR,                   None, "", None, None, False],
@@ -215,19 +222,19 @@ oligoDefinition = [
     ["CONCENTRATION",                   "General",                  "concentration",                    DataType.REAL,                      None, "", None, None, False],
     ["CONCENTRATION_UNIT",              "General",                  "concentration unit",               DataType.CONTROLLEDVOCABULARY,      "CONC_UNITS", "", None, None, False],
     ["CREATION_DATE",                   "General",                  "creation date",                    DataType.TIMESTAMP,                 None, "", None, None, False],
-   # ["CYTOSINE",                        "General",                  "cytosine",                         DataType.XML,                       None, "", cytosineScriptName],
+    ["CYTOSINE",                        "Calculated fields",        "cytosine",                         DataType.INTEGER,                   None, "", cytosineScriptName, None, False],
     ["DATE",                            "General",                  "date",                             DataType.VARCHAR,                   None, "", None, None, False],
     ["FROZEN",                          "General",                  "frozen",                           DataType.TIMESTAMP,                 None, "", None, None, False],
-    #["GC",                              "General",                  "gc",                               DataType.XML,                       None, "", gcScriptName],
+    ["GC",                              "Calculated fields",        "gc",                               DataType.REAL,                      None, "", gcScriptName, None, False],
     ["GENE_LOCUS",                      "General",                  "gene locus",                       DataType.VARCHAR,                   None, "", None, None, False],
     ["GRADE",                           "General",                  "grade",                            DataType.CONTROLLEDVOCABULARY,      "OLIGO_GRADE", "", None, None, False],
-    #["GUANOSINE",                       "General",                  "guanosine",                        DataType.XML,                       None, "", guanosineScriptName],
+    ["GUANOSINE",                       "Calculated fields",        "guanosine",                        DataType.INTEGER,                   None, "", guanosineScriptName, None, False],
     ["COMMENTS",                        "General",                  "Info",                             DataType.VARCHAR,                   None, "", None, None, False],
     ["INVESTIGATOR",                    "General",                  "investigator",                     DataType.CONTROLLEDVOCABULARY,      "ALL_LAB_MEMBERS", "", None, None, False],
-    #["LENGTH",                          "General",                  "length",                           DataType.XML,                       None, "", lengthScriptName],
-    ["MODIFICATION_DATE",               "General",                  "modification date",                 DataType.TIMESTAMP,                 None, "", None, None, False],
-    ["MODIFIED_BY",                     "General",                  "modified by",                       DataType.CONTROLLEDVOCABULARY,      "ALL_LAB_MEMBERS", "", None, None, False],
-    #["O_NUCLEOTIDE",                    "General",                  "O nucleotide",                     DataType.XML,                       None, "", nucelotideScriptName],
+    ["LENGTH",                          "Calculated fields",        "length",                           DataType.INTEGER,                   None, "", lengthScriptName, None, False],
+    ["MODIFICATION_DATE",               "General",                  "modification date",                DataType.TIMESTAMP,                 None, "", None, None, False],
+    ["MODIFIED_BY",                     "General",                  "modified by",                      DataType.CONTROLLEDVOCABULARY,      "ALL_LAB_MEMBERS", "", None, None, False],
+    ["O_NUCLEOTIDE",                    "Calculated fields",        "O nucleotide",                     DataType.INTEGER,                   None, "", nucelotideScriptName, None, False],
     ["OD",                              "General",                  "od",                               DataType.INTEGER,                   None, "", None, None, False],
     ["NAME",                            "General",                  "oligo ID",                         DataType.INTEGER,                   None, "", None, None, False],
     ["OLIGO_ID_NR",                     "General",                  "oligo_id_nr",                      DataType.VARCHAR,                   None, "", None, None, False],
@@ -240,8 +247,8 @@ oligoDefinition = [
     ["RESTRICTION_SITE",                "General",                  "restriction site",                 DataType.CONTROLLEDVOCABULARY,      "RESTRICTION", "", None, None, False],
     ["SEQUENCE",                        "General",                  "sequence",                         DataType.VARCHAR,                   None, "", None, None, False],
     ["SERIAL_NUMBER",                   "General",                  "serial number",                    DataType.VARCHAR,                   None, "", None, None, False],
-    #["THYMIDINE",                       "General",                  "thymidine",                        DataType.XML,                       None, "", thymidineScriptName],
-    #["TM",                              "General",                  "tm",                               DataType.XML,                       None, "", tmScriptName],
+    ["THYMIDINE",                       "Calculated fields",        "thymidine",                        DataType.INTEGER,                   None, "", thymidineScriptName, None, False],
+    ["TM",                              "Calculated fields",        "tm",                               DataType.REAL,                      None, "", tmScriptName, None, False],
     ["USAGE",                           "General",                  "usage",                            DataType.CONTROLLEDVOCABULARY,      "OLIGO_USAGE", "", None, None, False]
 
 ];
@@ -334,7 +341,7 @@ siRNADefinition = [
     ["OFF_TARGET_EFFECTS",              "General",                  "Off target effects",               DataType.VARCHAR,                   None,  "", None, None, False],
     ["INFO",                            "General",                  "Info",                             DataType.VARCHAR,                   None,  "", None, None, False],
     ["SPECIFIC_SPLICE_VARIANT",         "General",                  "Specific splice variant",          DataType.VARCHAR,                   None,  "", None, None, False],
-    ["TRANSFECTION_AGENT",              "General",                  "Transfection agent",               DataType.VARCHAR,                   None,  "", None, None, False],
+    ["TRANSFECTION_AGENT",              "General",                  "Transfection agent",               DataType.CONTROLLEDVOCABULARY,      "TRANSFECTION_AGENT",  "", None, None, False],
     ["PUBLISHED",                       "General",                  "Published",                        DataType.VARCHAR,                   None,  "", None, None, False],
     ["LIBRARY",                         "General",                  "Library",                          DataType.VARCHAR,                   None,  "", None, None, False],
     ["CHARACTERIZED_BY_COMPANY",        "General",                  "Characterized by company",         DataType.VARCHAR,                   None,  "", None, None, False],

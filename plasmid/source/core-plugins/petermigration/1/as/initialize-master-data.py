@@ -17,8 +17,8 @@
 ##
 ## Configuration
 ##
-PATH_TO_MANAGE_PROPERTIES_SCRIPTS = "/Users/juanf/Documents/workspace/openbis/source/core-plugins/petermigration/1/compatibility/";
-#PATH_TO_MANAGE_PROPERTIES_SCRIPTS = "/Users/barillac/openbis-peter/servers/core-plugins/petermigration/1/compatibility/";
+#PATH_TO_MANAGE_PROPERTIES_SCRIPTS = "/Users/juanf/Documents/workspace/openbis/source/core-plugins/petermigration/1/compatibility/";
+PATH_TO_MANAGE_PROPERTIES_SCRIPTS = "/Users/barillac/openbis-peter/servers/core-plugins/petermigration/1/compatibility/";
 
 # MasterDataRegistrationTransaction Class
 import definitions
@@ -133,12 +133,63 @@ def createScript(path, name, description, scriptType, entityType):
     return script;
     
 ##
-## Manage properties scripts
+## Managed properties scripts
 ##
 commentsScript = createScript(PATH_TO_MANAGE_PROPERTIES_SCRIPTS + "comments.py",
                                   definitions.commentsScriptName,
                                   "Comments Handler",
                                   "MANAGED_PROPERTY",
+                                  "SAMPLE");
+
+##
+## Dynamic properties scripts
+##
+adenosineScript = createScript(PATH_TO_MANAGE_PROPERTIES_SCRIPTS + "adenosine_count.py",
+                                  definitions.adenosineScriptName,
+                                  "Count number of adenosine in sequence",
+                                  "DYNAMIC_PROPERTY",
+                                  "SAMPLE");
+
+cytosineScript = createScript(PATH_TO_MANAGE_PROPERTIES_SCRIPTS + "cytosine_count.py",
+                                  definitions.cytosineScriptName,
+                                  "Count number of cytosine in sequence",
+                                  "DYNAMIC_PROPERTY",
+                                  "SAMPLE");
+
+gcScript = createScript(PATH_TO_MANAGE_PROPERTIES_SCRIPTS + "gc.py",
+                                  definitions.gcScriptName,
+                                  "(guanosine+cytosine)*100/length",
+                                  "DYNAMIC_PROPERTY",
+                                  "SAMPLE");
+
+guanosineScript = createScript(PATH_TO_MANAGE_PROPERTIES_SCRIPTS + "guanosine_count.py",
+                                  definitions.guanosineScriptName,
+                                  "Count number of guanosine in sequence",
+                                  "DYNAMIC_PROPERTY",
+                                  "SAMPLE");
+
+lengthScript = createScript(PATH_TO_MANAGE_PROPERTIES_SCRIPTS + "length.py",
+                                  definitions.lengthScriptName,
+                                  "Count total length of sequence (A+C+T+G+O_nucleotide)",
+                                  "DYNAMIC_PROPERTY",
+                                  "SAMPLE");
+
+nucelotideScript = createScript(PATH_TO_MANAGE_PROPERTIES_SCRIPTS + "nucleotide_count.py",
+                                  definitions.nucelotideScriptName,
+                                  "Count number of r,y,m,k,s,w,h,b,d,x,N in sequence",
+                                  "DYNAMIC_PROPERTY",
+                                  "SAMPLE");
+
+thymidineScript = createScript(PATH_TO_MANAGE_PROPERTIES_SCRIPTS + "thymidine_count.py",
+                                  definitions.thymidineScriptName,
+                                  "Count number of thymidine in sequence",
+                                  "DYNAMIC_PROPERTY",
+                                  "SAMPLE");
+
+tmScript = createScript(PATH_TO_MANAGE_PROPERTIES_SCRIPTS + "tm.py",
+                                  definitions.tmScriptName,
+                                  "68.3 + (0.41 * gc) - (600/length)",
+                                  "DYNAMIC_PROPERTY",
                                   "SAMPLE");
 
 ##
@@ -150,13 +201,26 @@ for vocabularyCode, vocabularyValues in definitionsVoc.vocacbularyDefinitions.it
 ##
 ## Experiment Types
 ##
-createExperimentTypeWithProperties("ANTIBODY", "BOX TO HOLD SAMPLES OF THIS TYPE FOR ORGANIZATIONAL PURPOSES", []);
 createExperimentTypeWithProperties("DEFAULT_EXPERIMENT", "Default Experiment", definitions.experimentDefinition);
-
+createExperimentTypeWithProperties("ANTIBODY", "BOX TO HOLD SAMPLES OF THIS TYPE FOR ORGANIZATIONAL PURPOSES", []);
+createExperimentTypeWithProperties("CELL", "BOX TO HOLD SAMPLES OF THIS TYPE FOR ORGANIZATIONAL PURPOSES", []);
+createExperimentTypeWithProperties("STRAIN", "BOX TO HOLD SAMPLES OF THIS TYPE FOR ORGANIZATIONAL PURPOSES", []);
+createExperimentTypeWithProperties("PLASMID", "BOX TO HOLD SAMPLES OF THIS TYPE FOR ORGANIZATIONAL PURPOSES", []);
+createExperimentTypeWithProperties("CHEMICAL", "BOX TO HOLD SAMPLES OF THIS TYPE FOR ORGANIZATIONAL PURPOSES", []);
+createExperimentTypeWithProperties("SIRNA", "BOX TO HOLD SAMPLES OF THIS TYPE FOR ORGANIZATIONAL PURPOSES", []);
+createExperimentTypeWithProperties("OLIGO", "BOX TO HOLD SAMPLES OF THIS TYPE FOR ORGANIZATIONAL PURPOSES", []);
 ##
 ## Sample Types
 ##
 createSampleTypeWithProperties("ANTIBODY", "", definitions.antibodyDefinition);
+createSampleTypeWithProperties("CELL", "", definitions.cellDefinition);
+createSampleTypeWithProperties("STRAIN", "", definitions.strainDefinition);
+createSampleTypeWithProperties("PLASMID", "", definitions.plasmidDefinition);
+createSampleTypeWithProperties("CHEMICAL", "", definitions.chemicalDefinition);
+createSampleTypeWithProperties("SIRNA", "", definitions.siRNADefinition);
+createSampleTypeWithProperties("OLIGO", "", definitions.oligoDefinition);
+
+
 
 addStorageGroups(definitions.numberOfStorageGroups, "ANTIBODY");
 
