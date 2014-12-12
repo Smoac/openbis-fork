@@ -14,23 +14,11 @@
  * limitations under the License.
  */
 
-function UserManagerController(mainController) {
-	this._mainController = mainController;
-	this._userManagerModel = new UserManagerModel();
-	this._userManagerView = new UserManagerView(this, this._userManagerModel);
+function CreateUserController() {
+	this._createUserModel = new CreateUserModel();
+	this._createUserView = new CreateUserView(this, this._createUserModel);
 	
-	this.init = function($container) {
-		var _this = this;
-		mainController.serverFacade.listPersons(function(data) {
-			if(data.result && data.result.length > 0) {
-				_this._userManagerModel.persons = data.result;
-			}
-			_this._userManagerView.repaint($container);
-		});
-	}
-	
-	this.showCreateNewUserModal = function() {
-		var createUserController = new CreateUserController();
-		createUserController.init();
+	this.init = function() {
+		this._createUserView.repaint();
 	}
 }

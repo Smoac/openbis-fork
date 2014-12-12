@@ -34,6 +34,13 @@ function UserManagerView(userManagerController, userManagerModel) {
 		$containerColumn.append($("<h1>").append(" User Manager"));
 		
 		//
+		// ToolBox
+		//
+		var $toolbox = $("<div>", { 'id' : 'toolBoxContainer', class : 'toolBox'});
+		$toolbox.append(this._getOptionsMenu());
+		$containerColumn.append($toolbox);
+		
+		//
 		// Data Grid
 		//
 		var dataGridContainer = $("<div>");
@@ -85,5 +92,22 @@ function UserManagerView(userManagerController, userManagerModel) {
 		//
 		$containerColumn.append(dataGridContainer);
 		$container.append($containerColumn);
+	}
+	
+	this._getOptionsMenu = function() {
+		var _this = this;
+		var $dropDownMenu = $("<span>", { class : 'dropdown' });
+		var $caret = $("<a>", { 'href' : '#', 'data-toggle' : 'dropdown', class : 'dropdown-toggle btn btn-default'}).append("Operations ").append($("<b>", { class : 'caret' }));
+		var $list = $("<ul>", { class : 'dropdown-menu', 'role' : 'menu', 'aria-labelledby' :'sampleTableDropdown' });
+		$dropDownMenu.append($caret);
+		$dropDownMenu.append($list);
+		
+		var $createUserOption = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'Create User'}).append("Create User"));
+		$createUserOption.click(function() {
+			_this._userManagerController.showCreateNewUserModal();
+		});
+		$list.append($createUserOption);
+			
+		return $dropDownMenu;
 	}
 }
