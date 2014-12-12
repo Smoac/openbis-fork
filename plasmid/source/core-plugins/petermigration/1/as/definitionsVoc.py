@@ -8,7 +8,7 @@ def getVocaularyTermCodeForVocabularyAndTermLabel(vocabularyCode, termLabel):
     vocabulary = vocacbularyDefinitions[vocabularyCode]
     for term in vocabulary:
         if term[1] == termLabel:
-            #print repr("NOT FOUND: " + unicode(vocabularyCode) + " : '" + unicode(termLabel) + "'")
+            print repr("TERM NOT FOUND IN VOCABULARY LIST: " + unicode(vocabularyCode) + " : '" + unicode(termLabel) + "'")
             return term[0]
     return None
 
@@ -745,7 +745,7 @@ vocacbularyDefinitions = {
                             ], 
                         "SIRNA_SPECIES" : [
                                 ["HUMAN",  "Human"],
-                                ["MOUSE",  "Mouse'"]
+                                ["MOUSE",  "Mouse'"],
                             ], 
                         "SIRNA_COMPANY" : [
                                 ["AMBION",  "Ambion"],
@@ -764,6 +764,12 @@ vocacbularyDefinitions = {
                                 ["BOX-THIBAULT-BIGFREEZER-SMALLLAB",  "Box thibault Big freezer small lab'"],
                                 ["BOX-NATHALIE",  "Box Nathalie'"]
                             ], 
+                       "TRANSFECTION_AGENT" : [
+                                ["FUGENE",  "Fugene"],
+                                ["LIPOFECTAMINE",  "Lipofectamine'"],
+                                ["OLIGOFECTAMINE",  "Oligofectamine'"],
+                                ["RNAIMAX",  "RNAimax'"]
+                            ],                             
                         "FREEZER" : [
                                 ["G9_FRIDGE-1",  "G9 Fridge 1"],
                                 ["G9_FRIDGE-2",  "G9 Fridge 2"],
