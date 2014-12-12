@@ -49,6 +49,61 @@ function ServerFacade(openbisServer) {
 	}
 	
 	//
+	// User Related Functions
+	//
+	this.listPersons = function(callbackFunction) {
+		this.openbisServer.listPersons(callbackFunction);
+	};
+	
+	this.registerUserPassword = function(userId, userPass, callbackFunction) {
+		this.createReportFromAggregationService(
+			profile.getDefaultDataStoreCode(),
+			{
+				"method" : "registerUserPassword",
+				"userId" : userId,
+				"password" : userPass
+			},
+			function(data){
+				if(data.result.rows[0][0].value == "OK") {
+					callbackFunction(true);
+				} else {
+					callbackFunction(false);
+				}
+			});
+	}
+	
+	this.createELNUser = function(userId, userPass) {
+	 		var _this = this;
+	 		_this.registerUserPassword(userId, userPass, function(isSuccess){
+				if(isSuccess) {
+					_this.openbisServer.registerPerson(userId, function(data) {
+						if(data.error) {
+							Util.showError(data.error.message);
+						} else {
+							_this.openbisServer.registerSpace(userId, "Space for user " + userId, function(data) {
+								if(data.error) {
+									Util.showError(data.error.message);
+								} else {
+									_this.openbisServer.registerPersonSpaceRole(userId, userId, "ADMIN", function(data) {
+										if(data.error) {
+											Util.showError(data.error.message);
+										} else {
+											Util.showSuccess("User " + userId + " created successfully.");
+										}
+									});
+								}
+								
+							});
+						}
+						
+					});
+				} else {
+					Util.showError("User password can't be set.");
+				}
+			});
+	}
+	
+	//
 	// Metadata Related Functions
 	//
 	this.listSampleTypes = function(callbackFunction) {
@@ -288,54 +343,6 @@ function ServerFacade(openbisServer) {
  	//
  	this.createReportFromAggregationService = function(dataStoreCode, parameters, callbackFunction) {
 		this.openbisServer.createReportFromAggregationService(dataStoreCode, "newbrowserapi", parameters, callbackFunction);
-	}
-
-	this.registerUserPassword = function(userId, userPass, callbackFunction) {
-		this.createReportFromAggregationService(
-			profile.getDefaultDataStoreCode(),
-			{
-				"method" : "registerUserPassword",
-				"userId" : userId,
-				"password" : userPass
-			},
-			function(data){
-				if(data.result.rows[0][0].value == "OK") {
-					callbackFunction(true);
-				} else {
-					callbackFunction(false);
-				}
-			});
-	}
-	
-	this.createELNUser = function(userId, userPass) {
-	 		var _this = this;
-	 		_this.registerUserPassword(userId, userPass, function(isSuccess){
-				if(isSuccess) {
-					_this.openbisServer.registerPerson(userId, function(data) {
-						if(data.error) {
-							Util.showError(data.error.message);
-						} else {
-							_this.openbisServer.registerSpace(userId, "Space for user " + userId, function(data) {
-								if(data.error) {
-									Util.showError(data.error.message);
-								} else {
-									_this.openbisServer.registerPersonSpaceRole(userId, userId, "ADMIN", function(data) {
-										if(data.error) {
-											Util.showError(data.error.message);
-										} else {
-											Util.showSuccess("User " + userId + " created successfully.");
-										}
-									});
-								}
-								
-							});
-						}
-						
-					});
-				} else {
-					Util.showError("User password can't be set.");
-				}
-			});
 	}
 	
 	//

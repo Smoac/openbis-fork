@@ -88,7 +88,7 @@ function MainController(profile) {
 		$('body').removeClass('bodyLogin');
 		$("#login-form-div").hide();
 		$("#main").show();
-	
+		
 		//Get Metadata from all sample types before showing the main menu
 		this.serverFacade.listSampleTypes (
 			function(result) {
@@ -164,6 +164,12 @@ function MainController(profile) {
 		//
 		
 		switch (newViewChange) {
+			case "showUserManagerPage":
+				document.title = "User Manager";
+				this._showUserManager();
+				window.scrollTo(0,0);
+				break;
+			
 			case "showVocabularyManagerPage":
 				document.title = "Vocabulary Manager";
 				this._showVocabularyManager();
@@ -392,6 +398,12 @@ function MainController(profile) {
 		$("#mainContainer").empty();
 		
 		this.currentView = null;
+	}
+	
+	this._showUserManager = function() {
+		var userManagerController = new UserManagerController(this);
+		userManagerController.init($("#mainContainer"));
+		this.currentView = userManagerController;
 	}
 	
 	this._showSamplesPage = function(experimentIdentifier) {
