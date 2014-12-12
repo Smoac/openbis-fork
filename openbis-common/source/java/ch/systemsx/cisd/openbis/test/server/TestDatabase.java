@@ -72,7 +72,7 @@ public class TestDatabase
     {
         String databaseClean = System.getProperty(CLEAN_DATABASE_PROPERTY);
 
-        if (dumpFile.isFile() && dumpFile.getName().endsWith(".sql"))
+        if (dumpFile.isFile())
         {
             String databaseOwner = System.getProperty("user.name");
             boolean databaseExists = existsDatabase(databaseName);
@@ -82,7 +82,17 @@ public class TestDatabase
             {
                 dropDatabase(databaseName);
                 createEmptyDatabase(databaseOwner, databaseName);
-                restoreDatabaseDump(databaseOwner, databaseName, dumpFile);
+
+                if (dumpFile.getName().endsWith(".sql"))
+                {
+                    restoreSqlDatabaseDump(databaseOwner, databaseName, dumpFile);
+                } else if (dumpFile.getName().endsWith(".dmp"))
+                {
+                    restoreBinDatabaseDump(databaseOwner, databaseName, dumpFile);
+                } else
+                {
+                    throw new IllegalArgumentException("Database dump format not supported: " + dumpFile.getAbsolutePath());
+                }
             }
         }
     }
@@ -115,15 +125,28 @@ public class TestDatabase
         executeSql("postgres", template.createText());
     }
 
-    private static void restoreDatabaseDump(String databaseOwner, String databaseName,
+    private static void restoreSqlDatabaseDump(String databaseOwner, String databaseName,
             File databaseDump)
     {
-        System.out.println("Restoring database " + databaseName + " from dump "
+        System.out.println("Restoring database " + databaseName + " from an sql dump "
                 + databaseDump.getAbsolutePath());
 
         String psql = DumpPreparator.getPSQLExecutable();
         List<String> command =
                 Arrays.asList(psql, "-U", databaseOwner, "-d", databaseName, "-f",
+                        databaseDump.getAbsolutePath());
+        executeCommand(command);
+    }
+
+    private static void restoreBinDatabaseDump(String databaseOwner, String databaseName,
+            File databaseDump)
+    {
+        System.out.println("Restoring database " + databaseName + " from a binary dump "
+                + databaseDump.getAbsolutePath());
+
+        String restore = DumpPreparator.getRestoreExecutable();
+        List<String> command =
+                Arrays.asList(restore, "-U", "postgres", "-d", databaseName, "-j", "4", "-Fc",
                         databaseDump.getAbsolutePath());
         executeCommand(command);
     }

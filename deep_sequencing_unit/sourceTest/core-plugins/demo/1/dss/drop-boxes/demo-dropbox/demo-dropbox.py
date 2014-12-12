@@ -8,7 +8,7 @@ def process(tr):
             openFile = open(file.getAbsolutePath())
             content = openFile.read().strip()
             
-            experiment = tr.createNewExperiment("/TEST/TEST-PROJECT/" + content, "UNKNOWN")
+            experiment = tr.createNewExperiment("/BSSE_FLOWCELLS/FLOWCELLS/" + content, "HT_SEQUENCING")
         finally:
             if openFile:
                 openFile.close()

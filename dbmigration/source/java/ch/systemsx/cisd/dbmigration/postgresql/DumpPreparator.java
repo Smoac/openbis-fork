@@ -48,11 +48,9 @@ import ch.systemsx.cisd.dbmigration.SimpleDatabaseMetaData;
 import ch.systemsx.cisd.dbmigration.SimpleTableMetaData;
 
 /**
- * Helper application which creates 'mass upload' files to be used to setup the database from a
- * PostgreSQL dump.
+ * Helper application which creates 'mass upload' files to be used to setup the database from a PostgreSQL dump.
  * <p>
- * <b>Important:</b> When creating the dump file with <code>pg_dump</code> use the option
- * <b>--no-owner</b>.
+ * <b>Important:</b> When creating the dump file with <code>pg_dump</code> use the option <b>--no-owner</b>.
  * 
  * @author Franz-Josef Elmer
  */
@@ -62,7 +60,11 @@ public class DumpPreparator
 
     private static final String MAC_POSTGRESQL_90_PATH = "/opt/local/lib/postgresql90/bin/";
 
+    private static final String MAC_POSTGRESQL_93_PATH = "/opt/local/lib/postgresql93/bin/";
+
     private static final String DUMP_EXEC = "pg_dump";
+
+    private static final String RESTORE_EXEC = "pg_restore";
 
     private static final String PSQL_EXEC = "psql";
 
@@ -145,6 +147,14 @@ public class DumpPreparator
     }
 
     /**
+     * Returns the <code>pg_restore</code> executable.
+     */
+    public final static String getRestoreExecutable()
+    {
+        return getExecutable(RESTORE_EXEC);
+    }
+
+    /**
      * Returns the <code>psql</code> executable.
      */
     public final static String getPSQLExecutable()
@@ -157,6 +167,7 @@ public class DumpPreparator
         final Set<String> paths = OSUtilities.getSafeOSPath();
         paths.add(MAC_POSTGRESQL_91PATH);
         paths.add(MAC_POSTGRESQL_90_PATH);
+        paths.add(MAC_POSTGRESQL_93_PATH);
         final File dumbExec = OSUtilities.findExecutable(executable, paths);
         if (dumbExec == null)
         {
@@ -166,12 +177,12 @@ public class DumpPreparator
     }
 
     /**
-     * Creates all files necessary to setup a database from the specified PostgreSQL dump file and
-     * returns meta data which allows to access the tab-separated files.
+     * Creates all files necessary to setup a database from the specified PostgreSQL dump file and returns meta data which allows to access the
+     * tab-separated files.
      * 
      * @param writeEmptyTabFiles If <code>true</code> tab files are created also for empty tables.
-     * @param destination Destination folder in which the folder with the files will be created. The
-     *            folder will be named after the database version extracted from the dump.
+     * @param destination Destination folder in which the folder with the files will be created. The folder will be named after the database version
+     *            extracted from the dump.
      */
     public static SimpleDatabaseMetaData createUploadFiles(File dumpFile, File destination,
             boolean writeEmptyTabFiles) throws IOException

@@ -52,7 +52,7 @@ public class DemoDropboxTest extends DSUDropboxSystemTest
         waitUntilDataImported();
         waitUntilDataReindexed(ExperimentPE.class);
 
-        String sessionToken = getGeneralInformationService().tryToAuthenticateForAllServices("admin", "password");
+        String sessionToken = getGeneralInformationService().tryToAuthenticateForAllServices("kohleman", "password");
 
         // check that the new created experiments are there
         SearchCriteria criteria = new SearchCriteria();
@@ -60,13 +60,6 @@ public class DemoDropboxTest extends DSUDropboxSystemTest
 
         List<Experiment> experiments = getGeneralInformationService().searchForExperiments(sessionToken, criteria);
         Assert.assertEquals(experiments.size(), 2);
-
-        // check that an old experiment can also be found (i.e. Lucene index works fine)
-        criteria = new SearchCriteria();
-        criteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.PERM_ID, "20130415091745099-401"));
-
-        experiments = getGeneralInformationService().searchForExperiments(sessionToken, criteria);
-        Assert.assertEquals(experiments.size(), 1);
     }
 
 }
