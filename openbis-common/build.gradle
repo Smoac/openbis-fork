@@ -1,4 +1,5 @@
 evaluationDependsOn(':common')
+evaluationDependsOn(':dbmigration')
 
 apply from: '../gradle/javaproject.gradle'
 
