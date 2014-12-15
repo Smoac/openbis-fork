@@ -7,6 +7,8 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 	init: function(serverFacade){
 		DefaultProfile.prototype.init.call(this, serverFacade);
 		
+		this.inventorySpaces = ["MATERIALS", "METHODS"];
+		
 		this.storagesConfiguration = {
 				"isEnabled" : true,
 				/*
