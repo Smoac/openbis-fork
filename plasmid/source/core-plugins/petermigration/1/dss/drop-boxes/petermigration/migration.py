@@ -18,14 +18,17 @@ def process(tr):
     print "START!"
     createDataHierarchy(tr)
     for adaptor in adaptors:
+        print "- ADAPTOR [" + adaptor.__class__.__name__ + "] START"
         while adaptor.next():
             entity = adaptor.getEntity()
+            print "* ENTITY [" + str(entity.getIdentifier(tr)) + "]"
             if not entity.isInOpenBIS(tr):
                 entity.write(tr)
                 #print entity.getIdentifier(tr) + " - Updated"
             else:
                 pass
                 #print entity.getIdentifier(tr) + " - Already up to date"
+        print "- ADAPTOR [" + adaptor.__class__.__name__ + "] FINISH"
     print "FINISH!"
 
 ##
@@ -137,7 +140,7 @@ def getExperimentForUpdate(experimentIdentifier, experimentType, tr):
      
 def getSampleForUpdate(sampleIdentifier, sampleType, tr):
     if sampleIdentifier not in sampleCache:
-         print "Cache failed " + sampleIdentifier + ":" + str(sampleType)
+         #print "Cache failed " + sampleIdentifier + ":" + str(sampleType)
          sample = tr.getSampleForUpdate(sampleIdentifier)
          if sample is None and sampleType is not None:
              #print "Cache Create " + sampleIdentifier + ":" + str(sampleType)
@@ -194,7 +197,7 @@ class FMPeterOpenBISDTO(OpenBISDTO):
                 else :
                     return False
             else:
-                print "Invalid Code found '" + str(code) + "' for '" + self.__class__.__name__ + "'"
+                print "* ERROR [" + str(code) + "] - Invalid Code found for '" + self.__class__.__name__ + "'"
                 return True 
 
 class FMPeterBoxAdaptor(FileMakerEntityAdaptor):
@@ -206,7 +209,7 @@ class FMPeterBoxAdaptor(FileMakerEntityAdaptor):
         self.entities.append(FMPeterEntityBoxOpenBISDTO(values, self.definition))
         
     def init(self):
-        print "Reading boxes for: " + self.__class__.__name__
+        #print "Reading boxes for: " + self.__class__.__name__
         emptyBox = 0
         boxes = {}
         EntityAdaptor.init(self)
@@ -239,7 +242,7 @@ class FMPeterBoxAdaptor(FileMakerEntityAdaptor):
                 #The antibody is not there. What the *#%$&
                 emptyBox += 1
         
-        print "Boxes positions with empty entityId for " + self.__class__.__name__ + ":" + str(emptyBox)
+        print "- ADAPTOR Boxes positions with empty entityId for " + self.__class__.__name__ + ":" + str(emptyBox)
         
         for entiyCode, allBoxes in boxes.iteritems():
             self.addEntity({
@@ -251,10 +254,12 @@ class FMPeterBoxAdaptor(FileMakerEntityAdaptor):
         preparedStatement.close()
 
 class FMPeterEntityBoxOpenBISDTO(OpenBISDTO):
+    def getIdentifier(self, tr):
+        return self.values["*CODE"]
     
     def write(self, tr):
         sample = getSampleForUpdate("/INVENTORY/"+self.values["*CODE"], None, tr)
-        print "BOXES SIZE: " + self.values["*CODE"] + " " + str(len(self.values["*BOXESLIST"]))
+        print "* INFO Boxes size: " + str(len(self.values["*BOXESLIST"]))
         #Delete old boxes
         for boxNum in range(1, definitions.numberOfStorageGroups+1):
             for propertyCode in definitions.getStorageGroupPropertyCodes():
@@ -524,7 +529,7 @@ class DocumentOpenBISDTO(OpenBISDTO):
             #incoming = tr.getIncoming()
             #tr.moveFile(incoming.getAbsolutePath(), dataSet)
         else:
-            print "Document missing something SERIAL: " + self.values["SERIAL"]
+            print "* ERROR Document missing something SERIAL: " + self.values["SERIAL"]
     
     def getIdentifier(self, tr):
         return self.values["SERIAL"]

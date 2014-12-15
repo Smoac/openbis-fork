@@ -28,7 +28,7 @@ tmScriptName= "TM"
 #
 # Storage 
 #
-numberOfStorageGroups = 15
+numberOfStorageGroups = 65
 
 def getStorageGroupPropertyCodes():
     propertyCodes = [];
