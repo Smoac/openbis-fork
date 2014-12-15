@@ -29,14 +29,21 @@ tmScriptName= "TM"
 # Storage 
 #
 numberOfStorageGroups = 15
-stogageGroupPropertyCodes = ["STORAGE_NAME", "STORAGE_ROW", "STORAGE_COLUMN", "STORAGE_BOX_NAME", "STORAGE_USER", "STORAGE_BOX_POSITION"] #This is duplicated below, needs cleanup
-storageGroupDefinition = [
-    ["STORAGE_NAME_0",         "Physical Storage 0",        "location",         DataType.CONTROLLEDVOCABULARY,      "FREEZER",            "Storage Name 0",       None, None, False],
-    ["STORAGE_ROW_0",          "Physical Storage 0",        "Storage Row",      DataType.INTEGER,                    None,                "Storage Row 0",        None, None, False],
-    ["STORAGE_COLUMN_0",       "Physical Storage 0",        "Storage Column",   DataType.INTEGER,                    None,                "Storage Column 0",     None, None, False],
-    ["STORAGE_BOX_NAME_0",     "Physical Storage 0",        "box label",        DataType.VARCHAR,                    None,                "Storage Box Name 0",   None, None, False],
-    ["STORAGE_USER_0",         "Physical Storage 0",        "frozen by",        DataType.CONTROLLEDVOCABULARY,      "ALL_LAB_MEMBERS",    "Storage User Id 0",    None, None, False],
-    ["STORAGE_BOX_POSITION_0", "Physical Storage 0",        "position",         DataType.VARCHAR,                    None,                "Storage Box Position 0",    None, None, False]
+
+def getStorageGroupPropertyCodes():
+    propertyCodes = [];
+    for property in getStorageGroupDefinition():
+        propertyCodes.append(property[0]);
+    return propertyCodes;
+
+def getStorageGroupDefinition():
+    return [
+    ["STORAGE_NAME",         "Physical Storage",        "location",         DataType.CONTROLLEDVOCABULARY,      "FREEZER",            "Storage Name",       None, None, False],
+    ["STORAGE_ROW",          "Physical Storage",        "Storage Row",      DataType.INTEGER,                    None,                "Storage Row",        None, None, False],
+    ["STORAGE_COLUMN",       "Physical Storage",        "Storage Column",   DataType.INTEGER,                    None,                "Storage Column",     None, None, False],
+    ["STORAGE_BOX_NAME",     "Physical Storage",        "box label",        DataType.VARCHAR,                    None,                "Storage Box Name",   None, None, False],
+    ["STORAGE_USER",         "Physical Storage",        "frozen by",        DataType.CONTROLLEDVOCABULARY,      "ALL_LAB_MEMBERS",    "Storage User Id",    None, None, False],
+    ["STORAGE_BOX_POSITION", "Physical Storage",        "position",         DataType.VARCHAR,                    None,                "Storage Box Position",    None, None, False]
 ];
 
 #

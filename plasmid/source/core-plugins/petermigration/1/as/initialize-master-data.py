@@ -17,8 +17,8 @@
 ##
 ## Configuration
 ##
-#PATH_TO_MANAGE_PROPERTIES_SCRIPTS = "/Users/juanf/Documents/workspace/openbis/source/core-plugins/petermigration/1/compatibility/";
-PATH_TO_MANAGE_PROPERTIES_SCRIPTS = "/Users/barillac/openbis-peter/servers/core-plugins/petermigration/1/compatibility/";
+PATH_TO_MANAGE_PROPERTIES_SCRIPTS = "/Users/juanf/Documents/workspace/openbis/source/core-plugins/petermigration/1/compatibility/";
+#PATH_TO_MANAGE_PROPERTIES_SCRIPTS = "/Users/barillac/openbis-peter/servers/core-plugins/petermigration/1/compatibility/";
 
 # MasterDataRegistrationTransaction Class
 import definitions
@@ -112,13 +112,12 @@ def createProperty(propertyCode, dataType, propertyLabel, propertyDescription, v
     return property;
 
 def addStorageGroups(numGroups, sampleType):
-    storageGroup = copy.copy(definitions.storageGroupDefinition);
-    
     for storageIdx in range(1,(numGroups + 1)):
+        storageGroup = definitions.getStorageGroupDefinition();
         for property in storageGroup:
-            property[0] = property[0].replace(str(storageIdx-1), str(storageIdx));
-            property[1] = property[1].replace(str(storageIdx-1), str(storageIdx));
-            property[5] = property[5].replace(str(storageIdx-1), str(storageIdx));
+            property[0] = property[0] + "_" + str(storageIdx);
+            property[1] = property[1] + "_" + str(storageIdx);
+            property[5] = property[5] + "_" + str(storageIdx);
         addPropertiesToSamples([sampleType], storageGroup);
 
 #Valid Script Types: DYNAMIC_PROPERTY, MANAGED_PROPERTY, ENTITY_VALIDATION 
@@ -213,16 +212,14 @@ createExperimentTypeWithProperties("OLIGO", "BOX TO HOLD SAMPLES OF THIS TYPE FO
 ## Sample Types
 ##
 createSampleTypeWithProperties("ANTIBODY", "", definitions.antibodyDefinition);
+addStorageGroups(definitions.numberOfStorageGroups, "ANTIBODY");
 createSampleTypeWithProperties("CELL", "", definitions.cellDefinition);
+addStorageGroups(definitions.numberOfStorageGroups, "CELL");
 createSampleTypeWithProperties("STRAIN", "", definitions.strainDefinition);
 createSampleTypeWithProperties("PLASMID", "", definitions.plasmidDefinition);
 createSampleTypeWithProperties("CHEMICAL", "", definitions.chemicalDefinition);
 createSampleTypeWithProperties("SIRNA", "", definitions.siRNADefinition);
 createSampleTypeWithProperties("OLIGO", "", definitions.oligoDefinition);
-
-
-
-addStorageGroups(definitions.numberOfStorageGroups, "ANTIBODY");
 
 ##
 ## Data set Types

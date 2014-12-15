@@ -42,7 +42,7 @@ def setEntityProperties(tr, definition, entity, properties):
                 propertyValue = datetime.strftime(date_val, "%Y-%m-%d")
             
             if propertyDefinition is not None and propertyDefinition[3] == DataType.CONTROLLEDVOCABULARY and propertyValue is not None:
-                possiblePropertyValue = definitionsVoc.getVocaularyTermCodeForVocabularyAndTermLabel(propertyDefinition[4], propertyValue)
+                possiblePropertyValue = definitionsVoc.getVocabularyTermCodeForVocabularyAndTermLabel(propertyDefinition[4], propertyValue)
                 if possiblePropertyValue is not None:
                     propertyValue = possiblePropertyValue
                 else:  #We rely on the Add Hock Terms if is None
@@ -183,7 +183,7 @@ class FileMakerEntityAdaptor(EntityAdaptor):
 class FMPeterOpenBISDTO(OpenBISDTO):
         def isInOpenBIS(self, tr):
             code = self.getIdentifier(tr)
-            if code is not None:
+            if (code is not None) and (' ' not in code):
                 sampleID2Sample[self.values["NAME"]] = self.values
                 sample = getSampleForUpdate("/INVENTORY/"+code, None, tr)
                 if sample is not None:
@@ -194,14 +194,17 @@ class FMPeterOpenBISDTO(OpenBISDTO):
                 else :
                     return False
             else:
-                print "Null Code found in: " + self.__class__.__name__
+                print "Invalid Code found '" + str(code) + "' for '" + self.__class__.__name__ + "'"
                 return True 
 
 class FMPeterBoxAdaptor(FileMakerEntityAdaptor):
     selectBoxQuery = None
     entityIdFieldName = None
     entityCodeFieldName = None
-
+    
+    def addEntity(self, values):
+        self.entities.append(FMPeterEntityBoxOpenBISDTO(values, self.definition))
+        
     def init(self):
         print "Reading boxes for: " + self.__class__.__name__
         emptyBox = 0
@@ -236,7 +239,7 @@ class FMPeterBoxAdaptor(FileMakerEntityAdaptor):
                 #The antibody is not there. What the *#%$&
                 emptyBox += 1
         
-        print "Not found: " + str(emptyBox)
+        print "Boxes positions with empty entityId for " + self.__class__.__name__ + ":" + str(emptyBox)
         
         for entiyCode, allBoxes in boxes.iteritems():
             self.addEntity({
@@ -247,11 +250,74 @@ class FMPeterBoxAdaptor(FileMakerEntityAdaptor):
         result.close()
         preparedStatement.close()
 
+class FMPeterEntityBoxOpenBISDTO(OpenBISDTO):
+    
+    def write(self, tr):
+        sample = getSampleForUpdate("/INVENTORY/"+self.values["*CODE"], None, tr)
+        print "BOXES SIZE: " + self.values["*CODE"] + " " + str(len(self.values["*BOXESLIST"]))
+        #Delete old boxes
+        for boxNum in range(1, definitions.numberOfStorageGroups+1):
+            for propertyCode in definitions.getStorageGroupPropertyCodes():
+                sample.setPropertyValue(propertyCode + "_" + str(boxNum), None)
+        #Add new boxes
+        boxNum = 1
+        for box in self.values["*BOXESLIST"]:
+            boxNum += 1
+            for propertyCode, propertyValue in box.iteritems():
+                if propertyCode == "STORAGE_NAME":
+                    freezerName = definitionsVoc.getVocabularyTermCodeForVocabularyAndTermLabel("FREEZER", propertyValue)
+                    if freezerName is None:
+                        #print repr("NOT FOUND FEEZER: " + self.values["ANTIBODY_ID_NR"] + " : '" + unicode(propertyValue) + "'")
+                        propertyValue = None
+                    else:
+                        propertyValue = freezerName
+                if propertyCode == "STORAGE_USER":
+                    storageUser = definitionsVoc.getVocabularyTermCodeForVocabularyAndTermLabel("ALL_LAB_MEMBERS", propertyValue)
+                    if storageUser is None:
+                        #print repr("NOT FOUND USER: " + self.values["ANTIBODY_ID_NR"] + " : '" + unicode(propertyValue) + "'")
+                        propertyValue = None
+                    else:
+                        propertyValue = storageUser
+                
+                if propertyValue is not None:
+                    propertyValue =  unicode(propertyValue)
+                    sample.setPropertyValue(propertyCode + "_" + str(boxNum), propertyValue)
+    
+    def isBoxPressent(self, boxSignature, tr):
+        sample = getSampleForUpdate("/INVENTORY/"+self.values["*CODE"], None, tr)
+        if sample is not None:
+            for boxNum in range(1, definitions.numberOfStorageGroups+1):
+                storedSignature = "";
+                for propertyCode in definitions.getStorageGroupPropertyCodes():
+                    propertyValue = sample.getPropertyValue(propertyCode + "_" + str(boxNum))
+                    if propertyValue is not None:
+                        propertyValue = unicode(propertyValue)
+                        storedSignature += propertyValue
+                if storedSignature == boxSignature:
+                    #print "Found Box " + storedSignature.encode('ascii', 'ignore')
+                    return True
+        return False
+    
+    def isInOpenBIS(self, tr):
+        for box in self.values["*BOXESLIST"]:
+            boxSignature = "";
+            for propertyCode in definitions.getStorageGroupPropertyCodes():
+                propertyValue = box[propertyCode]
+                if propertyCode == "STORAGE_NAME":
+                    propertyValue = definitionsVoc.getVocabularyTermCodeForVocabularyAndTermLabel("FREEZER", propertyValue)
+                if propertyCode == "STORAGE_USER":
+                    propertyValue = definitionsVoc.getVocabularyTermCodeForVocabularyAndTermLabel("LAB_MEMBERS_INITIALS", propertyValue)
+                    
+                if propertyValue is not None:
+                    propertyValue = unicode(propertyValue)
+                    boxSignature += propertyValue
+            if not self.isBoxPressent(boxSignature, tr):
+                return False
+        return True
 ##
 ## Antibodies
 ##
 class AntibodyAdaptor(FileMakerEntityAdaptor):
-    
     def init(self):
         self.selectQuery = "SELECT * FROM \"boxit antibodies\""
         self.definition = definitions.antibodyDefinition
@@ -272,73 +338,6 @@ class AntibodyBoxAdaptor(FMPeterBoxAdaptor):
     selectBoxQuery = "SELECT * FROM \"antibody boxes\""
     entityIdFieldName = "antibody ID"
     entityCodeFieldName = "ANTIBODY_ID_NR"
-    
-    def addEntity(self, values):
-        self.entities.append(AntibodyBoxOpenBISDTO(values, self.definition))
-
-class AntibodyBoxOpenBISDTO(OpenBISDTO):
-    
-    def write(self, tr):
-        sample = getSampleForUpdate("/INVENTORY/"+self.values["*CODE"], None, tr)
-        #Delete old boxes
-        for boxNum in range(1, definitions.numberOfStorageGroups+1):
-            for propertyCode in definitions.stogageGroupPropertyCodes:
-                sample.setPropertyValue(propertyCode + "_" + str(boxNum), None)
-        #Add new boxes
-        boxNum = 1
-        for box in self.values["*BOXESLIST"]:
-            boxNum += 1
-            for propertyCode, propertyValue in box.iteritems():
-                if propertyCode == "STORAGE_NAME":
-                    freezerName = definitionsVoc.getVocaularyTermCodeForVocabularyAndTermLabel("FREEZER", propertyValue)
-                    if freezerName is None:
-                        #print repr("NOT FOUND FEEZER: " + self.values["ANTIBODY_ID_NR"] + " : '" + unicode(propertyValue) + "'")
-                        propertyValue = None
-                    else:
-                        propertyValue = freezerName
-                if propertyCode == "STORAGE_USER":
-                    storageUser = definitionsVoc.getVocaularyTermCodeForVocabularyAndTermLabel("ALL_LAB_MEMBERS", propertyValue)
-                    if storageUser is None:
-                        #print repr("NOT FOUND USER: " + self.values["ANTIBODY_ID_NR"] + " : '" + unicode(propertyValue) + "'")
-                        propertyValue = None
-                    else:
-                        propertyValue = storageUser
-                
-                if propertyValue is not None:
-                    propertyValue =  unicode(propertyValue)
-                    sample.setPropertyValue(propertyCode + "_" + str(boxNum), propertyValue)
-    
-    def isBoxPressent(self, boxSignature, tr):
-        sample = getSampleForUpdate("/INVENTORY/"+self.values["*CODE"], None, tr)
-        if sample is not None:
-            for boxNum in range(1, definitions.numberOfStorageGroups+1):
-                storedSignature = "";
-                for propertyCode in definitions.stogageGroupPropertyCodes:
-                    propertyValue = sample.getPropertyValue(propertyCode + "_" + str(boxNum))
-                    if propertyValue is not None:
-                        propertyValue = unicode(propertyValue)
-                        storedSignature += propertyValue
-                if storedSignature == boxSignature:
-                    #print "Found Box " + storedSignature.encode('ascii', 'ignore')
-                    return True
-        return False
-    
-    def isInOpenBIS(self, tr):
-        for box in self.values["*BOXESLIST"]:
-            boxSignature = "";
-            for propertyCode in definitions.stogageGroupPropertyCodes:
-                propertyValue = box[propertyCode]
-                if propertyCode == "STORAGE_NAME":
-                    propertyValue = definitionsVoc.getVocaularyTermCodeForVocabularyAndTermLabel("FREEZER", propertyValue)
-                if propertyCode == "STORAGE_USER":
-                    propertyValue = definitionsVoc.getVocaularyTermCodeForVocabularyAndTermLabel("LAB_MEMBERS_INITIALS", propertyValue)
-                    
-                if propertyValue is not None:
-                    propertyValue = unicode(propertyValue)
-                    boxSignature += propertyValue
-            if not self.isBoxPressent(boxSignature, tr):
-                return False
-        return True
 
 ##
 ## Cells
@@ -363,6 +362,11 @@ class CellOpenBISDTO(FMPeterOpenBISDTO):
     def getIdentifier(self, tr):
         code = self.values["CELL_ID_NR_COPY"]
         return code
+
+class CellBoxAdaptor(FMPeterBoxAdaptor):
+    selectBoxQuery = "SELECT * FROM \"cell boxes\""
+    entityIdFieldName = "cell ID"
+    entityCodeFieldName = "CELL_ID_NR_COPY"
 
 ##
 ## Strains
@@ -548,16 +552,18 @@ fmConnStringServer = "jdbc:filemaker://fm.ethz.ch/"
 fmUserServer= "sistemp"
 fmPassServer = "ibcimsb2014"
 
-adaptors = [AntibodyAdaptor(fmConnString, fmUser, fmPass, "BOXIT_antibodies_Peter"), 
-            AntibodyBoxAdaptor(fmConnString, fmUser, fmPass, "BOXIT_antibody_boxes_Peter"),
-            #CellAdaptor(fmConnString, fmUser, fmPass, "BOXIT_cells_Peter"),
-            #PlasmidAdaptor(fmConnString, fmUser, fmPass, "BOXIT_plasmids_Peter"),
-            #StrainAdaptor(fmConnString, fmUser, fmPass, "BOXIT_strains_Peter"),
-            #SirnaAdaptor(fmConnString, fmUser, fmPass, "BOXIT_Main_Menu_Peter"),
-            #ChemicalAdaptor(fmConnString, fmUser, fmPass, "BOXIT_Main_Menu_Peter"),
-            #OligoAdaptor(fmConnString, fmUser, fmPass, "BOXIT_oligos_Peter"),
-            DocumentsAdaptor(fmConnString, fmUser, fmPass, "BOXIT_documents_Peter")]
+#             AntibodyAdaptor(fmConnString, fmUser, fmPass, "BOXIT_antibodies_Peter"), 
+#             AntibodyBoxAdaptor(fmConnString, fmUser, fmPass, "BOXIT_antibody_boxes_Peter"),
+#             PlasmidAdaptor(fmConnString, fmUser, fmPass, "BOXIT_plasmids_Peter"),
+#             StrainAdaptor(fmConnString, fmUser, fmPass, "BOXIT_strains_Peter"),
+#             SirnaAdaptor(fmConnString, fmUser, fmPass, "BOXIT_Main_Menu_Peter"),
+#             ChemicalAdaptor(fmConnString, fmUser, fmPass, "BOXIT_Main_Menu_Peter"),
+#             OligoAdaptor(fmConnString, fmUser, fmPass, "BOXIT_oligos_Peter"),
 
+adaptors = [CellAdaptor(fmConnString, fmUser, fmPass, "BOXIT_cells_Peter"),
+             CellBoxAdaptor(fmConnString, fmUser, fmPass, "BOXIT_cell_boxes_Peter"),
+             DocumentsAdaptor(fmConnString, fmUser, fmPass, "BOXIT_documents_Peter")]
+            
 def createDataHierarchy(tr):
     inventorySpace = tr.getSpace("INVENTORY")
     if inventorySpace == None:

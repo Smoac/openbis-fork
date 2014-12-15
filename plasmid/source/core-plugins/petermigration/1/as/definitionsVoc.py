@@ -4,11 +4,11 @@
 #
 # Helper Methods
 #
-def getVocaularyTermCodeForVocabularyAndTermLabel(vocabularyCode, termLabel):
+def getVocabularyTermCodeForVocabularyAndTermLabel(vocabularyCode, termLabel):
     vocabulary = vocacbularyDefinitions[vocabularyCode]
     for term in vocabulary:
         if term[1] == termLabel:
-            print repr("TERM NOT FOUND IN VOCABULARY LIST: " + unicode(vocabularyCode) + " : '" + unicode(termLabel) + "'")
+            #print repr("TERM NOT FOUND IN VOCABULARY LIST: " + unicode(vocabularyCode) + " : '" + unicode(termLabel) + "'")
             return term[0]
     return None
 
