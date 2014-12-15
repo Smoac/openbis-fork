@@ -184,10 +184,14 @@ class FileMakerEntityAdaptor(EntityAdaptor):
 ## Customer specific logic: different sample types
 ##
 class FMPeterOpenBISDTO(OpenBISDTO):
+        def isSampleCacheable(self):
+            return True
+        
         def isInOpenBIS(self, tr):
             code = self.getIdentifier(tr)
             if (code is not None) and (' ' not in code):
-                sampleID2Sample[self.values["NAME"]] = self.values
+                if self.isSampleCacheable():
+                    sampleID2Sample[self.values["NAME"]] = self.values
                 sample = getSampleForUpdate("/INVENTORY/"+code, None, tr)
                 if sample is not None:
                     lastModificationData = self.values["MODIFICATION_DATE"].strip()
@@ -473,6 +477,9 @@ class ChemicalAdaptor(FileMakerEntityAdaptor):
         self.entities.append(ChemicalOpenBISDTO(values, self.definition))
         
 class ChemicalOpenBISDTO(FMPeterOpenBISDTO):
+    def isSampleCacheable(self):
+        return False
+        
     def write(self, tr):
         code = "CHEM_" + self.values["RECORD_NUMBER"]
         if code is not None:
@@ -487,7 +494,6 @@ class ChemicalOpenBISDTO(FMPeterOpenBISDTO):
 ## Sirna
 ##
 class SirnaAdaptor(FileMakerEntityAdaptor):
-    
     def init(self):
         self.selectQuery = "SELECT * FROM \"siRNA\""
         self.definition = definitions.siRNADefinition
@@ -497,6 +503,9 @@ class SirnaAdaptor(FileMakerEntityAdaptor):
         self.entities.append(SirnaOpenBISDTO(values, self.definition))
         
 class SirnaOpenBISDTO(FMPeterOpenBISDTO):
+    def isSampleCacheable(self):
+            return False
+    
     def write(self, tr):
         code = "SI_" + self.values["SIRNA_OLIGONUMBER"]
         if code is not None:
