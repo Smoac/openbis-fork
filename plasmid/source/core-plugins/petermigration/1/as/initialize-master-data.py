@@ -208,6 +208,7 @@ createExperimentTypeWithProperties("PLASMID", "BOX TO HOLD SAMPLES OF THIS TYPE 
 createExperimentTypeWithProperties("CHEMICAL", "BOX TO HOLD SAMPLES OF THIS TYPE FOR ORGANIZATIONAL PURPOSES", []);
 createExperimentTypeWithProperties("SIRNA", "BOX TO HOLD SAMPLES OF THIS TYPE FOR ORGANIZATIONAL PURPOSES", []);
 createExperimentTypeWithProperties("OLIGO", "BOX TO HOLD SAMPLES OF THIS TYPE FOR ORGANIZATIONAL PURPOSES", []);
+
 ##
 ## Sample Types
 ##
@@ -216,10 +217,13 @@ addStorageGroups(definitions.numberOfStorageGroups, "ANTIBODY");
 createSampleTypeWithProperties("CELL", "", definitions.cellDefinition);
 addStorageGroups(definitions.numberOfStorageGroups, "CELL");
 createSampleTypeWithProperties("STRAIN", "", definitions.strainDefinition);
+addStorageGroups(definitions.numberOfStorageGroups, "STRAIN");
 createSampleTypeWithProperties("PLASMID", "", definitions.plasmidDefinition);
+addStorageGroups(definitions.numberOfStorageGroups, "PLASMID");
+createSampleTypeWithProperties("OLIGO", "", definitions.oligoDefinition);
+addStorageGroups(definitions.numberOfStorageGroups, "OLIGO");
 createSampleTypeWithProperties("CHEMICAL", "", definitions.chemicalDefinition);
 createSampleTypeWithProperties("SIRNA", "", definitions.siRNADefinition);
-createSampleTypeWithProperties("OLIGO", "", definitions.oligoDefinition);
 
 ##
 ## Data set Types
