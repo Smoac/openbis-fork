@@ -64,7 +64,7 @@ def setEntityProperties(tr, definition, entity, properties):
                     vocabulary.addTerm(term)
                     #Uses new vocabulary term
                     propertyValue = codeToUse
-                    print repr("* ENTITY [" + entity.getCode() + "] created for Vocabulary [" + propertyDefinition[4] + "] not found value: [" + labelToUse + "] new term with code [" + codeToUse + "]")
+                    print repr("* ENTITY [" + entity.getCode() + "]: for Vocabulary [" + propertyDefinition[4] + "], found value not in list: [" + labelToUse + "]. Created new term with code [" + codeToUse + "]")
             
             if propertyDefinition is not None: #Sometimes special fields are added for other purposes, these should not be set
                 entity.setPropertyValue(propertyCode, propertyValue)
@@ -397,6 +397,10 @@ class StrainOpenBISDTO(FMPeterOpenBISDTO):
         code = self.values["STRAIN_ID_NR"]
         return code
 
+class StrainBoxAdaptor(FMPeterBoxAdaptor):
+    selectBoxQuery = "SELECT * FROM \"strain boxes\""
+    entityIdFieldName = "strain ID"
+    entityCodeFieldName = "STRAIN_ID_NR"
 ##
 ## Plasmids
 ##
@@ -421,6 +425,11 @@ class PlasmidOpenBISDTO(FMPeterOpenBISDTO):
         code = self.values["PLASMID_ID_NR"]
         return code
 
+class PlasmidBoxAdaptor(FMPeterBoxAdaptor):
+    selectBoxQuery = "SELECT * FROM \"plasmid boxes\""
+    entityIdFieldName = "plasmid ID"
+    entityCodeFieldName = "PLASMID_ID_NR"
+
 ##
 ## Oligos
 ##
@@ -444,6 +453,11 @@ class OligoOpenBISDTO(FMPeterOpenBISDTO):
     def getIdentifier(self, tr):
         code = self.values["OLIGO_ID_NR"]
         return code
+
+class OligoBoxAdaptor(FMPeterBoxAdaptor):
+    selectBoxQuery = "SELECT * FROM \"oligo boxes\""
+    entityIdFieldName = "oligo ID"
+    entityCodeFieldName = "OLIGO_ID_NR"
 
 ##
 ## Chemical
@@ -562,17 +576,21 @@ fmConnStringServer = "jdbc:filemaker://fm.ethz.ch/"
 fmUserServer= "sistemp"
 fmPassServer = "ibcimsb2014"
 
-#             AntibodyAdaptor(fmConnString, fmUser, fmPass, "BOXIT_antibodies_Peter"), 
-#             AntibodyBoxAdaptor(fmConnString, fmUser, fmPass, "BOXIT_antibody_boxes_Peter"),
-#             PlasmidAdaptor(fmConnString, fmUser, fmPass, "BOXIT_plasmids_Peter"),
-#             StrainAdaptor(fmConnString, fmUser, fmPass, "BOXIT_strains_Peter"),
-#             SirnaAdaptor(fmConnString, fmUser, fmPass, "BOXIT_Main_Menu_Peter"),
-#             ChemicalAdaptor(fmConnString, fmUser, fmPass, "BOXIT_Main_Menu_Peter"),
-#             OligoAdaptor(fmConnString, fmUser, fmPass, "BOXIT_oligos_Peter"),
-
-adaptors = [CellAdaptor(fmConnString, fmUser, fmPass, "BOXIT_cells_Peter"),
+adaptors = [ AntibodyAdaptor(fmConnString, fmUser, fmPass, "BOXIT_antibodies_Peter"), 
+             AntibodyBoxAdaptor(fmConnString, fmUser, fmPass, "BOXIT_antibody_boxes_Peter"),
+             PlasmidAdaptor(fmConnString, fmUser, fmPass, "BOXIT_plasmids_Peter"),
+             PlasmidBoxAdaptor(fmConnString, fmUser, fmPass, "BOXIT_plasmid_boxes_Peter"),
+             StrainAdaptor(fmConnString, fmUser, fmPass, "BOXIT_strains_Peter"),
+             StrainBoxAdaptor(fmConnString, fmUser, fmPass, "BOXIT_strain_boxes_Peter"),
+             OligoAdaptor(fmConnString, fmUser, fmPass, "BOXIT_oligos_Peter"),
+             OligoBoxAdaptor(fmConnString, fmUser, fmPass, "BOXIT_oligo_boxes_Peter"),
+             CellAdaptor(fmConnString, fmUser, fmPass, "BOXIT_cells_Peter"),
              CellBoxAdaptor(fmConnString, fmUser, fmPass, "BOXIT_cell_boxes_Peter"),
+             SirnaAdaptor(fmConnString, fmUser, fmPass, "BOXIT_Main_Menu_Peter"),
+             ChemicalAdaptor(fmConnString, fmUser, fmPass, "BOXIT_Main_Menu_Peter"),
              DocumentsAdaptor(fmConnString, fmUser, fmPass, "BOXIT_documents_Peter")]
+           
+            
             
 def createDataHierarchy(tr):
     inventorySpace = tr.getSpace("INVENTORY")
