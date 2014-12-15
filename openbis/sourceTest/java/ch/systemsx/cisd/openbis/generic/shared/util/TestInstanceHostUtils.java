@@ -56,6 +56,9 @@ public class TestInstanceHostUtils
         } else if (projectName.equals("screening"))
         {
             return 20;
+        } else if (projectName.equals("deep_sequencing_unit"))
+        {
+            return 30;
         }
 
         return 80;

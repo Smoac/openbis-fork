@@ -204,6 +204,8 @@ test {
     useTestNG()
     options.suites('sourceTest/java/tests.xml')    
 
+	systemProperty "ant.project.name", project.name
+
     jvmArgs '-Xmx2048m', '-XX:MaxPermSize=256m', '-Duser.timezone=Europe/Zurich'
     
     testLogging.showStandardStreams = true
