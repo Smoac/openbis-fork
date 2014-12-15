@@ -23,7 +23,7 @@ import ch.systemsx.cisd.openbis.datastoreserver.systemtests.GenericSystemTest;
 /**
  * @author pkupczyk
  */
-public class DSUSystemTest extends GenericSystemTest
+public abstract class DSUSystemTest extends GenericSystemTest
 {
 
     @Override
