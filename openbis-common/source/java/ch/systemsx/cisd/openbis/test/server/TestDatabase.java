@@ -146,7 +146,7 @@ public class TestDatabase
 
         String restore = DumpPreparator.getRestoreExecutable();
         List<String> command =
-                Arrays.asList(restore, "-U", databaseOwner, "-d", databaseName, "-j", "4", "-Fc", "-O",
+                Arrays.asList(restore, "-U", databaseOwner, "-d", databaseName, "-n", "public", "-j", "4", "-Fc", "-O",
                         databaseDump.getAbsolutePath());
         executeCommand(command);
     }
