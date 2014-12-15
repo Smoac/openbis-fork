@@ -48,6 +48,13 @@ public abstract class GenericDropboxSystemTest extends GenericSystemTest
         FileUtils.copyDirectory(dataDirectory, destinationDirectory, SVN_FILTER);
     }
 
+    protected void importDataWithMarker(String dataDirectoryName) throws Exception
+    {
+        importData(dataDirectoryName);
+        File markerFile = new File(getIncomingDirectory(), ".MARKER_is_finished_" + dataDirectoryName);
+        markerFile.createNewFile();
+    }
+
     protected void waitUntilDataImported() throws Exception
     {
         waitUntilDataImported(120);
