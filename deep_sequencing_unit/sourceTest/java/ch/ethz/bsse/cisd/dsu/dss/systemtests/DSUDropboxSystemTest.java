@@ -33,5 +33,11 @@ public abstract class DSUDropboxSystemTest extends GenericDropboxSystemTest
         DSUTestInitializer.init();
         super.beforeSuite();
     }
+    
+    @Override
+    protected String getDropboxIncomingDirectoryName()
+    {
+        return getDropboxName();
+    }
 
 }
