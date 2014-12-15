@@ -48,7 +48,7 @@ def setEntityProperties(tr, definition, entity, properties):
                 possiblePropertyValue = definitionsVoc.getVocabularyTermCodeForVocabularyAndTermLabel(propertyDefinition[4], propertyValue)
                 if possiblePropertyValue is not None:
                     propertyValue = possiblePropertyValue
-                else:  #We rely on the Add Hock Terms if is None
+                else:  #We rely on the Add Hock Terms if is None, since there is no API we create a new one
                     #Create new vocabulary term
                     vocabulary = tr.getVocabularyForUpdate(propertyDefinition[4])
                     term = tr.createNewVocabularyTerm()
@@ -64,7 +64,7 @@ def setEntityProperties(tr, definition, entity, properties):
                     vocabulary.addTerm(term)
                     #Uses new vocabulary term
                     propertyValue = codeToUse
-                    #print repr(entity.getCode() + ", CREATED FOR VOCABULARY: " + propertyDefinition[4] + ", FOUND VALUE: " + labelToUse + ", NEW TERM WITH CODE: " + codeToUse)
+                    print repr("* ENTITY [" + entity.getCode() + "] created for Vocabulary [" + propertyDefinition[4] + "] not found value: [" + labelToUse + "] new term with code [" + codeToUse + "]")
             
             if propertyDefinition is not None: #Sometimes special fields are added for other purposes, these should not be set
                 entity.setPropertyValue(propertyCode, propertyValue)
