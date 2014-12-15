@@ -529,7 +529,12 @@ class DocumentOpenBISDTO(OpenBISDTO):
             #incoming = tr.getIncoming()
             #tr.moveFile(incoming.getAbsolutePath(), dataSet)
         else:
-            print "* ERROR Document missing something SERIAL: " + self.values["SERIAL"]
+            if dataSetSample is None:
+                print "* ERROR No sample found for document"
+            if self.values["*DATA"] is None:
+                print "* ERROR No Data found for file"
+            if self.values["FILE"] is None:
+                print "* ERROR No file name found for file"
     
     def getIdentifier(self, tr):
         return self.values["SERIAL"]
