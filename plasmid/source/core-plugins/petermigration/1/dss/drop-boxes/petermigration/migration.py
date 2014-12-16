@@ -14,6 +14,29 @@ import java.sql.DriverManager as DriverManager
 ##
 ## Generic Process Method
 ##
+notMigratedEntities = {
+                       "ENTITY_TYPE" : {"ENTITY ID" : {"ERROR" : "TIMES" }}
+                      }
+
+def addNotMigratedEntity(type, entityID, error):
+    if type not in notMigratedEntities:
+        notMigratedEntities[type] = {}
+    if entityID not in notMigratedEntities[type]:
+        notMigratedEntities[type][entityID] = {}
+    if error not in notMigratedEntities[type][entityID]:
+        notMigratedEntities[type][entityID][error] = 1
+    else:
+        notMigratedEntities[type][entityID][error] += 1
+
+def printNotMigratedEntities():
+    print "--- Not Migrated Entities Report"
+    for type in notMigratedEntities:
+        print "Type: [" + type + "]"
+        for id in notMigratedEntities[type]:
+            for error in notMigratedEntities[type][id]:
+                print "Id: [" + id + "] Error: " + error + " Times: " + str(notMigratedEntities[type][id][error])
+    print "---"
+
 def process(tr):
     print "START!"
     createDataHierarchy(tr)
@@ -23,13 +46,19 @@ def process(tr):
             entity = adaptor.getEntity()
             print "* ENTITY [" + str(entity.getIdentifier(tr)) + "]"
             if not entity.isInOpenBIS(tr):
-                entity.write(tr)
-                #print entity.getIdentifier(tr) + " - Updated"
+                try:
+                    entity.write(tr)
+                     #print entity.getIdentifier(tr) + " - Updated"
+                except Exception, error:
+                    addNotMigratedEntity(adaptor.__class__.__name__, entity.getIdentifier(tr), str(error.args))
             else:
-                pass
+                addNotMigratedEntity(adaptor.__class__.__name__, entity.getIdentifier(tr), "Already in openBIS")
                 #print entity.getIdentifier(tr) + " - Already up to date"
         print "- ADAPTOR [" + adaptor.__class__.__name__ + "] FINISH"
+    print "REPORT START"
+    printNotMigratedEntities()
     definitionsVoc.printCreatedTerms()
+    print "REPORT FINISH"
     print "FINISH!"
 
 ##
@@ -60,7 +89,7 @@ def setEntityProperties(tr, definition, entity, properties):
                     #Uses new vocabulary term
                     newTerm = definitionsVoc.createVocabularyTerm(tr, propertyDefinition[4], codeToUse, labelToUse)
                     propertyValue = newTerm.getCode()
-                    print repr("* WARNING ENTITY [" + entity.getCode() + "]: for Vocabulary [" + propertyDefinition[4] + "], found value not in list: [" + labelToUse + "]. Created new term with code [" + codeToUse + "]")
+                    print "* WARNING ENTITY [" + entity.getCode() + "]: for Vocabulary [" + propertyDefinition[4] + "], found value not in list: [" + repr(labelToUse) + "]. Created new term with code [" + codeToUse + "]"
             
             if propertyDefinition is not None: #Sometimes special fields are added for other purposes, these should not be set
                 entity.setPropertyValue(propertyCode, propertyValue)
@@ -198,7 +227,8 @@ class FMPeterOpenBISDTO(OpenBISDTO):
                     return False
             else:
                 print "* ERROR [" + str(code) + "] - Invalid Code found for '" + self.__class__.__name__ + "'"
-                return True 
+                raise Exception('Invalid Code found ' + str(code))
+                return False 
 
 class FMPeterBoxAdaptor(FileMakerEntityAdaptor):
     selectBoxQuery = None
@@ -264,6 +294,7 @@ class FMPeterEntityBoxOpenBISDTO(OpenBISDTO):
         for boxNum in range(1, definitions.numberOfStorageGroups+1):
             for propertyCode in definitions.getStorageGroupPropertyCodes():
                 sample.setPropertyValue(propertyCode + "_" + str(boxNum), None)
+        
         #Add new boxes
         boxNum = 1
         for box in self.values["*BOXESLIST"]:
@@ -550,10 +581,13 @@ class DocumentOpenBISDTO(OpenBISDTO):
         else:
             if dataSetSample is None:
                 print "* ERROR No sample found for document"
+                raise Exception('No sample found for document')
             if self.values["*DATA"] is None:
                 print "* ERROR No Data found for file"
+                raise Exception('No Data found for file')
             if self.values["FILE"] is None:
                 print "* ERROR No file name found for file"
+                raise Exception('No file name found for file')
     
     def getIdentifier(self, tr):
         return self.values["SERIAL"]

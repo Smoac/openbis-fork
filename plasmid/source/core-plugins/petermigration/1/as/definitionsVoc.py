@@ -12,14 +12,15 @@ def getVocabularyTermCodeForVocabularyAndTermLabel(vocabularyCode, termLabel):
             return term[0]
     return None
 
-createdVocabularyTerms = { "VOCABULARY_CODE" : { "TERM_CODE" : "OBJECT" } }
+# "VOCABULARY_CODE" : { "TERM_CODE" : "OBJECT" }
+createdVocabularyTerms = { }
 
 def printCreatedTerms():
     print "--- Created Vocabulary Terms Report"
     for vocabularyCode in createdVocabularyTerms:
         print "Vocabulary [" + vocabularyCode + "]"
         for vocabularyTermCode in createdVocabularyTerms[vocabularyCode]:
-            print "Term [" + vocabularyTermCode + "]"
+            print "Term [" + vocabularyTermCode + "] Label: [" + repr(createdVocabularyTerms[vocabularyCode][vocabularyTermCode].getLabel()) + "]"
     print "---"
 
 def getCreatedTerm(vocabularyCode, termCode):
