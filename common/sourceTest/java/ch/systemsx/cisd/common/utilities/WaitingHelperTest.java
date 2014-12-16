@@ -61,6 +61,21 @@ public class WaitingHelperTest extends AssertJUnit
     }
     
     @Test
+    public void testConditionImmediatlelyFulfilled()
+    {
+        MockLogger logger = new MockLogger();
+        WaitingHelper waitingHelper = new WaitingHelper(5 * DateUtils.MILLIS_PER_HOUR, 
+                3 * DateUtils.MILLIS_PER_SECOND, new MockTimeProvider(310000, 0), logger);
+        MockWaitingCondition condition = new MockWaitingCondition(0);
+        
+        boolean success = waitingHelper.waitOn(condition);
+
+        assertEquals("INFO: Condition fulfilled after < 1sec, condition: Mock Condition\n", logger.toString());
+        assertEquals(true, success);
+        assertEquals(1, condition.getNumberOfChecks());
+    }
+    
+    @Test
     public void testNoTimeOut()
     {
         MockLogger logger = new MockLogger();
@@ -70,14 +85,14 @@ public class WaitingHelperTest extends AssertJUnit
         
         boolean success = waitingHelper.waitOn(condition);
         
-        assertEquals("INFO: Waiting 60sec: Mock Condition\n"
-                + "INFO: Waiting 3min: Mock Condition\n"
-                + "INFO: Waiting 5min: Mock Condition\n"
-                + "INFO: Waiting 10min: Mock Condition\n"
-                + "INFO: Waiting 16min: Mock Condition\n"
-                + "INFO: Waiting 28min: Mock Condition\n"
-                + "INFO: Waiting 46min: Mock Condition\n"
-                + "INFO: Fulfilled after 50min: Mock Condition\n", logger.toString());
+        assertEquals("INFO: Condition still not fulfilled after < 1sec, condition: Mock Condition\n"
+                + "INFO: Condition still not fulfilled after 99sec, condition: Mock Condition\n"
+                + "INFO: Condition still not fulfilled after 4min, condition: Mock Condition\n"
+                + "INFO: Condition still not fulfilled after 9min, condition: Mock Condition\n"
+                + "INFO: Condition still not fulfilled after 15min, condition: Mock Condition\n"
+                + "INFO: Condition still not fulfilled after 27min, condition: Mock Condition\n"
+                + "INFO: Condition still not fulfilled after 45min, condition: Mock Condition\n"
+                + "INFO: Condition fulfilled after 50min, condition: Mock Condition\n", logger.toString());
         assertEquals(true, success);
         assertEquals(1001, condition.getNumberOfChecks());
     }
@@ -89,20 +104,20 @@ public class WaitingHelperTest extends AssertJUnit
         WaitingHelper waitingHelper = new WaitingHelper(5 * DateUtils.MILLIS_PER_HOUR, 
                 3 * DateUtils.MILLIS_PER_SECOND, new MockTimeProvider(310000, 0), logger);
         MockWaitingCondition condition = new MockWaitingCondition(10000);
-        
+
         boolean success = waitingHelper.waitOn(condition);
-        
-        assertEquals("INFO: Waiting 60sec: Mock Condition\n"
-                + "INFO: Waiting 3min: Mock Condition\n"
-                + "INFO: Waiting 5min: Mock Condition\n"
-                + "INFO: Waiting 10min: Mock Condition\n"
-                + "INFO: Waiting 16min: Mock Condition\n"
-                + "INFO: Waiting 28min: Mock Condition\n"
-                + "INFO: Waiting 46min: Mock Condition\n"
-                + "INFO: Waiting 1h 15min: Mock Condition\n"
-                + "INFO: Waiting 2h 2min: Mock Condition\n"
-                + "INFO: Waiting 3h 2min: Mock Condition\n"
-                + "INFO: Waiting 4h 2min: Mock Condition\n", logger.toString());
+
+        assertEquals("INFO: Condition still not fulfilled after < 1sec, condition: Mock Condition\n"
+                + "INFO: Condition still not fulfilled after 99sec, condition: Mock Condition\n"
+                + "INFO: Condition still not fulfilled after 4min, condition: Mock Condition\n"
+                + "INFO: Condition still not fulfilled after 9min, condition: Mock Condition\n"
+                + "INFO: Condition still not fulfilled after 15min, condition: Mock Condition\n"
+                + "INFO: Condition still not fulfilled after 27min, condition: Mock Condition\n"
+                + "INFO: Condition still not fulfilled after 45min, condition: Mock Condition\n"
+                + "INFO: Condition still not fulfilled after 1h 14min, condition: Mock Condition\n"
+                + "INFO: Condition still not fulfilled after 2h 1min, condition: Mock Condition\n"
+                + "INFO: Condition still not fulfilled after 3h 1min, condition: Mock Condition\n"
+                + "INFO: Condition still not fulfilled after 4h 1min, condition: Mock Condition\n", logger.toString());
         assertEquals(false, success);
         assertEquals(6000, condition.getNumberOfChecks());
     }

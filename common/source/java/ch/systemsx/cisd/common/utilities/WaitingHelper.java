@@ -81,18 +81,18 @@ public class WaitingHelper
         long t = t0;
         long lastLogTime = t0;
         long logInterval = MINIMUM_LOG_INTERVAL;
-        while (provider.getTimeInMilliseconds() < t0 + timeOut)
+        while (t < t0 + timeOut)
         {
             long duration = t - t0;
             String renderedDuration = DateTimeUtils.renderDuration(duration);
             if (condition.conditionFulfilled())
             {
-                logger.log(LogLevel.INFO, "Fulfilled after " + renderedDuration + ": " + condition);
+                log(renderedDuration, condition, true);
                 return true;
             }
-            if (t >= lastLogTime + logInterval)
+            if (duration == 0 || t >= lastLogTime + logInterval)
             {
-                logger.log(LogLevel.INFO, "Waiting " + renderedDuration + ": " + condition);
+                log(renderedDuration, condition, false);
                 lastLogTime = t;
                 logInterval = Math.min(MAXIMUM_LOG_INTERVAL, Math.round(logInterval * FACTOR));
             }
@@ -100,6 +100,12 @@ public class WaitingHelper
             t = provider.getTimeInMilliseconds();
         }
         return false;
+    }
+
+    private void log(String renderedDuration, IWaitingCondition condition, boolean fulfilled)
+    {
+        logger.log(LogLevel.INFO, "Condition " + (fulfilled ? "" : "still not ") + "fulfilled after " 
+                + renderedDuration + ", condition: " + condition);
     }
 
 }
