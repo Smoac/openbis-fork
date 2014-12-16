@@ -31,10 +31,10 @@ def addNotMigratedEntity(type, entityID, error):
 def printNotMigratedEntities():
     print "--- Not Migrated Entities Report"
     for type in notMigratedEntities:
-        print "Type: [" + type + "]"
+        print "Type: [" + str(type) + "]"
         for id in notMigratedEntities[type]:
             for error in notMigratedEntities[type][id]:
-                print "Id: [" + id + "] Error: " + error + " Times: " + str(notMigratedEntities[type][id][error])
+                print "Id: [" + str(id) + "] Error: " + str(error) + " Times: " + str(notMigratedEntities[type][id][error])
     print "---"
 
 def process(tr):
@@ -45,15 +45,15 @@ def process(tr):
         while adaptor.next():
             entity = adaptor.getEntity()
             print "* ENTITY [" + str(entity.getIdentifier(tr)) + "]"
-            if not entity.isInOpenBIS(tr):
-                try:
+            try:
+                if not entity.isInOpenBIS(tr):
                     entity.write(tr)
-                     #print entity.getIdentifier(tr) + " - Updated"
-                except Exception, error:
+                    #print entity.getIdentifier(tr) + " - Updated"
+                else:
+                    addNotMigratedEntity(adaptor.__class__.__name__, entity.getIdentifier(tr), "Already in openBIS")
+            except Exception, error:
                     addNotMigratedEntity(adaptor.__class__.__name__, entity.getIdentifier(tr), str(error.args))
-            else:
-                addNotMigratedEntity(adaptor.__class__.__name__, entity.getIdentifier(tr), "Already in openBIS")
-                #print entity.getIdentifier(tr) + " - Already up to date"
+                    #print entity.getIdentifier(tr) + " - Already up to date"
         print "- ADAPTOR [" + adaptor.__class__.__name__ + "] FINISH"
     print "REPORT START"
     printNotMigratedEntities()
@@ -228,7 +228,6 @@ class FMPeterOpenBISDTO(OpenBISDTO):
             else:
                 print "* ERROR [" + str(code) + "] - Invalid Code found for '" + self.__class__.__name__ + "'"
                 raise Exception('Invalid Code found ' + str(code))
-                return False 
 
 class FMPeterBoxAdaptor(FileMakerEntityAdaptor):
     selectBoxQuery = None
@@ -615,19 +614,20 @@ fmConnStringServer = "jdbc:filemaker://fm.ethz.ch/"
 fmUserServer= "sistemp"
 fmPassServer = "ibcimsb2014"
 
-#              PlasmidAdaptor(fmConnString, fmUser, fmPass, "BOXIT_plasmids_Peter"),
-#              PlasmidBoxAdaptor(fmConnString, fmUser, fmPass, "BOXIT_plasmid_boxes_Peter"),
-#              StrainAdaptor(fmConnString, fmUser, fmPass, "BOXIT_strains_Peter"),
-#              StrainBoxAdaptor(fmConnString, fmUser, fmPass, "BOXIT_strain_boxes_Peter"),
-#              OligoAdaptor(fmConnString, fmUser, fmPass, "BOXIT_oligos_Peter"),
-#              OligoBoxAdaptor(fmConnString, fmUser, fmPass, "BOXIT_oligo_boxes_Peter"),
-#              CellAdaptor(fmConnString, fmUser, fmPass, "BOXIT_cells_Peter"),
-#              CellBoxAdaptor(fmConnString, fmUser, fmPass, "BOXIT_cell_boxes_Peter"),
-#              SirnaAdaptor(fmConnString, fmUser, fmPass, "BOXIT_Main_Menu_Peter"),
-#              ChemicalAdaptor(fmConnString, fmUser, fmPass, "BOXIT_Main_Menu_Peter"),
+
 
 adaptors = [ AntibodyAdaptor(fmConnString, fmUser, fmPass, "BOXIT_antibodies_Peter"), 
              AntibodyBoxAdaptor(fmConnString, fmUser, fmPass, "BOXIT_antibody_boxes_Peter"),
+             PlasmidAdaptor(fmConnString, fmUser, fmPass, "BOXIT_plasmids_Peter"),
+             PlasmidBoxAdaptor(fmConnString, fmUser, fmPass, "BOXIT_plasmid_boxes_Peter"),
+             StrainAdaptor(fmConnString, fmUser, fmPass, "BOXIT_strains_Peter"),
+             StrainBoxAdaptor(fmConnString, fmUser, fmPass, "BOXIT_strain_boxes_Peter"),
+             OligoAdaptor(fmConnString, fmUser, fmPass, "BOXIT_oligos_Peter"),
+             OligoBoxAdaptor(fmConnString, fmUser, fmPass, "BOXIT_oligo_boxes_Peter"),
+             CellAdaptor(fmConnString, fmUser, fmPass, "BOXIT_cells_Peter"),
+             CellBoxAdaptor(fmConnString, fmUser, fmPass, "BOXIT_cell_boxes_Peter"),
+             SirnaAdaptor(fmConnString, fmUser, fmPass, "BOXIT_Main_Menu_Peter"),
+             ChemicalAdaptor(fmConnString, fmUser, fmPass, "BOXIT_Main_Menu_Peter"),
              DocumentsAdaptor(fmConnString, fmUser, fmPass, "BOXIT_documents_Peter")]
            
             
