@@ -194,7 +194,7 @@ tmScript = createScript(PATH_TO_MANAGE_PROPERTIES_SCRIPTS + "tm.py",
 ##
 ## Vocabulary Types
 ##
-for vocabularyCode, vocabularyValues in definitionsVoc.vocacbularyDefinitions.iteritems():
+for vocabularyCode, vocabularyValues in definitionsVoc.vocabularyDefinitions.iteritems():
     createVocabularyWithTerms(vocabularyCode, vocabularyValues)
 
 ##

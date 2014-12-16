@@ -5,17 +5,57 @@
 # Helper Methods
 #
 def getVocabularyTermCodeForVocabularyAndTermLabel(vocabularyCode, termLabel):
-    vocabulary = vocacbularyDefinitions[vocabularyCode]
+    vocabulary = vocabularyDefinitions[vocabularyCode]
     for term in vocabulary:
         if term[1] == termLabel:
             #print repr("TERM NOT FOUND IN VOCABULARY LIST: " + unicode(vocabularyCode) + " : '" + unicode(termLabel) + "'")
             return term[0]
     return None
 
+createdVocabularyTerms = { "VOCABULARY_CODE" : { "TERM_CODE" : "OBJECT" } }
+
+def printCreatedTerms():
+    print "--- Created Vocabulary Terms Report"
+    for vocabularyCode in createdVocabularyTerms:
+        print "Vocabulary [" + vocabularyCode + "]"
+        for vocabularyTermCode in createdVocabularyTerms[vocabularyCode]:
+            print "Term [" + vocabularyTermCode + "]"
+    print "---"
+
+def getCreatedTerm(vocabularyCode, termCode):
+    if vocabularyCode in createdVocabularyTerms:
+        if termCode in createdVocabularyTerms[vocabularyCode]:
+            return createdVocabularyTerms[vocabularyCode][termCode]
+    return None
+
+def addCreatedTerm(vocabularyCode, termCode, object):
+    if vocabularyCode not in createdVocabularyTerms:
+        createdVocabularyTerms[vocabularyCode] = {}
+    createdVocabularyTerms[vocabularyCode][termCode] = object
+    
+def createVocabularyTerm(tr, vocabularyCode, termCode, termLabel):
+    createdTerm = getCreatedTerm(vocabularyCode, termCode)
+    if createdTerm is None:
+        vocabulary = tr.getVocabularyForUpdate(vocabularyCode)
+        
+        for term in vocabulary.getTerms():
+            if term.getCode() == termCode:
+                createdTerm = term
+        
+        if createdTerm is None:
+            createdTerm = tr.createNewVocabularyTerm()
+            createdTerm.setCode(termCode)
+            createdTerm.setLabel(termLabel)
+            createdTerm.setOrdinal(vocabulary.getTerms().size())
+            vocabulary.addTerm(createdTerm)
+            addCreatedTerm(vocabularyCode, termCode, createdTerm)
+    return createdTerm
+
 #
 # Vocabularies
 #
-vocacbularyDefinitions = {
+
+vocabularyDefinitions = {
                           "ALL_LAB_MEMBERS" : [
                                         ["ANNA_DEPLAZES",   "Anna Deplazes"],
                                         ["ANNE-CHRISTINE_BUTTY",   "Anne-Christine Butty"],

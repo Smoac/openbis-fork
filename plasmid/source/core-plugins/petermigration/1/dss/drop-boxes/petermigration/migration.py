@@ -29,6 +29,7 @@ def process(tr):
                 pass
                 #print entity.getIdentifier(tr) + " - Already up to date"
         print "- ADAPTOR [" + adaptor.__class__.__name__ + "] FINISH"
+    definitionsVoc.printCreatedTerms()
     print "FINISH!"
 
 ##
@@ -50,21 +51,16 @@ def setEntityProperties(tr, definition, entity, properties):
                     propertyValue = possiblePropertyValue
                 else:  #We rely on the Add Hock Terms if is None, since there is no API we create a new one
                     #Create new vocabulary term
-                    vocabulary = tr.getVocabularyForUpdate(propertyDefinition[4])
-                    term = tr.createNewVocabularyTerm()
                     codeToUse = re.sub(r'\W+','_',propertyValue)
                     labelToUse = propertyValue
                     if len(codeToUse) is 0:
                         codeToUse = "None" + str(random.random())
                     if len(codeToUse) > 60:
                         codeToUse = codeToUse[:50]
-                    term.setCode(codeToUse)
-                    term.setLabel(labelToUse)
-                    term.setOrdinal(vocabulary.getTerms().size())
-                    vocabulary.addTerm(term)
                     #Uses new vocabulary term
-                    propertyValue = codeToUse
-                    print repr("* ENTITY [" + entity.getCode() + "]: for Vocabulary [" + propertyDefinition[4] + "], found value not in list: [" + labelToUse + "]. Created new term with code [" + codeToUse + "]")
+                    newTerm = definitionsVoc.createVocabularyTerm(tr, propertyDefinition[4], codeToUse, labelToUse)
+                    propertyValue = newTerm.getCode()
+                    print repr("* WARNING ENTITY [" + entity.getCode() + "]: for Vocabulary [" + propertyDefinition[4] + "], found value not in list: [" + labelToUse + "]. Created new term with code [" + codeToUse + "]")
             
             if propertyDefinition is not None: #Sometimes special fields are added for other purposes, these should not be set
                 entity.setPropertyValue(propertyCode, propertyValue)
@@ -246,7 +242,7 @@ class FMPeterBoxAdaptor(FileMakerEntityAdaptor):
                 #The antibody is not there. What the *#%$&
                 emptyBox += 1
         
-        print "- ADAPTOR Boxes positions with empty entityId for " + self.__class__.__name__ + ":" + str(emptyBox)
+        print "- ERROR ADAPTOR Boxes positions with empty entityId for " + self.__class__.__name__ + ":" + str(emptyBox)
         
         for entiyCode, allBoxes in boxes.iteritems():
             self.addEntity({
@@ -585,18 +581,19 @@ fmConnStringServer = "jdbc:filemaker://fm.ethz.ch/"
 fmUserServer= "sistemp"
 fmPassServer = "ibcimsb2014"
 
+#              PlasmidAdaptor(fmConnString, fmUser, fmPass, "BOXIT_plasmids_Peter"),
+#              PlasmidBoxAdaptor(fmConnString, fmUser, fmPass, "BOXIT_plasmid_boxes_Peter"),
+#              StrainAdaptor(fmConnString, fmUser, fmPass, "BOXIT_strains_Peter"),
+#              StrainBoxAdaptor(fmConnString, fmUser, fmPass, "BOXIT_strain_boxes_Peter"),
+#              OligoAdaptor(fmConnString, fmUser, fmPass, "BOXIT_oligos_Peter"),
+#              OligoBoxAdaptor(fmConnString, fmUser, fmPass, "BOXIT_oligo_boxes_Peter"),
+#              CellAdaptor(fmConnString, fmUser, fmPass, "BOXIT_cells_Peter"),
+#              CellBoxAdaptor(fmConnString, fmUser, fmPass, "BOXIT_cell_boxes_Peter"),
+#              SirnaAdaptor(fmConnString, fmUser, fmPass, "BOXIT_Main_Menu_Peter"),
+#              ChemicalAdaptor(fmConnString, fmUser, fmPass, "BOXIT_Main_Menu_Peter"),
+
 adaptors = [ AntibodyAdaptor(fmConnString, fmUser, fmPass, "BOXIT_antibodies_Peter"), 
              AntibodyBoxAdaptor(fmConnString, fmUser, fmPass, "BOXIT_antibody_boxes_Peter"),
-             PlasmidAdaptor(fmConnString, fmUser, fmPass, "BOXIT_plasmids_Peter"),
-             PlasmidBoxAdaptor(fmConnString, fmUser, fmPass, "BOXIT_plasmid_boxes_Peter"),
-             StrainAdaptor(fmConnString, fmUser, fmPass, "BOXIT_strains_Peter"),
-             StrainBoxAdaptor(fmConnString, fmUser, fmPass, "BOXIT_strain_boxes_Peter"),
-             OligoAdaptor(fmConnString, fmUser, fmPass, "BOXIT_oligos_Peter"),
-             OligoBoxAdaptor(fmConnString, fmUser, fmPass, "BOXIT_oligo_boxes_Peter"),
-             CellAdaptor(fmConnString, fmUser, fmPass, "BOXIT_cells_Peter"),
-             CellBoxAdaptor(fmConnString, fmUser, fmPass, "BOXIT_cell_boxes_Peter"),
-             SirnaAdaptor(fmConnString, fmUser, fmPass, "BOXIT_Main_Menu_Peter"),
-             ChemicalAdaptor(fmConnString, fmUser, fmPass, "BOXIT_Main_Menu_Peter"),
              DocumentsAdaptor(fmConnString, fmUser, fmPass, "BOXIT_documents_Peter")]
            
             
