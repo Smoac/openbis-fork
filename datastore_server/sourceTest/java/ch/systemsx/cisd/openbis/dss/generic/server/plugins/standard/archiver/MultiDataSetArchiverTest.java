@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver;
 import static ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.MultiDataSetArchiver.MAXIMUM_CONTAINER_SIZE_IN_BYTES;
 import static ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.MultiDataSetArchiver.MINIMUM_CONTAINER_SIZE_IN_BYTES;
 import static ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.MultiDataSetFileOperationsManager.FINAL_DESTINATION_KEY;
+import static ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.MultiDataSetFileOperationsManager.REPLICATED_DESTINATION_KEY;
 import static ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.MultiDataSetFileOperationsManager.STAGING_DESTINATION_KEY;
 import static ch.systemsx.cisd.openbis.dss.generic.shared.utils.ShareFactory.SHARE_PROPS_FILE;
 import static ch.systemsx.cisd.openbis.dss.generic.shared.utils.ShareFactory.UNARCHIVING_SCRATCH_SHARE_PROP;
@@ -35,6 +36,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import org.apache.commons.io.FileUtils;
@@ -58,6 +60,8 @@ import ch.systemsx.cisd.common.filesystem.HostAwareFile;
 import ch.systemsx.cisd.common.filesystem.IFreeSpaceProvider;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
+import ch.systemsx.cisd.common.utilities.ITimeAndWaitingProvider;
+import ch.systemsx.cisd.common.utilities.MockTimeProvider;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.DefaultFileBasedHierarchicalContentFactory;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.TarBasedHierarchicalContent;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
@@ -78,7 +82,6 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ProcessingStatus;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProviderTestWrapper;
-import ch.systemsx.cisd.openbis.dss.generic.shared.utils.SegmentedStoreUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.SimpleFileContentProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
@@ -302,13 +305,13 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
 
         private IFreeSpaceProvider freeSpaceProvider;
 
-        public MockMultiDataSetArchiver(Properties properties, File storeRoot,
+        public MockMultiDataSetArchiver(Properties properties, File storeRoot, 
                 IEncapsulatedOpenBISService openBISService, IShareIdManager shareIdManager,
                 IDataSetStatusUpdater statusUpdater, IMultiDataSetArchiverDBTransaction transaction,
                 IMultiDataSetFileOperationsManager fileManager, IMultiDataSetArchiverReadonlyQueryDAO readonlyDAO,
-                IFreeSpaceProvider freeSpaceProvider)
+                IFreeSpaceProvider freeSpaceProvider, ITimeAndWaitingProvider timeProvider)
         {
-            super(properties, storeRoot);
+            super(properties, storeRoot, timeProvider, freeSpaceProvider);
             this.transaction = transaction;
             this.fileManager = fileManager;
             this.readonlyDAO = readonlyDAO;
@@ -419,6 +422,10 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
 
     private IFreeSpaceProvider freeSpaceProvider;
 
+    private MockTimeProvider timeProvider;
+
+    private File replicate;
+
     @BeforeMethod
     public void setUpTestEnvironment()
     {
@@ -441,12 +448,15 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
                 hierarchicalContentProvider);
         fileOperations = context.mock(IMultiDataSetFileOperationsManager.class);
         freeSpaceProvider = context.mock(IFreeSpaceProvider.class);
+        timeProvider = new MockTimeProvider();
         dataSetDeleter = new MockDataSetDeleter(share);
         statusUpdater = new RecordingStatusUpdater();
         staging = new File(workingDirectory, "staging");
         staging.mkdirs();
         archive = new File(workingDirectory, "archive");
         archive.mkdirs();
+        replicate = new File(workingDirectory, "replicate");
+        replicate.mkdirs();
         ds1 = dataSet("ds1", "0123456789");
         ds2 = dataSet("ds2", "01234567890123456789");
         properties = new Properties();
@@ -527,19 +537,26 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
     }
 
     @Test
-    public void testArchiveOneDataSet()
+    public void testArchiveOneDataSetAndWaitForFreeSpace()
     {
         prepareUpdateShareIdAndSize(ds2, 20);
         prepareLockAndReleaseDataSet(ds2);
+        RecordingMatcher<HostAwareFile> freeSpaceRecorder = prepareFreeSpace(600 * FileUtils.ONE_MB, 100 * FileUtils.ONE_MB, 6);
         properties.setProperty(MINIMUM_CONTAINER_SIZE_IN_BYTES, "15");
+        properties.setProperty(MultiDataSetFileOperationsManager.WAITING_FOR_FREE_SPACE_POLLING_TIME_KEY, "2 min");
 
         MultiDataSetArchiver archiver = createArchiver(null);
         ProcessingStatus status = archiver.archive(Arrays.asList(ds2), archiverContext, false);
 
         assertEquals("INFO  OPERATION.AbstractDatastorePlugin - "
                 + "Archiving of the following datasets has been requested: [Dataset 'ds2']\n"
-                + "INFO  OPERATION.MultiDataSetFileOperationsManager - Archive dataset ds2 in ds2-yyyyMMdd-HHmmss.tar\n"
+                + "INFO  OPERATION.MultiDataSetFileOperationsManager - Archive dataset ds2 in "
+                + staging.getAbsolutePath() + "/ds2-yyyyMMdd-HHmmss.tar\n"
                 + "INFO  OPERATION.MultiDataSetFileOperationsManager - Data sets archived: ds2-yyyyMMdd-HHmmss.tar\n"
+                + "INFO  OPERATION.MultiDataSetFileOperationsManager - Waiting 2min: Free space: 700.00 MB, needed space: 1.00 GB\n"
+                + "INFO  OPERATION.MultiDataSetFileOperationsManager - Waiting 4min: Free space: 800.00 MB, needed space: 1.00 GB\n"
+                + "INFO  OPERATION.MultiDataSetFileOperationsManager - Waiting 8min: Free space: 1000.00 MB, needed space: 1.00 GB\n"
+                + "INFO  OPERATION.MultiDataSetFileOperationsManager - Fulfilled after 10min: Free space: 1.07 GB, needed space: 1.00 GB\n"
                 + "INFO  OPERATION.MultiDataSetFileOperationsManager - Copy archive container from '"
                 + staging.getAbsolutePath() + "/ds2-yyyyMMdd-HHmmss.tar' to '" + archive.getAbsolutePath() + "\n"
                 + "INFO  OPERATION.MultiDataSetFileOperationsManager - Copying archive container took 0:??:??.???\n"
@@ -570,6 +587,78 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
         assertEquals("Containers:\nMultiDataSetArchiverContainerDTO [id=0, path=ds2-yyyyMMdd-HHmmss.tar]\n"
                 + "Data sets:\nMultiDataSetArchiverDataSetDTO [id=1, code=ds2, containerId=0, sizeInBytes=20]\n"
                 + "committed: true, rolledBack: false", removeTimeInformationFromContent(transaction.toString()));
+        assertEquals(archive.getAbsolutePath(), freeSpaceRecorder.getRecordedObjects().get(0).getPath());
+        assertEquals(6, freeSpaceRecorder.getRecordedObjects().size());
+        assertEquals("", dataSetDeleter.toString());
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testArchiveOneDataSetAndWaitForReplicate()
+    {
+        prepareUpdateShareIdAndSize(ds2, 20);
+        prepareLockAndReleaseDataSet(ds2);
+        RecordingMatcher<HostAwareFile> freeSpaceRecorder = prepareFixedFreeSpace(3 * FileUtils.ONE_GB);
+        properties.setProperty(MINIMUM_CONTAINER_SIZE_IN_BYTES, "15");
+        properties.setProperty(REPLICATED_DESTINATION_KEY, replicate.getAbsolutePath());
+        properties.setProperty(MultiDataSetArchivingFinalizer.FINALIZER_POLLING_TIME_KEY, "5 min");
+        properties.setProperty(MultiDataSetArchivingFinalizer.FINALIZER_MAX_WAITING_TIME_KEY, "2 days");
+        final RecordingMatcher<Map<String, String>> parametersRecorder = new RecordingMatcher<Map<String, String>>();
+        context.checking(new Expectations()
+            {
+                {
+                    one(dssService).scheduleTask(with(MultiDataSetArchiver.ARCHIVING_FINALIZER), 
+                            with(any(MultiDataSetArchivingFinalizer.class)), with(parametersRecorder), 
+                            with(Arrays.asList(ds2)), with((String) null), with((String) null), with((String) null));
+                }
+            });
+
+        MultiDataSetArchiver archiver = createArchiver(null);
+        ProcessingStatus status = archiver.archive(Arrays.asList(ds2), archiverContext, true);
+
+        assertEquals("INFO  OPERATION.AbstractDatastorePlugin - "
+                + "Archiving of the following datasets has been requested: [Dataset 'ds2']\n"
+                + "INFO  OPERATION.MultiDataSetFileOperationsManager - Archive dataset ds2 in "
+                + staging.getAbsolutePath() + "/ds2-yyyyMMdd-HHmmss.tar\n"
+                + "INFO  OPERATION.MultiDataSetFileOperationsManager - Data sets archived: ds2-yyyyMMdd-HHmmss.tar\n"
+                + "INFO  OPERATION.MultiDataSetFileOperationsManager - Fulfilled after 1sec: Free space: 3.00 GB, needed space: 1.00 GB\n"
+                + "INFO  OPERATION.MultiDataSetFileOperationsManager - Copy archive container from '"
+                + staging.getAbsolutePath() + "/ds2-yyyyMMdd-HHmmss.tar' to '" + archive.getAbsolutePath() + "\n"
+                + "INFO  OPERATION.MultiDataSetFileOperationsManager - Copying archive container took 0:??:??.???\n"
+                + "INFO  OPERATION.AbstractDatastorePlugin - Start sanity check on [Dataset 'ds2']\n"
+                + "INFO  OPERATION.AbstractDatastorePlugin - Sanity check finished.",
+                getLogContent());
+        assertEquals("[]", status.getErrorStatuses().toString());
+        assertEquals("[]", Arrays.asList(staging.list()).toString());
+        assertContent(":\n"
+                + "  ds2:\n"
+                + "    data:\n"
+                + "      >01234567890123456789\n"
+                + "    meta-data.tsv:\n"
+                + "      >data_set\tcode\tds2\n"
+                + "      >data_set\tproduction_timestamp\t\n"
+                + "      >data_set\tproducer_code\t\n"
+                + "      >data_set\tdata_set_type\tMDT\n"
+                + "      >data_set\tis_measured\tTRUE\n"
+                + "      >data_set\tis_complete\tFALSE\n"
+                + "      >data_set\tparent_codes\t\n"
+                + "      >experiment\tspace_code\tS\n"
+                + "      >experiment\tproject_code\tP\n"
+                + "      >experiment\texperiment_code\tE\n"
+                + "      >experiment\texperiment_type_code\tMET\n"
+                + "      >experiment\tregistration_timestamp\t\n"
+                + "      >experiment\tregistrator\t\n", getArchiveFile(ds2));
+        assertEquals("", statusUpdater.toString());
+        assertEquals("Containers:\nMultiDataSetArchiverContainerDTO [id=0, path=ds2-yyyyMMdd-HHmmss.tar]\n"
+                + "Data sets:\nMultiDataSetArchiverDataSetDTO [id=1, code=ds2, containerId=0, sizeInBytes=20]\n"
+                + "committed: true, rolledBack: false", removeTimeInformationFromContent(transaction.toString()));
+        assertEquals(archive.getAbsolutePath(), freeSpaceRecorder.getRecordedObjects().get(0).getPath());
+        assertEquals(1, freeSpaceRecorder.getRecordedObjects().size());
+        assertEquals("{original-file-path=" + archive.getAbsolutePath() + "/ds2-yyyyMMdd-HHmmss.tar, "
+                + "replicated-file-path=" + replicate.getAbsolutePath() + "/ds2-yyyyMMdd-HHmmss.tar, "
+                + "finalizer-polling-time=300000, finalizer-max-waiting-time=172800000, status=ARCHIVED}",
+                removeTimeInformationFromContent(parametersRecorder.recordedObject().toString()));
+        assertEquals("", dataSetDeleter.toString());
         context.assertIsSatisfied();
     }
 
@@ -591,12 +680,14 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
     }
 
     @Test
-    public void testArchiveTwoDataSets()
+    public void testArchiveTwoDataSetsWithoutStaging()
     {
         prepareUpdateShareIdAndSize(ds1, 10);
         prepareLockAndReleaseDataSet(ds1);
         prepareUpdateShareIdAndSize(ds2, 20);
         prepareLockAndReleaseDataSet(ds2);
+        RecordingMatcher<HostAwareFile> freeSpaceRecorder = prepareFixedFreeSpace(20 * FileUtils.ONE_GB);
+        properties.remove(STAGING_DESTINATION_KEY);
         properties.setProperty(MINIMUM_CONTAINER_SIZE_IN_BYTES, "15");
 
         MultiDataSetArchiver archiver = createArchiver(null);
@@ -604,12 +695,12 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
 
         assertEquals("INFO  OPERATION.AbstractDatastorePlugin - "
                 + "Archiving of the following datasets has been requested: [Dataset 'ds1', Dataset 'ds2']\n"
-                + "INFO  OPERATION.MultiDataSetFileOperationsManager - Archive dataset ds1 in ds1-yyyyMMdd-HHmmss.tar\n"
-                + "INFO  OPERATION.MultiDataSetFileOperationsManager - Archive dataset ds2 in ds1-yyyyMMdd-HHmmss.tar\n"
+                + "INFO  OPERATION.MultiDataSetFileOperationsManager - Fulfilled after 1sec: Free space: 20.00 GB, needed space: 1.00 GB\n"
+                + "INFO  OPERATION.MultiDataSetFileOperationsManager - Archive dataset ds1 in "
+                + archive.getAbsolutePath() + "/ds1-yyyyMMdd-HHmmss.tar\n"
+                + "INFO  OPERATION.MultiDataSetFileOperationsManager - Archive dataset ds2 in "
+                + archive.getAbsolutePath() + "/ds1-yyyyMMdd-HHmmss.tar\n"
                 + "INFO  OPERATION.MultiDataSetFileOperationsManager - Data sets archived: ds1-yyyyMMdd-HHmmss.tar\n"
-                + "INFO  OPERATION.MultiDataSetFileOperationsManager - Copy archive container from '"
-                + staging.getAbsolutePath() + "/ds1-yyyyMMdd-HHmmss.tar' to '" + archive.getAbsolutePath() + "\n"
-                + "INFO  OPERATION.MultiDataSetFileOperationsManager - Copying archive container took 0:??:??.???\n"
                 + "INFO  OPERATION.AbstractDatastorePlugin - Start sanity check on [Dataset 'ds1', Dataset 'ds2']\n"
                 + "INFO  OPERATION.AbstractDatastorePlugin - Sanity check finished.",
                 getLogContent());
@@ -656,6 +747,8 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
                 + "Data sets:\nMultiDataSetArchiverDataSetDTO [id=1, code=ds1, containerId=0, sizeInBytes=10]\n"
                 + "MultiDataSetArchiverDataSetDTO [id=2, code=ds2, containerId=0, sizeInBytes=20]\n"
                 + "committed: true, rolledBack: false", removeTimeInformationFromContent(transaction.toString()));
+        assertEquals(archive.getAbsolutePath(), freeSpaceRecorder.getRecordedObjects().get(0).getPath());
+        assertEquals(1, freeSpaceRecorder.getRecordedObjects().size());
         context.assertIsSatisfied();
     }
 
@@ -688,6 +781,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
     {
         prepareUpdateShareIdAndSize(ds1, 10);
         prepareLockAndReleaseDataSet(ds1);
+        prepareFixedFreeSpace(20 * FileUtils.ONE_GB);
         properties.setProperty(MINIMUM_CONTAINER_SIZE_IN_BYTES, "5");
         MultiDataSetArchiverContainerDTO container = transaction.createContainer("path");
         ds2.setDataSetSize(20L);
@@ -701,8 +795,10 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
 
         assertEquals("INFO  OPERATION.AbstractDatastorePlugin - "
                 + "Archiving of the following datasets has been requested: [Dataset 'ds1', Dataset 'ds2']\n"
-                + "INFO  OPERATION.MultiDataSetFileOperationsManager - Archive dataset ds1 in ds1-yyyyMMdd-HHmmss.tar\n"
+                + "INFO  OPERATION.MultiDataSetFileOperationsManager - Archive dataset ds1 in "
+                + staging.getAbsolutePath() + "/ds1-yyyyMMdd-HHmmss.tar\n"
                 + "INFO  OPERATION.MultiDataSetFileOperationsManager - Data sets archived: ds1-yyyyMMdd-HHmmss.tar\n"
+                + "INFO  OPERATION.MultiDataSetFileOperationsManager - Fulfilled after 1sec: Free space: 20.00 GB, needed space: 1.00 GB\n"
                 + "INFO  OPERATION.MultiDataSetFileOperationsManager - Copy archive container from '"
                 + staging.getAbsolutePath() + "/ds1-yyyyMMdd-HHmmss.tar' to '" + archive.getAbsolutePath() + "\n"
                 + "INFO  OPERATION.MultiDataSetFileOperationsManager - Copying archive container took 0:??:??.???\n"
@@ -746,13 +842,13 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
     {
         prepareUpdateShareIdAndSize(ds2, 20);
         properties.setProperty(MINIMUM_CONTAINER_SIZE_IN_BYTES, "15");
-        final String containerPath = "data-set-path";
+        final String containerPath = "123-456.tar";
         prepareFileOperationsGenerateContainerPath(containerPath, ds2);
         prepareIsReplicatedArchiveDefined(false);
         context.checking(new Expectations()
             {
                 {
-                    one(fileOperations).createContainerInStage(containerPath, Arrays.asList(ds2));
+                    one(fileOperations).createContainer(containerPath, Arrays.asList(ds2));
                     will(returnValue(Status.createError("Failed")));
                 }
             });
@@ -761,7 +857,8 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
         MultiDataSetArchiver archiver = createArchiver(fileOperations);
         ProcessingStatus status = archiver.archive(Arrays.asList(ds2), archiverContext, false);
 
-        assertEquals("[ERROR: \"Couldn't create package file in stage archive data-set-path\"]", status.getErrorStatuses().toString());
+        assertEquals("[ERROR: \"Couldn't create archive file 123-456.tar. Reason: Failed\"]",
+                status.getErrorStatuses().toString());
         assertEquals("[]", Arrays.asList(staging.listFiles()).toString());
         File archiveFile = new File(archive, ds2.getDataSetCode() + ".tar");
         assertEquals(false, archiveFile.exists());
@@ -777,14 +874,18 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
         prepareLockAndReleaseDataSet(ds1);
         prepareUpdateShareIdAndSize(ds2, 20);
         prepareLockAndReleaseDataSet(ds2);
+        prepareFixedFreeSpace(35 * FileUtils.ONE_GB);
         properties.setProperty(MINIMUM_CONTAINER_SIZE_IN_BYTES, "15");
         MultiDataSetArchiver archiver = createArchiver(null);
         ProcessingStatus status = archiver.archive(Arrays.asList(ds1, ds2), archiverContext, true);
         assertEquals("INFO  OPERATION.AbstractDatastorePlugin - "
                 + "Archiving of the following datasets has been requested: [Dataset 'ds1', Dataset 'ds2']\n"
-                + "INFO  OPERATION.MultiDataSetFileOperationsManager - Archive dataset ds1 in ds1-yyyyMMdd-HHmmss.tar\n"
-                + "INFO  OPERATION.MultiDataSetFileOperationsManager - Archive dataset ds2 in ds1-yyyyMMdd-HHmmss.tar\n"
+                + "INFO  OPERATION.MultiDataSetFileOperationsManager - Archive dataset ds1 in "
+                + staging.getAbsolutePath() + "/ds1-yyyyMMdd-HHmmss.tar\n"
+                + "INFO  OPERATION.MultiDataSetFileOperationsManager - Archive dataset ds2 in "
+                + staging.getAbsolutePath() + "/ds1-yyyyMMdd-HHmmss.tar\n"
                 + "INFO  OPERATION.MultiDataSetFileOperationsManager - Data sets archived: ds1-yyyyMMdd-HHmmss.tar\n"
+                + "INFO  OPERATION.MultiDataSetFileOperationsManager - Fulfilled after 1sec: Free space: 35.00 GB, needed space: 1.00 GB\n"
                 + "INFO  OPERATION.MultiDataSetFileOperationsManager - Copy archive container from '"
                 + staging.getAbsolutePath() + "/ds1-yyyyMMdd-HHmmss.tar' to '" + archive.getAbsolutePath() + "\n"
                 + "INFO  OPERATION.MultiDataSetFileOperationsManager - Copying archive container took 0:??:??.???\n"
@@ -798,7 +899,6 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
         assertEquals("[ds1, ds2]: ARCHIVED true\n", statusUpdater.toString());
         ds1.setDataSetSize(10 * FileUtils.ONE_GB);
         ds2.setDataSetSize(20 * FileUtils.ONE_GB);
-        prepareFreeSpace(35 * FileUtils.ONE_GB);
         prepareListDataSetsByCode(DataSetArchivingStatus.ARCHIVED, ds1, ds2);
         prepareListPhysicalDataSets();
 
@@ -809,7 +909,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
         assertEquals("INFO  OPERATION.AbstractDatastorePlugin - Unarchiving of the following datasets "
                 + "has been requested: [Dataset 'ds1', Dataset 'ds2']\n"
                 + "INFO  OPERATION.AbstractDatastorePlugin - Free space on unarchiving scratch share '1': "
-                + "35.00 GB, requested space for unarchiving 2 data sets: 30.00 GB\n", getFilteredLogContent());
+                + "34.00 GB, requested space for unarchiving 2 data sets: 30.00 GB\n", getFilteredLogContent());
         assertEquals("[ds1, ds2]: ARCHIVED true\n[ds1, ds2]: AVAILABLE true\n", statusUpdater.toString());
         assertContent("ds1:\n  data:\n    >0123456789\n", new File(share, ds1.getDataSetCode()));
         assertContent("ds2:\n  data:\n    >01234567890123456789\n", new File(share, ds2.getDataSetCode()));
@@ -878,7 +978,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
         context.assertIsSatisfied();
     }
 
-    private RecordingMatcher<HostAwareFile> prepareFreeSpace(final long... freeSpaceValues)
+    private RecordingMatcher<HostAwareFile> prepareFreeSpace(final long initialFreeSpace, final long step, final int numberOfSteps)
     {
         final RecordingMatcher<HostAwareFile> recorder = new RecordingMatcher<HostAwareFile>();
         final Sequence sequence = context.sequence("free space");
@@ -887,12 +987,31 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
                 {
                     try
                     {
-                        for (long freeSpace : freeSpaceValues)
+                        for (int i = 0; i < numberOfSteps; i++)
                         {
                             one(freeSpaceProvider).freeSpaceKb(with(recorder));
-                            will(returnValue((freeSpace + SegmentedStoreUtils.MINIMUM_FREE_SCRATCH_SPACE) / 1024));
+                            will(returnValue((initialFreeSpace + i * step) / 1024));
                             inSequence(sequence);
                         }
+                    } catch (IOException ex)
+                    {
+                        ex.printStackTrace();
+                    }
+                }
+            });
+        return recorder;
+    }
+
+    private RecordingMatcher<HostAwareFile> prepareFixedFreeSpace(final long freeSpace)
+    {
+        final RecordingMatcher<HostAwareFile> recorder = new RecordingMatcher<HostAwareFile>();
+        context.checking(new Expectations()
+            {
+                {
+                    try
+                    {
+                        allowing(freeSpaceProvider).freeSpaceKb(with(recorder));
+                        will(returnValue(freeSpace / 1024));
                     } catch (IOException ex)
                     {
                         ex.printStackTrace();
@@ -1091,8 +1210,8 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
 
     private MultiDataSetArchiver createArchiver(IMultiDataSetFileOperationsManager fileManagerOrNull)
     {
-        return new MockMultiDataSetArchiver(properties, store, openBISService, shareIdManager, statusUpdater,
-                transaction, fileManagerOrNull, transaction, freeSpaceProvider);
+        return new MockMultiDataSetArchiver(properties, store, openBISService, shareIdManager, statusUpdater, 
+                transaction, fileManagerOrNull, transaction, freeSpaceProvider, timeProvider);
     }
 
     private DatasetDescription dataSet(final String code, String content)

@@ -235,6 +235,12 @@ public final class RemoteDataSetFileOperationsExecutor implements IDataSetFileOp
         }
     }
 
+    @Override
+    public long freeSpaceKb(String path)
+    {
+        throw new UnsupportedOperationException();
+    }
+
     private Map<String, Long> extractDestinationFileSizesByPaths(List<String> output,
             File destination)
     {

@@ -43,5 +43,7 @@ public interface IDataSetFileOperationsExecutor
     void renameTo(File newFile, File oldFile);
 
     void createMarkerFile(File markerFile);
+    
+    long freeSpaceKb(String path);
 
 }

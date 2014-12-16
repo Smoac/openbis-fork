@@ -274,7 +274,7 @@ public class SegmentedStoreUtils
                 getAvailableArchivedDataSetsInUnarchivingScratchShare(unarchivingScratchShare);
 
         removeCommonDataSets(filteredDataSets, filteredDataSetsInShare);
-        long requestedSpace = calculateTotalSizeOfDataSetsToKeep(filteredDataSets);
+        long requestedSpace = calculateTotalSize(filteredDataSets);
         long actualFreeSpace = unarchivingScratchShare.calculateFreeSpace();
         if (isNotEnoughFreeSpace(requestedSpace, actualFreeSpace))
         {
@@ -340,7 +340,7 @@ public class SegmentedStoreUtils
         }
     }
 
-    private static long calculateTotalSizeOfDataSetsToKeep(List<DatasetDescription> dataSets)
+    public static long calculateTotalSize(List<DatasetDescription> dataSets)
     {
         long size = 0;
         for (DatasetDescription dataSet : dataSets)

@@ -23,16 +23,21 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.time.StopWatch;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.collection.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.Status;
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.time.TimingParameters;
+import ch.systemsx.cisd.common.utilities.ITimeAndWaitingProvider;
+import ch.systemsx.cisd.common.utilities.IWaitingCondition;
+import ch.systemsx.cisd.common.utilities.SystemTimeProvider;
+import ch.systemsx.cisd.common.utilities.WaitingHelper;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
-import ch.systemsx.cisd.openbis.dss.generic.shared.IDataStoreServiceInternal;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDeleter;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IProcessingPluginTask;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ProcessingStatus;
 import ch.systemsx.cisd.openbis.dss.generic.shared.QueueingDataSetStatusUpdaterService;
@@ -42,27 +47,34 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
- * 
+ * Task which waits until multi data set container file in the archive is replicated and archiving status
+ * can be set.
  *
  * @author Franz-Josef Elmer
  */
 public class MultiDataSetArchivingFinalizer implements IProcessingPluginTask
 {
+    private static final long serialVersionUID = 1L;
+    
     public static final String ORIGINAL_FILE_PATH_KEY = "original-file-path";
     public static final String REPLICATED_FILE_PATH_KEY = "replicated-file-path";
     public static final String FINALIZER_POLLING_TIME_KEY = "finalizer-polling-time";
-    public static final String FINALIZER_WAITING_TIME_KEY = "finalizer-waiting-time";
+    public static final String FINALIZER_MAX_WAITING_TIME_KEY = "finalizer-max-waiting-time";
     public static final String STATUS_KEY = "status";
     
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             MultiDataSetArchivingFinalizer.class);
 
-    private static final long serialVersionUID = 1L;
-    
-    private IDataStoreServiceInternal dataStoreService;
+    private final ITimeAndWaitingProvider timeProvider;
 
     public MultiDataSetArchivingFinalizer(Properties properties, File storeRoot)
     {
+        this(SystemTimeProvider.SYSTEM_TIME_PROVIDER);
+    }
+    
+    MultiDataSetArchivingFinalizer(ITimeAndWaitingProvider timeProvider)
+    {
+        this.timeProvider = timeProvider;
     }
     
     @Override
@@ -81,13 +93,16 @@ public class MultiDataSetArchivingFinalizer implements IProcessingPluginTask
             {
                 DataSetArchivingStatus archivingStatus = parameters.getStatus();
                 DataSetCodesWithStatus codesWithStatus = new DataSetCodesWithStatus(dataSetCodes, archivingStatus, true);
-                getDataStoreService().getDataSetDeleter().scheduleDeletionOfDataSets(datasets,
+                IDataSetDeleter dataSetDeleter = ServiceProvider.getDataStoreService().getDataSetDeleter();
+                dataSetDeleter.scheduleDeletionOfDataSets(datasets,
                         TimingParameters.DEFAULT_MAXIMUM_RETRY_COUNT,
                         TimingParameters.DEFAULT_INTERVAL_TO_WAIT_AFTER_FAILURE_SECONDS);
                 updateStatus(codesWithStatus);
             } else
             {
-                operationLog.error("Replication of '" + originalFile + "' failed.");
+                String message = "Replication of '" + originalFile + "' failed.";
+                operationLog.error(message);
+                status = Status.createError(message);
 //                ServiceProvider.getDataStoreService().archiveDatasets(sessionToken, userSessionToken, datasets,
 //                        userId, userEmailOrNull, removeFromDataStore);
             }
@@ -106,41 +121,29 @@ public class MultiDataSetArchivingFinalizer implements IProcessingPluginTask
         QueueingDataSetStatusUpdaterService.update(codesWithStatus);
     }
     
-    IDataStoreServiceInternal getDataStoreService()
-    {
-        if (dataStoreService == null)
-        {
-            dataStoreService = ServiceProvider.getDataStoreService();
-        }
-        return dataStoreService;
-    }
-    
     private boolean waitUntilReplicated(Parameters parameters)
     {
         File originalFile = parameters.getOriginalFile();
-        File replicatedFile = parameters.getReplicatedFile();
-        long originalSize = originalFile.length();
+        final File replicatedFile = parameters.getReplicatedFile();
+        final long originalSize = originalFile.length();
         long waitingTime = parameters.getWaitingTime();
-        StopWatch stopWatch = new StopWatch();
-        stopWatch.start();
-        while (stopWatch.getTime() < waitingTime)
-        {
-            if (replicatedFile.length() >= originalSize)
+        Log4jSimpleLogger logger = new Log4jSimpleLogger(operationLog);
+        WaitingHelper waitingHelper = new WaitingHelper(waitingTime, parameters.getPollingTime(), timeProvider, logger);
+        return waitingHelper.waitOn(new IWaitingCondition()
             {
-                stopWatch.stop();
-                operationLog.info("File '" + originalFile + "' successfully replicated as '" 
-                        + replicatedFile + "' [" + stopWatch + "]");
-                return true;
-            }
-            try
-            {
-                Thread.sleep(parameters.getPollingTime());
-            } catch (InterruptedException ex)
-            {
-                // silently ignored
-            }
-        }
-        return false;
+                @Override
+                public boolean conditionFulfilled()
+                {
+                    return replicatedFile.length() >= originalSize;
+                }
+
+                @Override
+                public String toString()
+                {
+                    return FileUtilities.byteCountToDisplaySize(replicatedFile.length()) 
+                            + " of " + FileUtilities.byteCountToDisplaySize(originalSize) + " are replicated.";
+                }
+            });
     }
     
     private List<String> extracCodes(List<DatasetDescription> datasets)
@@ -161,7 +164,7 @@ public class MultiDataSetArchivingFinalizer implements IProcessingPluginTask
         parameters.setOriginalFile(new File(getProperty(parameterBindings, ORIGINAL_FILE_PATH_KEY)));
         parameters.setReplicatedFile(new File(getProperty(parameterBindings, REPLICATED_FILE_PATH_KEY)));
         parameters.setPollingTime(getNumber(parameterBindings, FINALIZER_POLLING_TIME_KEY));
-        parameters.setWaitingTime(getNumber(parameterBindings, FINALIZER_WAITING_TIME_KEY));
+        parameters.setWaitingTime(getNumber(parameterBindings, FINALIZER_MAX_WAITING_TIME_KEY));
         parameters.setStatus(DataSetArchivingStatus.valueOf(getProperty(parameterBindings, STATUS_KEY)));
         
         return parameters;
