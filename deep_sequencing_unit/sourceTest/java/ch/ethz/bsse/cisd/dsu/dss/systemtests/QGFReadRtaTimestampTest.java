@@ -11,7 +11,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchCl
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
-public class QGFReadRtaTimestamp extends DSUDropboxSystemTest
+public class QGFReadRtaTimestampTest extends DSUDropboxSystemTest
 {
 
     @Override
@@ -21,7 +21,7 @@ public class QGFReadRtaTimestamp extends DSUDropboxSystemTest
     }
 
     @Test
-    public void testDropbox() throws Exception
+    public void testQGFCreateFlowcellNextseq() throws Exception
     {
         importDataWithMarker("141204_D00535_0035_BC5LPVANXX");
         waitUntilDataImported();

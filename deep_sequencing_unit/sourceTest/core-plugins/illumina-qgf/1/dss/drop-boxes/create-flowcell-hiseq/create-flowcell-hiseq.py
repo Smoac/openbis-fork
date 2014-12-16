@@ -37,6 +37,7 @@ from time import *
 from datetime import *
 import xml.etree.ElementTree as etree
 from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto import SearchCriteria
+from os.path import isfile
 
 IS_HISEQ_RUN=False
 RUNPARAMETERS = 'runParameters.xml'
@@ -143,6 +144,12 @@ def setFcProperty(searchId, dict, newFlowCell, runInfo):
 
 # -----------------------------------------------------------------------------
 
+def checkIfFileExists (filePath):
+    if not os.path.isfile(filePath):
+        return False
+    else:
+        return True
+
 def process(transaction):
     incoming = transaction.getIncoming()
     incomingPath = incoming.getAbsolutePath()
@@ -152,8 +159,16 @@ def process(transaction):
     name = incoming.getName()
     split=name.split("_")
 
+    runInfoFile = os.path.join(incomingPath, RUNINFO)
+    runParametersFile = os.path.join(incomingPath, RUNPARAMETERS)
+    
+    if not (checkIfFileExists(runInfoFile)):
+        raise IOError ("File not found: " + RUNINFO)
+    if not (checkIfFileExists(runParametersFile)):
+        raise IOError ("File not found: " + RUNPARAMETERS)
+
     # Parse the RunInfo.xml file
-    runInfo = parseXmlFile(incomingPath + '/' + RUNINFO) 
+    runInfo = parseXmlFile(runInfoFile)
     maxLanes = runInfo.getAllchildren('FlowcellLayout')[0].attrib[RUNINFO_XML['LANECOUNT']]
 
     # Search for the sample and check if there is already sample with this name
@@ -179,10 +194,10 @@ def process(transaction):
     run = runInfo.getAllchildren('Run')[0].attrib
     if (run['Id'] != name):
       raise NameError('Flowcell names do not match between directory name '+ name +
-            ' and ' + RUNINFO + 'property file: ' + run['Id'])
+            ' and ' + RUNINFO + ' property file: ' + run['Id'])
 
     # The HiSeq is providing more infos, which we will parse here:
-    runParameters = parseXmlFile(incomingPath + '/' + RUNPARAMETERS)
+    runParameters = parseXmlFile(runParametersFile)
     addVocabularyTerm(transaction, "PIPELINE_VERSION", runParameters.getXmlElement(RUNPARAMETERS_XML['RTAVERSION']))
     
     newFlowCell.setPropertyValue("ILLUMINA_PIPELINE_VERSION", runParameters.getXmlElement(RUNPARAMETERS_XML['RTAVERSION']))
