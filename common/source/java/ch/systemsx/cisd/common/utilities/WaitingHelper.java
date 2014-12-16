@@ -58,26 +58,7 @@ public class WaitingHelper
 
     public WaitingHelper(long timeOut, long pollingTime, ISimpleLogger loggerOrNull)
     {
-        this(timeOut, pollingTime, new ITimeAndWaitingProvider()
-            {
-                @Override
-                public long getTimeInMilliseconds()
-                {
-                    return System.currentTimeMillis();
-                }
-
-                @Override
-                public void sleep(long milliseconds)
-                {
-                    try
-                    {
-                        Thread.sleep(milliseconds);
-                    } catch (InterruptedException ex)
-                    {
-                        // silently ignored
-                    }
-                }
-            }, loggerOrNull);
+        this(timeOut, pollingTime, SystemTimeProvider.SYSTEM_TIME_PROVIDER, loggerOrNull);
     }
 
     public WaitingHelper(long timeOut, long pollingTime, ITimeAndWaitingProvider provider, ISimpleLogger loggerOrNull)

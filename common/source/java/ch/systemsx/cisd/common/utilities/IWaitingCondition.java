@@ -17,7 +17,9 @@
 package ch.systemsx.cisd.common.utilities;
 
 /**
- * Interface of classes which represent a condition which can be fulfilled or not.
+ * Interface of classes which represent a condition which can be fulfilled or not. 
+ * Concrete classes should override {@link #toString()} in order to get useful log entries generated
+ * by {@link WaitingHelper}.
  *
  * @author Franz-Josef Elmer
  */

@@ -21,7 +21,7 @@ package ch.systemsx.cisd.common.utilities;
  *
  * @author Franz-Josef Elmer
  */
-public class MockTimeProvider implements ITimeProvider
+public class MockTimeProvider implements ITimeAndWaitingProvider
 {
     private long time;
     private final long timeStep;
@@ -47,5 +47,10 @@ public class MockTimeProvider implements ITimeProvider
         time += timeStep;
         return result;
     }
-
+    
+    @Override
+    public void sleep(long milliseconds)
+    {
+        time += milliseconds;
+    }
 }

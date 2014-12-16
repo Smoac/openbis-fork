@@ -30,28 +30,6 @@ import ch.systemsx.cisd.common.logging.MockLogger;
  */
 public class WaitingHelperTest extends AssertJUnit
 {
-    private static final class MockTimeAndWaitingProvider implements ITimeAndWaitingProvider
-    {
-        private long time;
-
-        MockTimeAndWaitingProvider(long initialTime)
-        {
-            time = initialTime;
-        }
-
-        @Override
-        public long getTimeInMilliseconds()
-        {
-            return time;
-        }
-
-        @Override
-        public void sleep(long milliseconds)
-        {
-            time += milliseconds;
-        }
-    }
-    
     private static final class MockWaitingCondition implements IWaitingCondition
     {
         private int numberOfFalse;
@@ -87,7 +65,7 @@ public class WaitingHelperTest extends AssertJUnit
     {
         MockLogger logger = new MockLogger();
         WaitingHelper waitingHelper = new WaitingHelper(5 * DateUtils.MILLIS_PER_HOUR, 
-                3 * DateUtils.MILLIS_PER_SECOND, new MockTimeAndWaitingProvider(30000), logger);
+                3 * DateUtils.MILLIS_PER_SECOND, new MockTimeProvider(310000, 0), logger);
         MockWaitingCondition condition = new MockWaitingCondition(1000);
         
         boolean success = waitingHelper.waitOn(condition);
@@ -109,7 +87,7 @@ public class WaitingHelperTest extends AssertJUnit
     {
         MockLogger logger = new MockLogger();
         WaitingHelper waitingHelper = new WaitingHelper(5 * DateUtils.MILLIS_PER_HOUR, 
-                3 * DateUtils.MILLIS_PER_SECOND, new MockTimeAndWaitingProvider(30000), logger);
+                3 * DateUtils.MILLIS_PER_SECOND, new MockTimeProvider(310000, 0), logger);
         MockWaitingCondition condition = new MockWaitingCondition(10000);
         
         boolean success = waitingHelper.waitOn(condition);
