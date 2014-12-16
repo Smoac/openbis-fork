@@ -36,11 +36,12 @@ import ch.systemsx.cisd.common.utilities.ITimeAndWaitingProvider;
 import ch.systemsx.cisd.common.utilities.IWaitingCondition;
 import ch.systemsx.cisd.common.utilities.SystemTimeProvider;
 import ch.systemsx.cisd.common.utilities.WaitingHelper;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.dataaccess.IMultiDataSetArchiverDBTransaction;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.dataaccess.MultiDataSetArchiverDBTransaction;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDeleter;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IProcessingPluginTask;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ProcessingStatus;
-import ch.systemsx.cisd.openbis.dss.generic.shared.QueueingDataSetStatusUpdaterService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetCodesWithStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
@@ -89,9 +90,9 @@ public class MultiDataSetArchivingFinalizer implements IProcessingPluginTask
             operationLog.info("Waiting for replication of archive '" + originalFile 
                     + "' containing the following data sets: " + CollectionUtils.abbreviate(dataSetCodes, 20));
             boolean noTimeout = waitUntilReplicated(parameters);
+            DataSetArchivingStatus archivingStatus = parameters.getStatus();
             if (noTimeout)
             {
-                DataSetArchivingStatus archivingStatus = parameters.getStatus();
                 DataSetCodesWithStatus codesWithStatus = new DataSetCodesWithStatus(dataSetCodes, archivingStatus, true);
                 IDataSetDeleter dataSetDeleter = ServiceProvider.getDataStoreService().getDataSetDeleter();
                 dataSetDeleter.scheduleDeletionOfDataSets(datasets,
@@ -103,8 +104,9 @@ public class MultiDataSetArchivingFinalizer implements IProcessingPluginTask
                 String message = "Replication of '" + originalFile + "' failed.";
                 operationLog.error(message);
                 status = Status.createError(message);
-//                ServiceProvider.getDataStoreService().archiveDatasets(sessionToken, userSessionToken, datasets,
-//                        userId, userEmailOrNull, removeFromDataStore);
+                removeFromMapping(originalFile);
+                updateStatus(new DataSetCodesWithStatus(dataSetCodes, DataSetArchivingStatus.AVAILABLE, false));
+                ServiceProvider.getOpenBISService().archiveDataSets(dataSetCodes, archivingStatus.isAvailable() == false);
             }
         } catch (Exception ex)
         {
@@ -116,14 +118,34 @@ public class MultiDataSetArchivingFinalizer implements IProcessingPluginTask
         return processingStatus;
     }
 
+    private void removeFromMapping(File originalFile)
+    {
+        IMultiDataSetArchiverDBTransaction transaction = getTransaction();
+        try
+        {
+            transaction.deleteContainer(originalFile.getName());
+            transaction.commit();
+        } catch (Exception ex)
+        {
+            transaction.rollback();
+        }
+        transaction.close();
+    }
+
     protected void updateStatus(DataSetCodesWithStatus codesWithStatus)
     {
-        QueueingDataSetStatusUpdaterService.update(codesWithStatus);
+        ServiceProvider.getOpenBISService().updateDataSetStatuses(codesWithStatus.getDataSetCodes(),
+                codesWithStatus.getStatus(), codesWithStatus.isPresentInArchive());
+    }
+    
+    IMultiDataSetArchiverDBTransaction getTransaction()
+    {
+        return new MultiDataSetArchiverDBTransaction();
     }
     
     private boolean waitUntilReplicated(Parameters parameters)
     {
-        File originalFile = parameters.getOriginalFile();
+        final File originalFile = parameters.getOriginalFile();
         final File replicatedFile = parameters.getReplicatedFile();
         final long originalSize = originalFile.length();
         long waitingTime = parameters.getWaitingTime();
@@ -141,7 +163,8 @@ public class MultiDataSetArchivingFinalizer implements IProcessingPluginTask
                 public String toString()
                 {
                     return FileUtilities.byteCountToDisplaySize(replicatedFile.length()) 
-                            + " of " + FileUtilities.byteCountToDisplaySize(originalSize) + " are replicated.";
+                            + " of " + FileUtilities.byteCountToDisplaySize(originalSize) 
+                            + " are replicated for " + originalFile;
                 }
             });
     }

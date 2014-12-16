@@ -56,4 +56,9 @@ public interface IMultiDataSetArchiverQueryDAO extends TransactionQuery, IMultiD
 
     @Select(sql = INSERT_DATA_SET)
     public long addDataSet(MultiDataSetArchiverDataSetDTO dataSet);
+    
+    final static String DELETE_CONTAINER = "DELETE FROM containers where path = ?{1}";
+    
+    @Update(sql = DELETE_CONTAINER)
+    public void deleteContainer(String containerPath);
 }

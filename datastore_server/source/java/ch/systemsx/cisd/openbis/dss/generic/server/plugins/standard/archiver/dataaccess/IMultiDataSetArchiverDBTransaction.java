@@ -32,6 +32,8 @@ public interface IMultiDataSetArchiverDBTransaction
      * Creates a new container
      */
     public MultiDataSetArchiverContainerDTO createContainer(String path);
+    
+    public void deleteContainer(String container);
 
     public MultiDataSetArchiverDataSetDTO insertDataset(DatasetDescription dataSet,
             MultiDataSetArchiverContainerDTO container);

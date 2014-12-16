@@ -27,7 +27,6 @@ import org.apache.log4j.Level;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.springframework.beans.factory.BeanFactory;
-import org.testng.AssertJUnit;
 import org.testng.ITestResult;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
@@ -36,14 +35,13 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
-import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.time.TimingParameters;
 import ch.systemsx.cisd.common.utilities.MockTimeProvider;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.dataaccess.IMultiDataSetArchiverDBTransaction;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDeleter;
-import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDirectoryProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataStoreServiceInternal;
-import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ProcessingStatus;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProviderTestWrapper;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetCodesWithStatus;
@@ -82,6 +80,10 @@ public class MultiDataSetArchivingFinalizerTest extends AbstractFileSystemTestCa
 
     private File dataFilePartiallyReplicated;
 
+    private IEncapsulatedOpenBISService openBISService;
+
+    private IMultiDataSetArchiverDBTransaction transaction;
+
     @BeforeMethod
     public void setUpTestEnvironment()
     {
@@ -91,7 +93,9 @@ public class MultiDataSetArchivingFinalizerTest extends AbstractFileSystemTestCa
         BeanFactory beanFactory = context.mock(BeanFactory.class);
         ServiceProviderTestWrapper.setApplicationContext(beanFactory);
         dssService = ServiceProviderTestWrapper.mock(context, IDataStoreServiceInternal.class);
+        openBISService = ServiceProviderTestWrapper.mock(context, IEncapsulatedOpenBISService.class);
         dataSetDeleter = context.mock(IDataSetDeleter.class);
+        transaction = context.mock(IMultiDataSetArchiverDBTransaction.class);
         File archive = new File(workingDirectory, "archive");
         archive.mkdirs();
         dataFileInArchive = new File(archive, "data.txt");
@@ -120,6 +124,12 @@ public class MultiDataSetArchivingFinalizerTest extends AbstractFileSystemTestCa
                 {
                     updatedStatus.add(codesWithStatus);
                 }
+
+                @Override
+                IMultiDataSetArchiverDBTransaction getTransaction()
+                {
+                    return transaction;
+                }
             };
         context.checking(new Expectations()
             {
@@ -147,7 +157,7 @@ public class MultiDataSetArchivingFinalizerTest extends AbstractFileSystemTestCa
     }
 
     @Test
-    public void testReplicated()
+    public void testReplicationForArchiving()
     {
         DatasetDescription ds1 = new DatasetDescriptionBuilder("ds1").getDatasetDescription();
         prepareScheduleDeletion(ds1);
@@ -155,13 +165,13 @@ public class MultiDataSetArchivingFinalizerTest extends AbstractFileSystemTestCa
         ProcessingStatus status = finalizer.process(Arrays.asList(ds1), processingContext);
 
         assertEquals("INFO  OPERATION.MultiDataSetArchivingFinalizer - "
-                + "Parameters: {original-file-path=" + dataFileInArchive.getPath() 
+                + "Parameters: {original-file-path=" + dataFileInArchive.getPath()
                 + ", replicated-file-path=" + dataFileReplicated.getPath() + ", "
                 + "finalizer-polling-time=20000, finalizer-max-waiting-time=300000, status=ARCHIVED}\n"
                 + "INFO  OPERATION.MultiDataSetArchivingFinalizer - Waiting for replication of archive "
                 + "'" + dataFileInArchive.getPath() + "' containing the following data sets: [ds1]\n"
-                + "INFO  OPERATION.MultiDataSetArchivingFinalizer - Fulfilled after 1sec: "
-                + "13 bytes of 13 bytes are replicated.",
+                + "INFO  OPERATION.MultiDataSetArchivingFinalizer - Condition fulfilled after < 1sec, condition: "
+                + "13 bytes of 13 bytes are replicated for " + dataFileInArchive,
                 logRecorder.getLogContent());
         assertEquals("OK", status.tryGetStatusByDataset(ds1.getDataSetCode()).toString());
         assertEquals("[[ds1] - ARCHIVED]", updatedStatus.toString());
@@ -170,12 +180,45 @@ public class MultiDataSetArchivingFinalizerTest extends AbstractFileSystemTestCa
     }
     
     @Test
-    public void testPariallyReplicated()
+    public void testReplicationForAddToArchiv()
     {
         DatasetDescription ds1 = new DatasetDescriptionBuilder("ds1").getDatasetDescription();
-        DatasetDescription ds2 = new DatasetDescriptionBuilder("ds2").getDatasetDescription();
-        parameterBindings.put(MultiDataSetArchivingFinalizer.REPLICATED_FILE_PATH_KEY, dataFilePartiallyReplicated.getPath());
+        prepareScheduleDeletion(ds1);
+        parameterBindings.put(MultiDataSetArchivingFinalizer.STATUS_KEY, DataSetArchivingStatus.AVAILABLE.toString());
         
+        ProcessingStatus status = finalizer.process(Arrays.asList(ds1), processingContext);
+        
+        assertEquals("INFO  OPERATION.MultiDataSetArchivingFinalizer - "
+                + "Parameters: {original-file-path=" + dataFileInArchive.getPath()
+                + ", replicated-file-path=" + dataFileReplicated.getPath() + ", "
+                + "finalizer-polling-time=20000, finalizer-max-waiting-time=300000, status=AVAILABLE}\n"
+                + "INFO  OPERATION.MultiDataSetArchivingFinalizer - Waiting for replication of archive "
+                + "'" + dataFileInArchive.getPath() + "' containing the following data sets: [ds1]\n"
+                + "INFO  OPERATION.MultiDataSetArchivingFinalizer - Condition fulfilled after < 1sec, condition: "
+                + "13 bytes of 13 bytes are replicated for " + dataFileInArchive,
+                logRecorder.getLogContent());
+        assertEquals("OK", status.tryGetStatusByDataset(ds1.getDataSetCode()).toString());
+        assertEquals("[[ds1] - AVAILABLE]", updatedStatus.toString());
+        assertEquals(true, updatedStatus.get(0).isPresentInArchive());
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testReplicationFailedForArchiving()
+    {
+        final DatasetDescription ds1 = new DatasetDescriptionBuilder("ds1").getDatasetDescription();
+        final DatasetDescription ds2 = new DatasetDescriptionBuilder("ds2").getDatasetDescription();
+        parameterBindings.put(MultiDataSetArchivingFinalizer.REPLICATED_FILE_PATH_KEY, dataFilePartiallyReplicated.getPath());
+        context.checking(new Expectations()
+            {
+                {
+                    one(transaction).deleteContainer(dataFileInArchive.getName());
+                    one(transaction).commit();
+                    one(transaction).close();
+                    one(openBISService).archiveDataSets(Arrays.asList(ds1.getDataSetCode(), ds2.getDataSetCode()), true);
+                }
+            });
+
         ProcessingStatus status = finalizer.process(Arrays.asList(ds1, ds2), processingContext);
 
         assertEquals("INFO  OPERATION.MultiDataSetArchivingFinalizer - "
@@ -184,15 +227,62 @@ public class MultiDataSetArchivingFinalizerTest extends AbstractFileSystemTestCa
                 + "finalizer-polling-time=20000, finalizer-max-waiting-time=300000, status=ARCHIVED}\n"
                 + "INFO  OPERATION.MultiDataSetArchivingFinalizer - Waiting for replication of archive "
                 + "'" + dataFileInArchive.getPath() + "' containing the following data sets: [ds1, ds2]\n"
-                + "INFO  OPERATION.MultiDataSetArchivingFinalizer - Waiting 66sec: 5 bytes of 13 bytes are replicated.\n"
-                + "INFO  OPERATION.MultiDataSetArchivingFinalizer - Waiting 3min: 5 bytes of 13 bytes are replicated.\n"
+                + "INFO  OPERATION.MultiDataSetArchivingFinalizer - Condition still not fulfilled after < 1sec, "
+                + "condition: 5 bytes of 13 bytes are replicated for " + dataFileInArchive + "\n"
+                + "INFO  OPERATION.MultiDataSetArchivingFinalizer - Condition still not fulfilled after 2min, "
+                + "condition: 5 bytes of 13 bytes are replicated for " + dataFileInArchive + "\n"
+                + "INFO  OPERATION.MultiDataSetArchivingFinalizer - Condition still not fulfilled after 5min, "
+                + "condition: 5 bytes of 13 bytes are replicated for " + dataFileInArchive + "\n"
                 + "ERROR OPERATION.MultiDataSetArchivingFinalizer - Replication of '"
                 + dataFileInArchive.getPath() + "' failed.", logRecorder.getLogContent());
-        assertEquals("ERROR: \"Replication of '" + dataFileInArchive.getPath() + "' failed.\"", 
+        assertEquals("ERROR: \"Replication of '" + dataFileInArchive.getPath() + "' failed.\"",
                 status.tryGetStatusByDataset(ds1.getDataSetCode()).toString());
-        assertEquals("ERROR: \"Replication of '" + dataFileInArchive.getPath() + "' failed.\"", 
+        assertEquals("ERROR: \"Replication of '" + dataFileInArchive.getPath() + "' failed.\"",
                 status.tryGetStatusByDataset(ds2.getDataSetCode()).toString());
-        assertEquals("[]", updatedStatus.toString());
+        assertEquals("[[ds1, ds2] - AVAILABLE]", updatedStatus.toString());
+        assertEquals(false, updatedStatus.get(0).isPresentInArchive());
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testReplicationFailedForAddToArchive()
+    {
+        final DatasetDescription ds1 = new DatasetDescriptionBuilder("ds1").getDatasetDescription();
+        final DatasetDescription ds2 = new DatasetDescriptionBuilder("ds2").getDatasetDescription();
+        parameterBindings.put(MultiDataSetArchivingFinalizer.REPLICATED_FILE_PATH_KEY, dataFilePartiallyReplicated.getPath());
+        parameterBindings.put(MultiDataSetArchivingFinalizer.STATUS_KEY, DataSetArchivingStatus.AVAILABLE.toString());
+        context.checking(new Expectations()
+            {
+                {
+                    one(transaction).deleteContainer(dataFileInArchive.getName());
+                    one(transaction).commit();
+                    one(transaction).close();
+                    one(openBISService).archiveDataSets(Arrays.asList(ds1.getDataSetCode(), ds2.getDataSetCode()), false);
+                }
+            });
+
+        ProcessingStatus status = finalizer.process(Arrays.asList(ds1, ds2), processingContext);
+        
+        assertEquals("INFO  OPERATION.MultiDataSetArchivingFinalizer - "
+                + "Parameters: {original-file-path=" + dataFileInArchive.getPath()
+                + ", replicated-file-path=" + dataFilePartiallyReplicated.getPath() + ", "
+                + "finalizer-polling-time=20000, finalizer-max-waiting-time=300000, status=AVAILABLE}\n"
+                + "INFO  OPERATION.MultiDataSetArchivingFinalizer - Waiting for replication of archive "
+                + "'" + dataFileInArchive.getPath() + "' containing the following data sets: [ds1, ds2]\n"
+                + "INFO  OPERATION.MultiDataSetArchivingFinalizer - Condition still not fulfilled after < 1sec, "
+                + "condition: 5 bytes of 13 bytes are replicated for " + dataFileInArchive + "\n"
+                + "INFO  OPERATION.MultiDataSetArchivingFinalizer - Condition still not fulfilled after 2min, "
+                + "condition: 5 bytes of 13 bytes are replicated for " + dataFileInArchive + "\n"
+                + "INFO  OPERATION.MultiDataSetArchivingFinalizer - Condition still not fulfilled after 5min, "
+                + "condition: 5 bytes of 13 bytes are replicated for " + dataFileInArchive + "\n"
+                + "ERROR OPERATION.MultiDataSetArchivingFinalizer - Replication of '"
+                + dataFileInArchive.getPath() + "' failed.", logRecorder.getLogContent());
+        assertEquals("ERROR: \"Replication of '" + dataFileInArchive.getPath() + "' failed.\"",
+                status.tryGetStatusByDataset(ds1.getDataSetCode()).toString());
+        assertEquals("ERROR: \"Replication of '" + dataFileInArchive.getPath() + "' failed.\"",
+                status.tryGetStatusByDataset(ds2.getDataSetCode()).toString());
+        assertEquals("[[ds1, ds2] - AVAILABLE]", updatedStatus.toString());
+        assertEquals(false, updatedStatus.get(0).isPresentInArchive());
         context.assertIsSatisfied();
     }
 
