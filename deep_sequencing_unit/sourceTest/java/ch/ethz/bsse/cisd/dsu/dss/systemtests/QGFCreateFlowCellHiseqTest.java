@@ -52,7 +52,7 @@ public class QGFCreateFlowCellHiseqTest extends DSUDropboxSystemTest
         String folderName = "141212_D00535_0038_BC6A12ANXX_NonmatchingFolderName";
 
         importDataWithMarker(folderName);
-        waitUntilDataImportFails(20, "Flowcell names do not match between directory name " + folderName
+        waitUntilDataImportFails("Flowcell names do not match between directory name " + folderName
                 + " and RunInfo.xml property file: 141212_D00535_0038_BC6A12ANXX");
     }
     
@@ -63,7 +63,7 @@ public class QGFCreateFlowCellHiseqTest extends DSUDropboxSystemTest
          String missingFile = "runParameters.xml";
          
          importDataWithMarker(folderName);
-         waitUntilDataImportFails(20, "File not found: " + missingFile);
+         waitUntilDataImportFails("File not found: " + missingFile);
      }
     
      @Test
@@ -71,11 +71,11 @@ public class QGFCreateFlowCellHiseqTest extends DSUDropboxSystemTest
 
          String folderName = "141212_D00535_0038_BC6A12ANXX";
          importDataWithMarker(folderName);
-         waitUntilDataImported(15);
+         waitUntilDataImported();
          waitUntilDataReindexed(SamplePE.class);
 
          importDataWithMarker(folderName);
-         waitUntilDataImported(15);
+         waitUntilDataImported();
          waitUntilDataReindexed(SamplePE.class);
 
          String sessionToken = login("kohleman", "password");
