@@ -98,9 +98,9 @@ def init(tr, parameters, tableBuilder):
 		tr.createNewSpace("METHODS", None);
 		
 		tr.createNewProject("/METHODS/PROTOCOLS");
-		tr.createNewExperiment("/METHODS/PROTOCOLS/GENERAL_PROTOCOL", 			"GENERAL_PROTOCOL");
-		tr.createNewExperiment("/METHODS/PROTOCOLS/PCR_PROTOCOL", 				"PCR_PROTOCOL");
-		tr.createNewExperiment("/METHODS/PROTOCOLS/WESTERN_BLOTTING_PROTOCOL", 	"WESTERN_BLOTTING_PROTOCOL");
+		tr.createNewExperiment("/METHODS/PROTOCOLS/GENERAL_PROTOCOLS", 			"GENERAL_PROTOCOL");
+		tr.createNewExperiment("/METHODS/PROTOCOLS/PCR_PROTOCOLS", 				"PCR_PROTOCOL");
+		tr.createNewExperiment("/METHODS/PROTOCOLS/WESTERN_BLOTTING_PROTOCOLS", 	"WESTERN_BLOTTING_PROTOCOL");
 		
 		tr.createNewSpace("DEFAULT_LAB_NOTEBOOK", None);
 		
