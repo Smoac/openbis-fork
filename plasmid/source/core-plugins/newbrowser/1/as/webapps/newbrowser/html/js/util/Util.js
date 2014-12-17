@@ -177,35 +177,22 @@ var Util = new function() {
 		});
 	}
 	
+	//HACK: This method is intended to be used by naughty SVG images that don't provide a correct with/height and don't resize correctly
+	this.loadNaughtySVGImage = function(imageURL, containerWidth, containerHeight, callback) {
+		d3.xml(imageURL, "image/svg+xml", 
+				function(xml) {
+					var importedNode = document.importNode(xml.documentElement, true);
+					var size = 1000;
+					d3.select(importedNode)
+						.attr("width", size)
+						.attr("height", size)
+						.attr("viewBox", "0 0 " + size + " " + size);
+					callback($(importedNode));
+		});
+	}
+	
 	this.showImage = function(imageURL) {
-		var $image = $("<img>", {"src" : imageURL});
-		$image.load(function() {
-			var containerWidth = $(window).width()*0.85;
-			var containerHeight = $(window).height()*0.85;
-			
-			var imageWidth = $image[0].width;
-			var imageHeight = $image[0].height;
-			
-			if(containerWidth < imageWidth) {
-				var newImageWidth = containerWidth;
-				var newImageHeight = imageHeight * newImageWidth / imageWidth;
-				
-				imageWidth = newImageWidth;
-				imageHeight = newImageHeight;
-			}
-			
-			if(containerHeight < imageHeight) {
-				var newImageHeight = containerHeight;
-				var newImageWidth = imageWidth * newImageHeight / imageHeight;
-				
-				imageWidth = newImageWidth;
-				imageHeight = newImageHeight;
-			}
-			
-			$image.attr("width", imageWidth);
-			$image.attr("height", imageHeight);
-			
-			
+		var showImage = function($image) {
 			var $imageWrapper = $("<div>", {"style" : "margin:10px"});
 			$imageWrapper.append($image);
 			
@@ -233,6 +220,41 @@ var Util = new function() {
 					  onClosed : function(){ Util.unblockUI(); },
 					  onCompleted : function(){ }
 					});
+		}
+		
+		var _this = this;
+		var $image = $("<img>", {"src" : imageURL});
+		$image.load(function() {
+			var containerWidth = $(window).width()*0.85;
+			var containerHeight = $(window).height()*0.85;
+			
+			var imageWidth = $image[0].width;
+			var imageHeight = $image[0].height;
+			
+			if(containerWidth < imageWidth) {
+				var newImageWidth = containerWidth;
+				var newImageHeight = imageHeight * newImageWidth / imageWidth;
+				
+				imageWidth = newImageWidth;
+				imageHeight = newImageHeight;
+			}
+			
+			if(containerHeight < imageHeight) {
+				var newImageHeight = containerHeight;
+				var newImageWidth = imageWidth * newImageHeight / imageHeight;
+				
+				imageWidth = newImageWidth;
+				imageHeight = newImageHeight;
+			}
+			
+			if(imageWidth == 0 && imageHeight == 0 && imageURL.toLowerCase().indexOf(".svg?sessionid") !== -1) {
+				_this.loadNaughtySVGImage(imageURL, containerWidth, containerHeight, showImage);
+			} else {
+				$image.attr("width", imageWidth);
+				$image.attr("height", imageHeight);
+				showImage($image);
+			}
+			
 		});
 	}
 	
