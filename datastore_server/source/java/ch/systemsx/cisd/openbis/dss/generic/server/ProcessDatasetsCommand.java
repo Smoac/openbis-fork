@@ -24,6 +24,7 @@ import javax.activation.DataHandler;
 import org.apache.log4j.Logger;
 
 import ch.rinn.restrictions.Private;
+import ch.systemsx.cisd.common.collection.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -247,13 +248,13 @@ public class ProcessDatasetsCommand extends AbstractDataSetDescriptionBasedComma
 
     private String getShortDescription(String suffix)
     {
-        return String.format("'%s'%s", serviceDescription.getLabel(), suffix);
+        return String.format("'%s' [%s] %s", serviceDescription.getLabel(), serviceDescription.getKey(), suffix);
     }
 
     private String getDescription(String prefix)
     {
         return String.format("%s on %d data set(s): \n%s", prefix, dataSets.size(),
-                getDataSetCodes(getDataSetCodes()));
+                CollectionUtils.abbreviate(getDataSetCodes(), 20));
     }
 
     @Override
