@@ -194,6 +194,7 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
             {
                 operationLog.warn("Rollback of multi dataset db transaction failed", ex);
             }
+            result.setStatusUpdatingSupressed(false);
             result.addResult(dataSets, Status.createError(e.getMessage()), Operation.ARCHIVE);
         }
         return result;

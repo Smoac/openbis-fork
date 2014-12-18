@@ -887,6 +887,37 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
         assertEquals("Containers:\nData sets:\ncommitted: false, rolledBack: true", transaction.toString());
         context.assertIsSatisfied();
     }
+    
+    @Test
+    public void testArchiveDataSetFailsInCaseOfReplication()
+    {
+        prepareUpdateShareIdAndSize(ds2, 20);
+        properties.setProperty(MINIMUM_CONTAINER_SIZE_IN_BYTES, "15");
+        properties.setProperty(REPLICATED_DESTINATION_KEY, replicate.getAbsolutePath());
+        final String containerPath = "123-456.tar";
+        prepareFileOperationsGenerateContainerPath(containerPath, ds2);
+        prepareIsReplicatedArchiveDefined(true);
+        context.checking(new Expectations()
+            {
+                {
+                    one(fileOperations).createContainer(containerPath, Arrays.asList(ds2));
+                    will(returnValue(Status.createError("Failed")));
+                }
+            });
+        prepareFileOperationsDelete(containerPath);
+        
+        MultiDataSetArchiver archiver = createArchiver(fileOperations);
+        ProcessingStatus status = archiver.archive(Arrays.asList(ds2), archiverContext, false);
+        
+        assertEquals("[ERROR: \"Couldn't create archive file 123-456.tar. Reason: Failed\"]",
+                status.getErrorStatuses().toString());
+        assertEquals("[]", Arrays.asList(staging.listFiles()).toString());
+        File archiveFile = new File(archive, ds2.getDataSetCode() + ".tar");
+        assertEquals(false, archiveFile.exists());
+        assertEquals("[ds2]: AVAILABLE false\n", statusUpdater.toString());
+        assertEquals("Containers:\nData sets:\ncommitted: false, rolledBack: true", transaction.toString());
+        context.assertIsSatisfied();
+    }
 
     @Test
     public void testUnarchive()
