@@ -248,7 +248,7 @@ public class ProcessDatasetsCommand extends AbstractDataSetDescriptionBasedComma
 
     private String getShortDescription(String suffix)
     {
-        return String.format("'%s' [%s] %s", serviceDescription.getLabel(), serviceDescription.getKey(), suffix);
+        return String.format("'%s' [%s]%s", serviceDescription.getLabel(), serviceDescription.getKey(), suffix);
     }
 
     private String getDescription(String prefix)

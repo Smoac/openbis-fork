@@ -143,7 +143,7 @@ public class ProcessDatasetsCommandTest extends AssertJUnit
             });
         command.execute(null, null);
 
-        assertEquals("['" + EXAMPLE_TASK_LABEL + "' processing finished]", subjectRecorder
+        assertEquals("['" + EXAMPLE_TASK_LABEL + "' [MY_TASK] processing finished]", subjectRecorder
                 .getRecordedObjects().toString());
         assertEquals(
                 "[This is an automatically generated report from the completed processing "
@@ -173,9 +173,9 @@ public class ProcessDatasetsCommandTest extends AssertJUnit
             assertEquals("illegal state!", e.getMessage());
         }
 
-        assertEquals("['" + EXAMPLE_TASK_LABEL + "' processing failed]", subjectRecorder
+        assertEquals("['" + EXAMPLE_TASK_LABEL + "' [MY_TASK] processing failed]", subjectRecorder
                 .getRecordedObjects().toString());
-        assertEquals("['My task' processing failed on 2 data set(s): \nds1,ds2\n\n"
+        assertEquals("['My task' [MY_TASK] processing failed on 2 data set(s): \n[ds1, ds2]\n\n"
                 + "Error message:\nillegal state!]", contentRecorder.getRecordedObjects()
                 .toString());
         context.assertIsSatisfied();
@@ -218,9 +218,9 @@ public class ProcessDatasetsCommandTest extends AssertJUnit
             assertEquals(null, e.getMessage());
         }
 
-        assertEquals("[null, 'My task' processing failed]", subjectRecorder.getRecordedObjects()
+        assertEquals("[null, 'My task' [MY_TASK] processing failed]", subjectRecorder.getRecordedObjects()
                 .toString());
-        assertEquals("[hello, 'My task' processing failed on 2 data set(s): \nds1,ds2\n\n"
+        assertEquals("[hello, 'My task' [MY_TASK] processing failed on 2 data set(s): \n[ds1, ds2]\n\n"
                 + "Error message:\n]", contentRecorder.getRecordedObjects().toString());
         context.assertIsSatisfied();
     }
