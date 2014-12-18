@@ -177,39 +177,50 @@ var Util = new function() {
 		});
 	}
 
+	//HACK: This method is intended to be used by naughty SVG images that don't provide a correct with/height and don't resize correctly
+	this.loadSVGImage = function(imageURL, containerWidth, containerHeight, callback) {
+		d3.xml(imageURL, "image/svg+xml", 
+				function(xml) {
+					var importedNode = document.importNode(xml.documentElement, true);
+					var d3Node = d3.select(importedNode);
+					
+					var imageWidth = d3Node.style("width");
+					var imageHeight = d3Node.style("height");
+					if((imageWidth === "auto" || imageHeight === "auto") || //Firefox some times
+						(imageWidth === "" || imageHeight === "")) { //Safari and Chrome under any case
+						imageWidth = containerWidth;
+						imageHeight = containerHeight;
+					} else if(imageWidth.indexOf("px") !== -1 || imageHeight.indexOf("px") !== -1) { //Firefox some times
+						imageWidth = parseFloat(imageWidth.substring(0,imageWidth.length - 2));
+						imageHeight = parseFloat(imageHeight.substring(0,imageHeight.length - 2));
+					}
+					
+					if(containerWidth < imageWidth) {
+						var newImageWidth = containerWidth;
+						var newImageHeight = imageHeight * newImageWidth / imageWidth;
+						
+						imageWidth = newImageWidth;
+						imageHeight = newImageHeight;
+					}
+					
+					if(containerHeight < imageHeight) {
+						var newImageHeight = containerHeight;
+						var newImageWidth = imageWidth * newImageHeight / imageHeight;
+						
+						imageWidth = newImageWidth;
+						imageHeight = newImageHeight;
+					}
+					
+					d3Node.attr("width", imageWidth)
+							.attr("height", imageHeight)
+							.attr("viewBox", "0 0 " + imageWidth + " " + imageHeight);
+					callback($(importedNode));
+		});
+	}
+	
 	this.showImage = function(imageURL) {
-		var $image = $("<img>", {"src" : imageURL});
-		$image.load(function() {
-			var containerWidth = $(window).width()*0.85;
-			var containerHeight = $(window).height()*0.85;
-			
-			var imageWidth = $image[0].width;
-			var imageHeight = $image[0].height;
-			
-			if(containerWidth < imageWidth) {
-				var newImageWidth = containerWidth;
-				var newImageHeight = imageHeight * newImageWidth / imageWidth;
-				
-				imageWidth = newImageWidth;
-				imageHeight = newImageHeight;
-			}
-			
-			if(containerHeight < imageHeight) {
-				var newImageHeight = containerHeight;
-				var newImageWidth = imageWidth * newImageHeight / imageHeight;
-				
-				imageWidth = newImageWidth;
-				imageHeight = newImageHeight;
-			}
-			
-			if(imageWidth == 0 && imageHeight == 0 && imageURL.toLowerCase().indexOf(".svg?sessionid") !== -1) {
-				$image.attr("width", containerWidth);
-				$image.attr("height", containerHeight);
-			} else {
-				$image.attr("width", imageWidth);
-				$image.attr("height", imageHeight);
-			}
-			
+		
+		var showImageB = function($image) {
 			var $imageWrapper = $("<div>", {"style" : "margin:10px"});
 			$imageWrapper.append($image);
 			
@@ -237,6 +248,40 @@ var Util = new function() {
 					  onClosed : function(){ Util.unblockUI(); },
 					  onCompleted : function(){ }
 					});
+		};
+		
+		var containerWidth = $(window).width()*0.85;
+		var containerHeight = $(window).height()*0.85;
+		
+		if(imageURL.toLowerCase().indexOf(".svg?sessionid") !== -1) {
+			this.loadSVGImage(imageURL, containerWidth, containerHeight, showImageB);
+			return;
+		}
+		
+		var $image = $("<img>", {"src" : imageURL});
+		$image.load(function() {
+			var imageWidth = $image[0].width;
+			var imageHeight = $image[0].height;
+			
+			if(containerWidth < imageWidth) {
+				var newImageWidth = containerWidth;
+				var newImageHeight = imageHeight * newImageWidth / imageWidth;
+				
+				imageWidth = newImageWidth;
+				imageHeight = newImageHeight;
+			}
+			
+			if(containerHeight < imageHeight) {
+				var newImageHeight = containerHeight;
+				var newImageWidth = imageWidth * newImageHeight / imageHeight;
+				
+				imageWidth = newImageWidth;
+				imageHeight = newImageHeight;
+			}
+			
+			$image.attr("width", imageWidth);
+			$image.attr("height", imageHeight);
+			showImageB($image);
 		});
 	}
 	
