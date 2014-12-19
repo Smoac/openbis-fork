@@ -59,6 +59,9 @@ public class TestInstanceHostUtils
         } else if (projectName.equals("deep_sequencing_unit"))
         {
             return 30;
+        } else if (projectName.equals("openbis_oai_pmh"))
+        {
+            return 40;
         }
 
         return 80;

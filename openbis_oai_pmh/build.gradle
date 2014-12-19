@@ -13,7 +13,8 @@ dependencies {
             project(':openbis-common'),
             project(':openbis_api'),
             project(':openbis'),
-            project(':datastore_server')
+            project(':datastore_server'),
+            'xhaus:jyson:+'
 
     testCompile project(path: ':datastore_server', configuration: 'tests')
     
