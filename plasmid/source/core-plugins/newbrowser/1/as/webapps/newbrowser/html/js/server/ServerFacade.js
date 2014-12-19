@@ -74,6 +74,24 @@ function ServerFacade(openbisServer) {
 	
 	this.createELNUser = function(userId, callback) {
  		var _this = this;
+ 		var inventorySpacesToRegister = [];
+ 		var inventorySpaceToRegisterFunc = function(spaceCode, callback) {
+			return function() {
+				_this.openbisServer.registerPersonSpaceRole(spaceCode, userId, "ADMIN", function(data) {
+					if(data.error) {
+						callback(false, data.error.message);
+					} else {
+						var spaceToRegister = inventorySpacesToRegister.pop();
+						if(spaceToRegister) {
+							spaceToRegister();
+						} else {
+							callback(true, "User " + userId + " created successfully.");
+						}
+					}
+				});
+			}
+		};
+ 		
 		_this.openbisServer.registerPerson(userId, function(data) {
 			if(data.error) {
 				callback(false, data.error.message);
@@ -86,7 +104,17 @@ function ServerFacade(openbisServer) {
 							if(data.error) {
 								callback(false, data.error.message);
 							} else {
-								callback(true, "User " + userId + " created successfully.");
+								for(var i = 0; i < profile.inventorySpaces.length; i++) {
+									var spaceCode = profile.inventorySpaces[i];
+									inventorySpacesToRegister.push(inventorySpaceToRegisterFunc(spaceCode, callback));
+								}
+								
+								var spaceToRegister = inventorySpacesToRegister.pop();
+								if(spaceToRegister) {
+									spaceToRegister();
+								} else {
+									callback(true, "User " + userId + " created successfully.");
+								}
 							}
 						});
 					}			
