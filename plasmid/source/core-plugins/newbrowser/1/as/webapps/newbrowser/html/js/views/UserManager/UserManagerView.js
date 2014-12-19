@@ -69,6 +69,45 @@ function UserManagerView(userManagerController, userManagerModel) {
 			sortable : true
 		}];
 		
+		columns.push({
+			label : "Operations",
+			property : 'operations',
+			sortable : false,
+			render : function(data) {
+				//Dropdown Setup
+				var $dropDownMenu = $("<span>", { class : 'dropdown' });
+				var $caret = $("<a>", { 'href' : '#', 'data-toggle' : 'dropdown', class : 'dropdown-toggle btn btn-default'}).append("Operations ").append($("<b>", { class : 'caret' }));
+				var $list = $("<ul>", { class : 'dropdown-menu', 'role' : 'menu', 'aria-labelledby' :'sampleTableDropdown' });
+				$dropDownMenu.append($caret);
+				$dropDownMenu.append($list);
+				
+				var clickFunction = function($dropDown) {
+					return function(event) {
+						event.stopPropagation();
+						event.preventDefault();
+						$caret.dropdown('toggle');
+					};
+				}
+				$dropDownMenu.dropdown();
+				$dropDownMenu.click(clickFunction($dropDownMenu));
+				
+				//Options
+				var $resetOption = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'Reset Password'}).append("Reset Password"));
+				$resetOption.click(function(e) {
+					_this._userManagerController.resetPassword(data.userId);
+				});
+				$list.append($resetOption);
+				
+				return $dropDownMenu;
+			},
+			filter : function(data, filter) {
+				return false;
+			},
+			sort : function(data1, data2, asc) {
+				return 0;
+			}
+		});
+		
 		var getDataList = function(callback) {
 			var dataList = [];
 			for(var idx = 0; idx < _this._userManagerModel.persons.length; idx++) {

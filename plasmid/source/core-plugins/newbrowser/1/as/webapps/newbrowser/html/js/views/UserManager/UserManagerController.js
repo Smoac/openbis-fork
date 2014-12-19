@@ -33,4 +33,9 @@ function UserManagerController(mainController) {
 		var createUserController = new CreateUserController();
 		createUserController.init();
 	}
+	
+	this.resetPassword = function(userId) {
+		var resetPasswordController = new ResetPasswordController(userId);
+		resetPasswordController.init();
+	}
 }
