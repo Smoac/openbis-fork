@@ -351,6 +351,7 @@ def parseOptions(logger):
 
 def getFLowcellData(service, configMap, flowcell, logger):
 
+  laneCodeList = []
   fetchOptions = EnumSet.of(SampleFetchOption.ANCESTORS, SampleFetchOption.PROPERTIES)
 
   sc = SearchCriteria();
@@ -367,7 +368,9 @@ def getFLowcellData(service, configMap, flowcell, logger):
   
   for lane in containedSamples:
     laneCode = lane.getCode()
-    logger.info("Found lane " + laneCode + " in flow cell")
+    laneCodeList.append(laneCode)
+    logger.debug("Found lane " + laneCode + " in flow cell")
+  logger.info("All lanes found: " + str(laneCodeList))
   
   for p in fcList:
     flowCellProperties = p.getProperties()
@@ -386,8 +389,8 @@ def getFLowcellData(service, configMap, flowcell, logger):
   spaceDict = {}
   invoiceDict = {}
 
-  for lane in range(1, numberOfLanes + 1):
-    myLane = flowcell + ":" + str(lane)
+  for lane in laneCodeList:
+    myLane = lane
     laneSc = SearchCriteria();
     laneSc.addMatchClause(SearchCriteria.MatchClause.createAttributeMatch(SearchCriteria.MatchClauseAttribute.CODE, myLane));
     laneList = service.searchForSamples(laneSc, fetchOptions)
