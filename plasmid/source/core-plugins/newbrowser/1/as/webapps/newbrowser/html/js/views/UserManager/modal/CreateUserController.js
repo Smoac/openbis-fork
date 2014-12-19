@@ -21,4 +21,38 @@ function CreateUserController() {
 	this.init = function() {
 		this._createUserView.repaint();
 	}
+	
+	this.createUser = function() {
+		var _this = this;
+			var createUser = function() {
+				mainController.serverFacade.createELNUser(_this._createUserModel.userId, function(isRegistered, message) {
+					if(isRegistered) {
+						Util.showSuccess(message, function() {
+							location.reload();
+						});
+					} else if (message.indexOf("Following persons already exist") !== -1){
+						Util.showError(message);
+					} else {
+						_this._createUserView.showPasswordField();
+						_this._createUserModel.isPasswordRequired = true;
+					}
+				});
+			}
+			
+			if(!this._createUserModel.isPasswordRequired) {
+				createUser();
+			} else {
+				mainController.serverFacade.registerUserPassword(
+						_this._createUserModel.userId,
+						_this._createUserModel.password,
+						function(isRegistered) {
+							if(isRegistered) {
+								createUser();
+							} else {
+								Util.showError("User can't be created, check with your administator.");
+							}
+						});
+			}
+		
+	}
 }

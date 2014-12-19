@@ -72,35 +72,27 @@ function ServerFacade(openbisServer) {
 			});
 	}
 	
-	this.createELNUser = function(userId, userPass) {
-	 		var _this = this;
-	 		_this.registerUserPassword(userId, userPass, function(isSuccess){
-				if(isSuccess) {
-					_this.openbisServer.registerPerson(userId, function(data) {
-						if(data.error) {
-							Util.showError(data.error.message);
-						} else {
-							_this.openbisServer.registerSpace(userId, "Space for user " + userId, function(data) {
-								if(data.error) {
-									Util.showError(data.error.message);
-								} else {
-									_this.openbisServer.registerPersonSpaceRole(userId, userId, "ADMIN", function(data) {
-										if(data.error) {
-											Util.showError(data.error.message);
-										} else {
-											Util.showSuccess("User " + userId + " created successfully.");
-										}
-									});
-								}
-								
-							});
-						}
-						
-					});
-				} else {
-					Util.showError("User password can't be set.");
-				}
-			});
+	this.createELNUser = function(userId, callback) {
+ 		var _this = this;
+		_this.openbisServer.registerPerson(userId, function(data) {
+			if(data.error) {
+				callback(false, data.error.message);
+			} else {
+				_this.openbisServer.registerSpace(userId, "Space for user " + userId, function(data) {
+					if(data.error) {
+						callback(false, data.error.message);
+					} else {
+						_this.openbisServer.registerPersonSpaceRole(userId, userId, "ADMIN", function(data) {
+							if(data.error) {
+								callback(false, data.error.message);
+							} else {
+								callback(true, "User " + userId + " created successfully.");
+							}
+						});
+					}			
+				});
+			}			
+		});
 	}
 	
 	//
