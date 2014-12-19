@@ -352,16 +352,33 @@ def parseOptions(logger):
 def getFLowcellData(service, configMap, flowcell, logger):
 
   fetchOptions = EnumSet.of(SampleFetchOption.ANCESTORS, SampleFetchOption.PROPERTIES)
-  laneFetchOptions = EnumSet.of(SampleFetchOption.ANCESTORS, SampleFetchOption.PROPERTIES)
 
   sc = SearchCriteria();
-  sc.addMatchClause(SearchCriteria.MatchClause.createAttributeMatch(SearchCriteria.MatchClauseAttribute.CODE, flowcell));
+  sc.addMatchClause(SearchCriteria.MatchClause.createAttributeMatch(SearchCriteria.MatchClauseAttribute.CODE, flowcell));  
   fcList = service.searchForSamples(sc, fetchOptions)
-
+  
+  scContained = SearchCriteria()
+  scContained.addMatchClause(SearchCriteria.MatchClause.createAttributeMatch(SearchCriteria.MatchClauseAttribute.CODE, flowcell));
+  
+  scContainedMain = SearchCriteria();
+  scContainedMain.addSubCriteria(SearchSubCriteria.createSampleContainerCriteria(scContained))
+  
+  containedSamples = service.searchForSamples(scContainedMain)
+  
+  for lane in containedSamples:
+    laneCode = lane.getCode()
+    logger.info("Found lane " + laneCode + " in flow cell")
+  
   for p in fcList:
     flowCellProperties = p.getProperties()
-
+    
   numberOfLanes = int(flowCellProperties['LANECOUNT'])
+  
+  foundLaneNumber = containedSamples.size()
+  if (foundLaneNumber > numberOfLanes):
+      numberOfLanes = foundLaneNumber
+      logger.info("Found " + str(foundLaneNumber) + " lanes! This differs from the lane number " +
+           "registered in the flow cell. --> Lanes got splitted!")
 
   laneDict = {}
   sampleDict = {}
@@ -374,6 +391,7 @@ def getFLowcellData(service, configMap, flowcell, logger):
     laneSc = SearchCriteria();
     laneSc.addMatchClause(SearchCriteria.MatchClause.createAttributeMatch(SearchCriteria.MatchClauseAttribute.CODE, myLane));
     laneList = service.searchForSamples(laneSc, fetchOptions)
+    logger.debug("Length of laneList for " + myLane + " is " + str(len(laneList)))
 
     for l in laneList:
       laneProperties = l.getProperties()
