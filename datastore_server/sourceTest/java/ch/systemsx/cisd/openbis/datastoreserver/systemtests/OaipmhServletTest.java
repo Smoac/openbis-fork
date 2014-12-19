@@ -16,32 +16,16 @@
 
 package ch.systemsx.cisd.openbis.datastoreserver.systemtests;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.util.List;
-
-import javax.xml.namespace.QName;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
 
 import junit.framework.Assert;
 
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.w3c.dom.Document;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
-import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.common.http.HttpTest;
 import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
@@ -66,64 +50,58 @@ public class OaipmhServletTest extends SystemTestCase
 
     private IGeneralInformationService generalInformationService;
 
-    private DocumentBuilder xmlBuilder;
-
-    private XPath xPath;
-
     @BeforeClass
-    public void beforeClass() throws ParserConfigurationException
+    public void beforeClass()
     {
         generalInformationService = HttpInvokerUtils.createServiceStub(IGeneralInformationService.class, GENERAL_INFORMATION_SERVICE_URL, 5000);
-        xmlBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-        xPath = XPathFactory.newInstance().newXPath();
     }
 
     @Test
     public void testWithoutAuthorizationHeader()
     {
-        GetMethod method = sendRequest(null, OAIPMH_SERVLET_URL + "?verb=Identify");
+        GetMethod method = HttpTest.sendRequest(null, OAIPMH_SERVLET_URL + "?verb=Identify");
         Assert.assertEquals(401, method.getStatusCode());
     }
 
     @Test
     public void testWithIncorrectAuthorizationHeader()
     {
-        GetMethod method = sendRequest("This is an invalid header", OAIPMH_SERVLET_URL + "?verb=Identify");
+        GetMethod method = HttpTest.sendRequest("This is an invalid header", OAIPMH_SERVLET_URL + "?verb=Identify");
         Assert.assertEquals(500, method.getStatusCode());
     }
 
     @Test
     public void testWithIncorrectCredentials()
     {
-        GetMethod method = sendRequest("incorrect", USER_PASSWORD, OAIPMH_SERVLET_URL + "?verb=Identify");
+        GetMethod method = HttpTest.sendRequest("incorrect", USER_PASSWORD, OAIPMH_SERVLET_URL + "?verb=Identify");
         Assert.assertEquals(401, method.getStatusCode());
     }
 
     @Test
     public void testIdentify() throws InterruptedException
     {
-        GetMethod method = sendRequest(USER_ID, USER_PASSWORD, OAIPMH_SERVLET_URL + "?verb=Identify");
+        GetMethod method = HttpTest.sendRequest(USER_ID, USER_PASSWORD, OAIPMH_SERVLET_URL + "?verb=Identify");
         Assert.assertEquals(200, method.getStatusCode());
-        Document document = parseResponse(method);
-        Assert.assertEquals("TEST", evaluateToString(document, "/OAI-PMH/Identify/repositoryName"));
+        Document document = HttpTest.parseResponse(method);
+        Assert.assertEquals("TEST", HttpTest.evaluateToString(document, "/OAI-PMH/Identify/repositoryName"));
     }
 
     @Test
     public void testListMetadataformats()
     {
-        GetMethod method = sendRequest(USER_ID, USER_PASSWORD, OAIPMH_SERVLET_URL + "?verb=ListMetadataFormats");
+        GetMethod method = HttpTest.sendRequest(USER_ID, USER_PASSWORD, OAIPMH_SERVLET_URL + "?verb=ListMetadataFormats");
         Assert.assertEquals(200, method.getStatusCode());
-        Document document = parseResponse(method);
-        Assert.assertEquals("testPrefix", evaluateToString(document, "/OAI-PMH/ListMetadataFormats/metadataFormat/metadataPrefix"));
+        Document document = HttpTest.parseResponse(method);
+        Assert.assertEquals("testPrefix", HttpTest.evaluateToString(document, "/OAI-PMH/ListMetadataFormats/metadataFormat/metadataPrefix"));
     }
 
     @Test
     public void testListSets()
     {
-        GetMethod method = sendRequest(USER_ID, USER_PASSWORD, OAIPMH_SERVLET_URL + "?verb=ListSets");
+        GetMethod method = HttpTest.sendRequest(USER_ID, USER_PASSWORD, OAIPMH_SERVLET_URL + "?verb=ListSets");
         Assert.assertEquals(200, method.getStatusCode());
-        Document document = parseResponse(method);
-        Assert.assertEquals("This repository does not support sets", evaluateToString(document, "/OAI-PMH/error"));
+        Document document = HttpTest.parseResponse(method);
+        Assert.assertEquals("This repository does not support sets", HttpTest.evaluateToString(document, "/OAI-PMH/error"));
     }
 
     @Test
@@ -140,16 +118,17 @@ public class OaipmhServletTest extends SystemTestCase
             GetMethod method = null;
             if (resumptionToken == null)
             {
-                method = sendRequest(USER_ID, USER_PASSWORD, OAIPMH_SERVLET_URL + "?verb=ListIdentifiers&metadataPrefix=testPrefix");
+                method = HttpTest.sendRequest(USER_ID, USER_PASSWORD, OAIPMH_SERVLET_URL + "?verb=ListIdentifiers&metadataPrefix=testPrefix");
             } else
             {
-                method = sendRequest(USER_ID, USER_PASSWORD, OAIPMH_SERVLET_URL + "?verb=ListIdentifiers&resumptionToken=" + resumptionToken);
+                method =
+                        HttpTest.sendRequest(USER_ID, USER_PASSWORD, OAIPMH_SERVLET_URL + "?verb=ListIdentifiers&resumptionToken=" + resumptionToken);
             }
             Assert.assertEquals(200, method.getStatusCode());
 
-            Document document = parseResponse(method);
-            dataSetCount += evaluateToNodeList(document, "/OAI-PMH/ListIdentifiers/header").getLength();
-            resumptionToken = evaluateToString(document, "/OAI-PMH/ListIdentifiers/resumptionToken");
+            Document document = HttpTest.parseResponse(method);
+            dataSetCount += HttpTest.evaluateToNodeList(document, "/OAI-PMH/ListIdentifiers/header").getLength();
+            resumptionToken = HttpTest.evaluateToString(document, "/OAI-PMH/ListIdentifiers/resumptionToken");
 
         } while (resumptionToken != null && !resumptionToken.isEmpty());
 
@@ -170,16 +149,16 @@ public class OaipmhServletTest extends SystemTestCase
             GetMethod method = null;
             if (resumptionToken == null)
             {
-                method = sendRequest(USER_ID, USER_PASSWORD, OAIPMH_SERVLET_URL + "?verb=ListRecords&metadataPrefix=testPrefix");
+                method = HttpTest.sendRequest(USER_ID, USER_PASSWORD, OAIPMH_SERVLET_URL + "?verb=ListRecords&metadataPrefix=testPrefix");
             } else
             {
-                method = sendRequest(USER_ID, USER_PASSWORD, OAIPMH_SERVLET_URL + "?verb=ListRecords&resumptionToken=" + resumptionToken);
+                method = HttpTest.sendRequest(USER_ID, USER_PASSWORD, OAIPMH_SERVLET_URL + "?verb=ListRecords&resumptionToken=" + resumptionToken);
             }
             Assert.assertEquals(200, method.getStatusCode());
 
-            Document document = parseResponse(method);
-            dataSetCount += evaluateToNodeList(document, "/OAI-PMH/ListRecords/record").getLength();
-            resumptionToken = evaluateToString(document, "/OAI-PMH/ListRecords/resumptionToken");
+            Document document = HttpTest.parseResponse(method);
+            dataSetCount += HttpTest.evaluateToNodeList(document, "/OAI-PMH/ListRecords/record").getLength();
+            resumptionToken = HttpTest.evaluateToString(document, "/OAI-PMH/ListRecords/resumptionToken");
 
         } while (resumptionToken != null && !resumptionToken.isEmpty());
 
@@ -190,80 +169,13 @@ public class OaipmhServletTest extends SystemTestCase
     public void testGetRecord()
     {
         GetMethod method =
-                sendRequest(USER_ID, USER_PASSWORD, OAIPMH_SERVLET_URL + "?verb=GetRecord&metadataPrefix=testPrefix&identifier=20081105092159111-1");
+                HttpTest.sendRequest(USER_ID, USER_PASSWORD, OAIPMH_SERVLET_URL
+                        + "?verb=GetRecord&metadataPrefix=testPrefix&identifier=20081105092159111-1");
         Assert.assertEquals(200, method.getStatusCode());
 
-        Document document = parseResponse(method);
-        Assert.assertEquals("20081105092159111-1", evaluateToString(document, "/OAI-PMH/GetRecord/record/header/identifier"));
-        Assert.assertEquals("FEMALE", evaluateToString(document, "/OAI-PMH/GetRecord/record/metadata/properties/property[@code='GENDER']"));
-    }
-
-    private GetMethod sendRequest(String user, String password, String url)
-    {
-        String authorizationHeader = "Basic " + new String(Base64.encodeBase64(new String(user + ":" + password).getBytes()));
-        return sendRequest(authorizationHeader, url);
-    }
-
-    private GetMethod sendRequest(String authorizationHeader, String url)
-    {
-        try
-        {
-            operationLog.info("Sending OAI-PMH request: " + url);
-
-            HttpClient httpClient = new HttpClient();
-            GetMethod method = new GetMethod(url);
-            if (authorizationHeader != null)
-            {
-                method.setRequestHeader("Authorization", authorizationHeader);
-            }
-            httpClient.executeMethod(method);
-
-            operationLog.info("Received OAI-PMH response: " + method.getResponseBodyAsString());
-
-            return method;
-        } catch (HttpException ex)
-        {
-            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
-        } catch (IOException ex)
-        {
-            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
-        }
-    }
-
-    private Document parseResponse(GetMethod method)
-    {
-        try
-        {
-            String body = method.getResponseBodyAsString();
-            return xmlBuilder.parse(new ByteArrayInputStream(body.getBytes()));
-        } catch (IOException ex)
-        {
-            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
-        } catch (SAXException ex)
-        {
-            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
-        }
-    }
-
-    private String evaluateToString(Document document, String xpath)
-    {
-        return (String) evaluate(document, xpath, XPathConstants.STRING);
-    }
-
-    private NodeList evaluateToNodeList(Document document, String xpath)
-    {
-        return (NodeList) evaluate(document, xpath, XPathConstants.NODESET);
-    }
-
-    private Object evaluate(Document document, String xpath, QName returnType)
-    {
-        try
-        {
-            return xPath.compile(xpath).evaluate(document, returnType);
-        } catch (XPathExpressionException ex)
-        {
-            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
-        }
+        Document document = HttpTest.parseResponse(method);
+        Assert.assertEquals("20081105092159111-1", HttpTest.evaluateToString(document, "/OAI-PMH/GetRecord/record/header/identifier"));
+        Assert.assertEquals("FEMALE", HttpTest.evaluateToString(document, "/OAI-PMH/GetRecord/record/metadata/properties/property[@code='GENDER']"));
     }
 
 }

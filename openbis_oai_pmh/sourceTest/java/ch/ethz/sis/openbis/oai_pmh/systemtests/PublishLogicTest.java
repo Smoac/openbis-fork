@@ -18,8 +18,6 @@ package ch.ethz.sis.openbis.oai_pmh.systemtests;
 
 import java.util.HashMap;
 
-import javax.xml.parsers.ParserConfigurationException;
-
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -50,7 +48,7 @@ public class PublishLogicTest extends OAIPMHSystemTest
     private String sessionToken;
 
     @BeforeClass
-    public void beforeClass() throws ParserConfigurationException, InterruptedException
+    public void beforeClass()
     {
         generalInformationService = HttpInvokerUtils.createServiceStub(IGeneralInformationService.class, GENERAL_INFORMATION_SERVICE_URL, 5000);
         dssServiceRpcGeneric = HttpInvokerUtils.createServiceStub(IDssServiceRpcGeneric.class, DSS_SERVICE_RPC_GENERIC_URL, 5000);
