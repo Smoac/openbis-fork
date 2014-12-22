@@ -18,10 +18,15 @@ package ch.ethz.sis.openbis.oai_pmh.systemtests;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.Transformer;
 import org.apache.commons.lang.StringUtils;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -31,7 +36,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
-import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.util.TestInstanceHostUtils;
@@ -48,6 +52,8 @@ public class PublishLogicTest extends OAIPMHSystemTest
 
     private static final String DSS_SERVICE_RPC_GENERIC_URL = TestInstanceHostUtils.getDSSUrl() + "/datastore_server/rmi-dss-api-v1";
 
+    private static final long TIMEOUT = 30000;
+
     private static final String USER_ID = "test";
 
     private static final String USER_PASSWORD = "password";
@@ -61,8 +67,8 @@ public class PublishLogicTest extends OAIPMHSystemTest
     @BeforeClass
     public void beforeClass()
     {
-        generalInformationService = HttpInvokerUtils.createServiceStub(IGeneralInformationService.class, GENERAL_INFORMATION_SERVICE_URL, 5000);
-        dssServiceRpcGeneric = HttpInvokerUtils.createServiceStub(IDssServiceRpcGeneric.class, DSS_SERVICE_RPC_GENERIC_URL, 5000);
+        generalInformationService = HttpInvokerUtils.createServiceStub(IGeneralInformationService.class, GENERAL_INFORMATION_SERVICE_URL, TIMEOUT);
+        dssServiceRpcGeneric = HttpInvokerUtils.createServiceStub(IDssServiceRpcGeneric.class, DSS_SERVICE_RPC_GENERIC_URL, TIMEOUT);
         sessionToken = generalInformationService.tryToAuthenticateForAllServices(USER_ID, USER_PASSWORD);
     }
 
@@ -73,7 +79,33 @@ public class PublishLogicTest extends OAIPMHSystemTest
         Object[] resultAndError = call("getSpaces", null);
 
         ArrayList<String> result = (ArrayList<String>) resultAndError[0];
-        AssertionUtil.assertCollectionContainsOnly(result, "PUBLICATIONS_1", "PUBLICATIONS_2");
+        Assert.assertEquals(result, Arrays.asList("PUBLICATIONS_1", "PUBLICATIONS_2"));
+
+        String error = (String) resultAndError[1];
+        Assert.assertNull(error);
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void testGetMeshTermChildrenWithParentNull()
+    {
+        Object[] resultAndError = call("getMeshTermChildren", Collections.singletonMap("parent", null));
+
+        ArrayList<Map<String, String>> result = (ArrayList<Map<String, String>>) resultAndError[0];
+        Collection<String> terms = CollectionUtils.collect(result, new Transformer<Map<String, String>, String>()
+            {
+                @Override
+                public String transform(Map<String, String> input)
+                {
+                    Assert.assertEquals(input.get("fullName"), "/" + input.get("name"));
+                    Assert.assertEquals(input.get("hasChildren"), true);
+                    return input.get("name") + ";" + input.get("identifier");
+                }
+            });
+        Assert.assertEquals(terms, Arrays.asList("Anatomy;A", "Organisms;B", "Diseases;C", "Chemicals and Drugs;D",
+                "Analytical,Diagnostic and Therapeutic Techniques and Equipment;E", "Psychiatry and Psychology;F", "Phenomena and Processes;G",
+                "Disciplines and Occupations;H", "Anthropology,Education,Sociology and Social Phenomena;I", "Technology,Industry,Agriculture;J",
+                "Humanities;K", "Information Science;L", "Named Groups;M", "Health Care;N", "Publication Characteristics;V", "Geographicals;Z"));
 
         String error = (String) resultAndError[1];
         Assert.assertNull(error);
