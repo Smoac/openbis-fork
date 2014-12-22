@@ -1,5 +1,7 @@
 apply from: '../gradle/javaproject.gradle'
 
+group='sis'
+
 dependencies {
     compile 'apache:commons-io:+',
             'apache:commons-lang:+',
