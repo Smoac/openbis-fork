@@ -89,7 +89,7 @@ public class PublishLogicTest extends OAIPMHSystemTest
     @SuppressWarnings("unchecked")
     public void testGetMeshTermChildrenWithParentNull()
     {
-        Object[] resultAndError = call("getMeshTermChildren", Collections.singletonMap("parent", null));
+        Object[] resultAndError = call("getMeshTermChildren", Collections.singletonMap("parent", (String) null));
 
         ArrayList<Map<String, String>> result = (ArrayList<Map<String, String>>) resultAndError[0];
         Collection<String> terms = CollectionUtils.collect(result, new Transformer<Map<String, String>, String>()
@@ -111,7 +111,30 @@ public class PublishLogicTest extends OAIPMHSystemTest
         Assert.assertNull(error);
     }
 
-    private Object[] call(String method, Map<String, Object> methodParameters)
+    @Test
+    @SuppressWarnings("unchecked")
+    public void testGetMeshTermChildrenWithParentNotNull()
+    {
+        Object[] resultAndError = call("getMeshTermChildren", Collections.singletonMap("parent", "L01.346"));
+
+        ArrayList<Map<String, String>> result = (ArrayList<Map<String, String>>) resultAndError[0];
+        Collection<String> terms = CollectionUtils.collect(result, new Transformer<Map<String, String>, String>()
+            {
+                @Override
+                public String transform(Map<String, String> input)
+                {
+                    return input.get("name") + ";" + input.get("fullName") + ";" + input.get("identifier") + ";"
+                            + String.valueOf(input.get("hasChildren"));
+                }
+            });
+        Assert.assertEquals(terms, Arrays.asList("Archives;/Information Science/Information Science/Information Centers/Archives;L01.346.208;false",
+                "Libraries;/Information Science/Information Science/Information Centers/Libraries;L01.346.596;true"));
+
+        String error = (String) resultAndError[1];
+        Assert.assertNull(error);
+    }
+
+    private Object[] call(String method, Map<String, String> methodParameters)
     {
         try
         {
