@@ -6,13 +6,13 @@
 	<import file="../../build_resources/ant/build-common.xml" />
 
 	<project-classpath name="ecp" classes="${classes}" />
-	<property name="distfolder" value="cisd-base" />
+	<property name="distfolder" value="sis-base" />
 	<property name="mainfolder" value="base" />
-	<property name="jar.file" value="${dist}/cisd-base.jar" />
-	<property name="dist.file" value="${dist}/cisd-base" />
-	<property name="jar.test.file" value="${dist}/cisd-base-test.jar" />
-	<property name="src.zip.file" value="${dist}/cisd-base-src.zip" />
-	<property name="javadoc.zip.file" value="${dist}/cisd-base-javadoc.zip" />
+	<property name="jar.file" value="${dist}/sis-base.jar" />
+	<property name="dist.file" value="${dist}/sis-base" />
+	<property name="jar.test.file" value="${dist}/sis-base-test.jar" />
+	<property name="src.zip.file" value="${dist}/sis-base-src.zip" />
+	<property name="javadoc.zip.file" value="${dist}/sis-base-javadoc.zip" />
 	<property name="original.dist" value="../${ant.project.name}/dist" />
 	<property name="nativesrc" value="libs/native" />
 	<property name="nativeroot" value="${targets}/ant" />
