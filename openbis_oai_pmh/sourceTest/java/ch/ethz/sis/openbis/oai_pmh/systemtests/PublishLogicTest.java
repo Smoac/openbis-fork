@@ -38,6 +38,10 @@ import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
 import ch.systemsx.cisd.openbis.generic.shared.util.TestInstanceHostUtils;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableColumn;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableModel;
@@ -89,7 +93,7 @@ public class PublishLogicTest extends OAIPMHSystemTest
     @SuppressWarnings("unchecked")
     public void testGetMeshTermChildrenWithParentNull()
     {
-        Object[] resultAndError = call("getMeshTermChildren", Collections.singletonMap("parent", (String) null));
+        Object[] resultAndError = call("getMeshTermChildren", Collections.singletonMap("parent", null));
 
         ArrayList<Map<String, String>> result = (ArrayList<Map<String, String>>) resultAndError[0];
         Collection<String> terms = CollectionUtils.collect(result, new Transformer<Map<String, String>, String>()
@@ -115,7 +119,7 @@ public class PublishLogicTest extends OAIPMHSystemTest
     @SuppressWarnings("unchecked")
     public void testGetMeshTermChildrenWithParentNotNull()
     {
-        Object[] resultAndError = call("getMeshTermChildren", Collections.singletonMap("parent", "L01.346"));
+        Object[] resultAndError = call("getMeshTermChildren", Collections.<String, Object> singletonMap("parent", "L01.346"));
 
         ArrayList<Map<String, String>> result = (ArrayList<Map<String, String>>) resultAndError[0];
         Collection<String> terms = CollectionUtils.collect(result, new Transformer<Map<String, String>, String>()
@@ -134,7 +138,62 @@ public class PublishLogicTest extends OAIPMHSystemTest
         Assert.assertNull(error);
     }
 
-    private Object[] call(String method, Map<String, String> methodParameters)
+    @Test
+    public void testPublish()
+    {
+        String originalExperimentIdentifier = "/CISD/DEFAULT/EXP-REUSE";
+        String originalExperimentPermId = "200811050940555-1032";
+
+        String publicationSpace = "PUBLICATIONS_1";
+        String publicationId = "Test publication id";
+        String publicationTitle = "Test title";
+        String publicationAuthor = "Test author";
+        String publicationAuthorEmail = "test@email.com";
+        String publicationLicence = "CC_BY";
+        String publicationNotes = "Test notes";
+        String[] publicationMeshTerms = new String[] { "B04", "B04.715" };
+
+        Map<String, Object> parameters = new HashMap<String, Object>();
+        parameters.put("experiment", originalExperimentIdentifier);
+        parameters.put("space", publicationSpace);
+        parameters.put("publicationId", publicationId);
+        parameters.put("title", publicationTitle);
+        parameters.put("author", publicationAuthor);
+        parameters.put("authorEmail", publicationAuthorEmail);
+        parameters.put("license", publicationLicence);
+        parameters.put("notes", publicationNotes);
+        parameters.put("meshTerms", publicationMeshTerms);
+
+        Object[] resultAndError = call("publish", parameters);
+
+        waitUntilIndexUpdaterIsIdle();
+
+        Object result = resultAndError[1];
+        Assert.assertNull(result);
+
+        String error = (String) resultAndError[1];
+        Assert.assertNull(error);
+
+        // the publication experiment should have a code equal to a perm id of the original experiment
+        SearchCriteria criteria = new SearchCriteria();
+        criteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, originalExperimentPermId));
+
+        List<Experiment> publications = getGeneralInformationService().searchForExperiments(sessionToken, criteria);
+        Assert.assertEquals(publications.size(), 1);
+
+        Experiment publication = publications.get(0);
+        Assert.assertEquals(publication.getCode(), originalExperimentPermId);
+        Assert.assertEquals(publication.getIdentifier(), "/" + publicationSpace + "/DEFAULT/" + originalExperimentPermId);
+        Assert.assertEquals(publication.getProperties().get("PUBLICATION_ID"), publicationId);
+        Assert.assertEquals(publication.getProperties().get("PUBLICATION_TITLE"), publicationTitle);
+        Assert.assertEquals(publication.getProperties().get("PUBLICATION_AUTHOR"), publicationAuthor);
+        Assert.assertEquals(publication.getProperties().get("PUBLICATION_AUTHOR_EMAIL"), publicationAuthorEmail);
+        Assert.assertEquals(publication.getProperties().get("PUBLICATION_LICENSE"), publicationLicence);
+        Assert.assertEquals(publication.getProperties().get("PUBLICATION_NOTES"), publicationNotes);
+        Assert.assertEquals(publication.getProperties().get("PUBLICATION_MESH_TERMS"), "Viruses;B04\nPlant Viruses;B04.715\n");
+    }
+
+    private Object[] call(String method, Map<String, Object> methodParameters)
     {
         try
         {
@@ -158,7 +217,7 @@ public class PublishLogicTest extends OAIPMHSystemTest
             Object errorCellValue = rows.get(0)[1];
 
             Object[] resultAndError = new Object[2];
-            resultAndError[0] = json.readValue((String) resultCellValue, Object.class);
+            resultAndError[0] = StringUtils.isEmpty((String) resultCellValue) ? null : json.readValue((String) resultCellValue, Object.class);
             resultAndError[1] = StringUtils.isEmpty((String) errorCellValue) ? null : errorCellValue;
             return resultAndError;
         } catch (Exception e)

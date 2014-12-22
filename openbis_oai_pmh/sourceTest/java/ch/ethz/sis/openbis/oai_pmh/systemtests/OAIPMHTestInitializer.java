@@ -38,6 +38,7 @@ public class OAIPMHTestInitializer
 
     public static void init()
     {
+        System.setProperty("jetty.home", "../openbis/targets/www");
         TestInitializer.setScriptFolderForEmptyDB("../openbis/source");
         TestInitializer.setScriptFolderForTestDB("../openbis/sourceTest");
         TestInitializer.setDBKind(getDBKind());

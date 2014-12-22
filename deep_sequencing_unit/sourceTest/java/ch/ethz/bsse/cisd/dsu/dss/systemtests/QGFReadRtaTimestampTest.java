@@ -9,7 +9,6 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
 public class QGFReadRtaTimestampTest extends DSUDropboxSystemTest
 {
@@ -25,7 +24,7 @@ public class QGFReadRtaTimestampTest extends DSUDropboxSystemTest
     {
         importDataWithMarker("141204_D00535_0035_BC5LPVANXX");
         waitUntilDataImported();
-        waitUntilDataReindexed(SamplePE.class);
+        waitUntilIndexUpdaterIsIdle();
 
         String sessionToken = getGeneralInformationService().tryToAuthenticateForAllServices("kohleman", "password");
 

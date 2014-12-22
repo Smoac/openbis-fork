@@ -59,7 +59,7 @@ public abstract class GenericDropboxSystemTest extends GenericSystemTest
     {
         waitUntilDataImported(120);
     }
-    
+
     protected void waitUntilDataImportFails(String errorMessage) throws Exception
     {
         waitUntilDataImportFails(120, errorMessage);
@@ -73,16 +73,6 @@ public abstract class GenericDropboxSystemTest extends GenericSystemTest
     protected void waitUntilDataImportFails(int maxWaitDurationInSeconds, String errorMessage) throws Exception
     {
         waitUntil(new DropBoxFailsCondition(getDropboxName(), errorMessage), maxWaitDurationInSeconds);
-    }
-    
-    protected void waitUntilDataReindexed(Class<?> peClass) throws Exception
-    {
-        waitUntilDataReindexed(peClass, 120);
-    }
-
-    protected void waitUntilDataReindexed(Class<?> peClass, int maxWaitDurationInSeconds) throws Exception
-    {
-        waitUntil(new ReindexingSuccessfullyFinishedCondition(peClass), maxWaitDurationInSeconds);
     }
 
     @Override

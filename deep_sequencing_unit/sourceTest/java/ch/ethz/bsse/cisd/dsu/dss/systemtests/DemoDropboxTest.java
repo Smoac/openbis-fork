@@ -25,7 +25,6 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 
 /**
  * @author pkupczyk
@@ -50,7 +49,7 @@ public class DemoDropboxTest extends DSUDropboxSystemTest
     {
         importData("demo-data");
         waitUntilDataImported();
-        waitUntilDataReindexed(ExperimentPE.class);
+        waitUntilIndexUpdaterIsIdle();
 
         String sessionToken = getGeneralInformationService().tryToAuthenticateForAllServices("kohleman", "password");
 

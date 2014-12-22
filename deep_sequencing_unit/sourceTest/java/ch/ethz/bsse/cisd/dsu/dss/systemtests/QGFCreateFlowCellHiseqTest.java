@@ -9,7 +9,6 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
 public class QGFCreateFlowCellHiseqTest extends DSUDropboxSystemTest
 {
@@ -30,7 +29,7 @@ public class QGFCreateFlowCellHiseqTest extends DSUDropboxSystemTest
     {
         importDataWithMarker("141212_D00535_0038_BC6A12ANXX");
         waitUntilDataImported();
-        waitUntilDataReindexed(SamplePE.class);
+        waitUntilIndexUpdaterIsIdle();
 
         String sessionToken = login("kohleman", "password");
 
@@ -72,11 +71,11 @@ public class QGFCreateFlowCellHiseqTest extends DSUDropboxSystemTest
          String folderName = "141212_D00535_0038_BC6A12ANXX";
          importDataWithMarker(folderName);
          waitUntilDataImported();
-         waitUntilDataReindexed(SamplePE.class);
+         waitUntilIndexUpdaterIsIdle();
 
          importDataWithMarker(folderName);
          waitUntilDataImported();
-         waitUntilDataReindexed(SamplePE.class);
+         waitUntilIndexUpdaterIsIdle();
 
          String sessionToken = login("kohleman", "password");
 

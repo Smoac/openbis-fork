@@ -9,7 +9,6 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
 public class QGFCreateFlowcellNextseqTest extends DSUDropboxSystemTest
 {
@@ -25,7 +24,7 @@ public class QGFCreateFlowcellNextseqTest extends DSUDropboxSystemTest
     {
         importDataWithMarker("141212_NS500318_0033_AH16YMBGXX");
         waitUntilDataImported();
-        waitUntilDataReindexed(SamplePE.class);
+        waitUntilIndexUpdaterIsIdle();
 
         String sessionToken = getGeneralInformationService().tryToAuthenticateForAllServices("kohleman", "password");
 
