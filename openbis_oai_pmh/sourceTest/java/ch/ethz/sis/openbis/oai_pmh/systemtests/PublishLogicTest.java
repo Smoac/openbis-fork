@@ -38,10 +38,12 @@ import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchSubCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.util.TestInstanceHostUtils;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableColumn;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableModel;
@@ -138,11 +140,12 @@ public class PublishLogicTest extends OAIPMHSystemTest
         Assert.assertNull(error);
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testPublish()
     {
-        String originalExperimentIdentifier = "/CISD/DEFAULT/EXP-REUSE";
-        String originalExperimentPermId = "200811050940555-1032";
+        String originalExperimentCode = "EXP-REUSE";
+        String originalExperimentIdentifier = "/CISD/DEFAULT/" + originalExperimentCode;
 
         String publicationSpace = "PUBLICATIONS_1";
         String publicationId = "Test publication id";
@@ -174,23 +177,91 @@ public class PublishLogicTest extends OAIPMHSystemTest
         String error = (String) resultAndError[1];
         Assert.assertNull(error);
 
-        // the publication experiment should have a code equal to a perm id of the original experiment
+        Experiment originalExperiment = getExperimentByCode(originalExperimentCode);
+        Experiment publicationExperiment = getExperimentByCode(originalExperiment.getPermId());
+
+        Assert.assertEquals(publicationExperiment.getCode(), originalExperiment.getPermId());
+        Assert.assertEquals(publicationExperiment.getIdentifier(), "/" + publicationSpace + "/DEFAULT/" + originalExperiment.getPermId());
+        Assert.assertEquals(publicationExperiment.getProperties().get("PUBLICATION_ID"), publicationId);
+        Assert.assertEquals(publicationExperiment.getProperties().get("PUBLICATION_TITLE"), publicationTitle);
+        Assert.assertEquals(publicationExperiment.getProperties().get("PUBLICATION_AUTHOR"), publicationAuthor);
+        Assert.assertEquals(publicationExperiment.getProperties().get("PUBLICATION_AUTHOR_EMAIL"), publicationAuthorEmail);
+        Assert.assertEquals(publicationExperiment.getProperties().get("PUBLICATION_LICENSE"), publicationLicence);
+        Assert.assertEquals(publicationExperiment.getProperties().get("PUBLICATION_NOTES"), publicationNotes);
+        Assert.assertEquals(publicationExperiment.getProperties().get("PUBLICATION_MESH_TERMS"), "Viruses;B04\nPlant Viruses;B04.715\n");
+
+        Map<String, Object> mapping = (Map<String, Object>) parseJson(publicationExperiment.getProperties().get("PUBLICATION_MAPPING"));
+        Assert.assertNotNull(mapping);
+
+        Map<String, String> experimentMapping = (Map<String, String>) mapping.get("experiment");
+        Assert.assertEquals(experimentMapping.get(originalExperiment.getPermId()), publicationExperiment.getPermId());
+
+        Map<String, String> dataSetMapping = (Map<String, String>) mapping.get("dataset");
+        Map<String, DataSet> originalDataSets = getDataSetsByExperimentPermId(originalExperiment.getPermId());
+        Map<String, DataSet> publicationDataSets = getDataSetsByExperimentPermId(publicationExperiment.getPermId());
+
+        int dataSetCount = 18;
+        Assert.assertEquals(dataSetMapping.size(), dataSetCount);
+        Assert.assertEquals(originalDataSets.size(), dataSetCount);
+        Assert.assertEquals(publicationDataSets.size(), dataSetCount);
+
+        for (DataSet originalDataSet : originalDataSets.values())
+        {
+            String publicationDataSetCode = dataSetMapping.get(originalDataSet.getCode());
+
+            Assert.assertNotNull(publicationDataSetCode, "Original data set: " + originalDataSet.getCode() + " is not in the mapping");
+
+            DataSet publicationDataSet = publicationDataSets.get(publicationDataSetCode);
+
+            Assert.assertNotNull(publicationDataSet, "Publication data set: " + publicationDataSet.getCode()
+                    + " is in the mapping but is not connected to the publication experiment: " + publicationExperiment.getCode());
+
+            if (originalDataSet.isContainerDataSet())
+            {
+                Assert.assertEquals(publicationDataSet.getDataSetTypeCode(), originalDataSet.getDataSetTypeCode());
+            } else
+            {
+                Assert.assertEquals(publicationDataSet.getDataSetTypeCode(), "PUBLICATION_CONTAINER");
+            }
+
+            Assert.assertEquals(publicationDataSet.getContainedDataSets(), Collections.singletonList(originalDataSet));
+        }
+    }
+
+    private Experiment getExperimentByCode(String experimentCode)
+    {
         SearchCriteria criteria = new SearchCriteria();
-        criteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, originalExperimentPermId));
+        criteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, experimentCode));
 
-        List<Experiment> publications = getGeneralInformationService().searchForExperiments(sessionToken, criteria);
-        Assert.assertEquals(publications.size(), 1);
+        List<Experiment> experiments = getGeneralInformationService().searchForExperiments(sessionToken, criteria);
+        if (experiments == null || experiments.isEmpty())
+        {
+            return null;
+        } else if (experiments.size() == 1)
+        {
+            return experiments.get(0);
+        } else
+        {
+            throw new IllegalArgumentException("More than one experiment found for code: " + experimentCode);
+        }
+    }
 
-        Experiment publication = publications.get(0);
-        Assert.assertEquals(publication.getCode(), originalExperimentPermId);
-        Assert.assertEquals(publication.getIdentifier(), "/" + publicationSpace + "/DEFAULT/" + originalExperimentPermId);
-        Assert.assertEquals(publication.getProperties().get("PUBLICATION_ID"), publicationId);
-        Assert.assertEquals(publication.getProperties().get("PUBLICATION_TITLE"), publicationTitle);
-        Assert.assertEquals(publication.getProperties().get("PUBLICATION_AUTHOR"), publicationAuthor);
-        Assert.assertEquals(publication.getProperties().get("PUBLICATION_AUTHOR_EMAIL"), publicationAuthorEmail);
-        Assert.assertEquals(publication.getProperties().get("PUBLICATION_LICENSE"), publicationLicence);
-        Assert.assertEquals(publication.getProperties().get("PUBLICATION_NOTES"), publicationNotes);
-        Assert.assertEquals(publication.getProperties().get("PUBLICATION_MESH_TERMS"), "Viruses;B04\nPlant Viruses;B04.715\n");
+    private Map<String, DataSet> getDataSetsByExperimentPermId(String experimentPermId)
+    {
+        SearchCriteria experimentCriteria = new SearchCriteria();
+        experimentCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.PERM_ID, experimentPermId));
+
+        SearchCriteria dataSetCriteria = new SearchCriteria();
+        dataSetCriteria.addSubCriteria(SearchSubCriteria.createExperimentCriteria(experimentCriteria));
+
+        List<DataSet> dataSets = getGeneralInformationService().searchForDataSets(sessionToken, dataSetCriteria);
+
+        Map<String, DataSet> map = new HashMap<String, DataSet>();
+        for (DataSet dataSet : dataSets)
+        {
+            map.put(dataSet.getCode(), dataSet);
+        }
+        return map;
     }
 
     private Object[] call(String method, Map<String, Object> methodParameters)
@@ -212,14 +283,24 @@ public class PublishLogicTest extends OAIPMHSystemTest
             List<Serializable[]> rows = result.getRows();
             Assert.assertEquals(rows.size(), 1);
 
-            ObjectMapper json = new ObjectMapper();
             Object resultCellValue = rows.get(0)[0];
             Object errorCellValue = rows.get(0)[1];
 
             Object[] resultAndError = new Object[2];
-            resultAndError[0] = StringUtils.isEmpty((String) resultCellValue) ? null : json.readValue((String) resultCellValue, Object.class);
+            resultAndError[0] = parseJson((String) resultCellValue);
             resultAndError[1] = StringUtils.isEmpty((String) errorCellValue) ? null : errorCellValue;
             return resultAndError;
+        } catch (Exception e)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(e);
+        }
+    }
+
+    private Object parseJson(String jsonString)
+    {
+        try
+        {
+            return StringUtils.isEmpty(jsonString) ? null : new ObjectMapper().readValue(jsonString, Object.class);
         } catch (Exception e)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(e);
