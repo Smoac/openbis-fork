@@ -161,4 +161,9 @@ public final class DynamicPropertyEvaluationScheduler implements
         return evaluatorQueue.take();
     }
 
+    public IExtendedBlockingQueue<DynamicPropertyEvaluationOperation> getEvaluatorQueue()
+    {
+        return evaluatorQueue;
+    }
+
 }

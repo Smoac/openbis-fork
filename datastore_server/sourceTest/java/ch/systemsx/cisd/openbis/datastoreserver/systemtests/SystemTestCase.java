@@ -51,6 +51,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeSuite;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.common.collection.IExtendedBlockingQueue;
 import ch.systemsx.cisd.common.filesystem.QueueingPathRemoverService;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -60,6 +61,8 @@ import ch.systemsx.cisd.etlserver.ETLDaemon;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetRegistrationTransaction;
 import ch.systemsx.cisd.openbis.dss.generic.server.DataStoreServer;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.DynamicPropertyEvaluationOperation;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.DynamicPropertyEvaluationScheduler;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.FullTextIndexUpdater;
 import ch.systemsx.cisd.openbis.generic.server.util.TestInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.Constants;
@@ -357,22 +360,35 @@ public abstract class SystemTestCase extends AssertJUnit
     protected void waitUntilIndexUpdaterIsIdle()
     {
         FullTextIndexUpdater indexUpdater = (FullTextIndexUpdater) applicationContext.getBean("full-text-index-updater");
+        DynamicPropertyEvaluationScheduler dynamicPropertyScheduler =
+                (DynamicPropertyEvaluationScheduler) applicationContext.getBean("dynamic-property-scheduler");
+
         if (indexUpdater != null)
         {
             while (true)
             {
-                int queueSize = indexUpdater.getQueueSize();
-                if (queueSize == 0)
-                {
-                    break;
-                }
-                operationLog.info("Waiting on index updater. Still " + queueSize + " update operations in the queue.");
+                IExtendedBlockingQueue<DynamicPropertyEvaluationOperation> dynamicPropertiesQueue = dynamicPropertyScheduler.getEvaluatorQueue();
+                int indexingQueueSize = indexUpdater.getQueueSize();
+
                 try
                 {
-                    Thread.sleep(1000);
+                    if (dynamicPropertiesQueue != null && dynamicPropertiesQueue.size() > 0)
+                    {
+                        operationLog.info("Waiting on dynamic properties updater. Still " + dynamicPropertiesQueue.size()
+                                + " update operations in the queue.");
+                        Thread.sleep(1000);
+                    } else if (indexingQueueSize > 0)
+                    {
+                        operationLog.info("Waiting on index updater. Still " + indexingQueueSize + " update operations in the queue.");
+                        Thread.sleep(1000);
+                    } else
+                    {
+                        return;
+                    }
                 } catch (Exception ex)
                 {
                     // silently ignore
+                    return;
                 }
             }
         }
