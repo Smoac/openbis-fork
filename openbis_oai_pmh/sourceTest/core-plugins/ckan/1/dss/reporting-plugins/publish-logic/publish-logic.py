@@ -232,7 +232,7 @@ def publish(tr, parameters, tableBuilder):
 	
 	copyOrUpdateDataSets(tr, originalExperiment, publicationExperiment)
 
-	return [None, None]
+	return [publicationExperiment.getPermId(), None]
 
 def getOrCreateSpace(tr, spaceCode):
 	space = tr.getSearchService().getSpace(spaceCode)

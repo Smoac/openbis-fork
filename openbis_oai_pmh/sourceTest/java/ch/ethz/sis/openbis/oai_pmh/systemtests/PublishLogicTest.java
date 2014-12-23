@@ -16,37 +16,19 @@
 
 package ch.ethz.sis.openbis.oai_pmh.systemtests;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Transformer;
-import org.apache.commons.lang.StringUtils;
 import org.testng.Assert;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
-import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchSubCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.util.TestInstanceHostUtils;
-import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableColumn;
-import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableModel;
 
 /**
  * @author pkupczyk
@@ -54,38 +36,16 @@ import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableModel;
 public class PublishLogicTest extends OAIPMHSystemTest
 {
 
-    private static final String GENERAL_INFORMATION_SERVICE_URL = TestInstanceHostUtils.getOpenBISUrl() + IGeneralInformationService.SERVICE_URL;
-
-    private static final String DSS_SERVICE_RPC_GENERIC_URL = TestInstanceHostUtils.getDSSUrl() + "/datastore_server/rmi-dss-api-v1";
-
-    private static final long TIMEOUT = 30000;
-
-    private static final String USER_ID = "test";
-
-    private static final String USER_PASSWORD = "password";
-
-    private IGeneralInformationService generalInformationService;
-
-    private IDssServiceRpcGeneric dssServiceRpcGeneric;
-
-    private String sessionToken;
-
-    @BeforeClass
-    public void beforeClass()
-    {
-        generalInformationService = HttpInvokerUtils.createServiceStub(IGeneralInformationService.class, GENERAL_INFORMATION_SERVICE_URL, TIMEOUT);
-        dssServiceRpcGeneric = HttpInvokerUtils.createServiceStub(IDssServiceRpcGeneric.class, DSS_SERVICE_RPC_GENERIC_URL, TIMEOUT);
-        sessionToken = generalInformationService.tryToAuthenticateForAllServices(USER_ID, USER_PASSWORD);
-    }
-
     @Test
     @SuppressWarnings("unchecked")
     public void testGetSpaces()
     {
-        Object[] resultAndError = call("getSpaces", null);
+        Object[] resultAndError = callLogic(adminUserSessionToken, "getSpaces", null);
+
+        resultAndError[0] = parseJson((String) resultAndError[0]);
 
         ArrayList<String> result = (ArrayList<String>) resultAndError[0];
-        Assert.assertEquals(result, Arrays.asList("PUBLICATIONS_1", "PUBLICATIONS_2"));
+        Assert.assertEquals(result, Arrays.asList("REVIEWER-SPACE", "ADMIN-SPACE"));
 
         String error = (String) resultAndError[1];
         Assert.assertNull(error);
@@ -95,7 +55,9 @@ public class PublishLogicTest extends OAIPMHSystemTest
     @SuppressWarnings("unchecked")
     public void testGetMeshTermChildrenWithParentNull()
     {
-        Object[] resultAndError = call("getMeshTermChildren", Collections.singletonMap("parent", null));
+        Object[] resultAndError = callLogic(adminUserSessionToken, "getMeshTermChildren", Collections.singletonMap("parent", null));
+
+        resultAndError[0] = parseJson((String) resultAndError[0]);
 
         ArrayList<Map<String, String>> result = (ArrayList<Map<String, String>>) resultAndError[0];
         Collection<String> terms = CollectionUtils.collect(result, new Transformer<Map<String, String>, String>()
@@ -121,7 +83,10 @@ public class PublishLogicTest extends OAIPMHSystemTest
     @SuppressWarnings("unchecked")
     public void testGetMeshTermChildrenWithParentNotNull()
     {
-        Object[] resultAndError = call("getMeshTermChildren", Collections.<String, Object> singletonMap("parent", "L01.346"));
+        Object[] resultAndError =
+                callLogic(adminUserSessionToken, "getMeshTermChildren", Collections.<String, Object> singletonMap("parent", "L01.346"));
+
+        resultAndError[0] = parseJson((String) resultAndError[0]);
 
         ArrayList<Map<String, String>> result = (ArrayList<Map<String, String>>) resultAndError[0];
         Collection<String> terms = CollectionUtils.collect(result, new Transformer<Map<String, String>, String>()
@@ -147,47 +112,38 @@ public class PublishLogicTest extends OAIPMHSystemTest
         String originalExperimentCode = "EXP-REUSE";
         String originalExperimentIdentifier = "/CISD/DEFAULT/" + originalExperimentCode;
 
-        String publicationSpace = "PUBLICATIONS_1";
-        String publicationId = "Test publication id";
-        String publicationTitle = "Test title";
-        String publicationAuthor = "Test author";
-        String publicationAuthorEmail = "test@email.com";
-        String publicationLicence = "CC_BY";
-        String publicationNotes = "Test notes";
-        String[] publicationMeshTerms = new String[] { "B04", "B04.715" };
+        Publication parameters = new Publication();
+        parameters.experiment = originalExperimentIdentifier;
+        parameters.space = "ADMIN-SPACE";
+        parameters.publicationId = "Test publication id";
+        parameters.title = "Test title";
+        parameters.author = "Test author";
+        parameters.authorEmail = "test@email.com";
+        parameters.license = "CC_BY";
+        parameters.notes = "Test notes";
+        parameters.meshTerms = new String[] { "B04", "B04.715" };
 
-        Map<String, Object> parameters = new HashMap<String, Object>();
-        parameters.put("experiment", originalExperimentIdentifier);
-        parameters.put("space", publicationSpace);
-        parameters.put("publicationId", publicationId);
-        parameters.put("title", publicationTitle);
-        parameters.put("author", publicationAuthor);
-        parameters.put("authorEmail", publicationAuthorEmail);
-        parameters.put("license", publicationLicence);
-        parameters.put("notes", publicationNotes);
-        parameters.put("meshTerms", publicationMeshTerms);
-
-        Object[] resultAndError = call("publish", parameters);
+        Object[] resultAndError = publish(adminUserSessionToken, parameters);
 
         waitUntilIndexUpdaterIsIdle();
 
-        Object result = resultAndError[1];
-        Assert.assertNull(result);
+        Experiment originalExperiment = getExperimentByCode(adminUserSessionToken, originalExperimentCode);
+        Experiment publicationExperiment = getExperimentByCode(adminUserSessionToken, originalExperiment.getPermId());
+
+        Object result = resultAndError[0];
+        Assert.assertEquals(result, publicationExperiment.getPermId());
 
         String error = (String) resultAndError[1];
         Assert.assertNull(error);
 
-        Experiment originalExperiment = getExperimentByCode(originalExperimentCode);
-        Experiment publicationExperiment = getExperimentByCode(originalExperiment.getPermId());
-
         Assert.assertEquals(publicationExperiment.getCode(), originalExperiment.getPermId());
-        Assert.assertEquals(publicationExperiment.getIdentifier(), "/" + publicationSpace + "/DEFAULT/" + originalExperiment.getPermId());
-        Assert.assertEquals(publicationExperiment.getProperties().get("PUBLICATION_ID"), publicationId);
-        Assert.assertEquals(publicationExperiment.getProperties().get("PUBLICATION_TITLE"), publicationTitle);
-        Assert.assertEquals(publicationExperiment.getProperties().get("PUBLICATION_AUTHOR"), publicationAuthor);
-        Assert.assertEquals(publicationExperiment.getProperties().get("PUBLICATION_AUTHOR_EMAIL"), publicationAuthorEmail);
-        Assert.assertEquals(publicationExperiment.getProperties().get("PUBLICATION_LICENSE"), publicationLicence);
-        Assert.assertEquals(publicationExperiment.getProperties().get("PUBLICATION_NOTES"), publicationNotes);
+        Assert.assertEquals(publicationExperiment.getIdentifier(), "/" + parameters.space + "/DEFAULT/" + originalExperiment.getPermId());
+        Assert.assertEquals(publicationExperiment.getProperties().get("PUBLICATION_ID"), parameters.publicationId);
+        Assert.assertEquals(publicationExperiment.getProperties().get("PUBLICATION_TITLE"), parameters.title);
+        Assert.assertEquals(publicationExperiment.getProperties().get("PUBLICATION_AUTHOR"), parameters.author);
+        Assert.assertEquals(publicationExperiment.getProperties().get("PUBLICATION_AUTHOR_EMAIL"), parameters.authorEmail);
+        Assert.assertEquals(publicationExperiment.getProperties().get("PUBLICATION_LICENSE"), parameters.license);
+        Assert.assertEquals(publicationExperiment.getProperties().get("PUBLICATION_NOTES"), parameters.notes);
         Assert.assertEquals(publicationExperiment.getProperties().get("PUBLICATION_MESH_TERMS"), "Viruses;B04\nPlant Viruses;B04.715\n");
 
         Map<String, Object> mapping = (Map<String, Object>) parseJson(publicationExperiment.getProperties().get("PUBLICATION_MAPPING"));
@@ -197,8 +153,8 @@ public class PublishLogicTest extends OAIPMHSystemTest
         Assert.assertEquals(experimentMapping.get(originalExperiment.getPermId()), publicationExperiment.getPermId());
 
         Map<String, String> dataSetMapping = (Map<String, String>) mapping.get("dataset");
-        Map<String, DataSet> originalDataSets = getDataSetsByExperimentPermId(originalExperiment.getPermId());
-        Map<String, DataSet> publicationDataSets = getDataSetsByExperimentPermId(publicationExperiment.getPermId());
+        Map<String, DataSet> originalDataSets = getDataSetsByExperimentPermId(adminUserSessionToken, originalExperiment.getPermId());
+        Map<String, DataSet> publicationDataSets = getDataSetsByExperimentPermId(adminUserSessionToken, publicationExperiment.getPermId());
 
         int dataSetCount = 18;
         Assert.assertEquals(dataSetMapping.size(), dataSetCount);
@@ -225,85 +181,6 @@ public class PublishLogicTest extends OAIPMHSystemTest
             }
 
             Assert.assertEquals(publicationDataSet.getContainedDataSets(), Collections.singletonList(originalDataSet));
-        }
-    }
-
-    private Experiment getExperimentByCode(String experimentCode)
-    {
-        SearchCriteria criteria = new SearchCriteria();
-        criteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, experimentCode));
-
-        List<Experiment> experiments = getGeneralInformationService().searchForExperiments(sessionToken, criteria);
-        if (experiments == null || experiments.isEmpty())
-        {
-            return null;
-        } else if (experiments.size() == 1)
-        {
-            return experiments.get(0);
-        } else
-        {
-            throw new IllegalArgumentException("More than one experiment found for code: " + experimentCode);
-        }
-    }
-
-    private Map<String, DataSet> getDataSetsByExperimentPermId(String experimentPermId)
-    {
-        SearchCriteria experimentCriteria = new SearchCriteria();
-        experimentCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.PERM_ID, experimentPermId));
-
-        SearchCriteria dataSetCriteria = new SearchCriteria();
-        dataSetCriteria.addSubCriteria(SearchSubCriteria.createExperimentCriteria(experimentCriteria));
-
-        List<DataSet> dataSets = getGeneralInformationService().searchForDataSets(sessionToken, dataSetCriteria);
-
-        Map<String, DataSet> map = new HashMap<String, DataSet>();
-        for (DataSet dataSet : dataSets)
-        {
-            map.put(dataSet.getCode(), dataSet);
-        }
-        return map;
-    }
-
-    private Object[] call(String method, Map<String, Object> methodParameters)
-    {
-        try
-        {
-            Map<String, Object> parameters = new HashMap<String, Object>();
-            parameters.put("method", method);
-            parameters.put("methodParameters", methodParameters);
-
-            QueryTableModel result =
-                    dssServiceRpcGeneric.createReportFromAggregationService(sessionToken, "publish-logic", parameters);
-
-            List<QueryTableColumn> columns = result.getColumns();
-            Assert.assertEquals(columns.size(), 2);
-            Assert.assertEquals(columns.get(0).getTitle(), "RESULT");
-            Assert.assertEquals(columns.get(1).getTitle(), "ERROR");
-
-            List<Serializable[]> rows = result.getRows();
-            Assert.assertEquals(rows.size(), 1);
-
-            Object resultCellValue = rows.get(0)[0];
-            Object errorCellValue = rows.get(0)[1];
-
-            Object[] resultAndError = new Object[2];
-            resultAndError[0] = parseJson((String) resultCellValue);
-            resultAndError[1] = StringUtils.isEmpty((String) errorCellValue) ? null : errorCellValue;
-            return resultAndError;
-        } catch (Exception e)
-        {
-            throw CheckedExceptionTunnel.wrapIfNecessary(e);
-        }
-    }
-
-    private Object parseJson(String jsonString)
-    {
-        try
-        {
-            return StringUtils.isEmpty(jsonString) ? null : new ObjectMapper().readValue(jsonString, Object.class);
-        } catch (Exception e)
-        {
-            throw CheckedExceptionTunnel.wrapIfNecessary(e);
         }
     }
 

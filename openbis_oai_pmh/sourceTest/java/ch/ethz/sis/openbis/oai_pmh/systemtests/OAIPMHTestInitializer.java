@@ -16,7 +16,10 @@
 
 package ch.ethz.sis.openbis.oai_pmh.systemtests;
 
+import java.io.File;
+
 import ch.systemsx.cisd.openbis.generic.server.util.TestInitializer;
+import ch.systemsx.cisd.openbis.test.server.TestDatabase;
 
 /**
  * @author pkupczyk
@@ -36,8 +39,36 @@ public class OAIPMHTestInitializer
         return getDBKind() + "_indexing";
     }
 
+    private static String getDBName()
+    {
+        return "openbis_" + getDBKind();
+    }
+
+    private static String getDBNameForIndexing()
+    {
+        return "openbis_" + getDBKindForIndexing();
+    }
+
     public static void init()
     {
+        File sqlDumpFile = new File("resource/test-db/" + getDBName() + ".sql");
+        File binaryDumpFile = new File("resource/test-db/" + getDBName() + ".dmp");
+
+        File dumpFile = null;
+        if (sqlDumpFile.exists())
+        {
+            dumpFile = sqlDumpFile;
+        } else if (binaryDumpFile.exists())
+        {
+            dumpFile = binaryDumpFile;
+        } else
+        {
+            throw new IllegalArgumentException("No dump file found.");
+        }
+
+        TestDatabase.restoreDump(dumpFile, getDBName());
+        TestDatabase.restoreDump(dumpFile, getDBNameForIndexing());
+
         System.setProperty("jetty.home", "../openbis/targets/www");
         TestInitializer.setScriptFolderForEmptyDB("../openbis/source");
         TestInitializer.setScriptFolderForTestDB("../openbis/sourceTest");
