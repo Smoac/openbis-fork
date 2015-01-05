@@ -121,8 +121,15 @@ public final class DynamicPropertyEvaluationScheduler implements
         if (threadOperations.size() > 0)
         {
             threadDebugLog("Synchronizing scheduled operations");
-            for (DynamicPropertyEvaluationOperation operation : threadOperations)
+            outer: for (DynamicPropertyEvaluationOperation operation : threadOperations)
             {
+                if (operation.getIds() == null) {
+                    for (DynamicPropertyEvaluationOperation op : evaluatorQueue) {
+                        if (op.getIds() == null && op.getClassName().equals(operation.getClassName())) {
+                            continue outer;
+                        }
+                    }
+                }
                 evaluatorQueue.add(operation);
             }
             threadOperations.clear();
@@ -152,7 +159,17 @@ public final class DynamicPropertyEvaluationScheduler implements
     @Override
     public DynamicPropertyEvaluationOperation peekWait() throws InterruptedException
     {
-        return evaluatorQueue.peekWait();
+        DynamicPropertyEvaluationOperation op = evaluatorQueue.peekWait();
+        if (op.getIds() == null) {
+            for (DynamicPropertyEvaluationOperation operation : evaluatorQueue) {
+                if (operation.getIds() != null) {
+                    evaluatorQueue.add(evaluatorQueue.take());
+                    return peekWait();
+                }
+            }
+        }
+        
+        return op;
     }
 
     @Override

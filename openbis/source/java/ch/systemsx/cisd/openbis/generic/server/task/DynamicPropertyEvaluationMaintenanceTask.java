@@ -64,8 +64,6 @@ public class DynamicPropertyEvaluationMaintenanceTask implements IMaintenanceTas
                 CommonServiceProvider.getDAOFactory().getPersistencyResources()
                         .getDynamicPropertyEvaluationScheduler();
 
-        // all entities will be scheduled for update so previous schedule can be cleared
-        scheduler.clear();
         for (Class<? extends IEntityInformationWithPropertiesHolder> entityClass : entityClasses)
         {
             DynamicPropertyEvaluationOperation operation =
