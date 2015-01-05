@@ -23,8 +23,6 @@ task wrapper(type: Wrapper) {
     distributionUrl = "http://svncisd.ethz.ch/repos/cisd/ivy-repository/trunk/gradle/distribution/1.8/gradle-1.8-all.zip"
 }
 
-ext.addSource = (sourceCompatibility == org.gradle.api.JavaVersion.VERSION_1_6)
-
 sourceCompatibility='1.6'
 targetCompatibility='1.6'
 
@@ -223,13 +221,7 @@ compileJava {
     doFirst {
         options.forkOptions.with {
             executable = 'java'
-            if (addSource) {
-	            jvmArgs = ['-cp', configurations.ecj.asPath, 'org.eclipse.jdt.internal.compiler.batch.Main', 
-	                       '-nowarn', '-source', sourceCompatibility, '-target', targetCompatibility]
-	        } else {
-	            jvmArgs = ['-cp', configurations.ecj.asPath, 'org.eclipse.jdt.internal.compiler.batch.Main', 
-	                       '-nowarn']
-	        }
+            jvmArgs = createJvmArgs()
         }
     }
 }
@@ -240,14 +232,22 @@ compileTestJava {
     doFirst {
         options.forkOptions.with {
             executable = 'java'
-            if (addSource) {
-	            jvmArgs = ['-cp', configurations.ecj.asPath, 'org.eclipse.jdt.internal.compiler.batch.Main', 
-	                       '-nowarn', '-source', sourceCompatibility, '-target', targetCompatibility]
-	        } else {
-	            jvmArgs = ['-cp', configurations.ecj.asPath, 'org.eclipse.jdt.internal.compiler.batch.Main', 
-	                       '-nowarn']
-	        }
+            jvmArgs = createJvmArgs()
         }
+    }
+}
+
+def createJvmArgs() {
+    args = ['-cp', configurations.ecj.asPath, 'org.eclipse.jdt.internal.compiler.batch.Main', '-nowarn']
+    appendCompatibilityOption(args, '-source', sourceCompatibility)
+    appendCompatibilityOption(args, '-target', targetCompatibility)
+    return args
+}
+
+def appendCompatibilityOption(args, option, versionCompatibility) {
+    if (JavaVersion.current().equals(JavaVersion.toVersion(versionCompatibility))) {
+        args.add(option)
+        args.add(versionCompatibility.toString())
     }
 }
 
