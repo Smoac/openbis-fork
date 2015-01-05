@@ -96,17 +96,20 @@ public class DynamicPropertyEvaluationSchedulerTest extends AssertJUnit
         @Override
         public void run()
         {
-            DynamicPropertyEvaluationOperation operation = operationQueue.poll();
-            if (operation == null) {
-                scheduler.scheduleUpdate(DynamicPropertyEvaluationOperation.evaluate(SamplePE.class, Collections.singletonList(-1L)));
-                scheduler.synchronizeThreadQueue();
-                System.out.println("END WRITE");
-                return;
-            } else {
-                scheduler.scheduleUpdate(operation);
-                scheduler.synchronizeThreadQueue();
+            while (true) {
+                DynamicPropertyEvaluationOperation operation = operationQueue.poll();
+                if (operation == null) {
+                    scheduler.scheduleUpdate(DynamicPropertyEvaluationOperation.evaluate(SamplePE.class, Collections.singletonList(-1L)));
+                    scheduler.synchronizeThreadQueue();
+                    System.out.println("END WRITE");
+                    break;
+                } else {
+                    scheduler.scheduleUpdate(operation);
+                    scheduler.synchronizeThreadQueue();
+//                    System.out.println("WRITE");                    
+                    Thread.yield();                    
+                }
             }
-            run();
         }
         
     }
@@ -127,6 +130,8 @@ public class DynamicPropertyEvaluationSchedulerTest extends AssertJUnit
                     break;
                 } 
                 results.add(value);
+                Thread.yield();
+//                System.out.println("READ");
             }
             System.out.println("END READ");
             return results;
@@ -151,10 +156,11 @@ public class DynamicPropertyEvaluationSchedulerTest extends AssertJUnit
         }
         
         ExecutorService tp = Executors.newFixedThreadPool(4);
+        tp.execute(new WriteAllWorker(operationQueue));
         Future<Set<DynamicPropertyEvaluationOperation>> resultF = tp.submit(new ReadAllWorker());
-        for (int i=0; i<3; i++) {
-            tp.execute(new WriteAllWorker(operationQueue));
-        }
+        tp.execute(new WriteAllWorker(operationQueue));
+        tp.execute(new WriteAllWorker(operationQueue));
+
         Set<DynamicPropertyEvaluationOperation> result = resultF.get();
 
         assertTrue(allOperations.containsAll(result));
@@ -164,6 +170,11 @@ public class DynamicPropertyEvaluationSchedulerTest extends AssertJUnit
             if (iterator.next().getIds() == null)
                 iterator.remove();
         }
+        
+        ArrayList<DynamicPropertyEvaluationOperation> log = new ArrayList<DynamicPropertyEvaluationOperation>(allOperations);
+        log.removeAll(result);
+        System.out.println("Expecting empty: "+log);
+        
         assertTrue(result.containsAll(allOperations));
     }
 }
