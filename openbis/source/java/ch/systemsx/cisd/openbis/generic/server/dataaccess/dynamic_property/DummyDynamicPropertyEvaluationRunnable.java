@@ -44,12 +44,6 @@ public final class DummyDynamicPropertyEvaluationRunnable extends HibernateDaoSu
     }
 
     @Override
-    public void clear()
-    {
-        operationLog.debug("clear");
-    }
-
-    @Override
     public void scheduleUpdate(DynamicPropertyEvaluationOperation operation)
     {
         operationLog.debug("scheduling " + operation);

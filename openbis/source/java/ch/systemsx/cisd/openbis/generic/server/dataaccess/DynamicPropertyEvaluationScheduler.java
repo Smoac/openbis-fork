@@ -30,7 +30,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 /**
  * @author Piotr Buczek
  */
-public final class DynamicPropertyEvaluationScheduler implements
+public class DynamicPropertyEvaluationScheduler implements
         IDynamicPropertyEvaluationSchedulerWithQueue
 {
     public final static String DYNAMIC_PROPERTY_EVALUATOR_QUEUE_FILENAME =
@@ -68,6 +68,10 @@ public final class DynamicPropertyEvaluationScheduler implements
         evaluatorQueue = createEvaluatorQueue(queueFile);
     }
 
+    public DynamicPropertyEvaluationScheduler(IExtendedBlockingQueue<DynamicPropertyEvaluationOperation> evaluatorQueue) {
+        this.evaluatorQueue = evaluatorQueue;
+    }
+    
     private static IExtendedBlockingQueue<DynamicPropertyEvaluationOperation> createEvaluatorQueue(
             final File queueFile)
     {
@@ -94,16 +98,6 @@ public final class DynamicPropertyEvaluationScheduler implements
     private static File getEvaluatorQueueFile()
     {
         return new File(DYNAMIC_PROPERTY_EVALUATOR_QUEUE_FILENAME);
-    }
-
-    @Override
-    public void clear()
-    {
-        evaluatorQueue.clear();
-        if (operationLog.isInfoEnabled())
-        {
-            operationLog.info("Cleared evaluator queue.");
-        }
     }
 
     @Override
