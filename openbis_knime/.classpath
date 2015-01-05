@@ -17,7 +17,7 @@
 	<classpathentry kind="lib" path="/libraries/jmock/hamcrest/hamcrest-core.jar"/>
 	<classpathentry kind="lib" path="/libraries/jmock/hamcrest/hamcrest-library.jar"/>
 	<classpathentry kind="lib" path="/libraries/jmock/jmock.jar"/>
-	<classpathentry kind="lib" path="/libraries/cisd-base/cisd-base.jar" sourcepath="/libraries/cisd-base/cisd-base-src.zip"/>
+	<classpathentry kind="lib" path="/libraries/sis-base/sis-base.jar" sourcepath="/libraries/sis-base/sis-base-src.zip"/>
 	<classpathentry kind="lib" path="/libraries/openbis-apis/dss/dss_client.jar"/>
 	<classpathentry kind="lib" path="/libraries/openbis-apis/query/openbis-query-api.jar" sourcepath="/libraries/openbis-apis/query/src.zip"/>
 	<classpathentry kind="output" path="targets/classes"/>
