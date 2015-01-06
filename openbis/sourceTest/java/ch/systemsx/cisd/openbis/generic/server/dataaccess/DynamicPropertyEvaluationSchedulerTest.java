@@ -23,28 +23,33 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 public class DynamicPropertyEvaluationSchedulerTest extends AssertJUnit
 {
     public DynamicPropertyEvaluationScheduler scheduler;
-    
+
     private long counter;
-    private DynamicPropertyEvaluationOperation updateSingle() {
+
+    private DynamicPropertyEvaluationOperation updateSingle()
+    {
         counter++;
         return DynamicPropertyEvaluationOperation.evaluate(SamplePE.class, Collections.singletonList(counter));
     }
-    
-    private DynamicPropertyEvaluationOperation updateAll() {
+
+    private DynamicPropertyEvaluationOperation updateAll()
+    {
         return DynamicPropertyEvaluationOperation.evaluateAll(SamplePE.class);
     }
-    
+
     @BeforeMethod
-    public void clear() {
-        scheduler =  new DynamicPropertyEvaluationScheduler(new ExtendedLinkedBlockingQueue<DynamicPropertyEvaluationOperation>());
+    public void clear()
+    {
+        scheduler = new DynamicPropertyEvaluationScheduler(new ExtendedLinkedBlockingQueue<DynamicPropertyEvaluationOperation>());
         counter = 0;
     }
-    
+
     @Test
-    public void singleEntityUpdatesArePrioritizedOverEntityTypeUpdates() throws Exception {
+    public void singleEntityUpdatesArePrioritizedOverEntityTypeUpdates() throws Exception
+    {
         DynamicPropertyEvaluationOperation updateSingle = updateSingle();
         DynamicPropertyEvaluationOperation updateAll = updateAll();
-        
+
         scheduler.scheduleUpdate(updateAll);
         scheduler.scheduleUpdate(updateSingle);
         scheduler.synchronizeThreadQueue();
@@ -53,9 +58,10 @@ public class DynamicPropertyEvaluationSchedulerTest extends AssertJUnit
         scheduler.take();
         assertEquals(updateAll, scheduler.peekWait());
     }
- 
+
     @Test
-    public void singleEntityUpdatesKeepTheirOrder() throws Exception {
+    public void singleEntityUpdatesKeepTheirOrder() throws Exception
+    {
         DynamicPropertyEvaluationOperation first = updateSingle();
         DynamicPropertyEvaluationOperation second = updateSingle();
         DynamicPropertyEvaluationOperation third = updateSingle();
@@ -64,7 +70,7 @@ public class DynamicPropertyEvaluationSchedulerTest extends AssertJUnit
         scheduler.scheduleUpdate(second);
         scheduler.scheduleUpdate(third);
         scheduler.synchronizeThreadQueue();
-        
+
         assertEquals(first, scheduler.peekWait());
         assertEquals(first, scheduler.take());
         assertEquals(second, scheduler.peekWait());
@@ -72,89 +78,104 @@ public class DynamicPropertyEvaluationSchedulerTest extends AssertJUnit
         assertEquals(third, scheduler.peekWait());
         assertEquals(third, scheduler.take());
     }
-    
+
     @Test
-    public void scheduleCanContainOnlyOneEntityTypeUpdateOperation() throws Exception {
+    public void scheduleCanContainOnlyOneEntityTypeUpdateOperation() throws Exception
+    {
         scheduler.scheduleUpdate(updateAll());
         scheduler.scheduleUpdate(updateAll());
         scheduler.synchronizeThreadQueue();
         scheduler.scheduleUpdate(updateAll());
         scheduler.scheduleUpdate(updateAll());
         scheduler.synchronizeThreadQueue();
-        
+
         assertEquals(scheduler.getEvaluatorQueue().size(), 1);
     }
-    
-    private class WriteAllWorker implements Runnable {
-        
+
+    private class WriteAllWorker implements Runnable
+    {
+
         private BlockingQueue<DynamicPropertyEvaluationOperation> operationQueue;
-        
-        public WriteAllWorker(BlockingQueue<DynamicPropertyEvaluationOperation> operationQueue) {
+
+        public WriteAllWorker(BlockingQueue<DynamicPropertyEvaluationOperation> operationQueue)
+        {
             this.operationQueue = operationQueue;
-            
+
         }
+
         @Override
         public void run()
         {
-            while (true) {
+            while (true)
+            {
                 DynamicPropertyEvaluationOperation operation = operationQueue.poll();
-                if (operation == null) {
+                if (operation == null)
+                {
                     scheduler.scheduleUpdate(DynamicPropertyEvaluationOperation.evaluate(SamplePE.class, Collections.singletonList(-1L)));
                     scheduler.synchronizeThreadQueue();
                     System.out.println("END WRITE");
                     break;
-                } else {
+                } else
+                {
                     scheduler.scheduleUpdate(operation);
                     scheduler.synchronizeThreadQueue();
-//                    System.out.println("WRITE");                    
-                    Thread.yield();                    
+                    // System.out.println("WRITE");
+                    Thread.yield();
                 }
             }
         }
-        
+
     }
-    
-    private class ReadAllWorker implements Callable<Set<DynamicPropertyEvaluationOperation>> {
+
+    private class ReadAllWorker implements Callable<Set<DynamicPropertyEvaluationOperation>>
+    {
 
         private final HashSet<DynamicPropertyEvaluationOperation> results;
-        public ReadAllWorker() {
+
+        public ReadAllWorker()
+        {
             results = new HashSet<DynamicPropertyEvaluationOperation>();
         }
+
         @Override
         public Set<DynamicPropertyEvaluationOperation> call() throws Exception
         {
-            while(true) {
+            while (true)
+            {
                 scheduler.peekWait();
                 DynamicPropertyEvaluationOperation value = scheduler.take();
-                if (value.getIds() != null && value.getIds().get(0) == -1L) {
+                if (value.getIds() != null && value.getIds().toString().equals("[-1]"))
+                {
                     break;
-                } 
+                }
                 results.add(value);
                 Thread.yield();
-//                System.out.println("READ");
+                // System.out.println("READ");
             }
             System.out.println("END READ");
             return results;
-            
+
         }
-        
     }
-    
+
     @Test
-    public void everythingThatGoesInComesOut() throws Exception {
-        
+    public void everythingThatGoesInComesOut() throws Exception
+    {
+
         List<DynamicPropertyEvaluationOperation> allOperations = new ArrayList<DynamicPropertyEvaluationOperation>();
-        for (int i=0; i<10000; i++) {
+        for (int i = 0; i < 10000; i++)
+        {
             DynamicPropertyEvaluationOperation operation = Math.random() < 0.9 ? updateSingle() : updateAll();
             allOperations.add(operation);
         }
         Collections.shuffle(allOperations);
-        
+
         BlockingQueue<DynamicPropertyEvaluationOperation> operationQueue = new LinkedBlockingQueue<DynamicPropertyEvaluationOperation>();
-        for (DynamicPropertyEvaluationOperation operation: allOperations) {
+        for (DynamicPropertyEvaluationOperation operation : allOperations)
+        {
             operationQueue.add(operation);
         }
-        
+
         ExecutorService tp = Executors.newFixedThreadPool(4);
         tp.execute(new WriteAllWorker(operationQueue));
         Future<Set<DynamicPropertyEvaluationOperation>> resultF = tp.submit(new ReadAllWorker());
@@ -164,17 +185,18 @@ public class DynamicPropertyEvaluationSchedulerTest extends AssertJUnit
         Set<DynamicPropertyEvaluationOperation> result = resultF.get();
 
         assertTrue(allOperations.containsAll(result));
-        
+
         Iterator<DynamicPropertyEvaluationOperation> iterator = allOperations.iterator();
-        while (iterator.hasNext()) {
+        while (iterator.hasNext())
+        {
             if (iterator.next().getIds() == null)
                 iterator.remove();
         }
-        
+
         ArrayList<DynamicPropertyEvaluationOperation> log = new ArrayList<DynamicPropertyEvaluationOperation>(allOperations);
         log.removeAll(result);
-        System.out.println("Expecting empty: "+log);
-        
+        System.out.println("Expecting empty: " + log);
+
         assertTrue(result.containsAll(allOperations));
     }
 }

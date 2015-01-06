@@ -17,7 +17,9 @@
 package ch.systemsx.cisd.openbis.generic.server.dataaccess;
 
 import java.io.Serializable;
-import java.util.List;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 import ch.systemsx.cisd.common.collection.CollectionUtils;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropertiesHolder;
@@ -35,10 +37,10 @@ public class DynamicPropertyEvaluationOperation implements Serializable
     private final String className;
 
     // null means all
-    private final List<Long> ids;
+    private final Set<Long> ids;
 
     public static DynamicPropertyEvaluationOperation evaluate(
-            Class<? extends IEntityInformationWithPropertiesHolder> clazz, List<Long> ids)
+            Class<? extends IEntityInformationWithPropertiesHolder> clazz, Collection<Long> ids)
     {
         return new DynamicPropertyEvaluationOperation(clazz, ids);
     }
@@ -50,10 +52,18 @@ public class DynamicPropertyEvaluationOperation implements Serializable
     }
 
     private DynamicPropertyEvaluationOperation(
-            Class<? extends IEntityInformationWithPropertiesHolder> clazz, List<Long> ids)
+            Class<? extends IEntityInformationWithPropertiesHolder> clazz, Collection<Long> ids)
     {
         this.className = clazz.getName();
-        this.ids = ids;
+        if (ids == null)
+        {
+            this.ids = null;
+        }
+        else
+        {
+            this.ids = new HashSet<Long>();
+            this.ids.addAll(ids);
+        }
     }
 
     public String getClassName()
@@ -61,7 +71,7 @@ public class DynamicPropertyEvaluationOperation implements Serializable
         return className;
     }
 
-    public List<Long> getIds()
+    public Set<Long> getIds()
     {
         return ids;
     }
@@ -73,18 +83,44 @@ public class DynamicPropertyEvaluationOperation implements Serializable
     }
 
     @Override
+    public int hashCode()
+    {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((className == null) ? 0 : className.hashCode());
+        result = prime * result + ((ids == null) ? 0 : ids.hashCode());
+        return result;
+    }
+
+    @Override
     public boolean equals(Object obj)
     {
-        if (obj == this)
-        {
+        if (this == obj)
             return true;
-        }
-        if (obj instanceof DynamicPropertyEvaluationOperation == false)
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        DynamicPropertyEvaluationOperation other = (DynamicPropertyEvaluationOperation) obj;
+        if (className == null)
+        {
+            if (other.className != null)
+                return false;
+        } else if (!className.equals(other.className))
         {
             return false;
         }
-        final DynamicPropertyEvaluationOperation that = (DynamicPropertyEvaluationOperation) obj;
-        return this.toString().equals(that.toString());
+        if (ids == null)
+        {
+            if (other.ids != null)
+            {
+                return false;
+            }
+        } else if (!ids.equals(other.ids))
+        {
+            return false;
+        }
+        return true;
     }
 
 }

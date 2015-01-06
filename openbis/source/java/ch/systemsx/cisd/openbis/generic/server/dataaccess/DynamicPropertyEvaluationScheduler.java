@@ -68,10 +68,11 @@ public class DynamicPropertyEvaluationScheduler implements
         evaluatorQueue = createEvaluatorQueue(queueFile);
     }
 
-    public DynamicPropertyEvaluationScheduler(IExtendedBlockingQueue<DynamicPropertyEvaluationOperation> evaluatorQueue) {
+    public DynamicPropertyEvaluationScheduler(IExtendedBlockingQueue<DynamicPropertyEvaluationOperation> evaluatorQueue)
+    {
         this.evaluatorQueue = evaluatorQueue;
     }
-    
+
     private static IExtendedBlockingQueue<DynamicPropertyEvaluationOperation> createEvaluatorQueue(
             final File queueFile)
     {
@@ -115,16 +116,12 @@ public class DynamicPropertyEvaluationScheduler implements
         if (threadOperations.size() > 0)
         {
             threadDebugLog("Synchronizing scheduled operations");
-            outer: for (DynamicPropertyEvaluationOperation operation : threadOperations)
+            for (DynamicPropertyEvaluationOperation operation : threadOperations)
             {
-                if (operation.getIds() == null) {
-                    for (DynamicPropertyEvaluationOperation op : evaluatorQueue) {
-                        if (op.getIds() == null && op.getClassName().equals(operation.getClassName())) {
-                            continue outer;
-                        }
-                    }
+                if (false == evaluatorQueue.contains(operation))
+                {
+                    evaluatorQueue.add(operation);
                 }
-                evaluatorQueue.add(operation);
             }
             threadOperations.clear();
         } else
@@ -154,15 +151,20 @@ public class DynamicPropertyEvaluationScheduler implements
     public DynamicPropertyEvaluationOperation peekWait() throws InterruptedException
     {
         DynamicPropertyEvaluationOperation op = evaluatorQueue.peekWait();
-        if (op.getIds() == null) {
-            for (DynamicPropertyEvaluationOperation operation : evaluatorQueue) {
-                if (operation.getIds() != null) {
+        if (op.getIds() == null)
+        {
+            // if there is at least one operation with not null ids
+            // then move current operation to the end of the queue
+            for (DynamicPropertyEvaluationOperation operation : evaluatorQueue)
+            {
+                if (operation.getIds() != null)
+                {
                     evaluatorQueue.add(evaluatorQueue.take());
                     return peekWait();
                 }
             }
         }
-        
+
         return op;
     }
 
