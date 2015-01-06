@@ -24,6 +24,14 @@ sourceSets {
 }
 
 jar {
+    manifest {
+        attributes 'Main-Class': 'ch.ethz.cisd.base.BuildAndEnvironmentInfo'
+    }
+
+    from('targets/dist') {
+        include 'BUILD*INFO'
+    }    
+
     from fileTree("libs/")
 }
 
