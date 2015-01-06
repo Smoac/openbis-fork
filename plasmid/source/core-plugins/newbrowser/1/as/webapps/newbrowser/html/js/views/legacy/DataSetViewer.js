@@ -259,13 +259,40 @@ function DataSetViewer(containerId, profile, sample, serverFacade, datastoreDown
 			datasetFiles.forEach(
 				function(file) {
 					if (numImages < maxImages && _this._isImage(file) &&  _this._isDisplayed(dataset.dataSetTypeCode, file.pathInDataSet)) {
-						var $image = $("<img>", {"class" : "zoomableImage", "style" : "width:300px", "src" : _this.datastoreDownloadURL + '/' + dataset.code + "/" + file.pathInDataSet + "?sessionID=" + _this.serverFacade.getSession()});
+						var $image = null;
+						var isSEQSVG = null;
+						var srcPath = _this.datastoreDownloadURL + '/' + dataset.code + "/" + file.pathInDataSet + "?sessionID=" + _this.serverFacade.getSession();
+						
+						if(dataset.dataSetTypeCode === "SEQ_FILE" && file.pathInDataSet.toLowerCase().endsWith(".svg")) {
+							$image = $("<span>", { "class" : "zoomableImage", "style" : "width:300px; height:300px;" });
+							isSEQSVG = true;
+							var svgLoad = function(srcPath, $imageBox) {
+								d3.xml(srcPath, "image/svg+xml", function(xml) {
+									var imageSvg = document.importNode(xml.documentElement, true);
+									d3.select(imageSvg)
+										.attr("width", 300)
+										.attr("height", 300)
+										.attr("viewBox", "200 200 650 650");
+									$imageBox.append($(imageSvg));
+								});
+							}
+							svgLoad(srcPath, $image);
+						} else {
+							$image = $("<img>", {"class" : "zoomableImage", "style" : "width:300px", "src" : srcPath });
+							isSEQSVG = false;
+						}
+						
 						$image.css({
 							"margin-right" : "10px"
 						});
-						$image.click(function() {
-							Util.showImage($image.attr("src"));
-						});
+						
+						var clickFunc = function(path, isSEQSVGFix) {
+							return function() {
+								Util.showImage(path, isSEQSVGFix);
+							};
+						}
+						
+						$image.click(clickFunc(srcPath, isSEQSVG));
 						$container.append($image);
 						numImages++
 					}
