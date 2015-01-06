@@ -25,7 +25,7 @@ sourceSets {
 
 jar {
     manifest {
-        attributes 'Main-Class': 'ch.ethz.cisd.base.BuildAndEnvironmentInfo'
+        attributes 'Main-Class': 'ch.systemsx.cisd.base.BuildAndEnvironmentInfo'
     }
 
     from('targets/dist') {
