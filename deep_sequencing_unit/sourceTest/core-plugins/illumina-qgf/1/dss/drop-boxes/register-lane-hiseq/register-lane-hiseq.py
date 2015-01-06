@@ -492,8 +492,12 @@ def process(transaction):
 #             extraCopy (affiliation_name, fileName)
             extraCopySciCore (affiliation_name, fileName, dirName)
 
-        for extFileNameFastQ in externalNamesFastqFileDict:
-            transaction.moveFile(externalNamesFastqFileDict[extFileNameFastQ] , dataSet, folders[f])
+        try:
+            for extFileNameFastQ in externalNamesFastqFileDict:
+                transaction.moveFile(externalNamesFastqFileDict[extFileNameFastQ] , dataSet, folders[f])
+        except:
+            # Happens when we have more than one pool registered, then the files have been moved away already
+            pass
             
    
     if foundSamples.size() > 0:
