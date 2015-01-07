@@ -25,7 +25,8 @@ function StorageModel(configOverride) {
 				userSelector : "on",
 				boxSelector: "on",
 				rackSelector: "on",
-				contentsSelector: "off"
+				contentsSelector: "off",
+				positionSelector: "off"
 		};
 	}
 	

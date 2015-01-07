@@ -50,7 +50,8 @@ function SampleFormController(mainController, mode, sample) {
 			userSelector : "off",
 			boxSelector: "on",
 			rackSelector: "on",
-			contentsSelector: "off"
+			contentsSelector: "off",
+			positionSelector: "on"
 		});
 		storageController.getModel().storagePropertyGroup = profile.getStoragePropertyGroup(storagePropertyGroupName);
 		this._storageControllers.push(storageController);

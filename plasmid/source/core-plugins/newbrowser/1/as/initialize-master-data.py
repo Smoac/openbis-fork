@@ -17,8 +17,8 @@
 ##
 ## Configuration
 ##
-#PATH_TO_MANAGE_PROPERTIES_SCRIPTS = "/Users/juanf/Documents/workspace/openbis/source/core-plugins/newbrowser/1/compatibility/";
-PATH_TO_MANAGE_PROPERTIES_SCRIPTS = None;
+PATH_TO_MANAGE_PROPERTIES_SCRIPTS = "/Users/juanf/Documents/workspace/openbis/source/core-plugins/newbrowser/1/compatibility/";
+#PATH_TO_MANAGE_PROPERTIES_SCRIPTS = "/Users/juanf/Documents/installations/S195/servers/core-plugins/newbrowser/1/compatibility/";
 
 # MasterDataRegistrationTransaction Class
 import os
@@ -699,7 +699,8 @@ addPropertiesToSamples([
 	["STORAGE_ROW",			"Physical Storage",		"Storage Row",			DataType.INTEGER,					None,				"Storage Row", None],
 	["STORAGE_COLUMN",		"Physical Storage",		"Storage Column",		DataType.INTEGER,					None,				"Storage Column", None],
 	["STORAGE_BOX_NAME",	"Physical Storage",		"Storage Box Name",		DataType.VARCHAR,					None,				"Storage Box Name", None],
-	["STORAGE_USER",		"Physical Storage",		"Storage User Id",		DataType.VARCHAR,					None,				"Storage User Id", None]
+	["STORAGE_USER",		"Physical Storage",		"Storage User Id",		DataType.VARCHAR,					None,				"Storage User Id", None],
+	["STORAGE_POSITION",	"Physical Storage",		"Storage Position",		DataType.VARCHAR,					None,				"Storage Position", None]
 ]);
 
 ##

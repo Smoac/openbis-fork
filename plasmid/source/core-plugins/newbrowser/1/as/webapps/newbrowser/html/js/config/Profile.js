@@ -105,6 +105,7 @@ $.extend(DefaultProfile.prototype, {
 					propertyGroup.columnProperty = storagePropertyGroups[i]["COLUMN_PROPERTY"];
 					propertyGroup.boxProperty = storagePropertyGroups[i]["BOX_PROPERTY"];
 					propertyGroup.userProperty = storagePropertyGroups[i]["USER_PROPERTY"];
+					propertyGroup.positionProperty = storagePropertyGroups[i]["POSITION_PROPERTY"];
 					return propertyGroup;
 				}
 			}
@@ -131,6 +132,7 @@ $.extend(DefaultProfile.prototype, {
 				propertyGroups[i].columnProperty = storagePropertyGroups[i]["COLUMN_PROPERTY"];
 				propertyGroups[i].boxProperty = storagePropertyGroups[i]["BOX_PROPERTY"];
 				propertyGroups[i].userProperty = storagePropertyGroups[i]["USER_PROPERTY"];
+				propertyGroups[i].positionProperty = storagePropertyGroups[i]["POSITION_PROPERTY"];
 			}
 			return propertyGroups;
 		}

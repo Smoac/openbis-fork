@@ -7,8 +7,6 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 	init: function(serverFacade){
 		DefaultProfile.prototype.init.call(this, serverFacade);
 		
-		this.inventorySpaces = ["MATERIALS", "METHODS"];
-		
 		this.storagesConfiguration = {
 				"isEnabled" : true,
 				/*
@@ -17,11 +15,12 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 				"STORAGE_PROPERTIES": [{
 					"STORAGE_PROPERTY_GROUP" : "Physical Storage", //Where the storage will be painted.
 					"STORAGE_GROUP_DISPLAY_NAME" : "Physical Storage", //Storage Group Name
-					"NAME_PROPERTY" : 	"STORAGE_NAMES", //Should be a Vocabulary.
-					"ROW_PROPERTY" : 	"STORAGE_ROW", //Should be an integer.
-					"COLUMN_PROPERTY" : "STORAGE_COLUMN",  //Should be an integer.
-					"BOX_PROPERTY" : 	"STORAGE_BOX_NAME", //Should be text.
-					"USER_PROPERTY" : 	"STORAGE_USER" //Should be text.
+					"NAME_PROPERTY" : 		"STORAGE_NAMES", //Should be a Vocabulary.
+					"ROW_PROPERTY" : 		"STORAGE_ROW", //Should be an integer.
+					"COLUMN_PROPERTY" : 	"STORAGE_COLUMN",  //Should be an integer.
+					"BOX_PROPERTY" : 		"STORAGE_BOX_NAME", //Should be text.
+					"USER_PROPERTY" : 		"STORAGE_USER", //Should be text.
+					"POSITION_PROPERTY" : 	"STORAGE_POSITION" //Should be text.
 				}],
 				/*
 				 * Storages map, can hold configurations for several storages.

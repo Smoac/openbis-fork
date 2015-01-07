@@ -25,7 +25,8 @@ function StorageManagerController(mainController) {
 		userSelector : "on",
 		boxSelector: "on",
 		rackSelector: "off",
-		contentsSelector: "on"
+		contentsSelector: "on",
+		positionSelector: "off"
 	});
 	
 	this._storageToController = new StorageController({
@@ -35,7 +36,8 @@ function StorageManagerController(mainController) {
 		userSelector : "on",
 		boxSelector: "on",
 		rackSelector: "on",
-		contentsSelector: "off"
+		contentsSelector: "off",
+		positionSelector: "off"
 	});
 	
 	
@@ -69,12 +71,15 @@ function StorageManagerController(mainController) {
 			sample.properties[fromModel.storagePropertyGroup.columnProperty] = "";
 			sample.properties[fromModel.storagePropertyGroup.boxProperty] = "";
 			sample.properties[fromModel.storagePropertyGroup.userProperty] = "";
+//	IGNORING POSITIONS ON UPDATES, ARE NOT SUPPORTED YET
+//			sample.properties[fromModel.storagePropertyGroup.positionProperty] = "";
 			
 			sample.properties[toModel.storagePropertyGroup.nameProperty] = toModel.storageCode;
 			sample.properties[toModel.storagePropertyGroup.rowProperty] = toModel.row;
 			sample.properties[toModel.storagePropertyGroup.columnProperty] = toModel.column;
 			sample.properties[toModel.storagePropertyGroup.boxProperty] = toModel.boxName;
 			sample.properties[toModel.storagePropertyGroup.userProperty] = mainController.serverFacade.openbisServer.getSession().split("-")[0];
+//			sample.properties[toModel.storagePropertyGroup.positionProperty] = "";
 			
 			var sampleSpace = sample.spaceCode;
 			var sampleProject = null;
