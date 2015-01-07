@@ -30,7 +30,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 /**
  * @author Piotr Buczek
  */
-public final class DynamicPropertyEvaluationScheduler implements
+public class DynamicPropertyEvaluationScheduler implements
         IDynamicPropertyEvaluationSchedulerWithQueue
 {
     public final static String DYNAMIC_PROPERTY_EVALUATOR_QUEUE_FILENAME =
@@ -68,6 +68,11 @@ public final class DynamicPropertyEvaluationScheduler implements
         evaluatorQueue = createEvaluatorQueue(queueFile);
     }
 
+    public DynamicPropertyEvaluationScheduler(IExtendedBlockingQueue<DynamicPropertyEvaluationOperation> evaluatorQueue)
+    {
+        this.evaluatorQueue = evaluatorQueue;
+    }
+
     private static IExtendedBlockingQueue<DynamicPropertyEvaluationOperation> createEvaluatorQueue(
             final File queueFile)
     {
@@ -97,16 +102,6 @@ public final class DynamicPropertyEvaluationScheduler implements
     }
 
     @Override
-    public void clear()
-    {
-        evaluatorQueue.clear();
-        if (operationLog.isInfoEnabled())
-        {
-            operationLog.info("Cleared evaluator queue.");
-        }
-    }
-
-    @Override
     public void scheduleUpdate(DynamicPropertyEvaluationOperation operation)
     {
         threadDebugLog("Scheduling update: " + operation);
@@ -123,7 +118,10 @@ public final class DynamicPropertyEvaluationScheduler implements
             threadDebugLog("Synchronizing scheduled operations");
             for (DynamicPropertyEvaluationOperation operation : threadOperations)
             {
-                evaluatorQueue.add(operation);
+                if (false == evaluatorQueue.contains(operation))
+                {
+                    evaluatorQueue.add(operation);
+                }
             }
             threadOperations.clear();
         } else
@@ -152,7 +150,22 @@ public final class DynamicPropertyEvaluationScheduler implements
     @Override
     public DynamicPropertyEvaluationOperation peekWait() throws InterruptedException
     {
-        return evaluatorQueue.peekWait();
+        DynamicPropertyEvaluationOperation op = evaluatorQueue.peekWait();
+        if (op.getIds() == null)
+        {
+            // if there is at least one operation with not null ids
+            // then move current operation to the end of the queue
+            for (DynamicPropertyEvaluationOperation operation : evaluatorQueue)
+            {
+                if (operation.getIds() != null)
+                {
+                    evaluatorQueue.add(evaluatorQueue.take());
+                    return peekWait();
+                }
+            }
+        }
+
+        return op;
     }
 
     @Override
@@ -161,4 +174,8 @@ public final class DynamicPropertyEvaluationScheduler implements
         return evaluatorQueue.take();
     }
 
+    public IExtendedBlockingQueue<DynamicPropertyEvaluationOperation> getEvaluatorQueue()
+    {
+        return evaluatorQueue;
+    }
 }

@@ -17,6 +17,8 @@
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.commons.lang.time.StopWatch;
@@ -129,12 +131,12 @@ public final class DynamicPropertyEvaluationRunnable extends HibernateDaoSupport
                     }
                     if (clazz != null)
                     {
-                        List<Long> ids =
+                        Collection<Long> ids =
                                 operation.getIds() == null ? modifiedIds : operation.getIds();
                         if (ids.size() > 0)
                         {
                             IndexUpdateOperation indexUpdateOperation =
-                                    IndexUpdateOperation.reindex(clazz, ids);
+                                    IndexUpdateOperation.reindex(clazz, new LinkedList<Long>(ids));
                             fullTextIndexUpdateScheduler.scheduleUpdate(indexUpdateOperation);
                         }
                     }

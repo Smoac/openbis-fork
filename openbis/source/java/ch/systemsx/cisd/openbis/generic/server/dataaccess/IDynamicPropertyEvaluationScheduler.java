@@ -26,9 +26,4 @@ public interface IDynamicPropertyEvaluationScheduler
      * Schedules specified operation.
      */
     void scheduleUpdate(DynamicPropertyEvaluationOperation operation);
-
-    /**
-     * Clears the schedule.
-     */
-    void clear();
 }
