@@ -19,9 +19,13 @@ package ch.systemsx.cisd.common.concurrent;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 
+import java.lang.management.ManagementFactory;
+import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
+
+import org.apache.commons.lang.time.DateUtils;
 
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.LogLevel;
@@ -55,8 +59,14 @@ public class MessageChannel
      */
     public MessageChannel(long timeOutInMilliSeconds)
     {
-        _timeOutInMilliSeconds = timeOutInMilliSeconds;
+        _timeOutInMilliSeconds = isDebugMode() ? DateUtils.MILLIS_PER_HOUR : timeOutInMilliSeconds;
         _queue = new LinkedBlockingQueue<Object>();
+    }
+    
+    private boolean isDebugMode()
+    {
+        List<String> inputArguments = ManagementFactory.getRuntimeMXBean().getInputArguments();
+        return inputArguments.toString().contains("-agentlib:jdwp");
     }
 
     /**
