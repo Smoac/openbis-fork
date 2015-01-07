@@ -178,7 +178,7 @@ var Util = new function() {
 	}
 
 	//HACK: This method is intended to be used by naughty SVG images that don't provide a correct with/height and don't resize correctly
-	this.loadSVGImage = function(imageURL, containerWidth, containerHeight, callback) {
+	this.loadSVGImage = function(imageURL, containerWidth, containerHeight, callback, isSEQSVG) {
 		d3.xml(imageURL, "image/svg+xml", 
 				function(xml) {
 					var importedNode = document.importNode(xml.documentElement, true);
@@ -211,14 +211,23 @@ var Util = new function() {
 						imageHeight = newImageHeight;
 					}
 					
-					d3Node.attr("width", imageWidth)
+					if(isSEQSVG) {
+						var size = (containerWidth > containerHeight)?containerHeight:containerWidth;
+						d3Node.attr("width", size)
+							.attr("height", size)
+							.attr("viewBox", 0 + " " + 0 + " " + (size * 1.1) + " " + (size * 1.1));
+					} else {
+						d3Node.attr("width", imageWidth)
 							.attr("height", imageHeight)
 							.attr("viewBox", "0 0 " + imageWidth + " " + imageHeight);
+					}
+					
+					
 					callback($(importedNode));
 		});
 	}
 	
-	this.showImage = function(imageURL) {
+	this.showImage = function(imageURL, isSEQSVG) {
 		
 		var showImageB = function($image) {
 			var $imageWrapper = $("<div>", {"style" : "margin:10px"});
@@ -254,7 +263,7 @@ var Util = new function() {
 		var containerHeight = $(window).height()*0.85;
 		
 		if(imageURL.toLowerCase().indexOf(".svg?sessionid") !== -1) {
-			this.loadSVGImage(imageURL, containerWidth, containerHeight, showImageB);
+			this.loadSVGImage(imageURL, containerWidth, containerHeight, showImageB, isSEQSVG);
 			return;
 		}
 		
