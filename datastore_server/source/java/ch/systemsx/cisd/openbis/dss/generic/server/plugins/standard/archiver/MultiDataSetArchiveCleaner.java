@@ -28,6 +28,7 @@ import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.mail.IMailClient;
+import ch.systemsx.cisd.common.mail.IMailClientProvider;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.common.utilities.ITimeAndWaitingProvider;
 import ch.systemsx.cisd.common.utilities.SystemTimeProvider;
@@ -55,7 +56,7 @@ class MultiDataSetArchiveCleaner implements IMultiDataSetArchiveCleaner
     private File deletionRequestsDir;
     
     private final Map<File, FileDeleter> deleters;
-    
+
     MultiDataSetArchiveCleaner(Properties properties)
     {
         this(properties, SystemTimeProvider.SYSTEM_TIME_PROVIDER, globalDeleters);
@@ -87,8 +88,14 @@ class MultiDataSetArchiveCleaner implements IMultiDataSetArchiveCleaner
             FileDeleter deleter = deleters.get(deletionRequestsDir);
             if (deleter == null)
             {
-                IMailClient eMailClient = ServiceProvider.getDataStoreService().createEMailClient();
-                deleter = new FileDeleter(deletionRequestsDir, timeProvider, eMailClient, properties);
+                deleter = new FileDeleter(deletionRequestsDir, timeProvider, new IMailClientProvider()
+                    {
+                        @Override
+                        public IMailClient getMailClient()
+                        {
+                            return ServiceProvider.getDataStoreService().createEMailClient();
+                        }
+                    }, properties);
                 deleters.put(deletionRequestsDir, deleter);
             }
             deleter.start();

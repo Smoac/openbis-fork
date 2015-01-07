@@ -32,6 +32,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.mail.EMailAddress;
 import ch.systemsx.cisd.common.mail.IMailClient;
+import ch.systemsx.cisd.common.mail.IMailClientProvider;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.common.string.Template;
 import ch.systemsx.cisd.common.time.DateTimeUtils;
@@ -93,7 +94,7 @@ public class FileDeleter
 
     private final File directory;
     private final ITimeAndWaitingProvider timeProvider;
-    private final IMailClient eMailClient;
+    private final IMailClientProvider eMailClientProvider;
     private final long pollingTime;
     private final long timeOut;
     private String emailOrNull;
@@ -105,16 +106,17 @@ public class FileDeleter
     private boolean started;
     private long threadStartTime;
 
+
     /**
      * Creates an instance for the specified directory, time provider, email client and properties.
      */
-    public FileDeleter(File directory, ITimeAndWaitingProvider timeProvider, IMailClient eMailClient, Properties properties)
+    public FileDeleter(File directory, ITimeAndWaitingProvider timeProvider, IMailClientProvider eMailClientProvider, Properties properties)
     {
+        this.eMailClientProvider = eMailClientProvider;
         assert directory.isDirectory();
         
         this.directory = directory;
         this.timeProvider = timeProvider;
-        this.eMailClient = eMailClient;
         pollingTime = DateTimeUtils.getDurationInMillis(properties, DELETION_POLLING_TIME_KEY, DEFAULT_DELETION_POLLING_TIME);
         timeOut = DateTimeUtils.getDurationInMillis(properties, DELETION_TIME_OUT_KEY, DEFAULT_DELETION_TIME_OUT);
         emailOrNull = PropertyUtils.getProperty(properties, EMAIL_ADDRESS_KEY);
@@ -189,7 +191,8 @@ public class FileDeleter
                 Template template = new Template(emailTemplate);
                 template.attemptToBind("file-list", builder.toString());
                 String emailMessage = template.createText();
-                eMailClient.sendEmailMessage(emailSubject, emailMessage, 
+                IMailClient mailClient = eMailClientProvider.getMailClient();
+                mailClient.sendEmailMessage(emailSubject, emailMessage, 
                         new EMailAddress(emailOrNull), new EMailAddress(emailFromAddressOrNull));
             }
             timeProvider.sleep(pollingTime);

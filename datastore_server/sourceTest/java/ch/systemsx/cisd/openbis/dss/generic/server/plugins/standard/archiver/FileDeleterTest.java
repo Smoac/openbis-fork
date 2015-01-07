@@ -37,6 +37,7 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.mail.EMailAddress;
 import ch.systemsx.cisd.common.mail.IMailClient;
+import ch.systemsx.cisd.common.mail.IMailClientProvider;
 import ch.systemsx.cisd.common.string.Template;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
 
@@ -56,7 +57,7 @@ public class FileDeleterTest extends AbstractFileSystemTestCase
     private File deletionRequestDir;
 
     private File dataFolder;
-    
+
     private IMailClient mailClient;
 
     private Properties properties;
@@ -65,6 +66,8 @@ public class FileDeleterTest extends AbstractFileSystemTestCase
 
     MessageChannel testrunnerChannel;
 
+    private IMailClientProvider mailClientProvider;
+
     @BeforeMethod
     public void setUpTestEnvironment()
     {
@@ -72,6 +75,14 @@ public class FileDeleterTest extends AbstractFileSystemTestCase
         logRecorder.addRegexForLoggingEventsToBeDropped("OPERATION.*FullTextIndex.*");
         context = new Mockery();
         mailClient = context.mock(IMailClient.class);
+        mailClientProvider = new IMailClientProvider()
+            {
+                @Override
+                public IMailClient getMailClient()
+                {
+                    return mailClient;
+                }
+            };
         properties = new Properties();
         properties.setProperty(FileDeleter.DELETION_POLLING_TIME_KEY, "1 s");
         properties.setProperty(FileDeleter.DELETION_TIME_OUT_KEY, "5 s");
@@ -105,14 +116,14 @@ public class FileDeleterTest extends AbstractFileSystemTestCase
         FileDeleter fileDeleter = create(3, EMAIL_ADDRESS, null);
         File file = new File(dataFolder, "hi.txt");
         FileUtilities.writeToFile(file, "hello");
-        
+
         fileDeleter.requestDeletion(file);
         fileDeleter.requestDeletion(file);
-        
+
         List<String> requests = listRequests();
-        assertEquals("[19700101-011000_1.deletionrequest, 19700101-011000_2.deletionrequest]", 
+        assertEquals("[19700101-011000_1.deletionrequest, 19700101-011000_2.deletionrequest]",
                 requests.toString());
-        assertEquals(file.getAbsolutePath(), 
+        assertEquals(file.getAbsolutePath(),
                 FileUtilities.loadToString(new File(deletionRequestDir, "19700101-011000_1.deletionrequest")).trim());
         context.assertIsSatisfied();
     }
@@ -125,7 +136,7 @@ public class FileDeleterTest extends AbstractFileSystemTestCase
         FileUtilities.writeToFile(file, "hello");
         fileDeleter.start();
         assertNotNull(getDeleterThreadOrNull());
-        
+
         deleterChannel.assertNextMessage("2 polls");
         assertEquals(true, file.exists());
         fileDeleter.requestDeletion(file);
@@ -135,10 +146,10 @@ public class FileDeleterTest extends AbstractFileSystemTestCase
         deleterChannel.assertNextMessage("1 polls");
         assertEquals(false, file.exists());
         continueDeleter();
-        
+
         deleterChannel.assertNextMessage("0 polls");
         continueDeleter();
-        
+
         assertEquals("INFO  OPERATION.FileDeleter - Schedule for deletion: " + file + "\n" +
                 "INFO  OPERATION.FileDeleter - Deletion request file for '"
                 + file + "': " + deletionRequestDir + "/19700101-011001_1.deletionrequest\n" +
@@ -146,7 +157,7 @@ public class FileDeleterTest extends AbstractFileSystemTestCase
                 logRecorder.getLogContent());
         assertThreadFinishedAndEverythingIsEmpty();
     }
-    
+
     @Test
     public void testDelayedDeletion() throws InterruptedException
     {
@@ -157,22 +168,22 @@ public class FileDeleterTest extends AbstractFileSystemTestCase
         FileUtilities.writeToFile(file, "hello");
         fileDeleter.start();
         assertNotNull(getDeleterThreadOrNull());
-        
+
         deleterChannel.assertNextMessage("3 polls");
         assertEquals(true, subFolder.exists());
         fileDeleter.requestDeletion(subFolder);
         continueDeleter();
-        
+
         deleterChannel.assertNextMessage("2 polls");
         // sub folder still exists since delete() fails because sub folder isn't empty
-        assertEquals(true, subFolder.exists()); 
+        assertEquals(true, subFolder.exists());
         file.delete(); // empties sub folder to allow delete() to be successful
         continueDeleter();
-        
+
         deleterChannel.assertNextMessage("1 polls");
         assertEquals(false, file.exists());
         continueDeleter();
-        
+
         deleterChannel.assertNextMessage("0 polls");
         continueDeleter();
 
@@ -183,7 +194,7 @@ public class FileDeleterTest extends AbstractFileSystemTestCase
                 logRecorder.getLogContent());
         assertThreadFinishedAndEverythingIsEmpty();
     }
-    
+
     @Test
     public void testTimeoutDeletion() throws InterruptedException
     {
@@ -199,19 +210,19 @@ public class FileDeleterTest extends AbstractFileSystemTestCase
         RecordingMatcher<String> contentRecorder = prepareNotification(EMAIL_ADDRESS, null);
         fileDeleter.start();
         assertNotNull(getDeleterThreadOrNull());
-        
+
         deleterChannel.assertNextMessage("19 polls");
         fileDeleter.requestDeletion(subFolder1);
         continueDeleter();
-        
+
         deleterChannel.assertNextMessage("18 polls");
         continueDeleter();
-        
+
         deleterChannel.assertNextMessage("17 polls");
         assertEquals(true, subFolder1.exists());
         fileDeleter.requestDeletion(subFolder2);
         continueDeleter();
-        
+
         StringBuilder expectedLogBuilder = new StringBuilder();
         for (int i = 16; i >= 0; i--)
         {
@@ -229,16 +240,16 @@ public class FileDeleterTest extends AbstractFileSystemTestCase
                 expectedLogBuilder.append(16 - i).append("sec elapsed)\n");
             }
         }
-        
+
         assertEquals("INFO  OPERATION.FileDeleter - Schedule for deletion: " + subFolder1 + "\n"
                 + "INFO  OPERATION.FileDeleter - Deletion request file for '"
                 + subFolder1 + "': " + deletionRequestDir + "/19700101-011001_1.deletionrequest\n"
                 + "INFO  OPERATION.FileDeleter - Schedule for deletion: " + subFolder2 + "\n"
                 + "INFO  OPERATION.FileDeleter - Deletion request file for '"
                 + subFolder2 + "': " + deletionRequestDir + "/19700101-011003_2.deletionrequest\n"
-                + "WARN  OPERATION.FileDeleter - " + subFolder1.getAbsolutePath() + "\n" 
+                + "WARN  OPERATION.FileDeleter - " + subFolder1.getAbsolutePath() + "\n"
                 + "   Deletion requested at 1970-01-01 01:10:01 (6sec elapsed)\n"
-                + "WARN  OPERATION.FileDeleter - " + subFolder1.getAbsolutePath() + "\n" 
+                + "WARN  OPERATION.FileDeleter - " + subFolder1.getAbsolutePath() + "\n"
                 + "   Deletion requested at 1970-01-01 01:10:01 (7sec elapsed)\n"
                 + expectedLogBuilder.toString().trim(), logRecorder.getLogContent());
         assertEquals("[The following files couldn't be deleted:\n"
@@ -249,7 +260,7 @@ public class FileDeleterTest extends AbstractFileSystemTestCase
                 + subFolder2.getAbsolutePath() + "\n   Deletion requested at 1970-01-01 01:10:03 (12sec elapsed)\n]",
                 contentRecorder.getRecordedObjects().toString());
         assertThreadFinishedAndChannelsAreEmpty();
-        assertEquals("[19700101-011001_1.deletionrequest, 19700101-011003_2.deletionrequest]", 
+        assertEquals("[19700101-011001_1.deletionrequest, 19700101-011003_2.deletionrequest]",
                 listRequests().toString());
         assertEquals(true, subFolder1.exists());
         assertEquals(true, subFolder2.exists());
@@ -266,11 +277,11 @@ public class FileDeleterTest extends AbstractFileSystemTestCase
         FileUtilities.writeToFile(file1, "hello one");
         fileDeleter.start();
         assertNotNull(getDeleterThreadOrNull());
-        
+
         deleterChannel.assertNextMessage("10 polls");
         fileDeleter.requestDeletion(subFolder);
         continueDeleter();
-        
+
         StringBuilder expectedLogBuilder = new StringBuilder();
         for (int i = 9; i >= 0; i--)
         {
@@ -284,8 +295,8 @@ public class FileDeleterTest extends AbstractFileSystemTestCase
                 expectedLogBuilder.append(9 - i).append("sec elapsed)\n");
             }
         }
-        
-        assertEquals("INFO  OPERATION.FileDeleter - Schedule for deletion: " + subFolder + "\n" 
+
+        assertEquals("INFO  OPERATION.FileDeleter - Schedule for deletion: " + subFolder + "\n"
                 + "INFO  OPERATION.FileDeleter - Deletion request file for '"
                 + subFolder + "': " + deletionRequestDir + "/19700101-011001_1.deletionrequest\n"
                 + expectedLogBuilder.toString().trim(), logRecorder.getLogContent());
@@ -294,19 +305,19 @@ public class FileDeleterTest extends AbstractFileSystemTestCase
         assertEquals(true, subFolder.exists());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testDeletionRequestForNonExistingFile() throws InterruptedException
     {
         FileDeleter fileDeleter = create(2, null, null);
         File file = new File(dataFolder, "non-existend.txt");
-        
+
         fileDeleter.start();
-        
+
         deleterChannel.assertNextMessage("1 polls");
         fileDeleter.requestDeletion(file);
         continueDeleter();
-        
+
         deleterChannel.assertNextMessage("0 polls");
         continueDeleter();
 
@@ -317,28 +328,28 @@ public class FileDeleterTest extends AbstractFileSystemTestCase
                 logRecorder.getLogContent());
         assertThreadFinishedAndEverythingIsEmpty();
     }
-    
+
     @Test
     public void testInvalidDeletionRequestFile() throws InterruptedException
     {
         FileDeleter fileDeleter = create(2, null, null);
         FileUtilities.writeToFile(new File(deletionRequestDir, "invalid" + FileDeleter.FILE_TYPE), "hello");
         FileUtilities.writeToFile(new File(deletionRequestDir, "to-be-ignored.txt"), "hi");
-        
+
         fileDeleter.start();
-        
+
         deleterChannel.assertNextMessage("1 polls");
         continueDeleter();
-        
+
         deleterChannel.assertNextMessage("0 polls");
         continueDeleter();
-        
+
         assertEquals("", logRecorder.getLogContent());
         assertThreadFinishedAndChannelsAreEmpty();
         assertEquals("[invalid.deletionrequest, to-be-ignored.txt]", listRequests().toString());
         context.assertIsSatisfied();
     }
-    
+
     private void assertThreadFinishedAndEverythingIsEmpty() throws InterruptedException
     {
         assertThreadFinishedAndChannelsAreEmpty();
@@ -357,7 +368,7 @@ public class FileDeleterTest extends AbstractFileSystemTestCase
         deleterChannel.assertEmpty();
         testrunnerChannel.assertEmpty();
     }
-    
+
     private Thread getDeleterThreadOrNull()
     {
         Template template = FileDeleter.THREAD_NAME_TEMPLATE.createFreshCopy();
@@ -378,28 +389,28 @@ public class FileDeleterTest extends AbstractFileSystemTestCase
         testrunnerChannel.send(TimeProviderWithMessageChannelInteraction.CONTINUE_MESSAGE);
     }
 
-    private RecordingMatcher<String> prepareNotification( 
+    private RecordingMatcher<String> prepareNotification(
             final String emailAddress, final String emailFromAddressOrNull)
     {
         final RecordingMatcher<String> contentRecorder = new RecordingMatcher<String>();
         context.checking(new Expectations()
             {
                 {
-                    allowing(mailClient).sendEmailMessage(with(SUBJECT), with(contentRecorder), 
-                            with(new EMailAddress(emailAddress)), with(new EMailAddress(emailFromAddressOrNull)), 
+                    allowing(mailClient).sendEmailMessage(with(SUBJECT), with(contentRecorder),
+                            with(new EMailAddress(emailAddress)), with(new EMailAddress(emailFromAddressOrNull)),
                             with(new EMailAddress[0]));
                 }
             });
         return contentRecorder;
     }
-    
+
     private List<String> listRequests()
     {
         List<String> requests = Arrays.asList(deletionRequestDir.list());
         Collections.sort(requests);
         return requests;
     }
-    
+
     private FileDeleter create(int numberOfPolls, String emailAddressOrNull, String emailFromAddressOrNull)
     {
         if (emailAddressOrNull != null)
@@ -410,9 +421,9 @@ public class FileDeleterTest extends AbstractFileSystemTestCase
         {
             properties.setProperty(FileDeleter.EMAIL_FROM_ADDRESS_KEY, emailFromAddressOrNull);
         }
-        TimeProviderWithMessageChannelInteraction timeProvider 
-                = new TimeProviderWithMessageChannelInteraction(deleterChannel, testrunnerChannel, numberOfPolls);
-        FileDeleter fileDeleter = new FileDeleter(deletionRequestDir, timeProvider, mailClient, properties);
+        TimeProviderWithMessageChannelInteraction timeProvider =
+                new TimeProviderWithMessageChannelInteraction(deleterChannel, testrunnerChannel, numberOfPolls);
+        FileDeleter fileDeleter = new FileDeleter(deletionRequestDir, timeProvider, mailClientProvider, properties);
         timeProvider.setDeleter(fileDeleter);
         return fileDeleter;
     }
