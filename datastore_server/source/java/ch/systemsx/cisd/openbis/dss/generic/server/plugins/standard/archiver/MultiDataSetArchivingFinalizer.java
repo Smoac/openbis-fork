@@ -34,7 +34,6 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.time.TimingParameters;
 import ch.systemsx.cisd.common.utilities.ITimeAndWaitingProvider;
 import ch.systemsx.cisd.common.utilities.IWaitingCondition;
-import ch.systemsx.cisd.common.utilities.SystemTimeProvider;
 import ch.systemsx.cisd.common.utilities.WaitingHelper;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.dataaccess.IMultiDataSetArchiverDBTransaction;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.dataaccess.MultiDataSetArchiverDBTransaction;
@@ -53,7 +52,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
  *
  * @author Franz-Josef Elmer
  */
-public class MultiDataSetArchivingFinalizer implements IProcessingPluginTask
+class MultiDataSetArchivingFinalizer implements IProcessingPluginTask
 {
     private static final long serialVersionUID = 1L;
     
@@ -68,13 +67,13 @@ public class MultiDataSetArchivingFinalizer implements IProcessingPluginTask
 
     private final ITimeAndWaitingProvider timeProvider;
 
-    public MultiDataSetArchivingFinalizer(Properties properties, File storeRoot)
-    {
-        this(SystemTimeProvider.SYSTEM_TIME_PROVIDER);
-    }
+    private final Properties cleanerProperties;
     
-    MultiDataSetArchivingFinalizer(ITimeAndWaitingProvider timeProvider)
+    private transient IMultiDataSetArchiveCleaner cleaner;
+
+    MultiDataSetArchivingFinalizer(Properties cleanerProperties, ITimeAndWaitingProvider timeProvider)
     {
+        this.cleanerProperties = cleanerProperties;
         this.timeProvider = timeProvider;
     }
     
@@ -104,6 +103,8 @@ public class MultiDataSetArchivingFinalizer implements IProcessingPluginTask
                 String message = "Replication of '" + originalFile + "' failed.";
                 operationLog.error(message);
                 status = Status.createError(message);
+                getCleaner().delete(originalFile);
+                getCleaner().delete(parameters.getReplicatedFile());
                 removeFromMapping(originalFile);
                 updateStatus(new DataSetCodesWithStatus(dataSetCodes, DataSetArchivingStatus.AVAILABLE, false));
                 ServiceProvider.getOpenBISService().archiveDataSets(dataSetCodes, archivingStatus.isAvailable() == false);
@@ -136,6 +137,15 @@ public class MultiDataSetArchivingFinalizer implements IProcessingPluginTask
     {
         ServiceProvider.getOpenBISService().updateDataSetStatuses(codesWithStatus.getDataSetCodes(),
                 codesWithStatus.getStatus(), codesWithStatus.isPresentInArchive());
+    }
+    
+    protected IMultiDataSetArchiveCleaner getCleaner()
+    {
+        if (cleaner == null)
+        {
+            cleaner = MultiDataSetArchivingUtils.createCleaner(cleanerProperties);
+        }
+        return cleaner;
     }
     
     IMultiDataSetArchiverDBTransaction getTransaction()
@@ -189,7 +199,6 @@ public class MultiDataSetArchivingFinalizer implements IProcessingPluginTask
         parameters.setPollingTime(getNumber(parameterBindings, FINALIZER_POLLING_TIME_KEY));
         parameters.setWaitingTime(getNumber(parameterBindings, FINALIZER_MAX_WAITING_TIME_KEY));
         parameters.setStatus(DataSetArchivingStatus.valueOf(getProperty(parameterBindings, STATUS_KEY)));
-        
         return parameters;
     }
     

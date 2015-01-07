@@ -32,9 +32,9 @@ public interface IMultiDataSetFileOperationsManager
 
     Status createContainer(String containerPath, List<DatasetDescription> datasetDescriptions);
 
-    Status deleteContainerFromFinalDestination(String containerLocalPath);
+    Status deleteContainerFromFinalDestination(IMultiDataSetArchiveCleaner cleaner, String containerLocalPath);
 
-    Status deleteContainerFromStage(String containerPath);
+    Status deleteContainerFromStage(IMultiDataSetArchiveCleaner cleaner, String containerPath);
 
     /**
      * Get's the content of archived content in final destination.

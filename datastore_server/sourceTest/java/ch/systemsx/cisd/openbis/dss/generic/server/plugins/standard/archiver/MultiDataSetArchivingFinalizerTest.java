@@ -84,6 +84,8 @@ public class MultiDataSetArchivingFinalizerTest extends AbstractFileSystemTestCa
 
     private IMultiDataSetArchiverDBTransaction transaction;
 
+    private MockCleaner cleaner;
+
     @BeforeMethod
     public void setUpTestEnvironment()
     {
@@ -115,7 +117,8 @@ public class MultiDataSetArchivingFinalizerTest extends AbstractFileSystemTestCa
         processingContext = new DataSetProcessingContext(null, null,
                 parameterBindings, null, USER_ID, USER_EMAIL);
         updatedStatus = new ArrayList<DataSetCodesWithStatus>();
-        finalizer = new MultiDataSetArchivingFinalizer(new MockTimeProvider())
+        cleaner = new MockCleaner();
+        finalizer = new MultiDataSetArchivingFinalizer(null, new MockTimeProvider())
             {
                 private static final long serialVersionUID = 1L;
 
@@ -129,6 +132,12 @@ public class MultiDataSetArchivingFinalizerTest extends AbstractFileSystemTestCa
                 IMultiDataSetArchiverDBTransaction getTransaction()
                 {
                     return transaction;
+                }
+
+                @Override
+                protected IMultiDataSetArchiveCleaner getCleaner()
+                {
+                    return cleaner;
                 }
             };
         context.checking(new Expectations()
@@ -176,6 +185,7 @@ public class MultiDataSetArchivingFinalizerTest extends AbstractFileSystemTestCa
         assertEquals("OK", status.tryGetStatusByDataset(ds1.getDataSetCode()).toString());
         assertEquals("[[ds1] - ARCHIVED]", updatedStatus.toString());
         assertEquals(true, updatedStatus.get(0).isPresentInArchive());
+        assertEquals("[]", cleaner.toString());
         context.assertIsSatisfied();
     }
     
@@ -200,6 +210,7 @@ public class MultiDataSetArchivingFinalizerTest extends AbstractFileSystemTestCa
         assertEquals("OK", status.tryGetStatusByDataset(ds1.getDataSetCode()).toString());
         assertEquals("[[ds1] - AVAILABLE]", updatedStatus.toString());
         assertEquals(true, updatedStatus.get(0).isPresentInArchive());
+        assertEquals("[]", cleaner.toString());
         context.assertIsSatisfied();
     }
 
@@ -241,6 +252,7 @@ public class MultiDataSetArchivingFinalizerTest extends AbstractFileSystemTestCa
                 status.tryGetStatusByDataset(ds2.getDataSetCode()).toString());
         assertEquals("[[ds1, ds2] - AVAILABLE]", updatedStatus.toString());
         assertEquals(false, updatedStatus.get(0).isPresentInArchive());
+        assertEquals(Arrays.asList(dataFileInArchive, dataFilePartiallyReplicated).toString(), cleaner.toString());
         context.assertIsSatisfied();
     }
     
@@ -283,6 +295,7 @@ public class MultiDataSetArchivingFinalizerTest extends AbstractFileSystemTestCa
                 status.tryGetStatusByDataset(ds2.getDataSetCode()).toString());
         assertEquals("[[ds1, ds2] - AVAILABLE]", updatedStatus.toString());
         assertEquals(false, updatedStatus.get(0).isPresentInArchive());
+        assertEquals(Arrays.asList(dataFileInArchive, dataFilePartiallyReplicated).toString(), cleaner.toString());
         context.assertIsSatisfied();
     }
 

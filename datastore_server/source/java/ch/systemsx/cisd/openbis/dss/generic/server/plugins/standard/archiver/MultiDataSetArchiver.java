@@ -41,6 +41,7 @@ import ch.systemsx.cisd.common.filesystem.BooleanStatus;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.IFreeSpaceProvider;
 import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
+import ch.systemsx.cisd.common.properties.PropertyParametersUtil;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.common.time.DateTimeUtils;
 import ch.systemsx.cisd.common.utilities.ITimeAndWaitingProvider;
@@ -129,14 +130,20 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
     public static final long DEFAULT_FINALIZER_POLLING_TIME = DateUtils.MILLIS_PER_MINUTE;
     
     public static final long DEFAULT_FINALIZER_MAX_WAITING_TIME = DateUtils.MILLIS_PER_DAY;
+    
+    public static final String CLEANER_PROPS = "cleaner";
 
     private transient IMultiDataSetArchiverReadonlyQueryDAO readonlyQuery;
     
     private transient IDataStoreServiceInternal dataStoreService;
+    
+    private transient IMultiDataSetArchiveCleaner cleaner;
 
     private final long finalizerPollingTime;
 
     private final long finalizerMaxWaitingTime;
+
+    private final Properties cleanerProperties;
 
     public MultiDataSetArchiver(Properties properties, File storeRoot)
     {
@@ -152,8 +159,11 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
         this.fileOperationsFactory = new FileOperationsManagerFactory(properties, timeProvider, freeSpaceProviderOrNull);
         finalizerPollingTime = DateTimeUtils.getDurationInMillis(properties, 
                 MultiDataSetArchivingFinalizer.FINALIZER_POLLING_TIME_KEY, DEFAULT_FINALIZER_POLLING_TIME);
-        finalizerMaxWaitingTime = DateTimeUtils.getDurationInMillis(properties, 
+        finalizerMaxWaitingTime = DateTimeUtils.getDurationInMillis(properties,
                 MultiDataSetArchivingFinalizer.FINALIZER_MAX_WAITING_TIME_KEY, DEFAULT_FINALIZER_MAX_WAITING_TIME);
+        cleanerProperties = PropertyParametersUtil.extractSingleSectionProperties(properties, CLEANER_PROPS, false)
+                .getProperties();
+        getCleaner(); // Checks proper configuration of cleaner
     }
 
     @Override
@@ -298,14 +308,14 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
             scheduleFinalizer(containerPath, dataSets, context, removeFromDataStore);
         } catch (Exception ex)
         {
-            getFileOperations().deleteContainerFromFinalDestination(containerPath);
+            getFileOperations().deleteContainerFromFinalDestination(getCleaner(), containerPath);
             // In case of error we actually should delete failed container here. If the transaction fail that the AbstractArchiver is unable to locate
             // container file.
             throw ex;
         } finally
         {
             // always delete staging content
-            getFileOperations().deleteContainerFromStage(containerPath);
+            getFileOperations().deleteContainerFromStage(getCleaner(), containerPath);
 
             if (archivedContent != null)
             {
@@ -332,7 +342,7 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
         {
             return;
         }
-        MultiDataSetArchivingFinalizer task = new MultiDataSetArchivingFinalizer(null, null);
+        MultiDataSetArchivingFinalizer task = new MultiDataSetArchivingFinalizer(cleanerProperties, SystemTimeProvider.SYSTEM_TIME_PROVIDER);
         String userId = archiverContext.getUserId();
         String userEmail = archiverContext.getUserEmail();
         String userSessionToken = archiverContext.getUserSessionToken();
@@ -642,5 +652,14 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
             dataStoreService = ServiceProvider.getDataStoreService();
         }
         return dataStoreService;
+    }
+    
+    IMultiDataSetArchiveCleaner getCleaner()
+    {
+        if (cleaner == null)
+        {
+            cleaner = MultiDataSetArchivingUtils.createCleaner(cleanerProperties);
+        }
+        return cleaner;
     }
 }
