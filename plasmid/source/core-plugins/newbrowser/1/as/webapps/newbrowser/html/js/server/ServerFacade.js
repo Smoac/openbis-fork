@@ -77,7 +77,7 @@ function ServerFacade(openbisServer) {
  		var inventorySpacesToRegister = [];
  		var inventorySpaceToRegisterFunc = function(spaceCode, callback) {
 			return function() {
-				_this.openbisServer.registerPersonSpaceRole(spaceCode, userId, "ADMIN", function(data) {
+				_this.openbisServer.registerPersonSpaceRole(spaceCode, userId, "USER", function(data) {
 					if(data.error) {
 						callback(false, data.error.message);
 					} else {

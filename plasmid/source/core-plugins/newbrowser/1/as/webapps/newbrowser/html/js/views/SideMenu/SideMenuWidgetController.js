@@ -310,10 +310,15 @@ function SideMenuWidgetController(mainController) {
                         _this._sideMenuWidgetModel.menuStructure.newMenuIfSelected.children.push(
                                 new SideMenuWidgetComponent(true, false, "Vocabulary Viewer", "Vocabulary Viewer", _this._sideMenuWidgetModel.menuStructure, null, "showVocabularyManagerPage", null, "")
                                 );
-                        _this._sideMenuWidgetModel.menuStructure.newMenuIfSelected.children.push(
-                                new SideMenuWidgetComponent(true, false, "User Manager", "User Manager", _this._sideMenuWidgetModel.menuStructure, null, "showUserManagerPage", null, "")
+                        
+                        mainController.serverFacade.listPersons(function(data) {
+                			if(data.result && data.result.length > 0) {
+                				_this._sideMenuWidgetModel.menuStructure.newMenuIfSelected.children.push(
+                                        new SideMenuWidgetComponent(true, false, "User Manager", "User Manager", _this._sideMenuWidgetModel.menuStructure, null, "showUserManagerPage", null, "")
                                 );
-                        _this._sideMenuWidgetView.repaintFirst($container);
+                			}
+                			_this._sideMenuWidgetView.repaintFirst($container);
+                        });
                     });
 
                 });
