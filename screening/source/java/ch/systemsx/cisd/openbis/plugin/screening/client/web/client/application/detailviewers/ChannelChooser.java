@@ -17,8 +17,11 @@
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -27,13 +30,17 @@ import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.Text;
+import com.extjs.gxt.ui.client.widget.form.FieldSet;
+import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 import com.extjs.gxt.ui.client.widget.layout.MarginData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.CheckBoxGroupWithModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.CheckBoxGroupWithModel.CheckBoxGroupListner;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.LabeledItem;
@@ -232,7 +239,9 @@ class ChannelChooser
             return chooserPanel;
         } else
         {
-            return createOverlayChannelsChooserForOneAnalysisProcedure(overlayDatasets);
+            final LayoutContainer objectsChooserContainer = new LayoutContainer();
+            addOverlayChannelsChoosers(overlayDatasets, objectsChooserContainer);
+            return objectsChooserContainer;
         }
     }
 
@@ -255,28 +264,150 @@ class ChannelChooser
             final Map<String, List<DatasetOverlayImagesReference>> datasetsByAnalysisProcMap,
             final LayoutContainer objectsChooserContainer)
     {
-        String analysisProcedureCode = criteria.tryGetAnalysisProcedureCode();
-        List<DatasetOverlayImagesReference> overlayDatasetsForOneAnalysisProc =
-                datasetsByAnalysisProcMap.get(analysisProcedureCode);
+        List<DatasetOverlayImagesReference> overlayDatasetsForOneAnalysisProc;
+
+        if (criteria.isAllProcedures())
+        {
+            overlayDatasetsForOneAnalysisProc = new LinkedList<DatasetOverlayImagesReference>();
+            for (String ap : datasetsByAnalysisProcMap.keySet())
+            {
+                overlayDatasetsForOneAnalysisProc.addAll(datasetsByAnalysisProcMap.get(ap));
+            }
+        }
+        else
+        {
+            String analysisProcedureCode = criteria.tryGetAnalysisProcedureCode();
+            overlayDatasetsForOneAnalysisProc = datasetsByAnalysisProcMap.get(analysisProcedureCode);
+        }
 
         objectsChooserContainer.removeAll();
         if (overlayDatasetsForOneAnalysisProc != null
                 && overlayDatasetsForOneAnalysisProc.size() > 0)
         {
-            Widget objectsChooser =
-                    createOverlayChannelsChooserForOneAnalysisProcedure(overlayDatasetsForOneAnalysisProc);
-            objectsChooserContainer.add(objectsChooser);
+            addOverlayChannelsChoosers(overlayDatasetsForOneAnalysisProc, objectsChooserContainer);
         }
         objectsChooserContainer.layout();
 
         setSelectedOverlayChannels(new HashSet<ImageDatasetChannel>());
     }
 
-    private Widget createOverlayChannelsChooserForOneAnalysisProcedure(
-            List<DatasetOverlayImagesReference> overlayDatasets)
+    private List<List<DatasetOverlayImagesReference>> splitIntoGroupsOfIdenticalAnalysisProcedure(List<DatasetOverlayImagesReference> overlayDatasets)
+    {
+        List<DatasetOverlayImagesReference> sortedDataSets = new LinkedList<DatasetOverlayImagesReference>();
+        sortedDataSets.addAll(overlayDatasets);
+
+        Collections.sort(sortedDataSets, new ProcedureDatasetSortingOrder());
+
+        LinkedList<List<DatasetOverlayImagesReference>> result = new LinkedList<List<DatasetOverlayImagesReference>>();
+        LinkedList<DatasetOverlayImagesReference> group = null;
+
+        String currentAP = null;
+        for (DatasetOverlayImagesReference dataSet : sortedDataSets)
+        {
+            String localAP = dataSet.tryGetAnalysisProcedure();
+            if (localAP == null || localAP.isEmpty())
+            {
+                localAP = "Unspecified Analysis Procedure";
+            }
+            if (false == localAP.equals(currentAP))
+            {
+                group = null;
+            }
+            if (group == null)
+            {
+                group = new LinkedList<DatasetOverlayImagesReference>();
+                result.add(group);
+                currentAP = localAP;
+            }
+            group.add(dataSet);
+        }
+        return result;
+
+    }
+
+    private void addOverlayChannelsChoosers(List<DatasetOverlayImagesReference> overlayDatasets,
+            LayoutContainer objectsChooserContainer)
+    {
+
+        List<List<DatasetOverlayImagesReference>> groups = splitIntoGroupsOfIdenticalAnalysisProcedure(overlayDatasets);
+
+        if (groups.size() == 1 && overlayDatasets.size() > 1)
+        {
+            objectsChooserContainer.add(new HTML(OVERLAYS_MSG));
+        }
+
+        for (List<DatasetOverlayImagesReference> group : groups)
+        {
+            LayoutContainer container;
+            if (groups.size() == 1)
+            {
+                container = objectsChooserContainer;
+            }
+            else
+            {
+                String analysisProcedure = group.get(0).tryGetAnalysisProcedure();
+                if (analysisProcedure == null || analysisProcedure.isEmpty())
+                {
+                    analysisProcedure = "Unspecified Analysis Procedure";
+                }
+                container = new SectionFieldSet(analysisProcedure);
+            }
+
+            for (DatasetOverlayImagesReference dataSet : group)
+            {
+                container.add(createOverlayChannelsChooserForOneDataSet(dataSet, overlayDatasets.size() != 1));
+            }
+
+            if (container != objectsChooserContainer)
+            {
+                objectsChooserContainer.add(container);
+            }
+        }
+    }
+
+    private static class ProcedureDatasetSortingOrder implements Comparator<DatasetOverlayImagesReference>
+    {
+        private String key(DatasetOverlayImagesReference dataSet)
+        {
+            return dataSet.tryGetAnalysisProcedure() + ":" + dataSet.getDatasetCode();
+        }
+
+        @Override
+        public int compare(DatasetOverlayImagesReference one, DatasetOverlayImagesReference two)
+        {
+            return key(one).compareTo(key(two));
+        }
+    }
+
+    private static final class SectionFieldSet extends FieldSet
+    {
+
+        public SectionFieldSet(final String sectionName)
+        {
+            createForm(sectionName);
+        }
+
+        private void createForm(final String sectionName)
+        {
+            setHeading(sectionName);
+            setLayout(createFormLayout());
+            setAutoWidth(true);
+        }
+
+        private final FormLayout createFormLayout()
+        {
+            final FormLayout formLayout = new FormLayout();
+            formLayout.setLabelWidth(AbstractRegistrationForm.SECTION_LABEL_WIDTH);
+            formLayout.setDefaultWidth(AbstractRegistrationForm.SECTION_DEFAULT_FIELD_WIDTH);
+            return formLayout;
+        }
+    }
+
+    private Widget createOverlayChannelsChooserForOneDataSet(
+            DatasetOverlayImagesReference overlayDataset, boolean withLabel)
     {
         List<LabeledItem<ImageDatasetChannel>> overlayChannelItems =
-                createOverlayChannelItems(overlayDatasets);
+                createOverlayChannelItems(overlayDataset);
         CheckBoxGroupWithModel<ImageDatasetChannel> checkBoxGroup =
                 new CheckBoxGroupWithModel<ImageDatasetChannel>(overlayChannelItems);
         checkBoxGroup.addListener(new CheckBoxGroupListner<ImageDatasetChannel>()
@@ -287,7 +418,18 @@ class ChannelChooser
                     setSelectedOverlayChannels(selected);
                 }
             });
-        return GuiUtils.withLabel(checkBoxGroup, OVERLAYS_MSG);
+
+        String label = OVERLAYS_MSG;
+
+        if (withLabel)
+        {
+            String extraLabel =
+                    overlayDataset.getDatasetReference().getLabelText() == null ? ""
+                            : ", " + (overlayDataset.getDatasetReference().getLabelText());
+            label = overlayDataset.getDatasetCode() + extraLabel + ":";
+        }
+        return GuiUtils.withLabel(checkBoxGroup, label);
+
     }
 
     private void setSelectedOverlayChannels(Set<ImageDatasetChannel> selected)
@@ -297,22 +439,19 @@ class ChannelChooser
     }
 
     private static List<LabeledItem<ImageDatasetChannel>> createOverlayChannelItems(
-            List<? extends DatasetImagesReference> overlayDatasets)
+            DatasetImagesReference overlayDataset)
     {
         List<LabeledItem<ImageDatasetChannel>> items =
                 new ArrayList<LabeledItem<ImageDatasetChannel>>();
-        for (DatasetImagesReference overlayDataset : overlayDatasets)
+        ImageDatasetParameters imageParams = overlayDataset.getImageParameters();
+        for (int i = 0; i < imageParams.getChannelsNumber(); i++)
         {
-            ImageDatasetParameters imageParams = overlayDataset.getImageParameters();
-            for (int i = 0; i < imageParams.getChannelsNumber(); i++)
-            {
-                InternalImageChannel channel = imageParams.getInternalChannels().get(i);
-                String channelCode = channel.getCode();
-                String channelLabel = channel.getLabel();
-                LabeledItem<ImageDatasetChannel> item =
-                        createLabeledItem(overlayDataset, channelCode, channelLabel);
-                items.add(item);
-            }
+            InternalImageChannel channel = imageParams.getInternalChannels().get(i);
+            String channelCode = channel.getCode();
+            String channelLabel = channel.getLabel();
+            LabeledItem<ImageDatasetChannel> item =
+                    createLabeledItem(overlayDataset, channelCode, channelLabel);
+            items.add(item);
         }
         return items;
     }
