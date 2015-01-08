@@ -87,7 +87,8 @@ public class FileDeleterTest extends AbstractFileSystemTestCase
         properties.setProperty(FileDeleter.DELETION_POLLING_TIME_KEY, "1 s");
         properties.setProperty(FileDeleter.DELETION_TIME_OUT_KEY, "5 s");
         properties.setProperty(FileDeleter.EMAIL_SUBJECT_KEY, SUBJECT);
-        properties.setProperty(FileDeleter.EMAIL_TEMPLATE_KEY, "The following files couldn't be deleted:\n${file-list}");
+        properties.setProperty(FileDeleter.EMAIL_TEMPLATE_KEY, "The following files couldn't be deleted:\n${" 
+                + FileDeleter.FILE_LIST_VARIABLE + "}");
         deleterChannel = new MessageChannelBuilder().name("deleter").getChannel();
         testrunnerChannel = new MessageChannelBuilder().name("testrunner").getChannel();
 

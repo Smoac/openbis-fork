@@ -76,6 +76,9 @@ public class FileDeleter
     /** Property: Template with variable ${file-list}. */
     public static final String EMAIL_TEMPLATE_KEY = "email-template";
     
+    /** Name of the file list variable in {@link #EMAIL_TEMPLATE_KEY} property. */
+    public static final String FILE_LIST_VARIABLE = "file-list";
+    
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             FileDeleter.class);
     
@@ -189,7 +192,7 @@ public class FileDeleter
             if (emailOrNull != null && builder.length() > 0)
             {
                 Template template = new Template(emailTemplate);
-                template.attemptToBind("file-list", builder.toString());
+                template.attemptToBind(FILE_LIST_VARIABLE, builder.toString());
                 String emailMessage = template.createText();
                 IMailClient mailClient = eMailClientProvider.getMailClient();
                 mailClient.sendEmailMessage(emailSubject, emailMessage, 
