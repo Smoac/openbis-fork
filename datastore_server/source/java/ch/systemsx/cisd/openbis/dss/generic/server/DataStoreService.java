@@ -544,11 +544,11 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
         {
             ISearchDomainService service = provider.getPluginInstance(serviceDescription.getKey());
             List<SearchDomainSearchResult> result = service.search(sequenceSnippet, optionalParametersOrNull);
+            SearchDomain searchDomain = new SearchDomain();
+            searchDomain.setName(serviceDescription.getKey());
+            searchDomain.setLabel(serviceDescription.getLabel());
             for (SearchDomainSearchResult sequenceSearchResult : result)
             {
-                SearchDomain searchDomain = new SearchDomain();
-                searchDomain.setName(serviceDescription.getKey());
-                searchDomain.setLabel(serviceDescription.getLabel());
                 sequenceSearchResult.setSearchDomain(searchDomain);
             }
             return result;

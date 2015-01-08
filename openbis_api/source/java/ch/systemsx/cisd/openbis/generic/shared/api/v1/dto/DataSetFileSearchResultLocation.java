@@ -30,6 +30,8 @@ public class DataSetFileSearchResultLocation implements ISearchDomainResultLocat
     
     private String dataSetCode;
     
+    private String dataSetType;
+    
     private String pathInDataSet;
     
     private String identifier;
@@ -44,6 +46,16 @@ public class DataSetFileSearchResultLocation implements ISearchDomainResultLocat
     public void setDataSetCode(String dataSet)
     {
         this.dataSetCode = dataSet;
+    }
+
+    public String getDataSetType()
+    {
+        return dataSetType;
+    }
+
+    public void setDataSetType(String dataSetType)
+    {
+        this.dataSetType = dataSetType;
     }
 
     public String getPathInDataSet()
@@ -79,9 +91,13 @@ public class DataSetFileSearchResultLocation implements ISearchDomainResultLocat
     @Override
     public String toString()
     {
-        return "Data set: " + dataSetCode + ", path: " + pathInDataSet 
-                + ", identifier: [" + identifier + "], position: " + position;
+        return "Data set type: " + dataSetType + ", code: " + dataSetCode + ", path: " + pathInDataSet 
+                + ", identifier: [" + identifier + "], " + appendToString();
     }
 
+    protected String appendToString()
+    {
+        return "position: " + position;
+    }
 
 }

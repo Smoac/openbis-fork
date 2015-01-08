@@ -29,6 +29,10 @@ public class EntityPropertySearchResultLocation implements ISearchDomainResultLo
     private static final long serialVersionUID = 1L;
 
     private EntityKind entityKind;
+    
+    private String entityType;
+    
+    private String code;
 
     private String permId;
 
@@ -46,9 +50,29 @@ public class EntityPropertySearchResultLocation implements ISearchDomainResultLo
         this.entityKind = entityKind;
     }
 
+    public String getEntityType()
+    {
+        return entityType;
+    }
+
+    public void setEntityType(String entityType)
+    {
+        this.entityType = entityType;
+    }
+
     public String getPermId()
     {
         return permId;
+    }
+
+    public String getCode()
+    {
+        return code;
+    }
+
+    public void setCode(String code)
+    {
+        this.code = code;
     }
 
     public void setPermId(String entityType)
@@ -79,8 +103,13 @@ public class EntityPropertySearchResultLocation implements ISearchDomainResultLo
     @Override
     public String toString()
     {
-        return renderEntityKind() + " perm id: " + permId + ", property type: " + propertyType 
-                + ", position: " + position;
+        return renderEntityKind() + " type: " + entityType + ", perm id: " + permId + ", code: " + code 
+                + ", property type: " + propertyType + ", " + appendToString();
+    }
+    
+    protected String appendToString()
+    {
+        return "position: " + position;
     }
     
     protected String renderEntityKind()

@@ -142,22 +142,22 @@ public class SearchDomainSearcherTest extends AbstractBOTest
 
         assertEquals("E1", results.get(0).getEntity().getPermId());
         assertEquals("Search Domain: test-db, Score: [Score: 11.5, bit score: 5.75, evalue: 12.5], Result location: "
-                + "[Experiment perm id: E1, property type: S, alignment in sequence: [42-45], "
+                + "[Experiment type: UNKNOWN-E, perm id: E1, code: CODE-E1, property type: S, alignment in sequence: [42-45], "
                 + "alignment in query: [7-10], number of mismatches: 0, total number of gaps: 0]", 
                 results.get(0).getSearchResult().toString());
         assertEquals("S2", results.get(1).getEntity().getPermId());
         assertEquals("Search Domain: test-db, Score: [Score: 10.5, bit score: 5.25, evalue: 11.5], Result location: "
-                + "[Sample perm id: S2, property type: OLIGO, alignment in sequence: [42-45], "
+                + "[Sample type: TYPE, perm id: S2, code: CODE-S2, property type: OLIGO, alignment in sequence: [42-45], "
                 + "alignment in query: [7-10], number of mismatches: 0, total number of gaps: 0]", 
                 results.get(1).getSearchResult().toString());
         assertEquals("S1", results.get(2).getEntity().getPermId());
         assertEquals("Search Domain: test-db, Score: [Score: 9.5, bit score: 4.75, evalue: 10.5], Result location: "
-                + "[Sample perm id: S1, property type: OLIGO, alignment in sequence: [42-45], "
+                + "[Sample type: TYPE, perm id: S1, code: CODE-S1, property type: OLIGO, alignment in sequence: [42-45], "
                 + "alignment in query: [7-10], number of mismatches: 0, total number of gaps: 0]", 
                 results.get(2).getSearchResult().toString());
         assertEquals("DS1", results.get(3).getEntity().getPermId());
         assertEquals("Search Domain: test-db, Score: [Score: 0.5, bit score: 0.25, evalue: 1.5], Result location: "
-                + "[Data set perm id: DS1, property type: SEQ, alignment in sequence: [42-45], "
+                + "[Data set type: UNKNOWN, perm id: DS1, code: DS1, property type: SEQ, alignment in sequence: [42-45], "
                 + "alignment in query: [7-10], number of mismatches: 0, total number of gaps: 0]", 
                 results.get(3).getSearchResult().toString());
         assertEquals(4, results.size());
@@ -178,21 +178,24 @@ public class SearchDomainSearcherTest extends AbstractBOTest
                 createSearcher().searchForEntitiesWithSequences(SEQUENCE_DATABASE, SEQUENCE_SNIPPET, OPTIONAL_PARAMETERS);
 
         assertEquals("Search Domain: test-db, Score: [Score: 14.5, bit score: 7.25, evalue: 15.5], "
-                + "Result location: [Data set: ds3, path: ds3/path, identifier: [id-ds3], position: 42]",
+                + "Result location: [Data set type: UNKNOWN, code: ds3, path: ds3/path, identifier: [id-ds3], position: 42]",
                 results.get(0).getSearchResult().toString());
         assertEquals(ds3.getCode(), ((AbstractExternalData) results.get(0).getEntity()).getCode());
         assertEquals("/G1/P1/exp1", ((AbstractExternalData) results.get(0).getEntity()).getExperiment().getIdentifier());
-        assertEquals("Search Domain: test-db, Score: [Score: 13.5, bit score: 6.75, evalue: 14.5], Result location: [Data set: ds3, path: ds3/path, "
+        assertEquals("Search Domain: test-db, Score: [Score: 13.5, bit score: 6.75, evalue: 14.5], "
+                + "Result location: [Data set type: UNKNOWN, code: ds3, path: ds3/path, "
                 + "identifier: [id-ds3], position: 42]",
                 results.get(1).getSearchResult().toString());
         assertEquals(ds3.getCode(), ((AbstractExternalData) results.get(1).getEntity()).getCode());
         assertEquals("/G1/P1/exp1", ((AbstractExternalData) results.get(1).getEntity()).getExperiment().getIdentifier());
-        assertEquals("Search Domain: test-db, Score: [Score: 1.5, bit score: 0.75, evalue: 2.5], Result location: [Data set: ds2, path: ds2/path, "
+        assertEquals("Search Domain: test-db, Score: [Score: 1.5, bit score: 0.75, evalue: 2.5], "
+                + "Result location: [Data set type: UNKNOWN, code: ds2, path: ds2/path, "
                 + "identifier: [id-ds2], position: 42]",
                 results.get(2).getSearchResult().toString());
         assertEquals(ds2.getCode(), ((AbstractExternalData) results.get(2).getEntity()).getCode());
         assertEquals("/G1/P1/exp1", ((AbstractExternalData) results.get(2).getEntity()).getExperiment().getIdentifier());
-        assertEquals("Search Domain: test-db, Score: [Score: 0.5, bit score: 0.25, evalue: 1.5], Result location: [Data set: ds1, path: ds1/path, "
+        assertEquals("Search Domain: test-db, Score: [Score: 0.5, bit score: 0.25, evalue: 1.5], "
+                + "Result location: [Data set type: UNKNOWN, code: ds1, path: ds1/path, "
                 + "identifier: [id-ds1], position: 42]",
                 results.get(3).getSearchResult().toString());
         assertEquals(ds1.getCode(), ((AbstractExternalData) results.get(3).getEntity()).getCode());
@@ -344,6 +347,7 @@ public class SearchDomainSearcherTest extends AbstractBOTest
         experiment.setProject(project);
         data.setExperiment(experiment);
         DataSetTypePE type = new DataSetTypePE();
+        type.setCode("UNKNOWN");
         type.setDataSetKind(DataSetKind.PHYSICAL.name());
         data.setDataSetType(type);
         FileFormatTypePE fileFormatType = new FileFormatTypePE();
@@ -355,6 +359,7 @@ public class SearchDomainSearcherTest extends AbstractBOTest
     private SamplePE createSample(String permID)
     {
         SamplePE sample = new SamplePE();
+        sample.setCode("CODE-" + permID);
         sample.setPermId(permID);
         SampleTypePE sampleType = new SampleTypePE();
         sampleType.setCode("TYPE");
@@ -372,7 +377,10 @@ public class SearchDomainSearcherTest extends AbstractBOTest
     {
         ExperimentPE experiment = new ExperimentPE();
         experiment.setPermId(permID);
-        experiment.setExperimentType(new ExperimentTypePE());
+        experiment.setCode("CODE-" + permID);
+        ExperimentTypePE experimentType = new ExperimentTypePE();
+        experimentType.setCode("UNKNOWN-E");
+        experiment.setExperimentType(experimentType);
         ProjectPE project = new ProjectPE();
         project.setSpace(new SpacePE());
         experiment.setProject(project);

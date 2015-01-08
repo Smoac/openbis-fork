@@ -44,9 +44,8 @@ public class EntityPropertyBlastSearchResultLocation extends EntityPropertySearc
     }
 
     @Override
-    public String toString()
+    protected String appendToString()
     {
-        return  renderEntityKind() + " perm id: " + getPermId() + ", property type: " + getPropertyType() 
-                + ", " + alignmentMatch;
+        return alignmentMatch.toString();
     }
 }
