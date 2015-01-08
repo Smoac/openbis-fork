@@ -320,6 +320,29 @@ stjs.extend=function(_constructor, _super, _implements, _initializer, _typeDescr
 	if(_super == null && !_constructor.prototype.equals){
 		_constructor.prototype.equals = JavalikeEquals;
 	}
+	
+	_constructor.prototype.toJSON = function() {
+		function flatten(x) {
+			if (_.isArray(x)) {
+				return _.map(x, function(el) { return flatten(el) });
+			} else if (_.isObject(x)) {
+				var result = Object.create(null);
+
+			    for(var i in x) {
+			    	if (!_.isFunction(x[i])) {
+			    		result[i] = flatten(x[i]);
+			    	}
+			    }
+			    return result;
+			}
+			
+			return x;
+		}
+		
+		var r = flatten(this);
+		var res = JSON.stringify(r);
+		return r;
+	}
 
 	// build package and assign
 	return	_constructor;

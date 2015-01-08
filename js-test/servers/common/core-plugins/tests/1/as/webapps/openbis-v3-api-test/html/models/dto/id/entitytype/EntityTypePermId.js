@@ -3,7 +3,7 @@
  *  
  *  @author pkupczyk
  */
-define(["dto/id/ObjectIdentifier", "dto/id/entitytype/IEntityTypeId"], function (ObjectPermId, IEntityTypeId) {
+define(["dto/id/ObjectPermId", "dto/id/entitytype/IEntityTypeId"], function (ObjectPermId, IEntityTypeId) {
     var EntityTypePermId = /**
      *  @param permId Entity type perm id, e.g. "MY_ENTITY_TYPE".
      */

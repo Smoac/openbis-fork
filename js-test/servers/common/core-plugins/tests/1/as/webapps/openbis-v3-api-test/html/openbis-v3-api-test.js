@@ -378,7 +378,7 @@ define(['jquery', 'openbis-v3-api'], function($, openbis){
 			});
 		});
 		
-		test("updateSamples()", function() {
+		asyncTest("updateSamples()", function() {
 			createFacadeAndLogin(function(facade) {
 				var code = "UPDATE_JSON_SAMPLE_" + (new Date().getTime());
 				var creations = [ {

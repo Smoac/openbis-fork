@@ -9,7 +9,13 @@ define([
         'dto/fetchoptions/tag/TagFetchOptions',
         'dto/fetchoptions/person/PersonFetchOptions',
         'dto/fetchoptions/attachment/AttachmentFetchOptions',
-        ], function (ExperimentTypeFetchOptions, ProjectFetchOptions, PropertyFetchOptions, TagFetchOptions, PersonFetchOptions, AttachmentFetchOptions) {
+        ], function (ExperimentTypeFetchOptions, 
+        			ProjectFetchOptions, 
+        			PropertyFetchOptions, 
+        			ProjectFetchOptions,
+        			TagFetchOptions, 
+        			PersonFetchOptions, 
+        			AttachmentFetchOptions) {
     var ExperimentFetchOptions = function() {};
     stjs.extend(ExperimentFetchOptions, null, [], function(constructor, prototype) {
         prototype['@type'] = 'ExperimentFetchOptions';

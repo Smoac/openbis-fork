@@ -3,7 +3,7 @@
  *  
  *  @author pkupczyk
  */
-define(["dto/id/ObjectPermId", "dto/id/project/IProjectId"], function (ObjectIdentifier, IProjectId) {
+define(["dto/id/ObjectIdentifier", "dto/id/project/IProjectId"], function (ObjectIdentifier, IProjectId) {
     var ProjectIdentifier = /**
      *  @param identifier Project identifier, e.g. "/MY_SPACE/MY_PROJECT".
      */
