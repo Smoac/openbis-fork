@@ -1,6 +1,5 @@
 import filecmp
 import inspect
-import os
 import os.path
 import re
 import sys
@@ -262,13 +261,13 @@ class LogMonitor():
         """
         self.conditions.append(condition)
         
-    def waitUntilEvent(self, condition):
+    def waitUntilEvent(self, condition, startTime = None):
         """
         Waits until an event matches the specified condition. 
         Returns tuple with zero or more elements of matching log message.
         """
+        startTime = self.timeProvider.time() if startTime is None else startTime
         self.conditions.append(condition)
-        startTime = self.timeProvider.time()
         renderedStartTime = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(startTime))
         self.printer.printMsg("\n>>>>> Start monitoring %s log at %s >>>>>>>>>>>>>>>>>>>>" 
                               % (self.logName, renderedStartTime))
@@ -303,7 +302,7 @@ class LogMonitor():
                     if elements != None:
                         return elements
                 log.seek(0, os.SEEK_CUR)
-                time.sleep(5)
+                time.sleep(2)
         finally:
             self.printer.printMsg(">>>>> Finished monitoring %s log >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>" 
                                   % self.logName)
