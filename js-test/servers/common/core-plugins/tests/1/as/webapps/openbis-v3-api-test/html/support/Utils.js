@@ -1,13 +1,7 @@
 /**
  * Library
  */
-//var STJS = function() {};
-//STJS.prototype.extend = function(classToExtend, parentClassToInherit, interfaces, functionToReplay, metadata) {
-//	if(functionToReplay !== null) {
-//		functionToReplay(classToExtend.prototype, classToExtend.prototype);
-//	}
-//};
-
+var reg = require("support/type_registry");
 var STJSUtil = function() {}
 
 STJSUtil.prototype.executeFunctionByName = function(functionName, context /*, args */) {
@@ -22,11 +16,14 @@ STJSUtil.prototype.executeFunctionByName = function(functionName, context /*, ar
 
 STJSUtil.prototype.fromJson = function(jsonObject) {
 	//console.log(jsonObject["@type"]);
-	var object = new window[jsonObject["@type"]]();
-	var prototype = object.__proto__ || object.constructor.prototype;
+	
+	console.log("Creating " + jsonObject["@type"]);
+	var prototype = reg.get(jsonObject["@type"]);
+	var object = new prototype;
 	
 	for(var key in jsonObject) {
-		if (prototype[key] === null) {
+		//if (!prototype.hasOwnProperty(key))
+		{
 			var property = jsonObject[key];
 			if(property instanceof Object && property["@type"] !== undefined) {
 				property = this.fromJson(property);
@@ -53,3 +50,16 @@ function IllegalArgumentException(message) {
     this.message = (message || "");
 }
 IllegalArgumentException.prototype = Error.prototype;
+
+function NotFetchedException(message) {
+    this.name = "NotFetchedException";
+    this.message = (message || "");
+}
+NotFetchedException.prototype = Error.prototype;
+
+
+
+var HashMap = function() {}
+HashMap.prototype.put = function(key, val) {
+	this[key] = val;
+};

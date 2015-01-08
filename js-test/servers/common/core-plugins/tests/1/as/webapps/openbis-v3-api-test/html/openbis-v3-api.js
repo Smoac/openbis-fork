@@ -1,4 +1,4 @@
-var openbis = function() {
+define(['jquery', 'support/stjs', 'support/Utils'], function($) {
 
 	var _private = {
 
@@ -83,13 +83,15 @@ var openbis = function() {
 					"params" : [ _private.sessionToken, experimentIds, experimentFetchOptions ]
 				},
 				success : function(experiments) {
-					var experimentDTOs = {};
-					for(var experimentPermId  in experiments) {
-						var experimentJson = experiments[experimentPermId];
-						var newExperiment = stjsUtil.fromJson(experimentJson);
-						experimentDTOs[newExperiment.getPermId().getPermId()] = newExperiment;
-					}
-					onSuccess(experimentDTOs);
+					require(['dto/entity/experiment/Experiment'], function() {
+						var experimentDTOs = {};
+						for(var experimentPermId  in experiments) {
+							var experimentJson = experiments[experimentPermId];
+							var newExperiment = stjsUtil.fromJson(experimentJson);
+							experimentDTOs[newExperiment.getPermId().getPermId()] = newExperiment;
+						}
+						onSuccess(experimentDTOs);
+					});
 				},
 				error : onError
 			});
@@ -181,4 +183,4 @@ var openbis = function() {
 
 	}
 
-}();
+});
