@@ -266,7 +266,7 @@ class LogMonitor():
         Waits until an event matches the specified condition. 
         Returns tuple with zero or more elements of matching log message.
         """
-        startTime = self.timeProvider.time() if startTime is None else startTime
+        startTime = round(self.timeProvider.time() if startTime is None else startTime)
         self.conditions.append(condition)
         renderedStartTime = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(startTime))
         self.printer.printMsg("\n>>>>> Start monitoring %s log at %s >>>>>>>>>>>>>>>>>>>>" 

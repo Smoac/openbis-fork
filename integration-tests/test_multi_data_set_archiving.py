@@ -34,7 +34,7 @@ class TestCase(systemtest.testcase.TestCase):
         self.installOpenbis()
         openbisController = self.createOpenbisController(databasesToDrop=['openbis', 'pathinfo', DATASET_MAPPING_DB])
         openbisController.dssProperties['data-set-command-queue-mapping'] = \
-                'archiving:Archiving|Copying data sets to archive, unarchiving:Unarchiving, archiving-finalizer:Archiving Finalizer'
+                'archiving:Archiving|Copying data sets to archive|Archiving Finalizer, unarchiving:Unarchiving'
         os.makedirs("%s/data/archive/tmp" % openbisController.installPath)
         os.makedirs("%s/data/archive/stage" % openbisController.installPath)
         os.makedirs("%s/data/archive/final" % openbisController.installPath)
@@ -216,24 +216,28 @@ class TestCase(systemtest.testcase.TestCase):
         monitor.waitUntilEvent(util.RegexCondition("OPERATION.AutoArchiverTask - nothing to archive"))
         
     def waitForArchiving(self, openbisController, data_set_codes):
+        util.printAndFlush("Waiting for finish first archiving step")
+        monitor = self._createArchivingMonitor(openbisController)
+        monitor.waitUntilEvent(util.RegexCondition("Finished executing 'Archiving'"))
+        
+        monitoringStartTime = time.time()
+        self.checkStatusAndDatabase(openbisController, data_set_codes, 'ARCHIVE_PENDING', 'f', '1')
+        
         util.printAndFlush("Waiting for replication of archive failed")
         monitor = self._createArchivingMonitor(openbisController)
-        archiveInFinal, = monitor.waitUntilEvent(util.RegexCondition("Schedule for deletion: (.*)"))
-        util.printAndFlush("Failed to replicate: %s" % archiveInFinal)
-        
-        self.checkStatusAndDatabase(openbisController, data_set_codes, 'ARCHIVE_PENDING', 'f', '1')
+        monitor.waitUntilEvent(util.RegexCondition("Schedule for deletion: (.*)"), startTime = monitoringStartTime)
         
         util.printAndFlush("Waiting for replication of archive started to wait")
         monitor = self._createArchivingMonitor(openbisController)
         archiveInFinal, = monitor.waitUntilEvent(util.RegexCondition("Waiting for replication of archive '(.*)'"))
         
+        monitoringStartTime = time.time()
         util.printAndFlush("Archive file: %s" % archiveInFinal)
-        copyTime = time.time()
         shutil.copy(archiveInFinal, "%s/data/archive/backup" % openbisController.installPath)
         
         util.printAndFlush("Waiting for archiving finished")
         monitor = self._createArchivingMonitor(openbisController)
-        monitor.waitUntilEvent(util.RegexCondition("Finished executing 'Archiving Finalizer'"), startTime = copyTime)
+        monitor.waitUntilEvent(util.RegexCondition("Finished executing 'Archiving Finalizer'"), startTime = monitoringStartTime)
         
     def _createArchivingMonitor(self, openbisController):
         monitor = openbisController.createLogMonior()
