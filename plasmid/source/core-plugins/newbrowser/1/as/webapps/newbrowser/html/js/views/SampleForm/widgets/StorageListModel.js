@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-function StorageListModel(sample, isEnabled) {
+function StorageListModel(sample, isDisabled) {
 	this.sample = sample;
-	this.isEnabled = isEnabled;
+	this.isDisabled = isDisabled;
 }

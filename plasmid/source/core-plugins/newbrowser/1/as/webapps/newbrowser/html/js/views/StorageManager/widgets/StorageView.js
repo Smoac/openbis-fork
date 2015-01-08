@@ -32,7 +32,7 @@ function StorageView(storageController, storageModel, gridView) {
 		// Paint View
 		//
 		var _this = this;
-		$container.empty();
+		//$container.empty(); To allow display into a pop-up
 		if( this._storageModel.config.title) { //It can be null
 			$container.append("<h2>" + this._storageModel.config.title + "</h2>");
 		}

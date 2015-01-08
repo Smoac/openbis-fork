@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-function StorageListController(sample, isEnabled) {
-	this._storageListModel = new StorageListModel(sample, isEnabled);
+function StorageListController(sample, isDisabled) {
+	this._storageListModel = new StorageListModel(sample, isDisabled);
 	this._storageListView = new StorageListView(this, this._storageListModel);
 	
 	this.init = function($container) {
