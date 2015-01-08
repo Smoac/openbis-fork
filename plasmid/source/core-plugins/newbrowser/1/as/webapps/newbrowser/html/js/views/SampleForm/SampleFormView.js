@@ -318,6 +318,15 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		}
 		
 		//
+		// Storage
+		//
+		var storageListContainer = $("<div>", { 'id' : 'sample-form-storage-list' });
+		$formColumn.append($("<legend>").append("Storage"));
+		$formColumn.append(storageListContainer);
+		var storageListController = new StorageListController(this._sampleFormModel.sample, this._sampleFormModel.mode === FormMode.VIEW);
+		storageListController.init(storageListContainer);
+		
+		//
 		// Extra Content
 		//
 		$formColumn.append($("<div>", { 'id' : 'sample-form-content-extra' }));
