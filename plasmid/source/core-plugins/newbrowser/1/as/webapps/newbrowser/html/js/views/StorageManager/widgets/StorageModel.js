@@ -43,6 +43,16 @@ function StorageModel(configOverride) {
 	this.boxName = null; //Selected Box
 	this.boxContents = null; //Selected Box contents (samples)
 	
+	this.cleanSample = function() {
+		if(this.sample) {
+			this.sample.properties[this.storagePropertyGroup.rowProperty] = null;
+			this.sample.properties[this.storagePropertyGroup.columnProperty] = null;
+			this.sample.properties[this.storagePropertyGroup.boxProperty] = null;
+			this.sample.properties[this.storagePropertyGroup.positionProperty] = null;
+			this.sample.properties[this.storagePropertyGroup.userProperty] = mainController.serverFacade.openbisServer.getSession().split("-")[0];
+		}
+	}
+	
 	this.resetBoxInfo = function(row, column, boxName, boxContents) {
 		this.row = row; //Selected Row
 		this.column = column; //Selected Column

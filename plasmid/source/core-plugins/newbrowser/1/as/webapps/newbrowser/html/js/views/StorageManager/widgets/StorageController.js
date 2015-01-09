@@ -35,6 +35,7 @@ function StorageController(configOverride) {
 			// Delete old state in model and view and set new sate in model and view
 			_this._storageModel.resetBoxInfo(posX, posY, label, null);
 			_this._storageView.showBoxName();
+			_this._storageView.showPosField();
 			
 			if(_this._storageModel.config.contentsSelector === "on") {
 				var labelData = _this._gridController.getModel().getLabelDataByLabelName(posX, posY, label);

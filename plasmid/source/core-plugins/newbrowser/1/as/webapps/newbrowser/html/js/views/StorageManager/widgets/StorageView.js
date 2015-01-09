@@ -62,6 +62,7 @@ function StorageView(storageController, storageModel, gridView) {
 					_this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.nameProperty] = $(this).val();
 				}
 				_this._storageController.setSelectStorage($(this).val());
+				_this._storageModel.cleanSample();
 			});
 		}
 		
