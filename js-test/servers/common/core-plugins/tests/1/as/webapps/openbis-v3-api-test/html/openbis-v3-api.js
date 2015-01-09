@@ -1,4 +1,4 @@
-define(['jquery', 'support/stjs', 'support/Utils'], function($) {
+define(['jquery'], function($) {
 
 	var _private = {
 
