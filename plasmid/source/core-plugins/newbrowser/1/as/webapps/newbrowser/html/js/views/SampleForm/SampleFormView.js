@@ -334,6 +334,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		//
 		if(this._sampleFormModel.mode !== FormMode.VIEW) {
 			var $updateBtn = $("<input>", { "type": "submit", "class" : "btn btn-primary", 'value' : title });
+			$formColumn.append($("<br>"));
 			$formColumn.append($updateBtn);
 		}
 		
