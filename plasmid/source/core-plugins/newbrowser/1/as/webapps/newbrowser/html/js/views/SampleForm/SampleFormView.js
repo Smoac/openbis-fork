@@ -220,6 +220,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		//
 		// PROPERTIES
 		//
+		var isStorageAvailable = false;
 		for(var i = 0; i < sampleType.propertyTypeGroups.length; i++) {
 			var propertyTypeGroup = sampleType.propertyTypeGroups[i];
 			
@@ -237,13 +238,8 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 			
 			var storagePropertyGroup = profile.getPropertyGroupFromStorage(propertyTypeGroup.name);
 			if(storagePropertyGroup) {
-				var storageContainer = $("<div>");
-				$fieldset.append(storageContainer);
-				$formColumn.append($fieldset);
-				this._sampleFormController.addStorageController(storagePropertyGroup["STORAGE_GROUP_DISPLAY_NAME"]);
-				var isDisabled =  this._sampleFormModel.mode === FormMode.VIEW;
-				this._sampleFormController.getLastStorageController().bindSample(this._sampleFormModel.sample, isDisabled);
-				this._sampleFormController.getLastStorageController().getView().repaint(storageContainer);
+				isStorageAvailable = true;
+				$legend.remove();
 				continue;
 			}
 			
@@ -320,11 +316,13 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		//
 		// Storage
 		//
-		var storageListContainer = $("<div>", { 'id' : 'sample-form-storage-list' });
-		$formColumn.append($("<legend>").append("Storage"));
-		$formColumn.append(storageListContainer);
-		var storageListController = new StorageListController(this._sampleFormModel.sample, this._sampleFormModel.mode === FormMode.VIEW);
-		storageListController.init(storageListContainer);
+		if(isStorageAvailable) {
+			var storageListContainer = $("<div>", { 'id' : 'sample-form-storage-list' });
+			$formColumn.append($("<legend>").append("Storage"));
+			$formColumn.append(storageListContainer);
+			var storageListController = new StorageListController(this._sampleFormModel.sample, this._sampleFormModel.mode === FormMode.VIEW);
+			storageListController.init(storageListContainer);
+		}
 		
 		//
 		// Extra Content
