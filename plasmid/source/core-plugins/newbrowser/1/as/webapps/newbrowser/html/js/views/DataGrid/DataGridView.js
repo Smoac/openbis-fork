@@ -19,13 +19,9 @@ function DataGridView(dataGridController, dataGridModel) {
 	
 	this.repaint = function($container) {
 		$container.empty();
-		var grid = new Grid(this._dataGridModel.columns, this._dataGridModel.data);
-		grid.addRowClickListener(this._dataGridModel.rowClickEventHandler);
-		
 		if(this._dataGridModel.title) {
 			$container.append($("<h1>").append(this._dataGridModel.title));
 		}
-		
-		$container.append(grid.render());
+		$container.append(this._dataGridModel.datagrid);
 	}
 }

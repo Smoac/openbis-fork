@@ -16,6 +16,7 @@
 function StorageListView(storageListController, storageListModel) {
 	this._storageListController = storageListController;
 	this._storageListModel = storageListModel;
+	this._dataGrid = null; //TO-DO This is a controller, should not be here
 	
 	this.repaint = function($container) {
 		var _this = this;
@@ -86,11 +87,12 @@ function StorageListView(storageListController, storageListModel) {
 			}
 		}
 		
-		var dataGrid = new DataGridController(null, columns, getDataList, rowClick);
-		dataGrid.init($container);
+		this._dataGrid = new DataGridController(null, columns, getDataList, rowClick);
+		this._dataGrid.init($container);
 	}
 	
 	this.showStorageWidget = function(e) {
+		var _this = this;
 		var css = {
 				'text-align' : 'left',
 				'top' : '15%',
@@ -102,9 +104,7 @@ function StorageListView(storageListController, storageListModel) {
 		
 		var container = "<div class='col-md-12 form-horizontal' id='storage-pop-up-container'></div><br><a class='btn btn-default' id='storage-close'>Close</a>"
 		Util.blockUI(container, css);
-		$("#storage-close").on("click", function(event) { 
-			Util.unblockUI();
-		});
+		
 		
 		var storageController = new StorageController({
 			title : e.data.groupDisplayName,
@@ -119,5 +119,10 @@ function StorageListView(storageListController, storageListModel) {
 		storageController.getModel().storagePropertyGroup = profile.getStoragePropertyGroup(e.data.groupDisplayName);
 		storageController.bindSample(this._storageListModel.sample, this._storageListModel.isDisabled);
 		storageController.getView().repaint($("#storage-pop-up-container"));
+		
+		$("#storage-close").on("click", function(event) {
+			Util.unblockUI();
+			_this._dataGrid.refresh();
+		});
 	}
 }
