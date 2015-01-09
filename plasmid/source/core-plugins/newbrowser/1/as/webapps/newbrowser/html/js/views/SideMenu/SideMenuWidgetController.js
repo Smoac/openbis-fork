@@ -137,7 +137,7 @@ function SideMenuWidgetController(mainController) {
         var _this = this;
 
         this._sideMenuWidgetModel.menuStructure.newMenuIfSelected.children.push(
-                new SideMenuWidgetComponent(false, true, "Lab Notebook", "Lab Notebook", this._sideMenuWidgetModel.menuStructure, null, null, null, "")
+                new SideMenuWidgetComponent(false, true, "LAB NOTEBOOK", "LAB NOTEBOOK", this._sideMenuWidgetModel.menuStructure, null, null, null, "")
                 );
 
         mainController.serverFacade.listSpacesWithProjectsAndRoleAssignments(null, function(dataWithSpacesAndProjects) {
@@ -228,7 +228,7 @@ function SideMenuWidgetController(mainController) {
                     
                     //Fill Inventory
                     _this._sideMenuWidgetModel.menuStructure.newMenuIfSelected.children.push(
-                            new SideMenuWidgetComponent(false, true, "Inventory", "Inventory", _this._sideMenuWidgetModel.menuStructure, null, null, null, "")
+                            new SideMenuWidgetComponent(false, true, "INVENTORY", "INVENTORY", _this._sideMenuWidgetModel.menuStructure, null, null, null, "")
                             );
 
                     //Fill Spaces
@@ -261,6 +261,7 @@ function SideMenuWidgetController(mainController) {
                             var menuItemProject = new SideMenuWidgetComponent(true, false, project.code, projectIdentifier, menuItemSpace, newMenuIfSelectedProject, "showProjectPageFromPermId", project.permId, "(Project)");
                             newMenuIfSelectedSpace.children.push(menuItemProject);
                         }
+                        newMenuIfSelectedSpace.children.sort(naturalSortSideMenuWidgetComponent); //Sort Projects
                     }
 
                     mainController.serverFacade.listExperiments(projectsToAskForExperiments, function(experiments) {
@@ -289,32 +290,33 @@ function SideMenuWidgetController(mainController) {
                                 var menuItemExperiment = new SideMenuWidgetComponent(true, false, displayName, experiment.identifier, projectNode, newMenuIfSelectedExperiment, "showSamplesPage", experiment.identifier, "");
                                 projectNode.newMenuIfSelected.children.push(menuItemExperiment);
                             }
+                            projectNode.newMenuIfSelected.children.sort(naturalSortSideMenuWidgetComponent); //Sort Experiments
                         }
 
 
                         //Fill Utils
                         _this._sideMenuWidgetModel.menuStructure.newMenuIfSelected.children.push(
-                                new SideMenuWidgetComponent(false, true, "Utilities", "Utilities", _this._sideMenuWidgetModel.menuStructure, null, null, null, "")
+                                new SideMenuWidgetComponent(false, true, "UTILITIES", "UTILITIES", _this._sideMenuWidgetModel.menuStructure, null, null, null, "")
                                 );
                         _this._sideMenuWidgetModel.menuStructure.newMenuIfSelected.children.push(
-                                new SideMenuWidgetComponent(true, false, "Sample Browser", "Sample Browser", _this._sideMenuWidgetModel.menuStructure, null, "showSamplesPage", null, "")
+                                new SideMenuWidgetComponent(true, false, "SAMPLE BROWSER", "SAMPLE BROWSER", _this._sideMenuWidgetModel.menuStructure, null, "showSamplesPage", null, "")
                                 );
                         if (profile.storagesConfiguration["isEnabled"]) {
                             _this._sideMenuWidgetModel.menuStructure.newMenuIfSelected.children.push(
-                                    new SideMenuWidgetComponent(true, false, "Storage Manager", "Storage Manager", _this._sideMenuWidgetModel.menuStructure, null, "showStorageManager", null, "")
+                                    new SideMenuWidgetComponent(true, false, "STORAGE MANAGER", "STORAGE MANAGER", _this._sideMenuWidgetModel.menuStructure, null, "showStorageManager", null, "")
                                     );
                         }
                         _this._sideMenuWidgetModel.menuStructure.newMenuIfSelected.children.push(
-                                new SideMenuWidgetComponent(true, false, "Trashcan", "Trashcan", _this._sideMenuWidgetModel.menuStructure, null, "showTrashcanPage", null, "")
+                                new SideMenuWidgetComponent(true, false, "TRASHCAN", "TRASHCAN", _this._sideMenuWidgetModel.menuStructure, null, "showTrashcanPage", null, "")
                                 );
                         _this._sideMenuWidgetModel.menuStructure.newMenuIfSelected.children.push(
-                                new SideMenuWidgetComponent(true, false, "Vocabulary Viewer", "Vocabulary Viewer", _this._sideMenuWidgetModel.menuStructure, null, "showVocabularyManagerPage", null, "")
+                                new SideMenuWidgetComponent(true, false, "VOCABULARY VIEWER", "VOCABULARY VIEWER", _this._sideMenuWidgetModel.menuStructure, null, "showVocabularyManagerPage", null, "")
                                 );
                         
                         mainController.serverFacade.listPersons(function(data) {
                 			if(data.result && data.result.length > 0) {
                 				_this._sideMenuWidgetModel.menuStructure.newMenuIfSelected.children.push(
-                                        new SideMenuWidgetComponent(true, false, "User Manager", "User Manager", _this._sideMenuWidgetModel.menuStructure, null, "showUserManagerPage", null, "")
+                                        new SideMenuWidgetComponent(true, false, "USER MANAGER", "USER MANAGER", _this._sideMenuWidgetModel.menuStructure, null, "showUserManagerPage", null, "")
                                 );
                 			}
                 			_this._sideMenuWidgetView.repaintFirst($container);
@@ -405,7 +407,7 @@ function SideMenuWidgetController(mainController) {
 function SideMenuWidgetComponent(isSelectable, isTitle, displayName, uniqueId, parent, newMenuIfSelected, newViewIfSelected, newViewIfSelectedData, contextTitle) {
     this.isSelectable = isSelectable;
     this.isTitle = isTitle;
-    this.displayName = displayName;
+    this.displayName = displayName; //(displayName.charAt(0) + displayName.slice(1).toLowerCase()).replace(/_/g, ' ');
     this.uniqueId = uniqueId;
     this.contextTitle = contextTitle;
     this.parent = parent;
