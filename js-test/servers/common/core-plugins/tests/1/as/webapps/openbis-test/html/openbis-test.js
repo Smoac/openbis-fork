@@ -889,7 +889,6 @@ test("searchOnSearchDomain()", function() {
 	createFacadeAndLogin(function(facade) {
 
 		var preferredSearchDomainOrNull = "echo-database";
-		var sequenceSnippet = "SEQ-2";
 		var optionalParametersOrNull = {
 			"SEQ-1" : JSON.stringify({
 				"searchDomain" : "Echo database",
@@ -907,11 +906,12 @@ test("searchOnSearchDomain()", function() {
 			})
 		}
 		
-		facade.searchOnSearchDomain(preferredSearchDomainOrNull, sequenceSnippet, optionalParametersOrNull, function(response) {
+		facade.searchOnSearchDomain(preferredSearchDomainOrNull, "SEQ-2", optionalParametersOrNull, function(response) {
 			assertObjectsCount(response.result, 2);
 			assertObjectsWithValues(response.result, 'searchDomain.name', [ "echo-database" ]);
 			assertObjectsWithValues(response.result, 'searchDomain.label', [ "Echo database" ]);
 			assertObjectsWithValues(response.result, 'resultLocation.dataSetCode', [ "20130415093804724-403" ]);
+			assertObjectsWithValues(response.result, 'resultLocation.dataSetType', [ "UNKNOWN" ]);
 			assertObjectsWithValues(response.result, 'resultLocation.pathInDataSet', [ "PATH-2" ]);
 			assertObjectsWithValues(response.result, 'resultLocation.identifier', [ "ID-2" ]);
 			assertObjectsWithValues(response.result, 'resultLocation.position', [ "2" ]);
