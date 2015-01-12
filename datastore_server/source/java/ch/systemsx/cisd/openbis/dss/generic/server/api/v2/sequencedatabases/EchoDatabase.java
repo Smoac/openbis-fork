@@ -26,6 +26,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetFileSearchResultLocation;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.EntityPropertySearchResultLocation;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ISearchDomainResultLocation;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchDomain;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchDomainSearchResult;
 
@@ -57,7 +60,7 @@ public class EchoDatabase extends AbstractSearchDomainService
             {
                 ObjectMapper mapper = new ObjectMapper();
                 HelperBean bean = mapper.readValue(resultStr, HelperBean.class);
-                DataSetFileSearchResultLocation resultLocation = bean.getResultLoacation();
+                ISearchDomainResultLocation resultLocation = bean.getResultLocation();
                 SearchDomainSearchResult result = new SearchDomainSearchResult();
                 result.setSearchDomain(bean.getSearchDomain());
                 result.setResultLocation(resultLocation);
@@ -75,11 +78,12 @@ public class EchoDatabase extends AbstractSearchDomainService
     public static final class HelperBean
     {
         private SearchDomain searchDomain = new SearchDomain();
-        private DataSetFileSearchResultLocation resultLoacation = new DataSetFileSearchResultLocation();
+        private DataSetFileSearchResultLocation dataSetFileResultLocation;
+        private EntityPropertySearchResultLocation entityPropertyResultLocation;
         
-        public DataSetFileSearchResultLocation getResultLoacation()
+        public ISearchDomainResultLocation getResultLocation()
         {
-            return resultLoacation;
+            return dataSetFileResultLocation == null ? entityPropertyResultLocation : dataSetFileResultLocation;
         }
 
         public SearchDomain getSearchDomain()
@@ -94,22 +98,65 @@ public class EchoDatabase extends AbstractSearchDomainService
         
         public void setDataSetCode(String dataSetCode)
         {
-            resultLoacation.setDataSetCode(dataSetCode);
+            getDataSetFileResultLocation().setDataSetCode(dataSetCode);
         }
         
         public void setPathInDataSet(String path)
         {
-            resultLoacation.setPathInDataSet(path);
+            getDataSetFileResultLocation().setPathInDataSet(path);
         }
         
         public void setSequenceIdentifier(String identifier)
         {
-            resultLoacation.setIdentifier(identifier);
+            getDataSetFileResultLocation().setIdentifier(identifier);
         }
         
         public void setPositionInSequence(int position)
         {
-            resultLoacation.setPosition(position);
+            getDataSetFileResultLocation().setPosition(position);
+        }
+        
+        public void setEntityKind(EntityKind entityKind)
+        {
+            getEntityPropertyResultLocation().setEntityKind(entityKind);
+        }
+        
+        public void setEntityType(String entityType)
+        {
+            getEntityPropertyResultLocation().setEntityType(entityType);
+        }
+        
+        public void setPermId(String permId)
+        {
+            getEntityPropertyResultLocation().setPermId(permId);
+        }
+        
+        public void setCode(String code)
+        {
+            getEntityPropertyResultLocation().setCode(code);
+        }
+        
+        public void setPropertyType(String propertyType)
+        {
+            getEntityPropertyResultLocation().setPropertyType(propertyType);
+        }
+        
+        private DataSetFileSearchResultLocation getDataSetFileResultLocation()
+        {
+            if (dataSetFileResultLocation == null)
+            {
+                dataSetFileResultLocation = new DataSetFileSearchResultLocation();
+            }
+            return dataSetFileResultLocation;
+        }
+        
+        private EntityPropertySearchResultLocation getEntityPropertyResultLocation()
+        {
+            if (entityPropertyResultLocation == null)
+            {
+                entityPropertyResultLocation = new EntityPropertySearchResultLocation();
+            }
+            return entityPropertyResultLocation;
         }
     }
 }
