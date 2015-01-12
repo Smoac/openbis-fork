@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -65,7 +66,8 @@ class MultiDataSetArchiveCleaner implements IMultiDataSetArchiveCleaner
     MultiDataSetArchiveCleaner(Properties properties, ITimeAndWaitingProvider timeProvider, Map<File, FileDeleter> deleters)
     {
         this.deleters = deleters;
-        filePathPrefixesForAsyncDeletion = PropertyUtils.getList(properties, FILE_PATH_PREFIXES_FOR_ASYNC_DELETION_KEY);
+        this.filePathPrefixesForAsyncDeletion = getPathPrefixesForAsyncDeletion(properties);
+
         if (filePathPrefixesForAsyncDeletion.isEmpty())
         {
             return;
@@ -101,7 +103,18 @@ class MultiDataSetArchiveCleaner implements IMultiDataSetArchiveCleaner
             deleter.start();
         }
     }
-    
+
+    private List<String> getPathPrefixesForAsyncDeletion(Properties properties)
+    {
+        List<String> relativeFilePathPrefixesForAsyncDeletion = PropertyUtils.getList(properties, FILE_PATH_PREFIXES_FOR_ASYNC_DELETION_KEY);
+        ArrayList<String> result = new ArrayList<String>();
+        for (String path : relativeFilePathPrefixesForAsyncDeletion)
+        {
+            result.add(new File(path).getAbsolutePath());
+        }
+        return result;
+    }
+
     @Override
     public void delete(File file)
     {
