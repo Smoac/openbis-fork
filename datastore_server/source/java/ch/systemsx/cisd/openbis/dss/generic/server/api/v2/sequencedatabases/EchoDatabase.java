@@ -99,6 +99,7 @@ public class EchoDatabase extends AbstractSearchDomainService
         public void setDataSetCode(String dataSetCode)
         {
             getDataSetFileResultLocation().setCode(dataSetCode);
+            getDataSetFileResultLocation().setPermId(dataSetCode);
         }
         
         public void setPathInDataSet(String path)
