@@ -705,12 +705,24 @@ function MainController(profile) {
 									property : 'kind',
 									sortable : true
 								}, {
-									label : 'Perm ID',
-									property : 'permId',
+									label : 'Code',
+									property : 'code',
 									sortable : true
 								}, {
 									label : 'Score',
 									property : 'score',
+									sortable : true
+								}, {
+									label : 'Found at',
+									property : 'location',
+									sortable : true
+								}, {
+									label : 'Evalue',
+									property : 'evalue',
+									sortable : true
+								}, {
+									label : 'Bit Score',
+									property : 'bitScore',
 									sortable : true
 								}, {
 									label : 'No Mismatches',
@@ -719,10 +731,6 @@ function MainController(profile) {
 								}, {
 									label : 'No Gaps',
 									property : 'totalNumberOfGaps',
-									sortable : true
-								}, {
-									label : 'Found at (Property or Path)',
-									property : 'location',
 									sortable : true
 								}, {
 									label : 'Sequence (Start - End)',
@@ -741,33 +749,25 @@ function MainController(profile) {
 											var result = data.result[i];
 											var resultLocation = result.resultLocation;
 											
-											var permId = null;
-											var kind = null;
-											var score = null;
-											var numberOfMismatchs = null;
-											var totalNumberOfGaps = null;
+											var numberOfMismatches = resultLocation.alignmentMatch.numberOfMismatches;
+											var totalNumberOfGaps = resultLocation.alignmentMatch.totalNumberOfGaps;
+											var sequenceStartEnd = resultLocation.alignmentMatch.sequenceStart + "-" + resultLocation.alignmentMatch.sequenceEnd;
+											var queryStartEnd = resultLocation.alignmentMatch.queryStart + "-" + resultLocation.alignmentMatch.queryEnd;
 											var location = null;
-											var sequenceStartEnd = null;
-											var queryStartEnd = null;
-											if(resultLocation.entityKind) { //Is Sample
-												permId = resultLocation.permId;
-												kind = resultLocation.entityKind;
+											
+											if(resultLocation.propertyType) {
 												location = "Property: " + resultLocation.propertyType;
-											} else { //Is Data Set File
-												permId = resultLocation.dataSetCode;
-												kind = "DATA_SET";
+											} else if(resultLocation.pathInDataSet) {
 												location = "Path: " + resultLocation.pathInDataSet;
 											}
-											score = result.score;
-											numberOfMismatches = resultLocation.alignmentMatch.numberOfMismatches;
-											totalNumberOfGaps = resultLocation.alignmentMatch.totalNumberOfGaps;
-											sequenceStartEnd = resultLocation.alignmentMatch.sequenceStart + "-" + resultLocation.alignmentMatch.sequenceEnd;
-											queryStartEnd = resultLocation.alignmentMatch.queryStart + "-" + resultLocation.alignmentMatch.queryEnd;
 											
 											dataList.push({
-												kind : kind,
-												permId : permId,
-												score : score,
+												kind : resultLocation.entityKind,
+												code : resultLocation.code,
+												permId : resultLocation.permId,
+												score : result.score.score,
+												bitScore : result.score.bitScore,
+												evalue : result.score.evalue,
 												numberOfMismatches : numberOfMismatches,
 												totalNumberOfGaps : totalNumberOfGaps,
 												location : location,
