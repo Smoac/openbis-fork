@@ -203,7 +203,8 @@ public class BlastDatabase extends AbstractSearchDomainService
     {
         DataSetFileBlastSearchResultLocation resultLocation = new DataSetFileBlastSearchResultLocation();
         resultLocation.setIdentifier(matcher.group(1));
-        resultLocation.setDataSetCode(matcher.group(2));
+        resultLocation.setPermId(matcher.group(2));
+        resultLocation.setEntityKind(EntityKind.DATA_SET);
         resultLocation.setPathInDataSet(matcher.group(3));
         resultLocation.setAlignmentMatch(alignmentMatch);
         return resultLocation;

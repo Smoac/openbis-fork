@@ -24,40 +24,14 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
  * @author Franz-Josef Elmer
  */
 @JsonObject("DataSetFileSearchResultLocation")
-public class DataSetFileSearchResultLocation implements ISearchDomainResultLocation
+public class DataSetFileSearchResultLocation extends AbstractEntitySearchResultLocation
 {
     private static final long serialVersionUID = 1L;
-    
-    private String dataSetCode;
-    
-    private String dataSetType;
     
     private String pathInDataSet;
     
     private String identifier;
     
-    private int position;
-
-    public String getDataSetCode()
-    {
-        return dataSetCode;
-    }
-
-    public void setDataSetCode(String dataSet)
-    {
-        this.dataSetCode = dataSet;
-    }
-
-    public String getDataSetType()
-    {
-        return dataSetType;
-    }
-
-    public void setDataSetType(String dataSetType)
-    {
-        this.dataSetType = dataSetType;
-    }
-
     public String getPathInDataSet()
     {
         return pathInDataSet;
@@ -78,26 +52,11 @@ public class DataSetFileSearchResultLocation implements ISearchDomainResultLocat
         this.identifier = sequenceIdentifier;
     }
 
-    public int getPosition()
-    {
-        return position;
-    }
-
-    public void setPosition(int positionInSequence)
-    {
-        this.position = positionInSequence;
-    }
-
     @Override
     public String toString()
     {
-        return "Data set type: " + dataSetType + ", code: " + dataSetCode + ", path: " + pathInDataSet 
+        return "Data set type: " + getEntityType() + ", code: " + getCode() + ", path: " + pathInDataSet 
                 + ", identifier: [" + identifier + "], " + appendToString();
-    }
-
-    protected String appendToString()
-    {
-        return "position: " + position;
     }
 
 }

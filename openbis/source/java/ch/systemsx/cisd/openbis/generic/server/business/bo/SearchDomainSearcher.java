@@ -30,6 +30,7 @@ import ch.systemsx.cisd.common.collection.TableMap;
 import ch.systemsx.cisd.openbis.generic.server.business.IDataStoreServiceFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.AbstractEntitySearchResultLocation;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetFileSearchResultLocation;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.EntityPropertySearchResultLocation;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ISearchDomainResultLocation;
@@ -135,15 +136,11 @@ public class SearchDomainSearcher extends AbstractBusinessObject implements ISea
             searchResultWithEntity.setEntity(entity);
             String code = entity.getCode();
             String type = entity.getEntityType().getCode();
-            if (location instanceof EntityPropertySearchResultLocation)
+            if (location instanceof AbstractEntitySearchResultLocation)
             {
-                EntityPropertySearchResultLocation entityLocation = (EntityPropertySearchResultLocation) location;
+                AbstractEntitySearchResultLocation entityLocation = (AbstractEntitySearchResultLocation) location;
                 entityLocation.setCode(code);
                 entityLocation.setEntityType(type);
-            } else if (location instanceof DataSetFileSearchResultLocation)
-            {
-                DataSetFileSearchResultLocation dataSetLocation = (DataSetFileSearchResultLocation) location;
-                dataSetLocation.setDataSetType(type);
             }
             enrichedResults.add(searchResultWithEntity);
         }
@@ -254,7 +251,7 @@ public class SearchDomainSearcher extends AbstractBusinessObject implements ISea
             loader = EntityLoader.DATA_SET;
             if (resultLocation instanceof DataSetFileSearchResultLocation)
             {
-                permId = ((DataSetFileSearchResultLocation) resultLocation).getDataSetCode();
+                permId = ((DataSetFileSearchResultLocation) resultLocation).getPermId();
             } else if (resultLocation instanceof EntityPropertySearchResultLocation)
             {
                 EntityPropertySearchResultLocation location = (EntityPropertySearchResultLocation) resultLocation;

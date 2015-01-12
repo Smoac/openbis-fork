@@ -24,61 +24,11 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
  * @author Franz-Josef Elmer
  */
 @JsonObject("EntityPropertySearchResultLocation")
-public class EntityPropertySearchResultLocation implements ISearchDomainResultLocation
+public class EntityPropertySearchResultLocation extends AbstractEntitySearchResultLocation
 {
     private static final long serialVersionUID = 1L;
 
-    private EntityKind entityKind;
-    
-    private String entityType;
-    
-    private String code;
-
-    private String permId;
-
     private String propertyType;
-
-    private int position;
-
-    public EntityKind getEntityKind()
-    {
-        return entityKind;
-    }
-
-    public void setEntityKind(EntityKind entityKind)
-    {
-        this.entityKind = entityKind;
-    }
-
-    public String getEntityType()
-    {
-        return entityType;
-    }
-
-    public void setEntityType(String entityType)
-    {
-        this.entityType = entityType;
-    }
-
-    public String getPermId()
-    {
-        return permId;
-    }
-
-    public String getCode()
-    {
-        return code;
-    }
-
-    public void setCode(String code)
-    {
-        this.code = code;
-    }
-
-    public void setPermId(String entityType)
-    {
-        this.permId = entityType;
-    }
 
     public String getPropertyType()
     {
@@ -90,32 +40,10 @@ public class EntityPropertySearchResultLocation implements ISearchDomainResultLo
         this.propertyType = propertyType;
     }
 
-    public int getPosition()
-    {
-        return position;
-    }
-
-    public void setPosition(int position)
-    {
-        this.position = position;
-    }
-
     @Override
     public String toString()
     {
-        return renderEntityKind() + " type: " + entityType + ", perm id: " + permId + ", code: " + code 
-                + ", property type: " + propertyType + ", " + appendToString();
+        return renderEntityKind() + " type: " + getEntityType() + ", perm id: " + getPermId() 
+                + ", code: " + getCode() + ", property type: " + propertyType + ", " + appendToString();
     }
-    
-    protected String appendToString()
-    {
-        return "position: " + position;
-    }
-    
-    protected String renderEntityKind()
-    {
-        String str = entityKind.toString().toLowerCase().replace('_', ' ');
-        return Character.toUpperCase(str.charAt(0)) + str.substring(1);
-    }
-
 }

@@ -248,7 +248,7 @@ public class SearchDomainSearcherTest extends AbstractBOTest
                         result.setSearchDomain(searchDomain);
                         result.setScore(createScore(score++));
                         DataSetFileSearchResultLocation resultLocation = new DataSetFileSearchResultLocation();
-                        resultLocation.setDataSetCode(foundDataSet);
+                        resultLocation.setPermId(foundDataSet);
                         resultLocation.setPathInDataSet(foundDataSet + "/path");
                         resultLocation.setPosition(42);
                         resultLocation.setIdentifier("id-" + foundDataSet);
