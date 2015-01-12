@@ -108,12 +108,16 @@ public class DynamicPropertyEvaluator implements IDynamicPropertyEvaluator
                                 .setParameter("sample", entity);
                 allPropertyTypes = propertyTypeQuery.list();
 
-                propertyQuery =
-                        session.createQuery(
-                                "SELECT property FROM SamplePropertyPE property WHERE " +
-                                        "property.entity = :sample AND property.entityTypePropertyType IN (:types)")
-                                .setParameter("sample", entity).setParameterList("types", allPropertyTypes);
-                existingProperties = propertyQuery.list();
+                if (allPropertyTypes.size() > 0) {
+                    propertyQuery =
+                            session.createQuery(
+                                    "SELECT property FROM SamplePropertyPE property WHERE " +
+                                            "property.entity = :sample AND property.entityTypePropertyType IN (:types)")
+                                    .setParameter("sample", entity).setParameterList("types", allPropertyTypes);
+                    existingProperties = propertyQuery.list();
+                } else {
+                    existingProperties = new ArrayList<EntityPropertyPE>();
+                }
                 break;
             case DATA_SET:
                 propertyTypeQuery =
@@ -122,12 +126,16 @@ public class DynamicPropertyEvaluator implements IDynamicPropertyEvaluator
                                 .setParameter("data", entity);
                 allPropertyTypes = propertyTypeQuery.list();
 
-                propertyQuery =
-                        session.createQuery(
-                                "SELECT property FROM DataSetPropertyPE property WHERE " +
-                                        "property.entity = :data AND property.entityTypePropertyType IN (:types)")
-                                .setParameter("data", entity).setParameterList("types", allPropertyTypes);
-                existingProperties = propertyQuery.list();
+                if (allPropertyTypes.size() > 0) {
+                    propertyQuery =
+                            session.createQuery(
+                                    "SELECT property FROM DataSetPropertyPE property WHERE " +
+                                            "property.entity = :data AND property.entityTypePropertyType IN (:types)")
+                                    .setParameter("data", entity).setParameterList("types", allPropertyTypes);
+                    existingProperties = propertyQuery.list();
+                } else {
+                    existingProperties = new ArrayList<EntityPropertyPE>();
+                }
                 break;
             case EXPERIMENT:
                 propertyTypeQuery =
@@ -136,12 +144,17 @@ public class DynamicPropertyEvaluator implements IDynamicPropertyEvaluator
                                 .setParameter("experiment", entity);
                 allPropertyTypes = propertyTypeQuery.list();
 
-                propertyQuery =
-                        session.createQuery(
-                                "SELECT property FROM ExperimentPropertyPE property WHERE " +
-                                        "property.entity = :experiment AND property.entityTypePropertyType IN (:types)")
-                                .setParameter("experiment", entity).setParameterList("types", allPropertyTypes);
-                existingProperties = propertyQuery.list();
+                if (allPropertyTypes.size() > 0) {
+                    propertyQuery =
+                            session.createQuery(
+                                    "SELECT property FROM ExperimentPropertyPE property WHERE " +
+                                            "property.entity = :experiment AND property.entityTypePropertyType IN (:types)")
+                                    .setParameter("experiment", entity).setParameterList("types", allPropertyTypes);
+                    existingProperties = propertyQuery.list();
+                } else {
+                    existingProperties = new ArrayList<EntityPropertyPE>();
+                }
+                    
                 break;
             case MATERIAL:
                 propertyTypeQuery =
@@ -150,12 +163,16 @@ public class DynamicPropertyEvaluator implements IDynamicPropertyEvaluator
                                 .setParameter("material", entity);
                 allPropertyTypes = propertyTypeQuery.list();
 
-                propertyQuery =
-                        session.createQuery(
-                                "SELECT property FROM MaterialPropertyPE property WHERE " +
-                                        "property.entity = :material AND property.entityTypePropertyType IN (:types)")
-                                .setParameter("material", entity).setParameterList("types", allPropertyTypes);
-                existingProperties = propertyQuery.list();
+                if (allPropertyTypes.size() > 0) {
+                    propertyQuery =
+                            session.createQuery(
+                                    "SELECT property FROM MaterialPropertyPE property WHERE " +
+                                            "property.entity = :material AND property.entityTypePropertyType IN (:types)")
+                                    .setParameter("material", entity).setParameterList("types", allPropertyTypes);
+                    existingProperties = propertyQuery.list();
+                } else {
+                    existingProperties = new ArrayList<EntityPropertyPE>();
+                }
                 break;
             default:
                 throw new IllegalArgumentException(entity.getEntityKind().toString());

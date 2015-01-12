@@ -36,7 +36,7 @@ public class DateTimeUtilsTest extends AssertJUnit
     @Test
     public void testRenderDuration()
     {
-        assertEquals("1sec", DateTimeUtils.renderDuration(42));
+        assertEquals("< 1sec", DateTimeUtils.renderDuration(42));
         assertEquals("1sec", DateTimeUtils.renderDuration(1000));
         assertEquals("42sec", DateTimeUtils.renderDuration(42 * 1000 + 499));
         assertEquals("42sec", DateTimeUtils.renderDuration(42 * 1000 - 499));

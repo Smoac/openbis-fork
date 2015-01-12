@@ -87,7 +87,7 @@ public final class DateTimeUtils
         }
         if (durationInMillisecondsOrNeg < 1000)
         {
-            return render(1, "sec");
+            return "< " + render(1, "sec");
         }
         long durationInSeconds = (durationInMillisecondsOrNeg + 500) / 1000;
         if (durationInSeconds < 100)

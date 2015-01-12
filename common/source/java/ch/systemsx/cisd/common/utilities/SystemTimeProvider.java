@@ -19,16 +19,16 @@ package ch.systemsx.cisd.common.utilities;
 import java.io.Serializable;
 
 /**
- * Implementation of time provider based on {@link System#currentTimeMillis()}.
+ * Implementation of time and waiting provider based on {@link System#currentTimeMillis()} and {@link Thread#sleep(long)}.
  *
  * @author Franz-Josef Elmer
  */
-public class SystemTimeProvider implements ITimeProvider, Serializable
+public class SystemTimeProvider implements ITimeAndWaitingProvider, Serializable
 {
     private static final long serialVersionUID = 1L;
     
     /** The one and only one instance of this class. */
-    public static final ITimeProvider SYSTEM_TIME_PROVIDER = new SystemTimeProvider();
+    public static final ITimeAndWaitingProvider SYSTEM_TIME_PROVIDER = new SystemTimeProvider();
     
     private SystemTimeProvider()
     {
@@ -39,5 +39,16 @@ public class SystemTimeProvider implements ITimeProvider, Serializable
     {
         return System.currentTimeMillis();
     }
-
+    
+    @Override
+    public void sleep(long milliseconds)
+    {
+        try
+        {
+            Thread.sleep(milliseconds);
+        } catch (InterruptedException ex)
+        {
+            // silently ignored
+        }
+    }
 }
