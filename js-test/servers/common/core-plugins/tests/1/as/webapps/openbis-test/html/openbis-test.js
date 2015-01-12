@@ -911,8 +911,9 @@ test("searchOnSearchDomain()", function() {
 			assertObjectsCount(response.result, 2);
 			assertObjectsWithValues(response.result, 'searchDomain.name', [ "echo-database" ]);
 			assertObjectsWithValues(response.result, 'searchDomain.label', [ "Echo database" ]);
-			assertObjectsWithValues(response.result, 'resultLocation.dataSetCode', [ "20130415093804724-403" ]);
-			assertObjectsWithValues(response.result, 'resultLocation.dataSetType', [ "UNKNOWN" ]);
+			assertObjectsWithValues(response.result, 'resultLocation.permId', [ "20130415093804724-403" ]);
+			assertObjectsWithValues(response.result, 'resultLocation.code', [ "20130415093804724-403" ]);
+			assertObjectsWithValues(response.result, 'resultLocation.entityType', [ "UNKNOWN" ]);
 			assertObjectsWithValues(response.result, 'resultLocation.pathInDataSet', [ "PATH-2" ]);
 			assertObjectsWithValues(response.result, 'resultLocation.identifier', [ "ID-2" ]);
 			assertObjectsWithValues(response.result, 'resultLocation.position', [ "2" ]);
