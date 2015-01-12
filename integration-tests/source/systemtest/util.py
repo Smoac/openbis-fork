@@ -266,7 +266,7 @@ class LogMonitor():
         Waits until an event matches the specified condition. 
         Returns tuple with zero or more elements of matching log message.
         """
-        startTime = int(self.timeProvider.time() if startTime is None else startTime)
+        startTime = self.timeProvider.time() if startTime is None else startTime
         self.conditions.append(condition)
         renderedStartTime = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(startTime))
         self.printer.printMsg("\n>>>>> Start monitoring %s log at %s >>>>>>>>>>>>>>>>>>>>" 
@@ -284,13 +284,14 @@ class LogMonitor():
                     line = log.readline()
                     if line == '':
                         break
-                    match = re.match('(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}),\d{3} (.{6})(.*)', line)
+                    match = re.match('(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}),(\d{3}) (.{6})(.*)', line)
                     if match == None:
                         continue
                     timestamp = match.group(1)
-                    eventType = match.group(2).strip()
-                    message = match.group(3)
-                    eventTime = time.mktime(time.strptime(timestamp, '%Y-%m-%d %H:%M:%S'))
+                    milliseconds = int(match.group(2))
+                    eventType = match.group(3).strip()
+                    message = match.group(4)
+                    eventTime = time.mktime(time.strptime(timestamp, '%Y-%m-%d %H:%M:%S')) + 0.001 * milliseconds
                     if eventTime < startTime:
                         continue
                     for c in self.conditions:
