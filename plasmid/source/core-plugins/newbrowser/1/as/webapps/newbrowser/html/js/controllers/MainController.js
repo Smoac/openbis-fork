@@ -697,108 +697,132 @@ function MainController(profile) {
 						});
 					} else { //Search Domain
 						localReference.serverFacade.searchOnSearchDomain(searchDomain, value, function(data) {
-							if(localSearchId === localReference.lastSearchId) {
-								$("#search").removeClass("search-query-searching");
+							var dataSetCodes = [];
+							for(var i = 0; i < data.result.length; i++) {
+								var result = data.result[i];
+								var resultLocation = result.resultLocation;
+								if(resultLocation.entityKind === "DATA_SET") {
+									dataSetCodes.push(resultLocation.code);
+								}
+							}
+							
+							localReference.serverFacade.getSamplesForDataSets(dataSetCodes, function(samplesData) {
+								var getSampleIdentifierForDataSetCode = function(dataSetCode) {
+									for(var i = 0; i < samplesData.result.length; i++) {
+										if(samplesData.result[i].code === dataSetCode) {
+											return samplesData.result[i].sampleIdentifierOrNull;
+										}
+									}
+									return null;
+								}
 								
-								var columns = [ {
-									label : 'Entity Kind',
-									property : 'kind',
-									sortable : true
-								}, {
-									label : 'Code',
-									property : 'code',
-									sortable : true
-								}, {
-									label : 'Score',
-									property : 'score',
-									sortable : true
-								}, {
-									label : 'Found at',
-									property : 'location',
-									sortable : true
-								}, {
-									label : 'Evalue',
-									property : 'evalue',
-									sortable : true
-								}, {
-									label : 'Bit Score',
-									property : 'bitScore',
-									sortable : true
-								}, {
-									label : 'No Mismatches',
-									property : 'numberOfMismatches',
-									sortable : true
-								}, {
-									label : 'No Gaps',
-									property : 'totalNumberOfGaps',
-									sortable : true
-								}, {
-									label : 'Sequence (Start - End)',
-									property : 'sequenceStartEnd',
-									sortable : true
-								}, {
-									label : 'Query (Start - End)',
-									property : 'queryStartEnd',
-									sortable : true
-								}];
-								
-								var getDataList = function(callback) {
-									var dataList = [];
-									if(data.result) {
-										for(var i = 0; i < data.result.length; i++) {
-											var result = data.result[i];
-											var resultLocation = result.resultLocation;
-											
-											var numberOfMismatches = resultLocation.alignmentMatch.numberOfMismatches;
-											var totalNumberOfGaps = resultLocation.alignmentMatch.totalNumberOfGaps;
-											var sequenceStartEnd = resultLocation.alignmentMatch.sequenceStart + "-" + resultLocation.alignmentMatch.sequenceEnd;
-											var queryStartEnd = resultLocation.alignmentMatch.queryStart + "-" + resultLocation.alignmentMatch.queryEnd;
-											var location = null;
-											
-											if(resultLocation.propertyType) {
-												location = "Property: " + resultLocation.propertyType;
-											} else if(resultLocation.pathInDataSet) {
-												location = "Path: " + resultLocation.pathInDataSet;
+								if(localSearchId === localReference.lastSearchId) {
+									$("#search").removeClass("search-query-searching");
+									
+									var columns = [ {
+										label : 'Entity Kind',
+										property : 'kind',
+										sortable : true
+									}, {
+										label : 'Code',
+										property : 'code',
+										sortable : true
+									}, {
+										label : 'Score',
+										property : 'score',
+										sortable : true
+									}, {
+										label : 'Found at',
+										property : 'location',
+										sortable : true
+									}, {
+										label : 'Evalue',
+										property : 'evalue',
+										sortable : true
+									}, {
+										label : 'Bit Score',
+										property : 'bitScore',
+										sortable : true
+									}, {
+										label : 'No Mismatches',
+										property : 'numberOfMismatches',
+										sortable : true
+									}, {
+										label : 'No Gaps',
+										property : 'totalNumberOfGaps',
+										sortable : true
+									}, {
+										label : 'Sequence (Start - End)',
+										property : 'sequenceStartEnd',
+										sortable : true
+									}, {
+										label : 'Query (Start - End)',
+										property : 'queryStartEnd',
+										sortable : true
+									}];
+									
+									var getDataList = function(callback) {
+										var dataList = [];
+										if(data.result) {
+											for(var i = 0; i < data.result.length; i++) {
+												var result = data.result[i];
+												var resultLocation = result.resultLocation;
+												
+												var code = resultLocation.code;
+												var numberOfMismatches = resultLocation.alignmentMatch.numberOfMismatches;
+												var totalNumberOfGaps = resultLocation.alignmentMatch.totalNumberOfGaps;
+												var sequenceStartEnd = resultLocation.alignmentMatch.sequenceStart + "-" + resultLocation.alignmentMatch.sequenceEnd;
+												var queryStartEnd = resultLocation.alignmentMatch.queryStart + "-" + resultLocation.alignmentMatch.queryEnd;
+												var location = null;
+												
+												if(resultLocation.propertyType) {
+													location = "Property: " + resultLocation.propertyType;
+												} else if(resultLocation.pathInDataSet) {
+													location = "Path: " + resultLocation.pathInDataSet;
+												}
+												
+												if(resultLocation.entityKind === "DATA_SET") {
+													code += "<br> Sample: " + getSampleIdentifierForDataSetCode(resultLocation.code);
+												}
+												
+												dataList.push({
+													kind : resultLocation.entityKind,
+													code : code,
+													permId : resultLocation.permId,
+													score : result.score.score,
+													bitScore : result.score.bitScore,
+													evalue : result.score.evalue,
+													numberOfMismatches : numberOfMismatches,
+													totalNumberOfGaps : totalNumberOfGaps,
+													location : location,
+													sequenceStartEnd : sequenceStartEnd,
+													queryStartEnd : queryStartEnd
+												});
 											}
-											
-											dataList.push({
-												kind : resultLocation.entityKind,
-												code : resultLocation.code,
-												permId : resultLocation.permId,
-												score : result.score.score,
-												bitScore : result.score.bitScore,
-												evalue : result.score.evalue,
-												numberOfMismatches : numberOfMismatches,
-												totalNumberOfGaps : totalNumberOfGaps,
-												location : location,
-												sequenceStartEnd : sequenceStartEnd,
-												queryStartEnd : queryStartEnd
-											});
+										}
+										
+										callback(dataList);
+									};
+									
+									var rowClick = function(e) {
+										switch(e.data.kind) {
+											case "SAMPLE":
+												mainController.changeView('showViewSamplePageFromPermId', e.data.permId);
+												break;
+											case "DATA_SET":
+												mainController.changeView('showViewDataSetPageFromPermId', e.data.permId);
+												break;
 										}
 									}
 									
-									callback(dataList);
-								};
-								
-								var rowClick = function(e) {
-									switch(e.data.kind) {
-										case "SAMPLE":
-											mainController.changeView('showViewSamplePageFromPermId', e.data.permId);
-											break;
-										case "DATA_SET":
-											mainController.changeView('showViewDataSetPageFromPermId', e.data.permId);
-											break;
-									}
+									var dataGrid = new DataGridController(searchDomainLabel + " Search Results", columns, getDataList, rowClick);
+									localReference.currentView = dataGrid;
+									dataGrid.init($("#mainContainer"));
+									history.pushState(null, "", ""); //History Push State
+								} else {
+									//Discard old response, was triggered but a new one was started
 								}
-								
-								var dataGrid = new DataGridController(searchDomainLabel + " Search Results", columns, getDataList, rowClick);
-								localReference.currentView = dataGrid;
-								dataGrid.init($("#mainContainer"));
-								history.pushState(null, "", ""); //History Push State
-							} else {
-								//Discard old response, was triggered but a new one was started
-							}
-							
+							});
 						});
 					}
 					

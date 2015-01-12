@@ -615,6 +615,10 @@ function ServerFacade(openbisServer) {
 		});
 	}
 	
+	this.getSamplesForDataSets = function(dataSetCodes, callback) {
+		this.openbisServer.getDataSetMetaDataWithFetchOptions(dataSetCodes, [ 'SAMPLE' ], callback);
+	}
+	
 	this.searchWithType = function(sampleType, sampleCode, callbackFunction)
 	{	
 		var matchClauses = [ {"@type":"AttributeMatchClause",
