@@ -732,11 +732,11 @@ function MainController(profile) {
 										property : 'score',
 										sortable : true
 									}, {
-										label : 'Found at',
+										label : 'Found in',
 										property : 'location',
 										sortable : true
 									}, {
-										label : 'Evalue',
+										label : 'E-value',
 										property : 'evalue',
 										sortable : true
 									}, {
@@ -744,11 +744,11 @@ function MainController(profile) {
 										property : 'bitScore',
 										sortable : true
 									}, {
-										label : 'No Mismatches',
+										label : 'No. Mismatches',
 										property : 'numberOfMismatches',
 										sortable : true
 									}, {
-										label : 'No Gaps',
+										label : 'No. Gaps',
 										property : 'totalNumberOfGaps',
 										sortable : true
 									}, {
