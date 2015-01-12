@@ -30,9 +30,7 @@ public interface IMultiDataSetFileOperationsManager
 {
     String generateContainerPath(List<DatasetDescription> dataSets);
 
-    Status createContainerInStage(String containerPath, List<DatasetDescription> datasetDescriptions);
-
-    Status copyToFinalDestination(String containerLocalPath);
+    Status createContainer(String containerPath, List<DatasetDescription> datasetDescriptions);
 
     Status deleteContainerFromFinalDestination(String containerLocalPath);
 
@@ -45,4 +43,12 @@ public interface IMultiDataSetFileOperationsManager
 
     Status restoreDataSetsFromContainerInFinalDestination(String containerPath,
             List<? extends IDatasetLocation> dataSetLocations);
+    
+    boolean isReplicatedArchiveDefined();
+    
+    boolean isStagingAreaDefined();
+
+    String getOriginalArchiveFilePath(String containerPath);
+
+    String getReplicatedArchiveFilePath(String containerPath);
 }

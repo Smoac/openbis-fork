@@ -39,6 +39,12 @@ public class ArchiverTaskContext
 
     private final IHierarchicalContentProvider hierarchicalContentProvider;
 
+    private String userId;
+
+    private String userEmail;
+
+    private String userSessionToken;
+
     public ArchiverTaskContext(IDataSetDirectoryProvider directoryProvider,
             IHierarchicalContentProvider hierarchicalContentProvider)
     {
@@ -70,4 +76,34 @@ public class ArchiverTaskContext
         return unarchivingPreparation;
     }
 
+    public void setUserId(String userId)
+    {
+        this.userId = userId;
+    }
+
+    public String getUserId()
+    {
+        return userId;
+    }
+
+    public void setUserEmail(String userEmail)
+    {
+        this.userEmail = userEmail;
+    }
+    
+    public String getUserEmail()
+    {
+        return userEmail;
+    }
+
+    public void setUserSessionToken(String userSessionToken)
+    {
+        this.userSessionToken = userSessionToken;
+    }
+
+    public String getUserSessionToken()
+    {
+        return userSessionToken;
+    }
+    
 }

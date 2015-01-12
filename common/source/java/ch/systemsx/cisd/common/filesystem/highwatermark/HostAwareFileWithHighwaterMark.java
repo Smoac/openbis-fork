@@ -165,7 +165,7 @@ public final class HostAwareFileWithHighwaterMark extends HostAwareFile
             return file.getCanonicalFile().getPath();
         } catch (IOException ex)
         {
-            throw new ConfigurationFailureException("Unknown file " + file.getAbsolutePath());
+            throw new ConfigurationFailureException("Unknown file " + file.getAbsolutePath(), ex);
         }
     }
 

@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.dss.generic.server;
 
 import java.io.File;
 
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IProcessingPluginTask;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IProcessingPluginTask;
 
 /**
  * Provider and factory of {@link IDataSetCommandExecutor} based on specified processing task.

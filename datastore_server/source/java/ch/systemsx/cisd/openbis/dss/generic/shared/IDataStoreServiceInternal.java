@@ -60,4 +60,7 @@ public interface IDataStoreServiceInternal extends IInitializable, IDataStoreSer
      */
     public TableModel internalCreateReportFromAggregationService(String userSessionToken,
             String serviceKey, Map<String, Object> parameters, String userId, String userEmailOrNull);
+    
+    public void scheduleTask(String taskKey, IProcessingPluginTask task, Map<String, String> parameterBindings,
+            List<DatasetDescription> datasets, String userId, String userEmailOrNull, String userSessionToken);
 }

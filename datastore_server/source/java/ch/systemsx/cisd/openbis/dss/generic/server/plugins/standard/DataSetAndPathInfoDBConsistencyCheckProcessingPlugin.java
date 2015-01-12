@@ -22,9 +22,9 @@ import java.util.Properties;
 
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython.MailService;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython.api.IEmailSender;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IProcessingPluginTask;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IProcessingPluginTask;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ProcessingStatus;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DataSetAndPathInfoDBConsistencyChecker;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;

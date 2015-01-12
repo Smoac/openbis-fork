@@ -219,6 +219,12 @@ public final class LocalDataSetFileOperationsExcecutor implements IDataSetFileOp
         }
     }
 
+    @Override
+    public long freeSpaceKb(String path)
+    {
+        return fileOperations.freeSpaceKb(path);
+    }
+
     /** Helper class for generating report about inconsistencies with file sizes in given folders. */
     static class FolderFileSizesReportGenerator
     {

@@ -47,7 +47,7 @@ public class DemoArchiver extends AbstractArchiverProcessingPlugin
 
     @Override
     protected DatasetProcessingStatuses doArchive(List<DatasetDescription> datasets,
-            ArchiverTaskContext context) throws UserFailureException
+            ArchiverTaskContext context, boolean removeFromDataStore) throws UserFailureException
     {
         operationLog.info("DemoArchiver - Archived: " + datasets);
         archiveContents.addAll(DatasetDescription.extractCodes(datasets));
