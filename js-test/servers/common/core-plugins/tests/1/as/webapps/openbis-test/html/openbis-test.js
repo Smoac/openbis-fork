@@ -892,10 +892,11 @@ test("searchOnSearchDomain()", function() {
 		var optionalParametersOrNull = {
 			"SEQ-1" : JSON.stringify({
 				"searchDomain" : "Echo database",
-				"dataSetCode" : "20130412142205843-196",
-				"pathInDataSet" : "PATH-1",
-				"sequenceIdentifier" : "ID-1",
-				"positionInSequence" : "1"
+				"permId" : "20130412150557128-205",
+				"entityKind" : "SAMPLE",
+				"entityType" : "PLATE",
+				"propertyType" : "PLATE_GEO",
+				"code" : "PLATE-1A"
 			}),
 			"SEQ-2" : JSON.stringify({
 				"searchDomain" : "Echo database",
@@ -915,6 +916,17 @@ test("searchOnSearchDomain()", function() {
 			assertObjectsWithValues(response.result, 'resultLocation.pathInDataSet', [ "PATH-2" ]);
 			assertObjectsWithValues(response.result, 'resultLocation.identifier', [ "ID-2" ]);
 			assertObjectsWithValues(response.result, 'resultLocation.position', [ "2" ]);
+			facade.close();
+		});
+		facade.searchOnSearchDomain(preferredSearchDomainOrNull, "SEQ-1", optionalParametersOrNull, function(response) {
+			assertObjectsCount(response.result, 2);
+			assertObjectsWithValues(response.result, 'searchDomain.name', [ "echo-database" ]);
+			assertObjectsWithValues(response.result, 'searchDomain.label', [ "Echo database" ]);
+			assertObjectsWithValues(response.result, 'resultLocation.permId', [ "20130412150557128-205" ]);
+			assertObjectsWithValues(response.result, 'resultLocation.code', [ "PLATE-1A" ]);
+			assertObjectsWithValues(response.result, 'resultLocation.entityKind', [ "SAMPLE" ]);
+			assertObjectsWithValues(response.result, 'resultLocation.entityType', [ "PLATE" ]);
+			assertObjectsWithValues(response.result, 'resultLocation.propertyType', [ "PLATE_GEO" ]);
 			facade.close();
 		});
 	});
