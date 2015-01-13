@@ -111,13 +111,34 @@ public class JsTestCommonSelenium extends SeleniumTest
         try
         {
             OpenbisJsCommonWebapp webapp = browser().goTo(location);
+            
+            String junitReport = "";
+            for (int x = 0; x < 20; x++)
+            {
+                junitReport = webapp.getJunitReport();
+                if (junitReport.length() == 0) {
+                    try
+                    {
+                        System.out.println("JUnit report is not there yet. Waiting...");
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e)
+                    {
+                    }
+                } else
+                {
+                    System.out.println("JUnit report has arrived.");
+                    break;
+                }
+            }
+
             int failedCount = webapp.getFailedCount();
 
             File report =
                     new File("targets/dist/" + this.getClass().getSimpleName() + "/" + method
                             + "/TEST-" + method + ".xml");
-            FileUtilities.writeToFile(report, webapp.getJunitReport());
+            FileUtilities.writeToFile(report, junitReport);
 
+            Assert.assertTrue("JUnit test report is empty", junitReport.length() > 0);
             Assert.assertEquals(0, failedCount);
         } finally
         {

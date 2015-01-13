@@ -14,9 +14,7 @@
   			"common-test": "../common-test/common-test",
   			"dto": "models/dto"
     	},
-    	deps: ['jquery', 'qunit', 
-    	'qunit-report', 
-    	'common-test', 'support/type_registry', 'support/stjs', 'support/Utils'],
+//    	deps: ['jquery', 'qunit', 'qunit-report', 'common-test', 'support/type_registry', 'support/stjs', 'support/Utils'],
     	shim: {
     		"qunit": {
     			exports: "QUnit",
@@ -29,10 +27,10 @@
     			deps: ['qunit'],
     		},
     		"common-test": {
-    			deps: ['qunit'],
+    			deps: ['qunit', 'qunit-report'],
     		},
     		'support/Utils': {
-    			deps: ['support/type_registry']
+    			deps: ['support/stjs', 'support/type_registry', 'common-test']
     		},
     		'support/stjs': {
     			deps: ['support/underscore-min.js']
@@ -71,11 +69,10 @@
   <script>
   	require(['jquery', 
   	'qunit', 
-  	'qunit-report', 
-  	'openbis-v3-api-test'], function($, 
+  	'openbis-v3-api-test',
+  	'support/Utils'], function($, 
   				qunit, 
-  				rep, 
-  				tester) {
+  				tester, thisOneIsHereOnlyToMakeSureEverythingIsLoadedTODORemoveMe) {
 	  		qunit.load();
 	  		qunit.start();
 	  		tester();
