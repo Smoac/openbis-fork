@@ -34,6 +34,7 @@ openbis \
 openbis_all \
 openbis_api \
 openbis_mobile \
+openbis_oai_pmh \
 openbis_standard_technologies \
 openbis-common \
 plasmid \
