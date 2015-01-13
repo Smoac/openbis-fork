@@ -58,11 +58,17 @@ function StorageView(storageController, storageModel, gridView) {
 			$container.append($controlGroupStorages);
 			//Attach Event
 			this._defaultStoragesDropDown.change(function(event) {
+				var storageName = $(this).val();
 				if(_this._storageModel.sample) { //Sample to bind
-					_this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.nameProperty] = $(this).val();
+					_this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.nameProperty] = storageName;
 				}
-				_this._storageController.setSelectStorage($(this).val());
-				_this._storageModel.cleanSample();
+				_this._storageController.setSelectStorage(storageName);
+				
+				if(storageName === "") {
+					_this._storageModel.cleanSample(false);
+				} else {
+					_this._storageModel.cleanSample(true);
+				}
 			});
 		}
 		

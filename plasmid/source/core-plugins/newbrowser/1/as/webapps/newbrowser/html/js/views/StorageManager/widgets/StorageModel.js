@@ -43,13 +43,17 @@ function StorageModel(configOverride) {
 	this.boxName = null; //Selected Box
 	this.boxContents = null; //Selected Box contents (samples)
 	
-	this.cleanSample = function() {
+	this.cleanSample = function(setUser) {
 		if(this.sample) {
-			this.sample.properties[this.storagePropertyGroup.rowProperty] = null;
-			this.sample.properties[this.storagePropertyGroup.columnProperty] = null;
-			this.sample.properties[this.storagePropertyGroup.boxProperty] = null;
-			this.sample.properties[this.storagePropertyGroup.positionProperty] = null;
-			this.sample.properties[this.storagePropertyGroup.userProperty] = mainController.serverFacade.openbisServer.getSession().split("-")[0];
+			this.sample.properties[this.storagePropertyGroup.rowProperty] = "";
+			this.sample.properties[this.storagePropertyGroup.columnProperty] = "";
+			this.sample.properties[this.storagePropertyGroup.boxProperty] = "";
+			this.sample.properties[this.storagePropertyGroup.positionProperty] = "";
+			var userId = "";
+			if(setUser) {
+				userId = mainController.serverFacade.openbisServer.getSession().split("-")[0];
+			}
+			this.sample.properties[this.storagePropertyGroup.userProperty] = userId;
 		}
 	}
 	
