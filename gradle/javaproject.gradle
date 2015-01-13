@@ -198,6 +198,28 @@ task checkRestrictions(type: Exec, dependsOn: [classes, testClasses]) {
     }
 }
 
+def deleteSymbolicLinksRecursively(file) {
+    absolutePath = file.getAbsolutePath()
+    canonicalPath = file.getCanonicalPath()
+    if (absolutePath.equals(canonicalPath) == false) {
+        file.delete();
+    } else if (file.isDirectory()) {
+        File[] files = file.listFiles()
+        for (File child : files) {
+            deleteSymbolicLinksRecursively(child)
+        }
+    }
+}
+
+task deleteSymLinks {
+    doFirst {
+        println "DELETE SYM LINKS in $buildDir"
+        deleteSymbolicLinksRecursively buildDir
+    }
+}
+
+clean.dependsOn deleteSymLinks
+
 test {
     useTestNG()
     options.suites('sourceTest/java/tests.xml')    
