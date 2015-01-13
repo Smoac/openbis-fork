@@ -1,11 +1,12 @@
-function Grid(columns, getDataList) {
-	this.init(columns, getDataList);
+function Grid(columns, getDataList, showAllColumns) {
+	this.init(columns, getDataList, showAllColumns);
 }
 
 $.extend(Grid.prototype, {
-	init : function(columns, getDataList) {
+	init : function(columns, getDataList, showAllColumns) {
 		this.columns = columns;
 		this.getDataList = getDataList;
+		this.showAllColumns = showAllColumns;
 	},
 
 	render : function() {
@@ -60,7 +61,7 @@ $.extend(Grid.prototype, {
 				.attr("value", column.property)
 				.attr("style", "margin-left: 5px;");
 			
-			if(columnIndex < (defaultNumColumns - 1) || (columnIndex+1 === thisGrid.columns.length)) {
+			if(thisGrid.showAllColumns || columnIndex < (defaultNumColumns - 1) || (columnIndex+1 === thisGrid.columns.length)) {
 				checkbox.attr("checked", "checked");
 			}
 			

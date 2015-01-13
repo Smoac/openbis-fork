@@ -690,7 +690,7 @@ function MainController(profile) {
 								mainController.changeView('showViewSamplePageFromPermId', e.data.permId);
 							}
 							
-							var dataGrid = new DataGridController("Search Results", columns, getDataList, rowClick);
+							var dataGrid = new DataGridController("Search Results", columns, getDataList, rowClick, true);
 							localReference.currentView = dataGrid;
 							dataGrid.init($("#mainContainer"));
 							history.pushState(null, "", ""); //History Push State
@@ -728,20 +728,16 @@ function MainController(profile) {
 										property : 'code',
 										sortable : true
 									}, {
-										label : 'Score',
-										property : 'score',
-										sortable : true
-									}, {
 										label : 'Found in',
 										property : 'location',
 										sortable : true
 									}, {
-										label : 'E-value',
-										property : 'evalue',
+										label : 'Sequence (Start - End)',
+										property : 'sequenceStartEnd',
 										sortable : true
 									}, {
-										label : 'Bit Score',
-										property : 'bitScore',
+										label : 'Query (Start - End)',
+										property : 'queryStartEnd',
 										sortable : true
 									}, {
 										label : 'No. Mismatches',
@@ -752,12 +748,16 @@ function MainController(profile) {
 										property : 'totalNumberOfGaps',
 										sortable : true
 									}, {
-										label : 'Sequence (Start - End)',
-										property : 'sequenceStartEnd',
+										label : 'E-value',
+										property : 'evalue',
 										sortable : true
 									}, {
-										label : 'Query (Start - End)',
-										property : 'queryStartEnd',
+										label : 'Score',
+										property : 'score',
+										sortable : true
+									}, {
+										label : 'Bit Score',
+										property : 'bitScore',
 										sortable : true
 									}];
 									
@@ -815,7 +815,7 @@ function MainController(profile) {
 										}
 									}
 									
-									var dataGrid = new DataGridController(searchDomainLabel + " Search Results", columns, getDataList, rowClick);
+									var dataGrid = new DataGridController(searchDomainLabel + " Search Results", columns, getDataList, rowClick, true);
 									localReference.currentView = dataGrid;
 									dataGrid.init($("#mainContainer"));
 									history.pushState(null, "", ""); //History Push State

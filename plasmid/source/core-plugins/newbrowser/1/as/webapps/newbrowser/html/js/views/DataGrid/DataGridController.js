@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-function DataGridController(title, columns, data, rowClickEventHandler) {
-	this._grid = new Grid(columns, data);
+function DataGridController(title, columns, data, rowClickEventHandler, showAllColumns) {
+	this._grid = new Grid(columns, data, showAllColumns);
 	this._grid.addRowClickListener(rowClickEventHandler);
 	this._dataGridModel = new DataGridModel(title, columns, data, rowClickEventHandler, this._grid.render());
 	this._dataGridView = new DataGridView(this, this._dataGridModel);
