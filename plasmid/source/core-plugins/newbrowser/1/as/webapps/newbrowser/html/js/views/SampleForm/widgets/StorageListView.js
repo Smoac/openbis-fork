@@ -24,8 +24,6 @@ function StorageListView(storageListController, storageListModel) {
 		//
 		// Data Grid
 		//
-		var dataGridContainer = $("<div>");
-		
 		var columns = [ {
 			label : 'Group',
 			property : 'groupDisplayName',
@@ -65,16 +63,20 @@ function StorageListView(storageListController, storageListModel) {
 			for(var i = 0; i < sampleType.propertyTypeGroups.length; i++) {
 				var propertyTypeGroup = sampleType.propertyTypeGroups[i];
 				var storagePropertyGroup = profile.getStoragePropertyGroup(propertyTypeGroup.name);
+				
 				if(storagePropertyGroup) {
-					dataList.push({
-						groupDisplayName : storagePropertyGroup.groupDisplayName,
-						nameProperty : sample.properties[storagePropertyGroup.nameProperty],
-						rowProperty : sample.properties[storagePropertyGroup.rowProperty],
-						columnProperty : sample.properties[storagePropertyGroup.columnProperty],
-						boxProperty : sample.properties[storagePropertyGroup.boxProperty],
-						positionProperty : sample.properties[storagePropertyGroup.positionProperty],
-						userProperty : sample.properties[storagePropertyGroup.userProperty]
-					});
+					var userProperty = sample.properties[storagePropertyGroup.userProperty];
+					if(userProperty && userProperty !== "") {
+						dataList.push({
+							groupDisplayName : storagePropertyGroup.groupDisplayName,
+							nameProperty : sample.properties[storagePropertyGroup.nameProperty],
+							rowProperty : sample.properties[storagePropertyGroup.rowProperty],
+							columnProperty : sample.properties[storagePropertyGroup.columnProperty],
+							boxProperty : sample.properties[storagePropertyGroup.boxProperty],
+							positionProperty : sample.properties[storagePropertyGroup.positionProperty],
+							userProperty : sample.properties[storagePropertyGroup.userProperty]
+						});
+					}
 				}
 			}
 			callback(dataList);
@@ -88,9 +90,55 @@ function StorageListView(storageListController, storageListModel) {
 		}
 		
 		this._dataGrid = new DataGridController(null, columns, getDataList, rowClick);
-		this._dataGrid.init($container);
+		
+		var $dataGridContainer = $("<div>");
+		this._dataGrid.init($dataGridContainer);
+		$container.append($dataGridContainer);
+		
+		var $storageAddButton = $("<a>", { class : 'btn btn-default', style : "float: right; background-color:#f9f9f9;" }).append($("<i>", { class : "glyphicon glyphicon-plus" } ));
+		if(this._storageListModel.isDisabled) {
+			$storageAddButton.attr("disabled", "");
+		}
+		
+		$storageAddButton.on("click", function(event) {
+			var sample = _this._storageListModel.sample;
+			var sampleTypeCode = sample.sampleTypeCode;
+			var sampleType = mainController.profile.getSampleTypeForSampleTypeCode(sampleTypeCode);
+			
+			for(var i = 0; i < sampleType.propertyTypeGroups.length; i++) {
+				var propertyTypeGroup = sampleType.propertyTypeGroups[i];
+				var storagePropertyGroup = profile.getStoragePropertyGroup(propertyTypeGroup.name);
+				
+				if(storagePropertyGroup) {
+					var userProperty = sample.properties[storagePropertyGroup.userProperty];
+					if(!userProperty || userProperty === "") { //Not Used
+						sample.properties[storagePropertyGroup.userProperty] = mainController.serverFacade.openbisServer.getSession().split("-")[0]; //Mark to show
+					}
+				}
+			}
+			
+			_this._dataGrid.refresh();
+		});
+		$container.append($storageAddButton);
+		$container.append("NOTE: Storages limited to " + this.getMaxStorages() + " for this type.");
 	}
 	
+	this.getMaxStorages = function() {
+		var count = 0;
+		var sample = this._storageListModel.sample;
+		var sampleTypeCode = sample.sampleTypeCode;
+		var sampleType = mainController.profile.getSampleTypeForSampleTypeCode(sampleTypeCode);
+		
+		for(var i = 0; i < sampleType.propertyTypeGroups.length; i++) {
+			var propertyTypeGroup = sampleType.propertyTypeGroups[i];
+			var storagePropertyGroup = profile.getStoragePropertyGroup(propertyTypeGroup.name);
+			
+			if(storagePropertyGroup) {
+				count++;
+			}
+		}
+		return count;
+	}
 	this.showStorageWidget = function(e) {
 		var _this = this;
 		var css = {
