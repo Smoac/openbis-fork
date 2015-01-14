@@ -29,6 +29,7 @@ import org.apache.log4j.Level;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
@@ -224,35 +225,44 @@ public abstract class AbstractQueryFacadeTest extends SystemTestCase
     @Test
     public void testJythonDbModifyingAggregationServiceReport() throws Exception
     {
-        HashMap<String, Object> parameters = new HashMap<String, Object>();
-        String code = UUID.randomUUID().toString();
-        parameters.put("code", code);
-
-        QueryTableModel table =
-                createReportFromAggregationService(
-                        "example-jython-db-modifying-aggregation-service", parameters);
-
-        assertEquals("[CODE, IDENTIFIER]", getHeaders(table).toString());
-        assertEquals("[" + code + ", /CISD/" + code + "]", Arrays.asList(table.getRows().get(0))
-                .toString());
-        assertEquals(1, table.getRows().size());
-
-        IGeneralInformationService generalInformationService = getGeneralInformationService();
-
-        List<Sample> samples =
-                generalInformationService.listSamplesForExperiment(getSessionToken(),
-                        "/CISD/NEMO/EXP-TEST-1");
-        boolean foundSample = false;
-        for (Sample sample : samples)
+        BufferedAppender previousLogRecorder = logAppender;
+        try
         {
-            if (code.equalsIgnoreCase(sample.getCode()))
+            logAppender = new BufferedAppender("%d %p [%t] %c - %m%n", getLogLevel());
+            HashMap<String, Object> parameters = new HashMap<String, Object>();
+            String code = UUID.randomUUID().toString();
+            parameters.put("code", code);
+            
+            QueryTableModel table =
+                    createReportFromAggregationService(
+                            "example-jython-db-modifying-aggregation-service", parameters);
+            
+            assertEquals("[CODE, IDENTIFIER]", getHeaders(table).toString());
+            assertEquals("[" + code + ", /CISD/" + code + "]", Arrays.asList(table.getRows().get(0))
+                    .toString());
+            assertEquals(1, table.getRows().size());
+            
+            IGeneralInformationService generalInformationService = getGeneralInformationService();
+            
+            List<Sample> samples =
+                    generalInformationService.listSamplesForExperiment(getSessionToken(),
+                            "/CISD/NEMO/EXP-TEST-1");
+            boolean foundSample = false;
+            for (Sample sample : samples)
             {
-                waitUntilDataSetImported(new ContainsCondition("REINDEX " + SamplePE.class.getName() + ": [" + sample.getId() + "]"));
-                foundSample = true;
+                if (code.equalsIgnoreCase(sample.getCode()))
+                {
+                    waitUntilDataSetImported(new ContainsCondition("REINDEX " + SamplePE.class.getName() + ": [" + sample.getId() + "]"));
+                    foundSample = true;
+                }
             }
+            
+            assertTrue("Did not find a sample called " + code, foundSample);
+        } catch (Exception ex)
+        {
+            logAppender = previousLogRecorder;
+            throw ex;
         }
-
-        assertTrue("Did not find a sample called " + code, foundSample);
     }
 
     /**

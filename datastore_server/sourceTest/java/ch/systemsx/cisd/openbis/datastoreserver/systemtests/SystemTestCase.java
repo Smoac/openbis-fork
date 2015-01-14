@@ -106,7 +106,7 @@ public abstract class SystemTestCase extends AssertJUnit
 
     protected File store;
 
-    private BufferedAppender logAppender;
+    protected BufferedAppender logAppender;
 
     protected SystemTestCase()
     {
