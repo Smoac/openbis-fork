@@ -68,6 +68,7 @@ import ch.systemsx.cisd.openbis.generic.server.util.TestInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.util.TestInstanceHostUtils;
+import ch.systemsx.cisd.openbis.util.LogRecordingUtils;
 
 /**
  * @author Franz-Josef Elmer
@@ -153,7 +154,7 @@ public abstract class SystemTestCase extends AssertJUnit
     // @BeforeTest
     // public void setUpLogAppender()
     // {
-    // logAppender = new BufferedAppender();
+    // logAppender = LogRecordingUtils.createRecorder();
     // }
 
     @BeforeSuite
@@ -347,7 +348,7 @@ public abstract class SystemTestCase extends AssertJUnit
     {
         if (logAppender == null)
         {
-            logAppender = new BufferedAppender("%d %p [%t] %c - %m%n", getLogLevel());
+            logAppender = LogRecordingUtils.createRecorder("%d %p [%t] %c - %m%n", getLogLevel());
         }
         return logAppender;
     }

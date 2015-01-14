@@ -26,6 +26,7 @@ import ch.systemsx.cisd.common.filesystem.FileOperations;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.utilities.MockTimeProvider;
+import ch.systemsx.cisd.openbis.util.LogRecordingUtils;
 
 /**
  * @author Chandrasekhar Ramakrishnan
@@ -41,7 +42,7 @@ public class DssRegistrationLogDirectoryHelperTest extends AbstractFileSystemTes
     public void setUp() throws IOException
     {
         super.setUp();
-        logAppender = new BufferedAppender();
+        logAppender = LogRecordingUtils.createRecorder();
         MockTimeProvider timeProvider = new MockTimeProvider();
         dssRegistrationLogDirHelper =
                 new DssRegistrationLogDirectoryHelper(workingDirectory, timeProvider);

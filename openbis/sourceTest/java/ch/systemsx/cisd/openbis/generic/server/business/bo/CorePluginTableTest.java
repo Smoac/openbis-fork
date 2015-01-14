@@ -36,6 +36,7 @@ import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl.MasterDataTran
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CorePlugin;
 import ch.systemsx.cisd.openbis.generic.shared.coreplugin.ICorePluginResourceLoader;
 import ch.systemsx.cisd.openbis.generic.shared.dto.CorePluginPE;
+import ch.systemsx.cisd.openbis.util.LogRecordingUtils;
 
 /**
  * @author Kaloyan Enimanev
@@ -56,7 +57,7 @@ public class CorePluginTableTest extends AbstractBOTest
     @BeforeMethod
     public void setUp()
     {
-        logRecorder = new BufferedAppender();
+        logRecorder = LogRecordingUtils.createRecorder();
         scriptRunner = context.mock(IMasterDataScriptRegistrationRunner.class);
         pluginResourceLoader = context.mock(ICorePluginResourceLoader.class);
         pluginTable =

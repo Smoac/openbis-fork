@@ -58,8 +58,8 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDirectoryProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetRelationshipPE;
@@ -76,6 +76,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.RelationshipTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator;
+import ch.systemsx.cisd.openbis.util.LogRecordingUtils;
 
 /**
  * @author Franz-Josef Elmer
@@ -230,8 +231,7 @@ public class UploadingCommandTest extends AssertJUnit
     @BeforeMethod
     public void setup()
     {
-        logRecorder = new BufferedAppender("%-5p %c - %m%n", Level.INFO);
-        logRecorder.addRegexForLoggingEventsToBeDropped("OPERATION.*FullTextIndex.*");
+        logRecorder = LogRecordingUtils.createRecorder("%-5p %c - %m%n", Level.INFO);
         context = new Mockery();
         factory = context.mock(ICIFEXRPCServiceFactory.class);
         cifex = context.mock(ICIFEXComponent.class);

@@ -40,6 +40,7 @@ import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataStoreServiceInternal;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProviderTestWrapper;
+import ch.systemsx.cisd.openbis.util.LogRecordingUtils;
 
 /**
  * @author Franz-Josef Elmer
@@ -71,8 +72,7 @@ public class MultiDataSetArchiveCleanerTest extends AbstractFileSystemTestCase
     @BeforeMethod
     public void setUpTestEnvironment()
     {
-        logRecorder = new BufferedAppender("%-5p %c - %m%n", Level.INFO, "OPERATION.*");
-        logRecorder.addRegexForLoggingEventsToBeDropped("OPERATION.*FullTextIndex.*");
+        logRecorder = LogRecordingUtils.createRecorder("%-5p %c - %m%n", Level.INFO, "OPERATION.*");
         context = new Mockery();
         mailClient = context.mock(IMailClient.class);
         BeanFactory beanFactory = context.mock(BeanFactory.class);

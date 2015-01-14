@@ -61,6 +61,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceId
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
+import ch.systemsx.cisd.openbis.util.LogRecordingUtils;
 
 /**
  * @author Chandrasekhar Ramakrishnan
@@ -93,7 +94,7 @@ public class SampleAndDatasetRegistrationHandlerTest extends AbstractFileSystemT
     {
         super.setUp();
 
-        logAppender = new BufferedAppender();
+        logAppender = LogRecordingUtils.createRecorder();
 
         context = new Mockery();
         openbisService = context.mock(IEncapsulatedOpenBISService.class);

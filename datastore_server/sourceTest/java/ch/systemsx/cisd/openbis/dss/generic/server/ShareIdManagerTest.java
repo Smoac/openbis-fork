@@ -33,6 +33,7 @@ import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.openbis.dss.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetShareId;
+import ch.systemsx.cisd.openbis.util.LogRecordingUtils;
 
 /**
  * @author Franz-Josef Elmer
@@ -58,7 +59,7 @@ public class ShareIdManagerTest extends AssertJUnit
     {
         level = Logger.getRootLogger().getLevel();
         Logger.getRootLogger().setLevel(Level.DEBUG);
-        logRecorder = new BufferedAppender("%-5p %c - %m%n", Level.DEBUG, 
+        logRecorder = LogRecordingUtils.createRecorder("%-5p %c - %m%n", Level.DEBUG, 
                 ".*" + ShareIdManager.class.getSimpleName());
         context = new Mockery();
         service = context.mock(IEncapsulatedOpenBISService.class);

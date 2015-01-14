@@ -66,6 +66,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
+import ch.systemsx.cisd.openbis.util.LogRecordingUtils;
 
 /**
  * @author Franz-Josef Elmer
@@ -103,7 +104,7 @@ public class PutDataSetTopLevelDataSetHandlerTest extends AbstractFileSystemTest
     public void beforeMethod()
     {
         LogInitializer.init();
-        logRecorder = new BufferedAppender("%-5p %c - %m%n", Level.DEBUG);
+        logRecorder = LogRecordingUtils.createRecorder("%-5p %c - %m%n", Level.DEBUG);
         context = new Mockery();
         service = context.mock(IEncapsulatedOpenBISService.class);
         registrator = context.mock(ITopLevelDataSetRegistrator.class);

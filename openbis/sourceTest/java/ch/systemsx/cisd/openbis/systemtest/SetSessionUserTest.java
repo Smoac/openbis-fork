@@ -33,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.server.WhiteListBasedRemoteHostValidator
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
+import ch.systemsx.cisd.openbis.util.LogRecordingUtils;
 
 /**
  * @author Franz-Josef Elmer
@@ -48,7 +49,7 @@ public class SetSessionUserTest extends SystemTestCase
     @BeforeMethod
     public void setUp()
     {
-        logRecorder = new BufferedAppender("%m%n", Level.INFO);
+        logRecorder = LogRecordingUtils.createRecorder("%m%n", Level.INFO);
     }
 
     @AfterMethod

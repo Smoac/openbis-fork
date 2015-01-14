@@ -57,6 +57,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.dto.builders.DatasetDescriptionBuilder;
+import ch.systemsx.cisd.openbis.util.LogRecordingUtils;
 
 /**
  * @author Kaloyan Enimanev
@@ -305,7 +306,7 @@ public class AbstractArchiverProcessingPluginTest extends AbstractFileSystemTest
     public void beforeMethod()
     {
         TestInitializer.init();
-        logRecorder = new BufferedAppender("%-5p %c - %m%n", Level.DEBUG);
+        logRecorder = LogRecordingUtils.createRecorder("%-5p %c - %m%n", Level.DEBUG);
         context = new Mockery();
         statusChecker = context.mock(IStatusChecker.class);
         statusUpdater = context.mock(IDataSetStatusUpdater.class);

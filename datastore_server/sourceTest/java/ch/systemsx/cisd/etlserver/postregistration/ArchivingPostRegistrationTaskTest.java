@@ -48,6 +48,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
+import ch.systemsx.cisd.openbis.util.LogRecordingUtils;
 
 /**
  * @author Kaloyan Enimanev
@@ -77,7 +78,7 @@ public class ArchivingPostRegistrationTaskTest extends AssertJUnit
     @BeforeMethod
     public void setUp()
     {
-        logRecorder = new BufferedAppender(null, Level.INFO);
+        logRecorder = LogRecordingUtils.createRecorder(null, Level.INFO);
         context = new Mockery();
         service = context.mock(IEncapsulatedOpenBISService.class);
         dataStoreService = context.mock(IDataStoreServiceInternal.class);

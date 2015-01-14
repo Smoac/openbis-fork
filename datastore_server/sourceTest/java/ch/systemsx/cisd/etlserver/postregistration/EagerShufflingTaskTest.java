@@ -46,6 +46,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.MockFreeSpaceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
+import ch.systemsx.cisd.openbis.util.LogRecordingUtils;
 
 /**
  * @author Franz-Josef Elmer
@@ -94,7 +95,7 @@ public class EagerShufflingTaskTest extends AbstractFileSystemTestCase
     @BeforeMethod
     public void beforeMethod()
     {
-        logRecorder = new BufferedAppender("%-5p %c - %m%n", Level.INFO);
+        logRecorder = LogRecordingUtils.createRecorder("%-5p %c - %m%n", Level.INFO);
         context = new Mockery();
         service = context.mock(IEncapsulatedOpenBISService.class);
         shareIdManager = context.mock(IShareIdManager.class);

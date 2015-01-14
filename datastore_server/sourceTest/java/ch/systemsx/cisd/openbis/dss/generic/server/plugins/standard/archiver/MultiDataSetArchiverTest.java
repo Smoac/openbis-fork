@@ -95,6 +95,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.ExperimentBuil
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
+import ch.systemsx.cisd.openbis.util.LogRecordingUtils;
 
 /**
  * @author Franz-Josef Elmer
@@ -455,8 +456,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
     @BeforeMethod
     public void setUpTestEnvironment()
     {
-        logRecorder = new BufferedAppender("%-5p %c - %m%n", Level.INFO, "OPERATION.*");
-        logRecorder.addRegexForLoggingEventsToBeDropped("OPERATION.*FullTextIndex.*");
+        logRecorder = LogRecordingUtils.createRecorder("%-5p %c - %m%n", Level.INFO, "OPERATION.*");
         transaction = new MockMultiDataSetArchiverDBTransaction();
         store = new File(workingDirectory, "store");
         share = new File(store, "1");

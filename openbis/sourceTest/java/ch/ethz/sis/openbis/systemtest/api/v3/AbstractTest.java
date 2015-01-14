@@ -57,6 +57,7 @@ import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.systemtest.SystemTestCase;
+import ch.systemsx.cisd.openbis.util.LogRecordingUtils;
 
 /**
  * @author Jakub Straszewski
@@ -99,7 +100,7 @@ public class AbstractTest extends SystemTestCase
     @BeforeMethod
     public void beforeMethod(Method method)
     {
-        logRecorder = new BufferedAppender("%-5p %c - %m%n", Level.DEBUG);
+        logRecorder = LogRecordingUtils.createRecorder("%-5p %c - %m%n", Level.DEBUG);
         System.out.println(">>>>>>>>> BEFORE METHOD: " + method.getName());
     }
 

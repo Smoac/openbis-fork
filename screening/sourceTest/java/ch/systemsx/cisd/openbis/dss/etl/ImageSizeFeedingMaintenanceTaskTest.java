@@ -40,6 +40,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageDatasetDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageZoomLevelDTO;
+import ch.systemsx.cisd.openbis.util.LogRecordingUtils;
 
 /**
  * @author Franz-Josef Elmer
@@ -113,7 +114,7 @@ public class ImageSizeFeedingMaintenanceTaskTest extends AssertJUnit
     @BeforeMethod
     public void setUp()
     {
-        logRecorder = new BufferedAppender();
+        logRecorder = LogRecordingUtils.createRecorder();
         context = new Mockery();
         dao = context.mock(IImagingQueryDAO.class);
         service = context.mock(IEncapsulatedOpenBISService.class);

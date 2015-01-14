@@ -67,6 +67,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationResult;
 import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
+import ch.systemsx.cisd.openbis.util.LogRecordingUtils;
 
 /**
  * @author Chandrasekhar Ramakrishnan
@@ -127,7 +128,7 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
         dataSetValidator = context.mock(IDataSetValidator.class);
         mailClient = context.mock(IMailClient.class);
 
-        logAppender = new BufferedAppender();
+        logAppender = LogRecordingUtils.createRecorder();
 
         stagingDirectory = new File(workingDirectory, "staging");
         stagingDirectory.mkdirs();

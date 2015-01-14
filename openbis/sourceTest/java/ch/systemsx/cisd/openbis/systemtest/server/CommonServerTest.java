@@ -39,6 +39,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityValidationEvaluationInfo;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PluginType;
 import ch.systemsx.cisd.openbis.systemtest.SystemTestCase;
+import ch.systemsx.cisd.openbis.util.LogRecordingUtils;
 
 /**
  * @author pkupczyk
@@ -67,7 +68,7 @@ public class CommonServerTest extends SystemTestCase
     public void beforeMethod(Method method)
     {
         sessionToken = commonServer.tryAuthenticate("test", "a").getSessionToken();
-        logRecorder = new BufferedAppender("%-5p %c - %m%n", Level.DEBUG);
+        logRecorder = LogRecordingUtils.createRecorder("%-5p %c - %m%n", Level.DEBUG);
         System.out.println(">>>>>>>>> BEFORE METHOD: " + method.getName());
     }
 

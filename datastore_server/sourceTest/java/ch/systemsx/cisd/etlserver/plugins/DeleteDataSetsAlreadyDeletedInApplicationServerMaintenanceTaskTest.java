@@ -46,6 +46,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProviderTestWrapper;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
+import ch.systemsx.cisd.openbis.util.LogRecordingUtils;
 
 /**
  * @author Franz-Josef Elmer
@@ -127,7 +128,7 @@ public class DeleteDataSetsAlreadyDeletedInApplicationServerMaintenanceTaskTest 
             });
         task = new DeleteDataSetsAlreadyDeletedInApplicationServerMaintenanceTask();
         task.timeProvider = new MockTimeProvider(22, 1000);
-        logRecorder = new BufferedAppender("%-5p %c - %m%n", Level.INFO);
+        logRecorder = LogRecordingUtils.createRecorder("%-5p %c - %m%n", Level.INFO);
         Properties properties = new Properties();
         properties
                 .setProperty(

@@ -53,6 +53,7 @@ import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProviderTestWrapper;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.DataSetBuilder;
+import ch.systemsx.cisd.openbis.util.LogRecordingUtils;
 
 /**
  * @author Franz-Josef Elmer
@@ -140,7 +141,7 @@ public class PostRegistrationMaintenanceTaskTest extends AbstractFileSystemTestC
     @BeforeMethod
     public void beforeMethod()
     {
-        logRecorder = new BufferedAppender("%-5p %c - %m%n", Level.INFO);
+        logRecorder = LogRecordingUtils.createRecorder("%-5p %c - %m%n", Level.INFO);
         context = new Mockery();
         service = context.mock(IEncapsulatedOpenBISService.class);
         cleanupTask = new MockCleanupTask("1");

@@ -41,6 +41,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetPathInfo;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatasetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.OpenBISSessionHolder;
+import ch.systemsx.cisd.openbis.util.LogRecordingUtils;
 
 /**
  * @author Franz-Josef Elmer
@@ -101,7 +102,7 @@ public abstract class AbstractRemoteHierarchicalContentTestCase extends Abstract
     public void setUpBasicFixture()
     {
         context = new Mockery();
-        logRecorder = new BufferedAppender(Level.INFO);
+        logRecorder = LogRecordingUtils.createRecorder(Level.INFO);
         fileOperations = context.mock(IFileOperations.class);
         serviceFactory = context.mock(IDssServiceRpcGenericFactory.class);
         remoteDss = context.mock(IDssServiceRpcGeneric.class, "remote DSS");

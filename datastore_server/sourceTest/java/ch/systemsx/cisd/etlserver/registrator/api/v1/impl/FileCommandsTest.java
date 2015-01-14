@@ -27,6 +27,7 @@ import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.etlserver.registrator.api.impl.MkdirsCommand;
 import ch.systemsx.cisd.etlserver.registrator.api.impl.MoveFileCommand;
 import ch.systemsx.cisd.etlserver.registrator.api.impl.NewFileCommand;
+import ch.systemsx.cisd.openbis.util.LogRecordingUtils;
 
 /**
  * @author Chandrasekhar Ramakrishnan
@@ -78,7 +79,7 @@ public class FileCommandsTest extends AbstractTestWithRollbackStack
                 new MoveFileCommand(dstDir.getAbsolutePath(), newFile.getName(),
                         dstDir.getAbsolutePath(), newNewFile.getName());
 
-        logAppender = new BufferedAppender();
+        logAppender = LogRecordingUtils.createRecorder();
     }
 
     @Test

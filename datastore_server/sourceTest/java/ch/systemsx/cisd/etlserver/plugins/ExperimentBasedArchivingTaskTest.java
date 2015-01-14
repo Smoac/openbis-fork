@@ -38,15 +38,16 @@ import ch.systemsx.cisd.common.filesystem.IFreeSpaceProvider;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PlaceholderDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.DataSetBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.ExperimentBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
+import ch.systemsx.cisd.openbis.util.LogRecordingUtils;
 
 /**
  * @author Franz-Josef Elmer
@@ -130,9 +131,7 @@ public class ExperimentBasedArchivingTaskTest extends AbstractFileSystemTestCase
     @BeforeMethod
     public void before()
     {
-        logRecorder = new BufferedAppender("%-5p %c - %m%n", Level.INFO);
-        logRecorder.addRegexForLoggingEventsToBeDropped("OPERATION.*FullTextIndex.*");
-        logRecorder.addRegexForLoggingEventsToBeDropped("MACHINE.MonitoringPoolingDataSource.*");
+        logRecorder = LogRecordingUtils.createRecorder("%-5p %c - %m%n", Level.INFO);
         context = new Mockery();
         service = context.mock(IEncapsulatedOpenBISService.class);
         freeSpaceProvider = context.mock(IFreeSpaceProvider.class);

@@ -51,6 +51,7 @@ import ch.systemsx.cisd.etlserver.plugins.FillUnknownDataSetSizeInOpenbisDBFromP
 import ch.systemsx.cisd.openbis.dss.generic.shared.IConfigProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
+import ch.systemsx.cisd.openbis.util.LogRecordingUtils;
 
 /**
  * @author pkupczyk
@@ -88,7 +89,7 @@ public class FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTaskTest
     public void beforeMethod()
     {
         LogInitializer.init();
-        logRecorder = new BufferedAppender("%-5p %c - %m%n", Level.DEBUG);
+        logRecorder = LogRecordingUtils.createRecorder("%-5p %c - %m%n", Level.DEBUG);
 
         context = new Mockery();
         service = context.mock(IEncapsulatedOpenBISService.class);

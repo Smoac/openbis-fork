@@ -58,6 +58,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.ContainerDataS
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.DataSetBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.ExperimentBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.SampleBuilder;
+import ch.systemsx.cisd.openbis.util.LogRecordingUtils;
 
 import de.schlichtherle.io.File;
 
@@ -162,8 +163,7 @@ public class BlastDatabaseCreationMaintenanceTaskTest extends AbstractFileSystem
     @BeforeMethod
     public void setUpTask()
     {
-        logRecorder = new BufferedAppender("%-5p %c - %m%n", Level.INFO);
-        logRecorder.addRegexForLoggingEventsToBeDropped("MACHINE.MonitoringPoolingDataSource.*");
+        logRecorder = LogRecordingUtils.createRecorder("%-5p %c - %m%n", Level.INFO);
         context = new Mockery();
         configProvider = context.mock(IConfigProvider.class);
         service = context.mock(IEncapsulatedOpenBISService.class);

@@ -43,12 +43,13 @@ import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.common.utilities.MockTimeProvider;
 import ch.systemsx.cisd.openbis.generic.server.ICommonServerForInternalUse;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.DataSetBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
+import ch.systemsx.cisd.openbis.util.LogRecordingUtils;
 
 /**
  * @author Franz-Josef Elmer
@@ -118,7 +119,7 @@ public class DataSetRegistrationSummaryTaskTest extends AssertJUnit
     @BeforeMethod
     public void setUp()
     {
-        logRecorder = new BufferedAppender();
+        logRecorder = LogRecordingUtils.createRecorder();
         context = new Mockery();
         server = context.mock(ICommonServerForInternalUse.class);
         mailClient = context.mock(IMailClient.class);

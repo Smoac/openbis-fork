@@ -42,6 +42,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServicePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatastoreServiceDescriptions;
+import ch.systemsx.cisd.openbis.util.LogRecordingUtils;
 
 /**
  * @author Franz-Josef Elmer
@@ -75,7 +76,7 @@ public class DataStoreServiceRegistratorTest extends AssertJUnit
     @BeforeMethod
     public void setUp()
     {
-        logRecorder = new BufferedAppender();
+        logRecorder = LogRecordingUtils.createRecorder();
         context = new Mockery();
         daoFactory = context.mock(IDAOFactory.class);
         dataStoreDAO = context.mock(IDataStoreDAO.class);

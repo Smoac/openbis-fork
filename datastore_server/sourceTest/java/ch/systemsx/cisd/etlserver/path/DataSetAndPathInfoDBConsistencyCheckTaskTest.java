@@ -43,6 +43,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.DataStoreBuild
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SimpleDataSetHelper;
+import ch.systemsx.cisd.openbis.util.LogRecordingUtils;
 
 /**
  * @author Franz-Josef Elmer
@@ -64,7 +65,7 @@ public class DataSetAndPathInfoDBConsistencyCheckTaskTest extends AssertJUnit
     @BeforeMethod
     public void setUpMocks()
     {
-        logRecorder = new BufferedAppender("%-5p %c - %m%n", Level.INFO);
+        logRecorder = LogRecordingUtils.createRecorder("%-5p %c - %m%n", Level.INFO);
         context = new Mockery();
         service = context.mock(IEncapsulatedOpenBISService.class);
         fileProvider = context.mock(IHierarchicalContentProvider.class, "fileProvider");

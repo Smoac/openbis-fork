@@ -42,6 +42,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
+import ch.systemsx.cisd.openbis.util.LogRecordingUtils;
 
 /**
  * Test cases for corresponding {@link DataStrategyStore} class.
@@ -95,7 +96,7 @@ public final class DataStrategyStoreTest extends AbstractFileSystemTestCase
     @BeforeMethod
     public void startup()
     {
-        logRecorder = new BufferedAppender("%-5p %c - %m%n", Level.DEBUG);
+        logRecorder = LogRecordingUtils.createRecorder("%-5p %c - %m%n", Level.DEBUG);
     }
 
     @AfterMethod

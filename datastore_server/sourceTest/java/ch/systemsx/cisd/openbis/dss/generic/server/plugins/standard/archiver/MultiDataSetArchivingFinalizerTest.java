@@ -48,6 +48,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetCodesWithStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.dto.builders.DatasetDescriptionBuilder;
+import ch.systemsx.cisd.openbis.util.LogRecordingUtils;
 
 /**
  * @author Franz-Josef Elmer
@@ -89,8 +90,7 @@ public class MultiDataSetArchivingFinalizerTest extends AbstractFileSystemTestCa
     @BeforeMethod
     public void setUpTestEnvironment()
     {
-        logRecorder = new BufferedAppender("%-5p %c - %m%n", Level.INFO, "OPERATION.*");
-        logRecorder.addRegexForLoggingEventsToBeDropped("OPERATION.*FullTextIndex.*");
+        logRecorder = LogRecordingUtils.createRecorder("%-5p %c - %m%n", Level.INFO, "OPERATION.*");
         context = new Mockery();
         BeanFactory beanFactory = context.mock(BeanFactory.class);
         ServiceProviderTestWrapper.setApplicationContext(beanFactory);

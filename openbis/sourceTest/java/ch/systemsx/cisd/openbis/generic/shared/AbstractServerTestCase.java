@@ -93,6 +93,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.util.MaterialConfigurationProvider;
+import ch.systemsx.cisd.openbis.util.LogRecordingUtils;
 
 /**
  * An <i>abstract</i> test infrastructure for {@link IServer} implementations.
@@ -224,7 +225,7 @@ public abstract class AbstractServerTestCase extends AssertJUnit
     {
         LogInitializer.init();
         session = createSession();
-        logRecorder = new BufferedAppender("%m%n", Level.DEBUG);
+        logRecorder = LogRecordingUtils.createRecorder("%m%n", Level.DEBUG);
         context = new Mockery();
         authenticationService = context.mock(IAuthenticationService.class);
         sessionManager = context.mock(IOpenBisSessionManager.class);

@@ -50,6 +50,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.MaterialBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.SampleBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
+import ch.systemsx.cisd.openbis.util.LogRecordingUtils;
 
 /**
  * @author Franz-Josef Elmer
@@ -77,7 +78,7 @@ public class DynamicPropertyEvaluationTriggeredByMaterialChangeMaintenanceTaskTe
     @BeforeMethod
     public void setUpMocksAndProperties()
     {
-        logRecorder = new BufferedAppender("%-5p %m%n", Level.DEBUG);
+        logRecorder = LogRecordingUtils.createRecorder("%-5p %m%n", Level.DEBUG);
         context = new Mockery();
         server = context.mock(ICommonServerForInternalUse.class);
         scheduler = context.mock(IDynamicPropertyEvaluationSchedulerWithQueue.class);

@@ -48,6 +48,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUt
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.Share;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ShareFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
+import ch.systemsx.cisd.openbis.util.LogRecordingUtils;
 
 /**
  * @author Franz-Josef Elmer
@@ -123,7 +124,7 @@ public class SegmentedStoreShufflingTaskTest extends AbstractFileSystemTestCase
     @BeforeMethod
     public void beforeMethod()
     {
-        logRecorder = new BufferedAppender("%-5p %c - %m%n", Level.INFO);
+        logRecorder = LogRecordingUtils.createRecorder("%-5p %c - %m%n", Level.INFO);
         context = new Mockery();
         service = context.mock(IEncapsulatedOpenBISService.class);
         spaceProvider = context.mock(IFreeSpaceProvider.class);

@@ -44,6 +44,7 @@ import ch.systemsx.cisd.common.string.StringUtilities;
 import ch.systemsx.cisd.common.test.LogMonitoringAppender;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.IValidator;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.util.LogRecordingUtils;
 
 /**
  * Test cases for corresponding {@link DefaultReturnValueFilter} class.
@@ -77,7 +78,7 @@ public final class DefaultReturnValueFilterTest
         context = new Mockery();
         validator = context.mock(IValidator.class);
         defaultReturnValueFilter = new DefaultReturnValueFilter(null);
-        logRecorder = new BufferedAppender("%m%n", Level.DEBUG);
+        logRecorder = LogRecordingUtils.createRecorder("%m%n", Level.DEBUG);
         // Because 'log.xml' set the root logger level to INFO, we have to reset it here to DEBUG if
         // we want to catch the messages we are looking for.
         final Logger rootLogger = Logger.getRootLogger();

@@ -77,6 +77,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.OpenBISSessionHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.util.LogRecordingUtils;
 
 /**
  * Test cases for corresponding {@link TransferredDataSetHandler} class.
@@ -330,7 +331,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
         targetFolder =
                 IdentifiedDataStrategy.createBaseDirectory(workingDirectory, dataSetInformation);
         targetData1 = createTargetData(data1);
-        logRecorder = new BufferedAppender("%-5p %c - %m%n", Level.INFO, ".*(DataStrategyStore|FileRenamer)");
+        logRecorder = LogRecordingUtils.createRecorder("%-5p %c - %m%n", Level.INFO, ".*(DataStrategyStore|FileRenamer)");
     }
 
     private final String createLogMsgOfSuccess(final DataSetInformation dataSet)

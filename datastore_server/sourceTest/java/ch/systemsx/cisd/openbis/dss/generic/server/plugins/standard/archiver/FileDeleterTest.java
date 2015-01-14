@@ -40,6 +40,7 @@ import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.mail.IMailClientProvider;
 import ch.systemsx.cisd.common.string.Template;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
+import ch.systemsx.cisd.openbis.util.LogRecordingUtils;
 
 /**
  * @author Franz-Josef Elmer
@@ -71,8 +72,7 @@ public class FileDeleterTest extends AbstractFileSystemTestCase
     @BeforeMethod
     public void setUpTestEnvironment()
     {
-        logRecorder = new BufferedAppender("%-5p %c - %m%n", Level.INFO, "OPERATION.*");
-        logRecorder.addRegexForLoggingEventsToBeDropped("OPERATION.*FullTextIndex.*");
+        logRecorder = LogRecordingUtils.createRecorder("%-5p %c - %m%n", Level.INFO, "OPERATION.*");
         context = new Mockery();
         mailClient = context.mock(IMailClient.class);
         mailClientProvider = new IMailClientProvider()

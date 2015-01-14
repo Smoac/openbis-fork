@@ -36,6 +36,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
+import ch.systemsx.cisd.openbis.util.LogRecordingUtils;
 
 /**
  * Test cases for corresponding {@link SampleTypeDAO} class.
@@ -70,7 +71,7 @@ public final class SampleTypeDAOTest extends AbstractDAOTest
     public final void setUp()
     {
         super.setUp();
-        logRecorder = new BufferedAppender("%m%n", Level.DEBUG);
+        logRecorder = LogRecordingUtils.createRecorder("%m%n", Level.DEBUG);
         final Logger sampleTypeLogger = SampleTypeDAO.operationLog;
         previousLevel = sampleTypeLogger.getLevel();
         assertNull(previousLevel);

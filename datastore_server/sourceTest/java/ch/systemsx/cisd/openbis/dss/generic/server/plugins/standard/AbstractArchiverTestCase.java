@@ -49,6 +49,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IncomingShareIdProviderTestWr
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProviderTestWrapper;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.Share;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
+import ch.systemsx.cisd.openbis.util.LogRecordingUtils;
 
 /**
  * @author Franz-Josef Elmer
@@ -141,7 +142,7 @@ public abstract class AbstractArchiverTestCase extends AbstractFileSystemTestCas
     {
         System.out.println(">>>>>> set up for " + method.getName() + " " + Arrays.asList(workingDirectory.list()));
         LogInitializer.init();
-        logRecorder = new BufferedAppender("%-5p %c - %m%n", Level.DEBUG);
+        logRecorder = LogRecordingUtils.createRecorder("%-5p %c - %m%n", Level.DEBUG);
         context = new Mockery();
         fileOperationsManager = context.mock(IDataSetFileOperationsManager.class);
         dataSetDirectoryProvider = context.mock(IDataSetDirectoryProvider.class);

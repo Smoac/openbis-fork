@@ -28,6 +28,7 @@ import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.mail.IMailClient;
+import ch.systemsx.cisd.openbis.util.LogRecordingUtils;
 
 /**
  * Test the ImageValidator.
@@ -57,7 +58,7 @@ public class ImageValidatorTest extends AbstractFileSystemTestCase
         mailClient = context.mock(IMailClient.class);
         operationLog = LogFactory.getLogger(LogCategory.OPERATION, ImageValidatorTest.class);
         notificationLog = LogFactory.getLogger(LogCategory.NOTIFY, ImageValidatorTest.class);
-        logAppender = new BufferedAppender();
+        logAppender = LogRecordingUtils.createRecorder();
     }
 
     @Test

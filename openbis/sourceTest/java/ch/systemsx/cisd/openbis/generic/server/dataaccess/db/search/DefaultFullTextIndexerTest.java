@@ -38,6 +38,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.util.LogRecordingUtils;
 
 /**
  * @author Franz-Josef Elmer
@@ -65,7 +66,7 @@ public class DefaultFullTextIndexerTest extends AssertJUnit
     @BeforeMethod
     public final void setUp()
     {
-        logRecorder = new BufferedAppender("%-5p %c - %m%n", Level.INFO);
+        logRecorder = LogRecordingUtils.createRecorder("%-5p %c - %m%n", Level.INFO);
         context = new Mockery();
         criteria = context.mock(Criteria.class);
         session = context.mock(FullTextSession.class);

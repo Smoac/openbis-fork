@@ -53,6 +53,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.DataSetBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.DataStoreBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.OpenBISSessionHolder;
+import ch.systemsx.cisd.openbis.util.LogRecordingUtils;
 
 /**
  * @author Franz-Josef Elmer
@@ -97,7 +98,7 @@ public class SecondCopyPostRegistrationTaskTest extends AbstractFileSystemTestCa
     @BeforeMethod
     public void beforeMethod()
     {
-        logRecorder = new BufferedAppender("%-5p %c - %m%n", Level.INFO, 
+        logRecorder = LogRecordingUtils.createRecorder("%-5p %c - %m%n", Level.INFO, 
                 ".*(SecondCopyPostRegistrationTask|AbstractDatastorePlugin|DataSetFileOperationsManager)");
         logRecorder.addFilter(new Filter()
             {

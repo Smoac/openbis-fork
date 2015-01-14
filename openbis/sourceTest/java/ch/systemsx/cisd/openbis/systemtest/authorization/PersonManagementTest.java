@@ -39,6 +39,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.plugin.generic.server.GenericServer;
 import ch.systemsx.cisd.openbis.plugin.query.server.QueryServer;
 import ch.systemsx.cisd.openbis.systemtest.base.BaseTest;
+import ch.systemsx.cisd.openbis.util.LogRecordingUtils;
 
 /**
  * This test tests registering and deactivating a person. It also tests authorization of {@link CommonServer}, {@link ServiceForDataStoreServer},
@@ -53,7 +54,7 @@ public class PersonManagementTest extends BaseTest
     @BeforeMethod
     public void setUpLogger()
     {
-        logRecorder = new BufferedAppender("%-5p %c - %m%n", Level.INFO, ".*AUTH.CommonServer");
+        logRecorder = LogRecordingUtils.createRecorder("%-5p %c - %m%n", Level.INFO, ".*AUTH.CommonServer");
     }
 
     @AfterMethod
