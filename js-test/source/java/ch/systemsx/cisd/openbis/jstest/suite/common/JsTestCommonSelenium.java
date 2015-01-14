@@ -113,7 +113,7 @@ public class JsTestCommonSelenium extends SeleniumTest
             OpenbisJsCommonWebapp webapp = browser().goTo(location);
             
             String junitReport = "";
-            for (int x = 0; x < 20; x++)
+            for (int x = 0; x < 120; x++)
             {
                 junitReport = webapp.getJunitReport();
                 if (junitReport.length() == 0) {
