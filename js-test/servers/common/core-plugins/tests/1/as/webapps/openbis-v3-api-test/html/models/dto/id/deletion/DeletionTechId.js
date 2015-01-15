@@ -1,7 +1,7 @@
 /**
  *  @author pkupczyk
  */
-define(["dto/id/ObjectTechId", "dto/id/deletion/IDeletionId"], function (ObjectTechId, IDeletionId) {
+define(["support/stjs", "dto/id/ObjectTechId", "dto/id/deletion/IDeletionId"], function (stjs, ObjectTechId, IDeletionId) {
     var DeletionTechId = function(techId) {
         ObjectTechId.call(this, techId);
     };

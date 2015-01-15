@@ -1,7 +1,7 @@
 /**
  *  @author pkupczyk
  */
-define([], function (AbstractObjectSearchCriterion) {
+define(["support/stjs"], function (stjs, AbstractObjectSearchCriterion) {
     var TagSearchCriterion = function() {
         AbstractObjectSearchCriterion.call(this);
     };

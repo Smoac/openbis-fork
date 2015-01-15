@@ -1,18 +1,17 @@
 /**
  *  Class automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
  */
-define([
+define(["support/stjs",
         'dto/fetchoptions/experiment/ExperimentTypeFetchOptions',
         'dto/fetchoptions/project/ProjectFetchOptions',
         'dto/fetchoptions/property/PropertyFetchOptions',
-        'dto/fetchoptions/project/ProjectFetchOptions',
         'dto/fetchoptions/tag/TagFetchOptions',
         'dto/fetchoptions/person/PersonFetchOptions',
         'dto/fetchoptions/attachment/AttachmentFetchOptions',
-        ], function (ExperimentTypeFetchOptions, 
+        ], function (stjs, 
+                    ExperimentTypeFetchOptions, 
         			ProjectFetchOptions, 
         			PropertyFetchOptions, 
-        			ProjectFetchOptions,
         			TagFetchOptions, 
         			PersonFetchOptions, 
         			AttachmentFetchOptions) {

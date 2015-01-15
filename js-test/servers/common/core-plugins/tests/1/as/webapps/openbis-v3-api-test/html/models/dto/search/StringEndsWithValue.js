@@ -1,4 +1,4 @@
-define([], function (AbstractStringValue) {
+define(["support/stjs"], function (stjs, AbstractStringValue) {
     var StringEndsWithValue = function(value) {
         AbstractStringValue.call(this, value);
     };

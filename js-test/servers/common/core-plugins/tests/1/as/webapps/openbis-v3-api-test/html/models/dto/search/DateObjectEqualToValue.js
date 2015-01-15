@@ -1,4 +1,4 @@
-define([], function (AbstractDateObjectValue) {
+define(["support/stjs"], function (stjs, AbstractDateObjectValue) {
     var DateObjectEqualToValue = function(value) {
         AbstractDateObjectValue.call(this, value);
     };

@@ -3,7 +3,7 @@
  *  
  *  @author pkupczyk
  */
-define(["dto/id/ObjectIdentifier", "dto/id/material/IMaterialId"], function (ObjectPermId, IMaterialId) {
+define(["support/stjs", "dto/id/ObjectIdentifier", "dto/id/material/IMaterialId"], function (stjs, ObjectPermId, IMaterialId) {
     var MaterialPermId = /**
      *  @param permId Material perm id, e.g. "MY_MATERIAL (MY_MATERIAL_TYPE)".
      */

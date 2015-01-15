@@ -1,4 +1,4 @@
-define([], function (AbstractStringValue) {
+define(["support/stjs"], function (stjs, AbstractStringValue) {
     var StringEqualToValue = function() {
         AbstractStringValue.call(this, null);
     };

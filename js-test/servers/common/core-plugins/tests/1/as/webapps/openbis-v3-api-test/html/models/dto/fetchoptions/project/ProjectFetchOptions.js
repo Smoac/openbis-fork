@@ -1,7 +1,7 @@
 /**
  *  Class automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
  */
-define(['dto/fetchoptions/person/PersonFetchOptions', 'dto/fetchoptions/space/SpaceFetchOptions'], function (PersonFetchOptions, SpaceFetchOptions) {
+define(["support/stjs", 'dto/fetchoptions/person/PersonFetchOptions', 'dto/fetchoptions/space/SpaceFetchOptions'], function (stjs, PersonFetchOptions, SpaceFetchOptions) {
     var ProjectFetchOptions = function() {};
     stjs.extend(ProjectFetchOptions, null, [], function(constructor, prototype) {
         prototype['@type'] = 'ProjectFetchOptions';

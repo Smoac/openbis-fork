@@ -1,7 +1,7 @@
 /**
  *  @author pkupczyk
  */
-define([], function (VocabularyFieldSearchCriterion) {
+define(["support/stjs"], function (stjs, VocabularyFieldSearchCriterion) {
     var VocabularyPropertySearchCriterion = function(fieldName) {
         VocabularyFieldSearchCriterion.call(this, fieldName, SearchFieldType.PROPERTY);
     };

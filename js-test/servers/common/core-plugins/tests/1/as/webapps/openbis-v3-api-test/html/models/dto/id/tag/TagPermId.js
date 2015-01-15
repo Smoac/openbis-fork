@@ -3,7 +3,7 @@
  *  
  *  @author pkupczyk
  */
-define(["dto/id/ObjectPermId", "dto/id/tag/ITagId"], function (ObjectPermId, ITagId) {
+define(["support/stjs", "dto/id/ObjectPermId", "dto/id/tag/ITagId"], function (stjs, ObjectPermId, ITagId) {
     var TagPermId = /**
      *  @param permId Tag perm id, e.g. "/MY_USER/MY_TAG".
      */

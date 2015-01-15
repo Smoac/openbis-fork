@@ -1,7 +1,7 @@
 /**
  *  Class automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
  */
-define([], function () {
+define(["support/stjs"], function (stjs) {
     var Experiment = function() {};
     stjs.extend(Experiment, null, [], function(constructor, prototype) {
         prototype['@type'] = 'Experiment';

@@ -3,7 +3,7 @@
  *  
  *  @author pkupczyk
  */
-define([], function () {
+define(["support/stjs"], function (stjs) {
     var IObjectId = function() {};
     stjs.extend(IObjectId, null, [], null, {});
     return IObjectId;

@@ -1,7 +1,7 @@
 /**
  *  @author pkupczyk
  */
-define(["dto/operation/IOperationResult"], function (IOperationResult) {
+define(["support/stjs", "dto/operation/IOperationResult"], function (stjs, IOperationResult) {
     var ListExperimentsOperationResult = function() {};
     stjs.extend(ListExperimentsOperationResult, null, [IOperationResult], null, {});
     return ListExperimentsOperationResult;

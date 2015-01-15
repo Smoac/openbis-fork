@@ -5,7 +5,7 @@
  *  
  *  @author pkupczyk
  */
-define(["dto/id/IObjectId"], function (IObjectId) {
+define(["support/stjs", "dto/id/IObjectId"], function (stjs, IObjectId) {
     var ObjectPermId = function(permId) {
         this.setPermId(permId);
     };

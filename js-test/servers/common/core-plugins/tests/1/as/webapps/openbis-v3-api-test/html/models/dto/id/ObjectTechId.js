@@ -1,7 +1,7 @@
 /**
  *  @author pkupczyk
  */
-define(["dto/id/IObjectId"], function (IObjectId) {
+define(["support/stjs", "dto/id/IObjectId"], function (stjs, IObjectId) {
     var ObjectTechId = function(techId) {
         this.setTechId(techId);
     };

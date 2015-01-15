@@ -3,7 +3,7 @@
  *  
  *  @author pkupczyk
  */
-define(["dto/id/ObjectIdentifier", "dto/id/project/IProjectId"], function (ObjectIdentifier, IProjectId) {
+define(["support/stjs", "dto/id/ObjectIdentifier", "dto/id/project/IProjectId"], function (stjs, ObjectIdentifier, IProjectId) {
     var ProjectIdentifier = /**
      *  @param identifier Project identifier, e.g. "/MY_SPACE/MY_PROJECT".
      */

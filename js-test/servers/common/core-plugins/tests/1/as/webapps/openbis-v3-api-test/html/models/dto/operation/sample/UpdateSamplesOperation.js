@@ -1,7 +1,7 @@
 /**
  *  @author pkupczyk
  */
-define(["dto/operation/IOperation"], function (IOperation) {
+define(["support/stjs", "dto/operation/IOperation"], function (stjs, IOperation) {
     var UpdateSamplesOperation = function(updates) {
         this.updates = updates;
     };

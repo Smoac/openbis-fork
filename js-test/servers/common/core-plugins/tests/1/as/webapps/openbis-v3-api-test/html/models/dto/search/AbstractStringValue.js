@@ -1,4 +1,4 @@
-define([], function (AbstractValue) {
+define(["support/stjs"], function (stjs, AbstractValue) {
     var AbstractStringValue = function(value) {
         AbstractValue.call(this, value);
     };

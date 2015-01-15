@@ -1,7 +1,7 @@
 /**
  *  @author pkupczyk
  */
-define([], function () {
+define(["support/stjs"], function (stjs) {
     var SearchCriterionToStringBuilder = function() {};
     stjs.extend(SearchCriterionToStringBuilder, null, [], function(constructor, prototype) {
         prototype['@type'] = 'SearchCriterionToStringBuilder';

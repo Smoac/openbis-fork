@@ -1,4 +1,4 @@
-define([], function (FetchOptions) {
+define(["support/stjs"], function (stjs, FetchOptions) {
     var EmptyFetchOptions = function() {
         FetchOptions.call(this);
     };

@@ -1,7 +1,7 @@
 /**
  *  @author pkupczyk
  */
-define(["dto/search/IDate"], function (AbstractValue, IDate) {
+define(["support/stjs", "dto/search/IDate"], function (stjs, AbstractValue, IDate) {
     var AbstractDateValue = function(value) {
         AbstractValue.call(this, value);
     };

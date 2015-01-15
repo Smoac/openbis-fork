@@ -1,7 +1,7 @@
 /**
  *  @author pkupczyk
  */
-define([], function (NumberFieldSearchCriterion) {
+define(["support/stjs"], function (stjs, NumberFieldSearchCriterion) {
     var NumberPropertySearchCriterion = function(fieldName) {
         NumberFieldSearchCriterion.call(this, fieldName, SearchFieldType.PROPERTY);
     };

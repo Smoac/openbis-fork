@@ -3,7 +3,7 @@
  *  
  *  @author pkupczyk
  */
-define(["dto/id/attachment/IAttachmentId"], function (IAttachmentId) {
+define(["support/stjs", "dto/id/attachment/IAttachmentId"], function (stjs, IAttachmentId) {
     var AttachmentFileName = /**
      *  @param fileName Attachment file name, e.g. "my_file.txt".
      */

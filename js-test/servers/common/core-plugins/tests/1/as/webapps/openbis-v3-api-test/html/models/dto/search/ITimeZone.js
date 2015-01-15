@@ -1,7 +1,7 @@
 /**
  *  @author pkupczyk
  */
-define([], function () {
+define(["support/stjs"], function (stjs) {
     var ITimeZone = function() {};
     stjs.extend(ITimeZone, null, [], null, {});
     return ITimeZone;

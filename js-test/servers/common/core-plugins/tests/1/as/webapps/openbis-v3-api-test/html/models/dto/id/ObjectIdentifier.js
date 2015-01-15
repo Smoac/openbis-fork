@@ -5,7 +5,7 @@
  *  
  *  @author pkupczyk
  */
-define(["dto/id/IObjectId"], function (IObjectId) {
+define(["support/stjs", "dto/id/IObjectId"], function (stjs, IObjectId) {
     var ObjectIdentifier = function(identifier) {
         this.setIdentifier(identifier);
     };

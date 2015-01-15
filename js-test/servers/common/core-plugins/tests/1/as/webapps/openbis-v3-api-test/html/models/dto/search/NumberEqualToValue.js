@@ -1,7 +1,7 @@
 /**
  *  @author pkupczyk
  */
-define([], function (AbstractNumberValue) {
+define(["support/stjs"], function (stjs, AbstractNumberValue) {
     var NumberEqualToValue = function(number) {
         AbstractNumberValue.call(this, number);
     };

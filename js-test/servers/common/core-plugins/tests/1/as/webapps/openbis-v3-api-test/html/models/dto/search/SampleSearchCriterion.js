@@ -1,7 +1,7 @@
 /**
  *  @author pkupczyk
  */
-define([], function (AbstractEntitySearchCriterion) {
+define(["support/stjs"], function (stjs, AbstractEntitySearchCriterion) {
     var SampleSearchCriterion = function() {
         this.this(SampleSearchRelation.SAMPLE);
     };

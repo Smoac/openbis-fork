@@ -3,7 +3,7 @@
  *  
  *  @author pkupczyk
  */
-define(["dto/id/ObjectPermId", "dto/id/space/ISpaceId"], function (ObjectPermId, ISpaceId) {
+define(["support/stjs", "dto/id/ObjectPermId", "dto/id/space/ISpaceId"], function (stjs, ObjectPermId, ISpaceId) {
     var SpacePermId = /**
      *  @param permId Space perm id, e.g. "/MY_SPACE" or "MY_SPACE".
      */

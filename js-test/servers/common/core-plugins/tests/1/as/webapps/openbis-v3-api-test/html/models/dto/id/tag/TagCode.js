@@ -4,7 +4,7 @@
  *  @author Franz-Josef Elmer
  *  @author Jakub Straszewski
  */
-define(["dto/id/tag/ITagId"], function (ITagId) {
+define(["support/stjs", "dto/id/tag/ITagId"], function (stjs, ITagId) {
     var TagCode = /**
      *  @param code Tag code, e.g. "MY_TAG".
      */

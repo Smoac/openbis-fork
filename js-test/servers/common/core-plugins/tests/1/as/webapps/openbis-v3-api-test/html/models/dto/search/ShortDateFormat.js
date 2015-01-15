@@ -1,7 +1,7 @@
 /**
  *  @author pkupczyk
  */
-define(["dto/search/IDateFormat"], function (IDateFormat) {
+define(["support/stjs", "dto/search/IDateFormat"], function (stjs, IDateFormat) {
     var ShortDateFormat = function() {};
     stjs.extend(ShortDateFormat, null, [IDateFormat], function(constructor, prototype) {
         prototype['@type'] = 'ShortDateFormat';

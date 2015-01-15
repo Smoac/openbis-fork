@@ -1,7 +1,7 @@
 /**
  *  @author pkupczyk
  */
-define([], function (DateFieldSearchCriterion) {
+define(["support/stjs"], function (stjs, DateFieldSearchCriterion) {
     var ModificationDateSearchCriterion = function() {
         DateFieldSearchCriterion.call(this, "modification_date", SearchFieldType.ATTRIBUTE);
     };

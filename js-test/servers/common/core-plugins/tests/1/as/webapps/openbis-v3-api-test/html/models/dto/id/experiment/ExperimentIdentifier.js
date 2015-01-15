@@ -3,7 +3,7 @@
  *  
  *  @author pkupczyk
  */
-define(["dto/id/ObjectIdentifier", "dto/id/experiment/IExperimentId"], function (ObjectIdentifier, IExperimentId) {
+define(["support/stjs", "dto/id/ObjectIdentifier", "dto/id/experiment/IExperimentId"], function (stjs, ObjectIdentifier, IExperimentId) {
     var ExperimentIdentifier = /**
      *  @param identifier Experiment identifier, e.g. "/MY_SPACE/MY_PROJECT/MY_EXPERIMENT".
      */

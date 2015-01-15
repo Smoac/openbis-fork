@@ -1,7 +1,7 @@
 /**
  *  @author pkupczyk
  */
-define([], function (AbstractDateValue) {
+define(["support/stjs"], function (stjs, AbstractDateValue) {
     var DateLaterThanOrEqualToValue = function(value) {
         AbstractDateValue.call(this, value);
     };

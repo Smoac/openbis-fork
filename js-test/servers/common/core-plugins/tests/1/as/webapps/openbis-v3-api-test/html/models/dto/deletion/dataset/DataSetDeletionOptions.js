@@ -1,7 +1,7 @@
 /**
  *  @author pkupczyk
  */
-define([], function (AbstractObjectDeletionOptions) {
+define(["support/stjs"], function (stjs, AbstractObjectDeletionOptions) {
     var DataSetDeletionOptions = function() {
         AbstractObjectDeletionOptions.call(this);
     };

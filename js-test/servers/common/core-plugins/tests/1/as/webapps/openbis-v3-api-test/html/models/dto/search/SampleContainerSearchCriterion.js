@@ -1,7 +1,7 @@
 /**
  *  @author pkupczyk
  */
-define([], function (SampleSearchCriterion) {
+define(["support/stjs"], function (stjs, SampleSearchCriterion) {
     var SampleContainerSearchCriterion = function() {
         SampleSearchCriterion.call(this, SampleSearchRelation.CONTAINER);
     };

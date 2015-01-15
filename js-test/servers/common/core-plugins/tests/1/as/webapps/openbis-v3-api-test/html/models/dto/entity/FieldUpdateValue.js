@@ -3,7 +3,7 @@
  *  
  *  @author Jakub Straszewski
  */
-define([], function () {
+define(["support/stjs"], function (stjs) {
     var FieldUpdateValue = function() {};
     stjs.extend(FieldUpdateValue, null, [], function(constructor, prototype) {
         prototype['@type'] = 'FieldUpdateValue';

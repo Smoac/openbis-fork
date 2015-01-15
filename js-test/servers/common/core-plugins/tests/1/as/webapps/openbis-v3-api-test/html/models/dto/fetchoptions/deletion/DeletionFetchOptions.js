@@ -1,7 +1,7 @@
 /**
  *  @author pkupczyk
  */
-define([], function () {
+define(["support/stjs"], function (stjs) {
     var DeletionFetchOptions = function() {};
     stjs.extend(DeletionFetchOptions, null, [], function(constructor, prototype) {
         prototype['@type'] = 'DeletionFetchOptions';

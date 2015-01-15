@@ -1,7 +1,7 @@
 /**
  *  @author pkupczyk
  */
-define([], function () {
+define(["support/stjs"], function (stjs) {
     var Material = function() {};
     stjs.extend(Material, null, [], function(constructor, prototype) {
         prototype['@type'] = 'Material';

@@ -1,7 +1,7 @@
 /**
  *  @author pkupczyk
  */
-define([], function (ListUpdateValue) {
+define(["support/stjs"], function (stjs, ListUpdateValue) {
     var IdListUpdateValue = function() {
         ListUpdateValue.call(this);
     };

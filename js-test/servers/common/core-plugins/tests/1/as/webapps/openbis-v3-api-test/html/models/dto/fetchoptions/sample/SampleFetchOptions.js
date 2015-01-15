@@ -1,7 +1,7 @@
 /**
  *  Class automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
  */
-define([        
+define(["support/stjs",
         'dto/fetchoptions/sample/SampleTypeFetchOptions',
         'dto/fetchoptions/space/SpaceFetchOptions',
         'dto/fetchoptions/experiment/ExperimentFetchOptions',
@@ -10,7 +10,7 @@ define([
         'dto/fetchoptions/tag/TagFetchOptions',
         'dto/fetchoptions/person/PersonFetchOptions',
         'dto/fetchoptions/attachment/AttachmentFetchOptions'], 
-        function (
+        function (stjs,
         		SampleTypeFetchOptions, 
         		SpaceFetchOptions, 
         		ExperimentFetchOptions, 

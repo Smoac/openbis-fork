@@ -3,7 +3,7 @@
  *  
  *  @author pkupczyk
  */
-define(["dto/id/IObjectId"], function (IObjectId) {
+define(["support/stjs", "dto/id/IObjectId"], function (stjs, IObjectId) {
     var IEntityTypeId = function() {};
     stjs.extend(IEntityTypeId, null, [IObjectId], null, {});
     return IEntityTypeId;

@@ -1,7 +1,7 @@
 /**
  *  @author pkupczyk
  */
-define([], function (AbstractEntitySearchCriterion) {
+define(["support/stjs"], function (stjs, AbstractEntitySearchCriterion) {
     var DataSetSearchCriterion = function() {
         this.this(DataSetSearchRelation.DATASET);
     };

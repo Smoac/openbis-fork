@@ -1,4 +1,4 @@
-define([], function (AbstractFieldSearchCriterion) {
+define(["support/stjs"], function (stjs, AbstractFieldSearchCriterion) {
     var VocabularyFieldSearchCriterion = function(fieldName, fieldType) {
         AbstractFieldSearchCriterion.call(this, fieldName, fieldType);
     };

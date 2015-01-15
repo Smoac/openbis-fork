@@ -1,7 +1,7 @@
 /**
  *  @author pkupczyk
  */
-define(["dto/operation/IOperationResult"], function (IOperationResult) {
+define(["support/stjs", "dto/operation/IOperationResult"], function (stjs, IOperationResult) {
     var CreateExperimentsOperationResult = function() {};
     stjs.extend(CreateExperimentsOperationResult, null, [IOperationResult], function(constructor, prototype) {
         prototype['@type'] = 'CreateExperimentsOperationResult';

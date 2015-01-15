@@ -1,9 +1,9 @@
-define([], function () {
+define(["support/stjs"], function (stjs) {
     var ListUpdateValue = function() {};
     stjs.extend(ListUpdateValue, null, [], function(constructor, prototype) {
         prototype['@type'] = 'ListUpdateValue';
         constructor.serialVersionUID = 1;
-        define([], function () {
+        define(["support/stjs"], function (stjs) {
             constructor.ListUpdateAction = function() {};
             stjs.extend(ListUpdateValue.ListUpdateAction, null, [], function(constructor, prototype) {
                 prototype['@type'] = 'ListUpdateAction';
@@ -17,7 +17,7 @@ define([], function () {
                 };
             }, {items: {name: "Collection", arguments: ["T"]}});
             return ListUpdateValue.ListUpdateAction;
-        })define([], function (ListUpdateValue.ListUpdateAction) {
+        })define(["support/stjs"], function (stjs, ListUpdateValue.ListUpdateAction) {
             constructor.ListUpdateActionAdd = function() {
                 ListUpdateValue.ListUpdateAction.call(this);
             };
@@ -26,7 +26,7 @@ define([], function () {
                 constructor.serialVersionUID = 1;
             }, {items: {name: "Collection", arguments: ["T"]}});
             return ListUpdateValue.ListUpdateActionAdd;
-        })define([], function (ListUpdateValue.ListUpdateAction) {
+        })define(["support/stjs"], function (stjs, ListUpdateValue.ListUpdateAction) {
             constructor.ListUpdateActionRemove = function() {
                 ListUpdateValue.ListUpdateAction.call(this);
             };
@@ -35,7 +35,7 @@ define([], function () {
                 constructor.serialVersionUID = 1;
             }, {items: {name: "Collection", arguments: ["T"]}});
             return ListUpdateValue.ListUpdateActionRemove;
-        })define([], function (ListUpdateValue.ListUpdateAction) {
+        })define(["support/stjs"], function (stjs, ListUpdateValue.ListUpdateAction) {
             constructor.ListUpdateActionSet = function() {
                 ListUpdateValue.ListUpdateAction.call(this);
             };

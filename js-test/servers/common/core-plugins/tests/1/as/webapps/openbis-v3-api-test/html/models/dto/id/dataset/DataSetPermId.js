@@ -3,7 +3,7 @@
  *  
  *  @author pkupczyk
  */
-define(["dto/id/ObjectIdentifier", "dto/id/dataset/IDataSetId"], function (ObjectPermId, IDataSetId) {
+define(["support/stjs", "dto/id/ObjectIdentifier", "dto/id/dataset/IDataSetId"], function (stjs, ObjectPermId, IDataSetId) {
     var DataSetPermId = /**
      *  @param permId Data set perm id, e.g. "201108050937246-1031".
      */

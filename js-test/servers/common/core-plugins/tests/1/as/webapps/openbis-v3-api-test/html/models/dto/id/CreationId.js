@@ -1,7 +1,7 @@
 /**
  *  @author Jakub Straszewski
  */
-define(["dto/id/sample/ISampleId", "dto/id/dataset/IDataSetId", "dto/id/experiment/IExperimentId", "dto/id/project/IProjectId", "dto/id/space/ISpaceId", "dto/id/material/IMaterialId"], function (ISampleId, IDataSetId, IExperimentId, IProjectId, ISpaceId, IMaterialId) {
+define(["support/stjs", "dto/id/sample/ISampleId", "dto/id/dataset/IDataSetId", "dto/id/experiment/IExperimentId", "dto/id/project/IProjectId", "dto/id/space/ISpaceId", "dto/id/material/IMaterialId"], function (stjs, ISampleId, IDataSetId, IExperimentId, IProjectId, ISpaceId, IMaterialId) {
     var CreationId = function(creationId) {
         this.creationId = creationId;
     };

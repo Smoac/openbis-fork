@@ -1,7 +1,7 @@
 /**
  *  @author pkupczyk
  */
-define([], function () {
+define(["support/stjs"], function (stjs) {
     var DeletedObject = function() {};
     stjs.extend(DeletedObject, null, [], function(constructor, prototype) {
         prototype['@type'] = 'DeletedObject';

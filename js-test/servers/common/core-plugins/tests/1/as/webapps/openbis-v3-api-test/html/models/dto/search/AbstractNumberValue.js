@@ -1,7 +1,7 @@
 /**
  *  @author pkupczyk
  */
-define([], function (AbstractValue) {
+define(["support/stjs"], function (stjs, AbstractValue) {
     var AbstractNumberValue = function(number) {
         AbstractValue.call(this, number);
     };

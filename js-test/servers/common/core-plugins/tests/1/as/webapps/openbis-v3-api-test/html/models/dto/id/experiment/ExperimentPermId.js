@@ -3,7 +3,7 @@
  *  
  *  @author pkupczyk
  */
-define(["dto/id/ObjectPermId", "dto/id/experiment/IExperimentId"], function (ObjectPermId, IExperimentId) {
+define(["support/stjs", "dto/id/ObjectPermId", "dto/id/experiment/IExperimentId"], function (stjs, ObjectPermId, IExperimentId) {
     var ExperimentPermId = /**
      *  @param permId Experiment perm id, e.g. "201108050937246-1031".
      */

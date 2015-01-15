@@ -1,7 +1,7 @@
 /**
  *  @author pkupczyk
  */
-define([], function () {
+define(["support/stjs"], function (stjs) {
     var AbstractObjectDeletionOptions = function() {};
     stjs.extend(AbstractObjectDeletionOptions, null, [], function(constructor, prototype) {
         prototype['@type'] = 'AbstractObjectDeletionOptions';

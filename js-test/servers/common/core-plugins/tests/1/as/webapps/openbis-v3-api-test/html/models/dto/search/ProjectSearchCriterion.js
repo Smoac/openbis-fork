@@ -1,7 +1,7 @@
 /**
  *  @author pkupczyk
  */
-define([], function (AbstractObjectSearchCriterion) {
+define(["support/stjs"], function (stjs, AbstractObjectSearchCriterion) {
     var ProjectSearchCriterion = function() {
         AbstractObjectSearchCriterion.call(this);
     };

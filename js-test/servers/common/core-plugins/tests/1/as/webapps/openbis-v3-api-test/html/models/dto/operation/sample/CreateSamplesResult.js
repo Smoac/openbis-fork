@@ -1,7 +1,7 @@
 /**
  *  @author pkupczyk
  */
-define(["dto/operation/IOperationResult"], function (IOperationResult) {
+define(["support/stjs", "dto/operation/IOperationResult"], function (stjs, IOperationResult) {
     var CreateSamplesResult = function(permIds) {
         this.permIds = permIds;
     };

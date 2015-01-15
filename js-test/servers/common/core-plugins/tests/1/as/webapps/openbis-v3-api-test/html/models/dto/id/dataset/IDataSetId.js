@@ -3,7 +3,7 @@
  *  
  *  @author pkupczyk
  */
-define(["dto/id/IObjectId"], function (IObjectId) {
+define(["support/stjs", "dto/id/IObjectId"], function (stjs, IObjectId) {
     var IDataSetId = function() {};
     stjs.extend(IDataSetId, null, [IObjectId], null, {});
     return IDataSetId;

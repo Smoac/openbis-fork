@@ -1,7 +1,7 @@
 /**
  *  @author pkupczyk
  */
-define(["dto/search/ITimeZone"], function (ITimeZone) {
+define(["support/stjs", "dto/search/ITimeZone"], function (stjs, ITimeZone) {
     var TimeZone = function(hourOffset) {
         this.hourOffset = hourOffset;
     };

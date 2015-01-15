@@ -1,7 +1,7 @@
 /**
  *  @author pkupczyk
  */
-define([], function () {
+define(["support/stjs"], function (stjs) {
     var IDate = function() {};
     stjs.extend(IDate, null, [], null, {});
     return IDate;

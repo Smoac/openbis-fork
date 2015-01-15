@@ -1,7 +1,7 @@
 /**
  *  @author pkupczyk
  */
-define([], function (AbstractSearchCriterion) {
+define(["support/stjs"], function (stjs, AbstractSearchCriterion) {
     var AbstractCompositeSearchCriterion = function() {
         AbstractSearchCriterion.call(this);
     };

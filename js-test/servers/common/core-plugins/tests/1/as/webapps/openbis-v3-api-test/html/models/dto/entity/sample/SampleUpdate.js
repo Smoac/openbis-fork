@@ -1,7 +1,7 @@
 /**
  *  @author pkupczyk
  */
-define([], function () {
+define(["support/stjs"], function (stjs) {
     var SampleUpdate = function() {};
     stjs.extend(SampleUpdate, null, [], function(constructor, prototype) {
         prototype['@type'] = 'SampleUpdate';

@@ -1,7 +1,7 @@
 /**
  *  @author Jakub Straszewski
  */
-define([], function (DataSetSearchCriterion) {
+define(["support/stjs"], function (stjs, DataSetSearchCriterion) {
     var DataSetParentsSearchCriterion = function() {
         DataSetSearchCriterion.call(this, DataSetSearchRelation.PARENTS);
     };

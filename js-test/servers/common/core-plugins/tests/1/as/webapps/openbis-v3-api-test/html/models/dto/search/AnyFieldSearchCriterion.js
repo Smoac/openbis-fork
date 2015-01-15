@@ -1,7 +1,7 @@
 /**
  *  @author pkupczyk
  */
-define([], function (StringFieldSearchCriterion) {
+define(["support/stjs"], function (stjs, StringFieldSearchCriterion) {
     var AnyFieldSearchCriterion = function() {
         StringFieldSearchCriterion.call(this, "any", SearchFieldType.ANY_FIELD);
     };

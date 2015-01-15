@@ -1,7 +1,7 @@
 /**
  *  @author pkupczyk
  */
-define([], function () {
+define(["support/stjs"], function (stjs) {
     var AttachmentCreation = function() {};
     stjs.extend(AttachmentCreation, null, [], function(constructor, prototype) {
         prototype['@type'] = 'AttachmentCreation';

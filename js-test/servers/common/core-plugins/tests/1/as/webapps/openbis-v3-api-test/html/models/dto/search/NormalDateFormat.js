@@ -1,7 +1,7 @@
 /**
  *  @author pkupczyk
  */
-define(["dto/search/IDateFormat"], function (IDateFormat) {
+define(["support/stjs", "dto/search/IDateFormat"], function (stjs, IDateFormat) {
     var NormalDateFormat = function() {};
     stjs.extend(NormalDateFormat, null, [IDateFormat], function(constructor, prototype) {
         prototype['@type'] = 'NormalDateFormat';

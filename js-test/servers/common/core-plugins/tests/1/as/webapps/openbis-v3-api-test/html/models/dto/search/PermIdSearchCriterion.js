@@ -1,7 +1,7 @@
 /**
  *  @author pkupczyk
  */
-define([], function (StringFieldSearchCriterion) {
+define(["support/stjs"], function (stjs, StringFieldSearchCriterion) {
     var PermIdSearchCriterion = function() {
         StringFieldSearchCriterion.call(this, "perm id", SearchFieldType.ATTRIBUTE);
     };
