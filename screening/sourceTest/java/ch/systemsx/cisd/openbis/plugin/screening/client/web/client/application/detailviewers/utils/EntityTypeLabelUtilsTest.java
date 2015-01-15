@@ -49,7 +49,7 @@ public class EntityTypeLabelUtilsTest extends AssertJUnit
         DatasetReference ref =
                 new DatasetReference(0, "123412342314-1234", typeCode, null, "DAT", null, null,
                         null, null, null, labelTest);
-        return EntityTypeLabelUtils.createDatasetLabel(ref, false, "2011-05-30", null, true);
+        return EntityTypeLabelUtils.createDatasetLabel(ref, false, "2011-05-30", null, true, false);
     }
 
     private String createLabel(String typeCode, boolean withFileType)
@@ -57,6 +57,6 @@ public class EntityTypeLabelUtilsTest extends AssertJUnit
         DatasetReference ref =
                 new DatasetReference(0, "123412342314-1234", typeCode, null, "DAT", null, null,
                         null, null, null, null);
-        return EntityTypeLabelUtils.createDatasetLabel(ref, withFileType, "2011-05-30", null, true);
+        return EntityTypeLabelUtils.createDatasetLabel(ref, withFileType, "2011-05-30", null, true, false);
     }
 }

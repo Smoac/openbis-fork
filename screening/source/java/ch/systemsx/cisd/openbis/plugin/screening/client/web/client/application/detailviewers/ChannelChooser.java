@@ -28,9 +28,12 @@ import java.util.Set;
 
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
+import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.Text;
 import com.extjs.gxt.ui.client.widget.form.FieldSet;
+import com.extjs.gxt.ui.client.widget.form.SimpleComboValue;
 import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 import com.extjs.gxt.ui.client.widget.layout.MarginData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
@@ -44,25 +47,25 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Abstrac
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.CheckBoxGroupWithModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.CheckBoxGroupWithModel.CheckBoxGroupListner;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.LabeledItem;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.SimpleModelComboBox;
 import ch.systemsx.cisd.openbis.generic.shared.basic.utils.GroupByMap;
 import ch.systemsx.cisd.openbis.generic.shared.basic.utils.IGroupKeyExtractor;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Dict;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.AnalysisProcedureChooser.IAnalysisProcedureSelectionListener;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.dto.ImageDatasetChannel;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.dto.LogicalImageChannelsReference;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.dto.LogicalImageReference;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.utils.EntityTypeLabelUtils;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.utils.GuiUtils;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.AnalysisProcedures;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetOverlayImagesReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetParameters;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageResolution;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.IntensityRange;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.InternalImageChannel;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.InternalImageTransformationInfo;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.AnalysisProcedureCriteria;
 
 /**
  * Handles displaying images in different channels and allows to choose the overlays.
@@ -213,62 +216,106 @@ class ChannelChooser
                     }).getMap();
     }
 
+    public interface OverlayDataSetSelectionListener
+    {
+        public void overlayDataSetSelected(DatasetOverlayImagesReference reference);
+    }
+
+    public Widget createAndConnectOverlayImageDatasetChooser(String labelText,
+            List<DatasetOverlayImagesReference> imageDatasets,
+            final OverlayDataSetSelectionListener listener, IViewContext<?> viewContext)
+    {
+        List<String> labels =
+                EntityTypeLabelUtils.createDatasetLabels(overlaysAsReferences(imageDatasets), true, true);
+        imageDatasets.add(0, null);
+        labels.add(0, "All");
+        SimpleModelComboBox<DatasetOverlayImagesReference> datasetChooser =
+                ImagingDatasetGuiUtils.createDatasetChooserComboBox(viewContext, imageDatasets, labels, labels);
+
+        datasetChooser
+                .addSelectionChangedListener(new SelectionChangedListener<SimpleComboValue<LabeledItem<DatasetOverlayImagesReference>>>()
+                    {
+                        @Override
+                        public void selectionChanged(
+                                SelectionChangedEvent<SimpleComboValue<LabeledItem<DatasetOverlayImagesReference>>> se)
+                        {
+                            DatasetOverlayImagesReference chosenDataset =
+                                    SimpleModelComboBox.getChosenItem(se);
+                            listener.overlayDataSetSelected(chosenDataset);
+                        }
+                    });
+        DatasetOverlayImagesReference chosenDataset = datasetChooser.tryGetChosenItem();
+        listener.overlayDataSetSelected(chosenDataset);
+
+        return ImagingDatasetGuiUtils.withLabel(datasetChooser, labelText);
+    }
+
+    private static List<DatasetReference> overlaysAsReferences(
+            List<DatasetOverlayImagesReference> imageDatasets)
+    {
+        List<DatasetReference> refs = new ArrayList<DatasetReference>();
+        for (DatasetOverlayImagesReference dataset : imageDatasets)
+        {
+            DatasetReference r = dataset.getDatasetReference();
+            refs.add(r);
+        }
+        return refs;
+    }
+
     private Widget createOverlayChannelsChooser(
             List<DatasetOverlayImagesReference> overlayDatasets, IViewContext<?> viewContext)
     {
+        LinkedList<DatasetOverlayImagesReference> sortedDataSets = new LinkedList<DatasetOverlayImagesReference>(overlayDatasets);
+        Collections.sort(sortedDataSets, new ProcedureDatasetSortingOrder());
+
         final Map<String, List<DatasetOverlayImagesReference>> datasetsByAnalysisProcMap =
                 groupByAnalysisProcedure(overlayDatasets);
-        if (datasetsByAnalysisProcMap.size() > 1)
+        if (sortedDataSets.size() > 1)
         {
-            AnalysisProcedures analysisProcedures =
-                    new AnalysisProcedures(datasetsByAnalysisProcMap.keySet());
-
             LayoutContainer chooserPanel = new LayoutContainer();
             chooserPanel.setLayout(new RowLayout());
 
             final LayoutContainer objectsChooserContainer = new LayoutContainer();
 
-            IAnalysisProcedureSelectionListener selectionListener =
+            OverlayDataSetSelectionListener selectionListener =
                     createAnalysisProcedureSelectionListener(datasetsByAnalysisProcMap,
                             objectsChooserContainer);
-            AnalysisProcedureChooser analysisProcedureChooser =
-                    AnalysisProcedureChooser.create(viewContext, analysisProcedures,
-                            AnalysisProcedureCriteria.createAllProcedures(), selectionListener);
-            chooserPanel.add(analysisProcedureChooser);
+
+            Widget overlaysChooser = createAndConnectOverlayImageDatasetChooser(OVERLAYS_MSG, sortedDataSets, selectionListener, viewContext);
+            chooserPanel.add(overlaysChooser);
             chooserPanel.add(objectsChooserContainer);
+
             return chooserPanel;
         } else
         {
             final LayoutContainer objectsChooserContainer = new LayoutContainer();
-            addOverlayChannelsChoosers(overlayDatasets, objectsChooserContainer);
+            addOverlayChannelsChoosers(sortedDataSets, objectsChooserContainer);
             return objectsChooserContainer;
         }
     }
 
-    private IAnalysisProcedureSelectionListener createAnalysisProcedureSelectionListener(
+    private OverlayDataSetSelectionListener createAnalysisProcedureSelectionListener(
             final Map<String, List<DatasetOverlayImagesReference>> datasetsByAnalysisProcMap,
             final LayoutContainer objectsChooserContainer)
     {
-        return new IAnalysisProcedureSelectionListener()
+        return new OverlayDataSetSelectionListener()
             {
                 @Override
-                public void analysisProcedureSelected(AnalysisProcedureCriteria criteria)
+                public void overlayDataSetSelected(DatasetOverlayImagesReference reference)
                 {
-                    refreshObjectChooser(criteria, datasetsByAnalysisProcMap,
-                            objectsChooserContainer);
+                    refreshObjectChooser(reference, datasetsByAnalysisProcMap, objectsChooserContainer);
                 }
             };
     }
 
-    private void refreshObjectChooser(AnalysisProcedureCriteria criteria,
+    private void refreshObjectChooser(DatasetOverlayImagesReference image,
             final Map<String, List<DatasetOverlayImagesReference>> datasetsByAnalysisProcMap,
             final LayoutContainer objectsChooserContainer)
     {
-        List<DatasetOverlayImagesReference> overlayDatasetsForOneAnalysisProc;
+        List<DatasetOverlayImagesReference> overlayDatasetsForOneAnalysisProc = new LinkedList<DatasetOverlayImagesReference>();
 
-        if (criteria.isAllProcedures())
+        if (image == null)
         {
-            overlayDatasetsForOneAnalysisProc = new LinkedList<DatasetOverlayImagesReference>();
             for (String ap : datasetsByAnalysisProcMap.keySet())
             {
                 overlayDatasetsForOneAnalysisProc.addAll(datasetsByAnalysisProcMap.get(ap));
@@ -276,13 +323,11 @@ class ChannelChooser
         }
         else
         {
-            String analysisProcedureCode = criteria.tryGetAnalysisProcedureCode();
-            overlayDatasetsForOneAnalysisProc = datasetsByAnalysisProcMap.get(analysisProcedureCode);
+            overlayDatasetsForOneAnalysisProc.add(image);
         }
 
         objectsChooserContainer.removeAll();
-        if (overlayDatasetsForOneAnalysisProc != null
-                && overlayDatasetsForOneAnalysisProc.size() > 0)
+        if (overlayDatasetsForOneAnalysisProc.size() > 0)
         {
             addOverlayChannelsChoosers(overlayDatasetsForOneAnalysisProc, objectsChooserContainer);
         }
