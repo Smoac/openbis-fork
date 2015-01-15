@@ -67,6 +67,7 @@ test {
     
     workingDir = 'servers/common/openBIS-server'
 }
+test.dependsOn clean
 test.dependsOn copyWar
 
 
