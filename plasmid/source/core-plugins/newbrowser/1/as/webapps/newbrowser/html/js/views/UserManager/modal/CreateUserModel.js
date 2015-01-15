@@ -18,4 +18,5 @@ function CreateUserModel() {
 	this.isPasswordRequired = false;
 	this.userId = null;
 	this.password = null;
+	this.passwordRepeat = null;
 }

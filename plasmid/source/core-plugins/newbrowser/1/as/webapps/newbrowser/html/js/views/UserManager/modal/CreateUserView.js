@@ -20,10 +20,14 @@ function CreateUserView(createUserController, createUserModel) {
 	this._warning = null;
 	this._passField = null;
 	this._passwordGroup = null;
+	this._passFieldRepeat = null;
+	this._passwordGroupRepeat = null;
 	
 	this.showPasswordField = function() {
 		this._passField.removeAttr('disabled');
 		this._passwordGroup.show();
+		this._passFieldRepeat.removeAttr('disabled');
+		this._passwordGroupRepeat.show();
 		this._warning.show();
 	}
 	
@@ -61,7 +65,7 @@ function CreateUserView(createUserController, createUserModel) {
 		//
 		// Password
 		//
-		var $passField = FormUtil._getInputField('text', null, 'Password', null, true);
+		var $passField = FormUtil._getInputField('password', null, 'Password', null, true);
 		$passField.change(function(event) {
 			_this._createUserModel.password = $(this).val();
 		});
@@ -71,6 +75,20 @@ function CreateUserView(createUserController, createUserModel) {
 		$window.append($passwordGroup);
 		this._passField = $passField;
 		this._passwordGroup = $passwordGroup;
+		
+		//
+		// Password Repeat
+		//
+		var $passFieldRepeat = FormUtil._getInputField('password', null, 'Repeat the same password', null, true);
+		$passFieldRepeat.change(function(event) {
+			_this._createUserModel.passwordRepeat = $(this).val();
+		});
+		$passFieldRepeat.prop('disabled', true);
+		var $passwordGroupRepeat = FormUtil.getFieldForComponentWithLabel($passFieldRepeat, "Password Repeat", null);
+		$passwordGroupRepeat.hide();
+		$window.append($passwordGroupRepeat);
+		this._passFieldRepeat = $passFieldRepeat;
+		this._passwordGroupRepeat = $passwordGroupRepeat;
 		
 		//
 		// Buttons

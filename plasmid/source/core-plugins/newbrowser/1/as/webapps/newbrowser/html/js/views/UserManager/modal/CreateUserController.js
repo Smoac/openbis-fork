@@ -42,16 +42,20 @@ function CreateUserController() {
 			if(!this._createUserModel.isPasswordRequired) {
 				createUser();
 			} else {
-				mainController.serverFacade.registerUserPassword(
-						_this._createUserModel.userId,
-						_this._createUserModel.password,
-						function(isRegistered) {
-							if(isRegistered) {
-								createUser();
-							} else {
-								Util.showError("User can't be created, check with your administator.");
-							}
-						});
+				if(_this._createUserModel.password === _this._createUserModel.passwordRepeat) {
+					mainController.serverFacade.registerUserPassword(
+							_this._createUserModel.userId,
+							_this._createUserModel.password,
+							function(isRegistered) {
+								if(isRegistered) {
+									createUser();
+								} else {
+									Util.showError("User can't be created, check with your administator.");
+								}
+							});
+				} else {
+					Util.showError("Passwords are not equal.", function() {});
+				}
 			}
 		
 	}
