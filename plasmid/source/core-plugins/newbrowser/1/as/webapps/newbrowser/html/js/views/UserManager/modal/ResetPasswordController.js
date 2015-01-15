@@ -21,7 +21,7 @@ function ResetPasswordController(userId) {
 	this.resetPassword = function() {
 		var _this = this;
 		
-		if(_this._createUserModel.password === _this._createUserModel.passwordRepeat) {
+		if(_this._resetPasswordModel.password === _this._resetPasswordModel.passwordRepeat) {
 			mainController.serverFacade.registerUserPassword(
 					_this._resetPasswordModel.userId,
 					_this._resetPasswordModel.password,
