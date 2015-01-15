@@ -179,7 +179,7 @@
       <file src="@{installer.dist.dir}/openBIS-server" targetdir="$INSTALL_TMPEXTRACT"/>
       <parsable targetfile="$INSTALL_OPENBIS_TMPEXTRACT/service.properties" />
       <!-- run post installation script for the openBIS server -->
-      <executable targetfile="$INSTALL_OPENBIS_TMPEXTRACT/install.sh" stage="postinstall">
+      <executable targetfile="$INSTALL_OPENBIS_TMPEXTRACT/install.sh" stage="postinstall" failure="abort">
         <args>
           <arg value="$INSTALL_OPENBIS_PATH" />
           <arg value="$INSTALL_OPENBIS_TMPEXTRACT/service.properties" />
