@@ -49,12 +49,19 @@ function ResetPasswordView(resetPasswordController, resetPasswordModel) {
 		//
 		// Password
 		//
-		var $passField = FormUtil._getInputField('text', null, 'Password', null, true);
+		var $passField = FormUtil._getInputField('password', null, 'Password', null, true);
 		$passField.change(function(event) {
 			_this._resetPasswordModel.password = $(this).val();
 		});
 		var $passwordGroup = FormUtil.getFieldForComponentWithLabel($passField, "Password", null);
 		$window.append($passwordGroup);
+		
+		var $passFieldRepeat = FormUtil._getInputField('password', null, 'Repeat the same password', null, true);
+		$passFieldRepeat.change(function(event) {
+			_this._resetPasswordModel.passwordRepeat = $(this).val();
+		});
+		var $passwordGroupRepeat = FormUtil.getFieldForComponentWithLabel($passFieldRepeat, "Password Repeat", null);
+		$window.append($passwordGroupRepeat);
 		
 		//
 		// Buttons

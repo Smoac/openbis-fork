@@ -17,4 +17,5 @@
 function ResetPasswordModel(userId) {
 	this.userId = userId;
 	this.password = null;
+	this.passwordRepeat = null;
 }

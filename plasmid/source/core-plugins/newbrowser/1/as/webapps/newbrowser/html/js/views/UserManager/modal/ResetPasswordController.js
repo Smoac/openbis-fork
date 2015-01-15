@@ -20,16 +20,21 @@ function ResetPasswordController(userId) {
 	
 	this.resetPassword = function() {
 		var _this = this;
-		mainController.serverFacade.registerUserPassword(
-				_this._resetPasswordModel.userId,
-				_this._resetPasswordModel.password,
-				function(isRegistered) {
-					if(isRegistered) {
-						Util.showSuccess("Password has been reset on the file authentication service.");
-					} else {
-						Util.showError("Password can't be reset.");
-					}
-				});
+		
+		if(_this._createUserModel.password === _this._createUserModel.passwordRepeat) {
+			mainController.serverFacade.registerUserPassword(
+					_this._resetPasswordModel.userId,
+					_this._resetPasswordModel.password,
+					function(isRegistered) {
+						if(isRegistered) {
+							Util.showSuccess("Password has been reset on the file authentication service.");
+						} else {
+							Util.showError("Password can't be reset.");
+						}
+					});
+		} else {
+			Util.showError("Passwords are not equal.");
+		}
 	}
 	
 	this.init = function() {
