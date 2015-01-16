@@ -42,6 +42,9 @@ public class EntityTypeLabelUtilsTest extends AssertJUnit
         assertEquals("Features, additional text, 2011-05-30, 123412342314-1234",
                 createLabelWithText("HCS_ANALYSIS_WELL_FEATURES", "additional text"));
 
+        assertEquals("Analysis Procedure 1, Measurement 3, 2011-05-30, 123412342314-1234",
+                createOverlayLabel("HCS_IMAGE_SEGMENTATION", "Analysis Procedure 1", "Measurement 3"));
+
     }
 
     private String createLabelWithText(String typeCode, String labelTest)
@@ -58,5 +61,13 @@ public class EntityTypeLabelUtilsTest extends AssertJUnit
                 new DatasetReference(0, "123412342314-1234", typeCode, null, "DAT", null, null,
                         null, null, null, null);
         return EntityTypeLabelUtils.createDatasetLabel(ref, withFileType, "2011-05-30", null, true, false);
+    }
+
+    private String createOverlayLabel(String typeCode, String analysisProcedure, String labelTest)
+    {
+        DatasetReference ref =
+                new DatasetReference(0, "123412342314-1234", typeCode, null, "DAT", null, null,
+                        null, null, analysisProcedure, labelTest);
+        return EntityTypeLabelUtils.createDatasetLabel(ref, false, "2011-05-30", null, true, true);
     }
 }
