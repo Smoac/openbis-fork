@@ -16,11 +16,11 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.shared.utils;
 
-import static ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil.EMPTY_TEST_FILE;
-
 import java.io.File;
 import java.util.Properties;
 
+import org.hamcrest.BaseMatcher;
+import org.hamcrest.Description;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.testng.AssertJUnit;
@@ -38,6 +38,7 @@ import ch.systemsx.cisd.common.filesystem.IFileOperations;
 @Friend(toClasses = DssPropertyParametersUtil.class)
 public class DssPropertyParametersUtilTest extends AssertJUnit
 {
+    private static final File EMPTY_TEST_FILE = new File(DssPropertyParametersUtil.EMPTY_TEST_FILE_NAME);
 
     private Mockery context;
 
@@ -64,7 +65,7 @@ public class DssPropertyParametersUtilTest extends AssertJUnit
         File expectedDir = new File(System.getProperty("user.dir"), "dss-tmp");
         prepareForMkdirs(expectedDir);
         prepareForExists(expectedDir);
-        prepareForCreateTempFile(EMPTY_TEST_FILE);
+        prepareForCreateNewFile(EMPTY_TEST_FILE);
         File movedEmptyTestFile = new File(expectedDir, EMPTY_TEST_FILE.getName());
         prepareForRenameFile(EMPTY_TEST_FILE, movedEmptyTestFile, true);
         prepareForDeleteFile(EMPTY_TEST_FILE);
@@ -85,7 +86,7 @@ public class DssPropertyParametersUtilTest extends AssertJUnit
         properties.setProperty(DssPropertyParametersUtil.DSS_TEMP_DIR_PATH, expectedDir.getPath());
         prepareForMkdirs(expectedDir);
         prepareForExists(expectedDir);
-        prepareForCreateTempFile(EMPTY_TEST_FILE);
+        prepareForCreateNewFile(EMPTY_TEST_FILE);
         File movedEmptyTestFile = new File(expectedDir, EMPTY_TEST_FILE.getName());
         prepareForRenameFile(EMPTY_TEST_FILE, movedEmptyTestFile, true);
         prepareForDeleteFile(EMPTY_TEST_FILE);
@@ -130,7 +131,7 @@ public class DssPropertyParametersUtilTest extends AssertJUnit
         properties.setProperty(DssPropertyParametersUtil.DSS_TEMP_DIR_PATH, expectedDir.getPath());
         prepareForMkdirs(expectedDir);
         prepareForExists(expectedDir);
-        prepareForCreateTempFile(EMPTY_TEST_FILE);
+        prepareForCreateNewFile(EMPTY_TEST_FILE);
         File movedEmptyTestFile = new File(expectedDir, EMPTY_TEST_FILE.getName());
         prepareForRenameFile(EMPTY_TEST_FILE, movedEmptyTestFile, false);
         prepareForDeleteFile(EMPTY_TEST_FILE);
@@ -157,7 +158,7 @@ public class DssPropertyParametersUtilTest extends AssertJUnit
         File expectedDir = new File(System.getProperty("user.dir"), "log-registrations");
         prepareForMkdirs(expectedDir);
         prepareForExists(expectedDir);
-        prepareForCreateTempFile(EMPTY_TEST_FILE);
+        prepareForCreateNewFile(EMPTY_TEST_FILE);
         File movedEmptyTestFile = new File(expectedDir, EMPTY_TEST_FILE.getName());
         prepareForRenameFile(EMPTY_TEST_FILE, movedEmptyTestFile, true);
         prepareForDeleteFile(EMPTY_TEST_FILE);
@@ -180,7 +181,7 @@ public class DssPropertyParametersUtilTest extends AssertJUnit
                 expectedDir.getPath());
         prepareForMkdirs(expectedDir);
         prepareForExists(expectedDir);
-        prepareForCreateTempFile(EMPTY_TEST_FILE);
+        prepareForCreateNewFile(EMPTY_TEST_FILE);
         File movedEmptyTestFile = new File(expectedDir, EMPTY_TEST_FILE.getName());
         prepareForRenameFile(EMPTY_TEST_FILE, movedEmptyTestFile, true);
         prepareForDeleteFile(EMPTY_TEST_FILE);
@@ -228,7 +229,7 @@ public class DssPropertyParametersUtilTest extends AssertJUnit
                 expectedDir.getPath());
         prepareForMkdirs(expectedDir);
         prepareForExists(expectedDir);
-        prepareForCreateTempFile(EMPTY_TEST_FILE);
+        prepareForCreateNewFile(EMPTY_TEST_FILE);
         File movedEmptyTestFile = new File(expectedDir, EMPTY_TEST_FILE.getName());
         prepareForRenameFile(EMPTY_TEST_FILE, movedEmptyTestFile, false);
         prepareForDeleteFile(EMPTY_TEST_FILE);
@@ -283,13 +284,46 @@ public class DssPropertyParametersUtilTest extends AssertJUnit
             });
     }
 
-    private void prepareForCreateTempFile(final File file)
+    class FileNameStarsWithMatcher extends BaseMatcher<File>
+    {
+
+        String expectedPrefix;
+
+        public FileNameStarsWithMatcher(File fileWithExpectedPrefix)
+        {
+            this.expectedPrefix = fileWithExpectedPrefix.getPath();
+        }
+
+        @Override
+        public boolean matches(Object file)
+        {
+            if (file == null || false == file instanceof File)
+            {
+                return false;
+            }
+            return ((File) file).getPath().startsWith(this.expectedPrefix);
+        }
+
+        @Override
+        public void describeTo(Description description)
+        {
+            description.appendText("Expected " + this.expectedPrefix + " prefix in the file name");
+        }
+
+    }
+
+    private FileNameStarsWithMatcher fileStartingWith(File file)
+    {
+        return new FileNameStarsWithMatcher(file);
+    }
+
+    private void prepareForCreateNewFile(final File file)
     {
         context.checking(new Expectations()
             {
                 {
-                    one(fileOperations).createTempFile(file.getName(), "");
-                    will(returnValue(file));
+                    one(fileOperations).createNewFile(with(fileStartingWith(file)));
+                    will(returnValue(true));
                 }
             });
     }
@@ -300,7 +334,7 @@ public class DssPropertyParametersUtilTest extends AssertJUnit
         context.checking(new Expectations()
             {
                 {
-                    one(fileOperations).rename(source, destination);
+                    one(fileOperations).rename(with(fileStartingWith(source)), with(fileStartingWith(destination)));
                     will(returnValue(success));
                 }
             });
@@ -311,7 +345,7 @@ public class DssPropertyParametersUtilTest extends AssertJUnit
         context.checking(new Expectations()
             {
                 {
-                    one(fileOperations).delete(file);
+                    one(fileOperations).delete(with(fileStartingWith(file)));
                     will(returnValue(true));
                 }
             });
