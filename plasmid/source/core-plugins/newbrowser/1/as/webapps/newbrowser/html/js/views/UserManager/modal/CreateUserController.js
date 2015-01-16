@@ -54,7 +54,7 @@ function CreateUserController() {
 								}
 							});
 				} else {
-					Util.showError("Passwords are not equal.");
+					Util.showError("Passwords are not equal.", function() {}, true);
 				}
 			}
 		
