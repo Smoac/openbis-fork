@@ -29,14 +29,14 @@ function ResetPasswordView(resetPasswordController, resetPasswordModel) {
 			_this._resetPasswordController.resetPassword();
 		});
 		
-		$window.append($('<legend>').append("Reset Password"));
+		$window.append($('<legend>').append("Change Password"));
 		
 		//
 		// Warning
 		//
 		$window.append($("<p>")
 				.append($("<span>", { class: "glyphicon glyphicon-info-sign" }))
-				.append(" The password reset only works with file authentication service."));
+				.append(" Password change only works with file authentication service."));
 		//
 		// User ID
 		//
