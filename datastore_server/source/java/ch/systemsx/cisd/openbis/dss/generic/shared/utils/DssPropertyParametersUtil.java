@@ -234,13 +234,15 @@ public class DssPropertyParametersUtil
             String dirDescription, String pathKey)
     {
         String threadSafeEmptyTestFileName = EMPTY_TEST_FILE_NAME + atomicEmptyFileIndex.incrementAndGet();
-        File threadSafeEmptyTestFile = new File(threadSafeEmptyTestFileName);
+        File threadSafeEmptyTestFile = null;
+        File emptyTestFileInDir = null;
 
-        File emptyTestFileInDir = new File(dir, threadSafeEmptyTestFileName);
         try
         {
             assertDirExists(fileOperations, dir, dirDescription, pathKey);
+            threadSafeEmptyTestFile = new File(threadSafeEmptyTestFileName);
             fileOperations.createNewFile(threadSafeEmptyTestFile);
+            emptyTestFileInDir = new File(dir, threadSafeEmptyTestFileName);
             if (fileOperations.rename(threadSafeEmptyTestFile, emptyTestFileInDir) == false)
             {
                 throw createException(NON_LOCAL_DIR_TEMPLATE.createFreshCopy(), dir,
@@ -248,8 +250,14 @@ public class DssPropertyParametersUtil
             }
         } finally
         {
-            fileOperations.delete(threadSafeEmptyTestFile);
-            fileOperations.delete(emptyTestFileInDir);
+            if (threadSafeEmptyTestFile != null)
+            {
+                fileOperations.delete(threadSafeEmptyTestFile);
+            }
+            if (emptyTestFileInDir != null)
+            {
+                fileOperations.delete(emptyTestFileInDir);
+            }
         }
     }
 
