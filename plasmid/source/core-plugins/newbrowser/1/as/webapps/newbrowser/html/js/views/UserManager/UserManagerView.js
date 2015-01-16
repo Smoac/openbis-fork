@@ -92,11 +92,11 @@ function UserManagerView(userManagerController, userManagerModel) {
 				$dropDownMenu.click(clickFunction($dropDownMenu));
 				
 				//Options
-				var $resetOption = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'Reset Password'}).append("Reset Password"));
-				$resetOption.click(function(e) {
+				var $changeOption = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'Change Password'}).append("Change Password"));
+				$changeOption.click(function(e) {
 					_this._userManagerController.resetPassword(data.userId);
 				});
-				$list.append($resetOption);
+				$list.append($changeOption);
 				
 				return $dropDownMenu;
 			},
