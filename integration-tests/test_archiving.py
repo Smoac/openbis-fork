@@ -34,6 +34,8 @@ class TestCase(systemtest.testcase.TestCase):
         openbisController.dropAndWait("ARCHIVE_DATASET", "incoming-jython")
         time.sleep(15)
         openbisController.dssDown()
+        self._addToRunningInstances(openbisController)
+
         
         # Step 1 - Validation
         archived_data_set_dir = self.asserts_step1(openbisController)
