@@ -80,71 +80,70 @@ define(['jquery', 'openbis-v3-api'], function($, openbis){
 	
 	return function() {
 		asyncTest("mapExperiments()", function() {
-			createFacadeAndLogin()
-			.done(function(facade) {
+			$.when(createExperimentFetchOptions(), createFacadeAndLogin())
+			.then(function(fetchOptions, facade) {
 				var experimentIds = [ {
 					"@type" : "ExperimentPermId",
 					"permId" : "20130412105232616-2"
 				} ];
-				
-				createExperimentFetchOptions()
-				.done(function(fetchOptions) {
-					facade
-					.mapExperiments(experimentIds, fetchOptions)
-					.done(function(experiments) {
-						assertObjectsCount(Object.keys(experiments), 1);
-			
-						var experiment = experiments["20130412105232616-2"];
-						equal(experiment.getCode(), "EXP-1", "Experiment code");
-						equal(experiment.getType().getCode(), "HCS_PLATONIC", "Type code");
-						equal(experiment.getProject().getCode(), "SCREENING-EXAMPLES", "Project code");
-						equal(experiment.getProject().getSpace().getCode(), "PLATONIC", "Space code");
-						facade.logout();
-						start();
-					})
-					.fail(function(error) {
-						ok(false, error);
-						start();
-					});
-				});
+
+				return facade
+						.mapExperiments(experimentIds, fetchOptions)
+						.done(function() { 
+							facade.logout() 
+						});
+			})
+			.done(function(experiments) {
+				assertObjectsCount(Object.keys(experiments), 1);
+	
+				var experiment = experiments["20130412105232616-2"];
+				equal(experiment.getCode(), "EXP-1", "Experiment code");
+				equal(experiment.getType().getCode(), "HCS_PLATONIC", "Type code");
+				equal(experiment.getProject().getCode(), "SCREENING-EXAMPLES", "Project code");
+				equal(experiment.getProject().getSpace().getCode(), "PLATONIC", "Space code");
+				start();
+			})
+			.fail(function(error) {
+				ok(false, error);
+				start();
 			});
 		});
 		
 		asyncTest("mapSamples()", function() {
-			createFacadeAndLogin()
-			.done(function(facade) {
+			
+			$.when(createFacadeAndLogin(), createSampleFetchOptions())
+			.then(function(facade, fetchOptions) {
 				var sampleIds = [ {
 					"@type" : "SamplePermId",
 					"permId" : "20130412140147735-20"
 				} ];
-				createSampleFetchOptions()
-				.done(function(fetchOptions) {
-					facade
-					.mapSamples(sampleIds, fetchOptions)
-					.done(function(samples) {
-						assertObjectsCount(Object.keys(samples), 1);
-			
-						var sample = samples["20130412140147735-20"];
-						equal(sample.code, "PLATE-1", "Sample code");
-						equal(sample.type.code, "PLATE", "Type code");
-						equal(sample.experiment.code, "EXP-1", "Experiment code");
-						equal(sample.experiment.project.code, "SCREENING-EXAMPLES", "Project code");
-						equal(sample.space.code, "PLATONIC", "Space code");
-						facade.logout();
-						start();
-					})
-					.fail(function(error) {
-						ok(false, error);
-						start();
-					});
-					
-				});
+				return facade
+						.mapSamples(sampleIds, fetchOptions)
+						.done(function() {
+							facade.logout()
+						})
+			})
+			.done(function(samples) {
+				assertObjectsCount(Object.keys(samples), 1);
+	
+				var sample = samples["20130412140147735-20"];
+				equal(sample.code, "PLATE-1", "Sample code");
+				equal(sample.type.code, "PLATE", "Type code");
+				equal(sample.experiment.code, "EXP-1", "Experiment code");
+				equal(sample.experiment.project.code, "SCREENING-EXAMPLES", "Project code");
+				equal(sample.space.code, "PLATONIC", "Space code");
+				start();
+			})
+			.fail(function(error) {
+				ok(false, error);
+				start();
 			});
+					
 		});
 		
 		asyncTest("searchExperiments()", function() {
-			createFacadeAndLogin()
-			.done(function(facade) {
+			$.when(createFacadeAndLogin(), createExperimentFetchOptions())
+			.then(function(facade, fetchOptions) {
 				var criterion = {
 					"@type" : "ExperimentSearchCriterion",
 					"criteria" : [ {
@@ -155,32 +154,32 @@ define(['jquery', 'openbis-v3-api'], function($, openbis){
 						}
 					} ]
 				};
-				createExperimentFetchOptions()
-				.done(function(fetchOptions) {
-					facade
-					.searchExperiments(criterion, fetchOptions)
-					.done(function(experiments) {
-						assertObjectsCount(experiments, 1);
-			
-						var experiment = experiments[0];
-						equal(experiment.code, "TEST-EXPERIMENT-2", "Experiment code");
-						equal(experiment.type.code, "UNKNOWN", "Type code");
-						equal(experiment.project.code, "TEST-PROJECT", "Project code");
-						equal(experiment.project.space.code, "TEST", "Space code");
-						facade.logout();
-						start();
-					})
-					.fail(function(error) {
-						ok(false, error);
-						start();
-					});
-				});
+				
+				return facade
+						.searchExperiments(criterion, fetchOptions)
+						.done(function() {
+							facade.logout();
+						})
+			})
+			.done(function(experiments) {
+				assertObjectsCount(experiments, 1);
+	
+				var experiment = experiments[0];
+				equal(experiment.code, "TEST-EXPERIMENT-2", "Experiment code");
+				equal(experiment.type.code, "UNKNOWN", "Type code");
+				equal(experiment.project.code, "TEST-PROJECT", "Project code");
+				equal(experiment.project.space.code, "TEST", "Space code");
+				start();
+			})
+			.fail(function(error) {
+				ok(false, error);
+				start();
 			});
 		});
 		
 		asyncTest("searchSamples()", function() {
-			createFacadeAndLogin()
-			.done(function(facade) {
+			$.when(createFacadeAndLogin(), createSampleFetchOptions())
+			.then(function(facade, fetchOptions) {
 				var criterion = {
 					"@type" : "SampleSearchCriterion",
 					"criteria" : [ {
@@ -191,34 +190,31 @@ define(['jquery', 'openbis-v3-api'], function($, openbis){
 						}
 					} ]
 				};
-				createSampleFetchOptions()
-				.done(function(fetchOptions) {
 		
-					facade
-					.searchSamples(criterion, fetchOptions)
-					.done(function(samples) {
-						assertObjectsCount(samples, 1);
-			
-						var sample = samples[0];
-						equal(sample.code, "PLATE-1", "Sample code");
-						equal(sample.type.code, "PLATE", "Type code");
-						equal(sample.experiment.code, "EXP-1", "Experiment code");
-						equal(sample.experiment.project.code, "SCREENING-EXAMPLES", "Project  code");
-						equal(sample.space.code, "PLATONIC", "Space code");
-						facade.logout();
-						start();
-					})
-					.fail(function(error) {
-						ok(false, error);
-						start();
-					});
-				});
+				return facade
+				.searchSamples(criterion, fetchOptions)
+				.done(function() {
+					facade.logout();
+				})
+			})
+			.done(function(samples) {
+				assertObjectsCount(samples, 1);
+	
+				var sample = samples[0];
+				equal(sample.code, "PLATE-1", "Sample code");
+				equal(sample.type.code, "PLATE", "Type code");
+				equal(sample.experiment.code, "EXP-1", "Experiment code");
+				equal(sample.experiment.project.code, "SCREENING-EXAMPLES", "Project  code");
+				equal(sample.space.code, "PLATONIC", "Space code");
+				start();
+			})
+			.fail(function(error) {
+				ok(false, error);
+				start();
 			});
 		});
 		
 		asyncTest("createExperiments()", function() {
-			createFacadeAndLogin()
-			.done(function(facade) {
 				var code = "CREATE_JSON_EXPERIMENT_" + (new Date().getTime());
 		//		var creations = [ {
 		//			"@type" : "ExperimentCreation",
@@ -244,49 +240,50 @@ define(['jquery', 'openbis-v3-api'], function($, openbis){
 				         'dto/id/entitytype/EntityTypePermId', 
 				         'dto/id/project/ProjectIdentifier',
 				         'dto/id/tag/TagCode'], function(ExperimentCreation, EntityTypePermId, ProjectIdentifier, TagCode) {
+					
+					
 					var experimentCreation = new ExperimentCreation();
 					experimentCreation.setTypeId(new EntityTypePermId("UNKNOWN"));
 					experimentCreation.setCode(code);
 					experimentCreation.setProjectId(new ProjectIdentifier("/TEST/TEST-PROJECT"));
 					experimentCreation.setTagIds([new TagCode("CREATE_JSON_TAG")]);
 			
-					createExperimentFetchOptions()
-					.done(function(fetchOptions) {
-				
-						facade.createExperiments([experimentCreation])
-						.done(function(permIds) {
-							facade
-							.mapExperiments(permIds, fetchOptions)
-							.done(function(experiments) {
-								assertObjectsCount(Object.keys(experiments), 1);
-				
-								var experiment = experiments[permIds[0].permId];
-								equal(experiment.getCode(), code, "Experiment code");
-								equal(experiment.getType().getCode(), "UNKNOWN", "Type code");
-								equal(experiment.getProject().getCode(), "TEST-PROJECT", "Project code");
-								equal(experiment.getProject().getSpace().getCode(), "TEST", "Space code");
-								equal(experiment.getTags()[0].code, "CREATE_JSON_TAG", "Tag code");
-								facade.logout();
-								start();
+					$.when(createFacadeAndLogin(), createExperimentFetchOptions())
+					.then(function(facade, fetchOptions) {
+						return facade
+							.createExperiments([experimentCreation])
+							.then(function(permIds) {
+								return facade
+									.mapExperiments(permIds, fetchOptions)
+									.done(function() {
+										facade.logout();
+									})
 							})
-							.fail(function(error) {
-								ok(false, error);
-								start();
-							});
-						})
-						.fail(function(error) {
-							ok(false, error);
-							start();
-						});
+					})
+					.done(function(experiments) {
+						var keys = Object.keys(experiments); 
+						assertObjectsCount(keys, 1);
+		
+						var experiment = experiments[keys[0]];
+						equal(experiment.getCode(), code, "Experiment code");
+						equal(experiment.getType().getCode(), "UNKNOWN", "Type code");
+						equal(experiment.getProject().getCode(), "TEST-PROJECT", "Project code");
+						equal(experiment.getProject().getSpace().getCode(), "TEST", "Space code");
+						equal(experiment.getTags()[0].code, "CREATE_JSON_TAG", "Tag code");
+						start();
+					})
+					.fail(function(error) {
+						ok(false, error);
+						start();
 					});
-				});
-			});
+				})
 		});
 		
 		asyncTest("createSamples()", function() {
-			createFacadeAndLogin()
-			.done(function(facade) {
-				var code = "CREATE_JSON_SAMPLE_" + (new Date().getTime());
+			var code = "CREATE_JSON_SAMPLE_" + (new Date().getTime());
+
+			$.when(createFacadeAndLogin(), createSampleFetchOptions())
+			.then(function(facade, fetchOptions) {
 				var creations = [ {
 					"@type" : "SampleCreation",
 		
@@ -307,41 +304,39 @@ define(['jquery', 'openbis-v3-api'], function($, openbis){
 						"code" : "CREATE_JSON_TAG"
 					} ]
 				} ];
-				createSampleFetchOptions()
-				.done(function(fetchOptions) {
+				
 		
-					facade
+				return facade
 					.createSamples(creations)
-					.done(function(permIds) {
-						facade
-						.mapSamples(permIds, fetchOptions)
-						.done(function(samples) {
-							assertObjectsCount(Object.keys(samples), 1);
-			
-							var sample = samples[permIds[0].permId];
-							equal(sample.code, code, "Sample code");
-							equal(sample.type.code, "UNKNOWN", "Type code");
-							equal(sample.space.code, "TEST", "Space code");
-							facade.logout();
-							start();
-						})
-						.fail(function(error) {
-							ok(false, error);
-							start();
-						});
+					.then(function(permIds) {
+						return facade
+								.mapSamples(permIds, fetchOptions)
+								.done(function() {
+									facade.logout();
+								})
 					})
-					.fail(function(error) {
-						ok(false, error);
-						start();
-					});
-				});
+			})
+			.done(function(samples) {
+				var keys = Object.keys(samples);
+				assertObjectsCount(keys, 1);
+
+				var sample = samples[keys[0]];
+				equal(sample.code, code, "Sample code");
+				equal(sample.type.code, "UNKNOWN", "Type code");
+				equal(sample.space.code, "TEST", "Space code");
+				start();
+			})
+			.fail(function(error) {
+				ok(false, error);
+				start();
 			});
 		});
 		
 		asyncTest("updateExperiments()", function() {
-			createFacadeAndLogin()
-			.done(function(facade) {
-				var code = "UPDATE_JSON_EXPERIMENT_" + (new Date().getTime());
+			var code = "UPDATE_JSON_EXPERIMENT_" + (new Date().getTime());
+
+			var ids = createFacadeAndLogin()
+			.then(function(facade) {
 				var creations = [ {
 					"@type" : "ExperimentCreation",
 		
@@ -357,63 +352,61 @@ define(['jquery', 'openbis-v3-api'], function($, openbis){
 						"identifier" : "/TEST/TEST-PROJECT"
 					}
 				} ];
-		
-				facade
-				.createExperiments(creations)
-				.done(function(permIds) {
-					var updates = [ {
-						"@type" : "ExperimentUpdate",
-		
-						"experimentId" : permIds[0],
-		
-						"projectId" : {
-							"@type" : "ProjectIdentifier",
-							"identifier" : "/PLATONIC/SCREENING-EXAMPLES"
-						}
-					} ];
-		
-					facade
-					.updateExperiments(updates)
-					.done(function() {
-						createExperimentFetchOptions()
-						.done(function(fetchOptions) {
-		
-							facade
-							.mapExperiments(permIds, fetchOptions)
-							.done(function(experiments) {
-								assertObjectsCount(Object.keys(experiments), 1);
-			
-								var experiment = experiments[permIds[0].permId];
-								equal(experiment.getCode(), code, "Experiment code");
-								equal(experiment.getType().getCode(), "UNKNOWN", "Type code");
-								equal(experiment.getProject().getCode(), "SCREENING-EXAMPLES", "Project code");
-								equal(experiment.getProject().getSpace().getCode(), "PLATONIC", "Space code");
-								facade.logout();
-								start();
-							})
-							.fail(function(error) {
-								ok(false, error);
-								start();
-							});
-						});
 
-					})
-					.fail(function(error) {
-						ok(false, error);
-						start();
-					});
-				}).
-				fail(function(error) {
-					ok(false, error);
-					start();
-				});
+		
+				var ids = facade
+						.createExperiments(creations)
+						.then(function(permIds) { 
+							var updates = [ {
+								"@type" : "ExperimentUpdate",
+				
+								"experimentId" : permIds[0],
+				
+								"projectId" : {
+									"@type" : "ProjectIdentifier",
+									"identifier" : "/PLATONIC/SCREENING-EXAMPLES"
+								}
+							} ];
+
+							return facade
+									.updateExperiments(updates)
+									.then(function() {
+										return permIds;
+									});
+						});
+						
+
+				return $.when(ids, createExperimentFetchOptions())
+						.then(function(permIds, fetchOptions) {
+							return facade
+									.mapExperiments(permIds, fetchOptions)
+									.done(function() {
+										facade.logout();
+									})
+						})
+			})
+			.done(function(experiments) {
+				var keys = Object.keys(experiments);
+				assertObjectsCount(keys, 1);
+
+				var experiment = experiments[keys[0]];
+				equal(experiment.getCode(), code, "Experiment code");
+				equal(experiment.getType().getCode(), "UNKNOWN", "Type code");
+				equal(experiment.getProject().getCode(), "SCREENING-EXAMPLES", "Project code");
+				equal(experiment.getProject().getSpace().getCode(), "PLATONIC", "Space code");
+				start();
+			})
+			.fail(function(error) {
+				ok(false, error);
+				start();
 			});
 		});
 		
 		asyncTest("updateSamples()", function() {
+			var code = "UPDATE_JSON_SAMPLE_" + (new Date().getTime());
+
 			createFacadeAndLogin()
-			.done(function(facade) {
-				var code = "UPDATE_JSON_SAMPLE_" + (new Date().getTime());
+			.then(function(facade) {
 				var creations = [ {
 					"@type" : "SampleCreation",
 		
@@ -430,52 +423,47 @@ define(['jquery', 'openbis-v3-api'], function($, openbis){
 					}
 				} ];
 		
-				facade
-				.createSamples(creations)
-				.done(function(permIds) {
-					var updates = [ {
-						"@type" : "SampleUpdate",
-		
-						"sampleId" : permIds[0],
-		
-						"spaceId" : {
-							"@type" : "SpacePermId",
-							"permId" : "TEST"
-						}
-					} ];
-		
-					facade
-					.updateSamples(updates)
-					.done(function() {
-						createSampleFetchOptions()
-						.done(function(fetchOptions) {
-		
-							facade.mapSamples(permIds, fetchOptions)
-							.done(function(samples) {
-								assertObjectsCount(Object.keys(samples), 1);
+				var ids = facade
+					.createSamples(creations)
+					.then(function(permIds) {
+						var updates = [ {
+							"@type" : "SampleUpdate",
 			
-								var sample = samples[permIds[0].permId];
-								equal(sample.code, code, "Sample code");
-								equal(sample.type.code, "UNKNOWN", "Type code");
-								equal(sample.space.code, "TEST", "Space code");
-								facade.logout();
-								start();
-							})
-							.fail(function(error) {
-								ok(false, error);
-								start();
-							});
-						});
-					})
-					.fail(function(error) {
-						ok(false, error);
-						start();
+							"sampleId" : permIds[0],
+			
+							"spaceId" : {
+								"@type" : "SpacePermId",
+								"permId" : "TEST"
+							}
+						} ];
+		
+						return facade
+							.updateSamples(updates)
+							.then(function() { return permIds; });
 					});
-				})
-				.fail(function(error) {
-					ok(false, error);
-					start();
-				});
+			
+				return $.when(ids, createSampleFetchOptions())
+						.then(function(permIds, fetchOptions) {
+							return facade
+								.mapSamples(permIds, fetchOptions)
+								.done(function() {
+									facade.logout();
+								})
+						})
+			})
+			.done(function(samples) {
+				var keys = Object.keys(samples);
+				assertObjectsCount(keys, 1);
+
+				var sample = samples[keys[0]];
+				equal(sample.code, code, "Sample code");
+				equal(sample.type.code, "UNKNOWN", "Type code");
+				equal(sample.space.code, "TEST", "Space code");
+				start();
+			})
+			.fail(function(error) {
+				ok(false, error);
+				start();
 			});
 		});
 	}
