@@ -17,22 +17,28 @@ define(['jquery'], function($) {
 			var originalError = settings.error || function() {
 			};
 
-			settings.success = function(response) {
+			var dfd = $.Deferred();
+			function success(response) {
 				if (response.error) {
 					_private.log("Request failed - data: " + JSON.stringify(settings.data) + ", error: " + JSON.stringify(response.error));
 					originalError(response.error);
+					dfd.reject(response.error);
 				} else {
 					_private.log("Request succeeded - data: " + JSON.stringify(settings.data));
 					originalSuccess(response.result);
+					dfd.resolve(response.result);
 				}
 			}
 
-			settings.error = function(xhr, status, error) {
+			function error(xhr, status, error) {
 				_private.log("Request failed - data: " + JSON.stringify(settings.data) + ", error: " + JSON.stringify(error));
 				originalError(error);
+				dfd.reject(error);
 			}
 
-			$.ajax(settings)
+			$.ajax(settings).done(success).fail(error);
+			
+			return dfd.promise();
 		},
 
 		log : function(msg) {
@@ -45,139 +51,131 @@ define(['jquery'], function($) {
 
 	return function(openbisUrl) {
 
-		this.login = function(user, password, onSuccess, onError) {
-			_private.ajaxRequest({
+		this.login = function(user, password) {
+			var dfd = $.Deferred();
+			return _private.ajaxRequest({
 				url : openbisUrl,
 				data : {
 					"method" : "login",
 					"params" : [ user, password ]
-				},
-				success : function(sessionToken) {
-					_private.sessionToken = sessionToken;
-					onSuccess(sessionToken);
-				},
-				error : onError
+				}
+			}).done(function(sessionToken) {
+				_private.sessionToken = sessionToken;
+				dfd.resolve(sessionToken);
+			}).fail(function() {
+				dfd.reject();
 			});
+			
+			return dfd.promise();
 		}
 
-		this.logout = function(onSuccess, onError) {
-			_private.ajaxRequest({
+		this.logout = function() {
+			return _private.ajaxRequest({
 				url : openbisUrl,
 				data : {
 					"method" : "logout",
 					"params" : [ _private.sessionToken ]
-				},
-				success : function() {
-					_private.sessionToken = null;
-					onSuccess();
-				},
-				error : onError
+				}
+			})
+			.done(function() {
+				_private.sessionToken = null;				
 			});
 		}
 
-		this.mapExperiments = function(experimentIds, experimentFetchOptions, onSuccess, onError) {
+		this.mapExperiments = function(experimentIds, experimentFetchOptions) {
+			var dfd = $.Deferred();
+
 			_private.ajaxRequest({
 				url : openbisUrl,
 				data : {
 					"method" : "mapExperiments",
 					"params" : [ _private.sessionToken, experimentIds, experimentFetchOptions ]
-				},
-				success : function(experiments) {
-					require(['dto/entity/experiment/Experiment'], function() {
-						var experimentDTOs = {};
-						for(var experimentPermId  in experiments) {
-							var experimentJson = experiments[experimentPermId];
-							var newExperiment = stjsUtil.fromJson(experimentJson);
-							experimentDTOs[newExperiment.getPermId().getPermId()] = newExperiment;
-						}
-						onSuccess(experimentDTOs);
-					});
-				},
-				error : onError
+				}
+			})
+			.done(function(experiments) {
+				require(['dto/entity/experiment/Experiment'], function() {
+					var experimentDTOs = {};
+					for(var experimentPermId  in experiments) {
+						var experimentJson = experiments[experimentPermId];
+						var newExperiment = stjsUtil.fromJson(experimentJson);
+						experimentDTOs[newExperiment.getPermId().getPermId()] = newExperiment;
+					}
+					dfd.resolve(experimentDTOs);
+				});
+			}).fail(function() {
+				dfd.reject(arguments);
 			});
+			
+			return dfd.promise();
 		}
 
-		this.mapSamples = function(sampleIds, sampleFetchOptions, onSuccess, onError) {
-			_private.ajaxRequest({
+		this.mapSamples = function(sampleIds, sampleFetchOptions) {
+			return _private.ajaxRequest({
 				url : openbisUrl,
 				data : {
 					"method" : "mapSamples",
 					"params" : [ _private.sessionToken, sampleIds, sampleFetchOptions ]
-				},
-				success : onSuccess,
-				error : onError
+				}
 			});
 		}
 
-		this.searchExperiments = function(experimentSearchCriterion, experimentFetchOptions, onSuccess, onError) {
-			_private.ajaxRequest({
+		this.searchExperiments = function(experimentSearchCriterion, experimentFetchOptions) {
+			return _private.ajaxRequest({
 				url : openbisUrl,
 				data : {
 					"method" : "searchExperiments",
 					"params" : [ _private.sessionToken, experimentSearchCriterion, experimentFetchOptions ]
-				},
-				success : onSuccess,
-				error : onError
+				}
 			});
 		}
 
-		this.searchSamples = function(sampleSearchCriterion, sampleFetchOptions, onSuccess, onError) {
-			_private.ajaxRequest({
+		this.searchSamples = function(sampleSearchCriterion, sampleFetchOptions) {
+			return _private.ajaxRequest({
 				url : openbisUrl,
 				data : {
 					"method" : "searchSamples",
 					"params" : [ _private.sessionToken, sampleSearchCriterion, sampleFetchOptions ]
-				},
-				success : onSuccess,
-				error : onError
+				}
 			});
 		}
 
-		this.createExperiments = function(experimentCreations, onSuccess, onError) {
-			_private.ajaxRequest({
+		this.createExperiments = function(experimentCreations) {
+			return _private.ajaxRequest({
 				url : openbisUrl,
 				data : {
 					"method" : "createExperiments",
 					"params" : [ _private.sessionToken, experimentCreations ]
-				},
-				success : onSuccess,
-				error : onError
+				}
 			});
 		}
 
-		this.createSamples = function(sampleCreations, onSuccess, onError) {
-			_private.ajaxRequest({
+		this.createSamples = function(sampleCreations) {
+			return _private.ajaxRequest({
 				url : openbisUrl,
 				data : {
 					"method" : "createSamples",
 					"params" : [ _private.sessionToken, sampleCreations ]
-				},
-				success : onSuccess,
-				error : onError
+				}
 			});
 		}
 
-		this.updateExperiments = function(experimentUpdates, onSuccess, onError) {
-			_private.ajaxRequest({
+		this.updateExperiments = function(experimentUpdates) {
+			return _private.ajaxRequest({
 				url : openbisUrl,
 				data : {
 					"method" : "updateExperiments",
 					"params" : [ _private.sessionToken, experimentUpdates ]
-				},
-				success : onSuccess,
-				error : onError
+				}
 			});
 		}
 
-		this.updateSamples = function(sampleUpdates, onSuccess, onError) {
-			_private.ajaxRequest({
+		this.updateSamples = function(sampleUpdates) {
+			return _private.ajaxRequest({
 				url : openbisUrl,
 				data : {
 					"method" : "updateSamples",
 					"params" : [ _private.sessionToken, sampleUpdates ]
-				},
-				success : onSuccess,
-				error : onError
+				}
 			});
 		}
 
