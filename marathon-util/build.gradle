@@ -1,0 +1,13 @@
+apply from: '../gradle/javaproject.gradle'
+
+dependencies {
+    compile project(':common'),
+            'springframework:spring-webmvc:+',
+            'springframework:spring-aop:+',
+            'apache:log4j:+',
+            'javax:servlet-api:+'
+}
+
+configurations {
+    compile.exclude group: 'apache', module: 'commons-httpclient'
+}
