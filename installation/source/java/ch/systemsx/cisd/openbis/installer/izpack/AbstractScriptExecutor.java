@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.installer.izpack;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,15 +24,32 @@ import java.io.OutputStream;
 import java.util.Map;
 
 import com.izforge.izpack.api.data.AutomatedInstallData;
+import com.izforge.izpack.api.handler.AbstractUIHandler;
+import com.izforge.izpack.data.PanelAction;
 
 /**
  * Abstract class that can execute admin scripts as part of the installation.
  * 
  * @author Kaloyan Enimanev
  */
-public abstract class AbstractScriptExecutor
+public abstract class AbstractScriptExecutor implements PanelAction
 {
     protected static final String INSTALL_BIN_PATH_VARNAME = "INSTALL_BIN_PATH";
+    
+    @Override
+    public final synchronized void executeAction(AutomatedInstallData data, AbstractUIHandler handler)
+    {
+        try
+        {
+            executeAction(data);
+        } catch (Exception ex)
+        {
+            ex.printStackTrace();
+            handler.emitErrorAndBlockNext("Error", ex.toString());
+        }
+    }
+    
+    protected abstract void executeAction(AutomatedInstallData data);
 
     protected String getAdminScript(AutomatedInstallData data, String scriptFileName)
     {
@@ -60,19 +78,28 @@ public abstract class AbstractScriptExecutor
         }
         try
         {
+            ByteArrayOutputStream stdOutput = new ByteArrayOutputStream();
+            ByteArrayOutputStream errOutput = new ByteArrayOutputStream();
             Process process = pb.start();
-            pipe(process.getErrorStream(), err);
-            pipe(process.getInputStream(), out);
+            pipe(process.getErrorStream(), new DelegatingOutputStream(errOutput, err));
+            pipe(process.getInputStream(), new DelegatingOutputStream(stdOutput, out));
             int returnValue = process.waitFor();
             if (returnValue != 0)
             {
-                System.err.println("Executing of command " + pb.command()
-                        + " has failed. Aborting ...");
-                System.exit(returnValue);
+                System.err.println("Executing of command " + pb.command() + " has failed. Aborting ...");
+                throw new RuntimeException("Executing of command " + pb.command() + " has failed:\n"
+                        + "Exit value: " + returnValue + "\n"
+                        + "-------- Std out ---------\n" + stdOutput + "\n"
+                        + "-------- Err out ---------\n" + errOutput);
             }
         } catch (Exception e)
         {
-            System.out.println("Error executing " + command[0] + ": " + e.getMessage());
+            e.printStackTrace();
+            if (e instanceof RuntimeException)
+            {
+                throw (RuntimeException) e;
+            }
+            throw new RuntimeException("Error executing " + command[0] + ": " + e.getMessage(), e);
         }
     }
     
@@ -96,6 +123,26 @@ public abstract class AbstractScriptExecutor
                 }
             }
             }).start();
+    }
+    
+    private static final class DelegatingOutputStream extends OutputStream
+    {
+        private OutputStream[] outputStreams;
+
+        DelegatingOutputStream(OutputStream...outputStreams)
+        {
+            this.outputStreams = outputStreams;
+        }
+
+        @Override
+        public void write(int b) throws IOException
+        {
+            for (OutputStream outputStream : outputStreams)
+            {
+                outputStream.write(b);
+            }
+        }
+        
     }
 
 }

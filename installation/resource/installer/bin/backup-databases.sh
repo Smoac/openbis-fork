@@ -4,13 +4,14 @@
 #
 # Usage: backup-databases.sh $BACKUP_DIR
 # 
+set -o errexit
 
 #
 # Sets the variable DB_LIST to contain a list of databases 
 # to be backed up.
 # Each line of the function's result has the form :
 #
-# database=XXXX;username=XXXX;password=XXXX
+# database=XXXX;username=XXXX;password=XXXX;host=XXXX
 #
 function listDatabases() {
   
@@ -25,13 +26,19 @@ function listDatabases() {
 # 
 # $1 - a semi-color delimited string of properties (e.g. "key1=value1;key2=value2")
 # $2 - the name of the property (e.g. "key1")
-#
+# $3 - default property value
 #
 function getProperty() {
 
   local properties=$1
   local propName=$2
-  echo $properties | tr ";" "\n" | grep "$propName=" | sed "s/$propName=//"
+  local defaultValue=$3
+  local value=`echo $properties | tr ";" "\n" | grep "$propName=" | sed "s/$propName=//"`
+  if [ "$value" == "" ]; then
+    echo $defaultValue
+  else
+    echo $value
+  fi
 }
 
 function checkForBackup()
@@ -61,12 +68,16 @@ function backupDatabase() {
     return
   fi
 
-  username=$(getProperty $DB_PROPS "username")
-  if [ $(databaseExist $database $username) == "TRUE" ]; then
+  echo "Database description: $DB_PROPS"
+  local hostAndPort=$(getProperty $DB_PROPS "host" "localhost")
+  local host=${hostAndPort%:*} 
+  local port=`if [ "${hostAndPort#*:}" == "$host" ]; then echo 5432; else echo ${hostAndPort#*:}; fi`
+  local username=$(getProperty $DB_PROPS "username")
+  if [ $(databaseExist $host $port $database $username) == "TRUE" ]; then
     local dumpDir=$BACKUP_DIR/$database
   
-    echo "Backing up database $database to $dumpDir..."
-    exe_pg_dump -U $username -Fd $database $PG_DUMP_OPTION -f $dumpDir
+    echo "Backing up database $database@$host:$port (for user $username) to $dumpDir..."
+    exe_pg_dump -U $username -h $host -p $port -Fd $database $PG_DUMP_OPTION -f $dumpDir
   
     if [ "$?" -ne 0 ]; then
       echo "Failed to backup database '$database' !"
@@ -77,7 +88,7 @@ function backupDatabase() {
 
 BASE=`dirname "$0"`
 if [ ${BASE#/} == ${BASE} ]; then
-    BASE="`pwd`/${BASE}"
+    BASE="`pwd`/${BASE}"  
 fi
 source $BASE/common-functions.sh
 
@@ -94,7 +105,7 @@ AS_SERVER=$SERVERS/openBIS-server/
 DSS_SERVER=$SERVERS/datastore_server
 
 listDatabases $AS_SERVER/jetty/etc/service.properties $DSS_SERVER/etc/service.properties
-
+echo "Databases: $DB_LIST"
 PG_DUMP_OPTION=""
 if [[ "`exe_pg_dump --version|awk '{print $3}'`" > "9.2.x" ]]; then
   if [ -f /proc/cpuinfo ]; then
@@ -107,6 +118,7 @@ if [[ "`exe_pg_dump --version|awk '{print $3}'`" > "9.2.x" ]]; then
   echo Database dumping will use $NUMBER_OF_PROCESSORS processors.
   PG_DUMP_OPTION=--jobs=$NUMBER_OF_PROCESSORS
 fi
+echo "dump options: $PG_DUMP_OPtION"
 for DB in $DB_LIST; do
   backupDatabase $DB $PG_DUMP_OPTION
 done

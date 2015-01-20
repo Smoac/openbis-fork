@@ -3,6 +3,7 @@
 # 1) Mark all scripts as executable 
 # 2) Clean up all temporary folders after installation 
 #
+set -o errexit
 
 BASE=`dirname "$0"`
 if [ ${BASE#/} == ${BASE} ]; then

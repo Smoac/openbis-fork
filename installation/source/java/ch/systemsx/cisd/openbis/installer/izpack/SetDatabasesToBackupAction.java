@@ -27,7 +27,6 @@ import org.apache.commons.io.output.ByteArrayOutputStream;
 
 import com.izforge.izpack.api.data.AutomatedInstallData;
 import com.izforge.izpack.api.data.PanelActionConfiguration;
-import com.izforge.izpack.api.handler.AbstractUIHandler;
 import com.izforge.izpack.data.PanelAction;
 
 import ch.systemsx.cisd.common.shared.basic.string.CommaSeparatedListBuilder;
@@ -49,18 +48,16 @@ public class SetDatabasesToBackupAction extends AbstractScriptExecutor implement
     }
 
     @Override
-    public void executeAction(AutomatedInstallData data, AbstractUIHandler handler)
+    public void executeAction(AutomatedInstallData data)
     {
         try
         {
             String descriptions = extractDescriptions().trim();
             String databases = extractDatabases(data, descriptions);
             data.setVariable(DATABASES_TO_BACKUP_VARNAME, databases);
-            return;
         } catch (Exception ex)
         {
-            ex.printStackTrace();
-            handler.emitError("Exception", ex.toString());
+            throw new RuntimeException("Databse description extraction failed.", ex);
         }
     }
 
@@ -71,23 +68,17 @@ public class SetDatabasesToBackupAction extends AbstractScriptExecutor implement
         {
             for (String description : descriptions.split("\n"))
             {
-                String[] splitted = description.split(";")[0].split("=");
-                if (splitted.length < 2)
+                DatabaseDescription databaseDescription = new DatabaseDescription(description);
+                if (databaseExists(data, databaseDescription))
                 {
-                    throw new IllegalArgumentException("Invalid database description: "
-                            + description);
-                }
-                String database = splitted[1].trim();
-                if (databaseExists(data, database))
-                {
-                    builder.append(database);
+                    builder.append(databaseDescription.getDatabase());
                 }
             }
         }
         return builder.toString();
     }
-
-    private boolean databaseExists(AutomatedInstallData data, String database)
+    
+    private boolean databaseExists(AutomatedInstallData data, DatabaseDescription databaseDescription)
     {
         File scriptFile = getAdminScriptFile(data, "database-existence-check.sh");
         if (scriptFile.exists() == false)
@@ -95,18 +86,13 @@ public class SetDatabasesToBackupAction extends AbstractScriptExecutor implement
             return true;
         }
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-
-        String owner =
-                Utils.tryToGetServicePropertyOfAS(GlobalInstallationContext.installDir,
-                        "database.owner");
-        String password =
-                Utils.tryToGetServicePropertyOfAS(GlobalInstallationContext.installDir,
-                        "database.owner-password");
-        
         Map<String, String> env = new HashMap<String, String>();
-        env.put("PGPASSWORD", password);
-        
-        executeAdminScript(env, outputStream, outputStream, scriptFile.getAbsolutePath(), database, owner);
+        env.put("PGPASSWORD", databaseDescription.getPassword());
+        String database = databaseDescription.getDatabase();
+        String owner = databaseDescription.getUsername();
+        String host = databaseDescription.getHost();
+        String port = databaseDescription.getPort();
+        executeAdminScript(env, outputStream, outputStream, scriptFile.getAbsolutePath(), database, owner, host, port);
         return outputStream.toString().trim().equals("FALSE") == false;
 
     }
@@ -134,4 +120,69 @@ public class SetDatabasesToBackupAction extends AbstractScriptExecutor implement
         return new Object[]
             { paths.toArray(new String[0]) };
     }
+    
+    private static final class DatabaseDescription
+    {
+        private final String description;
+        private final String database;
+        private final String username;
+        private final String password;
+        private final String host;
+
+        DatabaseDescription(String description)
+        {
+            this.description = description;
+            String[] parts = description.split(";");
+            if (parts.length < 3)
+            {
+                throw new IllegalArgumentException("Only " + parts.length 
+                        + " parts separated by ';' in database description: " + description);
+            }
+            database = getValue(parts[0]);
+            username = getValue(parts[1]);
+            password = getValue(parts[2]);
+            host = parts.length == 4 ? getValue(parts[3]) : "localhost";
+        }
+        
+        private String getValue(String part)
+        {
+            String[] splitted = part.split("=");
+            return splitted.length == 1 ? "" : splitted[1].trim();
+        }
+
+        public String getDatabase()
+        {
+            return database;
+        }
+
+        public String getUsername()
+        {
+            return username;
+        }
+
+        public String getPassword()
+        {
+            return password;
+        }
+        
+        public String getHost()
+        {
+            int indexOfColon = host.indexOf(':');
+            return indexOfColon < 0 ? host : host.substring(0, indexOfColon);
+        }
+        
+        public String getPort()
+        {
+            int indexOfColon = host.indexOf(':');
+            return indexOfColon < 0 ? "5432" : host.substring(indexOfColon + 1);
+        }
+
+        @Override
+        public String toString()
+        {
+            return description;
+        }
+        
+    }
+
 }

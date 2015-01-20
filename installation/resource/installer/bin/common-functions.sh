@@ -45,19 +45,20 @@ contains()
 #
 # This function should be used as follows:
 #
-# if [ $(databaseExist "openbis_prod" $owner) == "TRUE" ]; then doBackup; fi
+# if [ $(databaseExist localhost 5432 "openbis_prod" $owner) == "TRUE" ]; then doBackup; fi
 #
 databaseExist()
 {
-  local database=$1
-  local owner=$2
-  if [ `exe_psql -U $owner -l | eval "awk '/$database /'" | wc -l` -gt 0 ]; then
+  local host=$1
+  local port=$2
+  local database=$3
+  local owner=$4
+  if [ `exe_psql -U $owner -h $host -p $port -l | eval "awk '/$database /'" | wc -l` -gt 0 ]; then
     echo "TRUE"
   else
     echo "FALSE"
   fi
 }
-
 
 #
 # Run psql command using POSTGRES_BIN path
