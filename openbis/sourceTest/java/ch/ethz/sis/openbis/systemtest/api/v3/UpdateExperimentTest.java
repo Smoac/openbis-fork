@@ -147,7 +147,7 @@ public class UpdateExperimentTest extends AbstractExperimentTest
                 {
                     v3api.updateExperiments(sessionToken, Arrays.asList(update));
                 }
-            }, ExperimentContextDescription.updating(ids.get(0)));
+            }, "Project id cannot be null");
     }
 
     @Test
@@ -209,7 +209,7 @@ public class UpdateExperimentTest extends AbstractExperimentTest
                 {
                     v3api.updateExperiments(sessionToken, Arrays.asList(update));
                 }
-            }, projectId, ExperimentContextDescription.updating(experimentId));
+            }, projectId);
     }
 
     @Test
@@ -230,7 +230,7 @@ public class UpdateExperimentTest extends AbstractExperimentTest
                 {
                     v3api.updateExperiments(sessionToken, Arrays.asList(update));
                 }
-            }, projectId, ExperimentContextDescription.updating(experimentId));
+            }, projectId);
     }
 
     @Test

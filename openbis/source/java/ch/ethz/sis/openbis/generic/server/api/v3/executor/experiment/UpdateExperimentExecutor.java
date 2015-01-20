@@ -16,12 +16,13 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.experiment;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -41,6 +42,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.UnauthorizedObjectAc
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ExperimentByIdentiferValidator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.util.RelationshipUtils;
 
 /**
@@ -78,14 +80,18 @@ public class UpdateExperimentExecutor implements IUpdateExperimentExecutor
     @Override
     public void update(IOperationContext context, List<ExperimentUpdate> updates)
     {
-        Map<ExperimentUpdate, ExperimentPE> experimentsMap = getExperimentsMap(context, updates);
+        Map<ExperimentUpdate, ExperimentPE> experimentsAll = new LinkedHashMap<ExperimentUpdate, ExperimentPE>();
 
-        for (Entry<ExperimentUpdate, ExperimentPE> experimentEntry : experimentsMap.entrySet())
+        int batchSize = 1000;
+        for (int batchStart = 0; batchStart < updates.size(); batchStart += batchSize)
         {
-            updateExperiment(context, experimentEntry.getKey(), experimentEntry.getValue());
+            List<ExperimentUpdate> updatesBatch = updates.subList(batchStart, Math.min(batchStart + batchSize, updates.size()));
+            updateExperiments(context, updatesBatch, experimentsAll);
         }
 
-        verifyExperiments(context, experimentsMap.values());
+        reloadExperiments(experimentsAll);
+
+        verifyExperiments(context, experimentsAll.values());
     }
 
     private Map<ExperimentUpdate, ExperimentPE> getExperimentsMap(IOperationContext context, List<ExperimentUpdate> updates)
@@ -127,18 +133,36 @@ public class UpdateExperimentExecutor implements IUpdateExperimentExecutor
         return result;
     }
 
-    private void updateExperiment(IOperationContext context, ExperimentUpdate update, ExperimentPE experiment)
+    private void updateExperiments(IOperationContext context, List<ExperimentUpdate> updatesBatch, Map<ExperimentUpdate, ExperimentPE> experimentsAll)
     {
-        context.pushContextDescription(ExperimentContextDescription.updating(update.getExperimentId()));
+        Map<ExperimentUpdate, ExperimentPE> batchMap = getExperimentsMap(context, updatesBatch);
+        experimentsAll.putAll(batchMap);
 
-        updateExperimentProjectExecutor.update(context, experiment, update.getProjectId());
-        updateEntityPropertyExecutor.update(context, experiment, experiment.getEntityType(), update.getProperties());
-        RelationshipUtils.updateModificationDateAndModifier(experiment, context.getSession().tryGetPerson());
-        daoFactory.getExperimentDAO().createOrUpdateExperiment(experiment, context.getSession().tryGetPerson());
-        updateTagForEntityExecutor.update(context, experiment, update.getTagIds());
-        updateAttachmentForEntityExecutor.update(context, experiment, update.getAttachments());
+        daoFactory.setBatchUpdateMode(true);
 
-        context.popContextDescription();
+        Map<IEntityPropertiesHolder, Map<String, String>> entityToPropertiesMap = new HashMap<IEntityPropertiesHolder, Map<String, String>>();
+        for (Map.Entry<ExperimentUpdate, ExperimentPE> batchEntry : batchMap.entrySet())
+        {
+            entityToPropertiesMap.put(batchEntry.getValue(), batchEntry.getKey().getProperties());
+        }
+        updateEntityPropertyExecutor.update(context, entityToPropertiesMap);
+        updateExperimentProjectExecutor.update(context, batchMap);
+
+        for (ExperimentUpdate update : updatesBatch)
+        {
+            ExperimentPE experiment = batchMap.get(update);
+
+            updateTagForEntityExecutor.update(context, experiment, update.getTagIds());
+            updateAttachmentForEntityExecutor.update(context, experiment, update.getAttachments());
+
+            RelationshipUtils.updateModificationDateAndModifier(experiment, context.getSession().tryGetPerson());
+        }
+
+        daoFactory.getExperimentDAO().createOrUpdateExperiments(new ArrayList<ExperimentPE>(batchMap.values()), context.getSession().tryGetPerson());
+
+        daoFactory.setBatchUpdateMode(false);
+        daoFactory.getSessionFactory().getCurrentSession().flush();
+        daoFactory.getSessionFactory().getCurrentSession().clear();
     }
 
     private void verifyExperiments(IOperationContext context, Collection<ExperimentPE> experiments)
@@ -155,6 +179,31 @@ public class UpdateExperimentExecutor implements IUpdateExperimentExecutor
         Collection<ExperimentPE> freshExperiments = daoFactory.getExperimentDAO().listByIDs(techIds);
 
         verifyExperimentExecutor.verify(context, freshExperiments);
+    }
+
+    private void reloadExperiments(Map<ExperimentUpdate, ExperimentPE> updateToExperimentMap)
+    {
+        Collection<Long> ids = new HashSet<Long>();
+
+        for (ExperimentPE experiment : updateToExperimentMap.values())
+        {
+            ids.add(experiment.getId());
+        }
+
+        List<ExperimentPE> experiments = daoFactory.getExperimentDAO().listByIDs(ids);
+
+        Map<Long, ExperimentPE> idToExperimentMap = new HashMap<Long, ExperimentPE>();
+
+        for (ExperimentPE experiment : experiments)
+        {
+            idToExperimentMap.put(experiment.getId(), experiment);
+        }
+
+        for (Map.Entry<ExperimentUpdate, ExperimentPE> entry : updateToExperimentMap.entrySet())
+        {
+            entry.setValue(idToExperimentMap.get(entry.getValue().getId()));
+        }
+
     }
 
 }

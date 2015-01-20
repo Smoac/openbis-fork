@@ -63,14 +63,35 @@ public class UpdateEntityPropertyExecutor implements IUpdateEntityPropertyExecut
     }
 
     @Override
-    public void update(IOperationContext context, IEntityPropertiesHolder propertiesHolder, EntityTypePE entityType,
-            Map<String, String> properties)
+    public void update(IOperationContext context, Map<IEntityPropertiesHolder, Map<String, String>> entityToPropertiesMap)
     {
-        if (properties == null || properties.isEmpty())
+        if (entityToPropertiesMap == null || entityToPropertiesMap.isEmpty())
         {
             return;
         }
 
+        Map<EntityKind, EntityPropertiesConverter> converters = new HashMap<EntityKind, EntityPropertiesConverter>();
+
+        for (Map.Entry<IEntityPropertiesHolder, Map<String, String>> entry : entityToPropertiesMap.entrySet())
+        {
+            IEntityPropertiesHolder propertiesHolder = entry.getKey();
+            Map<String, String> properties = entry.getValue();
+            EntityKind entityKind = propertiesHolder.getEntityType().getEntityKind();
+
+            if (converters.get(entityKind) == null)
+            {
+                EntityPropertiesConverter converter =
+                        new EntityPropertiesConverter(entityKind, daoFactory, managedPropertyEvaluatorFactory);
+                converters.put(entityKind, converter);
+            }
+
+            update(context, propertiesHolder, properties, converters.get(entityKind));
+        }
+    }
+
+    private void update(IOperationContext context, IEntityPropertiesHolder propertiesHolder, Map<String, String> properties,
+            EntityPropertiesConverter converter)
+    {
         List<IEntityProperty> entityProperties = new LinkedList<IEntityProperty>();
         for (Map.Entry<String, String> entry : properties.entrySet())
         {
@@ -88,7 +109,7 @@ public class UpdateEntityPropertyExecutor implements IUpdateEntityPropertyExecut
         }
 
         Set<? extends EntityPropertyPE> convertedProperties =
-                convertProperties(context, entityType, existingProperties, entityProperties);
+                convertProperties(context, propertiesHolder.getEntityType(), existingProperties, entityProperties, converter);
 
         if (isEquals(existingPropertyValuesByCode, convertedProperties) == false)
         {
@@ -97,7 +118,7 @@ public class UpdateEntityPropertyExecutor implements IUpdateEntityPropertyExecut
     }
 
     private <T extends EntityPropertyPE> Set<T> convertProperties(IOperationContext context, final EntityTypePE type,
-            final Set<T> existingProperties, List<IEntityProperty> properties)
+            final Set<T> existingProperties, List<IEntityProperty> properties, EntityPropertiesConverter converter)
     {
         Set<String> propertiesToUpdate = new HashSet<String>();
         if (properties != null)
@@ -107,7 +128,7 @@ public class UpdateEntityPropertyExecutor implements IUpdateEntityPropertyExecut
                 propertiesToUpdate.add(property.getPropertyType().getCode());
             }
         }
-        return getEntityPropertiesConverter(type.getEntityKind()).updateProperties(existingProperties, type, properties,
+        return converter.updateProperties(existingProperties, type, properties,
                 context.getSession().tryGetPerson(), propertiesToUpdate);
     }
 
@@ -140,12 +161,6 @@ public class UpdateEntityPropertyExecutor implements IUpdateEntityPropertyExecut
             }
         }
         return existingPropertyValuesByCode.isEmpty();
-    }
-
-    private EntityPropertiesConverter getEntityPropertiesConverter(EntityKind entityKindOrNull)
-    {
-        return new EntityPropertiesConverter(
-                entityKindOrNull, daoFactory, managedPropertyEvaluatorFactory);
     }
 
 }

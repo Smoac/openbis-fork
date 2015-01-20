@@ -16,12 +16,13 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.sample;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -39,6 +40,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.ObjectNotFoundExcept
 import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SampleByIdentiferValidator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.util.RelationshipUtils;
 
@@ -83,15 +85,20 @@ public class UpdateSampleExecutor implements IUpdateSampleExecutor
     @Override
     public void update(IOperationContext context, List<SampleUpdate> updates)
     {
-        Map<SampleUpdate, SamplePE> samplesMap = getSamplesMap(context, updates);
+        Map<SampleUpdate, SamplePE> samplesAll = new LinkedHashMap<SampleUpdate, SamplePE>();
 
-        for (Entry<SampleUpdate, SamplePE> sampleEntry : samplesMap.entrySet())
+        int batchSize = 1000;
+        for (int batchStart = 0; batchStart < updates.size(); batchStart += batchSize)
         {
-            updateSample(context, sampleEntry.getKey(), sampleEntry.getValue());
+            List<SampleUpdate> updatesBatch = updates.subList(batchStart, Math.min(batchStart + batchSize, updates.size()));
+            updateSamples(context, updatesBatch, samplesAll);
         }
 
-        updateSampleRelatedSamplesExecutor.update(context, samplesMap);
-        verifySamples(context, samplesMap.values());
+        reloadSamples(samplesAll);
+
+        updateSampleRelatedSamplesExecutor.update(context, samplesAll);
+
+        verifySamples(context, samplesAll.values());
     }
 
     private Map<SampleUpdate, SamplePE> getSamplesMap(IOperationContext context, List<SampleUpdate> updates)
@@ -129,19 +136,37 @@ public class UpdateSampleExecutor implements IUpdateSampleExecutor
         return result;
     }
 
-    private void updateSample(IOperationContext context, SampleUpdate update, SamplePE sample)
+    private void updateSamples(IOperationContext context, List<SampleUpdate> updatesBatch, Map<SampleUpdate, SamplePE> samplesAll)
     {
-        context.pushContextDescription("update sample " + update.getSampleId());
+        Map<SampleUpdate, SamplePE> batchMap = getSamplesMap(context, updatesBatch);
+        samplesAll.putAll(batchMap);
 
-        updateSampleSpaceExecutor.update(context, sample, update.getSpaceId());
-        updateSampleExperimentExecutor.update(context, sample, update.getExperimentId());
-        updateEntityPropertyExecutor.update(context, sample, sample.getEntityType(), update.getProperties());
-        RelationshipUtils.updateModificationDateAndModifier(sample, context.getSession().tryGetPerson());
-        daoFactory.getSampleDAO().createOrUpdateSample(sample, context.getSession().tryGetPerson());
-        updateTagForEntityExecutor.update(context, sample, update.getTagIds());
-        updateAttachmentForEntityExecutor.update(context, sample, update.getAttachments());
+        daoFactory.setBatchUpdateMode(true);
 
-        context.popContextDescription();
+        Map<IEntityPropertiesHolder, Map<String, String>> entityToPropertiesMap = new HashMap<IEntityPropertiesHolder, Map<String, String>>();
+        for (Map.Entry<SampleUpdate, SamplePE> batchEntry : batchMap.entrySet())
+        {
+            entityToPropertiesMap.put(batchEntry.getValue(), batchEntry.getKey().getProperties());
+        }
+        updateEntityPropertyExecutor.update(context, entityToPropertiesMap);
+        updateSampleSpaceExecutor.update(context, batchMap);
+        updateSampleExperimentExecutor.update(context, batchMap);
+
+        for (SampleUpdate update : updatesBatch)
+        {
+            SamplePE sample = batchMap.get(update);
+
+            updateTagForEntityExecutor.update(context, sample, update.getTagIds());
+            updateAttachmentForEntityExecutor.update(context, sample, update.getAttachments());
+
+            RelationshipUtils.updateModificationDateAndModifier(sample, context.getSession().tryGetPerson());
+        }
+
+        daoFactory.getSampleDAO().createOrUpdateSamples(new ArrayList<SamplePE>(batchMap.values()), context.getSession().tryGetPerson(), false);
+
+        daoFactory.setBatchUpdateMode(false);
+        daoFactory.getSessionFactory().getCurrentSession().flush();
+        daoFactory.getSessionFactory().getCurrentSession().clear();
     }
 
     private void verifySamples(IOperationContext context, Collection<SamplePE> samples)
@@ -158,6 +183,31 @@ public class UpdateSampleExecutor implements IUpdateSampleExecutor
         Collection<SamplePE> freshSamples = daoFactory.getSampleDAO().listByIDs(techIds);
 
         verifySampleExecutor.verify(context, freshSamples);
+    }
+
+    private void reloadSamples(Map<SampleUpdate, SamplePE> updateToSampleMap)
+    {
+        Collection<Long> ids = new HashSet<Long>();
+
+        for (SamplePE sample : updateToSampleMap.values())
+        {
+            ids.add(sample.getId());
+        }
+
+        List<SamplePE> samples = daoFactory.getSampleDAO().listByIDs(ids);
+
+        Map<Long, SamplePE> idToSampleMap = new HashMap<Long, SamplePE>();
+
+        for (SamplePE sample : samples)
+        {
+            idToSampleMap.put(sample.getId(), sample);
+        }
+
+        for (Map.Entry<SampleUpdate, SamplePE> entry : updateToSampleMap.entrySet())
+        {
+            entry.setValue(idToSampleMap.get(entry.getValue().getId()));
+        }
+
     }
 
 }

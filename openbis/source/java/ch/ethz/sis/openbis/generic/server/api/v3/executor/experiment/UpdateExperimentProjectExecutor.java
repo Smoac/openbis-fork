@@ -16,13 +16,19 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.experiment;
 
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.project.IGetProjectByIdExecutor;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.project.IMapProjectByIdExecutor;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.FieldUpdateValue;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.ExperimentUpdate;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.IProjectId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.ObjectNotFoundException;
 import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ProjectByIdentiferValidator;
@@ -41,21 +47,43 @@ public class UpdateExperimentProjectExecutor implements IUpdateExperimentProject
     private IRelationshipService relationshipService;
 
     @Autowired
-    private IGetProjectByIdExecutor getProjectByIdExecutor;
+    private IMapProjectByIdExecutor mapProjectByIdExecutor;
 
     @SuppressWarnings("unused")
     private UpdateExperimentProjectExecutor()
     {
     }
 
-    public UpdateExperimentProjectExecutor(IRelationshipService relationshipService, IGetProjectByIdExecutor getProjectByIdExecutor)
+    public UpdateExperimentProjectExecutor(IRelationshipService relationshipService, IMapProjectByIdExecutor mapProjectByIdExecutor)
     {
         this.relationshipService = relationshipService;
-        this.getProjectByIdExecutor = getProjectByIdExecutor;
+        this.mapProjectByIdExecutor = mapProjectByIdExecutor;
     }
 
     @Override
-    public void update(IOperationContext context, ExperimentPE experiment, FieldUpdateValue<IProjectId> update)
+    public void update(IOperationContext context, Map<ExperimentUpdate, ExperimentPE> updatesMap)
+    {
+        List<IProjectId> projectIds = new LinkedList<IProjectId>();
+
+        for (ExperimentUpdate update : updatesMap.keySet())
+        {
+            if (update.getProjectId() != null && update.getProjectId().isModified())
+            {
+                projectIds.add(update.getProjectId().getValue());
+            }
+        }
+
+        Map<IProjectId, ProjectPE> projectMap = mapProjectByIdExecutor.map(context, projectIds);
+
+        for (Map.Entry<ExperimentUpdate, ExperimentPE> entry : updatesMap.entrySet())
+        {
+            ExperimentUpdate update = entry.getKey();
+            ExperimentPE experiment = entry.getValue();
+            update(context, experiment, update.getProjectId(), projectMap);
+        }
+    }
+
+    private void update(IOperationContext context, ExperimentPE experiment, FieldUpdateValue<IProjectId> update, Map<IProjectId, ProjectPE> projectMap)
     {
         if (update != null && update.isModified())
         {
@@ -63,7 +91,14 @@ public class UpdateExperimentProjectExecutor implements IUpdateExperimentProject
             {
                 throw new UserFailureException("Project id cannot be null");
             }
-            ProjectPE project = getProjectByIdExecutor.get(context, update.getValue());
+
+            ProjectPE project = projectMap.get(update.getValue());
+
+            if (project == null)
+            {
+                throw new ObjectNotFoundException(update.getValue());
+            }
+
             if (false == project.equals(experiment.getProject()))
             {
                 checkProject(context, update.getValue(), project);

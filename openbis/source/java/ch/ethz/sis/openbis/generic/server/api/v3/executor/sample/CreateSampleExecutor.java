@@ -42,6 +42,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SampleByIdentiferValidator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
@@ -117,19 +118,16 @@ public class CreateSampleExecutor implements ICreateSampleExecutor
             {
                 List<SampleCreation> creationsBatch = creations.subList(batchStart, Math.min(batchStart + batchSize, creations.size()));
                 createSamples(context, creationsBatch, permIdsAll, samplesAll);
-
-                for (SampleCreation creation : creationsBatch)
-                {
-                    SamplePE sample = samplesAll.get(creation);
-                    createAttachmentExecutor.create(context, sample, creation.getAttachments());
-                    addTagToEntityExecutor.add(context, sample, creation.getTagIds());
-                }
-
-                daoFactory.getSessionFactory().getCurrentSession().flush();
-                daoFactory.getSessionFactory().getCurrentSession().clear();
             }
 
             reloadSamples(samplesAll);
+
+            for (SampleCreation creation : creations)
+            {
+                SamplePE sample = samplesAll.get(creation);
+                createAttachmentExecutor.create(context, sample, creation.getAttachments());
+                addTagToEntityExecutor.add(context, sample, creation.getTagIds());
+            }
 
             setSampleRelatedSamplesExecutor.set(context, samplesAll);
             verifySampleExecutor.verify(context, samplesAll.values());
@@ -168,6 +166,8 @@ public class CreateSampleExecutor implements ICreateSampleExecutor
         setSampleExperimentExecutor.set(context, batchMap);
         setSampleTypeExecutor.set(context, batchMap);
 
+        Map<IEntityPropertiesHolder, Map<String, String>> entityToPropertiesMap = new HashMap<IEntityPropertiesHolder, Map<String, String>>();
+
         for (Map.Entry<SampleCreation, SamplePE> batchEntry : batchMap.entrySet())
         {
             SamplePE sample = batchEntry.getValue();
@@ -177,13 +177,17 @@ public class CreateSampleExecutor implements ICreateSampleExecutor
                 throw new UnauthorizedObjectAccessException(new SampleIdentifier(sample.getIdentifier()));
             }
 
-            Map<String, String> properties = batchEntry.getKey().getProperties();
-            updateEntityPropertyExecutor.update(context, sample, sample.getEntityType(), properties);
+            entityToPropertiesMap.put(sample, batchEntry.getKey().getProperties());
         }
+
+        updateEntityPropertyExecutor.update(context, entityToPropertiesMap);
 
         PersonPE modifier = context.getSession().tryGetPerson();
         daoFactory.getSampleDAO().createOrUpdateSamples(new ArrayList<SamplePE>(batchMap.values()), modifier, false);
+
         daoFactory.setBatchUpdateMode(false);
+        daoFactory.getSessionFactory().getCurrentSession().flush();
+        daoFactory.getSessionFactory().getCurrentSession().clear();
     }
 
     private SamplePE createSamplePE(IOperationContext context, SampleCreation sampleCreation)

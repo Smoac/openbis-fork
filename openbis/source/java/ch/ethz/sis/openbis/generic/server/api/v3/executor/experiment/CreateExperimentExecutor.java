@@ -16,9 +16,14 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.experiment;
 
-import java.util.Collections;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,23 +32,19 @@ import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.attachment.ICreateAttachmentExecutor;
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.IGetEntityTypeByIdExecutor;
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.project.IGetProjectByIdExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.property.IUpdateEntityPropertyExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.tag.IAddTagToEntityExecutor;
-import ch.ethz.sis.openbis.generic.server.api.v3.helper.experiment.ExperimentContextDescription;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.ExperimentCreation;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.entitytype.IEntityTypeId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentIdentifier;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ProjectByIdentiferValidator;
+import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ExperimentByIdentiferValidator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityPropertiesHolder;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.util.RelationshipUtils;
@@ -59,10 +60,10 @@ public class CreateExperimentExecutor implements ICreateExperimentExecutor
     private IDAOFactory daoFactory;
 
     @Autowired
-    private IGetEntityTypeByIdExecutor getEntityTypeByIdExecutor;
+    private ISetExperimentTypeExecutor setExperimentTypeExecutor;
 
     @Autowired
-    private IGetProjectByIdExecutor getProjectByIdExecutor;
+    private ISetExperimentProjectExecutor setExperimentProjectExecutor;
 
     @Autowired
     private IUpdateEntityPropertyExecutor updateEntityPropertyExecutor;
@@ -81,14 +82,14 @@ public class CreateExperimentExecutor implements ICreateExperimentExecutor
     {
     }
 
-    public CreateExperimentExecutor(IDAOFactory daoFactory, IGetProjectByIdExecutor getProjectByIdExecutor,
-            IGetEntityTypeByIdExecutor getEntityTypeByIdExecutor, IUpdateEntityPropertyExecutor updateEntityPropertyExecutor,
+    public CreateExperimentExecutor(IDAOFactory daoFactory, ISetExperimentTypeExecutor setExperimentTypeExecutor,
+            ISetExperimentProjectExecutor setExperimentProjectExecutor, IUpdateEntityPropertyExecutor updateEntityPropertyExecutor,
             ICreateAttachmentExecutor createAttachmentExecutor, IAddTagToEntityExecutor addTagToEntityExecutor,
             IVerifyExperimentExecutor verifyExperimentExecutor)
     {
         this.daoFactory = daoFactory;
-        this.getProjectByIdExecutor = getProjectByIdExecutor;
-        this.getEntityTypeByIdExecutor = getEntityTypeByIdExecutor;
+        this.setExperimentTypeExecutor = setExperimentTypeExecutor;
+        this.setExperimentProjectExecutor = setExperimentProjectExecutor;
         this.updateEntityPropertyExecutor = updateEntityPropertyExecutor;
         this.createAttachmentExecutor = createAttachmentExecutor;
         this.addTagToEntityExecutor = addTagToEntityExecutor;
@@ -100,23 +101,30 @@ public class CreateExperimentExecutor implements ICreateExperimentExecutor
     {
         try
         {
-            List<ExperimentPermId> result = new LinkedList<ExperimentPermId>();
+            List<ExperimentPermId> permIdsAll = new LinkedList<ExperimentPermId>();
+            Map<ExperimentCreation, ExperimentPE> experimentsAll = new LinkedHashMap<ExperimentCreation, ExperimentPE>();
+
+            int batchSize = 1000;
+            for (int batchStart = 0; batchStart < creations.size(); batchStart += batchSize)
+            {
+                List<ExperimentCreation> creationsBatch = creations.subList(batchStart, Math.min(batchStart + batchSize, creations.size()));
+                createExperiments(context, creationsBatch, permIdsAll, experimentsAll);
+            }
+
+            reloadExperiments(experimentsAll);
 
             for (ExperimentCreation creation : creations)
             {
-                context.pushContextDescription(ExperimentContextDescription.creating(creation));
-
-                ExperimentPE experiment = createExperimentPE(context, creation);
-                daoFactory.getExperimentDAO().createOrUpdateExperiment(experiment, context.getSession().tryGetPerson());
+                ExperimentPE experiment = experimentsAll.get(creation);
                 createAttachmentExecutor.create(context, experiment, creation.getAttachments());
                 addTagToEntityExecutor.add(context, experiment, creation.getTagIds());
-                verifyExperimentExecutor.verify(context, Collections.singletonList(experiment));
-                result.add(new ExperimentPermId(experiment.getPermId()));
-
-                context.popContextDescription();
             }
 
-            return result;
+            verifyExperimentExecutor.verify(context, experimentsAll.values());
+
+            daoFactory.getSessionFactory().getCurrentSession().flush();
+            daoFactory.getSessionFactory().getCurrentSession().clear();
+            return permIdsAll;
         } catch (DataAccessException e)
         {
             DataAccessExceptionTranslator.throwException(e, "Experiment", EntityKind.EXPERIMENT);
@@ -124,48 +132,95 @@ public class CreateExperimentExecutor implements ICreateExperimentExecutor
         }
     }
 
+    private void createExperiments(IOperationContext context, List<ExperimentCreation> creationsBatch,
+            List<ExperimentPermId> permIdsAll, Map<ExperimentCreation, ExperimentPE> experimentsAll)
+    {
+        Map<ExperimentCreation, ExperimentPE> batchMap = new LinkedHashMap<ExperimentCreation, ExperimentPE>();
+
+        daoFactory.setBatchUpdateMode(true);
+
+        for (ExperimentCreation creation : creationsBatch)
+        {
+            context.pushContextDescription("register experiment " + creation.getCode());
+
+            ExperimentPE experiment = createExperimentPE(context, creation);
+
+            permIdsAll.add(new ExperimentPermId(experiment.getPermId()));
+            experimentsAll.put(creation, experiment);
+            batchMap.put(creation, experiment);
+
+            context.popContextDescription();
+        }
+
+        setExperimentProjectExecutor.set(context, batchMap);
+        setExperimentTypeExecutor.set(context, batchMap);
+
+        Map<IEntityPropertiesHolder, Map<String, String>> entityToPropertiesMap = new HashMap<IEntityPropertiesHolder, Map<String, String>>();
+
+        for (Map.Entry<ExperimentCreation, ExperimentPE> batchEntry : batchMap.entrySet())
+        {
+            ExperimentPE experiment = batchEntry.getValue();
+
+            if (false == new ExperimentByIdentiferValidator().doValidation(context.getSession().tryGetPerson(), experiment))
+            {
+                throw new UnauthorizedObjectAccessException(new ExperimentIdentifier(experiment.getIdentifier()));
+            }
+
+            entityToPropertiesMap.put(experiment, batchEntry.getKey().getProperties());
+        }
+
+        updateEntityPropertyExecutor.update(context, entityToPropertiesMap);
+
+        PersonPE modifier = context.getSession().tryGetPerson();
+        daoFactory.getExperimentDAO().createOrUpdateExperiments(new ArrayList<ExperimentPE>(batchMap.values()), modifier);
+
+        daoFactory.setBatchUpdateMode(false);
+        daoFactory.getSessionFactory().getCurrentSession().flush();
+        daoFactory.getSessionFactory().getCurrentSession().clear();
+    }
+
     private ExperimentPE createExperimentPE(IOperationContext context, ExperimentCreation experimentCreation)
     {
-        ExperimentPE experiment = new ExperimentPE();
-
         if (StringUtils.isEmpty(experimentCreation.getCode()))
         {
             throw new UserFailureException("Code cannot be empty.");
         }
-        if (experimentCreation.getTypeId() == null)
-        {
-            throw new UserFailureException("Type id cannot be null.");
-        }
-        if (experimentCreation.getProjectId() == null)
-        {
-            throw new UserFailureException("Project id cannot be null.");
-        }
 
         ExperimentIdentifierFactory.assertValidCode(experimentCreation.getCode());
+
+        ExperimentPE experiment = new ExperimentPE();
         experiment.setCode(experimentCreation.getCode());
-        experiment.setRegistrator(context.getSession().tryGetPerson());
-
-        IEntityTypeId typeId = experimentCreation.getTypeId();
-        EntityTypePE entityType = getEntityTypeByIdExecutor.get(context, EntityKind.EXPERIMENT, typeId);
-        experiment.setExperimentType((ExperimentTypePE) entityType);
-
-        updateEntityPropertyExecutor.update(context, experiment, entityType, experimentCreation.getProperties());
-
-        ProjectPE project = getProjectByIdExecutor.get(context, experimentCreation.getProjectId());
-
-        if (false == new ProjectByIdentiferValidator().doValidation(context.getSession().tryGetPerson(), project))
-        {
-            throw new UnauthorizedObjectAccessException(experimentCreation.getProjectId());
-        }
-
-        experiment.setProject(project);
-
         String createdPermId = daoFactory.getPermIdDAO().createPermId();
         experiment.setPermId(createdPermId);
-
+        experiment.setRegistrator(context.getSession().tryGetPerson());
         RelationshipUtils.updateModificationDateAndModifier(experiment, context.getSession().tryGetPerson());
 
         return experiment;
+    }
+
+    private void reloadExperiments(Map<ExperimentCreation, ExperimentPE> creationToExperimentMap)
+    {
+        Collection<Long> ids = new HashSet<Long>();
+
+        for (ExperimentPE experiment : creationToExperimentMap.values())
+        {
+            ids.add(experiment.getId());
+        }
+
+        List<ExperimentPE> experiments = daoFactory.getExperimentDAO().listByIDs(ids);
+
+        Map<Long, ExperimentPE> idToExperimentMap = new HashMap<Long, ExperimentPE>();
+
+        for (ExperimentPE experiment : experiments)
+        {
+            idToExperimentMap.put(experiment.getId(), experiment);
+        }
+
+        for (Map.Entry<ExperimentCreation, ExperimentPE> entry : creationToExperimentMap.entrySet())
+        {
+            entry.setValue(idToExperimentMap.get(entry.getValue().getId()));
+        }
+
     }
 
 }

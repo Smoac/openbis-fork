@@ -19,7 +19,6 @@ package ch.ethz.sis.openbis.generic.server.api.v3.executor.property;
 import java.util.Map;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
-import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityPropertiesHolder;
 
 /**
@@ -28,7 +27,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityPropertiesHolder;
 public interface IUpdateEntityPropertyExecutor
 {
 
-    public void update(IOperationContext context, IEntityPropertiesHolder propertiesHolder, EntityTypePE entityType,
-            Map<String, String> properties);
+    public void update(IOperationContext context, Map<IEntityPropertiesHolder, Map<String, String>> entityToPropertiesMap);
 
 }

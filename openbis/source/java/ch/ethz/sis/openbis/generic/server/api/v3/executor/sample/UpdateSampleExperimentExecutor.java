@@ -16,14 +16,20 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.sample;
 
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.experiment.IGetExperimentByIdExecutor;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.experiment.IMapExperimentByIdExecutor;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.FieldUpdateValue;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleUpdate;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentIdentifier;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.IExperimentId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.ObjectNotFoundException;
 import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ExperimentByIdentiferValidator;
 import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
@@ -41,21 +47,44 @@ public class UpdateSampleExperimentExecutor implements IUpdateSampleExperimentEx
     private IRelationshipService relationshipService;
 
     @Autowired
-    private IGetExperimentByIdExecutor getExperimentByIdExecutor;
+    private IMapExperimentByIdExecutor mapExperimentByIdExecutor;
 
     @SuppressWarnings("unused")
     private UpdateSampleExperimentExecutor()
     {
     }
 
-    public UpdateSampleExperimentExecutor(IRelationshipService relationshipService, IGetExperimentByIdExecutor getExperimentByIdExecutor)
+    public UpdateSampleExperimentExecutor(IRelationshipService relationshipService, IMapExperimentByIdExecutor mapExperimentByIdExecutor)
     {
         this.relationshipService = relationshipService;
-        this.getExperimentByIdExecutor = getExperimentByIdExecutor;
+        this.mapExperimentByIdExecutor = mapExperimentByIdExecutor;
     }
 
     @Override
-    public void update(IOperationContext context, SamplePE sample, FieldUpdateValue<IExperimentId> update)
+    public void update(IOperationContext context, Map<SampleUpdate, SamplePE> updatesMap)
+    {
+        List<IExperimentId> experimentIds = new LinkedList<IExperimentId>();
+
+        for (SampleUpdate update : updatesMap.keySet())
+        {
+            if (update.getExperimentId() != null && update.getExperimentId().isModified())
+            {
+                experimentIds.add(update.getExperimentId().getValue());
+            }
+        }
+
+        Map<IExperimentId, ExperimentPE> experimentMap = mapExperimentByIdExecutor.map(context, experimentIds);
+
+        for (Map.Entry<SampleUpdate, SamplePE> entry : updatesMap.entrySet())
+        {
+            SampleUpdate update = entry.getKey();
+            SamplePE sample = entry.getValue();
+            update(context, sample, update.getExperimentId(), experimentMap);
+        }
+    }
+
+    private void update(IOperationContext context, SamplePE sample, FieldUpdateValue<IExperimentId> update,
+            Map<IExperimentId, ExperimentPE> experimentMap)
     {
         if (update != null && update.isModified())
         {
@@ -69,7 +98,13 @@ public class UpdateSampleExperimentExecutor implements IUpdateSampleExperimentEx
             }
             else
             {
-                ExperimentPE experiment = getExperimentByIdExecutor.get(context, update.getValue());
+                ExperimentPE experiment = experimentMap.get(update.getValue());
+
+                if (experiment == null)
+                {
+                    throw new ObjectNotFoundException(update.getValue());
+                }
+
                 if (false == experiment.equals(sample.getExperiment()))
                 {
                     checkExperiment(context, update.getValue(), experiment);

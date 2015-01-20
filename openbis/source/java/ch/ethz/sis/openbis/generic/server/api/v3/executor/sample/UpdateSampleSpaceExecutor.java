@@ -16,14 +16,20 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.sample;
 
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.space.IGetSpaceByIdExecutor;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.space.IMapSpaceByIdExecutor;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.FieldUpdateValue;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleUpdate;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.ISpaceId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.SpacePermId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.ObjectNotFoundException;
 import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SimpleSpaceValidator;
 import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
@@ -41,21 +47,43 @@ public class UpdateSampleSpaceExecutor implements IUpdateSampleSpaceExecutor
     private IRelationshipService relationshipService;
 
     @Autowired
-    private IGetSpaceByIdExecutor getSpaceByIdExecutor;
+    private IMapSpaceByIdExecutor mapSpaceByIdExecutor;
 
     @SuppressWarnings("unused")
     private UpdateSampleSpaceExecutor()
     {
     }
 
-    public UpdateSampleSpaceExecutor(IRelationshipService relationshipService, IGetSpaceByIdExecutor getSpaceByIdExecutor)
+    public UpdateSampleSpaceExecutor(IRelationshipService relationshipService, IMapSpaceByIdExecutor mapSpaceByIdExecutor)
     {
         this.relationshipService = relationshipService;
-        this.getSpaceByIdExecutor = getSpaceByIdExecutor;
+        this.mapSpaceByIdExecutor = mapSpaceByIdExecutor;
     }
 
     @Override
-    public void update(IOperationContext context, SamplePE sample, FieldUpdateValue<ISpaceId> update)
+    public void update(IOperationContext context, Map<SampleUpdate, SamplePE> updatesMap)
+    {
+        List<ISpaceId> spaceIds = new LinkedList<ISpaceId>();
+
+        for (SampleUpdate update : updatesMap.keySet())
+        {
+            if (update.getSpaceId() != null && update.getSpaceId().isModified())
+            {
+                spaceIds.add(update.getSpaceId().getValue());
+            }
+        }
+
+        Map<ISpaceId, SpacePE> spaceMap = mapSpaceByIdExecutor.map(context, spaceIds);
+
+        for (Map.Entry<SampleUpdate, SamplePE> entry : updatesMap.entrySet())
+        {
+            SampleUpdate update = entry.getKey();
+            SamplePE sample = entry.getValue();
+            update(context, sample, update.getSpaceId(), spaceMap);
+        }
+    }
+
+    private void update(IOperationContext context, SamplePE sample, FieldUpdateValue<ISpaceId> update, Map<ISpaceId, SpacePE> spaceMap)
     {
         if (update != null && update.isModified())
         {
@@ -69,7 +97,13 @@ public class UpdateSampleSpaceExecutor implements IUpdateSampleSpaceExecutor
             }
             else
             {
-                SpacePE space = getSpaceByIdExecutor.get(context, update.getValue());
+                SpacePE space = spaceMap.get(update.getValue());
+
+                if (space == null)
+                {
+                    throw new ObjectNotFoundException(update.getValue());
+                }
+
                 checkSpace(context, update.getValue(), space);
 
                 if (sample.getSpace() == null)

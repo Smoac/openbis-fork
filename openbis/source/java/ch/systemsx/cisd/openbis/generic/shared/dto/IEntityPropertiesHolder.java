@@ -25,13 +25,16 @@ import java.util.Set;
  */
 public interface IEntityPropertiesHolder extends IIdAndCodeHolder
 {
+
+    public EntityTypePE getEntityType();
+
     /**
-     * Gets a copy of the entity properties. Note that this method returns an immutable collection
-     * that will throw {@link UnsupportedOperationException} on any method that would change it. Use
-     * {@link #setProperties(Set)} or {@link #addProperty(EntityPropertyPE)} instead.
+     * Gets a copy of the entity properties. Note that this method returns an immutable collection that will throw
+     * {@link UnsupportedOperationException} on any method that would change it. Use {@link #setProperties(Set)} or
+     * {@link #addProperty(EntityPropertyPE)} instead.
      */
     public Set<? extends EntityPropertyPE> getProperties();
-    
+
     /**
      * Returns <code>true</code>, if and only if the properties have been initialized.
      */
@@ -48,8 +51,8 @@ public interface IEntityPropertiesHolder extends IIdAndCodeHolder
     public void addProperty(EntityPropertyPE property);
 
     /**
-     * Removes the <var>property</var> from the list of properties of this property holder. Note
-     * that such a property has to be deleted or added to a different holder in the same session.
+     * Removes the <var>property</var> from the list of properties of this property holder. Note that such a property has to be deleted or added to a
+     * different holder in the same session.
      */
     public void removeProperty(EntityPropertyPE property);
 }

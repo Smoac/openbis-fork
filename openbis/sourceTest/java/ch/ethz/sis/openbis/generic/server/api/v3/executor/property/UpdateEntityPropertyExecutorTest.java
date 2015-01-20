@@ -17,6 +17,7 @@
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.property;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -111,6 +112,9 @@ public class UpdateEntityPropertyExecutorTest extends AbstractEntityPropertyExec
                     one(entityPropertiesHolder).getProperties();
                     will(returnValue(beforeProperties));
 
+                    allowing(entityPropertiesHolder).getEntityType();
+                    will(returnValue(entityType));
+
                     one(entityPropertiesHolder).setProperties(with(new PropertyValuesMatcher(afterProperties)));
                 }
             });
@@ -125,7 +129,7 @@ public class UpdateEntityPropertyExecutorTest extends AbstractEntityPropertyExec
     private void execute(IEntityPropertiesHolder propertiesHolder, EntityTypePE entityType, Map<String, String> properties)
     {
         UpdateEntityPropertyExecutor executor = new UpdateEntityPropertyExecutor(daoFactory, managedPropertyEvaluatorFactory);
-        executor.update(operationContext, propertiesHolder, entityType, properties);
+        executor.update(operationContext, Collections.singletonMap(propertiesHolder, properties));
     }
 
 }

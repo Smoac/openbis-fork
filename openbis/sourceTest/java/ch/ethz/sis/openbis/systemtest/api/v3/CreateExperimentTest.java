@@ -31,7 +31,6 @@ import junit.framework.Assert;
 
 import org.testng.annotations.Test;
 
-import ch.ethz.sis.openbis.generic.server.api.v3.helper.experiment.ExperimentContextDescription;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.attachment.Attachment;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.attachment.AttachmentCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
@@ -71,7 +70,7 @@ public class CreateExperimentTest extends AbstractExperimentTest
                 {
                     v3api.createExperiments(sessionToken, Arrays.asList(experiment));
                 }
-            }, "Code cannot be empty", ExperimentContextDescription.creating(experiment));
+            }, "Code cannot be empty");
     }
 
     @Test
@@ -94,7 +93,7 @@ public class CreateExperimentTest extends AbstractExperimentTest
                 {
                     v3api.createExperiments(sessionToken, Arrays.asList(experiment));
                 }
-            }, "Experiment already exists in the database and needs to be unique", ExperimentContextDescription.creating(experiment));
+            }, "Experiment already exists in the database and needs to be unique");
     }
 
     @Test
@@ -114,7 +113,7 @@ public class CreateExperimentTest extends AbstractExperimentTest
                 {
                     v3api.createExperiments(sessionToken, Arrays.asList(experiment));
                 }
-            }, "The code '?!*' contains illegal characters", ExperimentContextDescription.creating(experiment));
+            }, "The code '?!*' contains illegal characters");
     }
 
     @Test
@@ -133,7 +132,7 @@ public class CreateExperimentTest extends AbstractExperimentTest
                 {
                     v3api.createExperiments(sessionToken, Arrays.asList(experiment));
                 }
-            }, "Project id cannot be null", ExperimentContextDescription.creating(experiment));
+            }, "Project id cannot be null");
     }
 
     @Test
@@ -154,7 +153,7 @@ public class CreateExperimentTest extends AbstractExperimentTest
                 {
                     v3api.createExperiments(sessionToken, Arrays.asList(experiment));
                 }
-            }, projectId, ExperimentContextDescription.creating(experiment));
+            }, projectId);
     }
 
     @Test
@@ -175,7 +174,7 @@ public class CreateExperimentTest extends AbstractExperimentTest
                 {
                     v3api.createExperiments(sessionToken, Arrays.asList(experiment));
                 }
-            }, projectId, ExperimentContextDescription.creating(experiment));
+            }, projectId);
     }
 
     @Test
@@ -194,7 +193,7 @@ public class CreateExperimentTest extends AbstractExperimentTest
                 {
                     v3api.createExperiments(sessionToken, Arrays.asList(experiment));
                 }
-            }, "Type id cannot be null", ExperimentContextDescription.creating(experiment));
+            }, "Type id cannot be null");
     }
 
     @Test
@@ -216,7 +215,7 @@ public class CreateExperimentTest extends AbstractExperimentTest
                 {
                     v3api.createExperiments(sessionToken, Arrays.asList(experiment));
                 }
-            }, typeId, ExperimentContextDescription.creating(experiment));
+            }, typeId);
     }
 
     @Test
@@ -307,7 +306,7 @@ public class CreateExperimentTest extends AbstractExperimentTest
                 {
                     v3api.createExperiments(sessionToken, Arrays.asList(creation));
                 }
-            }, tagId, ExperimentContextDescription.creating(creation));
+            }, tagId);
     }
 
     @Test
