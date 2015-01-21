@@ -45,6 +45,7 @@ import ch.systemsx.cisd.common.mail.MailClient;
 import ch.systemsx.cisd.common.mail.MailClientParameters;
 import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
 import ch.systemsx.cisd.openbis.common.spring.AbstractServiceWithLogger;
+import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationBean;
 import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationServiceUtils;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.ReturnValueFilter;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAllowed;
@@ -465,7 +466,11 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
     @Override
     public final SessionContextDTO tryAuthenticate(final String user, final String password)
     {
-        return tryToAuthenticate(sessionManager.tryToOpenSession(user, password));
+        if(AuthorizationBean.getInstance().isASDisabled()) {
+            return null;
+        } else {
+            return tryToAuthenticate(sessionManager.tryToOpenSession(user, password));
+        }
     }
 
     @Override
