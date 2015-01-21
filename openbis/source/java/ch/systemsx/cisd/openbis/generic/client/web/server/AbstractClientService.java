@@ -69,7 +69,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.translator.UserFailure
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.TableModelUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.XMLPropertyTransformer;
 import ch.systemsx.cisd.openbis.generic.server.SessionConstants;
-import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationBean;
 import ch.systemsx.cisd.openbis.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.WebClientConfigurationProvider;
@@ -583,12 +582,8 @@ public abstract class AbstractClientService implements IClientService,
     {
         try
         {
-            if(AuthorizationBean.getInstance().isASDisabled()) {
-                return null;
-            } else {
-                final SessionContextDTO session = getServer().tryAuthenticate(userID, password);
-                return tryToLogin(session);
-            }
+            final SessionContextDTO session = getServer().tryAuthenticate(userID, password);
+            return tryToLogin(session);
         } catch (final IllegalStateException e)
         {
             operationLog.error("Session already invalidated.", e);
