@@ -180,13 +180,15 @@ function SideMenuWidgetController(mainController) {
                 var experimentsToAskForSamples = [];
 
                 if (experiments.result) {
+                    var toSortExperiments = {};
+
                     for (var i = 0; i < experiments.result.length; i++) {
                         var experiment = experiments.result[i];
                         experimentsToAskForSamples.push(experiment);
                         var projectIdentifierEnd = experiment.identifier.lastIndexOf("/");
                         var projectIdentifier = experiment.identifier.substring(0, projectIdentifierEnd);
                         var projectNode = _this._getProjectNodeForIdentifier(projectIdentifier);
-
+                        toSortExperiments[projectNode.uniqueId] = projectNode;
                         var newMenuIfSelectedExperiment = {
                             children: []
                         };
@@ -201,16 +203,22 @@ function SideMenuWidgetController(mainController) {
 
                         var menuItemExperiment = new SideMenuWidgetComponent(true, false, displayName, experiment.identifier, projectNode, newMenuIfSelectedExperiment, "showExperimentPageFromIdentifier", experiment.identifier, "(Experiment)");
                         projectNode.newMenuIfSelected.children.push(menuItemExperiment);
-                        projectNode.newMenuIfSelected.children.sort(naturalSortSideMenuWidgetComponent); //Sort Experiments
+                    }
+
+                    for(uniqueId in toSortExperiments) {
+                            toSortExperiments[uniqueId].newMenuIfSelected.children.sort(naturalSortSideMenuWidgetComponent); //Sort Experiments
                     }
                 }
 
                 //Fill Sub Experiments
                 mainController.serverFacade.listSamplesForExperiments(experimentsToAskForSamples, function(subExperiments) {
                     if (subExperiments.result) {
+                        var toSortSubExperiments = {};
+
                         for (var i = 0; i < subExperiments.result.length; i++) {
                             var subExperiment = subExperiments.result[i];
                             var experimentNode = _this._getExperimentNodeForIdentifier(subExperiment.experimentIdentifierOrNull);
+                            toSortSubExperiments[experimentNode.uniqueId] = experimentNode;
                             if (subExperiment.experimentIdentifierOrNull) {
                                 var displayName = null;
                                 if (profile.hideCodes) {
@@ -222,9 +230,14 @@ function SideMenuWidgetController(mainController) {
                                 var menuItemSubExperiment = new SideMenuWidgetComponent(true, false, displayName, subExperiment.identifier, experimentNode, null, "showViewSamplePageFromPermId", subExperiment.permId, "(Sub Exp.)");
                                 experimentNode.newMenuIfSelected.children.push(menuItemSubExperiment);
                             }
-                            experimentNode.newMenuIfSelected.children.sort(naturalSortSideMenuWidgetComponent); //Sort Sub Experiments
+                        }
+
+                        for(uniqueId in toSortSubExperiments) {
+                            toSortSubExperiments[uniqueId].newMenuIfSelected.children.sort(naturalSortSideMenuWidgetComponent); //Sort Sub Experiments
                         }
                     }
+
+
                     
                     //Fill Inventory
                     _this._sideMenuWidgetModel.menuStructure.newMenuIfSelected.children.push(
