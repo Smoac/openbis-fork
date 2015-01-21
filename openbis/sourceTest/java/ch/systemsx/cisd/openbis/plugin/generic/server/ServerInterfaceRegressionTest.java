@@ -29,6 +29,6 @@ public class ServerInterfaceRegressionTest extends AnnotationAppliedTestCase
     @Test
     public void testIGenericServer()
     {
-        assertMandatoryMethodAnnotations(IGenericServer.class, GenericServer.class);
+        assertMandatoryMethodAnnotations(IGenericServer.class, GenericServer.class, null);
     }
 }

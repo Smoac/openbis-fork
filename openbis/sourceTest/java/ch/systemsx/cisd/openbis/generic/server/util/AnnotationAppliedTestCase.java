@@ -41,9 +41,9 @@ public class AnnotationAppliedTestCase extends AssertJUnit
      * Asserts that the specified class is an interface and all its methods have the annotations
      * {@link RolesAllowed} and {@link Transactional}.
      */
-    protected void assertMandatoryMethodAnnotations(Class<?> interfaceClass)
+    protected void assertMandatoryMethodAnnotations(Class<?> interfaceClass, List<String> exemptMethods)
     {
-        assertMandatoryMethodAnnotations(interfaceClass, interfaceClass);
+        assertMandatoryMethodAnnotations(interfaceClass, interfaceClass, exemptMethods);
     }
 
     /**
@@ -52,9 +52,9 @@ public class AnnotationAppliedTestCase extends AssertJUnit
      * annotations {@link RolesAllowed} and {@link Transactional}.
      */
     protected void assertMandatoryMethodAnnotations(Class<?> interfaceClass,
-            Class<?> implementingClass)
+            Class<?> implementingClass, List<String> exemptMethods)
     {
-        assertMandatoryMethodAnnotations(interfaceClass, implementingClass, "");
+        assertMandatoryMethodAnnotations(interfaceClass, implementingClass, "", exemptMethods);
     }
 
     /**
@@ -64,7 +64,7 @@ public class AnnotationAppliedTestCase extends AssertJUnit
      * allowed.
      */
     protected void assertMandatoryMethodAnnotations(Class<?> interfaceClass,
-            Class<?> implementingClass, String exceptions)
+            Class<?> implementingClass, String exceptions, List<String> exemptMethods)
     {
         List<Class<? extends Annotation>> mandatoryAnnotations =
                 new ArrayList<Class<? extends Annotation>>();
@@ -72,7 +72,7 @@ public class AnnotationAppliedTestCase extends AssertJUnit
         mandatoryAnnotations.add(Transactional.class);
 
         assertMandatoryMethodAnnotations(mandatoryAnnotations, interfaceClass, implementingClass,
-                exceptions);
+                exceptions, exemptMethods);
     }
 
     /**
@@ -82,7 +82,7 @@ public class AnnotationAppliedTestCase extends AssertJUnit
      */
     protected void assertMandatoryMethodAnnotations(
             List<Class<? extends Annotation>> mandatoryAnnotations, Class<?> interfaceClass,
-            Class<?> implementingClass, String exceptions)
+            Class<?> implementingClass, String exceptions, List<String> exemptMethods)
     {
         final String noMissingAnnotationsMsg =
                 "Annotation checking for interface " + interfaceClass.getName()
@@ -103,6 +103,10 @@ public class AnnotationAppliedTestCase extends AssertJUnit
             });
         for (Method interfaceMethod : declaredMethods)
         {
+            if(exemptMethods != null && exemptMethods.contains(interfaceMethod.getName())) {
+                continue;
+            }
+             
             List<String> missingAnnotations = new ArrayList<String>();
             for (Class<? extends Annotation> annotationClass : mandatoryAnnotations)
             {

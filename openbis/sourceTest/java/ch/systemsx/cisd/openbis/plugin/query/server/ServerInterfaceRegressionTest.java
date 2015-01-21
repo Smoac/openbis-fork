@@ -29,6 +29,6 @@ public class ServerInterfaceRegressionTest extends AnnotationAppliedTestCase
     @Test
     public void testIQueryServer()
     {
-        assertMandatoryMethodAnnotations(IQueryServer.class, QueryServer.class);
+        assertMandatoryMethodAnnotations(IQueryServer.class, QueryServer.class, null);
     }
 }
