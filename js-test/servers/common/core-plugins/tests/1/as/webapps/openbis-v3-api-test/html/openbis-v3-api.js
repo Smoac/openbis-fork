@@ -109,6 +109,13 @@ define(['jquery'], function($) {
 			return dfd.promise();
 		}
 
+		this.performOperations = function(operations) {
+			return _private.ajaxRequest({
+				"method" : "performOperations",
+				"params" : [_private.sessionToken, operations]
+			});
+		}
+
 		this.mapSamples = function(sampleIds, sampleFetchOptions) {
 			return _private.ajaxRequest({
 				url : openbisUrl,
@@ -135,6 +142,16 @@ define(['jquery'], function($) {
 				data : {
 					"method" : "searchSamples",
 					"params" : [ _private.sessionToken, sampleSearchCriterion, sampleFetchOptions ]
+				}
+			});
+		}
+
+		this.searchDataSets = function(dataSetSearchCriterion, dataSetFetchOptions) {
+			return _private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "searchDataSets",
+					"params" : [_private.sessionToken, dataSetSearchCriterion, dataSetFetchOptions]
 				}
 			});
 		}
@@ -179,6 +196,40 @@ define(['jquery'], function($) {
 			});
 		}
 
+		this.deleteExperiments = function(experimentIds, deletionOptions) {
+			return _private.ajaxRequest({
+				"method" : "deleteExperiments",
+				"params" : [_private.sessionToken, experimentIds, deletionOptions]
+			});
+		}
+
+		this.deleteSamples = function(sampleIds, deletionOptions) {
+			return _private.ajaxRequest({
+				"method" : "deleteSamples",
+				"params" : [_private.sessionToken, sampleIds, deletionOptions]
+			});
+		}
+
+		this.listDeletions = function(fetchOptions) {
+			return _private.ajaxRequest({
+				"method" : "listDeletions",
+				"params" : [_private.sessionToken, fetchOptions]
+			});
+		}
+
+		this.revertDeletions = function(deletionIds) {
+			return _private.ajaxRequest({
+				"method" : "revertDeletions",
+				"params" : [_private.sessionToken, deletionIds]
+			});
+		}
+
+		this.confirmDeletions = function(deletionIds) {
+			return _private.ajaxRequest({
+				"method" : "confirmDeletions",
+				"params" : [_private.sessionToken, deletionIds]
+			});
+		}
 	}
 
 });
