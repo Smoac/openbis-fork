@@ -23,11 +23,17 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 
-import org.apache.commons.httpclient.methods.InputStreamRequestEntity;
-import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.remoting.httpinvoker.CommonsHttpInvokerRequestExecutor;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.entity.EntityBuilder;
+import org.apache.http.client.entity.GzipCompressingEntity;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.AbstractHttpEntity;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.InputStreamEntity;
+import org.springframework.remoting.httpinvoker.HttpComponentsHttpInvokerRequestExecutor;
 import org.springframework.remoting.httpinvoker.HttpInvokerClientConfiguration;
 import org.springframework.remoting.rmi.CodebaseAwareObjectInputStream;
 import org.springframework.remoting.support.RemoteInvocation;
@@ -66,7 +72,7 @@ import org.springframework.remoting.support.RemoteInvocationResult;
  * @see com.marathon.util.spring.StreamSupportingHttpInvokerServiceExporter
  * @see java.io.InputStream
  */
-public class StreamSupportingHttpInvokerRequestExecutor extends CommonsHttpInvokerRequestExecutor
+public class StreamSupportingHttpInvokerRequestExecutor extends HttpComponentsHttpInvokerRequestExecutor
 {
     private static final Log log =
             LogFactory.getLog(StreamSupportingHttpInvokerRequestExecutor.class);
@@ -171,9 +177,10 @@ public class StreamSupportingHttpInvokerRequestExecutor extends CommonsHttpInvok
         final ByteArrayInputStream serializedInvocation =
                 new ByteArrayInputStream(baos.toByteArray());
 
-        final PostMethod postMethod;
+        final HttpPost postMethod;
         final InputStream body;
 
+        EntityBuilder e = EntityBuilder.create();
         if (invocation.getClientSideInputStream() != null)
         {
             // We don't want to close the client side input stream unless the remote
@@ -186,20 +193,38 @@ public class StreamSupportingHttpInvokerRequestExecutor extends CommonsHttpInvok
                                         new CloseShieldedInputStream(invocation
                                                 .getClientSideInputStream()) });
             postMethod = createPostMethodForStreaming(config);
+            e.chunked();
+            e.setContentType(ContentType.create(CONTENT_TYPE_SERIALIZED_OBJECT_WITH_STREAM));
         } else
         {
             body = serializedInvocation;
-            postMethod = createPostMethod(config);
+            postMethod = createHttpPost(config);
         }
 
         boolean delayReleaseConnection = false;
 
         try
         {
-            postMethod.setRequestEntity(new InputStreamRequestEntity(body));
-            executePostMethod(config, getHttpClient(), postMethod);
+            // Instead of 
+            //   HttpEntity requestEntity = e.setStream(body).build();
+            // we have to do the following because there's a bug in httpclient 4.3.6.
+            // The length of the stream is set to 1 instead of -1 (which means 'unknown').
+            AbstractHttpEntity re = new InputStreamEntity(body, -1, e.getContentType());
+            HttpEntity requestEntity = re;
+            
+            if (re.getContentType() != null && e.getContentType() != null) {
+                re.setContentType(e.getContentType().toString());
+            }
+            re.setContentEncoding(e.getContentEncoding());
+            re.setChunked(e.isChunked());
+            if (e.isGzipCompress()) {
+                requestEntity =  new GzipCompressingEntity(re);
+            }
+            
+            postMethod.setEntity(requestEntity);
+            HttpResponse response = executeHttpPost(config, getHttpClient(), postMethod);
             final RemoteInvocationResult ret =
-                    readRemoteInvocationResult(postMethod.getResponseBodyAsStream(), config
+                    readRemoteInvocationResult(response.getEntity().getContent(), config
                             .getCodebaseUrl());
             if (ret instanceof StreamSupportingRemoteInvocationResult)
             {
@@ -265,13 +290,12 @@ public class StreamSupportingHttpInvokerRequestExecutor extends CommonsHttpInvok
                         + invocation);
     }
 
-    protected PostMethod createPostMethodForStreaming(final HttpInvokerClientConfiguration config)
+    protected HttpPost createPostMethodForStreaming(final HttpInvokerClientConfiguration config)
             throws IOException
     {
-        final PostMethod postMethod = new PostMethod(config.getServiceUrl());
-        postMethod.setRequestHeader(HTTP_HEADER_CONTENT_TYPE,
+        final HttpPost postMethod = new HttpPost(config.getServiceUrl());
+        postMethod.setHeader(HTTP_HEADER_CONTENT_TYPE,
                 CONTENT_TYPE_SERIALIZED_OBJECT_WITH_STREAM);
-        postMethod.setContentChunked(true);
         return postMethod;
     }
 
