@@ -20,6 +20,8 @@ import net.lemnik.eodsql.Select;
 import net.lemnik.eodsql.TransactionQuery;
 import net.lemnik.eodsql.Update;
 
+import ch.systemsx.cisd.common.db.mapper.StringArrayMapper;
+
 /**
  * @author Jakub Straszewski
  */
@@ -61,4 +63,14 @@ public interface IMultiDataSetArchiverQueryDAO extends TransactionQuery, IMultiD
     
     @Update(sql = DELETE_CONTAINER)
     public void deleteContainer(String containerPath);
+    
+    final static String REQUEST_UNARCHIVING = "UPDATE containers SET unarchiving_requested = 't' "
+            + "WHERE id in (SELECT ctnr_id FROM data_sets WHERE code = any(?{1}))";
+    @Update(sql = REQUEST_UNARCHIVING, parameterBindings =
+        { StringArrayMapper.class })
+    public void requestUnarchiving(String[] dataSetCodes);
+    
+    final static String RESET_REQUEST_UNARCHIVING = "UPDATE containers SET unarchiving_requested = 'f' WHERE id = ?{1}";
+    @Update(sql = RESET_REQUEST_UNARCHIVING)
+    public void resetRequestUnarchiving(long containerId);
 }

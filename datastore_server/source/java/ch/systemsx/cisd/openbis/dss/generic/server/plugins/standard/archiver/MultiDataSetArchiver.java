@@ -115,10 +115,6 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
         }
     }
 
-    private final long minimumContainerSize;
-
-    private final long maximumContainerSize;
-
     public static final String MINIMUM_CONTAINER_SIZE_IN_BYTES = "minimum-container-size-in-bytes";
 
     public static final Long DEFAULT_MINIMUM_CONTAINER_SIZE_IN_BYTES = 10 * FileUtils.ONE_GB;
@@ -131,6 +127,8 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
     
     public static final long DEFAULT_FINALIZER_MAX_WAITING_TIME = DateUtils.MILLIS_PER_DAY;
     
+    public static final String DELAY_UNARCHIVING = "delay-unarchiving";
+    
     public static final String CLEANER_PROPS = "cleaner";
 
     private transient IMultiDataSetArchiverReadonlyQueryDAO readonlyQuery;
@@ -138,7 +136,13 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
     private transient IDataStoreServiceInternal dataStoreService;
     
     private transient IMultiDataSetArchiveCleaner cleaner;
+    
+    private final long minimumContainerSize;
+    
+    private final long maximumContainerSize;
 
+    private final boolean delayUnarchiving;
+    
     private final long finalizerPollingTime;
 
     private final long finalizerMaxWaitingTime;
@@ -154,6 +158,7 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
             IFreeSpaceProvider freeSpaceProviderOrNull)
     {
         super(properties, storeRoot, null, null);
+        delayUnarchiving = PropertyUtils.getBoolean(properties, DELAY_UNARCHIVING, false);
         this.minimumContainerSize = PropertyUtils.getLong(properties, MINIMUM_CONTAINER_SIZE_IN_BYTES, DEFAULT_MINIMUM_CONTAINER_SIZE_IN_BYTES);
         this.maximumContainerSize = PropertyUtils.getLong(properties, MAXIMUM_CONTAINER_SIZE_IN_BYTES, DEFAULT_MAXIMUM_CONTAINER_SIZE_IN_BYTES);
         this.fileOperationsFactory = new FileOperationsManagerFactory(properties, timeProvider, freeSpaceProviderOrNull);
@@ -476,17 +481,46 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
     }
 
     @Override
-    protected DatasetProcessingStatuses doUnarchive(List<DatasetDescription> parameterDataSets, ArchiverTaskContext context)
+    protected boolean delayUnarchiving(List<DatasetDescription> datasets, ArchiverTaskContext context)
     {
-        List<String> dataSetCodes = translateToDataSetCodes(parameterDataSets);
+        if (delayUnarchiving == false || context.isForceUnarchiving())
+        {
+            return false;
+        }
+        IMultiDataSetArchiverDBTransaction transaction = getTransaction();
+        try
+        {
+            List<String> dataSetCodes = translateToDataSetCodes(datasets);
+            transaction.requestUnarchiving(dataSetCodes);
+            transaction.commit();
+            transaction.close();
+        } catch (Exception e)
+        {
+            operationLog.warn("Requesting unarchiving of " + datasets.size() + " data sets failed", e);
+            try
+            {
+                transaction.rollback();
+                transaction.close();
+            } catch (Exception ex)
+            {
+                operationLog.warn("Rollback of multi dataset db transaction failed", ex);
+            }
+        }
+        return true;
+    }
+
+    @Override
+    protected DatasetProcessingStatuses doUnarchive(List<DatasetDescription> dataSets, ArchiverTaskContext context)
+    {
+        List<String> dataSetCodes = translateToDataSetCodes(dataSets);
         long containerId = assertAllDataSetsInTheSameContainer(dataSetCodes);
         assertNoAvailableDatasets(dataSetCodes);
         
-        context.getUnarchivingPreparation().prepareForUnarchiving(parameterDataSets);
+        context.getUnarchivingPreparation().prepareForUnarchiving(dataSets);
 
         MultiDataSetArchiverContainerDTO container = getReadonlyQuery().getContainerForId(containerId);
 
-        getFileOperations().restoreDataSetsFromContainerInFinalDestination(container.getPath(), parameterDataSets);
+        getFileOperations().restoreDataSetsFromContainerInFinalDestination(container.getPath(), dataSets);
 
         for (String dataSetCode : dataSetCodes)
         {
@@ -494,7 +528,7 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
         }
 
         DatasetProcessingStatuses result = new DatasetProcessingStatuses();
-        result.addResult(parameterDataSets, Status.OK, Operation.UNARCHIVE);
+        result.addResult(dataSets, Status.OK, Operation.UNARCHIVE);
         return result;
     }
 

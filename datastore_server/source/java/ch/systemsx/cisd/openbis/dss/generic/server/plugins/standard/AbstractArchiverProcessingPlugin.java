@@ -354,6 +354,11 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
     {
         operationLog.info("Unarchiving of the following datasets has been requested: "
                 + CollectionUtils.abbreviate(datasets, 10));
+        if (delayUnarchiving(datasets, context))
+        {
+            operationLog.info("Unarchiving delayed");
+            return createStatuses(Status.OK, datasets, Operation.UNARCHIVE).getProcessingStatus();
+        }
         DatasetProcessingStatuses statuses = safeUnarchive(datasets, context);
 
         asyncUpdateStatuses(statuses.getSuccessfulDatasetCodes(), AVAILABLE, true);
@@ -361,10 +366,10 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
 
         return statuses.getProcessingStatus();
     }
-
-    private void setUpUnarchivingPreparation(ArchiverTaskContext context)
+    
+    protected boolean delayUnarchiving(List<DatasetDescription> datasets, ArchiverTaskContext context)
     {
-        context.setUnarchivingPreparation(getUnarchivingPreparation());
+        return false;
     }
 
     protected IUnarchivingPreparation getUnarchivingPreparation()
@@ -398,7 +403,7 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
         {
             try
             {
-                setUpUnarchivingPreparation(context);
+                context.setUnarchivingPreparation(getUnarchivingPreparation());
                 statuses = doUnarchive(datasets, context);
             } catch (Throwable t)
             {

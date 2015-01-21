@@ -31,12 +31,15 @@ public interface IMultiDataSetArchiverReadonlyQueryDAO extends BaseQuery
      * SELECT CONTAINER
      */
     final static String SELECT_CONTAINER =
-            " SELECT id, path "
+            " SELECT id, path, unarchiving_requested "
                     + "FROM containers ";
 
     @Select(sql = SELECT_CONTAINER + "WHERE id = ?{1}")
     public MultiDataSetArchiverContainerDTO getContainerForId(long containerId);
 
+    @Select(sql = SELECT_CONTAINER + "WHERE unarchiving_requested = 't'")
+    public List<MultiDataSetArchiverContainerDTO> listContainersForUnarchiving();
+    
     /*
      * SELECT DATA_SET
      */
@@ -53,5 +56,5 @@ public interface IMultiDataSetArchiverReadonlyQueryDAO extends BaseQuery
 
     @Select(sql = SELECT_DATA_SET + "WHERE ctnr_id = ?{1}")
     public List<MultiDataSetArchiverDataSetDTO> listDataSetsForContainerId(long containerId);
-
+    
 }

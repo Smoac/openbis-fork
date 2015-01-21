@@ -26,6 +26,6 @@ public class MultiDataSetArchiverDBVersionHolder implements IDatabaseVersionHold
     @Override
     public String getDatabaseVersion()
     {
-        return "001";
+        return "002";
     }
 }
