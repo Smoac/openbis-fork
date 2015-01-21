@@ -2907,4 +2907,10 @@ public final class CommonClientService extends AbstractClientService implements
     {
         return commonServer.listPredeployedPlugins(getSessionToken(), scriptType);
     }
+
+    @Override
+    public String getDisabledText()
+    {
+        return commonServer.getDisabledText();
+    }
 }

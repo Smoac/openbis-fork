@@ -1832,4 +1832,11 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     {
         logAccess(sessionToken, "invalidate_predeployed_plugin", "NAME(%s)", name);
     }
+
+    @Override
+    public String getDisabledText()
+    {
+        logAccess(null, "getDisabledText");
+        return null;
+    }
 }
