@@ -32,6 +32,6 @@ public class ServerInterfaceRegressionTest extends AnnotationAppliedTestCase
     public void testServerAnnotations()
     {
         assertMandatoryMethodAnnotations(IProteomicsDataService.class, ProteomicsDataService.class,
-                "logout: RolesAllowed\n" + "tryToAuthenticateAtRawDataServer: RolesAllowed\n");
+                "logout: RolesAllowed\n" + "tryToAuthenticateAtRawDataServer: RolesAllowed\n", null);
     }
 }
