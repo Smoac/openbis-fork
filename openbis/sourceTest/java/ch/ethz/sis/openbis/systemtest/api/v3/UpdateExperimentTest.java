@@ -25,7 +25,6 @@ import java.util.Map;
 
 import org.testng.annotations.Test;
 
-import ch.ethz.sis.openbis.generic.server.api.v3.helper.experiment.ExperimentContextDescription;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.attachment.Attachment;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.attachment.AttachmentCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
@@ -72,7 +71,7 @@ public class UpdateExperimentTest extends AbstractExperimentTest
                 {
                     v3api.updateExperiments(sessionToken, Arrays.asList(update));
                 }
-            }, experimentId, ExperimentContextDescription.updating(experimentId));
+            }, experimentId);
     }
 
     @Test
@@ -91,7 +90,7 @@ public class UpdateExperimentTest extends AbstractExperimentTest
                 {
                     v3api.updateExperiments(sessionToken, Arrays.asList(update));
                 }
-            }, experimentId, ExperimentContextDescription.updating(experimentId));
+            }, experimentId);
     }
 
     @Test

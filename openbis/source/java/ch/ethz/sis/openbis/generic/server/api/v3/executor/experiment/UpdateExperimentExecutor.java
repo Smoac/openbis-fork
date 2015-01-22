@@ -16,40 +16,36 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.experiment;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.Transformer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.attachment.IUpdateAttachmentForEntityExecutor;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.AbstractUpdateEntityExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.property.IUpdateEntityPropertyExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.tag.IUpdateTagForEntityExecutor;
-import ch.ethz.sis.openbis.generic.server.api.v3.helper.experiment.ExperimentContextDescription;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.ExperimentUpdate;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.IExperimentId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.ObjectNotFoundException;
 import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.UnauthorizedObjectAccessException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ExperimentByIdentiferValidator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityPropertiesHolder;
+import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.util.RelationshipUtils;
 
 /**
  * @author pkupczyk
  */
 @Component
-public class UpdateExperimentExecutor implements IUpdateExperimentExecutor
+public class UpdateExperimentExecutor extends AbstractUpdateEntityExecutor<ExperimentUpdate, ExperimentPE, IExperimentId> implements
+        IUpdateExperimentExecutor
 {
 
     @Autowired
@@ -73,137 +69,83 @@ public class UpdateExperimentExecutor implements IUpdateExperimentExecutor
     @Autowired
     private IVerifyExperimentExecutor verifyExperimentExecutor;
 
-    private UpdateExperimentExecutor()
+    @Override
+    protected EntityKind getKind()
+    {
+        return EntityKind.EXPERIMENT;
+    }
+
+    @Override
+    protected IExperimentId getId(ExperimentUpdate update)
+    {
+        return update.getExperimentId();
+    }
+
+    @Override
+    protected void checkData(IOperationContext context, ExperimentUpdate update)
+    {
+        if (update.getExperimentId() == null)
+        {
+            throw new UserFailureException("Experiment id cannot be null.");
+        }
+    }
+
+    @Override
+    protected void checkAccess(IOperationContext context, IExperimentId id, ExperimentPE entity)
+    {
+        if (false == new ExperimentByIdentiferValidator().doValidation(context.getSession().tryGetPerson(), entity))
+        {
+            throw new UnauthorizedObjectAccessException(id);
+        }
+    }
+
+    @Override
+    protected void checkBusinessRules(IOperationContext context, Collection<ExperimentPE> entities)
+    {
+        verifyExperimentExecutor.verify(context, entities);
+    }
+
+    @Override
+    protected void updateBatch(IOperationContext context, Map<ExperimentUpdate, ExperimentPE> entitiesMap)
+    {
+        updateExperimentProjectExecutor.update(context, entitiesMap);
+
+        Map<IEntityPropertiesHolder, Map<String, String>> propertyMap = new HashMap<IEntityPropertiesHolder, Map<String, String>>();
+        for (Map.Entry<ExperimentUpdate, ExperimentPE> entry : entitiesMap.entrySet())
+        {
+            ExperimentUpdate update = entry.getKey();
+            ExperimentPE entity = entry.getValue();
+
+            RelationshipUtils.updateModificationDateAndModifier(entity, context.getSession().tryGetPerson());
+            updateTagForEntityExecutor.update(context, entity, update.getTagIds());
+            updateAttachmentForEntityExecutor.update(context, entity, update.getAttachments());
+            propertyMap.put(entity, update.getProperties());
+        }
+
+        updateEntityPropertyExecutor.update(context, propertyMap);
+    }
+
+    @Override
+    protected void updateAll(IOperationContext context, Map<ExperimentUpdate, ExperimentPE> entitiesMap)
     {
     }
 
     @Override
-    public void update(IOperationContext context, List<ExperimentUpdate> updates)
+    protected Map<IExperimentId, ExperimentPE> map(IOperationContext context, Collection<IExperimentId> ids)
     {
-        Map<ExperimentUpdate, ExperimentPE> experimentsAll = new LinkedHashMap<ExperimentUpdate, ExperimentPE>();
-
-        int batchSize = 1000;
-        for (int batchStart = 0; batchStart < updates.size(); batchStart += batchSize)
-        {
-            List<ExperimentUpdate> updatesBatch = updates.subList(batchStart, Math.min(batchStart + batchSize, updates.size()));
-            updateExperiments(context, updatesBatch, experimentsAll);
-        }
-
-        reloadExperiments(experimentsAll);
-
-        verifyExperiments(context, experimentsAll.values());
+        return mapExperimentByIdExecutor.map(context, ids);
     }
 
-    private Map<ExperimentUpdate, ExperimentPE> getExperimentsMap(IOperationContext context, List<ExperimentUpdate> updates)
+    @Override
+    protected List<ExperimentPE> list(IOperationContext context, Collection<Long> ids)
     {
-        Collection<IExperimentId> experimentIds = CollectionUtils.collect(updates, new Transformer<ExperimentUpdate, IExperimentId>()
-            {
-                @Override
-                public IExperimentId transform(ExperimentUpdate input)
-                {
-                    return input.getExperimentId();
-                }
-            });
-
-        Map<IExperimentId, ExperimentPE> experimentMap = mapExperimentByIdExecutor.map(context, experimentIds);
-
-        for (IExperimentId experimentId : experimentIds)
-        {
-            context.pushContextDescription(ExperimentContextDescription.updating(experimentId));
-
-            ExperimentPE experiment = experimentMap.get(experimentId);
-            if (experiment == null)
-            {
-                throw new ObjectNotFoundException(experimentId);
-            }
-            if (false == new ExperimentByIdentiferValidator().doValidation(context.getSession().tryGetPerson(), experiment))
-            {
-                throw new UnauthorizedObjectAccessException(experimentId);
-            }
-
-            context.popContextDescription();
-        }
-
-        Map<ExperimentUpdate, ExperimentPE> result = new HashMap<ExperimentUpdate, ExperimentPE>();
-        for (ExperimentUpdate update : updates)
-        {
-            result.put(update, experimentMap.get(update.getExperimentId()));
-        }
-
-        return result;
+        return daoFactory.getExperimentDAO().listByIDs(ids);
     }
 
-    private void updateExperiments(IOperationContext context, List<ExperimentUpdate> updatesBatch, Map<ExperimentUpdate, ExperimentPE> experimentsAll)
+    @Override
+    protected void save(IOperationContext context, List<ExperimentPE> entities, boolean clearCache)
     {
-        Map<ExperimentUpdate, ExperimentPE> batchMap = getExperimentsMap(context, updatesBatch);
-        experimentsAll.putAll(batchMap);
-
-        daoFactory.setBatchUpdateMode(true);
-
-        Map<IEntityPropertiesHolder, Map<String, String>> entityToPropertiesMap = new HashMap<IEntityPropertiesHolder, Map<String, String>>();
-        for (Map.Entry<ExperimentUpdate, ExperimentPE> batchEntry : batchMap.entrySet())
-        {
-            entityToPropertiesMap.put(batchEntry.getValue(), batchEntry.getKey().getProperties());
-        }
-        updateEntityPropertyExecutor.update(context, entityToPropertiesMap);
-        updateExperimentProjectExecutor.update(context, batchMap);
-
-        for (ExperimentUpdate update : updatesBatch)
-        {
-            ExperimentPE experiment = batchMap.get(update);
-
-            updateTagForEntityExecutor.update(context, experiment, update.getTagIds());
-            updateAttachmentForEntityExecutor.update(context, experiment, update.getAttachments());
-
-            RelationshipUtils.updateModificationDateAndModifier(experiment, context.getSession().tryGetPerson());
-        }
-
-        daoFactory.getExperimentDAO().createOrUpdateExperiments(new ArrayList<ExperimentPE>(batchMap.values()), context.getSession().tryGetPerson());
-
-        daoFactory.setBatchUpdateMode(false);
-        daoFactory.getSessionFactory().getCurrentSession().flush();
-        daoFactory.getSessionFactory().getCurrentSession().clear();
-    }
-
-    private void verifyExperiments(IOperationContext context, Collection<ExperimentPE> experiments)
-    {
-        Set<Long> techIds = new HashSet<Long>();
-        for (ExperimentPE experiment : experiments)
-        {
-            techIds.add(experiment.getId());
-        }
-
-        daoFactory.getSessionFactory().getCurrentSession().flush();
-        daoFactory.getSessionFactory().getCurrentSession().clear();
-
-        Collection<ExperimentPE> freshExperiments = daoFactory.getExperimentDAO().listByIDs(techIds);
-
-        verifyExperimentExecutor.verify(context, freshExperiments);
-    }
-
-    private void reloadExperiments(Map<ExperimentUpdate, ExperimentPE> updateToExperimentMap)
-    {
-        Collection<Long> ids = new HashSet<Long>();
-
-        for (ExperimentPE experiment : updateToExperimentMap.values())
-        {
-            ids.add(experiment.getId());
-        }
-
-        List<ExperimentPE> experiments = daoFactory.getExperimentDAO().listByIDs(ids);
-
-        Map<Long, ExperimentPE> idToExperimentMap = new HashMap<Long, ExperimentPE>();
-
-        for (ExperimentPE experiment : experiments)
-        {
-            idToExperimentMap.put(experiment.getId(), experiment);
-        }
-
-        for (Map.Entry<ExperimentUpdate, ExperimentPE> entry : updateToExperimentMap.entrySet())
-        {
-            entry.setValue(idToExperimentMap.get(entry.getValue().getId()));
-        }
-
+        daoFactory.getExperimentDAO().createOrUpdateExperiments(entities, context.getSession().tryGetPerson(), clearCache);
     }
 
 }

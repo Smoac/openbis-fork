@@ -435,6 +435,16 @@ public abstract class AbstractDAO extends HibernateDaoSupport
                 .evaluate(entityClass, entityIds));
     }
 
+    public void flush()
+    {
+        flushWithSqlExceptionHandling(getHibernateTemplate());
+    }
+
+    public void clear()
+    {
+        getHibernateTemplate().clear();
+    }
+
     @SuppressWarnings("unchecked")
     protected final static <T> Class<T> cast(final Class<?> clazz)
     {

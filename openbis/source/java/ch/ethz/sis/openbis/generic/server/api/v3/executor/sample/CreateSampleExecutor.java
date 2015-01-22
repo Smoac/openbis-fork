@@ -16,22 +16,18 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.sample;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.attachment.ICreateAttachmentExecutor;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.AbstractCreateEntityExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.property.IUpdateEntityPropertyExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.tag.IAddTagToEntityExecutor;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleCreation;
@@ -40,10 +36,8 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SamplePermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SampleByIdentiferValidator;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityPropertiesHolder;
-import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
@@ -53,7 +47,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.RelationshipUtils;
  * @author pkupczyk
  */
 @Component
-public class CreateSampleExecutor implements ICreateSampleExecutor
+public class CreateSampleExecutor extends AbstractCreateEntityExecutor<SampleCreation, SamplePE, SamplePermId> implements ICreateSampleExecutor
 {
 
     @Autowired
@@ -83,155 +77,92 @@ public class CreateSampleExecutor implements ICreateSampleExecutor
     @Autowired
     private IVerifySampleExecutor verifySampleExecutor;
 
-    @SuppressWarnings("unused")
-    private CreateSampleExecutor()
+    @Override
+    protected EntityKind getKind()
     {
-    }
-
-    public CreateSampleExecutor(IDAOFactory daoFactory, ISetSampleTypeExecutor setSampleTypeExecutor,
-            ISetSampleSpaceExecutor setSampleSpaceExecutor, ISetSampleExperimentExecutor setSampleExperimentExecutor,
-            ISetSampleRelatedSamplesExecutor setSampleRelatedSamplesExecutor, IUpdateEntityPropertyExecutor updateEntityPropertyExecutor,
-            ICreateAttachmentExecutor createAttachmentExecutor, IAddTagToEntityExecutor addTagToEntityExecutor,
-            IVerifySampleExecutor verifySampleExecutor)
-    {
-        this.daoFactory = daoFactory;
-        this.setSampleTypeExecutor = setSampleTypeExecutor;
-        this.setSampleSpaceExecutor = setSampleSpaceExecutor;
-        this.setSampleExperimentExecutor = setSampleExperimentExecutor;
-        this.setSampleRelatedSamplesExecutor = setSampleRelatedSamplesExecutor;
-        this.updateEntityPropertyExecutor = updateEntityPropertyExecutor;
-        this.createAttachmentExecutor = createAttachmentExecutor;
-        this.addTagToEntityExecutor = addTagToEntityExecutor;
-        this.verifySampleExecutor = verifySampleExecutor;
+        return EntityKind.SAMPLE;
     }
 
     @Override
-    public List<SamplePermId> create(IOperationContext context, List<SampleCreation> creations)
+    protected SamplePE create(IOperationContext context, SampleCreation creation)
     {
-        try
-        {
-            List<SamplePermId> permIdsAll = new LinkedList<SamplePermId>();
-            Map<SampleCreation, SamplePE> samplesAll = new LinkedHashMap<SampleCreation, SamplePE>();
-
-            int batchSize = 1000;
-            for (int batchStart = 0; batchStart < creations.size(); batchStart += batchSize)
-            {
-                List<SampleCreation> creationsBatch = creations.subList(batchStart, Math.min(batchStart + batchSize, creations.size()));
-                createSamples(context, creationsBatch, permIdsAll, samplesAll);
-            }
-
-            reloadSamples(samplesAll);
-
-            for (SampleCreation creation : creations)
-            {
-                SamplePE sample = samplesAll.get(creation);
-                createAttachmentExecutor.create(context, sample, creation.getAttachments());
-                addTagToEntityExecutor.add(context, sample, creation.getTagIds());
-            }
-
-            setSampleRelatedSamplesExecutor.set(context, samplesAll);
-            verifySampleExecutor.verify(context, samplesAll.values());
-
-            daoFactory.getSessionFactory().getCurrentSession().flush();
-            daoFactory.getSessionFactory().getCurrentSession().clear();
-            return permIdsAll;
-        } catch (DataAccessException e)
-        {
-            DataAccessExceptionTranslator.throwException(e, "Sample", EntityKind.SAMPLE);
-            return null;
-        }
-    }
-
-    private void createSamples(IOperationContext context, List<SampleCreation> creationsBatch,
-            List<SamplePermId> permIdsAll, Map<SampleCreation, SamplePE> samplesAll)
-    {
-        Map<SampleCreation, SamplePE> batchMap = new LinkedHashMap<SampleCreation, SamplePE>();
-
-        daoFactory.setBatchUpdateMode(true);
-
-        for (SampleCreation creation : creationsBatch)
-        {
-            context.pushContextDescription("register sample " + creation.getCode());
-
-            SamplePE sample = createSamplePE(context, creation);
-
-            permIdsAll.add(new SamplePermId(sample.getPermId()));
-            samplesAll.put(creation, sample);
-            batchMap.put(creation, sample);
-
-            context.popContextDescription();
-        }
-
-        setSampleSpaceExecutor.set(context, batchMap);
-        setSampleExperimentExecutor.set(context, batchMap);
-        setSampleTypeExecutor.set(context, batchMap);
-
-        Map<IEntityPropertiesHolder, Map<String, String>> entityToPropertiesMap = new HashMap<IEntityPropertiesHolder, Map<String, String>>();
-
-        for (Map.Entry<SampleCreation, SamplePE> batchEntry : batchMap.entrySet())
-        {
-            SamplePE sample = batchEntry.getValue();
-
-            if (false == new SampleByIdentiferValidator().doValidation(context.getSession().tryGetPerson(), sample))
-            {
-                throw new UnauthorizedObjectAccessException(new SampleIdentifier(sample.getIdentifier()));
-            }
-
-            entityToPropertiesMap.put(sample, batchEntry.getKey().getProperties());
-        }
-
-        updateEntityPropertyExecutor.update(context, entityToPropertiesMap);
-
-        PersonPE modifier = context.getSession().tryGetPerson();
-        daoFactory.getSampleDAO().createOrUpdateSamples(new ArrayList<SamplePE>(batchMap.values()), modifier, false);
-
-        daoFactory.setBatchUpdateMode(false);
-        daoFactory.getSessionFactory().getCurrentSession().flush();
-        daoFactory.getSessionFactory().getCurrentSession().clear();
-    }
-
-    private SamplePE createSamplePE(IOperationContext context, SampleCreation sampleCreation)
-    {
-        if (StringUtils.isEmpty(sampleCreation.getCode()))
-        {
-            throw new UserFailureException("Code cannot be empty.");
-        }
-
-        SampleIdentifierFactory.assertValidCode(sampleCreation.getCode());
-
         SamplePE sample = new SamplePE();
-        sample.setCode(sampleCreation.getCode());
+        sample.setCode(creation.getCode());
         String createdPermId = daoFactory.getPermIdDAO().createPermId();
         sample.setPermId(createdPermId);
         sample.setRegistrator(context.getSession().tryGetPerson());
         RelationshipUtils.updateModificationDateAndModifier(sample, context.getSession().tryGetPerson());
-
         return sample;
     }
 
-    private void reloadSamples(Map<SampleCreation, SamplePE> creationToSampleMap)
+    @Override
+    protected SamplePermId createPermId(IOperationContext context, SamplePE entity)
     {
-        Collection<Long> ids = new HashSet<Long>();
+        return new SamplePermId(entity.getPermId());
+    }
 
-        for (SamplePE sample : creationToSampleMap.values())
+    @Override
+    protected void checkData(IOperationContext context, SampleCreation creation)
+    {
+        if (StringUtils.isEmpty(creation.getCode()))
         {
-            ids.add(sample.getId());
+            throw new UserFailureException("Code cannot be empty.");
         }
+        SampleIdentifierFactory.assertValidCode(creation.getCode());
+    }
 
-        List<SamplePE> samples = daoFactory.getSampleDAO().listByIDs(ids);
-
-        Map<Long, SamplePE> idToSampleMap = new HashMap<Long, SamplePE>();
-
-        for (SamplePE sample : samples)
+    @Override
+    protected void checkAccess(IOperationContext context, SamplePE entity)
+    {
+        if (false == new SampleByIdentiferValidator().doValidation(context.getSession().tryGetPerson(), entity))
         {
-            idToSampleMap.put(sample.getId(), sample);
+            throw new UnauthorizedObjectAccessException(new SampleIdentifier(entity.getIdentifier()));
         }
+    }
 
-        for (Map.Entry<SampleCreation, SamplePE> entry : creationToSampleMap.entrySet())
+    @Override
+    protected void checkBusinessRules(IOperationContext context, Collection<SamplePE> entities)
+    {
+        verifySampleExecutor.verify(context, entities);
+    }
+
+    @Override
+    protected void updateBatch(IOperationContext context, Map<SampleCreation, SamplePE> entitiesMap)
+    {
+        setSampleSpaceExecutor.set(context, entitiesMap);
+        setSampleExperimentExecutor.set(context, entitiesMap);
+        setSampleTypeExecutor.set(context, entitiesMap);
+
+        Map<IEntityPropertiesHolder, Map<String, String>> propertyMap = new HashMap<IEntityPropertiesHolder, Map<String, String>>();
+        for (Map.Entry<SampleCreation, SamplePE> entry : entitiesMap.entrySet())
         {
-            entry.setValue(idToSampleMap.get(entry.getValue().getId()));
+            propertyMap.put(entry.getValue(), entry.getKey().getProperties());
         }
+        updateEntityPropertyExecutor.update(context, propertyMap);
+    }
 
+    @Override
+    protected void updateAll(IOperationContext context, Map<SampleCreation, SamplePE> entitiesMap)
+    {
+        for (SampleCreation creation : entitiesMap.keySet())
+        {
+            SamplePE entity = entitiesMap.get(creation);
+            createAttachmentExecutor.create(context, entity, creation.getAttachments());
+            addTagToEntityExecutor.add(context, entity, creation.getTagIds());
+        }
+        setSampleRelatedSamplesExecutor.set(context, entitiesMap);
+    }
+
+    @Override
+    protected List<SamplePE> list(IOperationContext context, Collection<Long> ids)
+    {
+        return daoFactory.getSampleDAO().listByIDs(ids);
+    }
+
+    @Override
+    protected void save(IOperationContext context, List<SamplePE> entities, boolean clearCache)
+    {
+        daoFactory.getSampleDAO().createOrUpdateSamples(entities, context.getSession().tryGetPerson(), clearCache);
     }
 
 }

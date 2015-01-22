@@ -428,7 +428,7 @@ public class ExperimentDAO extends AbstractGenericEntityWithPropertiesDAO<Experi
     }
 
     @Override
-    public void createOrUpdateExperiments(List<ExperimentPE> experiments, PersonPE modifier)
+    public void createOrUpdateExperiments(List<ExperimentPE> experiments, PersonPE modifier, boolean clearCache)
     {
         assert experiments != null && experiments.size() > 0 : "Unspecified or empty experiments.";
 
@@ -437,10 +437,14 @@ public class ExperimentDAO extends AbstractGenericEntityWithPropertiesDAO<Experi
         {
             internalCreateOrUpdateExperiment(experiment, modifier, hibernateTemplate);
         }
-        hibernateTemplate.flush();
 
-        // if session is not cleared registration of many experiments slows down after each batch
-        hibernateTemplate.clear();
+        if (clearCache)
+        {
+            hibernateTemplate.flush();
+            // if session is not cleared registration of many experiments slows down after each batch
+            hibernateTemplate.clear();
+        }
+
         scheduleDynamicPropertiesEvaluation(experiments);
     }
 

@@ -123,7 +123,7 @@ public interface IExperimentDAO extends IGenericDAO<ExperimentPE>
     /**
      * Saves or updates given given experiments in the database.
      */
-    public void createOrUpdateExperiments(List<ExperimentPE> experiments, PersonPE modifier);
+    public void createOrUpdateExperiments(List<ExperimentPE> experiments, PersonPE modifier, boolean clearCache);
 
     /**
      * Delete experiments with given ids by specified registrator with specified reason.

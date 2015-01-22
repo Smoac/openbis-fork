@@ -16,22 +16,18 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.experiment;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.attachment.ICreateAttachmentExecutor;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.AbstractCreateEntityExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.property.IUpdateEntityPropertyExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.tag.IAddTagToEntityExecutor;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.ExperimentCreation;
@@ -40,11 +36,9 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentPer
 import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ExperimentByIdentiferValidator;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityPropertiesHolder;
-import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.util.RelationshipUtils;
@@ -53,7 +47,8 @@ import ch.systemsx.cisd.openbis.generic.shared.util.RelationshipUtils;
  * @author pkupczyk
  */
 @Component
-public class CreateExperimentExecutor implements ICreateExperimentExecutor
+public class CreateExperimentExecutor extends AbstractCreateEntityExecutor<ExperimentCreation, ExperimentPE, ExperimentPermId> implements
+        ICreateExperimentExecutor
 {
 
     @Autowired
@@ -77,150 +72,91 @@ public class CreateExperimentExecutor implements ICreateExperimentExecutor
     @Autowired
     private IVerifyExperimentExecutor verifyExperimentExecutor;
 
-    @SuppressWarnings("unused")
-    private CreateExperimentExecutor()
+    @Override
+    protected EntityKind getKind()
     {
-    }
-
-    public CreateExperimentExecutor(IDAOFactory daoFactory, ISetExperimentTypeExecutor setExperimentTypeExecutor,
-            ISetExperimentProjectExecutor setExperimentProjectExecutor, IUpdateEntityPropertyExecutor updateEntityPropertyExecutor,
-            ICreateAttachmentExecutor createAttachmentExecutor, IAddTagToEntityExecutor addTagToEntityExecutor,
-            IVerifyExperimentExecutor verifyExperimentExecutor)
-    {
-        this.daoFactory = daoFactory;
-        this.setExperimentTypeExecutor = setExperimentTypeExecutor;
-        this.setExperimentProjectExecutor = setExperimentProjectExecutor;
-        this.updateEntityPropertyExecutor = updateEntityPropertyExecutor;
-        this.createAttachmentExecutor = createAttachmentExecutor;
-        this.addTagToEntityExecutor = addTagToEntityExecutor;
-        this.verifyExperimentExecutor = verifyExperimentExecutor;
+        return EntityKind.EXPERIMENT;
     }
 
     @Override
-    public List<ExperimentPermId> create(IOperationContext context, List<ExperimentCreation> creations)
+    protected ExperimentPE create(IOperationContext context, ExperimentCreation creation)
     {
-        try
-        {
-            List<ExperimentPermId> permIdsAll = new LinkedList<ExperimentPermId>();
-            Map<ExperimentCreation, ExperimentPE> experimentsAll = new LinkedHashMap<ExperimentCreation, ExperimentPE>();
-
-            int batchSize = 1000;
-            for (int batchStart = 0; batchStart < creations.size(); batchStart += batchSize)
-            {
-                List<ExperimentCreation> creationsBatch = creations.subList(batchStart, Math.min(batchStart + batchSize, creations.size()));
-                createExperiments(context, creationsBatch, permIdsAll, experimentsAll);
-            }
-
-            reloadExperiments(experimentsAll);
-
-            for (ExperimentCreation creation : creations)
-            {
-                ExperimentPE experiment = experimentsAll.get(creation);
-                createAttachmentExecutor.create(context, experiment, creation.getAttachments());
-                addTagToEntityExecutor.add(context, experiment, creation.getTagIds());
-            }
-
-            verifyExperimentExecutor.verify(context, experimentsAll.values());
-
-            daoFactory.getSessionFactory().getCurrentSession().flush();
-            daoFactory.getSessionFactory().getCurrentSession().clear();
-            return permIdsAll;
-        } catch (DataAccessException e)
-        {
-            DataAccessExceptionTranslator.throwException(e, "Experiment", EntityKind.EXPERIMENT);
-            return null;
-        }
-    }
-
-    private void createExperiments(IOperationContext context, List<ExperimentCreation> creationsBatch,
-            List<ExperimentPermId> permIdsAll, Map<ExperimentCreation, ExperimentPE> experimentsAll)
-    {
-        Map<ExperimentCreation, ExperimentPE> batchMap = new LinkedHashMap<ExperimentCreation, ExperimentPE>();
-
-        daoFactory.setBatchUpdateMode(true);
-
-        for (ExperimentCreation creation : creationsBatch)
-        {
-            context.pushContextDescription("register experiment " + creation.getCode());
-
-            ExperimentPE experiment = createExperimentPE(context, creation);
-
-            permIdsAll.add(new ExperimentPermId(experiment.getPermId()));
-            experimentsAll.put(creation, experiment);
-            batchMap.put(creation, experiment);
-
-            context.popContextDescription();
-        }
-
-        setExperimentProjectExecutor.set(context, batchMap);
-        setExperimentTypeExecutor.set(context, batchMap);
-
-        Map<IEntityPropertiesHolder, Map<String, String>> entityToPropertiesMap = new HashMap<IEntityPropertiesHolder, Map<String, String>>();
-
-        for (Map.Entry<ExperimentCreation, ExperimentPE> batchEntry : batchMap.entrySet())
-        {
-            ExperimentPE experiment = batchEntry.getValue();
-
-            if (false == new ExperimentByIdentiferValidator().doValidation(context.getSession().tryGetPerson(), experiment))
-            {
-                throw new UnauthorizedObjectAccessException(new ExperimentIdentifier(experiment.getIdentifier()));
-            }
-
-            entityToPropertiesMap.put(experiment, batchEntry.getKey().getProperties());
-        }
-
-        updateEntityPropertyExecutor.update(context, entityToPropertiesMap);
-
-        PersonPE modifier = context.getSession().tryGetPerson();
-        daoFactory.getExperimentDAO().createOrUpdateExperiments(new ArrayList<ExperimentPE>(batchMap.values()), modifier);
-
-        daoFactory.setBatchUpdateMode(false);
-        daoFactory.getSessionFactory().getCurrentSession().flush();
-        daoFactory.getSessionFactory().getCurrentSession().clear();
-    }
-
-    private ExperimentPE createExperimentPE(IOperationContext context, ExperimentCreation experimentCreation)
-    {
-        if (StringUtils.isEmpty(experimentCreation.getCode()))
-        {
-            throw new UserFailureException("Code cannot be empty.");
-        }
-
-        ExperimentIdentifierFactory.assertValidCode(experimentCreation.getCode());
-
         ExperimentPE experiment = new ExperimentPE();
-        experiment.setCode(experimentCreation.getCode());
+        experiment.setCode(creation.getCode());
         String createdPermId = daoFactory.getPermIdDAO().createPermId();
         experiment.setPermId(createdPermId);
         experiment.setRegistrator(context.getSession().tryGetPerson());
         RelationshipUtils.updateModificationDateAndModifier(experiment, context.getSession().tryGetPerson());
-
         return experiment;
     }
 
-    private void reloadExperiments(Map<ExperimentCreation, ExperimentPE> creationToExperimentMap)
+    @Override
+    protected ExperimentPermId createPermId(IOperationContext context, ExperimentPE entity)
     {
-        Collection<Long> ids = new HashSet<Long>();
+        return new ExperimentPermId(entity.getPermId());
+    }
 
-        for (ExperimentPE experiment : creationToExperimentMap.values())
+    @Override
+    protected void checkData(IOperationContext context, ExperimentCreation creation)
+    {
+        if (StringUtils.isEmpty(creation.getCode()))
         {
-            ids.add(experiment.getId());
+            throw new UserFailureException("Code cannot be empty.");
         }
 
-        List<ExperimentPE> experiments = daoFactory.getExperimentDAO().listByIDs(ids);
+        ExperimentIdentifierFactory.assertValidCode(creation.getCode());
+    }
 
-        Map<Long, ExperimentPE> idToExperimentMap = new HashMap<Long, ExperimentPE>();
-
-        for (ExperimentPE experiment : experiments)
+    @Override
+    protected void checkAccess(IOperationContext context, ExperimentPE entity)
+    {
+        if (false == new ExperimentByIdentiferValidator().doValidation(context.getSession().tryGetPerson(), entity))
         {
-            idToExperimentMap.put(experiment.getId(), experiment);
+            throw new UnauthorizedObjectAccessException(new ExperimentIdentifier(entity.getIdentifier()));
         }
+    }
 
-        for (Map.Entry<ExperimentCreation, ExperimentPE> entry : creationToExperimentMap.entrySet())
+    @Override
+    protected void checkBusinessRules(IOperationContext context, Collection<ExperimentPE> entities)
+    {
+        verifyExperimentExecutor.verify(context, entities);
+    }
+
+    @Override
+    protected void updateBatch(IOperationContext context, Map<ExperimentCreation, ExperimentPE> entitiesMap)
+    {
+        setExperimentProjectExecutor.set(context, entitiesMap);
+        setExperimentTypeExecutor.set(context, entitiesMap);
+
+        Map<IEntityPropertiesHolder, Map<String, String>> propertyMap = new HashMap<IEntityPropertiesHolder, Map<String, String>>();
+        for (Map.Entry<ExperimentCreation, ExperimentPE> entry : entitiesMap.entrySet())
         {
-            entry.setValue(idToExperimentMap.get(entry.getValue().getId()));
+            propertyMap.put(entry.getValue(), entry.getKey().getProperties());
         }
+        updateEntityPropertyExecutor.update(context, propertyMap);
+    }
 
+    @Override
+    protected void updateAll(IOperationContext context, Map<ExperimentCreation, ExperimentPE> entitiesMap)
+    {
+        for (ExperimentCreation creation : entitiesMap.keySet())
+        {
+            ExperimentPE entity = entitiesMap.get(creation);
+            createAttachmentExecutor.create(context, entity, creation.getAttachments());
+            addTagToEntityExecutor.add(context, entity, creation.getTagIds());
+        }
+    }
+
+    @Override
+    protected List<ExperimentPE> list(IOperationContext context, Collection<Long> ids)
+    {
+        return daoFactory.getExperimentDAO().listByIDs(ids);
+    }
+
+    @Override
+    protected void save(IOperationContext context, List<ExperimentPE> entities, boolean clearCache)
+    {
+        daoFactory.getExperimentDAO().createOrUpdateExperiments(entities, context.getSession().tryGetPerson(), clearCache);
     }
 
 }

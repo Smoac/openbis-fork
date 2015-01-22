@@ -16,39 +16,35 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.sample;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.Transformer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.attachment.IUpdateAttachmentForEntityExecutor;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.AbstractUpdateEntityExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.property.IUpdateEntityPropertyExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.tag.IUpdateTagForEntityExecutor;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleUpdate;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.ISampleId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.ObjectNotFoundException;
 import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.UnauthorizedObjectAccessException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SampleByIdentiferValidator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.util.RelationshipUtils;
 
 /**
  * @author pkupczyk
  */
 @Component
-public class UpdateSampleExecutor implements IUpdateSampleExecutor
+public class UpdateSampleExecutor extends AbstractUpdateEntityExecutor<SampleUpdate, SamplePE, ISampleId> implements IUpdateSampleExecutor
 {
 
     @Autowired
@@ -78,136 +74,85 @@ public class UpdateSampleExecutor implements IUpdateSampleExecutor
     @Autowired
     private IVerifySampleExecutor verifySampleExecutor;
 
-    private UpdateSampleExecutor()
+    @Override
+    protected EntityKind getKind()
     {
+        return EntityKind.SAMPLE;
     }
 
     @Override
-    public void update(IOperationContext context, List<SampleUpdate> updates)
+    protected ISampleId getId(SampleUpdate update)
     {
-        Map<SampleUpdate, SamplePE> samplesAll = new LinkedHashMap<SampleUpdate, SamplePE>();
-
-        int batchSize = 1000;
-        for (int batchStart = 0; batchStart < updates.size(); batchStart += batchSize)
-        {
-            List<SampleUpdate> updatesBatch = updates.subList(batchStart, Math.min(batchStart + batchSize, updates.size()));
-            updateSamples(context, updatesBatch, samplesAll);
-        }
-
-        reloadSamples(samplesAll);
-
-        updateSampleRelatedSamplesExecutor.update(context, samplesAll);
-
-        verifySamples(context, samplesAll.values());
+        return update.getSampleId();
     }
 
-    private Map<SampleUpdate, SamplePE> getSamplesMap(IOperationContext context, List<SampleUpdate> updates)
+    @Override
+    protected void checkData(IOperationContext context, SampleUpdate update)
     {
-        Collection<ISampleId> sampleIds = CollectionUtils.collect(updates, new Transformer<SampleUpdate, ISampleId>()
-            {
-                @Override
-                public ISampleId transform(SampleUpdate input)
-                {
-                    return input.getSampleId();
-                }
-            });
-
-        Map<ISampleId, SamplePE> sampleMap = mapSampleByIdExecutor.map(context, sampleIds);
-
-        for (ISampleId sampleId : sampleIds)
+        if (update.getSampleId() == null)
         {
-            SamplePE sample = sampleMap.get(sampleId);
-            if (sample == null)
-            {
-                throw new ObjectNotFoundException(sampleId);
-            }
-            if (false == new SampleByIdentiferValidator().doValidation(context.getSession().tryGetPerson(), sample))
-            {
-                throw new UnauthorizedObjectAccessException(sampleId);
-            }
+            throw new UserFailureException("Sample id cannot be null.");
         }
-
-        Map<SampleUpdate, SamplePE> result = new HashMap<SampleUpdate, SamplePE>();
-        for (SampleUpdate update : updates)
-        {
-            result.put(update, sampleMap.get(update.getSampleId()));
-        }
-
-        return result;
     }
 
-    private void updateSamples(IOperationContext context, List<SampleUpdate> updatesBatch, Map<SampleUpdate, SamplePE> samplesAll)
+    @Override
+    protected void checkAccess(IOperationContext context, ISampleId id, SamplePE entity)
     {
-        Map<SampleUpdate, SamplePE> batchMap = getSamplesMap(context, updatesBatch);
-        samplesAll.putAll(batchMap);
-
-        daoFactory.setBatchUpdateMode(true);
-
-        Map<IEntityPropertiesHolder, Map<String, String>> entityToPropertiesMap = new HashMap<IEntityPropertiesHolder, Map<String, String>>();
-        for (Map.Entry<SampleUpdate, SamplePE> batchEntry : batchMap.entrySet())
+        if (false == new SampleByIdentiferValidator().doValidation(context.getSession().tryGetPerson(), entity))
         {
-            entityToPropertiesMap.put(batchEntry.getValue(), batchEntry.getKey().getProperties());
+            throw new UnauthorizedObjectAccessException(id);
         }
-        updateEntityPropertyExecutor.update(context, entityToPropertiesMap);
-        updateSampleSpaceExecutor.update(context, batchMap);
-        updateSampleExperimentExecutor.update(context, batchMap);
-
-        for (SampleUpdate update : updatesBatch)
-        {
-            SamplePE sample = batchMap.get(update);
-
-            updateTagForEntityExecutor.update(context, sample, update.getTagIds());
-            updateAttachmentForEntityExecutor.update(context, sample, update.getAttachments());
-
-            RelationshipUtils.updateModificationDateAndModifier(sample, context.getSession().tryGetPerson());
-        }
-
-        daoFactory.getSampleDAO().createOrUpdateSamples(new ArrayList<SamplePE>(batchMap.values()), context.getSession().tryGetPerson(), false);
-
-        daoFactory.setBatchUpdateMode(false);
-        daoFactory.getSessionFactory().getCurrentSession().flush();
-        daoFactory.getSessionFactory().getCurrentSession().clear();
     }
 
-    private void verifySamples(IOperationContext context, Collection<SamplePE> samples)
+    @Override
+    protected void checkBusinessRules(IOperationContext context, Collection<SamplePE> entities)
     {
-        Set<Long> techIds = new HashSet<Long>();
-        for (SamplePE sample : samples)
-        {
-            techIds.add(sample.getId());
-        }
-
-        daoFactory.getSessionFactory().getCurrentSession().flush();
-        daoFactory.getSessionFactory().getCurrentSession().clear();
-
-        Collection<SamplePE> freshSamples = daoFactory.getSampleDAO().listByIDs(techIds);
-
-        verifySampleExecutor.verify(context, freshSamples);
+        verifySampleExecutor.verify(context, entities);
     }
 
-    private void reloadSamples(Map<SampleUpdate, SamplePE> updateToSampleMap)
+    @Override
+    protected void updateBatch(IOperationContext context, Map<SampleUpdate, SamplePE> entitiesMap)
     {
-        Collection<Long> ids = new HashSet<Long>();
+        updateSampleSpaceExecutor.update(context, entitiesMap);
+        updateSampleExperimentExecutor.update(context, entitiesMap);
 
-        for (SamplePE sample : updateToSampleMap.values())
+        Map<IEntityPropertiesHolder, Map<String, String>> propertyMap = new HashMap<IEntityPropertiesHolder, Map<String, String>>();
+        for (Map.Entry<SampleUpdate, SamplePE> entry : entitiesMap.entrySet())
         {
-            ids.add(sample.getId());
+            SampleUpdate update = entry.getKey();
+            SamplePE entity = entry.getValue();
+
+            RelationshipUtils.updateModificationDateAndModifier(entity, context.getSession().tryGetPerson());
+            updateTagForEntityExecutor.update(context, entity, update.getTagIds());
+            updateAttachmentForEntityExecutor.update(context, entity, update.getAttachments());
+            propertyMap.put(entity, update.getProperties());
         }
 
-        List<SamplePE> samples = daoFactory.getSampleDAO().listByIDs(ids);
+        updateEntityPropertyExecutor.update(context, propertyMap);
+    }
 
-        Map<Long, SamplePE> idToSampleMap = new HashMap<Long, SamplePE>();
+    @Override
+    protected void updateAll(IOperationContext context, Map<SampleUpdate, SamplePE> entitiesMap)
+    {
+        updateSampleRelatedSamplesExecutor.update(context, entitiesMap);
+    }
 
-        for (SamplePE sample : samples)
-        {
-            idToSampleMap.put(sample.getId(), sample);
-        }
+    @Override
+    protected Map<ISampleId, SamplePE> map(IOperationContext context, Collection<ISampleId> ids)
+    {
+        return mapSampleByIdExecutor.map(context, ids);
+    }
 
-        for (Map.Entry<SampleUpdate, SamplePE> entry : updateToSampleMap.entrySet())
-        {
-            entry.setValue(idToSampleMap.get(entry.getValue().getId()));
-        }
+    @Override
+    protected List<SamplePE> list(IOperationContext context, Collection<Long> ids)
+    {
+        return daoFactory.getSampleDAO().listByIDs(ids);
+    }
 
+    @Override
+    protected void save(IOperationContext context, List<SamplePE> entities, boolean clearCache)
+    {
+        daoFactory.getSampleDAO().createOrUpdateSamples(entities, context.getSession().tryGetPerson(), clearCache);
     }
 
 }

@@ -17,7 +17,10 @@
 package ch.ethz.sis.openbis.generic.server.api.v3.helper.sample;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -67,10 +70,15 @@ public class ListSampleByIdentifier implements IListObjectById<SampleIdentifier,
     @Override
     public List<SamplePE> listByIds(List<SampleIdentifier> ids)
     {
+        Map<SampleIdentifier, ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier> idMap = getIdMap(ids);
+        Map<String, SpacePE> spaceMap = getSpaceMap(idMap.values());
+
         Map<Key, List<String>> sampleCodesBySpaceAndContainer = new HashMap<ListSampleByIdentifier.Key, List<String>>();
+
         for (SampleIdentifier id : ids)
         {
-            ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier sid = SampleIdentifierFactory.parse(id.getIdentifier());
+            ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier sid = idMap.get(id);
+
             if (sid.isDatabaseInstanceLevel())
             {
                 addToMap(sampleCodesBySpaceAndContainer, null, sid);
@@ -80,7 +88,7 @@ public class ListSampleByIdentifier implements IListObjectById<SampleIdentifier,
                 if (sid.isInsideHomeSpace() == false)
                 {
                     String spaceCode = spaceIdentifier.getSpaceCode();
-                    SpacePE space = spaceDAO.tryFindSpaceByCode(spaceCode);
+                    SpacePE space = spaceMap.get(spaceCode);
                     if (space != null)
                     {
                         addToMap(sampleCodesBySpaceAndContainer, space, sid);
@@ -112,6 +120,49 @@ public class ListSampleByIdentifier implements IListObjectById<SampleIdentifier,
             }
         }
         return result;
+    }
+
+    private Map<SampleIdentifier, ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier> getIdMap(List<SampleIdentifier> ids)
+    {
+        Map<SampleIdentifier, ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier> sidMap =
+                new HashMap<SampleIdentifier, ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier>();
+
+        for (SampleIdentifier id : ids)
+        {
+            ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier sid = SampleIdentifierFactory.parse(id.getIdentifier());
+            sidMap.put(id, sid);
+        }
+
+        return sidMap;
+    }
+
+    private Map<String, SpacePE> getSpaceMap(Collection<ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier> ids)
+    {
+        Set<String> spaceCodes = new HashSet<String>();
+
+        for (ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier id : ids)
+        {
+            if (id.isSpaceLevel())
+            {
+                spaceCodes.add(id.getSpaceLevel().getSpaceCode());
+            }
+        }
+
+        if (false == spaceCodes.isEmpty())
+        {
+            List<SpacePE> spaces = spaceDAO.tryFindSpaceByCodes(new ArrayList<String>(spaceCodes));
+            Map<String, SpacePE> spaceMap = new HashMap<String, SpacePE>();
+
+            for (SpacePE space : spaces)
+            {
+                spaceMap.put(space.getCode(), space);
+            }
+
+            return spaceMap;
+        } else
+        {
+            return Collections.emptyMap();
+        }
     }
 
     private void addToMap(Map<Key, List<String>> sampleCodesBySpaceAndContainer, SpacePE space,
