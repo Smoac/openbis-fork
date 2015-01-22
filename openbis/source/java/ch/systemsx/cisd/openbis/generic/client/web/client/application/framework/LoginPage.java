@@ -86,7 +86,9 @@ final class LoginPage extends com.google.gwt.user.client.ui.VerticalPanel
             @Override
             public void onSuccess(String result)
             {
-                topPanel.add(new HTML(result +"<br>"));
+                if(result != null) {
+                    topPanel.add(new HTML(result +"<br><br><br>"));
+                }
             }
             
         });
