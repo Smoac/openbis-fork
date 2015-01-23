@@ -12,7 +12,7 @@ define(["support/stjs", "dto/id/ObjectPermId", "dto/id/sample/ISampleId"], funct
     };
     stjs.extend(SamplePermId, ObjectPermId, [ObjectPermId, ISampleId], function(constructor, prototype) {
         prototype['@type'] = 'SamplePermId';
-        constructor.serialVersionUID = ServiceVersionHolder.VERSION;
+        constructor.serialVersionUID = 1;
     }, {});
     return SamplePermId;
 })

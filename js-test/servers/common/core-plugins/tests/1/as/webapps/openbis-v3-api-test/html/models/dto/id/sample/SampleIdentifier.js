@@ -12,7 +12,7 @@ define(["support/stjs", "dto/id/ObjectIdentifier", "dto/id/sample/ISampleId"], f
     };
     stjs.extend(SampleIdentifier, ObjectIdentifier, [ObjectIdentifier, ISampleId], function(constructor, prototype) {
         prototype['@type'] = 'SampleIdentifier';
-        constructor.serialVersionUID = ServiceVersionHolder.VERSION;
+        constructor.serialVersionUID = 1;
     }, {});
     return SampleIdentifier;
 })
