@@ -1,4 +1,4 @@
-define(['jquery'], function($) {
+define(['jquery', 'support/Utils'], function($, stjsUtil) {
 
 	var _private = {
 
@@ -60,8 +60,12 @@ define(['jquery'], function($) {
 					"params" : [ user, password ]
 				}
 			}).done(function(sessionToken) {
+				if (sessionToken.indexOf(user) > -1) {
 				_private.sessionToken = sessionToken;
 				dfd.resolve(sessionToken);
+			} else {
+				dfd.reject();
+			}
 			}).fail(function() {
 				dfd.reject();
 			});
