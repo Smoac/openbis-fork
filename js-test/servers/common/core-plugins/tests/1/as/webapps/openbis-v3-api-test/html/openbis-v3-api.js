@@ -46,7 +46,6 @@ define(['jquery', 'support/Utils'], function($, stjsUtil) {
 				console.log(msg);
 			}
 		}
-
 	}
 
 	return function(openbisUrl) {
@@ -60,7 +59,7 @@ define(['jquery', 'support/Utils'], function($, stjsUtil) {
 					"params" : [ user, password ]
 				}
 			}).done(function(sessionToken) {
-				if (sessionToken.indexOf(user) > -1) {
+				if (sessionToken && sessionToken.indexOf(user) > -1) {
 				_private.sessionToken = sessionToken;
 				dfd.resolve(sessionToken);
 			} else {
@@ -141,13 +140,28 @@ define(['jquery', 'support/Utils'], function($, stjsUtil) {
 		}
 
 		this.searchSamples = function(sampleSearchCriterion, sampleFetchOptions) {
-			return _private.ajaxRequest({
+			var dfd = $.Deferred();
+
+			_private.ajaxRequest({
 				url : openbisUrl,
 				data : {
 					"method" : "searchSamples",
 					"params" : [ _private.sessionToken, sampleSearchCriterion, sampleFetchOptions ]
 				}
+			}).done(function(samples) {
+				require(['dto/entity/sample/Sample'], function() {
+					var sampleDTOs = {};
+					for(var sampleId in samples) {
+						var sampleJson = samples[sampleId];
+						var newSample = stjsUtil.fromJson(sampleJson);
+						sampleDTOs[newSample.getPermId().getPermId()] = newSample;
+					}
+					dfd.resolve(sampleDTOs);
+				});
+			}).fail(function() {
+				dfd.reject(arguments);
 			});
+			return dfd.promise();
 		}
 
 		this.searchDataSets = function(dataSetSearchCriterion, dataSetFetchOptions) {
