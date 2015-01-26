@@ -126,9 +126,6 @@ public abstract class AbstractUpdateEntityExecutor<UPDATE, PE, ID> implements IU
 
     private void reloadEntities(IOperationContext context, Map<UPDATE, PE> updateToEntityMap)
     {
-        daoFactory.getEventDAO().flush();
-        daoFactory.getEventDAO().clear();
-
         Collection<Long> ids = new HashSet<Long>();
 
         for (PE entity : updateToEntityMap.values())

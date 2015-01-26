@@ -108,9 +108,6 @@ public abstract class AbstractCreateEntityExecutor<CREATION, PE, PERM_ID> implem
 
     private void reloadEntities(IOperationContext context, Map<CREATION, PE> creationToEntityMap)
     {
-        daoFactory.getEventDAO().flush();
-        daoFactory.getEventDAO().clear();
-
         Collection<Long> ids = new HashSet<Long>();
 
         for (PE entity : creationToEntityMap.values())

@@ -282,7 +282,7 @@ public class UpdateSampleTest extends AbstractSampleTest
                 {
                     v3api.updateSamples(sessionToken, Arrays.asList(update));
                 }
-            }, "Cannot detach the sample '/CP-TEST-1' from the space because there are already datasets attached to the sample");
+            }, "Cannot detach the sample '/CISD/CP-TEST-1' from the space because there are already datasets attached to the sample");
     }
 
     @Test
