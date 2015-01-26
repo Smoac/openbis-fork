@@ -65,7 +65,6 @@ mkdir -p tmp
 svn checkout --depth=immediates svn+ssh://svncisd.ethz.ch/repos/cisd/openbis_all/branches/$1 tmp;
 
 GRADLE_PROJECTS="\
-gradle \
 authentication \
 common \
 datamover \
@@ -86,7 +85,7 @@ screening \
 ui-test\
 "
 
-for project in $GRADLE_PROJECTS; do
+for project in $GRADLE_PROJECTS gradle; do
 	cd tmp/$project;
 	svn update gradlew gradle build.gradle settings.gradle javaproject.gradle repository.gradle gwtdev.gradle query-api.gradle proteomics-api.gradle screening-api.gradle admin-console.gradle clients.gradle;
 	cd ../..;
