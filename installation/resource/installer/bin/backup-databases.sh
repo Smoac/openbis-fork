@@ -73,11 +73,16 @@ function backupDatabase() {
   local host=${hostAndPort%:*} 
   local port=`if [ "${hostAndPort#*:}" == "$host" ]; then echo 5432; else echo ${hostAndPort#*:}; fi`
   local username=$(getProperty $DB_PROPS "username")
-  if [ $(databaseExist $host $port $database $username) == "TRUE" ]; then
+  local password=$(getProperty $DB_PROPS "password")
+  if [ $(databaseExist $host $port $database $username $password) == "TRUE" ]; then
     local dumpDir=$BACKUP_DIR/$database
   
     echo "Backing up database $database@$host:$port (for user $username) to $dumpDir..."
-    exe_pg_dump -U $username -h $host -p $port -Fd $database $PG_DUMP_OPTION -f $dumpDir
+    pgpw=""
+    if [ $password != "" ]; then
+      pgpw="PGPASSWORD=$password"
+    fi
+    exe_pg_dump $pgpw -U $username -h $host -p $port -Fd $database $PG_DUMP_OPTION -f $dumpDir
   
     if [ "$?" -ne 0 ]; then
       echo "Failed to backup database '$database' !"

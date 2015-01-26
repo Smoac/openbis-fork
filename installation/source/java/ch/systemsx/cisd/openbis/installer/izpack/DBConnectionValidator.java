@@ -101,9 +101,9 @@ public class DBConnectionValidator extends AbstractDataValidator
             return defaultValue;
         }
         String property = Utils.tryToGetServicePropertyOfAS(GlobalInstallationContext.installDir, key);
-        if (property != null && property.length() > 0)
+        if (property != null && property.trim().length() > 0)
         {
-            return property;
+            return property.trim();
         }
         return defaultValue;
     }
