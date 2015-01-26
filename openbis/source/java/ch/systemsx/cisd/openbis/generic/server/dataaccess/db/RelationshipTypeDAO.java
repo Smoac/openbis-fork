@@ -16,7 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.hibernate.SessionFactory;
@@ -25,7 +27,6 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.reflection.MethodUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IRelationshipTypeDAO;
-import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RelationshipTypePE;
 
 /**
@@ -38,6 +39,8 @@ public class RelationshipTypeDAO extends AbstractGenericEntityDAO<RelationshipTy
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, RelationshipTypeDAO.class);
 
+    private static Map<String, Long> relationshipTypeIdsMap;
+
     public RelationshipTypeDAO(SessionFactory sessionFactory)
     {
         super(sessionFactory, RelationshipTypePE.class);
@@ -48,21 +51,42 @@ public class RelationshipTypeDAO extends AbstractGenericEntityDAO<RelationshipTy
     {
         assert code != null : "Unspecified relationship type code";
 
-        final String mangledCode = CodeConverter.tryToDatabase(code);
-        final boolean internalNamespace = CodeConverter.isInternalNamespace(code);
-        final List<RelationshipTypePE> list =
-                cast(getHibernateTemplate().find(
-                        String.format("select pt from %s pt where pt.simpleCode = ? "
-                                + "and pt.internalNamespace = ?",
-                                RelationshipTypePE.class.getSimpleName()),
-                        toArray(mangledCode, internalNamespace)));
-        final RelationshipTypePE entity = tryFindEntity(list, "relationship type", code);
+        Long typeId = getRelationshipTypeId(code);
+        RelationshipTypePE type = null;
+
+        if (typeId != null)
+        {
+            // getting a relationship type by Hibernate id (uses 1st level cache)
+            type = (RelationshipTypePE) getSession().get(RelationshipTypePE.class, typeId);
+        }
+
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug(String.format("%s(%s): '%s'.", MethodUtils.getCurrentMethod()
-                    .getName(), code, entity));
+                    .getName(), code, type));
         }
-        return entity;
+        return type;
+    }
+
+    private synchronized Long getRelationshipTypeId(String code)
+    {
+        if (relationshipTypeIdsMap == null)
+        {
+            Map<String, Long> map = new HashMap<String, Long>();
+
+            List<RelationshipTypePE> allTypes = this.listAllEntities();
+            if (allTypes != null && false == allTypes.isEmpty())
+            {
+                for (RelationshipTypePE type : allTypes)
+                {
+                    map.put(type.getCode(), type.getId());
+                }
+            }
+
+            relationshipTypeIdsMap = map;
+        }
+
+        return relationshipTypeIdsMap.get(code);
     }
 
 }

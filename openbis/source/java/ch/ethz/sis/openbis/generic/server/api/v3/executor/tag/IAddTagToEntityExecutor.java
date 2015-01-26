@@ -17,6 +17,7 @@
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.tag;
 
 import java.util.Collection;
+import java.util.Map;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.ITagId;
@@ -28,6 +29,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityWithMetaprojects;
 public interface IAddTagToEntityExecutor
 {
 
-    public void add(IOperationContext context, IEntityWithMetaprojects entity, Collection<? extends ITagId> tagIds);
+    public void add(IOperationContext context, Map<IEntityWithMetaprojects, Collection<? extends ITagId>> tagMap);
 
 }

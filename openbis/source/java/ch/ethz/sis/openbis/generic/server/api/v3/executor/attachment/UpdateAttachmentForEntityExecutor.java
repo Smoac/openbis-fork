@@ -84,7 +84,8 @@ public class UpdateAttachmentForEntityExecutor implements IUpdateAttachmentForEn
 
         if (false == added.isEmpty())
         {
-            createAttachmentExecutor.create(context, attachmentHolder, added);
+            createAttachmentExecutor.create(context,
+                    Collections.<AttachmentHolderPE, Collection<AttachmentCreation>> singletonMap(attachmentHolder, added));
         }
     }
 
@@ -125,7 +126,7 @@ public class UpdateAttachmentForEntityExecutor implements IUpdateAttachmentForEn
             Set<AttachmentPE> attachments = attachmentHolder.getAttachments();
             Collection<AttachmentCreation> setCreations = lastSet.getItems();
 
-            createAttachmentExecutor.create(context, attachmentHolder, setCreations);
+            createAttachmentExecutor.create(context, Collections.singletonMap(attachmentHolder, setCreations));
 
             Set<String> setFileNames = new HashSet<String>();
             for (AttachmentCreation setAttachment : setCreations)

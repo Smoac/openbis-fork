@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
@@ -76,6 +77,30 @@ final class AttachmentDAO extends AbstractGenericEntityDAO<AttachmentPE> impleme
 
     @Override
     public final AttachmentHolderPE createAttachment(final AttachmentPE attachment,
+            final AttachmentHolderPE ownerParam) throws DataAccessException
+    {
+        AttachmentHolderPE result = internalCreateAttachment(attachment, ownerParam);
+        getHibernateTemplate().flush();
+        return result;
+    }
+
+    @Override
+    public void createAttachments(Collection<AttachmentPE> attachments) throws DataAccessException
+    {
+        if (attachments == null || attachments.isEmpty())
+        {
+            return;
+        }
+
+        for (AttachmentPE attachment : attachments)
+        {
+            internalCreateAttachment(attachment, attachment.getParent());
+        }
+
+        getHibernateTemplate().flush();
+    }
+
+    private AttachmentHolderPE internalCreateAttachment(final AttachmentPE attachment,
             final AttachmentHolderPE ownerParam) throws DataAccessException
     {
         assert attachment != null : "Unspecified attachment";

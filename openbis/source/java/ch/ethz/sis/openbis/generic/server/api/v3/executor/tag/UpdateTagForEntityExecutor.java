@@ -74,7 +74,7 @@ public class UpdateTagForEntityExecutor extends UpdateFieldWithListUpdateValueEx
     @Override
     protected void addValues(IOperationContext context, IEntityWithMetaprojects entity, Collection<? extends ITagId> tagIds)
     {
-        addTagForEntityExecutor.add(context, entity, tagIds);
+        addTagForEntityExecutor.add(context, Collections.<IEntityWithMetaprojects, Collection<? extends ITagId>> singletonMap(entity, tagIds));
     }
 
     @Override

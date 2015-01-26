@@ -30,15 +30,19 @@ import ch.ethz.sis.openbis.generic.server.api.v3.executor.attachment.ICreateAtta
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.AbstractCreateEntityExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.property.IUpdateEntityPropertyExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.tag.IAddTagToEntityExecutor;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.attachment.AttachmentCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.ExperimentCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentIdentifier;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentPermId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.ITagId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ExperimentByIdentiferValidator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentHolderPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityPropertiesHolder;
+import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityWithMetaprojects;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.util.RelationshipUtils;
@@ -139,12 +143,19 @@ public class CreateExperimentExecutor extends AbstractCreateEntityExecutor<Exper
     @Override
     protected void updateAll(IOperationContext context, Map<ExperimentCreation, ExperimentPE> entitiesMap)
     {
-        for (ExperimentCreation creation : entitiesMap.keySet())
+        Map<AttachmentHolderPE, Collection<AttachmentCreation>> attachmentMap = new HashMap<AttachmentHolderPE, Collection<AttachmentCreation>>();
+        Map<IEntityWithMetaprojects, Collection<? extends ITagId>> tagMap = new HashMap<IEntityWithMetaprojects, Collection<? extends ITagId>>();
+
+        for (Map.Entry<ExperimentCreation, ExperimentPE> entry : entitiesMap.entrySet())
         {
-            ExperimentPE entity = entitiesMap.get(creation);
-            createAttachmentExecutor.create(context, entity, creation.getAttachments());
-            addTagToEntityExecutor.add(context, entity, creation.getTagIds());
+            ExperimentCreation creation = entry.getKey();
+            ExperimentPE entity = entry.getValue();
+            attachmentMap.put(entity, creation.getAttachments());
+            tagMap.put(entity, creation.getTagIds());
         }
+
+        createAttachmentExecutor.create(context, attachmentMap);
+        addTagToEntityExecutor.add(context, tagMap);
     }
 
     @Override

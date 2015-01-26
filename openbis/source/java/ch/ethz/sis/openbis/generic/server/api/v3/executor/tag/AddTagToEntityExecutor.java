@@ -17,7 +17,9 @@
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.tag;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -52,26 +54,45 @@ public class AddTagToEntityExecutor implements IAddTagToEntityExecutor
     }
 
     @Override
-    public void add(IOperationContext context, IEntityWithMetaprojects entity, Collection<? extends ITagId> tagIds)
+    public void add(IOperationContext context, Map<IEntityWithMetaprojects, Collection<? extends ITagId>> entityToTagIdsMap)
     {
-        if (tagIds == null || tagIds.isEmpty())
+        if (entityToTagIdsMap == null || entityToTagIdsMap.isEmpty())
         {
             return;
         }
 
-        Map<ITagId, MetaprojectPE> tagMap = mapTagByIdExecutor.map(context, tagIds);
+        Set<ITagId> allTagIds = new HashSet<ITagId>();
 
-        for (ITagId tagId : tagIds)
+        for (Collection<? extends ITagId> tagIds : entityToTagIdsMap.values())
         {
-            MetaprojectPE tag = tagMap.get(tagId);
-
-            if (tag == null)
+            if (tagIds != null && false == tagIds.isEmpty())
             {
-                tag = createTagExecutor.createTag(context, tagId);
+                allTagIds.addAll(tagIds);
             }
+        }
 
-            entity.addMetaproject(tag);
+        Map<ITagId, MetaprojectPE> allTagsMap = mapTagByIdExecutor.map(context, allTagIds);
+
+        for (Map.Entry<IEntityWithMetaprojects, Collection<? extends ITagId>> entry : entityToTagIdsMap.entrySet())
+        {
+            IEntityWithMetaprojects entity = entry.getKey();
+            Collection<? extends ITagId> tagIds = entry.getValue();
+
+            if (tagIds != null && false == tagIds.isEmpty())
+            {
+                for (ITagId tagId : tagIds)
+                {
+                    MetaprojectPE tag = allTagsMap.get(tagId);
+
+                    if (tag == null)
+                    {
+                        tag = createTagExecutor.createTag(context, tagId);
+                        allTagsMap.put(tagId, tag);
+                    }
+
+                    entity.addMetaproject(tag);
+                }
+            }
         }
     }
-
 }

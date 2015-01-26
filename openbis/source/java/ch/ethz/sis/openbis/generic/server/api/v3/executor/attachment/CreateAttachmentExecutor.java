@@ -17,13 +17,18 @@
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.attachment;
 
 import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.attachment.AttachmentCreation;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentContentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentHolderPE;
@@ -50,18 +55,48 @@ public class CreateAttachmentExecutor implements ICreateAttachmentExecutor
     }
 
     @Override
-    public void create(IOperationContext context, AttachmentHolderPE attachmentHolder, Collection<AttachmentCreation> attachments)
+    public void create(IOperationContext context, Map<AttachmentHolderPE, Collection<AttachmentCreation>> attachmentsMap)
     {
-        if (attachments != null)
+        if (attachmentsMap == null || attachmentsMap.isEmpty())
         {
-            for (AttachmentCreation attachment : attachments)
+            return;
+        }
+
+        List<AttachmentPE> attachments = new LinkedList<AttachmentPE>();
+
+        for (Map.Entry<AttachmentHolderPE, Collection<AttachmentCreation>> entry : attachmentsMap.entrySet())
+        {
+            AttachmentHolderPE holder = entry.getKey();
+
+            if (holder == null)
             {
-                createAttachment(context, attachmentHolder, attachment);
+                throw new UserFailureException("Atachment holder cannot be null");
             }
+
+            if (entry.getValue() != null && false == entry.getValue().isEmpty())
+            {
+                for (AttachmentCreation creation : entry.getValue())
+                {
+                    if (creation != null)
+                    {
+                        AttachmentPE attachment = createAttachment(context, holder, creation);
+                        attachments.add(attachment);
+                    }
+                }
+            }
+        }
+
+        try
+        {
+            daoFactory.getAttachmentDAO().createAttachments(attachments);
+        } catch (DataAccessException e)
+        {
+            DataAccessExceptionTranslator.throwException(e, "attachment", null);
+            return;
         }
     }
 
-    public void createAttachment(IOperationContext context, AttachmentHolderPE attachmentHolder, AttachmentCreation attachment)
+    public AttachmentPE createAttachment(IOperationContext context, AttachmentHolderPE holder, AttachmentCreation attachment)
     {
         String fileName = attachment.getFileName();
         if (fileName == null)
@@ -81,8 +116,10 @@ public class CreateAttachmentExecutor implements ICreateAttachmentExecutor
         attachmentContent.setValue(attachment.getContent());
         attachmentPE.setAttachmentContent(attachmentContent);
         attachmentPE.setRegistrator(context.getSession().tryGetPerson());
-        daoFactory.getAttachmentDAO().createAttachment(attachmentPE, attachmentHolder);
+        attachmentPE.setParent(holder);
         context.popContextDescription();
+
+        return attachmentPE;
     }
 
 }

@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.springframework.dao.DataAccessException;
@@ -31,51 +32,51 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 public interface IAttachmentDAO extends IGenericDAO<AttachmentPE>
 {
     /**
-     * Returns a list of the descriptions of all {@link AttachmentPE} object associated with the
-     * specified {@link AttachmentHolderPE}. The result is detached from the hibernate session.
+     * Returns a list of the descriptions of all {@link AttachmentPE} object associated with the specified {@link AttachmentHolderPE}. The result is
+     * detached from the hibernate session.
      * 
      * @param owner Persistent {@link AttachmentHolderPE} whose properties are requested.
      */
     public List<AttachmentPE> listAttachments(AttachmentHolderPE owner) throws DataAccessException;
 
     /**
-     * Creates a persistent version of the specified attachment. Registrator and version are not
-     * needed.
+     * Creates a persistent version of the specified attachment. Registrator and version are not needed.
      * 
      * @param attachment The property to register.
      * @param owner Owner of the attachment. Should be a persistent object.
-     * @return the actual owner object to whom the attachment is attached. This either
-     *         <code>owner</code> itself or a copy of it.
+     * @return the actual owner object to whom the attachment is attached. This either <code>owner</code> itself or a copy of it.
      */
     public AttachmentHolderPE createAttachment(AttachmentPE attachment, AttachmentHolderPE owner)
             throws DataAccessException;
 
     /**
-     * Finds the attachment requested by the specified {@link AttachmentHolderPE} code and file
-     * name. If multiple versions of this attachment exist, this will always return the latest
-     * version.
+     * Creates persistent versions of the specified attachments. The attachments must have parents specified. Registrator and version are not needed.
+     * 
+     * @param attachments The attachments to be persisted.
+     */
+    public void createAttachments(Collection<AttachmentPE> attachments) throws DataAccessException;
+
+    /**
+     * Finds the attachment requested by the specified {@link AttachmentHolderPE} code and file name. If multiple versions of this attachment exist,
+     * this will always return the latest version.
      * 
      * @param owner Persistent {@link AttachmentHolderPE} whose properties are requested.
-     * @return <code>null</code> if no attachment is found. The result is detached from the
-     *         hibernate session.
+     * @return <code>null</code> if no attachment is found. The result is detached from the hibernate session.
      */
     public AttachmentPE tryFindAttachmentByOwnerAndFileName(AttachmentHolderPE owner,
             String fileName) throws DataAccessException;
 
     /**
-     * Finds the attachment requested by the specified {@link AttachmentHolderPE} code, file name
-     * and version.
+     * Finds the attachment requested by the specified {@link AttachmentHolderPE} code, file name and version.
      * 
      * @param owner Persistent {@link AttachmentHolderPE} whose properties are requested.
-     * @return <code>null</code> if no attachment is found. The result is detached from the
-     *         hibernate session.
+     * @return <code>null</code> if no attachment is found. The result is detached from the hibernate session.
      */
     public AttachmentPE tryFindAttachmentByOwnerAndFileNameAndVersion(AttachmentHolderPE owner,
             String fileName, int version) throws DataAccessException;
 
     /**
-     * Deletes all attachment versions with specified <var>fileName</var> and <var>owner</var>.
-     * There will be no error if no such attachment exist.
+     * Deletes all attachment versions with specified <var>fileName</var> and <var>owner</var>. There will be no error if no such attachment exist.
      * <p>
      * NOTE: Attachments are removed from DB and from the owner object.
      * 

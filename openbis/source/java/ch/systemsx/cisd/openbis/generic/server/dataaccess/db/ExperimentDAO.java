@@ -438,9 +438,10 @@ public class ExperimentDAO extends AbstractGenericEntityWithPropertiesDAO<Experi
             internalCreateOrUpdateExperiment(experiment, modifier, hibernateTemplate);
         }
 
+        hibernateTemplate.flush();
+
         if (clearCache)
         {
-            hibernateTemplate.flush();
             // if session is not cleared registration of many experiments slows down after each batch
             hibernateTemplate.clear();
         }

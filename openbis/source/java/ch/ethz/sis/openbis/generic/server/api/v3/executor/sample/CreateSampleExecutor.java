@@ -30,14 +30,18 @@ import ch.ethz.sis.openbis.generic.server.api.v3.executor.attachment.ICreateAtta
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.AbstractCreateEntityExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.property.IUpdateEntityPropertyExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.tag.IAddTagToEntityExecutor;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.attachment.AttachmentCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SampleIdentifier;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SamplePermId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.ITagId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SampleByIdentiferValidator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentHolderPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityPropertiesHolder;
+import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityWithMetaprojects;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
@@ -144,12 +148,19 @@ public class CreateSampleExecutor extends AbstractCreateEntityExecutor<SampleCre
     @Override
     protected void updateAll(IOperationContext context, Map<SampleCreation, SamplePE> entitiesMap)
     {
-        for (SampleCreation creation : entitiesMap.keySet())
+        Map<AttachmentHolderPE, Collection<AttachmentCreation>> attachmentMap = new HashMap<AttachmentHolderPE, Collection<AttachmentCreation>>();
+        Map<IEntityWithMetaprojects, Collection<? extends ITagId>> tagMap = new HashMap<IEntityWithMetaprojects, Collection<? extends ITagId>>();
+
+        for (Map.Entry<SampleCreation, SamplePE> entry : entitiesMap.entrySet())
         {
-            SamplePE entity = entitiesMap.get(creation);
-            createAttachmentExecutor.create(context, entity, creation.getAttachments());
-            addTagToEntityExecutor.add(context, entity, creation.getTagIds());
+            SampleCreation creation = entry.getKey();
+            SamplePE entity = entry.getValue();
+            attachmentMap.put(entity, creation.getAttachments());
+            tagMap.put(entity, creation.getTagIds());
         }
+
+        createAttachmentExecutor.create(context, attachmentMap);
+        addTagToEntityExecutor.add(context, tagMap);
         setSampleRelatedSamplesExecutor.set(context, entitiesMap);
     }
 
