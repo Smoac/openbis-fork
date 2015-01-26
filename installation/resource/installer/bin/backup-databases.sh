@@ -79,7 +79,7 @@ function backupDatabase() {
   
     echo "Backing up database $database@$host:$port (for user $username) to $dumpDir..."
     pgpw=""
-    if [ $password != "" ]; then
+    if [ "$password" != "" ]; then
       pgpw="PGPASSWORD=$password"
     fi
     exe_pg_dump $pgpw -U $username -h $host -p $port -Fd $database $PG_DUMP_OPTION -f $dumpDir
