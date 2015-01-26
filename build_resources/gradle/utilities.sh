@@ -154,7 +154,7 @@ create_branch_if_necessary()
     _svn_with_echo -q checkout "$REPOSITORY_URL/$path" tmp-checkout
     for p in $projects; do
       cd "tmp-checkout/$p"
-      if [ -f gradlew ]; then
+      if [ -f gradlew ] && [ "$p" != "gradle" ]; then
         echo "======== freeze library dependencies for project $p"
         ./gradlew dependencyReport
         if [ -f targets/gradle/reports/project/dependencies.txt ]; then
