@@ -22,9 +22,16 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 /**
  * @author Jakub Straszewski
  */
-
 public enum Grouping implements IGroupKeyProvider
 {
+    All
+    {
+        @Override
+        public String getGroupKey(AbstractExternalData dataset)
+        {
+            return "all";
+        }
+    },
     Space
     {
         @Override

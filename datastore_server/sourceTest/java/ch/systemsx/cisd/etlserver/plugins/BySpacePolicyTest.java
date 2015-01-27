@@ -11,6 +11,7 @@ import ch.systemsx.cisd.common.properties.ExtendedProperties;
 import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.etlserver.plugins.grouping.Grouping;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 
 /**
  * @author Sascha Fedorenko
@@ -60,7 +61,7 @@ public class BySpacePolicyTest extends ByPoliceAbstractTest
 
         List<AbstractExternalData> filtered = filter(14, 100, dataSets);
 
-        assertEquals("[ds1, ds2, ds3]", extractCodes(filtered).toString());
+        assertEquals("[ds1, ds2, ds3]", Code.extractCodes(filtered).toString());
 
         context.assertIsSatisfied();
     }
@@ -76,7 +77,7 @@ public class BySpacePolicyTest extends ByPoliceAbstractTest
 
         List<AbstractExternalData> filtered = filter(50, 100, dataSets);
 
-        assertEquals("[]", extractCodes(filtered).toString());
+        assertEquals("[]", Code.extractCodes(filtered).toString());
 
         context.assertIsSatisfied();
     }
@@ -93,7 +94,7 @@ public class BySpacePolicyTest extends ByPoliceAbstractTest
 
         List<AbstractExternalData> filtered = filter(40, 100, dataSets);
 
-        assertEquals("[ds1, ds2, ds3, ds4]", extractCodes(filtered).toString());
+        assertEquals("[ds1, ds2, ds3, ds4]", Code.extractCodes(filtered).toString());
 
         context.assertIsSatisfied();
     }
@@ -115,7 +116,7 @@ public class BySpacePolicyTest extends ByPoliceAbstractTest
 
         List<AbstractExternalData> filtered = filter(2, 4, dataSets);
 
-        assertEquals("[ds6, ds7, ds8]", extractCodes(filtered).toString());
+        assertEquals("[ds6, ds7, ds8]", Code.extractCodes(filtered).toString());
 
         context.assertIsSatisfied();
     }
@@ -190,7 +191,7 @@ public class BySpacePolicyTest extends ByPoliceAbstractTest
 
         List<AbstractExternalData> filtered = filter(5, 8, dataSets);
 
-        assertEquals(extractCodes(filtered).toString(), "[a, b, c, d, e, f]");
+        assertEquals(Code.extractCodes(filtered).toString(), "[a, b, c, d, e, f]");
 
         context.assertIsSatisfied();
     }
@@ -276,7 +277,7 @@ public class BySpacePolicyTest extends ByPoliceAbstractTest
 
         List<AbstractExternalData> filtered = filter(100, 140, dataSets);
 
-        assertEquals(extractCodes(filtered).toString(), "[a, b, c]");
+        assertEquals(Code.extractCodes(filtered).toString(), "[a, b, c]");
 
         context.assertIsSatisfied();
     }
@@ -354,7 +355,7 @@ public class BySpacePolicyTest extends ByPoliceAbstractTest
         dataSets.add(ctx.createDataset("rightSpace", "rightProject", "smallE2", "dt1", null, 60L));
         dataSets.add(ctx.createDataset("rightSpace", "rightProject", "smallE3", "dt1", null, 30L));
         dataSets.add(ctx.createDataset("rightSpace", "rightProject", "smallE3", "dt1", null, 30L));
-        dataSets.add(ctx.createDataset("rightSpace", "rightProject", "bigE", "dt1", "toSmallSample", null, 20L));
+        dataSets.add(ctx.createDataset("rightSpace", "rightProject", "bigE", "dt1", "toSmallSample", (String) null, 20L));
         dataSets.add(ctx.createDataset("rightSpace", "rightProject", "bigE", "dt1", null, "a", 20L));
         dataSets.add(ctx.createDataset("rightSpace", "rightProject", "bigE", "dt1", null, "b", 20L));
         dataSets.add(ctx.createDataset("rightSpace", "rightProject", "bigE", "dt1", null, "c", 20L));
