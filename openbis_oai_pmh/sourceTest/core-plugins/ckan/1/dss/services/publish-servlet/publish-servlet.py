@@ -107,7 +107,7 @@ def createExperimentMetadata(experiment):
         ["dc:creator" , "PUBLICATION_AUTHOR"],
         ["creator_email" , "PUBLICATION_AUTHOR_EMAIL"],
         ["dc:description" , "PUBLICATION_NOTES"],
-        ["dc:license" , "PUBLICATION_LICENSE"]
+        ["dc:rights" , "PUBLICATION_LICENSE"]
     ]
 
     for field in fields:
@@ -121,7 +121,7 @@ def createExperimentMetadata(experiment):
                 subjectNode = ET.SubElement(oai, "dc:subject")
                 subjectNode.text = meshTerm.strip()
 
-    identifierNode = ET.SubElement(oai, "dc:relation")
+    identifierNode = ET.SubElement(oai, "dc:source")
     identifierNode.text = getServerUrl() + "/openbis/?viewMode=SIMPLE#entity=EXPERIMENT&permId=" + str(experiment.getPermId())
 
     return Metadata(ET.tostring(oai))

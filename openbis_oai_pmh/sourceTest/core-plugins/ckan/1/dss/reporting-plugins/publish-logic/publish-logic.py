@@ -139,7 +139,28 @@ def loadMeshTerms():
 	finally:
 		print "Loading mesh terms - finish time: " + str(datetime.datetime.utcnow())
 		binFile.close()
-		
+
+def loadMeshTermsVersion():
+	
+	cachedVersionSessionAttribute = "publication.meshTermsVersion"
+	cachedVersion = RequestContextHolder.getRequestAttributes().getAttribute(cachedVersionSessionAttribute, RequestAttributes.SCOPE_SESSION)
+	
+	if cachedVersion:
+		print "Didn't have to load the mesh terms version - found it in a session cache."
+		return cachedVersion
+	
+	print "Loading mesh terms version - start time: " + str(datetime.datetime.utcnow())
+	
+	versionPath = str(sys.path[-1]) + "/terms/version.txt"
+	versionFile = open(versionPath)
+	
+	try:
+		version = versionFile.read()
+		RequestContextHolder.getRequestAttributes().setAttribute(cachedVersionSessionAttribute, version, RequestAttributes.SCOPE_SESSION)
+		return version
+	finally:
+		print "Loading mesh terms version - finish time: " + str(datetime.datetime.utcnow())
+		versionFile.close()
 
 def addRootMeshTerm(termMap):
 
@@ -202,6 +223,7 @@ def publish(tr, parameters, tableBuilder):
 	paramMeshTerms = parameters["meshTerms"]
 
 	meshTermMap = loadMeshTerms()
+	meshTermVersion = loadMeshTermsVersion()
 	
 	validateNotEmpty(paramExperiment, "experiment")
 	validateNotEmpty(paramSpace, "space")
@@ -228,7 +250,9 @@ def publish(tr, parameters, tableBuilder):
 	for paramMeshTerm in paramMeshTerms:
 		meshTerm = meshTermMap.get(paramMeshTerm)
 		meshTermsPropertyValue += meshTerm["name"] + ";" + meshTerm["identifier"] + "\n"
+		
 	publicationExperiment.setPropertyValue("PUBLICATION_MESH_TERMS", meshTermsPropertyValue)
+	publicationExperiment.setPropertyValue("PUBLICATION_MESH_TERMS_DATABASE", meshTermVersion)
 	
 	copyOrUpdateDataSets(tr, originalExperiment, publicationExperiment)
 
