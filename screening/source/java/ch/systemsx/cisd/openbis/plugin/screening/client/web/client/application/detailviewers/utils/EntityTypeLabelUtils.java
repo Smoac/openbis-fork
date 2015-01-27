@@ -34,13 +34,20 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConst
  */
 public class EntityTypeLabelUtils
 {
-    public final static List<String> createDatasetLabels(List<DatasetReference> datasetReferences,
+
+    public final static List<String> createDatasetLabels(List<? extends DatasetReference> datasetReferences,
             boolean withFileType)
+    {
+        return createDatasetLabels(datasetReferences, withFileType, false);
+    }
+
+    public final static List<String> createDatasetLabels(List<? extends DatasetReference> datasetReferences,
+            boolean withFileType, boolean useAnalysisProcedureInPlaceOfType)
     {
         List<String> labels = new ArrayList<String>(datasetReferences.size());
         for (DatasetReference datasetReference : datasetReferences)
         {
-            labels.add(createDatasetLabel(datasetReference, withFileType, null, true));
+            labels.add(createDatasetLabel(datasetReference, withFileType, null, true, useAnalysisProcedureInPlaceOfType));
         }
         return labels;
     }
@@ -97,16 +104,33 @@ public class EntityTypeLabelUtils
     public static String createDatasetLabel(DatasetReference datasetReference,
             boolean withFileType, String analysisProcedure, boolean withDatasetCode)
     {
+        return createDatasetLabel(datasetReference, withFileType, analysisProcedure, withDatasetCode, false);
+    }
+
+    public static String createDatasetLabel(DatasetReference datasetReference,
+            boolean withFileType, String analysisProcedure, boolean withDatasetCode, boolean useAnalysisProcedureInteadOfDataSetType)
+    {
         String registrationDate = renderDate(datasetReference);
         return createDatasetLabel(datasetReference, withFileType, registrationDate,
-                analysisProcedure, withDatasetCode);
+                analysisProcedure, withDatasetCode, useAnalysisProcedureInteadOfDataSetType);
     }
 
     // private, just for tests
     static String createDatasetLabel(DatasetReference datasetReference, boolean withFileType,
-            String registrationDate, String analysisProcedure, boolean withDatasetCode)
+            String registrationDate, String analysisProcedure, boolean withDatasetCode, boolean useAnalysisProcedureInteadOfDataSetType)
     {
-        String typeLabel = getDatasetUserFriendlyTypeCode(datasetReference);
+        String typeLabel;
+        if (useAnalysisProcedureInteadOfDataSetType)
+        {
+            typeLabel = datasetReference.getAnalysisProcedure();
+            if (typeLabel == null)
+            {
+                typeLabel = "Unspecified Analysis Procedure";
+            }
+        } else
+        {
+            typeLabel = getDatasetUserFriendlyTypeCode(datasetReference);
+        }
         String fileType =
                 withFileType && datasetReference.getFileTypeCode() != null ? " ("
                         + datasetReference.getFileTypeCode() + ")" : "";
@@ -177,8 +201,8 @@ public class EntityTypeLabelUtils
     }
 
     /**
-     * Changes capitalization and replaces '_' wit ' '. Letters are made small, first letter gets
-     * capitalized if captalizeFirstLetter is true, e.g. 'COdE_XYZ' is changed to 'Code Xyz'.
+     * Changes capitalization and replaces '_' wit ' '. Letters are made small, first letter gets capitalized if captalizeFirstLetter is true, e.g.
+     * 'COdE_XYZ' is changed to 'Code Xyz'.
      */
     public static String formatAsTitle(String text, boolean captalizeFirstLetter)
     {

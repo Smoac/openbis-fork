@@ -319,17 +319,21 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
 
         private IFreeSpaceProvider freeSpaceProvider;
 
+        private IMultiDataSetArchiveCleaner cleaner;
+
         public MockMultiDataSetArchiver(Properties properties, File storeRoot, 
                 IEncapsulatedOpenBISService openBISService, IShareIdManager shareIdManager,
                 IDataSetStatusUpdater statusUpdater, IMultiDataSetArchiverDBTransaction transaction,
                 IMultiDataSetFileOperationsManager fileManager, IMultiDataSetArchiverReadonlyQueryDAO readonlyDAO,
-                IFreeSpaceProvider freeSpaceProvider, ITimeAndWaitingProvider timeProvider)
+                IFreeSpaceProvider freeSpaceProvider, ITimeAndWaitingProvider timeProvider,
+                IMultiDataSetArchiveCleaner cleaner)
         {
             super(properties, storeRoot, timeProvider, freeSpaceProvider);
             this.transaction = transaction;
             this.fileManager = fileManager;
             this.readonlyDAO = readonlyDAO;
             this.freeSpaceProvider = freeSpaceProvider;
+            this.cleaner = cleaner;
             setService(openBISService);
             setShareIdManager(shareIdManager);
             setStatusUpdater(statusUpdater);
@@ -357,6 +361,12 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
         protected IFreeSpaceProvider createFreeSpaceProvider()
         {
             return freeSpaceProvider;
+        }
+
+        @Override
+        IMultiDataSetArchiveCleaner getCleaner()
+        {
+            return cleaner;
         }
     }
 
@@ -440,6 +450,8 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
 
     private File replicate;
 
+    private MockCleaner cleaner;
+
     @BeforeMethod
     public void setUpTestEnvironment()
     {
@@ -464,6 +476,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
         freeSpaceProvider = context.mock(IFreeSpaceProvider.class);
         timeProvider = new MockTimeProvider();
         dataSetDeleter = new MockDataSetDeleter(share);
+        cleaner = new MockCleaner();
         statusUpdater = new RecordingStatusUpdater();
         staging = new File(workingDirectory, "staging");
         staging.mkdirs();
@@ -528,6 +541,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
                 status.getErrorStatuses().toString());
         assertEquals("[ds1, ds2]: AVAILABLE false\n", statusUpdater.toString());
         assertEquals("Containers:\nData sets:\ncommitted: false, rolledBack: true", transaction.toString());
+        assertEquals("[]", cleaner.toString());
         context.assertIsSatisfied();
     }
 
@@ -547,6 +561,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
                 status.getErrorStatuses().toString());
         assertEquals("[ds1, ds2]: AVAILABLE false\n", statusUpdater.toString());
         assertEquals("Containers:\nData sets:\ncommitted: false, rolledBack: true", transaction.toString());
+        assertEquals("[]", cleaner.toString());
         context.assertIsSatisfied();
     }
 
@@ -608,6 +623,8 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
         assertEquals(archive.getAbsolutePath(), freeSpaceRecorder.getRecordedObjects().get(0).getPath());
         assertEquals(6, freeSpaceRecorder.getRecordedObjects().size());
         assertEquals("", dataSetDeleter.toString());
+        assertEquals("[" + staging.getAbsolutePath() + "/ds2-yyyyMMdd-HHmmss.tar]", 
+                removeTimeInformationFromContent(cleaner.toString()));
         context.assertIsSatisfied();
     }
 
@@ -678,6 +695,8 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
                 + "finalizer-polling-time=300000, finalizer-max-waiting-time=172800000, status=ARCHIVED}",
                 removeTimeInformationFromContent(parametersRecorder.recordedObject().toString()));
         assertEquals("", dataSetDeleter.toString());
+        assertEquals("[" + staging.getAbsolutePath() + "/ds2-yyyyMMdd-HHmmss.tar]", 
+                removeTimeInformationFromContent(cleaner.toString()));
         context.assertIsSatisfied();
     }
 
@@ -769,6 +788,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
                 + "committed: true, rolledBack: false", removeTimeInformationFromContent(transaction.toString()));
         assertEquals(archive.getAbsolutePath(), freeSpaceRecorder.getRecordedObjects().get(0).getPath());
         assertEquals(1, freeSpaceRecorder.getRecordedObjects().size());
+        assertEquals("[]", cleaner.toString());
         context.assertIsSatisfied();
     }
 
@@ -855,6 +875,8 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
                 + "MultiDataSetArchiverDataSetDTO [id=3, code=ds1, containerId=2, sizeInBytes=10]\n"
                 + "committed: true, rolledBack: false", removeTimeInformationFromContent(transaction.toString()));
         assertEquals("[Dataset 'ds1', Dataset 'ds2']\n", dataSetDeleter.toString());
+        assertEquals("[" + staging.getAbsolutePath() + "/ds1-yyyyMMdd-HHmmss.tar]", 
+                removeTimeInformationFromContent(cleaner.toString()));
         context.assertIsSatisfied();
     }
 
@@ -966,6 +988,8 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
         assertEquals("[ds1, ds2]: ARCHIVED true\n[ds1, ds2]: AVAILABLE true\n", statusUpdater.toString());
         assertContent("ds1:\n  data:\n    >0123456789\n", new File(share, ds1.getDataSetCode()));
         assertContent("ds2:\n  data:\n    >01234567890123456789\n", new File(share, ds2.getDataSetCode()));
+        assertEquals("[" + staging.getAbsolutePath() + "/ds1-yyyyMMdd-HHmmss.tar]", 
+                removeTimeInformationFromContent(cleaner.toString()));
         context.assertIsSatisfied();
     }
 
@@ -987,6 +1011,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
         assertEquals("[ERROR: \"Unarchiving failed: Datasets selected for unarchiving do not all "
                 + "belong to one container, but to 2 different containers: {0=[ds1], 1=[ds2]}\"]",
                 status.getErrorStatuses().toString());
+        assertEquals("[]", cleaner.toString());
         context.assertIsSatisfied();
     }
 
@@ -1004,6 +1029,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
         List<String> codes = archiver.getDataSetCodesForUnarchiving(Arrays.asList(ds2.getDataSetCode()));
 
         assertEquals("[ds1, ds2]", codes.toString());
+        assertEquals("[]", cleaner.toString());
         context.assertIsSatisfied();
     }
 
@@ -1028,6 +1054,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
             assertEquals("Datasets selected for unarchiving do not all belong to one container, "
                     + "but to 2 different containers: {0=[ds1], 1=[ds2]}", ex.getMessage());
         }
+        assertEquals("[]", cleaner.toString());
         context.assertIsSatisfied();
     }
 
@@ -1234,8 +1261,8 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(fileOperations).deleteContainerFromFinalDestination(containerPath);
-                    one(fileOperations).deleteContainerFromStage(containerPath);
+                    one(fileOperations).deleteContainerFromFinalDestination(cleaner, containerPath);
+                    one(fileOperations).deleteContainerFromStage(cleaner, containerPath);
                 }
             });
     }
@@ -1264,7 +1291,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
     private MultiDataSetArchiver createArchiver(IMultiDataSetFileOperationsManager fileManagerOrNull)
     {
         return new MockMultiDataSetArchiver(properties, store, openBISService, shareIdManager, statusUpdater, 
-                transaction, fileManagerOrNull, transaction, freeSpaceProvider, timeProvider);
+                transaction, fileManagerOrNull, transaction, freeSpaceProvider, timeProvider, cleaner);
     }
 
     private DatasetDescription dataSet(final String code, String content)

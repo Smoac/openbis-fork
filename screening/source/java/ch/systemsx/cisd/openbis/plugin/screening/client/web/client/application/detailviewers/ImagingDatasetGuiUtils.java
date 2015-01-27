@@ -518,7 +518,7 @@ class ImagingDatasetGuiUtils
         return refs;
     }
 
-    private static <T> SimpleModelComboBox<T> createDatasetChooserComboBox(
+    static <T> SimpleModelComboBox<T> createDatasetChooserComboBox(
             IMessageProvider messageProvider, List<T> items, List<String> labels,
             List<String> tooltips)
     {

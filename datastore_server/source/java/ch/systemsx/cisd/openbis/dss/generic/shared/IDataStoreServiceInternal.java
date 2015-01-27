@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.dss.generic.shared;
 import java.util.List;
 import java.util.Map;
 
+import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.resource.IInitializable;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
@@ -45,6 +46,11 @@ public interface IDataStoreServiceInternal extends IInitializable, IDataStoreSer
      * Returns the data set directory provider.
      */
     IDataSetDirectoryProvider getDataSetDirectoryProvider();
+    
+    /**
+     * Returns the mail client.
+     */
+    IMailClient createEMailClient();
 
     /**
      * An internal version of

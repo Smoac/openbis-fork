@@ -207,7 +207,7 @@ public class MultiDataSetFileOperationsManager extends AbstractDataSetFileOperat
     }
     
     @Override
-    public Status deleteContainerFromStage(String containerPath)
+    public Status deleteContainerFromStage(IMultiDataSetArchiveCleaner cleaner, String containerPath)
     {
         if (isStagingAreaDefined() == false)
         {
@@ -220,8 +220,8 @@ public class MultiDataSetFileOperationsManager extends AbstractDataSetFileOperat
             operationLog.warn("Archive container '" + containerPath + "' doesn't exist.");
             return Status.OK;
         }
-        boolean success = stageArchiveContainerFile.delete();
-        return success ? Status.OK : Status.createError("Couldn't delete archive container '" + containerPath);
+        cleaner.delete(stageArchiveContainerFile);
+        return Status.OK;
     }
 
     @Override
@@ -461,13 +461,13 @@ public class MultiDataSetFileOperationsManager extends AbstractDataSetFileOperat
     }
 
     @Override
-    public Status deleteContainerFromFinalDestination(String containerLocalPath)
+    public Status deleteContainerFromFinalDestination(IMultiDataSetArchiveCleaner cleaner, String containerLocalPath)
     {
         try
         {
             ArchiveDestination finalDestination = getFinalArchive();
             File containerInFinalDestination = new File(finalDestination.getDestination(), containerLocalPath);
-            finalDestination.getExecutor().deleteFolder(containerInFinalDestination);
+            cleaner.delete(containerInFinalDestination);
             return Status.OK;
         } catch (ExceptionWithStatus ex)
         {

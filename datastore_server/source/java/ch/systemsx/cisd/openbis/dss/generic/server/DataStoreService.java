@@ -371,7 +371,8 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
                 userId, userEmailOrNull);
     }
 
-    private IMailClient createEMailClient()
+    @Override
+    public IMailClient createEMailClient()
     {
         return new MailClient(mailClientParameters);
     }
