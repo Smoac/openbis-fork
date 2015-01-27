@@ -5,7 +5,7 @@
  *  
  *  @author pkupczyk
  */
-define(["support/stjs", "dto/id/IObjectId"], function (stjs, IObjectId) {
+define(["support/stjs", "sys/exceptions", "dto/id/IObjectId"], function (stjs, exceptions, IObjectId) {
     var ObjectPermId = function(permId) {
         this.setPermId(permId);
     };
@@ -18,7 +18,7 @@ define(["support/stjs", "dto/id/IObjectId"], function (stjs, IObjectId) {
         };
         prototype.setPermId = function(permId) {
             if (permId == null) {
-                 //TODO throw new IllegalArgumentException("PermId cannot be null");
+                 //TODO throw new exceptions.IllegalArgumentException("PermId cannot be null");
             }
             this.permId = permId;
         };

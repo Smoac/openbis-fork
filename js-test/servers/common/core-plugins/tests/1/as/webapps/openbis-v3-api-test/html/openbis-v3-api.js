@@ -96,7 +96,9 @@ define(['jquery', 'support/Utils'], function($, stjsUtil) {
 				}
 			})
 			.done(function(experiments) {
-				require(['dto/entity/experiment/Experiment'], function() {
+				require(['dto/entity/experiment/Experiment', 
+				         'dto/entity/tag/Tag',
+				         'dto/id/tag/TagPermId'], function() {
 					var experimentDTOs = {};
 					for(var experimentPermId  in experiments) {
 						var experimentJson = experiments[experimentPermId];

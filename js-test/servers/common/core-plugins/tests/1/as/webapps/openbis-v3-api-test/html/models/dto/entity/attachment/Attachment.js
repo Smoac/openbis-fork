@@ -1,7 +1,7 @@
 /**
  *  Class automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
  */
-define(["support/stjs"], function (stjs) {
+define(["support/stjs", "sys/exceptions"], function (stjs, exceptions) {
     var Attachment = function() {};
     stjs.extend(Attachment, null, [], function(constructor, prototype) {
         prototype['@type'] = 'Attachment';
@@ -69,7 +69,7 @@ define(["support/stjs"], function (stjs) {
             if (this.getFetchOptions().hasRegistrator()) {
                 return this.registrator;
             } else {
-                 throw new NotFetchedException("Registrator has not been fetched.");
+                 throw new exceptions.NotFetchedException("Registrator has not been fetched.");
             }
         };
         prototype.setRegistrator = function(registrator) {
@@ -79,7 +79,7 @@ define(["support/stjs"], function (stjs) {
             if (this.getFetchOptions().hasPreviousVersion()) {
                 return this.previousVersion;
             } else {
-                 throw new NotFetchedException("Previous version of attachment  has not been fetched.");
+                 throw new exceptions.NotFetchedException("Previous version of attachment  has not been fetched.");
             }
         };
         prototype.setPreviousVersion = function(previousVersion) {
@@ -89,7 +89,7 @@ define(["support/stjs"], function (stjs) {
             if (this.getFetchOptions().hasContent()) {
                 return this.content;
             } else {
-                 throw new NotFetchedException("Content has not been fetched.");
+                 throw new exceptions.NotFetchedException("Content has not been fetched.");
             }
         };
         prototype.setContent = function(content) {

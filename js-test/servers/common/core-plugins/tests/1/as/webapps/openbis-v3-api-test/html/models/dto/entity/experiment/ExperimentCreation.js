@@ -1,7 +1,7 @@
 /**
  *  @author pkupczyk
  */
-define(["support/stjs"], function (stjs) {
+define(["support/stjs", "sys/hashmap"], function (stjs, HashMap) {
     var ExperimentCreation = function() {};
     stjs.extend(ExperimentCreation, null, [], function(constructor, prototype) {
         prototype['@type'] = 'ExperimentCreation';

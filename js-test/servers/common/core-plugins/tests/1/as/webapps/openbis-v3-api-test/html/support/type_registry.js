@@ -1,4 +1,4 @@
-define([], function() {
+define(["sys/exceptions"], function(exceptions) {
 	var store = {};
 	return {
 		register: function(name, type) {
@@ -8,7 +8,7 @@ define([], function() {
 		
 		get: function(name) {
 			if (!store.hasOwnProperty(name)) {
-				throw new IllegalArgumentException("Type [" + name + "] was not registered yet.");
+				throw new exceptions.IllegalArgumentException("Type [" + name + "] was not registered yet.");
 			}
 			return store[name];
 		}

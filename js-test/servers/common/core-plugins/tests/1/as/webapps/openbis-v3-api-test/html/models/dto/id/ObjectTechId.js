@@ -1,7 +1,7 @@
 /**
  *  @author pkupczyk
  */
-define(["support/stjs", "dto/id/IObjectId"], function (stjs, IObjectId) {
+define(["support/stjs", "sys/exceptions", "dto/id/IObjectId"], function (stjs, exceptions, IObjectId) {
     var ObjectTechId = function(techId) {
         this.setTechId(techId);
     };
@@ -14,7 +14,7 @@ define(["support/stjs", "dto/id/IObjectId"], function (stjs, IObjectId) {
         };
         prototype.setTechId = function(techId) {
             if (techId == null) {
-                 throw new IllegalArgumentException("TechId cannot be null");
+                 throw new exceptions.IllegalArgumentException("TechId cannot be null");
             }
             this.techId = techId;
         };

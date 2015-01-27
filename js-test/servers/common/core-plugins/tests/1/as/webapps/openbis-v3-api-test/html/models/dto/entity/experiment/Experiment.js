@@ -1,7 +1,7 @@
 /**
  *  Class automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
  */
-define(["support/stjs"], function (stjs) {
+define(["support/stjs", "sys/exceptions"], function (stjs, exceptions) {
     var Experiment = function() {};
     stjs.extend(Experiment, null, [], function(constructor, prototype) {
         prototype['@type'] = 'Experiment';
@@ -59,7 +59,7 @@ define(["support/stjs"], function (stjs) {
             if (this.getFetchOptions().hasType()) {
                 return this.type;
             } else {
-                 throw new NotFetchedException("Experiment type has not been fetched.");
+                 throw new exceptions.NotFetchedException("Experiment type has not been fetched.");
             }
         };
         prototype.setType = function(type) {
@@ -69,7 +69,7 @@ define(["support/stjs"], function (stjs) {
             if (this.getFetchOptions().hasProject()) {
                 return this.project;
             } else {
-                 throw new NotFetchedException("Project has not been fetched.");
+                 throw new exceptions.NotFetchedException("Project has not been fetched.");
             }
         };
         prototype.setProject = function(project) {
@@ -79,7 +79,7 @@ define(["support/stjs"], function (stjs) {
             if (this.getFetchOptions().hasProperties()) {
                 return this.properties;
             } else {
-                 throw new NotFetchedException("Properties has not been fetched.");
+                 throw new exceptions.NotFetchedException("Properties has not been fetched.");
             }
         };
         prototype.setProperties = function(properties) {
@@ -89,7 +89,7 @@ define(["support/stjs"], function (stjs) {
             if (this.getFetchOptions().hasTags()) {
                 return this.tags;
             } else {
-                 throw new NotFetchedException("Tags has not been fetched.");
+                 throw new exceptions.NotFetchedException("Tags has not been fetched.");
             }
         };
         prototype.setTags = function(tags) {
@@ -99,7 +99,7 @@ define(["support/stjs"], function (stjs) {
             if (this.getFetchOptions().hasRegistrator()) {
                 return this.registrator;
             } else {
-                 throw new NotFetchedException("Registrator has not been fetched.");
+                 throw new exceptions.NotFetchedException("Registrator has not been fetched.");
             }
         };
         prototype.setRegistrator = function(registrator) {
@@ -109,7 +109,7 @@ define(["support/stjs"], function (stjs) {
             if (this.getFetchOptions().hasModifier()) {
                 return this.modifier;
             } else {
-                 throw new NotFetchedException("Modifier has not been fetched.");
+                 throw new exceptions.NotFetchedException("Modifier has not been fetched.");
             }
         };
         prototype.setModifier = function(modifier) {
@@ -119,7 +119,7 @@ define(["support/stjs"], function (stjs) {
             if (this.getFetchOptions().hasAttachments()) {
                 return this.attachments;
             } else {
-                 throw new NotFetchedException("Attachments has not been fetched.");
+                 throw new exceptions.NotFetchedException("Attachments has not been fetched.");
             }
         };
         prototype.setAttachments = function(attachments) {

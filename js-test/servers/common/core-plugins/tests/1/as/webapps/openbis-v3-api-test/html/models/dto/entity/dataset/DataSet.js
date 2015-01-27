@@ -1,7 +1,7 @@
 /**
  *  Class automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
  */
-define(["support/stjs"], function (stjs) {
+define(["support/stjs", "sys/exceptions"], function (stjs, exceptions) {
     var DataSet = function() {};
     stjs.extend(DataSet, null, [], function(constructor, prototype) {
         prototype['@type'] = 'DataSet';
@@ -65,7 +65,7 @@ define(["support/stjs"], function (stjs) {
             if (this.getFetchOptions().hasParents()) {
                 return this.parents;
             } else {
-                 throw new NotFetchedException("Parents has not been fetched.");
+                 throw new exceptions.NotFetchedException("Parents has not been fetched.");
             }
         };
         prototype.setParents = function(parents) {
@@ -75,7 +75,7 @@ define(["support/stjs"], function (stjs) {
             if (this.getFetchOptions().hasChildren()) {
                 return this.children;
             } else {
-                 throw new NotFetchedException("Children has not been fetched.");
+                 throw new exceptions.NotFetchedException("Children has not been fetched.");
             }
         };
         prototype.setChildren = function(children) {
@@ -85,7 +85,7 @@ define(["support/stjs"], function (stjs) {
             if (this.getFetchOptions().hasContainers()) {
                 return this.containers;
             } else {
-                 throw new NotFetchedException("Container data sets has not been fetched.");
+                 throw new exceptions.NotFetchedException("Container data sets has not been fetched.");
             }
         };
         prototype.setContainers = function(containers) {
@@ -95,7 +95,7 @@ define(["support/stjs"], function (stjs) {
             if (this.getFetchOptions().hasContained()) {
                 return this.contained;
             } else {
-                 throw new NotFetchedException("Contained data sets has not been fetched.");
+                 throw new exceptions.NotFetchedException("Contained data sets has not been fetched.");
             }
         };
         prototype.setContained = function(contained) {
@@ -105,7 +105,7 @@ define(["support/stjs"], function (stjs) {
             if (this.getFetchOptions().hasTags()) {
                 return this.tags;
             } else {
-                 throw new NotFetchedException("Tags has not been fetched.");
+                 throw new exceptions.NotFetchedException("Tags has not been fetched.");
             }
         };
         prototype.setTags = function(tags) {
@@ -115,7 +115,7 @@ define(["support/stjs"], function (stjs) {
             if (this.getFetchOptions().hasType()) {
                 return this.type;
             } else {
-                 throw new NotFetchedException("Data Set type has not been fetched.");
+                 throw new exceptions.NotFetchedException("Data Set type has not been fetched.");
             }
         };
         prototype.setType = function(type) {
@@ -131,7 +131,7 @@ define(["support/stjs"], function (stjs) {
             if (this.getFetchOptions().hasModifier()) {
                 return this.modifier;
             } else {
-                 throw new NotFetchedException("Modifier has not been fetched.");
+                 throw new exceptions.NotFetchedException("Modifier has not been fetched.");
             }
         };
         prototype.setModifier = function(modifier) {
@@ -147,7 +147,7 @@ define(["support/stjs"], function (stjs) {
             if (this.getFetchOptions().hasRegistrator()) {
                 return this.registrator;
             } else {
-                 throw new NotFetchedException("Registrator has not been fetched.");
+                 throw new exceptions.NotFetchedException("Registrator has not been fetched.");
             }
         };
         prototype.setRegistrator = function(registrator) {
@@ -157,7 +157,7 @@ define(["support/stjs"], function (stjs) {
             if (this.getFetchOptions().hasExperiment()) {
                 return this.experiment;
             } else {
-                 throw new NotFetchedException("Experiment has not been fetched.");
+                 throw new exceptions.NotFetchedException("Experiment has not been fetched.");
             }
         };
         prototype.setExperiment = function(experiment) {
@@ -167,7 +167,7 @@ define(["support/stjs"], function (stjs) {
             if (this.getFetchOptions().hasSample()) {
                 return this.sample;
             } else {
-                 throw new NotFetchedException("Sample has not been fetched.");
+                 throw new exceptions.NotFetchedException("Sample has not been fetched.");
             }
         };
         prototype.setSample = function(sample) {
@@ -177,7 +177,7 @@ define(["support/stjs"], function (stjs) {
             if (this.getFetchOptions().hasProperties()) {
                 return this.properties;
             } else {
-                 throw new NotFetchedException("Properties has not been fetched.");
+                 throw new exceptions.NotFetchedException("Properties has not been fetched.");
             }
         };
         prototype.setProperties = function(properties) {

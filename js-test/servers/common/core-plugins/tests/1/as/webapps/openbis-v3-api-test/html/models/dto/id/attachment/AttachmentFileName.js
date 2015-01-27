@@ -3,7 +3,7 @@
  *  
  *  @author pkupczyk
  */
-define(["support/stjs", "dto/id/attachment/IAttachmentId"], function (stjs, IAttachmentId) {
+define(["support/stjs", "sys/exceptions", "dto/id/attachment/IAttachmentId"], function (stjs, exceptions, IAttachmentId) {
     var AttachmentFileName = /**
      *  @param fileName Attachment file name, e.g. "my_file.txt".
      */
@@ -19,7 +19,7 @@ define(["support/stjs", "dto/id/attachment/IAttachmentId"], function (stjs, IAtt
         };
         prototype.setFileName = function(fileName) {
             if (fileName == null) {
-                 throw new IllegalArgumentException("File name cannot be null");
+                 throw new exceptions.IllegalArgumentException("File name cannot be null");
             }
             this.fileName = fileName;
         };

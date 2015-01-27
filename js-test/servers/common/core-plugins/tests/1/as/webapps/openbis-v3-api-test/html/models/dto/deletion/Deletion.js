@@ -1,7 +1,7 @@
 /**
  *  @author pkupczyk
  */
-define(["support/stjs"], function (stjs) {
+define(["support/stjs", "sys/exceptions"], function (stjs, exceptions) {
     var Deletion = function() {};
     stjs.extend(Deletion, null, [], function(constructor, prototype) {
         prototype['@type'] = 'Deletion';
@@ -32,7 +32,7 @@ define(["support/stjs"], function (stjs) {
             if (this.getFetchOptions().hasDeletedObjects()) {
                 return this.deletedObjects;
             } else {
-                 throw new NotFetchedException("Deleted objects have not been fetched.");
+                 throw new exceptions.NotFetchedException("Deleted objects have not been fetched.");
             }
         };
         prototype.setDeletedObjects = function(deletedObjects) {

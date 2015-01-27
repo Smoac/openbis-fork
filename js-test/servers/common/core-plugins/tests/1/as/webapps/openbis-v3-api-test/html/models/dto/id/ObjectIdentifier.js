@@ -5,7 +5,7 @@
  *  
  *  @author pkupczyk
  */
-define(["support/stjs", "dto/id/IObjectId"], function (stjs, IObjectId) {
+define(["support/stjs", "sys/exceptions", "dto/id/IObjectId"], function (stjs, exceptions, IObjectId) {
     var ObjectIdentifier = function(identifier) {
         this.setIdentifier(identifier);
     };
@@ -18,7 +18,7 @@ define(["support/stjs", "dto/id/IObjectId"], function (stjs, IObjectId) {
         };
         prototype.setIdentifier = function(identifier) {
             if (identifier == null) {
-//                 throw new IllegalArgumentException("Identifier id cannot be null");
+//                 throw new exceptions.IllegalArgumentException("Identifier id cannot be null");
             }
             this.identifier = identifier;
         };

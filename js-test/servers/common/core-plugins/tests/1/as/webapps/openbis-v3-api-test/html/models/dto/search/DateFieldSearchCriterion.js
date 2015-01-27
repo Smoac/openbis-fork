@@ -1,4 +1,4 @@
-define(["support/stjs"], function (stjs, AbstractFieldSearchCriterion) {
+define(["support/stjs", "sys/exceptions"], function (stjs, exceptions, AbstractFieldSearchCriterion) {
     var DateFieldSearchCriterion = function(fieldName, fieldType) {
         AbstractFieldSearchCriterion.call(this, fieldName, fieldType);
     };
@@ -53,7 +53,7 @@ define(["support/stjs"], function (stjs, AbstractFieldSearchCriterion) {
                         return;
                     }catch (e) {}
                 }
-                 throw new IllegalArgumentException("Date value: " + value + " does not match any of the supported formats: " + DateFieldSearchCriterion.DATE_FORMATS);
+                 throw new exceptions.IllegalArgumentException("Date value: " + value + " does not match any of the supported formats: " + DateFieldSearchCriterion.DATE_FORMATS);
             }
         };
     }, {DATE_FORMATS: {name: "List", arguments: ["IDateFormat"]}, timeZone: "ITimeZone", fieldType: {name: "Enum", arguments: ["SearchFieldType"]}});

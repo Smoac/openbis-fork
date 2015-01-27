@@ -198,9 +198,11 @@ define(['jquery', 'openbis-v3-api'], function($, openbis){
 				})
 			})
 			.done(function(samples) {
-				assertObjectsCount(samples, 1);
+				var keys = Object.keys(samples);
+				assertObjectsCount(keys, 1);
+
+				var sample = samples[keys[0]];
 	
-				var sample = samples[0];
 				equal(sample.code, "PLATE-1", "Sample code");
 				equal(sample.type.code, "PLATE", "Type code");
 				equal(sample.experiment.code, "EXP-1", "Experiment code");

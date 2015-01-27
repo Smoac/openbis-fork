@@ -1,7 +1,7 @@
 /**
  *  Class automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
  */
-define(["support/stjs"], function (stjs) {
+define(["support/stjs", "sys/exceptions"], function (stjs, exceptions) {
     var Person = function() {};
     stjs.extend(Person, null, [], function(constructor, prototype) {
         prototype['@type'] = 'Person';
@@ -61,7 +61,7 @@ define(["support/stjs"], function (stjs) {
             if (this.getFetchOptions().hasSpace()) {
                 return this.space;
             } else {
-                 throw new NotFetchedException("Space has not been fetched.");
+                 throw new exceptions.NotFetchedException("Space has not been fetched.");
             }
         };
         prototype.setSpace = function(space) {
@@ -71,7 +71,7 @@ define(["support/stjs"], function (stjs) {
             if (this.getFetchOptions().hasRegistrator()) {
                 return this.registrator;
             } else {
-                 throw new NotFetchedException("Registrator has not been fetched.");
+                 throw new exceptions.NotFetchedException("Registrator has not been fetched.");
             }
         };
         prototype.setRegistrator = function(registrator) {

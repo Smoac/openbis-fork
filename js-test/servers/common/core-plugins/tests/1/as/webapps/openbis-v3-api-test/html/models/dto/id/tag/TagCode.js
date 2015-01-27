@@ -4,7 +4,7 @@
  *  @author Franz-Josef Elmer
  *  @author Jakub Straszewski
  */
-define(["support/stjs", "dto/id/tag/ITagId"], function (stjs, ITagId) {
+define(["support/stjs", "sys/exceptions", "dto/id/tag/ITagId"], function (stjs, exceptions, ITagId) {
     var TagCode = /**
      *  @param code Tag code, e.g. "MY_TAG".
      */
@@ -20,7 +20,7 @@ define(["support/stjs", "dto/id/tag/ITagId"], function (stjs, ITagId) {
         };
         prototype.setCode = function(code) {
             if (code == null) {
-                 throw new IllegalArgumentException("Code cannot be null");
+                 throw new exceptions.IllegalArgumentException("Code cannot be null");
             }
             this.code = code;
         };

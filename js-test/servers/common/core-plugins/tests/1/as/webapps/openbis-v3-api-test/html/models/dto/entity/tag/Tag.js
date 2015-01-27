@@ -1,7 +1,7 @@
 /**
  *  Class automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
  */
-define(["support/stjs"], function (stjs) {
+define(["support/stjs", "sys/exceptions"], function (stjs, exceptions) {
     var Tag = function() {};
     stjs.extend(Tag, null, [], function(constructor, prototype) {
         prototype['@type'] = 'Tag';
@@ -53,7 +53,7 @@ define(["support/stjs"], function (stjs) {
             if (this.getFetchOptions().hasOwner()) {
                 return this.owner;
             } else {
-                 throw new NotFetchedException("Owner has not been fetched.");
+                 throw new exceptions.NotFetchedException("Owner has not been fetched.");
             }
         };
         prototype.setOwner = function(owner) {
