@@ -381,6 +381,8 @@ class ChannelChooser
             objectsChooserContainer.add(new HTML(OVERLAYS_MSG));
         }
 
+        List<CheckBoxGroupWithModel<ImageDatasetChannel>> checkboxGroups = new LinkedList<CheckBoxGroupWithModel<ImageDatasetChannel>>();
+
         for (List<DatasetOverlayImagesReference> group : groups)
         {
             LayoutContainer container;
@@ -398,10 +400,9 @@ class ChannelChooser
                 container = new SectionFieldSet(analysisProcedure);
             }
 
-            List<CheckBoxGroupWithModel<ImageDatasetChannel>> checkboxes = new ArrayList<CheckBoxGroupWithModel<ImageDatasetChannel>>();
             for (DatasetOverlayImagesReference dataSet : group)
             {
-                container.add(createOverlayChannelsChooserForOneDataSet(dataSet, overlayDatasets.size() != 1, checkboxes));
+                container.add(createOverlayChannelsChooserForOneDataSet(dataSet, overlayDatasets.size() != 1, checkboxGroups));
             }
 
             if (container != objectsChooserContainer)
