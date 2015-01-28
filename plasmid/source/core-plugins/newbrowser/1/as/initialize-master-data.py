@@ -405,7 +405,7 @@ createVocabularyWithTerms("EXPERIMENTAL_READOUT", "Experimental readout used",
 										["FLOW_CYTOMETRY", "flow citometry", None],
 										["SORTING", "cell sorting", None],
 										["GROWTH", "growth", None],
-										["WESTERN_BLOTTING", "western blottong", None],
+										["WESTERN_BLOTTING", "western blotting", None],
 										["RT_QPCR", "RT-qPCR", None]
 									]);
 
@@ -592,7 +592,7 @@ createSampleTypeWithProperties("PLASMID", "", [
 	["OWNER_NUMBER", 					"General",				"Owner number",						DataType.MULTILINE_VARCHAR,		None,								"Owner number", None],
 	["BACKBONE", 						"Details",				"Backbone",							DataType.CONTROLLEDVOCABULARY,	"BACKBONE",							"Backbone of the plasmid", None],
 	["BACTERIAL_ANTIBIOTIC_RESISTANCE", "Details",				"Bacterial Antibiotic Resistance",	DataType.CONTROLLEDVOCABULARY,	"BACTERIAL_ANTIBIOTIC_RESISTANCE",	"Bacterial antibiotic resistance", None],
-	["MARKER", 							"Details",				"Marke",							DataType.CONTROLLEDVOCABULARY,	"MARKER",							"Marker to select the strain/cell line after transformation/transfection", None],
+	["MARKER", 							"Details",				"Marker",							DataType.CONTROLLEDVOCABULARY,	"MARKER",							"Marker to select the strain/cell line after transformation/transfection", None],
 	["OTHER_MARKER", 					"Details",				"Other Marker",						DataType.VARCHAR,				None,								"Other marker useful for selection", None],
 	["FLANKING_RESTRICTION_ENZYMES", 	"Details",				"Flanking Restriction Enzymes",		DataType.VARCHAR,				None,								"Restriction enzymes sites flanking the insert of the plasmid", None],
 	["OLIGOS_TEMPLATE", 				"Details",				"Oligos and template",				DataType.MULTILINE_VARCHAR,		None,								"Oligos and template used to clone the single parts of the plasmid", None],
