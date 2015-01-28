@@ -547,7 +547,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
             });
     }
 
-    @AfterMethod(alwaysRun = true)
+    @AfterMethod
     public void checkMockExpectations(ITestResult result)
     {
         ServiceProviderTestWrapper.restoreApplicationContext();
