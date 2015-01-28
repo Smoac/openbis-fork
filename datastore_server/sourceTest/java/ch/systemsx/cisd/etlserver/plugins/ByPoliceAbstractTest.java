@@ -93,7 +93,7 @@ public abstract class ByPoliceAbstractTest extends AbstractAutoArchiverPolicyTes
             });
     }
 
-    @AfterMethod(alwaysRun = true)
+    @AfterMethod
     public void checkMockExpectations(ITestResult result)
     {
         ServiceProviderTestWrapper.restoreApplicationContext();

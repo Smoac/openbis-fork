@@ -64,7 +64,7 @@ public class ServiceProviderTestWrapper
         mockApplicationContext = applicationContext;
         ServiceProvider.setBeanFactory(applicationContext);
     }
-
+    
     /**
      * restore the replaced application context back, so that it will be available for other tests
      * in the same suite.
@@ -72,6 +72,11 @@ public class ServiceProviderTestWrapper
     @SuppressWarnings("deprecation")
     public static void restoreApplicationContext()
     {
+        if (cachedApplicationContext == null)
+        {
+            throw new IllegalStateException("Undefined cached application context. "
+                    + "Most likely reason: Missing invocation of ServiceProviderTestWrapper.setApplicationContext().");
+        }
         ServiceProvider.setBeanFactory(cachedApplicationContext);
         cachedApplicationContext = null;
         mockApplicationContext = null;

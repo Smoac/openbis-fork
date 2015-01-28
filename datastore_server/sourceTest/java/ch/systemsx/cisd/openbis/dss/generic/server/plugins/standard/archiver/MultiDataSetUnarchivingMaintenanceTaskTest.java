@@ -179,7 +179,6 @@ public class MultiDataSetUnarchivingMaintenanceTaskTest extends AssertJUnit
     @AfterMethod
     public void checkMockExpectations(ITestResult result)
     {
-        ServiceProviderTestWrapper.restoreApplicationContext();
         if (result.getStatus() == ITestResult.FAILURE)
         {
             String logContent = logRecorder.getLogContent();
