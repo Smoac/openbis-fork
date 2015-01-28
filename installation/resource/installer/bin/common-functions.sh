@@ -82,7 +82,7 @@ exe_psql()
 exe_pg_dump()
 {
   executable="$POSTGRES_BIN/pg_dump"
-  if [ -x "$executable" ]; then
+  if [ ! -x "$executable" ]; then
     executable=pg_dump
   fi
   execute "$executable" "$@"
@@ -96,6 +96,7 @@ execute()
     export $1
     shift
   fi
+  echo "$executable" "$@"
   "$executable" "$@"
   unset PGPASSWORD
 }
