@@ -27,7 +27,7 @@ def handle(req, resp):
     configuration.withMaxListIdentifiers(100);
     configuration.withMaxListRecords(100);
     configuration.withAdminEmail("test@test");
-    configuration.withBaseUrl("http://localhost");
+    configuration.withBaseUrl(getServerUrl());
     configuration.withDeleteMethod(DeletedRecord.NO);
     configuration.withEarliestDate(Date(0));
     configuration.withRepositoryName("TEST");

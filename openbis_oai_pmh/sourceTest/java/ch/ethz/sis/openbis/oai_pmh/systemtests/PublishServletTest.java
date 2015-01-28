@@ -42,6 +42,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.ProjectIdentifie
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.http.HttpTest;
 import ch.systemsx.cisd.common.utilities.TestResources;
+import ch.systemsx.cisd.openbis.generic.shared.util.TestInstanceHostUtils;
 
 /**
  * @author pkupczyk
@@ -161,6 +162,8 @@ public class PublishServletTest extends OAIPMHSystemTest
 
     private String getFilledTemplate(String templateFileName, Map<String, Object> values)
     {
+        values.put("SERVER_URL", TestInstanceHostUtils.getOpenBISUrl());
+
         try
         {
             File templateFile = resources.getResourceFile(templateFileName);
