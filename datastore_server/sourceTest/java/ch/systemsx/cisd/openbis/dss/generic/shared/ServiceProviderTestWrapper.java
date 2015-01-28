@@ -74,8 +74,7 @@ public class ServiceProviderTestWrapper
     {
         if (cachedApplicationContext == null)
         {
-            throw new IllegalStateException("Undefined cached application context. "
-                    + "Most likely reason: Missing invocation of ServiceProviderTestWrapper.setApplicationContext().");
+            return;
         }
         ServiceProvider.setBeanFactory(cachedApplicationContext);
         cachedApplicationContext = null;
