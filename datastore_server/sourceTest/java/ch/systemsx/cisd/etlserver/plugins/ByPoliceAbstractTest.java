@@ -60,8 +60,7 @@ public abstract class ByPoliceAbstractTest extends AbstractAutoArchiverPolicyTes
         pathProviderMock = ServiceProviderTestWrapper.mock(context, IDataSetPathInfoProvider.class);
         singleDsProviderMock = ServiceProviderTestWrapper.mock(context, ISingleDataSetPathInfoProvider.class);
 
-        ServiceProviderTestWrapper.addMock(context, IDataSetPathInfoProvider.class,
-                pathProviderMock);
+        ServiceProviderTestWrapper.addMock(context, IDataSetPathInfoProvider.class, pathProviderMock);
 
     }
 
@@ -94,11 +93,11 @@ public abstract class ByPoliceAbstractTest extends AbstractAutoArchiverPolicyTes
             });
     }
 
-    @AfterMethod
+    @AfterMethod(alwaysRun = true)
     public void checkMockExpectations(ITestResult result)
     {
-        context.assertIsSatisfied();
         ServiceProviderTestWrapper.restoreApplicationContext();
+        context.assertIsSatisfied();
     }
 
 

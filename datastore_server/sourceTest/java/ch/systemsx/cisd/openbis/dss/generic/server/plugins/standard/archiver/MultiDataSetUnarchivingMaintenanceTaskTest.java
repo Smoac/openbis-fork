@@ -176,9 +176,10 @@ public class MultiDataSetUnarchivingMaintenanceTaskTest extends AssertJUnit
             });
     }
 
-    @AfterMethod
+    @AfterMethod(alwaysRun = true)
     public void checkMockExpectations(ITestResult result)
     {
+        ServiceProviderTestWrapper.restoreApplicationContext();
         if (result.getStatus() == ITestResult.FAILURE)
         {
             String logContent = logRecorder.getLogContent();
@@ -188,8 +189,6 @@ public class MultiDataSetUnarchivingMaintenanceTaskTest extends AssertJUnit
         // To following line of code should also be called at the end of each test method.
         // Otherwise one does not known which test failed.
         context.assertIsSatisfied();
-
-        ServiceProviderTestWrapper.restoreApplicationContext();
     }
 
     @Test

@@ -103,6 +103,7 @@ public class MultiDataSetArchiveCleanerTest extends AbstractFileSystemTestCase
     @AfterMethod
     public void checkMockExpectations(ITestResult result)
     {
+        ServiceProviderTestWrapper.restoreApplicationContext();
         if (result.getStatus() == ITestResult.FAILURE)
         {
             fail(result.getName() + " failed. Log content:\n" + logRecorder.getLogContent());
@@ -111,8 +112,6 @@ public class MultiDataSetArchiveCleanerTest extends AbstractFileSystemTestCase
         // To following line of code should also be called at the end of each test method.
         // Otherwise one does not known which test failed.
         context.assertIsSatisfied();
-
-        ServiceProviderTestWrapper.restoreApplicationContext();
     }
 
     @Test

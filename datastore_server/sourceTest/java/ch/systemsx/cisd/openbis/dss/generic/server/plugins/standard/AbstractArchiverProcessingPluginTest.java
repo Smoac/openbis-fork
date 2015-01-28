@@ -341,9 +341,9 @@ public class AbstractArchiverProcessingPluginTest extends AbstractFileSystemTest
     @AfterMethod
     public void afterMethod()
     {
+        ServiceProviderTestWrapper.restoreApplicationContext();
         logRecorder.reset();
         context.assertIsSatisfied();
-        ServiceProviderTestWrapper.restoreApplicationContext();
     }
 
     @Test
