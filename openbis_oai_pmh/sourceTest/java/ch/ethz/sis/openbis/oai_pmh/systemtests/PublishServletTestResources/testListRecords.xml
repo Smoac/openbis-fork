@@ -1,0 +1,31 @@
+<OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
+	<responseDate>{{RESPONSE_DATE}}</responseDate>
+	<request verb="ListRecords" metadataPrefix="oai_dc">http://localhost</request>
+	<ListRecords>
+		{{#RECORDS}}
+		<record>
+			<header>
+				<identifier>{{IDENTIFIER}}</identifier>
+				<datestamp>{{DATESTAMP}}</datestamp>
+			</header>
+			<metadata>
+				<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+					xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+					xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+					<dc:identifier>Some publication Id</dc:identifier>
+					<dc:title>Some publication Title</dc:title>
+					<dc:creator>Some author</dc:creator>
+					<creator_email>some@authoremail.com</creator_email>
+					<dc:description>Some notes</dc:description>
+					<dc:rights>NONE</dc:rights>
+					<dc:subject>Viruses;B04</dc:subject>
+					<dc:source>
+						http://localhost:8888/openbis/?viewMode=SIMPLE#entity=EXPERIMENT&amp;permId={{IDENTIFIER}}
+					</dc:source>
+				</oai_dc:dc>
+			</metadata>
+		</record>
+		{{/RECORDS}}
+	</ListRecords>
+</OAI-PMH>

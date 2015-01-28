@@ -14,7 +14,8 @@ dependencies {
             project(':openbis_api'),
             project(':openbis'),
             project(':datastore_server'),
-            'xhaus:jyson:+'
+            'xhaus:jyson:+',
+            'xmlunit:xmlunit:+'
 
     testCompile project(path: ':datastore_server', configuration: 'tests')
     

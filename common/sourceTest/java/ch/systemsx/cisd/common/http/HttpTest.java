@@ -18,6 +18,8 @@ package ch.systemsx.cisd.common.http;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
@@ -102,6 +104,20 @@ public class HttpTest
     public static String evaluateToString(Document document, String xpath)
     {
         return (String) evaluate(document, xpath, XPathConstants.STRING);
+    }
+
+    public static List<String> evaluateToStrings(Document document, String xpath)
+    {
+        NodeList nodes = evaluateToNodeList(document, xpath);
+        List<String> values = new ArrayList<String>();
+
+        for (int i = 0; i < nodes.getLength(); i++)
+        {
+            String value = nodes.item(i).getFirstChild().getNodeValue();
+            values.add(value);
+        }
+
+        return values;
     }
 
     public static NodeList evaluateToNodeList(Document document, String xpath)
