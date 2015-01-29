@@ -68,7 +68,9 @@ function backupDatabase() {
     return
   fi
 
-  echo "Database description: ${DB_PROPS%*password=*}host=${DB_PROPS#*host=*}"
+  echo -n "Database description: "
+  # do not show password section of database description
+  echo $DB_PROPS|awk -F ';' '{print $1";"$2";"$4}'
   local hostAndPort=$(getProperty $DB_PROPS "host" "localhost")
   local host=${hostAndPort%:*} 
   local port=`if [ "${hostAndPort#*:}" == "$host" ]; then echo 5432; else echo ${hostAndPort#*:}; fi`
