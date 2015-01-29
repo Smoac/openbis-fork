@@ -68,7 +68,7 @@ function backupDatabase() {
     return
   fi
 
-  echo "Database description: $DB_PROPS"
+  echo "Database description: ${DB_PROPS%*password=*}host=${DB_PROPS#*host=*}"
   local hostAndPort=$(getProperty $DB_PROPS "host" "localhost")
   local host=${hostAndPort%:*} 
   local port=`if [ "${hostAndPort#*:}" == "$host" ]; then echo 5432; else echo ${hostAndPort#*:}; fi`
