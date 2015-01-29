@@ -75,7 +75,7 @@ public class GroupingPolicy extends BaseGroupingPolicy
                     throw new ConfigurationFailureException("Invalid grouping key in property '" + GROUPING_KEYS_KEY 
                             + "' because 'merge' is expected after ':': " + groupingKey);
                 }
-                merge = splitted.length < 2 ? false : "merge".equals(splitted[1]);
+                merge = true;
             }
             String[] keyItems = splitted[0].split("#");
             List<IGroupKeyProvider> groupings = new ArrayList<IGroupKeyProvider>();
