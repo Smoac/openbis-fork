@@ -20,7 +20,6 @@ import java.util.Date;
 
 import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.Element;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.CellPanel;
 import com.google.gwt.user.client.ui.DockPanel;
@@ -32,6 +31,7 @@ import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.LoginPanelAutofill;
@@ -74,32 +74,22 @@ final class LoginPage extends com.google.gwt.user.client.ui.VerticalPanel
         
         final HorizontalPanel topPanel = new HorizontalPanel();
         northPanel.add(topPanel);
-        
-        viewContext.getCommonService().getDisabledText(new AsyncCallback<String>() {
-            
-            @Override
-            public void onFailure(Throwable caught)
-            {
-                // TODO Auto-generated method stub
-            }
-
-            @Override
-            public void onSuccess(String result)
-            {
-                if(result != null) {
-                    topPanel.add(new HTML(result +"<br><br><br>"));
-                }
-            }
-            
-        });
-        
-        
         northPanel.add(logo);
         northPanel.add(welcomePanel);
         add(getBannersPage());
         add(northPanel);
-        add(loginPanel);
-        add(footerPanel);
+
+        viewContext.getCommonService().getDisabledText(
+                new AbstractAsyncCallback<String>(viewContext)
+                    {
+                        @Override
+                        protected void process(String noLogintext)
+                        {
+                            add(noLogintext == null ? loginPanel : new HTML(noLogintext));
+                            add(footerPanel);
+                        }
+                    });
+        
         this.setCellVerticalAlignment(footerPanel, HasVerticalAlignment.ALIGN_BOTTOM);
 
     }
