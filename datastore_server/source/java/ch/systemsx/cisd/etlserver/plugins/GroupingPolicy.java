@@ -99,6 +99,10 @@ public class GroupingPolicy extends BaseGroupingPolicy
     protected List<AbstractExternalData> filterDataSetsWithSizes(List<AbstractExternalData> dataSets)
     {
         List<String> log = new ArrayList<String>();
+        log(log, "Search for a group of data sets with total size between " 
+                + FileUtils.byteCountToDisplaySize(minArchiveSize) + " and " 
+                + FileUtils.byteCountToDisplaySize(maxArchiveSize) + ". Data sets: "
+                + CollectionUtils.abbreviate(Code.extractCodes(dataSets), 50));
         for (CombinedGroupKeys combinedGroupKeys : groupKeyProviders)
         {
             List<DatasetListWithTotal> groups = splitIntoGroups(dataSets, combinedGroupKeys);
@@ -165,7 +169,7 @@ public class GroupingPolicy extends BaseGroupingPolicy
         }
         GroupWithAge oldestGroup = sortGroupsByAge(groups).get(0);
         String timestamp = new SimpleDateFormat(BasicConstant.DATE_WITHOUT_TIMEZONE_PATTERN).format(new Date(oldestGroup.age));
-        log(log, "All data sets have been accessed at " + timestamp + " or before.");
+        log(log, "All data sets of the selected group have been accessed at " + timestamp + " or before.");
         return oldestGroup.group.getList();
     }
 
