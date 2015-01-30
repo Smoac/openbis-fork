@@ -19,6 +19,7 @@ import subprocess
 from time import *
 from datetime import *
 from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto import SearchCriteria
+from ch.systemsx.cisd.openbis.dss.generic.shared import DataSourceQueryService
 
 FASTQ_GZ_PATTERN = "*.fastq.gz"
 METADATA_FILE_SUFFIX = "_metadata.tsv"
@@ -85,7 +86,7 @@ def writeMetadataFile(transaction, folder_name, meta_data_file_name, sequencing_
   sequencing_sample_properties_list = sequencing_sample_properties_dict.keys()
   sequencing_sample_properties_list.sort()
 
-  expId = experiment.getIdentifier()
+  expId = experiment.getExperimentIdentifier()
   try:
     meta_data_file = open(meta_data_file_name,'w')
     for propertyType in sequencing_sample_properties_list:
@@ -121,7 +122,7 @@ def writeMetadataFile(transaction, folder_name, meta_data_file_name, sequencing_
   
   destinationFolder = folder_name
   #extraCopy (affiliation_name, meta_data_file_name)
-  extraCopySciCore (affiliation_name, meta_data_file_name, destinationFolder)
+  #extraCopySciCore (affiliation_name, meta_data_file_name, destinationFolder)
 
 def create_openbis_timestamp ():
   '''
@@ -301,110 +302,163 @@ def process(transaction):
 
   incomingPath = transaction.getIncoming().getAbsolutePath()
   name = transaction.getIncoming().getName()
-  print("register-lane-nextseq.py is processing: " + name)
-  sample_code, flowCellId, flowLane, incoming_sample, undetermined =  split_incoming_folder_name (name)
-
-  # get all fastqs
-  fastq_files=getFileNames(incomingPath)
-
-  # BSSE-QGF-22266-H0W8YBGXX-1-654-BC3-TTAGGC_S1_L001_R1_001.fastq.gz
-  # BSSE-QGF-22051-H0T25AGXX-1-1-1-TAAGGCGA-CTCTCTAT_S46_L001_R1_001.fastq.gz
-  first_fastq_file = os.path.basename(fastq_files[0])
-
   # Get the search service
   search_service = transaction.getSearchService()
-
-  flowcell_sample_immutable = searchSample (flowCellId, search_service)
-  fcMetaDataDict = get_sample_properties(transaction, flowcell_sample_immutable[0])
-  foundLane = searchSample (incoming_sample, search_service)
-
-  # there should be only one sample because it is unique within one Flow Cell 
-  if (len(foundLane) > 1):
-    raise Exception("More than one sample found! No unique code: " + incoming_sample)
-  elif (len(foundLane) == 0):
-    raise Exception("No matching sample found for: " + incoming_sample)
-  else :
-    sample = foundLane[0].getSample()
-    parents = sample.getParents()
-
-  # Create a data set and set type
-  dataSet = transaction.createNewDataSet("FASTQ_GZ")
-  dataSet.setMeasuredData(False)
-  dataSet.setPropertyValue(INDEX1, DEFAULT_INDEX)
-  dataSet.setPropertyValue(INDEX2, DEFAULT_INDEX)
-  dirName = transaction.createNewDirectory(dataSet,name)
-
-  if not undetermined:
-    newFastqFiles = fastq_files
-    foundSample = searchSample (sample_code, search_service)
-    sequencing_sample = foundSample[0].getSample()
-    experiment = sequencing_sample.getExperiment()
-    sequencing_sample_code = sequencing_sample.getCode()
-    print("sequencing_sample_code: "+ sequencing_sample_code) 
-
-    sequencing_sample_properties_dict = get_sample_properties (transaction, foundSample[0])
-    
-    if (INDEX1 in sequencing_sample_properties_dict) and (fcMetaDataDict[INDEXREAD1] > 0):
-      #print(sequencing_sample_properties_dict[INDEX1])
-      dataSet.setPropertyValue(INDEX1, sequencing_sample_properties_dict[INDEX1])
-    if (INDEX2 in sequencing_sample_properties_dict) and (fcMetaDataDict[INDEXREAD2] > 0):
-      dataSet.setPropertyValue(INDEX2, sequencing_sample_properties_dict[INDEX2])
-    dataSet.setPropertyValue(EXTERNAL_SAMPLE_NAME, sequencing_sample_properties_dict[EXTERNAL_SAMPLE_NAME])
   
-    if (AFFILIATION_PROPERTY_NAME in sequencing_sample_properties_dict):
-      affiliation_name = sequencing_sample_properties_dict[AFFILIATION_PROPERTY_NAME]
-
-    filepart, suffix = first_fastq_file.split('.',1)
-    meta_data_file_name = filepart.rsplit('_',2)[0] +  METADATA_FILE_SUFFIX
-    # get a file from the IDataSetRegistrationTransaction so it is automatically part of the data set
-    meta_data_file_path = transaction.createNewFile(dataSet, name, meta_data_file_name)
-    writeMetadataFile(transaction, name, meta_data_file_path, sequencing_sample_properties_dict,
-                      fcMetaDataDict, experiment, affiliation_name, fastq_files, flowLane)
-    affiliation_for_Undetermined = affiliation_name
-  
-  # Undetermined Files
-  else:
-    affiliation_name = ""
-    affiliation_for_Undetermined = ""
-    newFastqFiles = []
-    lane_parents = searchParents (search_service, parents)
-    newFastqFiles = renameFiles(fastq_files, undetermined, flowCellId)
-    for parent in lane_parents:
-      sequencing_sample_properties_dict = get_sample_properties (transaction, parent)
-      parent_sample = parent.getSample()
-      sample_code = parent_sample.getCode()
-      experiment = parent_sample.getExperiment()
-      if (AFFILIATION_PROPERTY_NAME in sequencing_sample_properties_dict):
-        affiliation_name = sequencing_sample_properties_dict[AFFILIATION_PROPERTY_NAME]
-     
-        # Special Sample Types without index (e.g. ILLUMINA_SEQUENCING_NEUROSTEMX_SINGLECELL) are caught here.
-        # as those samples do not have a NCBI ORGANISM TAXONOMY    
-        if NCBI_ORGANISM_TAXONOMY not in sequencing_sample_properties_dict:
-            print(sample_code + ": Processing Sample without NCBI ORGANISM TAXONOMY: ILLUMINA_SEQUENCING_NEUROSTEMX_SINGLECELL")
-            meta_data_file_path = transaction.createNewFile(dataSet, name, sample_code + '_' + flowCellId + '_' + first_fastq_file.split('.')[0] + METADATA_FILE_SUFFIX)
-            writeMetadataFile(transaction, name, meta_data_file_path, sequencing_sample_properties_dict,
-                       fcMetaDataDict, experiment, affiliation_name, newFastqFiles, flowLane)
-            affiliation_for_Undetermined = affiliation_name
-        
-        elif (INDEX1 not in sequencing_sample_properties_dict) and (INDEX2 not in sequencing_sample_properties_dict) and \
-              (sequencing_sample_properties_dict[NCBI_ORGANISM_TAXONOMY] != PHIX_TAXONOMY_ID):
-          print('NONINDEXED sample and Taxonomy id is NOT' + PHIX_TAXONOMY_ID +', probably a pool: ' + sample_code)
-          meta_data_file_path = transaction.createNewFile(dataSet, name, sample_code + '_' + flowCellId + '_' + first_fastq_file.split('.')[0] + METADATA_FILE_SUFFIX)
-          writeMetadataFile(transaction, name, meta_data_file_path, sequencing_sample_properties_dict,
-                         fcMetaDataDict, experiment, affiliation_name, newFastqFiles, flowLane)
-          affiliation_for_Undetermined = affiliation_name
-        # PARENTS:
-        else:
-          # Create Parent Meta data
-          print(sample_code + ": Create parent meta data file")
-          meta_data_file_path = transaction.createNewFile(dataSet, name, 'PARENT_' + sample_code + '_' + flowCellId + METADATA_FILE_SUFFIX)
-          writeMetadataFile(transaction, name, meta_data_file_path, sequencing_sample_properties_dict,
-                         fcMetaDataDict, experiment, affiliation_name, [], flowLane)
-          continue
+  def searchSampleInSpace (type, search_service):
       
-  put_files_to_dataset (transaction, dataSet, newFastqFiles, name, flowCellId, affiliation_for_Undetermined, undetermined)
-
-  if foundLane.size() > 0:
-    sa = transaction.getSampleForUpdate(foundLane[0].getSampleIdentifier())
-    sa.setPropertyValue("DATA_TRANSFERRED", create_openbis_timestamp())
-    dataSet.setSample(foundLane[0])
+      spaceCode = "UNI_BASEL_GAGNEUX"
+      sc = SearchCriteria()
+#       print('Searching sample: '+ str(code))
+      sc.addMatchClause(SearchCriteria.MatchClause.createAttributeMatch(SearchCriteria.MatchClauseAttribute.SPACE, spaceCode));
+      sc.addMatchClause(SearchCriteria.MatchClause.createAttributeMatch(SearchCriteria.MatchClauseAttribute.TYPE, type));
+      foundSamples = search_service.searchForSamples(sc)
+      return foundSamples
+  
+  samples = searchSampleInSpace("ILLUMINA_SEQUENCING", search_service)
+  print(samples.size())
+  
+  
+  
+  
+  for sample in samples[0:5]:
+  
+      sequencing_sample_properties_dict = get_sample_properties (transaction, sample)
+      meta_data_file_name =  sequencing_sample_properties_dict["SAMPLE_CODE"] +  METADATA_FILE_SUFFIX
+      
+      sampleName = sequencing_sample_properties_dict["SAMPLE_CODE"]
+      
+      print(meta_data_file_name)
+      print(sequencing_sample_properties_dict)
+      
+      flowCellId = "150109_D00535_0042_AHB2K0ADXX"
+      
+      flowcell_sample_immutable = searchSample (flowCellId, search_service)
+      fcMetaDataDict = get_sample_properties(transaction, flowcell_sample_immutable[0])
+    
+      experiment = sample.getExperiment()
+      affiliation_name = "dummy"
+      flowLane = "1"
+      newFastqFiles = ["/tmp/hello.txt", "/tmp/bio.txt"]
+      
+      meta_data_file_path = '/tmp/metadata_'+ sampleName
+      
+      DATA_SOURCE = "pathinfo_dev"
+      QUERY = """
+      SELECT ds.code as "data_set_code", dsf.*
+      FROM data_sets ds, data_set_files dsf
+      WHERE ds.code = ?{1} AND dsf.dase_id = ds.id
+      """
+      
+      dsqs = DataSourceQueryService()
+     
+      dsqs.select(DATA_SOURCE, QUERY)
+      #results = queryService.select(DATA_SOURCE, QUERY, ['20150108225105804-60446532'])
+      print(results)
+      
+      
+      writeMetadataFile(transaction, sampleName, meta_data_file_path, sequencing_sample_properties_dict,
+                        fcMetaDataDict, experiment, affiliation_name, newFastqFiles, flowLane)
+      
+#   sample_code, flowCellId, flowLane, incoming_sample, undetermined =  split_incoming_folder_name (name)
+# 
+#   # get all fastqs
+#   fastq_files=getFileNames(incomingPath)
+# 
+#   # BSSE-QGF-22266-H0W8YBGXX-1-654-BC3-TTAGGC_S1_L001_R1_001.fastq.gz
+#   # BSSE-QGF-22051-H0T25AGXX-1-1-1-TAAGGCGA-CTCTCTAT_S46_L001_R1_001.fastq.gz
+#   first_fastq_file = os.path.basename(fastq_files[0])
+# 
+#   flowcell_sample_immutable = searchSample (flowCellId, search_service)
+#   fcMetaDataDict = get_sample_properties(transaction, flowcell_sample_immutable[0])
+#   foundLane = searchSample (incoming_sample, search_service)
+# 
+#   # there should be only one sample because it is unique within one Flow Cell 
+#   if (len(foundLane) > 1):
+#     raise Exception("More than one sample found! No unique code: " + incoming_sample)
+#   elif (len(foundLane) == 0):
+#     raise Exception("No matching sample found for: " + incoming_sample)
+#   else :
+#     sample = foundLane[0].getSample()
+#     parents = sample.getParents()
+# 
+#   # Create a data set and set type
+#   dataSet = transaction.createNewDataSet("FASTQ_GZ")
+#   dataSet.setMeasuredData(False)
+#   dataSet.setPropertyValue(INDEX1, DEFAULT_INDEX)
+#   dataSet.setPropertyValue(INDEX2, DEFAULT_INDEX)
+#   dirName = transaction.createNewDirectory(dataSet,name)
+# 
+#   if not undetermined:
+#     newFastqFiles = fastq_files
+#     foundSample = searchSample (sample_code, search_service)
+#     sequencing_sample = foundSample[0].getSample()
+#     experiment = sequencing_sample.getExperiment()
+#     sequencing_sample_code = sequencing_sample.getCode()
+#     print("sequencing_sample_code: "+ sequencing_sample_code) 
+# 
+#     sequencing_sample_properties_dict = get_sample_properties (transaction, foundSample[0])
+#     
+#     if (INDEX1 in sequencing_sample_properties_dict) and (fcMetaDataDict[INDEXREAD1] > 0):
+#       #print(sequencing_sample_properties_dict[INDEX1])
+#       dataSet.setPropertyValue(INDEX1, sequencing_sample_properties_dict[INDEX1])
+#     if (INDEX2 in sequencing_sample_properties_dict) and (fcMetaDataDict[INDEXREAD2] > 0):
+#       dataSet.setPropertyValue(INDEX2, sequencing_sample_properties_dict[INDEX2])
+#     dataSet.setPropertyValue(EXTERNAL_SAMPLE_NAME, sequencing_sample_properties_dict[EXTERNAL_SAMPLE_NAME])
+#   
+#     if (AFFILIATION_PROPERTY_NAME in sequencing_sample_properties_dict):
+#       affiliation_name = sequencing_sample_properties_dict[AFFILIATION_PROPERTY_NAME]
+# 
+#     filepart, suffix = first_fastq_file.split('.',1)
+#     meta_data_file_name = filepart.rsplit('_',2)[0] +  METADATA_FILE_SUFFIX
+#     # get a file from the IDataSetRegistrationTransaction so it is automatically part of the data set
+#     meta_data_file_path = transaction.createNewFile(dataSet, name, meta_data_file_name)
+#     writeMetadataFile(transaction, name, meta_data_file_path, sequencing_sample_properties_dict,
+#                       fcMetaDataDict, experiment, affiliation_name, fastq_files, flowLane)
+#   
+#   # Undetermined Files
+#   else:
+#     affiliation_name = ""
+#     affiliation_for_Undetermined = ""
+#     newFastqFiles = []
+#     lane_parents = searchParents (search_service, parents)
+#     newFastqFiles = renameFiles(fastq_files, undetermined, flowCellId)
+#     for parent in lane_parents:
+#       sequencing_sample_properties_dict = get_sample_properties (transaction, parent)
+#       parent_sample = parent.getSample()
+#       sample_code = parent_sample.getCode()
+#       experiment = parent_sample.getExperiment()
+#       if (AFFILIATION_PROPERTY_NAME in sequencing_sample_properties_dict):
+#         affiliation_name = sequencing_sample_properties_dict[AFFILIATION_PROPERTY_NAME]
+#      
+#         # Special Sample Types without index (e.g. ILLUMINA_SEQUENCING_NEUROSTEMX_SINGLECELL) are caught here.
+#         # as those samples do not have a NCBI ORGANISM TAXONOMY    
+#         if NCBI_ORGANISM_TAXONOMY not in sequencing_sample_properties_dict:
+#             print(sample_code + ": Processing Sample without NCBI ORGANISM TAXONOMY: ILLUMINA_SEQUENCING_NEUROSTEMX_SINGLECELL")
+#             meta_data_file_path = transaction.createNewFile(dataSet, name, sample_code + '_' + flowCellId + '_' + first_fastq_file.split('.')[0] + METADATA_FILE_SUFFIX)
+#             writeMetadataFile(transaction, name, meta_data_file_path, sequencing_sample_properties_dict,
+#                        fcMetaDataDict, experiment, affiliation_name, newFastqFiles, flowLane)
+#             affiliation_for_Undetermined = affiliation_name
+#         
+#         elif (INDEX1 not in sequencing_sample_properties_dict) and (INDEX2 not in sequencing_sample_properties_dict) and \
+#               (sequencing_sample_properties_dict[NCBI_ORGANISM_TAXONOMY] != PHIX_TAXONOMY_ID):
+#           print('NONINDEXED sample and Taxonomy id is NOT' + PHIX_TAXONOMY_ID +', probably a pool: ' + sample_code)
+#           meta_data_file_path = transaction.createNewFile(dataSet, name, sample_code + '_' + flowCellId + '_' + first_fastq_file.split('.')[0] + METADATA_FILE_SUFFIX)
+#           writeMetadataFile(transaction, name, meta_data_file_path, sequencing_sample_properties_dict,
+#                          fcMetaDataDict, experiment, affiliation_name, newFastqFiles, flowLane)
+#           affiliation_for_Undetermined = affiliation_name
+#         # PARENTS:
+#         else:
+#           # Create Parent Meta data
+#           print(sample_code + ": Create parent meta data file")
+#           meta_data_file_path = transaction.createNewFile(dataSet, name, 'PARENT_' + sample_code + '_' + flowCellId + METADATA_FILE_SUFFIX)
+#           writeMetadataFile(transaction, name, meta_data_file_path, sequencing_sample_properties_dict,
+#                          fcMetaDataDict, experiment, affiliation_name, [], flowLane)
+#           continue
+#       
+#   put_files_to_dataset (transaction, dataSet, newFastqFiles, name, flowCellId, affiliation_for_Undetermined, undetermined)
+# 
+#   if foundLane.size() > 0:
+#     sa = transaction.getSampleForUpdate(foundLane[0].getSampleIdentifier())
+#     sa.setPropertyValue("DATA_TRANSFERRED", create_openbis_timestamp())
+#     dataSet.setSample(foundLane[0])

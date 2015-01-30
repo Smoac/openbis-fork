@@ -25,8 +25,8 @@ AFFILIATION_PROPERTY_NAME='AFFILIATION'
 INDEX1='BARCODE'
 INDEX2='INDEX2'
 EXTERNAL_SAMPLE_NAME='EXTERNAL_SAMPLE_NAME'
+
 DEFAULT_INDEX='NoIndex'
-CRC32_PATH='lib/crc32'
 
 # -------------------------------------------------------------------------------
 

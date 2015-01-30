@@ -499,7 +499,16 @@ def process(transaction):
         else:
           searchIndex1 = [ index1 for index1 in index1List if searchIndex1 in index1[:-1]]
         try:
-          searchIndex1 = searchIndex1[0]
+          if len(searchIndex1) > 1:
+            print("AMBIGIOUS INDEX FOUND!")
+            print(searchIndex1)
+            if searchIndex1[0].startswith(mystat.index1.upper()):
+              searchIndex1 = searchIndex1[0]
+            else:
+              searchIndex1 = searchIndex1[1]
+          else:
+            searchIndex1 = searchIndex1[0]
+
         except:
           searchIndex1 = 'MISSING'
       else:
