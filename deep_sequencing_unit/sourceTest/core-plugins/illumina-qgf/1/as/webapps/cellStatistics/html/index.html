@@ -135,6 +135,29 @@ function plotLaneTable (sumArray, withNOINDEX) {
               ;
 
   // create rows
+  console.log("Sumarray")
+  console.log(sumArray)
+  //sumArray.splice(1,3)
+
+
+  // litte hack which removes three lanes of the FC view, as the NextSeq has four lanes
+  // as specified by Illumina, but logically it is only one lane
+  // So if the FC has four lanes we assume it is a NextSeq run and therefore we remove the last three
+  // lanes via the splice method
+  if (sumArray.length == 4) {
+      sumArray.splice(1,3)
+  }
+
+  /*
+  for (i=0; i< sumArray.length; i++) {
+      console.log(sumArray[i].numberOfSamples)
+      if (sumArray[i].numberOfSamples == 0) {
+         console.log("NO samples in "+ i) 
+         sumArray.splice(i,1)
+      }
+  }
+  */
+
   var tr = laneTableStats.selectAll("tr")
            .data(sumArray).enter().append("tr")
   // cells

@@ -114,11 +114,19 @@ function loadData () {
                               
                               dataSetMap[dataSet.code] = dataSet
 
+                              // console.log("DATA Set:")
+                              // console.log(index1)
+                              console.log(index2)
+
                               parents.forEach(function(parent){
                                  var parentIndex1 = parent.properties['BARCODE'];
                                  var parentIndex2 = parent.properties['INDEX2'];
 
-                                 if(index1 == parentIndex1 && (!index2 || !parentIndex2 || index2 == parentIndex2)){
+                                 // console.log("PARENT SAMPLE:")
+                                 // console.log(parentIndex1)
+                                 // console.log(parentIndex2)
+
+                                 if(index1 == parentIndex1 && (!index2 || !parentIndex2 || index2 == parentIndex2 || index2 == "NOINDEX")){
                                      dataSetToParentMap[dataSet.code] = parent;
                                      if (!(parent.code in parentToDataSets)) {
                                          parentToDataSets[parent.code] = [dataSet]
@@ -133,6 +141,11 @@ function loadData () {
                                  	dataSetToParentMap[dataSet.code] = parent;
                                  	parentToDataSets[parent.code] = [dataSet]
 								 }
+								 if (parentIndex2 == undefined) {
+
+								 }
+
+
                               });
                         });
                         // console.log("SampleToParentsMap: ");
@@ -155,7 +168,7 @@ function loadData () {
                           	});
                           realValueMap[key] = [cumSumYieldMbases, cumSumPfReadsSum]
 						});
-                        // console.log(realValueMap)
+                        console.log(realValueMap)
 
 
 						statisticsArray = [];
@@ -170,6 +183,9 @@ function loadData () {
 						    dsu.retrieveSampleParents(webAppContext.getEntityPermId(), getParentProperties);
 
 						    function getParentProperties (sampleProperties) {
+						    	
+						    	// d3.select("body").append("text").text("Loading...") 
+
 						    	for (var i = 0; i < sampleProperties.result.length; i++) {
 						        	targetedArray.push ({
 						                           'targeted_yield_in_gigabases_pf' : sampleProperties.result[i].properties.TARGETED_YIELD_IN_GIGABASES_PF,
@@ -178,29 +194,33 @@ function loadData () {
 						                           'parentSampleCode' : sampleProperties.result[i].code
 						        	});
         						}
-		    					console.log("targetedArray:");
-		    					console.log(targetedArray);
-		    					console.log(dataSetProperties)
-		    					console.log("realValueMap:")
-		    					console.log(realValueMap)
+		    					// console.log("targetedArray:");
+		    					// console.log(targetedArray);
+		    					// console.log(dataSetProperties)
+		    					// console.log("realValueMap:")
+		    					// console.log(realValueMap)
     
 	    						for (var i = 0; i < dataSetProperties.result.length; i++) {
 	      							for (var j = 0; j < targetedArray.length; j++) {
 	        							if (targetedArray[j]['externalSampleName'] == dataSetProperties.result[i].properties.EXTERNAL_SAMPLE_NAME){
 
+	        								console.log(targetedArray[j]['externalSampleName'])
+
+	        								console.log(realValueMap)
+	        								console.log(targetedArray[j])
 	          								statisticsArray.push({
 					                            'qgfName' : targetedArray[j]['parentSampleCode'],
    					                            'externalSampleName' : dataSetProperties.result[i].properties.EXTERNAL_SAMPLE_NAME,
 					                            'index1': dataSetProperties.result[i].properties.BARCODE,
 					                            'index2': dataSetProperties.result[i].properties.INDEX2,
-					                            'percFilteringPass' : parseFloat(dataSetProperties.result[i].properties.PERCENTAGE_PASSED_FILTERING),
+					                            'percFilteringPass' : parseFloat(dataSetProperties.result[i].properties.PERCENTAGE_PASSED_FILTERING).toFixed(2),
 					                            'rawReadsSum' : dataSetProperties.result[i].properties.RAW_READS_SUM,
 					                            'pfReadsSum' : dataSetProperties.result[i].properties.PF_READS_SUM,
 					                            'rawYieldMbases' : dataSetProperties.result[i].properties.RAW_YIELD_MBASES,
 					                            'yieldMbases' : dataSetProperties.result[i].properties.YIELD_MBASES,
-					                            'percRawClustersPerLane': parseFloat(dataSetProperties.result[i].properties.PERCENTAGE_RAW_CLUSTERS_PER_LANE),
-					                            'pfMeanQualityScore' : parseFloat(dataSetProperties.result[i].properties.PFMEANQUALITYSCORE),
-					                            'pfYieldq30Percentage' : parseFloat(dataSetProperties.result[i].properties.PFYIELDQ30PERCENTAGE),
+					                            'percRawClustersPerLane': parseFloat(dataSetProperties.result[i].properties.PERCENTAGE_RAW_CLUSTERS_PER_LANE).toFixed(2),
+					                            'pfMeanQualityScore' : parseFloat(dataSetProperties.result[i].properties.PFMEANQUALITYSCORE).toFixed(2),
+					                            'pfYieldq30Percentage' : parseFloat(dataSetProperties.result[i].properties.PFYIELDQ30PERCENTAGE).toFixed(2),
 					                            'real_yield_in_gigabases_pf' : realValueMap[targetedArray[j]['parentSampleCode']][0],
 					                            'real_read_count_in_million_pf' : realValueMap[targetedArray[j]['parentSampleCode']][1],
 					                            'targeted_yield_in_gigabases_pf' : parseFloat(targetedArray[j]['targeted_yield_in_gigabases_pf']),
@@ -214,14 +234,14 @@ function loadData () {
 					                            'externalSampleName' : "NOINDEX",
 					                            'index1': dataSetProperties.result[i].properties.BARCODE,
 					                            'index2': dataSetProperties.result[i].properties.INDEX2,
-					                            'percFilteringPass' : parseFloat(dataSetProperties.result[i].properties.PERCENTAGE_PASSED_FILTERING),
+					                            'percFilteringPass' : parseFloat(dataSetProperties.result[i].properties.PERCENTAGE_PASSED_FILTERING).toFixed(2),
 					                            'rawReadsSum' : dataSetProperties.result[i].properties.RAW_READS_SUM,
 					                            'pfReadsSum' : dataSetProperties.result[i].properties.PF_READS_SUM,
 					                            'rawYieldMbases' : dataSetProperties.result[i].properties.RAW_YIELD_MBASES,
 					                            'yieldMbases' : dataSetProperties.result[i].properties.YIELD_MBASES,
-					                            'percRawClustersPerLane': parseFloat(dataSetProperties.result[i].properties.PERCENTAGE_RAW_CLUSTERS_PER_LANE),
-					                            'pfMeanQualityScore' : parseFloat(dataSetProperties.result[i].properties.PFMEANQUALITYSCORE),
-					                            'pfYieldq30Percentage' : parseFloat(dataSetProperties.result[i].properties.PFYIELDQ30PERCENTAGE),
+					                            'percRawClustersPerLane': parseFloat(dataSetProperties.result[i].properties.PERCENTAGE_RAW_CLUSTERS_PER_LANE).toFixed(2),
+					                            'pfMeanQualityScore' : parseFloat(dataSetProperties.result[i].properties.PFMEANQUALITYSCORE).toFixed(2),
+					                            'pfYieldq30Percentage' : parseFloat(dataSetProperties.result[i].properties.PFYIELDQ30PERCENTAGE).toFixed(2),
 					                            'real_yield_in_gigabases_pf' : 0,
 					                            'real_read_count_in_million_pf' : 0,
 					                            'targeted_yield_in_gigabases_pf' : parseFloat(0.0),
@@ -442,7 +462,7 @@ function plotPercFilteringPass (statisticsArray) {
   else if (statisticsArray.length > 10) {var svgWidth = 5000;}
   else {var svgWidth = 3000;}
 
-  svgWidth = statisticsArray.length * 100
+  svgWidth = statisticsArray.length * 60
   if (svgWidth < 200) {svgWidth = 400;}
 
 
@@ -562,7 +582,9 @@ function plotPercFilteringPass (statisticsArray) {
      .enter()
      .append("text")
      .text(function(d) { return d.percFilteringPass + " %"; })
-     .attr("x", function(d, i) { return i * 1/(1+valuePadding)*(svgWidth / statisticsArray.length) + ((svgWidth /statisticsArray.length ) /2)  -15; })
+     //.attr("x", function(d, i) { return i * 1/(1+valuePadding)*(svgWidth / statisticsArray.length) + ((svgWidth /statisticsArray.length ) /2) -15; })
+     //.attr("x", function(d, i) { return i * 1/(1+0.007)*(svgWidth / statisticsArray.length) + ((svgWidth /statisticsArray.length ) /2) ; })
+     .attr ("x", function (d) {return x(d.externalSampleName+d.index1) +10;})
      .attr("y", function(d) {
                    if (d.percFilteringPass < 40) { return svgHeight - d.percFilteringPass - margin.top - margin.bottom; }
                    return (svgHeight - d.percFilteringPass  - margin.bottom) ;
@@ -576,7 +598,7 @@ function plotPercFilteringPass (statisticsArray) {
 
 function plotReadsSum (statisticsArray, sums){
 
-  svgWidth = statisticsArray.length * 100
+  svgWidth = statisticsArray.length *60 
   if (svgWidth < 200) {svgWidth = 300;}
 
   var formatThousands = d3.format(",");
@@ -660,7 +682,7 @@ function plotReadsSum (statisticsArray, sums){
      .append("text")
      .text(function(d) { return formatThousands(d.rawReadsSum); })
      //.attr("x", function(d, i) { return i * 1/(1+valuePadding)*(svgWidth / statisticsArray.length) + ((svgWidth /statisticsArray.length ) /2) -10; })
-     .attr ("x", function (d) {return x(d.externalSampleName+d.index1) + 20;})
+     .attr ("x", function (d) {return x(d.externalSampleName+d.index1) + 10;})
      // .attr("y", function(d) {
      //               return (svgHeight - margin.top - margin.bottom + 20) ;
      //              })
@@ -678,7 +700,7 @@ function plotReadsSum (statisticsArray, sums){
 
 function plotPFReads (statisticsArray, sums){
 
-  svgWidth = statisticsArray.length * 100
+  svgWidth = statisticsArray.length * 60
   if (svgWidth < 200) {svgWidth = 300;}
 
   var formatThousands = d3.format(",");
@@ -762,7 +784,7 @@ function plotPFReads (statisticsArray, sums){
      .append("text")
      .text(function(d) { return formatThousands(d.pfReadsSum); })
      //.attr("x", function(d, i) { return i * 1/(1+valuePadding)*(svgWidth / statisticsArray.length) + ((svgWidth /statisticsArray.length ) /2) -10; })
-     .attr ("x", function (d) {return x(d.externalSampleName+d.index1) + 20;})
+     .attr ("x", function (d) {return x(d.externalSampleName+d.index1) + 10;})
      // .attr("y", function(d) {
      //               return (svgHeight - margin.top - margin.bottom + 20) ;
      //              })

@@ -13,6 +13,7 @@
   <script>
 
 dsu = new openbis_dsu('/openbis/openbis', '/datastore_server');
+console.log(openbis_dsu)
 var context = new openbisWebAppContext();
 dsu.server.useSession(context.getSessionId());
 var vis;
@@ -132,7 +133,7 @@ function callAggregationService(miSeqRun)
 	   sendEmail : mySendEmail,
 	   miSeqRun : miSeqRun
 	};
-	//console.log(parameters)
+	console.log(parameters)
  
 	dsu.server.createReportFromAggregationService("DSS1", "triggerCreateSampleSheet", parameters, displayReturnedTable);
 }
