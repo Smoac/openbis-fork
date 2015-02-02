@@ -72,7 +72,7 @@ var FormUtil = new function() {
 		}
 		for(var i = $storageDropDown.children().length -1; i >= 0 ; i--){
 			var isEmpty = $storageDropDown.children()[i].value === "";
-			var isBench = $storageDropDown.children()[i].value.startsWith("USER_BENCH");
+			var isBench = $storageDropDown.children()[i].value.indexOf("BENCH") > -1;
 			if(!isEmpty && !isBench){
 				$storageDropDown.children()[i].remove();
 		    }
