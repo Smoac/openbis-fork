@@ -82,6 +82,7 @@ public class AutoArchiverTask implements IMaintenanceTask
         List<AbstractExternalData> candidates = archiveCandidateDiscoverer.findDatasetsForArchiving(openBISService, criteria);
         if (candidates.isEmpty())
         {
+            operationLog.info("nothing to archive");
             return;
         }
         operationLog.info("apply policy to " + candidates.size() + " candidates for archiving.");
