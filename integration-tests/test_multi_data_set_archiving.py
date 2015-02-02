@@ -242,6 +242,7 @@ class TestCase(systemtest.testcase.TestCase):
     def _createArchivingMonitor(self, openbisController):
         monitor = openbisController.createLogMonior()
         monitor.addNotificationCondition(util.RegexCondition('OPERATION.AutoArchiverTask'))
+        monitor.addNotificationCondition(util.RegexCondition('GroupingPolicy'))
         monitor.addNotificationCondition(util.RegexCondition('OPERATION.MultiDataSet'))
         monitor.addNotificationCondition(util.RegexCondition('OPERATION.FileDeleter'))
         monitor.addNotificationCondition(util.RegexCondition('OPERATION.DataSetCommandExecutor'))
