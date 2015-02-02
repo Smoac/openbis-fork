@@ -87,6 +87,10 @@ function SampleTableController(parentController, title, experimentIdentifier) {
 				property : 'code',
 				sortable : true
 			}, {
+				label : 'Experiment',
+				property : 'experiment',
+				sortable : true
+			}, {
 				label : 'Preview',
 				property : 'preview',
 				sortable : false,
@@ -192,7 +196,7 @@ function SampleTableController(parentController, title, experimentIdentifier) {
 				var dataList = [];
 				for(var sIdx = 0; sIdx < samples.length; sIdx++) {
 					var sample = samples[sIdx];
-					var sampleModel = { 'code' : sample.code, 'permId' : sample.permId };
+					var sampleModel = { 'code' : sample.code, 'permId' : sample.permId, 'experiment' : sample.experimentIdentifierOrNull };
 					for (var pIdx = 0; pIdx < propertyCodes.length; pIdx++) {
 						var property = propertyCodes[pIdx];
 						sampleModel[property] = sample.properties[property];
