@@ -362,6 +362,10 @@ function ServerFacade(openbisServer) {
 	// ELN Custom API
  	//
  	this.createReportFromAggregationService = function(dataStoreCode, parameters, callbackFunction) {
+ 		if(!parameters) {
+ 			parameters = {};
+ 		}
+ 		parameters["sessionToken"] = this.openbisServer.getSession();
 		this.openbisServer.createReportFromAggregationService(dataStoreCode, "newbrowserapi", parameters, callbackFunction);
 	}
 	

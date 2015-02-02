@@ -86,9 +86,6 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 			$codeField.val(identifierParts[3]);
 			$codeField.hide();
 			$formColumn.append($codeField);
-			
-			$formColumn.append(FormUtil.getFieldForLabelWithText("Registrator", this._experimentFormModel.experiment.registrationDetails.userId));
-			$formColumn.append(FormUtil.getFieldForLabelWithText("Registration Date", (new Date(this._experimentFormModel.experiment.registrationDetails.registrationDate)).toLocaleString()));
 		} else if(this._experimentFormModel.mode === FormMode.CREATE){
 			var $codeField = FormUtil._getInputField("text", null, "code", null, true);
 			$codeField.keyup(function() {
@@ -121,6 +118,25 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 			if(profile.hideCodes) {
 				$codeFieldRow.hide();
 			}
+		}
+		
+		//
+		// Registration and modification info
+		//
+		if(this._experimentFormModel.mode !== FormMode.CREATE) {
+			var registrationDetails = this._experimentFormModel.experiment.registrationDetails;
+			
+			var $registrator = FormUtil.getFieldForLabelWithText("Registrator", registrationDetails.userId);
+			$formColumn.append($registrator);
+			
+			var $registationDate = FormUtil.getFieldForLabelWithText("Registration Date", (new Date(registrationDetails.registrationDate)).toLocaleString())
+			$formColumn.append($registationDate);
+			
+			var $modifier = FormUtil.getFieldForLabelWithText("Modifier", registrationDetails.modifierUserId);
+			$formColumn.append($modifier);
+			
+			var $modificationDate = FormUtil.getFieldForLabelWithText("ModificationDate", (new Date(registrationDetails.modificationDate)).toLocaleString());
+			$formColumn.append($modificationDate);
 		}
 		
 		//

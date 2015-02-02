@@ -94,6 +94,25 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 		}
 		$wrapper.append(FormUtil.getFieldForLabelWithText(ownerName, owner));
 		
+		//
+		// Registration and modification info
+		//
+		if(this._dataSetFormModel.mode !== FormMode.CREATE) {
+			var registrationDetails = this._dataSetFormModel.dataSet.registrationDetails;
+			
+			var $registrator = FormUtil.getFieldForLabelWithText("Registrator", registrationDetails.userId);
+			$wrapper.append($registrator);
+			
+			var $registationDate = FormUtil.getFieldForLabelWithText("Registration Date", (new Date(registrationDetails.registrationDate)).toLocaleString())
+			$wrapper.append($registationDate);
+			
+			var $modifier = FormUtil.getFieldForLabelWithText("Modifier", registrationDetails.modifierUserId);
+			$wrapper.append($modifier);
+			
+			var $modificationDate = FormUtil.getFieldForLabelWithText("ModificationDate", (new Date(registrationDetails.modificationDate)).toLocaleString());
+			$wrapper.append($modificationDate);
+		}
+		
 		//Metadata Container
 		$wrapper.append($('<div>', { 'id' : 'metadataContainer'}));
 		

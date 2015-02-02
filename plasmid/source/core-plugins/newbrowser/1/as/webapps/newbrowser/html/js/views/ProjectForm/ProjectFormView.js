@@ -113,15 +113,23 @@ function ProjectFormView(projectFormController, projectFormModel) {
 			$formColumn.append(FormUtil.getFieldForLabelWithText("Description", description));
 		}
 		
+		//
+		// Registration and modification info
+		//
 		if(this._projectFormModel.mode !== FormMode.CREATE) {
-			$formColumn.append(FormUtil.getFieldForLabelWithText("Registered By", this._projectFormModel.project.registrationDetails.userId));
-			$formColumn.append(FormUtil.getFieldForLabelWithText("Registration Date", new Date(this._projectFormModel.project.registrationDetails.registrationDate).toLocaleString()));
+			var registrationDetails = this._projectFormModel.project.registrationDetails;
 			
-			if(this._projectFormModel.project.registrationDetails.modificationDate) {
-				$formColumn.append(FormUtil.getFieldForLabelWithText("Modification Date", new Date(this._projectFormModel.project.registrationDetails.modificationDate).toLocaleString()));
-			} else {
-				$formColumn.append(FormUtil.getFieldForLabelWithText("Modification Date", "Never modified"));
-			}
+			var $registrator = FormUtil.getFieldForLabelWithText("Registrator", registrationDetails.userId);
+			$formColumn.append($registrator);
+			
+			var $registationDate = FormUtil.getFieldForLabelWithText("Registration Date", (new Date(registrationDetails.registrationDate)).toLocaleString())
+			$formColumn.append($registationDate);
+			
+			var $modifier = FormUtil.getFieldForLabelWithText("Modifier", registrationDetails.modifierUserId);
+			$formColumn.append($modifier);
+			
+			var $modificationDate = FormUtil.getFieldForLabelWithText("ModificationDate", (new Date(registrationDetails.modificationDate)).toLocaleString());
+			$formColumn.append($modificationDate);
 		}
 		
 		if(this._projectFormModel.mode !== FormMode.VIEW) {

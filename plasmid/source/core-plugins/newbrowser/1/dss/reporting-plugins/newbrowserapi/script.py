@@ -30,10 +30,16 @@ def process(tr, parameters, tableBuilder):
 	
 	isOk = False;
 	
+	# Obtain the user using the dropbox
+	sessionToken = parameters.get("sessionToken"); #String
+	sessionId = sessionToken.split("-")[0]; #String
+	tr.setUserId(sessionId);
+	
 	if method == "init":
 		isOk = init(tr, parameters, tableBuilder);
 	if method == "registerUserPassword":
 		isOk = registerUserPassword(tr, parameters, tableBuilder);
+	
 	if method == "insertProject":
 		isOk = insertUpdateProject(tr, parameters, tableBuilder);
 	if method == "updateProject":

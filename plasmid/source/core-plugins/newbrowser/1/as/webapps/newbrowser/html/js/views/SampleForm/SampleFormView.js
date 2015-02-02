@@ -159,6 +159,26 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		if(profile.hideCodes) {
 			$codeField.hide();
 		}
+		
+		//
+		// Registration and modification info
+		//
+		if(this._sampleFormModel.mode !== FormMode.CREATE) {
+			var registrationDetails = this._sampleFormModel.sample.registrationDetails;
+			
+			var $registrator = FormUtil.getFieldForLabelWithText("Registrator", registrationDetails.userId);
+			$formColumn.append($registrator);
+			
+			var $registationDate = FormUtil.getFieldForLabelWithText("Registration Date", (new Date(registrationDetails.registrationDate)).toLocaleString())
+			$formColumn.append($registationDate);
+			
+			var $modifier = FormUtil.getFieldForLabelWithText("Modifier", registrationDetails.modifierUserId);
+			$formColumn.append($modifier);
+			
+			var $modificationDate = FormUtil.getFieldForLabelWithText("ModificationDate", (new Date(registrationDetails.modificationDate)).toLocaleString());
+			$formColumn.append($modificationDate);
+		}
+		
 		//
 		// LINKS TO PARENTS
 		//
