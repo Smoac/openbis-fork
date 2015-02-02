@@ -480,13 +480,18 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 							if(!dataFiles.result) {
 								//DSS Is not running probably
 							} else {
-								var elementId = 'preview-image';
-								var downloadUrl = profile.getDefaultDataStoreURL() + '/' + data.result[0].code + "/" + dataFiles.result[1].pathInDataSet + "?sessionID=" + mainController.serverFacade.getSession();
-								
-								var img = $("#" + elementId);
-								img.attr('src', downloadUrl);
-								img.attr('data-preview-loaded', 'true');
-								img.show();
+								for(var pathIdx = 0; pathIdx < dataFiles.result.length; pathIdx++) {
+									if(!dataFiles.result[pathIdx].isDirectory) {
+										var elementId = 'preview-image';
+										var downloadUrl = profile.getDefaultDataStoreURL() + '/' + data.result[0].code + "/" + dataFiles.result[pathIdx].pathInDataSet + "?sessionID=" + mainController.serverFacade.getSession();
+										
+										var img = $("#" + elementId);
+										img.attr('src', downloadUrl);
+										img.attr('data-preview-loaded', 'true');
+										img.show();
+										break;
+									}
+								}
 							}
 						};
 					mainController.serverFacade.listFilesForDataSet(data.result[0].code, "/", true, listFilesForDataSetCallback);
