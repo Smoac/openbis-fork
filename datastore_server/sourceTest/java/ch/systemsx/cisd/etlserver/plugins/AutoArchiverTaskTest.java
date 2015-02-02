@@ -137,7 +137,7 @@ public class AutoArchiverTaskTest extends AssertJUnit
 
         createAutoArchiver(new Properties()).execute();
 
-        assertLogs();
+        assertLogs(nothingLog());
         assertEquals(30, criteriaRecorder.recordedObject().getOlderThan());
         assertEquals(null, criteriaRecorder.recordedObject().tryGetDataSetTypeCode());
         context.assertIsSatisfied();
