@@ -191,11 +191,16 @@ public class Untar implements Closeable
     {
         final FileOutputStream out = new FileOutputStream(entryFile);
         int length;
-        while ((length = in.read(buf)) > 0)
+        try
         {
-            out.write(buf, 0, length);
+            while ((length = in.read(buf)) > 0)
+            {
+                out.write(buf, 0, length);
+            }
+        } finally 
+        {
+            out.close();
         }
-        out.close();
     }
 
     @Override
