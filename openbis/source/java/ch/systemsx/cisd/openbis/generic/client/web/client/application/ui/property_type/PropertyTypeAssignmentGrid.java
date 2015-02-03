@@ -90,6 +90,11 @@ public class PropertyTypeAssignmentGrid extends TypedTableGrid<EntityTypePropert
 
     public static final String GRID_ID = BROWSER_ID + TypedTableGrid.GRID_POSTFIX;
 
+    private interface UnassigmentExecution
+    {
+        void executeUnassignment();
+    }
+
     private static final class UnassignmentPreparationCallback extends
             AbstractAsyncCallback<Integer>
     {
@@ -99,60 +104,42 @@ public class PropertyTypeAssignmentGrid extends TypedTableGrid<EntityTypePropert
 
         private final IBrowserGridActionInvoker invoker;
 
+        private final UnassigmentExecution execution;
+
         private UnassignmentPreparationCallback(
                 IViewContext<ICommonClientServiceAsync> viewContext,
-                EntityTypePropertyType<?> etpt, IBrowserGridActionInvoker invoker)
+                EntityTypePropertyType<?> etpt, IBrowserGridActionInvoker invoker, UnassigmentExecution execution)
         {
             super(viewContext);
             commonViewContext = viewContext;
             this.etpt = etpt;
             this.invoker = invoker;
+            this.execution = execution;
         }
 
         @Override
         protected void process(Integer result)
         {
             Dialog dialog =
-                    new UnassignmentConfirmationDialog(commonViewContext, etpt, result, invoker);
+                    new UnassignmentConfirmationDialog(commonViewContext, etpt, result, invoker, execution);
             dialog.show();
-        }
-    }
-
-    private static final class RefreshCallback extends AbstractAsyncCallback<Void>
-    {
-        private final IBrowserGridActionInvoker invoker;
-
-        private RefreshCallback(IViewContext<?> viewContext, IBrowserGridActionInvoker invoker)
-        {
-            super(viewContext);
-            this.invoker = invoker;
-        }
-
-        @Override
-        protected void process(Void result)
-        {
-            invoker.refresh();
         }
     }
 
     private static final class UnassignmentConfirmationDialog extends Dialog
     {
-        private final IViewContext<ICommonClientServiceAsync> viewContext;
-
-        private final IBrowserGridActionInvoker invoker;
-
         private final EntityKind entityKind;
 
         private final String entityTypeCode;
 
         private final String propertyTypeCode;
 
+        private final UnassigmentExecution execution;
+
         UnassignmentConfirmationDialog(IViewContext<ICommonClientServiceAsync> viewContext,
                 EntityTypePropertyType<?> etpt, int numberOfProperties,
-                IBrowserGridActionInvoker invoker)
+                IBrowserGridActionInvoker invoker, UnassigmentExecution execution)
         {
-            this.viewContext = viewContext;
-            this.invoker = invoker;
             setHeading(viewContext.getMessage(Dict.UNASSIGNMENT_CONFIRMATION_DIALOG_TITLE));
             setButtons(Dialog.YESNO);
             setHideOnButtonClick(true);
@@ -172,6 +159,7 @@ public class PropertyTypeAssignmentGrid extends TypedTableGrid<EntityTypePropert
                         Dict.UNASSIGNMENT_CONFIRMATION_TEMPLATE_WITH_PROPERTIES, entityKindCode,
                         entityTypeCode, propertyTypeCode, numberOfProperties));
             }
+            this.execution = execution;
             setWidth(400);
         }
 
@@ -181,13 +169,25 @@ public class PropertyTypeAssignmentGrid extends TypedTableGrid<EntityTypePropert
             super.onButtonPressed(button);
             if (button.getItemId().equals(Dialog.YES))
             {
-                viewContext.getService().unassignPropertyType(
-                        entityKind,
-                        propertyTypeCode,
-                        entityTypeCode,
-                        AsyncCallbackWithProgressBar.decorate(new RefreshCallback(viewContext,
-                                invoker), "Releasing assignment..."));
+                execution.executeUnassignment();
             }
+        }
+    }
+
+    private static final class RefreshCallback extends AbstractAsyncCallback<Void>
+    {
+        private final IBrowserGridActionInvoker invoker;
+
+        private RefreshCallback(IViewContext<?> viewContext, IBrowserGridActionInvoker invoker)
+        {
+            super(viewContext);
+            this.invoker = invoker;
+        }
+
+        @Override
+        protected void process(Void result)
+        {
+            invoker.refresh();
         }
     }
 
@@ -288,8 +288,24 @@ public class PropertyTypeAssignmentGrid extends TypedTableGrid<EntityTypePropert
                                     public void invoke(BaseEntityModel<TableModelRowWithObject<EntityTypePropertyType<?>>> selectedItem,
                                             boolean keyPressed)
                                     {
+                                        final IBrowserGridActionInvoker invoker = asActionInvoker();
                                         final EntityTypePropertyType<?> etpt = selectedItem.getBaseObject().getObjectOrNull();
-                                        (new InMemoryGridRemoveCallback()).callback(etpt);
+                                        final EntityKind entityKind = etpt.getEntityKind();
+                                        final String entityTypeCode = etpt.getEntityType().getCode();
+                                        final String propertyTypeCode = etpt.getPropertyType().getCode();
+
+                                        final AsyncCallback<Integer> callback = new UnassignmentPreparationCallback(viewContext, etpt, invoker,
+                                                new UnassigmentExecution()
+                                                    {
+                                                        @Override
+                                                        public void executeUnassignment()
+                                                        {
+                                                            (new InMemoryGridRemoveCallback()).callback(etpt);
+                                                        }
+                                                    }
+                                                );
+                                        viewContext.getService().countPropertyTypedEntities(entityKind, propertyTypeCode, entityTypeCode, callback);
+
                                     }
 
                                 });
@@ -752,8 +768,40 @@ public class PropertyTypeAssignmentGrid extends TypedTableGrid<EntityTypePropert
         final String entityTypeCode = etpt.getEntityType().getCode();
         final String propertyTypeCode = etpt.getPropertyType().getCode();
         final IBrowserGridActionInvoker invoker = asActionInvoker();
-        final AsyncCallback<Integer> callback = new UnassignmentPreparationCallback(viewContext, etpt, invoker);
+        final AsyncCallback<Integer> callback = new UnassignmentPreparationCallback(viewContext, etpt, invoker,
+                new ServerUnassingmentExecutor(etpt, invoker)
+                );
         viewContext.getService().countPropertyTypedEntities(entityKind, propertyTypeCode, entityTypeCode, callback);
+    }
+
+    private class ServerUnassingmentExecutor implements UnassigmentExecution
+    {
+        private final EntityKind entityKind;
+
+        private final String entityTypeCode;
+
+        private final String propertyTypeCode;
+
+        private final IBrowserGridActionInvoker invoker;
+
+        public ServerUnassingmentExecutor(final EntityTypePropertyType<?> etpt, IBrowserGridActionInvoker invoker)
+        {
+            this.entityKind = etpt.getEntityKind();
+            this.entityTypeCode = etpt.getEntityType().getCode();
+            this.propertyTypeCode = etpt.getPropertyType().getCode();
+            this.invoker = invoker;
+        }
+
+        @Override
+        public void executeUnassignment()
+        {
+            viewContext.getService().unassignPropertyType(
+                    entityKind,
+                    propertyTypeCode,
+                    entityTypeCode,
+                    AsyncCallbackWithProgressBar.decorate(new RefreshCallback(viewContext,
+                            invoker), "Releasing assignment..."));
+        }
     }
 
     @Override
