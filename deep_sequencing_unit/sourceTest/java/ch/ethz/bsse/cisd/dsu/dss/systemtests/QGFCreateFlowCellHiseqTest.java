@@ -62,7 +62,7 @@ public class QGFCreateFlowCellHiseqTest extends DSUDropboxSystemTest
          String missingFile = "runParameters.xml";
          
          importDataWithMarker(folderName);
-         waitUntilDataImportFails("File not found: " + missingFile);
+         waitUntilDataImportFails("No such file or directory");
      }
     
      @Test

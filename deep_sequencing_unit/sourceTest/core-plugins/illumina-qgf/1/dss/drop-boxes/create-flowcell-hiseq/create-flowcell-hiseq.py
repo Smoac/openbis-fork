@@ -179,7 +179,7 @@ def process(transaction):
     run = runInfo.getAllchildren('Run')[0].attrib
     if (run['Id'] != name):
       raise NameError('Flowcell names do not match between directory name '+ name +
-            ' and ' + RUNINFO + 'property file: ' + run['Id'])
+            ' and ' + RUNINFO + ' property file: ' + run['Id'])
 
     # The HiSeq is providing more infos, which we will parse here:
     runParameters = parseXmlFile(incomingPath + '/' + RUNPARAMETERS)
