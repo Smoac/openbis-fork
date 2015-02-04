@@ -3,7 +3,6 @@ from datetime import datetime
 from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto import SearchCriteria, SearchSubCriteria
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.DataType as DataType
 import xml.etree.ElementTree as ET
-
 ##
 ## Generic Process Method
 ##
@@ -46,7 +45,7 @@ def getSamplesByType(tr, sampleType):
     samples = tr.getSearchService().searchForSamples(criteria)
     return samples
 
-def getSampleByPermId(permId):
+def getSampleByPermId(tr, permId):
     criteria = SearchCriteria()
     criteria.setOperator(criteria.SearchOperator.MATCH_ANY_CLAUSES)
     criteria.addMatchClause(criteria.MatchClause.createAttributeMatch(criteria.MatchClauseAttribute.PERM_ID, permId))
@@ -68,27 +67,32 @@ def translate(tr, sample, properties):
     
     # Read old annotations
     for property in properties:
-        propertyValue = unicode(sample.getPropertyValue(property), "utf-8")
-        if propertyValue != None:
-            oldAnnotationsRoot = ET.fromstring(propertyValue)
-            if property is "CHEMICALS" and sampleType is "GENERAL_PROTOCOL":
-                for child in oldAnnotationsRoot:
-                    permId = child.attrib["permId"]
-                    concentration = getValueOrNull(child.attrib, "concentration")
-                    chemicalName = getValueOrNull(child.attrib, "name")
-                    linkedSample = getSampleByPermId(permId)
-                    newAnnotationsNode = SubElement(newAnnotationsRoot, "Sample")
-                    
-                    newAnnotationsNode.attrib = {
-                                                    "permId" : permId,
-                                                    "identifier" : linkedSample.getSampleIdentifier(),
-                                                    "concentration" : concentration,
-                                                    "chemicalName" : chemicalName
-                                                }
-#                     for key, value in newAnnotationsNode.attrib:
-#                         if value is None:
-#                             my_dict.pop(key, None)
-    save(tr, sample, "ANNOTATIONS_STATE", ET.tostring(newAnnotationsRoot, encoding='utf-8'))
+        if property == "CHEMICALS":
+                oldAnnotationsRoot = None
+                try:
+                    propertyValue = unicode(sample.getPropertyValue(property), "utf-8")
+                    oldAnnotationsRoot = ET.fromstring(propertyValue)
+                except Exception:
+                    print "Exception on " + sample.code + " " + property
+                
+                if oldAnnotationsRoot is not None:
+                    for child in oldAnnotationsRoot:
+                        newAnnotationsNode = ET.SubElement(newAnnotationsRoot, "Sample")
+                        permId = child.attrib["permId"]
+                        print sample.code + " " + permId
+                        newAnnotationsNode.attrib["permId"] = permId
+                        linkedSample = getSampleByPermId(tr, permId)
+                        newAnnotationsNode.attrib["identifier"] = linkedSample.getSampleIdentifier()
+                        
+                        concentration = getValueOrNull(child.attrib, "concentration")
+                        if(concentration is not None):
+                            newAnnotationsNode.attrib["concentration"] = concentration
+                        chemicalName = getValueOrNull(child.attrib, "name")
+                        if(chemicalName is not None):
+                            newAnnotationsNode.attrib["chemicalName"] = chemicalName
+                        
+    if sampleType == "GENERAL_PROTOCOL":
+        save(tr, sample, "ANNOTATIONS_STATE", ET.tostring(newAnnotationsRoot, encoding='utf-8'))
 
 def save(tr, sample, property, propertyValue):
     mutableSample = tr.makeSampleMutable(sample)
