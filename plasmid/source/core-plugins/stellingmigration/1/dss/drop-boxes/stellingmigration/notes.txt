@@ -1,0 +1,10 @@
+##
+## Property Types Created in openBIS for the annotations
+##
+
+#
+# CHEMICALS
+#
+
+QUANTITY
+CHEMICAL_NAME

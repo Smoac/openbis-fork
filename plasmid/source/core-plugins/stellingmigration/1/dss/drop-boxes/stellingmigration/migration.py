@@ -3,6 +3,7 @@ from datetime import datetime
 from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto import SearchCriteria, SearchSubCriteria
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.DataType as DataType
 import xml.etree.ElementTree as ET
+
 ##
 ## Generic Process Method
 ##
@@ -60,39 +61,34 @@ def translate(tr, sample, properties):
     # Create new annotations from scratch
     newAnnotations = sample.getPropertyValue("ANNOTATIONS_STATE")
     newAnnotationsRoot = None
-#     if (newAnnotations is not None) and (newAnnotations is not ""):
-#         newAnnotationsRoot = ET.fromstring(newAnnotations)
-#     if (newAnnotations is None) or (newAnnotations is ""):
     newAnnotationsRoot = ET.Element("root")
     
     # Read old annotations
     for property in properties:
-        if property == "CHEMICALS":
-                oldAnnotationsRoot = None
-                try:
-                    propertyValue = unicode(sample.getPropertyValue(property), "utf-8")
-                    oldAnnotationsRoot = ET.fromstring(propertyValue)
-                except Exception:
-                    print "Exception on " + sample.code + " " + property
-                
-                if oldAnnotationsRoot is not None:
-                    for child in oldAnnotationsRoot:
-                        newAnnotationsNode = ET.SubElement(newAnnotationsRoot, "Sample")
-                        permId = child.attrib["permId"]
-                        print sample.code + " " + permId
-                        newAnnotationsNode.attrib["permId"] = permId
-                        linkedSample = getSampleByPermId(tr, permId)
-                        newAnnotationsNode.attrib["identifier"] = linkedSample.getSampleIdentifier()
-                        
-                        concentration = getValueOrNull(child.attrib, "concentration")
-                        if(concentration is not None):
-                            newAnnotationsNode.attrib["concentration"] = concentration
-                        chemicalName = getValueOrNull(child.attrib, "name")
-                        if(chemicalName is not None):
-                            newAnnotationsNode.attrib["chemicalName"] = chemicalName
-                        
-    if sampleType == "GENERAL_PROTOCOL":
-        save(tr, sample, "ANNOTATIONS_STATE", ET.tostring(newAnnotationsRoot, encoding='utf-8'))
+        oldAnnotationsRoot = None
+        try:
+            propertyValue = unicode(sample.getPropertyValue(property), "utf-8")
+            if '<root>' in propertyValue:
+                oldAnnotationsRoot = ET.fromstring(propertyValue)
+        except Exception:
+            print "Exception on " + sample.code + " " + property
+        if oldAnnotationsRoot is not None:
+            for child in oldAnnotationsRoot:
+                if property == "CHEMICALS":
+                    newAnnotationsNode = ET.SubElement(newAnnotationsRoot, "Sample")
+                    permId = child.attrib["permId"]
+                    print sample.code + " " + permId
+                    newAnnotationsNode.attrib["permId"] = permId
+                    linkedSample = getSampleByPermId(tr, permId)
+                    newAnnotationsNode.attrib["identifier"] = linkedSample.getSampleIdentifier()
+                    
+                    concentration = getValueOrNull(child.attrib, "concentration")
+                    if(concentration is not None):
+                        newAnnotationsNode.attrib["QUANTITY"] = concentration
+                    chemicalName = getValueOrNull(child.attrib, "name")
+                    if(chemicalName is not None):
+                        newAnnotationsNode.attrib["CHEMICAL_NAME"] = chemicalName
+    save(tr, sample, "ANNOTATIONS_STATE", ET.tostring(newAnnotationsRoot, encoding='utf-8'))
 
 def save(tr, sample, property, propertyValue):
     mutableSample = tr.makeSampleMutable(sample)
