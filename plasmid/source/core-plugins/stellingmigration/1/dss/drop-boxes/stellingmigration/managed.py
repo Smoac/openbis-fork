@@ -26,6 +26,10 @@ configuration["PCR"] = {
                           "ENZYMES" : {"NAME" : False }
                          };
 
+configuration["POMBE"] = {
+                          "PLASMIDS" : {"RELATIONSHIP" : False, "ANNOTATION" : False }
+                         };
+
 #Global Variables
 annotableType = "<REPLACE_WITH_ANNOTABLE_TYPE>"
 server = CommonServiceProvider.getCommonServer()

@@ -55,6 +55,13 @@ definitions = {
                                      "ENZYMES" : {
                                                     "name" : "NAME"
                                                     }
+                                    },
+               "POMBE" : 
+                                    { 
+                                     "PLASMIDS" : {
+                                                    "rel" : "RELATIONSHIP",
+                                                    "annotation" : "ANNOTATION"
+                                                    }
                                     }
 };
 
@@ -101,22 +108,25 @@ def translate(tr, sample, properties):
             if '<root>' in propertyValue:
                 oldAnnotationsRoot = ET.fromstring(propertyValue)
         except Exception:
-            print "Exception on " + sample.code + " " + property
+            print "[ERROR - PROCESSING PROPERTY_CODE] " + sample.code + " " + property
         
         if oldAnnotationsRoot is not None:
             for child in oldAnnotationsRoot:
-                    newAnnotationsNode = ET.SubElement(newAnnotationsRoot, "Sample")
-                    permId = child.attrib["permId"]
-                    print sample.code + " " + permId
-                    newAnnotationsNode.attrib["permId"] = permId
-                    linkedSample = getSampleByPermId(tr, permId)
-                    newAnnotationsNode.attrib["identifier"] = linkedSample.getSampleIdentifier()
-                    
-                    for oldName in propertyDefinitions:
-                        newName = propertyDefinitions[oldName]
-                        value = getValueOrNull(child.attrib, oldName)
-                        if(value is not None):
-                            newAnnotationsNode.attrib[newName] = value
+                    try:
+                        newAnnotationsNode = ET.SubElement(newAnnotationsRoot, "Sample")
+                        permId = child.attrib["permId"]
+                        print "[INFO - PROCESSING PERM_ID] " + sample.code + " " + permId
+                        newAnnotationsNode.attrib["permId"] = permId
+                        linkedSample = getSampleByPermId(tr, permId)
+                        newAnnotationsNode.attrib["identifier"] = linkedSample.getSampleIdentifier()
+                        
+                        for oldName in propertyDefinitions:
+                            newName = propertyDefinitions[oldName]
+                            value = getValueOrNull(child.attrib, oldName)
+                            if(value is not None):
+                                newAnnotationsNode.attrib[newName] = value
+                    except Exception:
+                        print "[ERROR - PROCESSING PERM_ID] " + sample.code + " " + permId
     save(tr, sample, "ANNOTATIONS_STATE", ET.tostring(newAnnotationsRoot, encoding='utf-8'))
 
 def save(tr, sample, property, propertyValue):
