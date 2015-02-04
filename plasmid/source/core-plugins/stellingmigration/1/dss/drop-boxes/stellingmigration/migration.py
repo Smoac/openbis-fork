@@ -18,6 +18,10 @@ definitions = {
                                      "SOLUTIONS_BUFFERS" : {
                                                     "quantity" : "QUANTITY",
                                                     "name" : "NAME"
+                                                    },
+                                     "MEDIA" : {
+                                                    "quantity" : "QUANTITY",
+                                                    "name" : "NAME"
                                                     }
                                     }
 };
