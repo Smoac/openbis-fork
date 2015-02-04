@@ -7,32 +7,44 @@ import xml.etree.ElementTree as ET
 ##
 ## Generic Process Method
 ##
-sampleTypes = [
-            "GENERAL_PROTOCOL",
-            "MEDIA",
-            "PCR",
-            "POMBE",
-            "READOUT",
-            "RESULT",
-            "SOLUTIONS_BUFFERS",
-            "WESTERN_BLOTTING",
-            "YEAST"];
-    
-properties = [
-            "CHEMICALS",
-            "SOLUTIONS_BUFFERS",
-            "ENZYMES",
-            "MEDIA",
-            "GENERAL_PROTOCOL",
-            "PLASMIDS",
-            "POMBE-PARENTS",
-            "ANNOTATIONS",
-            "ANTIBODIES",
-            "YEAST_PARENTS"];
+
+definitions = {
+               "GENERAL_PROTOCOL" : 
+                                    { 
+                                     "CHEMICALS" : {
+                                                    "quantity" : "QUANTITY",
+                                                    "name" : "CHEMICAL_NAME"
+                                                    }
+                                    }
+};
+
+# sampleTypes = [
+#             "GENERAL_PROTOCOL",
+#             "MEDIA",
+#             "PCR",
+#             "POMBE",
+#             "READOUT",
+#             "RESULT",
+#             "SOLUTIONS_BUFFERS",
+#             "WESTERN_BLOTTING",
+#             "YEAST"];
+#     
+# properties = [
+#             "CHEMICALS",
+#             "SOLUTIONS_BUFFERS",
+#             "ENZYMES",
+#             "MEDIA",
+#             "GENERAL_PROTOCOL",
+#             "PLASMIDS",
+#             "POMBE-PARENTS",
+#             "ANNOTATIONS",
+#             "ANTIBODIES",
+#             "YEAST_PARENTS"];
 
 def process(tr):
     print "START!"
-    for sampleType in sampleTypes:
+    for sampleType in definitions:
+        properties = definitions[sampleType]
         samples = getSamplesByType(tr, sampleType)
         print sampleType + ": "+ str(len(samples))
         for sample in samples:
@@ -65,6 +77,7 @@ def translate(tr, sample, properties):
     
     # Read old annotations
     for property in properties:
+        propertyDefinitions = properties[property]
         oldAnnotationsRoot = None
         try:
             propertyValue = unicode(sample.getPropertyValue(property), "utf-8")
@@ -72,9 +85,9 @@ def translate(tr, sample, properties):
                 oldAnnotationsRoot = ET.fromstring(propertyValue)
         except Exception:
             print "Exception on " + sample.code + " " + property
+        
         if oldAnnotationsRoot is not None:
             for child in oldAnnotationsRoot:
-                if property == "CHEMICALS":
                     newAnnotationsNode = ET.SubElement(newAnnotationsRoot, "Sample")
                     permId = child.attrib["permId"]
                     print sample.code + " " + permId
@@ -82,12 +95,11 @@ def translate(tr, sample, properties):
                     linkedSample = getSampleByPermId(tr, permId)
                     newAnnotationsNode.attrib["identifier"] = linkedSample.getSampleIdentifier()
                     
-                    quantity = getValueOrNull(child.attrib, "quantity")
-                    if(quantity is not None):
-                        newAnnotationsNode.attrib["QUANTITY"] = quantity
-                    chemicalName = getValueOrNull(child.attrib, "name")
-                    if(chemicalName is not None):
-                        newAnnotationsNode.attrib["CHEMICAL_NAME"] = chemicalName
+                    for oldName in propertyDefinitions:
+                        newName = propertyDefinitions[oldName]
+                        value = getValueOrNull(child.attrib, oldName)
+                        if(value is not None):
+                            newAnnotationsNode.attrib[newName] = value
     save(tr, sample, "ANNOTATIONS_STATE", ET.tostring(newAnnotationsRoot, encoding='utf-8'))
 
 def save(tr, sample, property, propertyValue):
