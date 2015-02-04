@@ -8,7 +8,8 @@ from ch.systemsx.cisd.openbis.generic.server import CommonServiceProvider
 configuration = {}
 
 configuration["GENERAL_PROTOCOL"] = {
-                          "CHEMICALS" : {"QUANTITY" : False, "CHEMICAL_NAME" : False },
+                          "CHEMICALS" : {"QUANTITY" : False, "NAME" : False },
+                          "SOLUTION_BUFFERS" : {"QUANTITY" : False, "NAME" : False }
                          };
 
 #Global Variables

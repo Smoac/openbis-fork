@@ -13,33 +13,14 @@ definitions = {
                                     { 
                                      "CHEMICALS" : {
                                                     "quantity" : "QUANTITY",
-                                                    "name" : "CHEMICAL_NAME"
+                                                    "name" : "NAME"
+                                                    },
+                                     "SOLUTIONS_BUFFERS" : {
+                                                    "quantity" : "QUANTITY",
+                                                    "name" : "NAME"
                                                     }
                                     }
 };
-
-# sampleTypes = [
-#             "GENERAL_PROTOCOL",
-#             "MEDIA",
-#             "PCR",
-#             "POMBE",
-#             "READOUT",
-#             "RESULT",
-#             "SOLUTIONS_BUFFERS",
-#             "WESTERN_BLOTTING",
-#             "YEAST"];
-#     
-# properties = [
-#             "CHEMICALS",
-#             "SOLUTIONS_BUFFERS",
-#             "ENZYMES",
-#             "MEDIA",
-#             "GENERAL_PROTOCOL",
-#             "PLASMIDS",
-#             "POMBE-PARENTS",
-#             "ANNOTATIONS",
-#             "ANTIBODIES",
-#             "YEAST_PARENTS"];
 
 def process(tr):
     print "START!"
