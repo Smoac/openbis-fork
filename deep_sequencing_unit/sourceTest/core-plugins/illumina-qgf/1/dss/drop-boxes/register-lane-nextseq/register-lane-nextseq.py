@@ -19,6 +19,7 @@ import subprocess
 from time import *
 from datetime import *
 from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto import SearchCriteria
+from __builtin__ import file
 
 FASTQ_GZ_PATTERN = "*.fastq.gz"
 METADATA_FILE_SUFFIX = "_metadata.tsv"
@@ -51,7 +52,14 @@ def getThreadProperties(transaction):
       pass
   return threadPropertyDict
 
+def checkOnFileSize(file):
+    return os.stat(file).st_size == 0
+
 def CRC32_from_file(filename, transaction):
+    
+    if checkOnFileSize(filename):
+        raise Exception("FILE " + filename + " IS EMPTY!")
+    
     threadPropertyDict = getThreadProperties(transaction)
     absolutePath = os.path.dirname(os.path.realpath(threadPropertyDict['script-path']))
     fullPathCrc32 = (os.path.join(absolutePath, CRC32_PATH))
@@ -170,8 +178,8 @@ def extraCopySciCore (affiliation_name, filePath, destinationFolder=""):
     Handles the extra copies of the data for transfer with datamover for SCICORE
     '''
     
-    #dropBoxFolder = '/tmp/scicore'
-    dropBoxFolder = '/links/shared/dsu/dss/customers/biozentrum_scicore/drop-box'
+    dropBoxFolder = '/tmp/scicore'
+#     dropBoxFolder = '/links/shared/dsu/dss/customers/biozentrum_scicore/drop-box'
     basename = os.path.basename(filePath)
     
     print("extraCopySciCore")
