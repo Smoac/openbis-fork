@@ -22,6 +22,9 @@ definitions = {
                                      "MEDIA" : {
                                                     "quantity" : "QUANTITY",
                                                     "name" : "NAME"
+                                                    },
+                                     "GENERAL_PROTOCOL" : {
+                                                    "name" : "NAME"
                                                     }
                                     }
 };
