@@ -29,68 +29,33 @@ Manuel Kohler
 '''
 
 import os
-import shutil
-import glob
-import xml.etree.ElementTree as etree
+import subprocess
 from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto import SearchCriteria
-
-IS_HISEQ_RUN=False
-
-RUNINFO_FOLDER='/links/shared/dsu/dss/register-runstatistics/'
-REGEX_RUNINFO_SAMPLE = '/Data/Status*'
-REGEX_RUNINFO_REPORTS = '/Data/reports'
-MARKER_STRING='.MARKER_is_finished_'
-
-def touch_markerfile(filename):
-  try:
-    # do a touch
-    open(filename, 'w').close()
-  except:
-    print('Could not touch ' + filename)
 
 def process(transaction):
 
-  incomingPath = transaction.getIncoming().getPath()
-  name = transaction.getIncoming().getName()
+    args = ['/links/application/dsu/export_QGF_master_data/export_QGF_master_data.sh']
 
-  folders=[]
-  folders=os.listdir(incomingPath)
+    try:
+        p = subprocess.Popen(args, stdout=subprocess.PIPE)
+        print(p.communicate()[0])
+    except:
+        print("Could not run: " + str(args))
 
-  split=name.split("_")
-  if (len(split) == 4):
-    dataSet = transaction.createNewDataSet("ILLUMINA_HISEQ_OUTPUT")
-    IS_HISEQ_RUN=True
-  if (len(split) == 2):
-    dataSet = transaction.createNewDataSet("ILLUMINA_GA_OUTPUT")
+    incomingPath = transaction.getIncoming().getPath()
+    name = transaction.getIncoming().getName()
 
-  #move RunInfo into a different drop box
-  #runInfoSample=glob.glob(incomingPath + REGEX_RUNINFO_SAMPLE)
-  #runInfoReport=glob.glob(incomingPath + REGEX_RUNINFO_REPORTS)
-  #runInfoList = runInfoSample + runInfoReport
-  #os.makedirs(RUNINFO_FOLDER + name + '/Data/')
-  #for runInfo in runInfoList:
-  #  try:
-  #    if os.path.isdir(runInfo):
-#	shutil.copytree(runInfo, RUNINFO_FOLDER + name + '/Data/' + os.path.basename(runInfo))
-#      else:
-#	shutil.copy2(runInfo, RUNINFO_FOLDER + name + '/Data/')
-#    except (IOError, os.error), why:
-#      print (runInfo, RUNINFO_FOLDER + name, str(why))
+    split=name.split("_")
+    if (len(split) == 4):
+        dataSet = transaction.createNewDataSet("ILLUMINA_HISEQ_OUTPUT")
 
-#  touch_markerfile(RUNINFO_FOLDER+MARKER_STRING+name)
+    dataSet.setMeasuredData(False)
+  
+    search_service = transaction.getSearchService()  
+    sc = SearchCriteria()
+    sc.addMatchClause(SearchCriteria.MatchClause.createAttributeMatch(SearchCriteria.MatchClauseAttribute.CODE, name));
+    foundSamples = search_service.searchForSamples(sc)
 
-  # Create a data set and set type
-  dataSet.setMeasuredData(False)
-    
-  # Get the search service
-  search_service = transaction.getSearchService()
-   
-  # Search for the sample
-  sc = SearchCriteria()
-  sc.addMatchClause(SearchCriteria.MatchClause.createAttributeMatch(SearchCriteria.MatchClauseAttribute.CODE, name));
-  foundSamples = search_service.searchForSamples(sc)
-
-  if foundSamples.size() > 0:
-    # Add the incoming file into the data set
-    transaction.moveFile(incomingPath, dataSet)
-    dataSet.setSample(foundSamples[0])
+    if foundSamples.size() > 0:
+        transaction.moveFile(incomingPath, dataSet)
+        dataSet.setSample(foundSamples[0])
