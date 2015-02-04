@@ -82,9 +82,9 @@ def translate(tr, sample, properties):
                     linkedSample = getSampleByPermId(tr, permId)
                     newAnnotationsNode.attrib["identifier"] = linkedSample.getSampleIdentifier()
                     
-                    concentration = getValueOrNull(child.attrib, "concentration")
-                    if(concentration is not None):
-                        newAnnotationsNode.attrib["QUANTITY"] = concentration
+                    quantity = getValueOrNull(child.attrib, "quantity")
+                    if(quantity is not None):
+                        newAnnotationsNode.attrib["QUANTITY"] = quantity
                     chemicalName = getValueOrNull(child.attrib, "name")
                     if(chemicalName is not None):
                         newAnnotationsNode.attrib["CHEMICAL_NAME"] = chemicalName
