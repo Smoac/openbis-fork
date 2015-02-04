@@ -14,6 +14,18 @@ configuration["GENERAL_PROTOCOL"] = {
                           "GENERAL_PROTOCOL" : {"NAME" : False }
                          };
 
+configuration["MEDIA"] = {
+                          "CHEMICALS" : {"QUANTITY" : False, "NAME" : False },
+                          "SOLUTION_BUFFERS" : {"QUANTITY" : False, "NAME" : False },
+                          "MEDIA" : {"QUANTITY" : False, "NAME" : False }
+                         };
+
+configuration["PCR"] = {
+                          "CHEMICALS" : {"QUANTITY" : False, "NAME" : False },
+                          "SOLUTION_BUFFERS" : {"QUANTITY" : False, "NAME" : False },
+                          "ENZYMES" : {"NAME" : False }
+                         };
+
 #Global Variables
 annotableType = "<REPLACE_WITH_ANNOTABLE_TYPE>"
 server = CommonServiceProvider.getCommonServer()

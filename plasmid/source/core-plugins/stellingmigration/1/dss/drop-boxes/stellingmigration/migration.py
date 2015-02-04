@@ -26,6 +26,35 @@ definitions = {
                                      "GENERAL_PROTOCOL" : {
                                                     "name" : "NAME"
                                                     }
+                                    },
+               "MEDIA" : 
+                                    { 
+                                     "CHEMICALS" : {
+                                                    "concentration" : "QUANTITY",
+                                                    "name" : "NAME"
+                                                    },
+                                     "SOLUTIONS_BUFFERS" : {
+                                                    "concentration" : "QUANTITY",
+                                                    "name" : "NAME"
+                                                    },
+                                     "MEDIA" : {
+                                                    "concentration" : "QUANTITY",
+                                                    "name" : "NAME"
+                                                    }
+                                    },
+               "PCR" : 
+                                    { 
+                                     "CHEMICALS" : {
+                                                    "quantity" : "QUANTITY",
+                                                    "name" : "NAME"
+                                                    },
+                                     "SOLUTIONS_BUFFERS" : {
+                                                    "quantity" : "QUANTITY",
+                                                    "name" : "NAME"
+                                                    },
+                                     "ENZYMES" : {
+                                                    "name" : "NAME"
+                                                    }
                                     }
 };
 
