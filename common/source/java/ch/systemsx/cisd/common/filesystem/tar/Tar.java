@@ -157,11 +157,16 @@ public class Tar implements Closeable
             entry.setGroupName(groupname);
         }
         out.putArchiveEntry(entry);
-        if (input != null)
+        try
         {
-            IOUtils.copyLarge(input, out);
+            if (input != null)
+            {
+                IOUtils.copyLarge(input, out);
+            }
+        } finally
+        {
+            out.closeArchiveEntry();
         }
-        out.closeArchiveEntry();
     }
 
     @Override
