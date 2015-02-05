@@ -30,6 +30,12 @@ configuration["POMBE"] = {
                           "PLASMIDS" : {"RELATIONSHIP" : False, "ANNOTATION" : False }
                          };
 
+configuration["READOUT"] = {
+                          "CHEMICALS" : {"QUANTITY" : False, "NAME" : False },
+                          "SOLUTION_BUFFERS" : {"QUANTITY" : False, "NAME" : False },
+                          "GENERAL_PROTOCOL" : {"NAME" : False }
+                         };
+                         
 #Global Variables
 annotableType = "<REPLACE_WITH_ANNOTABLE_TYPE>"
 server = CommonServiceProvider.getCommonServer()
