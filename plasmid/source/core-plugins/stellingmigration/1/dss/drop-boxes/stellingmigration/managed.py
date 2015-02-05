@@ -36,10 +36,15 @@ configuration["READOUT"] = {
                           "GENERAL_PROTOCOL" : {"NAME" : False }
                          };
 
-configuration["READOUT"] = {
+configuration["RESULT"] = {
                           "ANNOTATIONS" : {"QUANTITY" : False, "NAME" : False, "DETAIL" : False }
                          };
 
+configuration["SOLUTION_BUFFERS"] = {
+                          "CHEMICALS" : {"QUANTITY" : False, "NAME" : False },
+                          "SOLUTION_BUFFERS" : {"QUANTITY" : False, "NAME" : False }
+                         };
+                         
 #Global Variables
 annotableType = "<REPLACE_WITH_ANNOTABLE_TYPE>"
 server = CommonServiceProvider.getCommonServer()

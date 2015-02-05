@@ -84,6 +84,17 @@ definitions = {
                                                     "name" : "NAME",
                                                     "detail" : "DETAIL"
                                                     }
+                                    },
+               "SOLUTIONS_BUFFERS" : 
+                                    { 
+                                     "CHEMICALS" : {
+                                                     "concentration" : "QUANTITY",
+                                                     "name" : "NAME"
+                                                     },
+                                     "SOLUTIONS_BUFFERS" : {
+                                                     "concentration" : "QUANTITY",
+                                                     "name" : "NAME"
+                                                     }
                                     }
 };
 
