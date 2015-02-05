@@ -30,15 +30,15 @@ definitions = {
                 "MEDIA" : 
                                      { 
                                       "CHEMICALS" : {
-                                                     "concentration" : "QUANTITY",
+                                                     "concentration" : "CONCENTRATION",
                                                      "name" : "NAME"
                                                      },
                                       "SOLUTIONS_BUFFERS" : {
-                                                     "concentration" : "QUANTITY",
+                                                     "concentration" : "CONCENTRATION",
                                                      "name" : "NAME"
                                                      },
                                       "MEDIA" : {
-                                                     "concentration" : "QUANTITY",
+                                                     "concentration" : "CONCENTRATION",
                                                      "name" : "NAME"
                                                      }
                                      },
@@ -88,12 +88,34 @@ definitions = {
                "SOLUTIONS_BUFFERS" : 
                                     { 
                                      "CHEMICALS" : {
-                                                     "concentration" : "QUANTITY",
+                                                     "concentration" : "CONCENTRATION",
                                                      "name" : "NAME"
                                                      },
                                      "SOLUTIONS_BUFFERS" : {
-                                                     "concentration" : "QUANTITY",
+                                                     "concentration" : "CONCENTRATION",
                                                      "name" : "NAME"
+                                                     }
+                                    },
+               "WESTERN_BLOTTING" : 
+                                    {
+                                     "ANTIBODY" : {
+                                                     "quantity" : "QUANTITY",
+                                                     "name" : "NAME"
+                                                     },
+                                     "CHEMICALS" : {
+                                                     "quantity" : "QUANTITY",
+                                                     "name" : "NAME"
+                                                     },
+                                     "SOLUTIONS_BUFFERS" : {
+                                                     "quantity" : "QUANTITY",
+                                                     "name" : "NAME"
+                                                     }
+                                    },
+               "YEAST" : 
+                                    {
+                                     "PLASMIDS" : {
+                                                     "annotation" : "ANNOTATION",
+                                                     "rel" : "RELATIONSHIP"
                                                      }
                                     }
 };

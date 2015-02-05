@@ -15,9 +15,9 @@ configuration["GENERAL_PROTOCOL"] = {
                          };
 
 configuration["MEDIA"] = {
-                          "CHEMICALS" : {"QUANTITY" : False, "NAME" : False },
-                          "SOLUTION_BUFFERS" : {"QUANTITY" : False, "NAME" : False },
-                          "MEDIA" : {"QUANTITY" : False, "NAME" : False }
+                          "CHEMICALS" : {"CONCENTRATION" : False, "NAME" : False },
+                          "SOLUTION_BUFFERS" : {"CONCENTRATION" : False, "NAME" : False },
+                          "MEDIA" : {"CONCENTRATION" : False, "NAME" : False }
                          };
 
 configuration["PCR"] = {
@@ -41,10 +41,20 @@ configuration["RESULT"] = {
                          };
 
 configuration["SOLUTION_BUFFERS"] = {
-                          "CHEMICALS" : {"QUANTITY" : False, "NAME" : False },
-                          "SOLUTION_BUFFERS" : {"QUANTITY" : False, "NAME" : False }
+                          "CHEMICALS" : {"CONCENTRATION" : False, "NAME" : False },
+                          "SOLUTION_BUFFERS" : {"CONCENTRATION" : False, "NAME" : False }
                          };
-                         
+
+configuration["WESTERN_BLOTTING"] = {
+                          "CHEMICALS" : {"QUANTITY" : False, "NAME" : False },
+                          "SOLUTION_BUFFERS" : {"QUANTITY" : False, "NAME" : False },
+                          "ANTIBODY" : {"QUANTITY" : False, "NAME" : False }
+                         };
+
+configuration["YEAST"] = {
+                          "PLASMIDS" : {"ANNOTATION" : False, "RELATIONSHIP" : False }
+                         };
+
 #Global Variables
 annotableType = "<REPLACE_WITH_ANNOTABLE_TYPE>"
 server = CommonServiceProvider.getCommonServer()
