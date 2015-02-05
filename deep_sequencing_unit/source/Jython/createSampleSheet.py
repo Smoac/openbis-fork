@@ -406,11 +406,11 @@ def createHiseqSampleSheet(parentDict, flowCellDict, samplesPerLaneDict, flowCel
     index = ''
     dualIndex = False
     lane = parentDict[key]['LANE'][-1:]
-
-    if index1Name in parentDict[key] and indexRead1Length > 0:
+    
+    if index1Name in parentDict[key] and indexRead1Length > 0 and (parentDict[key])[index1Name] != 'NOINDEX':
       index = parentDict[key][index1Name][0:indexRead1Length]
 
-    if index2Name in parentDict[key] and indexRead2Length > 0:
+    if index2Name in parentDict[key] and indexRead2Length > 0 and (parentDict[key])[index2Name] != 'NOINDEX':
       index = index + configMap['indexSeparator'] + parentDict[key][index2Name][0:indexRead2Length]
       dualIndex = True
 
