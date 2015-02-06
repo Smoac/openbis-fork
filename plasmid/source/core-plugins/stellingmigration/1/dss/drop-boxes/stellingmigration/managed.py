@@ -11,7 +11,8 @@ configuration["GENERAL_PROTOCOL"] = {
                           "CHEMICALS" : {"QUANTITY" : False, "NAME" : False },
                           "SOLUTION_BUFFERS" : {"QUANTITY" : False, "NAME" : False },
                           "MEDIA" : {"QUANTITY" : False, "NAME" : False },
-                          "GENERAL_PROTOCOL" : {"NAME" : False }
+                          "GENERAL_PROTOCOL" : {"NAME" : False },
+                          "ENZYMES" : {"NAME" : False }
                          };
 
 configuration["MEDIA"] = {

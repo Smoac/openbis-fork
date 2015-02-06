@@ -25,6 +25,9 @@ definitions = {
                                                      },
                                       "GENERAL_PROTOCOL" : {
                                                      "name" : "NAME"
+                                                     },
+                                      "ENZYMES" : {
+                                                     "name" : "NAME"
                                                      }
                                      },
                 "MEDIA" : 
