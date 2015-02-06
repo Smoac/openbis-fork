@@ -115,7 +115,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 											 'class' : 'zoomableImage',
 											 'id' : 'preview-image',
 											 'src' : './img/image_loading.gif',
-											 'style' : 'height:300px; margin-right:20px; display:none;'
+											 'style' : 'max-height:300px; max-width:50%; margin-right:20px; display:none;'
 											});
 			$previewImage.click(function() {
 				Util.showImage($("#preview-image").attr("src"));
