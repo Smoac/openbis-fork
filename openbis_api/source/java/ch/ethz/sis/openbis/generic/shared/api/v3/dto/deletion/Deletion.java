@@ -31,7 +31,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("Deletion")
+@JsonObject("dto.deletion.Deletion")
 public class Deletion implements Serializable
 {
 

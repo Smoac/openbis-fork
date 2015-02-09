@@ -11,7 +11,7 @@ define(["support/stjs", "dto/id/ObjectIdentifier", "dto/id/project/IProjectId"],
         ObjectIdentifier.call(this, identifier);
     };
     stjs.extend(ProjectIdentifier, ObjectIdentifier, [ObjectIdentifier, IProjectId], function(constructor, prototype) {
-        prototype['@type'] = 'ProjectIdentifier';
+        prototype['@type'] = 'dto.id.project.ProjectIdentifier';
         constructor.serialVersionUID = 1;
     }, {});
     return ProjectIdentifier;

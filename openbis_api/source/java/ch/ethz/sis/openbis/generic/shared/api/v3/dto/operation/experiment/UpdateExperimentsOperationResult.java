@@ -17,10 +17,12 @@
 package ch.ethz.sis.openbis.generic.shared.api.v3.dto.operation.experiment;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.operation.IOperationResult;
+import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
  * @author pkupczyk
  */
+@JsonObject("dto.operation.experiment.UpdateExperimentsOperationResult")
 public class UpdateExperimentsOperationResult implements IOperationResult
 {
 

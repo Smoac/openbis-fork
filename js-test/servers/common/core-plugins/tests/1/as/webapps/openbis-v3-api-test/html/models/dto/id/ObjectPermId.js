@@ -10,7 +10,7 @@ define(["support/stjs", "sys/exceptions", "dto/id/IObjectId"], function (stjs, e
         this.setPermId(permId);
     };
     stjs.extend(ObjectPermId, null, [IObjectId], function(constructor, prototype) {
-        prototype['@type'] = 'ObjectPermId';
+        prototype['@type'] = 'dto.id.ObjectPermId';
         constructor.serialVersionUID = 1;
         prototype.permId = null;
         prototype.getPermId = function() {

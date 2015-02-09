@@ -16,9 +16,12 @@
 
 package ch.ethz.sis.openbis.generic.shared.api.v3.dto.search;
 
+import ch.systemsx.cisd.base.annotation.JsonObject;
+
 /**
  * @author Jakub Straszewski
  */
+@JsonObject("dto.search.DataSetParentsSearchCriterion")
 public class DataSetParentsSearchCriterion extends DataSetSearchCriterion
 {
     private static final long serialVersionUID = 1L;

@@ -33,7 +33,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("SampleCreation")
+@JsonObject("dto.entity.sample.SampleCreation")
 public class SampleCreation implements Serializable
 {
     private static final long serialVersionUID = 1L;

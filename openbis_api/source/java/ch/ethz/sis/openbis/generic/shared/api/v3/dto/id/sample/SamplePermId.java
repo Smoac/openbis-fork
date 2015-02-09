@@ -25,7 +25,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
  * 
  * @author pkupczyk
  */
-@JsonObject("SamplePermId")
+@JsonObject("dto.id.sample.SamplePermId")
 public class SamplePermId extends ObjectPermId implements ISampleId
 {
 

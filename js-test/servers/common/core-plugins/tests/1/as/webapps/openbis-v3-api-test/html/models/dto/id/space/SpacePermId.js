@@ -11,7 +11,7 @@ define(["support/stjs", "dto/id/ObjectPermId", "dto/id/space/ISpaceId"], functio
         ObjectPermId.call(this, permId);
     };
     stjs.extend(SpacePermId, ObjectPermId, [ObjectPermId, ISpaceId], function(constructor, prototype) {
-        prototype['@type'] = 'SpacePermId';
+        prototype['@type'] = 'dto.id.space.SpacePermId';
         constructor.serialVersionUID = 1;
         prototype.getPermId = function() {
             var permId = ObjectPermId.prototype.getPermId.call(this);

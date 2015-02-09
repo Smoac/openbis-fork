@@ -11,7 +11,7 @@ define(["support/stjs", "dto/id/ObjectIdentifier", "dto/id/experiment/IExperimen
         ObjectIdentifier.call(this, identifier);
     };
     stjs.extend(ExperimentIdentifier, ObjectIdentifier, [ObjectIdentifier, IExperimentId], function(constructor, prototype) {
-        prototype['@type'] = 'ExperimentIdentifier';
+        prototype['@type'] = 'dto.id.experiment.ExperimentIdentifier';
         constructor.serialVersionUID = 1;
     }, {});
     return ExperimentIdentifier;

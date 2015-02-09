@@ -16,9 +16,12 @@
 
 package ch.ethz.sis.openbis.generic.shared.api.v3.dto.operation;
 
+import ch.systemsx.cisd.base.annotation.JsonObject;
+
 /**
  * @author pkupczyk
  */
+@JsonObject("dto.operation.IOperationResult")
 public interface IOperationResult
 {
 

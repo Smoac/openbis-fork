@@ -18,7 +18,7 @@ package ch.ethz.sis.openbis.generic.shared.api.v3.dto.search;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
-@JsonObject("StringStartsWithValue")
+@JsonObject("dto.search.StringStartsWithValue")
 public class StringStartsWithValue extends AbstractStringValue
 {
     private static final long serialVersionUID = 1L;

@@ -16,7 +16,7 @@
 
 package ch.ethz.sis.openbis.generic.shared.api.v3.dto.search;
 
-import java.util.Collection;
+import java.util.Collection; 
 import java.util.Collections;
 import java.util.LinkedList;
 
@@ -25,7 +25,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("AbstractCompositeSearchCriterion")
+@JsonObject("dto.search.AbstractCompositeSearchCriterion")
 public abstract class AbstractCompositeSearchCriterion extends AbstractSearchCriterion
 {
 

@@ -21,7 +21,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("VocabularyPropertySearchCriterion")
+@JsonObject("dto.search.VocabularyPropertySearchCriterion")
 public class VocabularyPropertySearchCriterion extends VocabularyFieldSearchCriterion
 {
 

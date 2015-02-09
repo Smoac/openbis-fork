@@ -12,7 +12,7 @@ define(["support/stjs", "sys/exceptions", "dto/id/tag/ITagId"], function (stjs, 
         this.setCode(code);
     };
     stjs.extend(TagCode, null, [ITagId], function(constructor, prototype) {
-        prototype['@type'] = 'TagCode';
+        prototype['@type'] = 'dto.id.tag.TagCode';
         constructor.serialVersionUID = 1;
         prototype.code = null;
         prototype.getCode = function() {

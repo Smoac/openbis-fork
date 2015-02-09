@@ -20,7 +20,7 @@ import java.util.Date;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
-@JsonObject("AbstractDateObjectValue")
+@JsonObject("dto.search.AbstractDateObjectValue")
 public abstract class AbstractDateObjectValue extends AbstractValue<Date> implements IDate
 {
 

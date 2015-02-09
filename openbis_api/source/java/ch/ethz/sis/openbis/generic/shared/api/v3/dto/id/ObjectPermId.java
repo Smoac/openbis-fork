@@ -25,7 +25,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
  * 
  * @author pkupczyk
  */
-@JsonObject("ObjectPermId")
+@JsonObject("dto.id.ObjectPermId")
 public abstract class ObjectPermId implements IObjectId
 {
 

@@ -22,7 +22,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("SpaceSearchCriterion")
+@JsonObject("dto.search.SpaceSearchCriterion")
 public class SpaceSearchCriterion extends AbstractObjectSearchCriterion<ISpaceId>
 {
 

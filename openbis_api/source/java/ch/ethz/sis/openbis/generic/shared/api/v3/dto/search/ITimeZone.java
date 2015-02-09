@@ -21,7 +21,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("ITimeZone")
+@JsonObject("dto.search.ITimeZone")
 public interface ITimeZone
 {
 

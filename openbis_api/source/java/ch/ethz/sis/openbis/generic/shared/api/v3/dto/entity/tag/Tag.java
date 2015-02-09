@@ -28,7 +28,7 @@ import java.util.Date;
 /**
  * Class automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
  */
-@JsonObject("Tag")
+@JsonObject("dto.entity.tag.Tag")
 public class Tag implements Serializable
 {
     private static final long serialVersionUID = 1L;

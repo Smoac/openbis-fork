@@ -22,7 +22,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
  * @author pkupczyk
  */
 
-@JsonObject("ServerTimeZone")
+@JsonObject("dto.search.ServerTimeZone")
 public class ServerTimeZone implements ITimeZone
 {
 

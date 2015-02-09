@@ -6,7 +6,7 @@ define(["support/stjs", "sys/exceptions", "dto/id/IObjectId"], function (stjs, e
         this.setTechId(techId);
     };
     stjs.extend(ObjectTechId, null, [IObjectId], function(constructor, prototype) {
-        prototype['@type'] = 'ObjectTechId';
+        prototype['@type'] = 'dto.id.ObjectTechId';
         constructor.serialVersionUID = 1;
         prototype.techId = null;
         prototype.getTechId = function() {

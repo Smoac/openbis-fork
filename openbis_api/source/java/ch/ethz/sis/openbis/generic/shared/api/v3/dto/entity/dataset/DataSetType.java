@@ -27,7 +27,7 @@ import java.util.Date;
 /**
  * Class automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
  */
-@JsonObject("DataSetType")
+@JsonObject("dto.entity.dataset.DataSetType")
 public class DataSetType implements Serializable
 {
     private static final long serialVersionUID = 1L;

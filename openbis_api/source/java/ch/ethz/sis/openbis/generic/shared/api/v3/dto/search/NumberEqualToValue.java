@@ -21,7 +21,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("NumberEqualToValue")
+@JsonObject("dto.search.NumberEqualToValue")
 public class NumberEqualToValue extends AbstractNumberValue
 {
 

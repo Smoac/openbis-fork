@@ -23,7 +23,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("DeletionType")
+@JsonObject("dto.deletion.DeletionType")
 public enum DeletionType implements Serializable
 {
 

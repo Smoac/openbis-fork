@@ -11,7 +11,7 @@ define(["support/stjs", "dto/id/ObjectPermId", "dto/id/entitytype/IEntityTypeId"
         ObjectPermId.call(this, permId);
     };
     stjs.extend(EntityTypePermId, ObjectPermId, [ObjectPermId, IEntityTypeId], function(constructor, prototype) {
-        prototype['@type'] = 'EntityTypePermId';
+        prototype['@type'] = 'dto.id.entitytype.EntityTypePermId';
         constructor.serialVersionUID = 1;
     }, {});
     return EntityTypePermId;

@@ -11,7 +11,7 @@ define(["support/stjs", "dto/id/ObjectIdentifier", "dto/id/dataset/IDataSetId"],
         ObjectPermId.call(this, permId);
     };
     stjs.extend(DataSetPermId, ObjectPermId, [ObjectPermId, IDataSetId], function(constructor, prototype) {
-        prototype['@type'] = 'DataSetPermId';
+        prototype['@type'] = 'dto.id.dataset.DataSetPermId';
         constructor.serialVersionUID = 1;
     }, {});
     return DataSetPermId;

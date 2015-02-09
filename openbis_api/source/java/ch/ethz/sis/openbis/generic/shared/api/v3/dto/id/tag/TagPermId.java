@@ -24,7 +24,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
  * 
  * @author pkupczyk
  */
-@JsonObject("TagPermId")
+@JsonObject("dto.id.tag.TagPermId")
 public class TagPermId extends ObjectPermId implements ITagId
 {
 

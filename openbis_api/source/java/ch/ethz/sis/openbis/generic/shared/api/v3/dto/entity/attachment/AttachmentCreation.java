@@ -23,7 +23,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("AttachmentCreation")
+@JsonObject("dto.entity.attachment.AttachmentCreation")
 public class AttachmentCreation implements Serializable
 {
     private static final long serialVersionUID = 1L;
@@ -35,7 +35,7 @@ public class AttachmentCreation implements Serializable
     private String description;
 
     private byte[] content;
-    
+
     public String getFileName()
     {
         return fileName;
@@ -75,6 +75,5 @@ public class AttachmentCreation implements Serializable
     {
         this.content = content;
     }
-    
-    
+
 }

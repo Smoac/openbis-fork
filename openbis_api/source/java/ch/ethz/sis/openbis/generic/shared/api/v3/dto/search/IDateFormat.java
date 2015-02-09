@@ -21,7 +21,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("IDateFormat")
+@JsonObject("dto.search.IDateFormat")
 public interface IDateFormat
 {
 

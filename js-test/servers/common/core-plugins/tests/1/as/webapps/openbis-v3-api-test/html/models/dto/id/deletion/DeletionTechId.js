@@ -6,7 +6,7 @@ define(["support/stjs", "dto/id/ObjectTechId", "dto/id/deletion/IDeletionId"], f
         ObjectTechId.call(this, techId);
     };
     stjs.extend(DeletionTechId, ObjectTechId, [ObjectTechId, IDeletionId], function(constructor, prototype) {
-        prototype['@type'] = 'DeletionTechId';
+        prototype['@type'] = 'dto.id.deletion.DeletionTechId';
         constructor.serialVersionUID = 1;
     }, {});
     return DeletionTechId;

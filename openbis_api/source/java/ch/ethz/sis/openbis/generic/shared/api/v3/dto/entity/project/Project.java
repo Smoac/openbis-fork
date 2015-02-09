@@ -30,7 +30,7 @@ import java.util.Date;
 /**
  * Class automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
  */
-@JsonObject("Project")
+@JsonObject("dto.entity.project.Project")
 public class Project implements Serializable
 {
     private static final long serialVersionUID = 1L;

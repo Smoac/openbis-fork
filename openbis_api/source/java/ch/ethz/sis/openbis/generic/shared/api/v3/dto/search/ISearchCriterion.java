@@ -23,7 +23,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("ISearchCriterion")
+@JsonObject("dto.search.ISearchCriterion")
 public interface ISearchCriterion extends Serializable
 {
 

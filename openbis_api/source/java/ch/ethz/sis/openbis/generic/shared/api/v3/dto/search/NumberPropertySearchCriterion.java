@@ -21,7 +21,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("NumberPropertySearchCriterion")
+@JsonObject("dto.search.NumberPropertySearchCriterion")
 public class NumberPropertySearchCriterion extends NumberFieldSearchCriterion
 {
 

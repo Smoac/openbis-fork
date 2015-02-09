@@ -25,7 +25,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
  * 
  * @author pkupczyk
  */
-@JsonObject("ObjectIdentifier")
+@JsonObject("dto.id.ObjectIdentifier")
 public abstract class ObjectIdentifier implements IObjectId
 {
 

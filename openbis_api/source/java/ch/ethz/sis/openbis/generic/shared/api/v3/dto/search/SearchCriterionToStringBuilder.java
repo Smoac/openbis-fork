@@ -23,7 +23,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("SearchCriterionToStringBuilder")
+@JsonObject("dto.search.SearchCriterionToStringBuilder")
 public class SearchCriterionToStringBuilder
 {
 

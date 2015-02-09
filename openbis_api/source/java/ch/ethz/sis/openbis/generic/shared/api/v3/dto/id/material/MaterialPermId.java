@@ -24,7 +24,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
  * 
  * @author pkupczyk
  */
-@JsonObject("MaterialPermId")
+@JsonObject("dto.id.material.MaterialPermId")
 public class MaterialPermId extends ObjectPermId implements IMaterialId
 {
 

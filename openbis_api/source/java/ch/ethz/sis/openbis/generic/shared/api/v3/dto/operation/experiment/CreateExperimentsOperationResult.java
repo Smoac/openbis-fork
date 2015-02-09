@@ -20,10 +20,12 @@ import java.util.List;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.operation.IOperationResult;
+import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
  * @author pkupczyk
  */
+@JsonObject("dto.operation.experiment.CreateExperimentsOperationResult")
 public class CreateExperimentsOperationResult implements IOperationResult
 {
 

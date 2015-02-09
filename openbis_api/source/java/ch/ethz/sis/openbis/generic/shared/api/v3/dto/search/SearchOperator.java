@@ -22,7 +22,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
  * @author pkupczyk
  */
 
-@JsonObject("SearchOperator")
+@JsonObject("dto.search.SearchOperator")
 public enum SearchOperator
 {
 

@@ -28,7 +28,7 @@ import java.util.Date;
 /**
  * Class automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
  */
-@JsonObject("Space")
+@JsonObject("dto.entity.space.Space")
 public class Space implements Serializable
 {
     private static final long serialVersionUID = 1L;

@@ -22,7 +22,7 @@ import java.io.Serializable;
 /**
  * Class automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
  */
-@JsonObject("SampleTypeFetchOptions")
+@JsonObject("dto.fetchoptions.sample.SampleTypeFetchOptions")
 public class SampleTypeFetchOptions implements Serializable
 {
     private static final long serialVersionUID = 1L;

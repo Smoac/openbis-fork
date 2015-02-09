@@ -1,4 +1,9 @@
 /**
- *  @author pkupczyk
+ * @author pkupczyk
  */
-var DeletionType = stjs.enumeration("PERMANENT", "TRASH");
+define([ "support/stjs" ], function(stjs) {
+	return {
+		PERMANENT : "PERMANENT",
+		TRASH : "TRASH"
+	};
+})

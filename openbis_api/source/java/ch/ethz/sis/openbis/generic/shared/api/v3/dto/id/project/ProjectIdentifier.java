@@ -24,7 +24,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
  * 
  * @author pkupczyk
  */
-@JsonObject("ProjectIdentifier")
+@JsonObject("dto.id.project.ProjectIdentifier")
 public class ProjectIdentifier extends ObjectIdentifier implements IProjectId
 {
 

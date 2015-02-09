@@ -308,10 +308,6 @@ stjs.extend=function(_constructor, _super, _implements, _initializer, _typeDescr
 	// run the initializer to assign all static and instance variables/functions
 	if(_initializer != null){
 		_initializer(_constructor, _constructor.prototype);
-		
-		if (_constructor.prototype["@type"]) {
-			require("support/type_registry").register(_constructor.prototype["@type"], _constructor);
-		}
 	}
 
 	_constructor.$typeDescription = _typeDescription;

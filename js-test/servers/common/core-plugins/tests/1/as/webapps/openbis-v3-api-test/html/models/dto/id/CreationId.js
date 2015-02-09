@@ -6,7 +6,7 @@ define(["support/stjs", "dto/id/sample/ISampleId", "dto/id/dataset/IDataSetId", 
         this.creationId = creationId;
     };
     stjs.extend(CreationId, null, [ISampleId, IDataSetId, IExperimentId, IProjectId, ISpaceId, IMaterialId], function(constructor, prototype) {
-        prototype['@type'] = 'CreationId';
+        prototype['@type'] = 'dto.id.CreationId';
         constructor.serialVersionUID = 1;
         prototype.creationId = null;
         prototype.getCreationId = function() {

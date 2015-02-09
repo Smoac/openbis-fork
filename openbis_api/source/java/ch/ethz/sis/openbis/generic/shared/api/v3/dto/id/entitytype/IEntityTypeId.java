@@ -24,7 +24,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
  * 
  * @author pkupczyk
  */
-@JsonObject("IEntityTypeId")
+@JsonObject("dto.id.entitytype.IEntityTypeId")
 public interface IEntityTypeId extends IObjectId
 {
 

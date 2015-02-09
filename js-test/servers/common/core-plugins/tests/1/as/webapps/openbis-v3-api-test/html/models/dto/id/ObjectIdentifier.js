@@ -10,7 +10,7 @@ define(["support/stjs", "sys/exceptions", "dto/id/IObjectId"], function (stjs, e
         this.setIdentifier(identifier);
     };
     stjs.extend(ObjectIdentifier, null, [IObjectId], function(constructor, prototype) {
-        prototype['@type'] = 'ObjectIdentifier';
+        prototype['@type'] = 'dto.id.ObjectIdentifier';
         constructor.serialVersionUID = 1;
         prototype.identifier = null;
         prototype.getIdentifier = function() {

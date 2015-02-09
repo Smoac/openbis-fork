@@ -21,7 +21,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("AbstractNumberValue")
+@JsonObject("dto.search.AbstractNumberValue")
 public abstract class AbstractNumberValue extends AbstractValue<Number>
 {
 

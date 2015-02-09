@@ -1,4 +1,4 @@
-define(['jquery', 'support/Utils'], function($, stjsUtil) {
+define([ 'jquery', 'support/Utils' ], function($, stjsUtil) {
 
 	var _private = {
 
@@ -25,8 +25,13 @@ define(['jquery', 'support/Utils'], function($, stjsUtil) {
 					dfd.reject(response.error);
 				} else {
 					_private.log("Request succeeded - data: " + JSON.stringify(settings.data));
-					originalSuccess(response.result);
-					dfd.resolve(response.result);
+					stjsUtil.fromJson(response.result).done(function(dtos) {
+						originalSuccess(dtos);
+						dfd.resolve(dtos);
+					}).fail(function() {
+						originalError(arguments);
+						dfd.reject(arguments);
+					});
 				}
 			}
 
@@ -37,7 +42,7 @@ define(['jquery', 'support/Utils'], function($, stjsUtil) {
 			}
 
 			$.ajax(settings).done(success).fail(error);
-			
+
 			return dfd.promise();
 		},
 
@@ -60,15 +65,15 @@ define(['jquery', 'support/Utils'], function($, stjsUtil) {
 				}
 			}).done(function(sessionToken) {
 				if (sessionToken && sessionToken.indexOf(user) > -1) {
-				_private.sessionToken = sessionToken;
-				dfd.resolve(sessionToken);
-			} else {
-				dfd.reject();
-			}
+					_private.sessionToken = sessionToken;
+					dfd.resolve(sessionToken);
+				} else {
+					dfd.reject();
+				}
 			}).fail(function() {
 				dfd.reject();
 			});
-			
+
 			return dfd.promise();
 		}
 
@@ -79,45 +84,25 @@ define(['jquery', 'support/Utils'], function($, stjsUtil) {
 					"method" : "logout",
 					"params" : [ _private.sessionToken ]
 				}
-			})
-			.done(function() {
-				_private.sessionToken = null;				
+			}).done(function() {
+				_private.sessionToken = null;
 			});
 		}
 
 		this.mapExperiments = function(experimentIds, experimentFetchOptions) {
-			var dfd = $.Deferred();
-
-			_private.ajaxRequest({
+			return _private.ajaxRequest({
 				url : openbisUrl,
 				data : {
 					"method" : "mapExperiments",
 					"params" : [ _private.sessionToken, experimentIds, experimentFetchOptions ]
 				}
-			})
-			.done(function(experiments) {
-				require(['dto/entity/experiment/Experiment', 
-				         'dto/entity/tag/Tag',
-				         'dto/id/tag/TagPermId'], function() {
-					var experimentDTOs = {};
-					for(var experimentPermId  in experiments) {
-						var experimentJson = experiments[experimentPermId];
-						var newExperiment = stjsUtil.fromJson(experimentJson);
-						experimentDTOs[newExperiment.getPermId().getPermId()] = newExperiment;
-					}
-					dfd.resolve(experimentDTOs);
-				});
-			}).fail(function() {
-				dfd.reject(arguments);
 			});
-			
-			return dfd.promise();
 		}
 
 		this.performOperations = function(operations) {
 			return _private.ajaxRequest({
 				"method" : "performOperations",
-				"params" : [_private.sessionToken, operations]
+				"params" : [ _private.sessionToken, operations ]
 			});
 		}
 
@@ -142,28 +127,13 @@ define(['jquery', 'support/Utils'], function($, stjsUtil) {
 		}
 
 		this.searchSamples = function(sampleSearchCriterion, sampleFetchOptions) {
-			var dfd = $.Deferred();
-
-			_private.ajaxRequest({
+			return _private.ajaxRequest({
 				url : openbisUrl,
 				data : {
 					"method" : "searchSamples",
 					"params" : [ _private.sessionToken, sampleSearchCriterion, sampleFetchOptions ]
 				}
-			}).done(function(samples) {
-				require(['dto/entity/sample/Sample'], function() {
-					var sampleDTOs = {};
-					for(var sampleId in samples) {
-						var sampleJson = samples[sampleId];
-						var newSample = stjsUtil.fromJson(sampleJson);
-						sampleDTOs[newSample.getPermId().getPermId()] = newSample;
-					}
-					dfd.resolve(sampleDTOs);
-				});
-			}).fail(function() {
-				dfd.reject(arguments);
-			});
-			return dfd.promise();
+			})
 		}
 
 		this.searchDataSets = function(dataSetSearchCriterion, dataSetFetchOptions) {
@@ -171,7 +141,7 @@ define(['jquery', 'support/Utils'], function($, stjsUtil) {
 				url : openbisUrl,
 				data : {
 					"method" : "searchDataSets",
-					"params" : [_private.sessionToken, dataSetSearchCriterion, dataSetFetchOptions]
+					"params" : [ _private.sessionToken, dataSetSearchCriterion, dataSetFetchOptions ]
 				}
 			});
 		}
@@ -219,35 +189,35 @@ define(['jquery', 'support/Utils'], function($, stjsUtil) {
 		this.deleteExperiments = function(experimentIds, deletionOptions) {
 			return _private.ajaxRequest({
 				"method" : "deleteExperiments",
-				"params" : [_private.sessionToken, experimentIds, deletionOptions]
+				"params" : [ _private.sessionToken, experimentIds, deletionOptions ]
 			});
 		}
 
 		this.deleteSamples = function(sampleIds, deletionOptions) {
 			return _private.ajaxRequest({
 				"method" : "deleteSamples",
-				"params" : [_private.sessionToken, sampleIds, deletionOptions]
+				"params" : [ _private.sessionToken, sampleIds, deletionOptions ]
 			});
 		}
 
 		this.listDeletions = function(fetchOptions) {
 			return _private.ajaxRequest({
 				"method" : "listDeletions",
-				"params" : [_private.sessionToken, fetchOptions]
+				"params" : [ _private.sessionToken, fetchOptions ]
 			});
 		}
 
 		this.revertDeletions = function(deletionIds) {
 			return _private.ajaxRequest({
 				"method" : "revertDeletions",
-				"params" : [_private.sessionToken, deletionIds]
+				"params" : [ _private.sessionToken, deletionIds ]
 			});
 		}
 
 		this.confirmDeletions = function(deletionIds) {
 			return _private.ajaxRequest({
 				"method" : "confirmDeletions",
-				"params" : [_private.sessionToken, deletionIds]
+				"params" : [ _private.sessionToken, deletionIds ]
 			});
 		}
 	}

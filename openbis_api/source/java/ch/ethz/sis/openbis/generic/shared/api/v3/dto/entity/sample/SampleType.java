@@ -27,7 +27,7 @@ import java.util.Date;
 /**
  * Class automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
  */
-@JsonObject("SampleType")
+@JsonObject("dto.entity.sample.SampleType")
 public class SampleType implements Serializable
 {
     private static final long serialVersionUID = 1L;

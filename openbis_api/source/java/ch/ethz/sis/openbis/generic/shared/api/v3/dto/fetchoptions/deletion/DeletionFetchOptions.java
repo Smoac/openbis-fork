@@ -23,7 +23,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("DeletionFetchOptions")
+@JsonObject("dto.fetchoptions.deletion.DeletionFetchOptions")
 public class DeletionFetchOptions implements Serializable
 {
     private static final long serialVersionUID = 1L;

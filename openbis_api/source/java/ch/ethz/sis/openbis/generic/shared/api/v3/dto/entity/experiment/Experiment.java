@@ -36,7 +36,7 @@ import java.util.Set;
 /**
  * Class automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
  */
-@JsonObject("Experiment")
+@JsonObject("dto.entity.experiment.Experiment")
 public class Experiment implements Serializable
 {
     private static final long serialVersionUID = 1L;

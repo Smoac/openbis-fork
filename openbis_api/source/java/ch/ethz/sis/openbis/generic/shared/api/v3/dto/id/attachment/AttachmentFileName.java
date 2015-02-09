@@ -25,7 +25,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
  * 
  * @author pkupczyk
  */
-@JsonObject("AttachmentFileName")
+@JsonObject("dto.id.attachment.AttachmentFileName")
 public class AttachmentFileName implements IAttachmentId, Serializable
 {
 

@@ -18,7 +18,7 @@ package ch.ethz.sis.openbis.generic.shared.api.v3.dto.search;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
-@JsonObject("StringFieldSearchCriterion")
+@JsonObject("dto.search.StringFieldSearchCriterion")
 public class StringFieldSearchCriterion extends AbstractFieldSearchCriterion<AbstractStringValue>
 {
 

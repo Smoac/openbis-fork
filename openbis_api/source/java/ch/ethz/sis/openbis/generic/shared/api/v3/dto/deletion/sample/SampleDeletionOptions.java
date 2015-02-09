@@ -22,7 +22,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("SampleDeletionOptions")
+@JsonObject("dto.deletion.sample.SampleDeletionOptions")
 public class SampleDeletionOptions extends AbstractObjectDeletionOptions
 {
 

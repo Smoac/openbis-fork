@@ -11,7 +11,7 @@ define(["support/stjs", "sys/exceptions", "dto/id/attachment/IAttachmentId"], fu
         this.setFileName(fileName);
     };
     stjs.extend(AttachmentFileName, null, [IAttachmentId], function(constructor, prototype) {
-        prototype['@type'] = 'AttachmentFileName';
+        prototype['@type'] = 'dto.id.attachment.AttachmentFileName';
         constructor.serialVersionUID = 1;
         prototype.fileName = null;
         prototype.getFileName = function() {

@@ -21,7 +21,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("LongDateFormat")
+@JsonObject("dto.search.LongDateFormat")
 public class LongDateFormat implements IDateFormat
 {
 

@@ -21,7 +21,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("AbstractTimeZoneValue")
+@JsonObject("dto.search.AbstractTimeZoneValue")
 public class AbstractTimeZoneValue
 {
 

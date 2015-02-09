@@ -24,7 +24,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
  * 
  * @author pkupczyk
  */
-@JsonObject("ProjectPermId")
+@JsonObject("dto.id.project.ProjectPermId")
 public class ProjectPermId extends ObjectPermId implements IProjectId
 {
 

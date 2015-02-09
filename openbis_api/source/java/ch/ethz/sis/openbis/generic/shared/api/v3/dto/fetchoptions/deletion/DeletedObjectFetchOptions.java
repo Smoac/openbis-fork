@@ -23,7 +23,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("DeletedObjectFetchOptions")
+@JsonObject("dto.fetchoptions.deletion.DeletedObjectFetchOptions")
 public class DeletedObjectFetchOptions implements Serializable
 {
 

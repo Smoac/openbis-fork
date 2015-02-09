@@ -11,7 +11,7 @@ define(["support/stjs", "dto/id/ObjectPermId", "dto/id/tag/ITagId"], function (s
         ObjectPermId.call(this, permId);
     };
     stjs.extend(TagPermId, ObjectPermId, [ObjectPermId, ITagId], function(constructor, prototype) {
-        prototype['@type'] = 'TagPermId';
+        prototype['@type'] = 'dto.id.tag.TagPermId';
         constructor.serialVersionUID = 1;
     }, {});
     return TagPermId;

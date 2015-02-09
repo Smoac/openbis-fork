@@ -1,4 +1,9 @@
 /**
- *  @author pkupczyk
+ * @author pkupczyk
  */
-var SearchOperator = stjs.enumeration("AND", "OR");
+define([ "support/stjs" ], function(stjs) {
+	return {
+		AND : "AND",
+		OR : "OR"
+	};
+})

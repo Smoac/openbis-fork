@@ -21,7 +21,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("AnyPropertySearchCriterion")
+@JsonObject("dto.search.AnyPropertySearchCriterion")
 public class AnyPropertySearchCriterion extends StringFieldSearchCriterion
 {
 

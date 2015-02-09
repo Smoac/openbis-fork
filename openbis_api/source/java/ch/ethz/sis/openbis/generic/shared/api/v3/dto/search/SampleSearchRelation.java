@@ -21,7 +21,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("SampleSearchRelation")
+@JsonObject("dto.search.SampleSearchRelation")
 enum SampleSearchRelation
 {
 

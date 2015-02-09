@@ -21,7 +21,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("IDate")
+@JsonObject("dto.search.IDate")
 public interface IDate
 {
 

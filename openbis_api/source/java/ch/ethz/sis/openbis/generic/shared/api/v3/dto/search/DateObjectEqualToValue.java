@@ -20,7 +20,7 @@ import java.util.Date;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
-@JsonObject("DateObjectEqualToValue")
+@JsonObject("dto.search.DateObjectEqualToValue")
 public class DateObjectEqualToValue extends AbstractDateObjectValue
 {
     private static final long serialVersionUID = 1L;

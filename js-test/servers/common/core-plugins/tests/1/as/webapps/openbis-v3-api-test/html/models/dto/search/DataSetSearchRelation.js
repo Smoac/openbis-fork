@@ -1,4 +1,11 @@
 /**
- *  @author pkupczyk
+ * @author pkupczyk
  */
-var DataSetSearchRelation = stjs.enumeration("DATASET", "PARENTS", "CHILDREN", "CONTAINER");
+define([ "support/stjs" ], function(stjs) {
+	return {
+		DATASET : "DATASET",
+		PARENTS : "PARENTS",
+		CHILDREN : "CHILDREN",
+		CONTAINER : "CONTAINER"
+	};
+})

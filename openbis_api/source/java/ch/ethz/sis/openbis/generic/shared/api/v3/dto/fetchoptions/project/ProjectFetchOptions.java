@@ -24,7 +24,7 @@ import java.io.Serializable;
 /**
  * Class automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
  */
-@JsonObject("ProjectFetchOptions")
+@JsonObject("dto.fetchoptions.project.ProjectFetchOptions")
 public class ProjectFetchOptions implements Serializable
 {
     private static final long serialVersionUID = 1L;

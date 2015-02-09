@@ -30,7 +30,7 @@ import java.io.Serializable;
 /**
  * Class automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
  */
-@JsonObject("SampleFetchOptions")
+@JsonObject("dto.fetchoptions.sample.SampleFetchOptions")
 public class SampleFetchOptions implements Serializable
 {
     private static final long serialVersionUID = 1L;

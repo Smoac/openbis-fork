@@ -22,7 +22,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("ExperimentSearchCriterion")
+@JsonObject("dto.search.ExperimentSearchCriterion")
 public class ExperimentSearchCriterion extends AbstractEntitySearchCriterion<IExperimentId>
 {
 

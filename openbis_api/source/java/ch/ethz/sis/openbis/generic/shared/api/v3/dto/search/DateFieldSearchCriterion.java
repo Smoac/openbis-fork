@@ -24,7 +24,7 @@ import java.util.List;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
-@JsonObject("DateFieldSearchCriterion")
+@JsonObject("dto.search.DateFieldSearchCriterion")
 public class DateFieldSearchCriterion extends AbstractFieldSearchCriterion<IDate>
 {
 

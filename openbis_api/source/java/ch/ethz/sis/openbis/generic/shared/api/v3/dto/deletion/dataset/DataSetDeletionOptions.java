@@ -22,7 +22,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("DataSetDeletionOptions")
+@JsonObject("dto.deletion.dataset.DataSetDeletionOptions")
 public class DataSetDeletionOptions extends AbstractObjectDeletionOptions
 {
 

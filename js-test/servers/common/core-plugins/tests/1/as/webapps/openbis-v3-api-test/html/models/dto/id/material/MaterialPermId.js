@@ -11,7 +11,7 @@ define(["support/stjs", "dto/id/ObjectIdentifier", "dto/id/material/IMaterialId"
         ObjectPermId.call(this, permId);
     };
     stjs.extend(MaterialPermId, ObjectPermId, [ObjectPermId, IMaterialId], function(constructor, prototype) {
-        prototype['@type'] = 'MaterialPermId';
+        prototype['@type'] = 'dto.id.material.MaterialPermId';
         constructor.serialVersionUID = 1;
     }, {});
     return MaterialPermId;

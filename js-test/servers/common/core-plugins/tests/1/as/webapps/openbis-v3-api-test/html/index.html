@@ -1,101 +1,63 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="utf-8">
-  <title>Openbis V3 Api Test</title>
-  <link rel="stylesheet" href="../common-test/qunit.css">
+<meta charset="utf-8">
+<title>Openbis V3 Api Test</title>
+<link rel="stylesheet" href="../common-test/qunit.css">
 
-  <script>
-    var requirejs = {
-      paths: {
-          "jquery": "/openbis/resources/js/jquery",
-        "qunit": "support/qunit",
-        "qunit-report": "support/qunit-reporter-junit",  
-        "common-test": "../common-test/common-test",
-        "dto": "models/dto",
-        "sys": "models/sys"
-      },
-      shim: {
-        "qunit": {
-          exports: "QUnit",
-          init: function() {
-                 QUnit.config.autoload = false;
-                 QUnit.config.autostart = false;
-             }
-        },
-        "qunit-report": {
-          deps: ['qunit'],
-        },
-        "common-test": {
-          deps: ['qunit', 'qunit-report'],
-        },
-        'support/Utils': {
-          deps: ['support/stjs', 'support/type_registry', 'common-test']
-        },
-        'support/stjs': {
-          exports: "stjs",
-          deps: ['support/underscore-min.js']
-        },        
-        'support/underscore-min': {
-          exports: "_"
-        },
-        
-        // DTO dependencies: 
-        // Generally, if the dto has a call "new SomethingSomething" it should be an explicit dependency in the dto module definition
-        // these are currently needed for "fromJSON" reconstruction but this is still not the right way
-        
-        'dto/entity/experiment/Experiment': {
-          deps: [ 'dto/id/experiment/ExperimentPermId', 
-              'dto/id/experiment/ExperimentIdentifier', 
-              'dto/entity/experiment/ExperimentType',
-              'dto/entity/project/Project',
-              'dto/entity/person/Person']
-        },
-        'dto/entity/sample/Sample': {
-          deps: [ 'dto/id/sample/SamplePermId',
-              'dto/id/sample/SampleIdentifier', 
-              'dto/entity/sample/SampleType', 
-              'dto/entity/space/Space',
-              'dto/entity/experiment/Experiment' ]
-        },        
-        'dto/entity/experiment/ExperimentType': {
-          deps: ['dto/fetchoptions/experiment/ExperimentTypeFetchOptions',
-              'dto/id/entitytype/EntityTypePermId']
-        },
-        'dto/entity/project/Project': {
-          deps: ['dto/id/project/ProjectPermId',
-              'dto/id/project/ProjectIdentifier',
-              'dto/entity/space/Space']
-        },
-        'dto/entity/space/Space': {
-          deps: ['dto/fetchoptions/space/SpaceFetchOptions',
-              'dto/id/space/SpacePermId']
-        }
-        
-      }
-  };
-  
-  </script>
-  <script src="support/require-src.js"></script>
+<script>
+	var requirejs = {
+		paths : {
+			"jquery" : "/openbis/resources/js/jquery",
+			"qunit" : "support/qunit",
+			"qunit-report" : "support/qunit-reporter-junit",
+			"common-test" : "../common-test/common-test",
+			"dto" : "models/dto",
+			"sys" : "models/sys"
+		},
+		shim : {
+			"qunit" : {
+				exports : "QUnit",
+				init : function() {
+					QUnit.config.autoload = false;
+					QUnit.config.autostart = false;
+				}
+			},
+			"qunit-report" : {
+				deps : [ 'qunit' ],
+			},
+			"common-test" : {
+				deps : [ 'qunit', 'qunit-report' ],
+			},
+			'support/Utils' : {
+				deps : [ 'support/stjs', 'common-test' ]
+			},
+			'support/stjs' : {
+				exports : "stjs",
+				deps : [ 'support/underscore-min.js' ]
+			},
+			'support/underscore-min' : {
+				exports : "_"
+			}
 
-  <script>
-    require(['jquery', 
-    'qunit', 
-    'openbis-v3-api-test',
-    'support/Utils'], function($, 
-          qunit, 
-          tester, thisOneIsHereOnlyToMakeSureEverythingIsLoadedTODORemoveMe) {
-        qunit.load();
-        qunit.start();
-        tester();
-    });
-  </script>
+		}
+	};
+</script>
+<script src="support/require-src.js"></script>
+
+<script>
+	require([ 'jquery', 'qunit', 'openbis-v3-api-test', 'support/Utils' ], function($, qunit, tester, thisOneIsHereOnlyToMakeSureEverythingIsLoadedTODORemoveMe) {
+		qunit.load();
+		qunit.start();
+		tester();
+	});
+</script>
 
 
 </head>
 <body>
-  <div id="qunit"></div>
-  <div id="qunit-fixture"></div>
-  <div id="qunit-junit-report"></div>
+	<div id="qunit"></div>
+	<div id="qunit-fixture"></div>
+	<div id="qunit-junit-report"></div>
 </body>
 </html>

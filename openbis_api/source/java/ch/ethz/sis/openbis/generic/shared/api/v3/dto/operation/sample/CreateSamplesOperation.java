@@ -20,10 +20,12 @@ import java.util.List;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.operation.IOperation;
+import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
  * @author pkupczyk
  */
+@JsonObject("dto.operation.sample.CreateSamplesOperation")
 public class CreateSamplesOperation implements IOperation
 {
 

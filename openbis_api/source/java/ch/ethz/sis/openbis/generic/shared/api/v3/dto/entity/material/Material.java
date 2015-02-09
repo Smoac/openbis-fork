@@ -23,7 +23,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("Material")
+@JsonObject("dto.entity.material.Material")
 public class Material implements Serializable
 {
 

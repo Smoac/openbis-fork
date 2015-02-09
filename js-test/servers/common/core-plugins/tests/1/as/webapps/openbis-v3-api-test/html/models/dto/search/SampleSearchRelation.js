@@ -1,4 +1,11 @@
 /**
- *  @author pkupczyk
+ * @author pkupczyk
  */
-var SampleSearchRelation = stjs.enumeration("SAMPLE", "PARENTS", "CHILDREN", "CONTAINER");
+define([ "support/stjs" ], function(stjs) {
+	return {
+		SAMPLE : "SAMPLE",
+		PARENTS : "PARENTS",
+		CHILDREN : "CHILDREN",
+		CONTAINER : "CONTAINER"
+	};
+})

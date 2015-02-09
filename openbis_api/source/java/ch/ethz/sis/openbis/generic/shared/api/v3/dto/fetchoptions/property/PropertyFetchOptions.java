@@ -23,7 +23,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("PropertyFetchOptions")
+@JsonObject("dto.fetchoptions.property.PropertyFetchOptions")
 public class PropertyFetchOptions implements Serializable
 {
     private static final long serialVersionUID = 1L;

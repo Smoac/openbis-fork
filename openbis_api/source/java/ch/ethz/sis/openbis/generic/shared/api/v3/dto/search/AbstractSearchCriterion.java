@@ -22,7 +22,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
  * @author pkupczyk
  */
 
-@JsonObject("AbstractSearchCriterion")
+@JsonObject("dto.search.AbstractSearchCriterion")
 public abstract class AbstractSearchCriterion implements ISearchCriterion
 {
 

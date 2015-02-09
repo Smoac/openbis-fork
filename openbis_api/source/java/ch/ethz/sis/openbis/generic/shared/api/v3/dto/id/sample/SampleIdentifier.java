@@ -25,7 +25,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
  * 
  * @author pkupczyk
  */
-@JsonObject("SampleIdentifier")
+@JsonObject("dto.id.sample.SampleIdentifier")
 public class SampleIdentifier extends ObjectIdentifier implements ISampleId
 {
 

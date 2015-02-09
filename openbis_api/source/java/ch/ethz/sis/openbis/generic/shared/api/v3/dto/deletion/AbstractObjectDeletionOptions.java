@@ -18,9 +18,12 @@ package ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion;
 
 import java.io.Serializable;
 
+import ch.systemsx.cisd.base.annotation.JsonObject;
+
 /**
  * @author pkupczyk
  */
+@JsonObject("dto.deletion.AbstractObjectDeletionOptions")
 public class AbstractObjectDeletionOptions implements Serializable
 {
 

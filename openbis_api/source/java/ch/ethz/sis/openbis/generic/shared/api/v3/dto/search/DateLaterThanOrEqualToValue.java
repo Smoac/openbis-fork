@@ -21,7 +21,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("DateLaterThanOrEqualToValue")
+@JsonObject("dto.search.DateLaterThanOrEqualToValue")
 public class DateLaterThanOrEqualToValue extends AbstractDateValue
 {
 

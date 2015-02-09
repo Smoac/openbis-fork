@@ -18,7 +18,7 @@ package ch.ethz.sis.openbis.generic.shared.api.v3.dto.search;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
-@JsonObject("AnyStringValue")
+@JsonObject("dto.search.AnyStringValue")
 public class AnyStringValue extends AbstractStringValue
 {
     private static final long serialVersionUID = 1L;
