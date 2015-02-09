@@ -66,15 +66,18 @@ function StorageListView(storageListController, storageListModel) {
 				
 				if(storagePropertyGroup) {
 					var userProperty = sample.properties[storagePropertyGroup.userProperty];
-					if(userProperty && userProperty !== "") {
+					var nameProperty = sample.properties[storagePropertyGroup.nameProperty];
+					
+					if(	(userProperty && userProperty !== "") ||
+						(nameProperty && nameProperty !== "")) {
 						dataList.push({
 							groupDisplayName : storagePropertyGroup.groupDisplayName,
-							nameProperty : sample.properties[storagePropertyGroup.nameProperty],
+							nameProperty : nameProperty,
 							rowProperty : sample.properties[storagePropertyGroup.rowProperty],
 							columnProperty : sample.properties[storagePropertyGroup.columnProperty],
 							boxProperty : sample.properties[storagePropertyGroup.boxProperty],
 							positionProperty : sample.properties[storagePropertyGroup.positionProperty],
-							userProperty : sample.properties[storagePropertyGroup.userProperty]
+							userProperty : userProperty
 						});
 					}
 				}
