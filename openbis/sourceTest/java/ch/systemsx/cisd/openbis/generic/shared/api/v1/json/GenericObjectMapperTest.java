@@ -24,7 +24,6 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 
 import ch.systemsx.cisd.openbis.generic.shared.api.common.json.AbstractGenericObjectMapperTest;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.MaterialIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.sample.SamplePermIdId;
 
 /**
@@ -36,14 +35,6 @@ public class GenericObjectMapperTest extends AbstractGenericObjectMapperTest
     public GenericObjectMapperTest()
     {
         super(new GenericObjectMapper());
-    }
-
-    @Test
-    public void testObjectWithNameThatExistsInBothV1AndV3IsDeserializedAsV1() throws Exception
-    {
-        Sample sample = deserialize("objectWithNameThatExistsInBothV1AndV3.json");
-        Assert.assertEquals("ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample", sample.getClass().getName());
-        Assert.assertEquals("TEST_SAMPLE", sample.getCode());
     }
 
     @Test

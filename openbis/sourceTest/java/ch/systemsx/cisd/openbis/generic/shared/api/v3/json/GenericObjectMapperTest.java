@@ -22,7 +22,6 @@ import org.testng.annotations.Test;
 
 import com.fasterxml.jackson.databind.JsonMappingException;
 
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.Sample;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SamplePermId;
 import ch.systemsx.cisd.openbis.generic.shared.api.common.json.AbstractGenericObjectMapperTest;
 
@@ -35,14 +34,6 @@ public class GenericObjectMapperTest extends AbstractGenericObjectMapperTest
     public GenericObjectMapperTest()
     {
         super(new GenericObjectMapper());
-    }
-
-    @Test
-    public void testObjectWithNameThatExistsInBothV1AndV3IsDeserializedAsV3() throws Exception
-    {
-        Sample sample = deserialize("objectWithNameThatExistsInBothV1AndV3.json");
-        Assert.assertEquals("ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.Sample", sample.getClass().getName());
-        Assert.assertEquals("TEST_SAMPLE", sample.getCode());
     }
 
     @Test(expectedExceptions = { JsonMappingException.class })

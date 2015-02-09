@@ -1,4 +1,4 @@
 {
-	"@type" : "SamplePermId",
+	"@type" : "dto.id.sample.SamplePermId",
 	"permId" : "TEST_PERM_ID"
 }
