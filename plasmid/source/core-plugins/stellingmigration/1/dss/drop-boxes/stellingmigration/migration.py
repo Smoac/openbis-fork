@@ -27,7 +27,8 @@ definitions = {
                                                      "name" : "NAME"
                                                      },
                                       "ENZYMES" : {
-                                                     "name" : "NAME"
+                                                     "name" : "NAME",
+                                                     "concentration" : "CONCENTRATION"
                                                      }
                                      },
                 "MEDIA" : 
@@ -56,7 +57,8 @@ definitions = {
                                                      "name" : "NAME"
                                                      },
                                       "ENZYMES" : {
-                                                     "name" : "NAME"
+                                                     "name" : "NAME",
+                                                     "concentration" : "CONCENTRATION"
                                                      }
                                      },
                 "POMBE" : 
@@ -167,22 +169,27 @@ def translate(tr, sample, properties):
                 oldAnnotationsRoot = ET.fromstring(propertyValue)
         except Exception:
             print "[ERROR - PROCESSING PROPERTY_CODE] " + sample.code + " " + property
-        
+            
         if oldAnnotationsRoot is not None:
             for child in oldAnnotationsRoot:
                     try:
-                        newAnnotationsNode = ET.SubElement(newAnnotationsRoot, "Sample")
                         permId = child.attrib["permId"]
-                        print "[INFO - PROCESSING PERM_ID] " + sample.code + " " + permId
-                        newAnnotationsNode.attrib["permId"] = permId
                         linkedSample = getSampleByPermId(tr, permId)
-                        newAnnotationsNode.attrib["identifier"] = linkedSample.getSampleIdentifier()
-                        
-                        for oldName in propertyDefinitions:
-                            newName = propertyDefinitions[oldName]
-                            value = getValueOrNull(child.attrib, oldName)
-                            if(value is not None):
-                                newAnnotationsNode.attrib[newName] = value
+                        identifier = linkedSample.getSampleIdentifier()
+                        if property == "GENERAL_PROTOCOL":
+                            #Don't migrate them, they should be parents and contain no information.
+                            #sample.getParentSampleIdentifiers().add(identifier) 
+                            print "[PROTOCOL] " + sample.code + " " + identifier
+                        else:
+                            newAnnotationsNode = ET.SubElement(newAnnotationsRoot, "Sample")
+                            print "[INFO - PROCESSING PERM_ID] " + sample.code + " " + permId
+                            newAnnotationsNode.attrib["permId"] = permId
+                            newAnnotationsNode.attrib["identifier"] = identifier
+                            for oldName in propertyDefinitions:
+                                newName = propertyDefinitions[oldName]
+                                value = getValueOrNull(child.attrib, oldName)
+                                if(value is not None):
+                                    newAnnotationsNode.attrib[newName] = value
                     except Exception:
                         print "[ERROR - PROCESSING PERM_ID] " + sample.code + " " + permId
     save(tr, sample, "ANNOTATIONS_STATE", ET.tostring(newAnnotationsRoot, encoding='utf-8'))
