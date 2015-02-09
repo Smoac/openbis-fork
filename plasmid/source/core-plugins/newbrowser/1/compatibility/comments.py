@@ -10,7 +10,9 @@ Example XML property value handled by this script:
   <commentEntry date="2011-02-20 14:19:28 GMT+01:00" person="felmer">Here is the 5th  entry text - a warning!<commentEntry>
 </root>
 """
-  
+##
+## Configuration
+##
 COMMENT_ENTRY_ELEMENT_LABEL = 'commentEntry'
 
 """ labels of table columns and corresponding input fields """
@@ -27,7 +29,9 @@ ADD_ACTION_LABEL = 'Add Comment Entry'
 EDIT_ACTION_LABEL = 'Edit'
 DELETE_ACTION_LABEL = 'Delete'
   
-  
+##
+## Main Methods
+##
 def configureUI():
     """Create table builder and add headers of columns."""
     builder = createTableBuilder()
@@ -138,20 +142,11 @@ def updateFromUI(action):
     """Update value of the managed property to XML string created from modified list of elements."""
     property.value = converter.convertToString(elements)
 
-def _createCommentEntry(comment_text_list):
-    #if comment_text_list is not None:
-    commentEntry = elementFactory().createElement(COMMENT_ENTRY_ELEMENT_LABEL)
-                     
-    commentEntry.addAttribute(PERSON_ATTRIBUTE, person.getUserId())
-    commentEntry.addAttribute(DATE_ATTRIBUTE,str(Date().getTime()))
-    commentEntry.setData(comment_text_list)
-    return commentEntry   
-
+##
+## Form Methods
+##
 def showRawValueInForms():
     return False
- 
-def batchColumnNames():
-    return [COMMENT_ENTRY_ELEMENT_LABEL]
  
 def updateFromRegistrationForm(bindings):
     elements = []
@@ -162,13 +157,27 @@ def updateFromRegistrationForm(bindings):
             
     property.value = propertyConverter().convertToString(elements)
 
+##
+## Batch Import Methods
+##
+def batchColumnNames():
+    return [COMMENT_ENTRY_ELEMENT_LABEL]
 
-
-        
 def updateFromBatchInput(bindings):
     elements = []
-    input = bindings.get('')
+    input = bindings.get('COMMENTENTRY')
     if input is not None:
         commentEntry = _createCommentEntry(input)
         elements.append(commentEntry)
         property.value = propertyConverter().convertToString(elements)
+        
+##
+## Help Methods
+##
+def _createCommentEntry(comment_text_list):
+    #if comment_text_list is not None:
+    commentEntry = elementFactory().createElement(COMMENT_ENTRY_ELEMENT_LABEL)
+    commentEntry.addAttribute(PERSON_ATTRIBUTE, person.getUserId())
+    commentEntry.addAttribute(DATE_ATTRIBUTE,str(Date().getTime()))
+    commentEntry.setData(comment_text_list)
+    return commentEntry   
