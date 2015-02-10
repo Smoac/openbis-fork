@@ -4,9 +4,9 @@
 define([ "require", "support/stjs", "dto/search/AbstractEntitySearchCriterion", "dto/search/SampleSearchRelation", "dto/search/SpaceSearchCriterion", "dto/search/ExperimentSearchCriterion",
 		"dto/search/SearchOperator" ], function(require, stjs, AbstractEntitySearchCriterion, SampleSearchRelation, SpaceSearchCriterion, ExperimentSearchCriterion, SearchOperator) {
 
-	var SampleSearchCriterion = function() {
+	var SampleSearchCriterion = function(relation) {
 		AbstractEntitySearchCriterion.call(this);
-		this.relation = SampleSearchRelation.SAMPLE;
+		this.relation = relation ? relation : SampleSearchRelation.SAMPLE;
 	};
 	stjs.extend(SampleSearchCriterion, AbstractEntitySearchCriterion, [ AbstractEntitySearchCriterion ], function(constructor, prototype) {
 		prototype['@type'] = 'dto.search.SampleSearchCriterion';

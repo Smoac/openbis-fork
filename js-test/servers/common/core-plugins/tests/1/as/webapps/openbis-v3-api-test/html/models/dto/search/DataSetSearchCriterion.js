@@ -1,12 +1,11 @@
 /**
  * @author pkupczyk
  */
-define([ "support/stjs", "dto/search/AbstractEntitySearchCriterion", "dto/search/DataSetSearchRelation", "dto/search/DataSetParentsSearchCriterion", "dto/search/DataSetChildrenSearchCriterion",
-		"dto/search/DataSetContainerSearchCriterion", "dto/search/ExperimentSearchCriterion", "dto/search/SampleSearchCriterion", "dto/search/SearchOperator" ], function(stjs,
-		AbstractEntitySearchCriterion, DataSetSearchRelation, DataSetParentsSearchCriterion, DataSetChildrenSearchCriterion, DataSetContainerSearchCriterion, ExperimentSearchCriterion,
-		SampleSearchCriterion, SearchOperator) {
-	var DataSetSearchCriterion = function() {
-		this.relation = DataSetSearchRelation.DATASET;
+define([ "support/stjs", "dto/search/AbstractEntitySearchCriterion", "dto/search/DataSetSearchRelation", "dto/search/ExperimentSearchCriterion", "dto/search/SampleSearchCriterion",
+		"dto/search/SearchOperator" ], function(stjs, AbstractEntitySearchCriterion, DataSetSearchRelation, ExperimentSearchCriterion, SampleSearchCriterion, SearchOperator) {
+	var DataSetSearchCriterion = function(relation) {
+		AbstractEntitySearchCriterion.call(this);
+		this.relation = relation ? relation : DataSetSearchRelation.DATASET;
 	};
 	stjs.extend(DataSetSearchCriterion, AbstractEntitySearchCriterion, [ AbstractEntitySearchCriterion ], function(constructor, prototype) {
 		prototype['@type'] = 'dto.search.DataSetSearchCriterion';
@@ -55,5 +54,69 @@ define([ "support/stjs", "dto/search/AbstractEntitySearchCriterion", "dto/search
 			arguments : [ "ISearchCriterion" ]
 		}
 	});
+
+	var DataSetParentsSearchCriterion = function() {
+		DataSetSearchCriterion.call(this, DataSetSearchRelation.PARENTS);
+	};
+	stjs.extend(DataSetParentsSearchCriterion, DataSetSearchCriterion, [ DataSetSearchCriterion ], function(constructor, prototype) {
+		prototype['@type'] = 'dto.search.DataSetParentsSearchCriterion';
+		constructor.serialVersionUID = 1;
+	}, {
+		relation : {
+			name : "Enum",
+			arguments : [ "DataSetSearchRelation" ]
+		},
+		operator : {
+			name : "Enum",
+			arguments : [ "SearchOperator" ]
+		},
+		criteria : {
+			name : "Collection",
+			arguments : [ "ISearchCriterion" ]
+		}
+	});
+
+	var DataSetChildrenSearchCriterion = function() {
+		DataSetSearchCriterion.call(this, DataSetSearchRelation.CHILDREN);
+	};
+	stjs.extend(DataSetChildrenSearchCriterion, DataSetSearchCriterion, [ DataSetSearchCriterion ], function(constructor, prototype) {
+		prototype['@type'] = 'dto.search.DataSetChildrenSearchCriterion';
+		constructor.serialVersionUID = 1;
+	}, {
+		relation : {
+			name : "Enum",
+			arguments : [ "DataSetSearchRelation" ]
+		},
+		operator : {
+			name : "Enum",
+			arguments : [ "SearchOperator" ]
+		},
+		criteria : {
+			name : "Collection",
+			arguments : [ "ISearchCriterion" ]
+		}
+	});
+
+	var DataSetContainerSearchCriterion = function() {
+		DataSetSearchCriterion.call(this, DataSetSearchRelation.CONTAINER);
+	};
+	stjs.extend(DataSetContainerSearchCriterion, DataSetSearchCriterion, [ DataSetSearchCriterion ], function(constructor, prototype) {
+		prototype['@type'] = 'dto.search.DataSetContainerSearchCriterion';
+		constructor.serialVersionUID = 1;
+	}, {
+		relation : {
+			name : "Enum",
+			arguments : [ "DataSetSearchRelation" ]
+		},
+		operator : {
+			name : "Enum",
+			arguments : [ "SearchOperator" ]
+		},
+		criteria : {
+			name : "Collection",
+			arguments : [ "ISearchCriterion" ]
+		}
+	});
+
 	return DataSetSearchCriterion;
 })
