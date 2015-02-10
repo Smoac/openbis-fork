@@ -112,7 +112,7 @@ AS_SERVER=$SERVERS/openBIS-server/
 DSS_SERVER=$SERVERS/datastore_server
 
 listDatabases $AS_SERVER/jetty/etc/service.properties $DSS_SERVER/etc/service.properties
-echo "Databases: $DB_LIST"
+
 PG_DUMP_OPTION=""
 if [[ "`exe_pg_dump --version|awk '{print $3}'`" > "9.2.x" ]]; then
   if [ -f /proc/cpuinfo ]; then
