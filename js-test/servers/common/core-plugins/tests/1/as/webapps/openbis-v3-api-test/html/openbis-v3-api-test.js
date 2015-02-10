@@ -1,4 +1,4 @@
-define([ 'jquery', 'openbis-v3-api' ], function($, openbis) {
+define([ 'jquery', 'openbis-v3-api', 'common' ], function($, openbis) {
 	/*
 	 * These tests should be run against openBIS instance with screening sprint
 	 * server database version
@@ -222,26 +222,6 @@ define([ 'jquery', 'openbis-v3-api' ], function($, openbis) {
 		
 		asyncTest("createExperiments()", function() {
 			var code = "CREATE_JSON_EXPERIMENT_" + (new Date().getTime());
-			// var creations = [ {
-			// "@type" : "ExperimentCreation",
-			//
-			// "typeId" : {
-			// "@type" : "EntityTypePermId",
-			// "permId" : "UNKNOWN"
-			// },
-			//
-			// "code" : code,
-			//
-			// "projectId" : {
-			// "@type" : "ProjectIdentifier",
-			// "identifier" : "/TEST/TEST-PROJECT"
-			// },
-			//
-			// "tagIds" : [ {
-			// "@type" : "TagCode",
-			// "code" : "CREATE_JSON_TAG"
-			// } ]
-			// } ];
 			require([ 'dto/entity/experiment/ExperimentCreation', 'dto/id/entitytype/EntityTypePermId', 'dto/id/project/ProjectIdentifier', 'dto/id/tag/TagCode' ], function(ExperimentCreation,
 					EntityTypePermId, ProjectIdentifier, TagCode) {
 
@@ -306,66 +286,169 @@ define([ 'jquery', 'openbis-v3-api' ], function($, openbis) {
 				});
 			});
 		});
-
-		/*
-		asyncTest("updateExperiments()", function() {
+		
+		asyncTest("updateExperimentsWithChangedProject()", function() {
 			var code = "UPDATE_JSON_EXPERIMENT_" + (new Date().getTime());
-
-			var ids = createFacadeAndLogin().then(function(facade) {
-				var creations = [ {
-					"@type" : "ExperimentCreation",
-
-					"typeId" : {
-						"@type" : "EntityTypePermId",
-						"permId" : "UNKNOWN"
-					},
-
-					"code" : code,
-
-					"projectId" : {
-						"@type" : "ProjectIdentifier",
-						"identifier" : "/TEST/TEST-PROJECT"
-					}
-				} ];
-
-				var ids = facade.createExperiments(creations).then(function(permIds) {
-					var updates = [ {
-						"@type" : "ExperimentUpdate",
-
-						"experimentId" : permIds[0],
-
-						"projectId" : {
-							"@type" : "ProjectIdentifier",
-							"identifier" : "/PLATONIC/SCREENING-EXAMPLES"
-						}
-					} ];
-
-					return facade.updateExperiments(updates).then(function() {
-						return permIds;
+			require(['dto/entity/experiment/ExperimentCreation', 'dto/entity/experiment/ExperimentUpdate', 
+			         'dto/id/entitytype/EntityTypePermId', 'dto/id/project/ProjectIdentifier'],
+			function(ExperimentCreation, ExperimentUpdate, EntityTypePermId, ProjectIdentifier) {
+				var experimentCreation = new ExperimentCreation();
+				experimentCreation.setTypeId(new EntityTypePermId("HT_SEQUENCING"));
+				experimentCreation.setCode(code);
+				experimentCreation.setProperty("EXPERIMENT_DESIGN", "EXPRESSION");
+				experimentCreation.setProjectId(new ProjectIdentifier("/TEST/TEST-PROJECT"));
+				createFacadeAndLogin().then(function(facade) {
+					var ids = facade.createExperiments([experimentCreation]).then(function(permIds) {
+						var experimentUpdate = new ExperimentUpdate();
+						experimentUpdate.setExperimentId(permIds[0]);
+						experimentUpdate.setProjectId(new ProjectIdentifier("/PLATONIC/SCREENING-EXAMPLES"));
+						return facade.updateExperiments([experimentUpdate]).then(function() {
+							return permIds;
+						});
+					});
+					$.when(ids, createExperimentFetchOptions()).then(function(permIds, fetchOptions) {
+						return facade.mapExperiments(permIds, fetchOptions).done(function() {
+							facade.logout();
+						});
+					}).done(function(experiments) {
+						var keys = Object.keys(experiments);
+						assertObjectsCount(keys, 1);
+						var experiment = experiments[keys[0]];
+						equal(experiment.getCode(), code, "Experiment code");
+						equal(experiment.getType().getCode(), "HT_SEQUENCING", "Type code");
+						equal(experiment.getProject().getCode(), "SCREENING-EXAMPLES", "Project code");
+						equal(experiment.getProject().getSpace().getCode(), "PLATONIC", "Space code");
+						start();
+					}).fail(function(error) {
+						ok(false, error);
+						start();
 					});
 				});
-
-				return $.when(ids, createExperimentFetchOptions()).then(function(permIds, fetchOptions) {
-					return facade.mapExperiments(permIds, fetchOptions).done(function() {
-						facade.logout();
-					})
-				})
-			}).done(function(experiments) {
-				var keys = Object.keys(experiments);
-				assertObjectsCount(keys, 1);
-
-				var experiment = experiments[keys[0]];
-				equal(experiment.getCode(), code, "Experiment code");
-				equal(experiment.getType().getCode(), "UNKNOWN", "Type code");
-				equal(experiment.getProject().getCode(), "SCREENING-EXAMPLES", "Project code");
-				equal(experiment.getProject().getSpace().getCode(), "PLATONIC", "Space code");
-				start();
-			}).fail(function(error) {
-				ok(false, error);
-				start();
 			});
 		});
-
+		
+		var asyncUpdateExperimentsTest = function(testNamePostfix, expectedExperiment, experimentUpdateModifier) {
+			asyncTest("updateExperiments" + testNamePostfix + "()", function() {
+				var code = "UPDATE_JSON_EXPERIMENT_" + (new Date().getTime());
+				require(['dto/entity/experiment/ExperimentCreation', 'dto/entity/experiment/ExperimentUpdate', 
+				         'dto/id/entitytype/EntityTypePermId', 'dto/id/project/ProjectIdentifier'],
+				function(ExperimentCreation, ExperimentUpdate, EntityTypePermId, ProjectIdentifier) {
+					var experimentCreation = new ExperimentCreation();
+					experimentCreation.setTypeId(new EntityTypePermId("HT_SEQUENCING"));
+					experimentCreation.setCode(code);
+					experimentCreation.setProperty("EXPERIMENT_DESIGN", "EXPRESSION");
+					experimentCreation.setProjectId(new ProjectIdentifier("/TEST/TEST-PROJECT"));
+					createFacadeAndLogin().then(function(facade) {
+						var ids = facade.createExperiments([experimentCreation]).then(function(permIds) {
+							var experimentUpdate = new ExperimentUpdate();
+							experimentUpdate.setExperimentId(permIds[0]);
+							experimentUpdateModifier(experimentUpdate);
+//							experimentUpdate.setProjectId(new ProjectIdentifier("/PLATONIC/SCREENING-EXAMPLES"));
+							return facade.updateExperiments([experimentUpdate]).then(function() {
+								return permIds;
+							});
+						});
+						$.when(ids, createExperimentFetchOptions()).then(function(permIds, fetchOptions) {
+							return facade.mapExperiments(permIds, fetchOptions).done(function() {
+								facade.logout();
+							});
+						}).done(function(experiments) {
+							var keys = Object.keys(experiments);
+							assertObjectsCount(keys, 1);
+							var experiment = experiments[keys[0]];
+							equal(JSON.stringify(experiment), expectedExperiment, "Experiment");
+							start();
+						}).fail(function(error) {
+							ok(false, error);
+							start();
+						});
+					});
+				});
+			});
+			
+		}
+		
+//		asyncUpdateExperimentsTest("WithChangedProject", "", function(experimentUpdate) {
+//			experimentUpdate.setProjectId(new ProjectIdentifier("/PLATONIC/SCREENING-EXAMPLES"));
+//		})
+		
+		asyncTest("updateExperimentsWithUnChangedProjectButChangedProperties()", function() {
+			var code = "UPDATE_JSON_EXPERIMENT_" + (new Date().getTime());
+			require(['dto/entity/experiment/ExperimentCreation', 'dto/entity/experiment/ExperimentUpdate', 
+			         'dto/id/entitytype/EntityTypePermId', 'dto/id/project/ProjectIdentifier'],
+			         function(ExperimentCreation, ExperimentUpdate, EntityTypePermId, ProjectIdentifier) {
+				var experimentCreation = new ExperimentCreation();
+				experimentCreation.setTypeId(new EntityTypePermId("HT_SEQUENCING"));
+				experimentCreation.setCode(code);
+				experimentCreation.setProperty("EXPERIMENT_DESIGN", "EXPRESSION");
+				experimentCreation.setProjectId(new ProjectIdentifier("/TEST/TEST-PROJECT"));
+				createFacadeAndLogin().then(function(facade) {
+					var ids = facade.createExperiments([experimentCreation]).then(function(permIds) {
+						var experimentUpdate = new ExperimentUpdate();
+						experimentUpdate.setExperimentId(permIds[0]);
+						experimentUpdate.setProperty("EXPERIMENT_DESIGN", "OTHER");
+						return facade.updateExperiments([experimentUpdate]).then(function() {
+							return permIds;
+						});
+					});
+					$.when(ids, createExperimentFetchOptions()).then(function(permIds, fetchOptions) {
+						return facade.mapExperiments(permIds, fetchOptions).done(function() {
+							facade.logout();
+						});
+					}).done(function(experiments) {
+						var keys = Object.keys(experiments);
+						assertObjectsCount(keys, 1);
+						var experiment = experiments[keys[0]];
+						equal(experiment.getCode(), code, "Experiment code");
+						equal(experiment.getType().getCode(), "HT_SEQUENCING", "Type code");
+						equal(experiment.getProject().getCode(), "TEST-PROJECT", "Project code");
+						equal(experiment.getProject().getSpace().getCode(), "TEST", "Space code");
+						var properties = experiment.getProperties();
+						equal(properties["EXPERIMENT_DESIGN"], "OTHER", "Property EXPERIMENT_DESIGN");
+						equal(Object.keys(properties), "EXPERIMENT_DESIGN", "Properties");
+						start();
+					}).fail(function(error) {
+						ok(false, error);
+						start();
+					});
+				});
+			});
+		});
+		
+		asyncTest("updateExperimentsWithRemovedProject()", function() {
+			var code = "UPDATE_JSON_EXPERIMENT_" + (new Date().getTime());
+			require(['dto/entity/experiment/ExperimentCreation', 'dto/entity/experiment/ExperimentUpdate', 
+			         'dto/id/entitytype/EntityTypePermId', 'dto/id/project/ProjectIdentifier'],
+			         function(ExperimentCreation, ExperimentUpdate, EntityTypePermId, ProjectIdentifier) {
+				var experimentCreation = new ExperimentCreation();
+				experimentCreation.setTypeId(new EntityTypePermId("HT_SEQUENCING"));
+				experimentCreation.setCode(code);
+				experimentCreation.setProjectId(new ProjectIdentifier("/TEST/TEST-PROJECT"));
+				createFacadeAndLogin().then(function(facade) {
+					var ids = facade.createExperiments([experimentCreation]).then(function(permIds) {
+						var experimentUpdate = new ExperimentUpdate();
+						experimentUpdate.setExperimentId(permIds[0]);
+						experimentUpdate.setProjectId(null);
+						return facade.updateExperiments([experimentUpdate]).then(function() {
+							return permIds;
+						});
+					});
+					$.when(ids, createExperimentFetchOptions()).then(function(permIds, fetchOptions) {
+						return facade.mapExperiments(permIds, fetchOptions).done(function() {
+							facade.logout();
+						});
+					}).done(function(experiments) {
+						ok(false, "Experiment update didn't failed as expected.");
+						start();
+					}).fail(function(error) {
+						equal(error.message, "Project id cannot be null (Context: [])", "Error message");
+						start();
+					});
+				});
+			});
+		});
+		
+/*
 		asyncTest("updateSamples()", function() {
 			var code = "UPDATE_JSON_SAMPLE_" + (new Date().getTime());
 
@@ -422,6 +505,6 @@ define([ 'jquery', 'openbis-v3-api' ], function($, openbis) {
 				start();
 			});
 		});
-		*/
+ */
 	}
 });
