@@ -159,8 +159,8 @@ define([ 'jquery', 'openbis-v3-api' ], function($, openbis) {
 					var child = sample.children[0];
 					equal(sample.children.length, 1, "Number of children");
 					equal(child.code, "TEST-SAMPLE-2", "Child sample code");
-//					equal(child.type.code, "UNKNOWN", "Child type code");
-//					equal(child.experiment.code, "TEST-EXPERIMENT-2", "Child experiment code");
+					equal(child.type.code, "UNKNOWN", "Child type code");
+					equal(child.experiment.code, "TEST-EXPERIMENT-2", "Child experiment code");
 					notEqual(child.children, null, "Grand children expected");
 					if (child.children !== null) {
 						equal(child.children.length, 2, "Number of grand children");
@@ -219,7 +219,7 @@ define([ 'jquery', 'openbis-v3-api' ], function($, openbis) {
 				start();
 			});
 		});
-		/*
+		
 		asyncTest("createExperiments()", function() {
 			var code = "CREATE_JSON_EXPERIMENT_" + (new Date().getTime());
 			// var creations = [ {
@@ -275,6 +275,7 @@ define([ 'jquery', 'openbis-v3-api' ], function($, openbis) {
 			})
 		});
 
+		/*
 		asyncTest("createSamples()", function() {
 			var code = "CREATE_JSON_SAMPLE_" + (new Date().getTime());
 
