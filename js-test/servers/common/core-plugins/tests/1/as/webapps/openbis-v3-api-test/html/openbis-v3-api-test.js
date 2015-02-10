@@ -275,52 +275,39 @@ define([ 'jquery', 'openbis-v3-api' ], function($, openbis) {
 			})
 		});
 
-		/*
 		asyncTest("createSamples()", function() {
-			var code = "CREATE_JSON_SAMPLE_" + (new Date().getTime());
-
-			$.when(createFacadeAndLogin(), createSampleFetchOptions()).then(function(facade, fetchOptions) {
-				var creations = [ {
-					"@type" : "SampleCreation",
-
-					"typeId" : {
-						"@type" : "EntityTypePermId",
-						"permId" : "UNKNOWN"
-					},
-
-					"code" : code,
-
-					"spaceId" : {
-						"@type" : "SpacePermId",
-						"permId" : "TEST"
-					},
-
-					"tagIds" : [ {
-						"@type" : "TagCode",
-						"code" : "CREATE_JSON_TAG"
-					} ]
-				} ];
-
-				return facade.createSamples(creations).then(function(permIds) {
-					return facade.mapSamples(permIds, fetchOptions).done(function() {
-						facade.logout();
+			require(["dto/entity/sample/SampleCreation", "dto/id/entitytype/EntityTypePermId", "dto/id/space/SpacePermId","dto/id/tag/TagCode"], function(SampleCreation, EntityTypePermId, SpacePermId, TagCode){
+				
+				var creation = new SampleCreation();
+				creation.setTypeId(new EntityTypePermId("UNKNOWN"));
+				creation.setCode("CREATE_JSON_SAMPLE_" + (new Date().getTime()));
+				creation.setSpaceId(new SpacePermId("TEST"));
+				creation.setTagIds([new TagCode("CREATE_JSON_TAG")]);
+				
+				$.when(createFacadeAndLogin(), createSampleFetchOptions()).then(function(facade, fetchOptions) {
+					return facade.createSamples([creation]).then(function(permIds) {
+						return facade.mapSamples(permIds, fetchOptions).done(function() {
+							facade.logout();
+						})
 					})
-				})
-			}).done(function(samples) {
-				var keys = Object.keys(samples);
-				assertObjectsCount(keys, 1);
+				}).done(function(samples) {
+					var keys = Object.keys(samples);
+					assertObjectsCount(keys, 1);
 
-				var sample = samples[keys[0]];
-				equal(sample.code, code, "Sample code");
-				equal(sample.type.code, "UNKNOWN", "Type code");
-				equal(sample.space.code, "TEST", "Space code");
-				start();
-			}).fail(function(error) {
-				ok(false, error);
-				start();
+					var sample = samples[keys[0]];
+					equal(sample.getCode(), creation.getCode(), "Sample code");
+					equal(sample.getType().getCode(), creation.getTypeId().getPermId(), "Type code");
+					equal(sample.getSpace().getCode(), creation.getSpaceId().getPermId(), "Space code");
+					equal(sample.getTags()[0].getCode(), creation.getTagIds()[0].getCode(), "Tag code");
+					start();
+				}).fail(function(error) {
+					ok(false, error);
+					start();
+				});
 			});
 		});
 
+		/*
 		asyncTest("updateExperiments()", function() {
 			var code = "UPDATE_JSON_EXPERIMENT_" + (new Date().getTime());
 
