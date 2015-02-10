@@ -3,6 +3,7 @@
  */
 define([ "support/stjs", "sys/exceptions" ], function(stjs, exceptions) {
 	var Deletion = function() {
+		this.deletedObjects = [];
 	};
 	stjs.extend(Deletion, null, [], function(constructor, prototype) {
 		prototype['@type'] = 'dto.deletion.Deletion';
@@ -10,7 +11,6 @@ define([ "support/stjs", "sys/exceptions" ], function(stjs, exceptions) {
 		prototype.fetchOptions = null;
 		prototype.id = null;
 		prototype.reason = null;
-		prototype.deletedObjects = [];
 		prototype.getFetchOptions = function() {
 			return this.fetchOptions;
 		};

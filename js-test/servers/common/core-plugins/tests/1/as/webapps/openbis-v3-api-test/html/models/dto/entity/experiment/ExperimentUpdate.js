@@ -4,15 +4,15 @@
 define([ "support/stjs", "dto/entity/FieldUpdateValue", "dto/entity/IdListUpdateValue", "dto/entity/AttachmentListUpdateValue" ], function(stjs, FieldUpdateValue, IdListUpdateValue,
 		AttachmentListUpdateValue) {
 	var ExperimentUpdate = function() {
+		this.properties = {};
+		this.projectId = new FieldUpdateValue();
+		this.tagIds = new IdListUpdateValue();
+		this.attachments = new AttachmentListUpdateValue();
 	};
 	stjs.extend(ExperimentUpdate, null, [], function(constructor, prototype) {
 		prototype['@type'] = 'dto.entity.experiment.ExperimentUpdate';
 		constructor.serialVersionUID = 1;
 		prototype.experimentId = null;
-		prototype.properties = {};
-		prototype.projectId = new FieldUpdateValue();
-		prototype.tagIds = new IdListUpdateValue();
-		prototype.attachments = new AttachmentListUpdateValue();
 		prototype.getExperimentId = function() {
 			return this.experimentId;
 		};

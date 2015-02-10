@@ -3,6 +3,7 @@
  */
 define([ "support/stjs" ], function(stjs) {
 	var SampleCreation = function() {
+		this.properties = {};
 	};
 	stjs.extend(SampleCreation, null, [], function(constructor, prototype) {
 		prototype['@type'] = 'dto.entity.sample.SampleCreation';
@@ -12,7 +13,6 @@ define([ "support/stjs" ], function(stjs) {
 		prototype.spaceId = null;
 		prototype.code = null;
 		prototype.tagIds = null;
-		prototype.properties = {};
 		prototype.containerId = null;
 		prototype.containedIds = null;
 		prototype.parentIds = null;

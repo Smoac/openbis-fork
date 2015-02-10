@@ -5,13 +5,13 @@ define([ "support/stjs", "sys/exceptions", "sys/simpledateformat", "dto/search/A
 				DateLaterThanOrEqualToValue, DateObjectEarlierThanOrEqualToValue, DateEarlierThanOrEqualToValue, TimeZone, AbstractDateValue, ShortDateFormat, NormalDateFormat, LongDateFormat) {
 			var DateFieldSearchCriterion = function(fieldName, fieldType) {
 				AbstractFieldSearchCriterion.call(this, fieldName, fieldType);
+				this.timeZone = new ServerTimeZone();
 			};
 
 			stjs.extend(DateFieldSearchCriterion, AbstractFieldSearchCriterion, [ AbstractFieldSearchCriterion ], function(constructor, prototype) {
 				prototype['@type'] = 'dto.search.DateFieldSearchCriterion';
 				constructor.serialVersionUID = 1;
 				constructor.DATE_FORMATS = [ new ShortDateFormat(), new NormalDateFormat(), new LongDateFormat() ];
-				prototype.timeZone = new ServerTimeZone();
 				prototype.thatEquals = function(date) {
 					this.setFieldValue(new DateObjectEqualToValue(date));
 				};

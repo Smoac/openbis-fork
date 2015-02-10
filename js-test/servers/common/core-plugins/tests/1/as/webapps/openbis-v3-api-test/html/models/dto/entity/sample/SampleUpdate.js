@@ -4,20 +4,21 @@
 define([ "support/stjs", "dto/entity/FieldUpdateValue", "dto/entity/IdListUpdateValue", "dto/entity/AttachmentListUpdateValue" ], function(stjs, FieldUpdateValue, IdListUpdateValue,
 		AttachmentListUpdateValue) {
 	var SampleUpdate = function() {
+		this.properties = {};
+		this.experimentId = new FieldUpdateValue();
+		this.spaceId = new FieldUpdateValue();
+		this.tagIds = new IdListUpdateValue();
+		this.containerId = new FieldUpdateValue();
+		this.containedIds = new IdListUpdateValue();
+		this.parentIds = new IdListUpdateValue();
+		this.childIds = new IdListUpdateValue();
+		this.attachments = new AttachmentListUpdateValue();
 	};
 	stjs.extend(SampleUpdate, null, [], function(constructor, prototype) {
 		prototype['@type'] = 'dto.entity.sample.SampleUpdate';
 		constructor.serialVersionUID = 1;
 		prototype.sampleId = null;
-		prototype.experimentId = new FieldUpdateValue();
-		prototype.spaceId = new FieldUpdateValue();
-		prototype.tagIds = new IdListUpdateValue();
-		prototype.properties = {};
-		prototype.containerId = new FieldUpdateValue();
-		prototype.containedIds = new IdListUpdateValue();
-		prototype.parentIds = new IdListUpdateValue();
-		prototype.childIds = new IdListUpdateValue();
-		prototype.attachments = new AttachmentListUpdateValue();
+		
 		prototype.getSampleId = function() {
 			return this.sampleId;
 		};

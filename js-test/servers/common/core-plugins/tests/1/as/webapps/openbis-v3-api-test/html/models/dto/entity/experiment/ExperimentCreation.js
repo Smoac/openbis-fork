@@ -3,6 +3,7 @@
  */
 define([ "support/stjs" ], function(stjs) {
 	var ExperimentCreation = function() {
+		this.properties = {};
 	};
 	stjs.extend(ExperimentCreation, null, [], function(constructor, prototype) {
 		prototype['@type'] = 'dto.entity.experiment.ExperimentCreation';
@@ -11,7 +12,6 @@ define([ "support/stjs" ], function(stjs) {
 		prototype.projectId = null;
 		prototype.code = null;
 		prototype.tagIds = null;
-		prototype.properties = {};
 		prototype.attachments = null;
 		prototype.setTypeId = function(typeId) {
 			this.typeId = typeId;

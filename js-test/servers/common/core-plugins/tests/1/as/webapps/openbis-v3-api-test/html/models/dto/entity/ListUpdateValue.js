@@ -1,11 +1,11 @@
 define([ "support/stjs", "dto/entity/ListUpdateActionRemove", "dto/entity/ListUpdateActionAdd", "dto/entity/ListUpdateActionSet" ], function(stjs, ListUpdateActionRemove, ListUpdateActionAdd,
 		ListUpdateActionSet) {
 	var ListUpdateValue = function() {
+		this.actions = [];
 	};
 	stjs.extend(ListUpdateValue, null, [], function(constructor, prototype) {
 		prototype['@type'] = 'dto.entity.ListUpdateValue';
 		constructor.serialVersionUID = 1;
-		prototype.actions = [];
 		prototype.setActions = function(actions) {
 			this.actions = actions;
 		};
