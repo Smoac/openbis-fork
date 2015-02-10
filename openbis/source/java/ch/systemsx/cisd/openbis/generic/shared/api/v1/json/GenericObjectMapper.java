@@ -18,6 +18,9 @@ package ch.systemsx.cisd.openbis.generic.shared.api.v1.json;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.deser.DefaultDeserializationContext;
+import com.fasterxml.jackson.databind.ser.BeanPropertyFilter;
+import com.fasterxml.jackson.databind.ser.FilterProvider;
+import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 
 import ch.systemsx.cisd.openbis.common.api.server.json.deserializer.JsonDeserializerFactory;
 import ch.systemsx.cisd.openbis.common.api.server.json.introspector.JsonTypeAndClassAnnotationIntrospector;
@@ -41,6 +44,14 @@ public class GenericObjectMapper extends ObjectMapper
                 GenericJsonClassValueToClassObjectsMapping.getInstance()));
         setSubtypeResolver(new JsonReflectionsSubTypeResolver(new JsonBaseTypeToSubTypesMapping()));
         setSerializerFactory(new JsonSerializerFactory());
+        setFilters(new FilterProvider()
+            {
+                @Override
+                public BeanPropertyFilter findFilter(Object filterId)
+                {
+                    return SimpleBeanPropertyFilter.serializeAllExcept();
+                }
+            });
     }
 
 }
