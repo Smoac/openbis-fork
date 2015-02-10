@@ -34,9 +34,8 @@ import ch.systemsx.cisd.openbis.common.api.server.json.mapping.IJsonClassValueTo
 import ch.systemsx.cisd.openbis.common.api.server.json.resolver.JsonTypeAndClassResolverBuilder;
 
 /**
- * An annotation introspector that returns the custom type resolver which recognizes @type and @class
- * fields. The custom resolver is used only for classes marked with {@link JsonObject} annotation.
- * For standard classes like {@link List} or {@link HashMap} type information is not included.
+ * An annotation introspector that returns the custom type resolver which recognizes @type and @class fields. The custom resolver is used only for
+ * classes marked with {@link JsonObject} annotation. For standard classes like {@link List} or {@link HashMap} type information is not included.
  * 
  * @author pkupczyk
  */
@@ -84,6 +83,20 @@ public class JsonTypeAndClassAnnotationIntrospector extends JacksonAnnotationInt
         return type.getRawClass().equals(Object.class)
                 || (type.getRawClass().isAnnotationPresent(JsonObject.class) && !type.getRawClass()
                         .isEnum());
+    }
+
+    @Override
+    public Object findFilterId(AnnotatedClass ac)
+    {
+        if (ac.hasAnnotation(JsonObject.class))
+        {
+            // all classed annotated with @JsonObject should use the same filter (the returned filter id does not matter,
+            // it just has to be not null for ch.systemsx.cisd.openbis.generic.shared.api.v3.json.OpenbisFilterProvider to be called)
+            return new Object();
+        } else
+        {
+            return null;
+        }
     }
 
 }
