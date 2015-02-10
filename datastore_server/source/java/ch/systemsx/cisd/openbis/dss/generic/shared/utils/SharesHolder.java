@@ -31,21 +31,20 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 /**
  * A class that holds all shares and adds the data sets to them on demand.
  * 
- *
  * @author Bernd Rinn
  */
 final class SharesHolder
 {
     private final String dataStoreCode;
-    
+
     private final Map<String, Share> shares;
-    
+
     private final IEncapsulatedOpenBISService service;
-    
+
     private final ISimpleLogger log;
-    
+
     private final ITimeProvider timeProvider;
-    
+
     private boolean areDataSetsAdded;
 
     SharesHolder(String dataStoreCode, Map<String, Share> shares,
@@ -74,12 +73,7 @@ final class SharesHolder
             {
                 Share share = shares.get(shareId);
                 String dataSetCode = dataSet.getDataSetCode();
-                if (share == null)
-                {
-                    log.log(LogLevel.WARN, "Data set " + dataSetCode
-                            + " not accessible because of unknown or unmounted share " + shareId
-                            + ".");
-                } else
+                if (share != null)
                 {
                     if (dataSet.getDataSetSize() == null)
                     {
