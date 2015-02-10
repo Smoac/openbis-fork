@@ -40,6 +40,10 @@ define([ "support/underscore-min" ], function(_) {
 		return dfd.promise();
 	}
 
+	STJSUtil.prototype.decycle = function(object) {
+		return decycleLocal(object, new Array(), []);
+	}
+
 	var collectTypes = function(jsonObject, types) {
 		if (jsonObject instanceof Array) {
 			jsonObject.forEach(function(item) {
@@ -105,6 +109,45 @@ define([ "support/underscore-min" ], function(_) {
 		}
 		return object;
 	};
+	
+	
+	var decycleLocal = function(object, references, idLessClasses) {
+		if (object === null) {
+			return object; 
+		}
+		index = _.indexOf(references, object);
+		if (index >= 0) { 
+			return index; 
+		}
+		if (_.isArray(object)) {
+			return _.map(object, function(el, key) { return decycleLocal(el, references, idLessClasses) });
+		} else if (_.isObject(object)) {
+			var result = Object.create(null);
+			if (shouldBeIdLess(object, idLessClasses) == false) {
+				id = references.length;
+				result["@id"] = id;
+				references.push(object);
+			}
+			for (var i in object) {
+				if (!_.isFunction(object[i])) {
+					result[i] = decycleLocal(object[i], references, idLessClasses);
+				}
+			}
+			return result;
+		}
+		return object;
+	};
+		
+	var shouldBeIdLess = function(object, idLessClasses) {
+		for (var i in idLessClasses) {
+			var c = idLessClasses[i];
+			var op = object.__proto__;
+			if (object instanceof c) {
+				return true;
+			}
+		}
+		return false;
+	};
 
 	var fromJsonObjectWithTypeProperty = function(propertyName, propertyValue, hashedObjects, modulesMap) {
 		if (_.isNumber(propertyValue) && propertyName.indexOf("Date") == -1 && propertyName != "@id") {
@@ -145,12 +188,6 @@ define([ "support/underscore-min" ], function(_) {
 		this.message = (message || "");
 	}
 	NotFetchedException.prototype = Error.prototype;
-
-	var HashMap = function() {
-	}
-	HashMap.prototype.put = function(key, val) {
-		this[key] = val;
-	};
 
 	return stjsUtil;
 });

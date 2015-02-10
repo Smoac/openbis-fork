@@ -10,8 +10,8 @@ define([ 'jquery', 'support/Utils' ], function($, stjsUtil) {
 			var data = settings.data;
 			data["id"] = "1";
 			data["jsonrpc"] = "2.0";
-			settings.data = JSON.stringify(data);
-
+			settings.data = JSON.stringify(stjsUtil.decycle(data));
+			
 			var originalSuccess = settings.success || function() {
 			};
 			var originalError = settings.error || function() {

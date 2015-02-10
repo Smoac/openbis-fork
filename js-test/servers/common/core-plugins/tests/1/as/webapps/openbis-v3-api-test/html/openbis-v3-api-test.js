@@ -113,13 +113,13 @@ define([ 'jquery', 'openbis-v3-api' ], function($, openbis) {
 			fo.withRegistrator();
 			fo.withModifier();
 			fo.withAttachments();
+			fo.withChildrenUsing(fo);
 			dfd.resolve(fo);
 		});
 		return dfd.promise();
 	}
 
 	return function() {
-		/*
 		asyncTest("mapExperiments()", function() {
 			$.when(createFacadeAndLogin(), createExperimentPermId("20130412105232616-2"), createExperimentFetchOptions()).then(function(facade, permId, fetchOptions) {
 				return facade.mapExperiments([ permId ], fetchOptions).done(function() {
@@ -141,20 +141,31 @@ define([ 'jquery', 'openbis-v3-api' ], function($, openbis) {
 		});
 
 		asyncTest("mapSamples()", function() {
-
-			$.when(createFacadeAndLogin(), createSamplePermId("20130412140147735-20"), createSampleFetchOptions()).then(function(facade, permId, fetchOptions) {
+			$.when(createFacadeAndLogin(), createSamplePermId("20130415095748527-404"), createSampleFetchOptions()).then(function(facade, permId, fetchOptions) {
 				return facade.mapSamples([ permId ], fetchOptions).done(function() {
 					facade.logout()
 				})
 			}).done(function(samples) {
 				assertObjectsCount(Object.keys(samples), 1);
-
-				var sample = samples["20130412140147735-20"];
-				equal(sample.getCode(), "PLATE-1", "Sample code");
-				equal(sample.getType().getCode(), "PLATE", "Type code");
-				equal(sample.getExperiment().getCode(), "EXP-1", "Experiment code");
-				equal(sample.getExperiment().getProject().getCode(), "SCREENING-EXAMPLES", "Project code");
-				equal(sample.getSpace().getCode(), "PLATONIC", "Space code");
+				var sample = samples["20130415095748527-404"];
+				equal(sample.code, "TEST-SAMPLE-2-PARENT", "Sample code");
+				equal(sample.type.code, "UNKNOWN", "Type code");
+				equal(sample.experiment.code, "TEST-EXPERIMENT-2", "Experiment code");
+				equal(sample.experiment.project.code, "TEST-PROJECT", "Project code");
+				equal(sample.space.code, "TEST", "Space code");
+				notEqual(sample.children, null, "Children expected");
+				if (sample.children !== null) {
+					console.log("Children %s", sample.children);
+					var child = sample.children[0];
+					equal(sample.children.length, 1, "Number of children");
+					equal(child.code, "TEST-SAMPLE-2", "Child sample code");
+//					equal(child.type.code, "UNKNOWN", "Child type code");
+//					equal(child.experiment.code, "TEST-EXPERIMENT-2", "Child experiment code");
+					notEqual(child.children, null, "Grand children expected");
+					if (child.children !== null) {
+						equal(child.children.length, 2, "Number of grand children");
+					}
+				}
 				start();
 			}).fail(function(error) {
 				ok(false, error);
@@ -184,7 +195,6 @@ define([ 'jquery', 'openbis-v3-api' ], function($, openbis) {
 				start();
 			});
 		});
-		*/
 
 		asyncTest("searchSamples()", function() {
 			$.when(createFacadeAndLogin(), createSampleSearchCriterion(), createSampleFetchOptions()).then(function(facade, criterion, fetchOptions) {
@@ -209,7 +219,6 @@ define([ 'jquery', 'openbis-v3-api' ], function($, openbis) {
 				start();
 			});
 		});
-
 		/*
 		asyncTest("createExperiments()", function() {
 			var code = "CREATE_JSON_EXPERIMENT_" + (new Date().getTime());
