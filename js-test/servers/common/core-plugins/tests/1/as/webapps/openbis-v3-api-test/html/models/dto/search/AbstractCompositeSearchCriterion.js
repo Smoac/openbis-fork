@@ -4,11 +4,11 @@
 define([ "support/stjs", "dto/search/AbstractSearchCriterion" ], function(stjs, AbstractSearchCriterion) {
 	var AbstractCompositeSearchCriterion = function() {
 		AbstractSearchCriterion.call(this);
+		this.criteria = [];
 	};
 	stjs.extend(AbstractCompositeSearchCriterion, AbstractSearchCriterion, [ AbstractSearchCriterion ], function(constructor, prototype) {
 		prototype['@type'] = 'dto.search.AbstractCompositeSearchCriterion';
 		constructor.serialVersionUID = 1;
-		prototype.criteria = [];
 		prototype.getCriteria = function() {
 			return this.criteria;
 		};
