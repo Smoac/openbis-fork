@@ -33,7 +33,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.DefaultDataSourceFactory;
  * that needs to be backed up. The textual description looks like this :
  * 
  * <pre>
- * database=XXXX;username=XXXX;password=XXXX
+ * database=XXXX;username=XXXX;password=XXXX;host=XXXX
  * </pre>
  * 
  * Based on it, the openBIS admin scripts can backup databases during the upgrade process.
@@ -96,12 +96,16 @@ public class BackupDatabaseParser
 
     private static String createReturnValue(DatabaseConfigurationContext context)
     {
+        String host = context.getUrlHostPart();
         String database = context.getDatabaseName();
         String username = context.getOwner();
         String password = context.getPassword();
 
-        String template = "database=%s;username=%s;password=%s";
-
-        return String.format(template, database, username, password);
+        String templateWithOutHost = "database=%s;username=%s;password=%s";
+        if (host == null || host.length() == 0)
+        {
+            return String.format(templateWithOutHost, database, username, password);
+        }
+        return String.format(templateWithOutHost + ";host=%s", database, username, password, host);
     }
 }

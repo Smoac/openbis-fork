@@ -28,8 +28,6 @@ import org.apache.commons.io.FileUtils;
 
 import com.izforge.izpack.api.data.AutomatedInstallData;
 import com.izforge.izpack.api.data.PanelActionConfiguration;
-import com.izforge.izpack.api.handler.AbstractUIHandler;
-import com.izforge.izpack.data.PanelAction;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 
@@ -40,7 +38,7 @@ import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
  * @author Kaloyan Enimanev
  * @author Franz-Josef Elmer
  */
-public class ExecuteSetupScriptsAction extends AbstractScriptExecutor implements PanelAction
+public class ExecuteSetupScriptsAction extends AbstractScriptExecutor
 {
     static final String DATA_SOURCES_KEY = "data-sources";
     static final String PATHINFO_DB_DATA_SOURCE = "path-info-db";
@@ -66,7 +64,7 @@ public class ExecuteSetupScriptsAction extends AbstractScriptExecutor implements
     private static final String RESTORE_CONFIG_FROM_BACKUP_SCRIPT = "restore-config-from-backup.sh";
 
     @Override
-    public synchronized void executeAction(AutomatedInstallData data, AbstractUIHandler handler)
+    public synchronized void executeAction(AutomatedInstallData data)
     {
         if (GlobalInstallationContext.isFirstTimeInstallation)
         {
@@ -82,17 +80,11 @@ public class ExecuteSetupScriptsAction extends AbstractScriptExecutor implements
         String certificatePassword =
                 data.getVariable(GlobalInstallationContext.KEY_PASSWORD_VARNAME);
         File installDir = GlobalInstallationContext.installDir;
-        try
-        {
-            String pathinfoDBEnabled =
-                    data.getVariable(GlobalInstallationContext.PATHINFO_DB_ENABLED);
-            enablePathinfoDB("false".equalsIgnoreCase(pathinfoDBEnabled) == false, installDir);
-            installKeyStore(keyStoreFileName, installDir);
-            injectPasswords(keyStorePassword, certificatePassword, installDir);
-        } catch (Exception ex)
-        {
-            handler.emitErrorAndBlockNext("Fatal Error", ex.toString());
-        }
+        String pathinfoDBEnabled =
+                data.getVariable(GlobalInstallationContext.PATHINFO_DB_ENABLED);
+        enablePathinfoDB("false".equalsIgnoreCase(pathinfoDBEnabled) == false, installDir);
+        installKeyStore(keyStoreFileName, installDir);
+        injectPasswords(keyStorePassword, certificatePassword, installDir);
     }
 
     void installKeyStore(String keyStoreFileName, File installDir)

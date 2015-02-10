@@ -1631,4 +1631,9 @@ public interface ICommonServer extends IServer
      */
     @Transactional(readOnly = true)
     public List<String> listPredeployedPlugins(String sessionToken, ScriptType scriptType);
+    
+    /**
+     * Gets text for front page if the AS is disabled, null otherwise.
+     */
+    public String getDisabledText();
 }

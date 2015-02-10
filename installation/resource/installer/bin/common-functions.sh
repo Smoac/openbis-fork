@@ -41,23 +41,28 @@ contains()
 }
 
 #
-# Returns TRUE if the specified database exists.
+# Returns TRUE if the specified database exists. Password argument is optional
 #
 # This function should be used as follows:
 #
-# if [ $(databaseExist "openbis_prod" $owner) == "TRUE" ]; then doBackup; fi
+# if [ $(databaseExist localhost 5432 "openbis_prod" $owner $password) == "TRUE" ]; then doBackup; fi
 #
 databaseExist()
 {
-  local database=$1
-  local owner=$2
-  if [ `exe_psql -U $owner -l | eval "awk '/$database /'" | wc -l` -gt 0 ]; then
+  local host=$1
+  local port=$2
+  local database=$3
+  local owner=$4
+  pgpw=""
+  if [ $# -eq 5 ]; then
+    pgpw="PGPASSWORD=$5"
+  fi
+  if [ `exe_psql $pgpw -w -U $owner -h $host -p $port -l | eval "awk '/$database /'" | wc -l` -gt 0 ]; then
     echo "TRUE"
   else
     echo "FALSE"
   fi
 }
-
 
 #
 # Run psql command using POSTGRES_BIN path
@@ -65,11 +70,10 @@ databaseExist()
 exe_psql()
 {
   executable="$POSTGRES_BIN/psql"
-  if [ -x "$executable" ]; then
-    "$executable" "$@"
-  else
-    psql "$@"
+  if [ ! -x "$executable" ]; then
+    executable=psql
   fi
+  execute "$executable" "$@"
 }
 
 #
@@ -78,11 +82,23 @@ exe_psql()
 exe_pg_dump()
 {
   executable="$POSTGRES_BIN/pg_dump"
-  if [ -x "$executable" ]; then
-    "$executable" "$@"
-  else
-    pg_dump "$@"
+  if [ ! -x "$executable" ]; then
+    executable=pg_dump
   fi
+  execute "$executable" "$@"
+}
+
+execute()
+{
+  executable=$1
+  shift
+  if [ "${1%=*}" == "PGPASSWORD" ]; then
+    export $1
+    shift
+  fi
+  echo "$executable" "$@"
+  "$executable" "$@"
+  unset PGPASSWORD
 }
 
 #

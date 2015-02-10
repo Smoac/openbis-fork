@@ -32,14 +32,14 @@ public class ServerInterfaceRegressionTest extends AnnotationAppliedTestCase
     @Test
     public void testServerAnnotations()
     {
-        assertMandatoryMethodAnnotations(IPhosphoNetXServer.class, PhosphoNetXServer.class);
+        assertMandatoryMethodAnnotations(IPhosphoNetXServer.class, PhosphoNetXServer.class, null);
     }
 
     @Test
     public void testDataServiceInternalAnnotations()
     {
         assertMandatoryMethodAnnotations(IProteomicsDataServiceInternal.class,
-                ProteomicsDataServiceInternal.class);
+                ProteomicsDataServiceInternal.class, null);
     }
     
 }

@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.server;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.server.util.AnnotationAppliedTestCase;
@@ -32,19 +35,24 @@ public class ServerInterfaceRegressionTest extends AnnotationAppliedTestCase
     @Test
     public void testICommonServer()
     {
+        List<String> exemptMethods = new ArrayList<String>();
+        exemptMethods.add("getDisabledText");
+        
         assertMandatoryMethodAnnotations(ICommonServer.class, CommonServer.class,
-                "getLastModificationState: Transactional\n");
+                "getLastModificationState: Transactional\n", exemptMethods);
     }
 
     @Test
     public void testIETLLIMSService()
     {
-        assertMandatoryMethodAnnotations(IServiceForDataStoreServer.class, ServiceForDataStoreServer.class);
+        List<String> exemptMethods = new ArrayList<String>();
+        assertMandatoryMethodAnnotations(IServiceForDataStoreServer.class, ServiceForDataStoreServer.class, exemptMethods);
     }
 
     @Test
     public void testITrackingServer()
     {
-        assertMandatoryMethodAnnotations(ITrackingServer.class, TrackingServer.class);
+        List<String> exemptMethods = new ArrayList<String>();
+        assertMandatoryMethodAnnotations(ITrackingServer.class, TrackingServer.class, exemptMethods);
     }
 }

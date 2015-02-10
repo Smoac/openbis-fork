@@ -11,5 +11,7 @@ source $BASE/common-functions.sh
 
 DATABASE="$1"
 OWNER="$2"
+HOST=$3
+PORT=$4
 
-databaseExist "$DATABASE" "$OWNER"
+databaseExist $HOST $PORT "$DATABASE" "$OWNER"

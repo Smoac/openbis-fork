@@ -1290,4 +1290,8 @@ public interface ICommonClientService extends IClientService
      */
     public List<String> listPredeployedPlugins(ScriptType scriptType);
 
+    /**
+     * Gets text for front page if the AS is disabled, null otherwise.
+     */
+    public String getDisabledText();
 }

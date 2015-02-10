@@ -1181,4 +1181,9 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
      * @see ICommonClientService#listPredeployedPlugins(ScriptType)
      */
     public void listPredeployedPlugins(ScriptType scriptType, AsyncCallback<List<String>> callback);
+    
+    /**
+     * @see ICommonClientService#getDisabledText()
+     */
+    public void getDisabledText(AsyncCallback<String> callback);
 }

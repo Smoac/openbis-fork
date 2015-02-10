@@ -23,7 +23,7 @@ import java.sql.SQLException;
 import com.izforge.izpack.api.data.AutomatedInstallData;
 
 /**
- * Tests if there is a valid PostgreSQL installation on the local machine that is setup to accept
+ * Tests if there is a valid PostgreSQL installation that is setup to accept
  * connections from local users without requiring a password.
  * 
  * @author Kaloyan Enimanev
@@ -34,8 +34,6 @@ public class DBConnectionValidator extends AbstractDataValidator
     private static final String DEFAULT_ERROR_MESSAGE = "Cannot connect to the specified database.";
 
     private static final String JDBC_DRIVER_NAME = "org.postgresql.Driver";
-
-    private static final String CONNECTION_STRING = "jdbc:postgresql://localhost/template1";
 
     private static final String NO_PASSWORD = "";
 
@@ -70,52 +68,54 @@ public class DBConnectionValidator extends AbstractDataValidator
         {
             return Status.OK;
         }
+        String host = getHost();
         String owner = getOwner();
         String ownerPassword = getOwnerPassword();
-        if (testConnectionOK(owner, ownerPassword, "database.owner") == false)
+        if (testConnectionOK(host, owner, ownerPassword, "database.owner") == false)
         {
             return Status.ERROR;
         }
         return Status.OK;
     }
+    
+    private String getHost()
+    {   
+        return getProperty("database.url-host-part", "localhost");
+    }
 
     private String getOwner()
     {
         String user = System.getProperty("user.name").toLowerCase();
-        if (GlobalInstallationContext.isFirstTimeInstallation)
-        {
-            return user;
-        }
-        String owner =
-                Utils.tryToGetServicePropertyOfAS(GlobalInstallationContext.installDir,
-                        "database.owner");
-        if (owner != null && owner.length() > 0)
-        {
-            return owner;
-        }
-        return user;
+        return getProperty("database.owner", user);
     }
 
     private String getOwnerPassword()
     {
+        return getProperty("database.owner-password", NO_PASSWORD);
+    }
+    
+    private String getProperty(String key, String defaultValue)
+    {
         if (GlobalInstallationContext.isFirstTimeInstallation)
         {
-            return NO_PASSWORD;
+            return defaultValue;
         }
-        String password =
-                Utils.tryToGetServicePropertyOfAS(GlobalInstallationContext.installDir,
-                        "database.owner-password");
-        return password == null ? "" : password;
+        String property = Utils.tryToGetServicePropertyOfAS(GlobalInstallationContext.installDir, key);
+        if (property != null && property.trim().length() > 0)
+        {
+            return property.trim();
+        }
+        return defaultValue;
     }
 
-    private boolean testConnectionOK(String username, String password, String messagePostfix)
+    private boolean testConnectionOK(String host, String username, String password, String messagePostfix)
     {
         boolean connected = false;
         try
         {
             Class.forName(JDBC_DRIVER_NAME);
             Connection connection =
-                    DriverManager.getConnection(CONNECTION_STRING, username, password);
+                    DriverManager.getConnection("jdbc:postgresql://" + host + "/template1", username, password);
             if (connection != null)
             {
                 connected = true;

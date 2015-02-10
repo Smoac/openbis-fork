@@ -20,6 +20,7 @@ import java.util.Date;
 
 import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.Element;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.CellPanel;
 import com.google.gwt.user.client.ui.DockPanel;
@@ -70,6 +71,29 @@ final class LoginPage extends com.google.gwt.user.client.ui.VerticalPanel
         }
         welcomePanel.setStyleName("login-welcome-text");
         final CellPanel northPanel = createNorthPanel();
+        
+        final HorizontalPanel topPanel = new HorizontalPanel();
+        northPanel.add(topPanel);
+        
+        viewContext.getCommonService().getDisabledText(new AsyncCallback<String>() {
+            
+            @Override
+            public void onFailure(Throwable caught)
+            {
+                // TODO Auto-generated method stub
+            }
+
+            @Override
+            public void onSuccess(String result)
+            {
+                if(result != null) {
+                    topPanel.add(new HTML(result +"<br><br><br>"));
+                }
+            }
+            
+        });
+        
+        
         northPanel.add(logo);
         northPanel.add(welcomePanel);
         add(getBannersPage());

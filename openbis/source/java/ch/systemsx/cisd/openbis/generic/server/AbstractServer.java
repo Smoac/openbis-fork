@@ -537,7 +537,11 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
     @Override
     public final SessionContextDTO tryAuthenticate(final String user, final String password)
     {
-        return tryToAuthenticate(sessionManager.tryToOpenSession(user, password));
+        if(AuthorizationBean.getInstance().isASDisabled()) {
+            throw new UserFailureException("Login disabled by the administrator.");
+        } else {
+            return tryToAuthenticate(sessionManager.tryToOpenSession(user, password));
+        }
     }
 
     private SessionContextDTO tryToAuthenticate(final String sessionToken)

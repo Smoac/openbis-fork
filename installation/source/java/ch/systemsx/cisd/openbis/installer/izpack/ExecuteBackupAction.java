@@ -21,15 +21,13 @@ import java.util.Map;
 
 import com.izforge.izpack.api.data.AutomatedInstallData;
 import com.izforge.izpack.api.data.PanelActionConfiguration;
-import com.izforge.izpack.api.handler.AbstractUIHandler;
-import com.izforge.izpack.data.PanelAction;
 
 /**
  * Executes a script that creates a backup of the existing installation.
  * 
  * @author Kaloyan Enimanev
  */
-public class ExecuteBackupAction extends AbstractScriptExecutor implements PanelAction
+public class ExecuteBackupAction extends AbstractScriptExecutor
 {
     /**
      * a script that creates a installation backup.
@@ -37,7 +35,7 @@ public class ExecuteBackupAction extends AbstractScriptExecutor implements Panel
     private static final String CREATE_BACKUP_SCRIPT = "backup-installation.sh";
 
     @Override
-    public synchronized void executeAction(AutomatedInstallData data, AbstractUIHandler arg1)
+    public synchronized void executeAction(AutomatedInstallData data)
     {
         String script = getAdminScript(data, CREATE_BACKUP_SCRIPT);
         String backupFolder = data.getVariable(GlobalInstallationContext.BACKUP_FOLDER_VARNAME);

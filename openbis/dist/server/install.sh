@@ -1,4 +1,5 @@
 #! /bin/bash
+set -o errexit
 
 usage() {
     echo "Usage: $0 <server folder> [<service properties file> <startup properties file>]"

@@ -333,7 +333,7 @@ class ChannelChooser
         }
         objectsChooserContainer.layout();
 
-        setSelectedOverlayChannels(new HashSet<ImageDatasetChannel>());
+        updateSelectedOverlayChannels(Collections.<CheckBoxGroupWithModel<ImageDatasetChannel>> emptyList());
     }
 
     private List<List<DatasetOverlayImagesReference>> splitIntoGroupsOfIdenticalAnalysisProcedure(List<DatasetOverlayImagesReference> overlayDatasets)
@@ -381,6 +381,8 @@ class ChannelChooser
             objectsChooserContainer.add(new HTML(OVERLAYS_MSG));
         }
 
+        List<CheckBoxGroupWithModel<ImageDatasetChannel>> checkboxGroups = new LinkedList<CheckBoxGroupWithModel<ImageDatasetChannel>>();
+
         for (List<DatasetOverlayImagesReference> group : groups)
         {
             LayoutContainer container;
@@ -400,7 +402,7 @@ class ChannelChooser
 
             for (DatasetOverlayImagesReference dataSet : group)
             {
-                container.add(createOverlayChannelsChooserForOneDataSet(dataSet, overlayDatasets.size() != 1));
+                container.add(createOverlayChannelsChooserForOneDataSet(dataSet, overlayDatasets.size() != 1, checkboxGroups));
             }
 
             if (container != objectsChooserContainer)
@@ -449,7 +451,7 @@ class ChannelChooser
     }
 
     private Widget createOverlayChannelsChooserForOneDataSet(
-            DatasetOverlayImagesReference overlayDataset, boolean withLabel)
+            DatasetOverlayImagesReference overlayDataset, boolean withLabel, final List<CheckBoxGroupWithModel<ImageDatasetChannel>> checkboxes)
     {
         List<LabeledItem<ImageDatasetChannel>> overlayChannelItems =
                 createOverlayChannelItems(overlayDataset);
@@ -460,9 +462,10 @@ class ChannelChooser
                 @Override
                 public void onChange(Set<ImageDatasetChannel> selected)
                 {
-                    setSelectedOverlayChannels(selected);
+                    updateSelectedOverlayChannels(checkboxes);
                 }
             });
+        checkboxes.add(checkBoxGroup);
 
         String label = OVERLAYS_MSG;
 
@@ -477,9 +480,14 @@ class ChannelChooser
 
     }
 
-    private void setSelectedOverlayChannels(Set<ImageDatasetChannel> selected)
+    private void updateSelectedOverlayChannels(List<CheckBoxGroupWithModel<ImageDatasetChannel>> checkboxes)
     {
-        selectedOverlayChannels = selected;
+        selectedOverlayChannels = new HashSet<ImageDatasetChannel>();
+
+        for (CheckBoxGroupWithModel<ImageDatasetChannel> checkbox : checkboxes)
+        {
+            selectedOverlayChannels.addAll(checkbox.getSelected());
+        }
         refresh();
     }
 
