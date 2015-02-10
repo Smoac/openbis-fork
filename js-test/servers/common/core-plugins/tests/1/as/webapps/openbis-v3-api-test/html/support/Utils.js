@@ -41,7 +41,7 @@ define([ "support/underscore-min" ], function(_) {
 	}
 
 	STJSUtil.prototype.decycle = function(object) {
-		return decycleLocal(object, new Array());
+		return decycleLocal(object, []);
 	}
 
 	var collectTypes = function(jsonObject, types) {
@@ -122,14 +122,14 @@ define([ "support/underscore-min" ], function(_) {
 		if (_.isArray(object)) {
 			return _.map(object, function(el, key) { return decycleLocal(el, references) });
 		} else if (_.isObject(object)) {
-			var result = Object.create(null);
+			var result = {};
 			if (object["@type"] != null) {
 				id = references.length;
 				result["@id"] = id;
 				references.push(object);
 			}
 			for (var i in object) {
-				if (!_.isFunction(object[i])) {
+				if (_.isFunction(object[i]) === false && i !== "@id") {
 					result[i] = decycleLocal(object[i], references);
 				}
 			}
