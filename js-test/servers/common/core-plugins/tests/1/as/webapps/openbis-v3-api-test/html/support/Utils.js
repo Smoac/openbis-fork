@@ -41,7 +41,7 @@ define([ "support/underscore-min" ], function(_) {
 	}
 
 	STJSUtil.prototype.decycle = function(object) {
-		return decycleLocal(object, new Array(), []);
+		return decycleLocal(object, new Array());
 	}
 
 	var collectTypes = function(jsonObject, types) {
@@ -111,7 +111,7 @@ define([ "support/underscore-min" ], function(_) {
 	};
 	
 	
-	var decycleLocal = function(object, references, idLessClasses) {
+	var decycleLocal = function(object, references) {
 		if (object === null) {
 			return object; 
 		}
@@ -120,17 +120,17 @@ define([ "support/underscore-min" ], function(_) {
 			return index; 
 		}
 		if (_.isArray(object)) {
-			return _.map(object, function(el, key) { return decycleLocal(el, references, idLessClasses) });
+			return _.map(object, function(el, key) { return decycleLocal(el, references) });
 		} else if (_.isObject(object)) {
 			var result = Object.create(null);
-			if (shouldBeIdLess(object, idLessClasses) == false) {
+			if (object["@type"] != null) {
 				id = references.length;
 				result["@id"] = id;
 				references.push(object);
 			}
 			for (var i in object) {
 				if (!_.isFunction(object[i])) {
-					result[i] = decycleLocal(object[i], references, idLessClasses);
+					result[i] = decycleLocal(object[i], references);
 				}
 			}
 			return result;
@@ -138,17 +138,6 @@ define([ "support/underscore-min" ], function(_) {
 		return object;
 	};
 		
-	var shouldBeIdLess = function(object, idLessClasses) {
-		for (var i in idLessClasses) {
-			var c = idLessClasses[i];
-			var op = object.__proto__;
-			if (object instanceof c) {
-				return true;
-			}
-		}
-		return false;
-	};
-
 	var fromJsonObjectWithTypeProperty = function(propertyName, propertyValue, hashedObjects, modulesMap) {
 		if (_.isNumber(propertyValue) && propertyName.indexOf("Date") == -1 && propertyName != "@id") {
 			// I don't know what is the better way to distinguish between id
