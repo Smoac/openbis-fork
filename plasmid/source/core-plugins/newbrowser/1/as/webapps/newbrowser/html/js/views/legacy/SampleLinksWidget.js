@@ -592,17 +592,16 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 			$input.append("Select");
 			
 			//Remove Link Annotations
-			var items = $input.parent().children();
-			for(var i = 0; i < items.length; i++) {
-				var item = $(items[i]);
-				var propertyTypeCode = item.attr("property-type-code");
-				if(propertyTypeCode) {
-					item.val("");
-					this._writeState(sample, propertyTypeCode, null, true);
-					item.prop("disabled", true);
-				}
-			}
-			
+//			var items = $input.parent().children();
+//			for(var i = 0; i < items.length; i++) {
+//				var item = $(items[i]);
+//				var propertyTypeCode = item.attr("property-type-code");
+//				if(propertyTypeCode) {
+//					item.val("");
+//					item.prop("disabled", true);
+//				}
+//			}
+			this._writeState(sample, null, null, true);
 			//Update
 			this.samplesRemoved[sampleId] = this.samples[sampleId];
 			this.samples[sampleId] = null;
