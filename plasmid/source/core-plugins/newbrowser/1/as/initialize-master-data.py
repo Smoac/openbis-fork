@@ -441,6 +441,7 @@ createProperty("COMMENTS", DataType.VARCHAR, "Comments", "", None);
 createProperty("QUANTITY", DataType.VARCHAR, "Quantity", "", None);
 createProperty("PLASMID_ANNOTATION", DataType.VARCHAR, "Plasmid annotation", "", None);
 createProperty("PLASMID_RELATIONSHIP", DataType.CONTROLLEDVOCABULARY, "Plasmid relationship", "", "PLASMID_RELATIONSHIP");
+createProperty("CONTAINED", DataType.VARCHAR, "Contained", "", None);
 
 ##
 ## DataSet Types

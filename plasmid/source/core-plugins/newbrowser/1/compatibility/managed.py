@@ -81,6 +81,9 @@ configuration["EXPERIMENTAL_STEP"] = {
                           "WESTERN_BLOTTING_PROTOCOL" : {"COMMENTS" : False }
                          };
 
+configurationCopyParents = {}
+configurationCopyParents["YEAST"] = { "YEAST" : "PLASMID" };
+
 #Global Variables
 annotableType = "<REPLACE_WITH_ANNOTABLE_TYPE>"
 server = CommonServiceProvider.getCommonServer()
@@ -112,16 +115,18 @@ def getPropertyType(propertyTypeCode):
             return propertyType
     return None;
 
-def createAnnotationsFor(identifier, annotations):
+def createAnnotationsFor(identifier, annotations, sampleType):
     permId = entityInformationProvider().getSamplePermId(identifier);
     newAnnotation = elementFactory().createSampleLink(permId)
     
     newAnnotation.addAttribute("identifier", identifier)
+    newAnnotation.addAttribute("sampleType", sampleType)
     for annotation in annotations:
         newAnnotation.addAttribute(annotation, annotations[annotation])
     return newAnnotation
 
 def getWidgetForAdd(sampleTypeCode, annotableType):
+    #print "sampleTypeCode:" + sampleTypeCode + " - " + annotableType #Deleting this comment causes the thing to break
     widgets = []
     widgetIdentifier = inputWidgetFactory().createTextInputField("identifier")\
                             .setMandatory(True)\
@@ -146,7 +151,8 @@ def configureUI():
     # Add Headers
     tableBuilder = createTableBuilder()
     tableBuilder.addHeader("identifier")
-    usedTableHeaders = {"identifier" : True }
+    tableBuilder.addHeader("sampleType")
+    usedTableHeaders = {"identifier" : True, "sampleType" : True }
     for sampleTypeCode in getAllAnnotableSampleTypesForType(annotableType):
         for propertyTypeCode in getPropertyTypesForSampleTypeFromAnnotableType(sampleTypeCode, annotableType):
             if propertyTypeCode not in usedTableHeaders:
@@ -184,14 +190,14 @@ def updateFromUI(action):
     if action.name.startswith("Add"):
         sampleTypeCode = action.name[4:]
         identifier = action.getInputValue("identifier")
-        annotations = {}
+        annotations = { }
         for propertyTypeCode in getPropertyTypesForSampleTypeFromAnnotableType(sampleTypeCode, annotableType):
             propertyType = getPropertyType(propertyTypeCode)
             propertyTypeValue = action.getInputValue(propertyType.label)
             if not isValid(propertyType.dataType, propertyTypeValue):
                 raise ValidationException("Property " + str(propertyType.label) + " with invalid value " + str(propertyTypeValue))
             annotations[propertyTypeCode] = propertyTypeValue
-        newAnnotation = createAnnotationsFor(identifier, annotations)
+        newAnnotation = createAnnotationsFor(identifier, annotations, sampleTypeCode)
         elements.append(newAnnotation)
     
     if action.name.startswith("Delete"):
@@ -212,26 +218,59 @@ def batchColumnNames():
     return allTypes
 
 def updateFromBatchInput(bindings):
+    #print "--------> UPDATE FROM BATCH INPUT: "
     elements = []
+    
+    #Links Configuration
+    typesToCopyFrom = []
+    if annotableType in configurationCopyParents:
+        typesToCopyFrom = configurationCopyParents[annotableType]
+                
     for annotableSampleType in getAllAnnotableSampleTypesForType(annotableType):
         annotatedSamples = bindings.get(annotableSampleType)
-        if annotatedSamples != None and annotatedSamples != "":
-            for sampleLine in annotatedSamples.split("\\"):
-                foundIdentifier = False
-                propertyTypes = getPropertyTypesForSampleTypeFromAnnotableType(annotableSampleType, annotableType)
-                sampleLink = None
-                for sampleProperty in sampleLine.split(";"):
-                    propertyName = sampleProperty.split(":")[0]
-                    propertyValue = sampleProperty.split(":")[1]
-                    if propertyName == "identifier":
-                        foundIdentifier = True
-                        permId = entityInformationProvider().getSamplePermId(propertyValue)
-                        sampleLink = elementFactory().createSampleLink(permId)
-                        sampleLink.addAttribute(propertyName, propertyValue)
-                    elif propertyTypes[propertyName] != None:
-                        sampleLink.addAttribute(propertyName, propertyValue)
-                    else:
-                        raise NameError('Found invalid property: ' + propertyName + " on type " + annotableSampleType)
-                if foundIdentifier:
-                    elements.append(sampleLink)
+        #print "-----> TYPE: " + str(annotableSampleType) + " BINDINGS: " + str(annotatedSamples)
+        if (annotatedSamples != None and annotatedSamples != ""):
+            #Annotations
+            #print "-----> Annotations"
+            if annotableSampleType not in typesToCopyFrom:
+                for sampleLine in annotatedSamples.split("\\"):
+                    propertyTypes = getPropertyTypesForSampleTypeFromAnnotableType(annotableSampleType, annotableType)
+                    identifier = None
+                    permId = None
+                    sampleLink = None
+                    for sampleProperty in sampleLine.split(";"):
+                        propertyName = sampleProperty.split(":")[0]
+                        if propertyName == "identifier":
+                            propertyValue = sampleProperty.split(":")[1]
+                            identifier = propertyValue
+                            permId = entityInformationProvider().getSamplePermId(propertyValue)
+                            sampleLink = elementFactory().createSampleLink(permId)
+                            sampleLink.addAttribute(propertyName, propertyValue)
+                        elif propertyName in propertyTypes:
+                            sampleLink.addAttribute(propertyName, propertyValue)
+                        else:
+                            raise NameError('Found invalid property: ' + propertyName + " on type " + annotableSampleType)
+                    if identifier is not None:
+                        elements.append(sampleLink)
+            #Links
+            #print "-----> links"
+            for typeToCopyFrom in typesToCopyFrom:
+                typeToCopy = typesToCopyFrom[typeToCopyFrom]
+                #print "-----> TYPE TO COPY FROM: " + str(typeToCopyFrom)
+                #print "-----> TYPE TO COPY: " + str(typeToCopy)
+                identifiersToCopyFrom = bindings.get(typeToCopyFrom)
+                if identifiersToCopyFrom is not None:
+                    #print "-----> IDENTIFIERS TO COPY FROM: " + str(identifiersToCopyFrom)
+                    identifiersForCopy = identifiersToCopyFrom.split(',')
+                    for identifierToCopyFrom in identifiersForCopy:
+                        #print "-----> IDENTIFIER TO COPY FROM: " + str(identifierToCopyFrom)
+                        permIdFromIdentifier = entityInformationProvider().getSamplePermId(identifierToCopyFrom)
+                        #print "-----> PERMID TO COPY FROM: " + str(permIdFromIdentifier)
+                        parentsToCopyFromPermId = entityInformationProvider().getSamplePropertyValue(permIdFromIdentifier, "ANNOTATIONS_STATE")
+                        #print "-----> ELEMENTS TO COPY: " + str(parentsToCopyFromPermId)
+                        parentElements = list(propertyConverter().convertStringToElements(parentsToCopyFromPermId))
+                        for parentAnnotation in parentElements:
+                            if parentAnnotation.getAttribute("sampleType") == typeToCopy:
+                                parentAnnotation.addAttribute("CONTAINED", identifierToCopyFrom)
+                                elements.append(parentAnnotation)
     property.value = propertyConverter().convertToString(elements)
