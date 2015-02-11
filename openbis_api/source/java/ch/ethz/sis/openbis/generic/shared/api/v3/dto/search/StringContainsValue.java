@@ -23,6 +23,11 @@ public class StringContainsValue extends AbstractStringValue
 {
     private static final long serialVersionUID = 1L;
 
+    private StringContainsValue()
+    {
+        super(null);
+    }
+
     protected StringContainsValue(String value)
     {
         super(value);

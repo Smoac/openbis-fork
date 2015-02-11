@@ -23,6 +23,11 @@ public class StringEndsWithValue extends AbstractStringValue
 {
     private static final long serialVersionUID = 1L;
 
+    private StringEndsWithValue()
+    {
+        super(null);
+    }
+
     protected StringEndsWithValue(String value)
     {
         super(value);

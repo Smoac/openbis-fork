@@ -23,6 +23,11 @@ public class StringStartsWithValue extends AbstractStringValue
 {
     private static final long serialVersionUID = 1L;
 
+    private StringStartsWithValue()
+    {
+        super(null);
+    }
+
     protected StringStartsWithValue(String value)
     {
         super(value);
