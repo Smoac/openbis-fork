@@ -91,7 +91,8 @@ public class OpenbisFilterProvider extends FilterProvider
     @Override
     public BeanPropertyFilter findFilter(Object paramObject)
     {
-        return new OpenisPropertyFilter();
+        return SimpleBeanPropertyFilter.serializeAllExcept();
+        // return new OpenisPropertyFilter();
     }
 
 }
