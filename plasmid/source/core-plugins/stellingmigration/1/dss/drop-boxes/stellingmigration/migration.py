@@ -183,6 +183,7 @@ def translate(tr, sample, properties):
                         else:
                             newAnnotationsNode = ET.SubElement(newAnnotationsRoot, "Sample")
                             print "[INFO - PROCESSING PERM_ID] " + sample.code + " " + permId
+                            newAnnotationsNode.attrib["sampleType"] = linkedSample.sampleType
                             newAnnotationsNode.attrib["permId"] = permId
                             newAnnotationsNode.attrib["identifier"] = identifier
                             for oldName in propertyDefinitions:
