@@ -51,7 +51,7 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 //		return true;
 //	}
 	
-	this._writeState = function(sample, propertyTypeCode, propertyTypeValue) {
+	this._writeState = function(sample, propertyTypeCode, propertyTypeValue, isDelete) {
 //		if(!this._enableAnnotations()) {
 //			return;
 //		}
@@ -64,10 +64,11 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 		}
 		
 		sampleTypeAnnotations["identifier"] =  sample.identifier; //Adds code to the annotations if not present
+		sampleTypeAnnotations["sampleType"] =  sample.sampleTypeCode; //Adds sampleType code to the annotations if not present
 		
-		if(propertyTypeValue === null) {
+		if(isDelete) {
 			delete this.stateObj[sample.permId];
-		} else {
+		} else if(propertyTypeCode && propertyTypeValue) {
 			sampleTypeAnnotations[propertyTypeCode] = propertyTypeValue;
 		}
 		
@@ -83,7 +84,14 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 			}
 			
 			for(var propertyTypeCode in this.stateObj[permId]) {
-				if(propertyTypeCode != "identifier") {
+				if(propertyTypeCode == "sampleType") {
+					var propertyTypeValue = this.stateObj[permId][propertyTypeCode];
+					xmlDoc	+= " " + propertyTypeCode + "=\"" + propertyTypeValue +"\"";
+				}
+			}
+			
+			for(var propertyTypeCode in this.stateObj[permId]) {
+				if(propertyTypeCode != "identifier" && propertyTypeCode != "sampleType") {
 					var propertyTypeValue = this.stateObj[permId][propertyTypeCode];
 					xmlDoc	+= " " + propertyTypeCode + "=\"" + propertyTypeValue +"\"";
 				}
@@ -257,7 +265,7 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 						} else {
 							propertyTypeValue = $field.val();
 						}
-						_this._writeState(sample, propertyTypeCode, propertyTypeValue);
+						_this._writeState(sample, propertyTypeCode, propertyTypeValue, false);
 					});
 					
 					$controls.append(propertyType.label + ": ");
@@ -303,6 +311,7 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 								_this.removeSample(sampleId);
 								mainController.serverFacade.searchWithUniqueId(e.data.permId, function(data) {
 									_this.addSample(data[0]);
+									_this._writeState(data[0], null, null, false);
 								});
 								$("#" + id).css({"background-color" : "#FFFFFF" });
 							}
@@ -589,7 +598,7 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 				var propertyTypeCode = item.attr("property-type-code");
 				if(propertyTypeCode) {
 					item.val("");
-					this._writeState(sample, propertyTypeCode, null);
+					this._writeState(sample, propertyTypeCode, null, true);
 					item.prop("disabled", true);
 				}
 			}

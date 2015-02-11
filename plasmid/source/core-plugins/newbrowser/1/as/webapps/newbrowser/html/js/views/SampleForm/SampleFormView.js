@@ -223,6 +223,47 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 														currentChildrenLinks);
 		
 		//
+		// LINKS
+		//
+		var requiredLinks = [];
+		if(sampleTypeDefinitionsExtension && sampleTypeDefinitionsExtension["SAMPLE_LINKS_HINT"]) {
+			requiredLinks = sampleTypeDefinitionsExtension["SAMPLE_LINKS_HINT"];
+		}
+		
+		var sampleLinksWidgetId = "sampleLinksWidgetId";
+		var $sampleLinksWidget = $("<div>", { "id" : sampleLinksWidgetId });
+		$formColumn.append($sampleLinksWidget);
+		
+		var currentOrphanLinks = [];
+		//Read the XML to build the orphan links list
+		var annotationsFromSample = FormUtil.getAnnotationsFromSample(this._sampleFormModel.sample);
+		//Delete parents and children
+		for(var idxF = 0; idxF < this._sampleFormModel.sample.parents.length; idxF++) {
+			var sample = this._sampleFormModel.sample.parents[idxF];
+			delete annotationsFromSample[sample.permId];
+		}
+		for(var idxC = 0; idxC < this._sampleFormModel.sample.children.length; idxC++) {
+			var sample = this._sampleFormModel.sample.children[idxC];
+			delete annotationsFromSample[sample.permId];
+		}
+		//Make samples from Orphans left
+		for(var orphanSamplePermId in annotationsFromSample) {
+			var orphanSample = {};
+			orphanSample.permId = orphanSamplePermId;
+			orphanSample.code = annotationsFromSample[orphanSamplePermId].identifier.split('/')[2];
+			orphanSample.identifier = annotationsFromSample[orphanSamplePermId].identifier;
+			orphanSample.sampleTypeCode = annotationsFromSample[orphanSamplePermId].sampleType;
+			currentOrphanLinks.push(orphanSample);
+		}
+		this._sampleFormModel.sampleLinks = new SampleLinksWidget(sampleLinksWidgetId,
+														profile,
+														mainController.serverFacade,
+														"Links",
+														requiredLinks,
+														isDisabled,
+														currentOrphanLinks);
+		
+		//
 		// GENERATE CHILDREN
 		//
 		if((this._sampleFormModel.mode !== FormMode.VIEW) && this._sampleFormModel.isELNSubExperiment) {
@@ -383,6 +424,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		//Repaint parents and children after updating the property state to show the annotations
 		this._sampleFormModel.sampleLinksParents.repaint();
 		this._sampleFormModel.sampleLinksChildren.repaint();
+		this._sampleFormModel.sampleLinks.repaint();
 		
 		if(this._sampleFormModel.mode !== FormMode.CREATE) {
 			//Preview image

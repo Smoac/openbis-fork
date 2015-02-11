@@ -17,6 +17,34 @@ var FormUtil = new function() {
 	this.controlColumnClass = 'col-md-6';
 		
 	//
+	// Annotations
+	//
+	
+	this.getAnnotationsFromSample = function(sample) {
+		var stateObj = {};
+		var stateFieldValue = sample.properties["ANNOTATIONS_STATE"];
+
+		if(!stateFieldValue) {
+			return null;
+		}
+		var xmlDoc = new DOMParser().parseFromString(stateFieldValue, 'text/xml');
+		var samples = xmlDoc.getElementsByTagName("Sample");
+		for(var i = 0; i < samples.length; i++) {
+			var sample = samples[i];
+			var permId = sample.attributes["permId"].value;
+			for(var j = 0; j < sample.attributes.length; j++) {
+				var attribute = sample.attributes[j];
+				if(attribute.name !== "permId") {
+					if(!stateObj[permId]) {
+						stateObj[permId] = {};
+					}
+					stateObj[permId][attribute.name] = attribute.value;
+				}
+			}
+		}
+		return stateObj;
+	}
+	//
 	// Standard Form Fields
 	//
 	

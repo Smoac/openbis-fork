@@ -29,4 +29,5 @@ function SampleFormModel(mode, sample) {
 	this.dataSetViewer = null;
 	this.sampleLinksParents = null;
 	this.sampleLinksChildren = null;
+	this.sampleLinksNone = null;
 }
