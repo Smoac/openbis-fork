@@ -1,9 +1,11 @@
-define([ 'jquery', 'openbis-v3-api', 'common', 'dto/entity/sample/SampleCreation', 
+define([ 'jquery', 'openbis-v3-api', 'openbis-v3-api-test-common', 'dto/entity/sample/SampleCreation', 
          'dto/id/entitytype/EntityTypePermId', 'dto/id/space/SpacePermId', 'dto/id/tag/TagCode'
          ], 
 function($, openbis, c, SampleCreation,
 		EntityTypePermId, SpacePermId, TagCode) {
 	return function() {
+		QUnit.module("Sample tests");
+		
 		asyncTest("mapSamples()", function() {
 			$.when(c.createFacadeAndLogin(), c.createSamplePermId("20130415095748527-404"), c.createSampleFetchOptions()).then(function(facade, permId, fetchOptions) {
 				return facade.mapSamples([ permId ], fetchOptions).done(function() {
