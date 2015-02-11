@@ -238,22 +238,28 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		//Read the XML to build the orphan links list
 		var annotationsFromSample = FormUtil.getAnnotationsFromSample(this._sampleFormModel.sample);
 		//Delete parents and children
-		for(var idxF = 0; idxF < this._sampleFormModel.sample.parents.length; idxF++) {
-			var sample = this._sampleFormModel.sample.parents[idxF];
-			delete annotationsFromSample[sample.permId];
+		if(this._sampleFormModel.sample.parents) {
+			for(var idxF = 0; idxF < this._sampleFormModel.sample.parents.length; idxF++) {
+				var sample = this._sampleFormModel.sample.parents[idxF];
+				delete annotationsFromSample[sample.permId];
+			}
 		}
-		for(var idxC = 0; idxC < this._sampleFormModel.sample.children.length; idxC++) {
-			var sample = this._sampleFormModel.sample.children[idxC];
-			delete annotationsFromSample[sample.permId];
+		if(this._sampleFormModel.sample.children) {
+			for(var idxC = 0; idxC < this._sampleFormModel.sample.children.length; idxC++) {
+				var sample = this._sampleFormModel.sample.children[idxC];
+				delete annotationsFromSample[sample.permId];
+			}
 		}
 		//Make samples from Orphans left
-		for(var orphanSamplePermId in annotationsFromSample) {
-			var orphanSample = {};
-			orphanSample.permId = orphanSamplePermId;
-			orphanSample.code = annotationsFromSample[orphanSamplePermId].identifier.split('/')[2];
-			orphanSample.identifier = annotationsFromSample[orphanSamplePermId].identifier;
-			orphanSample.sampleTypeCode = annotationsFromSample[orphanSamplePermId].sampleType;
-			currentOrphanLinks.push(orphanSample);
+		if(annotationsFromSample) {
+			for(var orphanSamplePermId in annotationsFromSample) {
+				var orphanSample = {};
+				orphanSample.permId = orphanSamplePermId;
+				orphanSample.code = annotationsFromSample[orphanSamplePermId].identifier.split('/')[2];
+				orphanSample.identifier = annotationsFromSample[orphanSamplePermId].identifier;
+				orphanSample.sampleTypeCode = annotationsFromSample[orphanSamplePermId].sampleType;
+				currentOrphanLinks.push(orphanSample);
+			}
 		}
 		this._sampleFormModel.sampleLinks = new SampleLinksWidget(sampleLinksWidgetId,
 														profile,
