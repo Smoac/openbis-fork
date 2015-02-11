@@ -8,31 +8,31 @@ from ch.systemsx.cisd.openbis.generic.server import CommonServiceProvider
 configuration = {}
 
 configuration["GENERAL_PROTOCOL"] = {
-                          "CHEMICALS" : {"QUANTITY" : False, "NAME" : False },
+                          "CHEMICAL" : {"QUANTITY" : False, "NAME" : False },
                           "SOLUTION_BUFFERS" : {"QUANTITY" : False, "NAME" : False },
                           "MEDIA" : {"QUANTITY" : False, "NAME" : False },
-                          "ENZYMES" : {"NAME" : False, "CONCENTRATION" : False }
+                          "ENZYME" : {"NAME" : False, "CONCENTRATION" : False }
                          };
 
 configuration["MEDIA"] = {
-                          "CHEMICALS" : {"CONCENTRATION" : False, "NAME" : False },
+                          "CHEMICAL" : {"CONCENTRATION" : False, "NAME" : False },
                           "SOLUTION_BUFFERS" : {"CONCENTRATION" : False, "NAME" : False },
                           "MEDIA" : {"CONCENTRATION" : False, "NAME" : False }
                          };
 
 configuration["PCR"] = {
-                          "CHEMICALS" : {"QUANTITY" : False, "NAME" : False },
+                          "CHEMICAL" : {"QUANTITY" : False, "NAME" : False },
                           "SOLUTION_BUFFERS" : {"QUANTITY" : False, "NAME" : False },
-                          "ENZYMES" : {"NAME" : False, "CONCENTRATION" : False }
+                          "ENZYME" : {"NAME" : False, "CONCENTRATION" : False }
                          };
 
 configuration["POMBE"] = {
                           "POMBE" : {}, #Just a placeholder, is actually used by the Plasmids of the Pombe to create the links
-                          "PLASMIDS" : {"RELATIONSHIP" : False, "ANNOTATION" : False, "CONTAINED" : False }
+                          "PLASMID" : {"PLASMID_ANNOTATION" : False, "PLASMID_RELATIONSHIP" : False, "CONTAINED" : False }
                          };
 
 configuration["READOUT"] = {
-                          "CHEMICALS" : {"QUANTITY" : False, "NAME" : False },
+                          "CHEMICAL" : {"QUANTITY" : False, "NAME" : False },
                           "SOLUTION_BUFFERS" : {"QUANTITY" : False, "NAME" : False }
                          };
 
@@ -41,19 +41,19 @@ configuration["RESULT"] = {
                          };
 
 configuration["SOLUTION_BUFFERS"] = {
-                          "CHEMICALS" : {"CONCENTRATION" : False, "NAME" : False },
+                          "CHEMICAL" : {"CONCENTRATION" : False, "NAME" : False },
                           "SOLUTION_BUFFERS" : {"CONCENTRATION" : False, "NAME" : False }
                          };
 
 configuration["WESTERN_BLOTTING"] = {
-                          "CHEMICALS" : {"QUANTITY" : False, "NAME" : False },
+                          "CHEMICAL" : {"QUANTITY" : False, "NAME" : False },
                           "SOLUTION_BUFFERS" : {"QUANTITY" : False, "NAME" : False },
                           "ANTIBODY" : {"QUANTITY" : False, "NAME" : False }
                          };
 
 configuration["YEAST"] = {
                           "YEAST" : {}, #Just a placeholder, is actually used by the Plasmids of the Yeast to create the links
-                          "PLASMIDS" : {"ANNOTATION" : False, "RELATIONSHIP" : False, "CONTAINED" : False }
+                          "PLASMID" : {"PLASMID_ANNOTATION" : False, "PLASMID_RELATIONSHIP" : False, "CONTAINED" : False }
                          };
 
 configurationCopyParents = {}
@@ -102,6 +102,7 @@ def createAnnotationsFor(identifier, annotations, sampleType):
     return newAnnotation
 
 def getWidgetForAdd(sampleTypeCode, annotableType):
+    #print "sampleTypeCode:" + sampleTypeCode + " - " + annotableType #Deleting this comment causes the thing to break
     widgets = []
     widgetIdentifier = inputWidgetFactory().createTextInputField("identifier")\
                             .setMandatory(True)\

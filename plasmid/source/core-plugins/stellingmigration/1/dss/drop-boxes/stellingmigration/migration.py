@@ -64,8 +64,8 @@ definitions = {
                 "POMBE" : 
                                      { 
                                       "PLASMIDS" : {
-                                                     "rel" : "RELATIONSHIP",
-                                                     "annotation" : "ANNOTATION"
+                                                     "annotation" : "PLASMID_ANNOTATION",
+                                                     "rel" : "PLASMID_RELATIONSHIP"
                                                      }
                                      },
                "READOUT" : 
@@ -119,8 +119,8 @@ definitions = {
                "YEAST" : 
                                     {
                                      "PLASMIDS" : {
-                                                     "annotation" : "ANNOTATION",
-                                                     "rel" : "RELATIONSHIP"
+                                                     "annotation" : "PLASMID_ANNOTATION",
+                                                     "rel" : "PLASMID_RELATIONSHIP"
                                                      }
                                     }
 };
