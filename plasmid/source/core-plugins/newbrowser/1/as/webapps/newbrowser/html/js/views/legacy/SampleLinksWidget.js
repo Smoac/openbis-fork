@@ -335,13 +335,18 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 									mainController.serverFacade.searchDataSetsWithTypeForSamples("ELN_PREVIEW", [data.permId], function(data) {
 										data.result.forEach(function(dataset) {
 											var listFilesForDataSetCallback = function(dataFiles) {
-												var downloadUrl = profile.allDataStores[0].downloadUrl + '/' + dataset.code + "/" + dataFiles.result[1].pathInDataSet + "?sessionID=" + mainController.serverFacade.getSession();
-												var previewImage = $("<img>", { 'src' : downloadUrl, 'class' : 'zoomableImage', 'style' : 'height:80px;' });
-												previewImage.click(function(event) {
-													Util.showImage(downloadUrl);
-													event.stopPropagation();
-												});
-												previewContainer.append(previewImage);
+												for(var pathIdx = 0; pathIdx < dataFiles.result.length; pathIdx++) {
+													if(!dataFiles.result[pathIdx].isDirectory) {
+														var downloadUrl = profile.allDataStores[0].downloadUrl + '/' + dataset.code + "/" + dataFiles.result[pathIdx].pathInDataSet + "?sessionID=" + mainController.serverFacade.getSession();
+														var previewImage = $("<img>", { 'src' : downloadUrl, 'class' : 'zoomableImage', 'style' : 'height:80px;' });
+														previewImage.click(function(event) {
+															Util.showImage(downloadUrl);
+															event.stopPropagation();
+														});
+														previewContainer.append(previewImage);
+														break;
+													}
+												}
 											};
 											mainController.serverFacade.listFilesForDataSet(dataset.code, "/", true, listFilesForDataSetCallback);
 										});
