@@ -42,7 +42,6 @@ public class GenericObjectMapper extends ObjectMapper
         setSubtypeResolver(new JsonReflectionsSubTypeResolver(
                 new JsonBaseTypeToSubTypesMapping()));
         setSerializerFactory(new JsonSerializerFactory());
-        setFilters(new OpenbisFilterProvider());
     }
 
 }

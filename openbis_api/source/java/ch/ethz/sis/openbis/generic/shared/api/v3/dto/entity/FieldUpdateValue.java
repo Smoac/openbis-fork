@@ -18,6 +18,9 @@ package ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity;
 
 import java.io.Serializable;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
@@ -30,13 +33,16 @@ public class FieldUpdateValue<T> implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
+    @JsonProperty
     private boolean isModified = false;
 
+    @JsonProperty
     private T value;
 
     /**
      * value for update
      */
+    @JsonIgnore
     public void setValue(T value)
     {
         this.value = value;
@@ -46,6 +52,7 @@ public class FieldUpdateValue<T> implements Serializable
     /**
      * @return {@code true} if the value has been set for update.
      */
+    @JsonIgnore
     public boolean isModified()
     {
         return isModified;
@@ -54,6 +61,7 @@ public class FieldUpdateValue<T> implements Serializable
     /**
      * @return value for update
      */
+    @JsonIgnore
     public T getValue()
     {
         return value;

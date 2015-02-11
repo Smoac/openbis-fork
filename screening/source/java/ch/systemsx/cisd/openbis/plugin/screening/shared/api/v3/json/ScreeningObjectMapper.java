@@ -25,7 +25,6 @@ import ch.systemsx.cisd.openbis.common.api.server.json.resolver.JsonReflectionsS
 import ch.systemsx.cisd.openbis.common.api.server.json.serializer.JsonSerializerFactory;
 import ch.systemsx.cisd.openbis.generic.shared.api.v3.json.EmptyJsonClassValueToClassObjectMapping;
 import ch.systemsx.cisd.openbis.generic.shared.api.v3.json.JsonBaseTypeToSubTypesMapping;
-import ch.systemsx.cisd.openbis.generic.shared.api.v3.json.OpenbisFilterProvider;
 
 /**
  * Jackson library object mapper used in screening OpenBIS.
@@ -44,7 +43,6 @@ public class ScreeningObjectMapper extends ObjectMapper
         setSubtypeResolver(new JsonReflectionsSubTypeResolver(
                 new JsonBaseTypeToSubTypesMapping()));
         setSerializerFactory(new JsonSerializerFactory());
-        setFilters(new OpenbisFilterProvider());
     }
 
 }

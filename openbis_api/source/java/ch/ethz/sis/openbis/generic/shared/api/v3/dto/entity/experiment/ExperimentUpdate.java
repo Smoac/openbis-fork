@@ -21,6 +21,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.AttachmentListUpdateValue;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.FieldUpdateValue;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.IdListUpdateValue;
@@ -39,56 +42,70 @@ public class ExperimentUpdate implements Serializable
 
     private static final long serialVersionUID = 1L;
 
+    @JsonProperty
     private IExperimentId experimentId;
 
+    @JsonProperty
     private Map<String, String> properties = new HashMap<String, String>();
 
+    @JsonProperty
     private FieldUpdateValue<IProjectId> projectId = new FieldUpdateValue<IProjectId>();
 
+    @JsonProperty
     private IdListUpdateValue<ITagId> tagIds = new IdListUpdateValue<ITagId>();
 
+    @JsonProperty
     private AttachmentListUpdateValue attachments = new AttachmentListUpdateValue();
 
+    @JsonIgnore
     public IExperimentId getExperimentId()
     {
         return experimentId;
     }
 
+    @JsonIgnore
     public void setExperimentId(IExperimentId experimentId)
     {
         this.experimentId = experimentId;
     }
 
+    @JsonIgnore
     public void setProperty(String key, String value)
     {
         properties.put(key, value);
     }
 
+    @JsonIgnore
     public Map<String, String> getProperties()
     {
         return properties;
     }
 
+    @JsonIgnore
     public void setProjectId(IProjectId projectId)
     {
         this.projectId.setValue(projectId);
     }
 
+    @JsonIgnore
     public FieldUpdateValue<IProjectId> getProjectId()
     {
         return projectId;
     }
 
+    @JsonIgnore
     public IdListUpdateValue<ITagId> getTagIds()
     {
         return tagIds;
     }
 
+    @JsonIgnore
     public AttachmentListUpdateValue getAttachments()
     {
         return attachments;
     }
 
+    @JsonIgnore
     public void setAttachmentsActions(List<ListUpdateAction<Object>> actions)
     {
         attachments.setActions(actions);

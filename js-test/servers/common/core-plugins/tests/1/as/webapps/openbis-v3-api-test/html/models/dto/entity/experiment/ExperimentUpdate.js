@@ -5,6 +5,7 @@ define([ "support/stjs", "dto/entity/FieldUpdateValue", "dto/entity/IdListUpdate
 		AttachmentListUpdateValue) {
 	var ExperimentUpdate = function() {
 		this.properties = {};
+		this.projectId = new FieldUpdateValue();
 		this.tagIds = new IdListUpdateValue();
 		this.attachments = new AttachmentListUpdateValue();
 	};
@@ -25,7 +26,7 @@ define([ "support/stjs", "dto/entity/FieldUpdateValue", "dto/entity/IdListUpdate
 			return this.properties;
 		};
 		prototype.setProjectId = function(projectId) {
-			this.projectId = projectId;
+			this.projectId.setValue(projectId);
 		};
 		prototype.getProjectId = function() {
 			return this.projectId;
