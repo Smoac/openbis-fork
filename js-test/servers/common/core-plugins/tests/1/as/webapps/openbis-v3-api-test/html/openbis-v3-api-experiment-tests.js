@@ -68,7 +68,6 @@ function($, _, openbis, c,
 			}).done(function(experiments) {
 				var keys = Object.keys(experiments);
 				assertObjectsCount(keys, 1);
-
 				var experiment = experiments[keys[0]];
 				equal(experiment.getCode(), code, "Experiment code");
 				equal(experiment.getType().getCode(), "UNKNOWN", "Type code");
@@ -91,6 +90,7 @@ function($, _, openbis, c,
 				experimentCreation.setTypeId(new EntityTypePermId("HT_SEQUENCING"));
 				experimentCreation.setCode(code);
 				experimentCreation.setProperty("EXPERIMENT_DESIGN", "EXPRESSION");
+				experimentCreation.setTagIds([ new TagCode("CREATE_JSON_TAG") ]);
 				experimentCreation.setProjectId(new ProjectIdentifier("/TEST/TEST-PROJECT"));
 				c.createFacadeAndLogin().then(function(facade) {
 					var ids = facade.createExperiments([experimentCreation]).then(function(permIds) {
@@ -127,17 +127,23 @@ function($, _, openbis, c,
 			});
 		}
 			
-		asyncUpdateExperimentsTest("WithChangedProject", function(experimentUpdate) {
+		asyncUpdateExperimentsTest("WithChangedProjectAndAddedTag", function(experimentUpdate) {
 			experimentUpdate.setProjectId(new ProjectIdentifier("/PLATONIC/SCREENING-EXAMPLES"));
+			experimentUpdate.getTagIds().add(new TagCode("CREATE_ANOTHER_JSON_TAG"));
 		}, function(code, experiment) {
 			equal(experiment.getCode(), code, "Experiment code");
 			equal(experiment.getType().getCode(), "HT_SEQUENCING", "Type code");
 			equal(experiment.getProject().getCode(), "SCREENING-EXAMPLES", "Project code");
 			equal(experiment.getProject().getSpace().getCode(), "PLATONIC", "Space code");
+			var tags = _.sortBy(experiment.getTags(), "code");
+			equal(tags[0].code, 'CREATE_ANOTHER_JSON_TAG', "tags");
+			equal(tags[1].code, 'CREATE_JSON_TAG', "tags");
+			equal(tags.length, 2, "Number of tags");
 		});
 		
-		asyncUpdateExperimentsTest("WithUnChangedProjectButChangedProperties", function(experimentUpdate) {
+		asyncUpdateExperimentsTest("WithUnChangedProjectButChangedPropertiesAndRemovedTag", function(experimentUpdate) {
 			experimentUpdate.setProperty("EXPERIMENT_DESIGN", "OTHER");
+			experimentUpdate.getTagIds().remove([new TagCode("UNKNOWN_TAG"), new TagCode("CREATE_JSON_TAG")]);
 		}, function(code, experiment) {
 			equal(experiment.getCode(), code, "Experiment code");
 			equal(experiment.getType().getCode(), "HT_SEQUENCING", "Type code");
@@ -146,6 +152,7 @@ function($, _, openbis, c,
 			var properties = experiment.getProperties();
 			equal(properties["EXPERIMENT_DESIGN"], "OTHER", "Property EXPERIMENT_DESIGN");
 			equal(Object.keys(properties), "EXPERIMENT_DESIGN", "Properties");
+			equal(experiment.getTags().length, 0, "Number of tags");
 		});
 		
 		asyncUpdateExperimentsTest("WithRemovedProject", function(experimentUpdate) {

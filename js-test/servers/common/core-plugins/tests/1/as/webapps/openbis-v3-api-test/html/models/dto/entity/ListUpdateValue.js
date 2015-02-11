@@ -15,24 +15,28 @@ define([ "support/stjs", "dto/entity/ListUpdateActionRemove", "dto/entity/ListUp
 		prototype.hasActions = function() {
 			return this.getActions() && this.getActions().length > 0;
 		};
+		var asArray = function(items) {
+			if (Array.isArray(items)) {
+				return items;
+			}
+			if (items === null) {
+				return [];
+			}
+			return [items];
+		}
+		var createAction = function(actions, actionClass, items) {
+			var action = new actionClass();
+			action.setItems(asArray(items));
+			actions.push(action);
+		}
 		prototype.remove = function(items) {
-			var action = new ListUpdateActionRemove();
-			action.setItems(items);
-			this.actions.add(action);
+			createAction(this.actions, ListUpdateActionRemove, items);
 		};
 		prototype.add = function(items) {
-			var action = new ListUpdateActionAdd();
-			action.setItems(items);
-			this.actions.add(action);
+			createAction(this.actions, ListUpdateActionAdd, items);
 		};
 		prototype.set = function(items) {
-			var action = new ListUpdateActionSet();
-			if (items == null) {
-				action.setItems([]);
-			} else {
-				action.setItems(items);
-			}
-			this.actions.add(action);
+			createAction(this.actions, ListUpdateActionSet, items);
 		};
 	}, {
 		actions : {
