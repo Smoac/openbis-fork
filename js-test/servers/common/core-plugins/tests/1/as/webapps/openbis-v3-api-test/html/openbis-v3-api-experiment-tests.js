@@ -1,10 +1,12 @@
 define([ 'jquery', 'support/underscore-min', 'openbis-v3-api', 'openbis-v3-api-test-common', 
          'dto/entity/experiment/ExperimentCreation', 'dto/id/entitytype/EntityTypePermId', 
-         'dto/id/project/ProjectIdentifier', 'dto/id/tag/TagCode', 'dto/entity/experiment/ExperimentUpdate'
+         'dto/id/project/ProjectIdentifier', 'dto/id/tag/TagCode', 'dto/entity/experiment/ExperimentUpdate',
+         'dto/entity/attachment/AttachmentCreation'
          ], 
 function($, _, openbis, c, 
 		ExperimentCreation, EntityTypePermId, 
-		ProjectIdentifier, TagCode, ExperimentUpdate) {
+		ProjectIdentifier, TagCode, ExperimentUpdate,
+		AttachmentCreation) {
 	return function() {
 		QUnit.module("Experiment tests");
 		
@@ -127,9 +129,15 @@ function($, _, openbis, c,
 			});
 		}
 			
-		asyncUpdateExperimentsTest("WithChangedProjectAndAddedTag", function(experimentUpdate) {
+		asyncUpdateExperimentsTest("WithChangedProjectAndAddedTagAndAttachment", function(experimentUpdate) {
 			experimentUpdate.setProjectId(new ProjectIdentifier("/PLATONIC/SCREENING-EXAMPLES"));
 			experimentUpdate.getTagIds().add(new TagCode("CREATE_ANOTHER_JSON_TAG"));
+			attachmentCreation = new AttachmentCreation();
+			attachmentCreation.setFileName("test_file");
+			attachmentCreation.setTitle("test_title");
+			attachmentCreation.setDescription("test_description");
+			attachmentCreation.setContent("a");
+			experimentUpdate.getAttachments().add([attachmentCreation]);
 		}, function(code, experiment) {
 			equal(experiment.getCode(), code, "Experiment code");
 			equal(experiment.getType().getCode(), "HT_SEQUENCING", "Type code");
@@ -139,6 +147,11 @@ function($, _, openbis, c,
 			equal(tags[0].code, 'CREATE_ANOTHER_JSON_TAG', "tags");
 			equal(tags[1].code, 'CREATE_JSON_TAG', "tags");
 			equal(tags.length, 2, "Number of tags");
+			var attachments = experiment.getAttachments();
+			equal(attachments[0].fileName, "test_file", "Attachment file name");
+			equal(attachments[0].title, "test_title", "Attachment title");
+			equal(attachments[0].description, "test_description", "Attachment description");
+			equal(attachments.length, 1, "Number of attachments");
 		});
 		
 		asyncUpdateExperimentsTest("WithUnChangedProjectButChangedPropertiesAndRemovedTag", function(experimentUpdate) {
