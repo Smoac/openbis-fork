@@ -1,117 +1,134 @@
 define([ 'jquery', 'openbis-v3-api' ], function($, openbis) {
-  var testProtocol = window.location.protocol;
-  var testHost = window.location.hostname;
-  var testPort = window.location.port;
-  var testUrl = testProtocol + "//" + testHost + ":" + testPort;
-  var testApiUrl = testUrl + "/openbis/openbis/rmi-application-server-v3.json";
+	/*
+	 * These tests should be run against openBIS instance with screening sprint
+	 * server database version
+	 */
 
-  var testUserId = "openbis_test_js";
-  var testUserPassword = "password";
+	var testProtocol = window.location.protocol;
+	var testHost = window.location.hostname;
+	var testPort = window.location.port;
+	var testUrl = testProtocol + "//" + testHost + ":" + testPort;
+	var testApiUrl = testUrl + "/openbis/openbis/rmi-application-server-v3.json";
 
-  var createFacade = function(action) {
-    stop();
+	var testUserId = "openbis_test_js";
+	var testUserPassword = "password";
 
-    var facade = new openbis(testApiUrl);
+	var createFacade = function(action) {
+		stop();
 
-    action(facade);
-  }
+		var facade = new openbis(testApiUrl);
 
-  var createFacadeAndLogin = function() {
-    var dfd = $.Deferred();
+		action(facade);
+	}
 
-    createFacade(function(facade) {
-      facade.login(testUserId, testUserPassword).done(function() {
-        dfd.resolve(facade);
-        start();
-      }).fail(function() {
-        dfd.reject(arguments);
-        start();
-      });
-    });
+	var createFacadeAndLogin = function() {
+		var dfd = $.Deferred();
 
-    return dfd.promise();
-  }
+		createFacade(function(facade) {
+			facade.login(testUserId, testUserPassword).done(function() {
+				dfd.resolve(facade);
+				start();
+			}).fail(function() {
+				dfd.reject(arguments);
+				start();
+			});
+		});
 
-  var createExperimentPermId = function(permId) {
-    var dfd = $.Deferred();
+		return dfd.promise();
+	}
 
-    require([ 'dto/id/experiment/ExperimentPermId' ], function(ExperimentPermId) {
-      var id = new ExperimentPermId(permId);
-      dfd.resolve(id);
-    });
+	var createExperimentPermId = function(permId) {
+		var dfd = $.Deferred();
 
-    return dfd.promise();
-  }
+		require([ 'dto/id/experiment/ExperimentPermId' ], function(ExperimentPermId) {
+			var id = new ExperimentPermId(permId);
+			dfd.resolve(id);
+		});
 
-  var createSamplePermId = function(permId) {
-    var dfd = $.Deferred();
+		return dfd.promise();
+	}
 
-    require([ 'dto/id/sample/SamplePermId' ], function(SamplePermId) {
-      var id = new SamplePermId(permId);
-      dfd.resolve(id);
-    });
+	var createSamplePermId = function(permId) {
+		var dfd = $.Deferred();
 
-    return dfd.promise();
-  }
+		require([ 'dto/id/sample/SamplePermId' ], function(SamplePermId) {
+			var id = new SamplePermId(permId);
+			dfd.resolve(id);
+		});
 
-  var createExperimentSearchCriterion = function() {
-    var dfd = $.Deferred();
+		return dfd.promise();
+	}
 
-    require([ 'dto/search/ExperimentSearchCriterion' ], function(ExperimentSearchCriterion) {
-      var criterion = new ExperimentSearchCriterion();
-      dfd.resolve(criterion);
-    });
+	var createExperimentSearchCriterion = function() {
+		var dfd = $.Deferred();
 
-    return dfd.promise();
-  }
+		require([ 'dto/search/ExperimentSearchCriterion' ], function(ExperimentSearchCriterion) {
+			var criterion = new ExperimentSearchCriterion();
+			dfd.resolve(criterion);
+		});
 
-  var createExperimentFetchOptions = function() {
-    var dfd = $.Deferred();
+		return dfd.promise();
+	}
 
-    require([ 'dto/fetchoptions/experiment/ExperimentFetchOptions' ], function(efo) {
-      var fo = new efo;
-      fo.withType();
-      fo.withProject().withSpace();
-      fo.withProperties();
-      fo.withTags();
-      fo.withRegistrator();
-      fo.withModifier();
-      fo.withAttachments();
+	var createExperimentFetchOptions = function() {
+		var dfd = $.Deferred();
 
-      dfd.resolve(fo);
-    });
+		require([ 'dto/fetchoptions/experiment/ExperimentFetchOptions' ], function(efo) {
+			var fo = new efo;
+			fo.withType();
+			fo.withProject().withSpace();
+			fo.withProperties();
+			fo.withTags();
+			fo.withRegistrator();
+			fo.withModifier();
+			fo.withAttachments();
 
-    return dfd.promise();
-  }
-  
-  var createSampleSearchCriterion = function() {
-    var dfd = $.Deferred();
+			dfd.resolve(fo);
+		});
 
-    require([ 'dto/search/SampleSearchCriterion' ], function(SampleSearchCriterion) {
-      var criterion = new SampleSearchCriterion();
-      dfd.resolve(criterion);
-    });
+		return dfd.promise();
+	}
+	
+	var createSampleSearchCriterion = function() {
+		var dfd = $.Deferred();
 
-    return dfd.promise();
-  } 
+		require([ 'dto/search/SampleSearchCriterion' ], function(SampleSearchCriterion) {
+			var criterion = new SampleSearchCriterion();
+			dfd.resolve(criterion);
+		});
 
-  var createSampleFetchOptions = function() {
-    var dfd = $.Deferred();
+		return dfd.promise();
+	}	
 
-    require([ 'dto/fetchoptions/sample/SampleFetchOptions' ], function(sfo) {
-      var fo = new sfo;
-      fo.withType();
-      fo.withExperiment().withProject().withSpace();
-      fo.withSpace();
-      fo.withProperties();
-      fo.withTags();
-      fo.withRegistrator();
-      fo.withModifier();
-      fo.withAttachments();
-      fo.withChildrenUsing(fo);
-      dfd.resolve(fo);
-    });
-    return dfd.promise();
-  }
+	var createSampleFetchOptions = function() {
+		var dfd = $.Deferred();
 
+		require([ 'dto/fetchoptions/sample/SampleFetchOptions' ], function(sfo) {
+			var fo = new sfo;
+			fo.withType();
+			fo.withExperiment().withProject().withSpace();
+			fo.withSpace();
+			fo.withProperties();
+			fo.withTags();
+			fo.withRegistrator();
+			fo.withModifier();
+			fo.withAttachments();
+			fo.withChildrenUsing(fo);
+			dfd.resolve(fo);
+		});
+		return dfd.promise();
+	}
+
+	var Common = function() {}
+
+	Common.prototype.createFacade = createFacade;
+	Common.prototype.createFacadeAndLogin = createFacadeAndLogin;
+	Common.prototype.createExperimentPermId = createExperimentPermId;
+	Common.prototype.createSamplePermId = createSamplePermId;
+	Common.prototype.createExperimentSearchCriterion = createExperimentSearchCriterion;
+	Common.prototype.createExperimentFetchOptions = createExperimentFetchOptions;
+	Common.prototype.createSampleSearchCriterion = createSampleSearchCriterion;
+	Common.prototype.createSampleFetchOptions = createSampleFetchOptions;
+
+	return new Common();
 })
