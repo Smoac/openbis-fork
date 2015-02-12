@@ -25,7 +25,7 @@ function($, _, openbis, c,
 				equal(experiment.getProject().getSpace().getCode(), "PLATONIC", "Space code");
 				start();
 			}).fail(function(error) {
-				ok(false, error);
+				ok(false, error.message);
 				start();
 			});
 		});
@@ -48,7 +48,7 @@ function($, _, openbis, c,
 				equal(experiment.getProject().getSpace().getCode(), "TEST", "Space code");
 				start();
 			}).fail(function(error) {
-				ok(false, error);
+				ok(false, error.message);
 				start();
 			});
 		});
@@ -56,10 +56,17 @@ function($, _, openbis, c,
 		asyncTest("createExperiments()", function() {
 			var code = "CREATE_JSON_EXPERIMENT_" + (new Date().getTime());
 			var experimentCreation = new ExperimentCreation();
-			experimentCreation.setTypeId(new EntityTypePermId("UNKNOWN"));
+			experimentCreation.setTypeId(new EntityTypePermId("HT_SEQUENCING"));
 			experimentCreation.setCode(code);
 			experimentCreation.setProjectId(new ProjectIdentifier("/TEST/TEST-PROJECT"));
 			experimentCreation.setTagIds([ new TagCode("CREATE_JSON_TAG") ]);
+			attachmentCreation = new AttachmentCreation();
+			attachmentCreation.setFileName("test_file");
+			attachmentCreation.setTitle("test_title");
+			attachmentCreation.setDescription("test_description");
+			attachmentCreation.setContent(btoa("hello world!"));
+			experimentCreation.setAttachments([attachmentCreation]);
+			experimentCreation.setProperty("EXPERIMENT_DESIGN", "SEQUENCE_ENRICHMENT");
 
 			$.when(c.createFacadeAndLogin(), c.createExperimentFetchOptions()).then(function(facade, fetchOptions) {
 				return facade.createExperiments([ experimentCreation ]).then(function(permIds) {
@@ -72,13 +79,25 @@ function($, _, openbis, c,
 				assertObjectsCount(keys, 1);
 				var experiment = experiments[keys[0]];
 				equal(experiment.getCode(), code, "Experiment code");
-				equal(experiment.getType().getCode(), "UNKNOWN", "Type code");
+				equal(experiment.getType().getCode(), "HT_SEQUENCING", "Type code");
 				equal(experiment.getProject().getCode(), "TEST-PROJECT", "Project code");
 				equal(experiment.getProject().getSpace().getCode(), "TEST", "Space code");
 				equal(experiment.getTags()[0].code, "CREATE_JSON_TAG", "Tag code");
+				var tags = experiment.getTags();
+				equal(tags[0].code, 'CREATE_JSON_TAG', "tags");
+				equal(tags.length, 1, "Number of tags");
+				var attachments = experiment.getAttachments();
+				equal(attachments[0].fileName, "test_file", "Attachment file name");
+				equal(attachments[0].title, "test_title", "Attachment title");
+				equal(attachments[0].description, "test_description", "Attachment description");
+				equal(atob(attachments[0].content), "hello world!", "Attachment content");
+				equal(attachments.length, 1, "Number of attachments");
+				var properties = experiment.getProperties();
+				equal(properties["EXPERIMENT_DESIGN"], "SEQUENCE_ENRICHMENT", "Property EXPERIMENT_DESIGN");
+				equal(Object.keys(properties), "EXPERIMENT_DESIGN", "Properties");
 				start();
 			}).fail(function(error) {
-				ok(false, error);
+				ok(false, error.message);
 				start();
 			});
 		});
@@ -121,7 +140,7 @@ function($, _, openbis, c,
 						if (expectingFailure) {
 							equal(error.message, experimentCheckerOrExpectedErrorMessage, "Error message");
 						} else {
-							ok(false, error);
+							ok(false, error.message);
 						}
 						start();
 					});

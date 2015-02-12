@@ -34,7 +34,7 @@ function($, openbis, c, SampleCreation,
 				}
 				start();
 			}).fail(function(error) {
-				ok(false, error);
+				ok(false, error.message);
 				start();
 			});
 		});
@@ -58,7 +58,7 @@ function($, openbis, c, SampleCreation,
 				equal(sample.getSpace().getCode(), "PLATONIC", "Space code");
 				start();
 			}).fail(function(error) {
-				ok(false, error);
+				ok(false, error.message);
 				start();
 			});
 		});
@@ -87,7 +87,7 @@ function($, openbis, c, SampleCreation,
 				equal(sample.getTags()[0].getCode(), creation.getTagIds()[0].getCode(), "Tag code");
 				start();
 			}).fail(function(error) {
-				ok(false, error);
+				ok(false, error.message);
 				start();
 			});
 		});
@@ -145,7 +145,7 @@ function($, openbis, c, SampleCreation,
 				equal(sample.space.code, "TEST", "Space code");
 				start();
 			}).fail(function(error) {
-				ok(false, error);
+				ok(false, error.message);
 				start();
 			});
 		});
