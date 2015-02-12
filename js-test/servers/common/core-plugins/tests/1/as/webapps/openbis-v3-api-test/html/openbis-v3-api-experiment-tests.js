@@ -1,12 +1,12 @@
 define([ 'jquery', 'support/underscore-min', 'openbis-v3-api', 'openbis-v3-api-test-common', 
          'dto/entity/experiment/ExperimentCreation', 'dto/id/entitytype/EntityTypePermId', 
          'dto/id/project/ProjectIdentifier', 'dto/id/tag/TagCode', 'dto/entity/experiment/ExperimentUpdate',
-         'dto/entity/attachment/AttachmentCreation'
+         'dto/entity/attachment/AttachmentCreation', 'dto/deletion/experiment/ExperimentDeletionOptions'
          ], 
 function($, _, openbis, c, 
 		ExperimentCreation, EntityTypePermId, 
 		ProjectIdentifier, TagCode, ExperimentUpdate,
-		AttachmentCreation) {
+		AttachmentCreation, ExperimentDeletionOptions) {
 	return function() {
 		QUnit.module("Experiment tests");
 		
@@ -53,7 +53,7 @@ function($, _, openbis, c,
 			});
 		});
 		
-		asyncTest("createExperiments()", function() {
+		asyncTest("createAndDeleteAnExperiment()", function() {
 			var code = "CREATE_JSON_EXPERIMENT_" + (new Date().getTime());
 			var experimentCreation = new ExperimentCreation();
 			experimentCreation.setTypeId(new EntityTypePermId("HT_SEQUENCING"));
@@ -71,7 +71,15 @@ function($, _, openbis, c,
 			$.when(c.createFacadeAndLogin(), c.createExperimentFetchOptions()).then(function(facade, fetchOptions) {
 				return facade.createExperiments([ experimentCreation ]).then(function(permIds) {
 					return facade.mapExperiments(permIds, fetchOptions).done(function() {
-						facade.logout();
+						var identifier = c.createExperimentIdentifier("/TEST/TEST-PROJECT/" + code);
+						var options = new ExperimentDeletionOptions();
+						options.setReason("test");
+						facade.deleteExperiments([identifier], options).then(function(deletionId) {
+							console.log(deletionId);
+							facade.logout();
+						}).fail(function(error){
+							ok(false, error.message);
+						});
 					})
 				})
 			}).done(function(experiments) {

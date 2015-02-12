@@ -1,4 +1,5 @@
-define([ 'jquery', 'openbis-v3-api' ], function($, openbis) {
+define([ 'jquery', 'openbis-v3-api', 'dto/id/experiment/ExperimentIdentifier' ], 
+function($, openbis, ExperimentIdentifier) {
 	/*
 	 * These tests should be run against openBIS instance with screening sprint
 	 * server database version
@@ -13,6 +14,9 @@ define([ 'jquery', 'openbis-v3-api' ], function($, openbis) {
 	var testUserId = "openbis_test_js";
 	var testUserPassword = "password";
 
+	var Common = function() {}
+
+
 	var createFacade = function(action) {
 		stop();
 
@@ -20,6 +24,7 @@ define([ 'jquery', 'openbis-v3-api' ], function($, openbis) {
 
 		action(facade);
 	}
+	Common.prototype.createFacade = createFacade;
 
 	var createFacadeAndLogin = function() {
 		var dfd = $.Deferred();
@@ -36,6 +41,7 @@ define([ 'jquery', 'openbis-v3-api' ], function($, openbis) {
 
 		return dfd.promise();
 	}
+	Common.prototype.createFacadeAndLogin = createFacadeAndLogin;
 
 	var createExperimentPermId = function(permId) {
 		var dfd = $.Deferred();
@@ -47,7 +53,13 @@ define([ 'jquery', 'openbis-v3-api' ], function($, openbis) {
 
 		return dfd.promise();
 	}
+	Common.prototype.createExperimentPermId = createExperimentPermId;
 
+	var createExperimentIdentifier = function(identifier) {
+		return new ExperimentIdentifier(identifier);
+	}
+	Common.prototype.createExperimentIdentifier = createExperimentIdentifier;
+	
 	var createSamplePermId = function(permId) {
 		var dfd = $.Deferred();
 
@@ -58,6 +70,7 @@ define([ 'jquery', 'openbis-v3-api' ], function($, openbis) {
 
 		return dfd.promise();
 	}
+	Common.prototype.createSamplePermId = createSamplePermId;
 
 	var createExperimentSearchCriterion = function() {
 		var dfd = $.Deferred();
@@ -69,6 +82,7 @@ define([ 'jquery', 'openbis-v3-api' ], function($, openbis) {
 
 		return dfd.promise();
 	}
+	Common.prototype.createExperimentSearchCriterion = createExperimentSearchCriterion;
 
 	var createExperimentFetchOptions = function() {
 		var dfd = $.Deferred();
@@ -88,6 +102,7 @@ define([ 'jquery', 'openbis-v3-api' ], function($, openbis) {
 
 		return dfd.promise();
 	}
+	Common.prototype.createExperimentFetchOptions = createExperimentFetchOptions;
 	
 	var createSampleSearchCriterion = function() {
 		var dfd = $.Deferred();
@@ -99,6 +114,7 @@ define([ 'jquery', 'openbis-v3-api' ], function($, openbis) {
 
 		return dfd.promise();
 	}	
+	Common.prototype.createSampleSearchCriterion = createSampleSearchCriterion;
 
 	var createSampleFetchOptions = function() {
 		var dfd = $.Deferred();
@@ -118,17 +134,8 @@ define([ 'jquery', 'openbis-v3-api' ], function($, openbis) {
 		});
 		return dfd.promise();
 	}
-
-	var Common = function() {}
-
-	Common.prototype.createFacade = createFacade;
-	Common.prototype.createFacadeAndLogin = createFacadeAndLogin;
-	Common.prototype.createExperimentPermId = createExperimentPermId;
-	Common.prototype.createSamplePermId = createSamplePermId;
-	Common.prototype.createExperimentSearchCriterion = createExperimentSearchCriterion;
-	Common.prototype.createExperimentFetchOptions = createExperimentFetchOptions;
-	Common.prototype.createSampleSearchCriterion = createSampleSearchCriterion;
 	Common.prototype.createSampleFetchOptions = createSampleFetchOptions;
+
 
 	return new Common();
 })

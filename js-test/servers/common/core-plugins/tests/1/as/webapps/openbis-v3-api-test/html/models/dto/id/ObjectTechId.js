@@ -14,7 +14,7 @@ define([ "support/stjs", "sys/exceptions", "dto/id/IObjectId" ], function(stjs, 
 		};
 		prototype.setTechId = function(techId) {
 			if (techId == null) {
-				throw new exceptions.IllegalArgumentException("TechId cannot be null");
+//				throw new exceptions.IllegalArgumentException("TechId cannot be null");
 			}
 			this.techId = techId;
 		};

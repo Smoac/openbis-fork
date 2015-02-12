@@ -1,7 +1,7 @@
 /**
  * @author pkupczyk
  */
-define([ "support/stjs", "dto/search/AbstractObjectDeletionOptions" ], function(stjs, AbstractObjectDeletionOptions) {
+define([ "support/stjs", "dto/deletion/AbstractObjectDeletionOptions" ], function(stjs, AbstractObjectDeletionOptions) {
 	var SampleDeletionOptions = function() {
 		AbstractObjectDeletionOptions.call(this);
 	};

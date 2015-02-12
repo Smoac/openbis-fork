@@ -188,36 +188,51 @@ define([ 'jquery', 'support/Utils' ], function($, stjsUtil) {
 
 		this.deleteExperiments = function(experimentIds, deletionOptions) {
 			return _private.ajaxRequest({
-				"method" : "deleteExperiments",
-				"params" : [ _private.sessionToken, experimentIds, deletionOptions ]
+				url : openbisUrl,
+				data : {
+					"method" : "deleteExperiments",
+					"params" : [ _private.sessionToken, experimentIds, deletionOptions ]
+				}
 			});
 		}
 
 		this.deleteSamples = function(sampleIds, deletionOptions) {
 			return _private.ajaxRequest({
-				"method" : "deleteSamples",
-				"params" : [ _private.sessionToken, sampleIds, deletionOptions ]
+				url : openbisUrl,
+				data : {
+					"method" : "deleteSamples",
+					"params" : [ _private.sessionToken, sampleIds, deletionOptions ]
+				}
 			});
 		}
 
 		this.listDeletions = function(fetchOptions) {
 			return _private.ajaxRequest({
-				"method" : "listDeletions",
-				"params" : [ _private.sessionToken, fetchOptions ]
+				url : openbisUrl,
+				data : {
+					"method" : "listDeletions",
+					"params" : [ _private.sessionToken, fetchOptions ]
+				}
 			});
 		}
 
 		this.revertDeletions = function(deletionIds) {
 			return _private.ajaxRequest({
-				"method" : "revertDeletions",
-				"params" : [ _private.sessionToken, deletionIds ]
+				url : openbisUrl,
+				data : {
+					"method" : "revertDeletions",
+					"params" : [ _private.sessionToken, deletionIds ]
+				}
 			});
 		}
 
 		this.confirmDeletions = function(deletionIds) {
 			return _private.ajaxRequest({
-				"method" : "confirmDeletions",
-				"params" : [ _private.sessionToken, deletionIds ]
+				url : openbisUrl,
+				data : {
+					"method" : "confirmDeletions",
+					"params" : [ _private.sessionToken, deletionIds ]
+				}
 			});
 		}
 	}
