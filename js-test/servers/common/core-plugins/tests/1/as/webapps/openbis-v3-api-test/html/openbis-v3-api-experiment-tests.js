@@ -136,7 +136,7 @@ function($, _, openbis, c,
 			attachmentCreation.setFileName("test_file");
 			attachmentCreation.setTitle("test_title");
 			attachmentCreation.setDescription("test_description");
-			attachmentCreation.setContent("a");
+			attachmentCreation.setContent(btoa("hello world"));
 			experimentUpdate.getAttachments().add([attachmentCreation]);
 		}, function(code, experiment) {
 			equal(experiment.getCode(), code, "Experiment code");
@@ -151,6 +151,7 @@ function($, _, openbis, c,
 			equal(attachments[0].fileName, "test_file", "Attachment file name");
 			equal(attachments[0].title, "test_title", "Attachment title");
 			equal(attachments[0].description, "test_description", "Attachment description");
+			equal(atob(attachments[0].content), "hello world", "Attachment content");
 			equal(attachments.length, 1, "Number of attachments");
 		});
 		

@@ -81,7 +81,7 @@ define([ 'jquery', 'openbis-v3-api' ], function($, openbis) {
 			fo.withTags();
 			fo.withRegistrator();
 			fo.withModifier();
-			fo.withAttachments();
+			fo.withAttachments().withContent();
 
 			dfd.resolve(fo);
 		});
