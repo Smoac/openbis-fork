@@ -109,7 +109,7 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 			var $modifier = FormUtil.getFieldForLabelWithText("Modifier", registrationDetails.modifierUserId);
 			$wrapper.append($modifier);
 			
-			var $modificationDate = FormUtil.getFieldForLabelWithText("ModificationDate", (new Date(registrationDetails.modificationDate)).toLocaleString());
+			var $modificationDate = FormUtil.getFieldForLabelWithText("Modification Date", (new Date(registrationDetails.modificationDate)).toLocaleString());
 			$wrapper.append($modificationDate);
 		}
 		

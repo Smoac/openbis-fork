@@ -128,7 +128,7 @@ function ProjectFormView(projectFormController, projectFormModel) {
 			var $modifier = FormUtil.getFieldForLabelWithText("Modifier", registrationDetails.modifierUserId);
 			$formColumn.append($modifier);
 			
-			var $modificationDate = FormUtil.getFieldForLabelWithText("ModificationDate", (new Date(registrationDetails.modificationDate)).toLocaleString());
+			var $modificationDate = FormUtil.getFieldForLabelWithText("Modification Date", (new Date(registrationDetails.modificationDate)).toLocaleString());
 			$formColumn.append($modificationDate);
 		}
 		
