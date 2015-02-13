@@ -15,7 +15,7 @@ var FormUtil = new function() {
 	this.labelColumnClass = 'col-md-2';
 	this.shortControlColumnClass = 'col-md-5';
 	this.controlColumnClass = 'col-md-6';
-		
+	this.controlColumnClassBig = 'col-md-10';
 	//
 	// Annotations
 	//

@@ -228,7 +228,7 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 			labelText = "";
 		}
 		var $label = $("<label>", { "class" : "control-label " + FormUtil.labelColumnClass }).text(labelText);	
-		var $controls = $("<div>", { "class" : "controls " + FormUtil.controlColumnClass});
+		var $controls = $("<div>", { "class" : "controls " + FormUtil.controlColumnClassBig});
 			
 			var $buttonTextField = $("<a>", {"class" : "btn btn-default", "type" : "button", "id" : sampleId});
 			$buttonTextField.css({
@@ -446,9 +446,11 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 		$component.append(this._getPlus());
 		$('#'+this.containerId).append($component);
 		
-		//Add predefined slots
+		//Add predefined slots if they are mandatory
 		for(var i = 0; i < this.sampleTypeHints.length; i++) {
-			this.addOneSlot(sampleTypeHints[i]);
+			if(sampleTypeHints[i].MIN_COUNT > 0) {
+				this.addOneSlot(sampleTypeHints[i]);
+			}
 		}
 		
 		//Initialize annotations from property
