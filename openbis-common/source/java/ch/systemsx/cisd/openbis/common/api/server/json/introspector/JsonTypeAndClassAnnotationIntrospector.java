@@ -85,18 +85,4 @@ public class JsonTypeAndClassAnnotationIntrospector extends JacksonAnnotationInt
                         .isEnum());
     }
 
-    @Override
-    public Object findFilterId(AnnotatedClass ac)
-    {
-        if (ac.hasAnnotation(JsonObject.class))
-        {
-            // all classed annotated with @JsonObject should use the same filter (the returned filter id does not matter,
-            // it just has to be not null for ch.systemsx.cisd.openbis.generic.shared.api.v3.json.OpenbisFilterProvider to be called)
-            return new Object();
-        } else
-        {
-            return null;
-        }
-    }
-
 }

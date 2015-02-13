@@ -19,9 +19,6 @@ package ch.systemsx.cisd.openbis.common.api.server.json;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.deser.DefaultDeserializationContext;
-import com.fasterxml.jackson.databind.ser.BeanPropertyFilter;
-import com.fasterxml.jackson.databind.ser.FilterProvider;
-import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 
 import ch.systemsx.cisd.openbis.common.api.server.json.deserializer.JsonDeserializerFactory;
 import ch.systemsx.cisd.openbis.common.api.server.json.introspector.JsonTypeAndClassAnnotationIntrospector;
@@ -81,14 +78,6 @@ public class JsonTestObjectMapper extends ObjectMapper
         setAnnotationIntrospector(new JsonTypeAndClassAnnotationIntrospector(getClassMapping()));
         setSubtypeResolver(new JsonReflectionsSubTypeResolver(getTypeMapping()));
         setSerializerFactory(new JsonSerializerFactory());
-        setFilters(new FilterProvider()
-            {
-                @Override
-                public BeanPropertyFilter findFilter(Object filterId)
-                {
-                    return SimpleBeanPropertyFilter.serializeAllExcept();
-                }
-            });
         configure(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY, true);
     }
 
