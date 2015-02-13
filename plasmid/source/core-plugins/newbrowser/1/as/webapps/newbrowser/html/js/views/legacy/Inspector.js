@@ -27,7 +27,7 @@ function Inspector(serverFacade, containerId, profile) {
 	this.serverFacade = serverFacade;
 	this.containerId = containerId;
 	this.profile = profile;
-	this.inspectedSamples = new Array();
+	this.inspectedSamples = [];
 	
 	this.repaint = function() {
 		$("#"+containerId).empty();
