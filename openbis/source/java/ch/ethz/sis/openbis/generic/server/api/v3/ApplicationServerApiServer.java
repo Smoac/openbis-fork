@@ -16,7 +16,12 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3;
 
+import java.io.IOException;
+
 import javax.annotation.Resource;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,8 +33,6 @@ import ch.systemsx.cisd.openbis.common.api.server.AbstractApiServiceExporter;
  * @author Franz-Josef Elmer
  */
 @Controller
-@RequestMapping(
-{ IApplicationServerApi.SERVICE_URL, "/openbis" + IApplicationServerApi.SERVICE_URL })
 public class ApplicationServerApiServer extends AbstractApiServiceExporter
 {
     @Resource(name = IApplicationServerApi.INTERNAL_SERVICE_NAME)
@@ -43,4 +46,11 @@ public class ApplicationServerApiServer extends AbstractApiServiceExporter
         super.afterPropertiesSet();
     }
 
+    @RequestMapping(
+            { IApplicationServerApi.SERVICE_URL, "/openbis" + IApplicationServerApi.SERVICE_URL, "/openbis/openbis" + IApplicationServerApi.SERVICE_URL })
+    @Override
+    public void handleRequest(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        super.handleRequest(request, response);
+    }            
 }

@@ -16,7 +16,12 @@
 
 package ch.systemsx.cisd.openbis.generic.server;
 
+import java.io.IOException;
+
 import javax.annotation.Resource;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,8 +36,6 @@ import ch.systemsx.cisd.openbis.common.api.server.RpcServiceNameServer;
  * @author Chandrasekhar Ramakrishnan
  */
 @Controller
-@RequestMapping(
-    { IRpcServiceNameServer.PREFFERED_URL_SUFFIX, "/openbis" + IRpcServiceNameServer.PREFFERED_URL_SUFFIX })
 public class NameServerServlet extends AbstractApiServiceExporter
 {
     @Resource(name = IRpcServiceNameServer.PREFFERED_BEAN_NAME)
@@ -44,6 +47,15 @@ public class NameServerServlet extends AbstractApiServiceExporter
         establishService(IRpcServiceNameServer.class, server,
                 IRpcServiceNameServer.PREFFERED_SERVICE_NAME,
                 IRpcServiceNameServer.PREFFERED_URL_SUFFIX);
-   super.afterPropertiesSet();
+        super.afterPropertiesSet();
     }
+
+    
+    @RequestMapping(
+            { IRpcServiceNameServer.PREFFERED_URL_SUFFIX, "/openbis" + IRpcServiceNameServer.PREFFERED_URL_SUFFIX })
+    @Override
+    public void handleRequest(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        super.handleRequest(request, response);
+    }        
 }

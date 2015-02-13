@@ -11,14 +11,14 @@
     
     <import resource="genericApplicationContext.xml"/>
     
-    <bean class="org.springframework.scheduling.timer.TimerFactoryBean">
-        <property name="scheduledTimerTasks">
+    <bean class="org.springframework.scheduling.concurrent.ScheduledExecutorFactoryBean">
+        <property name="scheduledExecutorTasks">
             <list>
-                <bean class="org.springframework.scheduling.timer.ScheduledTimerTask">
+                <bean class="org.springframework.scheduling.concurrent.ScheduledExecutorTask">
                     <property name="delay" value="0" />
                     <property name="runnable" ref="full-text-indexer" />
                 </bean>
-                <bean class="org.springframework.scheduling.timer.ScheduledTimerTask">
+                <bean class="org.springframework.scheduling.concurrent.ScheduledExecutorTask">
                     <property name="delay" value="1000" />
                     <property name="runnable" ref="dynamic-property-evaluator" />
                 </bean>

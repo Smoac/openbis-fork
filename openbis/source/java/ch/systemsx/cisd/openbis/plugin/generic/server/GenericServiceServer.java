@@ -16,7 +16,12 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.server;
 
+import java.io.IOException;
+
 import javax.annotation.Resource;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter;
 import org.springframework.stereotype.Controller;
@@ -29,8 +34,6 @@ import ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames;
  * @author Izabela Adamczyk
  */
 @Controller
-@RequestMapping(
-    { "/rmi-plugin-generic", "/openbis/rmi-plugin-generic" })
 public class GenericServiceServer extends HttpInvokerServiceExporter
 {
     @Resource(name = ResourceNames.GENERIC_PLUGIN_SERVER)
@@ -44,4 +47,11 @@ public class GenericServiceServer extends HttpInvokerServiceExporter
         super.afterPropertiesSet();
     }
 
+    @RequestMapping(
+            { "/rmi-plugin-generic", "/openbis/rmi-plugin-generic" })
+    @Override
+    public void handleRequest(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        super.handleRequest(request, response);
+    }
 }

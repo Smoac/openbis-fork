@@ -46,47 +46,50 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.ParameterName
  */
 @Controller
 @RequestMapping(
-    { "/" + IMAGE_VIEWER_LAUNCH_URL, "/openbis/" + IMAGE_VIEWER_LAUNCH_URL })
+{ "/" + IMAGE_VIEWER_LAUNCH_URL, "/openbis/" + IMAGE_VIEWER_LAUNCH_URL })
 public class ImageViewerLaunchServlet extends AbstractServlet
 {
     public static final Template JNLP_TEMPLATE = new Template(
             "<?xml version='1.0' encoding='utf-8'?>\n"
-            + "<jnlp spec='1.0+' codebase='${base-URL}'>\n"
-            + "  <information>\n"
-            + "    <title>${title}</title>\n"
-            + "    <vendor>SyBIT</vendor>\n"
-            + "    <description>${description}</description>\n"
-            + "  </information>\n"
-            + "  <security>\n"
-            + "    <all-permissions/>\n"
-            + "  </security>\n"
-            + "  <resources>\n"
-            + "    <j2se version='1.5+'/>\n"
-            + "    <jar href='openbis.jar'/>\n"
-            + "    <jar href='cisd-base.jar'/>\n"
-            + "    <jar href='image-viewer.jar'/>\n"
-            + "    <jar href='spring-web.jar'/>\n"
-            + "    <jar href='spring-context.jar'/>\n"
-            + "    <jar href='spring-beans.jar'/>\n"
-            + "    <jar href='spring-aop.jar'/>\n"
-            + "    <jar href='spring-core.jar'/>\n"
-            + "    <jar href='aopalliance.jar'/>\n"
-            + "    <jar href='stream-supporting-httpinvoker.jar'/>\n"
-            + "    <jar href='commons-codec.jar'/>\n"
-            + "    <jar href='commons-httpclient.jar'/>\n"
-            + "    <jar href='commons-io.jar'/>\n"
-            + "    <jar href='commons-lang.jar'/>\n"
-            + "    <jar href='commons-logging.jar'/>\n"
-            + "    <jar href='ij.jar'/>\n"
-            + "    <jar href='jython.jar'/>\n"
-            + "  </resources>\n"
-            + "  <application-desc main-class='${main-class}'>\n"
-            + "    <argument>${service-URL}</argument>\n"
-            + "    <argument>${session-id}</argument>\n"
-            + "    <argument>${experiment}</argument>\n"
-            + "    <argument>${channel}</argument>\n"
-            + "${data-set-and-wells-arguments}\n"
-            + "  </application-desc>\n" + "</jnlp>\n");
+                    + "<jnlp spec='1.0+' codebase='${base-URL}'>\n"
+                    + "  <information>\n"
+                    + "    <title>${title}</title>\n"
+                    + "    <vendor>SyBIT</vendor>\n"
+                    + "    <description>${description}</description>\n"
+                    + "  </information>\n"
+                    + "  <security>\n"
+                    + "    <all-permissions/>\n"
+                    + "  </security>\n"
+                    + "  <resources>\n"
+                    + "    <j2se version='1.5+'/>\n"
+                    + "    <jar href='openbis.jar'/>\n"
+                    + "    <jar href='cisd-base.jar'/>\n"
+                    + "    <jar href='image-viewer.jar'/>\n"
+                    + "    <jar href='spring-aop.jar'/>\n"
+                    + "    <jar href='spring-beans.jar'/>\n"
+                    + "    <jar href='spring-context.jar'/>\n"
+                    + "    <jar href='spring-core.jar'/>\n"
+                    + "    <jar href='spring-web.jar'/>\n"
+                    + "    <jar href='spring-webmvc.jar'/>\n"
+                    + "    <jar href='spring-expression.jar'/>\n"
+                    + "    <jar href='aopalliance.jar'/>\n"
+                    + "    <jar href='stream-supporting-httpinvoker.jar'/>\n"
+                    + "    <jar href='commons-codec.jar'/>\n"
+                    + "    <jar href='httpclient.jar'/>\n"
+                    + "    <jar href='httpcore.jar'/>\n"
+                    + "    <jar href='commons-io.jar'/>\n"
+                    + "    <jar href='commons-lang.jar'/>\n"
+                    + "    <jar href='commons-logging.jar'/>\n"
+                    + "    <jar href='ij.jar'/>\n"
+                    + "    <jar href='jython.jar'/>\n"
+                    + "  </resources>\n"
+                    + "  <application-desc main-class='${main-class}'>\n"
+                    + "    <argument>${service-URL}</argument>\n"
+                    + "    <argument>${session-id}</argument>\n"
+                    + "    <argument>${experiment}</argument>\n"
+                    + "    <argument>${channel}</argument>\n"
+                    + "${data-set-and-wells-arguments}\n"
+                    + "  </application-desc>\n" + "</jnlp>\n");
 
     private final Logger operationLog;
 
@@ -119,10 +122,10 @@ public class ImageViewerLaunchServlet extends AbstractServlet
             StringBuilder builder = new StringBuilder();
             // TODO 2010-12-09, Tomasz Pylak: add support for microscopy images in Image Viewer
             // where there are no wells. Extend API to load images in such cases.
-//            for (String dataSet : getParams(request, ParameterNames.DATA_SETS))
-//            {
-//                builder.append("    <argument>").append(dataSet + ":0.0").append("</argument>\n");
-//            }
+            // for (String dataSet : getParams(request, ParameterNames.DATA_SETS))
+            // {
+            // builder.append("    <argument>").append(dataSet + ":0.0").append("</argument>\n");
+            // }
             for (String dataSetAndWells : getParams(request, ParameterNames.DATA_SET_AND_WELLS))
             {
                 builder.append("    <argument>").append(dataSetAndWells).append("</argument>\n");

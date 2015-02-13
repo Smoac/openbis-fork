@@ -16,7 +16,12 @@
 
 package ch.systemsx.cisd.openbis.plugin.query.server.api.v1;
 
+import java.io.IOException;
+
 import javax.annotation.Resource;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,8 +37,6 @@ import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.IQueryApiServer;
  * @author Chandrasekhar Ramakrishnan
  */
 @Controller
-@RequestMapping(
-{ IQueryApiServer.JSON_SERVICE_URL, "/openbis" + IQueryApiServer.JSON_SERVICE_URL })
 public class QueryServiceJsonServer extends AbstractApiJsonServiceExporter
 {
 
@@ -51,4 +54,13 @@ public class QueryServiceJsonServer extends AbstractApiJsonServiceExporter
                 IQueryApiServer.JSON_SERVICE_URL);
         super.afterPropertiesSet();
     }
+
+    @RequestMapping(
+            { IQueryApiServer.JSON_SERVICE_URL, "/openbis" + IQueryApiServer.JSON_SERVICE_URL })    
+    @Override
+    public void handleRequest(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException,
+            IOException {
+        super.handleRequest(request, response);
+    }    
 }

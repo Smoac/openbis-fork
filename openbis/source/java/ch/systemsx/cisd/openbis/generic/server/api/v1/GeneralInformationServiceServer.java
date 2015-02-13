@@ -16,7 +16,12 @@
 
 package ch.systemsx.cisd.openbis.generic.server.api.v1;
 
+import java.io.IOException;
+
 import javax.annotation.Resource;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,8 +35,6 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService
  * @author Franz-Josef Elmer
  */
 @Controller
-@RequestMapping(
-    { IGeneralInformationService.SERVICE_URL, "/openbis" + IGeneralInformationService.SERVICE_URL })
 public class GeneralInformationServiceServer extends AbstractApiServiceExporter
 {
     @Resource(name = ResourceNames.GENERAL_INFORMATION_SERVICE_SERVER)
@@ -44,4 +47,14 @@ public class GeneralInformationServiceServer extends AbstractApiServiceExporter
                 IGeneralInformationService.SERVICE_NAME, IGeneralInformationService.SERVICE_URL);
         super.afterPropertiesSet();
     }
+    
+
+    @RequestMapping(
+            { IGeneralInformationService.SERVICE_URL, "/openbis" + IGeneralInformationService.SERVICE_URL, "/openbis/openbis" + IGeneralInformationService.SERVICE_URL })    
+    @Override
+    public void handleRequest(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        super.handleRequest(request, response);
+    }
+    
 }

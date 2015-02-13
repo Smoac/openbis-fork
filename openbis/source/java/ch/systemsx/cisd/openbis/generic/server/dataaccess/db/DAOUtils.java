@@ -100,7 +100,7 @@ final class DAOUtils
             if (subList.isEmpty() == false)
             {
                 criteria.add(Restrictions.in(columnName, subList));
-                result.addAll(hibernateTemplate.findByCriteria(criteria));
+                result.addAll((List<T>)hibernateTemplate.findByCriteria(criteria));
             }
         }
         return result;

@@ -31,7 +31,6 @@ import java.util.Set;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.annotation.NotTransactional;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -64,7 +63,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
 /**
  * @author Kaloyan Enimanev
  */
-public class DeletionTestCase extends SystemTestCase
+public class DeletionTestCase extends NonTransactionalSystemTestCase
 {
     private static final DefaultResultSetConfig<String, TableModelRowWithObject<Deletion>> FETCH_ALL =
             DefaultResultSetConfig.<String, TableModelRowWithObject<Deletion>> createFetchAll();
@@ -186,7 +185,6 @@ public class DeletionTestCase extends SystemTestCase
     }
 
     @Test
-    @NotTransactional
     public void testDeleteExperimentE1()
     {
         Experiment e1 = findExperimentByCode("E1");
@@ -226,7 +224,6 @@ public class DeletionTestCase extends SystemTestCase
     }
 
     @Test
-    @NotTransactional
     public void testDeletingChildMustNotBreakParent()
     {
         Sample s14 = findSampleByCode("S1.4");
@@ -242,7 +239,6 @@ public class DeletionTestCase extends SystemTestCase
     }
 
     @Test
-    @NotTransactional
     public void testDeleteSampleS14()
     {
         Sample s14 = findSampleByCode("S1.4");

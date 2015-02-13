@@ -23,9 +23,12 @@ import java.lang.reflect.Proxy;
 import java.net.InetSocketAddress;
 
 import org.apache.commons.lang.time.DateUtils;
+import org.apache.http.HttpHost;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.remoting.httpinvoker.CommonsHttpInvokerRequestExecutor;
+import org.springframework.remoting.httpinvoker.HttpComponentsHttpInvokerRequestExecutor;
 
 import com.marathon.util.spring.StreamSupportingHttpInvokerProxyFactoryBean;
 
@@ -117,15 +120,20 @@ public final class RPCServiceFactory
                 new StreamSupportingHttpInvokerProxyFactoryBean();
         httpInvokerProxy.setServiceUrl(serviceURL);
         httpInvokerProxy.setServiceInterface(ICIFEXRPCService.class);
-        ((CommonsHttpInvokerRequestExecutor) httpInvokerProxy.getHttpInvokerRequestExecutor())
-                .setReadTimeout((int) DateUtils.MILLIS_PER_MINUTE * SERVER_TIMEOUT_MIN);
+        
+        HttpComponentsHttpInvokerRequestExecutor httpInvokerRequestExecutor;        
         final InetSocketAddress proxyAddressOrNull = HttpInvokerUtils.tryFindProxy(serviceURL);
         if (proxyAddressOrNull != null)
         {
-            ((CommonsHttpInvokerRequestExecutor) httpInvokerProxy.getHttpInvokerRequestExecutor())
-                    .getHttpClient().getHostConfiguration().setProxy(
-                            proxyAddressOrNull.getHostName(), proxyAddressOrNull.getPort());
+            HttpHost proxy = new HttpHost(proxyAddressOrNull.getHostName(), proxyAddressOrNull.getPort(), "http");
+            CloseableHttpClient client = HttpClients.custom().setProxy(proxy).build();
+            httpInvokerRequestExecutor = new HttpComponentsHttpInvokerRequestExecutor(client);            
+        } else {
+            httpInvokerRequestExecutor = new HttpComponentsHttpInvokerRequestExecutor();                        
         }
+        
+        httpInvokerRequestExecutor.setReadTimeout((int) DateUtils.MILLIS_PER_MINUTE * SERVER_TIMEOUT_MIN);
+        httpInvokerProxy.setHttpInvokerRequestExecutor(httpInvokerRequestExecutor);
         httpInvokerProxy.afterPropertiesSet();
         return (ICIFEXRPCService) httpInvokerProxy.getObject();
     }

@@ -16,7 +16,12 @@
 
 package ch.systemsx.cisd.openbis.plugin.proteomics.server.api.v1;
 
+import java.io.IOException;
+
 import javax.annotation.Resource;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,8 +35,6 @@ import ch.systemsx.cisd.openbis.plugin.proteomics.shared.api.v1.IProteomicsDataS
  * @author Franz-Josef Elmer
  */
 @Controller
-@RequestMapping(
-    { IProteomicsDataService.SERVER_URL, "/openbis" + IProteomicsDataService.SERVER_URL })
 public class ProteomicsDataServiceServer extends AbstractApiServiceExporter
 {
     @Resource(name = Constants.PROTEOMICS_DATA_SERVICE)
@@ -44,4 +47,13 @@ public class ProteomicsDataServiceServer extends AbstractApiServiceExporter
                 IProteomicsDataService.SERVER_URL);
         super.afterPropertiesSet();
     }
+
+    @RequestMapping(
+            { IProteomicsDataService.SERVER_URL, "/openbis" + IProteomicsDataService.SERVER_URL })
+    @Override
+    public void handleRequest(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        super.handleRequest(request, response);
+    }    
+    
 }

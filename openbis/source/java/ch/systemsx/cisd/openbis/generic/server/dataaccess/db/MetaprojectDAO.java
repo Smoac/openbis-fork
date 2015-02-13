@@ -156,7 +156,7 @@ public class MetaprojectDAO extends AbstractGenericEntityDAO<MetaprojectPE> impl
         criteria.add(Restrictions.eq("m.id", metaprojectId));
         criteria.setProjection(Projections.property("e.id"));
 
-        List<Number> idsAsNumbers = getHibernateTemplate().findByCriteria(criteria);
+        List<Number> idsAsNumbers = (List<Number>)getHibernateTemplate().findByCriteria(criteria);
         List<Long> idsAsLongs = new ArrayList<Long>();
 
         for (Number idAsNumber : idsAsNumbers)

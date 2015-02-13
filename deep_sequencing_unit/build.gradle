@@ -22,18 +22,23 @@ dependencies {
     testCompile project(path: ':datastore_server', configuration: 'tests')
     
     trackingClient 'cisd:cisd-base:+',
-                   'javax:activation:+',
-                   'javax:mail:+',
-                   'apache:log4j:+',
-                   'springframework:spring:+',
-                   'marathon:marathon-spring-util:+',
-                   'apache:commons-httpclient:+',
-                   'apache:commons-logging:+'
+                    'javax:activation:+',
+                    'javax:mail:+',
+                    'apache:log4j:+',
+                    'springframework:spring-aop:+',
+                    'springframework:spring-beans:+',
+                    'springframework:spring-context:+',
+                    'springframework:spring-core:+',
+                    'springframework:spring-web:+',
+                    'springframework:spring-webmvc:+',
+                    'springframework:spring-expression:+',
+                    'marathon:marathon-spring-util:+',
+                    'apache:httpclient:+',
+                    'apache:httpcore:+',
+                    'apache:commons-logging:+',
+                    'aopalliance:aopalliance:+'
 
     trackingClientPartial 'google:gwt-user:2.4'
-
-                   
-                   
 }
 
 task trackingJar(type: Jar) {

@@ -205,7 +205,7 @@ public class EventDAOTest extends AbstractDAOTest
         String description = eventType.name() + " " + entityType.name();
         PersonPE person = getSystemPerson();
         Long personId = HibernateUtils.getId(person);
-        simpleJdbcTemplate
+        jdbcTemplate
                 .update("insert into events "
                         + "(id, event_type, description, reason, pers_id_registerer, registration_timestamp, identifiers, entity_type) "
                         + "values(?, ?, ?, ?, ?, ?, ?, ?)", eventId, eventType.name(), description,

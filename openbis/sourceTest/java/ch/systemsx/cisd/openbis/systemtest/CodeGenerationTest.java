@@ -54,17 +54,17 @@ public class CodeGenerationTest extends SystemTestCase
 
     private void setCodeSequence(int value)
     {
-        simpleJdbcTemplate.queryForLong("select setval('code_seq', " + value + ")");
+        jdbcTemplate.queryForLong("select setval('code_seq', " + value + ")");
     }
 
     private void setExperimentCodeSequence(int value)
     {
-        simpleJdbcTemplate.queryForLong("select setval('experiment_code_seq', " + value + ")");
+        jdbcTemplate.queryForLong("select setval('experiment_code_seq', " + value + ")");
     }
 
     private void setSampleCodeSequence(int value)
     {
-        simpleJdbcTemplate.queryForLong("select setval('sample_code_seq', " + value + ")");
+        jdbcTemplate.queryForLong("select setval('sample_code_seq', " + value + ")");
     }
 
     @Test

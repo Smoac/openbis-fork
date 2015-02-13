@@ -40,9 +40,10 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchCl
 import ch.systemsx.cisd.openbis.remoteapitest.RemoteApiTestCase;
 
 @Test(groups =
-    { "remote api" })
+{ "remote api" })
 public class DateBasedSearchesThroughJsonApiTest extends RemoteApiTestCase
 {
+
     protected IGeneralInformationService generalInformationService;
 
     protected String sessionToken;
@@ -537,10 +538,9 @@ public class DateBasedSearchesThroughJsonApiTest extends RemoteApiTestCase
 
         /*
          * for hamcrest 1.3
-         * @Override public void describeMismatchSafely(Collection<T> actualItems, Description
-         * mismatchDescription) { mismatchDescription.appendText("These elements were missing: ");
-         * for (Identifier<T> identifier : this.identifiers) { if (!identifier.foundIn(actualItems))
-         * { mismatchDescription.appendText(identifier.toString() + " "); } } }
+         * @Override public void describeMismatchSafely(Collection<T> actualItems, Description mismatchDescription) {
+         * mismatchDescription.appendText("These elements were missing: "); for (Identifier<T> identifier : this.identifiers) { if
+         * (!identifier.foundIn(actualItems)) { mismatchDescription.appendText(identifier.toString() + " "); } } }
          */
     }
 
@@ -579,11 +579,9 @@ public class DateBasedSearchesThroughJsonApiTest extends RemoteApiTestCase
 
         /*
          * for hamcrest 1.3
-         * @Override public void describeMismatchSafely(Collection<T> actualItems, Description
-         * mismatchDescription) {
-         * mismatchDescription.appendText("These unwanted elements were found: "); for
-         * (Identifier<T> identifier : this.identifiers) { if (identifier.foundIn(actualItems)) {
-         * mismatchDescription.appendText(identifier.toString() + " "); } } }
+         * @Override public void describeMismatchSafely(Collection<T> actualItems, Description mismatchDescription) {
+         * mismatchDescription.appendText("These unwanted elements were found: "); for (Identifier<T> identifier : this.identifiers) { if
+         * (identifier.foundIn(actualItems)) { mismatchDescription.appendText(identifier.toString() + " "); } } }
          */
     }
 

@@ -16,7 +16,12 @@
 
 package ch.systemsx.cisd.openbis.generic.server;
 
+import java.io.IOException;
+
 import javax.annotation.Resource;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter;
 import org.springframework.stereotype.Controller;
@@ -30,8 +35,6 @@ import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
  */
 
 @Controller
-@RequestMapping(
-    { IServiceConversationClientManagerRemote.PATH, "/openbis" + IServiceConversationClientManagerRemote.PATH })
 public class ServiceConversationClientManagerServer extends HttpInvokerServiceExporter
 {
     @Resource(name = ResourceNames.SERVICE_CONVERSATION_CLIENT_MANAGER)
@@ -45,4 +48,13 @@ public class ServiceConversationClientManagerServer extends HttpInvokerServiceEx
         super.afterPropertiesSet();
     }
 
+    @RequestMapping(
+    { IServiceConversationClientManagerRemote.PATH, "/openbis" + IServiceConversationClientManagerRemote.PATH,
+            "/openbis/openbis" + IServiceConversationClientManagerRemote.PATH })
+    @Override
+    public void handleRequest(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException
+    {
+        super.handleRequest(request, response);
+    }
 }

@@ -45,7 +45,9 @@ public class CorePluginDAO extends AbstractDAO implements ICorePluginDAO
     public void createCorePlugins(List<CorePluginPE> corePlugins)
     {
         HibernateTemplate template = getHibernateTemplate();
-        template.saveOrUpdateAll(corePlugins);
+        for (CorePluginPE plugin: corePlugins) {
+            template.saveOrUpdate(plugin);
+        }
         template.flush();
     }
 

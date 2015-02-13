@@ -33,9 +33,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 
 @Controller
 @RequestMapping(
-    { "/" + BasicConstant.DATA_SET_UPLOAD_CLIENT_PATH,
-            "/openbis/" + BasicConstant.DATA_SET_UPLOAD_CLIENT_PATH,
-            "/openbis/openbis/" + BasicConstant.DATA_SET_UPLOAD_CLIENT_PATH })
+{ "/" + BasicConstant.DATA_SET_UPLOAD_CLIENT_PATH,
+        "/openbis/" + BasicConstant.DATA_SET_UPLOAD_CLIENT_PATH,
+        "/openbis/openbis/" + BasicConstant.DATA_SET_UPLOAD_CLIENT_PATH })
 public class DataSetUploadClientServingServlet extends AbstractWebStartClientServingServlet
 {
     private static final Template JNLP_TEMPLATE =
@@ -52,11 +52,19 @@ public class DataSetUploadClientServingServlet extends AbstractWebStartClientSer
                             + "  </security>\n"
                             + "  <resources>\n"
                             + "    <j2se version='1.5+'/>\n"
+                            + "    <jar href='aopalliance.jar'/>\n"
                             + "    <jar href='cisd-base.jar'/>\n"
-                            + "    <jar href='spring.jar'/>\n"
+                            + "    <jar href='spring-aop.jar'/>\n"
+                            + "    <jar href='spring-beans.jar'/>\n"
+                            + "    <jar href='spring-context.jar'/>\n"
+                            + "    <jar href='spring-core.jar'/>\n"
+                            + "    <jar href='spring-web.jar'/>\n"
+                            + "    <jar href='spring-webmvc.jar'/>\n"
+                            + "    <jar href='spring-expression.jar'/>\n"
                             + "    <jar href='stream-supporting-httpinvoker.jar'/>\n"
                             + "    <jar href='commons-codec.jar'/>\n"
-                            + "    <jar href='commons-httpclient.jar'/>\n"
+                            + "    <jar href='httpclient.jar'/>\n"
+                            + "    <jar href='httpcore.jar'/>\n"
                             + "    <jar href='commons-io.jar'/>\n"
                             + "    <jar href='commons-lang.jar'/>\n"
                             + "    <jar href='commons-logging.jar'/>\n"

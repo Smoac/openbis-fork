@@ -2,17 +2,24 @@ configurations.create('adminConsolePartialLibs')
 configurations.create('adminConsoleLibs')
 
 dependencies {
-	adminConsolePartialLibs 'google:gwt-user:2.4'
-	
-	adminConsoleLibs 'cisd:cisd-base:+',
-					'apache:commons-httpclient:+',
-					'apache:commons-logging:+',
-					'apache:commons-io:+',
-					'apache:log4j:+',
-					'springframework:spring:+',
-					'marathon:marathon-spring-util:+',
-					'springframework:spring-beans:+',
-					'jline:jline:0.9.94'	
+    adminConsolePartialLibs 'google:gwt-user:2.4'
+
+    adminConsoleLibs 'cisd:cisd-base:+',
+                    'apache:httpclient:+',
+                    'apache:httpcore:+',
+                    'apache:commons-logging:+',
+                    'apache:commons-io:+',
+                    'apache:log4j:+',
+                    'springframework:spring-aop:+',
+                    'springframework:spring-beans:+',
+                    'springframework:spring-context:+',
+                    'springframework:spring-core:+',
+                    'springframework:spring-web:+',
+                    'springframework:spring-webmvc:+',
+                    'springframework:spring-expression:+',
+                    'marathon:marathon-spring-util:+',
+                    'jline:jline:0.9.94',
+                    'aopalliance:aopalliance:+'
 }
 
 task adminConsole(type: Jar) {
@@ -58,7 +65,7 @@ task adminConsole(type: Jar) {
 	}
     manifest {
 	    attributes("Main-Class": "ch.systemsx.cisd.openbis.generic.client.console.AdminConsole",
-    	           "Class-Path": "openbis-admin-console.jar cisd-base.jar commons-codec.jar commons-httpclient.jar commons-io.jar commons-logging.jar log4j.jar jline.jar spring.jar marathon-spring-util.jar")
+    	           "Class-Path": "openbis-admin-console.jar cisd-base.jar commons-codec.jar httpclient.jar httpcore.jar aopalliance.jar commons-io.jar commons-logging.jar log4j.jar jline.jar spring-aop.jar spring-beans.jar spring-context.jar spring-core.jar spring-web.jar spring-webmvc.jar spring-expression.jar marathon-spring-util.jar")
     }	
 }
 

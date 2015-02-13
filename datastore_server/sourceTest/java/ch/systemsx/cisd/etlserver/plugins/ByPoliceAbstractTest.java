@@ -24,7 +24,6 @@ import java.util.Random;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.springframework.beans.factory.BeanFactory;
-import org.springframework.test.annotation.ExpectedException;
 import org.testng.ITestResult;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
@@ -176,7 +175,6 @@ public abstract class ByPoliceAbstractTest extends AbstractAutoArchiverPolicyTes
     }
 
     @Test
-    @ExpectedException(value = EnvironmentFailureException.class)
     public void testDatasetSizeIsNotPatched()
     {
         IAutoArchiverPolicy policy = getPolicy(40, 100);

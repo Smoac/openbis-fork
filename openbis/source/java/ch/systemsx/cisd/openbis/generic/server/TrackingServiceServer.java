@@ -16,7 +16,12 @@
 
 package ch.systemsx.cisd.openbis.generic.server;
 
+import java.io.IOException;
+
 import javax.annotation.Resource;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter;
 import org.springframework.stereotype.Controller;
@@ -29,8 +34,6 @@ import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
  * @author Piotr Buczek
  */
 @Controller
-@RequestMapping(
-    { "/rmi-tracking", "/openbis/rmi-tracking" })
 public class TrackingServiceServer extends HttpInvokerServiceExporter
 {
     @Resource(name = ResourceNames.TRACKING_SERVER)
@@ -44,4 +47,11 @@ public class TrackingServiceServer extends HttpInvokerServiceExporter
         super.afterPropertiesSet();
     }
 
+    @RequestMapping(
+            { "/rmi-tracking", "/openbis/rmi-tracking" })
+    @Override
+    public void handleRequest(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        super.handleRequest(request, response);
+    }
 }

@@ -28,7 +28,7 @@ public class AbstractRelationshipsHistoryTest extends SystemTestCase
     protected List<SampleRelationshipsHistory> getSampleRelationshipsHistory(long sampleId)
     {
         List<SampleRelationshipsHistory> list =
-                simpleJdbcTemplate
+                jdbcTemplate
                         .query("select * from sample_relationships_history where main_samp_id = ? order by id asc",
                                 new SampleRelationshipsHistoryMapper(), sampleId);
         return list;
@@ -37,7 +37,7 @@ public class AbstractRelationshipsHistoryTest extends SystemTestCase
     protected List<ExperimentRelationshipsHistory> getExperimentRelationshipsHistory(long expeId)
     {
         List<ExperimentRelationshipsHistory> list =
-                simpleJdbcTemplate
+                jdbcTemplate
                         .query("select * from experiment_relationships_history where main_expe_id = ? order by id asc",
                                 new ExperimentRelationshipsHistoryMapper(), expeId);
         return list;
@@ -46,7 +46,7 @@ public class AbstractRelationshipsHistoryTest extends SystemTestCase
     protected List<DataSetRelationshipsHistory> getDataSetRelationshipsHistory(long dataId)
     {
         List<DataSetRelationshipsHistory> list =
-                simpleJdbcTemplate
+                jdbcTemplate
                         .query("select * from data_set_relationships_history where main_data_id = ? order by id asc",
                                 new DataSetRelationshipsHistoryMapper(), dataId);
         return list;

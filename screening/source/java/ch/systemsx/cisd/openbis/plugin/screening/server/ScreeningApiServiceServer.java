@@ -16,7 +16,12 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.server;
 
+import java.io.IOException;
+
 import javax.annotation.Resource;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,8 +36,6 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.IScreeningApiServ
  * @author Tomasz Pylak
  */
 @Controller
-@RequestMapping(
-    { IScreeningApiServer.SERVICE_URL, "/openbis" + IScreeningApiServer.SERVICE_URL })
 public class ScreeningApiServiceServer extends AbstractApiServiceExporter
 {
     @Resource(name = ResourceNames.SCREENING_PLUGIN_SERVER)
@@ -45,4 +48,12 @@ public class ScreeningApiServiceServer extends AbstractApiServiceExporter
                 IScreeningApiServer.SERVICE_URL);
         super.afterPropertiesSet();
     }
+
+    @RequestMapping(
+            { IScreeningApiServer.SERVICE_URL, "/openbis" + IScreeningApiServer.SERVICE_URL })
+    @Override
+    public void handleRequest(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        super.handleRequest(request, response);
+    }    
 }

@@ -16,7 +16,12 @@
 
 package ch.systemsx.cisd.openbis.generic.server.api.v1;
 
+import java.io.IOException;
+
 import javax.annotation.Resource;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,8 +36,6 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.json.ObjectMapperResource;
  * @author Piotr Kupczyk
  */
 @Controller
-@RequestMapping(
-{ IWebInformationService.JSON_SERVICE_URL, "/openbis" + IWebInformationService.JSON_SERVICE_URL })
 public class WebInformationServiceJsonServer extends AbstractApiJsonServiceExporter
 {
 
@@ -50,4 +53,13 @@ public class WebInformationServiceJsonServer extends AbstractApiJsonServiceExpor
                 IWebInformationService.SERVICE_NAME, IWebInformationService.JSON_SERVICE_URL);
         super.afterPropertiesSet();
     }
+
+    @RequestMapping(
+            { IWebInformationService.JSON_SERVICE_URL, "/openbis" + IWebInformationService.JSON_SERVICE_URL })    
+    @Override
+    public void handleRequest(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException,
+            IOException {
+        super.handleRequest(request, response);
+    }           
 }

@@ -20,7 +20,8 @@ dependencies {
 			'unimi:fastutil:5.1.5',
 			'cisd:cisd-base:+',
 			'rinn:restrictions:+',
-			'apache:commons-compress:+'
+			'apache:commons-compress:+',
+            'apache:httpclient:+'			
 					
 	testCompile 'fjelmer:classycle:+',
 				'hamcrest:hamcrest-integration:+',

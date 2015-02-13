@@ -16,10 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.server;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
 import javax.annotation.Resource;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter;
 import org.springframework.stereotype.Controller;
@@ -34,8 +38,6 @@ import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
  * @author Kaloyan Enimanev
  */
 @Controller
-@RequestMapping(
-    { "/rmi-etl", "/openbis/rmi-etl" })
 public class ETLServiceServer extends HttpInvokerServiceExporter
 {
     @Resource(name = ResourceNames.ETL_SERVICE)
@@ -59,6 +61,12 @@ public class ETLServiceServer extends HttpInvokerServiceExporter
 
         exceptionTranslator.setPackagesNotMasqueraded(packagesNotMasqueraded);
         return exceptionTranslator;
+    }
 
+    @RequestMapping({ "/rmi-etl", "/openbis/rmi-etl", "/openbis/openbis/rmi-etl" })    
+    @Override
+    public void handleRequest(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        super.handleRequest(request, response);
     }
 }

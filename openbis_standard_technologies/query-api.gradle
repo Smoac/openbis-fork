@@ -66,11 +66,19 @@ task queryApiJavaDocZip(type: Zip, dependsOn: queryApiJavaDoc) {
 configurations.create('queryApiDependencies')
 dependencies {
 	queryApiDependencies 'cisd:cisd-base:+',
-					'apache:commons-httpclient:+',
-					'apache:log4j:+',
-					'springframework:spring:+',
-					'apache:commons-logging:+',				
-					'marathon:marathon-spring-util:+'
+                        'apache:httpclient:+',
+                        'apache:httpcore:+',
+                        'apache:log4j:+',
+                        'springframework:spring-aop:+',
+                        'springframework:spring-beans:+',
+                        'springframework:spring-context:+',
+                        'springframework:spring-core:+',
+                        'springframework:spring-web:+',
+                        'springframework:spring-webmvc:+',
+                        'springframework:spring-expression:+',
+                        'apache:commons-logging:+',				
+                        'marathon:marathon-spring-util:+',
+                        'aopalliance:aopalliance:+'
 }
 
 task queryApiZip(type: Zip, dependsOn: [queryApiJar, queryApiSources, queryApiJavaDocZip]) {
