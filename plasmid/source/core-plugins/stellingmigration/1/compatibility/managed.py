@@ -37,7 +37,7 @@ configuration["READOUT"] = {
                          };
 
 configuration["RESULT"] = {
-                          "ANNOTATIONS" : {"QUANTITY" : False, "NAME" : False, "DETAIL" : False }
+                          "CHEMICAL" : {"QUANTITY" : False, "NAME" : False, "DETAIL" : False }
                          };
 
 configuration["SOLUTION_BUFFERS"] = {
