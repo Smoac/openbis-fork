@@ -30,13 +30,12 @@ import javax.servlet.http.HttpSession;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Controller;
-import org.springframework.validation.BindException;
 import org.springframework.web.HttpSessionRequiredException;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.AbstractController;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
@@ -68,7 +67,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 @Controller
 @RequestMapping(
 { "/upload", "/openbis/upload" })
-public final class UploadServiceServlet
+public final class UploadServiceServlet extends AbstractController
 {
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             UploadServiceServlet.class);
@@ -81,9 +80,9 @@ public final class UploadServiceServlet
     @Private
     UploadServiceServlet(ISessionFilesSetter sessionFilesSetter)
     {
-//        super(UploadedFilesBean.class);
-//        setSynchronizeOnSession(true);
-//        setRequireSession(false); // To allow upload a file for usage from an API given a session token.
+        // super(UploadedFilesBean.class);
+        setSynchronizeOnSession(true);
+        setRequireSession(false); // To allow upload a file for usage from an API given a session token.
         this.sessionFilesSetter = sessionFilesSetter;
     }
 
@@ -119,6 +118,32 @@ public final class UploadServiceServlet
     // AbstractCommandController
     //
 
+    @Override
+    protected ModelAndView handleRequestInternal(final HttpServletRequest request,
+            final HttpServletResponse response) throws Exception
+    {
+        try
+        {
+            return handle(request, response);
+        } catch (final Throwable th)
+        {
+            operationLog.error("Error handling request.", th);
+            if (th instanceof Error)
+            {
+                throw (Error) th;
+            } else
+            {
+                String msg = th.getMessage();
+                if (StringUtils.isBlank(msg))
+                {
+                    msg = String.format("Error handling request: %s.", th.getClass().getName());
+                }
+                sendResponse(response, Message.createErrorMessage(msg).toXml());
+                return null;
+            }
+        }
+    }
+
     protected Session getSession(final String sessionToken)
     {
         assert sessionToken != null : "Unspecified session token";
@@ -126,9 +151,9 @@ public final class UploadServiceServlet
         return sessionManager.getSession(sessionToken);
     }
 
-    @RequestMapping(method=RequestMethod.POST)
+    // @Override
     protected final ModelAndView handle(final HttpServletRequest request,
-            final HttpServletResponse response, final Object command, final BindException errors)
+            final HttpServletResponse response)
             throws Exception
     {
         if (request instanceof MultipartHttpServletRequest)

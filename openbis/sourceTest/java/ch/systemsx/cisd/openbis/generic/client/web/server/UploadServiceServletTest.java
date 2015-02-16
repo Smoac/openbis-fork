@@ -115,7 +115,7 @@ public final class UploadServiceServletTest extends AssertJUnit
         boolean exceptionThrown = false;
         try
         {
-            createServlet().handle(multipartHttpServletRequest, servletResponse, null, null);
+            createServlet().handle(multipartHttpServletRequest, servletResponse);
         } catch (ServletException ex)
         {
             exceptionThrown = true;
@@ -139,7 +139,7 @@ public final class UploadServiceServletTest extends AssertJUnit
         boolean exceptionThrown = false;
         try
         {
-            createServlet().handle(multipartHttpServletRequest, servletResponse, null, null);
+            createServlet().handle(multipartHttpServletRequest, servletResponse);
         } catch (NumberFormatException ex)
         {
             exceptionThrown = true;
@@ -165,7 +165,7 @@ public final class UploadServiceServletTest extends AssertJUnit
         boolean exceptionThrown = false;
         try
         {
-            createServlet().handle(multipartHttpServletRequest, servletResponse, null, null);
+            createServlet().handle(multipartHttpServletRequest, servletResponse);
         } catch (ServletException ex)
         {
             exceptionThrown = true;
@@ -202,7 +202,7 @@ public final class UploadServiceServletTest extends AssertJUnit
         boolean exceptionThrown = false;
         try
         {
-            createServlet().handle(multipartHttpServletRequest, servletResponse, null, null);
+            createServlet().handle(multipartHttpServletRequest, servletResponse);
         } catch (ServletException ex)
         {
             exceptionThrown = true;
@@ -241,7 +241,7 @@ public final class UploadServiceServletTest extends AssertJUnit
         boolean exceptionThrown = false;
         try
         {
-            createServlet().handle(multipartHttpServletRequest, servletResponse, null, null);
+            createServlet().handle(multipartHttpServletRequest, servletResponse);
         } catch (UserFailureException ex)
         {
             exceptionThrown = true;
@@ -276,7 +276,7 @@ public final class UploadServiceServletTest extends AssertJUnit
                     expectSendResponse(this);
                 }
             });
-        createServlet().handle(multipartHttpServletRequest, servletResponse, null, null);
+        createServlet().handle(multipartHttpServletRequest, servletResponse);
         context.assertIsSatisfied();
     }
 
@@ -306,7 +306,7 @@ public final class UploadServiceServletTest extends AssertJUnit
                     expectSendResponse(this);
                 }
             });
-        createServlet().handle(multipartHttpServletRequest, servletResponse, null, null);
+        createServlet().handle(multipartHttpServletRequest, servletResponse);
         context.assertIsSatisfied();
     }
 
