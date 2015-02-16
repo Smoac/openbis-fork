@@ -310,6 +310,8 @@ public class EntityRegistrationDetails implements Serializable
         ToStringBuilder builder = new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE);
         builder.append(getUserId());
         builder.append(getRegistrationDate());
+        builder.append(getModifierUserId());
+        builder.append(getModificationDate());
         return builder.toString();
     }
 

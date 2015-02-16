@@ -32,7 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.util.JsonPropertyUtil;
  */
 @SuppressWarnings("unused")
 @JsonObject("VocabularyTermBasic")
-public class VocabularyTerm extends CodeWithRegistration<Vocabulary> implements
+public class VocabularyTerm extends CodeWithRegistrationAndModificationDate<VocabularyTerm> implements
         IVocabularyTermUpdates
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
@@ -112,6 +112,7 @@ public class VocabularyTerm extends CodeWithRegistration<Vocabulary> implements
         return modificationDate;
     }
 
+    @Override
     @JsonIgnore
     public void setModificationDate(Date modificationDate)
     {
