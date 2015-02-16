@@ -49,7 +49,7 @@ configuration["BACTERIA"] = {
 
 configuration["YEAST"] = {
                           "YEAST" : {"COMMENTS" : False },
-                          "PLASMID" : {"PLASMID_RELATIONSHIP" : False, "PLASMID_ANNOTATION" : False, "COMMENTS" : False }
+                          "PLASMID" : {"PLASMID_RELATIONSHIP" : False, "PLASMID_ANNOTATION" : False, "COMMENTS" : False, "CONTAINED" : False }
                          };
 
 configuration["CELL_LINE"] = {
@@ -196,6 +196,8 @@ def updateFromUI(action):
             propertyTypeValue = action.getInputValue(propertyType.label)
             if not isValid(propertyType.dataType, propertyTypeValue):
                 raise ValidationException("Property " + str(propertyType.label) + " with invalid value " + str(propertyTypeValue))
+            if propertyTypeValue is None:
+                propertyTypeValue = ""
             annotations[propertyTypeCode] = propertyTypeValue
         newAnnotation = createAnnotationsFor(identifier, annotations, sampleTypeCode)
         elements.append(newAnnotation)

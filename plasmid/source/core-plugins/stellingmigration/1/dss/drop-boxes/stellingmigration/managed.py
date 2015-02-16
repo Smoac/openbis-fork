@@ -28,7 +28,7 @@ configuration["PCR"] = {
 
 configuration["POMBE"] = {
                           "POMBE" : {}, #Just a placeholder, is actually used by the Plasmids of the Pombe to create the links
-                          "PLASMID" : {"PLASMID_ANNOTATION" : False, "PLASMID_RELATIONSHIP" : False, "CONTAINED" : False }
+                          "PLASMID" : {"PLASMID_ANNOTATION" : False, "PLASMID_RELATIONSHIP" : False, "COMMENTS" : False, "CONTAINED" : False }
                          };
 
 configuration["READOUT"] = {
@@ -53,7 +53,7 @@ configuration["WESTERN_BLOTTING"] = {
 
 configuration["YEAST"] = {
                           "YEAST" : {}, #Just a placeholder, is actually used by the Plasmids of the Yeast to create the links
-                          "PLASMID" : {"PLASMID_ANNOTATION" : False, "PLASMID_RELATIONSHIP" : False, "CONTAINED" : False }
+                          "PLASMID" : {"PLASMID_ANNOTATION" : False, "PLASMID_RELATIONSHIP" : False, "COMMENTS" : False, "CONTAINED" : False }
                          };
 
 configurationCopyParents = {}
@@ -172,6 +172,8 @@ def updateFromUI(action):
             propertyTypeValue = action.getInputValue(propertyType.label)
             if not isValid(propertyType.dataType, propertyTypeValue):
                 raise ValidationException("Property " + str(propertyType.label) + " with invalid value " + str(propertyTypeValue))
+            if propertyTypeValue is None:
+                propertyTypeValue = ""
             annotations[propertyTypeCode] = propertyTypeValue
         newAnnotation = createAnnotationsFor(identifier, annotations, sampleTypeCode)
         elements.append(newAnnotation)
