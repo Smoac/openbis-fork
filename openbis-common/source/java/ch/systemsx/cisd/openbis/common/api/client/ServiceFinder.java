@@ -56,8 +56,7 @@ public class ServiceFinder
     }
 
     /**
-     * Creates a remote service implementing specified interface for specified server URL. Following
-     * server URLs are accepted:
+     * Creates a remote service implementing specified interface for specified server URL. Following server URLs are accepted:
      * <ul>
      * <li>protocol://host:port
      * <li>protocol://host:port/applicationName
@@ -70,8 +69,7 @@ public class ServiceFinder
     }
 
     /**
-     * Creates a remote service implementing specified interface for specified server URL. Following
-     * server URLs are accepted:
+     * Creates a remote service implementing specified interface for specified server URL. Following server URLs are accepted:
      * <ul>
      * <li>protocol://host:port
      * <li>protocol://host:port/applicationName
@@ -92,8 +90,8 @@ public class ServiceFinder
     }
 
     /**
-     * Creates a remote service implementing specified interface for specified server URL by using
-     * specified pinger for checking server connection. Following server URLs are accepted:
+     * Creates a remote service implementing specified interface for specified server URL by using specified pinger for checking server connection.
+     * Following server URLs are accepted:
      * <ul>
      * <li>protocol://host:port
      * <li>protocol://host:port/applicationName
@@ -107,8 +105,8 @@ public class ServiceFinder
     }
 
     /**
-     * Creates a remote service implementing specified interface for specified server URL by using
-     * specified pinger for checking server connection. Following server URLs are accepted:
+     * Creates a remote service implementing specified interface for specified server URL by using specified pinger for checking server connection.
+     * Following server URLs are accepted:
      * <ul>
      * <li>protocol://host:port
      * <li>protocol://host:port/applicationName
@@ -167,11 +165,11 @@ public class ServiceFinder
     private <S> S createServiceStubStoringCertificateIfNecessary(Class<S> serviceInterface,
             long timeoutInMillis, String usedServerUrl)
     {
+        storeCertificateIfNecessary(usedServerUrl);
         S service;
         service =
                 createServiceStub(serviceInterface, usedServerUrl + urlServiceSuffix,
                         timeoutInMillis);
-        storeCertificateIfNecessary(usedServerUrl);
         return service;
     }
 

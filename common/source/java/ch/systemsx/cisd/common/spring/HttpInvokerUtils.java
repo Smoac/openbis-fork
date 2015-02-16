@@ -84,7 +84,7 @@ public class HttpInvokerUtils
         PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager(schemeRegistry);
         connectionManager.setMaxTotal(100);
         connectionManager.setDefaultMaxPerRoute(5);
-        CloseableHttpClient client = HttpClientBuilder.create().setConnectionManager(connectionManager).build();
+        CloseableHttpClient client = HttpClientBuilder.create().setConnectionManager(connectionManager).useSystemProperties().build();
 
         HttpComponentsHttpInvokerRequestExecutor httpInvokerRequestExecutor = new HttpComponentsHttpInvokerRequestExecutor(client);
 
@@ -99,7 +99,8 @@ public class HttpInvokerUtils
         if (proxyAddressOrNull != null)
         {
             HttpHost proxy = new HttpHost(proxyAddressOrNull.getHostName(), proxyAddressOrNull.getPort(), "http");
-            CloseableHttpClient client2 = HttpClientBuilder.create().setProxy(proxy).setConnectionManager(connectionManager).build();
+            CloseableHttpClient client2 =
+                    HttpClientBuilder.create().setProxy(proxy).useSystemProperties().setConnectionManager(connectionManager).build();
             httpInvokerRequestExecutor.setHttpClient(client2);
         }
         httpInvokerProxy.afterPropertiesSet();
@@ -130,11 +131,13 @@ public class HttpInvokerUtils
         if (proxyAddressOrNull != null)
         {
             HttpHost proxy = new HttpHost(proxyAddressOrNull.getHostName(), proxyAddressOrNull.getPort(), "http");
-            CloseableHttpClient client2 = HttpClientBuilder.create().setProxy(proxy).setConnectionManager(connectionManager).build();
+            CloseableHttpClient client2 =
+                    HttpClientBuilder.create().setProxy(proxy).useSystemProperties().setConnectionManager(connectionManager).build();
             httpInvokerRequestExecutor.setHttpClient(client2);
         } else
         {
-            httpInvokerRequestExecutor.setHttpClient(HttpClientBuilder.create().setConnectionManager(connectionManager).build());
+            httpInvokerRequestExecutor
+                    .setHttpClient(HttpClientBuilder.create().useSystemProperties().setConnectionManager(connectionManager).build());
         }
         httpInvokerProxy.afterPropertiesSet();
         return getCastedService(httpInvokerProxy);

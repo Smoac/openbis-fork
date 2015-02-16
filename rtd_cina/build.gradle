@@ -44,20 +44,28 @@ cinaDssClientJar.dependsOn jar
 task cinaDssClient(type: Zip) {
 	baseName 'dss_client-cina'
 	from (project(':openbis_standard_technologies').copyJarsForWebStart.outputs.getFiles().getAsFileTree().matching {
-		include 'cisd-args4j.jar'
-		include 'cisd-base.jar'
-		include 'commons-codec.jar'
-		include 'commons-httpclient.jar'
-		include 'commons-io.jar'
-		include 'commons-lang.jar'
-		include 'commons-logging.jar'
-		include 'jline.jar'
-		include 'jython.jar'
-		include 'log4j.jar'
-		include 'spring.jar'
-		include 'stream-supporting-httpinvoker.jar'
-		}) {
-		into 'dss_client/lib'
+        include 'cisd-args4j.jar'
+        include 'cisd-base.jar'
+        include 'aopalliance.jar'
+        include 'commons-codec.jar'
+        include 'httpclient.jar'
+        include 'httpcore.jar'
+        include 'commons-io.jar'
+        include 'commons-lang.jar'
+        include 'commons-logging.jar'
+        include 'jline.jar'
+        include 'jython.jar'
+        include 'log4j.jar'
+        include 'spring-aop.jar'
+        include 'spring-beans.jar'
+        include 'spring-context.jar'
+        include 'spring-core.jar'
+        include 'spring-web.jar'
+        include 'spring-webmvc.jar'
+        include 'spring-expression.jar'
+        include 'stream-supporting-httpinvoker.jar'
+        }) {
+        into 'dss_client/lib'
 	}
 
     from (cinaDssClientJar.outputs.getFiles()) {
