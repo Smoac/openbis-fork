@@ -203,28 +203,6 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 																		this._sampleFormModel.mode === FormMode.CREATE);
 		
 		//
-		// LINKS TO CHILDREN
-		//
-		var requiredChildren = [];
-		if(sampleTypeDefinitionsExtension && sampleTypeDefinitionsExtension["SAMPLE_CHILDREN_HINT"]) {
-			requiredChildren = sampleTypeDefinitionsExtension["SAMPLE_CHILDREN_HINT"];
-		}
-		
-		var sampleChildrenWidgetId = "sampleChildrenWidgetId";
-		var $sampleChildrenWidget = $("<div>", { "id" : sampleChildrenWidgetId });
-		$formColumn.append($sampleChildrenWidget);
-		
-		var currentChildrenLinks = (this._sampleFormModel.sample)?this._sampleFormModel.sample.children:null;
-		this._sampleFormModel.sampleLinksChildren = new SampleLinksWidget(sampleChildrenWidgetId,
-														profile,
-														mainController.serverFacade,
-														"Children",
-														requiredChildren,
-														isDisabled,
-														currentChildrenLinks,
-														this._sampleFormModel.mode === FormMode.CREATE);
-		
-		//
 		// LINKS
 		//
 		var requiredLinks = [];
@@ -270,6 +248,28 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 														requiredLinks,
 														isDisabled,
 														currentOrphanLinks,
+														this._sampleFormModel.mode === FormMode.CREATE);
+		
+		//
+		// LINKS TO CHILDREN
+		//
+		var requiredChildren = [];
+		if(sampleTypeDefinitionsExtension && sampleTypeDefinitionsExtension["SAMPLE_CHILDREN_HINT"]) {
+			requiredChildren = sampleTypeDefinitionsExtension["SAMPLE_CHILDREN_HINT"];
+		}
+		
+		var sampleChildrenWidgetId = "sampleChildrenWidgetId";
+		var $sampleChildrenWidget = $("<div>", { "id" : sampleChildrenWidgetId });
+		$formColumn.append($sampleChildrenWidget);
+		
+		var currentChildrenLinks = (this._sampleFormModel.sample)?this._sampleFormModel.sample.children:null;
+		this._sampleFormModel.sampleLinksChildren = new SampleLinksWidget(sampleChildrenWidgetId,
+														profile,
+														mainController.serverFacade,
+														"Children",
+														requiredChildren,
+														isDisabled,
+														currentChildrenLinks,
 														this._sampleFormModel.mode === FormMode.CREATE);
 		
 		//
