@@ -199,7 +199,8 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 																		"Parents",
 																		requiredParents,
 																		isDisabled,
-																		currentParentsLinks);
+																		currentParentsLinks,
+																		this._sampleFormModel.mode === FormMode.CREATE);
 		
 		//
 		// LINKS TO CHILDREN
@@ -220,7 +221,8 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 														"Children",
 														requiredChildren,
 														isDisabled,
-														currentChildrenLinks);
+														currentChildrenLinks,
+														this._sampleFormModel.mode === FormMode.CREATE);
 		
 		//
 		// LINKS
@@ -267,7 +269,8 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 														"Links",
 														requiredLinks,
 														isDisabled,
-														currentOrphanLinks);
+														currentOrphanLinks,
+														this._sampleFormModel.mode === FormMode.CREATE);
 		
 		//
 		// GENERATE CHILDREN

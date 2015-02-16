@@ -14,25 +14,15 @@
  * limitations under the License.
  */
 
-/**
- * Creates an instance of SampleLinksTable.
- *
- * This component is used to render the parents of a sample in a friendly manner.
- *
- * @constructor
- * @this {SampleLinksTable}
- * @param {string} containerId The Container where the Inspector DOM will be attached.
- * @param {Profile} profile The profile to be used, typically, the global variable that holds the configuration for the application.
- * @param {boolean} isDisabled Disables the component.
- */
-function SampleLinksWidget(containerId, profile, serverFacade, title, sampleTypeHints, isDisabled, samplesToEdit) {
+function SampleLinksWidget(containerId, profile, serverFacade, title, sampleTypeHints, isDisabled, samplesToEdit, showAnnotableTypes) {
 	this.containerId = containerId;
 	this.profile = profile;
 	this.serverFacade = serverFacade;
 	this.title = title;
 	this.sampleTypeHints = sampleTypeHints;
 	this.isDisabled = isDisabled;
-	this.samplesToEdit = (samplesToEdit)?samplesToEdit:new Array(); //Only used to populate the widget
+	this.samplesToEdit = (samplesToEdit)?samplesToEdit:[]; //Only used to populate the widget
+	this.showAnnotableTypes = showAnnotableTypes;
 	this.samples = {};
 	this.samplesRemoved = {};
 	this.stateObj = {};
@@ -448,7 +438,7 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 		
 		//Add predefined slots if they are mandatory
 		for(var i = 0; i < this.sampleTypeHints.length; i++) {
-			if(sampleTypeHints[i].MIN_COUNT > 0) {
+			if(showAnnotableTypes || sampleTypeHints[i].MIN_COUNT > 0) {
 				this.addOneSlot(sampleTypeHints[i]);
 			}
 		}
