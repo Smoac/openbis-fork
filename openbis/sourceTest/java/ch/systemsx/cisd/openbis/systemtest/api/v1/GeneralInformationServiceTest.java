@@ -166,6 +166,11 @@ public class GeneralInformationServiceTest extends SystemTestCase
 
         projects = generalInformationService.listProjects(sessionToken);
         assertEquals("[/TESTGROUP/TESTPROJ]", projects.toString());
+
+        for (Project project : projects)
+        {
+            assertEquals("test", project.getRegistrationDetails().getModifierUserId());
+        }
     }
 
     @Test
@@ -263,7 +268,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
     }
 
     @Test
-    public void testSearchForSamplesByPermId()
+    public void testSearchForSamplesByPermIdAndCheckModifier()
     {
         SearchCriteria searchCriteria = new SearchCriteria();
         searchCriteria.addMatchClause(MatchClause.createAttributeMatch(
@@ -272,6 +277,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
         List<Sample> samples =
                 generalInformationService.searchForSamples(sessionToken, searchCriteria);
         assertEntities("[/TEST-SPACE/FV-TEST]", samples);
+        assertEquals("test", samples.get(0).getRegistrationDetails().getModifierUserId());
     }
 
     @Test
@@ -1259,7 +1265,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
     }
 
     @Test
-    public void testSearchForDataSetsByPermId()
+    public void testSearchForDataSetsByPermIdAndCheckModifier()
     {
         SearchCriteria searchCriteria = new SearchCriteria();
         searchCriteria.addMatchClause(MatchClause.createAttributeMatch(
@@ -1269,6 +1275,8 @@ public class GeneralInformationServiceTest extends SystemTestCase
                 generalInformationService.searchForDataSets(sessionToken, searchCriteria);
         assertEquals("[DataSet[20081105092259000-21,/CISD/DEFAULT/EXP-REUSE,<null>,HCS_IMAGE,{}]]",
                 dataSets.toString());
+        assertEquals("test", dataSets.get(0).getRegistrationDetails().getModifierUserId());
+
     }
 
     @Test
