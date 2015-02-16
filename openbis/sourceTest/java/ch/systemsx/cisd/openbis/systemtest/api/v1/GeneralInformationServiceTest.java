@@ -277,7 +277,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
         List<Sample> samples =
                 generalInformationService.searchForSamples(sessionToken, searchCriteria);
         assertEntities("[/TEST-SPACE/FV-TEST]", samples);
-        assertEquals("test", samples.get(0).getRegistrationDetails().getModifierUserId());
+        assertEquals("test_role", samples.get(0).getRegistrationDetails().getModifierUserId());
     }
 
     @Test
