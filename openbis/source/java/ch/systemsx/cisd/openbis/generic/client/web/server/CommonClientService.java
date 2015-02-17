@@ -2488,17 +2488,17 @@ public final class CommonClientService extends AbstractClientService implements
     // --
 
     @Override
-    public Boolean keepSessionAlive()
+    public String keepSessionAlive()
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try
         {
             commonServer.keepSessionAlive(getSessionToken());
-            return true;
-        } catch (final InvalidSessionException e)
+            return null;
+        } catch (final Exception e)
         {
-            // most probable cause - user logged out
-            return false;
+            String reason = getDisabledText();
+            return reason == null ? "Session expired. Please, login again." : reason;
         }
     }
 

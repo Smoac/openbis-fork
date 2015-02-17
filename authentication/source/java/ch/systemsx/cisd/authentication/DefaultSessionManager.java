@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.authentication;
 
+import java.io.File;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -53,6 +54,8 @@ import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
  */
 public class DefaultSessionManager<T extends BasicSession> implements ISessionManager<T>
 {
+    public static final File NO_LOGIN_FILE = new File("./etc/nologin.html");
+    
     private static final String LOGOUT_PREFIX = "LOGOUT: ";
 
     private static final String LOGIN_PREFIX_TEMPLATE = "(%dms) LOGIN: ";
@@ -101,7 +104,7 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
         }
 
         /**
-         * Sets the time of last activity (used to determine whether the session {@link #hasExpired()}.
+         * Sets the time of last activity (used to determine whether the session {@link #hasExpired(Long)}.
          */
         void touch()
         {
@@ -111,9 +114,11 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
         /**
          * Returns <code>true</code> if the session has expired.
          */
-        boolean hasExpired()
+        boolean hasExpired(Long sessionExpirationTimeOrNull)
         {
-            return System.currentTimeMillis() - lastActiveTime > session.getSessionExpirationTime();
+            long sessionExpirationTime = sessionExpirationTimeOrNull == null ?
+                    session.getSessionExpirationTime() : sessionExpirationTimeOrNull;
+            return System.currentTimeMillis() - lastActiveTime > sessionExpirationTime;
         }
     }
 
@@ -134,6 +139,8 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
     /** The time after which an inactive session will be expired (in milliseconds). */
     private final int sessionExpirationPeriodMillis;
 
+    private final int sessionExpirationPeriodMillisNoLogin;
+    
     private final boolean tryEmailAsUserName;
 
     public DefaultSessionManager(final ISessionFactory<T> sessionFactory,
@@ -142,13 +149,14 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
             final IRemoteHostProvider remoteHostProvider, final int sessionExpirationPeriodMinutes)
     {
         this(sessionFactory, prefixGenerator, authenticationService, remoteHostProvider,
-                sessionExpirationPeriodMinutes, false);
+                sessionExpirationPeriodMinutes, 0, false);
     }
 
     public DefaultSessionManager(final ISessionFactory<T> sessionFactory,
             final ILogMessagePrefixGenerator<T> prefixGenerator,
             final IAuthenticationService authenticationService,
-            final IRemoteHostProvider remoteHostProvider, final int sessionExpirationPeriodMinutes,
+            final IRemoteHostProvider remoteHostProvider, final int sessionExpirationPeriodMinutes, 
+            final int sessionExpirationPeriodMinutesNoLogin,
             final boolean tryEmailAsUserName)
     {
 
@@ -165,6 +173,14 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
         this.remoteHostProvider = remoteHostProvider;
         this.sessionExpirationPeriodMillis =
                 (int) (sessionExpirationPeriodMinutes * DateUtils.MILLIS_PER_MINUTE);
+        if (sessionExpirationPeriodMinutesNoLogin > 0) 
+        {
+            this.sessionExpirationPeriodMillisNoLogin 
+                = (int) (sessionExpirationPeriodMinutesNoLogin * DateUtils.MILLIS_PER_MINUTE);
+        } else
+        {
+            this.sessionExpirationPeriodMillisNoLogin = sessionExpirationPeriodMillis;
+        }
         this.tryEmailAsUserName = tryEmailAsUserName;
 
         operationLog.info(String.format("Authentication service: '%s'", authenticationService
@@ -341,7 +357,8 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
 
     private boolean doSessionExpiration(final FullSession<T> session)
     {
-        return session != null && session.hasExpired();
+        Long expTimeOrNull = NO_LOGIN_FILE.exists() ? (long) sessionExpirationPeriodMillisNoLogin : null;
+        return session != null && session.hasExpired(expTimeOrNull);
     }
 
     private void logAuthenticed(final T session, final long timeToLoginMillis)

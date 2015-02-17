@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.server;
 
-import java.io.File;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -35,6 +34,7 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.dao.DataAccessException;
 import org.springframework.transaction.annotation.Transactional;
 
+import ch.systemsx.cisd.authentication.DefaultSessionManager;
 import ch.systemsx.cisd.authentication.IPrincipalProvider;
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.authentication.Principal;
@@ -467,7 +467,7 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
     @Override
     public final SessionContextDTO tryAuthenticate(final String user, final String password)
     {
-        if (tryGetDisabledText() != null)
+        if (DefaultSessionManager.NO_LOGIN_FILE.exists())
         {
             throw new UserFailureException("Login is disabled by the administrator.");
         } 
@@ -1037,12 +1037,11 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
 
     protected static String tryGetDisabledText()
     {
-        File noLoginFile = new File("./etc/nologin.html");
-        if (noLoginFile.exists() == false)
+        if (DefaultSessionManager.NO_LOGIN_FILE.exists() == false)
         {
             return null;
         }
-        return FileUtilities.loadToString(noLoginFile).trim();
+        return FileUtilities.loadToString(DefaultSessionManager.NO_LOGIN_FILE).trim();
     }
 
 }

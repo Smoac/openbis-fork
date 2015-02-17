@@ -125,6 +125,7 @@
         </constructor-arg>
         <!-- The time after which an inactive session is expired by the service (in minutes). -->
         <constructor-arg value="${session-timeout}" />
+        <constructor-arg value="${session-timeout-no-login}" />
         <!-- Enable login with email addresses -->
         <constructor-arg value="true" />
         <constructor-arg ref="dao-factory"/>

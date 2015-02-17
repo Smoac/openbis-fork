@@ -34,22 +34,36 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
  */
 public class OpenBisSessionManager extends DefaultSessionManager<Session> implements IOpenBisSessionManager
 {
+    private static final int DEFAULT_SESSION_EXPIRATION_PERIOD_FOR_NO_LOGIN = 10;
+    
+    private static final int getSessionExpirationPeriodMinutesForNoLogin(String property)
+    {
+        try
+        {
+            return Integer.parseInt(property);
+        } catch (NumberFormatException ex)
+        {
+            return DEFAULT_SESSION_EXPIRATION_PERIOD_FOR_NO_LOGIN;
+        }
+    }
+    
     IDAOFactory daoFactory;
 
     public OpenBisSessionManager(ISessionFactory<Session> sessionFactory, ILogMessagePrefixGenerator<Session> prefixGenerator,
             IAuthenticationService authenticationService, IRemoteHostProvider remoteHostProvider, int sessionExpirationPeriodMinutes,
-            boolean tryEmailAsUserName, IDAOFactory daoFactory)
+            String sessionExpirationPeriodMinutesForNoLogin, boolean tryEmailAsUserName, IDAOFactory daoFactory)
     {
-        super(sessionFactory, prefixGenerator, authenticationService, remoteHostProvider, sessionExpirationPeriodMinutes, tryEmailAsUserName);
+        super(sessionFactory, prefixGenerator, authenticationService, remoteHostProvider, sessionExpirationPeriodMinutes, 
+                getSessionExpirationPeriodMinutesForNoLogin(sessionExpirationPeriodMinutesForNoLogin), tryEmailAsUserName);
         this.daoFactory = daoFactory;
     }
 
     public OpenBisSessionManager(ISessionFactory<Session> sessionFactory, ILogMessagePrefixGenerator<Session> prefixGenerator,
             IAuthenticationService authenticationService, IRemoteHostProvider remoteHostProvider, int sessionExpirationPeriodMinutes,
-            IDAOFactory daoFactory)
+            String sessionExpirationPeriodMinutesForNoLogin, IDAOFactory daoFactory)
     {
-        super(sessionFactory, prefixGenerator, authenticationService, remoteHostProvider, sessionExpirationPeriodMinutes);
-        this.daoFactory = daoFactory;
+        this(sessionFactory, prefixGenerator, authenticationService, remoteHostProvider, sessionExpirationPeriodMinutes,
+                sessionExpirationPeriodMinutesForNoLogin, false, daoFactory);
     }
 
     @Override

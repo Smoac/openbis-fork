@@ -103,7 +103,7 @@ public class DefaultSessionManagerTest
     private ISessionManager<BasicSession> createSessionManager(int sessionExpiration)
     {
         return new DefaultSessionManager(sessionFactory, prefixGenerator, authenticationService,
-                remoteHostProvider, sessionExpiration, true);
+                remoteHostProvider, sessionExpiration, 0, true);
     }
 
     @AfterMethod

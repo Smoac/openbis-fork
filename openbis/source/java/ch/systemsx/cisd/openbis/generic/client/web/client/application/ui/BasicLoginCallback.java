@@ -107,15 +107,16 @@ public class BasicLoginCallback extends AbstractAsyncCallback<SessionContext>
                 {
                     // callback will cancel keeping session alive if something went wrong
                     // or user logged out
-                    AsyncCallback<Boolean> callback = new AsyncCallback<Boolean>()
+                    AsyncCallback<String> callback = new AsyncCallback<String>()
                         {
 
                             @Override
-                            public void onSuccess(Boolean result)
+                            public void onSuccess(String reasonOrNull)
                             {
-                                if (result == false)
+                                if (reasonOrNull != null)
                                 {
                                     cancel();
+                                    MessageBox.alert("Session Expiration", reasonOrNull, null);
                                 }
                             }
 
@@ -123,6 +124,7 @@ public class BasicLoginCallback extends AbstractAsyncCallback<SessionContext>
                             public void onFailure(Throwable caught)
                             {
                                 cancel();
+                                MessageBox.alert("Server Connection", "Connection to the server is broken.", null);
                             }
                         };
                     viewContext.getCommonService().keepSessionAlive(callback);

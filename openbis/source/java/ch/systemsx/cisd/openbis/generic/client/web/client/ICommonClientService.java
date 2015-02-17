@@ -137,9 +137,9 @@ public interface ICommonClientService extends IClientService
     /**
      * Keeps the logged in user session alive.
      * 
-     * @return 'true' if session was successfully prolonged, 'false' otherwise
+     * @return <code>null</code> if session was successfully prolonged, otherwise the reason for failure.
      */
-    public Boolean keepSessionAlive() throws UserFailureException;
+    public String keepSessionAlive() throws UserFailureException;
 
     /**
      * Returns a list of all spaces.

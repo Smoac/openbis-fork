@@ -133,7 +133,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedUiAction;
 public interface ICommonClientServiceAsync extends IClientServiceAsync
 {
     /** @see ICommonClientService#keepSessionAlive() */
-    public void keepSessionAlive(final AsyncCallback<Boolean> asyncCallback);
+    public void keepSessionAlive(final AsyncCallback<String> asyncCallback);
 
     /** @see ICommonClientService#listSpaces(DefaultResultSetConfig) */
     public void listSpaces(DefaultResultSetConfig<String, TableModelRowWithObject<Space>> criteria,
