@@ -46,7 +46,7 @@ dependencies {
 			'cisd:cisd-base:+',
             'apache:commons-codec:+',
             'apache:commons-io:+',
-            'apache:commons-httpclient:+',
+            'apache:httpclient:+',
             'apache:commons-lang:+',
             'apache:commons-logging:+',
 			'jline:jline:+',
@@ -199,7 +199,7 @@ task signCliJars(type: Copy, dependsOn: [copyJarsForSigning]) {
                 ant.jar(destfile: file, update: true) {
                     delegate.manifest {
                         attribute(name: 'Main-Class', value: 'ch.systemsx.cisd.cifex.rpc.client.cli.CIFEXClient')
-                        attribute(name: 'Class-Path', value: 'authentication.jar dbmigration.jar common.jar cisd-base.jar cisd-args4j.jar jline.jar commons-lang.jar commons-io.jar commons-logging.jar commons-codec.jar commons-httpclient.jar spring-core.jar spring-web.jar spring-context.jar spring-beans.jar spring-aop.jar aopalliance.jar stream-supporting-httpinvoker.jar bcpg.jar log4j.jar bcprov.jar')                        
+                        attribute(name: 'Class-Path', value: 'authentication.jar dbmigration.jar common.jar cisd-base.jar cisd-args4j.jar jline.jar commons-lang.jar commons-io.jar commons-logging.jar commons-codec.jar httpclient.jar httpcore.jar spring-core.jar spring-web.jar spring-context.jar spring-beans.jar spring-aop.jar aopalliance.jar stream-supporting-httpinvoker.jar bcpg.jar log4j.jar bcprov.jar')                        
                     }
                 }
             }
@@ -233,7 +233,8 @@ task standaloneJar(type: Jar, dependsOn: signCliJars) {
         	include "commons-io.jar"
         	include "commons-logging.jar"
         	include "commons-codec.jar"
-        	include "commons-httpclient.jar"
+        	include "httpclient.jar"
+            include "httpcore.jar"
         	include "spring-core.jar"
         	include "spring-web.jar"
         	include "spring-context.jar"
