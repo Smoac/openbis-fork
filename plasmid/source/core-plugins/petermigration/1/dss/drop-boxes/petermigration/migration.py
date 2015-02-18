@@ -568,10 +568,11 @@ class DocumentOpenBISDTO(OpenBISDTO):
         sampleIdentifier = "/INVENTORY/"+self.values["ID_NR"];
         dataSetSample = getSampleForUpdate(sampleIdentifier, None, tr)
         if dataSetSample is not None and self.values["*DATA"] is not None and self.values["FILE"] is not None:
+            print "* INFO DATASET CREATION FOR SERIAL " +  self.values["SERIAL"] + " WITH FILE " + self.values["FILE"]
             dataSet = tr.createNewDataSet("DOCUMENT")
             dataSet.setSample(dataSetSample)
             setEntityProperties(tr, self.definition, dataSet, self.values)
-            absolutePath = tr.createNewFile(dataSet, self.values["FILE"])
+            absolutePath = tr.createNewFile(dataSet, self.values["FILE"].replace("/", "_"))
             f = open(absolutePath, 'wb')
             f.write(self.values["*DATA"])
             f.close()
@@ -606,15 +607,10 @@ class DocumentOpenBISDTO(OpenBISDTO):
         dataset = self.getDocumentBySerial(tr, self.values["SERIAL"])
         return dataset is not None
         
-fmConnString = "jdbc:filemaker://127.0.0.1/"
-fmUser = "designer"
+#fmConnString = "jdbc:filemaker://127.0.0.1/"
+fmConnString = "jdbc:filemaker://fm.ethz.ch/"
+fmUser= "designer"
 fmPass = "seattle"
-
-fmConnStringServer = "jdbc:filemaker://fm.ethz.ch/"
-fmUserServer= "sistemp"
-fmPassServer = "ibcimsb2014"
-
-
 
 adaptors = [ AntibodyAdaptor(fmConnString, fmUser, fmPass, "BOXIT_antibodies_Peter"), 
              AntibodyBoxAdaptor(fmConnString, fmUser, fmPass, "BOXIT_antibody_boxes_Peter"),
