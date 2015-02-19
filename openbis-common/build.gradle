@@ -8,7 +8,7 @@ dependencies {
 		project(':dbmigration'),
 		'googlecode:jsonrpc4j:+',
 		'reflections:reflections:+',
-		'cisd:cisd-jhdf5:+',
+		'sis:sis-jhdf5:+',
 		'lemnik:eodsql:+',
 		'springframework:spring-jdbc:+',
 		'truezip:truezip:+'
