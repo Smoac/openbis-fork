@@ -52,6 +52,7 @@ import ch.systemsx.cisd.openbis.common.hdf5.IHDF5ContainerWriter;
 import ch.systemsx.cisd.openbis.common.io.ByteArrayBasedContentNode;
 import ch.systemsx.cisd.openbis.common.io.FileBasedContentNode;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
+import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.openbis.dss.etl.dto.ImageLibraryInfo;
 import ch.systemsx.cisd.openbis.dss.etl.dto.RelativeImageFile;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.Channel;
@@ -112,7 +113,7 @@ public class Hdf5ThumbnailGenerator implements IHDF5WriterClient
             ImageStorageConfiguraton imageStorageConfiguraton,
             String thumbnailPhysicalDatasetPermId,
             ThumbnailsStorageFormat thumbnailsStorageFormatOrNull, ThumbnailsInfo thumbnailPaths,
-            boolean registerOriginalImageAsThumbnail, IHierarchicalContent content)
+            boolean registerOriginalImageAsThumbnail, IHierarchicalContent content, ImageCache imageCache)
     {
         if (thumbnailsStorageFormatOrNull != null)
         {
@@ -128,7 +129,7 @@ public class Hdf5ThumbnailGenerator implements IHDF5WriterClient
                     new Hdf5ThumbnailGenerator(imageDataSetStructure, imagesParentDirectory,
                             thumbnailPhysicalDatasetPermId, thumbnailsStorageFormatOrNull,
                             imageLibrary, thumbnailPaths, registerOriginalImageAsThumbnail,
-                            content, operationLog);
+                            content, imageCache, operationLog);
             container.runWriterClient(thumbnailsStorageFormatOrNull.isStoreCompressed(),
                     thumbnailsGenerator);
         }
@@ -167,11 +168,13 @@ public class Hdf5ThumbnailGenerator implements IHDF5WriterClient
 
     private IHierarchicalContent contentOrNull;
 
+    private ImageCache imageCache;
+
     private Hdf5ThumbnailGenerator(ImageDataSetStructure imageDataSetStructure,
             File imagesParentDirectory, String thumbnailPhysicalDatasetPermId,
             ThumbnailsStorageFormat thumbnailsStorageFormat, ImageLibraryInfo imageLibraryOrNull,
             ThumbnailsInfo thumbnailPathCollector, boolean registerOriginalImageAsThumbnail,
-            IHierarchicalContent contentOrNull, Logger operationLog)
+            IHierarchicalContent contentOrNull, ImageCache imageCache, Logger operationLog)
     {
         this.imageDataSetStructure = imageDataSetStructure;
         this.imagesParentDirectory = imagesParentDirectory;
@@ -181,6 +184,7 @@ public class Hdf5ThumbnailGenerator implements IHDF5WriterClient
         this.thumbnailPathCollector = thumbnailPathCollector;
         this.registerOriginalImageAsThumbnail = registerOriginalImageAsThumbnail;
         this.contentOrNull = contentOrNull;
+        this.imageCache = imageCache;
         this.logger = operationLog;
 
         for (Channel ch : imageDataSetStructure.getChannels())
@@ -518,19 +522,19 @@ public class Hdf5ThumbnailGenerator implements IHDF5WriterClient
         return null;
     }
 
-    private BufferedImage loadUnchangedImage(String imageRelativePath, String imageIdOrNull)
+    private BufferedImage loadUnchangedImage(final String imageRelativePath, final String imageIdOrNull)
     {
         try
         {
+            IHierarchicalContentNode node;
             if (contentOrNull == null)
             {
-                return Utils.loadUnchangedImage(new FileBasedContentNode(new File(
-                        imagesParentDirectory, imageRelativePath)), imageIdOrNull, imageLibraryOrNull);
+                node = new FileBasedContentNode(new File(imagesParentDirectory, imageRelativePath));
             } else
             {
-                return Utils.loadUnchangedImage(contentOrNull.getNode(imageRelativePath),
-                        imageIdOrNull, imageLibraryOrNull);
+                node = contentOrNull.getNode(imageRelativePath);
             }
+            return imageCache.getImage(node, imageIdOrNull, imageLibraryOrNull);
         } catch (Exception ex)
         {
             throw new UserFailureException("Failed to load image " + imageRelativePath, ex);
@@ -614,4 +618,5 @@ public class Hdf5ThumbnailGenerator implements IHDF5WriterClient
                             + ", the whole thumbnails generation process fails.", errors.size()));
         }
     }
+    
 }

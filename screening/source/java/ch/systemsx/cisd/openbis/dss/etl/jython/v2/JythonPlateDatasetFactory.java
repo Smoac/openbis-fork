@@ -29,6 +29,7 @@ import ch.systemsx.cisd.etlserver.registrator.api.v2.impl.DataSetRegistrationTra
 import ch.systemsx.cisd.etlserver.registrator.v2.AbstractOmniscientTopLevelDataSetRegistrator.OmniscientTopLevelDataSetRegistratorState;
 import ch.systemsx.cisd.etlserver.registrator.v2.DataSetRegistrationService;
 import ch.systemsx.cisd.etlserver.registrator.v2.IDataSetRegistrationDetailsFactory;
+import ch.systemsx.cisd.openbis.dss.etl.ImageCache;
 import ch.systemsx.cisd.openbis.dss.etl.PlateGeometryOracle;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.IFeaturesBuilder;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.SimpleImageDataConfig;
@@ -57,6 +58,8 @@ public class JythonPlateDatasetFactory extends ProgrammableDropboxObjectFactory<
 
     final IDataSetRegistrationDetailsFactory<FeatureVectorDataSetInformation> featureVectorDatasetFactory;
 
+    private final ImageCache imageCache;
+
     public JythonPlateDatasetFactory(OmniscientTopLevelDataSetRegistratorState registratorState,
             DataSetInformation userProvidedDataSetInformationOrNull)
     {
@@ -81,6 +84,7 @@ public class JythonPlateDatasetFactory extends ProgrammableDropboxObjectFactory<
         this.featureVectorContainerDatasetFactory =
                 new FeatureVectorContainerDataSetRegistrationFactory(this.registratorState,
                         this.userProvidedDataSetInformationOrNull);
+        imageCache = new ImageCache();
     }
 
     /** By default a standard dataset is created. */
@@ -95,7 +99,7 @@ public class JythonPlateDatasetFactory extends ProgrammableDropboxObjectFactory<
             SimpleImageDataConfig imageDataSet, File incomingDatasetFolder)
     {
         return SimpleImageDataSetRegistrator.createImageDatasetDetails(imageDataSet,
-                incomingDatasetFolder, imageDatasetFactory);
+                incomingDatasetFolder, imageDatasetFactory, imageCache);
     }
 
     /** a simple method to register the described image dataset in a separate transaction */

@@ -47,6 +47,7 @@ import ch.systemsx.cisd.imagereaders.IImageReader;
 import ch.systemsx.cisd.imagereaders.ImageID;
 import ch.systemsx.cisd.imagereaders.ImageReaderFactory;
 import ch.systemsx.cisd.openbis.common.io.FileBasedContentNode;
+import ch.systemsx.cisd.openbis.dss.etl.ImageCache;
 import ch.systemsx.cisd.openbis.dss.etl.dto.ImageLibraryInfo;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.Channel;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.ChannelColorComponent;
@@ -63,7 +64,6 @@ import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.ImageDataSetStructure;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.transformations.ImageTransformation;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.transformations.ImageTransformationBuffer;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
-import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
 import ch.systemsx.cisd.openbis.dss.shared.DssScreeningUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeNormalizer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
@@ -122,9 +122,9 @@ public class SimpleImageDataSetRegistrator
 
     public static DataSetRegistrationDetails<ImageDataSetInformation> createImageDatasetDetails(
             SimpleImageDataConfig simpleImageConfig, File incoming,
-            IDataSetRegistrationDetailsFactory<ImageDataSetInformation> factory)
+            IDataSetRegistrationDetailsFactory<ImageDataSetInformation> factory, ImageCache imageCache)
     {
-        return createImageDatasetDetails(simpleImageConfig, incoming, factory,
+        return createImageDatasetDetails(simpleImageConfig, incoming, factory, imageCache,
                 new IImageReaderFactory()
                     {
                         @Override
@@ -141,14 +141,13 @@ public class SimpleImageDataSetRegistrator
                     });
     }
 
-    @Private
-    static DataSetRegistrationDetails<ImageDataSetInformation> createImageDatasetDetails(
+    private static DataSetRegistrationDetails<ImageDataSetInformation> createImageDatasetDetails(
             SimpleImageDataConfig simpleImageConfig, File incoming,
-            IDataSetRegistrationDetailsFactory<ImageDataSetInformation> factory,
+            IDataSetRegistrationDetailsFactory<ImageDataSetInformation> factory, ImageCache imageCache,
             IImageReaderFactory readerFactory)
     {
         SimpleImageDataSetRegistrator registrator =
-                new SimpleImageDataSetRegistrator(simpleImageConfig, readerFactory);
+                new SimpleImageDataSetRegistrator(simpleImageConfig, imageCache, readerFactory);
         return registrator.createImageDatasetDetails(incoming, factory);
     }
 
@@ -159,10 +158,13 @@ public class SimpleImageDataSetRegistrator
 
     private final IImageReaderFactory readerFactory;
 
-    private SimpleImageDataSetRegistrator(SimpleImageDataConfig simpleImageConfig,
+    private final ImageCache imageCache;
+
+    private SimpleImageDataSetRegistrator(SimpleImageDataConfig simpleImageConfig, ImageCache imageCache,
             IImageReaderFactory readerFactory)
     {
         this.simpleImageConfig = simpleImageConfig;
+        this.imageCache = imageCache;
         this.readerFactory = readerFactory;
     }
 
@@ -493,14 +495,12 @@ public class SimpleImageDataSetRegistrator
         for (Channel channel : channelsForComputation)
         {
             final String channelCode = channel.getCode();
-            final List<File> imagePaths = chooseChannelImages(images, incomingDir, channelCode);
+            List<ImageFileInfo> channelImages = chooseChannelImages(images, channelCode);
             operationLog.info(String.format("Computing intensity range for channel '%s'. "
                     + "Found %d images for the channel in incoming directory '%s'.", channelCode,
-                    imagePaths.size(), incomingDir.getName()));
-            final Levels intensityRange;
-            intensityRange =
-                    tryComputeCommonIntensityRange(readerOrNull, imagePaths,
-                            simpleImageConfig.getComputeCommonIntensityRangeOfAllImagesThreshold());
+                    channelImages.size(), incomingDir.getName()));
+            final Levels intensityRange = tryComputeCommonIntensityRange(readerOrNull, channelImages, 
+                    incomingDir, simpleImageConfig.getComputeCommonIntensityRangeOfAllImagesThreshold());
             if (intensityRange != null)
             {
                 operationLog.info(String.format(
@@ -533,22 +533,22 @@ public class SimpleImageDataSetRegistrator
         channel.setAvailableTransformations(buffer.getTransformations());
     }
 
-    private static List<File> chooseChannelImages(List<ImageFileInfo> images, File incomingDir,
+    private static List<ImageFileInfo> chooseChannelImages(List<ImageFileInfo> images, 
             String channelCode)
     {
         String normalizedChannelCode = CodeNormalizer.normalize(channelCode);
-        List<File> channelImages = new ArrayList<File>();
+        List<ImageFileInfo> channelImages = new ArrayList<ImageFileInfo>();
         for (ImageFileInfo imageFileInfo : images)
         {
             String imageChannelCode = CodeNormalizer.normalize(imageFileInfo.getChannelCode());
             if (imageChannelCode.equals(normalizedChannelCode))
             {
-                channelImages.add(new File(incomingDir, imageFileInfo.getImageRelativePath()));
+                channelImages.add(imageFileInfo);
             }
         }
         return channelImages;
     }
-
+    
     private List<Channel> tryFindChannelsToComputeCommonIntensityRange(List<Channel> channels)
     {
         List<String> channelCodes =
@@ -590,47 +590,37 @@ public class SimpleImageDataSetRegistrator
      * @return calculated levels or null if calculation couldn't succeed because some images where
      *         not in gray scale
      */
-    public static Levels tryComputeCommonIntensityRange(IImageReader readerOrNull,
-            List<File> imageFiles, float threshold)
+    private Levels tryComputeCommonIntensityRange(IImageReader readerOrNull, 
+            List<ImageFileInfo> channelImages, File incomingDir, float threshold)
     {
         String libraryName = (readerOrNull == null) ? null : readerOrNull.getLibraryName();
         String readerName = (readerOrNull == null) ? null : readerOrNull.getName();
+        ImageLibraryInfo libraryInfo = new ImageLibraryInfo(libraryName, readerName);
         PixelHistogram histogram = new PixelHistogram();
 
-        for (File imageFile : imageFiles)
+        for (ImageFileInfo imageFileInfo : channelImages)
         {
+            String imageId = imageFileInfo.tryGetUniqueStringIdentifier();
+            File imageFile = new File(incomingDir, imageFileInfo.getImageRelativePath());
+            String humanReadableImageId = String.format("image '%s' of image file '%s'", imageId, imageFile);
             try
             {
-                List<ImageIdentifier> imageIdentifiers = getImageIdentifiers(readerOrNull, imageFile);
-                for (ImageIdentifier imageIdentifier : imageIdentifiers)
+                FileBasedContentNode contentNode = new FileBasedContentNode(imageFile);
+                BufferedImage image = imageCache.getImage(contentNode, imageId, libraryInfo);
+                if (IntensityRescaling.isNotGrayscale(image))
                 {
-                    BufferedImage image =
-                            loadUnchangedImage(imageFile, imageIdentifier, libraryName, readerName);
-                    if (IntensityRescaling.isNotGrayscale(image))
-                    {
-                        operationLog
-                                .warn(String
-                                        .format("Intensity range cannot be computed because image '%s' is not in grayscale.",
-                                                imageFile.getPath()));
-                        return null;
-                    }
-                    IntensityRescaling.addToLevelStats(histogram, DssScreeningUtils.createPixels(image), 
-                            ch.systemsx.cisd.common.image.IntensityRescaling.Channel.RED);
+                    operationLog.warn("Intensity range cannot be computed because " + humanReadableImageId
+                            + " is not in grayscale.");
+                    return null;
                 }
+                IntensityRescaling.addToLevelStats(histogram, DssScreeningUtils.createPixels(image),
+                        ch.systemsx.cisd.common.image.IntensityRescaling.Channel.RED);
             } catch (Exception ex)
             {
-                throw new UserFailureException("Error ocured when processing image " + imageFile.getPath(), ex);
+                throw new UserFailureException("Error ocured when processing " + humanReadableImageId, ex);
             }
         }
         return IntensityRescaling.computeLevels(histogram, threshold);
-    }
-
-    private static BufferedImage loadUnchangedImage(File imageFile,
-            ImageIdentifier imageIdentifier, String libraryName, String readerName)
-    {
-        String imageStringIdentifier = imageIdentifier.getUniqueStringIdentifier();
-        return ImageUtil.loadUnchangedImage(new FileBasedContentNode(imageFile),
-                imageStringIdentifier, libraryName, readerName, null);
     }
 
     // -------------------

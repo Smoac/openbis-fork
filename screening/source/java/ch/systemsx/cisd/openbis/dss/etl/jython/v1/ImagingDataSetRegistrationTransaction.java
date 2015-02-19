@@ -43,6 +43,7 @@ import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchical
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.openbis.dss.Constants;
 import ch.systemsx.cisd.openbis.dss.etl.Hdf5ThumbnailGenerator;
+import ch.systemsx.cisd.openbis.dss.etl.ImageCache;
 import ch.systemsx.cisd.openbis.dss.etl.Utils;
 import ch.systemsx.cisd.openbis.dss.etl.dto.ImageLibraryInfo;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.ImageFileInfo;
@@ -305,6 +306,7 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
                             .getThumbnailsStorageFormat();
 
             ThumbnailsInfo thumbnailsInfo = new ThumbnailsInfo();
+            ImageCache imageCache = new ImageCache();
             for (ThumbnailsStorageFormat thumbnailsStorageFormat : thumbnailsStorageFormatList)
             {
                 IDataSet thumbnailDataset =
@@ -312,7 +314,7 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
                 thumbnailDatasets.add(thumbnailDataset);
 
                 generateThumbnails(imageDataSetStructure, incomingDirectory, thumbnailDataset,
-                        thumbnailsStorageFormat, thumbnailsInfo, false, null);
+                        thumbnailsStorageFormat, thumbnailsInfo, false, null, imageCache);
                 containedDataSetCodes.add(thumbnailDataset.getDataSetCode());
             }
             imageDataSetInformation.setThumbnailsInfo(thumbnailsInfo);
@@ -380,6 +382,7 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
         containedDataSetCodes.addAll(container.getContainedDataSetCodes());
 
         List<IDataSet> thumbnailDatasets = new ArrayList<IDataSet>();
+        ImageCache imageCache = new ImageCache();
         if (imageDataSetInformation.isGenerateOverviewImagesFromRegisteredImages())
         {
             IHierarchicalContent content =
@@ -414,7 +417,7 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
                     thumbnailDatasets.add(thumbnailDataset);
 
                     generateThumbnails(imageDataSetStructure, incomingDirectory, thumbnailDataset,
-                            thumbnailsStorageFormat, thumbnailsInfo, false, content);
+                            thumbnailsStorageFormat, thumbnailsInfo, false, content, imageCache);
                     containedDataSetCodes.add(thumbnailDataset.getDataSetCode());
                 }
             } finally
@@ -435,7 +438,7 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
 
             generateThumbnails(imageDataSetStructure, incomingDirectory, thumbnailDataset,
                     createThumbnailsStorageFormat(imageDataSetInformation), thumbnailsInfo, true,
-                    null);
+                    null, imageCache);
             containedDataSetCodes.add(thumbnailDataset.getDataSetCode());
         }
 
@@ -524,7 +527,7 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
     private void generateThumbnails(ImageDataSetStructure imageDataSetStructure,
             File incomingDirectory, IDataSet thumbnailDataset,
             ThumbnailsStorageFormat thumbnailsStorageFormatOrNull, ThumbnailsInfo thumbnailPaths,
-            boolean registerOriginalImageAsThumbnail, IHierarchicalContent content)
+            boolean registerOriginalImageAsThumbnail, IHierarchicalContent content, ImageCache imageCache)
     {
         String thumbnailFile;
         if (thumbnailsStorageFormatOrNull == null)
@@ -541,7 +544,7 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
         Hdf5ThumbnailGenerator.tryGenerateThumbnails(imageDataSetStructure, incomingDirectory,
                 thumbnailFile, imageDataSetStructure.getImageStorageConfiguraton(),
                 thumbnailDataset.getDataSetCode(), thumbnailsStorageFormatOrNull, thumbnailPaths,
-                registerOriginalImageAsThumbnail, content);
+                registerOriginalImageAsThumbnail, content, imageCache);
         enhanceWithResolution(thumbnailDataset, thumbnailPaths);
     }
 

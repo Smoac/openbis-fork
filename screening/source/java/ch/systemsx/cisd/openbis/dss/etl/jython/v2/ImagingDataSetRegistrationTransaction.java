@@ -47,6 +47,7 @@ import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchical
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.openbis.dss.Constants;
 import ch.systemsx.cisd.openbis.dss.etl.Hdf5ThumbnailGenerator;
+import ch.systemsx.cisd.openbis.dss.etl.ImageCache;
 import ch.systemsx.cisd.openbis.dss.etl.Utils;
 import ch.systemsx.cisd.openbis.dss.etl.dto.ImageLibraryInfo;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.IImageGenerationAlgorithm;
@@ -95,6 +96,8 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
 
     private final JythonPlateDatasetFactory factory;
 
+    private final ImageCache imageCache;
+
     @SuppressWarnings("unchecked")
     public ImagingDataSetRegistrationTransaction(File rollBackStackParentFolder,
             File workingDirectory, File stagingDirectory,
@@ -112,6 +115,7 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
         this.imageDatasetFactory = factory.imageDatasetFactory;
         this.imageContainerDatasetFactory = factory.imageContainerDatasetFactory;
         this.originalDirName = originalDirName;
+        imageCache = new ImageCache();
     }
 
     public JythonPlateDatasetFactory getFactory()
@@ -124,7 +128,7 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
     {
         DataSetRegistrationDetails<ImageDataSetInformation> details =
                 SimpleImageDataSetRegistrator.createImageDatasetDetails(imageDataSet,
-                        incomingFolderWithImages, imageDatasetFactory);
+                        incomingFolderWithImages, imageDatasetFactory, imageCache);
         return createNewImageDataSet(details);
     }
     
@@ -137,7 +141,7 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
         File incomingFolderWithImages = new File(originalDataSet.getDataSetStagingFolder(), relativeImagesFolderPath.getPath());
         DataSetRegistrationDetails<ImageDataSetInformation> details =
                 SimpleImageDataSetRegistrator.createImageDatasetDetails(imageDataSet,
-                        incomingFolderWithImages, imageDatasetFactory);
+                        incomingFolderWithImages, imageDatasetFactory, imageCache);
         ImageDataSetInformation secondaryDataSet = details.getDataSetInformation();
         secondaryDataSet.setDatasetRelativeImagesFolderPath(relativeImagesFolderPath);
         secondaryDataSet.setDataSetCode(originalDataSetInfo.getDataSetCode());
@@ -150,7 +154,7 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
     {
         DataSetRegistrationDetails<ImageDataSetInformation> details =
                 SimpleImageDataSetRegistrator.createImageDatasetDetails(imageDataSet,
-                        incomingFolderWithImages, imageDatasetFactory);
+                        incomingFolderWithImages, imageDatasetFactory, imageCache);
         return createNewOverviewImageDataSet(details);
     }
 
@@ -337,7 +341,6 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
                 IDataSet thumbnailDataset =
                         createThumbnailDataset(imageDataSetInformation, thumbnailsStorageFormat);
                 thumbnailDatasets.add(thumbnailDataset);
-
                 generateThumbnails(imageDataSetStructure, incomingDirectory, thumbnailDataset,
                         thumbnailsStorageFormat, thumbnailsInfo, false, null);
                 containedDataSetCodes.add(thumbnailDataset.getDataSetCode());
@@ -491,8 +494,7 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
             thumbnailDatasets.add(thumbnailDataset);
 
             generateThumbnails(imageDataSetStructure, incomingDirectory, thumbnailDataset,
-                    createThumbnailsStorageFormat(imageDataSetInformation), thumbnailsInfo, true,
-                    null);
+                    createThumbnailsStorageFormat(imageDataSetInformation), thumbnailsInfo, true, null);
             containedDataSetCodes.add(thumbnailDataset.getDataSetCode());
         }
 
@@ -604,7 +606,7 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
         Hdf5ThumbnailGenerator.tryGenerateThumbnails(imageDataSetStructure, incomingDirectory,
                 thumbnailFile, imageDataSetStructure.getImageStorageConfiguraton(),
                 thumbnailDataset.getDataSetCode(), thumbnailsStorageFormatOrNull, thumbnailPaths,
-                registerOriginalImageAsThumbnail, content);
+                registerOriginalImageAsThumbnail, content, imageCache);
         enhanceWithResolution(thumbnailDataset, thumbnailPaths);
     }
 
