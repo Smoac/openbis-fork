@@ -11,6 +11,7 @@ dependencies {
 		'cisd:cisd-jhdf5:+',
 		'lemnik:eodsql:+',
 		'springframework:spring-jdbc:+',
+		'apache:commons-collections:+',
 		'truezip:truezip:+'
 		
 	testCompile project(path: ':common', configuration: 'tests'),

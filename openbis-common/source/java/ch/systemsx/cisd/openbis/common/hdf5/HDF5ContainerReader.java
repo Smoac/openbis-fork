@@ -18,12 +18,13 @@ package ch.systemsx.cisd.openbis.common.hdf5;
 
 import java.io.File;
 import java.io.OutputStream;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
+
+import org.apache.commons.collections.map.ReferenceMap;
 
 import ch.systemsx.cisd.hdf5.h5ar.ArchiveEntry;
 import ch.systemsx.cisd.hdf5.h5ar.HDF5ArchiverFactory;
@@ -120,7 +121,7 @@ final class HDF5ContainerReader implements IHDF5ContainerReader
     }
 
     private static final Map<File, Reader> fileToReaderMap =
-            new HashMap<File, HDF5ContainerReader.Reader>();
+            new ReferenceMap<File, HDF5ContainerReader.Reader>();
 
     private static boolean noCaching = false;
 
