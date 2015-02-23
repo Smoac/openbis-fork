@@ -26,28 +26,32 @@ def process(transaction):
 	incoming = transaction.getIncoming()
 	geneName = os.path.basename(incoming.getPath())
 
-#Set project/experiment/sample
-	project = transaction.getProject("/SINERGIA/CLUSTERS")
-	exp = transaction.getExperiment("/SINERGIA/CLUSTERS/CLUSTERS")
-	sample = transaction.getSample("/SINERGIA/" + geneName)
+	print "geneName", geneName
 
-#upload the gene pdf and the RNA pdf
-	for pdf in glob.glob(os.path.join(incoming.getPath(), '*.pdf')):
-		dataSetPDF = transaction.createNewDataSet()
-		dataSetPDF.setDataSetType("PDF")
-		dataSetPDF.setSample(sample)
-		transaction.moveFile(pdf, dataSetPDF)
+#Set project/experiment/sample
+	project = transaction.getProject("/PUBLISHED_DATA/ANALYSIS")
+	exp = transaction.getExperiment("/PUBLISHED_DATA/ANALYSIS/CLUSTERS")
+	sample = transaction.getSample("/PUBLISHED_DATA/" + geneName)
+
+	print "sample", sample
+
+#upload the gene png and the RNA png
+	for png in glob.glob(os.path.join(incoming.getPath(), '*.png')):
+		dataSetPNG = transaction.createNewDataSet()
+		dataSetPNG.setDataSetType("PNG_IMAGES")
+		dataSetPNG.setSample(sample)
+		transaction.moveFile(png, dataSetPNG)
  
 # upload the 10 tif images for each gene	
-#	tifDir = incoming.getPath() + "/tiffs"
-#	if not os.path.exists(tifDir):
-#		os.makedirs(tifDir)
-#	for tif in glob.glob(os.path.join(incoming.getPath(), '*.tif')):
-#		shutil.move(tif, tifDir)
-#	dataSetTIF = transaction.createNewDataSet()
-#	dataSetTIF.setDataSetType("TIF_IMAGES")
-#	dataSetTIF.setSample(sample)
-#	transaction.moveFile(tifDir, dataSetTIF)
+	tifDir = incoming.getPath() + "/tiffs"
+	if not os.path.exists(tifDir):
+		os.makedirs(tifDir)
+	for tif in glob.glob(os.path.join(incoming.getPath(), '*.tif')):
+		shutil.move(tif, tifDir)
+	dataSetTIF = transaction.createNewDataSet()
+	dataSetTIF.setDataSetType("TIF_IMAGES")
+	dataSetTIF.setSample(sample)
+	transaction.moveFile(tifDir, dataSetTIF)
 
 #upload the 10 control movies
 	videoControlDir = incoming.getPath() + "/controlVideos"
