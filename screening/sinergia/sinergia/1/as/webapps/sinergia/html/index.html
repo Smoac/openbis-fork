@@ -30,7 +30,8 @@
 		//
 		var openbis = new openbis();
 		var experimentCode = 'CLUSTERS';
-		var experimentIdentifier = '/SINERGIA/CLUSTERS/CLUSTERS';
+		var experimentIdentifier = '/PUBLISHED_DATA/ANALYSIS/CLUSTERS';
+		//var experimentIdentifier = '/SINERGIA/CLUSTERS/CLUSTERS';
 		var sampleType ='CLUSTER';
 
 		var allDataStores = null;
@@ -48,7 +49,12 @@
 				event.preventDefault();
 				 blockUIWithMessage();
 				
-				openbis.login($.trim($('#username').val()), $.trim($('#password').val()),
+				$('#username').val() = 'testuser'
+				$('#password').val() ='testuser'
+
+				//openbis.login($.trim($('#username').val()), $.trim($('#password').val()),
+				
+				openbis.login($.trim($('#username').val()), $.trim($('#password').val()),	
 				function(data) {
 					enterApp(data) 
 				});
@@ -85,9 +91,13 @@
 						});
 
 						$("#filter").append($filter);
+						
+						//Unclustered Genes
+						$("#menuOptions").append($("<a>", {'href' : "javascript:showIFrame('unclusteredGeneList.htm')" , 'class' : 'btn', 'style' : 'margin-bottom:20px', }).text("Unclustered genes"));
 
 						//Genes Link
-						$("#menuOptions").append($("<a>", {'href' : "javascript:showIFrame('genefamilies.htm')" , 'class' : 'btn'}).text("Gene Families"));
+						$("#menuOptions").append($("<a>", {'href' : "javascript:showIFrame('genefamilies.htm')" , 'class' : 'btn', }).text("Gene Families"));
+						
 						
 					}
 				);
@@ -192,6 +202,7 @@
 					var $sampleLevel = $("<li>", {'class' : 'folder' + explandFolderClass})
 											.append("<a href='javascript:showSamples(\""+clusters[i].identifier+"\")'>" + "Cluster " + clusters[i].code.substring(clusters[i].code.indexOf("CLUSTER")+7) + "</a>");
 					
+					
 					var $containedSamplesMenu = $("<ul>");
 						$sampleLevel
 								.append($containedSamplesMenu);
@@ -271,11 +282,11 @@
 			$("#main").empty();
 
 			//Obtain PDF URL
-			getDataSetFilesFor(null, "PDF", allDataStores[0].downloadUrl,
+			getDataSetFilesFor(null, "CLUSTER_PNG", allDataStores[0].downloadUrl,
 				function(files) {
 					var pdfFileUrl = files[0];
 					$("#main").append("<h1 center>Gene Clusters</h1>");
-					$("#main").append("<iframe src='" + pdfFileUrl + "' style='width:100%; margin-top:20px; height:" + $(window).height() + "px; ' frameborder='0'></iframe>");
+					$("#main").append("<iframe src='" + pdfFileUrl + "' style='width:100%; margin-top:20px; height:" + $(window).height() + "px; '  frameborder='0'></iframe>");
 					$.unblockUI();
 				}
 			);
@@ -283,16 +294,17 @@
 
 		function showSamples(sampleIdentifier) {
 			blockUIWithMessage();
-			var displayName = sampleIdentifier.substring(10);
+			var displayName = sampleIdentifier.substring(16);
+			console.log(displayName, sampleIdentifier)
 			$("#main").empty();
 
 			//Obtain PDF URL
-			getDataSetFilesFor(sampleIdentifier, "PDF", allDataStores[0].downloadUrl,
+			getDataSetFilesFor(sampleIdentifier, "CLUSTER_PNG", allDataStores[0].downloadUrl,
 				function(pdfFiles) {
 					var pdfFileUrl = pdfFiles[0];
 					$("#main").append("<h1>" + displayName + "</h1>");
 					$("#main").append("<h2 style='margin-top:40px;'>Genes: </h2>");
-					$("#main").append("<iframe src='" + pdfFileUrl + "' style='width:100%; margin-top:20px; height:" + $(window).height()/2 + "px; ' frameborder='0'></iframe>");
+					$("#main").append("<iframe src='" + pdfFileUrl + "' style='width:100%; margin-top:20px; height:" + $(window).height()/2 + "px; ' scrolling='no' frameborder='0'></iframe>");
 					$("#main").append("<h2 style='margin-top:40px;'>Representative Images: </h2>");
 
 					//Obtain Image URL
@@ -310,11 +322,11 @@
 
 		function showContainedSamples(sampleIdentifier) {
 			blockUIWithMessage();
-			var displayName = sampleIdentifier.substring(10);
+			var displayName = sampleIdentifier.substring(16);
 			$("#main").empty();
 
 			//Obtain PDF URL
-			getDataSetFilesFor(sampleIdentifier, "PDF", allDataStores[0].downloadUrl,
+			getDataSetFilesFor(sampleIdentifier, "PNG_IMAGES", allDataStores[0].downloadUrl,
 				function(pdfFiles) {
 					$("#main").append("<h1>" + displayName + "</h1>");
 					$("#main").append("<div id='infoContainer'></div>");
@@ -365,12 +377,12 @@
 						var pdfFileUrl = pdfFiles[i];
 						
 						component += "<div style='margin-top:40px; margin-right:20px;'>";
-						if(pdfFileUrl.indexOf("rnaProfile.pdf") !== -1) {
+						if(pdfFileUrl.indexOf("rnaProfile.png") !== -1) {
 							component += "<h2>RNA Profile:</h2>";
-						} else if(pdfFileUrl.indexOf("geneProfile.pdf") !== -1) {
+						} else if(pdfFileUrl.indexOf("geneProfile.png") !== -1) {
 							component += "<h2>Gene Profile:</h2>";
 						}
-						component += "<iframe src='" + pdfFileUrl + "' style='width:100%; ' frameborder='0'></iframe>";
+						component += "<iframe src='" + pdfFileUrl + "' style='width:100%; height:" + $(window).height()/2 + "px'  scrolling='no' frameborder='0'></iframe>";
 						component += "</div>";	
 					}
 					$("#main").append(component + "</div>");
