@@ -391,9 +391,13 @@ function DataSetViewer(containerId, profile, sample, serverFacade, datastoreDown
 				//Open DataSet
 				if(this.enableOpenDataset) {
 					$tableRow.attr('style', 'cursor: pointer;');
-					$tableRow.click(function(event) {
-						mainController.changeView('showViewDataSetPageFromPermId', dataset.code);
-					});
+					
+					var clickFunction = function(datasetCode) {
+						return function(event) {
+							mainController.changeView('showViewDataSetPageFromPermId', datasetCode);
+						};
+					}
+					$tableRow.click(clickFunction(dataset.code));
 				}
 				
 				$dataSetsTableBody.append($tableRow);
