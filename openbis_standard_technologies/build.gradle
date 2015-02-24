@@ -9,6 +9,7 @@ evaluationDependsOn(':rtd_phosphonetx')
 evaluationDependsOn(':screening')
 evaluationDependsOn(':rtd_yeastx')
 evaluationDependsOn(':deep_sequencing_unit')
+evaluationDependsOn(':plasmid')
 
 apply from: '../gradle/javaproject.gradle'
 apply from: 'query-api.gradle'
@@ -47,6 +48,7 @@ dependencies {
 					 project(':rtd_yeastx'),
 					 project(':screening'),
 					 project(':rtd_phosphonetx'),
+					 project(':plasmid'),
 					 'bioformats:bioformats:+',
 					 'imagej:ij:+',
 					 'cisd:cisd-openbis-knime-server:+',

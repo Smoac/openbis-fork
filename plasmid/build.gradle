@@ -8,6 +8,8 @@ evaluationDependsOn(':datastore_server')
 
 apply from: '../gradle/javaproject.gradle'
 
+archivesBaseName = 'datastore_server_plugin-plasmid'
+
 dependencies {
     compile project(':datastore_server'),
     		'openbis:openbis-mobile:+'
@@ -31,7 +33,6 @@ task plasmidZip(type: Zip) {
     from('source/core-plugins') {
 		into 'core-plugins'
     }
-	rename 'plasmid.*jar', 'datastore_server_plugin-plasmid.jar'
-
+    rename 'datastore_server_plugin-plasmid(.*)\\.jar', 'datastore_server_plugin-plasmid.jar'
 }
 build.dependsOn plasmidZip
