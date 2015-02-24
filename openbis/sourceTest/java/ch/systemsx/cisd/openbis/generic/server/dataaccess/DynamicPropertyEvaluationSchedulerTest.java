@@ -12,6 +12,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
@@ -92,6 +93,8 @@ public class DynamicPropertyEvaluationSchedulerTest extends AssertJUnit
         assertEquals(scheduler.getEvaluatorQueue().size(), 1);
     }
 
+    private static AtomicLong atomicId = new AtomicLong(-5);
+
     private class WriteAllWorker implements Runnable
     {
 
@@ -111,7 +114,9 @@ public class DynamicPropertyEvaluationSchedulerTest extends AssertJUnit
                 DynamicPropertyEvaluationOperation operation = operationQueue.poll();
                 if (operation == null)
                 {
-                    scheduler.scheduleUpdate(DynamicPropertyEvaluationOperation.evaluate(SamplePE.class, Collections.singletonList(-1L)));
+
+                    scheduler.scheduleUpdate(DynamicPropertyEvaluationOperation.evaluate(SamplePE.class,
+                            Collections.singletonList(atomicId.incrementAndGet())));
                     scheduler.synchronizeThreadQueue();
                     System.out.println("END WRITE");
                     break;
@@ -132,9 +137,12 @@ public class DynamicPropertyEvaluationSchedulerTest extends AssertJUnit
 
         private final HashSet<DynamicPropertyEvaluationOperation> results;
 
+        private int counter;
+
         public ReadAllWorker()
         {
             results = new HashSet<DynamicPropertyEvaluationOperation>();
+            counter = 0;
         }
 
         @Override
@@ -144,9 +152,17 @@ public class DynamicPropertyEvaluationSchedulerTest extends AssertJUnit
             {
                 scheduler.peekWait();
                 DynamicPropertyEvaluationOperation value = scheduler.take();
-                if (value.getIds() != null && value.getIds().toString().equals("[-1]"))
+                if (value.getIds() != null && value.getIds().toArray(new Long[0])[0] < 0)
                 {
-                    break;
+                    counter++;
+                    System.out.println("counter is now " + counter);
+                    if (counter == 3)
+                    {
+                        break;
+                    } else
+                    {
+                        continue;
+                    }
                 }
                 results.add(value);
                 Thread.yield();
