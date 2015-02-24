@@ -5,12 +5,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Properties;
 
-import org.apache.log4j.Logger;
-
-import ch.systemsx.cisd.common.logging.LogCategory;
-import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.common.properties.ExtendedProperties;
 import ch.systemsx.cisd.etlserver.IAutoArchiverPolicy;
 import ch.systemsx.cisd.etlserver.plugins.grouping.DatasetListWithTotal;
 import ch.systemsx.cisd.etlserver.plugins.grouping.Grouping;
@@ -24,12 +20,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
  */
 public class BySpacePolicy extends BaseGroupingPolicy implements IAutoArchiverPolicy
 {
-    private static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, BySpacePolicy.class);
-
     private final List<IGroupKeyProvider> providers;
 
-    public BySpacePolicy(ExtendedProperties properties)
+    public BySpacePolicy(Properties properties)
     {
         super(properties);
         providers = new ArrayList<IGroupKeyProvider>();

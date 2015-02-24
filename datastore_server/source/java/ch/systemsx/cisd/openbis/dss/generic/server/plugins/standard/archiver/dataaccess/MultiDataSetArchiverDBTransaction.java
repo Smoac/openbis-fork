@@ -88,6 +88,18 @@ public class MultiDataSetArchiverDBTransaction implements IMultiDataSetArchiverD
         return transaction.getDataSetForCode(code);
     }
 
+    @Override
+    public void requestUnarchiving(List<String> dataSetCodes)
+    {
+        transaction.requestUnarchiving(dataSetCodes.toArray(new String[dataSetCodes.size()]));
+    }
+
+    @Override
+    public void resetRequestUnarchiving(long containerId)
+    {
+        transaction.resetRequestUnarchiving(containerId);
+    }
+
     /**
      * @see net.lemnik.eodsql.TransactionQuery#commit()
      */

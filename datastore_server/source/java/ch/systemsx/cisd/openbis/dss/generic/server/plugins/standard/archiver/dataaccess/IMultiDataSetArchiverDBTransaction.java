@@ -39,6 +39,10 @@ public interface IMultiDataSetArchiverDBTransaction
             MultiDataSetArchiverContainerDTO container);
 
     public MultiDataSetArchiverDataSetDTO getDataSetForCode(String code);
+    
+    public void requestUnarchiving(List<String> dataSetCodes);
+    
+    public void resetRequestUnarchiving(long containerId);
 
     public void commit();
 

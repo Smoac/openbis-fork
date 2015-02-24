@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server;
 
+import java.io.File;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -43,12 +44,12 @@ import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.common.action.IDelegatedActionWithResult;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.mail.MailClient;
 import ch.systemsx.cisd.common.mail.MailClientParameters;
 import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
 import ch.systemsx.cisd.openbis.common.spring.AbstractServiceWithLogger;
-import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationBean;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.ReturnValueFilter;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ExpressionValidator;
@@ -538,11 +539,11 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
     @Override
     public final SessionContextDTO tryAuthenticate(final String user, final String password)
     {
-        if(AuthorizationBean.getInstance().isASDisabled()) {
-            throw new UserFailureException("Login disabled by the administrator.");
-        } else {
-            return tryToAuthenticate(sessionManager.tryToOpenSession(user, password));
-        }
+        if (tryGetDisabledText() != null)
+        {
+            throw new UserFailureException("Login is disabled by the administrator.");
+        } 
+        return tryToAuthenticate(sessionManager.tryToOpenSession(user, password));
     }
 
     private SessionContextDTO tryToAuthenticate(final String sessionToken)
@@ -1042,6 +1043,16 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
     static boolean isResolved(String name)
     {
         return StringUtils.isNotBlank(name) && name.startsWith("${") == false;
+    }
+
+    protected static String tryGetDisabledText()
+    {
+        File noLoginFile = new File("./etc/nologin.html");
+        if (noLoginFile.exists() == false)
+        {
+            return null;
+        }
+        return FileUtilities.loadToString(noLoginFile).trim();
     }
 
 }

@@ -25,6 +25,8 @@ public class MultiDataSetArchiverContainerDTO
     private long id;
 
     private String path;
+    
+    private boolean unarchivingRequested;
 
     public MultiDataSetArchiverContainerDTO()
     {
@@ -51,10 +53,21 @@ public class MultiDataSetArchiverContainerDTO
         return path;
     }
 
+    public boolean isUnarchivingRequested()
+    {
+        return unarchivingRequested;
+    }
+
+    public void setUnarchivingRequested(boolean unarchivingRequested)
+    {
+        this.unarchivingRequested = unarchivingRequested;
+    }
+
     @Override
     public String toString()
     {
-        return "MultiDataSetArchiverContainerDTO [id=" + id + ", path=" + path + "]";
+        return "MultiDataSetArchiverContainerDTO [id=" + id + ", path=" + path 
+                + ", unarchiving requested=" + unarchivingRequested + "]";
     }
 
 }

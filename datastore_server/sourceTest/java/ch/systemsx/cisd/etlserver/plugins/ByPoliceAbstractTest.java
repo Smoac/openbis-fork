@@ -20,13 +20,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.test.annotation.ExpectedException;
-import org.testng.AssertJUnit;
 import org.testng.ITestResult;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
@@ -40,41 +38,29 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.ISingleDataSetPathInfoProvide
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProviderTestWrapper;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetPathInfo;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 
 /**
  * @author Jakub Straszewski
  */
-public abstract class ByPoliceAbstractTest extends AssertJUnit
+public abstract class ByPoliceAbstractTest extends AbstractAutoArchiverPolicyTestCase
 {
     protected Mockery context;
-
-    protected ExecutionContext ctx;
 
     private IDataSetPathInfoProvider pathProviderMock;
 
     private ISingleDataSetPathInfoProvider singleDsProviderMock;
 
-    private AtomicInteger counter;
-
     @BeforeMethod
     public void setUpTestEnvironment()
     {
-        ctx = new ExecutionContext();
         context = new Mockery();
-        counter = new AtomicInteger();
         final BeanFactory beanFactory = context.mock(BeanFactory.class);
         ServiceProviderTestWrapper.setApplicationContext(beanFactory);
         pathProviderMock = ServiceProviderTestWrapper.mock(context, IDataSetPathInfoProvider.class);
         singleDsProviderMock = ServiceProviderTestWrapper.mock(context, ISingleDataSetPathInfoProvider.class);
 
-        ServiceProviderTestWrapper.addMock(context, IDataSetPathInfoProvider.class,
-                pathProviderMock);
+        ServiceProviderTestWrapper.addMock(context, IDataSetPathInfoProvider.class, pathProviderMock);
 
     }
 
@@ -110,88 +96,10 @@ public abstract class ByPoliceAbstractTest extends AssertJUnit
     @AfterMethod
     public void checkMockExpectations(ITestResult result)
     {
-        context.assertIsSatisfied();
         ServiceProviderTestWrapper.restoreApplicationContext();
+        context.assertIsSatisfied();
     }
 
-    protected class ExecutionContext
-    {
-        public AbstractExternalData createDataset(String projectCode, String experimentCode, String datasetType, String dsCode, Long size)
-        {
-            return createDataset("___space", projectCode, experimentCode, datasetType, dsCode, size);
-        }
-
-        /**
-         * If datasetCode is null then it gets assigned unique code containing the word "generated"
-         */
-        public AbstractExternalData createDataset(String spaceCode, String projectCode, String experimentCode, String datasetType, String dsCode,
-                Long size)
-        {
-            return createDataset(spaceCode, projectCode, experimentCode, datasetType, null, dsCode, size);
-        }
-
-        /**
-         * If datasetCode is null then it gets assigned unique code containing the word "generated"
-         */
-        public AbstractExternalData createDataset(String spaceCode, String projectCode, String experimentCode, String datasetType, String sampleCode,
-                String dsCode,
-                Long size)
-        {
-            Space space = new Space();
-            space.setCode(spaceCode);
-            space.setIdentifier("/" + space.getCode());
-
-            Project project = new Project();
-            project.setCode(projectCode);
-            project.setIdentifier("/" + spaceCode + "/" + projectCode);
-            project.setSpace(space);
-
-            Experiment exp = new Experiment();
-            exp.setProject(project);
-            exp.setCode(experimentCode);
-            exp.setIdentifier(project.getIdentifier() + "/" + experimentCode);
-
-            Sample sample = null;
-            if (sampleCode != null)
-            {
-                sample = new Sample();
-                sample.setCode(sampleCode);
-                sample.setIdentifier(space.getIdentifier() + "/" + sample.getCode());
-                sample.setExperiment(exp);
-                sample.setSpace(space);
-            }
-
-            DataSetType dataSetType = new DataSetType();
-            dataSetType.setCode(datasetType);
-
-            PhysicalDataSet ds = new PhysicalDataSet();
-            if (dsCode != null)
-            {
-                ds.setCode(dsCode);
-            }
-            else
-            {
-                ds.setCode("generated-" + counter.incrementAndGet());
-            }
-            ds.setExperiment(exp);
-            ds.setSample(sample);
-            ds.setSize(size);
-            ds.setDataSetType(dataSetType);
-
-            return ds;
-        }
-    }
-
-    protected List<String> extractCodes(List<AbstractExternalData> dataSets)
-    {
-        List<String> codes = new ArrayList<String>();
-        for (AbstractExternalData dataSet : dataSets)
-        {
-            codes.add(dataSet.getCode());
-        }
-        Collections.sort(codes);
-        return codes;
-    }
 
     // Some general tests for all policies
 
@@ -201,7 +109,7 @@ public abstract class ByPoliceAbstractTest extends AssertJUnit
      * Creates the policy with given min and max value. To improve the robusntess of the test this method shuffles the incoming dataset and sorts the
      * result.
      */
-    protected List<AbstractExternalData> filter(int min, int max, ArrayList<AbstractExternalData> dataSets)
+    protected List<AbstractExternalData> filter(int min, int max, List<AbstractExternalData> dataSets)
     {
         return filter(min, max, dataSets, true);
     }
@@ -209,12 +117,12 @@ public abstract class ByPoliceAbstractTest extends AssertJUnit
     /**
      * Creates the policy with given min and max value. The input to the filtering is not shuffled.
      */
-    protected List<AbstractExternalData> filterWithoutShuffling(int min, int max, ArrayList<AbstractExternalData> dataSets)
+    protected List<AbstractExternalData> filterWithoutShuffling(int min, int max, List<AbstractExternalData> dataSets)
     {
         return filter(min, max, dataSets, false);
     }
 
-    private List<AbstractExternalData> filter(int min, int max, ArrayList<AbstractExternalData> dataSets, boolean shuffle)
+    private List<AbstractExternalData> filter(int min, int max, List<AbstractExternalData> dataSets, boolean shuffle)
     {
         IAutoArchiverPolicy policy = getPolicy(min, max);
 
@@ -292,7 +200,7 @@ public abstract class ByPoliceAbstractTest extends AssertJUnit
 
     protected void assertAllDataSetsAreNotGenerated(List<AbstractExternalData> filtered)
     {
-        if (extractCodes(filtered).toString().contains("generated"))
+        if (Code.extractCodes(filtered).toString().contains("generated"))
         {
             fail(getErrorMessage(filtered));
         }
@@ -300,7 +208,7 @@ public abstract class ByPoliceAbstractTest extends AssertJUnit
 
     protected String getErrorMessage(List<AbstractExternalData> filtered)
     {
-        return "Unexpected data sets in result of filtering data sets." + extractCodes(filtered).toString();
+        return "Unexpected data sets in result of filtering data sets." + Code.extractCodes(filtered).toString();
     }
 
     protected void assertTotalDataSetsSize(long expectedSize, List<AbstractExternalData> dataSets)

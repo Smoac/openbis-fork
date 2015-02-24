@@ -47,7 +47,6 @@ import ch.systemsx.cisd.common.properties.PropertyParametersUtil;
 import ch.systemsx.cisd.common.properties.PropertyParametersUtil.SectionProperties;
 import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
 import ch.systemsx.cisd.openbis.common.spring.IInvocationLoggerContext;
-import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationBean;
 import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationServiceUtils;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.Capability;
@@ -4604,6 +4603,6 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     
     @Override
     public String getDisabledText() {
-        return AuthorizationBean.getInstance().getDisabledText();
+        return tryGetDisabledText();
     }
 }

@@ -68,7 +68,9 @@ function backupDatabase() {
     return
   fi
 
-  echo "Database description: $DB_PROPS"
+  echo -n "Database description: "
+  # do not show password section of database description
+  echo $DB_PROPS|awk -F ';' '{print $1";"$2";"$4}'
   local hostAndPort=$(getProperty $DB_PROPS "host" "localhost")
   local host=${hostAndPort%:*} 
   local port=`if [ "${hostAndPort#*:}" == "$host" ]; then echo 5432; else echo ${hostAndPort#*:}; fi`
@@ -110,7 +112,7 @@ AS_SERVER=$SERVERS/openBIS-server/
 DSS_SERVER=$SERVERS/datastore_server
 
 listDatabases $AS_SERVER/jetty/etc/service.properties $DSS_SERVER/etc/service.properties
-echo "Databases: $DB_LIST"
+
 PG_DUMP_OPTION=""
 if [[ "`exe_pg_dump --version|awk '{print $3}'`" > "9.2.x" ]]; then
   if [ -f /proc/cpuinfo ]; then

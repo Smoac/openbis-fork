@@ -79,8 +79,14 @@ public class AutoArchiverTask implements IMaintenanceTask
     @Override
     public void execute()
     {
-        operationLog.info("start");
-        List<AbstractExternalData> dataSets = policy.filter(archiveCandidateDiscoverer.findDatasetsForArchiving(openBISService, criteria));
+        List<AbstractExternalData> candidates = archiveCandidateDiscoverer.findDatasetsForArchiving(openBISService, criteria);
+        if (candidates.isEmpty())
+        {
+            operationLog.info("nothing to archive");
+            return;
+        }
+        operationLog.info("apply policy to " + candidates.size() + " candidates for archiving.");
+        List<AbstractExternalData> dataSets = policy.filter(candidates);
         if (dataSets.isEmpty())
         {
             operationLog.info("nothing to archive");
@@ -90,7 +96,6 @@ public class AutoArchiverTask implements IMaintenanceTask
                     + CollectionUtils.abbreviate(Code.extractCodes(dataSets), 10));
             openBISService.archiveDataSets(Code.extractCodes(dataSets), removeFromDataStore);
         }
-        operationLog.info("end");
     }
 
     @Override

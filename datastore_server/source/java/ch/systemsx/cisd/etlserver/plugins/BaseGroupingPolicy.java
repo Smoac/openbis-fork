@@ -4,12 +4,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
-import org.apache.log4j.Logger;
-
-import ch.systemsx.cisd.common.logging.LogCategory;
-import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.common.properties.ExtendedProperties;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.etlserver.IAutoArchiverPolicy;
 import ch.systemsx.cisd.etlserver.plugins.grouping.DatasetListWithTotal;
@@ -26,9 +22,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
  */
 public abstract class BaseGroupingPolicy implements IAutoArchiverPolicy
 {
-    private static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, BaseGroupingPolicy.class);
-
     public static final String MINIMAL_ARCHIVE_SIZE = "minimal-archive-size";
 
     public static final String MAXIMAL_ARCHIVE_SIZE = "maximal-archive-size";
@@ -43,7 +36,7 @@ public abstract class BaseGroupingPolicy implements IAutoArchiverPolicy
 
     private IDataSetPathInfoProvider pathInfoProvider;
 
-    public BaseGroupingPolicy(ExtendedProperties properties)
+    public BaseGroupingPolicy(Properties properties)
     {
         minArchiveSize =
                 PropertyUtils.getLong(properties, MINIMAL_ARCHIVE_SIZE, DEFAULT_MINIMAL_ARCHIVE_SIZE);
@@ -55,6 +48,10 @@ public abstract class BaseGroupingPolicy implements IAutoArchiverPolicy
     @Override
     public final List<AbstractExternalData> filter(List<AbstractExternalData> dataSets)
     {
+        if (dataSets.isEmpty())
+        {
+            return dataSets;
+        }
         makeSureAllDataSetsWithSize(dataSets);
         return filterDataSetsWithSizes(dataSets);
     }

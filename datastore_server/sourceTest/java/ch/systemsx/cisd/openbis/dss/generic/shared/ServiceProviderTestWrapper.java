@@ -64,7 +64,7 @@ public class ServiceProviderTestWrapper
         mockApplicationContext = applicationContext;
         ServiceProvider.setBeanFactory(applicationContext);
     }
-
+    
     /**
      * restore the replaced application context back, so that it will be available for other tests
      * in the same suite.
@@ -72,6 +72,10 @@ public class ServiceProviderTestWrapper
     @SuppressWarnings("deprecation")
     public static void restoreApplicationContext()
     {
+        if (cachedApplicationContext == null)
+        {
+            return;
+        }
         ServiceProvider.setBeanFactory(cachedApplicationContext);
         cachedApplicationContext = null;
         mockApplicationContext = null;

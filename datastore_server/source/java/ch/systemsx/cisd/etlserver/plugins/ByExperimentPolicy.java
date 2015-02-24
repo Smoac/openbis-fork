@@ -4,13 +4,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-
-import org.apache.log4j.Logger;
+import java.util.Properties;
 
 import ch.systemsx.cisd.common.collection.SimpleComparator;
-import ch.systemsx.cisd.common.logging.LogCategory;
-import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.common.properties.ExtendedProperties;
 import ch.systemsx.cisd.etlserver.IAutoArchiverPolicy;
 import ch.systemsx.cisd.etlserver.plugins.grouping.DatasetListWithTotal;
 import ch.systemsx.cisd.etlserver.plugins.grouping.Grouping;
@@ -25,12 +21,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
  */
 public class ByExperimentPolicy extends BaseGroupingPolicy implements IAutoArchiverPolicy
 {
-    private static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, ByExperimentPolicy.class);
-
     private final List<IGroupKeyProvider> providers;
 
-    public ByExperimentPolicy(ExtendedProperties properties)
+    public ByExperimentPolicy(Properties properties)
     {
         super(properties);
         providers = new ArrayList<IGroupKeyProvider>();

@@ -44,6 +44,8 @@ public class ArchiverTaskContext
     private String userEmail;
 
     private String userSessionToken;
+    
+    private boolean forceUnarchiving;
 
     public ArchiverTaskContext(IDataSetDirectoryProvider directoryProvider,
             IHierarchicalContentProvider hierarchicalContentProvider)
@@ -104,6 +106,16 @@ public class ArchiverTaskContext
     public String getUserSessionToken()
     {
         return userSessionToken;
+    }
+
+    public boolean isForceUnarchiving()
+    {
+        return forceUnarchiving;
+    }
+
+    public void setForceUnarchiving(boolean delayedUnarchiving)
+    {
+        this.forceUnarchiving = delayedUnarchiving;
     }
     
 }
