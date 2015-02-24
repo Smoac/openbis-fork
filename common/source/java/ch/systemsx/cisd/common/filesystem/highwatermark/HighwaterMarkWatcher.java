@@ -177,10 +177,11 @@ public final class HighwaterMarkWatcher implements Runnable
             throws EnvironmentFailureException
     {
         assert file != null : "Unspecified file";
-        final String errorMsg = String.format("Could not compute available free space for '%s' due to an environment exception.", file);
-        final Object freeSpaceInKbOrException =
+        final String errorMsg =
+                String.format("Could not compute available free space for '%s'.", file);
+        final Long freeSpaceInKb =
                 new CallableExecutor(5, TimingParameters.DEFAULT_MILLIS_TO_SLEEP_BEFORE_RETRYING)
-                        .executeCallable(new Callable<Object>()
+                        .executeCallable(new Callable<Long>()
                             {
 
                                 //
@@ -188,24 +189,25 @@ public final class HighwaterMarkWatcher implements Runnable
                                 //
 
                                 @Override
-                                public final Object call() throws Exception
+                                public final Long call() throws Exception
                                 {
                                     try
                                     {
                                         return freeSpaceProvider.freeSpaceKb(file);
                                     } catch (final IOException ex)
                                     {
-                                        return ex;
+                                        operationLog.error(errorMsg, ex);
+                                        return null;
                                     }
                                 }
                             });
-        if (freeSpaceInKbOrException == null || freeSpaceInKbOrException instanceof IOException)
+        if (freeSpaceInKb == null)
         {
-            throw new EnvironmentFailureException(errorMsg, (IOException) freeSpaceInKbOrException);
+            throw new EnvironmentFailureException(errorMsg);
         }
-        
         return new HighwaterMarkState(new HostAwareFileWithHighwaterMark(file.tryGetHost(), file
-                .getPath(), file.tryGetRsyncModule(), getLocalHighWaterMark(file)), (Long) freeSpaceInKbOrException);
+.getPath(), file.tryGetRsyncModule(), getLocalHighWaterMark(file)),
+                freeSpaceInKb);
     }
 
     /**
