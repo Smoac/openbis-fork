@@ -25,7 +25,7 @@ var FormUtil = new function() {
 		var stateFieldValue = sample.properties["ANNOTATIONS_STATE"];
 
 		if(!stateFieldValue) {
-			return null;
+			return stateObj;
 		}
 		var xmlDoc = new DOMParser().parseFromString(stateFieldValue, 'text/xml');
 		var samples = xmlDoc.getElementsByTagName("Sample");

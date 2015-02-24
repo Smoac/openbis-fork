@@ -106,7 +106,9 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 //		}
 		var stateField = $("#ANNOTATIONS_STATE");
 		if(stateField.length === 0) {
-			Util.showError("You need a property with code ANNOTATIONS_STATE on this entity to store the state of the annotations.");
+			if(this.sampleTypeHints && this.sampleTypeHints.length !== 0) { //Indicates annotations are needed
+				Util.showError("You need a property with code ANNOTATIONS_STATE on this entity to store the state of the annotations.");
+			}
 		} else {
 			//Hide State Field
 			var fieldset = stateField.parent().parent().parent();

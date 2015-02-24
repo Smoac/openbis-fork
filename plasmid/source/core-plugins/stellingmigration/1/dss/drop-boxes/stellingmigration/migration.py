@@ -125,11 +125,15 @@ definitions = {
                                     }
 };
 
+currentCache = None
+
 def process(tr):
     print "START!"
     for sampleType in definitions:
         properties = definitions[sampleType]
         samples = getSamplesByType(tr, sampleType)
+        global currentCache
+        currentCache = samples
         print sampleType + ": "+ str(len(samples))
         for sample in samples:
             translate(tr, sample, properties)
@@ -151,6 +155,13 @@ def getSampleByPermId(tr, permId):
         return samples[0]
     else:
         return None
+
+def getSampleFromCache(identifier):
+    sampleToReturn = None
+    for sample in currentCache:
+        if sample.getSampleIdentifier() == identifier:
+            return sample
+    return None
 
 def translate(tr, sample, properties):
     sampleType = sample.getSampleType()
@@ -175,24 +186,46 @@ def translate(tr, sample, properties):
                     try:
                         permId = child.attrib["permId"]
                         linkedSample = getSampleByPermId(tr, permId)
-                        identifier = linkedSample.getSampleIdentifier()
+                        linkedSampleIdentifier = linkedSample.getSampleIdentifier()
                         if property == "GENERAL_PROTOCOL":
                             #Don't migrate them, they should be parents and contain no information.
-                            #sample.getParentSampleIdentifiers().add(identifier) 
-                            print "[PROTOCOL] " + sample.code + " " + identifier
+                            #sample.getParentSampleIdentifiers().add(linkedSampleIdentifier) 
+                            print "[PROTOCOL] " + sample.code + " " + linkedSampleIdentifier
                         else:
                             newAnnotationsNode = ET.SubElement(newAnnotationsRoot, "Sample")
                             print "[INFO - PROCESSING PERM_ID] " + sample.code + " " + permId
                             newAnnotationsNode.attrib["sampleType"] = linkedSample.sampleType
                             newAnnotationsNode.attrib["permId"] = permId
-                            newAnnotationsNode.attrib["identifier"] = identifier
+                            newAnnotationsNode.attrib["identifier"] = linkedSampleIdentifier
                             for oldName in propertyDefinitions:
                                 newName = propertyDefinitions[oldName]
                                 value = getValueOrNull(child.attrib, oldName)
                                 if(value is not None):
                                     newAnnotationsNode.attrib[newName] = value
-                    except Exception:
-                        print "[ERROR - PROCESSING PERM_ID] " + sample.code + " " + permId
+                            if property == "PLASMIDS":
+                                #Is plasmid a link? it is if it's not a parent
+                                isLink = True
+                                for sampleParentIdentifier in sample.getParentSampleIdentifiers():
+                                    if sampleParentIdentifier == linkedSampleIdentifier:
+                                        isLink = False
+                                if isLink: #Find parent who owns it
+                                    isFound = False
+                                    for sampleParentIdentifier in sample.getParentSampleIdentifiers():
+                                        parentFromSample = getSampleFromCache(sampleParentIdentifier) #tr.getSample(sampleParentIdentifier)
+                                        parentAnnotations = None
+                                        if parentFromSample != None:
+                                            parentAnnotations = parentFromSample.getPropertyValue("ANNOTATIONS_STATE")
+                                        if parentAnnotations != None:
+                                            if (permId in parentAnnotations):
+                                                newAnnotationsNode.attrib["CONTAINED"] = sampleParentIdentifier
+                                                isFound = True
+                                        else:
+                                            print "[WARNING - PARENTANNOTATIONS NONE] " + sample.code + " " + permId
+                                    if not isFound:
+                                        print "[ERROR - NOTFOUND CONTAINER] " + sample.code + " " + permId
+                                    
+                    except Exception, e:
+                        print "[ERROR - PROCESSING PERM_ID] " + sample.code + " " + permId + str(e)
     save(tr, sample, "ANNOTATIONS_STATE", ET.tostring(newAnnotationsRoot, encoding='utf-8'))
 
 def save(tr, sample, property, propertyValue):
