@@ -91,6 +91,8 @@ task queryApiZip(type: Zip, dependsOn: [queryApiJar, queryApiSources, queryApiJa
 	into 'openBIS-query-API'
 }
 
+/////////// API V3 ////////////////////
+
 task apiV3Jar(type: Jar) {
   baseName 'openBIS-API-V3'
   includeEmptyDirs false
@@ -107,6 +109,25 @@ task apiV3Jar(type: Jar) {
           include "ch/ethz/sis/openbis/generic/shared/api/v3/**/*.class"
           include "ch/systemsx/cisd/openbis/BuildAndEnvironmentInfo.class"
           include "*.INFO"
+  }
+}
+
+configurations.create('apiV3Dependencies')
+dependencies {
+  apiV3Dependencies 'sis:sis-base:+',
+                    'apache:httpclient:+',
+                    'springframework:spring-web:+',
+                    'marathon:marathon-spring-util:+'
+}
+
+task apiV3JarBatteriesIncluded(type: Jar, dependsOn: [apiV3Jar]) {
+  baseName 'openBIS-API-V3-batteries-included'
+  includeEmptyDirs false
+  from (zipTree(apiV3Jar.archivePath)) {
+    include '**/*'
+  }
+  from (configurations.apiV3Dependencies.collect {zipTree(it)}) {
+    include '**/*'
   }
 }
 
@@ -144,16 +165,10 @@ task apiV3JavaDocZip(type: Zip, dependsOn: apiV3JavaDoc) {
   from apiV3JavaDoc.destinationDir
 }
 
-configurations.create('apiV3Dependencies')
-dependencies {
-  apiV3Dependencies 'sis:sis-base:+',
-                    'apache:httpclient:+',
-                    'springframework:spring-web:+',
-                    'marathon:marathon-spring-util:+'
-}
-task apiV3Zip(type: Zip, dependsOn: [apiV3Jar, apiV3Sources, apiV3JavaDocZip]) {
+task apiV3Zip(type: Zip, dependsOn: [apiV3JarBatteriesIncluded, apiV3Sources, apiV3JavaDocZip]) {
   baseName 'openBIS-API-V3'
   from apiV3Jar.archivePath
+  from apiV3JarBatteriesIncluded.archivePath
   from apiV3Sources.archivePath
   from apiV3JavaDocZip.archivePath
   from configurations.apiV3Dependencies
