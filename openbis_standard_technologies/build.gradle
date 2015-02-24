@@ -354,14 +354,14 @@ task zipDss(type: Zip, dependsOn: signWebStartJars) {
 	}
 }
 
-task clientsAndApis(type: Zip, dependsOn: [dssClientZip, queryApiZip, proteomicsApiZip, screeningApiZip]) {
-	baseName 'openBIS-clients-and-APIs'
-	from dssClientZip.archivePath
-    from queryApiZip.archivePath
-    from proteomicsApiZip.archivePath
-    from screeningApiZip.archivePath
-    from ('../openbis_all/dist/readme.txt')
-    
+task clientsAndApis(type: Zip, dependsOn: [dssClientZip, queryApiZip, apiV3Zip, proteomicsApiZip, screeningApiZip]) {
+  baseName 'openBIS-clients-and-APIs'
+  from dssClientZip.archivePath
+  from queryApiZip.archivePath
+  from apiV3Zip.archivePath
+  from proteomicsApiZip.archivePath
+  from screeningApiZip.archivePath
+  from ('../openbis_all/dist/readme.txt')
 }
 
 task generateJavadoc(type: Javadoc) {

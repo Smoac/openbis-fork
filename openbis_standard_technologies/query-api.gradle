@@ -1,3 +1,4 @@
+
 task queryApiJar(type: Jar) {
 	baseName 'openBIS-query-API'
 	includeEmptyDirs false
@@ -65,7 +66,7 @@ task queryApiJavaDocZip(type: Zip, dependsOn: queryApiJavaDoc) {
 
 configurations.create('queryApiDependencies')
 dependencies {
-	queryApiDependencies 'cisd:cisd-base:+',
+	queryApiDependencies 'sis:sis-base:+',
                         'apache:httpclient:+',
                         'apache:httpcore:+',
                         'apache:log4j:+',
@@ -88,4 +89,73 @@ task queryApiZip(type: Zip, dependsOn: [queryApiJar, queryApiSources, queryApiJa
 	from queryApiJavaDocZip.archivePath
 	from configurations.queryApiDependencies
 	into 'openBIS-query-API'
+}
+
+task apiV3Jar(type: Jar) {
+  baseName 'openBIS-API-V3'
+  includeEmptyDirs false
+  from project(':common').compileJava.outputs.getFiles().getAsFileTree().plus(
+         project(':openbis-common').compileJava.outputs.getFiles().getAsFileTree().plus( 
+         project(':openbis').compileJava.outputs.getFiles().getAsFileTree().plus(
+         project(':openbis_api').compileJava.outputs.getFiles().getAsFileTree()))).matching {
+          include "ch/systemsx/cisd/common/exceptions/**/*.class"
+          include "ch/systemsx/cisd/common/spring/HttpInvokerUtils.class"
+          include "ch/systemsx/cisd/common/api/**/*.class"
+          exclude "ch/systemsx/cisd/common/api/server/**/*.class"
+          include "ch/systemsx/cisd/openbis/common/api/**/*.class"
+          exclude "ch/systemsx/cisd/openbis/common/api/server/**/*.class"
+          include "ch/ethz/sis/openbis/generic/shared/api/v3/**/*.class"
+          include "ch/systemsx/cisd/openbis/BuildAndEnvironmentInfo.class"
+          include "*.INFO"
+  }
+}
+
+task apiV3Sources(type: Jar) {
+  archiveName 'sources-api-v3.zip'
+  from project(':common').files('source/java').getAsFileTree().plus(
+    project(':openbis-common').files('source/java').getAsFileTree().plus(
+    project(':openbis').files('source/java').getAsFileTree().plus(
+    project(':openbis_api').files('source/java').getAsFileTree()))).matching {
+          include "ch/systemsx/cisd/common/exceptions/**/*.java"
+          include "ch/systemsx/cisd/common/spring/HttpInvokerUtils.java"
+          include "ch/systemsx/cisd/common/api/**/*.java"
+          exclude "ch/systemsx/cisd/common/api/server/**/*.java"
+          include "ch/systemsx/cisd/openbis/common/api/**/*.java"
+          exclude "ch/systemsx/cisd/openbis/common/api/server/**/*.java"
+          include "ch/ethz/sis/openbis/generic/shared/api/v3/**/*.java"
+          include "ch/systemsx/cisd/openbis/BuildAndEnvironmentInfo.java"
+    }
+}
+
+configurations.create('apiV3Javadoc')
+dependencies {
+  apiV3Javadoc project(':openbis_api')
+}
+
+task apiV3JavaDoc(type: Javadoc) {
+  source apiV3Sources.inputs.getFiles().getAsFileTree().matching {
+    include "**/*.java"
+  }
+  classpath = configurations.apiV3Javadoc
+}
+
+task apiV3JavaDocZip(type: Zip, dependsOn: apiV3JavaDoc) {
+  archiveName 'javadoc-api-v3.zip'
+  from apiV3JavaDoc.destinationDir
+}
+
+configurations.create('apiV3Dependencies')
+dependencies {
+  apiV3Dependencies 'sis:sis-base:+',
+                    'apache:httpclient:+',
+                    'springframework:spring-web:+',
+                    'marathon:marathon-spring-util:+'
+}
+task apiV3Zip(type: Zip, dependsOn: [apiV3Jar, apiV3Sources, apiV3JavaDocZip]) {
+  baseName 'openBIS-API-V3'
+  from apiV3Jar.archivePath
+  from apiV3Sources.archivePath
+  from apiV3JavaDocZip.archivePath
+  from configurations.apiV3Dependencies
+  into 'openBIS-API-V3'
 }
