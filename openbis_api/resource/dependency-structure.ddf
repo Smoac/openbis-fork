@@ -1,3 +1,13 @@
 #show allResults
 
 {project} = ch.systemsx.cisd.openbis
+
+{sis} = ch.ethz.sis
+
+[v3-api] = ${sis}.openbis.generic.shared.api.v3.*
+
+[not-v3-api] = ch.* excluding [v3-api]
+
+check sets [v3-api] [not-v3-api]
+
+check [v3-api] independentOf [not-v3-api]

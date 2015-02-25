@@ -6,4 +6,7 @@ dependencies {
 	compile project(':common'),
 			'fasterxml:jackson-core:+',
 			'fasterxml:jackson-annotations:+'
+			
+	testCompile project(path: ':common', configuration: 'tests'),
+			'fjelmer:classycle:+'
 } 
