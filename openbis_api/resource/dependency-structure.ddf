@@ -7,10 +7,13 @@
                ${cisd}.common.api.IRpcService \
                ${cisd}.base.annotation.JsonObject
 
-[v3-api] = ${sis}.openbis.generic.shared.api.v3.* [common-api]
+[v3-api] = ${sis}.openbis.generic.shared.api.v3.*
 
-[not-v3-api] = ch.* excluding [v3-api] 
+[older-api] = ${cisd}.openbis.*
 
-check sets [v3-api] [not-v3-api]
+[not-v3-api] = ch.* excluding [v3-api] [common-api]
+
+check sets [v3-api] [older-api] [not-v3-api]
 
 check [v3-api] independentOf [not-v3-api]
+check [older-api] independentOf [v3-api]
