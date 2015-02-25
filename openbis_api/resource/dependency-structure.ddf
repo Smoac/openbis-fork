@@ -1,12 +1,15 @@
 #show allResults
 
-{project} = ch.systemsx.cisd.openbis
-
+{cisd} = ch.systemsx.cisd
 {sis} = ch.ethz.sis
 
-[v3-api] = ${sis}.openbis.generic.shared.api.v3.*
+[common-api] = ${cisd}.common.exceptions.*Exception \
+               ${cisd}.common.api.IRpcService \
+               ${cisd}.base.annotation.JsonObject
 
-[not-v3-api] = ch.* excluding [v3-api]
+[v3-api] = ${sis}.openbis.generic.shared.api.v3.* [common-api]
+
+[not-v3-api] = ch.* excluding [v3-api] 
 
 check sets [v3-api] [not-v3-api]
 
