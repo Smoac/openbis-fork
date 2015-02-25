@@ -17,6 +17,7 @@ package ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.DataSetFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.DataSetTypeFetchOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.ExternalDataFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.experiment.ExperimentFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.person.PersonFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.property.PropertyFetchOptions;
@@ -45,6 +46,9 @@ public class DataSetFetchOptions implements Serializable
 
     @JsonProperty
     private DataSetFetchOptions contained;
+
+    @JsonProperty
+    private ExternalDataFetchOptions externalData;
 
     @JsonProperty
     private TagFetchOptions tags;
@@ -153,6 +157,28 @@ public class DataSetFetchOptions implements Serializable
     public boolean hasContained()
     {
         return contained != null;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public ExternalDataFetchOptions withExternalData()
+    {
+        if (externalData == null)
+        {
+            externalData = new ExternalDataFetchOptions();
+        }
+        return externalData;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public ExternalDataFetchOptions withExternalDataUsing(ExternalDataFetchOptions fetchOptions)
+    {
+        return externalData = fetchOptions;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public boolean hasExternalData()
+    {
+        return externalData != null;
     }
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}

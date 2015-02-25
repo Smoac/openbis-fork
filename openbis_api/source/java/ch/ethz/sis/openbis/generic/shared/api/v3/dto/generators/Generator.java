@@ -5,16 +5,26 @@ import java.util.LinkedList;
 import java.util.List;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.attachment.Attachment;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.ArchivingStatus;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.Complete;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSetType;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.ExternalData;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.FileFormatType;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.LocatorType;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.ExperimentType;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.person.Person;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.project.Project;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.Sample;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleType;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.vocabulary.Vocabulary;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.vocabulary.VocabularyTerm;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.EmptyFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.attachment.AttachmentFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.DataSetFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.DataSetTypeFetchOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.ExternalDataFetchOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.FileFormatTypeFetchOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.LocatorTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.experiment.ExperimentFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.experiment.ExperimentTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.person.PersonFetchOptions;
@@ -23,6 +33,8 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sample.SampleF
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sample.SampleTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.space.SpaceFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.tag.TagFetchOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.vocabulary.VocabularyFetchOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.vocabulary.VocabularyTermFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.DataSetPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.entitytype.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentIdentifier;
@@ -168,6 +180,7 @@ public class Generator extends AbstractGenerator
         gen.addFetchedField("List<DataSet>", List.class.getName(), "children", "Children", DataSetFetchOptions.class);
         gen.addFetchedField("List<DataSet>", List.class.getName(), "containers", "Container data sets", DataSetFetchOptions.class);
         gen.addFetchedField("List<DataSet>", List.class.getName(), "contained", "Contained data sets", DataSetFetchOptions.class);
+        gen.addFetchedField("ExternalData", ExternalData.class.getName(), "externalData", "External data", ExternalDataFetchOptions.class);
         addTags(gen);
 
         gen.addFetchedField(DataSetType.class, "type", "Data Set type", DataSetTypeFetchOptions.class);
@@ -197,6 +210,75 @@ public class Generator extends AbstractGenerator
         // TODO add property definitions
 
         // TODO add validation script
+        return gen;
+    }
+
+    private static DtoGenerator createExternalDataGenerator()
+    {
+        DtoGenerator gen = new DtoGenerator("dataset", "ExternalData", ExternalDataFetchOptions.class);
+
+        gen.addStringField("shareId");
+        gen.addStringField("location");
+        gen.addSimpleField(Long.class, "size");
+        gen.addFetchedField(VocabularyTerm.class, "storageFormatVocabularyTerm", "Storage format vocabulary term", VocabularyTermFetchOptions.class);
+        gen.addFetchedField(FileFormatType.class, "fileFormatType", "File Format Type", FileFormatTypeFetchOptions.class);
+        gen.addFetchedField(LocatorType.class, "locatorType", "Locator Type", LocatorTypeFetchOptions.class);
+        gen.addSimpleField(Complete.class, "complete");
+        gen.addSimpleField(ArchivingStatus.class, "status");
+        gen.addBooleanField("presentInArchive");
+        gen.addBooleanField("storageConfirmation");
+        gen.addSimpleField(Integer.class, "speedHint");
+
+        return gen;
+    }
+
+    private static DtoGenerator createFileFormatType()
+    {
+        DtoGenerator gen = new DtoGenerator("dataset", "FileFormatType", FileFormatTypeFetchOptions.class);
+
+        gen.addStringField("code");
+        gen.addStringField("description");
+
+        return gen;
+    }
+
+    private static DtoGenerator createLocatorType()
+    {
+        DtoGenerator gen = new DtoGenerator("dataset", "LocatorType", LocatorTypeFetchOptions.class);
+
+        gen.addStringField("code");
+        gen.addStringField("description");
+
+        return gen;
+    }
+
+    private static DtoGenerator createVocabulary()
+    {
+        DtoGenerator gen = new DtoGenerator("vocabulary", "Vocabulary", VocabularyFetchOptions.class);
+
+        addCode(gen);
+        addDescription(gen);
+        addRegistrationDate(gen);
+        addRegistrator(gen);
+        addModificationDate(gen);
+
+        return gen;
+    }
+
+    private static DtoGenerator createVocabularyTerm()
+    {
+        DtoGenerator gen = new DtoGenerator("vocabulary", "VocabularyTerm", VocabularyTermFetchOptions.class);
+
+        addCode(gen);
+        gen.addStringField("label");
+        addDescription(gen);
+        gen.addSimpleField(Long.class, "ordinal");
+        gen.addBooleanField("official");
+        gen.addFetchedField(Vocabulary.class, "vocabulary", "Vocabulary", VocabularyFetchOptions.class);
+        addRegistrationDate(gen);
+        addRegistrator(gen);
+        addModificationDate(gen);
+
         return gen;
     }
 

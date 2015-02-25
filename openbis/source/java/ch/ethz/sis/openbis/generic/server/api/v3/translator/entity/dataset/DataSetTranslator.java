@@ -29,12 +29,14 @@ import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.property.Prop
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.tag.TagTranslator;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSetType;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.ExternalData;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.person.Person;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.tag.Tag;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.DataSetFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.DataSetPermId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 
 /**
@@ -158,6 +160,17 @@ public class DataSetTranslator extends AbstractCachingTranslator<DataPE, DataSet
                     new PersonTranslator(getTranslationContext(), getFetchOptions().withModifier()).translate(dataPe.getModifier());
             result.setModifier(modifier);
             result.getFetchOptions().withModifierUsing(getFetchOptions().withModifier());
+        }
+
+        if (getFetchOptions().hasExternalData())
+        {
+            if (dataPe instanceof ExternalDataPE)
+            {
+                ExternalData externalData =
+                        new ExternalDataTranslator(getTranslationContext(), getFetchOptions().withExternalData()).translate((ExternalDataPE) dataPe);
+                result.setExternalData(externalData);
+            }
+            result.getFetchOptions().withExternalDataUsing(getFetchOptions().withExternalData());
         }
     }
 

@@ -17,10 +17,10 @@
 package ch.ethz.sis.openbis.systemtest.api.v3;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertTrue;
 
-import java.text.SimpleDateFormat;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.TreeMap;
 
@@ -28,8 +28,18 @@ import junit.framework.Assert;
 
 import org.testng.annotations.Test;
 
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.ArchivingStatus;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.Complete;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSet;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.ExternalData;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.FileFormatType;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.LocatorType;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.vocabulary.Vocabulary;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.vocabulary.VocabularyTerm;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.DataSetFetchOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.ExternalDataFetchOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.vocabulary.VocabularyFetchOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.vocabulary.VocabularyTermFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.DataSetPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.DataSetSearchCriterion;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SampleSearchCriterion;
@@ -80,7 +90,7 @@ public class SearchDataSetTest extends AbstractDataSetTest
         criterion.withProperty("COMMENT").thatContains("non-virt");
         testSearch(TEST_USER, criterion, "20110509092359990-11", "20110509092359990-12");
     }
-    
+
     @Test
     public void testSearchWithRegistrationDateIsEarlierThan()
     {
@@ -88,7 +98,7 @@ public class SearchDataSetTest extends AbstractDataSetTest
         criterion.withRegistrationDate().thatIsEarlierThanOrEqualTo("2008-11-05 09:22:00");
         testSearch(TEST_USER, criterion, "20081105092159188-3");
     }
-    
+
     @Test
     public void testSearchWithModicationDateIsLaterThan()
     {
@@ -122,7 +132,7 @@ public class SearchDataSetTest extends AbstractDataSetTest
         criterion.withChildren().withCode().thatEquals("20081105092259000-9");
         testSearch(TEST_USER, criterion, "20081105092159111-1");
     }
-    
+
     @Test
     public void testSearchWithParent()
     {
@@ -130,7 +140,7 @@ public class SearchDataSetTest extends AbstractDataSetTest
         criterion.withParents().withCode().thatEquals("20081105092159111-1");
         testSearch(TEST_USER, criterion, "20081105092259000-9");
     }
-    
+
     @Test
     public void testSearchWithExperimentWithPermIdThatEquals()
     {
@@ -138,7 +148,7 @@ public class SearchDataSetTest extends AbstractDataSetTest
         criterion.withExperiment().withPermId().thatEquals("200902091255058-1035");
         testSearch(TEST_USER, criterion, "20081105092159333-3", "20110805092359990-17");
     }
-    
+
     @Test
     public void testSearchWithExperimentWithProperty()
     {
@@ -154,7 +164,7 @@ public class SearchDataSetTest extends AbstractDataSetTest
         criterion.withExperiment().withProperty("GENDER").thatEquals("MALE");
         testSearch(TEST_USER, criterion, "20081105092159188-3");
     }
-    
+
     @Test
     public void testSearchWithExperimentYoungerThan()
     {
@@ -162,7 +172,7 @@ public class SearchDataSetTest extends AbstractDataSetTest
         criterion.withExperiment().withRegistrationDate().thatIsLaterThanOrEqualTo("2009-02-09 12:11:00");
         testSearch(TEST_USER, criterion, "20081105092159333-3", "20110805092359990-17");
     }
-    
+
     @Test
     public void testSearchWithSampleWithAnyPropertyThatContains()
     {
@@ -170,7 +180,7 @@ public class SearchDataSetTest extends AbstractDataSetTest
         criterion.withSample().withAnyProperty().thatContains("er");
         testSearch(TEST_USER, criterion, "20081105092159111-1", "20081105092159333-3", "20110805092359990-17", "20081105092159222-2");
     }
-    
+
     @Test
     public void testSearchWithSampleWithPropertiesThatContains()
     {
@@ -180,7 +190,7 @@ public class SearchDataSetTest extends AbstractDataSetTest
         sampleSearchCriterion.withProperty("ORGANISM").thatContains("LY");
         testSearch(TEST_USER, criterion, "20081105092159111-1", "20081105092159333-3", "20110805092359990-17");
     }
-    
+
     @Test
     public void testSearchWithFetchOptionExperiment()
     {
@@ -188,9 +198,9 @@ public class SearchDataSetTest extends AbstractDataSetTest
         criterion.withPermId().thatEquals("20110805092359990-17");
         DataSetFetchOptions fetchOptions = new DataSetFetchOptions();
         fetchOptions.withExperiment().withProperties();
-        
+
         List<DataSet> dataSets = searchDataSets(TEST_USER, criterion, fetchOptions);
-        
+
         Collections.sort(dataSets, DATA_SET_COMPARATOR);
         assertEquals(dataSets.get(0).getCode(), "20110805092359990-17");
         assertEquals(dataSets.get(0).getPermId().toString(), "20110805092359990-17");
@@ -204,11 +214,88 @@ public class SearchDataSetTest extends AbstractDataSetTest
         assertContainersNotFetched(dataSets.get(0));
         assertContainedNotFetched(dataSets.get(0));
         assertEquals(dataSets.get(0).getExperiment().getIdentifier().toString(), "/CISD/NEMO/EXP-TEST-2");
-        assertEquals(new TreeMap<String, String>(dataSets.get(0).getExperiment().getProperties()).toString(), 
+        assertEquals(new TreeMap<String, String>(dataSets.get(0).getExperiment().getProperties()).toString(),
                 "{DESCRIPTION=very important expertiment, GENDER=FEMALE, PURCHASE_DATE=2009-02-09 10:00:00 +0100}");
         assertEquals(dataSets.size(), 1);
     }
-    
+
+    @Test
+    public void testSearchWithFetchOptionExternalDataForPhysicalDataSet()
+    {
+        DataSetSearchCriterion criterion = new DataSetSearchCriterion();
+        criterion.withPermId().thatEquals("20081105092159111-1");
+        DataSetFetchOptions fetchOptions = new DataSetFetchOptions();
+
+        ExternalDataFetchOptions externalDataFetchOptions = fetchOptions.withExternalData();
+        externalDataFetchOptions.withFileFormatType();
+        externalDataFetchOptions.withLocatorType();
+
+        VocabularyTermFetchOptions storageFormatTermFetchOptions = externalDataFetchOptions.withStorageFormatVocabularyTerm();
+        storageFormatTermFetchOptions.withRegistrator();
+
+        VocabularyFetchOptions storageFormatVocabularyFetchOptions = storageFormatTermFetchOptions.withVocabulary();
+        storageFormatVocabularyFetchOptions.withRegistrator();
+
+        List<DataSet> dataSets = searchDataSets(TEST_USER, criterion, fetchOptions);
+
+        assertEquals(dataSets.size(), 1);
+        DataSet dataSet = dataSets.get(0);
+
+        assertEquals(dataSet.getCode(), "20081105092159111-1");
+
+        ExternalData externalData = dataSet.getExternalData();
+        assertEquals(externalData.getShareId(), "42");
+        assertEquals(externalData.getLocation(), "a/1");
+        assertEquals(externalData.getSize(), Long.valueOf(4711));
+        assertEquals(externalData.getComplete(), Complete.UNKNOWN);
+        assertEquals(externalData.getStatus(), ArchivingStatus.AVAILABLE);
+        assertFalse(externalData.isPresentInArchive());
+        assertFalse(externalData.isStorageConfirmation());
+
+        FileFormatType fileFormatType = externalData.getFileFormatType();
+        assertEquals(fileFormatType.getCode(), "TIFF");
+        assertEquals(fileFormatType.getDescription(), "TIFF File");
+
+        LocatorType locatorType = externalData.getLocatorType();
+        assertEquals(locatorType.getCode(), "RELATIVE_LOCATION");
+        assertEquals(locatorType.getDescription(), "Relative Location");
+
+        VocabularyTerm storageFormatTerm = externalData.getStorageFormatVocabularyTerm();
+        assertEquals(storageFormatTerm.getCode(), "PROPRIETARY");
+        assertEquals(storageFormatTerm.getLabel(), null);
+        assertEquals(storageFormatTerm.getDescription(), null);
+        assertEquals(storageFormatTerm.getOrdinal(), Long.valueOf(1));
+        assertTrue(storageFormatTerm.isOfficial());
+        assertEquals(storageFormatTerm.getRegistrator().getUserId(), "system");
+        assertEqualsDate(storageFormatTerm.getRegistrationDate(), "2008-11-05 09:18:00");
+        assertEqualsDate(storageFormatTerm.getModificationDate(), "2008-11-05 09:18:00");
+
+        Vocabulary storageFormatVocabulary = storageFormatTerm.getVocabulary();
+        assertEquals(storageFormatVocabulary.getCode(), "$STORAGE_FORMAT");
+        assertEquals(storageFormatVocabulary.getDescription(), "The on-disk storage format of a data set");
+        assertEquals(storageFormatVocabulary.getRegistrator().getUserId(), "system");
+        assertEqualsDate(storageFormatVocabulary.getRegistrationDate(), "2008-11-05 09:18:00");
+        assertEqualsDate(storageFormatVocabulary.getModificationDate(), "2009-03-23 15:34:44");
+    }
+
+    @Test
+    public void testSearchWithFetchOptionExternalDataForContainerDataSet()
+    {
+        DataSetSearchCriterion criterion = new DataSetSearchCriterion();
+        criterion.withPermId().thatEquals("ROOT_CONTAINER");
+
+        DataSetFetchOptions fetchOptions = new DataSetFetchOptions();
+        fetchOptions.withExternalData();
+
+        List<DataSet> dataSets = searchDataSets(TEST_USER, criterion, fetchOptions);
+
+        assertEquals(dataSets.size(), 1);
+        DataSet dataSet = dataSets.get(0);
+
+        assertEquals(dataSet.getCode(), "ROOT_CONTAINER");
+        assertEquals(dataSet.getExternalData(), null);
+    }
+
     // @Test
     // public void testSearchWithPermId()
     // {
@@ -723,6 +810,6 @@ public class SearchDataSetTest extends AbstractDataSetTest
         {
             v3api.logout(sessionToken);
         }
-   
+
     }
 }

@@ -16,6 +16,7 @@
 package ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSetType;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.ExternalData;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.person.Person;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.Sample;
@@ -69,6 +70,9 @@ public class DataSet implements Serializable
 
     @JsonProperty
     private List<DataSet> contained;
+
+    @JsonProperty
+    private ExternalData externalData;
 
     @JsonProperty
     private Set<Tag> tags;
@@ -253,6 +257,26 @@ public class DataSet implements Serializable
     public void setContained(List<DataSet> contained)
     {
         this.contained = contained;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    @JsonIgnore
+    public ExternalData getExternalData()
+    {
+        if (getFetchOptions().hasExternalData())
+        {
+            return externalData;
+        }
+        else
+        {
+            throw new NotFetchedException("External data has not been fetched.");
+        }
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public void setExternalData(ExternalData externalData)
+    {
+        this.externalData = externalData;
     }
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
