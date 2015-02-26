@@ -206,7 +206,7 @@ def writeExcel(myoptions, configMap, service, piName, laneDict, sampleDict, piDi
         continue
 
       rowN = sheet.createRow(myRows.getNextRow())
-      rowN.createCell(singleSampleColumns.getNextColumn()).setCellValue(flowcellName + ":" + str(lane))
+      rowN.createCell(singleSampleColumns.getNextColumn()).setCellValue(str(lane))
       rowN.getCell(singleSampleColumns.getCurrentColumn()).setCellStyle(setFont(wb, configMap, 10))
       rowN.createCell(singleSampleColumns.getNextColumn()).setCellValue(configMap['sampleCodePrefix'] + sample)
       rowN.getCell(singleSampleColumns.getCurrentColumn()).setCellStyle(setFont(wb, configMap, 10))
