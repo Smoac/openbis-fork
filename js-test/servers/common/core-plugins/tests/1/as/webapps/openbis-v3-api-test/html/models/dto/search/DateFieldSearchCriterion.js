@@ -12,23 +12,20 @@ define([ "support/stjs", "sys/exceptions", "sys/simpledateformat", "dto/search/A
 				prototype['@type'] = 'dto.search.DateFieldSearchCriterion';
 				constructor.serialVersionUID = 1;
 				constructor.DATE_FORMATS = [ new ShortDateFormat(), new NormalDateFormat(), new LongDateFormat() ];
+				var value = function(DateValueClass, DateObjectValueClass, date) {
+					if (date instanceof Date) {
+						return new DateObjectValueClass(date);
+					}
+					return new DateValueClass(date);
+				}
 				prototype.thatEquals = function(date) {
-					this.setFieldValue(new DateObjectEqualToValue(date));
-				};
-				prototype.thatEquals = function(date) {
-					this.setFieldValue(new DateEqualToValue(date));
+					this.setFieldValue(value(DateEqualToValue, DateObjectEqualToValue, date));
 				};
 				prototype.thatIsLaterThanOrEqualTo = function(date) {
-					this.setFieldValue(new DateObjectLaterThanOrEqualToValue(date));
-				};
-				prototype.thatIsLaterThanOrEqualTo = function(date) {
-					this.setFieldValue(new DateLaterThanOrEqualToValue(date));
+					this.setFieldValue(value(DateLaterThanOrEqualToValue, DateObjectLaterThanOrEqualToValue, date));
 				};
 				prototype.thatIsEarlierThanOrEqualTo = function(date) {
-					this.setFieldValue(new DateObjectEarlierThanOrEqualToValue(date));
-				};
-				prototype.thatIsEarlierThanOrEqualTo = function(date) {
-					this.setFieldValue(new DateEarlierThanOrEqualToValue(date));
+					this.setFieldValue(value(DateEarlierThanOrEqualToValue, DateObjectEarlierThanOrEqualToValue, date));
 				};
 				prototype.withServerTimeZone = function() {
 					this.timeZone = new ServerTimeZone();
@@ -50,11 +47,13 @@ define([ "support/stjs", "sys/exceptions", "sys/simpledateformat", "dto/search/A
 				};
 				constructor.checkValueFormat = function(value) {
 					if (stjs.isInstanceOf(value.constructor, AbstractDateValue)) {
-						for ( var dateFormat in DateFieldSearchCriterion.DATE_FORMATS.getItems()) {
+						var formats = DateFieldSearchCriterion.DATE_FORMATS;
+						for ( var i in formats) {
+							var dateFormat = formats[i];
 							try {
 								var simpleDateFormat = new SimpleDateFormat(dateFormat.getFormat());
 								simpleDateFormat.setLenient(false);
-								simpleDateFormat.parse((value).getValue());
+								simpleDateFormat.parse(value.getValue());
 								return;
 							} catch (e) {
 							}

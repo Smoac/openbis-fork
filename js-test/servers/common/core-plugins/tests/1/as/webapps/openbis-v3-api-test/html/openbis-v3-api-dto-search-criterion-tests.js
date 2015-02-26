@@ -67,17 +67,50 @@ define(function() {
 			checkNumberFieldSearchCriterion("NumberPropertySearchCriterion", "MY-FIELD", "PROPERTY");
 		});
 		
+		var checkDateFieldSearchCriterionMethod = function(criterion, methodName, basicClassName, 
+				methodDescription, name, type) {
+			criterion[methodName]("2105-02-25 21:23:24");
+			assertAttributes(criterion, name, type, "Date" + basicClassName, "2105-02-25 21:23:24");
+			criterion[methodName]("2105-02-25");
+			assertAttributes(criterion, name, type, "Date" + basicClassName, "2105-02-25");
+			var d = new Date("2105-02-25 17:18:19");
+			criterion[methodName](d);
+			assertAttributes(criterion, name, type, "DateObject" + basicClassName, d);
+			try {
+				criterion[methodName]("abc");
+				fail("ex");
+			} catch (e) {
+				equal(e.message, "Date value: " + methodDescription + " to 'abc' does not match any of "
+						+ "the supported formats: YYYY-MM-DD,YYYY-MM-DD HH:mm,YYYY-MM-DD HH:mm:ss", "Error message");
+			}
+		}
+		
 		var checkDateFieldSearchCriterion = function(criterionClassName, name, type) {
 			require(['dto/search/' + criterionClassName], function(Criterion) {
 				var criterion = new Criterion(name, type);
-				criterion.thatEquals("2105-02-25 21:23:24");
-				assertAttributes(criterion, name, type, "DateObjectEqualToValue", "ABC");
+				checkDateFieldSearchCriterionMethod(criterion, "thatEquals", "EqualToValue", "equal", name, type);
+				checkDateFieldSearchCriterionMethod(criterion, "thatIsLaterThanOrEqualTo", "LaterThanOrEqualToValue", 
+						"later than or equal", name, type);
+				checkDateFieldSearchCriterionMethod(criterion, "thatIsEarlierThanOrEqualTo", "EarlierThanOrEqualToValue", 
+						"earlier than or equal", name, type);
 				start();
 			});
 		}
 		
-//		asyncTest("DateFieldSearchCriterion", function() {
-//			checkDateFieldSearchCriterion("DateFieldSearchCriterion", "MY_FIELD", "MY_TYPE");
-//		});
+		asyncTest("DateFieldSearchCriterion", function() {
+			checkDateFieldSearchCriterion("DateFieldSearchCriterion", "MY_FIELD", "MY_TYPE");
+		});
+		
+		asyncTest("DatePropertySearchCriterion", function() {
+			checkDateFieldSearchCriterion("DatePropertySearchCriterion", "MY_PROPERTY", "PROPERTY");
+		});
+		
+		asyncTest("ModificationDateSearchCriterion", function() {
+			checkDateFieldSearchCriterion("ModificationDateSearchCriterion", "modification_date", "ATTRIBUTE");
+		});
+		
+		asyncTest("RegistrationDateSearchCriterion", function() {
+			checkDateFieldSearchCriterion("RegistrationDateSearchCriterion", "registration_date", "ATTRIBUTE");
+		});
 	}
 });

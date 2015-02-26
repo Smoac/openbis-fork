@@ -7,7 +7,7 @@ define([ "support/stjs", "dto/search/IDateFormat" ], function(stjs, IDateFormat)
 	stjs.extend(NormalDateFormat, null, [ IDateFormat ], function(constructor, prototype) {
 		prototype['@type'] = 'dto.search.NormalDateFormat';
 		prototype.getFormat = function() {
-			return "y-M-d HH:mm";
+			return "YYYY-MM-DD HH:mm";
 		};
 		prototype.toString = function() {
 			return this.getFormat();

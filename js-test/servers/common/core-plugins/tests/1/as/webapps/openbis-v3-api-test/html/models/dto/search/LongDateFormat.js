@@ -7,7 +7,7 @@ define([ "support/stjs", "dto/search/IDateFormat" ], function(stjs, IDateFormat)
 	stjs.extend(LongDateFormat, null, [ IDateFormat ], function(constructor, prototype) {
 		prototype['@type'] = 'dto.search.LongDateFormat';
 		prototype.getFormat = function() {
-			return "y-M-d HH:mm:ss";
+			return "YYYY-MM-DD HH:mm:ss";
 		};
 		prototype.toString = function() {
 			return this.getFormat();

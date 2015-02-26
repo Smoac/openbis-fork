@@ -7,7 +7,7 @@ define([ "support/stjs", "dto/search/IDateFormat" ], function(stjs, IDateFormat)
 	stjs.extend(ShortDateFormat, null, [ IDateFormat ], function(constructor, prototype) {
 		prototype['@type'] = 'dto.search.ShortDateFormat';
 		prototype.getFormat = function() {
-			return "y-M-d";
+			return "YYYY-MM-DD";
 		};
 		prototype.toString = function() {
 			return this.getFormat();
