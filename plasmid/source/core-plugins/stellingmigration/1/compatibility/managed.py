@@ -196,7 +196,7 @@ def batchColumnNames():
     return allTypes
 
 def updateFromBatchInput(bindings):
-    print "--------> UPDATE FROM BATCH INPUT: "
+    #print "--------> UPDATE FROM BATCH INPUT: "
     elements = []
     
     #Links Configuration
@@ -206,10 +206,10 @@ def updateFromBatchInput(bindings):
                 
     for annotableSampleType in getAllAnnotableSampleTypesForType(annotableType):
         annotatedSamples = bindings.get(annotableSampleType)
-        print "-----> TYPE: " + str(annotableSampleType) + " BINDINGS: " + str(annotatedSamples)
+        #print "-----> TYPE: " + str(annotableSampleType) + " BINDINGS: " + str(annotatedSamples)
         if (annotatedSamples != None and annotatedSamples != ""):
             #Annotations
-            print "-----> Annotations"
+            #print "-----> Annotations"
             if annotableSampleType not in typesToCopyFrom:
                 for sampleLine in annotatedSamples.split("\\"):
                     propertyTypes = getPropertyTypesForSampleTypeFromAnnotableType(annotableSampleType, annotableType)
@@ -232,25 +232,25 @@ def updateFromBatchInput(bindings):
                     if identifier is not None:
                         elements.append(sampleLink)
     #Links
-    print "-----> links"
+    #print "-----> links"
     for typeToCopyFrom in typesToCopyFrom:
         typeToCopy = typesToCopyFrom[typeToCopyFrom]
-        print "-----> TYPE TO COPY FROM: " + str(typeToCopyFrom)
-        print "-----> TYPE TO COPY: " + str(typeToCopy)
+        #print "-----> TYPE TO COPY FROM: " + str(typeToCopyFrom)
+        #print "-----> TYPE TO COPY: " + str(typeToCopy)
         identifiersToCopyFrom = bindings.get(typeToCopyFrom)
         if identifiersToCopyFrom is not None:
-            print "-----> IDENTIFIERS TO COPY FROM: " + str(identifiersToCopyFrom)
+            #print "-----> IDENTIFIERS TO COPY FROM: " + str(identifiersToCopyFrom)
             identifiersForCopy = identifiersToCopyFrom.split(',')
             for identifierToCopyFrom in identifiersForCopy:
-                print "-----> IDENTIFIER TO COPY FROM: " + str(identifierToCopyFrom)
+                #print "-----> IDENTIFIER TO COPY FROM: " + str(identifierToCopyFrom)
                 permIdFromIdentifier = entityInformationProvider().getSamplePermId(identifierToCopyFrom)
                 #print "-----> PERMID TO COPY FROM: " + str(permIdFromIdentifier)
                 parentsToCopyFromPermId = entityInformationProvider().getSamplePropertyValue(permIdFromIdentifier, "ANNOTATIONS_STATE")
-                print "-----> ELEMENTS TO COPY: " + str(parentsToCopyFromPermId)
+                #print "-----> ELEMENTS TO COPY: " + str(parentsToCopyFromPermId)
                 parentElements = list(propertyConverter().convertStringToElements(parentsToCopyFromPermId))
                 for parentAnnotation in parentElements:
                     if parentAnnotation.getAttribute("sampleType") == typeToCopy:
                         parentAnnotation.addAttribute("CONTAINED", identifierToCopyFrom)
-                        print "-----> COPYING: " + str(parentAnnotation.getAttribute('identifier'))
+                        #print "-----> COPYING: " + str(parentAnnotation.getAttribute('identifier'))
                         elements.append(parentAnnotation)
     property.value = propertyConverter().convertToString(elements)
