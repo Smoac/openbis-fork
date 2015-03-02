@@ -23,6 +23,7 @@ import static org.testng.AssertJUnit.assertTrue;
 import static org.testng.AssertJUnit.fail;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -57,6 +58,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.PropertyBuilder;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 
@@ -221,6 +224,25 @@ public class DeletionTestCase extends NonTransactionalSystemTestCase
         commonServer.deletePermanently(sessionToken, Collections.singletonList(deletionId2));
         assertExperimentDoesNotExist(e1.getCode());
         assertSamplesDoNotExist(registeredSamplesThatShouldBeDeleted);
+    }
+    
+    @Test
+    public void testDeleteExperimentWithContainerDataSetWhichHasADataSetFromAnotherExperiment()
+    {
+        // Change experiment of data set 'COMPONENT_1B' to 'E1'
+        Experiment e1 = findExperimentByCode("E1");
+        DataSetUpdatesDTO updatesDTO = new DataSetUpdatesDTO();
+        TechId dataSetId = new TechId(34);
+        updatesDTO.setDatasetId(dataSetId);
+        updatesDTO.setExperimentIdentifierOrNull(new ExperimentIdentifier(e1));
+        updatesDTO.setFileFormatTypeCode("XML");
+        updatesDTO.setProperties(Arrays.<IEntityProperty>asList(new PropertyBuilder("COMMENT").value("hello").getProperty()));
+        genericServer.updateDataSet(sessionToken, updatesDTO);
+        
+        // Delete experiment which has container data set 'CONTAINER_1' where 'COMPONENT_1B' is a component
+        commonServer.deleteExperiments(sessionToken, Arrays.asList(new TechId(8)), REASON, DeletionType.TRASH);
+        
+        assertEquals(null, commonServer.getDataSetInfo(sessionToken, dataSetId).getDeletion());
     }
 
     @Test

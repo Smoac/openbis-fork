@@ -16,7 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -24,6 +26,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.jmock.Expectations;
+import org.jmock.internal.NamedSequence;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -32,11 +35,15 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RelationshipTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
@@ -64,6 +71,8 @@ public final class TrashBOTest extends AbstractBOTest
 
     private IDataSetTable dataSetTable;
 
+    private NamedSequence dataSetTableSequence;
+
     @Override
     @BeforeMethod
     public void beforeMethod()
@@ -89,6 +98,8 @@ public final class TrashBOTest extends AbstractBOTest
                     will(returnValue(datasetLister));
                 }
             });
+        dataSetTableSequence = new NamedSequence("DATA SET TABLE");
+
     }
 
     private DeletionPE createDeletion()
@@ -203,7 +214,9 @@ public final class TrashBOTest extends AbstractBOTest
             });
         prepareFindDataSetComponentIds(dataSetIds, Arrays.<Long> asList());
         prepareListDataSetContainerIds(dataSetIds, new LinkedHashMap<Long, Set<Long>>());
-        prepareGetNondeletableDataSets(dataSetIds);
+        ExperimentPE experiment = new ExperimentPE();
+        experiment.setId(experimentIds.get(0).getId());
+        prepareGetDataSetsAndNonDeletableDataSets(dataSetIds, experiment);
         prepareTrash(deletion, EntityKind.EXPERIMENT, true, experimentIds);
         prepareTrash(deletion, EntityKind.SAMPLE, false, sampleIds);
         prepareTrash(deletion, EntityKind.DATA_SET, false, dataSetIds);
@@ -239,14 +252,18 @@ public final class TrashBOTest extends AbstractBOTest
         prepareTrash(deletion, EntityKind.SAMPLE, false, componentSampleIds);
         prepareFindDataSetComponentIds(dataSetIds, Arrays.<Long> asList());
         prepareListDataSetContainerIds(dataSetIds, new LinkedHashMap<Long, Set<Long>>());
-        prepareGetNondeletableDataSets(dataSetIds);
+        ExperimentPE experiment = new ExperimentPE();
+        experiment.setId(experimentIds.get(0).getId());
+        prepareGetDataSetsAndNonDeletableDataSets(dataSetIds, experiment);
         prepareTrash(deletion, EntityKind.DATA_SET, false, dataSetIds);
 
         List<TechId> sampleDataSets = TechId.createList(70L, 71L);
         prepareListDataSetIdsBySampleIds(sampleIds, sampleDataSets);
         prepareFindDataSetComponentIds(sampleDataSets, Arrays.<Long> asList());
         prepareListDataSetContainerIds(sampleDataSets, new LinkedHashMap<Long, Set<Long>>());
-        prepareGetNondeletableDataSets(sampleDataSets);
+        SamplePE sample = new SamplePE();
+        sample.setId(sampleIds.get(0).getId());
+        prepareGetDataSetsAndNonDeletableDataSets(sampleDataSets, sample);
         prepareTrash(deletion, EntityKind.DATA_SET, false, sampleDataSets);
 
         prepareListDataSetIdsBySampleIds(componentSampleIds, TechId.createList());
@@ -256,6 +273,46 @@ public final class TrashBOTest extends AbstractBOTest
         context.assertIsSatisfied();
     }
 
+    @Test
+    public final void testTrashExperimentsWithContainerDataSetWithPhysicalDataSetFromAnotherExperiment()
+    {
+        final DeletionPE deletion = createDeletion();
+        final List<TechId> experimentIds = TechId.createList(123);
+        final List<TechId> dataSetIds = TechId.createList(1);
+        final List<TechId> componentDataSetIds = TechId.createList(2);
+        context.checking(new Expectations()
+            {
+                {
+                    one(sampleDAO).listSampleIdsByExperimentIds(experimentIds);
+
+                    one(dataDAO).listDataSetIdsByExperimentIds(experimentIds);
+                    will(returnValue(dataSetIds));
+                }
+            });
+        prepareTrash(deletion, EntityKind.EXPERIMENT, true, experimentIds);
+        prepareFindDataSetComponentIds(dataSetIds, TechId.asLongs(componentDataSetIds));
+        prepareFindDataSetComponentIds(componentDataSetIds, Arrays.<Long> asList());
+        LinkedHashMap<Long, Set<Long>> containerIds = new LinkedHashMap<Long, Set<Long>>();
+        containerIds.put(2L, new HashSet<Long>(TechId.asLongs(dataSetIds)));
+        prepareListDataSetContainerIds(TechId.createList(1, 2), containerIds);
+        ExperimentPE experiment = new ExperimentPE();
+        experiment.setId(experimentIds.get(0).getId());
+        ExternalDataPE dataSet1 = new ExternalDataPE();
+        dataSet1.setId(1L);
+        dataSet1.setCode("DS-1");
+        dataSet1.setExperiment(experiment);
+        ExternalDataPE dataSet2 = new ExternalDataPE();
+        dataSet2.setId(2L);
+        dataSet2.setCode("DS-2");
+        prepareGetDataSetsAndNonDeletableDataSets(TechId.createList(1, 2), Arrays.<DataPE>asList(dataSet1, dataSet2), 
+                Arrays.<ExternalDataPE>asList());
+        prepareTrash(deletion, EntityKind.DATA_SET, false, dataSetIds);
+        
+        trashBO.trashExperiments(experimentIds);
+        
+        context.assertIsSatisfied();
+    }
+    
     @Test
     public final void testTrashSamplesAlreadyTrashed()
     {
@@ -297,11 +354,15 @@ public final class TrashBOTest extends AbstractBOTest
         prepareTrash(deletion, EntityKind.SAMPLE, false, sampleComponentIds);
         prepareFindDataSetComponentIds(sampleDataSetIds, Arrays.<Long> asList());
         prepareListDataSetContainerIds(sampleDataSetIds, new LinkedHashMap<Long, Set<Long>>());
-        prepareGetNondeletableDataSets(sampleDataSetIds);
         prepareTrash(deletion, EntityKind.DATA_SET, false, sampleDataSetIds);
         prepareFindDataSetComponentIds(sampleComponentDataSetIds, Arrays.<Long> asList());
         prepareListDataSetContainerIds(sampleComponentDataSetIds, new LinkedHashMap<Long, Set<Long>>());
-        prepareGetNondeletableDataSets(sampleComponentDataSetIds);
+        SamplePE sample2 = new SamplePE();
+        sample2.setId(sampleComponentIds.get(0).getId());
+        prepareGetDataSetsAndNonDeletableDataSets(sampleComponentDataSetIds, sample2);
+        SamplePE sample = new SamplePE();
+        sample.setId(sampleIds.get(0).getId());
+        prepareGetDataSetsAndNonDeletableDataSets(sampleDataSetIds, sample);
         prepareTrash(deletion, EntityKind.DATA_SET, false, sampleComponentDataSetIds);
 
         trashBO.trashSamples(sampleIds);
@@ -414,14 +475,52 @@ public final class TrashBOTest extends AbstractBOTest
             });
     }
 
-    private void prepareGetNondeletableDataSets(final List<TechId> ids, final ExternalDataPE... dataSets)
+    private void prepareGetNondeletableDataSets(final List<TechId> ids, final ExternalDataPE... nonDeletableDataSets)
+    {
+        prepareGetDataSetsAndNonDeletableDataSets(ids, Arrays.<DataPE>asList(), Arrays.asList(nonDeletableDataSets));
+    }
+    
+    private void prepareGetDataSetsAndNonDeletableDataSets(final List<TechId> ids, IIdHolder idHolder, 
+            final ExternalDataPE... nonDeletableDataSets)
+    {
+        List<DataPE> dataSets = new ArrayList<DataPE>();
+        for (TechId techId : ids)
+        {
+            ExternalDataPE dataSet = new ExternalDataPE();
+            dataSet.setId(techId.getId());
+            dataSet.setCode("DS-" + techId.getId());
+            if (idHolder instanceof ExperimentPE)
+            {
+                dataSet.setExperiment((ExperimentPE) idHolder);
+            }
+            if (idHolder instanceof SamplePE)
+            {
+                dataSet.setSample((SamplePE) idHolder);
+            }
+            dataSets.add(dataSet);
+        }
+        prepareGetDataSetsAndNonDeletableDataSets(ids, dataSets, Arrays.asList(nonDeletableDataSets));
+    }
+    
+    private void prepareGetDataSetsAndNonDeletableDataSets(final List<TechId> ids, final List<DataPE> dataSets, 
+                final List<ExternalDataPE> nonDeletableDataSets)
     {
         context.checking(new Expectations()
             {
                 {
                     one(dataSetTable).loadByIds(ids);
+                    inSequence(dataSetTableSequence);
+                    
                     one(dataSetTable).getNonDeletableExternalDataSets();
-                    will(returnValue(Arrays.asList(dataSets)));
+                    will(returnValue(nonDeletableDataSets));
+                    inSequence(dataSetTableSequence);
+                    
+                    if (dataSets.isEmpty() == false)
+                    {
+                        one(dataSetTable).getDataSets();
+                        will(returnValue(dataSets));
+                        inSequence(dataSetTableSequence);
+                    }
                 }
             });
     }

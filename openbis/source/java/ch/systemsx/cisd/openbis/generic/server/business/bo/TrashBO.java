@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -35,8 +36,10 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.util.DataSetUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDeletionDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
@@ -88,7 +91,7 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
     @Override
     public void trashDataSets(List<TechId> dataSetIds)
     {
-        trashDataSets(dataSetIds, true);
+        trashDataSets(dataSetIds, true, null);
     }
 
     @Override
@@ -140,15 +143,61 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
             trashExperimentDependentSamples(experimentIds);
         }
     }
+    
+    private static interface IDataSetFilter
+    {
+        public List<TechId> filter(List<DataPE> dataSets);
+    }
+    
+    private static interface IIdHolderProvider
+    {
+        public IIdHolder getIdHolder(DataPE dataSet);
+    }
+    
+    private static final class DataSetFilter implements IDataSetFilter
+    {
+        private Set<Long> ids;
+        private IIdHolderProvider idHolderProvider;
+        DataSetFilter(Collection<TechId> ids, IIdHolderProvider idHolderProvider)
+        {
+            this.ids = new HashSet<Long>(TechId.asLongs(ids));
+            this.idHolderProvider = idHolderProvider;
+            
+        }
+        @Override
+        public List<TechId> filter(List<DataPE> dataSets)
+        {
+            List<TechId> deletableDataSets = new ArrayList<TechId>();
+            for (DataPE dataSet : dataSets)
+            {
+                IIdHolder entity = idHolderProvider.getIdHolder(dataSet);
+                if (entity != null && ids.contains(entity.getId()))
+                {
+                    deletableDataSets.add(new TechId(dataSet.getId()));
+                }
+            }
+            return deletableDataSets;
+        }
+    }
 
-    public void trashDataSets(final List<TechId> dataSetIds, boolean isOriginalDeletion)
+    private void trashDataSets(final List<TechId> dataSetIds, boolean isOriginalDeletion, IDataSetFilter filterOrNull)
     {
         assert deletion != null;
 
+        if (dataSetIds.isEmpty())
+        {
+            return;
+        }
         IDatasetLister datasetLister = boFactory.createDatasetLister(session);
         List<TechId> allDeletables = DataSetUtils.getAllDeletableComponentsRecursively(dataSetIds,
                 isOriginalDeletion, datasetLister, this);
-        checkForNonDeletableDataSets(allDeletables);
+        IDataSetTable dataSetTable = boFactory.createDataSetTable(session);
+        dataSetTable.loadByIds(allDeletables);
+        checkForNonDeletableDataSets(dataSetTable.getNonDeletableExternalDataSets());
+        if (filterOrNull != null)
+        {
+            allDeletables = filterOrNull.filter(dataSetTable.getDataSets());
+        }
         List<TechId> deletableOriginals = new ArrayList<TechId>(dataSetIds);
         deletableOriginals.retainAll(allDeletables);
         if (isOriginalDeletion)
@@ -184,15 +233,8 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
         }
     }
 
-    private void checkForNonDeletableDataSets(List<TechId> allIdsAsList)
+    private void checkForNonDeletableDataSets(List<ExternalDataPE> unavailableDataSets)
     {
-        if (allIdsAsList.isEmpty())
-        {
-            return;
-        }
-        IDataSetTable dataSetTable = boFactory.createDataSetTable(session);
-        dataSetTable.loadByIds(allIdsAsList);
-        List<ExternalDataPE> unavailableDataSets = dataSetTable.getNonDeletableExternalDataSets();
         if (unavailableDataSets.isEmpty())
         {
             return;
@@ -252,11 +294,20 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
                         @Override
                         public List<TechId> listAction(List<TechId> entities)
                         {
-                            return getDataDAO().listDataSetIdsBySampleIds(entities);
+                            List<TechId> ids = getDataDAO().listDataSetIdsBySampleIds(entities);
+                            return ids;
                         }
                     };
         BatchOperationExecutor.executeInBatches(batchOperation);
-        trashDataSets(batchOperation.getResults(), false);
+        trashDataSets(batchOperation.getResults(), false, new DataSetFilter(sampleIds,
+                new IIdHolderProvider()
+                    {
+                        @Override
+                        public IIdHolder getIdHolder(DataPE dataSet)
+                        {
+                            return dataSet.tryGetSample();
+                        }
+                    }));
     }
 
     private void trashExperimentDependentSamples(List<TechId> experimentIds)
@@ -288,7 +339,15 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
                         }
                     };
         BatchOperationExecutor.executeInBatches(batchOperation);
-        trashDataSets(batchOperation.getResults(), false);
+        trashDataSets(batchOperation.getResults(), false, new DataSetFilter(experimentIds,
+                new IIdHolderProvider()
+                    {
+                        @Override
+                        public IIdHolder getIdHolder(DataPE dataSet)
+                        {
+                            return dataSet.getExperiment();
+                        }
+                    }));
     }
 
     @Override

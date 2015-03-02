@@ -285,9 +285,13 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
     @Override
     public void loadByIds(List<TechId> ids)
     {
-        IDataDAO dataDAO = getDataDAO();
-
         dataSets = new ArrayList<DataPE>();
+        if (ids.isEmpty())
+        {
+            return;
+        }
+
+        IDataDAO dataDAO = getDataDAO();
         dataSets.addAll(dataDAO.tryToFindFullDataSetsByIds(TechId.asLongs(ids), false, false));
     }
 
