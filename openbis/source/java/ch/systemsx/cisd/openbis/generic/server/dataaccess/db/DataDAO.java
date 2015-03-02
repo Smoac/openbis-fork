@@ -703,6 +703,7 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
 
         dataset.setCode(CodeConverter.tryToDatabase(dataset.getCode()));
         dataset.setModifier(modifier);
+        dataset.setRegistrator(modifier);
         if (false == dataset.isPlaceholder())
         {
             validatePE(dataset);

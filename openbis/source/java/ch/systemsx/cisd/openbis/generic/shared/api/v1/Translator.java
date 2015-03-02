@@ -78,7 +78,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.PermlinkUtilities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.URLMethodWithParameters;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeWithRegistration;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeWithRegistrationAndModificationDate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
@@ -580,7 +579,7 @@ public class Translator
     }
 
     private static EntityRegistrationDetails translateRegistrationDetails(
-            CodeWithRegistration<?> thingWithRegistrationDetails)
+            CodeWithRegistrationAndModificationDate<?> thingWithRegistrationDetails)
     {
         EntityRegistrationDetails.EntityRegistrationDetailsInitializer initializer =
                 createInitializer(thingWithRegistrationDetails);
@@ -597,7 +596,7 @@ public class Translator
     }
 
     private static EntityRegistrationDetails.EntityRegistrationDetailsInitializer createInitializer(
-            CodeWithRegistration<?> thingWithRegistrationDetails)
+            CodeWithRegistrationAndModificationDate<?> thingWithRegistrationDetails)
     {
         Person registrator = thingWithRegistrationDetails.getRegistrator();
         EntityRegistrationDetails.EntityRegistrationDetailsInitializer initializer =
@@ -609,6 +608,17 @@ public class Translator
             initializer.setLastName(registrator.getLastName());
             initializer.setUserId(registrator.getUserId());
         }
+
+        Person modifier = thingWithRegistrationDetails.getModifier();
+        if (modifier != null)
+        {
+            initializer.setModifierEmail(modifier.getEmail());
+            initializer.setModifierFirstName(modifier.getFirstName());
+            initializer.setModifierLastName(modifier.getLastName());
+            initializer.setModifierUserId(modifier.getUserId());
+        }
+
+        initializer.setModificationDate(thingWithRegistrationDetails.getModificationDate());
         initializer.setRegistrationDate(thingWithRegistrationDetails.getRegistrationDate());
         return initializer;
     }

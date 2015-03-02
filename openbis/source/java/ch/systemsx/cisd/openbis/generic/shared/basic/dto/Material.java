@@ -29,7 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.ITaggable;
  * 
  * @author Izabela Adamczyk
  */
-public class Material extends CodeWithRegistration<Material> implements
+public class Material extends CodeWithRegistrationAndModificationDate<Material> implements
         IEntityInformationHolderWithProperties, ITaggable, IIsStub
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
@@ -88,11 +88,13 @@ public class Material extends CodeWithRegistration<Material> implements
         this.id = id;
     }
 
+    @Override
     public Date getModificationDate()
     {
         return modificationDate;
     }
 
+    @Override
     public void setModificationDate(Date modificationDate)
     {
         this.modificationDate = modificationDate;
