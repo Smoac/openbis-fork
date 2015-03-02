@@ -144,6 +144,27 @@ def getWidgetForAdd(sampleTypeCode, annotableType):
 
 def isValid(dataType, value):
     return True
+
+##
+## Registration form (EXPERIMENTAL)
+##
+# def showRawValueInForms():
+#     return False
+# 
+# def inputWidgets():
+#     widgetsToCopyFrom = []
+#     toCopyFrom = configurationCopyParents[annotableType]
+#     if(toCopyFrom is not None):
+#         for key in toCopyFrom:
+#             widgetsToCopyFrom.append(inputWidgetFactory().createTextInputField(key + " to copy " + toCopyFrom[key]).setMandatory(False))
+#     print "EXECUTING inputWidgets " + str(len(widgetsToCopyFrom))
+#     return widgetsToCopyFrom
+# 
+# def updateFromRegistrationForm(bindings):
+#     print "EXECUTING updateFromRegistrationForm"
+#     for key, value in bindings:
+#         print "MANAGED WITH KEY: " + key
+
 ##
 ## Main Methods
 ##
@@ -178,6 +199,15 @@ def configureUI():
         widgets = getWidgetForAdd(sampleTypeCode, annotableType)
         addAction.addInputWidgets(widgets)
     
+    # Add Edit Button (EXPERIMENTAL)
+#     editAction = uiDescription.addTableAction('Edit').setDescription('Edit selected table row')
+#     editAction.setRowSelectionRequiredSingle()
+#     editWidgets = []
+#     for headerKey in usedTableHeaders:
+#         editWidgets.append(inputWidgetFactory().createTextInputField(headerKey))
+#         editAction.addBinding(headerKey, headerKey)
+#     editAction.addInputWidgets(editWidgets)
+
     # Add Delete button
     deleteAction = uiDescription.addTableAction("Delete")\
                                 .setDescription('Are you sure you want to delete selected annotation?')
@@ -242,37 +272,39 @@ def updateFromBatchInput(bindings):
                     sampleLink = None
                     for sampleProperty in sampleLine.split(";"):
                         propertyName = sampleProperty.split(":")[0]
+                        propertyValue = sampleProperty.split(":")[1]
                         if propertyName == "identifier":
-                            propertyValue = sampleProperty.split(":")[1]
                             identifier = propertyValue
                             permId = entityInformationProvider().getSamplePermId(propertyValue)
                             sampleLink = elementFactory().createSampleLink(permId)
                             sampleLink.addAttribute(propertyName, propertyValue)
+                            sampleLink.addAttribute('sampleType', annotableSampleType)
                         elif propertyName in propertyTypes:
                             sampleLink.addAttribute(propertyName, propertyValue)
                         else:
                             raise NameError('Found invalid property: ' + propertyName + " on type " + annotableSampleType)
                     if identifier is not None:
                         elements.append(sampleLink)
-            #Links
-            #print "-----> links"
-            for typeToCopyFrom in typesToCopyFrom:
-                typeToCopy = typesToCopyFrom[typeToCopyFrom]
-                #print "-----> TYPE TO COPY FROM: " + str(typeToCopyFrom)
-                #print "-----> TYPE TO COPY: " + str(typeToCopy)
-                identifiersToCopyFrom = bindings.get(typeToCopyFrom)
-                if identifiersToCopyFrom is not None:
-                    #print "-----> IDENTIFIERS TO COPY FROM: " + str(identifiersToCopyFrom)
-                    identifiersForCopy = identifiersToCopyFrom.split(',')
-                    for identifierToCopyFrom in identifiersForCopy:
-                        #print "-----> IDENTIFIER TO COPY FROM: " + str(identifierToCopyFrom)
-                        permIdFromIdentifier = entityInformationProvider().getSamplePermId(identifierToCopyFrom)
-                        #print "-----> PERMID TO COPY FROM: " + str(permIdFromIdentifier)
-                        parentsToCopyFromPermId = entityInformationProvider().getSamplePropertyValue(permIdFromIdentifier, "ANNOTATIONS_STATE")
-                        #print "-----> ELEMENTS TO COPY: " + str(parentsToCopyFromPermId)
-                        parentElements = list(propertyConverter().convertStringToElements(parentsToCopyFromPermId))
-                        for parentAnnotation in parentElements:
-                            if parentAnnotation.getAttribute("sampleType") == typeToCopy:
-                                parentAnnotation.addAttribute("CONTAINED", identifierToCopyFrom)
-                                elements.append(parentAnnotation)
+    #Links
+    #print "-----> links"
+    for typeToCopyFrom in typesToCopyFrom:
+        typeToCopy = typesToCopyFrom[typeToCopyFrom]
+        #print "-----> TYPE TO COPY FROM: " + str(typeToCopyFrom)
+        #print "-----> TYPE TO COPY: " + str(typeToCopy)
+        identifiersToCopyFrom = bindings.get(typeToCopyFrom)
+        if identifiersToCopyFrom is not None:
+            #print "-----> IDENTIFIERS TO COPY FROM: " + str(identifiersToCopyFrom)
+            identifiersForCopy = identifiersToCopyFrom.split(',')
+            for identifierToCopyFrom in identifiersForCopy:
+                #print "-----> IDENTIFIER TO COPY FROM: " + str(identifierToCopyFrom)
+                permIdFromIdentifier = entityInformationProvider().getSamplePermId(identifierToCopyFrom)
+                #print "-----> PERMID TO COPY FROM: " + str(permIdFromIdentifier)
+                parentsToCopyFromPermId = entityInformationProvider().getSamplePropertyValue(permIdFromIdentifier, "ANNOTATIONS_STATE")
+                #print "-----> ELEMENTS TO COPY: " + str(parentsToCopyFromPermId)
+                parentElements = list(propertyConverter().convertStringToElements(parentsToCopyFromPermId))
+                for parentAnnotation in parentElements:
+                    if parentAnnotation.getAttribute("sampleType") == typeToCopy:
+                        parentAnnotation.addAttribute("CONTAINED", identifierToCopyFrom)
+                        #print "-----> COPYING: " + str(parentAnnotation.getAttribute('identifier'))
+                        elements.append(parentAnnotation)
     property.value = propertyConverter().convertToString(elements)
