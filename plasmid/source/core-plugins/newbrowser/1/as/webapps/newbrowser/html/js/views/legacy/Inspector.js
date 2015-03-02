@@ -44,6 +44,11 @@ function Inspector(serverFacade, containerId, profile) {
 	}
 	
 	this.containsByPermId = function(permId) {
+		//Bugfix Hack to avoid blank screens
+		if(!this.inspectedSamples) {
+			this.inspectedSamples = [];
+		}
+
 		for(var i = 0; i < this.inspectedSamples.length; i++) {
 			if(this.inspectedSamples[i].permId === permId) {
 				return i;
@@ -53,6 +58,11 @@ function Inspector(serverFacade, containerId, profile) {
 	}
 	
 	this.containsSample = function(sample) {
+		//Bugfix Hack to avoid blank screens
+		if(!this.inspectedSamples) {
+			this.inspectedSamples = [];
+		}
+
 		for(var i = 0; i < this.inspectedSamples.length; i++) {
 			if(this.inspectedSamples[i].permId === sample.permId) {
 				return i;
