@@ -98,16 +98,28 @@ public class EntityTrackingEmailGenerator implements IEntityTrackingEmailGenerat
     {
         final Collection<EntityTrackingEmailData> emailDataGroupedByRecipient =
                 EntityTrackingEmailDataManager.groupByRecipient(trackedEntities);
-
+       
         final List<EmailWithSummary> results = new ArrayList<EmailWithSummary>();
         for (EntityTrackingEmailData emailData : emailDataGroupedByRecipient)
         {
             results.add(createEmailWithSummary(emailData));
         }
-
         return results;
     }
 
+    public List<EmailWithSummary> generateDataSetsEmails(TrackedEntities trackedEntities)
+    {
+        final Collection<EntityTrackingEmailData> emailDataGroupedByRecipientDataSets =
+                EntityTrackingEmailDataManager.groupByRecipientDataSets(trackedEntities);
+        
+        final List<EmailWithSummary> results = new ArrayList<EmailWithSummary>();
+        for (EntityTrackingEmailData emailData : emailDataGroupedByRecipientDataSets)
+        {
+            results.add(createEmailWithSummary(emailData));
+        }
+        return results;
+    }
+    
     private EmailWithSummary createEmailWithSummary(EntityTrackingEmailData emailData)
     {
         return new EmailWithSummary(createEmail(emailData), emailData.getDescription());
@@ -405,7 +417,7 @@ public class EntityTrackingEmailGenerator implements IEntityTrackingEmailGenerat
                         parentIndex1 = "";
                         parentIndex2 = "";
                         
-                        System.out.println("Found matching meta data for: " + dataSet.getCode() + " from " + parent.getCode());
+//                        System.out.println("Found matching meta data for: " + dataSet.getCode() + " from " + parent.getCode());
                         
                         parentPropertiesMap.put(EXTERNAL_SAMPLE_NAME_PROPERTY_CODE, externalSampleName);
                         parentPropertiesMap.put(CONTACT_PERSON_NAME_PROPERTY_CODE, contactPersonName);

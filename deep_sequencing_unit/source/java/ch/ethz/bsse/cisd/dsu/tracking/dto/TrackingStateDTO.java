@@ -16,7 +16,16 @@
 
 package ch.ethz.bsse.cisd.dsu.tracking.dto;
 
+import java.util.Properties;
 import java.util.Set;
+import java.util.TreeMap;
+
+/**
+ * Tracjing state DTO
+ * 
+ * @author Piotr Buczek
+ * @author Manuel Kohler
+ */
 
 public class TrackingStateDTO
 {
@@ -25,6 +34,20 @@ public class TrackingStateDTO
     private Set<Long> alreadyTrackedSampleIdsProcessed;
 
     private long lastSeenDatasetId;
+
+    private Properties lastSeenProperties;
+
+    private TreeMap<String, Long> lastSeenDataSetIdMap;
+
+    public TreeMap<String, Long> getLastSeenDataSetIdMap()
+    {
+        return lastSeenDataSetIdMap;
+    }
+
+    public void setLastSeenDataSetIdMap(TreeMap<String, Long> lastSeenDataSetIdMap)
+    {
+        this.lastSeenDataSetIdMap = lastSeenDataSetIdMap;
+    }
 
     public long getLastSeenDatasetId()
     {
@@ -55,6 +78,16 @@ public class TrackingStateDTO
     public void setAlreadyTrackedSampleIdsProcessed(Set<Long> alreadyTrackedSampleIdsProcessed)
     {
         this.alreadyTrackedSampleIdsProcessed = alreadyTrackedSampleIdsProcessed;
+    }
+
+    public Properties getLastSeenProperties()
+    {
+        return lastSeenProperties;
+    }
+
+    public void setLastSeenProperties(Properties lastSeenProperties)
+    {
+        this.lastSeenProperties = lastSeenProperties;
     }
 
 }

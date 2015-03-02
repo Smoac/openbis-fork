@@ -23,7 +23,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.apache.commons.io.IOUtils;
@@ -31,9 +34,11 @@ import org.apache.commons.lang.StringUtils;
 
 import ch.ethz.bsse.cisd.dsu.tracking.dto.TrackingStateDTO;
 import ch.ethz.bsse.cisd.dsu.tracking.utils.LogUtils;
+import ch.systemsx.cisd.common.io.PropertyIOUtils;
 
 /**
  * @author Tomasz Pylak
+ * @author Manuel Kohler
  */
 public class FileBasedTrackingDAO implements ITrackingDAO
 {
@@ -45,23 +50,35 @@ public class FileBasedTrackingDAO implements ITrackingDAO
 
     static String SEPARATOR = " ";
 
-    private final String filePath;
+    static String EQUAL = "=";
 
-    public FileBasedTrackingDAO(String filePath)
+    private final String filePathSampleDb;
+
+    private final String filePathDatasetDb;
+
+    public FileBasedTrackingDAO(String filePathSampleDb, String filePathDatasetDb)
     {
-        this.filePath = filePath;
+        this.filePathSampleDb = filePathSampleDb;
+        this.filePathDatasetDb = filePathDatasetDb;
     }
 
     @Override
     public void saveTrackingState(TrackingStateDTO state)
     {
         List<String> lines = new ArrayList<String>();
-        lines.add(LAST_SEEN_DATASET_ID + SEPARATOR + state.getLastSeenDatasetId());
         lines.add(TO_BE_PROCESSED + SEPARATOR
                 + sampleIdsAsString(state.getAlreadyTrackedSampleIdsToBeProcessed()));
         lines.add(PROCESSED + SEPARATOR
                 + sampleIdsAsString(state.getAlreadyTrackedSampleIdsProcessed()));
-        writeLines(new File(filePath), lines);
+
+        writeLines(new File(filePathSampleDb), lines);
+
+        lines = new ArrayList<String>();
+        for (Map.Entry<String, Long> entry : state.getLastSeenDataSetIdMap().entrySet())
+        {
+            lines.add(entry.getKey() + EQUAL + entry.getValue());
+        }
+        writeLines(new File(filePathDatasetDb), lines);
     }
 
     private String sampleIdsAsString(Collection<Long> sampleIds)
@@ -75,18 +92,23 @@ public class FileBasedTrackingDAO implements ITrackingDAO
     {
         try
         {
-            List<String> lines = IOUtils.readLines(new FileReader(filePath));
-            if (lines.size() != 3)
-            {
-                throw LogUtils.environmentError("File %s should have exactly 3 rows.", filePath);
-            }
             TrackingStateDTO state = new TrackingStateDTO();
-            String[] datasetId = lines.get(0).split(SEPARATOR);
-            String[] toBeProcessed = lines.get(1).split(SEPARATOR);
-            String[] processed = lines.get(2).split(SEPARATOR);
-            state.setLastSeenDatasetId(Long.parseLong(datasetId[1]));
+
+            Properties props = PropertyIOUtils.loadProperties(filePathDatasetDb);
+            TreeMap<String, Long> propsMap = new TreeMap<String, Long>();
+            for (Object o : props.keySet())
+            {
+                propsMap.put(o.toString(), Long.parseLong(props.get(o).toString()));
+            }
+            state.setLastSeenProperties(props);
+            state.setLastSeenDataSetIdMap(propsMap);
+
+            List<String> lines = IOUtils.readLines(new FileReader(filePathSampleDb));
+            String[] toBeProcessed = lines.get(0).split(SEPARATOR);
+            String[] processed = lines.get(1).split(SEPARATOR);
             state.setAlreadyTrackedSampleIdsToBeProcessed(parseIds(toBeProcessed));
             state.setAlreadyTrackedSampleIdsProcessed(parseIds(processed));
+
             return state;
         } catch (Exception e)
         {
@@ -115,4 +137,5 @@ public class FileBasedTrackingDAO implements ITrackingDAO
                     "Cannot save the file %s with content: %s", file.getPath(), lines), ex);
         }
     }
+
 }

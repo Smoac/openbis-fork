@@ -17,7 +17,9 @@ dependencies {
             project(':openbis-common'),
             project(':openbis_api'),
             project(':openbis'),
-            project(':datastore_server')
+            project(':datastore_server'),
+            'apache:commons-cli:+'
+            
 
     testCompile project(path: ':datastore_server', configuration: 'tests')
     
@@ -36,7 +38,8 @@ dependencies {
                     'apache:httpclient:+',
                     'apache:httpcore:+',
                     'apache:commons-logging:+',
-                    'aopalliance:aopalliance:+'
+                    'aopalliance:aopalliance:+',
+                    'apache:commons-cli:+'
 
     trackingClientPartial 'google:gwt-user:2.4'
 }

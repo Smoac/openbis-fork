@@ -21,9 +21,18 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
 
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.GnuParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.OptionBuilder;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.time.DateUtils;
 
@@ -42,22 +51,30 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 
 /**
  * @author Tomasz Pylak
+ * @author Manuel Kohler
  */
 public class TrackingClient
 {
     private static final String SERVICE_PROPERTIES_FILE = "etc/service.properties";
 
-    private static final String LOCAL_STORAGE_FILE = "etc/tracking-local-database";
+    private static final String LOCAL_SAMPLE_DB = "etc/tracking-local-database";
+
+    private static final String LOCAL_DATASET_DB = "etc/tracking-sample-database";
 
     private static final String EMAIL_TEMPLATE_FILE = "etc/email-template.txt";
 
     private static final String OPENBIS_RMI_TRACKING = "/rmi-tracking";
 
+    private static final String CL_PARAMETER_LANES = "lanes";
+
+    private static final String CL_PARAMETER_ALL = "all";
+
     public static void main(String[] args)
     {
         try
         {
-            track();
+            HashMap<String, String[]> clMap = parseCommandLine(args);
+            track(clMap);
         } catch (EnvironmentFailureException ex)
         {
             LogUtils.notify(ex);
@@ -67,7 +84,50 @@ public class TrackingClient
         }
     }
 
-    private static void track()
+    private static HashMap<String, String[]> parseCommandLine(String[] args)
+    {
+        HashMap<String, String[]> clMap = new HashMap<String, String[]>();
+        CommandLineParser parser = new GnuParser();
+
+        Options options = new Options();
+        Option lanes = OptionBuilder.withArgName(CL_PARAMETER_LANES)
+                .hasArg()
+                .withDescription("list of lanes to track")
+                .create(CL_PARAMETER_LANES);
+        lanes.setArgs(Option.UNLIMITED_VALUES);
+        Option all = new Option(CL_PARAMETER_ALL, "track all lanes");
+
+        options.addOption(lanes);
+        options.addOption(all);
+
+        // automatically generate the help statement
+        HelpFormatter formatter = new HelpFormatter();
+        if (args.length < 1)
+        {
+            formatter.printHelp("help", options);
+            System.exit(0);
+        }
+
+        try
+        {
+            CommandLine line = parser.parse(options, args);
+            if (line.hasOption(CL_PARAMETER_LANES))
+            {
+                String[] laneArray = line.getOptionValues(CL_PARAMETER_LANES);
+                clMap.put(CL_PARAMETER_LANES, laneArray);
+            }
+            if (line.hasOption(CL_PARAMETER_ALL))
+            {
+                clMap.put(CL_PARAMETER_ALL, null);
+            }
+        } catch (ParseException exp)
+        {
+            LogUtils.environmentError("Parsing of command line parameters failed.", exp.getMessage());
+        }
+        return clMap;
+    }
+
+    private static void track(HashMap<String, String[]> clMap)
     {
         LogInitializer.init();
         Properties props = PropertyIOUtils.loadProperties(SERVICE_PROPERTIES_FILE);
@@ -79,11 +139,11 @@ public class TrackingClient
         IMailClient mailClient = params.getMailClient();
         TrackingBO trackingBO = new TrackingBO(trackingServer, emailGenerator, mailClient);
 
-        ITrackingDAO trackingDAO = new FileBasedTrackingDAO(LOCAL_STORAGE_FILE);
+        ITrackingDAO trackingDAO = new FileBasedTrackingDAO(LOCAL_SAMPLE_DB, LOCAL_DATASET_DB);
 
         SessionContextDTO session = authentificateInOpenBIS(params, trackingServer);
 
-        trackingBO.trackAndNotify(trackingDAO, session);
+        trackingBO.trackAndNotify(trackingDAO, clMap, session);
     }
 
     private static ITrackingServer createOpenBISTrackingServer(Parameters params)

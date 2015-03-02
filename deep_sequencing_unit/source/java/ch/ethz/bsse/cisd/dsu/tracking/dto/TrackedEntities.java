@@ -25,6 +25,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
  * Simple encapsulation of list of entities that are tracked.
  * 
  * @author Piotr Buczek
+ * @author Manuel Kohler
  */
 public class TrackedEntities
 {
@@ -41,6 +42,14 @@ public class TrackedEntities
         this.sequencingSamplesToBeProcessed = sequencingSamplesToBeProcessed;
         this.sequencingSamplesProcessed = sequencingSamplesProcessed;
         this.dataSets = dataSets;
+    }
+
+    // setting these to null, is that OK?
+    public TrackedEntities(List<AbstractExternalData> dataSets)
+    {
+        this.dataSets = dataSets;
+        this.sequencingSamplesProcessed = null;
+        this.sequencingSamplesToBeProcessed = null;
     }
 
     public List<Sample> getSequencingSamplesToBeProcessed()

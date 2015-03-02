@@ -22,14 +22,16 @@ import ch.ethz.bsse.cisd.dsu.tracking.dto.TrackedEntities;
 
 /**
  * @author Piotr Buczek
+ * @author Manuel Kohler
  */
 public interface IEntityTrackingEmailGenerator
 {
     /**
-     * Generates all {@link EmailWithSummary}s to be send containing information about
-     * <var>trackedEntities</var>.
+     * Generates all {@link EmailWithSummary}s to be send containing information about <var>trackedEntities</var>.
      * 
      * @param trackedEntities recently tracked entities
      */
     List<EmailWithSummary> generateEmails(TrackedEntities trackedEntities);
+
+    List<EmailWithSummary> generateDataSetsEmails(TrackedEntities changedEntities);
 }

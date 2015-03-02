@@ -33,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
  * Manager that groups data about tracked entities into {@link EntityTrackingEmailData} objects.
  * 
  * @author Piotr Buczek
+ * @author Manuel Kohler
  */
 class EntityTrackingEmailDataManager
 {
@@ -41,7 +42,7 @@ class EntityTrackingEmailDataManager
     private final static String CONTACT_PERSON_EMAIL = "CONTACT_PERSON_EMAIL";
 
     private final static String PRINCIPAL_INVESTIGATOR_EMAIL = "PRINCIPAL_INVESTIGATOR_EMAIL";
-    
+
     private final static String CONTACT_DATA_MANAGER_EMAIL = "CONTACT_DATA_MANAGER_EMAIL";
 
     private static Map<String, String> recipientsByAffiliation;
@@ -60,6 +61,17 @@ class EntityTrackingEmailDataManager
                 new HashMap<EMailAddress, EntityTrackingEmailData>();
         groupSequencingSamplesToBeProcessed(dataByRecipient, trackedEntities);
         groupSequencingSamplesProcessed(dataByRecipient, trackedEntities);
+        groupDataSetSamples(dataByRecipient, trackedEntities);
+        return dataByRecipient.values();
+    }
+
+    public static Collection<EntityTrackingEmailData> groupByRecipientDataSets(
+            TrackedEntities trackedEntities)
+    {
+        assert recipientsByAffiliation != null : "recipientsByAffiliation not initialized";
+        // <recipients email, email data>
+        final Map<EMailAddress, EntityTrackingEmailData> dataByRecipient =
+                new HashMap<EMailAddress, EntityTrackingEmailData>();
         groupDataSetSamples(dataByRecipient, trackedEntities);
         return dataByRecipient.values();
     }
@@ -124,8 +136,7 @@ class EntityTrackingEmailDataManager
     }
 
     /**
-     * Returns a set of emails of recipients that should get a tracking information about given
-     * <var>sequencingSample</var>.<br>
+     * Returns a set of emails of recipients that should get a tracking information about given <var>sequencingSample</var>.<br>
      */
     // NOTE: Set is needed because one recipient can occur in many roles for one sample
     private static Set<EMailAddress> getSequencingSampleTrackingRecipients(
@@ -172,8 +183,7 @@ class EntityTrackingEmailDataManager
     }
 
     /**
-     * Returns a set of emails of recipients that should get a tracking information about given
-     * <var>flowLaneSample</var>.
+     * Returns a set of emails of recipients that should get a tracking information about given <var>flowLaneSample</var>.
      */
     private static Set<EMailAddress> getFlowLaneSampleTrackingRecipients(Sample flowLaneSample)
     {
@@ -184,8 +194,7 @@ class EntityTrackingEmailDataManager
     }
 
     /**
-     * Returns a set of emails of recipients that should get a tracking information about given
-     * <var>dataSet</var>.
+     * Returns a set of emails of recipients that should get a tracking information about given <var>dataSet</var>.
      */
     private static Set<EMailAddress> getDataSetTrackingRecipients(AbstractExternalData dataSet)
     {
