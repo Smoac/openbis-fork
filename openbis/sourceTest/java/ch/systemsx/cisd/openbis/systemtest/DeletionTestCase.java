@@ -53,6 +53,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
@@ -230,9 +231,10 @@ public class DeletionTestCase extends NonTransactionalSystemTestCase
     public void testDeleteExperimentWithContainerDataSetWhichHasADataSetFromAnotherExperiment()
     {
         // Change experiment of data set 'COMPONENT_1B' to 'E1'
+        TechId dataSetId = new TechId(34);
+        PhysicalDataSet originalDataSet = genericServer.getDataSetInfo(sessionToken, dataSetId).tryGetAsDataSet();
         Experiment e1 = findExperimentByCode("E1");
         DataSetUpdatesDTO updatesDTO = new DataSetUpdatesDTO();
-        TechId dataSetId = new TechId(34);
         updatesDTO.setDatasetId(dataSetId);
         updatesDTO.setExperimentIdentifierOrNull(new ExperimentIdentifier(e1));
         updatesDTO.setFileFormatTypeCode("XML");
@@ -243,6 +245,19 @@ public class DeletionTestCase extends NonTransactionalSystemTestCase
         commonServer.deleteExperiments(sessionToken, Arrays.asList(new TechId(8)), REASON, DeletionType.TRASH);
         
         assertEquals(null, commonServer.getDataSetInfo(sessionToken, dataSetId).getDeletion());
+        List<DeletionPE> deletions = listDeletions();
+        assertEquals(1, deletions.size());
+        
+        // revert deletion and data set COMPONENT_1B in order to restore database state
+        TechId deletionId1 = TechId.create(deletions.get(0));
+        commonServer.revertDeletions(sessionToken, Collections.singletonList(deletionId1));
+        updatesDTO = new DataSetUpdatesDTO();
+        updatesDTO.setDatasetId(dataSetId);
+        updatesDTO.setExperimentIdentifierOrNull(new ExperimentIdentifier(originalDataSet.getExperiment()));
+        updatesDTO.setFileFormatTypeCode(originalDataSet.getFileFormatType().getCode());
+        updatesDTO.setProperties(originalDataSet.getProperties());
+        updatesDTO.setVersion(genericServer.getDataSetInfo(sessionToken, dataSetId).getVersion());
+        genericServer.updateDataSet(sessionToken, updatesDTO);
     }
 
     @Test
