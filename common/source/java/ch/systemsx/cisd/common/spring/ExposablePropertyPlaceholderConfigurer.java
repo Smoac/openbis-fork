@@ -22,6 +22,7 @@ import java.util.Properties;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
+import org.springframework.core.Constants;
 import org.springframework.util.StringUtils;
 
 /**
@@ -37,6 +38,9 @@ public class ExposablePropertyPlaceholderConfigurer extends PropertyPlaceholderC
     
     private Properties resolvedProps;
 
+    private int systemPropertiesMode = PropertyPlaceholderConfigurer.SYSTEM_PROPERTIES_MODE_FALLBACK;
+    private static final Constants constants = new Constants(PropertyPlaceholderConfigurer.class);
+
     /** Returns the resolved properties. */
     public final Properties getResolvedProps()
     {
@@ -46,12 +50,27 @@ public class ExposablePropertyPlaceholderConfigurer extends PropertyPlaceholderC
     //
     // PropertyPlaceholderConfigurer
     //
+    
 
     @Override
     protected final String convertPropertyValue(final String originalValue)
     {
         // Can handle null value
         return StringUtils.trimWhitespace(originalValue);
+    }
+    
+
+    @Override
+    public void setSystemPropertiesModeName(String constantName) throws IllegalArgumentException
+    {
+        setSystemPropertiesMode(constants.asNumber(constantName).intValue());
+    }
+
+    @Override
+    public void setSystemPropertiesMode(int systemPropertiesMode)
+    {
+        this.systemPropertiesMode = systemPropertiesMode;
+        super.setSystemPropertiesMode(systemPropertiesMode);
     }
 
     @Override
@@ -64,8 +83,13 @@ public class ExposablePropertyPlaceholderConfigurer extends PropertyPlaceholderC
         for (final Object key : props.keySet())
         {
             final String keyStr = key.toString();
-            resolvedProps.setProperty(keyStr, parseStringValue(props.getProperty(keyStr), props,
-                    new HashSet<Object>()));
+            resolvedProps.setProperty(keyStr, getResolvedProperty(props, keyStr));
         }
+    }
+
+    @SuppressWarnings("deprecation")
+    private String getResolvedProperty(final Properties props, final String key)
+    {
+        return parseStringValue(resolvePlaceholder(key, props, systemPropertiesMode), props, new HashSet<Object>());
     }
 }
