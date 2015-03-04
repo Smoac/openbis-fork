@@ -230,7 +230,7 @@ public class SearchDataSetTest extends AbstractDataSetTest
         externalDataFetchOptions.withFileFormatType();
         externalDataFetchOptions.withLocatorType();
 
-        VocabularyTermFetchOptions storageFormatTermFetchOptions = externalDataFetchOptions.withStorageFormatVocabularyTerm();
+        VocabularyTermFetchOptions storageFormatTermFetchOptions = externalDataFetchOptions.withStorageFormat();
         storageFormatTermFetchOptions.withRegistrator();
 
         VocabularyFetchOptions storageFormatVocabularyFetchOptions = storageFormatTermFetchOptions.withVocabulary();
@@ -260,7 +260,7 @@ public class SearchDataSetTest extends AbstractDataSetTest
         assertEquals(locatorType.getCode(), "RELATIVE_LOCATION");
         assertEquals(locatorType.getDescription(), "Relative Location");
 
-        VocabularyTerm storageFormatTerm = externalData.getStorageFormatVocabularyTerm();
+        VocabularyTerm storageFormatTerm = externalData.getStorageFormat();
         assertEquals(storageFormatTerm.getCode(), "PROPRIETARY");
         assertEquals(storageFormatTerm.getLabel(), null);
         assertEquals(storageFormatTerm.getDescription(), null);

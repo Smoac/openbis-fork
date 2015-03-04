@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.api.v3.executor.sample;
+package ch.ethz.sis.openbis.generic.server.api.v3.executor.dataset;
 
 import java.util.List;
 import java.util.Map;
@@ -26,20 +26,21 @@ import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.AbstractUpdateEntityFieldUpdateValueRelationExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.experiment.IMapExperimentByIdExecutor;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.FieldUpdateValue;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleUpdate;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSetUpdate;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentIdentifier;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.IExperimentId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.UnauthorizedObjectAccessException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ExperimentByIdentiferValidator;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
 /**
  * @author pkupczyk
  */
 @Component
-public class UpdateSampleExperimentExecutor extends AbstractUpdateEntityFieldUpdateValueRelationExecutor<SampleUpdate, SamplePE, IExperimentId, ExperimentPE>
-        implements IUpdateSampleExperimentExecutor
+public class UpdateDataSetExperimentExecutor extends AbstractUpdateEntityFieldUpdateValueRelationExecutor<DataSetUpdate, DataPE, IExperimentId, ExperimentPE>
+        implements IUpdateDataSetExperimentExecutor
 {
 
     @Autowired
@@ -52,13 +53,13 @@ public class UpdateSampleExperimentExecutor extends AbstractUpdateEntityFieldUpd
     }
 
     @Override
-    protected ExperimentPE getCurrentlyRelated(SamplePE entity)
+    protected ExperimentPE getCurrentlyRelated(DataPE entity)
     {
         return entity.getExperiment();
     }
 
     @Override
-    protected FieldUpdateValue<IExperimentId> getRelatedUpdate(SampleUpdate update)
+    protected FieldUpdateValue<IExperimentId> getRelatedUpdate(DataSetUpdate update)
     {
         return update.getExperimentId();
     }
@@ -70,7 +71,7 @@ public class UpdateSampleExperimentExecutor extends AbstractUpdateEntityFieldUpd
     }
 
     @Override
-    protected void check(IOperationContext context, SamplePE entity, IExperimentId relatedId, ExperimentPE related)
+    protected void check(IOperationContext context, DataPE entity, IExperimentId relatedId, ExperimentPE related)
     {
         if (false == new ExperimentByIdentiferValidator().doValidation(context.getSession().tryGetPerson(), related))
         {
@@ -79,15 +80,13 @@ public class UpdateSampleExperimentExecutor extends AbstractUpdateEntityFieldUpd
     }
 
     @Override
-    protected void update(IOperationContext context, SamplePE entity, ExperimentPE related)
+    protected void update(IOperationContext context, DataPE entity, ExperimentPE related)
     {
         if (related == null)
         {
-            relationshipService.unassignSampleFromExperiment(context.getSession(), entity);
-        } else
-        {
-            relationshipService.assignSampleToExperiment(context.getSession(), entity, related);
+            throw new UserFailureException("Experiment id cannot be null");
         }
+        relationshipService.assignDataSetToExperiment(context.getSession(), entity, related);
     }
 
 }

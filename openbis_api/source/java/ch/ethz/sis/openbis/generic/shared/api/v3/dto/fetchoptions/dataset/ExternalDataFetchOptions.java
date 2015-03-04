@@ -31,7 +31,7 @@ public class ExternalDataFetchOptions implements Serializable
     private static final long serialVersionUID = 1L;
 
     @JsonProperty
-    private VocabularyTermFetchOptions storageFormatVocabularyTerm;
+    private VocabularyTermFetchOptions storageFormat;
 
     @JsonProperty
     private FileFormatTypeFetchOptions fileFormatType;
@@ -40,25 +40,25 @@ public class ExternalDataFetchOptions implements Serializable
     private LocatorTypeFetchOptions locatorType;
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
-    public VocabularyTermFetchOptions withStorageFormatVocabularyTerm()
+    public VocabularyTermFetchOptions withStorageFormat()
     {
-        if (storageFormatVocabularyTerm == null)
+        if (storageFormat == null)
         {
-            storageFormatVocabularyTerm = new VocabularyTermFetchOptions();
+            storageFormat = new VocabularyTermFetchOptions();
         }
-        return storageFormatVocabularyTerm;
+        return storageFormat;
     }
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
-    public VocabularyTermFetchOptions withStorageFormatVocabularyTermUsing(VocabularyTermFetchOptions fetchOptions)
+    public VocabularyTermFetchOptions withStorageFormatUsing(VocabularyTermFetchOptions fetchOptions)
     {
-        return storageFormatVocabularyTerm = fetchOptions;
+        return storageFormat = fetchOptions;
     }
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
-    public boolean hasStorageFormatVocabularyTerm()
+    public boolean hasStorageFormat()
     {
-        return storageFormatVocabularyTerm != null;
+        return storageFormat != null;
     }
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}

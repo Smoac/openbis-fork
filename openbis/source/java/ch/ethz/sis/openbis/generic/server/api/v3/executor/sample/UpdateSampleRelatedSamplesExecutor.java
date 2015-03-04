@@ -17,7 +17,6 @@
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.sample;
 
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -25,8 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.IdListUpdateValue;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.ListUpdateValue.ListUpdateAction;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.AbstractUpdateEntityMultipleRelationsExecutor;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleUpdate;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.ISampleId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -35,7 +33,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
  * @author pkupczyk
  */
 @Component
-public class UpdateSampleRelatedSamplesExecutor implements IUpdateSampleRelatedSamplesExecutor
+public class UpdateSampleRelatedSamplesExecutor extends AbstractUpdateEntityMultipleRelationsExecutor<SampleUpdate, SamplePE, ISampleId, SamplePE>
+        implements IUpdateSampleRelatedSamplesExecutor
 {
 
     @Autowired
@@ -53,70 +52,28 @@ public class UpdateSampleRelatedSamplesExecutor implements IUpdateSampleRelatedS
     @Autowired
     private IUpdateSampleChildrenExecutor updateSampleChildrenExecutor;
 
-    @SuppressWarnings("unused")
-    private UpdateSampleRelatedSamplesExecutor()
+    @Override
+    protected void addRelatedIds(Set<ISampleId> relatedIds, SampleUpdate update)
     {
-    }
-
-    public UpdateSampleRelatedSamplesExecutor(IMapSampleByIdExecutor mapSampleByIdExecutor,
-            IUpdateSampleContainerExecutor updateSampleContainerExecutor, IUpdateSampleContainedExecutor updateSampleContainedExecutor,
-            IUpdateSampleParentsExecutor updateSampleParentsExecutor, IUpdateSampleChildrenExecutor updateSampleChildrenExecutor)
-    {
-        this.mapSampleByIdExecutor = mapSampleByIdExecutor;
-        this.updateSampleContainerExecutor = updateSampleContainerExecutor;
-        this.updateSampleContainedExecutor = updateSampleContainedExecutor;
-        this.updateSampleParentsExecutor = updateSampleParentsExecutor;
-        this.updateSampleChildrenExecutor = updateSampleChildrenExecutor;
+        addRelatedIds(relatedIds, update.getContainerId());
+        addRelatedIds(relatedIds, update.getContainedIds());
+        addRelatedIds(relatedIds, update.getParentIds());
+        addRelatedIds(relatedIds, update.getChildIds());
     }
 
     @Override
-    public void update(IOperationContext context, Map<SampleUpdate, SamplePE> updateMap)
+    protected Map<ISampleId, SamplePE> map(IOperationContext context, Collection<ISampleId> relatedIds)
     {
-        Map<ISampleId, SamplePE> samplesMap = getRelatedSamplesMap(context, updateMap.keySet());
-        updateSampleContainerExecutor.update(context, updateMap, samplesMap);
-        updateSampleContainedExecutor.update(context, updateMap, samplesMap);
-        updateSampleParentsExecutor.update(context, updateMap, samplesMap);
-        updateSampleChildrenExecutor.update(context, updateMap, samplesMap);
+        return mapSampleByIdExecutor.map(context, relatedIds);
     }
 
-    private Map<ISampleId, SamplePE> getRelatedSamplesMap(IOperationContext context, Collection<SampleUpdate> updates)
+    @Override
+    protected void update(IOperationContext context, Map<SampleUpdate, SamplePE> entitiesMap, Map<ISampleId, SamplePE> relatedMap)
     {
-        context.pushContextDescription("update samples - verify related entities exist");
-
-        Collection<ISampleId> relatedSamplesIds = getRelatedSamplesIds(updates);
-        Map<ISampleId, SamplePE> relatedSamplesMap = mapSampleByIdExecutor.map(context, relatedSamplesIds);
-
-        context.popContextDescription();
-
-        return relatedSamplesMap;
-    }
-
-    private Set<ISampleId> getRelatedSamplesIds(Collection<SampleUpdate> updates)
-    {
-        Set<ISampleId> ids = new HashSet<ISampleId>();
-        for (SampleUpdate sampleUpdate : updates)
-        {
-            if (sampleUpdate.getContainerId() != null && sampleUpdate.getContainerId().isModified())
-            {
-                ids.add(sampleUpdate.getContainerId().getValue());
-            }
-
-            addRelatedSamplesIds(ids, sampleUpdate.getContainedIds());
-            addRelatedSamplesIds(ids, sampleUpdate.getParentIds());
-            addRelatedSamplesIds(ids, sampleUpdate.getChildIds());
-        }
-        return ids;
-    }
-
-    private void addRelatedSamplesIds(Set<ISampleId> ids, IdListUpdateValue<ISampleId> listUpdate)
-    {
-        if (listUpdate != null && listUpdate.hasActions())
-        {
-            for (ListUpdateAction<ISampleId> action : listUpdate.getActions())
-            {
-                ids.addAll(action.getItems());
-            }
-        }
+        updateSampleContainerExecutor.update(context, entitiesMap, relatedMap);
+        updateSampleContainedExecutor.update(context, entitiesMap, relatedMap);
+        updateSampleParentsExecutor.update(context, entitiesMap, relatedMap);
+        updateSampleChildrenExecutor.update(context, entitiesMap, relatedMap);
     }
 
 }

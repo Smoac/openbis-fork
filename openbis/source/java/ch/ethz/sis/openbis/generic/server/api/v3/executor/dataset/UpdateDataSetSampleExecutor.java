@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 ETH Zuerich, CISD
+ * Copyright 2014 ETH Zuerich, Scientific IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,30 +14,37 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.api.v3.executor.sample;
+package ch.ethz.sis.openbis.generic.server.api.v3.executor.dataset;
 
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.AbstractUpdateEntityFieldUpdateValueRelationExecutor;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.sample.IMapSampleByIdExecutor;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.FieldUpdateValue;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleUpdate;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSetUpdate;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.ISampleId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SampleIdentifier;
 import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.UnauthorizedObjectAccessException;
+import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SampleByIdentiferValidator;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
 /**
  * @author pkupczyk
  */
 @Component
-public class UpdateSampleContainerExecutor extends AbstractUpdateEntityFieldUpdateValueRelationExecutor<SampleUpdate, SamplePE, ISampleId, SamplePE>
-        implements IUpdateSampleContainerExecutor
+public class UpdateDataSetSampleExecutor extends AbstractUpdateEntityFieldUpdateValueRelationExecutor<DataSetUpdate, DataPE, ISampleId, SamplePE> implements
+        IUpdateDataSetSampleExecutor
 {
+
+    @Autowired
+    private IMapSampleByIdExecutor mapSampleByIdExecutor;
 
     @Override
     protected ISampleId getRelatedId(SamplePE related)
@@ -46,26 +53,38 @@ public class UpdateSampleContainerExecutor extends AbstractUpdateEntityFieldUpda
     }
 
     @Override
-    protected SamplePE getCurrentlyRelated(SamplePE entity)
+    protected SamplePE getCurrentlyRelated(DataPE entity)
     {
-        return entity.getContainer();
+        return entity.tryGetSample();
     }
 
     @Override
-    protected FieldUpdateValue<ISampleId> getRelatedUpdate(SampleUpdate update)
+    protected FieldUpdateValue<ISampleId> getRelatedUpdate(DataSetUpdate update)
     {
-        return update.getContainerId();
+        return update.getSampleId();
     }
 
     @Override
     protected Map<ISampleId, SamplePE> map(IOperationContext context, List<ISampleId> relatedIds)
     {
-        throw new UnsupportedOperationException();
+        return mapSampleByIdExecutor.map(context, relatedIds);
     }
 
     @Override
-    protected void check(IOperationContext context, SamplePE entity, ISampleId relatedId, SamplePE related)
+    protected void check(IOperationContext context, DataPE entity, ISampleId relatedId, SamplePE related)
     {
+        if (related.getSpace() == null)
+        {
+            throw new UserFailureException("Data set '" + entity.getCode() + "' cannot be connected to a shared sample '" + related.getIdentifier()
+                    + "'");
+        }
+
+        if (related.getExperiment() == null)
+        {
+            throw new UserFailureException("Data set '" + entity.getCode() + "' cannot be connected to a sample '" + related.getIdentifier()
+                    + "' that does not have an experiment");
+        }
+
         if (false == new SampleByIdentiferValidator().doValidation(context.getSession().tryGetPerson(), related))
         {
             throw new UnauthorizedObjectAccessException(relatedId);
@@ -73,14 +92,14 @@ public class UpdateSampleContainerExecutor extends AbstractUpdateEntityFieldUpda
     }
 
     @Override
-    protected void update(IOperationContext context, SamplePE entity, SamplePE related)
+    protected void update(IOperationContext context, DataPE entity, SamplePE related)
     {
         if (related == null)
         {
-            UpdateSampleContainedExecutor.removeFromContainer(relationshipService, context, entity, entity.getContainer());
+            entity.setSample(null);
         } else
         {
-            UpdateSampleContainedExecutor.assignToContainer(relationshipService, context, entity, related);
+            relationshipService.assignDataSetToSample(context.getSession(), entity, related);
         }
     }
 

@@ -16,7 +16,6 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.experiment;
 
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -24,15 +23,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.AbstractUpdateEntityFieldUpdateValueRelationExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.project.IMapProjectByIdExecutor;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.FieldUpdateValue;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.ExperimentUpdate;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.IProjectId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.ObjectNotFoundException;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.ProjectIdentifier;
 import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ProjectByIdentiferValidator;
-import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 
@@ -40,78 +39,55 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
  * @author pkupczyk
  */
 @Component
-public class UpdateExperimentProjectExecutor implements IUpdateExperimentProjectExecutor
+public class UpdateExperimentProjectExecutor extends AbstractUpdateEntityFieldUpdateValueRelationExecutor<ExperimentUpdate, ExperimentPE, IProjectId, ProjectPE>
+        implements IUpdateExperimentProjectExecutor
 {
-
-    @Autowired
-    private IRelationshipService relationshipService;
 
     @Autowired
     private IMapProjectByIdExecutor mapProjectByIdExecutor;
 
-    @SuppressWarnings("unused")
-    private UpdateExperimentProjectExecutor()
+    @Override
+    protected IProjectId getRelatedId(ProjectPE related)
     {
-    }
-
-    public UpdateExperimentProjectExecutor(IRelationshipService relationshipService, IMapProjectByIdExecutor mapProjectByIdExecutor)
-    {
-        this.relationshipService = relationshipService;
-        this.mapProjectByIdExecutor = mapProjectByIdExecutor;
+        return new ProjectIdentifier(related.getIdentifier());
     }
 
     @Override
-    public void update(IOperationContext context, Map<ExperimentUpdate, ExperimentPE> updatesMap)
+    protected ProjectPE getCurrentlyRelated(ExperimentPE entity)
     {
-        List<IProjectId> projectIds = new LinkedList<IProjectId>();
+        return entity.getProject();
+    }
 
-        for (ExperimentUpdate update : updatesMap.keySet())
+    @Override
+    protected FieldUpdateValue<IProjectId> getRelatedUpdate(ExperimentUpdate update)
+    {
+        return update.getProjectId();
+    }
+
+    @Override
+    protected Map<IProjectId, ProjectPE> map(IOperationContext context, List<IProjectId> relatedIds)
+    {
+        return mapProjectByIdExecutor.map(context, relatedIds);
+    }
+
+    @Override
+    protected void check(IOperationContext context, ExperimentPE entity, IProjectId relatedId, ProjectPE related)
+    {
+        if (false == new ProjectByIdentiferValidator().doValidation(context.getSession().tryGetPerson(), related))
         {
-            if (update.getProjectId() != null && update.getProjectId().isModified())
-            {
-                projectIds.add(update.getProjectId().getValue());
-            }
-        }
-
-        Map<IProjectId, ProjectPE> projectMap = mapProjectByIdExecutor.map(context, projectIds);
-
-        for (Map.Entry<ExperimentUpdate, ExperimentPE> entry : updatesMap.entrySet())
-        {
-            ExperimentUpdate update = entry.getKey();
-            ExperimentPE experiment = entry.getValue();
-            update(context, experiment, update.getProjectId(), projectMap);
+            throw new UnauthorizedObjectAccessException(relatedId);
         }
     }
 
-    private void update(IOperationContext context, ExperimentPE experiment, FieldUpdateValue<IProjectId> update, Map<IProjectId, ProjectPE> projectMap)
+    @Override
+    protected void update(IOperationContext context, ExperimentPE entity, ProjectPE related)
     {
-        if (update != null && update.isModified())
+        if (related == null)
         {
-            if (update.getValue() == null)
-            {
-                throw new UserFailureException("Project id cannot be null");
-            }
-
-            ProjectPE project = projectMap.get(update.getValue());
-
-            if (project == null)
-            {
-                throw new ObjectNotFoundException(update.getValue());
-            }
-
-            if (false == project.equals(experiment.getProject()))
-            {
-                checkProject(context, update.getValue(), project);
-                relationshipService.assignExperimentToProject(context.getSession(), experiment, project);
-            }
-        }
-    }
-
-    private void checkProject(IOperationContext context, IProjectId projectId, ProjectPE project)
-    {
-        if (false == new ProjectByIdentiferValidator().doValidation(context.getSession().tryGetPerson(), project))
+            throw new UserFailureException("Project id cannot be null");
+        } else
         {
-            throw new UnauthorizedObjectAccessException(projectId);
+            relationshipService.assignExperimentToProject(context.getSession(), entity, related);
         }
     }
 }

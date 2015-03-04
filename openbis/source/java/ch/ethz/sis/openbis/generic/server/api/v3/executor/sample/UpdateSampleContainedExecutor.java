@@ -21,15 +21,15 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.annotation.Resource;
-
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.AbstractUpdateEntityListUpdateValueRelationExecutor;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.IdListUpdateValue;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleUpdate;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.ISampleId;
-import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
+import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.UnauthorizedObjectAccessException;
+import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SampleByIdentiferValidator;
 import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
@@ -37,20 +37,27 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
  * @author pkupczyk
  */
 @Component
-public class UpdateSampleContainedExecutor extends AbstractUpdateSampleRelatedSamplesExecutor implements IUpdateSampleContainedExecutor
+public class UpdateSampleContainedExecutor extends AbstractUpdateEntityListUpdateValueRelationExecutor<SampleUpdate, SamplePE, ISampleId, SamplePE>
+        implements IUpdateSampleContainedExecutor
 {
 
-    @Resource(name = ComponentNames.RELATIONSHIP_SERVICE)
-    private IRelationshipService relationshipService;
-
     @Override
-    protected IdListUpdateValue<? extends ISampleId> getRelatedSamplesUpdate(IOperationContext context, SampleUpdate update)
+    protected IdListUpdateValue<? extends ISampleId> getRelatedUpdate(IOperationContext context, SampleUpdate update)
     {
         return update.getContainedIds();
     }
 
     @Override
-    protected void setRelatedSamples(IOperationContext context, SamplePE container, Collection<SamplePE> contained)
+    protected void check(IOperationContext context, ISampleId relatedId, SamplePE related)
+    {
+        if (false == new SampleByIdentiferValidator().doValidation(context.getSession().tryGetPerson(), related))
+        {
+            throw new UnauthorizedObjectAccessException(relatedId);
+        }
+    }
+
+    @Override
+    protected void set(IOperationContext context, SamplePE container, Collection<SamplePE> contained)
     {
         Set<SamplePE> existingContained = new HashSet<SamplePE>(container.getContained());
         Set<SamplePE> newContained = new HashSet<SamplePE>(contained);
@@ -73,7 +80,7 @@ public class UpdateSampleContainedExecutor extends AbstractUpdateSampleRelatedSa
     }
 
     @Override
-    protected void addRelatedSamples(IOperationContext context, SamplePE container, Collection<SamplePE> contained)
+    protected void add(IOperationContext context, SamplePE container, Collection<SamplePE> contained)
     {
         for (SamplePE aContained : contained)
         {
@@ -82,7 +89,7 @@ public class UpdateSampleContainedExecutor extends AbstractUpdateSampleRelatedSa
     }
 
     @Override
-    protected void removeRelatedSamples(IOperationContext context, SamplePE container, Collection<SamplePE> contained)
+    protected void remove(IOperationContext context, SamplePE container, Collection<SamplePE> contained)
     {
         for (SamplePE aContained : contained)
         {

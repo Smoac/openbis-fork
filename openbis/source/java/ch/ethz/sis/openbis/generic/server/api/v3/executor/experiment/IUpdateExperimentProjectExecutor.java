@@ -16,18 +16,14 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.experiment;
 
-import java.util.Map;
-
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.IUpdateEntityRelationsExecutor;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.ExperimentUpdate;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 
 /**
  * @author pkupczyk
  */
-public interface IUpdateExperimentProjectExecutor
+public interface IUpdateExperimentProjectExecutor extends IUpdateEntityRelationsExecutor<ExperimentUpdate, ExperimentPE>
 {
-
-    public void update(IOperationContext context, Map<ExperimentUpdate, ExperimentPE> updatesMap);
 
 }

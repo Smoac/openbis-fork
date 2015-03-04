@@ -27,7 +27,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.OperationContext;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.dataset.IMapDataSetByIdExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.dataset.ISearchDataSetExecutor;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.dataset.IUpdateDataSetExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.deletion.IConfirmDeletionExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.deletion.IListDeletionExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.deletion.IRevertDeletionExecutor;
@@ -54,6 +56,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion.Deletion;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion.experiment.ExperimentDeletionOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion.sample.SampleDeletionOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSet;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSetUpdate;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.ExperimentCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.ExperimentUpdate;
@@ -64,6 +67,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.DataSe
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.deletion.DeletionFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.experiment.ExperimentFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sample.SampleFetchOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.IDataSetId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.deletion.IDeletionId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.IExperimentId;
@@ -106,19 +110,31 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     private IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory;
 
     @Autowired
-    private ISearchExperimentExecutor searchExperimentExecutor;
-
-    @Autowired
-    private IMapExperimentByIdExecutor mapExperimentByIdExecutor;
-
-    @Autowired
     private ICreateExperimentExecutor createExperimentExecutor;
+
+    @Autowired
+    private ICreateSampleExecutor createSampleExecutor;
 
     @Autowired
     private IUpdateExperimentExecutor updateExperimentExecutor;
 
     @Autowired
-    private IDeleteExperimentExecutor deleteExperimentExecutor;
+    private IUpdateSampleExecutor updateSampleExecutor;
+
+    @Autowired
+    private IUpdateDataSetExecutor updateDataSetExecutor;
+
+    @Autowired
+    private IMapExperimentByIdExecutor mapExperimentByIdExecutor;
+
+    @Autowired
+    private IMapSampleByIdExecutor mapSampleByIdExecutor;
+
+    @Autowired
+    private IMapDataSetByIdExecutor mapDataSetByIdExecutor;
+
+    @Autowired
+    private ISearchExperimentExecutor searchExperimentExecutor;
 
     @Autowired
     private ISearchSampleExecutor searchSampleExecutor;
@@ -127,13 +143,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     private ISearchDataSetExecutor searchDataSetExecutor;
 
     @Autowired
-    private IMapSampleByIdExecutor mapSampleByIdExecutor;
-
-    @Autowired
-    private ICreateSampleExecutor createSampleExecutor;
-
-    @Autowired
-    private IUpdateSampleExecutor updateSampleExecutor;
+    private IDeleteExperimentExecutor deleteExperimentExecutor;
 
     @Autowired
     private IDeleteSampleExecutor deleteSampleExecutor;
@@ -286,6 +296,25 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     }
 
     @Override
+    @Transactional
+    @RolesAllowed({ RoleWithHierarchy.SPACE_POWER_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @Capability("WRITE_DATASET")
+    @DatabaseUpdateModification(value = ObjectKind.DATA_SET)
+    public void updateDataSets(String sessionToken, List<DataSetUpdate> updates)
+    {
+        Session session = getSession(sessionToken);
+        OperationContext context = new OperationContext(session);
+
+        try
+        {
+            updateDataSetExecutor.update(context, updates);
+        } catch (Throwable t)
+        {
+            throw ExceptionUtils.create(context, t);
+        }
+    }
+
+    @Override
     @Transactional(readOnly = true)
     @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     public Map<IExperimentId, Experiment> mapExperiments(String sessionToken,
@@ -314,6 +343,21 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
 
         return new MapTranslator<ISampleId, ISampleId, SamplePE, Sample>().translate(map, new IdentityTranslator<ISampleId>(),
                 new SampleTranslator(new TranslationContext(session), managedPropertyEvaluatorFactory,
+                        fetchOptions));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    public Map<IDataSetId, DataSet> mapDataSets(String sessionToken, List<? extends IDataSetId> dataSetIds, DataSetFetchOptions fetchOptions)
+    {
+        Session session = getSession(sessionToken);
+        OperationContext context = new OperationContext(session);
+
+        Map<IDataSetId, DataPE> map = mapDataSetByIdExecutor.map(context, dataSetIds);
+
+        return new MapTranslator<IDataSetId, IDataSetId, DataPE, DataSet>().translate(map, new IdentityTranslator<IDataSetId>(),
+                new DataSetTranslator(new TranslationContext(session), managedPropertyEvaluatorFactory,
                         fetchOptions));
     }
 

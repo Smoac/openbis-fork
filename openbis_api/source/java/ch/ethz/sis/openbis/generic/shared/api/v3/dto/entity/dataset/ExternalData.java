@@ -48,7 +48,7 @@ public class ExternalData implements Serializable
     private Long size;
 
     @JsonProperty
-    private VocabularyTerm storageFormatVocabularyTerm;
+    private VocabularyTerm storageFormat;
 
     @JsonProperty
     private FileFormatType fileFormatType;
@@ -125,11 +125,11 @@ public class ExternalData implements Serializable
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     @JsonIgnore
-    public VocabularyTerm getStorageFormatVocabularyTerm()
+    public VocabularyTerm getStorageFormat()
     {
-        if (getFetchOptions().hasStorageFormatVocabularyTerm())
+        if (getFetchOptions().hasStorageFormat())
         {
-            return storageFormatVocabularyTerm;
+            return storageFormat;
         }
         else
         {
@@ -138,9 +138,9 @@ public class ExternalData implements Serializable
     }
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
-    public void setStorageFormatVocabularyTerm(VocabularyTerm storageFormatVocabularyTerm)
+    public void setStorageFormat(VocabularyTerm storageFormat)
     {
-        this.storageFormatVocabularyTerm = storageFormatVocabularyTerm;
+        this.storageFormat = storageFormat;
     }
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}

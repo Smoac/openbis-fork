@@ -16,7 +16,6 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.sample;
 
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -24,15 +23,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.AbstractUpdateEntityFieldUpdateValueRelationExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.space.IMapSpaceByIdExecutor;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.FieldUpdateValue;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleUpdate;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.ISpaceId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.SpacePermId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.ObjectNotFoundException;
 import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SimpleSpaceValidator;
-import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
@@ -40,88 +38,61 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
  * @author pkupczyk
  */
 @Component
-public class UpdateSampleSpaceExecutor implements IUpdateSampleSpaceExecutor
+public class UpdateSampleSpaceExecutor extends AbstractUpdateEntityFieldUpdateValueRelationExecutor<SampleUpdate, SamplePE, ISpaceId, SpacePE> implements
+        IUpdateSampleSpaceExecutor
 {
-
-    @Autowired
-    private IRelationshipService relationshipService;
 
     @Autowired
     private IMapSpaceByIdExecutor mapSpaceByIdExecutor;
 
-    @SuppressWarnings("unused")
-    private UpdateSampleSpaceExecutor()
+    @Override
+    protected ISpaceId getRelatedId(SpacePE related)
     {
-    }
-
-    public UpdateSampleSpaceExecutor(IRelationshipService relationshipService, IMapSpaceByIdExecutor mapSpaceByIdExecutor)
-    {
-        this.relationshipService = relationshipService;
-        this.mapSpaceByIdExecutor = mapSpaceByIdExecutor;
+        return new SpacePermId(related.getCode());
     }
 
     @Override
-    public void update(IOperationContext context, Map<SampleUpdate, SamplePE> updatesMap)
+    protected SpacePE getCurrentlyRelated(SamplePE entity)
     {
-        List<ISpaceId> spaceIds = new LinkedList<ISpaceId>();
+        return entity.getSpace();
+    }
 
-        for (SampleUpdate update : updatesMap.keySet())
+    @Override
+    protected FieldUpdateValue<ISpaceId> getRelatedUpdate(SampleUpdate update)
+    {
+        return update.getSpaceId();
+    }
+
+    @Override
+    protected Map<ISpaceId, SpacePE> map(IOperationContext context, List<ISpaceId> relatedIds)
+    {
+        return mapSpaceByIdExecutor.map(context, relatedIds);
+    }
+
+    @Override
+    protected void check(IOperationContext context, SamplePE entity, ISpaceId relatedId, SpacePE related)
+    {
+        if (false == new SimpleSpaceValidator().doValidation(context.getSession().tryGetPerson(), related))
         {
-            if (update.getSpaceId() != null && update.getSpaceId().isModified())
-            {
-                spaceIds.add(update.getSpaceId().getValue());
-            }
-        }
-
-        Map<ISpaceId, SpacePE> spaceMap = mapSpaceByIdExecutor.map(context, spaceIds);
-
-        for (Map.Entry<SampleUpdate, SamplePE> entry : updatesMap.entrySet())
-        {
-            SampleUpdate update = entry.getKey();
-            SamplePE sample = entry.getValue();
-            update(context, sample, update.getSpaceId(), spaceMap);
+            throw new UnauthorizedObjectAccessException(relatedId);
         }
     }
 
-    private void update(IOperationContext context, SamplePE sample, FieldUpdateValue<ISpaceId> update, Map<ISpaceId, SpacePE> spaceMap)
+    @Override
+    protected void update(IOperationContext context, SamplePE entity, SpacePE related)
     {
-        if (update != null && update.isModified())
+        if (related == null)
         {
-            if (update.getValue() == null)
-            {
-                if (sample.getSpace() != null)
-                {
-                    checkSpace(context, new SpacePermId(sample.getSpace().getCode()), sample.getSpace());
-                    relationshipService.shareSample(context.getSession(), sample);
-                }
-            }
-            else
-            {
-                SpacePE space = spaceMap.get(update.getValue());
-
-                if (space == null)
-                {
-                    throw new ObjectNotFoundException(update.getValue());
-                }
-
-                checkSpace(context, update.getValue(), space);
-
-                if (sample.getSpace() == null)
-                {
-                    relationshipService.unshareSample(context.getSession(), sample, space);
-                } else if (false == sample.getSpace().equals(space))
-                {
-                    relationshipService.assignSampleToSpace(context.getSession(), sample, space);
-                }
-            }
-        }
-    }
-
-    private void checkSpace(IOperationContext context, ISpaceId spaceId, SpacePE space)
-    {
-        if (false == new SimpleSpaceValidator().doValidation(context.getSession().tryGetPerson(), space))
+            relationshipService.shareSample(context.getSession(), entity);
+        } else
         {
-            throw new UnauthorizedObjectAccessException(spaceId);
+            if (entity.getSpace() == null)
+            {
+                relationshipService.unshareSample(context.getSession(), entity, related);
+            } else
+            {
+                relationshipService.assignSampleToSpace(context.getSession(), entity, related);
+            }
         }
     }
 }

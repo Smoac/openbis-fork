@@ -24,6 +24,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion.Deletion;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion.experiment.ExperimentDeletionOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion.sample.SampleDeletionOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSet;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSetUpdate;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.ExperimentCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.ExperimentUpdate;
@@ -34,6 +35,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.DataSe
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.deletion.DeletionFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.experiment.ExperimentFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sample.SampleFetchOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.IDataSetId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.deletion.IDeletionId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.IExperimentId;
@@ -119,6 +121,12 @@ public class ApplicationServerApiLogger extends AbstractServerLogger implements
     }
 
     @Override
+    public void updateDataSets(String sessionToken, List<DataSetUpdate> dataSetUpdates)
+    {
+        logAccess(sessionToken, "update-data-sets", "DATA_SET_UPDATES(%s)", dataSetUpdates);
+    }
+
+    @Override
     public Map<IExperimentId, Experiment> mapExperiments(String sessionToken, List<? extends IExperimentId> experimentIds,
             ExperimentFetchOptions fetchOptions)
     {
@@ -131,6 +139,13 @@ public class ApplicationServerApiLogger extends AbstractServerLogger implements
             List<? extends ISampleId> sampleIds, SampleFetchOptions fetchOptions)
     {
         logAccess(sessionToken, "map-samples", "SAMPLE_IDS(%s) FETCH_OPTIONS(%s)", sampleIds, fetchOptions);
+        return null;
+    }
+
+    @Override
+    public Map<IDataSetId, DataSet> mapDataSets(String sessionToken, List<? extends IDataSetId> dataSetIds, DataSetFetchOptions fetchOptions)
+    {
+        logAccess(sessionToken, "map-data-sets", "DATA_SET_IDS(%s) FETCH_OPTIONS(%s)", dataSetIds, fetchOptions);
         return null;
     }
 

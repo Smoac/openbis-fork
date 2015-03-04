@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 ETH Zuerich, Scientific IT Services
+ * Copyright 2015 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.api.v3.executor.sample;
+package ch.ethz.sis.openbis.generic.server.api.v3.executor.dataset;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.IUpdateEntityRelationsExecutor;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleUpdate;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSetUpdate;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 
 /**
  * @author pkupczyk
  */
-public interface IUpdateSampleExperimentExecutor extends IUpdateEntityRelationsExecutor<SampleUpdate, SamplePE>
+public interface IUpdateDataSetExperimentExecutor extends IUpdateEntityRelationsExecutor<DataSetUpdate, DataPE>
 {
 
 }

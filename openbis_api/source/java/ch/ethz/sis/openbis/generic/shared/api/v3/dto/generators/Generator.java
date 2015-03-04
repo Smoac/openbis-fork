@@ -220,7 +220,7 @@ public class Generator extends AbstractGenerator
         gen.addStringField("shareId");
         gen.addStringField("location");
         gen.addSimpleField(Long.class, "size");
-        gen.addFetchedField(VocabularyTerm.class, "storageFormatVocabularyTerm", "Storage format vocabulary term", VocabularyTermFetchOptions.class);
+        gen.addFetchedField(VocabularyTerm.class, "storageFormat", "Storage format vocabulary term", VocabularyTermFetchOptions.class);
         gen.addFetchedField(FileFormatType.class, "fileFormatType", "File Format Type", FileFormatTypeFetchOptions.class);
         gen.addFetchedField(LocatorType.class, "locatorType", "Locator Type", LocatorTypeFetchOptions.class);
         gen.addSimpleField(Complete.class, "complete");

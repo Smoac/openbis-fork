@@ -20,36 +20,42 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.annotation.Resource;
-
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.AbstractUpdateEntityListUpdateValueRelationExecutor;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.IdListUpdateValue;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleUpdate;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.ISampleId;
-import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
-import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
+import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.UnauthorizedObjectAccessException;
+import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SampleByIdentiferValidator;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
 /**
  * @author pkupczyk
  */
 @Component
-public class UpdateSampleParentsExecutor extends AbstractUpdateSampleRelatedSamplesExecutor implements IUpdateSampleParentsExecutor
+public class UpdateSampleParentsExecutor extends AbstractUpdateEntityListUpdateValueRelationExecutor<SampleUpdate, SamplePE, ISampleId, SamplePE>
+        implements IUpdateSampleParentsExecutor
 {
 
-    @Resource(name = ComponentNames.RELATIONSHIP_SERVICE)
-    private IRelationshipService relationshipService;
-
     @Override
-    protected IdListUpdateValue<? extends ISampleId> getRelatedSamplesUpdate(IOperationContext context, SampleUpdate update)
+    protected IdListUpdateValue<? extends ISampleId> getRelatedUpdate(IOperationContext context, SampleUpdate update)
     {
         return update.getParentIds();
     }
 
     @Override
-    protected void setRelatedSamples(IOperationContext context, SamplePE child, Collection<SamplePE> parents)
+    protected void check(IOperationContext context, ISampleId relatedId, SamplePE related)
+    {
+        if (false == new SampleByIdentiferValidator().doValidation(context.getSession().tryGetPerson(), related))
+        {
+            throw new UnauthorizedObjectAccessException(relatedId);
+        }
+    }
+
+    @Override
+    protected void set(IOperationContext context, SamplePE child, Collection<SamplePE> parents)
     {
         Set<SamplePE> existingParents = new HashSet<SamplePE>(child.getParents());
         Set<SamplePE> newParents = new HashSet<SamplePE>(parents);
@@ -72,7 +78,7 @@ public class UpdateSampleParentsExecutor extends AbstractUpdateSampleRelatedSamp
     }
 
     @Override
-    protected void addRelatedSamples(IOperationContext context, SamplePE child, Collection<SamplePE> parents)
+    protected void add(IOperationContext context, SamplePE child, Collection<SamplePE> parents)
     {
         Set<SamplePE> existingParents = new HashSet<SamplePE>(child.getParents());
 
@@ -86,7 +92,7 @@ public class UpdateSampleParentsExecutor extends AbstractUpdateSampleRelatedSamp
     }
 
     @Override
-    protected void removeRelatedSamples(IOperationContext context, SamplePE child, Collection<SamplePE> parents)
+    protected void remove(IOperationContext context, SamplePE child, Collection<SamplePE> parents)
     {
         Set<SamplePE> existingParents = new HashSet<SamplePE>(child.getParents());
 

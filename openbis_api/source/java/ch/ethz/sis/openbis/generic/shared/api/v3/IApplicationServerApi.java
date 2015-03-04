@@ -23,6 +23,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion.Deletion;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion.experiment.ExperimentDeletionOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion.sample.SampleDeletionOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSet;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSetUpdate;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.ExperimentCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.ExperimentUpdate;
@@ -33,6 +34,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.DataSe
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.deletion.DeletionFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.experiment.ExperimentFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sample.SampleFetchOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.IDataSetId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.deletion.IDeletionId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.IExperimentId;
@@ -98,6 +100,11 @@ public interface IApplicationServerApi extends IRpcService
     public void updateSamples(String sessionToken, List<SampleUpdate> sampleUpdates);
 
     // REPLACES:
+    // - ServiceForDataStoreServer.updateDataSet()
+
+    public void updateDataSets(String sessionToken, List<DataSetUpdate> dataSetUpdates);
+
+    // REPLACES:
     // - ServiceForDataStoreServer.tryGetExperiment(ExperimentIdentifier)
     // - ServiceForDataStoreServer.listExperiments(List<ExperimentIdentifier>, ExperimentFetchOptions)
     // - GeneralInformationService.listExperiments(List<String> experimentIdentifiers)
@@ -111,6 +118,8 @@ public interface IApplicationServerApi extends IRpcService
     // - ServiceForDataStoreServer.tryGetPropertiesOfSample(SampleIdentifier)
 
     public Map<ISampleId, Sample> mapSamples(String sessionToken, List<? extends ISampleId> sampleIds, SampleFetchOptions fetchOptions);
+
+    public Map<IDataSetId, DataSet> mapDataSets(String sessionToken, List<? extends IDataSetId> dataSetIds, DataSetFetchOptions fetchOptions);
 
     // REPLACES:
     // - ServiceForDataStoreServer.listExperimentsForProjects(List<ProjectIdentifier>, ExperimentFetchOptions)

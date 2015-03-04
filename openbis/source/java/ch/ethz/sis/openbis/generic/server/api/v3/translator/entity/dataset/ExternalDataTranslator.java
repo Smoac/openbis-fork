@@ -119,12 +119,11 @@ public class ExternalDataTranslator extends AbstractCachingTranslator<ExternalDa
             result.getFetchOptions().withLocatorTypeUsing(getFetchOptions().withLocatorType());
         }
 
-        if (getFetchOptions().hasStorageFormatVocabularyTerm())
+        if (getFetchOptions().hasStorageFormat())
         {
-            result.setStorageFormatVocabularyTerm(new VocabularyTermTranslator(getTranslationContext(), getFetchOptions()
-                    .withStorageFormatVocabularyTerm()).translate(data
-                    .getStorageFormatVocabularyTerm()));
-            result.getFetchOptions().withStorageFormatVocabularyTermUsing(getFetchOptions().withStorageFormatVocabularyTerm());
+            result.setStorageFormat(new VocabularyTermTranslator(getTranslationContext(), getFetchOptions()
+                    .withStorageFormat()).translate(data.getStorageFormatVocabularyTerm()));
+            result.getFetchOptions().withStorageFormatUsing(getFetchOptions().withStorageFormat());
         }
     }
 
