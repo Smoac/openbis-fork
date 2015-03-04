@@ -105,7 +105,8 @@ class Statistics:
   def __init__(self, lane = 0, sampleName = "", index1 = "NoIndex", index2 = "NoIndex", pfYieldSum = 0,
                  rawYieldSum = 0, pfPercentage = 0.0, rawReadsSum = 0, pfReadsSum = 0,
                  pfYieldQ30Sum = 0, qualityScoreSum = 0, rawPercentageReadsPerLane = 0.0,
-                 pfYieldQ30Percentage = 0.0, pfsumQualityScore = 0, pfmeanQualityScore = 0.0):
+                 pfYieldQ30Percentage = 0.0, pfsumQualityScore = 0, pfmeanQualityScore = 0.0,
+                 pfReadsSumWithoutUndetermined = 0):
       self.lane = lane
       self.sampleName = sampleName
       self.index1 = index1
@@ -121,6 +122,7 @@ class Statistics:
       self.pfYieldQ30Percentage = pfYieldQ30Percentage
       self.pfsumQualityScore = pfsumQualityScore
       self.pfmeanQualityScore = pfmeanQualityScore
+      self.pfReadsSumWithoutUndetermined = pfReadsSumWithoutUndetermined
       
   def __str__(self):
     return "lane: %s, sampleName: %s, index1: %s, index2: %s, pfYieldSum: %s, pfPercentage: %s," \
@@ -148,6 +150,34 @@ class Statistics:
       return round (float(pfYieldQ30) / float(pfYield) * 100, 2)
     except:
       return 0.0
+  
+
+class lane_statistics:
+    def __init__(self):
+        self.complete_lane_statistic = Statistics()
+        
+    def caluclate_complete_lane_statistic(self, list_of_statistics):
+        
+        sample_number = len(list_of_statistics)
+        
+        for stat in list_of_statistics:
+            self.complete_lane_statistic.lane = stat.lane
+            self.complete_lane_statistic.pfYieldSum += stat.pfYieldSum
+            self.complete_lane_statistic.rawYieldSum += stat.rawYieldSum
+            self.complete_lane_statistic.pfReadsSum += stat.pfReadsSum
+            self.complete_lane_statistic.rawReadsSum += stat.rawReadsSum
+            self.complete_lane_statistic.pfPercentage += stat.pfPercentage
+            self.complete_lane_statistic.pfYieldQ30Percentage += stat.pfYieldQ30Percentage
+            self.complete_lane_statistic.pfmeanQualityScore += stat.pfmeanQualityScore
+            
+            if stat.index1 != "Undetermined":
+                self.complete_lane_statistic.pfReadsSumWithoutUndetermined += stat.pfReadsSum
+            
+        self.complete_lane_statistic.pfPercentage = self.complete_lane_statistic.pfPercentage / sample_number
+        self.complete_lane_statistic.pfYieldQ30Percentage = self.complete_lane_statistic.pfYieldQ30Percentage / sample_number
+        self.complete_lane_statistic.pfmeanQualityScore = self.complete_lane_statistic.pfmeanQualityScore/ sample_number
+        
+        return self.complete_lane_statistic
 
 # -----------------------------------------------------------------------------
 
@@ -408,7 +438,7 @@ def process(transaction):
         sampleDict[sampleName] = [sa]
 
   stat = [calculateStatistics(sampleDict[mysample]) for mysample in sampleDict]
-
+  
   # calculate the relative amount of reads per index
   laneDict = rawReadSumPerSamples(stat)
   sumRawReadsDict = createSumRawReadsPerLane(laneDict)
@@ -475,12 +505,28 @@ def process(transaction):
       index2List.append(ds.getPropertyValue('INDEX2'))
     return index1List, index2List  
 
+#--------------------------------------------------------------------------------------------------------------------------------------
 
   flowcell, lanes, numberOfLanes  = sampleSearch(name)
 
   index1Length = fcPropertiesDict['INDEXREAD']
   index2Length = fcPropertiesDict['INDEXREAD2']
 
+  full_lane_statistics = lane_statistics()
+  complete_lane_statistic = full_lane_statistics.caluclate_complete_lane_statistic(stat)
+  
+  # TODO Can we assume that this is always the same lanes, so we take the first one?
+  lane = lanes[0]
+  mutable_lane = transaction.getSampleForUpdate(lane.getSampleIdentifier())
+  mutable_lane.setPropertyValue("YIELD_MBASES", str(complete_lane_statistic.pfYieldSum))
+  mutable_lane.setPropertyValue('RAW_YIELD_MBASES', str(complete_lane_statistic.rawYieldSum))
+  mutable_lane.setPropertyValue('PERCENTAGE_PASSED_FILTERING',str(complete_lane_statistic.pfPercentage))
+  mutable_lane.setPropertyValue('PF_READS_SUM',str(complete_lane_statistic.pfReadsSum))
+  mutable_lane.setPropertyValue('RAW_READS_SUM',str(complete_lane_statistic.rawReadsSum))
+  mutable_lane.setPropertyValue('PFYIELDQ30PERCENTAGE', str(complete_lane_statistic.pfYieldQ30Percentage))
+  mutable_lane.setPropertyValue('PFMEANQUALITYSCORE', str(complete_lane_statistic.pfmeanQualityScore))
+  mutable_lane.setPropertyValue('CLUSTERS_PF_WITHOUT_NOINDEX', str(complete_lane_statistic.pfReadsSumWithoutUndetermined))
+  
   for mystat in stat:
     laneCode = flowcell[0].getCode() + ":" + mystat.lane
     searchIndex1 = mystat.index1.upper()
