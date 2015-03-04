@@ -389,6 +389,58 @@ def getFlowCellMetaData (transaction,flowCellId):
   fcPropertyTypes.sort()
   return fcPropertiesDict, fcPropertyTypes
 
+def getIndexesofDataSetsofSample(transaction, sample, DATA_SET_TYPE):
+
+    index1List = []
+    index2List = []
+    sc = SearchCriteria()
+    sc.addMatchClause(SearchCriteria.MatchClause.createAttributeMatch(SearchCriteria.MatchClauseAttribute.CODE, sample));
+    search_service = transaction.getSearchService()
+    foundSample = search_service.searchForSamples(sc)
+
+    dataSetSc = SearchCriteria()
+    dataSetSc.addMatchClause(SearchCriteria.MatchClause.createAttributeMatch(SearchCriteria.MatchClauseAttribute.TYPE, DATA_SET_TYPE))
+    dataSetSc.addSubCriteria(SearchSubCriteria.createSampleCriteria(sc))
+    foundDataSets = search_service.searchForDataSets(dataSetSc)
+    for ds in foundDataSets:
+      index1List.append(ds.getPropertyValue('BARCODE'))
+      index2List.append(ds.getPropertyValue('INDEX2'))
+    return index1List, index2List  
+
+def searchDataSetsofSample(transaction, sample, index1, index2, DATA_SET_TYPE):
+    sc = SearchCriteria()
+    sc.addMatchClause(SearchCriteria.MatchClause.createAttributeMatch(SearchCriteria.MatchClauseAttribute.CODE, sample));
+    search_service = transaction.getSearchService()
+    foundSample = search_service.searchForSamples(sc)
+
+    dataSetSc = SearchCriteria()
+    # set the Search Criteria to an OR condition, default is AND
+    #dataSetSc.setOperator(SearchCriteria.SearchOperator.MATCH_ANY_CLAUSES)
+    dataSetSc.addMatchClause(SearchCriteria.MatchClause.createAttributeMatch(SearchCriteria.MatchClauseAttribute.TYPE, DATA_SET_TYPE))
+    dataSetSc.addMatchClause(SearchCriteria.MatchClause.createPropertyMatch("BARCODE", index1 ))
+    dataSetSc.addMatchClause(SearchCriteria.MatchClause.createPropertyMatch("INDEX2", index2))
+    dataSetSc.addSubCriteria(SearchSubCriteria.createSampleCriteria(sc))
+    foundDataSets = search_service.searchForDataSets(dataSetSc)
+    print "foundDataSets.size() "+ str(foundDataSets.size())
+    for ds in foundDataSets:
+      print "Index1 for found Data Set" + ds.getDataSetCode() + " " + ds.getPropertyValue('BARCODE')
+      print "Index2 for found Data Set" + ds.getDataSetCode() + " " + ds.getPropertyValue('INDEX2')
+      
+    return foundDataSets
+
+def sampleSearch(transaction, code=''):
+    sc = SearchCriteria()
+    numberOfLanes = 0
+    sc.addMatchClause(SearchCriteria.MatchClause.createAttributeMatch(SearchCriteria.MatchClauseAttribute.CODE, code));
+    search_service = transaction.getSearchService()
+    foundSample = search_service.searchForSamples(sc)
+    if foundSample.size() > 0:
+      # Search for contained samples
+      sampleSc = SearchCriteria()
+      sampleSc.addSubCriteria(SearchSubCriteria.createSampleContainerCriteria(sc))
+      foundContainedSamples = search_service.searchForSamples(sampleSc)
+      numberOfLanes = foundContainedSamples.size()
+    return foundSample, foundContainedSamples, numberOfLanes
 
 # -----------------------------------------------------------------------------
 
@@ -403,7 +455,7 @@ def process(transaction):
   UNDETERMINED='UNDETERMINED'
 
   incomingPath = transaction.getIncoming().getPath()
-  name = transaction.getIncoming().getName().split('-')[0]
+  name, laneNumber = transaction.getIncoming().getName().split('-')
 
   print('\n'+time.ctime())
 
@@ -420,7 +472,7 @@ def process(transaction):
 
   sa = sample()
   sampleDict = {}
-  print ("Length Sample List: " + str(len(sampleList)))
+  print ("Length List samples x tiles x surface: " + str(len(sampleList)))
 
   # key = sample name, value = sample()  
   for element in range(0, len(sampleList)):
@@ -448,66 +500,7 @@ def process(transaction):
   for mye in stat:
     mye.rawPercentageReadsPerLane = relRawReadsDict[mye.sampleName]
    
-  def sampleSearch(Code=''):
-    sc = SearchCriteria()
-    numberOfLanes = 0
-    sc.addMatchClause(SearchCriteria.MatchClause.createAttributeMatch(SearchCriteria.MatchClauseAttribute.CODE, Code));
-    search_service = transaction.getSearchService()
-    foundSample = search_service.searchForSamples(sc)
-    if foundSample.size() > 0:
-      # Search for contained samples
-      sampleSc = SearchCriteria()
-      sampleSc.addSubCriteria(SearchSubCriteria.createSampleContainerCriteria(sc))
-      foundContainedSamples = search_service.searchForSamples(sampleSc)
-      numberOfLanes = foundContainedSamples.size()
-    return foundSample, foundContainedSamples, numberOfLanes
-
-#--------------------------------------------------------------------------------------------------------------------------------------
-
-  def searchDataSetsofSample(sample, index1, index2, DATA_SET_TYPE):
-    sc = SearchCriteria()
-    sc.addMatchClause(SearchCriteria.MatchClause.createAttributeMatch(SearchCriteria.MatchClauseAttribute.CODE, sample));
-    search_service = transaction.getSearchService()
-    foundSample = search_service.searchForSamples(sc)
-
-    dataSetSc = SearchCriteria()
-    # set the Search Criteria to an OR condition, default is AND
-    #dataSetSc.setOperator(SearchCriteria.SearchOperator.MATCH_ANY_CLAUSES)
-    dataSetSc.addMatchClause(SearchCriteria.MatchClause.createAttributeMatch(SearchCriteria.MatchClauseAttribute.TYPE, DATA_SET_TYPE))
-    dataSetSc.addMatchClause(SearchCriteria.MatchClause.createPropertyMatch("BARCODE", index1 ))
-    dataSetSc.addMatchClause(SearchCriteria.MatchClause.createPropertyMatch("INDEX2", index2))
-    dataSetSc.addSubCriteria(SearchSubCriteria.createSampleCriteria(sc))
-    foundDataSets = search_service.searchForDataSets(dataSetSc)
-    print "foundDataSets.size() "+ str(foundDataSets.size())
-    for ds in foundDataSets:
-      print "Index1 for found Data Set" + ds.getDataSetCode() + " " + ds.getPropertyValue('BARCODE')
-      print "Index2 for found Data Set" + ds.getDataSetCode() + " " + ds.getPropertyValue('INDEX2')
-      
-    return foundDataSets
-
-#--------------------------------------------------------------------------------------------------------------------------------------
-
-  def getIndexesofDataSetsofSample(sample, DATA_SET_TYPE):
-
-    index1List = []
-    index2List = []
-    sc = SearchCriteria()
-    sc.addMatchClause(SearchCriteria.MatchClause.createAttributeMatch(SearchCriteria.MatchClauseAttribute.CODE, sample));
-    search_service = transaction.getSearchService()
-    foundSample = search_service.searchForSamples(sc)
-
-    dataSetSc = SearchCriteria()
-    dataSetSc.addMatchClause(SearchCriteria.MatchClause.createAttributeMatch(SearchCriteria.MatchClauseAttribute.TYPE, DATA_SET_TYPE))
-    dataSetSc.addSubCriteria(SearchSubCriteria.createSampleCriteria(sc))
-    foundDataSets = search_service.searchForDataSets(dataSetSc)
-    for ds in foundDataSets:
-      index1List.append(ds.getPropertyValue('BARCODE'))
-      index2List.append(ds.getPropertyValue('INDEX2'))
-    return index1List, index2List  
-
-#--------------------------------------------------------------------------------------------------------------------------------------
-
-  flowcell, lanes, numberOfLanes  = sampleSearch(name)
+  flowcell, lanes, numberOfLanes  = sampleSearch(transaction, name)
 
   index1Length = fcPropertiesDict['INDEXREAD']
   index2Length = fcPropertiesDict['INDEXREAD2']
@@ -515,9 +508,16 @@ def process(transaction):
   full_lane_statistics = lane_statistics()
   complete_lane_statistic = full_lane_statistics.caluclate_complete_lane_statistic(stat)
   
+  print(complete_lane_statistic.pfYieldSum)
   # TODO Can we assume that this is always the same lanes, so we take the first one?
   lane = lanes[0]
-  mutable_lane = transaction.getSampleForUpdate(lane.getSampleIdentifier())
+  
+  for lane in lanes:
+      if laneNumber == lane.getSampleIdentifier().split(":")[-1]:
+            mutable_lane = transaction.getSampleForUpdate(lane.getSampleIdentifier())
+            print("Setting Complete Lanes Statistics For: " + lane.getSampleIdentifier())
+            break
+      
   mutable_lane.setPropertyValue("YIELD_MBASES", str(complete_lane_statistic.pfYieldSum))
   mutable_lane.setPropertyValue('RAW_YIELD_MBASES', str(complete_lane_statistic.rawYieldSum))
   mutable_lane.setPropertyValue('PERCENTAGE_PASSED_FILTERING',str(complete_lane_statistic.pfPercentage))
@@ -534,7 +534,7 @@ def process(transaction):
     print '\n'
     print mystat
     
-    index1List, index2List = getIndexesofDataSetsofSample(laneCode, FASTQ_DATA_SET_TYPE)
+    index1List, index2List = getIndexesofDataSetsofSample(transaction, laneCode, FASTQ_DATA_SET_TYPE)
     print "Searching for "+ searchIndex1 + " in " + str(index1List)
     print "Searching for "+ searchIndex2 + " in " + str(index2List)
    
@@ -576,7 +576,7 @@ def process(transaction):
     print "searchIndex2 " + str(searchIndex2)
 
     # Search for a data set with those two indices
-    DataSet = searchDataSetsofSample(laneCode, searchIndex1, searchIndex2, FASTQ_DATA_SET_TYPE)
+    DataSet = searchDataSetsofSample(transaction, laneCode, searchIndex1, searchIndex2, FASTQ_DATA_SET_TYPE)
     try:
       assert DataSet.size() == 1
     except AssertionError:
