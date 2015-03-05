@@ -79,7 +79,7 @@ class SampleAndDataSetRegistrator extends AbstractSampleAndDataSetProcessor impl
         try
         {
             checkDataSetFileNotEmpty();
-            checkExperimentExists();
+            injectExperiment();
             retrieveSampleOrNull();
         } catch (UserFailureException ex)
         {
@@ -188,13 +188,13 @@ class SampleAndDataSetRegistrator extends AbstractSampleAndDataSetProcessor impl
         sampleOrNull = globalState.getOpenbisService().tryGetSampleWithExperiment(sampleIdentifier);
     }
 
-    private void checkExperimentExists()
+    private void injectExperiment()
     {
         ExperimentIdentifier experimentId =
                 sampleDataSetPair.getDataSetInformation().getExperimentIdentifier();
         if (null == experimentId)
         {
-            throw new UserFailureException("An experiment identifier must be specified");
+            return;
         }
 
         Experiment experiment = globalState.getOpenbisService().tryGetExperiment(experimentId);

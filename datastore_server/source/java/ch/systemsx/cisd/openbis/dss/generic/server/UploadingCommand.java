@@ -326,9 +326,15 @@ class UploadingCommand implements IDataSetCommand
     {
         Sample sample = dataSet.getSample();
         Experiment experiment = dataSet.getExperiment();
-        Project project = experiment.getProject();
-        return project.getSpace().getCode() + "/" + project.getCode() + "/" + experiment.getCode()
-                + "/" + (sample == null ? "" : sample.getCode() + "/") + dataSet.getCode();
+        if (experiment != null)
+        {
+            Project project = experiment.getProject();
+            return project.getSpace().getCode() + "/" + project.getCode() + "/" + experiment.getCode()
+                    + "/" + (sample == null ? "" : sample.getCode() + "/") + dataSet.getCode();
+        } else
+        {
+            return sample.getSpace().getCode() + "/" + sample.getCode() + "/" + dataSet.getCode();
+        }
     }
 
     private void sendEMail(String message)

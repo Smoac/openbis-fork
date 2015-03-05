@@ -91,7 +91,10 @@ public abstract class AbstractDataSetFileOperationsManager
     {
         AbstractExternalData dataSet = getService().tryGetDataSet(datasetDescription.getDataSetCode());
         String experimentIdentifier = datasetDescription.getExperimentIdentifier();
-        dataSet.setExperiment(getService().tryGetExperiment(ExperimentIdentifierFactory.parse(experimentIdentifier)));
+        if (experimentIdentifier != null)
+        {
+            dataSet.setExperiment(getService().tryGetExperiment(ExperimentIdentifierFactory.parse(experimentIdentifier)));
+        }
         String sampleIdentifier = datasetDescription.getSampleIdentifier();
         if (sampleIdentifier != null)
         {

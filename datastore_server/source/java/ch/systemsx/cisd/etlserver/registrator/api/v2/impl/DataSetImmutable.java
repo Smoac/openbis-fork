@@ -32,8 +32,10 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.dataset.DataSetCode
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystem;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.util.EntityHelper;
 
 /**
@@ -43,6 +45,52 @@ import ch.systemsx.cisd.openbis.generic.shared.util.EntityHelper;
  */
 public class DataSetImmutable extends AbstractDataSetImmutable
 {
+    private static final class NullExperiment implements IExperimentImmutable
+    {
+        private String message;
+
+        NullExperiment(String dataSetCode)
+        {
+            message = "No experiment defined for data set '" + dataSetCode + "'.";
+        }
+
+        @Override
+        public IObjectId getEntityId()
+        {
+            throw new UnsupportedOperationException(message);
+        }
+
+        @Override
+        public String getExperimentIdentifier()
+        {
+            throw new UnsupportedOperationException(message);
+        }
+
+        @Override
+        public boolean isExistingExperiment()
+        {
+            return false;
+        }
+
+        @Override
+        public String getExperimentType()
+        {
+            return null;
+        }
+
+        @Override
+        public String getPropertyValue(String propertyCode)
+        {
+            return null;
+        }
+
+        @Override
+        public String getPermId()
+        {
+            throw new UnsupportedOperationException(message);
+        }
+    }
+    
     protected final AbstractExternalData dataSet;
 
     public DataSetImmutable(AbstractExternalData dataSet, IEncapsulatedBasicOpenBISService service)
@@ -66,20 +114,15 @@ public class DataSetImmutable extends AbstractDataSetImmutable
     @Override
     public IExperimentImmutable getExperiment()
     {
-        return new ExperimentImmutable(dataSet.getExperiment());
+        Experiment experiment = dataSet.getExperiment();
+        return experiment == null ? new NullExperiment(getDataSetCode()) : new ExperimentImmutable(experiment);
     }
 
     @Override
     public ISampleImmutable getSample()
     {
-        ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample sample = dataSet.getSample();
-        if (sample == null)
-        {
-            return null;
-        } else
-        {
-            return new SampleImmutable(sample);
-        }
+        Sample sample = dataSet.getSample();
+        return sample == null ? null : new SampleImmutable(sample);
     }
 
     @Override

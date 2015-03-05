@@ -40,6 +40,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
  * The base class for processing plugins that employ a {@link IPostRegistrationDatasetHandler}.
@@ -116,9 +118,10 @@ abstract public class AbstractDropboxProcessingPlugin extends AbstractDatastoreP
                 render(dataSetDescription.getSampleIdentifier(),
                         dataSetDescription.getSampleTypeCode());
         boolean withSample = sampleOrNull != null;
+        boolean withExperiment = experiment != null;
         boolean processingFailed = status.isError();
         String processingDescription = getProcessingDescription(dataSetDescription, context);
-        Template template = getEMailMessageTemplate(processingFailed, withSample).createFreshCopy();
+        Template template = getEMailMessageTemplate(processingFailed, withSample, withExperiment).createFreshCopy();
         String subject;
         if (processingFailed)
         {
@@ -130,7 +133,10 @@ abstract public class AbstractDropboxProcessingPlugin extends AbstractDatastoreP
         }
         template.bind("processing-description", processingDescription);
         template.bind("data-set", dataSet);
-        template.bind("experiment", experiment);
+        if (withExperiment)
+        {
+            template.bind("experiment", experiment);
+        }
         if (withSample)
         {
             template.bind("sample", sampleOrNull);
@@ -144,14 +150,14 @@ abstract public class AbstractDropboxProcessingPlugin extends AbstractDatastoreP
         mailClient.sendEmailMessage(subject, template.createText(), null, null, eMailAddress);
     }
 
-    private Template getEMailMessageTemplate(boolean withError, boolean withSample)
+    private Template getEMailMessageTemplate(boolean withError, boolean withSample, boolean withExperiment)
     {
         return new Template(
                 (withError ? "Processing of data set ${data-set} failed.\nReason: ${error}"
                         : "Successfully processed data set ${data-set}.")
                         + "\n\nProcessing details:\n"
                         + "Description: ${processing-description}\n"
-                        + "Experiment: ${experiment}\n"
+                        + (withExperiment ? "Experiment: ${experiment}\n" : "")
                         + (withSample ? "Sample: ${sample}\n" : "")
                         + "Started: ${start-time}.\n" + "Finished: ${end-time}.");
     }
@@ -201,10 +207,18 @@ abstract public class AbstractDropboxProcessingPlugin extends AbstractDatastoreP
         datasetInfo.setSampleCode(dataset.getSampleCode());
         datasetInfo.setSpaceCode(dataset.getSpaceCode());
         datasetInfo.setDataSetCode(dataset.getDataSetCode());
-        ExperimentIdentifier expIdent =
-                new ExperimentIdentifier(null, dataset.getSpaceCode(), dataset.getProjectCode(),
-                        dataset.getExperimentCode());
-        datasetInfo.setExperimentIdentifier(expIdent);
+        if (dataset.getExperimentCode() != null)
+        {
+            ExperimentIdentifier expIdent =
+                    new ExperimentIdentifier(null, dataset.getSpaceCode(), dataset.getProjectCode(),
+                            dataset.getExperimentCode());
+            datasetInfo.setExperimentIdentifier(expIdent);
+        }
+        if (dataset.getSampleCode() != null)
+        {
+            SpaceIdentifier spaceIdentifier = new SpaceIdentifier(dataset.getSpaceCode());
+            datasetInfo.setSampleIdentifier(new SampleIdentifier(spaceIdentifier, dataset.getSampleCode()));
+        }
         return datasetInfo;
     }
 

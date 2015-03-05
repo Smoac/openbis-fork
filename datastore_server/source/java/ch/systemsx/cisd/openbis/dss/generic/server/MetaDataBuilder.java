@@ -130,14 +130,17 @@ public class MetaDataBuilder
             builder.sampleProperties(sample.getProperties());
         }
         Experiment experiment = dataSet.getExperiment();
-        Project project = experiment.getProject();
-        builder.experiment("space_code", project.getSpace().getCode());
-        builder.experiment("project_code", project.getCode());
-        builder.experiment("experiment_code", experiment.getCode());
-        builder.experiment("experiment_type_code", experiment.getExperimentType().getCode());
-        builder.experiment("registration_timestamp", experiment.getRegistrationDate());
-        builder.experiment("registrator", experiment.getRegistrator());
-        builder.experimentProperties(experiment.getProperties());
+        if (experiment != null)
+        {
+            Project project = experiment.getProject();
+            builder.experiment("space_code", project.getSpace().getCode());
+            builder.experiment("project_code", project.getCode());
+            builder.experiment("experiment_code", experiment.getCode());
+            builder.experiment("experiment_type_code", experiment.getExperimentType().getCode());
+            builder.experiment("registration_timestamp", experiment.getRegistrationDate());
+            builder.experiment("registrator", experiment.getRegistrator());
+            builder.experimentProperties(experiment.getProperties());
+        }
         return builder.getRenderedMetaData();
     }
 

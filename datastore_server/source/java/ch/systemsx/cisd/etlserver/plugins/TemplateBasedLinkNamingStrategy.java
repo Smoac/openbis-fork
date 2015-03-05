@@ -154,12 +154,7 @@ public class TemplateBasedLinkNamingStrategy implements IHierarchicalStorageLink
             @Override
             String extractValueFromData(SimpleDataSetInformationDTO data)
             {
-                String samplePathElement = data.getSampleCode();
-                if (samplePathElement == null)
-                {
-                    samplePathElement = NOT_DIRECTLY_CONNECTED;
-                }
-                return samplePathElement;
+                return getPathElement(data.getSampleCode());
             }
 
         },
@@ -170,7 +165,7 @@ public class TemplateBasedLinkNamingStrategy implements IHierarchicalStorageLink
             @Override
             String extractValueFromData(SimpleDataSetInformationDTO data)
             {
-                return data.getExperimentCode();
+                return getPathElement(data.getExperimentCode());
             }
 
         },
@@ -180,7 +175,7 @@ public class TemplateBasedLinkNamingStrategy implements IHierarchicalStorageLink
             @Override
             String extractValueFromData(SimpleDataSetInformationDTO data)
             {
-                return data.getProjectCode();
+                return getPathElement(data.getProjectCode());
             }
         },
 
@@ -207,6 +202,11 @@ public class TemplateBasedLinkNamingStrategy implements IHierarchicalStorageLink
 
         
         abstract String extractValueFromData(SimpleDataSetInformationDTO data);
+
+        private static String getPathElement(String pathElement)
+        {
+            return pathElement == null ? NOT_DIRECTLY_CONNECTED : pathElement;
+        }
 
     }
 }

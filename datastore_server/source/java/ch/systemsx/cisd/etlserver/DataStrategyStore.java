@@ -36,6 +36,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
@@ -50,6 +51,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 public class DataStrategyStore implements IDataStrategyStore
 {
     static final String SUBJECT_FORMAT = "ATTENTION: experiment '%s'";
+    static final String SUBJECT_SAMPLE_FORMAT = "ATTENTION: sample '%s'";
 
     private static final Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY,
             DataStrategyStore.class);
@@ -137,14 +139,130 @@ public class DataStrategyStore implements IDataStrategyStore
             return dataStoreStrategies.get(DataStoreStrategyKey.UNIDENTIFIED);
         }
 
-        if (dataSetInfo.isNoFileDataSet())
+        assertIncomingDataSetPath(incomingDataSetPath, dataSetInfo);
+        injectContainerDataSet(dataSetInfo);
+
+        String emailOrNull = dataSetInfo.tryGetUploadingUserEmail();
+        ExperimentIdentifier experimentIdentifier = dataSetInfo.getExperimentIdentifier();
+        final SampleIdentifier sampleIdentifier = dataSetInfo.getSampleIdentifier();
+        if (sampleIdentifier == null)
         {
-            assert incomingDataSetPath == null : "Incoming data set path for a no-file data set must be null";
+            Experiment experiment = tryGetExperiment(dataSetInfo);
+            if (experiment == null)
+            {
+                error(emailOrNull, "Unknown experiment identifier '" + experimentIdentifier + "'.");
+                return dataStoreStrategies.get(DataStoreStrategyKey.UNIDENTIFIED);
+            }
+            dataSetInfo.setExperiment(experiment);
         } else
         {
-            assert incomingDataSetPath != null : "Incoming data set path for a normal data set can not be null.";
+            Sample sample = tryGetSample(dataSetInfo);
+            if (sample == null)
+            {
+                error(emailOrNull, createNotificationMessage(dataSetInfo, incomingDataSetPath));
+                return dataStoreStrategies.get(DataStoreStrategyKey.UNIDENTIFIED);
+            }
+            dataSetInfo.setSample(sample);
+            final Experiment experiment = sample.getExperiment();
+            if (experiment == null)
+            {
+                if (sample.getSpace() == null) 
+                {
+                    error(emailOrNull, String.format("Data set for sample '%s' can not be registered "
+                            + "because the sample is a shared sample not assigned to a particular space.", 
+                            sampleIdentifier));
+                    return dataStoreStrategies.get(DataStoreStrategyKey.UNIDENTIFIED);
+                }
+            } else 
+            {
+                experimentIdentifier = new ExperimentIdentifier(experiment);
+                dataSetInfo.setExperimentIdentifier(experimentIdentifier);
+            }
+
+            final IEntityProperty[] properties =
+                    openbisServiceWrapper.tryGetPropertiesOfSample(sampleIdentifier);
+            if (properties == null)
+            {
+                final Person registrator = experiment == null ? sample.getRegistrator() : experiment.getRegistrator();
+                assert registrator != null : "Registrator must be known";
+                final String message = createInvalidSampleCodeMessage(dataSetInfo);
+                final String recipientMail = registrator.getEmail();
+                if (StringUtils.isNotBlank(recipientMail))
+                {
+                    sendEmail(message, experimentIdentifier, sampleIdentifier, recipientMail);
+                } else
+                {
+                    error(emailOrNull, "The registrator '" + registrator
+                            + "' has a blank email, sending the following email failed:\n"
+                            + message);
+                }
+                operationLog.error(createLogMessageForMissingSampleProperties(incomingDataSetPath, 
+                        experimentIdentifier, sampleIdentifier));
+                return dataStoreStrategies.get(DataStoreStrategyKey.INVALID);
+            }
+            dataSetInfo.setSampleProperties(properties);
         }
 
+        if (operationLog.isInfoEnabled())
+        {
+            operationLog.info(createLogMessageForIdentified(experimentIdentifier, sampleIdentifier));
+        }
+        return dataStoreStrategies.get(DataStoreStrategyKey.IDENTIFIED);
+    }
+
+    private String createLogMessageForIdentified(ExperimentIdentifier experimentIdentifier,
+            SampleIdentifier sampleIdentifier)
+    {
+        String prefix = "Identified that database knows ";
+        if (sampleIdentifier == null)
+        {
+            return prefix + "experiment '" + experimentIdentifier + "'.";
+        } else if (experimentIdentifier == null)
+        {
+            return prefix + "sample '" + sampleIdentifier + "'.";
+        }
+        return prefix + "experiment '" + experimentIdentifier + "' and sample '" + sampleIdentifier + "'.";
+    }
+
+    private String createLogMessageForMissingSampleProperties(final File incomingDataSetPath,
+            ExperimentIdentifier experimentIdentifier, final SampleIdentifier sampleIdentifier)
+    {
+        String claimedOwner;
+        if (experimentIdentifier == null)
+        {
+            claimedOwner = String.format("sample '%s'",  sampleIdentifier);
+        } else
+        {
+            claimedOwner = String.format("experiment '%s' and sample '%s'", 
+                    experimentIdentifier, sampleIdentifier);
+        }
+        return String.format("Incoming data set '%s' claims to belong to %s, but according to the openBIS server "
+                + "there is no such sample (maybe it has been deleted?). We thus consider it invalid.",
+                incomingDataSetPath, claimedOwner);
+    }
+
+    public Sample tryGetSample(final DataSetInformation dataSetInfo)
+    {
+        Sample sample = dataSetInfo.tryToGetSample();
+        if (sample == null)
+        {
+            sample = openbisServiceWrapper.tryGetSample(dataSetInfo.getSampleIdentifier());
+        }
+        return sample;
+    }
+
+    public Experiment tryGetExperiment(final DataSetInformation dataSetInfo)
+    {
+        Experiment experiment = dataSetInfo.tryToGetExperiment();
+        if (experiment == null)
+        {
+            experiment = openbisServiceWrapper.tryGetExperiment(dataSetInfo.getExperimentIdentifier());
+        }
+        return experiment;
+    }
+
+    public void injectContainerDataSet(final DataSetInformation dataSetInfo)
+    {
         String containerDatasetPermId = dataSetInfo.tryGetContainerDatasetPermId();
         if (containerDatasetPermId != null)
         {
@@ -155,94 +273,17 @@ public class DataStrategyStore implements IDataStrategyStore
                 dataSetInfo.setContainerDataSet(container);
             }
         }
+    }
 
-        String emailOrNull = dataSetInfo.tryGetUploadingUserEmail();
-        ExperimentIdentifier experimentIdentifier;
-        final SampleIdentifier sampleIdentifier = dataSetInfo.getSampleIdentifier();
-        if (sampleIdentifier == null)
+    public void assertIncomingDataSetPath(final File incomingDataSetPath, final DataSetInformation dataSetInfo)
+    {
+        if (dataSetInfo.isNoFileDataSet())
         {
-            experimentIdentifier = dataSetInfo.getExperimentIdentifier();
-            Experiment experiment = dataSetInfo.tryToGetExperiment();
-            if (experiment == null)
-            {
-                experiment = openbisServiceWrapper.tryGetExperiment(experimentIdentifier);
-            }
-            if (experiment == null)
-            {
-                error(emailOrNull, "Unknown experiment identifier '" + experimentIdentifier + "'.");
-                return dataStoreStrategies.get(DataStoreStrategyKey.UNIDENTIFIED);
-            }
-            if (experiment.getDeletion() != null)
-            {
-                error(emailOrNull, "Experiment '" + experimentIdentifier + "' has been deleted.");
-                return dataStoreStrategies.get(DataStoreStrategyKey.UNIDENTIFIED);
-            }
-            dataSetInfo.setExperiment(experiment);
+            assert incomingDataSetPath == null : "Incoming data set path for a no-file data set must be null";
         } else
         {
-            Sample sample = dataSetInfo.tryToGetSample();
-            if (sample == null)
-            {
-                sample = openbisServiceWrapper.tryGetSample(sampleIdentifier);
-            }
-
-            if (sample == null)
-            {
-                error(emailOrNull, createNotificationMessage(dataSetInfo, incomingDataSetPath));
-                return dataStoreStrategies.get(DataStoreStrategyKey.UNIDENTIFIED);
-            }
-            final Experiment experiment = sample.getExperiment();
-            if (experiment == null)
-            {
-                error(emailOrNull, String.format("Data set for sample '%s' can not be registered "
-                        + "because the sample is not attached to an experiment.", sampleIdentifier));
-                return dataStoreStrategies.get(DataStoreStrategyKey.UNIDENTIFIED);
-            } else if (experiment.getDeletion() != null)
-            {
-                error(emailOrNull, String.format("Data set for sample '%s' can not be registered "
-                        + "because experiment '%s' has been deleted.", sampleIdentifier,
-                        experiment.getCode()));
-                return dataStoreStrategies.get(DataStoreStrategyKey.UNIDENTIFIED);
-            }
-            dataSetInfo.setSample(sample);
-            experimentIdentifier = new ExperimentIdentifier(experiment);
-            dataSetInfo.setExperimentIdentifier(experimentIdentifier);
-
-            final IEntityProperty[] properties =
-                    openbisServiceWrapper.tryGetPropertiesOfSample(sampleIdentifier);
-            if (properties == null)
-            {
-                final Person registrator = experiment.getRegistrator();
-                assert registrator != null : "Registrator must be known";
-                final String message = createInvalidSampleCodeMessage(dataSetInfo);
-                final String recipientMail = registrator.getEmail();
-                if (StringUtils.isNotBlank(recipientMail))
-                {
-                    sendEmail(message, experimentIdentifier, recipientMail);
-                } else
-                {
-                    error(emailOrNull, "The registrator '" + registrator
-                            + "' has a blank email, sending the following email failed:\n"
-                            + message);
-                }
-                operationLog.error(String.format("Incoming data set '%s' claims to "
-                        + "belong to experiment '%s' and sample"
-                        + " identifier '%s', but according to the openBIS server "
-                        + "there is no such sample for this "
-                        + "experiment (maybe it has been deleted?). We thus consider it invalid.",
-                        incomingDataSetPath, experimentIdentifier, sampleIdentifier));
-                return dataStoreStrategies.get(DataStoreStrategyKey.INVALID);
-            }
-            dataSetInfo.setSampleProperties(properties);
+            assert incomingDataSetPath != null : "Incoming data set path for a normal data set can not be null.";
         }
-
-        if (operationLog.isInfoEnabled())
-        {
-            operationLog.info("Identified that database knows experiment '" + experimentIdentifier
-                    + "'"
-                    + (sampleIdentifier == null ? "." : " and sample '" + sampleIdentifier + "'."));
-        }
-        return dataStoreStrategies.get(DataStoreStrategyKey.IDENTIFIED);
     }
 
     private void error(String emailOrNull, String message)
@@ -259,9 +300,16 @@ public class DataStrategyStore implements IDataStrategyStore
     }
 
     private void sendEmail(final String message, final ExperimentIdentifier experimentIdentifier,
-            final String recipientMail)
+            SampleIdentifier sampleIdentifier, final String recipientMail)
     {
-        final String subject = String.format(SUBJECT_FORMAT, experimentIdentifier);
+        final String subject;
+        if (experimentIdentifier == null)
+        {
+            subject = String.format(SUBJECT_SAMPLE_FORMAT, sampleIdentifier);
+        } else
+        {
+            subject = String.format(SUBJECT_FORMAT, experimentIdentifier);
+        }
         try
         {
             mailClient.sendMessage(subject, message, null, null, recipientMail);

@@ -270,12 +270,20 @@ public class IdentifierAttributeMappingManager
 
     private Attributes tryGetExperimentAttributes(String spaceCode, String projectCode, String experimentCode)
     {
+        if (experimentCode == null)
+        {
+            return null;
+        }
         String identifier = new ExperimentIdentifier(null, spaceCode, projectCode, experimentCode).toString();
         return getAttributesMap().get(identifier);
     }
 
     private Attributes tryGetProjectAttributes(String spaceCode, String projectCode)
     {
+        if (projectCode == null)
+        {
+            return null;
+        }
         String identifier = new ProjectIdentifier(null, spaceCode, projectCode).toString();
         return getAttributesMap().get(identifier);
     }

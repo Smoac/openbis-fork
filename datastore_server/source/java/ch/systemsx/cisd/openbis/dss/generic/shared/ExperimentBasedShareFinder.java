@@ -42,15 +42,18 @@ public class ExperimentBasedShareFinder implements IShareFinder
     @Override
     public Share tryToFindShare(SimpleDataSetInformationDTO dataSet, List<Share> shares)
     {
-        String experimentIdentifier =
-                new ExperimentIdentifier(null, dataSet.getSpaceCode(), dataSet.getProjectCode(),
-                        dataSet.getExperimentCode()).toString();
-        for (Share share : shares)
+        if (dataSet.getExperimentCode() != null)
         {
-            if (share.getExperimentIdentifiers().contains(experimentIdentifier)
-                    && share.calculateFreeSpace() > dataSet.getDataSetSize())
+            String experimentIdentifier =
+                    new ExperimentIdentifier(null, dataSet.getSpaceCode(), dataSet.getProjectCode(),
+                            dataSet.getExperimentCode()).toString();
+            for (Share share : shares)
             {
-                return share;
+                if (share.getExperimentIdentifiers().contains(experimentIdentifier)
+                        && share.calculateFreeSpace() > dataSet.getDataSetSize())
+                {
+                    return share;
+                }
             }
         }
         return null;

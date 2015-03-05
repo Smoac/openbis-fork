@@ -77,6 +77,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.OpenBISSessionHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.util.LogRecordingUtils;
 
 /**
@@ -486,9 +487,11 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
     private final void checkSuccessEmailNotification(final Expectations expectations,
             final DataSetInformation dataSet, final String dataSetCode, final String recipient)
     {
+        SampleIdentifier sampleIdentifier = dataSet.getSampleIdentifier();
+        String code = sampleIdentifier != null ? sampleIdentifier.getSampleCode() :
+                dataSet.getExperimentIdentifier().getExperimentCode();
         expectations.one(mailClient).sendMessage(
-                String.format(DataSetRegistrationHelper.EMAIL_SUBJECT_TEMPLATE, dataSet
-                        .getExperimentIdentifier().getExperimentCode()),
+                String.format(DataSetRegistrationHelper.EMAIL_SUBJECT_TEMPLATE, code),
                 getNotificationEmailContent(dataSet, dataSetCode), null, null, recipient);
     }
 
@@ -662,10 +665,8 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
         assertEquals(false, isFinishedData1.exists());
         assertLog("ERROR OPERATION.DataStrategyStore - "
                 + "Incoming data set '<wd>/data1' claims to belong to experiment "
-                + "'/GROUP1/PROJECT1/EXPERIMENT1' and sample identifier '/"
-                + SAMPLE_CODE
-                + "', "
-                + "but according to the openBIS server there is no such sample for this experiment "
+                + "'/GROUP1/PROJECT1/EXPERIMENT1' and sample '/" + SAMPLE_CODE + "', "
+                + "but according to the openBIS server there is no such sample "
                 + "(maybe it has been deleted?). We thus consider it invalid."
                 + OSUtilities.LINE_SEPARATOR + "INFO  OPERATION.FileRenamer - "
                 + "Moving file 'data1' from '<wd>' to '<wd>/1/invalid/DataSetType_O1'.");

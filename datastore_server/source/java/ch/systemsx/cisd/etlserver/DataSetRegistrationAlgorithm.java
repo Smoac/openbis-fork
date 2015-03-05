@@ -51,6 +51,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
@@ -123,8 +124,6 @@ public class DataSetRegistrationAlgorithm
 
         private final String defaultErrorMessageTemplate;
 
-        private final String emailSubjectTemplate;
-
         public DataSetRegistrationAlgorithmState(File incomingDataSetFile,
                 IEncapsulatedOpenBISService openBisService,
                 IDelegatedActionWithResult<Boolean> cleanAfterwardsAction,
@@ -164,7 +163,6 @@ public class DataSetRegistrationAlgorithm
             dataSetInformation.setDataSetType(dataSetType);
             this.storeRoot = storageProcessor.getStoreRootDirectory();
             this.defaultErrorMessageTemplate = DATA_SET_STORAGE_FAILURE_TEMPLATE;
-            this.emailSubjectTemplate = EMAIL_SUBJECT_TEMPLATE;
         }
 
         public File getIncomingDataSetFile()
@@ -179,7 +177,7 @@ public class DataSetRegistrationAlgorithm
     static private final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             DataSetRegistrationAlgorithm.class);
 
-    public static final String EMAIL_SUBJECT_TEMPLATE = "Success: data set for experiment '%s";
+    public static final String EMAIL_SUBJECT_TEMPLATE = "Success: data set for sample or experiment '%s";
 
     public static final String DATA_SET_REGISTRATION_FAILURE_TEMPLATE =
             "Registration of data set '%s' failed.";
@@ -264,12 +262,9 @@ public class DataSetRegistrationAlgorithm
             boolean deleted = false;
             if (userEmailOrNull != null)
             {
-                final String errorMessage =
-                        "Error when trying to register data set '" + incomingDataSetFile.getName()
-                                + "'.";
-                state.mailClient.sendMessage(String.format(errorMessage, dataSetInformation
-                        .getExperimentIdentifier().getExperimentCode()), ex.getMessage(), null,
-                        null, userEmailOrNull);
+                final String errorMessage = "Error when trying to register data set '"
+                        + incomingDataSetFile.getName() + "'.";
+                state.mailClient.sendMessage(errorMessage, ex.getMessage(), null, null, userEmailOrNull);
                 if (state.shouldDeleteUnidentified)
                 {
                     deleted = removeAndLog(errorMessage + " [" + ex.getMessage() + "]");
@@ -498,8 +493,16 @@ public class DataSetRegistrationAlgorithm
             }
             if (StringUtils.isBlank(email) == false)
             {
-                state.mailClient.sendMessage(String.format(state.emailSubjectTemplate,
-                        dataSetInformation.getExperimentIdentifier().getExperimentCode()), msg,
+                String code = dataSetInformation.getSampleCode();
+                if (code == null)
+                {
+                    ExperimentIdentifier experimentIdentifier = dataSetInformation.getExperimentIdentifier();
+                    if (experimentIdentifier != null)
+                    {
+                        code = experimentIdentifier.getExperimentCode();
+                    }
+                }
+                state.mailClient.sendMessage(String.format(EMAIL_SUBJECT_TEMPLATE, code), msg,
                         null, null, email);
             }
         }

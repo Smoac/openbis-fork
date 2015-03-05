@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.etlserver.plugins.grouping;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 
 /**
@@ -37,7 +38,7 @@ public enum Grouping implements IGroupKeyProvider
         @Override
         public String getGroupKey(AbstractExternalData dataset)
         {
-            return dataset.getExperiment().getProject().getSpace().getCode();
+            return dataset.getSpace().getCode();
         }
     },
     Project
@@ -53,7 +54,8 @@ public enum Grouping implements IGroupKeyProvider
         @Override
         public String getGroupKey(AbstractExternalData dataset)
         {
-            return dataset.getExperiment().getIdentifier();
+            Experiment experiment = dataset.getExperiment();
+            return experiment != null ? experiment.getIdentifier() : "no_experiment";
         }
 
     },
@@ -87,7 +89,7 @@ public enum Grouping implements IGroupKeyProvider
         @Override
         public String getGroupKey(AbstractExternalData dataset)
         {
-            return dataset.getExperiment().getIdentifier() + "#" + dataset.getDataSetType().getCode();
+            return Experiment.getGroupKey(dataset) + "#" + DataSetType.getGroupKey(dataset);
         }
     }
 

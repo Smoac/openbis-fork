@@ -46,6 +46,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
@@ -433,7 +434,8 @@ public class Hdf5CompressingPostRegistrationTask extends AbstractPostRegistratio
 
     private ExperimentIdentifier extractExperimentIdentifier(AbstractExternalData data)
     {
-        return ExperimentIdentifierFactory.parse(data.getExperiment().getIdentifier());
+        Experiment experiment = data.getExperiment();
+        return experiment == null ? null : ExperimentIdentifierFactory.parse(experiment.getIdentifier());
     }
 
     private SampleIdentifier extractSampleIdentifier(AbstractExternalData data)
