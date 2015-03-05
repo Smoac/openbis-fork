@@ -27,6 +27,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.OperationContext;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.dataset.IDeleteDataSetExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.dataset.IMapDataSetByIdExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.dataset.ISearchDataSetExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.dataset.IUpdateDataSetExecutor;
@@ -53,6 +54,7 @@ import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.sample.Sample
 import ch.ethz.sis.openbis.generic.server.api.v3.utils.ExceptionUtils;
 import ch.ethz.sis.openbis.generic.shared.api.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion.Deletion;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion.dataset.DataSetDeletionOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion.experiment.ExperimentDeletionOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion.sample.SampleDeletionOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSet;
@@ -126,6 +128,9 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
 
     @Autowired
     private IMapExperimentByIdExecutor mapExperimentByIdExecutor;
+
+    @Autowired
+    private IDeleteDataSetExecutor deleteDataSetExecutor;
 
     @Autowired
     private IMapSampleByIdExecutor mapSampleByIdExecutor;
@@ -444,6 +449,23 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
         } finally
         {
             // the clear is necessary, as deleting experiments involves sql queries, that are not visible to cached PE objects
+            getDAOFactory().getSessionFactory().getCurrentSession().clear();
+        }
+    }
+
+    @Override
+    public IDeletionId deleteDataSets(String sessionToken, List<? extends IDataSetId> dataSetIds, DataSetDeletionOptions deletionOptions)
+    {
+        Session session = getSession(sessionToken);
+        OperationContext context = new OperationContext(session);
+        try
+        {
+            return deleteDataSetExecutor.delete(context, dataSetIds, deletionOptions);
+        } catch (Throwable t)
+        {
+            throw ExceptionUtils.create(context, t);
+        } finally
+        {
             getDAOFactory().getSessionFactory().getCurrentSession().clear();
         }
     }
