@@ -130,7 +130,7 @@ public class UpdateDataSetTest extends AbstractSampleTest
         fe.withParents();
         DataSet result = v3api.mapDataSets(sessionToken, Collections.singletonList(dataSetId), fe).get(dataSetId);
 
-        AssertionUtil.assertSize(result.getParents(), 2);
+        AssertionUtil.assertSize(result.getParents(), 0);
     }
 
     @Test
