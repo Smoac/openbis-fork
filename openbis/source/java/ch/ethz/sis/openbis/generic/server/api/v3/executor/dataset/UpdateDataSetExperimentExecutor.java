@@ -30,7 +30,6 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSetUpdat
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentIdentifier;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.IExperimentId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.UnauthorizedObjectAccessException;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ExperimentByIdentiferValidator;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
@@ -39,7 +38,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
  * @author pkupczyk
  */
 @Component
-public class UpdateDataSetExperimentExecutor extends AbstractUpdateEntityFieldUpdateValueRelationExecutor<DataSetUpdate, DataPE, IExperimentId, ExperimentPE>
+public class UpdateDataSetExperimentExecutor extends
+        AbstractUpdateEntityFieldUpdateValueRelationExecutor<DataSetUpdate, DataPE, IExperimentId, ExperimentPE>
         implements IUpdateDataSetExperimentExecutor
 {
 
@@ -82,10 +82,6 @@ public class UpdateDataSetExperimentExecutor extends AbstractUpdateEntityFieldUp
     @Override
     protected void update(IOperationContext context, DataPE entity, ExperimentPE related)
     {
-        if (related == null)
-        {
-            throw new UserFailureException("Experiment id cannot be null");
-        }
         relationshipService.assignDataSetToExperiment(context.getSession(), entity, related);
     }
 

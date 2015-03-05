@@ -42,6 +42,12 @@ public class UpdateSampleContainedExecutor extends AbstractUpdateEntityListUpdat
 {
 
     @Override
+    protected Collection<SamplePE> getCurrentlyRelated(SamplePE entity)
+    {
+        return entity.getContained();
+    }
+
+    @Override
     protected IdListUpdateValue<? extends ISampleId> getRelatedUpdate(IOperationContext context, SampleUpdate update)
     {
         return update.getContainedIds();
@@ -57,80 +63,51 @@ public class UpdateSampleContainedExecutor extends AbstractUpdateEntityListUpdat
     }
 
     @Override
-    protected void set(IOperationContext context, SamplePE container, Collection<SamplePE> contained)
+    protected void add(IOperationContext context, SamplePE entity, SamplePE related)
     {
-        Set<SamplePE> existingContained = new HashSet<SamplePE>(container.getContained());
-        Set<SamplePE> newContained = new HashSet<SamplePE>(contained);
-
-        for (SamplePE anExistingContained : existingContained)
-        {
-            if (false == newContained.contains(existingContained))
-            {
-                removeFromContainer(relationshipService, context, anExistingContained, container);
-            }
-        }
-
-        for (SamplePE aNewContained : newContained)
-        {
-            if (false == existingContained.contains(aNewContained))
-            {
-                assignToContainer(relationshipService, context, aNewContained, container);
-            }
-        }
+        add(relationshipService, context, entity, related);
     }
 
     @Override
-    protected void add(IOperationContext context, SamplePE container, Collection<SamplePE> contained)
+    protected void remove(IOperationContext context, SamplePE entity, SamplePE related)
     {
-        for (SamplePE aContained : contained)
-        {
-            assignToContainer(relationshipService, context, aContained, container);
-        }
+        remove(relationshipService, context, entity, related);
     }
 
-    @Override
-    protected void remove(IOperationContext context, SamplePE container, Collection<SamplePE> contained)
+    static void add(IRelationshipService service, IOperationContext context, SamplePE entity, SamplePE related)
     {
-        for (SamplePE aContained : contained)
-        {
-            removeFromContainer(relationshipService, context, aContained, container);
-        }
-    }
-
-    static void assignToContainer(IRelationshipService service, IOperationContext context, SamplePE sample, SamplePE container)
-    {
-        SamplePE previousContainer = sample.getContainer();
+        SamplePE previousContainer = related.getContainer();
 
         if (previousContainer != null)
         {
-            if (previousContainer.equals(container))
+            if (previousContainer.equals(entity))
             {
                 // nothing to do
                 return;
             } else
             {
-                removeFromContainer(service, context, sample, previousContainer);
+                remove(service, context, previousContainer, related);
             }
         }
 
-        Set<SamplePE> contained = new HashSet<SamplePE>(container.getContained());
-        contained.add(sample);
-        container.setContained(new ArrayList<SamplePE>(contained));
+        Set<SamplePE> contained = new HashSet<SamplePE>(entity.getContained());
+        contained.add(related);
+        entity.setContained(new ArrayList<SamplePE>(contained));
 
-        service.assignSampleToContainer(context.getSession(), sample, container);
+        service.assignSampleToContainer(context.getSession(), related, entity);
     }
 
-    static void removeFromContainer(IRelationshipService service, IOperationContext context, SamplePE sample, SamplePE container)
+    static void remove(IRelationshipService service, IOperationContext context, SamplePE entity, SamplePE related)
     {
-        SamplePE previousContainer = sample.getContainer();
+        SamplePE previousContainer = related.getContainer();
 
-        if (previousContainer != null && previousContainer.equals(container))
+        if (previousContainer != null && previousContainer.equals(entity))
         {
-            Set<SamplePE> contained = new HashSet<SamplePE>(container.getContained());
-            contained.remove(sample);
-            container.setContained(new ArrayList<SamplePE>(contained));
+            Set<SamplePE> contained = new HashSet<SamplePE>(entity.getContained());
+            contained.remove(related);
+            entity.setContained(new ArrayList<SamplePE>(contained));
 
-            service.removeSampleFromContainer(context.getSession(), sample);
+            service.removeSampleFromContainer(context.getSession(), related);
         }
     }
 

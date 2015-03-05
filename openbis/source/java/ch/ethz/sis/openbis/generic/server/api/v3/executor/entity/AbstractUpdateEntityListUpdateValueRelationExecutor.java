@@ -17,8 +17,10 @@
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.entity;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.Resource;
 
@@ -96,14 +98,62 @@ public abstract class AbstractUpdateEntityListUpdateValueRelationExecutor<ENTITY
         }
     }
 
+    protected void set(IOperationContext context, ENTITY_PE entity, Collection<RELATED_PE> related)
+    {
+        Set<RELATED_PE> existingRelated = new HashSet<RELATED_PE>(getCurrentlyRelated(entity));
+        Set<RELATED_PE> newRelated = new HashSet<RELATED_PE>(related);
+
+        for (RELATED_PE anExistingRelated : existingRelated)
+        {
+            if (false == newRelated.contains(anExistingRelated))
+            {
+                remove(context, entity, anExistingRelated);
+            }
+        }
+
+        for (RELATED_PE aNewRelated : newRelated)
+        {
+            if (false == existingRelated.contains(aNewRelated))
+            {
+                add(context, entity, aNewRelated);
+            }
+        }
+    }
+
+    protected void add(IOperationContext context, ENTITY_PE entity, Collection<RELATED_PE> related)
+    {
+        Set<RELATED_PE> existingRelated = new HashSet<RELATED_PE>(getCurrentlyRelated(entity));
+
+        for (RELATED_PE aRelated : related)
+        {
+            if (false == existingRelated.contains(aRelated))
+            {
+                add(context, entity, aRelated);
+            }
+        }
+    }
+
+    protected void remove(IOperationContext context, ENTITY_PE entity, Collection<RELATED_PE> related)
+    {
+        Set<RELATED_PE> existingRelated = new HashSet<RELATED_PE>(getCurrentlyRelated(entity));
+
+        for (RELATED_PE aRelated : related)
+        {
+            if (existingRelated.contains(aRelated))
+            {
+                remove(context, entity, aRelated);
+            }
+        }
+    }
+
+    protected abstract Collection<RELATED_PE> getCurrentlyRelated(ENTITY_PE entity);
+
     protected abstract IdListUpdateValue<? extends RELATED_ID> getRelatedUpdate(IOperationContext context, ENTITY_UPDATE update);
 
     protected abstract void check(IOperationContext context, RELATED_ID relatedId, RELATED_PE related);
 
-    protected abstract void set(IOperationContext context, ENTITY_PE entity, Collection<RELATED_PE> related);
+    protected abstract void add(IOperationContext context, ENTITY_PE entity, RELATED_PE related);
 
-    protected abstract void add(IOperationContext context, ENTITY_PE entity, Collection<RELATED_PE> related);
-
-    protected abstract void remove(IOperationContext context, ENTITY_PE entity, Collection<RELATED_PE> related);
+    protected abstract void remove(IOperationContext context, ENTITY_PE entity, RELATED_PE related);
 
 }

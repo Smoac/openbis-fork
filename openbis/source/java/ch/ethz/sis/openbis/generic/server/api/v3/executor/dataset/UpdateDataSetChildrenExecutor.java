@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.api.v3.executor.sample;
+package ch.ethz.sis.openbis.generic.server.api.v3.executor.dataset;
 
 import java.util.Collection;
 
@@ -23,51 +23,51 @@ import org.springframework.stereotype.Component;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.AbstractUpdateEntityListUpdateValueRelationExecutor;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.IdListUpdateValue;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleUpdate;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.ISampleId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSetUpdate;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.IDataSetId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.UnauthorizedObjectAccessException;
-import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SampleByIdentiferValidator;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ExperimentByIdentiferValidator;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 
 /**
  * @author pkupczyk
  */
 @Component
-public class UpdateSampleChildrenExecutor extends AbstractUpdateEntityListUpdateValueRelationExecutor<SampleUpdate, SamplePE, ISampleId, SamplePE>
-        implements IUpdateSampleChildrenExecutor
+public class UpdateDataSetChildrenExecutor extends AbstractUpdateEntityListUpdateValueRelationExecutor<DataSetUpdate, DataPE, IDataSetId, DataPE>
+        implements IUpdateDataSetChildrenExecutor
 {
 
     @Override
-    protected Collection<SamplePE> getCurrentlyRelated(SamplePE entity)
+    protected Collection<DataPE> getCurrentlyRelated(DataPE entity)
     {
         return entity.getChildren();
     }
 
     @Override
-    protected IdListUpdateValue<? extends ISampleId> getRelatedUpdate(IOperationContext context, SampleUpdate update)
+    protected IdListUpdateValue<? extends IDataSetId> getRelatedUpdate(IOperationContext context, DataSetUpdate update)
     {
         return update.getChildIds();
     }
 
     @Override
-    protected void check(IOperationContext context, ISampleId relatedId, SamplePE related)
+    protected void check(IOperationContext context, IDataSetId relatedId, DataPE related)
     {
-        if (false == new SampleByIdentiferValidator().doValidation(context.getSession().tryGetPerson(), related))
+        if (false == new ExperimentByIdentiferValidator().doValidation(context.getSession().tryGetPerson(), related.getExperiment()))
         {
             throw new UnauthorizedObjectAccessException(relatedId);
         }
     }
 
     @Override
-    protected void add(IOperationContext context, SamplePE entity, SamplePE related)
+    protected void add(IOperationContext context, DataPE entity, DataPE related)
     {
-        relationshipService.addParentToSample(context.getSession(), related, entity);
+        relationshipService.addParentToDataSet(context.getSession(), related, entity);
     }
 
     @Override
-    protected void remove(IOperationContext context, SamplePE entity, SamplePE related)
+    protected void remove(IOperationContext context, DataPE entity, DataPE related)
     {
-        relationshipService.removeParentFromSample(context.getSession(), related, entity);
+        relationshipService.removeParentFromDataSet(context.getSession(), related, entity);
     }
 
 }
