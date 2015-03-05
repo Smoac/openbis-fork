@@ -29,6 +29,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentHolderPE;
 public interface ICreateAttachmentExecutor
 {
 
-    public void create(IOperationContext context, Map<AttachmentHolderPE, Collection<AttachmentCreation>> attachments);
+    public void create(IOperationContext context, Map<AttachmentHolderPE, Collection<? extends AttachmentCreation>> attachments);
 
 }

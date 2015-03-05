@@ -143,7 +143,8 @@ public class CreateExperimentExecutor extends AbstractCreateEntityExecutor<Exper
     @Override
     protected void updateAll(IOperationContext context, Map<ExperimentCreation, ExperimentPE> entitiesMap)
     {
-        Map<AttachmentHolderPE, Collection<AttachmentCreation>> attachmentMap = new HashMap<AttachmentHolderPE, Collection<AttachmentCreation>>();
+        Map<AttachmentHolderPE, Collection<? extends AttachmentCreation>> attachmentMap =
+                new HashMap<AttachmentHolderPE, Collection<? extends AttachmentCreation>>();
         Map<IEntityWithMetaprojects, Collection<? extends ITagId>> tagMap = new HashMap<IEntityWithMetaprojects, Collection<? extends ITagId>>();
 
         for (Map.Entry<ExperimentCreation, ExperimentPE> entry : entitiesMap.entrySet())

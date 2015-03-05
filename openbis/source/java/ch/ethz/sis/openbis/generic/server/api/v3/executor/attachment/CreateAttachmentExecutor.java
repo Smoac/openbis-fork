@@ -55,7 +55,7 @@ public class CreateAttachmentExecutor implements ICreateAttachmentExecutor
     }
 
     @Override
-    public void create(IOperationContext context, Map<AttachmentHolderPE, Collection<AttachmentCreation>> attachmentsMap)
+    public void create(IOperationContext context, Map<AttachmentHolderPE, Collection<? extends AttachmentCreation>> attachmentsMap)
     {
         if (attachmentsMap == null || attachmentsMap.isEmpty())
         {
@@ -64,7 +64,7 @@ public class CreateAttachmentExecutor implements ICreateAttachmentExecutor
 
         List<AttachmentPE> attachments = new LinkedList<AttachmentPE>();
 
-        for (Map.Entry<AttachmentHolderPE, Collection<AttachmentCreation>> entry : attachmentsMap.entrySet())
+        for (Map.Entry<AttachmentHolderPE, Collection<? extends AttachmentCreation>> entry : attachmentsMap.entrySet())
         {
             AttachmentHolderPE holder = entry.getKey();
 

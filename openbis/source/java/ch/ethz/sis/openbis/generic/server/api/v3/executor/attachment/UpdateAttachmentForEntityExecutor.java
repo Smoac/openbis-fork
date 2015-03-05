@@ -18,6 +18,7 @@ package ch.ethz.sis.openbis.generic.server.api.v3.executor.attachment;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -85,7 +86,7 @@ public class UpdateAttachmentForEntityExecutor implements IUpdateAttachmentForEn
         if (false == added.isEmpty())
         {
             createAttachmentExecutor.create(context,
-                    Collections.<AttachmentHolderPE, Collection<AttachmentCreation>> singletonMap(attachmentHolder, added));
+                    Collections.<AttachmentHolderPE, Collection<? extends AttachmentCreation>> singletonMap(attachmentHolder, added));
         }
     }
 
@@ -124,9 +125,13 @@ public class UpdateAttachmentForEntityExecutor implements IUpdateAttachmentForEn
         if (lastSet != null)
         {
             Set<AttachmentPE> attachments = attachmentHolder.getAttachments();
-            Collection<AttachmentCreation> setCreations = lastSet.getItems();
+            Collection<? extends AttachmentCreation> setCreations = lastSet.getItems();
 
-            createAttachmentExecutor.create(context, Collections.singletonMap(attachmentHolder, setCreations));
+            HashMap<AttachmentHolderPE, Collection<? extends AttachmentCreation>> map =
+                    new HashMap<AttachmentHolderPE, Collection<? extends AttachmentCreation>>();
+            map.put(attachmentHolder, setCreations);
+
+            createAttachmentExecutor.create(context, map);
 
             Set<String> setFileNames = new HashSet<String>();
             for (AttachmentCreation setAttachment : setCreations)

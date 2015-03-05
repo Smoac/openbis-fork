@@ -148,7 +148,8 @@ public class CreateSampleExecutor extends AbstractCreateEntityExecutor<SampleCre
     @Override
     protected void updateAll(IOperationContext context, Map<SampleCreation, SamplePE> entitiesMap)
     {
-        Map<AttachmentHolderPE, Collection<AttachmentCreation>> attachmentMap = new HashMap<AttachmentHolderPE, Collection<AttachmentCreation>>();
+        Map<AttachmentHolderPE, Collection<? extends AttachmentCreation>> attachmentMap =
+                new HashMap<AttachmentHolderPE, Collection<? extends AttachmentCreation>>();
         Map<IEntityWithMetaprojects, Collection<? extends ITagId>> tagMap = new HashMap<IEntityWithMetaprojects, Collection<? extends ITagId>>();
 
         for (Map.Entry<SampleCreation, SamplePE> entry : entitiesMap.entrySet())
