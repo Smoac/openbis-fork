@@ -59,6 +59,9 @@ public class UpdateDataSetExecutor extends AbstractUpdateEntityExecutor<DataSetU
     private IUpdateDataSetSampleExecutor updateDataSetSampleExecutor;
 
     @Autowired
+    private IUpdateDataSetFileFormatTypeExecutor updateDataSetFileFormatTypeExecutor;
+
+    @Autowired
     private IUpdateDataSetRelatedDataSetsExecutor updateDataSetRelatedDataSetsExecutor;
 
     @Autowired
@@ -111,6 +114,7 @@ public class UpdateDataSetExecutor extends AbstractUpdateEntityExecutor<DataSetU
     {
         updateDataSetExperimentExecutor.update(context, entitiesMap);
         updateDataSetSampleExecutor.update(context, entitiesMap);
+        updateDataSetFileFormatTypeExecutor.update(context, entitiesMap);
 
         Map<IEntityPropertiesHolder, Map<String, String>> propertyMap = new HashMap<IEntityPropertiesHolder, Map<String, String>>();
         for (Map.Entry<DataSetUpdate, DataPE> entry : entitiesMap.entrySet())
