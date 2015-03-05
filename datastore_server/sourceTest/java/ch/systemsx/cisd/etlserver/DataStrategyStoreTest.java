@@ -40,6 +40,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.SampleBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.util.LogRecordingUtils;
@@ -243,31 +244,6 @@ public final class DataStrategyStoreTest extends AbstractFileSystemTestCase
     }
 
     @Test
-    public final void testWithInvalidBaseExperiment()
-    {
-        final File incomingDataSetPath = createIncomingDataSetPath();
-        final DataSetInformation dataSetInfo = IdentifiedDataStrategyTest.createDataSetInfo();
-        final Sample baseSample = createSampleWithExperiment();
-        baseSample.getExperiment().setDeletion(new Deletion());
-        context.checking(new Expectations()
-            {
-                {
-                    one(limsService).tryGetSampleWithExperiment(dataSetInfo.getSampleIdentifier());
-                    will(returnValue(baseSample));
-                }
-            });
-        final IDataStoreStrategy dataStoreStrategy =
-                dataStrategyStore.getDataStoreStrategy(dataSetInfo, incomingDataSetPath);
-        assertEquals(dataStoreStrategy.getKey(), DataStoreStrategyKey.UNIDENTIFIED);
-        final String logContent = logRecorder.getLogContent();
-        assertEquals("ERROR NOTIFY.DataStrategyStore - "
-                + "Data set for sample '/S' can not be registered "
-                + "because experiment 'E' has been deleted.", logContent);
-
-        context.assertIsSatisfied();
-    }
-
-    @Test
     public final void testWithNoSampleButIdentifierOfExistingExperiment()
     {
         final File incomingDataSetPath = createIncomingDataSetPath();
@@ -333,6 +309,48 @@ public final class DataStrategyStoreTest extends AbstractFileSystemTestCase
         context.assertIsSatisfied();
     }
 
+    @Test
+    public final void testWithOnlySampleIdentifierAndNoExperiment()
+    {
+        final File incomingDataSetPath = createIncomingDataSetPath();
+        final DataSetInformation dataSetInfo = IdentifiedDataStrategyTest.createDataSetInfo();
+        dataSetInfo.setExperimentIdentifier(null);
+        final Person person = new Person();
+        final String email = "john.doe@freemail.org";
+        person.setEmail(email);
+        final Sample baseSample = new SampleBuilder("/S/S").registrator(person).getSample();
+        context.checking(new Expectations()
+        {
+            {
+                one(limsService).tryGetSampleWithExperiment(dataSetInfo.getSampleIdentifier());
+                will(returnValue(baseSample));
+                
+                one(limsService).tryGetPropertiesOfSample(
+                        dataSetInfo.getSampleIdentifier());
+                will(returnValue(null));
+                
+                String replyTo = null;
+                From nullFrom = null;
+                one(mailClient).sendMessage(
+                        with(equal(String.format(DataStrategyStore.SUBJECT_SAMPLE_FORMAT,
+                                new SampleIdentifier(baseSample.getCode())))),
+                                with(any(String.class)), with(equal(replyTo)), with(equal(nullFrom)),
+                                with(equal(new String[]
+                                        { email })));
+            }
+        });
+        
+        final IDataStoreStrategy dataStoreStrategy =
+                dataStrategyStore.getDataStoreStrategy(dataSetInfo, incomingDataSetPath);
+        
+        assertEquals(dataStoreStrategy.getKey(), DataStoreStrategyKey.INVALID);
+        final String logContent = logRecorder.getLogContent();
+        assertEquals("Unexpected log content: " + logContent, true,
+                logContent.startsWith("ERROR OPERATION.DataStrategyStore"));
+        
+        context.assertIsSatisfied();
+    }
+    
     @Test
     public final void testSampleIsNotRegistered()
     {
