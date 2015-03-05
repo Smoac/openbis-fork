@@ -141,8 +141,10 @@ public final class NativeLibraryUtilities
      */
     public static String tryCopyNativeLibraryToTempFile(final String libraryName)
     {
+        // Request clean-up of old native library temp files as under Windows the files are locked and 
+        // cannot be deleted on regular shutdown. 
         return ResourceUtilities.tryCopyResourceToTempFile(getLibPath("/native", libraryName),
-                libraryName, ".so");
+                libraryName, ".so", true);
     }
 
     private static String getLibPath(final String prefix, final String libraryName)

@@ -18,11 +18,13 @@ package ch.systemsx.cisd.base.utilities;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.filefilter.WildcardFileFilter;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
@@ -57,6 +59,29 @@ public class ResourceUtilities
     }
 
     /**
+     * Tries to copy the resource with the given name to a temporary file.
+     * 
+     * @param resource The name of the resource to copy.
+     * @param prefix The prefix to use for the temporary name.
+     * @param postfix The postfix to use for the temporary name.
+     * @param cleanUpOldResources If <code>true</code>, remove old leftover temporary files for this
+     *            <var>prefix</var> and <var>postfix</var>.
+     * @return The name of the temporary file, or <code>null</code>, if the resource could not be
+     *         copied.
+     */
+    public static String tryCopyResourceToTempFile(final String resource, final String prefix,
+            final String postfix, final boolean cleanUpOldResources)
+    {
+        try
+        {
+            return copyResourceToTempFile(resource, prefix, postfix, cleanUpOldResources);
+        } catch (final Exception ex)
+        {
+            return null;
+        }
+    }
+
+    /**
      * Copies the resource with the given name to a temporary file. The file will be deleted on
      * program exit.
      * 
@@ -70,6 +95,29 @@ public class ResourceUtilities
     public static String copyResourceToTempFile(final String resource, final String prefix,
             final String postfix) throws IOExceptionUnchecked
     {
+        return copyResourceToTempFile(resource, prefix, postfix, false);
+    }
+
+    /**
+     * Copies the resource with the given name to a temporary file. The file will be deleted on
+     * program exit.
+     * 
+     * @param resource The name of the resource to copy.
+     * @param prefix The prefix to use for the temporary name.
+     * @param postfix The postfix to use for the temporary name.
+     * @param cleanUpOldResources If <code>true</code>, remove old leftover temporary files for this
+     *            <var>prefix</var> and <var>postfix</var>.
+     * @return The name of the temporary file.
+     * @throws IllegalArgumentException If the resource cannot be found in the class path.
+     * @throws IOExceptionUnchecked If an {@link IOException} occurs.
+     */
+    public static String copyResourceToTempFile(final String resource, final String prefix,
+            final String postfix, final boolean cleanUpOldResources) throws IOExceptionUnchecked
+    {
+        if (cleanUpOldResources)
+        {
+            deleteOldResourceTempFiles(prefix, postfix);
+        }
         final InputStream resourceStream = ResourceUtilities.class.getResourceAsStream(resource);
         if (resourceStream == null)
         {
@@ -95,6 +143,15 @@ public class ResourceUtilities
         } finally
         {
             IOUtils.closeQuietly(resourceStream);
+        }
+    }
+
+    private static void deleteOldResourceTempFiles(final String prefix, final String postfix)
+    {
+        final FilenameFilter filter = new WildcardFileFilter(prefix + "*" + postfix);
+        for (File file : new File(System.getProperty("java.io.tmpdir")).listFiles(filter))
+        {
+            file.delete();
         }
     }
 
