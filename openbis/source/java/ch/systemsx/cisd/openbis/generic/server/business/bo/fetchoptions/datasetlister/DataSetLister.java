@@ -215,8 +215,11 @@ public class DataSetLister implements IDataSetLister
 
     private DataSetInitializer createDataSetInitializer(DataSetRecord dataSet)
     {
-        ExperimentIdentifier experimentIdentifier =
-                new ExperimentIdentifier(null, dataSet.spe_code, dataSet.pre_code, dataSet.ex_code);
+        ExperimentIdentifier experimentIdentifier = null;
+        if (dataSet.ex_code != null)
+        {
+            experimentIdentifier = new ExperimentIdentifier(null, dataSet.spe_code, dataSet.pre_code, dataSet.ex_code);
+        }
 
         DataSetInitializer initializer = new DataSetInitializer();
         initializer.setId(dataSet.ds_id);
@@ -253,7 +256,10 @@ public class DataSetLister implements IDataSetLister
             initializer.setExternalDataManagementSystem(edms);
         }
         initializer.setRegistrationDetails(createDataSetRegistrationDetails(dataSet));
-        initializer.setExperimentIdentifier(experimentIdentifier.toString());
+        if (experimentIdentifier != null)
+        {
+            initializer.setExperimentIdentifier(experimentIdentifier.toString());
+        }
 
         if (dataSet.sa_code != null)
         {

@@ -21,7 +21,9 @@ import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 
@@ -68,12 +70,20 @@ public class SimpleDataSetHelper
         result.setStatus(data.getStatus());
         result.setPresentInArchive(data.isPresentInArchive());
         result.setDataSetSize(data.getSize());
-        result.setDatabaseInstanceCode(data.getExperiment().getProject().getSpace().getInstance()
-                .getCode());
-        result.setExperimentCode(data.getExperiment().getCode());
-        result.setProjectCode(data.getExperiment().getProject().getCode());
-        result.setSpaceCode(data.getExperiment().getProject().getSpace().getCode());
-        result.setSampleCode(data.getSampleCode());
+        result.setSpaceCode(data.getSpace().getCode());
+        Experiment experiment = data.getExperiment();
+        if (experiment != null)
+        {
+            result.setDatabaseInstanceCode(experiment.getProject().getSpace().getInstance()
+                    .getCode());
+            result.setExperimentCode(experiment.getCode());
+            result.setProjectCode(experiment.getProject().getCode());
+        }
+        Sample sample = data.getSample();
+        if (sample != null)
+        {
+            result.setSampleCode(data.getSampleCode());
+        }
         result.setDataSetType(data.getDataSetType().getCode());
         result.setDataStoreUrl(data.getDataStore().getHostUrl());
         List<ContainerDataSet> containerDataSets = data.getContainerDataSets();

@@ -483,6 +483,15 @@ public abstract class AbstractExternalData extends
     {
         this.accessTimestamp = accessTimestamp;
     }
+    
+    public Space getSpace()
+    {
+        if (experiment != null)
+        {
+            return experiment.getProject().getSpace();
+        }
+        return sample == null ? null : sample.getSpace();
+    }
 
     /**
      * {@link Comparator} for data sets contained in a (virtual) container which uses ascending order in container.

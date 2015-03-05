@@ -116,8 +116,6 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
     // Input
     //
 
-    private final long databaseInstanceId;
-
     private final DatabaseInstance databaseInstance;
 
     private final String baseIndexURL;
@@ -184,7 +182,6 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         assert databaseInstance != null;
         assert query != null;
 
-        this.databaseInstanceId = databaseInstanceId;
         this.databaseInstance = databaseInstance;
         this.query = query;
         this.propertiesEnricher = propertiesEnricher;
@@ -733,7 +730,6 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         {
             enrichWithExperiments(datasetMap);
         }
-        filterDatasetsWithNullExperiments(datasetMap);
         if (fetchOptions.contains(DataSetFetchOption.PROPERTIES)
                 || fetchOptions.contains(DataSetFetchOption.PROPERTIES_OF_PROPERTIES))
         {
@@ -838,6 +834,10 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
 
         for (AbstractExternalData dataset : datasetMap.values())
         {
+            if (dataset.getExperiment() == null)
+            {
+                continue;
+            }
             long experimentId = dataset.getExperiment().getId();
             Experiment experiment = experimentMap.get(experimentId);
             // null value is put if experiment is from different db instance
@@ -847,22 +847,6 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
                 experimentMap.put(experimentId, experiment);
             }
             dataset.setExperiment(experiment);
-        }
-    }
-
-    private void filterDatasetsWithNullExperiments(Long2ObjectMap<AbstractExternalData> datasetMap)
-    {
-        LongSet datasetsToRemove = new LongOpenHashSet();
-        for (AbstractExternalData dataset : datasetMap.values())
-        {
-            if (dataset.getExperiment() == null)
-            {
-                datasetsToRemove.add(dataset.getId());
-            }
-        }
-        for (Long datasetId : datasetsToRemove)
-        {
-            datasetMap.remove(datasetId);
         }
     }
 
@@ -1201,10 +1185,12 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
             sample.setId(record.samp_id);
             dataSet.setSample(sample);
         }
-
-        Experiment experiment = new Experiment();
-        experiment.setId(record.expe_id);
-        dataSet.setExperiment(experiment);
+        if (record.expe_id != null)
+        {
+            Experiment experiment = new Experiment();
+            experiment.setId(record.expe_id);
+            dataSet.setExperiment(experiment);
+        }
     }
 
     private Boolean resolve(String booleanRepresentative)

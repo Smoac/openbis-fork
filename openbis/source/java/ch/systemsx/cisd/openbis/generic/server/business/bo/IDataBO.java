@@ -134,7 +134,7 @@ public interface IDataBO extends IEntityBusinessObject
     /**
      * Set the contained data sets. Taken out of the define method to prevent hibernate problems.
      */
-    public void setContainedDataSets(ExperimentPE experiment, NewContainerDataSet newData);
+    public void setContainedDataSets(ExperimentPE experimentOrNull, SamplePE sampleOrNull, NewContainerDataSet newData);
 
     /**
      * Indicate that the storage of the external data has been confirmed.

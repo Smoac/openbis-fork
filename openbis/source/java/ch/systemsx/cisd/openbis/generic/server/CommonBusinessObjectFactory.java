@@ -193,7 +193,8 @@ public final class CommonBusinessObjectFactory extends AbstractBusinessObjectFac
     public IDataBO createDataBO(Session session)
     {
         return new DataBO(getDaoFactory(), session, getRelationshipService(),
-                getConversationClient(), getManagedPropertyEvaluatorFactory());
+                getConversationClient(), getManagedPropertyEvaluatorFactory(), 
+                dataSetTypeWithoutExperimentChecker);
     }
 
     @Override
@@ -201,7 +202,8 @@ public final class CommonBusinessObjectFactory extends AbstractBusinessObjectFac
     {
         return new DataSetTable(getDaoFactory(), getDSSFactory(), session,
                 getRelationshipService(), getConversationClient(),
-                getManagedPropertyEvaluatorFactory(), getMultiplexer());
+                getManagedPropertyEvaluatorFactory(), getMultiplexer(), 
+                dataSetTypeWithoutExperimentChecker);
     }
 
     @Override

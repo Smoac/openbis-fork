@@ -27,6 +27,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Properties;
 
 import junit.framework.Assert;
 
@@ -39,6 +40,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.openbis.common.types.BooleanOrUnknown;
 import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.util.DataSetTypeWithoutExperimentChecker;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.RelationshipUtils;
 import ch.systemsx.cisd.openbis.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
@@ -441,7 +443,7 @@ public class DataBOTest extends AbstractBOTest
         IDataBO dataBO = createDataBO();
         NewContainerDataSet newData = createContainerDataSetWithComponents(COMPONENT_CODE);
         dataBO.define(newData, experimentPE, SourceType.MEASUREMENT);
-        dataBO.setContainedDataSets(experimentPE, newData);
+        dataBO.setContainedDataSets(experimentPE, null, newData);
         DataPE loadedData = dataBO.getData();
 
         assertSame(loadedData, containerMatcher.recordedObject());
@@ -484,7 +486,7 @@ public class DataBOTest extends AbstractBOTest
         IDataBO dataBO = createDataBO();
         NewContainerDataSet newData = createContainerDataSetWithComponents(COMPONENT_CODE);
         dataBO.define(newData, experiment, SourceType.MEASUREMENT);
-        dataBO.setContainedDataSets(experiment, newData);
+        dataBO.setContainedDataSets(experiment, null, newData);
         DataPE data = dataBO.getData();
 
         assertSame(experiment, data.getExperiment());
@@ -521,7 +523,7 @@ public class DataBOTest extends AbstractBOTest
                     one(relationshipService).assignDataSetToContainer(with(EXAMPLE_SESSION), with(data), with(conatinerMatcher));
                 }
             });
-        dataBO.setContainedDataSets(experiment2, newData);
+        dataBO.setContainedDataSets(experiment2, null, newData);
 
         Assert.assertEquals(newData.getCode(), conatinerMatcher.getRecordedObjects().get(0).getCode());
 
@@ -536,7 +538,7 @@ public class DataBOTest extends AbstractBOTest
                 }
             });
 
-        dataBO.setContainedDataSets(experiment1, newData);
+        dataBO.setContainedDataSets(experiment1, null, newData);
 
         Assert.assertEquals(newData.getCode(), conatinerMatcher2.getRecordedObjects().get(0).getCode());
 
@@ -1233,7 +1235,8 @@ public class DataBOTest extends AbstractBOTest
     private final IDataBO createDataBO()
     {
         return new DataBO(daoFactory, EXAMPLE_SESSION, propertiesConverter, relationshipService,
-                conversationClient, managedPropertyEvaluatorFactory);
+                conversationClient, managedPropertyEvaluatorFactory, 
+                new DataSetTypeWithoutExperimentChecker(new Properties()));
     }
 
 }

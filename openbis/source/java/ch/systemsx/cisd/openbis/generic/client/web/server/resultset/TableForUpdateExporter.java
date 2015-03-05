@@ -281,8 +281,11 @@ public class TableForUpdateExporter
                 }
                 builder.column(NewDataSet.PARENTS).addString(sb.toString());
             }
-            builder.column(NewDataSet.EXPERIMENT)
-                    .addString(dataSet.getExperiment().getIdentifier());
+            Experiment experiment = dataSet.getExperiment();
+            if (experiment != null)
+            {
+                builder.column(NewDataSet.EXPERIMENT).addString(experiment.getIdentifier());
+            }
             Sample sample = dataSet.getSample();
             if (sample != null)
             {

@@ -63,6 +63,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
@@ -259,7 +260,7 @@ public final class GenericDataSetEditForm extends
         String originalSampleOrNull = originalDataSet.getSampleIdentifier();
         // one cannot select a sample from shared group or a sample that has no experiment
         final SampleChooserFieldAdaptor result =
-                SampleChooserField.create(label, true, originalSampleOrNull, false, false, true,
+                SampleChooserField.create(label, true, originalSampleOrNull, false, false, false,
                         viewContext.getCommonViewContext(),
                         SampleTypeDisplayID.DATA_SET_EDIT_SAMPLE_CHOOSER, false);
         result.getField().setId(createChildId(SAMPLE_FIELD_ID_SUFFIX));
@@ -269,8 +270,9 @@ public final class GenericDataSetEditForm extends
     private ExperimentChooserFieldAdaptor createExperimentChooserField()
     {
         String label = viewContext.getMessage(Dict.EXPERIMENT);
-        ExperimentIdentifier originalExperiment =
-                ExperimentIdentifier.createIdentifier(originalDataSet.getExperiment());
+        Experiment experiment = originalDataSet.getExperiment();
+        ExperimentIdentifier originalExperiment = experiment == null ? null :
+                ExperimentIdentifier.createIdentifier(experiment);
         final ExperimentChooserFieldAdaptor result =
                 ExperimentChooserField.create(label, true, originalExperiment,
                         viewContext.getCommonViewContext());

@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import org.springframework.dao.DataAccessException;
 
@@ -29,6 +30,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.IDataStoreServiceFactory
 import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.server.business.IServiceConversationClientManagerLocal;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.exception.DataSetDeletionDisallowedTypesException;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.util.DataSetTypeWithoutExperimentChecker;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -97,7 +99,7 @@ public final class DeletedDataSetTable extends AbstractDataSetBusinessObject imp
             IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
         super(daoFactory, session, relationshipService, conversationClient,
-                managedPropertyEvaluatorFactory);
+                managedPropertyEvaluatorFactory, new DataSetTypeWithoutExperimentChecker(new Properties()));
     }
 
     //

@@ -27,13 +27,13 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
  */
 public final class ExternalDataValidator extends AbstractValidator<AbstractExternalData>
 {
-    private final IValidator<Space> groupValidator;
+    private final IValidator<Space> spaceValidator;
 
     private final IValidator<AbstractExternalData> storageConfirmedValidator;
 
     public ExternalDataValidator()
     {
-        groupValidator = new SpaceValidator();
+        spaceValidator = new SpaceValidator();
 
         storageConfirmedValidator = new StorageConfirmedForAdminValidator();
     }
@@ -43,10 +43,10 @@ public final class ExternalDataValidator extends AbstractValidator<AbstractExter
     //
 
     @Override
-    public final boolean doValidation(final PersonPE person, final AbstractExternalData value)
+    public final boolean doValidation(final PersonPE person, final AbstractExternalData dataSet)
     {
-        final Space space = value.getExperiment().getProject().getSpace();
-        return groupValidator.isValid(person, space)
-                && storageConfirmedValidator.isValid(person, value);
+        final Space space = dataSet.getSpace();
+        return spaceValidator.isValid(person, space)
+                && storageConfirmedValidator.isValid(person, dataSet);
     }
 }

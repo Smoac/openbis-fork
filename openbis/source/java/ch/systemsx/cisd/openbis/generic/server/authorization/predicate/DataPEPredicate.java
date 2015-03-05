@@ -26,9 +26,9 @@ public class DataPEPredicate extends PersistentEntityPredicate<DataPE>
 {
 
     @Override
-    public SpacePE getSpace(DataPE value)
+    public SpacePE getSpace(DataPE dataSet)
     {
-        return value.getExperiment().getProject().getSpace();
+        return dataSet.getSpace();
     }
 
 }

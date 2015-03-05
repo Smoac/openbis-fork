@@ -644,6 +644,14 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
                     contained.setExperiment(experiment);
                 }
             }
+        } else
+        {
+            ExperimentPE previous = getExperiment();
+            if (previous != null)
+            {
+                previous.removeDataSet(this);
+            }
+            setExperimentInternal(null);
         }
     }
 
@@ -659,7 +667,6 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
     }
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @NotNull(message = ValidationMessages.EXPERIMENT_NOT_NULL_MESSAGE)
     @JoinColumn(name = ColumnNames.EXPERIMENT_COLUMN, updatable = true)
     private ExperimentPE getExperimentInternal()
     {
@@ -834,7 +841,11 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
     @Transient
     public SpacePE getSpace()
     {
-        return getExperiment().getProject().getSpace();
+        if (experiment != null)
+        {
+            return experiment.getProject().getSpace();
+        }
+        return sample == null ? null : sample.getSpace();
     }
 
     @Override

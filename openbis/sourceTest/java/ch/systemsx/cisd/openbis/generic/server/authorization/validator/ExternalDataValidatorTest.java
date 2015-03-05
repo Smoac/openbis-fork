@@ -25,16 +25,25 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.ManagedPropertyEvaluatorFactory;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTranslator;
 
 /**
  * @author Franz-Josef Elmer
  */
 public class ExternalDataValidatorTest extends AuthorizationTestCase
 {
-    private PhysicalDataSet createData(SpacePE group)
+    private PhysicalDataSet createData(SpacePE space)
     {
         PhysicalDataSet data = new PhysicalDataSet();
-        data.setExperiment(ExperimentTranslator.translate(createExperiment(group),
+        data.setExperiment(ExperimentTranslator.translate(createExperiment(space),
+                "http://someURL", null, new ManagedPropertyEvaluatorFactory(null, new TestJythonEvaluatorPool())));
+        return data;
+    }
+    
+    private PhysicalDataSet createDataForSample(SpacePE space)
+    {
+        PhysicalDataSet data = new PhysicalDataSet();
+        data.setSample(SampleTranslator.translate(createSample(space),
                 "http://someURL", null, new ManagedPropertyEvaluatorFactory(null, new TestJythonEvaluatorPool())));
         return data;
     }
@@ -47,6 +56,14 @@ public class ExternalDataValidatorTest extends AuthorizationTestCase
         assertEquals(true, validator.isValid(person, createData(createAnotherSpace())));
     }
 
+    @Test
+    public void testIsValidWithDataForSampleInTheRightGroup()
+    {
+        ExternalDataValidator validator = new ExternalDataValidator();
+        PersonPE person = createPersonWithRoleAssignments();
+        assertEquals(true, validator.isValid(person, createDataForSample(createAnotherSpace())));
+    }
+    
     @Test
     public void testIsValidWithDataInTheRightDatabaseInstance()
     {

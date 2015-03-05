@@ -225,6 +225,11 @@ public final class EntityOperationBuilder
             newExternalData.setExperimentIdentifierOrNull(ExperimentIdentifierFactory
                     .parse(experiment.getIdentifier()));
         }
+        return dataSet(newExternalData);
+    }
+
+    public EntityOperationBuilder dataSet(NewExternalData newExternalData)
+    {
         dataSets.add(newExternalData);
         return this;
     }

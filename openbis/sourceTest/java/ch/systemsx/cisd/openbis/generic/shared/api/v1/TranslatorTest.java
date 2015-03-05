@@ -96,19 +96,19 @@ public class TranslatorTest extends AssertJUnit
                         .date(new Date(201)).modificationDate(new Date(202)).getSample();
 
         ds1 =
-                new DataSetBuilder().code("ds1").type("T1").experiment(experiment).sample(sample)
+                new DataSetBuilder(1).code("ds1").type("T1").experiment(experiment).sample(sample)
                         .property("A", "42").registrationDate(new Date(42))
                         .modificationDate(new Date(43));
         ds2 =
-                new DataSetBuilder().code("ds2").type("T2").experiment(experiment)
+                new DataSetBuilder(2).code("ds2").type("T2").experiment(experiment)
                         .property("B", "true");
 
         dsContainer =
-                new ContainerDataSetBuilder().code("ds-container").type("T3")
+                new ContainerDataSetBuilder(3).code("ds-container").type("T3")
                         .experiment(experiment).sample(sample).component(ds1.getDataSet())
                         .component(ds2.getDataSet());
         dsLink =
-                new LinkDataSetBuilder().code("lds").type("L1").experiment(experiment)
+                new LinkDataSetBuilder(4).code("lds").type("L1").experiment(experiment)
                         .sample(sample).registrationDate(new Date(123456789L))
                         .modificationDate(new Date(123459999L)).externalCode("EX_CODE").edms(edms);
     }

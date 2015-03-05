@@ -64,6 +64,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKin
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
@@ -130,13 +131,17 @@ abstract public class GenericDataSetViewer extends AbstractViewerWithVerticalSpl
     @Override
     protected void fillBreadcrumbWidgets(List<Widget> widgets)
     {
-        Widget spaceBreadcrumb =
-                createSpaceLink(originalData.getExperiment().getProject().getSpace());
-        Widget projectBreadcrumb = createProjectLink(originalData.getExperiment().getProject());
-        Widget experimentBreadcrumb = createEntityLink(originalData.getExperiment());
+        Widget spaceBreadcrumb = createSpaceLink(originalData.getSpace());
         widgets.add(spaceBreadcrumb);
-        widgets.add(projectBreadcrumb);
-        widgets.add(experimentBreadcrumb);
+        
+        Experiment experiment = originalData.getExperiment();
+        if (experiment != null)
+        {
+            Widget projectBreadcrumb = createProjectLink(experiment.getProject());
+            Widget experimentBreadcrumb = createEntityLink(experiment);
+            widgets.add(projectBreadcrumb);
+            widgets.add(experimentBreadcrumb);
+        }
 
         if (originalData.getSample() != null)
         {

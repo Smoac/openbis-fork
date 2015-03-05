@@ -112,7 +112,7 @@ public class DataSetTranslator extends AbstractCachingTranslator<DataPE, DataSet
             result.getFetchOptions().withContainersUsing(getFetchOptions().withContainers());
         }
 
-        if (getFetchOptions().hasExperiment())
+        if (getFetchOptions().hasExperiment() && dataPe.getExperiment() != null)
         {
             Experiment experiment =
                     new ExperimentTranslator(getTranslationContext(), managedPropertyEvaluatorFactory, getFetchOptions().withExperiment())

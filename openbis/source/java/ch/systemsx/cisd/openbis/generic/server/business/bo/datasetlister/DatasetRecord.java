@@ -17,7 +17,7 @@ public class DatasetRecord extends CodeRecord
 
     public long dast_id;
 
-    public long expe_id;
+    public Long expe_id;
 
     public String data_producer_code;
 

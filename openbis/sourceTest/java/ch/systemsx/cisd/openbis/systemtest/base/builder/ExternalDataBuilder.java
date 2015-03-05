@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.systemtest.base.builder;
 import static ch.systemsx.cisd.openbis.systemtest.base.BaseTest.id;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -53,6 +54,8 @@ public class ExternalDataBuilder extends Builder<AbstractExternalData>
     private List<String> componentCodes;
 
     private String code;
+    
+    private String dataSetTypeCode;
 
     private boolean container;
 
@@ -67,6 +70,12 @@ public class ExternalDataBuilder extends Builder<AbstractExternalData>
         this.componentCodes = new ArrayList<String>();
     }
 
+    public ExternalDataBuilder withType(String type)
+    {
+        this.dataSetTypeCode = type;
+        return this;
+    }
+
     public ExternalDataBuilder inSample(Sample sample)
     {
         this.sampleIdentifier = id(sample);
@@ -76,7 +85,7 @@ public class ExternalDataBuilder extends Builder<AbstractExternalData>
         }
         return this;
     }
-
+    
     public ExternalDataBuilder inExperiment(Experiment experiment)
     {
         this.experimentIdentifier = new ExperimentIdentifier(experiment);
@@ -103,25 +112,38 @@ public class ExternalDataBuilder extends Builder<AbstractExternalData>
         return this;
     }
 
-    public ExternalDataBuilder withComponents(AbstractExternalData... data)
+    public ExternalDataBuilder withComponents(String... dataSetCodes)
     {
-        for (AbstractExternalData component : data)
-        {
-            this.componentCodes.add(component.getCode());
-        }
+        componentCodes.addAll(Arrays.asList(dataSetCodes));
         return this;
     }
-
+    
     public ExternalDataBuilder withComponent(AbstractExternalData data)
     {
-        return this.withComponents(data);
+        return this.withComponents(data.getCode());
     }
 
     @Override
     public AbstractExternalData create()
     {
+        NewExternalData data = get();
+
+        if (this.sampleIdentifier != null)
+        {
+            etlService.registerDataSet(systemSession, sampleIdentifier, data);
+        } else
+        {
+            etlService.registerDataSet(systemSession, experimentIdentifier, data);
+        }
+
+        return etlService.tryGetDataSet(systemSession, this.code);
+
+    }
+
+    public NewExternalData get()
+    {
         DataSetType dataSetType = new DataSetType();
-        dataSetType.setCode("DT" + number++);
+        dataSetType.setCode(dataSetTypeCode == null ? "DT" + number++ : dataSetTypeCode);
         if (this.container)
         {
             dataSetType.setDataSetKind(DataSetKind.CONTAINER);
@@ -151,16 +173,6 @@ public class ExternalDataBuilder extends Builder<AbstractExternalData>
         data.setDataStoreCode("STANDARD");
         data.setExperimentIdentifierOrNull(this.experimentIdentifier);
         data.setParentDataSetCodes(this.parentCodes);
-
-        if (this.sampleIdentifier != null)
-        {
-            etlService.registerDataSet(systemSession, sampleIdentifier, data);
-        } else
-        {
-            etlService.registerDataSet(systemSession, experimentIdentifier, data);
-        }
-
-        return etlService.tryGetDataSet(systemSession, this.code);
-
+        return data;
     }
 }

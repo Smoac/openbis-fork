@@ -24,8 +24,8 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -54,36 +54,129 @@ public class AssignDataSetToSampleTest extends BaseTest
 
     Space destinationSpace;
 
+    // sourceExperiment -> destinationExperiment
     @Test
-    public void dataSetWithSampleCanBeAssignedToAnotherSample() throws Exception
+    public void dataSetWithoutSampleCanBeAssignedToAnExperiment() throws Exception
     {
-        AbstractExternalData dataset = create(aDataSet().inSample(sourceSample));
+        AbstractExternalData dataset = create(aDataSet().inExperiment(sourceExperiment));
+        assertThat(dataset, is(inExperiment(sourceExperiment)));
 
-        perform(anUpdateOf(dataset).toSample(destinationSample));
-
-        assertThat(dataset, is(inSample(destinationSample)));
-    }
-
-    @Test
-    public void dataSetIsAssignedWithTheExperimentOfTheNewSample() throws Exception
-    {
-        AbstractExternalData dataset = create(aDataSet().inSample(sourceSample));
-
-        perform(anUpdateOf(dataset).toSample(destinationSample));
+        perform(anUpdateOf(dataset).toExperiment(destinationExperiment));
 
         assertThat(dataset, is(inExperiment(destinationExperiment)));
     }
 
+    // sourceExperiment -> destinationSample
     @Test
     public void dataSetWithoutSampleCanBeAssignedToSample() throws Exception
     {
         AbstractExternalData dataset = create(aDataSet().inExperiment(sourceExperiment));
-
+        assertThat(dataset, is(inExperiment(sourceExperiment)));
+        
         perform(anUpdateOf(dataset).toSample(destinationSample));
-
+        
         assertThat(dataset, is(inSample(destinationSample)));
+        assertThat(dataset, is(inExperiment(destinationExperiment)));
+    }
+    
+    // sourceExperiment -> destinationSpaceSampleWithoutExperiment
+    @Test
+    public void dataSetWithoutSampleCanBeAssignedToSpaceSampleWithoutExperiment() throws Exception
+    {
+        AbstractExternalData dataset = create(aDataSet().withType("NEXP-TYPE").inExperiment(sourceExperiment));
+        
+        perform(anUpdateOf(dataset).toSample(destinationSpaceSampleWithoutExperiment));
+        
+        assertThat(dataset, is(inSample(destinationSpaceSampleWithoutExperiment)));
+        assertThat(dataset, isNot(inExperiment(sourceExperiment)));
+    }
+    
+    // sourceSample -> destinationExperiment
+    @Test
+    public void dataSetWithSampleAndExperimentCanBeAssignedToAnExperiment() throws Exception
+    {
+        AbstractExternalData dataset = create(aDataSet().inSample(sourceSample));
+        assertThat(dataset, is(inSample(sourceSample)));
+        assertThat(dataset, is(inExperiment(sourceExperiment)));
+        
+        perform(anUpdateOf(dataset).toExperiment(destinationExperiment));
+        
+        assertThat(dataset, isNot(inSample(sourceSample)));
+        assertThat(dataset, is(inExperiment(destinationExperiment)));
+    }
+    
+    // sourceSample -> destinationSample
+    @Test
+    public void dataSetIsAssignedWithTheExperimentOfTheNewSample() throws Exception
+    {
+        AbstractExternalData dataset = create(aDataSet().inSample(sourceSample));
+        assertThat(dataset, is(inSample(sourceSample)));
+        assertThat(dataset, is(inExperiment(sourceExperiment)));
+        
+        perform(anUpdateOf(dataset).toSample(destinationSample));
+        
+        assertThat(dataset, isNot(inSample(sourceSample)));
+        assertThat(dataset, isNot(inExperiment(sourceExperiment)));
+        assertThat(dataset, is(inSample(destinationSample)));
+        assertThat(dataset, is(inExperiment(destinationExperiment)));
+    }
+    
+    // sourceSample -> destinationSpaceSampleWithoutExperiment
+    @Test
+    public void dataSetWithSampleAndExperimentCanBeAssignedToSpaceSampleWithoutExperiment() throws Exception
+    {
+        AbstractExternalData dataset = create(aDataSet().withType("NEXP-TYPE").inSample(sourceSample));
+        assertThat(dataset, is(inSample(sourceSample)));
+        assertThat(dataset, is(inExperiment(sourceExperiment)));
+        
+        perform(anUpdateOf(dataset).toSample(destinationSpaceSampleWithoutExperiment));
+        
+        assertThat(dataset, isNot(inSample(sourceSample)));
+        assertThat(dataset, isNot(inExperiment(sourceExperiment)));
+        assertThat(dataset, is(inSample(destinationSpaceSampleWithoutExperiment)));
     }
 
+    // sourceSpaceSampleWithoutExperiment -> destinationExperiment
+    @Test
+    public void dataSetWithSampleWithoutExperimentCanBeAssignedToExperiment() throws Exception
+    {
+        AbstractExternalData dataset = create(aDataSet().withType("NEXP-TYPE").inSample(sourceSpaceSampleWithoutExperiment));
+        assertThat(dataset, is(inSample(sourceSpaceSampleWithoutExperiment)));
+        
+        perform(anUpdateOf(dataset).toExperiment(destinationExperiment));
+        
+        assertThat(dataset, isNot(inSample(sourceSpaceSampleWithoutExperiment)));
+        assertThat(dataset, is(inExperiment(destinationExperiment)));
+    }
+    
+    // sourceSpaceSampleWithoutExperiment -> destinationSample
+    @Test
+    public void dataSetWithSampleWithoutExperimentCanBeAssignedToSampleWithExperiment() throws Exception
+    {
+        AbstractExternalData dataset = create(aDataSet().withType("NEXP-TYPE").inSample(sourceSpaceSampleWithoutExperiment));
+        assertThat(dataset, is(inSample(sourceSpaceSampleWithoutExperiment)));
+        
+        perform(anUpdateOf(dataset).toSample(destinationSample));
+        
+        assertThat(dataset, isNot(inSample(sourceSpaceSampleWithoutExperiment)));
+        assertThat(dataset, is(inSample(destinationSample)));
+        assertThat(dataset, is(inExperiment(destinationExperiment)));
+    }
+    
+    // sourceSpaceSampleWithoutExperiment -> destinationSpaceSampleWithoutExperiment
+    @Test
+    public void dataSetWithSampleWithoutExperimentCanBeAssignedToSpaceSampleWithoutExperiment() throws Exception
+    {
+        AbstractExternalData dataset = create(aDataSet().withType("NEXP-TYPE").inSample(sourceSpaceSampleWithoutExperiment));
+        assertThat(dataset, is(inSample(sourceSpaceSampleWithoutExperiment)));
+        
+        perform(anUpdateOf(dataset).toSample(destinationSpaceSampleWithoutExperiment));
+        
+        assertThat(dataset, isNot(inSample(sourceSpaceSampleWithoutExperiment)));
+        assertThat(dataset, is(inSample(destinationSpaceSampleWithoutExperiment)));
+        assertThat(dataset, isNot(inExperiment(sourceExperiment)));
+    }
+    
     @Test(expectedExceptions =
         { UserFailureException.class })
     public void dataSetCannotBeAssignedToSpaceSample() throws Exception
@@ -213,6 +306,10 @@ public class AssignDataSetToSampleTest extends BaseTest
 
     Space unrelatedNone;
 
+    private Sample destinationSpaceSampleWithoutExperiment;
+
+    private Sample sourceSpaceSampleWithoutExperiment;
+
     @Test(dataProvider = "rolesAllowedToAssignDataSetToSample", groups = "authorization")
     public void assigningDataSetToSampleIsAllowedFor(RoleWithHierarchy sourceSpaceRole,
             RoleWithHierarchy destinationSpaceRole, RoleWithHierarchy instanceRole)
@@ -253,11 +350,13 @@ public class AssignDataSetToSampleTest extends BaseTest
         Project sourceProject = create(aProject().inSpace(sourceSpace));
         sourceExperiment = create(anExperiment().inProject(sourceProject));
         sourceSample = create(aSample().inExperiment(sourceExperiment));
+        sourceSpaceSampleWithoutExperiment = create(aSample().inSpace(sourceSpace));
 
         destinationSpace = create(aSpace());
         Project destinationProject = create(aProject().inSpace(destinationSpace));
         destinationExperiment = create(anExperiment().inProject(destinationProject));
         destinationSample = create(aSample().inExperiment(destinationExperiment));
+        destinationSpaceSampleWithoutExperiment = create(aSample().inSpace(destinationSpace));
 
         unrelatedAdmin = create(aSpace());
         unrelatedObserver = create(aSpace());

@@ -27,6 +27,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calcu
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api.ISampleAdaptor;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetRelationshipPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.hotdeploy_plugins.api.IEntityAdaptor;
@@ -66,9 +67,14 @@ public class ExternalDataAdaptor extends AbstractEntityAdaptor implements IDataA
     @Override
     public IExperimentAdaptor experiment()
     {
-        IExperimentAdaptor adaptor = EntityAdaptorFactory.create(externalDataPE.getExperiment(), evaluator, session);
-        getResources().add(adaptor);
-        return adaptor;
+        ExperimentPE experiment = externalDataPE.getExperiment();
+        if (experiment != null)
+        {
+            IExperimentAdaptor adaptor = EntityAdaptorFactory.create(experiment, evaluator, session);
+            getResources().add(adaptor);
+            return adaptor;
+        }
+        return null;
     }
 
     @Override
@@ -80,10 +86,8 @@ public class ExternalDataAdaptor extends AbstractEntityAdaptor implements IDataA
             ISampleAdaptor adaptor = EntityAdaptorFactory.create(sample, evaluator, session);
             getResources().add(adaptor);
             return adaptor;
-        } else
-        {
-            return null;
         }
+        return null;
     }
 
     @Override

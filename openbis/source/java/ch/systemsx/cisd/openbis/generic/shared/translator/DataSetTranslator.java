@@ -132,6 +132,11 @@ public class DataSetTranslator
             {
                 description.setSampleTypeCode(sampleType.getCode());
             }
+            Space space = sample.getSpace();
+            if (space != null)
+            {
+                description.setSpaceCode(space.getCode());
+            }
         }
         return description;
     }
@@ -234,7 +239,7 @@ public class DataSetTranslator
 
         SamplePE sampleOrNull = dataPE.tryGetSample();
         ExperimentPE experiment = dataPE.getExperiment();
-        Experiment translatedExperiment =
+        Experiment translatedExperiment = experiment == null ? null :
                 ExperimentTranslator.translate(experiment, baseIndexURL, null,
                         managedPropertyEvaluatorFactory, withExperimentFields);
         externalData.setId(HibernateUtils.getId(dataPE));
@@ -464,15 +469,19 @@ public class DataSetTranslator
             description.setSampleCode(sample.getCode());
             description.setSampleIdentifier(sample.getIdentifier());
             description.setSampleTypeCode(sample.getSampleType().getCode());
+            description.setSpaceCode(sample.getSpace().getCode());
         }
         ExperimentPE experiment = dataSet.getExperiment();
-        description.setExperimentIdentifier(experiment.getIdentifier());
-        description.setExperimentTypeCode(experiment.getExperimentType().getCode());
-        description.setExperimentCode(experiment.getCode());
-        ProjectPE project = experiment.getProject();
-        description.setProjectCode(project.getCode());
-        SpacePE group = project.getSpace();
-        description.setSpaceCode(group.getCode());
+        if (experiment != null)
+        {
+            description.setExperimentIdentifier(experiment.getIdentifier());
+            description.setExperimentTypeCode(experiment.getExperimentType().getCode());
+            description.setExperimentCode(experiment.getCode());
+            ProjectPE project = experiment.getProject();
+            description.setProjectCode(project.getCode());
+            SpacePE space = project.getSpace();
+            description.setSpaceCode(space.getCode());
+        }
         DataSetTypePE dataSetType = dataSet.getDataSetType();
         description.setMainDataSetPath(dataSetType.getMainDataSetPath());
         description.setMainDataSetPattern(dataSetType.getMainDataSetPattern());

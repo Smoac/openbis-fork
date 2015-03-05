@@ -16,14 +16,20 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
+import java.util.Properties;
+
 import javax.annotation.Resource;
 
+import org.springframework.beans.factory.InitializingBean;
+
 import ch.systemsx.cisd.common.multiplexer.IMultiplexer;
+import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
 import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
 import ch.systemsx.cisd.openbis.generic.server.business.IDataStoreServiceFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.IEntityOperationChecker;
 import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.server.business.IServiceConversationClientManagerLocal;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.util.DataSetTypeWithoutExperimentChecker;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.EntityResolverQueryFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.IEntityResolverQuery;
@@ -34,7 +40,7 @@ import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedProperty
  * 
  * @author Christian Ribeaud
  */
-public abstract class AbstractBusinessObjectFactory
+public abstract class AbstractBusinessObjectFactory implements InitializingBean
 {
     @Resource(name = ComponentNames.DAO_FACTORY)
     private IDAOFactory daoFactory;
@@ -51,9 +57,14 @@ public abstract class AbstractBusinessObjectFactory
     @Resource(name = ComponentNames.MANAGED_PROPERTY_EVALUATOR_FACTORY)
     private IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory;
 
+    @Resource(name = ExposablePropertyPlaceholderConfigurer.PROPERTY_CONFIGURER_BEAN_NAME)
+    protected ExposablePropertyPlaceholderConfigurer configurer;
+
     private final IEntityResolverQuery entityResolver;
 
     private IMultiplexer multiplexer;
+
+    protected DataSetTypeWithoutExperimentChecker dataSetTypeWithoutExperimentChecker;
 
     protected AbstractBusinessObjectFactory()
     {
@@ -75,6 +86,13 @@ public abstract class AbstractBusinessObjectFactory
         this.conversationClient = conversationClient;
         this.managedPropertyEvaluatorFactory = managedPropertyEvaluatorFactory;
         this.multiplexer = multiplexer;
+    }
+
+    @Override
+    public void afterPropertiesSet() throws Exception
+    {
+        dataSetTypeWithoutExperimentChecker = new DataSetTypeWithoutExperimentChecker(
+                configurer == null ? new Properties() : configurer.getResolvedProps());
     }
 
     protected final IDAOFactory getDaoFactory()

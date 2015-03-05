@@ -48,7 +48,7 @@ public interface IDataSetListingQuery extends BaseQuery
             + " pre.code as pre_code, spe.code as spe_code, sps.code as sps_code,"
             + " ld.external_code as ld_external_code, edms.id as edms_id, edms.code as edms_code, edms.label as edms_label, edms.url_template as edms_url_template, edms.is_openbis as edms_is_openbis"
             + " from data ds inner join data_set_types dt on ds.dsty_id = dt.id"
-            + " inner join experiments ex on ds.expe_id = ex.id"
+            + " left outer join experiments ex on ds.expe_id = ex.id"
             + " left outer join external_data ed on ds.id = ed.data_id"
             + " left outer join link_data ld on ds.id = ld.data_id"
             + " left outer join external_data_management_systems edms on ld.edms_id = edms.id"

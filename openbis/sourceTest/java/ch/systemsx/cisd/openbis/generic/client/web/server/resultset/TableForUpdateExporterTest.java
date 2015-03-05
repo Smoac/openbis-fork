@@ -164,7 +164,7 @@ public class TableForUpdateExporterTest extends AssertJUnit
                         .parent(new DataSetBuilder().code("ds4").getDataSet()).getDataSet();
         PhysicalDataSet ds2 =
                 new DataSetBuilder().code("ds2").experiment(experiment)
-                        .container(new ContainerDataSetBuilder().code("ds1").getContainerDataSet())
+                        .container(new ContainerDataSetBuilder(1).code("ds1").getContainerDataSet())
                         .sample(new SampleBuilder("/S/S1").getSample()).getDataSet();
         GridRowModels<TableModelRowWithObject<PhysicalDataSet>> rows = createGridRowModels(ds1, ds2);
 

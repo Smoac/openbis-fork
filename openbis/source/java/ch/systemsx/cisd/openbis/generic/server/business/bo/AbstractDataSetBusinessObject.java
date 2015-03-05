@@ -30,6 +30,7 @@ import ch.systemsx.cisd.common.collection.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.server.business.IServiceConversationClientManagerLocal;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.util.DataSetTypeWithoutExperimentChecker;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertiesConverter;
@@ -57,27 +58,33 @@ public abstract class AbstractDataSetBusinessObject extends AbstractSampleIdenti
 
     protected IRelationshipService relationshipService;
 
+    protected DataSetTypeWithoutExperimentChecker dataSetTypeChecker;
+    
     private IServiceConversationClientManagerLocal conversationClient;
 
     public AbstractDataSetBusinessObject(IDAOFactory daoFactory, Session session,
             IRelationshipService relationshipService,
             IServiceConversationClientManagerLocal conversationClient,
-            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, 
+            DataSetTypeWithoutExperimentChecker dataSetTypeChecker)
     {
         super(daoFactory, session, EntityKind.DATA_SET, managedPropertyEvaluatorFactory);
         this.relationshipService = relationshipService;
         this.conversationClient = conversationClient;
+        this.dataSetTypeChecker = dataSetTypeChecker;
     }
 
     public AbstractDataSetBusinessObject(IDAOFactory daoFactory, Session session,
             IEntityPropertiesConverter entityPropertiesConverter,
             IRelationshipService relationshipService,
             IServiceConversationClientManagerLocal conversationClient,
-            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, 
+            DataSetTypeWithoutExperimentChecker dataSetTypeChecker)
     {
         super(daoFactory, session, entityPropertiesConverter, managedPropertyEvaluatorFactory);
         this.relationshipService = relationshipService;
         this.conversationClient = conversationClient;
+        this.dataSetTypeChecker = dataSetTypeChecker;
     }
 
     protected void enrichWithParentsAndExperiment(DataPE dataPE)
@@ -112,7 +119,8 @@ public abstract class AbstractDataSetBusinessObject extends AbstractSampleIdenti
             throw createWrongSampleException(data, newSample, "the new sample is shared");
         }
         ExperimentPE experiment = newSample.getExperiment();
-        if (experiment == null)
+        String dataSetTypeCode = data.getDataSetType().getCode();
+        if (experiment == null && dataSetTypeChecker.isDataSetTypeWithoutExperiment(dataSetTypeCode) == false)
         {
             throw createWrongSampleException(data, newSample,
                     "the new sample is not connected to any experiment");

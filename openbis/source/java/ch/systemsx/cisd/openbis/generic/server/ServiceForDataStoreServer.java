@@ -905,22 +905,16 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
     public void registerEntities(String sessionToken, EntityCollectionForCreationOrUpdate collection)
             throws UserFailureException
     {
-        checkSession(sessionToken);
+        Session session = getSession(sessionToken);
 
-        List<NewExperiment> experiments = collection.getNewExperiments();
-        for (NewExperiment experiment : experiments)
+        for (NewExperiment experiment : collection.getNewExperiments())
         {
-            registerExperiment(sessionToken, experiment);
+            registerExperiment(session, experiment);
         }
 
-        List<NewExternalData> dataSets = collection.getNewDataSets();
-        for (NewExternalData dataSet : dataSets)
+        for (NewExternalData dataSet : collection.getNewDataSets())
         {
-            ExperimentIdentifier experimentIdentifier = dataSet.getExperimentIdentifierOrNull();
-            if (experimentIdentifier != null)
-            {
-                registerDataSet(sessionToken, experimentIdentifier, dataSet);
-            }
+            registerDataSetInternal(session, dataSet);
         }
     }
 
@@ -1505,7 +1499,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
         SamplePE samplePE = registerSampleInternal(session, newSample, userIdOrNull);
 
         // Register the data set
-        registerDataSetInternal(sessionToken, externalData, samplePE);
+        registerDataSetInternal(getSession(sessionToken), samplePE, externalData);
         Sample result =
                 SampleTranslator.translate(samplePE, session.getBaseIndexURL(), null,
                         managedPropertyEvaluatorFactory);
@@ -1525,7 +1519,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
 
         // Register the data set
         final SamplePE samplePE = sampleBO.getSample();
-        registerDataSetInternal(sessionToken, externalData, samplePE);
+        registerDataSetInternal(getSession(sessionToken), samplePE, externalData);
 
         Collection<MetaprojectPE> metaprojectPEs =
                 getDAOFactory().getMetaprojectDAO().listMetaprojectsForEntity(
@@ -1545,33 +1539,6 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
         sampleBO.save();
 
         return sampleBO;
-    }
-
-    private void registerDataSetInternal(String sessionToken, NewExternalData externalData,
-            SamplePE samplePE)
-    {
-        final Session session = getSession(sessionToken);
-        SampleIdentifier sampleIdentifier = samplePE.getSampleIdentifier();
-        assert sampleIdentifier != null : "Unspecified sample identifier.";
-
-        ExperimentPE experiment = samplePE.getExperiment();
-        if (experiment == null)
-        {
-            throw new UserFailureException("No experiment found for sample " + sampleIdentifier);
-        }
-        if (experiment.getDeletion() != null)
-        {
-            throw new UserFailureException("Data set can not be registered because experiment '"
-                    + experiment.getIdentifier() + "' is in trash.");
-        }
-
-        final IDataBO dataBO = businessObjectFactory.createDataBO(session);
-        SourceType sourceType =
-                externalData.isMeasured() ? SourceType.MEASUREMENT : SourceType.DERIVED;
-        dataBO.define(externalData, samplePE, sourceType);
-        dataBO.save();
-        final String dataSetCode = dataBO.getData().getCode();
-        assert dataSetCode != null : "Data set code not specified.";
     }
 
     private SamplePE registerSampleInternal(Session session, NewSample newSample,
@@ -2381,7 +2348,6 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
     private long createDataSets(Session session, AtomicEntityOperationDetails operationDetails,
             IServiceConversationProgressListener progress, boolean authorize)
     {
-        ArrayList<DataPE> dataSetsCreated = new ArrayList<DataPE>();
         @SuppressWarnings("unchecked")
         List<NewExternalData> dataSetRegistrations =
                 (List<NewExternalData>) operationDetails.getDataSetRegistrations();
@@ -2402,7 +2368,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
         {
             for (NewExternalData dataSet : dependencyLevel)
             {
-                registerDatasetInternal(session, dataSetsCreated, dataSet);
+                registerDataSetInternal(session, dataSet);
                 progress.update("createDataSets", total, ++index);
             }
         }
@@ -2456,20 +2422,17 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
         }
     }
 
-    private void registerDatasetInternal(final Session session, ArrayList<DataPE> dataSetsCreated,
-            NewExternalData dataSet)
+    private void registerDataSetInternal(final Session session, NewExternalData dataSet)
     {
         SampleIdentifier sampleIdentifier = dataSet.getSampleIdentifierOrNull();
-        IDataBO dataBO;
         if (sampleIdentifier != null)
         {
-            dataBO = registerDataSetInternal(session, sampleIdentifier, dataSet);
+            registerDataSetInternal(session, sampleIdentifier, dataSet);
         } else
         {
             ExperimentIdentifier experimentIdentifier = dataSet.getExperimentIdentifierOrNull();
-            dataBO = registerDataSetInternal(session, experimentIdentifier, dataSet);
+            registerDataSetInternal(session, experimentIdentifier, dataSet);
         }
-        dataSetsCreated.add(dataBO.getData());
     }
 
     private long createExperiments(Session session, AtomicEntityOperationDetails operationDetails,
@@ -2538,17 +2501,12 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
     {
         final ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
         sampleBO.loadBySampleIdentifier(sampleIdentifier);
-        final SamplePE sample = sampleBO.getSample();
-        ExperimentPE experiment = sample.getExperiment();
-        if (experiment == null)
-        {
-            throw new UserFailureException("No experiment found for sample " + sampleIdentifier);
-        }
-        if (experiment.getDeletion() != null)
-        {
-            throw new UserFailureException("Data set can not be registered because experiment '"
-                    + experiment.getIdentifier() + "' is in trash.");
-        }
+        return registerDataSetInternal(session, sampleBO.getSample(), externalData);
+    }
+
+    private IDataBO registerDataSetInternal(final Session session, SamplePE sample,
+            NewExternalData externalData)
+    {
         final IDataBO dataBO = businessObjectFactory.createDataBO(session);
         SourceType sourceType =
                 externalData.isMeasured() ? SourceType.MEASUREMENT : SourceType.DERIVED;
@@ -2558,7 +2516,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
         boolean isContainer = externalData instanceof NewContainerDataSet;
         if (isContainer)
         {
-            dataBO.setContainedDataSets(experiment, (NewContainerDataSet) externalData);
+            dataBO.setContainedDataSets(sample.getExperiment(), sample, (NewContainerDataSet) externalData);
         }
 
         final String dataSetCode = dataBO.getData().getCode();
@@ -2571,6 +2529,10 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
             ExperimentIdentifier experimentIdentifier, NewExternalData externalData)
     {
         ExperimentPE experiment = tryLoadExperimentByIdentifier(session, experimentIdentifier);
+        if (experiment == null)
+        {
+            throw new UserFailureException("Unknown experiment '" + experimentIdentifier + "'.");
+        }
         if (experiment.getDeletion() != null)
         {
             throw new UserFailureException("Data set can not be registered because experiment '"
@@ -2585,7 +2547,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
         boolean isContainer = externalData instanceof NewContainerDataSet;
         if (isContainer)
         {
-            externalDataBO.setContainedDataSets(experiment, (NewContainerDataSet) externalData);
+            externalDataBO.setContainedDataSets(experiment, null, (NewContainerDataSet) externalData);
         }
 
         final String dataSetCode = externalDataBO.getData().getCode();

@@ -52,7 +52,7 @@ abstract class AbstractCommonServer<T extends IServer> extends AbstractServer<T>
     private final IAuthenticationService authenticationService;
 
     protected final ICommonBusinessObjectFactory businessObjectFactory;
-
+    
     public AbstractCommonServer(IAuthenticationService authenticationService,
             IOpenBisSessionManager sessionManager, IDAOFactory daoFactory,
             IPropertiesBatchManager propertiesBatchManager,
@@ -62,7 +62,7 @@ abstract class AbstractCommonServer<T extends IServer> extends AbstractServer<T>
         this.authenticationService = authenticationService;
         this.businessObjectFactory = businessObjectFactory;
     }
-
+    
     protected List<PersonPE> registerPersons(final String sessionToken, final List<String> userIDs)
     {
         final Session session = getSession(sessionToken);

@@ -54,6 +54,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.IDataStoreServiceFactory
 import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.server.business.IServiceConversationClientManagerLocal;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.exception.DataSetDeletionDisallowedTypesException;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.util.DataSetTypeWithoutExperimentChecker;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.event.DeleteDataSetEventBuilder;
@@ -218,10 +219,10 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
             Session session, IRelationshipService relationshipService,
             IServiceConversationClientManagerLocal conversationClient,
             IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory,
-            IMultiplexer multiplexer)
+            IMultiplexer multiplexer, DataSetTypeWithoutExperimentChecker dataSetTypeChecker)
     {
         super(daoFactory, session, relationshipService, conversationClient,
-                managedPropertyEvaluatorFactory);
+                managedPropertyEvaluatorFactory, dataSetTypeChecker);
         this.dssFactory = dssFactory;
         this.multiplexer = multiplexer;
     }

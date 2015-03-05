@@ -34,6 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.PropertiesPanelUtils;
@@ -116,9 +117,12 @@ public class DataSetPropertiesPanel extends ContentPanel
         {
             properties.put(messageProvider.getMessage(Dict.CONTAINER_DATA_SET), containerDataSets.get(0));
         }
-        properties.put(messageProvider.getMessage(Dict.PROJECT), dataset.getExperiment()
-                .getProject());
-        properties.put(messageProvider.getMessage(Dict.EXPERIMENT), dataset.getExperiment());
+        Experiment experiment = dataset.getExperiment();
+        if (experiment != null)
+        {
+            properties.put(messageProvider.getMessage(Dict.PROJECT), experiment.getProject());
+            properties.put(messageProvider.getMessage(Dict.EXPERIMENT), experiment);
+        }
 
         PhysicalDataSet concreteDataSet = dataset.tryGetAsDataSet();
         if (concreteDataSet != null)

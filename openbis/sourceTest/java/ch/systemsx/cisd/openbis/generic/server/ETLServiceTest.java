@@ -37,7 +37,6 @@ import org.testng.annotations.Test;
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.openbis.generic.server.business.IDataStoreServiceFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.IServiceConversationClientManagerLocal;
@@ -97,7 +96,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServerInfo;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServicePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatastoreServiceDescriptions;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
@@ -814,48 +812,6 @@ public class ETLServiceTest extends AbstractServerTestCase
     }
 
     @Test
-    public void testRegisterDataSetForUnknownExperiment()
-    {
-        final SampleIdentifier sampleIdentifier =
-                new SampleIdentifier("S1");
-        prepareLoadSample(sampleIdentifier, new SamplePE());
-
-        try
-        {
-            createService().registerDataSet(SESSION_TOKEN, sampleIdentifier, null);
-            fail("UserFailureException expected");
-        } catch (UserFailureException e)
-        {
-            assertEquals("No experiment found for sample /S1", e.getMessage());
-        }
-
-        context.assertIsSatisfied();
-    }
-
-    @Test
-    public void testRegisterDataSetForInvalidExperiment()
-    {
-        SampleIdentifier sampleIdentifier =
-                new SampleIdentifier("S1");
-        ExperimentPE experiment = createExperiment("TYPE", "EXP1", "G1");
-        experiment.setDeletion(new DeletionPE());
-        prepareLoadSample(sampleIdentifier, createSampleWithExperiment(experiment));
-
-        try
-        {
-            createService().registerDataSet(SESSION_TOKEN, sampleIdentifier, null);
-            fail("UserFailureException expected");
-        } catch (UserFailureException e)
-        {
-            assertEquals(
-                    "Data set can not be registered because experiment '/G1/P/EXP1' is in trash.",
-                    e.getMessage());
-        }
-
-        context.assertIsSatisfied();
-    }
-
-    @Test
     public void testRegisterDataSet()
     {
         final SampleIdentifier sampleIdentifier =
@@ -1281,33 +1237,6 @@ public class ETLServiceTest extends AbstractServerTestCase
 
         prepareRegisterDataSet(userSession, newSampleIdentifier, newSamplePE.getExperiment(),
                 SourceType.MEASUREMENT, externalData);
-
-        context.checking(new Expectations()
-            {
-                {
-                    one(dataBO).getData();
-                    ExternalDataPE externalDataPE = new ExternalDataPE();
-                    externalDataPE.setCode(externalData.getCode());
-
-                    DataStorePE store = new DataStorePE();
-                    store.setCode(DSS_CODE);
-                    externalDataPE.setDataStore(store);
-                    will(returnValue(externalDataPE));
-
-                    // one(boFactory).createDataBO(SESSION);
-                    // will(returnValue(dataBO));
-                    //
-                    // exactly(1).of(boFactory).createSampleBO(SESSION);
-                    // will(returnValue(sampleBO));
-                    //
-                    // one(dataBO).define(externalData, samplePE, SourceType.MEASUREMENT);
-                    // one(dataBO).save();
-                    // one(dataBO).getExternalData();
-                    // ExternalDataPE externalDataPE = new ExternalDataPE();
-                    // externalDataPE.setCode(externalData.getCode());
-                    // will(returnValue(externalDataPE));
-                }
-            });
         return roleMatcher;
     }
 

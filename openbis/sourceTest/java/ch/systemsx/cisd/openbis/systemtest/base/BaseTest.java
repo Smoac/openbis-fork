@@ -16,8 +16,11 @@
 
 package ch.systemsx.cisd.openbis.systemtest.base;
 
+import static org.hamcrest.CoreMatchers.is;
+
 import java.util.UUID;
 
+import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matcher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.GenericApplicationContext;
@@ -142,6 +145,7 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
         System.setProperty("hibernate.search.index-mode", IndexMode.INDEX_FROM_SCRATCH.name());
         System.setProperty("hibernate.search.index-base", "../openbis/targets/lucene/cleandb");
         System.setProperty("hibernate.search.worker.execution", "sync");
+        System.setProperty("data-set-types-with-no-experiment", "  NO-EXP-.* ,   NEXP-.*  ");
     }
 
     private void setContext() throws Exception
@@ -544,4 +548,10 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
     {
         return new NotAuthorizationRule(rule);
     }
+    
+    protected static <T> Matcher<T> isNot(Matcher<T> matcher)
+    {
+        return CoreMatchers.not(is(matcher));
+    }
+    
 }

@@ -31,6 +31,7 @@ import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.server.business.IServiceConversationClientManagerLocal;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.util.DataSetTypeWithoutExperimentChecker;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertiesConverter;
@@ -89,20 +90,22 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
     public DataBO(IDAOFactory daoFactory, Session session,
             IRelationshipService relationshipService,
             IServiceConversationClientManagerLocal conversationClient,
-            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, 
+            DataSetTypeWithoutExperimentChecker dataSetTypeChecker)
     {
         super(daoFactory, session, relationshipService, conversationClient,
-                managedPropertyEvaluatorFactory);
+                managedPropertyEvaluatorFactory, dataSetTypeChecker);
     }
 
     public DataBO(IDAOFactory daoFactory, Session exampleSession,
             IEntityPropertiesConverter propertiesConverter,
             IRelationshipService relationshipService,
             IServiceConversationClientManagerLocal conversationClient,
-            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, 
+            DataSetTypeWithoutExperimentChecker dataSetTypeChecker)
     {
         super(daoFactory, exampleSession, propertiesConverter, relationshipService,
-                conversationClient, managedPropertyEvaluatorFactory);
+                conversationClient, managedPropertyEvaluatorFactory, dataSetTypeChecker);
     }
 
     @Override
@@ -210,7 +213,7 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
     @Override
     public void define(NewExternalData newData, SamplePE sample, SourceType sourceType)
     {
-        assert sample != null : "Undefined sample.";
+        assertAllowedSampleForDataSet(newData, sample);
 
         boolean isContainer = newData instanceof NewContainerDataSet;
         boolean isLink = newData instanceof NewLinkDataSet;
@@ -225,12 +228,40 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
             define(newData, sourceType);
         }
 
-        final ExperimentPE experiment = sample.getExperiment();
-
+        ExperimentPE experiment = sample.getExperiment();
         RelationshipUtils.setSampleForDataSet(data, sample, session);
         RelationshipUtils.setExperimentForDataSet(data, experiment, session);
 
-        setParentDataSets(experiment, newData);
+        setParentDataSets(experiment, sample, newData);
+    }
+
+    private void assertAllowedSampleForDataSet(NewExternalData newData, SamplePE sample)
+    {
+        assert sample != null : "Undefined sample.";
+        ExperimentPE experiment = sample.getExperiment();
+        if (experiment == null)
+        {
+            if (dataSetTypeChecker.isDataSetTypeWithoutExperiment(newData.getDataSetType().getCode()))
+            {
+                if (sample.getSpace() == null)
+                {
+                    throw new UserFailureException("Data set can not be registered because sample '" 
+                            + sample.getSampleIdentifier() + "' is a shared sample.");
+                } else if (sample.getDeletion() != null)
+                {
+                    throw new UserFailureException("Data set can not be registered because sample '"
+                            + sample.getSampleIdentifier() + "' is in trash.");
+                }
+            } else
+            {
+                throw new UserFailureException("Data set can not be registered because no experiment "
+                        + "found for sample '" + sample.getSampleIdentifier() + "'.");
+            }
+        } else if (experiment.getDeletion() != null)
+        {
+            throw new UserFailureException("Data set can not be registered because experiment '"
+                    + experiment.getIdentifier() + "' is in trash.");
+        }
     }
 
     @Override
@@ -252,10 +283,10 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
         }
 
         RelationshipUtils.setExperimentForDataSet(data, experiment, session);
-        setParentDataSets(experiment, newData);
+        setParentDataSets(experiment, null, newData);
     }
 
-    private void setParentDataSets(ExperimentPE experiment, NewExternalData newData)
+    private void setParentDataSets(ExperimentPE experiment, SamplePE sample, NewExternalData newData)
     {
         final List<String> parentDataSetCodes = newData.getParentDataSetCodes();
         final Set<DataPE> parentsToAdd = new HashSet<DataPE>();
@@ -263,7 +294,7 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
         {
             for (String parentCode : parentDataSetCodes)
             {
-                final DataPE parent = getOrCreateData(parentCode, experiment);
+                final DataPE parent = getOrCreateData(parentCode, experiment, sample);
                 parentsToAdd.add(parent);
             }
         }
@@ -272,14 +303,14 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
     }
 
     @Override
-    public void setContainedDataSets(ExperimentPE experiment, NewContainerDataSet newData)
+    public void setContainedDataSets(ExperimentPE experimentOrNull, SamplePE sampleOrNull, NewContainerDataSet newData)
     {
         final List<String> containedDataSetCodes = newData.getContainedDataSetCodes();
         if (containedDataSetCodes != null)
         {
             for (String containedCode : containedDataSetCodes)
             {
-                final DataPE contained = getOrCreateData(containedCode, experiment);
+                final DataPE contained = getOrCreateData(containedCode, experimentOrNull, sampleOrNull);
                 relationshipService.assignDataSetToContainer(session, contained, data);
             }
         }
@@ -455,7 +486,7 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
         return fileFormatTypeOrNull;
     }
 
-    private final DataPE getOrCreateData(final String dataSetCode, ExperimentPE experiment)
+    private final DataPE getOrCreateData(final String dataSetCode, ExperimentPE experiment, SamplePE sample)
     {
         assert dataSetCode != null : "Unspecified parent data set code.";
 
@@ -469,6 +500,7 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
             String code = DataSetTypeCode.UNKNOWN.getCode();
             result.setDataSetType(getDataSetTypeDAO().tryToFindDataSetTypeByCode(code));
             RelationshipUtils.setExperimentForDataSet(result, experiment, session);
+            RelationshipUtils.setSampleForDataSet(result, sample, session);
             result.setPlaceholder(true);
             dataDAO.createDataSet(result, findPerson());
         }
@@ -582,7 +614,7 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
         if (sampleIdentifierOrNull != null)
         {
             // update sample and indirectly experiment
-            updateSample(data, updates.getSampleIdentifierOrNull());
+            updateSample(data, sampleIdentifierOrNull);
         } else
         {
             data.setSample(null);

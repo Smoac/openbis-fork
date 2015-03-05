@@ -34,7 +34,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.deletion.DeletionTechId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.deletion.IDeletionId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
-import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ExperimentByIdentiferValidator;
+import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SimpleSpaceValidator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ITrashBO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
@@ -42,9 +42,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetRelationshipPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.util.RelationshipUtils;
 
 /**
@@ -85,14 +83,14 @@ public class DeleteDataSetExecutor implements IDeleteDataSetExecutor
 
         Map<IDataSetId, DataPE> dataSetMap = mapDataSetByIdExecutor.map(context, dataSetIds);
 
-        ExperimentByIdentiferValidator validator = new ExperimentByIdentiferValidator();
+        SimpleSpaceValidator spaceValidator = new SimpleSpaceValidator();
         PersonPE person = context.getSession().tryGetPerson();
         for (Map.Entry<IDataSetId, DataPE> entry : dataSetMap.entrySet())
         {
             IDataSetId dataSetId = entry.getKey();
             DataPE dataSet = entry.getValue();
 
-            if (false == validator.doValidation(person, dataSet.getExperiment()))
+            if (false == spaceValidator.doValidation(person, dataSet.getSpace()))
             {
                 throw new UnauthorizedObjectAccessException(dataSetId);
             }
@@ -105,13 +103,8 @@ public class DeleteDataSetExecutor implements IDeleteDataSetExecutor
 
     private void updateModificationDateAndModifierOfRelatedEntities(IOperationContext context, DataPE dataSet)
     {
-        ExperimentPE experiment = dataSet.getExperiment();
-        RelationshipUtils.updateModificationDateAndModifier(experiment, context.getSession());
-        SamplePE sample = dataSet.tryGetSample();
-        if (sample != null)
-        {
-            RelationshipUtils.updateModificationDateAndModifier(sample, context.getSession());
-        }
+        RelationshipUtils.updateModificationDateAndModifier(dataSet.getExperiment(), context.getSession());
+        RelationshipUtils.updateModificationDateAndModifier(dataSet.tryGetSample(), context.getSession());
         updateModificationDateAndModifierOfRelatedDataSets(context, dataSet.getChildren());
         updateModificationDateAndModifierOfRelatedDataSets(context, dataSet.getParents());
         Set<DataSetRelationshipPE> relationships = dataSet.getParentRelationships();

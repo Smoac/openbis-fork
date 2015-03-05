@@ -93,11 +93,14 @@ public abstract class AbstractExternalDataGrid extends AbstractEntityGrid<Abstra
                         public void handle(TableModelRowWithObject<AbstractExternalData> rowItem,
                                 boolean specialKeyPressed)
                         {
-                            final Project project =
-                                    rowItem.getObjectOrNull().getExperiment().getProject();
-                            final String href = LinkExtractor.tryExtract(project);
-                            OpenEntityDetailsTabHelper.open(viewContext, project,
-                                    specialKeyPressed, href);
+                            Experiment experiment = rowItem.getObjectOrNull().getExperiment();
+                            if (experiment != null)
+                            {
+                                final Project project = experiment.getProject();
+                                final String href = LinkExtractor.tryExtract(project);
+                                OpenEntityDetailsTabHelper.open(viewContext, project,
+                                        specialKeyPressed, href);
+                            }
                         }
 
                         @Override

@@ -63,12 +63,16 @@ public class DataSetUpdateBuilder extends UpdateBuilder<DataSetUpdatesDTO>
             this.fileFormatTypeCode = ((PhysicalDataSet) data).getFileFormatType().getCode();
         }
         this.parents = null;
-        this.experimentIdentifier = new ExperimentIdentifier(data.getExperiment());
+        Experiment experiment = data.getExperiment();
+        if (experiment != null)
+        {
+            this.experimentIdentifier = new ExperimentIdentifier(experiment);
+        }
     }
 
     public DataSetUpdateBuilder toSample(Sample sample)
     {
-        toExperiment(sample.getExperiment());
+//        toExperiment(sample.getExperiment());
         this.sampleIdentifier = id(sample);
         return this;
     }

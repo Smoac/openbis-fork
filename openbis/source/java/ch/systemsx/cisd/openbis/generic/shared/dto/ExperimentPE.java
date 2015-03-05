@@ -423,13 +423,19 @@ public class ExperimentPE extends AttachmentHolderPE implements
     {
         this.dataSets = dataSets;
     }
+    
+    @Transient
+    public void removeDataSet(DataPE dataSet)
+    {
+        getExperimentDataSets().remove(dataSet);
+    }
 
     public void addDataSet(final DataPE child)
     {
         final ExperimentPE parent = child.getExperiment();
         if (parent != null)
         {
-            parent.getExperimentDataSets().remove(child);
+            parent.removeDataSet(child);
         }
         child.setExperimentInternal(this);
         getExperimentDataSets().add(child);
