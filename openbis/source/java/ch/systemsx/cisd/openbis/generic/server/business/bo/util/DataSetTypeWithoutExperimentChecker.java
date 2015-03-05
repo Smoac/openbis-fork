@@ -33,11 +33,13 @@ import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
  */
 public class DataSetTypeWithoutExperimentChecker
 {
+    public static final String PROPERTY_KEY = "data-set-types-with-no-experiment-needed";
+    
     private List<Pattern> patternsForDataSetTypesWithoutExperiment = new ArrayList<Pattern>();
     
     public DataSetTypeWithoutExperimentChecker(Properties properties)
     {
-        String regularExpressions = properties.getProperty("data-set-types-with-no-experiment");
+        String regularExpressions = properties.getProperty(PROPERTY_KEY);
         if (StringUtils.isNotBlank(regularExpressions))
         {
             String[] splittedRegexes = regularExpressions.split(",");
@@ -49,7 +51,7 @@ public class DataSetTypeWithoutExperimentChecker
                 } catch (PatternSyntaxException ex)
                 {
                     throw new ConfigurationFailureException("Invalid regular expression in property "
-                            + "'data-set-types-with-no-experiment': " + regex, ex);
+                            + "'" + PROPERTY_KEY + "': " + regex, ex);
                 }
             }
         }

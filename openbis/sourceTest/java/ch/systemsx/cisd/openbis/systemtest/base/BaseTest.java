@@ -39,6 +39,7 @@ import ch.systemsx.cisd.common.servlet.SpringRequestContextProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientService;
 import ch.systemsx.cisd.openbis.generic.server.ICommonServerForInternalUse;
 import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.util.DataSetTypeWithoutExperimentChecker;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IndexMode;
 import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
@@ -145,7 +146,7 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
         System.setProperty("hibernate.search.index-mode", IndexMode.INDEX_FROM_SCRATCH.name());
         System.setProperty("hibernate.search.index-base", "../openbis/targets/lucene/cleandb");
         System.setProperty("hibernate.search.worker.execution", "sync");
-        System.setProperty("data-set-types-with-no-experiment", "  NO-EXP-.* ,   NEXP-.*  ");
+        System.setProperty(DataSetTypeWithoutExperimentChecker.PROPERTY_KEY, "  NO-EXP-.* ,   NEXP-.*  ");
     }
 
     private void setContext() throws Exception
