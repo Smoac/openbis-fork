@@ -17,7 +17,7 @@
 package ch.ethz.bsse.cisd.dsu.tracking.main;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -50,10 +50,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 public class TrackingBO
 {
-    private static final List<String> SEQUENCING_SAMPLE_TYPES = Arrays.asList("ILLUMINA_SEQUENCING", "ILLUMINA_SEQUENCING_NEUROSTEMX");
-
-    private static final String EXTERNAL_SAMPLE_NAME = "EXTERNAL_SAMPLE_NAME";
-
     private static final String SEQUENCING_SAMPLE_TYPE = "ILLUMINA_SEQUENCING";
 
     private static final String FLOW_LANE_SAMPLE_TYPE = "ILLUMINA_FLOW_LANE";
@@ -64,6 +60,8 @@ public class TrackingBO
             "LIBRARY_PROCESSING_SUCCESSFUL";
 
     private static final String TRUE = "true";
+    private static final String CL_PARAMETER_LANES = "lanes";
+    private static final String CL_PARAMETER_ALL = "all";
 
     private final ITrackingServer trackingServer;
 
@@ -79,38 +77,30 @@ public class TrackingBO
         this.mailClient = mailClient;
     }
 
-    public void trackAndNotify(ITrackingDAO trackingDAO, final HashMap<String, String[]> clMap, SessionContextDTO session)
+    public void trackAndNotify(ITrackingDAO trackingDAO, final HashMap<String, String[]> commandLineMap, 
+            SessionContextDTO session)
     {
         TrackingStateDTO prevTrackingState = trackingDAO.getTrackingState();
         LogUtils.info(prevTrackingState.getLastSeenDataSetIdMap().toString());
 
-        String CL_PARAMETER_LANES = "lanes";
-        String CL_PARAMETER_ALL = "all";
         TrackedEntities changedEntities = null;
         List<EmailWithSummary> emailsWithSummary = null;
-        HashMap<String, ArrayList<Long>> changedTrackingMap = null;
 
-        if (clMap.get(CL_PARAMETER_LANES) != null)
+        if (commandLineMap.get(CL_PARAMETER_LANES) != null)
         {
-            Object[] result = fetchChangedDataSets(prevTrackingState, trackingServer, clMap.get(CL_PARAMETER_LANES), session);
-            changedEntities = (TrackedEntities) result[0];
-            changedTrackingMap = (HashMap<String, ArrayList<Long>>) result[1];
-            emailsWithSummary = emailGenerator.generateDataSetsEmails(changedEntities);
-        }
-        else if (clMap.containsKey(CL_PARAMETER_ALL))
+            changedEntities = fetchChangedDataSets(prevTrackingState, trackingServer, 
+                    commandLineMap.get(CL_PARAMETER_LANES), session);
+        } else if (commandLineMap.containsKey(CL_PARAMETER_ALL))
         {
-            Object[] result = fetchChangedEntities(prevTrackingState, trackingServer, clMap, session);
-            changedEntities = (TrackedEntities) result[0];
-            changedTrackingMap = (HashMap<String, ArrayList<Long>>) result[1];
-            emailsWithSummary = emailGenerator.generateEmails(changedEntities);
-        }
-        else
+            changedEntities = fetchChangedEntities(prevTrackingState, trackingServer, commandLineMap, session);
+        } else
         {
             LogUtils.debug("Should never be reached.");
         }
 
+        emailsWithSummary = emailGenerator.generateDataSetsEmails(changedEntities);
         sendEmails(emailsWithSummary, mailClient);
-        saveTrackingState(prevTrackingState, changedTrackingMap, changedEntities, trackingDAO);
+        saveTrackingState(prevTrackingState, changedEntities, trackingDAO);
     }
 
     private static void sendEmails(List<EmailWithSummary> emailsWithSummary, IMailClient mailClient)
@@ -194,24 +184,16 @@ public class TrackingBO
     }
 
     private static void saveTrackingState(TrackingStateDTO prevTrackingState,
-            HashMap<String, ArrayList<Long>> changedTrackingMap,
             TrackedEntities changedEntities, ITrackingDAO trackingDAO)
     {
-        TrackingStateDTO state =
-                TrackingStateUpdateHelper.calcNewTrackingState(prevTrackingState, changedEntities, changedTrackingMap);
+        TrackingStateDTO state = TrackingStateUpdateHelper.calcNewTrackingState(prevTrackingState, changedEntities);
 
         trackingDAO.saveTrackingState(state);
     }
 
-    private static Object[] fetchChangedEntities(TrackingStateDTO trackingState,
+    private static TrackedEntities fetchChangedEntities(TrackingStateDTO trackingState,
             ITrackingServer trackingServer, HashMap<String, String[]> clMap, SessionContextDTO session)
     {
-        List<Sample> sequencingSamplesToBeProcessed =
-                listSequencingSamples(PROCESSING_POSSIBLE_PROPERTY_CODE, trackingState
-                        .getAlreadyTrackedSampleIdsToBeProcessed(), trackingServer, session);
-        List<Sample> sequencingSamplesSuccessfullyProcessed =
-                listSequencingSamples(PROCESSING_SUCCESSFUL_PROPERTY_CODE, trackingState
-                        .getAlreadyTrackedSampleIdsProcessed(), trackingServer, session);
 
         TrackingDataSetCriteria dataSetCriteria =
                 new TrackingDataSetCriteria(FLOW_LANE_SAMPLE_TYPE, trackingState
@@ -224,45 +206,16 @@ public class TrackingBO
         // Loop over all new data sets
         for (AbstractExternalData d : dataSets)
         {
-            Sample currentLane = d.getSample();
-            String lanePermId = currentLane.getPermId();
-
-            LogUtils.info("Found lane with permId: " + lanePermId + " with new DS techId " + d.getId() + " and DS permId " + d.getPermId());
-            if (changedTrackingMap.get(lanePermId) != null)
-            {
-                ArrayList<Long> existingList = changedTrackingMap.get(lanePermId);
-                existingList.add(d.getId());
-                changedTrackingMap.put(lanePermId, existingList);
-            }
-            else
-            {
-                ArrayList<Long> newList = new ArrayList<Long>();
-                newList.add(d.getId());
-                changedTrackingMap.put(lanePermId, newList);
-            }
+            addDataSetTo(changedTrackingMap, d);
         }
 
-        return new Object[] { new TrackedEntities(sequencingSamplesToBeProcessed, sequencingSamplesSuccessfullyProcessed, dataSets),
-                changedTrackingMap };
+        return gatherTrackedEntities(trackingState, trackingServer, session, dataSets, changedTrackingMap);
     }
 
-    private static Object[] fetchChangedDataSets(TrackingStateDTO trackingState,
+    private static TrackedEntities fetchChangedDataSets(TrackingStateDTO trackingState,
             ITrackingServer trackingServer, String[] laneCodeList, SessionContextDTO session)
     {
-
-        List<Sample> sequencingSamplesToBeProcessed =
-                listSequencingSamples(PROCESSING_POSSIBLE_PROPERTY_CODE, trackingState
-                        .getAlreadyTrackedSampleIdsToBeProcessed(), trackingServer, session);
-        List<Sample> sequencingSamplesSuccessfullyProcessed =
-                listSequencingSamples(PROCESSING_SUCCESSFUL_PROPERTY_CODE, trackingState
-                        .getAlreadyTrackedSampleIdsProcessed(), trackingServer, session);
-
-        ArrayList<Long> allDataSetIds = new ArrayList<Long>();
-        for (Map.Entry<String, Long> entry : trackingState.getLastSeenDataSetIdMap().entrySet())
-        {
-            allDataSetIds.add(entry.getValue());
-        }
-        Long maxDataSetId = Collections.max(allDataSetIds);
+        long maxDataSetId = getMaxDataSetId(trackingState);
         LogUtils.info("Using maximum DS techId " + maxDataSetId + " for search of changed data sets");
 
         TrackingDataSetCriteria dataSetCriteria =
@@ -288,31 +241,54 @@ public class TrackingBO
             if (filterList.contains(currentLaneId))
             {
                 filteredDataSets.add(d);
-                Sample currentLane = d.getSample();
-                String lanePermId = currentLane.getPermId();
-
-                LogUtils.info("Found lane with permId: " + lanePermId + " with new DS techId " + d.getId() + " and DS permId " + d.getPermId());
-                if (changedTrackingMap.get(lanePermId) != null)
-                {
-                    ArrayList<Long> existingList = changedTrackingMap.get(lanePermId);
-                    existingList.add(d.getId());
-                    changedTrackingMap.put(lanePermId, existingList);
-                }
-                else
-                {
-                    ArrayList<Long> newList = new ArrayList<Long>();
-                    newList.add(d.getId());
-                    changedTrackingMap.put(lanePermId, newList);
-                }
+                addDataSetTo(changedTrackingMap, d);
             }
         }
 
         LogUtils.info(changedTrackingMap.toString());
         LogUtils.info("Found " + filteredDataSets.size() + " data sets which are connected to samples in " + filterList.toString());
-        return new Object[] { new TrackedEntities(sequencingSamplesToBeProcessed, sequencingSamplesSuccessfullyProcessed, filteredDataSets),
-                changedTrackingMap };
+        return gatherTrackedEntities(trackingState, trackingServer, session, filteredDataSets, changedTrackingMap); 
     }
 
+    private static long getMaxDataSetId(TrackingStateDTO trackingState)
+    {
+        long maxDataSetId = 0;
+        for (Long id : trackingState.getLastSeenDataSetIdMap().values())
+        {
+            maxDataSetId = Math.max(maxDataSetId, id);
+        }
+        return maxDataSetId;
+    }
+
+    private static TrackedEntities gatherTrackedEntities(TrackingStateDTO trackingState, 
+            ITrackingServer trackingServer, SessionContextDTO session,
+            List<AbstractExternalData> dataSets, HashMap<String, ArrayList<Long>> changedTrackingMap)
+    {
+        List<Sample> sequencingSamplesToBeProcessed =
+                listSequencingSamples(PROCESSING_POSSIBLE_PROPERTY_CODE, trackingState
+                        .getAlreadyTrackedSampleIdsToBeProcessed(), trackingServer, session);
+        List<Sample> sequencingSamplesSuccessfullyProcessed =
+                listSequencingSamples(PROCESSING_SUCCESSFUL_PROPERTY_CODE, trackingState
+                        .getAlreadyTrackedSampleIdsProcessed(), trackingServer, session);
+        return new TrackedEntities(sequencingSamplesToBeProcessed, sequencingSamplesSuccessfullyProcessed, dataSets,
+                changedTrackingMap);
+    }
+
+    private static void addDataSetTo(HashMap<String, ArrayList<Long>> changedTrackingMap, AbstractExternalData dataSet)
+    {
+        Sample currentLane = dataSet.getSample();
+        String lanePermId = currentLane.getPermId();
+
+        LogUtils.info("Found lane with permId: " + lanePermId + " with new DS techId " + dataSet.getId() + " and DS permId " + dataSet.getPermId());
+        ArrayList<Long> existingList = changedTrackingMap.get(lanePermId);
+        if (existingList == null)
+        {
+            existingList = new ArrayList<Long>();
+            changedTrackingMap.put(lanePermId, existingList);
+        }
+        existingList.add(dataSet.getId());
+    }
+    
     private static List<Sample> listSequencingSamples(String propertyTypeCode,
             Set<Long> alreadyTrackedSampleIds, ITrackingServer trackingServer,
             SessionContextDTO session)
@@ -335,7 +311,7 @@ public class TrackingBO
     {
 
         static TrackingStateDTO calcNewTrackingState(TrackingStateDTO prevState,
-                TrackedEntities changedEntities, HashMap<String, ArrayList<Long>> changedTrackingMap)
+                TrackedEntities changedEntities)
         {
             TrackingStateDTO state = new TrackingStateDTO();
             Set<Long> sequencingSamplesToBeProcessed =
@@ -352,6 +328,7 @@ public class TrackingBO
 
             TreeMap<String, Long> newTrackingState = new TreeMap<String, Long>();
 
+            HashMap<String, ArrayList<Long>> changedTrackingMap = changedEntities.getChangedTrackingMap();
             System.out.println(changedTrackingMap.toString());
 
             for (Map.Entry<String, ArrayList<Long>> entry : changedTrackingMap.entrySet())

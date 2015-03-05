@@ -105,9 +105,9 @@ public class FileBasedTrackingDAOTest extends AbstractFileSystemTestCase
 
         TrackedEntities changedEntities =
                 new TrackedEntities(createSamplesWithIds(6, 7), createSamplesWithIds(4),
-                        createDataSetsWithIds(33000L));
+                        createDataSetsWithIds(33000L), tmpTrackingMap);
         TrackingStateDTO newState =
-                TrackingStateUpdateHelper.calcNewTrackingState(state, changedEntities, tmpTrackingMap);
+                TrackingStateUpdateHelper.calcNewTrackingState(state, changedEntities);
 
         TreeMap<String, Long> expectedTrackingMap = new TreeMap<String, Long>();
 

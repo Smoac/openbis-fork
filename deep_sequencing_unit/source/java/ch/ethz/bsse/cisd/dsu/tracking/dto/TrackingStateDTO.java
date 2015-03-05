@@ -21,7 +21,7 @@ import java.util.Set;
 import java.util.TreeMap;
 
 /**
- * Tracjing state DTO
+ * Tracking state DTO
  * 
  * @author Piotr Buczek
  * @author Manuel Kohler

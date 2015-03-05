@@ -16,6 +16,8 @@
 
 package ch.ethz.bsse.cisd.dsu.tracking.dto;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
@@ -36,20 +38,16 @@ public class TrackedEntities
 
     private final List<AbstractExternalData> dataSets;
 
+    private final HashMap<String, ArrayList<Long>> changedTrackingMap;
+
     public TrackedEntities(List<Sample> sequencingSamplesToBeProcessed,
-            List<Sample> sequencingSamplesProcessed, List<AbstractExternalData> dataSets)
+            List<Sample> sequencingSamplesProcessed, List<AbstractExternalData> dataSets, 
+            HashMap<String, ArrayList<Long>> changedTrackingMap)
     {
         this.sequencingSamplesToBeProcessed = sequencingSamplesToBeProcessed;
         this.sequencingSamplesProcessed = sequencingSamplesProcessed;
         this.dataSets = dataSets;
-    }
-
-    // setting these to null, is that OK?
-    public TrackedEntities(List<AbstractExternalData> dataSets)
-    {
-        this.dataSets = dataSets;
-        this.sequencingSamplesProcessed = null;
-        this.sequencingSamplesToBeProcessed = null;
+        this.changedTrackingMap = changedTrackingMap;
     }
 
     public List<Sample> getSequencingSamplesToBeProcessed()
@@ -66,4 +64,10 @@ public class TrackedEntities
     {
         return dataSets;
     }
+
+    public HashMap<String, ArrayList<Long>> getChangedTrackingMap()
+    {
+        return changedTrackingMap;
+    }
+    
 }

@@ -73,8 +73,8 @@ public class TrackingClient
     {
         try
         {
-            HashMap<String, String[]> clMap = parseCommandLine(args);
-            track(clMap);
+            HashMap<String, String[]> commandLineMap = parseCommandLine(args);
+            track(commandLineMap);
         } catch (EnvironmentFailureException ex)
         {
             LogUtils.notify(ex);
@@ -86,7 +86,7 @@ public class TrackingClient
 
     private static HashMap<String, String[]> parseCommandLine(String[] args)
     {
-        HashMap<String, String[]> clMap = new HashMap<String, String[]>();
+        HashMap<String, String[]> commandLineMap = new HashMap<String, String[]>();
         CommandLineParser parser = new GnuParser();
 
         Options options = new Options();
@@ -114,20 +114,20 @@ public class TrackingClient
             if (line.hasOption(CL_PARAMETER_LANES))
             {
                 String[] laneArray = line.getOptionValues(CL_PARAMETER_LANES);
-                clMap.put(CL_PARAMETER_LANES, laneArray);
+                commandLineMap.put(CL_PARAMETER_LANES, laneArray);
             }
             if (line.hasOption(CL_PARAMETER_ALL))
             {
-                clMap.put(CL_PARAMETER_ALL, null);
+                commandLineMap.put(CL_PARAMETER_ALL, null);
             }
         } catch (ParseException exp)
         {
             LogUtils.environmentError("Parsing of command line parameters failed.", exp.getMessage());
         }
-        return clMap;
+        return commandLineMap;
     }
 
-    private static void track(HashMap<String, String[]> clMap)
+    private static void track(HashMap<String, String[]> commandLineMap)
     {
         LogInitializer.init();
         Properties props = PropertyIOUtils.loadProperties(SERVICE_PROPERTIES_FILE);
@@ -143,7 +143,7 @@ public class TrackingClient
 
         SessionContextDTO session = authentificateInOpenBIS(params, trackingServer);
 
-        trackingBO.trackAndNotify(trackingDAO, clMap, session);
+        trackingBO.trackAndNotify(trackingDAO, commandLineMap, session);
     }
 
     private static ITrackingServer createOpenBISTrackingServer(Parameters params)
