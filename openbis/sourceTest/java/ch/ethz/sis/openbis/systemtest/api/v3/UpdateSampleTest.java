@@ -958,7 +958,7 @@ public class UpdateSampleTest extends AbstractSampleTest
                 {
                     v3api.updateSamples(sessionToken, Arrays.asList(update));
                 }
-            }, "Circular parent dependency found for sample: /CISD/3VCP8");
+            }, "Circular dependency found: /CISD/3VCP8");
     }
 
     @Test
@@ -1108,7 +1108,7 @@ public class UpdateSampleTest extends AbstractSampleTest
                 {
                     v3api.updateSamples(sessionToken, Arrays.asList(update));
                 }
-            }, "Circular parent dependency found for sample: /CISD/3VCP8");
+            }, "Circular dependency found: /CISD/3VCP8");
     }
 
     @Test

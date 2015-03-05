@@ -21,9 +21,14 @@ import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
 /**
  * @author pkupczyk
  */
-public interface IGetParentChildRelationshipIdExecutor
+public interface IGetRelationshipIdExecutor
 {
 
-    public Long get(IOperationContext context);
+    public Long get(IOperationContext context, RelationshipType type);
+
+    public enum RelationshipType
+    {
+        PARENT_CHILD, CONTAINER_COMPONENT
+    }
 
 }

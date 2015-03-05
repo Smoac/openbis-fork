@@ -1110,6 +1110,44 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
     }
 
     @Override
+    public Map<Long, Set<Long>> mapDataSetIdsByChildrenIds(final Collection<Long> children, final Long relationship)
+    {
+        @SuppressWarnings("unchecked")
+        final List<Object[]> results = (List<Object[]>) getHibernateTemplate().execute(new HibernateCallback()
+            {
+                @Override
+                public final Object doInHibernate(final Session session)
+                {
+                    SQLQuery query =
+                            session.createSQLQuery("select data_id_child, data_id_parent from " + TableNames.DATA_SET_RELATIONSHIPS_VIEW
+                                    + " where relationship_id = :relationship and data_id_child in (:children)");
+                    query.setParameterList("children", children);
+                    query.setParameter("relationship", relationship);
+                    return query.list();
+                }
+            });
+
+        Map<Long, Set<Long>> childIdToParentIdsMap = new HashMap<Long, Set<Long>>();
+
+        for (Object[] result : results)
+        {
+            Number childId = (Number) result[0];
+            Number parentId = (Number) result[1];
+
+            Set<Long> parentIds = childIdToParentIdsMap.get(childId);
+            if (parentIds == null)
+            {
+                parentIds = new HashSet<Long>();
+                childIdToParentIdsMap.put(childId.longValue(), parentIds);
+            }
+
+            parentIds.add(parentId.longValue());
+        }
+
+        return childIdToParentIdsMap;
+    }
+
+    @Override
     public Set<TechId> findParentIds(final Collection<TechId> dataSetIds, final long relationshipTypeId)
     {
         return findRelatedIds("data_id_parent", "data_id_child", dataSetIds, relationshipTypeId);

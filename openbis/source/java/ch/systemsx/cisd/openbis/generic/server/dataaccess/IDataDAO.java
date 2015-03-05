@@ -153,6 +153,8 @@ public interface IDataDAO extends IGenericDAO<DataPE>
 
     public Set<TechId> findChildrenIds(Collection<TechId> dataSetIds, long relationshipTypeId);
 
+    public Map<Long, Set<Long>> mapDataSetIdsByChildrenIds(final Collection<Long> children, final Long relationship);
+
     public List<DataPE> listByCode(Set<String> values);
 
     public List<DataPE> listByIDs(Collection<Long> dataSetIds);

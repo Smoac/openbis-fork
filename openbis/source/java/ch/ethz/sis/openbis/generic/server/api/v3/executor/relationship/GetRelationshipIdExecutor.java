@@ -27,36 +27,49 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
  * @author pkupczyk
  */
 @Component
-public class GetParentChildRelationshipIdExecutor implements IGetParentChildRelationshipIdExecutor
+public class GetRelationshipIdExecutor implements IGetRelationshipIdExecutor
 {
 
     @Autowired
     private IDAOFactory daoFactory;
 
     @SuppressWarnings("unused")
-    private GetParentChildRelationshipIdExecutor()
+    private GetRelationshipIdExecutor()
     {
     }
 
-    public GetParentChildRelationshipIdExecutor(IDAOFactory daoFactory)
+    public GetRelationshipIdExecutor(IDAOFactory daoFactory)
     {
         this.daoFactory = daoFactory;
     }
 
     @Override
-    public Long get(IOperationContext context)
+    public Long get(IOperationContext context, RelationshipType type)
     {
-        String key = "Sample-ParentChildRelation-ID";
+        String code = getRelationshipCode(type);
+        String key = getClass().getName() + "_" + code;
 
         Long result = (Long) context.getAttribute(key);
 
         if (result == null)
         {
-            result = daoFactory.getRelationshipTypeDAO().tryFindRelationshipTypeByCode(
-                    BasicConstant.PARENT_CHILD_INTERNAL_RELATIONSHIP).getId();
+            result = daoFactory.getRelationshipTypeDAO().tryFindRelationshipTypeByCode(code).getId();
             context.setAttribute(key, result);
         }
         return result;
+    }
+
+    private String getRelationshipCode(RelationshipType type)
+    {
+        switch (type)
+        {
+            case PARENT_CHILD:
+                return BasicConstant.PARENT_CHILD_INTERNAL_RELATIONSHIP;
+            case CONTAINER_COMPONENT:
+                return BasicConstant.CONTAINER_COMPONENT_INTERNAL_RELATIONSHIP;
+            default:
+                throw new IllegalArgumentException("Unknown relationship type: " + type);
+        }
     }
 
 }

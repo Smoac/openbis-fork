@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.api.v3.executor.sample;
+package ch.ethz.sis.openbis.generic.server.api.v3.executor.dataset;
 
-import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
@@ -27,34 +26,21 @@ import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.AbstractVerifyEntityCyclesExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.relationship.IGetRelationshipIdExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.relationship.IGetRelationshipIdExecutor.RelationshipType;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.SampleGenericBusinessRules;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 
 /**
  * @author pkupczyk
  */
 @Component
-public class VerifySampleParentsExecutor extends AbstractVerifyEntityCyclesExecutor<SamplePE> implements IVerifySampleParentsExecutor
+public abstract class AbstractVerifyDataSetCyclesExecutor extends AbstractVerifyEntityCyclesExecutor<DataPE>
 {
 
     @Autowired
     private IGetRelationshipIdExecutor getRelationshipIdExecutor;
 
     @Override
-    public void verify(IOperationContext context, Collection<SamplePE> entities)
-    {
-        super.verify(context, entities);
-
-        for (SamplePE sample : entities)
-        {
-            SampleGenericBusinessRules.assertValidParents(sample);
-            SampleGenericBusinessRules.assertValidChildren(sample);
-        }
-    }
-
-    @Override
-    protected Long getId(SamplePE entity)
+    protected Long getId(DataPE entity)
     {
         return entity.getId();
     }
@@ -62,15 +48,17 @@ public class VerifySampleParentsExecutor extends AbstractVerifyEntityCyclesExecu
     @Override
     protected String getIdentifier(Long entityId)
     {
-        SamplePE sample = daoFactory.getSampleDAO().tryGetByTechId(new TechId(entityId));
-        return sample.getIdentifier();
+        DataPE dataSet = daoFactory.getDataDAO().getByTechId(new TechId(entityId));
+        return dataSet.getCode();
     }
 
     @Override
     protected Map<Long, Set<Long>> getRelatedIdsMap(IOperationContext context, Set<Long> entityIds)
     {
-        Long relationshipId = getRelationshipIdExecutor.get(context, RelationshipType.PARENT_CHILD);
-        return daoFactory.getSampleDAO().mapSampleIdsByChildrenIds(entityIds, relationshipId);
+        Long relationshipId = getRelationshipIdExecutor.get(context, getRelationshipType());
+        return daoFactory.getDataDAO().mapDataSetIdsByChildrenIds(entityIds, relationshipId);
     }
+
+    protected abstract RelationshipType getRelationshipType();
 
 }

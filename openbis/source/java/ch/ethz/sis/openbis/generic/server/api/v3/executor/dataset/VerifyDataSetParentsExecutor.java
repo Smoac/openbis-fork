@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 ETH Zuerich, Scientific IT Services
+ * Copyright 2014 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,15 +14,23 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.api.v3.executor.sample;
+package ch.ethz.sis.openbis.generic.server.api.v3.executor.dataset;
 
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.IVerifyEntityRelationsExecutor;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import org.springframework.stereotype.Component;
+
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.relationship.IGetRelationshipIdExecutor.RelationshipType;
 
 /**
  * @author pkupczyk
  */
-public interface IVerifySampleParentsExecutor extends IVerifyEntityRelationsExecutor<SamplePE>
+@Component
+public class VerifyDataSetParentsExecutor extends AbstractVerifyDataSetCyclesExecutor implements IVerifyDataSetParentsExecutor
 {
+
+    @Override
+    protected RelationshipType getRelationshipType()
+    {
+        return RelationshipType.PARENT_CHILD;
+    }
 
 }
