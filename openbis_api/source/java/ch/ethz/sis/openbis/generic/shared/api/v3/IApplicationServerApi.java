@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion.Deletion;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion.dataset.DataSetDeletionOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion.experiment.ExperimentDeletionOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion.sample.SampleDeletionOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSet;
@@ -138,12 +139,20 @@ public interface IApplicationServerApi extends IRpcService
     // - GeneralInformationService.searchForSamples(SearchCriteria)
     // - GeneralInformationService.searchForSamples(SearchCriteria, EnumSet<SampleFetchOption>)
     // - GeneralInformationService.listSamplesForExperiment(String experimentIdentifier)
-
+    /**
+     * This is the comment
+     * 
+     * @param sessionToken
+     * @param searchCriterion
+     * @param fetchOptions
+     */
     public List<Sample> searchSamples(String sessionToken, SampleSearchCriterion searchCriterion, SampleFetchOptions fetchOptions);
 
     // REPLACES:
     // - IGeneralInformationChangingService.deleteExperiments(List<Long>, String, DeletionType)
     public IDeletionId deleteExperiments(String sessionToken, List<? extends IExperimentId> experimentIds, ExperimentDeletionOptions deletionOptions);
+
+    public IDeletionId deleteDataSets(String sessionToken, List<? extends IDataSetId> dataSetIds, DataSetDeletionOptions deletionOptions);
 
     // REPLACES:
     // - IGeneralInformationChangingService.deleteSamples(List<Long>, String, DeletionType)

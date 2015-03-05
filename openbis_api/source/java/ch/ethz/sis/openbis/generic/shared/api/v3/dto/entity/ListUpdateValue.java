@@ -19,14 +19,14 @@ public class ListUpdateValue<ADD, REMOVE, SET, ACTION> implements Serializable
     {
         private static final long serialVersionUID = 1L;
 
-        private Collection<T> items;
+        private Collection<? extends T> items;
 
-        public Collection<T> getItems()
+        public Collection<? extends T> getItems()
         {
             return items;
         }
 
-        public void setItems(Collection<T> items)
+        public void setItems(Collection<? extends T> items)
         {
             this.items = items;
         }
