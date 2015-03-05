@@ -52,7 +52,7 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ProjectPr
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SampleIdPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SampleListPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SamplePredicate;
-import ch.systemsx.cisd.openbis.generic.server.authorization.validator.DataSetByExperimentIdentifierValidator;
+import ch.systemsx.cisd.openbis.generic.server.authorization.validator.DataSetByExperimentOrSampleIdentifierValidator;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ExperimentByIdentiferValidator;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ProjectByIdentiferValidator;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SampleByIdentiferValidator;
@@ -461,7 +461,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
     @Override
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
-    @ReturnValueFilter(validatorClass = DataSetByExperimentIdentifierValidator.class)
+    @ReturnValueFilter(validatorClass = DataSetByExperimentOrSampleIdentifierValidator.class)
     public List<DataSet> listDataSets(String sessionToken,
             @AuthorizationGuard(guardClass = SampleListPredicate.class)
             List<Sample> samples)
@@ -599,7 +599,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
     @Override
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
-    @ReturnValueFilter(validatorClass = DataSetByExperimentIdentifierValidator.class)
+    @ReturnValueFilter(validatorClass = DataSetByExperimentOrSampleIdentifierValidator.class)
     public List<DataSet> listDataSetsForSample(String sessionToken,
             @AuthorizationGuard(guardClass = SamplePredicate.class)
             Sample sample, boolean areOnlyDirectlyConnectedIncluded)
@@ -748,7 +748,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
     @Override
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
-    @ReturnValueFilter(validatorClass = DataSetByExperimentIdentifierValidator.class)
+    @ReturnValueFilter(validatorClass = DataSetByExperimentOrSampleIdentifierValidator.class)
     public List<DataSet> listDataSets(String sessionToken,
             @AuthorizationGuard(guardClass = SampleListPredicate.class)
             List<Sample> samples, EnumSet<Connections> connections)
@@ -791,8 +791,8 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
 
         // Filter for user
         final PersonPE person = getDAOFactory().getPersonDAO().tryFindPersonByUserId(userId);
-        final DataSetByExperimentIdentifierValidator validator =
-                new DataSetByExperimentIdentifierValidator();
+        final DataSetByExperimentOrSampleIdentifierValidator validator =
+                new DataSetByExperimentOrSampleIdentifierValidator();
         final ArrayList<DataSet> datasets = new ArrayList<DataSet>(unfilteredDatasets.size());
         for (DataSet dataset : unfilteredDatasets)
         {
@@ -807,7 +807,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
     @Override
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
-    @ReturnValueFilter(validatorClass = DataSetByExperimentIdentifierValidator.class)
+    @ReturnValueFilter(validatorClass = DataSetByExperimentOrSampleIdentifierValidator.class)
     public List<DataSet> listDataSetsForExperiments(String sessionToken,
             @AuthorizationGuard(guardClass = ExperimentListPredicate.class)
             List<Experiment> experiments, EnumSet<Connections> connections)
@@ -849,8 +849,8 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         final List<DataSet> unfilteredDatasets = Translator.translate(dataSets, connectionsToGet);
         // Filter for user
         final PersonPE person = getDAOFactory().getPersonDAO().tryFindPersonByUserId(userId);
-        final DataSetByExperimentIdentifierValidator validator =
-                new DataSetByExperimentIdentifierValidator();
+        final DataSetByExperimentOrSampleIdentifierValidator validator =
+                new DataSetByExperimentOrSampleIdentifierValidator();
         final ArrayList<DataSet> datasets = new ArrayList<DataSet>(unfilteredDatasets.size());
         for (DataSet dataset : unfilteredDatasets)
         {
@@ -865,7 +865,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
     @Override
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
-    @ReturnValueFilter(validatorClass = DataSetByExperimentIdentifierValidator.class)
+    @ReturnValueFilter(validatorClass = DataSetByExperimentOrSampleIdentifierValidator.class)
     public List<DataSet> getDataSetMetaData(String sessionToken, List<String> dataSetCodes)
     {
         return getDataSetMetaData(getSession(sessionToken), dataSetCodes, true);
@@ -905,7 +905,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
     @Override
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
-    @ReturnValueFilter(validatorClass = DataSetByExperimentIdentifierValidator.class)
+    @ReturnValueFilter(validatorClass = DataSetByExperimentOrSampleIdentifierValidator.class)
     public List<DataSet> getDataSetMetaData(String sessionToken, List<String> dataSetCodes,
             EnumSet<DataSetFetchOption> fetchOptions)
     {
@@ -983,7 +983,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
     @Override
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
-    @ReturnValueFilter(validatorClass = DataSetByExperimentIdentifierValidator.class)
+    @ReturnValueFilter(validatorClass = DataSetByExperimentOrSampleIdentifierValidator.class)
     public List<DataSet> searchForDataSets(String sessionToken, SearchCriteria searchCriteria)
     {
         checkSession(sessionToken);
@@ -1029,8 +1029,8 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
 
         // filter by user
         final PersonPE person = getDAOFactory().getPersonDAO().tryFindPersonByUserId(userId);
-        final DataSetByExperimentIdentifierValidator experimentIdentifierValidator =
-                new DataSetByExperimentIdentifierValidator();
+        final DataSetByExperimentOrSampleIdentifierValidator experimentIdentifierValidator =
+                new DataSetByExperimentOrSampleIdentifierValidator();
 
         final ArrayList<DataSet> dataSets = new ArrayList<DataSet>(allDataSets.size());
         for (DataSet dataSet : allDataSets)
