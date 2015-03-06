@@ -148,15 +148,17 @@ public interface IApplicationServerApi extends IRpcService
      */
     public List<Sample> searchSamples(String sessionToken, SampleSearchCriterion searchCriterion, SampleFetchOptions fetchOptions);
 
+    public List<DataSet> searchDataSets(String sessionToken, DataSetSearchCriterion searchCriterion, DataSetFetchOptions fetchOptions);
+
     // REPLACES:
     // - IGeneralInformationChangingService.deleteExperiments(List<Long>, String, DeletionType)
     public IDeletionId deleteExperiments(String sessionToken, List<? extends IExperimentId> experimentIds, ExperimentDeletionOptions deletionOptions);
 
-    public IDeletionId deleteDataSets(String sessionToken, List<? extends IDataSetId> dataSetIds, DataSetDeletionOptions deletionOptions);
-
     // REPLACES:
     // - IGeneralInformationChangingService.deleteSamples(List<Long>, String, DeletionType)
     public IDeletionId deleteSamples(String sessionToken, List<? extends ISampleId> sampleIds, SampleDeletionOptions deletionOptions);
+
+    public IDeletionId deleteDataSets(String sessionToken, List<? extends IDataSetId> dataSetIds, DataSetDeletionOptions deletionOptions);
 
     // REPLACES:
     // - IGeneralInformationService.listDeletions(EnumSet<DeletionFetchOption>)
@@ -169,7 +171,5 @@ public interface IApplicationServerApi extends IRpcService
     // REPLACES:
     // - IGeneralInformationChangingService.deletePermanently(List<Long>)
     public void confirmDeletions(String sessionToken, List<? extends IDeletionId> deletionIds);
-
-    public List<DataSet> searchDataSets(String sessionToken, DataSetSearchCriterion searchCriterion, DataSetFetchOptions fetchOptions);
 
 }
