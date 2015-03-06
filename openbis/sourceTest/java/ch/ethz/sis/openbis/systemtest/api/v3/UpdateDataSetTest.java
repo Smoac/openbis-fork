@@ -49,7 +49,26 @@ import ch.systemsx.cisd.common.test.AssertionUtil;
  */
 public class UpdateDataSetTest extends AbstractSampleTest
 {
-    // test update dataSet
+
+    @Test
+    public void testUpdateWithDataSetIdNull()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        assertUserFailureException(new IDelegatedAction()
+            {
+
+                @Override
+                public void execute()
+                {
+                    DataSetUpdate update = new DataSetUpdate();
+                    SamplePermId sampleId = new SamplePermId("201206191219327-1058");
+                    update.setSampleId(sampleId);
+
+                    v3api.updateDataSets(sessionToken, Collections.singletonList(update));
+                }
+            }, "Data set id cannot be null.");
+    }
 
     @Test
     public void testUpdateWithDataSetExisting()
@@ -72,7 +91,87 @@ public class UpdateDataSetTest extends AbstractSampleTest
     }
 
     @Test
-    public void testUpdateExternalDataSet()
+    public void testUpdateWithDataSetNonexistent()
+    {
+        final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
+
+        final IDataSetId dataSetId = new DataSetPermId("IDONTEXIST");
+        final DataSetUpdate update = new DataSetUpdate();
+        update.setDataSetId(dataSetId);
+
+        assertObjectNotFoundException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.updateDataSets(sessionToken, Arrays.asList(update));
+                }
+            }, dataSetId);
+    }
+
+    @Test
+    public void testUpdateWithSample()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        DataSetPermId dataSetId = new DataSetPermId("COMPONENT_1A");
+
+        DataSetUpdate update = new DataSetUpdate();
+        update.setDataSetId(dataSetId);
+        SamplePermId sampleId = new SamplePermId("201206191219327-1058");
+        update.setSampleId(sampleId);
+        v3api.updateDataSets(sessionToken, Collections.singletonList(update));
+
+        DataSetFetchOptions fe = new DataSetFetchOptions();
+        fe.withSample();
+        Map<IDataSetId, DataSet> map = v3api.mapDataSets(sessionToken, Arrays.asList(dataSetId), fe);
+
+        DataSet result = map.get(dataSetId);
+        assertEquals(result.getSample().getPermId(), sampleId);
+    }
+
+    @Test
+    public void testUpdateWithSampleUnauthorized()
+    {
+        final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
+
+        final IDataSetId dataSetId = new DataSetPermId("20081105092159111-1");
+        final DataSetUpdate update = new DataSetUpdate();
+        update.setDataSetId(dataSetId);
+
+        assertUnauthorizedObjectAccessException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.updateDataSets(sessionToken, Arrays.asList(update));
+                }
+            }, dataSetId);
+    }
+
+    @Test
+    public void testUpdateWithExperiment()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        DataSetPermId dataSetId = new DataSetPermId("20081105092259000-18");
+
+        DataSetUpdate update = new DataSetUpdate();
+        update.setDataSetId(dataSetId);
+        update.setExperimentId(new ExperimentPermId("200811050951882-1028"));
+
+        v3api.updateDataSets(sessionToken, Collections.singletonList(update));
+
+        DataSetFetchOptions fe = new DataSetFetchOptions();
+        fe.withProperties();
+        fe.withExperiment();
+        DataSet result = v3api.mapDataSets(sessionToken, Collections.singletonList(dataSetId), fe).get(dataSetId);
+
+        assertEquals(result.getExperiment().getPermId().getPermId(), "200811050951882-1028");
+    }
+
+    @Test
+    public void testUpdateWithExternalDataSet()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -95,81 +194,7 @@ public class UpdateDataSetTest extends AbstractSampleTest
     }
 
     @Test
-    public void testUpdateExperiment()
-    {
-        String sessionToken = v3api.login(TEST_USER, PASSWORD);
-
-        DataSetPermId dataSetId = new DataSetPermId("20081105092259000-18");
-
-        DataSetUpdate update = new DataSetUpdate();
-        update.setDataSetId(dataSetId);
-        update.setExperimentId(new ExperimentPermId("200811050951882-1028"));
-
-        v3api.updateDataSets(sessionToken, Collections.singletonList(update));
-
-        DataSetFetchOptions fe = new DataSetFetchOptions();
-        fe.withProperties();
-        fe.withExperiment();
-        DataSet result = v3api.mapDataSets(sessionToken, Collections.singletonList(dataSetId), fe).get(dataSetId);
-
-        assertEquals(result.getExperiment().getPermId().getPermId(), "200811050951882-1028");
-    }
-
-    @Test
-    public void testRemovingParentViaParents()
-    {
-        DataSetPermId originalChild = new DataSetPermId("20081105092259000-18");
-        DataSetPermId originalParent = new DataSetPermId("20110805092359990-17");
-
-        DataSetUpdate update = new DataSetUpdate();
-        update.setDataSetId(originalChild);
-        ListUpdateAction<IDataSetId> removeAction = new ListUpdateActionRemove<IDataSetId>();
-        removeAction.setItems(Collections.singletonList(originalParent));
-        update.setParentActions(Collections.singletonList(removeAction));
-
-        assertRemovingParent(originalChild, originalParent, update);
-    }
-
-    @Test
-    public void testRemovingParentViaChildren()
-    {
-        DataSetPermId originalChild = new DataSetPermId("20081105092259000-18");
-        DataSetPermId originalParent = new DataSetPermId("20110805092359990-17");
-
-        DataSetUpdate update = new DataSetUpdate();
-        update.setDataSetId(originalParent);
-        ListUpdateAction<IDataSetId> removeAction = new ListUpdateActionRemove<IDataSetId>();
-        removeAction.setItems(Collections.singletonList(originalChild));
-        update.setChildActions(Collections.singletonList(removeAction));
-
-        assertRemovingParent(originalChild, originalParent, update);
-    }
-
-    private void assertRemovingParent(DataSetPermId originalChild, DataSetPermId originalParent, DataSetUpdate update)
-    {
-        String sessionToken = v3api.login(TEST_USER, PASSWORD);
-        // assert parent to begin with
-        DataSetFetchOptions fe = new DataSetFetchOptions();
-        fe.withProperties();
-        fe.withParents();
-        fe.withChildren();
-        Map<IDataSetId, DataSet> result = v3api.mapDataSets(sessionToken, Arrays.asList(originalChild, originalParent), fe);
-
-        AssertionUtil.assertCollectionContains(dataSetCodes(result.get(originalParent).getChildren()), originalChild.getPermId());
-        AssertionUtil.assertCollectionContains(dataSetCodes(result.get(originalChild).getParents()), originalParent.getPermId());
-
-        // update
-        v3api.updateDataSets(sessionToken, Collections.singletonList(update));
-
-        // assert parent removed
-        result = v3api.mapDataSets(sessionToken, Arrays.asList(originalChild, originalParent), fe);
-
-        AssertionUtil.assertCollectionDoesntContain(dataSetCodes(result.get(originalParent).getChildren()), originalChild.getPermId());
-        AssertionUtil.assertCollectionDoesntContain(dataSetCodes(result.get(originalChild).getParents()), originalParent.getPermId());
-    }
-
-    @Test
-    public void testAddingParent()
+    public void testUpdateWithParentAdd()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -193,9 +218,39 @@ public class UpdateDataSetTest extends AbstractSampleTest
         AssertionUtil.assertSize(result.getParents(), 2);
     }
 
+    @Test
+    public void testUpdateWithParentRemove()
+    {
+        DataSetPermId originalChild = new DataSetPermId("20081105092259000-18");
+        DataSetPermId originalParent = new DataSetPermId("20110805092359990-17");
+
+        DataSetUpdate update = new DataSetUpdate();
+        update.setDataSetId(originalChild);
+        ListUpdateAction<IDataSetId> removeAction = new ListUpdateActionRemove<IDataSetId>();
+        removeAction.setItems(Collections.singletonList(originalParent));
+        update.setParentActions(Collections.singletonList(removeAction));
+
+        assertRemovingParent(originalChild, originalParent, update);
+    }
+
+    @Test
+    public void testUpdateWithChildrenRemove()
+    {
+        DataSetPermId originalChild = new DataSetPermId("20081105092259000-18");
+        DataSetPermId originalParent = new DataSetPermId("20110805092359990-17");
+
+        DataSetUpdate update = new DataSetUpdate();
+        update.setDataSetId(originalParent);
+        ListUpdateAction<IDataSetId> removeAction = new ListUpdateActionRemove<IDataSetId>();
+        removeAction.setItems(Collections.singletonList(originalChild));
+        update.setChildActions(Collections.singletonList(removeAction));
+
+        assertRemovingParent(originalChild, originalParent, update);
+    }
+
     @SuppressWarnings("unchecked")
     @Test
-    public void testAddingAndRemovingComponent()
+    public void testUpdateWithComponentAddRemove()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -221,7 +276,7 @@ public class UpdateDataSetTest extends AbstractSampleTest
 
     @SuppressWarnings("unchecked")
     @Test
-    public void testAddingAndRemovingContainer()
+    public void testUpdateWithContainerAddRemove()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -253,47 +308,6 @@ public class UpdateDataSetTest extends AbstractSampleTest
         AssertionUtil.assertCollectionDoesntContain(dataSetCodes(map.get(cont1).getContained()), dataSetId.getPermId());
         AssertionUtil.assertCollectionContains(dataSetCodes(map.get(cont2).getContained()), dataSetId.getPermId());
         AssertionUtil.assertCollectionContains(dataSetCodes(map.get(cont3a).getContained()), dataSetId.getPermId());
-    }
-
-    @Test
-    public void testFailedUpdate()
-    {
-        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
-
-        assertUserFailureException(new IDelegatedAction()
-            {
-
-                @Override
-                public void execute()
-                {
-                    DataSetUpdate update = new DataSetUpdate();
-                    SamplePermId sampleId = new SamplePermId("201206191219327-1058");
-                    update.setSampleId(sampleId);
-
-                    v3api.updateDataSets(sessionToken, Collections.singletonList(update));
-                }
-            }, "Data set id cannot be null.");
-    }
-
-    @Test
-    public void testUpdateSample()
-    {
-        String sessionToken = v3api.login(TEST_USER, PASSWORD);
-
-        DataSetPermId dataSetId = new DataSetPermId("COMPONENT_1A");
-
-        DataSetUpdate update = new DataSetUpdate();
-        update.setDataSetId(dataSetId);
-        SamplePermId sampleId = new SamplePermId("201206191219327-1058");
-        update.setSampleId(sampleId);
-        v3api.updateDataSets(sessionToken, Collections.singletonList(update));
-
-        DataSetFetchOptions fe = new DataSetFetchOptions();
-        fe.withSample();
-        Map<IDataSetId, DataSet> map = v3api.mapDataSets(sessionToken, Arrays.asList(dataSetId), fe);
-
-        DataSet result = map.get(dataSetId);
-        assertEquals(result.getSample().getPermId(), sampleId);
     }
 
     @SuppressWarnings("unchecked")
@@ -353,6 +367,29 @@ public class UpdateDataSetTest extends AbstractSampleTest
             result.add(tag.getCode());
         }
         return result;
+    }
+
+    private void assertRemovingParent(DataSetPermId originalChild, DataSetPermId originalParent, DataSetUpdate update)
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        // assert parent to begin with
+        DataSetFetchOptions fe = new DataSetFetchOptions();
+        fe.withProperties();
+        fe.withParents();
+        fe.withChildren();
+        Map<IDataSetId, DataSet> result = v3api.mapDataSets(sessionToken, Arrays.asList(originalChild, originalParent), fe);
+
+        AssertionUtil.assertCollectionContains(dataSetCodes(result.get(originalParent).getChildren()), originalChild.getPermId());
+        AssertionUtil.assertCollectionContains(dataSetCodes(result.get(originalChild).getParents()), originalParent.getPermId());
+
+        // update
+        v3api.updateDataSets(sessionToken, Collections.singletonList(update));
+
+        // assert parent removed
+        result = v3api.mapDataSets(sessionToken, Arrays.asList(originalChild, originalParent), fe);
+
+        AssertionUtil.assertCollectionDoesntContain(dataSetCodes(result.get(originalParent).getChildren()), originalChild.getPermId());
+        AssertionUtil.assertCollectionDoesntContain(dataSetCodes(result.get(originalChild).getParents()), originalParent.getPermId());
     }
 
 }
