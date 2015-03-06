@@ -123,6 +123,18 @@ public class AbstractTest extends SystemTestCase
             });
     }
 
+    protected void assertTypeNotFetched(final DataSet dataSet)
+    {
+        assertNotFetched(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    dataSet.getType();
+                }
+            });
+    }
+
     protected void assertSpaceNotFetched(final Sample sample)
     {
         assertNotFetched(new IDelegatedAction()
@@ -171,6 +183,18 @@ public class AbstractTest extends SystemTestCase
             });
     }
 
+    protected void assertTagsNotFetched(final DataSet dataSet)
+    {
+        assertNotFetched(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    dataSet.getTags();
+                }
+            });
+    }
+
     protected void assertExperimentNotFetched(final Sample sample)
     {
         assertNotFetched(new IDelegatedAction()
@@ -183,6 +207,42 @@ public class AbstractTest extends SystemTestCase
             });
     }
 
+    protected void assertExperimentNotFetched(final DataSet dataSet)
+    {
+        assertNotFetched(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    dataSet.getExperiment();
+                }
+            });
+    }
+
+    protected void assertSampleNotFetched(final DataSet dataSet)
+    {
+        assertNotFetched(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    dataSet.getSample();
+                }
+            });
+    }
+
+    protected void assertExternalDataNotFetched(final DataSet dataSet)
+    {
+        assertNotFetched(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    dataSet.getExternalData();
+                }
+            });
+    }
+
     protected void assertPropertiesNotFetched(final Sample sample)
     {
         assertNotFetched(new IDelegatedAction()
@@ -191,6 +251,18 @@ public class AbstractTest extends SystemTestCase
                 public void execute()
                 {
                     sample.getProperties();
+                }
+            });
+    }
+
+    protected void assertPropertiesNotFetched(final DataSet dataSet)
+    {
+        assertNotFetched(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    dataSet.getProperties();
                 }
             });
     }
@@ -258,27 +330,27 @@ public class AbstractTest extends SystemTestCase
     protected void assertParentsNotFetched(final DataSet dataSet)
     {
         assertNotFetched(new IDelegatedAction()
-        {
-            @Override
-            public void execute()
             {
-                dataSet.getParents();
-            }
-        });
+                @Override
+                public void execute()
+                {
+                    dataSet.getParents();
+                }
+            });
     }
-    
+
     protected void assertChildrenNotFetched(final DataSet dataSet)
     {
         assertNotFetched(new IDelegatedAction()
-        {
-            @Override
-            public void execute()
             {
-                dataSet.getChildren();
-            }
-        });
+                @Override
+                public void execute()
+                {
+                    dataSet.getChildren();
+                }
+            });
     }
-    
+
     protected void assertContainersNotFetched(final DataSet dataSet)
     {
         assertNotFetched(new IDelegatedAction()
@@ -327,6 +399,18 @@ public class AbstractTest extends SystemTestCase
             });
     }
 
+    protected void assertRegistratorNotFetched(final DataSet dataSet)
+    {
+        assertNotFetched(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    dataSet.getRegistrator();
+                }
+            });
+    }
+
     protected void assertModifierNotFetched(final Sample sample)
     {
         assertNotFetched(new IDelegatedAction()
@@ -335,6 +419,18 @@ public class AbstractTest extends SystemTestCase
                 public void execute()
                 {
                     sample.getModifier();
+                }
+            });
+    }
+
+    protected void assertModifierNotFetched(final DataSet dataSet)
+    {
+        assertNotFetched(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    dataSet.getModifier();
                 }
             });
     }
@@ -590,5 +686,5 @@ public class AbstractTest extends SystemTestCase
     {
         assertEquals(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(actualDate), expectedDate);
     }
-    
+
 }

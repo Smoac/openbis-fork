@@ -15,6 +15,7 @@
  */
 package ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset;
 
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSetKind;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.DataSetTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.entitytype.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.NotFetchedException;
@@ -37,6 +38,9 @@ public class DataSetType implements Serializable
 
     @JsonProperty
     private EntityTypePermId permId;
+
+    @JsonProperty
+    private DataSetKind kind;
 
     @JsonProperty
     private String code;
@@ -71,6 +75,19 @@ public class DataSetType implements Serializable
     public void setPermId(EntityTypePermId permId)
     {
         this.permId = permId;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    @JsonIgnore
+    public DataSetKind getKind()
+    {
+        return kind;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public void setKind(DataSetKind kind)
+    {
+        this.kind = kind;
     }
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}

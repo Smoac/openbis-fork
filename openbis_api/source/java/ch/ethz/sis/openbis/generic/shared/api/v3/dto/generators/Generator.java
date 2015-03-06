@@ -7,6 +7,7 @@ import java.util.List;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.attachment.Attachment;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.ArchivingStatus;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.Complete;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSetKind;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSetType;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.ExternalData;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.FileFormatType;
@@ -203,6 +204,7 @@ public class Generator extends AbstractGenerator
         DtoGenerator gen = new DtoGenerator("dataset", "DataSetType", DataSetTypeFetchOptions.class);
 
         gen.addSimpleField(EntityTypePermId.class, "permId");
+        gen.addSimpleField(DataSetKind.class, "kind");
         addCode(gen);
         addDescription(gen);
         addModificationDate(gen);
