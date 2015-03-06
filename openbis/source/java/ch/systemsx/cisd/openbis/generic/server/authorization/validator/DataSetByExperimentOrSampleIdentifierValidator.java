@@ -17,45 +17,31 @@
 package ch.systemsx.cisd.openbis.generic.server.authorization.validator;
 
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
-import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 
 /**
  * Validator based on the experiment or sample identifier of a {@link DataSet}.
  * 
  * @author Franz-Josef Elmer
  */
-public class DataSetByExperimentOrSampleIdentifierValidator extends AbstractValidator<DataSet>
+public class DataSetByExperimentOrSampleIdentifierValidator extends AbstractDataSetByExperimentOrSampleIdentifierValidator<DataSet>
 {
-    private final ExperimentByIdentiferValidator experimentValidator = new ExperimentByIdentiferValidator();
-    private final SampleByIdentiferValidator sampleValidator = new SampleByIdentiferValidator();
 
     @Override
-    public boolean doValidation(PersonPE person, final DataSet dataSet)
+    protected boolean isStorageConfirmed(DataSet dataSet)
     {
-        if (StorageConfirmedForAdminValidator.isValid(person, dataSet.isStorageConfirmed()) == false)
-        {
-            return false;
-        }
-        if (dataSet.getExperimentIdentifier() != null)
-        {
-            return experimentValidator.isValid(person, new IIdentifierHolder()
-                {
-                    @Override
-                    public String getIdentifier()
-                    {
-                        return dataSet.getExperimentIdentifier();
-                    }
-                });
-        }
-        return sampleValidator.isValid(person, new IIdentifierHolder()
-            {
-                @Override
-                public String getIdentifier()
-                {
-                    return dataSet.getSampleIdentifierOrNull();
-                }
-            });
+        return dataSet.isStorageConfirmed();
+    }
+
+    @Override
+    protected String getExperimentIdentifier(DataSet dataSet)
+    {
+        return dataSet.getExperimentIdentifier();
+    }
+
+    @Override
+    protected String getSampleIdentifier(DataSet dataSet)
+    {
+        return dataSet.getSampleIdentifierOrNull();
     }
 
 }

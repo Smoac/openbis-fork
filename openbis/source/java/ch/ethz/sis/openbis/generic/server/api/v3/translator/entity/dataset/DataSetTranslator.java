@@ -35,6 +35,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.person.Person;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.tag.Tag;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.DataSetFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.DataSetPermId;
+import ch.systemsx.cisd.openbis.generic.server.authorization.validator.DataSetPEByExperimentOrSampleIdentifierValidator;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
@@ -51,6 +52,12 @@ public class DataSetTranslator extends AbstractCachingTranslator<DataPE, DataSet
     {
         super(translationContext, fetchOptions);
         this.managedPropertyEvaluatorFactory = managedPropertyEvaluatorFactory;
+    }
+
+    @Override
+    protected boolean shouldTranslate(DataPE input)
+    {
+        return new DataSetPEByExperimentOrSampleIdentifierValidator().doValidation(getTranslationContext().getSession().tryGetPerson(), input);
     }
 
     @Override
