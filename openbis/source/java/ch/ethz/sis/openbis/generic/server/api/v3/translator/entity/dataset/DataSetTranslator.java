@@ -26,12 +26,14 @@ import ch.ethz.sis.openbis.generic.server.api.v3.translator.common.ListTranslato
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.experiment.ExperimentTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.person.PersonTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.property.PropertyTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.sample.SampleTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.tag.TagTranslator;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSetType;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.ExternalData;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.person.Person;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.Sample;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.tag.Tag;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.DataSetFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.DataSetPermId;
@@ -126,6 +128,15 @@ public class DataSetTranslator extends AbstractCachingTranslator<DataPE, DataSet
                             .translate(dataPe.getExperiment());
             result.setExperiment(experiment);
             result.getFetchOptions().withExperimentUsing(getFetchOptions().withExperiment());
+        }
+
+        if (getFetchOptions().hasSample() && dataPe.tryGetSample() != null)
+        {
+            Sample sample =
+                    new SampleTranslator(getTranslationContext(), managedPropertyEvaluatorFactory, getFetchOptions().withSample())
+                            .translate(dataPe.tryGetSample());
+            result.setSample(sample);
+            result.getFetchOptions().withSampleUsing(getFetchOptions().withSample());
         }
 
         if (getFetchOptions().hasProperties())
