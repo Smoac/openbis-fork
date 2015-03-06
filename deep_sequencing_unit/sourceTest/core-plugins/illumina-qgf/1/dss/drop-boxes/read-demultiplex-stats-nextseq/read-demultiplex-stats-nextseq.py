@@ -219,6 +219,40 @@ def process(transaction):
     return reverse_complement_sequence
 
   ##########################################################
+  
+  def sampleSearch(transaction, code=''):
+    sc = SearchCriteria()
+    numberOfLanes = 0
+    sc.addMatchClause(SearchCriteria.MatchClause.createAttributeMatch(SearchCriteria.MatchClauseAttribute.CODE, code));
+    search_service = transaction.getSearchService()
+    flowcell = search_service.searchForSamples(sc)
+    if flowcell.size() > 0:
+      # Search for contained samples
+      sampleSc = SearchCriteria()
+      sampleSc.addSubCriteria(SearchSubCriteria.createSampleContainerCriteria(sc))
+      lanes = search_service.searchForSamples(sampleSc)
+      numberOfLanes = lanes.size()
+    return flowcell, lanes, numberOfLanes
+  
+  ##########################################################
+  
+  def updateLane(transaction, codeSampleFlowCell, totalLaneStatistics):
+      
+      flowcell, lanes, numberOfLanes = sampleSearch(transaction, codeSampleFlowCell)
+      lane = lanes[0]
+      mutable_lane = transaction.getSampleForUpdate(lane.getSampleIdentifier())
+      print("Setting Complete Lanes Statistics For: " + lane.getSampleIdentifier())
+      
+      mutable_lane.setPropertyValue("YIELD_MBASES", str(int(totalLaneStatistics.Sum_PfYield)))
+      mutable_lane.setPropertyValue('RAW_YIELD_MBASES', str(int(totalLaneStatistics.Sum_RawYield)))
+      mutable_lane.setPropertyValue('PERCENTAGE_PASSED_FILTERING',str(int(totalLaneStatistics.Percentage_PfClusterCount_RawClusterCount)))
+      mutable_lane.setPropertyValue('PF_READS_SUM',str(int(totalLaneStatistics.Sum_PfClusterCount)))
+      mutable_lane.setPropertyValue('RAW_READS_SUM',str(int(totalLaneStatistics.Sum_RawClusterCount)))
+      mutable_lane.setPropertyValue('PFYIELDQ30PERCENTAGE', str(int(totalLaneStatistics.Percentage_PfYieldQ30_PfYield)))
+      mutable_lane.setPropertyValue('PFMEANQUALITYSCORE', str(totalLaneStatistics.Fraction_PfQualityScoreSum_PfYield))
+      mutable_lane.setPropertyValue('CLUSTERS_PF_WITHOUT_NOINDEX', str(int(totalLaneStatistics.Clusters_PfWithoutNoindex)))
+
+  ##########################################################
 
   print('\nPROCESS RUNNING '+time.ctime())
   incomingPath = transaction.getIncoming().getPath()  
@@ -229,6 +263,8 @@ def process(transaction):
   # Import data of XML file (independent of openBIS data):
   JavaClassToProcessXML = read_demultiplex_stats() # this function is implemented as Class in Java:
   samplestatisticslist = JavaClassToProcessXML.importXMLdata_and_calculateStatistics(xmlfile)
+  totalLaneStatistics = JavaClassToProcessXML.calculateTotalLaneStatistics(samplestatisticslist)
+  
   if len(samplestatisticslist) == 0:
     print "\nNo Projects/Samples/Barcodes are contained in XML-file " + xmlfile + "!"
     return
@@ -236,21 +272,8 @@ def process(transaction):
   # Prepare links between XML and openBIS w.r.t. Samples:
   codeSampleFlowCell = samplestatisticslist[0].Flowcell # expect just one equal FlowCell of all imported datasets
   codeSampleFlowLane = samplestatisticslist[0].Flowcell + ":1" # expect just one equal FlowLane of all imported datasets
-
-  # Just get information of openBIS about Properties in Sample of FlowCell and corresponding FlowLane:
-  #propertiesCode, propertiesCodeValue = getInfoSampleProperties(codeSampleFlowCell)
-  #print "\nCode of Properties in FlowCell Sample "+codeSampleFlowCell+":\n", propertiesCode, "\n", propertiesCodeValue
-  #propertiesCode, propertiesCodeValue = getInfoSampleProperties(codeSampleFlowLane)
-  #print "\nCode of Properties in FlowLane Sample "+codeSampleFlowLane+":\n", propertiesCode, "\n", propertiesCodeValue
-
-  # Just get information of openBIS about Properties in one of the DataSets of FlowLane:
-  #propertiesCode, propertiesCodeValue = getInfoDataSetPropertiesOfSample(codeSampleFlowLane)
-  #print "\nCode of Properties in one of DataSets in Sample "+codeSampleFlowLane+" having Type "+TYPE_DATASET+":\n", propertiesCode, "\n", propertiesCodeValue
-
-  # Just get information of openBIS about Terms in some Vocabulary:
-  #vocabularyCode = CODE_INDEX1 # CODE_INDEX1   CODE_INDEX2
-  #vocabularyTerms = getInfoVocabularyTerms(vocabularyCode)
-  #print "\nTerms in Vocabulary "+vocabularyCode+":\n", vocabularyTerms
+  
+  updateLane(transaction, codeSampleFlowCell, totalLaneStatistics)
 
   # Prepare links between XML and openBIS w.r.t to indexes in DataSet (openBIS):
   index1list, index2list = getIndexesOfDataSetsOfSample(codeSampleFlowLane)
