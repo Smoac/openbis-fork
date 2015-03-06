@@ -105,7 +105,8 @@ class Statistics:
   def __init__(self, lane = 0, sampleName = "", index1 = "NoIndex", index2 = "NoIndex", pfYieldSum = 0,
                  rawYieldSum = 0, pfPercentage = 0.0, rawReadsSum = 0, pfReadsSum = 0,
                  pfYieldQ30Sum = 0, qualityScoreSum = 0, rawPercentageReadsPerLane = 0.0,
-                 pfYieldQ30Percentage = 0.0, pfsumQualityScore = 0, pfmeanQualityScore = 0.0):
+                 pfYieldQ30Percentage = 0.0, pfsumQualityScore = 0, pfmeanQualityScore = 0.0,
+                 pfReadsSumWithoutUndetermined = 0):
       self.lane = lane
       self.sampleName = sampleName
       self.index1 = index1
@@ -121,6 +122,7 @@ class Statistics:
       self.pfYieldQ30Percentage = pfYieldQ30Percentage
       self.pfsumQualityScore = pfsumQualityScore
       self.pfmeanQualityScore = pfmeanQualityScore
+      self.pfReadsSumWithoutUndetermined = pfReadsSumWithoutUndetermined
       
   def __str__(self):
     return "lane: %s, sampleName: %s, index1: %s, index2: %s, pfYieldSum: %s, pfPercentage: %s," \
@@ -148,6 +150,34 @@ class Statistics:
       return round (float(pfYieldQ30) / float(pfYield) * 100, 2)
     except:
       return 0.0
+
+class lane_statistics:
+    def __init__(self):
+        self.complete_lane_statistic = Statistics()
+        
+    def calculate_complete_lane_statistic(self, list_of_statistics):
+        
+        sample_number = len(list_of_statistics)
+        
+        for stat in list_of_statistics:
+            self.complete_lane_statistic.lane = stat.lane
+            self.complete_lane_statistic.pfYieldSum += stat.pfYieldSum
+            self.complete_lane_statistic.rawYieldSum += stat.rawYieldSum
+            self.complete_lane_statistic.pfReadsSum += stat.pfReadsSum
+            self.complete_lane_statistic.rawReadsSum += stat.rawReadsSum
+            self.complete_lane_statistic.pfPercentage += stat.pfPercentage
+            self.complete_lane_statistic.pfYieldQ30Percentage += stat.pfYieldQ30Percentage
+            self.complete_lane_statistic.pfmeanQualityScore += stat.pfmeanQualityScore
+            
+            if stat.index1 != "Undetermined":
+                self.complete_lane_statistic.pfReadsSumWithoutUndetermined += stat.pfReadsSum
+            
+        self.complete_lane_statistic.pfPercentage = self.complete_lane_statistic.pfPercentage / sample_number
+        self.complete_lane_statistic.pfYieldQ30Percentage = self.complete_lane_statistic.pfYieldQ30Percentage / sample_number
+        self.complete_lane_statistic.pfmeanQualityScore = self.complete_lane_statistic.pfmeanQualityScore/ sample_number
+        
+        return self.complete_lane_statistic
+
 
 # -----------------------------------------------------------------------------
 
@@ -359,63 +389,12 @@ def getFlowCellMetaData (transaction,flowCellId):
   fcPropertyTypes.sort()
   return fcPropertiesDict, fcPropertyTypes
 
-
 # -----------------------------------------------------------------------------
 
-def process(transaction):
-  '''
-  Main
-  '''
-
-  FASTQ_DATA_SET_TYPE='FASTQ_GZ'
-  DEMUX_FILE='Flowcell_demux_summary.xml'
-  NO_INDEX='NOINDEX'
-  UNDETERMINED='UNDETERMINED'
-
-  incomingPath = transaction.getIncoming().getPath()
-  name = transaction.getIncoming().getName()
-
-  print('\n'+time.ctime())
-
-  fcPropertiesDict, fcPropertyTypes = getFlowCellMetaData(transaction, name)
-  print fcPropertiesDict
-  print fcPropertyTypes
-
-  search_service = transaction.getSearchService()
-
-  FileGenerator= locate(DEMUX_FILE, incomingPath)
-  DEMULTIPLEX_XML = FileGenerator.next()
-
-  sampleList = xml2Memory(DEMULTIPLEX_XML)    
-
-  sa = sample()
-  sampleDict = {}
-
-  # key = sample name, value = sample()  
-  for element in range(0, len(sampleList)):
-    sa = sampleList[element]
-    # Check if new sample 
-    if (sa.Sample is not sampleList[element - 1].Sample):
-      sampleName = sa.Sample.values()[0]
-      sampleDict[sampleName] = [sa]
-    else:
-      sampleDict[sampleName].append(sa)
-      
-  stat = [calculateStatistics(sampleDict[mysample]) for mysample in sampleDict]
-
-  # calculate the relative amount of reads per index
-  laneDict = rawReadSumPerSamples(stat)
-  sumRawReadsDict = createSumRawReadsPerLane(laneDict)
-  relRawReadsDict = createPercentagePerLane(laneDict, sumRawReadsDict)
-
-  # set the values in the object
-  for mye in stat:
-    mye.rawPercentageReadsPerLane = relRawReadsDict[mye.sampleName]
-   
-  def sampleSearch(Code=''):
+def sampleSearch(transaction, code=''):
     sc = SearchCriteria()
     numberOfLanes = 0
-    sc.addMatchClause(SearchCriteria.MatchClause.createAttributeMatch(SearchCriteria.MatchClauseAttribute.CODE, Code));
+    sc.addMatchClause(SearchCriteria.MatchClause.createAttributeMatch(SearchCriteria.MatchClauseAttribute.CODE, code));
     search_service = transaction.getSearchService()
     foundSample = search_service.searchForSamples(sc)
     if foundSample.size() > 0:
@@ -428,7 +407,7 @@ def process(transaction):
 
 #--------------------------------------------------------------------------------------------------------------------------------------
 
-  def searchDataSetsofSample(sample, index1, index2, DATA_SET_TYPE):
+def searchDataSetsofSample(transaction, sample, index1, index2, DATA_SET_TYPE):
     sc = SearchCriteria()
     sc.addMatchClause(SearchCriteria.MatchClause.createAttributeMatch(SearchCriteria.MatchClauseAttribute.CODE, sample));
     search_service = transaction.getSearchService()
@@ -451,7 +430,7 @@ def process(transaction):
 
 #--------------------------------------------------------------------------------------------------------------------------------------
 
-  def getIndexesofDataSetsofSample(sample, DATA_SET_TYPE):
+def getIndexesofDataSetsofSample(transaction, sample, DATA_SET_TYPE):
 
     index1List = []
     index2List = []
@@ -469,9 +448,79 @@ def process(transaction):
       index2List.append(ds.getPropertyValue('INDEX2'))
     return index1List, index2List  
 
+# -----------------------------------------------------------------------------
 
-  flowcell, lanes, numberOfLanes  = sampleSearch(name)
+def process(transaction):
+  '''
+  Main
+  '''
 
+  FASTQ_DATA_SET_TYPE='FASTQ_GZ'
+  DEMUX_FILE='Flowcell_demux_summary.xml'
+  NO_INDEX='NOINDEX'
+  UNDETERMINED='UNDETERMINED'
+  laneNumber = 1
+
+  incomingPath = transaction.getIncoming().getPath()
+  name = transaction.getIncoming().getName()
+
+  print('\n'+time.ctime())
+
+  fcPropertiesDict, fcPropertyTypes = getFlowCellMetaData(transaction, name)
+  print fcPropertiesDict
+  print fcPropertyTypes
+
+  search_service = transaction.getSearchService()
+
+  FileGenerator= locate(DEMUX_FILE, incomingPath)
+  DEMULTIPLEX_XML = FileGenerator.next()
+
+  sampleList = xml2Memory(DEMULTIPLEX_XML)
+
+  sa = sample()
+  sampleDict = {}
+
+  # key = sample name, value = sample()  
+  for element in range(0, len(sampleList)):
+    sa = sampleList[element]
+    # Check if new sample 
+    if (sa.Sample is not sampleList[element - 1].Sample):
+      sampleName = sa.Sample.values()[0]
+      sampleDict[sampleName] = [sa]
+    else:
+      sampleDict[sampleName].append(sa)
+      
+  stat = [calculateStatistics(sampleDict[mysample]) for mysample in sampleDict]
+
+  flowcell, lanes, numberOfLanes  = sampleSearch(transaction, name)
+
+  full_lane_statistics = lane_statistics()
+  complete_lane_statistic = full_lane_statistics.calculate_complete_lane_statistic(stat)
+  
+  for lane in lanes:
+      if str(laneNumber) == lane.getSampleIdentifier().split(":")[-1]:
+            mutable_lane = transaction.getSampleForUpdate(lane.getSampleIdentifier())
+            print("Setting Complete Lanes Statistics For: " + lane.getSampleIdentifier())
+            break
+      
+  mutable_lane.setPropertyValue("YIELD_MBASES", str(complete_lane_statistic.pfYieldSum))
+  mutable_lane.setPropertyValue('RAW_YIELD_MBASES', str(complete_lane_statistic.rawYieldSum))
+  mutable_lane.setPropertyValue('PERCENTAGE_PASSED_FILTERING',str(complete_lane_statistic.pfPercentage))
+  mutable_lane.setPropertyValue('PF_READS_SUM',str(complete_lane_statistic.pfReadsSum))
+  mutable_lane.setPropertyValue('RAW_READS_SUM',str(complete_lane_statistic.rawReadsSum))
+  mutable_lane.setPropertyValue('PFYIELDQ30PERCENTAGE', str(complete_lane_statistic.pfYieldQ30Percentage))
+  mutable_lane.setPropertyValue('PFMEANQUALITYSCORE', str(complete_lane_statistic.pfmeanQualityScore))
+  mutable_lane.setPropertyValue('CLUSTERS_PF_WITHOUT_NOINDEX', str(complete_lane_statistic.pfReadsSumWithoutUndetermined))
+
+  # calculate the relative amount of reads per index
+  laneDict = rawReadSumPerSamples(stat)
+  sumRawReadsDict = createSumRawReadsPerLane(laneDict)
+  relRawReadsDict = createPercentagePerLane(laneDict, sumRawReadsDict)
+
+  # set the values in the object
+  for mye in stat:
+    mye.rawPercentageReadsPerLane = relRawReadsDict[mye.sampleName]
+   
   index1Length = fcPropertiesDict['INDEXREAD']
   index2Length = fcPropertiesDict['INDEXREAD2']
 
@@ -482,7 +531,7 @@ def process(transaction):
     print '\n'
     print mystat
     
-    index1List, index2List = getIndexesofDataSetsofSample(laneCode, FASTQ_DATA_SET_TYPE)
+    index1List, index2List = getIndexesofDataSetsofSample(transaction, laneCode, FASTQ_DATA_SET_TYPE)
     print "Searching for "+ searchIndex1 + " in " + str(index1List)
     print "Searching for "+ searchIndex2 + " in " + str(index2List)
    
@@ -522,7 +571,7 @@ def process(transaction):
     print "searchIndex2 " + str(searchIndex2)
 
     # Search for a data set with those two indices
-    DataSet = searchDataSetsofSample(laneCode, searchIndex1, searchIndex2, FASTQ_DATA_SET_TYPE)
+    DataSet = searchDataSetsofSample(transaction, laneCode, searchIndex1, searchIndex2, FASTQ_DATA_SET_TYPE)
     try:
       assert DataSet.size() == 1
     except AssertionError:

@@ -508,10 +508,6 @@ def process(transaction):
   full_lane_statistics = lane_statistics()
   complete_lane_statistic = full_lane_statistics.caluclate_complete_lane_statistic(stat)
   
-  print(complete_lane_statistic.pfYieldSum)
-  # TODO Can we assume that this is always the same lanes, so we take the first one?
-  lane = lanes[0]
-  
   for lane in lanes:
       if laneNumber == lane.getSampleIdentifier().split(":")[-1]:
             mutable_lane = transaction.getSampleForUpdate(lane.getSampleIdentifier())
