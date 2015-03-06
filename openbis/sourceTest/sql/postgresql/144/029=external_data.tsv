@@ -21,3 +21,6 @@
 33	contained/COMPONENT_2A	8	1	4	U	\N	AVAILABLE	\N	\N	f	-50	t
 34	contained/COMPONENT_1B	8	1	4	U	\N	AVAILABLE	\N	\N	f	-50	t
 35	xml/dataset-to-delete	8	1	4	U	\N	AVAILABLE	\N	\N	f	-50	t
+38	contained/COMPONENT_3A	8	1	4	U	\N	AVAILABLE	\N	\N	f	-50	t
+39	contained/COMPONENT_3AB	8	1	4	U	\N	AVAILABLE	\N	\N	f	-50	t
+40	contained/COMPONENT_3Ax	8	1	4	U	\N	AVAILABLE	\N	\N	f	-50	t
