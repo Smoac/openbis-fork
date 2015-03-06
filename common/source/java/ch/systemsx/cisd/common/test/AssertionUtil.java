@@ -203,6 +203,17 @@ public class AssertionUtil
     }
 
     /**
+     * Assert given collection contains given item
+     */
+    public static <T> void assertCollectionDoesntContain(Collection<T> objects, T item)
+    {
+        if (objects.contains(item))
+        {
+            fail("expected that collection: <" + objects + "> does not contain: <" + item + ">");
+        }
+    }
+
+    /**
      * Assert given collection contains only given items
      */
     public static <T> void assertCollectionContainsOnly(Collection<T> objects, T... items)
