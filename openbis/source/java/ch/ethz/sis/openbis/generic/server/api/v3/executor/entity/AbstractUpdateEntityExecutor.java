@@ -76,6 +76,12 @@ public abstract class AbstractUpdateEntityExecutor<UPDATE, PE, ID> implements IU
 
     private Map<UPDATE, PE> getEntitiesMap(IOperationContext context, List<UPDATE> updates)
     {
+
+        for (UPDATE update : updates)
+        {
+            checkData(context, update);
+        }
+
         Collection<ID> entityIds = CollectionUtils.collect(updates, new Transformer<UPDATE, ID>()
             {
                 @Override
