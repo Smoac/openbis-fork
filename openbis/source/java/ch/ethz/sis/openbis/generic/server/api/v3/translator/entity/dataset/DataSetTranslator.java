@@ -130,12 +130,15 @@ public class DataSetTranslator extends AbstractCachingTranslator<DataPE, DataSet
             result.getFetchOptions().withExperimentUsing(getFetchOptions().withExperiment());
         }
 
-        if (getFetchOptions().hasSample() && dataPe.tryGetSample() != null)
+        if (getFetchOptions().hasSample())
         {
-            Sample sample =
-                    new SampleTranslator(getTranslationContext(), managedPropertyEvaluatorFactory, getFetchOptions().withSample())
-                            .translate(dataPe.tryGetSample());
-            result.setSample(sample);
+            if (dataPe.tryGetSample() != null)
+            {
+                Sample sample =
+                        new SampleTranslator(getTranslationContext(), managedPropertyEvaluatorFactory, getFetchOptions().withSample())
+                                .translate(dataPe.tryGetSample());
+                result.setSample(sample);
+            }
             result.getFetchOptions().withSampleUsing(getFetchOptions().withSample());
         }
 

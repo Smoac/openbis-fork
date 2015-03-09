@@ -44,14 +44,6 @@ public class VerifyDataSetExecutor implements IVerifyDataSetExecutor
     @Override
     public void verify(IOperationContext context, Collection<DataPE> dataSets)
     {
-        for (DataPE dataSet : dataSets)
-        {
-            if (dataSet.getExperiment() == null && dataSet.tryGetSample() == null)
-            {
-                throw new IllegalArgumentException("Data set '" + dataSet.getCode() + "' has both experiment and sample set to null");
-            }
-        }
-
         verifyEntityPropertyExecutor.verify(context, dataSets);
         verifyDataSetContainersExecutor.verify(context, dataSets);
         verifyDataSetParentsExecutor.verify(context, dataSets);

@@ -17,6 +17,7 @@
 package ch.ethz.sis.openbis.systemtest.api.v3;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNull;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -37,7 +38,9 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.DataSe
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.DataSetPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.FileFormatTypePermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.IDataSetId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentIdentifier;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentPermId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.IExperimentId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SamplePermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.ITagId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.TagCode;
@@ -150,6 +153,35 @@ public class UpdateDataSetTest extends AbstractSampleTest
     }
 
     @Test
+    public void testUpdateWithSampleNull()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        DataSetPermId dataSetId = new DataSetPermId("20081105092159111-1");
+        DataSetFetchOptions fe = new DataSetFetchOptions();
+        fe.withExperiment();
+        fe.withSample();
+
+        Map<IDataSetId, DataSet> map = v3api.mapDataSets(sessionToken, Arrays.asList(dataSetId), fe);
+
+        DataSet result = map.get(dataSetId);
+        assertEquals(result.getExperiment().getPermId().getPermId(), "200902091239077-1033");
+        assertEquals(result.getSample().getPermId().getPermId(), "200902091219327-1025");
+
+        final DataSetUpdate update = new DataSetUpdate();
+        update.setDataSetId(dataSetId);
+        update.setSampleId(null);
+
+        v3api.updateDataSets(sessionToken, Arrays.asList(update));
+
+        map = v3api.mapDataSets(sessionToken, Arrays.asList(dataSetId), fe);
+
+        result = map.get(dataSetId);
+        assertEquals(result.getExperiment().getPermId().getPermId(), "200902091239077-1033");
+        assertNull(result.getSample());
+    }
+
+    @Test
     public void testUpdateWithExperiment()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
@@ -168,6 +200,79 @@ public class UpdateDataSetTest extends AbstractSampleTest
         DataSet result = v3api.mapDataSets(sessionToken, Collections.singletonList(dataSetId), fe).get(dataSetId);
 
         assertEquals(result.getExperiment().getPermId().getPermId(), "200811050951882-1028");
+    }
+
+    @Test
+    public void testUpdateWithExperimentUnauthorized()
+    {
+        final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
+
+        DataSetPermId dataSetId = new DataSetPermId("20120619092259000-22");
+        IExperimentId experimentId = new ExperimentIdentifier("/CISD/NEMO/EXP1");
+
+        final DataSetUpdate update = new DataSetUpdate();
+        update.setDataSetId(dataSetId);
+        update.setExperimentId(experimentId);
+
+        assertUnauthorizedObjectAccessException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.updateDataSets(sessionToken, Collections.singletonList(update));
+                }
+            }, experimentId);
+    }
+
+    @Test
+    public void testUpdateWithExperimentNull()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        DataSetPermId dataSetId = new DataSetPermId("20081105092259000-18");
+
+        final DataSetUpdate update = new DataSetUpdate();
+        update.setDataSetId(dataSetId);
+        update.setExperimentId(null);
+
+        assertUserFailureException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.updateDataSets(sessionToken, Collections.singletonList(update));
+                }
+            }, "Data set '20081105092259000-18' cannot have experiment set to null");
+    }
+
+    @Test
+    public void testUpdateWithExperimentAndSample()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        DataSetPermId dataSetId = new DataSetPermId("20081105092159111-1");
+        DataSetFetchOptions fe = new DataSetFetchOptions();
+        fe.withExperiment();
+        fe.withSample();
+
+        Map<IDataSetId, DataSet> map = v3api.mapDataSets(sessionToken, Arrays.asList(dataSetId), fe);
+
+        DataSet result = map.get(dataSetId);
+        assertEquals(result.getExperiment().getPermId().getPermId(), "200902091239077-1033");
+        assertEquals(result.getSample().getPermId().getPermId(), "200902091219327-1025");
+
+        final DataSetUpdate update = new DataSetUpdate();
+        update.setDataSetId(dataSetId);
+        update.setExperimentId(new ExperimentPermId("200902091258949-1034"));
+        update.setSampleId(new SamplePermId("200902091250077-1026"));
+
+        v3api.updateDataSets(sessionToken, Arrays.asList(update));
+
+        map = v3api.mapDataSets(sessionToken, Arrays.asList(dataSetId), fe);
+
+        result = map.get(dataSetId);
+        assertEquals(result.getExperiment().getPermId().getPermId(), "200902091258949-1034");
+        assertEquals(result.getSample().getPermId().getPermId(), "200902091250077-1026");
     }
 
     @Test
@@ -191,6 +296,51 @@ public class UpdateDataSetTest extends AbstractSampleTest
         DataSet result = v3api.mapDataSets(sessionToken, Collections.singletonList(dataSetId), fe).get(dataSetId);
 
         assertEquals(result.getExternalData().getFileFormatType().getCode(), "PLKPROPRIETARY");
+    }
+
+    @Test
+    public void testUpdateWithParentUnauthorized()
+    {
+        final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
+
+        DataSetPermId dataSetId = new DataSetPermId("20120619092259000-22");
+        final DataSetPermId parentId = new DataSetPermId("20081105092159111-1");
+
+        final DataSetUpdate update = new DataSetUpdate();
+        update.setDataSetId(dataSetId);
+        update.getParentIds().add(parentId);
+
+        assertUnauthorizedObjectAccessException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.updateDataSets(sessionToken, Collections.singletonList(update));
+                }
+            }, parentId);
+    }
+
+    @Test
+    public void testUpdateWithParentCircularDependency()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        DataSetPermId dataSetId = new DataSetPermId("20081105092259000-8");
+        final DataSetPermId parentId = new DataSetPermId("20081105092259000-9");
+
+        final DataSetUpdate update = new DataSetUpdate();
+        update.setDataSetId(dataSetId);
+        update.getParentIds().add(parentId);
+        update.getChildIds().add(parentId);
+
+        assertUserFailureException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.updateDataSets(sessionToken, Collections.singletonList(update));
+                }
+            }, "Circular dependency found: 20081105092259000-8");
     }
 
     @Test
@@ -234,6 +384,28 @@ public class UpdateDataSetTest extends AbstractSampleTest
     }
 
     @Test
+    public void testUpdateWithChildrenUnauthorized()
+    {
+        final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
+
+        DataSetPermId dataSetId = new DataSetPermId("20120619092259000-22");
+        final DataSetPermId childId = new DataSetPermId("20081105092159111-1");
+
+        final DataSetUpdate update = new DataSetUpdate();
+        update.setDataSetId(dataSetId);
+        update.getChildIds().add(childId);
+
+        assertUnauthorizedObjectAccessException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.updateDataSets(sessionToken, Collections.singletonList(update));
+                }
+            }, childId);
+    }
+
+    @Test
     public void testUpdateWithChildrenRemove()
     {
         DataSetPermId originalChild = new DataSetPermId("20081105092259000-18");
@@ -246,6 +418,51 @@ public class UpdateDataSetTest extends AbstractSampleTest
         update.setChildActions(Collections.singletonList(removeAction));
 
         assertRemovingParent(originalChild, originalParent, update);
+    }
+
+    @Test
+    public void testUpdateWithComponentUnauthorized()
+    {
+        final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
+
+        DataSetPermId dataSetId = new DataSetPermId("20120619092259000-22");
+        final DataSetPermId containedId = new DataSetPermId("20081105092159111-1");
+
+        final DataSetUpdate update = new DataSetUpdate();
+        update.setDataSetId(dataSetId);
+        update.getContainedIds().add(containedId);
+
+        assertUnauthorizedObjectAccessException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.updateDataSets(sessionToken, Collections.singletonList(update));
+                }
+            }, containedId);
+    }
+
+    @Test
+    public void testUpdateWithComponentCircularDependency()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        DataSetPermId dataSetId = new DataSetPermId("20081105092259000-8");
+        final DataSetPermId componentId = new DataSetPermId("20081105092259000-9");
+
+        final DataSetUpdate update = new DataSetUpdate();
+        update.setDataSetId(dataSetId);
+        update.getContainedIds().add(componentId);
+        update.getContainerIds().add(componentId);
+
+        assertUserFailureException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.updateDataSets(sessionToken, Collections.singletonList(update));
+                }
+            }, "Circular dependency found: 20081105092259000-8");
     }
 
     @SuppressWarnings("unchecked")
@@ -308,6 +525,28 @@ public class UpdateDataSetTest extends AbstractSampleTest
         AssertionUtil.assertCollectionDoesntContain(dataSetCodes(map.get(cont1).getContained()), dataSetId.getPermId());
         AssertionUtil.assertCollectionContains(dataSetCodes(map.get(cont2).getContained()), dataSetId.getPermId());
         AssertionUtil.assertCollectionContains(dataSetCodes(map.get(cont3a).getContained()), dataSetId.getPermId());
+    }
+
+    @Test
+    public void testUpdateWithContainerUnauthorized()
+    {
+        final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
+
+        DataSetPermId dataSetId = new DataSetPermId("20120619092259000-22");
+        final DataSetPermId containerId = new DataSetPermId("20081105092159111-1");
+
+        final DataSetUpdate update = new DataSetUpdate();
+        update.setDataSetId(dataSetId);
+        update.getContainerIds().add(containerId);
+
+        assertUnauthorizedObjectAccessException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.updateDataSets(sessionToken, Collections.singletonList(update));
+                }
+            }, containerId);
     }
 
     @SuppressWarnings("unchecked")
