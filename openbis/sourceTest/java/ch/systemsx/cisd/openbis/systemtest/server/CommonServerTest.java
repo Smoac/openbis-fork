@@ -104,7 +104,7 @@ public class CommonServerTest extends SystemTestCase
         testAdaptorCommon(EntityKind.EXPERIMENT, "/CISD/DEFAULT/EXP-REUSE",
                 "experiment_adaptor_test__datasets.py");
         assertEntitiesReleased(EntityKind.EXPERIMENT, 1);
-        assertEntitiesReleased(EntityKind.DATA_SET, 23);
+        assertEntitiesReleased(EntityKind.DATA_SET, 29);
         assertScrollableResultsReleased(2);
     }
 
