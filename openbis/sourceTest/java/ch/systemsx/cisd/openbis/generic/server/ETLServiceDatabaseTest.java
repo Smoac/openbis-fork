@@ -241,7 +241,7 @@ public class ETLServiceDatabaseTest extends AbstractDAOTest
                 "no comment"));
         List<AbstractExternalData> dataSetsToUpdate =
                 service.searchForDataSets(sessionToken, searchCriteria);
-        assertEquals(13, dataSetsToUpdate.size());
+        assertEquals(22, dataSetsToUpdate.size());
 
         Date now = new Date();
 

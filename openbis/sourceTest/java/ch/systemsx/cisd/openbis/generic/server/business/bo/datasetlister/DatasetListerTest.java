@@ -237,7 +237,7 @@ public class DatasetListerTest extends AbstractDAOTest
         assertEquals("20081105092259900-0", dataSets.get(0).getCode());
         assertEquals("STANDARD", dataSets.get(0).getDataStore().getCode());
         assertEquals(0, dataSets.get(0).getProperties().size());
-        assertEquals(25, dataSets.size());
+        assertEquals(30, dataSets.size());
     }
 
     @Test
@@ -413,7 +413,7 @@ public class DatasetListerTest extends AbstractDAOTest
         assertEquals("42", ((PhysicalDataSet) dataSet).getShareId());
         assertEquals(4711L, ((PhysicalDataSet) dataSet).getSize().longValue());
         assertEquals(DataSetArchivingStatus.AVAILABLE, ((PhysicalDataSet) dataSet).getStatus());
-        assertEquals(22, list.size());
+        assertEquals(25, list.size());
     }
 
     @Test
@@ -432,7 +432,7 @@ public class DatasetListerTest extends AbstractDAOTest
                 lister.listByDataStore(1, list.get(list.size() - 1).getRegistrationDate(), 8,
                         DatasetLister.DEFAULT_DATASET_FETCH_OPTIONS);
         fullList.addAll(list);
-        assertEquals(9, list.size());
+        assertEquals(12, list.size());
 
         list =
                 lister.listByDataStore(1, list.get(list.size() - 1).getRegistrationDate(), 8,
@@ -456,7 +456,7 @@ public class DatasetListerTest extends AbstractDAOTest
         assertNull(((PhysicalDataSet) dataSet).getShareId());
         assertNull(((PhysicalDataSet) dataSet).getSize());
         assertEquals(DataSetArchivingStatus.AVAILABLE, ((PhysicalDataSet) dataSet).getStatus());
-        assertEquals(22, fullList.size());
+        assertEquals(25, fullList.size());
     }
 
     @Test
@@ -479,7 +479,7 @@ public class DatasetListerTest extends AbstractDAOTest
         DataSetShareId dataSet2 = list.get(1);
         assertEquals("20081105092159111-1", dataSet2.getDataSetCode());
         assertEquals("42", dataSet2.getShareId());
-        assertEquals(32, list.size());
+        assertEquals(37, list.size());
     }
 
     @Test

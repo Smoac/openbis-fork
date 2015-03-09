@@ -1099,10 +1099,13 @@ public class GeneralInformationServiceTest extends SystemTestCase
                         Arrays.asList(new Experiment(e1)), EnumSet.allOf(Connections.class));
 
         assertDataSets(
-                "[20081105092259000-18, 20081105092259000-19, 20081105092259000-20, 20081105092259000-21, 20081105092259000-8, 20081105092259000-9, "
-                        + "20081105092259900-0, 20081105092259900-1, 20081105092359990-2, "
-                        + "20110509092359990-10, 20110509092359990-11, 20110509092359990-12, COMPONENT_1A, COMPONENT_1B, COMPONENT_2A, CONTAINER_1, CONTAINER_2, ROOT_CONTAINER]",
+                "[20081105092259000-18, 20081105092259000-19, 20081105092259000-20, 20081105092259000-21, "
+                        + "20081105092259000-8, 20081105092259000-9, 20081105092259900-0, 20081105092259900-1, "
+                        + "20081105092359990-2, 20110509092359990-10, 20110509092359990-11, 20110509092359990-12, "
+                        + "COMPONENT_1A, COMPONENT_1B, COMPONENT_2A, COMPONENT_3A, COMPONENT_3AB, CONTAINER_1, "
+                        + "CONTAINER_2, CONTAINER_3A, CONTAINER_3B, ROOT_CONTAINER]",
                 dataSets);
+
         List<String> parentCodes = new ArrayList<String>(dataSets.get(5).getParentCodes());
         Collections.sort(parentCodes);
         assertEquals("[20081105092159111-1, 20081105092159222-2, 20081105092159333-3]",
@@ -1172,11 +1175,12 @@ public class GeneralInformationServiceTest extends SystemTestCase
         List<DataSet> dataSets =
                 generalInformationService.searchForDataSets(sessionToken, searchCriteria);
         assertEquals(
-                "[DataSet[CONTAINER_2,/CISD/DEFAULT/EXP-REUSE,<null>,CONTAINER_TYPE,{}], DataSet[20110509092359990-10,/CISD/DEFAULT/EXP-REUSE,<null>,CONTAINER_TYPE,{}], DataSet[20081105092259000-19,/CISD/DEFAULT/EXP-REUSE,<null>,CONTAINER_TYPE,{}], DataSet[ROOT_CONTAINER,/CISD/DEFAULT/EXP-REUSE,<null>,CONTAINER_TYPE,{}], DataSet[CONTAINER_1,/CISD/DEFAULT/EXP-REUSE,<null>,CONTAINER_TYPE,{}]]",
+                "[DataSet[CONTAINER_2,/CISD/DEFAULT/EXP-REUSE,<null>,CONTAINER_TYPE,{}], DataSet[CONTAINER_3A,/CISD/DEFAULT/EXP-REUSE,<null>,CONTAINER_TYPE,{}], DataSet[CONTAINER_3B,/CISD/DEFAULT/EXP-REUSE,<null>,CONTAINER_TYPE,{}], DataSet[20110509092359990-10,/CISD/DEFAULT/EXP-REUSE,<null>,CONTAINER_TYPE,{}], DataSet[20081105092259000-19,/CISD/DEFAULT/EXP-REUSE,<null>,CONTAINER_TYPE,{}], DataSet[ROOT_CONTAINER,/CISD/DEFAULT/EXP-REUSE,<null>,CONTAINER_TYPE,{}], DataSet[CONTAINER_1,/CISD/DEFAULT/EXP-REUSE,<null>,CONTAINER_TYPE,{}]]",
                 dataSets.toString());
+
         List<DataSet> containedDataSets = dataSets.get(1).getContainedDataSets();
-        assertEquals("[DataSet[20110509092359990-11,<null>,<null>,HCS_IMAGE,{}], "
-                + "DataSet[20110509092359990-12,<null>,<null>,HCS_IMAGE,{}]]",
+        assertEquals("[DataSet[COMPONENT_3A,<null>,<null>,HCS_IMAGE,{}], "
+                + "DataSet[COMPONENT_3AB,<null>,<null>,HCS_IMAGE,{}]]",
                 containedDataSets.toString());
         assertEquals(1304929379313L, containedDataSets.get(0).getRegistrationDate().getTime());
 
@@ -1273,7 +1277,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
 
         List<DataSet> dataSets =
                 generalInformationService.searchForDataSets(sessionToken, searchCriteria);
-        assertEquals("[DataSet[20081105092259000-21,/CISD/DEFAULT/EXP-REUSE,<null>,HCS_IMAGE,{}]]",
+        assertEquals("[DataSet[20081105092259000-21,/CISD/DEFAULT/EXP-REUSE,<null>,HCS_IMAGE,{COMMENT=co comment}]]",
                 dataSets.toString());
         assertEquals("test", dataSets.get(0).getRegistrationDetails().getModifierUserId());
 
@@ -1288,7 +1292,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
         List<DataSet> dataSets =
                 generalInformationService.searchForDataSets(sessionToken, searchCriteria);
         assertEquals(
-                "[DataSet[20120619092259000-22,/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST,<null>,HCS_IMAGE,{}]]",
+                "[DataSet[20120619092259000-22,/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST,<null>,HCS_IMAGE,{COMMENT=co comment}]]",
                 dataSets.toString());
     }
 
@@ -1312,7 +1316,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
         List<DataSet> dataSets =
                 generalInformationService.searchForDataSets(sessionToken, searchCriteria);
         assertEquals(
-                "[DataSet[20120619092259000-22,/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST,<null>,HCS_IMAGE,{}]]",
+                "[DataSet[20120619092259000-22,/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST,<null>,HCS_IMAGE,{COMMENT=co comment}]]",
                 dataSets.toString());
     }
 
@@ -1347,7 +1351,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
         List<DataSet> dataSets =
                 generalInformationService.searchForDataSets(sessionToken, searchCriteria);
         assertEquals(
-                "[DataSet[20120619092259000-22,/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST,<null>,HCS_IMAGE,{}]]",
+                "[DataSet[20120619092259000-22,/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST,<null>,HCS_IMAGE,{COMMENT=co comment}]]",
                 dataSets.toString());
     }
 
@@ -1369,7 +1373,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
     {
         SearchCriteria criteria = new SearchCriteria();
         List<DataSet> dataSets = generalInformationService.searchForDataSets(sessionToken, criteria);
-        assertEquals(31, dataSets.size());
+        assertEquals(36, dataSets.size());
     }
 
     @Test
