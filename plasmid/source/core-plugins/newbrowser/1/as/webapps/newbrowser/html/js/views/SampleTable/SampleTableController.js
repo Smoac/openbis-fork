@@ -203,8 +203,13 @@ function SampleTableController(parentController, title, experimentIdentifier) {
 					var sample = samples[sIdx];
 					var sampleModel = { 'code' : sample.code, 'permId' : sample.permId, 'experiment' : sample.experimentIdentifierOrNull };
 					for (var pIdx = 0; pIdx < propertyCodes.length; pIdx++) {
-						var property = propertyCodes[pIdx];
-						sampleModel[property] = sample.properties[property];
+						var propertyCode = propertyCodes[pIdx];
+						var propertyType = profile.isPropertyPressent(sampleType, propertyCode);
+						var value = sample.properties[propertyCode];
+						if(propertyType.dataType === "CONTROLLEDVOCABULARY") {
+							value = FormUtil.getVocabularyLabelForTermCode(propertyType, value);
+						}
+						sampleModel[propertyCode] = value;
 					}
 					dataList.push(sampleModel);
 				}
