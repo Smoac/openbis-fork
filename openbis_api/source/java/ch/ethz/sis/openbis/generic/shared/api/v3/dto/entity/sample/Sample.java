@@ -16,6 +16,7 @@
 package ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.attachment.Attachment;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.person.Person;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.Sample;
@@ -84,6 +85,9 @@ public class Sample implements Serializable
 
     @JsonProperty
     private List<Sample> contained;
+
+    @JsonProperty
+    private List<DataSet> dataSets;
 
     @JsonProperty
     private Set<Tag> tags;
@@ -333,6 +337,26 @@ public class Sample implements Serializable
     public void setContained(List<Sample> contained)
     {
         this.contained = contained;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    @JsonIgnore
+    public List<DataSet> getDataSets()
+    {
+        if (getFetchOptions().hasDataSets())
+        {
+            return dataSets;
+        }
+        else
+        {
+            throw new NotFetchedException("Data sets has not been fetched.");
+        }
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public void setDataSets(List<DataSet> dataSets)
+    {
+        this.dataSets = dataSets;
     }
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}

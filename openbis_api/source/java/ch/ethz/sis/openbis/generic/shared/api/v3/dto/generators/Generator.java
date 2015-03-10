@@ -7,6 +7,7 @@ import java.util.List;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.attachment.Attachment;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.ArchivingStatus;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.Complete;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSetKind;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSetType;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.ExternalData;
@@ -68,6 +69,8 @@ public class Generator extends AbstractGenerator
         gen.addFetchedField("List<Sample>", List.class.getName(), "children", "Children", SampleFetchOptions.class);
         gen.addFetchedField(Sample.class, "container", "Container sample", SampleFetchOptions.class);
         gen.addFetchedField("List<Sample>", List.class.getName(), "contained", "Contained samples", SampleFetchOptions.class);
+        gen.addFetchedField("List<DataSet>", List.class.getName(), "dataSets", "Data sets", DataSetFetchOptions.class);
+        gen.addClassForImport(DataSet.class);
         addTags(gen);
         addRegistrator(gen);
         addModifier(gen);

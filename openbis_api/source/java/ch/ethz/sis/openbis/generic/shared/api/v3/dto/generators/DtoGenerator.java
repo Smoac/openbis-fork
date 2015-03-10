@@ -241,7 +241,7 @@ public class DtoGenerator
         printPackage("entity." + subPackage);
         printImports();
 
-        printClassHeader(className);
+        printClassHeader(className, "entity." + subPackage);
         startBlock();
         printFields();
 
@@ -305,7 +305,7 @@ public class DtoGenerator
         printPackage("fetchoptions." + subPackage);
         printImportsForFetchOptions();
 
-        printClassHeader(fetchOptionsClass.getSimpleName());
+        printClassHeader(fetchOptionsClass.getSimpleName(), "fetchoptions." + subPackage);
         startBlock();
 
         printFetchOptionsFields();
@@ -552,12 +552,12 @@ public class DtoGenerator
         print("");
     }
 
-    private void printClassHeader(String className)
+    private void printClassHeader(String className, String jsonPackage)
     {
         print("/**");
         print(" * Class automatically generated with {@link %s}", this.getClass().getName());
         print(" */");
-        print("@JsonObject(\"%s\")", className);
+        print("@JsonObject(\"dto.%s.%s\")", jsonPackage, className);
         print("public class %s implements Serializable", className);
     }
 

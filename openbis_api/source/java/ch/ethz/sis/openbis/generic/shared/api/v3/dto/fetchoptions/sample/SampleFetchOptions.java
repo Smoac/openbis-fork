@@ -16,6 +16,7 @@
 package ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sample;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.attachment.AttachmentFetchOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.DataSetFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.experiment.ExperimentFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.person.PersonFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.property.PropertyFetchOptions;
@@ -58,6 +59,9 @@ public class SampleFetchOptions implements Serializable
 
     @JsonProperty
     private SampleFetchOptions contained;
+
+    @JsonProperty
+    private DataSetFetchOptions dataSets;
 
     @JsonProperty
     private TagFetchOptions tags;
@@ -245,6 +249,28 @@ public class SampleFetchOptions implements Serializable
     public boolean hasContained()
     {
         return contained != null;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public DataSetFetchOptions withDataSets()
+    {
+        if (dataSets == null)
+        {
+            dataSets = new DataSetFetchOptions();
+        }
+        return dataSets;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public DataSetFetchOptions withDataSetsUsing(DataSetFetchOptions fetchOptions)
+    {
+        return dataSets = fetchOptions;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public boolean hasDataSets()
+    {
+        return dataSets != null;
     }
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
