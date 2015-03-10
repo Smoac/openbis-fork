@@ -640,6 +640,12 @@ public class DataBOTest extends AbstractBOTest
         { dataSet.getCode() };
         dataSetUpdatesDTO.setModifiedParentDatasetCodesOrNull(parentCodes);
         prepareForUpdate(dataSet, experiment);
+        context.checking(new Expectations()
+            {
+                {
+                    one(relationshipService).assignDataSetToSample(EXAMPLE_SESSION, dataSet, null);
+                }
+            });
 
         IDataBO dataBO = createDataBO();
         try
@@ -673,6 +679,8 @@ public class DataBOTest extends AbstractBOTest
                 {
                     one(dataDAO).tryToFindDataSetByCode(PARENT_CODE);
                     will(returnValue(null));
+                    
+                    one(relationshipService).assignDataSetToSample(EXAMPLE_SESSION, dataSet, null);
                 }
             });
 
@@ -709,6 +717,8 @@ public class DataBOTest extends AbstractBOTest
                 {
                     one(dataDAO).tryToFindDataSetByCode(COMPONENT_CODE);
                     will(returnValue(null));
+                    
+                    one(relationshipService).assignDataSetToSample(EXAMPLE_SESSION, dataSet, null);
                 }
             });
 
@@ -763,6 +773,8 @@ public class DataBOTest extends AbstractBOTest
                     expectMandatoryPropertiesCheck(this, ds1.getDataSetType());
 
                     one(dataDAO).validateAndSaveUpdatedEntity(ds1);
+
+                    one(relationshipService).assignDataSetToSample(EXAMPLE_SESSION, ds1, null);
                 }
             });
 
@@ -787,6 +799,12 @@ public class DataBOTest extends AbstractBOTest
         { dataSet.getCode() };
         dataSetUpdatesDTO.setModifiedContainedDatasetCodesOrNull(componentCodes);
         prepareForUpdate(dataSet, experiment);
+        context.checking(new Expectations()
+            {
+                {
+                    one(relationshipService).assignDataSetToSample(EXAMPLE_SESSION, dataSet, null);
+                }
+            });
 
         IDataBO dataBO = createDataBO();
         try
@@ -819,6 +837,8 @@ public class DataBOTest extends AbstractBOTest
                 {
                     one(relationshipTypeDAO).tryFindRelationshipTypeByCode(BasicConstant.CONTAINER_COMPONENT_INTERNAL_RELATIONSHIP);
                     will(returnValue(relationshipTypePE));
+
+                    one(relationshipService).assignDataSetToSample(EXAMPLE_SESSION, container1, null);
                 }
             });
         RelationshipTypePE containerComponentRelationshipType = RelationshipUtils
@@ -1235,7 +1255,7 @@ public class DataBOTest extends AbstractBOTest
     private final IDataBO createDataBO()
     {
         return new DataBO(daoFactory, EXAMPLE_SESSION, propertiesConverter, relationshipService,
-                conversationClient, managedPropertyEvaluatorFactory, 
+                conversationClient, managedPropertyEvaluatorFactory,
                 new DataSetTypeWithoutExperimentChecker(new Properties()));
     }
 
