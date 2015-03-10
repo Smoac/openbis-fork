@@ -560,6 +560,7 @@ createSampleTypeWithProperties("SOLUTION_BUFFER", "", [
 
 annotationsScriptName = createAnnotationsScriptForType("OLIGO");
 createSampleTypeWithProperties("OLIGO", "", [
+  ["NAME", 				"General",				"Name",			DataType.VARCHAR,				None,				"Name", None],
 	["TARGET", 					"General",			"Target",					DataType.MULTILINE_VARCHAR,		None,				"Target of the oligonucleotide", None],
 	["DIRECTION", 				"Details",			"Direction",				DataType.CONTROLLEDVOCABULARY, "DIRECTION",			"Direction of the oligonucleotide", None],
 	["RESTRICTION_ENZYME", 		"Details",			"Restriction Enzyme",		DataType.MULTILINE_VARCHAR,		None,				"Restriction sites in the oligonucleotide", None],
@@ -571,7 +572,7 @@ createSampleTypeWithProperties("OLIGO", "", [
 
 annotationsScriptName = createAnnotationsScriptForType("RNA");
 createSampleTypeWithProperties("RNA", "", [
-	["RNA_NAME", 				"General",				"Name of RNA",			DataType.VARCHAR,				None,				"Name of the RNA: species/number/strand", None],
+	["NAME", 				"General",				"Name of RNA",			DataType.VARCHAR,				None,				"Name of the RNA: species/number/strand", None],
 	["TARGET", 					"General",				"Target of the RNA",	DataType.VARCHAR,				None,				"Target of the oligonucleotide", None],
 	["TYPE", 					"General",				"Type of RNA",			DataType.CONTROLLEDVOCABULARY,	"RNA_TYPE",			"Type of RNA in terms of function: mimic of RNAi or inhibitor of RNAi", None],
 	["STRAND", 					"Details",				"Strand",				DataType.CONTROLLEDVOCABULARY,	"STRAND",			"Double or single strand RNA", None],
@@ -588,7 +589,7 @@ createSampleTypeWithProperties("RNA", "", [
 
 annotationsScriptName = createAnnotationsScriptForType("PLASMID");
 createSampleTypeWithProperties("PLASMID", "", [
-	["PLASMID_NAME", 					"General",				"Plasmid",							DataType.VARCHAR,				None,								"Plasmid name", None],
+	["NAME", 					"General",				"Plasmid",							DataType.VARCHAR,				None,								"Plasmid name", None],
 	["OWNER", 							"General",				"Owner",							DataType.CONTROLLEDVOCABULARY,	"OWNER",							"Who produced/owned the sample", None],
 	["OWNER_NUMBER", 					"General",				"Owner number",						DataType.MULTILINE_VARCHAR,		None,								"Owner number", None],
 	["BACKBONE", 						"Details",				"Backbone",							DataType.CONTROLLEDVOCABULARY,	"BACKBONE",							"Backbone of the plasmid", None],
@@ -606,7 +607,7 @@ createSampleTypeWithProperties("PLASMID", "", [
 
 annotationsScriptName = createAnnotationsScriptForType("BACTERIA");
 createSampleTypeWithProperties("BACTERIA", "", [
-	["BACTERIA_STRAIN_NAME", 			"General",				"Bacteria strain name",				DataType.VARCHAR,				None,								"Bacterial strain name", None],
+	["NAME", 			"General",				"Bacteria strain name",				DataType.VARCHAR,				None,								"Bacterial strain name", None],
 	["OWNER", 							"General",				"Owner",							DataType.CONTROLLEDVOCABULARY,	"OWNER",							"Who produced/owned the sample", None],
 	["OWNER_NUMBER", 					"General",				"Owner number",						DataType.MULTILINE_VARCHAR,		None,								"Owner number", None],
 	["BACTERIA_GENOTYPE", 				"Genotype",				"Bacteria genotype",				DataType.MULTILINE_VARCHAR,		None,								"Bacterial genotype", None],
@@ -622,7 +623,7 @@ createSampleTypeWithProperties("BACTERIA", "", [
 
 annotationsScriptName = createAnnotationsScriptForType("YEAST");
 createSampleTypeWithProperties("YEAST", "", [
-	["YEAST_STRAIN_NAME", 				"General",				"Yeast strain name",					DataType.MULTILINE_VARCHAR,		None,								"Yeast strain name", None],
+	["NAME", 				"General",				"Yeast strain name",					DataType.MULTILINE_VARCHAR,		None,								"Yeast strain name", None],
 	["OWNER", 							"General",				"Owner",								DataType.CONTROLLEDVOCABULARY,	"OWNER",							"Who produced/owned the sample", None],
 	["OWNER_NUMBER", 					"General",				"Owner number",							DataType.MULTILINE_VARCHAR,		None,								"Owner number", None],
 	["GENETIC_BACKGROUND", 				"Genotype",				"Genetic Background",					DataType.CONTROLLEDVOCABULARY,	"GENETIC_BACKGROUND",				"Genetic background of the yeast strain", None],
@@ -641,7 +642,7 @@ createSampleTypeWithProperties("YEAST", "", [
 
 annotationsScriptName = createAnnotationsScriptForType("CELL_LINE");
 createSampleTypeWithProperties("CELL_LINE", "", [
-	["CELL_LINE_NAME", 					"General",				"Cell line name",						DataType.VARCHAR,				None,								"Name of the cell line", None],
+	["NAME", 					"General",				"Cell line name",						DataType.VARCHAR,				None,								"Name of the cell line", None],
 	["OWNER", 							"General",				"Owner",								DataType.CONTROLLEDVOCABULARY,	"OWNER",							"Who produced/owned the sample", None],
 	["OWNER_NUMBER", 					"General",				"Owner number",							DataType.MULTILINE_VARCHAR,		None,								"Owner number", None],
 	["SPECIES", 						"Genotype",				"Species",								DataType.CONTROLLEDVOCABULARY,	"SPECIES",							"Species to which the cell line belongs", None],
@@ -666,7 +667,7 @@ createSampleTypeWithProperties("CELL_LINE", "", [
 
 annotationsScriptName = createAnnotationsScriptForType("FLY");
 createSampleTypeWithProperties("FLY", "", [
-	["FLY_STRAIN_NAME", 				"General",				"Fly strain name",						DataType.VARCHAR,				None,								"Fly strain name", None],
+	["NAME", 				"General",				"Fly strain name",						DataType.VARCHAR,				None,								"Fly strain name", None],
 	["OWNER", 							"General",				"Owner",								DataType.CONTROLLEDVOCABULARY,	"OWNER",							"Who produced/owned the sample", None],
 	["OWNER_NUMBER", 					"General",				"Owner number",							DataType.MULTILINE_VARCHAR,		None,								"Owner number", None],
 	["FLY_GENOTYPE", 					"Genotype",				"Genotype",								DataType.VARCHAR,				None,								"Genotype of the fly", None],
