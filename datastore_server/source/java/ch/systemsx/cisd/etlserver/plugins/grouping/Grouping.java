@@ -46,7 +46,8 @@ public enum Grouping implements IGroupKeyProvider
         @Override
         public String getGroupKey(AbstractExternalData dataset)
         {
-            return dataset.getExperiment().getProject().getIdentifier();
+            Experiment experiment = dataset.getExperiment();
+            return experiment != null ? experiment.getProject().getIdentifier() : "no_project";
         }
     },
     Experiment
