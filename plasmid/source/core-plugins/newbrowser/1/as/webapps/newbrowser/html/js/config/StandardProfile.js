@@ -267,7 +267,7 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 														"LABEL" : "Antibody",
 														"TYPE": "ANTIBODY",
 														"MIN_COUNT" : 0,
-														"ANNOTATION_PROPERTIES" : [{"TYPE" : "QUANTITY", "MANDATORY" : false }, {"TYPE" : "COMMENTS", "MANDATORY" : false }]
+														"ANNOTATION_PROPERTIES" : [ {"TYPE" : "COMMENTS", "MANDATORY" : false }]
 													},
 					                             	{
 														"LABEL" : "Bacteria",
@@ -285,13 +285,13 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 														"LABEL" : "Chemical",
 														"TYPE": "CHEMICAL",
 														"MIN_COUNT" : 0,
-														"ANNOTATION_PROPERTIES" : [{"TYPE" : "QUANTITY", "MANDATORY" : false },{"TYPE" : "COMMENTS", "MANDATORY" : false }]
+														"ANNOTATION_PROPERTIES" : [{"TYPE" : "COMMENTS", "MANDATORY" : false }]
 													},
 					                             	{
 														"LABEL" : "Enzyme",
 														"TYPE": "ENZYME",
 														"MIN_COUNT" : 0,
-														"ANNOTATION_PROPERTIES" : [{"TYPE" : "QUANTITY", "MANDATORY" : false },{"TYPE" : "COMMENTS", "MANDATORY" : false }]
+														"ANNOTATION_PROPERTIES" : [{"TYPE" : "COMMENTS", "MANDATORY" : false }]
 													},
 					                             	{
 														"LABEL" : "Fly",
@@ -303,7 +303,7 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 														"LABEL" : "Media",
 														"TYPE": "MEDIA",
 														"MIN_COUNT" : 0,
-														"ANNOTATION_PROPERTIES" : [{"TYPE" : "QUANTITY", "MANDATORY" : false },{"TYPE" : "COMMENTS", "MANDATORY" : false }]
+														"ANNOTATION_PROPERTIES" : [{"TYPE" : "COMMENTS", "MANDATORY" : false }]
 													},
 					                             	{
 														"LABEL" : "Oligo",
@@ -327,7 +327,7 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 														"LABEL" : "Solution/Buffer",
 														"TYPE": "SOLUTION_BUFFER",
 														"MIN_COUNT" : 0,
-														"ANNOTATION_PROPERTIES" : [{"TYPE" : "QUANTITY", "MANDATORY" : false },{"TYPE" : "COMMENTS", "MANDATORY" : false }]
+														"ANNOTATION_PROPERTIES" : [{"TYPE" : "COMMENTS", "MANDATORY" : false }]
 													},
 					                             	{
 														"LABEL" : "Yeast",
