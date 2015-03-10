@@ -16,10 +16,12 @@
 package ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.experiment;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.attachment.AttachmentFetchOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.DataSetFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.experiment.ExperimentTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.person.PersonFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.project.ProjectFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.property.PropertyFetchOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sample.SampleFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.tag.TagFetchOptions;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -38,6 +40,12 @@ public class ExperimentFetchOptions implements Serializable
 
     @JsonProperty
     private ProjectFetchOptions project;
+
+    @JsonProperty
+    private DataSetFetchOptions dataSets;
+
+    @JsonProperty
+    private SampleFetchOptions samples;
 
     @JsonProperty
     private PropertyFetchOptions properties;
@@ -96,6 +104,50 @@ public class ExperimentFetchOptions implements Serializable
     public boolean hasProject()
     {
         return project != null;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public DataSetFetchOptions withDataSets()
+    {
+        if (dataSets == null)
+        {
+            dataSets = new DataSetFetchOptions();
+        }
+        return dataSets;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public DataSetFetchOptions withDataSetsUsing(DataSetFetchOptions fetchOptions)
+    {
+        return dataSets = fetchOptions;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public boolean hasDataSets()
+    {
+        return dataSets != null;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public SampleFetchOptions withSamples()
+    {
+        if (samples == null)
+        {
+            samples = new SampleFetchOptions();
+        }
+        return samples;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public SampleFetchOptions withSamplesUsing(SampleFetchOptions fetchOptions)
+    {
+        return samples = fetchOptions;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public boolean hasSamples()
+    {
+        return samples != null;
     }
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}

@@ -16,9 +16,11 @@
 package ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.attachment.Attachment;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.ExperimentType;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.person.Person;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.project.Project;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.Sample;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.tag.Tag;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.experiment.ExperimentFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentIdentifier;
@@ -64,6 +66,12 @@ public class Experiment implements Serializable
 
     @JsonProperty
     private Project project;
+
+    @JsonProperty
+    private List<DataSet> dataSets;
+
+    @JsonProperty
+    private List<Sample> samples;
 
     @JsonProperty
     private Map<String, String> properties;
@@ -196,6 +204,46 @@ public class Experiment implements Serializable
     public void setProject(Project project)
     {
         this.project = project;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    @JsonIgnore
+    public List<DataSet> getDataSets()
+    {
+        if (getFetchOptions().hasDataSets())
+        {
+            return dataSets;
+        }
+        else
+        {
+            throw new NotFetchedException("Data sets has not been fetched.");
+        }
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public void setDataSets(List<DataSet> dataSets)
+    {
+        this.dataSets = dataSets;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    @JsonIgnore
+    public List<Sample> getSamples()
+    {
+        if (getFetchOptions().hasSamples())
+        {
+            return samples;
+        }
+        else
+        {
+            throw new NotFetchedException("samples has not been fetched.");
+        }
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public void setSamples(List<Sample> samples)
+    {
+        this.samples = samples;
     }
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}

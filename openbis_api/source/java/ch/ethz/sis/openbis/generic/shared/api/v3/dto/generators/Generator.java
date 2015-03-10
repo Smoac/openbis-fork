@@ -142,6 +142,13 @@ public class Generator extends AbstractGenerator
 
         gen.addFetchedField(ExperimentType.class, "type", "Experiment type", ExperimentTypeFetchOptions.class);
         gen.addFetchedField(Project.class, "project", "Project", ProjectFetchOptions.class);
+
+        gen.addFetchedField("List<DataSet>", List.class.getName(), "dataSets", "Data sets", DataSetFetchOptions.class);
+        gen.addClassForImport(DataSet.class);
+
+        gen.addFetchedField("List<Sample>", List.class.getName(), "samples", "samples", SampleFetchOptions.class);
+        gen.addClassForImport(Sample.class);
+
         addProperties(gen);
         addTags(gen);
         addRegistrator(gen);
