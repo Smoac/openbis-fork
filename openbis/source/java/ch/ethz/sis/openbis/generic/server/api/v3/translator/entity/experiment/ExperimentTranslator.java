@@ -22,11 +22,14 @@ import java.util.Map;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.AbstractCachingTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.Relations;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.common.ListTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.common.SetTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.attachment.AttachmentTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.dataset.DataSetTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.person.PersonTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.project.ProjectTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.property.PropertyTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.sample.SampleTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.tag.TagTranslator;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.attachment.Attachment;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
@@ -98,6 +101,20 @@ public class ExperimentTranslator extends AbstractCachingTranslator<ExperimentPE
         {
             result.setProject(new ProjectTranslator(getTranslationContext(), getFetchOptions().withProject()).translate(experiment.getProject()));
             result.getFetchOptions().withProjectUsing(getFetchOptions().withProject());
+        }
+
+        if (getFetchOptions().hasSamples())
+        {
+            result.setSamples(new ListTranslator().translate(experiment.getSamples(), new SampleTranslator(getTranslationContext(),
+                    managedPropertyEvaluatorFactory, getFetchOptions().withSamples())));
+            result.getFetchOptions().withSamplesUsing(getFetchOptions().withSamples());
+        }
+
+        if (getFetchOptions().hasDataSets())
+        {
+            result.setDataSets(new ListTranslator().translate(experiment.getDataSets(), new DataSetTranslator(getTranslationContext(),
+                    managedPropertyEvaluatorFactory, getFetchOptions().withDataSets())));
+            result.getFetchOptions().withDataSetsUsing(getFetchOptions().withDataSets());
         }
 
         if (getFetchOptions().hasRegistrator())

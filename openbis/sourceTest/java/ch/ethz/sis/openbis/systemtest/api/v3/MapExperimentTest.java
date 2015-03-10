@@ -23,6 +23,7 @@ import static org.testng.Assert.assertTrue;
 
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -30,17 +31,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.Transformer;
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.attachment.Attachment;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.ExperimentType;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.project.Project;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.Sample;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.tag.Tag;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.experiment.ExperimentFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentIdentifier;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.IExperimentId;
+import ch.systemsx.cisd.common.test.AssertionUtil;
 
 /**
  * @author pkupczyk
@@ -605,4 +611,78 @@ public class MapExperimentTest extends AbstractExperimentTest
 
         v3api.logout(sessionToken);
     }
+
+    @Test
+    public void testWithDataSets()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
+        fetchOptions.withDataSets();
+
+        ExperimentPermId permId = new ExperimentPermId("200902091239077-1033");
+
+        Map<IExperimentId, Experiment> map = v3api.mapExperiments(sessionToken, Arrays.asList(permId), fetchOptions);
+
+        Experiment experiment = map.get(permId);
+
+        List<DataSet> dataSets = experiment.getDataSets();
+        assertEquals(dataSets.size(), 1);
+        DataSet dataSet = dataSets.get(0);
+        assertEquals(dataSet.getPermId().getPermId(), "20081105092159111-1");
+
+        assertTypeNotFetched(dataSet);
+        assertTagsNotFetched(dataSet);
+
+        v3api.logout(sessionToken);
+    }
+
+    @Test
+    public void testWithSamples()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
+        fetchOptions.withSamples();
+
+        ExperimentPermId permId = new ExperimentPermId("200902091239077-1033");
+
+        Map<IExperimentId, Experiment> map = v3api.mapExperiments(sessionToken, Arrays.asList(permId), fetchOptions);
+
+        Experiment experiment = map.get(permId);
+        List<Sample> samples = experiment.getSamples();
+        Collection<String> codes = CollectionUtils.collect(samples, new Transformer<Sample, String>()
+            {
+                @Override
+                public String transform(Sample input)
+                {
+                    return input.getCode();
+                }
+            });
+        AssertionUtil.assertCollectionContainsOnly(codes, "CP-TEST-1", "DYNA-TEST-1");
+        v3api.logout(sessionToken);
+    }
+
+    public void testWithDataSetsAndDataSetFetchOptionsViaSample()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
+        fetchOptions.withDataSets().withTags();
+        fetchOptions.withSamples().withDataSets().withType();
+
+        ExperimentPermId permId = new ExperimentPermId("200902091239077-1033");
+
+        Map<IExperimentId, Experiment> map = v3api.mapExperiments(sessionToken, Arrays.asList(permId), fetchOptions);
+
+        Experiment experiment = map.get(permId);
+
+        List<DataSet> dataSets = experiment.getDataSets();
+        AssertionUtil.assertCollectionSize(dataSets, 1);
+        DataSet dataSet = dataSets.get(0);
+        assertEquals(dataSet.getPermId().getPermId(), "20081105092159111-1");
+
+        assertEquals(dataSet.getType().getCode(), "HCS_IMAGE");
+        dataSet.getTags();
+
+        v3api.logout(sessionToken);
+    }
+
 }
