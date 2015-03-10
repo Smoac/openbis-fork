@@ -97,7 +97,18 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
     @Override
     public void trashExperiments(List<TechId> experimentIds)
     {
-        trashExperiments(experimentIds, true);
+        assert deletion != null;
+        
+        TrashBatchOperation batchOperation =
+                new TrashBatchOperation(EntityKind.EXPERIMENT, experimentIds, deletion,
+                        getDeletionDAO(), true);
+        BatchOperationExecutor.executeInBatches(batchOperation);
+        
+        if (batchOperation.counter > 0)
+        {
+            trashExperimentDependentDataSets(experimentIds);
+            trashExperimentDependentSamples(experimentIds);
+        }
     }
 
     @Override
@@ -128,22 +139,6 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
         }
     }
 
-    public void trashExperiments(final List<TechId> experimentIds, boolean isOriginalDeletion)
-    {
-        assert deletion != null;
-
-        TrashBatchOperation batchOperation =
-                new TrashBatchOperation(EntityKind.EXPERIMENT, experimentIds, deletion,
-                        getDeletionDAO(), isOriginalDeletion);
-        BatchOperationExecutor.executeInBatches(batchOperation);
-
-        if (batchOperation.counter > 0)
-        {
-            trashExperimentDependentDataSets(experimentIds);
-            trashExperimentDependentSamples(experimentIds);
-        }
-    }
-    
     private static interface IDataSetFilter
     {
         public List<TechId> filter(List<DataPE> dataSets);
@@ -216,15 +211,11 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
         } else
         {
             int nonDeletable = dataSetIds.size() - deletableOriginals.size();
-            if (nonDeletable == 1)
+            if (nonDeletable > 0)
             {
-                throw new UserFailureException("One related data sets couldn't be deleted "
-                        + "because it is contained in a data set outside the deletion set.");
-            }
-            if (nonDeletable > 1)
-            {
-                throw new UserFailureException(nonDeletable + " related data sets couldn't be deleted "
-                        + "because they are contained in data sets outside the deletion set.");
+                dataSetIds.removeAll(deletableOriginals);
+                throw new UserFailureException("The following related data sets couldn't be deleted "
+                        + "because they are contained in data sets outside the deletion set: " + dataSetIds);
             }
             TrashBatchOperation batchOperation =
                     new TrashBatchOperation(EntityKind.DATA_SET, allDeletables, deletion,

@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -25,8 +26,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.hamcrest.BaseMatcher;
+import org.hamcrest.Description;
 import org.jmock.Expectations;
+import org.jmock.api.Action;
+import org.jmock.api.Invocation;
 import org.jmock.internal.NamedSequence;
+import org.jmock.lib.action.ReturnValueAction;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -34,6 +40,11 @@ import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.trashtesthelper.DataSetNode;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.trashtesthelper.EntityNodeGenerator;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.trashtesthelper.ExperimentNode;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.trashtesthelper.SampleNode;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.trashtesthelper.Utils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -60,6 +71,7 @@ public final class TrashBOTest extends AbstractBOTest
     private static String EXAMPLE_REASON = "example reason";
 
     private static Long COMPONENT_CONTAINER_RELATIONSHIP_ID = 1234L;
+    private static Long CHILDREN_PARENT_RELATIONSHIP_ID = 1235L;
 
     private static TechId EXAMPLE_ID = new TechId(1L);
 
@@ -94,6 +106,11 @@ public final class TrashBOTest extends AbstractBOTest
                     type.setId(COMPONENT_CONTAINER_RELATIONSHIP_ID);
                     will(returnValue(type));
 
+                    allowing(relationshipTypeDAO).tryFindRelationshipTypeByCode(BasicConstant.PARENT_CHILD_INTERNAL_RELATIONSHIP);
+                    type = new RelationshipTypePE();
+                    type.setId(CHILDREN_PARENT_RELATIONSHIP_ID);
+                    will(returnValue(type));
+                    
                     allowing(boFactory).createDatasetLister(ManagerTestTool.EXAMPLE_SESSION);
                     will(returnValue(datasetLister));
                 }
@@ -196,17 +213,13 @@ public final class TrashBOTest extends AbstractBOTest
         final List<TechId> experimentIds = EXAMPLE_ID_LIST;
         final List<TechId> sampleIds = TechId.createList(50, 51);
         final List<TechId> dataSetIds = TechId.createList(60, 61);
+        prepareListSampleIdsByExperimentIds(experimentIds, sampleIds);
+        prepareListDataSetIdsByExperimentIds(experimentIds, dataSetIds);
         context.checking(new Expectations()
             {
                 {
-                    one(sampleDAO).listSampleIdsByExperimentIds(experimentIds);
-                    will(returnValue(sampleIds));
-
                     one(sampleDAO).listSampleIdsByContainerIds(sampleIds);
                     will(returnValue(Arrays.asList()));
-
-                    one(dataDAO).listDataSetIdsByExperimentIds(experimentIds);
-                    will(returnValue(dataSetIds));
 
                     one(dataDAO).listDataSetIdsBySampleIds(sampleIds);
                     will(returnValue(Arrays.asList()));
@@ -225,7 +238,7 @@ public final class TrashBOTest extends AbstractBOTest
 
         context.assertIsSatisfied();
     }
-
+    
     @Test
     public final void testTrashExperimentsWithDeepDependencies()
     {
@@ -234,15 +247,11 @@ public final class TrashBOTest extends AbstractBOTest
         final List<TechId> sampleIds = TechId.createList(50, 51);
         final List<TechId> componentSampleIds = TechId.createList(52, 53);
         final List<TechId> dataSetIds = TechId.createList(60, 61);
+        prepareListSampleIdsByExperimentIds(experimentIds, sampleIds);
+        prepareListDataSetIdsByExperimentIds(experimentIds, dataSetIds);
         context.checking(new Expectations()
             {
                 {
-                    one(sampleDAO).listSampleIdsByExperimentIds(experimentIds);
-                    will(returnValue(sampleIds));
-
-                    one(dataDAO).listDataSetIdsByExperimentIds(experimentIds);
-                    will(returnValue(dataSetIds));
-
                     one(sampleDAO).listSampleIdsByContainerIds(sampleIds);
                     will(returnValue(componentSampleIds));
                 }
@@ -272,7 +281,100 @@ public final class TrashBOTest extends AbstractBOTest
 
         context.assertIsSatisfied();
     }
+    
+    @Test
+    public final void testTrashExperimentWithSamplesAndDataSetsAndNoExternalLinks()
+    {
+        EntityNodeGenerator g = new EntityNodeGenerator();
+        g.parse("E1, samples: [S1], data sets: [DS1]\n"
+                + "E2, data sets: [DS2]\n"
+                + "S1, experiment: E1, data sets: [DS1]\n"
+                + "DS1, experiment: E1, sample: S1, components: [DS2]\n"
+                + "DS2, experiment: E2, containers: [DS1]\n");
+        ExperimentNode e1 = g.e(1);
+        SampleNode s1 = g.s(1);
+        ExperimentNode e2 = g.e(2);
+        DataSetNode ds1 = g.ds(1);
+        DataSetNode ds2 = g.ds(2);
+        prepareEntityGraph(g);
+        final DeletionPE deletion = createDeletion();
+        prepareTrashExperiments(deletion, true, e1, e2);
+        prepareTrashSamples(deletion, false, s1);
+        prepareTrashDataSets(deletion, false, ds1);
+        prepareTrashDataSets(deletion, false, ds1, ds2);
 
+        trashBO.trashExperiments(asIds(e1, e2));
+
+        context.assertIsSatisfied();
+    }
+    
+//    @Test
+    public final void testTrashExperimentWithARelatedDataSetComponentWithExternalExperiment()
+    {
+        EntityNodeGenerator g = new EntityNodeGenerator();
+        g.parse("E1, samples: [S1], data sets: [DS1]\n"
+                + "E2, data sets: [DS2]\n"
+                + "S1, experiment: E1, data sets: [DS1]\n"
+                + "DS1, experiment: E1, sample: S1, components: [DS2]\n"
+                + "DS2, experiment: E2, containers: [DS1]\n");
+        ExperimentNode e1 = g.e(1);
+        SampleNode s1 = g.s(1);
+        DataSetNode ds2 = g.ds(2);
+        prepareEntityGraph(g);
+        final DeletionPE deletion = createDeletion();
+        prepareTrashExperiments(deletion, true, e1);
+        prepareTrashSamples(deletion, false, s1);
+        
+        failTrashExperiments(Arrays.asList(ds2), e1);
+        
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public final void testTrashExperimentWithARelatedDataSetInAnExternalContainer()
+    {
+        EntityNodeGenerator g = new EntityNodeGenerator();
+        g.parse("E1, samples: [S1], data sets: [DS1]\n"
+                + "E2, data sets: [DS2]\n"
+                + "S1, experiment: E1, data sets: [DS1]\n"
+                + "DS1, experiment: E1, sample: S1, components: [DS2]\n"
+                + "DS2, experiment: E2, containers: [DS1]\n");
+        ExperimentNode e2 = g.e(2);
+        DataSetNode ds2 = g.ds(2);
+        prepareEntityGraph(g);
+        final DeletionPE deletion = createDeletion();
+        prepareTrashExperiments(deletion, true, e2);
+        
+        failTrashExperiments(Arrays.asList(ds2), e2);
+        
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testTrashPublishedExperiment()
+    {
+        EntityNodeGenerator g = new EntityNodeGenerator();
+        g.parse("E1, data sets: [DS1, DS2, DS3, DS4]\n"
+                + "DS1, experiment: E1, components: [DS3], containers: [DS5]\n"
+                + "DS2, experiment: E1, children: [DS4], containers: [DS6]\n"
+                + "DS3, experiment: E1, containers: [DS1]\n"
+                + "DS4, experiment: E1, parents: [DS2]\n"
+                + "E2, data sets: [DS5, DS6]\n"
+                + "DS5, experiment: E2, components: [DS1]\n"
+                + "DS6, experiment: E2, components: [DS2]\n");
+        ExperimentNode e2 = g.e(2); // published experiment
+        DataSetNode ds5 = g.ds(5);
+        DataSetNode ds6 = g.ds(6);
+        prepareEntityGraph(g);
+        DeletionPE deletion = createDeletion();
+        prepareTrashExperiments(deletion, true, e2);
+        prepareTrashDataSets(deletion, false, ds5 , ds6);
+        
+        trashBO.trashExperiments(asIds(e2));
+        
+        context.assertIsSatisfied();
+    }
+    
     @Test
     public final void testTrashExperimentsWithContainerDataSetWithPhysicalDataSetFromAnotherExperiment()
     {
@@ -280,15 +382,8 @@ public final class TrashBOTest extends AbstractBOTest
         final List<TechId> experimentIds = TechId.createList(123);
         final List<TechId> dataSetIds = TechId.createList(1);
         final List<TechId> componentDataSetIds = TechId.createList(2);
-        context.checking(new Expectations()
-            {
-                {
-                    one(sampleDAO).listSampleIdsByExperimentIds(experimentIds);
-
-                    one(dataDAO).listDataSetIdsByExperimentIds(experimentIds);
-                    will(returnValue(dataSetIds));
-                }
-            });
+        prepareListSampleIdsByExperimentIds(experimentIds, Arrays.<TechId>asList());
+        prepareListDataSetIdsByExperimentIds(experimentIds, dataSetIds);
         prepareTrash(deletion, EntityKind.EXPERIMENT, true, experimentIds);
         prepareFindDataSetComponentIds(dataSetIds, TechId.asLongs(componentDataSetIds));
         prepareFindDataSetComponentIds(componentDataSetIds, Arrays.<Long> asList());
@@ -304,15 +399,15 @@ public final class TrashBOTest extends AbstractBOTest
         ExternalDataPE dataSet2 = new ExternalDataPE();
         dataSet2.setId(2L);
         dataSet2.setCode("DS-2");
-        prepareGetDataSetsAndNonDeletableDataSets(TechId.createList(1, 2), Arrays.<DataPE>asList(dataSet1, dataSet2), 
-                Arrays.<ExternalDataPE>asList());
+        prepareGetDataSetsAndNonDeletableDataSets(TechId.createList(1, 2), Arrays.<DataPE> asList(dataSet1, dataSet2),
+                Arrays.<ExternalDataPE> asList());
         prepareTrash(deletion, EntityKind.DATA_SET, false, dataSetIds);
-        
+
         trashBO.trashExperiments(experimentIds);
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public final void testTrashSamplesAlreadyTrashed()
     {
@@ -462,9 +557,27 @@ public final class TrashBOTest extends AbstractBOTest
 
         context.assertIsSatisfied();
     }
+    
+    private void prepareTrashExperiments(DeletionPE deletion, boolean isOriginalDeletion, 
+            ExperimentNode... experiments)
+    {
+        prepareTrash(deletion, EntityKind.EXPERIMENT, isOriginalDeletion, asIds(experiments));
+    }
 
-    private void prepareTrash(final DeletionPE deletion, final EntityKind entityKind, final boolean isOriginalDeletion,
-            final List<TechId> entityIds)
+    private void prepareTrashSamples(DeletionPE deletion, boolean isOriginalDeletion, 
+            SampleNode... samples)
+    {
+        prepareTrash(deletion, EntityKind.SAMPLE, isOriginalDeletion, asIds(samples));
+    }
+    
+    private void prepareTrashDataSets(DeletionPE deletion, boolean isOriginalDeletion, 
+            DataSetNode... dataSets)
+    {
+        prepareTrash(deletion, EntityKind.DATA_SET, isOriginalDeletion, asIds(dataSets));
+    }
+    
+    private void prepareTrash(final DeletionPE deletion, final EntityKind entityKind, 
+            final boolean isOriginalDeletion, final List<TechId> entityIds)
     {
         context.checking(new Expectations()
             {
@@ -477,10 +590,10 @@ public final class TrashBOTest extends AbstractBOTest
 
     private void prepareGetNondeletableDataSets(final List<TechId> ids, final ExternalDataPE... nonDeletableDataSets)
     {
-        prepareGetDataSetsAndNonDeletableDataSets(ids, Arrays.<DataPE>asList(), Arrays.asList(nonDeletableDataSets));
+        prepareGetDataSetsAndNonDeletableDataSets(ids, Arrays.<DataPE> asList(), Arrays.asList(nonDeletableDataSets));
     }
-    
-    private void prepareGetDataSetsAndNonDeletableDataSets(final List<TechId> ids, IIdHolder idHolder, 
+
+    private void prepareGetDataSetsAndNonDeletableDataSets(final List<TechId> ids, IIdHolder idHolder,
             final ExternalDataPE... nonDeletableDataSets)
     {
         List<DataPE> dataSets = new ArrayList<DataPE>();
@@ -501,20 +614,20 @@ public final class TrashBOTest extends AbstractBOTest
         }
         prepareGetDataSetsAndNonDeletableDataSets(ids, dataSets, Arrays.asList(nonDeletableDataSets));
     }
-    
-    private void prepareGetDataSetsAndNonDeletableDataSets(final List<TechId> ids, final List<DataPE> dataSets, 
-                final List<ExternalDataPE> nonDeletableDataSets)
+
+    private void prepareGetDataSetsAndNonDeletableDataSets(final List<TechId> ids, final List<DataPE> dataSets,
+            final List<ExternalDataPE> nonDeletableDataSets)
     {
         context.checking(new Expectations()
             {
                 {
                     one(dataSetTable).loadByIds(ids);
                     inSequence(dataSetTableSequence);
-                    
+
                     one(dataSetTable).getNonDeletableExternalDataSets();
                     will(returnValue(nonDeletableDataSets));
                     inSequence(dataSetTableSequence);
-                    
+
                     if (dataSets.isEmpty() == false)
                     {
                         one(dataSetTable).getDataSets();
@@ -524,13 +637,35 @@ public final class TrashBOTest extends AbstractBOTest
                 }
             });
     }
+    
+    private void prepareListSampleIdsByExperimentIds(final List<TechId> experimentIds, final List<TechId> sampleIds)
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(sampleDAO).listSampleIdsByExperimentIds(experimentIds);
+                    will(returnValue(sampleIds));
+                }
+            });
+    }
 
+    private void prepareListDataSetIdsByExperimentIds(final List<TechId> experimentIds, final List<TechId> dataSetIds)
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(dataDAO).listDataSetIdsByExperimentIds(experimentIds);
+                    will(returnValue(dataSetIds));
+                }
+            });
+    }
+    
     private void prepareListDataSetIdsBySampleIds(final List<TechId> ids, final List<TechId> dataSetIds)
     {
         context.checking(new Expectations()
             {
                 {
-                    one(dataDAO).listDataSetIdsBySampleIds(ids);
+                    allowing(dataDAO).listDataSetIdsBySampleIds(ids);
                     will(returnValue(dataSetIds));
                 }
             });
@@ -541,21 +676,286 @@ public final class TrashBOTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
-                    one(datasetLister).listContainerIds(TechId.asLongs(ids));
+                    allowing(datasetLister).listContainerIds(TechId.asLongs(ids));
                     will(returnValue(containerIds));
                 }
             });
     }
-
-    private void prepareFindDataSetComponentIds(final List<TechId> ids, final List<Long> childrenIds)
+    
+    private void prepareFindDataSetComponentIds(final List<TechId> ids, final List<Long> componentIds)
+    {
+        prepareFindChildrenIds(ids, componentIds, COMPONENT_CONTAINER_RELATIONSHIP_ID);
+    }
+    
+    private void prepareFindChildrenIds(final List<TechId> ids, final List<Long> childrenIds, final Long relationshipTypeId)
     {
         context.checking(new Expectations()
             {
                 {
-                    one(dataDAO).findChildrenIds(new LinkedHashSet<TechId>(ids), COMPONENT_CONTAINER_RELATIONSHIP_ID);
+                    allowing(dataDAO).findChildrenIds(new LinkedHashSet<TechId>(ids), relationshipTypeId);
                     will(returnValue(new LinkedHashSet<TechId>(TechId.createList(childrenIds))));
                 }
             });
     }
+    
+    private void failTrashExperiments(List<DataSetNode> expectedNonDeletableDataSets, ExperimentNode...experiments)
+    {
+        try
+        {
+            trashBO.trashExperiments(asIds(experiments));
+            fail("UserFailureException expected");
+        } catch (UserFailureException ex)
+        {
+            assertEquals("The following related data sets couldn't be deleted because they "
+                    + "are contained in data sets outside the deletion set: " 
+                    + TechId.asLongs(TechId.createList(expectedNonDeletableDataSets)), ex.getMessage());
+        }
+    }
+    
+    private void prepareEntityGraph(EntityNodeGenerator g)
+    {
+        g.assertConsistency();
+        prepareListSampleIdsByExperimentIds(g);
+        prepareListDataSetIdsByExperimentIds(g);
+        prepareListDataSetIdsBySampleIds(g);
+        prepareFindChildrenOrComponentIds(g, CHILDREN_PARENT_RELATIONSHIP_ID);
+        prepareFindChildrenOrComponentIds(g, COMPONENT_CONTAINER_RELATIONSHIP_ID);
+        prepareListDataSetContainerIds(g);
+        prepareGetDataSetsAndNonDeletableDataSets(g);
+        prepareListSampleIdsByContainerIds(g);
+    }
 
+    private void prepareListSampleIdsByExperimentIds(final EntityNodeGenerator g)
+    {
+        final AbstractMockHandler<List<TechId>> handler = new AbstractMockHandler<List<TechId>>()
+            {
+                @Override
+                public Object invoke(Invocation invocation) throws Throwable
+                {
+                    List<TechId> ids = g.getSampleIdsByExperimentIds(argument);
+                    print("listSampleIdsByExperimentIds(" + argument + ") = " + ids);
+                    return ids;
+                }
+            };
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(sampleDAO).listSampleIdsByExperimentIds(with(handler));
+                    will(handler);
+                }
+            });
+    }
+
+    private void prepareListSampleIdsByContainerIds(final EntityNodeGenerator g)
+    {
+        final AbstractMockHandler<Collection<TechId>> handler = new AbstractMockHandler<Collection<TechId>>()
+            {
+                @Override
+                public Object invoke(Invocation invocation) throws Throwable
+                {
+                    List<TechId> ids = g.getSampleIdsByContainerIds(argument);
+                    print("listSampleIdsByContainerIds(" + argument + ") = " + ids);
+                    return ids;
+                }
+            };
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(sampleDAO).listSampleIdsByContainerIds(with(handler));
+                    will(handler);
+                }
+            });
+    }
+    
+    private void prepareListDataSetIdsByExperimentIds(final EntityNodeGenerator g)
+    {
+        final AbstractMockHandler<List<TechId>> handler = new AbstractMockHandler<List<TechId>>()
+            {
+                @Override
+                public Object invoke(Invocation invocation) throws Throwable
+                {
+                    List<TechId> ids = g.getDataSetIdsByExperimentIds(argument);
+                    print("listDataSetIdsByExperimentIds(" + argument + ") = " + ids);
+                    return ids;
+                }
+            };
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(dataDAO).listDataSetIdsByExperimentIds(with(handler));
+                    will(handler);
+                }
+            });
+    }
+    
+    private void prepareListDataSetIdsBySampleIds(final EntityNodeGenerator g)
+    {
+        final AbstractMockHandler<Collection<TechId>> handler = new AbstractMockHandler<Collection<TechId>>()
+            {
+                @Override
+                public Object invoke(Invocation invocation) throws Throwable
+                {
+                    List<TechId> ids = g.getDataSetIdsBySampleIds(argument);
+                    print("listDataSetIdsBySampleIds(" + argument + ") = " + ids);
+                    return ids;
+                }
+            };
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(dataDAO).listDataSetIdsBySampleIds(with(handler));
+                    will(handler);
+                }
+            });
+    }
+    
+    private void prepareFindChildrenOrComponentIds(final EntityNodeGenerator g, 
+            final Long relationshipTypeId)
+    {
+        final AbstractMockHandler<Collection<TechId>> handler = new AbstractMockHandler<Collection<TechId>>()
+            {
+                @Override
+                public Object invoke(Invocation invocation) throws Throwable
+                {
+                    String methodName;
+                    List<TechId> dataSetIds;
+                    if (relationshipTypeId == CHILDREN_PARENT_RELATIONSHIP_ID)
+                    {
+                        methodName = "getChildrenDataSetIdsByDataSetIds";
+                        dataSetIds = g.getChildrenDataSetIdsByDataSetIds(argument);
+                    } else if (relationshipTypeId == COMPONENT_CONTAINER_RELATIONSHIP_ID)
+                    {
+                        methodName = "getChildrenDataSetIdsByDataSetIds";
+                        dataSetIds = g.getComponentDataSetIdsByDataSetIds(argument);
+                    } else
+                    {
+                        throw new AssertionError("Unknown relationship id: " + relationshipTypeId);
+                    }
+                    print(methodName + "(" + argument + ") = " + dataSetIds);
+                    return new LinkedHashSet<TechId>(dataSetIds);
+                }
+            };
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(dataDAO).findChildrenIds(with(handler), with(any(Long.class)));
+                    will(handler);
+                }
+            });
+    }
+
+    private void prepareListDataSetContainerIds(final EntityNodeGenerator g)
+    {
+        final AbstractMockHandler<Collection<Long>> handler = new AbstractMockHandler<Collection<Long>>()
+            {
+                @Override
+                public Object invoke(Invocation invocation) throws Throwable
+                {
+                    Map<Long, Set<Long>> idsMap = g.getContainerDataSetIdsMap(
+                            TechId.createList(new ArrayList<Long>(argument)));
+                    print("listContainerIds(" + argument + ") = " + idsMap);
+                    return idsMap;
+                }
+            };
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(datasetLister).listContainerIds(with(handler));
+                    will(handler);
+                }
+            });
+    }
+
+    private void prepareGetDataSetsAndNonDeletableDataSets(final EntityNodeGenerator g)
+    {
+        class DataSetTableMockHandler extends BaseMatcher<List<TechId>>
+        {
+            private List<DataPE> dataSets = new ArrayList<DataPE>();
+            private List<ExternalDataPE> nonDeletableDataSets = new ArrayList<ExternalDataPE>();
+
+            @Override
+            public void describeTo(Description description)
+            {
+                description.appendText("<" + dataSets + ">");
+            }
+
+            @SuppressWarnings("unchecked")
+            @Override
+            public boolean matches(Object obj)
+            {
+                print("DataSetTable.loadByIds(" + obj + ")");
+                dataSets.clear();
+                nonDeletableDataSets.clear();
+                Map<Long, DataSetNode> dataSetNodes = g.getDataSets();
+                for (TechId id : (List<TechId>) obj)
+                {
+                    DataSetNode dataSetNode = dataSetNodes.get(id.getId());
+                    if (dataSetNode != null)
+                    {
+                        ExternalDataPE data = Utils.createData(dataSetNode);
+                        dataSets.add(data);
+                        if (dataSetNode.isDeletable() == false)
+                        {
+                            nonDeletableDataSets.add(data);
+                        }
+                    }
+                }
+                return true;
+            }
+            
+        }
+
+        final DataSetTableMockHandler handler = new DataSetTableMockHandler();
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(dataSetTable).loadByIds(with(handler));
+
+                    allowing(dataSetTable).getNonDeletableExternalDataSets();
+                    will(new ReturnValueAction(handler.nonDeletableDataSets));
+
+                    allowing(dataSetTable).getDataSets();
+                    will(new ReturnValueAction(handler.dataSets));
+                }
+            });
+    }
+    
+    private static abstract class AbstractMockHandler<T> extends BaseMatcher<T> implements Action
+    {
+        protected T argument;
+
+        @Override
+        public void describeTo(Description description)
+        {
+            description.appendText("<" + argument + ">");
+        }
+
+        @SuppressWarnings("unchecked")
+        @Override
+        public boolean matches(Object obj)
+        {
+            argument = (T) obj;
+            return true;
+        }
+    }
+    
+    private List<TechId> asIds(IIdHolder...entities)
+    {
+        return TechId.createList(Arrays.asList(entities));
+    }
+    
+    private static final void print(Object message)
+    {
+        String methodName = null;
+        StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+        for (StackTraceElement stackTraceElement : stackTrace)
+        {
+            if (stackTraceElement.getClassName().equals(TrashBOTest.class.getName()))
+            {
+                methodName = stackTraceElement.getClassName() + "." + stackTraceElement.getMethodName();
+            }
+        }
+        System.out.println(methodName + ": " + message);
+    }
+    
 }
