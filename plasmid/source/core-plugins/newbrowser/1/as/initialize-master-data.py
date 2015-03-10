@@ -713,8 +713,10 @@ annotationsScriptName = createAnnotationsScriptForType("EXPERIMENTAL_STEP");
 createSampleTypeWithProperties("EXPERIMENTAL_STEP", "", [
 	["NAME", 							"General",				"Name",									DataType.MULTILINE_VARCHAR,		None,								"Name", None],
 	["OWNER", 							"General",				"Owner",								DataType.CONTROLLEDVOCABULARY,	"OWNER",							"Who produced/owned the sample", None],
-	["EXPERIMENTAL_GOALS", 				"General",				"Experimental goals",					DataType.MULTILINE_VARCHAR,		None,								"Goal of the experiment", None],
-	["EXPERIMENTAL_RESULTS", 			"General",				"Experimental results",					DataType.MULTILINE_VARCHAR,		None,								"Brief summary of the results obtained", None],
+	["EXPERIMENTAL_GOALS", 				"General",				"Experimental Goals",					DataType.MULTILINE_VARCHAR,		None,								"Goal of the experiment", None],
+	["EXPERIMENTAL_RESULTS", 			"General",				"Experimental Results",					DataType.MULTILINE_VARCHAR,		None,								"Brief summary of the results obtained", None],
+	["START_DATE", 			"General",				"Start date",					DataType.TIMESTAMP,		None,								"Date when the experimental step is started", None],
+	["END_DATE", 			"General",				"End date",					DataType.TIMESTAMP,		None,								"Date when the experimental step is completed", None],
 	["EXPERIMENTAL_READOUT", 			"Readout details",		"Experimental readout",					DataType.CONTROLLEDVOCABULARY,	"EXPERIMENTAL_READOUT",				"Experimental readout used in the experiment", None],
 	["MACHINE", 						"Readout details",		"Machine",								DataType.CONTROLLEDVOCABULARY,	"MACHINE",							"Machine used to perform the experiment", None],
 	["FREEFORM_TABLE_STATE", 			"Readout details",		"Freeform Table State",					DataType.MULTILINE_VARCHAR,		None,								"Table describing how the order of samples measured in the experiments", None],
