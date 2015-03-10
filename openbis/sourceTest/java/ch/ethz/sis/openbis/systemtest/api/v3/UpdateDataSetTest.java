@@ -133,6 +133,29 @@ public class UpdateDataSetTest extends AbstractSampleTest
         assertEquals(result.getSample().getPermId(), sampleId);
     }
 
+    // @Test broken
+    public void testUpdateWithSampleWithoutAnExperiment()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        DataSetPermId dataSetId = new DataSetPermId("COMPONENT_1A");
+
+        DataSetUpdate update = new DataSetUpdate();
+        update.setDataSetId(dataSetId);
+        SamplePermId sampleId = new SamplePermId("200811050943584-1024");
+        update.setSampleId(sampleId);
+        v3api.updateDataSets(sessionToken, Collections.singletonList(update));
+
+        DataSetFetchOptions fe = new DataSetFetchOptions();
+        fe.withSample();
+        fe.withExperiment();
+        Map<IDataSetId, DataSet> map = v3api.mapDataSets(sessionToken, Arrays.asList(dataSetId), fe);
+
+        DataSet result = map.get(dataSetId);
+        assertEquals(result.getSample().getPermId(), sampleId);
+        assertEquals(result.getExperiment(), null);
+    }
+
     @Test
     public void testUpdateWithSampleUnauthorized()
     {

@@ -16,12 +16,14 @@ import ch.ethz.sis.openbis.generic.server.api.v3.translator.ToOneRelation;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.common.ListTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.attachment.AttachmentTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.dataset.DataSetTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.experiment.ExperimentTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.person.PersonTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.property.PropertyTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.space.SpaceTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.tag.TagTranslator;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.attachment.Attachment;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.person.Person;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.Sample;
@@ -143,6 +145,15 @@ public class SampleTranslator extends AbstractCachingTranslator<SamplePE, Sample
                                     .withContained()));
             result.setContained(contained);
             result.getFetchOptions().withContainedUsing(getFetchOptions().withContained());
+        }
+
+        if (getFetchOptions().hasDataSets())
+        {
+            List<DataSet> dataSets =
+                    new ListTranslator().translate(samplePe.getDatasets(), new DataSetTranslator(getTranslationContext(),
+                            managedPropertyEvaluatorFactory, getFetchOptions().withDataSets()));
+            result.setDataSets(dataSets);
+            result.getFetchOptions().withDataSetsUsing(getFetchOptions().withDataSets());
         }
 
         if (getFetchOptions().hasType())

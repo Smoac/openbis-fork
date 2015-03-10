@@ -32,6 +32,7 @@ import junit.framework.Assert;
 
 import org.testng.annotations.Test;
 
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.Sample;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleCreation;
@@ -45,6 +46,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.ISampleId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SampleIdentifier;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SamplePermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.SpacePermId;
+import ch.systemsx.cisd.common.test.AssertionUtil;
 
 /**
  * @author pkupczyk
@@ -867,6 +869,60 @@ public class MapSampleTest extends AbstractSampleTest
         assertEquals(sample1.getType().getCode(), "CELL_PLATE");
         assertEquals(sample2.getType().getCode(), "CELL_PLATE");
         assertTrue(sample1.getType() == sample2.getType());
+
+        v3api.logout(sessionToken);
+    }
+
+    @Test
+    public void testMapWithDataSetAndItsTypeReused()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        SampleFetchOptions fetchOptions = new SampleFetchOptions();
+        fetchOptions.withDataSets().withType();
+
+        SamplePermId permId1 = new SamplePermId("200902091225616-1027");
+
+        Map<ISampleId, Sample> map = v3api.mapSamples(sessionToken, Arrays.asList(permId1), fetchOptions);
+
+        assertEquals(1, map.size());
+        Sample sample1 = map.get(permId1);
+
+        List<DataSet> dataSets = sample1.getDataSets();
+        AssertionUtil.assertCollectionSize(dataSets, 2);
+
+        DataSet ds1 = dataSets.get(0);
+        DataSet ds2 = dataSets.get(1);
+
+        assertFalse(ds1 == ds2);
+        assertEquals(ds1.getType().getCode(), "HCS_IMAGE");
+        assertEquals(ds2.getType().getCode(), "HCS_IMAGE");
+        assertTrue(ds1.getType() == ds2.getType());
+
+        v3api.logout(sessionToken);
+    }
+
+    @Test
+    public void testMapWithDataSetsInCircularFetchOptions()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        SampleFetchOptions fetchOptions = new SampleFetchOptions();
+        fetchOptions.withDataSets().withSample().withDataSets().withType();
+
+        SamplePermId permId1 = new SamplePermId("200902091225616-1027");
+
+        Map<ISampleId, Sample> map = v3api.mapSamples(sessionToken, Arrays.asList(permId1), fetchOptions);
+
+        assertEquals(1, map.size());
+        Sample sample1 = map.get(permId1);
+
+        List<DataSet> dataSets = sample1.getDataSets();
+        AssertionUtil.assertCollectionSize(dataSets, 2);
+
+        DataSet ds1 = dataSets.get(0);
+        assertEquals(ds1.getType().getCode(), "HCS_IMAGE");
+        assertTrue(ds1.getSample() == sample1);
 
         v3api.logout(sessionToken);
     }
