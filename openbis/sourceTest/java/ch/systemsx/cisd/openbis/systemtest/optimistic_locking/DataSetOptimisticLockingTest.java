@@ -29,6 +29,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
 import ch.systemsx.cisd.openbis.generic.server.util.TimeIntervalChecker;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
@@ -244,15 +245,15 @@ public class DataSetOptimisticLockingTest extends OptimisticLockingTestCase
         AbstractExternalData dataSet = toolBox.createAndLoadDataSet(toolBox.dataSet("DS-1", experiment));
         DataSetUpdatesDTO dataSetUpdates =
                 new DataSetUpdateBuilder(commonServer, genericServer, dataSet).create();
-        dataSetUpdates.setMetaprojectsOrNull(new String[]
-        { "TEST_METAPROJECTS" });
-        String sessionToken = logIntoCommonClientService().getSessionID();
+        dataSetUpdates.setMetaprojectsOrNull(new String[] { "TEST_METAPROJECTS" });
+        SessionContext sessionContext = logIntoCommonClientService();
+        String sessionToken = sessionContext.getSessionID();
 
         etlService.updateDataSet(sessionToken, dataSetUpdates);
 
         AbstractExternalData loadedDataSet = toolBox.loadDataSet(sessionToken, dataSet.getCode());
-        assertEquals(dataSet.getModifier(), loadedDataSet.getModifier());
-        assertEquals(dataSet.getModificationDate(), loadedDataSet.getModificationDate());
+        assertEquals(sessionContext.getUser().getUserName(), loadedDataSet.getModifier().getUserId());
+        assertEquals(true, loadedDataSet.getModificationDate().getTime() > dataSet.getModificationDate().getTime());
         assertEquals("/test/TEST_METAPROJECTS",
                 toolBox.renderMetaProjects(loadedDataSet.getMetaprojects()));
         assertEquals(
