@@ -276,6 +276,9 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 				
 				if(this._dataSetFormModel.mode === FormMode.VIEW) {
 					if(Util.getEmptyIfNull(value) !== "") { //Don't show empty fields, whole empty sections will show the title
+						if(propertyType.dataType === "CONTROLLEDVOCABULARY") {
+							value = FormUtil.getVocabularyLabelForTermCode(propertyType, value);
+						}
 						var $controlGroup = FormUtil.getFieldForLabelWithText(propertyType.label, value, propertyType.code);
 						$fieldset.append($controlGroup);
 					}

@@ -340,6 +340,28 @@ var FormUtil = new function() {
 	//
 	// Get Field from property
 	//
+	this.getVocabularyLabelForTermCode = function(propertyType, termCode) {
+		var vocabulary = null;
+		if(isNaN(propertyType.vocabulary)) {
+			vocabulary = this.profile.getVocabularyById(propertyType.vocabulary.id);
+			if(vocabulary === null) { //This should not happen, but can save the day.
+				vocabulary = propertyType.vocabulary;
+				vocabulary.terms = propertyType.terms;
+			}
+		} else {
+			vocabulary = this.profile.getVocabularyById(propertyType.vocabulary);
+		}
+		
+		if(vocabulary) {
+			for(var tIdx = 0; tIdx < vocabulary.terms.length; tIdx++) {
+				if(vocabulary.terms[tIdx].code === termCode) {
+					return vocabulary.terms[tIdx].label;
+				}
+			}
+		}
+		return termCode;
+	}
+	
 	this.getFieldForPropertyType = function(propertyType) {
 		var $component = null;
 		if (propertyType.dataType === "BOOLEAN") {

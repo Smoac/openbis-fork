@@ -332,6 +332,9 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 				
 				if(this._sampleFormModel.mode === FormMode.VIEW) { //Show values without input boxes if the form is in view mode
 					if(Util.getEmptyIfNull(value) !== "") { //Don't show empty fields, whole empty sections will show the title
+						if(propertyType.dataType === "CONTROLLEDVOCABULARY") {
+							value = FormUtil.getVocabularyLabelForTermCode(propertyType, value);
+						}
 						$controlGroup = FormUtil.getFieldForLabelWithText(propertyType.label, value, propertyType.code);
 					}
 				} else {
