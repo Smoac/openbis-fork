@@ -23,8 +23,10 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.Authoriz
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.Capability;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.DataPEPredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ExperimentPEOrNullPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ExperimentPEPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ProjectPEPredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SamplePEOrNullPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SamplePEPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SpacePEPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
@@ -119,8 +121,8 @@ public interface IRelationshipService
     @Capability("ASSIGN_DATASET_TO_EXPERIMENT")
     public void assignDataSetToExperiment(IAuthSession session,
             @AuthorizationGuard(guardClass = DataPEPredicate.class)
-            DataPE dataSet, @AuthorizationGuard(guardClass = ExperimentPEPredicate.class)
-            ExperimentPE experiment);
+            DataPE dataSet, @AuthorizationGuard(guardClass = ExperimentPEOrNullPredicate.class)
+            ExperimentPE experimentOrNull);
 
     @Transactional(propagation = Propagation.MANDATORY)
     @RolesAllowed(value =
@@ -128,8 +130,8 @@ public interface IRelationshipService
     @Capability("ASSIGN_DATASET_TO_SAMPLE")
     public void assignDataSetToSample(IAuthSession session,
             @AuthorizationGuard(guardClass = DataPEPredicate.class)
-            DataPE dataSet, @AuthorizationGuard(guardClass = SamplePEPredicate.class)
-            SamplePE sample);
+            DataPE dataSet, @AuthorizationGuard(guardClass = SamplePEOrNullPredicate.class)
+            SamplePE sampleOrNull);
 
     @Transactional(propagation = Propagation.MANDATORY)
     @RolesAllowed(value =

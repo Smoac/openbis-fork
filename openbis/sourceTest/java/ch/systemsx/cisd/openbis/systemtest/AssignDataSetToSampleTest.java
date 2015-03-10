@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.systemtest;
 
 import static org.hamcrest.CoreMatchers.is;
 
+import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -25,6 +26,7 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeWithRegistrationAndModificationDate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
@@ -60,9 +62,13 @@ public class AssignDataSetToSampleTest extends BaseTest
     {
         AbstractExternalData dataset = create(aDataSet().inExperiment(sourceExperiment));
         assertThat(dataset, is(inExperiment(sourceExperiment)));
+        sourceExperimentChecker.takeModificationDate();
+        destinationExperimentChecker.takeModificationDate();
 
         perform(anUpdateOf(dataset).toExperiment(destinationExperiment));
 
+        sourceExperimentChecker.assertModificationDateChanged();
+        destinationExperimentChecker.assertModificationDateChanged();
         assertThat(dataset, is(inExperiment(destinationExperiment)));
     }
 
@@ -72,9 +78,15 @@ public class AssignDataSetToSampleTest extends BaseTest
     {
         AbstractExternalData dataset = create(aDataSet().inExperiment(sourceExperiment));
         assertThat(dataset, is(inExperiment(sourceExperiment)));
+        sourceExperimentChecker.takeModificationDate();
+        destinationSampleChecker.takeModificationDate();
+        destinationExperimentChecker.takeModificationDate();
         
         perform(anUpdateOf(dataset).toSample(destinationSample));
         
+        sourceExperimentChecker.assertModificationDateChanged();
+        destinationSampleChecker.assertModificationDateChanged();
+        destinationExperimentChecker.assertModificationDateChanged();
         assertThat(dataset, is(inSample(destinationSample)));
         assertThat(dataset, is(inExperiment(destinationExperiment)));
     }
@@ -84,9 +96,13 @@ public class AssignDataSetToSampleTest extends BaseTest
     public void dataSetWithoutSampleCanBeAssignedToSpaceSampleWithoutExperiment() throws Exception
     {
         AbstractExternalData dataset = create(aDataSet().withType("NEXP-TYPE").inExperiment(sourceExperiment));
+        sourceExperimentChecker.takeModificationDate();
+        destinationSpaceSampleWithoutExperimentChecker.takeModificationDate();
         
         perform(anUpdateOf(dataset).toSample(destinationSpaceSampleWithoutExperiment));
         
+        sourceExperimentChecker.assertModificationDateChanged();
+        destinationSpaceSampleWithoutExperimentChecker.assertModificationDateChanged();
         assertThat(dataset, is(inSample(destinationSpaceSampleWithoutExperiment)));
         assertThat(dataset, isNot(inExperiment(sourceExperiment)));
     }
@@ -98,10 +114,17 @@ public class AssignDataSetToSampleTest extends BaseTest
         AbstractExternalData dataset = create(aDataSet().inSample(sourceSample));
         assertThat(dataset, is(inSample(sourceSample)));
         assertThat(dataset, is(inExperiment(sourceExperiment)));
+        sourceSampleChecker.takeModificationDate();
+        sourceExperimentChecker.takeModificationDate();
+        destinationExperimentChecker.takeModificationDate();
         
         perform(anUpdateOf(dataset).toExperiment(destinationExperiment));
         
+        sourceSampleChecker.assertModificationDateChanged();
+        sourceExperimentChecker.assertModificationDateChanged();
+        destinationExperimentChecker.assertModificationDateChanged();
         assertThat(dataset, isNot(inSample(sourceSample)));
+        assertThat(dataset, isNot(inExperiment(sourceExperiment)));
         assertThat(dataset, is(inExperiment(destinationExperiment)));
     }
     
@@ -112,9 +135,17 @@ public class AssignDataSetToSampleTest extends BaseTest
         AbstractExternalData dataset = create(aDataSet().inSample(sourceSample));
         assertThat(dataset, is(inSample(sourceSample)));
         assertThat(dataset, is(inExperiment(sourceExperiment)));
+        sourceSampleChecker.takeModificationDate();
+        sourceExperimentChecker.takeModificationDate();
+        destinationSampleChecker.takeModificationDate();
+        destinationExperimentChecker.takeModificationDate();
         
         perform(anUpdateOf(dataset).toSample(destinationSample));
-        
+
+        sourceSampleChecker.assertModificationDateChanged();
+        sourceExperimentChecker.assertModificationDateChanged();
+        destinationSampleChecker.assertModificationDateChanged();
+        destinationExperimentChecker.assertModificationDateChanged();
         assertThat(dataset, isNot(inSample(sourceSample)));
         assertThat(dataset, isNot(inExperiment(sourceExperiment)));
         assertThat(dataset, is(inSample(destinationSample)));
@@ -128,9 +159,15 @@ public class AssignDataSetToSampleTest extends BaseTest
         AbstractExternalData dataset = create(aDataSet().withType("NEXP-TYPE").inSample(sourceSample));
         assertThat(dataset, is(inSample(sourceSample)));
         assertThat(dataset, is(inExperiment(sourceExperiment)));
+        sourceSampleChecker.takeModificationDate();
+        sourceExperimentChecker.takeModificationDate();
+        destinationSpaceSampleWithoutExperimentChecker.takeModificationDate();
         
         perform(anUpdateOf(dataset).toSample(destinationSpaceSampleWithoutExperiment));
         
+        sourceSampleChecker.assertModificationDateChanged();
+        sourceExperimentChecker.assertModificationDateChanged();
+        destinationSpaceSampleWithoutExperimentChecker.assertModificationDateChanged();
         assertThat(dataset, isNot(inSample(sourceSample)));
         assertThat(dataset, isNot(inExperiment(sourceExperiment)));
         assertThat(dataset, is(inSample(destinationSpaceSampleWithoutExperiment)));
@@ -142,9 +179,13 @@ public class AssignDataSetToSampleTest extends BaseTest
     {
         AbstractExternalData dataset = create(aDataSet().withType("NEXP-TYPE").inSample(sourceSpaceSampleWithoutExperiment));
         assertThat(dataset, is(inSample(sourceSpaceSampleWithoutExperiment)));
+        sourceSpaceSampleWithoutExperimentChecker.takeModificationDate();
+        destinationExperimentChecker.takeModificationDate();
         
         perform(anUpdateOf(dataset).toExperiment(destinationExperiment));
         
+        sourceSpaceSampleWithoutExperimentChecker.assertModificationDateChanged();
+        destinationExperimentChecker.assertModificationDateChanged();
         assertThat(dataset, isNot(inSample(sourceSpaceSampleWithoutExperiment)));
         assertThat(dataset, is(inExperiment(destinationExperiment)));
     }
@@ -155,9 +196,15 @@ public class AssignDataSetToSampleTest extends BaseTest
     {
         AbstractExternalData dataset = create(aDataSet().withType("NEXP-TYPE").inSample(sourceSpaceSampleWithoutExperiment));
         assertThat(dataset, is(inSample(sourceSpaceSampleWithoutExperiment)));
+        sourceSpaceSampleWithoutExperimentChecker.takeModificationDate();
+        destinationExperimentChecker.takeModificationDate();
+        destinationExperimentChecker.takeModificationDate();
         
         perform(anUpdateOf(dataset).toSample(destinationSample));
         
+        sourceSpaceSampleWithoutExperimentChecker.assertModificationDateChanged();
+        destinationSampleChecker.assertModificationDateChanged();
+        destinationExperimentChecker.assertModificationDateChanged();
         assertThat(dataset, isNot(inSample(sourceSpaceSampleWithoutExperiment)));
         assertThat(dataset, is(inSample(destinationSample)));
         assertThat(dataset, is(inExperiment(destinationExperiment)));
@@ -169,9 +216,13 @@ public class AssignDataSetToSampleTest extends BaseTest
     {
         AbstractExternalData dataset = create(aDataSet().withType("NEXP-TYPE").inSample(sourceSpaceSampleWithoutExperiment));
         assertThat(dataset, is(inSample(sourceSpaceSampleWithoutExperiment)));
+        sourceSpaceSampleWithoutExperimentChecker.takeModificationDate();
+        destinationSpaceSampleWithoutExperimentChecker.takeModificationDate();
         
         perform(anUpdateOf(dataset).toSample(destinationSpaceSampleWithoutExperiment));
         
+        sourceSpaceSampleWithoutExperimentChecker.assertModificationDateChanged();
+        destinationSpaceSampleWithoutExperimentChecker.assertModificationDateChanged();
         assertThat(dataset, isNot(inSample(sourceSpaceSampleWithoutExperiment)));
         assertThat(dataset, is(inSample(destinationSpaceSampleWithoutExperiment)));
         assertThat(dataset, isNot(inExperiment(sourceExperiment)));
@@ -310,6 +361,14 @@ public class AssignDataSetToSampleTest extends BaseTest
 
     private Sample sourceSpaceSampleWithoutExperiment;
 
+    private SampleModificationDateChecker sourceSpaceSampleWithoutExperimentChecker;
+
+    private ExperimentModificationDateChecker sourceExperimentChecker;
+
+    private ExperimentModificationDateChecker destinationExperimentChecker;
+
+    private SampleModificationDateChecker destinationSpaceSampleWithoutExperimentChecker;
+
     @Test(dataProvider = "rolesAllowedToAssignDataSetToSample", groups = "authorization")
     public void assigningDataSetToSampleIsAllowedFor(RoleWithHierarchy sourceSpaceRole,
             RoleWithHierarchy destinationSpaceRole, RoleWithHierarchy instanceRole)
@@ -349,14 +408,23 @@ public class AssignDataSetToSampleTest extends BaseTest
         sourceSpace = create(aSpace());
         Project sourceProject = create(aProject().inSpace(sourceSpace));
         sourceExperiment = create(anExperiment().inProject(sourceProject));
+        sourceExperimentChecker = new ExperimentModificationDateChecker("source experiment", sourceExperiment);
         sourceSample = create(aSample().inExperiment(sourceExperiment));
+        sourceSampleChecker = new SampleModificationDateChecker("source sample", sourceSample);
         sourceSpaceSampleWithoutExperiment = create(aSample().inSpace(sourceSpace));
+        sourceSpaceSampleWithoutExperimentChecker = new SampleModificationDateChecker(
+                "source sample wo experiment", sourceSpaceSampleWithoutExperiment);
 
         destinationSpace = create(aSpace());
         Project destinationProject = create(aProject().inSpace(destinationSpace));
         destinationExperiment = create(anExperiment().inProject(destinationProject));
+        destinationExperimentChecker = new ExperimentModificationDateChecker(
+                "destination experiment", destinationExperiment);
         destinationSample = create(aSample().inExperiment(destinationExperiment));
+        destinationSampleChecker = new SampleModificationDateChecker("destination sample", destinationSample);
         destinationSpaceSampleWithoutExperiment = create(aSample().inSpace(destinationSpace));
+        destinationSpaceSampleWithoutExperimentChecker = new SampleModificationDateChecker(
+                "destination sample wo experiment", destinationSpaceSampleWithoutExperiment);
 
         unrelatedAdmin = create(aSpace());
         unrelatedObserver = create(aSpace());
@@ -370,6 +438,10 @@ public class AssignDataSetToSampleTest extends BaseTest
     GuardedDomain instance;
 
     AuthorizationRule assignDataSetToSampleRule;
+
+    private SampleModificationDateChecker destinationSampleChecker;
+
+    private SampleModificationDateChecker sourceSampleChecker;
 
     @BeforeClass(dependsOnMethods = "loginAsSystem")
     void createAuthorizationRules()
@@ -396,4 +468,64 @@ public class AssignDataSetToSampleTest extends BaseTest
         return RolePermutator.getAcceptedPermutations(not(assignDataSetToSampleRule), source,
                 destination, instance);
     }
+    private abstract static class AbstractModificationDateChecker<T>
+    {
+        private final String name;
+        protected final T entity;
+        private long time;
+
+        AbstractModificationDateChecker(String name, T entity)
+        {
+            this.name = name;
+            this.entity = entity;
+            
+        }
+        
+        void takeModificationDate()
+        {
+            time = refresh().getModificationDate().getTime();
+        }
+        
+        void assertModificationDateChanged()
+        {
+            long time2 = refresh().getModificationDate().getTime();
+            if (time2 == time)
+            {
+                AssertJUnit.fail("Modification date of " + name + " didn't changed.");
+            }
+        }
+        
+        abstract CodeWithRegistrationAndModificationDate<?> refresh();
+    }
+    
+    private class SampleModificationDateChecker extends AbstractModificationDateChecker<Sample>
+    {
+        SampleModificationDateChecker(String name, Sample entity)
+        {
+            super(name, entity);
+        }
+
+        @Override
+        CodeWithRegistrationAndModificationDate<?> refresh()
+        {
+            return AssignDataSetToSampleTest.this.refresh(entity);
+        }
+        
+    }
+    
+    private class ExperimentModificationDateChecker extends AbstractModificationDateChecker<Experiment>
+    {
+        ExperimentModificationDateChecker(String name, Experiment entity)
+        {
+            super(name, entity);
+        }
+        
+        @Override
+        CodeWithRegistrationAndModificationDate<?> refresh()
+        {
+            return AssignDataSetToSampleTest.this.refresh(entity);
+        }
+        
+    }
+    
 }

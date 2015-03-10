@@ -38,8 +38,8 @@ public class SamplePEPredicate extends PersistentEntityPredicate<SamplePE>
     }
 
     @Override
-    public SpacePE getSpace(SamplePE value)
+    public SpacePE getSpace(SamplePE sample)
     {
-        return value.getSpace();
+        return sample == null ? null : sample.getSpace();
     }
 }

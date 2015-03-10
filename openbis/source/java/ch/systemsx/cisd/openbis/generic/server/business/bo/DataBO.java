@@ -171,6 +171,7 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
             throw new UserFailureException(String.format("Data set with ID '%s' does not exist.",
                     datasetId));
         }
+        HibernateUtils.initialize(data.tryGetSample());
         HibernateUtils.initialize(data.getDataSetType().getDataSetTypePropertyTypes());
     }
 
@@ -617,7 +618,7 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
             updateSample(data, sampleIdentifierOrNull);
         } else
         {
-            data.setSample(null);
+            relationshipService.assignDataSetToSample(session, data, null);
             updateExperiment(data, updates.getExperimentIdentifierOrNull());
         }
 

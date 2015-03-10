@@ -387,17 +387,12 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
             {
                 HibernateUtils.initialize(dataSet.getParents());
                 HibernateUtils.initialize(dataSet.getProperties());
-                SamplePE sampleOrNull = dataSet.tryGetSample();
-                ExperimentPE experiment;
-                if (sampleOrNull != null) // needed? dataSet should always have experiment
+                ExperimentPE experiment = getExperimentOrNull(dataSet);
+                if (experiment != null)
                 {
-                    experiment = sampleOrNull.getExperiment();
-                } else
-                {
-                    experiment = dataSet.getExperiment();
+                    HibernateUtils.initialize(experiment.getProject().getSpace());
+                    HibernateUtils.initialize(experiment.getProperties());
                 }
-                HibernateUtils.initialize(experiment.getProject().getSpace());
-                HibernateUtils.initialize(experiment.getProperties());
             }
             if (StringUtils.isBlank(dataStore.getRemoteUrl()))
             {
@@ -417,6 +412,12 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
             }
         }
         return builder.toString();
+    }
+
+    private ExperimentPE getExperimentOrNull(DataPE dataSet)
+    {
+        SamplePE sampleOrNull = dataSet.tryGetSample();
+        return sampleOrNull != null ? sampleOrNull.getExperiment() : dataSet.getExperiment();
     }
 
     /** groups data sets by data stores */

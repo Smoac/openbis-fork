@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 ETH Zuerich, CISD
+ * Copyright 2015 ETH Zuerich, SIS
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,28 +17,16 @@
 package ch.systemsx.cisd.openbis.generic.server.authorization.predicate;
 
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
- * @author anttil
+ * Predicate for arguments of type {@link ExperimentPE} which can be <code>null</code>.
+ *
+ * @author Franz-Josef Elmer
  */
-public class ExperimentPEPredicate extends PersistentEntityPredicate<ExperimentPE>
+public class ExperimentPEOrNullPredicate extends ExperimentPEPredicate
 {
-
-    public ExperimentPEPredicate()
+    public ExperimentPEOrNullPredicate()
     {
-        super();
+        super(true);
     }
-
-    public ExperimentPEPredicate(boolean isReadAccess)
-    {
-        super(isReadAccess);
-    }
-
-    @Override
-    public SpacePE getSpace(ExperimentPE experiment)
-    {
-        return experiment == null ? null : experiment.getProject().getSpace();
-    }
-
 }

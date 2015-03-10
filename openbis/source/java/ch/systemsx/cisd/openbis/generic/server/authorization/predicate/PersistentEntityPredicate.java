@@ -54,11 +54,6 @@ public abstract class PersistentEntityPredicate<T> implements IPredicate<T>
     public Status evaluate(PersonPE person, List<RoleWithIdentifier> allowedRoles, T value)
             throws UserFailureException
     {
-        if (value == null)
-        {
-            return Status.createError("null value cannot be authorized");
-        }
-
         final SpacePE space = getSpace(value);
         final boolean isInstanceEntity = (space == null);
         if (isInstanceEntity && isReadAccess)

@@ -35,24 +35,23 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 @SqlResultSetMapping(name = "dataset_access_implicit", entities = @EntityResult(entityClass = DataSetAccessPE.class))
 @NamedNativeQueries(
 {
-        @NamedNativeQuery(name = "dataset_access", query = "select "
-                + "g.code as spaceCode "
-                + "from " + TableNames.PROJECTS_TABLE + " p, " + TableNames.SPACES_TABLE
-                + " g where p.id in "
-                + "(select e.proj_id from " + TableNames.DATA_VIEW + " ds, "
-                + TableNames.EXPERIMENTS_VIEW + " e "
-                + "where ds.code in (:codes) and ds.expe_id = e.id group by e.proj_id) "
-                + "and p.space_id = g.id", resultSetMapping = "dataset_access_implicit"),
-        @NamedNativeQuery(name = "deleted_dataset_access", query = "select "
-                + "g.code as spaceCode "
-                + "from " + TableNames.PROJECTS_TABLE + " p, " + TableNames.SPACES_TABLE
-                + " g where p.id in "
-                + "(select e.proj_id from " + TableNames.DELETED_DATA_VIEW + " ds, "
-                + TableNames.EXPERIMENTS_ALL_TABLE + " e "
-                + "where ds.del_id in (:del_ids) and ds.expe_id = e.id group by e.proj_id) "
-                + "and p.space_id = g.id", resultSetMapping = "dataset_access_implicit") })
+        @NamedNativeQuery(name = "dataset_access",
+                query = DataSetAccessPE.QUERY_PART1 + TableNames.DATA_VIEW
+                        + DataSetAccessPE.QUERY_PART2 + "d.code in (:codes)",
+                resultSetMapping = "dataset_access_implicit"),
+        @NamedNativeQuery(name = "deleted_dataset_access",
+                query = DataSetAccessPE.QUERY_PART1 + TableNames.DELETED_DATA_VIEW
+                        + DataSetAccessPE.QUERY_PART2 + "d.del_id in (:del_ids)",
+                resultSetMapping = "dataset_access_implicit") })
 public class DataSetAccessPE
 {
+    static final String QUERY_PART1 = "select d.code,coalesce(es.code,ss.code) as spaceCode from ";
+    
+    static final String QUERY_PART2 = " d left join samples_all s on d.samp_id=s.id "
+            + "left join spaces ss on s.space_id=ss.id "
+            + "left join experiments_all e on d.expe_id=e.id left join projects p on e.proj_id=p.id "
+            + "left join spaces es on p.space_id=es.id where ";
+    
     private String spaceCode;
 
     public final static String DATASET_ACCESS_QUERY_NAME = "dataset_access";

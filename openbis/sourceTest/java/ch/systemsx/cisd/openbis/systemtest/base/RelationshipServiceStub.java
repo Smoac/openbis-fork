@@ -75,12 +75,12 @@ public class RelationshipServiceStub implements IRelationshipService
     }
 
     @Override
-    public void assignDataSetToExperiment(IAuthSession session, DataPE data, ExperimentPE experiment)
+    public void assignDataSetToExperiment(IAuthSession session, DataPE data, ExperimentPE experimentOrNull)
     {
     }
 
     @Override
-    public void assignDataSetToSample(IAuthSession session, DataPE data, SamplePE sample)
+    public void assignDataSetToSample(IAuthSession session, DataPE data, SamplePE sampleOrNull)
     {
     }
 

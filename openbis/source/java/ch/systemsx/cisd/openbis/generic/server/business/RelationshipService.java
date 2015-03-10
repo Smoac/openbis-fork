@@ -141,18 +141,24 @@ public class RelationshipService implements IRelationshipService
     }
 
     @Override
-    public void assignDataSetToExperiment(IAuthSession session, DataPE data, ExperimentPE experiment)
+    public void assignDataSetToExperiment(IAuthSession session, DataPE data, ExperimentPE experimentOrNull)
     {
-        RelationshipUtils.setExperimentForDataSet(data, experiment, session);
-        data.setSample(null);
+        RelationshipUtils.setExperimentForDataSet(data, experimentOrNull, session);
+        if (experimentOrNull != null)
+        {
+            RelationshipUtils.setSampleForDataSet(data, null, session);
+        }
     }
 
     @Override
-    public void assignDataSetToSample(IAuthSession session, DataPE data, SamplePE sample)
+    public void assignDataSetToSample(IAuthSession session, DataPE data, SamplePE sampleOrNull)
     {
-        ExperimentPE experiment = sample.getExperiment();
-        RelationshipUtils.setExperimentForDataSet(data, experiment, session);
-        RelationshipUtils.setSampleForDataSet(data, sample, session);
+        if (sampleOrNull != null)
+        {
+            ExperimentPE experiment = sampleOrNull.getExperiment();
+            RelationshipUtils.setExperimentForDataSet(data, experiment, session);
+        }
+        RelationshipUtils.setSampleForDataSet(data, sampleOrNull, session);
     }
 
     @Override
