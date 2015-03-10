@@ -275,8 +275,10 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 				}
 				
 				if(this._dataSetFormModel.mode === FormMode.VIEW) {
-					var $controlGroup = FormUtil.getFieldForLabelWithText(propertyType.label, value, propertyType.code);
-					$fieldset.append($controlGroup);
+					if(Util.getEmptyIfNull(value) !== "") { //Don't show empty fields, whole empty sections will show the title
+						var $controlGroup = FormUtil.getFieldForLabelWithText(propertyType.label, value, propertyType.code);
+						$fieldset.append($controlGroup);
+					}
 				} else {
 					var $controlGroup = $('<div>', {class : 'form-group'});
 					var requiredStar = (propertyType.mandatory)?"&nbsp;(*)":"";				

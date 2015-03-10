@@ -331,7 +331,9 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 				}
 				
 				if(this._sampleFormModel.mode === FormMode.VIEW) { //Show values without input boxes if the form is in view mode
-					$controlGroup = FormUtil.getFieldForLabelWithText(propertyType.label, value, propertyType.code);
+					if(Util.getEmptyIfNull(value) !== "") { //Don't show empty fields, whole empty sections will show the title
+						$controlGroup = FormUtil.getFieldForLabelWithText(propertyType.label, value, propertyType.code);
+					}
 				} else {
 					var $component = FormUtil.getFieldForPropertyType(propertyType);
 					//Update values if is into edit mode
