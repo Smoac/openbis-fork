@@ -249,7 +249,7 @@ public class Sample implements Serializable
         }
         else
         {
-            throw new NotFetchedException("Properties has not been fetched.");
+            throw new NotFetchedException("Properties have not been fetched.");
         }
     }
 
@@ -269,7 +269,7 @@ public class Sample implements Serializable
         }
         else
         {
-            throw new NotFetchedException("Parents has not been fetched.");
+            throw new NotFetchedException("Parents have not been fetched.");
         }
     }
 
@@ -289,7 +289,7 @@ public class Sample implements Serializable
         }
         else
         {
-            throw new NotFetchedException("Children has not been fetched.");
+            throw new NotFetchedException("Children have not been fetched.");
         }
     }
 
@@ -329,7 +329,7 @@ public class Sample implements Serializable
         }
         else
         {
-            throw new NotFetchedException("Contained samples has not been fetched.");
+            throw new NotFetchedException("Contained samples have not been fetched.");
         }
     }
 
@@ -349,7 +349,7 @@ public class Sample implements Serializable
         }
         else
         {
-            throw new NotFetchedException("Data sets has not been fetched.");
+            throw new NotFetchedException("Data sets have not been fetched.");
         }
     }
 
@@ -369,7 +369,7 @@ public class Sample implements Serializable
         }
         else
         {
-            throw new NotFetchedException("Tags has not been fetched.");
+            throw new NotFetchedException("Tags have not been fetched.");
         }
     }
 
@@ -429,7 +429,7 @@ public class Sample implements Serializable
         }
         else
         {
-            throw new NotFetchedException("Attachments has not been fetched.");
+            throw new NotFetchedException("Attachments have not been fetched.");
         }
     }
 

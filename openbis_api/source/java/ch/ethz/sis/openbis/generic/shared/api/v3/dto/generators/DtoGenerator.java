@@ -78,6 +78,8 @@ public class DtoGenerator
 
         Class<?> fetchOptions;
 
+        boolean plural;
+
         public DTOField(String fieldName, Class<?> fieldClass, String description, Class<?> fetchOptions)
         {
             this.fieldName = fieldName;
@@ -88,15 +90,17 @@ public class DtoGenerator
             }
             this.description = description;
             this.fetchOptions = fetchOptions;
+            this.plural = false;
         }
 
-        public DTOField(String fieldName, String className, String fullClassName, String description, Class<?> fetchOptions)
+        public DTOField(String fieldName, String className, String fullClassName, String description, Class<?> fetchOptions, boolean plural)
         {
             this.fieldName = fieldName;
             this.definitionClassName = className;
             this.importClassName = fullClassName;
             this.description = description;
             this.fetchOptions = fetchOptions;
+            this.plural = plural;
         }
 
         String getPersistentName()
@@ -165,7 +169,7 @@ public class DtoGenerator
 
     public void addFetchedField(String definitionClassName, String importClassName, String name, String description, Class<?> fetchOptionsClass)
     {
-        fields.add(new DTOField(name, definitionClassName, importClassName, description, fetchOptionsClass));
+        fields.add(new DTOField(name, definitionClassName, importClassName, description, fetchOptionsClass, true));
     }
 
     public void addClassForImport(Class<?> c)
@@ -446,7 +450,14 @@ public class DtoGenerator
         endBlock();
         print("else");
         startBlock();
-        print("throw new NotFetchedException(\"%s has not been fetched.\");", field.description);
+        if (field.plural)
+        {
+            print("throw new NotFetchedException(\"%s have not been fetched.\");", field.description);
+        }
+        else
+        {
+            print("throw new NotFetchedException(\"%s has not been fetched.\");", field.description);
+        }
         endBlock();
         endBlock();
         print("");
@@ -463,7 +474,13 @@ public class DtoGenerator
         endBlock();
         print("else");
         startBlock();
-        print("throw '%s has not been fetched.'", field.description);
+        if (field.plural)
+        {
+            print("throw '%s have not been fetched.'", field.description);
+        } else
+        {
+            print("throw '%s has not been fetched.'", field.description);
+        }
         endBlock();
         endBlock();
         print("");

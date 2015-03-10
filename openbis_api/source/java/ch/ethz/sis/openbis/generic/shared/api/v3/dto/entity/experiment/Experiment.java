@@ -216,7 +216,7 @@ public class Experiment implements Serializable
         }
         else
         {
-            throw new NotFetchedException("Data sets has not been fetched.");
+            throw new NotFetchedException("Data sets have not been fetched.");
         }
     }
 
@@ -236,7 +236,7 @@ public class Experiment implements Serializable
         }
         else
         {
-            throw new NotFetchedException("samples has not been fetched.");
+            throw new NotFetchedException("Samples have not been fetched.");
         }
     }
 
@@ -256,7 +256,7 @@ public class Experiment implements Serializable
         }
         else
         {
-            throw new NotFetchedException("Properties has not been fetched.");
+            throw new NotFetchedException("Properties have not been fetched.");
         }
     }
 
@@ -276,7 +276,7 @@ public class Experiment implements Serializable
         }
         else
         {
-            throw new NotFetchedException("Tags has not been fetched.");
+            throw new NotFetchedException("Tags have not been fetched.");
         }
     }
 
@@ -336,7 +336,7 @@ public class Experiment implements Serializable
         }
         else
         {
-            throw new NotFetchedException("Attachments has not been fetched.");
+            throw new NotFetchedException("Attachments have not been fetched.");
         }
     }
 

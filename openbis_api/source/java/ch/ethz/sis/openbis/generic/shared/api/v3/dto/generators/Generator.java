@@ -146,7 +146,7 @@ public class Generator extends AbstractGenerator
         gen.addFetchedField("List<DataSet>", List.class.getName(), "dataSets", "Data sets", DataSetFetchOptions.class);
         gen.addClassForImport(DataSet.class);
 
-        gen.addFetchedField("List<Sample>", List.class.getName(), "samples", "samples", SampleFetchOptions.class);
+        gen.addFetchedField("List<Sample>", List.class.getName(), "samples", "Samples", SampleFetchOptions.class);
         gen.addClassForImport(Sample.class);
 
         addProperties(gen);
@@ -191,7 +191,7 @@ public class Generator extends AbstractGenerator
         gen.addFetchedField("List<DataSet>", List.class.getName(), "children", "Children", DataSetFetchOptions.class);
         gen.addFetchedField("List<DataSet>", List.class.getName(), "containers", "Container data sets", DataSetFetchOptions.class);
         gen.addFetchedField("List<DataSet>", List.class.getName(), "contained", "Contained data sets", DataSetFetchOptions.class);
-        gen.addFetchedField("ExternalData", ExternalData.class.getName(), "externalData", "External data", ExternalDataFetchOptions.class);
+        gen.addFetchedField(ExternalData.class, "externalData", "External data", ExternalDataFetchOptions.class);
         addTags(gen);
 
         gen.addFetchedField(DataSetType.class, "type", "Data Set type", DataSetTypeFetchOptions.class);
