@@ -416,9 +416,10 @@ public final class DataSet implements Serializable, IIdHolder
     /**
      * Returns the identifier of the Experiment to which this data set belongs.
      * 
-     * @return <code>null</code> if this data set is not completely filled with all information
-     *         available. That is, <code>{@link #getExperimentIdentifier()} == null</code> indicates
-     *         that {@link #getSampleIdentifierOrNull()}, {@link #getProperties()},
+     * @return <code>null</code> if this data set belongs to a sample without experiment.
+     *         If both {@link #getExperimentIdentifier()} and {@link #getSampleIdentifierOrNull()}
+     *         return <code>null</code> indicate that this data set is not completely filled with all information
+     *         available. That is, {@link #getProperties()},
      *         {@link #getChildrenCodes()}, {@link #getParentCodes()}, and
      *         {@link #getContainedDataSets()} do not return correct results.
      */
