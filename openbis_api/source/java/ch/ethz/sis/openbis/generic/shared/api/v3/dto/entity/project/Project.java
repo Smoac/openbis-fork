@@ -15,6 +15,7 @@
  */
 package ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.project;
 
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.person.Person;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.space.Space;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.project.ProjectFetchOptions;
@@ -26,6 +27,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Class automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
@@ -55,6 +57,9 @@ public class Project implements Serializable
 
     @JsonProperty
     private Date modificationDate;
+
+    @JsonProperty
+    private List<Experiment> experiments;
 
     @JsonProperty
     private Space space;
@@ -154,6 +159,26 @@ public class Project implements Serializable
     public void setModificationDate(Date modificationDate)
     {
         this.modificationDate = modificationDate;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    @JsonIgnore
+    public List<Experiment> getExperiments()
+    {
+        if (getFetchOptions().hasExperiments())
+        {
+            return experiments;
+        }
+        else
+        {
+            throw new NotFetchedException("Expreiments have not been fetched.");
+        }
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public void setExperiments(List<Experiment> experiments)
+    {
+        this.experiments = experiments;
     }
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}

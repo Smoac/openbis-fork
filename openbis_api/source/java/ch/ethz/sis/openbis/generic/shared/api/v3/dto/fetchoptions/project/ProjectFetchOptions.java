@@ -15,6 +15,7 @@
  */
 package ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.project;
 
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.experiment.ExperimentFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.person.PersonFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.space.SpaceFetchOptions;
 import ch.systemsx.cisd.base.annotation.JsonObject;
@@ -30,6 +31,9 @@ public class ProjectFetchOptions implements Serializable
     private static final long serialVersionUID = 1L;
 
     @JsonProperty
+    private ExperimentFetchOptions experiments;
+
+    @JsonProperty
     private SpaceFetchOptions space;
 
     @JsonProperty
@@ -37,6 +41,28 @@ public class ProjectFetchOptions implements Serializable
 
     @JsonProperty
     private PersonFetchOptions modifier;
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public ExperimentFetchOptions withExperiments()
+    {
+        if (experiments == null)
+        {
+            experiments = new ExperimentFetchOptions();
+        }
+        return experiments;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public ExperimentFetchOptions withExperimentsUsing(ExperimentFetchOptions fetchOptions)
+    {
+        return experiments = fetchOptions;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public boolean hasExperiments()
+    {
+        return experiments != null;
+    }
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     public SpaceFetchOptions withSpace()

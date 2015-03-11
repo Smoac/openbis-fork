@@ -16,6 +16,7 @@
 package ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.space;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.person.PersonFetchOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.project.ProjectFetchOptions;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.Serializable;
@@ -30,6 +31,9 @@ public class SpaceFetchOptions implements Serializable
 
     @JsonProperty
     private PersonFetchOptions registrator;
+
+    @JsonProperty
+    private ProjectFetchOptions projects;
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     public PersonFetchOptions withRegistrator()
@@ -51,6 +55,28 @@ public class SpaceFetchOptions implements Serializable
     public boolean hasRegistrator()
     {
         return registrator != null;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public ProjectFetchOptions withProjects()
+    {
+        if (projects == null)
+        {
+            projects = new ProjectFetchOptions();
+        }
+        return projects;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public ProjectFetchOptions withProjectsUsing(ProjectFetchOptions fetchOptions)
+    {
+        return projects = fetchOptions;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public boolean hasProjects()
+    {
+        return projects != null;
     }
 
 }

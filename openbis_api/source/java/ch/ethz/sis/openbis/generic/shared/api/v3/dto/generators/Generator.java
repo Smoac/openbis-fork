@@ -13,6 +13,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSetType;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.ExternalData;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.FileFormatType;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.LocatorType;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.ExperimentType;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.person.Person;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.project.Project;
@@ -322,6 +323,9 @@ public class Generator extends AbstractGenerator
         addRegistrationDate(gen);
         addModificationDate(gen);
 
+        gen.addFetchedField("List<Experiment>", List.class.getName(), "experiments", "Expreiments", ExperimentFetchOptions.class);
+        gen.addClassForImport(Experiment.class);
+
         addSpace(gen);
         addRegistrator(gen);
         addModifier(gen);
@@ -337,9 +341,9 @@ public class Generator extends AbstractGenerator
         addCode(gen);
         addDescription(gen);
         addRegistrationDate(gen);
-
         addRegistrator(gen);
-
+        gen.addFetchedField("List<Project>", List.class.getName(), "projects", "Projects", ProjectFetchOptions.class);
+        gen.addClassForImport(Project.class);
         return gen;
     }
 
@@ -378,8 +382,8 @@ public class Generator extends AbstractGenerator
             System.out.print("Generating api classes for " + gen + "...");
             gen.generateDTO();
             gen.generateFetchOptions();
-            gen.generateDTOJS();
-            gen.generateFetchOptionsJS();
+            // gen.generateDTOJS();
+            // gen.generateFetchOptionsJS();
             System.out.println("done");
         }
     }

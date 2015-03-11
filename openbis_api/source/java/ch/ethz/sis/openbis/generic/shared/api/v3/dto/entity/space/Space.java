@@ -16,6 +16,7 @@
 package ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.space;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.person.Person;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.project.Project;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.space.SpaceFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.SpacePermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.NotFetchedException;
@@ -24,6 +25,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Class automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
@@ -50,6 +52,9 @@ public class Space implements Serializable
 
     @JsonProperty
     private Person registrator;
+
+    @JsonProperty
+    private List<Project> projects;
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     @JsonIgnore
@@ -134,6 +139,26 @@ public class Space implements Serializable
     public void setRegistrator(Person registrator)
     {
         this.registrator = registrator;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    @JsonIgnore
+    public List<Project> getProjects()
+    {
+        if (getFetchOptions().hasProjects())
+        {
+            return projects;
+        }
+        else
+        {
+            throw new NotFetchedException("Projects have not been fetched.");
+        }
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public void setProjects(List<Project> projects)
+    {
+        this.projects = projects;
     }
 
 }
