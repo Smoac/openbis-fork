@@ -123,6 +123,7 @@ final class RsyncExitValueTranslator
             case 25:
             case 30:
             case 125:
+            case 255:
                 return StatusFlag.RETRIABLE_ERROR;
             default:
                 return StatusFlag.ERROR;
