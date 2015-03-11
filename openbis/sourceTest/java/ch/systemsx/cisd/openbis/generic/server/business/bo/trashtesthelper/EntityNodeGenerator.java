@@ -142,11 +142,7 @@ public final class EntityNodeGenerator
             {
                 return Collections.emptyList();
             }
-            if ((codesAsString.startsWith("[") && codesAsString.endsWith("]")) == false)
-            {
-                throw new IllegalArgumentException("Missing '[' and ']' for definition '" + name + "'.");
-            }
-            String[] codes = codesAsString.substring(1, codesAsString.length() - 1).split(",");
+            String[] codes = codesAsString.split(" ");
             List<Long> result = new ArrayList<Long>();
             for (String code : codes)
             {
@@ -302,27 +298,12 @@ public final class EntityNodeGenerator
 
     private List<String> getParts(String line)
     {
+        String[] splittedLine = line.split(",");
         List<String> parts = new ArrayList<String>();
-        StringBuilder builder = new StringBuilder();
-        boolean inSideList = false;
-        for (int j = 0; j < line.length(); j++)
+        for (String part : splittedLine)
         {
-            char c = line.charAt(j);
-            if (inSideList)
-            {
-                builder.append(c);
-                inSideList = c != ']';
-            } else if (c == ',')
-            {
-                parts.add(builder.toString().trim());
-                builder.setLength(0);
-            } else
-            {
-                builder.append(c);
-                inSideList = c == '[';
-            }
+            parts.add(part.trim());
         }
-        parts.add(builder.toString().trim());
         return parts;
     }
 

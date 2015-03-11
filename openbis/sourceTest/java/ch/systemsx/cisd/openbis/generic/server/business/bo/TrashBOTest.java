@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -28,6 +27,7 @@ import java.util.Set;
 
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
+import org.hamcrest.Matcher;
 import org.jmock.Expectations;
 import org.jmock.api.Action;
 import org.jmock.api.Invocation;
@@ -70,8 +70,8 @@ public final class TrashBOTest extends AbstractBOTest
 
     private static String EXAMPLE_REASON = "example reason";
 
-    private static Long COMPONENT_CONTAINER_RELATIONSHIP_ID = 1234L;
-    private static Long CHILDREN_PARENT_RELATIONSHIP_ID = 1235L;
+    private static Long COMPONENT_CONTAINER_RELATIONSHIP_ID = 1001L;
+    private static Long CHILDREN_PARENT_RELATIONSHIP_ID = 1002L;
 
     private static TechId EXAMPLE_ID = new TechId(1L);
 
@@ -286,11 +286,11 @@ public final class TrashBOTest extends AbstractBOTest
     public final void testTrashExperimentWithSamplesAndDataSetsAndNoExternalLinks()
     {
         EntityNodeGenerator g = new EntityNodeGenerator();
-        g.parse("E1, samples: [S1], data sets: [DS1]\n"
-                + "E2, data sets: [DS2]\n"
-                + "S1, experiment: E1, data sets: [DS1]\n"
-                + "DS1, experiment: E1, sample: S1, components: [DS2]\n"
-                + "DS2, experiment: E2, containers: [DS1]\n");
+        g.parse("E1, samples: S1, data sets: DS1\n"
+                + "E2, data sets: DS2\n"
+                + "S1, experiment: E1, data sets: DS1\n"
+                + "DS1, experiment: E1, sample: S1, components: DS2\n"
+                + "DS2, experiment: E2, containers: DS1\n");
         ExperimentNode e1 = g.e(1);
         SampleNode s1 = g.s(1);
         ExperimentNode e2 = g.e(2);
@@ -309,14 +309,15 @@ public final class TrashBOTest extends AbstractBOTest
     }
     
 //    @Test
-    public final void testTrashExperimentWithARelatedDataSetComponentWithExternalExperiment()
+    // TODO: fix test
+    public final void testTrashExperimentWithARelatedDataSetComponentWhichBelongsToAnExternalExperiment()
     {
         EntityNodeGenerator g = new EntityNodeGenerator();
-        g.parse("E1, samples: [S1], data sets: [DS1]\n"
-                + "E2, data sets: [DS2]\n"
-                + "S1, experiment: E1, data sets: [DS1]\n"
-                + "DS1, experiment: E1, sample: S1, components: [DS2]\n"
-                + "DS2, experiment: E2, containers: [DS1]\n");
+        g.parse("E1, samples: S1, data sets: DS1\n"
+                + "E2, data sets: DS2\n"
+                + "S1, experiment: E1, data sets: DS1\n"
+                + "DS1, experiment: E1, sample: S1, components: DS2\n"
+                + "DS2, experiment: E2, containers: DS1\n");
         ExperimentNode e1 = g.e(1);
         SampleNode s1 = g.s(1);
         DataSetNode ds2 = g.ds(2);
@@ -334,11 +335,11 @@ public final class TrashBOTest extends AbstractBOTest
     public final void testTrashExperimentWithARelatedDataSetInAnExternalContainer()
     {
         EntityNodeGenerator g = new EntityNodeGenerator();
-        g.parse("E1, samples: [S1], data sets: [DS1]\n"
-                + "E2, data sets: [DS2]\n"
-                + "S1, experiment: E1, data sets: [DS1]\n"
-                + "DS1, experiment: E1, sample: S1, components: [DS2]\n"
-                + "DS2, experiment: E2, containers: [DS1]\n");
+        g.parse("E1, samples: S1, data sets: DS1\n"
+                + "E2, data sets: DS2\n"
+                + "S1, experiment: E1, data sets: DS1\n"
+                + "DS1, experiment: E1, sample: S1, components: DS2\n"
+                + "DS2, experiment: E2, containers: DS1\n");
         ExperimentNode e2 = g.e(2);
         DataSetNode ds2 = g.ds(2);
         prepareEntityGraph(g);
@@ -354,14 +355,14 @@ public final class TrashBOTest extends AbstractBOTest
     public void testTrashPublishedExperiment()
     {
         EntityNodeGenerator g = new EntityNodeGenerator();
-        g.parse("E1, data sets: [DS1, DS2, DS3, DS4]\n"
-                + "DS1, experiment: E1, components: [DS3], containers: [DS5]\n"
-                + "DS2, experiment: E1, children: [DS4], containers: [DS6]\n"
-                + "DS3, experiment: E1, containers: [DS1]\n"
-                + "DS4, experiment: E1, parents: [DS2]\n"
-                + "E2, data sets: [DS5, DS6]\n"
-                + "DS5, experiment: E2, components: [DS1]\n"
-                + "DS6, experiment: E2, components: [DS2]\n");
+        g.parse("E1, data sets: DS1 DS2 DS3 DS4\n"
+                + "DS1, experiment: E1, components: DS3, containers: DS5\n"
+                + "DS2, experiment: E1, children: DS4, containers: DS6\n"
+                + "DS3, experiment: E1, containers: DS1\n"
+                + "DS4, experiment: E1, parents: DS2\n"
+                + "E2, data sets: DS5 DS6\n"
+                + "DS5, experiment: E2, components: DS1\n"
+                + "DS6, experiment: E2, components: DS2\n");
         ExperimentNode e2 = g.e(2); // published experiment
         DataSetNode ds5 = g.ds(5);
         DataSetNode ds6 = g.ds(6);
@@ -376,38 +377,63 @@ public final class TrashBOTest extends AbstractBOTest
     }
     
     @Test
-    public final void testTrashExperimentsWithContainerDataSetWithPhysicalDataSetFromAnotherExperiment()
+    public final void testTrashPublishedExperimentWithOrginalExperimentWithSamples()
     {
+        EntityNodeGenerator g = new EntityNodeGenerator();
+        g.parse("E1, samples: S1\n"
+                + "S1, experiment: E1, data sets: DS1 DS2\n"
+                + "DS1, experiment: E1, sample: S1, components: DS2, containers: DS3\n"
+                + "DS2, experiment: E1, sample: S1, containers: DS1\n"
+                + "E2, data sets: DS3\n"
+                + "DS3, components: DS1");
+        prepareEntityGraph(g);
         final DeletionPE deletion = createDeletion();
-        final List<TechId> experimentIds = TechId.createList(123);
-        final List<TechId> dataSetIds = TechId.createList(1);
-        final List<TechId> componentDataSetIds = TechId.createList(2);
-        prepareListSampleIdsByExperimentIds(experimentIds, Arrays.<TechId>asList());
-        prepareListDataSetIdsByExperimentIds(experimentIds, dataSetIds);
-        prepareTrash(deletion, EntityKind.EXPERIMENT, true, experimentIds);
-        prepareFindDataSetComponentIds(dataSetIds, TechId.asLongs(componentDataSetIds));
-        prepareFindDataSetComponentIds(componentDataSetIds, Arrays.<Long> asList());
-        LinkedHashMap<Long, Set<Long>> containerIds = new LinkedHashMap<Long, Set<Long>>();
-        containerIds.put(2L, new HashSet<Long>(TechId.asLongs(dataSetIds)));
-        prepareListDataSetContainerIds(TechId.createList(1, 2), containerIds);
-        ExperimentPE experiment = new ExperimentPE();
-        experiment.setId(experimentIds.get(0).getId());
-        ExternalDataPE dataSet1 = new ExternalDataPE();
-        dataSet1.setId(1L);
-        dataSet1.setCode("DS-1");
-        dataSet1.setExperiment(experiment);
-        ExternalDataPE dataSet2 = new ExternalDataPE();
-        dataSet2.setId(2L);
-        dataSet2.setCode("DS-2");
-        prepareGetDataSetsAndNonDeletableDataSets(TechId.createList(1, 2), Arrays.<DataPE> asList(dataSet1, dataSet2),
-                Arrays.<ExternalDataPE> asList());
-        prepareTrash(deletion, EntityKind.DATA_SET, false, dataSetIds);
-
-        trashBO.trashExperiments(experimentIds);
-
+        prepareTrashExperiments(deletion, true, g.e(2));
+        prepareTrashDataSets(deletion, false, g.ds(3));
+        
+        trashBO.trashExperiments(asIds(g.e(2)));
+        
         context.assertIsSatisfied();
     }
-
+    
+//    @Test
+    // TODO: fix test
+    public final void testTrashOrginalExperimentWithSample()
+    {
+        EntityNodeGenerator g = new EntityNodeGenerator();
+        g.parse("E1, samples: S1\n"
+                + "S1, data sets: DS1 DS2\n"
+                + "DS1, components: DS2\n"
+                + "DS2\n"
+                + "E2, data sets: DS3\n"
+                + "DS3, components: DS1");
+        prepareEntityGraph(g);
+        final DeletionPE deletion = createDeletion();
+        prepareTrashExperiments(deletion, true, g.e(1));
+        
+        trashBO.trashExperiments(asIds(g.e(1)));
+        
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public final void testTrashExperimentsWithContainerDataSetWithPhysicalDataSetFromAnotherExperiment()
+    {
+        EntityNodeGenerator g = new EntityNodeGenerator();
+        g.parse("E1, data sets: DS1\n"
+                + "E2, data sets: DS2\n"
+                + "DS1, experiment: E1, components: DS2\n"
+                + "DS2, experiment: E2, containers: DS1");
+        prepareEntityGraph(g);
+        DeletionPE deletion = createDeletion();
+        prepareTrashExperiments(deletion, true, g.e(1));
+        prepareTrashDataSets(deletion, false, g.ds(1));
+        
+        trashBO.trashExperiments(asIds(g.e(1)));
+        
+        context.assertIsSatisfied();
+    }
+    
     @Test
     public final void testTrashSamplesAlreadyTrashed()
     {
@@ -427,88 +453,67 @@ public final class TrashBOTest extends AbstractBOTest
     @Test
     public final void testTrashSamplesWithOneLevelOfDependencies()
     {
+        EntityNodeGenerator g = new EntityNodeGenerator();
+        g.parse("S1, components: S20\n"
+                + "S2\n"
+                + "S3, data sets: DS60\n"
+                + "S20, containers: S1, data sets: DS61\n"
+                + "DS60, sample: S3\n"
+                + "DS61\n"
+                );
+        prepareEntityGraph(g);
         final DeletionPE deletion = createDeletion();
-        final List<TechId> sampleIds = EXAMPLE_ID_LIST;
-        final List<TechId> sampleComponentIds = TechId.createList(20L);
-        final List<TechId> sampleDataSetIds = TechId.createList(60);
-        final List<TechId> sampleComponentDataSetIds = TechId.createList(61);
-        context.checking(new Expectations()
-            {
-                {
-                    one(sampleDAO).listSampleIdsByContainerIds(sampleIds);
-                    will(returnValue(sampleComponentIds));
-
-                    one(dataDAO).listDataSetIdsBySampleIds(sampleIds);
-                    will(returnValue(sampleDataSetIds));
-
-                    one(dataDAO).listDataSetIdsBySampleIds(sampleComponentIds);
-                    will(returnValue(sampleComponentDataSetIds));
-                }
-            });
-        prepareTrash(deletion, EntityKind.SAMPLE, true, sampleIds);
-        prepareTrash(deletion, EntityKind.SAMPLE, false, sampleComponentIds);
-        prepareFindDataSetComponentIds(sampleDataSetIds, Arrays.<Long> asList());
-        prepareListDataSetContainerIds(sampleDataSetIds, new LinkedHashMap<Long, Set<Long>>());
-        prepareTrash(deletion, EntityKind.DATA_SET, false, sampleDataSetIds);
-        prepareFindDataSetComponentIds(sampleComponentDataSetIds, Arrays.<Long> asList());
-        prepareListDataSetContainerIds(sampleComponentDataSetIds, new LinkedHashMap<Long, Set<Long>>());
-        SamplePE sample2 = new SamplePE();
-        sample2.setId(sampleComponentIds.get(0).getId());
-        prepareGetDataSetsAndNonDeletableDataSets(sampleComponentDataSetIds, sample2);
-        SamplePE sample = new SamplePE();
-        sample.setId(sampleIds.get(0).getId());
-        prepareGetDataSetsAndNonDeletableDataSets(sampleDataSetIds, sample);
-        prepareTrash(deletion, EntityKind.DATA_SET, false, sampleComponentDataSetIds);
-
-        trashBO.trashSamples(sampleIds);
-
+        prepareTrashSamples(deletion, true, g.s(1), g.s(2), g.s(3));
+        prepareTrashSamples(deletion, false, g.s(20));
+        prepareTrashDataSets(deletion, false, g.ds(60));
+        prepareTrashDataSets(deletion, false, g.ds(61));
+        
+        trashBO.trashSamples(asIds(g.s(1), g.s(2), g.s(3)));
+        
         context.assertIsSatisfied();
     }
-
+    
     @Test
     public final void testTrashDataSets()
     {
-        final DeletionPE deletion = createDeletion();
-        final List<TechId> dataSetIds = TechId.createList(1, 2, 3);
-        prepareFindDataSetComponentIds(dataSetIds, Arrays.<Long> asList(5L, 6L));
-        prepareFindDataSetComponentIds(TechId.createList(5, 6), Arrays.<Long> asList());
-        final List<TechId> allIds = TechId.createList(1, 2, 3, 5, 6);
-        Map<Long, Set<Long>> containerIds = new LinkedHashMap<Long, Set<Long>>();
-        containerIds.put(5L, new LinkedHashSet<Long>(Arrays.asList(1L)));
-        containerIds.put(6L, new LinkedHashSet<Long>(Arrays.asList(2L)));
-        prepareListDataSetContainerIds(allIds, containerIds);
-        final List<TechId> someIds = TechId.createList(5, 6);
-        prepareGetNondeletableDataSets(allIds);
-        prepareTrash(deletion, EntityKind.DATA_SET, true, dataSetIds);
-        prepareTrash(deletion, EntityKind.DATA_SET, false, someIds);
-
-        trashBO.trashDataSets(dataSetIds);
-
+        EntityNodeGenerator g = new EntityNodeGenerator();
+        g.parse("S1, data sets: DS1 DS2 DS3 DS4 DS5 DS6\n"
+                + "DS1, components: DS5\n"
+                + "DS2, components: DS6\n"
+                + "DS3\n"
+                + "DS4\n"
+                + "DS5\n"
+                + "DS6\n"
+                );
+        prepareEntityGraph(g);
+        DeletionPE deletion = createDeletion();
+        prepareTrashDataSets(deletion, true, g.ds(1), g.ds(2), g.ds(3));
+        prepareTrashDataSets(deletion, false, g.ds(5), g.ds(6));
+        
+        trashBO.trashDataSets(asIds(g.ds(1), g.ds(2), g.ds(3)));
+        
         context.assertIsSatisfied();
     }
-
+    
     @Test
     public void testTrashDataSetsWithDataSetInAContainer()
     {
+        EntityNodeGenerator g = new EntityNodeGenerator();
+        g.parse("S1, data sets: DS1 DS2 DS3\n"
+                + "DS1, components: DS2\n"
+                + "DS2, components: DS3\n"
+                + "DS3\n"
+                );
+        prepareEntityGraph(g);
         DeletionPE deletion = createDeletion();
-        createDeletion();
-        List<TechId> dataSetIds = TechId.createList(1);
-        prepareFindDataSetComponentIds(dataSetIds, Arrays.<Long> asList(3L));
-        prepareFindDataSetComponentIds(TechId.createList(3), Arrays.<Long> asList());
-        Map<Long, Set<Long>> containerIds = new LinkedHashMap<Long, Set<Long>>();
-        containerIds.put(1L, new LinkedHashSet<Long>(Arrays.asList(2L)));
-        containerIds.put(3L, new LinkedHashSet<Long>(Arrays.asList(1L)));
-        List<TechId> dataSetsToBeTrashed = TechId.createList(1, 3);
-        prepareListDataSetContainerIds(dataSetsToBeTrashed, containerIds);
-        prepareGetNondeletableDataSets(dataSetsToBeTrashed);
-        prepareTrash(deletion, EntityKind.DATA_SET, true, dataSetIds);
-        prepareTrash(deletion, EntityKind.DATA_SET, false, TechId.createList(3));
-
-        trashBO.trashDataSets(dataSetIds);
-
+        prepareTrashDataSets(deletion, true, g.ds(2));
+        prepareTrashDataSets(deletion, false, g.ds(3));
+        
+        trashBO.trashDataSets(asIds(g.ds(2)));
+        
         context.assertIsSatisfied();
     }
-
+    
     @Test
     public void testTrashDataSetsWithDataSetComponentIndirectlyDependentOnOutsideContainer()
     {
@@ -587,7 +592,7 @@ public final class TrashBOTest extends AbstractBOTest
                 }
             });
     }
-
+    
     private void prepareGetNondeletableDataSets(final List<TechId> ids, final ExternalDataPE... nonDeletableDataSets)
     {
         prepareGetDataSetsAndNonDeletableDataSets(ids, Arrays.<DataPE> asList(), Arrays.asList(nonDeletableDataSets));
@@ -718,8 +723,7 @@ public final class TrashBOTest extends AbstractBOTest
         prepareListSampleIdsByExperimentIds(g);
         prepareListDataSetIdsByExperimentIds(g);
         prepareListDataSetIdsBySampleIds(g);
-        prepareFindChildrenOrComponentIds(g, CHILDREN_PARENT_RELATIONSHIP_ID);
-        prepareFindChildrenOrComponentIds(g, COMPONENT_CONTAINER_RELATIONSHIP_ID);
+        prepareFindChildrenOrComponentIds(g);
         prepareListDataSetContainerIds(g);
         prepareGetDataSetsAndNonDeletableDataSets(g);
         prepareListSampleIdsByContainerIds(g);
@@ -809,37 +813,92 @@ public final class TrashBOTest extends AbstractBOTest
             });
     }
     
-    private void prepareFindChildrenOrComponentIds(final EntityNodeGenerator g, 
-            final Long relationshipTypeId)
+    private void prepareFindChildrenOrComponentIds(final EntityNodeGenerator g)
     {
-        final AbstractMockHandler<Collection<TechId>> handler = new AbstractMockHandler<Collection<TechId>>()
+        class FindChildrenIdsMockHandler
+        {
+            private Collection<TechId> ids;
+
+            private long relationshipTypeId;
+
+            Matcher<Collection<TechId>> getIdsMatcher()
             {
-                @Override
-                public Object invoke(Invocation invocation) throws Throwable
-                {
-                    String methodName;
-                    List<TechId> dataSetIds;
-                    if (relationshipTypeId == CHILDREN_PARENT_RELATIONSHIP_ID)
+                return new BaseMatcher<Collection<TechId>>()
                     {
-                        methodName = "getChildrenDataSetIdsByDataSetIds";
-                        dataSetIds = g.getChildrenDataSetIdsByDataSetIds(argument);
-                    } else if (relationshipTypeId == COMPONENT_CONTAINER_RELATIONSHIP_ID)
+                        @SuppressWarnings("unchecked")
+                        @Override
+                        public boolean matches(Object arg0)
+                        {
+                            ids = (Collection<TechId>) arg0;
+                            return true;
+                        }
+
+                        @Override
+                        public void describeTo(Description description)
+                        {
+                            description.appendValue(ids);
+                        }
+                    };
+            }
+
+            Matcher<Long> getTypeMatcher()
+            {
+                return new BaseMatcher<Long>()
                     {
-                        methodName = "getChildrenDataSetIdsByDataSetIds";
-                        dataSetIds = g.getComponentDataSetIdsByDataSetIds(argument);
-                    } else
+                        @Override
+                        public boolean matches(Object arg0)
+                        {
+                            relationshipTypeId = (Long) arg0;
+                            return true;
+                        }
+
+                        @Override
+                        public void describeTo(Description description)
+                        {
+                            description.appendValue(relationshipTypeId);
+                        }
+                    };
+            }
+
+            Action getReturnAction()
+            {
+                return new Action()
                     {
-                        throw new AssertionError("Unknown relationship id: " + relationshipTypeId);
-                    }
-                    print(methodName + "(" + argument + ") = " + dataSetIds);
-                    return new LinkedHashSet<TechId>(dataSetIds);
-                }
-            };
+
+                        @Override
+                        public Object invoke(Invocation invocation) throws Throwable
+                        {
+                            String methodName;
+                            List<TechId> dataSetIds;
+                            if (relationshipTypeId == CHILDREN_PARENT_RELATIONSHIP_ID)
+                            {
+                                methodName = "getChildrenDataSetIdsByDataSetIds";
+                                dataSetIds = g.getChildrenDataSetIdsByDataSetIds(ids);
+                            } else if (relationshipTypeId == COMPONENT_CONTAINER_RELATIONSHIP_ID)
+                            {
+                                methodName = "getComponentDataSetIdsByDataSetIds";
+                                dataSetIds = g.getComponentDataSetIdsByDataSetIds(ids);
+                            } else
+                            {
+                                throw new AssertionError("Unknown relationship id: " + relationshipTypeId);
+                            }
+                            print(methodName + "(" + ids + ") = " + dataSetIds);
+                            return new LinkedHashSet<TechId>(dataSetIds);
+                        }
+
+                        @Override
+                        public void describeTo(Description arg0)
+                        {
+                        }
+                    };
+            }
+        }
+        final FindChildrenIdsMockHandler handler = new FindChildrenIdsMockHandler();
         context.checking(new Expectations()
             {
                 {
-                    allowing(dataDAO).findChildrenIds(with(handler), with(any(Long.class)));
-                    will(handler);
+                    allowing(dataDAO).findChildrenIds(with(handler.getIdsMatcher()), with(handler.getTypeMatcher()));
+                    will(handler.getReturnAction());
                 }
             });
     }
