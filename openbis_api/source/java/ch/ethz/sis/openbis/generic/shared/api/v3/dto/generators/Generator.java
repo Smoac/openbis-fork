@@ -342,6 +342,8 @@ public class Generator extends AbstractGenerator
         addDescription(gen);
         addRegistrationDate(gen);
         addRegistrator(gen);
+        gen.addFetchedField("List<Sample>", List.class.getName(), "samples", "Samples", SampleFetchOptions.class);
+        gen.addClassForImport(Sample.class);
         gen.addFetchedField("List<Project>", List.class.getName(), "projects", "Projects", ProjectFetchOptions.class);
         gen.addClassForImport(Project.class);
         return gen;

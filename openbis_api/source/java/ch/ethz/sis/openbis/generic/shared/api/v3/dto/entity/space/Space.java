@@ -17,6 +17,7 @@ package ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.space;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.person.Person;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.project.Project;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.Sample;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.space.SpaceFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.SpacePermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.NotFetchedException;
@@ -52,6 +53,9 @@ public class Space implements Serializable
 
     @JsonProperty
     private Person registrator;
+
+    @JsonProperty
+    private List<Sample> samples;
 
     @JsonProperty
     private List<Project> projects;
@@ -139,6 +143,26 @@ public class Space implements Serializable
     public void setRegistrator(Person registrator)
     {
         this.registrator = registrator;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    @JsonIgnore
+    public List<Sample> getSamples()
+    {
+        if (getFetchOptions().hasSamples())
+        {
+            return samples;
+        }
+        else
+        {
+            throw new NotFetchedException("Samples have not been fetched.");
+        }
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public void setSamples(List<Sample> samples)
+    {
+        this.samples = samples;
     }
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
