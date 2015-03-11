@@ -71,7 +71,6 @@ antibodyDefinition = [
     ["ANTIBODY_FACS_BLOCK",            "General",                "block facs",                         DataType.CONTROLLEDVOCABULARY,       "BLOCK",  "", None, None, False],
     ["ANTIBODY_IF_BLOCK",              "General",                "block IFF",                          DataType.CONTROLLEDVOCABULARY,       "BLOCK",  "", None, None, False],
     ["ANTIBODY_WB_BLOCK",              "General",                "block western",                      DataType.CONTROLLEDVOCABULARY,       "BLOCK",  "", None, None, False],
-    ["BOX",                            "General",                "box",                                DataType.VARCHAR,                    None,  "", None, None, False],
     ["CATALOGUE_NUMBER",               "General",                "catalog id #",                       DataType.VARCHAR,                    None,  "", None, None, False],
     ["CLASS",                          "General",                "class",                              DataType.CONTROLLEDVOCABULARY,       "CLASS",  "", None, None, False],
     ["CLONE",                          "General",                "clone",                              DataType.VARCHAR,                    None,  "", None, None, False],
@@ -85,7 +84,6 @@ antibodyDefinition = [
     ["ANTIBODY_FACS_FIX",              "General",                "fix facs",                           DataType.CONTROLLEDVOCABULARY,       "FIX",  "", None, None, False],
     ["ANTIBODY_IF_FIX",                "General",                "fix IFF",                            DataType.CONTROLLEDVOCABULARY,       "FIX",  "", None, None, False],
     ["ANTIBODY_WB_FIX",                "General",                "fix western",                        DataType.CONTROLLEDVOCABULARY,       "FIX",  "", None, None, False],
-    ["COMMENTS",                       "Comments",               "info",                               DataType.VARCHAR,                    None,  "", None, None, False],
     ["INVESTIGATOR",                   "General",                "investigator",                       DataType.CONTROLLEDVOCABULARY,       "ALL_LAB_MEMBERS",  "", None, None, False],
     ["LABEL",                          "General",                "label",                              DataType.CONTROLLEDVOCABULARY,       "LABEL",  "", None, None, False],
     ["LOTNUMBER",                      "General",                "lotnumber",                          DataType.VARCHAR,                    None,  "", None, None, False],
@@ -95,14 +93,16 @@ antibodyDefinition = [
     ["ANTIBODY_IF_NOTES",              "General",                "notes IFF",                          DataType.VARCHAR,                    None,  "", None, None, False],
     ["ANTIBODY_IP_NOTES",              "General",                "notes IP",                           DataType.VARCHAR,                    None,  "", None, None, False],
     ["ANTIBODY_WB_NOTES",              "General",                "notes western",                      DataType.VARCHAR,                    None,  "", None, None, False],
-    ["RACK",                           "General",                "rack",                               DataType.VARCHAR,                    None,  "", None, None, False],
-    ["PUBLISHED_IN",                   "Reference",              "reference",                          DataType.VARCHAR,                    None,  "", None, None, False],
     ["SERIAL_NUMBER",                  "General",                "serial number",                      DataType.INTEGER,                    None,  "", None, None, False],
     ["ANTIGEN_SIZE",                   "General",                "size",                               DataType.VARCHAR,                    None,  "", None, None, False],
     ["SOURCE",                         "General",                "source",                             DataType.CONTROLLEDVOCABULARY,       "SOURCE",  "", None, None, False],
     ["CREATION_DATE",                  "General",                "creation date",                      DataType.TIMESTAMP,                  None,  "", None, None, False],
     ["MODIFICATION_DATE",              "General",                "modification date",                  DataType.TIMESTAMP,                  None,  "", None, None, False],
-    ["FROZEN",                         "General",                "frozen",                             DataType.TIMESTAMP,                  None,  "", None, None, False]
+    ["FROZEN",                         "General",                "frozen",                             DataType.TIMESTAMP,                  None,  "", None, None, False],
+    ["BOX",                            "Storage",                "box",                                DataType.VARCHAR,                    None,  "", None, None, False],
+    ["RACK",                           "Storage",                "rack",                               DataType.VARCHAR,                    None,  "", None, None, False],
+    ["PUBLISHED_IN",                   "Reference",              "reference",                          DataType.VARCHAR,                    None,  "", None, None, False],
+    ["COMMENTS",                       "Comments",               "info",                               DataType.VARCHAR,                    None,  "", None, None, False]
 ];
 
 cellDefinition = [
@@ -129,7 +129,6 @@ cellDefinition = [
     ["FROZEN",                          "General",                "frozen",                              DataType.TIMESTAMP,                  None,  "", None, None, False],
     ["GROWTH_TEMPERATURE",              "General",                "growth temperature",                  DataType.CONTROLLEDVOCABULARY,       "GROWTH_TEMPERATURE",  "", None, None, False],
     ["INVESTIGATOR",                    "General",                "investigator",                        DataType.CONTROLLEDVOCABULARY,       "ALL_LAB_MEMBERS",  "", None, None, False],
-    ["COMMENTS",                        "Comments",               "info",                                DataType.VARCHAR,                    None,  "", None, None, False],
     ["LINE_NAME",                       "General",                "line name",                           DataType.VARCHAR,                    None,  "", None, None, False],
     ["MEDIUM",                          "General",                "medium",                              DataType.CONTROLLEDVOCABULARY,       "MEDIUM",  "", None, None, False],
     ["MEDIUM_SPECIALS",                 "General",                "medium specials",                     DataType.VARCHAR,                    None,  "", None, None, False],
@@ -143,7 +142,6 @@ cellDefinition = [
     ["PERS_CELL_NUMBER",                "General",                "PersCellNumber",                      DataType.VARCHAR,                    None,  "", None, None, False],
     ["PLASMID_ID1",                     "General",                "plasmid ID 1",                        DataType.VARCHAR,                    None,  "", None, None, False],
     ["PLASMID_ID2",                     "General",                "plasmid ID 2",                        DataType.VARCHAR,                    None,  "", None, None, False],
-    ["PUBLISHED_IN",                    "Reference",              "reference",                           DataType.VARCHAR,                    None,  "", None, None, False],
     ["SELECTION_PLASMID1",              "General",                "sel.1",                               DataType.CONTROLLEDVOCABULARY,       "SELECTION",  "", None, None, False],
     ["SELECTION_PLASMID2",              "General",                "sel.2",                               DataType.CONTROLLEDVOCABULARY,       "SELECTION",  "", None, None, False],
     ["SELECTION_PLASMID3",              "General",                "sel.3",                               DataType.CONTROLLEDVOCABULARY,       "SELECTION",  "", None, None, False],    
@@ -151,7 +149,9 @@ cellDefinition = [
     ["SERIAL_NUMBER",                   "General",                "serial number",                       DataType.INTEGER,                    None,  "", None, None, False],
     ["SPECIES",                         "General",                "species",                             DataType.CONTROLLEDVOCABULARY,       "CELL_SPECIES",  "", None, None, False],
     ["VIRUS_ID1",                       "General",                "virus ID 1",                          DataType.VARCHAR,                    None,  "", None, None, False],
-    ["VIRUS_ID2",                       "General",                "virus ID 2",                          DataType.VARCHAR,                    None,  "", None, None, False]
+    ["VIRUS_ID2",                       "General",                "virus ID 2",                          DataType.VARCHAR,                    None,  "", None, None, False],
+    ["PUBLISHED_IN",                    "Reference",              "reference",                           DataType.VARCHAR,                    None,  "", None, None, False],
+    ["COMMENTS",                        "Comments",               "info",                                DataType.VARCHAR,                    None,  "", None, None, False]
 ];
 
 strainDefinition = [
@@ -221,7 +221,6 @@ strainDefinition = [
 ];
 
 oligoDefinition = [
-    ["ADENOSINE",                       "Calculated fields",        "adenosine",                        DataType.INTEGER,                   None, "", adenosineScriptName, None, False],
     ["AMOUNT",                          "General",                  "amount",                           DataType.REAL,                      None, "", None, None, False],
     ["BARCODE",                         "General",                  "barcode",                          DataType.VARCHAR,                   None, "", None, None, False],
     ["BARCODE_LABEL",                   "General",                  "barcode label",                    DataType.VARCHAR,                   None, "", None, None, False],
@@ -229,19 +228,14 @@ oligoDefinition = [
     ["CONCENTRATION",                   "General",                  "concentration",                    DataType.REAL,                      None, "", None, None, False],
     ["CONCENTRATION_UNIT",              "General",                  "concentration unit",               DataType.CONTROLLEDVOCABULARY,      "CONC_UNITS", "", None, None, False],
     ["CREATION_DATE",                   "General",                  "creation date",                    DataType.TIMESTAMP,                 None, "", None, None, False],
-    ["CYTOSINE",                        "Calculated fields",        "cytosine",                         DataType.INTEGER,                   None, "", cytosineScriptName, None, False],
     ["DATE",                            "General",                  "date",                             DataType.VARCHAR,                   None, "", None, None, False],
     ["FROZEN",                          "General",                  "frozen",                           DataType.TIMESTAMP,                 None, "", None, None, False],
-    ["GC",                              "Calculated fields",        "gc",                               DataType.REAL,                      None, "", gcScriptName, None, False],
     ["GENE_LOCUS",                      "General",                  "gene locus",                       DataType.VARCHAR,                   None, "", None, None, False],
     ["GRADE",                           "General",                  "grade",                            DataType.CONTROLLEDVOCABULARY,      "OLIGO_GRADE", "", None, None, False],
-    ["GUANOSINE",                       "Calculated fields",        "guanosine",                        DataType.INTEGER,                   None, "", guanosineScriptName, None, False],
     ["COMMENTS",                        "General",                  "Info",                             DataType.VARCHAR,                   None, "", None, None, False],
     ["INVESTIGATOR",                    "General",                  "investigator",                     DataType.CONTROLLEDVOCABULARY,      "ALL_LAB_MEMBERS", "", None, None, False],
-    ["LENGTH",                          "Calculated fields",        "length",                           DataType.INTEGER,                   None, "", lengthScriptName, None, False],
     ["MODIFICATION_DATE",               "General",                  "modification date",                DataType.TIMESTAMP,                 None, "", None, None, False],
     ["MODIFIED_BY",                     "General",                  "modified by",                      DataType.CONTROLLEDVOCABULARY,      "ALL_LAB_MEMBERS", "", None, None, False],
-    ["O_NUCLEOTIDE",                    "Calculated fields",        "O nucleotide",                     DataType.INTEGER,                   None, "", nucelotideScriptName, None, False],
     ["OD",                              "General",                  "od",                               DataType.INTEGER,                   None, "", None, None, False],
     ["NAME",                            "General",                  "oligo ID",                         DataType.INTEGER,                   None, "", None, None, False],
     ["OLIGO_ID_NR",                     "General",                  "oligo_id_nr",                      DataType.VARCHAR,                   None, "", None, None, False],
@@ -254,10 +248,15 @@ oligoDefinition = [
     ["RESTRICTION_SITE",                "General",                  "restriction site",                 DataType.CONTROLLEDVOCABULARY,      "RESTRICTION", "", None, None, False],
     ["SEQUENCE",                        "General",                  "sequence",                         DataType.VARCHAR,                   None, "", None, None, False],
     ["SERIAL_NUMBER",                   "General",                  "serial number",                    DataType.VARCHAR,                   None, "", None, None, False],
+    ["USAGE",                           "General",                  "usage",                            DataType.CONTROLLEDVOCABULARY,      "OLIGO_USAGE", "", None, None, False],
+    ["ADENOSINE",                       "Calculated fields",        "adenosine",                        DataType.INTEGER,                   None, "", adenosineScriptName, None, False],
+    ["CYTOSINE",                        "Calculated fields",        "cytosine",                         DataType.INTEGER,                   None, "", cytosineScriptName, None, False],
+    ["GUANOSINE",                       "Calculated fields",        "guanosine",                        DataType.INTEGER,                   None, "", guanosineScriptName, None, False],
     ["THYMIDINE",                       "Calculated fields",        "thymidine",                        DataType.INTEGER,                   None, "", thymidineScriptName, None, False],
+    ["LENGTH",                          "Calculated fields",        "length",                           DataType.INTEGER,                   None, "", lengthScriptName, None, False],
+    ["GC",                              "Calculated fields",        "gc",                               DataType.REAL,                      None, "", gcScriptName, None, False],
     ["TM",                              "Calculated fields",        "tm",                               DataType.REAL,                      None, "", tmScriptName, None, False],
-    ["USAGE",                           "General",                  "usage",                            DataType.CONTROLLEDVOCABULARY,      "OLIGO_USAGE", "", None, None, False]
-
+    ["O_NUCLEOTIDE",                    "Calculated fields",        "O nucleotide",                     DataType.INTEGER,                   None, "", nucelotideScriptName, None, False]
 ];
 
 plasmidDefinition = [
@@ -306,7 +305,6 @@ plasmidDefinition = [
     ["PLASMIDNAME",                     "General",                  "plasmidname",                      DataType.VARCHAR,                   None,  "", None, None, False],
     ["PRIMERS",                         "General",                  "primers",                          DataType.VARCHAR,                   None,  "", None, None, False],
     ["PROMOTER",                        "General",                  "promoter",                         DataType.CONTROLLEDVOCABULARY,      "PROMOTER",  "", None, None, False],
-    ["PUBLISHED_IN",                    "General",                  "published in",                     DataType.VARCHAR,                   None,  "", None, None, False],
     ["SELECTION_IN_BACTERIA",           "General",                  "selection in bacteria",            DataType.CONTROLLEDVOCABULARY,      "SELECTION_IN_BACTERIA",  "", None, None, False],
     ["SELECTION_IN_EUKARYOTES",         "General",                  "selection in eukaryotes",          DataType.CONTROLLEDVOCABULARY,      "SELECTION_IN_EUKARYOTES",  "", None, None, False],
     ["SEQUENCE_FILE_NAME",              "General",                  "sequence file name",               DataType.VARCHAR,                   None,  "", None, None, False],
@@ -319,15 +317,16 @@ plasmidDefinition = [
     ["PLASMID_SOURCE",                  "General",                  "source",                           DataType.VARCHAR,                   None,  "", None, None, False],
     ["PLASMID_SPECIES",                 "General",                  "species",                          DataType.CONTROLLEDVOCABULARY,      "PLASMID_ORGANISM",  "", None, None, False],
     #["TUBES",                           "General",                 "TUBES",                            DataType.VARCHAR,                   None,  "", None, None, False],
-    ["URL",                             "General",                  "url",                              DataType.VARCHAR,                   None,  "", None, None, False]
+    ["URL",                             "Reference",                "url",                              DataType.VARCHAR,                   None,  "", None, None, False],
+    ["PUBLISHED_IN",                    "Reference",                "published in",                     DataType.VARCHAR,                   None,  "", None, None, False]
 ];
 
 chemicalDefinition = [
     ["ARTICLE",                         "General",                  "Article",                          DataType.VARCHAR,                   None,  "", None, None, False],
     ["COMPANY",                         "General",                  "Company",                          DataType.CONTROLLEDVOCABULARY,      "COMPANY",  "", None, None, False],
     ["ARTICLE_NUM",                     "General",                  "Article Number",                   DataType.VARCHAR,                   None,  "", None, None, False],
-    ["LOCATION",                        "General",                  "Location",                         DataType.VARCHAR,                   None,  "", None, None, False],   
-    ["RECORD_NUMBER",                   "General",                  "RecordNumber",                     DataType.VARCHAR,                   None,  "", None, None, False]
+    ["RECORD_NUMBER",                   "General",                  "RecordNumber",                     DataType.VARCHAR,                   None,  "", None, None, False],
+    ["LOCATION",                        "Location",                  "Location",                         DataType.VARCHAR,                   None,  "", None, None, False]   
 ];
 
 siRNADefinition = [
@@ -349,7 +348,6 @@ siRNADefinition = [
     ["INFO",                            "General",                  "Info",                             DataType.VARCHAR,                   None,  "", None, None, False],
     ["SPECIFIC_SPLICE_VARIANT",         "General",                  "Specific splice variant",          DataType.VARCHAR,                   None,  "", None, None, False],
     ["TRANSFECTION_AGENT",              "General",                  "Transfection agent",               DataType.CONTROLLEDVOCABULARY,      "TRANSFECTION_AGENT",  "", None, None, False],
-    ["PUBLISHED",                       "General",                  "Published",                        DataType.VARCHAR,                   None,  "", None, None, False],
     ["LIBRARY",                         "General",                  "Library",                          DataType.VARCHAR,                   None,  "", None, None, False],
     ["CHARACTERIZED_BY_COMPANY",        "General",                  "Characterized by company",         DataType.VARCHAR,                   None,  "", None, None, False],
     ["NUMBERINPOOL",                    "General",                  "NumberINpool",                     DataType.INTEGER,                   None,  "", None, None, False],
@@ -358,7 +356,8 @@ siRNADefinition = [
     ["OLIGO_NAME",                      "General",                  "Oligo name",                       DataType.VARCHAR,                   None,  "", None, None, False],
     ["SIRNA_OLIGONUMBER",               "General",                  "siRNA_OligoNumber",                DataType.VARCHAR,                   None,  "", None, None, False],
     ["SIRNA_FREEZER_LOCATION",          "General",                  "Freezer Location",                 DataType.CONTROLLEDVOCABULARY,      "SIRNA_FREEZER_LOCATION",  "", None, None, False],
-    ["DRAWER",                          "General",                  "Drawer",                           DataType.VARCHAR,                   None,  "", None, None, False]
+    ["DRAWER",                          "General",                  "Drawer",                           DataType.VARCHAR,                   None,  "", None, None, False],
+    ["PUBLISHED",                       "Reference",                "Published",                        DataType.VARCHAR,                   None,  "", None, None, False]
 ];
 
 #
