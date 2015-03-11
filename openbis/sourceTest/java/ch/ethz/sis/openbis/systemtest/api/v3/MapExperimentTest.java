@@ -685,4 +685,35 @@ public class MapExperimentTest extends AbstractExperimentTest
         v3api.logout(sessionToken);
     }
 
+    @Test
+    public void testComplexWithProjectWithSpaceWithSamples()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
+        fetchOptions.withProject().withSpace().withSamples();
+
+        ExperimentPermId permId = new ExperimentPermId("200902091255058-1037");
+
+        Map<IExperimentId, Experiment> map = v3api.mapExperiments(sessionToken, Arrays.asList(permId), fetchOptions);
+
+        assertEquals(1, map.size());
+        Experiment experiment = map.get(permId);
+
+        List<Sample> totalSamples = experiment.getProject().getSpace().getSamples();
+
+        Collection<String> sampleCodes = CollectionUtils.collect(totalSamples, new Transformer<Sample, String>()
+            {
+                @Override
+                public String transform(Sample input)
+                {
+                    return input.getCode();
+                }
+            });
+
+        AssertionUtil.assertCollectionContainsOnly(sampleCodes, "FV-TEST", "EV-TEST", "EV-INVALID", "EV-NOT_INVALID", "EV-PARENT",
+                "EV-PARENT-NORMAL", "CP-TEST-4", "SAMPLE-TO-DELETE");
+
+        v3api.logout(sessionToken);
+    }
 }

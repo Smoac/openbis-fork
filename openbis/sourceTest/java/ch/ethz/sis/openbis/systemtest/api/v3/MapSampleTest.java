@@ -22,6 +22,7 @@ import static org.testng.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -30,10 +31,13 @@ import java.util.Set;
 
 import junit.framework.Assert;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.Transformer;
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.project.Project;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.Sample;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleType;
@@ -923,6 +927,53 @@ public class MapSampleTest extends AbstractSampleTest
         DataSet ds1 = dataSets.get(0);
         assertEquals(ds1.getType().getCode(), "HCS_IMAGE");
         assertTrue(ds1.getSample() == sample1);
+
+        v3api.logout(sessionToken);
+    }
+
+    @Test
+    public void testComplexWithSpaceWithProjectAndExperiments()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        SampleFetchOptions fetchOptions = new SampleFetchOptions();
+        fetchOptions.withSpace().withProjects().withExperiments();
+
+        SamplePermId permId = new SamplePermId("200902091250077-1060");
+
+        Map<ISampleId, Sample> map = v3api.mapSamples(sessionToken, Arrays.asList(permId), fetchOptions);
+
+        List<Project> totalProjects = new ArrayList<Project>();
+        List<Experiment> totalExperiments = new ArrayList<Experiment>();
+
+        assertEquals(1, map.size());
+        Sample sample = map.get(permId);
+
+        for (Project p : sample.getSpace().getProjects())
+        {
+            totalProjects.add(p);
+            totalExperiments.addAll(p.getExperiments());
+        }
+
+        Collection<String> projectCodes = CollectionUtils.collect(totalProjects, new Transformer<Project, String>()
+            {
+                @Override
+                public String transform(Project input)
+                {
+                    return input.getCode();
+                }
+            });
+        Collection<String> experimentCodes = CollectionUtils.collect(totalExperiments, new Transformer<Experiment, String>()
+            {
+                @Override
+                public String transform(Experiment input)
+                {
+                    return input.getCode();
+                }
+            });
+
+        AssertionUtil.assertCollectionContainsOnly(projectCodes, "TEST-PROJECT", "NOE", "PROJECT-TO-DELETE");
+        AssertionUtil.assertCollectionContainsOnly(experimentCodes, "EXP-SPACE-TEST", "EXP-TEST-2", "EXPERIMENT-TO-DELETE");
 
         v3api.logout(sessionToken);
     }

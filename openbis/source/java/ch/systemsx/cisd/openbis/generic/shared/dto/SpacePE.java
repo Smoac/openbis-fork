@@ -218,4 +218,19 @@ public final class SpacePE extends HibernateAbstractRegistrationHolder implement
     {
         this.projects = projects;
     }
+
+    private List<SamplePE> samples = new ArrayList<SamplePE>();
+
+    @Private
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "space")
+    public List<SamplePE> getSamples()
+    {
+        return samples;
+    }
+
+    @SuppressWarnings("unused")
+    private void setSamples(List<SamplePE> samples)
+    {
+        this.samples = samples;
+    }
 }

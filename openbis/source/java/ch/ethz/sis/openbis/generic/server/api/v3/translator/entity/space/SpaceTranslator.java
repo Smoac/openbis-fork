@@ -24,7 +24,9 @@ import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.common.ListTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.person.PersonTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.project.ProjectTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.sample.SampleTranslator;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.project.Project;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.Sample;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.space.Space;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.space.SpaceFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.SpacePermId;
@@ -72,6 +74,14 @@ public class SpaceTranslator extends AbstractCachingTranslator<SpacePE, Space, S
             result.setProjects(projects);
             result.getFetchOptions().withProjectsUsing(getFetchOptions().withProjects());
         }
-    }
 
+        if (getFetchOptions().hasSamples())
+        {
+            List<Sample> samples =
+                    new ListTranslator().translate(space.getSamples(), new SampleTranslator(getTranslationContext(),
+                            getFetchOptions().withSamples()));
+            result.setSamples(samples);
+            result.getFetchOptions().withSamplesUsing(getFetchOptions().withSamples());
+        }
+    }
 }
