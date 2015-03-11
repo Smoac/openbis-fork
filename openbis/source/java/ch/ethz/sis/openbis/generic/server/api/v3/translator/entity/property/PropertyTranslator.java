@@ -28,7 +28,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 import ch.systemsx.cisd.openbis.generic.shared.translator.EntityPropertyTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
@@ -38,13 +37,9 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 public class PropertyTranslator extends AbstractCachingTranslator<IEntityPropertiesHolder, Map<String, String>, PropertyFetchOptions>
 {
 
-    private IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory;
-
-    public PropertyTranslator(TranslationContext translationContext, IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory,
-            PropertyFetchOptions fetchOptions)
+    public PropertyTranslator(TranslationContext translationContext, PropertyFetchOptions fetchOptions)
     {
         super(translationContext, fetchOptions);
-        this.managedPropertyEvaluatorFactory = managedPropertyEvaluatorFactory;
     }
 
     @Override
@@ -60,7 +55,7 @@ public class PropertyTranslator extends AbstractCachingTranslator<IEntityPropert
         List<IEntityProperty> propertiesPE = EntityPropertyTranslator
                 .translate(entity.getProperties(),
                         new HashMap<PropertyTypePE, PropertyType>(),
-                        managedPropertyEvaluatorFactory);
+                        getTranslationContext().getManagedPropertyEvaluatorFactory());
 
         for (IEntityProperty iEntityProperty : propertiesPE)
         {

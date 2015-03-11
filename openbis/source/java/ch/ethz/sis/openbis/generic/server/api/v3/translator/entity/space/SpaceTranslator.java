@@ -16,10 +16,15 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.space;
 
+import java.util.List;
+
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.AbstractCachingTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.Relations;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.common.ListTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.person.PersonTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.project.ProjectTranslator;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.project.Project;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.space.Space;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.space.SpaceFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.SpacePermId;
@@ -30,7 +35,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
  */
 public class SpaceTranslator extends AbstractCachingTranslator<SpacePE, Space, SpaceFetchOptions>
 {
-
     public SpaceTranslator(TranslationContext translationContext, SpaceFetchOptions fetchOptions)
     {
         super(translationContext, fetchOptions);
@@ -58,6 +62,15 @@ public class SpaceTranslator extends AbstractCachingTranslator<SpacePE, Space, S
             result.setRegistrator(new PersonTranslator(getTranslationContext(), getFetchOptions().withRegistrator()).translate(space
                     .getRegistrator()));
             result.getFetchOptions().withRegistratorUsing(getFetchOptions().withRegistrator());
+        }
+
+        if (getFetchOptions().hasProjects())
+        {
+            List<Project> projects =
+                    new ListTranslator().translate(space.getProjects(), new ProjectTranslator(getTranslationContext(),
+                            getFetchOptions().withProjects()));
+            result.setProjects(projects);
+            result.getFetchOptions().withProjectsUsing(getFetchOptions().withProjects());
         }
     }
 

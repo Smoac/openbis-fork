@@ -36,18 +36,13 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SamplePermId;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SampleByIdentiferValidator;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
-import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 
 public class SampleTranslator extends AbstractCachingTranslator<SamplePE, Sample, SampleFetchOptions>
 {
 
-    private IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory;
-
-    public SampleTranslator(TranslationContext translationContext, IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory,
-            SampleFetchOptions fetchOptions)
+    public SampleTranslator(TranslationContext translationContext, SampleFetchOptions fetchOptions)
     {
         super(translationContext, fetchOptions);
-        this.managedPropertyEvaluatorFactory = managedPropertyEvaluatorFactory;
     }
 
     @Override
@@ -99,15 +94,16 @@ public class SampleTranslator extends AbstractCachingTranslator<SamplePE, Sample
 
         if (getFetchOptions().hasSpace())
         {
-            Space space = new SpaceTranslator(getTranslationContext(), getFetchOptions().withSpace()).translate(samplePe
-                    .getSpace());
+            Space space =
+                    new SpaceTranslator(getTranslationContext(), getFetchOptions().withSpace()).translate(samplePe
+                            .getSpace());
             result.setSpace(space);
             result.getFetchOptions().withSpaceUsing(getFetchOptions().withSpace());
         }
 
         if (getFetchOptions().hasProperties())
         {
-            result.setProperties(new PropertyTranslator(getTranslationContext(), managedPropertyEvaluatorFactory, getFetchOptions().withProperties())
+            result.setProperties(new PropertyTranslator(getTranslationContext(), getFetchOptions().withProperties())
                     .translate(samplePe));
             result.getFetchOptions().withPropertiesUsing(getFetchOptions().withProperties());
         }
@@ -122,7 +118,7 @@ public class SampleTranslator extends AbstractCachingTranslator<SamplePE, Sample
         {
             List<Sample> children =
                     new ListTranslator().translate(samplePe.getChildren(), new SampleTranslator(getTranslationContext(),
-                            managedPropertyEvaluatorFactory, getFetchOptions()
+                            getFetchOptions()
                                     .withChildren()));
             result.setChildren(children);
             result.getFetchOptions().withChildrenUsing(getFetchOptions().withChildren());
@@ -131,7 +127,7 @@ public class SampleTranslator extends AbstractCachingTranslator<SamplePE, Sample
         if (getFetchOptions().hasContainer())
         {
             Sample container =
-                    new SampleTranslator(getTranslationContext(), managedPropertyEvaluatorFactory, getFetchOptions().withContainer())
+                    new SampleTranslator(getTranslationContext(), getFetchOptions().withContainer())
                             .translate(samplePe.getContainer());
             result.setContainer(container);
             result.getFetchOptions().withContainerUsing(getFetchOptions().withContainer());
@@ -141,7 +137,7 @@ public class SampleTranslator extends AbstractCachingTranslator<SamplePE, Sample
         {
             List<Sample> contained =
                     new ListTranslator().translate(samplePe.getContained(), new SampleTranslator(getTranslationContext(),
-                            managedPropertyEvaluatorFactory, getFetchOptions()
+                            getFetchOptions()
                                     .withContained()));
             result.setContained(contained);
             result.getFetchOptions().withContainedUsing(getFetchOptions().withContained());
@@ -151,7 +147,7 @@ public class SampleTranslator extends AbstractCachingTranslator<SamplePE, Sample
         {
             List<DataSet> dataSets =
                     new ListTranslator().translate(samplePe.getDatasets(), new DataSetTranslator(getTranslationContext(),
-                            managedPropertyEvaluatorFactory, getFetchOptions().withDataSets()));
+                            getFetchOptions().withDataSets()));
             result.setDataSets(dataSets);
             result.getFetchOptions().withDataSetsUsing(getFetchOptions().withDataSets());
         }
@@ -223,7 +219,7 @@ public class SampleTranslator extends AbstractCachingTranslator<SamplePE, Sample
         @Override
         protected Map<ExperimentPE, Experiment> getTranslatedMap(Collection<ExperimentPE> originalCollection)
         {
-            return new ExperimentTranslator(getTranslationContext(), managedPropertyEvaluatorFactory, getFetchOptions()
+            return new ExperimentTranslator(getTranslationContext(), getFetchOptions()
                     .withExperiment()).translate(originalCollection);
         }
 
@@ -264,7 +260,7 @@ public class SampleTranslator extends AbstractCachingTranslator<SamplePE, Sample
         @Override
         protected Map<SamplePE, Sample> getTranslatedMap(Collection<SamplePE> originalCollection)
         {
-            return new SampleTranslator(getTranslationContext(), managedPropertyEvaluatorFactory, getFetchOptions()
+            return new SampleTranslator(getTranslationContext(), getFetchOptions()
                     .withParents()).translate(originalCollection);
         }
 

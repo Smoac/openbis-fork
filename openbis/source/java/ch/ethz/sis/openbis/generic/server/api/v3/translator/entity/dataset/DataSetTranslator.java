@@ -40,20 +40,16 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.DataSetPermId;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.DataSetPEByExperimentOrSampleIdentifierValidator;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
-import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 
 /**
  * @author Jakub Straszewski
  */
 public class DataSetTranslator extends AbstractCachingTranslator<DataPE, DataSet, DataSetFetchOptions>
 {
-    private IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory;
 
-    public DataSetTranslator(TranslationContext translationContext, IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory,
-            DataSetFetchOptions fetchOptions)
+    public DataSetTranslator(TranslationContext translationContext, DataSetFetchOptions fetchOptions)
     {
         super(translationContext, fetchOptions);
-        this.managedPropertyEvaluatorFactory = managedPropertyEvaluatorFactory;
     }
 
     @Override
@@ -85,7 +81,7 @@ public class DataSetTranslator extends AbstractCachingTranslator<DataPE, DataSet
         {
             List<DataSet> children =
                     new ListTranslator().translate(dataPe.getChildren(), new DataSetTranslator(getTranslationContext(),
-                            managedPropertyEvaluatorFactory, getFetchOptions()
+                            getFetchOptions()
                                     .withChildren()));
             result.setChildren(children);
             result.getFetchOptions().withChildrenUsing(getFetchOptions().withChildren());
@@ -95,7 +91,7 @@ public class DataSetTranslator extends AbstractCachingTranslator<DataPE, DataSet
         {
             List<DataSet> parents =
                     new ListTranslator().translate(dataPe.getParents(), new DataSetTranslator(getTranslationContext(),
-                            managedPropertyEvaluatorFactory, getFetchOptions()
+                            getFetchOptions()
                                     .withParents()));
             result.setParents(parents);
             result.getFetchOptions().withParentsUsing(getFetchOptions().withParents());
@@ -105,7 +101,7 @@ public class DataSetTranslator extends AbstractCachingTranslator<DataPE, DataSet
         {
             List<DataSet> contained =
                     new ListTranslator().translate(dataPe.getContainedDataSets(), new DataSetTranslator(getTranslationContext(),
-                            managedPropertyEvaluatorFactory, getFetchOptions()
+                            getFetchOptions()
                                     .withContained()));
             result.setContained(contained);
             result.getFetchOptions().withContainedUsing(getFetchOptions().withContained());
@@ -115,7 +111,7 @@ public class DataSetTranslator extends AbstractCachingTranslator<DataPE, DataSet
         {
             List<DataSet> containers =
                     new ListTranslator().translate(dataPe.getContainers(), new DataSetTranslator(getTranslationContext(),
-                            managedPropertyEvaluatorFactory, getFetchOptions()
+                            getFetchOptions()
                                     .withContainers()));
             result.setContainers(containers);
             result.getFetchOptions().withContainersUsing(getFetchOptions().withContainers());
@@ -124,7 +120,7 @@ public class DataSetTranslator extends AbstractCachingTranslator<DataPE, DataSet
         if (getFetchOptions().hasExperiment() && dataPe.getExperiment() != null)
         {
             Experiment experiment =
-                    new ExperimentTranslator(getTranslationContext(), managedPropertyEvaluatorFactory, getFetchOptions().withExperiment())
+                    new ExperimentTranslator(getTranslationContext(), getFetchOptions().withExperiment())
                             .translate(dataPe.getExperiment());
             result.setExperiment(experiment);
             result.getFetchOptions().withExperimentUsing(getFetchOptions().withExperiment());
@@ -135,7 +131,7 @@ public class DataSetTranslator extends AbstractCachingTranslator<DataPE, DataSet
             if (dataPe.tryGetSample() != null)
             {
                 Sample sample =
-                        new SampleTranslator(getTranslationContext(), managedPropertyEvaluatorFactory, getFetchOptions().withSample())
+                        new SampleTranslator(getTranslationContext(), getFetchOptions().withSample())
                                 .translate(dataPe.tryGetSample());
                 result.setSample(sample);
             }
@@ -144,7 +140,7 @@ public class DataSetTranslator extends AbstractCachingTranslator<DataPE, DataSet
 
         if (getFetchOptions().hasProperties())
         {
-            result.setProperties(new PropertyTranslator(getTranslationContext(), managedPropertyEvaluatorFactory, getFetchOptions().withProperties())
+            result.setProperties(new PropertyTranslator(getTranslationContext(), getFetchOptions().withProperties())
                     .translate(dataPe));
             result.getFetchOptions().withPropertiesUsing(getFetchOptions().withProperties());
         }

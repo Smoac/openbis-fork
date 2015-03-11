@@ -55,14 +55,16 @@ public class PersonTranslator extends AbstractCachingTranslator<PersonPE, Person
     {
         if (getFetchOptions().hasSpace())
         {
-            result.setSpace(new SpaceTranslator(getTranslationContext(), getFetchOptions().withSpace()).translate(person.getHomeSpace()));
+            result.setSpace(new SpaceTranslator(getTranslationContext(), getFetchOptions().withSpace())
+                    .translate(person.getHomeSpace()));
             result.getFetchOptions().withSpaceUsing(getFetchOptions().withSpace());
         }
 
         if (getFetchOptions().hasRegistrator())
         {
-            result.setRegistrator(new PersonTranslator(getTranslationContext(), getFetchOptions().withRegistrator()).translate(person
-                    .getRegistrator()));
+            result.setRegistrator(new PersonTranslator(getTranslationContext(), getFetchOptions().withRegistrator())
+                    .translate(person
+                            .getRegistrator()));
             result.getFetchOptions().withRegistratorUsing(getFetchOptions().withRegistrator());
         }
     }

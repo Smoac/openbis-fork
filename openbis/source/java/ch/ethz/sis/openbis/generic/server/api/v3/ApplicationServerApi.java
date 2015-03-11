@@ -331,7 +331,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
         Map<IExperimentId, ExperimentPE> map = mapExperimentByIdExecutor.map(context, experimentIds);
 
         return new MapTranslator<IExperimentId, IExperimentId, ExperimentPE, Experiment>().translate(map, new IdentityTranslator<IExperimentId>(),
-                new ExperimentTranslator(new TranslationContext(session), managedPropertyEvaluatorFactory,
+                new ExperimentTranslator(new TranslationContext(session, managedPropertyEvaluatorFactory),
                         fetchOptions));
     }
 
@@ -347,7 +347,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
         Map<ISampleId, SamplePE> map = mapSampleByIdExecutor.map(context, sampleIds);
 
         return new MapTranslator<ISampleId, ISampleId, SamplePE, Sample>().translate(map, new IdentityTranslator<ISampleId>(),
-                new SampleTranslator(new TranslationContext(session), managedPropertyEvaluatorFactory,
+                new SampleTranslator(new TranslationContext(session, managedPropertyEvaluatorFactory),
                         fetchOptions));
     }
 
@@ -362,7 +362,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
         Map<IDataSetId, DataPE> map = mapDataSetByIdExecutor.map(context, dataSetIds);
 
         return new MapTranslator<IDataSetId, IDataSetId, DataPE, DataSet>().translate(map, new IdentityTranslator<IDataSetId>(),
-                new DataSetTranslator(new TranslationContext(session), managedPropertyEvaluatorFactory,
+                new DataSetTranslator(new TranslationContext(session, managedPropertyEvaluatorFactory),
                         fetchOptions));
     }
 
@@ -380,7 +380,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
             List<ExperimentPE> experiments = searchExperimentExecutor.search(context, searchCriterion);
 
             Map<ExperimentPE, Experiment> translatedMap =
-                    new ExperimentTranslator(new TranslationContext(session), managedPropertyEvaluatorFactory, fetchOptions).translate(experiments);
+                    new ExperimentTranslator(new TranslationContext(session, managedPropertyEvaluatorFactory), fetchOptions).translate(experiments);
             return new ArrayList<Experiment>(translatedMap.values());
         } catch (Throwable t)
         {
@@ -401,7 +401,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
             List<SamplePE> samples = searchSampleExecutor.search(context, searchCriterion);
 
             Map<SamplePE, Sample> translatedMap =
-                    new SampleTranslator(new TranslationContext(session), managedPropertyEvaluatorFactory, fetchOptions).translate(samples);
+                    new SampleTranslator(new TranslationContext(session, managedPropertyEvaluatorFactory), fetchOptions).translate(samples);
             return new ArrayList<Sample>(translatedMap.values());
         } catch (Throwable t)
         {
@@ -422,7 +422,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
             List<DataPE> dataSets = searchDataSetExecutor.search(context, searchCriterion);
 
             Map<DataPE, DataSet> translatedMap =
-                    new DataSetTranslator(new TranslationContext(session), managedPropertyEvaluatorFactory, fetchOptions).translate(dataSets);
+                    new DataSetTranslator(new TranslationContext(session, managedPropertyEvaluatorFactory), fetchOptions).translate(dataSets);
             return new ArrayList<DataSet>(translatedMap.values());
         } catch (Throwable t)
         {
@@ -504,9 +504,9 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
         try
         {
             List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion> deletions = listDeletionExecutor.list(context, fetchOptions);
-
             Map<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion, Deletion> translatedMap =
-                    new DeletionTranslator(new TranslationContext(session), fetchOptions, getDAOFactory()).translate(deletions);
+                    new DeletionTranslator(new TranslationContext(session, managedPropertyEvaluatorFactory), fetchOptions, getDAOFactory())
+                            .translate(deletions);
             return new ArrayList<Deletion>(translatedMap.values());
         } catch (Throwable t)
         {

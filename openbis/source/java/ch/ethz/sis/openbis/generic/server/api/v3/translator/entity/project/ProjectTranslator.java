@@ -16,11 +16,16 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.project;
 
+import java.util.List;
+
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.AbstractCachingTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.Relations;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.common.ListTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.experiment.ExperimentTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.person.PersonTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.space.SpaceTranslator;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.project.Project;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.project.ProjectFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.ProjectIdentifier;
@@ -33,7 +38,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
  */
 public class ProjectTranslator extends AbstractCachingTranslator<ProjectPE, Project, ProjectFetchOptions>
 {
-
     public ProjectTranslator(TranslationContext translationContext, ProjectFetchOptions fetchOptions)
     {
         super(translationContext, fetchOptions);
@@ -66,7 +70,8 @@ public class ProjectTranslator extends AbstractCachingTranslator<ProjectPE, Proj
     {
         if (getFetchOptions().hasSpace())
         {
-            result.setSpace(new SpaceTranslator(getTranslationContext(), getFetchOptions().withSpace()).translate(project.getSpace()));
+            result.setSpace(new SpaceTranslator(getTranslationContext(), getFetchOptions().withSpace())
+                    .translate(project.getSpace()));
             result.getFetchOptions().withSpaceUsing(getFetchOptions().withSpace());
         }
 
@@ -84,6 +89,13 @@ public class ProjectTranslator extends AbstractCachingTranslator<ProjectPE, Proj
             result.getFetchOptions().withModifierUsing(getFetchOptions().withModifier());
         }
 
+        if (getFetchOptions().hasExperiments())
+        {
+            List<Experiment> experiments =
+                    new ListTranslator().translate(project.getExperiments(), new ExperimentTranslator(getTranslationContext(),
+                            getFetchOptions().withExperiments()));
+            result.setExperiments(experiments);
+            result.getFetchOptions().withExperimentsUsing(getFetchOptions().withExperiments());
+        }
     }
-
 }

@@ -39,7 +39,6 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentIde
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentPermId;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ExperimentByIdentiferValidator;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
-import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 
 /**
  * @author pkupczyk
@@ -47,13 +46,9 @@ import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedProperty
 public class ExperimentTranslator extends AbstractCachingTranslator<ExperimentPE, Experiment, ExperimentFetchOptions>
 {
 
-    private IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory;
-
-    public ExperimentTranslator(TranslationContext translationContext, IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory,
-            ExperimentFetchOptions fetchOptions)
+    public ExperimentTranslator(TranslationContext translationContext, ExperimentFetchOptions fetchOptions)
     {
         super(translationContext, fetchOptions);
-        this.managedPropertyEvaluatorFactory = managedPropertyEvaluatorFactory;
     }
 
     @Override
@@ -91,7 +86,7 @@ public class ExperimentTranslator extends AbstractCachingTranslator<ExperimentPE
         if (getFetchOptions().hasProperties())
         {
             Map<String, String> properties =
-                    new PropertyTranslator(getTranslationContext(), managedPropertyEvaluatorFactory, getFetchOptions().withProperties())
+                    new PropertyTranslator(getTranslationContext(), getFetchOptions().withProperties())
                             .translate(experiment);
             result.setProperties(properties);
             result.getFetchOptions().withPropertiesUsing(getFetchOptions().withProperties());
@@ -99,21 +94,22 @@ public class ExperimentTranslator extends AbstractCachingTranslator<ExperimentPE
 
         if (getFetchOptions().hasProject())
         {
-            result.setProject(new ProjectTranslator(getTranslationContext(), getFetchOptions().withProject()).translate(experiment.getProject()));
+            result.setProject(new ProjectTranslator(getTranslationContext(), getFetchOptions().withProject())
+                    .translate(experiment.getProject()));
             result.getFetchOptions().withProjectUsing(getFetchOptions().withProject());
         }
 
         if (getFetchOptions().hasSamples())
         {
             result.setSamples(new ListTranslator().translate(experiment.getSamples(), new SampleTranslator(getTranslationContext(),
-                    managedPropertyEvaluatorFactory, getFetchOptions().withSamples())));
+                    getFetchOptions().withSamples())));
             result.getFetchOptions().withSamplesUsing(getFetchOptions().withSamples());
         }
 
         if (getFetchOptions().hasDataSets())
         {
             result.setDataSets(new ListTranslator().translate(experiment.getDataSets(), new DataSetTranslator(getTranslationContext(),
-                    managedPropertyEvaluatorFactory, getFetchOptions().withDataSets())));
+                    getFetchOptions().withDataSets())));
             result.getFetchOptions().withDataSetsUsing(getFetchOptions().withDataSets());
         }
 
