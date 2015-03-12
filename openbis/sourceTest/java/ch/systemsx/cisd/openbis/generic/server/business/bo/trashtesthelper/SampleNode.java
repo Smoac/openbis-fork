@@ -33,22 +33,37 @@ public final class SampleNode extends EntityNode
         super("S", id);
     }
     
-    ExperimentNode getExperiment()
+    public ExperimentNode getExperiment()
     {
         return experiment;
     }
 
-    SampleNode getContainer()
+    public SampleNode getContainer()
     {
         return container;
     }
 
-    List<SampleNode> getComponents()
+    public List<SampleNode> getComponents()
     {
         return components;
     }
 
-    public void hasComponents(SampleNode... someComponentSamples)
+    public List<SampleNode> getParents()
+    {
+        return parents;
+    }
+    
+    public List<SampleNode> getChildren()
+    {
+        return children;
+    }
+    
+    public List<DataSetNode> getDataSets()
+    {
+        return dataSets;
+    }
+    
+    void hasComponents(SampleNode... someComponentSamples)
     {
         for (SampleNode componentSample : someComponentSamples)
         {
@@ -57,16 +72,6 @@ public final class SampleNode extends EntityNode
         }
     }
     
-    List<SampleNode> getParents()
-    {
-        return parents;
-    }
-
-    List<SampleNode> getChildren()
-    {
-        return children;
-    }
-
     void hasChildren(SampleNode... someChildSamples)
     {
         for (SampleNode childSample : someChildSamples)
@@ -76,12 +81,7 @@ public final class SampleNode extends EntityNode
         }
     }
     
-    List<DataSetNode> getDataSets()
-    {
-        return dataSets;
-    }
-
-    public void has(DataSetNode... someDataSets)
+    void has(DataSetNode... someDataSets)
     {
         for (DataSetNode dataSet : someDataSets)
         {

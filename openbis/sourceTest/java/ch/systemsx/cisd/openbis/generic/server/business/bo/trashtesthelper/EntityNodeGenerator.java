@@ -225,6 +225,16 @@ public final class EntityNodeGenerator
         return dataSetNode;
     }
 
+    public Map<Long, ExperimentNode> getExperiments()
+    {
+        return experiments;
+    }
+
+    public Map<Long, SampleNode> getSamples()
+    {
+        return samples;
+    }
+
     public Map<Long, DataSetNode> getDataSets()
     {
         return dataSets;

@@ -46,23 +46,43 @@ public final class DataSetNode extends EntityNode
         return deletable;
     }
 
-    public DataSetNode nonDeletable()
+    public ExperimentNode getExperiment()
+    {
+        return experiment;
+    }
+    
+    public SampleNode getSample()
+    {
+        return sample;
+    }
+    
+    public List<DataSetNode> getChildren()
+    {
+        return children;
+    }
+
+    public List<DataSetNode> getParents()
+    {
+        return parents;
+    }
+    
+    public List<DataSetNode> getComponents()
+    {
+        return components;
+    }
+    
+    public List<DataSetNode> getContainers()
+    {
+        return containers;
+    }
+    
+    DataSetNode nonDeletable()
     {
         deletable = false;
         return this;
     }
     
-    ExperimentNode getExperiment()
-    {
-        return experiment;
-    }
-    
-    SampleNode getSample()
-    {
-        return sample;
-    }
-
-    public void hasComponents(DataSetNode... someComponentDataSets)
+    void hasComponents(DataSetNode... someComponentDataSets)
     {
         for (DataSetNode componentDataSet : someComponentDataSets)
         {
@@ -71,7 +91,7 @@ public final class DataSetNode extends EntityNode
         }
     }
 
-    public void hasChildren(DataSetNode... someChildDataSets)
+    void hasChildren(DataSetNode... someChildDataSets)
     {
         for (DataSetNode childDataSet : someChildDataSets)
         {
@@ -79,27 +99,6 @@ public final class DataSetNode extends EntityNode
             childDataSet.parents.add(this);
         }
     }
-    
-    List<DataSetNode> getChildren()
-    {
-        return children;
-    }
-
-    List<DataSetNode> getParents()
-    {
-        return parents;
-    }
-    
-    List<DataSetNode> getComponents()
-    {
-        return components;
-    }
-    
-    List<DataSetNode> getContainers()
-    {
-        return containers;
-    }
-    
     
     @Override
     public String toString()

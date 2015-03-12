@@ -29,8 +29,18 @@ public final class ExperimentNode extends EntityNode
     {
         super("E", id);
     }
-
-    public void has(SampleNode... someSamples)
+    
+    public List<SampleNode> getSamples()
+    {
+        return samples;
+    }
+    
+    public List<DataSetNode> getDataSets()
+    {
+        return dataSets;
+    }
+    
+    void has(SampleNode... someSamples)
     {
         for (SampleNode sample : someSamples)
         {
@@ -39,7 +49,7 @@ public final class ExperimentNode extends EntityNode
         }
     }
 
-    public void has(DataSetNode... someDataSets)
+    void has(DataSetNode... someDataSets)
     {
         for (DataSetNode dataSet : someDataSets)
         {
@@ -47,17 +57,6 @@ public final class ExperimentNode extends EntityNode
             dataSets.add(dataSet);
         }
     }
-    
-    List<SampleNode> getSamples()
-    {
-        return samples;
-    }
-    
-    List<DataSetNode> getDataSets()
-    {
-        return dataSets;
-    }
-
     @Override
     public String toString()
     {
