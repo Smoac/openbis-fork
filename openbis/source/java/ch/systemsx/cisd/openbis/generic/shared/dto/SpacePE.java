@@ -44,7 +44,6 @@ import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Store;
 import org.hibernate.validator.constraints.Length;
 
-import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.reflection.ModifiedShortPrefixToStringStyle;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
@@ -201,12 +200,11 @@ public final class SpacePE extends HibernateAbstractRegistrationHolder implement
     }
 
     //
-    // connected projects for use only in tests (no bidirectional support for connection)
+    // connected projects and samples are functional only for fetching (no bidirectional support for connection)
     //
 
     private List<ProjectPE> projects = new ArrayList<ProjectPE>();
 
-    @Private
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "space")
     public List<ProjectPE> getProjects()
     {
@@ -221,7 +219,6 @@ public final class SpacePE extends HibernateAbstractRegistrationHolder implement
 
     private List<SamplePE> samples = new ArrayList<SamplePE>();
 
-    @Private
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "space")
     public List<SamplePE> getSamples()
     {
