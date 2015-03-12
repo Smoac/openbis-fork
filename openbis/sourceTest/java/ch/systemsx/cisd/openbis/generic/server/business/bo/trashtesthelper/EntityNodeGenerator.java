@@ -25,8 +25,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.sun.xml.internal.txw2.IllegalAnnotationException;
-
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 
 public final class EntityNodeGenerator
@@ -36,21 +34,9 @@ public final class EntityNodeGenerator
         public Collection<? extends EntityNode> getEntities(T entityNode);
     }
     
-    private final Map<Long, ExperimentNode> experiments = new LinkedHashMap<Long, ExperimentNode>();
-
-    private final Map<Long, SampleNode> samples = new LinkedHashMap<Long, SampleNode>();
-
-    private final Map<Long, DataSetNode> dataSets = new LinkedHashMap<Long, DataSetNode>();
-    
-    private interface ILineParser
+    private class Parser
     {
-        public void parse(List<String> parts);
-    }
-    
-    private class LineParser implements ILineParser
-    {
-        @Override
-        public void parse(List<String> parts)
+        private void parse(List<String> parts)
         {
             String entity = parts.get(0);
             List<String> rest = parts.subList(1, parts.size());
@@ -66,44 +52,26 @@ public final class EntityNodeGenerator
             }
         }
         
-        protected void handle(ExperimentNode experiment, List<String> parts)
-        {
-        }
-        
-        protected void handle(SampleNode sample, List<String> parts)
-        {
-        }
-        
-        protected void handle(DataSetNode dataSet, List<String> parts)
-        {
-        }
-    }
-    
-    private class NodeLinkerParser extends LineParser
-    {
-        @Override
-        protected void handle(ExperimentNode experiment, List<String> parts)
+        private void handle(ExperimentNode experiment, List<String> parts)
         {
             experiment.has(getSamples("samples", parts));
             experiment.has(getDataSets("data sets", parts));
         }
 
-        @Override
-        protected void handle(SampleNode sample, List<String> parts)
+        private void handle(SampleNode sample, List<String> parts)
         {
             sample.has(getDataSets("data sets", parts));
             sample.hasChildren(getSamples("children", parts));
             sample.hasComponents(getSamples("components", parts));
         }
 
-        @Override
-        protected void handle(DataSetNode dataSet, List<String> parts)
+        private void handle(DataSetNode dataSet, List<String> parts)
         {
             dataSet.hasChildren(getDataSets("children", parts));
             dataSet.hasComponents(getDataSets("components", parts));
         }
         
-        protected SampleNode[] getSamples(String name, List<String> parts)
+        private SampleNode[] getSamples(String name, List<String> parts)
         {
             List<SampleNode> sampleNodes = new ArrayList<SampleNode>();
             List<Long> ids = getIds(name, "S", parts);
@@ -119,7 +87,7 @@ public final class EntityNodeGenerator
             return sampleNodes.toArray(new SampleNode[ids.size()]);
         }
         
-        protected DataSetNode[] getDataSets(String name, List<String> parts)
+        private DataSetNode[] getDataSets(String name, List<String> parts)
         {
             List<DataSetNode> dataSetNodes = new ArrayList<DataSetNode>();
             List<Long> ids = getIds(name, "DS", parts);
@@ -135,7 +103,7 @@ public final class EntityNodeGenerator
             return dataSetNodes.toArray(new DataSetNode[ids.size()]);
         }
         
-        protected List<Long> getIds(String name, String prefix, List<String> parts)
+        private List<Long> getIds(String name, String prefix, List<String> parts)
         {
             String codesAsString = getValue(name, parts);
             if (codesAsString == null)
@@ -156,7 +124,7 @@ public final class EntityNodeGenerator
             return result;
         }
         
-        protected String getValue(String name, List<String> parts)
+        private String getValue(String name, List<String> parts)
         {
             for (String part : parts)
             {
@@ -170,113 +138,15 @@ public final class EntityNodeGenerator
         }
     }
     
-    private class CheckNodeLinkParser extends NodeLinkerParser
-    {
+    private final Map<Long, ExperimentNode> experiments = new LinkedHashMap<Long, ExperimentNode>();
 
-        @Override
-        protected void handle(ExperimentNode experiment, List<String> parts)
-        {
-        }
+    private final Map<Long, SampleNode> samples = new LinkedHashMap<Long, SampleNode>();
 
-        @Override
-        protected void handle(SampleNode sample, List<String> parts)
-        {
-            assertSameExperiment(parts, sample.getExperiment());
-            assertSameSample("container", parts, sample.getContainer());
-            for (SampleNode parent : getSamples("parents", parts))
-            {
-                if (parent.getChildren().contains(sample) == false)
-                {
-                    throw new IllegalAnnotationException("Sample " + sample.getCode() 
-                            + " isn't a child of " + parent.getCode() + ".");
-                }
-            }
-        }
-
-        @Override
-        protected void handle(DataSetNode dataSet, List<String> parts)
-        {
-            assertSameExperiment(parts, dataSet.getExperiment());
-            assertSameSample("sample", parts, dataSet.getSample());
-            for (DataSetNode parent : getDataSets("parents", parts))
-            {
-                if (parent.getChildren().contains(dataSet) == false)
-                {
-                    throw new IllegalAnnotationException("Data set " + dataSet.getCode() 
-                            + " isn't a child of " + parent.getCode() + ".");
-                }
-            }
-            for (DataSetNode container : getDataSets("containers", parts))
-            {
-                if (container.getComponents().contains(dataSet) == false)
-                {
-                    throw new IllegalAnnotationException("Data set " + dataSet.getCode() 
-                            + " isn't a component of " + container.getCode() + ".");
-                }
-            }
-        }
-        
-        private void assertSameExperiment(List<String> parts, ExperimentNode linkExperiment)
-        {
-            String code = getValue("experiment", parts);
-            if (code == null)
-            {
-                return;
-            }
-            if (code.startsWith("E") == false)
-            {
-                throw new IllegalArgumentException("Invalid experiment code: " + code);
-            }
-            ExperimentNode parsedExperiment = experiments.get(Long.parseLong(code.substring(1)));
-            if (parsedExperiment == null)
-            {
-                throw new IllegalArgumentException("Unknown experiment: " + code);
-            }
-            if (parsedExperiment != linkExperiment)
-            {
-                throw new IllegalArgumentException("Experiment should be " + render(linkExperiment) 
-                        + " instead of " + render(parsedExperiment));
-            }
-        }
-        
-        private void assertSameSample(String name, List<String> parts, SampleNode linkSampe)
-        {
-            String code = getValue(name, parts);
-            if (code == null)
-            {
-                return;
-            }
-            if (code.startsWith("S") == false)
-            {
-                throw new IllegalArgumentException("Invalid sample code: " + code);
-            }
-            SampleNode parsedSample = samples.get(Long.parseLong(code.substring(1)));
-            if (parsedSample == null)
-            {
-                throw new IllegalArgumentException("Unknown Sample: " + code);
-            }
-            if (parsedSample != linkSampe)
-            {
-                throw new IllegalArgumentException("Sample should be " + render(linkSampe) 
-                        + " instead of " + render(parsedSample));
-            }
-        }
-        
-        private String render(EntityNode entity)
-        {
-            return entity == null ? "undefined" : entity.getCode();
-        }
-    }
+    private final Map<Long, DataSetNode> dataSets = new LinkedHashMap<Long, DataSetNode>();
     
     public void parse(String definition)
     {
-        parse(definition, new LineParser());
-        parse(definition, new NodeLinkerParser());
-        parse(definition, new CheckNodeLinkParser());
-    }
-    
-    private void parse(String definition, ILineParser parser)
-    {
+        Parser parser = new Parser();
         String[] lines = definition.split("\n");
         for (int i = 0; i < lines.length; i++)
         {
@@ -286,9 +156,15 @@ public final class EntityNodeGenerator
             {
                 continue;
             }
+            String[] splittedLine = line.split(",");
+            List<String> parts = new ArrayList<String>();
+            for (String part : splittedLine)
+            {
+                parts.add(part.trim());
+            }
             try
             {
-                parser.parse(getParts(line));
+                parser.parse(parts);
             } catch (Exception ex)
             {
                 throw new IllegalArgumentException("Error in line " + (i + 1) + ": " + ex.getMessage(), ex);
@@ -296,18 +172,6 @@ public final class EntityNodeGenerator
         }
     }
 
-    private List<String> getParts(String line)
-    {
-        String[] splittedLine = line.split(",");
-        List<String> parts = new ArrayList<String>();
-        for (String part : splittedLine)
-        {
-            parts.add(part.trim());
-        }
-        return parts;
-    }
-
-    
     public void assertConsistency()
     {
         Collection<DataSetNode> values = dataSets.values();

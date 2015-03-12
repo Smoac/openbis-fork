@@ -288,9 +288,8 @@ public final class TrashBOTest extends AbstractBOTest
         EntityNodeGenerator g = new EntityNodeGenerator();
         g.parse("E1, samples: S1, data sets: DS1\n"
                 + "E2, data sets: DS2\n"
-                + "S1, experiment: E1, data sets: DS1\n"
-                + "DS1, experiment: E1, sample: S1, components: DS2\n"
-                + "DS2, experiment: E2, containers: DS1\n");
+                + "S1, data sets: DS1\n"
+                + "DS1, components: DS2\n");
         ExperimentNode e1 = g.e(1);
         SampleNode s1 = g.s(1);
         ExperimentNode e2 = g.e(2);
@@ -315,9 +314,8 @@ public final class TrashBOTest extends AbstractBOTest
         EntityNodeGenerator g = new EntityNodeGenerator();
         g.parse("E1, samples: S1, data sets: DS1\n"
                 + "E2, data sets: DS2\n"
-                + "S1, experiment: E1, data sets: DS1\n"
-                + "DS1, experiment: E1, sample: S1, components: DS2\n"
-                + "DS2, experiment: E2, containers: DS1\n");
+                + "S1, data sets: DS1\n"
+                + "DS1, components: DS2\n");
         ExperimentNode e1 = g.e(1);
         SampleNode s1 = g.s(1);
         DataSetNode ds2 = g.ds(2);
@@ -337,9 +335,8 @@ public final class TrashBOTest extends AbstractBOTest
         EntityNodeGenerator g = new EntityNodeGenerator();
         g.parse("E1, samples: S1, data sets: DS1\n"
                 + "E2, data sets: DS2\n"
-                + "S1, experiment: E1, data sets: DS1\n"
-                + "DS1, experiment: E1, sample: S1, components: DS2\n"
-                + "DS2, experiment: E2, containers: DS1\n");
+                + "S1, data sets: DS1\n"
+                + "DS1, components: DS2\n");
         ExperimentNode e2 = g.e(2);
         DataSetNode ds2 = g.ds(2);
         prepareEntityGraph(g);
@@ -356,13 +353,11 @@ public final class TrashBOTest extends AbstractBOTest
     {
         EntityNodeGenerator g = new EntityNodeGenerator();
         g.parse("E1, data sets: DS1 DS2 DS3 DS4\n"
-                + "DS1, experiment: E1, components: DS3, containers: DS5\n"
-                + "DS2, experiment: E1, children: DS4, containers: DS6\n"
-                + "DS3, experiment: E1, containers: DS1\n"
-                + "DS4, experiment: E1, parents: DS2\n"
+                + "DS1, components: DS3\n"
+                + "DS2, children: DS4\n"
                 + "E2, data sets: DS5 DS6\n"
-                + "DS5, experiment: E2, components: DS1\n"
-                + "DS6, experiment: E2, components: DS2\n");
+                + "DS5, components: DS1\n"
+                + "DS6, components: DS2\n");
         ExperimentNode e2 = g.e(2); // published experiment
         DataSetNode ds5 = g.ds(5);
         DataSetNode ds6 = g.ds(6);
@@ -381,9 +376,9 @@ public final class TrashBOTest extends AbstractBOTest
     {
         EntityNodeGenerator g = new EntityNodeGenerator();
         g.parse("E1, samples: S1\n"
-                + "S1, experiment: E1, data sets: DS1 DS2\n"
-                + "DS1, experiment: E1, sample: S1, components: DS2, containers: DS3\n"
-                + "DS2, experiment: E1, sample: S1, containers: DS1\n"
+                + "S1, data sets: DS1 DS2\n"
+                + "DS1, components: DS2, containers: DS3\n"
+                + "DS2, containers: DS1\n"
                 + "E2, data sets: DS3\n"
                 + "DS3, components: DS1");
         prepareEntityGraph(g);
@@ -404,7 +399,6 @@ public final class TrashBOTest extends AbstractBOTest
         g.parse("E1, samples: S1\n"
                 + "S1, data sets: DS1 DS2\n"
                 + "DS1, components: DS2\n"
-                + "DS2\n"
                 + "E2, data sets: DS3\n"
                 + "DS3, components: DS1");
         prepareEntityGraph(g);
@@ -422,8 +416,8 @@ public final class TrashBOTest extends AbstractBOTest
         EntityNodeGenerator g = new EntityNodeGenerator();
         g.parse("E1, data sets: DS1\n"
                 + "E2, data sets: DS2\n"
-                + "DS1, experiment: E1, components: DS2\n"
-                + "DS2, experiment: E2, containers: DS1");
+                + "DS1, components: DS2\n"
+                + "DS2, containers: DS1");
         prepareEntityGraph(g);
         DeletionPE deletion = createDeletion();
         prepareTrashExperiments(deletion, true, g.e(1));
@@ -455,12 +449,9 @@ public final class TrashBOTest extends AbstractBOTest
     {
         EntityNodeGenerator g = new EntityNodeGenerator();
         g.parse("S1, components: S20\n"
-                + "S2\n"
                 + "S3, data sets: DS60\n"
                 + "S20, containers: S1, data sets: DS61\n"
-                + "DS60, sample: S3\n"
-                + "DS61\n"
-                );
+                + "DS60, sample: S3\n");
         prepareEntityGraph(g);
         final DeletionPE deletion = createDeletion();
         prepareTrashSamples(deletion, true, g.s(1), g.s(2), g.s(3));
@@ -479,12 +470,7 @@ public final class TrashBOTest extends AbstractBOTest
         EntityNodeGenerator g = new EntityNodeGenerator();
         g.parse("S1, data sets: DS1 DS2 DS3 DS4 DS5 DS6\n"
                 + "DS1, components: DS5\n"
-                + "DS2, components: DS6\n"
-                + "DS3\n"
-                + "DS4\n"
-                + "DS5\n"
-                + "DS6\n"
-                );
+                + "DS2, components: DS6\n");
         prepareEntityGraph(g);
         DeletionPE deletion = createDeletion();
         prepareTrashDataSets(deletion, true, g.ds(1), g.ds(2), g.ds(3));
@@ -501,9 +487,7 @@ public final class TrashBOTest extends AbstractBOTest
         EntityNodeGenerator g = new EntityNodeGenerator();
         g.parse("S1, data sets: DS1 DS2 DS3\n"
                 + "DS1, components: DS2\n"
-                + "DS2, components: DS3\n"
-                + "DS3\n"
-                );
+                + "DS2, components: DS3\n");
         prepareEntityGraph(g);
         DeletionPE deletion = createDeletion();
         prepareTrashDataSets(deletion, true, g.ds(2));
