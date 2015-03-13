@@ -261,6 +261,7 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 				$legend.remove();
 			}
 			
+			var propertyGroupPropertiesOnForm = 0;
 			for(var j = 0; j < propertyTypeGroup.propertyTypes.length; j++) {
 				var propertyType = propertyTypeGroup.propertyTypes[j];
 				if(propertyType.code === "XMLCOMMENTS") {
@@ -286,6 +287,8 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 						}
 						var $controlGroup = FormUtil.getFieldForLabelWithText(propertyType.label, value, propertyType.code);
 						$fieldset.append($controlGroup);
+					} else {
+						continue;
 					}
 				} else {
 					var $controlGroup = $('<div>', {class : 'form-group'});
@@ -295,7 +298,6 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 					
 					$controlGroup.append($controlLabel);
 					$controlGroup.append($controls);
-					$fieldset.append($controlGroup);
 					
 					var $component = FormUtil.getFieldForPropertyType(propertyType);
 					
@@ -342,7 +344,14 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 					}
 					
 					$controls.append($component);
+					
+					$fieldset.append($controlGroup);
+					propertyGroupPropertiesOnForm++;
 				}
+			}
+			
+			if(propertyGroupPropertiesOnForm === 0) {
+				$legend.remove();
 			}
 			
 			$wrapper.append($fieldset);

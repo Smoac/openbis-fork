@@ -313,6 +313,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 				continue;
 			}
 			
+			var propertyGroupPropertiesOnForm = 0;
 			for(var j = 0; j < propertyTypeGroup.propertyTypes.length; j++) {
 				var propertyType = propertyTypeGroup.propertyTypes[j];
 				if(propertyType.code === "XMLCOMMENTS") {
@@ -336,6 +337,8 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 							value = FormUtil.getVocabularyLabelForTermCode(propertyType, value);
 						}
 						$controlGroup = FormUtil.getFieldForLabelWithText(propertyType.label, value, propertyType.code);
+					} else {
+						continue;
 					}
 				} else {
 					var $component = FormUtil.getFieldForPropertyType(propertyType);
@@ -383,6 +386,11 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 				}
 				
 				$fieldset.append($controlGroup);
+				propertyGroupPropertiesOnForm++;
+			}
+			
+			if(propertyGroupPropertiesOnForm === 0) {
+				$legend.remove();
 			}
 			
 			$formColumn.append($fieldset);

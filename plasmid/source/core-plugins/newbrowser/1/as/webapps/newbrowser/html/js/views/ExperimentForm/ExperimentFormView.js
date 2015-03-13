@@ -159,6 +159,7 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 				$legend.remove();
 			}
 			
+			var propertyGroupPropertiesOnForm = 0;
 			for(var j = 0; j < propertyTypeGroup.propertyTypes.length; j++) {
 				var propertyType = propertyTypeGroup.propertyTypes[j];
 				if(propertyType.code === "XMLCOMMENTS") {
@@ -182,6 +183,8 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 							value = FormUtil.getVocabularyLabelForTermCode(propertyType, value);
 						}
 						$controlGroup = FormUtil.getFieldForLabelWithText(propertyType.label, value);
+					} else {
+						continue;
 					}
 				} else {
 					var $component = FormUtil.getFieldForPropertyType(propertyType);
@@ -229,6 +232,11 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 				}
 				
 				$fieldset.append($controlGroup);
+				propertyGroupPropertiesOnForm++;
+			}
+			
+			if(propertyGroupPropertiesOnForm === 0) {
+				$legend.remove();
 			}
 			
 			$formColumn.append($fieldset);
