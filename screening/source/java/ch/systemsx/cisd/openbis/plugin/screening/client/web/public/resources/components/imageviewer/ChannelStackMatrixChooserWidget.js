@@ -1,7 +1,5 @@
-define([ "jquery", "components/common/DelayedExecutor", "components/imageviewer/AbstractWidget",
-		"components/imageviewer/ChannelStackMatrixChooserView", "components/imageviewer/MovieButtonsWidget",
-		"components/imageviewer/ChannelStackManager" ], function($, DelayedExecutor, AbstractWidget, ChannelStackMatrixChooserView,
-		MovieButtonsWidget, ChannelStackManager) {
+define([ "jquery", "components/common/DelayedExecutor", "components/imageviewer/AbstractWidget", "components/imageviewer/ChannelStackMatrixChooserView", "components/imageviewer/MovieButtonsWidget",
+		"components/imageviewer/ChannelStackManager" ], function($, DelayedExecutor, AbstractWidget, ChannelStackMatrixChooserView, MovieButtonsWidget, ChannelStackManager) {
 
 	//
 	// CHANNEL STACK MATRIX CHOOSER WIDGET
@@ -127,6 +125,7 @@ define([ "jquery", "components/common/DelayedExecutor", "components/imageviewer/
 
 			if (this.getSelectedDepth() != depth) {
 				this.selectedDepth = depth;
+				this.getDepthButtonsWidget().setSelectedFrame(this.getDepths().indexOf(depth));
 				this.refresh();
 
 				if (delayed) {

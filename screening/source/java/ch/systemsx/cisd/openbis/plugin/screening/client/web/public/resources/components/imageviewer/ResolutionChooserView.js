@@ -21,7 +21,6 @@ define([ "jquery", "components/imageviewer/AbstractView" ], function($, Abstract
 			$("<label>").text("Resolution").attr("for", "resolutionChooserSelect").appendTo(this.panel);
 
 			var select = $("<select>").attr("id", "resolutionChooserSelect").addClass("form-control").appendTo(this.panel);
-			$("<option>").attr("value", "").text("Default").appendTo(select);
 
 			this.controller.getResolutionsCodes().forEach(function(resolution) {
 				$("<option>").attr("value", resolution).text(resolution).appendTo(select);

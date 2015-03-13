@@ -1,5 +1,4 @@
-define([ "jquery", "components/imageviewer/AbstractWidget", "components/imageviewer/ResolutionChooserView" ], function($, AbstractWidget,
-		ResolutionChooserView) {
+define([ "jquery", "components/imageviewer/AbstractWidget", "components/imageviewer/ResolutionChooserView" ], function($, AbstractWidget, ResolutionChooserView) {
 
 	//
 	// RESOLUTION CHOOSER WIDGET
@@ -79,6 +78,11 @@ define([ "jquery", "components/imageviewer/AbstractWidget", "components/imagevie
 
 			if (this.getResolutions().toString() != resolutions.toString()) {
 				this.resolutions = resolutions;
+
+				if (this.getResolutionsCodes().length > 0) {
+					this.setSelectedResolution(this.getResolutionsCodes()[0]);
+				}
+
 				this.refresh();
 				this.notifyChangeListeners();
 			}
