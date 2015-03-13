@@ -121,16 +121,29 @@ $.extend(Grid.prototype, {
 		var thisGrid = this;
 
 		if (filter) {
-			filter = filter.toLowerCase();
+			filterKeywords = filter.toLowerCase().split(/[ ,]+/); //Split by regular space or comma
 			dataList = dataList.filter(function(data) {
-				return thisGrid.columns.some(function(column) {
-					if (column.filter) {
-						return column.filter(data, filter);
-					} else {
-						var value = "" + data[column.property];
-						return value != null && value.toLowerCase().indexOf(filter) != -1;
+				var isValid = new Array(filterKeywords.length);
+				
+				for(cIdx = 0; cIdx < thisGrid.columns.length; cIdx++) {
+					var column = thisGrid.columns[cIdx];
+					for(var fIdx = 0; fIdx < filterKeywords.length; fIdx++) {
+						var filterKeyword = filterKeywords[fIdx];
+						if (column.filter) {
+							isValid[fIdx] = isValid[fIdx] || column.filter(data, filterKeyword);
+						} else {
+							var value = "" + data[column.property];
+							isValid[fIdx] = isValid[fIdx] || (value != null && value.toLowerCase().indexOf(filterKeyword) != -1);
+						}
 					}
-				});
+				}
+				
+				var isFinallyValid = true;
+				for(var fIdx = 0; fIdx < filterKeywords.length; fIdx++) {
+					isFinallyValid = isFinallyValid && isValid[fIdx];
+				}
+				
+				return isFinallyValid;
 			});
 		}
 
