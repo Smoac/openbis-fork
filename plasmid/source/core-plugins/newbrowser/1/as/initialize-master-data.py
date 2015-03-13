@@ -560,8 +560,7 @@ createSampleTypeWithProperties("SOLUTION_BUFFER", "", [
 
 annotationsScriptName = createAnnotationsScriptForType("OLIGO");
 createSampleTypeWithProperties("OLIGO", "", [
-  ["NAME", 				"General",				"Name",			DataType.VARCHAR,				None,				"Name", None],
-	["TARGET", 					"General",			"Target",					DataType.MULTILINE_VARCHAR,		None,				"Target of the oligonucleotide", None],
+  ["NAME", 				"General",				"Name",			DataType.VARCHAR,				None,				"Target of the oligonucleotide", None],
 	["DIRECTION", 				"Details",			"Direction",				DataType.CONTROLLEDVOCABULARY, "DIRECTION",			"Direction of the oligonucleotide", None],
 	["RESTRICTION_ENZYME", 		"Details",			"Restriction Enzyme",		DataType.MULTILINE_VARCHAR,		None,				"Restriction sites in the oligonucleotide", None],
 	["MODIFICATIONS", 			"Details",			"Modifications",			DataType.MULTILINE_VARCHAR,		None,				"Modifications of the ordered oligonucleotide", None],
