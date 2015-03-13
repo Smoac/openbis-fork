@@ -440,7 +440,7 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 		
 		//Add predefined slots if they are mandatory
 		for(var i = 0; i < this.sampleTypeHints.length; i++) {
-			if(showAnnotableTypes || sampleTypeHints[i].MIN_COUNT > 0) {
+			if(this.showAnnotableTypes || sampleTypeHints[i].MIN_COUNT > 0) {
 				this.addOneSlot(sampleTypeHints[i]);
 			}
 		}
