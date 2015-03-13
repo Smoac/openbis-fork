@@ -200,7 +200,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 																		requiredParents,
 																		isDisabled,
 																		currentParentsLinks,
-																		this._sampleFormModel.mode === FormMode.CREATE);
+																		this._sampleFormModel.mode === FormMode.CREATE || this._sampleFormModel.mode === FormMode.EDIT);
 		
 		//
 		// LINKS
