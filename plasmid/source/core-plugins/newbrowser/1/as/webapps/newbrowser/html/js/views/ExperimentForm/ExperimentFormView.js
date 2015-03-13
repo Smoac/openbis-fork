@@ -161,7 +161,12 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 			
 			for(var j = 0; j < propertyTypeGroup.propertyTypes.length; j++) {
 				var propertyType = propertyTypeGroup.propertyTypes[j];
-				
+				if(propertyType.code === "XMLCOMMENTS") {
+					var $commentsContainer = $("<div>");
+					$fieldset.append($commentsContainer);
+					this._experimentFormController._addCommentsWidget($commentsContainer);
+					continue;
+				}
 				var $controlGroup =  null;
 				
 				var value = this._experimentFormModel.experiment.properties[propertyType.code];

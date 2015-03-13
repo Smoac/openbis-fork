@@ -122,17 +122,35 @@ def createAnnotationsScriptForType(sampleTypeCode):
 ##
 ## Manage properties scripts
 ##
-commentsScriptName = None;
+commentsSampleScriptName = None;
 
 if PATH_TO_MANAGE_PROPERTIES_SCRIPTS != None:
-	commentsScriptName = "COMMENTS";
+	
 	commentsScriptAsString = open(PATH_TO_MANAGE_PROPERTIES_SCRIPTS + "comments.py", 'r').read();
-	commentsScript = tr.getOrCreateNewScript(commentsScriptName);
-	commentsScript.setName(commentsScriptName);
-	commentsScript.setDescription("Comments Handler");
-	commentsScript.setScript(commentsScriptAsString);
-	commentsScript.setScriptType("MANAGED_PROPERTY");
-	commentsScript.setEntityForScript("SAMPLE");
+	
+	commentsSampleScriptName = "COMMENTS_SAMPLE";
+	commentsSampleScript = tr.getOrCreateNewScript(commentsSampleScriptName);
+	commentsSampleScript.setName(commentsSampleScriptName);
+	commentsSampleScript.setDescription("Comments Handler");
+	commentsSampleScript.setScript(commentsScriptAsString);
+	commentsSampleScript.setScriptType("MANAGED_PROPERTY");
+	commentsSampleScript.setEntityForScript("SAMPLE");
+	
+	commentsExperimentScriptName = "COMMENTS_EXPERIMENT";
+	commentsExperimentScript = tr.getOrCreateNewScript(commentsExperimentScriptName);
+	commentsExperimentScript.setName(commentsExperimentScriptName);
+	commentsExperimentScript.setDescription("Comments Handler");
+	commentsExperimentScript.setScript(commentsScriptAsString);
+	commentsExperimentScript.setScriptType("MANAGED_PROPERTY");
+	commentsExperimentScript.setEntityForScript("EXPERIMENT");
+	
+	commentsDatasetScriptName = "COMMENTS_DATASET";
+	commentsDatasetScript = tr.getOrCreateNewScript(commentsDatasetScriptName);
+	commentsDatasetScript.setName(commentsDatasetScriptName);
+	commentsDatasetScript.setDescription("Comments Handler");
+	commentsDatasetScript.setScript(commentsScriptAsString);
+	commentsDatasetScript.setScriptType("MANAGED_PROPERTY");
+	commentsDatasetScript.setEntityForScript("DATA_SET");
 
 ##
 ## Vocabulary Types
@@ -446,14 +464,20 @@ createProperty("CONTAINED", DataType.VARCHAR, "Contained", "", None);
 ##
 ## DataSet Types
 ##
-createDataSetTypeWithProperties("ELN_PREVIEW", "PHYSICAL", "ELN Preview image", []);
+createDataSetTypeWithProperties("ELN_PREVIEW", "PHYSICAL", "ELN Preview image", [
+	["NOTES", "General information", "Notes", DataType.MULTILINE_VARCHAR, None, "Notes regarding the dataset", None],
+	["XMLCOMMENTS",	"Comments","Comments List",	DataType.XML,	None,	"Several comments can be added by different users", commentsDatasetScriptName]
+]);
 
 createDataSetTypeWithProperties("SEQ_FILE", "PHYSICAL", "", [
 	["NOTES", "General information", "Notes", DataType.MULTILINE_VARCHAR, None, "Notes regarding the dataset", None],
+	["XMLCOMMENTS",	"Comments","Comments List",	DataType.XML,	None,	"Several comments can be added by different users", commentsDatasetScriptName]
+	
 ]);
 
 createDataSetTypeWithProperties("RAW_DATA", "PHYSICAL", "", [
 	["NOTES", "General information", "Notes", DataType.MULTILINE_VARCHAR, None, "Notes regarding the dataset", None],
+	["XMLCOMMENTS",	"Comments","Comments List",	DataType.XML,	None,	"Several comments can be added by different users", commentsDatasetScriptName]
 ]);
 
 ##
@@ -483,7 +507,7 @@ createExperimentTypeWithProperties("DEFAULT_EXPERIMENT", "Default Experiment", [
 	["START_DATE", 			"General", "Start Date", 			DataType.TIMESTAMP, 		None,	"Start Date", None],
 	["END_DATE", 			"General", "End Date", 				DataType.TIMESTAMP,			None,	"End Date", None],
 	["EXPERIMENTAL_RESULTS","General", "Experimental results", 	DataType.MULTILINE_VARCHAR, None,	"Brief summary of the results obtained", None],
-	["XMLCOMMENTS",			"Comments","Comments List",			DataType.XML,				None,	"Several comments can be added by different users", commentsScriptName]
+	["XMLCOMMENTS",			"Comments","Comments List",			DataType.XML,				None,	"Several comments can be added by different users", commentsExperimentScriptName]
 ]);
 
 ##
@@ -505,7 +529,7 @@ createSampleTypeWithProperties("ANTIBODY", "", [
 	["STOCK_CONCENTRATION", "Supplier and storage", "Stock concentration", 	DataType.VARCHAR,				None, 		"Stock concentration of the solution where the product is kept in the lab", None],
 	["PUBLICATION", 		"Comments", 			"Publication", 			DataType.MULTILINE_VARCHAR,		None, 		"Publication from where the information was first found OR technical sheet given by the manufacturer", None],
 	["NOTES", 				"Comments", 			"Notes", 				DataType.MULTILINE_VARCHAR,		None, 		"Notes", None],
-	["XMLCOMMENTS",			"Comments",				"Comments List",		DataType.XML,					None,		"Several comments can be added by different users", commentsScriptName],
+	["XMLCOMMENTS",			"Comments",				"Comments List",		DataType.XML,					None,		"Several comments can be added by different users", commentsSampleScriptName],
 	["ANNOTATIONS_STATE",	"Comments",				"Annotations State",	DataType.XML,					None,		"Annotations State", annotationsScriptName]
 ]);
 
@@ -515,7 +539,7 @@ createSampleTypeWithProperties("CHEMICAL", "", [
 	["SUPPLIER", 			"Supplier and storage", "Supplier", 			DataType.MULTILINE_VARCHAR,		None,		"Supplier of the product", None],
 	["ARTICLE_NUMBER", 		"Supplier and storage", "Art. Number",			DataType.MULTILINE_VARCHAR,		None,		"Article number of the product", None],
 	["STORAGE", 			"Supplier and storage", "Storage", 				DataType.CONTROLLEDVOCABULARY,	"STORAGE",	"Storage conditions of the product", None],
-	["XMLCOMMENTS", 		"Comments", 			"Comments List", 		DataType.XML,					None,		"Several comments can be added by different users", commentsScriptName],
+	["XMLCOMMENTS", 		"Comments", 			"Comments List", 		DataType.XML,					None,		"Several comments can be added by different users", commentsSampleScriptName],
 	["ANNOTATIONS_STATE",	"Comments",				"Annotations State",	DataType.XML,					None,		"Annotations State", annotationsScriptName]
 ]);
 
@@ -526,7 +550,7 @@ createSampleTypeWithProperties("ENZYME", "", [
 	["ARTICLE_NUMBER", 		"Supplier and storage",	"Art. Number",			DataType.MULTILINE_VARCHAR,		None,		"Article number of the product", None],
 	["KIT", 				"Supplier and storage",	"Kit including",		DataType.MULTILINE_VARCHAR,		None,		"What the company includes with the enzyme", None],
 	["STORAGE",				"Supplier and storage",	"Storage",				DataType.CONTROLLEDVOCABULARY,	"STORAGE",	"Storage conditions of the product", None],
-	["XMLCOMMENTS",			"Comments",				"Comments List",		DataType.XML,					None,		"Several comments can be added by different users", commentsScriptName],
+	["XMLCOMMENTS",			"Comments",				"Comments List",		DataType.XML,					None,		"Several comments can be added by different users", commentsSampleScriptName],
 	["ANNOTATIONS_STATE",	"Comments",				"Annotations State",	DataType.XML,					None,		"Annotations State", annotationsScriptName]
 ]);
 
@@ -540,7 +564,7 @@ createSampleTypeWithProperties("MEDIA", "", [
 	["STERILIZATION", 		"Storage",				"Sterilization",		DataType.CONTROLLEDVOCABULARY,	"STERILIZATION","How the solution/buffer is sterilized when prepared", None],
 	["PUBLICATION", 		"Comments",				"Publication",			DataType.MULTILINE_VARCHAR,		None,			"Publication from where the information was first found OR technical sheet given by the manufacturer", None],
 	["NOTES", 				"Comments",				"Notes",				DataType.MULTILINE_VARCHAR,		None,			"Deatails for solution/buffer preparation", None],
-	["XMLCOMMENTS", 		"Comments",				"Comments List",		DataType.XML,					None,			"Several comments can be added by different users", commentsScriptName],
+	["XMLCOMMENTS", 		"Comments",				"Comments List",		DataType.XML,					None,			"Several comments can be added by different users", commentsSampleScriptName],
 	["ANNOTATIONS_STATE",	"Comments",				"Annotations State",	DataType.XML,					None,			"Annotations State", annotationsScriptName]
 ]);
 
@@ -554,7 +578,7 @@ createSampleTypeWithProperties("SOLUTION_BUFFER", "", [
 	["STERILIZATION", 		"Storage",				"Sterilization",		DataType.CONTROLLEDVOCABULARY,	"STERILIZATION","How the solution/buffer is sterilized when prepared", None],
 	["PUBLICATION", 		"Comments",				"Publication",			DataType.MULTILINE_VARCHAR,		None,			"Publication from where the information was first found OR technical sheet given by the manufacturer", None],
 	["NOTES", 				"Comments",				"Notes",				DataType.MULTILINE_VARCHAR,		None,			"Notes", None],
-	["XMLCOMMENTS", 		"Comments",				"Comments List",		DataType.XML,					None,			"Several comments can be added by different users", commentsScriptName],
+	["XMLCOMMENTS", 		"Comments",				"Comments List",		DataType.XML,					None,			"Several comments can be added by different users", commentsSampleScriptName],
 	["ANNOTATIONS_STATE",	"Comments",				"Annotations State",	DataType.XML,					None,			"Annotations State", annotationsScriptName]
 ]);
 
@@ -565,7 +589,7 @@ createSampleTypeWithProperties("OLIGO", "", [
 	["RESTRICTION_ENZYME", 		"Details",			"Restriction Enzyme",		DataType.MULTILINE_VARCHAR,		None,				"Restriction sites in the oligonucleotide", None],
 	["MODIFICATIONS", 			"Details",			"Modifications",			DataType.MULTILINE_VARCHAR,		None,				"Modifications of the ordered oligonucleotide", None],
 	["SEQUENCE", 				"Details",			"Sequence",					DataType.MULTILINE_VARCHAR,		None,				"Sequence of the oligonucleotide", None],
-	["XMLCOMMENTS", 			"Comments",			"Comments List",			DataType.XML,					None,				"Several comments can be added by different users", commentsScriptName],
+	["XMLCOMMENTS", 			"Comments",			"Comments List",			DataType.XML,					None,				"Several comments can be added by different users", commentsSampleScriptName],
 	["ANNOTATIONS_STATE",		"Comments",			"Annotations State",		DataType.XML,					None,				"Annotations State", annotationsScriptName]
 ]);
 
@@ -582,7 +606,7 @@ createSampleTypeWithProperties("RNA", "", [
 	["ARTICLE_NUMBER", 			"Supplier and storage",	"Art. Number",			DataType.MULTILINE_VARCHAR,		None,				"Article number of the product", None],
 	["STORAGE", 				"Supplier and storage",	"Storage",				DataType.CONTROLLEDVOCABULARY,	"STORAGE",			"Storage conditions of the product", None],
 	["PUBLICATION", 			"Comments",				"Publication",			DataType.MULTILINE_VARCHAR,		None,				"Publication from where the information was first found OR technical sheet given by the manufacturer", None],
-	["XMLCOMMENTS", 			"Comments",				"Comments List",		DataType.XML,					None,				"Several comments can be added by different users", commentsScriptName],
+	["XMLCOMMENTS", 			"Comments",				"Comments List",		DataType.XML,					None,				"Several comments can be added by different users", commentsSampleScriptName],
 	["ANNOTATIONS_STATE",		"Comments",				"Annotations State",	DataType.XML,					None,				"Annotations State", annotationsScriptName]
 ]);
 
@@ -600,7 +624,7 @@ createSampleTypeWithProperties("PLASMID", "", [
 	["SOURCE", 							"Origin",				"Source",							DataType.VARCHAR,				None,								"Source from where the construct/strain/cell line obtained or purchased, if it was not produced in the lab", None],
 	["PUBLICATION", 					"Comments",				"Publication",						DataType.MULTILINE_VARCHAR,		None,								"Publication from where the information was first found OR technical sheet given by the manufacturer", None],
 	["NOTES", 							"Comments", 			"Notes",							DataType.MULTILINE_VARCHAR,		None,								"Notes", None],
-	["XMLCOMMENTS", 					"Comments",				"Comments List",					DataType.XML,					None,								"Several comments can be added by different users", commentsScriptName],
+	["XMLCOMMENTS", 					"Comments",				"Comments List",					DataType.XML,					None,								"Several comments can be added by different users", commentsSampleScriptName],
 	["ANNOTATIONS_STATE",				"Comments",				"Annotations State",				DataType.XML,					None,								"Annotations State", annotationsScriptName]
 ]);
 
@@ -616,7 +640,7 @@ createSampleTypeWithProperties("BACTERIA", "", [
 	["SOURCE", 							"Origin",				"Source",							DataType.VARCHAR,				None,								"Source from where the construct/strain/cell line obtained or purchased, if it was not produced in the lab", None],
 	["PUBLICATION", 					"Comments",				"Publication",						DataType.MULTILINE_VARCHAR,		None,								"Publication from where the information was first found OR technical sheet given by the manufacturer", None],
 	["NOTES", 							"Comments", 			"Notes",							DataType.MULTILINE_VARCHAR,		None,								"Notes", None],
-	["XMLCOMMENTS", 					"Comments",				"Comments List",					DataType.XML,					None,								"Several comments can be added by different users", commentsScriptName],
+	["XMLCOMMENTS", 					"Comments",				"Comments List",					DataType.XML,					None,								"Several comments can be added by different users", commentsSampleScriptName],
 	["ANNOTATIONS_STATE",				"Comments",				"Annotations State",				DataType.XML,					None,								"Annotations State", annotationsScriptName]
 ]);
 
@@ -635,7 +659,7 @@ createSampleTypeWithProperties("YEAST", "", [
 	["SOURCE", 							"Origin",				"Source",								DataType.VARCHAR,				None,								"Source from where the construct/strain/cell line obtained or purchased, if it was not produced in the lab", None],
 	["PUBLICATION", 					"Comments",				"Publication",							DataType.MULTILINE_VARCHAR,		None,								"Publication from where the information was first found OR technical sheet given by the manufacturer", None],
 	["NOTES", 							"Comments", 			"Notes",								DataType.MULTILINE_VARCHAR,		None,								"Notes", None],
-	["XMLCOMMENTS", 					"Comments",				"Comments List",						DataType.XML,					None,								"Several comments can be added by different users", commentsScriptName],
+	["XMLCOMMENTS", 					"Comments",				"Comments List",						DataType.XML,					None,								"Several comments can be added by different users", commentsSampleScriptName],
 	["ANNOTATIONS_STATE",				"Comments",				"Annotations State",					DataType.XML,					None,								"Annotations State", annotationsScriptName]
 ]);
 
@@ -660,7 +684,7 @@ createSampleTypeWithProperties("CELL_LINE", "", [
 	["MYCOPLASM", 						"Cultivation",			"Mycoplasm tested",						DataType.CONTROLLEDVOCABULARY,	"YES_NO",							"Mycoplasm tested", None],
 	["PUBLICATION", 					"Comments",				"Publication",							DataType.MULTILINE_VARCHAR,		None,								"Publication from where the information was first found OR technical sheet given by the manufacturer", None],
 	["NOTES", 							"Comments", 			"Notes",								DataType.MULTILINE_VARCHAR,		None,								"Notes", None],
-	["XMLCOMMENTS", 					"Comments",				"Comments List",						DataType.XML,					None,								"Several comments can be added by different users", commentsScriptName],
+	["XMLCOMMENTS", 					"Comments",				"Comments List",						DataType.XML,					None,								"Several comments can be added by different users", commentsSampleScriptName],
 	["ANNOTATIONS_STATE",				"Comments",				"Annotations State",					DataType.XML,					None,								"Annotations State", annotationsScriptName]
 ]);
 
@@ -678,7 +702,7 @@ createSampleTypeWithProperties("FLY", "", [
 	["MATING_PARTNERS", 				"Comments",				"Mating partners",						DataType.MULTILINE_VARCHAR,		None,								"Features needed for the mating partners", None],
 	["PUBLICATION", 					"Comments",				"Publication",							DataType.MULTILINE_VARCHAR,		None,								"Publication from where the information was first found OR technical sheet given by the manufacturer", None],
 	["NOTES", 							"Comments", 			"Notes",								DataType.MULTILINE_VARCHAR,		None,								"Notes", None],
-	["XMLCOMMENTS", 					"Comments",				"Comments List",						DataType.XML,					None,								"Several comments can be added by different users", commentsScriptName],
+	["XMLCOMMENTS", 					"Comments",				"Comments List",						DataType.XML,					None,								"Several comments can be added by different users", commentsSampleScriptName],
 	["ANNOTATIONS_STATE",				"Comments",				"Annotations State",					DataType.XML,					None,								"Annotations State", annotationsScriptName]
 ]);
 
@@ -721,7 +745,7 @@ createSampleTypeWithProperties("EXPERIMENTAL_STEP", "", [
 	["FREEFORM_TABLE_STATE", 			"Readout details",		"Freeform Table State",					DataType.MULTILINE_VARCHAR,		None,								"Table describing how the order of samples measured in the experiments", None],
 	["PUBLICATION", 					"Comments",				"Publication",							DataType.MULTILINE_VARCHAR,		None,								"Publication from where the information was first found OR technical sheet given by the manufacturer", None],
 	["NOTES", 							"Comments", 			"Notes",								DataType.MULTILINE_VARCHAR,		None,								"Notes", None],
-	["XMLCOMMENTS", 					"Comments",				"Comments List",						DataType.XML,					None,								"Several comments can be added by different users", commentsScriptName],
+	["XMLCOMMENTS", 					"Comments",				"Comments List",						DataType.XML,					None,								"Several comments can be added by different users", commentsSampleScriptName],
 	["ANNOTATIONS_STATE",				"Comments",				"Annotations State",					DataType.XML,					None,								"Annotations State", annotationsScriptName]
 ]);
 
@@ -737,7 +761,7 @@ createSampleTypeWithProperties("GENERAL_PROTOCOL", "", [
 	["SUGGESTIONS", 			"Comments",			"Suggestions",				DataType.MULTILINE_VARCHAR,		None,				"Suggestions for the protocol", None],
 	["PROTOCOL_MODIFICATIONS", 	"Comments",			"Protocol modifications",	DataType.MULTILINE_VARCHAR,		None,				"Alternative procedures used to make protocol variations", None],
 	["PUBLICATION", 			"Comments",			"Publication",				DataType.MULTILINE_VARCHAR,		None,				"Publication from where the information was first found OR technical sheet given by the manufacturer", None],
-	["XMLCOMMENTS", 			"Comments",			"Comments List",			DataType.XML,					None,				"Several comments can be added by different users", commentsScriptName],
+	["XMLCOMMENTS", 			"Comments",			"Comments List",			DataType.XML,					None,				"Several comments can be added by different users", commentsSampleScriptName],
 	["ANNOTATIONS_STATE",		"Comments",			"Annotations State",		DataType.XML,					None,				"Annotations State", annotationsScriptName]
 ]);
 
@@ -752,7 +776,7 @@ createSampleTypeWithProperties("PCR_PROTOCOL", "", [
 	["SUGGESTIONS", 			"Comments",			"Suggestions",				DataType.MULTILINE_VARCHAR,		None,				"Suggestions for the protocol", None],
 	["PROTOCOL_MODIFICATIONS", 	"Comments",			"Protocol modifications",	DataType.MULTILINE_VARCHAR,		None,				"Alternative procedures used to make protocol variations", None],
 	["PUBLICATION", 			"Comments",			"Publication",				DataType.MULTILINE_VARCHAR,		None,				"Publication from where the information was first found OR technical sheet given by the manufacturer", None],
-	["XMLCOMMENTS", 			"Comments",			"Comments List",			DataType.XML,					None,				"Several comments can be added by different users", commentsScriptName],
+	["XMLCOMMENTS", 			"Comments",			"Comments List",			DataType.XML,					None,				"Several comments can be added by different users", commentsSampleScriptName],
 	["ANNOTATIONS_STATE",		"Comments",			"Annotations State",		DataType.XML,					None,				"Annotations State", annotationsScriptName]
 ]);
 
@@ -764,6 +788,6 @@ createSampleTypeWithProperties("WESTERN_BLOTTING_PROTOCOL", "", [
 	["MEMBRANE", 				"Materials", 		"Membrane",					DataType.CONTROLLEDVOCABULARY,	"MEMBRANE",			"Membrane used for western blotting", None],
 	["PUBLICATION", 			"Comments", 		"Publication",				DataType.MULTILINE_VARCHAR,		None,				"Publication from where the information was first found OR technical sheet given by the manufacturer", None],
 	["NOTES", 					"Comments", 		"Notes",					DataType.MULTILINE_VARCHAR,		None,				"Notes", None],
-	["XMLCOMMENTS", 			"Comments",			"Comments List",			DataType.XML,					None,				"Several comments can be added by different users", commentsScriptName],
+	["XMLCOMMENTS", 			"Comments",			"Comments List",			DataType.XML,					None,				"Several comments can be added by different users", commentsSampleScriptName],
 	["ANNOTATIONS_STATE",		"Comments",			"Annotations State",		DataType.XML,					None,				"Annotations State", annotationsScriptName]
 ]);

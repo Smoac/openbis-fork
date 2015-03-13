@@ -263,7 +263,12 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 			
 			for(var j = 0; j < propertyTypeGroup.propertyTypes.length; j++) {
 				var propertyType = propertyTypeGroup.propertyTypes[j];
-				
+				if(propertyType.code === "XMLCOMMENTS") {
+					var $commentsContainer = $("<div>");
+					$fieldset.append($commentsContainer);
+					this._dataSetFormController._addCommentsWidget($commentsContainer);
+					continue;
+				}
 				var value = "";
 				var isSystemProperty = false;
 				if(this._dataSetFormModel.mode !== FormMode.CREATE) {

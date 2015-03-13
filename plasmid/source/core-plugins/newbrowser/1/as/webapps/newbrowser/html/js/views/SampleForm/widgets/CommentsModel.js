@@ -14,15 +14,17 @@
  * limitations under the License.
  */
 
-function CommentsModel(sample, mode) {
-	this.sample = sample;
+function CommentsModel(entity, mode, form) {
+	this.entity = entity;
 	this.mode = mode;
+	this.form = form;
 	
 	this.getComments = function() {
-		return this.sample.properties["XMLCOMMENTS"];
+		return this.entity.properties["XMLCOMMENTS"];
 	}
 	
 	this.setComments = function(commentsXML) {
-		this.sample.properties["XMLCOMMENTS"] = commentsXML;
+		this.entity.properties["XMLCOMMENTS"] = commentsXML;
+		this.form.isFormDirty = true;
 	}
 }

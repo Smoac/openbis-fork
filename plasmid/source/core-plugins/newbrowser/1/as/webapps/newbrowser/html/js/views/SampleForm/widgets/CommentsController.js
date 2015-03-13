@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-function CommentsController(sample, mode) {
-	this._commentsModel = new CommentsModel(sample, mode);
+function CommentsController(entity, mode, form) {
+	this._commentsModel = new CommentsModel(entity, mode, form);
 	this._commentsView = new CommentsView(this, this._commentsModel);
 	
 	this.init = function($container) {

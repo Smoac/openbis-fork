@@ -33,6 +33,11 @@ function DataSetFormController(mainController, mode, sample, dataSet) {
 		return this._dataSetFormModel.isFormDirty;
 	}
 	
+	this._addCommentsWidget = function($container) {
+		var commentsController = new CommentsController(this._dataSetFormModel.dataSet, this._dataSetFormModel.mode, this._dataSetFormModel);
+		commentsController.init($container);
+	}
+	
 	this._getDataSetType = function(typeCode) {
 		for(var i = 0; i < this._dataSetFormModel.dataSetTypes.length; i++) {
 			if(this._dataSetFormModel.dataSetTypes[i].code === typeCode) {

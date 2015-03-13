@@ -34,7 +34,7 @@ function SampleFormController(mainController, mode, sample) {
 	
 
 	this._addCommentsWidget = function($container) {
-		var commentsController = new CommentsController(this._sampleFormModel.sample, this._sampleFormModel.mode);
+		var commentsController = new CommentsController(this._sampleFormModel.sample, this._sampleFormModel.mode, this._sampleFormModel);
 		commentsController.init($container);
 	}
 	

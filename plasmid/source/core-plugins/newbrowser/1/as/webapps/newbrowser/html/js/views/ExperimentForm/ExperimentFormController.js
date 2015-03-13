@@ -27,6 +27,11 @@ function ExperimentFormController(mainController, mode, experiment) {
 		return this._experimentFormModel.isFormDirty;
 	}
 	
+	this._addCommentsWidget = function($container) {
+		var commentsController = new CommentsController(this._experimentFormModel.experiment, this._experimentFormModel.mode, this._experimentFormModel);
+		commentsController.init($container);
+	}
+	
 	this.deleteExperiment = function(reason) {
 		var _this = this;
 		
