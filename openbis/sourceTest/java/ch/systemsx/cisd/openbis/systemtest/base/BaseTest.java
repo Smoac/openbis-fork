@@ -17,7 +17,15 @@
 package ch.systemsx.cisd.openbis.systemtest.base;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.testng.AssertJUnit.assertEquals;
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.UUID;
 
 import org.hamcrest.CoreMatchers;
@@ -39,10 +47,16 @@ import ch.systemsx.cisd.common.servlet.SpringRequestContextProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientService;
 import ch.systemsx.cisd.openbis.generic.server.ICommonServerForInternalUse;
 import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.entitygraph.DataSetNode;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.entitygraph.EntityGraphGenerator;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.entitygraph.EntityNode;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.entitygraph.ExperimentNode;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.entitygraph.SampleNode;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.DataSetTypeWithoutExperimentChecker;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IndexMode;
 import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
@@ -129,6 +143,8 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
 
     protected String systemSessionToken;
 
+    protected EntityRepository repository;
+    
     @BeforeSuite(groups = "system-cleandb")
     public void initializeLog() throws Exception
     {
@@ -462,6 +478,89 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
         throw new IllegalArgumentException("Space not found: " + space.getCode());
     }
 
+    protected EntityGraphGenerator parseAndCreateGraph(String graphDefinition)
+    {
+        EntityGraphGenerator g = new EntityGraphGenerator();
+        g.parse(graphDefinition);
+        prepare(g);
+        assertEquals(graphDefinition, renderGraph(g));
+        return g;
+    }
+    
+    protected String renderGraph(EntityGraphGenerator g)
+    {
+        repository.refreshGraph();
+        StringBuilder builder = new StringBuilder();
+        for (ExperimentNode experimentNode : g.getExperiments().values())
+        {
+            StringBuilder builder2 = new StringBuilder();
+            render(builder2, "samples", repository.getSampleNode(experimentNode));
+            render(builder2, "data sets", repository.getDataSetNodes(experimentNode));
+            if (builder2.length() > 0)
+            {
+                builder.append(experimentNode.getCode());
+                builder.append(builder2).append("\n");
+            }
+        }
+        for (SampleNode sampleNode : g.getSamples().values())
+        {
+            StringBuilder builder2 = new StringBuilder();
+            render(builder2, "data sets", repository.getDataSetNodes(sampleNode));
+            if (builder2.length() > 0)
+            {
+                builder.append(sampleNode.getCode());
+                builder.append(builder2).append("\n");
+            }
+        }
+        return builder.toString();
+    }
+    
+    private void render(StringBuilder builder, String name, Collection<? extends EntityNode> nodes)
+    {
+        if (nodes.isEmpty())
+        {
+            return;
+        }
+        builder.append(", ").append(name).append(":");
+        for (EntityNode node : nodes)
+        {
+            builder.append(' ').append(node.getCode());
+        }
+    }
+    
+    private void prepare(EntityGraphGenerator g)
+    {
+        repository = new EntityRepository();
+        Space space = create(aSpace());
+        Project project = create(aProject().inSpace(space));
+        for (ExperimentNode experimentNode : g.getExperiments().values())
+        {
+            repository.put(experimentNode, create(anExperiment().inProject(project)));
+        }
+        for (SampleNode sampleNode : g.getSamples().values())
+        {
+            SampleBuilder sample = aSample();
+            ExperimentNode experimentNode = sampleNode.getExperiment();
+            if (experimentNode != null)
+            {
+                sample.inExperiment(repository.getExperiment(experimentNode));
+            }
+            repository.put(sampleNode, create(sample));
+        }
+        for (DataSetNode dataSetNode : g.getDataSets().values())
+        {
+            ExternalDataBuilder dataSet = aDataSet();
+            if (dataSetNode.getSample() != null)
+            {
+                dataSet.inSample(repository.getSample(dataSetNode.getSample()));
+            } else if (dataSetNode.getExperiment() != null)
+            {
+                dataSet.inExperiment(repository.getExperiment(dataSetNode.getExperiment()));
+            }
+            repository.put(dataSetNode, create(dataSet));
+        }
+    }
+    
     public static ExperimentIdentifier id(Experiment experiment)
     {
         return new ExperimentIdentifier(id(experiment.getProject()), experiment.getCode());
@@ -553,6 +652,158 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
     protected static <T> Matcher<T> isNot(Matcher<T> matcher)
     {
         return CoreMatchers.not(is(matcher));
+    }
+    
+    public final class EntityRepository
+    {
+        private Map<Long, Experiment> experimentsNodeToDtoMap = new TreeMap<Long, Experiment>();
+        private Map<Long, ExperimentNode> experimentDtoToNodeMap = new TreeMap<Long, ExperimentNode>();
+
+        private Map<Long, Sample> samplesNodeToDtoMap = new TreeMap<Long, Sample>();
+        private Map<Long, SampleNode> samplesDtoToNodeMap = new TreeMap<Long, SampleNode>();
+
+        private Map<Long, AbstractExternalData> dataSetsNodeToDtoMap = new TreeMap<Long, AbstractExternalData>();
+        private Map<Long, DataSetNode> dataSetsDtoToNodeMap = new TreeMap<Long, DataSetNode>();
+        
+        private Map<Long, Set<Long>> experimentSamplesMap = new HashMap<Long, Set<Long>>();
+        private Map<Long, Set<Long>> experimentDataSetsMap = new HashMap<Long, Set<Long>>();
+        private Map<Long, Set<Long>> sampleDataSetsMap = new HashMap<Long, Set<Long>>();
+        
+        public Experiment getExperiment(ExperimentNode experimentNode)
+        {
+            return experimentsNodeToDtoMap.get(experimentNode.getId());
+        }
+        
+        public Sample getSample(SampleNode sampleNode)
+        {
+            return samplesNodeToDtoMap.get(sampleNode.getId());
+        }
+        
+        public AbstractExternalData getDataSet(DataSetNode dataSetNode)
+        {
+            return dataSetsNodeToDtoMap.get(dataSetNode.getId());
+        }
+        
+        void refreshGraph()
+        {
+            for (Long id : experimentsNodeToDtoMap.keySet())
+            {
+                experimentsNodeToDtoMap.put(id,  refresh(experimentsNodeToDtoMap.get(id)));
+            }
+            for (Long id : samplesNodeToDtoMap.keySet())
+            {
+                samplesNodeToDtoMap.put(id,  refresh(samplesNodeToDtoMap.get(id)));
+            }
+            for (Long id : dataSetsNodeToDtoMap.keySet())
+            {
+                dataSetsNodeToDtoMap.put(id,  refresh(dataSetsNodeToDtoMap.get(id)));
+            }
+            experimentSamplesMap.clear();
+            for (Sample sample : samplesNodeToDtoMap.values())
+            {
+                Experiment experiment = sample.getExperiment();
+                if (experiment != null)
+                {
+                    Long id = experiment.getId();
+                    Set<Long> sampleIds = experimentSamplesMap.get(id);
+                    if (sampleIds == null)
+                    {
+                        sampleIds = new TreeSet<Long>();
+                        experimentSamplesMap.put(id, sampleIds);
+                    }
+                    sampleIds.add(sample.getId());
+                }
+            }
+            experimentDataSetsMap.clear();
+            for (AbstractExternalData dataSet : dataSetsNodeToDtoMap.values())
+            {
+                addToDataSetsMap(experimentDataSetsMap, dataSet, dataSet.getExperiment());
+            }
+            sampleDataSetsMap.clear();
+            for (AbstractExternalData dataSet : dataSetsNodeToDtoMap.values())
+            {
+                addToDataSetsMap(sampleDataSetsMap, dataSet, dataSet.getSample());
+            }
+        }
+
+        private void addToDataSetsMap(Map<Long, Set<Long>> holderDataSetsMap, 
+                AbstractExternalData dataSet, IIdHolder idHolder)
+        {
+            if (idHolder != null)
+            {
+                Long id = idHolder.getId();
+                Set<Long> dataSetIds = holderDataSetsMap.get(id);
+                if (dataSetIds == null)
+                {
+                    dataSetIds = new TreeSet<Long>();
+                    holderDataSetsMap.put(id, dataSetIds);
+                }
+                dataSetIds.add(dataSet.getId());
+            }
+        }
+
+        void put(ExperimentNode experimentNode, Experiment experiment)
+        {
+            experimentsNodeToDtoMap.put(experimentNode.getId(), experiment);
+            experimentDtoToNodeMap.put(experiment.getId(), experimentNode);
+        }
+        
+        void put(SampleNode sampleNode, Sample sample)
+        {
+            samplesNodeToDtoMap.put(sampleNode.getId(), sample);
+            samplesDtoToNodeMap.put(sample.getId(), sampleNode);
+        }
+
+        void put(DataSetNode dataSetNode, AbstractExternalData dataSet)
+        {
+            dataSetsNodeToDtoMap.put(dataSetNode.getId(), dataSet);
+            dataSetsDtoToNodeMap.put(dataSet.getId(), dataSetNode);
+        }
+
+        Set<SampleNode> getSampleNode(ExperimentNode experimentNode)
+        {
+            Set<SampleNode> result = new LinkedHashSet<SampleNode>();
+            Experiment experiment = experimentsNodeToDtoMap.get(experimentNode.getId());
+            if (experiment != null)
+            {
+                Set<Long> sampleDtoIds = experimentSamplesMap.get(experiment.getId());
+                if (sampleDtoIds != null)
+                {
+                    for (Long dtoId : sampleDtoIds)
+                    {
+                        result.add(samplesDtoToNodeMap.get(dtoId));
+                    }
+                }
+            }
+            return result;
+        }
+        
+        Set<DataSetNode> getDataSetNodes(ExperimentNode experimentNode)
+        {
+            return getDataSetNodes(experimentDataSetsMap, experimentsNodeToDtoMap.get(experimentNode.getId()));
+        }
+
+        Set<DataSetNode> getDataSetNodes(SampleNode sampleNode)
+        {
+            return getDataSetNodes(sampleDataSetsMap, samplesNodeToDtoMap.get(sampleNode.getId()));
+        }
+        
+        private Set<DataSetNode> getDataSetNodes(Map<Long, Set<Long>> idHolderDataSetsMap, IIdHolder experiment)
+        {
+            Set<DataSetNode> result = new LinkedHashSet<DataSetNode>();
+            if (experiment != null)
+            {
+                Set<Long> dataSetDtoIds = idHolderDataSetsMap.get(experiment.getId());
+                if (dataSetDtoIds != null)
+                {
+                    for (Long dtoId : dataSetDtoIds)
+                    {
+                        result.add(dataSetsDtoToNodeMap.get(dtoId));
+                    }
+                }
+            }
+            return result;
+        }
     }
     
 }

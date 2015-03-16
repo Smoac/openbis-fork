@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.systemtest;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeClass;
@@ -25,6 +26,9 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.entitygraph.DataSetNode;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.entitygraph.EntityGraphGenerator;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.entitygraph.SampleNode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeWithRegistrationAndModificationDate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
@@ -32,6 +36,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.systemtest.base.BaseTest;
 import ch.systemsx.cisd.openbis.systemtest.base.auth.AuthorizationRule;
 import ch.systemsx.cisd.openbis.systemtest.base.auth.GuardedDomain;
@@ -55,7 +60,7 @@ public class AssignDataSetToSampleTest extends BaseTest
     Space sourceSpace;
 
     Space destinationSpace;
-
+    
     // sourceExperiment -> destinationExperiment
     @Test
     public void dataSetWithoutSampleCanBeAssignedToAnExperiment() throws Exception
@@ -74,7 +79,7 @@ public class AssignDataSetToSampleTest extends BaseTest
 
     // sourceExperiment -> destinationSample
     @Test
-    public void dataSetWithoutSampleCanBeAssignedToSample() throws Exception
+    public void dataSetWithoutSampleCanBeAssignedToSample1() throws Exception
     {
         AbstractExternalData dataset = create(aDataSet().inExperiment(sourceExperiment));
         assertThat(dataset, is(inExperiment(sourceExperiment)));
@@ -89,6 +94,30 @@ public class AssignDataSetToSampleTest extends BaseTest
         destinationExperimentChecker.assertModificationDateChanged();
         assertThat(dataset, is(inSample(destinationSample)));
         assertThat(dataset, is(inExperiment(destinationExperiment)));
+    }
+    
+    @Test
+    public void dataSetWithoutSampleCanBeAssignedToSample() throws Exception
+    {
+        EntityGraphGenerator g = parseAndCreateGraph("E1, data sets: DS1\nE2, samples: S2\n");
+
+        reassignToSample(g.ds(1), g.s(2));
+
+        assertEquals("E2, samples: S2, data sets: DS1\nS2, data sets: DS1\n", renderGraph(g));
+    }
+
+    private void reassignToSample(DataSetNode dataSetNode, SampleNode sampleNode)
+    {
+        AbstractExternalData dataSet = repository.getDataSet(dataSetNode);
+        Sample sample = repository.getSample(sampleNode);
+        reassignToSample(dataSet.getCode(), sample.getPermId());
+    }
+
+    protected void reassignToSample(String dataSetCode, String samplePermId)
+    {
+        SampleIdentifier sampleIdentifier = etlService.tryGetSampleIdentifier(systemSessionToken, samplePermId);
+        Sample sample = etlService.tryGetSampleWithExperiment(systemSessionToken, sampleIdentifier);
+        perform(anUpdateOf(etlService.tryGetDataSet(systemSessionToken, dataSetCode)).toSample(sample));
     }
     
     // sourceExperiment -> destinationSpaceSampleWithoutExperiment

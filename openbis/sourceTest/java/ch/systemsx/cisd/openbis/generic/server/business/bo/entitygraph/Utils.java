@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.server.business.bo.trashtesthelper;
+package ch.systemsx.cisd.openbis.generic.server.business.bo.entitygraph;
 
 import java.util.List;
 

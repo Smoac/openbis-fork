@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.server.business.bo.trashtesthelper;
+package ch.systemsx.cisd.openbis.generic.server.business.bo.entitygraph;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -24,10 +24,11 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 
-public final class EntityNodeGenerator
+public final class EntityGraphGenerator
 {
     private static interface IEntitiesProvider<T extends EntityNode>
     {
@@ -138,11 +139,11 @@ public final class EntityNodeGenerator
         }
     }
     
-    private final Map<Long, ExperimentNode> experiments = new LinkedHashMap<Long, ExperimentNode>();
+    private final Map<Long, ExperimentNode> experiments = new TreeMap<Long, ExperimentNode>();
 
-    private final Map<Long, SampleNode> samples = new LinkedHashMap<Long, SampleNode>();
+    private final Map<Long, SampleNode> samples = new TreeMap<Long, SampleNode>();
 
-    private final Map<Long, DataSetNode> dataSets = new LinkedHashMap<Long, DataSetNode>();
+    private final Map<Long, DataSetNode> dataSets = new TreeMap<Long, DataSetNode>();
     
     public void parse(String definition)
     {
@@ -242,7 +243,7 @@ public final class EntityNodeGenerator
     
     public List<TechId> getSampleIdsByExperimentIds(Collection<TechId> experimentIds)
     {
-        return getRelatedIds(experimentIds, experiments, new EntityNodeGenerator.IEntitiesProvider<ExperimentNode>()
+        return getRelatedIds(experimentIds, experiments, new EntityGraphGenerator.IEntitiesProvider<ExperimentNode>()
             {
                 @Override
                 public Collection<? extends EntityNode> getEntities(ExperimentNode experiment)
@@ -254,7 +255,7 @@ public final class EntityNodeGenerator
 
     public List<TechId> getSampleIdsByContainerIds(Collection<TechId> containerIds)
     {
-        return getRelatedIds(containerIds, samples, new EntityNodeGenerator.IEntitiesProvider<SampleNode>()
+        return getRelatedIds(containerIds, samples, new EntityGraphGenerator.IEntitiesProvider<SampleNode>()
             {
                 @Override
                 public Collection<? extends EntityNode> getEntities(SampleNode sample)
@@ -266,7 +267,7 @@ public final class EntityNodeGenerator
 
     public List<TechId> getDataSetIdsByExperimentIds(Collection<TechId> experimentIds)
     {
-        return getRelatedIds(experimentIds, experiments, new EntityNodeGenerator.IEntitiesProvider<ExperimentNode>()
+        return getRelatedIds(experimentIds, experiments, new EntityGraphGenerator.IEntitiesProvider<ExperimentNode>()
                 {
                     @Override
                     public Collection<? extends EntityNode> getEntities(ExperimentNode experiment)
@@ -278,7 +279,7 @@ public final class EntityNodeGenerator
 
     public List<TechId> getDataSetIdsBySampleIds(Collection<TechId> experimentIds)
     {
-        return getRelatedIds(experimentIds, samples, new EntityNodeGenerator.IEntitiesProvider<SampleNode>()
+        return getRelatedIds(experimentIds, samples, new EntityGraphGenerator.IEntitiesProvider<SampleNode>()
             {
                 @Override
                 public Collection<? extends EntityNode> getEntities(SampleNode sample)
@@ -290,7 +291,7 @@ public final class EntityNodeGenerator
 
     public List<TechId> getChildrenDataSetIdsByDataSetIds(Collection<TechId> dataSetIds)
     {
-        return getRelatedIds(dataSetIds, dataSets, new EntityNodeGenerator.IEntitiesProvider<DataSetNode>()
+        return getRelatedIds(dataSetIds, dataSets, new EntityGraphGenerator.IEntitiesProvider<DataSetNode>()
             {
                 @Override
                 public Collection<? extends EntityNode> getEntities(DataSetNode dataSet)
@@ -302,7 +303,7 @@ public final class EntityNodeGenerator
 
     public List<TechId> getComponentDataSetIdsByDataSetIds(Collection<TechId> dataSetIds)
     {
-        return getRelatedIds(dataSetIds, dataSets, new EntityNodeGenerator.IEntitiesProvider<DataSetNode>()
+        return getRelatedIds(dataSetIds, dataSets, new EntityGraphGenerator.IEntitiesProvider<DataSetNode>()
             {
                 @Override
                 public Collection<? extends EntityNode> getEntities(DataSetNode dataSet)
@@ -314,7 +315,7 @@ public final class EntityNodeGenerator
     
     public Map<Long, Set<Long>> getContainerDataSetIdsMap(Collection<TechId> dataSetIds)
     {
-        return getRelatedIdsMap(dataSetIds, dataSets,new EntityNodeGenerator.IEntitiesProvider<DataSetNode>()
+        return getRelatedIdsMap(dataSetIds, dataSets,new EntityGraphGenerator.IEntitiesProvider<DataSetNode>()
                 {
             @Override
             public Collection<? extends EntityNode> getEntities(DataSetNode dataSet)
@@ -326,7 +327,7 @@ public final class EntityNodeGenerator
     
     public Map<Long, Set<Long>> getParentsDataSetIdsMap(Collection<TechId> dataSetIds)
     {
-        return getRelatedIdsMap(dataSetIds, dataSets,new EntityNodeGenerator.IEntitiesProvider<DataSetNode>()
+        return getRelatedIdsMap(dataSetIds, dataSets,new EntityGraphGenerator.IEntitiesProvider<DataSetNode>()
                 {
             @Override
             public Collection<? extends EntityNode> getEntities(DataSetNode dataSet)
@@ -360,7 +361,7 @@ public final class EntityNodeGenerator
     }
 
     private <T extends EntityNode> List<TechId> getRelatedIds(Collection<TechId> entityIds, Map<Long, T> entities, 
-            EntityNodeGenerator.IEntitiesProvider<T> provider)
+            EntityGraphGenerator.IEntitiesProvider<T> provider)
     {
         List<TechId> ids = new ArrayList<TechId>();
         for (TechId entityId : entityIds)
@@ -375,7 +376,7 @@ public final class EntityNodeGenerator
     }
     
     private <T extends EntityNode> Map<Long, Set<Long>> getRelatedIdsMap(Collection<TechId> entityIds, Map<Long, T> entities, 
-            EntityNodeGenerator.IEntitiesProvider<T> provider)
+            EntityGraphGenerator.IEntitiesProvider<T> provider)
     {
         Map<Long, Set<Long>> idsMap = new LinkedHashMap<Long, Set<Long>>();
         for (TechId entityId : entityIds)

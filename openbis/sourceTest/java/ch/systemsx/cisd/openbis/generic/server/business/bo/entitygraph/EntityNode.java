@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.server.business.bo.trashtesthelper;
+package ch.systemsx.cisd.openbis.generic.server.business.bo.entitygraph;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 
-class EntityNode implements IIdHolder
+public class EntityNode implements IIdHolder
 {
     private final long id;
 

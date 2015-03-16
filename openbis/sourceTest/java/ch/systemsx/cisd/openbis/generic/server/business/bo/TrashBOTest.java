@@ -40,11 +40,11 @@ import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.trashtesthelper.DataSetNode;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.trashtesthelper.EntityNodeGenerator;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.trashtesthelper.ExperimentNode;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.trashtesthelper.SampleNode;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.trashtesthelper.Utils;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.entitygraph.DataSetNode;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.entitygraph.EntityGraphGenerator;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.entitygraph.ExperimentNode;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.entitygraph.SampleNode;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.entitygraph.Utils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -285,7 +285,7 @@ public final class TrashBOTest extends AbstractBOTest
     @Test
     public final void testTrashExperimentWithSamplesAndDataSetsAndNoExternalLinks()
     {
-        EntityNodeGenerator g = new EntityNodeGenerator();
+        EntityGraphGenerator g = new EntityGraphGenerator();
         g.parse("E1, samples: S1, data sets: DS1\n"
                 + "E2, data sets: DS2\n"
                 + "S1, data sets: DS1\n"
@@ -311,7 +311,7 @@ public final class TrashBOTest extends AbstractBOTest
     // TODO: fix test
     public final void testTrashExperimentWithARelatedDataSetComponentWhichBelongsToAnExternalExperiment()
     {
-        EntityNodeGenerator g = new EntityNodeGenerator();
+        EntityGraphGenerator g = new EntityGraphGenerator();
         g.parse("E1, samples: S1, data sets: DS1\n"
                 + "E2, data sets: DS2\n"
                 + "S1, data sets: DS1\n"
@@ -332,7 +332,7 @@ public final class TrashBOTest extends AbstractBOTest
     @Test
     public final void testTrashExperimentWithARelatedDataSetInAnExternalContainer()
     {
-        EntityNodeGenerator g = new EntityNodeGenerator();
+        EntityGraphGenerator g = new EntityGraphGenerator();
         g.parse("E1, samples: S1, data sets: DS1\n"
                 + "E2, data sets: DS2\n"
                 + "S1, data sets: DS1\n"
@@ -351,7 +351,7 @@ public final class TrashBOTest extends AbstractBOTest
     @Test
     public void testTrashPublishedExperiment()
     {
-        EntityNodeGenerator g = new EntityNodeGenerator();
+        EntityGraphGenerator g = new EntityGraphGenerator();
         g.parse("E1, data sets: DS1 DS2 DS3 DS4\n"
                 + "DS1, components: DS3\n"
                 + "DS2, children: DS4\n"
@@ -374,7 +374,7 @@ public final class TrashBOTest extends AbstractBOTest
     @Test
     public final void testTrashPublishedExperimentWithOrginalExperimentWithSamples()
     {
-        EntityNodeGenerator g = new EntityNodeGenerator();
+        EntityGraphGenerator g = new EntityGraphGenerator();
         g.parse("E1, samples: S1\n"
                 + "S1, data sets: DS1 DS2\n"
                 + "DS1, components: DS2, containers: DS3\n"
@@ -395,7 +395,7 @@ public final class TrashBOTest extends AbstractBOTest
     // TODO: fix test
     public final void testTrashOrginalExperimentWithSample()
     {
-        EntityNodeGenerator g = new EntityNodeGenerator();
+        EntityGraphGenerator g = new EntityGraphGenerator();
         g.parse("E1, samples: S1\n"
                 + "S1, data sets: DS1 DS2\n"
                 + "DS1, components: DS2\n"
@@ -413,7 +413,7 @@ public final class TrashBOTest extends AbstractBOTest
     @Test
     public final void testTrashExperimentsWithContainerDataSetWithPhysicalDataSetFromAnotherExperiment()
     {
-        EntityNodeGenerator g = new EntityNodeGenerator();
+        EntityGraphGenerator g = new EntityGraphGenerator();
         g.parse("E1, data sets: DS1\n"
                 + "E2, data sets: DS2\n"
                 + "DS1, components: DS2\n"
@@ -447,7 +447,7 @@ public final class TrashBOTest extends AbstractBOTest
     @Test
     public final void testTrashSamplesWithOneLevelOfDependencies()
     {
-        EntityNodeGenerator g = new EntityNodeGenerator();
+        EntityGraphGenerator g = new EntityGraphGenerator();
         g.parse("S1, components: S20\n"
                 + "S3, data sets: DS60\n"
                 + "S20, containers: S1, data sets: DS61\n"
@@ -467,7 +467,7 @@ public final class TrashBOTest extends AbstractBOTest
     @Test
     public final void testTrashDataSets()
     {
-        EntityNodeGenerator g = new EntityNodeGenerator();
+        EntityGraphGenerator g = new EntityGraphGenerator();
         g.parse("S1, data sets: DS1 DS2 DS3 DS4 DS5 DS6\n"
                 + "DS1, components: DS5\n"
                 + "DS2, components: DS6\n");
@@ -484,7 +484,7 @@ public final class TrashBOTest extends AbstractBOTest
     @Test
     public void testTrashDataSetsWithDataSetInAContainer()
     {
-        EntityNodeGenerator g = new EntityNodeGenerator();
+        EntityGraphGenerator g = new EntityGraphGenerator();
         g.parse("S1, data sets: DS1 DS2 DS3\n"
                 + "DS1, components: DS2\n"
                 + "DS2, components: DS3\n");
@@ -701,7 +701,7 @@ public final class TrashBOTest extends AbstractBOTest
         }
     }
     
-    private void prepareEntityGraph(EntityNodeGenerator g)
+    private void prepareEntityGraph(EntityGraphGenerator g)
     {
         g.assertConsistency();
         prepareListSampleIdsByExperimentIds(g);
@@ -713,7 +713,7 @@ public final class TrashBOTest extends AbstractBOTest
         prepareListSampleIdsByContainerIds(g);
     }
 
-    private void prepareListSampleIdsByExperimentIds(final EntityNodeGenerator g)
+    private void prepareListSampleIdsByExperimentIds(final EntityGraphGenerator g)
     {
         final AbstractMockHandler<List<TechId>> handler = new AbstractMockHandler<List<TechId>>()
             {
@@ -734,7 +734,7 @@ public final class TrashBOTest extends AbstractBOTest
             });
     }
 
-    private void prepareListSampleIdsByContainerIds(final EntityNodeGenerator g)
+    private void prepareListSampleIdsByContainerIds(final EntityGraphGenerator g)
     {
         final AbstractMockHandler<Collection<TechId>> handler = new AbstractMockHandler<Collection<TechId>>()
             {
@@ -755,7 +755,7 @@ public final class TrashBOTest extends AbstractBOTest
             });
     }
     
-    private void prepareListDataSetIdsByExperimentIds(final EntityNodeGenerator g)
+    private void prepareListDataSetIdsByExperimentIds(final EntityGraphGenerator g)
     {
         final AbstractMockHandler<List<TechId>> handler = new AbstractMockHandler<List<TechId>>()
             {
@@ -776,7 +776,7 @@ public final class TrashBOTest extends AbstractBOTest
             });
     }
     
-    private void prepareListDataSetIdsBySampleIds(final EntityNodeGenerator g)
+    private void prepareListDataSetIdsBySampleIds(final EntityGraphGenerator g)
     {
         final AbstractMockHandler<Collection<TechId>> handler = new AbstractMockHandler<Collection<TechId>>()
             {
@@ -797,7 +797,7 @@ public final class TrashBOTest extends AbstractBOTest
             });
     }
     
-    private void prepareFindChildrenOrComponentIds(final EntityNodeGenerator g)
+    private void prepareFindChildrenOrComponentIds(final EntityGraphGenerator g)
     {
         class FindChildrenIdsMockHandler
         {
@@ -887,7 +887,7 @@ public final class TrashBOTest extends AbstractBOTest
             });
     }
 
-    private void prepareListDataSetContainerIds(final EntityNodeGenerator g)
+    private void prepareListDataSetContainerIds(final EntityGraphGenerator g)
     {
         final AbstractMockHandler<Collection<Long>> handler = new AbstractMockHandler<Collection<Long>>()
             {
@@ -909,7 +909,7 @@ public final class TrashBOTest extends AbstractBOTest
             });
     }
 
-    private void prepareGetDataSetsAndNonDeletableDataSets(final EntityNodeGenerator g)
+    private void prepareGetDataSetsAndNonDeletableDataSets(final EntityGraphGenerator g)
     {
         class DataSetTableMockHandler extends BaseMatcher<List<TechId>>
         {
