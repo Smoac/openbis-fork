@@ -8,22 +8,22 @@ from ch.systemsx.cisd.openbis.generic.server import CommonServiceProvider
 configuration = {}
 
 configuration["GENERAL_PROTOCOL"] = {
-                          "CHEMICAL" : {"QUANTITY" : False, "NAME" : False },
-                          "SOLUTION_BUFFERS" : {"QUANTITY" : False, "NAME" : False },
-                          "MEDIA" : {"QUANTITY" : False, "NAME" : False },
-                          "ENZYME" : {"NAME" : False, "CONCENTRATION" : False }
+                          "CHEMICAL" : {"QUANTITY" : False },
+                          "SOLUTION_BUFFERS" : {"QUANTITY" : False },
+                          "MEDIA" : {"QUANTITY" : False },
+                          "ENZYME" : {"CONCENTRATION" : False }
                          };
 
 configuration["MEDIA"] = {
-                          "CHEMICAL" : {"CONCENTRATION" : False, "NAME" : False },
-                          "SOLUTION_BUFFERS" : {"CONCENTRATION" : False, "NAME" : False },
-                          "MEDIA" : {"CONCENTRATION" : False, "NAME" : False }
+                          "CHEMICAL" : {"CONCENTRATION" : False },
+                          "SOLUTION_BUFFERS" : {"CONCENTRATION" : False },
+                          "MEDIA" : {"CONCENTRATION" : False }
                          };
 
 configuration["PCR"] = {
-                          "CHEMICAL" : {"QUANTITY" : False, "NAME" : False },
-                          "SOLUTION_BUFFERS" : {"QUANTITY" : False, "NAME" : False },
-                          "ENZYME" : {"NAME" : False, "CONCENTRATION" : False }
+                          "CHEMICAL" : {"QUANTITY" : False },
+                          "SOLUTION_BUFFERS" : {"QUANTITY" : False },
+                          "ENZYME" : {"CONCENTRATION" : False }
                          };
 
 configuration["POMBE"] = {
@@ -32,23 +32,23 @@ configuration["POMBE"] = {
                          };
 
 configuration["READOUT"] = {
-                          "CHEMICAL" : {"QUANTITY" : False, "NAME" : False },
-                          "SOLUTION_BUFFERS" : {"QUANTITY" : False, "NAME" : False }
+                          "CHEMICAL" : {"QUANTITY" : False },
+                          "SOLUTION_BUFFERS" : {"QUANTITY" : False }
                          };
 
 configuration["RESULT"] = {
-                          "CHEMICAL" : {"QUANTITY" : False, "NAME" : False, "DETAIL" : False }
+                          "CHEMICAL" : {"QUANTITY" : False, "DETAIL" : False }
                          };
 
 configuration["SOLUTION_BUFFERS"] = {
-                          "CHEMICAL" : {"CONCENTRATION" : False, "NAME" : False },
-                          "SOLUTION_BUFFERS" : {"CONCENTRATION" : False, "NAME" : False }
+                          "CHEMICAL" : {"CONCENTRATION" : False },
+                          "SOLUTION_BUFFERS" : {"CONCENTRATION" : False }
                          };
 
 configuration["WESTERN_BLOTTING"] = {
-                          "CHEMICAL" : {"QUANTITY" : False, "NAME" : False },
-                          "SOLUTION_BUFFERS" : {"QUANTITY" : False, "NAME" : False },
-                          "ANTIBODY" : {"QUANTITY" : False, "NAME" : False }
+                          "CHEMICAL" : {"QUANTITY" : False },
+                          "SOLUTION_BUFFERS" : {"QUANTITY" : False },
+                          "ANTIBODY" : {"QUANTITY" : False }
                          };
 
 configuration["YEAST"] = {
@@ -120,6 +120,27 @@ def getWidgetForAdd(sampleTypeCode, annotableType):
 
 def isValid(dataType, value):
     return True
+
+##
+## Registration form (EXPERIMENTAL)
+##
+# def showRawValueInForms():
+#     return False
+# 
+# def inputWidgets():
+#     widgetsToCopyFrom = []
+#     toCopyFrom = configurationCopyParents[annotableType]
+#     if(toCopyFrom is not None):
+#         for key in toCopyFrom:
+#             widgetsToCopyFrom.append(inputWidgetFactory().createTextInputField(key + " to copy " + toCopyFrom[key]).setMandatory(False))
+#     print "EXECUTING inputWidgets " + str(len(widgetsToCopyFrom))
+#     return widgetsToCopyFrom
+# 
+# def updateFromRegistrationForm(bindings):
+#     print "EXECUTING updateFromRegistrationForm"
+#     for key, value in bindings:
+#         print "MANAGED WITH KEY: " + key
+
 ##
 ## Main Methods
 ##
@@ -128,7 +149,10 @@ def configureUI():
     tableBuilder = createTableBuilder()
     tableBuilder.addHeader("identifier")
     tableBuilder.addHeader("sampleType")
-    usedTableHeaders = {"identifier" : True, "sampleType" : True }
+    tableBuilder.addHeader("name")
+    
+    usedTableHeaders = {"identifier" : True, "sampleType" : True, "name" : True }
+    
     for sampleTypeCode in getAllAnnotableSampleTypesForType(annotableType):
         for propertyTypeCode in getPropertyTypesForSampleTypeFromAnnotableType(sampleTypeCode, annotableType):
             if propertyTypeCode not in usedTableHeaders:
@@ -143,22 +167,47 @@ def configureUI():
     samples = list(propertyConverter().convertToElements(property))
     for sample in samples:
         row = tableBuilder.addRow()
+        permId = sample.getAttribute("permId")
+        
+        #Set Name
+        nameValue = entityInformationProvider().getSamplePropertyValue(permId, "NAME")
+        if (nameValue is None) or (len(nameValue) == 0):
+            nameValue = entityInformationProvider().getSamplePropertyValue(permId, "PLASMID_NAME") #For PLASMID Sample Type
+        if (nameValue is None) or (len(nameValue) == 0):
+            nameValue = entityInformationProvider().getSamplePropertyValue(permId, "YEAST_STRAIN_NAME") #For YEAST Sample Type
+        if (nameValue is None) or (len(nameValue) == 0):
+            nameValue = entityInformationProvider().getSamplePropertyValue(permId, "BACTERIA_STRAIN_NAME") #For BACTERIA Sample Type
+        if (nameValue is None) or (len(nameValue) == 0):
+            nameValue = entityInformationProvider().getSamplePropertyValue(permId, "TARGET") #For OLIGO Sample Type
+        if nameValue is not None:
+            row.setCell("name", nameValue)
+        
         for annotation in sample.getAttributes():
-            if annotation != "permId":
+            if annotation != "permId" and annotation != "NAME":
                 row.setCell(annotation, sample.getAttribute(annotation))
-            
+        
     # Add Create buttons
     for sampleTypeCode in getAllAnnotableSampleTypesForType(annotableType):
         title = "Add " + sampleTypeCode;
         addAction = uiDescription.addTableAction(title).setDescription(title)
         widgets = getWidgetForAdd(sampleTypeCode, annotableType)
         addAction.addInputWidgets(widgets)
-    
+
+    # TO-DO Edit button for each type with different hooks to the columns depending on the type
+    # Add Edit Button (EXPERIMENTAL)
+#     editAction = uiDescription.addTableAction('Edit').setDescription('Edit selected table row')
+#     editAction.setRowSelectionRequiredSingle()
+#     editWidgets = []
+#     for headerKey in usedTableHeaders:
+#         editWidgets.append(inputWidgetFactory().createTextInputField(headerKey))
+#         editAction.addBinding(headerKey, headerKey)
+#     editAction.addInputWidgets(editWidgets)
+
     # Add Delete button
     deleteAction = uiDescription.addTableAction("Delete")\
                                 .setDescription('Are you sure you want to delete selected annotation?')
     deleteAction.setRowSelectionRequired() # Delete is enabled when at least 1 row is selected.
-
+    
 def updateFromUI(action):
     converter = propertyConverter()
     elements = list(converter.convertToElements(property))
