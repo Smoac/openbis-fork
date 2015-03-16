@@ -16,7 +16,6 @@
 
 package ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.material;
 
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.ObjectPermId;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
@@ -25,17 +24,42 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
  * @author pkupczyk
  */
 @JsonObject("dto.id.material.MaterialPermId")
-public class MaterialPermId extends ObjectPermId implements IMaterialId
+public class MaterialPermId implements IMaterialId
 {
 
     private static final long serialVersionUID = 1L;
 
+    private String code;
+
+    private String typeCode;
+
     /**
-     * @param permId Material perm id, e.g. "MY_MATERIAL (MY_MATERIAL_TYPE)".
+     * Material perm id, e.g. "MY_MATERIAL (MY_MATERIAL_TYPE)".
      */
-    public MaterialPermId(String permId)
+    public MaterialPermId(String materialCode, String materialTypeCode)
     {
-        super(permId);
+        this.code = materialCode;
+        this.typeCode = materialTypeCode;
+    }
+
+    public String getCode()
+    {
+        return code;
+    }
+
+    public void setCode(String code)
+    {
+        this.code = code;
+    }
+
+    public String getTypeCode()
+    {
+        return typeCode;
+    }
+
+    public void setTypeCode(String typeCode)
+    {
+        this.typeCode = typeCode;
     }
 
     //
@@ -48,4 +72,52 @@ public class MaterialPermId extends ObjectPermId implements IMaterialId
         super();
     }
 
+    @Override
+    public int hashCode()
+    {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((code == null) ? 0 : code.hashCode());
+        result = prime * result + ((typeCode == null) ? 0 : typeCode.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (this == obj)
+        {
+            return true;
+        }
+        if (obj == null)
+        {
+            return false;
+        }
+        if (getClass() != obj.getClass())
+        {
+            return false;
+        }
+        MaterialPermId other = (MaterialPermId) obj;
+        if (code == null)
+        {
+            if (other.code != null)
+            {
+                return false;
+            }
+        } else if (!code.equals(other.code))
+        {
+            return false;
+        }
+        if (typeCode == null)
+        {
+            if (other.typeCode != null)
+            {
+                return false;
+            }
+        } else if (!typeCode.equals(other.typeCode))
+        {
+            return false;
+        }
+        return true;
+    }
 }

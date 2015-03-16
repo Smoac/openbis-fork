@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 ETH Zuerich, CISD
+ * Copyright 2014 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,20 +13,176 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material;
 
-import java.io.Serializable;
-
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.person.Person;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.tag.Tag;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.material.MaterialFetchOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.material.MaterialPermId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.NotFetchedException;
 import ch.systemsx.cisd.base.annotation.JsonObject;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import java.io.Serializable;
+import java.util.Date;
+import java.util.Map;
+import java.util.Set;
 
 /**
- * @author pkupczyk
+ * Class automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
  */
 @JsonObject("dto.entity.material.Material")
 public class Material implements Serializable
 {
-
     private static final long serialVersionUID = 1L;
+
+    @JsonProperty
+    private MaterialFetchOptions fetchOptions;
+
+    @JsonProperty
+    private MaterialPermId permId;
+
+    @JsonProperty
+    private String code;
+
+    @JsonProperty
+    private Date registrationDate;
+
+    @JsonProperty
+    private Person registrator;
+
+    @JsonProperty
+    private Date modificationDate;
+
+    @JsonProperty
+    private Map<String, String> properties;
+
+    @JsonProperty
+    private Set<Tag> tags;
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    @JsonIgnore
+    public MaterialFetchOptions getFetchOptions()
+    {
+        return fetchOptions;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public void setFetchOptions(MaterialFetchOptions fetchOptions)
+    {
+        this.fetchOptions = fetchOptions;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    @JsonIgnore
+    public MaterialPermId getPermId()
+    {
+        return permId;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public void setPermId(MaterialPermId permId)
+    {
+        this.permId = permId;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    @JsonIgnore
+    public String getCode()
+    {
+        return code;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public void setCode(String code)
+    {
+        this.code = code;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    @JsonIgnore
+    public Date getRegistrationDate()
+    {
+        return registrationDate;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public void setRegistrationDate(Date registrationDate)
+    {
+        this.registrationDate = registrationDate;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    @JsonIgnore
+    public Person getRegistrator()
+    {
+        if (getFetchOptions().hasRegistrator())
+        {
+            return registrator;
+        }
+        else
+        {
+            throw new NotFetchedException("Registrator has not been fetched.");
+        }
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public void setRegistrator(Person registrator)
+    {
+        this.registrator = registrator;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    @JsonIgnore
+    public Date getModificationDate()
+    {
+        return modificationDate;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public void setModificationDate(Date modificationDate)
+    {
+        this.modificationDate = modificationDate;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    @JsonIgnore
+    public Map<String, String> getProperties()
+    {
+        if (getFetchOptions().hasProperties())
+        {
+            return properties;
+        }
+        else
+        {
+            throw new NotFetchedException("Properties have not been fetched.");
+        }
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public void setProperties(Map<String, String> properties)
+    {
+        this.properties = properties;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    @JsonIgnore
+    public Set<Tag> getTags()
+    {
+        if (getFetchOptions().hasTags())
+        {
+            return tags;
+        }
+        else
+        {
+            throw new NotFetchedException("Tags have not been fetched.");
+        }
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public void setTags(Set<Tag> tags)
+    {
+        this.tags = tags;
+    }
 
 }

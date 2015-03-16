@@ -30,6 +30,8 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.FileFo
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.LocatorTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.experiment.ExperimentFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.experiment.ExperimentTypeFetchOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.material.MaterialFetchOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.material.MaterialTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.person.PersonFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.project.ProjectFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sample.SampleFetchOptions;
@@ -42,6 +44,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.DataSetPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.entitytype.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentIdentifier;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentPermId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.material.MaterialPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.ProjectIdentifier;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.ProjectPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SampleIdentifier;
@@ -364,6 +367,30 @@ public class Generator extends AbstractGenerator
         return gen;
     }
 
+    private static DtoGenerator createMaterialGenerator()
+    {
+        DtoGenerator gen = new DtoGenerator("material", "Material", MaterialFetchOptions.class);
+        gen.addSimpleField(MaterialPermId.class, "permId");
+        addCode(gen);
+        addRegistrationDate(gen);
+        addRegistrator(gen);
+        addModificationDate(gen);
+        addProperties(gen);
+        addTags(gen);
+        return gen;
+    }
+
+    private static DtoGenerator createMaterialTypeGenerator()
+    {
+        DtoGenerator gen = new DtoGenerator("material", "MaterialType", MaterialTypeFetchOptions.class);
+
+        gen.addSimpleField(EntityTypePermId.class, "permId");
+        addCode(gen);
+        addDescription(gen);
+        addModificationDate(gen);
+        return gen;
+    }
+
     public static void main(String[] args) throws FileNotFoundException
     {
         List<DtoGenerator> list = new LinkedList<DtoGenerator>();
@@ -378,6 +405,8 @@ public class Generator extends AbstractGenerator
         list.add(createSampleTypeGenerator());
         list.add(createSpaceGenerator());
         list.add(createTagGenerator());
+        list.add(createMaterialGenerator());
+        list.add(createMaterialTypeGenerator());
 
         for (DtoGenerator gen : list)
         {
