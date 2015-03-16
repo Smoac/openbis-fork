@@ -39,6 +39,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.attachment.Attachmen
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.ExperimentType;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material.Material;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.project.Project;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.Sample;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.tag.Tag;
@@ -46,6 +47,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.experiment.Exp
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentIdentifier;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.IExperimentId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.material.MaterialPermId;
 import ch.systemsx.cisd.common.test.AssertionUtil;
 
 /**
@@ -715,5 +717,30 @@ public class MapExperimentTest extends AbstractExperimentTest
                 "EV-PARENT-NORMAL", "CP-TEST-4", "SAMPLE-TO-DELETE");
 
         v3api.logout(sessionToken);
+    }
+
+    @Test
+    public void testWithMaterialProperties()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
+        fetchOptions.withMaterialProperties().withRegistrator();
+        fetchOptions.withProperties();
+
+        ExperimentPermId permId = new ExperimentPermId("201108050937246-1031");
+
+        Map<IExperimentId, Experiment> map = v3api.mapExperiments(sessionToken, Arrays.asList(permId), fetchOptions);
+
+        Experiment experiment = map.get(permId);
+
+        assertEquals(experiment.getProperties().get("ANY_MATERIAL"), "BACTERIUM-Y (BACTERIUM)");
+
+        Map<String, Material> materialProperties = experiment.getMaterialProperties();
+
+        Material bacterium = materialProperties.get("ANY_MATERIAL");
+        assertEquals(bacterium.getPermId(), new MaterialPermId("BACTERIUM-Y", "BACTERIUM"));
+        assertEquals(bacterium.getRegistrator().getUserId(), "test");
+        assertTagsNotFetched(bacterium);
     }
 }

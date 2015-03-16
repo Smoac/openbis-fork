@@ -66,6 +66,13 @@ public class MaterialTranslator extends AbstractCachingTranslator<MaterialPE, Ma
             result.getFetchOptions().withPropertiesUsing(getFetchOptions().withProperties());
         }
 
+        if (getFetchOptions().hasMaterialProperties())
+        {
+            result.setMaterialProperties(new MaterialPropertyTranslator(getTranslationContext(), getFetchOptions().withMaterialProperties())
+                    .translate(materialPe));
+            result.getFetchOptions().withMaterialPropertiesUsing(getFetchOptions().withMaterialProperties());
+        }
+
         if (getFetchOptions().hasTags())
         {
             List<Tag> tags =

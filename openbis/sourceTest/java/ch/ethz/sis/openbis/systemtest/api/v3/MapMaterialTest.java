@@ -92,4 +92,28 @@ public class MapMaterialTest extends AbstractDataSetTest
         v3api.logout(sessionToken);
     }
 
+    @Test
+    public void testWithMaterialProperties()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        MaterialFetchOptions fetchOptions = new MaterialFetchOptions();
+        fetchOptions.withMaterialProperties().withProperties();
+
+        MaterialPermId selfParentId = new MaterialPermId("SRM_1", "SELF_REF");
+        MaterialPermId selfChildId = new MaterialPermId("SRM_1A", "SELF_REF");
+
+        Map<IMaterialId, Material> map = v3api.mapMaterials(sessionToken, Arrays.asList(selfChildId, selfParentId), fetchOptions);
+
+        Material parent = map.get(selfParentId);
+        Material child = map.get(selfChildId);
+
+        Map<String, Material> materialProperties = parent.getMaterialProperties();
+
+        Material childFromProperties = materialProperties.get("ANY_MATERIAL");
+
+        assertEquals(selfChildId, childFromProperties.getPermId());
+        assertEquals(true, child == childFromProperties);
+
+    }
 }

@@ -24,6 +24,7 @@ import ch.ethz.sis.openbis.generic.server.api.v3.translator.Relations;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.common.ListTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.experiment.ExperimentTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.material.MaterialPropertyTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.person.PersonTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.property.PropertyTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.sample.SampleTranslator;
@@ -142,6 +143,13 @@ public class DataSetTranslator extends AbstractCachingTranslator<DataPE, DataSet
             result.setProperties(new PropertyTranslator(getTranslationContext(), getFetchOptions().withProperties())
                     .translate(dataPe));
             result.getFetchOptions().withPropertiesUsing(getFetchOptions().withProperties());
+        }
+
+        if (getFetchOptions().hasMaterialProperties())
+        {
+            result.setMaterialProperties(new MaterialPropertyTranslator(getTranslationContext(), getFetchOptions().withMaterialProperties())
+                    .translate(dataPe));
+            result.getFetchOptions().withMaterialPropertiesUsing(getFetchOptions().withMaterialProperties());
         }
 
         if (getFetchOptions().hasType())

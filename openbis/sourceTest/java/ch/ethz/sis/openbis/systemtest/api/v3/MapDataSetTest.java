@@ -29,11 +29,13 @@ import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSetKind;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material.Material;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.tag.Tag;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.DataSetFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.tag.TagFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.DataSetPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.IDataSetId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.material.MaterialPermId;
 
 /**
  * @author pkupczyk
@@ -607,5 +609,36 @@ public class MapDataSetTest extends AbstractDataSetTest
         assertRegistratorNotFetched(dataSet);
 
         v3api.logout(sessionToken);
+    }
+
+    @Test
+    public void testWithMaterialProperties()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        DataSetFetchOptions fetchOptions = new DataSetFetchOptions();
+        fetchOptions.withMaterialProperties().withRegistrator();
+        fetchOptions.withProperties();
+
+        DataSetPermId permId = new DataSetPermId("20081105092159111-1");
+
+        Map<IDataSetId, DataSet> map = v3api.mapDataSets(sessionToken, Arrays.asList(permId), fetchOptions);
+
+        DataSet data = map.get(permId);
+
+        assertEquals(data.getProperties().get("ANY_MATERIAL"), "1000_C (GENE)");
+        assertEquals(data.getProperties().get("BACTERIUM"), "BACTERIUM1 (BACTERIUM)");
+
+        Map<String, Material> materialProperties = data.getMaterialProperties();
+
+        Material gene = materialProperties.get("ANY_MATERIAL");
+        assertEquals(gene.getPermId(), new MaterialPermId("1000_C", "GENE"));
+        assertEquals(gene.getRegistrator().getUserId(), "test");
+        assertTagsNotFetched(gene);
+
+        Material bacterium = materialProperties.get("BACTERIUM");
+        assertEquals(bacterium.getPermId(), new MaterialPermId("BACTERIUM1", "BACTERIUM"));
+        assertEquals(bacterium.getRegistrator().getUserId(), "test");
+        assertTagsNotFetched(bacterium);
     }
 }
