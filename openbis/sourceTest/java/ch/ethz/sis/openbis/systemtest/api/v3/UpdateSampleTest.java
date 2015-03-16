@@ -235,7 +235,7 @@ public class UpdateSampleTest extends AbstractSampleTest
         Sample sample = samples.get(0);
         assertEquals(sample.getSpace(), null);
         assertEquals(sample.getExperiment(), null);
-        assertIdentifier(sample, "/SAMPLE");
+        assertSampleIdentifier(sample, "/SAMPLE");
     }
 
     @Test
@@ -316,7 +316,7 @@ public class UpdateSampleTest extends AbstractSampleTest
         Sample sample = samples.get(0);
         assertEquals(sample.getSpace().getCode(), "TEST-SPACE");
         assertEquals(sample.getExperiment().getIdentifier().getIdentifier(), "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST");
-        assertIdentifier(sample, "/TEST-SPACE/SAMPLE");
+        assertSampleIdentifier(sample, "/TEST-SPACE/SAMPLE");
     }
 
     @Test
@@ -594,10 +594,10 @@ public class UpdateSampleTest extends AbstractSampleTest
         Sample container = samples.get(0);
         Sample contained = samples.get(1);
 
-        assertIdentifier(container, "/CISD/TEST_CONTAINER");
+        assertSampleIdentifier(container, "/CISD/TEST_CONTAINER");
         assertCollectionContainsOnly(container.getContained(), contained);
 
-        assertIdentifier(contained, "/CISD/TEST_CONTAINER:TEST_CONTAINED");
+        assertSampleIdentifier(contained, "/CISD/TEST_CONTAINER:TEST_CONTAINED");
         assertEquals(contained.getContainer(), container);
     }
 
@@ -736,19 +736,19 @@ public class UpdateSampleTest extends AbstractSampleTest
         Sample contained2 = samples.get(3);
         Sample contained3 = samples.get(4);
 
-        assertIdentifier(container1, "/CISD/TEST_CONTAINER_1");
+        assertSampleIdentifier(container1, "/CISD/TEST_CONTAINER_1");
         assertCollectionContainsOnly(container1.getContained(), contained2);
 
-        assertIdentifier(container2, "/CISD/TEST_CONTAINER_2");
+        assertSampleIdentifier(container2, "/CISD/TEST_CONTAINER_2");
         assertCollectionContainsOnly(container2.getContained(), contained1, contained3);
 
-        assertIdentifier(contained1, "/CISD/TEST_CONTAINER_2:TEST_CONTAINED_1");
+        assertSampleIdentifier(contained1, "/CISD/TEST_CONTAINER_2:TEST_CONTAINED_1");
         assertEquals(contained1.getContainer(), container2);
 
-        assertIdentifier(contained2, "/CISD/TEST_CONTAINER_1:TEST_CONTAINED_2");
+        assertSampleIdentifier(contained2, "/CISD/TEST_CONTAINER_1:TEST_CONTAINED_2");
         assertEquals(contained2.getContainer(), container1);
 
-        assertIdentifier(contained3, "/CISD/TEST_CONTAINER_2:TEST_CONTAINED_3");
+        assertSampleIdentifier(contained3, "/CISD/TEST_CONTAINER_2:TEST_CONTAINED_3");
         assertEquals(contained3.getContainer(), container2);
     }
 
@@ -886,19 +886,19 @@ public class UpdateSampleTest extends AbstractSampleTest
         Sample parent2 = samples.get(3);
         Sample parent3 = samples.get(4);
 
-        assertIdentifier(child1, "/CISD/TEST_CHILD_1");
+        assertSampleIdentifier(child1, "/CISD/TEST_CHILD_1");
         assertCollectionContainsOnly(child1.getParents(), parent1, parent2);
 
-        assertIdentifier(child2, "/CISD/TEST_CHILD_2");
+        assertSampleIdentifier(child2, "/CISD/TEST_CHILD_2");
         assertCollectionContainsOnly(child2.getParents(), parent2, parent3);
 
-        assertIdentifier(parent1, "/CISD/TEST_PARENT_1");
+        assertSampleIdentifier(parent1, "/CISD/TEST_PARENT_1");
         assertCollectionContainsOnly(parent1.getChildren(), child1);
 
-        assertIdentifier(parent2, "/CISD/TEST_PARENT_2");
+        assertSampleIdentifier(parent2, "/CISD/TEST_PARENT_2");
         assertCollectionContainsOnly(parent2.getChildren(), child1, child2);
 
-        assertIdentifier(parent3, "/CISD/TEST_PARENT_3");
+        assertSampleIdentifier(parent3, "/CISD/TEST_PARENT_3");
         assertCollectionContainsOnly(parent3.getChildren(), child2);
     }
 
@@ -1036,19 +1036,19 @@ public class UpdateSampleTest extends AbstractSampleTest
         Sample child2 = samples.get(3);
         Sample child3 = samples.get(4);
 
-        assertIdentifier(parent1, "/CISD/TEST_PARENT_1");
+        assertSampleIdentifier(parent1, "/CISD/TEST_PARENT_1");
         assertCollectionContainsOnly(parent1.getChildren(), child1, child2);
 
-        assertIdentifier(parent2, "/CISD/TEST_PARENT_2");
+        assertSampleIdentifier(parent2, "/CISD/TEST_PARENT_2");
         assertCollectionContainsOnly(parent2.getChildren(), child2, child3);
 
-        assertIdentifier(child1, "/CISD/TEST_CHILD_1");
+        assertSampleIdentifier(child1, "/CISD/TEST_CHILD_1");
         assertCollectionContainsOnly(child1.getParents(), parent1);
 
-        assertIdentifier(child2, "/CISD/TEST_CHILD_2");
+        assertSampleIdentifier(child2, "/CISD/TEST_CHILD_2");
         assertCollectionContainsOnly(child2.getParents(), parent1, parent2);
 
-        assertIdentifier(child3, "/CISD/TEST_CHILD_3");
+        assertSampleIdentifier(child3, "/CISD/TEST_CHILD_3");
         assertCollectionContainsOnly(child3.getParents(), parent2);
     }
 
@@ -1234,10 +1234,10 @@ public class UpdateSampleTest extends AbstractSampleTest
         Sample sample1 = samples.get(0);
         Sample sample2 = samples.get(1);
 
-        assertIdentifier(sample1, "/CISD/SAMPLE_1_WITH_TAGS");
+        assertSampleIdentifier(sample1, "/CISD/SAMPLE_1_WITH_TAGS");
         assertTags(sample1.getTags(), "/test/TEST_TAG_1", "/test/TEST_TAG_3");
 
-        assertIdentifier(sample2, "/CISD/SAMPLE_2_WITH_TAGS");
+        assertSampleIdentifier(sample2, "/CISD/SAMPLE_2_WITH_TAGS");
         assertTags(sample2.getTags(), "/test/TEST_TAG_2", "/test/TEST_TAG_3");
     }
 

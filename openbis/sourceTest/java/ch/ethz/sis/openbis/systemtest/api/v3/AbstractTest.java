@@ -44,7 +44,9 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.attachment.Attachmen
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.person.Person;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.project.Project;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.Sample;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.space.Space;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.tag.Tag;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.IObjectId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.NotFetchedException;
@@ -173,6 +175,18 @@ public class AbstractTest extends SystemTestCase
             });
     }
 
+    protected void assertProjectsNotFetched(final Space space)
+    {
+        assertNotFetched(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    space.getProjects();
+                }
+            });
+    }
+
     protected void assertTagsNotFetched(final Experiment experiment)
     {
         assertNotFetched(new IDelegatedAction()
@@ -229,6 +243,18 @@ public class AbstractTest extends SystemTestCase
                 public void execute()
                 {
                     dataSet.getSample();
+                }
+            });
+    }
+
+    protected void assertSamplesNotFetched(final Space space)
+    {
+        assertNotFetched(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    space.getSamples();
                 }
             });
     }
@@ -385,6 +411,18 @@ public class AbstractTest extends SystemTestCase
                 public void execute()
                 {
                     sample.getTags();
+                }
+            });
+    }
+
+    protected void assertRegistratorNotFetched(final Space space)
+    {
+        assertNotFetched(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    space.getRegistrator();
                 }
             });
     }
@@ -690,6 +728,44 @@ public class AbstractTest extends SystemTestCase
     protected void assertEqualsDate(Date actualDate, String expectedDate)
     {
         assertEquals(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(actualDate), expectedDate);
+    }
+
+    protected static void assertProjectIdentifiers(Collection<Project> projects, String... expectedIdentifiers)
+    {
+        Set<String> actualSet = new HashSet<String>();
+        for (Project project : projects)
+        {
+            actualSet.add(project.getIdentifier().getIdentifier());
+        }
+
+        assertCollectionContainsOnly(actualSet, expectedIdentifiers);
+    }
+
+    protected static void assertExperimentIdentifiers(Collection<Experiment> experiments, String... expectedIdentifiers)
+    {
+        Set<String> actualSet = new HashSet<String>();
+        for (Experiment experiment : experiments)
+        {
+            actualSet.add(experiment.getIdentifier().getIdentifier());
+        }
+
+        assertCollectionContainsOnly(actualSet, expectedIdentifiers);
+    }
+
+    protected static void assertSampleIdentifier(Sample sample, String expectedIdentifier)
+    {
+        assertEquals(sample.getIdentifier().getIdentifier(), expectedIdentifier);
+    }
+
+    protected static void assertSampleIdentifiers(Collection<Sample> samples, String... expectedIdentifiers)
+    {
+        Set<String> actualSet = new HashSet<String>();
+        for (Sample sample : samples)
+        {
+            actualSet.add(sample.getIdentifier().getIdentifier());
+        }
+
+        assertCollectionContainsOnly(actualSet, expectedIdentifiers);
     }
 
 }

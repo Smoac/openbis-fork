@@ -479,7 +479,7 @@ public class SearchSampleTest extends AbstractSampleTest
         List<Sample> samples =
                 v3api.searchSamples(sessionToken, criterion, new SampleFetchOptions());
 
-        assertIdentifiers(samples, expectedIdentifiers);
+        assertSampleIdentifiers(samples, expectedIdentifiers);
         v3api.logout(sessionToken);
     }
 

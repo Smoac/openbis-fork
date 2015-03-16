@@ -558,7 +558,7 @@ public class SearchExperimentTest extends AbstractExperimentTest
         List<Experiment> experiments =
                 v3api.searchExperiments(sessionToken, criterion, new ExperimentFetchOptions());
 
-        assertIdentifiers(experiments, expectedIdentifiers);
+        assertExperimentIdentifiers(experiments, expectedIdentifiers);
         v3api.logout(sessionToken);
     }
 

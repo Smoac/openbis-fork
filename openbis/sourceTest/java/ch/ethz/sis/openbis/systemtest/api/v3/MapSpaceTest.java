@@ -16,7 +16,7 @@
 
 package ch.ethz.sis.openbis.systemtest.api.v3;
 
-import static org.testng.Assert.assertEquals; 
+import static org.testng.Assert.assertEquals;
 
 import java.util.Arrays;
 import java.util.Iterator;
@@ -25,6 +25,9 @@ import java.util.Map;
 
 import org.testng.annotations.Test;
 
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.person.Person;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.project.Project;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.Sample;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.space.Space;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.space.SpaceFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.ISpaceId;
@@ -127,6 +130,83 @@ public class MapSpaceTest extends AbstractTest
         assertEquals(map.get(permId2).getPermId(), permId2);
 
         v3api.logout(sessionToken);
+    }
+
+    @Test
+    public void testMapByIdsWithFetchOptionsEmpty()
+    {
+        SpacePermId permId = new SpacePermId("TEST-SPACE");
+
+        SpaceFetchOptions fetchOptions = new SpaceFetchOptions();
+
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        Map<ISpaceId, Space> map = v3api.mapSpaces(sessionToken, Arrays.asList(permId), fetchOptions);
+
+        Space space = map.get(permId);
+
+        assertProjectsNotFetched(space);
+        assertSamplesNotFetched(space);
+        assertRegistratorNotFetched(space);
+    }
+
+    @Test
+    public void testMapByIdsWithProjects()
+    {
+        SpacePermId permId = new SpacePermId("TEST-SPACE");
+
+        SpaceFetchOptions fetchOptions = new SpaceFetchOptions();
+        fetchOptions.withProjects();
+
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        Map<ISpaceId, Space> map = v3api.mapSpaces(sessionToken, Arrays.asList(permId), fetchOptions);
+
+        Space space = map.get(permId);
+        List<Project> projects = space.getProjects();
+
+        assertProjectIdentifiers(projects, "/TEST-SPACE/TEST-PROJECT", "/TEST-SPACE/NOE", "/TEST-SPACE/PROJECT-TO-DELETE");
+
+        assertSamplesNotFetched(space);
+        assertRegistratorNotFetched(space);
+    }
+
+    @Test
+    public void testMapByIdsWithSamples()
+    {
+        SpacePermId permId = new SpacePermId("TEST-SPACE");
+
+        SpaceFetchOptions fetchOptions = new SpaceFetchOptions();
+        fetchOptions.withSamples();
+
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        Map<ISpaceId, Space> map = v3api.mapSpaces(sessionToken, Arrays.asList(permId), fetchOptions);
+
+        Space space = map.get(permId);
+        List<Sample> samples = space.getSamples();
+
+        assertSampleIdentifiers(samples, "/TEST-SPACE/FV-TEST", "/TEST-SPACE/EV-TEST", "/TEST-SPACE/EV-INVALID", "/TEST-SPACE/EV-NOT_INVALID",
+                "/TEST-SPACE/EV-PARENT", "/TEST-SPACE/EV-PARENT-NORMAL", "/TEST-SPACE/CP-TEST-4", "/TEST-SPACE/SAMPLE-TO-DELETE");
+
+        assertProjectsNotFetched(space);
+        assertRegistratorNotFetched(space);
+    }
+
+    @Test
+    public void testMapByIdsWithRegistrator()
+    {
+        SpacePermId permId = new SpacePermId("TEST-SPACE");
+
+        SpaceFetchOptions fetchOptions = new SpaceFetchOptions();
+        fetchOptions.withRegistrator();
+
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        Map<ISpaceId, Space> map = v3api.mapSpaces(sessionToken, Arrays.asList(permId), fetchOptions);
+
+        Space space = map.get(permId);
+        Person registrator = space.getRegistrator();
+
+        assertEquals(registrator.getUserId(), "test");
+        assertProjectsNotFetched(space);
+        assertSamplesNotFetched(space);
     }
 
 }
