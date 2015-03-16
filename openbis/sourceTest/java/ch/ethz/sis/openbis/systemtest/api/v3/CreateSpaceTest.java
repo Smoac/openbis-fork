@@ -93,27 +93,35 @@ public class CreateSpaceTest extends AbstractTest
     @Test
     public void testCreateWithInstanceAdmin()
     {
-        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
-
-        SpaceCreation creation = new SpaceCreation();
-        creation.setCode("NEW_SPACE");
-
-        List<SpacePermId> permIds = v3api.createSpaces(sessionToken, Arrays.asList(creation));
-        Map<ISpaceId, Space> map = v3api.mapSpaces(sessionToken, permIds, new SpaceFetchOptions());
-
-        assertEquals(map.size(), 1);
-
-        Space space = map.values().iterator().next();
-        assertEquals(space.getCode(), creation.getCode());
+        testCreateWithUser(TEST_USER);
     }
 
     @Test
     public void testCreateWithSpaceAdmin()
     {
-        final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
+        testCreateWithUser(TEST_SPACE_USER);
+    }
+
+    @Test
+    public void testCreateWithSpaceObserver()
+    {
+        assertAuthorizationFailureException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    testCreateWithUser(TEST_GROUP_OBSERVER);
+                }
+            });
+    }
+
+    private void testCreateWithUser(String userId)
+    {
+        final String sessionToken = v3api.login(userId, PASSWORD);
 
         SpaceCreation creation = new SpaceCreation();
         creation.setCode("NEW_SPACE");
+        creation.setDescription("a new description");
 
         List<SpacePermId> permIds = v3api.createSpaces(sessionToken, Arrays.asList(creation));
         Map<ISpaceId, Space> map = v3api.mapSpaces(sessionToken, permIds, new SpaceFetchOptions());
@@ -122,24 +130,7 @@ public class CreateSpaceTest extends AbstractTest
 
         Space space = map.values().iterator().next();
         assertEquals(space.getCode(), creation.getCode());
-    }
-
-    @Test
-    public void testCreateWithSpaceObserver()
-    {
-        final String sessionToken = v3api.login(TEST_GROUP_OBSERVER, PASSWORD);
-
-        final SpaceCreation creation = new SpaceCreation();
-        creation.setCode("NEW_SPACE");
-
-        assertAuthorizationFailureException(new IDelegatedAction()
-            {
-                @Override
-                public void execute()
-                {
-                    v3api.createSpaces(sessionToken, Arrays.asList(creation));
-                }
-            });
+        assertEquals(space.getDescription(), creation.getDescription());
     }
 
 }

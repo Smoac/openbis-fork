@@ -16,11 +16,16 @@
 
 package ch.ethz.sis.openbis.systemtest.api.v3;
 
+import static org.testng.Assert.assertEquals;
+
 import java.util.Arrays;
+import java.util.Map;
 
 import org.testng.annotations.Test;
 
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.space.Space;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.space.SpaceUpdate;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.space.SpaceFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.ISpaceId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.SpacePermId;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
@@ -69,4 +74,44 @@ public class UpdateSpaceTest extends AbstractTest
             }, spaceId);
     }
 
+    @Test
+    public void testUpdate()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        final String spaceCode1 = "CISD";
+        final String spaceCode2 = "TEST-SPACE";
+
+        final ISpaceId spaceId1 = new SpacePermId(spaceCode1);
+        final ISpaceId spaceId2 = new SpacePermId(spaceCode2);
+
+        Map<ISpaceId, Space> map = v3api.mapSpaces(sessionToken, Arrays.asList(spaceId1, spaceId2), new SpaceFetchOptions());
+
+        Space space1 = map.get(spaceId1);
+        Space space2 = map.get(spaceId2);
+
+        assertEquals(space1.getCode(), spaceCode1);
+        assertEquals(space1.getDescription(), null);
+        assertEquals(space2.getCode(), spaceCode2);
+        assertEquals(space2.getDescription(), "myDescription");
+
+        final SpaceUpdate update1 = new SpaceUpdate();
+        update1.setSpaceId(spaceId1);
+        update1.setDescription("a new description 1");
+
+        final SpaceUpdate update2 = new SpaceUpdate();
+        update2.setSpaceId(spaceId2);
+        update2.setDescription("a new description 2");
+
+        v3api.updateSpaces(sessionToken, Arrays.asList(update1, update2));
+        map = v3api.mapSpaces(sessionToken, Arrays.asList(spaceId1, spaceId2), new SpaceFetchOptions());
+
+        space1 = map.get(spaceId1);
+        space2 = map.get(spaceId2);
+
+        assertEquals(space1.getCode(), spaceCode1);
+        assertEquals(space1.getDescription(), update1.getDescription().getValue());
+        assertEquals(space2.getCode(), spaceCode2);
+        assertEquals(space2.getDescription(), update2.getDescription().getValue());
+    }
 }
