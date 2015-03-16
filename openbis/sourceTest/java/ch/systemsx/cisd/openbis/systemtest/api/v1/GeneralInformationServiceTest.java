@@ -1539,7 +1539,8 @@ public class GeneralInformationServiceTest extends SystemTestCase
         assertEquals("ExperimentType[COMPOUND_HCS,Compound High Content Screening,"
                 + "[PropertyTypeGroup[<null>,["
                 + "PropertyType[VARCHAR,DESCRIPTION,Description,A Description,mandatory], "
-                + "PropertyType[VARCHAR,COMMENT,Comment,Any other comments,optional]]]]]",
+                + "PropertyType[VARCHAR,COMMENT,Comment,Any other comments,optional], "
+                + "PropertyType[MATERIAL,ANY_MATERIAL,any_material,any_material,optional]]]]]",
                 experimentTypes.get(0).toString());
         assertEquals(2, experimentTypes.size());
     }
