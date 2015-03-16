@@ -7,6 +7,7 @@ import java.util.Set;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.attachment.Attachment;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IPropertiesHolder;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material.Material;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.person.Person;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.Sample;
@@ -73,12 +74,13 @@ public class AbstractGenerator
 
     public static void addProperties(DtoGenerator gen)
     {
-        gen.addPluralFetchedField("Map<String, String>", Map.class.getName(), "properties", "Properties", PropertyFetchOptions.class);
+        gen.addPluralFetchedFieldFromInterface("Map<String, String>", Map.class.getName(), "properties", "Properties", PropertyFetchOptions.class);
         gen.addClassForImport(Map.class);
-        gen.addPluralFetchedField("Map<String, Material>", Map.class.getName(), "materialProperties", "Material Properties",
+        gen.addPluralFetchedFieldFromInterface("Map<String, Material>", Map.class.getName(), "materialProperties", "Material Properties",
                 MaterialFetchOptions.class);
         gen.addClassForImport(Map.class);
         gen.addClassForImport(Material.class);
+        gen.addImplementedInterface(IPropertiesHolder.class);
     }
 
     public static void addAttachments(DtoGenerator gen)

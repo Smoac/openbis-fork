@@ -18,6 +18,8 @@ package ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSetType;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.ExternalData;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IParentChildrenHolder;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IPropertiesHolder;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material.Material;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.person.Person;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.Sample;
@@ -38,7 +40,7 @@ import java.util.Set;
  * Class automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
  */
 @JsonObject("dto.entity.dataset.DataSet")
-public class DataSet implements Serializable
+public class DataSet implements Serializable, IParentChildrenHolder<DataSet>, IPropertiesHolder
 {
     private static final long serialVersionUID = 1L;
 
@@ -185,6 +187,7 @@ public class DataSet implements Serializable
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     @JsonIgnore
+    @Override
     public List<DataSet> getParents()
     {
         if (getFetchOptions().hasParents())
@@ -205,6 +208,7 @@ public class DataSet implements Serializable
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     @JsonIgnore
+    @Override
     public List<DataSet> getChildren()
     {
         if (getFetchOptions().hasChildren())
@@ -431,6 +435,7 @@ public class DataSet implements Serializable
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     @JsonIgnore
+    @Override
     public Map<String, String> getProperties()
     {
         if (getFetchOptions().hasProperties())
@@ -451,6 +456,7 @@ public class DataSet implements Serializable
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     @JsonIgnore
+    @Override
     public Map<String, Material> getMaterialProperties()
     {
         if (getFetchOptions().hasMaterialProperties())

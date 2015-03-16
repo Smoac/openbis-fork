@@ -15,6 +15,7 @@
  */
 package ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material;
 
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IPropertiesHolder;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material.Material;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.person.Person;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.tag.Tag;
@@ -33,7 +34,7 @@ import java.util.Set;
  * Class automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
  */
 @JsonObject("dto.entity.material.Material")
-public class Material implements Serializable
+public class Material implements Serializable, IPropertiesHolder
 {
     private static final long serialVersionUID = 1L;
 
@@ -151,6 +152,7 @@ public class Material implements Serializable
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     @JsonIgnore
+    @Override
     public Map<String, String> getProperties()
     {
         if (getFetchOptions().hasProperties())
@@ -171,6 +173,7 @@ public class Material implements Serializable
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     @JsonIgnore
+    @Override
     public Map<String, Material> getMaterialProperties()
     {
         if (getFetchOptions().hasMaterialProperties())

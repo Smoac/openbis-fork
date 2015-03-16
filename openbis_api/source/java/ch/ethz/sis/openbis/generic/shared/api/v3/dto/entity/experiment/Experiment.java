@@ -18,6 +18,7 @@ package ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.attachment.Attachment;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.ExperimentType;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IPropertiesHolder;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material.Material;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.person.Person;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.project.Project;
@@ -40,7 +41,7 @@ import java.util.Set;
  * Class automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
  */
 @JsonObject("dto.entity.experiment.Experiment")
-public class Experiment implements Serializable
+public class Experiment implements Serializable, IPropertiesHolder
 {
     private static final long serialVersionUID = 1L;
 
@@ -252,6 +253,7 @@ public class Experiment implements Serializable
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     @JsonIgnore
+    @Override
     public Map<String, String> getProperties()
     {
         if (getFetchOptions().hasProperties())
@@ -272,6 +274,7 @@ public class Experiment implements Serializable
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     @JsonIgnore
+    @Override
     public Map<String, Material> getMaterialProperties()
     {
         if (getFetchOptions().hasMaterialProperties())

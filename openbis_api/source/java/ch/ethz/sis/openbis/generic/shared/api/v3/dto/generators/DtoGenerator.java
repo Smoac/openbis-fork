@@ -4,6 +4,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -38,7 +39,7 @@ public class DtoGenerator
 
     private String toStringContent;
 
-    private List<Class<?>> implementedInterfaces;
+    private List<String> implementedInterfaces;
 
     public DtoGenerator(String subPackage, String className, Class<?> fetchOptionsClass)
     {
@@ -46,6 +47,7 @@ public class DtoGenerator
         this.className = className;
         this.additionalImports = new HashSet<String>();
         this.fields = new LinkedList<DtoGenerator.DTOField>();
+        this.implementedInterfaces = new ArrayList<String>();
 
         addClassForImport(JsonProperty.class);
         addClassForImport(JsonIgnore.class);
@@ -218,7 +220,13 @@ public class DtoGenerator
 
     public void addImplementedInterface(Class<?> i)
     {
-        implementedInterfaces.add(i);
+        implementedInterfaces.add(i.getSimpleName());
+        additionalImports.add(i.getName());
+    }
+
+    public void addImplementedInterfaceGeneric(Class<?> i)
+    {
+        implementedInterfaces.add(i.getSimpleName() + "<" + className + ">");
         additionalImports.add(i.getName());
     }
 
@@ -290,7 +298,7 @@ public class DtoGenerator
         printPackage("entity." + subPackage);
         printImports();
 
-        printClassHeader(className, "entity." + subPackage);
+        printClassHeader(className, "entity." + subPackage, implementedInterfaces);
         startBlock();
         printFields();
 
@@ -354,7 +362,7 @@ public class DtoGenerator
         printPackage("fetchoptions." + subPackage);
         printImportsForFetchOptions();
 
-        printClassHeader(fetchOptionsClass.getSimpleName(), "fetchoptions." + subPackage);
+        printClassHeader(fetchOptionsClass.getSimpleName(), "fetchoptions." + subPackage, null);
         startBlock();
 
         printFetchOptionsFields();
@@ -623,13 +631,22 @@ public class DtoGenerator
         print("");
     }
 
-    private void printClassHeader(String className, String jsonPackage)
+    private void printClassHeader(String className, String jsonPackage, List<String> implementedInterfaces)
     {
         print("/**");
         print(" * Class automatically generated with {@link %s}", this.getClass().getName());
         print(" */");
         print("@JsonObject(\"dto.%s.%s\")", jsonPackage, className);
-        print("public class %s implements Serializable", className);
+        StringBuilder interfaces = new StringBuilder();
+        if (implementedInterfaces != null)
+        {
+            for (String i : implementedInterfaces)
+            {
+                interfaces.append(", ");
+                interfaces.append(i);
+            }
+        }
+        print("public class %s implements Serializable%s", className, interfaces.toString());
     }
 
     private void printMethodJavaDoc()
