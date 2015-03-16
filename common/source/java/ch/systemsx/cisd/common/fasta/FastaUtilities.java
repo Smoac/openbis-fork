@@ -61,7 +61,7 @@ public class FastaUtilities
             boolean isAmoniAcidCode = AMINO_ACID_CODES_SET.contains(c);
             if (isNucleicAcidCode == false && isAmoniAcidCode == false)
             {
-                throw new IllegalArgumentException("Invalid symbol '" + c + "' in line '" + line + "'.");
+                continue;
             }
             if (isNucleicAcidCode == false)
             {
