@@ -173,7 +173,10 @@ def configureUI():
     tableBuilder = createTableBuilder()
     tableBuilder.addHeader("identifier")
     tableBuilder.addHeader("sampleType")
-    usedTableHeaders = {"identifier" : True, "sampleType" : True }
+    tableBuilder.addHeader("name")
+    
+    usedTableHeaders = {"identifier" : True, "sampleType" : True, "name" : True }
+    
     for sampleTypeCode in getAllAnnotableSampleTypesForType(annotableType):
         for propertyTypeCode in getPropertyTypesForSampleTypeFromAnnotableType(sampleTypeCode, annotableType):
             if propertyTypeCode not in usedTableHeaders:
@@ -188,6 +191,12 @@ def configureUI():
     samples = list(propertyConverter().convertToElements(property))
     for sample in samples:
         row = tableBuilder.addRow()
+        permId = sample.getAttribute("permId")
+        
+        nameValue = entityInformationProvider().getSamplePropertyValue(permId, "NAME")
+        if nameValue is not None:
+            row.setCell("name", nameValue)
+        
         for annotation in sample.getAttributes():
             if annotation != "permId":
                 row.setCell(annotation, sample.getAttribute(annotation))
@@ -198,7 +207,8 @@ def configureUI():
         addAction = uiDescription.addTableAction(title).setDescription(title)
         widgets = getWidgetForAdd(sampleTypeCode, annotableType)
         addAction.addInputWidgets(widgets)
-    
+
+    # TO-DO Edit button for each type with different hooks to the columns depending on the type
     # Add Edit Button (EXPERIMENTAL)
 #     editAction = uiDescription.addTableAction('Edit').setDescription('Edit selected table row')
 #     editAction.setRowSelectionRequiredSingle()
@@ -212,7 +222,7 @@ def configureUI():
     deleteAction = uiDescription.addTableAction("Delete")\
                                 .setDescription('Are you sure you want to delete selected annotation?')
     deleteAction.setRowSelectionRequired() # Delete is enabled when at least 1 row is selected.
-
+    
 def updateFromUI(action):
     converter = propertyConverter()
     elements = list(converter.convertToElements(property))
