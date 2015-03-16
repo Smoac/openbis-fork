@@ -18,6 +18,8 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
 import static ch.systemsx.cisd.openbis.generic.shared.dto.ValidationMessages.CODE_PATTERN_MESSAGE;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -170,6 +172,21 @@ public class MaterialDAO extends AbstractGenericEntityWithPropertiesDAO<Material
     public MaterialPE tryFindMaterial(MaterialIdentifier identifier)
     {
         return tryFindMaterial(getSession(), identifier);
+    }
+
+    @Override
+    public List<MaterialPE> listMaterialsByMaterialIdentifier(Collection<MaterialIdentifier> ids)
+    {
+        ArrayList<MaterialPE> result = new ArrayList<MaterialPE>();
+        for (MaterialIdentifier materialIdentifier : ids)
+        {
+            MaterialPE material = tryFindMaterial(materialIdentifier);
+            if (material != null)
+            {
+                result.add(material);
+            }
+        }
+        return result;
     }
 
     @Override

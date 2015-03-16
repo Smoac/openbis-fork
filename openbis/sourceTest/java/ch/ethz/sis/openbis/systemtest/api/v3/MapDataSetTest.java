@@ -187,6 +187,7 @@ public class MapDataSetTest extends AbstractDataSetTest
         DataSet dataSet = map.get(permId);
 
         assertEquals(dataSet.getType().getCode(), "HCS_IMAGE");
+        assertEquals(dataSet.getType().getPermId().getPermId(), "HCS_IMAGE");
         assertEquals(dataSet.getType().getDescription(), "High Content Screening Image");
         assertEquals(dataSet.getType().getKind(), DataSetKind.PHYSICAL);
 

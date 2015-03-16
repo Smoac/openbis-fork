@@ -62,7 +62,6 @@ public class DataSetTranslator extends AbstractCachingTranslator<DataPE, DataSet
     protected DataSet createObject(DataPE dataPe)
     {
         final DataSet dataSet = new DataSet();
-
         dataSet.setCode(dataPe.getCode());
         dataSet.setPermId(new DataSetPermId(dataPe.getPermId()));
         dataSet.setAccessDate(dataPe.getAccessDate());

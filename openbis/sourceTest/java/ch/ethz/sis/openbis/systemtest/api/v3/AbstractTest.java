@@ -43,6 +43,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.attachment.Attachmen
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.attachment.AttachmentCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material.Material;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.person.Person;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.project.Project;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.Sample;
@@ -272,6 +273,18 @@ public class AbstractTest extends SystemTestCase
     }
 
     protected void assertPropertiesNotFetched(final Sample sample)
+    {
+        assertNotFetched(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    sample.getProperties();
+                }
+            });
+    }
+
+    protected void assertPropertiesNotFetched(final Material sample)
     {
         assertNotFetched(new IDelegatedAction()
             {

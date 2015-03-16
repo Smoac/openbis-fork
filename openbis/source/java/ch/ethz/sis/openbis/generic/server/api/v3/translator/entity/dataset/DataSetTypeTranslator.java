@@ -22,6 +22,7 @@ import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSetKind;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSetType;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.DataSetTypeFetchOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.entitytype.EntityTypePermId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 
 /**
@@ -39,8 +40,8 @@ public class DataSetTypeTranslator extends AbstractCachingTranslator<DataSetType
     protected DataSetType createObject(DataSetTypePE input)
     {
         final DataSetType dataSetType = new DataSetType();
-
         dataSetType.setCode(input.getCode());
+        dataSetType.setPermId(new EntityTypePermId(input.getCode()));
         dataSetType.setKind(DataSetKind.valueOf(input.getDataSetKind()));
         dataSetType.setDescription(input.getDescription());
         dataSetType.setModificationDate(input.getModificationDate());

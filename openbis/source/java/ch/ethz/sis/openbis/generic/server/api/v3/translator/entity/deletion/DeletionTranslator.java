@@ -95,7 +95,7 @@ public class DeletionTranslator extends
                             deletedObject.setId(new DataSetPermId(deletedEntity.getPermId()));
                             break;
                         case MATERIAL:
-                            deletedObject.setId(new MaterialPermId(deletedEntity.getPermId()));
+                            deletedObject.setId(new MaterialPermId(deletedEntity.getCode(), deletedEntity.getEntityType().getCode()));
                             break;
                         default:
                             throw new IllegalArgumentException("Unknown entity kind: " + deletedEntity.getEntityKind());

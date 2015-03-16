@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.hibernate.Session;
@@ -39,8 +40,7 @@ public interface IMaterialDAO extends IGenericDAO<MaterialPE>
     /**
      * Lists materials of given type. Fetches also properties.
      * 
-     * @deprecated Because of performance issues use this method only in tests, otherwise use
-     *             {@link IMaterialLister#list}
+     * @deprecated Because of performance issues use this method only in tests, otherwise use {@link IMaterialLister#list}
      */
     @Deprecated
     public List<MaterialPE> listMaterialsWithProperties(MaterialTypePE type);
@@ -55,6 +55,8 @@ public interface IMaterialDAO extends IGenericDAO<MaterialPE>
     public MaterialPE tryFindMaterial(Session session, MaterialIdentifier identifier);
 
     public List<MaterialPE> listMaterialsById(final List<Long> ids);
+
+    public List<MaterialPE> listMaterialsByMaterialIdentifier(final Collection<MaterialIdentifier> ids);
 
     /**
      * Delete materials by specified registrator and reason.
