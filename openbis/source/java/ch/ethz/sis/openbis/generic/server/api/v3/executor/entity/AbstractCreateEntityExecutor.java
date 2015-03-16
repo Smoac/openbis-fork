@@ -29,10 +29,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IIdAndCodeHolder;
-import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
  * @author pkupczyk
@@ -70,7 +68,7 @@ public abstract class AbstractCreateEntityExecutor<CREATION, PE, PERM_ID> implem
             return permIdsAll;
         } catch (DataAccessException e)
         {
-            DataAccessExceptionTranslator.throwException(e, getKind().getLabel(), getKind());
+            handleException(e);
             return null;
         }
     }
@@ -133,8 +131,6 @@ public abstract class AbstractCreateEntityExecutor<CREATION, PE, PERM_ID> implem
         }
     }
 
-    protected abstract EntityKind getKind();
-
     protected abstract PE create(IOperationContext context, CREATION creation);
 
     protected abstract PERM_ID createPermId(IOperationContext context, PE entity);
@@ -152,5 +148,7 @@ public abstract class AbstractCreateEntityExecutor<CREATION, PE, PERM_ID> implem
     protected abstract List<PE> list(IOperationContext context, Collection<Long> ids);
 
     protected abstract void save(IOperationContext context, List<PE> entities, boolean clearCache);
+
+    protected abstract void handleException(DataAccessException e);
 
 }

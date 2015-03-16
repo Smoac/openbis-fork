@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.springframework.dao.DataAccessException;
@@ -34,6 +35,11 @@ public interface ISpaceDAO extends IGenericDAO<SpacePE>
      * Returns a list of {@link SpacePE}s (independent of {@link DatabaseInstancePE} each space belongs to).
      */
     public List<SpacePE> listSpaces() throws DataAccessException;
+
+    /**
+     * List spaces by ids.
+     */
+    public List<SpacePE> listByIDs(Collection<Long> ids);
 
     /** Creates a new space in the database. */
     public void createSpace(final SpacePE spaceDTO) throws DataAccessException;

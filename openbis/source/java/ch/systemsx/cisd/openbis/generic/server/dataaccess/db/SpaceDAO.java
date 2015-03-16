@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -101,6 +103,27 @@ final class SpaceDAO extends AbstractGenericEntityDAO<SpacePE> implements ISpace
         {
             operationLog.debug(String.format("%s(): %d space(s) have been found.", MethodUtils
                     .getCurrentMethod().getName(), list.size()));
+        }
+        return list;
+    }
+
+    @Override
+    public List<SpacePE> listByIDs(Collection<Long> ids)
+    {
+        return listByIDsOfName("id", ids);
+    }
+
+    private List<SpacePE> listByIDsOfName(String idName, Collection<?> ids)
+    {
+        if (ids == null || ids.isEmpty())
+        {
+            return new ArrayList<SpacePE>();
+        }
+        final List<SpacePE> list =
+                DAOUtils.listByCollection(getHibernateTemplate(), SpacePE.class, idName, ids);
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug(String.format("%d spaces(s) have been found.", list.size()));
         }
         return list;
     }

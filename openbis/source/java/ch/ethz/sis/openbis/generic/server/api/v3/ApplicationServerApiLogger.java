@@ -32,6 +32,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experimen
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.Sample;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleUpdate;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.space.SpaceCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.DataSetFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.deletion.DeletionFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.experiment.ExperimentFetchOptions;
@@ -42,6 +43,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentPer
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.IExperimentId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.ISampleId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SamplePermId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.SpacePermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.operation.IOperation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.operation.IOperationResult;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.DataSetSearchCriterion;
@@ -92,6 +94,13 @@ public class ApplicationServerApiLogger extends AbstractServerLogger implements
     public List<? extends IOperationResult> performOperations(String sessionToken, List<? extends IOperation> operations)
     {
         logAccess(sessionToken, "perform-operations", "OPERATIONS(%s)", operations);
+        return null;
+    }
+
+    @Override
+    public List<SpacePermId> createSpaces(String sessionToken, List<SpaceCreation> newSpaces)
+    {
+        logAccess(sessionToken, "create-spaces", "NEW_SPACES(%s)", newSpaces);
         return null;
     }
 

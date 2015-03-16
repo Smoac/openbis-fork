@@ -44,6 +44,7 @@ import ch.ethz.sis.openbis.generic.server.api.v3.executor.sample.IDeleteSampleEx
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.sample.IMapSampleByIdExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.sample.ISearchSampleExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.sample.IUpdateSampleExecutor;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.space.ICreateSpaceExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.common.IdentityTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.common.MapTranslator;
@@ -65,6 +66,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experimen
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.Sample;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleUpdate;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.space.SpaceCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.DataSetFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.deletion.DeletionFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.experiment.ExperimentFetchOptions;
@@ -75,6 +77,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentPer
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.IExperimentId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.ISampleId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SamplePermId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.SpacePermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.operation.IOperation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.operation.IOperationResult;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.DataSetSearchCriterion;
@@ -110,6 +113,9 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
 {
     @Resource(name = ComponentNames.MANAGED_PROPERTY_EVALUATOR_FACTORY)
     private IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory;
+
+    @Autowired
+    private ICreateSpaceExecutor createSpaceExecutor;
 
     @Autowired
     private ICreateExperimentExecutor createExperimentExecutor;
@@ -201,6 +207,25 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     {
         // TODO Auto-generated method stub
         return null;
+    }
+
+    @Override
+    @Transactional
+    @RolesAllowed({ RoleWithHierarchy.SPACE_ADMIN, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @Capability("REGISTER_SPACE")
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.SPACE)
+    public List<SpacePermId> createSpaces(String sessionToken, List<SpaceCreation> creations)
+    {
+        Session session = getSession(sessionToken);
+        OperationContext context = new OperationContext(session);
+
+        try
+        {
+            return createSpaceExecutor.create(context, creations);
+        } catch (Throwable t)
+        {
+            throw ExceptionUtils.create(context, t);
+        }
     }
 
     @Override

@@ -23,6 +23,7 @@ import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
@@ -38,6 +39,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.ITagId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SampleByIdentiferValidator;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentHolderPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityPropertiesHolder;
@@ -80,12 +82,6 @@ public class CreateSampleExecutor extends AbstractCreateEntityExecutor<SampleCre
 
     @Autowired
     private IVerifySampleExecutor verifySampleExecutor;
-
-    @Override
-    protected EntityKind getKind()
-    {
-        return EntityKind.SAMPLE;
-    }
 
     @Override
     protected SamplePE create(IOperationContext context, SampleCreation creation)
@@ -175,6 +171,12 @@ public class CreateSampleExecutor extends AbstractCreateEntityExecutor<SampleCre
     protected void save(IOperationContext context, List<SamplePE> entities, boolean clearCache)
     {
         daoFactory.getSampleDAO().createOrUpdateSamples(entities, context.getSession().tryGetPerson(), clearCache);
+    }
+
+    @Override
+    protected void handleException(DataAccessException e)
+    {
+        DataAccessExceptionTranslator.throwException(e, EntityKind.SAMPLE.getLabel(), EntityKind.SAMPLE);
     }
 
 }
