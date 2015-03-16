@@ -220,7 +220,7 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 			labelText = "";
 		}
 		var $label = $("<label>", { "class" : "control-label " + FormUtil.labelColumnClass }).text(labelText);	
-		var $controls = $("<div>", { "class" : "controls " + FormUtil.controlColumnClassBig});
+		var $controls = $("<div>", { "class" : "controls " + FormUtil.controlColumnClassBig, "style" : "margin-top:6px;"});
 			
 			var $buttonTextField = $("<a>", {"class" : "btn btn-default", "type" : "button", "id" : sampleId});
 			$buttonTextField.css({
@@ -260,7 +260,7 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 						_this._writeState(sample, propertyTypeCode, propertyTypeValue, false);
 					});
 					
-					$controls.append(propertyType.label + ": ");
+					$controls.append("<b>" + propertyType.label + "</b>: ");
 					$controls.append($propertyField);
 					$controls.append(" ");
 					annotationComponents.push($propertyField);
@@ -281,7 +281,9 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 					annotationComponents[i].attr("disabled", "");
 				}
 				$buttonPlusOne.attr("disabled", "");
+				$buttonPlusOne.hide();
 				$buttonDelete.attr("disabled", "");
+				$buttonDelete.hide();
 			} else {
 				$buttonTextField.click(function(elem) {
 					var $buttonClicked = $(elem);
@@ -416,6 +418,7 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 			
 		if(this.isDisabled) {
 			$buttonPlus.attr("disabled", "");
+			$buttonPlus.hide();
 		} else {
 			var _this = this;
 			var onClick = function(elem) {
@@ -542,7 +545,16 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 			var propertiesToShowDisplayNames = this.profile.getPropertiesDisplayNamesForTypeCode(sampleToAdd.sampleTypeCode, propertiesToShow);
 			
 			var meaningfulInfo = "<b>Code: </b>" + sampleToAdd.code + " ";
-			
+			var name = sampleToAdd.properties["NAME"];
+			if(!name) {
+				name = sampleToAdd.properties["PLASMID_NAME"];
+			}
+			if(!name) {
+				name = sampleToAdd.properties["YEAST_STRAIN_NAME"];
+			}
+			if(name) {
+				meaningfulInfo += " <b>Name: </b>" + name + " ";
+			}
 			
 			for(var j = 0; j < propertiesToShow.length; j++) {
 				var propertyToShow = sampleToAdd.properties[propertiesToShow[j]];
@@ -559,7 +571,10 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 			}
 			$input.empty();
 			$input.append(meaningfulInfo);
-			
+			if(this.isDisabled) {
+				$input.after(meaningfulInfo);
+				$input.hide();
+			}
 			//Update annotations when adding an existing sample for updates
 			var sampleState = this.stateObj[sampleToAdd.permId];
 			var items = $input.parent().children();
@@ -571,6 +586,10 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 						item.children()[0].checked = sampleState[propertyTypeCode] === "true";
 					} else {
 						item.val(sampleState[propertyTypeCode]);
+						if(this.isDisabled) {
+							item.after(sampleState[propertyTypeCode]);
+							item.hide();
+						}
 					}
 				}
 				if(!this.isDisabled) {
