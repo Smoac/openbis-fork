@@ -466,6 +466,7 @@ public abstract class AbstractQueryFacadeTest extends SystemTestCase
                 "[Sample, DILUTION_PLATE, OFFSET Offset from the start of the sequence Offset False 1 False False None True]",
                 "[Experiment, COMPOUND_HCS, DESCRIPTION A Description Description True 1 False False None True]",
                 "[Experiment, COMPOUND_HCS, COMMENT Any other comments Comment False 2 False False None True]",
+                "[Experiment, COMPOUND_HCS, ANY_MATERIAL any_material any_material False 3 False False None True]",
                 "[Material, BACTERIUM, DESCRIPTION A Description Description True 1 False False None True]",
                 "[Material, BACTERIUM, ORGANISM The organism from which cells come Organism False 2 False False None True]"
 
