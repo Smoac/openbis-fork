@@ -18,6 +18,7 @@ package ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.experiment;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.attachment.AttachmentFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.DataSetFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.experiment.ExperimentTypeFetchOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.material.MaterialFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.person.PersonFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.project.ProjectFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.property.PropertyFetchOptions;
@@ -49,6 +50,9 @@ public class ExperimentFetchOptions implements Serializable
 
     @JsonProperty
     private PropertyFetchOptions properties;
+
+    @JsonProperty
+    private MaterialFetchOptions materialProperties;
 
     @JsonProperty
     private TagFetchOptions tags;
@@ -170,6 +174,28 @@ public class ExperimentFetchOptions implements Serializable
     public boolean hasProperties()
     {
         return properties != null;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public MaterialFetchOptions withMaterialProperties()
+    {
+        if (materialProperties == null)
+        {
+            materialProperties = new MaterialFetchOptions();
+        }
+        return materialProperties;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public MaterialFetchOptions withMaterialPropertiesUsing(MaterialFetchOptions fetchOptions)
+    {
+        return materialProperties = fetchOptions;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public boolean hasMaterialProperties()
+    {
+        return materialProperties != null;
     }
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}

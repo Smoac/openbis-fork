@@ -15,6 +15,7 @@
  */
 package ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material;
 
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material.Material;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.person.Person;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.tag.Tag;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.material.MaterialFetchOptions;
@@ -56,6 +57,9 @@ public class Material implements Serializable
 
     @JsonProperty
     private Map<String, String> properties;
+
+    @JsonProperty
+    private Map<String, Material> materialProperties;
 
     @JsonProperty
     private Set<Tag> tags;
@@ -163,6 +167,26 @@ public class Material implements Serializable
     public void setProperties(Map<String, String> properties)
     {
         this.properties = properties;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    @JsonIgnore
+    public Map<String, Material> getMaterialProperties()
+    {
+        if (getFetchOptions().hasMaterialProperties())
+        {
+            return materialProperties;
+        }
+        else
+        {
+            throw new NotFetchedException("Material Properties have not been fetched.");
+        }
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public void setMaterialProperties(Map<String, Material> materialProperties)
+    {
+        this.materialProperties = materialProperties;
     }
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}

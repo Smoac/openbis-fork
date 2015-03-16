@@ -19,6 +19,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.DataSe
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.DataSetTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.ExternalDataFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.experiment.ExperimentFetchOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.material.MaterialFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.person.PersonFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.property.PropertyFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sample.SampleFetchOptions;
@@ -70,6 +71,9 @@ public class DataSetFetchOptions implements Serializable
 
     @JsonProperty
     private PropertyFetchOptions properties;
+
+    @JsonProperty
+    private MaterialFetchOptions materialProperties;
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     public DataSetFetchOptions withParents()
@@ -333,6 +337,28 @@ public class DataSetFetchOptions implements Serializable
     public boolean hasProperties()
     {
         return properties != null;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public MaterialFetchOptions withMaterialProperties()
+    {
+        if (materialProperties == null)
+        {
+            materialProperties = new MaterialFetchOptions();
+        }
+        return materialProperties;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public MaterialFetchOptions withMaterialPropertiesUsing(MaterialFetchOptions fetchOptions)
+    {
+        return materialProperties = fetchOptions;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public boolean hasMaterialProperties()
+    {
+        return materialProperties != null;
     }
 
 }

@@ -7,12 +7,14 @@ import java.util.Set;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.attachment.Attachment;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material.Material;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.person.Person;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.Sample;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.space.Space;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.tag.Tag;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.attachment.AttachmentFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.experiment.ExperimentFetchOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.material.MaterialFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.person.PersonFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.property.PropertyFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sample.SampleFetchOptions;
@@ -51,7 +53,7 @@ public class AbstractGenerator
     {
         gen.addFetchedField(Sample.class, "sample", "Sample", SampleFetchOptions.class);
     }
-    
+
     public static void addSpace(DtoGenerator gen)
     {
         gen.addFetchedField(Space.class, "space", "Space", SpaceFetchOptions.class);
@@ -73,6 +75,9 @@ public class AbstractGenerator
     {
         gen.addFetchedField("Map<String, String>", Map.class.getName(), "properties", "Properties", PropertyFetchOptions.class);
         gen.addClassForImport(Map.class);
+        gen.addFetchedField("Map<String, Material>", Map.class.getName(), "materialProperties", "Material Properties", MaterialFetchOptions.class);
+        gen.addClassForImport(Map.class);
+        gen.addClassForImport(Material.class);
     }
 
     public static void addAttachments(DtoGenerator gen)

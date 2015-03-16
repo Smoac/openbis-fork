@@ -120,4 +120,11 @@ public class MaterialPermId implements IMaterialId
         }
         return true;
     }
+
+    @Override
+    public String toString()
+    {
+        return "MaterialPermId [code=" + code + ", typeCode=" + typeCode + "]";
+    }
+
 }
