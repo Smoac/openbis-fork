@@ -46,6 +46,7 @@ import ch.ethz.sis.openbis.generic.server.api.v3.executor.sample.IMapSampleByIdE
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.sample.ISearchSampleExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.sample.IUpdateSampleExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.space.ICreateSpaceExecutor;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.space.IDeleteSpaceExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.space.IMapSpaceByIdExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.space.IUpdateSpaceExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
@@ -63,6 +64,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion.Deletion;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion.dataset.DataSetDeletionOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion.experiment.ExperimentDeletionOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion.sample.SampleDeletionOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion.space.SpaceDeletionOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSetUpdate;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
@@ -175,6 +177,9 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
 
     @Autowired
     private ISearchDataSetExecutor searchDataSetExecutor;
+
+    @Autowired
+    private IDeleteSpaceExecutor deleteSpaceExecutor;
 
     @Autowired
     private IDeleteExperimentExecutor deleteExperimentExecutor;
@@ -519,6 +524,25 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
             Map<DataPE, DataSet> translatedMap =
                     new DataSetTranslator(new TranslationContext(session, managedPropertyEvaluatorFactory), fetchOptions).translate(dataSets);
             return new ArrayList<DataSet>(translatedMap.values());
+        } catch (Throwable t)
+        {
+            throw ExceptionUtils.create(context, t);
+        }
+    }
+
+    @Override
+    @Transactional
+    @DatabaseCreateOrDeleteModification(value = { ObjectKind.SPACE, ObjectKind.DELETION })
+    @RolesAllowed({ RoleWithHierarchy.SPACE_ADMIN, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @Capability("DELETE_SPACE")
+    public void deleteSpaces(String sessionToken, List<? extends ISpaceId> spaceIds, SpaceDeletionOptions deletionOptions)
+    {
+        Session session = getSession(sessionToken);
+        OperationContext context = new OperationContext(session);
+
+        try
+        {
+            deleteSpaceExecutor.delete(context, spaceIds, deletionOptions);
         } catch (Throwable t)
         {
             throw ExceptionUtils.create(context, t);
