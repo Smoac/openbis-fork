@@ -19,19 +19,19 @@ $.extend(YeastLabProfile2.prototype, DefaultProfile.prototype, {
 														"LABEL" : "Chemical",
 														"TYPE": "CHEMICAL",
 														"MIN_COUNT" : 0,
-														"ANNOTATION_PROPERTIES" : [{"TYPE" : "CONCENTRATION", "MANDATORY" : false }, {"TYPE" : "NAME", "MANDATORY" : false }]
+														"ANNOTATION_PROPERTIES" : [{"TYPE" : "CONCENTRATION", "MANDATORY" : false }]
 													},
 					                             	{
 														"LABEL" : "Solution/Buffer",
 														"TYPE": "SOLUTION_BUFFER",
 														"MIN_COUNT" : 0,
-														"ANNOTATION_PROPERTIES" : [{"TYPE" : "CONCENTRATION", "MANDATORY" : false }, {"TYPE" : "NAME", "MANDATORY" : false }]
+														"ANNOTATION_PROPERTIES" : [{"TYPE" : "CONCENTRATION", "MANDATORY" : false }]
 													},
 					                             	{
 														"LABEL" : "Media",
 														"TYPE": "MEDIA",
 														"MIN_COUNT" : 0,
-														"ANNOTATION_PROPERTIES" : [{"TYPE" : "CONCENTRATION", "MANDATORY" : false }, {"TYPE" : "NAME", "MANDATORY" : false }]
+														"ANNOTATION_PROPERTIES" : [{"TYPE" : "CONCENTRATION", "MANDATORY" : false }]
 													}																								
 												],
 				},
@@ -42,13 +42,13 @@ $.extend(YeastLabProfile2.prototype, DefaultProfile.prototype, {
 														"LABEL" : "Chemical",
 														"TYPE": "CHEMICAL",
 														"MIN_COUNT" : 0,
-														"ANNOTATION_PROPERTIES" : [{"TYPE" : "CONCENTRATION", "MANDATORY" : false }, {"TYPE" : "NAME", "MANDATORY" : false }]
+														"ANNOTATION_PROPERTIES" : [{"TYPE" : "CONCENTRATION", "MANDATORY" : false }]
 													},
 					                             	{
 														"LABEL" : "Solution/Buffer",
 														"TYPE": "SOLUTION_BUFFER",
 														"MIN_COUNT" : 0,
-														"ANNOTATION_PROPERTIES" : [{"TYPE" : "CONCENTRATION", "MANDATORY" : false }, {"TYPE" : "NAME", "MANDATORY" : false }]
+														"ANNOTATION_PROPERTIES" : [{"TYPE" : "CONCENTRATION", "MANDATORY" : false }]
 													}																							
 												],
 				},
@@ -77,7 +77,7 @@ $.extend(YeastLabProfile2.prototype, DefaultProfile.prototype, {
 														"LABEL" : "Enzyme",
 														"TYPE": "ENZYME",
 														"MIN_COUNT" : 0,
-														"ANNOTATION_PROPERTIES" : [{"TYPE" : "CONCENTRATION", "MANDATORY" : false }, {"TYPE" : "NAME", "MANDATORY" : false }]
+														"ANNOTATION_PROPERTIES" : [{"TYPE" : "CONCENTRATION", "MANDATORY" : false }]
 													}																								
 												],
 				},
@@ -88,19 +88,19 @@ $.extend(YeastLabProfile2.prototype, DefaultProfile.prototype, {
 														"LABEL" : "Chemical",
 														"TYPE": "CHEMICAL",
 														"MIN_COUNT" : 0,
-														"ANNOTATION_PROPERTIES" : [{"TYPE" : "QUANTITY", "MANDATORY" : false }, {"TYPE" : "NAME", "MANDATORY" : false }]
+														"ANNOTATION_PROPERTIES" : [{"TYPE" : "QUANTITY", "MANDATORY" : false }]
 													},
 					                             	{
 														"LABEL" : "Solution/Buffer",
 														"TYPE": "SOLUTION_BUFFER",
 														"MIN_COUNT" : 0,
-														"ANNOTATION_PROPERTIES" : [{"TYPE" : "QUANTITY", "MANDATORY" : false }, {"TYPE" : "NAME", "MANDATORY" : false }]
+														"ANNOTATION_PROPERTIES" : [{"TYPE" : "QUANTITY", "MANDATORY" : false }]
 													},
 					                             	{
 														"LABEL" : "Enzyme",
 														"TYPE": "ENZYME",
 														"MIN_COUNT" : 0,
-														"ANNOTATION_PROPERTIES" : [{"TYPE" : "QUANTITY", "CONCENTRATION" : false }, {"TYPE" : "NAME", "MANDATORY" : false }]
+														"ANNOTATION_PROPERTIES" : [{"TYPE" : "QUANTITY", "CONCENTRATION" : false }]
 													},																								
 												],
 				},
@@ -111,19 +111,19 @@ $.extend(YeastLabProfile2.prototype, DefaultProfile.prototype, {
 														"LABEL" : "Chemical",
 														"TYPE": "CHEMICAL",
 														"MIN_COUNT" : 0,
-														"ANNOTATION_PROPERTIES" : [{"TYPE" : "QUANTITY", "MANDATORY" : false }, {"TYPE" : "NAME", "MANDATORY" : false }]
+														"ANNOTATION_PROPERTIES" : [{"TYPE" : "QUANTITY", "MANDATORY" : false }]
 													},
 					                             	{
 														"LABEL" : "Solution/Buffer",
 														"TYPE": "SOLUTION_BUFFER",
 														"MIN_COUNT" : 0,
-														"ANNOTATION_PROPERTIES" : [{"TYPE" : "QUANTITY", "MANDATORY" : false }, {"TYPE" : "NAME", "MANDATORY" : false }]
+														"ANNOTATION_PROPERTIES" : [{"TYPE" : "QUANTITY", "MANDATORY" : false }]
 													},
 					                             	{
 														"LABEL" : "Antibody",
 														"TYPE": "ANTIBODY",
 														"MIN_COUNT" : 0,
-														"ANNOTATION_PROPERTIES" : [{"TYPE" : "QUANTITY", "MANDATORY" : false }, {"TYPE" : "NAME", "MANDATORY" : false }]
+														"ANNOTATION_PROPERTIES" : [{"TYPE" : "QUANTITY", "MANDATORY" : false }]
 													},																								
 												],
 				},
@@ -134,7 +134,7 @@ $.extend(YeastLabProfile2.prototype, DefaultProfile.prototype, {
 														"LABEL" : "Chemical",
 														"TYPE": "CHEMICAL",
 														"MIN_COUNT" : 0,
-														"ANNOTATION_PROPERTIES" : [{"TYPE" : "QUANTITY", "MANDATORY" : false }, {"TYPE" : "NAME", "MANDATORY" : false }, {"TYPE" : "DETAIL", "MANDATORY" : false }]
+														"ANNOTATION_PROPERTIES" : [{"TYPE" : "QUANTITY", "MANDATORY" : false }, {"TYPE" : "DETAIL", "MANDATORY" : false }]
 													}																
 												],
 				},
@@ -145,13 +145,13 @@ $.extend(YeastLabProfile2.prototype, DefaultProfile.prototype, {
 														"LABEL" : "Chemical",
 														"TYPE": "CHEMICAL",
 														"MIN_COUNT" : 0,
-														"ANNOTATION_PROPERTIES" : [{"TYPE" : "QUANTITY", "MANDATORY" : false }, {"TYPE" : "NAME", "MANDATORY" : false }]
+														"ANNOTATION_PROPERTIES" : [{"TYPE" : "QUANTITY", "MANDATORY" : false }]
 													},
 														{
 														"LABEL" : "Solution/Buffer",
 														"TYPE": "SOLUTION_BUFFER",
 														"MIN_COUNT" : 0,
-														"ANNOTATION_PROPERTIES" : [{"TYPE" : "QUANTITY", "MANDATORY" : false }, {"TYPE" : "NAME", "MANDATORY" : false }]
+														"ANNOTATION_PROPERTIES" : [{"TYPE" : "QUANTITY", "MANDATORY" : false }]
 													}																	
 												],
 				},
