@@ -29,7 +29,6 @@ import org.springframework.transaction.annotation.Transactional;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.OperationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.dataset.IDeleteDataSetExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.dataset.IMapDataSetByIdExecutor;
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.dataset.IMapMaterialByIdExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.dataset.ISearchDataSetExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.dataset.IUpdateDataSetExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.deletion.IConfirmDeletionExecutor;
@@ -40,6 +39,7 @@ import ch.ethz.sis.openbis.generic.server.api.v3.executor.experiment.IDeleteExpe
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.experiment.IMapExperimentByIdExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.experiment.ISearchExperimentExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.experiment.IUpdateExperimentExecutor;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.material.IMapMaterialByIdExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.sample.ICreateSampleExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.sample.IDeleteSampleExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.sample.IMapSampleByIdExecutor;

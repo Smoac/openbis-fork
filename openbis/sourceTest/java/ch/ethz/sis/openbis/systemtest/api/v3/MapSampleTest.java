@@ -37,6 +37,7 @@ import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material.Material;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.project.Project;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.Sample;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleCreation;
@@ -46,6 +47,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sample.SampleF
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.tag.TagFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.CreationId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.entitytype.EntityTypePermId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.material.MaterialPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.ISampleId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SampleIdentifier;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SamplePermId;
@@ -977,6 +979,37 @@ public class MapSampleTest extends AbstractSampleTest
         AssertionUtil.assertCollectionContainsOnly(experimentCodes, "EXP-SPACE-TEST", "EXP-TEST-2", "EXPERIMENT-TO-DELETE");
 
         v3api.logout(sessionToken);
+    }
+
+    @Test
+    public void testWithMaterialProperties()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        SampleFetchOptions fetchOptions = new SampleFetchOptions();
+        fetchOptions.withMaterialProperties().withRegistrator();
+        fetchOptions.withProperties();
+
+        SamplePermId permId = new SamplePermId("200902091219327-1025");
+
+        Map<ISampleId, Sample> map = v3api.mapSamples(sessionToken, Arrays.asList(permId), fetchOptions);
+
+        Sample sample = map.get(permId);
+
+        assertEquals(sample.getProperties().get("BACTERIUM"), "BACTERIUM-X (BACTERIUM)");
+        assertEquals(sample.getProperties().get("ANY_MATERIAL"), "1 (GENE)");
+
+        Map<String, Material> materialProperties = sample.getMaterialProperties();
+
+        Material bacterium = materialProperties.get("BACTERIUM");
+        assertEquals(bacterium.getPermId(), new MaterialPermId("BACTERIUM-X", "BACTERIUM"));
+        assertEquals(bacterium.getRegistrator().getUserId(), "test");
+        assertTagsNotFetched(bacterium);
+
+        Material gene = materialProperties.get("ANY_MATERIAL");
+        assertEquals(gene.getPermId(), new MaterialPermId("1", "GENE"));
+        assertEquals(gene.getRegistrator().getUserId(), "test");
+        assertTagsNotFetched(gene);
     }
 
 }

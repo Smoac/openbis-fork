@@ -200,6 +200,18 @@ public class AbstractTest extends SystemTestCase
             });
     }
 
+    protected void assertTagsNotFetched(final Material material)
+    {
+        assertNotFetched(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    material.getTags();
+                }
+            });
+    }
+
     protected void assertTagsNotFetched(final DataSet dataSet)
     {
         assertNotFetched(new IDelegatedAction()
