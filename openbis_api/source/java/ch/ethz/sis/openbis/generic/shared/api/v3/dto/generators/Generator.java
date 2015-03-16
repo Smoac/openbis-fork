@@ -69,11 +69,11 @@ public class Generator extends AbstractGenerator
         addSpace(gen);
         addExperiment(gen);
         addProperties(gen);
-        gen.addFetchedField("List<Sample>", List.class.getName(), "parents", "Parents", SampleFetchOptions.class);
-        gen.addFetchedField("List<Sample>", List.class.getName(), "children", "Children", SampleFetchOptions.class);
+        gen.addPluralFetchedField("List<Sample>", List.class.getName(), "parents", "Parents", SampleFetchOptions.class);
+        gen.addPluralFetchedField("List<Sample>", List.class.getName(), "children", "Children", SampleFetchOptions.class);
         gen.addFetchedField(Sample.class, "container", "Container sample", SampleFetchOptions.class);
-        gen.addFetchedField("List<Sample>", List.class.getName(), "contained", "Contained samples", SampleFetchOptions.class);
-        gen.addFetchedField("List<DataSet>", List.class.getName(), "dataSets", "Data sets", DataSetFetchOptions.class);
+        gen.addPluralFetchedField("List<Sample>", List.class.getName(), "contained", "Contained samples", SampleFetchOptions.class);
+        gen.addPluralFetchedField("List<DataSet>", List.class.getName(), "dataSets", "Data sets", DataSetFetchOptions.class);
         gen.addClassForImport(DataSet.class);
         addTags(gen);
         addRegistrator(gen);
@@ -147,10 +147,10 @@ public class Generator extends AbstractGenerator
         gen.addFetchedField(ExperimentType.class, "type", "Experiment type", ExperimentTypeFetchOptions.class);
         gen.addFetchedField(Project.class, "project", "Project", ProjectFetchOptions.class);
 
-        gen.addFetchedField("List<DataSet>", List.class.getName(), "dataSets", "Data sets", DataSetFetchOptions.class);
+        gen.addPluralFetchedField("List<DataSet>", List.class.getName(), "dataSets", "Data sets", DataSetFetchOptions.class);
         gen.addClassForImport(DataSet.class);
 
-        gen.addFetchedField("List<Sample>", List.class.getName(), "samples", "Samples", SampleFetchOptions.class);
+        gen.addPluralFetchedField("List<Sample>", List.class.getName(), "samples", "Samples", SampleFetchOptions.class);
         gen.addClassForImport(Sample.class);
 
         addProperties(gen);
@@ -191,10 +191,10 @@ public class Generator extends AbstractGenerator
         gen.addBooleanField("derived");
         gen.addBooleanField("placeholder");
 
-        gen.addFetchedField("List<DataSet>", List.class.getName(), "parents", "Parents", DataSetFetchOptions.class);
-        gen.addFetchedField("List<DataSet>", List.class.getName(), "children", "Children", DataSetFetchOptions.class);
-        gen.addFetchedField("List<DataSet>", List.class.getName(), "containers", "Container data sets", DataSetFetchOptions.class);
-        gen.addFetchedField("List<DataSet>", List.class.getName(), "contained", "Contained data sets", DataSetFetchOptions.class);
+        gen.addPluralFetchedField("List<DataSet>", List.class.getName(), "parents", "Parents", DataSetFetchOptions.class);
+        gen.addPluralFetchedField("List<DataSet>", List.class.getName(), "children", "Children", DataSetFetchOptions.class);
+        gen.addPluralFetchedField("List<DataSet>", List.class.getName(), "containers", "Container data sets", DataSetFetchOptions.class);
+        gen.addPluralFetchedField("List<DataSet>", List.class.getName(), "contained", "Contained data sets", DataSetFetchOptions.class);
         gen.addFetchedField(ExternalData.class, "externalData", "External data", ExternalDataFetchOptions.class);
         addTags(gen);
 
@@ -326,7 +326,7 @@ public class Generator extends AbstractGenerator
         addRegistrationDate(gen);
         addModificationDate(gen);
 
-        gen.addFetchedField("List<Experiment>", List.class.getName(), "experiments", "Expreiments", ExperimentFetchOptions.class);
+        gen.addPluralFetchedField("List<Experiment>", List.class.getName(), "experiments", "Expreiments", ExperimentFetchOptions.class);
         gen.addClassForImport(Experiment.class);
 
         addSpace(gen);
@@ -345,9 +345,9 @@ public class Generator extends AbstractGenerator
         addDescription(gen);
         addRegistrationDate(gen);
         addRegistrator(gen);
-        gen.addFetchedField("List<Sample>", List.class.getName(), "samples", "Samples", SampleFetchOptions.class);
+        gen.addPluralFetchedField("List<Sample>", List.class.getName(), "samples", "Samples", SampleFetchOptions.class);
         gen.addClassForImport(Sample.class);
-        gen.addFetchedField("List<Project>", List.class.getName(), "projects", "Projects", ProjectFetchOptions.class);
+        gen.addPluralFetchedField("List<Project>", List.class.getName(), "projects", "Projects", ProjectFetchOptions.class);
         gen.addClassForImport(Project.class);
         return gen;
     }
@@ -407,6 +407,11 @@ public class Generator extends AbstractGenerator
         list.add(createTagGenerator());
         list.add(createMaterialGenerator());
         list.add(createMaterialTypeGenerator());
+        list.add(createVocabularyTerm());
+        list.add(createVocabulary());
+        list.add(createLocatorType());
+        list.add(createFileFormatType());
+        list.add(createExternalDataGenerator());
 
         for (DtoGenerator gen : list)
         {

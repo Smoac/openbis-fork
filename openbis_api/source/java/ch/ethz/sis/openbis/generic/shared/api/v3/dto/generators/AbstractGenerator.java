@@ -66,23 +66,24 @@ public class AbstractGenerator
 
     public static void addTags(DtoGenerator gen)
     {
-        gen.addFetchedField("Set<Tag>", Set.class.getName(), "tags", "Tags", TagFetchOptions.class);
+        gen.addPluralFetchedField("Set<Tag>", Set.class.getName(), "tags", "Tags", TagFetchOptions.class);
         gen.addClassForImport(Tag.class);
         gen.addClassForImport(Set.class);
     }
 
     public static void addProperties(DtoGenerator gen)
     {
-        gen.addFetchedField("Map<String, String>", Map.class.getName(), "properties", "Properties", PropertyFetchOptions.class);
+        gen.addPluralFetchedField("Map<String, String>", Map.class.getName(), "properties", "Properties", PropertyFetchOptions.class);
         gen.addClassForImport(Map.class);
-        gen.addFetchedField("Map<String, Material>", Map.class.getName(), "materialProperties", "Material Properties", MaterialFetchOptions.class);
+        gen.addPluralFetchedField("Map<String, Material>", Map.class.getName(), "materialProperties", "Material Properties",
+                MaterialFetchOptions.class);
         gen.addClassForImport(Map.class);
         gen.addClassForImport(Material.class);
     }
 
     public static void addAttachments(DtoGenerator gen)
     {
-        gen.addFetchedField("List<Attachment>", List.class.getName(), "attachments", "Attachments", AttachmentFetchOptions.class);
+        gen.addPluralFetchedField("List<Attachment>", List.class.getName(), "attachments", "Attachments", AttachmentFetchOptions.class);
         gen.addClassForImport(Attachment.class);
         gen.addClassForImport(List.class);
     }

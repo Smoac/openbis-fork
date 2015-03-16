@@ -38,6 +38,8 @@ public class DtoGenerator
 
     private String toStringContent;
 
+    private List<Class<?>> implementedInterfaces;
+
     public DtoGenerator(String subPackage, String className, Class<?> fetchOptionsClass)
     {
         this.subPackage = subPackage;
@@ -80,7 +82,30 @@ public class DtoGenerator
 
         boolean plural;
 
-        public DTOField(String fieldName, Class<?> fieldClass, String description, Class<?> fetchOptions)
+        boolean interfaceMethod;
+
+        public static DTOField create(String fieldName, Class<?> fieldClass, String description, Class<?> fetchOptions)
+        {
+            return new DTOField(fieldName, fieldClass, description, fetchOptions, false, false);
+        }
+
+        public static DTOField createFromInterface(String fieldName, Class<?> fieldClass, String description, Class<?> fetchOptions)
+        {
+            return new DTOField(fieldName, fieldClass, description, fetchOptions, false, true);
+        }
+
+        public static DTOField createPlural(String fieldName, String className, String fullClassName, String description, Class<?> fetchOptions)
+        {
+            return new DTOField(fieldName, className, fullClassName, description, fetchOptions, true, false);
+        }
+
+        public static DTOField createPluralFromInterface(String fieldName, String className, String fullClassName, String description,
+                Class<?> fetchOptions)
+        {
+            return new DTOField(fieldName, className, fullClassName, description, fetchOptions, true, true);
+        }
+
+        private DTOField(String fieldName, Class<?> fieldClass, String description, Class<?> fetchOptions, boolean plural, boolean interfaceMethod)
         {
             this.fieldName = fieldName;
             this.definitionClassName = fieldClass.getSimpleName();
@@ -90,10 +115,12 @@ public class DtoGenerator
             }
             this.description = description;
             this.fetchOptions = fetchOptions;
-            this.plural = false;
+            this.plural = plural;
+            this.interfaceMethod = interfaceMethod;
         }
 
-        public DTOField(String fieldName, String className, String fullClassName, String description, Class<?> fetchOptions, boolean plural)
+        private DTOField(String fieldName, String className, String fullClassName, String description, Class<?> fetchOptions, boolean plural,
+                boolean interfaceMethod)
         {
             this.fieldName = fieldName;
             this.definitionClassName = className;
@@ -101,6 +128,7 @@ public class DtoGenerator
             this.description = description;
             this.fetchOptions = fetchOptions;
             this.plural = plural;
+            this.interfaceMethod = interfaceMethod;
         }
 
         String getPersistentName()
@@ -125,7 +153,7 @@ public class DtoGenerator
      */
     public void addSimpleField(Class<?> c, String name)
     {
-        fields.add(new DTOField(name, c, null, null));
+        fields.add(DTOField.create(name, c, null, null));
     }
 
     /**
@@ -157,24 +185,41 @@ public class DtoGenerator
      */
     public void addSimpleField(Class<?> c, String name, String persistentFieldName)
     {
-        DTOField dtoField = new DTOField(name, c, null, null);
+        DTOField dtoField = DTOField.create(name, c, null, null);
         dtoField.persistentFieldName = persistentFieldName;
         fields.add(dtoField);
     }
 
     public void addFetchedField(Class<?> c, String name, String description, Class<?> fetchOptionsClass)
     {
-        fields.add(new DTOField(name, c, description, fetchOptionsClass));
+        fields.add(DTOField.create(name, c, description, fetchOptionsClass));
     }
 
-    public void addFetchedField(String definitionClassName, String importClassName, String name, String description, Class<?> fetchOptionsClass)
+    public void addFetchedFieldFromInterface(Class<?> c, String name, String description, Class<?> fetchOptionsClass)
     {
-        fields.add(new DTOField(name, definitionClassName, importClassName, description, fetchOptionsClass, true));
+        fields.add(DTOField.createFromInterface(name, c, description, fetchOptionsClass));
+    }
+
+    public void addPluralFetchedField(String definitionClassName, String importClassName, String name, String description, Class<?> fetchOptionsClass)
+    {
+        fields.add(DTOField.createPlural(name, definitionClassName, importClassName, description, fetchOptionsClass));
+    }
+
+    public void addPluralFetchedFieldFromInterface(String definitionClassName, String importClassName, String name, String description,
+            Class<?> fetchOptionsClass)
+    {
+        fields.add(DTOField.createPluralFromInterface(name, definitionClassName, importClassName, description, fetchOptionsClass));
     }
 
     public void addClassForImport(Class<?> c)
     {
         additionalImports.add(c.getName());
+    }
+
+    public void addImplementedInterface(Class<?> i)
+    {
+        implementedInterfaces.add(i);
+        additionalImports.add(i.getName());
     }
 
     public void setToStringMethod(String toStringContent)
@@ -438,10 +483,19 @@ public class DtoGenerator
         print("");
     }
 
+    private void printGetterAnnotation(DTOField field)
+    {
+        print("@JsonIgnore");
+        if (field.interfaceMethod)
+        {
+            print("@Override");
+        }
+    }
+
     private void printGetterWithFetchOptions(DTOField field)
     {
         printMethodJavaDoc();
-        print("@JsonIgnore");
+        printGetterAnnotation(field);
         print("public %s get%s()", field.definitionClassName, field.getCapitalizedName());
         startBlock();
         print("if (getFetchOptions().has%s())", field.getCapitalizedName());
@@ -489,7 +543,7 @@ public class DtoGenerator
     private void printBasicGetter(DTOField field)
     {
         printMethodJavaDoc();
-        print("@JsonIgnore");
+        printGetterAnnotation(field);
         if (field.definitionClassName.equals("Boolean"))
         {
             print("public %s is%s()", field.definitionClassName, field.getCapitalizedName());
