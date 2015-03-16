@@ -43,6 +43,8 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.attachment.Attachmen
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.attachment.AttachmentCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IParentChildrenHolder;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IPropertiesHolder;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material.Material;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.person.Person;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.project.Project;
@@ -284,74 +286,14 @@ public class AbstractTest extends SystemTestCase
             });
     }
 
-    protected void assertPropertiesNotFetched(final Sample sample)
+    protected void assertPropertiesNotFetched(final IPropertiesHolder propertiesHolder)
     {
         assertNotFetched(new IDelegatedAction()
             {
                 @Override
                 public void execute()
                 {
-                    sample.getProperties();
-                }
-            });
-    }
-
-    protected void assertPropertiesNotFetched(final Material sample)
-    {
-        assertNotFetched(new IDelegatedAction()
-            {
-                @Override
-                public void execute()
-                {
-                    sample.getProperties();
-                }
-            });
-    }
-
-    protected void assertPropertiesNotFetched(final DataSet dataSet)
-    {
-        assertNotFetched(new IDelegatedAction()
-            {
-                @Override
-                public void execute()
-                {
-                    dataSet.getProperties();
-                }
-            });
-    }
-
-    protected void assertPropertiesNotFetched(final Experiment experiment)
-    {
-        assertNotFetched(new IDelegatedAction()
-            {
-                @Override
-                public void execute()
-                {
-                    experiment.getProperties();
-                }
-            });
-    }
-
-    protected void assertParentsNotFetched(final Sample sample)
-    {
-        assertNotFetched(new IDelegatedAction()
-            {
-                @Override
-                public void execute()
-                {
-                    sample.getParents();
-                }
-            });
-    }
-
-    protected void assertChildrenNotFetched(final Sample sample)
-    {
-        assertNotFetched(new IDelegatedAction()
-            {
-                @Override
-                public void execute()
-                {
-                    sample.getChildren();
+                    propertiesHolder.getProperties();
                 }
             });
     }
@@ -380,26 +322,26 @@ public class AbstractTest extends SystemTestCase
             });
     }
 
-    protected void assertParentsNotFetched(final DataSet dataSet)
+    protected void assertParentsNotFetched(final IParentChildrenHolder<?> parentChildrenHolder)
     {
         assertNotFetched(new IDelegatedAction()
             {
                 @Override
                 public void execute()
                 {
-                    dataSet.getParents();
+                    parentChildrenHolder.getParents();
                 }
             });
     }
 
-    protected void assertChildrenNotFetched(final DataSet dataSet)
+    protected void assertChildrenNotFetched(final IParentChildrenHolder<?> parentChildrenHolder)
     {
         assertNotFetched(new IDelegatedAction()
             {
                 @Override
                 public void execute()
                 {
-                    dataSet.getChildren();
+                    parentChildrenHolder.getChildren();
                 }
             });
     }
