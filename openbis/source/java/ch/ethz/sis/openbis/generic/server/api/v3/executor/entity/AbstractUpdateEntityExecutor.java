@@ -32,10 +32,8 @@ import org.springframework.dao.DataAccessException;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.IObjectId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.ObjectNotFoundException;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IIdAndCodeHolder;
-import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
  * @author pkupczyk
@@ -70,7 +68,7 @@ public abstract class AbstractUpdateEntityExecutor<UPDATE, PE, ID> implements IU
 
         } catch (DataAccessException e)
         {
-            DataAccessExceptionTranslator.throwException(e, getKind().getLabel(), getKind());
+            handleException(e);
         }
     }
 
@@ -157,8 +155,6 @@ public abstract class AbstractUpdateEntityExecutor<UPDATE, PE, ID> implements IU
         }
     }
 
-    protected abstract EntityKind getKind();
-
     protected abstract ID getId(UPDATE update);
 
     protected abstract void checkData(IOperationContext context, UPDATE update);
@@ -176,5 +172,7 @@ public abstract class AbstractUpdateEntityExecutor<UPDATE, PE, ID> implements IU
     protected abstract List<PE> list(IOperationContext context, Collection<Long> ids);
 
     protected abstract void save(IOperationContext context, List<PE> entities, boolean clearCache);
+
+    protected abstract void handleException(DataAccessException e);
 
 }

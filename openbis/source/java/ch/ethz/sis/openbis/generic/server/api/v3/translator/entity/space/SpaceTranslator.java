@@ -30,6 +30,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.Sample;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.space.Space;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.space.SpaceFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.SpacePermId;
+import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SimpleSpaceValidator;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
@@ -40,6 +41,12 @@ public class SpaceTranslator extends AbstractCachingTranslator<SpacePE, Space, S
     public SpaceTranslator(TranslationContext translationContext, SpaceFetchOptions fetchOptions)
     {
         super(translationContext, fetchOptions);
+    }
+
+    @Override
+    protected boolean shouldTranslate(SpacePE input)
+    {
+        return new SimpleSpaceValidator().doValidation(getTranslationContext().getSession().tryGetPerson(), input);
     }
 
     @Override

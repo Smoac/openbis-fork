@@ -16,18 +16,14 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.experiment;
 
-import java.util.List;
-
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.ICreateEntityExecutor;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.ExperimentCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentPermId;
 
 /**
  * @author pkupczyk
  */
-public interface ICreateExperimentExecutor
+public interface ICreateExperimentExecutor extends ICreateEntityExecutor<ExperimentCreation, ExperimentPermId>
 {
-
-    public List<ExperimentPermId> create(IOperationContext context, List<ExperimentCreation> creations);
 
 }

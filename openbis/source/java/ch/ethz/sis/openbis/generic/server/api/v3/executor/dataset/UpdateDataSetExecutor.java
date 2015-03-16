@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
@@ -33,6 +34,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.IDataSetId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.DataSetPEByExperimentOrSampleIdentifierValidator;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityPropertiesHolder;
@@ -72,12 +74,6 @@ public class UpdateDataSetExecutor extends AbstractUpdateEntityExecutor<DataSetU
 
     @Autowired
     private IVerifyDataSetExecutor verifyDataSetExecutor;
-
-    @Override
-    protected EntityKind getKind()
-    {
-        return EntityKind.DATA_SET;
-    }
 
     @Override
     protected IDataSetId getId(DataSetUpdate update)
@@ -152,6 +148,12 @@ public class UpdateDataSetExecutor extends AbstractUpdateEntityExecutor<DataSetU
     protected void save(IOperationContext context, List<DataPE> entities, boolean clearCache)
     {
         daoFactory.getDataDAO().updateDataSets(entities, context.getSession().tryGetPerson());
+    }
+
+    @Override
+    protected void handleException(DataAccessException e)
+    {
+        DataAccessExceptionTranslator.throwException(e, EntityKind.DATA_SET.getLabel(), EntityKind.DATA_SET);
     }
 
 }

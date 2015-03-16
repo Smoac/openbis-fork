@@ -73,6 +73,8 @@ public class AbstractTest extends SystemTestCase
 
     protected static final String TEST_POWER_USER_CISD = "test_role";
 
+    protected static final String TEST_GROUP_OBSERVER = "observer";
+
     protected static final String PASSWORD = "password";
 
     private BufferedAppender logRecorder;
@@ -566,8 +568,11 @@ public class AbstractTest extends SystemTestCase
             fail("Expected an exception to be thrown");
         } catch (Exception e)
         {
-            assertNotNull(e.getCause());
-            assertEquals(e.getCause().getClass(), AuthorizationFailureException.class);
+            if (false == e instanceof AuthorizationFailureException)
+            {
+                assertNotNull(e.getCause());
+                assertEquals(e.getCause().getClass(), AuthorizationFailureException.class);
+            }
             if (expectedContextDescription != null)
             {
                 AssertionUtil.assertContains("(Context: [" + expectedContextDescription + "])", e.getMessage());

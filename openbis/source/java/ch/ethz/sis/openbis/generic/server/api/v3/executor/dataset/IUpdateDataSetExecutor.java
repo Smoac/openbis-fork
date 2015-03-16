@@ -16,17 +16,13 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.dataset;
 
-import java.util.List;
-
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.IUpdateEntityExecutor;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSetUpdate;
 
 /**
  * @author pkupczyk
  */
-public interface IUpdateDataSetExecutor
+public interface IUpdateDataSetExecutor extends IUpdateEntityExecutor<DataSetUpdate>
 {
-
-    public void update(IOperationContext context, List<DataSetUpdate> updates);
 
 }

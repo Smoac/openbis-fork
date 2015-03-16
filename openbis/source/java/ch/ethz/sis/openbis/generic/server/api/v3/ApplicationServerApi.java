@@ -45,6 +45,8 @@ import ch.ethz.sis.openbis.generic.server.api.v3.executor.sample.IMapSampleByIdE
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.sample.ISearchSampleExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.sample.IUpdateSampleExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.space.ICreateSpaceExecutor;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.space.IMapSpaceByIdExecutor;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.space.IUpdateSpaceExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.common.IdentityTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.common.MapTranslator;
@@ -52,6 +54,7 @@ import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.dataset.DataS
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.deletion.DeletionTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.experiment.ExperimentTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.sample.SampleTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.space.SpaceTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.utils.ExceptionUtils;
 import ch.ethz.sis.openbis.generic.shared.api.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion.Deletion;
@@ -66,17 +69,21 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experimen
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.Sample;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleUpdate;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.space.Space;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.space.SpaceCreation;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.space.SpaceUpdate;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.DataSetFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.deletion.DeletionFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.experiment.ExperimentFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sample.SampleFetchOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.space.SpaceFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.IDataSetId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.deletion.IDeletionId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.IExperimentId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.ISampleId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SamplePermId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.ISpaceId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.SpacePermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.operation.IOperation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.operation.IOperationResult;
@@ -102,6 +109,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 
 /**
@@ -124,6 +132,9 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     private ICreateSampleExecutor createSampleExecutor;
 
     @Autowired
+    private IUpdateSpaceExecutor updateSpaceExecutor;
+
+    @Autowired
     private IUpdateExperimentExecutor updateExperimentExecutor;
 
     @Autowired
@@ -131,6 +142,9 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
 
     @Autowired
     private IUpdateDataSetExecutor updateDataSetExecutor;
+
+    @Autowired
+    private IMapSpaceByIdExecutor mapSpaceByIdExecutor;
 
     @Autowired
     private IMapExperimentByIdExecutor mapExperimentByIdExecutor;
@@ -279,6 +293,25 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
 
     @Override
     @Transactional
+    @RolesAllowed({ RoleWithHierarchy.SPACE_ADMIN, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @Capability("UPDATE_SPACE")
+    @DatabaseUpdateModification(value = ObjectKind.SPACE)
+    public void updateSpaces(String sessionToken, List<SpaceUpdate> spaceUpdates)
+    {
+        Session session = getSession(sessionToken);
+        OperationContext context = new OperationContext(session);
+
+        try
+        {
+            updateSpaceExecutor.update(context, spaceUpdates);
+        } catch (Throwable t)
+        {
+            throw ExceptionUtils.create(context, t);
+        }
+    }
+
+    @Override
+    @Transactional
     @RolesAllowed(
     { RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("WRITE_EXPERIMENT")
@@ -342,6 +375,21 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
         {
             throw ExceptionUtils.create(context, t);
         }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    public Map<ISpaceId, Space> mapSpaces(String sessionToken, List<? extends ISpaceId> spaceIds, SpaceFetchOptions fetchOptions)
+    {
+        Session session = getSession(sessionToken);
+        OperationContext context = new OperationContext(session);
+
+        Map<ISpaceId, SpacePE> map = mapSpaceByIdExecutor.map(context, spaceIds);
+
+        return new MapTranslator<ISpaceId, ISpaceId, SpacePE, Space>().translate(map, new IdentityTranslator<ISpaceId>(),
+                new SpaceTranslator(new TranslationContext(session, managedPropertyEvaluatorFactory),
+                        fetchOptions));
     }
 
     @Override

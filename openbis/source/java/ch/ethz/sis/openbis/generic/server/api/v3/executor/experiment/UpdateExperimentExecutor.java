@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
@@ -34,6 +35,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.IExperimentId
 import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ExperimentByIdentiferValidator;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityPropertiesHolder;
@@ -68,12 +70,6 @@ public class UpdateExperimentExecutor extends AbstractUpdateEntityExecutor<Exper
 
     @Autowired
     private IVerifyExperimentExecutor verifyExperimentExecutor;
-
-    @Override
-    protected EntityKind getKind()
-    {
-        return EntityKind.EXPERIMENT;
-    }
 
     @Override
     protected IExperimentId getId(ExperimentUpdate update)
@@ -146,6 +142,12 @@ public class UpdateExperimentExecutor extends AbstractUpdateEntityExecutor<Exper
     protected void save(IOperationContext context, List<ExperimentPE> entities, boolean clearCache)
     {
         daoFactory.getExperimentDAO().createOrUpdateExperiments(entities, context.getSession().tryGetPerson(), clearCache);
+    }
+
+    @Override
+    protected void handleException(DataAccessException e)
+    {
+        DataAccessExceptionTranslator.throwException(e, EntityKind.EXPERIMENT.getLabel(), EntityKind.EXPERIMENT);
     }
 
 }

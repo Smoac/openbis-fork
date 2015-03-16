@@ -16,11 +16,19 @@
 
 package ch.ethz.sis.openbis.systemtest.api.v3;
 
+import static org.testng.Assert.assertEquals;
+
 import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 import org.testng.annotations.Test;
 
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.space.Space;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.space.SpaceCreation;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.space.SpaceFetchOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.ISpaceId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.SpacePermId;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
 
 /**
@@ -85,19 +93,53 @@ public class CreateSpaceTest extends AbstractTest
     @Test
     public void testCreateWithInstanceAdmin()
     {
-        // TODO
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        SpaceCreation creation = new SpaceCreation();
+        creation.setCode("NEW_SPACE");
+
+        List<SpacePermId> permIds = v3api.createSpaces(sessionToken, Arrays.asList(creation));
+        Map<ISpaceId, Space> map = v3api.mapSpaces(sessionToken, permIds, new SpaceFetchOptions());
+
+        assertEquals(map.size(), 1);
+
+        Space space = map.values().iterator().next();
+        assertEquals(space.getCode(), creation.getCode());
     }
 
     @Test
     public void testCreateWithSpaceAdmin()
     {
-        // TODO
+        final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
+
+        SpaceCreation creation = new SpaceCreation();
+        creation.setCode("NEW_SPACE");
+
+        List<SpacePermId> permIds = v3api.createSpaces(sessionToken, Arrays.asList(creation));
+        Map<ISpaceId, Space> map = v3api.mapSpaces(sessionToken, permIds, new SpaceFetchOptions());
+
+        assertEquals(map.size(), 1);
+
+        Space space = map.values().iterator().next();
+        assertEquals(space.getCode(), creation.getCode());
     }
 
     @Test
-    public void testCreateWithSpaceUserAdmin()
+    public void testCreateWithSpaceObserver()
     {
-        // TODO
+        final String sessionToken = v3api.login(TEST_GROUP_OBSERVER, PASSWORD);
+
+        final SpaceCreation creation = new SpaceCreation();
+        creation.setCode("NEW_SPACE");
+
+        assertAuthorizationFailureException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.createSpaces(sessionToken, Arrays.asList(creation));
+                }
+            });
     }
 
 }

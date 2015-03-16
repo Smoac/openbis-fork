@@ -16,18 +16,14 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.sample;
 
-import java.util.List;
-
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.ICreateEntityExecutor;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SamplePermId;
 
 /**
  * @author pkupczyk
  */
-public interface ICreateSampleExecutor
+public interface ICreateSampleExecutor extends ICreateEntityExecutor<SampleCreation, SamplePermId>
 {
-
-    public List<SamplePermId> create(IOperationContext context, List<SampleCreation> creations);
 
 }

@@ -16,17 +16,13 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.experiment;
 
-import java.util.List;
-
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.IUpdateEntityExecutor;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.ExperimentUpdate;
 
 /**
  * @author pkupczyk
  */
-public interface IUpdateExperimentExecutor
+public interface IUpdateExperimentExecutor extends IUpdateEntityExecutor<ExperimentUpdate>
 {
-
-    public void update(IOperationContext context, List<ExperimentUpdate> updates);
 
 }
