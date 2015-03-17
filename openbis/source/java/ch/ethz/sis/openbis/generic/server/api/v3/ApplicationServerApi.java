@@ -39,6 +39,7 @@ import ch.ethz.sis.openbis.generic.server.api.v3.executor.experiment.IDeleteExpe
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.experiment.IMapExperimentByIdExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.experiment.ISearchExperimentExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.experiment.IUpdateExperimentExecutor;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.material.IDeleteMaterialExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.material.IMapMaterialByIdExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.sample.ICreateSampleExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.sample.IDeleteSampleExecutor;
@@ -64,6 +65,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion.Deletion;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion.dataset.DataSetDeletionOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion.experiment.ExperimentDeletionOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion.material.MaterialDeletionOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion.sample.SampleDeletionOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion.space.SpaceDeletionOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSet;
@@ -173,6 +175,9 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
 
     @Autowired
     private ISearchSpaceExecutor searchSpaceExecutor;
+
+    @Autowired
+    private IDeleteMaterialExecutor deleteMaterialsExecutor;
 
     @Autowired
     private ISearchExperimentExecutor searchExperimentExecutor;
@@ -599,6 +604,10 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     }
 
     @Override
+    @Transactional
+    @DatabaseCreateOrDeleteModification(value = { ObjectKind.DATA_SET, ObjectKind.DELETION })
+    @RolesAllowed({ RoleWithHierarchy.SPACE_POWER_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @Capability("DELETE_DATA_SET")
     public IDeletionId deleteDataSets(String sessionToken, List<? extends IDataSetId> dataSetIds, DataSetDeletionOptions deletionOptions)
     {
         Session session = getSession(sessionToken);
@@ -606,6 +615,27 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
         try
         {
             return deleteDataSetExecutor.delete(context, dataSetIds, deletionOptions);
+        } catch (Throwable t)
+        {
+            throw ExceptionUtils.create(context, t);
+        } finally
+        {
+            getDAOFactory().getSessionFactory().getCurrentSession().clear();
+        }
+    }
+
+    @Override
+    @Transactional
+    @DatabaseCreateOrDeleteModification(value = { ObjectKind.MATERIAL, ObjectKind.DELETION })
+    @RolesAllowed({ RoleWithHierarchy.INSTANCE_ADMIN, RoleWithHierarchy.INSTANCE_ETL_SERVER })
+    @Capability("DELETE_MATERIAL")
+    public void deleteMaterials(String sessionToken, List<? extends IMaterialId> materialIds, MaterialDeletionOptions deletionOptions)
+    {
+        Session session = getSession(sessionToken);
+        OperationContext context = new OperationContext(session);
+        try
+        {
+            deleteMaterialsExecutor.delete(context, materialIds, deletionOptions);
         } catch (Throwable t)
         {
             throw ExceptionUtils.create(context, t);

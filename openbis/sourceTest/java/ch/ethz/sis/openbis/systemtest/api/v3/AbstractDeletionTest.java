@@ -26,16 +26,19 @@ import junit.framework.Assert;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion.Deletion;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.ExperimentCreation;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material.Material;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.Sample;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.deletion.DeletionFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.experiment.ExperimentFetchOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.material.MaterialFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sample.SampleFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.DataSetPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.deletion.IDeletionId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.entitytype.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.IExperimentId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.material.IMaterialId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.ProjectIdentifier;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.ISampleId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SamplePermId;
@@ -119,6 +122,23 @@ public class AbstractDeletionTest extends AbstractTest
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         Map<ISampleId, Sample> map = v3api.mapSamples(sessionToken, Collections.singletonList(sampleId), new SampleFetchOptions());
+        Assert.assertEquals(exists ? 1 : 0, map.size());
+    }
+
+    protected void assertMaterialExists(IMaterialId materialId)
+    {
+        assertMaterialExists(materialId, true);
+    }
+
+    protected void assertMaterialDoesNotExist(IMaterialId materialId)
+    {
+        assertMaterialExists(materialId, false);
+    }
+
+    private void assertMaterialExists(IMaterialId materialId, boolean exists)
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        Map<IMaterialId, Material> map = v3api.mapMaterials(sessionToken, Collections.singletonList(materialId), new MaterialFetchOptions());
         Assert.assertEquals(exists ? 1 : 0, map.size());
     }
 

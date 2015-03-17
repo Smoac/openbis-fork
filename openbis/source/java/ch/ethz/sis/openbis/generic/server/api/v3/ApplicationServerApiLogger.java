@@ -23,6 +23,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion.Deletion;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion.dataset.DataSetDeletionOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion.experiment.ExperimentDeletionOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion.material.MaterialDeletionOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion.sample.SampleDeletionOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion.space.SpaceDeletionOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSet;
@@ -260,6 +261,12 @@ public class ApplicationServerApiLogger extends AbstractServerLogger implements
     public void confirmDeletions(String sessionToken, List<? extends IDeletionId> deletionIds)
     {
         logAccess(sessionToken, "confirm-deletions", "DELETION_IDS(%s)", deletionIds);
+    }
+
+    @Override
+    public void deleteMaterials(String sessionToken, List<? extends IMaterialId> materialIds, MaterialDeletionOptions deletionOptions)
+    {
+        logAccess(sessionToken, "delete-materials", "MATERIAL_IDS(%s) DELETION_OPTIONS(%s)", materialIds, deletionOptions);
     }
 
 }
