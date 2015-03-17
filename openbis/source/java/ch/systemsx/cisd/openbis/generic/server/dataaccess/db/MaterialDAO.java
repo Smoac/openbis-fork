@@ -212,7 +212,7 @@ public class MaterialDAO extends AbstractGenericEntityWithPropertiesDAO<Material
     }
 
     @Override
-    public List<MaterialPE> listMaterialsById(final List<Long> ids)
+    public List<MaterialPE> listMaterialsById(final Collection<Long> ids)
     {
         if (ids == null || ids.isEmpty())
         {

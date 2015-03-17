@@ -54,7 +54,7 @@ public interface IMaterialDAO extends IGenericDAO<MaterialPE>
     /** same as {@link #tryFindMaterial(MaterialIdentifier)} but works with given session */
     public MaterialPE tryFindMaterial(Session session, MaterialIdentifier identifier);
 
-    public List<MaterialPE> listMaterialsById(final List<Long> ids);
+    public List<MaterialPE> listMaterialsById(final Collection<Long> ids);
 
     public List<MaterialPE> listMaterialsByMaterialIdentifier(final Collection<MaterialIdentifier> ids);
 

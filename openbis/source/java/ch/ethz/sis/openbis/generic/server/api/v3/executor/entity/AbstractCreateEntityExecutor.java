@@ -85,9 +85,6 @@ public abstract class AbstractCreateEntityExecutor<CREATION, PE, PERM_ID> implem
             checkData(context, creation);
 
             PE entity = create(context, creation);
-            PERM_ID permId = createPermId(context, entity);
-
-            permIdsAll.add(permId);
             entitiesAll.put(creation, entity);
             batchMap.put(creation, entity);
         }
@@ -97,6 +94,12 @@ public abstract class AbstractCreateEntityExecutor<CREATION, PE, PERM_ID> implem
         for (PE entity : batchMap.values())
         {
             checkAccess(context, entity);
+        }
+
+        for (PE entity : entitiesAll.values())
+        {
+            PERM_ID permId = createPermId(context, entity);
+            permIdsAll.add(permId);
         }
 
         save(context, new ArrayList<PE>(batchMap.values()), false);

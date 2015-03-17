@@ -39,6 +39,7 @@ import ch.ethz.sis.openbis.generic.server.api.v3.executor.experiment.IDeleteExpe
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.experiment.IMapExperimentByIdExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.experiment.ISearchExperimentExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.experiment.IUpdateExperimentExecutor;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.material.ICreateMaterialExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.material.IDeleteMaterialExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.material.IMapMaterialByIdExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.project.ICreateProjectExecutor;
@@ -75,6 +76,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experimen
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.ExperimentCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.ExperimentUpdate;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material.Material;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material.MaterialCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.project.ProjectCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.Sample;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleCreation;
@@ -93,6 +95,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.deletion.IDeletionId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.IExperimentId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.material.IMaterialId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.material.MaterialPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.ProjectPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.ISampleId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SamplePermId;
@@ -180,10 +183,13 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     private IMapMaterialByIdExecutor mapMaterialByIdExecutor;
 
     @Autowired
+    private ICreateMaterialExecutor createMaterialExecutor;
+
+    @Autowired
     private ISearchSpaceExecutor searchSpaceExecutor;
 
     @Autowired
-    private IDeleteMaterialExecutor deleteMaterialsExecutor;
+    private IDeleteMaterialExecutor deleteMaterialExecutor;
 
     @Autowired
     private ISearchExperimentExecutor searchExperimentExecutor;
@@ -266,6 +272,20 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
         try
         {
             return createSpaceExecutor.create(context, creations);
+        } catch (Throwable t)
+        {
+            throw ExceptionUtils.create(context, t);
+        }
+    }
+
+    @Override
+    public List<MaterialPermId> createMaterials(String sessionToken, List<MaterialCreation> newMaterials)
+    {
+        Session session = getSession(sessionToken);
+        OperationContext context = new OperationContext(session);
+        try
+        {
+            return createMaterialExecutor.create(context, newMaterials);
         } catch (Throwable t)
         {
             throw ExceptionUtils.create(context, t);
@@ -659,7 +679,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
         OperationContext context = new OperationContext(session);
         try
         {
-            deleteMaterialsExecutor.delete(context, materialIds, deletionOptions);
+            deleteMaterialExecutor.delete(context, materialIds, deletionOptions);
         } catch (Throwable t)
         {
             throw ExceptionUtils.create(context, t);
