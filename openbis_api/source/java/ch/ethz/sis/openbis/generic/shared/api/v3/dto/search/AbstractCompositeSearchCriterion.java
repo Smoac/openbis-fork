@@ -16,7 +16,7 @@
 
 package ch.ethz.sis.openbis.generic.shared.api.v3.dto.search;
 
-import java.util.Collection; 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 
@@ -33,6 +33,8 @@ public abstract class AbstractCompositeSearchCriterion extends AbstractSearchCri
 
     protected Collection<ISearchCriterion> criteria = new LinkedList<ISearchCriterion>();
 
+    protected SearchOperator operator = SearchOperator.AND;
+
     public Collection<ISearchCriterion> getCriteria()
     {
         return Collections.<ISearchCriterion> unmodifiableCollection(criteria);
@@ -47,6 +49,17 @@ public abstract class AbstractCompositeSearchCriterion extends AbstractSearchCri
     {
         criteria.add(criterion);
         return criterion;
+    }
+
+    AbstractCompositeSearchCriterion withOperator(SearchOperator anOperator)
+    {
+        this.operator = anOperator;
+        return this;
+    }
+
+    public SearchOperator getOperator()
+    {
+        return operator;
     }
 
     @Override

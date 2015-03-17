@@ -48,6 +48,7 @@ import ch.ethz.sis.openbis.generic.server.api.v3.executor.sample.IUpdateSampleEx
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.space.ICreateSpaceExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.space.IDeleteSpaceExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.space.IMapSpaceByIdExecutor;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.space.ISearchSpaceExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.space.IUpdateSpaceExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.common.IdentityTranslator;
@@ -97,6 +98,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.operation.IOperationResult;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.DataSetSearchCriterion;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ExperimentSearchCriterion;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SampleSearchCriterion;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SpaceSearchCriterion;
 import ch.systemsx.cisd.openbis.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
 import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
@@ -168,6 +170,9 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
 
     @Autowired
     private IMapMaterialByIdExecutor mapMaterialByIdExecutor;
+
+    @Autowired
+    private ISearchSpaceExecutor searchSpaceExecutor;
 
     @Autowired
     private ISearchExperimentExecutor searchExperimentExecutor;
@@ -464,6 +469,27 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
         return new MapTranslator<IMaterialId, IMaterialId, MaterialPE, Material>().translate(map, new IdentityTranslator<IMaterialId>(),
                 new MaterialTranslator(new TranslationContext(session, managedPropertyEvaluatorFactory),
                         fetchOptions));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    public List<Space> searchSpaces(String sessionToken, SpaceSearchCriterion searchCriterion, SpaceFetchOptions fetchOptions)
+    {
+        Session session = getSession(sessionToken);
+        OperationContext context = new OperationContext(session);
+
+        try
+        {
+            List<SpacePE> spaces = searchSpaceExecutor.search(context, searchCriterion);
+
+            Map<SpacePE, Space> translatedMap =
+                    new SpaceTranslator(new TranslationContext(session, managedPropertyEvaluatorFactory), fetchOptions).translate(spaces);
+            return new ArrayList<Space>(translatedMap.values());
+        } catch (Throwable t)
+        {
+            throw ExceptionUtils.create(context, t);
+        }
     }
 
     @Override

@@ -28,19 +28,6 @@ public class AbstractEntitySearchCriterion<ID extends IObjectId> extends Abstrac
 
     private static final long serialVersionUID = 1L;
 
-    protected SearchOperator operator = SearchOperator.AND;
-
-    AbstractCompositeSearchCriterion withOperator(SearchOperator anOperator)
-    {
-        this.operator = anOperator;
-        return this;
-    }
-
-    public SearchOperator getOperator()
-    {
-        return operator;
-    }
-
     public CodeSearchCriterion withCode()
     {
         return with(new CodeSearchCriterion());

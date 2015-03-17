@@ -568,6 +568,17 @@ public class AbstractTest extends SystemTestCase
         assertEquals(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(actualDate), expectedDate);
     }
 
+    protected static void assertSpaceCodes(Collection<Space> spaces, String... expectedCodes)
+    {
+        Set<String> actualSet = new HashSet<String>();
+        for (Space space : spaces)
+        {
+            actualSet.add(space.getCode());
+        }
+
+        assertCollectionContainsOnly(actualSet, expectedCodes);
+    }
+
     protected static void assertProjectIdentifiers(Collection<Project> projects, String... expectedIdentifiers)
     {
         Set<String> actualSet = new HashSet<String>();

@@ -42,6 +42,16 @@ public class SpaceSearchCriterion extends AbstractObjectSearchCriterion<ISpaceId
         return with(new PermIdSearchCriterion());
     }
 
+    public SpaceSearchCriterion withOrOperator()
+    {
+        return (SpaceSearchCriterion) withOperator(SearchOperator.OR);
+    }
+
+    public SpaceSearchCriterion withAndOperator()
+    {
+        return (SpaceSearchCriterion) withOperator(SearchOperator.AND);
+    }
+
     @Override
     protected SearchCriterionToStringBuilder createBuilder()
     {
