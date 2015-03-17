@@ -16,7 +16,6 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.sample;
 
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -24,10 +23,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.AbstractSetEntityRelationExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.experiment.IMapExperimentByIdExecutor;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.IExperimentId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.ObjectNotFoundException;
 import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ExperimentByIdentiferValidator;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
@@ -37,51 +36,40 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
  * @author pkupczyk
  */
 @Component
-public class SetSampleExperimentExecutor implements ISetSampleExperimentExecutor
+public class SetSampleExperimentExecutor extends AbstractSetEntityRelationExecutor<SampleCreation, SamplePE, IExperimentId, ExperimentPE> implements
+        ISetSampleExperimentExecutor
 {
 
     @Autowired
     private IMapExperimentByIdExecutor mapExperimentByIdExecutor;
 
     @Override
-    public void set(IOperationContext context, Map<SampleCreation, SamplePE> creationsMap)
+    protected IExperimentId getRelatedId(SampleCreation creation)
     {
-        List<IExperimentId> experimentIds = new LinkedList<IExperimentId>();
+        return creation.getExperimentId();
+    }
 
-        for (SampleCreation creation : creationsMap.keySet())
+    @Override
+    protected Map<IExperimentId, ExperimentPE> map(IOperationContext context, List<IExperimentId> relatedIds)
+    {
+        return mapExperimentByIdExecutor.map(context, relatedIds);
+    }
+
+    @Override
+    protected void check(IOperationContext context, SamplePE entity, IExperimentId relatedId, ExperimentPE related)
+    {
+        if (relatedId != null && related != null)
         {
-            if (creation.getExperimentId() != null)
+            if (false == new ExperimentByIdentiferValidator().doValidation(context.getSession().tryGetPerson(), related))
             {
-                experimentIds.add(creation.getExperimentId());
+                throw new UnauthorizedObjectAccessException(relatedId);
             }
         }
+    }
 
-        Map<IExperimentId, ExperimentPE> experimentMap = mapExperimentByIdExecutor.map(context, experimentIds);
-
-        for (Map.Entry<SampleCreation, SamplePE> creationEntry : creationsMap.entrySet())
-        {
-            SampleCreation creation = creationEntry.getKey();
-            SamplePE sample = creationEntry.getValue();
-
-            context.pushContextDescription("set experiment for sample " + creation.getCode());
-
-            if (creation.getExperimentId() != null)
-            {
-                ExperimentPE experiment = experimentMap.get(creation.getExperimentId());
-                if (experiment == null)
-                {
-                    throw new ObjectNotFoundException(creation.getExperimentId());
-                }
-
-                if (false == new ExperimentByIdentiferValidator().doValidation(context.getSession().tryGetPerson(), experiment))
-                {
-                    throw new UnauthorizedObjectAccessException(creation.getExperimentId());
-                }
-
-                sample.setExperiment(experiment);
-            }
-
-            context.popContextDescription();
-        }
+    @Override
+    protected void set(IOperationContext context, SamplePE entity, ExperimentPE related)
+    {
+        entity.setExperiment(related);
     }
 }

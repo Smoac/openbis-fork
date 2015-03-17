@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 ETH Zuerich, Scientific IT Services
+ * Copyright 2015 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,18 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.api.v3.executor.sample;
+package ch.ethz.sis.openbis.generic.server.api.v3.executor.entity;
 
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.ISetEntityRelationsExecutor;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleCreation;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import java.util.Map;
+
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
 
 /**
  * @author pkupczyk
  */
-public interface ISetSampleTypeExecutor extends ISetEntityRelationsExecutor<SampleCreation, SamplePE>
+public interface ISetEntityRelationsExecutor<ENTITY_CREATION, ENTITY_PE>
 {
+
+    public void set(IOperationContext context, Map<ENTITY_CREATION, ENTITY_PE> entitiesMap);
 
 }

@@ -16,7 +16,6 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.experiment;
 
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -24,10 +23,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.AbstractSetEntityRelationExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.project.IMapProjectByIdExecutor;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.ExperimentCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.IProjectId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.ObjectNotFoundException;
 import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ProjectByIdentiferValidator;
@@ -38,54 +37,43 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
  * @author pkupczyk
  */
 @Component
-public class SetExperimentProjectExecutor implements ISetExperimentProjectExecutor
+public class SetExperimentProjectExecutor extends AbstractSetEntityRelationExecutor<ExperimentCreation, ExperimentPE, IProjectId, ProjectPE>
+        implements
+        ISetExperimentProjectExecutor
 {
 
     @Autowired
     private IMapProjectByIdExecutor mapProjectByIdExecutor;
 
     @Override
-    public void set(IOperationContext context, Map<ExperimentCreation, ExperimentPE> creationsMap)
+    protected IProjectId getRelatedId(ExperimentCreation creation)
     {
-        List<IProjectId> projectIds = new LinkedList<IProjectId>();
+        return creation.getProjectId();
+    }
 
-        for (ExperimentCreation creation : creationsMap.keySet())
+    @Override
+    protected Map<IProjectId, ProjectPE> map(IOperationContext context, List<IProjectId> relatedIds)
+    {
+        return mapProjectByIdExecutor.map(context, relatedIds);
+    }
+
+    @Override
+    protected void check(IOperationContext context, ExperimentPE entity, IProjectId relatedId, ProjectPE related)
+    {
+        if (relatedId == null)
         {
-            if (creation.getProjectId() != null)
-            {
-                projectIds.add(creation.getProjectId());
-            }
+            throw new UserFailureException("Project id cannot be null.");
         }
 
-        Map<IProjectId, ProjectPE> projectMap = mapProjectByIdExecutor.map(context, projectIds);
-
-        for (Map.Entry<ExperimentCreation, ExperimentPE> creationEntry : creationsMap.entrySet())
+        if (false == new ProjectByIdentiferValidator().doValidation(context.getSession().tryGetPerson(), related))
         {
-            ExperimentCreation creation = creationEntry.getKey();
-            ExperimentPE experiment = creationEntry.getValue();
-
-            context.pushContextDescription("set project for experiment " + creation.getCode());
-
-            if (creation.getProjectId() == null)
-            {
-                throw new UserFailureException("Project id cannot be null.");
-            } else
-            {
-                ProjectPE project = projectMap.get(creation.getProjectId());
-                if (project == null)
-                {
-                    throw new ObjectNotFoundException(creation.getProjectId());
-                }
-
-                if (false == new ProjectByIdentiferValidator().doValidation(context.getSession().tryGetPerson(), project))
-                {
-                    throw new UnauthorizedObjectAccessException(creation.getProjectId());
-                }
-
-                experiment.setProject(project);
-            }
-
-            context.popContextDescription();
+            throw new UnauthorizedObjectAccessException(relatedId);
         }
+    }
+
+    @Override
+    protected void set(IOperationContext context, ExperimentPE entity, ProjectPE related)
+    {
+        entity.setProject(related);
     }
 }

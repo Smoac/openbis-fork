@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 ETH Zuerich, Scientific IT Services
+ * Copyright 2013 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,18 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.api.v3.executor.sample;
+package ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.person;
 
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.ISetEntityRelationsExecutor;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleCreation;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.IObjectId;
+import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
+ * Holds information that uniquely identifies a person in openBIS.
+ * 
  * @author pkupczyk
  */
-public interface ISetSampleTypeExecutor extends ISetEntityRelationsExecutor<SampleCreation, SamplePE>
+@JsonObject("dto.id.person.IPersonId")
+public interface IPersonId extends IObjectId
 {
 
 }

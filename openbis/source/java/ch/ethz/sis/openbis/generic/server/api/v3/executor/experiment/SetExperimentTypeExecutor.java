@@ -16,7 +16,6 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.experiment;
 
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -24,10 +23,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.AbstractSetEntityRelationExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.IMapEntityTypeByIdExecutor;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.ExperimentCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.entitytype.IEntityTypeId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.ObjectNotFoundException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
@@ -38,48 +37,37 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
  * @author pkupczyk
  */
 @Component
-public class SetExperimentTypeExecutor implements ISetExperimentTypeExecutor
+public class SetExperimentTypeExecutor extends AbstractSetEntityRelationExecutor<ExperimentCreation, ExperimentPE, IEntityTypeId, EntityTypePE>
+        implements ISetExperimentTypeExecutor
 {
 
     @Autowired
     private IMapEntityTypeByIdExecutor mapEntityTypeByIdExecutor;
 
     @Override
-    public void set(IOperationContext context, Map<ExperimentCreation, ExperimentPE> creationsMap)
+    protected IEntityTypeId getRelatedId(ExperimentCreation creation)
     {
-        List<IEntityTypeId> typeIds = new LinkedList<IEntityTypeId>();
+        return creation.getTypeId();
+    }
 
-        for (ExperimentCreation creation : creationsMap.keySet())
+    @Override
+    protected Map<IEntityTypeId, EntityTypePE> map(IOperationContext context, List<IEntityTypeId> relatedIds)
+    {
+        return mapEntityTypeByIdExecutor.map(context, EntityKind.EXPERIMENT, relatedIds);
+    }
+
+    @Override
+    protected void check(IOperationContext context, ExperimentPE entity, IEntityTypeId relatedId, EntityTypePE related)
+    {
+        if (relatedId == null)
         {
-            if (creation.getTypeId() != null)
-            {
-                typeIds.add(creation.getTypeId());
-            }
+            throw new UserFailureException("Type id cannot be null.");
         }
+    }
 
-        Map<IEntityTypeId, EntityTypePE> typeMap = mapEntityTypeByIdExecutor.map(context, EntityKind.EXPERIMENT, typeIds);
-
-        for (Map.Entry<ExperimentCreation, ExperimentPE> creationEntry : creationsMap.entrySet())
-        {
-            ExperimentCreation creation = creationEntry.getKey();
-            ExperimentPE experiment = creationEntry.getValue();
-
-            context.pushContextDescription("set type for experiment " + creation.getCode());
-
-            if (creation.getTypeId() == null)
-            {
-                throw new UserFailureException("Type id cannot be null.");
-            } else
-            {
-                EntityTypePE type = typeMap.get(creation.getTypeId());
-                if (type == null)
-                {
-                    throw new ObjectNotFoundException(creation.getTypeId());
-                }
-                experiment.setExperimentType((ExperimentTypePE) type);
-            }
-
-            context.popContextDescription();
-        }
+    @Override
+    protected void set(IOperationContext context, ExperimentPE entity, EntityTypePE related)
+    {
+        entity.setExperimentType((ExperimentTypePE) related);
     }
 }

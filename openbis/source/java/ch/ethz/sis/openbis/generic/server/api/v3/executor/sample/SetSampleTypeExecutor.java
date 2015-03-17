@@ -16,7 +16,6 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.sample;
 
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -24,10 +23,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.AbstractSetEntityRelationExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.IMapEntityTypeByIdExecutor;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.entitytype.IEntityTypeId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.ObjectNotFoundException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -38,48 +37,37 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
  * @author pkupczyk
  */
 @Component
-public class SetSampleTypeExecutor implements ISetSampleTypeExecutor
+public class SetSampleTypeExecutor extends AbstractSetEntityRelationExecutor<SampleCreation, SamplePE, IEntityTypeId, EntityTypePE> implements
+        ISetSampleTypeExecutor
 {
 
     @Autowired
     private IMapEntityTypeByIdExecutor mapEntityTypeByIdExecutor;
 
     @Override
-    public void set(IOperationContext context, Map<SampleCreation, SamplePE> creationsMap)
+    protected IEntityTypeId getRelatedId(SampleCreation creation)
     {
-        List<IEntityTypeId> typeIds = new LinkedList<IEntityTypeId>();
+        return creation.getTypeId();
+    }
 
-        for (SampleCreation creation : creationsMap.keySet())
+    @Override
+    protected Map<IEntityTypeId, EntityTypePE> map(IOperationContext context, List<IEntityTypeId> relatedIds)
+    {
+        return mapEntityTypeByIdExecutor.map(context, EntityKind.SAMPLE, relatedIds);
+    }
+
+    @Override
+    protected void check(IOperationContext context, SamplePE entity, IEntityTypeId relatedId, EntityTypePE related)
+    {
+        if (relatedId == null)
         {
-            if (creation.getTypeId() != null)
-            {
-                typeIds.add(creation.getTypeId());
-            }
+            throw new UserFailureException("Type id cannot be null.");
         }
+    }
 
-        Map<IEntityTypeId, EntityTypePE> typeMap = mapEntityTypeByIdExecutor.map(context, EntityKind.SAMPLE, typeIds);
-
-        for (Map.Entry<SampleCreation, SamplePE> creationEntry : creationsMap.entrySet())
-        {
-            SampleCreation creation = creationEntry.getKey();
-            SamplePE sample = creationEntry.getValue();
-
-            context.pushContextDescription("set type for sample " + creation.getCode());
-
-            if (creation.getTypeId() == null)
-            {
-                throw new UserFailureException("Type id cannot be null.");
-            } else
-            {
-                EntityTypePE type = typeMap.get(creation.getTypeId());
-                if (type == null)
-                {
-                    throw new ObjectNotFoundException(creation.getTypeId());
-                }
-                sample.setSampleType((SampleTypePE) type);
-            }
-
-            context.popContextDescription();
-        }
+    @Override
+    protected void set(IOperationContext context, SamplePE entity, EntityTypePE related)
+    {
+        entity.setSampleType((SampleTypePE) related);
     }
 }

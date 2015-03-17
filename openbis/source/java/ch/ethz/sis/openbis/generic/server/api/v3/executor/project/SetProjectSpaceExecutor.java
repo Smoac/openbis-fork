@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 ETH Zuerich, Scientific IT Services
+ * Copyright 2015 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.api.v3.executor.sample;
+package ch.ethz.sis.openbis.generic.server.api.v3.executor.project;
 
 import java.util.List;
 import java.util.Map;
@@ -25,26 +25,27 @@ import org.springframework.stereotype.Component;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.AbstractSetEntityRelationExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.space.IMapSpaceByIdExecutor;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleCreation;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.project.ProjectCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.ISpaceId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.UnauthorizedObjectAccessException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SimpleSpaceValidator;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
  * @author pkupczyk
  */
 @Component
-public class SetSampleSpaceExecutor extends AbstractSetEntityRelationExecutor<SampleCreation, SamplePE, ISpaceId, SpacePE> implements
-        ISetSampleSpaceExecutor
+public class SetProjectSpaceExecutor extends AbstractSetEntityRelationExecutor<ProjectCreation, ProjectPE, ISpaceId, SpacePE> implements
+        ISetProjectSpaceExecutor
 {
 
     @Autowired
     private IMapSpaceByIdExecutor mapSpaceByIdExecutor;
 
     @Override
-    protected ISpaceId getRelatedId(SampleCreation creation)
+    protected ISpaceId getRelatedId(ProjectCreation creation)
     {
         return creation.getSpaceId();
     }
@@ -56,20 +57,23 @@ public class SetSampleSpaceExecutor extends AbstractSetEntityRelationExecutor<Sa
     }
 
     @Override
-    protected void check(IOperationContext context, SamplePE entity, ISpaceId relatedId, SpacePE related)
+    protected void check(IOperationContext context, ProjectPE entity, ISpaceId relatedId, SpacePE related)
     {
-        if (relatedId != null && related != null)
+        if (relatedId == null)
         {
-            if (false == new SimpleSpaceValidator().doValidation(context.getSession().tryGetPerson(), related))
-            {
-                throw new UnauthorizedObjectAccessException(relatedId);
-            }
+            throw new UserFailureException("Space id cannot be null.");
+        }
+
+        if (false == new SimpleSpaceValidator().doValidation(context.getSession().tryGetPerson(), related))
+        {
+            throw new UnauthorizedObjectAccessException(relatedId);
         }
     }
 
     @Override
-    protected void set(IOperationContext context, SamplePE entity, SpacePE related)
+    protected void set(IOperationContext context, ProjectPE entity, SpacePE related)
     {
         entity.setSpace(related);
     }
+
 }

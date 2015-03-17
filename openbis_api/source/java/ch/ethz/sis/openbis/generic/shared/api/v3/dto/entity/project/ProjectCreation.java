@@ -14,23 +14,43 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.space;
+package ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.project;
 
 import java.io.Serializable;
+import java.util.List;
 
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.attachment.AttachmentCreation;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.person.IPersonId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.ISpaceId;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
  * @author pkupczyk
  */
-@JsonObject("dto.entity.space.SpaceCreation")
-public class SpaceCreation implements Serializable
+@JsonObject("dto.entity.project.ProjectCreation")
+public class ProjectCreation implements Serializable
 {
     private static final long serialVersionUID = 1L;
+
+    private ISpaceId spaceId;
 
     private String code;
 
     private String description;
+
+    private IPersonId leaderId;
+
+    private List<AttachmentCreation> attachments;
+
+    public ISpaceId getSpaceId()
+    {
+        return spaceId;
+    }
+
+    public void setSpaceId(ISpaceId spaceId)
+    {
+        this.spaceId = spaceId;
+    }
 
     public String getCode()
     {
@@ -50,6 +70,26 @@ public class SpaceCreation implements Serializable
     public void setDescription(String description)
     {
         this.description = description;
+    }
+
+    public IPersonId getLeaderId()
+    {
+        return leaderId;
+    }
+
+    public void setLeaderId(IPersonId leaderId)
+    {
+        this.leaderId = leaderId;
+    }
+
+    public List<AttachmentCreation> getAttachments()
+    {
+        return attachments;
+    }
+
+    public void setAttachments(List<AttachmentCreation> attachments)
+    {
+        this.attachments = attachments;
     }
 
 }

@@ -14,42 +14,38 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.space;
+package ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.person;
 
-import java.io.Serializable;
-
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.ObjectPermId;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
+ * Person perm id.
+ * 
  * @author pkupczyk
  */
-@JsonObject("dto.entity.space.SpaceCreation")
-public class SpaceCreation implements Serializable
+@JsonObject("dto.id.person.PersonPermId")
+public class PersonPermId extends ObjectPermId implements IPersonId
 {
+
     private static final long serialVersionUID = 1L;
 
-    private String code;
-
-    private String description;
-
-    public String getCode()
+    /**
+     * @param permId Person perm id, e.g. "admin".
+     */
+    public PersonPermId(String permId)
     {
-        return code;
+        super(permId);
     }
 
-    public void setCode(String code)
-    {
-        this.code = code;
-    }
+    //
+    // JSON-RPC
+    //
 
-    public String getDescription()
+    @SuppressWarnings("unused")
+    private PersonPermId()
     {
-        return description;
-    }
-
-    public void setDescription(String description)
-    {
-        this.description = description;
+        super();
     }
 
 }
