@@ -43,10 +43,13 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.attachment.Attachmen
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.attachment.AttachmentCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IAttachmentsHolder;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IModifierHolder;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IParentChildrenHolder;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IPropertiesHolder;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material.Material;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.person.Person;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IRegistratorHolder;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.ISpaceHolder;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.ITagsHolder;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.project.Project;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.Sample;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.space.Space;
@@ -142,26 +145,14 @@ public class AbstractTest extends SystemTestCase
             });
     }
 
-    protected void assertSpaceNotFetched(final Sample sample)
+    protected void assertSpaceNotFetched(final ISpaceHolder entity)
     {
         assertNotFetched(new IDelegatedAction()
             {
                 @Override
                 public void execute()
                 {
-                    sample.getSpace();
-                }
-            });
-    }
-
-    protected void assertSpaceNotFetched(final Person person)
-    {
-        assertNotFetched(new IDelegatedAction()
-            {
-                @Override
-                public void execute()
-                {
-                    person.getSpace();
+                    entity.getSpace();
                 }
             });
     }
@@ -190,38 +181,14 @@ public class AbstractTest extends SystemTestCase
             });
     }
 
-    protected void assertTagsNotFetched(final Experiment experiment)
+    protected void assertTagsNotFetched(final ITagsHolder entity)
     {
         assertNotFetched(new IDelegatedAction()
             {
                 @Override
                 public void execute()
                 {
-                    experiment.getTags();
-                }
-            });
-    }
-
-    protected void assertTagsNotFetched(final Material material)
-    {
-        assertNotFetched(new IDelegatedAction()
-            {
-                @Override
-                public void execute()
-                {
-                    material.getTags();
-                }
-            });
-    }
-
-    protected void assertTagsNotFetched(final DataSet dataSet)
-    {
-        assertNotFetched(new IDelegatedAction()
-            {
-                @Override
-                public void execute()
-                {
-                    dataSet.getTags();
+                    entity.getTags();
                 }
             });
     }
@@ -370,110 +337,26 @@ public class AbstractTest extends SystemTestCase
             });
     }
 
-    protected void assertTagsNotFetched(final Sample sample)
+    protected void assertRegistratorNotFetched(final IRegistratorHolder entity)
     {
         assertNotFetched(new IDelegatedAction()
             {
                 @Override
                 public void execute()
                 {
-                    sample.getTags();
+                    entity.getRegistrator();
                 }
             });
     }
 
-    protected void assertRegistratorNotFetched(final Space space)
+    protected void assertModifierNotFetched(final IModifierHolder entity)
     {
         assertNotFetched(new IDelegatedAction()
             {
                 @Override
                 public void execute()
                 {
-                    space.getRegistrator();
-                }
-            });
-    }
-
-    protected void assertRegistratorNotFetched(final Sample sample)
-    {
-        assertNotFetched(new IDelegatedAction()
-            {
-                @Override
-                public void execute()
-                {
-                    sample.getRegistrator();
-                }
-            });
-    }
-
-    protected void assertRegistratorNotFetched(final DataSet dataSet)
-    {
-        assertNotFetched(new IDelegatedAction()
-            {
-                @Override
-                public void execute()
-                {
-                    dataSet.getRegistrator();
-                }
-            });
-    }
-
-    protected void assertModifierNotFetched(final Sample sample)
-    {
-        assertNotFetched(new IDelegatedAction()
-            {
-                @Override
-                public void execute()
-                {
-                    sample.getModifier();
-                }
-            });
-    }
-
-    protected void assertModifierNotFetched(final DataSet dataSet)
-    {
-        assertNotFetched(new IDelegatedAction()
-            {
-                @Override
-                public void execute()
-                {
-                    dataSet.getModifier();
-                }
-            });
-    }
-
-    protected void assertRegistratorNotFetched(final Experiment experiment)
-    {
-        assertNotFetched(new IDelegatedAction()
-            {
-                @Override
-                public void execute()
-                {
-                    experiment.getRegistrator();
-                }
-            });
-    }
-
-    protected void assertModifierNotFetched(final Experiment experiment)
-    {
-        assertNotFetched(new IDelegatedAction()
-            {
-                @Override
-                public void execute()
-                {
-                    experiment.getModifier();
-                }
-            });
-    }
-
-    protected void assertRegistratorNotFetched(final Person person)
-    {
-        assertNotFetched(new IDelegatedAction()
-            {
-                @Override
-                public void execute()
-                {
-                    person.getRegistrator();
+                    entity.getModifier();
                 }
             });
     }
@@ -502,7 +385,7 @@ public class AbstractTest extends SystemTestCase
             });
     }
 
-    protected void assertAttachmentsNotFetched(final Experiment exp)
+    protected void assertAttachmentsNotFetched(final IAttachmentsHolder exp)
     {
         assertNotFetched(new IDelegatedAction()
             {
@@ -510,18 +393,6 @@ public class AbstractTest extends SystemTestCase
                 public void execute()
                 {
                     exp.getAttachments();
-                }
-            });
-    }
-
-    protected void assertAttachmentsNotFetched(final Sample sample)
-    {
-        assertNotFetched(new IDelegatedAction()
-            {
-                @Override
-                public void execute()
-                {
-                    sample.getAttachments();
                 }
             });
     }
