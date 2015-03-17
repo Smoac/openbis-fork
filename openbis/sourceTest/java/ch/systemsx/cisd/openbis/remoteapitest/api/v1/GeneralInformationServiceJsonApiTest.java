@@ -73,13 +73,13 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.sample.SampleTechId
 import ch.systemsx.cisd.openbis.remoteapitest.RemoteApiTestCase;
 
 /**
- * Verifies that an instance of {@link IGeneralInformationService} is published via JSON-RPC and
- * that it is correctly functioning with external clients.
+ * Verifies that an instance of {@link IGeneralInformationService} is published via JSON-RPC and that it is correctly functioning with external
+ * clients.
  * 
  * @author Kaloyan Enimanev
  */
 @Test(groups =
-    { "remote api" })
+{ "remote api" })
 public class GeneralInformationServiceJsonApiTest extends RemoteApiTestCase
 {
     protected IGeneralInformationService generalInformationService;
@@ -541,7 +541,8 @@ public class GeneralInformationServiceJsonApiTest extends RemoteApiTestCase
         assertEquals("ExperimentType[COMPOUND_HCS,Compound High Content Screening,"
                 + "[PropertyTypeGroup[<null>,["
                 + "PropertyType[VARCHAR,DESCRIPTION,Description,A Description,mandatory], "
-                + "PropertyType[VARCHAR,COMMENT,Comment,Any other comments,optional]]]]]",
+                + "PropertyType[VARCHAR,COMMENT,Comment,Any other comments,optional], "
+                + "PropertyType[MATERIAL,ANY_MATERIAL,any_material,any_material,optional]]]]]",
                 experimentTypes.get(0).toString());
         assertEquals(2, experimentTypes.size());
     }

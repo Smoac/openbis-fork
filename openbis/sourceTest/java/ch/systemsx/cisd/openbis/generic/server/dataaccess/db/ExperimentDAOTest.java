@@ -268,6 +268,8 @@ public class ExperimentDAOTest extends AbstractDAOTest
         final IExperimentDAO experimentDAO = daoFactory.getExperimentDAO();
         final ExperimentPE deletedExperiment = findExperimentByIdentifier("/CISD/DEFAULT/EXP-Y");
 
+        int propertiesCount = deletedExperiment.getProperties().size();
+
         // Deleted experiment should have all collections which prevent it from deletion empty.
         assertTrue(deletedExperiment.getDataSets().isEmpty());
         assertTrue(deletedExperiment.getSamples().isEmpty());
@@ -284,7 +286,7 @@ public class ExperimentDAOTest extends AbstractDAOTest
 
         int afterDeletionPropertiesRowCount =
                 countRowsInTable(TableNames.EXPERIMENT_PROPERTIES_TABLE);
-        assertEquals(beforeDeletionPropertiesRowCount - 1, afterDeletionPropertiesRowCount);
+        assertEquals(beforeDeletionPropertiesRowCount - propertiesCount, afterDeletionPropertiesRowCount);
     }
 
     private static final String ATT_CONTENTS_TABLE = "attachment_contents";

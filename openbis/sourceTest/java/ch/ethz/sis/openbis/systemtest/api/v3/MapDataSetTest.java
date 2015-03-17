@@ -626,13 +626,13 @@ public class MapDataSetTest extends AbstractDataSetTest
 
         DataSet data = map.get(permId);
 
-        assertEquals(data.getProperties().get("ANY_MATERIAL"), "1000_C (GENE)");
+        assertEquals(data.getProperties().get("ANY_MATERIAL"), "1000_C (SIRNA)");
         assertEquals(data.getProperties().get("BACTERIUM"), "BACTERIUM1 (BACTERIUM)");
 
         Map<String, Material> materialProperties = data.getMaterialProperties();
 
         Material gene = materialProperties.get("ANY_MATERIAL");
-        assertEquals(gene.getPermId(), new MaterialPermId("1000_C", "GENE"));
+        assertEquals(gene.getPermId(), new MaterialPermId("1000_C", "SIRNA"));
         assertEquals(gene.getRegistrator().getUserId(), "test");
         assertTagsNotFetched(gene);
 
