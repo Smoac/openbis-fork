@@ -23,6 +23,8 @@ public class EntityNode implements IIdHolder
     private final long id;
 
     private final String code;
+    
+    private String type;
 
     EntityNode(String codePrefix, long id)
     {
@@ -39,5 +41,15 @@ public class EntityNode implements IIdHolder
     public String getCode()
     {
         return code;
+    }
+
+    public String getType()
+    {
+        return type;
+    }
+
+    public void setType(String type)
+    {
+        this.type = type;
     }
 }

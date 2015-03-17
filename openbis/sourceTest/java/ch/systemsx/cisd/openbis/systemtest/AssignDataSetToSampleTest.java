@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.systemtest;
 import static org.hamcrest.CoreMatchers.is;
 import static org.testng.AssertJUnit.assertEquals;
 
-import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -28,14 +27,16 @@ import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.entitygraph.DataSetNode;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.entitygraph.EntityGraphGenerator;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.entitygraph.ExperimentNode;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.entitygraph.SampleNode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeWithRegistrationAndModificationDate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.systemtest.base.BaseTest;
 import ch.systemsx.cisd.openbis.systemtest.base.auth.AuthorizationRule;
@@ -61,200 +62,135 @@ public class AssignDataSetToSampleTest extends BaseTest
 
     Space destinationSpace;
     
-    // sourceExperiment -> destinationExperiment
     @Test
-    public void dataSetWithoutSampleCanBeAssignedToAnExperiment() throws Exception
+    public void dataSetReassignedFromExperimentToExperiment()
     {
-        AbstractExternalData dataset = create(aDataSet().inExperiment(sourceExperiment));
-        assertThat(dataset, is(inExperiment(sourceExperiment)));
-        sourceExperimentChecker.takeModificationDate();
-        destinationExperimentChecker.takeModificationDate();
+        EntityGraphGenerator g = parseAndCreateGraph("E1, samples: S1, data sets: DS1\n"
+                + "E2, samples: S2\n");
 
-        perform(anUpdateOf(dataset).toExperiment(destinationExperiment));
+        reassignToExperiment(g.ds(1), g.e(2));
 
-        sourceExperimentChecker.assertModificationDateChanged();
-        destinationExperimentChecker.assertModificationDateChanged();
-        assertThat(dataset, is(inExperiment(destinationExperiment)));
+        assertEquals("E1, samples: S1\n"
+                + "E2, samples: S2, data sets: DS1\n", renderGraph(g));
+        repository.assertModified(g.e(1), g.e(2));
+        repository.assertModified(g.ds(1));
+        repository.assertUnmodified(g.s(1), g.s(2));
     }
 
-    // sourceExperiment -> destinationSample
     @Test
-    public void dataSetWithoutSampleCanBeAssignedToSample1() throws Exception
-    {
-        AbstractExternalData dataset = create(aDataSet().inExperiment(sourceExperiment));
-        assertThat(dataset, is(inExperiment(sourceExperiment)));
-        sourceExperimentChecker.takeModificationDate();
-        destinationSampleChecker.takeModificationDate();
-        destinationExperimentChecker.takeModificationDate();
-        
-        perform(anUpdateOf(dataset).toSample(destinationSample));
-        
-        sourceExperimentChecker.assertModificationDateChanged();
-        destinationSampleChecker.assertModificationDateChanged();
-        destinationExperimentChecker.assertModificationDateChanged();
-        assertThat(dataset, is(inSample(destinationSample)));
-        assertThat(dataset, is(inExperiment(destinationExperiment)));
-    }
-    
-    @Test
-    public void dataSetWithoutSampleCanBeAssignedToSample() throws Exception
+    public void dataSetReassignedFromExperimentToSampleWithExperiment()
     {
         EntityGraphGenerator g = parseAndCreateGraph("E1, data sets: DS1\nE2, samples: S2\n");
 
         reassignToSample(g.ds(1), g.s(2));
 
         assertEquals("E2, samples: S2, data sets: DS1\nS2, data sets: DS1\n", renderGraph(g));
+        repository.assertModified(g.e(1), g.e(2));
+        repository.assertModified(g.s(2));
+        repository.assertModified(g.ds(1));
+    }
+    
+    @Test
+    public void dataSetReassignedFromExperimentToSampleWithoutExperiment()
+    {
+        EntityGraphGenerator g = parseAndCreateGraph("E1, samples: S1, data sets: DS1[NEXP-TYPE]\n"
+                + "S2\n");
+        
+        reassignToSample(g.ds(1), g.s(2));
+        
+        assertEquals("E1, samples: S1\nS2, data sets: DS1[NEXP-TYPE]\n", renderGraph(g));
+        repository.assertModified(g.e(1));
+        repository.assertUnmodified(g.s(1));
+        repository.assertModified(g.s(2));
+        repository.assertModified(g.ds(1));
+    }
+    
+    @Test
+    public void dataSetReassignedFromSampleWithExperimentToExperiment()
+    {
+        EntityGraphGenerator g = parseAndCreateGraph("E1, samples: S1, data sets: DS1\n"
+                + "E2, samples: S2\nS1, data sets: DS1\n");
+
+        reassignToExperiment(g.ds(1), g.e(2));
+
+        assertEquals("E1, samples: S1\n"
+                + "E2, samples: S2, data sets: DS1\n", renderGraph(g));
+        repository.assertModified(g.e(1), g.e(2));
+        repository.assertModified(g.s(1));
+        repository.assertModified(g.ds(1));
+        repository.assertUnmodified(g.s(2));
+    }
+    
+    @Test
+    public void dataSetReassignedFromSampleWithExperimentToSampleWithExperiment()
+    {
+        EntityGraphGenerator g = parseAndCreateGraph("E1, samples: S1, data sets: DS1\n"
+                + "E2, samples: S2\nS1, data sets: DS1\n");
+
+        reassignToSample(g.ds(1), g.s(2));
+
+        assertEquals("E1, samples: S1\n"
+                + "E2, samples: S2, data sets: DS1\nS2, data sets: DS1\n", renderGraph(g));
+        repository.assertModified(g.e(1), g.e(2));
+        repository.assertModified(g.s(1), g.s(2));
+        repository.assertModified(g.ds(1));
+    }
+    
+    @Test
+    public void dataSetReassignedFromSampleWithExperimentToSampleWithoutExperiment()
+    {
+        EntityGraphGenerator g = parseAndCreateGraph("E1, samples: S1, data sets: DS1[NEXP-TYPE]\n"
+                + "S1, data sets: DS1[NEXP-TYPE]\nS2\n");
+
+        reassignToSample(g.ds(1), g.s(2));
+
+        assertEquals("E1, samples: S1\n"
+                + "S2, data sets: DS1[NEXP-TYPE]\n", renderGraph(g));
+        repository.assertModified(g.e(1));
+        repository.assertModified(g.s(1), g.s(2));
+        repository.assertModified(g.ds(1));
     }
 
-    private void reassignToSample(DataSetNode dataSetNode, SampleNode sampleNode)
+    @Test
+    public void dataSetReassignedFromSampleWithoutExperimentToExperiment()
     {
-        AbstractExternalData dataSet = repository.getDataSet(dataSetNode);
-        Sample sample = repository.getSample(sampleNode);
-        reassignToSample(dataSet.getCode(), sample.getPermId());
-    }
+        EntityGraphGenerator g = parseAndCreateGraph("E1\n"
+                + "S1, data sets: DS1[NEXP-TYPE]\n");
 
-    protected void reassignToSample(String dataSetCode, String samplePermId)
-    {
-        SampleIdentifier sampleIdentifier = etlService.tryGetSampleIdentifier(systemSessionToken, samplePermId);
-        Sample sample = etlService.tryGetSampleWithExperiment(systemSessionToken, sampleIdentifier);
-        perform(anUpdateOf(etlService.tryGetDataSet(systemSessionToken, dataSetCode)).toSample(sample));
-    }
-    
-    // sourceExperiment -> destinationSpaceSampleWithoutExperiment
-    @Test
-    public void dataSetWithoutSampleCanBeAssignedToSpaceSampleWithoutExperiment() throws Exception
-    {
-        AbstractExternalData dataset = create(aDataSet().withType("NEXP-TYPE").inExperiment(sourceExperiment));
-        sourceExperimentChecker.takeModificationDate();
-        destinationSpaceSampleWithoutExperimentChecker.takeModificationDate();
-        
-        perform(anUpdateOf(dataset).toSample(destinationSpaceSampleWithoutExperiment));
-        
-        sourceExperimentChecker.assertModificationDateChanged();
-        destinationSpaceSampleWithoutExperimentChecker.assertModificationDateChanged();
-        assertThat(dataset, is(inSample(destinationSpaceSampleWithoutExperiment)));
-        assertThat(dataset, isNot(inExperiment(sourceExperiment)));
-    }
-    
-    // sourceSample -> destinationExperiment
-    @Test
-    public void dataSetWithSampleAndExperimentCanBeAssignedToAnExperiment() throws Exception
-    {
-        AbstractExternalData dataset = create(aDataSet().inSample(sourceSample));
-        assertThat(dataset, is(inSample(sourceSample)));
-        assertThat(dataset, is(inExperiment(sourceExperiment)));
-        sourceSampleChecker.takeModificationDate();
-        sourceExperimentChecker.takeModificationDate();
-        destinationExperimentChecker.takeModificationDate();
-        
-        perform(anUpdateOf(dataset).toExperiment(destinationExperiment));
-        
-        sourceSampleChecker.assertModificationDateChanged();
-        sourceExperimentChecker.assertModificationDateChanged();
-        destinationExperimentChecker.assertModificationDateChanged();
-        assertThat(dataset, isNot(inSample(sourceSample)));
-        assertThat(dataset, isNot(inExperiment(sourceExperiment)));
-        assertThat(dataset, is(inExperiment(destinationExperiment)));
-    }
-    
-    // sourceSample -> destinationSample
-    @Test
-    public void dataSetIsAssignedWithTheExperimentOfTheNewSample() throws Exception
-    {
-        AbstractExternalData dataset = create(aDataSet().inSample(sourceSample));
-        assertThat(dataset, is(inSample(sourceSample)));
-        assertThat(dataset, is(inExperiment(sourceExperiment)));
-        sourceSampleChecker.takeModificationDate();
-        sourceExperimentChecker.takeModificationDate();
-        destinationSampleChecker.takeModificationDate();
-        destinationExperimentChecker.takeModificationDate();
-        
-        perform(anUpdateOf(dataset).toSample(destinationSample));
+        reassignToExperiment(g.ds(1), g.e(1));
 
-        sourceSampleChecker.assertModificationDateChanged();
-        sourceExperimentChecker.assertModificationDateChanged();
-        destinationSampleChecker.assertModificationDateChanged();
-        destinationExperimentChecker.assertModificationDateChanged();
-        assertThat(dataset, isNot(inSample(sourceSample)));
-        assertThat(dataset, isNot(inExperiment(sourceExperiment)));
-        assertThat(dataset, is(inSample(destinationSample)));
-        assertThat(dataset, is(inExperiment(destinationExperiment)));
+        assertEquals("E1, data sets: DS1[NEXP-TYPE]\n", renderGraph(g));
+        repository.assertModified(g.e(1));
+        repository.assertModified(g.s(1));
+        repository.assertModified(g.ds(1));
     }
     
-    // sourceSample -> destinationSpaceSampleWithoutExperiment
     @Test
-    public void dataSetWithSampleAndExperimentCanBeAssignedToSpaceSampleWithoutExperiment() throws Exception
+    public void dataSetReassignedFromSampleWithoutExperimentToSampleWithExperiment()
     {
-        AbstractExternalData dataset = create(aDataSet().withType("NEXP-TYPE").inSample(sourceSample));
-        assertThat(dataset, is(inSample(sourceSample)));
-        assertThat(dataset, is(inExperiment(sourceExperiment)));
-        sourceSampleChecker.takeModificationDate();
-        sourceExperimentChecker.takeModificationDate();
-        destinationSpaceSampleWithoutExperimentChecker.takeModificationDate();
-        
-        perform(anUpdateOf(dataset).toSample(destinationSpaceSampleWithoutExperiment));
-        
-        sourceSampleChecker.assertModificationDateChanged();
-        sourceExperimentChecker.assertModificationDateChanged();
-        destinationSpaceSampleWithoutExperimentChecker.assertModificationDateChanged();
-        assertThat(dataset, isNot(inSample(sourceSample)));
-        assertThat(dataset, isNot(inExperiment(sourceExperiment)));
-        assertThat(dataset, is(inSample(destinationSpaceSampleWithoutExperiment)));
-    }
+        EntityGraphGenerator g = parseAndCreateGraph("E1, samples: S1\n"
+                + "S2, data sets: DS1[NEXP-TYPE]\n");
 
-    // sourceSpaceSampleWithoutExperiment -> destinationExperiment
-    @Test
-    public void dataSetWithSampleWithoutExperimentCanBeAssignedToExperiment() throws Exception
-    {
-        AbstractExternalData dataset = create(aDataSet().withType("NEXP-TYPE").inSample(sourceSpaceSampleWithoutExperiment));
-        assertThat(dataset, is(inSample(sourceSpaceSampleWithoutExperiment)));
-        sourceSpaceSampleWithoutExperimentChecker.takeModificationDate();
-        destinationExperimentChecker.takeModificationDate();
-        
-        perform(anUpdateOf(dataset).toExperiment(destinationExperiment));
-        
-        sourceSpaceSampleWithoutExperimentChecker.assertModificationDateChanged();
-        destinationExperimentChecker.assertModificationDateChanged();
-        assertThat(dataset, isNot(inSample(sourceSpaceSampleWithoutExperiment)));
-        assertThat(dataset, is(inExperiment(destinationExperiment)));
+        reassignToSample(g.ds(1), g.s(1));
+
+        assertEquals("E1, samples: S1, data sets: DS1[NEXP-TYPE]\n"
+                + "S1, data sets: DS1[NEXP-TYPE]\n", renderGraph(g));
+        repository.assertModified(g.e(1));
+        repository.assertModified(g.s(1), g.s(2));
+        repository.assertModified(g.ds(1));
     }
     
-    // sourceSpaceSampleWithoutExperiment -> destinationSample
     @Test
-    public void dataSetWithSampleWithoutExperimentCanBeAssignedToSampleWithExperiment() throws Exception
+    public void dataSetReassignedFromSampleWithoutExperimentToSampleWithoutExperiment()
     {
-        AbstractExternalData dataset = create(aDataSet().withType("NEXP-TYPE").inSample(sourceSpaceSampleWithoutExperiment));
-        assertThat(dataset, is(inSample(sourceSpaceSampleWithoutExperiment)));
-        sourceSpaceSampleWithoutExperimentChecker.takeModificationDate();
-        destinationExperimentChecker.takeModificationDate();
-        destinationExperimentChecker.takeModificationDate();
-        
-        perform(anUpdateOf(dataset).toSample(destinationSample));
-        
-        sourceSpaceSampleWithoutExperimentChecker.assertModificationDateChanged();
-        destinationSampleChecker.assertModificationDateChanged();
-        destinationExperimentChecker.assertModificationDateChanged();
-        assertThat(dataset, isNot(inSample(sourceSpaceSampleWithoutExperiment)));
-        assertThat(dataset, is(inSample(destinationSample)));
-        assertThat(dataset, is(inExperiment(destinationExperiment)));
-    }
-    
-    // sourceSpaceSampleWithoutExperiment -> destinationSpaceSampleWithoutExperiment
-    @Test
-    public void dataSetWithSampleWithoutExperimentCanBeAssignedToSpaceSampleWithoutExperiment() throws Exception
-    {
-        AbstractExternalData dataset = create(aDataSet().withType("NEXP-TYPE").inSample(sourceSpaceSampleWithoutExperiment));
-        assertThat(dataset, is(inSample(sourceSpaceSampleWithoutExperiment)));
-        sourceSpaceSampleWithoutExperimentChecker.takeModificationDate();
-        destinationSpaceSampleWithoutExperimentChecker.takeModificationDate();
-        
-        perform(anUpdateOf(dataset).toSample(destinationSpaceSampleWithoutExperiment));
-        
-        sourceSpaceSampleWithoutExperimentChecker.assertModificationDateChanged();
-        destinationSpaceSampleWithoutExperimentChecker.assertModificationDateChanged();
-        assertThat(dataset, isNot(inSample(sourceSpaceSampleWithoutExperiment)));
-        assertThat(dataset, is(inSample(destinationSpaceSampleWithoutExperiment)));
-        assertThat(dataset, isNot(inExperiment(sourceExperiment)));
+        EntityGraphGenerator g = parseAndCreateGraph("S1, data sets: DS1[NO-EXP-TYPE]\n"
+                + "S2\n");
+
+        reassignToSample(g.ds(1), g.s(2));
+
+        assertEquals("S2, data sets: DS1[NO-EXP-TYPE]\n", renderGraph(g));
+        repository.assertModified(g.s(1), g.s(2));
+        repository.assertModified(g.ds(1));
     }
     
     @Test(expectedExceptions =
@@ -380,23 +316,57 @@ public class AssignDataSetToSampleTest extends BaseTest
         assertThat(data, is(inExperiment(sourceExperiment)));
     }
 
+    private void reassignToExperiment(DataSetNode dataSetNode, ExperimentNode experimentNode)
+    {
+        AbstractExternalData dataSet = getDataSet(dataSetNode);
+        Experiment experiment = repository.getExperiment(experimentNode);
+        reassignToExperiment(dataSet.getCode(), experiment.getIdentifier());
+    }
+
+    private void reassignToSample(DataSetNode dataSetNode, SampleNode sampleNode)
+    {
+        AbstractExternalData dataSet = getDataSet(dataSetNode);
+        Sample sample = repository.getSample(sampleNode);
+        if (sample == null)
+        {
+            throw new IllegalArgumentException("Unknown sample " + sampleNode.getCode());
+        }
+        reassignToSample(dataSet.getCode(), sample.getPermId());
+    }
+
+    private AbstractExternalData getDataSet(DataSetNode dataSetNode)
+    {
+        AbstractExternalData dataSet = repository.getDataSet(dataSetNode);
+        if (dataSet == null)
+        {
+            throw new IllegalArgumentException("Unknown data set " + dataSetNode.getCode());
+        }
+        return dataSet;
+    }
+    
+    protected void reassignToExperiment(String dataSetCode, String experimentIdentifier)
+    {
+        AbstractExternalData dataSet = etlService.tryGetDataSet(systemSessionToken, dataSetCode);
+        Experiment experiment = etlService.tryGetExperiment(systemSessionToken, 
+                ExperimentIdentifierFactory.parse(experimentIdentifier));
+        String user = create(aSession().withInstanceRole(RoleCode.ADMIN));
+        perform(anUpdateOf(dataSet).toExperiment(experiment).as(user));
+    }
+
+    protected void reassignToSample(String dataSetCode, String samplePermId)
+    {
+        AbstractExternalData dataSet = etlService.tryGetDataSet(systemSessionToken, dataSetCode);
+        SampleIdentifier sampleIdentifier = etlService.tryGetSampleIdentifier(systemSessionToken, samplePermId);
+        Sample sample = etlService.tryGetSampleWithExperiment(systemSessionToken, sampleIdentifier);
+        String user = create(aSession().withInstanceRole(RoleCode.ADMIN));
+        perform(anUpdateOf(dataSet).toSample(sample).as(user));
+    }
+    
     Space unrelatedAdmin;
 
     Space unrelatedObserver;
 
     Space unrelatedNone;
-
-    private Sample destinationSpaceSampleWithoutExperiment;
-
-    private Sample sourceSpaceSampleWithoutExperiment;
-
-    private SampleModificationDateChecker sourceSpaceSampleWithoutExperimentChecker;
-
-    private ExperimentModificationDateChecker sourceExperimentChecker;
-
-    private ExperimentModificationDateChecker destinationExperimentChecker;
-
-    private SampleModificationDateChecker destinationSpaceSampleWithoutExperimentChecker;
 
     @Test(dataProvider = "rolesAllowedToAssignDataSetToSample", groups = "authorization")
     public void assigningDataSetToSampleIsAllowedFor(RoleWithHierarchy sourceSpaceRole,
@@ -437,23 +407,12 @@ public class AssignDataSetToSampleTest extends BaseTest
         sourceSpace = create(aSpace());
         Project sourceProject = create(aProject().inSpace(sourceSpace));
         sourceExperiment = create(anExperiment().inProject(sourceProject));
-        sourceExperimentChecker = new ExperimentModificationDateChecker("source experiment", sourceExperiment);
         sourceSample = create(aSample().inExperiment(sourceExperiment));
-        sourceSampleChecker = new SampleModificationDateChecker("source sample", sourceSample);
-        sourceSpaceSampleWithoutExperiment = create(aSample().inSpace(sourceSpace));
-        sourceSpaceSampleWithoutExperimentChecker = new SampleModificationDateChecker(
-                "source sample wo experiment", sourceSpaceSampleWithoutExperiment);
 
         destinationSpace = create(aSpace());
         Project destinationProject = create(aProject().inSpace(destinationSpace));
         destinationExperiment = create(anExperiment().inProject(destinationProject));
-        destinationExperimentChecker = new ExperimentModificationDateChecker(
-                "destination experiment", destinationExperiment);
         destinationSample = create(aSample().inExperiment(destinationExperiment));
-        destinationSampleChecker = new SampleModificationDateChecker("destination sample", destinationSample);
-        destinationSpaceSampleWithoutExperiment = create(aSample().inSpace(destinationSpace));
-        destinationSpaceSampleWithoutExperimentChecker = new SampleModificationDateChecker(
-                "destination sample wo experiment", destinationSpaceSampleWithoutExperiment);
 
         unrelatedAdmin = create(aSpace());
         unrelatedObserver = create(aSpace());
@@ -467,10 +426,6 @@ public class AssignDataSetToSampleTest extends BaseTest
     GuardedDomain instance;
 
     AuthorizationRule assignDataSetToSampleRule;
-
-    private SampleModificationDateChecker destinationSampleChecker;
-
-    private SampleModificationDateChecker sourceSampleChecker;
 
     @BeforeClass(dependsOnMethods = "loginAsSystem")
     void createAuthorizationRules()
@@ -497,64 +452,4 @@ public class AssignDataSetToSampleTest extends BaseTest
         return RolePermutator.getAcceptedPermutations(not(assignDataSetToSampleRule), source,
                 destination, instance);
     }
-    private abstract static class AbstractModificationDateChecker<T>
-    {
-        private final String name;
-        protected final T entity;
-        private long time;
-
-        AbstractModificationDateChecker(String name, T entity)
-        {
-            this.name = name;
-            this.entity = entity;
-            
-        }
-        
-        void takeModificationDate()
-        {
-            time = refresh().getModificationDate().getTime();
-        }
-        
-        void assertModificationDateChanged()
-        {
-            long time2 = refresh().getModificationDate().getTime();
-            if (time2 == time)
-            {
-                AssertJUnit.fail("Modification date of " + name + " didn't changed.");
-            }
-        }
-        
-        abstract CodeWithRegistrationAndModificationDate<?> refresh();
-    }
-    
-    private class SampleModificationDateChecker extends AbstractModificationDateChecker<Sample>
-    {
-        SampleModificationDateChecker(String name, Sample entity)
-        {
-            super(name, entity);
-        }
-
-        @Override
-        CodeWithRegistrationAndModificationDate<?> refresh()
-        {
-            return AssignDataSetToSampleTest.this.refresh(entity);
-        }
-        
-    }
-    
-    private class ExperimentModificationDateChecker extends AbstractModificationDateChecker<Experiment>
-    {
-        ExperimentModificationDateChecker(String name, Experiment entity)
-        {
-            super(name, entity);
-        }
-        
-        @Override
-        CodeWithRegistrationAndModificationDate<?> refresh()
-        {
-            return AssignDataSetToSampleTest.this.refresh(entity);
-        }
-        
-    }
-    
 }

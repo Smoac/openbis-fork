@@ -18,8 +18,10 @@ package ch.systemsx.cisd.openbis.systemtest.base;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -59,6 +61,7 @@ import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeWithRegistrationAndModificationDate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
@@ -483,8 +486,22 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
         EntityGraphGenerator g = new EntityGraphGenerator();
         g.parse(graphDefinition);
         prepare(g);
-        assertEquals(graphDefinition, renderGraph(g));
+        assertEquals(removeSolitaryNodes(graphDefinition), renderGraph(g));
         return g;
+    }
+    
+    private String removeSolitaryNodes(String graphDefinition)
+    {
+        StringBuilder builder = new StringBuilder();
+        String[] lines = graphDefinition.split("\n");
+        for (String line : lines)
+        {
+            if (line.contains(","))
+            {
+                builder.append(line).append("\n");
+            }
+        }
+        return builder.toString();
     }
     
     protected String renderGraph(EntityGraphGenerator g)
@@ -525,6 +542,10 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
         for (EntityNode node : nodes)
         {
             builder.append(' ').append(node.getCode());
+            if (node.getType() != null)
+            {
+                builder.append("[").append(node.getType()).append("]");
+            }
         }
     }
     
@@ -539,7 +560,7 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
         }
         for (SampleNode sampleNode : g.getSamples().values())
         {
-            SampleBuilder sample = aSample();
+            SampleBuilder sample = aSample().inSpace(space);
             ExperimentNode experimentNode = sampleNode.getExperiment();
             if (experimentNode != null)
             {
@@ -549,7 +570,7 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
         }
         for (DataSetNode dataSetNode : g.getDataSets().values())
         {
-            ExternalDataBuilder dataSet = aDataSet();
+            ExternalDataBuilder dataSet = aDataSet().withType(dataSetNode.getType());
             if (dataSetNode.getSample() != null)
             {
                 dataSet.inSample(repository.getSample(dataSetNode.getSample()));
@@ -658,12 +679,15 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
     {
         private Map<Long, Experiment> experimentsNodeToDtoMap = new TreeMap<Long, Experiment>();
         private Map<Long, ExperimentNode> experimentDtoToNodeMap = new TreeMap<Long, ExperimentNode>();
-
+        private Map<Long, ModificationInfo> experimentModificationInfoByNodeId = new HashMap<Long, ModificationInfo>();
+        
         private Map<Long, Sample> samplesNodeToDtoMap = new TreeMap<Long, Sample>();
         private Map<Long, SampleNode> samplesDtoToNodeMap = new TreeMap<Long, SampleNode>();
+        private Map<Long, ModificationInfo> sampleModificationInfoByNodeId = new HashMap<Long, ModificationInfo>();
 
         private Map<Long, AbstractExternalData> dataSetsNodeToDtoMap = new TreeMap<Long, AbstractExternalData>();
         private Map<Long, DataSetNode> dataSetsDtoToNodeMap = new TreeMap<Long, DataSetNode>();
+        private Map<Long, ModificationInfo> dataSetModificationInfoByNodeId = new HashMap<Long, ModificationInfo>();
         
         private Map<Long, Set<Long>> experimentSamplesMap = new HashMap<Long, Set<Long>>();
         private Map<Long, Set<Long>> experimentDataSetsMap = new HashMap<Long, Set<Long>>();
@@ -741,25 +765,58 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
                 dataSetIds.add(dataSet.getId());
             }
         }
-
+        
         void put(ExperimentNode experimentNode, Experiment experiment)
         {
             experimentsNodeToDtoMap.put(experimentNode.getId(), experiment);
             experimentDtoToNodeMap.put(experiment.getId(), experimentNode);
+            experimentModificationInfoByNodeId.put(experimentNode.getId(), new ModificationInfo(experiment));
+        }
+        
+        public void assertModified(ExperimentNode...experimentNodes)
+        {
+            assertModificationInfo(true, experimentModificationInfoByNodeId, experimentsNodeToDtoMap, experimentNodes);
+        }
+        
+        public void assertUnmodified(ExperimentNode...experimentNodes)
+        {
+            assertModificationInfo(false, experimentModificationInfoByNodeId, experimentsNodeToDtoMap, experimentNodes);
         }
         
         void put(SampleNode sampleNode, Sample sample)
         {
             samplesNodeToDtoMap.put(sampleNode.getId(), sample);
             samplesDtoToNodeMap.put(sample.getId(), sampleNode);
+            sampleModificationInfoByNodeId.put(sampleNode.getId(), new ModificationInfo(sample));
         }
 
+        public void assertModified(SampleNode...sampleNodes)
+        {
+            assertModificationInfo(true, sampleModificationInfoByNodeId, samplesNodeToDtoMap, sampleNodes);
+        }
+        
+        public void assertUnmodified(SampleNode...sampleNodes)
+        {
+            assertModificationInfo(false, sampleModificationInfoByNodeId, samplesNodeToDtoMap, sampleNodes);
+        }
+        
         void put(DataSetNode dataSetNode, AbstractExternalData dataSet)
         {
             dataSetsNodeToDtoMap.put(dataSetNode.getId(), dataSet);
             dataSetsDtoToNodeMap.put(dataSet.getId(), dataSetNode);
+            dataSetModificationInfoByNodeId.put(dataSetNode.getId(), new ModificationInfo(dataSet));
         }
 
+        public void assertModified(DataSetNode...dataSetNodes)
+        {
+            assertModificationInfo(true, dataSetModificationInfoByNodeId, dataSetsNodeToDtoMap, dataSetNodes);
+        }
+        
+        public void assertUnmodified(DataSetNode...dataSetNodes)
+        {
+            assertModificationInfo(false, dataSetModificationInfoByNodeId, dataSetsNodeToDtoMap, dataSetNodes);
+        }
+        
         Set<SampleNode> getSampleNode(ExperimentNode experimentNode)
         {
             Set<SampleNode> result = new LinkedHashSet<SampleNode>();
@@ -803,6 +860,45 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
                 }
             }
             return result;
+        }
+        
+        private void assertModificationInfo(boolean modified, Map<Long, ModificationInfo> previousInfos, 
+                Map<Long, ? extends CodeWithRegistrationAndModificationDate<?>> nodeToDtoMap, EntityNode...entityNodes)
+        {
+            for (EntityNode node : entityNodes)
+            {
+                ModificationInfo previous = previousInfos.get(node.getId());
+                assertNotNull(node.getCode() + " no previous modification info", previous);
+                CodeWithRegistrationAndModificationDate<?> entity = nodeToDtoMap.get(node.getId());
+                assertNotNull(node.getCode() + " unknown", entity);
+                ModificationInfo current = new ModificationInfo(entity);
+                if (modified)
+                {
+                    assertEquals(node.getCode() + " still same modifier: " + current.modifier, false, 
+                            current.modifier.equals(previous.modifier));
+                    assertEquals(node.getCode() + " still same modification date: " + current.modificationDate, 
+                            true, current.modificationDate.getTime() > previous.modificationDate.getTime());
+                } else
+                {
+                    assertEquals(node.getCode() + " different modifiers: " + previous.modifier + " " + previous.modifier,
+                            previous.modifier, current.modifier);
+                    assertEquals(node.getCode() + " different modification date: " + previous.modificationDate
+                            + " " + current.modificationDate, previous.modificationDate, current.modificationDate);
+                }
+            }
+        }
+        
+    }
+    
+    private static final class ModificationInfo
+    {
+        private final String modifier;
+        private final Date modificationDate;
+
+        ModificationInfo(CodeWithRegistrationAndModificationDate<?> entity)
+        {
+            modifier = entity.getModifier().getUserId();
+            modificationDate = entity.getModificationDate();
         }
     }
     

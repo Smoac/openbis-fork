@@ -30,6 +30,39 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 
 public final class EntityGraphGenerator
 {
+    private static final class EntityDescription
+    {
+        private static final String[] KINDS = {"E", "S", "DS"};
+        String kind;
+        int id;
+        String type;
+        EntityDescription(String description)
+        {
+            int indexOfBracket = description.indexOf('[');
+            String code;
+            if (indexOfBracket < 0)
+            {
+                code = description;
+            } else
+            {
+                if (description.endsWith("]") == false)
+                {
+                    throw new IllegalArgumentException("Missing ']' at the end of " + description);
+                }
+                code = description.substring(0, indexOfBracket);
+                type = description.substring(indexOfBracket + 1,  description.length() - 1);
+            }
+            for (String k : KINDS)
+            {
+                if (code.startsWith(k))
+                {
+                    kind = k;
+                    id = Integer.parseInt(code.substring(k.length()));
+                }
+            }
+        }
+    }
+    
     private static interface IEntitiesProvider<T extends EntityNode>
     {
         public Collection<? extends EntityNode> getEntities(T entityNode);
@@ -39,17 +72,19 @@ public final class EntityGraphGenerator
     {
         private void parse(List<String> parts)
         {
-            String entity = parts.get(0);
+            EntityDescription entity = new EntityDescription(parts.get(0));
             List<String> rest = parts.subList(1, parts.size());
-            if (entity.startsWith("E"))
+            if (entity.kind == "E")
             {
-                handle(e(Long.parseLong(entity.substring(1))), rest);
-            } else if (entity.startsWith("S"))
+                handle(e(entity.id), rest);
+            } else if (entity.kind == "S")
             {
-                handle(s(Long.parseLong(entity.substring(1))), rest);
-            } else if (entity.startsWith("DS"))
+                handle(s(entity.id), rest);
+            } else if (entity.kind == "DS")
             {
-                handle(ds(Long.parseLong(entity.substring(2))), rest);
+                DataSetNode ds = ds(entity.id);
+                ds.setType(entity.type);
+                handle(ds, rest);
             }
         }
         
@@ -75,52 +110,48 @@ public final class EntityGraphGenerator
         private SampleNode[] getSamples(String name, List<String> parts)
         {
             List<SampleNode> sampleNodes = new ArrayList<SampleNode>();
-            List<Long> ids = getIds(name, "S", parts);
-            for (Long id : ids)
+            List<EntityDescription> descriptions = getDescriptions(name, "S", parts);
+            for (EntityDescription description : descriptions)
             {
-                SampleNode s = s(id);
+                SampleNode s = s(description.id);
                 if (s == null)
                 {
-                    throw new IllegalArgumentException("No sample with id " + id);
+                    throw new IllegalArgumentException("No sample with id " + description.id);
                 }
                 sampleNodes.add(s);
             }
-            return sampleNodes.toArray(new SampleNode[ids.size()]);
+            return sampleNodes.toArray(new SampleNode[descriptions.size()]);
         }
         
         private DataSetNode[] getDataSets(String name, List<String> parts)
         {
             List<DataSetNode> dataSetNodes = new ArrayList<DataSetNode>();
-            List<Long> ids = getIds(name, "DS", parts);
-            for (Long id : ids)
+            List<EntityDescription> descriptions = getDescriptions(name, "DS", parts);
+            for (EntityDescription description : descriptions)
             {
-                DataSetNode ds = ds(id);
+                DataSetNode ds = ds(description.id);
                 if (ds == null)
                 {
-                    throw new IllegalArgumentException("No data set with id " + id);
+                    throw new IllegalArgumentException("No data set with id " + description.id);
                 }
+                ds.setType(description.type);
                 dataSetNodes.add(ds);
             }
-            return dataSetNodes.toArray(new DataSetNode[ids.size()]);
+            return dataSetNodes.toArray(new DataSetNode[descriptions.size()]);
         }
         
-        private List<Long> getIds(String name, String prefix, List<String> parts)
+        private List<EntityDescription> getDescriptions(String name, String prefix, List<String> parts)
         {
-            String codesAsString = getValue(name, parts);
-            if (codesAsString == null)
+            String descriptionsConcatenated = getValue(name, parts);
+            if (descriptionsConcatenated == null)
             {
                 return Collections.emptyList();
             }
-            String[] codes = codesAsString.split(" ");
-            List<Long> result = new ArrayList<Long>();
-            for (String code : codes)
+            String[] descriptions = descriptionsConcatenated.split(" ");
+            List<EntityDescription> result = new ArrayList<EntityDescription>();
+            for (String description : descriptions)
             {
-                String trimmedCode = code.trim();
-                if (trimmedCode.startsWith(prefix) == false)
-                {
-                    throw new IllegalArgumentException("Entity code doesn't start with '" + prefix + "': " + code);
-                }
-                result.add(Long.parseLong(trimmedCode.substring(prefix.length())));
+                result.add(new EntityDescription(description.trim()));
             }
             return result;
         }
