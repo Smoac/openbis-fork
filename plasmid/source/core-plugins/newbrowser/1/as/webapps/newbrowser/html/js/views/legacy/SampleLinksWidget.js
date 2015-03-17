@@ -544,7 +544,7 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 			
 			var propertiesToShowDisplayNames = this.profile.getPropertiesDisplayNamesForTypeCode(sampleToAdd.sampleTypeCode, propertiesToShow);
 			
-			var meaningfulInfo = "<b>Code: </b>" + sampleToAdd.code + " ";
+			
 			var name = sampleToAdd.properties["NAME"];
 			if(!name) {
 				name = sampleToAdd.properties["PLASMID_NAME"];
@@ -552,27 +552,33 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 			if(!name) {
 				name = sampleToAdd.properties["YEAST_STRAIN_NAME"];
 			}
+			
+			var info = $("<span>");
+			
+			var codeLink = $("<a>").append(sampleToAdd.code);
+			codeLink.click(function() {
+				mainController.changeView("showViewSamplePageFromPermId",sampleToAdd.permId);
+			});
+			
+			var infoCode = $("<span>")
+								.append($("<b>").append("Code: "))
+								.append(codeLink);
+			info.append(infoCode);
+			
 			if(name) {
-				meaningfulInfo += " <b>Name: </b>" + name + " ";
+				var infoName = $("<span>")
+						.append($("<b>").append("&nbsp;Name: "))
+						.append(name);
+				info.append(infoName);
 			}
 			
-			for(var j = 0; j < propertiesToShow.length; j++) {
-				var propertyToShow = sampleToAdd.properties[propertiesToShow[j]];
-				if(!propertyToShow && propertiesToShow[j].charAt(0) === '$') {
-					propertyToShow = sampleToAdd.properties[propertiesToShow[j].substr(1)];
-				}
-				var propertyToShowDisplayName = propertiesToShowDisplayNames[j];
-				
-				meaningfulInfo += "<b>" + propertyToShowDisplayName + ": </b>" + Util.getEmptyIfNull(propertyToShow) + " ";
-			}
 			var $input = $("#" +freePredefinedSampleId);
-			if(meaningfulInfo.length > 200) {
-				meaningfulInfo = meaningfulInfo.substring(0, 200) + "...";
-			}
+			
 			$input.empty();
-			$input.append(meaningfulInfo);
+			$input.append(info);
+			
 			if(this.isDisabled) {
-				$input.after(meaningfulInfo);
+				$input.after(info);
 				$input.hide();
 			}
 			//Update annotations when adding an existing sample for updates

@@ -18,6 +18,11 @@
  * General Overrides
  */
 
+a:hover {
+    text-decoration: none;
+    cursor: pointer;
+}
+
 #mainContainer.col-md-12 {
 	padding-top: 30px;
 }
