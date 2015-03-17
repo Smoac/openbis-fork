@@ -169,7 +169,20 @@ def getSampleForUpdate(sampleIdentifier, sampleType, tr):
          sample = tr.getSampleForUpdate(sampleIdentifier)
          if sample is None and sampleType is not None:
              #print "Cache Create " + sampleIdentifier + ":" + str(sampleType)
-             experiment = getExperimentForUpdate("/INVENTORY/MATERIALS/" + sampleType, sampleType, tr)
+             if sampleType == "ANTIBODY":
+             	experiment = getExperimentForUpdate("/MATERIALS/REAGENTS/ANTIBODIES", sampleType, tr)
+             elif sampleType == "CELL":
+             	experiment = getExperimentForUpdate("/MATERIALS/CELL_LINES/CELL_LINE_COLLECTION_1", sampleType, tr)             
+             elif sampleType == "STRAIN":
+             	experiment = getExperimentForUpdate("/MATERIALS/YEASTS/YEAST_COLLECTION", sampleType, tr)              
+             elif sampleType == "PLASMID":
+             	experiment = getExperimentForUpdate("/MATERIALS/PLASMIDS/PLASMID_COLLECTION_1", sampleType, tr)              
+             elif sampleType == "CHEMICAL":
+             	experiment = getExperimentForUpdate("/MATERIALS/REAGENTS/CHEMICALS", sampleType, tr) 
+             elif sampleType == "SIRNA":
+             	experiment = getExperimentForUpdate("/MATERIALS/POLYNUCLEOTIDES/RNA_COLLECTION_1", sampleType, tr)              	
+             elif sampleType == "OLIGO":
+             	experiment = getExperimentForUpdate("/MATERIALS/POLYNUCLEOTIDES/OLIGO_COLLECTION_1", sampleType, tr)              	
              sample = tr.createNewSample(sampleIdentifier, sampleType)
              sample.setExperiment(experiment)
          if sample is not None:
@@ -217,7 +230,7 @@ class FMPeterOpenBISDTO(OpenBISDTO):
             if (code is not None) and (' ' not in code):
                 if self.isSampleCacheable():
                     sampleID2Sample[self.values["NAME"]] = self.values
-                sample = getSampleForUpdate("/INVENTORY/"+code, None, tr)
+                sample = getSampleForUpdate("/MATERIALS/"+code, None, tr)
                 if sample is not None:
                     lastModificationData = self.values["MODIFICATION_DATE"].strip()
                     lastModificationData = str(datetime.strptime(lastModificationData, "%Y-%m-%d"))[:10]
@@ -287,7 +300,7 @@ class FMPeterEntityBoxOpenBISDTO(OpenBISDTO):
         return self.values["*CODE"]
     
     def write(self, tr):
-        sample = getSampleForUpdate("/INVENTORY/"+self.values["*CODE"], None, tr)
+        sample = getSampleForUpdate("/MATERIALS/"+self.values["*CODE"], None, tr)
         print "* INFO Boxes size: " + str(len(self.values["*BOXESLIST"]))
         #Delete old boxes
         for boxNum in range(1, definitions.numberOfStorageGroups+1):
@@ -319,7 +332,7 @@ class FMPeterEntityBoxOpenBISDTO(OpenBISDTO):
                     sample.setPropertyValue(propertyCode + "_" + str(boxNum), propertyValue)
     
     def isBoxPressent(self, boxSignature, tr):
-        sample = getSampleForUpdate("/INVENTORY/"+self.values["*CODE"], None, tr)
+        sample = getSampleForUpdate("/MATERIALS/"+self.values["*CODE"], None, tr)
         if sample is not None:
             for boxNum in range(1, definitions.numberOfStorageGroups+1):
                 storedSignature = "";
@@ -363,7 +376,7 @@ class AntibodyAdaptor(FileMakerEntityAdaptor):
         
 class AntibodyOpenBISDTO(FMPeterOpenBISDTO):
     def write(self, tr):
-        sample = getSampleForUpdate("/INVENTORY/"+self.values["ANTIBODY_ID_NR"],"ANTIBODY", tr)
+        sample = getSampleForUpdate("/MATERIALS/"+self.values["ANTIBODY_ID_NR"],"ANTIBODY", tr)
         setEntityProperties(tr, self.definition, sample, self.values);
     
     def getIdentifier(self, tr):
@@ -391,7 +404,7 @@ class CellOpenBISDTO(FMPeterOpenBISDTO):
     def write(self, tr):
         code = self.values["CELL_ID_NR_COPY"]
         if code is not None and code.startswith("c_"):
-            sample = getSampleForUpdate("/INVENTORY/"+code,"CELL", tr)
+            sample = getSampleForUpdate("/MATERIALS/"+code,"CELL", tr)
             setEntityProperties(tr, self.definition, sample, self.values);
     
     def getIdentifier(self, tr):
@@ -420,7 +433,7 @@ class StrainOpenBISDTO(FMPeterOpenBISDTO):
     def write(self, tr):
         code = self.values["STRAIN_ID_NR"]
         if code is not None:
-            sample = getSampleForUpdate("/INVENTORY/"+code,"STRAIN", tr)
+            sample = getSampleForUpdate("/MATERIALS/"+code,"STRAIN", tr)
             setEntityProperties(tr, self.definition, sample, self.values);
     
     def getIdentifier(self, tr):
@@ -448,7 +461,7 @@ class PlasmidOpenBISDTO(FMPeterOpenBISDTO):
     def write(self, tr):
         code = self.values["PLASMID_ID_NR"]
         if code is not None:
-            sample = getSampleForUpdate("/INVENTORY/"+code,"PLASMID", tr)
+            sample = getSampleForUpdate("/MATERIALS/"+code,"PLASMID", tr)
             setEntityProperties(tr, self.definition, sample, self.values);
     
     def getIdentifier(self, tr):
@@ -477,7 +490,7 @@ class OligoOpenBISDTO(FMPeterOpenBISDTO):
     def write(self, tr):
         code = self.values["OLIGO_ID_NR"]
         if code is not None:
-            sample = getSampleForUpdate("/INVENTORY/"+code,"OLIGO", tr)
+            sample = getSampleForUpdate("/MATERIALS/"+code,"OLIGO", tr)
             setEntityProperties(tr, self.definition, sample, self.values);
     
     def getIdentifier(self, tr):
@@ -509,7 +522,7 @@ class ChemicalOpenBISDTO(FMPeterOpenBISDTO):
     def write(self, tr):
         code = "CHEM_" + self.values["RECORD_NUMBER"]
         if code is not None:
-            sample = getSampleForUpdate("/INVENTORY/"+code,"CHEMICAL", tr)
+            sample = getSampleForUpdate("/MATERIALS/"+code,"CHEMICAL", tr)
             setEntityProperties(tr, self.definition, sample, self.values);
     
     def getIdentifier(self, tr):
@@ -535,7 +548,7 @@ class SirnaOpenBISDTO(FMPeterOpenBISDTO):
     def write(self, tr):
         code = "SI_" + self.values["SIRNA_OLIGONUMBER"]
         if code is not None:
-            sample = getSampleForUpdate("/INVENTORY/"+code,"SIRNA", tr)
+            sample = getSampleForUpdate("/MATERIALS/"+code,"SIRNA", tr)
             setEntityProperties(tr, self.definition, sample, self.values);
     
     def getIdentifier(self, tr):
@@ -565,7 +578,7 @@ class DocumentsAdaptor(FileMakerEntityAdaptor):
 
 class DocumentOpenBISDTO(OpenBISDTO):
     def write(self, tr):
-        sampleIdentifier = "/INVENTORY/"+self.values["ID_NR"];
+        sampleIdentifier = "/MATERIALS/"+self.values["ID_NR"];
         dataSetSample = getSampleForUpdate(sampleIdentifier, None, tr)
         if dataSetSample is not None and self.values["*DATA"] is not None and self.values["FILE"] is not None:
             print "* INFO DATASET CREATION FOR SERIAL " +  self.values["SERIAL"] + " WITH FILE " + self.values["FILE"]
@@ -629,7 +642,13 @@ adaptors = [ AntibodyAdaptor(fmConnString, fmUser, fmPass, "BOXIT_antibodies_Pet
             
             
 def createDataHierarchy(tr):
-    inventorySpace = tr.getSpace("INVENTORY")
+    inventorySpace = tr.getSpace("MATERIALS")
     if inventorySpace == None:
-        tr.createNewSpace("INVENTORY", None)
-        tr.createNewProject("/INVENTORY/MATERIALS")
+        tr.createNewSpace("MATERIALS", None)
+        tr.createNewProject("/MATERIALS/REAGENTS")
+        tr.createNewProject("/MATERIALS/CELL_LINES")
+        tr.createNewProject("/MATERIALS/POLYNUCLEOTIDES")
+        tr.createNewProject("/MATERIALS/PLASMIDS")
+        tr.createNewProject("/MATERIALS/YEASTS")        
+        
+        
