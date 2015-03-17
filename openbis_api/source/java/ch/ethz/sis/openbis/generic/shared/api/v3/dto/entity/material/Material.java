@@ -15,7 +15,11 @@
  */
 package ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material;
 
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IModificationDateHolder;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IPropertiesHolder;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IRegistrationDateHolder;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IRegistratorHolder;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.ITagsHolder;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material.Material;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.person.Person;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.tag.Tag;
@@ -34,7 +38,7 @@ import java.util.Set;
  * Class automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
  */
 @JsonObject("dto.entity.material.Material")
-public class Material implements Serializable, IPropertiesHolder
+public class Material implements Serializable, IModificationDateHolder, IRegistratorHolder, IPropertiesHolder, IRegistrationDateHolder, ITagsHolder
 {
     private static final long serialVersionUID = 1L;
 
@@ -106,6 +110,7 @@ public class Material implements Serializable, IPropertiesHolder
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     @JsonIgnore
+    @Override
     public Date getRegistrationDate()
     {
         return registrationDate;
@@ -119,6 +124,7 @@ public class Material implements Serializable, IPropertiesHolder
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     @JsonIgnore
+    @Override
     public Person getRegistrator()
     {
         if (getFetchOptions().hasRegistrator())
@@ -139,6 +145,7 @@ public class Material implements Serializable, IPropertiesHolder
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     @JsonIgnore
+    @Override
     public Date getModificationDate()
     {
         return modificationDate;
@@ -194,6 +201,7 @@ public class Material implements Serializable, IPropertiesHolder
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     @JsonIgnore
+    @Override
     public Set<Tag> getTags()
     {
         if (getFetchOptions().hasTags())

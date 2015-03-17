@@ -7,7 +7,14 @@ import java.util.Set;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.attachment.Attachment;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IAttachmentsHolder;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IModificationDateHolder;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IModifierHolder;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IPropertiesHolder;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IRegistrationDateHolder;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IRegistratorHolder;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.ISpaceHolder;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.ITagsHolder;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material.Material;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.person.Person;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.Sample;
@@ -27,22 +34,29 @@ public class AbstractGenerator
 
     public static void addModificationDate(DtoGenerator gen)
     {
-        gen.addSimpleField(Date.class, "modificationDate");
+        gen.addSimpleField(Date.class, "modificationDate").withInterface(IModificationDateHolder.class);
+    }
+
+    public static void addModifier(DtoGenerator gen)
+    {
+        gen.addFetchedField(Person.class, "modifier", "Modifier", PersonFetchOptions.class)
+                .withInterface(IModifierHolder.class);
     }
 
     public static void addRegistrationDate(DtoGenerator gen)
     {
-        gen.addSimpleField(Date.class, "registrationDate");
+        gen.addSimpleField(Date.class, "registrationDate").withInterface(IRegistrationDateHolder.class);
+    }
+
+    public static void addRegistrator(DtoGenerator gen)
+    {
+        gen.addFetchedField(Person.class, "registrator", "Registrator", PersonFetchOptions.class)
+                .withInterface(IRegistratorHolder.class);
     }
 
     public static void addCode(DtoGenerator gen)
     {
         gen.addSimpleField(String.class, "code");
-    }
-
-    public static void addModifier(DtoGenerator gen)
-    {
-        gen.addFetchedField(Person.class, "modifier", "Modifier", PersonFetchOptions.class);
     }
 
     public static void addExperiment(DtoGenerator gen)
@@ -57,35 +71,33 @@ public class AbstractGenerator
 
     public static void addSpace(DtoGenerator gen)
     {
-        gen.addFetchedField(Space.class, "space", "Space", SpaceFetchOptions.class);
-    }
-
-    public static void addRegistrator(DtoGenerator gen)
-    {
-        gen.addFetchedField(Person.class, "registrator", "Registrator", PersonFetchOptions.class);
+        gen.addFetchedField(Space.class, "space", "Space", SpaceFetchOptions.class)
+                .withInterface(ISpaceHolder.class);
     }
 
     public static void addTags(DtoGenerator gen)
     {
-        gen.addPluralFetchedField("Set<Tag>", Set.class.getName(), "tags", "Tags", TagFetchOptions.class);
+        gen.addPluralFetchedField("Set<Tag>", Set.class.getName(), "tags", "Tags", TagFetchOptions.class)
+                .withInterface(ITagsHolder.class);
         gen.addClassForImport(Tag.class);
         gen.addClassForImport(Set.class);
     }
 
     public static void addProperties(DtoGenerator gen)
     {
-        gen.addPluralFetchedFieldFromInterface("Map<String, String>", Map.class.getName(), "properties", "Properties", PropertyFetchOptions.class);
+        gen.addPluralFetchedField("Map<String, String>", Map.class.getName(), "properties", "Properties", PropertyFetchOptions.class)
+                .withInterface(IPropertiesHolder.class);
         gen.addClassForImport(Map.class);
-        gen.addPluralFetchedFieldFromInterface("Map<String, Material>", Map.class.getName(), "materialProperties", "Material Properties",
-                MaterialFetchOptions.class);
+        gen.addPluralFetchedField("Map<String, Material>", Map.class.getName(), "materialProperties", "Material Properties",
+                MaterialFetchOptions.class).withInterface(IPropertiesHolder.class);
         gen.addClassForImport(Map.class);
         gen.addClassForImport(Material.class);
-        gen.addImplementedInterface(IPropertiesHolder.class);
     }
 
     public static void addAttachments(DtoGenerator gen)
     {
-        gen.addPluralFetchedField("List<Attachment>", List.class.getName(), "attachments", "Attachments", AttachmentFetchOptions.class);
+        gen.addPluralFetchedField("List<Attachment>", List.class.getName(), "attachments", "Attachments", AttachmentFetchOptions.class)
+                .withInterface(IAttachmentsHolder.class);
         gen.addClassForImport(Attachment.class);
         gen.addClassForImport(List.class);
     }

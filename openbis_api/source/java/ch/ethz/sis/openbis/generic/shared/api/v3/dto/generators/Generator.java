@@ -70,9 +70,10 @@ public class Generator extends AbstractGenerator
         addSpace(gen);
         addExperiment(gen);
         addProperties(gen);
-        gen.addPluralFetchedFieldFromInterface("List<Sample>", List.class.getName(), "parents", "Parents", SampleFetchOptions.class);
-        gen.addPluralFetchedFieldFromInterface("List<Sample>", List.class.getName(), "children", "Children", SampleFetchOptions.class);
-        gen.addImplementedInterfaceGeneric(IParentChildrenHolder.class);
+        gen.addPluralFetchedField("List<Sample>", List.class.getName(), "parents", "Parents", SampleFetchOptions.class)
+                .withInterfaceReflexive(IParentChildrenHolder.class);
+        gen.addPluralFetchedField("List<Sample>", List.class.getName(), "children", "Children", SampleFetchOptions.class)
+                .withInterfaceReflexive(IParentChildrenHolder.class);
         gen.addFetchedField(Sample.class, "container", "Container sample", SampleFetchOptions.class);
         gen.addPluralFetchedField("List<Sample>", List.class.getName(), "contained", "Contained samples", SampleFetchOptions.class);
         gen.addPluralFetchedField("List<DataSet>", List.class.getName(), "dataSets", "Data sets", DataSetFetchOptions.class);
@@ -193,9 +194,10 @@ public class Generator extends AbstractGenerator
         gen.addBooleanField("derived");
         gen.addBooleanField("placeholder");
 
-        gen.addPluralFetchedFieldFromInterface("List<DataSet>", List.class.getName(), "parents", "Parents", DataSetFetchOptions.class);
-        gen.addPluralFetchedFieldFromInterface("List<DataSet>", List.class.getName(), "children", "Children", DataSetFetchOptions.class);
-        gen.addImplementedInterfaceGeneric(IParentChildrenHolder.class);
+        gen.addPluralFetchedField("List<DataSet>", List.class.getName(), "parents", "Parents", DataSetFetchOptions.class)
+                .withInterfaceReflexive(IParentChildrenHolder.class);
+        gen.addPluralFetchedField("List<DataSet>", List.class.getName(), "children", "Children", DataSetFetchOptions.class)
+                .withInterfaceReflexive(IParentChildrenHolder.class);
         gen.addPluralFetchedField("List<DataSet>", List.class.getName(), "containers", "Container data sets", DataSetFetchOptions.class);
         gen.addPluralFetchedField("List<DataSet>", List.class.getName(), "contained", "Contained data sets", DataSetFetchOptions.class);
         gen.addFetchedField(ExternalData.class, "externalData", "External data", ExternalDataFetchOptions.class);

@@ -15,6 +15,9 @@
  */
 package ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.person;
 
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IRegistrationDateHolder;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IRegistratorHolder;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.ISpaceHolder;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.person.Person;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.space.Space;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.person.PersonFetchOptions;
@@ -29,7 +32,7 @@ import java.util.Date;
  * Class automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
  */
 @JsonObject("dto.entity.person.Person")
-public class Person implements Serializable
+public class Person implements Serializable, ISpaceHolder, IRegistratorHolder, IRegistrationDateHolder
 {
     private static final long serialVersionUID = 1L;
 
@@ -127,6 +130,7 @@ public class Person implements Serializable
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     @JsonIgnore
+    @Override
     public Date getRegistrationDate()
     {
         return registrationDate;
@@ -153,6 +157,7 @@ public class Person implements Serializable
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     @JsonIgnore
+    @Override
     public Space getSpace()
     {
         if (getFetchOptions().hasSpace())
@@ -173,6 +178,7 @@ public class Person implements Serializable
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     @JsonIgnore
+    @Override
     public Person getRegistrator()
     {
         if (getFetchOptions().hasRegistrator())

@@ -16,6 +16,11 @@
 package ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.project;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IModificationDateHolder;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IModifierHolder;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IRegistrationDateHolder;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IRegistratorHolder;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.ISpaceHolder;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.person.Person;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.space.Space;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.project.ProjectFetchOptions;
@@ -33,7 +38,7 @@ import java.util.List;
  * Class automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
  */
 @JsonObject("dto.entity.project.Project")
-public class Project implements Serializable
+public class Project implements Serializable, ISpaceHolder, IModifierHolder, IModificationDateHolder, IRegistratorHolder, IRegistrationDateHolder
 {
     private static final long serialVersionUID = 1L;
 
@@ -137,6 +142,7 @@ public class Project implements Serializable
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     @JsonIgnore
+    @Override
     public Date getRegistrationDate()
     {
         return registrationDate;
@@ -150,6 +156,7 @@ public class Project implements Serializable
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     @JsonIgnore
+    @Override
     public Date getModificationDate()
     {
         return modificationDate;
@@ -183,6 +190,7 @@ public class Project implements Serializable
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     @JsonIgnore
+    @Override
     public Space getSpace()
     {
         if (getFetchOptions().hasSpace())
@@ -203,6 +211,7 @@ public class Project implements Serializable
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     @JsonIgnore
+    @Override
     public Person getRegistrator()
     {
         if (getFetchOptions().hasRegistrator())
@@ -223,6 +232,7 @@ public class Project implements Serializable
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     @JsonIgnore
+    @Override
     public Person getModifier()
     {
         if (getFetchOptions().hasModifier())

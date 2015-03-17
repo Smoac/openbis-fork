@@ -16,6 +16,8 @@
 package ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.attachment;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.attachment.Attachment;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IRegistrationDateHolder;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IRegistratorHolder;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.person.Person;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.attachment.AttachmentFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.NotFetchedException;
@@ -29,7 +31,7 @@ import java.util.Date;
  * Class automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
  */
 @JsonObject("dto.entity.attachment.Attachment")
-public class Attachment implements Serializable
+public class Attachment implements Serializable, IRegistratorHolder, IRegistrationDateHolder
 {
     private static final long serialVersionUID = 1L;
 
@@ -159,6 +161,7 @@ public class Attachment implements Serializable
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     @JsonIgnore
+    @Override
     public Date getRegistrationDate()
     {
         return registrationDate;
@@ -172,6 +175,7 @@ public class Attachment implements Serializable
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     @JsonIgnore
+    @Override
     public Person getRegistrator()
     {
         if (getFetchOptions().hasRegistrator())

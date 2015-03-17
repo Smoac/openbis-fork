@@ -4,7 +4,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.io.Serializable;
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -39,7 +39,7 @@ public class DtoGenerator
 
     private String toStringContent;
 
-    private List<String> implementedInterfaces;
+    private Set<String> implementedInterfaces;
 
     public DtoGenerator(String subPackage, String className, Class<?> fetchOptionsClass)
     {
@@ -47,7 +47,7 @@ public class DtoGenerator
         this.className = className;
         this.additionalImports = new HashSet<String>();
         this.fields = new LinkedList<DtoGenerator.DTOField>();
-        this.implementedInterfaces = new ArrayList<String>();
+        this.implementedInterfaces = new HashSet<String>();
 
         addClassForImport(JsonProperty.class);
         addClassForImport(JsonIgnore.class);
@@ -65,7 +65,17 @@ public class DtoGenerator
         return className;
     }
 
-    private static class DTOField
+    private DTOField create(String fieldName, Class<?> fieldClass, String description, Class<?> fetchOptions)
+    {
+        return new DTOField(fieldName, fieldClass, description, fetchOptions, false);
+    }
+
+    private DTOField createPlural(String fieldName, String className, String fullClassName, String description, Class<?> fetchOptions)
+    {
+        return new DTOField(fieldName, className, fullClassName, description, fetchOptions, true);
+    }
+
+    class DTOField
     {
         String fieldName;
 
@@ -86,28 +96,7 @@ public class DtoGenerator
 
         boolean interfaceMethod;
 
-        public static DTOField create(String fieldName, Class<?> fieldClass, String description, Class<?> fetchOptions)
-        {
-            return new DTOField(fieldName, fieldClass, description, fetchOptions, false, false);
-        }
-
-        public static DTOField createFromInterface(String fieldName, Class<?> fieldClass, String description, Class<?> fetchOptions)
-        {
-            return new DTOField(fieldName, fieldClass, description, fetchOptions, false, true);
-        }
-
-        public static DTOField createPlural(String fieldName, String className, String fullClassName, String description, Class<?> fetchOptions)
-        {
-            return new DTOField(fieldName, className, fullClassName, description, fetchOptions, true, false);
-        }
-
-        public static DTOField createPluralFromInterface(String fieldName, String className, String fullClassName, String description,
-                Class<?> fetchOptions)
-        {
-            return new DTOField(fieldName, className, fullClassName, description, fetchOptions, true, true);
-        }
-
-        private DTOField(String fieldName, Class<?> fieldClass, String description, Class<?> fetchOptions, boolean plural, boolean interfaceMethod)
+        private DTOField(String fieldName, Class<?> fieldClass, String description, Class<?> fetchOptions, boolean plural)
         {
             this.fieldName = fieldName;
             this.definitionClassName = fieldClass.getSimpleName();
@@ -118,11 +107,9 @@ public class DtoGenerator
             this.description = description;
             this.fetchOptions = fetchOptions;
             this.plural = plural;
-            this.interfaceMethod = interfaceMethod;
         }
 
-        private DTOField(String fieldName, String className, String fullClassName, String description, Class<?> fetchOptions, boolean plural,
-                boolean interfaceMethod)
+        private DTOField(String fieldName, String className, String fullClassName, String description, Class<?> fetchOptions, boolean plural)
         {
             this.fieldName = fieldName;
             this.definitionClassName = className;
@@ -130,7 +117,6 @@ public class DtoGenerator
             this.description = description;
             this.fetchOptions = fetchOptions;
             this.plural = plural;
-            this.interfaceMethod = interfaceMethod;
         }
 
         String getPersistentName()
@@ -143,6 +129,17 @@ public class DtoGenerator
             return fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1);
         }
 
+        void withInterface(Class<?> i)
+        {
+            addImplementedInterface(i);
+            interfaceMethod = true;
+        }
+
+        void withInterfaceReflexive(Class<?> i)
+        {
+            addImplementedInterfaceGeneric(i);
+            interfaceMethod = true;
+        }
     }
 
     private void setOutputStream(PrintStream printStream)
@@ -153,9 +150,11 @@ public class DtoGenerator
     /**
      * Add simple field i.e. one that doesn't have fetched content
      */
-    public void addSimpleField(Class<?> c, String name)
+    public DTOField addSimpleField(Class<?> c, String name)
     {
-        fields.add(DTOField.create(name, c, null, null));
+        DTOField field = create(name, c, null, null);
+        fields.add(field);
+        return field;
     }
 
     /**
@@ -187,30 +186,24 @@ public class DtoGenerator
      */
     public void addSimpleField(Class<?> c, String name, String persistentFieldName)
     {
-        DTOField dtoField = DTOField.create(name, c, null, null);
+        DTOField dtoField = create(name, c, null, null);
         dtoField.persistentFieldName = persistentFieldName;
         fields.add(dtoField);
     }
 
-    public void addFetchedField(Class<?> c, String name, String description, Class<?> fetchOptionsClass)
+    public DTOField addFetchedField(Class<?> c, String name, String description, Class<?> fetchOptionsClass)
     {
-        fields.add(DTOField.create(name, c, description, fetchOptionsClass));
+        DTOField field = create(name, c, description, fetchOptionsClass);
+        fields.add(field);
+        return field;
     }
 
-    public void addFetchedFieldFromInterface(Class<?> c, String name, String description, Class<?> fetchOptionsClass)
-    {
-        fields.add(DTOField.createFromInterface(name, c, description, fetchOptionsClass));
-    }
-
-    public void addPluralFetchedField(String definitionClassName, String importClassName, String name, String description, Class<?> fetchOptionsClass)
-    {
-        fields.add(DTOField.createPlural(name, definitionClassName, importClassName, description, fetchOptionsClass));
-    }
-
-    public void addPluralFetchedFieldFromInterface(String definitionClassName, String importClassName, String name, String description,
+    public DTOField addPluralFetchedField(String definitionClassName, String importClassName, String name, String description,
             Class<?> fetchOptionsClass)
     {
-        fields.add(DTOField.createPluralFromInterface(name, definitionClassName, importClassName, description, fetchOptionsClass));
+        DTOField field = createPlural(name, definitionClassName, importClassName, description, fetchOptionsClass);
+        fields.add(field);
+        return field;
     }
 
     public void addClassForImport(Class<?> c)
@@ -631,7 +624,7 @@ public class DtoGenerator
         print("");
     }
 
-    private void printClassHeader(String className, String jsonPackage, List<String> implementedInterfaces)
+    private void printClassHeader(String className, String jsonPackage, Collection<String> implementedInterfaces)
     {
         print("/**");
         print(" * Class automatically generated with {@link %s}", this.getClass().getName());

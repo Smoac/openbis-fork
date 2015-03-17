@@ -15,6 +15,9 @@
  */
 package ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.vocabulary;
 
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IModificationDateHolder;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IRegistrationDateHolder;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IRegistratorHolder;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.person.Person;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.vocabulary.VocabularyFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.NotFetchedException;
@@ -28,7 +31,7 @@ import java.util.Date;
  * Class automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
  */
 @JsonObject("dto.entity.vocabulary.Vocabulary")
-public class Vocabulary implements Serializable
+public class Vocabulary implements Serializable, IModificationDateHolder, IRegistratorHolder, IRegistrationDateHolder
 {
     private static final long serialVersionUID = 1L;
 
@@ -91,6 +94,7 @@ public class Vocabulary implements Serializable
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     @JsonIgnore
+    @Override
     public Date getRegistrationDate()
     {
         return registrationDate;
@@ -104,6 +108,7 @@ public class Vocabulary implements Serializable
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     @JsonIgnore
+    @Override
     public Person getRegistrator()
     {
         if (getFetchOptions().hasRegistrator())
@@ -124,6 +129,7 @@ public class Vocabulary implements Serializable
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     @JsonIgnore
+    @Override
     public Date getModificationDate()
     {
         return modificationDate;

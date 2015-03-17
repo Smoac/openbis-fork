@@ -18,8 +18,13 @@ package ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSetType;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.ExternalData;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IModificationDateHolder;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IModifierHolder;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IParentChildrenHolder;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IPropertiesHolder;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IRegistrationDateHolder;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IRegistratorHolder;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.ITagsHolder;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material.Material;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.person.Person;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.Sample;
@@ -40,7 +45,7 @@ import java.util.Set;
  * Class automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
  */
 @JsonObject("dto.entity.dataset.DataSet")
-public class DataSet implements Serializable, IParentChildrenHolder<DataSet>, IPropertiesHolder
+public class DataSet implements Serializable, IParentChildrenHolder<DataSet>, IModifierHolder, IModificationDateHolder, IRegistratorHolder, IPropertiesHolder, IRegistrationDateHolder, ITagsHolder
 {
     private static final long serialVersionUID = 1L;
 
@@ -289,6 +294,7 @@ public class DataSet implements Serializable, IParentChildrenHolder<DataSet>, IP
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     @JsonIgnore
+    @Override
     public Set<Tag> getTags()
     {
         if (getFetchOptions().hasTags())
@@ -329,6 +335,7 @@ public class DataSet implements Serializable, IParentChildrenHolder<DataSet>, IP
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     @JsonIgnore
+    @Override
     public Date getModificationDate()
     {
         return modificationDate;
@@ -342,6 +349,7 @@ public class DataSet implements Serializable, IParentChildrenHolder<DataSet>, IP
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     @JsonIgnore
+    @Override
     public Person getModifier()
     {
         if (getFetchOptions().hasModifier())
@@ -362,6 +370,7 @@ public class DataSet implements Serializable, IParentChildrenHolder<DataSet>, IP
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     @JsonIgnore
+    @Override
     public Date getRegistrationDate()
     {
         return registrationDate;
@@ -375,6 +384,7 @@ public class DataSet implements Serializable, IParentChildrenHolder<DataSet>, IP
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     @JsonIgnore
+    @Override
     public Person getRegistrator()
     {
         if (getFetchOptions().hasRegistrator())

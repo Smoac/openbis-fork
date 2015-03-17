@@ -18,8 +18,15 @@ package ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.attachment.Attachment;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IAttachmentsHolder;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IModificationDateHolder;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IModifierHolder;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IParentChildrenHolder;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IPropertiesHolder;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IRegistrationDateHolder;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IRegistratorHolder;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.ISpaceHolder;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.ITagsHolder;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material.Material;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.person.Person;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.Sample;
@@ -43,7 +50,7 @@ import java.util.Set;
  * Class automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
  */
 @JsonObject("dto.entity.sample.Sample")
-public class Sample implements Serializable, IPropertiesHolder, IParentChildrenHolder<Sample>
+public class Sample implements Serializable, ISpaceHolder, IModifierHolder, IModificationDateHolder, IAttachmentsHolder, IRegistratorHolder, IPropertiesHolder, IRegistrationDateHolder, ITagsHolder, IParentChildrenHolder<Sample>
 {
     private static final long serialVersionUID = 1L;
 
@@ -161,6 +168,7 @@ public class Sample implements Serializable, IPropertiesHolder, IParentChildrenH
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     @JsonIgnore
+    @Override
     public Date getRegistrationDate()
     {
         return registrationDate;
@@ -174,6 +182,7 @@ public class Sample implements Serializable, IPropertiesHolder, IParentChildrenH
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     @JsonIgnore
+    @Override
     public Date getModificationDate()
     {
         return modificationDate;
@@ -207,6 +216,7 @@ public class Sample implements Serializable, IPropertiesHolder, IParentChildrenH
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     @JsonIgnore
+    @Override
     public Space getSpace()
     {
         if (getFetchOptions().hasSpace())
@@ -391,6 +401,7 @@ public class Sample implements Serializable, IPropertiesHolder, IParentChildrenH
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     @JsonIgnore
+    @Override
     public Set<Tag> getTags()
     {
         if (getFetchOptions().hasTags())
@@ -411,6 +422,7 @@ public class Sample implements Serializable, IPropertiesHolder, IParentChildrenH
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     @JsonIgnore
+    @Override
     public Person getRegistrator()
     {
         if (getFetchOptions().hasRegistrator())
@@ -431,6 +443,7 @@ public class Sample implements Serializable, IPropertiesHolder, IParentChildrenH
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     @JsonIgnore
+    @Override
     public Person getModifier()
     {
         if (getFetchOptions().hasModifier())
@@ -451,6 +464,7 @@ public class Sample implements Serializable, IPropertiesHolder, IParentChildrenH
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     @JsonIgnore
+    @Override
     public List<Attachment> getAttachments()
     {
         if (getFetchOptions().hasAttachments())
