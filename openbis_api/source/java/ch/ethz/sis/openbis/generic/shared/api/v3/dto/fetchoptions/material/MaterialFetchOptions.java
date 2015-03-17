@@ -16,6 +16,7 @@
 package ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.material;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.material.MaterialFetchOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.material.MaterialTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.person.PersonFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.property.PropertyFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.tag.TagFetchOptions;
@@ -32,6 +33,9 @@ public class MaterialFetchOptions implements Serializable
     private static final long serialVersionUID = 1L;
 
     @JsonProperty
+    private MaterialTypeFetchOptions type;
+
+    @JsonProperty
     private PersonFetchOptions registrator;
 
     @JsonProperty
@@ -42,6 +46,28 @@ public class MaterialFetchOptions implements Serializable
 
     @JsonProperty
     private TagFetchOptions tags;
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public MaterialTypeFetchOptions withType()
+    {
+        if (type == null)
+        {
+            type = new MaterialTypeFetchOptions();
+        }
+        return type;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public MaterialTypeFetchOptions withTypeUsing(MaterialTypeFetchOptions fetchOptions)
+    {
+        return type = fetchOptions;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public boolean hasType()
+    {
+        return type != null;
+    }
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     public PersonFetchOptions withRegistrator()

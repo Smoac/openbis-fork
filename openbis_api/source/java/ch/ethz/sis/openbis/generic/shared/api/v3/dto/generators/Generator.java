@@ -16,6 +16,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.LocatorType;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.ExperimentType;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IParentChildrenHolder;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material.MaterialType;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.person.Person;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.project.Project;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.Sample;
@@ -377,6 +378,7 @@ public class Generator extends AbstractGenerator
         DtoGenerator gen = new DtoGenerator("material", "Material", MaterialFetchOptions.class);
         gen.addSimpleField(MaterialPermId.class, "permId");
         addCode(gen);
+        gen.addFetchedField(MaterialType.class, "type", "Material type", MaterialTypeFetchOptions.class);
         addRegistrationDate(gen);
         addRegistrator(gen);
         addModificationDate(gen);

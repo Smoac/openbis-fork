@@ -21,6 +21,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IRegistra
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IRegistratorHolder;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.ITagsHolder;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material.Material;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material.MaterialType;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.person.Person;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.tag.Tag;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.material.MaterialFetchOptions;
@@ -50,6 +51,9 @@ public class Material implements Serializable, IModificationDateHolder, IRegistr
 
     @JsonProperty
     private String code;
+
+    @JsonProperty
+    private MaterialType type;
 
     @JsonProperty
     private Date registrationDate;
@@ -106,6 +110,26 @@ public class Material implements Serializable, IModificationDateHolder, IRegistr
     public void setCode(String code)
     {
         this.code = code;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    @JsonIgnore
+    public MaterialType getType()
+    {
+        if (getFetchOptions().hasType())
+        {
+            return type;
+        }
+        else
+        {
+            throw new NotFetchedException("Material type has not been fetched.");
+        }
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public void setType(MaterialType type)
+    {
+        this.type = type;
     }
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
