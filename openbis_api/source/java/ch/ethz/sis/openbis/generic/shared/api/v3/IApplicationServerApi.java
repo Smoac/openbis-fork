@@ -32,6 +32,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experimen
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.ExperimentUpdate;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material.Material;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material.MaterialCreation;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material.MaterialUpdate;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.project.Project;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.project.ProjectCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.Sample;
@@ -113,6 +114,8 @@ public interface IApplicationServerApi extends IRpcService
     public List<SamplePermId> createSamples(String sessionToken, List<SampleCreation> newSamples);
 
     public List<MaterialPermId> createMaterials(String sessionToken, List<MaterialCreation> newMaterials);
+
+    public void updateMaterials(String sessionToken, List<MaterialUpdate> materialUpdates);
 
     public void updateSpaces(String sessionToken, List<SpaceUpdate> spaceUpdates);
 
