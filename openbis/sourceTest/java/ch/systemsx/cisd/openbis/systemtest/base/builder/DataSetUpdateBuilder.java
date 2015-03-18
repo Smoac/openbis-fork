@@ -72,7 +72,7 @@ public class DataSetUpdateBuilder extends UpdateBuilder<DataSetUpdatesDTO>
 
     public DataSetUpdateBuilder toSample(Sample sample)
     {
-//        toExperiment(sample.getExperiment());
+        toExperiment(sample.getExperiment());
         this.sampleIdentifier = id(sample);
         return this;
     }
@@ -105,12 +105,18 @@ public class DataSetUpdateBuilder extends UpdateBuilder<DataSetUpdatesDTO>
         return this;
     }
 
+    public DataSetUpdateBuilder removingExperiment()
+    {
+        this.experimentIdentifier = null;
+        return this;
+    }
+
     public DataSetUpdateBuilder removingSample()
     {
         this.sampleIdentifier = null;
         return this;
     }
-
+    
     public DataSetUpdateBuilder withContainer(AbstractExternalData dataSet)
     {
         this.containerCode = dataSet.getCode();

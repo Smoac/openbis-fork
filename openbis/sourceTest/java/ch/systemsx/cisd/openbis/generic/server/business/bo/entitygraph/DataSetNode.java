@@ -100,6 +100,15 @@ public final class DataSetNode extends EntityNode
         }
     }
     
+    void hasParents(DataSetNode...someParentDataSets)
+    {
+        for (DataSetNode parentDataSet : someParentDataSets)
+        {
+            parents.add(parentDataSet);
+            parentDataSet.children.add(this);
+        }
+    }
+    
     @Override
     public String toString()
     {

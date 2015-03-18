@@ -20,11 +20,11 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.fail;
 
-import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.entitygraph.DataSetNode;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.entitygraph.EntityGraphGenerator;
@@ -48,6 +48,7 @@ import ch.systemsx.cisd.openbis.systemtest.base.auth.SpaceDomain;
 
 /**
  * @author anttil
+ * @author Franz-Josef Elmer
  */
 public class AssignDataSetToSampleTest extends BaseTest
 {
@@ -64,30 +65,59 @@ public class AssignDataSetToSampleTest extends BaseTest
     Space destinationSpace;
     
     @Test
-    public void containerWithAComponentOfWrongTypeReassignedFromExperimentToSampleWithoutExperiment()
+    public void reassignTheTwoOriginalDataSetsOfPublishedDataSetsToDifferentOriginalSampleAndExperiment()
     {
-        EntityGraphGenerator g = parseAndCreateGraph("E1, data sets: DS1[NECT] DS2\n"
-                + "S2, data sets: DS5[NET]\n"
-                + "DS1[NECT], components: DS2\n");
-        
-        try
-        {
-            reassignToSample(g.ds(1), g.s(2));
-            fail("UserFailureException expected");
-        } catch (UserFailureException ex)
-        {
-            AbstractExternalData dataSet = repository.getDataSet(g.ds(2));
-            assertEquals("The dataset '" + dataSet.getCode()
-                    + "' cannot be connected to the sample '" + repository.getSample(g.s(2)).getIdentifier()
-                    + "' because the new sample is not connected to any experiment and the data set type (" 
-                    + dataSet.getDataSetType().getCode()
-                    + ") doesn't match one of the following regular expressions:   NO-EXP-.* ,   NE.*  .",
-                    ex.getMessage());
-        }
+        EntityGraphGenerator g = parseAndCreateGraph("E1, samples: S1, data sets: DS3 DS4 DS5 DS6\n"
+                + "E2, data sets: DS1 DS2\n"
+                + "E3, samples: S3\n"
+                + "S1, data sets: DS3\n"
+                + "DS1, components: DS3\n"
+                + "DS2, components: DS4\n"
+                + "DS3, components: DS5 DS6\n");
+
+        reassignToSample(g.ds(3), g.s(3));
+        reassignToExperiment(g.ds(4), g.e(3));
+
+        assertEquals("E1, samples: S1\n"
+                + "E2, data sets: DS1 DS2\n"
+                + "E3, samples: S3, data sets: DS3 DS4 DS5 DS6\n"
+                + "S3, data sets: DS3\n"
+                + "DS1, components: DS3\n"
+                + "DS2, components: DS4\n"
+                + "DS3, components: DS5 DS6\n", renderGraph(g));
+        repository.assertModified(g.e(1), g.e(3));
+        repository.assertModified(g.s(1), g.s(3));
+        repository.assertModified(g.ds(3), g.ds(4), g.ds(5), g.ds(6));
+        repository.assertUnmodified(g);
     }
     
     @Test
-    public void containerWithSomeComponentsReassigned()
+    public void reassignTwoPublishedDataSetToAnotherPublicExperiment()
+    {
+        EntityGraphGenerator g = parseAndCreateGraph("E1, samples: S1, data sets: DS3 DS4 DS5 DS6\n"
+                + "E2, data sets: DS1 DS2\n"
+                + "E3\n"
+                + "S1, data sets: DS3\n"
+                + "DS1, components: DS3\n"
+                + "DS2, components: DS4\n"
+                + "DS3, components: DS5 DS6\n");
+        
+        reassignToExperiment(g.ds(1), g.e(3));
+        reassignToExperiment(g.ds(2), g.e(3));
+        
+        assertEquals("E1, samples: S1, data sets: DS3 DS4 DS5 DS6\n"
+                + "E3, data sets: DS1 DS2\n"
+                + "S1, data sets: DS3\n"
+                + "DS1, components: DS3\n"
+                + "DS2, components: DS4\n"
+                + "DS3, components: DS5 DS6\n", renderGraph(g));
+        repository.assertModified(g.e(2), g.e(3));
+        repository.assertModified(g.ds(1), g.ds(2));
+        repository.assertUnmodified(g);
+    }
+    
+    @Test
+    public void containerWithSomeComponentsReassignedFromSampleWithoutExperimentToSampleWithExperiment()
     {
         EntityGraphGenerator g = parseAndCreateGraph("E1, data sets: DS4\n"
                 + "E2, samples: S2\n"
@@ -96,15 +126,38 @@ public class AssignDataSetToSampleTest extends BaseTest
                 + "DS1[NECT], components: DS2[NECT] DS3[NET]\n"
                 + "DS2[NECT], components: DS4");
         
-        reassignToExperiment(g.ds(1), g.e(2));
+        reassignToSample(g.ds(1), g.s(2));
         
         assertEquals("E1, data sets: DS4\n"
                 + "E2, samples: S2, data sets: DS1[NECT] DS2[NECT]\n"
+                + "S2, data sets: DS1[NECT] DS2[NECT]\n"
                 + "S3, data sets: DS3[NET]\n"
                 + "DS1[NECT], components: DS2[NECT] DS3[NET]\n"
                 + "DS2[NECT], components: DS4\n", renderGraph(g));
         repository.assertModified(g.e(2));
-        repository.assertModified(g.s(1));
+        repository.assertModified(g.s(1), g.s(2));
+        repository.assertModified(g.ds(1), g.ds(2));
+        repository.assertUnmodified(g);
+    }
+    
+    @Test
+    public void containerWithSomeComponentsReassignedFromSampleWithoutExperimentToSampleWithoutExperiment()
+    {
+        EntityGraphGenerator g = parseAndCreateGraph("E1, data sets: DS4\n"
+                + "S1, data sets: DS1[NECT] DS2[NECT]\n"
+                + "S2\n"
+                + "S3, data sets: DS3[NET]\n"
+                + "DS1[NECT], components: DS2[NECT] DS3[NET]\n"
+                + "DS2[NECT], components: DS4");
+        
+        reassignToSample(g.ds(1), g.s(2));
+        
+        assertEquals("E1, data sets: DS4\n"
+                + "S2, data sets: DS1[NECT] DS2[NECT]\n"
+                + "S3, data sets: DS3[NET]\n"
+                + "DS1[NECT], components: DS2[NECT] DS3[NET]\n"
+                + "DS2[NECT], components: DS4\n", renderGraph(g));
+        repository.assertModified(g.s(1), g.s(2));
         repository.assertModified(g.ds(1), g.ds(2));
         repository.assertUnmodified(g);
     }
@@ -297,6 +350,7 @@ public class AssignDataSetToSampleTest extends BaseTest
         repository.assertUnmodified(g);
     }
     
+    // This is screening test case where one container data set is moved to another plate.
     @Test
     public void containerWithAllItsComponentsReassignedFromSampleWithExperimentToSampleWithExperiment()
     {
@@ -387,145 +441,199 @@ public class AssignDataSetToSampleTest extends BaseTest
         repository.assertUnmodified(g);
     }
     
-    @Test(expectedExceptions =
-        { UserFailureException.class })
-    public void dataSetCannotBeAssignedToSpaceSample() throws Exception
+    @Test
+    public void containerWithAComponentOfWrongTypeReassignedFromExperimentToSampleWithoutExperiment()
     {
-        Sample sample = create(aSample().inSpace(destinationSpace));
-        AbstractExternalData dataset = create(aDataSet().inSample(sourceSample));
+        EntityGraphGenerator g = parseAndCreateGraph("E1, data sets: DS1[NECT] DS2\n"
+                + "S2, data sets: DS5[NET]\n"
+                + "DS1[NECT], components: DS2\n");
+        
+        try
+        {
+            reassignToSample(g.ds(1), g.s(2));
+            fail("UserFailureException expected");
+        } catch (UserFailureException ex)
+        {
+            AbstractExternalData dataSet = repository.getDataSet(g.ds(2));
+            Sample sample = repository.getSample(g.s(2));
+            assertDataSetToSampleExceptionMessage(ex, sample, dataSet);
+        }
+    }
+    
+    @Test
+    public void dataSetCannotBeAssignedToSpaceSample()
+    {
+        EntityGraphGenerator g = parseAndCreateGraph("E1, data sets: DS1\nS2\n");
 
-        perform(anUpdateOf(dataset).toSample(sample));
+        try
+        {
+            reassignToSample(g.ds(1), g.s(2));
+            fail("UserFailureException expected");
+        } catch (UserFailureException ex)
+        {
+            AbstractExternalData dataSet = repository.getDataSet(g.ds(1));
+            Sample sample = repository.getSample(g.s(2));
+            assertDataSetToSampleExceptionMessage(ex, sample, dataSet);
+        }
     }
 
-    @Test(expectedExceptions =
-        { UserFailureException.class })
-    public void dataSetCannotBeAssignedToSharedSample() throws Exception
+    @Test
+    public void dataSetCannotBeAssignedToSharedSample()
     {
         Sample sample = create(aSample());
         AbstractExternalData dataset = create(aDataSet().inSample(sourceSample));
 
-        perform(anUpdateOf(dataset).toSample(sample));
-    }
-
-    @Test
-    public void childDataSetCanBeAssignedToAnotherSample() throws Exception
-    {
-        AbstractExternalData parent = create(aDataSet().inSample(sourceSample));
-        AbstractExternalData child = create(aDataSet().inSample(sourceSample).withParent(parent));
-
-        perform(anUpdateOf(child).toSample(destinationSample));
-
-        assertThat(child, is(inSample(destinationSample)));
+        try
+        {
+            String user = create(aSession().withInstanceRole(RoleCode.ADMIN));
+            reassignToSample(dataset.getCode(), sample.getPermId(), user);
+            fail("UserFailureException expected");
+        } catch (UserFailureException ex)
+        {
+            assertDataSetToSampleExceptionMessage(ex, sample, dataset);
+        }
     }
 
     @Test
     public void sampleAssignmentOfParentDataSetIsNotChangedWhenChildDataSetIsAssignedToAnotherSample()
-            throws Exception
     {
-        AbstractExternalData parent = create(aDataSet().inSample(sourceSample));
-        AbstractExternalData child = create(aDataSet().inSample(sourceSample).withParent(parent));
-
-        perform(anUpdateOf(child).toSample(destinationSample));
-
-        assertThat(parent, is(inSample(sourceSample)));
-    }
-
-    @Test
-    public void parentDataSetCanBeAssignedToAnotherSample() throws Exception
-    {
-        AbstractExternalData parent = create(aDataSet().inSample(sourceSample));
-        create(aDataSet().inSample(sourceSample).withParent(parent));
-
-        perform(anUpdateOf(parent).toSample(destinationSample));
-
-        assertThat(parent, is(inSample(destinationSample)));
+        EntityGraphGenerator g = parseAndCreateGraph("E1, samples: S1, data sets: DS1 DS2\n"
+                + "E2, samples: S2\n"
+                + "S1, data sets: DS1 DS2\n"
+                + "DS1, parents: DS2\n");
+        
+        reassignToSample(g.ds(1), g.s(2));
+        
+        assertEquals("E1, samples: S1, data sets: DS2\n"
+                + "E2, samples: S2, data sets: DS1\n"
+                + "S1, data sets: DS2\n"
+                + "S2, data sets: DS1\n"
+                + "DS1, parents: DS2\n", renderGraph(g));
+        repository.assertModified(g.e(1), g.e(2));
+        repository.assertModified(g.s(1), g.s(2));
+        repository.assertModified(g.ds(1));
+        repository.assertUnmodified(g);
     }
 
     @Test
     public void sampleAssignmentOfChildDataSetIsNotChangedWhenParentDatasetIsAssignedToAnotherSample()
-            throws Exception
     {
-        AbstractExternalData parent = create(aDataSet().inSample(sourceSample));
-        AbstractExternalData child = create(aDataSet().inSample(sourceSample).withParent(parent));
-
-        perform(anUpdateOf(parent).toSample(destinationSample));
-
-        assertThat(child, is(inSample(sourceSample)));
-    }
-
-    @Test
-    public void componentDataSetCanBeAssignedToAnotherSample() throws Exception
-    {
-        AbstractExternalData component = create(aDataSet().inSample(sourceSample));
-        create(aDataSet().inSample(sourceSample).withComponent(component));
-
-        perform(anUpdateOf(component).toSample(destinationSample));
-
-        assertThat(component, is(inSample(destinationSample)));
+        EntityGraphGenerator g = parseAndCreateGraph("E1, samples: S1, data sets: DS1 DS2\n"
+                + "E2, samples: S2\n"
+                + "S1, data sets: DS1 DS2\n"
+                + "DS1, parents: DS2\n");
+        
+        reassignToSample(g.ds(2), g.s(2));
+        
+        assertEquals("E1, samples: S1, data sets: DS1\n"
+                + "E2, samples: S2, data sets: DS2\n"
+                + "S1, data sets: DS1\n"
+                + "S2, data sets: DS2\n"
+                + "DS1, parents: DS2\n", renderGraph(g));
+        repository.assertModified(g.e(1), g.e(2));
+        repository.assertModified(g.s(1), g.s(2));
+        repository.assertModified(g.ds(2));
+        repository.assertUnmodified(g);
     }
 
     @Test
     public void sampleAssignmentOfContainerDataSetIsNotChangedWhenComponentDataSetIsAssignedToAnotherSample()
-            throws Exception
     {
-        AbstractExternalData component = create(aDataSet().inSample(sourceSample));
-        AbstractExternalData container = create(aDataSet().inSample(sourceSample).withComponent(component));
-
-        perform(anUpdateOf(component).toSample(destinationSample));
-
-        assertThat(container, is(inSample(sourceSample)));
+        EntityGraphGenerator g = parseAndCreateGraph("E1, samples: S1, data sets: DS1 DS2\n"
+                + "E2, samples: S2\n"
+                + "S1, data sets: DS1 DS2\n"
+                + "DS1, components: DS2\n");
+        
+        reassignToSample(g.ds(2), g.s(2));
+        
+        assertEquals("E1, samples: S1, data sets: DS1\n"
+                + "E2, samples: S2, data sets: DS2\n"
+                + "S1, data sets: DS1\n"
+                + "S2, data sets: DS2\n"
+                + "DS1, components: DS2\n", renderGraph(g));
+        repository.assertModified(g.e(1), g.e(2));
+        repository.assertModified(g.s(1), g.s(2));
+        repository.assertModified(g.ds(2));
+        repository.assertUnmodified(g);
     }
 
     @Test
-    public void containerDataSetCanBeAssignedToAnotherSample() throws Exception
+    public void sampleAssignmentOfComponentDataSetIsChangedWhenContainerDataSetIsAssignedToAnotherSample()
     {
-        AbstractExternalData component = create(aDataSet().inSample(sourceSample));
-        AbstractExternalData container = create(aDataSet().inSample(sourceSample).withComponent(component));
-
-        perform(anUpdateOf(container).toSample(destinationSample));
-
-        assertThat(container, is(inSample(destinationSample)));
+        EntityGraphGenerator g = parseAndCreateGraph("E1, samples: S1, data sets: DS1 DS2\n"
+                + "E2, samples: S2\n"
+                + "S1, data sets: DS1 DS2\n"
+                + "DS1, components: DS2\n");
+        
+        reassignToSample(g.ds(1), g.s(2));
+        
+        assertEquals("E1, samples: S1\n"
+                + "E2, samples: S2, data sets: DS1 DS2\n"
+                + "S2, data sets: DS1 DS2\n"
+                + "DS1, components: DS2\n", renderGraph(g));
+        repository.assertModified(g.e(1), g.e(2));
+        repository.assertModified(g.s(1), g.s(2));
+        repository.assertModified(g.ds(1), g.ds(2));
+        repository.assertUnmodified(g);
     }
 
     @Test
-    public void sampleAssignmentOfComponentDataSetIsNotChangedWhenContainerDataSetIsAssignedToAnotherSample()
-            throws Exception
+    public void dataSetCanBeUnassignedFromSample()
     {
-        AbstractExternalData component = create(aDataSet().inSample(sourceSample));
-        AbstractExternalData container = create(aDataSet().inSample(sourceSample).withComponent(component));
-
-        perform(anUpdateOf(container).toSample(destinationSample));
-
-        assertThat(component, is(inSample(sourceSample)));
+        EntityGraphGenerator g = parseAndCreateGraph("E1, samples: S1, data sets: DS1\n"
+                + "S1, data sets: DS1\n");
+        
+        reassignToSample(g.ds(1), null);
+        
+        assertEquals("E1, samples: S1, data sets: DS1\n", renderGraph(g));
+        repository.assertModified(g.s(1));
+        repository.assertModified(g.ds(1));
+        repository.assertUnmodified(g);
     }
 
-    @Test
-    public void dataSetCanBeUnassignedFromSample() throws Exception
+    private void assertDataSetToSampleExceptionMessage(UserFailureException ex, Sample sample, AbstractExternalData dataset)
     {
-        AbstractExternalData data = create(aDataSet().inSample(sourceSample));
-
-        perform(anUpdateOf(data).removingSample());
-
-        assertThat(data, hasNoSample());
-        assertThat(data, is(inExperiment(sourceExperiment)));
+        String postfix = sample.getSpace() == null ? "shared." :
+                "not connected to any experiment and the data set type ("
+                        + dataset.getDataSetType().getCode()
+                        + ") doesn't match one of the following regular expressions:   NO-EXP-.* ,   NE.*  .";
+        assertEquals("The dataset '" + dataset.getCode()
+                + "' cannot be connected to the sample '" + sample.getIdentifier()
+                + "' because the new sample is " + postfix, ex.getMessage());
     }
 
-    private void reassignToExperiment(DataSetNode dataSetNode, ExperimentNode experimentNode)
+    private void reassignToExperiment(DataSetNode dataSetNode, ExperimentNode experimentNodeOrNull)
     {
         AbstractExternalData dataSet = getDataSet(dataSetNode);
-        Experiment experiment = repository.getExperiment(experimentNode);
-        reassignToExperiment(dataSet.getCode(), experiment.getIdentifier());
-    }
-
-    private void reassignToSample(DataSetNode dataSetNode, SampleNode sampleNode)
-    {
-        AbstractExternalData dataSet = getDataSet(dataSetNode);
-        Sample sample = repository.getSample(sampleNode);
-        if (sample == null)
+        String experimentIdentifierOrNull = null;
+        if (experimentNodeOrNull != null)
         {
-            throw new IllegalArgumentException("Unknown sample " + sampleNode.getCode());
+            Experiment experiment = repository.getExperiment(experimentNodeOrNull);
+            if (experiment == null)
+            {
+                throw new IllegalArgumentException("Unknown experiment " + experimentNodeOrNull.getCode());
+            }
+            experimentIdentifierOrNull = experiment.getIdentifier();
         }
-        reassignToSample(dataSet.getCode(), sample.getPermId());
+        String user = create(aSession().withInstanceRole(RoleCode.ADMIN));
+        reassignToExperiment(dataSet.getCode(), experimentIdentifierOrNull, user);
+    }
+
+    private void reassignToSample(DataSetNode dataSetNode, SampleNode sampleNodeOrNull)
+    {
+        AbstractExternalData dataSet = getDataSet(dataSetNode);
+        String permIdOrNull = null;
+        if (sampleNodeOrNull != null)
+        {
+            Sample sample = repository.getSample(sampleNodeOrNull);
+            if (sample == null)
+            {
+                throw new IllegalArgumentException("Unknown sample " + sampleNodeOrNull.getCode());
+            }
+            permIdOrNull = sample.getPermId();
+        }
+        String user = create(aSession().withInstanceRole(RoleCode.ADMIN));
+        reassignToSample(dataSet.getCode(), permIdOrNull, user);
     }
 
     private AbstractExternalData getDataSet(DataSetNode dataSetNode)
@@ -538,22 +646,42 @@ public class AssignDataSetToSampleTest extends BaseTest
         return dataSet;
     }
     
-    protected void reassignToExperiment(String dataSetCode, String experimentIdentifier)
+    /**
+     * Reassign specified data set to specified experiment for the specified user. 
+     * If experiment is not specified unassignment is meant.
+     * Sub class for testing API V3 should override this method.
+     */
+    protected void reassignToExperiment(String dataSetCode, String experimentIdentifierOrNull, String user)
     {
         AbstractExternalData dataSet = etlService.tryGetDataSet(systemSessionToken, dataSetCode);
-        Experiment experiment = etlService.tryGetExperiment(systemSessionToken, 
-                ExperimentIdentifierFactory.parse(experimentIdentifier));
-        String user = create(aSession().withInstanceRole(RoleCode.ADMIN));
-        perform(anUpdateOf(dataSet).toExperiment(experiment).as(user));
+        if (experimentIdentifierOrNull != null)
+        {
+            Experiment experiment = etlService.tryGetExperiment(systemSessionToken, 
+                    ExperimentIdentifierFactory.parse(experimentIdentifierOrNull));
+            perform(anUpdateOf(dataSet).toExperiment(experiment).as(user));
+        } else
+        {
+            perform(anUpdateOf(dataSet).removingExperiment().as(user));
+        }
     }
 
-    protected void reassignToSample(String dataSetCode, String samplePermId)
+    /**
+     * Reassign specified data set to specified sample for the specified user. 
+     * If sample is not specified unassignment is meant.
+     * Sub class for testing API V3 should override this method.
+     */
+    protected void reassignToSample(String dataSetCode, String samplePermIdOrNull, String user)
     {
         AbstractExternalData dataSet = etlService.tryGetDataSet(systemSessionToken, dataSetCode);
-        SampleIdentifier sampleIdentifier = etlService.tryGetSampleIdentifier(systemSessionToken, samplePermId);
-        Sample sample = etlService.tryGetSampleWithExperiment(systemSessionToken, sampleIdentifier);
-        String user = create(aSession().withInstanceRole(RoleCode.ADMIN));
-        perform(anUpdateOf(dataSet).toSample(sample).as(user));
+        if (samplePermIdOrNull != null)
+        {
+            SampleIdentifier sampleIdentifier = etlService.tryGetSampleIdentifier(systemSessionToken, samplePermIdOrNull);
+            Sample sample = etlService.tryGetSampleWithExperiment(systemSessionToken, sampleIdentifier);
+            perform(anUpdateOf(dataSet).toSample(sample).as(user));
+        } else
+        {
+            perform(anUpdateOf(dataSet).removingSample().as(user));
+        }
     }
     
     Space unrelatedAdmin;
@@ -562,7 +690,7 @@ public class AssignDataSetToSampleTest extends BaseTest
 
     Space unrelatedNone;
 
-//    @Test(dataProvider = "rolesAllowedToAssignDataSetToSample", groups = "authorization")
+    @Test(dataProvider = "rolesAllowedToAssignDataSetToSample", groups = "authorization")
     public void assigningDataSetToSampleIsAllowedFor(RoleWithHierarchy sourceSpaceRole,
             RoleWithHierarchy destinationSpaceRole, RoleWithHierarchy instanceRole)
             throws Exception
@@ -575,11 +703,11 @@ public class AssignDataSetToSampleTest extends BaseTest
                         .withSpaceRole(RoleWithHierarchy.SPACE_ADMIN, unrelatedAdmin)
                         .withSpaceRole(RoleWithHierarchy.SPACE_OBSERVER, unrelatedObserver));
 
-        perform(anUpdateOf(dataset).toSample(destinationSample).as(user));
+        reassignToSample(dataset.getCode(), destinationSample.getPermId(), user);
     }
 
-//    @Test(dataProvider = "rolesNotAllowedToAssignDataSetToSample", expectedExceptions =
-//        { AuthorizationFailureException.class }, groups = "authorization")
+    @Test(dataProvider = "rolesNotAllowedToAssignDataSetToSample", expectedExceptions =
+        { AuthorizationFailureException.class }, groups = "authorization")
     public void assigningDataSetToSampleIsNotAllowedFor(RoleWithHierarchy sourceSpaceRole,
             RoleWithHierarchy destinationSpaceRole, RoleWithHierarchy instanceRole)
             throws Exception
@@ -592,7 +720,7 @@ public class AssignDataSetToSampleTest extends BaseTest
                         .withSpaceRole(RoleWithHierarchy.SPACE_ADMIN, unrelatedAdmin)
                         .withSpaceRole(RoleWithHierarchy.SPACE_OBSERVER, unrelatedObserver));
 
-        perform(anUpdateOf(dataset).toSample(destinationSample).as(user));
+        reassignToSample(dataset.getCode(), destinationSample.getPermId(), user);
     }
 
     @BeforeClass(dependsOnMethods = "loginAsSystem")

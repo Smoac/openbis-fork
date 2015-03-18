@@ -104,6 +104,7 @@ public final class EntityGraphGenerator
         private void handle(DataSetNode dataSet, List<String> parts)
         {
             dataSet.hasChildren(getDataSets("children", parts));
+            dataSet.hasParents(getDataSets("parents", parts));
             dataSet.hasComponents(getDataSets("components", parts));
         }
         

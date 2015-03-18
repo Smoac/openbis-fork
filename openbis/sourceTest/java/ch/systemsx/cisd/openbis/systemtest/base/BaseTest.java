@@ -538,6 +538,7 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
         {
             StringBuilder builder2 = new StringBuilder();
             render(builder2, "components", repository.getComponentDataSetNodes(dataSetNode));
+            render(builder2, "parents", repository.getParentDataSetNodes(dataSetNode));
             appendNodeTo(builder, dataSetNode, builder2);
         }
         return builder.toString();
@@ -571,20 +572,13 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
         repository = new EntityRepository();
         Space space = create(aSpace());
         Project project = create(aProject().inSpace(space));
-        for (ExperimentNode experimentNode : g.getExperiments().values())
-        {
-            addToRepository(experimentNode, create(anExperiment().inProject(project)));
-        }
-        for (SampleNode sampleNode : g.getSamples().values())
-        {
-            SampleBuilder sample = aSample().inSpace(space);
-            ExperimentNode experimentNode = sampleNode.getExperiment();
-            if (experimentNode != null)
-            {
-                sample.inExperiment(repository.getExperiment(experimentNode));
-            }
-            addToRepository(sampleNode, sample);
-        }
+        createExperiments(project, g);
+        createSamples(space, g);
+        createDataSets(g);
+    }
+
+    private void createDataSets(EntityGraphGenerator g)
+    {
         List<DataSetNode> dataSetNodes = new ArrayList<DataSetNode>(g.getDataSets().values());
         Collections.reverse(dataSetNodes);
         for (DataSetNode dataSetNode : dataSetNodes)
@@ -613,7 +607,41 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
                     dataSet.withComponent(componentDataSet);
                 }
             }
+            List<DataSetNode> parents = dataSetNode.getParents();
+            for (DataSetNode parent : parents)
+            {
+                AbstractExternalData parentDataSet = repository.getDataSet(parent);
+                if (parentDataSet == null)
+                {
+                    throw new IllegalStateException("Data set " + parent.getCode() 
+                            + " is specified as parent of " + dataSetNode.getCode() 
+                            + " but hasn't yet created.");
+                }
+                dataSet.withParent(parentDataSet);
+            }
             addToRepository(dataSetNode, dataSet);
+        }
+    }
+
+    private void createSamples(Space space, EntityGraphGenerator g)
+    {
+        for (SampleNode sampleNode : g.getSamples().values())
+        {
+            SampleBuilder sample = aSample().inSpace(space);
+            ExperimentNode experimentNode = sampleNode.getExperiment();
+            if (experimentNode != null)
+            {
+                sample.inExperiment(repository.getExperiment(experimentNode));
+            }
+            addToRepository(sampleNode, sample);
+        }
+    }
+
+    private void createExperiments(Project project, EntityGraphGenerator g)
+    {
+        for (ExperimentNode experimentNode : g.getExperiments().values())
+        {
+            addToRepository(experimentNode, create(anExperiment().inProject(project)));
         }
     }
 
@@ -767,6 +795,7 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
         private Map<Long, Set<Long>> experimentDataSetsMap = new HashMap<Long, Set<Long>>();
         private Map<Long, Set<Long>> sampleDataSetsMap = new HashMap<Long, Set<Long>>();
         private Map<Long, Set<Long>> componentDataSetsMap = new HashMap<Long, Set<Long>>();
+        private Map<Long, Set<Long>> parentsDataSetsMap = new HashMap<Long, Set<Long>>();
         
         public String renderNodeToDtoMapping()
         {
@@ -853,6 +882,11 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
                 for (ContainerDataSet containerDataSet : containerDataSets)
                 {
                     addToDataSetsMap(componentDataSetsMap, dataSet, containerDataSet);
+                }
+                Collection<AbstractExternalData> parents = dataSet.getParents();
+                for (AbstractExternalData parentDataSet : parents)
+                {
+                    addToDataSetsMap(parentsDataSetsMap, parentDataSet, dataSet);
                 }
             }
             if (showWhereIAm)
@@ -1015,6 +1049,11 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
         Set<DataSetNode> getComponentDataSetNodes(DataSetNode containerDataSetNode)
         {
             return getDataSetNodes(componentDataSetsMap, dataSetsNodeToDtoMap.get(containerDataSetNode.getId()));
+        }
+        
+        Set<DataSetNode> getParentDataSetNodes(DataSetNode childDataSetNode)
+        {
+            return getDataSetNodes(parentsDataSetsMap, dataSetsNodeToDtoMap.get(childDataSetNode.getId()));
         }
         
         private Set<DataSetNode> getDataSetNodes(Map<Long, Set<Long>> idHolderDataSetsMap, IIdHolder experiment)
