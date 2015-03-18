@@ -18,6 +18,7 @@ package ch.ethz.sis.openbis.oai_pmh.systemtests;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -36,8 +37,12 @@ import org.testng.mustache.Mustache;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.ExperimentCreation;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.experiment.ExperimentFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.entitytype.EntityTypePermId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentPermId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.IExperimentId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.ProjectIdentifier;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.http.HttpTest;
@@ -50,7 +55,11 @@ import ch.systemsx.cisd.openbis.generic.shared.util.TestInstanceHostUtils;
 public class PublishServletTest extends OAIPMHSystemTest
 {
 
-    private Map<String, Publication> publications = new LinkedHashMap<String, Publication>();
+    private static final SimpleDateFormat DATE_WITH_TIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+
+    private Map<String, Publication> publicationsMap = new LinkedHashMap<String, Publication>();
+
+    private Map<String, Experiment> experimentsMap = new LinkedHashMap<String, Experiment>();
 
     private TestResources resources = new TestResources(getClass());
 
@@ -81,11 +90,19 @@ public class PublishServletTest extends OAIPMHSystemTest
 
         Object[] resultAndError = publish(adminUserSessionToken, publication);
 
+        String permId = (String) resultAndError[0];
+        String error = (String) resultAndError[1];
+
         waitUntilIndexUpdaterIsIdle();
 
-        publications.put((String) resultAndError[0], publication);
+        Map<IExperimentId, Experiment> experiments =
+                getApplicationServerApi().mapExperiments(adminUserSessionToken, Arrays.asList(new ExperimentPermId(permId)),
+                        new ExperimentFetchOptions());
 
-        Assert.assertNull(resultAndError[1]);
+        publicationsMap.put(permId, publication);
+        experimentsMap.put(permId, experiments.values().iterator().next());
+
+        Assert.assertNull(error);
     }
 
     @Test
@@ -102,9 +119,12 @@ public class PublishServletTest extends OAIPMHSystemTest
 
         List<Record> records = new ArrayList<Record>();
         int i = 0;
-        for (String permId : publications.keySet())
+        for (String permId : publicationsMap.keySet())
         {
-            records.add(new Record(permId, datestamps.get(i)));
+            Record record = new Record();
+            record.IDENTIFIER = permId;
+            record.DATESTAMP = datestamps.get(i);
+            records.add(record);
             i++;
         }
         templateValues.put("RECORDS", records);
@@ -128,9 +148,14 @@ public class PublishServletTest extends OAIPMHSystemTest
 
         List<Record> records = new ArrayList<Record>();
         int i = 0;
-        for (String permId : publications.keySet())
+        for (String permId : publicationsMap.keySet())
         {
-            records.add(new Record(permId, datestamps.get(i)));
+            Experiment experiment = experimentsMap.get(permId);
+            Record record = new Record();
+            record.IDENTIFIER = permId;
+            record.DATESTAMP = datestamps.get(i);
+            record.REGISTRATION_DATE = DATE_WITH_TIME_FORMAT.format(experiment.getRegistrationDate());
+            records.add(record);
             i++;
         }
         templateValues.put("RECORDS", records);
@@ -142,7 +167,7 @@ public class PublishServletTest extends OAIPMHSystemTest
     @Test
     public void testGetRecord() throws IOException, SAXException
     {
-        String identifier = publications.keySet().iterator().next();
+        String identifier = publicationsMap.keySet().iterator().next();
 
         GetMethod response =
                 callServlet(REVIEWER_USER_ID, REVIEWER_USER_PASSWORD, "verb=GetRecord&metadataPrefix=oai_dc&identifier=" + identifier);
@@ -151,10 +176,13 @@ public class PublishServletTest extends OAIPMHSystemTest
         String responseDate = HttpTest.evaluateToString(document, "/OAI-PMH/responseDate");
         String datestamp = HttpTest.evaluateToString(document, "/OAI-PMH/GetRecord/record/header/datestamp");
 
+        Experiment experiment = experimentsMap.get(identifier);
+
         Map<String, Object> templateValues = new HashMap<String, Object>();
         templateValues.put("RESPONSE_DATE", responseDate);
         templateValues.put("IDENTIFIER", identifier);
         templateValues.put("DATESTAMP", datestamp);
+        templateValues.put("REGISTRATION_DATE", DATE_WITH_TIME_FORMAT.format(experiment.getRegistrationDate()));
 
         String expectedResponse = getFilledTemplate("testGetRecord.xml", templateValues);
         assertResponse(response.getResponseBodyAsString(), expectedResponse);
@@ -193,11 +221,7 @@ public class PublishServletTest extends OAIPMHSystemTest
 
         public String DATESTAMP;
 
-        public Record(String IDENTIFIER, String DATESTAMP)
-        {
-            this.IDENTIFIER = IDENTIFIER;
-            this.DATESTAMP = DATESTAMP;
-        }
+        public String REGISTRATION_DATE;
 
     }
 

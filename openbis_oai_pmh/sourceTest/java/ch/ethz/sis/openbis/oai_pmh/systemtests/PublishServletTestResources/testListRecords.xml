@@ -16,13 +16,14 @@
 					<dc:identifier>Some publication Id</dc:identifier>
 					<dc:title>Some publication Title</dc:title>
 					<dc:creator>Some author</dc:creator>
-					<creator_email>some@authoremail.com</creator_email>
+					<maintainer_email>some@authoremail.com</maintainer_email>
 					<dc:description>Some notes</dc:description>
 					<dc:rights>NONE</dc:rights>
 					<dc:subject>Viruses;B04</dc:subject>
 					<dc:source>
 						{{SERVER_URL}}/openbis/?viewMode=SIMPLE#entity=EXPERIMENT&amp;permId={{IDENTIFIER}}
 					</dc:source>
+					<dc:date>{{REGISTRATION_DATE}}</dc:date>
 				</oai_dc:dc>
 			</metadata>
 		</record>

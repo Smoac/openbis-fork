@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2;
 
+import java.util.Date;
+
 /**
  * Read-only interface to an existing experiment.
  * 
@@ -39,8 +41,7 @@ public interface IExperimentImmutable extends IMetaprojectContent
     String getExperimentType();
 
     /**
-     * Return the value of a property specified by a code. May return null of no such property with
-     * code <code>propertyCode</code> is found.
+     * Return the value of a property specified by a code. May return null of no such property with code <code>propertyCode</code> is found.
      */
     String getPropertyValue(String propertyCode);
 
@@ -48,4 +49,14 @@ public interface IExperimentImmutable extends IMetaprojectContent
      * Returns the permId of this experiment.
      */
     String getPermId();
+
+    /**
+     * Returns the registration date of this experiment.
+     */
+    Date getRegistrationDate();
+
+    /**
+     * Returns the modification date of this experiment.
+     */
+    Date getModificationDate();
 }

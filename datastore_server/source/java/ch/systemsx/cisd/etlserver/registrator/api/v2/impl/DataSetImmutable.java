@@ -19,6 +19,7 @@ package ch.systemsx.cisd.etlserver.registrator.api.v2.impl;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedBasicOpenBISService;
@@ -89,8 +90,20 @@ public class DataSetImmutable extends AbstractDataSetImmutable
         {
             throw new UnsupportedOperationException(message);
         }
+
+        @Override
+        public Date getModificationDate()
+        {
+            return null;
+        }
+
+        @Override
+        public Date getRegistrationDate()
+        {
+            return null;
+        }
     }
-    
+
     protected final AbstractExternalData dataSet;
 
     public DataSetImmutable(AbstractExternalData dataSet, IEncapsulatedBasicOpenBISService service)

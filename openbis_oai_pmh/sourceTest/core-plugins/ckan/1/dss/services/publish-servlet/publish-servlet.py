@@ -15,6 +15,7 @@ from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto import SearchCriteria
 from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria import MatchClause, MatchClauseAttribute, MatchClauseTimeAttribute, CompareMode
 
 DATE_FORMAT = SimpleDateFormat("yyyy-MM-dd")
+DATE_FORMAT_WITH_TIME = SimpleDateFormat("yyyy-MM-dd HH:mm")
 TIME_ZONE = "0"
  
 PUBLICATION_EXPERIMENT_TYPE = "PUBLICATION"
@@ -105,7 +106,7 @@ def createExperimentMetadata(experiment):
         ["dc:identifier" , "PUBLICATION_ID"],
         ["dc:title" , "PUBLICATION_TITLE"],
         ["dc:creator" , "PUBLICATION_AUTHOR"],
-        ["creator_email" , "PUBLICATION_AUTHOR_EMAIL"],
+        ["maintainer_email" , "PUBLICATION_AUTHOR_EMAIL"],
         ["dc:description" , "PUBLICATION_NOTES"],
         ["dc:rights" , "PUBLICATION_LICENSE"]
     ]
@@ -121,8 +122,11 @@ def createExperimentMetadata(experiment):
                 subjectNode = ET.SubElement(oai, "dc:subject")
                 subjectNode.text = meshTerm.strip()
 
-    identifierNode = ET.SubElement(oai, "dc:source")
-    identifierNode.text = getServerUrl() + "/openbis/?viewMode=SIMPLE#entity=EXPERIMENT&permId=" + str(experiment.getPermId())
+    sourceNode = ET.SubElement(oai, "dc:source")
+    sourceNode.text = getServerUrl() + "/openbis/?viewMode=SIMPLE#entity=EXPERIMENT&permId=" + str(experiment.getPermId())
+
+    dateNode = ET.SubElement(oai, "dc:date")
+    dateNode.text = DATE_FORMAT_WITH_TIME.format(experiment.getRegistrationDate())
 
     return Metadata(ET.tostring(oai))
  

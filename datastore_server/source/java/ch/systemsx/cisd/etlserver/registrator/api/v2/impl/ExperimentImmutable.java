@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.etlserver.registrator.api.v2.impl;
 
+import java.util.Date;
+
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IExperimentImmutable;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.IObjectId;
@@ -95,6 +97,18 @@ public class ExperimentImmutable implements IExperimentImmutable
     public String getPermId()
     {
         return experiment.getPermId();
+    }
+
+    @Override
+    public Date getRegistrationDate()
+    {
+        return experiment.getRegistrationDate();
+    }
+
+    @Override
+    public Date getModificationDate()
+    {
+        return experiment.getModificationDate();
     }
 
     @Override
