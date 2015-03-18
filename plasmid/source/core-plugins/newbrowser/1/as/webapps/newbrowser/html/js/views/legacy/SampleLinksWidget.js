@@ -29,22 +29,10 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 		
 	this._lastUsedId = null;
 	this._lastIndex = 0;
-	
-//	this._enableAnnotations = function() {
-//		var enableAnnotations = false;
-//		for(var i = 0; i < this.sampleTypeHints.length; i++) {
-//			var sampleTypeHint = this.sampleTypeHints[i];
-//			if(sampleTypeHint["ANNOTATION_PROPERTIES"].length > 0) {
-//				enableAnnotations = true;
-//			}
-//		}
-//		return true;
-//	}
+
 	
 	this._writeState = function(sample, propertyTypeCode, propertyTypeValue, isDelete) {
-//		if(!this._enableAnnotations()) {
-//			return;
-//		}
+
 		this._readState();
 		
 		var sampleTypeAnnotations = this.stateObj[sample.permId];
@@ -58,7 +46,7 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 		
 		if(isDelete) {
 			delete this.stateObj[sample.permId];
-		} else if(propertyTypeCode && propertyTypeValue) {
+		} else if(propertyTypeCode && propertyTypeValue !== null && propertyTypeValue !== undefined) {
 			sampleTypeAnnotations[propertyTypeCode] = propertyTypeValue;
 		}
 		
@@ -92,7 +80,7 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 		
 		xmlDoc	+= "</root>";
 		
-		$("#ANNOTATIONS_STATE").val(xmlDoc);
+//		$("#ANNOTATIONS_STATE").val(xmlDoc);
 		
 		//Compatibility mode for refactored sample form
 		if(mainController.currentView._sampleFormModel) {
@@ -101,9 +89,6 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 	}
 	
 	this._readState = function() {
-//		if(!this._enableAnnotations()) {
-//			return;
-//		}
 		var stateField = $("#ANNOTATIONS_STATE");
 		if(stateField.length === 0) {
 			if(this.sampleTypeHints && this.sampleTypeHints.length !== 0) { //Indicates annotations are needed
@@ -587,7 +572,9 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 			for(var i = 0; i < items.length; i++) {
 				var item = $(items[i]);
 				var propertyTypeCode = item.attr("property-type-code");
-				if(propertyTypeCode && sampleState && sampleState[propertyTypeCode]) {
+				if(		propertyTypeCode && sampleState && 
+						sampleState[propertyTypeCode] !== null && 
+						sampleState[propertyTypeCode] !== undefined) {
 					if (this.profile.getPropertyType(propertyTypeCode).dataType === "BOOLEAN") {
 						item.children()[0].checked = sampleState[propertyTypeCode] === "true";
 					} else {
