@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.systemtest;
 
+import org.testng.annotations.Test;
+
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -27,35 +29,36 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
  * 
  * @author Franz-Josef Elmer
  */
+@Test(groups = { "system-cleandb" })
 public class AssignDataSetToExperimentAndSampleTest extends AbstractDataSetAssignmentTestCase
 {
     @Override
-    protected void reassignToExperiment(String dataSetCode, String experimentIdentifierOrNull, String user)
+    protected void reassignToExperiment(String dataSetCode, String experimentIdentifierOrNull, String userSessionToken)
     {
         AbstractExternalData dataSet = etlService.tryGetDataSet(systemSessionToken, dataSetCode);
         if (experimentIdentifierOrNull != null)
         {
             Experiment experiment = etlService.tryGetExperiment(systemSessionToken, 
                     ExperimentIdentifierFactory.parse(experimentIdentifierOrNull));
-            perform(anUpdateOf(dataSet).toExperiment(experiment).as(user));
+            perform(anUpdateOf(dataSet).toExperiment(experiment).as(userSessionToken));
         } else
         {
-            perform(anUpdateOf(dataSet).removingExperiment().as(user));
+            perform(anUpdateOf(dataSet).removingExperiment().as(userSessionToken));
         }
     }
 
     @Override
-    protected void reassignToSample(String dataSetCode, String samplePermIdOrNull, String user)
+    protected void reassignToSample(String dataSetCode, String samplePermIdOrNull, String userSessionToken)
     {
         AbstractExternalData dataSet = etlService.tryGetDataSet(systemSessionToken, dataSetCode);
         if (samplePermIdOrNull != null)
         {
             SampleIdentifier sampleIdentifier = etlService.tryGetSampleIdentifier(systemSessionToken, samplePermIdOrNull);
             Sample sample = etlService.tryGetSampleWithExperiment(systemSessionToken, sampleIdentifier);
-            perform(anUpdateOf(dataSet).toSample(sample).as(user));
+            perform(anUpdateOf(dataSet).toSample(sample).as(userSessionToken));
         } else
         {
-            perform(anUpdateOf(dataSet).removingSample().as(user));
+            perform(anUpdateOf(dataSet).removingSample().as(userSessionToken));
         }
     }
 }

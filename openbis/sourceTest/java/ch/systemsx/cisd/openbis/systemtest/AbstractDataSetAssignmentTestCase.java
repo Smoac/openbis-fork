@@ -80,10 +80,10 @@ public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
     
     AuthorizationRule assignDataSetToSampleRule;
     
-    private AuthorizationRule assignDataSetToExperimentRule;
+    AuthorizationRule assignDataSetToExperimentRule;
     
     @BeforeClass(dependsOnMethods = "loginAsSystem")
-    void createFixture() throws Exception
+    public void createFixture() throws Exception
     {
         sourceSpace = create(aSpace());
         Project sourceProject = create(aProject().inSpace(sourceSpace));
@@ -113,41 +113,41 @@ public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
     }
     
     /**
-     * Reassign specified data set to specified experiment for the specified user. 
+     * Reassign specified data set to specified experiment for the specified user session token. 
      * If experiment is not specified unassignment is meant.
      * Sub class for testing API V3 should override this method.
      */
-    protected abstract void reassignToExperiment(String dataSetCode, String experimentIdentifierOrNull, String user);
+    protected abstract void reassignToExperiment(String dataSetCode, String experimentIdentifierOrNull, String userSessionToken);
 
     /**
-     * Reassign specified data set to specified sample for the specified user. 
+     * Reassign specified data set to specified sample for the specified user session token. 
      * If sample is not specified unassignment is meant.
      * Sub class for testing API V3 should override this method.
      */
-    protected abstract void reassignToSample(String dataSetCode, String samplePermIdOrNull, String user);
+    protected abstract void reassignToSample(String dataSetCode, String samplePermIdOrNull, String userSessionToken);
 
     @DataProvider
-    Object[][] rolesAllowedToAssignDataSetToExperiment()
+    public Object[][] rolesAllowedToAssignDataSetToExperiment()
     {
         return RolePermutator.getAcceptedPermutations(assignDataSetToExperimentRule, source,
                 destination, instance);
     }
 
     @DataProvider
-    Object[][] rolesNotAllowedToAssignDataSetToExperiment()
+    public Object[][] rolesNotAllowedToAssignDataSetToExperiment()
     {
         return RolePermutator.getAcceptedPermutations(not(assignDataSetToExperimentRule), source,
                 destination, instance);
     }
 
     @DataProvider
-    Object[][] rolesAllowedToAssignDataSetToSample()
+    public Object[][] rolesAllowedToAssignDataSetToSample()
     {
         return RolePermutator.getAcceptedPermutations(assignDataSetToSampleRule, source, destination, instance);
     }
 
     @DataProvider
-    Object[][] rolesNotAllowedToAssignDataSetToSample()
+    public Object[][] rolesNotAllowedToAssignDataSetToSample()
     {
         return RolePermutator.getAcceptedPermutations(not(assignDataSetToSampleRule), source, destination, instance);
     }
