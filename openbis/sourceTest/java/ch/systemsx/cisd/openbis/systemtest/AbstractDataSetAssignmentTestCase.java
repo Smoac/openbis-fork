@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 ETH Zuerich, CISD
+ * Copyright 2015 ETH Zuerich, SIS
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.systemtest;
 
-import static org.hamcrest.CoreMatchers.is;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.fail;
 
@@ -37,8 +36,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.systemtest.base.BaseTest;
 import ch.systemsx.cisd.openbis.systemtest.base.auth.AuthorizationRule;
 import ch.systemsx.cisd.openbis.systemtest.base.auth.GuardedDomain;
@@ -47,10 +44,15 @@ import ch.systemsx.cisd.openbis.systemtest.base.auth.RolePermutator;
 import ch.systemsx.cisd.openbis.systemtest.base.auth.SpaceDomain;
 
 /**
+ * Abstract super class for all tests assigning a data set to a sample or an experiment.
+ * Subclasses for the different versions of the API have only to implement 
+ * {@link #reassignToExperiment(String, String, String)} and
+ * {@link #reassignToSample(String, String, String)}.
+ *
  * @author anttil
  * @author Franz-Josef Elmer
  */
-public class AssignDataSetToSampleTest extends BaseTest
+public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
 {
     Sample sourceSample;
 
@@ -64,6 +66,92 @@ public class AssignDataSetToSampleTest extends BaseTest
 
     Space destinationSpace;
     
+    Space unrelatedAdmin;
+
+    Space unrelatedObserver;
+
+    Space unrelatedNone;
+
+    GuardedDomain source;
+    
+    GuardedDomain destination;
+    
+    GuardedDomain instance;
+    
+    AuthorizationRule assignDataSetToSampleRule;
+    
+    private AuthorizationRule assignDataSetToExperimentRule;
+    
+    @BeforeClass(dependsOnMethods = "loginAsSystem")
+    void createFixture() throws Exception
+    {
+        sourceSpace = create(aSpace());
+        Project sourceProject = create(aProject().inSpace(sourceSpace));
+        sourceExperiment = create(anExperiment().inProject(sourceProject));
+        sourceSample = create(aSample().inExperiment(sourceExperiment));
+
+        destinationSpace = create(aSpace());
+        Project destinationProject = create(aProject().inSpace(destinationSpace));
+        destinationExperiment = create(anExperiment().inProject(destinationProject));
+        destinationSample = create(aSample().inExperiment(destinationExperiment));
+
+        unrelatedAdmin = create(aSpace());
+        unrelatedObserver = create(aSpace());
+        unrelatedNone = create(aSpace());
+
+        instance = new InstanceDomain();
+        source = new SpaceDomain(instance);
+        destination = new SpaceDomain(instance);
+
+        assignDataSetToSampleRule =
+                and(rule(source, RoleWithHierarchy.SPACE_POWER_USER),
+                        rule(destination, RoleWithHierarchy.SPACE_POWER_USER));
+        assignDataSetToExperimentRule =
+                and(rule(source, RoleWithHierarchy.SPACE_POWER_USER),
+                        or(rule(destination, RoleWithHierarchy.SPACE_POWER_USER),
+                                rule(destination, RoleWithHierarchy.SPACE_ETL_SERVER)));
+    }
+    
+    /**
+     * Reassign specified data set to specified experiment for the specified user. 
+     * If experiment is not specified unassignment is meant.
+     * Sub class for testing API V3 should override this method.
+     */
+    protected abstract void reassignToExperiment(String dataSetCode, String experimentIdentifierOrNull, String user);
+
+    /**
+     * Reassign specified data set to specified sample for the specified user. 
+     * If sample is not specified unassignment is meant.
+     * Sub class for testing API V3 should override this method.
+     */
+    protected abstract void reassignToSample(String dataSetCode, String samplePermIdOrNull, String user);
+
+    @DataProvider
+    Object[][] rolesAllowedToAssignDataSetToExperiment()
+    {
+        return RolePermutator.getAcceptedPermutations(assignDataSetToExperimentRule, source,
+                destination, instance);
+    }
+
+    @DataProvider
+    Object[][] rolesNotAllowedToAssignDataSetToExperiment()
+    {
+        return RolePermutator.getAcceptedPermutations(not(assignDataSetToExperimentRule), source,
+                destination, instance);
+    }
+
+    @DataProvider
+    Object[][] rolesAllowedToAssignDataSetToSample()
+    {
+        return RolePermutator.getAcceptedPermutations(assignDataSetToSampleRule, source, destination, instance);
+    }
+
+    @DataProvider
+    Object[][] rolesNotAllowedToAssignDataSetToSample()
+    {
+        return RolePermutator.getAcceptedPermutations(not(assignDataSetToSampleRule), source, destination, instance);
+    }
+
     @Test
     public void reassignTheTwoOriginalDataSetsOfPublishedDataSetsToDifferentOriginalSampleAndExperiment()
     {
@@ -495,6 +583,41 @@ public class AssignDataSetToSampleTest extends BaseTest
     }
 
     @Test
+    public void experimentAssignmentOfParentDataSetIsNotChangedWhenChildDataSetIsAssignedToAnotherExperiment()
+    {
+        EntityGraphGenerator g = parseAndCreateGraph("E1, data sets: DS1 DS2\n"
+                + "E2\n"
+                + "DS1, parents: DS2\n");
+        
+        reassignToExperiment(g.ds(1), g.e(2));
+        
+        assertEquals("E1, data sets: DS2\n"
+                + "E2, data sets: DS1\n"
+                + "DS1, parents: DS2\n", renderGraph(g));
+        repository.assertModified(g.e(1), g.e(2));
+        repository.assertModified(g.ds(1));
+        repository.assertUnmodified(g);
+    }
+
+    @Test
+    public void experimentAssignmentOfChildDataSetIsNotChangedWhenParentDatasetIsAssignedToAnotherExperiment()
+    {
+        EntityGraphGenerator g = parseAndCreateGraph("E1, data sets: DS1 DS2\n"
+                + "E2\n"
+                + "DS1, parents: DS2\n");
+        
+        reassignToExperiment(g.ds(2), g.e(2));
+        
+        assertEquals("E1, data sets: DS1\n"
+                + "E2, data sets: DS2\n"
+                + "DS1, parents: DS2\n", renderGraph(g));
+        repository.assertModified(g.e(1), g.e(2));
+        repository.assertModified(g.ds(2));
+        repository.assertUnmodified(g);
+    }
+
+    
+    @Test
     public void sampleAssignmentOfParentDataSetIsNotChangedWhenChildDataSetIsAssignedToAnotherSample()
     {
         EntityGraphGenerator g = parseAndCreateGraph("E1, samples: S1, data sets: DS1 DS2\n"
@@ -514,7 +637,7 @@ public class AssignDataSetToSampleTest extends BaseTest
         repository.assertModified(g.ds(1));
         repository.assertUnmodified(g);
     }
-
+    
     @Test
     public void sampleAssignmentOfChildDataSetIsNotChangedWhenParentDatasetIsAssignedToAnotherSample()
     {
@@ -535,7 +658,40 @@ public class AssignDataSetToSampleTest extends BaseTest
         repository.assertModified(g.ds(2));
         repository.assertUnmodified(g);
     }
+    
+    @Test
+    public void experimentAssignmentOfContainerDataSetIsNotChangedWhenComponentDataSetIsAssignedToAnotherExperiment()
+    {
+        EntityGraphGenerator g = parseAndCreateGraph("E1, data sets: DS1 DS2\n"
+                + "E2\n"
+                + "DS1, components: DS2\n");
+        
+        reassignToExperiment(g.ds(2), g.e(2));
+        
+        assertEquals("E1, data sets: DS1\n"
+                + "E2, data sets: DS2\n"
+                + "DS1, components: DS2\n", renderGraph(g));
+        repository.assertModified(g.e(1), g.e(2));
+        repository.assertModified(g.ds(2));
+        repository.assertUnmodified(g);
+    }
 
+    @Test
+    public void experimentAssignmentOfComponentDataSetIsChangedWhenContainerDataSetIsAssignedToAnotherExperiment()
+    {
+        EntityGraphGenerator g = parseAndCreateGraph("E1, data sets: DS1 DS2\n"
+                + "E2\n"
+                + "DS1, components: DS2\n");
+        
+        reassignToExperiment(g.ds(1), g.e(2));
+        
+        assertEquals("E2, data sets: DS1 DS2\n"
+                + "DS1, components: DS2\n", renderGraph(g));
+        repository.assertModified(g.e(1), g.e(2));
+        repository.assertModified(g.ds(1), g.ds(2));
+        repository.assertUnmodified(g);
+    }
+    
     @Test
     public void sampleAssignmentOfContainerDataSetIsNotChangedWhenComponentDataSetIsAssignedToAnotherSample()
     {
@@ -556,7 +712,7 @@ public class AssignDataSetToSampleTest extends BaseTest
         repository.assertModified(g.ds(2));
         repository.assertUnmodified(g);
     }
-
+    
     @Test
     public void sampleAssignmentOfComponentDataSetIsChangedWhenContainerDataSetIsAssignedToAnotherSample()
     {
@@ -591,6 +747,39 @@ public class AssignDataSetToSampleTest extends BaseTest
         repository.assertUnmodified(g);
     }
 
+    @Test(dataProvider = "rolesAllowedToAssignDataSetToExperiment", groups = "authorization")
+    public void assigningDataSetToAnotherExperimentIsAllowedFor(RoleWithHierarchy sourceSpaceRole,
+            RoleWithHierarchy destinationSpaceRole, RoleWithHierarchy instanceRole)
+            throws Exception
+    {
+        checkAssignmentToExperiment(sourceSpaceRole, destinationSpaceRole, instanceRole);
+    }
+
+    @Test(dataProvider = "rolesNotAllowedToAssignDataSetToExperiment", expectedExceptions =
+        { AuthorizationFailureException.class }, groups = "authorization")
+    public void assigningDataSetToAnotherExperimentIsNotAllowedFor(
+            RoleWithHierarchy sourceSpaceRole, RoleWithHierarchy destinationSpaceRole,
+            RoleWithHierarchy instanceRole) throws Exception
+    {
+        checkAssignmentToExperiment(sourceSpaceRole, destinationSpaceRole, instanceRole);
+    }
+
+    @Test(dataProvider = "rolesAllowedToAssignDataSetToSample", groups = "authorization")
+    public void assigningDataSetToSampleIsAllowedFor(RoleWithHierarchy sourceSpaceRole,
+            RoleWithHierarchy destinationSpaceRole, RoleWithHierarchy instanceRole)
+                    throws Exception
+                    {
+        checkAssignmentToSample(sourceSpaceRole, destinationSpaceRole, instanceRole);
+                    }
+    
+    @Test(dataProvider = "rolesNotAllowedToAssignDataSetToSample", expectedExceptions =
+        { AuthorizationFailureException.class }, groups = "authorization")
+    public void assigningDataSetToSampleIsNotAllowedFor(RoleWithHierarchy sourceSpaceRole,
+            RoleWithHierarchy destinationSpaceRole, RoleWithHierarchy instanceRole)
+    {
+        checkAssignmentToSample(sourceSpaceRole, destinationSpaceRole, instanceRole);
+    }
+    
     private void assertDataSetToSampleExceptionMessage(UserFailureException ex, Sample sample, AbstractExternalData dataset)
     {
         String postfix = sample.getSpace() == null ? "shared." :
@@ -600,6 +789,34 @@ public class AssignDataSetToSampleTest extends BaseTest
         assertEquals("The dataset '" + dataset.getCode()
                 + "' cannot be connected to the sample '" + sample.getIdentifier()
                 + "' because the new sample is " + postfix, ex.getMessage());
+    }
+
+    private void checkAssignmentToExperiment(RoleWithHierarchy sourceSpaceRole, 
+            RoleWithHierarchy destinationSpaceRole, RoleWithHierarchy instanceRole)
+    {
+        AbstractExternalData dataset = create(aDataSet().inExperiment(sourceExperiment));
+        String user =
+                create(aSession().withSpaceRole(sourceSpaceRole, sourceSpace)
+                        .withSpaceRole(destinationSpaceRole, destinationSpace)
+                        .withInstanceRole(instanceRole)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_ADMIN, unrelatedAdmin)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_OBSERVER, unrelatedObserver));
+
+        reassignToExperiment(dataset.getCode(), destinationExperiment.getIdentifier(), user);
+    }
+
+    private void checkAssignmentToSample(RoleWithHierarchy sourceSpaceRole, 
+            RoleWithHierarchy destinationSpaceRole, RoleWithHierarchy instanceRole)
+    {
+        AbstractExternalData dataset = create(aDataSet().inSample(sourceSample));
+        String user =
+                create(aSession().withSpaceRole(sourceSpaceRole, sourceSpace)
+                        .withSpaceRole(destinationSpaceRole, destinationSpace)
+                        .withInstanceRole(instanceRole)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_ADMIN, unrelatedAdmin)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_OBSERVER, unrelatedObserver));
+
+        reassignToSample(dataset.getCode(), destinationSample.getPermId(), user);
     }
 
     private void reassignToExperiment(DataSetNode dataSetNode, ExperimentNode experimentNodeOrNull)
@@ -646,132 +863,4 @@ public class AssignDataSetToSampleTest extends BaseTest
         return dataSet;
     }
     
-    /**
-     * Reassign specified data set to specified experiment for the specified user. 
-     * If experiment is not specified unassignment is meant.
-     * Sub class for testing API V3 should override this method.
-     */
-    protected void reassignToExperiment(String dataSetCode, String experimentIdentifierOrNull, String user)
-    {
-        AbstractExternalData dataSet = etlService.tryGetDataSet(systemSessionToken, dataSetCode);
-        if (experimentIdentifierOrNull != null)
-        {
-            Experiment experiment = etlService.tryGetExperiment(systemSessionToken, 
-                    ExperimentIdentifierFactory.parse(experimentIdentifierOrNull));
-            perform(anUpdateOf(dataSet).toExperiment(experiment).as(user));
-        } else
-        {
-            perform(anUpdateOf(dataSet).removingExperiment().as(user));
-        }
-    }
-
-    /**
-     * Reassign specified data set to specified sample for the specified user. 
-     * If sample is not specified unassignment is meant.
-     * Sub class for testing API V3 should override this method.
-     */
-    protected void reassignToSample(String dataSetCode, String samplePermIdOrNull, String user)
-    {
-        AbstractExternalData dataSet = etlService.tryGetDataSet(systemSessionToken, dataSetCode);
-        if (samplePermIdOrNull != null)
-        {
-            SampleIdentifier sampleIdentifier = etlService.tryGetSampleIdentifier(systemSessionToken, samplePermIdOrNull);
-            Sample sample = etlService.tryGetSampleWithExperiment(systemSessionToken, sampleIdentifier);
-            perform(anUpdateOf(dataSet).toSample(sample).as(user));
-        } else
-        {
-            perform(anUpdateOf(dataSet).removingSample().as(user));
-        }
-    }
-    
-    Space unrelatedAdmin;
-
-    Space unrelatedObserver;
-
-    Space unrelatedNone;
-
-    @Test(dataProvider = "rolesAllowedToAssignDataSetToSample", groups = "authorization")
-    public void assigningDataSetToSampleIsAllowedFor(RoleWithHierarchy sourceSpaceRole,
-            RoleWithHierarchy destinationSpaceRole, RoleWithHierarchy instanceRole)
-            throws Exception
-    {
-        AbstractExternalData dataset = create(aDataSet().inSample(sourceSample));
-        String user =
-                create(aSession().withSpaceRole(sourceSpaceRole, sourceSpace)
-                        .withSpaceRole(destinationSpaceRole, destinationSpace)
-                        .withInstanceRole(instanceRole)
-                        .withSpaceRole(RoleWithHierarchy.SPACE_ADMIN, unrelatedAdmin)
-                        .withSpaceRole(RoleWithHierarchy.SPACE_OBSERVER, unrelatedObserver));
-
-        reassignToSample(dataset.getCode(), destinationSample.getPermId(), user);
-    }
-
-    @Test(dataProvider = "rolesNotAllowedToAssignDataSetToSample", expectedExceptions =
-        { AuthorizationFailureException.class }, groups = "authorization")
-    public void assigningDataSetToSampleIsNotAllowedFor(RoleWithHierarchy sourceSpaceRole,
-            RoleWithHierarchy destinationSpaceRole, RoleWithHierarchy instanceRole)
-            throws Exception
-    {
-        AbstractExternalData dataset = create(aDataSet().inSample(sourceSample));
-        String user =
-                create(aSession().withSpaceRole(sourceSpaceRole, sourceSpace)
-                        .withSpaceRole(destinationSpaceRole, destinationSpace)
-                        .withInstanceRole(instanceRole)
-                        .withSpaceRole(RoleWithHierarchy.SPACE_ADMIN, unrelatedAdmin)
-                        .withSpaceRole(RoleWithHierarchy.SPACE_OBSERVER, unrelatedObserver));
-
-        reassignToSample(dataset.getCode(), destinationSample.getPermId(), user);
-    }
-
-    @BeforeClass(dependsOnMethods = "loginAsSystem")
-    void createFixture() throws Exception
-    {
-        sourceSpace = create(aSpace());
-        Project sourceProject = create(aProject().inSpace(sourceSpace));
-        sourceExperiment = create(anExperiment().inProject(sourceProject));
-        sourceSample = create(aSample().inExperiment(sourceExperiment));
-
-        destinationSpace = create(aSpace());
-        Project destinationProject = create(aProject().inSpace(destinationSpace));
-        destinationExperiment = create(anExperiment().inProject(destinationProject));
-        destinationSample = create(aSample().inExperiment(destinationExperiment));
-
-        unrelatedAdmin = create(aSpace());
-        unrelatedObserver = create(aSpace());
-        unrelatedNone = create(aSpace());
-    }
-
-    GuardedDomain source;
-
-    GuardedDomain destination;
-
-    GuardedDomain instance;
-
-    AuthorizationRule assignDataSetToSampleRule;
-
-    @BeforeClass(dependsOnMethods = "loginAsSystem")
-    void createAuthorizationRules()
-    {
-        instance = new InstanceDomain();
-        source = new SpaceDomain(instance);
-        destination = new SpaceDomain(instance);
-
-        assignDataSetToSampleRule =
-                and(rule(source, RoleWithHierarchy.SPACE_POWER_USER),
-                        rule(destination, RoleWithHierarchy.SPACE_POWER_USER));
-    }
-
-    @DataProvider
-    Object[][] rolesAllowedToAssignDataSetToSample()
-    {
-        return RolePermutator.getAcceptedPermutations(assignDataSetToSampleRule, source,
-                destination, instance);
-    }
-
-    @DataProvider
-    Object[][] rolesNotAllowedToAssignDataSetToSample()
-    {
-        return RolePermutator.getAcceptedPermutations(not(assignDataSetToSampleRule), source,
-                destination, instance);
-    }
 }

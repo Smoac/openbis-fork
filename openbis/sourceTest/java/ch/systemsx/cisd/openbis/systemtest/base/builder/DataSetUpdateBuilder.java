@@ -72,7 +72,6 @@ public class DataSetUpdateBuilder extends UpdateBuilder<DataSetUpdatesDTO>
 
     public DataSetUpdateBuilder toSample(Sample sample)
     {
-        toExperiment(sample.getExperiment());
         this.sampleIdentifier = id(sample);
         return this;
     }
