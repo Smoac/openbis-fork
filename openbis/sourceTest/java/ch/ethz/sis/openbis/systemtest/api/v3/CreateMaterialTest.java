@@ -57,14 +57,69 @@ public class CreateMaterialTest extends AbstractSampleTest
         AssertionUtil.assertCollectionSize(map.values(), 2);
 
         Material material = map.get(new MaterialPermId("1982", "GENE"));
-
         assertEquals(material.getCode(), "1982");
         assertEquals(material.getPermId().getTypeCode(), "GENE");
+
+        material = map.get(new MaterialPermId("1984", "GENE"));
+        assertEquals(material.getCode(), "1984");
+        assertEquals(material.getPermId().getTypeCode(), "GENE");
+    }
+
+    // @Test broken
+    public void testCreateTwoMaterialsWithMaterialLinks()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        MaterialPermId m1id = new MaterialPermId("FIRST", "SELF_REF");
+        MaterialCreation m1 = materialCreation(m1id);
+        HashMap<String, String> properties1 = new HashMap<String, String>();
+        properties1.put("ANY_MATERIAL", "SECOND (SELF_REF)");
+        properties1.put("DESCRIPTION", "mandatory material decsription");
+        m1.setProperties(properties1);
+
+        MaterialPermId m2id = new MaterialPermId("SECOND", "SELF_REF");
+        MaterialCreation m2 = materialCreation(m2id);
+        HashMap<String, String> properties2 = new HashMap<String, String>();
+        properties2.put("ANY_MATERIAL", "FIRST (SELF_REF)");
+        properties2.put("DESCRIPTION", "mandatory material decsription");
+        m2.setProperties(properties2);
+
+        List<MaterialPermId> materialIds = v3api.createMaterials(sessionToken, Arrays.asList(m1, m2));
+
+        AssertionUtil.assertCollectionContainsOnly(materialIds, m1id, m2id);
+
+        // circular materialProperties
+        MaterialFetchOptions fetchOptions = new MaterialFetchOptions();
+        fetchOptions.withMaterialPropertiesUsing(fetchOptions);
+
+        Map<IMaterialId, Material> map = v3api.mapMaterials(sessionToken, Arrays.asList(m1id), fetchOptions);
+
+        AssertionUtil.assertCollectionSize(map.values(), 1);
+
+        Material resultm1 = map.get(m1id);
+
+        assertEquals(resultm1.getPermId(), m1id);
+        Material resultm2 = resultm1.getMaterialProperties().get("ANY_MATERIAL");
+        assertEquals(resultm2.getPermId(), m2id);
+        Material resultm3 = resultm2.getMaterialProperties().get("ANY_MATERIAL");
+        assertEquals(resultm1, resultm3);
     }
 
     // all potential error scenarios
 
     // create mateiral with mateiral properties
+
+    private MaterialCreation materialCreation(MaterialPermId permId)
+    {
+        String code = permId.getCode();
+        String type = permId.getTypeCode();
+        MaterialCreation materialCreation = new MaterialCreation();
+        materialCreation.setCode(code);
+        materialCreation.setTypeId(new EntityTypePermId(type));
+        materialCreation.setCreationId(new CreationId("creation " + code));
+        materialCreation.setDescription("Material with code " + code);
+        return materialCreation;
+    }
 
     private MaterialCreation geneCreation(String code)
     {

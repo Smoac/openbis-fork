@@ -42,6 +42,7 @@ import ch.ethz.sis.openbis.generic.server.api.v3.executor.experiment.IUpdateExpe
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.material.ICreateMaterialExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.material.IDeleteMaterialExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.material.IMapMaterialByIdExecutor;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.material.IUpdateMaterialExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.project.ICreateProjectExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.project.IMapProjectByIdExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.sample.ICreateSampleExecutor;
@@ -79,6 +80,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experimen
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.ExperimentUpdate;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material.Material;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material.MaterialCreation;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material.MaterialUpdate;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.project.Project;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.project.ProjectCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.Sample;
@@ -166,6 +168,9 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
 
     @Autowired
     private IUpdateSampleExecutor updateSampleExecutor;
+
+    @Autowired
+    private IUpdateMaterialExecutor updateMaterialExecutor;
 
     @Autowired
     private IUpdateDataSetExecutor updateDataSetExecutor;
@@ -432,6 +437,26 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
         {
             // the clear is necessary, as registering samples involves sql queries, that are not visible to cached PE objects
             getDAOFactory().getSessionFactory().getCurrentSession().clear();
+        }
+    }
+
+    @Override
+    @Transactional
+    @RolesAllowed(
+    { RoleWithHierarchy.INSTANCE_ADMIN, RoleWithHierarchy.INSTANCE_ETL_SERVER })
+    @Capability("UPDATE_MATERIAL")
+    @DatabaseUpdateModification(value = ObjectKind.MATERIAL)
+    public void updateMaterials(String sessionToken, List<MaterialUpdate> updates)
+    {
+        Session session = getSession(sessionToken);
+        OperationContext context = new OperationContext(session);
+
+        try
+        {
+            updateMaterialExecutor.update(context, updates);
+        } catch (Throwable t)
+        {
+            throw ExceptionUtils.create(context, t);
         }
     }
 

@@ -32,6 +32,7 @@ import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.attachment.Attachment;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.attachment.AttachmentCreation;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material.Material;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.Sample;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleUpdate;
@@ -41,6 +42,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.attachment.AttachmentFil
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.entitytype.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.IExperimentId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.material.MaterialPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.ISampleId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SampleIdentifier;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SamplePermId;
@@ -1239,6 +1241,36 @@ public class UpdateSampleTest extends AbstractSampleTest
 
         assertSampleIdentifier(sample2, "/CISD/SAMPLE_2_WITH_TAGS");
         assertTags(sample2.getTags(), "/test/TEST_TAG_2", "/test/TEST_TAG_3");
+    }
+
+    @Test
+    public void testWithMaterialProperties()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        SampleFetchOptions fetchOptions = new SampleFetchOptions();
+        fetchOptions.withMaterialProperties().withRegistrator();
+        fetchOptions.withProperties();
+
+        SamplePermId permId = new SamplePermId("200902091219327-1025");
+
+        SampleUpdate update1 = new SampleUpdate();
+        update1.setSampleId(permId);
+        update1.setProperty("ANY_MATERIAL", "BACTERIUM-X (BACTERIUM)");
+
+        v3api.updateSamples(sessionToken, Arrays.asList(update1));
+
+        Map<ISampleId, Sample> map = v3api.mapSamples(sessionToken, Arrays.asList(permId), fetchOptions);
+
+        Sample sample = map.get(permId);
+
+        assertEquals(sample.getProperties().get("BACTERIUM"), "BACTERIUM-X (BACTERIUM)");
+        assertEquals(sample.getProperties().get("ANY_MATERIAL"), "BACTERIUM-X (BACTERIUM)");
+
+        Map<String, Material> materialProperties = sample.getMaterialProperties();
+
+        Material updatedBacterium = materialProperties.get("ANY_MATERIAL");
+        assertEquals(updatedBacterium.getPermId(), new MaterialPermId("BACTERIUM-X", "BACTERIUM"));
     }
 
 }
