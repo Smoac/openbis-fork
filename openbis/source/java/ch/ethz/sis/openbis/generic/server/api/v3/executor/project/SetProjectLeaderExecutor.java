@@ -19,10 +19,12 @@ package ch.ethz.sis.openbis.generic.server.api.v3.executor.project;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.AbstractSetEntityRelationExecutor;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.person.IMapPersonByIdExecutor;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.project.ProjectCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.person.IPersonId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
@@ -36,6 +38,9 @@ public class SetProjectLeaderExecutor extends AbstractSetEntityRelationExecutor<
         ISetProjectLeaderExecutor
 {
 
+    @Autowired
+    private IMapPersonByIdExecutor mapPersonByIdExecutor;
+
     @Override
     protected IPersonId getRelatedId(ProjectCreation creation)
     {
@@ -45,8 +50,7 @@ public class SetProjectLeaderExecutor extends AbstractSetEntityRelationExecutor<
     @Override
     protected Map<IPersonId, PersonPE> map(IOperationContext context, List<IPersonId> relatedIds)
     {
-        // TODO Auto-generated method stub
-        return null;
+        return mapPersonByIdExecutor.map(context, relatedIds);
     }
 
     @Override

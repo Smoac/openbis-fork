@@ -339,6 +339,9 @@ public class Generator extends AbstractGenerator
         addRegistrator(gen);
         addModifier(gen);
 
+        gen.addFetchedField(Person.class, "leader", "Leader", PersonFetchOptions.class);
+        addAttachments(gen);
+
         return gen;
     }
 

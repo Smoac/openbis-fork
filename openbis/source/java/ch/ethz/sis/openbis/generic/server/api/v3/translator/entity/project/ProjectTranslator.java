@@ -16,15 +16,18 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.project;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.AbstractCachingTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.Relations;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.common.ListTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.attachment.AttachmentTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.experiment.ExperimentTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.person.PersonTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.space.SpaceTranslator;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.attachment.Attachment;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.project.Project;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.project.ProjectFetchOptions;
@@ -89,6 +92,13 @@ public class ProjectTranslator extends AbstractCachingTranslator<ProjectPE, Proj
             result.getFetchOptions().withModifierUsing(getFetchOptions().withModifier());
         }
 
+        if (getFetchOptions().hasLeader())
+        {
+            result.setLeader(new PersonTranslator(getTranslationContext(), getFetchOptions().withLeader()).translate(project
+                    .getProjectLeader()));
+            result.getFetchOptions().withLeaderUsing(getFetchOptions().withLeader());
+        }
+
         if (getFetchOptions().hasExperiments())
         {
             List<Experiment> experiments =
@@ -97,5 +107,14 @@ public class ProjectTranslator extends AbstractCachingTranslator<ProjectPE, Proj
             result.setExperiments(experiments);
             result.getFetchOptions().withExperimentsUsing(getFetchOptions().withExperiments());
         }
+
+        if (getFetchOptions().hasAttachments())
+        {
+            ArrayList<Attachment> attachments =
+                    AttachmentTranslator.translate(getTranslationContext(), project, getFetchOptions().withAttachments());
+            result.setAttachments(attachments);
+            result.getFetchOptions().withAttachmentsUsing(getFetchOptions().withAttachments());
+        }
+
     }
 }

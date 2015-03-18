@@ -15,7 +15,9 @@
  */
 package ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.project;
 
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.attachment.Attachment;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IAttachmentsHolder;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IModificationDateHolder;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IModifierHolder;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IRegistrationDateHolder;
@@ -38,7 +40,7 @@ import java.util.List;
  * Class automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
  */
 @JsonObject("dto.entity.project.Project")
-public class Project implements Serializable, ISpaceHolder, IModifierHolder, IModificationDateHolder, IRegistratorHolder, IRegistrationDateHolder
+public class Project implements Serializable, ISpaceHolder, IModifierHolder, IModificationDateHolder, IAttachmentsHolder, IRegistratorHolder, IRegistrationDateHolder
 {
     private static final long serialVersionUID = 1L;
 
@@ -74,6 +76,12 @@ public class Project implements Serializable, ISpaceHolder, IModifierHolder, IMo
 
     @JsonProperty
     private Person modifier;
+
+    @JsonProperty
+    private Person leader;
+
+    @JsonProperty
+    private List<Attachment> attachments;
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     @JsonIgnore
@@ -249,6 +257,47 @@ public class Project implements Serializable, ISpaceHolder, IModifierHolder, IMo
     public void setModifier(Person modifier)
     {
         this.modifier = modifier;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    @JsonIgnore
+    public Person getLeader()
+    {
+        if (getFetchOptions().hasLeader())
+        {
+            return leader;
+        }
+        else
+        {
+            throw new NotFetchedException("Leader has not been fetched.");
+        }
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public void setLeader(Person leader)
+    {
+        this.leader = leader;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    @JsonIgnore
+    @Override
+    public List<Attachment> getAttachments()
+    {
+        if (getFetchOptions().hasAttachments())
+        {
+            return attachments;
+        }
+        else
+        {
+            throw new NotFetchedException("Attachments have not been fetched.");
+        }
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public void setAttachments(List<Attachment> attachments)
+    {
+        this.attachments = attachments;
     }
 
 }
