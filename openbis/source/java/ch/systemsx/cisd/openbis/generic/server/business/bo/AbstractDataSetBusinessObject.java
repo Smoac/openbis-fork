@@ -157,7 +157,7 @@ public abstract class AbstractDataSetBusinessObject extends AbstractSampleIdenti
             if ((equalEntities(rootSample, componentSample) || componentSample == null)
                     && equalEntities(rootExperiment, componentExperiment))
             {
-                SamplePE newSample = componentSample == null && rootSample != null ? null : sample;
+                SamplePE newSample = componentSample == null && experiment != null? null : sample;
                 assignments.add(new DataSetSampleExperiment(component, newSample, experiment));
                 gatherNewAssigments(assignments, component, rootDataSet, sample, experiment);
             }

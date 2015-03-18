@@ -23,13 +23,10 @@ import static org.testng.AssertJUnit.assertTrue;
 import static org.testng.AssertJUnit.fail;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 
 import javax.validation.ValidationException;
 
@@ -40,9 +37,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.DynamicPropertyEvaluationOperation;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.DynamicPropertyEvaluationScheduler;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.RelationshipUtils;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
@@ -437,51 +432,6 @@ public class ExperimentDAOTest extends AbstractDAOTest
         assertEquals(codeModified, experimentFound.getCode());
         assertEquals(modificationTimestamp, experimentFound.getModificationDate());
     }
-
-    public final void testChangeContainerExperimentUpdatesContainedElements()
-    {
-        // get data
-        IDataDAO dao = daoFactory.getDataDAO();
-
-        ExperimentPE exp = daoFactory.getExperimentDAO().getByTechId(new TechId(8));
-
-        ExperimentPE exp22 = daoFactory.getExperimentDAO().getByTechId(new TechId(22));
-
-        assertEquals("EXP-REUSE", exp.getCode());
-        assertEquals("EXP-Y", exp22.getCode());
-
-        DataPE container = dao.tryToFindDataSetByCode("20110509092359990-10");
-
-        Long typeId = RelationshipUtils.getContainerComponentRelationshipType(daoFactory.getRelationshipTypeDAO()).getId();
-        Collection<TechId> ids = Collections.<TechId> singleton(TechId.create(container));
-        Set<TechId> containedIds = dao.findChildrenIds(ids, typeId);
-
-        assertEquals(2, containedIds.size());
-
-        List<DataPE> contained = new LinkedList<DataPE>();
-        for (TechId techId : containedIds)
-        {
-            contained.add(dao.getByTechId(techId));
-        }
-
-        // change experiment for container
-        container.setExperiment(exp22);
-
-        // assert the contained datasets have experiment updated
-        for (DataPE data : contained)
-        {
-            assertEquals(exp22, data.getExperiment());
-        }
-
-        // revert to original state
-        container.setExperiment(exp);
-
-        for (DataPE data : contained)
-        {
-            assertEquals(exp, data.getExperiment());
-        }
-    }
-
     @Test
     public void testCreateExperimentsOfDifferentTypes() throws Exception
     {

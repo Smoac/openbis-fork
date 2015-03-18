@@ -252,8 +252,8 @@ public class DataSetOptimisticLockingTest extends OptimisticLockingTestCase
         etlService.updateDataSet(sessionToken, dataSetUpdates);
 
         AbstractExternalData loadedDataSet = toolBox.loadDataSet(sessionToken, dataSet.getCode());
-        assertEquals(sessionContext.getUser().getUserName(), loadedDataSet.getModifier().getUserId());
-        assertEquals(true, loadedDataSet.getModificationDate().getTime() > dataSet.getModificationDate().getTime());
+        assertEquals(dataSet.getModifier(), loadedDataSet.getModifier());
+        assertEquals(dataSet.getModificationDate(), loadedDataSet.getModificationDate());
         assertEquals("/test/TEST_METAPROJECTS",
                 toolBox.renderMetaProjects(loadedDataSet.getMetaprojects()));
         assertEquals(
