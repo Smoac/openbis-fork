@@ -637,13 +637,6 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
         if (experiment != null)
         {
             experiment.addDataSet(this);
-            for (DataPE contained : getContainedDataSets())
-            {
-                if (false == contained.equals(this))
-                {
-                    contained.setExperiment(experiment);
-                }
-            }
         } else
         {
             ExperimentPE previous = getExperiment();

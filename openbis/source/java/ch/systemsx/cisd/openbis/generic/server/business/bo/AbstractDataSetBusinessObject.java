@@ -34,6 +34,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.util.DataSetTypeWitho
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertiesConverter;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetRelationshipPE;
@@ -118,30 +119,99 @@ public abstract class AbstractDataSetBusinessObject extends AbstractSampleIdenti
         {
             throw createWrongSampleException(data, newSample, "the new sample is shared");
         }
-        ExperimentPE experiment = newSample.getExperiment();
-        String dataSetTypeCode = data.getDataSetType().getCode();
+        assignDataSetToSampleAndExperiment(data, newSample, newSample.getExperiment());
+    }
+
+    private void assignDataSetToSampleAndExperiment(DataPE data, SamplePE newSample, ExperimentPE experiment)
+    {
+        List<DataSetSampleExperiment> assignments = new ArrayList<DataSetSampleExperiment>();
+        gatherNewAssigments(assignments, data, data, newSample, experiment);
+        for (DataSetSampleExperiment assignment : assignments)
+        {
+            assignment.assignDataSet(relationshipService, session);
+        }
+    }
+    
+    private void gatherNewAssigments(List<DataSetSampleExperiment> assignments, 
+            DataPE dataSet, DataPE rootDataSet, SamplePE sample, ExperimentPE experiment)
+    {
+        String dataSetTypeCode = dataSet.getDataSetType().getCode();
         if (experiment == null && dataSetTypeChecker.isDataSetTypeWithoutExperiment(dataSetTypeCode) == false)
         {
-            throw createWrongSampleException(data, newSample,
-                    "the new sample is not connected to any experiment");
+            throw createWrongSampleException(dataSet, sample,
+                    "the new sample is not connected to any experiment and the data set type ("
+                            + dataSetTypeCode + ") doesn't match one of the following regular expressions: "
+                            + dataSetTypeChecker.getRegularExpressions());
+        }
+        if (rootDataSet == dataSet)
+        {
+            assignments.add(new DataSetSampleExperiment(dataSet, sample, experiment));
+        }
+        SamplePE rootSample = rootDataSet.tryGetSample();
+        ExperimentPE rootExperiment = getExperimentOf(rootDataSet);
+        List<DataPE> components = dataSet.getContainedDataSets();
+        for (DataPE component : components)
+        {
+            SamplePE componentSample = component.tryGetSample();
+            ExperimentPE componentExperiment = getExperimentOf(component);
+            if ((equalEntities(rootSample, componentSample) || componentSample == null)
+                    && equalEntities(rootExperiment, componentExperiment))
+            {
+                SamplePE newSample = componentSample == null && rootSample != null ? null : sample;
+                assignments.add(new DataSetSampleExperiment(component, newSample, experiment));
+                gatherNewAssigments(assignments, component, rootDataSet, sample, experiment);
+            }
+        }
+    }
+    
+    private ExperimentPE getExperimentOf(DataPE data)
+    {
+        SamplePE sample = data.tryGetSample();
+        return sample == null ? data.getExperiment() : sample.getExperiment();
+    }
+    
+    private static <T extends IIdHolder >boolean equalEntities(T entity1OrNull, T entity2OrNull)
+    {
+        Long id1 = getIdOrNull(entity1OrNull);
+        Long id2 = getIdOrNull(entity2OrNull);
+        return id1 == null ? id1 == id2 : id1.equals(id2);
+    }
+
+    private static Long getIdOrNull(IIdHolder idHolderOrNull)
+    {
+        return idHolderOrNull == null ? null : idHolderOrNull.getId();
+    }
+
+    private static final class DataSetSampleExperiment
+    {
+        private DataPE dataSet;
+        private SamplePE sample;
+        private ExperimentPE experiment;
+
+        DataSetSampleExperiment(DataPE dataSet, SamplePE sample, ExperimentPE experiment)
+        {
+            this.dataSet = dataSet;
+            this.sample = sample;
+            this.experiment = experiment;
         }
 
-        relationshipService.assignDataSetToSample(session, data, newSample);
+        public void assignDataSet(IRelationshipService relationshipService, Session session)
+        {
+            if (equalEntities(dataSet.tryGetSample(), sample) == false)
+            {
+                relationshipService.assignDataSetToSample(session, dataSet, sample);
+            }
+            if (equalEntities(dataSet.getExperiment(), experiment) == false)
+            {
+                relationshipService.assignDataSetToExperiment(session, dataSet, experiment);
+            }
+        }
     }
 
     protected void updateExperiment(DataPE data, ExperimentIdentifier experimentIdentifier)
     {
         assert experimentIdentifier != null;
-        ExperimentPE experiment = getExperimentByIdentifier(experimentIdentifier);
-        updateExperiment(data, experiment);
-    }
-
-    protected void updateExperiment(DataPE data, ExperimentPE experiment)
-    {
-        if (experiment.equals(data.getExperiment()) == false)
-        {
-            relationshipService.assignDataSetToExperiment(session, data, experiment);
-        }
+        assignDataSetToSampleAndExperiment(data, null, getExperimentByIdentifier(experimentIdentifier));
     }
 
     protected ExperimentPE getExperimentByIdentifier(final ExperimentIdentifier identifier)
@@ -155,9 +225,7 @@ public abstract class AbstractDataSetBusinessObject extends AbstractSampleIdenti
             throw new UserFailureException("Unkown experiment because of unkown project: "
                     + identifier);
         }
-        final ExperimentPE exp =
-                getExperimentDAO().tryFindByCodeAndProject(project, identifier.getExperimentCode());
-        return exp;
+        return getExperimentDAO().tryFindByCodeAndProject(project, identifier.getExperimentCode());
     }
 
     protected void setContainedDataSets(final DataPE container,

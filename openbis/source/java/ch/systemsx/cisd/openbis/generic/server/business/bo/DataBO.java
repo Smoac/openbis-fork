@@ -616,10 +616,10 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
         {
             // update sample and indirectly experiment
             updateSample(data, sampleIdentifierOrNull);
-        } else
+        } else if (updates.getExperimentIdentifierOrNull() != null)
         {
-            relationshipService.assignDataSetToSample(session, data, null);
             updateExperiment(data, updates.getExperimentIdentifierOrNull());
+            relationshipService.assignDataSetToSample(session, data, null);
         }
 
         setParents(data, asListOrNull(updates.getModifiedParentDatasetCodesOrNull()));

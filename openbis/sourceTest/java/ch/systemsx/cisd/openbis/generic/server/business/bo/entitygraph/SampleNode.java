@@ -98,7 +98,7 @@ public final class SampleNode extends EntityNode
     public String toString()
     {
 
-        StringBuilder builder = new StringBuilder(getCode());
+        StringBuilder builder = new StringBuilder(super.toString());
         Utils.appendTo(builder, "experiment", experiment);
         Utils.appendTo(builder, "children", children);
         Utils.appendTo(builder, "parents", parents);

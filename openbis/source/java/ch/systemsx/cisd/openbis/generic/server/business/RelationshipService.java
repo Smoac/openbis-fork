@@ -23,6 +23,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.RelationshipUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.DAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetRelationshipPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
@@ -144,21 +145,17 @@ public class RelationshipService implements IRelationshipService
     public void assignDataSetToExperiment(IAuthSession session, DataPE data, ExperimentPE experimentOrNull)
     {
         RelationshipUtils.setExperimentForDataSet(data, experimentOrNull, session);
-        if (experimentOrNull != null)
-        {
-            RelationshipUtils.setSampleForDataSet(data, null, session);
-        }
     }
 
     @Override
-    public void assignDataSetToSample(IAuthSession session, DataPE data, SamplePE sampleOrNull)
+    public void assignDataSetToSample(IAuthSession session, DataPE data, SamplePE sample)
     {
-        if (sampleOrNull != null)
+        SamplePE currentSample = data.tryGetSample();
+        if (equalEntities(currentSample, sample))
         {
-            ExperimentPE experiment = sampleOrNull.getExperiment();
-            RelationshipUtils.setExperimentForDataSet(data, experiment, session);
+            return;
         }
-        RelationshipUtils.setSampleForDataSet(data, sampleOrNull, session);
+        RelationshipUtils.setSampleForDataSet(data, sample, session);
     }
 
     @Override
@@ -279,6 +276,18 @@ public class RelationshipService implements IRelationshipService
     private RelationshipTypePE getParentChildRelationshipType()
     {
         return RelationshipUtils.getParentChildRelationshipType(daoFactory.getRelationshipTypeDAO());
+    }
+
+    private static <T extends IIdHolder >boolean equalEntities(T entity1OrNull, T entity2OrNull)
+    {
+        Long id1 = getIdOrNull(entity1OrNull);
+        Long id2 = getIdOrNull(entity2OrNull);
+        return id1 == null ? id1 == id2 : id1.equals(id2);
+    }
+
+    private static Long getIdOrNull(IIdHolder idHolderOrNull)
+    {
+        return idHolderOrNull == null ? null : idHolderOrNull.getId();
     }
 
 }

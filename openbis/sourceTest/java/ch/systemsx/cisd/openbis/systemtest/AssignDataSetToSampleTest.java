@@ -63,134 +63,234 @@ public class AssignDataSetToSampleTest extends BaseTest
     Space destinationSpace;
     
     @Test
-    public void dataSetReassignedFromExperimentToExperiment()
+    public void containerWithSomeComponentsReassignedFromExperimentToExperiment()
     {
-        EntityGraphGenerator g = parseAndCreateGraph("E1, samples: S1, data sets: DS1\n"
-                + "E2, samples: S2\n");
+        EntityGraphGenerator g = parseAndCreateGraph("E1, samples: S1, data sets: DS1 DS2 DS4\n"
+                + "E2, samples: S2\n"
+                + "E3, data sets: DS3\n"
+                + "DS1, components: DS2 DS3\n"
+                + "DS2, components: DS4");
 
         reassignToExperiment(g.ds(1), g.e(2));
 
         assertEquals("E1, samples: S1\n"
-                + "E2, samples: S2, data sets: DS1\n", renderGraph(g));
+                + "E2, samples: S2, data sets: DS1 DS2 DS4\n"
+                + "E3, data sets: DS3\n"
+                + "DS1, components: DS2 DS3\n"
+                + "DS2, components: DS4\n", renderGraph(g));
         repository.assertModified(g.e(1), g.e(2));
-        repository.assertModified(g.ds(1));
-        repository.assertUnmodified(g.s(1), g.s(2));
+        repository.assertModified(g.ds(1), g.ds(2), g.ds(4));
+        repository.assertUnmodified(g);
     }
 
     @Test
-    public void dataSetReassignedFromExperimentToSampleWithExperiment()
+    public void containerWithSomeComponentsReassignedFromExperimentToSampleWithExperiment()
     {
-        EntityGraphGenerator g = parseAndCreateGraph("E1, data sets: DS1\nE2, samples: S2\n");
-
+        EntityGraphGenerator g = parseAndCreateGraph("E1, samples: S1, data sets: DS1 DS2 DS4\n"
+                + "E2, samples: S2\n"
+                + "E3, data sets: DS3\n"
+                + "DS1, components: DS2 DS3\n"
+                + "DS2, components: DS4");
+        
         reassignToSample(g.ds(1), g.s(2));
-
-        assertEquals("E2, samples: S2, data sets: DS1\nS2, data sets: DS1\n", renderGraph(g));
+        
+        assertEquals("E1, samples: S1\n"
+                + "E2, samples: S2, data sets: DS1 DS2 DS4\n"
+                + "E3, data sets: DS3\n"
+                + "S2, data sets: DS1 DS2 DS4\n"
+                + "DS1, components: DS2 DS3\n"
+                + "DS2, components: DS4\n", renderGraph(g));
         repository.assertModified(g.e(1), g.e(2));
+        repository.assertModified(g.ds(1), g.ds(2), g.ds(4));
         repository.assertModified(g.s(2));
-        repository.assertModified(g.ds(1));
+        repository.assertUnmodified(g);
     }
     
     @Test
-    public void dataSetReassignedFromExperimentToSampleWithoutExperiment()
+    public void containerWithSomeComponentsReassignedFromExperimentToSampleWithExperiment2()
     {
-        EntityGraphGenerator g = parseAndCreateGraph("E1, samples: S1, data sets: DS1[NEXP-TYPE]\n"
-                + "S2\n");
+        EntityGraphGenerator g = parseAndCreateGraph("E1, samples: S1, data sets: DS1 DS2 DS4\n"
+                + "E2, samples: S2\n"
+                + "E3, data sets: DS3\n"
+                + "S1, data sets: DS2\n"
+                + "DS1, components: DS2 DS3\n"
+                + "DS2, components: DS4");
         
         reassignToSample(g.ds(1), g.s(2));
         
-        assertEquals("E1, samples: S1\nS2, data sets: DS1[NEXP-TYPE]\n", renderGraph(g));
+        assertEquals("E1, samples: S1, data sets: DS2 DS4\n"
+                + "E2, samples: S2, data sets: DS1\n"
+                + "E3, data sets: DS3\n"
+                + "S1, data sets: DS2\n"
+                + "S2, data sets: DS1\n"
+                + "DS1, components: DS2 DS3\n"
+                + "DS2, components: DS4\n", renderGraph(g));
+        repository.assertModified(g.e(1), g.e(2));
+        repository.assertModified(g.s(2));
+        repository.assertModified(g.ds(1));
+        repository.assertUnmodified(g);
+    }
+    
+    @Test
+    public void containerWithAllItsComponentsReassignedFromExperimentToExperiment()
+    {
+        EntityGraphGenerator g = parseAndCreateGraph("E1, samples: S1, data sets: DS1 DS2\n"
+                + "E2, samples: S2\n"
+                + "DS1, components: DS2\n");
+        
+        reassignToExperiment(g.ds(1), g.e(2));
+        
+        assertEquals("E1, samples: S1\n"
+                + "E2, samples: S2, data sets: DS1 DS2\n"
+                + "DS1, components: DS2\n", renderGraph(g));
+        repository.assertModified(g.e(1), g.e(2));
+        repository.assertModified(g.ds(1), g.ds(2));
+        repository.assertUnmodified(g);
+    }
+    
+    @Test
+    public void containerWithAllItsComponentsReassignedFromExperimentToSampleWithExperiment()
+    {
+        EntityGraphGenerator g = parseAndCreateGraph("E1, data sets: DS1 DS2\n"
+                + "E2, samples: S2\n"
+                + "DS1, components: DS2\n");
+
+        reassignToSample(g.ds(1), g.s(2));
+
+        assertEquals("E2, samples: S2, data sets: DS1 DS2\n"
+                + "S2, data sets: DS1 DS2\n"
+                + "DS1, components: DS2\n", renderGraph(g));
+        repository.assertModified(g.e(1), g.e(2));
+        repository.assertModified(g.s(2));
+        repository.assertModified(g.ds(1), g.ds(2));
+        repository.assertUnmodified(g);
+    }
+    
+    @Test
+    public void containerWithAllItsComponentsReassignedFromExperimentToSampleWithoutExperiment()
+    {
+        EntityGraphGenerator g = parseAndCreateGraph("E1, samples: S1, data sets: DS1[NECT] DS2[NET]\n"
+                + "S2\n"
+                + "DS1[NECT], components: DS2[NET]\n");
+        
+        reassignToSample(g.ds(1), g.s(2));
+        
+        assertEquals("E1, samples: S1\n"
+                + "S2, data sets: DS1[NECT] DS2[NET]\n"
+                + "DS1[NECT], components: DS2[NET]\n", renderGraph(g));
         repository.assertModified(g.e(1));
-        repository.assertUnmodified(g.s(1));
         repository.assertModified(g.s(2));
-        repository.assertModified(g.ds(1));
+        repository.assertModified(g.ds(1), g.ds(2));
+        repository.assertUnmodified(g);
     }
     
     @Test
-    public void dataSetReassignedFromSampleWithExperimentToExperiment()
+    public void containerWithAllItsComponentsReassignedFromSampleWithExperimentToExperiment()
     {
-        EntityGraphGenerator g = parseAndCreateGraph("E1, samples: S1, data sets: DS1\n"
-                + "E2, samples: S2\nS1, data sets: DS1\n");
+        EntityGraphGenerator g = parseAndCreateGraph("E1, samples: S1, data sets: DS1 DS2\n"
+                + "E2, samples: S2\n"
+                + "S1, data sets: DS1\n"
+                + "DS1, components: DS2");
 
         reassignToExperiment(g.ds(1), g.e(2));
 
         assertEquals("E1, samples: S1\n"
-                + "E2, samples: S2, data sets: DS1\n", renderGraph(g));
+                + "E2, samples: S2, data sets: DS1 DS2\n"
+                + "DS1, components: DS2\n", renderGraph(g));
         repository.assertModified(g.e(1), g.e(2));
         repository.assertModified(g.s(1));
-        repository.assertModified(g.ds(1));
-        repository.assertUnmodified(g.s(2));
+        repository.assertModified(g.ds(1), g.ds(2));
+        repository.assertUnmodified(g);
     }
     
     @Test
-    public void dataSetReassignedFromSampleWithExperimentToSampleWithExperiment()
+    public void containerWithAllItsComponentsReassignedFromSampleWithExperimentToSampleWithExperiment()
     {
-        EntityGraphGenerator g = parseAndCreateGraph("E1, samples: S1, data sets: DS1\n"
-                + "E2, samples: S2\nS1, data sets: DS1\n");
+        EntityGraphGenerator g = parseAndCreateGraph("E1, samples: S1, data sets: DS1 DS2\n"
+                + "E2, samples: S2\n"
+                + "S1, data sets: DS1\n"
+                + "DS1, components: DS2");
 
         reassignToSample(g.ds(1), g.s(2));
 
         assertEquals("E1, samples: S1\n"
-                + "E2, samples: S2, data sets: DS1\nS2, data sets: DS1\n", renderGraph(g));
+                + "E2, samples: S2, data sets: DS1 DS2\n"
+                + "S2, data sets: DS1\n"
+                + "DS1, components: DS2\n", renderGraph(g));
         repository.assertModified(g.e(1), g.e(2));
         repository.assertModified(g.s(1), g.s(2));
-        repository.assertModified(g.ds(1));
+        repository.assertModified(g.ds(1), g.ds(2));
+        repository.assertUnmodified(g);
     }
     
     @Test
-    public void dataSetReassignedFromSampleWithExperimentToSampleWithoutExperiment()
+    public void containerWithAllItsComponentsReassignedFromSampleWithExperimentToSampleWithoutExperiment()
     {
-        EntityGraphGenerator g = parseAndCreateGraph("E1, samples: S1, data sets: DS1[NEXP-TYPE]\n"
-                + "S1, data sets: DS1[NEXP-TYPE]\nS2\n");
+        EntityGraphGenerator g = parseAndCreateGraph("E1, samples: S1, data sets: DS1[NECT] DS2[NET]\n"
+                + "S1, data sets: DS1[NECT] DS2[NET]\n"
+                + "S2\n"
+                + "DS1[NECT], components: DS2[NET]\n");
 
         reassignToSample(g.ds(1), g.s(2));
 
         assertEquals("E1, samples: S1\n"
-                + "S2, data sets: DS1[NEXP-TYPE]\n", renderGraph(g));
+                + "S2, data sets: DS1[NECT] DS2[NET]\n"
+                + "DS1[NECT], components: DS2[NET]\n", renderGraph(g));
         repository.assertModified(g.e(1));
         repository.assertModified(g.s(1), g.s(2));
-        repository.assertModified(g.ds(1));
+        repository.assertModified(g.ds(1), g.ds(2));
+        repository.assertUnmodified(g);
     }
 
     @Test
-    public void dataSetReassignedFromSampleWithoutExperimentToExperiment()
+    public void containerWithAllItsComponentsReassignedFromSampleWithoutExperimentToExperiment()
     {
         EntityGraphGenerator g = parseAndCreateGraph("E1\n"
-                + "S1, data sets: DS1[NEXP-TYPE]\n");
+                + "S1, data sets: DS1[NECT] DS2[NET]\n"
+                + "DS1[NECT], components: DS2[NET]\n");
 
         reassignToExperiment(g.ds(1), g.e(1));
 
-        assertEquals("E1, data sets: DS1[NEXP-TYPE]\n", renderGraph(g));
+        assertEquals("E1, data sets: DS1[NECT] DS2[NET]\n"
+                + "DS1[NECT], components: DS2[NET]\n", renderGraph(g));
         repository.assertModified(g.e(1));
         repository.assertModified(g.s(1));
-        repository.assertModified(g.ds(1));
+        repository.assertModified(g.ds(1), g.ds(2));
+        repository.assertUnmodified(g);
     }
     
     @Test
-    public void dataSetReassignedFromSampleWithoutExperimentToSampleWithExperiment()
+    public void containerWithAllItsComponentsReassignedFromSampleWithoutExperimentToSampleWithExperiment()
     {
         EntityGraphGenerator g = parseAndCreateGraph("E1, samples: S1\n"
-                + "S2, data sets: DS1[NEXP-TYPE]\n");
+                + "S2, data sets: DS1[NECT] DS2[NET]\n"
+                + "DS1[NECT], components: DS2[NET]\n");
 
         reassignToSample(g.ds(1), g.s(1));
 
-        assertEquals("E1, samples: S1, data sets: DS1[NEXP-TYPE]\n"
-                + "S1, data sets: DS1[NEXP-TYPE]\n", renderGraph(g));
+        assertEquals("E1, samples: S1, data sets: DS1[NECT] DS2[NET]\n"
+                + "S1, data sets: DS1[NECT] DS2[NET]\n"
+                + "DS1[NECT], components: DS2[NET]\n", renderGraph(g));
         repository.assertModified(g.e(1));
         repository.assertModified(g.s(1), g.s(2));
-        repository.assertModified(g.ds(1));
+        repository.assertModified(g.ds(1), g.ds(2));
+        repository.assertUnmodified(g);
     }
     
     @Test
-    public void dataSetReassignedFromSampleWithoutExperimentToSampleWithoutExperiment()
+    public void containerWithAllItsComponentsReassignedFromSampleWithoutExperimentToSampleWithoutExperiment()
     {
-        EntityGraphGenerator g = parseAndCreateGraph("S1, data sets: DS1[NO-EXP-TYPE]\n"
-                + "S2\n");
+        EntityGraphGenerator g = parseAndCreateGraph("S1, data sets: DS1[NECT] DS2[NET]\n"
+                + "S2\n"
+                + "DS1[NECT], components: DS2[NET]\n");
 
         reassignToSample(g.ds(1), g.s(2));
 
-        assertEquals("S2, data sets: DS1[NO-EXP-TYPE]\n", renderGraph(g));
+        assertEquals("S2, data sets: DS1[NECT] DS2[NET]\n"
+                + "DS1[NECT], components: DS2[NET]\n", renderGraph(g));
         repository.assertModified(g.s(1), g.s(2));
-        repository.assertModified(g.ds(1));
+        repository.assertModified(g.ds(1), g.ds(2));
+        repository.assertUnmodified(g);
     }
     
     @Test(expectedExceptions =

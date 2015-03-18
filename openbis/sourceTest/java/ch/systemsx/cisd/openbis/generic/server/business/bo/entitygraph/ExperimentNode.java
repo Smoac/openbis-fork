@@ -60,7 +60,7 @@ public final class ExperimentNode extends EntityNode
     @Override
     public String toString()
     {
-        StringBuilder builder = new StringBuilder(getCode());
+        StringBuilder builder = new StringBuilder(super.toString());
         Utils.appendTo(builder, "samples", samples);
         Utils.appendTo(builder, "data sets", dataSets);
         return builder.toString();

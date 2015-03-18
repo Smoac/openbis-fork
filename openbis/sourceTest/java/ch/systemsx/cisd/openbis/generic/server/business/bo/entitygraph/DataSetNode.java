@@ -103,7 +103,7 @@ public final class DataSetNode extends EntityNode
     @Override
     public String toString()
     {
-        StringBuilder builder = new StringBuilder(getCode());
+        StringBuilder builder = new StringBuilder(super.toString());
         if (deletable == false)
         {
             builder.append(" (non deletable)");

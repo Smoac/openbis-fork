@@ -35,11 +35,13 @@ public class DataSetTypeWithoutExperimentChecker
 {
     public static final String PROPERTY_KEY = "data-set-types-with-no-experiment-needed";
     
-    private List<Pattern> patternsForDataSetTypesWithoutExperiment = new ArrayList<Pattern>();
+    private final String regularExpressions;
     
+    private List<Pattern> patternsForDataSetTypesWithoutExperiment = new ArrayList<Pattern>();
+
     public DataSetTypeWithoutExperimentChecker(Properties properties)
     {
-        String regularExpressions = properties.getProperty(PROPERTY_KEY);
+        regularExpressions = properties.getProperty(PROPERTY_KEY);
         if (StringUtils.isNotBlank(regularExpressions))
         {
             String[] splittedRegexes = regularExpressions.split(",");
@@ -57,6 +59,11 @@ public class DataSetTypeWithoutExperimentChecker
         }
     }
     
+    public String getRegularExpressions()
+    {
+        return regularExpressions;
+    }
+
     public boolean isDataSetTypeWithoutExperiment(String dataSetTypeCode)
     {
         for (Pattern pattern : patternsForDataSetTypesWithoutExperiment)

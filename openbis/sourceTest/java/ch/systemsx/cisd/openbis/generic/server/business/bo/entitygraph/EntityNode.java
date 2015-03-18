@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo.entitygraph;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 
-public class EntityNode implements IIdHolder
+public class EntityNode implements IIdHolder, Comparable<EntityNode>
 {
     private final long id;
 
@@ -47,9 +47,32 @@ public class EntityNode implements IIdHolder
     {
         return type;
     }
+    
+    public String getCodeAndType()
+    {
+        StringBuilder builder = new StringBuilder(code);
+        if (type != null)
+        {
+            builder.append("[").append(type).append("]");
+        }
+        return builder.toString();
+    }
 
     public void setType(String type)
     {
         this.type = type;
     }
+
+    @Override
+    public int compareTo(EntityNode that)
+    {
+        return this.getCode().compareTo(that.getCode());
+    }
+    
+    @Override
+    public String toString()
+    {
+        return getCodeAndType();
+    }
+    
 }

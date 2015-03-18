@@ -20,11 +20,17 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -62,6 +68,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeWithRegistrationAndModificationDate;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
@@ -165,7 +172,7 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
         System.setProperty("hibernate.search.index-mode", IndexMode.INDEX_FROM_SCRATCH.name());
         System.setProperty("hibernate.search.index-base", "../openbis/targets/lucene/cleandb");
         System.setProperty("hibernate.search.worker.execution", "sync");
-        System.setProperty(DataSetTypeWithoutExperimentChecker.PROPERTY_KEY, "  NO-EXP-.* ,   NEXP-.*  ");
+        System.setProperty(DataSetTypeWithoutExperimentChecker.PROPERTY_KEY, "  NO-EXP-.* ,   NE.*  ");
     }
 
     private void setContext() throws Exception
@@ -485,8 +492,9 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
     {
         EntityGraphGenerator g = new EntityGraphGenerator();
         g.parse(graphDefinition);
-        prepare(g);
-        assertEquals(removeSolitaryNodes(graphDefinition), renderGraph(g));
+        createGraph(g);
+        assertEquals(removeSolitaryNodes(graphDefinition), renderGraph(g, true));
+        repository.gatherModifictaionInfos();
         return g;
     }
     
@@ -506,30 +514,43 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
     
     protected String renderGraph(EntityGraphGenerator g)
     {
-        repository.refreshGraph();
+        return renderGraph(g, false);
+    }
+    
+    private String renderGraph(EntityGraphGenerator g, boolean showWhereIAm)
+    {
+        repository.refreshGraph(showWhereIAm);
         StringBuilder builder = new StringBuilder();
         for (ExperimentNode experimentNode : g.getExperiments().values())
         {
             StringBuilder builder2 = new StringBuilder();
             render(builder2, "samples", repository.getSampleNode(experimentNode));
             render(builder2, "data sets", repository.getDataSetNodes(experimentNode));
-            if (builder2.length() > 0)
-            {
-                builder.append(experimentNode.getCode());
-                builder.append(builder2).append("\n");
-            }
+            appendNodeTo(builder, experimentNode, builder2);
         }
         for (SampleNode sampleNode : g.getSamples().values())
         {
             StringBuilder builder2 = new StringBuilder();
             render(builder2, "data sets", repository.getDataSetNodes(sampleNode));
-            if (builder2.length() > 0)
-            {
-                builder.append(sampleNode.getCode());
-                builder.append(builder2).append("\n");
-            }
+            appendNodeTo(builder, sampleNode, builder2);
+        }
+        for (DataSetNode dataSetNode : g.getDataSets().values())
+        {
+            StringBuilder builder2 = new StringBuilder();
+            render(builder2, "components", repository.getComponentDataSetNodes(dataSetNode));
+            appendNodeTo(builder, dataSetNode, builder2);
         }
         return builder.toString();
+    }
+
+    private void appendNodeTo(StringBuilder builder, EntityNode entityNode, StringBuilder builder2)
+    {
+        if (builder2.length() > 0)
+        {
+            builder.append(entityNode.getCodeAndType());
+            
+            builder.append(builder2).append("\n");
+        }
     }
     
     private void render(StringBuilder builder, String name, Collection<? extends EntityNode> nodes)
@@ -541,22 +562,18 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
         builder.append(", ").append(name).append(":");
         for (EntityNode node : nodes)
         {
-            builder.append(' ').append(node.getCode());
-            if (node.getType() != null)
-            {
-                builder.append("[").append(node.getType()).append("]");
-            }
+            builder.append(' ').append(node.getCodeAndType());
         }
     }
     
-    private void prepare(EntityGraphGenerator g)
+    private void createGraph(EntityGraphGenerator g)
     {
         repository = new EntityRepository();
         Space space = create(aSpace());
         Project project = create(aProject().inSpace(space));
         for (ExperimentNode experimentNode : g.getExperiments().values())
         {
-            repository.put(experimentNode, create(anExperiment().inProject(project)));
+            addToRepository(experimentNode, create(anExperiment().inProject(project)));
         }
         for (SampleNode sampleNode : g.getSamples().values())
         {
@@ -566,9 +583,11 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
             {
                 sample.inExperiment(repository.getExperiment(experimentNode));
             }
-            repository.put(sampleNode, create(sample));
+            addToRepository(sampleNode, sample);
         }
-        for (DataSetNode dataSetNode : g.getDataSets().values())
+        List<DataSetNode> dataSetNodes = new ArrayList<DataSetNode>(g.getDataSets().values());
+        Collections.reverse(dataSetNodes);
+        for (DataSetNode dataSetNode : dataSetNodes)
         {
             ExternalDataBuilder dataSet = aDataSet().withType(dataSetNode.getType());
             if (dataSetNode.getSample() != null)
@@ -578,10 +597,62 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
             {
                 dataSet.inExperiment(repository.getExperiment(dataSetNode.getExperiment()));
             }
-            repository.put(dataSetNode, create(dataSet));
+            List<DataSetNode> components = dataSetNode.getComponents();
+            if (components.isEmpty() == false)
+            {
+                dataSet.asContainer();
+                for (DataSetNode component : components)
+                {
+                    AbstractExternalData componentDataSet = repository.getDataSet(component);
+                    if (componentDataSet == null)
+                    {
+                        throw new IllegalStateException("Data set " + component.getCode() 
+                                + " is specified as component of " + dataSetNode.getCode() 
+                                + " but hasn't yet created.");
+                    }
+                    dataSet.withComponent(componentDataSet);
+                }
+            }
+            addToRepository(dataSetNode, dataSet);
         }
     }
-    
+
+    private void addToRepository(ExperimentNode experimentNode, Experiment experiment)
+    {
+        try
+        {
+            repository.put(experimentNode, experiment);
+        } catch (Exception ex)
+        {
+            throw new RuntimeException("Error while creating experiment for node " + experimentNode.getCode() 
+                    + ": " + ex.getMessage(), ex);
+        }
+    }
+
+    private void addToRepository(SampleNode sampleNode, SampleBuilder sample)
+    {
+        try
+        {
+            repository.put(sampleNode, create(sample));
+        } catch (Exception ex)
+        {
+            throw new RuntimeException("Error while creating sample for node " + sampleNode.getCode() 
+                    + ": " + ex.getMessage(), ex);
+        }
+    }
+
+    private void addToRepository(DataSetNode dataSetNode, ExternalDataBuilder dataSet)
+    {
+        try
+        {
+            repository.put(dataSetNode, create(dataSet));
+        } catch (Exception ex)
+        {
+            throw new RuntimeException("Error while creating data set for node " + dataSetNode.getCodeAndType() 
+                    + ": " + ex.getMessage(), ex);
+        }
+    }
+
     public static ExperimentIdentifier id(Experiment experiment)
     {
         return new ExperimentIdentifier(id(experiment.getProject()), experiment.getCode());
@@ -680,18 +751,48 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
         private Map<Long, Experiment> experimentsNodeToDtoMap = new TreeMap<Long, Experiment>();
         private Map<Long, ExperimentNode> experimentDtoToNodeMap = new TreeMap<Long, ExperimentNode>();
         private Map<Long, ModificationInfo> experimentModificationInfoByNodeId = new HashMap<Long, ModificationInfo>();
+        private Set<ExperimentNode> modifiedExperimentNodes = new HashSet<ExperimentNode>();
         
         private Map<Long, Sample> samplesNodeToDtoMap = new TreeMap<Long, Sample>();
         private Map<Long, SampleNode> samplesDtoToNodeMap = new TreeMap<Long, SampleNode>();
         private Map<Long, ModificationInfo> sampleModificationInfoByNodeId = new HashMap<Long, ModificationInfo>();
+        private Set<SampleNode> modifiedSampleNodes = new HashSet<SampleNode>();
 
         private Map<Long, AbstractExternalData> dataSetsNodeToDtoMap = new TreeMap<Long, AbstractExternalData>();
         private Map<Long, DataSetNode> dataSetsDtoToNodeMap = new TreeMap<Long, DataSetNode>();
         private Map<Long, ModificationInfo> dataSetModificationInfoByNodeId = new HashMap<Long, ModificationInfo>();
-        
+        private Set<DataSetNode> modifiedDataSetNodes = new HashSet<DataSetNode>();
+
         private Map<Long, Set<Long>> experimentSamplesMap = new HashMap<Long, Set<Long>>();
         private Map<Long, Set<Long>> experimentDataSetsMap = new HashMap<Long, Set<Long>>();
         private Map<Long, Set<Long>> sampleDataSetsMap = new HashMap<Long, Set<Long>>();
+        private Map<Long, Set<Long>> componentDataSetsMap = new HashMap<Long, Set<Long>>();
+        
+        public String renderNodeToDtoMapping()
+        {
+            StringBuilder builder = new StringBuilder();
+            for (Entry<Long, Experiment> entry : experimentsNodeToDtoMap.entrySet())
+            {
+                render(builder, "E", entry.getKey(), entry.getValue());
+            }
+            for (Entry<Long, Sample> entry : samplesNodeToDtoMap.entrySet())
+            {
+                render(builder, "S", entry.getKey(), entry.getValue());
+            }
+            for (Entry<Long, AbstractExternalData> entry : dataSetsNodeToDtoMap.entrySet())
+            {
+                render(builder, "DS", entry.getKey(), entry.getValue());
+            }
+            return builder.toString();
+        }
+        
+        private void render(StringBuilder builder, String prefix, Long id, 
+                CodeWithRegistrationAndModificationDate<?> entity)
+        {
+            builder.append(prefix).append(id).append(" -> ").append(entity.getCode()).append(" (");
+            builder.append(entity.getModifier().getUserId()).append(", ");
+            builder.append(entity.getModificationDate()).append(")\n");
+        }
         
         public Experiment getExperiment(ExperimentNode experimentNode)
         {
@@ -708,19 +809,19 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
             return dataSetsNodeToDtoMap.get(dataSetNode.getId());
         }
         
-        void refreshGraph()
+        void refreshGraph(boolean showWhereIAm)
         {
             for (Long id : experimentsNodeToDtoMap.keySet())
             {
-                experimentsNodeToDtoMap.put(id,  refresh(experimentsNodeToDtoMap.get(id)));
+                experimentsNodeToDtoMap.put(id, refresh(experimentsNodeToDtoMap.get(id)));
             }
             for (Long id : samplesNodeToDtoMap.keySet())
             {
-                samplesNodeToDtoMap.put(id,  refresh(samplesNodeToDtoMap.get(id)));
+                samplesNodeToDtoMap.put(id, refresh(samplesNodeToDtoMap.get(id)));
             }
             for (Long id : dataSetsNodeToDtoMap.keySet())
             {
-                dataSetsNodeToDtoMap.put(id,  refresh(dataSetsNodeToDtoMap.get(id)));
+                dataSetsNodeToDtoMap.put(id, refresh(dataSetsNodeToDtoMap.get(id)));
             }
             experimentSamplesMap.clear();
             for (Sample sample : samplesNodeToDtoMap.values())
@@ -744,12 +845,34 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
                 addToDataSetsMap(experimentDataSetsMap, dataSet, dataSet.getExperiment());
             }
             sampleDataSetsMap.clear();
+            componentDataSetsMap.clear();
             for (AbstractExternalData dataSet : dataSetsNodeToDtoMap.values())
             {
                 addToDataSetsMap(sampleDataSetsMap, dataSet, dataSet.getSample());
+                List<ContainerDataSet> containerDataSets = dataSet.getContainerDataSets();
+                for (ContainerDataSet containerDataSet : containerDataSets)
+                {
+                    addToDataSetsMap(componentDataSetsMap, dataSet, containerDataSet);
+                }
             }
+            if (showWhereIAm)
+            {
+                printWhereIAm();
+            }
+            System.out.println("Entities mapping:\n" + renderNodeToDtoMapping());
         }
 
+        private void printWhereIAm()
+        {
+            StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+            for (int i = 5, n = Math.min(stackTrace.length, 9); i < n; i++)
+            {
+                StackTraceElement element = stackTrace[i];
+                System.out.print(element.getMethodName() + " <- ");
+            }
+            System.out.println("...");
+        }
+        
         private void addToDataSetsMap(Map<Long, Set<Long>> holderDataSetsMap, 
                 AbstractExternalData dataSet, IIdHolder idHolder)
         {
@@ -766,57 +889,101 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
             }
         }
         
+        void gatherModifictaionInfos()
+        {
+            for (Entry<Long, Experiment> entry : experimentsNodeToDtoMap.entrySet())
+            {
+                experimentModificationInfoByNodeId.put(entry.getKey(), new ModificationInfo(entry.getValue()));
+            }
+            for (Entry<Long, Sample> entry : samplesNodeToDtoMap.entrySet())
+            {
+                sampleModificationInfoByNodeId.put(entry.getKey(), new ModificationInfo(entry.getValue()));
+            }
+            for (Entry<Long, AbstractExternalData> entry : dataSetsNodeToDtoMap.entrySet())
+            {
+                dataSetModificationInfoByNodeId.put(entry.getKey(), new ModificationInfo(entry.getValue()));
+            }
+        }
+        
         void put(ExperimentNode experimentNode, Experiment experiment)
         {
             experimentsNodeToDtoMap.put(experimentNode.getId(), experiment);
             experimentDtoToNodeMap.put(experiment.getId(), experimentNode);
-            experimentModificationInfoByNodeId.put(experimentNode.getId(), new ModificationInfo(experiment));
         }
         
         public void assertModified(ExperimentNode...experimentNodes)
         {
-            assertModificationInfo(true, experimentModificationInfoByNodeId, experimentsNodeToDtoMap, experimentNodes);
-        }
-        
-        public void assertUnmodified(ExperimentNode...experimentNodes)
-        {
-            assertModificationInfo(false, experimentModificationInfoByNodeId, experimentsNodeToDtoMap, experimentNodes);
+            assertModificationInfo(true, experimentModificationInfoByNodeId, experimentsNodeToDtoMap, 
+                    Arrays.<EntityNode>asList(experimentNodes));
+            modifiedExperimentNodes.addAll(Arrays.asList(experimentNodes));
         }
         
         void put(SampleNode sampleNode, Sample sample)
         {
             samplesNodeToDtoMap.put(sampleNode.getId(), sample);
             samplesDtoToNodeMap.put(sample.getId(), sampleNode);
-            sampleModificationInfoByNodeId.put(sampleNode.getId(), new ModificationInfo(sample));
         }
 
         public void assertModified(SampleNode...sampleNodes)
         {
-            assertModificationInfo(true, sampleModificationInfoByNodeId, samplesNodeToDtoMap, sampleNodes);
-        }
-        
-        public void assertUnmodified(SampleNode...sampleNodes)
-        {
-            assertModificationInfo(false, sampleModificationInfoByNodeId, samplesNodeToDtoMap, sampleNodes);
+            assertModificationInfo(true, sampleModificationInfoByNodeId, samplesNodeToDtoMap, 
+                    Arrays.<EntityNode>asList(sampleNodes));
+            modifiedSampleNodes.addAll(Arrays.asList(sampleNodes));
         }
         
         void put(DataSetNode dataSetNode, AbstractExternalData dataSet)
         {
             dataSetsNodeToDtoMap.put(dataSetNode.getId(), dataSet);
             dataSetsDtoToNodeMap.put(dataSet.getId(), dataSetNode);
-            dataSetModificationInfoByNodeId.put(dataSetNode.getId(), new ModificationInfo(dataSet));
         }
-
+        
         public void assertModified(DataSetNode...dataSetNodes)
         {
-            assertModificationInfo(true, dataSetModificationInfoByNodeId, dataSetsNodeToDtoMap, dataSetNodes);
+            assertModificationInfo(true, dataSetModificationInfoByNodeId, dataSetsNodeToDtoMap, 
+                    Arrays.<EntityNode>asList(dataSetNodes));
+            modifiedDataSetNodes.addAll(Arrays.asList(dataSetNodes));
         }
         
-        public void assertUnmodified(DataSetNode...dataSetNodes)
+        public void assertUnmodified(EntityGraphGenerator g)
         {
-            assertModificationInfo(false, dataSetModificationInfoByNodeId, dataSetsNodeToDtoMap, dataSetNodes);
+            Set<EntityNode> unmodifiedExperimentNodes = new HashSet<EntityNode>(g.getExperiments().values());
+            unmodifiedExperimentNodes.removeAll(modifiedExperimentNodes);
+            assertModificationInfo(false, experimentModificationInfoByNodeId, experimentsNodeToDtoMap, unmodifiedExperimentNodes);
+            Set<EntityNode> unmodifiedSampleNodes = new HashSet<EntityNode>(g.getSamples().values());
+            unmodifiedSampleNodes.removeAll(modifiedSampleNodes);
+            assertModificationInfo(false, sampleModificationInfoByNodeId, samplesNodeToDtoMap, unmodifiedSampleNodes);
+            Set<EntityNode> unmodifiedDataSetNodes = new HashSet<EntityNode>(g.getDataSets().values());
+            unmodifiedDataSetNodes.removeAll(modifiedDataSetNodes);
+            assertModificationInfo(false, dataSetModificationInfoByNodeId, dataSetsNodeToDtoMap, unmodifiedDataSetNodes);
         }
         
+        private void assertModificationInfo(boolean modified, Map<Long, ModificationInfo> previousInfos,
+                Map<Long, ? extends CodeWithRegistrationAndModificationDate<?>> nodeToDtoMap,
+                Collection<EntityNode> entityNodes)
+        {
+            for (EntityNode node : entityNodes)
+            {
+                ModificationInfo previous = previousInfos.get(node.getId());
+                assertNotNull(node.getCode() + " no previous modification info", previous);
+                CodeWithRegistrationAndModificationDate<?> entity = nodeToDtoMap.get(node.getId());
+                assertNotNull(node.getCode() + " unknown", entity);
+                ModificationInfo current = new ModificationInfo(entity);
+                if (modified)
+                {
+                    assertEquals(node.getCode() + " has unexpectedly still the old modifier: " + current.modifier, 
+                            false, current.modifier.equals(previous.modifier));
+                    assertEquals(node.getCode() + " has unexpectedly still the old modification date: " + current.modificationDate, 
+                            true, current.modificationDate.getTime() > previous.modificationDate.getTime());
+                } else
+                {
+                    assertEquals(node.getCode() + " has unexpectedly a new modifier: ",
+                            previous.modifier, current.modifier);
+                    assertEquals(node.getCode() + " has unexpectedly a new modification date:", 
+                            previous.modificationDate, current.modificationDate);
+                }
+            }
+        }
+
         Set<SampleNode> getSampleNode(ExperimentNode experimentNode)
         {
             Set<SampleNode> result = new LinkedHashSet<SampleNode>();
@@ -845,9 +1012,14 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
             return getDataSetNodes(sampleDataSetsMap, samplesNodeToDtoMap.get(sampleNode.getId()));
         }
         
+        Set<DataSetNode> getComponentDataSetNodes(DataSetNode containerDataSetNode)
+        {
+            return getDataSetNodes(componentDataSetsMap, dataSetsNodeToDtoMap.get(containerDataSetNode.getId()));
+        }
+        
         private Set<DataSetNode> getDataSetNodes(Map<Long, Set<Long>> idHolderDataSetsMap, IIdHolder experiment)
         {
-            Set<DataSetNode> result = new LinkedHashSet<DataSetNode>();
+            Set<DataSetNode> result = new TreeSet<DataSetNode>();
             if (experiment != null)
             {
                 Set<Long> dataSetDtoIds = idHolderDataSetsMap.get(experiment.getId());
@@ -861,33 +1033,6 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
             }
             return result;
         }
-        
-        private void assertModificationInfo(boolean modified, Map<Long, ModificationInfo> previousInfos, 
-                Map<Long, ? extends CodeWithRegistrationAndModificationDate<?>> nodeToDtoMap, EntityNode...entityNodes)
-        {
-            for (EntityNode node : entityNodes)
-            {
-                ModificationInfo previous = previousInfos.get(node.getId());
-                assertNotNull(node.getCode() + " no previous modification info", previous);
-                CodeWithRegistrationAndModificationDate<?> entity = nodeToDtoMap.get(node.getId());
-                assertNotNull(node.getCode() + " unknown", entity);
-                ModificationInfo current = new ModificationInfo(entity);
-                if (modified)
-                {
-                    assertEquals(node.getCode() + " still same modifier: " + current.modifier, false, 
-                            current.modifier.equals(previous.modifier));
-                    assertEquals(node.getCode() + " still same modification date: " + current.modificationDate, 
-                            true, current.modificationDate.getTime() > previous.modificationDate.getTime());
-                } else
-                {
-                    assertEquals(node.getCode() + " different modifiers: " + previous.modifier + " " + previous.modifier,
-                            previous.modifier, current.modifier);
-                    assertEquals(node.getCode() + " different modification date: " + previous.modificationDate
-                            + " " + current.modificationDate, previous.modificationDate, current.modificationDate);
-                }
-            }
-        }
-        
     }
     
     private static final class ModificationInfo
