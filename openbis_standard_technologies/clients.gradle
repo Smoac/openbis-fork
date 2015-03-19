@@ -100,6 +100,7 @@ task createDssClientJar(type: Jar) {
         def manifestClasspath = dssClientJars.collect { it }.join(' ')
         attributes("Main-Class": "ch.systemsx.cisd.openbis.dss.client.api.gui.DataSetUploadClient",
                    "Version": versionNumber,
+                   "Permissions": "all-permissions",
                    "Build-Number": "${versionNumber} (r${revisionNumber},${cleanFlag})",
                    "Class-Path": manifestClasspath)
     }   
@@ -229,7 +230,9 @@ task dssUploadGuiStandaloneJar(type: Jar, dependsOn: dssUploadGuiStandalone) {
 	}.collect { zipTree(it).matching {exclude "META-INF/**", "ch/systemsx/cisd/base/utilities/AbstractBuildAndEnvironmentInfo.class"}}})
 
     manifest {
-        attributes("Main-Class": "ch.systemsx.cisd.openbis.dss.client.api.gui.DataSetUploadClient")
+        attributes(
+            "Main-Class": "ch.systemsx.cisd.openbis.dss.client.api.gui.DataSetUploadClient", 
+            "Permissions": "all-permissions")
     }	
 }
 
