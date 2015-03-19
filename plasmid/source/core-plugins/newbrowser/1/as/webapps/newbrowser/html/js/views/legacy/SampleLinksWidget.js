@@ -90,7 +90,7 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 	
 	this._readState = function() {
 		var stateField = $("#ANNOTATIONS_STATE");
-		if(stateField.length === 0) {
+		if(stateField.length === 0 && !this.isDisabled) {
 			if(this.sampleTypeHints && this.sampleTypeHints.length !== 0) { //Indicates annotations are needed
 				Util.showError("You need a property with code ANNOTATIONS_STATE on this entity to store the state of the annotations.");
 			}
