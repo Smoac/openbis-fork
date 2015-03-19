@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -29,6 +30,7 @@ import org.apache.commons.lang.StringUtils;
 import org.hibernate.SessionFactory;
 import org.springframework.dao.DataAccessException;
 
+import ch.systemsx.cisd.common.collection.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.IDataStoreServiceFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.DataSetTypeWithoutExperimentChecker;
@@ -731,18 +733,29 @@ abstract class AbstractBusinessObject implements IDAOFactory
         }
     }
     
-    protected void checkSampleWithoutDatasets(IDataDAO dataDAO, SamplePE sample)
+    protected void checkSampleWithoutDatasets(SamplePE sample)
     {
         List<DataPE> dataSets = getDataDAO().listDataSets(sample);
+        String sampleIdentifier = sample.getIdentifier();
+        checkDataSetsDoNotNeedAnExperiment(sampleIdentifier, dataSets);
+    }
+
+    private void checkDataSetsDoNotNeedAnExperiment(String sampleIdentifier, List<DataPE> dataSets)
+    {
+        List<String> dataSetsNeedingExperiment = new ArrayList<String>();
         for (DataPE dataSet : dataSets)
         {
+            String dataSetTypeCode = dataSet.getDataSetType().getCode();
+            if (dataSetTypeChecker.isDataSetTypeWithoutExperiment(dataSetTypeCode) == false)
+            {
+                dataSetsNeedingExperiment.add(dataSet.getCode());
+            }
         }
-        if (hasDatasets2(dataDAO, sample))
+        if (dataSetsNeedingExperiment.isEmpty() == false)
         {
-            throw UserFailureException
-                    .fromTemplate(
-                            "Operation cannot be performed, because some datasets have been already produced for the sample '%s'.",
-                            sample.getSampleIdentifier());
+            throw new UserFailureException("Operation cannot be performed, because the sample "
+                    + sampleIdentifier + " has the following datasets which need an experiment: "
+                    + CollectionUtils.abbreviate(dataSetsNeedingExperiment, 10));
         }
     }
     

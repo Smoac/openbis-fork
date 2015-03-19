@@ -517,7 +517,7 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
     {
         for (SamplePE sample : samples)
         {
-            checkSampleWithoutDatasets(getDataDAO(), sample);
+            checkSampleWithoutDatasets(sample);
 
             relationshipService.unassignSampleFromExperiment(session, sample);
         }

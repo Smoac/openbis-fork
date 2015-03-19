@@ -239,7 +239,7 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
         checkAvailable(sample);
         checkSpaceSample(sample);
         checkSampleUnused(sample);
-        checkSampleWithoutDatasets(getDataDAO(), sample);
+        checkSampleWithoutDatasets(sample);
 
         this.relationshipService.assignSampleToExperiment(session, sample, experiment);
         try

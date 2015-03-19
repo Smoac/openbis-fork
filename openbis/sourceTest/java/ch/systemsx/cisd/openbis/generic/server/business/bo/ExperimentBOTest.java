@@ -36,6 +36,7 @@ import org.testng.annotations.Test;
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.util.DataSetTypeWithoutExperimentChecker;
 import ch.systemsx.cisd.openbis.generic.server.util.TimeIntervalChecker;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -43,6 +44,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
@@ -93,7 +96,7 @@ public final class ExperimentBOTest extends AbstractBOTest
     private final ExperimentBO createExperimentBO()
     {
         return new ExperimentBO(daoFactory, ManagerTestTool.EXAMPLE_SESSION, relationshipService,
-                managedPropertyEvaluatorFactory, null);
+                managedPropertyEvaluatorFactory, new DataSetTypeWithoutExperimentChecker("NE.*"));
     }
 
     @BeforeMethod
@@ -811,7 +814,7 @@ public final class ExperimentBOTest extends AbstractBOTest
         context.assertIsSatisfied();
     }
 
-    @Test(expectedExceptionsMessageRegExp = ".*datasets.*", expectedExceptions = UserFailureException.class)
+    @Test
     public void testUpdateByRemovingASampleWithDataSets()
     {
         ExperimentIdentifier identifier = CommonTestUtils.createExperimentIdentifier();
@@ -826,7 +829,15 @@ public final class ExperimentBOTest extends AbstractBOTest
         prepareRemoveSamplesFromExperiment(experiment, true, "S1");
         ExperimentBO experimentBO = loadExperiment(identifier, experiment);
 
-        experimentBO.update(update);
+        try
+        {
+            experimentBO.update(update);
+            fail("UserFailureException expected");
+        } catch (UserFailureException ex)
+        {
+            assertEquals("Operation cannot be performed, because the sample /S1 has the "
+                    + "following datasets which need an experiment: [DS1]", ex.getMessage());
+        }
 
         context.assertIsSatisfied();
     }
@@ -901,11 +912,19 @@ public final class ExperimentBOTest extends AbstractBOTest
                         SamplePE sample = createSampleWithCode(sampleCode);
                         will(returnValue(sample));
 
-                        one(dataDAO).hasDataSet(sample);
-                        will(returnValue(samplesHaveDataSets));
+                        one(dataDAO).listDataSets(sample);
                         if (samplesHaveDataSets)
                         {
+                            DataPE dataPE = new DataPE();
+                            dataPE.setCode("DS1");
+                            DataSetTypePE dataSetType = new DataSetTypePE();
+                            dataSetType.setCode("A");
+                            dataPE.setDataSetType(dataSetType);
+                            will(returnValue(Arrays.asList(dataPE)));
                             break;
+                        } else
+                        {
+                            will(returnValue(Arrays.asList()));
                         }
                         one(relationshipService).unassignSampleFromExperiment(EXAMPLE_SESSION,
                                 sample);

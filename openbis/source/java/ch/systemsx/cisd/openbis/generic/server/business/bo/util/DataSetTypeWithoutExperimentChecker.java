@@ -41,7 +41,12 @@ public class DataSetTypeWithoutExperimentChecker
 
     public DataSetTypeWithoutExperimentChecker(Properties properties)
     {
-        regularExpressions = properties.getProperty(PROPERTY_KEY);
+        this(properties.getProperty(PROPERTY_KEY));
+    }
+
+    public DataSetTypeWithoutExperimentChecker(String regularExpressions)
+    {
+        this.regularExpressions = regularExpressions;
         if (StringUtils.isNotBlank(regularExpressions))
         {
             String[] splittedRegexes = regularExpressions.split(",");
