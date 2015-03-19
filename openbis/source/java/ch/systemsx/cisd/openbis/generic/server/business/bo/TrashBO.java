@@ -32,6 +32,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.batch.BatchOperationExecutor;
 import ch.systemsx.cisd.openbis.generic.server.batch.IBatchOperation;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister.IDatasetLister;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.util.DataSetTypeWithoutExperimentChecker;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.DataSetUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDeletionDAO;
@@ -61,9 +62,10 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
     private DeletionPE deletion;
 
     public TrashBO(IDAOFactory daoFactory, ICommonBusinessObjectFactory boFactory, Session session,
-            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, 
+            DataSetTypeWithoutExperimentChecker dataSetTypeChecker)
     {
-        super(daoFactory, session, managedPropertyEvaluatorFactory);
+        super(daoFactory, session, managedPropertyEvaluatorFactory, dataSetTypeChecker);
         this.boFactory = boFactory;
     }
 

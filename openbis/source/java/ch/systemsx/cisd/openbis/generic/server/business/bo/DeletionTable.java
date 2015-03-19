@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import ch.systemsx.cisd.openbis.generic.server.business.bo.util.DataSetTypeWithoutExperimentChecker;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDeletionDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -42,9 +43,10 @@ public class DeletionTable extends AbstractBusinessObject implements IDeletionTa
     private List<Deletion> deletions;
 
     public DeletionTable(IDAOFactory daoFactory, Session session,
-            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, 
+            DataSetTypeWithoutExperimentChecker dataSetTypeChecker)
     {
-        super(daoFactory, session, managedPropertyEvaluatorFactory);
+        super(daoFactory, session, managedPropertyEvaluatorFactory, dataSetTypeChecker);
     }
 
     @Override

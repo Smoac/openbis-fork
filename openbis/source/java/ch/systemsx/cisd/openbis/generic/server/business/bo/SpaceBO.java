@@ -22,6 +22,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataRetrievalFailureException;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.util.DataSetTypeWithoutExperimentChecker;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.util.SpaceIdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -48,9 +49,10 @@ public final class SpaceBO extends AbstractBusinessObject implements ISpaceBO
     private SpacePE space;
 
     public SpaceBO(final IDAOFactory daoFactory, final Session session,
-            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, 
+            DataSetTypeWithoutExperimentChecker dataSetTypeChecker)
     {
-        super(daoFactory, session, managedPropertyEvaluatorFactory);
+        super(daoFactory, session, managedPropertyEvaluatorFactory, dataSetTypeChecker);
     }
 
     //

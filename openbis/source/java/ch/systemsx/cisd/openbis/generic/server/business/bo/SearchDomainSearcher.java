@@ -28,6 +28,7 @@ import java.util.Set;
 import ch.systemsx.cisd.common.collection.IKeyExtractor;
 import ch.systemsx.cisd.common.collection.TableMap;
 import ch.systemsx.cisd.openbis.generic.server.business.IDataStoreServiceFactory;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.util.DataSetTypeWithoutExperimentChecker;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.AbstractEntitySearchResultLocation;
@@ -71,9 +72,10 @@ public class SearchDomainSearcher extends AbstractBusinessObject implements ISea
     private final IDataStoreServiceFactory dssFactory;
 
     public SearchDomainSearcher(IDAOFactory daoFactory, Session session, 
-            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, IDataStoreServiceFactory dssFactory)
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, 
+            DataSetTypeWithoutExperimentChecker dataSetTypeChecker, IDataStoreServiceFactory dssFactory)
     {
-        super(daoFactory, session, managedPropertyEvaluatorFactory);
+        super(daoFactory, session, managedPropertyEvaluatorFactory, dataSetTypeChecker);
         this.dssFactory = dssFactory;
     }
 

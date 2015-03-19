@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.util.DataSetTypeWithoutExperimentChecker;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleOwner;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleOwnerFinder;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
@@ -46,17 +47,19 @@ abstract class AbstractSampleIdentifierBusinessObject extends AbstractBusinessOb
     private final SampleOwnerFinder sampleOwnerFinder;
 
     AbstractSampleIdentifierBusinessObject(final IDAOFactory daoFactory, final Session session,
-            EntityKind entityKind, IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
+            EntityKind entityKind, IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, 
+            DataSetTypeWithoutExperimentChecker dataSetTypeChecker)
     {
-        super(daoFactory, session, entityKind, managedPropertyEvaluatorFactory);
+        super(daoFactory, session, entityKind, managedPropertyEvaluatorFactory, dataSetTypeChecker);
         sampleOwnerFinder = new SampleOwnerFinder(daoFactory, findPerson());
     }
 
     public AbstractSampleIdentifierBusinessObject(IDAOFactory daoFactory, Session session,
             IEntityPropertiesConverter converter,
-            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, 
+            DataSetTypeWithoutExperimentChecker dataSetTypeChecker)
     {
-        super(daoFactory, session, converter, managedPropertyEvaluatorFactory);
+        super(daoFactory, session, converter, managedPropertyEvaluatorFactory, dataSetTypeChecker);
         sampleOwnerFinder = new SampleOwnerFinder(daoFactory, findPerson());
     }
 

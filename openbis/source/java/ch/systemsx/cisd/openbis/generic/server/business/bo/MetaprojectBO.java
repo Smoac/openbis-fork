@@ -27,6 +27,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.orm.ObjectRetrievalFailureException;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.util.DataSetTypeWithoutExperimentChecker;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IFullTextIndexUpdateScheduler;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IndexUpdateOperation;
@@ -81,9 +82,10 @@ public class MetaprojectBO extends AbstractBusinessObject implements IMetaprojec
 
     public MetaprojectBO(final IDAOFactory daoFactory, IExperimentBO experimentBO,
             ISampleBO sampleBO, IDataBO dataBO, IMaterialBO materialBO, final Session session,
-            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, 
+            DataSetTypeWithoutExperimentChecker dataSetTypeChecker)
     {
-        super(daoFactory, session, managedPropertyEvaluatorFactory);
+        super(daoFactory, session, managedPropertyEvaluatorFactory, dataSetTypeChecker);
 
         this.experimentBO = experimentBO;
         this.sampleBO = sampleBO;

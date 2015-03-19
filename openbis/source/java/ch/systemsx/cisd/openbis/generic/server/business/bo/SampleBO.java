@@ -27,6 +27,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.IEntityOperationChecker;
 import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.util.DataSetTypeWithoutExperimentChecker;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertiesConverter;
@@ -69,20 +70,22 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
     public SampleBO(final IDAOFactory daoFactory, final Session session,
             final IRelationshipService relationshipService,
             final IEntityOperationChecker entityOperationChecker,
-            final IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
+            final IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, 
+            DataSetTypeWithoutExperimentChecker dataSetTypeChecker)
     {
         super(daoFactory, session, relationshipService, entityOperationChecker,
-                managedPropertyEvaluatorFactory);
+                managedPropertyEvaluatorFactory, dataSetTypeChecker);
     }
 
     SampleBO(final IDAOFactory daoFactory, final Session session,
             final IEntityPropertiesConverter entityPropertiesConverter,
             IRelationshipService relationshipService,
             final IEntityOperationChecker entityOperationChecker,
-            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, 
+            DataSetTypeWithoutExperimentChecker dataSetTypeChecker)
     {
         super(daoFactory, session, entityPropertiesConverter, relationshipService,
-                entityOperationChecker, managedPropertyEvaluatorFactory);
+                entityOperationChecker, managedPropertyEvaluatorFactory, dataSetTypeChecker);
     }
 
     //
@@ -234,9 +237,9 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
         assert sample != null : "Sample not loaded.";
 
         checkAvailable(sample);
-        checkSampleInGroup(sample);
+        checkSpaceSample(sample);
         checkSampleUnused(sample);
-        checkSampleWithoutDatasets();
+        checkSampleWithoutDatasets(getDataDAO(), sample);
 
         this.relationshipService.assignSampleToExperiment(session, sample, experiment);
         try
@@ -260,11 +263,6 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
         }
     }
 
-    private final void checkSampleWithoutDatasets()
-    {
-        SampleUtils.checkSampleWithoutDatasets(getDataDAO(), sample);
-    }
-
     private final static void checkSampleUnused(final SamplePE sample)
     {
         ExperimentPE experiment = sample.getExperiment();
@@ -277,7 +275,7 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
         }
     }
 
-    private final static void checkSampleInGroup(final SamplePE sample)
+    private final static void checkSpaceSample(final SamplePE sample)
     {
         if (sample.getSpace() == null)
         {

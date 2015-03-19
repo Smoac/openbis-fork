@@ -120,33 +120,37 @@ public final class CommonBusinessObjectFactory extends AbstractBusinessObjectFac
     @Override
     public final IAttachmentBO createAttachmentBO(final Session session)
     {
-        return new AttachmentBO(getDaoFactory(), session, getManagedPropertyEvaluatorFactory());
+        return new AttachmentBO(getDaoFactory(), session, getManagedPropertyEvaluatorFactory(), 
+                dataSetTypeWithoutExperimentChecker);
     }
 
     @Override
     public final ISpaceBO createSpaceBO(final Session session)
     {
-        return new SpaceBO(getDaoFactory(), session, getManagedPropertyEvaluatorFactory());
+        return new SpaceBO(getDaoFactory(), session, getManagedPropertyEvaluatorFactory(), 
+                dataSetTypeWithoutExperimentChecker);
     }
 
     @Override
     public final IScriptBO createScriptBO(final Session session)
     {
-        return new ScriptBO(getDaoFactory(), session, getManagedPropertyEvaluatorFactory(), jythonEvaluatorPool);
+        return new ScriptBO(getDaoFactory(), session, getManagedPropertyEvaluatorFactory(), 
+                dataSetTypeWithoutExperimentChecker, jythonEvaluatorPool);
     }
 
     @Override
     public final IRoleAssignmentTable createRoleAssignmentTable(final Session session)
     {
         return new RoleAssignmentTable(getDaoFactory(), session,
-                getManagedPropertyEvaluatorFactory());
+                getManagedPropertyEvaluatorFactory(), dataSetTypeWithoutExperimentChecker);
     }
 
     @Override
     public final ISampleTable createSampleTable(final Session session)
     {
         return new SampleTable(getDaoFactory(), session, getRelationshipService(),
-                getEntityOperationChecker(), getManagedPropertyEvaluatorFactory());
+                getEntityOperationChecker(), getManagedPropertyEvaluatorFactory(),
+                dataSetTypeWithoutExperimentChecker);
     }
 
     @Override
@@ -186,7 +190,8 @@ public final class CommonBusinessObjectFactory extends AbstractBusinessObjectFac
     public final ISampleBO createSampleBO(final Session session)
     {
         return new SampleBO(getDaoFactory(), session, getRelationshipService(),
-                getEntityOperationChecker(), getManagedPropertyEvaluatorFactory());
+                getEntityOperationChecker(), getManagedPropertyEvaluatorFactory(), 
+                dataSetTypeWithoutExperimentChecker);
     }
 
     @Override
@@ -210,7 +215,7 @@ public final class CommonBusinessObjectFactory extends AbstractBusinessObjectFac
     public ISearchDomainSearcher createSearchDomainSearcher(Session session)
     {
         return new SearchDomainSearcher(getDaoFactory(), session, getManagedPropertyEvaluatorFactory(), 
-                getDSSFactory());
+                dataSetTypeWithoutExperimentChecker, getDSSFactory());
     }
 
     @Override
@@ -225,44 +230,51 @@ public final class CommonBusinessObjectFactory extends AbstractBusinessObjectFac
     public IExperimentTable createExperimentTable(final Session session)
     {
         return new ExperimentTable(getDaoFactory(), session, getRelationshipService(),
-                getManagedPropertyEvaluatorFactory());
+                getManagedPropertyEvaluatorFactory(), 
+                dataSetTypeWithoutExperimentChecker);
     }
 
     @Override
     public IMaterialTable createMaterialTable(final Session session)
     {
-        return new MaterialTable(getDaoFactory(), session, getManagedPropertyEvaluatorFactory());
+        return new MaterialTable(getDaoFactory(), session, getManagedPropertyEvaluatorFactory(), 
+                dataSetTypeWithoutExperimentChecker);
     }
 
     @Override
     public final IExperimentBO createExperimentBO(final Session session)
     {
         return new ExperimentBO(getDaoFactory(), session, getRelationshipService(),
-                getManagedPropertyEvaluatorFactory());
+                getManagedPropertyEvaluatorFactory(), 
+                dataSetTypeWithoutExperimentChecker);
     }
 
     @Override
     public final IPropertyTypeTable createPropertyTypeTable(final Session session)
     {
-        return new PropertyTypeTable(getDaoFactory(), session, getManagedPropertyEvaluatorFactory());
+        return new PropertyTypeTable(getDaoFactory(), session, getManagedPropertyEvaluatorFactory(), 
+                dataSetTypeWithoutExperimentChecker);
     }
 
     @Override
     public final IPropertyTypeBO createPropertyTypeBO(final Session session)
     {
-        return new PropertyTypeBO(getDaoFactory(), session, getManagedPropertyEvaluatorFactory());
+        return new PropertyTypeBO(getDaoFactory(), session, getManagedPropertyEvaluatorFactory(), 
+                dataSetTypeWithoutExperimentChecker);
     }
 
     @Override
     public final IVocabularyBO createVocabularyBO(Session session)
     {
-        return new VocabularyBO(getDaoFactory(), session, getManagedPropertyEvaluatorFactory());
+        return new VocabularyBO(getDaoFactory(), session, getManagedPropertyEvaluatorFactory(), 
+                dataSetTypeWithoutExperimentChecker);
     }
 
     @Override
     public final IVocabularyTermBO createVocabularyTermBO(Session session)
     {
-        return new VocabularyTermBO(getDaoFactory(), session, getManagedPropertyEvaluatorFactory());
+        return new VocabularyTermBO(getDaoFactory(), session, getManagedPropertyEvaluatorFactory(), 
+                dataSetTypeWithoutExperimentChecker);
     }
 
     @Override
@@ -270,59 +282,68 @@ public final class CommonBusinessObjectFactory extends AbstractBusinessObjectFac
             EntityKind entityKind)
     {
         return new EntityTypePropertyTypeBO(getDaoFactory(), session, entityKind,
-                getManagedPropertyEvaluatorFactory());
+                getManagedPropertyEvaluatorFactory(), 
+                dataSetTypeWithoutExperimentChecker);
     }
 
     @Override
     public IProjectBO createProjectBO(Session session)
     {
         return new ProjectBO(getDaoFactory(), session, getRelationshipService(),
-                getManagedPropertyEvaluatorFactory());
+                getManagedPropertyEvaluatorFactory(), 
+                dataSetTypeWithoutExperimentChecker);
     }
 
     @Override
     public IEntityTypeBO createEntityTypeBO(Session session)
     {
-        return new EntityTypeBO(getDaoFactory(), session, getManagedPropertyEvaluatorFactory());
+        return new EntityTypeBO(getDaoFactory(), session, getManagedPropertyEvaluatorFactory(), 
+                dataSetTypeWithoutExperimentChecker);
     }
 
     @Override
     public IMaterialBO createMaterialBO(Session session)
     {
-        return new MaterialBO(getDaoFactory(), session, getManagedPropertyEvaluatorFactory());
+        return new MaterialBO(getDaoFactory(), session, getManagedPropertyEvaluatorFactory(), 
+                dataSetTypeWithoutExperimentChecker);
     }
 
     @Override
     public IAuthorizationGroupBO createAuthorizationGroupBO(Session session)
     {
         return new AuthorizationGroupBO(getDaoFactory(), session,
-                getManagedPropertyEvaluatorFactory());
+                getManagedPropertyEvaluatorFactory(), 
+                dataSetTypeWithoutExperimentChecker);
     }
 
     @Override
     public IGridCustomFilterOrColumnBO createGridCustomFilterBO(Session session)
     {
         return new GridCustomFilterBO(getDaoFactory(), session,
-                getManagedPropertyEvaluatorFactory());
+                getManagedPropertyEvaluatorFactory(), 
+                dataSetTypeWithoutExperimentChecker);
     }
 
     @Override
     public IGridCustomFilterOrColumnBO createGridCustomColumnBO(Session session)
     {
         return new GridCustomColumnBO(getDaoFactory(), session,
-                getManagedPropertyEvaluatorFactory());
+                getManagedPropertyEvaluatorFactory(), 
+                dataSetTypeWithoutExperimentChecker);
     }
 
     @Override
     public ITrashBO createTrashBO(Session session)
     {
-        return new TrashBO(getDaoFactory(), this, session, getManagedPropertyEvaluatorFactory());
+        return new TrashBO(getDaoFactory(), this, session, getManagedPropertyEvaluatorFactory(), 
+                dataSetTypeWithoutExperimentChecker);
     }
 
     @Override
     public IDeletionTable createDeletionTable(Session session)
     {
-        return new DeletionTable(getDaoFactory(), session, getManagedPropertyEvaluatorFactory());
+        return new DeletionTable(getDaoFactory(), session, getManagedPropertyEvaluatorFactory(), 
+                dataSetTypeWithoutExperimentChecker);
     }
 
     @Override
@@ -330,7 +351,8 @@ public final class CommonBusinessObjectFactory extends AbstractBusinessObjectFac
             IMasterDataScriptRegistrationRunner masterDataScriptRunner)
     {
         return new CorePluginTable(getDaoFactory(), session, masterDataScriptRunner,
-                getManagedPropertyEvaluatorFactory());
+                getManagedPropertyEvaluatorFactory(), 
+                dataSetTypeWithoutExperimentChecker);
     }
 
     @Override
@@ -344,7 +366,8 @@ public final class CommonBusinessObjectFactory extends AbstractBusinessObjectFac
     {
         return new MetaprojectBO(getDaoFactory(), createExperimentBO(session),
                 createSampleBO(session), createDataBO(session), createMaterialBO(session), session,
-                getManagedPropertyEvaluatorFactory());
+                getManagedPropertyEvaluatorFactory(), 
+                dataSetTypeWithoutExperimentChecker);
     }
 
 }

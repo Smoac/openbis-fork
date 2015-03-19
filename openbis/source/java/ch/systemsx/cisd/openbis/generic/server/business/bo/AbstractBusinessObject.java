@@ -31,6 +31,7 @@ import org.springframework.dao.DataAccessException;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.IDataStoreServiceFactory;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.util.DataSetTypeWithoutExperimentChecker;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.EntityPropertiesConverter;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAttachmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationGroupDAO;
@@ -79,6 +80,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Identifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentHolderPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
@@ -89,6 +91,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RelationshipTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
@@ -111,28 +114,34 @@ abstract class AbstractBusinessObject implements IDAOFactory
 
     protected final IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory;
 
+    protected final DataSetTypeWithoutExperimentChecker dataSetTypeChecker;
+    
     protected Map<String, List<AttachmentPE>> attachmentHolderPermIdToAttachmentsMap;
 
     AbstractBusinessObject(final IDAOFactory daoFactory, final Session session,
-            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory,
+            DataSetTypeWithoutExperimentChecker dataSetTypeChecker)
     {
         this(daoFactory, session, (IEntityPropertiesConverter) null,
-                managedPropertyEvaluatorFactory);
+                managedPropertyEvaluatorFactory, dataSetTypeChecker);
     }
 
     AbstractBusinessObject(final IDAOFactory daoFactory, final Session session,
             EntityKind entityKindOrNull,
-            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory,
+            DataSetTypeWithoutExperimentChecker dataSetTypeChecker)
     {
         this(daoFactory, session, entityKindOrNull == null ? null : new EntityPropertiesConverter(
                 entityKindOrNull, daoFactory, managedPropertyEvaluatorFactory),
-                managedPropertyEvaluatorFactory);
+                managedPropertyEvaluatorFactory, dataSetTypeChecker);
     }
 
     AbstractBusinessObject(final IDAOFactory daoFactory, final Session session,
             IEntityPropertiesConverter converter,
-            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory,
+            DataSetTypeWithoutExperimentChecker dataSetTypeChecker)
     {
+        this.dataSetTypeChecker = dataSetTypeChecker;
         assert daoFactory != null : "Given DAO factory can not be null.";
         assert session != null : "Given session can not be null.";
 
@@ -721,4 +730,27 @@ abstract class AbstractBusinessObject implements IDAOFactory
             }
         }
     }
+    
+    protected void checkSampleWithoutDatasets(IDataDAO dataDAO, SamplePE sample)
+    {
+        List<DataPE> dataSets = getDataDAO().listDataSets(sample);
+        for (DataPE dataSet : dataSets)
+        {
+        }
+        if (hasDatasets2(dataDAO, sample))
+        {
+            throw UserFailureException
+                    .fromTemplate(
+                            "Operation cannot be performed, because some datasets have been already produced for the sample '%s'.",
+                            sample.getSampleIdentifier());
+        }
+    }
+    
+    protected boolean hasDatasets2(IDataDAO dataDAO, SamplePE sample)
+    {
+        assert sample != null;
+
+        return dataDAO.hasDataSet(sample);
+    }
+
 }

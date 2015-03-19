@@ -27,6 +27,7 @@ import org.springframework.orm.ObjectRetrievalFailureException;
 import ch.systemsx.cisd.common.collection.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.util.DataSetTypeWithoutExperimentChecker;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDeletionDAO;
 import ch.systemsx.cisd.openbis.generic.server.util.SpaceIdentifierHelper;
@@ -78,9 +79,10 @@ public final class ProjectBO extends AbstractBusinessObject implements IProjectB
 
     public ProjectBO(final IDAOFactory daoFactory, final Session session,
             IRelationshipService relationshipService,
-            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, 
+            DataSetTypeWithoutExperimentChecker dataSetTypeChecker)
     {
-        super(daoFactory, session, managedPropertyEvaluatorFactory);
+        super(daoFactory, session, managedPropertyEvaluatorFactory, dataSetTypeChecker);
         this.relationshipService = relationshipService;
     }
 

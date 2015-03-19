@@ -35,6 +35,7 @@ import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.collection.IKeyExtractor;
 import ch.systemsx.cisd.common.collection.TableMap;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.util.DataSetTypeWithoutExperimentChecker;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertyTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.util.KeyExtractorFactory;
@@ -81,17 +82,19 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
     private boolean allowChangingInternallyManaged = false;
 
     public VocabularyBO(final IDAOFactory daoFactory, final Session session,
-            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, 
+            DataSetTypeWithoutExperimentChecker dataSetTypeChecker)
     {
-        super(daoFactory, session, managedPropertyEvaluatorFactory);
+        super(daoFactory, session, managedPropertyEvaluatorFactory, dataSetTypeChecker);
     }
 
     // For tests only
     @Private
     VocabularyBO(final IDAOFactory daoFactory, final Session session, VocabularyPE vocabulary,
-            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, 
+            DataSetTypeWithoutExperimentChecker dataSetTypeChecker)
     {
-        super(daoFactory, session, managedPropertyEvaluatorFactory);
+        super(daoFactory, session, managedPropertyEvaluatorFactory, dataSetTypeChecker);
         vocabularyPE = vocabulary;
     }
 

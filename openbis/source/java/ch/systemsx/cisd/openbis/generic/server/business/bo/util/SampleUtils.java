@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo.util;
 
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
@@ -27,24 +25,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
  */
 public class SampleUtils
 {
-    public static final void checkSampleWithoutDatasets(IDataDAO dataDAO, SamplePE sample)
-    {
-        if (hasDatasets(dataDAO, sample))
-        {
-            throw UserFailureException
-                    .fromTemplate(
-                            "Operation cannot be performed, because some datasets have been already produced for the sample '%s'.",
-                            sample.getSampleIdentifier());
-        }
-    }
-
-    public static boolean hasDatasets(IDataDAO dataDAO, SamplePE sample)
-    {
-        assert sample != null;
-
-        return dataDAO.hasDataSet(sample);
-    }
-
     /** for all experiment samples which belonged to a space the specified space will be set */
     public static void setSamplesSpace(ExperimentPE experiment, SpacePE space)
     {

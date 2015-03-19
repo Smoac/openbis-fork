@@ -25,6 +25,7 @@ import org.springframework.dao.DataRetrievalFailureException;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.util.DataSetTypeWithoutExperimentChecker;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroupUpdates;
@@ -55,16 +56,18 @@ public class AuthorizationGroupBO extends AbstractBusinessObject implements IAut
     @Private
     AuthorizationGroupBO(IDAOFactory daoFactory, Session session,
             IAuthorizationGroupFactory factory,
-            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, 
+            DataSetTypeWithoutExperimentChecker dataSetTypeChecker)
     {
-        super(daoFactory, session, managedPropertyEvaluatorFactory);
+        super(daoFactory, session, managedPropertyEvaluatorFactory, dataSetTypeChecker);
         this.groupFactory = factory;
     }
 
     public AuthorizationGroupBO(IDAOFactory daoFactory, Session session,
-            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, 
+            DataSetTypeWithoutExperimentChecker dataSetTypeChecker)
     {
-        this(daoFactory, session, new AuthorizationGroupFactory(), managedPropertyEvaluatorFactory);
+        this(daoFactory, session, new AuthorizationGroupFactory(), managedPropertyEvaluatorFactory, dataSetTypeChecker);
     }
 
     interface IAuthorizationGroupFactory

@@ -997,7 +997,7 @@ public final class SampleBOTest extends AbstractBOTest
     private final SampleBO createSampleBO()
     {
         return new SampleBO(daoFactory, EXAMPLE_SESSION, propertiesConverter, relationshipService,
-                entityOperationChecker, managedPropertyEvaluatorFactory);
+                entityOperationChecker, managedPropertyEvaluatorFactory, null);
     }
 
     private SampleType createSampleType(final String sampleTypeCode)

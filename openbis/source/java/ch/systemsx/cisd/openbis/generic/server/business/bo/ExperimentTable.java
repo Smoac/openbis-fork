@@ -30,6 +30,7 @@ import org.springframework.dao.DataAccessException;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.util.DataSetTypeWithoutExperimentChecker;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertiesConverter;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentDAO;
@@ -71,16 +72,18 @@ public final class ExperimentTable extends AbstractBusinessObject implements IEx
 
     ExperimentTable(final IDAOFactory daoFactory, final Session session,
             IEntityPropertiesConverter converter,
-            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, 
+            DataSetTypeWithoutExperimentChecker dataSetTypeChecker)
     {
-        super(daoFactory, session, converter, managedPropertyEvaluatorFactory);
+        super(daoFactory, session, converter, managedPropertyEvaluatorFactory, dataSetTypeChecker);
     }
 
     public ExperimentTable(final IDAOFactory daoFactory, final Session session,
             IRelationshipService relationshipService,
-            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, 
+            DataSetTypeWithoutExperimentChecker dataSetTypeChecker)
     {
-        super(daoFactory, session, EntityKind.EXPERIMENT, managedPropertyEvaluatorFactory);
+        super(daoFactory, session, EntityKind.EXPERIMENT, managedPropertyEvaluatorFactory, dataSetTypeChecker);
         this.relationshipService = relationshipService;
     }
 

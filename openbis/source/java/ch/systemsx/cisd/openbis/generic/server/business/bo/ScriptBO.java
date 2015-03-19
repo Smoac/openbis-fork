@@ -22,6 +22,7 @@ import org.springframework.dao.DataRetrievalFailureException;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.jython.evaluator.EvaluatorException;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.util.DataSetTypeWithoutExperimentChecker;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IScriptDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.JythonDynamicPropertyCalculator;
@@ -53,19 +54,22 @@ public final class ScriptBO extends AbstractBusinessObject implements IScriptBO
     private final IJythonEvaluatorPool jythonEvaluatorPool;
 
     public ScriptBO(final IDAOFactory daoFactory, final Session session,
-            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory,
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, 
+            DataSetTypeWithoutExperimentChecker dataSetTypeChecker,
             IJythonEvaluatorPool jythonEvaluationPool)
     {
-        this(daoFactory, session, new ScriptFactory(), managedPropertyEvaluatorFactory, jythonEvaluationPool);
+        this(daoFactory, session, new ScriptFactory(), managedPropertyEvaluatorFactory, dataSetTypeChecker,
+                jythonEvaluationPool);
     }
 
     @Private
     // for testing
     ScriptBO(final IDAOFactory daoFactory, final Session session, IScriptFactory scriptFactory,
-            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory,
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, 
+            DataSetTypeWithoutExperimentChecker dataSetTypeChecker,
             IJythonEvaluatorPool jythonEvaluationPool)
     {
-        super(daoFactory, session, managedPropertyEvaluatorFactory);
+        super(daoFactory, session, managedPropertyEvaluatorFactory, dataSetTypeChecker);
         this.scriptFactory = scriptFactory;
         this.jythonEvaluatorPool = jythonEvaluationPool;
     }

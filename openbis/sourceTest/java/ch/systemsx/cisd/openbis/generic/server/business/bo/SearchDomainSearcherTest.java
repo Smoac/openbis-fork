@@ -390,7 +390,7 @@ public class SearchDomainSearcherTest extends AbstractBOTest
     private SearchDomainSearcher createSearcher()
     {
         return new SearchDomainSearcher(daoFactory, ManagerTestTool.EXAMPLE_SESSION,
-                managedPropertyEvaluatorFactory, dssFactory);
+                managedPropertyEvaluatorFactory, null, dssFactory);
     }
 
     protected List<String> getPermIds(final IPermIdHolder... permIdHolders)

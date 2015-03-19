@@ -30,8 +30,8 @@ import java.util.Stack;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.IEntityOperationChecker;
 import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.util.DataSetTypeWithoutExperimentChecker;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleOwner;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertiesConverter;
@@ -81,9 +81,10 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
     AbstractSampleBusinessObject(final IDAOFactory daoFactory, final Session session,
             IRelationshipService relationshipService,
             IEntityOperationChecker entityOperationChecker,
-            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, 
+            DataSetTypeWithoutExperimentChecker dataSetTypeChecker)
     {
-        super(daoFactory, session, EntityKind.SAMPLE, managedPropertyEvaluatorFactory);
+        super(daoFactory, session, EntityKind.SAMPLE, managedPropertyEvaluatorFactory, dataSetTypeChecker);
         this.relationshipService = relationshipService;
         this.entityOperationChecker = entityOperationChecker;
     }
@@ -92,9 +93,10 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
             final IEntityPropertiesConverter entityPropertiesConverter,
             IRelationshipService relationshipService,
             IEntityOperationChecker entityOperationChecker,
-            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, 
+            DataSetTypeWithoutExperimentChecker dataSetTypeChecker)
     {
-        super(daoFactory, session, entityPropertiesConverter, managedPropertyEvaluatorFactory);
+        super(daoFactory, session, entityPropertiesConverter, managedPropertyEvaluatorFactory, dataSetTypeChecker);
         this.relationshipService = relationshipService;
         this.entityOperationChecker = entityOperationChecker;
     }
@@ -422,7 +424,6 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
     {
         String spaceCode = projectIdentifier.getSpaceCode();
         String projectCode = projectIdentifier.getProjectCode();
-        String databaseInstanceCode = projectIdentifier.getDatabaseInstanceCode();
         ProjectPE project =
                 getProjectDAO().tryFindProject(spaceCode, projectCode);
         if (project == null)
@@ -495,11 +496,11 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
         SampleGenericBusinessRules.assertValidComponents(sample);
     }
 
-    protected boolean hasDatasets(IDataDAO dataDAO, SamplePE sample)
+    private boolean hasDatasets(IDataDAO dataDAO, SamplePE sample)
     {
         // If we just added new data sets in this BO, they won't have data sets, so no need to
         // check.
-        return (onlyNewSamples == false) && SampleUtils.hasDatasets(dataDAO, sample);
+        return (onlyNewSamples == false) && hasDatasets2(dataDAO, sample);
     }
 
     protected boolean updateSpace(SamplePE sample, SampleIdentifier sampleOwnerIdentifier,

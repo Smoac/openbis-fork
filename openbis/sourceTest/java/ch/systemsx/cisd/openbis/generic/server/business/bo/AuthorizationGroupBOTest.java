@@ -49,7 +49,7 @@ public final class AuthorizationGroupBOTest extends AbstractBOTest
     private final AuthorizationGroupBO createBO()
     {
         return new AuthorizationGroupBO(daoFactory, ManagerTestTool.EXAMPLE_SESSION, groupFactory,
-                managedPropertyEvaluatorFactory);
+                managedPropertyEvaluatorFactory, null);
     }
 
     @Test(expectedExceptions = AssertionError.class)

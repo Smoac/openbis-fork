@@ -55,7 +55,7 @@ public final class ProjectBOTest extends AbstractBOTest
     private final ProjectBO createProjectBO()
     {
         return new ProjectBO(daoFactory, ManagerTestTool.EXAMPLE_SESSION, relationshipService,
-                managedPropertyEvaluatorFactory);
+                managedPropertyEvaluatorFactory, null);
     }
 
     @Test

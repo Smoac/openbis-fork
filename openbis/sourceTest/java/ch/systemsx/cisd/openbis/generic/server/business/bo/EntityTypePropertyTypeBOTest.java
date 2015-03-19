@@ -233,7 +233,7 @@ public final class EntityTypePropertyTypeBOTest extends AbstractBOTest
     private final EntityTypePropertyTypeBO createEntityTypePropertyTypeBO(EntityKind entityKind)
     {
         return new EntityTypePropertyTypeBO(daoFactory, EXAMPLE_SESSION, entityKind,
-                propertiesConverter, managedPropertyEvaluatorFactory);
+                propertiesConverter, managedPropertyEvaluatorFactory, null);
     }
 
 }

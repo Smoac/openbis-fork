@@ -59,8 +59,6 @@ public abstract class AbstractDataSetBusinessObject extends AbstractSampleIdenti
 
     protected IRelationshipService relationshipService;
 
-    protected DataSetTypeWithoutExperimentChecker dataSetTypeChecker;
-    
     private IServiceConversationClientManagerLocal conversationClient;
 
     public AbstractDataSetBusinessObject(IDAOFactory daoFactory, Session session,
@@ -69,10 +67,9 @@ public abstract class AbstractDataSetBusinessObject extends AbstractSampleIdenti
             IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, 
             DataSetTypeWithoutExperimentChecker dataSetTypeChecker)
     {
-        super(daoFactory, session, EntityKind.DATA_SET, managedPropertyEvaluatorFactory);
+        super(daoFactory, session, EntityKind.DATA_SET, managedPropertyEvaluatorFactory, dataSetTypeChecker);
         this.relationshipService = relationshipService;
         this.conversationClient = conversationClient;
-        this.dataSetTypeChecker = dataSetTypeChecker;
     }
 
     public AbstractDataSetBusinessObject(IDAOFactory daoFactory, Session session,
@@ -82,10 +79,9 @@ public abstract class AbstractDataSetBusinessObject extends AbstractSampleIdenti
             IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, 
             DataSetTypeWithoutExperimentChecker dataSetTypeChecker)
     {
-        super(daoFactory, session, entityPropertiesConverter, managedPropertyEvaluatorFactory);
+        super(daoFactory, session, entityPropertiesConverter, managedPropertyEvaluatorFactory, dataSetTypeChecker);
         this.relationshipService = relationshipService;
         this.conversationClient = conversationClient;
-        this.dataSetTypeChecker = dataSetTypeChecker;
     }
 
     protected void enrichWithParentsAndExperiment(DataPE dataPE)

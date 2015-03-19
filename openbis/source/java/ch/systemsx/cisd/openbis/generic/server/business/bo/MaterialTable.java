@@ -28,6 +28,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.util.DataSetTypeWithoutExperimentChecker;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertiesConverter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -57,18 +58,21 @@ public final class MaterialTable extends AbstractMaterialBusinessObject implemen
     private boolean dataChanged;
 
     public MaterialTable(final IDAOFactory daoFactory, final Session session,
-            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, 
+            DataSetTypeWithoutExperimentChecker dataSetTypeChecker)
     {
-        super(daoFactory, session, managedPropertyEvaluatorFactory);
+        super(daoFactory, session, managedPropertyEvaluatorFactory, dataSetTypeChecker);
     }
 
     @Private
     // for tests only
     MaterialTable(final IDAOFactory daoFactory, final Session session,
             final IEntityPropertiesConverter entityPropertiesConverter, List<MaterialPE> materials,
-            boolean dataChanged, IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
+            boolean dataChanged, IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, 
+            DataSetTypeWithoutExperimentChecker dataSetTypeChecker)
     {
-        super(daoFactory, session, entityPropertiesConverter, managedPropertyEvaluatorFactory);
+        super(daoFactory, session, entityPropertiesConverter, managedPropertyEvaluatorFactory, 
+                dataSetTypeChecker);
         this.materials = materials;
         this.dataChanged = dataChanged;
     }

@@ -40,7 +40,7 @@ public class EntityTypeBOTest extends AbstractBOTest
     {
         final String sampleTypeCode = "SAMPLE_TYPE";
         final IEntityTypeBO entityTypeBO =
-                new EntityTypeBO(daoFactory, EXAMPLE_SESSION, managedPropertyEvaluatorFactory);
+                new EntityTypeBO(daoFactory, EXAMPLE_SESSION, managedPropertyEvaluatorFactory, null);
         final EntityKind entityKind = EntityKind.SAMPLE;
         final SampleTypePE sampleType =
                 new SampleTypePEBuilder().id(1).code(sampleTypeCode).getSampleType();

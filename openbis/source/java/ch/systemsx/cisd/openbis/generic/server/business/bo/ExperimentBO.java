@@ -29,6 +29,7 @@ import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.collection.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.util.DataSetTypeWithoutExperimentChecker;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertiesConverter;
@@ -90,17 +91,19 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
 
     public ExperimentBO(final IDAOFactory daoFactory, final Session session,
             IRelationshipService relationshipService,
-            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, 
+            DataSetTypeWithoutExperimentChecker dataSetTypeChecker)
     {
-        super(daoFactory, session, EntityKind.EXPERIMENT, managedPropertyEvaluatorFactory);
+        super(daoFactory, session, EntityKind.EXPERIMENT, managedPropertyEvaluatorFactory, dataSetTypeChecker);
         this.relationshipService = relationshipService;
     }
 
     ExperimentBO(final IDAOFactory daoFactory, final Session session,
             final IEntityPropertiesConverter entityPropertiesConverter,
-            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, 
+            DataSetTypeWithoutExperimentChecker dataSetTypeChecker)
     {
-        super(daoFactory, session, entityPropertiesConverter, managedPropertyEvaluatorFactory);
+        super(daoFactory, session, entityPropertiesConverter, managedPropertyEvaluatorFactory, dataSetTypeChecker);
     }
 
     @SuppressWarnings("unused")
@@ -514,7 +517,7 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
     {
         for (SamplePE sample : samples)
         {
-            SampleUtils.checkSampleWithoutDatasets(getDataDAO(), sample);
+            checkSampleWithoutDatasets(getDataDAO(), sample);
 
             relationshipService.unassignSampleFromExperiment(session, sample);
         }
