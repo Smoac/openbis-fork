@@ -148,22 +148,25 @@ def isValid(dataType, value):
 ##
 ## Registration form (EXPERIMENTAL)
 ##
-# def showRawValueInForms():
-#     return False
-# 
+
 # def inputWidgets():
+#     print "EXECUTING inputWidgets START"
 #     widgetsToCopyFrom = []
-#     toCopyFrom = configurationCopyParents[annotableType]
-#     if(toCopyFrom is not None):
-#         for key in toCopyFrom:
-#             widgetsToCopyFrom.append(inputWidgetFactory().createTextInputField(key + " to copy " + toCopyFrom[key]).setMandatory(False))
+#     if annotableType in configurationCopyParents:
+#         toCopyFrom = configurationCopyParents[annotableType]
+#         if(toCopyFrom is not None):
+#             for key in toCopyFrom:
+#                 widgetLabel = key + " to copy " + toCopyFrom[key]
+#                 print "EXECUTING inputWidgets key: " + widgetLabel
+#                 widgetToCopyFrom = inputWidgetFactory().createTextInputField(widgetLabel).setMandatory(False)
+#                 widgetsToCopyFrom.append(widgetToCopyFrom)
 #     print "EXECUTING inputWidgets " + str(len(widgetsToCopyFrom))
 #     return widgetsToCopyFrom
 # 
 # def updateFromRegistrationForm(bindings):
-#     print "EXECUTING updateFromRegistrationForm"
-#     for key, value in bindings:
-#         print "MANAGED WITH KEY: " + key
+#     print "EXECUTING updateFromaRegistrationForm"
+#     for key in bindings:
+#         print "MANAGED WITH KEY: " + str(key)
 
 ##
 ## Main Methods
