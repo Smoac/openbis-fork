@@ -80,7 +80,7 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 		
 		xmlDoc	+= "</root>";
 		
-//		$("#ANNOTATIONS_STATE").val(xmlDoc);
+		$("#ANNOTATIONS_STATE").val(xmlDoc);
 		
 		//Compatibility mode for refactored sample form
 		if(mainController.currentView._sampleFormModel) {
@@ -579,13 +579,16 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 						item.children()[0].checked = sampleState[propertyTypeCode] === "true";
 					} else {
 						item.val(sampleState[propertyTypeCode]);
-						if(this.isDisabled) {
-							item.after(sampleState[propertyTypeCode]);
-							item.hide();
-						}
+					}
+					
+					if(this.isDisabled) {
+						item.after(sampleState[propertyTypeCode]);
 					}
 				}
-				if(!this.isDisabled) {
+				
+				if(this.isDisabled && propertyTypeCode) {
+					item.hide();
+				} else if(!this.isDisabled) {
 					item.prop("disabled", false);
 				}
 			}
