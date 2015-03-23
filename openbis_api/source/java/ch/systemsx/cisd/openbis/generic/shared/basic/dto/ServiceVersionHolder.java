@@ -23,5 +23,5 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
  */
 public final class ServiceVersionHolder
 {
-    public static final int VERSION = 36; // for S190
+    public static final int VERSION = 35; // do not change, because it breaks API V1/V2
 }

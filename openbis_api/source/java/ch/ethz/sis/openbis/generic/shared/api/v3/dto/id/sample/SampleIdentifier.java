@@ -29,7 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 public class SampleIdentifier extends ObjectIdentifier implements ISampleId
 {
 
-    private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+    private static final long serialVersionUID = 1L;
 
     /**
      * @param identifier Sample identifier, e.g. "/MY_SPACE/MY_SAMPLE" (space sample) or "/MY_SAMPLE" (shared sample)
