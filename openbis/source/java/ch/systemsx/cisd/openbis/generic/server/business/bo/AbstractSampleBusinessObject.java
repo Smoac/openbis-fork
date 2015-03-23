@@ -61,6 +61,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFa
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
+import ch.systemsx.cisd.openbis.generic.shared.util.EntityHelper;
 import ch.systemsx.cisd.openbis.generic.shared.util.RelationshipUtils;
 
 /**
@@ -461,7 +462,9 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
         ExperimentPE experiment = sample.getExperiment();
         if (experiment == null)
         {
-            checkSampleWithoutDatasets(sample);
+            String sampleIdentifier = sample.getIdentifier();
+            ArrayList<DataPE> dataSets = new ArrayList<DataPE>(sample.getDatasets());
+            checkDataSetsDoNotNeedAnExperiment(sampleIdentifier, dataSets);
         }
         if (hasDatasets(sample) && sample.getSpace() == null)
         {
@@ -535,33 +538,13 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
         {
             return;
         }
-
-        changeExperiment(sample, expIdentifierOrNull, experimentCacheOrNull);
-    }
-
-    private void removeFromExperiment(SamplePE sample)
-    {
-        if (hasDatasets(sample))
-        {
-            throw UserFailureException.fromTemplate(
-                    "Cannot detach the sample '%s' from the experiment "
-                            + "because there are already datasets attached to the sample.",
-                    sample.getIdentifier());
-        }
-
-        relationshipService.unassignSampleFromExperiment(session, sample);
-    }
-
-    private void changeExperiment(SamplePE sample, ExperimentIdentifier identifierOrNull,
-            Map<String, ExperimentPE> experimentCacheOrNull)
-    {
-        ExperimentPE newExperiment = identifierOrNull == null ? null :
-                tryFindExperiment(experimentCacheOrNull, identifierOrNull.toString(), null);
-        if (isExperimentUnchanged(newExperiment, sample.getExperiment()))
+        ExperimentPE newExperiment = expIdentifierOrNull == null ? null :
+                tryFindExperiment(experimentCacheOrNull, expIdentifierOrNull.toString(), null);
+        if (EntityHelper.equalEntities(newExperiment, sample.getExperiment()))
         {
             return;
         }
-        ensureExperimentIsValid(identifierOrNull, newExperiment, sample);
+        ensureExperimentIsValid(expIdentifierOrNull, newExperiment, sample);
         ensureSampleAttachableToExperiment(sample, newExperiment);
 
         assignSampleAndRelatedDataSetsToExperiment(sample, newExperiment);
@@ -587,13 +570,6 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
                             + "because the experiment has been deleted.",
                     sample.getSampleIdentifier(), identOrNull);
         }
-    }
-
-    private boolean isExperimentUnchanged(ExperimentPE newExperimentOrNull,
-            ExperimentPE experimentOrNull)
-    {
-        return experimentOrNull == null ? newExperimentOrNull == null : experimentOrNull
-                .equals(newExperimentOrNull);
     }
 
     /**
