@@ -436,7 +436,7 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
             Map<EntityTypePE, List<EntityTypePropertyTypePE>> cacheOrNull, boolean spaceUpdated)
     {
         checkPropertiesBusinessRules(sample, cacheOrNull);
-        checkExperimentBusinessRules(dataDAO, sample);
+        checkExperimentBusinessRules(sample);
         checkParentBusinessRules(sample);
         checkContainerBusinessRules(sample);
     }
@@ -455,23 +455,16 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
         }
     }
 
-    protected void checkExperimentBusinessRules(IDataDAO dataDAO, SamplePE sample)
+    protected void checkExperimentBusinessRules(SamplePE sample)
     {
-        final boolean hasDatasets = hasDatasets(dataDAO, sample);
-        ExperimentPE experiment = sample.getExperiment();
-        if (hasDatasets && experiment == null)
-        {
-            throw UserFailureException.fromTemplate(
-                    "Cannot detach the sample '%s' from the experiment "
-                            + "because there are already datasets attached to the sample.",
-                    sample.getIdentifier());
-        }
-        if (hasDatasets && sample.getSpace() == null)
+//        checkSampleWithoutDatasets(sample);
+        if (hasDatasets(sample) && sample.getSpace() == null)
         {
             throw UserFailureException.fromTemplate("Cannot detach the sample '%s' from the space "
                     + "because there are already datasets attached to the sample.",
                     sample.getIdentifier());
         }
+        ExperimentPE experiment = sample.getExperiment();
         if (experiment != null
                 && (sample.getSpace() == null || experiment.getProject().getSpace()
                         .equals(sample.getSpace()) == false))
@@ -494,11 +487,11 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
         SampleGenericBusinessRules.assertValidComponents(sample);
     }
 
-    private boolean hasDatasets(IDataDAO dataDAO, SamplePE sample)
+    private boolean hasDatasets(SamplePE sample)
     {
         // If we just added new data sets in this BO, they won't have data sets, so no need to
         // check.
-        return (onlyNewSamples == false) && hasDatasets2(dataDAO, sample);
+        return (onlyNewSamples == false) && hasDatasets2(getDataDAO(), sample);
     }
 
     protected boolean updateSpace(SamplePE sample, SampleIdentifier sampleOwnerIdentifier,
@@ -539,18 +532,12 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
             return;
         }
 
-        if (expIdentifierOrNull != null)
-        {
-            changeExperiment(sample, expIdentifierOrNull, experimentCacheOrNull);
-        } else
-        {
-            removeFromExperiment(sample);
-        }
+        changeExperiment(sample, expIdentifierOrNull, experimentCacheOrNull);
     }
 
     private void removeFromExperiment(SamplePE sample)
     {
-        if (hasDatasets(getDataDAO(), sample))
+        if (hasDatasets(sample))
         {
             throw UserFailureException.fromTemplate(
                     "Cannot detach the sample '%s' from the experiment "
@@ -561,19 +548,19 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
         relationshipService.unassignSampleFromExperiment(session, sample);
     }
 
-    private void changeExperiment(SamplePE sample, ExperimentIdentifier identifier,
+    private void changeExperiment(SamplePE sample, ExperimentIdentifier identifierOrNull,
             Map<String, ExperimentPE> experimentCacheOrNull)
     {
-        ExperimentPE newExperiment =
-                tryFindExperiment(experimentCacheOrNull, identifier.toString(), null);
+        ExperimentPE newExperiment = identifierOrNull == null ? null :
+                tryFindExperiment(experimentCacheOrNull, identifierOrNull.toString(), null);
         if (isExperimentUnchanged(newExperiment, sample.getExperiment()))
         {
             return;
         }
-        ensureExperimentIsValid(identifier, newExperiment, sample);
+        ensureExperimentIsValid(identifierOrNull, newExperiment, sample);
         ensureSampleAttachableToExperiment(sample);
 
-        relationshipService.assignSampleToExperiment(session, sample, newExperiment);
+        assignSampleAndRelatedDataSetsToExperiment(sample, newExperiment);
     }
 
     private void ensureSampleAttachableToExperiment(SamplePE sample)

@@ -23,7 +23,6 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.RelationshipUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.DAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetRelationshipPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
@@ -34,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.RelationshipTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleRelationshipPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
+import ch.systemsx.cisd.openbis.generic.shared.util.EntityHelper;
 
 /**
  * The unique {@link IRelationshipService} implementation.
@@ -95,11 +95,6 @@ public class RelationshipService implements IRelationshipService
         sample.setExperiment(experiment);
         RelationshipUtils.updateModificationDateAndModifier(sample, session);
         RelationshipUtils.updateModificationDateAndModifier(experiment, session);
-
-        for (DataPE dataset : sample.getDatasets())
-        {
-            service.assignDataSetToExperiment(session, dataset, experiment);
-        }
     }
 
     @Override
@@ -150,7 +145,7 @@ public class RelationshipService implements IRelationshipService
     public void assignDataSetToSample(IAuthSession session, DataPE data, SamplePE sample)
     {
         SamplePE currentSample = data.tryGetSample();
-        if (equalEntities(currentSample, sample))
+        if (EntityHelper.equalEntities(currentSample, sample))
         {
             return;
         }
@@ -275,18 +270,6 @@ public class RelationshipService implements IRelationshipService
     private RelationshipTypePE getParentChildRelationshipType()
     {
         return RelationshipUtils.getParentChildRelationshipType(daoFactory.getRelationshipTypeDAO());
-    }
-
-    private static <T extends IIdHolder >boolean equalEntities(T entity1OrNull, T entity2OrNull)
-    {
-        Long id1 = getIdOrNull(entity1OrNull);
-        Long id2 = getIdOrNull(entity2OrNull);
-        return id1 == null ? id1 == id2 : id1.equals(id2);
-    }
-
-    private static Long getIdOrNull(IIdHolder idHolderOrNull)
-    {
-        return idHolderOrNull == null ? null : idHolderOrNull.getId();
     }
 
 }

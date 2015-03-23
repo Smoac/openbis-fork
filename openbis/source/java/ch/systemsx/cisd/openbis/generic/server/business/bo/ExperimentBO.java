@@ -534,7 +534,7 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
     {
         for (SamplePE sample : samples)
         {
-            relationshipService.assignSampleToExperiment(session, sample, experiment);
+            assignSampleAndRelatedDataSetsToExperiment(sample, experiment);
         }
     }
 

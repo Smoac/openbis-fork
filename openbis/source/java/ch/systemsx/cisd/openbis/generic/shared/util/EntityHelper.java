@@ -25,6 +25,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
@@ -53,6 +54,21 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFa
  */
 public class EntityHelper
 {
+    /**
+     * Returns <code>true</code> if both entities are <code>null</code> or have the same id (which could be <code>null</code>).
+     */
+    public static <T extends IIdHolder >boolean equalEntities(T entity1OrNull, T entity2OrNull)
+    {
+        Long id1 = getIdOrNull(entity1OrNull);
+        Long id2 = getIdOrNull(entity2OrNull);
+        return id1 == null ? id1 == id2 : id1.equals(id2);
+    }
+
+    private static Long getIdOrNull(IIdHolder idHolderOrNull)
+    {
+        return idHolderOrNull == null ? null : idHolderOrNull.getId();
+    }
+    
     /**
      * Creates {@link EntityType} appropriate for given {@link EntityKind}.
      */

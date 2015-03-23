@@ -31,10 +31,10 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.server.business.IServiceConversationClientManagerLocal;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.DataSetTypeWithoutExperimentChecker;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertiesConverter;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetRelationshipPE;
@@ -111,95 +111,9 @@ public abstract class AbstractDataSetBusinessObject extends AbstractSampleIdenti
         }
         if (newSample.getSpace() == null)
         {
-            throw createWrongSampleException(data, newSample, "the new sample is shared");
+            throw SampleUtils.createWrongSampleException(data, newSample, "the new sample is shared");
         }
         assignDataSetToSampleAndExperiment(data, newSample, newSample.getExperiment());
-    }
-
-    private void assignDataSetToSampleAndExperiment(DataPE data, SamplePE newSample, ExperimentPE experiment)
-    {
-        List<DataSetSampleExperiment> assignments = new ArrayList<DataSetSampleExperiment>();
-        gatherNewAssigments(assignments, data, data, newSample, experiment);
-        for (DataSetSampleExperiment assignment : assignments)
-        {
-            assignment.assignDataSet(relationshipService, session);
-        }
-    }
-    
-    private void gatherNewAssigments(List<DataSetSampleExperiment> assignments, 
-            DataPE dataSet, DataPE rootDataSet, SamplePE sample, ExperimentPE experiment)
-    {
-        String dataSetTypeCode = dataSet.getDataSetType().getCode();
-        if (experiment == null && dataSetTypeChecker.isDataSetTypeWithoutExperiment(dataSetTypeCode) == false)
-        {
-            throw createWrongSampleException(dataSet, sample,
-                    "the new sample is not connected to any experiment and the data set type ("
-                            + dataSetTypeCode + ") doesn't match one of the following regular expressions: "
-                            + dataSetTypeChecker.getRegularExpressions());
-        }
-        if (rootDataSet == dataSet)
-        {
-            assignments.add(new DataSetSampleExperiment(dataSet, sample, experiment));
-        }
-        SamplePE rootSample = rootDataSet.tryGetSample();
-        ExperimentPE rootExperiment = getExperimentOf(rootDataSet);
-        List<DataPE> components = dataSet.getContainedDataSets();
-        for (DataPE component : components)
-        {
-            SamplePE componentSample = component.tryGetSample();
-            ExperimentPE componentExperiment = getExperimentOf(component);
-            if ((equalEntities(rootSample, componentSample) || componentSample == null)
-                    && equalEntities(rootExperiment, componentExperiment))
-            {
-                SamplePE newSample = componentSample == null && experiment != null? null : sample;
-                assignments.add(new DataSetSampleExperiment(component, newSample, experiment));
-                gatherNewAssigments(assignments, component, rootDataSet, sample, experiment);
-            }
-        }
-    }
-    
-    private ExperimentPE getExperimentOf(DataPE data)
-    {
-        SamplePE sample = data.tryGetSample();
-        return sample == null ? data.getExperiment() : sample.getExperiment();
-    }
-    
-    private static <T extends IIdHolder >boolean equalEntities(T entity1OrNull, T entity2OrNull)
-    {
-        Long id1 = getIdOrNull(entity1OrNull);
-        Long id2 = getIdOrNull(entity2OrNull);
-        return id1 == null ? id1 == id2 : id1.equals(id2);
-    }
-
-    private static Long getIdOrNull(IIdHolder idHolderOrNull)
-    {
-        return idHolderOrNull == null ? null : idHolderOrNull.getId();
-    }
-
-    private static final class DataSetSampleExperiment
-    {
-        private DataPE dataSet;
-        private SamplePE sample;
-        private ExperimentPE experiment;
-
-        DataSetSampleExperiment(DataPE dataSet, SamplePE sample, ExperimentPE experiment)
-        {
-            this.dataSet = dataSet;
-            this.sample = sample;
-            this.experiment = experiment;
-        }
-
-        public void assignDataSet(IRelationshipService relationshipService, Session session)
-        {
-            if (equalEntities(dataSet.tryGetSample(), sample) == false)
-            {
-                relationshipService.assignDataSetToSample(session, dataSet, sample);
-            }
-            if (equalEntities(dataSet.getExperiment(), experiment) == false)
-            {
-                relationshipService.assignDataSetToExperiment(session, dataSet, experiment);
-            }
-        }
     }
 
     protected void updateExperiment(DataPE data, ExperimentIdentifier experimentIdentifier)
@@ -532,14 +446,6 @@ public abstract class AbstractDataSetBusinessObject extends AbstractSampleIdenti
     protected static Set<String> asSet(List<String> objects)
     {
         return new LinkedHashSet<String>(objects); // keep the ordering
-    }
-
-    private UserFailureException createWrongSampleException(DataPE data, SamplePE sample,
-            String reason)
-    {
-        return UserFailureException.fromTemplate(
-                "The dataset '%s' cannot be connected to the sample '%s'" + " because %s.",
-                data.getCode(), sample.getIdentifier(), reason);
     }
 
     public IRelationshipService getRelationshipService()

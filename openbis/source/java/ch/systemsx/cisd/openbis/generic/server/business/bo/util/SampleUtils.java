@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo.util;
 
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
@@ -35,6 +37,14 @@ public class SampleUtils
                 sample.setSpace(space);
             }
         }
+    }
+
+    public static UserFailureException createWrongSampleException(DataPE data, SamplePE sample,
+            String reason)
+    {
+        return UserFailureException.fromTemplate(
+                "The dataset '%s' cannot be connected to the sample '%s' because %s.",
+                data.getCode(), sample.getIdentifier(), reason);
     }
 
 }

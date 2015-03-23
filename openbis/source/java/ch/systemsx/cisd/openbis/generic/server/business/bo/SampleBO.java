@@ -240,7 +240,7 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
         checkSampleUnused(sample);
         checkSampleWithoutDatasets(sample);
 
-        this.relationshipService.assignSampleToExperiment(session, sample, experiment);
+        assignSampleAndRelatedDataSetsToExperiment(sample, experiment);
         try
         {
             getSampleDAO().updateSample(sample, findPerson());

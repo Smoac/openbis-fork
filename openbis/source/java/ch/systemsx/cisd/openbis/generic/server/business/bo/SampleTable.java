@@ -280,7 +280,7 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
         {
             updateSpace(sample, updates.getSampleIdentifier(), sampleOwnerCache);
             updateExperiment(sample, updates.getExperimentIdentifierOrNull(), experimentCache);
-            checkExperimentBusinessRules(getDataDAO(), sample);
+            checkExperimentBusinessRules(sample);
         }
         if (details.isParentsUpdateRequested())
         {
@@ -333,7 +333,7 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
         if (updates.isUpdateExperimentLink())
         {
             updateExperiment(sample, updates.getExperimentIdentifierOrNull(), experimentCache);
-            checkExperimentBusinessRules(getDataDAO(), sample);
+            checkExperimentBusinessRules(sample);
         }
 
         boolean parentsUpdated = updateParents(sample, updates);
