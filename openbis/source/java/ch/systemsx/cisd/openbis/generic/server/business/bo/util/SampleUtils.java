@@ -44,7 +44,7 @@ public class SampleUtils
     {
         return UserFailureException.fromTemplate(
                 "The dataset '%s' cannot be connected to the sample '%s' because %s.",
-                data.getCode(), sample.getIdentifier(), reason);
+                data.getCode(), sample == null ? "?" : sample.getIdentifier(), reason);
     }
 
 }

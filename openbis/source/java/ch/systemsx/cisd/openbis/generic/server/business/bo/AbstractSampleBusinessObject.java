@@ -40,6 +40,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
@@ -457,14 +458,17 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
 
     protected void checkExperimentBusinessRules(SamplePE sample)
     {
-//        checkSampleWithoutDatasets(sample);
+        ExperimentPE experiment = sample.getExperiment();
+        if (experiment == null)
+        {
+            checkSampleWithoutDatasets(sample);
+        }
         if (hasDatasets(sample) && sample.getSpace() == null)
         {
             throw UserFailureException.fromTemplate("Cannot detach the sample '%s' from the space "
                     + "because there are already datasets attached to the sample.",
                     sample.getIdentifier());
         }
-        ExperimentPE experiment = sample.getExperiment();
         if (experiment != null
                 && (sample.getSpace() == null || experiment.getProject().getSpace()
                         .equals(sample.getSpace()) == false))
@@ -558,14 +562,14 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
             return;
         }
         ensureExperimentIsValid(identifierOrNull, newExperiment, sample);
-        ensureSampleAttachableToExperiment(sample);
+        ensureSampleAttachableToExperiment(sample, newExperiment);
 
         assignSampleAndRelatedDataSetsToExperiment(sample, newExperiment);
     }
 
-    private void ensureSampleAttachableToExperiment(SamplePE sample)
+    private void ensureSampleAttachableToExperiment(SamplePE sample, ExperimentPE newExperiment)
     {
-        if (sample.getSpace() == null)
+        if (sample.getSpace() == null && newExperiment != null)
         {
             throw UserFailureException.fromTemplate(
                     "It is not allowed to connect a shared sample '%s' to the experiment.",
