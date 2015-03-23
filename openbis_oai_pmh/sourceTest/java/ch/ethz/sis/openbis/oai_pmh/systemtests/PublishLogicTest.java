@@ -105,7 +105,9 @@ public class PublishLogicTest extends OAIPMHSystemTest
     @Test
     public void testPublishExperimentWithPhysicalDataSet()
     {
-        Experiment originalExperiment = createExperiment("EXPERIMENT_TO_PUBLISH_1");
+        // DS(E)
+
+        Experiment originalExperiment = createExperiment();
         DataSet originalPhysical = createPhysicalDataSet(originalExperiment);
 
         Publication publication = publication(originalExperiment.getIdentifier());
@@ -121,7 +123,9 @@ public class PublishLogicTest extends OAIPMHSystemTest
     @Test
     public void testPublishExperimentWithPhysicalDataSetWithContainer()
     {
-        Experiment originalExperiment = createExperiment("EXPERIMENT_TO_PUBLISH_2");
+        // DS(E) -> CDS(E)
+
+        Experiment originalExperiment = createExperiment();
         DataSet originalPhysical = createPhysicalDataSet(originalExperiment);
         DataSet originalContainer = createContainerDataSet(originalExperiment, originalPhysical);
 
@@ -141,8 +145,10 @@ public class PublishLogicTest extends OAIPMHSystemTest
     @Test
     public void testPublishExperimentWithPhysicalDataSetWithContainerInDifferentExperiment()
     {
-        Experiment originalExperimentWithPhysical = createExperiment("EXPERIMENT_TO_PUBLISH_3");
-        Experiment originalExperimentWithContainer = createExperiment("EXPERIMENT_TO_PUBLISH_4");
+        // DS(E1) -> CDS(E2), publish E1
+
+        Experiment originalExperimentWithPhysical = createExperiment();
+        Experiment originalExperimentWithContainer = createExperiment();
 
         DataSet originalPhysical = createPhysicalDataSet(originalExperimentWithPhysical);
         DataSet originalContainer = createContainerDataSet(originalExperimentWithContainer, originalPhysical);
@@ -163,12 +169,68 @@ public class PublishLogicTest extends OAIPMHSystemTest
     @Test
     public void testPublishExperimentWithPhysicalDataSetWithContainerWithContainer()
     {
-        Experiment originalExperiment = createExperiment("EXPERIMENT_TO_PUBLISH_5");
+        // DS(E) -> CDS(E) -> CDS(E)
+
+        Experiment originalExperiment = createExperiment();
         DataSet originalPhysical = createPhysicalDataSet(originalExperiment);
         DataSet originalContainer = createContainerDataSet(originalExperiment, originalPhysical);
         DataSet originalTopContainer = createContainerDataSet(originalExperiment, originalContainer);
 
         Publication publication = publication(originalExperiment.getIdentifier());
+        PublicationResult result = publish(adminUserSessionToken, publication);
+
+        Assert.assertEquals(result.getDataSetMapping().size(), 1);
+
+        DataSet physicalPublished = result.getPublicationDataSetFor(originalPhysical.getCode());
+        DataSet containerPublished = result.getPublicationDataSetFor(originalContainer.getCode());
+        DataSet topContainerPublished = result.getPublicationDataSetFor(originalTopContainer.getCode());
+
+        Assert.assertNull(physicalPublished);
+        Assert.assertNull(containerPublished);
+        Assert.assertEquals(topContainerPublished.getDataSetTypeCode(), originalTopContainer.getDataSetTypeCode());
+        AssertionUtil.assertCollectionContainsOnly(topContainerPublished.getContainedDataSets(), originalTopContainer);
+    }
+
+    @Test
+    public void testPublishExperimentWithPhysicalDataSetWithContainerWithContainerInDifferentExperiment()
+    {
+        // DS(E1) -> CDS(E1) -> CDS(E2), publishing E1
+
+        Experiment originalExperimentWithPhysicalAndContainer = createExperiment();
+        Experiment originalExperimentWithTopContainer = createExperiment();
+
+        DataSet originalPhysical = createPhysicalDataSet(originalExperimentWithPhysicalAndContainer);
+        DataSet originalContainer = createContainerDataSet(originalExperimentWithPhysicalAndContainer, originalPhysical);
+        DataSet originalTopContainer = createContainerDataSet(originalExperimentWithTopContainer, originalContainer);
+
+        Publication publication = publication(originalExperimentWithPhysicalAndContainer.getIdentifier());
+        PublicationResult result = publish(adminUserSessionToken, publication);
+
+        Assert.assertEquals(result.getDataSetMapping().size(), 1);
+
+        DataSet physicalPublished = result.getPublicationDataSetFor(originalPhysical.getCode());
+        DataSet containerPublished = result.getPublicationDataSetFor(originalContainer.getCode());
+        DataSet topContainerPublished = result.getPublicationDataSetFor(originalTopContainer.getCode());
+
+        Assert.assertNull(physicalPublished);
+        Assert.assertNull(topContainerPublished);
+        Assert.assertEquals(containerPublished.getDataSetTypeCode(), originalContainer.getDataSetTypeCode());
+        AssertionUtil.assertCollectionContainsOnly(containerPublished.getContainedDataSets(), originalContainer);
+    }
+
+    @Test
+    public void testPublishExperimentWithPhysicalDataSetWithContainerInDifferentExperimentWithContainerInSameExperiment()
+    {
+        // DS(E1) -> CDS(E2) -> CDS(E1), publishing E1
+
+        Experiment originalExperimentWithPhysicalAndTopContainer = createExperiment();
+        Experiment originalExperimentWithContainer = createExperiment();
+
+        DataSet originalPhysical = createPhysicalDataSet(originalExperimentWithPhysicalAndTopContainer);
+        DataSet originalContainer = createContainerDataSet(originalExperimentWithContainer, originalPhysical);
+        DataSet originalTopContainer = createContainerDataSet(originalExperimentWithPhysicalAndTopContainer, originalContainer);
+
+        Publication publication = publication(originalExperimentWithPhysicalAndTopContainer.getIdentifier());
         PublicationResult result = publish(adminUserSessionToken, publication);
 
         Assert.assertEquals(result.getDataSetMapping().size(), 1);
@@ -235,12 +297,14 @@ public class PublishLogicTest extends OAIPMHSystemTest
         return parameters;
     }
 
-    private Experiment createExperiment(String code)
+    private Experiment createExperiment()
     {
+        String permId = getServiceForDataStoreServer().createPermId(adminUserSessionToken);
+
         ExperimentCreation creation = new ExperimentCreation();
         creation.setProjectId(new ProjectIdentifier("/CISD/DEFAULT"));
         creation.setTypeId(new EntityTypePermId("SIRNA_HCS"));
-        creation.setCode(code);
+        creation.setCode(permId);
         creation.setProperty("DESCRIPTION", "some description");
 
         List<ExperimentPermId> permIds = getApplicationServerApi().createExperiments(adminUserSessionToken, Arrays.asList(creation));

@@ -339,8 +339,8 @@ def hasContainerInExperiment(tr, containerMap, dataSet, experiment):
 				log("hasContainerInExperiment - True", DEBUG)
 				return True
 			elif hasContainerInExperiment(tr, containerMap, container, experiment):
-				log("hasContainerInExperiment - False", DEBUG)
-				return False
+				log("hasContainerInExperiment - True", DEBUG)
+				return True
 		log("hasContainerInExperiment - False", DEBUG)
 		return False
 	else:
