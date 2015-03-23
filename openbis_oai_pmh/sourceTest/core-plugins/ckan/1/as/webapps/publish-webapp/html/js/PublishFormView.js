@@ -434,20 +434,26 @@ var PublishFormView = Backbone.View.extend({
 			list.empty();
 
 			var messages = thisView.model.get('formMessages');
-			if (messages) {
+			if (messages && messages.length > 0) {
 				messages.forEach(function(message) {
 					var messageCss = null;
 
 					if (message.type == "success") {
-						messageCss = "text-success";
-					} else if (message.type == "warning") {
-						messageCss = "text-warning";
+						var link = $("<a>").text("Publication " + message.text + " has been successfully created.").click(function() {
+							window.top.location.hash = "#entity=EXPERIMENT&permId=" + message.text + "&timestamp=" + (new Date().getTime());
+						});
+						$("<div>").append(link).addClass("form-group").addClass("text-success").appendTo(list);
 					} else if (message.type == "error") {
-						messageCss = "text-danger";
+						$("<div>").text(message.text).addClass("form-group").addClass("text-danger").appendTo(list);
 					}
-
-					$("<div>").text(message.text).addClass("form-group").addClass(messageCss).appendTo(list);
 				});
+
+				if (false == _.isEqual(thisView.messages, messages)) {
+					$("html, body").animate({
+						scrollTop : $(document).height()
+					}, "slow");
+					thisView.messages = messages;
+				}
 			}
 		}
 

@@ -44,3 +44,8 @@
 	padding: 0px;
 	margin-bottom: 5px;
 }
+
+.fuelux .text-success a {
+	color: #3c763d;
+	cursor: pointer;
+}

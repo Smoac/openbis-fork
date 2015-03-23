@@ -95,7 +95,6 @@ $.extend(PublishFormService.prototype, {
 		var createCallback = function(createResult) {
 			if (createResult.isSuccessful()) {
 				var result = createResult.getResult();
-				var reportError = result.rows[0][1].value;
 				var reportResult = result.rows[0][0].value;
 
 				if (reportResult) {
@@ -107,15 +106,8 @@ $.extend(PublishFormService.prototype, {
 				}
 
 				var executeResult = new OperationResult();
-
-				if (reportError) {
-					executeResult.setSuccessful(false);
-					executeResult.addMessage("error", reportError);
-				} else {
-					executeResult.setSuccessful(true);
-					executeResult.setResult(reportResult);
-				}
-
+				executeResult.setSuccessful(true);
+				executeResult.setResult(reportResult);
 				callback(executeResult);
 
 			} else {
@@ -218,7 +210,7 @@ $.extend(PublishFormService.prototype, {
 	publish : function(data, callback) {
 		this.executeOnDataStore("publish", data, function(executeResult) {
 			if (executeResult.isSuccessful()) {
-				executeResult.addMessage("success", "Publication succeeded.");
+				executeResult.addMessage("success", executeResult.getResult());
 			} else {
 				executeResult.addMessage("error", "Publication failed.");
 			}

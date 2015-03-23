@@ -35,6 +35,8 @@ import ch.systemsx.cisd.common.http.HttpTest;
 import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 import ch.systemsx.cisd.openbis.datastoreserver.systemtests.GenericSystemTest;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
+import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
+import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
@@ -42,6 +44,8 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchSubCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.util.TestInstanceHostUtils;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableColumn;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableModel;
@@ -57,6 +61,8 @@ public abstract class OAIPMHSystemTest extends GenericSystemTest
     private static final String GENERAL_INFORMATION_SERVICE_URL = TestInstanceHostUtils.getOpenBISUrl() + IGeneralInformationService.SERVICE_URL;
 
     private static final String DSS_SERVICE_RPC_GENERIC_URL = TestInstanceHostUtils.getDSSUrl() + "/datastore_server/rmi-dss-api-v1";
+
+    private static final String SERVICE_FOR_DATA_STORE_SERVER_URL = TestInstanceHostUtils.getOpenBISUrl() + ResourceNames.ETL_SERVICE_URL;
 
     private static final String PUBLISH_SERVLET_URL = TestInstanceHostUtils.getDSSUrl() + "/publish";
 
@@ -76,6 +82,8 @@ public abstract class OAIPMHSystemTest extends GenericSystemTest
 
     private IDssServiceRpcGeneric dssServiceRpcGeneric;
 
+    private IServiceForDataStoreServer serviceForDataStoreServer;
+
     protected String adminUserSessionToken;
 
     protected String reviewerUserSessionToken;
@@ -94,26 +102,44 @@ public abstract class OAIPMHSystemTest extends GenericSystemTest
         applicationServerApi = HttpInvokerUtils.createServiceStub(IApplicationServerApi.class, APPLICATION_SERVER_API_URL, TIMEOUT);
         generalInformationService = HttpInvokerUtils.createServiceStub(IGeneralInformationService.class, GENERAL_INFORMATION_SERVICE_URL, TIMEOUT);
         dssServiceRpcGeneric = HttpInvokerUtils.createServiceStub(IDssServiceRpcGeneric.class, DSS_SERVICE_RPC_GENERIC_URL, TIMEOUT);
+        serviceForDataStoreServer = HttpInvokerUtils.createServiceStub(IServiceForDataStoreServer.class, SERVICE_FOR_DATA_STORE_SERVER_URL, TIMEOUT);
         adminUserSessionToken = generalInformationService.tryToAuthenticateForAllServices(ADMIN_USER_ID, ADMIN_USER_PASSWORD);
         reviewerUserSessionToken = generalInformationService.tryToAuthenticateForAllServices(REVIEWER_USER_ID, REVIEWER_USER_PASSWORD);
     }
 
-    protected Experiment getExperimentByCode(String sessionToken, String experimentCode)
+    protected Experiment getExperimentByPermId(String sessionToken, String experimentPermId)
     {
         SearchCriteria criteria = new SearchCriteria();
-        criteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, experimentCode));
+        criteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.PERM_ID, experimentPermId));
 
         List<Experiment> experiments = getGeneralInformationService().searchForExperiments(sessionToken, criteria);
         if (experiments == null || experiments.isEmpty())
         {
             return null;
-        } else if (experiments.size() == 1)
-        {
-            return experiments.get(0);
         } else
         {
-            throw new IllegalArgumentException("More than one experiment found for code: " + experimentCode);
+            return experiments.iterator().next();
         }
+    }
+
+    protected Experiment getExperimentByIdentifier(String sessionToken, String experimentIdentifier)
+    {
+        ExperimentIdentifier identifier = ExperimentIdentifierFactory.parse(experimentIdentifier);
+
+        SearchCriteria criteria = new SearchCriteria();
+        criteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, identifier.getExperimentCode()));
+
+        List<Experiment> experiments = getGeneralInformationService().searchForExperiments(sessionToken, criteria);
+
+        for (Experiment experiment : experiments)
+        {
+            if (experiment.getIdentifier().equals(experimentIdentifier))
+            {
+                return experiment;
+            }
+        }
+
+        return null;
     }
 
     protected Map<String, DataSet> getDataSetsByExperimentPermId(String sessionToken, String experimentPermId)
@@ -134,7 +160,24 @@ public abstract class OAIPMHSystemTest extends GenericSystemTest
         return map;
     }
 
-    protected Object[] publish(String sessionToken, Publication publication)
+    protected DataSet getDataSetsByCode(String sessionToken, String dataSetCode)
+    {
+        SearchCriteria criteria = new SearchCriteria();
+        criteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, dataSetCode));
+
+        List<DataSet> dataSets = getGeneralInformationService().searchForDataSets(sessionToken, criteria);
+
+        if (dataSets == null || dataSets.isEmpty())
+        {
+            return null;
+        } else
+        {
+            return dataSets.iterator().next();
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    protected PublicationResult publish(String sessionToken, Publication publication)
     {
         Map<String, Object> parameters = new HashMap<String, Object>();
         parameters.put("experiment", publication.experiment);
@@ -147,10 +190,34 @@ public abstract class OAIPMHSystemTest extends GenericSystemTest
         parameters.put("notes", publication.notes);
         parameters.put("meshTerms", publication.meshTerms);
 
-        return callLogic(sessionToken, "publish", parameters);
+        String permId = callLogic(sessionToken, "publish", parameters);
+
+        waitUntilIndexUpdaterIsIdle();
+
+        Experiment originalExperiment = getExperimentByIdentifier(adminUserSessionToken, publication.experiment);
+        Experiment publicationExperiment = getExperimentByPermId(adminUserSessionToken, permId);
+
+        Map<String, Object> mapping = (Map<String, Object>) parseJson(publicationExperiment.getProperties().get("PUBLICATION_MAPPING"));
+        Assert.assertNotNull(mapping);
+
+        Map<String, String> experimentMapping = (Map<String, String>) mapping.get("experiment");
+        Assert.assertEquals(experimentMapping.get(originalExperiment.getPermId()), publicationExperiment.getPermId());
+
+        Map<String, String> dataSetMapping = (Map<String, String>) mapping.get("dataset");
+        Map<String, DataSet> originalDataSets = getDataSetsByExperimentPermId(adminUserSessionToken, originalExperiment.getPermId());
+        Map<String, DataSet> publicationDataSets = getDataSetsByExperimentPermId(adminUserSessionToken, publicationExperiment.getPermId());
+
+        PublicationResult result = new PublicationResult();
+        result.originalExperiment = originalExperiment;
+        result.publicationExperiment = publicationExperiment;
+        result.dataSetMapping = dataSetMapping;
+        result.originalDataSetMap = originalDataSets;
+        result.publicationDataSetMap = publicationDataSets;
+
+        return result;
     }
 
-    protected Object[] callLogic(String sessionToken, String method, Map<String, Object> methodParameters)
+    protected String callLogic(String sessionToken, String method, Map<String, Object> methodParameters)
     {
         try
         {
@@ -162,20 +229,20 @@ public abstract class OAIPMHSystemTest extends GenericSystemTest
                     dssServiceRpcGeneric.createReportFromAggregationService(sessionToken, "publish-logic", parameters);
 
             List<QueryTableColumn> columns = result.getColumns();
-            Assert.assertEquals(columns.size(), 2);
+            Assert.assertEquals(columns.size(), 1);
             Assert.assertEquals(columns.get(0).getTitle(), "RESULT");
-            Assert.assertEquals(columns.get(1).getTitle(), "ERROR");
 
             List<Serializable[]> rows = result.getRows();
             Assert.assertEquals(rows.size(), 1);
 
-            Object resultCellValue = rows.get(0)[0];
-            Object errorCellValue = rows.get(0)[1];
-
-            Object[] resultAndError = new Object[2];
-            resultAndError[0] = StringUtils.isEmpty((String) resultCellValue) ? null : resultCellValue;
-            resultAndError[1] = StringUtils.isEmpty((String) errorCellValue) ? null : errorCellValue;
-            return resultAndError;
+            String resultCellValue = (String) rows.get(0)[0];
+            if (StringUtils.isEmpty(resultCellValue))
+            {
+                return null;
+            } else
+            {
+                return resultCellValue;
+            }
         } catch (Exception e)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(e);
@@ -221,6 +288,57 @@ public abstract class OAIPMHSystemTest extends GenericSystemTest
 
     }
 
+    public static class PublicationResult
+    {
+
+        private Experiment originalExperiment;
+
+        private Experiment publicationExperiment;
+
+        private Map<String, DataSet> originalDataSetMap;
+
+        private Map<String, DataSet> publicationDataSetMap;
+
+        private Map<String, String> dataSetMapping;
+
+        public Experiment getOriginalExperiment()
+        {
+            return originalExperiment;
+        }
+
+        public Experiment getPublicationExperiment()
+        {
+            return publicationExperiment;
+        }
+
+        public DataSet getOriginalDataSet(String originalDataSetCode)
+        {
+            return originalDataSetMap.get(originalDataSetCode);
+        }
+
+        public DataSet getPublicationDataSetFor(String originalDataSetCode)
+        {
+            String publicationDataSetCode = dataSetMapping.get(originalDataSetCode);
+            return publicationDataSetMap.get(publicationDataSetCode);
+        }
+
+        public Map<String, DataSet> getOriginalDataSetMap()
+        {
+            return originalDataSetMap;
+        }
+
+        public Map<String, DataSet> getPublicationDataSetMap()
+        {
+            return publicationDataSetMap;
+        }
+
+        public Map<String, String> getDataSetMapping()
+        {
+            return dataSetMapping;
+        }
+
+    }
+
     protected IApplicationServerApi getApplicationServerApi()
     {
         return applicationServerApi;
@@ -235,6 +353,11 @@ public abstract class OAIPMHSystemTest extends GenericSystemTest
     protected IDssServiceRpcGeneric getDssServiceRpcGeneric()
     {
         return dssServiceRpcGeneric;
+    }
+
+    public IServiceForDataStoreServer getServiceForDataStoreServer()
+    {
+        return serviceForDataStoreServer;
     }
 
 }

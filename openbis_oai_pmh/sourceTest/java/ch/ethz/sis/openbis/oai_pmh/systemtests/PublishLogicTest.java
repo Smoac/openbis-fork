@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -27,8 +29,20 @@ import org.apache.commons.collections.Transformer;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.ExperimentCreation;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.entitytype.EntityTypePermId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentPermId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.ProjectIdentifier;
+import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LocatorType;
+import ch.systemsx.cisd.openbis.generic.shared.dto.NewContainerDataSet;
+import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 
 /**
  * @author pkupczyk
@@ -40,27 +54,19 @@ public class PublishLogicTest extends OAIPMHSystemTest
     @SuppressWarnings("unchecked")
     public void testGetSpaces()
     {
-        Object[] resultAndError = callLogic(adminUserSessionToken, "getSpaces", null);
-
-        resultAndError[0] = parseJson((String) resultAndError[0]);
-
-        ArrayList<String> result = (ArrayList<String>) resultAndError[0];
-        Assert.assertEquals(result, Arrays.asList("REVIEWER-SPACE", "ADMIN-SPACE"));
-
-        String error = (String) resultAndError[1];
-        Assert.assertNull(error);
+        String result = callLogic(adminUserSessionToken, "getSpaces", null);
+        ArrayList<String> resultList = (ArrayList<String>) parseJson(result);
+        Assert.assertEquals(resultList, Arrays.asList("REVIEWER-SPACE", "ADMIN-SPACE"));
     }
 
     @Test
     @SuppressWarnings("unchecked")
     public void testGetMeshTermChildrenWithParentNull()
     {
-        Object[] resultAndError = callLogic(adminUserSessionToken, "getMeshTermChildren", Collections.singletonMap("parent", null));
+        String result = callLogic(adminUserSessionToken, "getMeshTermChildren", Collections.singletonMap("parent", null));
 
-        resultAndError[0] = parseJson((String) resultAndError[0]);
-
-        ArrayList<Map<String, String>> result = (ArrayList<Map<String, String>>) resultAndError[0];
-        Collection<String> terms = CollectionUtils.collect(result, new Transformer<Map<String, String>, String>()
+        ArrayList<Map<String, String>> resultList = (ArrayList<Map<String, String>>) parseJson(result);
+        Collection<String> terms = CollectionUtils.collect(resultList, new Transformer<Map<String, String>, String>()
             {
                 @Override
                 public String transform(Map<String, String> input)
@@ -74,22 +80,16 @@ public class PublishLogicTest extends OAIPMHSystemTest
                 "Analytical,Diagnostic and Therapeutic Techniques and Equipment;E", "Psychiatry and Psychology;F", "Phenomena and Processes;G",
                 "Disciplines and Occupations;H", "Anthropology,Education,Sociology and Social Phenomena;I", "Technology,Industry,Agriculture;J",
                 "Humanities;K", "Information Science;L", "Named Groups;M", "Health Care;N", "Publication Characteristics;V", "Geographicals;Z"));
-
-        String error = (String) resultAndError[1];
-        Assert.assertNull(error);
     }
 
     @Test
     @SuppressWarnings("unchecked")
     public void testGetMeshTermChildrenWithParentNotNull()
     {
-        Object[] resultAndError =
-                callLogic(adminUserSessionToken, "getMeshTermChildren", Collections.<String, Object> singletonMap("parent", "L01.346"));
+        String result = callLogic(adminUserSessionToken, "getMeshTermChildren", Collections.<String, Object> singletonMap("parent", "L01.346"));
 
-        resultAndError[0] = parseJson((String) resultAndError[0]);
-
-        ArrayList<Map<String, String>> result = (ArrayList<Map<String, String>>) resultAndError[0];
-        Collection<String> terms = CollectionUtils.collect(result, new Transformer<Map<String, String>, String>()
+        ArrayList<Map<String, String>> resultList = (ArrayList<Map<String, String>>) parseJson(result);
+        Collection<String> terms = CollectionUtils.collect(resultList, new Transformer<Map<String, String>, String>()
             {
                 @Override
                 public String transform(Map<String, String> input)
@@ -100,21 +100,131 @@ public class PublishLogicTest extends OAIPMHSystemTest
             });
         Assert.assertEquals(terms, Arrays.asList("Archives;/Information Science/Information Science/Information Centers/Archives;L01.346.208;false",
                 "Libraries;/Information Science/Information Science/Information Centers/Libraries;L01.346.596;true"));
-
-        String error = (String) resultAndError[1];
-        Assert.assertNull(error);
     }
 
-    @SuppressWarnings("unchecked")
     @Test
-    public void testPublish()
+    public void testPublishExperimentWithPhysicalDataSet()
     {
-        String originalExperimentCode = "EXP-REUSE";
-        String originalExperimentIdentifier = "/CISD/DEFAULT/" + originalExperimentCode;
+        Experiment originalExperiment = createExperiment("EXPERIMENT_TO_PUBLISH_1");
+        DataSet originalPhysical = createPhysicalDataSet(originalExperiment);
 
+        Publication publication = publication(originalExperiment.getIdentifier());
+        PublicationResult result = publish(adminUserSessionToken, publication);
+
+        Assert.assertEquals(result.getDataSetMapping().size(), 1);
+
+        DataSet publicationDataSet = result.getPublicationDataSetFor(originalPhysical.getCode());
+        Assert.assertEquals(publicationDataSet.getDataSetTypeCode(), "PUBLICATION_CONTAINER");
+        AssertionUtil.assertCollectionContainsOnly(publicationDataSet.getContainedDataSets(), originalPhysical);
+    }
+
+    @Test
+    public void testPublishExperimentWithPhysicalDataSetWithContainer()
+    {
+        Experiment originalExperiment = createExperiment("EXPERIMENT_TO_PUBLISH_2");
+        DataSet originalPhysical = createPhysicalDataSet(originalExperiment);
+        DataSet originalContainer = createContainerDataSet(originalExperiment, originalPhysical);
+
+        Publication publication = publication(originalExperiment.getIdentifier());
+        PublicationResult result = publish(adminUserSessionToken, publication);
+
+        Assert.assertEquals(result.getDataSetMapping().size(), 1);
+
+        DataSet physicalPublished = result.getPublicationDataSetFor(originalPhysical.getCode());
+        DataSet containerPublished = result.getPublicationDataSetFor(originalContainer.getCode());
+
+        Assert.assertNull(physicalPublished);
+        Assert.assertEquals(containerPublished.getDataSetTypeCode(), originalContainer.getDataSetTypeCode());
+        AssertionUtil.assertCollectionContainsOnly(containerPublished.getContainedDataSets(), originalContainer);
+    }
+
+    @Test
+    public void testPublishExperimentWithPhysicalDataSetWithContainerInDifferentExperiment()
+    {
+        Experiment originalExperimentWithPhysical = createExperiment("EXPERIMENT_TO_PUBLISH_3");
+        Experiment originalExperimentWithContainer = createExperiment("EXPERIMENT_TO_PUBLISH_4");
+
+        DataSet originalPhysical = createPhysicalDataSet(originalExperimentWithPhysical);
+        DataSet originalContainer = createContainerDataSet(originalExperimentWithContainer, originalPhysical);
+
+        Publication publication = publication(originalExperimentWithPhysical.getIdentifier());
+        PublicationResult result = publish(adminUserSessionToken, publication);
+
+        Assert.assertEquals(result.getDataSetMapping().size(), 1);
+
+        DataSet physicalPublished = result.getPublicationDataSetFor(originalPhysical.getCode());
+        DataSet containerPublished = result.getPublicationDataSetFor(originalContainer.getCode());
+
+        Assert.assertNull(containerPublished);
+        Assert.assertEquals(physicalPublished.getDataSetTypeCode(), "PUBLICATION_CONTAINER");
+        AssertionUtil.assertCollectionContainsOnly(physicalPublished.getContainedDataSets(), originalPhysical);
+    }
+
+    @Test
+    public void testPublishExperimentWithPhysicalDataSetWithContainerWithContainer()
+    {
+        Experiment originalExperiment = createExperiment("EXPERIMENT_TO_PUBLISH_5");
+        DataSet originalPhysical = createPhysicalDataSet(originalExperiment);
+        DataSet originalContainer = createContainerDataSet(originalExperiment, originalPhysical);
+        DataSet originalTopContainer = createContainerDataSet(originalExperiment, originalContainer);
+
+        Publication publication = publication(originalExperiment.getIdentifier());
+        PublicationResult result = publish(adminUserSessionToken, publication);
+
+        Assert.assertEquals(result.getDataSetMapping().size(), 1);
+
+        DataSet physicalPublished = result.getPublicationDataSetFor(originalPhysical.getCode());
+        DataSet containerPublished = result.getPublicationDataSetFor(originalContainer.getCode());
+        DataSet topContainerPublished = result.getPublicationDataSetFor(originalTopContainer.getCode());
+
+        Assert.assertNull(physicalPublished);
+        Assert.assertNull(containerPublished);
+        Assert.assertEquals(topContainerPublished.getDataSetTypeCode(), originalTopContainer.getDataSetTypeCode());
+        AssertionUtil.assertCollectionContainsOnly(topContainerPublished.getContainedDataSets(), originalTopContainer);
+    }
+
+    @Test
+    public void testPublishExperimentWithMultipleDataSets()
+    {
+        Publication publication = publication("/CISD/DEFAULT/EXP-REUSE");
+        PublicationResult result = publish(adminUserSessionToken, publication);
+
+        Experiment originalExperiment = result.getOriginalExperiment();
+        Experiment publicationExperiment = result.getPublicationExperiment();
+
+        Assert.assertEquals(publicationExperiment.getCode(), originalExperiment.getPermId());
+        Assert.assertEquals(publicationExperiment.getIdentifier(), "/" + publication.space + "/DEFAULT/" + originalExperiment.getPermId());
+        Assert.assertEquals(publicationExperiment.getProperties().get("PUBLICATION_ID"), publication.publicationId);
+        Assert.assertEquals(publicationExperiment.getProperties().get("PUBLICATION_TITLE"), publication.title);
+        Assert.assertEquals(publicationExperiment.getProperties().get("PUBLICATION_AUTHOR"), publication.author);
+        Assert.assertEquals(publicationExperiment.getProperties().get("PUBLICATION_AUTHOR_EMAIL"), publication.authorEmail);
+        Assert.assertEquals(publicationExperiment.getProperties().get("PUBLICATION_LICENSE"), publication.license);
+        Assert.assertEquals(publicationExperiment.getProperties().get("PUBLICATION_NOTES"), publication.notes);
+        Assert.assertEquals(publicationExperiment.getProperties().get("PUBLICATION_MESH_TERMS"), "Viruses;B04\nPlant Viruses;B04.715\n");
+
+        Assert.assertEquals(result.getOriginalDataSetMap().size(), 18);
+        Assert.assertEquals(result.getPublicationDataSetMap().size(), 11);
+
+        AssertionUtil.assertCollectionContainsOnly(result.getDataSetMapping().keySet(), "20081105092259000-18", "20081105092259000-19",
+                "20081105092259000-20", "20081105092259000-21", "20081105092259000-8", "20081105092259000-9", "20081105092259900-0",
+                "20081105092259900-1", "20081105092359990-2", "20110509092359990-10", "ROOT_CONTAINER");
+
+        DataSet rootContainer = result.getOriginalDataSet("ROOT_CONTAINER");
+        DataSet rootContainerPublished = result.getPublicationDataSetFor("ROOT_CONTAINER");
+        Assert.assertEquals(rootContainerPublished.getDataSetTypeCode(), "CONTAINER_TYPE");
+        AssertionUtil.assertCollectionContains(rootContainerPublished.getContainedDataSets(), rootContainer);
+
+        DataSet dataSet0 = result.getOriginalDataSet("20081105092259900-0");
+        DataSet dataSet0Published = result.getPublicationDataSetFor("20081105092259900-0");
+        Assert.assertEquals(dataSet0Published.getDataSetTypeCode(), "PUBLICATION_CONTAINER");
+        AssertionUtil.assertCollectionContains(dataSet0Published.getContainedDataSets(), dataSet0);
+    }
+
+    private Publication publication(String experiment)
+    {
         Publication parameters = new Publication();
-        parameters.experiment = originalExperimentIdentifier;
         parameters.space = "ADMIN-SPACE";
+        parameters.experiment = experiment;
         parameters.publicationId = "Test publication id";
         parameters.title = "Test title";
         parameters.author = "Test author";
@@ -122,66 +232,63 @@ public class PublishLogicTest extends OAIPMHSystemTest
         parameters.license = "CC_BY";
         parameters.notes = "Test notes";
         parameters.meshTerms = new String[] { "B04", "B04.715" };
+        return parameters;
+    }
 
-        Object[] resultAndError = publish(adminUserSessionToken, parameters);
+    private Experiment createExperiment(String code)
+    {
+        ExperimentCreation creation = new ExperimentCreation();
+        creation.setProjectId(new ProjectIdentifier("/CISD/DEFAULT"));
+        creation.setTypeId(new EntityTypePermId("SIRNA_HCS"));
+        creation.setCode(code);
+        creation.setProperty("DESCRIPTION", "some description");
+
+        List<ExperimentPermId> permIds = getApplicationServerApi().createExperiments(adminUserSessionToken, Arrays.asList(creation));
 
         waitUntilIndexUpdaterIsIdle();
 
-        Experiment originalExperiment = getExperimentByCode(adminUserSessionToken, originalExperimentCode);
-        Experiment publicationExperiment = getExperimentByCode(adminUserSessionToken, originalExperiment.getPermId());
+        return getExperimentByPermId(adminUserSessionToken, permIds.get(0).getPermId());
+    }
 
-        Object result = resultAndError[0];
-        Assert.assertEquals(result, publicationExperiment.getPermId());
+    private DataSet createPhysicalDataSet(Experiment experiment)
+    {
+        String permId = getServiceForDataStoreServer().createPermId(adminUserSessionToken);
 
-        String error = (String) resultAndError[1];
-        Assert.assertNull(error);
+        NewExternalData newData = new NewExternalData();
+        newData.setCode(permId);
+        newData.setDataSetType(new DataSetType("UNKNOWN"));
+        newData.setFileFormatType(new FileFormatType("PROPRIETARY"));
+        newData.setLocation("some/location/" + permId);
+        newData.setLocatorType(new LocatorType("RELATIVE_LOCATION"));
+        newData.setStorageFormat(StorageFormat.PROPRIETARY);
+        newData.setDataStoreCode("STANDARD");
 
-        Assert.assertEquals(publicationExperiment.getCode(), originalExperiment.getPermId());
-        Assert.assertEquals(publicationExperiment.getIdentifier(), "/" + parameters.space + "/DEFAULT/" + originalExperiment.getPermId());
-        Assert.assertEquals(publicationExperiment.getProperties().get("PUBLICATION_ID"), parameters.publicationId);
-        Assert.assertEquals(publicationExperiment.getProperties().get("PUBLICATION_TITLE"), parameters.title);
-        Assert.assertEquals(publicationExperiment.getProperties().get("PUBLICATION_AUTHOR"), parameters.author);
-        Assert.assertEquals(publicationExperiment.getProperties().get("PUBLICATION_AUTHOR_EMAIL"), parameters.authorEmail);
-        Assert.assertEquals(publicationExperiment.getProperties().get("PUBLICATION_LICENSE"), parameters.license);
-        Assert.assertEquals(publicationExperiment.getProperties().get("PUBLICATION_NOTES"), parameters.notes);
-        Assert.assertEquals(publicationExperiment.getProperties().get("PUBLICATION_MESH_TERMS"), "Viruses;B04\nPlant Viruses;B04.715\n");
+        getServiceForDataStoreServer().registerDataSet(adminUserSessionToken, ExperimentIdentifierFactory.parse(experiment.getIdentifier()), newData);
+        waitUntilIndexUpdaterIsIdle();
 
-        Map<String, Object> mapping = (Map<String, Object>) parseJson(publicationExperiment.getProperties().get("PUBLICATION_MAPPING"));
-        Assert.assertNotNull(mapping);
+        return getDataSetsByCode(adminUserSessionToken, permId);
+    }
 
-        Map<String, String> experimentMapping = (Map<String, String>) mapping.get("experiment");
-        Assert.assertEquals(experimentMapping.get(originalExperiment.getPermId()), publicationExperiment.getPermId());
+    private DataSet createContainerDataSet(Experiment experiment, DataSet... contained)
+    {
+        String permId = getServiceForDataStoreServer().createPermId(adminUserSessionToken);
 
-        Map<String, String> dataSetMapping = (Map<String, String>) mapping.get("dataset");
-        Map<String, DataSet> originalDataSets = getDataSetsByExperimentPermId(adminUserSessionToken, originalExperiment.getPermId());
-        Map<String, DataSet> publicationDataSets = getDataSetsByExperimentPermId(adminUserSessionToken, publicationExperiment.getPermId());
+        NewContainerDataSet newData = new NewContainerDataSet();
+        newData.setCode(permId);
+        newData.setDataSetType(new DataSetType("CONTAINER_TYPE"));
+        newData.setDataStoreCode("STANDARD");
 
-        int dataSetCount = 18;
-        Assert.assertEquals(dataSetMapping.size(), dataSetCount);
-        Assert.assertEquals(originalDataSets.size(), dataSetCount);
-        Assert.assertEquals(publicationDataSets.size(), dataSetCount);
-
-        for (DataSet originalDataSet : originalDataSets.values())
+        List<String> containedCodes = new LinkedList<String>();
+        for (DataSet aContained : contained)
         {
-            String publicationDataSetCode = dataSetMapping.get(originalDataSet.getCode());
-
-            Assert.assertNotNull(publicationDataSetCode, "Original data set: " + originalDataSet.getCode() + " is not in the mapping");
-
-            DataSet publicationDataSet = publicationDataSets.get(publicationDataSetCode);
-
-            Assert.assertNotNull(publicationDataSet, "Publication data set: " + publicationDataSet.getCode()
-                    + " is in the mapping but is not connected to the publication experiment: " + publicationExperiment.getCode());
-
-            if (originalDataSet.isContainerDataSet())
-            {
-                Assert.assertEquals(publicationDataSet.getDataSetTypeCode(), originalDataSet.getDataSetTypeCode());
-            } else
-            {
-                Assert.assertEquals(publicationDataSet.getDataSetTypeCode(), "PUBLICATION_CONTAINER");
-            }
-
-            Assert.assertEquals(publicationDataSet.getContainedDataSets(), Collections.singletonList(originalDataSet));
+            containedCodes.add(aContained.getCode());
         }
+        newData.setContainedDataSetCodes(containedCodes);
+
+        getServiceForDataStoreServer().registerDataSet(adminUserSessionToken, ExperimentIdentifierFactory.parse(experiment.getIdentifier()), newData);
+        waitUntilIndexUpdaterIsIdle();
+
+        return getDataSetsByCode(adminUserSessionToken, permId);
     }
 
 }

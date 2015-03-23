@@ -37,16 +37,13 @@ import org.testng.mustache.Mustache;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.ExperimentCreation;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.experiment.ExperimentFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.entitytype.EntityTypePermId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentPermId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.IExperimentId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.ProjectIdentifier;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.http.HttpTest;
 import ch.systemsx.cisd.common.utilities.TestResources;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.util.TestInstanceHostUtils;
 
 /**
@@ -88,21 +85,12 @@ public class PublishServletTest extends OAIPMHSystemTest
         publication.notes = "Some notes";
         publication.meshTerms = new String[] { "B04" };
 
-        Object[] resultAndError = publish(adminUserSessionToken, publication);
-
-        String permId = (String) resultAndError[0];
-        String error = (String) resultAndError[1];
+        PublicationResult result = publish(adminUserSessionToken, publication);
 
         waitUntilIndexUpdaterIsIdle();
 
-        Map<IExperimentId, Experiment> experiments =
-                getApplicationServerApi().mapExperiments(adminUserSessionToken, Arrays.asList(new ExperimentPermId(permId)),
-                        new ExperimentFetchOptions());
-
-        publicationsMap.put(permId, publication);
-        experimentsMap.put(permId, experiments.values().iterator().next());
-
-        Assert.assertNull(error);
+        publicationsMap.put(result.getPublicationExperiment().getPermId(), publication);
+        experimentsMap.put(result.getPublicationExperiment().getPermId(), result.getPublicationExperiment());
     }
 
     @Test
@@ -154,7 +142,7 @@ public class PublishServletTest extends OAIPMHSystemTest
             Record record = new Record();
             record.IDENTIFIER = permId;
             record.DATESTAMP = datestamps.get(i);
-            record.REGISTRATION_DATE = DATE_WITH_TIME_FORMAT.format(experiment.getRegistrationDate());
+            record.REGISTRATION_DATE = DATE_WITH_TIME_FORMAT.format(experiment.getRegistrationDetails().getRegistrationDate());
             records.add(record);
             i++;
         }
@@ -182,7 +170,7 @@ public class PublishServletTest extends OAIPMHSystemTest
         templateValues.put("RESPONSE_DATE", responseDate);
         templateValues.put("IDENTIFIER", identifier);
         templateValues.put("DATESTAMP", datestamp);
-        templateValues.put("REGISTRATION_DATE", DATE_WITH_TIME_FORMAT.format(experiment.getRegistrationDate()));
+        templateValues.put("REGISTRATION_DATE", DATE_WITH_TIME_FORMAT.format(experiment.getRegistrationDetails().getRegistrationDate()));
 
         String expectedResponse = getFilledTemplate("testGetRecord.xml", templateValues);
         assertResponse(response.getResponseBodyAsString(), expectedResponse);

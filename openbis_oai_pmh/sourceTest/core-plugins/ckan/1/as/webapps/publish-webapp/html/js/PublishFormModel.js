@@ -1,5 +1,9 @@
 var PublishFormModel = Backbone.Model.extend({
 
+	initialize : function() {
+		this.setPublicationId(this.getExperimentCode())
+	},
+
 	setExperiment : function(experiment) {
 		this.set("experiment", experiment, {
 			validate : true
@@ -8,6 +12,13 @@ var PublishFormModel = Backbone.Model.extend({
 
 	getExperiment : function() {
 		return this.get("experiment");
+	},
+
+	getExperimentCode : function() {
+		var experiment = this.getExperiment();
+		var regexp = /\/(.*)\/(.*)\/(.*)/g;
+		var match = regexp.exec(experiment);
+		return match[3];
 	},
 
 	setSpace : function(space) {
@@ -243,6 +254,12 @@ var PublishFormModel = Backbone.Model.extend({
 					"formMessages" : executeResult.getMessages(),
 					"submitDisabled" : false
 				});
+			});
+		} else {
+			var result = new OperationResult();
+			result.addMessage("error", "Please fill in the form.")
+			thisModel.set({
+				"formMessages" : result.getMessages(),
 			});
 		}
 	},

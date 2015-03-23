@@ -23,37 +23,37 @@ from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto import SearchCriteria
 from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto import SearchSubCriteria
 from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria import MatchClause
 from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria import MatchClauseAttribute
+from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria import SearchOperator
 from ch.systemsx.cisd.openbis.dss.generic.shared import ServiceProvider
 from org.springframework.web.context.request import RequestContextHolder, RequestAttributes
+
+INFO = 1
+DEBUG = 2
 
 def process(tr, parameters, tableBuilder):
 	method = parameters.get("method")
 	methodParameters = parameters.get("methodParameters")
 
-	print "Started processing '%s' publication method '%s'" % (method, str(datetime.datetime.utcnow()))
+	log("Started processing '%s' publication method '%s'" % (method, str(datetime.datetime.utcnow())), INFO) 
 
 	tableBuilder.addHeader("RESULT")
-	tableBuilder.addHeader("ERROR")
 	row = tableBuilder.addRow()
 
 	try:
+
 		if method == "getSpaces":
-			response = getSpaces(tr, methodParameters, tableBuilder)
+			result = getSpaces(tr, methodParameters, tableBuilder)
 		elif method == "getMeshTermChildren":
-			response = getMeshTermChildren(tr, methodParameters, tableBuilder)
+			result = getMeshTermChildren(tr, methodParameters, tableBuilder)
 		elif method == "publish":
-			response = publish(tr, methodParameters, tableBuilder)
+			result = publish(tr, methodParameters, tableBuilder)
 		else:
-			response = [None, "Method '" + str(method) + "' is not supported"]
+			raise "Method '%s' is not supported" % str(method);
+
+		row.setCell("RESULT", result)
 			
-		row.setCell("RESULT", response[0])
-		row.setCell("ERROR", response[1])
-			
-	except Exception, e:
-		row.setCell("RESULT", None)
-		row.setCell("ERROR", traceback.format_exc())
 	finally:
-		print "Finished processing '%s' publication method '%s'" % (method, str(datetime.datetime.utcnow()))
+		log("Finished processing '%s' publication method '%s'" % (method, str(datetime.datetime.utcnow())), INFO)
 
 def getSpaces(tr, parameters, tableBuilder):
 	property = getProperty(tr, "published-spaces")
@@ -67,9 +67,9 @@ def getSpaces(tr, parameters, tableBuilder):
 				codes.append(token.strip())
 	
 	if codes:
-		return [json.dumps(codes), None]
+		return json.dumps(codes)
 	else:
-		return [None, "No publication spaces have been configured. Please check that 'published-spaces' property has been properly set in the reporting plugin plugin.properties."]	
+		raise "No publication spaces have been configured. Please check that 'published-spaces' property has been properly set in the reporting plugin plugin.properties."	
 
 def getMeshTermChildren(tr, parameters, tableBuilder):
 	parentIdentifier = parameters["parent"]
@@ -90,9 +90,9 @@ def getMeshTermChildren(tr, parameters, tableBuilder):
 				"hasChildren" : len(child["children"]) > 0
 			}
 			childrenData.append(childData)
-		return [json.dumps(childrenData), None]
+		return json.dumps(childrenData)
 	else:
-		return [None, "No term have been found for '" + identifier + "'."]	
+		raise "No term have been found for '" + identifier + "'."	
 
 def loadMeshTerms():
 
@@ -100,10 +100,10 @@ def loadMeshTerms():
 	cachedTerms = RequestContextHolder.getRequestAttributes().getAttribute(cachedTermsSessionAttribute, RequestAttributes.SCOPE_SESSION)
 	
 	if cachedTerms:
-		print "Didn't have to load the mesh terms - found them in a session cache."
+		log("Didn't have to load the mesh terms - found them in a session cache.", INFO)
 		return cachedTerms
 	
-	print "Loading mesh terms - start time: " + str(datetime.datetime.utcnow())
+	log("Loading mesh terms - start time: " + str(datetime.datetime.utcnow()), INFO)
 	
 	binPath = str(sys.path[-1]) + "/terms/mesh_terms.bin"
 	binFile = open(binPath)
@@ -113,7 +113,7 @@ def loadMeshTerms():
 		
 		addRootMeshTerm(termMap)
 		
-		print "Root terms: " + str(termMap)
+		log("Root terms: " + str(termMap), INFO)
 		
 		lines = binFile.readlines()
 		for line in lines:
@@ -137,7 +137,7 @@ def loadMeshTerms():
 		return termMap
 
 	finally:
-		print "Loading mesh terms - finish time: " + str(datetime.datetime.utcnow())
+		log("Loading mesh terms - finish time: " + str(datetime.datetime.utcnow()), INFO)
 		binFile.close()
 
 def loadMeshTermsVersion():
@@ -146,10 +146,10 @@ def loadMeshTermsVersion():
 	cachedVersion = RequestContextHolder.getRequestAttributes().getAttribute(cachedVersionSessionAttribute, RequestAttributes.SCOPE_SESSION)
 	
 	if cachedVersion:
-		print "Didn't have to load the mesh terms version - found it in a session cache."
+		log("Didn't have to load the mesh terms version - found it in a session cache.", INFO)
 		return cachedVersion
 	
-	print "Loading mesh terms version - start time: " + str(datetime.datetime.utcnow())
+	log("Loading mesh terms version - start time: " + str(datetime.datetime.utcnow()), INFO)
 	
 	versionPath = str(sys.path[-1]) + "/terms/version.txt"
 	versionFile = open(versionPath)
@@ -159,7 +159,7 @@ def loadMeshTermsVersion():
 		RequestContextHolder.getRequestAttributes().setAttribute(cachedVersionSessionAttribute, version, RequestAttributes.SCOPE_SESSION)
 		return version
 	finally:
-		print "Loading mesh terms version - finish time: " + str(datetime.datetime.utcnow())
+		log("Loading mesh terms version - finish time: " + str(datetime.datetime.utcnow()), INFO)
 		versionFile.close()
 
 def addRootMeshTerm(termMap):
@@ -169,7 +169,7 @@ def addRootMeshTerm(termMap):
 	binPath = str(sys.path[-1]) + "/terms/root_mesh_terms.bin"
 	binFile = open(binPath)
 
-	print "Loading root mesh terms - start time: " + str(datetime.datetime.utcnow())
+	log("Loading root mesh terms - start time: " + str(datetime.datetime.utcnow()), INFO)
 	try:
 		lines = binFile.readlines()
 		for line in lines:
@@ -182,7 +182,7 @@ def addRootMeshTerm(termMap):
 			root["children"].append(term)
 		
 	finally:
-		print "Loading root mesh terms - finish time: " + str(datetime.datetime.utcnow())
+		log("Loading root mesh terms - finish time: " + str(datetime.datetime.utcnow()), INFO)
 		binFile.close()
 		
 
@@ -245,7 +245,7 @@ def publish(tr, parameters, tableBuilder):
 	publicationExperiment.setPropertyValue("PUBLICATION_AUTHOR_EMAIL", paramAuthorEmail)
 	publicationExperiment.setPropertyValue("PUBLICATION_LICENSE", paramLicense)
 	publicationExperiment.setPropertyValue("PUBLICATION_NOTES", paramNotes)
-	
+
 	meshTermsPropertyValue = ""
 	for paramMeshTerm in paramMeshTerms:
 		meshTerm = meshTermMap.get(paramMeshTerm)
@@ -256,7 +256,7 @@ def publish(tr, parameters, tableBuilder):
 	
 	copyOrUpdateDataSets(tr, originalExperiment, publicationExperiment)
 
-	return [publicationExperiment.getPermId(), None]
+	return publicationExperiment.getPermId()
 
 def getOrCreateSpace(tr, spaceCode):
 	space = tr.getSearchService().getSpace(spaceCode)
@@ -292,7 +292,7 @@ def getMapping(originalExperiment, publicationExperiment):
 				
 			return mapping
 		except:
-			raise Exception("Couldn't parse an existing publication '%s' mapping property value '%s'" % (publicationExperiment.getExperimentIdentifier(), string))
+			raise "Couldn't parse an existing publication '%s' mapping property value '%s'" % (publicationExperiment.getExperimentIdentifier(), string)
 	else:
 		mapping = {}
 		mapping["experiment"] = { originalExperiment.getPermId() : publicationExperiment.getPermId() }
@@ -303,17 +303,82 @@ def setMapping(experiment, mapping):
 	string = json.dumps(mapping)
 	experiment.setPropertyValue("PUBLICATION_MAPPING", string)
 
-def getDataSets(tr, experiment):
+def getDataSetsToPublish(tr, experiment):
+	log("getDataSetsToPublish - experiment: " + str(experiment.getExperimentIdentifier()), DEBUG)
+
+	experimentDataSets = getDataSetsByExperiment(tr, experiment);
+
+	containerList = experimentDataSets;
+	containerMap = {}
+	
+	while containerList:
+		nextLevelCodes = set()
+		for container in containerList:
+			containerMap[container.getDataSetCode()] = container
+			for containerCode in container.getContainerDataSets():
+				nextLevelCodes.add(containerCode)
+		containerList = getDataSetsByCodes(tr, nextLevelCodes)
+	
+	dataSetsToPublish = []
+	
+	for experimentDataSet in experimentDataSets:
+		if not hasContainerInExperiment(tr, containerMap, experimentDataSet, experiment):
+			dataSetsToPublish.append(experimentDataSet)
+	
+	log("getDataSetsToPublish - found: " + str(len(dataSetsToPublish)), DEBUG) 
+	
+	return dataSetsToPublish
+
+def hasContainerInExperiment(tr, containerMap, dataSet, experiment):
+	log("hasContainerInExperiment - dataSet: " + str(dataSet.getDataSetCode()) + ", experiment: " + str(experiment.getExperimentIdentifier()), DEBUG)
+	
+	if dataSet.getContainerDataSets():
+		for containerCode in dataSet.getContainerDataSets():
+			container = containerMap[containerCode]
+			if experiment.equals(container.getExperiment()):
+				log("hasContainerInExperiment - True", DEBUG)
+				return True
+			elif hasContainerInExperiment(tr, containerMap, container, experiment):
+				log("hasContainerInExperiment - False", DEBUG)
+				return False
+		log("hasContainerInExperiment - False", DEBUG)
+		return False
+	else:
+		log("hasContainerInExperiment - False", DEBUG)
+		return False
+
+def getDataSetsByExperiment(tr, experiment):
+	log("getDataSetsByExperiment - experiment: " + str(experiment.getExperimentIdentifier()), DEBUG)
+	
 	experimentCriteria = SearchCriteria()
 	experimentCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.PERM_ID, experiment.getPermId()))
 	dataSetCriteria = SearchCriteria()
 	dataSetCriteria.addSubCriteria(SearchSubCriteria.createExperimentCriteria(experimentCriteria))
-	return tr.getSearchService().searchForDataSets(dataSetCriteria)
+
+	dataSets =  tr.getSearchService().searchForDataSets(dataSetCriteria)
+	log("getDataSetsByExperiment found: " + str(len(dataSets)), DEBUG)
+	return dataSets
+
+def getDataSetsByCodes(tr, codes):
+	log("getDataSetsByCodes - codes: " + str(codes), DEBUG)
+	
+	if not codes:
+		return []
+
+	criteria = SearchCriteria()
+	criteria.setOperator(SearchOperator.MATCH_ANY_CLAUSES)
+	for code in codes:
+		criteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, code))
+
+	dataSets = tr.getSearchService().searchForDataSets(criteria)
+	log("getDataSetsByCodes found: " + str(len(dataSets)), DEBUG)
+	return dataSets
 
 def copyOrUpdateDataSets(tr, originalExperiment, publicationExperiment):
+	log("copyOrUpdateDataSets - originalExperiment: " + str(originalExperiment.getExperimentIdentifier()) + ", publicationExperiment: " + str(publicationExperiment.getExperimentIdentifier()), DEBUG) 
 	
-	originalDataSets = getDataSets(tr, originalExperiment)	
-	publicationDataSets = getDataSets(tr, publicationExperiment)
+	originalDataSets = getDataSetsToPublish(tr, originalExperiment)	
+	publicationDataSets = getDataSetsByExperiment(tr, publicationExperiment)
 	
 	mapping = getMapping(originalExperiment, publicationExperiment)
 	originalDataSetCodeToPublicationDataSetCodeMap = mapping["dataset"]
@@ -330,11 +395,13 @@ def copyOrUpdateDataSets(tr, originalExperiment, publicationExperiment):
 		publicationDataSet = originalDataSetCodeToPublicationDataSetMap.get(originalDataSet.getDataSetCode())
 		
 		if publicationDataSet == None:
-			
 			if originalDataSet.isContainerDataSet():
+				
 				publicationDataSet = tr.createNewDataSet(originalDataSet.getDataSetType())
 			else:
 				publicationDataSet = tr.createNewDataSet("PUBLICATION_CONTAINER")
+
+			log("copyOrUpdateDataSets - originalDataSet: " + str(originalDataSet.getDataSetCode()) + ", publicationDataSet: " + str(publicationDataSet.getDataSetCode()), DEBUG) 
 			
 			publicationDataSet.setExperiment(publicationExperiment)
 			publicationDataSet.setContainedDataSetCodes([originalDataSet.getDataSetCode()])
@@ -351,3 +418,6 @@ def copyOrUpdateDataSets(tr, originalExperiment, publicationExperiment):
 def getProperty(tr, propertyName):
   properties = tr.getGlobalState().getThreadParameters().getThreadProperties()
   return properties.getProperty(propertyName)
+ 
+def log(message, level):
+	print message
