@@ -1,12 +1,14 @@
-function Grid(columns, getDataList, showAllColumns) {
-	this.init(columns, getDataList, showAllColumns);
+function Grid(columns, getDataList, showAllColumns, columnsToShow, onColumnsChange) {
+	this.init(columns, getDataList, showAllColumns, columnsToShow, onColumnsChange);
 }
 
 $.extend(Grid.prototype, {
-	init : function(columns, getDataList, showAllColumns) {
+	init : function(columns, getDataList, showAllColumns, columnsToShow, onColumnsChange) {
 		this.columns = columns;
 		this.getDataList = getDataList;
 		this.showAllColumns = showAllColumns;
+		this.columnsToShow = columnsToShow;
+		this.onColumnsChange = onColumnsChange;
 	},
 
 	render : function() {
@@ -61,7 +63,9 @@ $.extend(Grid.prototype, {
 				.attr("value", column.property)
 				.attr("style", "margin-left: 5px;");
 			
-			if(thisGrid.showAllColumns || columnIndex < (defaultNumColumns - 1) || (columnIndex+1 === thisGrid.columns.length)) {
+			if(thisGrid.columnsToShow && (thisGrid.columnsToShow[column.property] === true)) { //If settings are present
+				checkbox.attr("checked", "checked");
+			} else if(thisGrid.showAllColumns || columnIndex < (defaultNumColumns - 1) || (columnIndex+1 === thisGrid.columns.length)) { //Defaults
 				checkbox.attr("checked", "checked");
 			}
 			
@@ -98,15 +102,23 @@ $.extend(Grid.prototype, {
 		var thisGrid = this;
 		var columns = [];
 
+		var columnsModel = {};
+		
 		thisGrid.panel.find(".columnDropdown").find("input:checked").each(function(index, element) {
+			
 			thisGrid.getAllColumns().forEach(function(column) {
 				var checkbox = $(element);
 				if (column.property == checkbox.val()) {
 					columns.push(column);
+					columnsModel[column.property] = true;
 				}
 			});
 		});
 
+		if(thisGrid.onColumnsChange) {
+			thisGrid.onColumnsChange(columnsModel);
+		}
+		
 		// HACK: Add a dummy empty column (repeater does not properly handle visibility of the last column)
 		columns.push({
 			label : null,
