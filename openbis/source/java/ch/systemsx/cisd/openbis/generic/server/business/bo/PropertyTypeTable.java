@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.DataSetTypeWithoutExperimentChecker;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
@@ -36,9 +37,10 @@ public final class PropertyTypeTable extends AbstractBusinessObject implements I
 
     public PropertyTypeTable(final IDAOFactory daoFactory, final Session session,
             IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, 
-            DataSetTypeWithoutExperimentChecker dataSetTypeChecker)
+            DataSetTypeWithoutExperimentChecker dataSetTypeChecker, 
+            IRelationshipService relationshipService)
     {
-        super(daoFactory, session, managedPropertyEvaluatorFactory, dataSetTypeChecker);
+        super(daoFactory, session, managedPropertyEvaluatorFactory, dataSetTypeChecker, relationshipService);
     }
 
     @Override

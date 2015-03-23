@@ -87,23 +87,23 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
 
     private final List<AttachmentPE> attachments = new ArrayList<AttachmentPE>();
 
-    private IRelationshipService relationshipService;
-
     public ExperimentBO(final IDAOFactory daoFactory, final Session session,
             IRelationshipService relationshipService,
             IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, 
             DataSetTypeWithoutExperimentChecker dataSetTypeChecker)
     {
-        super(daoFactory, session, EntityKind.EXPERIMENT, managedPropertyEvaluatorFactory, dataSetTypeChecker);
-        this.relationshipService = relationshipService;
+        super(daoFactory, session, EntityKind.EXPERIMENT, managedPropertyEvaluatorFactory, 
+                dataSetTypeChecker, relationshipService);
     }
 
     ExperimentBO(final IDAOFactory daoFactory, final Session session,
             final IEntityPropertiesConverter entityPropertiesConverter,
             IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, 
-            DataSetTypeWithoutExperimentChecker dataSetTypeChecker)
+            DataSetTypeWithoutExperimentChecker dataSetTypeChecker, 
+            IRelationshipService relationshipService)
     {
-        super(daoFactory, session, entityPropertiesConverter, managedPropertyEvaluatorFactory, dataSetTypeChecker);
+        super(daoFactory, session, entityPropertiesConverter, managedPropertyEvaluatorFactory, 
+                dataSetTypeChecker, relationshipService);
     }
 
     @SuppressWarnings("unused")

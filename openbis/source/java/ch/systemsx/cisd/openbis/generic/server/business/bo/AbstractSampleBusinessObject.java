@@ -74,8 +74,6 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
      */
     protected boolean onlyNewSamples = true;
 
-    protected IRelationshipService relationshipService;
-
     protected IEntityOperationChecker entityOperationChecker;
 
     AbstractSampleBusinessObject(final IDAOFactory daoFactory, final Session session,
@@ -84,8 +82,8 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
             IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, 
             DataSetTypeWithoutExperimentChecker dataSetTypeChecker)
     {
-        super(daoFactory, session, EntityKind.SAMPLE, managedPropertyEvaluatorFactory, dataSetTypeChecker);
-        this.relationshipService = relationshipService;
+        super(daoFactory, session, EntityKind.SAMPLE, managedPropertyEvaluatorFactory, dataSetTypeChecker,
+                relationshipService);
         this.entityOperationChecker = entityOperationChecker;
     }
 
@@ -96,8 +94,8 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
             IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, 
             DataSetTypeWithoutExperimentChecker dataSetTypeChecker)
     {
-        super(daoFactory, session, entityPropertiesConverter, managedPropertyEvaluatorFactory, dataSetTypeChecker);
-        this.relationshipService = relationshipService;
+        super(daoFactory, session, entityPropertiesConverter, managedPropertyEvaluatorFactory, 
+                dataSetTypeChecker, relationshipService);
         this.entityOperationChecker = entityOperationChecker;
     }
 

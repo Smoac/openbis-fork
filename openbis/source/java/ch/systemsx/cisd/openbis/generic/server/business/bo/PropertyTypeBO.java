@@ -28,6 +28,7 @@ import org.w3c.dom.Document;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
 import ch.systemsx.cisd.common.xml.XMLInfraStructure;
+import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.DataSetTypeWithoutExperimentChecker;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
@@ -63,9 +64,10 @@ public final class PropertyTypeBO extends VocabularyBO implements IPropertyTypeB
 
     public PropertyTypeBO(final IDAOFactory daoFactory, final Session session,
             IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, 
-            DataSetTypeWithoutExperimentChecker dataSetTypeChecker)
+            DataSetTypeWithoutExperimentChecker dataSetTypeChecker, 
+            IRelationshipService relationshipService)
     {
-        super(daoFactory, session, managedPropertyEvaluatorFactory, dataSetTypeChecker);
+        super(daoFactory, session, managedPropertyEvaluatorFactory, dataSetTypeChecker, relationshipService);
     }
 
     //

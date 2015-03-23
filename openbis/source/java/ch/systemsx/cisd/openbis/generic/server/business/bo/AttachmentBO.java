@@ -22,6 +22,7 @@ import java.util.List;
 import org.springframework.dao.DataAccessException;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.DataSetTypeWithoutExperimentChecker;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
@@ -47,9 +48,10 @@ public final class AttachmentBO extends AbstractBusinessObject implements IAttac
 
     public AttachmentBO(final IDAOFactory daoFactory, final Session session,
             IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, 
-            DataSetTypeWithoutExperimentChecker dataSetTypeChecker)
+            DataSetTypeWithoutExperimentChecker dataSetTypeChecker, 
+            IRelationshipService relationshipService)
     {
-        super(daoFactory, session, managedPropertyEvaluatorFactory, dataSetTypeChecker);
+        super(daoFactory, session, managedPropertyEvaluatorFactory, dataSetTypeChecker, relationshipService);
     }
 
     @Override

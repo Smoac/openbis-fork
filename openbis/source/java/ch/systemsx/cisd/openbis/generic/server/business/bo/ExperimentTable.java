@@ -68,14 +68,14 @@ public final class ExperimentTable extends AbstractBusinessObject implements IEx
 
     private boolean dataChanged = false;
 
-    private IRelationshipService relationshipService;
-
     ExperimentTable(final IDAOFactory daoFactory, final Session session,
             IEntityPropertiesConverter converter,
             IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, 
-            DataSetTypeWithoutExperimentChecker dataSetTypeChecker)
+            DataSetTypeWithoutExperimentChecker dataSetTypeChecker, 
+            IRelationshipService relationshipService)
     {
-        super(daoFactory, session, converter, managedPropertyEvaluatorFactory, dataSetTypeChecker);
+        super(daoFactory, session, converter, managedPropertyEvaluatorFactory, dataSetTypeChecker,
+                relationshipService);
     }
 
     public ExperimentTable(final IDAOFactory daoFactory, final Session session,
@@ -83,8 +83,8 @@ public final class ExperimentTable extends AbstractBusinessObject implements IEx
             IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, 
             DataSetTypeWithoutExperimentChecker dataSetTypeChecker)
     {
-        super(daoFactory, session, EntityKind.EXPERIMENT, managedPropertyEvaluatorFactory, dataSetTypeChecker);
-        this.relationshipService = relationshipService;
+        super(daoFactory, session, EntityKind.EXPERIMENT, managedPropertyEvaluatorFactory, 
+                dataSetTypeChecker, relationshipService);
     }
 
     //

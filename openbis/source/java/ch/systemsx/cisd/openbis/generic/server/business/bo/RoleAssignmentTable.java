@@ -23,6 +23,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 
 import ch.systemsx.cisd.common.collection.TableMap;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.DataSetTypeWithoutExperimentChecker;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.util.KeyExtractorFactory;
@@ -54,9 +55,10 @@ public final class RoleAssignmentTable extends AbstractBusinessObject implements
 
     public RoleAssignmentTable(final IDAOFactory daoFactory, final Session session,
             IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, 
-            DataSetTypeWithoutExperimentChecker dataSetTypeChecker)
+            DataSetTypeWithoutExperimentChecker dataSetTypeChecker, 
+            IRelationshipService relationshipService)
     {
-        super(daoFactory, session, managedPropertyEvaluatorFactory, dataSetTypeChecker);
+        super(daoFactory, session, managedPropertyEvaluatorFactory, dataSetTypeChecker, relationshipService);
     }
 
     private final PersonPE getPerson(final String userId)

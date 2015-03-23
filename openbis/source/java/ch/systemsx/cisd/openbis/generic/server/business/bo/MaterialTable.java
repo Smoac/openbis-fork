@@ -28,6 +28,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.DataSetTypeWithoutExperimentChecker;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertiesConverter;
@@ -59,9 +60,10 @@ public final class MaterialTable extends AbstractMaterialBusinessObject implemen
 
     public MaterialTable(final IDAOFactory daoFactory, final Session session,
             IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, 
-            DataSetTypeWithoutExperimentChecker dataSetTypeChecker)
+            DataSetTypeWithoutExperimentChecker dataSetTypeChecker, 
+            IRelationshipService relationshipService)
     {
-        super(daoFactory, session, managedPropertyEvaluatorFactory, dataSetTypeChecker);
+        super(daoFactory, session, managedPropertyEvaluatorFactory, dataSetTypeChecker, relationshipService);
     }
 
     @Private
@@ -69,10 +71,11 @@ public final class MaterialTable extends AbstractMaterialBusinessObject implemen
     MaterialTable(final IDAOFactory daoFactory, final Session session,
             final IEntityPropertiesConverter entityPropertiesConverter, List<MaterialPE> materials,
             boolean dataChanged, IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, 
-            DataSetTypeWithoutExperimentChecker dataSetTypeChecker)
+            DataSetTypeWithoutExperimentChecker dataSetTypeChecker, 
+            IRelationshipService relationshipService)
     {
         super(daoFactory, session, entityPropertiesConverter, managedPropertyEvaluatorFactory, 
-                dataSetTypeChecker);
+                dataSetTypeChecker, relationshipService);
         this.materials = materials;
         this.dataChanged = dataChanged;
     }

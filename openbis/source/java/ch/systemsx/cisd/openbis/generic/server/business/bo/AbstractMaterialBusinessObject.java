@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.DataSetTypeWithoutExperimentChecker;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertiesConverter;
@@ -35,18 +36,21 @@ public class AbstractMaterialBusinessObject extends AbstractBusinessObject
 {
     protected AbstractMaterialBusinessObject(final IDAOFactory daoFactory, final Session session,
             IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, 
-            DataSetTypeWithoutExperimentChecker dataSetTypeChecker)
+            DataSetTypeWithoutExperimentChecker dataSetTypeChecker, 
+            IRelationshipService relationshipService)
     {
-        super(daoFactory, session, EntityKind.MATERIAL, managedPropertyEvaluatorFactory, dataSetTypeChecker);
+        super(daoFactory, session, EntityKind.MATERIAL, managedPropertyEvaluatorFactory, dataSetTypeChecker,
+                relationshipService);
     }
 
     protected AbstractMaterialBusinessObject(final IDAOFactory daoFactory, final Session session,
             final IEntityPropertiesConverter entityPropertiesConverter,
             IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, 
-            DataSetTypeWithoutExperimentChecker dataSetTypeChecker)
+            DataSetTypeWithoutExperimentChecker dataSetTypeChecker, 
+            IRelationshipService relationshipService)
     {
         super(daoFactory, session, entityPropertiesConverter, managedPropertyEvaluatorFactory, 
-                dataSetTypeChecker);
+                dataSetTypeChecker, relationshipService);
     }
 
     private static final String PROPERTY_TYPES = "materialType.materialTypePropertyTypesInternal";

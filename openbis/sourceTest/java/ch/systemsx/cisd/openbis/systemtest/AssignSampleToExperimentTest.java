@@ -17,24 +17,34 @@
 package ch.systemsx.cisd.openbis.systemtest;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.fail;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.entitygraph.EntityGraphGenerator;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.entitygraph.ExperimentNode;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.entitygraph.SampleNode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifierFactory;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.systemtest.base.BaseTest;
 import ch.systemsx.cisd.openbis.systemtest.base.auth.AuthorizationRule;
 import ch.systemsx.cisd.openbis.systemtest.base.auth.GuardedDomain;
 import ch.systemsx.cisd.openbis.systemtest.base.auth.InstanceDomain;
-import ch.systemsx.cisd.openbis.systemtest.base.auth.RolePermutator;
 import ch.systemsx.cisd.openbis.systemtest.base.auth.SpaceDomain;
 
 /**
@@ -53,6 +63,194 @@ public class AssignSampleToExperimentTest extends BaseTest
     Space sourceSpace;
 
     Space destinationSpace;
+    
+    @Test
+    public void unassignSampleWithDataSetsFromExperiment()
+    {
+        EntityGraphGenerator g = parseAndCreateGraph("E1, samples: S1, data sets: DS1[NET]\n"
+                + "S1, data sets: DS1[NET]\n");
+        
+        reassignSampleToExperiment(g.s(1), null);
+        
+        assertEquals("S1, data sets: DS1[NET]\n", renderGraph(g));
+        repository.assertModified(g.e(1));
+        repository.assertModified(g.s(1));
+        repository.assertModified(g.ds(1));
+        repository.assertUnmodified(g);
+    }
+    
+    @Test
+    public void assignSampleWithoutExperimentWithDataSetsToExperiment()
+    {
+        EntityGraphGenerator g = parseAndCreateGraph("E1\n"
+                + "S1, data sets: DS1[NET]\n");
+        
+        reassignSampleToExperiment(g.s(1), g.e(1));
+        
+        assertEquals("E1, samples: S1, data sets: DS1[NET]\n"
+                + "S1, data sets: DS1[NET]\n", renderGraph(g));
+        repository.assertModified(g.e(1));
+        repository.assertModified(g.s(1));
+        repository.assertModified(g.ds(1));
+        repository.assertUnmodified(g);
+    }
+    
+    @Test
+    public void assignSampleWithExperimentWithDataSetsToExperiment()
+    {
+        EntityGraphGenerator g = parseAndCreateGraph("E1, samples: S1, data sets: DS1\n"
+                + "E2, samples: S2, data sets: DS2\n"
+                + "S1, data sets: DS1\n");
+        
+        reassignSampleToExperiment(g.s(1), g.e(2));
+        
+        assertEquals("E2, samples: S1 S2, data sets: DS1 DS2\n"
+                + "S1, data sets: DS1\n", renderGraph(g));
+        repository.assertModified(g.e(1), g.e(2));
+        repository.assertModified(g.s(1));
+        repository.assertModified(g.ds(1));
+        repository.assertUnmodified(g);
+    }
+    
+    @Test
+    public void assignScreeningPlateToExperiment()
+    {
+        EntityGraphGenerator g = parseAndCreateGraph("E1, samples: S1, data sets: DS1 DS2\n"
+                + "E2\n"
+                + "S1, data sets: DS1\n"
+                + "DS1, components: DS2\n");
+        
+        reassignSampleToExperiment(g.s(1), g.e(2));
+        
+        assertEquals("E2, samples: S1, data sets: DS1 DS2\n"
+                + "S1, data sets: DS1\n"
+                + "DS1, components: DS2\n", renderGraph(g));
+        repository.assertModified(g.e(1), g.e(2));
+        repository.assertModified(g.s(1));
+        repository.assertModified(g.ds(1), g.ds(2));
+        repository.assertUnmodified(g);
+    }
+    
+    @Test
+    public void assignSamplesWithoutExperimentWithDataSetsToExperiment()
+    {
+        EntityGraphGenerator g = parseAndCreateGraph("E1, data sets: DS2\n"
+                + "S1, data sets: DS1[NET]\n");
+        
+        reassignSamplesToExperiment(g.e(1), g.s(1));
+        
+        assertEquals("E1, samples: S1, data sets: DS1[NET] DS2\n"
+                + "S1, data sets: DS1[NET]\n", renderGraph(g));
+        repository.assertModified(g.e(1));
+        repository.assertModified(g.s(1));
+        repository.assertModified(g.ds(1));
+        repository.assertUnmodified(g);
+    }
+    
+    @Test
+    public void removeSamplesWithDataSetsFromExperiment()
+    {
+        EntityGraphGenerator g = parseAndCreateGraph("E1, samples: S1 S2, data sets: DS1[NET] DS2\n"
+                + "S1, data sets: DS1[NET]\n");
+        
+        reassignSamplesToExperiment(g.e(1));
+        
+        assertEquals("E1, data sets: DS2\n"
+                + "S1, data sets: DS1[NET]\n", renderGraph(g));
+        repository.assertModified(g.e(1));
+        repository.assertModified(g.s(1), g.s(2));
+        repository.assertModified(g.ds(1));
+        repository.assertUnmodified(g);
+    }
+    
+    @Test
+    public void removeSamplesWithDataSetsFromExperimentFailsBecauseOneDataSetNeedsAnExperiment()
+    {
+        EntityGraphGenerator g = parseAndCreateGraph("E1, samples: S1, data sets: DS1[NET] DS2\n"
+                + "S1, data sets: DS1[NET] DS2\n");
+        
+        try
+        {
+            reassignSamplesToExperiment(g.e(1));
+            fail("UserFailureException expected");
+        } catch (UserFailureException ex)
+        {
+            assertEquals("Operation cannot be performed, because the sample " 
+                    + repository.getSample(g.s(1)).getIdentifier() 
+                    + " has the following datasets which need an experiment: [" 
+                    + repository.getDataSet(g.ds(2)).getCode() + "]", ex.getMessage());
+        }
+    }
+    
+    private void reassignSamplesToExperiment(ExperimentNode experimentNode, SampleNode...sampleNodes)
+    {
+        String experimentIdentifier = repository.getExperimentIdentifierOrNull(experimentNode);
+        String user = create(aSession().withInstanceRole(RoleCode.ADMIN));
+        reassignSamplesToExperiment(experimentIdentifier, getSamplePermIds(sampleNodes), user);
+    }
+    
+    protected void reassignSamplesToExperiment(String experimentIdentifier, List<String> samplePermIds, 
+            String userSessionToken)
+    {
+        Experiment experiment = etlService.tryGetExperiment(systemSessionToken, 
+                ExperimentIdentifierFactory.parse(experimentIdentifier));
+        perform(anUpdateOf(experiment).withSamples(loadSamples(samplePermIds)).as(userSessionToken));
+        
+    }
+    
+    /**
+     * Reassigns specified sample to specified experiment for the specified user session token. 
+     * If experiment is not specified unassignment is meant.
+     * Sub class for testing API V3 should override this method.
+     */
+    protected void reassignSampleToExperiment(String samplePermId, String experimentIdentifierOrNull, 
+            String userSessionToken)
+    {
+        SampleIdentifier sampleIdentifier = etlService.tryGetSampleIdentifier(systemSessionToken, samplePermId);
+        Sample sample = etlService.tryGetSampleWithExperiment(systemSessionToken, sampleIdentifier);
+        if (experimentIdentifierOrNull != null)
+        {
+            Experiment experiment = etlService.tryGetExperiment(systemSessionToken, 
+                    ExperimentIdentifierFactory.parse(experimentIdentifierOrNull));
+            perform(anUpdateOf(sample).toExperiment(experiment).as(userSessionToken));
+        } else
+        {
+            perform(anUpdateOf(sample).removingExperiment().as(userSessionToken));
+        }
+    }
+    
+    /**
+     * Registers a new experiment for the specified project with the specified existing samples. 
+     */
+    protected String registerExperimentWithSamples(String projectIdentifier, List<String> samplePermIds,
+            String userSessionToken)
+    {
+        Sample[] samples = loadSamples(samplePermIds);
+        Project project = commonServer.getProjectInfo(systemSessionToken, ProjectIdentifierFactory.parse(projectIdentifier));
+        Experiment experiment = create(anExperiment().inProject(project).withSamples(samples).as(userSessionToken));
+        return experiment.getIdentifier();
+    }
+
+    private Sample[] loadSamples(List<String> samplePermIds)
+    {
+        List<Sample> samples = new ArrayList<Sample>();
+        for (String permId : samplePermIds)
+        {
+            SampleIdentifier sampleIdentifier = etlService.tryGetSampleIdentifier(systemSessionToken, permId);
+            if (sampleIdentifier == null)
+            {
+                throw new IllegalArgumentException("Unknown sample with perm id: " + permId);
+            }
+            Sample sample = etlService.tryGetSampleWithExperiment(systemSessionToken, sampleIdentifier);
+            if (sample == null)
+            {
+                throw new IllegalArgumentException("Unknown sample with identifier: " + sampleIdentifier);
+            }
+            samples.add(sample);
+        }
+        return samples.toArray(new Sample[0]);
+    }
+
 
     @Test
     public void sampleWithExperimentCanBeAssignedToAnotherExperiment() throws Exception
@@ -263,7 +461,22 @@ public class AssignSampleToExperimentTest extends BaseTest
 
         assertThat(sample, is(inExperiment(experiment)));
     }
-
+    
+    @Test
+    public void registerExperimentWithSampleWithDataSets()
+    {
+        EntityGraphGenerator g = parseAndCreateGraph("S1, data sets: DS1[NET]\n");
+        
+        registerExperimentWithSamples(g.e(1), g.s(1));
+        
+        assertEquals("E1, samples: S1, data sets: DS1[NET]\n"
+                + "S1, data sets: DS1[NET]\n", renderGraph(g));
+        repository.assertModified(g.s(1));
+        repository.assertModified(g.ds(1));
+        repository.assertUnmodified(g);
+        
+    }
+    
     Space unrelatedAdmin;
 
     Space unrelatedObserver;
@@ -422,7 +635,7 @@ public class AssignSampleToExperimentTest extends BaseTest
                 and(rule(destination, RoleWithHierarchy.SPACE_USER),
                         rule(instance, RoleWithHierarchy.INSTANCE_ETL_SERVER));
     }
-
+/*
     @DataProvider
     Object[][] rolesAllowedToAssignSampleToExperiment()
     {
@@ -464,4 +677,34 @@ public class AssignSampleToExperimentTest extends BaseTest
         return RolePermutator.getAcceptedPermutations(not(assignSharedSampleToExperimentRule),
                 destination, instance);
     }
+ */    
+    
+    private void reassignSampleToExperiment(SampleNode sampleNode, ExperimentNode experimentNodeOrNull)
+    {
+        String samplePermId = repository.getSamplePermIdOrNull(sampleNode);
+        String experimentIdentifierOrNull = repository.getExperimentIdentifierOrNull(experimentNodeOrNull);
+        String user = create(aSession().withInstanceRole(RoleCode.ADMIN));
+        reassignSampleToExperiment(samplePermId, experimentIdentifierOrNull, user);
+    }
+    
+    private void registerExperimentWithSamples(ExperimentNode experimentNode, SampleNode...sampleNodes)
+    {
+        List<String> samplePermIds = getSamplePermIds(sampleNodes);
+        String user = create(aSession().withInstanceRole(RoleCode.ADMIN));
+        String experimentIdentifier 
+                = registerExperimentWithSamples(getIdentifierOfDefaultProject(), samplePermIds, user);
+        addToRepository(experimentNode, etlService.tryGetExperiment(systemSessionToken, 
+                ExperimentIdentifierFactory.parse(experimentIdentifier)));
+    }
+
+    private List<String> getSamplePermIds(SampleNode... sampleNodes)
+    {
+        List<String> samplePermIds = new ArrayList<String>();
+        for (SampleNode sampleNode : sampleNodes)
+        {
+            samplePermIds.add(repository.getSamplePermIdOrNull(sampleNode));
+        }
+        return samplePermIds;
+    }
+    
 }

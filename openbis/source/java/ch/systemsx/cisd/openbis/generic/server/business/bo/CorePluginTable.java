@@ -28,6 +28,7 @@ import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogLevel;
+import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.DataSetTypeWithoutExperimentChecker;
 import ch.systemsx.cisd.openbis.generic.server.coreplugin.AsCorePluginPaths;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
@@ -52,9 +53,10 @@ public final class CorePluginTable extends AbstractBusinessObject implements ICo
     public CorePluginTable(IDAOFactory daoFactory, Session session,
             IMasterDataScriptRegistrationRunner masterDataScriptRunner,
             IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, 
-            DataSetTypeWithoutExperimentChecker dataSetTypeChecker)
+            DataSetTypeWithoutExperimentChecker dataSetTypeChecker, 
+            IRelationshipService relationshipService)
     {
-        super(daoFactory, session, managedPropertyEvaluatorFactory, dataSetTypeChecker);
+        super(daoFactory, session, managedPropertyEvaluatorFactory, dataSetTypeChecker, relationshipService);
         this.masterDataScriptRunner = masterDataScriptRunner;
     }
 

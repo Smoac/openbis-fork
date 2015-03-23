@@ -455,7 +455,7 @@ public final class ExperimentBOTest extends AbstractBOTest
         prepareLoadExperimentByIdentifier(identifier, exp);
         ExperimentBO bo =
                 new ExperimentBO(daoFactory, ManagerTestTool.EXAMPLE_SESSION, propertiesConverter,
-                        managedPropertyEvaluatorFactory, null);
+                        managedPropertyEvaluatorFactory, null, null);
         bo.loadByExperimentIdentifier(identifier);
 
         ExperimentPE experiment = bo.getExperiment();
@@ -492,7 +492,7 @@ public final class ExperimentBOTest extends AbstractBOTest
         prepareEntity(existingProperties, null);
         ExperimentBO bo =
                 new ExperimentBO(daoFactory, ManagerTestTool.EXAMPLE_SESSION, propertiesConverter,
-                        managedPropertyEvaluatorFactory, null);
+                        managedPropertyEvaluatorFactory, null, null);
 
         bo.updateProperties(entityType, newProperties, Collections.<String> emptySet(), entityAsPropertiesHolder,
                 entityAsModifiableBean);
@@ -519,7 +519,7 @@ public final class ExperimentBOTest extends AbstractBOTest
         prepareEntity(existingProperties, null);
         ExperimentBO bo =
                 new ExperimentBO(daoFactory, ManagerTestTool.EXAMPLE_SESSION, propertiesConverter,
-                        managedPropertyEvaluatorFactory, null);
+                        managedPropertyEvaluatorFactory, null, null);
 
         bo.updateProperties(entityType, newProperties, Collections.<String> emptySet(), entityAsPropertiesHolder,
                 entityAsModifiableBean);
@@ -547,7 +547,7 @@ public final class ExperimentBOTest extends AbstractBOTest
         prepareEntity(existingProperties, newConvertedProperties);
         ExperimentBO bo =
                 new ExperimentBO(daoFactory, ManagerTestTool.EXAMPLE_SESSION, propertiesConverter,
-                        managedPropertyEvaluatorFactory, null);
+                        managedPropertyEvaluatorFactory, null, null);
 
         bo.updateProperties(entityType, newProperties, Collections.<String> emptySet(), entityAsPropertiesHolder,
                 entityAsModifiableBean);
@@ -575,7 +575,7 @@ public final class ExperimentBOTest extends AbstractBOTest
         prepareEntity(existingProperties, newConvertedProperties);
         ExperimentBO bo =
                 new ExperimentBO(daoFactory, ManagerTestTool.EXAMPLE_SESSION, propertiesConverter,
-                        managedPropertyEvaluatorFactory, null);
+                        managedPropertyEvaluatorFactory, null, null);
 
         bo.updateProperties(entityType, newProperties, Collections.<String> emptySet(), entityAsPropertiesHolder,
                 entityAsModifiableBean);
@@ -604,7 +604,7 @@ public final class ExperimentBOTest extends AbstractBOTest
         prepareEntity(existingProperties, newConvertedProperties);
         ExperimentBO bo =
                 new ExperimentBO(daoFactory, ManagerTestTool.EXAMPLE_SESSION, propertiesConverter,
-                        managedPropertyEvaluatorFactory, null);
+                        managedPropertyEvaluatorFactory, null, null);
 
         bo.updateProperties(entityType, newProperties, Collections.<String> emptySet(), entityAsPropertiesHolder,
                 entityAsModifiableBean);
@@ -629,7 +629,7 @@ public final class ExperimentBOTest extends AbstractBOTest
         prepareEntity(existingProperties, newConvertedProperties);
         ExperimentBO bo =
                 new ExperimentBO(daoFactory, ManagerTestTool.EXAMPLE_SESSION, propertiesConverter,
-                        managedPropertyEvaluatorFactory, null);
+                        managedPropertyEvaluatorFactory, null, null);
 
         bo.updateProperties(entityType, newProperties, Collections.<String> emptySet(), entityAsPropertiesHolder,
                 entityAsModifiableBean);
@@ -654,7 +654,7 @@ public final class ExperimentBOTest extends AbstractBOTest
         prepareEntity(existingProperties, newConvertedProperties);
         ExperimentBO bo =
                 new ExperimentBO(daoFactory, ManagerTestTool.EXAMPLE_SESSION, propertiesConverter,
-                        managedPropertyEvaluatorFactory, null);
+                        managedPropertyEvaluatorFactory, null, null);
 
         bo.updateProperties(entityType, newProperties, Collections.<String> emptySet(), entityAsPropertiesHolder,
                 entityAsModifiableBean);

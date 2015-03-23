@@ -78,13 +78,13 @@ public final class VocabularyBOTest extends AbstractBOTest
 
     private final VocabularyBO createVocabularyBO()
     {
-        return new VocabularyBO(daoFactory, EXAMPLE_SESSION, managedPropertyEvaluatorFactory, null);
+        return new VocabularyBO(daoFactory, EXAMPLE_SESSION, managedPropertyEvaluatorFactory, null, null);
     }
 
     private final VocabularyBO createVocabularyBO(VocabularyPE vocabulary)
     {
         return new VocabularyBO(daoFactory, EXAMPLE_SESSION, vocabulary,
-                managedPropertyEvaluatorFactory, null);
+                managedPropertyEvaluatorFactory, null, null);
     }
 
     static final NewVocabulary createVocabulary()

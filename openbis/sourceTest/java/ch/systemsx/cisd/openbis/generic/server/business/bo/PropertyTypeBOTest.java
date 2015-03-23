@@ -54,7 +54,7 @@ public final class PropertyTypeBOTest extends AbstractBOTest
     private final PropertyTypeBO createPropertyTypeBO()
     {
         return new PropertyTypeBO(daoFactory, ManagerTestTool.EXAMPLE_SESSION,
-                managedPropertyEvaluatorFactory, null);
+                managedPropertyEvaluatorFactory, null, null);
     }
 
     static final PropertyType createPropertyType(final DataTypeCode dataTypeCode)

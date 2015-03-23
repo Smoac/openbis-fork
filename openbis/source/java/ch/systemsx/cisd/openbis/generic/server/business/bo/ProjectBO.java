@@ -75,15 +75,12 @@ public final class ProjectBO extends AbstractBusinessObject implements IProjectB
 
     private final List<AttachmentPE> attachments = new ArrayList<AttachmentPE>();
 
-    private IRelationshipService relationshipService;
-
     public ProjectBO(final IDAOFactory daoFactory, final Session session,
             IRelationshipService relationshipService,
             IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, 
             DataSetTypeWithoutExperimentChecker dataSetTypeChecker)
     {
-        super(daoFactory, session, managedPropertyEvaluatorFactory, dataSetTypeChecker);
-        this.relationshipService = relationshipService;
+        super(daoFactory, session, managedPropertyEvaluatorFactory, dataSetTypeChecker, relationshipService);
     }
 
     private ProjectPE createProject(final ProjectIdentifier projectIdentifier, String description,

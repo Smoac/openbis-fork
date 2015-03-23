@@ -22,6 +22,7 @@ import org.springframework.dao.DataRetrievalFailureException;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.jython.evaluator.EvaluatorException;
+import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.DataSetTypeWithoutExperimentChecker;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IScriptDAO;
@@ -55,21 +56,23 @@ public final class ScriptBO extends AbstractBusinessObject implements IScriptBO
 
     public ScriptBO(final IDAOFactory daoFactory, final Session session,
             IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, 
-            DataSetTypeWithoutExperimentChecker dataSetTypeChecker,
+            DataSetTypeWithoutExperimentChecker dataSetTypeChecker, 
+            IRelationshipService relationshipService,
             IJythonEvaluatorPool jythonEvaluationPool)
     {
         this(daoFactory, session, new ScriptFactory(), managedPropertyEvaluatorFactory, dataSetTypeChecker,
-                jythonEvaluationPool);
+                relationshipService, jythonEvaluationPool);
     }
 
     @Private
     // for testing
     ScriptBO(final IDAOFactory daoFactory, final Session session, IScriptFactory scriptFactory,
             IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, 
-            DataSetTypeWithoutExperimentChecker dataSetTypeChecker,
+            DataSetTypeWithoutExperimentChecker dataSetTypeChecker, 
+            IRelationshipService relationshipService,
             IJythonEvaluatorPool jythonEvaluationPool)
     {
-        super(daoFactory, session, managedPropertyEvaluatorFactory, dataSetTypeChecker);
+        super(daoFactory, session, managedPropertyEvaluatorFactory, dataSetTypeChecker, relationshipService);
         this.scriptFactory = scriptFactory;
         this.jythonEvaluatorPool = jythonEvaluationPool;
     }

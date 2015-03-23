@@ -47,7 +47,7 @@ public final class MaterialTableTest extends AbstractBOTest
     private final MaterialTable createMaterialTable(List<MaterialPE> materials, boolean dataChanged)
     {
         return new MaterialTable(daoFactory, ManagerTestTool.EXAMPLE_SESSION, propertiesConverter,
-                materials, dataChanged, managedPropertyEvaluatorFactory, null);
+                materials, dataChanged, managedPropertyEvaluatorFactory, null, null);
     }
 
     private final MaterialTable createMaterialTable()

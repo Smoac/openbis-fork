@@ -57,8 +57,6 @@ import ch.systemsx.cisd.openbis.generic.shared.util.RelationshipUtils;
 public abstract class AbstractDataSetBusinessObject extends AbstractSampleIdentifierBusinessObject
 {
 
-    protected IRelationshipService relationshipService;
-
     private IServiceConversationClientManagerLocal conversationClient;
 
     public AbstractDataSetBusinessObject(IDAOFactory daoFactory, Session session,
@@ -67,8 +65,8 @@ public abstract class AbstractDataSetBusinessObject extends AbstractSampleIdenti
             IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, 
             DataSetTypeWithoutExperimentChecker dataSetTypeChecker)
     {
-        super(daoFactory, session, EntityKind.DATA_SET, managedPropertyEvaluatorFactory, dataSetTypeChecker);
-        this.relationshipService = relationshipService;
+        super(daoFactory, session, EntityKind.DATA_SET, managedPropertyEvaluatorFactory, dataSetTypeChecker, 
+                relationshipService);
         this.conversationClient = conversationClient;
     }
 
@@ -79,8 +77,8 @@ public abstract class AbstractDataSetBusinessObject extends AbstractSampleIdenti
             IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, 
             DataSetTypeWithoutExperimentChecker dataSetTypeChecker)
     {
-        super(daoFactory, session, entityPropertiesConverter, managedPropertyEvaluatorFactory, dataSetTypeChecker);
-        this.relationshipService = relationshipService;
+        super(daoFactory, session, entityPropertiesConverter, managedPropertyEvaluatorFactory, 
+                dataSetTypeChecker, relationshipService);
         this.conversationClient = conversationClient;
     }
 

@@ -75,7 +75,7 @@ public final class ScriptBOTest extends AbstractBOTest
     private final ScriptBO createScriptBO()
     {
         return new ScriptBO(daoFactory, ManagerTestTool.EXAMPLE_SESSION, scriptFactory,
-                managedPropertyEvaluatorFactory, null, new TestJythonEvaluatorPool());
+                managedPropertyEvaluatorFactory, null, null, new TestJythonEvaluatorPool());
     }
 
     @Test

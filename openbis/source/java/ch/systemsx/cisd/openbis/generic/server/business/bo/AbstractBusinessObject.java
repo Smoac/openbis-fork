@@ -33,6 +33,7 @@ import org.springframework.dao.DataAccessException;
 import ch.systemsx.cisd.common.collection.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.IDataStoreServiceFactory;
+import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.DataSetTypeWithoutExperimentChecker;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.EntityPropertiesConverter;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAttachmentDAO;
@@ -118,32 +119,38 @@ abstract class AbstractBusinessObject implements IDAOFactory
 
     protected final DataSetTypeWithoutExperimentChecker dataSetTypeChecker;
     
+    protected final IRelationshipService relationshipService;
+
     protected Map<String, List<AttachmentPE>> attachmentHolderPermIdToAttachmentsMap;
 
     AbstractBusinessObject(final IDAOFactory daoFactory, final Session session,
             IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory,
-            DataSetTypeWithoutExperimentChecker dataSetTypeChecker)
+            DataSetTypeWithoutExperimentChecker dataSetTypeChecker, 
+            IRelationshipService relationshipService)
     {
         this(daoFactory, session, (IEntityPropertiesConverter) null,
-                managedPropertyEvaluatorFactory, dataSetTypeChecker);
+                managedPropertyEvaluatorFactory, dataSetTypeChecker, relationshipService);
     }
 
     AbstractBusinessObject(final IDAOFactory daoFactory, final Session session,
             EntityKind entityKindOrNull,
             IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory,
-            DataSetTypeWithoutExperimentChecker dataSetTypeChecker)
+            DataSetTypeWithoutExperimentChecker dataSetTypeChecker, 
+            IRelationshipService relationshipService)
     {
         this(daoFactory, session, entityKindOrNull == null ? null : new EntityPropertiesConverter(
                 entityKindOrNull, daoFactory, managedPropertyEvaluatorFactory),
-                managedPropertyEvaluatorFactory, dataSetTypeChecker);
+                managedPropertyEvaluatorFactory, dataSetTypeChecker, relationshipService);
     }
 
     AbstractBusinessObject(final IDAOFactory daoFactory, final Session session,
             IEntityPropertiesConverter converter,
             IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory,
-            DataSetTypeWithoutExperimentChecker dataSetTypeChecker)
+            DataSetTypeWithoutExperimentChecker dataSetTypeChecker, 
+            IRelationshipService relationshipService)
     {
         this.dataSetTypeChecker = dataSetTypeChecker;
+        this.relationshipService = relationshipService;
         assert daoFactory != null : "Given DAO factory can not be null.";
         assert session != null : "Given session can not be null.";
 

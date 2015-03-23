@@ -45,7 +45,7 @@ public final class ExperimentTableTest extends AbstractBOTest
     private final ExperimentTable createExperimentTable()
     {
         return new ExperimentTable(daoFactory, ManagerTestTool.EXAMPLE_SESSION,
-                propertiesConverter, managedPropertyEvaluatorFactory, null);
+                propertiesConverter, managedPropertyEvaluatorFactory, null, null);
     }
 
     @Test
