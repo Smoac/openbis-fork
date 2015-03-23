@@ -40,7 +40,7 @@ public class ExperimentUpdateBuilder extends UpdateBuilder<ExperimentUpdatesDTO>
         super(commonServer, genericServer);
         updates = new ExperimentUpdatesDTO();
         Experiment experiment =
-                commonServer.getExperimentInfo(systemSession,
+                commonServer.getExperimentInfo(sessionToken,
                         new ExperimentIdentifier("CISD", exp.getProject().getSpace().getCode(), exp
                                 .getProject().getCode(), exp.getCode()));
 

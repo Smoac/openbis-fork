@@ -542,8 +542,8 @@ public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
             fail("UserFailureException expected");
         } catch (UserFailureException ex)
         {
-            AbstractExternalData dataSet = repository.getDataSet(g.ds(2));
-            Sample sample = repository.getSample(g.s(2));
+            AbstractExternalData dataSet = repository.tryGetDataSet(g.ds(2));
+            Sample sample = repository.tryGetSample(g.s(2));
             assertDataSetToSampleExceptionMessage(ex, sample, dataSet);
         }
     }
@@ -559,8 +559,8 @@ public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
             fail("UserFailureException expected");
         } catch (UserFailureException ex)
         {
-            AbstractExternalData dataSet = repository.getDataSet(g.ds(1));
-            Sample sample = repository.getSample(g.s(2));
+            AbstractExternalData dataSet = repository.tryGetDataSet(g.ds(1));
+            Sample sample = repository.tryGetSample(g.s(2));
             assertDataSetToSampleExceptionMessage(ex, sample, dataSet);
         }
     }
@@ -821,46 +821,18 @@ public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
 
     private void reassignToExperiment(DataSetNode dataSetNode, ExperimentNode experimentNodeOrNull)
     {
-        AbstractExternalData dataSet = getDataSet(dataSetNode);
-        String experimentIdentifierOrNull = null;
-        if (experimentNodeOrNull != null)
-        {
-            Experiment experiment = repository.getExperiment(experimentNodeOrNull);
-            if (experiment == null)
-            {
-                throw new IllegalArgumentException("Unknown experiment " + experimentNodeOrNull.getCode());
-            }
-            experimentIdentifierOrNull = experiment.getIdentifier();
-        }
+        String code = repository.getDataSetCodeOrNull(dataSetNode);
+        String experimentIdentifierOrNull = repository.getExperimentIdentifierOrNull(experimentNodeOrNull);
         String user = create(aSession().withInstanceRole(RoleCode.ADMIN));
-        reassignToExperiment(dataSet.getCode(), experimentIdentifierOrNull, user);
+        reassignToExperiment(code, experimentIdentifierOrNull, user);
     }
 
     private void reassignToSample(DataSetNode dataSetNode, SampleNode sampleNodeOrNull)
     {
-        AbstractExternalData dataSet = getDataSet(dataSetNode);
-        String permIdOrNull = null;
-        if (sampleNodeOrNull != null)
-        {
-            Sample sample = repository.getSample(sampleNodeOrNull);
-            if (sample == null)
-            {
-                throw new IllegalArgumentException("Unknown sample " + sampleNodeOrNull.getCode());
-            }
-            permIdOrNull = sample.getPermId();
-        }
+        String code = repository.getDataSetCodeOrNull(dataSetNode);
+        String permIdOrNull = repository.getSamplePermIdOrNull(sampleNodeOrNull);
         String user = create(aSession().withInstanceRole(RoleCode.ADMIN));
-        reassignToSample(dataSet.getCode(), permIdOrNull, user);
-    }
-
-    private AbstractExternalData getDataSet(DataSetNode dataSetNode)
-    {
-        AbstractExternalData dataSet = repository.getDataSet(dataSetNode);
-        if (dataSet == null)
-        {
-            throw new IllegalArgumentException("Unknown data set " + dataSetNode.getCode());
-        }
-        return dataSet;
+        reassignToSample(code, permIdOrNull, user);
     }
     
 }

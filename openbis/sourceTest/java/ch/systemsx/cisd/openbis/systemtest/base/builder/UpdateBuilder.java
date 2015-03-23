@@ -24,20 +24,17 @@ import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
  */
 public abstract class UpdateBuilder<T> extends Builder<T>
 {
-
-    protected String sessionToken;
-
     public UpdateBuilder(ICommonServerForInternalUse commonServer, IGenericServer genericServer)
     {
         super(commonServer, genericServer);
-        this.sessionToken = this.systemSession;
     }
 
-    public abstract void perform();
-
+    @Override
     public final UpdateBuilder<T> as(String token)
     {
         this.sessionToken = token;
         return this;
     }
+    
+    public abstract void perform();
 }

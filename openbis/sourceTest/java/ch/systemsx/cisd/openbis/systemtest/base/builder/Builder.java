@@ -28,14 +28,20 @@ public abstract class Builder<T>
 
     protected final IGenericServer genericServer;
 
-    protected final String systemSession;
+    protected String sessionToken;
 
     public Builder(ICommonServerForInternalUse commonServer, IGenericServer genericServer)
     {
         this.commonServer = commonServer;
         this.genericServer = genericServer;
-        this.systemSession = commonServer.tryToAuthenticateAsSystem().getSessionToken();
+        sessionToken = commonServer.tryToAuthenticateAsSystem().getSessionToken();
     }
 
+    public Builder<T> as(String token)
+    {
+        this.sessionToken = token;
+        return this;
+    }
+    
     public abstract T create();
 }

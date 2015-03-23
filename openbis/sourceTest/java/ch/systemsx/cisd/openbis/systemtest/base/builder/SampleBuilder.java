@@ -116,7 +116,7 @@ public class SampleBuilder extends Builder<Sample>
         sampleType.setListable(true);
         sampleType.setGeneratedFromHierarchyDepth(0);
         sampleType.setSampleTypePropertyTypes(new ArrayList<SampleTypePropertyType>());
-        commonServer.registerSampleType(systemSession, sampleType);
+        commonServer.registerSampleType(sessionToken, sampleType);
 
         String identifier;
         if (this.experiment != null)
@@ -154,11 +154,11 @@ public class SampleBuilder extends Builder<Sample>
         data.setProperties(new IEntityProperty[0]);
         data.setSampleType(sampleType);
 
-        genericServer.registerSample(systemSession, data, new ArrayList<NewAttachment>());
+        genericServer.registerSample(sessionToken, data, new ArrayList<NewAttachment>());
 
         BasicEntityDescription info = new BasicEntityDescription(EntityKind.SAMPLE, identifier);
         IEntityInformationHolderWithPermId holder =
-                commonServer.getEntityInformationHolder(systemSession, info);
-        return commonServer.getSampleInfo(systemSession, new TechId(holder.getId())).getParent();
+                commonServer.getEntityInformationHolder(sessionToken, info);
+        return commonServer.getSampleInfo(sessionToken, new TechId(holder.getId())).getParent();
     }
 }

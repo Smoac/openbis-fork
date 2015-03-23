@@ -56,7 +56,7 @@ public class ProjectUpdateBuilder extends UpdateBuilder<ProjectUpdatesDTO>
 
     private Project refresh(Project project)
     {
-        return commonServer.getProjectInfo(systemSession, new TechId(project.getId()));
+        return commonServer.getProjectInfo(sessionToken, new TechId(project.getId()));
     }
 
     @Override

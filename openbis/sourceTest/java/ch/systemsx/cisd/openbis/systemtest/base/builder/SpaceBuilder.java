@@ -41,13 +41,13 @@ public class SpaceBuilder extends Builder<Space>
     @Override
     public Space create()
     {
-        commonServer.registerSpace(systemSession, code, "description");
+        commonServer.registerSpace(sessionToken, code, "description");
         return getSpace(code);
     }
 
     private Space getSpace(String spaceCode)
     {
-        for (Space space : commonServer.listSpaces(systemSession))
+        for (Space space : commonServer.listSpaces(sessionToken))
         {
             if (space.getCode().equalsIgnoreCase(spaceCode))
             {

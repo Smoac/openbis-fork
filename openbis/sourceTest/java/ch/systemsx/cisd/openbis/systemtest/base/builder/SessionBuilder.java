@@ -92,18 +92,18 @@ public class SessionBuilder extends Builder<String>
     @Override
     public String create()
     {
-        commonServer.registerPerson(systemSession, userName);
+        commonServer.registerPerson(sessionToken, userName);
 
         for (Pair<RoleCode, Space> role : spaceRoles)
         {
-            commonServer.registerSpaceRole(systemSession, role.first, new SpaceIdentifier(
+            commonServer.registerSpaceRole(sessionToken, role.first, new SpaceIdentifier(
                     role.second.getInstance().getCode(), role.second.getCode()), Grantee
                     .createPerson(this.userName));
         }
 
         for (RoleCode role : instanceRoles)
         {
-            commonServer.registerInstanceRole(systemSession, role,
+            commonServer.registerInstanceRole(sessionToken, role,
                     Grantee.createPerson(this.userName));
         }
 

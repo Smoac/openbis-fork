@@ -130,17 +130,17 @@ public class ExternalDataBuilder extends Builder<AbstractExternalData>
 
         if (this.sampleIdentifier != null)
         {
-            etlService.registerDataSet(systemSession, sampleIdentifier, data);
+            etlService.registerDataSet(sessionToken, sampleIdentifier, data);
         } else if (experimentIdentifier != null)
         {
-            etlService.registerDataSet(systemSession, experimentIdentifier, data);
+            etlService.registerDataSet(sessionToken, experimentIdentifier, data);
         } else
         {
             throw new IllegalStateException("Neither sample nor experiment has been specified for data set "
                     + data.getCode());
         }
 
-        return etlService.tryGetDataSet(systemSession, this.code);
+        return etlService.tryGetDataSet(sessionToken, this.code);
 
     }
 
@@ -182,7 +182,7 @@ public class ExternalDataBuilder extends Builder<AbstractExternalData>
 
     private void registerDataSetType(DataSetType dataSetType)
     {
-        List<DataSetType> dataSetTypes = commonServer.listDataSetTypes(systemSession);
+        List<DataSetType> dataSetTypes = commonServer.listDataSetTypes(sessionToken);
         for (DataSetType type : dataSetTypes)
         {
             if (type.getCode().equals(dataSetType.getCode()))
@@ -190,6 +190,6 @@ public class ExternalDataBuilder extends Builder<AbstractExternalData>
                 return;
             }
         }
-        commonServer.registerDataSetType(systemSession, dataSetType);
+        commonServer.registerDataSetType(sessionToken, dataSetType);
     }
 }

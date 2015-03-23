@@ -58,7 +58,7 @@ public class ProjectBuilder extends Builder<Project>
     {
         ProjectIdentifier projectId =
                 new ProjectIdentifier(space.getInstance().getCode(), space.getCode(), this.code);
-        commonServer.registerProject(systemSession, projectId, "description", "system",
+        commonServer.registerProject(sessionToken, projectId, "description", "system",
                 new ArrayList<NewAttachment>());
 
         return getProject(this.code);
@@ -66,7 +66,7 @@ public class ProjectBuilder extends Builder<Project>
 
     private Project getProject(String projectCode)
     {
-        for (Project project : commonServer.listProjects(systemSession))
+        for (Project project : commonServer.listProjects(sessionToken))
         {
             if (project.getCode().equalsIgnoreCase(projectCode))
             {

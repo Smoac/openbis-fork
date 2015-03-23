@@ -40,8 +40,6 @@ public class ExperimentBuilder extends Builder<Experiment>
 
     private Project project;
 
-    private String session;
-
     private String[] samples;
 
     private List<NewSamplesWithTypes> newSamples;
@@ -49,7 +47,6 @@ public class ExperimentBuilder extends Builder<Experiment>
     public ExperimentBuilder(ICommonServerForInternalUse commonServer, IGenericServer genericServer)
     {
         super(commonServer, genericServer);
-        this.session = systemSession;
         this.samples = new String[0];
         this.newSamples = null;
         this.code = "E" + number++;
@@ -90,7 +87,7 @@ public class ExperimentBuilder extends Builder<Experiment>
         experimentType.setDescription("description");
         experimentType.setExperimentTypePropertyTypes(new ArrayList<ExperimentTypePropertyType>());
 
-        commonServer.registerExperimentType(systemSession, experimentType);
+        commonServer.registerExperimentType(sessionToken, experimentType);
 
         String experimentId =
                 "/" + this.project.getSpace().getCode() + "/" + this.project.getCode() + "/"
@@ -103,7 +100,7 @@ public class ExperimentBuilder extends Builder<Experiment>
         details.setProperties(new IEntityProperty[0]);
         details.setRegisterSamples(false);
         details.setSamples(this.samples);
-        genericServer.registerExperiment(this.session, details, new ArrayList<NewAttachment>());
+        genericServer.registerExperiment(sessionToken, details, new ArrayList<NewAttachment>());
 
         return getExperiment(experimentId);
     }
@@ -111,7 +108,7 @@ public class ExperimentBuilder extends Builder<Experiment>
     private Experiment getExperiment(String experimentId)
     {
         String[] codes = experimentId.split("/");
-        return commonServer.getExperimentInfo(systemSession, new ExperimentIdentifier("CISD",
+        return commonServer.getExperimentInfo(sessionToken, new ExperimentIdentifier("CISD",
                 codes[1], codes[2], codes[3]));
     }
 

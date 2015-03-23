@@ -44,6 +44,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.testng.AbstractTransactionalTestNGSpringContextTests;
 import org.springframework.test.context.transaction.TransactionConfiguration;
+import org.testng.AssertJUnit;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeSuite;
@@ -154,6 +155,10 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
     protected String systemSessionToken;
 
     protected EntityRepository repository;
+
+    private Space defaultSpace;
+
+    private Project defaultProject;
     
     @BeforeSuite(groups = "system-cleandb")
     public void initializeLog() throws Exception
@@ -570,10 +575,10 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
     private void createGraph(EntityGraphGenerator g)
     {
         repository = new EntityRepository();
-        Space space = create(aSpace());
-        Project project = create(aProject().inSpace(space));
-        createExperiments(project, g);
-        createSamples(space, g);
+        defaultSpace = create(aSpace());
+        defaultProject = create(aProject().inSpace(defaultSpace));
+        createExperiments(defaultProject, g);
+        createSamples(defaultSpace, g);
         createDataSets(g);
     }
 
@@ -586,10 +591,10 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
             ExternalDataBuilder dataSet = aDataSet().withType(dataSetNode.getType());
             if (dataSetNode.getSample() != null)
             {
-                dataSet.inSample(repository.getSample(dataSetNode.getSample()));
+                dataSet.inSample(repository.tryGetSample(dataSetNode.getSample()));
             } else if (dataSetNode.getExperiment() != null)
             {
-                dataSet.inExperiment(repository.getExperiment(dataSetNode.getExperiment()));
+                dataSet.inExperiment(repository.tryGetExperiment(dataSetNode.getExperiment()));
             }
             List<DataSetNode> components = dataSetNode.getComponents();
             if (components.isEmpty() == false)
@@ -597,7 +602,7 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
                 dataSet.asContainer();
                 for (DataSetNode component : components)
                 {
-                    AbstractExternalData componentDataSet = repository.getDataSet(component);
+                    AbstractExternalData componentDataSet = repository.tryGetDataSet(component);
                     if (componentDataSet == null)
                     {
                         throw new IllegalStateException("Data set " + component.getCode() 
@@ -610,7 +615,7 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
             List<DataSetNode> parents = dataSetNode.getParents();
             for (DataSetNode parent : parents)
             {
-                AbstractExternalData parentDataSet = repository.getDataSet(parent);
+                AbstractExternalData parentDataSet = repository.tryGetDataSet(parent);
                 if (parentDataSet == null)
                 {
                     throw new IllegalStateException("Data set " + parent.getCode() 
@@ -631,7 +636,7 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
             ExperimentNode experimentNode = sampleNode.getExperiment();
             if (experimentNode != null)
             {
-                sample.inExperiment(repository.getExperiment(experimentNode));
+                sample.inExperiment(repository.tryGetExperiment(experimentNode));
             }
             addToRepository(sampleNode, sample);
         }
@@ -645,7 +650,12 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
         }
     }
 
-    private void addToRepository(ExperimentNode experimentNode, Experiment experiment)
+    protected String getIdentifierOfDefaultProject()
+    {
+        return defaultProject.getIdentifier();
+    }
+
+    protected void addToRepository(ExperimentNode experimentNode, Experiment experiment)
     {
         try
         {
@@ -823,17 +833,62 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
             builder.append(entity.getModificationDate()).append(")\n");
         }
         
+        public String getExperimentIdentifierOrNull(ExperimentNode experimentNodeOrNull)
+        {
+            return experimentNodeOrNull == null ? null : getExperiment(experimentNodeOrNull).getIdentifier();
+        }
+        
         public Experiment getExperiment(ExperimentNode experimentNode)
+        {
+            Experiment experiment = tryGetExperiment(experimentNode);
+            if (experiment == null)
+            {
+                throw new IllegalArgumentException("Unknown experiment " + experimentNode.getCode());
+            }
+            return experiment;
+        }
+        
+        public Experiment tryGetExperiment(ExperimentNode experimentNode)
         {
             return experimentsNodeToDtoMap.get(experimentNode.getId());
         }
         
+        public String getSamplePermIdOrNull(SampleNode sampleNodeOrNull)
+        {
+            return sampleNodeOrNull == null ? null : getSample(sampleNodeOrNull).getPermId();
+        }
+        
         public Sample getSample(SampleNode sampleNode)
+        {
+            Sample sample = tryGetSample(sampleNode);
+            if (sample == null)
+            {
+                throw new IllegalArgumentException("Unknown sample " + sampleNode.getCode());
+            }
+            return sample;
+        }
+        
+        public Sample tryGetSample(SampleNode sampleNode)
         {
             return samplesNodeToDtoMap.get(sampleNode.getId());
         }
         
+        public String getDataSetCodeOrNull(DataSetNode dataSetNodeOrNull)
+        {
+            return dataSetNodeOrNull == null ? null : getDataSet(dataSetNodeOrNull).getCode();
+        }
+        
         public AbstractExternalData getDataSet(DataSetNode dataSetNode)
+        {
+            AbstractExternalData dataSet = tryGetDataSet(dataSetNode);
+            if (dataSet == null)
+            {
+                throw new IllegalArgumentException("Unknown data set " + dataSetNode.getCode());
+            }
+            return dataSet;
+        }
+        
+        public AbstractExternalData tryGetDataSet(DataSetNode dataSetNode)
         {
             return dataSetsNodeToDtoMap.get(dataSetNode.getId());
         }
@@ -998,6 +1053,16 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
             for (EntityNode node : entityNodes)
             {
                 ModificationInfo previous = previousInfos.get(node.getId());
+                if (previous == null)
+                {
+                    if (modified == false)
+                    {
+                        continue;
+                    } else
+                    {
+                        throw new AssertionError(node.getCode() + " no previous modification info");
+                    }
+                }
                 assertNotNull(node.getCode() + " no previous modification info", previous);
                 CodeWithRegistrationAndModificationDate<?> entity = nodeToDtoMap.get(node.getId());
                 assertNotNull(node.getCode() + " unknown", entity);

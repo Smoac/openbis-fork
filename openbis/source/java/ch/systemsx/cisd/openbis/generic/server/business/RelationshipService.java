@@ -98,7 +98,7 @@ public class RelationshipService implements IRelationshipService
 
         for (DataPE dataset : sample.getDatasets())
         {
-            RelationshipUtils.setExperimentForDataSet(dataset, experiment, session);
+            service.assignDataSetToExperiment(session, dataset, experiment);
         }
     }
 
@@ -136,7 +136,6 @@ public class RelationshipService implements IRelationshipService
     @Override
     public void shareSample(IAuthSession session, SamplePE sample)
     {
-        SpacePE space = sample.getSpace();
         sample.setSpace(null);
         RelationshipUtils.updateModificationDateAndModifier(sample, session);
     }

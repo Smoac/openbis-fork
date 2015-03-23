@@ -30,7 +30,6 @@ import ch.systemsx.cisd.common.collection.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.DataSetTypeWithoutExperimentChecker;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertiesConverter;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
@@ -45,6 +44,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.id.experiment.Experimen
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.id.experiment.ExperimentTechIdId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.id.experiment.IExperimentId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
@@ -517,9 +517,16 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
     {
         for (SamplePE sample : samples)
         {
-            checkSampleWithoutDatasets(sample);
-
+            List<DataPE> dataSets = getDataDAO().listDataSets(sample);
+            checkDataSetsDoNotNeedAnExperiment(sample.getIdentifier(), dataSets);
             relationshipService.unassignSampleFromExperiment(session, sample);
+            for (DataPE dataSet : dataSets)
+            {
+                if (dataSet.getExperiment() != null)
+                {
+                    relationshipService.assignDataSetToExperiment(session, dataSet, null);
+                }
+            }
         }
     }
 

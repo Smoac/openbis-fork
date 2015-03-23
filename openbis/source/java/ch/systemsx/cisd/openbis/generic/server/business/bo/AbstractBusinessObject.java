@@ -740,7 +740,7 @@ abstract class AbstractBusinessObject implements IDAOFactory
         checkDataSetsDoNotNeedAnExperiment(sampleIdentifier, dataSets);
     }
 
-    private void checkDataSetsDoNotNeedAnExperiment(String sampleIdentifier, List<DataPE> dataSets)
+    protected void checkDataSetsDoNotNeedAnExperiment(String sampleIdentifier, List<DataPE> dataSets)
     {
         List<String> dataSetsNeedingExperiment = new ArrayList<String>();
         for (DataPE dataSet : dataSets)
