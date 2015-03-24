@@ -51,28 +51,22 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 		}
 		
 		var xmlDoc = FormUtil.getXMLFromAnnotations(this.stateObj);
-		
-		$("#ANNOTATIONS_STATE").val(xmlDoc);
-		
-		//Compatibility mode for new sample form
-		if(mainController.currentView._sampleFormModel) {
-			mainController.currentView._sampleFormModel.sample.properties["ANNOTATIONS_STATE"] = xmlDoc;
-		}
+		mainController.currentView._sampleFormModel.sample.properties["ANNOTATIONS_STATE"] = xmlDoc;
 	}
 	
 	this._readState = function() {
-		var stateField = $("#ANNOTATIONS_STATE");
+		var stateField = mainController.currentView._sampleFormModel.sample.properties["ANNOTATIONS_STATE"];
 		if(!this.isDisabled && stateField.length === 0) {
 			if(this.sampleTypeHints && this.sampleTypeHints.length !== 0) { //Indicates annotations are needed
 				Util.showError("You need a property with code ANNOTATIONS_STATE on this entity to store the state of the annotations.");
 			}
 		} else {
 			//Hide State Field
-			var fieldset = stateField.parent().parent().parent();
+			var fieldset = $("#ANNOTATIONS_STATE").parent().parent().parent();
 			fieldset.hide();
 			
 			//Update Values
-			this.stateObj = FormUtil.getAnnotationsFromField(stateField.val());
+			this.stateObj = FormUtil.getAnnotationsFromField(stateField);
 		}
 	}
 	
@@ -559,15 +553,15 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 			$input.append("Select");
 			
 			//Remove Link Annotations
-//			var items = $input.parent().children();
-//			for(var i = 0; i < items.length; i++) {
-//				var item = $(items[i]);
-//				var propertyTypeCode = item.attr("property-type-code");
-//				if(propertyTypeCode) {
-//					item.val("");
-//					item.prop("disabled", true);
-//				}
-//			}
+			var items = $input.parent().children();
+			for(var i = 0; i < items.length; i++) {
+				var item = $(items[i]);
+				var propertyTypeCode = item.attr("property-type-code");
+				if(propertyTypeCode) {
+					item.val("");
+					item.prop("disabled", true);
+				}
+			}
 			this._writeState(sample, null, null, true);
 			//Update
 			this.samplesRemoved[sampleId] = this.samples[sampleId];
