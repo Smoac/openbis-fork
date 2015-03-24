@@ -790,7 +790,13 @@ abstract class AbstractBusinessObject implements IDAOFactory
         {
             assignmentManager.assignDataSetAndRelatedComponents(dataSet, sample, newExperiment);
         }
-        relationshipService.assignSampleToExperiment(session, sample, newExperiment);
+        if (newExperiment != null)
+        {
+            relationshipService.assignSampleToExperiment(session, sample, newExperiment);
+        } else
+        {
+            relationshipService.unassignSampleFromExperiment(session, sample);
+        }
         assignmentManager.performAssignment(relationshipService, session);
     }
 
