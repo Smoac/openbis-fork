@@ -50,6 +50,7 @@ var FormUtil = new function() {
 		}
 		
 		xmlDoc	+= "</root>";
+		return xmlDoc;
 	}
 	
 	this.getAnnotationsFromSample = function(sample) {
