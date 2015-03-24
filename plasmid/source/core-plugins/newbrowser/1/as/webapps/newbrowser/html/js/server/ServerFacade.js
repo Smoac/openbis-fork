@@ -537,20 +537,26 @@ function ServerFacade(openbisServer) {
 	
 	this.searchWithIdentifier = function(sampleIdentifier, callbackFunction)
 	{	
-		var matchClauses = [
-				{
-					"@type":"AttributeMatchClause",
-					fieldType : "ATTRIBUTE",			
-					attribute : "SPACE",
-					desiredValue : sampleIdentifier.split("/")[1] 
-				},
-				{
-					"@type":"AttributeMatchClause",
-					fieldType : "ATTRIBUTE",			
-					attribute : "CODE",
-					desiredValue : sampleIdentifier.split("/")[2] 
-				}
-		]
+		this.searchWithIdentifiers([sampleIdentifier], callbackFunction);
+	}
+	
+	this.searchWithIdentifiers = function(sampleIdentifiers, callbackFunction)
+	{
+		var matchClauses = [];
+		sampleIdentifiers.forEach(function(sampleIdentifier){
+			matchClauses.push({
+				"@type":"AttributeMatchClause",
+				fieldType : "ATTRIBUTE",			
+				attribute : "SPACE",
+				desiredValue : sampleIdentifier.split("/")[1] 
+			},
+			{
+				"@type":"AttributeMatchClause",
+				fieldType : "ATTRIBUTE",			
+				attribute : "CODE",
+				desiredValue : sampleIdentifier.split("/")[2] 
+			});
+		});
 		
 		var sampleCriteria = 
 		{
@@ -559,7 +565,7 @@ function ServerFacade(openbisServer) {
 		};
 		
 		var localReference = this;
-		this.openbisServer.searchForSamplesWithFetchOptions(sampleCriteria, ["PROPERTIES"], function(data) {
+		this.openbisServer.searchForSamplesWithFetchOptions(sampleCriteria, ["PROPERTIES", "ANCESTORS", "DESCENDANTS"], function(data) {
 			callbackFunction(localReference.getInitializedSamples(data.result));
 		});
 	}

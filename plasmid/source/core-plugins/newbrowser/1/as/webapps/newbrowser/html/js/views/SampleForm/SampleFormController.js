@@ -298,8 +298,8 @@ function SampleFormController(mainController, mode, sample) {
 			nextAction();
 		}
 		
-		if(newParents.length !== 0) {
-			mainController.serverFacade.searchWithIdentifier(null, builAnnotationsAction, newParents);
+		if(sampleParentsAnnotationsCopy && newParents.length !== 0) {
+			mainController.serverFacade.searchWithIdentifiers(newParents, builAnnotationsAction);
 		} else {
 			nextAction();
 		}

@@ -219,6 +219,7 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 														"ANNOTATION_PROPERTIES" : [{"TYPE" : "PLASMID_RELATIONSHIP", "MANDATORY" : false },{"TYPE" : "PLASMID_ANNOTATION", "MANDATORY" : false },{"TYPE" : "COMMENTS", "MANDATORY" : false },{"TYPE" : "CONTAINED", "MANDATORY" : false }]
 												}
 										],
+					"SAMPLE_PARENTS_ANNOTATIONS_COPY" : { "YEAST" : ["PLASMID"] }
 				},
 
 				"CELL_LINE" : {
