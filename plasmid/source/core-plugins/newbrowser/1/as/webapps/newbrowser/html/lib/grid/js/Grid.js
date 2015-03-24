@@ -63,8 +63,10 @@ $.extend(Grid.prototype, {
 				.attr("value", column.property)
 				.attr("style", "margin-left: 5px;");
 			
-			if(thisGrid.columnsToShow && (thisGrid.columnsToShow[column.property] === true)) { //If settings are present
-				checkbox.attr("checked", "checked");
+			if(thisGrid.columnsToShow) {
+				if((thisGrid.columnsToShow[column.property] === true)) { //If settings are present
+					checkbox.attr("checked", "checked");
+				}
 			} else if(thisGrid.showAllColumns || columnIndex < (defaultNumColumns - 1) || (columnIndex+1 === thisGrid.columns.length)) { //Defaults
 				checkbox.attr("checked", "checked");
 			}
