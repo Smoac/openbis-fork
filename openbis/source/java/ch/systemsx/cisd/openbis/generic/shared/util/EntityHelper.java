@@ -59,16 +59,19 @@ public class EntityHelper
      */
     public static <T extends IIdHolder >boolean equalEntities(T entity1OrNull, T entity2OrNull)
     {
-        Long id1 = getIdOrNull(entity1OrNull);
-        Long id2 = getIdOrNull(entity2OrNull);
+        if (entity1OrNull == null || entity2OrNull == null)
+        {
+            return entity1OrNull == entity2OrNull;
+        }
+        if (entity1OrNull.getClass().equals(entity2OrNull.getClass()) == false)
+        {
+            return false;
+        }
+        Long id1 = HibernateUtils.getId(entity1OrNull);
+        Long id2 = HibernateUtils.getId(entity2OrNull);
         return id1 == null ? id1 == id2 : id1.equals(id2);
     }
 
-    private static Long getIdOrNull(IIdHolder idHolderOrNull)
-    {
-        return idHolderOrNull == null ? null : idHolderOrNull.getId();
-    }
-    
     /**
      * Creates {@link EntityType} appropriate for given {@link EntityKind}.
      */

@@ -474,7 +474,11 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
 
     protected EntityGraphGenerator parseAndCreateGraph(String graphDefinition)
     {
-        return entityGraphManager.parseAndCreateGraph(graphDefinition);
+        EntityGraphGenerator graphGenerator = entityGraphManager.parseAndCreateGraph(graphDefinition);
+        org.hibernate.classic.Session currentSession = daoFactory.getSessionFactory().getCurrentSession();
+        currentSession.flush();
+        currentSession.clear();
+        return graphGenerator;
     }
     
     protected String renderGraph(EntityGraphGenerator g)

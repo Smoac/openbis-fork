@@ -438,6 +438,25 @@ public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
         assertUnmodified(g);
     }
     
+    @Test
+    public void containerWithAllItsComponentsReassignedFromSampleWithExperimentToExperiment2()
+    {
+        EntityGraphGenerator g = parseAndCreateGraph("E1, samples: S1, data sets: DS1 DS2\n"
+                + "E2, samples: S2\n"
+                + "S1, data sets: DS1 DS2\n"
+                + "DS1, components: DS2");
+        
+        reassignToExperiment(g.ds(1), g.e(2));
+        
+        assertEquals("E1, samples: S1\n"
+                + "E2, samples: S2, data sets: DS1 DS2\n"
+                + "DS1, components: DS2\n", renderGraph(g));
+        assertModified(g.e(1), g.e(2));
+        assertModified(g.s(1));
+        assertModified(g.ds(1), g.ds(2));
+        assertUnmodified(g);
+    }
+    
     // This is screening test case where one container data set is moved to another plate.
     @Test
     public void containerWithAllItsComponentsReassignedFromSampleWithExperimentToSampleWithExperiment()

@@ -29,20 +29,19 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.util.EntityHelper;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 class NewDataSetToSampleExperimentAssignmentManager
 {
     private final DataSetTypeWithoutExperimentChecker dataSetTypeChecker;
+
     private final List<DataSetSampleExperiment> assignments = new ArrayList<DataSetSampleExperiment>();
-    
+
     NewDataSetToSampleExperimentAssignmentManager(DataSetTypeWithoutExperimentChecker dataSetTypeChecker)
     {
         this.dataSetTypeChecker = dataSetTypeChecker;
     }
-    
+
     void performAssignment(IRelationshipService relationshipService, Session session)
     {
         for (DataSetSampleExperiment assignment : assignments)
@@ -55,7 +54,7 @@ class NewDataSetToSampleExperimentAssignmentManager
     {
         assignDataSetAndRelatedComponents(dataSet, dataSet, sample, experiment);
     }
-    
+
     private void assignDataSetAndRelatedComponents(DataPE dataSet, DataPE rootDataSet, SamplePE sample, ExperimentPE experiment)
     {
         String dataSetTypeCode = dataSet.getDataSetType().getCode();
@@ -80,13 +79,13 @@ class NewDataSetToSampleExperimentAssignmentManager
             if ((EntityHelper.equalEntities(rootSample, componentSample) || componentSample == null)
                     && EntityHelper.equalEntities(rootExperiment, componentExperiment))
             {
-                SamplePE newSample = componentSample == null && experiment != null? null : sample;
+                SamplePE newSample = componentSample == null && experiment != null ? null : sample;
                 assignments.add(new DataSetSampleExperiment(component, newSample, experiment));
                 assignDataSetAndRelatedComponents(component, rootDataSet, sample, experiment);
             }
         }
     }
-    
+
     private ExperimentPE getExperimentOf(DataPE data)
     {
         SamplePE sample = data.tryGetSample();
@@ -96,7 +95,9 @@ class NewDataSetToSampleExperimentAssignmentManager
     private static class DataSetSampleExperiment
     {
         private DataPE dataSet;
+
         private SamplePE sample;
+
         private ExperimentPE experiment;
 
         DataSetSampleExperiment(DataPE dataSet, SamplePE sample, ExperimentPE experiment)
@@ -117,4 +118,5 @@ class NewDataSetToSampleExperimentAssignmentManager
                 relationshipService.assignDataSetToExperiment(session, dataSet, experiment);
             }
         }
-    }}
+    }
+}
