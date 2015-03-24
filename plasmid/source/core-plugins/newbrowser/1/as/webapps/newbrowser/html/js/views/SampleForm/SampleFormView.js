@@ -238,6 +238,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 				orphanSample.code = annotationsFromSample[orphanSamplePermId].identifier.split('/')[2];
 				orphanSample.identifier = annotationsFromSample[orphanSamplePermId].identifier;
 				orphanSample.sampleTypeCode = annotationsFromSample[orphanSamplePermId].sampleType;
+				orphanSample.properties = { "NAME" : "TO-DO, get names on links"};
 				currentOrphanLinks.push(orphanSample);
 			}
 		}

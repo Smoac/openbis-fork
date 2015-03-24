@@ -230,14 +230,71 @@ function SampleFormController(mainController, mode, sample) {
 		// Sending the request to the server
 		//
 		if(profile.getDefaultDataStoreCode()) {
-			mainController.serverFacade.createReportFromAggregationService(profile.getDefaultDataStoreCode(), parameters, function(response) {
-				_this._createUpdateCopySampleCallback(_this, isCopyWithNewCode, response);
-			});
+			
+			var commit = function() {
+				mainController.serverFacade.createReportFromAggregationService(profile.getDefaultDataStoreCode(), parameters, function(response) {
+					_this._createUpdateCopySampleCallback(_this, isCopyWithNewCode, response);
+				});
+			}
+			
+			this._updateAnnotationsUsingCopyParentsInfo(sampleParentsFinal, commit);
+			
+			
 		} else {
 			Util.showError("No DSS available.", function() {Util.unblockUI();});
 		}
 		
 		return false;
+	}
+	
+	this._updateAnnotationsUsingCopyParentsInfo = function(newParents, nextAction) {
+		var _this = this;
+		//Annotations from where to add and discard
+		var newAnnotations = FormUtil.getAnnotationsFromSample(this._sampleFormModel.sample);
+		var newParents = newParents;
+		
+		//Made modifications depending on
+		var sampleTypeDefinitionsExtension = profile.sampleTypeDefinitionsExtension[this._sampleFormModel.sample.sampleTypeCode];
+		var sampleParentsAnnotationsCopy = null;
+		if(sampleTypeDefinitionsExtension) {
+			sampleParentsAnnotationsCopy = sampleTypeDefinitionsExtension["SAMPLE_PARENTS_ANNOTATIONS_COPY"];
+		}
+		
+		//Add automatic annotations
+		var builAnnotationsAction = function(parentsReturned) {
+			var finalAnnotations = {};
+			for(var pIdx = 0; pIdx < parentsReturned.length; pIdx++) {
+				var sampleTypeCode = parentsReturned[pIdx].sampleTypeCode;
+				var copyAnnotationsOfTypes = sampleParentsAnnotationsCopy[sampleTypeCode];
+				var annotationsProperty = parentsReturned[pIdx].properties["ANNOTATIONS_STATE"];
+				var annotationsObj = FormUtil.getAnnotationsFromSample(parentsReturned[pIdx]);
+				//Add annotations from requested types and add container
+				for(permId in annotationsObj) {
+					var annotatedSample = annotationsObj[permId];
+					var annotatedSampleType = annotatedSample.sampleType;
+					if(jQuery.inArray(annotatedSampleType, copyAnnotationsOfTypes) !== -1) {
+						annotatedSample["CONTAINED"] =  _this._sampleFormModel.sample.identifier;
+						finalAnnotations[permId] = annotatedSample;
+					}
+				}
+			}
+			
+			//Add annotations from samples without contained property, these are supposed to be user generated
+			for(permId in newAnnotations) {
+				if(!newAnnotations[permId]["CONTAINED"]) {
+					finalAnnotations[permId] = newAnnotations[permId];
+				}
+			}
+			
+			//Build XML from annotations object
+			var annotationsXML = FormUtil.getXMLFromAnnotations(finalAnnotations);
+			//Update property
+			_this._sampleFormModel.sample.properties["ANNOTATIONS_STATE"] = annotationsXML;
+			//Trigger next step
+			nextAction();
+		}
+		
+		mainController.serverFacade.searchWithIdentifier(null, builAnnotationsAction, newParents);
 	}
 	
 	this._createUpdateCopySampleCallback = function(_this, isCopyWithNewCode, response) {
