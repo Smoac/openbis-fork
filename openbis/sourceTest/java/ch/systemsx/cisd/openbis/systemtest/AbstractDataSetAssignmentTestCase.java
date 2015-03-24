@@ -173,10 +173,10 @@ public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
                 + "DS1, components: DS3\n"
                 + "DS2, components: DS4\n"
                 + "DS3, components: DS5 DS6\n", renderGraph(g));
-        repository.assertModified(g.e(1), g.e(3));
-        repository.assertModified(g.s(1), g.s(3));
-        repository.assertModified(g.ds(3), g.ds(4), g.ds(5), g.ds(6));
-        repository.assertUnmodified(g);
+        assertModified(g.e(1), g.e(3));
+        assertModified(g.s(1), g.s(3));
+        assertModified(g.ds(3), g.ds(4), g.ds(5), g.ds(6));
+        assertUnmodified(g);
     }
     
     @Test
@@ -199,9 +199,9 @@ public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
                 + "DS1, components: DS3\n"
                 + "DS2, components: DS4\n"
                 + "DS3, components: DS5 DS6\n", renderGraph(g));
-        repository.assertModified(g.e(2), g.e(3));
-        repository.assertModified(g.ds(1), g.ds(2));
-        repository.assertUnmodified(g);
+        assertModified(g.e(2), g.e(3));
+        assertModified(g.ds(1), g.ds(2));
+        assertUnmodified(g);
     }
     
     @Test
@@ -222,10 +222,10 @@ public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
                 + "S3, data sets: DS3[NET]\n"
                 + "DS1[NECT], components: DS2[NECT] DS3[NET]\n"
                 + "DS2[NECT], components: DS4\n", renderGraph(g));
-        repository.assertModified(g.e(2));
-        repository.assertModified(g.s(1), g.s(2));
-        repository.assertModified(g.ds(1), g.ds(2));
-        repository.assertUnmodified(g);
+        assertModified(g.e(2));
+        assertModified(g.s(1), g.s(2));
+        assertModified(g.ds(1), g.ds(2));
+        assertUnmodified(g);
     }
     
     @Test
@@ -245,9 +245,9 @@ public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
                 + "S3, data sets: DS3[NET]\n"
                 + "DS1[NECT], components: DS2[NECT] DS3[NET]\n"
                 + "DS2[NECT], components: DS4\n", renderGraph(g));
-        repository.assertModified(g.s(1), g.s(2));
-        repository.assertModified(g.ds(1), g.ds(2));
-        repository.assertUnmodified(g);
+        assertModified(g.s(1), g.s(2));
+        assertModified(g.ds(1), g.ds(2));
+        assertUnmodified(g);
     }
     
     @Test
@@ -267,10 +267,10 @@ public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
                 + "S3, data sets: DS3[NET]\n"
                 + "DS1[NECT], components: DS2[NECT] DS3[NET]\n"
                 + "DS2[NECT], components: DS4\n", renderGraph(g));
-        repository.assertModified(g.e(2));
-        repository.assertModified(g.s(1));
-        repository.assertModified(g.ds(1), g.ds(2));
-        repository.assertUnmodified(g);
+        assertModified(g.e(2));
+        assertModified(g.s(1));
+        assertModified(g.ds(1), g.ds(2));
+        assertUnmodified(g);
     }
     
     @Test
@@ -291,10 +291,10 @@ public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
                 + "S2, data sets: DS1[NECT] DS5[NET]\n"
                 + "DS1[NECT], components: DS2 DS3\n"
                 + "DS2, components: DS4\n", renderGraph(g));
-        repository.assertModified(g.e(1));
-        repository.assertModified(g.s(2));
-        repository.assertModified(g.ds(1));
-        repository.assertUnmodified(g);
+        assertModified(g.e(1));
+        assertModified(g.s(2));
+        assertModified(g.ds(1));
+        assertUnmodified(g);
     }
     
     @Test
@@ -313,9 +313,9 @@ public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
                 + "E3, data sets: DS3\n"
                 + "DS1, components: DS2 DS3\n"
                 + "DS2, components: DS4\n", renderGraph(g));
-        repository.assertModified(g.e(1), g.e(2));
-        repository.assertModified(g.ds(1), g.ds(2), g.ds(4));
-        repository.assertUnmodified(g);
+        assertModified(g.e(1), g.e(2));
+        assertModified(g.ds(1), g.ds(2), g.ds(4));
+        assertUnmodified(g);
     }
 
     @Test
@@ -335,10 +335,10 @@ public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
                 + "S2, data sets: DS1\n"
                 + "DS1, components: DS2 DS3\n"
                 + "DS2, components: DS4\n", renderGraph(g));
-        repository.assertModified(g.e(1), g.e(2));
-        repository.assertModified(g.ds(1), g.ds(2), g.ds(4));
-        repository.assertModified(g.s(2));
-        repository.assertUnmodified(g);
+        assertModified(g.e(1), g.e(2));
+        assertModified(g.ds(1), g.ds(2), g.ds(4));
+        assertModified(g.s(2));
+        assertUnmodified(g);
     }
     
     @Test
@@ -360,10 +360,10 @@ public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
                 + "S2, data sets: DS1\n"
                 + "DS1, components: DS2 DS3\n"
                 + "DS2, components: DS4\n", renderGraph(g));
-        repository.assertModified(g.e(1), g.e(2));
-        repository.assertModified(g.s(2));
-        repository.assertModified(g.ds(1));
-        repository.assertUnmodified(g);
+        assertModified(g.e(1), g.e(2));
+        assertModified(g.s(2));
+        assertModified(g.ds(1));
+        assertUnmodified(g);
     }
     
     @Test
@@ -378,9 +378,9 @@ public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
         assertEquals("E1, samples: S1\n"
                 + "E2, samples: S2, data sets: DS1 DS2\n"
                 + "DS1, components: DS2\n", renderGraph(g));
-        repository.assertModified(g.e(1), g.e(2));
-        repository.assertModified(g.ds(1), g.ds(2));
-        repository.assertUnmodified(g);
+        assertModified(g.e(1), g.e(2));
+        assertModified(g.ds(1), g.ds(2));
+        assertUnmodified(g);
     }
     
     @Test
@@ -395,10 +395,10 @@ public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
         assertEquals("E2, samples: S2, data sets: DS1 DS2\n"
                 + "S2, data sets: DS1\n"
                 + "DS1, components: DS2\n", renderGraph(g));
-        repository.assertModified(g.e(1), g.e(2));
-        repository.assertModified(g.s(2));
-        repository.assertModified(g.ds(1), g.ds(2));
-        repository.assertUnmodified(g);
+        assertModified(g.e(1), g.e(2));
+        assertModified(g.s(2));
+        assertModified(g.ds(1), g.ds(2));
+        assertUnmodified(g);
     }
     
     @Test
@@ -413,10 +413,10 @@ public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
         assertEquals("E1, samples: S1\n"
                 + "S2, data sets: DS1[NECT] DS2[NET]\n"
                 + "DS1[NECT], components: DS2[NET]\n", renderGraph(g));
-        repository.assertModified(g.e(1));
-        repository.assertModified(g.s(2));
-        repository.assertModified(g.ds(1), g.ds(2));
-        repository.assertUnmodified(g);
+        assertModified(g.e(1));
+        assertModified(g.s(2));
+        assertModified(g.ds(1), g.ds(2));
+        assertUnmodified(g);
     }
     
     @Test
@@ -432,10 +432,10 @@ public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
         assertEquals("E1, samples: S1\n"
                 + "E2, samples: S2, data sets: DS1 DS2\n"
                 + "DS1, components: DS2\n", renderGraph(g));
-        repository.assertModified(g.e(1), g.e(2));
-        repository.assertModified(g.s(1));
-        repository.assertModified(g.ds(1), g.ds(2));
-        repository.assertUnmodified(g);
+        assertModified(g.e(1), g.e(2));
+        assertModified(g.s(1));
+        assertModified(g.ds(1), g.ds(2));
+        assertUnmodified(g);
     }
     
     // This is screening test case where one container data set is moved to another plate.
@@ -453,10 +453,10 @@ public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
                 + "E2, samples: S2, data sets: DS1 DS2\n"
                 + "S2, data sets: DS1\n"
                 + "DS1, components: DS2\n", renderGraph(g));
-        repository.assertModified(g.e(1), g.e(2));
-        repository.assertModified(g.s(1), g.s(2));
-        repository.assertModified(g.ds(1), g.ds(2));
-        repository.assertUnmodified(g);
+        assertModified(g.e(1), g.e(2));
+        assertModified(g.s(1), g.s(2));
+        assertModified(g.ds(1), g.ds(2));
+        assertUnmodified(g);
     }
     
     @Test
@@ -472,10 +472,10 @@ public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
         assertEquals("E1, samples: S1\n"
                 + "S2, data sets: DS1[NECT] DS2[NET]\n"
                 + "DS1[NECT], components: DS2[NET]\n", renderGraph(g));
-        repository.assertModified(g.e(1));
-        repository.assertModified(g.s(1), g.s(2));
-        repository.assertModified(g.ds(1), g.ds(2));
-        repository.assertUnmodified(g);
+        assertModified(g.e(1));
+        assertModified(g.s(1), g.s(2));
+        assertModified(g.ds(1), g.ds(2));
+        assertUnmodified(g);
     }
 
     @Test
@@ -489,10 +489,10 @@ public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
 
         assertEquals("E1, data sets: DS1[NECT] DS2[NET]\n"
                 + "DS1[NECT], components: DS2[NET]\n", renderGraph(g));
-        repository.assertModified(g.e(1));
-        repository.assertModified(g.s(1));
-        repository.assertModified(g.ds(1), g.ds(2));
-        repository.assertUnmodified(g);
+        assertModified(g.e(1));
+        assertModified(g.s(1));
+        assertModified(g.ds(1), g.ds(2));
+        assertUnmodified(g);
     }
     
     @Test
@@ -507,10 +507,10 @@ public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
         assertEquals("E1, samples: S1, data sets: DS1[NECT] DS2[NET]\n"
                 + "S1, data sets: DS1[NECT] DS2[NET]\n"
                 + "DS1[NECT], components: DS2[NET]\n", renderGraph(g));
-        repository.assertModified(g.e(1));
-        repository.assertModified(g.s(1), g.s(2));
-        repository.assertModified(g.ds(1), g.ds(2));
-        repository.assertUnmodified(g);
+        assertModified(g.e(1));
+        assertModified(g.s(1), g.s(2));
+        assertModified(g.ds(1), g.ds(2));
+        assertUnmodified(g);
     }
     
     @Test
@@ -524,9 +524,9 @@ public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
 
         assertEquals("S2, data sets: DS1[NECT] DS2[NET]\n"
                 + "DS1[NECT], components: DS2[NET]\n", renderGraph(g));
-        repository.assertModified(g.s(1), g.s(2));
-        repository.assertModified(g.ds(1), g.ds(2));
-        repository.assertUnmodified(g);
+        assertModified(g.s(1), g.s(2));
+        assertModified(g.ds(1), g.ds(2));
+        assertUnmodified(g);
     }
     
     @Test
@@ -542,8 +542,8 @@ public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
             fail("UserFailureException expected");
         } catch (UserFailureException ex)
         {
-            AbstractExternalData dataSet = repository.tryGetDataSet(g.ds(2));
-            Sample sample = repository.tryGetSample(g.s(2));
+            AbstractExternalData dataSet = entityGraphManager.tryGetDataSet(g.ds(2));
+            Sample sample = entityGraphManager.tryGetSample(g.s(2));
             assertDataSetToSampleExceptionMessage(ex, sample, dataSet);
         }
     }
@@ -559,8 +559,8 @@ public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
             fail("UserFailureException expected");
         } catch (UserFailureException ex)
         {
-            AbstractExternalData dataSet = repository.tryGetDataSet(g.ds(1));
-            Sample sample = repository.tryGetSample(g.s(2));
+            AbstractExternalData dataSet = entityGraphManager.tryGetDataSet(g.ds(1));
+            Sample sample = entityGraphManager.tryGetSample(g.s(2));
             assertDataSetToSampleExceptionMessage(ex, sample, dataSet);
         }
     }
@@ -594,9 +594,9 @@ public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
         assertEquals("E1, data sets: DS2\n"
                 + "E2, data sets: DS1\n"
                 + "DS1, parents: DS2\n", renderGraph(g));
-        repository.assertModified(g.e(1), g.e(2));
-        repository.assertModified(g.ds(1));
-        repository.assertUnmodified(g);
+        assertModified(g.e(1), g.e(2));
+        assertModified(g.ds(1));
+        assertUnmodified(g);
     }
 
     @Test
@@ -611,9 +611,9 @@ public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
         assertEquals("E1, data sets: DS1\n"
                 + "E2, data sets: DS2\n"
                 + "DS1, parents: DS2\n", renderGraph(g));
-        repository.assertModified(g.e(1), g.e(2));
-        repository.assertModified(g.ds(2));
-        repository.assertUnmodified(g);
+        assertModified(g.e(1), g.e(2));
+        assertModified(g.ds(2));
+        assertUnmodified(g);
     }
 
     
@@ -632,10 +632,10 @@ public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
                 + "S1, data sets: DS2\n"
                 + "S2, data sets: DS1\n"
                 + "DS1, parents: DS2\n", renderGraph(g));
-        repository.assertModified(g.e(1), g.e(2));
-        repository.assertModified(g.s(1), g.s(2));
-        repository.assertModified(g.ds(1));
-        repository.assertUnmodified(g);
+        assertModified(g.e(1), g.e(2));
+        assertModified(g.s(1), g.s(2));
+        assertModified(g.ds(1));
+        assertUnmodified(g);
     }
     
     @Test
@@ -653,10 +653,10 @@ public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
                 + "S1, data sets: DS1\n"
                 + "S2, data sets: DS2\n"
                 + "DS1, parents: DS2\n", renderGraph(g));
-        repository.assertModified(g.e(1), g.e(2));
-        repository.assertModified(g.s(1), g.s(2));
-        repository.assertModified(g.ds(2));
-        repository.assertUnmodified(g);
+        assertModified(g.e(1), g.e(2));
+        assertModified(g.s(1), g.s(2));
+        assertModified(g.ds(2));
+        assertUnmodified(g);
     }
     
     @Test
@@ -671,9 +671,9 @@ public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
         assertEquals("E1, data sets: DS1\n"
                 + "E2, data sets: DS2\n"
                 + "DS1, components: DS2\n", renderGraph(g));
-        repository.assertModified(g.e(1), g.e(2));
-        repository.assertModified(g.ds(2));
-        repository.assertUnmodified(g);
+        assertModified(g.e(1), g.e(2));
+        assertModified(g.ds(2));
+        assertUnmodified(g);
     }
 
     @Test
@@ -687,9 +687,9 @@ public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
         
         assertEquals("E2, data sets: DS1 DS2\n"
                 + "DS1, components: DS2\n", renderGraph(g));
-        repository.assertModified(g.e(1), g.e(2));
-        repository.assertModified(g.ds(1), g.ds(2));
-        repository.assertUnmodified(g);
+        assertModified(g.e(1), g.e(2));
+        assertModified(g.ds(1), g.ds(2));
+        assertUnmodified(g);
     }
     
     @Test
@@ -707,10 +707,10 @@ public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
                 + "S1, data sets: DS1\n"
                 + "S2, data sets: DS2\n"
                 + "DS1, components: DS2\n", renderGraph(g));
-        repository.assertModified(g.e(1), g.e(2));
-        repository.assertModified(g.s(1), g.s(2));
-        repository.assertModified(g.ds(2));
-        repository.assertUnmodified(g);
+        assertModified(g.e(1), g.e(2));
+        assertModified(g.s(1), g.s(2));
+        assertModified(g.ds(2));
+        assertUnmodified(g);
     }
     
     @Test
@@ -727,10 +727,10 @@ public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
                 + "E2, samples: S2, data sets: DS1 DS2\n"
                 + "S2, data sets: DS1 DS2\n"
                 + "DS1, components: DS2\n", renderGraph(g));
-        repository.assertModified(g.e(1), g.e(2));
-        repository.assertModified(g.s(1), g.s(2));
-        repository.assertModified(g.ds(1), g.ds(2));
-        repository.assertUnmodified(g);
+        assertModified(g.e(1), g.e(2));
+        assertModified(g.s(1), g.s(2));
+        assertModified(g.ds(1), g.ds(2));
+        assertUnmodified(g);
     }
 
     @Test
@@ -742,9 +742,9 @@ public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
         reassignToSample(g.ds(1), null);
         
         assertEquals("E1, samples: S1, data sets: DS1\n", renderGraph(g));
-        repository.assertModified(g.s(1));
-        repository.assertModified(g.ds(1));
-        repository.assertUnmodified(g);
+        assertModified(g.s(1));
+        assertModified(g.ds(1));
+        assertUnmodified(g);
     }
 
     @Test(dataProvider = "rolesAllowedToAssignDataSetToExperiment", groups = "authorization")
@@ -821,16 +821,16 @@ public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
 
     private void reassignToExperiment(DataSetNode dataSetNode, ExperimentNode experimentNodeOrNull)
     {
-        String code = repository.getDataSetCodeOrNull(dataSetNode);
-        String experimentIdentifierOrNull = repository.getExperimentIdentifierOrNull(experimentNodeOrNull);
+        String code = entityGraphManager.getDataSetCodeOrNull(dataSetNode);
+        String experimentIdentifierOrNull = entityGraphManager.getExperimentIdentifierOrNull(experimentNodeOrNull);
         String user = create(aSession().withInstanceRole(RoleCode.ADMIN));
         reassignToExperiment(code, experimentIdentifierOrNull, user);
     }
 
     private void reassignToSample(DataSetNode dataSetNode, SampleNode sampleNodeOrNull)
     {
-        String code = repository.getDataSetCodeOrNull(dataSetNode);
-        String permIdOrNull = repository.getSamplePermIdOrNull(sampleNodeOrNull);
+        String code = entityGraphManager.getDataSetCodeOrNull(dataSetNode);
+        String permIdOrNull = entityGraphManager.getSamplePermIdOrNull(sampleNodeOrNull);
         String user = create(aSession().withInstanceRole(RoleCode.ADMIN));
         reassignToSample(code, permIdOrNull, user);
     }

@@ -17,23 +17,7 @@
 package ch.systemsx.cisd.openbis.systemtest.base;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertNotNull;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.TreeSet;
 import java.util.UUID;
 
 import org.hamcrest.CoreMatchers;
@@ -44,7 +28,6 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.testng.AbstractTransactionalTestNGSpringContextTests;
 import org.springframework.test.context.transaction.TransactionConfiguration;
-import org.testng.AssertJUnit;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeSuite;
@@ -58,18 +41,14 @@ import ch.systemsx.cisd.openbis.generic.server.ICommonServerForInternalUse;
 import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.entitygraph.DataSetNode;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.entitygraph.EntityGraphGenerator;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.entitygraph.EntityNode;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.entitygraph.ExperimentNode;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.entitygraph.SampleNode;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.DataSetTypeWithoutExperimentChecker;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IndexMode;
 import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeWithRegistrationAndModificationDate;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
@@ -121,6 +100,7 @@ import ch.systemsx.cisd.openbis.systemtest.base.matcher.InSampleMatcher;
 import ch.systemsx.cisd.openbis.systemtest.base.matcher.InSpaceMatcher;
 import ch.systemsx.cisd.openbis.systemtest.base.matcher.SampleHasContainerMatcher;
 import ch.systemsx.cisd.openbis.systemtest.base.matcher.SampleHasParentsMatcher;
+import ch.systemsx.cisd.openbis.systemtest.entitygraph.EntityGraphManager;
 
 /**
  * @author anttil
@@ -154,12 +134,10 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
 
     protected String systemSessionToken;
 
-    protected EntityRepository repository;
-
-    private Space defaultSpace;
-
-    private Project defaultProject;
+    protected EntityGraphManager entityGraphManager;
     
+    private Project defaultProject;
+
     @BeforeSuite(groups = "system-cleandb")
     public void initializeLog() throws Exception
     {
@@ -207,6 +185,7 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
     public void loginAsSystem()
     {
         systemSessionToken = commonServer.tryToAuthenticateAsSystem().getSessionToken();
+        entityGraphManager = new EntityGraphManager(etlService, commonServer, systemSessionToken);
     }
 
     @Autowired
@@ -495,161 +474,34 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
 
     protected EntityGraphGenerator parseAndCreateGraph(String graphDefinition)
     {
-        EntityGraphGenerator g = new EntityGraphGenerator();
-        g.parse(graphDefinition);
-        createGraph(g);
-        assertEquals(removeSolitaryNodes(graphDefinition), renderGraph(g, true));
-        repository.gatherModifictaionInfos();
-        return g;
-    }
-    
-    private String removeSolitaryNodes(String graphDefinition)
-    {
-        StringBuilder builder = new StringBuilder();
-        String[] lines = graphDefinition.split("\n");
-        for (String line : lines)
-        {
-            if (line.contains(","))
-            {
-                builder.append(line).append("\n");
-            }
-        }
-        return builder.toString();
+        return entityGraphManager.parseAndCreateGraph(graphDefinition);
     }
     
     protected String renderGraph(EntityGraphGenerator g)
     {
-        return renderGraph(g, false);
+        return entityGraphManager.renderGraph(g, false);
     }
     
-    private String renderGraph(EntityGraphGenerator g, boolean showWhereIAm)
+    protected void assertModified(ExperimentNode...experimentNodes)
     {
-        repository.refreshGraph(showWhereIAm);
-        StringBuilder builder = new StringBuilder();
-        for (ExperimentNode experimentNode : g.getExperiments().values())
-        {
-            StringBuilder builder2 = new StringBuilder();
-            render(builder2, "samples", repository.getSampleNode(experimentNode));
-            render(builder2, "data sets", repository.getDataSetNodes(experimentNode));
-            appendNodeTo(builder, experimentNode, builder2);
-        }
-        for (SampleNode sampleNode : g.getSamples().values())
-        {
-            StringBuilder builder2 = new StringBuilder();
-            render(builder2, "data sets", repository.getDataSetNodes(sampleNode));
-            appendNodeTo(builder, sampleNode, builder2);
-        }
-        for (DataSetNode dataSetNode : g.getDataSets().values())
-        {
-            StringBuilder builder2 = new StringBuilder();
-            render(builder2, "components", repository.getComponentDataSetNodes(dataSetNode));
-            render(builder2, "parents", repository.getParentDataSetNodes(dataSetNode));
-            appendNodeTo(builder, dataSetNode, builder2);
-        }
-        return builder.toString();
-    }
-
-    private void appendNodeTo(StringBuilder builder, EntityNode entityNode, StringBuilder builder2)
-    {
-        if (builder2.length() > 0)
-        {
-            builder.append(entityNode.getCodeAndType());
-            
-            builder.append(builder2).append("\n");
-        }
+        entityGraphManager.assertModified(experimentNodes);
     }
     
-    private void render(StringBuilder builder, String name, Collection<? extends EntityNode> nodes)
+    protected void assertModified(SampleNode...sampleNodes)
     {
-        if (nodes.isEmpty())
-        {
-            return;
-        }
-        builder.append(", ").append(name).append(":");
-        for (EntityNode node : nodes)
-        {
-            builder.append(' ').append(node.getCodeAndType());
-        }
+        entityGraphManager.assertModified(sampleNodes);
     }
     
-    private void createGraph(EntityGraphGenerator g)
+    protected void assertModified(DataSetNode...dataSetNodes)
     {
-        repository = new EntityRepository();
-        defaultSpace = create(aSpace());
-        defaultProject = create(aProject().inSpace(defaultSpace));
-        createExperiments(defaultProject, g);
-        createSamples(defaultSpace, g);
-        createDataSets(g);
+        entityGraphManager.assertModified(dataSetNodes);
     }
-
-    private void createDataSets(EntityGraphGenerator g)
+    
+    protected void assertUnmodified(EntityGraphGenerator g)
     {
-        List<DataSetNode> dataSetNodes = new ArrayList<DataSetNode>(g.getDataSets().values());
-        Collections.reverse(dataSetNodes);
-        for (DataSetNode dataSetNode : dataSetNodes)
-        {
-            ExternalDataBuilder dataSet = aDataSet().withType(dataSetNode.getType());
-            if (dataSetNode.getSample() != null)
-            {
-                dataSet.inSample(repository.tryGetSample(dataSetNode.getSample()));
-            } else if (dataSetNode.getExperiment() != null)
-            {
-                dataSet.inExperiment(repository.tryGetExperiment(dataSetNode.getExperiment()));
-            }
-            List<DataSetNode> components = dataSetNode.getComponents();
-            if (components.isEmpty() == false)
-            {
-                dataSet.asContainer();
-                for (DataSetNode component : components)
-                {
-                    AbstractExternalData componentDataSet = repository.tryGetDataSet(component);
-                    if (componentDataSet == null)
-                    {
-                        throw new IllegalStateException("Data set " + component.getCode() 
-                                + " is specified as component of " + dataSetNode.getCode() 
-                                + " but hasn't yet created.");
-                    }
-                    dataSet.withComponent(componentDataSet);
-                }
-            }
-            List<DataSetNode> parents = dataSetNode.getParents();
-            for (DataSetNode parent : parents)
-            {
-                AbstractExternalData parentDataSet = repository.tryGetDataSet(parent);
-                if (parentDataSet == null)
-                {
-                    throw new IllegalStateException("Data set " + parent.getCode() 
-                            + " is specified as parent of " + dataSetNode.getCode() 
-                            + " but hasn't yet created.");
-                }
-                dataSet.withParent(parentDataSet);
-            }
-            addToRepository(dataSetNode, dataSet);
-        }
+        entityGraphManager.assertUnmodified(g);
     }
-
-    private void createSamples(Space space, EntityGraphGenerator g)
-    {
-        for (SampleNode sampleNode : g.getSamples().values())
-        {
-            SampleBuilder sample = aSample().inSpace(space);
-            ExperimentNode experimentNode = sampleNode.getExperiment();
-            if (experimentNode != null)
-            {
-                sample.inExperiment(repository.tryGetExperiment(experimentNode));
-            }
-            addToRepository(sampleNode, sample);
-        }
-    }
-
-    private void createExperiments(Project project, EntityGraphGenerator g)
-    {
-        for (ExperimentNode experimentNode : g.getExperiments().values())
-        {
-            addToRepository(experimentNode, create(anExperiment().inProject(project)));
-        }
-    }
-
+    
     protected String getIdentifierOfDefaultProject()
     {
         return defaultProject.getIdentifier();
@@ -657,39 +509,9 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
 
     protected void addToRepository(ExperimentNode experimentNode, Experiment experiment)
     {
-        try
-        {
-            repository.put(experimentNode, experiment);
-        } catch (Exception ex)
-        {
-            throw new RuntimeException("Error while creating experiment for node " + experimentNode.getCode() 
-                    + ": " + ex.getMessage(), ex);
-        }
+        entityGraphManager.addToRepository(experimentNode, experiment);
     }
 
-    private void addToRepository(SampleNode sampleNode, SampleBuilder sample)
-    {
-        try
-        {
-            repository.put(sampleNode, create(sample));
-        } catch (Exception ex)
-        {
-            throw new RuntimeException("Error while creating sample for node " + sampleNode.getCode() 
-                    + ": " + ex.getMessage(), ex);
-        }
-    }
-
-    private void addToRepository(DataSetNode dataSetNode, ExternalDataBuilder dataSet)
-    {
-        try
-        {
-            repository.put(dataSetNode, create(dataSet));
-        } catch (Exception ex)
-        {
-            throw new RuntimeException("Error while creating data set for node " + dataSetNode.getCodeAndType() 
-                    + ": " + ex.getMessage(), ex);
-        }
-    }
 
     public static ExperimentIdentifier id(Experiment experiment)
     {
@@ -782,373 +604,6 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
     protected static <T> Matcher<T> isNot(Matcher<T> matcher)
     {
         return CoreMatchers.not(is(matcher));
-    }
-    
-    public final class EntityRepository
-    {
-        private Map<Long, Experiment> experimentsNodeToDtoMap = new TreeMap<Long, Experiment>();
-        private Map<Long, ExperimentNode> experimentDtoToNodeMap = new TreeMap<Long, ExperimentNode>();
-        private Map<Long, ModificationInfo> experimentModificationInfoByNodeId = new HashMap<Long, ModificationInfo>();
-        private Set<ExperimentNode> modifiedExperimentNodes = new HashSet<ExperimentNode>();
-        
-        private Map<Long, Sample> samplesNodeToDtoMap = new TreeMap<Long, Sample>();
-        private Map<Long, SampleNode> samplesDtoToNodeMap = new TreeMap<Long, SampleNode>();
-        private Map<Long, ModificationInfo> sampleModificationInfoByNodeId = new HashMap<Long, ModificationInfo>();
-        private Set<SampleNode> modifiedSampleNodes = new HashSet<SampleNode>();
-
-        private Map<Long, AbstractExternalData> dataSetsNodeToDtoMap = new TreeMap<Long, AbstractExternalData>();
-        private Map<Long, DataSetNode> dataSetsDtoToNodeMap = new TreeMap<Long, DataSetNode>();
-        private Map<Long, ModificationInfo> dataSetModificationInfoByNodeId = new HashMap<Long, ModificationInfo>();
-        private Set<DataSetNode> modifiedDataSetNodes = new HashSet<DataSetNode>();
-
-        private Map<Long, Set<Long>> experimentSamplesMap = new HashMap<Long, Set<Long>>();
-        private Map<Long, Set<Long>> experimentDataSetsMap = new HashMap<Long, Set<Long>>();
-        private Map<Long, Set<Long>> sampleDataSetsMap = new HashMap<Long, Set<Long>>();
-        private Map<Long, Set<Long>> componentDataSetsMap = new HashMap<Long, Set<Long>>();
-        private Map<Long, Set<Long>> parentsDataSetsMap = new HashMap<Long, Set<Long>>();
-        
-        public String renderNodeToDtoMapping()
-        {
-            StringBuilder builder = new StringBuilder();
-            for (Entry<Long, Experiment> entry : experimentsNodeToDtoMap.entrySet())
-            {
-                render(builder, "E", entry.getKey(), entry.getValue());
-            }
-            for (Entry<Long, Sample> entry : samplesNodeToDtoMap.entrySet())
-            {
-                render(builder, "S", entry.getKey(), entry.getValue());
-            }
-            for (Entry<Long, AbstractExternalData> entry : dataSetsNodeToDtoMap.entrySet())
-            {
-                render(builder, "DS", entry.getKey(), entry.getValue());
-            }
-            return builder.toString();
-        }
-        
-        private void render(StringBuilder builder, String prefix, Long id, 
-                CodeWithRegistrationAndModificationDate<?> entity)
-        {
-            builder.append(prefix).append(id).append(" -> ").append(entity.getCode()).append(" (");
-            builder.append(entity.getModifier().getUserId()).append(", ");
-            builder.append(entity.getModificationDate()).append(")\n");
-        }
-        
-        public String getExperimentIdentifierOrNull(ExperimentNode experimentNodeOrNull)
-        {
-            return experimentNodeOrNull == null ? null : getExperiment(experimentNodeOrNull).getIdentifier();
-        }
-        
-        public Experiment getExperiment(ExperimentNode experimentNode)
-        {
-            Experiment experiment = tryGetExperiment(experimentNode);
-            if (experiment == null)
-            {
-                throw new IllegalArgumentException("Unknown experiment " + experimentNode.getCode());
-            }
-            return experiment;
-        }
-        
-        public Experiment tryGetExperiment(ExperimentNode experimentNode)
-        {
-            return experimentsNodeToDtoMap.get(experimentNode.getId());
-        }
-        
-        public String getSamplePermIdOrNull(SampleNode sampleNodeOrNull)
-        {
-            return sampleNodeOrNull == null ? null : getSample(sampleNodeOrNull).getPermId();
-        }
-        
-        public Sample getSample(SampleNode sampleNode)
-        {
-            Sample sample = tryGetSample(sampleNode);
-            if (sample == null)
-            {
-                throw new IllegalArgumentException("Unknown sample " + sampleNode.getCode());
-            }
-            return sample;
-        }
-        
-        public Sample tryGetSample(SampleNode sampleNode)
-        {
-            return samplesNodeToDtoMap.get(sampleNode.getId());
-        }
-        
-        public String getDataSetCodeOrNull(DataSetNode dataSetNodeOrNull)
-        {
-            return dataSetNodeOrNull == null ? null : getDataSet(dataSetNodeOrNull).getCode();
-        }
-        
-        public AbstractExternalData getDataSet(DataSetNode dataSetNode)
-        {
-            AbstractExternalData dataSet = tryGetDataSet(dataSetNode);
-            if (dataSet == null)
-            {
-                throw new IllegalArgumentException("Unknown data set " + dataSetNode.getCode());
-            }
-            return dataSet;
-        }
-        
-        public AbstractExternalData tryGetDataSet(DataSetNode dataSetNode)
-        {
-            return dataSetsNodeToDtoMap.get(dataSetNode.getId());
-        }
-        
-        void refreshGraph(boolean showWhereIAm)
-        {
-            for (Long id : experimentsNodeToDtoMap.keySet())
-            {
-                experimentsNodeToDtoMap.put(id, refresh(experimentsNodeToDtoMap.get(id)));
-            }
-            for (Long id : samplesNodeToDtoMap.keySet())
-            {
-                samplesNodeToDtoMap.put(id, refresh(samplesNodeToDtoMap.get(id)));
-            }
-            for (Long id : dataSetsNodeToDtoMap.keySet())
-            {
-                dataSetsNodeToDtoMap.put(id, refresh(dataSetsNodeToDtoMap.get(id)));
-            }
-            experimentSamplesMap.clear();
-            for (Sample sample : samplesNodeToDtoMap.values())
-            {
-                Experiment experiment = sample.getExperiment();
-                if (experiment != null)
-                {
-                    Long id = experiment.getId();
-                    Set<Long> sampleIds = experimentSamplesMap.get(id);
-                    if (sampleIds == null)
-                    {
-                        sampleIds = new TreeSet<Long>();
-                        experimentSamplesMap.put(id, sampleIds);
-                    }
-                    sampleIds.add(sample.getId());
-                }
-            }
-            experimentDataSetsMap.clear();
-            for (AbstractExternalData dataSet : dataSetsNodeToDtoMap.values())
-            {
-                addToDataSetsMap(experimentDataSetsMap, dataSet, dataSet.getExperiment());
-            }
-            sampleDataSetsMap.clear();
-            componentDataSetsMap.clear();
-            for (AbstractExternalData dataSet : dataSetsNodeToDtoMap.values())
-            {
-                addToDataSetsMap(sampleDataSetsMap, dataSet, dataSet.getSample());
-                List<ContainerDataSet> containerDataSets = dataSet.getContainerDataSets();
-                for (ContainerDataSet containerDataSet : containerDataSets)
-                {
-                    addToDataSetsMap(componentDataSetsMap, dataSet, containerDataSet);
-                }
-                Collection<AbstractExternalData> parents = dataSet.getParents();
-                for (AbstractExternalData parentDataSet : parents)
-                {
-                    addToDataSetsMap(parentsDataSetsMap, parentDataSet, dataSet);
-                }
-            }
-            if (showWhereIAm)
-            {
-                printWhereIAm();
-            }
-            System.out.println("Entities mapping:\n" + renderNodeToDtoMapping());
-        }
-
-        private void printWhereIAm()
-        {
-            StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
-            for (int i = 5, n = Math.min(stackTrace.length, 9); i < n; i++)
-            {
-                StackTraceElement element = stackTrace[i];
-                System.out.print(element.getMethodName() + " <- ");
-            }
-            System.out.println("...");
-        }
-        
-        private void addToDataSetsMap(Map<Long, Set<Long>> holderDataSetsMap, 
-                AbstractExternalData dataSet, IIdHolder idHolder)
-        {
-            if (idHolder != null)
-            {
-                Long id = idHolder.getId();
-                Set<Long> dataSetIds = holderDataSetsMap.get(id);
-                if (dataSetIds == null)
-                {
-                    dataSetIds = new TreeSet<Long>();
-                    holderDataSetsMap.put(id, dataSetIds);
-                }
-                dataSetIds.add(dataSet.getId());
-            }
-        }
-        
-        void gatherModifictaionInfos()
-        {
-            for (Entry<Long, Experiment> entry : experimentsNodeToDtoMap.entrySet())
-            {
-                experimentModificationInfoByNodeId.put(entry.getKey(), new ModificationInfo(entry.getValue()));
-            }
-            for (Entry<Long, Sample> entry : samplesNodeToDtoMap.entrySet())
-            {
-                sampleModificationInfoByNodeId.put(entry.getKey(), new ModificationInfo(entry.getValue()));
-            }
-            for (Entry<Long, AbstractExternalData> entry : dataSetsNodeToDtoMap.entrySet())
-            {
-                dataSetModificationInfoByNodeId.put(entry.getKey(), new ModificationInfo(entry.getValue()));
-            }
-        }
-        
-        void put(ExperimentNode experimentNode, Experiment experiment)
-        {
-            experimentsNodeToDtoMap.put(experimentNode.getId(), experiment);
-            experimentDtoToNodeMap.put(experiment.getId(), experimentNode);
-        }
-        
-        public void assertModified(ExperimentNode...experimentNodes)
-        {
-            assertModificationInfo(true, experimentModificationInfoByNodeId, experimentsNodeToDtoMap, 
-                    Arrays.<EntityNode>asList(experimentNodes));
-            modifiedExperimentNodes.addAll(Arrays.asList(experimentNodes));
-        }
-        
-        void put(SampleNode sampleNode, Sample sample)
-        {
-            samplesNodeToDtoMap.put(sampleNode.getId(), sample);
-            samplesDtoToNodeMap.put(sample.getId(), sampleNode);
-        }
-
-        public void assertModified(SampleNode...sampleNodes)
-        {
-            assertModificationInfo(true, sampleModificationInfoByNodeId, samplesNodeToDtoMap, 
-                    Arrays.<EntityNode>asList(sampleNodes));
-            modifiedSampleNodes.addAll(Arrays.asList(sampleNodes));
-        }
-        
-        void put(DataSetNode dataSetNode, AbstractExternalData dataSet)
-        {
-            dataSetsNodeToDtoMap.put(dataSetNode.getId(), dataSet);
-            dataSetsDtoToNodeMap.put(dataSet.getId(), dataSetNode);
-        }
-        
-        public void assertModified(DataSetNode...dataSetNodes)
-        {
-            assertModificationInfo(true, dataSetModificationInfoByNodeId, dataSetsNodeToDtoMap, 
-                    Arrays.<EntityNode>asList(dataSetNodes));
-            modifiedDataSetNodes.addAll(Arrays.asList(dataSetNodes));
-        }
-        
-        public void assertUnmodified(EntityGraphGenerator g)
-        {
-            Set<EntityNode> unmodifiedExperimentNodes = new HashSet<EntityNode>(g.getExperiments().values());
-            unmodifiedExperimentNodes.removeAll(modifiedExperimentNodes);
-            assertModificationInfo(false, experimentModificationInfoByNodeId, experimentsNodeToDtoMap, unmodifiedExperimentNodes);
-            Set<EntityNode> unmodifiedSampleNodes = new HashSet<EntityNode>(g.getSamples().values());
-            unmodifiedSampleNodes.removeAll(modifiedSampleNodes);
-            assertModificationInfo(false, sampleModificationInfoByNodeId, samplesNodeToDtoMap, unmodifiedSampleNodes);
-            Set<EntityNode> unmodifiedDataSetNodes = new HashSet<EntityNode>(g.getDataSets().values());
-            unmodifiedDataSetNodes.removeAll(modifiedDataSetNodes);
-            assertModificationInfo(false, dataSetModificationInfoByNodeId, dataSetsNodeToDtoMap, unmodifiedDataSetNodes);
-        }
-        
-        private void assertModificationInfo(boolean modified, Map<Long, ModificationInfo> previousInfos,
-                Map<Long, ? extends CodeWithRegistrationAndModificationDate<?>> nodeToDtoMap,
-                Collection<EntityNode> entityNodes)
-        {
-            for (EntityNode node : entityNodes)
-            {
-                ModificationInfo previous = previousInfos.get(node.getId());
-                if (previous == null)
-                {
-                    if (modified == false)
-                    {
-                        continue;
-                    } else
-                    {
-                        throw new AssertionError(node.getCode() + " no previous modification info");
-                    }
-                }
-                assertNotNull(node.getCode() + " no previous modification info", previous);
-                CodeWithRegistrationAndModificationDate<?> entity = nodeToDtoMap.get(node.getId());
-                assertNotNull(node.getCode() + " unknown", entity);
-                ModificationInfo current = new ModificationInfo(entity);
-                if (modified)
-                {
-                    assertEquals(node.getCode() + " has unexpectedly still the old modifier: " + current.modifier, 
-                            false, current.modifier.equals(previous.modifier));
-                    assertEquals(node.getCode() + " has unexpectedly still the old modification date: " + current.modificationDate, 
-                            true, current.modificationDate.getTime() > previous.modificationDate.getTime());
-                } else
-                {
-                    assertEquals(node.getCode() + " has unexpectedly a new modifier: ",
-                            previous.modifier, current.modifier);
-                    assertEquals(node.getCode() + " has unexpectedly a new modification date:", 
-                            previous.modificationDate, current.modificationDate);
-                }
-            }
-        }
-
-        Set<SampleNode> getSampleNode(ExperimentNode experimentNode)
-        {
-            Set<SampleNode> result = new LinkedHashSet<SampleNode>();
-            Experiment experiment = experimentsNodeToDtoMap.get(experimentNode.getId());
-            if (experiment != null)
-            {
-                Set<Long> sampleDtoIds = experimentSamplesMap.get(experiment.getId());
-                if (sampleDtoIds != null)
-                {
-                    for (Long dtoId : sampleDtoIds)
-                    {
-                        result.add(samplesDtoToNodeMap.get(dtoId));
-                    }
-                }
-            }
-            return result;
-        }
-        
-        Set<DataSetNode> getDataSetNodes(ExperimentNode experimentNode)
-        {
-            return getDataSetNodes(experimentDataSetsMap, experimentsNodeToDtoMap.get(experimentNode.getId()));
-        }
-
-        Set<DataSetNode> getDataSetNodes(SampleNode sampleNode)
-        {
-            return getDataSetNodes(sampleDataSetsMap, samplesNodeToDtoMap.get(sampleNode.getId()));
-        }
-        
-        Set<DataSetNode> getComponentDataSetNodes(DataSetNode containerDataSetNode)
-        {
-            return getDataSetNodes(componentDataSetsMap, dataSetsNodeToDtoMap.get(containerDataSetNode.getId()));
-        }
-        
-        Set<DataSetNode> getParentDataSetNodes(DataSetNode childDataSetNode)
-        {
-            return getDataSetNodes(parentsDataSetsMap, dataSetsNodeToDtoMap.get(childDataSetNode.getId()));
-        }
-        
-        private Set<DataSetNode> getDataSetNodes(Map<Long, Set<Long>> idHolderDataSetsMap, IIdHolder experiment)
-        {
-            Set<DataSetNode> result = new TreeSet<DataSetNode>();
-            if (experiment != null)
-            {
-                Set<Long> dataSetDtoIds = idHolderDataSetsMap.get(experiment.getId());
-                if (dataSetDtoIds != null)
-                {
-                    for (Long dtoId : dataSetDtoIds)
-                    {
-                        result.add(dataSetsDtoToNodeMap.get(dtoId));
-                    }
-                }
-            }
-            return result;
-        }
-    }
-    
-    private static final class ModificationInfo
-    {
-        private final String modifier;
-        private final Date modificationDate;
-
-        ModificationInfo(CodeWithRegistrationAndModificationDate<?> entity)
-        {
-            modifier = entity.getModifier().getUserId();
-            modificationDate = entity.getModificationDate();
-        }
     }
     
 }

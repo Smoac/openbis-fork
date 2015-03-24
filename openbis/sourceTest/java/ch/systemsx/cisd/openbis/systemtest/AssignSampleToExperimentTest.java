@@ -73,10 +73,10 @@ public class AssignSampleToExperimentTest extends BaseTest
         reassignSampleToExperiment(g.s(1), null);
         
         assertEquals("S1, data sets: DS1[NET]\n", renderGraph(g));
-        repository.assertModified(g.e(1));
-        repository.assertModified(g.s(1));
-        repository.assertModified(g.ds(1));
-        repository.assertUnmodified(g);
+        assertModified(g.e(1));
+        assertModified(g.s(1));
+        assertModified(g.ds(1));
+        assertUnmodified(g);
     }
     
     @Test
@@ -89,10 +89,10 @@ public class AssignSampleToExperimentTest extends BaseTest
         
         assertEquals("E1, samples: S1, data sets: DS1[NET]\n"
                 + "S1, data sets: DS1[NET]\n", renderGraph(g));
-        repository.assertModified(g.e(1));
-        repository.assertModified(g.s(1));
-        repository.assertModified(g.ds(1));
-        repository.assertUnmodified(g);
+        assertModified(g.e(1));
+        assertModified(g.s(1));
+        assertModified(g.ds(1));
+        assertUnmodified(g);
     }
     
     @Test
@@ -106,10 +106,10 @@ public class AssignSampleToExperimentTest extends BaseTest
         
         assertEquals("E2, samples: S1 S2, data sets: DS1 DS2\n"
                 + "S1, data sets: DS1\n", renderGraph(g));
-        repository.assertModified(g.e(1), g.e(2));
-        repository.assertModified(g.s(1));
-        repository.assertModified(g.ds(1));
-        repository.assertUnmodified(g);
+        assertModified(g.e(1), g.e(2));
+        assertModified(g.s(1));
+        assertModified(g.ds(1));
+        assertUnmodified(g);
     }
     
     @Test
@@ -125,10 +125,10 @@ public class AssignSampleToExperimentTest extends BaseTest
         assertEquals("E2, samples: S1, data sets: DS1 DS2\n"
                 + "S1, data sets: DS1\n"
                 + "DS1, components: DS2\n", renderGraph(g));
-        repository.assertModified(g.e(1), g.e(2));
-        repository.assertModified(g.s(1));
-        repository.assertModified(g.ds(1), g.ds(2));
-        repository.assertUnmodified(g);
+        assertModified(g.e(1), g.e(2));
+        assertModified(g.s(1));
+        assertModified(g.ds(1), g.ds(2));
+        assertUnmodified(g);
     }
     
     @Test
@@ -141,10 +141,10 @@ public class AssignSampleToExperimentTest extends BaseTest
         
         assertEquals("E1, samples: S1, data sets: DS1[NET] DS2\n"
                 + "S1, data sets: DS1[NET]\n", renderGraph(g));
-        repository.assertModified(g.e(1));
-        repository.assertModified(g.s(1));
-        repository.assertModified(g.ds(1));
-        repository.assertUnmodified(g);
+        assertModified(g.e(1));
+        assertModified(g.s(1));
+        assertModified(g.ds(1));
+        assertUnmodified(g);
     }
     
     @Test
@@ -157,10 +157,10 @@ public class AssignSampleToExperimentTest extends BaseTest
         
         assertEquals("E1, data sets: DS2\n"
                 + "S1, data sets: DS1[NET]\n", renderGraph(g));
-        repository.assertModified(g.e(1));
-        repository.assertModified(g.s(1), g.s(2));
-        repository.assertModified(g.ds(1));
-        repository.assertUnmodified(g);
+        assertModified(g.e(1));
+        assertModified(g.s(1), g.s(2));
+        assertModified(g.ds(1));
+        assertUnmodified(g);
     }
     
     @Test
@@ -176,15 +176,15 @@ public class AssignSampleToExperimentTest extends BaseTest
         } catch (UserFailureException ex)
         {
             assertEquals("Operation cannot be performed, because the sample " 
-                    + repository.getSample(g.s(1)).getIdentifier() 
+                    + entityGraphManager.getSample(g.s(1)).getIdentifier() 
                     + " has the following datasets which need an experiment: [" 
-                    + repository.getDataSet(g.ds(2)).getCode() + "]", ex.getMessage());
+                    + entityGraphManager.getDataSet(g.ds(2)).getCode() + "]", ex.getMessage());
         }
     }
     
     private void reassignSamplesToExperiment(ExperimentNode experimentNode, SampleNode...sampleNodes)
     {
-        String experimentIdentifier = repository.getExperimentIdentifierOrNull(experimentNode);
+        String experimentIdentifier = entityGraphManager.getExperimentIdentifierOrNull(experimentNode);
         String user = create(aSession().withInstanceRole(RoleCode.ADMIN));
         reassignSamplesToExperiment(experimentIdentifier, getSamplePermIds(sampleNodes), user);
     }
@@ -471,9 +471,9 @@ public class AssignSampleToExperimentTest extends BaseTest
         
         assertEquals("E1, samples: S1, data sets: DS1[NET]\n"
                 + "S1, data sets: DS1[NET]\n", renderGraph(g));
-        repository.assertModified(g.s(1));
-        repository.assertModified(g.ds(1));
-        repository.assertUnmodified(g);
+        assertModified(g.s(1));
+        assertModified(g.ds(1));
+        assertUnmodified(g);
         
     }
     
@@ -681,8 +681,8 @@ public class AssignSampleToExperimentTest extends BaseTest
     
     private void reassignSampleToExperiment(SampleNode sampleNode, ExperimentNode experimentNodeOrNull)
     {
-        String samplePermId = repository.getSamplePermIdOrNull(sampleNode);
-        String experimentIdentifierOrNull = repository.getExperimentIdentifierOrNull(experimentNodeOrNull);
+        String samplePermId = entityGraphManager.getSamplePermIdOrNull(sampleNode);
+        String experimentIdentifierOrNull = entityGraphManager.getExperimentIdentifierOrNull(experimentNodeOrNull);
         String user = create(aSession().withInstanceRole(RoleCode.ADMIN));
         reassignSampleToExperiment(samplePermId, experimentIdentifierOrNull, user);
     }
@@ -692,7 +692,7 @@ public class AssignSampleToExperimentTest extends BaseTest
         List<String> samplePermIds = getSamplePermIds(sampleNodes);
         String user = create(aSession().withInstanceRole(RoleCode.ADMIN));
         String experimentIdentifier 
-                = registerExperimentWithSamples(getIdentifierOfDefaultProject(), samplePermIds, user);
+                = registerExperimentWithSamples(entityGraphManager.getIdentifierOfDefaultProject(), samplePermIds, user);
         addToRepository(experimentNode, etlService.tryGetExperiment(systemSessionToken, 
                 ExperimentIdentifierFactory.parse(experimentIdentifier)));
     }
@@ -702,7 +702,7 @@ public class AssignSampleToExperimentTest extends BaseTest
         List<String> samplePermIds = new ArrayList<String>();
         for (SampleNode sampleNode : sampleNodes)
         {
-            samplePermIds.add(repository.getSamplePermIdOrNull(sampleNode));
+            samplePermIds.add(entityGraphManager.getSamplePermIdOrNull(sampleNode));
         }
         return samplePermIds;
     }
