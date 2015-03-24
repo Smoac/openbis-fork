@@ -273,8 +273,12 @@ function SampleFormController(mainController, mode, sample) {
 					var annotatedSample = annotationsObj[permId];
 					var annotatedSampleType = annotatedSample.sampleType;
 					if(jQuery.inArray(annotatedSampleType, copyAnnotationsOfTypes) !== -1) {
-						annotatedSample["CONTAINED"] =  _this._sampleFormModel.sample.identifier;
-						finalAnnotations[permId] = annotatedSample;
+						if(newAnnotations[permId]) { //If existed already maintain it, probably has modifications
+							finalAnnotations[permId] = newAnnotations[permId];
+						} else {
+							annotatedSample["CONTAINED"] =  _this._sampleFormModel.sample.identifier;
+							finalAnnotations[permId] = annotatedSample;
+						}
 					}
 				}
 			}
@@ -294,7 +298,11 @@ function SampleFormController(mainController, mode, sample) {
 			nextAction();
 		}
 		
-		mainController.serverFacade.searchWithIdentifier(null, builAnnotationsAction, newParents);
+		if(newParents.length !== 0) {
+			mainController.serverFacade.searchWithIdentifier(null, builAnnotationsAction, newParents);
+		} else {
+			nextAction();
+		}
 	}
 	
 	this._createUpdateCopySampleCallback = function(_this, isCopyWithNewCode, response) {
