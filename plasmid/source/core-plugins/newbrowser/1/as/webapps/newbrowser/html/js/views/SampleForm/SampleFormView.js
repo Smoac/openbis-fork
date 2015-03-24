@@ -233,23 +233,21 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		//Make samples from Orphans left
 		if(annotationsFromSample) {
 			for(var orphanSamplePermId in annotationsFromSample) {
-				var orphanSample = {};
-				orphanSample.permId = orphanSamplePermId;
-				orphanSample.code = annotationsFromSample[orphanSamplePermId].identifier.split('/')[2];
-				orphanSample.identifier = annotationsFromSample[orphanSamplePermId].identifier;
-				orphanSample.sampleTypeCode = annotationsFromSample[orphanSamplePermId].sampleType;
-				orphanSample.properties = { "NAME" : "TO-DO, get names on links"};
-				currentOrphanLinks.push(orphanSample);
+				currentOrphanLinks.push(annotationsFromSample[orphanSamplePermId].identifier);
 			}
 		}
-		this._sampleFormModel.sampleLinks = new SampleLinksWidget(sampleLinksWidgetId,
-														profile,
-														mainController.serverFacade,
-														"Links",
-														requiredLinks,
-														isDisabled,
-														currentOrphanLinks,
-														this._sampleFormModel.mode === FormMode.CREATE);
+		
+		var showLinksWidgetAction = function(data) {
+			_this._sampleFormModel.sampleLinks = new SampleLinksWidget(sampleLinksWidgetId,
+					profile,
+					mainController.serverFacade,
+					"Links",
+					requiredLinks,
+					isDisabled,
+					data,
+					_this._sampleFormModel.mode === FormMode.CREATE);
+			_this._sampleFormModel.sampleLinks.repaint();
+		}
 		
 		//
 		// LINKS TO CHILDREN
@@ -447,7 +445,12 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		//Repaint parents and children after updating the property state to show the annotations
 		this._sampleFormModel.sampleLinksParents.repaint();
 		this._sampleFormModel.sampleLinksChildren.repaint();
-		this._sampleFormModel.sampleLinks.repaint();
+		
+		if(currentOrphanLinks.length !== 0) {
+			mainController.serverFacade.searchWithIdentifiers(currentOrphanLinks, showLinksWidgetAction);
+		} else {
+			showLinksWidgetAction([]);
+		}
 		
 		if(this._sampleFormModel.mode !== FormMode.CREATE) {
 			//Preview image

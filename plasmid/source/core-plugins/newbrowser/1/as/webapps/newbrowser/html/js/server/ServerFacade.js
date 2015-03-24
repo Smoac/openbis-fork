@@ -542,33 +542,51 @@ function ServerFacade(openbisServer) {
 	
 	this.searchWithIdentifiers = function(sampleIdentifiers, callbackFunction)
 	{
-		var matchClauses = [];
-		sampleIdentifiers.forEach(function(sampleIdentifier){
-			matchClauses.push({
-				"@type":"AttributeMatchClause",
-				fieldType : "ATTRIBUTE",			
-				attribute : "SPACE",
-				desiredValue : sampleIdentifier.split("/")[1] 
-			},
-			{
-				"@type":"AttributeMatchClause",
-				fieldType : "ATTRIBUTE",			
-				attribute : "CODE",
-				desiredValue : sampleIdentifier.split("/")[2] 
+		var _this = this;
+		var searchResults = [];
+		var searchForIdentifiers = jQuery.extend(true, [], sampleIdentifiers);
+		var searchFunction = null;
+		
+		var searchNext = function() {
+			if(searchForIdentifiers.length === 0) {
+				callbackFunction(searchResults);
+			} else {
+				var next = searchForIdentifiers.pop();
+				searchFunction(next);
+			}
+		}
+		
+		var searchFunction = function(sampleIdentifier) {
+			var matchClauses = [{
+					"@type":"AttributeMatchClause",
+					fieldType : "ATTRIBUTE",			
+					attribute : "SPACE",
+					desiredValue : sampleIdentifier.split("/")[1] 
+			}, {
+					"@type":"AttributeMatchClause",
+					fieldType : "ATTRIBUTE",			
+					attribute : "CODE",
+					desiredValue : sampleIdentifier.split("/")[2] 
+			}];
+			
+			var sampleCriteria = {
+					matchClauses : matchClauses,
+					operator : "MATCH_ALL_CLAUSES"
+			}
+			
+			_this.openbisServer.searchForSamplesWithFetchOptions(sampleCriteria, ["PROPERTIES", "ANCESTORS", "DESCENDANTS"], function(data) {
+				var partialResults = _this.getInitializedSamples(data.result);
+				partialResults.forEach(function(partialResult) {
+					searchResults.push(partialResult);
+				});
+				
+				searchNext();
 			});
-		});
+		}
 		
-		var sampleCriteria = 
-		{
-			matchClauses : matchClauses,
-			operator : "MATCH_ALL_CLAUSES"
-		};
-		
-		var localReference = this;
-		this.openbisServer.searchForSamplesWithFetchOptions(sampleCriteria, ["PROPERTIES", "ANCESTORS", "DESCENDANTS"], function(data) {
-			callbackFunction(localReference.getInitializedSamples(data.result));
-		});
+		searchNext();
 	}
+	
 	
 	this.searchWithUniqueId = function(samplePermId, callbackFunction)
 	{	
