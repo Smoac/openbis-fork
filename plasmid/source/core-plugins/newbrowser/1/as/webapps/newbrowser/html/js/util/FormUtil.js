@@ -20,11 +20,47 @@ var FormUtil = new function() {
 	// Annotations
 	//
 	
+	this.getXMLFromAnnotations = function(stateObj) {
+		var xmlDoc = "<root>";
+		
+		for(var permId in stateObj) {
+			xmlDoc	+= "<Sample permId=\"" + permId + "\""; 
+			for(var propertyTypeCode in stateObj[permId]) {
+				if(propertyTypeCode === "identifier") {
+					var propertyTypeValue = stateObj[permId][propertyTypeCode];
+					xmlDoc	+= " " + propertyTypeCode + "=\"" + propertyTypeValue +"\"";
+				}
+			}
+			
+			for(var propertyTypeCode in stateObj[permId]) {
+				if(propertyTypeCode === "sampleType") {
+					var propertyTypeValue = stateObj[permId][propertyTypeCode];
+					xmlDoc	+= " " + propertyTypeCode + "=\"" + propertyTypeValue +"\"";
+				}
+			}
+			
+			for(var propertyTypeCode in stateObj[permId]) {
+				if(propertyTypeCode !== "identifier" && propertyTypeCode !== "sampleType") {
+					var propertyTypeValue = stateObj[permId][propertyTypeCode];
+					xmlDoc	+= " " + propertyTypeCode + "=\"" + propertyTypeValue +"\"";
+				}
+			}
+			
+			xmlDoc	+= " />";
+		}
+		
+		xmlDoc	+= "</root>";
+	}
+	
 	this.getAnnotationsFromSample = function(sample) {
+		return this.getAnnotationsFromField(sample.properties["ANNOTATIONS_STATE"]);
+	}
+	
+	this.getAnnotationsFromField = function(field) {
 		var stateObj = {};
-		var stateFieldValue = sample.properties["ANNOTATIONS_STATE"];
+		var stateFieldValue = Util.getEmptyIfNull(field);
 
-		if(!stateFieldValue) {
+		if(stateFieldValue === "") {
 			return stateObj;
 		}
 		var xmlDoc = new DOMParser().parseFromString(stateFieldValue, 'text/xml');

@@ -50,39 +50,11 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 			sampleTypeAnnotations[propertyTypeCode] = propertyTypeValue;
 		}
 		
-		var xmlDoc = "<root>";
-		
-		for(var permId in this.stateObj) {
-			xmlDoc	+= "<Sample permId=\"" + permId + "\""; 
-			for(var propertyTypeCode in this.stateObj[permId]) {
-				if(propertyTypeCode == "identifier") {
-					var propertyTypeValue = this.stateObj[permId][propertyTypeCode];
-					xmlDoc	+= " " + propertyTypeCode + "=\"" + propertyTypeValue +"\"";
-				}
-			}
-			
-			for(var propertyTypeCode in this.stateObj[permId]) {
-				if(propertyTypeCode == "sampleType") {
-					var propertyTypeValue = this.stateObj[permId][propertyTypeCode];
-					xmlDoc	+= " " + propertyTypeCode + "=\"" + propertyTypeValue +"\"";
-				}
-			}
-			
-			for(var propertyTypeCode in this.stateObj[permId]) {
-				if(propertyTypeCode != "identifier" && propertyTypeCode != "sampleType") {
-					var propertyTypeValue = this.stateObj[permId][propertyTypeCode];
-					xmlDoc	+= " " + propertyTypeCode + "=\"" + propertyTypeValue +"\"";
-				}
-			}
-			
-			xmlDoc	+= " />";
-		}
-		
-		xmlDoc	+= "</root>";
+		var xmlDoc = FormUtil.getXMLFromAnnotations(this.stateObj);
 		
 		$("#ANNOTATIONS_STATE").val(xmlDoc);
 		
-		//Compatibility mode for refactored sample form
+		//Compatibility mode for new sample form
 		if(mainController.currentView._sampleFormModel) {
 			mainController.currentView._sampleFormModel.sample.properties["ANNOTATIONS_STATE"] = xmlDoc;
 		}
@@ -90,7 +62,7 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 	
 	this._readState = function() {
 		var stateField = $("#ANNOTATIONS_STATE");
-		if(stateField.length === 0 && !this.isDisabled) {
+		if(!this.isDisabled && stateField.length === 0) {
 			if(this.sampleTypeHints && this.sampleTypeHints.length !== 0) { //Indicates annotations are needed
 				Util.showError("You need a property with code ANNOTATIONS_STATE on this entity to store the state of the annotations.");
 			}
@@ -100,31 +72,7 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 			fieldset.hide();
 			
 			//Update Values
-			this.stateObj = {};
-			var stateFieldValue = Util.getEmptyIfNull(stateField.val());
-			//Hack to fix for new sample form on view mode
-			if(mainController.currentView._sampleFormModel && mainController.currentView._sampleFormModel.mode === FormMode.VIEW) {
-				stateFieldValue = Util.getEmptyIfNull(stateField.text());
-			}
-			//
-			if(stateFieldValue === "") {
-				return;
-			}
-			var xmlDoc = new DOMParser().parseFromString(stateFieldValue, 'text/xml');
-			var samples = xmlDoc.getElementsByTagName("Sample");
-			for(var i = 0; i < samples.length; i++) {
-				var sample = samples[i];
-				var permId = sample.attributes["permId"].value;
-				for(var j = 0; j < sample.attributes.length; j++) {
-					var attribute = sample.attributes[j];
-					if(attribute.name !== "permId") {
-						if(!this.stateObj[permId]) {
-							this.stateObj[permId] = {};
-						}
-						this.stateObj[permId][attribute.name] = attribute.value;
-					}
-				}
-			}
+			this.stateObj = FormUtil.getAnnotationsFromField(stateField.val());
 		}
 	}
 	
@@ -529,21 +477,26 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 			
 			var propertiesToShowDisplayNames = this.profile.getPropertiesDisplayNamesForTypeCode(sampleToAdd.sampleTypeCode, propertiesToShow);
 			
-			
-			var name = sampleToAdd.properties["NAME"];
-			if(!name) {
-				name = sampleToAdd.properties["PLASMID_NAME"];
-			}
-			if(!name) {
-				name = sampleToAdd.properties["YEAST_STRAIN_NAME"];
+			var name = null;
+			if(sampleToAdd.properties) {
+				name = sampleToAdd.properties["NAME"];
+				if(!name) {
+					name = sampleToAdd.properties["PLASMID_NAME"];
+				}
+				if(!name) {
+					name = sampleToAdd.properties["YEAST_STRAIN_NAME"];
+				}
 			}
 			
 			var info = $("<span>");
 			
-			var codeLink = $("<a>").append(sampleToAdd.code);
-			codeLink.click(function() {
-				mainController.changeView("showViewSamplePageFromPermId",sampleToAdd.permId);
-			});
+			var codeLink = sampleToAdd.code;
+			if(this.isDisabled) {
+				codeLink = $("<a>").append(sampleToAdd.code);
+				codeLink.click(function() {
+					mainController.changeView("showViewSamplePageFromPermId",sampleToAdd.permId);
+				});
+			}
 			
 			var infoCode = $("<span>")
 								.append($("<b>").append("Code: "))
