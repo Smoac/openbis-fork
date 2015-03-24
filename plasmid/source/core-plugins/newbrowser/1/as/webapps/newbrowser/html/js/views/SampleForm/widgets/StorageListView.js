@@ -92,7 +92,7 @@ function StorageListView(storageListController, storageListModel) {
 			}
 		}
 		
-		this._dataGrid = new DataGridController(null, columns, getDataList, rowClick);
+		this._dataGrid = new DataGridController(null, columns, getDataList, rowClick, false, "STORAGE_WIDGET");
 		
 		var $dataGridContainer = $("<div>");
 		this._dataGrid.init($dataGridContainer);

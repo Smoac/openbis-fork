@@ -306,7 +306,8 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 								callback(dataList);
 							};
 							
-							var dataGrid = new DataGridController(null, columns, getDataList, rowClick);
+							var configKey = "SAMPLE_" + sampleTypeCode;
+							var dataGrid = new DataGridController(null, columns, getDataList, rowClick, false, configKey);
 							dataGrid.init($("#" + tableId));
 							
 							//Store new state

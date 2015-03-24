@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-function DataGridController(title, columns, data, rowClickEventHandler, showAllColumns) {
+function DataGridController(title, columns, data, rowClickEventHandler, showAllColumns,configKey) {
 	this._grid = null;
 	this._dataGridModel = null;
 	this._dataGridView = null;
@@ -25,11 +25,10 @@ function DataGridController(title, columns, data, rowClickEventHandler, showAllC
 		mainController.serverFacade.openbisServer.getWebAppSettings(webAppId, function(response) {
 			var settings = response.result.settings;
 			var onColumnsChange = function(columnsModel) {
-				console.log("SAVING START");
 				if(!settings) {
 					settings = {};
 				}
-				settings[_this._dataGridModel.title] = JSON.stringify(columnsModel);
+				settings[configKey] = JSON.stringify(columnsModel);
 				
 				var webAppSettings = {
 						"@type" : "WebAppSettings",
@@ -37,13 +36,11 @@ function DataGridController(title, columns, data, rowClickEventHandler, showAllC
 						"settings" : settings
 				}
 				
-				console.log("SAVING: " + JSON.stringify(settings));
 				mainController.serverFacade.openbisServer.setWebAppSettings(webAppSettings, function(result) {});
 			}
-			console.log("LOAD: " + JSON.stringify(settings));
 			var tableSettings = null;
-			if(settings[title]) {
-				tableSettings = JSON.parse(settings[title]);
+			if(settings[configKey]) {
+				tableSettings = JSON.parse(settings[configKey]);
 			}
 			_this._grid = new Grid(columns, data, showAllColumns, tableSettings, onColumnsChange);
 			_this._grid.addRowClickListener(rowClickEventHandler);
