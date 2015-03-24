@@ -63,7 +63,7 @@ $.extend(Grid.prototype, {
 				.attr("value", column.property)
 				.attr("style", "margin-left: 5px;");
 			
-			if(thisGrid.columnsToShow) {
+			if(thisGrid.columnsToShow && Object.keys(thisGrid.columnsToShow).length !== 0) {
 				if((thisGrid.columnsToShow[column.property] === true)) { //If settings are present
 					checkbox.attr("checked", "checked");
 				}
