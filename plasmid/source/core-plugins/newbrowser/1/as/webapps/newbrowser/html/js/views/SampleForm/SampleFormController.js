@@ -275,7 +275,7 @@ function SampleFormController(mainController, mode, sample) {
 						if(newAnnotations[permId]) { //If existed already maintain it, probably has modifications
 							finalAnnotations[permId] = newAnnotations[permId];
 						} else {
-							annotatedSample["CONTAINED"] =  _this._sampleFormModel.sample.identifier;
+							annotatedSample["CONTAINED"] =  parentsReturned[pIdx].identifier;
 							finalAnnotations[permId] = annotatedSample;
 						}
 					}
