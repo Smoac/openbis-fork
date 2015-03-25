@@ -55,8 +55,15 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 	}
 	
 	this._readState = function() {
-		var stateField = mainController.currentView._sampleFormModel.sample.properties["ANNOTATIONS_STATE"];
-		if(!this.isDisabled && stateField.length === 0) {
+		var isStateFieldAvailable = false;
+		
+		if(mainController.currentView._sampleFormModel.sample) {
+			var availableFields = profile.getAllPropertiCodesForTypeCode(mainController.currentView._sampleFormModel.sample.sampleTypeCode);
+			var pos = $.inArray("ANNOTATIONS_STATE", availableFields);
+			isStateFieldAvailable = (pos !== -1);
+		}
+		
+		if(!isStateFieldAvailable) {
 			if(this.sampleTypeHints && this.sampleTypeHints.length !== 0) { //Indicates annotations are needed
 				Util.showError("You need a property with code ANNOTATIONS_STATE on this entity to store the state of the annotations.");
 			}
@@ -66,6 +73,7 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 			fieldset.hide();
 			
 			//Update Values
+			var stateField = mainController.currentView._sampleFormModel.sample.properties["ANNOTATIONS_STATE"];
 			this.stateObj = FormUtil.getAnnotationsFromField(stateField);
 		}
 	}
