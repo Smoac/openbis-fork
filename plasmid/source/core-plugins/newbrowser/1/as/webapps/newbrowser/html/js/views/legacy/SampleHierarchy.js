@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-function SampleHierarchy(serverFacade, inspector, containerId, profile, sample) {
+function SampleHierarchy(serverFacade, containerId, profile, sample) {
 	this.nodeIdPrefix = "HIERARCHY_NODE_";
 	this.serverFacade = serverFacade;
-	this.inspector = inspector;
 	this.containerId = containerId;
 	this.profile = profile;
 	this.sample = sample;
@@ -445,14 +444,14 @@ function SampleHierarchy(serverFacade, inspector, containerId, profile, sample) 
 						.append($sampleLink);
 				
 				if(sample.showDataOnGraph) {
-					var optionalInspectorTitle = $nodeContent[0].outerHTML;
-					var $inspector = _this.inspector.getInspectorTable(sample, false, true, false, optionalInspectorTitle, true);
+					var title = $nodeContent[0].outerHTML;
+					var $graphTable = PrintUtil.getTable(sample, false, true, false, title, true);
 					
 					$nodeContent.empty();
 					$nodeContent.css({
 						'background-color' : 'transparent'
 					});
-					$nodeContent.append($inspector);
+					$nodeContent.append($graphTable);
 				}
 					
 				} else {

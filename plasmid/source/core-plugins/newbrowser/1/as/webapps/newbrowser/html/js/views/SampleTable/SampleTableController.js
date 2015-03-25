@@ -172,14 +172,6 @@ function SampleTableController(parentController, title, experimentIdentifier) {
 					});
 					$list.append($openNewTabOption);
 					
-					var $togglePinOption = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'Pin/Unpin'}).append("Pin/Unpin"));
-					$togglePinOption.click(function(e) {
-						mainController.serverFacade.searchWithUniqueId(data.permId, function(samples) {
-							mainController.inspector.toggleInspectSample(samples[0]);
-						});
-					});
-					$list.append($togglePinOption);
-					
 					var $openHierarchy = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'Open Hierarchy'}).append("Open Hierarchy"));
 					$openHierarchy.click(function(e) {
 						mainController.changeView('showSampleHierarchyPage', data.permId);

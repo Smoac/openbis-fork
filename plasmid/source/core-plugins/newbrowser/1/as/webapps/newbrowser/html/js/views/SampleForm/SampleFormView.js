@@ -70,9 +70,6 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 			$formTitle.append(FormUtil.getDeleteButton(function(reason) {
 				_this._sampleFormController.deleteSample(reason);
 			}, true));
-			//Pin
-			$formTitle.append("&nbsp;");
-			$formTitle.append(FormUtil.getPINButton(this._sampleFormModel.sample.permId));
 			//Hierarchy
 			$formTitle.append("&nbsp;");
 			$formTitle.append(FormUtil.getHierarchyButton(this._sampleFormModel.sample.permId));
@@ -86,7 +83,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 			$formTitle.append("&nbsp;");
 			var $printButton = $("<a>", { 'class' : 'btn btn-default'} ).append($('<span>', { 'class' : 'glyphicon glyphicon-print' }));
 			$printButton.click(function() {
-				mainController.inspector.printSample(_this._sampleFormModel.sample);
+				PrintUtil.printSample(_this._sampleFormModel.sample);
 			});
 			$formTitle.append($printButton);
 			//Edit

@@ -46,7 +46,6 @@ function MainController(profile) {
 	// Atributes - Widgets typically hold both the model and the view, they are here so they can be accessed by inline HTML/Javascript when needed.
 	
 	//Views With State or always visible
-	this.inspector = null; // The samples that are currently being inspected
 	this.sideMenu = null;
 	
 	//Others
@@ -113,7 +112,6 @@ function MainController(profile) {
 								//Init profile
 								localReference.profile.init(function() {
 									//Start App
-									localReference.inspector = new Inspector(localReference.serverFacade, "mainContainer", localReference.profile);
 									
 									localReference.sideMenu = new SideMenuWidgetController(localReference);
 									localReference.sideMenu.init($("#sideMenu"));
@@ -183,11 +181,6 @@ function MainController(profile) {
 			case "showStorageManager":
 				document.title = "Storage Manager";
 				this._showStorageManager();
-				window.scrollTo(0,0);
-				break;
-			case "showInspectors":
-				document.title = "Inspectors";
-				this._showInspectors();
 				window.scrollTo(0,0);
 				break;
 			case "showBlancPage":
@@ -388,11 +381,6 @@ function MainController(profile) {
 		this.currentView = vocabularyManagerController;
 	}
 	
-	this._showInspectors = function() {
-		//Show Inspectors
-		this.inspector.repaint();
-	}
-	
 	this._showBlancPage = function() {
 		//Show Hello Page
 		$("#mainContainer").empty();
@@ -427,7 +415,7 @@ function MainController(profile) {
 		//Show View
 		var localInstance = this;
 		this.serverFacade.searchWithUniqueId(permId, function(data) {
-			var sampleHierarchy = new SampleHierarchy(localInstance.serverFacade, localInstance.inspector, "mainContainer", localInstance.profile, data[0]);
+			var sampleHierarchy = new SampleHierarchy(localInstance.serverFacade, "mainContainer", localInstance.profile, data[0]);
 			sampleHierarchy.init();
 			localInstance.currentView = sampleHierarchy;
 		});

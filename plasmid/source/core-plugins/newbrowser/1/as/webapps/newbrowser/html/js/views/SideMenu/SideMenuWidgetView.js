@@ -57,12 +57,6 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
                         .append($headerItemList)
                        );
 
-        var $pinButton = $("<li>")
-                .append($("<a>", {"id": "pin-button", "href": "javascript:mainController.changeView(\"showInspectors\",null)"})
-                        .append($("<img>", {"src": "./img/pin-icon.png", "style": "width:16px; height:16px;"}))
-                        .append($("<span>", {"id": "num-pins"}).append(mainController.inspector.inspectedSamples.length))
-                        );
-
         var $toggleButton = $("<li>")
                 .append($("<a>", {"href": "javascript:mainController.sideMenu.hideSideMenu();"})
                         .append($("<span>", {"class": "glyphicon glyphicon-resize-horizontal"}))
@@ -152,7 +146,6 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
         var $logoutButton = $("<li>").append(logoutButton);
 
         $headerItemList.append($logoutButton);
-        $headerItemList.append($pinButton);
         $headerItemList.append($toggleButton);
         $headerItemList.append($searchForm);
         if(dropDownSearch !== "") {

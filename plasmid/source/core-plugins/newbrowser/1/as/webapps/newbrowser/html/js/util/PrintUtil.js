@@ -14,153 +14,9 @@
  * limitations under the License.
  */
 
-/**
- * Creates an instance of Inspector.
- *
- * @constructor
- * @this {Inspector}
- * @param {ServerFacade} serverFacade The facade used to access server side search functionality.
- * @param {string} containerId The Container where the Inspector DOM will be atached.
- * @param {Profile} profile The profile to be used, typicaly, the global variable that holds the configuration for the application.
- */
-function Inspector(serverFacade, containerId, profile) {
-	this.serverFacade = serverFacade;
-	this.containerId = containerId;
-	this.profile = profile;
-	this.inspectedSamples = [];
-	
-	this.repaint = function() {
-		$("#"+containerId).empty();
-		var allInspectors = ""
-		allInspectors += "<div class='row'>";
-		allInspectors += "<div class='col-md-12' style='margin-top: 10px;'>";
-		allInspectors += "<a class='btn btn-default' href='javascript:mainController.inspector.printInspectors()'><span class='glyphicon glyphicon-print'></span></a>";
-		allInspectors += "<div id='inspectorsContainer' class='inspectorsContainer'>";
-		allInspectors += this.getAllInspectors(false, true, true, true);
-		allInspectors += "</div>";
-		allInspectors += "</div>";
-		allInspectors += "</div>";	
-		$("#"+containerId).append(allInspectors);
-	}
-	
-	this.containsByPermId = function(permId) {
-		//Bugfix Hack to avoid blank screens
-		if(!this.inspectedSamples) {
-			this.inspectedSamples = [];
-		}
 
-		for(var i = 0; i < this.inspectedSamples.length; i++) {
-			if(this.inspectedSamples[i].permId === permId) {
-				return i;
-			}
-		}
-		return -1;
-	}
-	
-	this.containsSample = function(sample) {
-		//Bugfix Hack to avoid blank screens
-		if(!this.inspectedSamples) {
-			this.inspectedSamples = [];
-		}
+var PrintUtil = new function() {
 
-		for(var i = 0; i < this.inspectedSamples.length; i++) {
-			if(this.inspectedSamples[i].permId === sample.permId) {
-				return i;
-			}
-		}
-		return -1;
-	}
-	
-	this.addInspectSampleIfNotFound = function(sampleToInspect) {
-		var samplePosition = this.containsSample(sampleToInspect);
-		
-		if(samplePosition === -1) {
-			this.toggleInspectSample(sampleToInspect);
-			return true;
-		}
-		
-		return false;
-	}
-	
-	this.toggleInspectPermId = function(permId) {
-		var _this = this;
-		//Already inspected check
-		var samplePosition = this.containsByPermId(permId);
-		var isInspected = null;
-		if(samplePosition !== -1) {
-			this.inspectedSamples.splice(samplePosition, 1);
-			isInspected = false;
-			$("#num-pins").empty();
-			$("#num-pins").append(_this.inspectedSamples.length);
-		} else {
-			mainController.serverFacade.searchWithUniqueId(permId, function(data) {
-				_this.inspectedSamples.push(data[0]);
-				$("#num-pins").empty();
-				$("#num-pins").append(_this.inspectedSamples.length);
-			});
-			
-			isInspected = true;
-		}
-		return isInspected;
-	}
-	
-	//Public method that should be used to add a page, is used by the MainController.js
-	this.toggleInspectSample = function(sampleToInspect) {
-		var isInspected = null;
-		//Null Check
-		if(sampleToInspect === null || sampleToInspect === undefined) {
-			return;
-		}
-		
-		//Already inspected check
-		var samplePosition = this.containsSample(sampleToInspect);
-		if(samplePosition !== -1) {
-			this.inspectedSamples.splice(samplePosition, 1);
-			isInspected = false;
-		} else {
-			this.inspectedSamples.push(sampleToInspect);
-			isInspected = true;
-		}
-		
-		$("#num-pins").empty();
-		$("#num-pins").append(this.inspectedSamples.length);
-		
-		return isInspected;
-	}
-	
-	this.getAllInspectors = function(withSeparator, withClose, withColors, withLinks) {
-		var inspectorsContent = "";
-		for(var i=0;i<this.inspectedSamples.length;i++) {
-			inspectorsContent += this.getInspectorTable(this.inspectedSamples[i], withClose, withColors, withLinks);
-			if(withSeparator) {
-				inspectorsContent += "<hr>";
-			}
-		}
-		return inspectorsContent;
-	}
-	
-	this.closeNewInspector = function(sampleIdToDelete) {
-		for(var i = 0; i < this.inspectedSamples.length; i++) {
-			if(this.inspectedSamples[i].id === sampleIdToDelete) {
-				this.inspectedSamples.splice(i, 1);
-				break;
-			}
-		
-		}
-		
-		$("#num-pins").empty();
-		$("#num-pins").append(this.inspectedSamples.length);
-		this.repaint();
-	}
-	
-	this.printInspector = function(entityPermId) {
-		for(var i = 0; i < this.inspectedSamples.length; i++) {
-			if(this.inspectedSamples[i].permId === entityPermId) {
-				this.printSample(this.inspectedSamples[i])
-			}
-		}
-	}
-	
 	this.printSample = function(sample) {
 		var newWindow = window.open(undefined,"print " + sample.permId);
 		
@@ -174,62 +30,6 @@ function Inspector(serverFacade, containerId, profile) {
 			pageToPrint += "</html>";
 		
 		$(newWindow.document.body).html(pageToPrint);
-	}
-	
-	this.toogleInspector = function(permId) {
-		if($("#" + permId).is(":visible")) {
-			$("#" + permId).hide();
-			$("#" + permId+"_ICON").removeClass("glyphicon glyphicon-chevron-up");
-			$("#" + permId+"_ICON").addClass("glyphicon glyphicon-chevron-down");
-		} else {
-			$("#" + permId).show();
-			$("#" + permId+"_ICON").removeClass("glyphicon glyphicon-chevron-down");
-			$("#" + permId+"_ICON").addClass("glyphicon glyphicon-chevron-up");
-		}
-	}
-	
-	this.printInspectors = function() {
-		var newWindow = window.open(undefined,"print");
-		
-		var pageToPrint = "";
-			pageToPrint += "<html>";
-			pageToPrint += "<head>";
-			pageToPrint += "</head>";
-			pageToPrint += "<body stlye='font-family: '\"'Helvetica Neue\",Helvetica,Arial,sans-serif;'>";
-			pageToPrint += this.getAllInspectors(true, false, false, false);
-			pageToPrint += "</body>";
-			pageToPrint += "</html>";
-		
-		$(newWindow.document.body).html(pageToPrint);
-	}
-	
-	this.showSampleOnInspector = function(samplePermId) {
-		var localReference = this;
-		
-		this.serverFacade.searchWithUniqueId(samplePermId, function(data) {
-			//Clean glow effect in case was used already with that div
-			var divID = data[0].sampleTypeCode + "_" + data[0].code + "_INSPECTOR";
-			$("#"+divID).removeClass("glow");
-			
-			var isAdded = localReference.addInspectSampleIfNotFound(data[0]);
-			if(isAdded) {
-				var inspectorTable = localReference.getInspectorTable(data[0], true, true, true);
-				$("#inspectorsContainer").append(inspectorTable);
-			}
-			
-			//Move Scrollbar	
-			var objDiv = document.getElementById(divID);
-			var moveTo = moveTo = objDiv.offsetTop-50;
-			$('html,body').animate({scrollTop:  moveTo}, 200, "swing");
-			
-			
-			var glow = function() {
-				//Make it Glow
-				$("#"+divID).addClass("glow");
-			}
-			
-			setTimeout(glow, 300);
-		});
 	}
 	
 	this.getParentsChildrenText = function(parentsChildrenList, withLinks) {
@@ -271,13 +71,13 @@ function Inspector(serverFacade, containerId, profile) {
 		return allParentCodesAsText;
 	}
 	
-	this.getInspectorTable = function(entity, showClose, withColors, withLinks, optionalTitle, isCondensed) {
+	this.getTable = function(entity, showClose, withColors, withLinks, optionalTitle, isCondensed) {
 		var defaultColor = null;
 		
 		if(!withColors) {
 			defaultColor = "#ffffff"
 		} else {
-			defaultColor = this.profile.getColorForInspectors(entity.sampleTypeCode);
+			defaultColor = profile.getColorForInspectors(entity.sampleTypeCode);
 		} 
 
 		var inspector = "";
@@ -321,8 +121,8 @@ function Inspector(serverFacade, containerId, profile) {
 			inspector += "<table id='" + entity.permId +"_TOOGLE' class='properties table table-condensed'>"
 			
 			//Show Properties following the order given on openBIS
-			var sampleTypePropertiesCode =  this.profile.getAllPropertiCodesForTypeCode(entity.sampleTypeCode);
-			var sampleTypePropertiesDisplayName = this.profile.getPropertiesDisplayNamesForTypeCode(entity.sampleTypeCode, sampleTypePropertiesCode);
+			var sampleTypePropertiesCode = profile.getAllPropertiCodesForTypeCode(entity.sampleTypeCode);
+			var sampleTypePropertiesDisplayName = profile.getPropertiesDisplayNamesForTypeCode(entity.sampleTypeCode, sampleTypePropertiesCode);
 			
 			for(var i = 0; i < sampleTypePropertiesCode.length; i++) {
 				
@@ -333,14 +133,14 @@ function Inspector(serverFacade, containerId, profile) {
 				//
 				// Fix to show vocabulary labels instead of codes
 				//
-				var sampleType = this.profile.getSampleTypeForSampleTypeCode(entity.sampleTypeCode);
-				var propertyType = this.profile.getPropertyTypeFrom(sampleType, propertyCode);
+				var sampleType = profile.getSampleTypeForSampleTypeCode(entity.sampleTypeCode);
+				var propertyType = profile.getPropertyTypeFrom(sampleType, propertyCode);
 				if(propertyType && propertyType.dataType === "CONTROLLEDVOCABULARY") {
 					var vocabulary = null;
 					if(isNaN(propertyType.vocabulary)) {
-						vocabulary = this.profile.getVocabularyById(propertyType.vocabulary.id);
+						vocabulary = profile.getVocabularyById(propertyType.vocabulary.id);
 					} else {
-						vocabulary = this.profile.getVocabularyById(propertyType.vocabulary);
+						vocabulary = profile.getVocabularyById(propertyType.vocabulary);
 					}
 					
 					if(vocabulary) {
@@ -358,7 +158,7 @@ function Inspector(serverFacade, containerId, profile) {
 				
 				var isSingleColumn = false;
 				if((propertyContent instanceof String) || (typeof propertyContent === "string")) {
-					var transformerResult = this.profile.inspectorContentTransformer(entity, propertyCode, propertyContent);
+					var transformerResult = profile.inspectorContentTransformer(entity, propertyCode, propertyContent);
 					isSingleColumn = transformerResult["isSingleColumn"];
 					propertyContent = transformerResult["content"];
 					propertyContent = propertyContent.replace(/\n/g, "<br />");
@@ -388,7 +188,7 @@ function Inspector(serverFacade, containerId, profile) {
 					
 					var isSingleColumn = false;
 					if((propertyContent instanceof String) || (typeof propertyContent === "string")) {
-						var transformerResult = this.profile.inspectorContentTransformer(entity, propertyCode, propertyContent);
+						var transformerResult = profile.inspectorContentTransformer(entity, propertyCode, propertyContent);
 						isSingleColumn = transformerResult["isSingleColumn"];
 						propertyContent = transformerResult["content"];
 						propertyContent = propertyContent.replace(/\n/g, "<br />");
@@ -443,7 +243,7 @@ function Inspector(serverFacade, containerId, profile) {
 			
 			var extraContainerId = entity.sampleTypeCode + "_" + entity.code+"_INSPECTOR_EXTRA";
 			inspector += "<div class='inspectorExtra' id='"+ extraContainerId + "'></div>";
-			this.profile.inspectorContentExtra(extraContainerId, entity);
+			profile.inspectorContentExtra(extraContainerId, entity);
 			
 			inspector += "</div>"
 			

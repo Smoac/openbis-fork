@@ -64,7 +64,6 @@ function SampleFormController(mainController, mode, sample) {
 				Util.showError(data.error.message);
 			} else {
 				Util.showSuccess("Sample Deleted");
-				mainController.inspector.toggleInspectPermId(_this._sampleFormModel.sample.permId);
 				if(_this._sampleFormModel.isELNSubExperiment) {
 					mainController.sideMenu.deleteUniqueIdAndMoveToParent(_this._sampleFormModel.sample.identifier);
 				} else {

@@ -42,14 +42,6 @@ function ExperimentFormController(mainController, mode, experiment) {
 				} else {
 					Util.showSuccess("Experiment Deleted");
 					
-					//Take out samples from inspector
-					if(dataSamples.result && dataSamples.result.length > 0) {
-						for(var i = 0; i < dataSamples.result.length; i++) {
-							var sample = dataSamples.result[i];
-							mainController.inspector.toggleInspectPermId(sample.permId);
-						}
-					}
-					
 					//Delete experiment from UI
 					mainController.sideMenu.deleteUniqueIdAndMoveToParent(_this._experimentFormModel.experiment.identifier);
 				}
