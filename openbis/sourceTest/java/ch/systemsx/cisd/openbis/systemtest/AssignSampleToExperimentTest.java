@@ -16,14 +16,15 @@
 
 package ch.systemsx.cisd.openbis.systemtest;
 
-import static org.hamcrest.CoreMatchers.is;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.fail;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
@@ -31,7 +32,6 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.entitygraph.EntityGraphGenerator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.entitygraph.ExperimentNode;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.entitygraph.SampleNode;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
@@ -45,6 +45,7 @@ import ch.systemsx.cisd.openbis.systemtest.base.BaseTest;
 import ch.systemsx.cisd.openbis.systemtest.base.auth.AuthorizationRule;
 import ch.systemsx.cisd.openbis.systemtest.base.auth.GuardedDomain;
 import ch.systemsx.cisd.openbis.systemtest.base.auth.InstanceDomain;
+import ch.systemsx.cisd.openbis.systemtest.base.auth.RolePermutator;
 import ch.systemsx.cisd.openbis.systemtest.base.auth.SpaceDomain;
 
 /**
@@ -175,7 +176,22 @@ public class AssignSampleToExperimentTest extends BaseTest
         assertModified(g.s(1));
         assertModified(g.ds(1));
         assertUnmodified(g);
+    }
+
+    @Test
+    public void registerExperimentWithSampleInDifferentSpace()
+    {
+        EntityGraphGenerator g = parseAndCreateGraph("/S1/S1\n");
         
+        try
+        {
+            registerExperimentWithSamples(g.e(1), g.s(1));
+            fail("UserFailureException expected");
+        } catch (UserFailureException ex)
+        {
+            assertEquals("Sample '" + entityGraphManager.getSample(g.s(1)).getIdentifier() 
+                    + "' does not belong to the space 'S0'", ex.getMessage());
+        }
     }
     
     @Test
@@ -271,7 +287,7 @@ public class AssignSampleToExperimentTest extends BaseTest
     }
 
     @Test
-    public void addSampleToAnExperimentFailingBecauseSampleHasAlreadyAnExperiment() throws Exception
+    public void addSampleToAnExperimentFailingBecauseSampleHasAlreadyAnExperiment()
     {
         EntityGraphGenerator g = parseAndCreateGraph("E1, samples: S1\n"
                 + "E2\n");
@@ -289,7 +305,7 @@ public class AssignSampleToExperimentTest extends BaseTest
     }
 
     @Test
-    public void assignSampleToAnotherExperiment() throws Exception
+    public void assignSampleToAnotherExperiment()
     {
         EntityGraphGenerator g = parseAndCreateGraph("/S1/P1/E1, samples: /S1/S1\n"
                 + "/S2/P2/E2\n");
@@ -303,7 +319,7 @@ public class AssignSampleToExperimentTest extends BaseTest
     }
     
     @Test
-    public void dataSetsOfSampleAreAssociatedWithNewExperiment() throws Exception
+    public void dataSetsOfSampleAreAssociatedWithNewExperiment()
     {
         EntityGraphGenerator g = parseAndCreateGraph("/S1/P1/E1, samples: /S1/S1, data sets: DS1\n"
                 + "/S1/S1, data sets: DS1\n"
@@ -320,7 +336,7 @@ public class AssignSampleToExperimentTest extends BaseTest
     }
 
     @Test
-    public void spaceSampleCanBeAssignedToExperiment() throws Exception
+    public void spaceSampleCanBeAssignedToExperiment()
     {
         EntityGraphGenerator g = parseAndCreateGraph("/S2/P1/E1\n"
                 + "/S1/S1\n");
@@ -334,7 +350,7 @@ public class AssignSampleToExperimentTest extends BaseTest
     }
     
     @Test
-    public void spaceSampleCanNotBeAddedToExperimentFromAnotherSpace() throws Exception
+    public void spaceSampleCanNotBeAddedToExperimentFromAnotherSpace()
     {
         EntityGraphGenerator g = parseAndCreateGraph("/S2/P1/E1\n"
                 + "/S1/S1\n");
@@ -351,7 +367,7 @@ public class AssignSampleToExperimentTest extends BaseTest
     }
     
     @Test
-    public void spaceSamplesCanBeAddedToExperimentInSameSpace() throws Exception
+    public void spaceSamplesCanBeAddedToExperimentInSameSpace()
     {
         EntityGraphGenerator g = parseAndCreateGraph("/S1/P1/E1\n"
                 + "/S1/S1\n"
@@ -366,7 +382,7 @@ public class AssignSampleToExperimentTest extends BaseTest
     }
 
     @Test
-    public void sharedSampleCanBeAssignedToExperiment() throws Exception
+    public void sharedSampleCanBeAssignedToExperiment()
     {
         EntityGraphGenerator g = parseAndCreateGraph("/S2/P1/E1\n"
                 + "/S1\n");
@@ -380,160 +396,106 @@ public class AssignSampleToExperimentTest extends BaseTest
     }
 
     @Test
-    public void childSampleCanBeAssignedToAnotherExperiment() throws Exception
+    public void childSampleCanBeAssignedToAnotherExperiment()
     {
-        Sample parent = create(aSample().inExperiment(sourceExperiment));
-        Sample child = create(aSample().withParent(parent).inExperiment(sourceExperiment));
-
-        perform(anUpdateOf(child).toExperiment(destinationExperiment));
-
-        assertThat(child, is(inExperiment(destinationExperiment)));
-        assertThat(child, is(inSpace(destinationSpace)));
+        EntityGraphGenerator g = parseAndCreateGraph("/S1/P1/E1, samples: /S1/S1 /S1/S2\n"
+                + "/S2/P2/E2\n"
+                + "/S1/S1, children: /S1/S2\n");
+        
+        reassignSampleToExperiment(g.s(2), g.e(2));
+        
+        assertEquals("/S1/P1/E1, samples: /S1/S1\n"
+                + "/S2/P2/E2, samples: /S2/S2\n"
+                + "/S1/S1, children: /S2/S2\n", renderGraph(g));
+        assertModified(g.e(1), g.e(2));
+        assertModified(g.s(2));
+        assertUnmodified(g);
     }
 
     @Test
-    public void experimentAssignmentOfParentSampleIsNotChangedWhenChildSampleIsAssignedToAnotherExperiment()
-            throws Exception
+    public void parentSampleCanBeAssignedToAnotherExperiment()
     {
-        Sample parent = create(aSample().inExperiment(sourceExperiment));
-        Sample child = create(aSample().withParent(parent).inExperiment(sourceExperiment));
-
-        perform(anUpdateOf(child).toExperiment(destinationExperiment));
-
-        assertThat(parent, is(inExperiment(sourceExperiment)));
-        assertThat(parent, is(inSpace(sourceSpace)));
+        EntityGraphGenerator g = parseAndCreateGraph("/S1/P1/E1, samples: /S1/S1 /S1/S2\n"
+                + "/S2/P2/E2\n"
+                + "/S1/S1, children: /S1/S2\n");
+        
+        reassignSampleToExperiment(g.s(1), g.e(2));
+        
+        assertEquals("/S1/P1/E1, samples: /S1/S2\n"
+                + "/S2/P2/E2, samples: /S2/S1\n"
+                + "/S2/S1, children: /S1/S2\n", renderGraph(g));
+        assertModified(g.e(1), g.e(2));
+        assertModified(g.s(1));
+        assertUnmodified(g);
     }
 
     @Test
-    public void parentSampleCanBeAssignedToAnotherExperiment() throws Exception
+    public void componentSampleCanBeAssignedToAnotherExperiment()
     {
-        Sample parent = create(aSample().inExperiment(sourceExperiment));
-        create(aSample().withParent(parent).inExperiment(sourceExperiment));
-
-        perform(anUpdateOf(parent).toExperiment(destinationExperiment));
-
-        assertThat(parent, is(inExperiment(destinationExperiment)));
-        assertThat(parent, is(inSpace(destinationSpace)));
+        EntityGraphGenerator g = parseAndCreateGraph("/S1/P1/E1, samples: /S1/S1 /S1/S2\n"
+                + "/S2/P2/E2\n"
+                + "/S1/S1, components: /S1/S2\n");
+        
+        reassignSampleToExperiment(g.s(2), g.e(2));
+        
+        assertEquals("/S1/P1/E1, samples: /S1/S1\n"
+                + "/S2/P2/E2, samples: /S2/S2\n"
+                + "/S1/S1, components: /S2/S2\n", renderGraph(g));
+        assertModified(g.e(1), g.e(2));
+        assertModified(g.s(2));
+        assertUnmodified(g);
     }
 
     @Test
-    public void experimentAssignmentOfChildSampleIsNotChangedWhenParentSampleIsAssignmedToAnotherExperiment()
-            throws Exception
+    public void containerSampleCanBeAssignedToAnotherExperiment()
     {
-        Sample parent = create(aSample().inExperiment(sourceExperiment));
-        Sample child = create(aSample().withParent(parent).inExperiment(sourceExperiment));
-
-        perform(anUpdateOf(parent).toExperiment(destinationExperiment));
-
-        assertThat(child, is(inExperiment(sourceExperiment)));
-        assertThat(child, is(inSpace(sourceSpace)));
+        EntityGraphGenerator g = parseAndCreateGraph("/S1/P1/E1, samples: /S1/S1 /S1/S2\n"
+                + "/S2/P2/E2\n"
+                + "/S1/S1, components: /S1/S2\n");
+        
+        reassignSampleToExperiment(g.s(1), g.e(2));
+        
+        assertEquals("/S1/P1/E1, samples: /S1/S2\n"
+                + "/S2/P2/E2, samples: /S2/S1\n"
+                + "/S2/S1, components: /S1/S2\n", renderGraph(g));
+        assertModified(g.e(1), g.e(2));
+        assertModified(g.s(1));
+        assertUnmodified(g);
     }
 
     @Test
-    public void componentSampleCanBeAssignedToAnotherExperiment() throws Exception
-    {
-        Sample container = create(aSample().inExperiment(sourceExperiment));
-        Sample component = create(aSample().inContainer(container).inExperiment(sourceExperiment));
-
-        perform(anUpdateOf(component).toExperiment(destinationExperiment));
-
-        assertThat(component, is(inExperiment(destinationExperiment)));
-        assertThat(component, is(inSpace(destinationSpace)));
-    }
-
-    @Test
-    public void experimentAssignmentOfContainerSampleIsNotChangedWhenComponentSampleIsAssignedToAnotherExperiment()
-            throws Exception
-    {
-        Sample container = create(aSample().inExperiment(sourceExperiment));
-        Sample component = create(aSample().inContainer(container).inExperiment(sourceExperiment));
-
-        perform(anUpdateOf(component).toExperiment(destinationExperiment));
-
-        assertThat(container, is(inExperiment(sourceExperiment)));
-        assertThat(container, is(inSpace(sourceSpace)));
-    }
-
-    @Test
-    public void containerSampleCanBeAssignedToAnotherExperiment() throws Exception
-    {
-        Sample container = create(aSample().inExperiment(sourceExperiment));
-        create(aSample().inContainer(container).inExperiment(sourceExperiment));
-
-        perform(anUpdateOf(container).toExperiment(destinationExperiment));
-
-        assertThat(container, is(inExperiment(destinationExperiment)));
-        assertThat(container, is(inSpace(destinationSpace)));
-    }
-
-    @Test
-    public void experimentAssignmentOfComponentSampleIsNotChangedWhenContainerSampleIsAssignedToAnotherExperiment()
-            throws Exception
-    {
-        Sample container = create(aSample().inExperiment(sourceExperiment));
-        Sample component = create(aSample().inContainer(container).inExperiment(sourceExperiment));
-
-        perform(anUpdateOf(container).toExperiment(destinationExperiment));
-
-        assertThat(component, is(inExperiment(sourceExperiment)));
-        assertThat(component, is(inSpace(sourceSpace)));
-    }
-
-    @Test
-    public void sampleWithoutExperimentCanBeAssignedToExperimentInSameSpaceThroughExperimentUpdate()
-            throws Exception
-    {
-        Sample sample = create(aSample().inSpace(destinationSpace));
-
-        perform(anUpdateOf(destinationExperiment).withSamples(sample));
-
-        assertThat(sample, is(inExperiment(destinationExperiment)));
-    }
-
-    @Test(expectedExceptions =
-        { UserFailureException.class })
-    public void sampleWithoutExperimentCanNotBeAssignedToExperimentInAnotherSpaceThroughExperimentUpdate()
-            throws Exception
-    {
-        Sample sample = create(aSample().inSpace(sourceSpace));
-
-        perform(anUpdateOf(destinationExperiment).withSamples(sample));
-
-        assertThat(sample, is(inExperiment(destinationExperiment)));
-    }
-
-    @Test(expectedExceptions =
-        { UserFailureException.class })
     public void sampleWithExperimentCanNotBeAssignedToAnotherExperimentThroughExperimentUpdate()
-            throws Exception
     {
-        Experiment destinationExperimentInSameSpace =
-                create(anExperiment().inProject(sourceProject));
-        Sample sample = create(aSample().inExperiment(sourceExperiment));
+        EntityGraphGenerator g = parseAndCreateGraph("/S1/P1/E1, samples: /S1/S1\n"
+                + "/S1/P2/E2\n");
 
-        perform(anUpdateOf(destinationExperimentInSameSpace).withSamples(sample));
-    }
-
-    @Test(expectedExceptions =
-        { UserFailureException.class })
-    public void sharedSampleCanNotBeAssignedToExperimentThroughExperimentUpdate() throws Exception
-    {
-        Sample sample = create(aSample());
-
-        perform(anUpdateOf(destinationExperiment).withSamples(sample));
-
-        assertThat(sample, is(inExperiment(destinationExperiment)));
+        try
+        {
+            reassignSamplesToExperiment(g.e(2), g.s(1));
+            fail("UserFailureException expected");
+        } catch (UserFailureException ex)
+        {
+            assertEquals("Sample '" + entityGraphManager.getSample(g.s(1)).getIdentifier()
+                    + "' is already assigned to the experiment '"
+                    + entityGraphManager.getExperimentIdentifierOrNull(g.e(1)) + "'.", ex.getMessage());
+        }
     }
 
     @Test
-    public void registeringExperimentWithSampleInSameSpaceThatIsNotAssignedToAnyExperimentAssignsTheSampleToTheExperiment()
-            throws Exception
+    public void sharedSampleCanNotBeAssignedToExperimentThroughExperimentUpdate()
     {
-        Sample sample = create(aSample().inSpace(sourceSpace));
+        EntityGraphGenerator g = parseAndCreateGraph("/S1/P1/E1\n"
+                + "/S1\n");
 
-        Experiment experiment = create(anExperiment().inProject(sourceProject).withSamples(sample));
-
-        assertThat(sample, is(inExperiment(experiment)));
+        try
+        {
+            reassignSamplesToExperiment(g.e(1), g.s(1));
+            fail("UserFailureException expected");
+        } catch (UserFailureException ex)
+        {
+            assertEquals("Samples with following codes do not exist in the space 'S1': '["
+                    + entityGraphManager.getSample(g.s(1)).getCode() + "]'.", ex.getMessage());
+        }
     }
     
     Space unrelatedAdmin;
@@ -547,15 +509,7 @@ public class AssignSampleToExperimentTest extends BaseTest
             RoleWithHierarchy destinationSpaceRole, RoleWithHierarchy instanceRole)
             throws Exception
     {
-        Sample sample = create(aSample().inExperiment(sourceExperiment));
-        String user =
-                create(aSession().withSpaceRole(sourceSpaceRole, sourceSpace)
-                        .withSpaceRole(destinationSpaceRole, destinationSpace)
-                        .withInstanceRole(instanceRole)
-                        .withSpaceRole(RoleWithHierarchy.SPACE_ADMIN, unrelatedAdmin)
-                        .withSpaceRole(RoleWithHierarchy.SPACE_OBSERVER, unrelatedObserver));
-
-        perform(anUpdateOf(sample).toExperiment(destinationExperiment).as(user));
+        checkAssigningSampleToExperiment(sourceSpaceRole, destinationSpaceRole, instanceRole);
     }
 
     @Test(dataProvider = "rolesNotAllowedToAssignSampleToExperiment", expectedExceptions =
@@ -564,15 +518,7 @@ public class AssignSampleToExperimentTest extends BaseTest
             RoleWithHierarchy destinationSpaceRole, RoleWithHierarchy instanceRole)
             throws Exception
     {
-        Sample sample = create(aSample().inExperiment(sourceExperiment));
-        String user =
-                create(aSession().withSpaceRole(sourceSpaceRole, sourceSpace)
-                        .withSpaceRole(destinationSpaceRole, destinationSpace)
-                        .withInstanceRole(instanceRole)
-                        .withSpaceRole(RoleWithHierarchy.SPACE_ADMIN, unrelatedAdmin)
-                        .withSpaceRole(RoleWithHierarchy.SPACE_OBSERVER, unrelatedObserver));
-
-        perform(anUpdateOf(sample).toExperiment(destinationExperiment).as(user));
+        checkAssigningSampleToExperiment(sourceSpaceRole, destinationSpaceRole, instanceRole);
     }
 
     @Test(dataProvider = "rolesAllowedToAssignSharedSampleToExperiment", groups = "authorization")
@@ -580,14 +526,7 @@ public class AssignSampleToExperimentTest extends BaseTest
             RoleWithHierarchy destinationSpaceRole, RoleWithHierarchy instanceRole)
             throws Exception
     {
-        Sample sample = create(aSample());
-        String user =
-                create(aSession().withSpaceRole(destinationSpaceRole, destinationSpace)
-                        .withInstanceRole(instanceRole)
-                        .withSpaceRole(RoleWithHierarchy.SPACE_ADMIN, unrelatedAdmin)
-                        .withSpaceRole(RoleWithHierarchy.SPACE_OBSERVER, unrelatedObserver));
-
-        perform(anUpdateOf(sample).toExperiment(destinationExperiment).as(user));
+        checkAssigningSharedSampleToExperiment(destinationSpaceRole, instanceRole);
     }
 
     @Test(dataProvider = "rolesNotAllowedToAssignSharedSampleToExperiment", expectedExceptions =
@@ -596,14 +535,7 @@ public class AssignSampleToExperimentTest extends BaseTest
             RoleWithHierarchy destinationSpaceRole, RoleWithHierarchy instanceRole)
             throws Exception
     {
-        Sample sample = create(aSample());
-        String user =
-                create(aSession().withSpaceRole(destinationSpaceRole, destinationSpace)
-                        .withInstanceRole(instanceRole)
-                        .withSpaceRole(RoleWithHierarchy.SPACE_ADMIN, unrelatedAdmin)
-                        .withSpaceRole(RoleWithHierarchy.SPACE_OBSERVER, unrelatedObserver));
-
-        perform(anUpdateOf(sample).toExperiment(destinationExperiment).as(user));
+        checkAssigningSharedSampleToExperiment(destinationSpaceRole, instanceRole);
     }
 
     @Test(dataProvider = "rolesAllowedToAssignSampleToExperimentThroughExperimentUpdate", groups = "authorization")
@@ -611,14 +543,7 @@ public class AssignSampleToExperimentTest extends BaseTest
             RoleWithHierarchy destinationSpaceRole, RoleWithHierarchy instanceRole)
             throws Exception
     {
-        Sample sample = create(aSample().inSpace(destinationSpace));
-        String user =
-                create(aSession().withSpaceRole(destinationSpaceRole, destinationSpace)
-                        .withInstanceRole(instanceRole)
-                        .withSpaceRole(RoleWithHierarchy.SPACE_ADMIN, unrelatedAdmin)
-                        .withSpaceRole(RoleWithHierarchy.SPACE_OBSERVER, unrelatedObserver));
-
-        perform(anUpdateOf(destinationExperiment).withSamples(sample).as(user));
+        checkAssigningSamplesToExperiment(destinationSpaceRole, instanceRole);
     }
 
     @Test(dataProvider = "rolesNotAllowedToAssignSampleToExperimentThroughExperimentUpdate", expectedExceptions =
@@ -627,14 +552,45 @@ public class AssignSampleToExperimentTest extends BaseTest
             RoleWithHierarchy destinationSpaceRole, RoleWithHierarchy instanceRole)
             throws Exception
     {
-        Sample sample = create(aSample().inSpace(destinationSpace));
+        checkAssigningSamplesToExperiment(destinationSpaceRole, instanceRole);
+    }
+
+    private void checkAssigningSampleToExperiment(RoleWithHierarchy sourceSpaceRole, RoleWithHierarchy destinationSpaceRole,
+            RoleWithHierarchy instanceRole)
+    {
+        String user =
+                create(aSession().withSpaceRole(sourceSpaceRole, sourceSpace)
+                        .withSpaceRole(destinationSpaceRole, destinationSpace)
+                        .withInstanceRole(instanceRole)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_ADMIN, unrelatedAdmin)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_OBSERVER, unrelatedObserver));
+
+        Sample sample = create(aSample().inExperiment(sourceExperiment));
+        reassignSampleToExperiment(sample.getPermId(), destinationExperiment.getIdentifier(), user);
+    }
+    
+    private void checkAssigningSharedSampleToExperiment(RoleWithHierarchy destinationSpaceRole, RoleWithHierarchy instanceRole)
+    {
+        String user =
+                create(aSession().withSpaceRole(destinationSpaceRole, destinationSpace)
+                        .withInstanceRole(instanceRole)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_ADMIN, unrelatedAdmin)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_OBSERVER, unrelatedObserver));
+        
+        Sample sample = create(aSample());
+        reassignSampleToExperiment(sample.getPermId(), destinationExperiment.getIdentifier(), user);
+    }
+    
+    private void checkAssigningSamplesToExperiment(RoleWithHierarchy destinationSpaceRole, RoleWithHierarchy instanceRole)
+    {
         String user =
                 create(aSession().withSpaceRole(destinationSpaceRole, destinationSpace)
                         .withInstanceRole(instanceRole)
                         .withSpaceRole(RoleWithHierarchy.SPACE_ADMIN, unrelatedAdmin)
                         .withSpaceRole(RoleWithHierarchy.SPACE_OBSERVER, unrelatedObserver));
 
-        perform(anUpdateOf(destinationExperiment).withSamples(sample).as(user));
+        Sample sample = create(aSample().inSpace(destinationSpace));
+        reassignSamplesToExperiment(destinationExperiment.getIdentifier(), Arrays.asList(sample.getPermId()), user);
     }
 
     @BeforeClass(dependsOnMethods = "loginAsSystem")
@@ -694,7 +650,7 @@ public class AssignSampleToExperimentTest extends BaseTest
                 and(rule(destination, RoleWithHierarchy.SPACE_USER),
                         rule(instance, RoleWithHierarchy.INSTANCE_ETL_SERVER));
     }
-/*
+
     @DataProvider
     Object[][] rolesAllowedToAssignSampleToExperiment()
     {
@@ -736,7 +692,7 @@ public class AssignSampleToExperimentTest extends BaseTest
         return RolePermutator.getAcceptedPermutations(not(assignSharedSampleToExperimentRule),
                 destination, instance);
     }
- */    
+     
     
     private void reassignSampleToExperiment(SampleNode sampleNode, ExperimentNode experimentNodeOrNull)
     {
