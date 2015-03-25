@@ -202,7 +202,10 @@ def configureUI():
         
         for annotation in sample.getAttributes():
             if annotation != "permId":
-                row.setCell(annotation, sample.getAttribute(annotation))
+                if annotation == "identifier":
+                    row.setCell(annotation, sample, sample.getAttribute(annotation))
+                else:
+                    row.setCell(annotation, sample.getAttribute(annotation))
             
     # Add Create buttons
     for sampleTypeCode in getAllAnnotableSampleTypesForType(annotableType):
