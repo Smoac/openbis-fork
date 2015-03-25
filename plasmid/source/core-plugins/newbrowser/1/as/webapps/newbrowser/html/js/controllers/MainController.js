@@ -815,7 +815,7 @@ function MainController(profile) {
 										}
 									}
 									
-									var dataGrid = new DataGridController(searchDomainLabel + " Search Results", columns, getDataList, rowClick, true, "SEARCH_BLAST");
+									var dataGrid = new DataGridController(searchDomainLabel + " Search Results", columns, getDataList, rowClick, true, "SEARCH_" + searchDomainLabel);
 									localReference.currentView = dataGrid;
 									dataGrid.init($("#mainContainer"));
 									history.pushState(null, "", ""); //History Push State
