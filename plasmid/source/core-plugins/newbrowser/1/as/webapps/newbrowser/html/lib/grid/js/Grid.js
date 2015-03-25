@@ -147,7 +147,7 @@ $.extend(Grid.prototype, {
 							isValid[fIdx] = isValid[fIdx] || column.filter(data, filterKeyword);
 						} else {
 							var value = "" + data[column.property];
-							isValid[fIdx] = isValid[fIdx] || (value != null && value.toLowerCase().indexOf(filterKeyword) != -1);
+							isValid[fIdx] = isValid[fIdx] || (value !== null && value.toLowerCase().indexOf(filterKeyword) !== -1);
 						}
 					}
 				}
