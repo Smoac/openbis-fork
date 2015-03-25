@@ -60,8 +60,6 @@ $.extend(DefaultProfile.prototype, {
 		
 		this.typePropertiesForSmallTable = {};
 		
-		this.colorForInspectors = {};
-		
 		this.storagesConfiguration = {
 			"isEnabled" : false
 		};
@@ -178,13 +176,8 @@ $.extend(DefaultProfile.prototype, {
 		}
 		
 		this.getColorForInspectors = function(sampleTypeCode) {
-			//Get default color if found
+			//Default Color
 			var defaultColor = "#ffffc0"
-			var profileColor = this.colorForInspectors[sampleTypeCode];
-		
-			if (profileColor !== null && profileColor !== undefined) {
-				defaultColor = profileColor;
-			}
 		
 			//Convert to HSL
 			var rgb = d3.rgb(defaultColor);

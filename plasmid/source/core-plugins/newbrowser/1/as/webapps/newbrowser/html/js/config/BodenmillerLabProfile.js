@@ -11,13 +11,6 @@ $.extend(BodenmillerLabProfile.prototype, DefaultProfile.prototype, {
 		this.isShowUnavailablePreviewOnSampleTable = false;
 		this.inventorySpaces = ["BODENMILLER_LAB"];
 	
-		this.colorForInspectors = {
-			"PROTEIN" : "#CCFFCC",
-			"CLONE" : "#E3E3E3",
-			"CONJUGATED_CLONE" : "#ACE8FC",
-			"LOT" : "#CCCC99",
-		};
-	
 		/*
 		 * Used by Sample Form
 		 */

@@ -44,13 +44,6 @@ $.extend(TestProfile.prototype, DefaultProfile.prototype, {
 		//	"SYSTEM_EXPERIMENT" : ["NAME", "GOALS", "RESULT_INTERPRETATION"],
 		//}
 	
-		this.colorForInspectors = {
-			"PROTEIN" : "#CCFFCC",
-			"CLONE" : "#E3E3E3",
-			"CONJUGATED_CLONE" : "#ACE8FC",
-			"LOT" : "#CCCC99",
-		};
-	
 		this.storagesConfiguration = {
 				"isEnabled" : true,
 				/*

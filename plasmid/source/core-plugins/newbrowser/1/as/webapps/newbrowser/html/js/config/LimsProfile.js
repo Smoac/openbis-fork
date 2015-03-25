@@ -111,22 +111,6 @@ $.extend(LimsProfile.prototype, DefaultProfile.prototype, {
 			"YEAST" : ["OWNER", "OWNER_NUMBER", "YEAST_STRAIN_NAME", "PROJECT", "GENETIC_BACKGROUND", "MATING_TYPE", "FREEZER_NAME", "ROW", "COLUMN", "BOX_NUMBER"],
 			"BACTERIA" : ["BACTERIA_STRAIN_NAME", "BACTERIA_GENOTYPE", "FOR_WHAT", "SUPPLIER", "ARTICLE_NUMBER", "COMMENTS"]
 		}
-	
-		this.colorForInspectors = {
-			"GENERAL_PROTOCOL" : "#CCFFCC",
-			"PCR" : "#CCFFCC",
-			"WESTERN_BLOTTING" : "#CCFFCC",
-			"CHEMICAL" : "#E3E3E3",
-			"ANTIBODY" : "#E3E3E3",
-			"MEDIA" : "#E3E3E3",
-			"SOLUTIONS_BUFFERS" : "#E3E3E3",
-			"ENZYME" : "#E3E3E3",
-			"BACTERIA" : "#E3E3E3",
-			"OLIGO" : "#ACE8FC",
-			"PLASMID" : "#FCDEC0",
-			"YEAST" : "#CCCC99",
-			"SAMPLE_PROPERTY_TEST" : "#000000"
-		};
 
 		this.sampleFormContentExtra = function(sampleTypeCode, sample, containerId) {
 			if(sampleTypeCode === "FACS") {

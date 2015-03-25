@@ -107,10 +107,7 @@ $.extend(CiaudoLabProfile.prototype, DefaultProfile.prototype, {
 
 
 		
-		//The properties you want to appear on the tables, if you donÇt specify the list, all of them will appear by default.
+		//The properties you want to appear on the tables, if you donï¿½t specify the list, all of them will appear by default.
 		this.typePropertiesForTable = {};
-		
-		//The colors for the notes, if you donÇt specify the color, light yellow will be used by default.
-		this.colorForInspectors = {};
 }
 });
