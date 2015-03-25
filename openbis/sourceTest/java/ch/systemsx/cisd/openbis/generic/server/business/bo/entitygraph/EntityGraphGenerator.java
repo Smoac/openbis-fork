@@ -25,41 +25,70 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.regex.Pattern;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 
 public final class EntityGraphGenerator
 {
+    private static enum Kind { E, S, DS}
+    
     private static final class EntityDescription
     {
-        private static final String[] KINDS = {"E", "S", "DS"};
-        String kind;
+        private static final Pattern EXPERIMENT_PATTERN = Pattern.compile("(/S\\d+/P\\d+/)?E\\d+");
+        private static final Pattern SAMPLE_PATTERN = Pattern.compile("(/(S\\d+/(P\\d+/)?)?)?S\\d+");
+        private static final Pattern DATA_SET_PATTERN = Pattern.compile("DS\\d+");
+        Kind kind;
+        boolean shared;
+        String space;
+        String project;
         int id;
         String type;
         EntityDescription(String description)
         {
             int indexOfBracket = description.indexOf('[');
-            String code;
+            String identifier;
             if (indexOfBracket < 0)
             {
-                code = description;
+                identifier = description;
             } else
             {
                 if (description.endsWith("]") == false)
                 {
                     throw new IllegalArgumentException("Missing ']' at the end of " + description);
                 }
-                code = description.substring(0, indexOfBracket);
+                identifier = description.substring(0, indexOfBracket);
                 type = description.substring(indexOfBracket + 1,  description.length() - 1);
             }
-            for (String k : KINDS)
+            String[] elements = identifier.split("/");
+            if (EXPERIMENT_PATTERN.matcher(identifier).matches())
             {
-                if (code.startsWith(k))
+                if (elements.length == 4)
                 {
-                    kind = k;
-                    id = Integer.parseInt(code.substring(k.length()));
+                    space = elements[1];
+                    project = elements[2];
                 }
+                kind = Kind.E;
+            } else if (SAMPLE_PATTERN.matcher(identifier).matches())
+            {
+                shared = elements.length == 2;
+                if (elements.length > 2)
+                {
+                    space = elements[1];
+                }
+                if (elements.length == 4)
+                {
+                    project = elements[2];
+                }
+                kind = Kind.S;
+            } else if (DATA_SET_PATTERN.matcher(identifier).matches())
+            {
+                kind = Kind.DS;
+            } else
+            {
+                throw new IllegalArgumentException("Invalid entity indentifier: " + identifier);
             }
+            id = Integer.parseInt(elements[elements.length - 1].substring(kind.name().length()));
         }
     }
     
@@ -74,13 +103,13 @@ public final class EntityGraphGenerator
         {
             EntityDescription entity = new EntityDescription(parts.get(0));
             List<String> rest = parts.subList(1, parts.size());
-            if (entity.kind == "E")
+            if (entity.kind == Kind.E)
             {
-                handle(e(entity.id), rest);
-            } else if (entity.kind == "S")
+                handle(createExperiment(entity), rest);
+            } else if (entity.kind == Kind.S)
             {
-                handle(s(entity.id), rest);
-            } else if (entity.kind == "DS")
+                handle(createSample(entity), rest);
+            } else if (entity.kind == Kind.DS)
             {
                 DataSetNode ds = ds(entity.id);
                 ds.setType(entity.type);
@@ -111,15 +140,10 @@ public final class EntityGraphGenerator
         private SampleNode[] getSamples(String name, List<String> parts)
         {
             List<SampleNode> sampleNodes = new ArrayList<SampleNode>();
-            List<EntityDescription> descriptions = getDescriptions(name, "S", parts);
+            List<EntityDescription> descriptions = getDescriptions(name, Kind.S, parts);
             for (EntityDescription description : descriptions)
             {
-                SampleNode s = s(description.id);
-                if (s == null)
-                {
-                    throw new IllegalArgumentException("No sample with id " + description.id);
-                }
-                sampleNodes.add(s);
+                sampleNodes.add(createSample(description));
             }
             return sampleNodes.toArray(new SampleNode[descriptions.size()]);
         }
@@ -127,21 +151,17 @@ public final class EntityGraphGenerator
         private DataSetNode[] getDataSets(String name, List<String> parts)
         {
             List<DataSetNode> dataSetNodes = new ArrayList<DataSetNode>();
-            List<EntityDescription> descriptions = getDescriptions(name, "DS", parts);
+            List<EntityDescription> descriptions = getDescriptions(name, Kind.DS, parts);
             for (EntityDescription description : descriptions)
             {
                 DataSetNode ds = ds(description.id);
-                if (ds == null)
-                {
-                    throw new IllegalArgumentException("No data set with id " + description.id);
-                }
                 ds.setType(description.type);
                 dataSetNodes.add(ds);
             }
             return dataSetNodes.toArray(new DataSetNode[descriptions.size()]);
         }
         
-        private List<EntityDescription> getDescriptions(String name, String prefix, List<String> parts)
+        private List<EntityDescription> getDescriptions(String name, Kind kind, List<String> parts)
         {
             String descriptionsConcatenated = getValue(name, parts);
             if (descriptionsConcatenated == null)
@@ -152,7 +172,12 @@ public final class EntityGraphGenerator
             List<EntityDescription> result = new ArrayList<EntityDescription>();
             for (String description : descriptions)
             {
-                result.add(new EntityDescription(description.trim()));
+                EntityDescription entityDescription = new EntityDescription(description.trim());
+                if (entityDescription.kind != kind)
+                {
+                    throw new IllegalArgumentException("Entity " + description + " is of wrong kind.");
+                }
+                result.add(entityDescription);
             }
             return result;
         }
@@ -235,6 +260,14 @@ public final class EntityGraphGenerator
         }
         return experimentNode;
     }
+    
+    private ExperimentNode createExperiment(EntityDescription entityDescription)
+    {
+        ExperimentNode experimentNode = e(entityDescription.id);
+        experimentNode.setSpace(entityDescription.space);
+        experimentNode.setProject(entityDescription.project);
+        return experimentNode;
+    }
 
     public SampleNode s(long id)
     {
@@ -244,6 +277,15 @@ public final class EntityGraphGenerator
             sampleNode = new SampleNode(id);
             samples.put(id, sampleNode);
         }
+        return sampleNode;
+    }
+    
+    private SampleNode createSample(EntityDescription entityDescription)
+    {
+        SampleNode sampleNode = s(entityDescription.id);
+        sampleNode.setShared(entityDescription.shared);
+        sampleNode.setSpace(entityDescription.space);
+        sampleNode.setProject(entityDescription.project);
         return sampleNode;
     }
 

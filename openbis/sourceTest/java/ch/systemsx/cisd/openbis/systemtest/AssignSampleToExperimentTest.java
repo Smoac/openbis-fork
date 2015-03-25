@@ -164,6 +164,21 @@ public class AssignSampleToExperimentTest extends BaseTest
     }
     
     @Test
+    public void registerExperimentWithSampleWithDataSets()
+    {
+        EntityGraphGenerator g = parseAndCreateGraph("S1, data sets: DS1[NET]\n");
+        
+        registerExperimentWithSamples(g.e(1), g.s(1));
+        
+        assertEquals("E1, samples: S1, data sets: DS1[NET]\n"
+                + "S1, data sets: DS1[NET]\n", renderGraph(g));
+        assertModified(g.s(1));
+        assertModified(g.ds(1));
+        assertUnmodified(g);
+        
+    }
+    
+    @Test
     public void removeSamplesWithDataSetsFromExperimentFailsBecauseOneDataSetNeedsAnExperiment()
     {
         EntityGraphGenerator g = parseAndCreateGraph("E1, samples: S1, data sets: DS1[NET] DS2\n"
@@ -189,6 +204,10 @@ public class AssignSampleToExperimentTest extends BaseTest
         reassignSamplesToExperiment(experimentIdentifier, getSamplePermIds(sampleNodes), user);
     }
     
+    /**
+     * Reassigns specified samples to specified experiment for the specified user session token. 
+     * Sub class for testing API V3 should override this method.
+     */
     protected void reassignSamplesToExperiment(String experimentIdentifier, List<String> samplePermIds, 
             String userSessionToken)
     {
@@ -251,58 +270,113 @@ public class AssignSampleToExperimentTest extends BaseTest
         return samples.toArray(new Sample[0]);
     }
 
-
     @Test
-    public void sampleWithExperimentCanBeAssignedToAnotherExperiment() throws Exception
+    public void addSampleToAnExperimentFailingBecauseSampleHasAlreadyAnExperiment() throws Exception
     {
-        Sample sample = create(aSample().inExperiment(sourceExperiment));
-
-        perform(anUpdateOf(sample).toExperiment(destinationExperiment));
-
-        assertThat(sample, is(inExperiment(destinationExperiment)));
+        EntityGraphGenerator g = parseAndCreateGraph("E1, samples: S1\n"
+                + "E2\n");
+        
+        try
+        {
+            reassignSamplesToExperiment(g.e(2), g.s(1));
+            fail("UserFailureException expected");
+        } catch (UserFailureException ex)
+        {
+            assertEquals("Sample '" + entityGraphManager.getSample(g.s(1)).getIdentifier() 
+                    + "' is already assigned to the experiment '" 
+                    + entityGraphManager.getExperimentIdentifierOrNull(g.e(1)) + "'.", ex.getMessage());
+        }
     }
 
     @Test
-    public void sampleIsAssignedWithSpaceOfNewExperiment() throws Exception
+    public void assignSampleToAnotherExperiment() throws Exception
     {
-        Sample sample = create(aSample().inExperiment(sourceExperiment));
-
-        perform(anUpdateOf(sample).toExperiment(destinationExperiment));
-
-        assertThat(sample, is(inSpace(destinationSpace)));
+        EntityGraphGenerator g = parseAndCreateGraph("/S1/P1/E1, samples: /S1/S1\n"
+                + "/S2/P2/E2\n");
+        
+        reassignSampleToExperiment(g.s(1), g.e(2));
+        
+        assertEquals("/S2/P2/E2, samples: /S2/S1\n", renderGraph(g));
+        assertModified(g.e(1), g.e(2));
+        assertModified(g.s(1));
+        assertUnmodified(g);
     }
-
+    
     @Test
     public void dataSetsOfSampleAreAssociatedWithNewExperiment() throws Exception
     {
-        Sample sample = create(aSample().inExperiment(sourceExperiment));
-        AbstractExternalData dataSet = create(aDataSet().inSample(sample));
-
-        perform(anUpdateOf(sample).toExperiment(destinationExperiment));
-
-        assertThat(dataSet, is(inExperiment(destinationExperiment)));
+        EntityGraphGenerator g = parseAndCreateGraph("/S1/P1/E1, samples: /S1/S1, data sets: DS1\n"
+                + "/S1/S1, data sets: DS1\n"
+                + "/S2/P2/E2\n");
+        
+        reassignSampleToExperiment(g.s(1), g.e(2));
+        
+        assertEquals("/S2/P2/E2, samples: /S2/S1, data sets: DS1\n"
+                + "/S2/S1, data sets: DS1\n", renderGraph(g));
+        assertModified(g.e(1), g.e(2));
+        assertModified(g.s(1));
+        assertModified(g.ds(1));
+        assertUnmodified(g);
     }
 
     @Test
     public void spaceSampleCanBeAssignedToExperiment() throws Exception
     {
-        Sample sample = create(aSample().inSpace(sourceSpace));
-
-        perform(anUpdateOf(sample).toExperiment(destinationExperiment));
-
-        assertThat(sample, is(inExperiment(destinationExperiment)));
-        assertThat(sample, is(inSpace(destinationSpace)));
+        EntityGraphGenerator g = parseAndCreateGraph("/S2/P1/E1\n"
+                + "/S1/S1\n");
+        
+        reassignSampleToExperiment(g.s(1), g.e(1));
+        
+        assertEquals("/S2/P1/E1, samples: /S2/S1\n", renderGraph(g));
+        assertModified(g.e(1));
+        assertModified(g.s(1));
+        assertUnmodified(g);
+    }
+    
+    @Test
+    public void spaceSampleCanNotBeAddedToExperimentFromAnotherSpace() throws Exception
+    {
+        EntityGraphGenerator g = parseAndCreateGraph("/S2/P1/E1\n"
+                + "/S1/S1\n");
+        
+        try
+        {
+            reassignSamplesToExperiment(g.e(1), g.s(1));
+            fail("UserFailureException expected");
+        } catch (UserFailureException ex)
+        {
+            assertEquals("Samples with following codes do not exist in the space 'S2': '["
+                    + entityGraphManager.getSample(g.s(1)).getCode() + "]'.", ex.getMessage());
+        }
+    }
+    
+    @Test
+    public void spaceSamplesCanBeAddedToExperimentInSameSpace() throws Exception
+    {
+        EntityGraphGenerator g = parseAndCreateGraph("/S1/P1/E1\n"
+                + "/S1/S1\n"
+                + "/S1/S2\n");
+        
+        reassignSamplesToExperiment(g.e(1), g.s(1), g.s(2));
+        
+        assertEquals("/S1/P1/E1, samples: /S1/S1 /S1/S2\n", renderGraph(g));
+        assertModified(g.e(1));
+        assertModified(g.s(1), g.s(2));
+        assertUnmodified(g);
     }
 
     @Test
     public void sharedSampleCanBeAssignedToExperiment() throws Exception
     {
-        Sample sample = create(aSample());
-
-        perform(anUpdateOf(sample).toExperiment(destinationExperiment));
-
-        assertThat(sample, is(inExperiment(destinationExperiment)));
-        assertThat(sample, is(inSpace(destinationSpace)));
+        EntityGraphGenerator g = parseAndCreateGraph("/S2/P1/E1\n"
+                + "/S1\n");
+        
+        reassignSampleToExperiment(g.s(1), g.e(1));
+        
+        assertEquals("/S2/P1/E1, samples: /S2/S1\n", renderGraph(g));
+        assertModified(g.e(1));
+        assertModified(g.s(1));
+        assertUnmodified(g);
     }
 
     @Test
@@ -460,21 +534,6 @@ public class AssignSampleToExperimentTest extends BaseTest
         Experiment experiment = create(anExperiment().inProject(sourceProject).withSamples(sample));
 
         assertThat(sample, is(inExperiment(experiment)));
-    }
-    
-    @Test
-    public void registerExperimentWithSampleWithDataSets()
-    {
-        EntityGraphGenerator g = parseAndCreateGraph("S1, data sets: DS1[NET]\n");
-        
-        registerExperimentWithSamples(g.e(1), g.s(1));
-        
-        assertEquals("E1, samples: S1, data sets: DS1[NET]\n"
-                + "S1, data sets: DS1[NET]\n", renderGraph(g));
-        assertModified(g.s(1));
-        assertModified(g.ds(1));
-        assertUnmodified(g);
-        
     }
     
     Space unrelatedAdmin;

@@ -48,6 +48,11 @@ public class EntityNode implements IIdHolder, Comparable<EntityNode>
         return type;
     }
     
+    public String getIdentifierAndType()
+    {
+        return getCodeAndType();
+    }
+
     public String getCodeAndType()
     {
         StringBuilder builder = new StringBuilder(code);
@@ -72,7 +77,7 @@ public class EntityNode implements IIdHolder, Comparable<EntityNode>
     @Override
     public String toString()
     {
-        return getCodeAndType();
+        return getIdentifierAndType();
     }
     
 }

@@ -21,28 +21,72 @@ import java.util.List;
 
 public final class SampleNode extends EntityNode
 {
-    ExperimentNode experiment;
-    private SampleNode container;
     private final List<SampleNode> components = new ArrayList<SampleNode>();
     private final List<SampleNode> parents = new ArrayList<SampleNode>();
     private final List<SampleNode> children = new ArrayList<SampleNode>();
     private final List<DataSetNode> dataSets = new ArrayList<DataSetNode>();
+
+    private boolean shared;
+    private String space;
+    private String project;
+    private ExperimentNode experiment;
+    private SampleNode container;
 
     SampleNode(long id)
     {
         super("S", id);
     }
     
+    public boolean isShared()
+    {
+        return shared;
+    }
+
+    void setShared(boolean shared)
+    {
+        this.shared = shared;
+    }
+
+    public String getSpace()
+    {
+        return space;
+    }
+
+    void setSpace(String space)
+    {
+        this.space = space;
+    }
+
+    public String getProject()
+    {
+        return project;
+    }
+
+    void setProject(String project)
+    {
+        this.project = project;
+    }
+
     public ExperimentNode getExperiment()
     {
         return experiment;
     }
 
+    void setExperiment(ExperimentNode experiment)
+    {
+        this.experiment = experiment;
+    }
+    
     public SampleNode getContainer()
     {
         return container;
     }
 
+    void setContainer(SampleNode container)
+    {
+        this.container = container;
+    }
+    
     public List<SampleNode> getComponents()
     {
         return components;
@@ -94,6 +138,27 @@ public final class SampleNode extends EntityNode
         }
     }
     
+    @Override
+    public String getIdentifierAndType()
+    {
+        String identifierAndType = super.getIdentifierAndType();
+        if (shared)
+        {
+            identifierAndType = "/" + identifierAndType;
+        } else
+        {
+            if (project != null)
+            {
+                identifierAndType = project + "/" + identifierAndType;
+            }
+            if (space != null)
+            {
+                identifierAndType = "/" + space + "/" + identifierAndType;
+            }
+        }
+        return identifierAndType;
+    }
+
     @Override
     public String toString()
     {

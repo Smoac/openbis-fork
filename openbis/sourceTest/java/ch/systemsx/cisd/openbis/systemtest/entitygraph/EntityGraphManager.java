@@ -183,26 +183,46 @@ public class EntityGraphManager
         for (ExperimentNode experimentNode : g.getExperiments().values())
         {
             StringBuilder builder2 = new StringBuilder();
-            render(builder2, "samples", repository.getSampleNode(experimentNode));
+            render(builder2, "samples", repository.getSampleNodes(experimentNode));
             render(builder2, "data sets", repository.getDataSetNodes(experimentNode));
-            appendNodeTo(builder, experimentNode, builder2);
+            appendNodeTo(builder, getIdentifierAndType(experimentNode), builder2);
         }
         for (SampleNode sampleNode : g.getSamples().values())
         {
             StringBuilder builder2 = new StringBuilder();
             render(builder2, "data sets", repository.getDataSetNodes(sampleNode));
-            appendNodeTo(builder, sampleNode, builder2);
+            appendNodeTo(builder, getIdentifierAndType(sampleNode), builder2);
         }
         for (DataSetNode dataSetNode : g.getDataSets().values())
         {
             StringBuilder builder2 = new StringBuilder();
             render(builder2, "components", repository.getComponentDataSetNodes(dataSetNode));
             render(builder2, "parents", repository.getParentDataSetNodes(dataSetNode));
-            appendNodeTo(builder, dataSetNode, builder2);
+            appendNodeTo(builder, dataSetNode.getIdentifierAndType(), builder2);
         }
         return builder.toString();
     }
 
+    private String getIdentifierAndType(ExperimentNode experimentNode)
+    {
+        String projectIdentifier = repository.getExperiment(experimentNode).getProject().getIdentifier();
+        if (experimentNode.getProject() != null || defaultProject.getIdentifier().equals(projectIdentifier) == false)
+        {
+            return projectIdentifier + "/" + experimentNode.getCodeAndType();
+        }
+        return experimentNode.getIdentifierAndType();
+    }
+
+    private String getIdentifierAndType(SampleNode sampleNode)
+    {
+        Sample sample = repository.getSample(sampleNode);
+        if (sampleNode.isShared() || sampleNode.getSpace() != null || defaultSpace.equals(sample.getSpace()) == false)
+        {
+            return (sample.getSpace() == null ? "" : sample.getSpace().getIdentifier()) + "/" + sampleNode.getCodeAndType();
+        }
+        return sampleNode.getIdentifierAndType();
+    }
+    
     private String removeSolitaryNodes(String graphDefinition)
     {
         StringBuilder builder = new StringBuilder();
@@ -217,26 +237,45 @@ public class EntityGraphManager
         return builder.toString();
     }
     
-    private void appendNodeTo(StringBuilder builder, EntityNode entityNode, StringBuilder builder2)
+    private void appendNodeTo(StringBuilder builder, String identifierAndType, StringBuilder builder2)
     {
         if (builder2.length() > 0)
         {
-            builder.append(entityNode.getCodeAndType());
-            
+            builder.append(identifierAndType);
             builder.append(builder2).append("\n");
         }
     }
     
     private void render(StringBuilder builder, String name, Collection<? extends EntityNode> nodes)
     {
-        if (nodes.isEmpty())
+        render(builder, name, getIdentifiers(nodes));
+    }
+    
+    private List<String> getIdentifiers(Collection<? extends EntityNode> nodes)
+    {
+        List<String> identifiers = new ArrayList<String>();
+        for (EntityNode node : nodes)
+        {
+            String identifierAndType = node.getIdentifierAndType();
+            if (node instanceof SampleNode)
+            {
+                identifierAndType = getIdentifierAndType((SampleNode) node);
+            }
+            identifiers.add(identifierAndType);
+        }
+        return identifiers;
+    }
+    
+    private void render(StringBuilder builder, String name, List<String> identifiers)
+    {
+        if (identifiers.isEmpty())
         {
             return;
         }
         builder.append(", ").append(name).append(":");
-        for (EntityNode node : nodes)
+        for (String identifier : identifiers)
         {
-            builder.append(' ').append(node.getCodeAndType());
+            builder.append(' ').append(identifier);
         }
     }
     
@@ -317,7 +356,13 @@ public class EntityGraphManager
     {
         try
         {
-            String identifier = project.getIdentifier() + "/" + experimentNode.getCode() + generateUniqueId();
+            String projectIdentifier = project.getIdentifier();
+            if (experimentNode.getProject() != null)
+            {
+                Space space = createSpace(experimentNode.getSpace());
+                projectIdentifier = createProject(space, experimentNode.getProject()).getIdentifier();
+            }
+            String identifier = projectIdentifier + "/" + experimentNode.getCode() + generateUniqueId();
             service.registerExperiment(sessionToken, new NewExperiment(identifier, defaultExperimentType.getCode()));
             return service.tryGetExperiment(sessionToken, ExperimentIdentifierFactory.parse(identifier));
         } catch (Exception ex)
@@ -326,7 +371,7 @@ public class EntityGraphManager
                     + ": " + ex.getMessage(), ex);
         }
     }
-    
+
     private Experiment refresh(Experiment experiment)
     {
         return commonService.getExperimentInfo(sessionToken, new TechId(experiment.getId()));
@@ -337,7 +382,15 @@ public class EntityGraphManager
         try
         {
             NewSample sample = new NewSample();
-            sample.setIdentifier((space == null ? "/" : space.getIdentifier() + "/") + sampleNode.getCode() + generateUniqueId());
+            String prefix = space == null ? "/" : space.getIdentifier() + "/";
+            if (sampleNode.isShared())
+            {
+                prefix = "/";
+            } else if (sampleNode.getSpace() != null)
+            {
+                prefix = createSpace(sampleNode.getSpace()).getIdentifier() + "/";
+            }
+            sample.setIdentifier(prefix + sampleNode.getCode() + generateUniqueId());
             sample.setSampleType(defaultSampleType);
             ExperimentNode experimentNode = sampleNode.getExperiment();
             if (experimentNode != null)
@@ -432,7 +485,7 @@ public class EntityGraphManager
             return service.tryGetDataSet(sessionToken, dataSet.getCode());
         } catch (Exception ex)
         {
-            throw new RuntimeException("Error while creating data set for node " + dataSetNode.getCodeAndType() 
+            throw new RuntimeException("Error while creating data set for node " + dataSetNode.getIdentifierAndType() 
                     + ": " + ex.getMessage(), ex);
         }
     }
@@ -784,7 +837,7 @@ public class EntityGraphManager
             }
         }
 
-        Set<SampleNode> getSampleNode(ExperimentNode experimentNode)
+        Set<SampleNode> getSampleNodes(ExperimentNode experimentNode)
         {
             Set<SampleNode> result = new LinkedHashSet<SampleNode>();
             Experiment experiment = experimentsNodeToDtoMap.get(experimentNode.getId());

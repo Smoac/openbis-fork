@@ -555,7 +555,7 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
             {
                 if (unassigned)
                 {
-                    checkSampleUnassigned(code, sample);
+                    checkSampleUnassigned(sample.getIdentifier(), sample);
                 }
                 samples.add(sample);
             }
@@ -571,12 +571,12 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
         }
     }
 
-    private static void checkSampleUnassigned(String code, SamplePE sample)
+    private static void checkSampleUnassigned(String identifier, SamplePE sample)
     {
         if (sample.getExperiment() != null)
         {
             throw UserFailureException.fromTemplate(
-                    "Sample '%s' is already assigned to the experiment '%s'.", code, sample
+                    "Sample '%s' is already assigned to the experiment '%s'.", identifier, sample
                             .getExperiment().getIdentifier());
         }
     }

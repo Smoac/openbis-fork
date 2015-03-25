@@ -24,12 +24,36 @@ public final class ExperimentNode extends EntityNode
     private final List<SampleNode> samples = new ArrayList<SampleNode>();
 
     private final List<DataSetNode> dataSets = new ArrayList<DataSetNode>();
+    
+    private String space;
+    
+    private String project;
 
     ExperimentNode(long id)
     {
         super("E", id);
     }
     
+    public String getSpace()
+    {
+        return space;
+    }
+
+    void setSpace(String space)
+    {
+        this.space = space;
+    }
+
+    public String getProject()
+    {
+        return project;
+    }
+
+    void setProject(String project)
+    {
+        this.project = project;
+    }
+
     public List<SampleNode> getSamples()
     {
         return samples;
@@ -44,7 +68,7 @@ public final class ExperimentNode extends EntityNode
     {
         for (SampleNode sample : someSamples)
         {
-            sample.experiment = this;
+            sample.setExperiment(this);
             samples.add(sample);
         }
     }
@@ -57,6 +81,18 @@ public final class ExperimentNode extends EntityNode
             dataSets.add(dataSet);
         }
     }
+    
+    @Override
+    public String getIdentifierAndType()
+    {
+        String identifierAndType = super.getIdentifierAndType();
+        if (space != null && project != null)
+        {
+            identifierAndType = "/" + space + "/" + project + "/" + identifierAndType;
+        }
+        return identifierAndType;
+    }
+
     @Override
     public String toString()
     {
