@@ -748,7 +748,7 @@ public final class ExperimentBOTest extends AbstractBOTest
         context.assertIsSatisfied();
     }
 
-    @Test(expectedExceptionsMessageRegExp = "Sample 'S2' is already assigned.*", expectedExceptions = UserFailureException.class)
+    @Test(expectedExceptionsMessageRegExp = "Sample '/S2' is already assigned.*", expectedExceptions = UserFailureException.class)
     public void testUpdateByAddingAnAlreadyAssignedSample()
     {
         ExperimentIdentifier identifier = CommonTestUtils.createExperimentIdentifier();
