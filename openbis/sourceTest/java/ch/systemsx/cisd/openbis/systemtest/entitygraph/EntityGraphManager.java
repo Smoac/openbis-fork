@@ -71,7 +71,32 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
  * Helper class which creates a graph of entities of kind experiment, sample, and data set based on a
- * textual description. A simple language defines the entities and its relations.
+ * textual description. A simple language defines the entities (experiments, samples, and data sets) and its relations. 
+ * From the textual definition of the graph real entities are created in the database. The actual graph of
+ * entities as stored in the data base can be rendered in the same language used for parsing. This allows to
+ * checked expected changes after some (re-)assignment between the entities has been performed. It is also
+ * possible to checked whether the entities have been modified (i.e. modifier and modification date have been changed)
+ * or not. Here is an example:
+ * <pre>
+ * EntityGraphGenerator g = entityGraphManager.parseAndCreateGraph("E1, data sets: DS4\n"
+                + "S1, data sets: DS1[NECT] DS2[NECT]\n"
+                + "S2\n"
+                + "S3, data sets: DS3[NET]\n"
+                + "DS1[NECT], components: DS2[NECT] DS3[NET]\n"
+                + "DS2[NECT], components: DS4");
+        
+        reassignToSample(g.ds(1), g.s(2));
+        
+        assertEquals("E1, data sets: DS4\n"
+                + "S2, data sets: DS1[NECT] DS2[NECT]\n"
+                + "S3, data sets: DS3[NET]\n"
+                + "DS1[NECT], components: DS2[NECT] DS3[NET]\n"
+                + "DS2[NECT], components: DS4\n", entityGraphManager.renderGraph(g));
+        entityGraphManager.assertModified(g.s(1), g.s(2));
+        entityGraphManager.assertModified(g.ds(1), g.ds(2));
+        entityGraphManager.assertUnmodified(g);
+ * </pre>
+ * 
  *
  * @author Franz-Josef Elmer
  */
