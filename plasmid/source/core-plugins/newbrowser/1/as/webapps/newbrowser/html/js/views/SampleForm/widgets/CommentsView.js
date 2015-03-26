@@ -53,7 +53,13 @@ function CommentsView(commentsController, commentsModel) {
 			$buttonDelete.append($("<span>", { "class" : "glyphicon glyphicon-minus-sign"}));
 		}
 		var date = Util.getFormatedDate(new Date(parseInt(dateValue) * 1000));
-		var commentWidget = FormUtil.getFieldForLabelWithText(date + " (" + userId + ")", value, null, $buttonDelete, 
+		
+		var deleteEnabled = false;
+		var $sufixComponent = null;
+		if(deleteEnabled) {
+			$sufixComponent = $buttonDelete;
+		}
+		var commentWidget = FormUtil.getFieldForLabelWithText(date + " (" + userId + ")", value, null, $sufixComponent, 
 				{ 
 					"background-color" : "lightblue",
 					"padding-left" : "18px",
