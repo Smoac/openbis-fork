@@ -37,6 +37,7 @@ public class SpaceUpdate implements Serializable
     @JsonProperty
     private ISpaceId spaceId;
 
+    @JsonProperty
     private FieldUpdateValue<String> description = new FieldUpdateValue<String>();
 
     @JsonIgnore

@@ -45,6 +45,7 @@ import ch.ethz.sis.openbis.generic.server.api.v3.executor.material.IMapMaterialB
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.material.IUpdateMaterialExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.project.ICreateProjectExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.project.IMapProjectByIdExecutor;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.project.IUpdateProjectExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.sample.ICreateSampleExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.sample.IDeleteSampleExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.sample.IMapSampleByIdExecutor;
@@ -83,6 +84,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material.MaterialCre
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material.MaterialUpdate;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.project.Project;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.project.ProjectCreation;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.project.ProjectUpdate;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.Sample;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleUpdate;
@@ -162,6 +164,9 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
 
     @Autowired
     private IUpdateSpaceExecutor updateSpaceExecutor;
+
+    @Autowired
+    private IUpdateProjectExecutor updateProjectExecutor;
 
     @Autowired
     private IUpdateExperimentExecutor updateExperimentExecutor;
@@ -386,6 +391,24 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
         try
         {
             updateSpaceExecutor.update(context, spaceUpdates);
+        } catch (Throwable t)
+        {
+            throw ExceptionUtils.create(context, t);
+        }
+    }
+
+    @Override
+    @Transactional
+    @RolesAllowed({ RoleWithHierarchy.SPACE_POWER_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @Capability("WRITE_PROJECT")
+    public void updateProjects(String sessionToken, List<ProjectUpdate> projectUpdates)
+    {
+        Session session = getSession(sessionToken);
+        OperationContext context = new OperationContext(session);
+
+        try
+        {
+            updateProjectExecutor.update(context, projectUpdates);
         } catch (Throwable t)
         {
             throw ExceptionUtils.create(context, t);

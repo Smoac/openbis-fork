@@ -21,6 +21,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.ISpaceHol
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.person.Person;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.space.Space;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.person.PersonFetchOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.person.PersonPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.NotFetchedException;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -38,6 +39,9 @@ public class Person implements Serializable, ISpaceHolder, IRegistratorHolder, I
 
     @JsonProperty
     private PersonFetchOptions fetchOptions;
+
+    @JsonProperty
+    private PersonPermId permId;
 
     @JsonProperty
     private String userId;
@@ -74,6 +78,19 @@ public class Person implements Serializable, ISpaceHolder, IRegistratorHolder, I
     public void setFetchOptions(PersonFetchOptions fetchOptions)
     {
         this.fetchOptions = fetchOptions;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    @JsonIgnore
+    public PersonPermId getPermId()
+    {
+        return permId;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public void setPermId(PersonPermId permId)
+    {
+        this.permId = permId;
     }
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}

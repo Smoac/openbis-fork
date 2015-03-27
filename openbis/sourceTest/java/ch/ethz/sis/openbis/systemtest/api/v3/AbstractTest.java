@@ -181,6 +181,18 @@ public class AbstractTest extends SystemTestCase
             });
     }
 
+    protected void assertExperimentsNotFetched(final Project project)
+    {
+        assertNotFetched(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    project.getExperiments();
+                }
+            });
+    }
+
     protected void assertTagsNotFetched(final ITagsHolder entity)
     {
         assertNotFetched(new IDelegatedAction()
@@ -357,6 +369,18 @@ public class AbstractTest extends SystemTestCase
                 public void execute()
                 {
                     entity.getModifier();
+                }
+            });
+    }
+
+    protected void assertLeaderNotFetched(final Project entity)
+    {
+        assertNotFetched(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    entity.getLeader();
                 }
             });
     }

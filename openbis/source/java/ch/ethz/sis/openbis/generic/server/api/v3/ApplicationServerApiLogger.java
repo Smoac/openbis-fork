@@ -36,6 +36,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material.MaterialCre
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material.MaterialUpdate;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.project.Project;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.project.ProjectCreation;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.project.ProjectUpdate;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.Sample;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleUpdate;
@@ -154,6 +155,12 @@ public class ApplicationServerApiLogger extends AbstractServerLogger implements
     public void updateSpaces(String sessionToken, List<SpaceUpdate> spaceUpdates)
     {
         logAccess(sessionToken, "update-spaces", "SPACE_UPDATES(%s)", spaceUpdates);
+    }
+
+    @Override
+    public void updateProjects(String sessionToken, List<ProjectUpdate> projectUpdates)
+    {
+        logAccess(sessionToken, "update-projects", "PROJECT_UPDATES(%s)", projectUpdates);
     }
 
     @Override

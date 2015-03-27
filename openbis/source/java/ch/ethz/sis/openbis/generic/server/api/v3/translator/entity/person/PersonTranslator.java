@@ -22,6 +22,7 @@ import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.space.SpaceTranslator;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.person.Person;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.person.PersonFetchOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.person.PersonPermId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 
 /**
@@ -39,6 +40,7 @@ public class PersonTranslator extends AbstractCachingTranslator<PersonPE, Person
     {
         Person result = new Person();
 
+        result.setPermId(new PersonPermId(person.getUserId()));
         result.setUserId(person.getUserId());
         result.setFirstName(person.getFirstName());
         result.setLastName(person.getLastName());

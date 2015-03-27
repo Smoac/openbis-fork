@@ -35,6 +35,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material.MaterialCre
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material.MaterialUpdate;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.project.Project;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.project.ProjectCreation;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.project.ProjectUpdate;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.Sample;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleUpdate;
@@ -115,9 +116,9 @@ public interface IApplicationServerApi extends IRpcService
 
     public List<MaterialPermId> createMaterials(String sessionToken, List<MaterialCreation> newMaterials);
 
-    public void updateMaterials(String sessionToken, List<MaterialUpdate> materialUpdates);
-
     public void updateSpaces(String sessionToken, List<SpaceUpdate> spaceUpdates);
+
+    public void updateProjects(String sessionToken, List<ProjectUpdate> projectUpdates);
 
     // REPLACES:
     // - ServiceForDataStoreServer.updateExperiment()
@@ -134,6 +135,8 @@ public interface IApplicationServerApi extends IRpcService
     // - ServiceForDataStoreServer.updateDataSet()
 
     public void updateDataSets(String sessionToken, List<DataSetUpdate> dataSetUpdates);
+
+    public void updateMaterials(String sessionToken, List<MaterialUpdate> materialUpdates);
 
     public Map<ISpaceId, Space> mapSpaces(String sessionToken, List<? extends ISpaceId> spaceIds,
             SpaceFetchOptions fetchOptions);
@@ -192,8 +195,6 @@ public interface IApplicationServerApi extends IRpcService
 
     public void deleteSpaces(String sessionToken, List<? extends ISpaceId> spaceIds, SpaceDeletionOptions deletionOptions);
 
-    public void deleteMaterials(String sessionToken, List<? extends IMaterialId> materialIds, MaterialDeletionOptions deletionOptions);
-
     // REPLACES:
     // - IGeneralInformationChangingService.deleteExperiments(List<Long>, String, DeletionType)
     public IDeletionId deleteExperiments(String sessionToken, List<? extends IExperimentId> experimentIds, ExperimentDeletionOptions deletionOptions);
@@ -203,6 +204,8 @@ public interface IApplicationServerApi extends IRpcService
     public IDeletionId deleteSamples(String sessionToken, List<? extends ISampleId> sampleIds, SampleDeletionOptions deletionOptions);
 
     public IDeletionId deleteDataSets(String sessionToken, List<? extends IDataSetId> dataSetIds, DataSetDeletionOptions deletionOptions);
+
+    public void deleteMaterials(String sessionToken, List<? extends IMaterialId> materialIds, MaterialDeletionOptions deletionOptions);
 
     // REPLACES:
     // - IGeneralInformationService.listDeletions(EnumSet<DeletionFetchOption>)

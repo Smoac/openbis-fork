@@ -47,6 +47,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.entitytype.EntityTypePer
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentIdentifier;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.material.MaterialPermId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.person.PersonPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.ProjectIdentifier;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.ProjectPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SampleIdentifier;
@@ -308,6 +309,7 @@ public class Generator extends AbstractGenerator
     {
         DtoGenerator gen = new DtoGenerator("person", "Person", PersonFetchOptions.class);
 
+        gen.addSimpleField(PersonPermId.class, "permId");
         gen.addStringField("userId");
         gen.addStringField("firstName");
         gen.addStringField("lastName");
