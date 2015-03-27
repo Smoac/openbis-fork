@@ -53,6 +53,12 @@ task proteomicsApiJavaDoc(type: Javadoc) {
 	classpath = configurations.proteomicsApiJavadoc
 }
 
+if (JavaVersion.current().isJava8Compatible()) {
+    tasks.withType(Javadoc) {
+        options.addStringOption('Xdoclint:none', '-quiet')
+    }
+}
+
 task proteomicsApiJavaDocZip(type: Zip, dependsOn: proteomicsApiJavaDoc) {
 	archiveName 'javadoc-proteomics-api.zip'
 	from proteomicsApiJavaDoc.destinationDir
