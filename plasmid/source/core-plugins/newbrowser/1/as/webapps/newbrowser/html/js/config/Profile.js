@@ -40,6 +40,7 @@ $.extend(DefaultProfile.prototype, {
 		
 		this.hideCodes = false;
 		this.propertyReplacingCode = "NAME";
+		this.softLinks = false;
 		
 		this.sampleTypeDefinitionsExtension = {
 		}
