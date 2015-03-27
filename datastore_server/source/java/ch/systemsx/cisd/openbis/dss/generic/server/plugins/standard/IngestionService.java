@@ -91,8 +91,6 @@ public abstract class IngestionService<T extends DataSetInformation> extends Agg
 
     private final IMailClient mailClient;
 
-    private final DssUniqueFilenameGenerator filenameGenerator;
-
     /**
      * Constructor for the AbstractDbModifyingAggegation service. This constructor is used by the ReportingPluginTaskFactory.
      * 
@@ -133,7 +131,6 @@ public abstract class IngestionService<T extends DataSetInformation> extends Agg
         this.dssProperties = dssProperties;
         this.openBisService = openBisService;
         this.mailClient = mailClient;
-        filenameGenerator = new DssUniqueFilenameGenerator("mock", "file", "serialized");
     }
 
     @Override
@@ -275,6 +272,7 @@ public abstract class IngestionService<T extends DataSetInformation> extends Agg
     protected File createMockIncomingFile(Map<String, Object> parameters) throws IOException
     {
         HashMap<String, Object> parameterHashMap = new HashMap<String, Object>(parameters);
+        DssUniqueFilenameGenerator filenameGenerator = new DssUniqueFilenameGenerator(Thread.currentThread().getName(), "file", "serialized");
         File mockIncomingDataSetFile =
                 new File(getMockIncomingDir(), filenameGenerator.generateFilename());
         mockIncomingDataSetFile.createNewFile();
