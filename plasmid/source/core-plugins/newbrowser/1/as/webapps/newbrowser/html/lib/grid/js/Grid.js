@@ -74,7 +74,7 @@ $.extend(Grid.prototype, {
 			checkbox.change(function() {
 				thisGrid.panel.repeater('render');
 			});
-			var label = $("<label>").attr("role", "menuitem").addClass("checkbox").append(column.label).append(checkbox);
+			var label = $("<label>", { style : 'white-space: nowrap;' }).attr("role", "menuitem").append(checkbox).append("&nbsp;").append(column.label);
 			var item = $("<li>").attr("role", "presentation").append(label);
 			columnList.append(item);
 		});
@@ -258,7 +258,7 @@ $.extend(Grid.prototype, {
 					}
 				}
 				$(window).trigger('resize'); // HACK: Fixes table rendering issues when refreshing the grid on fuelux 3.1.0 for all browsers
-				$(thisGrid.panel).hide().show(0); // HACK: Fixes Chrome rendering issues when refreshing the grid on fuelux 3.1.0
+//				$(thisGrid.panel).hide().show(0); // HACK: Fixes Chrome rendering issues when refreshing the grid on fuelux 3.1.0
 			}, 1);
 		});
 	},
