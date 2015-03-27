@@ -495,7 +495,13 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 			
 			var codeLink = sampleToAdd.code;
 			if(this.isDisabled) {
-				codeLink = $("<a>").append(sampleToAdd.code);
+				var style = "";
+				var notFound = "";
+				if(sampleToAdd.notFound) {
+					style = "color: red;"
+					notFound = " (Not Found)"
+				}
+				codeLink = $("<a>", { "style" : style }).append(sampleToAdd.code + notFound);
 				
 				codeLink.click(function() {
 					var url = document.location.href;
