@@ -288,7 +288,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 			_this._sampleFormModel.sampleLinks = new SampleLinksWidget(sampleLinksWidgetId,
 					profile,
 					mainController.serverFacade,
-					"Soft Links",
+					"Links",
 					requiredLinks,
 					isDisabled,
 					data,
