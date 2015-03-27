@@ -65,6 +65,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.operation.IOperation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.operation.IOperationResult;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.DataSetSearchCriterion;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ExperimentSearchCriterion;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ProjectSearchCriterion;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SampleSearchCriterion;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SpaceSearchCriterion;
 import ch.systemsx.cisd.common.api.IRpcService;
@@ -164,6 +165,8 @@ public interface IApplicationServerApi extends IRpcService
     public Map<IMaterialId, Material> mapMaterials(String sessionToken, List<? extends IMaterialId> materialIds, MaterialFetchOptions fetchOptions);
 
     public List<Space> searchSpaces(String sessionToken, SpaceSearchCriterion searchCriterion, SpaceFetchOptions fetchOptions);
+
+    public List<Project> searchProjects(String sessionToken, ProjectSearchCriterion searchCriterion, ProjectFetchOptions fetchOptions);
 
     // REPLACES:
     // - ServiceForDataStoreServer.listExperimentsForProjects(List<ProjectIdentifier>, ExperimentFetchOptions)

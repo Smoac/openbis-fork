@@ -45,6 +45,7 @@ import ch.ethz.sis.openbis.generic.server.api.v3.executor.material.IMapMaterialB
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.material.IUpdateMaterialExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.project.ICreateProjectExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.project.IMapProjectByIdExecutor;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.project.ISearchProjectExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.project.IUpdateProjectExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.sample.ICreateSampleExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.sample.IDeleteSampleExecutor;
@@ -114,6 +115,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.operation.IOperation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.operation.IOperationResult;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.DataSetSearchCriterion;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ExperimentSearchCriterion;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ProjectSearchCriterion;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SampleSearchCriterion;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SpaceSearchCriterion;
 import ch.systemsx.cisd.openbis.common.spring.IInvocationLoggerContext;
@@ -163,6 +165,9 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     private ICreateSampleExecutor createSampleExecutor;
 
     @Autowired
+    private ICreateMaterialExecutor createMaterialExecutor;
+
+    @Autowired
     private IUpdateSpaceExecutor updateSpaceExecutor;
 
     @Autowired
@@ -175,10 +180,10 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     private IUpdateSampleExecutor updateSampleExecutor;
 
     @Autowired
-    private IUpdateMaterialExecutor updateMaterialExecutor;
+    private IUpdateDataSetExecutor updateDataSetExecutor;
 
     @Autowired
-    private IUpdateDataSetExecutor updateDataSetExecutor;
+    private IUpdateMaterialExecutor updateMaterialExecutor;
 
     @Autowired
     private IMapSpaceByIdExecutor mapSpaceByIdExecutor;
@@ -190,9 +195,6 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     private IMapExperimentByIdExecutor mapExperimentByIdExecutor;
 
     @Autowired
-    private IDeleteDataSetExecutor deleteDataSetExecutor;
-
-    @Autowired
     private IMapSampleByIdExecutor mapSampleByIdExecutor;
 
     @Autowired
@@ -202,13 +204,10 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     private IMapMaterialByIdExecutor mapMaterialByIdExecutor;
 
     @Autowired
-    private ICreateMaterialExecutor createMaterialExecutor;
-
-    @Autowired
     private ISearchSpaceExecutor searchSpaceExecutor;
 
     @Autowired
-    private IDeleteMaterialExecutor deleteMaterialExecutor;
+    private ISearchProjectExecutor searchProjectExecutor;
 
     @Autowired
     private ISearchExperimentExecutor searchExperimentExecutor;
@@ -227,6 +226,12 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
 
     @Autowired
     private IDeleteSampleExecutor deleteSampleExecutor;
+
+    @Autowired
+    private IDeleteDataSetExecutor deleteDataSetExecutor;
+
+    @Autowired
+    private IDeleteMaterialExecutor deleteMaterialExecutor;
 
     @Autowired
     private IListDeletionExecutor listDeletionExecutor;
@@ -298,6 +303,10 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     }
 
     @Override
+    @Transactional
+    @RolesAllowed({ RoleWithHierarchy.INSTANCE_ADMIN, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @Capability("WRITE_MATERIAL")
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.MATERIAL)
     public List<MaterialPermId> createMaterials(String sessionToken, List<MaterialCreation> newMaterials)
     {
         Session session = getSession(sessionToken);
@@ -315,6 +324,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     @Transactional
     @RolesAllowed({ RoleWithHierarchy.SPACE_POWER_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("REGISTER_PROJECT")
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.PROJECT)
     public List<ProjectPermId> createProjects(String sessionToken, List<ProjectCreation> creations)
     {
         Session session = getSession(sessionToken);
@@ -331,8 +341,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
 
     @Override
     @Transactional
-    @RolesAllowed(
-    { RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @RolesAllowed({ RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("WRITE_EXPERIMENT")
     @DatabaseCreateOrDeleteModification(value = ObjectKind.EXPERIMENT)
     public List<ExperimentPermId> createExperiments(String sessionToken,
@@ -355,8 +364,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
 
     @Override
     @Transactional
-    @RolesAllowed(
-    { RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @RolesAllowed({ RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("WRITE_SAMPLE")
     @DatabaseCreateOrDeleteModification(value = ObjectKind.SAMPLE)
     public List<SamplePermId> createSamples(String sessionToken,
@@ -401,6 +409,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     @Transactional
     @RolesAllowed({ RoleWithHierarchy.SPACE_POWER_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("WRITE_PROJECT")
+    @DatabaseUpdateModification(value = ObjectKind.PROJECT)
     public void updateProjects(String sessionToken, List<ProjectUpdate> projectUpdates)
     {
         Session session = getSession(sessionToken);
@@ -417,8 +426,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
 
     @Override
     @Transactional
-    @RolesAllowed(
-    { RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @RolesAllowed({ RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("WRITE_EXPERIMENT")
     @DatabaseUpdateModification(value = ObjectKind.EXPERIMENT)
     public void updateExperiments(String sessionToken, List<ExperimentUpdate> experimentUpdates)
@@ -441,8 +449,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
 
     @Override
     @Transactional
-    @RolesAllowed(
-    { RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @RolesAllowed({ RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("WRITE_SAMPLE")
     @DatabaseUpdateModification(value = ObjectKind.SAMPLE)
     public void updateSamples(String sessionToken, List<SampleUpdate> updates)
@@ -465,8 +472,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
 
     @Override
     @Transactional
-    @RolesAllowed(
-    { RoleWithHierarchy.INSTANCE_ADMIN, RoleWithHierarchy.INSTANCE_ETL_SERVER })
+    @RolesAllowed({ RoleWithHierarchy.INSTANCE_ADMIN, RoleWithHierarchy.INSTANCE_ETL_SERVER })
     @Capability("UPDATE_MATERIAL")
     @DatabaseUpdateModification(value = ObjectKind.MATERIAL)
     public void updateMaterials(String sessionToken, List<MaterialUpdate> updates)
@@ -580,6 +586,8 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     }
 
     @Override
+    @Transactional(readOnly = true)
+    @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     public Map<IMaterialId, Material> mapMaterials(String sessionToken, List<? extends IMaterialId> materialIds, MaterialFetchOptions fetchOptions)
     {
         Session session = getSession(sessionToken);
@@ -607,6 +615,27 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
             Map<SpacePE, Space> translatedMap =
                     new SpaceTranslator(new TranslationContext(session, managedPropertyEvaluatorFactory), fetchOptions).translate(spaces);
             return new ArrayList<Space>(translatedMap.values());
+        } catch (Throwable t)
+        {
+            throw ExceptionUtils.create(context, t);
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    public List<Project> searchProjects(String sessionToken, ProjectSearchCriterion searchCriterion, ProjectFetchOptions fetchOptions)
+    {
+        Session session = getSession(sessionToken);
+        OperationContext context = new OperationContext(session);
+
+        try
+        {
+            List<ProjectPE> projects = searchProjectExecutor.search(context, searchCriterion);
+
+            Map<ProjectPE, Project> translatedMap =
+                    new ProjectTranslator(new TranslationContext(session, managedPropertyEvaluatorFactory), fetchOptions).translate(projects);
+            return new ArrayList<Project>(translatedMap.values());
         } catch (Throwable t)
         {
             throw ExceptionUtils.create(context, t);

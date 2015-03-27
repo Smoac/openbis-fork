@@ -66,6 +66,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.operation.IOperation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.operation.IOperationResult;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.DataSetSearchCriterion;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ExperimentSearchCriterion;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ProjectSearchCriterion;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SampleSearchCriterion;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SpaceSearchCriterion;
 import ch.systemsx.cisd.authentication.ISessionManager;
@@ -235,6 +236,13 @@ public class ApplicationServerApiLogger extends AbstractServerLogger implements
     public List<Space> searchSpaces(String sessionToken, SpaceSearchCriterion searchCriterion, SpaceFetchOptions fetchOptions)
     {
         logAccess(sessionToken, "search-for-spaces", "SEARCH_CRITERION:\n%s\nFETCH_OPTIONS:\n%s\n", searchCriterion, fetchOptions);
+        return null;
+    }
+
+    @Override
+    public List<Project> searchProjects(String sessionToken, ProjectSearchCriterion searchCriterion, ProjectFetchOptions fetchOptions)
+    {
+        logAccess(sessionToken, "search-for-projects", "SEARCH_CRITERION:\n%s\nFETCH_OPTIONS:\n%s\n", searchCriterion, fetchOptions);
         return null;
     }
 

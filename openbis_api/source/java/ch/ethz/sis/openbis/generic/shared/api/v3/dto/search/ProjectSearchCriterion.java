@@ -47,6 +47,16 @@ public class ProjectSearchCriterion extends AbstractObjectSearchCriterion<IProje
         return with(new SpaceSearchCriterion());
     }
 
+    public ProjectSearchCriterion withOrOperator()
+    {
+        return (ProjectSearchCriterion) withOperator(SearchOperator.OR);
+    }
+
+    public ProjectSearchCriterion withAndOperator()
+    {
+        return (ProjectSearchCriterion) withOperator(SearchOperator.AND);
+    }
+
     @Override
     protected SearchCriterionToStringBuilder createBuilder()
     {

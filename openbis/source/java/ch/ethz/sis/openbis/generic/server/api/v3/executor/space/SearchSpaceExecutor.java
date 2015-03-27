@@ -16,157 +16,79 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.space;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.common.AbstractSearchObjectManuallyExecutor;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.SpacePermId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.AbstractStringValue;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.AnyStringValue;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.CodeSearchCriterion;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ISearchCriterion;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.IdSearchCriterion;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.PermIdSearchCriterion;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SearchOperator;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SpaceSearchCriterion;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.StringContainsValue;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.StringEndsWithValue;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.StringEqualToValue;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.StringFieldSearchCriterion;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.StringStartsWithValue;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
  * @author pkupczyk
  */
 @Component
-public class SearchSpaceExecutor implements ISearchSpaceExecutor
+public class SearchSpaceExecutor extends AbstractSearchObjectManuallyExecutor<SpaceSearchCriterion, SpacePE> implements ISearchSpaceExecutor
 {
 
-    @Autowired
-    protected IDAOFactory daoFactory;
+    @Override
+    protected List<SpacePE> listAll()
+    {
+        return daoFactory.getSpaceDAO().listAllEntities();
+    }
 
     @Override
-    public List<SpacePE> search(IOperationContext context, SpaceSearchCriterion criterion)
+    protected Matcher getMatcher(ISearchCriterion criterion)
     {
-        if (context == null)
+        if (criterion instanceof IdSearchCriterion<?>)
         {
-            throw new IllegalArgumentException("Context cannot be null");
-        }
-        if (criterion == null)
-        {
-            throw new IllegalArgumentException("Criterion cannot be null");
-        }
-
-        List<SpacePE> allSpaces = daoFactory.getSpaceDAO().listAllEntities();
-        List<SpacePE> matchingSpaces = new ArrayList<SpacePE>();
-
-        for (SpacePE space : allSpaces)
-        {
-            if (isMatching(space, criterion))
-            {
-                matchingSpaces.add(space);
-            }
-        }
-
-        return matchingSpaces;
-    }
-
-    private boolean isMatching(SpacePE space, SpaceSearchCriterion criterion)
-    {
-        if (criterion.getCriteria() == null || criterion.getCriteria().isEmpty())
-        {
-            return true;
-        } else
-        {
-            boolean matchingAll = true;
-            boolean matchingAny = false;
-
-            for (ISearchCriterion subCriterion : criterion.getCriteria())
-            {
-                boolean matching = isMatching(space, subCriterion);
-
-                matchingAll = matchingAll && matching;
-                matchingAny = matchingAny || matching;
-            }
-
-            if (SearchOperator.AND.equals(criterion.getOperator()))
-            {
-                return matchingAll;
-            } else if (SearchOperator.OR.equals(criterion.getOperator()))
-            {
-                return matchingAny;
-            } else
-            {
-                throw new IllegalArgumentException("Unknown search operator: " + criterion.getOperator());
-            }
-        }
-    }
-
-    private boolean isMatching(SpacePE space, ISearchCriterion criterion)
-    {
-        if (criterion == null)
-        {
-            return true;
-        } else if (criterion instanceof IdSearchCriterion<?>)
-        {
-            return isMatchingId(space, (IdSearchCriterion<?>) criterion);
+            return new IdMatcher();
         } else if (criterion instanceof PermIdSearchCriterion || criterion instanceof CodeSearchCriterion)
         {
-            return isMatchingCode(space, (StringFieldSearchCriterion) criterion);
+            return new CodeMatcher();
         } else
         {
             throw new IllegalArgumentException("Unknown search criterion: " + criterion.getClass());
         }
     }
 
-    private boolean isMatchingId(SpacePE space, IdSearchCriterion<?> criterion)
+    private class IdMatcher extends SimpleFieldMatcher
     {
-        Object id = criterion.getId();
 
-        if (id == null)
+        @Override
+        protected boolean isMatching(IOperationContext context, SpacePE object, ISearchCriterion criterion)
         {
-            return true;
-        } else if (id instanceof SpacePermId)
-        {
-            return space.getCode().equals(((SpacePermId) id).getPermId());
-        } else
-        {
-            throw new IllegalArgumentException("Unknown search criterion: " + criterion.getClass());
+            Object id = ((IdSearchCriterion<?>) criterion).getId();
+
+            if (id == null)
+            {
+                return true;
+            } else if (id instanceof SpacePermId)
+            {
+                return object.getCode().equals(((SpacePermId) id).getPermId());
+            } else
+            {
+                throw new IllegalArgumentException("Unknown id: " + id.getClass());
+            }
         }
+
     }
 
-    private boolean isMatchingCode(SpacePE space, StringFieldSearchCriterion criterion)
+    private class CodeMatcher extends StringFieldMatcher
     {
-        AbstractStringValue fieldValue = criterion.getFieldValue();
 
-        if (fieldValue == null || fieldValue.getValue() == null || fieldValue instanceof AnyStringValue)
+        @Override
+        protected String getFieldValue(SpacePE object)
         {
-            return true;
+            return object.getCode();
         }
 
-        String code = space.getCode().toLowerCase();
-        String value = fieldValue.getValue().toLowerCase();
-
-        if (fieldValue instanceof StringEqualToValue)
-        {
-            return code.equals(value);
-        } else if (fieldValue instanceof StringContainsValue)
-        {
-            return code.contains(value);
-        } else if (fieldValue instanceof StringStartsWithValue)
-        {
-            return code.startsWith(value);
-        } else if (fieldValue instanceof StringEndsWithValue)
-        {
-            return code.endsWith(value);
-        } else
-        {
-            throw new IllegalArgumentException("Unknown search criterion: " + criterion.getClass());
-        }
     }
+
 }

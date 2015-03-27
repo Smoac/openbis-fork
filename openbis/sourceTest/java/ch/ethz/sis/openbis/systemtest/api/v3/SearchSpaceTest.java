@@ -83,7 +83,7 @@ public class SearchSpaceTest extends AbstractTest
     public void testSearchWithCodeThatEquals()
     {
         SpaceSearchCriterion criterion = new SpaceSearchCriterion();
-        criterion.withPermId().thatEquals("test-SPACE");
+        criterion.withCode().thatEquals("test-SPACE");
         testSearch(TEST_USER, criterion, "TEST-SPACE");
     }
 
@@ -91,7 +91,7 @@ public class SearchSpaceTest extends AbstractTest
     public void testSearchWithCodeThatContains()
     {
         SpaceSearchCriterion criterion = new SpaceSearchCriterion();
-        criterion.withPermId().thatContains("ST-sPa");
+        criterion.withCode().thatContains("ST-sPa");
         testSearch(TEST_USER, criterion, "TEST-SPACE");
     }
 
@@ -99,7 +99,7 @@ public class SearchSpaceTest extends AbstractTest
     public void testSearchWithCodeThatStartsWith()
     {
         SpaceSearchCriterion criterion = new SpaceSearchCriterion();
-        criterion.withPermId().thatStartsWith("c");
+        criterion.withCode().thatStartsWith("c");
         testSearch(TEST_USER, criterion, "CISD");
     }
 
@@ -107,7 +107,7 @@ public class SearchSpaceTest extends AbstractTest
     public void testSearchWithCodeThatEndsWith()
     {
         SpaceSearchCriterion criterion = new SpaceSearchCriterion();
-        criterion.withPermId().thatEndsWith("e");
+        criterion.withCode().thatEndsWith("e");
         testSearch(TEST_USER, criterion, "TEST-SPACE");
     }
 
