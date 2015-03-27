@@ -86,8 +86,14 @@ $.extend(Grid.prototype, {
 
 	renderCSVButton: function() {
 		var thisGrid = this;
-		var a = thisGrid.panel.find("#download-button");
-		a.click(function() {
+		
+		var columnList = thisGrid.panel.find(".optionsDropdown").find("ul");
+		var label = $("<label>", { style : 'white-space: nowrap;' }).attr("role", "menuitem").append("Download Shown");
+		label.attr("style", "cursor:pointer;");
+		var item = $("<li>").attr("role", "presentation").append(label);
+		item.attr("style", "margin-left: 5px;");
+		
+		item.click(function() {
 			var headings = [];
 			thisGrid.getVisibleColumns().forEach(function(head) {
 				headings.push(head.property);
@@ -98,6 +104,8 @@ $.extend(Grid.prototype, {
 			var blob = new Blob([csv], {type: 'text'});
 			saveAs(blob,'exportedTable.csv');
 		});
+		
+		columnList.append(item);
 	},
 	
 	getVisibleColumns : function() {

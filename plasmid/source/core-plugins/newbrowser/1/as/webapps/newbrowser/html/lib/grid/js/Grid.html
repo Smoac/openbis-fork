@@ -48,7 +48,13 @@
 			</div>
 		</div>
 		<div class="repeater-header-right">
-			<a class = 'btn btn-default' id = 'download-button'><span class = 'glyphicon glyphicon-arrow-down'></span></a>
+			<div class="dropdown optionsDropdown" class="dropdown" style = "display: inline;">
+				<button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" >
+					Options <span class="caret"></span>
+				</button>
+				<ul class="dropdown-menu" role="menu"></ul>
+			</div>
+			
 			<div class="dropdown columnDropdown" style = "display: inline;">
 				<button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" style = "margin-right:300px;" >
 					Columns <span class="caret"></span>
