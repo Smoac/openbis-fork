@@ -19,7 +19,7 @@ $.extend(Grid.prototype, {
 		$.get("./lib/grid/js/Grid.html", function(template) {
 			thisGrid.panel.html(template);
 			thisGrid.renderColumnDropdown();
-			thisGrid.renderCSVButton();
+			thisGrid.renderDropDownOptions();
 			thisGrid.panel.repeater({
 				defaultView : "list",
 				dataSource : function(options, callback) {
@@ -84,28 +84,111 @@ $.extend(Grid.prototype, {
 		return this.columns;
 	},
 
-	renderCSVButton: function() {
+	renderDropDownOptions: function() {
+		var thisGrid = this;
+		var columnList = thisGrid.panel.find(".optionsDropdown").find("ul");
+		
+		// Export shown rows with shown columns
+		var labelSRSC = $("<label>", { style : 'white-space: nowrap; cursor:pointer;' })
+						.attr("role", "menuitem")
+						.append("Export visible columns with visible rows");
+
+		var itemSRSC = $("<li>")
+						.attr("role", "presentation")
+						.attr("style", "margin-left: 5px; margin-right: 5px;")
+						.append(labelSRSC);
+		
+		itemSRSC.click(function() {
+			thisGrid.exportCSV(false, false);
+		});
+		
+		columnList.append(itemSRSC);
+		
+		// Export shown rows with all columns
+		var labelSRAC = $("<label>", { style : 'white-space: nowrap; cursor:pointer;' })
+						.attr("role", "menuitem")
+						.append("Export all columns with visible rows");
+
+		var itemSRAC = $("<li>")
+						.attr("role", "presentation")
+						.attr("style", "margin-left: 5px; margin-right: 5px;")
+						.append(labelSRAC);
+		
+		itemSRAC.click(function() {
+			thisGrid.exportCSV(false, true);
+		});
+		
+		columnList.append(itemSRAC);
+		
+		// Export all rows with visible columns
+		var labelARSC = $("<label>", { style : 'white-space: nowrap; cursor:pointer;' })
+						.attr("role", "menuitem")
+						.append("Export visible columns with all rows");
+
+		var itemARSC = $("<li>")
+						.attr("role", "presentation")
+						.attr("style", "margin-left: 5px; margin-right: 5px;")
+						.append(labelARSC);
+		
+		itemARSC.click(function() {
+			thisGrid.exportCSV(true, false);
+		});
+		
+		columnList.append(itemARSC);
+		
+		// Export all rows with all columns
+		var labelARAC = $("<label>", { style : 'white-space: nowrap; cursor:pointer;' })
+						.attr("role", "menuitem")
+						.append("Export all columns with all rows");
+
+		var itemARAC = $("<li>")
+						.attr("role", "presentation")
+						.attr("style", "margin-left: 5px; margin-right: 5px;")
+						.append(labelARAC);
+		
+		itemARAC.click(function() {
+			thisGrid.exportCSV(true, true);
+		});
+		
+		columnList.append(itemARAC);
+		
+	},
+	
+	exportCSV : function(isAllRowsOrVisible, isAllColumnsOrVisible) {
 		var thisGrid = this;
 		
-		var columnList = thisGrid.panel.find(".optionsDropdown").find("ul");
-		var label = $("<label>", { style : 'white-space: nowrap;' }).attr("role", "menuitem").append("Download Shown");
-		label.attr("style", "cursor:pointer;");
-		var item = $("<li>").attr("role", "presentation").append(label);
-		item.attr("style", "margin-left: 5px;");
+		var exportColumnsFromData = function(namePrefix, data, headings) {
+			var csv = CSV.objectToCsv(data, {columns: headings});
+			var blob = new Blob([csv], {type: 'text'});
+			saveAs(blob,'exportedTable' + namePrefix + '.csv');
+		}
 		
-		item.click(function() {
-			var headings = [];
+		var headings = [];
+		var data = [];
+		var prefix = "";
+		if(isAllColumnsOrVisible) {
+			thisGrid.columns.forEach(function(head) {
+				headings.push(head.property);
+			});
+			prefix += "AllColumns";
+		} else {
 			thisGrid.getVisibleColumns().forEach(function(head) {
 				headings.push(head.property);
 			});
-			var data = thisGrid.result.items;
-			
-			var csv = CSV.objectToCsv(data, {columns: headings});
-			var blob = new Blob([csv], {type: 'text'});
-			saveAs(blob,'exportedTable.csv');
-		});
+			prefix += "VisibleColumns";
+		}
 		
-		columnList.append(item);
+		if(isAllRowsOrVisible) {
+			var allData = thisGrid.getDataList(function(allData) {
+				data = allData;
+				prefix += "AllRows";
+				exportColumnsFromData(prefix, data, headings);
+			});
+		} else {
+			data = thisGrid.result.datas;
+			prefix += "VisibleRows";
+			exportColumnsFromData(prefix, data, headings);
+		}
 	},
 	
 	getVisibleColumns : function() {
