@@ -135,12 +135,49 @@ function SampleTableController(parentController, title, experimentIdentifier) {
 			
 			
 			for (var idx = 0; idx < propertyCodes.length; idx++) {
-				columns.push({
-					label : propertyCodesDisplayNames[idx],
-					property : propertyCodes[idx],
-					isExportable: true,
-					sortable : true
-				});
+				var propertyCode = propertyCodes[idx];
+				var propertyType = profile.getPropertyType(propertyCode);
+				if(propertyType.dataType === "CONTROLLEDVOCABULARY") {
+					var getVocabularyColumn = function(propertyType) {
+						return function() {
+							return {
+								label : propertyCodesDisplayNames[idx],
+								property : propertyCodes[idx],
+								isExportable: true,
+								sortable : true,
+								render : function(data) {
+									return FormUtil.getVocabularyLabelForTermCode(propertyType, data[propertyType.code]);
+								},
+								filter : function(data, filter) {
+									var value = FormUtil.getVocabularyLabelForTermCode(propertyType, data[propertyType.code]);
+									return value && value.indexOf(filter) !== -1;
+								},
+								sort : function(data1, data2, asc) {
+									var value1 = FormUtil.getVocabularyLabelForTermCode(propertyType, data1[propertyType.code]);
+									if(!value1) {
+										value1 = ""
+									};
+									var value2 = FormUtil.getVocabularyLabelForTermCode(propertyType, data2[propertyType.code]);
+									if(!value2) {
+										value2 = ""
+									};
+									var sortDirection = (asc)? 1 : -1;
+									return sortDirection * naturalSort(value1, value2);
+								}
+							};
+						}
+					}
+					
+					var newVocabularyColumnFunc = getVocabularyColumn(propertyType);
+					columns.push(newVocabularyColumnFunc());
+				} else {
+					columns.push({
+						label : propertyCodesDisplayNames[idx],
+						property : propertyCodes[idx],
+						isExportable: true,
+						sortable : true
+					});
+				}
 			}
 			
 			columns.push({
@@ -205,12 +242,7 @@ function SampleTableController(parentController, title, experimentIdentifier) {
 					var sampleModel = { 'identifier' : sample.code, 'default_space' : sample.spaceCode, 'permId' : sample.permId, 'experiment' : sample.experimentIdentifierOrNull };
 					for (var pIdx = 0; pIdx < propertyCodes.length; pIdx++) {
 						var propertyCode = propertyCodes[pIdx];
-						var propertyType = profile.isPropertyPressent(sampleType, propertyCode);
-						var value = sample.properties[propertyCode];
-						if(propertyType.dataType === "CONTROLLEDVOCABULARY") {
-							value = FormUtil.getVocabularyLabelForTermCode(propertyType, value);
-						}
-						sampleModel[propertyCode] = value;
+						sampleModel[propertyCode] = sample.properties[propertyCode];
 					}
 					dataList.push(sampleModel);
 				}
