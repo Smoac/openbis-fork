@@ -168,12 +168,16 @@ $.extend(Grid.prototype, {
 		var prefix = "";
 		if(isAllColumnsOrVisible) {
 			thisGrid.columns.forEach(function(head) {
-				headings.push(head.property);
+				if(head.isExportable === true || head.isExportable === undefined) {
+					headings.push(head.property);
+				}
 			});
 			prefix += "AllColumns";
 		} else {
 			thisGrid.getVisibleColumns().forEach(function(head) {
-				headings.push(head.property);
+				if(head.isExportable === true || head.isExportable === undefined) {
+					headings.push(head.property);
+				}
 			});
 			prefix += "VisibleColumns";
 		}

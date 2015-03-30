@@ -83,16 +83,24 @@ function SampleTableController(parentController, title, experimentIdentifier) {
 			
 			//Fill Columns model
 			var columns = [ {
-				label : 'Code',
-				property : 'code',
+				label : 'Identifier',
+				property : 'identifier',
+				isExportable: true,
+				sortable : true
+			}, {
+				label : 'Space',
+				property : 'default_space',
+				isExportable: true,
 				sortable : true
 			}, {
 				label : 'Experiment',
 				property : 'experiment',
+				isExportable: true,
 				sortable : true
 			}, {
 				label : 'Preview',
 				property : 'preview',
+				isExportable: false,
 				sortable : false,
 				render : function(data) {
 					var previewContainer = $("<div>");
@@ -130,6 +138,7 @@ function SampleTableController(parentController, title, experimentIdentifier) {
 				columns.push({
 					label : propertyCodesDisplayNames[idx],
 					property : propertyCodes[idx],
+					isExportable: true,
 					sortable : true
 				});
 			}
@@ -193,7 +202,7 @@ function SampleTableController(parentController, title, experimentIdentifier) {
 				var dataList = [];
 				for(var sIdx = 0; sIdx < samples.length; sIdx++) {
 					var sample = samples[sIdx];
-					var sampleModel = { 'code' : sample.code, 'permId' : sample.permId, 'experiment' : sample.experimentIdentifierOrNull };
+					var sampleModel = { 'identifier' : sample.code, 'default_space' : sample.spaceCode, 'permId' : sample.permId, 'experiment' : sample.experimentIdentifierOrNull };
 					for (var pIdx = 0; pIdx < propertyCodes.length; pIdx++) {
 						var propertyCode = propertyCodes[pIdx];
 						var propertyType = profile.isPropertyPressent(sampleType, propertyCode);
