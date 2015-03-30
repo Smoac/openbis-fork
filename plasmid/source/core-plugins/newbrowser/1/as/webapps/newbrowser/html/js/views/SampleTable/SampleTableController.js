@@ -93,6 +93,11 @@ function SampleTableController(parentController, title, experimentIdentifier) {
 				isExportable: true,
 				sortable : true
 			}, {
+				label : 'Parents',
+				property : 'parents',
+				isExportable: true,
+				sortable : true
+			}, {
 				label : 'Experiment',
 				property : 'experiment',
 				isExportable: true,
@@ -244,6 +249,19 @@ function SampleTableController(parentController, title, experimentIdentifier) {
 						var propertyCode = propertyCodes[pIdx];
 						sampleModel[propertyCode] = sample.properties[propertyCode];
 					}
+					
+					var parents = "";
+					if(sample.parents) {
+						for (var paIdx = 0; paIdx < sample.parents.length; paIdx++) {
+							if(paIdx !== 0) {
+								", ";
+							}
+							parents += sample.parents[paIdx].identifier;
+						}
+					}
+					
+					sampleModel['parents'] = parents;
+					
 					dataList.push(sampleModel);
 				}
 				callback(dataList);

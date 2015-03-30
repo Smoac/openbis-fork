@@ -721,7 +721,7 @@ function ServerFacade(openbisServer) {
 		};
 		
 		var localReference = this;
-		this.openbisServer.searchForSamplesWithFetchOptions(sampleCriteria, ["PROPERTIES"], function(data) {
+		this.openbisServer.searchForSamplesWithFetchOptions(sampleCriteria, ["PROPERTIES", "PARENTS"], function(data) {
 			callbackFunction(localReference.getInitializedSamples(data.result));
 		});
 	}
