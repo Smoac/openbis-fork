@@ -364,7 +364,7 @@ createVocabularyWithTerms("TEMPLATE", "Type of template used in the PCR protocol
 										["YEAST_COLONY", "yeast colony", None]
 									]);
 
-createVocabularyWithTerms("YES_NO", "Yes or No or Unknown Choice",
+createVocabularyWithTerms("YES_NO_CHOICE", "Yes or No or Unknown Choice",
 									[
 										["YES", "yes", None],
 										["NO", "no", None],
@@ -681,7 +681,7 @@ createSampleTypeWithProperties("CELL_LINE", "", [
 	["GROWTH_TEMP", 					"Cultivation",			"Growth temp. ( &deg;C)",				DataType.INTEGER,				None,								"Growth temperature of the cell line", None],
 	["CELL_CO2", 						"Cultivation",			"% CO2",								DataType.INTEGER,				None,								"Percentage of CO2 needed for the cultivation of the cell line", None],
 	["SELECTION_MARKER", 				"Cultivation",			"Selection marker",						DataType.VARCHAR,				None,								"Special medium components or selection needed for the cell line", None],
-	["MYCOPLASM", 						"Cultivation",			"Mycoplasm tested",						DataType.CONTROLLEDVOCABULARY,	"YES_NO",							"Mycoplasm tested", None],
+	["MYCOPLASM", 						"Cultivation",			"Mycoplasm tested",						DataType.CONTROLLEDVOCABULARY,	"YES_NO_CHOICE",							"Mycoplasm tested", None],
 	["PUBLICATION", 					"Comments",				"Publication",							DataType.MULTILINE_VARCHAR,		None,								"Publication from where the information was first found OR technical sheet given by the manufacturer", None],
 	["NOTES", 							"Comments", 			"Notes",								DataType.MULTILINE_VARCHAR,		None,								"Notes", None],
 	["XMLCOMMENTS", 					"Comments",				"Comments List",						DataType.XML,					None,								"Several comments can be added by different users", commentsSampleScriptName],
