@@ -19,6 +19,7 @@ package ch.ethz.sis.openbis.generic.server.api.v3.translator.search;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ISearchCriterion;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.TagSearchCriterion;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetAttributeSearchFieldKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchField;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentAttributeSearchFieldKind;
@@ -53,6 +54,9 @@ public class TagSearchCriterionTranslator extends AbstractFieldFromCompositeSear
         } else if (EntityKind.SAMPLE.equals(entityKind))
         {
             return DetailedSearchField.createAttributeField(SampleAttributeSearchFieldKind.METAPROJECT);
+        } else if (EntityKind.DATA_SET.equals(entityKind))
+        {
+            return DetailedSearchField.createAttributeField(DataSetAttributeSearchFieldKind.METAPROJECT);
         } else if (EntityKind.MATERIAL.equals(entityKind))
         {
             return DetailedSearchField.createAttributeField(MaterialAttributeSearchFieldKind.METAPROJECT);
