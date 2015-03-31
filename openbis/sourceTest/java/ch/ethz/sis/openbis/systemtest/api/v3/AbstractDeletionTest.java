@@ -27,11 +27,14 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion.Deletion;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.ExperimentCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material.Material;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.project.Project;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.project.ProjectCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.Sample;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.deletion.DeletionFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.experiment.ExperimentFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.material.MaterialFetchOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.project.ProjectFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sample.SampleFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.DataSetPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.deletion.IDeletionId;
@@ -39,7 +42,9 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.entitytype.EntityTypePer
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.IExperimentId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.material.IMaterialId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.IProjectId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.ProjectIdentifier;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.ProjectPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.ISampleId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SamplePermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.SpacePermId;
@@ -50,14 +55,32 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.SpacePermId;
 public class AbstractDeletionTest extends AbstractTest
 {
 
+    protected ProjectPermId createCisdProject()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        ProjectCreation creation = new ProjectCreation();
+        creation.setCode("PROJECT_TO_DELETE");
+        creation.setSpaceId(new SpacePermId("CISD"));
+
+        List<ProjectPermId> permIds = v3api.createProjects(sessionToken, Collections.singletonList(creation));
+
+        return permIds.get(0);
+    }
+
     protected ExperimentPermId createCisdExperiment()
+    {
+        return createCisdExperiment(new ProjectIdentifier("/CISD/DEFAULT"));
+    }
+
+    protected ExperimentPermId createCisdExperiment(IProjectId projectId)
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         ExperimentCreation creation = new ExperimentCreation();
         creation.setCode("EXPERIMENT_TO_DELETE");
         creation.setTypeId(new EntityTypePermId("SIRNA_HCS"));
-        creation.setProjectId(new ProjectIdentifier("/CISD/DEFAULT"));
+        creation.setProjectId(projectId);
         creation.setProperty("DESCRIPTION", "a description");
 
         List<ExperimentPermId> permIds = v3api.createExperiments(sessionToken, Collections.singletonList(creation));
@@ -88,6 +111,24 @@ public class AbstractDeletionTest extends AbstractTest
         Assert.assertEquals("SAMPLE_TO_DELETE", samples.get(0).getCode());
 
         return permIds.get(0);
+    }
+
+    protected void assertProjectExists(IProjectId projectId)
+    {
+        assertProjectExists(projectId, true);
+    }
+
+    protected void assertProjectDoesNotExist(IProjectId projectId)
+    {
+        assertProjectExists(projectId, false);
+    }
+
+    private void assertProjectExists(IProjectId projectId, boolean exists)
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        Map<IProjectId, Project> map =
+                v3api.mapProjects(sessionToken, Collections.singletonList(projectId), new ProjectFetchOptions());
+        Assert.assertEquals(exists ? 1 : 0, map.size());
     }
 
     protected void assertExperimentExists(IExperimentId experimentId)

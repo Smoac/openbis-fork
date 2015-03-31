@@ -45,6 +45,7 @@ import ch.ethz.sis.openbis.generic.server.api.v3.executor.material.IMapMaterialB
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.material.ISearchMaterialExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.material.IUpdateMaterialExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.project.ICreateProjectExecutor;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.project.IDeleteProjectExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.project.IMapProjectByIdExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.project.ISearchProjectExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.project.IUpdateProjectExecutor;
@@ -74,6 +75,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion.Deletion;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion.dataset.DataSetDeletionOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion.experiment.ExperimentDeletionOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion.material.MaterialDeletionOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion.project.ProjectDeletionOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion.sample.SampleDeletionOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion.space.SpaceDeletionOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSet;
@@ -225,6 +227,9 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
 
     @Autowired
     private IDeleteSpaceExecutor deleteSpaceExecutor;
+
+    @Autowired
+    private IDeleteProjectExecutor deleteProjectExecutor;
 
     @Autowired
     private IDeleteExperimentExecutor deleteExperimentExecutor;
@@ -745,6 +750,25 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
         try
         {
             deleteSpaceExecutor.delete(context, spaceIds, deletionOptions);
+        } catch (Throwable t)
+        {
+            throw ExceptionUtils.create(context, t);
+        }
+    }
+
+    @Override
+    @Transactional
+    @DatabaseCreateOrDeleteModification(value = { ObjectKind.PROJECT, ObjectKind.DELETION })
+    @RolesAllowed({ RoleWithHierarchy.SPACE_POWER_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @Capability("DELETE_PROJECT")
+    public void deleteProjects(String sessionToken, List<? extends IProjectId> projectIds, ProjectDeletionOptions deletionOptions)
+    {
+        Session session = getSession(sessionToken);
+        OperationContext context = new OperationContext(session);
+
+        try
+        {
+            deleteProjectExecutor.delete(context, projectIds, deletionOptions);
         } catch (Throwable t)
         {
             throw ExceptionUtils.create(context, t);
