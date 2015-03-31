@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 ETH Zuerich, Scientific IT Services
+ * Copyright 2015 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,17 +14,18 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.api.v3.executor.experiment;
+package ch.ethz.sis.openbis.generic.server.api.v3.executor.entity;
 
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.IDeleteEntityExecutor;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion.experiment.ExperimentDeletionOptions;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.deletion.IDeletionId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.IExperimentId;
+import java.util.List;
+
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
 
 /**
  * @author pkupczyk
  */
-public interface IDeleteExperimentExecutor extends IDeleteEntityExecutor<IDeletionId, IExperimentId, ExperimentDeletionOptions>
+public interface IDeleteEntityExecutor<DELETION_ID, ENTITY_ID, DELETION_OPTIONS>
 {
+
+    public DELETION_ID delete(IOperationContext context, List<? extends ENTITY_ID> entityIds, DELETION_OPTIONS deletionOptions);
 
 }

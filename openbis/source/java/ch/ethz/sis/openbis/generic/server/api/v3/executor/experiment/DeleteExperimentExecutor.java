@@ -16,24 +16,21 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.experiment;
 
-import java.util.LinkedList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-
-import javax.annotation.Resource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.AbstractDeleteEntityExecutor;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion.experiment.ExperimentDeletionOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.deletion.DeletionTechId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.deletion.IDeletionId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.IExperimentId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.UnauthorizedObjectAccessException;
-import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ExperimentByIdentiferValidator;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ITrashBO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
@@ -44,65 +41,40 @@ import ch.systemsx.cisd.openbis.generic.shared.util.RelationshipUtils;
  * @author pkupczyk
  */
 @Component
-public class DeleteExperimentExecutor implements IDeleteExperimentExecutor
+public class DeleteExperimentExecutor extends AbstractDeleteEntityExecutor<IDeletionId, IExperimentId, ExperimentPE, ExperimentDeletionOptions>
+        implements IDeleteExperimentExecutor
 {
-
-    @Resource(name = ComponentNames.COMMON_BUSINESS_OBJECT_FACTORY)
-    ICommonBusinessObjectFactory businessObjectFactory;
 
     @Autowired
     IMapExperimentByIdExecutor mapExperimentByIdExecutor;
 
     @Override
-    public IDeletionId delete(IOperationContext context, List<? extends IExperimentId> experimentIds, ExperimentDeletionOptions deletionOptions)
+    protected Map<IExperimentId, ExperimentPE> map(IOperationContext context, List<? extends IExperimentId> entityIds)
     {
-        if (context == null)
-        {
-            throw new IllegalArgumentException("Context cannot be null");
-        }
-        if (experimentIds == null)
-        {
-            throw new IllegalArgumentException("Experiment ids cannot be null");
-        }
-        if (deletionOptions == null)
-        {
-            throw new IllegalArgumentException("Deletion options cannot be null");
-        }
-        if (deletionOptions.getReason() == null)
-        {
-            throw new IllegalArgumentException("Deletion reason cannot be null");
-        }
-
-        Map<IExperimentId, ExperimentPE> experimentMap = mapExperimentByIdExecutor.map(context, experimentIds);
-        List<TechId> experimentTechIds = new LinkedList<TechId>();
-
-        for (Map.Entry<IExperimentId, ExperimentPE> entry : experimentMap.entrySet())
-        {
-            IExperimentId experimentId = entry.getKey();
-            ExperimentPE experiment = entry.getValue();
-
-            if (false == new ExperimentByIdentiferValidator().doValidation(context.getSession().tryGetPerson(), experiment))
-            {
-                throw new UnauthorizedObjectAccessException(experimentId);
-            }
-
-            updateModificationDateAndModifierOfRelatedProject(context, experiment);
-            experimentTechIds.add(new TechId(experiment.getId()));
-        }
-
-        return trash(context, experimentTechIds, deletionOptions);
+        return mapExperimentByIdExecutor.map(context, entityIds);
     }
 
-    private void updateModificationDateAndModifierOfRelatedProject(IOperationContext context, ExperimentPE experiment)
+    @Override
+    protected void checkAccess(IOperationContext context, IExperimentId entityId, ExperimentPE entity)
     {
-        RelationshipUtils.updateModificationDateAndModifier(experiment.getProject(), context.getSession());
+        if (false == new ExperimentByIdentiferValidator().doValidation(context.getSession().tryGetPerson(), entity))
+        {
+            throw new UnauthorizedObjectAccessException(entityId);
+        }
     }
 
-    private IDeletionId trash(IOperationContext context, List<TechId> experimentTechIds, ExperimentDeletionOptions deletionOptions)
+    @Override
+    protected void updateModificationDateAndModifier(IOperationContext context, ExperimentPE entity)
+    {
+        RelationshipUtils.updateModificationDateAndModifier(entity.getProject(), context.getSession());
+    }
+
+    @Override
+    protected IDeletionId delete(IOperationContext context, Collection<ExperimentPE> entities, ExperimentDeletionOptions deletionOptions)
     {
         ITrashBO trashBO = businessObjectFactory.createTrashBO(context.getSession());
         trashBO.createDeletion(deletionOptions.getReason());
-        trashBO.trashExperiments(experimentTechIds);
+        trashBO.trashExperiments(TechId.createList(entities));
         DeletionPE deletion = trashBO.getDeletion();
         return new DeletionTechId(deletion.getId());
     }

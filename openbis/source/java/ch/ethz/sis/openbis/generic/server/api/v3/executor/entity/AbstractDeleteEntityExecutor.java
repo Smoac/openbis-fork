@@ -1,0 +1,82 @@
+/*
+ * Copyright 2015 ETH Zuerich, CISD
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package ch.ethz.sis.openbis.generic.server.api.v3.executor.entity;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion.AbstractObjectDeletionOptions;
+import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
+
+/**
+ * @author pkupczyk
+ */
+public abstract class AbstractDeleteEntityExecutor<DELETION_ID, ENTITY_ID, ENTITY_PE, DELETION_OPTIONS extends AbstractObjectDeletionOptions>
+        implements IDeleteEntityExecutor<DELETION_ID, ENTITY_ID, DELETION_OPTIONS>
+{
+
+    @Resource(name = ComponentNames.COMMON_BUSINESS_OBJECT_FACTORY)
+    protected ICommonBusinessObjectFactory businessObjectFactory;
+
+    @Override
+    public DELETION_ID delete(IOperationContext context, List<? extends ENTITY_ID> entityIds, DELETION_OPTIONS deletionOptions)
+    {
+        if (context == null)
+        {
+            throw new IllegalArgumentException("Context cannot be null");
+        }
+        if (entityIds == null)
+        {
+            throw new IllegalArgumentException("Entity ids cannot be null");
+        }
+        if (deletionOptions == null)
+        {
+            throw new IllegalArgumentException("Deletion options cannot be null");
+        }
+        if (deletionOptions.getReason() == null)
+        {
+            throw new IllegalArgumentException("Deletion reason cannot be null");
+        }
+
+        Map<ENTITY_ID, ENTITY_PE> entityMap = map(context, entityIds);
+
+        for (Map.Entry<ENTITY_ID, ENTITY_PE> entry : entityMap.entrySet())
+        {
+            ENTITY_ID entityId = entry.getKey();
+            ENTITY_PE entity = entry.getValue();
+
+            checkAccess(context, entityId, entity);
+            updateModificationDateAndModifier(context, entity);
+        }
+
+        return delete(context, entityMap.values(), deletionOptions);
+    }
+
+    protected abstract Map<ENTITY_ID, ENTITY_PE> map(IOperationContext context, List<? extends ENTITY_ID> entityIds);
+
+    protected abstract void checkAccess(IOperationContext context, ENTITY_ID entityId, ENTITY_PE entity);
+
+    protected abstract void updateModificationDateAndModifier(IOperationContext context, ENTITY_PE entity);
+
+    protected abstract DELETION_ID delete(IOperationContext context, Collection<ENTITY_PE> entities, DELETION_OPTIONS deletionOptions);
+
+}

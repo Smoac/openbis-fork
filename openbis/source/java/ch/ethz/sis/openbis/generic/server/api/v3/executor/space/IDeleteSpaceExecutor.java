@@ -16,18 +16,14 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.space;
 
-import java.util.List;
-
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.IDeleteEntityExecutor;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion.space.SpaceDeletionOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.ISpaceId;
 
 /**
  * @author pkupczyk
  */
-public interface IDeleteSpaceExecutor
+public interface IDeleteSpaceExecutor extends IDeleteEntityExecutor<Void, ISpaceId, SpaceDeletionOptions>
 {
-
-    public void delete(IOperationContext context, List<? extends ISpaceId> spaceIds, SpaceDeletionOptions deletionOptions);
 
 }

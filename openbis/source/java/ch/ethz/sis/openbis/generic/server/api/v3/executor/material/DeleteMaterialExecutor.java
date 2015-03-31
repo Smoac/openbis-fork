@@ -16,19 +16,17 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.material;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-
-import javax.annotation.Resource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.AbstractDeleteEntityExecutor;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion.material.MaterialDeletionOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.material.IMaterialId;
-import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialBO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
@@ -37,44 +35,40 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
  * @author Jakub Straszewski
  */
 @Component
-public class DeleteMaterialExecutor implements IDeleteMaterialExecutor
+public class DeleteMaterialExecutor extends AbstractDeleteEntityExecutor<Void, IMaterialId, MaterialPE, MaterialDeletionOptions> implements
+        IDeleteMaterialExecutor
 {
-
-    @Resource(name = ComponentNames.COMMON_BUSINESS_OBJECT_FACTORY)
-    ICommonBusinessObjectFactory businessObjectFactory;
 
     @Autowired
     IMapMaterialByIdExecutor mapMaterialByIdExecutor;
 
     @Override
-    public void delete(IOperationContext context, List<? extends IMaterialId> materialIds, MaterialDeletionOptions deletionOptions)
+    protected Map<IMaterialId, MaterialPE> map(IOperationContext context, List<? extends IMaterialId> entityIds)
     {
-        if (context == null)
-        {
-            throw new IllegalArgumentException("Context cannot be null");
-        }
-        if (materialIds == null)
-        {
-            throw new IllegalArgumentException("Space ids cannot be null");
-        }
-        if (deletionOptions == null)
-        {
-            throw new IllegalArgumentException("Deletion options cannot be null");
-        }
-        if (deletionOptions.getReason() == null)
-        {
-            throw new IllegalArgumentException("Deletion reason cannot be null");
-        }
+        return mapMaterialByIdExecutor.map(context, entityIds);
+    }
 
+    @Override
+    protected void checkAccess(IOperationContext context, IMaterialId entityId, MaterialPE entity)
+    {
+        // nothing to do
+    }
+
+    @Override
+    protected void updateModificationDateAndModifier(IOperationContext context, MaterialPE entity)
+    {
+        // nothing to do
+    }
+
+    @Override
+    protected Void delete(IOperationContext context, Collection<MaterialPE> materials, MaterialDeletionOptions deletionOptions)
+    {
         IMaterialBO materialBO = businessObjectFactory.createMaterialBO(context.getSession());
-        Map<IMaterialId, MaterialPE> materialMap = mapMaterialByIdExecutor.map(context, materialIds);
-
-        for (Map.Entry<IMaterialId, MaterialPE> entry : materialMap.entrySet())
+        for (MaterialPE material : materials)
         {
-            MaterialPE material = entry.getValue();
-
             materialBO.deleteByTechId(new TechId(material.getId()), deletionOptions.getReason());
         }
+        return null;
     }
 
 }

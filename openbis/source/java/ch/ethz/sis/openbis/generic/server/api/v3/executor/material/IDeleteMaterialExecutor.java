@@ -16,17 +16,14 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.material;
 
-import java.util.List;
-
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.IDeleteEntityExecutor;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion.material.MaterialDeletionOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.material.IMaterialId;
 
 /**
  * @author Jakub Straszewski
  */
-public interface IDeleteMaterialExecutor
+public interface IDeleteMaterialExecutor extends IDeleteEntityExecutor<Void, IMaterialId, MaterialDeletionOptions>
 {
-    public void delete(IOperationContext context, List<? extends IMaterialId> materialIds, MaterialDeletionOptions deletionOptions);
 
 }

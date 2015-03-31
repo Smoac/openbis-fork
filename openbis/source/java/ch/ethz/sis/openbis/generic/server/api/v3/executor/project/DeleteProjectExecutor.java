@@ -16,21 +16,19 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.project;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-
-import javax.annotation.Resource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.AbstractDeleteEntityExecutor;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion.project.ProjectDeletionOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.IProjectId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.UnauthorizedObjectAccessException;
-import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ProjectByIdentiferValidator;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IProjectBO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
@@ -39,50 +37,43 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
  * @author pkupczyk
  */
 @Component
-public class DeleteProjectExecutor implements IDeleteProjectExecutor
+public class DeleteProjectExecutor extends AbstractDeleteEntityExecutor<Void, IProjectId, ProjectPE, ProjectDeletionOptions> implements
+        IDeleteProjectExecutor
 {
-
-    @Resource(name = ComponentNames.COMMON_BUSINESS_OBJECT_FACTORY)
-    ICommonBusinessObjectFactory businessObjectFactory;
 
     @Autowired
     IMapProjectByIdExecutor mapProjectByIdExecutor;
 
     @Override
-    public void delete(IOperationContext context, List<? extends IProjectId> projectIds, ProjectDeletionOptions deletionOptions)
+    protected Map<IProjectId, ProjectPE> map(IOperationContext context, List<? extends IProjectId> entityIds)
     {
-        if (context == null)
-        {
-            throw new IllegalArgumentException("Context cannot be null");
-        }
-        if (projectIds == null)
-        {
-            throw new IllegalArgumentException("Project ids cannot be null");
-        }
-        if (deletionOptions == null)
-        {
-            throw new IllegalArgumentException("Deletion options cannot be null");
-        }
-        if (deletionOptions.getReason() == null)
-        {
-            throw new IllegalArgumentException("Deletion reason cannot be null");
-        }
+        return mapProjectByIdExecutor.map(context, entityIds);
+    }
 
+    @Override
+    protected void checkAccess(IOperationContext context, IProjectId entityId, ProjectPE entity)
+    {
+        if (false == new ProjectByIdentiferValidator().doValidation(context.getSession().tryGetPerson(), entity))
+        {
+            throw new UnauthorizedObjectAccessException(entityId);
+        }
+    }
+
+    @Override
+    protected void updateModificationDateAndModifier(IOperationContext context, ProjectPE entity)
+    {
+        // nothing to do
+    }
+
+    @Override
+    protected Void delete(IOperationContext context, Collection<ProjectPE> projects, ProjectDeletionOptions deletionOptions)
+    {
         IProjectBO projectBO = businessObjectFactory.createProjectBO(context.getSession());
-        Map<IProjectId, ProjectPE> projectMap = mapProjectByIdExecutor.map(context, projectIds);
-
-        for (Map.Entry<IProjectId, ProjectPE> entry : projectMap.entrySet())
+        for (ProjectPE project : projects)
         {
-            IProjectId projectId = entry.getKey();
-            ProjectPE project = entry.getValue();
-
-            if (false == new ProjectByIdentiferValidator().doValidation(context.getSession().tryGetPerson(), project))
-            {
-                throw new UnauthorizedObjectAccessException(projectId);
-            }
-
             projectBO.deleteByTechId(new TechId(project.getId()), deletionOptions.getReason());
         }
+        return null;
     }
 
 }

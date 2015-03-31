@@ -16,18 +16,14 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.project;
 
-import java.util.List;
-
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.IDeleteEntityExecutor;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion.project.ProjectDeletionOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.IProjectId;
 
 /**
  * @author pkupczyk
  */
-public interface IDeleteProjectExecutor
+public interface IDeleteProjectExecutor extends IDeleteEntityExecutor<Void, IProjectId, ProjectDeletionOptions>
 {
-
-    public void delete(IOperationContext context, List<? extends IProjectId> projectIds, ProjectDeletionOptions deletionOptions);
 
 }

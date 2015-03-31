@@ -16,9 +16,7 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.dataset;
 
-import java.util.List;
-
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.IDeleteEntityExecutor;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion.dataset.DataSetDeletionOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.IDataSetId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.deletion.IDeletionId;
@@ -26,9 +24,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.deletion.IDeletionId;
 /**
  * @author pkupczyk
  */
-public interface IDeleteDataSetExecutor
+public interface IDeleteDataSetExecutor extends IDeleteEntityExecutor<IDeletionId, IDataSetId, DataSetDeletionOptions>
 {
-
-    public IDeletionId delete(IOperationContext context, List<? extends IDataSetId> dataSetIds, DataSetDeletionOptions deletionOptions);
 
 }

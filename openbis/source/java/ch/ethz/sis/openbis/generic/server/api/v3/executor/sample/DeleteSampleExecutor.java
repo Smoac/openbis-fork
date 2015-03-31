@@ -16,25 +16,22 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.sample;
 
-import java.util.LinkedList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import javax.annotation.Resource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.AbstractDeleteEntityExecutor;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion.sample.SampleDeletionOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.deletion.DeletionTechId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.deletion.IDeletionId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.ISampleId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.UnauthorizedObjectAccessException;
-import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SampleByIdentiferValidator;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ITrashBO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
@@ -47,56 +44,30 @@ import ch.systemsx.cisd.openbis.generic.shared.util.RelationshipUtils;
  * @author pkupczyk
  */
 @Component
-public class DeleteSampleExecutor implements IDeleteSampleExecutor
+public class DeleteSampleExecutor extends AbstractDeleteEntityExecutor<IDeletionId, ISampleId, SamplePE, SampleDeletionOptions> implements
+        IDeleteSampleExecutor
 {
-
-    @Resource(name = ComponentNames.COMMON_BUSINESS_OBJECT_FACTORY)
-    ICommonBusinessObjectFactory businessObjectFactory;
 
     @Autowired
     IMapSampleByIdExecutor mapSampleByIdExecutor;
 
     @Override
-    public IDeletionId delete(IOperationContext context, List<? extends ISampleId> sampleIds, SampleDeletionOptions deletionOptions)
+    protected Map<ISampleId, SamplePE> map(IOperationContext context, List<? extends ISampleId> entityIds)
     {
-        if (context == null)
-        {
-            throw new IllegalArgumentException("Context cannot be null");
-        }
-        if (sampleIds == null)
-        {
-            throw new IllegalArgumentException("Sample ids cannot be null");
-        }
-        if (deletionOptions == null)
-        {
-            throw new IllegalArgumentException("Deletion options cannot be null");
-        }
-        if (deletionOptions.getReason() == null)
-        {
-            throw new IllegalArgumentException("Deletion reason cannot be null");
-        }
-
-        Map<ISampleId, SamplePE> sampleMap = mapSampleByIdExecutor.map(context, sampleIds);
-        List<TechId> sampleTechIds = new LinkedList<TechId>();
-
-        for (Map.Entry<ISampleId, SamplePE> entry : sampleMap.entrySet())
-        {
-            ISampleId sampleId = entry.getKey();
-            SamplePE sample = entry.getValue();
-
-            if (false == new SampleByIdentiferValidator().doValidation(context.getSession().tryGetPerson(), sample))
-            {
-                throw new UnauthorizedObjectAccessException(sampleId);
-            }
-
-            updateModificationDateAndModifierOfRelatedEntities(context, sample);
-            sampleTechIds.add(new TechId(sample.getId()));
-        }
-
-        return trash(context, sampleTechIds, deletionOptions);
+        return mapSampleByIdExecutor.map(context, entityIds);
     }
 
-    private void updateModificationDateAndModifierOfRelatedEntities(IOperationContext context, SamplePE sample)
+    @Override
+    protected void checkAccess(IOperationContext context, ISampleId entityId, SamplePE entity)
+    {
+        if (false == new SampleByIdentiferValidator().doValidation(context.getSession().tryGetPerson(), entity))
+        {
+            throw new UnauthorizedObjectAccessException(entityId);
+        }
+    }
+
+    @Override
+    protected void updateModificationDateAndModifier(IOperationContext context, SamplePE sample)
     {
         ExperimentPE experiment = sample.getExperiment();
         if (experiment != null)
@@ -127,11 +98,12 @@ public class DeleteSampleExecutor implements IDeleteSampleExecutor
         }
     }
 
-    private IDeletionId trash(IOperationContext context, List<TechId> sampleTechIds, SampleDeletionOptions deletionOptions)
+    @Override
+    protected IDeletionId delete(IOperationContext context, Collection<SamplePE> entities, SampleDeletionOptions deletionOptions)
     {
         ITrashBO trashBO = businessObjectFactory.createTrashBO(context.getSession());
         trashBO.createDeletion(deletionOptions.getReason());
-        trashBO.trashSamples(sampleTechIds);
+        trashBO.trashSamples(TechId.createList(entities));
         DeletionPE deletion = trashBO.getDeletion();
         return new DeletionTechId(deletion.getId());
     }

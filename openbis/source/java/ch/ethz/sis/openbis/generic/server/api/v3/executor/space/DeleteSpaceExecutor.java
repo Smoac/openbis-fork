@@ -16,21 +16,19 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.space;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-
-import javax.annotation.Resource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.AbstractDeleteEntityExecutor;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion.space.SpaceDeletionOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.ISpaceId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.UnauthorizedObjectAccessException;
-import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SimpleSpaceValidator;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISpaceBO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
@@ -39,50 +37,42 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
  * @author pkupczyk
  */
 @Component
-public class DeleteSpaceExecutor implements IDeleteSpaceExecutor
+public class DeleteSpaceExecutor extends AbstractDeleteEntityExecutor<Void, ISpaceId, SpacePE, SpaceDeletionOptions> implements IDeleteSpaceExecutor
 {
-
-    @Resource(name = ComponentNames.COMMON_BUSINESS_OBJECT_FACTORY)
-    ICommonBusinessObjectFactory businessObjectFactory;
 
     @Autowired
     IMapSpaceByIdExecutor mapSpaceByIdExecutor;
 
     @Override
-    public void delete(IOperationContext context, List<? extends ISpaceId> spaceIds, SpaceDeletionOptions deletionOptions)
+    protected Map<ISpaceId, SpacePE> map(IOperationContext context, List<? extends ISpaceId> entityIds)
     {
-        if (context == null)
-        {
-            throw new IllegalArgumentException("Context cannot be null");
-        }
-        if (spaceIds == null)
-        {
-            throw new IllegalArgumentException("Space ids cannot be null");
-        }
-        if (deletionOptions == null)
-        {
-            throw new IllegalArgumentException("Deletion options cannot be null");
-        }
-        if (deletionOptions.getReason() == null)
-        {
-            throw new IllegalArgumentException("Deletion reason cannot be null");
-        }
+        return mapSpaceByIdExecutor.map(context, entityIds);
+    }
 
+    @Override
+    protected void checkAccess(IOperationContext context, ISpaceId entityId, SpacePE entity)
+    {
+        if (false == new SimpleSpaceValidator().doValidation(context.getSession().tryGetPerson(), entity))
+        {
+            throw new UnauthorizedObjectAccessException(entityId);
+        }
+    }
+
+    @Override
+    protected void updateModificationDateAndModifier(IOperationContext context, SpacePE entity)
+    {
+        // nothing to do
+    }
+
+    @Override
+    protected Void delete(IOperationContext context, Collection<SpacePE> spaces, SpaceDeletionOptions deletionOptions)
+    {
         ISpaceBO spaceBO = businessObjectFactory.createSpaceBO(context.getSession());
-        Map<ISpaceId, SpacePE> spaceMap = mapSpaceByIdExecutor.map(context, spaceIds);
-
-        for (Map.Entry<ISpaceId, SpacePE> entry : spaceMap.entrySet())
+        for (SpacePE space : spaces)
         {
-            ISpaceId spaceId = entry.getKey();
-            SpacePE space = entry.getValue();
-
-            if (false == new SimpleSpaceValidator().doValidation(context.getSession().tryGetPerson(), space))
-            {
-                throw new UnauthorizedObjectAccessException(spaceId);
-            }
-
             spaceBO.deleteByTechId(new TechId(space.getId()), deletionOptions.getReason());
         }
+        return null;
     }
 
 }
