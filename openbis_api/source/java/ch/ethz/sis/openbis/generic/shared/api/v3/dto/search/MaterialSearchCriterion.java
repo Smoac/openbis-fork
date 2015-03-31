@@ -16,22 +16,38 @@
 
 package ch.ethz.sis.openbis.generic.shared.api.v3.dto.search;
 
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.material.IMaterialId;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
-@JsonObject("dto.search.NumberFieldSearchCriterion")
-public class NumberFieldSearchCriterion extends AbstractFieldSearchCriterion<AbstractNumberValue>
+/**
+ * @author pkupczyk
+ */
+@JsonObject("dto.search.MaterialSearchCriterion")
+public class MaterialSearchCriterion extends AbstractEntitySearchCriterion<IMaterialId>
 {
 
     private static final long serialVersionUID = 1L;
 
-    NumberFieldSearchCriterion(String fieldName, SearchFieldType fieldType)
+    public MaterialSearchCriterion()
     {
-        super(fieldName, fieldType);
     }
 
-    public void thatEquals(Number number)
+    public MaterialSearchCriterion withOrOperator()
     {
-        setFieldValue(new NumberEqualToValue(number));
+        return (MaterialSearchCriterion) withOperator(SearchOperator.OR);
+    }
+
+    public MaterialSearchCriterion withAndOperator()
+    {
+        return (MaterialSearchCriterion) withOperator(SearchOperator.AND);
+    }
+
+    @Override
+    protected SearchCriterionToStringBuilder createBuilder()
+    {
+        SearchCriterionToStringBuilder builder = super.createBuilder();
+        builder.setName("MATERIAL");
+        return builder;
     }
 
 }

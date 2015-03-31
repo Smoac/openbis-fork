@@ -36,6 +36,9 @@ public class EntityAttributeProviderFactory implements IEntityAttributeProviderF
         } else if (EntityKind.DATA_SET.equals(entityKind))
         {
             return new DataSetAttributeProvider();
+        } else if (EntityKind.MATERIAL.equals(entityKind))
+        {
+            return new MaterialAttributeProvider();
         } else
         {
             throw new IllegalArgumentException("Could not create entity attribute provider for unknown entity kind: " + entityKind);

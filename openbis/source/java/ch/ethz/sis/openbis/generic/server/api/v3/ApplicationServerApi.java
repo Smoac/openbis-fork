@@ -42,6 +42,7 @@ import ch.ethz.sis.openbis.generic.server.api.v3.executor.experiment.IUpdateExpe
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.material.ICreateMaterialExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.material.IDeleteMaterialExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.material.IMapMaterialByIdExecutor;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.material.ISearchMaterialExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.material.IUpdateMaterialExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.project.ICreateProjectExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.project.IMapProjectByIdExecutor;
@@ -115,6 +116,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.operation.IOperation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.operation.IOperationResult;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.DataSetSearchCriterion;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ExperimentSearchCriterion;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.MaterialSearchCriterion;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ProjectSearchCriterion;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SampleSearchCriterion;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SpaceSearchCriterion;
@@ -217,6 +219,9 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
 
     @Autowired
     private ISearchDataSetExecutor searchDataSetExecutor;
+
+    @Autowired
+    private ISearchMaterialExecutor searchMaterialExecutor;
 
     @Autowired
     private IDeleteSpaceExecutor deleteSpaceExecutor;
@@ -700,6 +705,27 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
             Map<DataPE, DataSet> translatedMap =
                     new DataSetTranslator(new TranslationContext(session, managedPropertyEvaluatorFactory), fetchOptions).translate(dataSets);
             return new ArrayList<DataSet>(translatedMap.values());
+        } catch (Throwable t)
+        {
+            throw ExceptionUtils.create(context, t);
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    public List<Material> searchMaterials(String sessionToken, MaterialSearchCriterion searchCriterion, MaterialFetchOptions fetchOptions)
+    {
+        Session session = getSession(sessionToken);
+        OperationContext context = new OperationContext(session);
+
+        try
+        {
+            List<MaterialPE> materials = searchMaterialExecutor.search(context, searchCriterion);
+
+            Map<MaterialPE, Material> translatedMap =
+                    new MaterialTranslator(new TranslationContext(session, managedPropertyEvaluatorFactory), fetchOptions).translate(materials);
+            return new ArrayList<Material>(translatedMap.values());
         } catch (Throwable t)
         {
             throw ExceptionUtils.create(context, t);

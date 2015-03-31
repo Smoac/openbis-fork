@@ -33,6 +33,7 @@ import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.dataset.IMapDataSetByIdExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.IMapEntityTypeByIdExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.experiment.IMapExperimentByIdExecutor;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.material.IMapMaterialByIdExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.project.IMapProjectByIdExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.sample.IMapSampleByIdExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.space.IMapSpaceByIdExecutor;
@@ -46,6 +47,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.IObjectId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.IDataSetId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.entitytype.IEntityTypeId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.IExperimentId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.material.IMaterialId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.IProjectId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.ISampleId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.ISpaceId;
@@ -58,8 +60,10 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.EntityTypeSearchCrit
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ExperimentSearchCriterion;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ISearchCriterion;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.IdSearchCriterion;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.MaterialSearchCriterion;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.PermIdSearchCriterion;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SampleSearchCriterion;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.TechIdSearchCriterion;
 import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
@@ -67,6 +71,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -94,6 +99,9 @@ public abstract class AbstractSearchObjectExecutor<CRITERION extends AbstractObj
 
     @Autowired
     private IMapDataSetByIdExecutor mapDataSetByIdExecutor;
+
+    @Autowired
+    private IMapMaterialByIdExecutor mapMaterialByIdExecutor;
 
     @Autowired
     private IMapEntityTypeByIdExecutor mapEntityTypeByIdExecutor;
@@ -141,6 +149,9 @@ public abstract class AbstractSearchObjectExecutor<CRITERION extends AbstractObj
         replacers.add(new SampleTypeIdCriterionReplacer());
         replacers.add(new DataSetIdCriterionReplacer());
         replacers.add(new DataSetTypeIdCriterionReplacer());
+        replacers.add(new MaterialIdCriterionReplacer());
+        replacers.add(new MaterialPermIdCriterionReplacer());
+        replacers.add(new MaterialTypeIdCriterionReplacer());
         replacers.add(new TagIdCriterionReplacer());
 
         Map<ICriterionReplacer, Set<ISearchCriterion>> toReplaceMap = new HashMap<ICriterionReplacer, Set<ISearchCriterion>>();
@@ -437,6 +448,54 @@ public abstract class AbstractSearchObjectExecutor<CRITERION extends AbstractObj
 
     }
 
+    private class MaterialIdCriterionReplacer extends AbstractIdCriterionReplacer<IMaterialId, MaterialPE>
+    {
+
+        @Override
+        protected Class<IMaterialId> getIdClass()
+        {
+            return IMaterialId.class;
+        }
+
+        @Override
+        protected Map<IMaterialId, MaterialPE> getObjectMap(IOperationContext context, Collection<IMaterialId> materialIds)
+        {
+            return mapMaterialByIdExecutor.map(context, materialIds);
+        }
+
+        @Override
+        protected ISearchCriterion createReplacement(IOperationContext context, ISearchCriterion criterion, MaterialPE material)
+        {
+            TechIdSearchCriterion replacement = new TechIdSearchCriterion();
+            if (material == null)
+            {
+                replacement.thatEquals(-1);
+            } else
+            {
+                replacement.thatEquals(material.getId());
+            }
+            return replacement;
+        }
+
+    }
+
+    private class MaterialPermIdCriterionReplacer implements ICriterionReplacer
+    {
+
+        @Override
+        public boolean canReplace(IOperationContext context, Stack<ISearchCriterion> parentCriteria, ISearchCriterion criterion)
+        {
+            return criterion instanceof PermIdSearchCriterion && parentCriteria.peek() instanceof MaterialSearchCriterion;
+        }
+
+        @Override
+        public Map<ISearchCriterion, ISearchCriterion> replace(IOperationContext context, Collection<ISearchCriterion> criteria)
+        {
+            throw new UnsupportedOperationException("Please use criterion.withId().thatEquals(new MaterialPermId('CODE','TYPE')) instead.");
+        }
+
+    }
+
     private class TagIdCriterionReplacer extends AbstractIdCriterionReplacer<ITagId, MetaprojectPE>
     {
 
@@ -568,6 +627,23 @@ public abstract class AbstractSearchObjectExecutor<CRITERION extends AbstractObj
         protected Class<?> getEntityCriterionClass()
         {
             return DataSetSearchCriterion.class;
+        }
+
+    }
+
+    private class MaterialTypeIdCriterionReplacer extends AbstractEntityTypeIdCriterionReplacer
+    {
+
+        @Override
+        protected EntityKind getEntityKind()
+        {
+            return EntityKind.MATERIAL;
+        }
+
+        @Override
+        protected Class<?> getEntityCriterionClass()
+        {
+            return MaterialSearchCriterion.class;
         }
 
     }

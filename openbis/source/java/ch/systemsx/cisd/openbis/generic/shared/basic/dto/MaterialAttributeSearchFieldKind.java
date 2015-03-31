@@ -25,7 +25,11 @@ import java.io.Serializable;
  */
 public enum MaterialAttributeSearchFieldKind implements Serializable, IAttributeSearchFieldKind
 {
+    ID("Id"),
+
     CODE("Code"),
+    
+    PERM_ID("Perm Id"),
 
     MATERIAL_TYPE("Material Type"),
 

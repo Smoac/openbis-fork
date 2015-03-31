@@ -50,11 +50,13 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IProperti
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IRegistratorHolder;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.ISpaceHolder;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.ITagsHolder;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material.Material;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.project.Project;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.Sample;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.space.Space;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.tag.Tag;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.IObjectId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.material.MaterialPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.NotFetchedException;
 import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.ObjectNotFoundException;
 import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.UnauthorizedObjectAccessException;
@@ -433,6 +435,28 @@ public class AbstractTest extends SystemTestCase
         }
     }
 
+    protected void assertRuntimeException(IDelegatedAction action, String expectedMessage)
+    {
+        assertRuntimeException(action, expectedMessage, null);
+    }
+
+    protected void assertRuntimeException(IDelegatedAction action, String expectedMessage, String expectedContextDescription)
+    {
+        try
+        {
+            action.execute();
+            fail("Expected an exception to be thrown");
+        } catch (Exception e)
+        {
+            assertEquals(e.getClass(), RuntimeException.class);
+            AssertionUtil.assertContains(expectedMessage, e.getMessage());
+            if (expectedContextDescription != null)
+            {
+                AssertionUtil.assertContains("(Context: [" + expectedContextDescription + "])", e.getMessage());
+            }
+        }
+    }
+
     protected void assertUserFailureException(IDelegatedAction action, String expectedMessage)
     {
         assertUserFailureException(action, expectedMessage, null);
@@ -639,6 +663,17 @@ public class AbstractTest extends SystemTestCase
         }
 
         assertCollectionContainsOnly(actualSet, expectedIdentifiers);
+    }
+
+    protected static void assertMaterialPermIds(Collection<Material> materials, MaterialPermId... expectedPermIds)
+    {
+        Set<MaterialPermId> actualSet = new HashSet<MaterialPermId>();
+        for (Material material : materials)
+        {
+            actualSet.add(material.getPermId());
+        }
+
+        assertCollectionContainsOnly(actualSet, expectedPermIds);
     }
 
 }

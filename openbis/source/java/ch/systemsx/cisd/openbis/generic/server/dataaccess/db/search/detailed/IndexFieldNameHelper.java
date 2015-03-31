@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.detailed;
 
+import static ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants.ID;
 import static ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants.CODE;
 import static ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants.PERM_ID;
 
@@ -179,6 +180,10 @@ class IndexFieldNameHelper
     {
         switch (attributeKind)
         {
+            case ID:
+                return ID;
+            case PERM_ID:
+                return PERM_ID;
             case CODE:
                 return CODE;
             case MATERIAL_TYPE:

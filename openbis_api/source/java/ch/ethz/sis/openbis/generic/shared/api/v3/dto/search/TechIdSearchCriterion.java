@@ -18,20 +18,15 @@ package ch.ethz.sis.openbis.generic.shared.api.v3.dto.search;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
-@JsonObject("dto.search.NumberFieldSearchCriterion")
-public class NumberFieldSearchCriterion extends AbstractFieldSearchCriterion<AbstractNumberValue>
+@JsonObject("dto.search.TechIdSearchCriterion")
+public class TechIdSearchCriterion extends NumberFieldSearchCriterion
 {
 
     private static final long serialVersionUID = 1L;
 
-    NumberFieldSearchCriterion(String fieldName, SearchFieldType fieldType)
+    public TechIdSearchCriterion()
     {
-        super(fieldName, fieldType);
-    }
-
-    public void thatEquals(Number number)
-    {
-        setFieldValue(new NumberEqualToValue(number));
+        super("id", SearchFieldType.ATTRIBUTE);
     }
 
 }
