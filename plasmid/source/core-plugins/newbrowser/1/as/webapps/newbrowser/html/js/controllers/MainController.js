@@ -283,6 +283,11 @@ function MainController(profile) {
 				this._showSampleHierarchyPage(arg);
 				window.scrollTo(0,0);
 				break;
+			case "showSampleHierarchyTablePage":
+				document.title = "Table Hierarchy " + arg;
+				this._showSampleHierarchyTablePage(arg);
+				window.scrollTo(0,0);
+				break;
 			case "showCreateSamplePage":
 				document.title = "Create Sample " + arg;
 				this._showCreateSamplePage(arg);
@@ -418,6 +423,16 @@ function MainController(profile) {
 			var sampleHierarchy = new SampleHierarchy(localInstance.serverFacade, "mainContainer", localInstance.profile, data[0]);
 			sampleHierarchy.init();
 			localInstance.currentView = sampleHierarchy;
+		});
+	}
+	
+	this._showSampleHierarchyTablePage = function(permId) {
+		//Show View
+		var localInstance = this;
+		this.serverFacade.searchWithUniqueId(permId, function(data) {
+			var sampleHierarchyTableController = new SampleHierarchyTableController(this, data[0]);
+			sampleHierarchyTableController.init($("#mainContainer"));
+			localInstance.currentView = sampleHierarchyTableController;
 		});
 	}
 	
