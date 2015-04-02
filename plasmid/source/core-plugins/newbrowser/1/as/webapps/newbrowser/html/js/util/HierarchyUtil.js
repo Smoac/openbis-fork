@@ -59,8 +59,7 @@ var HierarchyUtil = new function() {
 			return max;
 		}
 		
-		var result = getMaxChildrenDepthWithQueueRecurion(sample, 0);
-		return result;
+		return getMaxChildrenDepthWithQueueRecurion(sample, 0);
 	}
 	
 	var getMaxParentsDepth = function(sample) {
@@ -83,9 +82,9 @@ var HierarchyUtil = new function() {
 			return max;
 		}
 		
-		var result = getMaxParentsDepthWithQueueRecurion(sample, 0);
-		return result;
+		return getMaxParentsDepthWithQueueRecurion(sample, 0);
 	}
+	
 	
 	var getSliderValue = function(id) {
 		var element = $('#' + id)
@@ -165,4 +164,46 @@ var HierarchyUtil = new function() {
 			updater.filterSampleAndUpdate();
 		});
 	}
+	
+	
+	this.createRelationShipsMap = function(sample) {
+		var relationShipsMap = {};
+		traverseParents(sample, relationShipsMap);
+		traverseChildren(sample, relationShipsMap	);
+		return relationShipsMap;
+	}
+	var traverseParents = function(sample, relationShipsMap) {
+		if (sample.parents) {
+			for (var i = 0; i < sample.parents.length; i++) {
+				var parent = sample.parents[i];
+				addRelationShip(parent, sample, relationShipsMap);
+				traverseParents(parent, relationShipsMap);
+			}
+		}
+	}
+	
+	var traverseChildren = function(sample, relationShipsMap) {
+		if (sample.children) {
+			for (var i = 0; i < sample.children.length; i++) {
+				var child = sample.children[i];
+				addRelationShip(sample, child, relationShipsMap);
+				traverseChildren(child, relationShipsMap);
+			}
+		}
+	}
+	
+	var addRelationShip = function(parent, child, relationShipsMap) {
+		getRelationShips(child, relationShipsMap).parents.push(parent);
+		getRelationShips(parent, relationShipsMap).children.push(child);
+	}
+	
+	var getRelationShips = function(sample, relationShipsMap) {
+		var relationShips = relationShipsMap[sample.identifier];
+		if (typeof relationShips === 'undefined') {
+			relationShips = {parents: [], children: []};
+			relationShipsMap[sample.identifier] = relationShips;
+		}
+		return relationShips;
+	}
+	
 }

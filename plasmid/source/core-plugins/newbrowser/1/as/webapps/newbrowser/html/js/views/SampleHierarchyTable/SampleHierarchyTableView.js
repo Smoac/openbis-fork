@@ -31,7 +31,7 @@ function SampleHierarchyTableView(controller, model) {
 		});
 		$container.append($containerColumn);
 		
-		$containerColumn.append($("<h1>").append(this._model.title));
+		$containerColumn.append($("<h1>").append("Sample Hierarchy Table for " + this._model.sample.identifier));
 		HierarchyUtil.addHierarchyFilterWidget($containerColumn, this._model.sample, {
 			filterSampleAndUpdate : function() {
 				_this._dataGrid.refresh();
@@ -65,14 +65,14 @@ function SampleHierarchyTableView(controller, model) {
 			property : 'parentAnnotations',
 			sortable : true,
 			render : function(data) {
-				return _this._annotationsRenderer(data.sample.parents, data.sample);
+				return _this._annotationsRenderer(_this._model.relationShipsMap[data.identifier].parents, data.sample);
 			}
 		} , {
 			label : 'Children/Annotations',
 			property : 'childrenAnnotations',
 			sortable : true,
 			render : function(data) {
-				return _this._annotationsRenderer(data.sample.children, data.sample);
+				return _this._annotationsRenderer(_this._model.relationShipsMap[data.identifier].children, data.sample);
 			}
 		}];
 		

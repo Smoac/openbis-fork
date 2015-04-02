@@ -15,8 +15,8 @@
  */
 
 function SampleHierarchyTableModel(sample) {
-	this.title = "Sample Hierarchy Table for " + sample.identifier;
 	this.sample = sample;
+	this.relationShipsMap = HierarchyUtil.createRelationShipsMap(sample);
 	
 	this.getData = function(dataList) {
 		var dataList = [];
@@ -62,6 +62,7 @@ function SampleHierarchyTableModel(sample) {
 	
 	this._addRow = function(dataList, sample, level, path) {
 		var annotations = FormUtil.getAnnotationsFromSample(sample);
+		var relationShips = this.relationShipsMap[sample.identifier];
 		dataList.push({
 			level : level,
 			sampleType : sample.sampleTypeCode,
@@ -69,17 +70,17 @@ function SampleHierarchyTableModel(sample) {
 			permId : sample.permId,
 			path: path,
 			name : sample.properties["NAME"],
-			parentAnnotations : this._createAnnotations(annotations, sample.parents),
-			childrenAnnotations : this._createAnnotations(annotations, sample.children),
+			parentAnnotations : this._createAnnotations(annotations, relationShips.parents),
+			childrenAnnotations : this._createAnnotations(annotations, relationShips.children),
 			sample : sample
 		});
 		
 	}
 	
-	this._createAnnotations = function(annotations, relatedSamples) {
+	this._createAnnotations = function(annotations, allSamples) {
 		var content = "";
 		var rowStarted = false;
-		AnnotationUtil.buildAnnotations(annotations, relatedSamples, {
+		AnnotationUtil.buildAnnotations(annotations, allSamples, {
 			startRow : function() {
 				if (content !== "") {
 					content += "\n";
