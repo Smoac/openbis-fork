@@ -20,6 +20,7 @@ function SampleHierarchy(serverFacade, containerId, profile, sample) {
 	this.containerId = containerId;
 	this.profile = profile;
 	this.sample = sample;
+	this.hierarchyFilterController = null;
 	
 	this.init = function() {
 		this.repaint();
@@ -33,7 +34,11 @@ function SampleHierarchy(serverFacade, containerId, profile, sample) {
 		$('#'+this.containerId).append($form);
 		var $formColumn = $("<div>", { "class" : "col-md-12"});	
 		$form.append($formColumn);
-		HierarchyUtil.addHierarchyFilterWidget($formColumn, this.sample, localInstance);
+		localInstance.hierarchyFilterController = new HierarchyFilterController(this.sample, function() {
+					localInstance.filterSampleAndUpdate();
+				});
+		localInstance.hierarchyFilterController.init($formColumn);
+
 		$formColumn.append($('<div>', { 'id' : 'graphContainer' }));
 		
 		$('#graphContainer').append("<svg id='svgMapContainer'><g id='svgMap' transform='translate(20,20) scale(1)'/></svg>");
@@ -81,7 +86,7 @@ function SampleHierarchy(serverFacade, containerId, profile, sample) {
 		//
 		// Used to remove the type label when rendering
 		//
-		var selectedSampleTypes = HierarchyUtil.getSelectedSampleTypes();
+		var selectedSampleTypes = this.hierarchyFilterController.getSelectedSampleTypes();
 		var inArray = function(value, array) {
 			for(var i = 0; i < array.length; i++) {
 				if(array[i] === value) {
@@ -111,7 +116,7 @@ function SampleHierarchy(serverFacade, containerId, profile, sample) {
 		//
 		// Used to cut the tree
 		//
-		var parentsLimit = HierarchyUtil.getParentsLimit();
+		var parentsLimit = this.hierarchyFilterController.getParentsLimit();
 		var parentsLimitFilter = function(sample, depthLimit) {
 			if(sample.parents) {
 				if(depthLimit === 0) {
@@ -128,7 +133,7 @@ function SampleHierarchy(serverFacade, containerId, profile, sample) {
 		//
 		// Used to cut the tree
 		//
-		var childrenLimit = HierarchyUtil.getChildrenLimit();
+		var childrenLimit = this.hierarchyFilterController.getChildrenLimit();
 		var childrenLimitFilter = function(sample, depthLimit) {
 			if(sample.children) {
 				if(depthLimit === 0) {

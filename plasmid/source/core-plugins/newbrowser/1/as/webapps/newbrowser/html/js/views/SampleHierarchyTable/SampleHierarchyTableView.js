@@ -19,6 +19,7 @@ function SampleHierarchyTableView(controller, model) {
 	this._controller = controller;
 	this._container = $("<div>");
 	this._dataGrid;
+	this._hierarchyFilterController;
 	
 	this.repaint = function($container) {
 		var _this = this;
@@ -32,11 +33,10 @@ function SampleHierarchyTableView(controller, model) {
 		$container.append($containerColumn);
 		
 		$containerColumn.append($("<h1>").append("Sample Hierarchy Table for " + this._model.sample.identifier));
-		HierarchyUtil.addHierarchyFilterWidget($containerColumn, this._model.sample, {
-			filterSampleAndUpdate : function() {
-				_this._dataGrid.refresh();
-			}
-		});
+		this._hierarchyFilterController = new HierarchyFilterController(this._model.sample, function() {
+					_this._dataGrid.refresh();
+				});
+		this._hierarchyFilterController.init($containerColumn);
 		this._showHierarchy();
 		$containerColumn.append(this._container);
 	}
@@ -78,9 +78,9 @@ function SampleHierarchyTableView(controller, model) {
 		
 		var getDataList = function(callback) {
 			var data = _this._model.getData();
-			var parentsLimit = HierarchyUtil.getParentsLimit();
-			var childrenLimit = HierarchyUtil.getChildrenLimit();
-			var sampleTypes = HierarchyUtil.getSelectedSampleTypes();
+			var parentsLimit = _this._hierarchyFilterController.getParentsLimit();
+			var childrenLimit = _this._hierarchyFilterController.getChildrenLimit();
+			var sampleTypes = _this._hierarchyFilterController.getSelectedSampleTypes();
 			var filteredData = [];
 			for (var i = 0; i < data.length; i++) {
 				var row = data[i];
