@@ -550,6 +550,7 @@ function MainController(profile) {
 		return {
 			label : "Operations",
 			property : 'operations',
+			isExportable: false,
 			sortable : false,
 			render : function(data) {
 				//Dropdown Setup
