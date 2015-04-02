@@ -17,7 +17,9 @@
 ##
 ## Configuration
 ##
-PATH_TO_MANAGE_PROPERTIES_SCRIPTS = "/Users/juanf/Documents/workspace/openbis/source/core-plugins/newbrowser/1/compatibility/";
+import sys
+
+PATH_TO_MANAGE_PROPERTIES_SCRIPTS = "%s/../compatibility/" % [p for p in sys.path if p.find('core-plugins') >= 0][0];
 #PATH_TO_MANAGE_PROPERTIES_SCRIPTS = "/Users/juanf/Documents/installations/S195/servers/core-plugins/newbrowser/1/compatibility/";
 
 # MasterDataRegistrationTransaction Class
