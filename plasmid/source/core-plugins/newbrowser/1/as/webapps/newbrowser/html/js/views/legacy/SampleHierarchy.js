@@ -25,146 +25,20 @@ function SampleHierarchy(serverFacade, containerId, profile, sample) {
 		this.repaint();
 	}
 	
-	this._getSampleTypes = function(sample) {
-		var sampleTypes = {};
-		
-		var getSampleTypesWithQueueRecursion = function(sample, sampleTypes) {
-			if(!sampleTypes[sample.sampleTypeCode]) {
-				sampleTypes[sample.sampleTypeCode] = true;
-			}
-			
-			if(sample.parents) {
-				for(var i = 0; i < sample.parents.length; i++) {
-					getSampleTypesWithQueueRecursion(sample.parents[i], sampleTypes);
-				}
-			}
-			
-			if(sample.children) {
-				for(var i = 0; i < sample.children.length; i++) {
-					getSampleTypesWithQueueRecursion(sample.children[i], sampleTypes);
-				}
-			}
-		}
-		
-		getSampleTypesWithQueueRecursion(sample, sampleTypes);
-		return sampleTypes;
-	}
-	
-	this._getMaxChildrenDepth = function(sample) {
-		var getMaxChildrenDepthWithQueueRecurion = function(sample, max) {
-			if(sample.children) {
-				var posibleNextMax = [];
-				
-				for(var i = 0; i < sample.children.length; i++) {
-					var nextMax = getMaxChildrenDepthWithQueueRecurion(sample.children[i], (max + 1));
-					posibleNextMax.push(nextMax);
-				}
-				
-				for(var i = 0; i < posibleNextMax.length; i++) {
-					if(posibleNextMax[i] > max) {
-						max = posibleNextMax[i];
-					}
-				}
-			}
-			
-			return max;
-		}
-		
-		var result = getMaxChildrenDepthWithQueueRecurion(sample, 0);
-		return result;
-	}
-	
-	this._getMaxParentsDepth = function(sample) {
-		var getMaxParentsDepthWithQueueRecurion = function(sample, max) {
-			if(sample.parents) {
-				var posibleNextMax = [];
-				
-				for(var i = 0; i < sample.parents.length; i++) {
-					var nextMax = getMaxParentsDepthWithQueueRecurion(sample.parents[i], (max + 1));
-					posibleNextMax.push(nextMax);
-				}
-				
-				for(var i = 0; i < posibleNextMax.length; i++) {
-					if(posibleNextMax[i] > max) {
-						max = posibleNextMax[i];
-					}
-				}
-			}
-			
-			return max;
-		}
-		
-		var result = getMaxParentsDepthWithQueueRecurion(sample, 0);
-		return result;
-	}
-	
 	this.repaint = function() {
 		var localInstance = this;
 		$('#'+this.containerId).empty();
 		
-		var $filtersForm = $('<form>' , { class : 'form-inline'});
-		$filtersForm.submit(function(event) {localInstance._filterSampleAndUpdate(); event.preventDefault();});
-		
-		var maxChildren = this._getMaxChildrenDepth(this.sample);
-		var	$filtersFormSliderChildren = null;
-		if(maxChildren > 0) {
-			$filtersFormSliderChildren = $('<input>' , { 'id' : 'childrenLimit' , 'type' : 'text' , 'class' : 'span2', 'value' : '' , 'data-slider-max' : maxChildren , 'data-slider-value' : maxChildren});
-		} else {
-			$filtersFormSliderChildren = 'No Children';
-		}
-		
-		var maxParents = this._getMaxParentsDepth(this.sample);
-		var	$filtersFormSliderParents = null;
-		if(maxParents > 0) {
-			$filtersFormSliderParents = $('<input>' , { 'id' : 'parentsLimit' , 'type' : 'text' , 'class' : 'span2', 'value' : '' , 'data-slider-max' : maxParents , 'data-slider-value' : maxParents});
-		} else {
-			$filtersFormSliderParents = 'No Parents';
-		}
-		
-		var sampleTypes = this._getSampleTypes(this.sample);
-		var	$filtersFormSampleTypes = $('<select>', { 'id' : 'sampleTypesSelector' , class : 'multiselect' , 'multiple' : 'multiple'});
-		for (var sampleType in sampleTypes) {
-			$filtersFormSampleTypes.append($('<option>', { 'value' : sampleType , 'selected' : ''}).html(sampleType));
-		}
-		
-		$filtersForm
-			.append('<b>Filters</b>')
-			.append("<span style='padding-right:15px;'></span>")
-			.append('Children: ')
-			.append($filtersFormSliderChildren)
-			.append("<span style='padding-right:15px;'></span>")
-			.append(' Parents: ')
-			.append($filtersFormSliderParents)
-			.append("<span style='padding-right:15px;'></span>")
-			.append(' Show Types: ')
-			.append($filtersFormSampleTypes)
-			.append("<span style='position:absolute; left:30px; top:80px;'><svg height='100' width='100'><g id='svgControls'/></svg></span>");
-		
 		var $form = $("<div>", { "class" : "row", "style" : "margin-top: 20px;"});
+		$('#'+this.containerId).append($form);
 		var $formColumn = $("<div>", { "class" : "col-md-12"});	
 		$form.append($formColumn);
-		$formColumn.append($filtersForm);
+		HierarchyUtil.addHierarchyFilterWidget($formColumn, this.sample, localInstance);
 		$formColumn.append($('<div>', { 'id' : 'graphContainer' }));
 		
-		$('#'+this.containerId).append($form);
 		$('#graphContainer').append("<svg id='svgMapContainer'><g id='svgMap' transform='translate(20,20) scale(1)'/></svg>");
 		
-		$('#childrenLimit').slider();
-		$('#childrenLimit').slider().on('slideStop', function(event){
-			localInstance._filterSampleAndUpdate();
-		});
-		
-		$('#parentsLimit').slider();
-		$('#parentsLimit').slider().on('slideStop', function(event){
-			localInstance._filterSampleAndUpdate();
-		});
-		
-		$('#sampleTypesSelector').multiselect();
-		$('#sampleTypesSelector').change(function(event){
-			localInstance._filterSampleAndUpdate();
-		});
-		
-		this._filterSampleAndUpdate();
+		this.filterSampleAndUpdate();
 		
 		//Add SVG Map Controls
 		var path1 = this._makeSVG('path', {'class' : 'svgButton', 'stroke-linecap':'round', 'stroke-miterlimit':'6', 'onclick':'javascript:mainController.currentView.pan( 0, 50);', 'd':'M50 10 l12 20 a40, 70 0 0,0 -24, 0z', 'stroke-width':'1.5', 'fill':'#0088CC', 'stroke': '#0088CC' });
@@ -201,16 +75,13 @@ function SampleHierarchy(serverFacade, containerId, profile, sample) {
 		}
 	}
 	
-	this._filterSampleAndUpdate = function() {
+	this.filterSampleAndUpdate = function() {
 		var newSample = jQuery.extend(true, {}, this.sample);
 		
 		//
 		// Used to remove the type label when rendering
 		//
-		var selectedSampleTypes = $('#sampleTypesSelector').val();
-		if(selectedSampleTypes === null) {
-			selectedSampleTypes = [];
-		}
+		var selectedSampleTypes = HierarchyUtil.getSelectedSampleTypes();
 		var inArray = function(value, array) {
 			for(var i = 0; i < array.length; i++) {
 				if(array[i] === value) {
@@ -240,7 +111,7 @@ function SampleHierarchy(serverFacade, containerId, profile, sample) {
 		//
 		// Used to cut the tree
 		//
-		var parentsLimit =  ($('#parentsLimit').length > 0)?$('#parentsLimit').data('slider').getValue():0;
+		var parentsLimit = HierarchyUtil.getParentsLimit();
 		var parentsLimitFilter = function(sample, depthLimit) {
 			if(sample.parents) {
 				if(depthLimit === 0) {
@@ -257,7 +128,7 @@ function SampleHierarchy(serverFacade, containerId, profile, sample) {
 		//
 		// Used to cut the tree
 		//
-		var childrenLimit = ($('#childrenLimit').length > 0)?$('#childrenLimit').data('slider').getValue():0;
+		var childrenLimit = HierarchyUtil.getChildrenLimit();
 		var childrenLimitFilter = function(sample, depthLimit) {
 			if(sample.children) {
 				if(depthLimit === 0) {
@@ -340,7 +211,7 @@ function SampleHierarchy(serverFacade, containerId, profile, sample) {
 		}
 		
 		searchAndUpdateData(show, permId, this.sample);
-		this._filterSampleAndUpdate();
+		this.filterSampleAndUpdate();
 		this._glowNode(this.nodeIdPrefix + permId);
 	}
 	
@@ -364,7 +235,7 @@ function SampleHierarchy(serverFacade, containerId, profile, sample) {
 		}
 		
 		searchAndUpdateDisplayability(hide, permId, this.sample);
-		this._filterSampleAndUpdate();
+		this.filterSampleAndUpdate();
 		this._glowNode(this.nodeIdPrefix + permId);
 	}
 	

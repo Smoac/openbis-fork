@@ -64,6 +64,7 @@ function SampleHierarchyTableModel(sample) {
 		var annotations = FormUtil.getAnnotationsFromSample(sample);
 		dataList.push({
 			level : level,
+			sampleType : sample.sampleTypeCode,
 			identifier : sample.identifier,
 			permId : sample.permId,
 			path: path,

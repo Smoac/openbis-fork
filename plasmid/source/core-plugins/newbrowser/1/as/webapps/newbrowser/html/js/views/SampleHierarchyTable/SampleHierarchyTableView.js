@@ -18,8 +18,10 @@ function SampleHierarchyTableView(controller, model) {
 	this._model = model;
 	this._controller = controller;
 	this._container = $("<div>");
+	this._dataGrid;
 	
 	this.repaint = function($container) {
+		var _this = this;
 		$container.empty();
 		var $containerColumn = $("<form>", { 
 			"class" : FormUtil.formColumClass + " form-horizontal", 
@@ -27,11 +29,16 @@ function SampleHierarchyTableView(controller, model) {
 			"action" : "javascript:void(0);", 
 			"onsubmit" : ""
 		});
+		$container.append($containerColumn);
 		
 		$containerColumn.append($("<h1>").append(this._model.title));
+		HierarchyUtil.addHierarchyFilterWidget($containerColumn, this._model.sample, {
+			filterSampleAndUpdate : function() {
+				_this._dataGrid.refresh();
+			}
+		});
 		this._showHierarchy();
 		$containerColumn.append(this._container);
-		$container.append($containerColumn);
 	}
 	
 	this._showHierarchy = function() {
@@ -70,15 +77,27 @@ function SampleHierarchyTableView(controller, model) {
 		}];
 		
 		var getDataList = function(callback) {
-			callback(_this._model.getData());
+			var data = _this._model.getData();
+			var parentsLimit = HierarchyUtil.getParentsLimit();
+			var childrenLimit = HierarchyUtil.getChildrenLimit();
+			var sampleTypes = HierarchyUtil.getSelectedSampleTypes();
+			var filteredData = [];
+			for (var i = 0; i < data.length; i++) {
+				var row = data[i];
+				if (row.level == 0 || ($.inArray(row.sampleType, sampleTypes) >= 0 
+						&& row.level <= childrenLimit && row.level >= -parentsLimit)) {
+					filteredData.push(row);
+				}
+			}
+			callback(filteredData);
 		}
 		
 		var rowClick = function(e) {
 			mainController.changeView('showViewSamplePageFromPermId', e.data.permId);
 		}
 		
-		var dataGrid = new DataGridController(null, columns, getDataList, rowClick);
-		dataGrid.init(this._container);
+		this._dataGrid = new DataGridController(null, columns, getDataList, rowClick);
+		this._dataGrid.init(this._container);
 		this._container.prepend($("<legend>").append(" Sample Hierarchy"));
 	}
 	
