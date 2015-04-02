@@ -158,9 +158,25 @@ $.extend(Grid.prototype, {
 		var thisGrid = this;
 		
 		var exportColumnsFromData = function(namePrefix, data, headings) {
-			var csv = CSV.objectToCsv(data, {columns: headings});
-			var blob = new Blob([csv], {type: 'text'});
-			saveAs(blob,'exportedTable' + namePrefix + '.csv');
+			var arrayOfRowArrays = [];
+			arrayOfRowArrays.push(headings);
+			for(var dIdx = 0; dIdx < data.length; dIdx++) {
+				var rowAsArray = [];
+				for(var hIdx = 0; hIdx < headings.length; hIdx++) {
+					var headerKey = headings[hIdx];
+					var rowValue = data[dIdx][headerKey];
+					if(!rowValue) {
+						rowValue = "";
+					}
+					rowAsArray.push(rowValue);
+				}
+				arrayOfRowArrays.push(rowAsArray);
+			}
+			var tsv = $.tsv.formatRows(arrayOfRowArrays);
+			var indexOfFirstLine = tsv.indexOf('\n');
+			var tsvWithoutNumbers = tsv.substring(indexOfFirstLine + 1);
+			var blob = new Blob([tsvWithoutNumbers], {type: 'text'});
+			saveAs(blob,'exportedTable' + namePrefix + '.tsv');
 		}
 		
 		var headings = [];
