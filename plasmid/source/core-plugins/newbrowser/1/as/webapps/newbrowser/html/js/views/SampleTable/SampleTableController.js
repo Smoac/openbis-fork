@@ -188,6 +188,7 @@ function SampleTableController(parentController, title, experimentIdentifier) {
 			columns.push({
 				label : "Operations",
 				property : 'operations',
+				isExportable: false,
 				sortable : false,
 				render : function(data) {
 					//Dropdown Setup
@@ -250,7 +251,7 @@ function SampleTableController(parentController, title, experimentIdentifier) {
 				var dataList = [];
 				for(var sIdx = 0; sIdx < samples.length; sIdx++) {
 					var sample = samples[sIdx];
-					var sampleModel = { 'identifier' : sample.code, 'default_space' : sample.spaceCode, 'permId' : sample.permId, 'experiment' : sample.experimentIdentifierOrNull };
+					var sampleModel = { 'identifier' : sample.identifier, 'default_space' : sample.spaceCode, 'permId' : sample.permId, 'experiment' : sample.experimentIdentifierOrNull };
 					for (var pIdx = 0; pIdx < propertyCodes.length; pIdx++) {
 						var propertyCode = propertyCodes[pIdx];
 						sampleModel[propertyCode] = sample.properties[propertyCode];
@@ -260,7 +261,7 @@ function SampleTableController(parentController, title, experimentIdentifier) {
 					if(sample.parents) {
 						for (var paIdx = 0; paIdx < sample.parents.length; paIdx++) {
 							if(paIdx !== 0) {
-								", ";
+								parents += ", ";
 							}
 							parents += sample.parents[paIdx].identifier;
 						}
