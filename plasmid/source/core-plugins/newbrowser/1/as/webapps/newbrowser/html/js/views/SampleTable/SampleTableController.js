@@ -280,7 +280,7 @@ function SampleTableController(parentController, title, experimentIdentifier) {
 			
 			//Create and display table
 			var configKey = "SAMPLE_"+ sampleType.code;
-			var dataGridController = new DataGridController(configKey, columns, getDataList, rowClick, false, configKey);
+			var dataGridController = new DataGridController(null, columns, getDataList, rowClick, false, configKey);
 			dataGridController.init(this._sampleTableView.getTableContainer());
 		}
 	}
