@@ -73,6 +73,15 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 			//Hierarchy
 			$formTitle.append("&nbsp;");
 			$formTitle.append(FormUtil.getHierarchyButton(this._sampleFormModel.sample.permId));
+			//Table hierarchy
+			$formTitle.append("&nbsp;");
+			var $tableHierarchyButton = $("<a>", { 'class' : 'btn btn-default'} )
+			.append($('<img>', { 'src' : './img/hierarchy-icon.png', 'style' : 'width:16px; height:17px;' }))
+			.append(' Table');
+			$tableHierarchyButton.click(function () {
+				mainController.changeView('showSampleHierarchyTablePage', _this._sampleFormModel.sample.permId);
+			});
+			$formTitle.append($tableHierarchyButton);
 			//Copy
 			$formTitle.append("&nbsp;");
 			var $copyButton = $("<a>", { 'class' : 'btn btn-default'} )
@@ -99,15 +108,6 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 				
 				$formTitle.append($editButton);
 			}
-			//Table hierarchy
-			$formTitle.append("&nbsp;");
-			var $tableHierarchyButton = $("<a>", { 'class' : 'btn btn-default'} )
-										.append($('<img>', { 'src' : './img/hierarchy-icon.png', 'style' : 'width:16px; height:17px;' }))
-										.append(' Table');
-			$tableHierarchyButton.click(function () {
-				mainController.changeView('showSampleHierarchyTablePage', _this._sampleFormModel.sample.permId);
-			});
-			$formTitle.append($tableHierarchyButton);
 		}
 		
 		$formColumn.append($formTitle);

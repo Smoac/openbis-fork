@@ -229,6 +229,12 @@ function SampleTableController(parentController, title, experimentIdentifier) {
 					});
 					$list.append($openHierarchy);
 					
+					var $openHierarchy = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'Open Hierarchy Table'}).append("Open Hierarchy Table"));
+					$openHierarchy.click(function(e) {
+						mainController.changeView('showSampleHierarchyTablePage', data.permId);
+					});
+					$list.append($openHierarchy);
+					
 					return $dropDownMenu;
 				},
 				filter : function(data, filter) {
