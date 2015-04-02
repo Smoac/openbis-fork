@@ -16,6 +16,8 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.dataset;
 
+import org.springframework.stereotype.Component;
+
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.AbstractCachingTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.Relations;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
@@ -26,15 +28,13 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.LocatorTypePE;
 /**
  * @author pkupczyk
  */
-public class LocatorTypeTranslator extends AbstractCachingTranslator<LocatorTypePE, LocatorType, LocatorTypeFetchOptions>
+@Component
+public class LocatorTypeTranslator extends AbstractCachingTranslator<LocatorTypePE, LocatorType, LocatorTypeFetchOptions> implements
+        ILocatorTypeTranslator
 {
-    public LocatorTypeTranslator(TranslationContext translationContext, LocatorTypeFetchOptions fetchOptions)
-    {
-        super(translationContext, fetchOptions);
-    }
 
     @Override
-    protected LocatorType createObject(LocatorTypePE type)
+    protected LocatorType createObject(TranslationContext context, LocatorTypePE type, LocatorTypeFetchOptions fetchOptions)
     {
         LocatorType result = new LocatorType();
 
@@ -46,7 +46,8 @@ public class LocatorTypeTranslator extends AbstractCachingTranslator<LocatorType
     }
 
     @Override
-    protected void updateObject(LocatorTypePE type, LocatorType result, Relations relations)
+    protected void updateObject(TranslationContext context, LocatorTypePE input, LocatorType output, Relations relations,
+            LocatorTypeFetchOptions fetchOptions)
     {
     }
 

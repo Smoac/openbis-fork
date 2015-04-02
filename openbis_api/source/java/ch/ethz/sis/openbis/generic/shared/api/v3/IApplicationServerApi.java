@@ -62,8 +62,6 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.ISampleId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SamplePermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.ISpaceId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.SpacePermId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.operation.IOperation;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.operation.IOperationResult;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.DataSetSearchCriterion;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ExperimentSearchCriterion;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.MaterialSearchCriterion;
@@ -100,20 +98,11 @@ public interface IApplicationServerApi extends IRpcService
 
     public void logout(String sessionToken);
 
-    public List<? extends IOperationResult> performOperations(String sessionToken, List<? extends IOperation> operations);
-
     public List<SpacePermId> createSpaces(String sessionToken, List<SpaceCreation> newSpaces);
 
     public List<ProjectPermId> createProjects(String sessionToken, List<ProjectCreation> newProjects);
 
-    // REPLACES:
-    // - ServiceForDataStoreServer.registerExperiment()
-
     public List<ExperimentPermId> createExperiments(String sessionToken, List<ExperimentCreation> newExperiments);
-
-    // REPLACES:
-    // - ServiceForDataStoreServer.registerSamples()
-    // - ServiceForDataStoreServer.registerSample()
 
     public List<SamplePermId> createSamples(String sessionToken, List<SampleCreation> newSamples);
 
@@ -123,19 +112,9 @@ public interface IApplicationServerApi extends IRpcService
 
     public void updateProjects(String sessionToken, List<ProjectUpdate> projectUpdates);
 
-    // REPLACES:
-    // - ServiceForDataStoreServer.updateExperiment()
-
     public void updateExperiments(String sessionToken, List<ExperimentUpdate> experimentUpdates);
 
-    // REPLACES:
-    // - ServiceForDataStoreServer.updateSamples()
-    // - ServiceForDataStoreServer.updateSample()
-
     public void updateSamples(String sessionToken, List<SampleUpdate> sampleUpdates);
-
-    // REPLACES:
-    // - ServiceForDataStoreServer.updateDataSet()
 
     public void updateDataSets(String sessionToken, List<DataSetUpdate> dataSetUpdates);
 
@@ -147,18 +126,8 @@ public interface IApplicationServerApi extends IRpcService
     public Map<IProjectId, Project> mapProjects(String sessionToken, List<? extends IProjectId> projectIds,
             ProjectFetchOptions fetchOptions);
 
-    // REPLACES:
-    // - ServiceForDataStoreServer.tryGetExperiment(ExperimentIdentifier)
-    // - ServiceForDataStoreServer.listExperiments(List<ExperimentIdentifier>, ExperimentFetchOptions)
-    // - GeneralInformationService.listExperiments(List<String> experimentIdentifiers)
-
     public Map<IExperimentId, Experiment> mapExperiments(String sessionToken, List<? extends IExperimentId> experimentIds,
             ExperimentFetchOptions fetchOptions);
-
-    // REPLACES:
-    // - ServiceForDataStoreServer.tryGetSampleWithExperiment(SampleIdentifier)
-    // - ServiceForDataStoreServer.listSamplesByPermId(List<String>)
-    // - ServiceForDataStoreServer.tryGetPropertiesOfSample(SampleIdentifier)
 
     public Map<ISampleId, Sample> mapSamples(String sessionToken, List<? extends ISampleId> sampleIds, SampleFetchOptions fetchOptions);
 
@@ -170,30 +139,8 @@ public interface IApplicationServerApi extends IRpcService
 
     public List<Project> searchProjects(String sessionToken, ProjectSearchCriterion searchCriterion, ProjectFetchOptions fetchOptions);
 
-    // REPLACES:
-    // - ServiceForDataStoreServer.listExperimentsForProjects(List<ProjectIdentifier>, ExperimentFetchOptions)
-    // - ServiceForDataStoreServer.listExperiments(ProjectIdentifier)
-    // - GeneralInformationService.listExperiments(List<Project>, String experimentType)
-    // - GeneralInformationService.listExperimentsHavingDataSets(List<Project>, String experimentType) - TODO add "HAVING_DATASETS" criteria
-    // - GeneralInformationService.listExperimentsHavingSamples(List<Project>, String experimentType) - TODO add "HAVING_SAMPLES" criteria
-    // - GeneralInformationService.searchForExperiments(SearchCriteria)
-
     public List<Experiment> searchExperiments(String sessionToken, ExperimentSearchCriterion searchCriterion, ExperimentFetchOptions fetchOptions);
 
-    // REPLACES:
-    // - ServiceForDataStoreServer.listSamples(ListSampleCriteria)
-    // - ServiceForDataStoreServer.listSamplesByCriteria(ListSamplesByPropertyCriteria)
-    // - ServiceForDataStoreServer.searchForSamples(SearchCriteria)
-    // - GeneralInformationService.searchForSamples(SearchCriteria)
-    // - GeneralInformationService.searchForSamples(SearchCriteria, EnumSet<SampleFetchOption>)
-    // - GeneralInformationService.listSamplesForExperiment(String experimentIdentifier)
-    /**
-     * This is the comment
-     * 
-     * @param sessionToken
-     * @param searchCriterion
-     * @param fetchOptions
-     */
     public List<Sample> searchSamples(String sessionToken, SampleSearchCriterion searchCriterion, SampleFetchOptions fetchOptions);
 
     public List<DataSet> searchDataSets(String sessionToken, DataSetSearchCriterion searchCriterion, DataSetFetchOptions fetchOptions);
@@ -204,28 +151,18 @@ public interface IApplicationServerApi extends IRpcService
 
     public void deleteProjects(String sessionToken, List<? extends IProjectId> projectIds, ProjectDeletionOptions deletionOptions);
 
-    // REPLACES:
-    // - IGeneralInformationChangingService.deleteExperiments(List<Long>, String, DeletionType)
     public IDeletionId deleteExperiments(String sessionToken, List<? extends IExperimentId> experimentIds, ExperimentDeletionOptions deletionOptions);
 
-    // REPLACES:
-    // - IGeneralInformationChangingService.deleteSamples(List<Long>, String, DeletionType)
     public IDeletionId deleteSamples(String sessionToken, List<? extends ISampleId> sampleIds, SampleDeletionOptions deletionOptions);
 
     public IDeletionId deleteDataSets(String sessionToken, List<? extends IDataSetId> dataSetIds, DataSetDeletionOptions deletionOptions);
 
     public void deleteMaterials(String sessionToken, List<? extends IMaterialId> materialIds, MaterialDeletionOptions deletionOptions);
 
-    // REPLACES:
-    // - IGeneralInformationService.listDeletions(EnumSet<DeletionFetchOption>)
     public List<Deletion> listDeletions(String sessionToken, DeletionFetchOptions fetchOptions);
 
-    // REPLACES:
-    // - IGeneralInformationChangingService.revertDeletions(List<Long>)
     public void revertDeletions(String sessionToken, List<? extends IDeletionId> deletionIds);
 
-    // REPLACES:
-    // - IGeneralInformationChangingService.deletePermanently(List<Long>)
     public void confirmDeletions(String sessionToken, List<? extends IDeletionId> deletionIds);
 
 }

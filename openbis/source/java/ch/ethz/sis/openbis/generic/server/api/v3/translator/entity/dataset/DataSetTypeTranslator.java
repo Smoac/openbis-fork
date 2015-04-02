@@ -16,6 +16,8 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.dataset;
 
+import org.springframework.stereotype.Component;
+
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.AbstractCachingTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.Relations;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
@@ -28,16 +30,13 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 /**
  * @author Jakub Straszewski
  */
-public class DataSetTypeTranslator extends AbstractCachingTranslator<DataSetTypePE, DataSetType, DataSetTypeFetchOptions>
+@Component
+public class DataSetTypeTranslator extends AbstractCachingTranslator<DataSetTypePE, DataSetType, DataSetTypeFetchOptions> implements
+        IDataSetTypeTranslator
 {
 
-    public DataSetTypeTranslator(TranslationContext translationContext, DataSetTypeFetchOptions fetchOptions)
-    {
-        super(translationContext, fetchOptions);
-    }
-
     @Override
-    protected DataSetType createObject(DataSetTypePE input)
+    protected DataSetType createObject(TranslationContext context, DataSetTypePE input, DataSetTypeFetchOptions fetchOptions)
     {
         final DataSetType dataSetType = new DataSetType();
         dataSetType.setCode(input.getCode());
@@ -50,7 +49,8 @@ public class DataSetTypeTranslator extends AbstractCachingTranslator<DataSetType
     }
 
     @Override
-    protected void updateObject(DataSetTypePE input, DataSetType output, Relations relations)
+    protected void updateObject(TranslationContext context, DataSetTypePE input, DataSetType output, Relations relations,
+            DataSetTypeFetchOptions fetchOptions)
     {
     }
 

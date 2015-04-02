@@ -16,6 +16,8 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.experiment;
 
+import org.springframework.stereotype.Component;
+
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.AbstractCachingTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.Relations;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
@@ -27,16 +29,13 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 /**
  * @author pkupczyk
  */
-public class ExperimentTypeTranslator extends AbstractCachingTranslator<ExperimentTypePE, ExperimentType, ExperimentTypeFetchOptions>
+@Component
+public class ExperimentTypeTranslator extends AbstractCachingTranslator<ExperimentTypePE, ExperimentType, ExperimentTypeFetchOptions> implements
+        IExperimentTypeTranslator
 {
 
-    public ExperimentTypeTranslator(TranslationContext translationContext, ExperimentTypeFetchOptions fetchOptions)
-    {
-        super(translationContext, fetchOptions);
-    }
-
     @Override
-    protected ExperimentType createObject(ExperimentTypePE type)
+    protected ExperimentType createObject(TranslationContext context, ExperimentTypePE type, ExperimentTypeFetchOptions fetchOptions)
     {
         ExperimentType result = new ExperimentType();
         result.setPermId(new EntityTypePermId(type.getCode()));
@@ -48,7 +47,8 @@ public class ExperimentTypeTranslator extends AbstractCachingTranslator<Experime
     }
 
     @Override
-    protected void updateObject(ExperimentTypePE input, ExperimentType output, Relations relations)
+    protected void updateObject(TranslationContext context, ExperimentTypePE input, ExperimentType output, Relations relations,
+            ExperimentTypeFetchOptions fetchOptions)
     {
     }
 

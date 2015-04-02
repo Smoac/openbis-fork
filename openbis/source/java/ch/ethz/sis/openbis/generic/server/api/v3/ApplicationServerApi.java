@@ -16,11 +16,8 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import javax.annotation.Resource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -28,47 +25,37 @@ import org.springframework.transaction.annotation.Transactional;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.OperationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.dataset.IDeleteDataSetExecutor;
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.dataset.IMapDataSetByIdExecutor;
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.dataset.ISearchDataSetExecutor;
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.dataset.IUpdateDataSetExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.deletion.IConfirmDeletionExecutor;
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.deletion.IListDeletionExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.deletion.IRevertDeletionExecutor;
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.experiment.ICreateExperimentExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.experiment.IDeleteExperimentExecutor;
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.experiment.IMapExperimentByIdExecutor;
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.experiment.ISearchExperimentExecutor;
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.experiment.IUpdateExperimentExecutor;
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.material.ICreateMaterialExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.material.IDeleteMaterialExecutor;
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.material.IMapMaterialByIdExecutor;
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.material.ISearchMaterialExecutor;
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.material.IUpdateMaterialExecutor;
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.project.ICreateProjectExecutor;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.method.ICreateExperimentMethodExecutor;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.method.ICreateMaterialMethodExecutor;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.method.ICreateProjectMethodExecutor;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.method.ICreateSampleMethodExecutor;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.method.ICreateSpaceMethodExecutor;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.method.IListDeletionMethodExecutor;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.method.IMapDataSetMethodExecutor;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.method.IMapExperimentMethodExecutor;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.method.IMapMaterialMethodExecutor;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.method.IMapProjectMethodExecutor;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.method.IMapSampleMethodExecutor;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.method.IMapSpaceMethodExecutor;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.method.ISearchDataSetMethodExecutor;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.method.ISearchExperimentMethodExecutor;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.method.ISearchMaterialMethodExecutor;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.method.ISearchProjectMethodExecutor;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.method.ISearchSampleMethodExecutor;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.method.ISearchSpaceMethodExecutor;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.method.IUpdateDataSetMethodExecutor;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.method.IUpdateExperimentMethodExecutor;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.method.IUpdateMaterialMethodExecutor;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.method.IUpdateProjectMethodExecutor;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.method.IUpdateSampleMethodExecutor;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.method.IUpdateSpaceMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.project.IDeleteProjectExecutor;
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.project.IMapProjectByIdExecutor;
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.project.ISearchProjectExecutor;
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.project.IUpdateProjectExecutor;
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.sample.ICreateSampleExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.sample.IDeleteSampleExecutor;
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.sample.IMapSampleByIdExecutor;
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.sample.ISearchSampleExecutor;
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.sample.IUpdateSampleExecutor;
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.space.ICreateSpaceExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.space.IDeleteSpaceExecutor;
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.space.IMapSpaceByIdExecutor;
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.space.ISearchSpaceExecutor;
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.space.IUpdateSpaceExecutor;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.common.IdentityTranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.common.MapTranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.dataset.DataSetTranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.deletion.DeletionTranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.experiment.ExperimentTranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.material.MaterialTranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.project.ProjectTranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.sample.SampleTranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.space.SpaceTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.utils.ExceptionUtils;
 import ch.ethz.sis.openbis.generic.shared.api.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion.Deletion;
@@ -114,8 +101,6 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.ISampleId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SamplePermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.ISpaceId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.SpacePermId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.operation.IOperation;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.operation.IOperationResult;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.DataSetSearchCriterion;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ExperimentSearchCriterion;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.MaterialSearchCriterion;
@@ -124,7 +109,6 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SampleSearchCriterio
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SpaceSearchCriterion;
 import ch.systemsx.cisd.openbis.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
-import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.Capability;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.server.business.IPropertiesBatchManager;
@@ -136,14 +120,8 @@ import ch.systemsx.cisd.openbis.generic.shared.DatabaseUpdateModification;
 import ch.systemsx.cisd.openbis.generic.shared.IOpenBisSessionManager;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 
 /**
@@ -153,77 +131,74 @@ import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedProperty
 public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> implements
         IApplicationServerApi
 {
-    @Resource(name = ComponentNames.MANAGED_PROPERTY_EVALUATOR_FACTORY)
-    private IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory;
+    @Autowired
+    private ICreateSpaceMethodExecutor createSpaceExecutor;
 
     @Autowired
-    private ICreateSpaceExecutor createSpaceExecutor;
+    private ICreateProjectMethodExecutor createProjectExecutor;
 
     @Autowired
-    private ICreateProjectExecutor createProjectExecutor;
+    private ICreateExperimentMethodExecutor createExperimentExecutor;
 
     @Autowired
-    private ICreateExperimentExecutor createExperimentExecutor;
+    private ICreateSampleMethodExecutor createSampleExecutor;
 
     @Autowired
-    private ICreateSampleExecutor createSampleExecutor;
+    private ICreateMaterialMethodExecutor createMaterialExecutor;
 
     @Autowired
-    private ICreateMaterialExecutor createMaterialExecutor;
+    private IUpdateSpaceMethodExecutor updateSpaceExecutor;
 
     @Autowired
-    private IUpdateSpaceExecutor updateSpaceExecutor;
+    private IUpdateProjectMethodExecutor updateProjectExecutor;
 
     @Autowired
-    private IUpdateProjectExecutor updateProjectExecutor;
+    private IUpdateExperimentMethodExecutor updateExperimentExecutor;
 
     @Autowired
-    private IUpdateExperimentExecutor updateExperimentExecutor;
+    private IUpdateSampleMethodExecutor updateSampleExecutor;
 
     @Autowired
-    private IUpdateSampleExecutor updateSampleExecutor;
+    private IUpdateDataSetMethodExecutor updateDataSetExecutor;
 
     @Autowired
-    private IUpdateDataSetExecutor updateDataSetExecutor;
+    private IUpdateMaterialMethodExecutor updateMaterialExecutor;
 
     @Autowired
-    private IUpdateMaterialExecutor updateMaterialExecutor;
+    private IMapSpaceMethodExecutor mapSpaceExecutor;
 
     @Autowired
-    private IMapSpaceByIdExecutor mapSpaceByIdExecutor;
+    private IMapProjectMethodExecutor mapProjectExecutor;
 
     @Autowired
-    private IMapProjectByIdExecutor mapProjectByIdExecutor;
+    private IMapExperimentMethodExecutor mapExperimentExecutor;
 
     @Autowired
-    private IMapExperimentByIdExecutor mapExperimentByIdExecutor;
+    private IMapSampleMethodExecutor mapSampleExecutor;
 
     @Autowired
-    private IMapSampleByIdExecutor mapSampleByIdExecutor;
+    private IMapDataSetMethodExecutor mapDataSetExecutor;
 
     @Autowired
-    private IMapDataSetByIdExecutor mapDataSetByIdExecutor;
+    private IMapMaterialMethodExecutor mapMaterialExecutor;
 
     @Autowired
-    private IMapMaterialByIdExecutor mapMaterialByIdExecutor;
+    private ISearchSpaceMethodExecutor searchSpaceExecutor;
 
     @Autowired
-    private ISearchSpaceExecutor searchSpaceExecutor;
+    private ISearchProjectMethodExecutor searchProjectExecutor;
 
     @Autowired
-    private ISearchProjectExecutor searchProjectExecutor;
+    private ISearchExperimentMethodExecutor searchExperimentExecutor;
 
     @Autowired
-    private ISearchExperimentExecutor searchExperimentExecutor;
+    private ISearchSampleMethodExecutor searchSampleExecutor;
 
     @Autowired
-    private ISearchSampleExecutor searchSampleExecutor;
+    private ISearchDataSetMethodExecutor searchDataSetExecutor;
 
     @Autowired
-    private ISearchDataSetExecutor searchDataSetExecutor;
-
-    @Autowired
-    private ISearchMaterialExecutor searchMaterialExecutor;
+    private ISearchMaterialMethodExecutor searchMaterialExecutor;
 
     @Autowired
     private IDeleteSpaceExecutor deleteSpaceExecutor;
@@ -244,7 +219,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     private IDeleteMaterialExecutor deleteMaterialExecutor;
 
     @Autowired
-    private IListDeletionExecutor listDeletionExecutor;
+    private IListDeletionMethodExecutor listDeletionExecutor;
 
     @Autowired
     private IRevertDeletionExecutor revertDeletionExecutor;
@@ -265,7 +240,6 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     {
         super(sessionManager, daoFactory, propertiesBatchManager, sampleTypeSlaveServerPlugin,
                 dataSetTypeSlaveServerPlugin);
-        this.managedPropertyEvaluatorFactory = managedPropertyEvaluatorFactory;
     }
 
     @Override
@@ -286,48 +260,12 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
 
     @Override
     @Transactional
-    public List<? extends IOperationResult> performOperations(String sessionToken,
-            List<? extends IOperation> operations)
-    {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    @Transactional
     @RolesAllowed({ RoleWithHierarchy.SPACE_ADMIN, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("REGISTER_SPACE")
     @DatabaseCreateOrDeleteModification(value = ObjectKind.SPACE)
     public List<SpacePermId> createSpaces(String sessionToken, List<SpaceCreation> creations)
     {
-        Session session = getSession(sessionToken);
-        OperationContext context = new OperationContext(session);
-
-        try
-        {
-            return createSpaceExecutor.create(context, creations);
-        } catch (Throwable t)
-        {
-            throw ExceptionUtils.create(context, t);
-        }
-    }
-
-    @Override
-    @Transactional
-    @RolesAllowed({ RoleWithHierarchy.INSTANCE_ADMIN, RoleWithHierarchy.SPACE_ETL_SERVER })
-    @Capability("WRITE_MATERIAL")
-    @DatabaseCreateOrDeleteModification(value = ObjectKind.MATERIAL)
-    public List<MaterialPermId> createMaterials(String sessionToken, List<MaterialCreation> newMaterials)
-    {
-        Session session = getSession(sessionToken);
-        OperationContext context = new OperationContext(session);
-        try
-        {
-            return createMaterialExecutor.create(context, newMaterials);
-        } catch (Throwable t)
-        {
-            throw ExceptionUtils.create(context, t);
-        }
+        return createSpaceExecutor.create(sessionToken, creations);
     }
 
     @Override
@@ -337,16 +275,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     @DatabaseCreateOrDeleteModification(value = ObjectKind.PROJECT)
     public List<ProjectPermId> createProjects(String sessionToken, List<ProjectCreation> creations)
     {
-        Session session = getSession(sessionToken);
-        OperationContext context = new OperationContext(session);
-
-        try
-        {
-            return createProjectExecutor.create(context, creations);
-        } catch (Throwable t)
-        {
-            throw ExceptionUtils.create(context, t);
-        }
+        return createProjectExecutor.create(sessionToken, creations);
     }
 
     @Override
@@ -357,19 +286,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     public List<ExperimentPermId> createExperiments(String sessionToken,
             List<ExperimentCreation> creations)
     {
-        // REPLACES:
-        // - ServiceForDataStoreServer.registerExperiment()
-
-        Session session = getSession(sessionToken);
-        OperationContext context = new OperationContext(session);
-
-        try
-        {
-            return createExperimentExecutor.create(context, creations);
-        } catch (Throwable t)
-        {
-            throw ExceptionUtils.create(context, t);
-        }
+        return createExperimentExecutor.create(sessionToken, creations);
     }
 
     @Override
@@ -380,20 +297,17 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     public List<SamplePermId> createSamples(String sessionToken,
             List<SampleCreation> creations)
     {
-        Session session = getSession(sessionToken);
-        OperationContext context = new OperationContext(session);
+        return createSampleExecutor.create(sessionToken, creations);
+    }
 
-        try
-        {
-            return createSampleExecutor.create(context, creations);
-        } catch (Throwable t)
-        {
-            throw ExceptionUtils.create(context, t);
-        } finally
-        {
-            // the clear is necessary, as registering samples involves sql queries, that are not visible to cached PE objects
-            getDAOFactory().getSessionFactory().getCurrentSession().clear();
-        }
+    @Override
+    @Transactional
+    @RolesAllowed({ RoleWithHierarchy.INSTANCE_ADMIN, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @Capability("WRITE_MATERIAL")
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.MATERIAL)
+    public List<MaterialPermId> createMaterials(String sessionToken, List<MaterialCreation> creations)
+    {
+        return createMaterialExecutor.create(sessionToken, creations);
     }
 
     @Override
@@ -401,18 +315,9 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     @RolesAllowed({ RoleWithHierarchy.SPACE_ADMIN, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("UPDATE_SPACE")
     @DatabaseUpdateModification(value = ObjectKind.SPACE)
-    public void updateSpaces(String sessionToken, List<SpaceUpdate> spaceUpdates)
+    public void updateSpaces(String sessionToken, List<SpaceUpdate> updates)
     {
-        Session session = getSession(sessionToken);
-        OperationContext context = new OperationContext(session);
-
-        try
-        {
-            updateSpaceExecutor.update(context, spaceUpdates);
-        } catch (Throwable t)
-        {
-            throw ExceptionUtils.create(context, t);
-        }
+        updateSpaceExecutor.update(sessionToken, updates);
     }
 
     @Override
@@ -420,18 +325,9 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     @RolesAllowed({ RoleWithHierarchy.SPACE_POWER_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("WRITE_PROJECT")
     @DatabaseUpdateModification(value = ObjectKind.PROJECT)
-    public void updateProjects(String sessionToken, List<ProjectUpdate> projectUpdates)
+    public void updateProjects(String sessionToken, List<ProjectUpdate> updates)
     {
-        Session session = getSession(sessionToken);
-        OperationContext context = new OperationContext(session);
-
-        try
-        {
-            updateProjectExecutor.update(context, projectUpdates);
-        } catch (Throwable t)
-        {
-            throw ExceptionUtils.create(context, t);
-        }
+        updateProjectExecutor.update(sessionToken, updates);
     }
 
     @Override
@@ -439,22 +335,9 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     @RolesAllowed({ RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("WRITE_EXPERIMENT")
     @DatabaseUpdateModification(value = ObjectKind.EXPERIMENT)
-    public void updateExperiments(String sessionToken, List<ExperimentUpdate> experimentUpdates)
+    public void updateExperiments(String sessionToken, List<ExperimentUpdate> updates)
     {
-        Session session = getSession(sessionToken);
-        OperationContext context = new OperationContext(session);
-
-        try
-        {
-            updateExperimentExecutor.update(context, experimentUpdates);
-        } catch (Throwable t)
-        {
-            throw ExceptionUtils.create(context, t);
-        } finally
-        {
-            // the clear is necessary, as updating experiments involves sql queries, that are not visible to cached PE objects
-            getDAOFactory().getSessionFactory().getCurrentSession().clear();
-        }
+        updateExperimentExecutor.update(sessionToken, updates);
     }
 
     @Override
@@ -464,20 +347,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     @DatabaseUpdateModification(value = ObjectKind.SAMPLE)
     public void updateSamples(String sessionToken, List<SampleUpdate> updates)
     {
-        Session session = getSession(sessionToken);
-        OperationContext context = new OperationContext(session);
-
-        try
-        {
-            updateSampleExecutor.update(context, updates);
-        } catch (Throwable t)
-        {
-            throw ExceptionUtils.create(context, t);
-        } finally
-        {
-            // the clear is necessary, as registering samples involves sql queries, that are not visible to cached PE objects
-            getDAOFactory().getSessionFactory().getCurrentSession().clear();
-        }
+        updateSampleExecutor.update(sessionToken, updates);
     }
 
     @Override
@@ -487,16 +357,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     @DatabaseUpdateModification(value = ObjectKind.MATERIAL)
     public void updateMaterials(String sessionToken, List<MaterialUpdate> updates)
     {
-        Session session = getSession(sessionToken);
-        OperationContext context = new OperationContext(session);
-
-        try
-        {
-            updateMaterialExecutor.update(context, updates);
-        } catch (Throwable t)
-        {
-            throw ExceptionUtils.create(context, t);
-        }
+        updateMaterialExecutor.update(sessionToken, updates);
     }
 
     @Override
@@ -506,16 +367,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     @DatabaseUpdateModification(value = ObjectKind.DATA_SET)
     public void updateDataSets(String sessionToken, List<DataSetUpdate> updates)
     {
-        Session session = getSession(sessionToken);
-        OperationContext context = new OperationContext(session);
-
-        try
-        {
-            updateDataSetExecutor.update(context, updates);
-        } catch (Throwable t)
-        {
-            throw ExceptionUtils.create(context, t);
-        }
+        updateDataSetExecutor.update(sessionToken, updates);
     }
 
     @Override
@@ -523,14 +375,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     public Map<ISpaceId, Space> mapSpaces(String sessionToken, List<? extends ISpaceId> spaceIds, SpaceFetchOptions fetchOptions)
     {
-        Session session = getSession(sessionToken);
-        OperationContext context = new OperationContext(session);
-
-        Map<ISpaceId, SpacePE> map = mapSpaceByIdExecutor.map(context, spaceIds);
-
-        return new MapTranslator<ISpaceId, ISpaceId, SpacePE, Space>().translate(map, new IdentityTranslator<ISpaceId>(),
-                new SpaceTranslator(new TranslationContext(session, managedPropertyEvaluatorFactory),
-                        fetchOptions));
+        return mapSpaceExecutor.map(sessionToken, spaceIds, fetchOptions);
     }
 
     @Override
@@ -538,14 +383,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     public Map<IProjectId, Project> mapProjects(String sessionToken, List<? extends IProjectId> projectIds, ProjectFetchOptions fetchOptions)
     {
-        Session session = getSession(sessionToken);
-        OperationContext context = new OperationContext(session);
-
-        Map<IProjectId, ProjectPE> map = mapProjectByIdExecutor.map(context, projectIds);
-
-        return new MapTranslator<IProjectId, IProjectId, ProjectPE, Project>().translate(map, new IdentityTranslator<IProjectId>(),
-                new ProjectTranslator(new TranslationContext(session, managedPropertyEvaluatorFactory),
-                        fetchOptions));
+        return mapProjectExecutor.map(sessionToken, projectIds, fetchOptions);
     }
 
     @Override
@@ -554,14 +392,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     public Map<IExperimentId, Experiment> mapExperiments(String sessionToken,
             List<? extends IExperimentId> experimentIds, ExperimentFetchOptions fetchOptions)
     {
-        Session session = getSession(sessionToken);
-        OperationContext context = new OperationContext(session);
-
-        Map<IExperimentId, ExperimentPE> map = mapExperimentByIdExecutor.map(context, experimentIds);
-
-        return new MapTranslator<IExperimentId, IExperimentId, ExperimentPE, Experiment>().translate(map, new IdentityTranslator<IExperimentId>(),
-                new ExperimentTranslator(new TranslationContext(session, managedPropertyEvaluatorFactory),
-                        fetchOptions));
+        return mapExperimentExecutor.map(sessionToken, experimentIds, fetchOptions);
     }
 
     @Override
@@ -570,14 +401,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     public Map<ISampleId, Sample> mapSamples(String sessionToken, List<? extends ISampleId> sampleIds,
             SampleFetchOptions fetchOptions)
     {
-        Session session = getSession(sessionToken);
-        OperationContext context = new OperationContext(session);
-
-        Map<ISampleId, SamplePE> map = mapSampleByIdExecutor.map(context, sampleIds);
-
-        return new MapTranslator<ISampleId, ISampleId, SamplePE, Sample>().translate(map, new IdentityTranslator<ISampleId>(),
-                new SampleTranslator(new TranslationContext(session, managedPropertyEvaluatorFactory),
-                        fetchOptions));
+        return mapSampleExecutor.map(sessionToken, sampleIds, fetchOptions);
     }
 
     @Override
@@ -585,14 +409,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     public Map<IDataSetId, DataSet> mapDataSets(String sessionToken, List<? extends IDataSetId> dataSetIds, DataSetFetchOptions fetchOptions)
     {
-        Session session = getSession(sessionToken);
-        OperationContext context = new OperationContext(session);
-
-        Map<IDataSetId, DataPE> map = mapDataSetByIdExecutor.map(context, dataSetIds);
-
-        return new MapTranslator<IDataSetId, IDataSetId, DataPE, DataSet>().translate(map, new IdentityTranslator<IDataSetId>(),
-                new DataSetTranslator(new TranslationContext(session, managedPropertyEvaluatorFactory),
-                        fetchOptions));
+        return mapDataSetExecutor.map(sessionToken, dataSetIds, fetchOptions);
     }
 
     @Override
@@ -600,14 +417,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     public Map<IMaterialId, Material> mapMaterials(String sessionToken, List<? extends IMaterialId> materialIds, MaterialFetchOptions fetchOptions)
     {
-        Session session = getSession(sessionToken);
-        OperationContext context = new OperationContext(session);
-
-        Map<IMaterialId, MaterialPE> map = mapMaterialByIdExecutor.map(context, materialIds);
-
-        return new MapTranslator<IMaterialId, IMaterialId, MaterialPE, Material>().translate(map, new IdentityTranslator<IMaterialId>(),
-                new MaterialTranslator(new TranslationContext(session, managedPropertyEvaluatorFactory),
-                        fetchOptions));
+        return mapMaterialExecutor.map(sessionToken, materialIds, fetchOptions);
     }
 
     @Override
@@ -615,20 +425,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     public List<Space> searchSpaces(String sessionToken, SpaceSearchCriterion searchCriterion, SpaceFetchOptions fetchOptions)
     {
-        Session session = getSession(sessionToken);
-        OperationContext context = new OperationContext(session);
-
-        try
-        {
-            List<SpacePE> spaces = searchSpaceExecutor.search(context, searchCriterion);
-
-            Map<SpacePE, Space> translatedMap =
-                    new SpaceTranslator(new TranslationContext(session, managedPropertyEvaluatorFactory), fetchOptions).translate(spaces);
-            return new ArrayList<Space>(translatedMap.values());
-        } catch (Throwable t)
-        {
-            throw ExceptionUtils.create(context, t);
-        }
+        return searchSpaceExecutor.search(sessionToken, searchCriterion, fetchOptions);
     }
 
     @Override
@@ -636,20 +433,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     public List<Project> searchProjects(String sessionToken, ProjectSearchCriterion searchCriterion, ProjectFetchOptions fetchOptions)
     {
-        Session session = getSession(sessionToken);
-        OperationContext context = new OperationContext(session);
-
-        try
-        {
-            List<ProjectPE> projects = searchProjectExecutor.search(context, searchCriterion);
-
-            Map<ProjectPE, Project> translatedMap =
-                    new ProjectTranslator(new TranslationContext(session, managedPropertyEvaluatorFactory), fetchOptions).translate(projects);
-            return new ArrayList<Project>(translatedMap.values());
-        } catch (Throwable t)
-        {
-            throw ExceptionUtils.create(context, t);
-        }
+        return searchProjectExecutor.search(sessionToken, searchCriterion, fetchOptions);
     }
 
     @Override
@@ -658,20 +442,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     public List<Experiment> searchExperiments(String sessionToken, ExperimentSearchCriterion searchCriterion,
             ExperimentFetchOptions fetchOptions)
     {
-        Session session = getSession(sessionToken);
-        OperationContext context = new OperationContext(session);
-
-        try
-        {
-            List<ExperimentPE> experiments = searchExperimentExecutor.search(context, searchCriterion);
-
-            Map<ExperimentPE, Experiment> translatedMap =
-                    new ExperimentTranslator(new TranslationContext(session, managedPropertyEvaluatorFactory), fetchOptions).translate(experiments);
-            return new ArrayList<Experiment>(translatedMap.values());
-        } catch (Throwable t)
-        {
-            throw ExceptionUtils.create(context, t);
-        }
+        return searchExperimentExecutor.search(sessionToken, searchCriterion, fetchOptions);
     }
 
     @Override
@@ -679,20 +450,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     public List<Sample> searchSamples(String sessionToken, SampleSearchCriterion searchCriterion, SampleFetchOptions fetchOptions)
     {
-        Session session = getSession(sessionToken);
-        OperationContext context = new OperationContext(session);
-
-        try
-        {
-            List<SamplePE> samples = searchSampleExecutor.search(context, searchCriterion);
-
-            Map<SamplePE, Sample> translatedMap =
-                    new SampleTranslator(new TranslationContext(session, managedPropertyEvaluatorFactory), fetchOptions).translate(samples);
-            return new ArrayList<Sample>(translatedMap.values());
-        } catch (Throwable t)
-        {
-            throw ExceptionUtils.create(context, t);
-        }
+        return searchSampleExecutor.search(sessionToken, searchCriterion, fetchOptions);
     }
 
     @Override
@@ -700,20 +458,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     public List<DataSet> searchDataSets(String sessionToken, DataSetSearchCriterion searchCriterion, DataSetFetchOptions fetchOptions)
     {
-        Session session = getSession(sessionToken);
-        OperationContext context = new OperationContext(session);
-
-        try
-        {
-            List<DataPE> dataSets = searchDataSetExecutor.search(context, searchCriterion);
-
-            Map<DataPE, DataSet> translatedMap =
-                    new DataSetTranslator(new TranslationContext(session, managedPropertyEvaluatorFactory), fetchOptions).translate(dataSets);
-            return new ArrayList<DataSet>(translatedMap.values());
-        } catch (Throwable t)
-        {
-            throw ExceptionUtils.create(context, t);
-        }
+        return searchDataSetExecutor.search(sessionToken, searchCriterion, fetchOptions);
     }
 
     @Override
@@ -721,20 +466,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     public List<Material> searchMaterials(String sessionToken, MaterialSearchCriterion searchCriterion, MaterialFetchOptions fetchOptions)
     {
-        Session session = getSession(sessionToken);
-        OperationContext context = new OperationContext(session);
-
-        try
-        {
-            List<MaterialPE> materials = searchMaterialExecutor.search(context, searchCriterion);
-
-            Map<MaterialPE, Material> translatedMap =
-                    new MaterialTranslator(new TranslationContext(session, managedPropertyEvaluatorFactory), fetchOptions).translate(materials);
-            return new ArrayList<Material>(translatedMap.values());
-        } catch (Throwable t)
-        {
-            throw ExceptionUtils.create(context, t);
-        }
+        return searchMaterialExecutor.search(sessionToken, searchCriterion, fetchOptions);
     }
 
     @Override
@@ -868,20 +600,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     @RolesAllowed({ RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     public List<Deletion> listDeletions(String sessionToken, DeletionFetchOptions fetchOptions)
     {
-        Session session = getSession(sessionToken);
-        OperationContext context = new OperationContext(session);
-
-        try
-        {
-            List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion> deletions = listDeletionExecutor.list(context, fetchOptions);
-            Map<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion, Deletion> translatedMap =
-                    new DeletionTranslator(new TranslationContext(session, managedPropertyEvaluatorFactory), fetchOptions, getDAOFactory())
-                            .translate(deletions);
-            return new ArrayList<Deletion>(translatedMap.values());
-        } catch (Throwable t)
-        {
-            throw ExceptionUtils.create(context, t);
-        }
+        return listDeletionExecutor.listDeletions(sessionToken, fetchOptions);
     }
 
     @Override

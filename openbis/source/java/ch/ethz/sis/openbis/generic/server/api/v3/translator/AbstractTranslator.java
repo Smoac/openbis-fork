@@ -23,37 +23,37 @@ import java.util.Map;
 /**
  * @author pkupczyk
  */
-public abstract class AbstractTranslator<I, O> implements ITranslator<I, O>
+public abstract class AbstractTranslator<I, O, F> implements ITranslator<I, O, F>
 {
 
     @Override
-    public O translate(I object)
+    public O translate(TranslationContext context, I object, F fetchOptions)
     {
         if (object == null)
         {
             return null;
         }
 
-        return doTranslate(object);
+        return doTranslate(context, object, fetchOptions);
     }
 
     @Override
-    public final Map<I, O> translate(Collection<I> objects)
+    public final Map<I, O> translate(TranslationContext context, Collection<I> objects, F fetchOptions)
     {
         if (objects == null)
         {
             return null;
         }
 
-        return doTranslate(objects);
+        return doTranslate(context, objects, fetchOptions);
     }
 
-    protected Map<I, O> doTranslate(Collection<I> objects)
+    protected Map<I, O> doTranslate(TranslationContext context, Collection<I> objects, F fetchOptions)
     {
         Map<I, O> translatedMap = new LinkedHashMap<I, O>();
         for (I object : objects)
         {
-            O translated = doTranslate(object);
+            O translated = doTranslate(context, object, fetchOptions);
             if (translated != null)
             {
                 translatedMap.put(object, translated);
@@ -62,6 +62,6 @@ public abstract class AbstractTranslator<I, O> implements ITranslator<I, O>
         return translatedMap;
     }
 
-    protected abstract O doTranslate(I object);
+    protected abstract O doTranslate(TranslationContext context, I object, F fetchOptions);
 
 }

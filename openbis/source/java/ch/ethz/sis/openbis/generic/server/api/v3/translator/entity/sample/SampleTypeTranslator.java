@@ -1,5 +1,7 @@
 package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.sample;
 
+import org.springframework.stereotype.Component;
+
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.AbstractCachingTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.Relations;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
@@ -8,15 +10,13 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sample.SampleT
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.entitytype.EntityTypePermId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 
-public class SampleTypeTranslator extends AbstractCachingTranslator<SampleTypePE, SampleType, SampleTypeFetchOptions>
+@Component
+public class SampleTypeTranslator extends AbstractCachingTranslator<SampleTypePE, SampleType, SampleTypeFetchOptions> implements
+        ISampleTypeTranslator
 {
-    public SampleTypeTranslator(TranslationContext translationContext, SampleTypeFetchOptions fetchOptions)
-    {
-        super(translationContext, fetchOptions);
-    }
 
     @Override
-    protected SampleType createObject(SampleTypePE type)
+    protected SampleType createObject(TranslationContext context, SampleTypePE type, SampleTypeFetchOptions fetchOptions)
     {
         SampleType result = new SampleType();
         result.setPermId(new EntityTypePermId(type.getCode()));
@@ -34,7 +34,8 @@ public class SampleTypeTranslator extends AbstractCachingTranslator<SampleTypePE
     }
 
     @Override
-    protected void updateObject(SampleTypePE input, SampleType output, Relations relations)
+    protected void updateObject(TranslationContext context, SampleTypePE input, SampleType output, Relations relations,
+            SampleTypeFetchOptions fetchOptions)
     {
 
     }

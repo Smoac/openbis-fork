@@ -16,10 +16,13 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.person;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.AbstractCachingTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.Relations;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.space.SpaceTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.space.ISpaceTranslator;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.person.Person;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.person.PersonFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.person.PersonPermId;
@@ -28,15 +31,15 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 /**
  * @author pkupczyk
  */
-public class PersonTranslator extends AbstractCachingTranslator<PersonPE, Person, PersonFetchOptions>
+@Component
+public class PersonTranslator extends AbstractCachingTranslator<PersonPE, Person, PersonFetchOptions> implements IPersonTranslator
 {
-    public PersonTranslator(TranslationContext translationContext, PersonFetchOptions fetchOptions)
-    {
-        super(translationContext, fetchOptions);
-    }
+
+    @Autowired
+    private ISpaceTranslator spaceTranslator;
 
     @Override
-    protected Person createObject(PersonPE person)
+    protected Person createObject(TranslationContext context, PersonPE person, PersonFetchOptions fetchOptions)
     {
         Person result = new Person();
 
@@ -53,22 +56,18 @@ public class PersonTranslator extends AbstractCachingTranslator<PersonPE, Person
     }
 
     @Override
-    protected void updateObject(PersonPE person, Person result, Relations relations)
+    protected void updateObject(TranslationContext context, PersonPE person, Person result, Relations relations, PersonFetchOptions fetchOptions)
     {
-        if (getFetchOptions().hasSpace())
+        if (fetchOptions.hasSpace())
         {
-            result.setSpace(new SpaceTranslator(getTranslationContext(), getFetchOptions().withSpace())
-                    .translate(person.getHomeSpace()));
-            result.getFetchOptions().withSpaceUsing(getFetchOptions().withSpace());
+            result.setSpace(spaceTranslator.translate(context, person.getHomeSpace(), fetchOptions.withSpace()));
+            result.getFetchOptions().withSpaceUsing(fetchOptions.withSpace());
         }
 
-        if (getFetchOptions().hasRegistrator())
+        if (fetchOptions.hasRegistrator())
         {
-            result.setRegistrator(new PersonTranslator(getTranslationContext(), getFetchOptions().withRegistrator())
-                    .translate(person
-                            .getRegistrator()));
-            result.getFetchOptions().withRegistratorUsing(getFetchOptions().withRegistrator());
+            result.setRegistrator(translate(context, person.getRegistrator(), fetchOptions.withRegistrator()));
+            result.getFetchOptions().withRegistratorUsing(fetchOptions.withRegistrator());
         }
     }
-
 }

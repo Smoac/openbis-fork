@@ -19,6 +19,9 @@ package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.material;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.AbstractCachingTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.Relations;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
@@ -32,17 +35,16 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 /**
  * @author Jakub Straszewski
  */
+@Component
 public class MaterialPropertyTranslator extends
-        AbstractCachingTranslator<IEntityPropertiesHolder, Map<String, Material>, MaterialFetchOptions>
+        AbstractCachingTranslator<IEntityPropertiesHolder, Map<String, Material>, MaterialFetchOptions> implements IMaterialPropertyTranslator
 {
 
-    public MaterialPropertyTranslator(TranslationContext translationContext, MaterialFetchOptions fetchOptions)
-    {
-        super(translationContext, fetchOptions);
-    }
+    @Autowired
+    private IMaterialTranslator materialTranslator;
 
     @Override
-    protected Map<String, Material> createObject(IEntityPropertiesHolder entity)
+    protected Map<String, Material> createObject(TranslationContext context, IEntityPropertiesHolder entity, MaterialFetchOptions fetchOptions)
     {
         if (false == entity.isPropertiesInitialized())
         {
@@ -58,8 +60,7 @@ public class MaterialPropertyTranslator extends
                 String code = property.getEntityTypePropertyType().getPropertyType().getCode();
                 MaterialPE materialPe = property.getMaterialValue();
 
-                Material material =
-                        new MaterialTranslator(getTranslationContext(), getFetchOptions()).translate(materialPe);
+                Material material = materialTranslator.translate(context, materialPe, fetchOptions);
                 properties.put(code, material);
             }
         }
@@ -67,9 +68,9 @@ public class MaterialPropertyTranslator extends
     }
 
     @Override
-    protected void updateObject(IEntityPropertiesHolder input, Map<String, Material> output, Relations relations)
+    protected void updateObject(TranslationContext context, IEntityPropertiesHolder input, Map<String, Material> output, Relations relations,
+            MaterialFetchOptions fetchOptions)
     {
-
     }
 
 }

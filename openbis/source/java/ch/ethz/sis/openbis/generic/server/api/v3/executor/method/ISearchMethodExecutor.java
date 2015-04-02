@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 ETH Zuerich, CISD
+ * Copyright 2015 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,30 +14,16 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.api.v3.translator.common;
+package ch.ethz.sis.openbis.generic.server.api.v3.executor.method;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.ITranslator;
 
 /**
  * @author pkupczyk
  */
-public class ListTranslator extends AbstractCollectionTranslator
+public interface ISearchMethodExecutor<OBJECT, CRITERION, FETCH_OPTIONS>
 {
 
-    @Override
-    public <I, O> List<O> translate(Collection<? extends I> collection, ITranslator<I, O> itemTranslator)
-    {
-        return (List<O>) super.translate(collection, itemTranslator);
-    }
-
-    @Override
-    protected <O> Collection<O> createCollection()
-    {
-        return new ArrayList<O>();
-    }
+    public List<OBJECT> search(String sessionToken, CRITERION searchCriterion, FETCH_OPTIONS fetchOptions);
 
 }

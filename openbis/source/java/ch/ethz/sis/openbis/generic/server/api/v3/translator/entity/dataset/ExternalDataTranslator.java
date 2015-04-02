@@ -16,10 +16,13 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.dataset;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.AbstractCachingTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.Relations;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.vocabulary.VocabularyTermTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.vocabulary.IVocabularyTermTranslator;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.ArchivingStatus;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.Complete;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.ExternalData;
@@ -31,15 +34,22 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 /**
  * @author pkupczyk
  */
-public class ExternalDataTranslator extends AbstractCachingTranslator<ExternalDataPE, ExternalData, ExternalDataFetchOptions>
+@Component
+public class ExternalDataTranslator extends AbstractCachingTranslator<ExternalDataPE, ExternalData, ExternalDataFetchOptions> implements
+        IExternalDataTranslator
 {
-    public ExternalDataTranslator(TranslationContext translationContext, ExternalDataFetchOptions fetchOptions)
-    {
-        super(translationContext, fetchOptions);
-    }
+
+    @Autowired
+    private IFileFormatTypeTranslator fileFormatTypeTranslator;
+
+    @Autowired
+    private ILocatorTypeTranslator locatorTypeTranslator;
+
+    @Autowired
+    private IVocabularyTermTranslator vocabularyTermTranslator;
 
     @Override
-    protected ExternalData createObject(ExternalDataPE data)
+    protected ExternalData createObject(TranslationContext context, ExternalDataPE data, ExternalDataFetchOptions fetchOptions)
     {
         ExternalData result = new ExternalData();
 
@@ -103,27 +113,26 @@ public class ExternalDataTranslator extends AbstractCachingTranslator<ExternalDa
     }
 
     @Override
-    protected void updateObject(ExternalDataPE data, ExternalData result, Relations relations)
+    protected void updateObject(TranslationContext context, ExternalDataPE data, ExternalData result, Relations relations,
+            ExternalDataFetchOptions fetchOptions)
     {
-        if (getFetchOptions().hasFileFormatType())
+        if (fetchOptions.hasFileFormatType())
         {
-            result.setFileFormatType(new FileFormatTypeTranslator(getTranslationContext(), getFetchOptions().withFileFormatType()).translate(data
-                    .getFileFormatType()));
-            result.getFetchOptions().withFileFormatTypeUsing(getFetchOptions().withFileFormatType());
+            result.setFileFormatType(fileFormatTypeTranslator.translate(context, data.getFileFormatType(), fetchOptions.withFileFormatType()));
+            result.getFetchOptions().withFileFormatTypeUsing(fetchOptions.withFileFormatType());
         }
 
-        if (getFetchOptions().hasLocatorType())
+        if (fetchOptions.hasLocatorType())
         {
-            result.setLocatorType(new LocatorTypeTranslator(getTranslationContext(), getFetchOptions().withLocatorType()).translate(data
-                    .getLocatorType()));
-            result.getFetchOptions().withLocatorTypeUsing(getFetchOptions().withLocatorType());
+            result.setLocatorType(locatorTypeTranslator.translate(context, data.getLocatorType(), fetchOptions.withLocatorType()));
+            result.getFetchOptions().withLocatorTypeUsing(fetchOptions.withLocatorType());
         }
 
-        if (getFetchOptions().hasStorageFormat())
+        if (fetchOptions.hasStorageFormat())
         {
-            result.setStorageFormat(new VocabularyTermTranslator(getTranslationContext(), getFetchOptions()
-                    .withStorageFormat()).translate(data.getStorageFormatVocabularyTerm()));
-            result.getFetchOptions().withStorageFormatUsing(getFetchOptions().withStorageFormat());
+            result.setStorageFormat(vocabularyTermTranslator.translate(context, data.getStorageFormatVocabularyTerm(),
+                    fetchOptions.withStorageFormat()));
+            result.getFetchOptions().withStorageFormatUsing(fetchOptions.withStorageFormat());
         }
     }
 

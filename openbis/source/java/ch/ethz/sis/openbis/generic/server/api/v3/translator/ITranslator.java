@@ -22,11 +22,11 @@ import java.util.Map;
 /**
  * @author pkupczyk
  */
-public interface ITranslator<I, O>
+public interface ITranslator<I, O, F>
 {
 
-    public O translate(I object);
+    public O translate(TranslationContext context, I object, F fetchOptions);
 
-    public Map<I, O> translate(Collection<I> objects);
+    public Map<I, O> translate(TranslationContext context, Collection<I> objects, F fetchOptions);
 
 }

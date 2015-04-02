@@ -19,6 +19,9 @@ package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.deletion;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.AbstractCachingTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.Relations;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
@@ -38,28 +41,27 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWit
 /**
  * @author pkupczyk
  */
+@Component
 public class DeletionTranslator extends
-        AbstractCachingTranslator<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion, Deletion, DeletionFetchOptions>
+        AbstractCachingTranslator<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion, Deletion, DeletionFetchOptions> implements
+        IDeletionTranslator
 {
 
+    @Autowired
     private IDAOFactory daoFactory;
 
-    public DeletionTranslator(TranslationContext translationContext, DeletionFetchOptions fetchOptions, IDAOFactory daoFactory)
-    {
-        super(translationContext, fetchOptions);
-        this.daoFactory = daoFactory;
-    }
-
     @Override
-    protected boolean shouldTranslate(ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion input)
+    protected boolean shouldTranslate(TranslationContext context, ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion input,
+            DeletionFetchOptions fetchOptions)
     {
         DeletionValidator validator = new DeletionValidator();
         validator.init(new AuthorizationDataProvider(daoFactory));
-        return validator.doValidation(getTranslationContext().getSession().tryGetPerson(), input);
+        return validator.doValidation(context.getSession().tryGetPerson(), input);
     }
 
     @Override
-    protected Deletion createObject(ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion input)
+    protected Deletion createObject(TranslationContext context, ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion input,
+            DeletionFetchOptions fetchOptions)
     {
         Deletion deletion = new Deletion();
         deletion.setId(new DeletionTechId(input.getId()));
@@ -69,9 +71,10 @@ public class DeletionTranslator extends
     }
 
     @Override
-    protected void updateObject(ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion input, Deletion output, Relations relations)
+    protected void updateObject(TranslationContext context, ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion input, Deletion output,
+            Relations relations, DeletionFetchOptions fetchOptions)
     {
-        if (getFetchOptions().hasDeletedObjects())
+        if (fetchOptions.hasDeletedObjects())
         {
             output.getFetchOptions().fetchDeletedObjects();
 

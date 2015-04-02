@@ -16,10 +16,13 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.tag;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.AbstractCachingTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.Relations;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.person.PersonTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.person.IPersonTranslator;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.tag.Tag;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.tag.TagFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.TagPermId;
@@ -28,23 +31,21 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
 /**
  * @author pkupczyk
  */
-public class TagTranslator extends AbstractCachingTranslator<MetaprojectPE, Tag, TagFetchOptions>
+@Component
+public class TagTranslator extends AbstractCachingTranslator<MetaprojectPE, Tag, TagFetchOptions> implements ITagTranslator
 {
-
-    public TagTranslator(TranslationContext translationContext, TagFetchOptions fetchOptions)
-    {
-        super(translationContext, fetchOptions);
-    }
+    @Autowired
+    private IPersonTranslator personTranslator;
 
     @Override
-    public boolean shouldTranslate(MetaprojectPE object)
+    public boolean shouldTranslate(TranslationContext context, MetaprojectPE object, TagFetchOptions fetchOptions)
     {
         boolean isPublic = false == object.isPrivate();
-        return isPublic || object.getOwner().getUserId().equals(translationContext.getSession().tryGetPerson().getUserId());
+        return isPublic || object.getOwner().getUserId().equals(context.getSession().tryGetPerson().getUserId());
     }
 
     @Override
-    protected Tag createObject(MetaprojectPE tag)
+    protected Tag createObject(TranslationContext context, MetaprojectPE tag, TagFetchOptions fetchOptions)
     {
         Tag result = new Tag();
 
@@ -59,12 +60,12 @@ public class TagTranslator extends AbstractCachingTranslator<MetaprojectPE, Tag,
     }
 
     @Override
-    protected void updateObject(MetaprojectPE tag, Tag result, Relations relations)
+    protected void updateObject(TranslationContext context, MetaprojectPE tag, Tag result, Relations relations, TagFetchOptions fetchOptions)
     {
-        if (getFetchOptions().hasOwner())
+        if (fetchOptions.hasOwner())
         {
-            result.setOwner(new PersonTranslator(getTranslationContext(), getFetchOptions().withOwner()).translate(tag.getOwner()));
-            result.getFetchOptions().withOwnerUsing(getFetchOptions().withOwner());
+            result.setOwner(personTranslator.translate(context, tag.getOwner(), fetchOptions.withOwner()));
+            result.getFetchOptions().withOwnerUsing(fetchOptions.withOwner());
         }
     }
 

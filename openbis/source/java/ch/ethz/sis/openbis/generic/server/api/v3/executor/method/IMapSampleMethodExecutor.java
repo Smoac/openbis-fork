@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.api.v3.executor.project;
+package ch.ethz.sis.openbis.generic.server.api.v3.executor.method;
 
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.IUpdateEntityRelationsExecutor;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.project.ProjectUpdate;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.Sample;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sample.SampleFetchOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.ISampleId;
 
 /**
  * @author pkupczyk
  */
-public interface IUpdateProjectLeaderExecutor extends IUpdateEntityRelationsExecutor<ProjectUpdate, ProjectPE>
+public interface IMapSampleMethodExecutor extends IMapMethodExecutor<ISampleId, Sample, SampleFetchOptions>
 {
 
 }

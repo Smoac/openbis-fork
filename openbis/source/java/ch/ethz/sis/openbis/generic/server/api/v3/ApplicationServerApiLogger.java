@@ -63,8 +63,6 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.ISampleId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SamplePermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.ISpaceId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.SpacePermId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.operation.IOperation;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.operation.IOperationResult;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.DataSetSearchCriterion;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ExperimentSearchCriterion;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.MaterialSearchCriterion;
@@ -109,13 +107,6 @@ public class ApplicationServerApiLogger extends AbstractServerLogger implements
     @Override
     public String loginAs(String userId, String password, String asUser)
     {
-        return null;
-    }
-
-    @Override
-    public List<? extends IOperationResult> performOperations(String sessionToken, List<? extends IOperation> operations)
-    {
-        logAccess(sessionToken, "perform-operations", "OPERATIONS(%s)", operations);
         return null;
     }
 

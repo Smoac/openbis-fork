@@ -8,11 +8,15 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.AbstractCachingTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.Relations;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.person.PersonTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.person.IPersonTranslator;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.attachment.Attachment;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.person.Person;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.attachment.AttachmentFetchOptions;
 import ch.systemsx.cisd.openbis.generic.shared.basic.PermlinkUtilities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentHolderKind;
@@ -20,15 +24,16 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentHolderPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 
-public class AttachmentTranslator extends AbstractCachingTranslator<AttachmentPE, Attachment, AttachmentFetchOptions>
+@Component
+public class AttachmentTranslator extends AbstractCachingTranslator<AttachmentPE, Attachment, AttachmentFetchOptions> implements
+        IAttachmentTranslator
 {
-    public AttachmentTranslator(TranslationContext translationContext, AttachmentFetchOptions fetchOptions)
-    {
-        super(translationContext, fetchOptions);
-    }
+
+    @Autowired
+    private IPersonTranslator personTranslator;
 
     @Override
-    protected Attachment createObject(AttachmentPE attachment)
+    protected Attachment createObject(TranslationContext context, AttachmentPE attachment, AttachmentFetchOptions fetchOptions)
     {
         Attachment result = new Attachment();
 
@@ -38,7 +43,7 @@ public class AttachmentTranslator extends AbstractCachingTranslator<AttachmentPE
         result.setRegistrationDate(attachment.getRegistrationDate());
         result.setVersion(attachment.getVersion());
 
-        String baseIndexURL = translationContext.getSession().getBaseIndexURL();
+        String baseIndexURL = context.getSession().getBaseIndexURL();
         result.setPermlink(createPermlink(attachment, baseIndexURL, false));
         result.setLatestVersionPermlink(createPermlink(attachment, baseIndexURL, true));
 
@@ -64,22 +69,24 @@ public class AttachmentTranslator extends AbstractCachingTranslator<AttachmentPE
     }
 
     @Override
-    protected void updateObject(AttachmentPE attachment, Attachment result, Relations relations)
+    protected void updateObject(TranslationContext context, AttachmentPE attachment, Attachment result, Relations relations,
+            AttachmentFetchOptions fetchOptions)
     {
-        if (getFetchOptions().hasRegistrator())
+        if (fetchOptions.hasRegistrator())
         {
-            result.setRegistrator(new PersonTranslator(getTranslationContext(), getFetchOptions().withRegistrator()).translate(attachment
-                    .getRegistrator()));
-            result.getFetchOptions().withRegistratorUsing(getFetchOptions().withRegistrator());
+            Person registrator = personTranslator.translate(context, attachment.getRegistrator(), fetchOptions.withRegistrator());
+            result.setRegistrator(registrator);
+            result.getFetchOptions().withRegistratorUsing(fetchOptions.withRegistrator());
         }
 
-        if (getFetchOptions().hasContent())
+        if (fetchOptions.hasContent())
         {
             result.setContent(attachment.getAttachmentContent().getValue());
         }
     }
 
-    public static ArrayList<Attachment> translate(TranslationContext translationContext, AttachmentHolderPE attachmentHolder,
+    @Override
+    public List<Attachment> translate(TranslationContext translationContext, AttachmentHolderPE attachmentHolder,
             AttachmentFetchOptions attachmentFetchOptions)
     {
         List<List<AttachmentPE>> attachmentsIntoVersionGroups =
@@ -92,11 +99,11 @@ public class AttachmentTranslator extends AbstractCachingTranslator<AttachmentPE
         return attachments;
     }
 
-    private static Attachment translate(TranslationContext translationContext, List<AttachmentPE> group, AttachmentFetchOptions fetchOptions)
+    private Attachment translate(TranslationContext translationContext, List<AttachmentPE> group, AttachmentFetchOptions fetchOptions)
     {
         assert group.isEmpty() == false;
 
-        Attachment attachment = new AttachmentTranslator(translationContext, fetchOptions).translate(group.get(0));
+        Attachment attachment = translate(translationContext, group.get(0), fetchOptions);
 
         if (fetchOptions.hasPreviousVersion() && group.size() > 0)
         {

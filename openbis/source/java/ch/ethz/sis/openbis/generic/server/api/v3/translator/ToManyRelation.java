@@ -28,10 +28,20 @@ import java.util.Set;
 /**
  * @author pkupczyk
  */
-public abstract class ToManyRelation<OWNER, ORIGINAL, TRANSLATED> implements Relation
+public abstract class ToManyRelation<OWNER, ORIGINAL, TRANSLATED, FETCH_OPTIONS> implements Relation
 {
 
+    private TranslationContext context;
+
+    private FETCH_OPTIONS fetchOptions;
+
     private Map<OWNER, Collection<TRANSLATED>> translatedMap;
+
+    public ToManyRelation(TranslationContext context, FETCH_OPTIONS fetchOptions)
+    {
+        this.context = context;
+        this.fetchOptions = fetchOptions;
+    }
 
     @Override
     public void load()
@@ -58,7 +68,7 @@ public abstract class ToManyRelation<OWNER, ORIGINAL, TRANSLATED> implements Rel
             }
         }
 
-        Map<ORIGINAL, TRANSLATED> originalToTranslatedMap = getTranslatedMap(originalSet);
+        Map<ORIGINAL, TRANSLATED> originalToTranslatedMap = getTranslatedMap(context, originalSet, fetchOptions);
         Map<OWNER, Collection<TRANSLATED>> result = new HashMap<OWNER, Collection<TRANSLATED>>();
 
         for (Map.Entry<OWNER, Collection<ORIGINAL>> ownerToOriginalCollectionEntry : ownerToOriginalCollectionMap.entrySet())
@@ -118,6 +128,8 @@ public abstract class ToManyRelation<OWNER, ORIGINAL, TRANSLATED> implements Rel
 
     protected abstract Map<OWNER, Collection<ORIGINAL>> getOriginalMap();
 
-    protected abstract Map<ORIGINAL, TRANSLATED> getTranslatedMap(Collection<ORIGINAL> originalCollection);
+    @SuppressWarnings("hiding")
+    protected abstract Map<ORIGINAL, TRANSLATED> getTranslatedMap(TranslationContext context, Collection<ORIGINAL> originalCollection,
+            FETCH_OPTIONS fetchOptions);
 
 }

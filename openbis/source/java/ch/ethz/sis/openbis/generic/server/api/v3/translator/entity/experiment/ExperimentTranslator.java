@@ -17,49 +17,81 @@
 package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.experiment;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.AbstractCachingTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.Relations;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.common.ListTranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.common.SetTranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.attachment.AttachmentTranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.dataset.DataSetTranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.material.MaterialPropertyTranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.person.PersonTranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.project.ProjectTranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.property.PropertyTranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.sample.SampleTranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.tag.TagTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.attachment.IAttachmentTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.dataset.IDataSetTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.material.IMaterialPropertyTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.person.IPersonTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.project.IProjectTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.property.IPropertyTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.sample.ISampleTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.tag.ITagTranslator;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.attachment.Attachment;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.ExperimentType;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.Sample;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.tag.Tag;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.experiment.ExperimentFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentIdentifier;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentPermId;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ExperimentByIdentiferValidator;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
 /**
  * @author pkupczyk
  */
-public class ExperimentTranslator extends AbstractCachingTranslator<ExperimentPE, Experiment, ExperimentFetchOptions>
+@Component
+public class ExperimentTranslator extends AbstractCachingTranslator<ExperimentPE, Experiment, ExperimentFetchOptions> implements
+        IExperimentTranslator
 {
 
-    public ExperimentTranslator(TranslationContext translationContext, ExperimentFetchOptions fetchOptions)
+    @Autowired
+    private IExperimentTypeTranslator typeTranslator;
+
+    @Autowired
+    private IProjectTranslator projectTranslator;
+
+    @Autowired
+    private ISampleTranslator sampleTranslator;
+
+    @Autowired
+    private IPersonTranslator personTranslator;
+
+    @Autowired
+    private IAttachmentTranslator attachmentTranslator;
+
+    @Autowired
+    private IPropertyTranslator propertyTranslator;
+
+    @Autowired
+    private IMaterialPropertyTranslator materialPropertyTranslator;
+
+    @Autowired
+    private IDataSetTranslator dataSetTranslator;
+
+    @Autowired
+    private ITagTranslator tagTranslator;
+
+    @Override
+    protected boolean shouldTranslate(TranslationContext context, ExperimentPE input, ExperimentFetchOptions fetchOptions)
     {
-        super(translationContext, fetchOptions);
+        return new ExperimentByIdentiferValidator().doValidation(context.getSession().tryGetPerson(), input);
     }
 
     @Override
-    protected boolean shouldTranslate(ExperimentPE input)
-    {
-        return new ExperimentByIdentiferValidator().doValidation(getTranslationContext().getSession().tryGetPerson(), input);
-    }
-
-    @Override
-    protected Experiment createObject(ExperimentPE experiment)
+    protected Experiment createObject(TranslationContext context, ExperimentPE experiment, ExperimentFetchOptions fetchOptions)
     {
         Experiment result = new Experiment();
 
@@ -74,80 +106,71 @@ public class ExperimentTranslator extends AbstractCachingTranslator<ExperimentPE
     }
 
     @Override
-    protected void updateObject(ExperimentPE experiment, Experiment result, Relations relations)
+    protected void updateObject(TranslationContext context, ExperimentPE experiment, Experiment result, Relations relations,
+            ExperimentFetchOptions fetchOptions)
     {
-        if (getFetchOptions().hasType())
+        if (fetchOptions.hasType())
         {
-            ExperimentType type =
-                    new ExperimentTypeTranslator(getTranslationContext(), getFetchOptions().withType()).translate(experiment.getExperimentType());
-            result.setType(type);
-            result.getFetchOptions().withTypeUsing(getFetchOptions().withType());
+            result.setType(typeTranslator.translate(context, experiment.getExperimentType(), fetchOptions.withType()));
+            result.getFetchOptions().withTypeUsing(fetchOptions.withType());
         }
 
-        if (getFetchOptions().hasProperties())
+        if (fetchOptions.hasProperties())
         {
-            Map<String, String> properties =
-                    new PropertyTranslator(getTranslationContext(), getFetchOptions().withProperties())
-                            .translate(experiment);
-            result.setProperties(properties);
-            result.getFetchOptions().withPropertiesUsing(getFetchOptions().withProperties());
+            result.setProperties(propertyTranslator.translate(context, experiment, fetchOptions.withProperties()));
+            result.getFetchOptions().withPropertiesUsing(fetchOptions.withProperties());
         }
 
-        if (getFetchOptions().hasMaterialProperties())
+        if (fetchOptions.hasMaterialProperties())
         {
-            result.setMaterialProperties(new MaterialPropertyTranslator(getTranslationContext(), getFetchOptions().withMaterialProperties())
-                    .translate(experiment));
-            result.getFetchOptions().withMaterialPropertiesUsing(getFetchOptions().withMaterialProperties());
+            result.setMaterialProperties(materialPropertyTranslator.translate(context, experiment, fetchOptions.withMaterialProperties()));
+            result.getFetchOptions().withMaterialPropertiesUsing(fetchOptions.withMaterialProperties());
         }
 
-        if (getFetchOptions().hasProject())
+        if (fetchOptions.hasProject())
         {
-            result.setProject(new ProjectTranslator(getTranslationContext(), getFetchOptions().withProject())
-                    .translate(experiment.getProject()));
-            result.getFetchOptions().withProjectUsing(getFetchOptions().withProject());
+            result.setProject(projectTranslator.translate(context, experiment.getProject(), fetchOptions.withProject()));
+            result.getFetchOptions().withProjectUsing(fetchOptions.withProject());
         }
 
-        if (getFetchOptions().hasSamples())
+        if (fetchOptions.hasSamples())
         {
-            result.setSamples(new ListTranslator().translate(experiment.getSamples(), new SampleTranslator(getTranslationContext(),
-                    getFetchOptions().withSamples())));
-            result.getFetchOptions().withSamplesUsing(getFetchOptions().withSamples());
+            Map<SamplePE, Sample> samples = sampleTranslator.translate(context, experiment.getSamples(), fetchOptions.withSamples());
+            result.setSamples(new ArrayList<Sample>(samples.values()));
+            result.getFetchOptions().withSamplesUsing(fetchOptions.withSamples());
         }
 
-        if (getFetchOptions().hasDataSets())
+        if (fetchOptions.hasDataSets())
         {
-            result.setDataSets(new ListTranslator().translate(experiment.getDataSets(), new DataSetTranslator(getTranslationContext(),
-                    getFetchOptions().withDataSets())));
-            result.getFetchOptions().withDataSetsUsing(getFetchOptions().withDataSets());
+            Map<DataPE, DataSet> dataSets = dataSetTranslator.translate(context, experiment.getDataSets(), fetchOptions.withDataSets());
+            result.setDataSets(new ArrayList<DataSet>(dataSets.values()));
+            result.getFetchOptions().withDataSetsUsing(fetchOptions.withDataSets());
         }
 
-        if (getFetchOptions().hasRegistrator())
+        if (fetchOptions.hasRegistrator())
         {
-            result.setRegistrator(new PersonTranslator(getTranslationContext(), getFetchOptions().withRegistrator()).translate(experiment
-                    .getRegistrator()));
-            result.getFetchOptions().withRegistratorUsing(getFetchOptions().withRegistrator());
+            result.setRegistrator(personTranslator.translate(context, experiment.getRegistrator(), fetchOptions.withRegistrator()));
+            result.getFetchOptions().withRegistratorUsing(fetchOptions.withRegistrator());
         }
 
-        if (getFetchOptions().hasModifier())
+        if (fetchOptions.hasModifier())
         {
-            result.setModifier(new PersonTranslator(getTranslationContext(), getFetchOptions().withModifier()).translate(experiment
-                    .getModifier()));
-            result.getFetchOptions().withModifierUsing(getFetchOptions().withModifier());
+            result.setModifier(personTranslator.translate(context, experiment.getModifier(), fetchOptions.withModifier()));
+            result.getFetchOptions().withModifierUsing(fetchOptions.withModifier());
         }
 
-        if (getFetchOptions().hasTags())
+        if (fetchOptions.hasTags())
         {
-            result.setTags(new SetTranslator().translate(experiment.getMetaprojects(), new TagTranslator(getTranslationContext(), getFetchOptions()
-                    .withTags())));
-            result.getFetchOptions().withTagsUsing(getFetchOptions().withTags());
+            Map<MetaprojectPE, Tag> tags = tagTranslator.translate(context, experiment.getMetaprojects(), fetchOptions.withTags());
+            result.setTags(new HashSet<Tag>(tags.values()));
+            result.getFetchOptions().withTagsUsing(fetchOptions.withTags());
         }
 
-        if (getFetchOptions().hasAttachments())
+        if (fetchOptions.hasAttachments())
         {
-            ArrayList<Attachment> attachments =
-                    AttachmentTranslator.translate(getTranslationContext(), experiment, getFetchOptions().withAttachments());
+            List<Attachment> attachments = attachmentTranslator.translate(context, experiment, fetchOptions.withAttachments());
             result.setAttachments(attachments);
-            result.getFetchOptions().withAttachmentsUsing(getFetchOptions().withAttachments());
+            result.getFetchOptions().withAttachmentsUsing(fetchOptions.withAttachments());
         }
 
     }

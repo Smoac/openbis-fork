@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 ETH Zuerich, Scientific IT Services
+ * Copyright 2015 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,19 +14,14 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.api.v3.translator.common;
+package ch.ethz.sis.openbis.generic.server.api.v3.executor.method;
 
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.AbstractTranslator;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.ExperimentUpdate;
 
 /**
  * @author pkupczyk
  */
-public class IdentityTranslator<T> extends AbstractTranslator<T, T>
+public interface IUpdateExperimentMethodExecutor extends IUpdateMethodExecutor<ExperimentUpdate>
 {
 
-    @Override
-    protected T doTranslate(T object)
-    {
-        return object;
-    }
 }

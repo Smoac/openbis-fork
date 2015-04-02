@@ -16,12 +16,15 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.space;
 
-import java.util.List;
+import java.util.ArrayList;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.AbstractCachingTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.Relations;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.common.ListTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.person.PersonTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.project.ProjectTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.sample.SampleTranslator;
@@ -31,26 +34,34 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.space.Space;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.space.SpaceFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.SpacePermId;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SimpleSpaceValidator;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
  * @author pkupczyk
  */
-public class SpaceTranslator extends AbstractCachingTranslator<SpacePE, Space, SpaceFetchOptions>
+@Component
+public class SpaceTranslator extends AbstractCachingTranslator<SpacePE, Space, SpaceFetchOptions> implements ISpaceTranslator
 {
-    public SpaceTranslator(TranslationContext translationContext, SpaceFetchOptions fetchOptions)
+
+    @Autowired
+    private PersonTranslator personTranslator;
+
+    @Autowired
+    private ProjectTranslator projectTranslator;
+
+    @Autowired
+    private SampleTranslator sampleTranslator;
+
+    @Override
+    protected boolean shouldTranslate(TranslationContext context, SpacePE input, SpaceFetchOptions fetchOptions)
     {
-        super(translationContext, fetchOptions);
+        return new SimpleSpaceValidator().doValidation(context.getSession().tryGetPerson(), input);
     }
 
     @Override
-    protected boolean shouldTranslate(SpacePE input)
-    {
-        return new SimpleSpaceValidator().doValidation(getTranslationContext().getSession().tryGetPerson(), input);
-    }
-
-    @Override
-    protected Space createObject(SpacePE space)
+    protected Space createObject(TranslationContext context, SpacePE space, SpaceFetchOptions fetchOptions)
     {
         Space result = new Space();
 
@@ -64,31 +75,26 @@ public class SpaceTranslator extends AbstractCachingTranslator<SpacePE, Space, S
     }
 
     @Override
-    protected void updateObject(SpacePE space, Space result, Relations relations)
+    protected void updateObject(TranslationContext context, SpacePE space, Space result, Relations relations, SpaceFetchOptions fetchOptions)
     {
-        if (getFetchOptions().hasRegistrator())
+        if (fetchOptions.hasRegistrator())
         {
-            result.setRegistrator(new PersonTranslator(getTranslationContext(), getFetchOptions().withRegistrator()).translate(space
-                    .getRegistrator()));
-            result.getFetchOptions().withRegistratorUsing(getFetchOptions().withRegistrator());
+            result.setRegistrator(personTranslator.translate(context, space.getRegistrator(), fetchOptions.withRegistrator()));
+            result.getFetchOptions().withRegistratorUsing(fetchOptions.withRegistrator());
         }
 
-        if (getFetchOptions().hasProjects())
+        if (fetchOptions.hasProjects())
         {
-            List<Project> projects =
-                    new ListTranslator().translate(space.getProjects(), new ProjectTranslator(getTranslationContext(),
-                            getFetchOptions().withProjects()));
-            result.setProjects(projects);
-            result.getFetchOptions().withProjectsUsing(getFetchOptions().withProjects());
+            Map<ProjectPE, Project> projects = projectTranslator.translate(context, space.getProjects(), fetchOptions.withProjects());
+            result.setProjects(new ArrayList<Project>(projects.values()));
+            result.getFetchOptions().withProjectsUsing(fetchOptions.withProjects());
         }
 
-        if (getFetchOptions().hasSamples())
+        if (fetchOptions.hasSamples())
         {
-            List<Sample> samples =
-                    new ListTranslator().translate(space.getSamples(), new SampleTranslator(getTranslationContext(),
-                            getFetchOptions().withSamples()));
-            result.setSamples(samples);
-            result.getFetchOptions().withSamplesUsing(getFetchOptions().withSamples());
+            Map<SamplePE, Sample> samples = sampleTranslator.translate(context, space.getSamples(), fetchOptions.withSamples());
+            result.setSamples(new ArrayList<Sample>(samples.values()));
+            result.getFetchOptions().withSamplesUsing(fetchOptions.withSamples());
         }
     }
 }

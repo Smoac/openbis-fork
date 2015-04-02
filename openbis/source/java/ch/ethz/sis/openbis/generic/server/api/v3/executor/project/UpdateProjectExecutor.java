@@ -55,9 +55,6 @@ public class UpdateProjectExecutor extends AbstractUpdateEntityExecutor<ProjectU
     private IUpdateProjectSpaceExecutor updateProjectSpaceExecutor;
 
     @Autowired
-    private IUpdateProjectLeaderExecutor updateProjectLeaderExecutor;
-
-    @Autowired
     private IUpdateAttachmentForEntityExecutor updateAttachmentForEntityExecutor;
 
     @Override
@@ -94,7 +91,6 @@ public class UpdateProjectExecutor extends AbstractUpdateEntityExecutor<ProjectU
     protected void updateBatch(IOperationContext context, Map<ProjectUpdate, ProjectPE> entitiesMap)
     {
         updateProjectSpaceExecutor.update(context, entitiesMap);
-        updateProjectLeaderExecutor.update(context, entitiesMap);
 
         for (Map.Entry<ProjectUpdate, ProjectPE> entry : entitiesMap.entrySet())
         {

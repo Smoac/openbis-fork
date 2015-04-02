@@ -18,15 +18,18 @@ package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.project;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.AbstractCachingTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.Relations;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.common.ListTranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.attachment.AttachmentTranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.experiment.ExperimentTranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.person.PersonTranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.space.SpaceTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.attachment.IAttachmentTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.experiment.IExperimentTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.person.IPersonTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.space.ISpaceTranslator;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.attachment.Attachment;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.project.Project;
@@ -34,26 +37,36 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.project.Projec
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.ProjectIdentifier;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.ProjectPermId;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ProjectByIdentiferValidator;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 
 /**
  * @author pkupczyk
  */
-public class ProjectTranslator extends AbstractCachingTranslator<ProjectPE, Project, ProjectFetchOptions>
+@Component
+public class ProjectTranslator extends AbstractCachingTranslator<ProjectPE, Project, ProjectFetchOptions> implements IProjectTranslator
 {
-    public ProjectTranslator(TranslationContext translationContext, ProjectFetchOptions fetchOptions)
+
+    @Autowired
+    private ISpaceTranslator spaceTranslator;
+
+    @Autowired
+    private IPersonTranslator personTranslator;
+
+    @Autowired
+    private IExperimentTranslator experimentTranslator;
+
+    @Autowired
+    private IAttachmentTranslator attachmentTranslator;
+
+    @Override
+    protected boolean shouldTranslate(TranslationContext context, ProjectPE input, ProjectFetchOptions fetchOptions)
     {
-        super(translationContext, fetchOptions);
+        return new ProjectByIdentiferValidator().doValidation(context.getSession().tryGetPerson(), input);
     }
 
     @Override
-    protected boolean shouldTranslate(ProjectPE input)
-    {
-        return new ProjectByIdentiferValidator().doValidation(getTranslationContext().getSession().tryGetPerson(), input);
-    }
-
-    @Override
-    protected Project createObject(ProjectPE project)
+    protected Project createObject(TranslationContext context, ProjectPE project, ProjectFetchOptions fetchOptions)
     {
         Project result = new Project();
 
@@ -69,51 +82,45 @@ public class ProjectTranslator extends AbstractCachingTranslator<ProjectPE, Proj
     }
 
     @Override
-    protected void updateObject(ProjectPE project, Project result, Relations relations)
+    protected void updateObject(TranslationContext context, ProjectPE project, Project result, Relations relations, ProjectFetchOptions fetchOptions)
     {
-        if (getFetchOptions().hasSpace())
+        if (fetchOptions.hasSpace())
         {
-            result.setSpace(new SpaceTranslator(getTranslationContext(), getFetchOptions().withSpace())
-                    .translate(project.getSpace()));
-            result.getFetchOptions().withSpaceUsing(getFetchOptions().withSpace());
+            result.setSpace(spaceTranslator.translate(context, project.getSpace(), fetchOptions.withSpace()));
+            result.getFetchOptions().withSpaceUsing(fetchOptions.withSpace());
         }
 
-        if (getFetchOptions().hasRegistrator())
+        if (fetchOptions.hasRegistrator())
         {
-            result.setRegistrator(new PersonTranslator(getTranslationContext(), getFetchOptions().withRegistrator()).translate(project
-                    .getRegistrator()));
-            result.getFetchOptions().withRegistratorUsing(getFetchOptions().withRegistrator());
+            result.setRegistrator(personTranslator.translate(context, project.getRegistrator(), fetchOptions.withRegistrator()));
+            result.getFetchOptions().withRegistratorUsing(fetchOptions.withRegistrator());
         }
 
-        if (getFetchOptions().hasModifier())
+        if (fetchOptions.hasModifier())
         {
-            result.setModifier(new PersonTranslator(getTranslationContext(), getFetchOptions().withModifier()).translate(project
-                    .getModifier()));
-            result.getFetchOptions().withModifierUsing(getFetchOptions().withModifier());
+            result.setModifier(personTranslator.translate(context, project.getModifier(), fetchOptions.withModifier()));
+            result.getFetchOptions().withModifierUsing(fetchOptions.withModifier());
         }
 
-        if (getFetchOptions().hasLeader())
+        if (fetchOptions.hasLeader())
         {
-            result.setLeader(new PersonTranslator(getTranslationContext(), getFetchOptions().withLeader()).translate(project
-                    .getProjectLeader()));
-            result.getFetchOptions().withLeaderUsing(getFetchOptions().withLeader());
+            result.setLeader(personTranslator.translate(context, project.getProjectLeader(), fetchOptions.withLeader()));
+            result.getFetchOptions().withLeaderUsing(fetchOptions.withLeader());
         }
 
-        if (getFetchOptions().hasExperiments())
+        if (fetchOptions.hasExperiments())
         {
-            List<Experiment> experiments =
-                    new ListTranslator().translate(project.getExperiments(), new ExperimentTranslator(getTranslationContext(),
-                            getFetchOptions().withExperiments()));
-            result.setExperiments(experiments);
-            result.getFetchOptions().withExperimentsUsing(getFetchOptions().withExperiments());
+            Map<ExperimentPE, Experiment> experiments =
+                    experimentTranslator.translate(context, project.getExperiments(), fetchOptions.withExperiments());
+            result.setExperiments(new ArrayList<Experiment>(experiments.values()));
+            result.getFetchOptions().withExperimentsUsing(fetchOptions.withExperiments());
         }
 
-        if (getFetchOptions().hasAttachments())
+        if (fetchOptions.hasAttachments())
         {
-            ArrayList<Attachment> attachments =
-                    AttachmentTranslator.translate(getTranslationContext(), project, getFetchOptions().withAttachments());
+            List<Attachment> attachments = attachmentTranslator.translate(context, project, fetchOptions.withAttachments());
             result.setAttachments(attachments);
-            result.getFetchOptions().withAttachmentsUsing(getFetchOptions().withAttachments());
+            result.getFetchOptions().withAttachmentsUsing(fetchOptions.withAttachments());
         }
 
     }

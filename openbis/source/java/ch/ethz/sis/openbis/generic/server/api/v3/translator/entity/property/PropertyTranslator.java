@@ -20,30 +20,36 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Component;
+
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.AbstractCachingTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.Relations;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.property.PropertyFetchOptions;
+import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 import ch.systemsx.cisd.openbis.generic.shared.translator.EntityPropertyTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
  * @author pkupczyk
  */
-public class PropertyTranslator extends AbstractCachingTranslator<IEntityPropertiesHolder, Map<String, String>, PropertyFetchOptions>
+@Component
+public class PropertyTranslator extends AbstractCachingTranslator<IEntityPropertiesHolder, Map<String, String>, PropertyFetchOptions> implements
+        IPropertyTranslator
 {
 
-    public PropertyTranslator(TranslationContext translationContext, PropertyFetchOptions fetchOptions)
-    {
-        super(translationContext, fetchOptions);
-    }
+    @Resource(name = ComponentNames.MANAGED_PROPERTY_EVALUATOR_FACTORY)
+    private IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory;
 
     @Override
-    protected Map<String, String> createObject(IEntityPropertiesHolder entity)
+    protected Map<String, String> createObject(TranslationContext context, IEntityPropertiesHolder entity, PropertyFetchOptions fetchOptions)
     {
         if (false == entity.isPropertiesInitialized())
         {
@@ -52,10 +58,9 @@ public class PropertyTranslator extends AbstractCachingTranslator<IEntityPropert
 
         HashMap<String, String> properties = new HashMap<String, String>();
 
-        List<IEntityProperty> propertiesPE = EntityPropertyTranslator
-                .translate(entity.getProperties(),
-                        new HashMap<PropertyTypePE, PropertyType>(),
-                        getTranslationContext().getManagedPropertyEvaluatorFactory());
+        List<IEntityProperty> propertiesPE =
+                EntityPropertyTranslator.translate(entity.getProperties(), new HashMap<PropertyTypePE, PropertyType>(),
+                        managedPropertyEvaluatorFactory);
 
         for (IEntityProperty iEntityProperty : propertiesPE)
         {
@@ -67,9 +72,9 @@ public class PropertyTranslator extends AbstractCachingTranslator<IEntityPropert
     }
 
     @Override
-    protected void updateObject(IEntityPropertiesHolder input, Map<String, String> output, Relations relations)
+    protected void updateObject(TranslationContext context, IEntityPropertiesHolder input, Map<String, String> output, Relations relations,
+            PropertyFetchOptions fetchOptions)
     {
 
     }
-
 }

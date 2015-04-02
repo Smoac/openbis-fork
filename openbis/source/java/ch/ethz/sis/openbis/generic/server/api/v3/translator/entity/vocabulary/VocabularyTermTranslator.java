@@ -16,10 +16,13 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.vocabulary;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.AbstractCachingTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.Relations;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.person.PersonTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.person.IPersonTranslator;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.person.Person;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.vocabulary.Vocabulary;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.vocabulary.VocabularyTerm;
@@ -29,15 +32,19 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
 /**
  * @author pkupczyk
  */
-public class VocabularyTermTranslator extends AbstractCachingTranslator<VocabularyTermPE, VocabularyTerm, VocabularyTermFetchOptions>
+@Component
+public class VocabularyTermTranslator extends AbstractCachingTranslator<VocabularyTermPE, VocabularyTerm, VocabularyTermFetchOptions> implements
+        IVocabularyTermTranslator
 {
-    public VocabularyTermTranslator(TranslationContext translationContext, VocabularyTermFetchOptions fetchOptions)
-    {
-        super(translationContext, fetchOptions);
-    }
+
+    @Autowired
+    private IPersonTranslator personTranslator;
+
+    @Autowired
+    private IVocabularyTranslator vocabularyTranslator;
 
     @Override
-    protected VocabularyTerm createObject(VocabularyTermPE term)
+    protected VocabularyTerm createObject(TranslationContext context, VocabularyTermPE term, VocabularyTermFetchOptions fetchOptions)
     {
         VocabularyTerm result = new VocabularyTerm();
 
@@ -54,22 +61,21 @@ public class VocabularyTermTranslator extends AbstractCachingTranslator<Vocabula
     }
 
     @Override
-    protected void updateObject(VocabularyTermPE term, VocabularyTerm result, Relations relations)
+    protected void updateObject(TranslationContext context, VocabularyTermPE term, VocabularyTerm result, Relations relations,
+            VocabularyTermFetchOptions fetchOptions)
     {
-        if (getFetchOptions().hasRegistrator())
+        if (fetchOptions.hasRegistrator())
         {
-            Person registrator =
-                    new PersonTranslator(getTranslationContext(), getFetchOptions().withRegistrator()).translate(term.getRegistrator());
+            Person registrator = personTranslator.translate(context, term.getRegistrator(), fetchOptions.withRegistrator());
             result.setRegistrator(registrator);
-            result.getFetchOptions().withRegistratorUsing(getFetchOptions().withRegistrator());
+            result.getFetchOptions().withRegistratorUsing(fetchOptions.withRegistrator());
         }
 
-        if (getFetchOptions().hasVocabulary())
+        if (fetchOptions.hasVocabulary())
         {
-            Vocabulary vocabulary =
-                    new VocabularyTranslator(getTranslationContext(), getFetchOptions().withVocabulary()).translate(term.getVocabulary());
+            Vocabulary vocabulary = vocabularyTranslator.translate(context, term.getVocabulary(), fetchOptions.withVocabulary());
             result.setVocabulary(vocabulary);
-            result.getFetchOptions().withVocabularyUsing(getFetchOptions().withVocabulary());
+            result.getFetchOptions().withVocabularyUsing(fetchOptions.withVocabulary());
         }
     }
 

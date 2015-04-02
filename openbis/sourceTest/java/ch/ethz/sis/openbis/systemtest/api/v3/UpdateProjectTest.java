@@ -30,8 +30,6 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.project.ProjectCreat
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.project.ProjectUpdate;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.Sample;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.project.ProjectFetchOptions;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.person.IPersonId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.person.PersonPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.IProjectId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.ProjectIdentifier;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.ProjectPermId;
@@ -208,61 +206,6 @@ public class UpdateProjectTest extends AbstractTest
                 }
             }
         }
-    }
-
-    @Test
-    public void testUpdateWithLeaderNonexistent()
-    {
-        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
-
-        final IProjectId projectId = new ProjectIdentifier("/TEST-SPACE/TEST-PROJECT");
-        final IPersonId leaderId = new PersonPermId("IDONTEXIST");
-        final ProjectUpdate update = new ProjectUpdate();
-        update.setProjectId(projectId);
-        update.setLeaderId(leaderId);
-
-        assertObjectNotFoundException(new IDelegatedAction()
-            {
-                @Override
-                public void execute()
-                {
-                    v3api.updateProjects(sessionToken, Arrays.asList(update));
-                }
-            }, leaderId);
-    }
-
-    @Test
-    public void testUpdateWithLeader()
-    {
-        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
-
-        final IProjectId projectId = new ProjectIdentifier("/TEST-SPACE/TEST-PROJECT");
-        final ProjectFetchOptions projectFetchOptions = new ProjectFetchOptions();
-        projectFetchOptions.withLeader();
-
-        Map<IProjectId, Project> projectMap = v3api.mapProjects(sessionToken, Arrays.asList(projectId), projectFetchOptions);
-        Project project = projectMap.get(projectId);
-
-        Assert.assertNull(project.getLeader());
-
-        final IPersonId leaderId = new PersonPermId(TEST_SPACE_USER);
-        final ProjectUpdate update = new ProjectUpdate();
-        update.setProjectId(projectId);
-        update.setLeaderId(leaderId);
-
-        v3api.updateProjects(sessionToken, Arrays.asList(update));
-        projectMap = v3api.mapProjects(sessionToken, Arrays.asList(projectId), projectFetchOptions);
-        project = projectMap.get(projectId);
-
-        Assert.assertEquals(project.getLeader().getPermId(), leaderId);
-
-        update.setLeaderId(null);
-
-        v3api.updateProjects(sessionToken, Arrays.asList(update));
-        projectMap = v3api.mapProjects(sessionToken, Arrays.asList(projectId), projectFetchOptions);
-        project = projectMap.get(projectId);
-
-        Assert.assertNull(project.getLeader());
     }
 
     @Test

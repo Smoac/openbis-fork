@@ -25,7 +25,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.AttachmentListUpdateValue;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.FieldUpdateValue;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.ListUpdateValue.ListUpdateAction;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.person.IPersonId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.IProjectId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.ISpaceId;
 import ch.systemsx.cisd.base.annotation.JsonObject;
@@ -47,9 +46,6 @@ public class ProjectUpdate implements Serializable
 
     @JsonProperty
     private FieldUpdateValue<String> description = new FieldUpdateValue<String>();
-
-    @JsonProperty
-    private FieldUpdateValue<IPersonId> leaderId = new FieldUpdateValue<IPersonId>();
 
     @JsonProperty
     private AttachmentListUpdateValue attachments = new AttachmentListUpdateValue();
@@ -88,18 +84,6 @@ public class ProjectUpdate implements Serializable
     public FieldUpdateValue<String> getDescription()
     {
         return description;
-    }
-
-    @JsonIgnore
-    public void setLeaderId(IPersonId leaderId)
-    {
-        this.leaderId.setValue(leaderId);
-    }
-
-    @JsonIgnore
-    public FieldUpdateValue<IPersonId> getLeaderId()
-    {
-        return leaderId;
     }
 
     @JsonIgnore

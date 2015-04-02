@@ -16,6 +16,8 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.dataset;
 
+import org.springframework.stereotype.Component;
+
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.AbstractCachingTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.Relations;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
@@ -26,15 +28,12 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
 /**
  * @author pkupczyk
  */
-public class FileFormatTypeTranslator extends AbstractCachingTranslator<FileFormatTypePE, FileFormatType, FileFormatTypeFetchOptions>
+@Component
+public class FileFormatTypeTranslator extends AbstractCachingTranslator<FileFormatTypePE, FileFormatType, FileFormatTypeFetchOptions> implements
+        IFileFormatTypeTranslator
 {
-    public FileFormatTypeTranslator(TranslationContext translationContext, FileFormatTypeFetchOptions fetchOptions)
-    {
-        super(translationContext, fetchOptions);
-    }
-
     @Override
-    protected FileFormatType createObject(FileFormatTypePE type)
+    protected FileFormatType createObject(TranslationContext context, FileFormatTypePE type, FileFormatTypeFetchOptions fetchOptions)
     {
         FileFormatType result = new FileFormatType();
 
@@ -46,7 +45,8 @@ public class FileFormatTypeTranslator extends AbstractCachingTranslator<FileForm
     }
 
     @Override
-    protected void updateObject(FileFormatTypePE type, FileFormatType result, Relations relations)
+    protected void updateObject(TranslationContext context, FileFormatTypePE type, FileFormatType result, Relations relations,
+            FileFormatTypeFetchOptions fetchOptions)
     {
     }
 

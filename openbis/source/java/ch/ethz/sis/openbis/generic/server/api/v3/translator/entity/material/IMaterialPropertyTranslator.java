@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 ETH Zuerich, CISD
+ * Copyright 2015 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,30 +14,19 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.api.v3.translator.common;
+package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.material;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.Map;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.ITranslator;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material.Material;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.material.MaterialFetchOptions;
+import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityPropertiesHolder;
 
 /**
  * @author pkupczyk
  */
-public class SetTranslator extends AbstractCollectionTranslator
+public interface IMaterialPropertyTranslator extends ITranslator<IEntityPropertiesHolder, Map<String, Material>, MaterialFetchOptions>
 {
-
-    @Override
-    public <I, O> Set<O> translate(Collection<? extends I> collection, ITranslator<I, O> itemTranslator)
-    {
-        return (Set<O>) super.translate(collection, itemTranslator);
-    }
-
-    @Override
-    protected <O> Collection<O> createCollection()
-    {
-        return new HashSet<O>();
-    }
 
 }

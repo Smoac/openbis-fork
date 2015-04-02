@@ -17,35 +17,45 @@
 package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.material;
 
 import java.util.HashSet;
-import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.AbstractCachingTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.Relations;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.common.ListTranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.person.PersonTranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.property.PropertyTranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.tag.TagTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.person.IPersonTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.property.IPropertyTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.tag.ITagTranslator;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material.Material;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.person.Person;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.tag.Tag;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.material.MaterialFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.material.MaterialPermId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
 
 /**
  * @author Jakub Straszewski
  */
-public class MaterialTranslator extends AbstractCachingTranslator<MaterialPE, Material, MaterialFetchOptions>
+@Component
+public class MaterialTranslator extends AbstractCachingTranslator<MaterialPE, Material, MaterialFetchOptions> implements IMaterialTranslator
 {
 
-    public MaterialTranslator(TranslationContext translationContext, MaterialFetchOptions fetchOptions)
-    {
-        super(translationContext, fetchOptions);
-    }
+    @Autowired
+    private IPropertyTranslator propertyTranslator;
+
+    @Autowired
+    private IMaterialPropertyTranslator materialPropertyTranslator;
+
+    @Autowired
+    private IPersonTranslator personTranslator;
+
+    @Autowired
+    private ITagTranslator tagTranslator;
 
     @Override
-    protected Material createObject(MaterialPE materialPE)
+    protected Material createObject(TranslationContext context, MaterialPE materialPE, MaterialFetchOptions fetchOptions)
     {
         final Material material = new Material();
         material.setPermId(new MaterialPermId(materialPE.getCode(), materialPE.getMaterialType().getCode()));
@@ -57,37 +67,32 @@ public class MaterialTranslator extends AbstractCachingTranslator<MaterialPE, Ma
     }
 
     @Override
-    protected void updateObject(MaterialPE materialPe, Material result, Relations relations)
+    protected void updateObject(TranslationContext context, MaterialPE materialPe, Material result, Relations relations,
+            MaterialFetchOptions fetchOptions)
     {
-        if (getFetchOptions().hasProperties())
+        if (fetchOptions.hasProperties())
         {
-            result.setProperties(new PropertyTranslator(getTranslationContext(), getFetchOptions().withProperties())
-                    .translate(materialPe));
-            result.getFetchOptions().withPropertiesUsing(getFetchOptions().withProperties());
+            result.setProperties(propertyTranslator.translate(context, materialPe, fetchOptions.withProperties()));
+            result.getFetchOptions().withPropertiesUsing(fetchOptions.withProperties());
         }
 
-        if (getFetchOptions().hasMaterialProperties())
+        if (fetchOptions.hasMaterialProperties())
         {
-            result.setMaterialProperties(new MaterialPropertyTranslator(getTranslationContext(), getFetchOptions().withMaterialProperties())
-                    .translate(materialPe));
-            result.getFetchOptions().withMaterialPropertiesUsing(getFetchOptions().withMaterialProperties());
+            result.setMaterialProperties(materialPropertyTranslator.translate(context, materialPe, fetchOptions.withMaterialProperties()));
+            result.getFetchOptions().withMaterialPropertiesUsing(fetchOptions.withMaterialProperties());
         }
 
-        if (getFetchOptions().hasTags())
+        if (fetchOptions.hasTags())
         {
-            List<Tag> tags =
-                    new ListTranslator().translate(materialPe.getMetaprojects(), new TagTranslator(getTranslationContext(), getFetchOptions()
-                            .withTags()));
-            result.setTags(new HashSet<Tag>(tags));
-            result.getFetchOptions().withTagsUsing(getFetchOptions().withTags());
+            Map<MetaprojectPE, Tag> tags = tagTranslator.translate(context, materialPe.getMetaprojects(), fetchOptions.withTags());
+            result.setTags(new HashSet<Tag>(tags.values()));
+            result.getFetchOptions().withTagsUsing(fetchOptions.withTags());
         }
 
-        if (getFetchOptions().hasRegistrator())
+        if (fetchOptions.hasRegistrator())
         {
-            Person registrator =
-                    new PersonTranslator(getTranslationContext(), getFetchOptions().withRegistrator()).translate(materialPe.getRegistrator());
-            result.setRegistrator(registrator);
-            result.getFetchOptions().withRegistratorUsing(getFetchOptions().withRegistrator());
+            result.setRegistrator(personTranslator.translate(context, materialPe.getRegistrator(), fetchOptions.withRegistrator()));
+            result.getFetchOptions().withRegistratorUsing(fetchOptions.withRegistrator());
         }
     }
 }

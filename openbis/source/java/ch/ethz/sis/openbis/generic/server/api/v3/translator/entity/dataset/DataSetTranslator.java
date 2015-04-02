@@ -16,51 +16,70 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.dataset;
 
+import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.AbstractCachingTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.Relations;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.common.ListTranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.experiment.ExperimentTranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.material.MaterialPropertyTranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.person.PersonTranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.property.PropertyTranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.sample.SampleTranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.tag.TagTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.experiment.IExperimentTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.material.IMaterialPropertyTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.person.IPersonTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.property.IPropertyTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.sample.ISampleTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.tag.ITagTranslator;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSet;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSetType;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.ExternalData;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.person.Person;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.Sample;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.tag.Tag;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.DataSetFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.DataSetPermId;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.DataSetPEByExperimentOrSampleIdentifierValidator;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
 
 /**
  * @author Jakub Straszewski
  */
-public class DataSetTranslator extends AbstractCachingTranslator<DataPE, DataSet, DataSetFetchOptions>
+@Component
+public class DataSetTranslator extends AbstractCachingTranslator<DataPE, DataSet, DataSetFetchOptions> implements IDataSetTranslator
 {
 
-    public DataSetTranslator(TranslationContext translationContext, DataSetFetchOptions fetchOptions)
+    @Autowired
+    private IExperimentTranslator experimentTranslator;
+
+    @Autowired
+    private ISampleTranslator sampleTranslator;
+
+    @Autowired
+    private IPropertyTranslator propertyTranslator;
+
+    @Autowired
+    private IMaterialPropertyTranslator materialPropertyTranslator;
+
+    @Autowired
+    private IDataSetTypeTranslator typeTranslator;
+
+    @Autowired
+    private ITagTranslator tagTranslator;
+
+    @Autowired
+    private IPersonTranslator personTranslator;
+
+    @Autowired
+    private IExternalDataTranslator externalDataTranslator;
+
+    @Override
+    protected boolean shouldTranslate(TranslationContext context, DataPE input, DataSetFetchOptions fetchOptions)
     {
-        super(translationContext, fetchOptions);
+        return new DataSetPEByExperimentOrSampleIdentifierValidator().doValidation(context.getSession().tryGetPerson(), input);
     }
 
     @Override
-    protected boolean shouldTranslate(DataPE input)
-    {
-        return new DataSetPEByExperimentOrSampleIdentifierValidator().doValidation(getTranslationContext().getSession().tryGetPerson(), input);
-    }
-
-    @Override
-    protected DataSet createObject(DataPE dataPe)
+    protected DataSet createObject(TranslationContext context, DataPE dataPe, DataSetFetchOptions fetchOptions)
     {
         final DataSet dataSet = new DataSet();
         dataSet.setCode(dataPe.getCode());
@@ -75,126 +94,98 @@ public class DataSetTranslator extends AbstractCachingTranslator<DataPE, DataSet
     }
 
     @Override
-    protected void updateObject(DataPE dataPe, DataSet result, Relations relations)
+    protected void updateObject(TranslationContext context, DataPE dataPe, DataSet result, Relations relations, DataSetFetchOptions fetchOptions)
     {
-        if (getFetchOptions().hasChildren())
+        if (fetchOptions.hasChildren())
         {
-            List<DataSet> children =
-                    new ListTranslator().translate(dataPe.getChildren(), new DataSetTranslator(getTranslationContext(),
-                            getFetchOptions()
-                                    .withChildren()));
-            result.setChildren(children);
-            result.getFetchOptions().withChildrenUsing(getFetchOptions().withChildren());
+            Map<DataPE, DataSet> children = translate(context, dataPe.getChildren(), fetchOptions.withChildren());
+            result.setChildren(new ArrayList<DataSet>(children.values()));
+            result.getFetchOptions().withChildrenUsing(fetchOptions.withChildren());
         }
 
-        if (getFetchOptions().hasParents())
+        if (fetchOptions.hasParents())
         {
-            List<DataSet> parents =
-                    new ListTranslator().translate(dataPe.getParents(), new DataSetTranslator(getTranslationContext(),
-                            getFetchOptions()
-                                    .withParents()));
-            result.setParents(parents);
-            result.getFetchOptions().withParentsUsing(getFetchOptions().withParents());
+            Map<DataPE, DataSet> parents = translate(context, dataPe.getParents(), fetchOptions.withParents());
+            result.setParents(new ArrayList<DataSet>(parents.values()));
+            result.getFetchOptions().withParentsUsing(fetchOptions.withParents());
         }
 
-        if (getFetchOptions().hasContained())
+        if (fetchOptions.hasContained())
         {
-            List<DataSet> contained =
-                    new ListTranslator().translate(dataPe.getContainedDataSets(), new DataSetTranslator(getTranslationContext(),
-                            getFetchOptions()
-                                    .withContained()));
-            result.setContained(contained);
-            result.getFetchOptions().withContainedUsing(getFetchOptions().withContained());
+            Map<DataPE, DataSet> contained = translate(context, dataPe.getContainedDataSets(), fetchOptions.withContained());
+            result.setContained(new ArrayList<DataSet>(contained.values()));
+            result.getFetchOptions().withContainedUsing(fetchOptions.withContained());
         }
 
-        if (getFetchOptions().hasContainers())
+        if (fetchOptions.hasContainers())
         {
-            List<DataSet> containers =
-                    new ListTranslator().translate(dataPe.getContainers(), new DataSetTranslator(getTranslationContext(),
-                            getFetchOptions()
-                                    .withContainers()));
-            result.setContainers(containers);
-            result.getFetchOptions().withContainersUsing(getFetchOptions().withContainers());
+            Map<DataPE, DataSet> containers = translate(context, dataPe.getContainers(), fetchOptions.withContainers());
+            result.setContainers(new ArrayList<DataSet>(containers.values()));
+            result.getFetchOptions().withContainersUsing(fetchOptions.withContainers());
         }
 
-        if (getFetchOptions().hasExperiment() && dataPe.getExperiment() != null)
+        if (fetchOptions.hasExperiment())
         {
-            Experiment experiment =
-                    new ExperimentTranslator(getTranslationContext(), getFetchOptions().withExperiment())
-                            .translate(dataPe.getExperiment());
-            result.setExperiment(experiment);
-            result.getFetchOptions().withExperimentUsing(getFetchOptions().withExperiment());
+            if (dataPe.getExperiment() != null)
+            {
+                result.setExperiment(experimentTranslator.translate(context, dataPe.getExperiment(), fetchOptions.withExperiment()));
+            }
+            result.getFetchOptions().withExperimentUsing(fetchOptions.withExperiment());
         }
 
-        if (getFetchOptions().hasSample())
+        if (fetchOptions.hasSample())
         {
             if (dataPe.tryGetSample() != null)
             {
-                Sample sample =
-                        new SampleTranslator(getTranslationContext(), getFetchOptions().withSample())
-                                .translate(dataPe.tryGetSample());
-                result.setSample(sample);
+                result.setSample(sampleTranslator.translate(context, dataPe.tryGetSample(), fetchOptions.withSample()));
             }
-            result.getFetchOptions().withSampleUsing(getFetchOptions().withSample());
+            result.getFetchOptions().withSampleUsing(fetchOptions.withSample());
         }
 
-        if (getFetchOptions().hasProperties())
+        if (fetchOptions.hasProperties())
         {
-            result.setProperties(new PropertyTranslator(getTranslationContext(), getFetchOptions().withProperties())
-                    .translate(dataPe));
-            result.getFetchOptions().withPropertiesUsing(getFetchOptions().withProperties());
+            result.setProperties(propertyTranslator.translate(context, dataPe, fetchOptions.withProperties()));
+            result.getFetchOptions().withPropertiesUsing(fetchOptions.withProperties());
         }
 
-        if (getFetchOptions().hasMaterialProperties())
+        if (fetchOptions.hasMaterialProperties())
         {
-            result.setMaterialProperties(new MaterialPropertyTranslator(getTranslationContext(), getFetchOptions().withMaterialProperties())
-                    .translate(dataPe));
-            result.getFetchOptions().withMaterialPropertiesUsing(getFetchOptions().withMaterialProperties());
+            result.setMaterialProperties(materialPropertyTranslator.translate(context, dataPe, fetchOptions.withMaterialProperties()));
+            result.getFetchOptions().withMaterialPropertiesUsing(fetchOptions.withMaterialProperties());
         }
 
-        if (getFetchOptions().hasType())
+        if (fetchOptions.hasType())
         {
-            DataSetType dataSetType =
-                    new DataSetTypeTranslator(getTranslationContext(),
-                            getFetchOptions().withType()).translate(dataPe.getDataSetType());
-            result.setType(dataSetType);
-            result.getFetchOptions().withTypeUsing(getFetchOptions().withType());
+            result.setType(typeTranslator.translate(context, dataPe.getDataSetType(), fetchOptions.withType()));
+            result.getFetchOptions().withTypeUsing(fetchOptions.withType());
         }
 
-        if (getFetchOptions().hasTags())
+        if (fetchOptions.hasTags())
         {
-            List<Tag> tags =
-                    new ListTranslator().translate(dataPe.getMetaprojects(), new TagTranslator(getTranslationContext(), getFetchOptions()
-                            .withTags()));
-            result.setTags(new HashSet<Tag>(tags));
-            result.getFetchOptions().withTagsUsing(getFetchOptions().withTags());
+            Map<MetaprojectPE, Tag> tags = tagTranslator.translate(context, dataPe.getMetaprojects(), fetchOptions.withTags());
+            result.setTags(new HashSet<Tag>(tags.values()));
+            result.getFetchOptions().withTagsUsing(fetchOptions.withTags());
         }
 
-        if (getFetchOptions().hasRegistrator())
+        if (fetchOptions.hasRegistrator())
         {
-            Person registrator =
-                    new PersonTranslator(getTranslationContext(), getFetchOptions().withRegistrator()).translate(dataPe.getRegistrator());
-            result.setRegistrator(registrator);
-            result.getFetchOptions().withRegistratorUsing(getFetchOptions().withRegistrator());
+            result.setRegistrator(personTranslator.translate(context, dataPe.getRegistrator(), fetchOptions.withRegistrator()));
+            result.getFetchOptions().withRegistratorUsing(fetchOptions.withRegistrator());
         }
 
-        if (getFetchOptions().hasModifier())
+        if (fetchOptions.hasModifier())
         {
-            Person modifier =
-                    new PersonTranslator(getTranslationContext(), getFetchOptions().withModifier()).translate(dataPe.getModifier());
-            result.setModifier(modifier);
-            result.getFetchOptions().withModifierUsing(getFetchOptions().withModifier());
+            result.setModifier(personTranslator.translate(context, dataPe.getModifier(), fetchOptions.withModifier()));
+            result.getFetchOptions().withModifierUsing(fetchOptions.withModifier());
         }
 
-        if (getFetchOptions().hasExternalData())
+        if (fetchOptions.hasExternalData())
         {
             if (dataPe instanceof ExternalDataPE)
             {
-                ExternalData externalData =
-                        new ExternalDataTranslator(getTranslationContext(), getFetchOptions().withExternalData()).translate((ExternalDataPE) dataPe);
-                result.setExternalData(externalData);
+                result.setExternalData(externalDataTranslator.translate(context, (ExternalDataPE) dataPe, fetchOptions.withExternalData()));
             }
-            result.getFetchOptions().withExternalDataUsing(getFetchOptions().withExternalData());
+            result.getFetchOptions().withExternalDataUsing(fetchOptions.withExternalData());
         }
     }
 
