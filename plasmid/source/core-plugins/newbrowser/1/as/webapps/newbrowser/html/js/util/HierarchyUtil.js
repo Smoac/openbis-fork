@@ -165,29 +165,34 @@ var HierarchyUtil = new function() {
 		});
 	}
 	
-	
+	/*
+	 * Creates a map (sample identifiers as keys) for all ancestors and descendants of the specified sample.
+	 * The values of the map are the children and parents of the sample specified by the key..
+	 */
 	this.createRelationShipsMap = function(sample) {
 		var relationShipsMap = {};
-		traverseParents(sample, relationShipsMap);
-		traverseChildren(sample, relationShipsMap	);
+		createRelationShipEntry(sample, relationShipsMap);
+		traverseAncestors(sample, relationShipsMap);
+		traverseDescendants(sample, relationShipsMap);
 		return relationShipsMap;
 	}
-	var traverseParents = function(sample, relationShipsMap) {
+	
+	var traverseAncestors = function(sample, relationShipsMap) {
 		if (sample.parents) {
 			for (var i = 0; i < sample.parents.length; i++) {
 				var parent = sample.parents[i];
 				addRelationShip(parent, sample, relationShipsMap);
-				traverseParents(parent, relationShipsMap);
+				traverseAncestors(parent, relationShipsMap);
 			}
 		}
 	}
 	
-	var traverseChildren = function(sample, relationShipsMap) {
+	var traverseDescendants = function(sample, relationShipsMap) {
 		if (sample.children) {
 			for (var i = 0; i < sample.children.length; i++) {
 				var child = sample.children[i];
 				addRelationShip(sample, child, relationShipsMap);
-				traverseChildren(child, relationShipsMap);
+				traverseDescendants(child, relationShipsMap);
 			}
 		}
 	}
@@ -200,9 +205,14 @@ var HierarchyUtil = new function() {
 	var getRelationShips = function(sample, relationShipsMap) {
 		var relationShips = relationShipsMap[sample.identifier];
 		if (typeof relationShips === 'undefined') {
-			relationShips = {parents: [], children: []};
-			relationShipsMap[sample.identifier] = relationShips;
+			relationShips = createRelationShipEntry(sample, relationShipsMap);
 		}
+		return relationShips;
+	}
+	
+	var createRelationShipEntry = function(sample, relationShipsMap) {
+		var relationShips = {parents: [], children: []};
+		relationShipsMap[sample.identifier] = relationShips;
 		return relationShips;
 	}
 	
