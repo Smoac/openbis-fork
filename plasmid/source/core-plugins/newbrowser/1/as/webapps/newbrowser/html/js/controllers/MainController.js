@@ -546,6 +546,68 @@ function MainController(profile) {
 		this.currentView = newView;
 	}
 	
+	this.createOperationsColumn = function() {
+		return {
+			label : "Operations",
+			property : 'operations',
+			sortable : false,
+			render : function(data) {
+				//Dropdown Setup
+				var $dropDownMenu = $("<span>", { class : 'dropdown' });
+				var $caret = $("<a>", { 'href' : '#', 'data-toggle' : 'dropdown', class : 'dropdown-toggle btn btn-default'}).append("Operations ").append($("<b>", { class : 'caret' }));
+				var $list = $("<ul>", { class : 'dropdown-menu', 'role' : 'menu', 'aria-labelledby' :'sampleTableDropdown' });
+				$dropDownMenu.append($caret);
+				$dropDownMenu.append($list);
+				
+				var clickFunction = function($dropDown) {
+					return function(event) {
+						event.stopPropagation();
+						event.preventDefault();
+						$caret.dropdown('toggle');
+					};
+				}
+				$dropDownMenu.dropdown();
+				$dropDownMenu.click(clickFunction($dropDownMenu));
+				
+				//Options
+				var $openOption = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'Open'}).append("Open"));
+				$openOption.click(function(e) {
+					mainController.changeView('showViewSamplePageFromPermId', data.permId);
+				});
+				$list.append($openOption);
+				
+				var $openNewTabOption = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'Open in new Tab'}).append("Open in new Tab"));
+				$openNewTabOption.click(function(e) {
+					var url = document.location.href;
+					url = url.substring(0,url.lastIndexOf("/?") + 1);
+					url = url+"?viewName=showViewSamplePageFromPermId&viewData=" + data.permId + "&hideMenu=true";
+					var newWindow = window.open(url);
+				});
+				$list.append($openNewTabOption);
+				
+				var $openHierarchy = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'Open Hierarchy'}).append("Open Hierarchy"));
+				$openHierarchy.click(function(e) {
+					mainController.changeView('showSampleHierarchyPage', data.permId);
+				});
+				$list.append($openHierarchy);
+				
+				var $openHierarchy = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'Open Hierarchy Table'}).append("Open Hierarchy Table"));
+				$openHierarchy.click(function(e) {
+					mainController.changeView('showSampleHierarchyTablePage', data.permId);
+				});
+				$list.append($openHierarchy);
+				
+				return $dropDownMenu;
+			},
+			filter : function(data, filter) {
+				return false;
+			},
+			sort : function(data1, data2, asc) {
+				return 0;
+			}
+		}
+	}
+	
 	this.lastSearchId = 0; //Used to discard search responses that don't pertain to the last search call.
 	
 	this._showSearchPage = function(value, searchDomain, searchDomainLabel) {
@@ -639,6 +701,7 @@ function MainController(profile) {
 									return 0;
 								}
 							}];
+							columns.push(mainController.createOperationsColumn());
 							
 							var getDataList = function(callback) {
 								var dataList = [];
