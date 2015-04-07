@@ -16,16 +16,13 @@
 
 package ch.systemsx.cisd.openbis.systemtest;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
@@ -60,35 +57,4 @@ public class AssignSampleToExperimentTest extends AbstractAssignmentSampleToExpe
             perform(anUpdateOf(sample).removingExperiment().as(userSessionToken));
         }
     }
-    
-    @Override
-    protected String registerExperimentWithSamples(String projectIdentifier, List<String> samplePermIds,
-            String userSessionToken)
-    {
-        Sample[] samples = loadSamples(samplePermIds);
-        Project project = commonServer.getProjectInfo(systemSessionToken, ProjectIdentifierFactory.parse(projectIdentifier));
-        Experiment experiment = create(anExperiment().inProject(project).withSamples(samples).as(userSessionToken));
-        return experiment.getIdentifier();
-    }
-    
-    private Sample[] loadSamples(List<String> samplePermIds)
-    {
-        List<Sample> samples = new ArrayList<Sample>();
-        for (String permId : samplePermIds)
-        {
-            SampleIdentifier sampleIdentifier = etlService.tryGetSampleIdentifier(systemSessionToken, permId);
-            if (sampleIdentifier == null)
-            {
-                throw new IllegalArgumentException("Unknown sample with perm id: " + permId);
-            }
-            Sample sample = etlService.tryGetSampleWithExperiment(systemSessionToken, sampleIdentifier);
-            if (sample == null)
-            {
-                throw new IllegalArgumentException("Unknown sample with identifier: " + sampleIdentifier);
-            }
-            samples.add(sample);
-        }
-        return samples.toArray(new Sample[0]);
-    }
-
 }
