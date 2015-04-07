@@ -1120,23 +1120,10 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
         updateProperties(dataSet.getEntityType(), dataSetUpdates.getProperties(), details.getPropertiesToUpdate(), dataSet, dataSet);
         checkPropertiesBusinessRules(dataSet);
 
-        boolean isExperimentFromSample = false;
-
-        if (details.isSampleUpdateRequested())
+        if (details.isSampleUpdateRequested() && dataSetUpdates.getSampleIdentifierOrNull() != null)
         {
-            if (dataSetUpdates.getSampleIdentifierOrNull() != null)
-            {
-                // update sample and indirectly experiment
-                updateSample(dataSet, dataSetUpdates.getSampleIdentifierOrNull());
-                isExperimentFromSample = true;
-            } else
-            {
-                // remove connection with sample
-                dataSet.setSample(null);
-            }
-        }
-
-        if (details.isExperimentUpdateRequested() && !isExperimentFromSample)
+            updateSample(dataSet, dataSetUpdates.getSampleIdentifierOrNull());
+        } else
         {
             updateExperiment(dataSet, dataSetUpdates.getExperimentIdentifierOrNull());
             dataSet.setSample(null);
