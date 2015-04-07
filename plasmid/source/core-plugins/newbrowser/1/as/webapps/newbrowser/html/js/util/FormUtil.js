@@ -388,12 +388,13 @@ var FormUtil = new function() {
 			var vocabulary = null;
 			if(isNaN(propertyType.vocabulary)) {
 				vocabulary = this.profile.getVocabularyById(propertyType.vocabulary.id);
-				if(vocabulary === null) { //This should not happen, but can save the day.
-					vocabulary = propertyType.vocabulary;
-					vocabulary.terms = propertyType.terms;
-				}
 			} else {
 				vocabulary = this.profile.getVocabularyById(propertyType.vocabulary);
+			}
+			
+			if(!vocabulary && propertyType.terms) { //This should not happen, but can save the day.
+					vocabulary = {};
+					vocabulary.terms = propertyType.terms;
 			}
 			
 			$component = this._getDropDownFieldForVocabulary(propertyType.code, vocabulary.terms, propertyType.description, propertyType.mandatory);
