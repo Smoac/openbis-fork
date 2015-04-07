@@ -49,12 +49,19 @@ function SampleHierarchyTableView(controller, model) {
 			property : 'level',
 			sortable : true
 		} , {
-			label : 'Identifier',
-			property : 'identifier',
-			sortable : true
-		} , {
 			label : 'Path',
 			property : 'path',
+			sortable : true
+		} , {
+			label : 'Sample Type',
+			property : 'sampleType',
+			sortable : true,
+			render : function(data) {
+				return data.sample.sampleTypeCode;
+			}
+		} , {
+			label : 'Identifier',
+			property : 'identifier',
 			sortable : true
 		} , {
 			label : 'Name',
