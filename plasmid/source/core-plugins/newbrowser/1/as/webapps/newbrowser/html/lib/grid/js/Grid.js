@@ -168,7 +168,7 @@ $.extend(Grid.prototype, {
 					if(!rowValue) {
 						rowValue = "";
 					} else {
-						rowValue = rowValue.replace(/\r?\n|\r/g, ""); 
+						rowValue = rowValue.replace(/\r?\n|\r/g, " "); 
 					}
 					rowAsArray.push(rowValue);
 				}
