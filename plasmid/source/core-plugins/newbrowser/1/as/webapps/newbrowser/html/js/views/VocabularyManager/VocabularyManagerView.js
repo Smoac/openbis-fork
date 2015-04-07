@@ -68,7 +68,7 @@ function VocabularyManagerView(vocabularyManagerController, vocabularyManagerMod
 			_this._showVocabulary(e.data.object)
 		}
 		
-		var dataGrid = new DataGridController(null, columns, getDataList, rowClick);
+		var dataGrid = new DataGridController(null, columns, getDataList, rowClick, true, "VOCABULARY_MANAGER");
 		dataGrid.init(this._dataGridContainer);
 		
 		this._dataGridContainer.prepend($("<legend>").append(" Vocabularies"));
