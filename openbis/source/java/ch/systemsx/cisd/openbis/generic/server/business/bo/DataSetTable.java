@@ -1123,7 +1123,7 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
         if (details.isSampleUpdateRequested() && dataSetUpdates.getSampleIdentifierOrNull() != null)
         {
             updateSample(dataSet, dataSetUpdates.getSampleIdentifierOrNull());
-        } else
+        } else if (dataSetUpdates.getExperimentIdentifierOrNull() != null)
         {
             updateExperiment(dataSet, dataSetUpdates.getExperimentIdentifierOrNull());
             dataSet.setSample(null);

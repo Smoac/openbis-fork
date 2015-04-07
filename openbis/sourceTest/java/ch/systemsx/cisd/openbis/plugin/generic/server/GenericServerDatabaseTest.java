@@ -167,6 +167,7 @@ public class GenericServerDatabaseTest extends AbstractDAOTest
         NewDataSet newDataset = new NewDataSet();
         newDataset.setCode(dataset.getCode());
         newDataset.setSampleIdentifierOrNull(null);
+        newDataset.setExperimentIdentifier(dataset.getExperiment().getIdentifier());
 
         DataSetBatchUpdateDetails updateDetails = new DataSetBatchUpdateDetails();
         updateDetails.setSampleUpdateRequested(true);
@@ -175,24 +176,6 @@ public class GenericServerDatabaseTest extends AbstractDAOTest
 
         Assert.assertNull(dataset.tryGetSample());
         Assert.assertEquals(TEST_EXPERIMENT_PERMID, dataset.getExperiment().getPermId());
-    }
-
-    @Test(expectedExceptions = AssertionError.class)
-    public void testClearingExperimentShouldNotBeAllowed()
-    {
-        DataPE dataset = findData(TEST_EXPERIMENT_CONTAINED_DATA_SET_CODE);
-
-        Assert.assertEquals(TEST_EXPERIMENT_SAMPLE_PERMID, dataset.tryGetSample().getPermId());
-        Assert.assertEquals(TEST_EXPERIMENT_PERMID, dataset.getExperiment().getPermId());
-
-        NewDataSet newDataset = new NewDataSet();
-        newDataset.setCode(dataset.getCode());
-        newDataset.setExperimentIdentifier(null);
-
-        DataSetBatchUpdateDetails updateDetails = new DataSetBatchUpdateDetails();
-        updateDetails.setExperimentUpdateRequested(true);
-
-        update(dataset, newDataset, updateDetails);
     }
 
     private void update(DataPE data, NewDataSet newDataset, DataSetBatchUpdateDetails updateDetails)
