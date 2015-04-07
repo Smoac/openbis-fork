@@ -99,7 +99,7 @@ $.extend(Grid.prototype, {
 						.append(labelSRSC);
 		
 		itemSRSC.click(function() {
-			thisGrid.exportCSV(false, false);
+			thisGrid.exportTSV(false, false);
 		});
 		
 		columnList.append(itemSRSC);
@@ -115,7 +115,7 @@ $.extend(Grid.prototype, {
 						.append(labelSRAC);
 		
 		itemSRAC.click(function() {
-			thisGrid.exportCSV(false, true);
+			thisGrid.exportTSV(false, true);
 		});
 		
 		columnList.append(itemSRAC);
@@ -131,7 +131,7 @@ $.extend(Grid.prototype, {
 						.append(labelARSC);
 		
 		itemARSC.click(function() {
-			thisGrid.exportCSV(true, false);
+			thisGrid.exportTSV(true, false);
 		});
 		
 		columnList.append(itemARSC);
@@ -147,14 +147,14 @@ $.extend(Grid.prototype, {
 						.append(labelARAC);
 		
 		itemARAC.click(function() {
-			thisGrid.exportCSV(true, true);
+			thisGrid.exportTSV(true, true);
 		});
 		
 		columnList.append(itemARAC);
 		
 	},
 	
-	exportCSV : function(isAllRowsOrVisible, isAllColumnsOrVisible) {
+	exportTSV : function(isAllRowsOrVisible, isAllColumnsOrVisible) {
 		var thisGrid = this;
 		
 		var exportColumnsFromData = function(namePrefix, data, headings) {
@@ -167,6 +167,8 @@ $.extend(Grid.prototype, {
 					var rowValue = data[dIdx][headerKey];
 					if(!rowValue) {
 						rowValue = "";
+					} else {
+						rowValue = rowValue.replace(/\r?\n|\r/g, ""); 
 					}
 					rowAsArray.push(rowValue);
 				}
