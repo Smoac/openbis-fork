@@ -165,17 +165,23 @@ public class ConversionUtils
         }
 
         final List<NewAttachment> attachments = apiSample.getNewAttachments();
+        SampleIdentifier sampleIdentifier = SampleIdentifierFactory.parse(sample.getIdentifier());
+        ExperimentIdentifier experimentIdentifier = null;
+        if (sample.getExperiment() != null)
+        {
+            experimentIdentifier = ExperimentIdentifierFactory.parse(sample.getExperiment()
+                    .getIdentifier());
+            sampleIdentifier = new SampleIdentifier(experimentIdentifier, sampleIdentifier.getSampleCode());
+        }
         String containerIdentifier =
                 (sample.getContainer() != null) ? sample.getContainer().getIdentifier() : null;
         SampleUpdatesDTO sampleUpdate =
                 new SampleUpdatesDTO(TechId.create(sample), // db id
                         sample.getProperties(), // List<IEntityProperty>
-                        sample.getExperiment() == null ? null
-                                : ExperimentIdentifierFactory.parse(sample.getExperiment()
-                                        .getIdentifier()), // ExperimentIdentifier
+                        experimentIdentifier, // ExperimentIdentifier
                         attachments, // Collection<NewAttachment>
                         sample.getVersion(), // Sample version
-                        SampleIdentifierFactory.parse(sample.getIdentifier()), // Sample Identifier
+                        sampleIdentifier, // Sample Identifier
                         containerIdentifier, // Container Identifier
                         parentIdentifiers // Parent Identifiers
                 );
