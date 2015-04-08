@@ -23,14 +23,12 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.OperationContext;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.deletion.IListDeletionExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.deletion.IDeletionTranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.utils.ExceptionUtils;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion.Deletion;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.deletion.DeletionFetchOptions;
-import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 
 /**
  * @author pkupczyk
@@ -46,22 +44,21 @@ public class ListDeletionMethodExecutor extends AbstractMethodExecutor implement
     private IDeletionTranslator translator;
 
     @Override
-    public List<Deletion> listDeletions(String sessionToken, DeletionFetchOptions fetchOptions)
+    public List<Deletion> listDeletions(final String sessionToken, final DeletionFetchOptions fetchOptions)
     {
-        Session session = getSession(sessionToken);
-        OperationContext context = new OperationContext(session);
-        try
-        {
-            List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion> deletions = listExecutor.list(context, fetchOptions);
+        return executeInContext(sessionToken, new IMethodAction<List<Deletion>>()
+            {
+                @Override
+                public List<Deletion> execute(IOperationContext context)
+                {
+                    List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion> deletions = listExecutor.list(context, fetchOptions);
 
-            Map<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion, Deletion> translatedMap =
-                    translator.translate(new TranslationContext(session), deletions, fetchOptions);
+                    Map<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion, Deletion> translatedMap =
+                            translator.translate(new TranslationContext(context.getSession()), deletions, fetchOptions);
 
-            return new ArrayList<Deletion>(translatedMap.values());
-        } catch (Throwable t)
-        {
-            throw ExceptionUtils.create(context, t);
-        }
+                    return new ArrayList<Deletion>(translatedMap.values());
+                }
+            });
     }
 
 }

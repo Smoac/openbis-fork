@@ -21,13 +21,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.OperationContext;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.common.ISearchObjectExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.ITranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
-import ch.ethz.sis.openbis.generic.server.api.v3.utils.ExceptionUtils;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.AbstractObjectSearchCriterion;
-import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 
 /**
  * @author pkupczyk
@@ -37,33 +35,28 @@ public abstract class AbstractSearchMethodExecutor<OBJECT, OBJECT_PE, CRITERION 
 {
 
     @Override
-    public List<OBJECT> search(String sessionToken, CRITERION criterion, FETCH_OPTIONS fetchOptions)
+    public List<OBJECT> search(final String sessionToken, final CRITERION criterion, final FETCH_OPTIONS fetchOptions)
     {
-        Session session = getSession(sessionToken);
-        return translate(session, search(session, criterion), fetchOptions);
+        return executeInContext(sessionToken, new IMethodAction<List<OBJECT>>()
+            {
+                @Override
+                public List<OBJECT> execute(IOperationContext context)
+                {
+                    List<OBJECT_PE> results = getSearchExecutor().search(context, criterion);
+                    return translate(context, results, fetchOptions);
+                }
+            });
     }
 
-    private List<OBJECT_PE> search(Session session, CRITERION criterion)
-    {
-        OperationContext context = new OperationContext(session);
-        try
-        {
-            return getSearchExecutor().search(context, criterion);
-        } catch (Throwable t)
-        {
-            throw ExceptionUtils.create(context, t);
-        }
-    }
-
-    private List<OBJECT> translate(Session session, List<OBJECT_PE> peList, FETCH_OPTIONS fetchOptions)
+    private List<OBJECT> translate(IOperationContext context, List<OBJECT_PE> peList, FETCH_OPTIONS fetchOptions)
     {
         if (peList == null || peList.isEmpty())
         {
             return Collections.emptyList();
         }
 
-        TranslationContext context = new TranslationContext(session);
-        Map<OBJECT_PE, OBJECT> peToObjectMap = getTranslator().translate(context, peList, fetchOptions);
+        TranslationContext translationContext = new TranslationContext(context.getSession());
+        Map<OBJECT_PE, OBJECT> peToObjectMap = getTranslator().translate(translationContext, peList, fetchOptions);
         return new ArrayList<OBJECT>(peToObjectMap.values());
     }
 

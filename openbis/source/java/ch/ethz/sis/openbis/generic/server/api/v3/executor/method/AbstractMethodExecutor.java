@@ -18,7 +18,13 @@ package ch.ethz.sis.openbis.generic.server.api.v3.executor.method;
 
 import javax.annotation.Resource;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.OperationContext;
+import ch.ethz.sis.openbis.generic.server.api.v3.utils.ExceptionUtils;
 import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.IOpenBisSessionManager;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 
@@ -27,13 +33,41 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
  */
 public class AbstractMethodExecutor
 {
+    @Autowired
+    private IDAOFactory daoFactory;
 
     @Resource(name = ComponentNames.SESSION_MANAGER)
-    protected IOpenBisSessionManager sessionManager;
+    private IOpenBisSessionManager sessionManager;
+
+    protected <T> T executeInContext(String sessionToken, IMethodAction<T> action)
+    {
+        Session session = getSession(sessionToken);
+        OperationContext context = new OperationContext(session);
+
+        try
+        {
+            T result = action.execute(context);
+            daoFactory.getSessionFactory().getCurrentSession().flush();
+            return result;
+        } catch (Throwable t)
+        {
+            throw ExceptionUtils.create(context, t);
+        } finally
+        {
+            daoFactory.getSessionFactory().getCurrentSession().clear();
+        }
+    }
 
     protected Session getSession(String sessionToken)
     {
         return sessionManager.getSession(sessionToken);
+    }
+
+    public interface IMethodAction<T>
+    {
+
+        public T execute(IOperationContext context);
+
     }
 
 }

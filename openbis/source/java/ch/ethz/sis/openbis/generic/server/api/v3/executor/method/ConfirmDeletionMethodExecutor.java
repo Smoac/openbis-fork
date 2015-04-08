@@ -18,30 +18,35 @@ package ch.ethz.sis.openbis.generic.server.api.v3.executor.method;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.IUpdateEntityExecutor;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.deletion.IConfirmDeletionExecutor;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.deletion.IDeletionId;
 
 /**
  * @author pkupczyk
  */
-public abstract class AbstractUpdateMethodExecutor<UPDATE> extends AbstractMethodExecutor implements
-        IUpdateMethodExecutor<UPDATE>
+@Component
+public class ConfirmDeletionMethodExecutor extends AbstractMethodExecutor implements IConfirmDeletionMethodExecutor
 {
 
+    @Autowired
+    private IConfirmDeletionExecutor confirmExecutor;
+
     @Override
-    public void update(final String sessionToken, final List<UPDATE> updates)
+    public void confirm(final String sessionToken, final List<? extends IDeletionId> deletionIds)
     {
         executeInContext(sessionToken, new IMethodAction<Void>()
             {
                 @Override
                 public Void execute(IOperationContext context)
                 {
-                    getUpdateExecutor().update(context, updates);
+                    confirmExecutor.confirm(context, deletionIds);
                     return null;
                 }
             });
     }
-
-    protected abstract IUpdateEntityExecutor<UPDATE> getUpdateExecutor();
 
 }

@@ -19,29 +19,28 @@ package ch.ethz.sis.openbis.generic.server.api.v3.executor.method;
 import java.util.List;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.IUpdateEntityExecutor;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.IDeleteEntityExecutor;
 
 /**
  * @author pkupczyk
  */
-public abstract class AbstractUpdateMethodExecutor<UPDATE> extends AbstractMethodExecutor implements
-        IUpdateMethodExecutor<UPDATE>
+public abstract class AbstractDeleteMethodExecutor<DELETION_ID, OBJECT_ID, DELETION_OPTIONS> extends AbstractMethodExecutor implements
+        IDeleteMethodExecutor<DELETION_ID, OBJECT_ID, DELETION_OPTIONS>
 {
 
     @Override
-    public void update(final String sessionToken, final List<UPDATE> updates)
+    public DELETION_ID delete(final String sessionToken, final List<? extends OBJECT_ID> objectIds, final DELETION_OPTIONS deletionOptions)
     {
-        executeInContext(sessionToken, new IMethodAction<Void>()
+        return executeInContext(sessionToken, new IMethodAction<DELETION_ID>()
             {
                 @Override
-                public Void execute(IOperationContext context)
+                public DELETION_ID execute(IOperationContext context)
                 {
-                    getUpdateExecutor().update(context, updates);
-                    return null;
+                    return getDeleteExecutor().delete(context, objectIds, deletionOptions);
                 }
             });
     }
 
-    protected abstract IUpdateEntityExecutor<UPDATE> getUpdateExecutor();
+    protected abstract IDeleteEntityExecutor<DELETION_ID, OBJECT_ID, DELETION_OPTIONS> getDeleteExecutor();
 
 }

@@ -21,13 +21,11 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.OperationContext;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.common.IMapObjectByIdExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.ITranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
-import ch.ethz.sis.openbis.generic.server.api.v3.utils.ExceptionUtils;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.IObjectId;
-import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 
 /**
  * @author pkupczyk
@@ -35,33 +33,28 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 public abstract class AbstractMapMethodExecutor<OBJECT_ID extends IObjectId, OBJECT_PE, OBJECT, FETCH_OPTIONS> extends AbstractMethodExecutor
 {
 
-    public Map<OBJECT_ID, OBJECT> map(String sessionToken, List<? extends OBJECT_ID> objectIds, FETCH_OPTIONS fetchOptions)
+    public Map<OBJECT_ID, OBJECT> map(final String sessionToken, final List<? extends OBJECT_ID> objectIds, final FETCH_OPTIONS fetchOptions)
     {
-        Session session = getSession(sessionToken);
-        return translate(session, map(session, objectIds), fetchOptions);
+        return executeInContext(sessionToken, new IMethodAction<Map<OBJECT_ID, OBJECT>>()
+            {
+                @Override
+                public Map<OBJECT_ID, OBJECT> execute(IOperationContext context)
+                {
+                    Map<OBJECT_ID, OBJECT_PE> map = getMapExecutor().map(context, objectIds);
+                    return translate(context, map, fetchOptions);
+                }
+            });
     }
 
-    private Map<OBJECT_ID, OBJECT_PE> map(Session session, List<? extends OBJECT_ID> objectIds)
-    {
-        OperationContext context = new OperationContext(session);
-        try
-        {
-            return getMapExecutor().map(context, objectIds);
-        } catch (Throwable t)
-        {
-            throw ExceptionUtils.create(context, t);
-        }
-    }
-
-    private Map<OBJECT_ID, OBJECT> translate(Session session, Map<OBJECT_ID, OBJECT_PE> idToPeMap, FETCH_OPTIONS fetchOptions)
+    private Map<OBJECT_ID, OBJECT> translate(IOperationContext context, Map<OBJECT_ID, OBJECT_PE> idToPeMap, FETCH_OPTIONS fetchOptions)
     {
         if (idToPeMap == null || idToPeMap.isEmpty())
         {
             return Collections.emptyMap();
         }
 
-        TranslationContext context = new TranslationContext(session);
-        Map<OBJECT_PE, OBJECT> peToObjectMap = getTranslator().translate(context, idToPeMap.values(), fetchOptions);
+        TranslationContext translationContext = new TranslationContext(context.getSession());
+        Map<OBJECT_PE, OBJECT> peToObjectMap = getTranslator().translate(translationContext, idToPeMap.values(), fetchOptions);
         Map<OBJECT_ID, OBJECT> idToObjectMap = new LinkedHashMap<OBJECT_ID, OBJECT>();
 
         for (Map.Entry<OBJECT_ID, OBJECT_PE> entry : idToPeMap.entrySet())

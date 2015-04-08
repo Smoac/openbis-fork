@@ -18,13 +18,8 @@ package ch.ethz.sis.openbis.generic.server.api.v3.executor.method;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
-
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.OperationContext;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.ICreateEntityExecutor;
-import ch.ethz.sis.openbis.generic.server.api.v3.utils.ExceptionUtils;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 
 /**
  * @author pkupczyk
@@ -33,27 +28,19 @@ public abstract class AbstractCreateMethodExecutor<PERM_ID, CREATION> extends Ab
         ICreateMethodExecutor<PERM_ID, CREATION>
 {
 
-    @Autowired
-    private IDAOFactory daoFactory;
-
     @Override
-    public List<PERM_ID> create(String sessionToken, List<CREATION> creations)
+    public List<PERM_ID> create(final String sessionToken, final List<CREATION> creations)
     {
-        Session session = getSession(sessionToken);
-        OperationContext context = new OperationContext(session);
+        return executeInContext(sessionToken, new IMethodAction<List<PERM_ID>>()
+            {
 
-        try
-        {
-            List<PERM_ID> permIds = getCreateExecutor().create(context, creations);
-            daoFactory.getSessionFactory().getCurrentSession().flush();
-            return permIds;
-        } catch (Throwable t)
-        {
-            throw ExceptionUtils.create(context, t);
-        } finally
-        {
-            daoFactory.getSessionFactory().getCurrentSession().clear();
-        }
+                @Override
+                public List<PERM_ID> execute(IOperationContext context)
+                {
+                    return getCreateExecutor().create(context, creations);
+                }
+
+            });
     }
 
     protected abstract ICreateEntityExecutor<CREATION, PERM_ID> getCreateExecutor();
