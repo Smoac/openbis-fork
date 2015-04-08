@@ -68,7 +68,7 @@ public class FileStoreRemote extends AbstractFileStore
     private static String mkFindYoungestModificationTimestampSecCommand(final String path,
             final String findExec)
     {
-        return findExec + " " + path + " -printf \"%T@\\n\" | sort -n | head -1 ";
+        return findExec + " " + path + " -printf \"%T@\\\\n\" | sort -n | head -1 ";
     }
 
     private static String mkLastchangedCommand(final String path,
