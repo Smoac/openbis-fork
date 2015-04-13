@@ -236,6 +236,15 @@ $.extend(ELNPaperProfile.prototype, DefaultProfile.prototype, {
 														"ANNOTATION_PROPERTIES" : [{"TYPE" : "PLASMID_RELATIONSHIP", "MANDATORY" : false },{"TYPE" : "PLASMID_ANNOTATION", "MANDATORY" : false },{"TYPE" : "COMMENTS", "MANDATORY" : false }]
 													}																					
 												],
+					"SAMPLE_LINKS_HINT" : [
+												{
+														"LABEL" : "Plasmid",
+														"TYPE": "PLASMID",
+														"MIN_COUNT" : 0,
+														"ANNOTATION_PROPERTIES" : [{"TYPE" : "PLASMID_RELATIONSHIP", "MANDATORY" : false },{"TYPE" : "PLASMID_ANNOTATION", "MANDATORY" : false },{"TYPE" : "COMMENTS", "MANDATORY" : false },{"TYPE" : "CONTAINED", "MANDATORY" : false }]
+												}
+										],
+					"SAMPLE_PARENTS_ANNOTATIONS_COPY" : { "YEAST" : ["PLASMID"] }
 				},
 
 				"CELL_LINE" : {
@@ -382,5 +391,16 @@ $.extend(ELNPaperProfile.prototype, DefaultProfile.prototype, {
 				freeFormTableController.init($("#" + containerId));
 			}
 		}
+		
+		
+		this.getDataSetTypeForFileName = function(allDatasetFiles, fileName) {
+			if(fileName.endsWith("gb") || fileName.endsWith("fasta") || fileName.endsWith("xdna") || fileName.endsWith("fa")) {
+				return "SEQ_FILE";
+			} else if(fileName.endsWith("ab1")) {
+				return "RAW_DATA";
+			} else {
+				return null;
+			}
+		}		
 }
 });
