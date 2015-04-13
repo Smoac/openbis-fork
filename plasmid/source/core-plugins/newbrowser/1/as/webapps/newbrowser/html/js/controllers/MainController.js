@@ -627,13 +627,6 @@ function MainController(profile) {
 					if(value.length < 1) {
 						return;
 					}
-//					if(value.length < 3) {
-//						var isOk = window.confirm("Are you sure you want to make a search with " + value.length +" characters? You can expect a lot of results.");
-//						if(!isOk) {
-//							$("#search").removeClass("search-query-searching");
-//							return;
-//						}
-//					}
 					
 					$("#search").addClass("search-query-searching");
 					if(!searchDomain || searchDomain === profile.getSearchDomains()[0].name) { //Global Search
@@ -684,23 +677,6 @@ function MainController(profile) {
 								label : 'Matched Field',
 								property : 'matchedField',
 								sortable : true
-							}, {
-								label : 'Properties',
-								property : 'properties',
-								sortable : true,
-								render : function(data) {
-									var toShow = data.properties;
-									if(data.properties.length > 200) {
-										toShow = toShow.substring(0, 200) + "...";
-									}
-									return toShow;
-								},
-								filter : function(data, filter) {
-									return false;
-								},
-								sort : function(data1, data2, asc) {
-									return 0;
-								}
 							}];
 							columns.push(mainController.createOperationsColumn());
 							
@@ -746,8 +722,7 @@ function MainController(profile) {
 										code : sample.code,
 										sampleTypeCode : sample.sampleTypeCode,
 										matchedText : matchedText,
-										matchedField : matchedField,
-										properties : Util.getMapAsString(sample.properties)
+										matchedField : matchedField
 									});
 								}
 								callback(dataList);
