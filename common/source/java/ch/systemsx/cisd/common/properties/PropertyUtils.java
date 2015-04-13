@@ -104,6 +104,19 @@ public final class PropertyUtils
     }
 
     /**
+     * Searches for the property with the specified key in this property list. <code>null</code> is returned if there is no property for the specified
+     * key or it contains only white space characters.
+     * 
+     * @return <code>null</code> or the non-trimmed value if found.
+     */
+    public final static String getPropertyDontTrim(final Properties properties, final String propertyKey)
+    {
+        assertParameters(properties, propertyKey);
+        final String property = properties.getProperty(propertyKey);
+        return property;
+    }
+
+    /**
      * Searches for the property with the specified key in this property list.
      * 
      * @return <code>null</code> or the value trimmed if found.
@@ -466,21 +479,29 @@ public final class PropertyUtils
             final char defaultValue, final ISimpleLogger loggerOrNull)
     {
         assertParameters(properties, propertyKey);
-        final String charOrNull = getProperty(properties, propertyKey);
+        String charOrNull = getPropertyDontTrim(properties, propertyKey);
         if (charOrNull == null)
         {
             return defaultValue;
         }
-        if (charOrNull.length() != 1)
+        if (charOrNull.length() == 1)
+        {
+            return charOrNull.charAt(0);
+        }
+        charOrNull = charOrNull.trim();
+        if (charOrNull.length() == 1)
+        {
+            return charOrNull.charAt(0);
+        }
+        else
         {
             if (loggerOrNull != null)
             {
                 loggerOrNull.log(LogLevel.INFO, String.format(NON_CHAR_VALUE_FORMAT, charOrNull,
                         defaultValue));
-                return defaultValue;
             }
+            return defaultValue;
         }
-        return charOrNull.charAt(0);
     }
 
     /**
