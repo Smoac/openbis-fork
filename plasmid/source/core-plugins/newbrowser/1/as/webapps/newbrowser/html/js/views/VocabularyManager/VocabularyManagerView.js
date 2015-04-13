@@ -68,7 +68,7 @@ function VocabularyManagerView(vocabularyManagerController, vocabularyManagerMod
 			_this._showVocabulary(e.data.object)
 		}
 		
-		var dataGrid = new DataGridController(null, columns, getDataList, rowClick, true, "VOCABULARY_MANAGER");
+		var dataGrid = new DataGridController(null, columns, getDataList, rowClick, true, "VOCABULARY_TABLE");
 		dataGrid.init(this._dataGridContainer);
 		
 		this._dataGridContainer.prepend($("<legend>").append(" Vocabularies"));
@@ -103,7 +103,7 @@ function VocabularyManagerView(vocabularyManagerController, vocabularyManagerMod
 			callback(dataList);
 		}
 		
-		var dataGrid = new DataGridController(null, columns, getDataList, null);
+		var dataGrid = new DataGridController(null, columns, getDataList, null, true, "VOCABULARY_TERMS_TABLE");
 		dataGrid.init(this._dataGridContainer);
 		
 		this._dataGridContainer.prepend($("<legend>").append(" Terms from vocabulary " + vocabulary.code));
