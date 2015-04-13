@@ -171,7 +171,7 @@ function TrashManagerView(trashManagerController, trashManagerModel) {
 		}
 		
 		var dataGridContainer = $("<div>");
-		var dataGrid = new DataGridController(null, columns, getDataList, null);
+		var dataGrid = new DataGridController(null, columns, getDataList, null, true, "TRASHCAN_TABLE");
 		dataGrid.init(dataGridContainer);
 		$containerColumn.append(dataGridContainer);
 		

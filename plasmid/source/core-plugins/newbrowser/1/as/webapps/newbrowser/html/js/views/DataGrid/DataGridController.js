@@ -20,6 +20,10 @@ function DataGridController(title, columns, data, rowClickEventHandler, showAllC
 	this._dataGridView = null;
 	var _this = this;
 	
+	if(!configKey) {
+		window.alert("This view created a table without configKey, please report it to the developers.");
+	}
+	
 	this.init = function($container) {
 		var webAppId = "ELN-LIMS";
 		mainController.serverFacade.openbisServer.getWebAppSettings(webAppId, function(response) {
@@ -39,7 +43,7 @@ function DataGridController(title, columns, data, rowClickEventHandler, showAllC
 				mainController.serverFacade.openbisServer.setWebAppSettings(webAppSettings, function(result) {});
 			}
 			var tableSettings = null;
-			if(settings[configKey]) {
+			if(configKey && settings[configKey]) {
 				tableSettings = JSON.parse(settings[configKey]);
 			}
 			_this._grid = new Grid(columns, data, showAllColumns, tableSettings, onColumnsChange);
