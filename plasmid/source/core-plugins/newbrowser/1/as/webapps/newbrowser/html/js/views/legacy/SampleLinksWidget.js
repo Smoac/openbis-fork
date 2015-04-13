@@ -519,7 +519,7 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 			if(name) {
 				var infoName = $("<span>")
 						.append($("<b>").append("&nbsp;Name: "))
-						.append(name);
+						.append($("<span>").text(name));
 				info.append(infoName);
 			}
 			
@@ -548,7 +548,7 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 					}
 					
 					if(this.isDisabled) {
-						item.after(sampleState[propertyTypeCode]);
+						item.after($("<span>").text(sampleState[propertyTypeCode]));
 					}
 				}
 				

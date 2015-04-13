@@ -21,35 +21,22 @@ var FormUtil = new function() {
 	//
 	
 	this.getXMLFromAnnotations = function(stateObj) {
-		var xmlDoc = "<root>";
+		var rootNode = document.createElementNS("http://www.w3.org/1999/xhtml", "root");
 		
 		for(var permId in stateObj) {
-			xmlDoc	+= "<Sample permId=\"" + permId + "\""; 
-			for(var propertyTypeCode in stateObj[permId]) {
-				if(propertyTypeCode === "identifier") {
-					var propertyTypeValue = stateObj[permId][propertyTypeCode];
-					xmlDoc	+= " " + propertyTypeCode + "=\"" + propertyTypeValue +"\"";
-				}
-			}
+			var sampleNode	= document.createElementNS("http://www.w3.org/1999/xhtml", "Sample");
+			sampleNode.setAttributeNS(null, "permId", permId);
 			
 			for(var propertyTypeCode in stateObj[permId]) {
-				if(propertyTypeCode === "sampleType") {
-					var propertyTypeValue = stateObj[permId][propertyTypeCode];
-					xmlDoc	+= " " + propertyTypeCode + "=\"" + propertyTypeValue +"\"";
-				}
+				var propertyTypeValue = stateObj[permId][propertyTypeCode];
+				sampleNode.setAttributeNS(null, propertyTypeCode, propertyTypeValue);
 			}
 			
-			for(var propertyTypeCode in stateObj[permId]) {
-				if(propertyTypeCode !== "identifier" && propertyTypeCode !== "sampleType") {
-					var propertyTypeValue = stateObj[permId][propertyTypeCode];
-					xmlDoc	+= " " + propertyTypeCode + "=\"" + propertyTypeValue +"\"";
-				}
-			}
-			
-			xmlDoc	+= " />";
+			rootNode.appendChild(sampleNode);
 		}
 		
-		xmlDoc	+= "</root>";
+		var serializer = new XMLSerializer();
+		var xmlDoc = serializer.serializeToString(rootNode);
 		return xmlDoc;
 	}
 	
