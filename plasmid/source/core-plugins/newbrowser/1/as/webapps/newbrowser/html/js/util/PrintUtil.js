@@ -25,7 +25,7 @@ var PrintUtil = new function() {
 			pageToPrint += "<head>";
 			pageToPrint += "</head>";
 			pageToPrint += "<body stlye='font-family: '\"'Helvetica Neue\",Helvetica,Arial,sans-serif;'>";
-			pageToPrint += this.getInspectorTable(sample, false, false, false);
+			pageToPrint += this.getTable(sample, false, false, false);
 			pageToPrint += "</body>";
 			pageToPrint += "</html>";
 		
@@ -136,18 +136,7 @@ var PrintUtil = new function() {
 				var sampleType = profile.getSampleTypeForSampleTypeCode(entity.sampleTypeCode);
 				var propertyType = profile.getPropertyTypeFrom(sampleType, propertyCode);
 				if(propertyType && propertyType.dataType === "CONTROLLEDVOCABULARY") {
-					var vocabulary = null;
-					if(isNaN(propertyType.vocabulary)) {
-						vocabulary = profile.getVocabularyById(propertyType.vocabulary.id);
-					} else {
-						vocabulary = profile.getVocabularyById(propertyType.vocabulary);
-					}
-					
-					if(!vocabulary && propertyType.terms) { //This should not happen, but can save the day.
-						vocabulary = {};
-						vocabulary.terms = propertyType.terms;
-					}
-					
+					var vocabulary = propertyType.vocabulary;
 					if(vocabulary) {
 						for(var j = 0; j < vocabulary.terms.length; j++) {
 							if(vocabulary.terms[j].code === propertyContent) {

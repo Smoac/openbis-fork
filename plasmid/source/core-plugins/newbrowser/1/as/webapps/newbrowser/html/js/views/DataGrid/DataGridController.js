@@ -21,7 +21,7 @@ function DataGridController(title, columns, data, rowClickEventHandler, showAllC
 	var _this = this;
 	
 	if(!configKey) {
-		window.alert("This view created a table without configKey, please report it to the developers.");
+		window.alert("[TO-DELETE] Empty configKey during the table init, this should never happen, tell the developers.");
 	}
 	
 	this.init = function($container) {

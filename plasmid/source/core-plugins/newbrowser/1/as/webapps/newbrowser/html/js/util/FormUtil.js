@@ -346,17 +346,7 @@ var FormUtil = new function() {
 	// Get Field from property
 	//
 	this.getVocabularyLabelForTermCode = function(propertyType, termCode) {
-		var vocabulary = null;
-		if(isNaN(propertyType.vocabulary)) {
-			vocabulary = this.profile.getVocabularyById(propertyType.vocabulary.id);
-			if(vocabulary === null) { //This should not happen, but can save the day.
-				vocabulary = propertyType.vocabulary;
-				vocabulary.terms = propertyType.terms;
-			}
-		} else {
-			vocabulary = this.profile.getVocabularyById(propertyType.vocabulary);
-		}
-		
+		var vocabulary = propertyType.vocabulary;
 		if(vocabulary) {
 			for(var tIdx = 0; tIdx < vocabulary.terms.length; tIdx++) {
 				if(vocabulary.terms[tIdx].code === termCode) {
@@ -372,19 +362,7 @@ var FormUtil = new function() {
 		if (propertyType.dataType === "BOOLEAN") {
 			$component = this._getBooleanField(propertyType.code, propertyType.description);
 		} else if (propertyType.dataType === "CONTROLLEDVOCABULARY") {
-			var vocabulary = null;
-			if(isNaN(propertyType.vocabulary)) {
-				vocabulary = this.profile.getVocabularyById(propertyType.vocabulary.id);
-			} else {
-				vocabulary = this.profile.getVocabularyById(propertyType.vocabulary);
-			}
-			
-			if(!vocabulary && propertyType.terms) { //This should not happen, but can save the day.
-					vocabulary = {};
-					vocabulary.terms = propertyType.terms;
-			}
-			
-			$component = this._getDropDownFieldForVocabulary(propertyType.code, vocabulary.terms, propertyType.description, propertyType.mandatory);
+			$component = this._getDropDownFieldForVocabulary(propertyType.code, propertyType.vocabulary.terms, propertyType.description, propertyType.mandatory);
 		} else if (propertyType.dataType === "HYPERLINK") {
 			$component = this._getInputField("url", propertyType.code, propertyType.description, null, propertyType.mandatory);
 		} else if (propertyType.dataType === "INTEGER") {

@@ -329,10 +329,11 @@ $.extend(DefaultProfile.prototype, {
 			}
 			return null;
 		}
-		this.getVocabularyById = function(id) {
+		
+		this.getVocabularyByCode = function(code) {
 			for (var i = 0; i < this.allVocabularies.length; i++) {
 				var vocabulary = this.allVocabularies[i];
-				if (vocabulary["@id"] === id || vocabulary["id"] === id) { //Either the id is a number or can be a string, are actually different ids.
+				if (vocabulary.code === code) {
 					return vocabulary;
 				}
 			}
@@ -426,60 +427,75 @@ $.extend(DefaultProfile.prototype, {
 		}
 		
 		this.initVocabulariesForSampleTypes = function(callback) {
-			//Build Vocabularies from sample types
-			for(var sampleTypeIdx = 0; sampleTypeIdx < this.allSampleTypes.length; sampleTypeIdx++) {
-				var sampleType = this.allSampleTypes[sampleTypeIdx];
-				for(var i = 0; i < sampleType.propertyTypeGroups.length; i++) {
-					var propertyGroup = sampleType.propertyTypeGroups[i].propertyTypes;
-					for(var j = 0; j < propertyGroup.length; j++) {
-						var propertyType = propertyGroup[j];
-						if (propertyType.dataType === "CONTROLLEDVOCABULARY" && isNaN(propertyType.vocabulary)) {
-							var add = true;
-							for(var k = 0; k < this.allVocabularies.length; k++) {
-								if(this.allVocabularies[k].code === propertyType.vocabulary.code) {
-									add = false;
+			var _this = this;
+			var getVocabularyCodeFromId = function(id) {
+				
+			}
+			this.serverFacade.listVocabularies(function(result) {
+				//Init Vocabularies, so we don't miss vocabularies missing on sample types used only on annotations, etc...
+				_this.allVocabularies = result.result;
+				//Fix Sample Types
+				var intToVocabularyCode = {};
+				
+				//1. Obtain mapping from ids to codes
+				for(var sampleTypeIdx = 0; sampleTypeIdx < _this.allSampleTypes.length; sampleTypeIdx++) {
+					var sampleType = _this.allSampleTypes[sampleTypeIdx];
+					for(var i = 0; i < sampleType.propertyTypeGroups.length; i++) {
+						var propertyGroup = sampleType.propertyTypeGroups[i].propertyTypes;
+						for(var j = 0; j < propertyGroup.length; j++) {
+							var propertyType = propertyGroup[j];
+							if (propertyType.dataType === "CONTROLLEDVOCABULARY") {
+								var vocabularyOrNumber = propertyType.vocabulary;
+								if (vocabularyOrNumber !== parseInt(vocabularyOrNumber, 10)) { //Is vocabulary
+									intToVocabularyCode[propertyType.vocabulary["@id"]] = propertyType.vocabulary.code
 								}
 							}
-							if(add) {
-								this.allVocabularies.push(propertyType.vocabulary);
-							}
 						}
 					}
 				}
-			}
-		
-			//Get all the Vocabularies from openbis and fix terms
-			var localReference = this;
-			this.serverFacade.listVocabularies(
-				function(result) {
-					//Load Vocabularies
-					var allVocabularies = result.result;
-					for (var i = 0; i < allVocabularies.length; i++) {
-						var vocabulary = allVocabularies[i];
-						for(var j = 0; j < localReference.allVocabularies.length; j++) {
-							var localVocabulary = localReference.allVocabularies[j];
-							if (vocabulary.code === localVocabulary.code) {
-								localVocabulary.terms = vocabulary.terms;
-							}
-						}
-					}
-					
-					localReference.serverFacade.listSpaces(function(spaces) {
-						if($.inArray("INVENTORY", spaces) === -1) {
-							mainController.serverFacade.createReportFromAggregationService(localReference.getDefaultDataStoreCode(), {"method" : "init" }, function() {
-								localReference.serverFacade.listSpaces(function(spaces) {
-									localReference.allSpaces = spaces;
-									callback();
-								});
-							});
+				
+				//2. Resolve ids and partial objects from the returned complete vocabularies
+				for(var sampleTypeIdx = 0; sampleTypeIdx < _this.allSampleTypes.length; sampleTypeIdx++) {
+					var sampleType = _this.allSampleTypes[sampleTypeIdx];
+					for(var i = 0; i < sampleType.propertyTypeGroups.length; i++) {
+						var propertyGroup = sampleType.propertyTypeGroups[i].propertyTypes;
+						for(var j = 0; j < propertyGroup.length; j++) {
+							var propertyType = propertyGroup[j];
+							if (propertyType.dataType === "CONTROLLEDVOCABULARY") {
+								var vocabularyOrNumber = propertyType.vocabulary;
+								var vocabularyCode = null;
+								if (vocabularyOrNumber === parseInt(vocabularyOrNumber, 10)) { //Is number
+									vocabularyCode = intToVocabularyCode[vocabularyOrNumber];
+								} else {
+									vocabularyCode = propertyType.vocabulary.code;
+								}
 								
-						} else {
-							localReference.allSpaces = spaces;
-							callback();
+								if(!vocabularyCode) {
+									alert("[TO-DELETE] Empty Vocabulary during init, this should never happen, tell the developers.");
+								}
+								var vocabulary = _this.getVocabularyByCode(vocabularyCode);
+								propertyType.vocabulary = vocabulary;
+								propertyType.terms = vocabulary.terms;
+							}
 						}
-					})
+					}
 				}
-			);
+				
+				//Init Spaces
+				_this.serverFacade.listSpaces(function(spaces) {
+					if($.inArray("INVENTORY", spaces) === -1) {
+						mainController.serverFacade.createReportFromAggregationService(_this.getDefaultDataStoreCode(), {"method" : "init" }, function() {
+							_this.serverFacade.listSpaces(function(spaces) {
+								_this.allSpaces = spaces;
+								callback();
+							});
+						});
+					} else {
+						_this.allSpaces = spaces;
+						callback();
+					}
+				})
+			});
 		}
 		
 		this.initSearchDomains = function(callback) {
