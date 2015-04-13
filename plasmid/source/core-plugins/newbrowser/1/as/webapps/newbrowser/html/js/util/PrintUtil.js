@@ -143,6 +143,11 @@ var PrintUtil = new function() {
 						vocabulary = profile.getVocabularyById(propertyType.vocabulary);
 					}
 					
+					if(!vocabulary && propertyType.terms) { //This should not happen, but can save the day.
+						vocabulary = {};
+						vocabulary.terms = propertyType.terms;
+					}
+					
 					if(vocabulary) {
 						for(var j = 0; j < vocabulary.terms.length; j++) {
 							if(vocabulary.terms[j].code === propertyContent) {
