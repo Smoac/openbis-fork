@@ -130,9 +130,10 @@ def sendEmail(mailClient, fcId):
   christian = EMailAddress("christian.beisel@bsse.ethz.ch")
   katja = EMailAddress("katja.eschbach@bsse.ethz.ch")
   philippe = EMailAddress("philippe.demougin@unibas.ch")
+  elodie = EMailAddress("belodie@ethz.ch")
 
   mailClient.sendEmailMessage("Automatically created new NextSeq flow cell " + fcId  + " in openBIS", \
-                "A new NextSeq run got started with flow cell: " + fcId , replyTo, fromAddress, ina, katja, christian, philippe, manuel);
+                "A new NextSeq run got started with flow cell: " + fcId , replyTo, fromAddress, ina, katja, christian, philippe, manuel, elodie);
 
 # -----------------------------------------------------------------------------
 
@@ -203,6 +204,11 @@ def sanitizeString(myString):
 
 # -----------------------------------------------------------------------------
 
+def get_version(my_path):
+  return my_path[-4:-2]
+
+# -----------------------------------------------------------------------------
+
 def process(transaction):
 
   incoming = transaction.getIncoming()
@@ -252,6 +258,9 @@ def process(transaction):
   runMode = sanitizeString(runParameters.getAllchildren('Chemistry')[0].text)
   addVocabularyTerm(transaction, "RUN_MODE_VOCABULARY", runMode)
   newFlowCell.setPropertyValue("RUN_MODE", runMode)
+
+  recipe_folder = (runParameters.getAllchildren('RecipeFolder'))[0].text
+  major_version = get_version(recipe_folder)
     
   # Reading out <FlowcellLayout LaneCount="1" SurfaceCount="1" SwathCount="1" TileCount="12" />
   setFcProperty('FlowcellLayout', RUNINFO_XML, runInfo, newFlowCell)
@@ -260,6 +269,7 @@ def process(transaction):
   newFlowCell.setPropertyValue("SEQUENCER", sequencer[0].text)
   newFlowCell.setPropertyValue("FLOW_CELL_SEQUENCED_ON", createOpenbisTimeStamp(incomingPath + '/' + RUNPARAMETERS))
   newFlowCell.setPropertyValue("RUN_NAME_FOLDER", name)
+  newFlowCell.setPropertyValue("SBS_KIT", major_version)
 
   readMap = {}
   reads = runInfo.getAllchildren('Reads')
