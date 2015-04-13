@@ -510,7 +510,9 @@ def createMiSeqSampleSheet(parentDict, flowCellDict, configMap, index1Vocabulary
     len_index2 = int(flowCellDict['INDEXREAD2'])
 
     if int(flowCellDict['INDEXREAD2']) > 0:
-      sampleSheetDict[lane + '_' + key] = [key + separator
+      sampleSheetDict[lane + '_' + key] = [
+                            lane + separator 
+                            + key + separator
                             + key + '_' + sanitizeString(parentDict[key][configMap['externalSampleName']]) + '_' + index1[0:len_index1] + '_' + index2[0:len_index2] + separator
                             + separator
                             + separator
@@ -521,7 +523,9 @@ def createMiSeqSampleSheet(parentDict, flowCellDict, configMap, index1Vocabulary
                             + key + separator
                             ]
     else:
-            sampleSheetDict[lane + '_' + key] = [key + separator
+            sampleSheetDict[lane + '_' + key] = [
+                            lane + separator
+                            + key + separator
                             + key + '_' + sanitizeString(parentDict[key][configMap['externalSampleName']]) + '_' + index1[0:len_index1] + separator
                             + separator
                             + separator
