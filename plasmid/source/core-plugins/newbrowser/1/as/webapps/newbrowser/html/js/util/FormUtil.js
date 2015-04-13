@@ -21,15 +21,15 @@ var FormUtil = new function() {
 	//
 	
 	this.getXMLFromAnnotations = function(stateObj) {
-		var rootNode = document.createElementNS("http://www.w3.org/1999/xhtml", "root");
+		var rootNode = document.createElementNS("http://www.w3.org/1999/xhtml", "root"); //The namespace should be ignored by both ELN and openBIS parsers
 		
 		for(var permId in stateObj) {
-			var sampleNode	= document.createElementNS("http://www.w3.org/1999/xhtml", "Sample");
-			sampleNode.setAttributeNS(null, "permId", permId);
+			var sampleNode	= document.createElementNS("http://www.w3.org/1999/xhtml", "Sample"); //Should not add the namespace since is the same as the root
+			sampleNode.setAttributeNS(null, "permId", permId); //Should not add the namespace
 			
 			for(var propertyTypeCode in stateObj[permId]) {
 				var propertyTypeValue = stateObj[permId][propertyTypeCode];
-				sampleNode.setAttributeNS(null, propertyTypeCode, propertyTypeValue);
+				sampleNode.setAttributeNS(null, propertyTypeCode, propertyTypeValue); //Should not add the namespace
 			}
 			
 			rootNode.appendChild(sampleNode);
