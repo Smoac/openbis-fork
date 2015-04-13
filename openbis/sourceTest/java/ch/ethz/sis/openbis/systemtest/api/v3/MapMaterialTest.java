@@ -60,6 +60,8 @@ public class MapMaterialTest extends AbstractDataSetTest
         assertEquals(true, bacteria.getRegistrationDate() != null);
         assertPropertiesNotFetched(bacteria);
 
+        assertEquals(bacteria.getPermId(), bacteriaId);
+
         v3api.logout(sessionToken);
     }
 
@@ -114,6 +116,22 @@ public class MapMaterialTest extends AbstractDataSetTest
 
         assertEquals(selfChildId, childFromProperties.getPermId());
         assertEquals(true, child == childFromProperties);
+    }
 
+    @Test
+    public void testWithType()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        MaterialFetchOptions fetchOptions = new MaterialFetchOptions();
+        fetchOptions.withType();
+
+        MaterialPermId selfId = new MaterialPermId("SRM_1A", "SELF_REF");
+
+        Map<IMaterialId, Material> map = v3api.mapMaterials(sessionToken, Arrays.asList(selfId), fetchOptions);
+
+        Material item = map.get(selfId);
+
+        assertEquals(item.getType().getCode(), "SELF_REF");
     }
 }

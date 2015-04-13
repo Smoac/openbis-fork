@@ -43,6 +43,9 @@ public class MaterialTranslator extends AbstractCachingTranslator<MaterialPE, Ma
 {
 
     @Autowired
+    private IMaterialTypeTranslator typeTranslator;
+
+    @Autowired
     private IPropertyTranslator propertyTranslator;
 
     @Autowired
@@ -94,5 +97,12 @@ public class MaterialTranslator extends AbstractCachingTranslator<MaterialPE, Ma
             result.setRegistrator(personTranslator.translate(context, materialPe.getRegistrator(), fetchOptions.withRegistrator()));
             result.getFetchOptions().withRegistratorUsing(fetchOptions.withRegistrator());
         }
+
+        if (fetchOptions.hasType())
+        {
+            result.setType(typeTranslator.translate(context, materialPe.getMaterialType(), fetchOptions.withType()));
+            result.getFetchOptions().withTypeUsing(fetchOptions.withType());
+        }
+
     }
 }

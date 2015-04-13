@@ -56,4 +56,52 @@ public class UpdateMaterialTest extends AbstractSampleTest
         assertEquals(material.getProperties().get("DESCRIPTION"), description);
     }
 
+    @Test
+    public void testWithMaterialProperties()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        MaterialFetchOptions fetchOptions = new MaterialFetchOptions();
+        fetchOptions.withMaterialProperties().withProperties();
+
+        MaterialPermId selfParentId = new MaterialPermId("SRM_1", "SELF_REF");
+        MaterialPermId selfChildId = new MaterialPermId("SRM_1A", "SELF_REF");
+
+        Map<IMaterialId, Material> map = v3api.mapMaterials(sessionToken, Arrays.asList(selfChildId, selfParentId), fetchOptions);
+
+        Material parent = map.get(selfParentId);
+        Material child = map.get(selfChildId);
+
+        Map<String, Material> materialProperties = parent.getMaterialProperties();
+
+        Material childFromProperties = materialProperties.get("ANY_MATERIAL");
+
+        assertEquals(selfChildId, childFromProperties.getPermId());
+        assertEquals(true, child == childFromProperties);
+    }
+
+    @Test
+    public void testUpdateMaterialProperty()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        MaterialUpdate update = new MaterialUpdate();
+        update.setMaterialId(new MaterialPermId("SRM_1", "SELF_REF"));
+        update.setProperty("ANY_MATERIAL", "1 (GENE)");
+
+        v3api.updateMaterials(sessionToken, Arrays.asList(update));
+
+        MaterialFetchOptions fetchOptions = new MaterialFetchOptions();
+        fetchOptions.withProperties();
+        fetchOptions.withMaterialProperties().withType();
+
+        Map<IMaterialId, Material> map = v3api.mapMaterials(sessionToken, Arrays.asList(update.getMaterialId()), fetchOptions);
+
+        Material material = map.get(update.getMaterialId());
+        assertEquals(material.getProperties().get("ANY_MATERIAL"), "1 (GENE)");
+        Material expectedGene = material.getMaterialProperties().get("ANY_MATERIAL");
+        assertEquals(expectedGene.getCode(), "1");
+        assertEquals(expectedGene.getType().getCode(), "GENE");
+    }
+
 }
