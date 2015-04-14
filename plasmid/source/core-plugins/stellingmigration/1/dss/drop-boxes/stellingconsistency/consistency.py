@@ -83,6 +83,8 @@ def process(tr):
 def verify(tr, sample):
     annotationsRoot = getAnnotationsRootNodeFromSample(sample)
     requiredAnnotationsFound = getRequiredAnnotations(sample)
+    #1. Delete annotations and parent to be added
+    
     #1.Annotations hierarchy
     if annotationsRoot is not None:
         for annotation in annotationsRoot:
