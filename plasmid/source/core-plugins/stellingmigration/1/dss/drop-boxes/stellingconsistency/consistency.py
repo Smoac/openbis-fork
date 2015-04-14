@@ -99,7 +99,7 @@ def verify(tr, sample):
                     foundAnnotation = foundAnnotationAndAncestor[0]
                     foundAncestor = foundAnnotationAndAncestor[1]
                     if foundAnnotation is not None and foundAncestor is not None:
-                        log("INFO", "BAD CHILD FOUND - " + sample.getSampleIdentifier() + " " + annotatedSampleIdentifier);
+                        log("INFO", "BAD ANNOTATION FOUND - ON:" + sample.getSampleIdentifier() + " ANNOTATION:" + annotatedSampleIdentifier);
                         if areAnnotationsEqual(annotation, foundAnnotation):
                             log("AUTO-FIX", "CASE 1 - GOOD REPEATED ANNOTATION THAT CAN BE DELETED - " + sample.getSampleIdentifier() + " " + annotatedSampleIdentifier);
                         else:
@@ -108,8 +108,8 @@ def verify(tr, sample):
                         log("MANUAL-FIX", "CASE 1 - THE ANNOTATED SAMPLE IS NOT AN ANCESTOR - FOR SAMPLE: " + sample.getSampleIdentifier() + " ANNOTATION WITH MISSING ANCESTOR:" + annotatedSampleIdentifier);
                     elif foundAnnotation is None:
                         log("MANUAL-FIX", "CASE 2 - THE ANNOTATED SAMPLE IS NOT ANNOTATED WHERE IT SHOULD - FOR SAMPLE: " + sample.getSampleIdentifier() + " ANNOTATION: " + annotatedSampleIdentifier +" NOT AT " + foundAncestor.getSampleIdentifier());
-            except Exception:
-                log("ERROR", "PROCESSING ANNOTATIONS XML CHILD " + sample.getSampleIdentifier());
+            except Exception, err:
+                log("ERROR", "PROCESSING ANNOTATIONS XML CHILD " + sample.getSampleIdentifier() + " ERR: " + str(err));
     #2.Missing Annotations
     for parentIdentifier in requiredAnnotationsFound:
         if not requiredAnnotationsFound[parentIdentifier]:
@@ -126,11 +126,17 @@ def areAnnotationsEqual(annotationA, annotationB):
     for key in annotationA.attrib:
         value = annotationA.attrib[key]
         if key != "CONTAINED":
-            if value != annotationB.attrib[key]:
-                log("INFO", "EQUALITY FAILED FOR " + key + ": - " + value + " " + annotationB.attrib[key]);
+            if value != getValueOrNull(annotationB.attrib, key):
+                log("INFO", "EQUALITY FAILED FOR " + key + ": - " + value + " " + str(getValueOrNull(annotationB.attrib, key)));
                 return False
     return True
 
+def getValueOrNull(map, key):
+    if key in map:
+        return map[key]
+    else:
+        return None
+    
 def getAnnotationAndAncestor(annotatedSampleIdentifier, sampleParentsIdentifiers):
     ancestorsIdentifiers = list(sampleParentsIdentifiers)
     while( len(ancestorsIdentifiers) > 0):
