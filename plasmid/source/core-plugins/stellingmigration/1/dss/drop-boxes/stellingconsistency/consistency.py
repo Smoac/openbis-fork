@@ -9,22 +9,26 @@ import xml.etree.ElementTree as ET
 ##
 
 sampleTypesToVerify = ["YEAST","POMBE"];
-logLevelsToPrint = ["ERROR", "REPORT", "MANUAL-FIX"];
+logLevelsToPrint = ["ERROR", "REPORT", "MANUAL-FIX", "AUTO-FIX-2"];
 
 ##
 ## Logging
 ##
 
 numberOfManualFixes = 0;
-numberOfAutoFixes = 0;
+numberOfAutoFixesDeletes = 0;
+numberOfAutoFixesLost = 0;
 def log(level, message):
     if level == "MANUAL-FIX":
         global numberOfManualFixes
         numberOfManualFixes = numberOfManualFixes + 1
     if level == "AUTO-FIX":
-        global numberOfAutoFixes
-        numberOfAutoFixes = numberOfAutoFixes + 1
-    if any(level in s for s in logLevelsToPrint):
+        global numberOfAutoFixesDeletes
+        numberOfAutoFixesDeletes = numberOfAutoFixesDeletes + 1
+    if level == "AUTO-FIX-2":
+        global numberOfAutoFixesLost
+        numberOfAutoFixesLost = numberOfAutoFixesLost + 1
+    if level in logLevelsToPrint:
         print "[" + level + "] " + message;
 
 ##
@@ -75,21 +79,23 @@ def process(tr):
             verify(tr, sample)
     
     global numberOfManualFixes
-    global numberOfAutoFixes
-    log("REPORT", "FOUND " + str(numberOfAutoFixes) + " AUTOMATIC FIXES!");
+    global numberOfAutoFixesDeletes
+    global numberOfAutoFixesLost
+    log("REPORT", "FOUND " + str(numberOfAutoFixesDeletes) + " AUTOMATIC DELETE FIXES!");
+    log("REPORT", "FOUND " + str(numberOfAutoFixesLost) + " AUTOMATIC LOST FIXES!");
     log("REPORT", "REQUIRED " + str(numberOfManualFixes) + " MANUAL FIXES!");
     log("REPORT", "FINISH VERIFICATION REPORT!");
 
 def verify(tr, sample):
     annotationsRoot = getAnnotationsRootNodeFromSample(sample)
-    requiredAnnotationsFound = getRequiredAnnotations(sample)
-    #1. Delete annotations and parent to be added
-    
     #1.Annotations hierarchy
+    requiredAnnotationsFound = getRequiredAnnotations(sample) #To detect case 4
+    requiredAnnotationsFromParents = getRequiredAnnotationsFromParents(sample) #To detect case 5
     if annotationsRoot is not None:
         for annotation in annotationsRoot:
             annotatedSampleIdentifier = annotation.attrib["identifier"] #Identifier from annotated sample
             requiredAnnotationsFound[annotatedSampleIdentifier] = True
+            requiredAnnotationsFromParents[annotatedSampleIdentifier] = True
             try:
                 if isChild(sample, annotatedSampleIdentifier):
                     #This is an annotation from a parent, this is by default correct and don't needs further inspection.
@@ -110,10 +116,27 @@ def verify(tr, sample):
                         log("MANUAL-FIX", "CASE 2 - THE ANNOTATED SAMPLE IS NOT ANNOTATED WHERE IT SHOULD - FOR SAMPLE: " + sample.getSampleIdentifier() + " ANNOTATION: " + annotatedSampleIdentifier +" NOT AT " + foundAncestor.getSampleIdentifier());
             except Exception, err:
                 log("ERROR", "PROCESSING ANNOTATIONS XML CHILD " + sample.getSampleIdentifier() + " ERR: " + str(err));
-    #2.Missing Annotations
+    #2.Missing Parents Annotations
     for parentIdentifier in requiredAnnotationsFound:
         if not requiredAnnotationsFound[parentIdentifier]:
             log("MANUAL-FIX", "CASE 4 - MISSING ANNOTATIONS ON SAMPLE: " + sample.getSampleIdentifier() + " FOR PARENT:" + parentIdentifier);
+    #3.Missing Annotations LOST
+    for parentAnnotationIdentifier in requiredAnnotationsFromParents:
+        if not requiredAnnotationsFromParents[parentAnnotationIdentifier]:
+            log("AUTO-FIX-2", "CASE 2 - MISSING LOST ANNOTATIONS ON SAMPLE: " + sample.getSampleIdentifier() + " FOR LOST:" + parentAnnotationIdentifier);
+
+def getRequiredAnnotationsFromParents(sample):
+    requiredAnnotationsFromParents = {}
+    for parentIdentifier in sample.getParentSampleIdentifiers():
+        if ("/FRY" in parentIdentifier) or ("/FRS" in parentIdentifier): #Only check Yeast and Pombe Parents
+            parent = getSampleFromCache(parentIdentifier)
+            parentAnnotationsRoot = getAnnotationsRootNodeFromSample(parent)
+            if parentAnnotationsRoot is not None:
+                for parentAnnotation in parentAnnotationsRoot:
+                    parentAnnotationIdentifier = parentAnnotation.attrib["identifier"];
+                    if "/FRP" in parentAnnotationIdentifier: #Only require Plasmids
+                        requiredAnnotationsFromParents[parentAnnotationIdentifier] = False
+    return requiredAnnotationsFromParents;
 
 def getRequiredAnnotations(sample):
     requiredAnnotationsFound = {}
