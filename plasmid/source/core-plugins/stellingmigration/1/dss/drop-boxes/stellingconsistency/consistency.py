@@ -9,7 +9,7 @@ import xml.etree.ElementTree as ET
 ##
 
 sampleTypesToVerify = ["YEAST","POMBE"];
-logLevelsToPrint = ["ERROR", "REPORT", "MANUAL-FIX", "AUTO-FIX-2"];
+logLevelsToPrint = ["ERROR", "REPORT", "MANUAL-FIX", "AUTO-FIX-2"]; #INFO not included, use it for debug only
 
 ##
 ## Logging
