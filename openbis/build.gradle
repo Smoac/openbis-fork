@@ -73,6 +73,6 @@ task copyTestData(type: Copy, dependsOn: testClasses) {
     include "*.properties"
 }
 test.dependsOn(copyTestData)
-test.dependsOn(cleanDbSuite)
+// test.dependsOn(cleanDbSuite)
 
 apply from: 'gwtdev.gradle'
