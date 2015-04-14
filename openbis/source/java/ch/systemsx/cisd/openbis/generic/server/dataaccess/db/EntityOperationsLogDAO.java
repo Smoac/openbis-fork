@@ -4,7 +4,7 @@ import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Restrictions;
-import org.springframework.orm.hibernate3.HibernateTemplate;
+import org.springframework.orm.hibernate4.HibernateTemplate;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -41,7 +41,7 @@ public class EntityOperationsLogDAO extends AbstractGenericEntityDAO<EntityOpera
     {
         assert registrationId != null : "Unspecified registration id.";
 
-        final Criteria criteria = getSession().createCriteria(getEntityClass());
+        final Criteria criteria = currentSession().createCriteria(getEntityClass());
         criteria.add(Restrictions.eq("registrationId", registrationId));
         EntityOperationsLogEntryPE result = (EntityOperationsLogEntryPE) criteria.uniqueResult();
         if (null != result)

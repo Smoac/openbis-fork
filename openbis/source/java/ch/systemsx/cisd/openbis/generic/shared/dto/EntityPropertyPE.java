@@ -39,7 +39,7 @@ import org.hibernate.search.annotations.Resolution;
 import org.hibernate.search.annotations.Store;
 import org.hibernate.search.bridge.FieldBridge;
 import org.hibernate.search.bridge.LuceneOptions;
-import org.hibernate.search.bridge.builtin.DateBridge;
+import org.hibernate.search.bridge.builtin.StringEncodingDateBridge;
 
 import ch.systemsx.cisd.common.reflection.ClassUtils;
 import ch.systemsx.cisd.common.reflection.ModifiedShortPrefixToStringStyle;
@@ -58,7 +58,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.SimplePropertyValidator.Supp
  * @author Izabela Adamczyk
  */
 @MappedSuperclass
-@ClassBridge(index = Index.TOKENIZED, store = Store.YES, impl = EntityPropertyPE.EntityPropertySearchBridge.class)
+@ClassBridge(index = Index.YES, store = Store.YES, impl = EntityPropertyPE.EntityPropertySearchBridge.class)
 public abstract class EntityPropertyPE extends HibernateAbstractRegistrationHolder implements
         IUntypedValueSetter, IEntityPropertyHolder
 {
@@ -130,7 +130,7 @@ public abstract class EntityPropertyPE extends HibernateAbstractRegistrationHold
                 try
                 {
                     Date date = dateFormat.parse(fieldValue);
-                    DateBridge dateBridge = new DateBridge(Resolution.SECOND);
+                    StringEncodingDateBridge dateBridge = new StringEncodingDateBridge(Resolution.SECOND);
                     fieldValue = dateBridge.objectToString(date);
                 } catch (ParseException e)
                 {
@@ -141,10 +141,7 @@ public abstract class EntityPropertyPE extends HibernateAbstractRegistrationHold
             Field field =
                     new Field(fieldFullName, fieldValue, luceneOptions.getStore(),
                             luceneOptions.getIndex());
-            if (luceneOptions.getBoost() != null)
-            {
-                field.setBoost(luceneOptions.getBoost());
-            }
+            field.setBoost(luceneOptions.getBoost());
             document.add(field);
         }
 

@@ -23,7 +23,7 @@ import org.hibernate.Criteria;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.jdbc.support.JdbcAccessor;
-import org.springframework.orm.hibernate3.HibernateTemplate;
+import org.springframework.orm.hibernate4.HibernateTemplate;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -120,7 +120,7 @@ final class VocabularyDAO extends AbstractGenericEntityDAO<VocabularyPE> impleme
         assert vocabulary != null : "Unspecified vocabulary.";
         assert code != null : "Unspecified code.";
 
-        final Criteria criteria = getSession().createCriteria(VocabularyTermPE.class);
+        final Criteria criteria = currentSession().createCriteria(VocabularyTermPE.class);
         criteria.add(Restrictions.eq("code", code));
         criteria.add(Restrictions.eq("vocabularyInternal", vocabulary));
         final VocabularyTermPE result = tryGetEntity(criteria.uniqueResult());

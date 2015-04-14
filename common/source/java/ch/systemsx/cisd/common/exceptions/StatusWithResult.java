@@ -20,10 +20,6 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
-import ch.systemsx.cisd.common.exceptions.Status;
-import ch.systemsx.cisd.common.exceptions.StatusFlag;
-import ch.systemsx.cisd.common.exceptions.StatusWithResult;
-
 /**
  * A {@link Status} that can also hold a result.
  * 
@@ -41,45 +37,45 @@ public class StatusWithResult<T> extends Status
     {
         return new StatusWithResult<T>(StatusFlag.OK, null, resultOrNull);
     }
-    
+
     /**
      * Create an error.
      * 
      * @param retriable If <code>true</code>, the error will be marked 'retriable'.
      */
-    public static <T> StatusWithResult<T>  createError(boolean retriable)
+    public static <T> StatusWithResult<T> createErrorWithResult(boolean retriable)
     {
         return new StatusWithResult<T>(getErrorFlag(retriable), "", null);
     }
 
-    public static <T> StatusWithResult<T> createError(boolean retriable, String message)
+    public static <T> StatusWithResult<T> createErrorx(boolean retriable, String message)
     {
         assert message != null;
-        
+
         return new StatusWithResult<T>(getErrorFlag(retriable), message, null);
     }
-    
-    public static <T> StatusWithResult<T>  createError()
+
+    public static <T> StatusWithResult<T> createErrorWithResult()
     {
         return new StatusWithResult<T>(StatusFlag.ERROR, "", null);
     }
-    
-    public static <T> StatusWithResult<T>  createError(String message)
+
+    public static <T> StatusWithResult<T> createErrorWithResult(String message)
     {
         assert message != null;
-        
+
         return new StatusWithResult<T>(StatusFlag.ERROR, message, null);
     }
-    
-    public static <T> StatusWithResult<T>  createRetriableError()
+
+    public static <T> StatusWithResult<T> createRetriableErrorWithResult()
     {
         return new StatusWithResult<T>(StatusFlag.RETRIABLE_ERROR, "", null);
     }
 
-    public static <T> StatusWithResult<T>  createRetriableError(String message)
+    public static <T> StatusWithResult<T> createRetriableErrorWithResult(String message)
     {
         assert message != null;
-        
+
         return new StatusWithResult<T>(StatusFlag.RETRIABLE_ERROR, message, null);
     }
 

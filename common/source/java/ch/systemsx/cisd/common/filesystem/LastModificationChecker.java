@@ -69,7 +69,7 @@ public class LastModificationChecker implements ILastModificationChecker
     {
         String errorMsg =
                 String.format("Could not determine \"last changed time\" of '%s'.", item);
-        return StatusWithResult.<Long> createError(errorMsg);
+        return StatusWithResult.<Long> createErrorWithResult(errorMsg);
     }
 
     protected final File getChildFile(final StoreItem item)

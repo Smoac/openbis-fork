@@ -72,7 +72,7 @@ public abstract class AbstractApplicationServerApiTestCase extends AbstractServe
 
     private SessionFactory sessionFactory;
 
-    private org.hibernate.classic.Session currentHibernateSession;
+    private org.hibernate.Session currentHibernateSession;
 
     protected ApplicationServerApi server;
 
@@ -89,7 +89,7 @@ public abstract class AbstractApplicationServerApiTestCase extends AbstractServe
         sampleTypeSlaveServerPlugin = context.mock(ISampleTypeSlaveServerPlugin.class);
         dataSetTypeSlaveServerPlugin = context.mock(IDataSetTypeSlaveServerPlugin.class);
         sessionFactory = context.mock(SessionFactory.class);
-        currentHibernateSession = context.mock(org.hibernate.classic.Session.class);
+        currentHibernateSession = context.mock(org.hibernate.Session.class);
         person = new PersonPE();
         person.setUserId(session.getUserName());
         session.setPerson(person);

@@ -90,7 +90,7 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
     public DataBO(IDAOFactory daoFactory, Session session,
             IRelationshipService relationshipService,
             IServiceConversationClientManagerLocal conversationClient,
-            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, 
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory,
             DataSetTypeWithoutExperimentChecker dataSetTypeChecker)
     {
         super(daoFactory, session, relationshipService, conversationClient,
@@ -101,7 +101,7 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
             IEntityPropertiesConverter propertiesConverter,
             IRelationshipService relationshipService,
             IServiceConversationClientManagerLocal conversationClient,
-            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, 
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory,
             DataSetTypeWithoutExperimentChecker dataSetTypeChecker)
     {
         super(daoFactory, exampleSession, propertiesConverter, relationshipService,
@@ -246,7 +246,7 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
             {
                 if (sample.getSpace() == null)
                 {
-                    throw new UserFailureException("Data set can not be registered because sample '" 
+                    throw new UserFailureException("Data set can not be registered because sample '"
                             + sample.getSampleIdentifier() + "' is a shared sample.");
                 } else if (sample.getDeletion() != null)
                 {
@@ -630,6 +630,9 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
 
         entityPropertiesConverter.checkMandatoryProperties(data.getProperties(),
                 data.getDataSetType());
+
+        this.getSessionFactory().getCurrentSession().evict(data);
+        this.getSessionFactory().getCurrentSession().update(data);
         validateAndSave();
     }
 

@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
 import java.math.BigInteger;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -43,8 +42,8 @@ import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.transform.ResultTransformer;
 import org.springframework.dao.DataAccessException;
-import org.springframework.orm.hibernate3.HibernateCallback;
-import org.springframework.orm.hibernate3.HibernateTemplate;
+import org.springframework.orm.hibernate4.HibernateCallback;
+import org.springframework.orm.hibernate4.HibernateTemplate;
 
 import ch.systemsx.cisd.common.collection.CollectionStyle;
 import ch.systemsx.cisd.common.collection.CollectionUtils;
@@ -145,7 +144,7 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
         Set<Long> idsOfSamplesWithDataSets = (Set<Long>) getHibernateTemplate().execute(new HibernateCallback()
             {
                 @Override
-                public Object doInHibernate(Session session) throws HibernateException, SQLException
+                public Object doInHibernate(Session session) throws HibernateException
                 {
                     SQLQuery query = session.createSQLQuery("select distinct samp_id from data where samp_id in (:sampleIds)");
                     query.setParameterList("sampleIds", sampleIds);
@@ -346,7 +345,7 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
     public TechId tryToFindDataSetIdByCode(String dataSetCode)
     {
         SQLQuery query =
-                getSession().createSQLQuery(
+                currentSession().createSQLQuery(
                         "select id from data_all where code = :code");
         query.setString("code", CodeConverter.tryToDatabase(dataSetCode));
         Object uniqueResult = query.uniqueResult();
@@ -563,7 +562,7 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
 
                         @Override
                         public final Object doInHibernate(final Session session)
-                                throws HibernateException, SQLException
+                                throws HibernateException
                         {
                             // NOTE: 'VERSIONED' makes modification time modified too
                             return session
@@ -591,7 +590,7 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
 
                     @Override
                     public final Object doInHibernate(final Session session)
-                            throws HibernateException, SQLException
+                            throws HibernateException
                     {
                         // NOTE: 'VERSIONED' makes modification time modified too
                         return session
@@ -623,7 +622,7 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
             {
                 @Override
                 public final Object doInHibernate(final Session session)
-                        throws HibernateException, SQLException
+                        throws HibernateException
                 {
                     for (Map.Entry<String, Long> sizeEntry : sizeMap.entrySet())
                     {
@@ -681,7 +680,7 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
 
                         @Override
                         public final Object doInHibernate(final Session session)
-                                throws HibernateException, SQLException
+                                throws HibernateException
                         {
                             // NOTE: 'VERSIONED' makes modification time modified too
                             return session
@@ -711,7 +710,7 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
 
                     @Override
                     public final Object doInHibernate(final Session session)
-                            throws HibernateException, SQLException
+                            throws HibernateException
                     {
                         // NOTE: 'VERSIONED' makes modification time modified too
                         return session
@@ -1297,6 +1296,7 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
     @Override
     public final void validateAndSaveUpdatedEntity(DataPE entity) throws DataAccessException
     {
+        this.currentSession().flush();
         super.validateAndSaveUpdatedEntity(entity);
         scheduleDynamicPropertiesEvaluation(Arrays.asList(entity));
     }
@@ -1360,7 +1360,7 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
     public boolean confirmStorage(String dataSetCode)
     {
         SQLQuery query =
-                getSession().createSQLQuery(
+                currentSession().createSQLQuery(
                         "update external_data set storage_confirmation = true "
                                 + "where storage_confirmation = false "
                                 + "and data_id in (select id from data_all where code = :code)");
@@ -1389,7 +1389,7 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
     private boolean isAccessTimestampColumnDefined()
     {
         SQLQuery query =
-                getSession().createSQLQuery(
+                currentSession().createSQLQuery(
                         "SELECT column_name FROM information_schema.columns WHERE table_name='data_all' and column_name='"
                                 + ColumnNames.ACCESS_TIMESTAMP + "'");
         return query.list().size() > 0;
@@ -1401,7 +1401,7 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
         if (isAccessTimestampEnabled())
         {
             SQLQuery query =
-                    getSession().createSQLQuery(
+                    currentSession().createSQLQuery(
                             "update data_all set " + ColumnNames.ACCESS_TIMESTAMP + " = current_timestamp "
                                     + "where code = :code");
             query.setString("code", CodeConverter.tryToDatabase(dataSetCode));
@@ -1414,7 +1414,7 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
     public boolean exists(String dataSetCode)
     {
         SQLQuery query =
-                getSession().createSQLQuery("select count(*) from data_all where code = :code");
+                currentSession().createSQLQuery("select count(*) from data_all where code = :code");
         query.setString("code", CodeConverter.tryToDatabase(dataSetCode));
         Number count = (Number) query.uniqueResult();
         return count != null && count.intValue() > 0;

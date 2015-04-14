@@ -57,7 +57,7 @@ public class RelationshipTypeDAO extends AbstractGenericEntityDAO<RelationshipTy
         if (typeId != null)
         {
             // getting a relationship type by Hibernate id (uses 1st level cache)
-            type = (RelationshipTypePE) getSession().get(RelationshipTypePE.class, typeId);
+            type = (RelationshipTypePE) currentSession().get(RelationshipTypePE.class, typeId);
         }
 
         if (operationLog.isDebugEnabled())

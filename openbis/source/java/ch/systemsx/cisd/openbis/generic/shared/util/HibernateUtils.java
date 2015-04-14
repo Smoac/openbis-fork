@@ -20,7 +20,7 @@ import org.hibernate.CacheMode;
 import org.hibernate.FlushMode;
 import org.hibernate.Hibernate;
 import org.hibernate.Session;
-import org.hibernate.engine.SessionImplementor;
+import org.hibernate.engine.spi.SessionImplementor;
 import org.hibernate.proxy.HibernateProxy;
 import org.hibernate.proxy.LazyInitializer;
 
@@ -30,8 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 /**
  * Some utility methods around <i>Hibernate</i>.
  * <p>
- * This should be used instead of {@link Hibernate} because we check here for
- * {@link UnmodifiableCollectionDecorator}.
+ * This should be used instead of {@link Hibernate} because we check here for {@link UnmodifiableCollectionDecorator}.
  * </p>
  * 
  * @author Christian Ribeaud
@@ -53,8 +52,7 @@ public final class HibernateUtils
     }
 
     /**
-     * Extends {@link Hibernate#initialize(Object)} by checking for
-     * {@link UnmodifiableCollectionDecorator}.
+     * Extends {@link Hibernate#initialize(Object)} by checking for {@link UnmodifiableCollectionDecorator}.
      */
     public final static void initialize(final Object proxy)
     {
@@ -62,8 +60,7 @@ public final class HibernateUtils
     }
 
     /**
-     * Extends {@link Hibernate#isInitialized(Object)} by checking for
-     * {@link UnmodifiableCollectionDecorator}.
+     * Extends {@link Hibernate#isInitialized(Object)} by checking for {@link UnmodifiableCollectionDecorator}.
      */
     public final static boolean isInitialized(final Object proxy)
     {
@@ -73,8 +70,7 @@ public final class HibernateUtils
     /**
      * For given <var>idHolder</var> returns corresponding {@link Long} id.
      * <p>
-     * Internally checks whether given {@link IIdHolder} is a {@link HibernateProxy} and handles
-     * correspondingly.
+     * Internally checks whether given {@link IIdHolder} is a {@link HibernateProxy} and handles correspondingly.
      * </p>
      */
     public final static Long getId(final IIdHolder idHolder)
@@ -92,7 +88,7 @@ public final class HibernateUtils
      * @return Unproxied <var>proxy</var>.
      */
     @SuppressWarnings(
-        { "unchecked" })
+    { "unchecked" })
     public final static <T> T unproxy(final T proxy)
     {
         if (proxy instanceof HibernateProxy && Hibernate.isInitialized(proxy))
@@ -118,11 +114,9 @@ public final class HibernateUtils
     }
 
     /**
-     * @param batchMode if true the second level cache will be switched off and the hibernate
-     *            session will be synchronized with the database only at the end of the transaction.
-     *            Note that 1) this cause that the stale data will be fetched from database,
-     *            ignoring the changes in hibernate layer 2) if you have many write operations
-     *            interleaved with read operations in one block, switching synchronization off
+     * @param batchMode if true the second level cache will be switched off and the hibernate session will be synchronized with the database only at
+     *            the end of the transaction. Note that 1) this cause that the stale data will be fetched from database, ignoring the changes in
+     *            hibernate layer 2) if you have many write operations interleaved with read operations in one block, switching synchronization off
      *            greatly improves the performance.
      */
     public final static void setBatchUpdateMode(Session session, boolean batchMode)

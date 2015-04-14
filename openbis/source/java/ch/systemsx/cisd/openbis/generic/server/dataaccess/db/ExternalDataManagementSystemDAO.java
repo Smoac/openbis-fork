@@ -24,7 +24,7 @@ import org.hibernate.FetchMode;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.CriteriaSpecification;
 import org.hibernate.criterion.Restrictions;
-import org.springframework.orm.hibernate3.HibernateTemplate;
+import org.springframework.orm.hibernate4.HibernateTemplate;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -74,7 +74,7 @@ public class ExternalDataManagementSystemDAO extends AbstractDAO implements
     {
         assert externalDataManagementSystemCode != null : "Unspecified external data management system code.";
 
-        final Criteria criteria = getSession().createCriteria(ENTITY_CLASS);
+        final Criteria criteria = currentSession().createCriteria(ENTITY_CLASS);
         criteria.add(Restrictions.eq("code",
                 CodeConverter.tryToDatabase(externalDataManagementSystemCode)));
         return (ExternalDataManagementSystemPE) criteria.uniqueResult();
@@ -83,7 +83,7 @@ public class ExternalDataManagementSystemDAO extends AbstractDAO implements
     @Override
     public List<ExternalDataManagementSystemPE> listExternalDataManagementSystems()
     {
-        final Criteria criteria = getSession().createCriteria(ENTITY_CLASS);
+        final Criteria criteria = currentSession().createCriteria(ENTITY_CLASS);
         criteria.setFetchMode("servicesInternal", FetchMode.JOIN);
         criteria.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
         final List<ExternalDataManagementSystemPE> list = cast(criteria.list());

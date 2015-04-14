@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
+import org.springframework.transaction.annotation.Transactional;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -58,6 +59,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
         DatasetListerDAO.class })
 @Test(groups =
 { "db", "dataset" })
+@Transactional
 public class DatasetListingQueryTest extends AbstractDAOTest
 {
 

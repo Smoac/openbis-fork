@@ -74,8 +74,8 @@ import ch.systemsx.cisd.openbis.generic.shared.util.EqualsHashUtils;
  */
 @Entity
 @Table(name = TableNames.PROJECTS_TABLE, uniqueConstraints =
-    { @UniqueConstraint(columnNames =
-        { ColumnNames.CODE_COLUMN, ColumnNames.SPACE_COLUMN }) })
+{ @UniqueConstraint(columnNames =
+{ ColumnNames.CODE_COLUMN, ColumnNames.SPACE_COLUMN }) })
 @Friend(toClasses = ExperimentPE.class)
 public final class ProjectPE extends AttachmentHolderPE implements Comparable<ProjectPE>,
         IIdAndCodeHolder, IModifierAndModificationDateBean, Serializable
@@ -337,7 +337,7 @@ public final class ProjectPE extends AttachmentHolderPE implements Comparable<Pr
     @Length(min = 1, max = Code.CODE_LENGTH_MAX, message = ValidationMessages.CODE_LENGTH_MESSAGE)
     @Pattern(regexp = AbstractIdAndCodeHolder.CODE_PATTERN, flags = Pattern.Flag.CASE_INSENSITIVE, message = ValidationMessages.CODE_PATTERN_MESSAGE)
     @Column(name = ColumnNames.PERM_ID_COLUMN, nullable = false)
-    @Field(index = Index.TOKENIZED, store = Store.YES, name = SearchFieldConstants.PERM_ID)
+    @Field(index = Index.YES, store = Store.YES, name = SearchFieldConstants.PERM_ID)
     public String getPermId()
     {
         return permId;
@@ -348,7 +348,7 @@ public final class ProjectPE extends AttachmentHolderPE implements Comparable<Pr
     @NotNull(message = ValidationMessages.CODE_NOT_NULL_MESSAGE)
     @Length(min = 1, max = Code.CODE_LENGTH_MAX, message = ValidationMessages.CODE_LENGTH_MESSAGE)
     @Pattern(regexp = AbstractIdAndCodeHolder.CODE_PATTERN, flags = Pattern.Flag.CASE_INSENSITIVE, message = ValidationMessages.CODE_PATTERN_MESSAGE)
-    @Field(index = Index.TOKENIZED, store = Store.YES, name = SearchFieldConstants.CODE)
+    @Field(index = Index.YES, store = Store.YES, name = SearchFieldConstants.CODE)
     public final String getCode()
     {
         return code;

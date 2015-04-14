@@ -21,10 +21,11 @@ import java.io.Reader;
 import java.util.Set;
 
 import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.CharTokenizer;
 import org.apache.lucene.analysis.TokenFilter;
 import org.apache.lucene.analysis.TokenStream;
+import org.apache.lucene.analysis.Tokenizer;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
+import org.apache.lucene.analysis.util.CharTokenizer;
 
 /**
  * Extends {@link Analyzer} splitting text on characters not allowed in codes or words.
@@ -34,42 +35,33 @@ import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 public final class SearchAnalyzer extends Analyzer
 {
 
-    @Override
-    public TokenStream tokenStream(String fieldName, Reader reader)
-    {
-        return new TrimSpecialCharsFilter(new WordAndCodeTokenizer(reader));
-    }
-
     //
     // Helper classes
     //
 
     /**
-     * A tokenizer that divides text at chars different than letters, digits and special chars
-     * defined in {@link CharacterHelper}.
+     * A tokenizer that divides text at chars different than letters, digits and special chars defined in {@link CharacterHelper}.
      * <p>
-     * Additionally it normalizes token text to lower case (with a performance gain compared to
-     * using LowerCaseFilter after tokenization).
+     * Additionally it normalizes token text to lower case (with a performance gain compared to using LowerCaseFilter after tokenization).
      */
     private static class WordAndCodeTokenizer extends CharTokenizer
     {
 
-        @SuppressWarnings("deprecation")
         public WordAndCodeTokenizer(Reader input)
         {
             super(input);
         }
 
         @Override
-        protected boolean isTokenChar(char c)
+        protected boolean isTokenChar(int c)
         {
-            return CharacterHelper.isTokenCharacter(c);
+            return CharacterHelper.isTokenCharacter((char) c);
         }
 
         @Override
-        protected char normalize(char c)
+        protected int normalize(int c)
         {
-            return Character.toLowerCase(c);
+            return Character.toLowerCase((char) c);
         }
     }
 
@@ -146,6 +138,14 @@ public final class SearchAnalyzer extends Analyzer
             }
             return false;
         }
+    }
+
+    @Override
+    protected TokenStreamComponents createComponents(String fieldName, Reader reader)
+    {
+        Tokenizer source = new WordAndCodeTokenizer(reader);
+        TokenStream filter = new TrimSpecialCharsFilter(source);
+        return new TokenStreamComponents(source, filter);
     }
 
 }

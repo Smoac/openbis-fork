@@ -129,7 +129,6 @@ public final class SpacePE extends HibernateAbstractRegistrationHolder implement
     @SequenceGenerator(name = SequenceNames.SPACE_SEQUENCE, sequenceName = SequenceNames.SPACE_SEQUENCE, allocationSize = 1)
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.SPACE_SEQUENCE)
-    @Field(index = Index.NO, store = Store.YES)
     public final Long getId()
     {
         return id;
@@ -139,7 +138,7 @@ public final class SpacePE extends HibernateAbstractRegistrationHolder implement
     @NotNull(message = ValidationMessages.CODE_NOT_NULL_MESSAGE)
     @Length(min = 1, max = Code.CODE_LENGTH_MAX, message = ValidationMessages.CODE_LENGTH_MESSAGE)
     @Pattern(regexp = AbstractIdAndCodeHolder.CODE_PATTERN, flags = Pattern.Flag.CASE_INSENSITIVE, message = ValidationMessages.CODE_PATTERN_MESSAGE)
-    @Field(index = Index.TOKENIZED, store = Store.YES, name = SearchFieldConstants.CODE)
+    @Field(index = Index.YES, store = Store.YES, name = SearchFieldConstants.CODE)
     public final String getCode()
     {
         return code;

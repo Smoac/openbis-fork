@@ -31,7 +31,7 @@ import org.hibernate.criterion.Restrictions;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.jdbc.support.JdbcAccessor;
-import org.springframework.orm.hibernate3.HibernateTemplate;
+import org.springframework.orm.hibernate4.HibernateTemplate;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -266,7 +266,7 @@ public final class PersonDAO extends AbstractGenericEntityDAO<PersonPE> implemen
     {
         if (userIds.size() == 0)
             return new ArrayList<PersonPE>();
-        final Criteria criteria = getSession().createCriteria(PersonPE.class);
+        final Criteria criteria = currentSession().createCriteria(PersonPE.class);
         criteria.add(Restrictions.in("userId", userIds));
         return cast(criteria.list());
     }

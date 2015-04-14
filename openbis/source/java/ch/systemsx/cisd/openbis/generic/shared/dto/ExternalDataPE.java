@@ -44,8 +44,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.Location;
 import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
 
 /**
- * Kind of <i>Java Bean</i> or <i>Value Object</i> which contains any information we would like to
- * know about one EXTERNAL DATA.
+ * Kind of <i>Java Bean</i> or <i>Value Object</i> which contains any information we would like to know about one EXTERNAL DATA.
  * <p>
  * This class is the <i>Java Object</i> representation of the corresponding data in the database.
  * </p>
@@ -54,7 +53,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstant
  */
 @Entity
 @Table(name = TableNames.EXTERNAL_DATA_TABLE, uniqueConstraints = @UniqueConstraint(columnNames =
-    { ColumnNames.LOCATION_COLUMN, ColumnNames.LOCATOR_TYPE_COLUMN }))
+{ ColumnNames.LOCATION_COLUMN, ColumnNames.LOCATOR_TYPE_COLUMN }))
 @PrimaryKeyJoinColumn(name = ColumnNames.DATA_ID_COLUMN)
 @Indexed(index = "DataPE")
 public final class ExternalDataPE extends DataPE
@@ -91,8 +90,7 @@ public final class ExternalDataPE extends DataPE
     private int speedHint = Constants.DEFAULT_SPEED_HINT;
 
     /**
-     * Returns the id of the locator type of the location of this external data, or
-     * <code>null</code> if not yet set.
+     * Returns the id of the locator type of the location of this external data, or <code>null</code> if not yet set.
      */
     @ManyToOne(fetch = FetchType.LAZY)
     @NotNull(message = ValidationMessages.LOCATOR_TYPE_NOT_NULL_MESSAGE)
@@ -187,10 +185,9 @@ public final class ExternalDataPE extends DataPE
     @Column(name = ColumnNames.IS_COMPLETE_COLUMN)
     @Enumerated(EnumType.STRING)
     /*
-     * * Returns {@link BooleanOrUnknown#T}, if the data set is complete in the data store and
-     * {@link BooleanOrUnknown#F}, if some parts of the data are missing. If the completeness is not
-     * known (e.g. because the data set is stored in a format that does not allow to assess the
-     * completeness, {@link BooleanOrUnknown#U} is returned.
+     * * Returns {@link BooleanOrUnknown#T}, if the data set is complete in the data store and {@link BooleanOrUnknown#F}, if some parts of the data
+     * are missing. If the completeness is not known (e.g. because the data set is stored in a format that does not allow to assess the completeness,
+     * {@link BooleanOrUnknown#U} is returned.
      */
     public BooleanOrUnknown getComplete()
     {
@@ -198,9 +195,8 @@ public final class ExternalDataPE extends DataPE
     }
 
     /**
-     * Sets whether this data set is complete in the data store or not. The default is
-     * {@link BooleanOrUnknown#U}, which corresponds to the case where the data are stored in a
-     * format that does not allow to assess completeness.
+     * Sets whether this data set is complete in the data store or not. The default is {@link BooleanOrUnknown#U}, which corresponds to the case where
+     * the data are stored in a format that does not allow to assess completeness.
      */
     public void setComplete(final BooleanOrUnknown complete)
     {
@@ -232,7 +228,7 @@ public final class ExternalDataPE extends DataPE
     }
 
     @Column(name = ColumnNames.STORAGE_CONFIRMATION)
-    @Field(name = SearchFieldConstants.STORAGE_CONFIRMATION, index = Index.UN_TOKENIZED, store = Store.YES)
+    @Field(name = SearchFieldConstants.STORAGE_CONFIRMATION, index = Index.YES, store = Store.YES)
     public boolean isStorageConfirmation()
     {
         return storageConfirmation;

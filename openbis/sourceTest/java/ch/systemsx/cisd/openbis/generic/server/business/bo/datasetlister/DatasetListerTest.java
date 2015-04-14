@@ -40,7 +40,7 @@ import java.util.Set;
 
 import junit.framework.Assert;
 
-import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
@@ -81,7 +81,7 @@ public class DatasetListerTest extends AbstractDAOTest
 
     private long exampleSampleId;
 
-    @BeforeClass(alwaysRun = true)
+    @BeforeMethod(alwaysRun = true)
     public void init() throws SQLException
     {
         DatasetListerDAO datasetListerDAO =

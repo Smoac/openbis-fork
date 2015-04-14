@@ -119,6 +119,7 @@ public class ClientPluginFactory extends AbstractClientPluginFactory<ViewContext
         {
             super(viewContext, EntityKind.EXPERIMENT);
         }
+
         //
         // IViewClientPlugin
         //
@@ -133,7 +134,7 @@ public class ClientPluginFactory extends AbstractClientPluginFactory<ViewContext
                     public ITabItem create()
                     {
                         final DatabaseModificationAwareComponent experimentViewer =
-                                ExperimentViewer.create(getViewContext(), entity.getEntityType(),
+                                ExperimentViewer.createComponent(getViewContext(), entity.getEntityType(),
                                         entity);
                         return DefaultTabItem.create(getTabTitle(), experimentViewer,
                                 getViewContext(), false);

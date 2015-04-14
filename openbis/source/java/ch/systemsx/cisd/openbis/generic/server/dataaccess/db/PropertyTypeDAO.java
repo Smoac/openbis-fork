@@ -26,7 +26,7 @@ import org.hibernate.criterion.CriteriaSpecification;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.support.JdbcAccessor;
-import org.springframework.orm.hibernate3.HibernateTemplate;
+import org.springframework.orm.hibernate4.HibernateTemplate;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -88,7 +88,7 @@ final class PropertyTypeDAO extends AbstractGenericEntityDAO<PropertyTypePE> imp
     @Override
     public List<PropertyTypePE> listAllPropertyTypes()
     {
-        final Criteria criteria = getSession().createCriteria(PropertyTypePE.class);
+        final Criteria criteria = currentSession().createCriteria(PropertyTypePE.class);
         criteria.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
         final List<PropertyTypePE> list = cast(criteria.list());
         if (operationLog.isDebugEnabled())
@@ -102,7 +102,7 @@ final class PropertyTypeDAO extends AbstractGenericEntityDAO<PropertyTypePE> imp
     @Override
     public List<PropertyTypePE> listAllPropertyTypesWithRelations()
     {
-        final Criteria criteria = getSession().createCriteria(PropertyTypePE.class);
+        final Criteria criteria = currentSession().createCriteria(PropertyTypePE.class);
         criteria.setFetchMode("materialTypePropertyTypesInternal", FetchMode.JOIN);
         criteria.setFetchMode("sampleTypePropertyTypesInternal", FetchMode.JOIN);
         criteria.setFetchMode("experimentTypePropertyTypesInternal", FetchMode.JOIN);

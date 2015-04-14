@@ -48,10 +48,10 @@ import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.jdbc.CannotGetJdbcConnectionException;
 import org.springframework.jdbc.UncategorizedSQLException;
 import org.springframework.jdbc.datasource.DataSourceUtils;
-import org.springframework.orm.hibernate3.HibernateCallback;
-import org.springframework.orm.hibernate3.HibernateTemplate;
-import org.springframework.orm.hibernate3.SessionFactoryUtils;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate4.HibernateCallback;
+import org.springframework.orm.hibernate4.HibernateTemplate;
+import org.springframework.orm.hibernate4.SessionFactoryUtils;
+import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 
 import ch.systemsx.cisd.common.exceptions.ExceptionUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.DynamicPropertyEvaluationOperation;
@@ -191,8 +191,7 @@ public abstract class AbstractDAO extends HibernateDaoSupport
                 //
 
                 @Override
-                public final Object doInHibernate(final Session session) throws HibernateException,
-                        SQLException
+                public final Object doInHibernate(final Session session) throws HibernateException
                 {
                     final SQLQuery sqlQuery = session.createSQLQuery(sql);
                     for (int i = 0; i < parameters.length; i++)
@@ -252,7 +251,7 @@ public abstract class AbstractDAO extends HibernateDaoSupport
         final Object result = getHibernateTemplate().execute(new HibernateCallback()
             {
                 @Override
-                public Object doInHibernate(Session sess) throws HibernateException, SQLException
+                public Object doInHibernate(Session sess) throws HibernateException
                 {
                     SQLQuery sqlQuery =
                             sess.createSQLQuery("select nextval('" + sequenceName + "')");
@@ -279,8 +278,7 @@ public abstract class AbstractDAO extends HibernateDaoSupport
             {
 
                 @Override
-                public final Object doInHibernate(final Session session) throws HibernateException,
-                        SQLException
+                public final Object doInHibernate(final Session session) throws HibernateException
                 {
                     StatelessSession sls = null;
                     try
@@ -289,7 +287,7 @@ public abstract class AbstractDAO extends HibernateDaoSupport
                         return action.doInStatelessSession(sls);
                     } catch (HibernateException ex)
                     {
-                        throw convertHibernateAccessException(ex);
+                        throw SessionFactoryUtils.convertHibernateAccessException(ex);
                     } catch (RuntimeException ex)
                     {
                         // Callback code threw application exception...
@@ -341,7 +339,7 @@ public abstract class AbstractDAO extends HibernateDaoSupport
     protected void lockEntity(IIdHolder entityOrNull)
     {
         if (entityOrNull != null && entityOrNull.getId() != null
-                && getSession().contains(entityOrNull))
+                && currentSession().contains(entityOrNull))
         {
             getHibernateTemplate().lock(entityOrNull, LockMode.PESSIMISTIC_WRITE);
         }

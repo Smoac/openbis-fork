@@ -24,8 +24,6 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
-import org.hibernate.annotations.Type;
-
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
@@ -88,7 +86,7 @@ public final class PersonDisplaySettingsPE implements IIdHolder, Serializable
     }
 
     @Column(name = ColumnNames.PERSON_DISPLAY_SETTINGS, updatable = true)
-    @Type(type = "org.springframework.orm.hibernate3.support.BlobByteArrayType")
+    // @Type(type = "org.springframework.orm.hibernate3.support.BlobByteArrayType")
     private byte[] getSerializedDisplaySettings()
     {
         return serializedDisplaySettings;

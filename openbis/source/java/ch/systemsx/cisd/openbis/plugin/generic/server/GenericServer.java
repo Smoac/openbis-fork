@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.server;
 
-import java.io.IOException;
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -27,15 +25,17 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
 
 import ch.rinn.restrictions.Private;
-import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.common.spring.IInvocationLoggerContext;
-import ch.systemsx.cisd.openbis.generic.server.AbstractASyncAction;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
 import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
 import ch.systemsx.cisd.openbis.generic.server.MaterialHelper;
@@ -77,7 +77,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialBatchUpdateResultMessage;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewBasicExperiment;
@@ -135,7 +134,7 @@ import ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames;
  */
 @Component(ResourceNames.GENERIC_PLUGIN_SERVER)
 public final class GenericServer extends AbstractServer<IGenericServer> implements
-        ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer
+        ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer, ApplicationContextAware
 {
     @Resource(name = ResourceNames.GENERIC_BUSINESS_OBJECT_FACTORY)
     private IGenericBusinessObjectFactory businessObjectFactory;
@@ -143,11 +142,20 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
     @Resource(name = ch.systemsx.cisd.openbis.generic.shared.ResourceNames.COMMON_SERVER)
     protected ICommonServer commonServer;
 
-    @Resource(name = ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames.GENERIC_PLUGIN_SERVER)
+    // @Resource(name = ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames.GENERIC_PLUGIN_SERVER)
     private IGenericServer genericServer;
 
     @Resource(name = ComponentNames.MANAGED_PROPERTY_EVALUATOR_FACTORY)
     private IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory;
+
+    private ApplicationContext applicationContext;
+
+    @PostConstruct
+    private void init()
+    {
+        this.genericServer =
+                applicationContext.getBean(ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames.GENERIC_PLUGIN_SERVER, IGenericServer.class);
+    }
 
     public GenericServer()
     {
@@ -977,6 +985,12 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
 
         registerOrUpdateMaterials(sessionToken, newMaterialsWithType);
         privateRegisterOrUpdateSamples(sessionToken, newSamplesWithType);
+    }
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException
+    {
+        this.applicationContext = applicationContext;
     }
 
 }

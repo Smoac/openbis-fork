@@ -27,8 +27,6 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
-import org.hibernate.annotations.Type;
-
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 
@@ -66,7 +64,7 @@ public class AttachmentContentPE implements IIdHolder, Serializable
      */
     @Column(name = ColumnNames.VALUE_COLUMN, updatable = false)
     @NotNull(message = ValidationMessages.VALUE_NOT_NULL_MESSAGE)
-    @Type(type = "org.springframework.orm.hibernate3.support.BlobByteArrayType")
+    // @Type(type = "org.springframework.orm.hibernate3.support.BlobByteArrayType")
     public byte[] getValue()
     {
         return value;

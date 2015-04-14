@@ -26,10 +26,13 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -96,7 +99,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.ServerUtils;
  * @author Christian Ribeaud
  */
 public abstract class AbstractClientService implements IClientService,
-        IOnlineHelpResourceLocatorService
+        IOnlineHelpResourceLocatorService, ApplicationContextAware
 {
     protected static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             AbstractClientService.class);
@@ -105,7 +108,7 @@ public abstract class AbstractClientService implements IClientService,
     @Private
     public IRequestContextProvider requestContextProvider;
 
-    @Resource(name = "common-service")
+    // @Resource(name = "common-service")
     protected ICommonClientService commonClientService;
 
     @Resource(name = ExposablePropertyPlaceholderConfigurer.PROPERTY_CONFIGURER_BEAN_NAME)
@@ -132,6 +135,14 @@ public abstract class AbstractClientService implements IClientService,
     // This is to prevent infinite recursion when the commonClientService is actually a proxy to
     // myself.
     private int getApplicationInfoInvocationCount = 0;
+
+    private ApplicationContext applicationContext;
+
+    @PostConstruct
+    private void init()
+    {
+        this.commonClientService = applicationContext.getBean("common-service", ICommonClientService.class);
+    }
 
     protected AbstractClientService()
     {
@@ -771,5 +782,11 @@ public abstract class AbstractClientService implements IClientService,
                     "No UploadedFilesBean object as session attribute '%s' found.", sessionKey));
         }
         return (UploadedFilesBean) session.getAttribute(sessionKey);
+    }
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext)
+    {
+        this.applicationContext = applicationContext;
     }
 }

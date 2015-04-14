@@ -29,7 +29,7 @@ import org.hibernate.Criteria;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Restrictions;
-import org.springframework.orm.hibernate3.HibernateTemplate;
+import org.springframework.orm.hibernate4.HibernateTemplate;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -88,7 +88,7 @@ public class ProjectDAO extends AbstractGenericEntityDAO<ProjectPE> implements I
     @Override
     public ProjectPE tryGetByPermID(String permId)
     {
-        final Criteria criteria = getSession().createCriteria(getEntityClass());
+        final Criteria criteria = currentSession().createCriteria(getEntityClass());
         criteria.add(Restrictions.eq("permId", permId));
         final ProjectPE projectOrNull = (ProjectPE) criteria.uniqueResult();
         if (operationLog.isDebugEnabled())
@@ -106,7 +106,7 @@ public class ProjectDAO extends AbstractGenericEntityDAO<ProjectPE> implements I
         assert projectCode != null : "Unspecified project code.";
         assert spaceCode != null : "Unspecified space code.";
 
-        final Criteria criteria = getSession().createCriteria(ProjectPE.class);
+        final Criteria criteria = currentSession().createCriteria(ProjectPE.class);
         criteria.add(Restrictions.eq("code", CodeConverter.tryToDatabase(projectCode)));
         final Criteria spaceCriteria = criteria.createCriteria("space");
         spaceCriteria.add(Restrictions.eq("code", CodeConverter.tryToDatabase(spaceCode)));

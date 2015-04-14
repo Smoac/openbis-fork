@@ -66,7 +66,7 @@ public class EventDAO extends AbstractGenericEntityDAO<EventPE> implements IEven
         assert entityType != null : "Unspecified entityType.";
         assert eventType != null : "Unspecified eventType.";
 
-        final Criteria criteria = getSession().createCriteria(EventPE.class);
+        final Criteria criteria = currentSession().createCriteria(EventPE.class);
         criteria.add(Restrictions.like("identifiersInternal", identifier, MatchMode.ANYWHERE));
         criteria.add(Restrictions.eq("entityType", entityType));
         criteria.add(Restrictions.eq("eventType", eventType));

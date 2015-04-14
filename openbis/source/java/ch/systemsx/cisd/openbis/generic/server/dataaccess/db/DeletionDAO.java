@@ -16,12 +16,12 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
-import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.hibernate.HibernateException;
+import org.hibernate.Query;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -32,8 +32,8 @@ import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.support.JdbcAccessor;
-import org.springframework.orm.hibernate3.HibernateCallback;
-import org.springframework.orm.hibernate3.HibernateTemplate;
+import org.springframework.orm.hibernate4.HibernateCallback;
+import org.springframework.orm.hibernate4.HibernateTemplate;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -315,7 +315,7 @@ final class DeletionDAO extends AbstractGenericEntityDAO<DeletionPE> implements 
             return 0;
         }
         final HibernateTemplate hibernateTemplate = getHibernateTemplate();
-        int updatedRows = (Integer) hibernateTemplate.execute(new HibernateCallback()
+        int updatedRows = (Integer) hibernateTemplate.executeWithNativeSession(new HibernateCallback()
             {
 
                 //
@@ -323,19 +323,20 @@ final class DeletionDAO extends AbstractGenericEntityDAO<DeletionPE> implements 
                 //
 
                 @Override
-                public final Object doInHibernate(final Session session) throws HibernateException,
-                        SQLException
+                public final Object doInHibernate(final Session session) throws HibernateException
                 {
-                    // NOTE: 'VERSIONED' makes modification time modified too
-                    return session
+
+                    Query query = session
                             .createQuery(
-                                    "UPDATE VERSIONED "
+                                    "UPDATE "
                                             + entityKind.getEntityClass().getSimpleName()
-                                            + " SET deletion = :deletion" + ", originalDeletion = "
+                                            + " c SET c.deletion = :deletion" + ", c.originalDeletion = "
                                             + (isOriginalDeletion ? " :deletion" : " NULL")
-                                            + " WHERE deletion IS NULL AND id IN (:ids) ")
+                                            + " WHERE c.deletion IS NULL AND c.id IN (:ids) ")
                             .setParameter("deletion", deletion)
-                            .setParameterList("ids", TechId.asLongs(entityIds)).executeUpdate();
+                            .setParameterList("ids", TechId.asLongs(entityIds));
+
+                    return query.executeUpdate();
                 }
             });
 
@@ -381,8 +382,7 @@ final class DeletionDAO extends AbstractGenericEntityDAO<DeletionPE> implements 
                 // HibernateCallback
                 //
                 @Override
-                public final Object doInHibernate(final Session session) throws HibernateException,
-                        SQLException
+                public final Object doInHibernate(final Session session) throws HibernateException
                 {
                     // NOTE: 'VERSIONED' makes modification time modified too
                     return session
@@ -421,8 +421,7 @@ final class DeletionDAO extends AbstractGenericEntityDAO<DeletionPE> implements 
                 // HibernateCallback
                 //
                 @Override
-                public final Object doInHibernate(final Session session) throws HibernateException,
-                        SQLException
+                public final Object doInHibernate(final Session session) throws HibernateException
                 {
                     // NOTE: 'VERSIONED' makes modification time modified too
                     return session
@@ -453,14 +452,13 @@ final class DeletionDAO extends AbstractGenericEntityDAO<DeletionPE> implements 
             return 0;
         }
         final HibernateTemplate hibernateTemplate = getHibernateTemplate();
-        int updatedRows = (Integer) hibernateTemplate.execute(new HibernateCallback()
+        int updatedRows = (Integer) hibernateTemplate.executeWithNativeSession(new HibernateCallback()
             {
                 //
                 // HibernateCallback
                 //
                 @Override
-                public final Object doInHibernate(final Session session) throws HibernateException,
-                        SQLException
+                public final Object doInHibernate(final Session session) throws HibernateException
                 {
                     // NOTE: 'VERSIONED' makes modification time modified too
                     return session

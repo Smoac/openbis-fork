@@ -89,7 +89,7 @@ public class PlateContentLoader
      * @param hibernateSession
      */
     public static PlateContent loadImagesAndMetadata(Session session,
-            org.hibernate.classic.Session hibernateSession, IScreeningBusinessObjectFactory businessObjectFactory,
+            org.hibernate.Session hibernateSession, IScreeningBusinessObjectFactory businessObjectFactory,
             IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, TechId plateId)
     {
         return new PlateContentLoader(session, hibernateSession, businessObjectFactory,
@@ -100,7 +100,7 @@ public class PlateContentLoader
      * Loads feature vector of specified dataset with one feature specified by name.
      */
     public static FeatureVectorDataset loadFeatureVectorDataset(Session session,
-            org.hibernate.classic.Session hibernateSession,
+            org.hibernate.Session hibernateSession,
             IScreeningBusinessObjectFactory businessObjectFactory,
             IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory,
             DatasetReference dataset, CodeAndLabel featureName)
@@ -113,7 +113,7 @@ public class PlateContentLoader
      * Loads data about the plate for a specified dataset, which is supposed to contain images.
      */
     public static PlateImages loadImagesAndMetadataForDataset(Session session,
-            org.hibernate.classic.Session hibernateSession,
+            org.hibernate.Session hibernateSession,
             IScreeningBusinessObjectFactory businessObjectFactory,
             IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, TechId datasetId)
     {
@@ -126,7 +126,7 @@ public class PlateContentLoader
      * in datasets belonging to the specified sample (restricted to one well in HCS case).
      */
     public static ImageSampleContent getImageDatasetInfosForSample(Session session,
-            org.hibernate.classic.Session hibernateSession,
+            org.hibernate.Session hibernateSession,
             IScreeningBusinessObjectFactory businessObjectFactory,
             IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, TechId sampleId,
             WellLocation wellLocationOrNull)
@@ -137,7 +137,7 @@ public class PlateContentLoader
     }
 
     public static List<PlateMetadata> loadPlateMetadata(Session session,
-            org.hibernate.classic.Session hibernateSession,
+            org.hibernate.Session hibernateSession,
             IScreeningBusinessObjectFactory businessObjectFactory,
             IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, List<TechId> plateIds)
     {
@@ -154,7 +154,7 @@ public class PlateContentLoader
     private final IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory;
 
     private PlateContentLoader(Session session,
-            org.hibernate.classic.Session hibernateSession,
+            org.hibernate.Session hibernateSession,
             IScreeningBusinessObjectFactory businessObjectFactory,
             IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {

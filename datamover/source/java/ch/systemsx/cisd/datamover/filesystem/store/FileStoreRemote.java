@@ -45,8 +45,7 @@ import ch.systemsx.cisd.datamover.filesystem.intf.IFileSysOperationsFactory;
 import ch.systemsx.cisd.datamover.filesystem.intf.IStoreCopier;
 
 /**
- * Allows to operate on files by executing all file system operations on a remote machine with ssh
- * command.
+ * Allows to operate on files by executing all file system operations on a remote machine with ssh command.
  * 
  * @author Tomasz Pylak
  */
@@ -118,9 +117,8 @@ public class FileStoreRemote extends AbstractFileStore
     private String remoteFindExecutableOrNull;
 
     /**
-     * @param remoteFindExecutableOrNull The executable to use for checking the last modification
-     *            time of files on the remote outgoing host. It should be a GNU find supporting
-     *            -printf option.
+     * @param remoteFindExecutableOrNull The executable to use for checking the last modification time of files on the remote outgoing host. It should
+     *            be a GNU find supporting -printf option.
      * @param kind Description of the directory used in logs
      */
     public FileStoreRemote(final HostAwareFileWithHighwaterMark fileWithHighwaterMark,
@@ -316,7 +314,7 @@ public class FileStoreRemote extends AbstractFileStore
 
     private static StatusWithResult<Long> createLastChangeError(StoreItem item, String errorMsg)
     {
-        return StatusWithResult.<Long> createError("Cannot obtain last change time of the item "
+        return StatusWithResult.<Long> createErrorWithResult("Cannot obtain last change time of the item "
                 + item + ". Reason: " + errorMsg);
     }
 
@@ -402,7 +400,7 @@ public class FileStoreRemote extends AbstractFileStore
     private boolean checkAvailableAndSetFindUtil()
     {
         final String[] findExecutables =
-            { "gfind", "find" };
+        { "gfind", "find" };
         for (final String findExec : findExecutables)
         {
             final String findExecutableOrNull = checkFindExecutable(findExec);

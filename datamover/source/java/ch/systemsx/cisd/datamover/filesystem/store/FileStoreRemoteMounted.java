@@ -50,8 +50,8 @@ public final class FileStoreRemoteMounted extends AbstractFileStore
     private final IFileStore localImplMonitored;
 
     /**
-     * @param lastChangedTimeoutMillis number of milliseconds after which checking last modification
-     *            time of the item will be terminated and will return with an error.
+     * @param lastChangedTimeoutMillis number of milliseconds after which checking last modification time of the item will be terminated and will
+     *            return with an error.
      */
     public FileStoreRemoteMounted(final HostAwareFileWithHighwaterMark file,
             final String description, final IFileSysOperationsFactory factory,
@@ -136,7 +136,7 @@ public final class FileStoreRemoteMounted extends AbstractFileStore
             return localImplMonitored.lastChanged(item, stopWhenFindYounger);
         } catch (TimeoutExceptionUnchecked ex)
         {
-            return StatusWithResult.<Long> createRetriableError(ex.getMessage());
+            return StatusWithResult.<Long> createRetriableErrorWithResult(ex.getMessage());
         }
     }
 
@@ -150,13 +150,13 @@ public final class FileStoreRemoteMounted extends AbstractFileStore
                     localImplMonitored.lastChangedRelative(item, stopWhenFindYoungerRelative);
             if (statusOrNull == null)
             {
-                return StatusWithResult.<Long> createError(String.format(
+                return StatusWithResult.<Long> createErrorWithResult(String.format(
                         "Could not determine \"last changed time\" of %s: time out.", item));
             }
             return statusOrNull;
         } catch (TimeoutExceptionUnchecked ex)
         {
-            return StatusWithResult.<Long> createRetriableError(ex.getMessage());
+            return StatusWithResult.<Long> createRetriableErrorWithResult(ex.getMessage());
         }
     }
 

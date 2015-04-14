@@ -52,8 +52,6 @@ import org.hibernate.search.bridge.FieldBridge;
 import org.hibernate.search.bridge.LuceneOptions;
 import org.hibernate.validator.constraints.Length;
 
-import com.sun.org.apache.xerces.internal.impl.io.UTF8Reader;
-
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.reflection.ModifiedShortPrefixToStringStyle;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
@@ -61,6 +59,8 @@ import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
 import ch.systemsx.cisd.openbis.generic.shared.util.EqualsHashUtils;
+
+import com.sun.org.apache.xerces.internal.impl.io.UTF8Reader;
 
 /**
  * Contains information about an attachment together with its content.
@@ -79,7 +79,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.EqualsHashUtils;
         @UniqueConstraint(columnNames =
         { ColumnNames.PROJECT_COLUMN, ColumnNames.FILE_NAME_COLUMN,
                 ColumnNames.VERSION_COLUMN }) })
-@ClassBridge(impl = AttachmentPE.AttachmentSearchBridge.class, index = Index.TOKENIZED, store = Store.NO)
+@ClassBridge(impl = AttachmentPE.AttachmentSearchBridge.class, index = Index.YES, store = Store.NO)
 public class AttachmentPE extends HibernateAbstractRegistrationHolder implements Serializable,
         Comparable<AttachmentPE>, IIdHolder
 {
@@ -204,10 +204,7 @@ public class AttachmentPE extends HibernateAbstractRegistrationHolder implements
                             + attachment.getVersion();
 
             Field field = new Field(fieldName, contentReader);
-            if (luceneOptions.getBoost() != null)
-            {
-                field.setBoost(luceneOptions.getBoost());
-            }
+            field.setBoost(luceneOptions.getBoost());
             document.add(field);
         }
     }

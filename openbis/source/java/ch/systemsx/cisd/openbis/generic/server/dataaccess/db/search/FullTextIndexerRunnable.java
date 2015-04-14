@@ -31,8 +31,10 @@ import org.hibernate.search.FullTextSession;
 import org.hibernate.search.Search;
 import org.hibernate.search.SearchFactory;
 import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.indexes.spi.DirectoryBasedIndexManager;
+import org.hibernate.search.spi.SearchIntegrator;
 import org.hibernate.search.store.DirectoryProvider;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 
 import ch.systemsx.cisd.common.filesystem.FileConstants;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -112,7 +114,7 @@ public final class FullTextIndexerRunnable extends HibernateDaoSupport implement
             IndexWriterConfig.setDefaultWriteLockTimeout(3000);
             final File indexBase = new File(context.getIndexBase());
             final File markerFile = new File(indexBase, FULL_TEXT_INDEX_MARKER_FILENAME);
-            final Session session = getSession();
+            final Session session = getSessionFactory().openSession();
             writeLockRecovery(session, indexedEntities); // recover even if marker is found
             if (indexMode == IndexMode.SKIP_IF_MARKER_FOUND && markerFile.exists())
             {
@@ -135,7 +137,7 @@ public final class FullTextIndexerRunnable extends HibernateDaoSupport implement
                         indexedEntity.getName(), stopWatch));
             }
             FileUtils.touch(markerFile);
-            releaseSession(session);
+            session.close();
         } catch (final Throwable th)
         {
             notificationLog.error(String.format(
@@ -148,10 +150,8 @@ public final class FullTextIndexerRunnable extends HibernateDaoSupport implement
     }
 
     /**
-     * Recovery code that removes stale write locks on directories of specified entities (see
-     * LMS-2168). It should be run only at the server start when we are sure that no other thread
-     * could be writing to the index at the same time. In our case the updater thread shouldn't be
-     * started yet.
+     * Recovery code that removes stale write locks on directories of specified entities (see LMS-2168). It should be run only at the server start
+     * when we are sure that no other thread could be writing to the index at the same time. In our case the updater thread shouldn't be started yet.
      * 
      * @see IndexWriter#unlock(org.apache.lucene.store.Directory)
      */
@@ -160,14 +160,14 @@ public final class FullTextIndexerRunnable extends HibernateDaoSupport implement
     {
         final FullTextSession fullTextSession = Search.getFullTextSession(session);
         SearchFactory searchFactory = fullTextSession.getSearchFactory();
+        SearchIntegrator searchIntegrator = searchFactory.unwrap(SearchIntegrator.class);
+
         for (Class<?> indexedEntity : indexedEntities)
         {
-            DirectoryProvider<?>[] directoryProviders =
-                    searchFactory.getDirectoryProviders(indexedEntity);
-            for (DirectoryProvider<?> provider : directoryProviders)
-            {
-                IndexWriter.unlock(provider.getDirectory());
-            }
+            DirectoryBasedIndexManager indexManager =
+                    (DirectoryBasedIndexManager) searchIntegrator.getIndexManager(indexedEntity.getSimpleName());
+            DirectoryProvider<?> provider = indexManager.getDirectoryProvider();
+            IndexWriter.unlock(provider.getDirectory());
         }
     }
 }

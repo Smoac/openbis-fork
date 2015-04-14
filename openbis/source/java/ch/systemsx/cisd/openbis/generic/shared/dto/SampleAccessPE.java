@@ -18,6 +18,8 @@ package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 import javax.persistence.Entity;
 import javax.persistence.EntityResult;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import javax.persistence.NamedNativeQueries;
 import javax.persistence.NamedNativeQuery;
@@ -120,6 +122,7 @@ public class SampleAccessPE
         this.ownerCode = ownerCode;
     }
 
+    @Enumerated(EnumType.STRING)
     public SampleOwnerType getOwnerType()
     {
         return ownerType;

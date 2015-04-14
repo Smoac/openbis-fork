@@ -1,14 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <beans xmlns="http://www.springframework.org/schema/beans"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:tx="http://www.springframework.org/schema/tx"
     xmlns:plugins="http://www.springframework.org/schema/context"
+    xmlns:aop="http://www.springframework.org/schema/aop"
     xsi:schemaLocation="http://www.springframework.org/schema/beans
 			http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
 			http://www.springframework.org/schema/tx
 			http://www.springframework.org/schema/tx/spring-tx-2.5.xsd
             http://www.springframework.org/schema/context
-            http://www.springframework.org/schema/context/spring-context-2.5.xsd">
+            http://www.springframework.org/schema/context/spring-context-2.5.xsd
+            http://www.springframework.org/schema/aop 
+            http://www.springframework.org/schema/aop/spring-aop.xsd"
+            >
 
     <import resource="hibernateContext.xml" />
     <import resource="dbConfigurationContext.xml" />
@@ -47,6 +52,9 @@
         <constructor-arg ref="managed-property-evaluator-factory" />
   </bean>
 
+    <tx:annotation-driven transaction-manager="transaction-manager"/>
+    <aop:aspectj-autoproxy/>
+
     <bean id="transaction-manager"
         class="ch.systemsx.cisd.openbis.generic.server.dataaccess.db.OpenBISHibernateTransactionManager">
         <constructor-arg ref="dao-factory" />
@@ -55,7 +63,6 @@
         <constructor-arg ref="managed-property-evaluator-factory" />
         <constructor-arg ref="session-manager" />
         <property name="sessionFactory" ref="hibernate-session-factory" />
-        <property name="jdbcExceptionTranslator" ref="exception-translator" />
         <property name="dynamicPropertiesInterceptor">
             <ref bean="dynamic-properties-interceptor" />
         </property>
@@ -272,15 +279,9 @@
         // Transaction
     -->
 
-    <!-- 
-        // This discovers on-the-fly all <code>org.springframework.aop.Advisor</code> implementations.
-    -->
-    <bean id="bean-post-processor"
-        class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator" />
-
-    <bean class="org.springframework.transaction.interceptor.TransactionAttributeSourceAdvisor">
+    <!-- bean class="org.springframework.transaction.interceptor.TransactionAttributeSourceAdvisor">
         <property name="transactionInterceptor" ref="transaction-interceptor" />
-    </bean>
+    </bean -->
 
     <bean id="transaction-interceptor"
         class="org.springframework.transaction.interceptor.TransactionInterceptor">

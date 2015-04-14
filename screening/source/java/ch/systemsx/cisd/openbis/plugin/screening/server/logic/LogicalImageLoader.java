@@ -50,7 +50,7 @@ public class LogicalImageLoader
      * Loads information about the logical image in the chosen image dataset (restricted to one well in HCS case).
      */
     public static LogicalImageInfo loadLogicalImageInfo(Session session,
-            org.hibernate.classic.Session hibernateSession,
+            org.hibernate.Session hibernateSession,
             IScreeningBusinessObjectFactory businessObjectFactory,
             IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, String datasetCode,
             String datastoreCode, WellLocation wellLocationOrNull)
@@ -68,7 +68,7 @@ public class LogicalImageLoader
     }
 
     public static ImageDatasetEnrichedReference getImageDatasetReference(Session session,
-            org.hibernate.classic.Session hibernateSession,
+            org.hibernate.Session hibernateSession,
             IScreeningBusinessObjectFactory businessObjectFactory,
             IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, String datasetCode,
             String datastoreCode)
@@ -80,14 +80,14 @@ public class LogicalImageLoader
 
     private final Session session;
 
-    private final org.hibernate.classic.Session hibernateSession;
+    private final org.hibernate.Session hibernateSession;
 
     private final IScreeningBusinessObjectFactory businessObjectFactory;
 
     private final IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory;
 
     public LogicalImageLoader(Session session,
-            org.hibernate.classic.Session hibernateSession, IScreeningBusinessObjectFactory businessObjectFactory,
+            org.hibernate.Session hibernateSession, IScreeningBusinessObjectFactory businessObjectFactory,
             IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
         this.session = session;

@@ -572,8 +572,7 @@ public class EntityOperationTest extends SystemTestCase
         AtomicEntityOperationDetails eo =
                 new EntityOperationBuilder().sampleUpdate(sample).create();
 
-        performFailingEntityOperations(sessionToken, eo, "Authorization failure: ERROR: "
-                + "\"User '" + SPACE_ETL_SERVER_FOR_A
+        performFailingEntityOperations(sessionToken, eo, "Authorization failure: ERROR: \"User '" + SPACE_ETL_SERVER_FOR_A
                 + "' does not have enough privileges to modify instance level entities.\".");
     }
 

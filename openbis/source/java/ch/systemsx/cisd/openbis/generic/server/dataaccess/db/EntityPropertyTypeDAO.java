@@ -33,7 +33,7 @@ import org.hibernate.criterion.ProjectionList;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.dao.DataAccessException;
-import org.springframework.orm.hibernate3.HibernateTemplate;
+import org.springframework.orm.hibernate4.HibernateTemplate;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -137,7 +137,7 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
         assert propertyType != null : "Unspecified property type.";
 
         final Criteria criteria =
-                getSession().createCriteria(getEntityTypePropertyTypeAssignmentClass());
+                currentSession().createCriteria(getEntityTypePropertyTypeAssignmentClass());
         criteria.add(Restrictions.eq("propertyTypeInternal", propertyType));
         criteria.add(Restrictions.eq("entityTypeInternal", entityType));
         final EntityTypePropertyTypePE etpt = (EntityTypePropertyTypePE) criteria.uniqueResult();

@@ -42,6 +42,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureE
 import ch.systemsx.cisd.openbis.generic.client.web.server.AbstractClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.server.AttachmentRegistrationHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.server.UploadedFilesBean;
+import ch.systemsx.cisd.openbis.generic.client.web.server.queue.ConsumerQueue;
+import ch.systemsx.cisd.openbis.generic.client.web.server.queue.ConsumerTask;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.UserFailureExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.exception.SampleUniqueCodeViolationExceptionAbstract;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
@@ -92,8 +94,6 @@ import ch.systemsx.cisd.openbis.generic.shared.parser.SampleUploadSectionsParser
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientService;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.server.parser.MaterialUploadSectionsParser;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.server.parser.MaterialUploadSectionsParser.BatchMaterialsOperation;
-import ch.systemsx.cisd.openbis.generic.client.web.server.queue.ConsumerQueue;
-import ch.systemsx.cisd.openbis.generic.client.web.server.queue.ConsumerTask;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames;
 
@@ -111,7 +111,7 @@ public class GenericClientService extends AbstractClientService implements IGene
 
     @Resource(name = "registration-queue")
     private ConsumerQueue asyncRegistrationQueue;
-    
+
     public GenericClientService()
     {
     }
@@ -197,27 +197,37 @@ public class GenericClientService extends AbstractClientService implements IGene
         {
             final BatchOperationKind operationKind = updateExisting ? BatchOperationKind.UPDATE : BatchOperationKind.REGISTRATION;
             uploadedFiles = getUploadedFiles(sessionKey, httpSession);
-            BatchSamplesOperation info = parseSamples(sampleType, uploadedFiles, defaultGroupIdentifier, isAutoGenerateCodes, true, null, operationKind, sessionToken);
-            
+            BatchSamplesOperation info =
+                    parseSamples(sampleType, uploadedFiles, defaultGroupIdentifier, isAutoGenerateCodes, true, null, operationKind, sessionToken);
+
             if (async)
             {
-                asyncSamplesTask = new ConsumerTask(uploadedFiles) {
-                    @Override
-                    public String getName() { return "Sample Batch Registration"; }
-                    
-                    @Override
-                    public String getUserEmail() { return userEmail; }
-                    
-                    @Override
-                    public void doActionOrThrowException(Writer writer)
+                asyncSamplesTask = new ConsumerTask(uploadedFiles)
                     {
-                        //Some stuff is repeated on the async executor, this is expected
-                        BatchSamplesOperation asyncInfo = parseSamples(sampleType, this.getFilesForTask(), defaultGroupIdentifier, isAutoGenerateCodes, true, null, operationKind, sessionToken);
-                        //Execute task
-                        genericServer.registerOrUpdateSamples(sessionToken, asyncInfo.getSamples());
-                    }
-                };
-                
+                        @Override
+                        public String getName()
+                        {
+                            return "Sample Batch Registration";
+                        }
+
+                        @Override
+                        public String getUserEmail()
+                        {
+                            return userEmail;
+                        }
+
+                        @Override
+                        public void doActionOrThrowException(Writer writer)
+                        {
+                            // Some stuff is repeated on the async executor, this is expected
+                            BatchSamplesOperation asyncInfo =
+                                    parseSamples(sampleType, this.getFilesForTask(), defaultGroupIdentifier, isAutoGenerateCodes, true, null,
+                                            operationKind, sessionToken);
+                            // Execute task
+                            genericServer.registerOrUpdateSamples(sessionToken, asyncInfo.getSamples());
+                        }
+                    };
+
                 String fileName = info.getResultList().get(0).getFileName();
                 return AsyncBatchRegistrationResult.singletonList(fileName);
             } else
@@ -248,10 +258,13 @@ public class GenericClientService extends AbstractClientService implements IGene
             {
                 throw UserFailureExceptionTranslator.translate(e);
             }
-        } finally {
-            if (async && (asyncSamplesTask != null)) {
+        } finally
+        {
+            if (async && (asyncSamplesTask != null))
+            {
                 asyncRegistrationQueue.addTaskAsLast(asyncSamplesTask);
-            } else {
+            } else
+            {
                 cleanUploadedFiles(sessionKey, httpSession, uploadedFiles);
             }
         }
@@ -272,27 +285,37 @@ public class GenericClientService extends AbstractClientService implements IGene
         try
         {
             uploadedFiles = getUploadedFiles(sessionKey, httpSession);
-            BatchSamplesOperation info = parseSamples(sampleType, uploadedFiles, defaultGroupIdentifier, false, true, null, BatchOperationKind.UPDATE, sessionToken);
+            BatchSamplesOperation info =
+                    parseSamples(sampleType, uploadedFiles, defaultGroupIdentifier, false, true, null, BatchOperationKind.UPDATE, sessionToken);
 
             if (async)
             {
-                asyncSamplesTask = new ConsumerTask(uploadedFiles) {
-                    @Override
-                    public String getName() { return "Sample Batch Update"; }
-                    
-                    @Override
-                    public String getUserEmail() { return userEmail; }
-                    
-                    @Override
-                    public void doActionOrThrowException(Writer writer)
+                asyncSamplesTask = new ConsumerTask(uploadedFiles)
                     {
-                      //Some stuff is repeated on the async executor, this is expected
-                      BatchSamplesOperation asyncInfo = parseSamples(sampleType, this.getFilesForTask(), defaultGroupIdentifier, false, true, null, BatchOperationKind.UPDATE, sessionToken);
-                      //Execute task
-                      genericServer.updateSamples(sessionToken, asyncInfo.getSamples());
-                    }
-                };
-                
+                        @Override
+                        public String getName()
+                        {
+                            return "Sample Batch Update";
+                        }
+
+                        @Override
+                        public String getUserEmail()
+                        {
+                            return userEmail;
+                        }
+
+                        @Override
+                        public void doActionOrThrowException(Writer writer)
+                        {
+                            // Some stuff is repeated on the async executor, this is expected
+                            BatchSamplesOperation asyncInfo =
+                                    parseSamples(sampleType, this.getFilesForTask(), defaultGroupIdentifier, false, true, null,
+                                            BatchOperationKind.UPDATE, sessionToken);
+                            // Execute task
+                            genericServer.updateSamples(sessionToken, asyncInfo.getSamples());
+                        }
+                    };
+
                 String fileName = info.getResultList().get(0).getFileName();
                 return AsyncBatchRegistrationResult.singletonList(fileName);
             } else
@@ -303,15 +326,18 @@ public class GenericClientService extends AbstractClientService implements IGene
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
-        } finally {
-            if (async && (asyncSamplesTask != null)) {
+        } finally
+        {
+            if (async && (asyncSamplesTask != null))
+            {
                 asyncRegistrationQueue.addTaskAsLast(asyncSamplesTask);
-            } else {
+            } else
+            {
                 cleanUploadedFiles(sessionKey, httpSession, uploadedFiles);
             }
         }
     }
-    
+
     @Override
     public final List<BatchRegistrationResult> registerOrUpdateSamplesAndMaterials(
             final String sessionKey,
@@ -327,38 +353,50 @@ public class GenericClientService extends AbstractClientService implements IGene
         sampleType.setCode(EntityType.DEFINED_IN_FILE);
         ConsumerTask asyncGeneralTask = null;
         UploadedFilesBean uploadedFiles = null;
-        
+
         try
         {
             uploadedFiles = getUploadedFiles(sessionKey, session);
-            
-            BatchSamplesOperation samplesInfo = parseSamples(sampleType, uploadedFiles, defaultGroupIdentifier, defaultGroupIdentifier != null, true, "SAMPLES", operationKind, sessionToken);
-            
+
+            BatchSamplesOperation samplesInfo =
+                    parseSamples(sampleType, uploadedFiles, defaultGroupIdentifier, defaultGroupIdentifier != null, true, "SAMPLES", operationKind,
+                            sessionToken);
+
             final MaterialType materialType = new MaterialType();
             materialType.setCode(EntityType.DEFINED_IN_FILE);
             BatchMaterialsOperation materialsInfo = parseMaterials(session, uploadedFiles, materialType, "MATERIALS", updateExisting);
-            
+
             if (async)
             {
-                asyncGeneralTask = new ConsumerTask(uploadedFiles) {
-                    @Override
-                    public String getName() { return "General Batch Import"; }
-                    
-                    @Override
-                    public String getUserEmail() { return userEmail; }
-                    
-                    @Override
-                    public void doActionOrThrowException(Writer writer)
+                asyncGeneralTask = new ConsumerTask(uploadedFiles)
                     {
-                        //Some stuff is repeated on the async executor, this is expected
-                        BatchSamplesOperation asyncSamplesInfo = parseSamples(sampleType, this.getFilesForTask(), defaultGroupIdentifier, defaultGroupIdentifier != null, true, "SAMPLES", operationKind, sessionToken);
-                        BatchMaterialsOperation asyncMaterialsInfo = parseMaterials(session, this.getFilesForTask(), materialType, "MATERIALS", updateExisting);
-                        //Execute task
-                        genericServer.registerOrUpdateSamplesAndMaterials(sessionToken, asyncSamplesInfo.getSamples(), asyncMaterialsInfo.getMaterials());
-                    }
-                };
-                
-                
+                        @Override
+                        public String getName()
+                        {
+                            return "General Batch Import";
+                        }
+
+                        @Override
+                        public String getUserEmail()
+                        {
+                            return userEmail;
+                        }
+
+                        @Override
+                        public void doActionOrThrowException(Writer writer)
+                        {
+                            // Some stuff is repeated on the async executor, this is expected
+                            BatchSamplesOperation asyncSamplesInfo =
+                                    parseSamples(sampleType, this.getFilesForTask(), defaultGroupIdentifier, defaultGroupIdentifier != null, true,
+                                            "SAMPLES", operationKind, sessionToken);
+                            BatchMaterialsOperation asyncMaterialsInfo =
+                                    parseMaterials(session, this.getFilesForTask(), materialType, "MATERIALS", updateExisting);
+                            // Execute task
+                            genericServer.registerOrUpdateSamplesAndMaterials(sessionToken, asyncSamplesInfo.getSamples(),
+                                    asyncMaterialsInfo.getMaterials());
+                        }
+                    };
+
                 String fileName = uploadedFiles.iterable().iterator().next().getOriginalFilename();
                 return AsyncBatchRegistrationResult.singletonList(fileName);
             } else
@@ -374,9 +412,11 @@ public class GenericClientService extends AbstractClientService implements IGene
             throw UserFailureExceptionTranslator.translate(e);
         } finally
         {
-            if (async && (asyncGeneralTask != null)) {
+            if (async && (asyncGeneralTask != null))
+            {
                 asyncRegistrationQueue.addTaskAsLast(asyncGeneralTask);
-            } else {
+            } else
+            {
                 cleanUploadedFiles(sessionKey, session, uploadedFiles);
             }
         }
@@ -451,7 +491,7 @@ public class GenericClientService extends AbstractClientService implements IGene
         return batchSamplesOperation;
 
     }
-    
+
     private BatchSamplesOperation parseSamples(
             final SampleType sampleType,
             final String sessionKey,
@@ -467,7 +507,8 @@ public class GenericClientService extends AbstractClientService implements IGene
         try
         {
             uploadedFiles = getUploadedFiles(sessionKey, httpSession);
-            return parseSamples(sampleType, uploadedFiles, defaultGroupIdentifier, isAutoGenerateCodes, allowExperiments, excelSheetName, operationKind, sessionToken);
+            return parseSamples(sampleType, uploadedFiles, defaultGroupIdentifier, isAutoGenerateCodes, allowExperiments, excelSheetName,
+                    operationKind, sessionToken);
         } finally
         {
             cleanUploadedFiles(sessionKey, httpSession, uploadedFiles);
@@ -515,48 +556,60 @@ public class GenericClientService extends AbstractClientService implements IGene
         final HttpSession session = getHttpSession();
         UploadedFilesBean uploadedFiles = null;
         ConsumerTask asyncMaterialTask = null;
-        try {
+        try
+        {
             uploadedFiles = getUploadedFiles(sessionKey, session);
             BatchMaterialsOperation results = parseMaterials(session, uploadedFiles, materialType, null, updateExisting);
-            
+
             String fileName = results.getResultList().get(0).getFileName();
             List<NewMaterialsWithTypes> materials = results.getMaterials();
-            
+
             if (async)
             {
-                asyncMaterialTask = new ConsumerTask(uploadedFiles) {
-                    @Override
-                    public String getName() { return "Material Batch Registration"; }
-                    
-                    @Override
-                    public String getUserEmail() { return userEmail; }
-                    
-                    @Override
-                    public void doActionOrThrowException(Writer writer)
+                asyncMaterialTask = new ConsumerTask(uploadedFiles)
                     {
-                        //Some stuff is repeated on the async executor, this is expected
-                        BatchMaterialsOperation asyncResults = parseMaterials(session, this.getFilesForTask(), materialType, null, updateExisting);
-                        List<NewMaterialsWithTypes> asyncMaterials = asyncResults.getMaterials();
-                        //Execute task
-                        genericServer.registerOrUpdateMaterials(sessionToken, asyncMaterials);
-                    }
-                };
-                
+                        @Override
+                        public String getName()
+                        {
+                            return "Material Batch Registration";
+                        }
+
+                        @Override
+                        public String getUserEmail()
+                        {
+                            return userEmail;
+                        }
+
+                        @Override
+                        public void doActionOrThrowException(Writer writer)
+                        {
+                            // Some stuff is repeated on the async executor, this is expected
+                            BatchMaterialsOperation asyncResults =
+                                    parseMaterials(session, this.getFilesForTask(), materialType, null, updateExisting);
+                            List<NewMaterialsWithTypes> asyncMaterials = asyncResults.getMaterials();
+                            // Execute task
+                            genericServer.registerOrUpdateMaterials(sessionToken, asyncMaterials);
+                        }
+                    };
+
                 return AsyncBatchRegistrationResult.singletonList(fileName);
             } else
             {
                 genericServer.registerOrUpdateMaterials(sessionToken, materials);
                 return results.getResultList();
             }
-        } finally {
-            if (async && (asyncMaterialTask != null)) {
+        } finally
+        {
+            if (async && (asyncMaterialTask != null))
+            {
                 asyncRegistrationQueue.addTaskAsLast(asyncMaterialTask);
-            } else {
+            } else
+            {
                 cleanUploadedFiles(sessionKey, session, uploadedFiles);
             }
         }
     }
-    
+
     @Override
     public List<BatchRegistrationResult> updateMaterials(
             final MaterialType materialType,
@@ -569,57 +622,70 @@ public class GenericClientService extends AbstractClientService implements IGene
         final HttpSession session = getHttpSession();
         UploadedFilesBean uploadedFiles = null;
         ConsumerTask asyncMaterialTask = null;
-        
-        try {
+
+        try
+        {
             uploadedFiles = getUploadedFiles(sessionKey, session);
             BatchMaterialsOperation results = parseMaterials(session, uploadedFiles, materialType, null, true);
             String fileName = results.getResultList().get(0).getFileName();
 
             if (async)
             {
-                asyncMaterialTask = new ConsumerTask(uploadedFiles) {
-                    @Override
-                    public String getName() { return "Material Batch Update"; }
-                    
-                    @Override
-                    public String getUserEmail() { return userEmail; }
-                    
-                    @Override
-                    public void doActionOrThrowException(Writer writer)
-                    { 
-                        try
+                asyncMaterialTask = new ConsumerTask(uploadedFiles)
+                    {
+                        @Override
+                        public String getName()
                         {
-                            //Some stuff is repeated on the async executor, this is expected
-                            BatchMaterialsOperation asyncResults = parseMaterials(session, this.getFilesForTask(), materialType, null, true);
-                            //Execute task
-                            int updateCount = genericServer.updateMaterials(sessionToken, asyncResults.getMaterials(), ignoreUnregisteredMaterials);
-                            MaterialBatchUpdateResultMessage message = new MaterialBatchUpdateResultMessage(asyncResults.getMaterials(), updateCount, ignoreUnregisteredMaterials);
-                            writer.write(message.toString());
-                        } catch (IOException e)
-                        {
-                            CheckedExceptionTunnel.wrapIfNecessary(e);
+                            return "Material Batch Update";
                         }
-                    }
-                };
-                
-                
+
+                        @Override
+                        public String getUserEmail()
+                        {
+                            return userEmail;
+                        }
+
+                        @Override
+                        public void doActionOrThrowException(Writer writer)
+                        {
+                            try
+                            {
+                                // Some stuff is repeated on the async executor, this is expected
+                                BatchMaterialsOperation asyncResults = parseMaterials(session, this.getFilesForTask(), materialType, null, true);
+                                // Execute task
+                                int updateCount =
+                                        genericServer.updateMaterials(sessionToken, asyncResults.getMaterials(), ignoreUnregisteredMaterials);
+                                MaterialBatchUpdateResultMessage message =
+                                        new MaterialBatchUpdateResultMessage(asyncResults.getMaterials(), updateCount, ignoreUnregisteredMaterials);
+                                writer.write(message.toString());
+                            } catch (IOException e)
+                            {
+                                CheckedExceptionTunnel.wrapIfNecessary(e);
+                            }
+                        }
+                    };
+
                 return AsyncBatchRegistrationResult.singletonList(fileName);
             } else
             {
                 int updateCount = genericServer.updateMaterials(sessionToken, results.getMaterials(), ignoreUnregisteredMaterials);
-                MaterialBatchUpdateResultMessage message = new MaterialBatchUpdateResultMessage(results.getMaterials(), updateCount, ignoreUnregisteredMaterials);
+                MaterialBatchUpdateResultMessage message =
+                        new MaterialBatchUpdateResultMessage(results.getMaterials(), updateCount, ignoreUnregisteredMaterials);
                 return Arrays.asList(new BatchRegistrationResult(fileName, message.toString()));
             }
-        } finally {
-            if (async && (asyncMaterialTask != null)) {
+        } finally
+        {
+            if (async && (asyncMaterialTask != null))
+            {
                 asyncRegistrationQueue.addTaskAsLast(asyncMaterialTask);
-            } else {
+            } else
+            {
                 cleanUploadedFiles(sessionKey, session, uploadedFiles);
             }
         }
-        
+
     }
-    
+
     @Override
     public List<BatchRegistrationResult> updateExperiments(final ExperimentType experimentType,
             final String sessionKey, final boolean async, final String userEmail)
@@ -642,34 +708,42 @@ public class GenericClientService extends AbstractClientService implements IGene
             final String sessionToken = getSessionToken();
             applyDefaultSpaceProjectToExperiments(loader.getNewBasicExperiments(), sessionToken);
             final UpdatedExperimentsWithType updatedExperiments = new UpdatedExperimentsWithType(experimentType, loader.getNewBasicExperiments());
-            
+
             if (async)
             {
-                asyncExperimentTask = new ConsumerTask(uploadedFiles) {
-                    @Override
-                    public String getName() { return "Experiment Batch Update"; }
-                    
-                    @Override
-                    public String getUserEmail() { return userEmail; }
-                    
-                    @Override
-                    public void doActionOrThrowException(Writer writer)
+                asyncExperimentTask = new ConsumerTask(uploadedFiles)
                     {
-                        //Some stuff is repeated on the async executor, this is expected
-                        final Collection<NamedInputStream> asyncFiles = new ArrayList<NamedInputStream>(this.getFilesForTask().size());
-                        for (IUncheckedMultipartFile f : this.getFilesForTask().iterable())
+                        @Override
+                        public String getName()
                         {
-                            asyncFiles.add(new NamedInputStream(f.getInputStream(), f.getOriginalFilename()));
+                            return "Experiment Batch Update";
                         }
-                        UpdatedExperimentLoader loaderAsync = new UpdatedExperimentLoader();
-                        loaderAsync.load(asyncFiles);
-                        applyDefaultSpaceProjectToExperiments(loaderAsync.getNewBasicExperiments(), sessionToken);
-                        final UpdatedExperimentsWithType updatedExperimentsAsync = new UpdatedExperimentsWithType(experimentType, loaderAsync.getNewBasicExperiments());
-                        //Execute task
-                        genericServer.updateExperiments(sessionToken, updatedExperimentsAsync);
-                    }
-                };
-                
+
+                        @Override
+                        public String getUserEmail()
+                        {
+                            return userEmail;
+                        }
+
+                        @Override
+                        public void doActionOrThrowException(Writer writer)
+                        {
+                            // Some stuff is repeated on the async executor, this is expected
+                            final Collection<NamedInputStream> asyncFiles = new ArrayList<NamedInputStream>(this.getFilesForTask().size());
+                            for (IUncheckedMultipartFile f : this.getFilesForTask().iterable())
+                            {
+                                asyncFiles.add(new NamedInputStream(f.getInputStream(), f.getOriginalFilename()));
+                            }
+                            UpdatedExperimentLoader loaderAsync = new UpdatedExperimentLoader();
+                            loaderAsync.load(asyncFiles);
+                            applyDefaultSpaceProjectToExperiments(loaderAsync.getNewBasicExperiments(), sessionToken);
+                            final UpdatedExperimentsWithType updatedExperimentsAsync =
+                                    new UpdatedExperimentsWithType(experimentType, loaderAsync.getNewBasicExperiments());
+                            // Execute task
+                            genericServer.updateExperiments(sessionToken, updatedExperimentsAsync);
+                        }
+                    };
+
                 String fileName = loader.getResults().get(0).getFileName();
                 List<BatchRegistrationResult> batchRegistrationResults = AsyncBatchRegistrationResult.singletonList(fileName);
                 return batchRegistrationResults;
@@ -680,15 +754,18 @@ public class GenericClientService extends AbstractClientService implements IGene
             }
         } finally
         {
-            if (async && (asyncExperimentTask != null)) {
+            if (async && (asyncExperimentTask != null))
+            {
                 asyncRegistrationQueue.addTaskAsLast(asyncExperimentTask);
-            } else {
+            } else
+            {
                 cleanUploadedFiles(sessionKey, session, uploadedFiles);
             }
         }
     }
-    
-    private final ExperimentLoader getExperimentsFromFiles(UploadedFilesBean uploadedFiles) {
+
+    private final ExperimentLoader getExperimentsFromFiles(UploadedFilesBean uploadedFiles)
+    {
         Collection<NamedInputStream> files = new ArrayList<NamedInputStream>(uploadedFiles.size());
         for (IUncheckedMultipartFile f : uploadedFiles.iterable())
         {
@@ -698,7 +775,7 @@ public class GenericClientService extends AbstractClientService implements IGene
         loader.load(files);
         return loader;
     }
-    
+
     @Override
     public final List<BatchRegistrationResult> registerExperiments(
             final ExperimentType experimentType, final String sessionKey, final boolean async, final String userEmail)
@@ -711,31 +788,39 @@ public class GenericClientService extends AbstractClientService implements IGene
             final String sessionToken = getSessionToken();
             uploadedFiles = getUploadedFiles(sessionKey, session);
             ExperimentLoader loader = getExperimentsFromFiles(uploadedFiles);
-            
+
             // Update the identifiers using the default project and space when possible
             applyDefaultSpaceProjectToExperiments(loader.getNewBasicExperiments(), sessionToken);
             NewExperimentsWithType newExperiments = new NewExperimentsWithType(experimentType.getCode(), loader.getNewBasicExperiments());
             if (async)
             {
-                asyncExperimentTask = new ConsumerTask(uploadedFiles) {
-                    @Override
-                    public String getName() { return "Experiment Batch Registration"; }
-                    
-                    @Override
-                    public String getUserEmail() { return userEmail; }
-                    
-                    @Override
-                    public void doActionOrThrowException(Writer writer)
+                asyncExperimentTask = new ConsumerTask(uploadedFiles)
                     {
-                        //Some stuff is repeated on the async executor, this is expected
-                        ExperimentLoader asyncLoader = getExperimentsFromFiles(this.getFilesForTask());
-                        applyDefaultSpaceProjectToExperiments(asyncLoader.getNewBasicExperiments(), sessionToken);
-                        NewExperimentsWithType newExperiments = new NewExperimentsWithType(experimentType.getCode(), asyncLoader.getNewBasicExperiments());
-                        //Execute task
-                        genericServer.registerExperiments(sessionToken, newExperiments);
-                    }
-                };
-                
+                        @Override
+                        public String getName()
+                        {
+                            return "Experiment Batch Registration";
+                        }
+
+                        @Override
+                        public String getUserEmail()
+                        {
+                            return userEmail;
+                        }
+
+                        @Override
+                        public void doActionOrThrowException(Writer writer)
+                        {
+                            // Some stuff is repeated on the async executor, this is expected
+                            ExperimentLoader asyncLoader = getExperimentsFromFiles(this.getFilesForTask());
+                            applyDefaultSpaceProjectToExperiments(asyncLoader.getNewBasicExperiments(), sessionToken);
+                            NewExperimentsWithType newExperiments =
+                                    new NewExperimentsWithType(experimentType.getCode(), asyncLoader.getNewBasicExperiments());
+                            // Execute task
+                            genericServer.registerExperiments(sessionToken, newExperiments);
+                        }
+                    };
+
                 String fileName = loader.getResults().get(0).getFileName();
                 return AsyncBatchRegistrationResult.singletonList(fileName);
             } else
@@ -745,9 +830,11 @@ public class GenericClientService extends AbstractClientService implements IGene
             }
         } finally
         {
-            if (async && (asyncExperimentTask != null)) {
+            if (async && (asyncExperimentTask != null))
+            {
                 asyncRegistrationQueue.addTaskAsLast(asyncExperimentTask);
-            } else {
+            } else
+            {
                 cleanUploadedFiles(sessionKey, session, uploadedFiles);
             }
         }
@@ -1023,7 +1110,7 @@ public class GenericClientService extends AbstractClientService implements IGene
         try
         {
             uploadedFiles = getUploadedFiles(sessionKey, session);
-            
+
             Collection<NamedInputStream> files = new ArrayList<NamedInputStream>(uploadedFiles.size());
             for (IUncheckedMultipartFile f : uploadedFiles.iterable())
             {
@@ -1031,34 +1118,41 @@ public class GenericClientService extends AbstractClientService implements IGene
             }
             DataSetLoader loader = new DataSetLoader();
             loader.load(files);
-            
+
             NewDataSetsWithTypes newDataSetsWithTypes = new NewDataSetsWithTypes(dataSetType, loader.getNewDataSets());
-            
+
             if (async)
             {
-                asyncDatasetsTask = new ConsumerTask(uploadedFiles) {
-                    @Override
-                    public String getName() { return "Data Set Batch Update"; }
-                    
-                    @Override
-                    public String getUserEmail() { return userEmail; }
-                    
-                    @Override
-                    public void doActionOrThrowException(Writer writer)
+                asyncDatasetsTask = new ConsumerTask(uploadedFiles)
                     {
-                        //Some stuff is repeated on the async executor, this is expected
-                        Collection<NamedInputStream> asyncFiles = new ArrayList<NamedInputStream>(this.getFilesForTask().size());
-                        for (IUncheckedMultipartFile f : this.getFilesForTask().iterable())
+                        @Override
+                        public String getName()
                         {
-                            asyncFiles.add(new NamedInputStream(f.getInputStream(), f.getOriginalFilename()));
+                            return "Data Set Batch Update";
                         }
-                        DataSetLoader asyncLoader = new DataSetLoader();
-                        asyncLoader.load(asyncFiles);
-                        NewDataSetsWithTypes asyncNewDataSetsWithTypes = new NewDataSetsWithTypes(dataSetType, asyncLoader.getNewDataSets());
-                        //Execute task
-                        genericServer.updateDataSets(sessionToken, asyncNewDataSetsWithTypes);
-                    }
-                };
+
+                        @Override
+                        public String getUserEmail()
+                        {
+                            return userEmail;
+                        }
+
+                        @Override
+                        public void doActionOrThrowException(Writer writer)
+                        {
+                            // Some stuff is repeated on the async executor, this is expected
+                            Collection<NamedInputStream> asyncFiles = new ArrayList<NamedInputStream>(this.getFilesForTask().size());
+                            for (IUncheckedMultipartFile f : this.getFilesForTask().iterable())
+                            {
+                                asyncFiles.add(new NamedInputStream(f.getInputStream(), f.getOriginalFilename()));
+                            }
+                            DataSetLoader asyncLoader = new DataSetLoader();
+                            asyncLoader.load(asyncFiles);
+                            NewDataSetsWithTypes asyncNewDataSetsWithTypes = new NewDataSetsWithTypes(dataSetType, asyncLoader.getNewDataSets());
+                            // Execute task
+                            genericServer.updateDataSets(sessionToken, asyncNewDataSetsWithTypes);
+                        }
+                    };
                 String fileName = loader.getResults().get(0).getFileName();
                 return AsyncBatchRegistrationResult.singletonList(fileName);
             } else
@@ -1068,9 +1162,11 @@ public class GenericClientService extends AbstractClientService implements IGene
             }
         } finally
         {
-            if (async && (asyncDatasetsTask != null)) {
+            if (async && (asyncDatasetsTask != null))
+            {
                 asyncRegistrationQueue.addTaskAsLast(asyncDatasetsTask);
-            } else {
+            } else
+            {
                 cleanUploadedFiles(sessionKey, session, uploadedFiles);
             }
         }

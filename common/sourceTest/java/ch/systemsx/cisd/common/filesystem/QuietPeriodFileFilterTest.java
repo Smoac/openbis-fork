@@ -31,8 +31,6 @@ import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.exceptions.StatusWithResult;
-import ch.systemsx.cisd.common.filesystem.QuietPeriodFileFilter;
-import ch.systemsx.cisd.common.filesystem.StoreItem;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.test.LogMonitoringAppender;
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
@@ -227,7 +225,7 @@ public class QuietPeriodFileFilterTest
         long now = 0;
         for (int i = 0; i < errorRepetitions; i++)
         {
-            prepareLastChanged(now, 0L, StatusWithResult.<Long> createError());
+            prepareLastChanged(now, 0L, StatusWithResult.<Long> createErrorWithResult());
             now += QUIET_PERIOD_MILLIS;
         }
         for (int i = 0; i < errorRepetitions; i++)
@@ -240,7 +238,7 @@ public class QuietPeriodFileFilterTest
         now += QUIET_PERIOD_MILLIS;
         assertNoAccept();
         // error again
-        prepareLastChanged(now, 0L, StatusWithResult.<Long> createError());
+        prepareLastChanged(now, 0L, StatusWithResult.<Long> createErrorWithResult());
         now += QUIET_PERIOD_MILLIS;
         assertNoAccept();
         // second time we acquire modification time - and nothing change during the quite period, so

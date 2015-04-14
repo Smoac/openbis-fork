@@ -122,19 +122,15 @@ public class SampleDataAccessExceptionTranslator
                 final String sqlState = sqlException.getSQLState();
                 if (SQLStateUtils.isUniqueViolation(sqlState))
                 {
-                    if (sqlException.getNextException() != null
-                            && sqlException.getNextException().getMessage() != null)
-                    {
-                        String message = sqlException.getNextException().getMessage();
-                        Matcher matcher = MESSAGE_PATTERN.matcher(message);
+                    String message = sqlException.getMessage();
+                    Matcher matcher = MESSAGE_PATTERN.matcher(message);
 
-                        if (matcher.find())
-                        {
-                            UniqueViolationMessage result = new UniqueViolationMessage();
-                            result.constraintName = matcher.group(1);
-                            result.columnValue = matcher.group(2);
-                            return result;
-                        }
+                    if (matcher.find())
+                    {
+                        UniqueViolationMessage result = new UniqueViolationMessage();
+                        result.constraintName = matcher.group(1);
+                        result.columnValue = matcher.group(2);
+                        return result;
                     }
                 }
             }

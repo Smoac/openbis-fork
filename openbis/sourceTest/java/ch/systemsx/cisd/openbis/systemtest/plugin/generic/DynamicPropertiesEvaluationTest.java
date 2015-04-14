@@ -353,9 +353,8 @@ public class DynamicPropertiesEvaluationTest extends GenericSystemTestCase
     }
 
     /**
-     * Tries to perform given <var>assertAction</var> with specified number of <var>retries</var>
-     * waiting for specified time (in ms) before each attempt. Only {@link AssertionError}s are
-     * handled by the method.
+     * Tries to perform given <var>assertAction</var> with specified number of <var>retries</var> waiting for specified time (in ms) before each
+     * attempt. Only {@link AssertionError}s are handled by the method.
      */
     private void check(long timeToWait, long retries, String testName, IDelegatedAction assertAction)
     {

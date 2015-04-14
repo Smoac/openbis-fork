@@ -30,7 +30,7 @@ import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
-import org.springframework.orm.hibernate3.HibernateTemplate;
+import org.springframework.orm.hibernate4.HibernateTemplate;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -156,7 +156,7 @@ public class MetaprojectDAO extends AbstractGenericEntityDAO<MetaprojectPE> impl
         criteria.add(Restrictions.eq("m.id", metaprojectId));
         criteria.setProjection(Projections.property("e.id"));
 
-        List<Number> idsAsNumbers = (List<Number>)getHibernateTemplate().findByCriteria(criteria);
+        List<Number> idsAsNumbers = (List<Number>) getHibernateTemplate().findByCriteria(criteria);
         List<Long> idsAsLongs = new ArrayList<Long>();
 
         for (Number idAsNumber : idsAsNumbers)

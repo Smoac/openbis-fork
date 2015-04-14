@@ -316,7 +316,7 @@ public class ETLServiceTest extends AbstractServerTestCase
 
                     one(dataStoreDAO).tryToFindDataStoreByCode(DSS_CODE);
                     will(returnValue(null));
-                    
+
                     one(dataStoreDAO).listDataStores();
                     will(returnValue(Arrays.asList()));
 
@@ -1039,7 +1039,7 @@ public class ETLServiceTest extends AbstractServerTestCase
         dataSetUpdate.setDatasetId(CommonTestUtils.TECH_ID);
         dataSetUpdate.setFileFormatTypeCode("new-file-format");
         dataSetUpdate.setModifiedContainedDatasetCodesOrNull(new String[]
-            { "c1", "c2" });
+        { "c1", "c2" });
 
         final MetaprojectPE metaprojectPE = new MetaprojectPE();
 
@@ -1144,6 +1144,8 @@ public class ETLServiceTest extends AbstractServerTestCase
 
                     allowing(daoFactory).getEntityTypeDAO(EntityKind.MATERIAL);
                     will(returnValue(entityTypeDAO));
+
+                    allowing(daoFactory).getSessionFactory();
 
                     allowing(entityTypeDAO).tryToFindEntityTypeByCode(materialType.getCode());
                     will(returnValue(materialType));
@@ -1282,7 +1284,7 @@ public class ETLServiceTest extends AbstractServerTestCase
         dataSetUpdate.setDatasetId(CommonTestUtils.TECH_ID);
         dataSetUpdate.setFileFormatTypeCode("new-file-format");
         dataSetUpdate.setModifiedContainedDatasetCodesOrNull(new String[]
-            { "c1", "c2" });
+        { "c1", "c2" });
 
         final MetaprojectPE metaprojectPE = new MetaprojectPE();
         metaprojectPE.setOwner(CommonTestUtils.createPersonFromPrincipal(PRINCIPAL));
@@ -1559,7 +1561,7 @@ public class ETLServiceTest extends AbstractServerTestCase
     {
         // unknown data set type codes should be silently discarded
         return new DatastoreServiceDescription(key, key, new String[]
-            { DATA_SET_TYPE_CODE, UNKNOWN_DATA_SET_TYPE_CODE }, key, serviceKind);
+        { DATA_SET_TYPE_CODE, UNKNOWN_DATA_SET_TYPE_CODE }, key, serviceKind);
     }
 
     @SuppressWarnings("deprecation")
@@ -1568,7 +1570,7 @@ public class ETLServiceTest extends AbstractServerTestCase
     {
         // wildcards should be handled correctly
         return new DatastoreServiceDescription(key, key, new String[]
-            { regex }, key, serviceKind);
+        { regex }, key, serviceKind);
     }
 
     private void assignRoles(PersonPE person)

@@ -508,6 +508,10 @@ public abstract class AbstractExternalData extends
         @Override
         public int compare(AbstractExternalData o1, AbstractExternalData o2)
         {
+            if (o1 == o2)
+            {
+                return 0;
+            }
             Integer order1 = o1.getOrderInContainer(id);
             Integer order2 = o2.getOrderInContainer(id);
             // sanity check

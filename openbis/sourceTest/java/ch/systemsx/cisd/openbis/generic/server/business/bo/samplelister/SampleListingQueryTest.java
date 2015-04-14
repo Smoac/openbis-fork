@@ -32,7 +32,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
-import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
@@ -98,7 +98,7 @@ public class SampleListingQueryTest extends AbstractDAOTest
 
     private ISampleListingQuery query;
 
-    @BeforeClass(alwaysRun = true)
+    @BeforeMethod(alwaysRun = true)
     public void init() throws SQLException
     {
         SampleListerDAO sampleListerDAO = createSampleListerDAO(daoFactory);

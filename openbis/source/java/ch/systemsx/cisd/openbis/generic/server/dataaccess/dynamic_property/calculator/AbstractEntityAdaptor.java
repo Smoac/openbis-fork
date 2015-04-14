@@ -25,7 +25,7 @@ import org.apache.lucene.index.Term;
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
-import org.apache.lucene.search.regex.RegexQuery;
+import org.apache.lucene.search.RegexpQuery;
 import org.hibernate.ScrollMode;
 import org.hibernate.ScrollableResults;
 import org.hibernate.Session;
@@ -206,7 +206,7 @@ public class AbstractEntityAdaptor implements IEntityAdaptor, IReleasable
 
     protected Query regexpConstraint(String field, String value)
     {
-        return new RegexQuery(new Term(field, value.toLowerCase()));
+        return new RegexpQuery(new Term(field, value.toLowerCase()));
     }
 
     protected Query constraint(String field, String value)

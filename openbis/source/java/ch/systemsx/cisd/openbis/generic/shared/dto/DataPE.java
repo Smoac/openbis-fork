@@ -56,6 +56,7 @@ import org.hibernate.annotations.OptimisticLock;
 import org.hibernate.search.annotations.DateBridge;
 import org.hibernate.search.annotations.DocumentId;
 import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.FieldBridge;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.IndexedEmbedded;
@@ -347,7 +348,9 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
 
     @Column(name = ColumnNames.REGISTRATION_TIMESTAMP_COLUMN, nullable = false, insertable = false)
     @Generated(GenerationTime.ALWAYS)
-    @Field(name = SearchFieldConstants.REGISTRATION_DATE, index = Index.UN_TOKENIZED, store = Store.NO)
+    @Field(name = SearchFieldConstants.REGISTRATION_DATE, index = Index.YES, store = Store.NO)
+    @FieldBridge(impl = org.hibernate.search.bridge.builtin.StringEncodingDateBridge.class,
+            params = { @org.hibernate.search.annotations.Parameter(name = "resolution", value = "SECOND") })
     @DateBridge(resolution = Resolution.SECOND)
     public Date getRegistrationDate()
     {
@@ -473,7 +476,8 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
     // used only by Hibernate Search
     @SuppressWarnings("unused")
     @Transient
-    @Field(index = Index.UN_TOKENIZED, store = Store.YES, name = SearchFieldConstants.SAMPLE_ID)
+    @Field(index = Index.YES, store = Store.YES, name = SearchFieldConstants.SAMPLE_ID)
+    @FieldBridge(impl = org.hibernate.search.bridge.builtin.LongBridge.class)
     private Long getSampleId()
     {
         Long result = null;
@@ -540,7 +544,9 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
     @Override
     @OptimisticLock(excluded = true)
     @Column(name = ColumnNames.MODIFICATION_TIMESTAMP_COLUMN, nullable = false)
-    @Field(name = SearchFieldConstants.MODIFICATION_DATE, index = Index.UN_TOKENIZED, store = Store.NO)
+    @Field(name = SearchFieldConstants.MODIFICATION_DATE, index = Index.YES, store = Store.NO)
+    @FieldBridge(impl = org.hibernate.search.bridge.builtin.StringEncodingDateBridge.class,
+            params = { @org.hibernate.search.annotations.Parameter(name = "resolution", value = "SECOND") })
     @DateBridge(resolution = Resolution.SECOND)
     public Date getModificationDate()
     {
@@ -555,7 +561,7 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
 
     @Column(name = ColumnNames.ACCESS_TIMESTAMP, nullable = false, insertable = false)
     @Generated(GenerationTime.ALWAYS)
-    @Field(name = SearchFieldConstants.ACCESS_DATE, index = Index.UN_TOKENIZED, store = Store.NO)
+    @Field(name = SearchFieldConstants.ACCESS_DATE, index = Index.YES, store = Store.NO)
     @DateBridge(resolution = Resolution.SECOND)
     public Date getAccessDate()
     {
@@ -626,7 +632,7 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
     @NotNull(message = ValidationMessages.CODE_NOT_NULL_MESSAGE)
     @Length(min = 1, max = Code.CODE_LENGTH_MAX, message = ValidationMessages.CODE_LENGTH_MESSAGE)
     @Pattern(regexp = AbstractIdAndCodeHolder.CODE_PATTERN, flags = Pattern.Flag.CASE_INSENSITIVE, message = ValidationMessages.CODE_PATTERN_MESSAGE)
-    @Field(index = Index.TOKENIZED, store = Store.YES, name = SearchFieldConstants.CODE)
+    @Field(index = Index.YES, store = Store.YES, name = SearchFieldConstants.CODE)
     public String getCode()
     {
         return code;
@@ -669,7 +675,8 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
     // used only by Hibernate Search
     @SuppressWarnings("unused")
     @Transient
-    @Field(index = Index.UN_TOKENIZED, store = Store.YES, name = SearchFieldConstants.EXPERIMENT_ID)
+    @Field(index = Index.YES, store = Store.YES, name = SearchFieldConstants.EXPERIMENT_ID)
+    @FieldBridge(impl = org.hibernate.search.bridge.builtin.LongBridge.class)
     private Long getExperimentId()
     {
         Long result = null;

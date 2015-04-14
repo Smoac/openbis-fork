@@ -22,7 +22,7 @@ import org.hibernate.Criteria;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.CriteriaSpecification;
 import org.hibernate.criterion.Restrictions;
-import org.springframework.orm.hibernate3.HibernateTemplate;
+import org.springframework.orm.hibernate4.HibernateTemplate;
 
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ICorePluginDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.CorePluginPE;
@@ -45,7 +45,8 @@ public class CorePluginDAO extends AbstractDAO implements ICorePluginDAO
     public void createCorePlugins(List<CorePluginPE> corePlugins)
     {
         HibernateTemplate template = getHibernateTemplate();
-        for (CorePluginPE plugin: corePlugins) {
+        for (CorePluginPE plugin : corePlugins)
+        {
             template.saveOrUpdate(plugin);
         }
         template.flush();
@@ -54,7 +55,7 @@ public class CorePluginDAO extends AbstractDAO implements ICorePluginDAO
     @Override
     public List<CorePluginPE> listCorePluginsByName(String name)
     {
-        final Criteria criteria = getSession().createCriteria(ENTITY_CLASS);
+        final Criteria criteria = currentSession().createCriteria(ENTITY_CLASS);
         criteria.add(Restrictions.eq("name", name));
         criteria.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
         return cast(criteria.list());

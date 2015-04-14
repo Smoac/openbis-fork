@@ -47,8 +47,8 @@ import ch.systemsx.cisd.openbis.generic.shared.IServer;
  */
 @Entity
 @Table(name = TableNames.SAMPLE_RELATIONSHIPS_VIEW, uniqueConstraints = @UniqueConstraint(columnNames =
-    { ColumnNames.PARENT_SAMPLE_COLUMN, ColumnNames.CHILD_SAMPLE_COLUMN,
-            ColumnNames.RELATIONSHIP_COLUMN }))
+{ ColumnNames.PARENT_SAMPLE_COLUMN, ColumnNames.CHILD_SAMPLE_COLUMN,
+        ColumnNames.RELATIONSHIP_COLUMN }))
 public class SampleRelationshipPE implements Serializable
 {
     private static final long serialVersionUID = IServer.VERSION;
@@ -170,7 +170,6 @@ public class SampleRelationshipPE implements Serializable
 
     @Version
     @Column(name = ColumnNames.MODIFICATION_TIMESTAMP_COLUMN, nullable = false)
-    @DateBridge(resolution = Resolution.SECOND)
     public Date getModificationDate()
     {
         return modificationDate;

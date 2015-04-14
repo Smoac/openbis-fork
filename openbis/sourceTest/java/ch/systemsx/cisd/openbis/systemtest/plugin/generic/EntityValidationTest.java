@@ -265,7 +265,7 @@ public class EntityValidationTest extends GenericSystemTestCase
     private SampleUpdatesDTO createSampleUpdates(Sample sample, String parentCode)
     {
         String[] modifiedParentCodesOrNull = new String[]
-            { parentCode };
+        { parentCode };
         String containerIdentifierOrNull = null;
         SampleIdentifier sampleIdentifier = SampleIdentifierFactory.parse(sample);
         int version = sample.getVersion();
@@ -317,7 +317,7 @@ public class EntityValidationTest extends GenericSystemTestCase
         updates.setDatasetId(new TechId(26));
         updates.setVersion(dataset.getVersion());
         updates.setMetaprojectsOrNull(new String[]
-            { "TEST_METAPROJECTS" });
+        { "TEST_METAPROJECTS" });
         updates.setExperimentIdentifierOrNull(new ExperimentIdentifier(dataset.getExperiment()));
         updates.setProperties(Collections.<IEntityProperty> emptyList());
 
@@ -340,7 +340,7 @@ public class EntityValidationTest extends GenericSystemTestCase
             updates.setDatasetId(new TechId(26));
             updates.setVersion(dataset.getVersion());
             updates.setMetaprojectsOrNull(new String[]
-                { "TEST_METAPROJECTS" });
+            { "TEST_METAPROJECTS" });
             updates.setExperimentIdentifierOrNull(new ExperimentIdentifier(dataset.getExperiment()));
             updates.setProperties(Collections.<IEntityProperty> emptyList());
 

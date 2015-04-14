@@ -21,8 +21,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.google.gwt.user.client.ui.Widget;
-
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractClientPluginFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
@@ -79,6 +77,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCrit
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchByProjectCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.SingleExperimentSearchCriteria;
+
+import com.google.gwt.user.client.ui.Widget;
 
 /**
  * {@link IClientPluginFactory} implementation for <i>screening</i> plugin.
@@ -223,7 +223,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
                     public ITabItem create()
                     {
                         final DatabaseModificationAwareComponent experimentViewer =
-                                ExperimentViewer.create(getViewContext(), entity.getEntityType(),
+                                ExperimentViewer.createComponent(getViewContext(), entity.getEntityType(),
                                         entity);
                         return DefaultTabItem.create(getTabTitle(), experimentViewer,
                                 getViewContext(), false);
@@ -245,7 +245,8 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
                     @Override
                     public String getTabTitle()
                     {
-                        return getViewerTitle(ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict.EXPERIMENT, entity, getViewContext());
+                        return getViewerTitle(ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict.EXPERIMENT, entity,
+                                getViewContext());
                     }
 
                     @Override
@@ -258,8 +259,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
     }
 
     /**
-     * Opens experiment detail viewer. In embedded mode only the content of the analysis summary tab
-     * is presented.
+     * Opens experiment detail viewer. In embedded mode only the content of the analysis summary tab is presented.
      */
     public static final void openImagingExperimentViewer(
             final IEntityInformationHolderWithPermId experiment,
@@ -277,8 +277,8 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
     }
 
     /**
-     * Creates a link to experiment detail viewer. In embedded mode the link will lead to the tab
-     * which has only the content of the analysis summary panel.
+     * Creates a link to experiment detail viewer. In embedded mode the link will lead to the tab which has only the content of the analysis summary
+     * panel.
      */
     public static String createImagingExperimentViewerLink(
             IEntityInformationHolderWithPermId experiment,
@@ -296,11 +296,11 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
     }
 
     /**
-     * Opens material detail viewer. Shows wells in which the material is contained, with a selected
-     * experiment. In embedded mode only the content of the replica summary tab is presented.
+     * Opens material detail viewer. Shows wells in which the material is contained, with a selected experiment. In embedded mode only the content of
+     * the replica summary tab is presented.
      * 
-     * @param experimentCriteriaOrNull note that null does NOT mean searching in all experiments,
-     *            but that single experiment should be specified by the user.
+     * @param experimentCriteriaOrNull note that null does NOT mean searching in all experiments, but that single experiment should be specified by
+     *            the user.
      * @param computeRanks
      */
     public static final void openImagingMaterialViewer(
@@ -522,7 +522,8 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
                     @Override
                     public String getTabTitle()
                     {
-                        return getViewerTitle(ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict.DATA_SET, entity, screeningViewContext);
+                        return getViewerTitle(ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict.DATA_SET, entity,
+                                screeningViewContext);
                     }
 
                     @Override
@@ -562,7 +563,8 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
                     @Override
                     public String getTabTitle()
                     {
-                        return getViewerTitle(ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict.DATA_SET, entity, screeningViewContext);
+                        return getViewerTitle(ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict.DATA_SET, entity,
+                                screeningViewContext);
                     }
 
                     @Override
@@ -669,7 +671,8 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
                             return getViewerTitle(Dict.WELL, codeHolder, screeningViewContext);
                         } else
                         {
-                            return getViewerTitle(ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict.SAMPLE, entity, screeningViewContext);
+                            return getViewerTitle(ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict.SAMPLE, entity,
+                                    screeningViewContext);
                         }
                     }
 

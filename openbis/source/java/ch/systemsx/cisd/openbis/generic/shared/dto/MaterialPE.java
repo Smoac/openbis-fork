@@ -51,6 +51,7 @@ import org.hibernate.annotations.GenerationTime;
 import org.hibernate.search.annotations.DateBridge;
 import org.hibernate.search.annotations.DocumentId;
 import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.FieldBridge;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.IndexedEmbedded;
@@ -128,7 +129,9 @@ public class MaterialPE implements IIdAndCodeHolder, Comparable<MaterialPE>,
 
     @Column(name = ColumnNames.REGISTRATION_TIMESTAMP_COLUMN, nullable = false, insertable = false, updatable = false)
     @Generated(GenerationTime.INSERT)
-    @Field(name = SearchFieldConstants.REGISTRATION_DATE, index = Index.UN_TOKENIZED, store = Store.NO)
+    @Field(name = SearchFieldConstants.REGISTRATION_DATE, index = Index.YES, store = Store.NO)
+    @FieldBridge(impl = org.hibernate.search.bridge.builtin.StringEncodingDateBridge.class,
+            params = { @org.hibernate.search.annotations.Parameter(name = "resolution", value = "SECOND") })
     @DateBridge(resolution = Resolution.SECOND)
     public Date getRegistrationDate()
     {
@@ -187,7 +190,7 @@ public class MaterialPE implements IIdAndCodeHolder, Comparable<MaterialPE>,
     @Column(name = ColumnNames.CODE_COLUMN)
     @Length(min = 1, max = Code.CODE_LENGTH_MAX, message = ValidationMessages.CODE_LENGTH_MESSAGE)
     @NotNull(message = ValidationMessages.CODE_NOT_NULL_MESSAGE)
-    @Field(index = Index.TOKENIZED, store = Store.YES, name = SearchFieldConstants.CODE)
+    @Field(index = Index.YES, store = Store.YES, name = SearchFieldConstants.CODE)
     public String getCode()
     {
         return code;
@@ -200,7 +203,7 @@ public class MaterialPE implements IIdAndCodeHolder, Comparable<MaterialPE>,
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "entity", orphanRemoval = true)
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-    @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_PROPERTIES)
+    @IndexedEmbedded(/* includePaths = { "value" }, */prefix = SearchFieldConstants.PREFIX_PROPERTIES)
     @BatchSize(size = 100)
     private Set<MaterialPropertyPE> getMaterialProperties()
     {
@@ -312,7 +315,9 @@ public class MaterialPE implements IIdAndCodeHolder, Comparable<MaterialPE>,
 
     @Version
     @Column(name = ColumnNames.MODIFICATION_TIMESTAMP_COLUMN, nullable = false)
-    @Field(name = SearchFieldConstants.MODIFICATION_DATE, index = Index.UN_TOKENIZED, store = Store.NO)
+    @Field(name = SearchFieldConstants.MODIFICATION_DATE, index = Index.YES, store = Store.NO)
+    @FieldBridge(impl = org.hibernate.search.bridge.builtin.StringEncodingDateBridge.class,
+            params = { @org.hibernate.search.annotations.Parameter(name = "resolution", value = "SECOND") })
     @DateBridge(resolution = Resolution.SECOND)
     public Date getModificationDate()
     {

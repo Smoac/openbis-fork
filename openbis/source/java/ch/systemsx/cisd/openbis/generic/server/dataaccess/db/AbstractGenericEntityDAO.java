@@ -26,7 +26,7 @@ import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataRetrievalFailureException;
-import org.springframework.orm.hibernate3.HibernateTemplate;
+import org.springframework.orm.hibernate4.HibernateTemplate;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -101,7 +101,7 @@ public abstract class AbstractGenericEntityDAO<T extends IIdHolder> extends Abst
             throws DataAccessException
     {
         assert techId != null : "Technical identifier unspecified.";
-        final Criteria criteria = getSession().createCriteria(getEntityClass());
+        final Criteria criteria = currentSession().createCriteria(getEntityClass());
         criteria.add(Restrictions.eq("id", techId.getId()));
         for (String connection : connections)
         {

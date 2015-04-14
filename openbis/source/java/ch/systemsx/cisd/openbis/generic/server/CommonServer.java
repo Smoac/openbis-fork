@@ -35,8 +35,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import javax.annotation.Resource;
-
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 
@@ -269,7 +267,6 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
 
     private String defaultPutDataStoreServerCodeOrNull;
 
-    @Resource(name = ch.systemsx.cisd.openbis.generic.shared.ResourceNames.COMMON_SERVER)
     protected ICommonServer commonServer;
 
     public CommonServer(final IAuthenticationService authenticationService,
@@ -4569,9 +4566,10 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
 
         return null;
     }
-    
+
     @Override
-    public String getDisabledText() {
+    public String getDisabledText()
+    {
         return tryGetDisabledText();
     }
 }

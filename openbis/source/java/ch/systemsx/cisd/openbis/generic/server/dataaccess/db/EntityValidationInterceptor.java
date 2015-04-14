@@ -28,15 +28,14 @@ import java.util.Set;
 
 import org.hibernate.Criteria;
 import org.hibernate.EmptyInterceptor;
-import org.hibernate.EntityMode;
 import org.hibernate.FetchMode;
 import org.hibernate.Interceptor;
+import org.hibernate.Session;
 import org.hibernate.Transaction;
-import org.hibernate.classic.Session;
 import org.hibernate.criterion.Restrictions;
-import org.hibernate.engine.EntityKey;
-import org.hibernate.engine.SessionFactoryImplementor;
-import org.hibernate.impl.SessionImpl;
+import org.hibernate.engine.spi.EntityKey;
+import org.hibernate.engine.spi.SessionFactoryImplementor;
+import org.hibernate.internal.SessionImpl;
 import org.hibernate.type.Type;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -58,11 +57,9 @@ import ch.systemsx.cisd.openbis.generic.shared.hotdeploy_plugins.api.IEntityAdap
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 
 /**
- * {@link Interceptor} which reacts to creation and update of entities, and calls the validation
- * script. It is coupled with {@link OpenBISHibernateTransactionManager} with the callback object,
- * as the only way to cancel transaction from this interceptor is to rollback hibernate transaction
- * object. In order to fail the transaction with a {@link UserFailureException} we have to provide
- * information
+ * {@link Interceptor} which reacts to creation and update of entities, and calls the validation script. It is coupled with
+ * {@link OpenBISHibernateTransactionManager} with the callback object, as the only way to cancel transaction from this interceptor is to rollback
+ * hibernate transaction object. In order to fail the transaction with a {@link UserFailureException} we have to provide information
  * 
  * @author Jakub Straszewski
  */
@@ -118,11 +115,10 @@ public class EntityValidationInterceptor extends EmptyInterceptor implements
     Set<EntityIdentifier> validatedEntities;
 
     /**
-     * WE get information about progress listener, form the caller of updates. Luckily the
-     * onFlushDirty and onSave hooks are executed in the same thread as the caller.
+     * WE get information about progress listener, form the caller of updates. Luckily the onFlushDirty and onSave hooks are executed in the same
+     * thread as the caller.
      * <p>
-     * The beforeTransactionCompletionHook is called in the separate thread, therefore we persist
-     * progress listener in a designated variable
+     * The beforeTransactionCompletionHook is called in the separate thread, therefore we persist progress listener in a designated variable
      */
     IServiceConversationProgressListener progressListener;
 
@@ -131,8 +127,7 @@ public class EntityValidationInterceptor extends EmptyInterceptor implements
     int entitiesValidatedCount;
 
     /**
-     * if true - than it means that at least one validation has failed, and we don't need to do any
-     * additional validations
+     * if true - than it means that at least one validation has failed, and we don't need to do any additional validations
      */
     private boolean isRolledBack;
 
@@ -167,13 +162,26 @@ public class EntityValidationInterceptor extends EmptyInterceptor implements
         return false;
     }
 
+    // @Override
+    // public void postFlush(Iterator entities)
+    // {
+    // updateListener();
+    // while (entities.hasNext())
+    // {
+    // Object entity = entities.next();
+    // if (entity instanceof IEntityInformationWithPropertiesHolder)
+    // {
+    // modifiedEntity((IEntityInformationWithPropertiesHolder) entity);
+    // }
+    // }
+    // }
+
     private boolean isCached(Session session, EntityIdentifier identifier)
     {
         return ((SessionImpl) session)
                 .getEntityUsingInterceptor(new EntityKey(identifier.getId(),
                         ((SessionFactoryImplementor) daoFactory.getSessionFactory())
-                                .getEntityPersister(identifier.getEntityClass().getName()),
-                        EntityMode.POJO)) != null;
+                                .getEntityPersister(identifier.getEntityClass().getName()))) != null;
     }
 
     private Collection<EntityIdentifier> cachedEntities(Session session)
@@ -194,7 +202,7 @@ public class EntityValidationInterceptor extends EmptyInterceptor implements
     public void beforeTransactionCompletion(Transaction tx)
     {
         Session session = daoFactory.getSessionFactory().getCurrentSession();
-
+        session.flush();
         for (EntityIdentifier identifier : cachedEntities(session))
         {
             validateEntity(
@@ -224,9 +232,37 @@ public class EntityValidationInterceptor extends EmptyInterceptor implements
                 criteria.add(Restrictions.in("id", param));
                 criteria.setFetchMode("sampleProperties", FetchMode.JOIN);
                 criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
-                for (IEntityInformationWithPropertiesHolder entity : (List<IEntityInformationWithPropertiesHolder>) criteria
-                        .list())
+
+                List<IEntityInformationWithPropertiesHolder> list = criteria.list();
+
+                Set<Long> foundIds = new HashSet<Long>();
+                for (IEntityInformationWithPropertiesHolder entity : list)
                 {
+                    foundIds.add(entity.getId());
+                }
+
+                Iterator<EntityIdentifier> iterator = entitiesToValidate.iterator();
+                while (iterator.hasNext())
+                {
+                    EntityIdentifier next = iterator.next();
+                    if (foundIds.contains(next.getId()) == false)
+                    {
+                        iterator.remove();
+                    }
+                }
+
+                foundIds = new HashSet<Long>();
+                for (EntityIdentifier e : entitiesToValidate)
+                {
+                    foundIds.add(e.getId());
+                }
+
+                for (IEntityInformationWithPropertiesHolder entity : list)
+                {
+                    if (foundIds.contains(entity.getId()) == false)
+                    {
+                        continue;
+                    }
                     validateEntity(tx, entity);
                     if (isRolledBack)
                     {

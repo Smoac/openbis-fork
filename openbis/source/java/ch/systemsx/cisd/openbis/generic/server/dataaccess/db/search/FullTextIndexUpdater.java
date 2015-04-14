@@ -22,7 +22,7 @@ import org.apache.commons.lang.time.StopWatch;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 
 import ch.systemsx.cisd.common.collection.ExtendedLinkedBlockingQueue;
 import ch.systemsx.cisd.common.collection.IExtendedBlockingQueue;
@@ -76,7 +76,7 @@ public final class FullTextIndexUpdater extends HibernateDaoSupport implements
         operationLog.debug(String.format("Updater queue file: %s.", queueFile));
         updaterQueue = createUpdaterQueue(indexBase, queueFile);
     }
-    
+
     public int getQueueSize()
     {
         return updaterQueue.size();
@@ -174,7 +174,7 @@ public final class FullTextIndexUpdater extends HibernateDaoSupport implements
                     try
                     {
                         final Class<?> clazz = Class.forName(operation.getClassName());
-                        session = getSession();
+                        session = getSessionFactory().openSession();
                         switch (operation.getOperationKind())
                         {
                             case REINDEX:
@@ -192,7 +192,7 @@ public final class FullTextIndexUpdater extends HibernateDaoSupport implements
                     {
                         if (session != null)
                         {
-                            releaseSession(session);
+                            session.close();
                         }
                         if (operationLog.isInfoEnabled())
                         {

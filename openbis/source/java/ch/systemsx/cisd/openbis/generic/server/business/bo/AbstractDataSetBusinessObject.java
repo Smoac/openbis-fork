@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -62,10 +63,10 @@ public abstract class AbstractDataSetBusinessObject extends AbstractSampleIdenti
     public AbstractDataSetBusinessObject(IDAOFactory daoFactory, Session session,
             IRelationshipService relationshipService,
             IServiceConversationClientManagerLocal conversationClient,
-            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, 
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory,
             DataSetTypeWithoutExperimentChecker dataSetTypeChecker)
     {
-        super(daoFactory, session, EntityKind.DATA_SET, managedPropertyEvaluatorFactory, dataSetTypeChecker, 
+        super(daoFactory, session, EntityKind.DATA_SET, managedPropertyEvaluatorFactory, dataSetTypeChecker,
                 relationshipService);
         this.conversationClient = conversationClient;
     }
@@ -74,10 +75,10 @@ public abstract class AbstractDataSetBusinessObject extends AbstractSampleIdenti
             IEntityPropertiesConverter entityPropertiesConverter,
             IRelationshipService relationshipService,
             IServiceConversationClientManagerLocal conversationClient,
-            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, 
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory,
             DataSetTypeWithoutExperimentChecker dataSetTypeChecker)
     {
-        super(daoFactory, session, entityPropertiesConverter, managedPropertyEvaluatorFactory, 
+        super(daoFactory, session, entityPropertiesConverter, managedPropertyEvaluatorFactory,
                 dataSetTypeChecker, relationshipService);
         this.conversationClient = conversationClient;
     }
@@ -355,6 +356,7 @@ public abstract class AbstractDataSetBusinessObject extends AbstractSampleIdenti
         {
             return;
         }
+        data.setModificationDate(new Date());
         List<String> codes = Arrays.asList(containerCodes.split(" *, *"));
         Map<String, DataPE> newContainers = getDataSets(codes);
         List<DataPE> oldContainers = data.getContainers();

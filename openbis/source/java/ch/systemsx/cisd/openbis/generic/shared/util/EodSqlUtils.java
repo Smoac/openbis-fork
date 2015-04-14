@@ -17,12 +17,12 @@
 package ch.systemsx.cisd.openbis.generic.shared.util;
 
 import java.lang.reflect.Field;
+import java.sql.Connection;
 
 import net.lemnik.eodsql.QueryTool;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Transaction;
-import org.hibernate.jdbc.JDBCContext;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -38,10 +38,10 @@ public class EodSqlUtils
         // use reflection as there is no other way to get a connection
         try
         {
-            Field jdbcContextField = transaction.getClass().getDeclaredField("jdbcContext");
+            Field jdbcContextField = transaction.getClass().getDeclaredField("managedConnection");
             jdbcContextField.setAccessible(true);
-            JDBCContext jdbcContext = (JDBCContext) jdbcContextField.get(transaction);
-            QueryTool.setManagedDatabaseConnection(jdbcContext.connection());
+            Connection jdbcContext = (Connection) jdbcContextField.get(transaction);
+            QueryTool.setManagedDatabaseConnection(jdbcContext);
         } catch (NoSuchFieldException e)
         {
             // We are looking at some other kind of transaction -- log the error, but do not do anything

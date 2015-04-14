@@ -24,8 +24,6 @@ import java.util.List;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
@@ -44,7 +42,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 /**
  * @author Jakub Straszewski
  */
-@Transactional(propagation = Propagation.NOT_SUPPORTED)
 public class SessionUpdateTest extends SystemTestCase
 {
 
@@ -113,8 +110,8 @@ public class SessionUpdateTest extends SystemTestCase
             // this is expected
         }
 
-        commonServer.updateDisplaySettings(sessionTokenUser,
-                new ColumnDisplaySettingsUpdate("id_a_b_C", Collections.<ColumnSetting> emptyList()));
+        // commonServer.updateDisplaySettings(sessionTokenUser,
+        // new ColumnDisplaySettingsUpdate("id_a_b_C", Collections.<ColumnSetting> emptyList()));
     }
 
     @Test

@@ -25,7 +25,7 @@ import org.apache.commons.lang.time.StopWatch;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -101,7 +101,7 @@ public final class DynamicPropertyEvaluationRunnable extends HibernateDaoSupport
                     clazz =
                             (Class<IEntityInformationWithPropertiesHolder>) Class.forName(operation
                                     .getClassName());
-                    session = getSession();
+                    session = getSessionFactory().openSession();
 
                     if (operation.getIds() == null)
                     {
@@ -121,7 +121,7 @@ public final class DynamicPropertyEvaluationRunnable extends HibernateDaoSupport
                 {
                     if (session != null)
                     {
-                        releaseSession(session);
+                        session.close();
                     }
                     if (operationLog.isInfoEnabled())
                     {

@@ -27,6 +27,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
+import org.hibernate.LockMode;
+import org.hibernate.LockOptions;
 import org.hibernate.SessionFactory;
 import org.springframework.dao.DataAccessException;
 
@@ -88,6 +90,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityWithMetaprojects;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IModifierAndModificationDateBean;
@@ -119,14 +122,14 @@ abstract class AbstractBusinessObject implements IDAOFactory
     protected final IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory;
 
     protected final DataSetTypeWithoutExperimentChecker dataSetTypeChecker;
-    
+
     protected final IRelationshipService relationshipService;
 
     protected Map<String, List<AttachmentPE>> attachmentHolderPermIdToAttachmentsMap;
 
     AbstractBusinessObject(final IDAOFactory daoFactory, final Session session,
             IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory,
-            DataSetTypeWithoutExperimentChecker dataSetTypeChecker, 
+            DataSetTypeWithoutExperimentChecker dataSetTypeChecker,
             IRelationshipService relationshipService)
     {
         this(daoFactory, session, (IEntityPropertiesConverter) null,
@@ -136,7 +139,7 @@ abstract class AbstractBusinessObject implements IDAOFactory
     AbstractBusinessObject(final IDAOFactory daoFactory, final Session session,
             EntityKind entityKindOrNull,
             IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory,
-            DataSetTypeWithoutExperimentChecker dataSetTypeChecker, 
+            DataSetTypeWithoutExperimentChecker dataSetTypeChecker,
             IRelationshipService relationshipService)
     {
         this(daoFactory, session, entityKindOrNull == null ? null : new EntityPropertiesConverter(
@@ -147,7 +150,7 @@ abstract class AbstractBusinessObject implements IDAOFactory
     AbstractBusinessObject(final IDAOFactory daoFactory, final Session session,
             IEntityPropertiesConverter converter,
             IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory,
-            DataSetTypeWithoutExperimentChecker dataSetTypeChecker, 
+            DataSetTypeWithoutExperimentChecker dataSetTypeChecker,
             IRelationshipService relationshipService)
     {
         this.dataSetTypeChecker = dataSetTypeChecker;
@@ -230,7 +233,7 @@ abstract class AbstractBusinessObject implements IDAOFactory
         throw UserFailureException.fromTemplate(ERR_MODIFIED_ENTITY, entityName);
     }
 
-    protected static IDataStoreService tryGetDataStoreService(DataStorePE dataStore, 
+    protected static IDataStoreService tryGetDataStoreService(DataStorePE dataStore,
             IDataStoreServiceFactory dataStoreServiceFactory)
     {
         String remoteURL = dataStore.getRemoteUrl();
@@ -604,9 +607,22 @@ abstract class AbstractBusinessObject implements IDAOFactory
                 convertProperties(entityType, existingProperties, properties, propertiesToUpdate);
         if (isEquals(existingPropertyValuesByCode, convertedProperties) == false)
         {
+            // / HHH-9087
+            if (entityAsPropertiesHolder instanceof ExternalDataPE || entityAsPropertiesHolder instanceof DataPE)
+            {
+                DataPE data = (DataPE) getSessionFactory().getCurrentSession().get(DataPE.class, entityAsPropertiesHolder.getId());
+                data.setVersion(data.getVersion() + 1);
+                // getSessionFactory().getCurrentSession().createQuery("UPDATE ExternalDataPE e SET e.version = e.version+1 WHERE id = :id")
+                // .setParameter("id", entityAsPropertiesHolder.getId());
+            } else
+            {
+                getSessionFactory().getCurrentSession().buildLockRequest(LockOptions.UPGRADE).setLockMode(LockMode.PESSIMISTIC_FORCE_INCREMENT)
+                        .lock(entityAsPropertiesHolder);
+            }
             entityAsPropertiesHolder.setProperties(convertedProperties);
             entityAsModifiableBean.setModifier(findPerson());
             entityAsModifiableBean.setModificationDate(new Date());
+            getSessionFactory().getCurrentSession().flush();
         }
     }
 
@@ -740,7 +756,7 @@ abstract class AbstractBusinessObject implements IDAOFactory
             }
         }
     }
-    
+
     protected void checkSampleWithoutDatasets(SamplePE sample)
     {
         List<DataPE> dataSets = getDataDAO().listDataSets(sample);
@@ -766,7 +782,7 @@ abstract class AbstractBusinessObject implements IDAOFactory
                     + CollectionUtils.abbreviate(dataSetsNeedingExperiment, 10));
         }
     }
-    
+
     protected boolean hasDatasets2(IDataDAO dataDAO, SamplePE sample)
     {
         assert sample != null;
@@ -776,8 +792,7 @@ abstract class AbstractBusinessObject implements IDAOFactory
 
     protected void assignSampleAndRelatedDataSetsToExperiment(SamplePE sample, ExperimentPE newExperiment)
     {
-        NewDataSetToSampleExperimentAssignmentManager assignmentManager 
-                = new NewDataSetToSampleExperimentAssignmentManager(dataSetTypeChecker);
+        NewDataSetToSampleExperimentAssignmentManager assignmentManager = new NewDataSetToSampleExperimentAssignmentManager(dataSetTypeChecker);
         ExperimentPE previousSampleExperiment = sample.getExperiment();
         if (previousSampleExperiment != null)
         {
@@ -802,10 +817,9 @@ abstract class AbstractBusinessObject implements IDAOFactory
 
     protected void assignDataSetToSampleAndExperiment(DataPE data, SamplePE newSample, ExperimentPE experiment)
     {
-        NewDataSetToSampleExperimentAssignmentManager assignmentManager 
-                = new NewDataSetToSampleExperimentAssignmentManager(dataSetTypeChecker);
+        NewDataSetToSampleExperimentAssignmentManager assignmentManager = new NewDataSetToSampleExperimentAssignmentManager(dataSetTypeChecker);
         assignmentManager.assignDataSetAndRelatedComponents(data, newSample, experiment);
         assignmentManager.performAssignment(relationshipService, session);
     }
-    
+
 }

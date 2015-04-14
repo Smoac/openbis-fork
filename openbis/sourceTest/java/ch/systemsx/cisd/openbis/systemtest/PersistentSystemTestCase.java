@@ -23,6 +23,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
+import org.springframework.transaction.annotation.Transactional;
 import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeSuite;
@@ -42,11 +43,12 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientS
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 
 /**
- * Abstract super class of head-less system tests which makes database changes persistent. Test
- * classes extending this test case class are responsible for cleaning up the database.
+ * Abstract super class of head-less system tests which makes database changes persistent. Test classes extending this test case class are responsible
+ * for cleaning up the database.
  * 
  * @author Franz-Josef Elmer
  */
+@Transactional
 @ContextConfiguration(locations = "classpath:applicationContext.xml")
 public abstract class PersistentSystemTestCase extends AbstractTestNGSpringContextTests
 {

@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -39,8 +38,8 @@ import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.support.JdbcAccessor;
-import org.springframework.orm.hibernate3.HibernateCallback;
-import org.springframework.orm.hibernate3.HibernateTemplate;
+import org.springframework.orm.hibernate4.HibernateCallback;
+import org.springframework.orm.hibernate4.HibernateTemplate;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -193,7 +192,7 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
     public SamplePE tryToFindByPermID(String permID) throws DataAccessException
     {
         assert permID != null : "Unspecified permanent ID.";
-        final Criteria criteria = getSession().createCriteria(ENTITY_CLASS);
+        final Criteria criteria = currentSession().createCriteria(ENTITY_CLASS);
         criteria.add(Restrictions.eq("permId", permID));
         criteria.setFetchMode("sampleType.sampleTypePropertyTypesInternal", FetchMode.JOIN);
         final SamplePE sample = (SamplePE) criteria.uniqueResult();
@@ -210,13 +209,13 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
     {
         assert sampleCode != null : "Unspecified sample code.";
 
-        Criteria criteria = getSession().createCriteria(ENTITY_CLASS);
+        Criteria criteria = currentSession().createCriteria(ENTITY_CLASS);
         addSampleCodeCriterion(criteria, sampleCode);
         criteria.add(Restrictions.isNull("space"));
         SamplePE sample = (SamplePE) criteria.uniqueResult();
         if (sample == null && isFullCode(sampleCode) == false)
         {
-            criteria = getSession().createCriteria(ENTITY_CLASS);
+            criteria = currentSession().createCriteria(ENTITY_CLASS);
             criteria.add(Restrictions.isNull("space"));
             sample = tryFindContainedSampleWithUniqueSubcode(criteria, sampleCode);
         }
@@ -235,7 +234,7 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
     {
         assert sampleCodes != null : "Unspecified sample codes.";
 
-        final Criteria criteria = getSession().createCriteria(ENTITY_CLASS);
+        final Criteria criteria = currentSession().createCriteria(ENTITY_CLASS);
         addSampleCodesCriterion(criteria, sampleCodes, containerCodeOrNull);
         List<SamplePE> result = cast(criteria.list());
         if (operationLog.isDebugEnabled())
@@ -300,7 +299,7 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
 
     private Criteria createFindCriteria(Criterion criterion)
     {
-        final Criteria criteria = getSession().createCriteria(ENTITY_CLASS);
+        final Criteria criteria = currentSession().createCriteria(ENTITY_CLASS);
         criteria.setFetchMode("sampleType.sampleTypePropertyTypesInternal", FetchMode.JOIN);
         criteria.add(criterion);
         return criteria;
@@ -466,8 +465,7 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
             {
                 @SuppressWarnings("unchecked")
                 @Override
-                public Object doInHibernate(Session session) throws HibernateException,
-                        SQLException
+                public Object doInHibernate(Session session) throws HibernateException
                 {
                     String permIdQuery = "SELECT perm_id FROM samples_all WHERE del_id = :id";
 
@@ -706,7 +704,7 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
         getHibernateTemplate().execute(new HibernateCallback()
             {
                 @Override
-                public Object doInHibernate(Session session) throws HibernateException, SQLException
+                public Object doInHibernate(Session session) throws HibernateException
                 {
                     SQLQuery q = session.createSQLQuery("update samples set samp_id_part_of = :containerId where id = :sampleId");
                     q.setLong("containerId", containerId);
@@ -723,7 +721,7 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
         getHibernateTemplate().execute(new HibernateCallback()
             {
                 @Override
-                public Object doInHibernate(Session session) throws HibernateException, SQLException
+                public Object doInHibernate(Session session) throws HibernateException
                 {
                     SQLQuery clearQuery =
                             session.createSQLQuery("update samples set samp_id_part_of = null where id not in :containedIds and samp_id_part_of = :containerId");
@@ -743,7 +741,7 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
         getHibernateTemplate().execute(new HibernateCallback()
             {
                 @Override
-                public Object doInHibernate(Session session) throws HibernateException, SQLException
+                public Object doInHibernate(Session session) throws HibernateException
                 {
                     SQLQuery setQuery =
                             session.createSQLQuery("update samples set samp_id_part_of = :containerId where id in :containedIds");
@@ -761,7 +759,7 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
         getHibernateTemplate().execute(new HibernateCallback()
             {
                 @Override
-                public Object doInHibernate(Session session) throws HibernateException, SQLException
+                public Object doInHibernate(Session session) throws HibernateException
                 {
                     SQLQuery clearQuery =
                             session.createSQLQuery("update samples set samp_id_part_of = null where id in :containedIds and samp_id_part_of = :containerId");
@@ -780,7 +778,7 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
         getHibernateTemplate().execute(new HibernateCallback()
             {
                 @Override
-                public Object doInHibernate(Session session) throws HibernateException, SQLException
+                public Object doInHibernate(Session session) throws HibernateException
                 {
                     SQLQuery q =
                             session.createSQLQuery("delete from sample_relationships where sample_id_child not in :childrenIds and sample_id_parent = :parentId and relationship_id = :relationshipId");
@@ -803,7 +801,7 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
         getHibernateTemplate().execute(new HibernateCallback()
             {
                 @Override
-                public Object doInHibernate(Session session) throws HibernateException, SQLException
+                public Object doInHibernate(Session session) throws HibernateException
                 {
                     for (Long relatedSampleId : childrenIds)
                     {
@@ -830,7 +828,7 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
         getHibernateTemplate().execute(new HibernateCallback()
             {
                 @Override
-                public Object doInHibernate(Session session) throws HibernateException, SQLException
+                public Object doInHibernate(Session session) throws HibernateException
                 {
                     SQLQuery q =
                             session.createSQLQuery("delete from sample_relationships where sample_id_parent = :parentId and sample_id_child in :childrenIds and relationship_id = :relationshipId");
@@ -850,7 +848,7 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
         getHibernateTemplate().execute(new HibernateCallback()
             {
                 @Override
-                public Object doInHibernate(Session session) throws HibernateException, SQLException
+                public Object doInHibernate(Session session) throws HibernateException
                 {
                     SQLQuery q =
                             session.createSQLQuery("delete from sample_relationships where sample_id_parent not in :parentIds and sample_id_child = :childId and relationship_id = :relationshipId");
@@ -872,7 +870,7 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
         getHibernateTemplate().execute(new HibernateCallback()
             {
                 @Override
-                public Object doInHibernate(Session session) throws HibernateException, SQLException
+                public Object doInHibernate(Session session) throws HibernateException
                 {
                     for (Long parentId : parentsIds)
                     {
@@ -899,7 +897,7 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
         getHibernateTemplate().execute(new HibernateCallback()
             {
                 @Override
-                public Object doInHibernate(Session session) throws HibernateException, SQLException
+                public Object doInHibernate(Session session) throws HibernateException
                 {
                     SQLQuery q =
                             session.createSQLQuery("delete from sample_relationships where sample_id_parent in :parentIds and sample_id_child = :childId and relationship_id = :relationshipId");

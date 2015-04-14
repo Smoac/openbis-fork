@@ -24,7 +24,7 @@ import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.dao.DataAccessException;
-import org.springframework.orm.hibernate3.HibernateTemplate;
+import org.springframework.orm.hibernate4.HibernateTemplate;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -113,7 +113,7 @@ final class AttachmentDAO extends AbstractGenericEntityDAO<AttachmentPE> impleme
         fillAttachmentData(attachment, previousAttachmentVersionOrNull);
 
         final HibernateTemplate template = getHibernateTemplate();
-        Session session = getSession();
+        Session session = currentSession();
         if (session.contains(owner) == false)
         {
             owner = (AttachmentHolderPE) session.merge(owner);

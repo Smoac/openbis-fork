@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -29,9 +28,10 @@ import org.apache.log4j.Logger;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.document.Document;
-import org.apache.lucene.document.Field;
+import org.apache.lucene.index.AtomicReaderContext;
 import org.apache.lucene.index.IndexReader;
-import org.apache.lucene.index.IndexReader.FieldOption;
+import org.apache.lucene.index.IndexReaderContext;
+import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.highlight.Formatter;
 import org.apache.lucene.search.highlight.Highlighter;
@@ -44,18 +44,19 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.search.FullTextQuery;
 import org.hibernate.search.FullTextSession;
-import org.hibernate.search.ProjectionConstants;
 import org.hibernate.search.Search;
 import org.hibernate.search.SearchFactory;
-import org.hibernate.search.engine.DocumentBuilder;
-import org.hibernate.search.reader.ReaderProvider;
-import org.hibernate.search.store.DirectoryProvider;
+import org.hibernate.search.engine.ProjectionConstants;
+import org.hibernate.search.indexes.spi.DirectoryBasedIndexManager;
+import org.hibernate.search.indexes.spi.ReaderProvider;
+import org.hibernate.search.metadata.IndexedTypeDescriptor;
+import org.hibernate.search.spi.SearchIntegrator;
 import org.hibernate.transform.BasicTransformerAdapter;
 import org.hibernate.transform.ResultTransformer;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.support.JdbcAccessor;
-import org.springframework.orm.hibernate3.HibernateCallback;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate4.HibernateCallback;
+import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -85,8 +86,8 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
     /**
      * The <code>Logger</code> of this class.
      * <p>
-     * This logger does not output any SQL statement. If you want to do so, you had better set an
-     * appropriate debugging level for class {@link JdbcAccessor}.
+     * This logger does not output any SQL statement. If you want to do so, you had better set an appropriate debugging level for class
+     * {@link JdbcAccessor}.
      * </p>
      */
     private final static Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
@@ -125,11 +126,11 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
         assert dataProvider != null : "Unspecified data provider";
 
         final List<MatchingEntity> list =
-                AbstractDAO.cast((List<?>) getHibernateTemplate().execute(new HibernateCallback()
+                AbstractDAO.cast((List<?>) getHibernateTemplate().executeWithNativeSession(new HibernateCallback()
                     {
                         @Override
                         public final List<MatchingEntity> doInHibernate(final Session session)
-                                throws HibernateException, SQLException
+                                throws HibernateException
                         {
                             return doSearchEntitiesByTerm(userId, session, searchableEntity,
                                     searchTerm, dataProvider, useWildcardSearchMode,
@@ -199,6 +200,8 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
                     LuceneQueryBuilder.adaptQuery(
                             MetaprojectSearch.getMetaprojectUserQuery(userQuery, userId),
                             useWildcardSearchMode, false);
+
+            searchTerm = searchTerm.replaceAll("\\/", "\\\\/");
             query =
                     LuceneQueryBuilder.parseQuery(fieldName, searchTerm, (chosenAnalyzer =
                             new IgnoreCaseAnalyzer()));
@@ -248,11 +251,11 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
             final List<DetailedSearchAssociationCriteria> associations)
     {
         final List<Long> list =
-                AbstractDAO.cast((List<?>) getHibernateTemplate().execute(new HibernateCallback()
+                AbstractDAO.cast((List<?>) getHibernateTemplate().executeWithNativeSession(new HibernateCallback()
                     {
                         @Override
                         public final Object doInHibernate(final Session session)
-                                throws HibernateException, SQLException
+                                throws HibernateException
                         {
                             return searchForEntityIds(userId, session, criteria, entityKind,
                                     associations);
@@ -395,7 +398,7 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
 
             // group
             Map<String, Space> spacesById = dataProvider.getGroupsById();
-            Field spaceFieldOrNull = doc.getField(getSpaceIdFieldName());
+            IndexableField spaceFieldOrNull = doc.getField(getSpaceIdFieldName());
             if (spaceFieldOrNull != null)
             {
                 Space space = spacesById.get(spaceFieldOrNull.stringValue());
@@ -432,7 +435,7 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
 
         private String tryGetFieldValue(final Document document, final String searchFieldName)
         {
-            Field fieldOrNull = document.getField(searchFieldName);
+            IndexableField fieldOrNull = document.getField(searchFieldName);
             return fieldOrNull == null ? null : fieldOrNull.stringValue();
         }
 
@@ -518,15 +521,20 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
 
         private final IndexReader indexReader;
 
+        private final IndexedTypeDescriptor indexedTypeDescriptor;
+
         /** opens the index reader. Closing the index after usage must be done with #close() method. */
         public MyIndexReaderProvider(final FullTextSession fullTextSession,
                 final SearchableEntity searchableEntity)
         {
             SearchFactory searchFactory = fullTextSession.getSearchFactory();
-            DirectoryProvider<?>[] directoryProviders =
-                    searchFactory.getDirectoryProviders(searchableEntity.getMatchingEntityClass());
-            this.readerProvider = searchFactory.getReaderProvider();
-            this.indexReader = readerProvider.openReader(directoryProviders);
+
+            SearchIntegrator searchIntegrator = searchFactory.unwrap(SearchIntegrator.class);
+            DirectoryBasedIndexManager indexManager =
+                    (DirectoryBasedIndexManager) searchIntegrator.getIndexManager(searchableEntity.getMatchingEntityClass().getSimpleName());
+            this.readerProvider = indexManager.getReaderProvider();
+            this.indexReader = readerProvider.openIndexReader();
+            this.indexedTypeDescriptor = searchIntegrator.getIndexedTypeDescriptor(searchableEntity.getMatchingEntityClass());
         }
 
         public IndexReader getReader()
@@ -534,16 +542,41 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
             return indexReader;
         }
 
-        public String[] getIndexedFields()
+        private void collectFields(IndexReaderContext context, Set<String> fields)
         {
-            // WORKAROUND indexReader.getFieldNames doesn't really return unique field names
-            Set<String> fieldNames = new HashSet<String>();
-            for (Object fieldName : indexReader.getFieldNames(FieldOption.INDEXED))
+            if (context == null)
             {
-                fieldNames.add(fieldName.toString());
+                return;
+            }
+            if (context instanceof AtomicReaderContext)
+            {
+                try
+                {
+                    for (String fieldName : ((AtomicReaderContext) context).reader().fields())
+                    {
+                        fields.add(fieldName);
+                    }
+                } catch (IOException e)
+                {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            }
+            if (context.children() == null)
+            {
+                return;
+            }
+            for (IndexReaderContext child : context.children())
+            {
+                collectFields(child, fields);
             }
 
-            fieldNames.remove(DocumentBuilder.CLASS_FIELDNAME);
+        }
+
+        public String[] getIndexedFields()
+        {
+            Set<String> fieldNames = new HashSet<String>();
+            collectFields(indexReader.getContext(), fieldNames);
             fieldNames.remove(SearchFieldConstants.ID);
             for (String prefix : SearchFieldConstants.PREFIXES)
             {
@@ -555,7 +588,7 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
         /** must be called to close the index reader when it is not needed anymore */
         public void close()
         {
-            readerProvider.closeReader(indexReader);
+            readerProvider.closeIndexReader(indexReader);
         }
     }
 }

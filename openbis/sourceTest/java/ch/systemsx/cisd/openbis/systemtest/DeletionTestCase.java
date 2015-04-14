@@ -67,7 +67,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
 /**
  * @author Kaloyan Enimanev
  */
-public class DeletionTestCase extends NonTransactionalSystemTestCase
+public class DeletionTestCase extends SystemTestCase
 {
     private static final DefaultResultSetConfig<String, TableModelRowWithObject<Deletion>> FETCH_ALL =
             DefaultResultSetConfig.<String, TableModelRowWithObject<Deletion>> createFetchAll();
@@ -226,7 +226,7 @@ public class DeletionTestCase extends NonTransactionalSystemTestCase
         assertExperimentDoesNotExist(e1.getCode());
         assertSamplesDoNotExist(registeredSamplesThatShouldBeDeleted);
     }
-    
+
     @Test
     public void testDeleteExperimentWithContainerDataSetWhichHasADataSetFromAnotherExperiment()
     {
@@ -238,16 +238,16 @@ public class DeletionTestCase extends NonTransactionalSystemTestCase
         updatesDTO.setDatasetId(dataSetId);
         updatesDTO.setExperimentIdentifierOrNull(new ExperimentIdentifier(e1));
         updatesDTO.setFileFormatTypeCode("XML");
-        updatesDTO.setProperties(Arrays.<IEntityProperty>asList(new PropertyBuilder("COMMENT").value("hello").getProperty()));
+        updatesDTO.setProperties(Arrays.<IEntityProperty> asList(new PropertyBuilder("COMMENT").value("hello").getProperty()));
         genericServer.updateDataSet(sessionToken, updatesDTO);
-        
+
         // Delete experiment which has container data set 'CONTAINER_1' where 'COMPONENT_1B' is a component
         commonServer.deleteExperiments(sessionToken, Arrays.asList(new TechId(8)), REASON, DeletionType.TRASH);
-        
+
         assertEquals(null, commonServer.getDataSetInfo(sessionToken, dataSetId).getDeletion());
         List<DeletionPE> deletions = listDeletions();
         assertEquals(1, deletions.size());
-        
+
         // revert deletion and data set COMPONENT_1B in order to restore database state
         TechId deletionId1 = TechId.create(deletions.get(0));
         commonServer.revertDeletions(sessionToken, Collections.singletonList(deletionId1));
@@ -404,7 +404,7 @@ public class DeletionTestCase extends NonTransactionalSystemTestCase
         NewExperiment experiment = new NewExperiment(expIdentifier.toString(), "COMPOUND_HCS");
         final GenericEntityProperty property = createDescriptionProperty();
         experiment.setProperties(new IEntityProperty[]
-            { property });
+        { property });
         long id = etlService.registerExperiment(sessionToken, experiment);
 
         Experiment exp = commonServer.getExperimentInfo(sessionToken, new TechId(id));
@@ -445,7 +445,7 @@ public class DeletionTestCase extends NonTransactionalSystemTestCase
     {
         NewSample newSample = createNewSample(sampleCode);
         newSample.setParentsOrNull(new String[]
-            { parentCode });
+        { parentCode });
         createSample(experimentCode, newSample, shouldBeDeleted);
     }
 

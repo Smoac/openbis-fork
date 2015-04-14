@@ -22,15 +22,14 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
-
 import ch.systemsx.cisd.common.parser.BeanProperty;
 import ch.systemsx.cisd.common.reflection.ModifiedShortPrefixToStringStyle;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 
+import com.google.gwt.user.client.rpc.IsSerializable;
+
 /**
- * A class that overrides {@link #equals(Object)}, {@link #hashCode()}, {@link #toString()} for a
- * given <code>code</code>.
+ * A class that overrides {@link #equals(Object)}, {@link #hashCode()}, {@link #toString()} for a given <code>code</code>.
  * <p>
  * This class also implements {@link Comparable} interface.
  * </p>
@@ -41,7 +40,7 @@ public abstract class Code<T extends Code<T>> implements Serializable, Comparabl
         IsSerializable
 {
     private static final long serialVersionUID = IServer.VERSION;
-    
+
     public static final int CODE_LENGTH_MAX = 60;
 
     private String code;
@@ -103,7 +102,7 @@ public abstract class Code<T extends Code<T>> implements Serializable, Comparabl
     @Override
     public int compareTo(final T o)
     {
-        final String thatCode = o.code;
+        final String thatCode = o.getCode();
         if (code == null)
         {
             return thatCode == null ? 0 : -1;
@@ -114,5 +113,4 @@ public abstract class Code<T extends Code<T>> implements Serializable, Comparabl
         }
         return code.compareTo(thatCode);
     }
-
 }

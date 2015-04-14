@@ -37,7 +37,7 @@ import org.hibernate.criterion.Restrictions;
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.orm.hibernate3.HibernateTemplate;
+import org.springframework.orm.hibernate4.HibernateTemplate;
 
 import ch.systemsx.cisd.common.collection.CollectionUtils;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -89,7 +89,7 @@ public class MaterialDAO extends AbstractGenericEntityWithPropertiesDAO<Material
     {
         assert materialType != null : "Unspecified material type.";
 
-        final Criteria criteria = getSession().createCriteria(ENTITY_CLASS);
+        final Criteria criteria = currentSession().createCriteria(ENTITY_CLASS);
         criteria.add(Restrictions.eq("materialType", materialType));
         final int count = DAOUtils.getCount(criteria);
         if (count <= DAOUtils.MAX_COUNT_FOR_PROPERTIES)
@@ -171,7 +171,7 @@ public class MaterialDAO extends AbstractGenericEntityWithPropertiesDAO<Material
     @Override
     public MaterialPE tryFindMaterial(MaterialIdentifier identifier)
     {
-        return tryFindMaterial(getSession(), identifier);
+        return tryFindMaterial(currentSession(), identifier);
     }
 
     @Override

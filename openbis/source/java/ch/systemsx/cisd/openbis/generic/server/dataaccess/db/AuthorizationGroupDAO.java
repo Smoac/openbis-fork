@@ -22,7 +22,7 @@ import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Restrictions;
-import org.springframework.orm.hibernate3.HibernateTemplate;
+import org.springframework.orm.hibernate4.HibernateTemplate;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -84,7 +84,7 @@ public class AuthorizationGroupDAO extends AbstractGenericEntityDAO<Authorizatio
     @Override
     public AuthorizationGroupPE tryFindByCode(String code)
     {
-        final Criteria criteria = getSession().createCriteria(ENTITY_CLASS);
+        final Criteria criteria = currentSession().createCriteria(ENTITY_CLASS);
         criteria.add(Restrictions.eq("code", CodeConverter.tryToDatabase(code)));
         return (AuthorizationGroupPE) criteria.uniqueResult();
     }

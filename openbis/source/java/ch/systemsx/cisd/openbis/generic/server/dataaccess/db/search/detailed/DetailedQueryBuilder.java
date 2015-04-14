@@ -29,7 +29,7 @@ import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermRangeQuery;
 import org.hibernate.search.annotations.Resolution;
-import org.hibernate.search.bridge.builtin.DateBridge;
+import org.hibernate.search.bridge.builtin.StringEncodingDateBridge;
 
 import ch.systemsx.cisd.common.exceptions.InternalErr;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -138,9 +138,9 @@ public class DetailedQueryBuilder
                 {
                     DateRangeCalculator rangeCalculator = new DateRangeCalculator(criterion.getValue(), criterion.getTimeZone(), criterion.getType());
                     String fieldName = fieldNames.get(0);
-                    DateBridge bridge = new DateBridge(Resolution.SECOND);
+                    StringEncodingDateBridge bridge = new StringEncodingDateBridge(Resolution.SECOND);
                     TermRangeQuery q =
-                            new TermRangeQuery(fieldName, bridge.objectToString(rangeCalculator.getLowerDate()),
+                            TermRangeQuery.newStringRange(fieldName, bridge.objectToString(rangeCalculator.getLowerDate()),
                                     bridge.objectToString(rangeCalculator.getUpperDate()), true, true);
                     resultQuery.add(q, occureCondition);
                 }

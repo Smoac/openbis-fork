@@ -19,9 +19,10 @@ package ch.systemsx.cisd.openbis.generic.shared.search;
 import java.io.Reader;
 
 import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.CharTokenizer;
-import org.apache.lucene.analysis.LowerCaseFilter;
 import org.apache.lucene.analysis.TokenStream;
+import org.apache.lucene.analysis.Tokenizer;
+import org.apache.lucene.analysis.core.LowerCaseFilter;
+import org.apache.lucene.analysis.util.CharTokenizer;
 import org.apache.lucene.util.Version;
 
 /**
@@ -29,12 +30,6 @@ import org.apache.lucene.util.Version;
  */
 public final class IgnoreCaseAnalyzer extends Analyzer
 {
-
-    @Override
-    public TokenStream tokenStream(String fieldName, Reader reader)
-    {
-        return new LowerCaseFilter(Version.LUCENE_31, new LowerCaseTokenizer(reader));
-    }
 
     private static class LowerCaseTokenizer extends CharTokenizer
     {
@@ -57,4 +52,11 @@ public final class IgnoreCaseAnalyzer extends Analyzer
         }
     }
 
+    @Override
+    protected TokenStreamComponents createComponents(String fieldName, Reader reader)
+    {
+        Tokenizer source = new LowerCaseTokenizer(reader);
+        TokenStream filter = new LowerCaseFilter(source);
+        return new TokenStreamComponents(source, filter);
+    }
 }

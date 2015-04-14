@@ -24,7 +24,7 @@ import org.hibernate.SessionFactory;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.jdbc.support.JdbcAccessor;
-import org.springframework.orm.hibernate3.HibernateTemplate;
+import org.springframework.orm.hibernate4.HibernateTemplate;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -203,7 +203,7 @@ public final class RoleAssignmentDAO extends AbstractGenericEntityDAO<RoleAssign
     public List<RoleAssignmentPE> listRoleAssignmentsByAuthorizationGroup(
             AuthorizationGroupPE authGroup)
     {
-        final Criteria criteria = getSession().createCriteria(RoleAssignmentPE.class);
+        final Criteria criteria = currentSession().createCriteria(RoleAssignmentPE.class);
         criteria.add(Restrictions.eq("authorizationGroupInternal", authGroup));
         List<RoleAssignmentPE> result = cast(criteria.list());
         if (operationLog.isInfoEnabled())

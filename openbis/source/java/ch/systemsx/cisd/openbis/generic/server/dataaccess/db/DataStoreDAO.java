@@ -21,10 +21,12 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
 import org.hibernate.FetchMode;
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.CriteriaSpecification;
 import org.hibernate.criterion.Restrictions;
-import org.springframework.orm.hibernate3.HibernateTemplate;
+import org.springframework.orm.hibernate4.HibernateTemplate;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -70,7 +72,7 @@ public class DataStoreDAO extends AbstractDAO implements IDataStoreDAO
     {
         assert dataStoreCode != null : "Unspecified data store code.";
 
-        final Criteria criteria = getSession().createCriteria(DataStorePE.class);
+        final Criteria criteria = currentSession().createCriteria(DataStorePE.class);
         criteria.add(Restrictions.eq("code", CodeConverter.tryToDatabase(dataStoreCode)));
         return (DataStorePE) criteria.uniqueResult();
     }
@@ -78,13 +80,28 @@ public class DataStoreDAO extends AbstractDAO implements IDataStoreDAO
     @Override
     public List<DataStorePE> listDataStores()
     {
-        final Criteria criteria = getSession().createCriteria(ENTITY_CLASS);
+        boolean hasToClose = false;
+        Session currentSession;
+        try
+        {
+            currentSession = currentSession();
+        } catch (HibernateException e)
+        {
+            currentSession = this.getSessionFactory().openSession();
+            hasToClose = true;
+        }
+
+        final Criteria criteria = currentSession.createCriteria(ENTITY_CLASS);
         criteria.setFetchMode("servicesInternal", FetchMode.JOIN);
         criteria.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
         final List<DataStorePE> list = cast(criteria.list());
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug(String.format("%d data stores have been found.", list.size()));
+        }
+        if (hasToClose)
+        {
+            currentSession.close();
         }
         return list;
     }

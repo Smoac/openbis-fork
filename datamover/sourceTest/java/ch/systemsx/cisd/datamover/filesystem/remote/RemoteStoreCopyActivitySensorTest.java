@@ -16,7 +16,8 @@
 
 package ch.systemsx.cisd.datamover.filesystem.remote;
 
-import static org.testng.AssertJUnit.*;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -109,7 +110,7 @@ public class RemoteStoreCopyActivitySensorTest
             {
                 {
                     one(destinationStore).lastChangedRelative(copyItem, THRESHOLD);
-                    will(returnValue(StatusWithResult.<Long> createError(errorMsg)));
+                    will(returnValue(StatusWithResult.<Long> createErrorWithResult(errorMsg)));
                 }
             });
         final long now = System.currentTimeMillis();
@@ -128,7 +129,7 @@ public class RemoteStoreCopyActivitySensorTest
             {
                 {
                     exactly(3).of(destinationStore).lastChangedRelative(copyItem, THRESHOLD);
-                    will(returnValue(StatusWithResult.<Long> createError(errorMsg)));
+                    will(returnValue(StatusWithResult.<Long> createErrorWithResult(errorMsg)));
                 }
             });
         ConcurrencyUtilities.sleep(10L);
@@ -153,7 +154,7 @@ public class RemoteStoreCopyActivitySensorTest
                 {
                     exactly(3).of(destinationStore).lastChangedRelative(copyItem, THRESHOLD);
                     will(onConsecutiveCalls(returnValue(StatusWithResult.<Long> create(17L)),
-                            returnValue(StatusWithResult.<Long> createError(errorMsg)),
+                            returnValue(StatusWithResult.<Long> createErrorWithResult(errorMsg)),
                             returnValue(StatusWithResult.<Long> create(17L))));
                 }
             });

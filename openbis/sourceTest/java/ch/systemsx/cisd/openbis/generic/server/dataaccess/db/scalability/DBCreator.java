@@ -23,7 +23,7 @@ import java.io.PrintWriter;
 import java.util.Date;
 
 import org.hibernate.Session;
-import org.springframework.orm.hibernate3.HibernateTemplate;
+import org.springframework.orm.hibernate4.HibernateTemplate;
 import org.springframework.test.annotation.Rollback;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;

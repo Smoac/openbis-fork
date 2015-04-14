@@ -32,7 +32,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.hibernate.classic.Session;
+import org.hibernate.Session;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
@@ -155,6 +155,7 @@ public final class SampleDAOTest extends AbstractDAOTest
             fail("DataIntegrityViolationException expected");
         } catch (DataIntegrityViolationException e)
         {
+            e.printStackTrace();
             assertEquals("Insert/Update of sample (code: WELL1) failed because "
                     + "sample with the same code already exists.", e.getMessage());
         }

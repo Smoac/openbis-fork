@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.test.annotation.Rollback;
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.attachment.Attachment;
@@ -94,6 +95,7 @@ public class UpdateExperimentTest extends AbstractExperimentTest
     }
 
     @Test
+    @Rollback(value = false)
     public void testUpdateWithProject()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);

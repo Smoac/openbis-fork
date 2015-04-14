@@ -36,7 +36,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.D
 public class ExperimentViewer extends GenericExperimentViewer
 {
 
-    public static DatabaseModificationAwareComponent create(
+    public static DatabaseModificationAwareComponent createComponent(
             IViewContext<IScreeningClientServiceAsync> viewContext, BasicEntityType experimentType,
             IIdAndCodeHolder experimentId)
     {

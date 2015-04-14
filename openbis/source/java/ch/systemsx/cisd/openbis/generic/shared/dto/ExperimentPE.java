@@ -55,6 +55,7 @@ import org.hibernate.annotations.OptimisticLock;
 import org.hibernate.search.annotations.DateBridge;
 import org.hibernate.search.annotations.DocumentId;
 import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.FieldBridge;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.IndexedEmbedded;
@@ -83,11 +84,11 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
  */
 @Entity
 @Table(name = TableNames.EXPERIMENTS_VIEW, uniqueConstraints =
-    { @UniqueConstraint(columnNames =
-        { ColumnNames.CODE_COLUMN, ColumnNames.PROJECT_COLUMN }) })
+{ @UniqueConstraint(columnNames =
+{ ColumnNames.CODE_COLUMN, ColumnNames.PROJECT_COLUMN }) })
 @Indexed(index = "ExperimentPE")
 @Friend(toClasses =
-    { AttachmentPE.class, ProjectPE.class })
+{ AttachmentPE.class, ProjectPE.class })
 public class ExperimentPE extends AttachmentHolderPE implements
         IEntityInformationWithPropertiesHolder, IIdAndCodeHolder, Comparable<ExperimentPE>,
         IModifierAndModificationDateBean, IMatchingEntity, IDeletablePE, IEntityWithMetaprojects,
@@ -149,8 +150,8 @@ public class ExperimentPE extends AttachmentHolderPE implements
     private int version;
 
     /**
-     * If not null than this object has been originally trashed. (As oposed to the entities which
-     * were trashed as being dependent on other trashed entity)
+     * If not null than this object has been originally trashed. (As oposed to the entities which were trashed as being dependent on other trashed
+     * entity)
      */
     private Integer originalDeletion;
 
@@ -158,7 +159,9 @@ public class ExperimentPE extends AttachmentHolderPE implements
 
     @Column(name = ColumnNames.REGISTRATION_TIMESTAMP_COLUMN, nullable = false, insertable = false, updatable = false)
     @Generated(GenerationTime.INSERT)
-    @Field(name = SearchFieldConstants.REGISTRATION_DATE, index = Index.UN_TOKENIZED, store = Store.NO)
+    @Field(name = SearchFieldConstants.REGISTRATION_DATE, index = Index.YES, store = Store.NO)
+    @FieldBridge(impl = org.hibernate.search.bridge.builtin.StringEncodingDateBridge.class,
+            params = { @org.hibernate.search.annotations.Parameter(name = "resolution", value = "SECOND") })
     @DateBridge(resolution = Resolution.SECOND)
     public Date getRegistrationDate()
     {
@@ -220,7 +223,7 @@ public class ExperimentPE extends AttachmentHolderPE implements
     @Length(min = 1, max = Code.CODE_LENGTH_MAX, message = ValidationMessages.CODE_LENGTH_MESSAGE)
     @NotNull(message = ValidationMessages.CODE_NOT_NULL_MESSAGE)
     @Pattern(regexp = AbstractIdAndCodeHolder.CODE_PATTERN, flags = Pattern.Flag.CASE_INSENSITIVE, message = ValidationMessages.CODE_PATTERN_MESSAGE)
-    @Field(index = Index.TOKENIZED, store = Store.YES, name = SearchFieldConstants.CODE)
+    @Field(index = Index.YES, store = Store.YES, name = SearchFieldConstants.CODE)
     public String getCode()
     {
         return code;
@@ -244,6 +247,7 @@ public class ExperimentPE extends AttachmentHolderPE implements
     void setProjectInternal(final ProjectPE project)
     {
         this.project = project;
+        this.experimentIdentifier = null;
     }
 
     @Transient
@@ -423,7 +427,7 @@ public class ExperimentPE extends AttachmentHolderPE implements
     {
         this.dataSets = dataSets;
     }
-    
+
     @Transient
     public void removeDataSet(DataPE dataSet)
     {
@@ -541,7 +545,9 @@ public class ExperimentPE extends AttachmentHolderPE implements
     @Override
     @OptimisticLock(excluded = true)
     @Column(name = ColumnNames.MODIFICATION_TIMESTAMP_COLUMN, nullable = false)
-    @Field(name = SearchFieldConstants.MODIFICATION_DATE, index = Index.UN_TOKENIZED, store = Store.NO)
+    @Field(name = SearchFieldConstants.MODIFICATION_DATE, index = Index.YES, store = Store.NO)
+    @FieldBridge(impl = org.hibernate.search.bridge.builtin.StringEncodingDateBridge.class,
+            params = { @org.hibernate.search.annotations.Parameter(name = "resolution", value = "SECOND") })
     @DateBridge(resolution = Resolution.SECOND)
     public Date getModificationDate()
     {
@@ -589,7 +595,7 @@ public class ExperimentPE extends AttachmentHolderPE implements
     @Length(min = 1, max = Code.CODE_LENGTH_MAX, message = ValidationMessages.CODE_LENGTH_MESSAGE)
     @Pattern(regexp = AbstractIdAndCodeHolder.CODE_PATTERN, flags = Pattern.Flag.CASE_INSENSITIVE, message = ValidationMessages.CODE_PATTERN_MESSAGE)
     @Column(name = ColumnNames.PERM_ID_COLUMN, nullable = false)
-    @Field(index = Index.TOKENIZED, store = Store.YES, name = SearchFieldConstants.PERM_ID)
+    @Field(index = Index.YES, store = Store.YES, name = SearchFieldConstants.PERM_ID)
     public String getPermId()
     {
         return permId;
@@ -643,7 +649,7 @@ public class ExperimentPE extends AttachmentHolderPE implements
         return new UnmodifiableSetDecorator<MetaprojectPE>(metaprojects);
     }
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "experiment")
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "experiment", orphanRemoval = true)
     @Fetch(FetchMode.SUBSELECT)
     private Set<MetaprojectAssignmentPE> getMetaprojectAssignmentsInternal()
     {

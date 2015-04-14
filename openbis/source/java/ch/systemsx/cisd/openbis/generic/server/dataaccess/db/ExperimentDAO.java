@@ -34,7 +34,7 @@ import org.hibernate.criterion.CriteriaSpecification;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.dao.DataAccessException;
-import org.springframework.orm.hibernate3.HibernateTemplate;
+import org.springframework.orm.hibernate4.HibernateTemplate;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -218,7 +218,7 @@ public class ExperimentDAO extends AbstractGenericEntityWithPropertiesDAO<Experi
         assert experimentCode != null : "Unspecified experiment code.";
         assert project != null : "Unspecified project.";
 
-        final Criteria criteria = getSession().createCriteria(getEntityClass());
+        final Criteria criteria = currentSession().createCriteria(getEntityClass());
         criteria.add(Restrictions.eq("code", CodeConverter.tryToDatabase(experimentCode)));
         criteria.add(Restrictions.eq("projectInternal", project));
         criteria.setFetchMode("experimentType.experimentTypePropertyTypesInternal", FetchMode.JOIN);
@@ -244,7 +244,7 @@ public class ExperimentDAO extends AbstractGenericEntityWithPropertiesDAO<Experi
             dbExperimentCodes.add(CodeConverter.tryToDatabase(experimentCode));
         }
 
-        final Criteria criteria = getSession().createCriteria(getEntityClass());
+        final Criteria criteria = currentSession().createCriteria(getEntityClass());
         criteria.add(Restrictions.in("code", dbExperimentCodes));
         criteria.add(Restrictions.eq("projectInternal", project));
         final List<ExperimentPE> experiments = cast(criteria.list());
@@ -316,7 +316,7 @@ public class ExperimentDAO extends AbstractGenericEntityWithPropertiesDAO<Experi
     @Override
     public ExperimentPE tryGetByPermID(String permId)
     {
-        final Criteria criteria = getSession().createCriteria(getEntityClass());
+        final Criteria criteria = currentSession().createCriteria(getEntityClass());
         criteria.add(Restrictions.eq("permId", permId));
         final ExperimentPE experimentOrNull = (ExperimentPE) criteria.uniqueResult();
         if (operationLog.isDebugEnabled())

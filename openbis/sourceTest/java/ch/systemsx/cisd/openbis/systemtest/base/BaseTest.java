@@ -135,7 +135,7 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
     protected String systemSessionToken;
 
     protected EntityGraphManager entityGraphManager;
-    
+
     private Project defaultProject;
 
     @BeforeSuite(groups = "system-cleandb")
@@ -475,37 +475,37 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
     protected EntityGraphGenerator parseAndCreateGraph(String graphDefinition)
     {
         EntityGraphGenerator graphGenerator = entityGraphManager.parseAndCreateGraph(graphDefinition);
-        org.hibernate.classic.Session currentSession = daoFactory.getSessionFactory().getCurrentSession();
+        org.hibernate.Session currentSession = daoFactory.getSessionFactory().getCurrentSession();
         currentSession.flush();
         currentSession.clear();
         return graphGenerator;
     }
-    
+
     protected String renderGraph(EntityGraphGenerator g)
     {
         return entityGraphManager.renderGraph(g, false);
     }
-    
-    protected void assertModified(ExperimentNode...experimentNodes)
+
+    protected void assertModified(ExperimentNode... experimentNodes)
     {
         entityGraphManager.assertModified(experimentNodes);
     }
-    
-    protected void assertModified(SampleNode...sampleNodes)
+
+    protected void assertModified(SampleNode... sampleNodes)
     {
         entityGraphManager.assertModified(sampleNodes);
     }
-    
-    protected void assertModified(DataSetNode...dataSetNodes)
+
+    protected void assertModified(DataSetNode... dataSetNodes)
     {
         entityGraphManager.assertModified(dataSetNodes);
     }
-    
+
     protected void assertUnmodified(EntityGraphGenerator g)
     {
         entityGraphManager.assertUnmodified(g);
     }
-    
+
     protected String getIdentifierOfDefaultProject()
     {
         return defaultProject.getIdentifier();
@@ -515,7 +515,6 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
     {
         entityGraphManager.addToRepository(experimentNode, experiment);
     }
-
 
     public static ExperimentIdentifier id(Experiment experiment)
     {
@@ -604,10 +603,10 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
     {
         return new NotAuthorizationRule(rule);
     }
-    
+
     protected static <T> Matcher<T> isNot(Matcher<T> matcher)
     {
         return CoreMatchers.not(is(matcher));
     }
-    
+
 }

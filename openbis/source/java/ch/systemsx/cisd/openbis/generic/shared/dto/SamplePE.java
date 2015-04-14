@@ -57,6 +57,7 @@ import org.hibernate.annotations.OptimisticLock;
 import org.hibernate.search.annotations.DateBridge;
 import org.hibernate.search.annotations.DocumentId;
 import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.FieldBridge;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.IndexedEmbedded;
@@ -396,7 +397,8 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
     // used only by Hibernate Search
     @SuppressWarnings("unused")
     @Transient
-    @Field(index = Index.UN_TOKENIZED, store = Store.YES, name = SearchFieldConstants.CONTAINER_ID)
+    @Field(index = Index.YES, store = Store.YES, name = SearchFieldConstants.CONTAINER_ID)
+    @FieldBridge(impl = org.hibernate.search.bridge.builtin.LongBridge.class)
     private Long getContainerId()
     {
         Long result = null;
@@ -514,7 +516,8 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
     // used only by Hibernate Search
     @SuppressWarnings("unused")
     @Transient
-    @Field(index = Index.UN_TOKENIZED, store = Store.YES, name = SearchFieldConstants.EXPERIMENT_ID)
+    @Field(index = Index.YES, store = Store.YES, name = SearchFieldConstants.EXPERIMENT_ID)
+    @FieldBridge(impl = org.hibernate.search.bridge.builtin.LongBridge.class)
     private Long getExperimentId()
     {
         Long result = null;
@@ -552,7 +555,7 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
     // used only by Hibernate Search
     @SuppressWarnings("unused")
     @Transient
-    @Field(index = Index.TOKENIZED, store = Store.YES, name = SearchFieldConstants.CODE)
+    @Field(index = Index.YES, store = Store.YES, name = SearchFieldConstants.CODE)
     private String getFullCode()
     {
         // full code of contained sample consists of <container code>:<contained sample code>
@@ -561,7 +564,9 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
 
     @Column(name = ColumnNames.REGISTRATION_TIMESTAMP_COLUMN, nullable = false, insertable = false, updatable = false)
     @Generated(GenerationTime.INSERT)
-    @Field(name = SearchFieldConstants.REGISTRATION_DATE, index = Index.UN_TOKENIZED, store = Store.NO)
+    @Field(name = SearchFieldConstants.REGISTRATION_DATE, index = Index.YES, store = Store.NO)
+    @FieldBridge(impl = org.hibernate.search.bridge.builtin.StringEncodingDateBridge.class,
+            params = { @org.hibernate.search.annotations.Parameter(name = "resolution", value = "SECOND") })
     @DateBridge(resolution = Resolution.SECOND)
     public Date getRegistrationDate()
     {
@@ -714,7 +719,9 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
     @Override
     @OptimisticLock(excluded = true)
     @Column(name = ColumnNames.MODIFICATION_TIMESTAMP_COLUMN, nullable = false)
-    @Field(name = SearchFieldConstants.MODIFICATION_DATE, index = Index.UN_TOKENIZED, store = Store.NO)
+    @Field(name = SearchFieldConstants.MODIFICATION_DATE, index = Index.YES, store = Store.NO)
+    @FieldBridge(impl = org.hibernate.search.bridge.builtin.StringEncodingDateBridge.class,
+            params = { @org.hibernate.search.annotations.Parameter(name = "resolution", value = "SECOND") })
     @DateBridge(resolution = Resolution.SECOND)
     public Date getModificationDate()
     {
@@ -786,7 +793,7 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
     @Length(min = 1, max = Code.CODE_LENGTH_MAX, message = ValidationMessages.CODE_LENGTH_MESSAGE)
     @Pattern(regexp = AbstractIdAndCodeHolder.CODE_PATTERN, flags = Pattern.Flag.CASE_INSENSITIVE, message = ValidationMessages.CODE_PATTERN_MESSAGE)
     @Column(name = ColumnNames.PERM_ID_COLUMN, nullable = false)
-    @Field(index = Index.TOKENIZED, store = Store.YES, name = SearchFieldConstants.PERM_ID)
+    @Field(index = Index.YES, store = Store.YES, name = SearchFieldConstants.PERM_ID)
     public String getPermId()
     {
         return permId;

@@ -26,8 +26,8 @@ import org.hibernate.Interceptor;
 import org.hibernate.Transaction;
 import org.springframework.beans.BeansException;
 import org.springframework.jdbc.datasource.JdbcTransactionObjectSupport;
-import org.springframework.orm.hibernate3.HibernateTransactionManager;
-import org.springframework.orm.hibernate3.SessionHolder;
+import org.springframework.orm.hibernate4.HibernateTransactionManager;
+import org.springframework.orm.hibernate4.SessionHolder;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.support.DefaultTransactionStatus;
 

@@ -228,6 +228,7 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
             }
         }
         saveAttachment(sample, attachments);
+        getSessionFactory().getCurrentSession().flush();
     }
 
     @Override

@@ -16,7 +16,11 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business;
 
-import javax.annotation.Resource;
+import javax.annotation.PostConstruct;
+
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleUtils;
@@ -40,7 +44,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.EntityHelper;
  * 
  * @author anttil
  */
-public class RelationshipService implements IRelationshipService
+public class RelationshipService implements IRelationshipService, ApplicationContextAware
 {
     private static final String ERR_SAMPLE_PARENT_RELATIONSHIP_NOT_FOUND =
             "Sample '%s' did not have parent '%s'";
@@ -56,8 +60,15 @@ public class RelationshipService implements IRelationshipService
     /**
      * Reference to this instance of service, but as a spring bean, so that we can call methods of this service and run the additional authorization.
      */
-    @Resource(name = "relationship-service")
     private IRelationshipService service;
+
+    private ApplicationContext applicationContext;
+
+    @PostConstruct
+    private void init()
+    {
+        this.service = applicationContext.getBean("relationship-service", IRelationshipService.class);
+    }
 
     @Override
     public void assignExperimentToProject(IAuthSession session, ExperimentPE experiment,
@@ -270,6 +281,12 @@ public class RelationshipService implements IRelationshipService
     private RelationshipTypePE getParentChildRelationshipType()
     {
         return RelationshipUtils.getParentChildRelationshipType(daoFactory.getRelationshipTypeDAO());
+    }
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException
+    {
+        this.applicationContext = applicationContext;
     }
 
 }

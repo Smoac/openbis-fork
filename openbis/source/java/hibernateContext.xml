@@ -3,16 +3,16 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:tx="http://www.springframework.org/schema/tx"
     xsi:schemaLocation="http://www.springframework.org/schema/beans
-			http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
-			http://www.springframework.org/schema/tx
-			http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+            http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+            http://www.springframework.org/schema/tx
+            http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
 
     <!--
         // Hibernate
     -->
 
     <bean id="hibernate-session-factory"
-        class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean"
+        class="org.springframework.orm.hibernate4.LocalSessionFactoryBean"
         depends-on="sql-script-provider, hibernate-search-context">
         <property name="dataSource">
             <ref bean="data-source" />
@@ -112,6 +112,10 @@
         -->
         <property name="hibernateProperties">
             <props>
+
+                <prop key="hibernate.current_session_context_class">org.springframework.orm.hibernate4.SpringSessionContext</prop>
+            
+            
                 <!-- Set this to "true" in order to enable the second-level cache. --> 
                     <prop key="hibernate.cache.use_second_level_cache">false</prop>
                 <prop key="hibernate.cache.provider_class">
@@ -119,7 +123,7 @@
                 </prop>
                 <prop key="hibernate.max_fetch_depth">4</prop>
                 <prop key="hibernate.search.default.directory_provider">
-                    org.hibernate.search.store.FSDirectoryProvider
+                     org.hibernate.search.store.impl.FSDirectoryProvider
                 </prop>
                 <prop key="hibernate.search.default.indexBase">${hibernate.search.index-base}</prop>
                 <!-- Automatic optimization -->
@@ -136,17 +140,13 @@
                 -->
                 <!-- Disabling automatic indexing. Possible values are [event, manual]. -->
                 <prop key="hibernate.search.indexing_strategy">manual</prop>
-                <!--  Uncomment this for debugging the Hibernate sql queries 
+                <!--  Uncomment this for debugging the Hibernate sql queries> 
 <prop key="hibernate.show_sql">true</prop>
 <prop key="hibernate.use_sql_comments">true</prop>
-<prop key="hibernate.format_sql">true</prop> -->
+<prop key="hibernate.format_sql">true</prop -->
 
             </props>
         </property>
-        <property name="lobHandler">
-            <bean class="org.springframework.jdbc.support.lob.DefaultLobHandler" />
-        </property>
-
     </bean>
 
     <!--

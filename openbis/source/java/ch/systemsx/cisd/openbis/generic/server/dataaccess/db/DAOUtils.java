@@ -25,7 +25,7 @@ import org.hibernate.criterion.CriteriaSpecification;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
-import org.springframework.orm.hibernate3.HibernateTemplate;
+import org.springframework.orm.hibernate4.HibernateTemplate;
 
 /**
  * Utility routines for DAOs.
@@ -61,11 +61,9 @@ final class DAOUtils
     private static final int BATCH_SIZE = 1000;
 
     /**
-     * Lists entities of type <code>T</code> by specified collection of identifiers. A Hibernate
-     * Criteria query for specified class is created with an
-     * {@link Restrictions#in(String, Collection)} restriction on the collection of identifiers.
-     * This is a helper method which reads the data in chunks because otherwise an exception will be
-     * thrown by PosgreSQL if more than 2<sup>15</sup>-1 identfiers.
+     * Lists entities of type <code>T</code> by specified collection of identifiers. A Hibernate Criteria query for specified class is created with an
+     * {@link Restrictions#in(String, Collection)} restriction on the collection of identifiers. This is a helper method which reads the data in
+     * chunks because otherwise an exception will be thrown by PosgreSQL if more than 2<sup>15</sup>-1 identfiers.
      */
     static <T> List<T> listByCollection(HibernateTemplate hibernateTemplate,
             final Class<?> entityClass, String columnName, Collection<?> identifiers)
@@ -81,11 +79,9 @@ final class DAOUtils
     }
 
     /**
-     * Lists entities of type <code>T</code> by specified collection of identifiers. A Hibernate
-     * Criteria query is created by the specified factory and an
-     * {@link Restrictions#in(String, Collection)} restriction on the collection of identifiers is
-     * added. This is a helper method which reads the data in chunks because otherwise an exception
-     * will be thrown by PosgreSQL if more than 2<sup>15</sup>-1 identfiers.
+     * Lists entities of type <code>T</code> by specified collection of identifiers. A Hibernate Criteria query is created by the specified factory
+     * and an {@link Restrictions#in(String, Collection)} restriction on the collection of identifiers is added. This is a helper method which reads
+     * the data in chunks because otherwise an exception will be thrown by PosgreSQL if more than 2<sup>15</sup>-1 identfiers.
      */
     @SuppressWarnings("unchecked")
     static <T> List<T> listByCollection(HibernateTemplate hibernateTemplate,
@@ -100,7 +96,7 @@ final class DAOUtils
             if (subList.isEmpty() == false)
             {
                 criteria.add(Restrictions.in(columnName, subList));
-                result.addAll((List<T>)hibernateTemplate.findByCriteria(criteria));
+                result.addAll((List<T>) hibernateTemplate.findByCriteria(criteria));
             }
         }
         return result;

@@ -108,7 +108,7 @@ public final class PersonPE extends HibernateAbstractRegistrationHolder implemen
 
     @Column(name = ColumnNames.FIRST_NAME_COLUMN)
     @Length(max = 30, message = ValidationMessages.FIRST_NAME_LENGTH_MESSAGE)
-    @Field(index = Index.TOKENIZED, name = SearchFieldConstants.PERSON_FIRST_NAME, store = Store.YES)
+    @Field(index = Index.YES, name = SearchFieldConstants.PERSON_FIRST_NAME, store = Store.YES)
     public final String getFirstName()
     {
         return firstName;
@@ -121,7 +121,7 @@ public final class PersonPE extends HibernateAbstractRegistrationHolder implemen
 
     @Column(name = ColumnNames.LAST_NAME_COLUMN)
     @Length(max = 30, message = ValidationMessages.LAST_NAME_LENGTH_MESSAGE)
-    @Field(index = Index.TOKENIZED, name = SearchFieldConstants.PERSON_LAST_NAME, store = Store.YES)
+    @Field(index = Index.YES, name = SearchFieldConstants.PERSON_LAST_NAME, store = Store.YES)
     public final String getLastName()
     {
         return lastName;
@@ -149,7 +149,7 @@ public final class PersonPE extends HibernateAbstractRegistrationHolder implemen
     @Length(max = 50, message = ValidationMessages.USER_ID_LENGTH_MESSAGE)
     @NotNull(message = ValidationMessages.USER_ID_NOT_NULL_MESSAGE)
     @Pattern(regexp = USER_CODE_REGEX, flags = Pattern.Flag.CASE_INSENSITIVE, message = ValidationMessages.VALID_USER_CODE_DESCRIPTION)
-    @Field(index = Index.TOKENIZED, name = SearchFieldConstants.PERSON_USER_ID, store = Store.YES)
+    @Field(index = Index.YES, name = SearchFieldConstants.PERSON_USER_ID, store = Store.YES)
     public final String getUserId()
     {
         return userId;

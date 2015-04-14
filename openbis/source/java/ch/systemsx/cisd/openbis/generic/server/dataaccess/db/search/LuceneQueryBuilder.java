@@ -22,13 +22,12 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.queryParser.ParseException;
-import org.apache.lucene.queryParser.QueryParser;
+import org.apache.lucene.queryparser.classic.ParseException;
+import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.MultiTermQuery;
 import org.apache.lucene.search.Query;
-import org.apache.lucene.util.Version;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.detailed.DetailedQueryBuilder;
@@ -70,7 +69,7 @@ public class LuceneQueryBuilder
     //
 
     private static final char[] CHARS_ESCAPED_IN_WILCARD_MODE =
-        { FIELD_SEPARATOR };
+    { FIELD_SEPARATOR, '/' };
 
     // For now both wildcard and basic modes escape the same characters. If we decide
     // to escape wildcard characters in basic mode unescape the following code.
@@ -131,7 +130,7 @@ public class LuceneQueryBuilder
         } else
         {
             miniTokens = new String[]
-                { token };
+            { token };
         }
 
         List<String> transformedMiniTokens = new ArrayList<String>();
@@ -173,8 +172,7 @@ public class LuceneQueryBuilder
     //
 
     /**
-     * All the search query parsers should use this method to get the analyzer, because this is the
-     * one which is used to build the index.
+     * All the search query parsers should use this method to get the analyzer, because this is the one which is used to build the index.
      */
     public static Analyzer createSearchAnalyzer()
     {
@@ -184,7 +182,8 @@ public class LuceneQueryBuilder
     public static Query parseQuery(final String fieldName, final String searchPattern,
             Analyzer analyzer) throws UserFailureException
     {
-        final QueryParser parser = new QueryParser(Version.LUCENE_31, fieldName, analyzer);
+        final QueryParser parser = new QueryParser(fieldName, analyzer);
+
         parser.setMultiTermRewriteMethod(MultiTermQuery.SCORING_BOOLEAN_QUERY_REWRITE);
         return parseQuery(searchPattern, searchPattern, parser);
     }
