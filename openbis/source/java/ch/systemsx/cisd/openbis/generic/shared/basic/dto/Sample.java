@@ -275,6 +275,9 @@ public final class Sample extends CodeWithRegistrationAndModificationDate<Sample
     @Override
     public final int compareTo(final Sample o)
     {
+    	if (getIdentifier() == null) {
+    		return o.getIdentifier() == null ? 0 : 1;
+    	}
         return getIdentifier().compareTo(o.getIdentifier());
     }
 
