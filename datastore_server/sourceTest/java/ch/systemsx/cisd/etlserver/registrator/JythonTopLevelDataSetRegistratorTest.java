@@ -1367,7 +1367,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         assertEquals(SAMPLE_PERM_ID, newSample.getPermID());
         assertEquals(EXPERIMENT_IDENTIFIER, newSample.getExperimentIdentifier());
         assertEquals("sample_type", newSample.getSampleType().getCode());
-        assertEquals("[/SPACE/PARENT1, /SPACE/PARENT2]",
+        assertEquals("[/SPACE/PARENT2, /SPACE/PARENT1]",
                 Arrays.toString(newSample.getParentsOrNull()));
 
         NewExperiment newExperiment = operations.getExperimentRegistrations().get(0);
