@@ -84,9 +84,7 @@ public class CommandBasedTransformerTest extends AssertJUnit
         assertEquals("OK", status.toString());
         String logContent = logRecorder.getLogContent();
         String expectedStart = "Execute: [env, MY_FILE=def.txt]\n"
-                + "Running command: env MY_FILE=def.txt (I/O in separate thread)\n"
-                + "P0-{env} process returned with exit value 0.\n"
-                + "[env] output:\n";
+                + "Running command: env MY_FILE=def.txt (I/O in separate thread)\n";
         assertEquals(expectedStart, logContent.substring(0, Math.min(logContent.length(), expectedStart.length())));
         assertEquals("log content does not contain env variable MY_NAME.", true, logContent.contains("MY_NAME=Albert"));
         
