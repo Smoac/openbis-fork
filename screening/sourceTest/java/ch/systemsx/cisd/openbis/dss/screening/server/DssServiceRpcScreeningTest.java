@@ -513,8 +513,10 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
         context.checking(new Expectations()
             {
                 {
-                    one(dao).listImageDatasetsByPermId(new String[]
+                    allowing(dao).listImageDatasetsByPermId(new String[]
                         { DATASET_CODE, DATASET_CODE2 });
+                    allowing(dao).listImageDatasetsByPermId(new String[]
+                            { DATASET_CODE2, DATASET_CODE });
                     ImgImageDatasetDTO ds1 =
                             new ImgImageDatasetDTO(DATASET_CODE, null, null, null, false, null,
                                     null);
