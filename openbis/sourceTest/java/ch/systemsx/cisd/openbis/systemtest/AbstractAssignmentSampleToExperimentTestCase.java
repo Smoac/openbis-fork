@@ -84,11 +84,16 @@ public abstract class AbstractAssignmentSampleToExperimentTestCase extends BaseT
     
     AuthorizationRule assignSharedSampleToExperimentRule;
     
-
+    private static boolean fixtureRun = false;
+    
     @BeforeClass(dependsOnMethods = "loginAsSystem")
     void createFixture() throws Exception
     {
-        sourceSpace = create(aSpace().withCode("sourceSpace"));
+    	if (fixtureRun) {
+    		return;
+    	}
+    	
+    	sourceSpace = create(aSpace().withCode("sourceSpace"));
         destinationSpace = create(aSpace().withCode("destinationSpace"));
 
         sourceProject = create(aProject().inSpace(sourceSpace));
@@ -125,6 +130,8 @@ public abstract class AbstractAssignmentSampleToExperimentTestCase extends BaseT
         assignSharedSampleToExperimentRule =
                 and(rule(destination, RoleWithHierarchy.SPACE_USER),
                         rule(instance, RoleWithHierarchy.INSTANCE_ETL_SERVER));
+        
+        fixtureRun = true;
     }
 
     @DataProvider
