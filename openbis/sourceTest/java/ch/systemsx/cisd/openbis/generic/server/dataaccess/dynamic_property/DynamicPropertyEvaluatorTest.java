@@ -411,9 +411,9 @@ public class DynamicPropertyEvaluatorTest extends AbstractBOTest
         sample = createSample("s1", properties);
         evaluator.evaluateProperties(sample, sessionProvider.getSession());
         // cyclic dependency should be found
-        assertEquals(expectedCyclicDependencyErrorMessage(dp1, dp2, dp3, dp1), dp1.getValue());
-        assertEquals(expectedCyclicDependencyErrorMessage(dp1, dp2, dp3, dp1), dp2.getValue());
-        assertEquals(expectedCyclicDependencyErrorMessage(dp1, dp2, dp3, dp1), dp3.getValue());
+        assertEquals(expectedCyclicDependencyErrorMessage(dp2, dp3, dp1, dp2), dp1.getValue());
+        assertEquals(expectedCyclicDependencyErrorMessage(dp2, dp3, dp1, dp2), dp2.getValue());
+        assertEquals(expectedCyclicDependencyErrorMessage(dp2, dp3, dp1, dp2), dp3.getValue());
     }
 
     //

@@ -17,14 +17,15 @@
 package ch.systemsx.cisd.openbis.systemtest;
 
 import static org.testng.AssertJUnit.assertEquals;
-
-import java.util.List;
+import static org.testng.AssertJUnit.fail;
 
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModels;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentHolderKind;
@@ -105,15 +106,19 @@ public class AttachmentUploadTest extends SystemTestCase
                                 holderID,
                                 holderKind,
                                 new DefaultResultSetConfig<String, TableModelRowWithObject<AttachmentVersions>>());
-        List<Attachment> attachments =
-                attachmentVersions.getResultSet().getList().get(0).getOriginalObject()
-                        .getObjectOrNull().getVersions();
 
-        Attachment attachment = attachments.get(0);
-        assertEquals(FILE_NAME, attachment.getFileName());
-        assertEquals("my file", attachment.getTitle());
-        assertEquals("example file", attachment.getDescription());
-        assertEquals(1, attachment.getVersion());
-        assertEquals(FILE_CONTENT, new String(attachmentWithContent.getContent()));
+        GridRowModels<TableModelRowWithObject<AttachmentVersions>> list = attachmentVersions.getResultSet().getList();
+        for (GridRowModel<TableModelRowWithObject<AttachmentVersions>> tmrl : list) {
+        	Attachment attachment = tmrl.getOriginalObject().getObjectOrNull().getVersions().get(0);
+        	if (attachment.getFileName().equals(FILE_NAME)) {
+                assertEquals("my file", attachment.getTitle());
+                assertEquals("example file", attachment.getDescription());
+                assertEquals(1, attachment.getVersion());
+                assertEquals(FILE_CONTENT, new String(attachmentWithContent.getContent()));
+        		return;
+        	}
+        }
+        
+        fail("Attachment with file name "+FILE_NAME+" was not found");
     }
 }

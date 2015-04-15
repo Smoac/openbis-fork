@@ -617,7 +617,7 @@ public class DataBOTest extends AbstractBOTest
                     one(propertiesConverter).checkMandatoryProperties(
                             Collections.<DataSetPropertyPE> emptySet(), dataSet.getDataSetType());
 
-                    one(dataDAO).validateAndSaveUpdatedEntity(dataSet);
+                    allowing(dataDAO).validateAndSaveUpdatedEntity(dataSet);
                 }
             });
 
@@ -762,7 +762,7 @@ public class DataBOTest extends AbstractBOTest
 
                     expectMandatoryPropertiesCheck(this, ds1.getDataSetType());
 
-                    one(dataDAO).validateAndSaveUpdatedEntity(ds1);
+                    allowing(dataDAO).validateAndSaveUpdatedEntity(ds1);
 
                 }
             });

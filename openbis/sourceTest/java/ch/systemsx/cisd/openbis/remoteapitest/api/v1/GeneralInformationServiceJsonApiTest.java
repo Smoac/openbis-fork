@@ -123,7 +123,7 @@ public class GeneralInformationServiceJsonApiTest extends RemoteApiTestCase
         Map<String, Set<Role>> namedRoleSets =
                 generalInformationService.listNamedRoleSets(sessionToken);
 
-        assertEquals("[ADMIN(instance), ADMIN(space)]", namedRoleSets.get("SPACE_ADMIN").toString());
+        assertEquals("[ADMIN(space), ADMIN(instance)]", namedRoleSets.get("SPACE_ADMIN").toString());
     }
 
     @Test
