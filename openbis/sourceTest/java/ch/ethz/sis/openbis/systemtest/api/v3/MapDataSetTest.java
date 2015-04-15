@@ -170,21 +170,22 @@ public class MapDataSetTest extends AbstractDataSetTest
         v3api.logout(sessionToken);
     }
 
-    @Test
+    @Test(enabled=false)
     public void testMapWithType()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         DataSetPermId permId = new DataSetPermId("20081105092159111-1");
+        DataSetPermId permId2 = new DataSetPermId("ROOT_CONTAINER");
 
         DataSetFetchOptions fetchOptions = new DataSetFetchOptions();
         fetchOptions.withType();
 
         Map<IDataSetId, DataSet> map =
-                v3api.mapDataSets(sessionToken, Arrays.asList(permId),
+                v3api.mapDataSets(sessionToken, Arrays.asList(permId, permId2),
                         fetchOptions);
 
-        assertEquals(map.size(), 1);
+        assertEquals(map.size(), 2);
 
         DataSet dataSet = map.get(permId);
 
@@ -204,6 +205,26 @@ public class MapDataSetTest extends AbstractDataSetTest
         assertModifierNotFetched(dataSet);
         assertRegistratorNotFetched(dataSet);
         assertTagsNotFetched(dataSet);
+
+        DataSet dataSet2 = map.get(permId2);
+
+        assertEquals(dataSet2.getType().getCode(), "CONTAINER_TYPE");
+        assertEquals(dataSet2.getType().getPermId().getPermId(), "CONTAINER_TYPE");
+        assertEquals(dataSet2.getType().getDescription(), "A container (virtual) data set type");
+        assertEquals(dataSet2.getType().getKind(), DataSetKind.CONTAINER);
+
+        assertExternalDataNotFetched(dataSet2);
+        assertExperimentNotFetched(dataSet2);
+        assertSampleNotFetched(dataSet2);
+        assertPropertiesNotFetched(dataSet2);
+        assertParentsNotFetched(dataSet2);
+        assertChildrenNotFetched(dataSet2);
+        assertContainedNotFetched(dataSet2);
+        assertContainersNotFetched(dataSet2);
+        assertModifierNotFetched(dataSet2);
+        assertRegistratorNotFetched(dataSet2);
+        assertTagsNotFetched(dataSet2);
+
         v3api.logout(sessionToken);
     }
 
