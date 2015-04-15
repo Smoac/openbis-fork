@@ -217,22 +217,6 @@ public class TerminableCallableTest
         t.stop();
     }
 
-    @Test(groups = "slow")
-    public void testStop() throws Exception
-    {
-        final CountDownLatch launchLatch = new CountDownLatch(1);
-        final CountDownLatch milestoneLatch = new CountDownLatch(1);
-        final TestRunnable sensor =
-                new TestRunnable(launchLatch, milestoneLatch, Strategy.KEEP_SPINNING_STOPPABLE);
-        final TerminableCallable<Object> callableUnderTest = TerminableCallable.create(sensor);
-        final Thread t = new Thread(callableUnderTest.asRunnable(), "stop");
-        t.start();
-        launchLatch.await();
-        assertTrue(callableUnderTest.terminate(200L));
-        assertTrue(milestoneLatch.await(0, TimeUnit.MILLISECONDS));
-        assertTrue(describe(sensor.cause), FinishCause.STOPPED.equals(sensor.cause));
-        assertEquals(1, sensor.cleanUpCount);
-    }
 
     @Test(invocationCount = 10)
     public void testThrowException() throws Exception

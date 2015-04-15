@@ -206,41 +206,4 @@ public class TimerUtilitiesTest
         assertTrue(sem.tryAcquire());
         timer.cancel(); // Just to be sure.
     }
-
-    @Test
-    public void testShutdownWithStop() throws InterruptedException
-    {
-        final Semaphore sem = new Semaphore(0);
-        final Timer timer = new Timer();
-        final TimerTask task = new TimerTask()
-            {
-                private void keepWheelsSpinning()
-                {
-                    do
-                    {
-                        // Nothing.
-                    } while (true);
-                }
-
-                @Override
-                public void run()
-                {
-                    sem.release();
-                    try
-                    {
-                        keepWheelsSpinning();
-                        fail("should have been stopped.");
-                    } catch (InterruptedExceptionUnchecked ex)
-                    {
-                        // That is expected, signal success.
-                        sem.release();
-                    }
-                }
-            };
-        timer.schedule(task, 0L);
-        sem.acquire(); // Ensure we don't cancel() before the task is running.
-        assertTrue(TimerUtilities.tryShutdownTimer(timer, 50L));
-        assertTrue(sem.tryAcquire());
-        timer.cancel(); // Just to be sure.
-    }
 }

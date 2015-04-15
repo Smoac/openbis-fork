@@ -21,7 +21,7 @@ dependencies {
 			'hibernate:hibernate-search-orm:5.0.1.Final',
 			'eclipse:jetty-deploy:8.1.8.v20121106',
 			'google:gwt-debug-panel:1.0',
-			'google:gwt-user:2.4',
+			'google:gwt-user:+',
 			'reveregroup:gwt-image-loader:+',
 			'springframework:spring-orm:+',
 			'cisd:cisd-hotdeploy:13.01.0',
@@ -73,6 +73,6 @@ task copyTestData(type: Copy, dependsOn: testClasses) {
     include "*.properties"
 }
 test.dependsOn(copyTestData)
-// test.dependsOn(cleanDbSuite)
+test.dependsOn(cleanDbSuite)
 
 apply from: 'gwtdev.gradle'

@@ -50,35 +50,6 @@ final class ThreadGuard
 
     private volatile boolean cancelled = false;
 
-    @SuppressWarnings("deprecation")
-    private static void stopNow(Thread t)
-    {
-        t.stop(new StopException());
-    }
-
-    // Do not synchronize this or things will stop working!
-    private boolean stop(Thread t, long timeoutMillis) throws InterruptedException
-    {
-        final boolean gotIt;
-        gotIt = stopLock.tryLock(timeoutMillis, TimeUnit.MILLISECONDS);
-        if (waitForFinished(TerminableCallable.NO_WAIT_MILLIS))
-        {
-            // interrupt() took effect, we don't need to stop()
-            return true;
-        }
-        if (gotIt == false)
-        {
-            return false;
-        }
-        try
-        {
-            stopNow(t);
-            return true;
-        } finally
-        {
-            stopLock.unlock();
-        }
-    }
 
     private synchronized Thread tryInterruptAndGetThread()
     {
@@ -262,10 +233,7 @@ final class ThreadGuard
                 return true;
             } else
             {
-                if (stop(t, timeoutMillis - (System.currentTimeMillis() - start)) == false)
-                {
-                    return false;
-                }
+                return false;
             }
         }
         return waitForFinished(timeoutMillis - (System.currentTimeMillis() - start));

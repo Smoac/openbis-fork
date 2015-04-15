@@ -57,12 +57,6 @@ public class TimerUtilities
         return null;
     }
 
-    @SuppressWarnings("deprecation")
-    private static void stopTimerThread(Thread timerThread)
-    {
-        timerThread.stop(new InterruptedExceptionUnchecked());
-    }
-
     /**
      * Tries to join the <var>thread</var> {@link Thread#join(long)}.
      * 
@@ -154,13 +148,6 @@ public class TimerUtilities
         if (joinOK)
         {
             return true;
-        }
-        // If we have been interrupting the thread successfully but the interrupted flag has not
-        // been set, then try stopping and again joining the thread.
-        if (timerThread.isInterrupted())
-        {
-            stopTimerThread(timerThread);
-            return tryJoinThread(timerThread, millis);
         }
         return false;
     }

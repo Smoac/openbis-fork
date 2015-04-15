@@ -30,6 +30,7 @@ import org.springframework.test.context.testng.AbstractTransactionalTestNGSpring
 import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 
@@ -144,7 +145,6 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
         LogInitializer.init();
         initializeProperties();
         setContext();
-        createDataStore();
     }
 
     private void initializeProperties()
@@ -163,7 +163,8 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
         super.springTestContextPrepareTestInstance();
     }
 
-    private void createDataStore()
+    @BeforeMethod(alwaysRun = true)
+    public void createDataStore()
     {
         DataStorePE dataStore = new DataStorePE();
         dataStore.setCode("STANDARD");
@@ -171,7 +172,6 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
         dataStore.setDownloadUrl("http://localhost");
         dataStore.setRemoteUrl("http://remotehost");
         dataStore.setSessionToken("");
-
         this.daoFactory.getDataStoreDAO().createOrUpdateDataStore(dataStore);
     }
 
