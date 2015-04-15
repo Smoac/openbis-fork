@@ -81,9 +81,9 @@ def addPropertiesToSamples(sampleTypeCodes, properties):
 	
 def addProperties(entity, properties):
 	for property in properties:
-		addProperty(entity, property[0], property[1], property[2], property[3], property[4], property[5], property[6]);
+		addProperty(entity, property[0], property[1], property[2], property[3], property[4], property[5], property[6], property[7]);
 	
-def addProperty(entity, propertyCode, section, propertyLabel, dataType, vocabularyCode, propertyDescription, managedScript):
+def addProperty(entity, propertyCode, section, propertyLabel, dataType, vocabularyCode, propertyDescription, managedScript, dynamicScript):
 	property = None;
 	
 	if propertyCode in propertiesCache:
@@ -97,6 +97,10 @@ def addProperty(entity, propertyCode, section, propertyLabel, dataType, vocabula
 		propertyAssignment.setManaged(True);
 		propertyAssignment.setShownEdit(True);
 		propertyAssignment.setScriptName(managedScript);
+	if dynamicScript != None:
+		propertyAssignment.setDynamic(True);
+		propertyAssignment.setShownEdit(False);
+		propertyAssignment.setScriptName(dynamicScript);
 
 def createProperty(propertyCode, dataType, propertyLabel, propertyDescription, vocabularyCode):
 	property = tr.getOrCreateNewPropertyType(propertyCode, dataType);
@@ -125,6 +129,9 @@ def createAnnotationsScriptForType(sampleTypeCode):
 ## Manage properties scripts
 ##
 commentsSampleScriptName = None;
+commentsExperimentScriptName = None;
+commentsDatasetScriptName = None;
+genotypeSampleScriptName = None;
 
 if PATH_TO_MANAGE_PROPERTIES_SCRIPTS != None:
 	
@@ -153,7 +160,17 @@ if PATH_TO_MANAGE_PROPERTIES_SCRIPTS != None:
 	commentsDatasetScript.setScript(commentsScriptAsString);
 	commentsDatasetScript.setScriptType("MANAGED_PROPERTY");
 	commentsDatasetScript.setEntityForScript("DATA_SET");
-
+	
+	genotypeScriptAsString = open(PATH_TO_MANAGE_PROPERTIES_SCRIPTS + "genotype.py", 'r').read();
+	
+	genotypeSampleScriptName = "GENOTYPE_SAMPLE";
+	genotypeSampleScript = tr.getOrCreateNewScript(genotypeSampleScriptName);
+	genotypeSampleScript.setName(genotypeSampleScriptName);
+	genotypeSampleScript.setDescription("Genotype Handler");
+	genotypeSampleScript.setScript(genotypeScriptAsString);
+	genotypeSampleScript.setScriptType("DYNAMIC_PROPERTY");
+	genotypeSampleScript.setEntityForScript("SAMPLE");
+	
 ##
 ## Vocabulary Types
 ##
@@ -467,19 +484,19 @@ createProperty("CONTAINED", DataType.VARCHAR, "Contained", "", None);
 ## DataSet Types
 ##
 createDataSetTypeWithProperties("ELN_PREVIEW", "PHYSICAL", "ELN Preview image", [
-	["NOTES", "General information", "Notes", DataType.MULTILINE_VARCHAR, None, "Notes regarding the dataset", None],
-	["XMLCOMMENTS",	"Comments","Comments List",	DataType.XML,	None,	"Several comments can be added by different users", commentsDatasetScriptName]
+	["NOTES", "General information", "Notes", DataType.MULTILINE_VARCHAR, None, "Notes regarding the dataset", None, None],
+	["XMLCOMMENTS",	"Comments","Comments List",	DataType.XML,	None,	"Several comments can be added by different users", commentsDatasetScriptName, None]
 ]);
 
 createDataSetTypeWithProperties("SEQ_FILE", "PHYSICAL", "", [
-	["NOTES", "General information", "Notes", DataType.MULTILINE_VARCHAR, None, "Notes regarding the dataset", None],
-	["XMLCOMMENTS",	"Comments","Comments List",	DataType.XML,	None,	"Several comments can be added by different users", commentsDatasetScriptName]
+	["NOTES", "General information", "Notes", DataType.MULTILINE_VARCHAR, None, "Notes regarding the dataset", None, None],
+	["XMLCOMMENTS",	"Comments","Comments List",	DataType.XML,	None,	"Several comments can be added by different users", commentsDatasetScriptName, None]
 	
 ]);
 
 createDataSetTypeWithProperties("RAW_DATA", "PHYSICAL", "", [
-	["NOTES", "General information", "Notes", DataType.MULTILINE_VARCHAR, None, "Notes regarding the dataset", None],
-	["XMLCOMMENTS",	"Comments","Comments List",	DataType.XML,	None,	"Several comments can be added by different users", commentsDatasetScriptName]
+	["NOTES", "General information", "Notes", DataType.MULTILINE_VARCHAR, None, "Notes regarding the dataset", None, None],
+	["XMLCOMMENTS",	"Comments","Comments List",	DataType.XML,	None,	"Several comments can be added by different users", commentsDatasetScriptName, None]
 ]);
 
 ##
@@ -503,13 +520,13 @@ createExperimentTypeWithProperties("PCR_PROTOCOL", "BOX TO HOLD SAMPLES OF THIS 
 createExperimentTypeWithProperties("WESTERN_BLOTTING_PROTOCOL", "BOX TO HOLD SAMPLES OF THIS TYPE FOR ORGANIZATIONAL PURPOSES", []);
 
 createExperimentTypeWithProperties("DEFAULT_EXPERIMENT", "Default Experiment", [
-	["NAME", 				"General", "Name", 					DataType.VARCHAR, 			None,	"Name", None],
-	["EXPERIMENTAL_GOALS", 	"General", "Experimental goals", 	DataType.MULTILINE_VARCHAR, None,	"Goal of the experiment", None],
-	["GRANT", 				"General", "Grant", 				DataType.VARCHAR,			None,	"grant name", None],
-	["START_DATE", 			"General", "Start Date", 			DataType.TIMESTAMP, 		None,	"Start Date", None],
-	["END_DATE", 			"General", "End Date", 				DataType.TIMESTAMP,			None,	"End Date", None],
-	["EXPERIMENTAL_RESULTS","General", "Experimental results", 	DataType.MULTILINE_VARCHAR, None,	"Brief summary of the results obtained", None],
-	["XMLCOMMENTS",			"Comments","Comments List",			DataType.XML,				None,	"Several comments can be added by different users", commentsExperimentScriptName]
+	["NAME", 				"General", "Name", 					DataType.VARCHAR, 			None,	"Name", None, None],
+	["EXPERIMENTAL_GOALS", 	"General", "Experimental goals", 	DataType.MULTILINE_VARCHAR, None,	"Goal of the experiment", None, None],
+	["GRANT", 				"General", "Grant", 				DataType.VARCHAR,			None,	"grant name", None, None],
+	["START_DATE", 			"General", "Start Date", 			DataType.TIMESTAMP, 		None,	"Start Date", None, None],
+	["END_DATE", 			"General", "End Date", 				DataType.TIMESTAMP,			None,	"End Date", None, None],
+	["EXPERIMENTAL_RESULTS","General", "Experimental results", 	DataType.MULTILINE_VARCHAR, None,	"Brief summary of the results obtained", None, None],
+	["XMLCOMMENTS",			"Comments","Comments List",			DataType.XML,				None,	"Several comments can be added by different users", commentsExperimentScriptName, None]
 ]);
 
 ##
@@ -518,194 +535,195 @@ createExperimentTypeWithProperties("DEFAULT_EXPERIMENT", "Default Experiment", [
 
 annotationsScriptName = createAnnotationsScriptForType("ANTIBODY");
 createSampleTypeWithProperties("ANTIBODY", "", [
-	["NAME", 				"General", 				"Name", 				DataType.VARCHAR,				None,		"Name", None],
-	["HOST", 				"General", 				"Host", 				DataType.CONTROLLEDVOCABULARY,	"HOST", 	"Host used to produce the antibody", None],
-	["FOR_WHAT", 			"General", 				"For what", 			DataType.MULTILINE_VARCHAR,		None, 		"For what kind of experimental application/readout this sample is used in the lab", None],
-	["DETECTION", 			"General", 				"Detection",			DataType.CONTROLLEDVOCABULARY,	"DETECTION","Protein detection system (fill in this information only for secondary antibodies)", None],
-	["EPITOPE", 			"General", 				"Epitope",				DataType.MULTILINE_VARCHAR,		None, 		"Epitope of the antibody", None],
-	["CLONALITY", 			"General", 				"Clonality",			DataType.CONTROLLEDVOCABULARY,	"CLONALITY","Clonality of the antibody", None],
-	["ISOTYPE", 			"General", 				"Isotype", 				DataType.MULTILINE_VARCHAR,		None, 		"Isotype of the antibody", None],
-	["SUPPLIER", 			"Supplier and storage", "Supplier",				DataType.MULTILINE_VARCHAR,		None, 		"Supplier of the product", None],
-	["ARTICLE_NUMBER", 		"Supplier and storage", "Art. Number", 			DataType.MULTILINE_VARCHAR,		None, 		"Article number of the product", None],
-	["STORAGE", 			"Supplier and storage", "Storage", 				DataType.CONTROLLEDVOCABULARY,	"STORAGE", 	"Storage conditions of the product", None],
-	["STOCK_CONCENTRATION", "Supplier and storage", "Stock concentration", 	DataType.VARCHAR,				None, 		"Stock concentration of the solution where the product is kept in the lab", None],
-	["PUBLICATION", 		"Comments", 			"Publication", 			DataType.MULTILINE_VARCHAR,		None, 		"Publication from where the information was first found OR technical sheet given by the manufacturer", None],
-	["NOTES", 				"Comments", 			"Notes", 				DataType.MULTILINE_VARCHAR,		None, 		"Notes", None],
-	["XMLCOMMENTS",			"Comments",				"Comments List",		DataType.XML,					None,		"Several comments can be added by different users", commentsSampleScriptName],
-	["ANNOTATIONS_STATE",	"Comments",				"Annotations State",	DataType.XML,					None,		"Annotations State", annotationsScriptName]
+	["NAME", 				"General", 				"Name", 				DataType.VARCHAR,				None,		"Name", None, None],
+	["HOST", 				"General", 				"Host", 				DataType.CONTROLLEDVOCABULARY,	"HOST", 	"Host used to produce the antibody", None, None],
+	["FOR_WHAT", 			"General", 				"For what", 			DataType.MULTILINE_VARCHAR,		None, 		"For what kind of experimental application/readout this sample is used in the lab", None, None],
+	["DETECTION", 			"General", 				"Detection",			DataType.CONTROLLEDVOCABULARY,	"DETECTION","Protein detection system (fill in this information only for secondary antibodies)", None, None],
+	["EPITOPE", 			"General", 				"Epitope",				DataType.MULTILINE_VARCHAR,		None, 		"Epitope of the antibody", None, None],
+	["CLONALITY", 			"General", 				"Clonality",			DataType.CONTROLLEDVOCABULARY,	"CLONALITY","Clonality of the antibody", None, None],
+	["ISOTYPE", 			"General", 				"Isotype", 				DataType.MULTILINE_VARCHAR,		None, 		"Isotype of the antibody", None, None],
+	["SUPPLIER", 			"Supplier and storage", "Supplier",				DataType.MULTILINE_VARCHAR,		None, 		"Supplier of the product", None, None],
+	["ARTICLE_NUMBER", 		"Supplier and storage", "Art. Number", 			DataType.MULTILINE_VARCHAR,		None, 		"Article number of the product", None, None],
+	["STORAGE", 			"Supplier and storage", "Storage", 				DataType.CONTROLLEDVOCABULARY,	"STORAGE", 	"Storage conditions of the product", None, None],
+	["STOCK_CONCENTRATION", "Supplier and storage", "Stock concentration", 	DataType.VARCHAR,				None, 		"Stock concentration of the solution where the product is kept in the lab", None, None],
+	["PUBLICATION", 		"Comments", 			"Publication", 			DataType.MULTILINE_VARCHAR,		None, 		"Publication from where the information was first found OR technical sheet given by the manufacturer", None, None],
+	["NOTES", 				"Comments", 			"Notes", 				DataType.MULTILINE_VARCHAR,		None, 		"Notes", None, None],
+	["XMLCOMMENTS",			"Comments",				"Comments List",		DataType.XML,					None,		"Several comments can be added by different users", commentsSampleScriptName, None],
+	["ANNOTATIONS_STATE",	"Comments",				"Annotations State",	DataType.XML,					None,		"Annotations State", annotationsScriptName, None]
 ]);
 
 annotationsScriptName = createAnnotationsScriptForType("CHEMICAL");
 createSampleTypeWithProperties("CHEMICAL", "", [
-	["NAME", 				"General", 				"Name", 				DataType.MULTILINE_VARCHAR,		None,		"Name", None],
-	["SUPPLIER", 			"Supplier and storage", "Supplier", 			DataType.MULTILINE_VARCHAR,		None,		"Supplier of the product", None],
-	["ARTICLE_NUMBER", 		"Supplier and storage", "Art. Number",			DataType.MULTILINE_VARCHAR,		None,		"Article number of the product", None],
-	["STORAGE", 			"Supplier and storage", "Storage", 				DataType.CONTROLLEDVOCABULARY,	"STORAGE",	"Storage conditions of the product", None],
-	["XMLCOMMENTS", 		"Comments", 			"Comments List", 		DataType.XML,					None,		"Several comments can be added by different users", commentsSampleScriptName],
-	["ANNOTATIONS_STATE",	"Comments",				"Annotations State",	DataType.XML,					None,		"Annotations State", annotationsScriptName]
+	["NAME", 				"General", 				"Name", 				DataType.MULTILINE_VARCHAR,		None,		"Name", None, None],
+	["SUPPLIER", 			"Supplier and storage", "Supplier", 			DataType.MULTILINE_VARCHAR,		None,		"Supplier of the product", None, None],
+	["ARTICLE_NUMBER", 		"Supplier and storage", "Art. Number",			DataType.MULTILINE_VARCHAR,		None,		"Article number of the product", None, None],
+	["STORAGE", 			"Supplier and storage", "Storage", 				DataType.CONTROLLEDVOCABULARY,	"STORAGE",	"Storage conditions of the product", None, None],
+	["XMLCOMMENTS", 		"Comments", 			"Comments List", 		DataType.XML,					None,		"Several comments can be added by different users", commentsSampleScriptName, None],
+	["ANNOTATIONS_STATE",	"Comments",				"Annotations State",	DataType.XML,					None,		"Annotations State", annotationsScriptName, None]
 ]);
 
 annotationsScriptName = createAnnotationsScriptForType("ENZYME");
 createSampleTypeWithProperties("ENZYME", "", [
-	["NAME", 				"General",				"Name",					DataType.MULTILINE_VARCHAR,		None,		"Name", None],
-	["SUPPLIER", 			"Supplier and storage",	"Supplier",				DataType.MULTILINE_VARCHAR,		None,		"Supplier of the product", None],
-	["ARTICLE_NUMBER", 		"Supplier and storage",	"Art. Number",			DataType.MULTILINE_VARCHAR,		None,		"Article number of the product", None],
-	["KIT", 				"Supplier and storage",	"Kit including",		DataType.MULTILINE_VARCHAR,		None,		"What the company includes with the enzyme", None],
-	["STORAGE",				"Supplier and storage",	"Storage",				DataType.CONTROLLEDVOCABULARY,	"STORAGE",	"Storage conditions of the product", None],
-	["XMLCOMMENTS",			"Comments",				"Comments List",		DataType.XML,					None,		"Several comments can be added by different users", commentsSampleScriptName],
-	["ANNOTATIONS_STATE",	"Comments",				"Annotations State",	DataType.XML,					None,		"Annotations State", annotationsScriptName]
+	["NAME", 				"General",				"Name",					DataType.MULTILINE_VARCHAR,		None,		"Name", None, None],
+	["SUPPLIER", 			"Supplier and storage",	"Supplier",				DataType.MULTILINE_VARCHAR,		None,		"Supplier of the product", None, None],
+	["ARTICLE_NUMBER", 		"Supplier and storage",	"Art. Number",			DataType.MULTILINE_VARCHAR,		None,		"Article number of the product", None, None],
+	["KIT", 				"Supplier and storage",	"Kit including",		DataType.MULTILINE_VARCHAR,		None,		"What the company includes with the enzyme", None, None],
+	["STORAGE",				"Supplier and storage",	"Storage",				DataType.CONTROLLEDVOCABULARY,	"STORAGE",	"Storage conditions of the product", None, None],
+	["XMLCOMMENTS",			"Comments",				"Comments List",		DataType.XML,					None,		"Several comments can be added by different users", commentsSampleScriptName, None],
+	["ANNOTATIONS_STATE",	"Comments",				"Annotations State",	DataType.XML,					None,		"Annotations State", annotationsScriptName, None]
 ]);
 
 annotationsScriptName = createAnnotationsScriptForType("MEDIA");
 createSampleTypeWithProperties("MEDIA", "", [
-	["NAME", 				"General",				"Name",					DataType.MULTILINE_VARCHAR,		None,			"Name", None],
-	["FOR_WHAT", 			"General",				"For what",				DataType.MULTILINE_VARCHAR,		None,			"For what kind of experimental application/readout this sample is used in the lab", None],
-	["ORGANISM", 			"General",				"Organism",				DataType.CONTROLLEDVOCABULARY,	"ORGANISM",		"For what organism this medium is used", None],
-	["STORAGE", 			"Storage",				"Storage",				DataType.CONTROLLEDVOCABULARY,	"STORAGE",		"Storage conditions of the product", None],
-	["STOCK_CONCENTRATION", "Storage",				"Stock concentration",	DataType.VARCHAR,				None,			"Stock concentration of the solution where the product is kept in the lab", None],
-	["STERILIZATION", 		"Storage",				"Sterilization",		DataType.CONTROLLEDVOCABULARY,	"STERILIZATION","How the solution/buffer is sterilized when prepared", None],
-	["PUBLICATION", 		"Comments",				"Publication",			DataType.MULTILINE_VARCHAR,		None,			"Publication from where the information was first found OR technical sheet given by the manufacturer", None],
-	["NOTES", 				"Comments",				"Notes",				DataType.MULTILINE_VARCHAR,		None,			"Deatails for solution/buffer preparation", None],
-	["XMLCOMMENTS", 		"Comments",				"Comments List",		DataType.XML,					None,			"Several comments can be added by different users", commentsSampleScriptName],
-	["ANNOTATIONS_STATE",	"Comments",				"Annotations State",	DataType.XML,					None,			"Annotations State", annotationsScriptName]
+	["NAME", 				"General",				"Name",					DataType.MULTILINE_VARCHAR,		None,			"Name", None, None],
+	["FOR_WHAT", 			"General",				"For what",				DataType.MULTILINE_VARCHAR,		None,			"For what kind of experimental application/readout this sample is used in the lab", None, None],
+	["ORGANISM", 			"General",				"Organism",				DataType.CONTROLLEDVOCABULARY,	"ORGANISM",		"For what organism this medium is used", None, None],
+	["STORAGE", 			"Storage",				"Storage",				DataType.CONTROLLEDVOCABULARY,	"STORAGE",		"Storage conditions of the product", None, None],
+	["STOCK_CONCENTRATION", "Storage",				"Stock concentration",	DataType.VARCHAR,				None,			"Stock concentration of the solution where the product is kept in the lab", None, None],
+	["STERILIZATION", 		"Storage",				"Sterilization",		DataType.CONTROLLEDVOCABULARY,	"STERILIZATION","How the solution/buffer is sterilized when prepared", None, None],
+	["PUBLICATION", 		"Comments",				"Publication",			DataType.MULTILINE_VARCHAR,		None,			"Publication from where the information was first found OR technical sheet given by the manufacturer", None, None],
+	["NOTES", 				"Comments",				"Notes",				DataType.MULTILINE_VARCHAR,		None,			"Deatails for solution/buffer preparation", None, None],
+	["XMLCOMMENTS", 		"Comments",				"Comments List",		DataType.XML,					None,			"Several comments can be added by different users", commentsSampleScriptName, None],
+	["ANNOTATIONS_STATE",	"Comments",				"Annotations State",	DataType.XML,					None,			"Annotations State", annotationsScriptName, None]
 ]);
 
 annotationsScriptName = createAnnotationsScriptForType("SOLUTION_BUFFER");
 createSampleTypeWithProperties("SOLUTION_BUFFER", "", [
-	["NAME", 				"General",				"Name",					DataType.MULTILINE_VARCHAR,		None,			"Name", None],
-	["FOR_WHAT", 			"General",				"For what",				DataType.MULTILINE_VARCHAR,		None,			"For what kind of experimental application/readout this sample is used in the lab", None],
-	["DETAILS", 			"Recipe",				"Details",				DataType.MULTILINE_VARCHAR,		None,			"Details and tips about how to prepare the solution/buffer", None],
-	["STORAGE", 			"Storage",				"Storage",				DataType.CONTROLLEDVOCABULARY,	"STORAGE",		"Storage conditions of the product", None],
-	["STOCK_CONCENTRATION", "Storage",				"Stock concentration",	DataType.VARCHAR,				None,			"Stock concentration of the solution where the product is kept in the lab", None],
-	["STERILIZATION", 		"Storage",				"Sterilization",		DataType.CONTROLLEDVOCABULARY,	"STERILIZATION","How the solution/buffer is sterilized when prepared", None],
-	["PUBLICATION", 		"Comments",				"Publication",			DataType.MULTILINE_VARCHAR,		None,			"Publication from where the information was first found OR technical sheet given by the manufacturer", None],
-	["NOTES", 				"Comments",				"Notes",				DataType.MULTILINE_VARCHAR,		None,			"Notes", None],
-	["XMLCOMMENTS", 		"Comments",				"Comments List",		DataType.XML,					None,			"Several comments can be added by different users", commentsSampleScriptName],
-	["ANNOTATIONS_STATE",	"Comments",				"Annotations State",	DataType.XML,					None,			"Annotations State", annotationsScriptName]
+	["NAME", 				"General",				"Name",					DataType.MULTILINE_VARCHAR,		None,			"Name", None, None],
+	["FOR_WHAT", 			"General",				"For what",				DataType.MULTILINE_VARCHAR,		None,			"For what kind of experimental application/readout this sample is used in the lab", None, None],
+	["DETAILS", 			"Recipe",				"Details",				DataType.MULTILINE_VARCHAR,		None,			"Details and tips about how to prepare the solution/buffer", None, None],
+	["STORAGE", 			"Storage",				"Storage",				DataType.CONTROLLEDVOCABULARY,	"STORAGE",		"Storage conditions of the product", None, None],
+	["STOCK_CONCENTRATION", "Storage",				"Stock concentration",	DataType.VARCHAR,				None,			"Stock concentration of the solution where the product is kept in the lab", None, None],
+	["STERILIZATION", 		"Storage",				"Sterilization",		DataType.CONTROLLEDVOCABULARY,	"STERILIZATION","How the solution/buffer is sterilized when prepared", None, None],
+	["PUBLICATION", 		"Comments",				"Publication",			DataType.MULTILINE_VARCHAR,		None,			"Publication from where the information was first found OR technical sheet given by the manufacturer", None, None],
+	["NOTES", 				"Comments",				"Notes",				DataType.MULTILINE_VARCHAR,		None,			"Notes", None, None],
+	["XMLCOMMENTS", 		"Comments",				"Comments List",		DataType.XML,					None,			"Several comments can be added by different users", commentsSampleScriptName, None],
+	["ANNOTATIONS_STATE",	"Comments",				"Annotations State",	DataType.XML,					None,			"Annotations State", annotationsScriptName, None]
 ]);
 
 annotationsScriptName = createAnnotationsScriptForType("OLIGO");
 createSampleTypeWithProperties("OLIGO", "", [
-  ["NAME", 				"General",				"Name",			DataType.VARCHAR,				None,				"Target of the oligonucleotide", None],
-	["DIRECTION", 				"Details",			"Direction",				DataType.CONTROLLEDVOCABULARY, "DIRECTION",			"Direction of the oligonucleotide", None],
-	["RESTRICTION_ENZYME", 		"Details",			"Restriction Enzyme",		DataType.MULTILINE_VARCHAR,		None,				"Restriction sites in the oligonucleotide", None],
-	["MODIFICATIONS", 			"Details",			"Modifications",			DataType.MULTILINE_VARCHAR,		None,				"Modifications of the ordered oligonucleotide", None],
-	["SEQUENCE", 				"Details",			"Sequence",					DataType.MULTILINE_VARCHAR,		None,				"Sequence of the oligonucleotide", None],
-	["XMLCOMMENTS", 			"Comments",			"Comments List",			DataType.XML,					None,				"Several comments can be added by different users", commentsSampleScriptName],
-	["ANNOTATIONS_STATE",		"Comments",			"Annotations State",		DataType.XML,					None,				"Annotations State", annotationsScriptName]
+  ["NAME", 				"General",				"Name",			DataType.VARCHAR,				None,				"Target of the oligonucleotide", None, None],
+	["DIRECTION", 				"Details",			"Direction",				DataType.CONTROLLEDVOCABULARY, "DIRECTION",			"Direction of the oligonucleotide", None, None],
+	["RESTRICTION_ENZYME", 		"Details",			"Restriction Enzyme",		DataType.MULTILINE_VARCHAR,		None,				"Restriction sites in the oligonucleotide", None, None],
+	["MODIFICATIONS", 			"Details",			"Modifications",			DataType.MULTILINE_VARCHAR,		None,				"Modifications of the ordered oligonucleotide", None, None],
+	["SEQUENCE", 				"Details",			"Sequence",					DataType.MULTILINE_VARCHAR,		None,				"Sequence of the oligonucleotide", None, None],
+	["XMLCOMMENTS", 			"Comments",			"Comments List",			DataType.XML,					None,				"Several comments can be added by different users", commentsSampleScriptName, None],
+	["ANNOTATIONS_STATE",		"Comments",			"Annotations State",		DataType.XML,					None,				"Annotations State", annotationsScriptName, None]
 ]);
 
 annotationsScriptName = createAnnotationsScriptForType("RNA");
 createSampleTypeWithProperties("RNA", "", [
-	["NAME", 				"General",				"Name of RNA",			DataType.VARCHAR,				None,				"Name of the RNA: species/number/strand", None],
-	["TARGET", 					"General",				"Target of the RNA",	DataType.VARCHAR,				None,				"Target of the oligonucleotide", None],
-	["TYPE", 					"General",				"Type of RNA",			DataType.CONTROLLEDVOCABULARY,	"RNA_TYPE",			"Type of RNA in terms of function: mimic of RNAi or inhibitor of RNAi", None],
-	["STRAND", 					"Details",				"Strand",				DataType.CONTROLLEDVOCABULARY,	"STRAND",			"Double or single strand RNA", None],
-	["BACKBONE_TYPE", 			"Details",				"Backbone type",		DataType.CONTROLLEDVOCABULARY,	"RNA_BACKBONE",		"Type of backbone, modifications in the backbone", None],
-	["MODIFICATIONS", 			"Details",				"Modifications",		DataType.VARCHAR,				None,				"Modifications of the ordered oligonucleotide", None],
-	["SEQUENCE", 				"Details",				"Sequence",				DataType.MULTILINE_VARCHAR,		None,				"Sequence of the oligonucleotide", None],
-	["SUPPLIER", 				"Supplier and storage",	"Supplier",				DataType.MULTILINE_VARCHAR,		None,				"Supplier of the product", None],
-	["ARTICLE_NUMBER", 			"Supplier and storage",	"Art. Number",			DataType.MULTILINE_VARCHAR,		None,				"Article number of the product", None],
-	["STORAGE", 				"Supplier and storage",	"Storage",				DataType.CONTROLLEDVOCABULARY,	"STORAGE",			"Storage conditions of the product", None],
-	["PUBLICATION", 			"Comments",				"Publication",			DataType.MULTILINE_VARCHAR,		None,				"Publication from where the information was first found OR technical sheet given by the manufacturer", None],
-	["XMLCOMMENTS", 			"Comments",				"Comments List",		DataType.XML,					None,				"Several comments can be added by different users", commentsSampleScriptName],
-	["ANNOTATIONS_STATE",		"Comments",				"Annotations State",	DataType.XML,					None,				"Annotations State", annotationsScriptName]
+	["NAME", 				"General",				"Name of RNA",			DataType.VARCHAR,				None,				"Name of the RNA: species/number/strand", None, None],
+	["TARGET", 					"General",				"Target of the RNA",	DataType.VARCHAR,				None,				"Target of the oligonucleotide", None, None],
+	["TYPE", 					"General",				"Type of RNA",			DataType.CONTROLLEDVOCABULARY,	"RNA_TYPE",			"Type of RNA in terms of function: mimic of RNAi or inhibitor of RNAi", None, None],
+	["STRAND", 					"Details",				"Strand",				DataType.CONTROLLEDVOCABULARY,	"STRAND",			"Double or single strand RNA", None, None],
+	["BACKBONE_TYPE", 			"Details",				"Backbone type",		DataType.CONTROLLEDVOCABULARY,	"RNA_BACKBONE",		"Type of backbone, modifications in the backbone", None, None],
+	["MODIFICATIONS", 			"Details",				"Modifications",		DataType.VARCHAR,				None,				"Modifications of the ordered oligonucleotide", None, None],
+	["SEQUENCE", 				"Details",				"Sequence",				DataType.MULTILINE_VARCHAR,		None,				"Sequence of the oligonucleotide", None, None],
+	["SUPPLIER", 				"Supplier and storage",	"Supplier",				DataType.MULTILINE_VARCHAR,		None,				"Supplier of the product", None, None],
+	["ARTICLE_NUMBER", 			"Supplier and storage",	"Art. Number",			DataType.MULTILINE_VARCHAR,		None,				"Article number of the product", None, None],
+	["STORAGE", 				"Supplier and storage",	"Storage",				DataType.CONTROLLEDVOCABULARY,	"STORAGE",			"Storage conditions of the product", None, None],
+	["PUBLICATION", 			"Comments",				"Publication",			DataType.MULTILINE_VARCHAR,		None,				"Publication from where the information was first found OR technical sheet given by the manufacturer", None, None],
+	["XMLCOMMENTS", 			"Comments",				"Comments List",		DataType.XML,					None,				"Several comments can be added by different users", commentsSampleScriptName, None],
+	["ANNOTATIONS_STATE",		"Comments",				"Annotations State",	DataType.XML,					None,				"Annotations State", annotationsScriptName, None]
 ]);
 
 annotationsScriptName = createAnnotationsScriptForType("PLASMID");
 createSampleTypeWithProperties("PLASMID", "", [
-	["NAME", 					"General",				"Plasmid",							DataType.VARCHAR,				None,								"Plasmid name", None],
-	["OWNER", 							"General",				"Owner",							DataType.CONTROLLEDVOCABULARY,	"OWNER",							"Who produced/owned the sample", None],
-	["OWNER_NUMBER", 					"General",				"Owner number",						DataType.MULTILINE_VARCHAR,		None,								"Owner number", None],
-	["BACKBONE", 						"Details",				"Backbone",							DataType.CONTROLLEDVOCABULARY,	"BACKBONE",							"Backbone of the plasmid", None],
-	["BACTERIAL_ANTIBIOTIC_RESISTANCE", "Details",				"Bacterial Antibiotic Resistance",	DataType.CONTROLLEDVOCABULARY,	"BACTERIAL_ANTIBIOTIC_RESISTANCE",	"Bacterial antibiotic resistance", None],
-	["MARKER", 							"Details",				"Marker",							DataType.CONTROLLEDVOCABULARY,	"MARKER",							"Marker to select the strain/cell line after transformation/transfection", None],
-	["OTHER_MARKER", 					"Details",				"Other Marker",						DataType.VARCHAR,				None,								"Other marker useful for selection", None],
-	["FLANKING_RESTRICTION_ENZYMES", 	"Details",				"Flanking Restriction Enzymes",		DataType.VARCHAR,				None,								"Restriction enzymes sites flanking the insert of the plasmid", None],
-	["OLIGOS_TEMPLATE", 				"Details",				"Oligos and template",				DataType.MULTILINE_VARCHAR,		None,								"Oligos and template used to clone the single parts of the plasmid", None],
-	["SOURCE", 							"Origin",				"Source",							DataType.VARCHAR,				None,								"Source from where the construct/strain/cell line obtained or purchased, if it was not produced in the lab", None],
-	["PUBLICATION", 					"Comments",				"Publication",						DataType.MULTILINE_VARCHAR,		None,								"Publication from where the information was first found OR technical sheet given by the manufacturer", None],
-	["NOTES", 							"Comments", 			"Notes",							DataType.MULTILINE_VARCHAR,		None,								"Notes", None],
-	["XMLCOMMENTS", 					"Comments",				"Comments List",					DataType.XML,					None,								"Several comments can be added by different users", commentsSampleScriptName],
-	["ANNOTATIONS_STATE",				"Comments",				"Annotations State",				DataType.XML,					None,								"Annotations State", annotationsScriptName]
+	["NAME", 					"General",				"Plasmid",							DataType.VARCHAR,				None,								"Plasmid name", None, None],
+	["OWNER", 							"General",				"Owner",							DataType.CONTROLLEDVOCABULARY,	"OWNER",							"Who produced/owned the sample", None, None],
+	["OWNER_NUMBER", 					"General",				"Owner number",						DataType.MULTILINE_VARCHAR,		None,								"Owner number", None, None],
+	["BACKBONE", 						"Details",				"Backbone",							DataType.CONTROLLEDVOCABULARY,	"BACKBONE",							"Backbone of the plasmid", None, None],
+	["BACTERIAL_ANTIBIOTIC_RESISTANCE", "Details",				"Bacterial Antibiotic Resistance",	DataType.CONTROLLEDVOCABULARY,	"BACTERIAL_ANTIBIOTIC_RESISTANCE",	"Bacterial antibiotic resistance", None, None],
+	["MARKER", 							"Details",				"Marker",							DataType.CONTROLLEDVOCABULARY,	"MARKER",							"Marker to select the strain/cell line after transformation/transfection", None, None],
+	["OTHER_MARKER", 					"Details",				"Other Marker",						DataType.VARCHAR,				None,								"Other marker useful for selection", None, None],
+	["FLANKING_RESTRICTION_ENZYMES", 	"Details",				"Flanking Restriction Enzymes",		DataType.VARCHAR,				None,								"Restriction enzymes sites flanking the insert of the plasmid", None, None],
+	["OLIGOS_TEMPLATE", 				"Details",				"Oligos and template",				DataType.MULTILINE_VARCHAR,		None,								"Oligos and template used to clone the single parts of the plasmid", None, None],
+	["SOURCE", 							"Origin",				"Source",							DataType.VARCHAR,				None,								"Source from where the construct/strain/cell line obtained or purchased, if it was not produced in the lab", None, None],
+	["PUBLICATION", 					"Comments",				"Publication",						DataType.MULTILINE_VARCHAR,		None,								"Publication from where the information was first found OR technical sheet given by the manufacturer", None, None],
+	["NOTES", 							"Comments", 			"Notes",							DataType.MULTILINE_VARCHAR,		None,								"Notes", None, None],
+	["XMLCOMMENTS", 					"Comments",				"Comments List",					DataType.XML,					None,								"Several comments can be added by different users", commentsSampleScriptName, None],
+	["ANNOTATIONS_STATE",				"Comments",				"Annotations State",				DataType.XML,					None,								"Annotations State", annotationsScriptName, None]
 ]);
 
 annotationsScriptName = createAnnotationsScriptForType("BACTERIA");
 createSampleTypeWithProperties("BACTERIA", "", [
-	["NAME", 			"General",				"Bacteria strain name",				DataType.VARCHAR,				None,								"Bacterial strain name", None],
-	["OWNER", 							"General",				"Owner",							DataType.CONTROLLEDVOCABULARY,	"OWNER",							"Who produced/owned the sample", None],
-	["OWNER_NUMBER", 					"General",				"Owner number",						DataType.MULTILINE_VARCHAR,		None,								"Owner number", None],
-	["BACTERIA_GENOTYPE", 				"Genotype",				"Bacteria genotype",				DataType.MULTILINE_VARCHAR,		None,								"Bacterial genotype", None],
-	["MARKERS", 						"Genotype",				"Markers",							DataType.MULTILINE_VARCHAR,		None,								"Markers available in the strain for further genetic modifications", None],
-	["ORIGIN", 							"Origin",				"Origin",							DataType.CONTROLLEDVOCABULARY,	"ORIGIN",							"How the strain/cell line was produced", None],
-	["STRAIN_CHECK", 					"Origin",				"Strain Check",						DataType.CONTROLLEDVOCABULARY,	"CHECK",							"Check done to verify the modifications introduced in the strain", None],
-	["SOURCE", 							"Origin",				"Source",							DataType.VARCHAR,				None,								"Source from where the construct/strain/cell line obtained or purchased, if it was not produced in the lab", None],
-	["PUBLICATION", 					"Comments",				"Publication",						DataType.MULTILINE_VARCHAR,		None,								"Publication from where the information was first found OR technical sheet given by the manufacturer", None],
-	["NOTES", 							"Comments", 			"Notes",							DataType.MULTILINE_VARCHAR,		None,								"Notes", None],
-	["XMLCOMMENTS", 					"Comments",				"Comments List",					DataType.XML,					None,								"Several comments can be added by different users", commentsSampleScriptName],
-	["ANNOTATIONS_STATE",				"Comments",				"Annotations State",				DataType.XML,					None,								"Annotations State", annotationsScriptName]
+	["NAME", 			"General",				"Bacteria strain name",				DataType.VARCHAR,				None,								"Bacterial strain name", None, None],
+	["OWNER", 							"General",				"Owner",							DataType.CONTROLLEDVOCABULARY,	"OWNER",							"Who produced/owned the sample", None, None],
+	["OWNER_NUMBER", 					"General",				"Owner number",						DataType.MULTILINE_VARCHAR,		None,								"Owner number", None, None],
+	["BACTERIA_GENOTYPE", 				"Genotype",				"Bacteria genotype",				DataType.MULTILINE_VARCHAR,		None,								"Bacterial genotype", None, None],
+	["MARKERS", 						"Genotype",				"Markers",							DataType.MULTILINE_VARCHAR,		None,								"Markers available in the strain for further genetic modifications", None, None],
+	["ORIGIN", 							"Origin",				"Origin",							DataType.CONTROLLEDVOCABULARY,	"ORIGIN",							"How the strain/cell line was produced", None, None],
+	["STRAIN_CHECK", 					"Origin",				"Strain Check",						DataType.CONTROLLEDVOCABULARY,	"CHECK",							"Check done to verify the modifications introduced in the strain", None, None],
+	["SOURCE", 							"Origin",				"Source",							DataType.VARCHAR,				None,								"Source from where the construct/strain/cell line obtained or purchased, if it was not produced in the lab", None, None],
+	["PUBLICATION", 					"Comments",				"Publication",						DataType.MULTILINE_VARCHAR,		None,								"Publication from where the information was first found OR technical sheet given by the manufacturer", None, None],
+	["NOTES", 							"Comments", 			"Notes",							DataType.MULTILINE_VARCHAR,		None,								"Notes", None, None],
+	["XMLCOMMENTS", 					"Comments",				"Comments List",					DataType.XML,					None,								"Several comments can be added by different users", commentsSampleScriptName, None],
+	["ANNOTATIONS_STATE",				"Comments",				"Annotations State",				DataType.XML,					None,								"Annotations State", annotationsScriptName, None]
 ]);
 
 annotationsScriptName = createAnnotationsScriptForType("YEAST");
 createSampleTypeWithProperties("YEAST", "", [
-	["NAME", 				"General",				"Yeast strain name",					DataType.MULTILINE_VARCHAR,		None,								"Yeast strain name", None],
-	["OWNER", 							"General",				"Owner",								DataType.CONTROLLEDVOCABULARY,	"OWNER",							"Who produced/owned the sample", None],
-	["OWNER_NUMBER", 					"General",				"Owner number",							DataType.MULTILINE_VARCHAR,		None,								"Owner number", None],
-	["GENETIC_BACKGROUND", 				"Genotype",				"Genetic Background",					DataType.CONTROLLEDVOCABULARY,	"GENETIC_BACKGROUND",				"Genetic background of the yeast strain", None],
-	["MATING_TYPE", 					"Genotype",				"Mating Type",							DataType.CONTROLLEDVOCABULARY,	"MATING_TYPE",						"Mating type or ploidy of the yeast strain", None],
-	["BACKGROUND-SPECIFIC_MARKERS", 	"Genotype",				"Background-specific markers",			DataType.CONTROLLEDVOCABULARY,	"BACKGROUND_SPECIFIC_MARKERS",		"Background-specific markers available in the strain for further genetic modifications", None],
-	["COMMON_MARKERS", 					"Genotype",				"Common markers",						DataType.CONTROLLEDVOCABULARY,	"COMMON_MARKERS",					"Common markers available in the strain for further genetic modifications", None],
-	["ENDOGENOUS_PLASMID", 				"Genotype",				"Endogenous 2micron plasmid in yeast",	DataType.CONTROLLEDVOCABULARY,	"ENDOGENOUS_PLASMID",				"Presence of an endogenous cir 2micron plasmid", None],
-	["ORIGIN", 							"Origin",				"Origin",								DataType.CONTROLLEDVOCABULARY,	"ORIGIN",							"How the strain/cell line was produced", None],
-	["STRAIN_CHECK", 					"Origin",				"Strain Check",							DataType.CONTROLLEDVOCABULARY,	"CHECK",							"Check done to verify the modifications introduced in the strain", None],
-	["SOURCE", 							"Origin",				"Source",								DataType.VARCHAR,				None,								"Source from where the construct/strain/cell line obtained or purchased, if it was not produced in the lab", None],
-	["PUBLICATION", 					"Comments",				"Publication",							DataType.MULTILINE_VARCHAR,		None,								"Publication from where the information was first found OR technical sheet given by the manufacturer", None],
-	["NOTES", 							"Comments", 			"Notes",								DataType.MULTILINE_VARCHAR,		None,								"Notes", None],
-	["XMLCOMMENTS", 					"Comments",				"Comments List",						DataType.XML,					None,								"Several comments can be added by different users", commentsSampleScriptName],
-	["ANNOTATIONS_STATE",				"Comments",				"Annotations State",					DataType.XML,					None,								"Annotations State", annotationsScriptName]
+	["NAME", 							"General",				"Yeast strain name",					DataType.MULTILINE_VARCHAR,		None,								"Yeast strain name", None, None],
+	["OWNER", 							"General",				"Owner",								DataType.CONTROLLEDVOCABULARY,	"OWNER",							"Who produced/owned the sample", None, None],
+	["OWNER_NUMBER", 					"General",				"Owner number",							DataType.MULTILINE_VARCHAR,		None,								"Owner number", None, None],
+	["GENOTYPE", 						"Genotype",				"Genotype",								DataType.MULTILINE_VARCHAR,		None,								"Genotype composed by the Plasmid ancestors", None, genotypeSampleScriptName],
+	["GENETIC_BACKGROUND", 				"Genotype",				"Genetic Background",					DataType.CONTROLLEDVOCABULARY,	"GENETIC_BACKGROUND",				"Genetic background of the yeast strain", None, None],
+	["MATING_TYPE", 					"Genotype",				"Mating Type",							DataType.CONTROLLEDVOCABULARY,	"MATING_TYPE",						"Mating type or ploidy of the yeast strain", None, None],
+	["BACKGROUND-SPECIFIC_MARKERS", 	"Genotype",				"Background-specific markers",			DataType.CONTROLLEDVOCABULARY,	"BACKGROUND_SPECIFIC_MARKERS",		"Background-specific markers available in the strain for further genetic modifications", None, None],
+	["COMMON_MARKERS", 					"Genotype",				"Common markers",						DataType.CONTROLLEDVOCABULARY,	"COMMON_MARKERS",					"Common markers available in the strain for further genetic modifications", None, None],
+	["ENDOGENOUS_PLASMID", 				"Genotype",				"Endogenous 2micron plasmid in yeast",	DataType.CONTROLLEDVOCABULARY,	"ENDOGENOUS_PLASMID",				"Presence of an endogenous cir 2micron plasmid", None, None],
+	["ORIGIN", 							"Origin",				"Origin",								DataType.CONTROLLEDVOCABULARY,	"ORIGIN",							"How the strain/cell line was produced", None, None],
+	["STRAIN_CHECK", 					"Origin",				"Strain Check",							DataType.CONTROLLEDVOCABULARY,	"CHECK",							"Check done to verify the modifications introduced in the strain", None, None],
+	["SOURCE", 							"Origin",				"Source",								DataType.VARCHAR,				None,								"Source from where the construct/strain/cell line obtained or purchased, if it was not produced in the lab", None, None],
+	["PUBLICATION", 					"Comments",				"Publication",							DataType.MULTILINE_VARCHAR,		None,								"Publication from where the information was first found OR technical sheet given by the manufacturer", None, None],
+	["NOTES", 							"Comments", 			"Notes",								DataType.MULTILINE_VARCHAR,		None,								"Notes", None, None],
+	["XMLCOMMENTS", 					"Comments",				"Comments List",						DataType.XML,					None,								"Several comments can be added by different users", commentsSampleScriptName, None],
+	["ANNOTATIONS_STATE",				"Comments",				"Annotations State",					DataType.XML,					None,								"Annotations State", annotationsScriptName, None]
 ]);
 
 annotationsScriptName = createAnnotationsScriptForType("CELL_LINE");
 createSampleTypeWithProperties("CELL_LINE", "", [
-	["NAME", 					"General",				"Cell line name",						DataType.VARCHAR,				None,								"Name of the cell line", None],
-	["OWNER", 							"General",				"Owner",								DataType.CONTROLLEDVOCABULARY,	"OWNER",							"Who produced/owned the sample", None],
-	["OWNER_NUMBER", 					"General",				"Owner number",							DataType.MULTILINE_VARCHAR,		None,								"Owner number", None],
-	["SPECIES", 						"Genotype",				"Species",								DataType.CONTROLLEDVOCABULARY,	"SPECIES",							"Species to which the cell line belongs", None],
-	["CELL_TYPE", 						"Genotype",				"Cell type",							DataType.CONTROLLEDVOCABULARY,	"CELL_TYPE",						"Cell type of the cell line", None],
-	["ORIGIN", 							"Origin",				"Origin",								DataType.CONTROLLEDVOCABULARY,	"ORIGIN",							"How the strain/cell line was produced", None],
-	["CLONE_NO", 						"Origin",				"Clone #",								DataType.INTEGER,				None,								"Clone number", None],
-	["CHECK", 							"Origin",				"Check",								DataType.CONTROLLEDVOCABULARY,	"CHECK",							"Check done to verify the modifications introduced in the cell line", None],
-	["CREATION_DATE", 					"Origin",				"Creation date",						DataType.TIMESTAMP,				None,								"Creation date of the cell line", None],
-	["MODIFICATION_DATE", 				"Origin",				"Modification date",					DataType.TIMESTAMP,				None,								"Modification date of the cell line", None],
-	["FREEZING_DATE", 					"Origin",				"Freezing date",						DataType.TIMESTAMP,				None,								"Freezing date (if more than one, add the latest)", None],
-	["SOURCE", 							"Origin",				"Source",								DataType.VARCHAR,				None,								"Source from where the construct/strain/cell line obtained or purchased, if it was not produced in the lab", None],
-	["MEDIUM", 							"Cultivation",			"Medium",								DataType.CONTROLLEDVOCABULARY,	"CELL_MEDIUM",						"Medium used to cultivate or manipulate the cell line", None],
-	["GROWTH_TEMP", 					"Cultivation",			"Growth temp. ( &deg;C)",				DataType.INTEGER,				None,								"Growth temperature of the cell line", None],
-	["CELL_CO2", 						"Cultivation",			"% CO2",								DataType.INTEGER,				None,								"Percentage of CO2 needed for the cultivation of the cell line", None],
-	["SELECTION_MARKER", 				"Cultivation",			"Selection marker",						DataType.VARCHAR,				None,								"Special medium components or selection needed for the cell line", None],
-	["MYCOPLASM", 						"Cultivation",			"Mycoplasm tested",						DataType.CONTROLLEDVOCABULARY,	"YES_NO_CHOICE",							"Mycoplasm tested", None],
-	["PUBLICATION", 					"Comments",				"Publication",							DataType.MULTILINE_VARCHAR,		None,								"Publication from where the information was first found OR technical sheet given by the manufacturer", None],
-	["NOTES", 							"Comments", 			"Notes",								DataType.MULTILINE_VARCHAR,		None,								"Notes", None],
-	["XMLCOMMENTS", 					"Comments",				"Comments List",						DataType.XML,					None,								"Several comments can be added by different users", commentsSampleScriptName],
-	["ANNOTATIONS_STATE",				"Comments",				"Annotations State",					DataType.XML,					None,								"Annotations State", annotationsScriptName]
+	["NAME", 					"General",				"Cell line name",						DataType.VARCHAR,				None,								"Name of the cell line", None, None],
+	["OWNER", 							"General",				"Owner",								DataType.CONTROLLEDVOCABULARY,	"OWNER",							"Who produced/owned the sample", None, None],
+	["OWNER_NUMBER", 					"General",				"Owner number",							DataType.MULTILINE_VARCHAR,		None,								"Owner number", None, None],
+	["SPECIES", 						"Genotype",				"Species",								DataType.CONTROLLEDVOCABULARY,	"SPECIES",							"Species to which the cell line belongs", None, None],
+	["CELL_TYPE", 						"Genotype",				"Cell type",							DataType.CONTROLLEDVOCABULARY,	"CELL_TYPE",						"Cell type of the cell line", None, None],
+	["ORIGIN", 							"Origin",				"Origin",								DataType.CONTROLLEDVOCABULARY,	"ORIGIN",							"How the strain/cell line was produced", None, None],
+	["CLONE_NO", 						"Origin",				"Clone #",								DataType.INTEGER,				None,								"Clone number", None, None],
+	["CHECK", 							"Origin",				"Check",								DataType.CONTROLLEDVOCABULARY,	"CHECK",							"Check done to verify the modifications introduced in the cell line", None, None],
+	["CREATION_DATE", 					"Origin",				"Creation date",						DataType.TIMESTAMP,				None,								"Creation date of the cell line", None, None],
+	["MODIFICATION_DATE", 				"Origin",				"Modification date",					DataType.TIMESTAMP,				None,								"Modification date of the cell line", None, None],
+	["FREEZING_DATE", 					"Origin",				"Freezing date",						DataType.TIMESTAMP,				None,								"Freezing date (if more than one, add the latest)", None, None],
+	["SOURCE", 							"Origin",				"Source",								DataType.VARCHAR,				None,								"Source from where the construct/strain/cell line obtained or purchased, if it was not produced in the lab", None, None],
+	["MEDIUM", 							"Cultivation",			"Medium",								DataType.CONTROLLEDVOCABULARY,	"CELL_MEDIUM",						"Medium used to cultivate or manipulate the cell line", None, None],
+	["GROWTH_TEMP", 					"Cultivation",			"Growth temp. ( &deg;C)",				DataType.INTEGER,				None,								"Growth temperature of the cell line", None, None],
+	["CELL_CO2", 						"Cultivation",			"% CO2",								DataType.INTEGER,				None,								"Percentage of CO2 needed for the cultivation of the cell line", None, None],
+	["SELECTION_MARKER", 				"Cultivation",			"Selection marker",						DataType.VARCHAR,				None,								"Special medium components or selection needed for the cell line", None, None],
+	["MYCOPLASM", 						"Cultivation",			"Mycoplasm tested",						DataType.CONTROLLEDVOCABULARY,	"YES_NO_CHOICE",							"Mycoplasm tested", None, None],
+	["PUBLICATION", 					"Comments",				"Publication",							DataType.MULTILINE_VARCHAR,		None,								"Publication from where the information was first found OR technical sheet given by the manufacturer", None, None],
+	["NOTES", 							"Comments", 			"Notes",								DataType.MULTILINE_VARCHAR,		None,								"Notes", None, None],
+	["XMLCOMMENTS", 					"Comments",				"Comments List",						DataType.XML,					None,								"Several comments can be added by different users", commentsSampleScriptName, None],
+	["ANNOTATIONS_STATE",				"Comments",				"Annotations State",					DataType.XML,					None,								"Annotations State", annotationsScriptName, None]
 ]);
 
 annotationsScriptName = createAnnotationsScriptForType("FLY");
 createSampleTypeWithProperties("FLY", "", [
-	["NAME", 				"General",				"Fly strain name",						DataType.VARCHAR,				None,								"Fly strain name", None],
-	["OWNER", 							"General",				"Owner",								DataType.CONTROLLEDVOCABULARY,	"OWNER",							"Who produced/owned the sample", None],
-	["OWNER_NUMBER", 					"General",				"Owner number",							DataType.MULTILINE_VARCHAR,		None,								"Owner number", None],
-	["FLY_GENOTYPE", 					"Genotype",				"Genotype",								DataType.VARCHAR,				None,								"Genotype of the fly", None],
-	["ASSOCIATED_GENE", 				"Genotype",				"Associated gene",						DataType.VARCHAR,				None,								"The transgene may contain regulatory or coding sequences from an endogenous gene", None],
-	["MARKERS", 						"Genotype",				"Markers",								DataType.VARCHAR,				None,								"Markers available in the strain for further genetic modifications", None],
-	["ORIGIN", 							"Origin",				"Origin",								DataType.CONTROLLEDVOCABULARY,	"ORIGIN",							"How the strain/cell line was produced", None],
-	["STRAIN_CHECK", 					"Origin",				"Strain Check",							DataType.CONTROLLEDVOCABULARY,	"CHECK",							"Check done to verify the modifications introduced in the strain", None],
-	["SOURCE", 							"Origin",				"Source",								DataType.VARCHAR,				None,								"Source from where the construct/strain/cell line obtained or purchased, if it was not produced in the lab", None],
-	["MATING_PARTNERS", 				"Comments",				"Mating partners",						DataType.MULTILINE_VARCHAR,		None,								"Features needed for the mating partners", None],
-	["PUBLICATION", 					"Comments",				"Publication",							DataType.MULTILINE_VARCHAR,		None,								"Publication from where the information was first found OR technical sheet given by the manufacturer", None],
-	["NOTES", 							"Comments", 			"Notes",								DataType.MULTILINE_VARCHAR,		None,								"Notes", None],
-	["XMLCOMMENTS", 					"Comments",				"Comments List",						DataType.XML,					None,								"Several comments can be added by different users", commentsSampleScriptName],
-	["ANNOTATIONS_STATE",				"Comments",				"Annotations State",					DataType.XML,					None,								"Annotations State", annotationsScriptName]
+	["NAME", 				"General",				"Fly strain name",						DataType.VARCHAR,				None,								"Fly strain name", None, None],
+	["OWNER", 							"General",				"Owner",								DataType.CONTROLLEDVOCABULARY,	"OWNER",							"Who produced/owned the sample", None, None],
+	["OWNER_NUMBER", 					"General",				"Owner number",							DataType.MULTILINE_VARCHAR,		None,								"Owner number", None, None],
+	["FLY_GENOTYPE", 					"Genotype",				"Genotype",								DataType.VARCHAR,				None,								"Genotype of the fly", None, None],
+	["ASSOCIATED_GENE", 				"Genotype",				"Associated gene",						DataType.VARCHAR,				None,								"The transgene may contain regulatory or coding sequences from an endogenous gene", None, None],
+	["MARKERS", 						"Genotype",				"Markers",								DataType.VARCHAR,				None,								"Markers available in the strain for further genetic modifications", None, None],
+	["ORIGIN", 							"Origin",				"Origin",								DataType.CONTROLLEDVOCABULARY,	"ORIGIN",							"How the strain/cell line was produced", None, None],
+	["STRAIN_CHECK", 					"Origin",				"Strain Check",							DataType.CONTROLLEDVOCABULARY,	"CHECK",							"Check done to verify the modifications introduced in the strain", None, None],
+	["SOURCE", 							"Origin",				"Source",								DataType.VARCHAR,				None,								"Source from where the construct/strain/cell line obtained or purchased, if it was not produced in the lab", None, None],
+	["MATING_PARTNERS", 				"Comments",				"Mating partners",						DataType.MULTILINE_VARCHAR,		None,								"Features needed for the mating partners", None, None],
+	["PUBLICATION", 					"Comments",				"Publication",							DataType.MULTILINE_VARCHAR,		None,								"Publication from where the information was first found OR technical sheet given by the manufacturer", None, None],
+	["NOTES", 							"Comments", 			"Notes",								DataType.MULTILINE_VARCHAR,		None,								"Notes", None, None],
+	["XMLCOMMENTS", 					"Comments",				"Comments List",						DataType.XML,					None,								"Several comments can be added by different users", commentsSampleScriptName, None],
+	["ANNOTATIONS_STATE",				"Comments",				"Annotations State",					DataType.XML,					None,								"Annotations State", annotationsScriptName, None]
 ]);
 
 addPropertiesToSamples([
@@ -722,12 +740,12 @@ addPropertiesToSamples([
 	"SOLUTION_BUFFER",
 	"RNA"
 	],[
-	["STORAGE_NAMES",		"Physical Storage",		"Storage Name",			DataType.CONTROLLEDVOCABULARY,		"STORAGE_NAMES",	"Storage Name", None],
-	["STORAGE_ROW",			"Physical Storage",		"Storage Row",			DataType.INTEGER,					None,				"Storage Row", None],
-	["STORAGE_COLUMN",		"Physical Storage",		"Storage Column",		DataType.INTEGER,					None,				"Storage Column", None],
-	["STORAGE_BOX_NAME",	"Physical Storage",		"Storage Box Name",		DataType.VARCHAR,					None,				"Storage Box Name", None],
-	["STORAGE_USER",		"Physical Storage",		"Storage User Id",		DataType.VARCHAR,					None,				"Storage User Id", None],
-	["STORAGE_POSITION",	"Physical Storage",		"Storage Position",		DataType.VARCHAR,					None,				"Storage Position", None]
+	["STORAGE_NAMES",		"Physical Storage",		"Storage Name",			DataType.CONTROLLEDVOCABULARY,		"STORAGE_NAMES",	"Storage Name", None, None],
+	["STORAGE_ROW",			"Physical Storage",		"Storage Row",			DataType.INTEGER,					None,				"Storage Row", None, None],
+	["STORAGE_COLUMN",		"Physical Storage",		"Storage Column",		DataType.INTEGER,					None,				"Storage Column", None, None],
+	["STORAGE_BOX_NAME",	"Physical Storage",		"Storage Box Name",		DataType.VARCHAR,					None,				"Storage Box Name", None, None],
+	["STORAGE_USER",		"Physical Storage",		"Storage User Id",		DataType.VARCHAR,					None,				"Storage User Id", None, None],
+	["STORAGE_POSITION",	"Physical Storage",		"Storage Position",		DataType.VARCHAR,					None,				"Storage Position", None, None]
 ]);
 
 ##
@@ -736,60 +754,60 @@ addPropertiesToSamples([
 
 annotationsScriptName = createAnnotationsScriptForType("EXPERIMENTAL_STEP");
 createSampleTypeWithProperties("EXPERIMENTAL_STEP", "", [
-	["NAME", 							"General",				"Name",									DataType.MULTILINE_VARCHAR,		None,								"Name", None],
-	["OWNER", 							"General",				"Owner",								DataType.CONTROLLEDVOCABULARY,	"OWNER",							"Who produced/owned the sample", None],
-	["EXPERIMENTAL_GOALS", 				"General",				"Experimental Goals",					DataType.MULTILINE_VARCHAR,		None,								"Goal of the experiment", None],
-	["EXPERIMENTAL_RESULTS", 			"General",				"Experimental Results",					DataType.MULTILINE_VARCHAR,		None,								"Brief summary of the results obtained", None],
-	["START_DATE", 			"General",				"Start date",					DataType.TIMESTAMP,		None,								"Date when the experimental step is started", None],
-	["END_DATE", 			"General",				"End date",					DataType.TIMESTAMP,		None,								"Date when the experimental step is completed", None],
-	["EXPERIMENTAL_READOUT", 			"Readout details",		"Experimental readout",					DataType.CONTROLLEDVOCABULARY,	"EXPERIMENTAL_READOUT",				"Experimental readout used in the experiment", None],
-	["MACHINE", 						"Readout details",		"Machine",								DataType.CONTROLLEDVOCABULARY,	"MACHINE",							"Machine used to perform the experiment", None],
-	["FREEFORM_TABLE_STATE", 			"Readout details",		"Freeform Table State",					DataType.MULTILINE_VARCHAR,		None,								"Table describing how the order of samples measured in the experiments", None],
-	["PUBLICATION", 					"Comments",				"Publication",							DataType.MULTILINE_VARCHAR,		None,								"Publication from where the information was first found OR technical sheet given by the manufacturer", None],
-	["NOTES", 							"Comments", 			"Notes",								DataType.MULTILINE_VARCHAR,		None,								"Notes", None],
-	["XMLCOMMENTS", 					"Comments",				"Comments List",						DataType.XML,					None,								"Several comments can be added by different users", commentsSampleScriptName],
-	["ANNOTATIONS_STATE",				"Comments",				"Annotations State",					DataType.XML,					None,								"Annotations State", annotationsScriptName]
+	["NAME", 							"General",				"Name",									DataType.MULTILINE_VARCHAR,		None,								"Name", None, None],
+	["OWNER", 							"General",				"Owner",								DataType.CONTROLLEDVOCABULARY,	"OWNER",							"Who produced/owned the sample", None, None],
+	["EXPERIMENTAL_GOALS", 				"General",				"Experimental Goals",					DataType.MULTILINE_VARCHAR,		None,								"Goal of the experiment", None, None],
+	["EXPERIMENTAL_RESULTS", 			"General",				"Experimental Results",					DataType.MULTILINE_VARCHAR,		None,								"Brief summary of the results obtained", None, None],
+	["START_DATE", 			"General",				"Start date",					DataType.TIMESTAMP,		None,								"Date when the experimental step is started", None, None],
+	["END_DATE", 			"General",				"End date",					DataType.TIMESTAMP,		None,								"Date when the experimental step is completed", None, None],
+	["EXPERIMENTAL_READOUT", 			"Readout details",		"Experimental readout",					DataType.CONTROLLEDVOCABULARY,	"EXPERIMENTAL_READOUT",				"Experimental readout used in the experiment", None, None],
+	["MACHINE", 						"Readout details",		"Machine",								DataType.CONTROLLEDVOCABULARY,	"MACHINE",							"Machine used to perform the experiment", None, None],
+	["FREEFORM_TABLE_STATE", 			"Readout details",		"Freeform Table State",					DataType.MULTILINE_VARCHAR,		None,								"Table describing how the order of samples measured in the experiments", None, None],
+	["PUBLICATION", 					"Comments",				"Publication",							DataType.MULTILINE_VARCHAR,		None,								"Publication from where the information was first found OR technical sheet given by the manufacturer", None, None],
+	["NOTES", 							"Comments", 			"Notes",								DataType.MULTILINE_VARCHAR,		None,								"Notes", None, None],
+	["XMLCOMMENTS", 					"Comments",				"Comments List",						DataType.XML,					None,								"Several comments can be added by different users", commentsSampleScriptName, None],
+	["ANNOTATIONS_STATE",				"Comments",				"Annotations State",					DataType.XML,					None,								"Annotations State", annotationsScriptName, None]
 ]);
 
 annotationsScriptName = createAnnotationsScriptForType("GENERAL_PROTOCOL");
 createSampleTypeWithProperties("GENERAL_PROTOCOL", "", [
-	["NAME", 					"General",			"Name",						DataType.MULTILINE_VARCHAR,		None,				"Name", None],
-	["FOR_WHAT", 				"General",			"For what",					DataType.MULTILINE_VARCHAR,		None,				"For what kind of experimental application/readout this sample is used in the lab", None],
-	["PROTOCOL_TYPE", 			"General",			"Protocol type",			DataType.CONTROLLEDVOCABULARY,	"PROTOCOL_TYPE",	"Category a protocol belongs", None],
-	["MATERIALS", 				"Materials",		"Materials",				DataType.MULTILINE_VARCHAR,		None,				"Machines (and relative set up), special labware required for the protocol.", None],
-	["TIME_REQUIREMENT", 		"Method",			"Time requirement",			DataType.MULTILINE_VARCHAR,		None,				"Time required to complete a protocol", None],
-	["PROCEDURE",				"Method", 			"Procedure",				DataType.MULTILINE_VARCHAR,		None,				"Procedure required by the protocol by points (1,2,3,...)", None],
-	["PROTOCOL_EVALUATION", 	"Method",			"Protocol evaluation",		DataType.MULTILINE_VARCHAR,		None,				"Parameters and observations to meet the minimal efficiency of the protocol", None],
-	["SUGGESTIONS", 			"Comments",			"Suggestions",				DataType.MULTILINE_VARCHAR,		None,				"Suggestions for the protocol", None],
-	["PROTOCOL_MODIFICATIONS", 	"Comments",			"Protocol modifications",	DataType.MULTILINE_VARCHAR,		None,				"Alternative procedures used to make protocol variations", None],
-	["PUBLICATION", 			"Comments",			"Publication",				DataType.MULTILINE_VARCHAR,		None,				"Publication from where the information was first found OR technical sheet given by the manufacturer", None],
-	["XMLCOMMENTS", 			"Comments",			"Comments List",			DataType.XML,					None,				"Several comments can be added by different users", commentsSampleScriptName],
-	["ANNOTATIONS_STATE",		"Comments",			"Annotations State",		DataType.XML,					None,				"Annotations State", annotationsScriptName]
+	["NAME", 					"General",			"Name",						DataType.MULTILINE_VARCHAR,		None,				"Name", None, None],
+	["FOR_WHAT", 				"General",			"For what",					DataType.MULTILINE_VARCHAR,		None,				"For what kind of experimental application/readout this sample is used in the lab", None, None],
+	["PROTOCOL_TYPE", 			"General",			"Protocol type",			DataType.CONTROLLEDVOCABULARY,	"PROTOCOL_TYPE",	"Category a protocol belongs", None, None],
+	["MATERIALS", 				"Materials",		"Materials",				DataType.MULTILINE_VARCHAR,		None,				"Machines (and relative set up), special labware required for the protocol.", None, None],
+	["TIME_REQUIREMENT", 		"Method",			"Time requirement",			DataType.MULTILINE_VARCHAR,		None,				"Time required to complete a protocol", None, None],
+	["PROCEDURE",				"Method", 			"Procedure",				DataType.MULTILINE_VARCHAR,		None,				"Procedure required by the protocol by points (1,2,3,...)", None, None],
+	["PROTOCOL_EVALUATION", 	"Method",			"Protocol evaluation",		DataType.MULTILINE_VARCHAR,		None,				"Parameters and observations to meet the minimal efficiency of the protocol", None, None],
+	["SUGGESTIONS", 			"Comments",			"Suggestions",				DataType.MULTILINE_VARCHAR,		None,				"Suggestions for the protocol", None, None],
+	["PROTOCOL_MODIFICATIONS", 	"Comments",			"Protocol modifications",	DataType.MULTILINE_VARCHAR,		None,				"Alternative procedures used to make protocol variations", None, None],
+	["PUBLICATION", 			"Comments",			"Publication",				DataType.MULTILINE_VARCHAR,		None,				"Publication from where the information was first found OR technical sheet given by the manufacturer", None, None],
+	["XMLCOMMENTS", 			"Comments",			"Comments List",			DataType.XML,					None,				"Several comments can be added by different users", commentsSampleScriptName, None],
+	["ANNOTATIONS_STATE",		"Comments",			"Annotations State",		DataType.XML,					None,				"Annotations State", annotationsScriptName, None]
 ]);
 
 annotationsScriptName = createAnnotationsScriptForType("PCR_PROTOCOL");
 createSampleTypeWithProperties("PCR_PROTOCOL", "", [
-	["NAME", 					"General",			"Name",						DataType.MULTILINE_VARCHAR,		None,				"Name", None],
-	["FOR_WHAT", 				"General",			"For what",					DataType.MULTILINE_VARCHAR,		None,				"For what kind of experimental application/readout this sample is used in the lab", None],
-	["TEMPLATE", 				"General",			"Template",					DataType.CONTROLLEDVOCABULARY,	"TEMPLATE",			"Type of template used in the PCR protocol", None],
-	["REACTION_MIX", 			"Materials",		"Reaction mix",				DataType.MULTILINE_VARCHAR,		None,				"Reaction mix recipe for the PCR", None],
-	["THERMOCYCLER_PROTOCOL", 	"Method",			"Thermocycler protocol",	DataType.MULTILINE_VARCHAR,		None,				"Thermocycler protocol for PCR", None],
-	["PROTOCOL_EVALUATION", 	"Method",			"Protocol evaluation",		DataType.MULTILINE_VARCHAR,		None,				"Parameters and observations to meet the minimal efficiency of the protocol", None],
-	["SUGGESTIONS", 			"Comments",			"Suggestions",				DataType.MULTILINE_VARCHAR,		None,				"Suggestions for the protocol", None],
-	["PROTOCOL_MODIFICATIONS", 	"Comments",			"Protocol modifications",	DataType.MULTILINE_VARCHAR,		None,				"Alternative procedures used to make protocol variations", None],
-	["PUBLICATION", 			"Comments",			"Publication",				DataType.MULTILINE_VARCHAR,		None,				"Publication from where the information was first found OR technical sheet given by the manufacturer", None],
-	["XMLCOMMENTS", 			"Comments",			"Comments List",			DataType.XML,					None,				"Several comments can be added by different users", commentsSampleScriptName],
-	["ANNOTATIONS_STATE",		"Comments",			"Annotations State",		DataType.XML,					None,				"Annotations State", annotationsScriptName]
+	["NAME", 					"General",			"Name",						DataType.MULTILINE_VARCHAR,		None,				"Name", None, None],
+	["FOR_WHAT", 				"General",			"For what",					DataType.MULTILINE_VARCHAR,		None,				"For what kind of experimental application/readout this sample is used in the lab", None, None],
+	["TEMPLATE", 				"General",			"Template",					DataType.CONTROLLEDVOCABULARY,	"TEMPLATE",			"Type of template used in the PCR protocol", None, None],
+	["REACTION_MIX", 			"Materials",		"Reaction mix",				DataType.MULTILINE_VARCHAR,		None,				"Reaction mix recipe for the PCR", None, None],
+	["THERMOCYCLER_PROTOCOL", 	"Method",			"Thermocycler protocol",	DataType.MULTILINE_VARCHAR,		None,				"Thermocycler protocol for PCR", None, None],
+	["PROTOCOL_EVALUATION", 	"Method",			"Protocol evaluation",		DataType.MULTILINE_VARCHAR,		None,				"Parameters and observations to meet the minimal efficiency of the protocol", None, None],
+	["SUGGESTIONS", 			"Comments",			"Suggestions",				DataType.MULTILINE_VARCHAR,		None,				"Suggestions for the protocol", None, None],
+	["PROTOCOL_MODIFICATIONS", 	"Comments",			"Protocol modifications",	DataType.MULTILINE_VARCHAR,		None,				"Alternative procedures used to make protocol variations", None, None],
+	["PUBLICATION", 			"Comments",			"Publication",				DataType.MULTILINE_VARCHAR,		None,				"Publication from where the information was first found OR technical sheet given by the manufacturer", None, None],
+	["XMLCOMMENTS", 			"Comments",			"Comments List",			DataType.XML,					None,				"Several comments can be added by different users", commentsSampleScriptName, None],
+	["ANNOTATIONS_STATE",		"Comments",			"Annotations State",		DataType.XML,					None,				"Annotations State", annotationsScriptName, None]
 ]);
 
 annotationsScriptName = createAnnotationsScriptForType("WESTERN_BLOTTING_PROTOCOL");
 createSampleTypeWithProperties("WESTERN_BLOTTING_PROTOCOL", "", [
-	["NAME", 					"General",			"Name",						DataType.MULTILINE_VARCHAR,		None,				"Name", None],
-	["FOR_WHAT", 				"General",			"For what",					DataType.MULTILINE_VARCHAR,		None,				"For what kind of experimental application/readout this sample is used in the lab", None],
-	["STORAGE", 				"General", 			"Storage",					DataType.CONTROLLEDVOCABULARY,	"STORAGE",			"Storage conditions of the product", None],
-	["MEMBRANE", 				"Materials", 		"Membrane",					DataType.CONTROLLEDVOCABULARY,	"MEMBRANE",			"Membrane used for western blotting", None],
-	["PUBLICATION", 			"Comments", 		"Publication",				DataType.MULTILINE_VARCHAR,		None,				"Publication from where the information was first found OR technical sheet given by the manufacturer", None],
-	["NOTES", 					"Comments", 		"Notes",					DataType.MULTILINE_VARCHAR,		None,				"Notes", None],
-	["XMLCOMMENTS", 			"Comments",			"Comments List",			DataType.XML,					None,				"Several comments can be added by different users", commentsSampleScriptName],
-	["ANNOTATIONS_STATE",		"Comments",			"Annotations State",		DataType.XML,					None,				"Annotations State", annotationsScriptName]
+	["NAME", 					"General",			"Name",						DataType.MULTILINE_VARCHAR,		None,				"Name", None, None],
+	["FOR_WHAT", 				"General",			"For what",					DataType.MULTILINE_VARCHAR,		None,				"For what kind of experimental application/readout this sample is used in the lab", None, None],
+	["STORAGE", 				"General", 			"Storage",					DataType.CONTROLLEDVOCABULARY,	"STORAGE",			"Storage conditions of the product", None, None],
+	["MEMBRANE", 				"Materials", 		"Membrane",					DataType.CONTROLLEDVOCABULARY,	"MEMBRANE",			"Membrane used for western blotting", None, None],
+	["PUBLICATION", 			"Comments", 		"Publication",				DataType.MULTILINE_VARCHAR,		None,				"Publication from where the information was first found OR technical sheet given by the manufacturer", None, None],
+	["NOTES", 					"Comments", 		"Notes",					DataType.MULTILINE_VARCHAR,		None,				"Notes", None, None],
+	["XMLCOMMENTS", 			"Comments",			"Comments List",			DataType.XML,					None,				"Several comments can be added by different users", commentsSampleScriptName, None],
+	["ANNOTATIONS_STATE",		"Comments",			"Annotations State",		DataType.XML,					None,				"Annotations State", annotationsScriptName, None]
 ]);

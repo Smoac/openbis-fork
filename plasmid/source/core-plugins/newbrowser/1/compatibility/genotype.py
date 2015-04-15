@@ -1,5 +1,8 @@
 configuration = {}
 configuration["YEAST"] = ["PLASMID"]
+configuration["BACTERIA"] = ["PLASMID"]
+configuration["CELL_LINE"] = ["PLASMID"]
+configuration["FLY"] = ["PLASMID"]
 
 def getSampleTypeCode(sampleAdaptor):
     return sampleAdaptor.samplePE().getSampleType().getCode()
