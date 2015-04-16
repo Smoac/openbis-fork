@@ -18,6 +18,7 @@ package ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.experiment;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.attachment.AttachmentFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.DataSetFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.experiment.ExperimentTypeFetchOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.history.HistoryEntryFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.material.MaterialFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.person.PersonFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.project.ProjectFetchOptions;
@@ -47,6 +48,9 @@ public class ExperimentFetchOptions implements Serializable
 
     @JsonProperty
     private SampleFetchOptions samples;
+
+    @JsonProperty
+    private HistoryEntryFetchOptions history;
 
     @JsonProperty
     private PropertyFetchOptions properties;
@@ -152,6 +156,28 @@ public class ExperimentFetchOptions implements Serializable
     public boolean hasSamples()
     {
         return samples != null;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public HistoryEntryFetchOptions withHistory()
+    {
+        if (history == null)
+        {
+            history = new HistoryEntryFetchOptions();
+        }
+        return history;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public HistoryEntryFetchOptions withHistoryUsing(HistoryEntryFetchOptions fetchOptions)
+    {
+        return history = fetchOptions;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public boolean hasHistory()
+    {
+        return history != null;
     }
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}

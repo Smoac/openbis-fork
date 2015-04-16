@@ -19,6 +19,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.DataSe
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.DataSetTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.ExternalDataFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.experiment.ExperimentFetchOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.history.HistoryEntryFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.material.MaterialFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.person.PersonFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.property.PropertyFetchOptions;
@@ -56,6 +57,9 @@ public class DataSetFetchOptions implements Serializable
 
     @JsonProperty
     private DataSetTypeFetchOptions type;
+
+    @JsonProperty
+    private HistoryEntryFetchOptions history;
 
     @JsonProperty
     private PersonFetchOptions modifier;
@@ -227,6 +231,28 @@ public class DataSetFetchOptions implements Serializable
     public boolean hasType()
     {
         return type != null;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public HistoryEntryFetchOptions withHistory()
+    {
+        if (history == null)
+        {
+            history = new HistoryEntryFetchOptions();
+        }
+        return history;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public HistoryEntryFetchOptions withHistoryUsing(HistoryEntryFetchOptions fetchOptions)
+    {
+        return history = fetchOptions;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public boolean hasHistory()
+    {
+        return history != null;
     }
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}

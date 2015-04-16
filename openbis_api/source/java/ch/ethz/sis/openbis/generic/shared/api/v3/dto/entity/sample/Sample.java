@@ -18,6 +18,7 @@ package ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.attachment.Attachment;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.history.HistoryEntry;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IAttachmentsHolder;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IModificationDateHolder;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IModifierHolder;
@@ -101,6 +102,9 @@ public class Sample implements Serializable, ISpaceHolder, IModifierHolder, IMod
 
     @JsonProperty
     private List<DataSet> dataSets;
+
+    @JsonProperty
+    private List<HistoryEntry> history;
 
     @JsonProperty
     private Set<Tag> tags;
@@ -397,6 +401,26 @@ public class Sample implements Serializable, ISpaceHolder, IModifierHolder, IMod
     public void setDataSets(List<DataSet> dataSets)
     {
         this.dataSets = dataSets;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    @JsonIgnore
+    public List<HistoryEntry> getHistory()
+    {
+        if (getFetchOptions().hasHistory())
+        {
+            return history;
+        }
+        else
+        {
+            throw new NotFetchedException("History have not been fetched.");
+        }
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public void setHistory(List<HistoryEntry> history)
+    {
+        this.history = history;
     }
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}

@@ -15,6 +15,7 @@
  */
 package ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material;
 
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.history.HistoryEntry;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IModificationDateHolder;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IPropertiesHolder;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IRegistrationDateHolder;
@@ -32,6 +33,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -54,6 +56,9 @@ public class Material implements Serializable, IModificationDateHolder, IRegistr
 
     @JsonProperty
     private MaterialType type;
+
+    @JsonProperty
+    private List<HistoryEntry> history;
 
     @JsonProperty
     private Date registrationDate;
@@ -130,6 +135,26 @@ public class Material implements Serializable, IModificationDateHolder, IRegistr
     public void setType(MaterialType type)
     {
         this.type = type;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    @JsonIgnore
+    public List<HistoryEntry> getHistory()
+    {
+        if (getFetchOptions().hasHistory())
+        {
+            return history;
+        }
+        else
+        {
+            throw new NotFetchedException("History have not been fetched.");
+        }
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public void setHistory(List<HistoryEntry> history)
+    {
+        this.history = history;
     }
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}

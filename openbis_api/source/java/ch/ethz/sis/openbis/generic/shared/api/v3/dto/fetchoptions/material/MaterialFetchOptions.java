@@ -15,6 +15,7 @@
  */
 package ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.material;
 
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.history.HistoryEntryFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.material.MaterialFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.material.MaterialTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.person.PersonFetchOptions;
@@ -34,6 +35,9 @@ public class MaterialFetchOptions implements Serializable
 
     @JsonProperty
     private MaterialTypeFetchOptions type;
+
+    @JsonProperty
+    private HistoryEntryFetchOptions history;
 
     @JsonProperty
     private PersonFetchOptions registrator;
@@ -67,6 +71,28 @@ public class MaterialFetchOptions implements Serializable
     public boolean hasType()
     {
         return type != null;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public HistoryEntryFetchOptions withHistory()
+    {
+        if (history == null)
+        {
+            history = new HistoryEntryFetchOptions();
+        }
+        return history;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public HistoryEntryFetchOptions withHistoryUsing(HistoryEntryFetchOptions fetchOptions)
+    {
+        return history = fetchOptions;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public boolean hasHistory()
+    {
+        return history != null;
     }
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}

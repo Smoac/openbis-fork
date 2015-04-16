@@ -18,6 +18,7 @@ package ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSetType;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.ExternalData;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.history.HistoryEntry;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IModificationDateHolder;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IModifierHolder;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IParentChildrenHolder;
@@ -87,6 +88,9 @@ public class DataSet implements Serializable, IParentChildrenHolder<DataSet>, IM
 
     @JsonProperty
     private DataSetType type;
+
+    @JsonProperty
+    private List<HistoryEntry> history;
 
     @JsonProperty
     private Date modificationDate;
@@ -331,6 +335,26 @@ public class DataSet implements Serializable, IParentChildrenHolder<DataSet>, IM
     public void setType(DataSetType type)
     {
         this.type = type;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    @JsonIgnore
+    public List<HistoryEntry> getHistory()
+    {
+        if (getFetchOptions().hasHistory())
+        {
+            return history;
+        }
+        else
+        {
+            throw new NotFetchedException("History have not been fetched.");
+        }
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public void setHistory(List<HistoryEntry> history)
+    {
+        this.history = history;
     }
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}

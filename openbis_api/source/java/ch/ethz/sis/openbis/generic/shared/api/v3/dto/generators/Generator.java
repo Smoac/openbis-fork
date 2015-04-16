@@ -1,6 +1,7 @@
 package ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators;
 
 import java.io.FileNotFoundException;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -15,6 +16,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.FileFormatTy
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.LocatorType;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.ExperimentType;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.history.HistoryEntry;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IParentChildrenHolder;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material.MaterialType;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.person.Person;
@@ -32,6 +34,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.FileFo
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.LocatorTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.experiment.ExperimentFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.experiment.ExperimentTypeFetchOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.history.HistoryEntryFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.material.MaterialFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.material.MaterialTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.person.PersonFetchOptions;
@@ -80,6 +83,9 @@ public class Generator extends AbstractGenerator
         gen.addPluralFetchedField("List<Sample>", List.class.getName(), "contained", "Contained samples", SampleFetchOptions.class);
         gen.addPluralFetchedField("List<DataSet>", List.class.getName(), "dataSets", "Data sets", DataSetFetchOptions.class);
         gen.addClassForImport(DataSet.class);
+        gen.addPluralFetchedField("List<HistoryEntry>", List.class.getName(), "history", "History", HistoryEntryFetchOptions.class);
+        gen.addClassForImport(HistoryEntry.class);
+
         addTags(gen);
         addRegistrator(gen);
         addModifier(gen);
@@ -158,6 +164,9 @@ public class Generator extends AbstractGenerator
         gen.addPluralFetchedField("List<Sample>", List.class.getName(), "samples", "Samples", SampleFetchOptions.class);
         gen.addClassForImport(Sample.class);
 
+        gen.addPluralFetchedField("List<HistoryEntry>", List.class.getName(), "history", "History", HistoryEntryFetchOptions.class);
+        gen.addClassForImport(HistoryEntry.class);
+
         addProperties(gen);
         addTags(gen);
         addRegistrator(gen);
@@ -206,6 +215,10 @@ public class Generator extends AbstractGenerator
         addTags(gen);
 
         gen.addFetchedField(DataSetType.class, "type", "Data Set type", DataSetTypeFetchOptions.class);
+
+        gen.addPluralFetchedField("List<HistoryEntry>", List.class.getName(), "history", "History", HistoryEntryFetchOptions.class);
+        gen.addClassForImport(HistoryEntry.class);
+
         // add data set type
         // add data store
         addModificationDate(gen);
@@ -384,6 +397,10 @@ public class Generator extends AbstractGenerator
         gen.addSimpleField(MaterialPermId.class, "permId");
         addCode(gen);
         gen.addFetchedField(MaterialType.class, "type", "Material type", MaterialTypeFetchOptions.class);
+
+        gen.addPluralFetchedField("List<HistoryEntry>", List.class.getName(), "history", "History", HistoryEntryFetchOptions.class);
+        gen.addClassForImport(HistoryEntry.class);
+
         addRegistrationDate(gen);
         addRegistrator(gen);
         addModificationDate(gen);
@@ -400,6 +417,15 @@ public class Generator extends AbstractGenerator
         addCode(gen);
         addDescription(gen);
         addModificationDate(gen);
+        return gen;
+    }
+
+    private static DtoGenerator createHistoryEntryGenerator()
+    {
+        DtoGenerator gen = new DtoGenerator("history", "HistoryEntry", HistoryEntryFetchOptions.class);
+        gen.addSimpleField(Date.class, "validFrom");
+        gen.addSimpleField(Date.class, "validTo");
+        gen.addFetchedField(Person.class, "author", "Author", PersonFetchOptions.class);
         return gen;
     }
 
@@ -424,6 +450,7 @@ public class Generator extends AbstractGenerator
         list.add(createLocatorType());
         list.add(createFileFormatType());
         list.add(createExternalDataGenerator());
+        list.add(createHistoryEntryGenerator());
 
         for (DtoGenerator gen : list)
         {
