@@ -31,6 +31,7 @@ import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
+import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
@@ -227,6 +228,9 @@ public class DeletionTestCase extends SystemTestCase
         assertSamplesDoNotExist(registeredSamplesThatShouldBeDeleted);
     }
 
+    
+    @Autowired
+    SessionFactory sessionFactory;
     @Test
     public void testDeleteExperimentWithContainerDataSetWhichHasADataSetFromAnotherExperiment()
     {
@@ -257,6 +261,8 @@ public class DeletionTestCase extends SystemTestCase
         updatesDTO.setFileFormatTypeCode(originalDataSet.getFileFormatType().getCode());
         updatesDTO.setProperties(originalDataSet.getProperties());
         updatesDTO.setVersion(genericServer.getDataSetInfo(sessionToken, dataSetId).getVersion());
+        sessionFactory.getCurrentSession().flush();
+        sessionFactory.getCurrentSession().clear();
         genericServer.updateDataSet(sessionToken, updatesDTO);
     }
 

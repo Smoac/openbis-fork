@@ -17,6 +17,8 @@
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 import javax.persistence.Column;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Transient;
 
@@ -35,6 +37,7 @@ public abstract class AbstractEntityHistoryPE extends AbstractEntityPropertyHist
     private String entityPermId;
 
     @Column(name = ColumnNames.RELATION_TYPE_COLUMN)
+    @Enumerated(EnumType.STRING)
     public RelationType getRelationType()
     {
         return relationType;

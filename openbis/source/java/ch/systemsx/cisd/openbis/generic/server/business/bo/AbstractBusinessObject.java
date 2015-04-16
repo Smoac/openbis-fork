@@ -612,7 +612,6 @@ abstract class AbstractBusinessObject implements IDAOFactory
             entityAsPropertiesHolder.setProperties(convertedProperties);
             entityAsModifiableBean.setModifier(findPerson());
             entityAsModifiableBean.setModificationDate(new Date());
-            getSessionFactory().getCurrentSession().flush();
         }
     }
 
