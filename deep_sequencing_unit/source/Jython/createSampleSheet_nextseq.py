@@ -199,6 +199,9 @@ def readConfig(logger):
   configMap['miSeqWorkflow'] = configParameters.get(ILLUMINA, 'miSeqWorkflow')
   configMap['miSeqApplication'] = configParameters.get(ILLUMINA, 'miSeqApplication')
   configMap['miSeqChemistry'] = configParameters.get(ILLUMINA, 'miSeqChemistry')
+  
+  configMap['nextSeqDataSectionSingleRead'] = configParameters.get(ILLUMINA, 'nextSeqDataSectionSingleRead')
+  configMap['nextSeqDataSectionDualRead'] = configParameters.get(ILLUMINA, 'nextSeqDataSectionDualRead')
 
   configMap['truSeqAdapter1'] = configParameters.get(ILLUMINA, 'truSeqAdapter1')
   configMap['truSeqAdapter2'] = configParameters.get(ILLUMINA, 'truSeqAdapter2')
@@ -480,9 +483,9 @@ def createMiSeqSampleSheet(parentDict, flowCellDict, configMap, index1Vocabulary
   headerList.append('')
 
   if int(flowCellDict['INDEXREAD2']) > 0:
-    miSeqDataSection = configMap['miSeqDataSectionDualRead'].split(',')
+    miSeqDataSection = configMap['nextSeqDataSectionDualRead'].split(',')
   else:
-    miSeqDataSection = configMap['miSeqDataSectionSingleRead'].split(',')
+    miSeqDataSection = configMap['nextSeqDataSectionSingleRead'].split(',')
     
   miSeqDataSection.reverse()
   headerList.append(miSeqDataSection.pop())
@@ -511,8 +514,7 @@ def createMiSeqSampleSheet(parentDict, flowCellDict, configMap, index1Vocabulary
 
     if int(flowCellDict['INDEXREAD2']) > 0:
       sampleSheetDict[lane + '_' + key] = [
-                            lane + separator 
-                            + key + separator
+                              key + separator
                             + key + '_' + sanitizeString(parentDict[key][configMap['externalSampleName']]) + '_' + index1[0:len_index1] + '_' + index2[0:len_index2] + separator
                             + separator
                             + separator
@@ -524,8 +526,7 @@ def createMiSeqSampleSheet(parentDict, flowCellDict, configMap, index1Vocabulary
                             ]
     else:
             sampleSheetDict[lane + '_' + key] = [
-                            lane + separator
-                            + key + separator
+                              key + separator
                             + key + '_' + sanitizeString(parentDict[key][configMap['externalSampleName']]) + '_' + index1[0:len_index1] + separator
                             + separator
                             + separator
