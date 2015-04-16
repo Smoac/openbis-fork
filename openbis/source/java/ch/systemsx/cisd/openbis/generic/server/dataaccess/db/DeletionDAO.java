@@ -328,7 +328,7 @@ final class DeletionDAO extends AbstractGenericEntityDAO<DeletionPE> implements 
 
                     Query query = session
                             .createQuery(
-                                    "UPDATE "
+                                    "UPDATE VERSIONED "
                                             + entityKind.getEntityClass().getSimpleName()
                                             + " c SET c.deletion = :deletion" + ", c.originalDeletion = "
                                             + (isOriginalDeletion ? " :deletion" : " NULL")

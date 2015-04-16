@@ -607,18 +607,8 @@ abstract class AbstractBusinessObject implements IDAOFactory
                 convertProperties(entityType, existingProperties, properties, propertiesToUpdate);
         if (isEquals(existingPropertyValuesByCode, convertedProperties) == false)
         {
-            // / HHH-9087
-            if (entityAsPropertiesHolder instanceof ExternalDataPE || entityAsPropertiesHolder instanceof DataPE)
-            {
-                DataPE data = (DataPE) getSessionFactory().getCurrentSession().get(DataPE.class, entityAsPropertiesHolder.getId());
-                data.setVersion(data.getVersion() + 1);
-                // getSessionFactory().getCurrentSession().createQuery("UPDATE ExternalDataPE e SET e.version = e.version+1 WHERE id = :id")
-                // .setParameter("id", entityAsPropertiesHolder.getId());
-            } else
-            {
-                getSessionFactory().getCurrentSession().buildLockRequest(LockOptions.UPGRADE).setLockMode(LockMode.PESSIMISTIC_FORCE_INCREMENT)
-                        .lock(entityAsPropertiesHolder);
-            }
+            getSessionFactory().getCurrentSession().buildLockRequest(LockOptions.UPGRADE).setLockMode(LockMode.PESSIMISTIC_FORCE_INCREMENT)
+                    .lock(entityAsPropertiesHolder);
             entityAsPropertiesHolder.setProperties(convertedProperties);
             entityAsModifiableBean.setModifier(findPerson());
             entityAsModifiableBean.setModificationDate(new Date());
