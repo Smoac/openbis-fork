@@ -246,76 +246,7 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 							}
 							$("#" + id).css({"border-radius" : "10px", "padding" : "10px", "background-color" : "#EEEEEE" });
 							
-							//Create grid model for sample type
-							var propertyCodes = profile.getAllPropertiCodesForTypeCode(sampleTypeCode);
-							var propertyCodesDisplayNames = profile.getPropertiesDisplayNamesForTypeCode(sampleTypeCode, propertyCodes);
-							
-							//Fill Columns model
-							var columns = [ {
-								label : 'Code',
-								property : 'code',
-								sortable : true
-							}, {
-								label : 'Preview',
-								property : 'preview',
-								sortable : false,
-								render : function(data) {
-									var previewContainer = $("<div>");
-									mainController.serverFacade.searchDataSetsWithTypeForSamples("ELN_PREVIEW", [data.permId], function(data) {
-										data.result.forEach(function(dataset) {
-											var listFilesForDataSetCallback = function(dataFiles) {
-												for(var pathIdx = 0; pathIdx < dataFiles.result.length; pathIdx++) {
-													if(!dataFiles.result[pathIdx].isDirectory) {
-														var downloadUrl = profile.allDataStores[0].downloadUrl + '/' + dataset.code + "/" + dataFiles.result[pathIdx].pathInDataSet + "?sessionID=" + mainController.serverFacade.getSession();
-														var previewImage = $("<img>", { 'src' : downloadUrl, 'class' : 'zoomableImage', 'style' : 'height:80px;' });
-														previewImage.click(function(event) {
-															Util.showImage(downloadUrl);
-															event.stopPropagation();
-														});
-														previewContainer.append(previewImage);
-														break;
-													}
-												}
-											};
-											mainController.serverFacade.listFilesForDataSet(dataset.code, "/", true, listFilesForDataSetCallback);
-										});
-									});
-									return previewContainer;
-								},
-								filter : function(data, filter) {
-									return false;
-								},
-								sort : function(data1, data2, asc) {
-									return 0;
-								}
-							}];
-							
-							
-							for (var idx = 0; idx < propertyCodes.length; idx++) {
-								columns.push({
-									label : propertyCodesDisplayNames[idx],
-									property : propertyCodes[idx],
-									sortable : true
-								});
-							}
-							
-							//Fill data model
-							var getDataList = function(callback) {
-								var dataList = [];
-								for(var sIdx = 0; sIdx < samples.length; sIdx++) {
-									var sample = samples[sIdx];
-									var sampleModel = { 'code' : sample.code, 'permId' : sample.permId };
-									for (var pIdx = 0; pIdx < propertyCodes.length; pIdx++) {
-										var property = propertyCodes[pIdx];
-										sampleModel[property] = sample.properties[property];
-									}
-									dataList.push(sampleModel);
-								}
-								callback(dataList);
-							};
-							
-							var configKey = "SAMPLE_" + sampleTypeCode;
-							var dataGrid = new DataGridController(null, columns, getDataList, rowClick, false, configKey);
+							var dataGrid = SampleDataGridUtil.getSampleDataGrid(sampleTypeCode, samples, rowClick);
 							dataGrid.init($("#" + tableId));
 							
 							//Store new state
