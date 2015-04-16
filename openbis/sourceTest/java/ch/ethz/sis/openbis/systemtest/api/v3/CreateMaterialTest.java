@@ -18,20 +18,25 @@ package ch.ethz.sis.openbis.systemtest.api.v3;
 
 import static org.testng.Assert.assertEquals;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material.Material;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material.MaterialCreation;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.tag.Tag;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.material.MaterialFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.CreationId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.entitytype.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.material.IMaterialId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.material.MaterialPermId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.TagCode;
+import ch.systemsx.cisd.common.action.IDelegatedAction;
 import ch.systemsx.cisd.common.test.AssertionUtil;
 
 /**
@@ -51,9 +56,7 @@ public class CreateMaterialTest extends AbstractSampleTest
         List<MaterialPermId> materialIds = v3api.createMaterials(sessionToken, Arrays.asList(m1, m2));
 
         MaterialFetchOptions fetchOptions = new MaterialFetchOptions();
-
         Map<IMaterialId, Material> map = v3api.mapMaterials(sessionToken, materialIds, fetchOptions);
-
         AssertionUtil.assertCollectionSize(map.values(), 2);
 
         Material material = map.get(new MaterialPermId("1982", "GENE"));
@@ -63,6 +66,37 @@ public class CreateMaterialTest extends AbstractSampleTest
         material = map.get(new MaterialPermId("1984", "GENE"));
         assertEquals(material.getCode(), "1984");
         assertEquals(material.getPermId().getTypeCode(), "GENE");
+    }
+
+    @Test
+    public void testMaterialCreationWithTags()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        MaterialCreation m1 = geneCreation("NEW_GENE_WITH_TAGS");
+
+        List<MaterialPermId> materialIds = v3api.createMaterials(sessionToken, Arrays.asList(m1));
+
+        TagCode test123 = new TagCode("TEST_123");
+        TagCode testMetaprojects = new TagCode("TEST_METAPROJECTS");
+        m1.setTagIds(Arrays.asList(test123, testMetaprojects));
+
+        MaterialFetchOptions fetchOptions = new MaterialFetchOptions();
+        fetchOptions.withTags();
+        Map<IMaterialId, Material> map = v3api.mapMaterials(sessionToken, materialIds, fetchOptions);
+        AssertionUtil.assertCollectionSize(map.values(), 1);
+
+        Material material = map.get(new MaterialPermId("NEW_GENE_WITH_TAGS", "GENE"));
+
+        Set<Tag> tags = material.getTags();
+        AssertionUtil.assertSize(tags, 2);
+        ArrayList<String> tagCodes = new ArrayList<String>();
+        for (Tag tag : tags)
+        {
+            tagCodes.add(tag.getCode());
+        }
+        AssertionUtil.assertCollectionContainsOnly(tagCodes, "TEST_123", "TEST_METAPROJECTS");
+
     }
 
     // @Test broken
@@ -105,9 +139,72 @@ public class CreateMaterialTest extends AbstractSampleTest
         assertEquals(resultm1, resultm3);
     }
 
-    // all potential error scenarios
+    @Test
+    public void testCreateWithCodeNull()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        final MaterialCreation materialCreation = geneCreation(null);
 
-    // create mateiral with mateiral properties
+        assertUserFailureException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.createMaterials(sessionToken, Arrays.asList(materialCreation));
+                }
+            }, "Code cannot be empty");
+    }
+
+    @Test
+    public void testCreateWithTypeNull()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        final MaterialCreation materialCreation = geneCreation("GENE_NOT_OK");
+        materialCreation.setTypeId(null);
+
+        assertUserFailureException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.createMaterials(sessionToken, Arrays.asList(materialCreation));
+                }
+            }, "Type id cannot be null");
+    }
+
+    @Test
+    public void testCreateWithNoMandatoryProperty()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        final MaterialCreation materialCreation = geneCreation("GENE_NOT_OK");
+        materialCreation.getProperties().clear();
+
+        assertUserFailureException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.createMaterials(sessionToken, Arrays.asList(materialCreation));
+                }
+            }, "Value of mandatory property 'GENE_SYMBOL' not specified");
+    }
+
+    @Test
+    public void testCreateWithNonExistingProperty()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        final MaterialCreation materialCreation = geneCreation("GENE_NOT_OK");
+        materialCreation.getProperties().put("CODE_THAT_DOESNT_EXIST", "value");
+
+        assertUserFailureException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.createMaterials(sessionToken, Arrays.asList(materialCreation));
+                }
+            }, "Property type with code 'CODE_THAT_DOESNT_EXIST' does not exist");
+    }
 
     private MaterialCreation materialCreation(MaterialPermId permId)
     {
