@@ -765,6 +765,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     // 'fast' implementation
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @ReturnValueFilter(validatorClass = ExternalDataValidator.class)
     public List<AbstractExternalData> listDataSetRelationships(final String sessionToken,
             @AuthorizationGuard(guardClass = DataSetTechIdPredicate.class)
             final TechId datasetId, final DataSetRelationshipRole role)
