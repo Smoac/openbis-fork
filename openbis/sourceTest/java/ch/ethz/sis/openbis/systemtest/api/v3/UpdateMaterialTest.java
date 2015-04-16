@@ -18,16 +18,25 @@ package ch.ethz.sis.openbis.systemtest.api.v3;
 
 import static org.testng.Assert.assertEquals;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Map;
+import java.util.Set;
 
 import org.testng.annotations.Test;
 
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.ListUpdateValue.ListUpdateAction;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.ListUpdateValue.ListUpdateActionAdd;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material.Material;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material.MaterialUpdate;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.tag.Tag;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.material.MaterialFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.material.IMaterialId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.material.MaterialPermId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.ITagId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.TagCode;
+import ch.systemsx.cisd.common.test.AssertionUtil;
 
 /**
  * @author pkupczyk
@@ -104,4 +113,35 @@ public class UpdateMaterialTest extends AbstractSampleTest
         assertEquals(expectedGene.getType().getCode(), "GENE");
     }
 
+    @Test
+    public void testUpdateTag()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        MaterialUpdate update = new MaterialUpdate();
+        update.setMaterialId(new MaterialPermId("SRM_1", "SELF_REF"));
+
+        TagCode test123 = new TagCode("TEST_123");
+        TagCode testMetaprojects = new TagCode("TEST_METAPROJECTS");
+        ListUpdateAction<ITagId> addAction = new ListUpdateActionAdd<ITagId>();
+        addAction.setItems(Arrays.asList(test123, testMetaprojects));
+        update.setTagActions(Collections.singletonList(addAction));
+
+        v3api.updateMaterials(sessionToken, Arrays.asList(update));
+
+        MaterialFetchOptions fetchOptions = new MaterialFetchOptions();
+        fetchOptions.withTags();
+
+        Map<IMaterialId, Material> map = v3api.mapMaterials(sessionToken, Arrays.asList(update.getMaterialId()), fetchOptions);
+
+        Material material = map.get(update.getMaterialId());
+        Set<Tag> tags = material.getTags();
+        AssertionUtil.assertSize(tags, 2);
+        ArrayList<String> tagCodes = new ArrayList<String>();
+        for (Tag tag : tags)
+        {
+            tagCodes.add(tag.getCode());
+        }
+        AssertionUtil.assertCollectionContainsOnly(tagCodes, "TEST_123", "TEST_METAPROJECTS");
+    }
 }

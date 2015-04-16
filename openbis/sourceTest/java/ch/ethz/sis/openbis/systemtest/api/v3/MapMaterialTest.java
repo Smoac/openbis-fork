@@ -20,13 +20,16 @@ import static org.testng.Assert.assertEquals;
 
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Set;
 
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material.Material;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.tag.Tag;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.material.MaterialFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.material.IMaterialId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.material.MaterialPermId;
+import ch.systemsx.cisd.common.test.AssertionUtil;
 
 /**
  * @author Jakub Straszewski
@@ -127,11 +130,27 @@ public class MapMaterialTest extends AbstractDataSetTest
         fetchOptions.withType();
 
         MaterialPermId selfId = new MaterialPermId("SRM_1A", "SELF_REF");
-
         Map<IMaterialId, Material> map = v3api.mapMaterials(sessionToken, Arrays.asList(selfId), fetchOptions);
-
         Material item = map.get(selfId);
-
         assertEquals(item.getType().getCode(), "SELF_REF");
+    }
+
+    @Test
+    public void testWithTags()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        MaterialFetchOptions fetchOptions = new MaterialFetchOptions();
+        fetchOptions.withTags();
+
+        MaterialPermId matId = new MaterialPermId("AD3", "VIRUS");
+        Map<IMaterialId, Material> map = v3api.mapMaterials(sessionToken, Arrays.asList(matId), fetchOptions);
+        Material item = map.get(matId);
+        Set<Tag> tags = item.getTags();
+        AssertionUtil.assertSize(tags, 1);
+        for (Tag tag : tags) // only one
+        {
+            assertEquals(tag.getCode(), "TEST_METAPROJECTS");
+        }
     }
 }
