@@ -1244,7 +1244,7 @@ public class OpenBISScreeningMLTest extends AbstractFileSystemTestCase
 
     private Map<String, String> createProperties(String dataSetCode)
     {
-        Map<String, String> properties = new HashMap<String, String>();
+        Map<String, String> properties = new LinkedHashMap<String, String>();
         properties.put(dataSetCode + "-key1", dataSetCode + "-value1");
         properties.put(dataSetCode + "-key2", dataSetCode + "-value2");
         return properties;

@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.TreeMap;
 
@@ -94,7 +95,7 @@ public final class DataSet implements Serializable, IIdHolder
 
         private List<DataSet> containerDataSets = Collections.emptyList();
         
-        private HashMap<String, String> properties = new HashMap<String, String>();
+        private HashMap<String, String> properties = new LinkedHashMap<String, String>();
 
         private List<Metaproject> metaprojects = new ArrayList<Metaproject>();
 
