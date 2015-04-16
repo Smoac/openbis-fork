@@ -11,7 +11,8 @@ $.extend(PeterLabProfile.prototype, DefaultProfile.prototype, {
 		//Use this with all known types to create groups, if a type is not specified by default will be added to the OTHERS group.
 		this.inventorySpaces = ["INVENTORY"];
 		this.isShowUnavailablePreviewOnSampleTable = true;
-
+		this.hideCodes = true;
+		
 		this.getSpaceForSampleType = function(type) {
 			if(type === "ANTIBODY") {
 				return "INVENTORY";
