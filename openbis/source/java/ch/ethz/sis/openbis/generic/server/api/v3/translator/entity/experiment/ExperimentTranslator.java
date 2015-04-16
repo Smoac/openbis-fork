@@ -29,6 +29,7 @@ import ch.ethz.sis.openbis.generic.server.api.v3.translator.Relations;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.attachment.IAttachmentTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.dataset.IDataSetTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.history.IHistoryTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.material.IMaterialPropertyTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.person.IPersonTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.project.IProjectTranslator;
@@ -83,6 +84,9 @@ public class ExperimentTranslator extends AbstractCachingTranslator<ExperimentPE
 
     @Autowired
     private ITagTranslator tagTranslator;
+
+    @Autowired
+    private IHistoryTranslator historyTranslator;
 
     @Override
     protected boolean shouldTranslate(TranslationContext context, ExperimentPE input, ExperimentFetchOptions fetchOptions)
@@ -173,5 +177,10 @@ public class ExperimentTranslator extends AbstractCachingTranslator<ExperimentPE
             result.getFetchOptions().withAttachmentsUsing(fetchOptions.withAttachments());
         }
 
+        if (fetchOptions.hasHistory())
+        {
+            result.setHistory(historyTranslator.translate(context, experiment, fetchOptions.withHistory()));
+            result.getFetchOptions().withHistoryUsing(fetchOptions.withHistory());
+        }
     }
 }

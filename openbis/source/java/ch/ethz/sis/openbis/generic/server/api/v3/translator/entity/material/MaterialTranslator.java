@@ -25,6 +25,7 @@ import org.springframework.stereotype.Component;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.AbstractCachingTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.Relations;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.history.IHistoryTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.person.IPersonTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.property.IPropertyTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.tag.ITagTranslator;
@@ -56,6 +57,9 @@ public class MaterialTranslator extends AbstractCachingTranslator<MaterialPE, Ma
 
     @Autowired
     private ITagTranslator tagTranslator;
+
+    @Autowired
+    private IHistoryTranslator historyTranslator;
 
     @Override
     protected Material createObject(TranslationContext context, MaterialPE materialPE, MaterialFetchOptions fetchOptions)
@@ -96,6 +100,12 @@ public class MaterialTranslator extends AbstractCachingTranslator<MaterialPE, Ma
         {
             result.setRegistrator(personTranslator.translate(context, materialPe.getRegistrator(), fetchOptions.withRegistrator()));
             result.getFetchOptions().withRegistratorUsing(fetchOptions.withRegistrator());
+        }
+
+        if (fetchOptions.hasHistory())
+        {
+            result.setHistory(historyTranslator.translate(context, materialPe, fetchOptions.withHistory()));
+            result.getFetchOptions().withHistoryUsing(fetchOptions.withHistory());
         }
 
         if (fetchOptions.hasType())

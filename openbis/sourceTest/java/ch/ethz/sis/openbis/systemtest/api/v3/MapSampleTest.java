@@ -36,6 +36,7 @@ import org.apache.commons.collections.Transformer;
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSet;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSetUpdate;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.history.HistoryEntry;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.history.PropertyHistoryEntry;
@@ -51,7 +52,10 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.tag.Tag;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sample.SampleFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.tag.TagFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.CreationId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.DataSetPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.entitytype.EntityTypePermId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentIdentifier;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.material.MaterialPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.ISampleId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SampleIdentifier;
@@ -940,7 +944,7 @@ public class MapSampleTest extends AbstractSampleTest
     }
 
     @Test
-    public void testComplexWithSpaceWithProjectAndExperiments()
+    public void testMapWithSpaceWithProjectAndExperiments()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -987,7 +991,7 @@ public class MapSampleTest extends AbstractSampleTest
     }
 
     @Test
-    public void testWithMaterialProperties()
+    public void testMapWithMaterialProperties()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -1020,97 +1024,226 @@ public class MapSampleTest extends AbstractSampleTest
     @Test
     public void testMapWithHistoryEmpty()
     {
-        String sessionToken = v3api.login(TEST_USER, PASSWORD);
-
         SampleCreation creation = new SampleCreation();
         creation.setCode("SAMPLE_WITH_EMPTY_HISTORY");
         creation.setTypeId(new EntityTypePermId("CELL_PLATE"));
         creation.setSpaceId(new SpacePermId("CISD"));
 
-        SampleFetchOptions fetchOptions = new SampleFetchOptions();
-        fetchOptions.withHistory();
+        List<HistoryEntry> history = testMapWithHistory(creation, null);
 
-        List<SamplePermId> permIds = v3api.createSamples(sessionToken, Arrays.asList(creation));
-        Map<ISampleId, Sample> map = v3api.mapSamples(sessionToken, permIds, fetchOptions);
-
-        assertEquals(map.size(), 1);
-        Sample sample = map.get(permIds.get(0));
-        assertEquals(sample.getHistory(), Collections.emptyList());
-
-        v3api.logout(sessionToken);
+        assertEquals(history, Collections.emptyList());
     }
 
     @Test
     public void testMapWithHistoryProperty()
     {
-        String sessionToken = v3api.login(TEST_USER, PASSWORD);
-
         SampleCreation creation = new SampleCreation();
         creation.setCode("SAMPLE_WITH_PROPERTY_HISTORY");
         creation.setTypeId(new EntityTypePermId("CELL_PLATE"));
         creation.setSpaceId(new SpacePermId("CISD"));
         creation.setProperty("COMMENT", "comment1");
 
-        List<SamplePermId> permIds = v3api.createSamples(sessionToken, Arrays.asList(creation));
-
         SampleUpdate update = new SampleUpdate();
-        update.setSampleId(permIds.get(0));
         update.setProperty("COMMENT", "comment2");
 
-        v3api.updateSamples(sessionToken, Arrays.asList(update));
+        List<HistoryEntry> history = testMapWithHistory(creation, update);
 
-        SampleFetchOptions fetchOptions = new SampleFetchOptions();
-        fetchOptions.withHistory();
-
-        Map<ISampleId, Sample> map = v3api.mapSamples(sessionToken, permIds, fetchOptions);
-
-        assertEquals(map.size(), 1);
-        Sample sample = map.get(permIds.get(0));
-
-        List<HistoryEntry> history = sample.getHistory();
         assertEquals(history.size(), 1);
 
         PropertyHistoryEntry entry = (PropertyHistoryEntry) history.get(0);
         assertEquals(entry.getPropertyName(), "COMMENT");
         assertEquals(entry.getPropertyValue(), "comment1");
-
-        v3api.logout(sessionToken);
     }
 
     @Test
     public void testMapWithHistorySpace()
     {
-        String sessionToken = v3api.login(TEST_USER, PASSWORD);
-
         SampleCreation creation = new SampleCreation();
         creation.setCode("SAMPLE_WITH_SPACE_HISTORY");
         creation.setTypeId(new EntityTypePermId("CELL_PLATE"));
         creation.setSpaceId(new SpacePermId("CISD"));
 
-        List<SamplePermId> permIds = v3api.createSamples(sessionToken, Arrays.asList(creation));
-
         SampleUpdate update = new SampleUpdate();
-        update.setSampleId(permIds.get(0));
         update.setSpaceId(new SpacePermId("TEST-SPACE"));
 
-        v3api.updateSamples(sessionToken, Arrays.asList(update));
+        List<HistoryEntry> history = testMapWithHistory(creation, update);
+
+        assertEquals(history.size(), 1);
+
+        RelationHistoryEntry entry = (RelationHistoryEntry) history.get(0);
+        assertEquals(entry.getRelationType(), SampleRelationType.SPACE);
+        assertEquals(entry.getRelatedObjectId(), new SpacePermId("CISD"));
+    }
+
+    @Test
+    public void testMapWithHistoryExperiment()
+    {
+        SampleCreation creation = new SampleCreation();
+        creation.setCode("SAMPLE_WITH_EXPERIMENT_HISTORY");
+        creation.setTypeId(new EntityTypePermId("CELL_PLATE"));
+        creation.setSpaceId(new SpacePermId("CISD"));
+        creation.setExperimentId(new ExperimentIdentifier("/CISD/NEMO/EXP1"));
+
+        SampleUpdate update = new SampleUpdate();
+        update.setExperimentId(new ExperimentIdentifier("/CISD/NEMO/EXP11"));
+
+        List<HistoryEntry> history = testMapWithHistory(creation, update);
+
+        assertEquals(history.size(), 1);
+
+        RelationHistoryEntry entry = (RelationHistoryEntry) history.get(0);
+        assertEquals(entry.getRelationType(), SampleRelationType.EXPERIMENT);
+        assertEquals(entry.getRelatedObjectId(), new ExperimentPermId("200811050951882-1028"));
+    }
+
+    @Test
+    public void testMapWithHistoryDataSet()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        SampleCreation creation = new SampleCreation();
+        creation.setCode("SAMPLE_WITH_DATA_SET_HISTORY");
+        creation.setTypeId(new EntityTypePermId("CELL_PLATE"));
+        creation.setSpaceId(new SpacePermId("CISD"));
+        creation.setExperimentId(new ExperimentIdentifier("/CISD/DEFAULT/EXP-REUSE"));
+
+        List<SamplePermId> permIds = v3api.createSamples(sessionToken, Arrays.asList(creation));
+
+        DataSetUpdate update = new DataSetUpdate();
+        update.setDataSetId(new DataSetPermId("COMPONENT_1A"));
+        update.setSampleId(permIds.get(0));
+
+        v3api.updateDataSets(sessionToken, Arrays.asList(update));
+
+        update = new DataSetUpdate();
+        update.setDataSetId(new DataSetPermId("COMPONENT_1A"));
+        update.setSampleId(null);
+
+        v3api.updateDataSets(sessionToken, Arrays.asList(update));
 
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
         fetchOptions.withHistory();
 
         Map<ISampleId, Sample> map = v3api.mapSamples(sessionToken, permIds, fetchOptions);
-
         assertEquals(map.size(), 1);
+
         Sample sample = map.get(permIds.get(0));
 
         List<HistoryEntry> history = sample.getHistory();
         assertEquals(history.size(), 1);
 
         RelationHistoryEntry entry = (RelationHistoryEntry) history.get(0);
-        assertEquals(entry.getRelationType(), SampleRelationType.SPACE);
-        assertEquals(entry.getRelatedObjectId(), new SpacePermId("CISD"));
+        assertEquals(entry.getRelationType(), SampleRelationType.DATA_SET);
+        assertEquals(entry.getRelatedObjectId(), new DataSetPermId("COMPONENT_1A"));
+    }
+
+    @Test
+    public void testMapWithHistoryContainer()
+    {
+        SampleCreation creation = new SampleCreation();
+        creation.setCode("SAMPLE_WITH_CONTAINER_HISTORY");
+        creation.setTypeId(new EntityTypePermId("CELL_PLATE"));
+        creation.setSpaceId(new SpacePermId("CISD"));
+        creation.setContainerId(new SampleIdentifier("/CISD/CL1"));
+
+        SampleUpdate update = new SampleUpdate();
+        update.setContainerId(null);
+
+        List<HistoryEntry> history = testMapWithHistory(creation, update);
+
+        assertEquals(history.size(), 1);
+
+        RelationHistoryEntry entry = (RelationHistoryEntry) history.get(0);
+        assertEquals(entry.getRelationType(), SampleRelationType.CONTAINER);
+        assertEquals(entry.getRelatedObjectId(), new SamplePermId("200811050919915-8"));
+    }
+
+    @Test
+    public void testMapWithHistoryContained()
+    {
+        SampleCreation creation = new SampleCreation();
+        creation.setCode("SAMPLE_WITH_CONTAINED_HISTORY");
+        creation.setTypeId(new EntityTypePermId("CELL_PLATE"));
+        creation.setSpaceId(new SpacePermId("CISD"));
+        creation.setContainedIds(Arrays.asList(new SampleIdentifier("/CISD/CL1")));
+
+        SampleUpdate update = new SampleUpdate();
+        update.getContainedIds().set();
+
+        List<HistoryEntry> history = testMapWithHistory(creation, update);
+
+        assertEquals(history.size(), 1);
+
+        RelationHistoryEntry entry = (RelationHistoryEntry) history.get(0);
+        assertEquals(entry.getRelationType(), SampleRelationType.CONTAINED);
+        assertEquals(entry.getRelatedObjectId(), new SamplePermId("200811050919915-8"));
+    }
+
+    @Test
+    public void testMapWithHistoryParent()
+    {
+        SampleCreation creation = new SampleCreation();
+        creation.setCode("SAMPLE_WITH_PARENT_HISTORY");
+        creation.setTypeId(new EntityTypePermId("CELL_PLATE"));
+        creation.setSpaceId(new SpacePermId("CISD"));
+        creation.setParentIds(Arrays.asList(new SampleIdentifier("/CISD/CL1")));
+
+        SampleUpdate update = new SampleUpdate();
+        update.getParentIds().set();
+
+        List<HistoryEntry> history = testMapWithHistory(creation, update);
+
+        assertEquals(history.size(), 1);
+
+        RelationHistoryEntry entry = (RelationHistoryEntry) history.get(0);
+        assertEquals(entry.getRelationType(), SampleRelationType.PARENT);
+        assertEquals(entry.getRelatedObjectId(), new SamplePermId("200811050919915-8"));
+    }
+
+    @Test
+    public void testMapWithHistoryChild()
+    {
+        SampleCreation creation = new SampleCreation();
+        creation.setCode("SAMPLE_WITH_CHILD_HISTORY");
+        creation.setTypeId(new EntityTypePermId("CELL_PLATE"));
+        creation.setSpaceId(new SpacePermId("CISD"));
+        creation.setChildIds(Arrays.asList(new SampleIdentifier("/CISD/CL1")));
+
+        SampleUpdate update = new SampleUpdate();
+        update.getChildIds().set();
+
+        List<HistoryEntry> history = testMapWithHistory(creation, update);
+
+        assertEquals(history.size(), 1);
+
+        RelationHistoryEntry entry = (RelationHistoryEntry) history.get(0);
+        assertEquals(entry.getRelationType(), SampleRelationType.CHILD);
+        assertEquals(entry.getRelatedObjectId(), new SamplePermId("200811050919915-8"));
+    }
+
+    private List<HistoryEntry> testMapWithHistory(SampleCreation creation, SampleUpdate update)
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        List<SamplePermId> permIds = v3api.createSamples(sessionToken, Arrays.asList(creation));
+
+        if (update != null)
+        {
+            update.setSampleId(permIds.get(0));
+            v3api.updateSamples(sessionToken, Arrays.asList(update));
+        }
+
+        SampleFetchOptions fetchOptions = new SampleFetchOptions();
+        fetchOptions.withHistory();
+
+        Map<ISampleId, Sample> map = v3api.mapSamples(sessionToken, permIds, fetchOptions);
+
+        assertEquals(map.size(), 1);
+        Sample sample = map.get(permIds.get(0));
 
         v3api.logout(sessionToken);
+
+        return sample.getHistory();
     }
 
 }

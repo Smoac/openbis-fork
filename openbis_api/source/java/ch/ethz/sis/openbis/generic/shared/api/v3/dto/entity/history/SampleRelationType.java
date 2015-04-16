@@ -25,6 +25,6 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 public enum SampleRelationType implements IRelationType
 {
 
-    SPACE, EXPERIMENT, PARENT, CHILD, CONTAINER, COMPONENT, DATA_SET
+    SPACE, EXPERIMENT, PARENT, CHILD, CONTAINER, CONTAINED, DATA_SET
 
 }

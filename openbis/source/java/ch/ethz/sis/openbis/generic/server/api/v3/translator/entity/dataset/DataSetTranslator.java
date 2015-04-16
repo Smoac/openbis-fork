@@ -27,6 +27,7 @@ import ch.ethz.sis.openbis.generic.server.api.v3.translator.AbstractCachingTrans
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.Relations;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.experiment.IExperimentTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.history.IHistoryTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.material.IMaterialPropertyTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.person.IPersonTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.property.IPropertyTranslator;
@@ -71,6 +72,9 @@ public class DataSetTranslator extends AbstractCachingTranslator<DataPE, DataSet
 
     @Autowired
     private IExternalDataTranslator externalDataTranslator;
+
+    @Autowired
+    private IHistoryTranslator historyTranslator;
 
     @Override
     protected boolean shouldTranslate(TranslationContext context, DataPE input, DataSetFetchOptions fetchOptions)
@@ -186,6 +190,12 @@ public class DataSetTranslator extends AbstractCachingTranslator<DataPE, DataSet
                 result.setExternalData(externalDataTranslator.translate(context, (ExternalDataPE) dataPe, fetchOptions.withExternalData()));
             }
             result.getFetchOptions().withExternalDataUsing(fetchOptions.withExternalData());
+        }
+
+        if (fetchOptions.hasHistory())
+        {
+            result.setHistory(historyTranslator.translate(context, dataPe, fetchOptions.withHistory()));
+            result.getFetchOptions().withHistoryUsing(fetchOptions.withHistory());
         }
     }
 

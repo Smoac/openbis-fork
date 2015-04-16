@@ -25,6 +25,6 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 public enum DataSetRelationType implements IRelationType
 {
 
-    EXPERIMENT, SAMPLE, PARENT, CHILD, CONTAINER, COMPONENT
+    EXPERIMENT, SAMPLE, PARENT, CHILD, CONTAINER, CONTAINED
 
 }

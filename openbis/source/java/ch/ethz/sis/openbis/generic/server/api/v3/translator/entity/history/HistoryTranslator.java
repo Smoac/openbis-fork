@@ -144,7 +144,7 @@ public class HistoryTranslator extends AbstractCachingTranslator<IEntityInformat
         } else if (history.getExperiment() != null)
         {
             entry.setRelationType(SampleRelationType.EXPERIMENT);
-            entry.setRelatedObjectId(new SamplePermId(history.getEntityPermId()));
+            entry.setRelatedObjectId(new ExperimentPermId(history.getEntityPermId()));
         } else if (history.getSample() != null)
         {
             switch (history.getRelationType())
@@ -156,9 +156,9 @@ public class HistoryTranslator extends AbstractCachingTranslator<IEntityInformat
                     entry.setRelationType(SampleRelationType.PARENT);
                     break;
                 case CONTAINER:
-                    entry.setRelationType(SampleRelationType.COMPONENT);
+                    entry.setRelationType(SampleRelationType.CONTAINED);
                     break;
-                case COMPONENT:
+                case CONTAINED:
                     entry.setRelationType(SampleRelationType.CONTAINER);
                     break;
                 default:
@@ -200,9 +200,9 @@ public class HistoryTranslator extends AbstractCachingTranslator<IEntityInformat
                     entry.setRelationType(DataSetRelationType.PARENT);
                     break;
                 case CONTAINER:
-                    entry.setRelationType(DataSetRelationType.COMPONENT);
+                    entry.setRelationType(DataSetRelationType.CONTAINED);
                     break;
-                case COMPONENT:
+                case CONTAINED:
                     entry.setRelationType(DataSetRelationType.CONTAINER);
                     break;
                 default:
