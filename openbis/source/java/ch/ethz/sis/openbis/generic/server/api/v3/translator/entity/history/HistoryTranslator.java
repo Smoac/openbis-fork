@@ -116,15 +116,15 @@ public class HistoryTranslator extends AbstractCachingTranslator<IEntityInformat
         if (history.getProject() != null)
         {
             entry.setRelationType(ExperimentRelationType.PROJECT);
-            entry.setRelatedObjectId(new ProjectPermId(history.getEntityPermId()));
+            entry.setRelatedObjectId(new ProjectPermId(history.getProject().getPermId()));
         } else if (history.getSample() != null)
         {
             entry.setRelationType(ExperimentRelationType.SAMPLE);
-            entry.setRelatedObjectId(new SamplePermId(history.getEntityPermId()));
+            entry.setRelatedObjectId(new SamplePermId(history.getSample().getPermId()));
         } else if (history.getDataSet() != null)
         {
             entry.setRelationType(ExperimentRelationType.DATA_SET);
-            entry.setRelatedObjectId(new DataSetPermId(history.getEntityPermId()));
+            entry.setRelatedObjectId(new DataSetPermId(history.getDataSet().getCode()));
         } else
         {
             entry = null;
@@ -140,11 +140,11 @@ public class HistoryTranslator extends AbstractCachingTranslator<IEntityInformat
         if (history.getSpace() != null)
         {
             entry.setRelationType(SampleRelationType.SPACE);
-            entry.setRelatedObjectId(new SpacePermId(history.getEntityPermId()));
+            entry.setRelatedObjectId(new SpacePermId(history.getSpace().getCode()));
         } else if (history.getExperiment() != null)
         {
             entry.setRelationType(SampleRelationType.EXPERIMENT);
-            entry.setRelatedObjectId(new ExperimentPermId(history.getEntityPermId()));
+            entry.setRelatedObjectId(new ExperimentPermId(history.getExperiment().getPermId()));
         } else if (history.getSample() != null)
         {
             switch (history.getRelationType())
@@ -159,16 +159,17 @@ public class HistoryTranslator extends AbstractCachingTranslator<IEntityInformat
                     entry.setRelationType(SampleRelationType.CONTAINED);
                     break;
                 case CONTAINED:
+                case COMPONENT:
                     entry.setRelationType(SampleRelationType.CONTAINER);
                     break;
                 default:
                     throw new IllegalArgumentException("Unsupported relation type: " + history.getRelationType());
             }
-            entry.setRelatedObjectId(new SamplePermId(history.getEntityPermId()));
+            entry.setRelatedObjectId(new SamplePermId(history.getSample().getPermId()));
         } else if (history.getDataSet() != null)
         {
             entry.setRelationType(SampleRelationType.DATA_SET);
-            entry.setRelatedObjectId(new DataSetPermId(history.getEntityPermId()));
+            entry.setRelatedObjectId(new DataSetPermId(history.getDataSet().getCode()));
         } else
         {
             entry = null;
@@ -184,11 +185,11 @@ public class HistoryTranslator extends AbstractCachingTranslator<IEntityInformat
         if (history.getExperiment() != null)
         {
             entry.setRelationType(DataSetRelationType.EXPERIMENT);
-            entry.setRelatedObjectId(new ExperimentPermId(history.getEntityPermId()));
+            entry.setRelatedObjectId(new ExperimentPermId(history.getExperiment().getPermId()));
         } else if (history.getSample() != null)
         {
             entry.setRelationType(DataSetRelationType.SAMPLE);
-            entry.setRelatedObjectId(new SamplePermId(history.getEntityPermId()));
+            entry.setRelatedObjectId(new SamplePermId(history.getSample().getPermId()));
         } else if (history.getDataSet() != null)
         {
             switch (history.getRelationType())
@@ -203,12 +204,13 @@ public class HistoryTranslator extends AbstractCachingTranslator<IEntityInformat
                     entry.setRelationType(DataSetRelationType.CONTAINED);
                     break;
                 case CONTAINED:
+                case COMPONENT:
                     entry.setRelationType(DataSetRelationType.CONTAINER);
                     break;
                 default:
                     throw new IllegalArgumentException("Unsupported relation type: " + history.getRelationType());
             }
-            entry.setRelatedObjectId(new DataSetPermId(history.getEntityPermId()));
+            entry.setRelatedObjectId(new DataSetPermId(history.getDataSet().getPermId()));
         } else
         {
             entry = null;

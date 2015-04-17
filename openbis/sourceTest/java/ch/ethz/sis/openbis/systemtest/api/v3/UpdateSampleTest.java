@@ -1244,7 +1244,7 @@ public class UpdateSampleTest extends AbstractSampleTest
     }
 
     @Test
-    public void testWithMaterialProperties()
+    public void testUpdateWithMaterialProperties()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 

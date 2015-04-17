@@ -63,15 +63,31 @@ public class DataSetRelationshipId implements Serializable
 
     private DataPE childDataSet;
 
+    @NotNull(message = ValidationMessages.RELATIONSHIP_NOT_NULL_MESSAGE)
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = ColumnNames.RELATIONSHIP_COLUMN)
+    public RelationshipTypePE getRelationshipType()
+    {
+        return relationshipType;
+    }
+
+    public void setRelationshipType(RelationshipTypePE relationship)
+    {
+        this.relationshipType = relationship;
+    }
+
+    private RelationshipTypePE relationshipType;
+
     @Deprecated
     public DataSetRelationshipId()
     {
     }
 
-    public DataSetRelationshipId(DataPE parentDataSet, DataPE childDataSet)
+    public DataSetRelationshipId(DataPE parentDataSet, DataPE childDataSet, RelationshipTypePE relationshipType)
     {
         this.parentDataSet = parentDataSet;
         this.childDataSet = childDataSet;
+        this.relationshipType = relationshipType;
     }
 
     @Override
@@ -82,13 +98,14 @@ public class DataSetRelationshipId implements Serializable
         DataSetRelationshipId castOther = (DataSetRelationshipId) other;
         return new EqualsBuilder()
                 .append(this.parentDataSet.getId(), castOther.parentDataSet.getId())
-                .append(this.childDataSet.getId(), castOther.childDataSet.getId()).isEquals();
+                .append(this.childDataSet.getId(), castOther.childDataSet.getId())
+                .append(this.relationshipType.getId(), castOther.relationshipType.getId()).isEquals();
     }
 
     @Override
     public int hashCode()
     {
-        return new HashCodeBuilder().append(parentDataSet.getId()).append(childDataSet.getId())
+        return new HashCodeBuilder().append(parentDataSet.getId()).append(childDataSet.getId()).append(relationshipType.getId())
                 .toHashCode();
     }
 }

@@ -19,12 +19,17 @@ package ch.ethz.sis.openbis.systemtest.api.v3;
 import static org.testng.Assert.assertEquals;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.testng.annotations.Test;
 
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.history.HistoryEntry;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.history.PropertyHistoryEntry;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material.Material;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material.MaterialUpdate;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.tag.Tag;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.material.MaterialFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.material.IMaterialId;
@@ -98,7 +103,7 @@ public class MapMaterialTest extends AbstractDataSetTest
     }
 
     @Test
-    public void testWithMaterialProperties()
+    public void testMapWithMaterialProperties()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -122,7 +127,7 @@ public class MapMaterialTest extends AbstractDataSetTest
     }
 
     @Test
-    public void testWithType()
+    public void testMapWithType()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -133,6 +138,58 @@ public class MapMaterialTest extends AbstractDataSetTest
         Map<IMaterialId, Material> map = v3api.mapMaterials(sessionToken, Arrays.asList(selfId), fetchOptions);
         Material item = map.get(selfId);
         assertEquals(item.getType().getCode(), "SELF_REF");
+    }
+
+    @Test
+    public void testMapWithHistoryEmpty()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        MaterialPermId id = new MaterialPermId("VIRUS1", "VIRUS");
+
+        MaterialFetchOptions fetchOptions = new MaterialFetchOptions();
+        fetchOptions.withHistory();
+
+        Map<IMaterialId, Material> map = v3api.mapMaterials(sessionToken, Arrays.asList(id), fetchOptions);
+
+        assertEquals(map.size(), 1);
+        Material material = map.get(id);
+
+        List<HistoryEntry> history = material.getHistory();
+        assertEquals(history, Collections.emptyList());
+
+        v3api.logout(sessionToken);
+    }
+
+    @Test
+    public void testMapWithHistoryProperty()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        IMaterialId id = new MaterialPermId("VIRUS1", "VIRUS");
+
+        MaterialUpdate update = new MaterialUpdate();
+        update.setMaterialId(id);
+        update.setProperty("DESCRIPTION", "new description");
+
+        v3api.updateMaterials(sessionToken, Arrays.asList(update));
+
+        MaterialFetchOptions fetchOptions = new MaterialFetchOptions();
+        fetchOptions.withHistory();
+
+        Map<IMaterialId, Material> map = v3api.mapMaterials(sessionToken, Arrays.asList(id), fetchOptions);
+
+        assertEquals(map.size(), 1);
+        Material material = map.get(id);
+
+        List<HistoryEntry> history = material.getHistory();
+        assertEquals(history.size(), 1);
+
+        PropertyHistoryEntry entry = (PropertyHistoryEntry) history.get(0);
+        assertEquals(entry.getPropertyName(), "DESCRIPTION");
+        assertEquals(entry.getPropertyValue(), "test virus 1");
+
+        v3api.logout(sessionToken);
     }
 
     @Test

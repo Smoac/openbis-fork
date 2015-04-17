@@ -24,7 +24,7 @@ import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
 public enum RelationType
 {
     OWNER("Owner", "of"), OWNED("Owned", "by"), CHILD("Child", "of"), PARENT("Parent", "of"),
-    CONTAINER("Container", "of"), CONTAINED("Component", "of");
+    CONTAINER("Container", "of"), COMPONENT("Component", "of"), CONTAINED("Component", "of");
 
     private String description;
 

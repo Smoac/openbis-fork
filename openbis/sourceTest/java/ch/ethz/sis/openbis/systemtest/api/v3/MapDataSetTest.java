@@ -29,13 +29,22 @@ import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSetKind;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSetUpdate;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.history.DataSetRelationType;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.history.HistoryEntry;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.history.PropertyHistoryEntry;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.history.RelationHistoryEntry;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material.Material;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.tag.Tag;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.DataSetFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.tag.TagFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.DataSetPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.IDataSetId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentIdentifier;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.material.MaterialPermId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SampleIdentifier;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SamplePermId;
 
 /**
  * @author pkupczyk
@@ -170,7 +179,7 @@ public class MapDataSetTest extends AbstractDataSetTest
         v3api.logout(sessionToken);
     }
 
-    @Test(enabled=false)
+    @Test(enabled = false)
     public void testMapWithType()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
@@ -633,7 +642,7 @@ public class MapDataSetTest extends AbstractDataSetTest
     }
 
     @Test
-    public void testWithMaterialProperties()
+    public void testMapWithMaterialProperties()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -662,4 +671,207 @@ public class MapDataSetTest extends AbstractDataSetTest
         assertEquals(bacterium.getRegistrator().getUserId(), "test");
         assertTagsNotFetched(bacterium);
     }
+
+    @Test
+    public void testMapWithHistoryEmpty()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        IDataSetId id = new DataSetPermId("COMPONENT_1A");
+
+        DataSetFetchOptions fetchOptions = new DataSetFetchOptions();
+        fetchOptions.withHistory();
+
+        Map<IDataSetId, DataSet> map = v3api.mapDataSets(sessionToken, Arrays.asList(id), fetchOptions);
+
+        assertEquals(map.size(), 1);
+        DataSet dataSet = map.get(id);
+
+        List<HistoryEntry> history = dataSet.getHistory();
+        assertEquals(history, Collections.emptyList());
+
+        v3api.logout(sessionToken);
+    }
+
+    @Test
+    public void testMapWithHistoryProperty()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        IDataSetId id = new DataSetPermId("COMPONENT_1A");
+
+        DataSetUpdate update = new DataSetUpdate();
+        update.setDataSetId(id);
+        update.setProperty("COMMENT", "new comment");
+
+        v3api.updateDataSets(sessionToken, Arrays.asList(update));
+
+        DataSetFetchOptions fetchOptions = new DataSetFetchOptions();
+        fetchOptions.withHistory();
+
+        Map<IDataSetId, DataSet> map = v3api.mapDataSets(sessionToken, Arrays.asList(id), fetchOptions);
+
+        assertEquals(map.size(), 1);
+        DataSet dataSet = map.get(id);
+
+        List<HistoryEntry> history = dataSet.getHistory();
+        assertEquals(history.size(), 1);
+
+        PropertyHistoryEntry entry = (PropertyHistoryEntry) history.get(0);
+        assertEquals(entry.getPropertyName(), "COMMENT");
+        assertEquals(entry.getPropertyValue(), "co comment");
+
+        v3api.logout(sessionToken);
+    }
+
+    @Test
+    public void testMapWithHistoryExperiment()
+    {
+        IDataSetId id = new DataSetPermId("COMPONENT_1A");
+
+        DataSetUpdate update = new DataSetUpdate();
+        update.setDataSetId(id);
+        update.setExperimentId(new ExperimentIdentifier("/CISD/NEMO/EXP1"));
+
+        DataSetUpdate update2 = new DataSetUpdate();
+        update2.setDataSetId(id);
+        update2.setExperimentId(new ExperimentIdentifier("/CISD/DEFAULT/EXP-REUSE"));
+
+        List<HistoryEntry> history = testMapWithHistory(update, update2);
+        assertEquals(history.size(), 1);
+
+        RelationHistoryEntry entry = (RelationHistoryEntry) history.get(0);
+        assertEquals(entry.getRelationType(), DataSetRelationType.EXPERIMENT);
+        assertEquals(entry.getRelatedObjectId(), new ExperimentPermId("200811050951882-1028"));
+    }
+
+    @Test
+    public void testMapWithHistorySample()
+    {
+        IDataSetId id = new DataSetPermId("COMPONENT_1A");
+
+        DataSetUpdate update = new DataSetUpdate();
+        update.setDataSetId(id);
+        update.setSampleId(new SampleIdentifier("/CISD/3VCP5"));
+
+        DataSetUpdate update2 = new DataSetUpdate();
+        update2.setDataSetId(id);
+        update2.setSampleId(new SampleIdentifier("/CISD/3VCP6"));
+
+        List<HistoryEntry> history = testMapWithHistory(update, update2);
+        assertEquals(history.size(), 1);
+
+        RelationHistoryEntry entry = (RelationHistoryEntry) history.get(0);
+        assertEquals(entry.getRelationType(), DataSetRelationType.SAMPLE);
+        assertEquals(entry.getRelatedObjectId(), new SamplePermId("200811050946559-979"));
+    }
+
+    @Test
+    public void testMapWithHistoryContainer()
+    {
+        IDataSetId id = new DataSetPermId("COMPONENT_1A");
+
+        DataSetUpdate update = new DataSetUpdate();
+        update.setDataSetId(id);
+        update.getContainerIds().set(new DataSetPermId("CONTAINER_2"));
+
+        DataSetUpdate update2 = new DataSetUpdate();
+        update2.setDataSetId(id);
+        update2.getContainerIds().set(new DataSetPermId("CONTAINER_1"));
+
+        List<HistoryEntry> history = testMapWithHistory(update, update2);
+        assertEquals(history.size(), 1);
+
+        RelationHistoryEntry entry = (RelationHistoryEntry) history.get(0);
+        assertEquals(entry.getRelationType(), DataSetRelationType.CONTAINER);
+        assertEquals(entry.getRelatedObjectId(), new DataSetPermId("CONTAINER_2"));
+    }
+
+    @Test
+    public void testMapWithHistoryContained()
+    {
+        IDataSetId id = new DataSetPermId("CONTAINER_1");
+
+        DataSetUpdate update = new DataSetUpdate();
+        update.setDataSetId(id);
+        update.getContainedIds().set(new DataSetPermId("COMPONENT_2A"));
+
+        DataSetUpdate update2 = new DataSetUpdate();
+        update2.setDataSetId(id);
+        update2.getContainedIds().set(new DataSetPermId("COMPONENT_1A"));
+
+        List<HistoryEntry> history = testMapWithHistory(update, update2);
+        assertEquals(history.size(), 1);
+
+        RelationHistoryEntry entry = (RelationHistoryEntry) history.get(0);
+        assertEquals(entry.getRelationType(), DataSetRelationType.CONTAINED);
+        assertEquals(entry.getRelatedObjectId(), new DataSetPermId("COMPONENT_2A"));
+    }
+
+    @Test
+    public void testMapWithHistoryParent()
+    {
+        IDataSetId id = new DataSetPermId("COMPONENT_1A");
+
+        DataSetUpdate update = new DataSetUpdate();
+        update.setDataSetId(id);
+        update.getParentIds().set(new DataSetPermId("CONTAINER_2"));
+
+        DataSetUpdate update2 = new DataSetUpdate();
+        update2.setDataSetId(id);
+        update2.getParentIds().set(new DataSetPermId("CONTAINER_1"));
+
+        List<HistoryEntry> history = testMapWithHistory(update, update2);
+        assertEquals(history.size(), 1);
+
+        RelationHistoryEntry entry = (RelationHistoryEntry) history.get(0);
+        assertEquals(entry.getRelationType(), DataSetRelationType.PARENT);
+        assertEquals(entry.getRelatedObjectId(), new DataSetPermId("CONTAINER_2"));
+    }
+
+    @Test
+    public void testMapWithHistoryChild()
+    {
+        IDataSetId id = new DataSetPermId("CONTAINER_1");
+
+        DataSetUpdate update = new DataSetUpdate();
+        update.setDataSetId(id);
+        update.getChildIds().set(new DataSetPermId("COMPONENT_2A"));
+
+        DataSetUpdate update2 = new DataSetUpdate();
+        update2.setDataSetId(id);
+        update2.getChildIds().set(new DataSetPermId("COMPONENT_1A"));
+
+        List<HistoryEntry> history = testMapWithHistory(update, update2);
+        assertEquals(history.size(), 1);
+
+        RelationHistoryEntry entry = (RelationHistoryEntry) history.get(0);
+        assertEquals(entry.getRelationType(), DataSetRelationType.CHILD);
+        assertEquals(entry.getRelatedObjectId(), new DataSetPermId("COMPONENT_2A"));
+    }
+
+    private List<HistoryEntry> testMapWithHistory(DataSetUpdate... updates)
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        IDataSetId id = updates[0].getDataSetId();
+
+        for (DataSetUpdate update : updates)
+        {
+            v3api.updateDataSets(sessionToken, Arrays.asList(update));
+        }
+
+        DataSetFetchOptions fetchOptions = new DataSetFetchOptions();
+        fetchOptions.withHistory();
+
+        Map<IDataSetId, DataSet> map = v3api.mapDataSets(sessionToken, Arrays.asList(id), fetchOptions);
+
+        assertEquals(map.size(), 1);
+        DataSet dataSet = map.get(id);
+
+        v3api.logout(sessionToken);
+
+        return dataSet.getHistory();
+    }
+
 }
