@@ -7,6 +7,9 @@ $.extend(ELNPaperProfile.prototype, DefaultProfile.prototype, {
 	init: function(serverFacade){
 		DefaultProfile.prototype.init.call(this, serverFacade);
 		
+		this.hideCodes = true;
+		
+		
 		this.storagesConfiguration = {
 				"isEnabled" : true,
 				/*
