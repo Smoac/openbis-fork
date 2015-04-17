@@ -2637,13 +2637,6 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
         final Session session = getSession(sessionToken);
         final IDataBO dataSetBO = businessObjectFactory.createDataBO(session);
         dataSetBO.update(dataSetUpdates);
-        try
-        {
-            daoFactory.getSessionFactory().getCurrentSession().flush();
-        } catch (Exception e)
-        {
-        }
-
     }
 
     @Override

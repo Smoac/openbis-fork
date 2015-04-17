@@ -636,8 +636,6 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
         validateAndSave();
 
         data.setModificationDate(new Date(data.getModificationDate().getTime() - 1));
-        validateAndSave();
-
     }
 
     private List<String> asListOrNull(String[] arrayOrNull)
