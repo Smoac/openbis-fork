@@ -75,11 +75,11 @@ public class CreateMaterialTest extends AbstractSampleTest
 
         MaterialCreation m1 = geneCreation("NEW_GENE_WITH_TAGS");
 
-        List<MaterialPermId> materialIds = v3api.createMaterials(sessionToken, Arrays.asList(m1));
-
         TagCode test123 = new TagCode("TEST_123");
         TagCode testMetaprojects = new TagCode("TEST_METAPROJECTS");
         m1.setTagIds(Arrays.asList(test123, testMetaprojects));
+        
+        List<MaterialPermId> materialIds = v3api.createMaterials(sessionToken, Arrays.asList(m1));
 
         MaterialFetchOptions fetchOptions = new MaterialFetchOptions();
         fetchOptions.withTags();
