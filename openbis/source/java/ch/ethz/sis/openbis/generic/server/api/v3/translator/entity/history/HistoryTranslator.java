@@ -94,12 +94,14 @@ public class HistoryTranslator extends AbstractCachingTranslator<IEntityInformat
 
             if (entry != null)
             {
+                entry.setFetchOptions(new HistoryEntryFetchOptions());
                 entry.setValidFrom(peEntry.getValidFromDate());
                 entry.setValidTo(peEntry.getValidUntilDate());
 
                 if (fetchOptions.hasAuthor())
                 {
                     entry.setAuthor(personTranslator.translate(context, peEntry.getAuthor(), fetchOptions.withAuthor()));
+                    entry.getFetchOptions().withAuthorUsing(fetchOptions.withAuthor());
                 }
 
                 entries.add(entry);

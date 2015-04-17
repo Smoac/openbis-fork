@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -1034,6 +1035,41 @@ public class MapSampleTest extends AbstractSampleTest
         assertEquals(history, Collections.emptyList());
     }
 
+    @Test(enabled = false)
+    public void testMapWithHistoryDates()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        Date start = new Date();
+
+        SampleUpdate update = new SampleUpdate();
+        update.setSampleId(new SamplePermId("200902091219327-1025"));
+        update.setProperty("SIZE", "12");
+
+        v3api.updateSamples(sessionToken, Arrays.asList(update));
+
+        SampleFetchOptions fetchOptions = new SampleFetchOptions();
+        fetchOptions.withHistory();
+
+        Map<ISampleId, Sample> map = v3api.mapSamples(sessionToken, Arrays.asList(update.getSampleId()), fetchOptions);
+
+        Date end = new Date();
+
+        Sample sample = map.get(update.getSampleId());
+
+        List<HistoryEntry> history = sample.getHistory();
+        assertEquals(history.size(), 1);
+
+        PropertyHistoryEntry entry = (PropertyHistoryEntry) history.get(0);
+        assertEquals(entry.getPropertyName(), "SIZE");
+        assertEquals(entry.getPropertyValue(), "123");
+
+        assertTrue(entry.getValidFrom().after(start));
+        assertTrue(entry.getValidFrom().before(end));
+        assertTrue(entry.getValidTo().after(entry.getValidFrom()));
+        assertTrue(entry.getValidTo().before(end));
+    }
+
     @Test
     public void testMapWithHistoryProperty()
     {
@@ -1053,6 +1089,9 @@ public class MapSampleTest extends AbstractSampleTest
         PropertyHistoryEntry entry = (PropertyHistoryEntry) history.get(0);
         assertEquals(entry.getPropertyName(), "COMMENT");
         assertEquals(entry.getPropertyValue(), "comment1");
+        assertTrue(entry.getValidFrom() != null);
+        assertTrue(entry.getValidTo() != null);
+        assertEquals(entry.getAuthor().getUserId(), TEST_USER);
     }
 
     @Test
@@ -1234,7 +1273,7 @@ public class MapSampleTest extends AbstractSampleTest
         }
 
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
-        fetchOptions.withHistory();
+        fetchOptions.withHistory().withAuthor();
 
         Map<ISampleId, Sample> map = v3api.mapSamples(sessionToken, permIds, fetchOptions);
 
