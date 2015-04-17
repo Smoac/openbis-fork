@@ -18,3 +18,8 @@ if [ $? -eq 0 ]; then echo "Tag already exists!"; exit 1; fi
 svn mkdir --parents svn+ssh://svncisd.ethz.ch/repos/cisd/openbis_all/tags/$1 -m "create tag $1/$2"
 svn copy svn+ssh://svncisd.ethz.ch/repos/cisd/openbis_all/branches/$1 svn+ssh://svncisd.ethz.ch/repos/cisd/openbis_all/tags/$1/$2 -m "create tag $1/$2"
 
+rm -rf elntemp
+svn co --depth=immediates svn+ssh://svncisd.ethz.ch/repos/cisd/openbis_all/tags/$1/$2/plasmid/source/core-plugins/newbrowser elntemp
+svn info svn+ssh://svncisd.ethz.ch/repos/cisd/openbis_all/tags/$1/$2 > elntemp/version.txt
+svn add elntemp/version.txt
+svn commit elntemp -m "Added ELN build info to tag $1/$2"
