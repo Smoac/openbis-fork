@@ -21,6 +21,7 @@ dependencies {
 			'hibernate:hibernate-search-orm:5.0.1.Final',
 			'eclipse:jetty-deploy:8.1.8.v20121106',
 			'google:gwt-debug-panel:1.0',
+			'javax:servlet-api:+',
 			'google:gwt-user:+',
 			'reveregroup:gwt-image-loader:+',
 			'springframework:spring-orm:+',
