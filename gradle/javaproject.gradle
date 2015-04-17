@@ -291,7 +291,12 @@ eclipse.classpath.file {
         def projectRefs = classpath.entries.findAll{entry -> entry.kind =='src' && entry.path.startsWith('/')}
         classpath.entries.removeAll(projectRefs)
         classpath.entries.addAll(projectRefs)   
-    }   
+		
+		gwtlib = classpath.entries.findAll {entry -> entry.path.contains('gwt-user')}
+		if (gwtlib.size() == 1) {
+			gwtlib.get(0).path = gwtlib.get(0).path.replace('gwt-user', 'gwt-user-eclipse')
+		}
+    }
 }
 
 task testJar(type: Jar, dependsOn: testClasses) {
