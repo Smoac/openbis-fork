@@ -18,7 +18,8 @@ function VocabularyManagerView(vocabularyManagerController, vocabularyManagerMod
 	this._vocabularyManagerController = vocabularyManagerController;
 	this._vocabularyManagerModel = vocabularyManagerModel;
 	this._dataGridContainer = $("<div>");
-		
+	this._subtitle = $("<legend>");
+	
 	this.repaint = function($container) {
 		$container.empty();
 		
@@ -32,7 +33,8 @@ function VocabularyManagerView(vocabularyManagerController, vocabularyManagerMod
 			"onsubmit" : ""
 		});
 		
-		$containerColumn.append($("<h1>").append(" Vocabulary Viewer"));
+		$containerColumn.append($("<h1>").append("Vocabulary Viewer"));
+		$containerColumn.append(this._subtitle);
 		this._showVocabularies();
 		$containerColumn.append(this._dataGridContainer);
 		$container.append($containerColumn);
@@ -71,7 +73,8 @@ function VocabularyManagerView(vocabularyManagerController, vocabularyManagerMod
 		var dataGrid = new DataGridController(null, columns, getDataList, rowClick, true, "VOCABULARY_TABLE");
 		dataGrid.init(this._dataGridContainer);
 		
-		this._dataGridContainer.prepend($("<legend>").append(" Vocabularies"));
+		this._subtitle.empty();
+		this._subtitle.append("Vocabularies List");
 	}
 	
 	this._showVocabulary = function(vocabulary) {
@@ -106,6 +109,7 @@ function VocabularyManagerView(vocabularyManagerController, vocabularyManagerMod
 		var dataGrid = new DataGridController(null, columns, getDataList, null, true, "VOCABULARY_TERMS_TABLE");
 		dataGrid.init(this._dataGridContainer);
 		
-		this._dataGridContainer.prepend($("<legend>").append(" Terms from vocabulary " + vocabulary.code));
+		this._subtitle.empty();
+		this._subtitle.append("Terms from vocabulary " + vocabulary.code);
 	}
 }
