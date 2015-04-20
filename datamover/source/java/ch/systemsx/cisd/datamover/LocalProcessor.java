@@ -308,6 +308,11 @@ public final class LocalProcessor implements IPathHandler, IRecoverableTimerTask
                 {
                     operationLog.info(String.format("FINISHED_TRANSFORMATION '%s'", path
                             .getAbsolutePath()));
+                    if (path.exists() == false)
+                    {
+                        operationLog.info("Transformation has changed original path.");
+                        return;
+                    }
                 }
             }
 
