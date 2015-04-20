@@ -76,7 +76,7 @@ public final class DataSetNode extends EntityNode
         return containers;
     }
     
-    DataSetNode nonDeletable()
+    public DataSetNode nonDeletable()
     {
         deletable = false;
         return this;

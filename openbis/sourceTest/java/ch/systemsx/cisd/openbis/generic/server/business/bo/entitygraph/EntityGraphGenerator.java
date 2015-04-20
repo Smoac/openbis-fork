@@ -389,26 +389,38 @@ public final class EntityGraphGenerator
     
     public Map<Long, Set<Long>> getContainerDataSetIdsMap(Collection<TechId> dataSetIds)
     {
-        return getRelatedIdsMap(dataSetIds, dataSets,new EntityGraphGenerator.IEntitiesProvider<DataSetNode>()
+        return getRelatedIdsMap(dataSetIds, dataSets, new EntityGraphGenerator.IEntitiesProvider<DataSetNode>()
+            {
+                @Override
+                public Collection<? extends EntityNode> getEntities(DataSetNode dataSet)
+                {
+                    return dataSet.getContainers();
+                }
+            });
+    }
+
+    public Map<Long, Set<Long>> getComponentDataSetIdsMap(Collection<TechId> dataSetIds)
+    {
+        return getRelatedIdsMap(dataSetIds, dataSets, new EntityGraphGenerator.IEntitiesProvider<DataSetNode>()
                 {
             @Override
             public Collection<? extends EntityNode> getEntities(DataSetNode dataSet)
             {
-                return dataSet.getContainers();
+                return dataSet.getComponents();
             }
-        });
+                });
     }
     
     public Map<Long, Set<Long>> getParentsDataSetIdsMap(Collection<TechId> dataSetIds)
     {
-        return getRelatedIdsMap(dataSetIds, dataSets,new EntityGraphGenerator.IEntitiesProvider<DataSetNode>()
-                {
-            @Override
-            public Collection<? extends EntityNode> getEntities(DataSetNode dataSet)
+        return getRelatedIdsMap(dataSetIds, dataSets, new EntityGraphGenerator.IEntitiesProvider<DataSetNode>()
             {
-                return dataSet.getParents();
-            }
-                });
+                @Override
+                public Collection<? extends EntityNode> getEntities(DataSetNode dataSet)
+                {
+                    return dataSet.getParents();
+                }
+            });
     }
 
     @Override

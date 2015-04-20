@@ -18,6 +18,11 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo.entitygraph;
 
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -29,13 +34,31 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
  */
 public class Utils
 {
-
+    public static Sample createSample(SampleNode sampleNode)
+    {
+        if (sampleNode == null)
+        {
+            return null;
+        }
+        Sample sample = new Sample();
+        sample.setId(sampleNode.getId());
+        sample.setCode(sampleNode.getCode());
+        sample.setIdentifier(sampleNode.getCode());
+        sample.setExperiment(createExperiment(sampleNode.getExperiment()));
+        sample.setContainer(createSample(sampleNode.getContainer()));
+        return sample;
+    }
+    
     public static ExternalDataPE createData(DataSetNode dataSetNode)
     {
         ExternalDataPE data = new ExternalDataPE();
         Long id = dataSetNode.getId();
         data.setId(id);
         data.setCode(dataSetNode.getCode());
+        if (dataSetNode.isDeletable() == false)
+        {
+            data.setStatus(DataSetArchivingStatus.ARCHIVE_PENDING);
+        }
         ExperimentNode experiment;
         SampleNode sample = dataSetNode.getSample();
         if (sample != null)
@@ -59,6 +82,43 @@ public class Utils
         return data;
     }
 
+    public static AbstractExternalData createExternalData(DataSetNode dataSetNode)
+    {
+        PhysicalDataSet data = new PhysicalDataSet();
+        Long id = dataSetNode.getId();
+        data.setId(id);
+        data.setCode(dataSetNode.getCode());
+        ExperimentNode experimentNode;
+        SampleNode sampleNode = dataSetNode.getSample();
+        if (sampleNode != null)
+        {
+            Sample sample = new Sample();
+            sample.setId(sampleNode.getId());
+            sample.setCode(sampleNode.getCode());
+            sample.setIdentifier(sampleNode.getCode());
+            data.setSample(sample);
+            experimentNode = sampleNode.getExperiment();
+        } else
+        {
+            experimentNode = dataSetNode.getExperiment();
+        }
+        data.setExperiment(createExperiment(experimentNode));
+        return data;
+    }
+
+    private static Experiment createExperiment(ExperimentNode experimentNode)
+    {
+        if (experimentNode == null)
+        {
+            return null;
+        }
+        Experiment experiment = new Experiment();
+        experiment.setId(experimentNode.getId());
+        experiment.setCode(experimentNode.getCode());
+        experiment.setIdentifier(experimentNode.getCode());
+        return experiment;
+    }
+    
     static final void appendTo(StringBuilder builder, String label, List<? extends EntityNode> entityNodes)
     {
         if (entityNodes.isEmpty())
