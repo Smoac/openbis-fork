@@ -42,6 +42,11 @@ public class EntityNode implements IIdHolder, Comparable<EntityNode>
     {
         return code;
     }
+    
+    public String getIdentifier()
+    {
+        return getCode();
+    }
 
     public String getType()
     {

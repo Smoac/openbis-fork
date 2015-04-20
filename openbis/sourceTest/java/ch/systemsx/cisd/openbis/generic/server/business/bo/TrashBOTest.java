@@ -680,7 +680,7 @@ public final class TrashBOTest extends AbstractBOTest
         } catch (UserFailureException ex)
         {
             String outsiderType = outsiderNode instanceof ExperimentNode ? "experiment" : "sample";
-            assertEquals("The sample " + relatedSample.getCode() + " belongs to " + outsiderType + " " 
+            assertEquals("The sample " + relatedSample.getIdentifier() + " belongs to " + outsiderType + " " 
                     + outsiderNode.getCode() + " is outside the deletion set.", ex.getMessage());
         }
     }
@@ -698,12 +698,13 @@ public final class TrashBOTest extends AbstractBOTest
         }
     }
     
-    private void assertExceptionMessage(DataSetNode originalDataSet, DataSetNode relatedDataSet, EntityNode outsiderNode, UserFailureException ex)
+    private void assertExceptionMessage(DataSetNode originalDataSet, DataSetNode relatedDataSet, 
+            EntityNode outsiderNode, UserFailureException ex)
     {
         String outsiderType = outsiderNode instanceof ExperimentNode ? "experiment" : "sample";
         assertEquals("The data set " + originalDataSet.getCode() + " is a component of the data set " 
                 + relatedDataSet.getCode() + " which belongs to " + outsiderType + " " 
-                + outsiderNode.getCode() + " outside the deletion set.", ex.getMessage());
+                + outsiderNode.getIdentifier() + " outside the deletion set.", ex.getMessage());
     }
 
     private void prepareEntityGraph(EntityGraphGenerator g)

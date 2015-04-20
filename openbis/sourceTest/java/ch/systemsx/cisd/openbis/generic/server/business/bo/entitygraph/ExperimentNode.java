@@ -83,6 +83,12 @@ public final class ExperimentNode extends EntityNode
     }
     
     @Override
+    public String getIdentifier()
+    {
+        return "/" + (space == null ? "" : space) + "/" + (project == null ? "" : project) + "/" + getCode();
+    }
+
+    @Override
     public String getIdentifierAndType()
     {
         String identifierAndType = super.getIdentifierAndType();

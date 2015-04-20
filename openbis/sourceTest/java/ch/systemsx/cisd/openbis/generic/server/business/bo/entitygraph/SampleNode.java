@@ -139,6 +139,16 @@ public final class SampleNode extends EntityNode
     }
     
     @Override
+    public String getIdentifier()
+    {
+        if (shared)
+        {
+            return "/" + getCode();
+        }
+        return "/" + (space == null ? "" : space) + "/" + getCode();
+    }
+
+    @Override
     public String getIdentifierAndType()
     {
         String identifierAndType = super.getIdentifierAndType();

@@ -44,7 +44,6 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
@@ -52,7 +51,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCrite
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
@@ -429,18 +430,18 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
         }
         Set<Long> allRelatedDataSets = new LinkedHashSet<Long>();
         addIds(allRelatedDataSets, containerIds);
-        List<AbstractExternalData> relatedDataSets 
-                = datasetLister.listByDatasetIds(allRelatedDataSets, DATA_SET_FETCH_OPTIONS);
+        IDataSetTable dataSetTable = boFactory.createDataSetTable(session);
+        dataSetTable.loadByIds(TechId.createList(new ArrayList<Long>(allRelatedDataSets)));
         StringBuilder builder = new StringBuilder();
         int numberOfForeignDataSets = 0;
-        for (AbstractExternalData relatedDataSet : relatedDataSets)
+        for (DataPE relatedDataSet : dataSetTable.getDataSets())
         {
             if (numberOfForeignDataSets >= 10)
             {
                 break;
             }
-            Sample sample = relatedDataSet.getSample();
-            Experiment experiment = relatedDataSet.getExperiment();
+            SamplePE sample = relatedDataSet.tryGetSample();
+            ExperimentPE experiment = relatedDataSet.getExperiment();
             if (sample != null)
             {
                 if (sIds.contains(sample.getId()) == false)
@@ -463,7 +464,7 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
         }
     }
     
-    private void addTo(StringBuilder builder, String entityDescription, AbstractExternalData dataSet, 
+    private void addTo(StringBuilder builder, String entityDescription, DataPE dataSet, 
             Map<Long, Set<Long>> containerIds)
     {
         String findOriginalDataSet = findOriginalDataSet(containerIds, dataSet);
@@ -471,7 +472,7 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
                 + dataSet.getCode() + " which belongs to " + entityDescription + " outside the deletion set.\n");
     }
     
-    private String findOriginalDataSet(Map<Long, Set<Long>> relations, AbstractExternalData dataSet)
+    private String findOriginalDataSet(Map<Long, Set<Long>> relations, DataPE dataSet)
     {
         Set<Entry<Long, Set<Long>>> entrySet = relations.entrySet();
         for (Entry<Long, Set<Long>> entry : entrySet)
