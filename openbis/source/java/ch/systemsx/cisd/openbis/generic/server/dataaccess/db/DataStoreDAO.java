@@ -26,6 +26,7 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.CriteriaSpecification;
 import org.hibernate.criterion.Restrictions;
+import org.springframework.orm.hibernate4.HibernateCallback;
 import org.springframework.orm.hibernate4.HibernateTemplate;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -68,42 +69,42 @@ public class DataStoreDAO extends AbstractDAO implements IDataStoreDAO
     }
 
     @Override
-    public DataStorePE tryToFindDataStoreByCode(String dataStoreCode)
+    public DataStorePE tryToFindDataStoreByCode(final String dataStoreCode)
     {
         assert dataStoreCode != null : "Unspecified data store code.";
 
-        final Criteria criteria = currentSession().createCriteria(DataStorePE.class);
-        criteria.add(Restrictions.eq("code", CodeConverter.tryToDatabase(dataStoreCode)));
-        return (DataStorePE) criteria.uniqueResult();
+        return getHibernateTemplate().executeWithNativeSession(new HibernateCallback<DataStorePE>()
+            {
+                @Override
+                public DataStorePE doInHibernate(Session session) throws HibernateException
+                {
+                    final Criteria criteria = session.createCriteria(DataStorePE.class);
+                    criteria.add(Restrictions.eq("code", CodeConverter.tryToDatabase(dataStoreCode)));
+                    return (DataStorePE) criteria.uniqueResult();
+                }
+            });
     }
 
     @Override
     public List<DataStorePE> listDataStores()
     {
-        boolean hasToClose = false;
-        Session currentSession;
-        try
-        {
-            currentSession = currentSession();
-        } catch (HibernateException e)
-        {
-            currentSession = this.getSessionFactory().openSession();
-            hasToClose = true;
-        }
+        return getHibernateTemplate().executeWithNativeSession(new HibernateCallback<List<DataStorePE>>()
+            {
 
-        final Criteria criteria = currentSession.createCriteria(ENTITY_CLASS);
-        criteria.setFetchMode("servicesInternal", FetchMode.JOIN);
-        criteria.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
-        final List<DataStorePE> list = cast(criteria.list());
-        if (operationLog.isDebugEnabled())
-        {
-            operationLog.debug(String.format("%d data stores have been found.", list.size()));
-        }
-        if (hasToClose)
-        {
-            currentSession.close();
-        }
-        return list;
+                @Override
+                public List<DataStorePE> doInHibernate(Session session) throws HibernateException
+                {
+                    final Criteria criteria = session.createCriteria(ENTITY_CLASS);
+                    criteria.setFetchMode("servicesInternal", FetchMode.JOIN);
+                    criteria.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
+                    final List<DataStorePE> list = cast(criteria.list());
+                    if (operationLog.isDebugEnabled())
+                    {
+                        operationLog.debug(String.format("%d data stores have been found.", list.size()));
+                    }
+                    return list;
+                }
+            });
     }
 
 }
