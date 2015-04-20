@@ -562,6 +562,8 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
     @Column(name = ColumnNames.ACCESS_TIMESTAMP, nullable = false, insertable = false)
     @Generated(GenerationTime.ALWAYS)
     @Field(name = SearchFieldConstants.ACCESS_DATE, index = Index.YES, store = Store.NO)
+    @FieldBridge(impl = org.hibernate.search.bridge.builtin.StringEncodingDateBridge.class,
+            params = { @org.hibernate.search.annotations.Parameter(name = "resolution", value = "SECOND") })
     @DateBridge(resolution = Resolution.SECOND)
     public Date getAccessDate()
     {
