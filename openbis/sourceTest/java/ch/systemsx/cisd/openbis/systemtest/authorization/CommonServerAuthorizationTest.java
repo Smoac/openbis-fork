@@ -18,18 +18,25 @@ package ch.systemsx.cisd.openbis.systemtest.authorization;
 
 import static org.testng.AssertJUnit.assertEquals;
 
+import java.util.List;
+
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.entitygraph.EntityGraphGenerator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityDescription;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelationshipRole;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.systemtest.base.BaseTest;
 
 /**
@@ -37,6 +44,28 @@ import ch.systemsx.cisd.openbis.systemtest.base.BaseTest;
  */
 public class CommonServerAuthorizationTest extends BaseTest
 {
+    @Test
+    public void testChildrenAndParentDataSetsNotVisible()
+    {
+        EntityGraphGenerator g = parseAndCreateGraph("/S1/P1/E1, data sets: DS1 DS4\n"
+                + "/S2/P2/E2, data sets: DS2 DS3 DS5\n"
+                + "DS1, parents: DS3\n"
+                + "DS2, parents: DS3\n"
+                + "DS3, parents: DS4 DS5\n");
+        AbstractExternalData ds2 = entityGraphManager.getDataSet(g.ds(2));
+        AbstractExternalData ds3 = entityGraphManager.getDataSet(g.ds(3));
+        AbstractExternalData ds5 = entityGraphManager.getDataSet(g.ds(5));
+        Space space = ds3.getExperiment().getProject().getSpace();
+        assertEquals("S2", space.getCode());
+        TechId ds3Id = new TechId(ds3.getId());
+        String user = create(aSession().withSpaceRole(RoleCode.ADMIN, space));
+  
+        List<AbstractExternalData> children = commonServer.listDataSetRelationships(user, ds3Id,DataSetRelationshipRole.PARENT);
+        assertEquals("[" + ds2.getCode() + "]", Code.extractCodes(children).toString());
+        List<AbstractExternalData> parents = commonServer.listDataSetRelationships(user, ds3Id, DataSetRelationshipRole.CHILD);
+        assertEquals("[" + ds5.getCode() + "]", Code.extractCodes(parents).toString());
+    }
+
     @Test
     public void testGetEntityInformationHolderForExperiment()
     {
