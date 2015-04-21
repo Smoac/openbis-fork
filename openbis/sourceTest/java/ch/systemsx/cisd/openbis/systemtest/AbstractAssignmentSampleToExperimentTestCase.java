@@ -241,6 +241,71 @@ public abstract class AbstractAssignmentSampleToExperimentTestCase extends BaseT
     }
     
     @Test
+    public void assignSampleWithExperimentWithDataSetWithComponentFromAnotherExperimentToExperiment()
+    {
+        EntityGraphGenerator g = parseAndCreateGraph("E1, samples: S1, data sets: DS1\n"
+                + "E2, data sets: DS2\n"
+                + "E3\n"
+                + "S1, data sets: DS1\n"
+                + "DS1, components: DS2");
+        
+        reassignSampleToExperiment(g.s(1), g.e(3));
+        
+        assertEquals("E2, data sets: DS2\n"
+                + "E3, samples: S1, data sets: DS1\n"
+                + "S1, data sets: DS1\n"
+                + "DS1, components: DS2\n", renderGraph(g));
+        assertModified(g.e(1), g.e(3));
+        assertModified(g.s(1));
+        assertModified(g.ds(1));
+        assertUnmodified(g);
+    }
+    
+    @Test
+    public void assignSampleWithExperimentWithDataSetWithContainerFromAnotherSampleButSameExperimentToExperiment()
+    {
+        EntityGraphGenerator g = parseAndCreateGraph("E1, samples: S1 S2, data sets: DS1 DS2\n"
+                + "E2\n"
+                + "S1, data sets: DS1\n"
+                + "S2, data sets: DS2\n"
+                + "DS1, components: DS2");
+        
+        reassignSampleToExperiment(g.s(2), g.e(2));
+        
+        assertEquals("E1, samples: S1, data sets: DS1\n"
+                + "E2, samples: S2, data sets: DS2\n"
+                + "S1, data sets: DS1\n"
+                + "S2, data sets: DS2\n"
+                + "DS1, components: DS2\n", renderGraph(g));
+        assertModified(g.e(1), g.e(2));
+        assertModified(g.s(2));
+        assertModified(g.ds(2));
+        assertUnmodified(g);
+    }
+    
+    @Test
+    public void assignSampleWithExperimentWithDataSetWithComponentFromAnotherSampleButSameExperimentToExperiment()
+    {
+        EntityGraphGenerator g = parseAndCreateGraph("E1, samples: S1 S2, data sets: DS1 DS2\n"
+                + "E2\n"
+                + "S1, data sets: DS1\n"
+                + "S2, data sets: DS2\n"
+                + "DS1, components: DS2");
+        
+        reassignSampleToExperiment(g.s(1), g.e(2));
+        
+        assertEquals("E1, samples: S2, data sets: DS2\n"
+                + "E2, samples: S1, data sets: DS1\n"
+                + "S1, data sets: DS1\n"
+                + "S2, data sets: DS2\n"
+                + "DS1, components: DS2\n", renderGraph(g));
+        assertModified(g.e(1), g.e(2));
+        assertModified(g.s(1));
+        assertModified(g.ds(1));
+        assertUnmodified(g);
+    }
+    
+    @Test
     public void assignScreeningPlateToExperiment()
     {
         EntityGraphGenerator g = parseAndCreateGraph("E1, samples: S1, data sets: DS1 DS2\n"
