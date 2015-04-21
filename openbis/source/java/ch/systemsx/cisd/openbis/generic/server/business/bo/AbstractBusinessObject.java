@@ -90,7 +90,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityWithMetaprojects;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IModifierAndModificationDateBean;
@@ -782,14 +781,6 @@ abstract class AbstractBusinessObject implements IDAOFactory
     protected void assignSampleAndRelatedDataSetsToExperiment(SamplePE sample, ExperimentPE newExperiment)
     {
         NewDataSetToSampleExperimentAssignmentManager assignmentManager = new NewDataSetToSampleExperimentAssignmentManager(dataSetTypeChecker);
-        ExperimentPE previousSampleExperiment = sample.getExperiment();
-        if (previousSampleExperiment != null)
-        {
-            for (DataPE dataSet : previousSampleExperiment.getDataSets())
-            {
-                assignmentManager.assignDataSetAndRelatedComponents(dataSet, null, newExperiment);
-            }
-        }
         for (DataPE dataSet : sample.getDatasets())
         {
             assignmentManager.assignDataSetAndRelatedComponents(dataSet, sample, newExperiment);

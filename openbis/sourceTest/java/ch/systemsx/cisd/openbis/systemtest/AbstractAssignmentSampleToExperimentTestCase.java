@@ -225,13 +225,14 @@ public abstract class AbstractAssignmentSampleToExperimentTestCase extends BaseT
     @Test
     public void assignSampleWithExperimentWithDataSetsToExperiment()
     {
-        EntityGraphGenerator g = parseAndCreateGraph("E1, samples: S1, data sets: DS1\n"
+        EntityGraphGenerator g = parseAndCreateGraph("E1, samples: S1, data sets: DS1 DS3\n"
                 + "E2, samples: S2, data sets: DS2\n"
                 + "S1, data sets: DS1\n");
         
         reassignSampleToExperiment(g.s(1), g.e(2));
         
-        assertEquals("E2, samples: S1 S2, data sets: DS1 DS2\n"
+        assertEquals("E1, data sets: DS3\n"
+                + "E2, samples: S1 S2, data sets: DS1 DS2\n"
                 + "S1, data sets: DS1\n", renderGraph(g));
         assertModified(g.e(1), g.e(2));
         assertModified(g.s(1));
