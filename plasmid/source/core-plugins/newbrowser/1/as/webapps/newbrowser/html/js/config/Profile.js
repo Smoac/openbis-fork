@@ -422,7 +422,50 @@ $.extend(DefaultProfile.prototype, {
 			var _this = this; 
 			this.serverFacade.listPropertyTypes(function(data) {
 				_this.allPropertyTypes = data.result;
-				callback();
+				
+				_this.serverFacade.listVocabularies(function(result) {
+					//Init Vocabularies, so we don't miss vocabularies missing on sample types used only on annotations, etc...
+					_this.allVocabularies = result.result;
+					//Fix Property Types
+					var intToVocabularyCode = {};
+					
+					//1. Obtain mapping from ids to codes
+					for(var pIdx = 0; pIdx < _this.allPropertyTypes.length; pIdx++) {
+						var propertyType = _this.allPropertyTypes[pIdx];
+						if (propertyType.dataType === "CONTROLLEDVOCABULARY") {
+							var vocabularyOrNumber = propertyType.vocabulary;
+							if (vocabularyOrNumber !== parseInt(vocabularyOrNumber, 10)) { //Is vocabulary
+								intToVocabularyCode[propertyType.vocabulary["@id"]] = propertyType.vocabulary.code
+							}
+						}
+					}
+					
+					//2. Resolve ids and partial objects from the returned complete vocabularies
+					for(var pIdx = 0; pIdx < _this.allPropertyTypes.length; pIdx++) {
+						var propertyType = _this.allPropertyTypes[pIdx];
+						if (propertyType.dataType === "CONTROLLEDVOCABULARY") {
+							var vocabularyOrNumber = propertyType.vocabulary;
+							var vocabularyCode = null;
+							if (vocabularyOrNumber === parseInt(vocabularyOrNumber, 10)) { //Is number
+								vocabularyCode = intToVocabularyCode[vocabularyOrNumber];
+							} else {
+								vocabularyCode = propertyType.vocabulary.code;
+							}
+									
+							if(!vocabularyCode) {
+								alert("[TO-DELETE] Empty Vocabulary during init, this should never happen, tell the developers.");
+							}
+							var vocabulary = _this.getVocabularyByCode(vocabularyCode);
+							propertyType.vocabulary = vocabulary;
+							propertyType.terms = vocabulary.terms;
+						}
+					}
+					
+					//Continue Init Case
+					callback();
+				});
+				
+				
 			});
 		}
 		
