@@ -34,6 +34,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.UUID;
 
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.entitygraph.DataSetNode;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.entitygraph.EntityGraphGenerator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.entitygraph.EntityNode;
@@ -66,6 +67,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
@@ -206,18 +208,26 @@ public class EntityGraphManager
         StringBuilder builder = new StringBuilder();
         for (ExperimentNode experimentNode : g.getExperiments().values())
         {
-            StringBuilder builder2 = new StringBuilder();
-            render(builder2, "samples", repository.getSampleNodes(experimentNode));
-            render(builder2, "data sets", repository.getDataSetNodes(experimentNode));
-            appendNodeTo(builder, getIdentifierAndType(experimentNode), builder2);
+            String identifierAndType = tryGetIdentifierAndType(experimentNode);
+            if (identifierAndType != null)
+            {
+                StringBuilder builder2 = new StringBuilder();
+                render(builder2, "samples", repository.getSampleNodes(experimentNode));
+                render(builder2, "data sets", repository.getDataSetNodes(experimentNode));
+                appendNodeTo(builder, identifierAndType, builder2);
+            }
         }
         for (SampleNode sampleNode : g.getSamples().values())
         {
-            StringBuilder builder2 = new StringBuilder();
-            render(builder2, "components", repository.getComponentSampleNodes(sampleNode));
-            render(builder2, "children", repository.getChildrenSampleNodes(sampleNode));
-            render(builder2, "data sets", repository.getDataSetNodes(sampleNode));
-            appendNodeTo(builder, getIdentifierAndType(sampleNode), builder2);
+            String identifierAndType = tryGetIdentifierAndType(sampleNode);
+            if (identifierAndType != null)
+            {
+                StringBuilder builder2 = new StringBuilder();
+                render(builder2, "components", repository.getComponentSampleNodes(sampleNode));
+                render(builder2, "children", repository.getChildrenSampleNodes(sampleNode));
+                render(builder2, "data sets", repository.getDataSetNodes(sampleNode));
+                appendNodeTo(builder, identifierAndType, builder2);
+            }
         }
         for (DataSetNode dataSetNode : g.getDataSets().values())
         {
@@ -229,9 +239,14 @@ public class EntityGraphManager
         return builder.toString();
     }
 
-    private String getIdentifierAndType(ExperimentNode experimentNode)
+    private String tryGetIdentifierAndType(ExperimentNode experimentNode)
     {
-        String projectIdentifier = repository.getExperiment(experimentNode).getProject().getIdentifier();
+        Experiment experiment = repository.tryGetExperiment(experimentNode);
+        if (experiment == null)
+        {
+            return null;
+        }
+        String projectIdentifier = experiment.getProject().getIdentifier();
         if (experimentNode.getProject() != null || defaultProject.getIdentifier().equals(projectIdentifier) == false)
         {
             return projectIdentifier + "/" + experimentNode.getCodeAndType();
@@ -239,9 +254,13 @@ public class EntityGraphManager
         return experimentNode.getIdentifierAndType();
     }
 
-    private String getIdentifierAndType(SampleNode sampleNode)
+    private String tryGetIdentifierAndType(SampleNode sampleNode)
     {
-        Sample sample = repository.getSample(sampleNode);
+        Sample sample = repository.tryGetSample(sampleNode);
+        if (sample == null)
+        {
+            return null;
+        }
         if (sampleNode.isShared() || sampleNode.getSpace() != null || defaultSpace.equals(sample.getSpace()) == false)
         {
             return (sample.getSpace() == null ? "" : sample.getSpace().getIdentifier()) + "/" + sampleNode.getCodeAndType();
@@ -285,7 +304,7 @@ public class EntityGraphManager
             String identifierAndType = node.getIdentifierAndType();
             if (node instanceof SampleNode)
             {
-                identifierAndType = getIdentifierAndType((SampleNode) node);
+                identifierAndType = tryGetIdentifierAndType((SampleNode) node);
             }
             identifiers.add(identifierAndType);
         }
@@ -398,11 +417,6 @@ public class EntityGraphManager
         }
     }
 
-    private Experiment refresh(Experiment experiment)
-    {
-        return commonService.getExperimentInfo(sessionToken, new TechId(experiment.getId()));
-    }
-
     private Sample createSample(SampleNode sampleNode, Space space)
     {
         try
@@ -472,8 +486,14 @@ public class EntityGraphManager
     
     private Sample refresh(Sample sample)
     {
-        SampleParentWithDerived result = commonService.getSampleInfo(sessionToken, new TechId(sample.getId()));
-        return result.getParent();
+        try
+        {
+            SampleParentWithDerived result = commonService.getSampleInfo(sessionToken, new TechId(sample.getId()));
+            return result.getParent();
+        } catch (UserFailureException ex)
+        {
+            return null;
+        }
     }
     
     private AbstractExternalData createDataSet(DataSetNode dataSetNode)
@@ -602,7 +622,6 @@ public class EntityGraphManager
     private final class EntityRepository
     {
         private Map<Long, Experiment> experimentsNodeToDtoMap = new TreeMap<Long, Experiment>();
-        private Map<Long, ExperimentNode> experimentDtoToNodeMap = new TreeMap<Long, ExperimentNode>();
         private Map<Long, ModificationInfo> experimentModificationInfoByNodeId = new HashMap<Long, ModificationInfo>();
         private Set<ExperimentNode> modifiedExperimentNodes = new HashSet<ExperimentNode>();
         
@@ -712,7 +731,9 @@ public class EntityGraphManager
         
         void refreshGraph(boolean showWhereIAm)
         {
-            refreshEntityDtos();
+            refreshExperimentDtos();
+            refreshSampleDtos();
+            refreshDataSetDtos();
             refreshSamplesMap();
             refreshDataSetsMap();
             if (showWhereIAm)
@@ -722,19 +743,65 @@ public class EntityGraphManager
             System.out.println("Entities mapping:\n" + renderNodeToDtoMapping());
         }
 
-        private void refreshEntityDtos()
+        private void refreshDataSetDtos()
         {
-            for (Long id : experimentsNodeToDtoMap.keySet())
+            List<Entry<Long, AbstractExternalData>> nodeToDtoMapping 
+                    = new ArrayList<Entry<Long, AbstractExternalData>>(dataSetsNodeToDtoMap.entrySet());
+            dataSetsNodeToDtoMap.clear();
+            for (Entry<Long, AbstractExternalData> entry : nodeToDtoMapping)
             {
-                experimentsNodeToDtoMap.put(id, refresh(experimentsNodeToDtoMap.get(id)));
+                Long dataSetDtoId = entry.getValue().getId();
+                AbstractExternalData refreshedDataSet = refresh(entry.getValue());
+                if (refreshedDataSet != null)
+                {
+                    dataSetsNodeToDtoMap.put(entry.getKey(), refreshedDataSet);
+                } else
+                {
+                    dataSetsDtoToNodeMap.remove(dataSetDtoId);
+                }
             }
-            for (Long id : samplesNodeToDtoMap.keySet())
+        }
+
+        private void refreshSampleDtos()
+        {
+            List<Entry<Long, Sample>> nodeToDtoMapping = new ArrayList<Entry<Long, Sample>>(samplesNodeToDtoMap.entrySet());
+            samplesNodeToDtoMap.clear();
+            for (Entry<Long, Sample> entry : nodeToDtoMapping)
             {
-                samplesNodeToDtoMap.put(id, refresh(samplesNodeToDtoMap.get(id)));
+                Long sampleDtoId = entry.getValue().getId();
+                Sample refreshedSample = refresh(entry.getValue());
+                if (refreshedSample != null)
+                {
+                    samplesNodeToDtoMap.put(entry.getKey(), refreshedSample);
+                } else
+                {
+                    samplesDtoToNodeMap.remove(sampleDtoId);
+                }
             }
-            for (Long id : dataSetsNodeToDtoMap.keySet())
+        }
+
+        private void refreshExperimentDtos()
+        {
+            Map<Long, Experiment> experiments = new HashMap<Long, Experiment>();
+            for (Project project : service.listProjects(sessionToken))
             {
-                dataSetsNodeToDtoMap.put(id, refresh(dataSetsNodeToDtoMap.get(id)));
+                ProjectIdentifier projectIdentifier = ProjectIdentifierFactory.parse(project.getIdentifier());
+                List<Experiment> list = service.listExperiments(sessionToken, projectIdentifier);
+                for (Experiment experiment : list)
+                {
+                    experiments.put(experiment.getId(), experiment);
+                }
+            }
+
+            List<Entry<Long, Experiment>> nodeToDtoMapping = new ArrayList<Entry<Long, Experiment>>(experimentsNodeToDtoMap.entrySet());
+            experimentsNodeToDtoMap.clear();
+            for (Entry<Long, Experiment> entry : nodeToDtoMapping)
+            {
+                Experiment experiment = experiments.get(entry.getValue().getId());
+                if (experiment != null)
+                {
+                    experimentsNodeToDtoMap.put(entry.getKey(), experiment);
+                }
             }
         }
 
@@ -825,7 +892,6 @@ public class EntityGraphManager
         void put(ExperimentNode experimentNode, Experiment experiment)
         {
             experimentsNodeToDtoMap.put(experimentNode.getId(), experiment);
-            experimentDtoToNodeMap.put(experiment.getId(), experimentNode);
         }
         
         public void assertModified(ExperimentNode...experimentNodes)
@@ -893,20 +959,22 @@ public class EntityGraphManager
                 }
                 assertNotNull(node.getCode() + " no previous modification info", previous);
                 CodeWithRegistrationAndModificationDate<?> entity = nodeToDtoMap.get(node.getId());
-                assertNotNull(node.getCode() + " unknown", entity);
-                ModificationInfo current = new ModificationInfo(entity);
-                if (modified)
+                if (entity != null)
                 {
-                    assertEquals(node.getCode() + " has unexpectedly still the old modifier: " + current.modifier, 
-                            false, current.modifier.equals(previous.modifier));
-                    assertEquals(node.getCode() + " has unexpectedly still the old modification date: " + current.modificationDate, 
-                            true, current.modificationDate.getTime() > previous.modificationDate.getTime());
-                } else
-                {
-                    assertEquals(node.getCode() + " has unexpectedly a new modifier: ",
-                            previous.modifier, current.modifier);
-                    assertEquals(node.getCode() + " has unexpectedly a new modification date:", 
-                            previous.modificationDate, current.modificationDate);
+                    ModificationInfo current = new ModificationInfo(entity);
+                    if (modified)
+                    {
+                        assertEquals(node.getCode() + " has unexpectedly still the old modifier: " + current.modifier, 
+                                false, current.modifier.equals(previous.modifier));
+                        assertEquals(node.getCode() + " has unexpectedly still the old modification date: " + current.modificationDate, 
+                                true, current.modificationDate.getTime() > previous.modificationDate.getTime());
+                    } else
+                    {
+                        assertEquals(node.getCode() + " has unexpectedly a new modifier: ",
+                                previous.modifier, current.modifier);
+                        assertEquals(node.getCode() + " has unexpectedly a new modification date:", 
+                                previous.modificationDate, current.modificationDate);
+                    }
                 }
             }
         }
