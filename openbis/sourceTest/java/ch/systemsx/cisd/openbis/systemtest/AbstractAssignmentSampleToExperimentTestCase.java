@@ -40,7 +40,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifierFactory;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.systemtest.base.BaseTest;
 import ch.systemsx.cisd.openbis.systemtest.base.auth.AuthorizationRule;
 import ch.systemsx.cisd.openbis.systemtest.base.auth.GuardedDomain;
@@ -673,26 +672,6 @@ public abstract class AbstractAssignmentSampleToExperimentTestCase extends BaseT
             throws Exception
     {
         checkAssigningSamplesToExperiment(destinationSpaceRole, instanceRole);
-    }
-    
-    protected Sample[] loadSamples(List<String> samplePermIds)
-    {
-        List<Sample> samples = new ArrayList<Sample>();
-        for (String permId : samplePermIds)
-        {
-            SampleIdentifier sampleIdentifier = etlService.tryGetSampleIdentifier(systemSessionToken, permId);
-            if (sampleIdentifier == null)
-            {
-                throw new IllegalArgumentException("Unknown sample with perm id: " + permId);
-            }
-            Sample sample = etlService.tryGetSampleWithExperiment(systemSessionToken, sampleIdentifier);
-            if (sample == null)
-            {
-                throw new IllegalArgumentException("Unknown sample with identifier: " + sampleIdentifier);
-            }
-            samples.add(sample);
-        }
-        return samples.toArray(new Sample[0]);
     }
     
     private void checkAssigningSampleToExperiment(RoleWithHierarchy sourceSpaceRole, RoleWithHierarchy destinationSpaceRole,

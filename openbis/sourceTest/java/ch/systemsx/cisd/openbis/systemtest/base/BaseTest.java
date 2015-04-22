@@ -18,6 +18,8 @@ package ch.systemsx.cisd.openbis.systemtest.base;
 
 import static org.hamcrest.CoreMatchers.is;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import org.hamcrest.CoreMatchers;
@@ -570,6 +572,26 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
         }
 
         org.hamcrest.MatcherAssert.assertThat(refreshed, matcher);
+    }
+
+    protected Sample[] loadSamples(List<String> samplePermIds)
+    {
+        List<Sample> samples = new ArrayList<Sample>();
+        for (String permId : samplePermIds)
+        {
+            SampleIdentifier sampleIdentifier = etlService.tryGetSampleIdentifier(systemSessionToken, permId);
+            if (sampleIdentifier == null)
+            {
+                throw new IllegalArgumentException("Unknown sample with perm id: " + permId);
+            }
+            Sample sample = etlService.tryGetSampleWithExperiment(systemSessionToken, sampleIdentifier);
+            if (sample == null)
+            {
+                throw new IllegalArgumentException("Unknown sample with identifier: " + sampleIdentifier);
+            }
+            samples.add(sample);
+        }
+        return samples.toArray(new Sample[0]);
     }
 
     public static AuthorizationRule rule(GuardedDomain domain, RoleWithHierarchy role)
