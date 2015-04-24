@@ -461,35 +461,29 @@ table.downloads {
 }
 
 /*
- * Storage Widget
+ * Plate Widget
  */
-.storageTable {
-	width: 80%;
-	border-spacing: 2px;
-	border-collapse: separate;
+.gridTable {
+	border : none !important;
+}
+.gridTable th {
+	border : none !important;
 }
 
-.storageTable th,
-.storageTable td {
-	height:40px;
-	width: 10%;
-	
-	-webkit-border-radius: 5px;
-	-moz-border-radius: 5px;
-	border-radius: 5px;
-}
-
-.storageTable td:hover {
-	background-color: #CCAABB;
+.gridTable td:hover {
+	background-color: #E7E7E7;
 	cursor : pointer;
 }
 
-.storageTable td {
+.gridTable td {
 	border-style:solid;
 	border-width:1px;
 	border-color: #CCCCCC;
 }
 
+/*
+ * Storage Widget
+ */
 .storageSelectedRack {
 	background-color: #CCCCCC;
 }

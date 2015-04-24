@@ -429,6 +429,18 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		}
 		
 		//
+		// Plate View
+		//
+		if(this._sampleFormModel.sample.sampleTypeCode === "PLATE") {
+			var plateContainer = $("<div>", { 'id' : 'sample-form-plate-view' });
+			$formColumn.append($("<legend>").append("Plate"));
+			var plateController = new PlateController(this._sampleFormModel.sample);
+			plateController.init(plateContainer);
+			$formColumn.append(plateContainer);
+		}
+		
+		
+		//
 		// Storage
 		//
 		if(isStorageAvailable) {

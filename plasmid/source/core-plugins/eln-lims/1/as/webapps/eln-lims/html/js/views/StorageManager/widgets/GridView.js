@@ -33,7 +33,7 @@ function GridView(gridModel) {
 	
 	this._getGridTable = function() {
 		var _this = this;
-		var gridTable = $("<table>", { "class" : "storageTable" });
+		var gridTable = $("<table>", { "class" : "table table-bordered gridTable" });
 		var $headerRow = $("<tr>");
 		var $emptyCell = $("<th>");
 		$headerRow.append($emptyCell);
