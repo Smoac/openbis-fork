@@ -19,6 +19,7 @@ function PlateView(plateController, plateModel) {
 	
 	this.repaint = function($container) {
 		var _this = this;
+		$container.empty();
 		var gridTable = $("<table>", { "class" : "table table-bordered gridTable" });
 		
 		for(var i = 0; i <= this._plateModel.numRows; i++) {
@@ -32,7 +33,11 @@ function PlateView(plateController, plateModel) {
 				} else if (j === 0){ //header with row letter
 					$cell = $("<th>").append(this._plateModel.getAlphabetLabel(i-1));
 				} else {
-					$cell = $("<td>");
+					var well = this._plateModel.getWell(i-1,j);
+					$cell = $("<td>").append("&nbsp;");
+					if(well) {
+						$cell.addClass('well');
+					}
 				}
 				$row.append($cell);
 			}

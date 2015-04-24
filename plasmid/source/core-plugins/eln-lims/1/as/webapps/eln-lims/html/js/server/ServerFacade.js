@@ -535,6 +535,36 @@ function ServerFacade(openbisServer) {
 		this.openbisServer.searchForDataSets(dataSetCriteria, callbackFunction)
 	}
 	
+	this.searchContained = function(permId, callbackFunction) {
+		var matchClauses = [];
+		
+		var subCriteria = {
+				"@type" : "SearchSubCriteria",
+				"targetEntityKind" : "SAMPLE_CONTAINER",
+				"criteria" : {
+					matchClauses : [{
+							"@type":"AttributeMatchClause",
+							fieldType : "ATTRIBUTE",			
+							attribute : "PERM_ID",
+							desiredValue : permId
+						}],
+					operator : "MATCH_ALL_CLAUSES"
+			}
+		}
+		
+		var sampleCriteria = 
+		{
+			matchClauses : matchClauses,
+			subCriterias : [ subCriteria ],
+			operator : "MATCH_ALL_CLAUSES"
+		};
+		
+		var localReference = this;
+		this.openbisServer.searchForSamplesWithFetchOptions(sampleCriteria, ["PROPERTIES"], function(data) {
+			callbackFunction(localReference.getInitializedSamples(data.result));
+		});
+	}
+	
 	this.searchWithIdentifier = function(sampleIdentifier, callbackFunction)
 	{	
 		this.searchWithIdentifiers([sampleIdentifier], callbackFunction);

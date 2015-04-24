@@ -19,6 +19,11 @@ function PlateController(sample) {
 	this._plateView = new PlateView(this, this._plateModel);
 	
 	this.init = function($container) {
-		this._plateView.repaint($container);
+		var _this = this;
+		$container.append("Loading Wells ...");
+		mainController.serverFacade.searchContained(this._plateModel.sample.permId, function(contained) {
+			_this._plateModel.wells = contained;
+			_this._plateView.repaint($container);
+		});
 	}
 }

@@ -16,6 +16,7 @@
 
 function PlateModel(sample) {
 	this.sample = sample;
+	this.wells = null;
 	
 	var getRowsAndColsFromPlateSample = function(sample) {
 		try {
@@ -34,6 +35,16 @@ function PlateModel(sample) {
 	this.numRows = getRowsAndColsFromPlateSample(sample)[0];
 	this.numColumns = getRowsAndColsFromPlateSample(sample)[1];
 	
+	this.getWell = function(rowNum, colNum) {
+		var wellIdentifier = this.sample.identifier + ":" + this.getAlphabetLabel(rowNum) + colNum;
+		for(var wellIdx = 0; wellIdx < this.wells.length; wellIdx++) {
+			if(this.wells[wellIdx].identifier === wellIdentifier) {
+				var toReturn = this.wells[wellIdx];
+				return toReturn;
+			}
+		}
+		return null;
+	}
 	
 	this.getAlphabetLabel = function(number) {
 		var alphabet = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'];
