@@ -27,6 +27,7 @@ import org.apache.log4j.Logger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
+import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
  * @author pkupczyk
@@ -58,7 +59,7 @@ public abstract class AbstractCachingTranslator<I extends IIdHolder, O, F> exten
 
         for (I input : inputs)
         {
-            if (cache.hasTranslatedObject(getClass().getName(), input.getId()))
+            if (cache.hasTranslatedObject(getClass().getName(), getId(input)))
             {
                 handleAlreadyTranslatedInput(context, input, translated, updated, fetchOptions);
             } else
@@ -84,7 +85,7 @@ public abstract class AbstractCachingTranslator<I extends IIdHolder, O, F> exten
     @SuppressWarnings("unchecked")
     private final void handleAlreadyTranslatedInput(TranslationContext context, I input, Map<I, O> translated, Map<I, O> updated, F fetchOptions)
     {
-        Long id = input.getId();
+        Long id = getId(input);
         TranslationCache cache = context.getTranslationCache();
 
         O output = (O) cache.getTranslatedObject(getClass().getName(), id);
@@ -121,7 +122,7 @@ public abstract class AbstractCachingTranslator<I extends IIdHolder, O, F> exten
 
     private void handleNewInput(TranslationContext context, I input, Map<I, O> translated, Map<I, O> updated, F fetchOptions)
     {
-        Long id = input.getId();
+        Long id = getId(input);
         if (shouldTranslate(context, input, fetchOptions))
         {
             O output = createObject(context, input, fetchOptions);
@@ -144,6 +145,26 @@ public abstract class AbstractCachingTranslator<I extends IIdHolder, O, F> exten
         } else
         {
             operationLog.debug("Should not translate object: " + input.getClass() + " with id: " + id);
+        }
+    }
+
+    private Long getId(I input)
+    {
+        if (input.getId() == null)
+        {
+            HibernateUtils.initialize(input);
+            I realInput = HibernateUtils.unproxy(input);
+
+            if (realInput.getId() == null)
+            {
+                throw new IllegalArgumentException("Could not translate object: " + input + " because its id was null");
+            } else
+            {
+                return realInput.getId();
+            }
+        } else
+        {
+            return input.getId();
         }
     }
 

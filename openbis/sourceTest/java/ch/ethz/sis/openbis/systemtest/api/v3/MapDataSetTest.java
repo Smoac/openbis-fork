@@ -179,7 +179,7 @@ public class MapDataSetTest extends AbstractDataSetTest
         v3api.logout(sessionToken);
     }
 
-    @Test(enabled = false)
+    @Test
     public void testMapWithType()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
