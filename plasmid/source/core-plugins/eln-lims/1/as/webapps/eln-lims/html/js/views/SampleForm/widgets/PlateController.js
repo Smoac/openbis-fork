@@ -23,6 +23,13 @@ function PlateController(sample) {
 	}
 	
 	this.initWithPlaceHolder = function() {
+		//Delete old view for redraws - Corner Case
+		var oldPlaceHolderFound = $("#" + this._plateModel.getPlaceHolderId());
+		if(oldPlaceHolderFound.length !== 0) {
+			oldPlaceHolderFound.remove();
+		}
+		
+		//Normal case
 		var _this = this;
 		var repeatUntilSet = function() {
 			var placeHolderFound = $("#" + _this._plateModel.getPlaceHolderId());
