@@ -331,6 +331,14 @@ function SampleHierarchy(serverFacade, containerId, profile, sample) {
 					
 					if(sample.sampleTypeCode === "PLATE") {
 						var plateController = new PlateController(sample);
+						
+						//Delete old view for redraws - Corner Case
+						var oldPlaceHolderFound = $("#" + plateController.getPlaceHolderId());
+						if(oldPlaceHolderFound.length !== 0) {
+							oldPlaceHolderFound.remove();
+						}
+						
+						//Normal plate draw using place holder for the svg graph size calculations 
 						$nodeContent.append(plateController.getPlaceHolder());
 						plateController.initWithPlaceHolder();
 					}

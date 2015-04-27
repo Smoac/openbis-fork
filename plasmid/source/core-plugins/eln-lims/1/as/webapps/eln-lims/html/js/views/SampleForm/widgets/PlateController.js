@@ -18,18 +18,15 @@ function PlateController(sample) {
 	this._plateModel = new PlateModel(sample);
 	this._plateView = new PlateView(this, this._plateModel);
 	
+	this.getPlaceHolderId = function() {
+		return this._plateModel.getPlaceHolderId();
+	}
+	
 	this.getPlaceHolder = function() {
 		return this._plateView.getPlaceHolder();
 	}
 	
 	this.initWithPlaceHolder = function() {
-		//Delete old view for redraws - Corner Case
-		var oldPlaceHolderFound = $("#" + this._plateModel.getPlaceHolderId());
-		if(oldPlaceHolderFound.length !== 0) {
-			oldPlaceHolderFound.remove();
-		}
-		
-		//Normal case
 		var _this = this;
 		var repeatUntilSet = function() {
 			var placeHolderFound = $("#" + _this._plateModel.getPlaceHolderId());
