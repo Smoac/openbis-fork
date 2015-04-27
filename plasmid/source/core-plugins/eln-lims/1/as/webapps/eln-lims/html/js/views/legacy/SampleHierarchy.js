@@ -328,6 +328,12 @@ function SampleHierarchy(serverFacade, containerId, profile, sample) {
 						'background-color' : 'transparent'
 					});
 					$nodeContent.append($graphTable);
+					
+					if(sample.sampleTypeCode === "PLATE") {
+						var plateController = new PlateController(sample);
+						$nodeContent.append(plateController.getPlaceHolder());
+						plateController.initWithPlaceHolder();
+					}
 				}
 					
 				} else {

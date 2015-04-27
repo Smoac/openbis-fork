@@ -17,6 +17,30 @@ function PlateView(plateController, plateModel) {
 	this._plateController = plateController;
 	this._plateModel = plateModel;
 	
+	this.getPlaceHolder = function() {
+		var container = $("<div>", { "id" : this._plateModel.getPlaceHolderId() });
+		var gridTable = $("<table>", { "class" : "table table-bordered gridTable" });
+		
+		for(var i = 0; i <= this._plateModel.numRows; i++) {
+			var $row = $("<tr>");
+			for(var j = 0; j <= this._plateModel.numColumns; j++) {
+				var $cell = null;
+				if(i === 0 && j === 0) { //Empty cell at the top left
+					$cell = $("<th>");
+				} else if (i === 0 && j !== 0){ //header with column numbers
+					$cell = $("<th>").append(j);
+				} else if (j === 0){ //header with row letter
+					$cell = $("<th>").append(this._plateModel.getAlphabetLabel(i-1));
+				} else {
+					$cell = $("<td>").append("&nbsp;");
+				}
+				$row.append($cell);
+			}
+			gridTable.append($row);
+		}
+		container.append(gridTable);
+		return container[0].outerHTML
+	}
 	this.repaint = function($container) {
 		var _this = this;
 		$container.empty();

@@ -18,8 +18,25 @@ function PlateController(sample) {
 	this._plateModel = new PlateModel(sample);
 	this._plateView = new PlateView(this, this._plateModel);
 	
+	this.getPlaceHolder = function() {
+		return this._plateView.getPlaceHolder();
+	}
+	
+	this.initWithPlaceHolder = function() {
+		var _this = this;
+		var repeatUntilSet = function() {
+			var placeHolderFound = $("#" + _this._plateModel.getPlaceHolderId());
+			if(placeHolderFound.length === 0) {
+				setTimeout(repeatUntilSet, 100);
+			} else {
+				_this.init(placeHolderFound);
+			}
+		}
+		repeatUntilSet();
+	}
 	this.init = function($container) {
 		var _this = this;
+		$container.empty();
 		$container.append("Loading Wells ...");
 		mainController.serverFacade.searchContained(this._plateModel.sample.permId, function(contained) {
 			_this._plateModel.wells = contained;
