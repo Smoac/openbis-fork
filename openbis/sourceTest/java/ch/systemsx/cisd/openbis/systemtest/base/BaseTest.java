@@ -493,21 +493,47 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
         entityGraphManager.assertModified(experimentNodes);
     }
 
+    protected void assertDeleted(ExperimentNode... experimentNodes)
+    {
+        entityGraphManager.assertDeleted(experimentNodes);
+    }
+    
     protected void assertModified(SampleNode... sampleNodes)
     {
         entityGraphManager.assertModified(sampleNodes);
     }
 
+    protected void assertDeleted(SampleNode... sampleNodes)
+    {
+        entityGraphManager.assertDeleted(sampleNodes);
+    }
+    
     protected void assertModified(DataSetNode... dataSetNodes)
     {
         entityGraphManager.assertModified(dataSetNodes);
     }
 
+    protected void assertDeleted(DataSetNode... dataSetNodes)
+    {
+        entityGraphManager.assertDeleted(dataSetNodes);
+    }
+    
     protected void assertUnmodified(EntityGraphGenerator g)
     {
         entityGraphManager.assertUnmodified(g);
     }
 
+    protected void assertUndeleted(EntityGraphGenerator g)
+    {
+        entityGraphManager.assertUndeleted(g);
+    }
+    
+    protected void assertUnmodifiedAndUndeleted(EntityGraphGenerator g)
+    {
+        assertUnmodified(g);
+        assertUndeleted(g);
+    }
+    
     protected String getIdentifierOfDefaultProject()
     {
         return defaultProject.getIdentifier();

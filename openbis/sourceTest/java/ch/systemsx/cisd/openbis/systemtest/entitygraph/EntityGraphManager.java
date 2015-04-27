@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.systemtest.entitygraph;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.fail;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -142,21 +143,41 @@ public class EntityGraphManager
         repository.assertModified(experimentNodes);
     }
 
+    public void assertDeleted(ExperimentNode[] experimentNodes)
+    {
+        repository.assertDeleted(experimentNodes);
+    }
+    
     public void assertModified(SampleNode[] sampleNodes)
     {
         repository.assertModified(sampleNodes);
     }
 
+    public void assertDeleted(SampleNode[] sampleNodes)
+    {
+        repository.assertDeleted(sampleNodes);
+    }
+    
     public void assertModified(DataSetNode[] dataSetNodes)
     {
         repository.assertModified(dataSetNodes);
     }
 
+    public void assertDeleted(DataSetNode[] dataSetNodes)
+    {
+        repository.assertDeleted(dataSetNodes);
+    }
+    
     public void assertUnmodified(EntityGraphGenerator g)
     {
         repository.assertUnmodified(g);
     }
 
+    public void assertUndeleted(EntityGraphGenerator g)
+    {
+        repository.assertUndeleted(g);
+    }
+    
     public String getIdentifierOfDefaultProject()
     {
         return defaultProject.getIdentifier();
@@ -624,16 +645,19 @@ public class EntityGraphManager
         private Map<Long, Experiment> experimentsNodeToDtoMap = new TreeMap<Long, Experiment>();
         private Map<Long, ModificationInfo> experimentModificationInfoByNodeId = new HashMap<Long, ModificationInfo>();
         private Set<ExperimentNode> modifiedExperimentNodes = new HashSet<ExperimentNode>();
+        private Set<ExperimentNode> deletedExperimentNodes = new HashSet<ExperimentNode>();
         
         private Map<Long, Sample> samplesNodeToDtoMap = new TreeMap<Long, Sample>();
         private Map<Long, SampleNode> samplesDtoToNodeMap = new TreeMap<Long, SampleNode>();
         private Map<Long, ModificationInfo> sampleModificationInfoByNodeId = new HashMap<Long, ModificationInfo>();
         private Set<SampleNode> modifiedSampleNodes = new HashSet<SampleNode>();
+        private Set<SampleNode> deletedSampleNodes = new HashSet<SampleNode>();
 
         private Map<Long, AbstractExternalData> dataSetsNodeToDtoMap = new TreeMap<Long, AbstractExternalData>();
         private Map<Long, DataSetNode> dataSetsDtoToNodeMap = new TreeMap<Long, DataSetNode>();
         private Map<Long, ModificationInfo> dataSetModificationInfoByNodeId = new HashMap<Long, ModificationInfo>();
         private Set<DataSetNode> modifiedDataSetNodes = new HashSet<DataSetNode>();
+        private Set<DataSetNode> deletedDataSetNodes = new HashSet<DataSetNode>();
 
         private Map<Long, Set<Long>> experimentSamplesMap = new HashMap<Long, Set<Long>>();
         private Map<Long, Set<Long>> childrenSamplesMap = new HashMap<Long, Set<Long>>();
@@ -901,6 +925,12 @@ public class EntityGraphManager
             modifiedExperimentNodes.addAll(Arrays.asList(experimentNodes));
         }
         
+        public void assertDeleted(ExperimentNode...experimentNodes)
+        {
+            assertDeleted(experimentsNodeToDtoMap,  Arrays.<EntityNode>asList(experimentNodes));
+            deletedExperimentNodes.addAll(Arrays.asList(experimentNodes));
+        }
+        
         void put(SampleNode sampleNode, Sample sample)
         {
             samplesNodeToDtoMap.put(sampleNode.getId(), sample);
@@ -914,6 +944,12 @@ public class EntityGraphManager
             modifiedSampleNodes.addAll(Arrays.asList(sampleNodes));
         }
         
+        public void assertDeleted(SampleNode...sampleNodes)
+        {
+            assertDeleted(samplesNodeToDtoMap, Arrays.<EntityNode>asList(sampleNodes));
+            deletedSampleNodes.addAll(Arrays.asList(sampleNodes));
+        }
+        
         void put(DataSetNode dataSetNode, AbstractExternalData dataSet)
         {
             dataSetsNodeToDtoMap.put(dataSetNode.getId(), dataSet);
@@ -925,6 +961,12 @@ public class EntityGraphManager
             assertModificationInfo(true, dataSetModificationInfoByNodeId, dataSetsNodeToDtoMap, 
                     Arrays.<EntityNode>asList(dataSetNodes));
             modifiedDataSetNodes.addAll(Arrays.asList(dataSetNodes));
+        }
+        
+        public void assertDeleted(DataSetNode...dataSetNodes)
+        {
+            assertDeleted(dataSetsNodeToDtoMap, Arrays.<EntityNode>asList(dataSetNodes));
+            deletedDataSetNodes.addAll(Arrays.asList(dataSetNodes));
         }
         
         public void assertUnmodified(EntityGraphGenerator g)
@@ -978,6 +1020,50 @@ public class EntityGraphManager
                 }
             }
         }
+        
+        private void assertDeleted(Map<Long, ? extends CodeWithRegistrationAndModificationDate<?>> nodeToDtoMap,
+                Collection<EntityNode> entityNodes)
+        {
+            for (EntityNode node : entityNodes)
+            {
+                if (nodeToDtoMap.containsKey(node.getId()))
+                {
+                    fail("Node " + node.getIdentifierAndType() + " hasn't been deleted.");
+                }
+            }
+        }
+         
+        public void assertUndeleted(EntityGraphGenerator g)
+        {
+            Set<EntityNode> undeletedExperimentNodes = new HashSet<EntityNode>(g.getExperiments().values());
+            undeletedExperimentNodes.removeAll(deletedExperimentNodes);
+            assertUndeleted(experimentsNodeToDtoMap, undeletedExperimentNodes);
+            Set<EntityNode> undeletedSampleNodes = new HashSet<EntityNode>(g.getSamples().values());
+            undeletedSampleNodes.removeAll(deletedSampleNodes);
+            assertUndeleted(samplesNodeToDtoMap, undeletedSampleNodes);
+            Set<EntityNode> undeletedDataSetNodes = new HashSet<EntityNode>(g.getDataSets().values());
+            undeletedDataSetNodes.removeAll(deletedDataSetNodes);
+            assertUndeleted(dataSetsNodeToDtoMap, undeletedDataSetNodes);
+        }
+        
+        private void assertUndeleted(Map<Long, ? extends CodeWithRegistrationAndModificationDate<?>> nodeToDtoMap,
+                Collection<EntityNode> entityNodes)
+        {
+            List<String> deletedNodes = new ArrayList<String>();
+            for (EntityNode node : entityNodes)
+            {
+                if (nodeToDtoMap.containsKey(node.getId()) == false)
+                {
+                    deletedNodes.add(node.getIdentifierAndType());
+                }
+            }
+            if (deletedNodes.isEmpty() == false)
+            {
+                Collections.sort(deletedNodes);
+                fail("The following nodes have been deleted: " + deletedNodes);
+            }
+        }
+         
 
         Set<SampleNode> getSampleNodes(ExperimentNode experimentNode)
         {
