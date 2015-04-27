@@ -294,19 +294,23 @@ h1, h2, legend {
 	width:300px;
 }
 
+div.inspectorWhiteFont {
+	color: white !important;	
+}
+
 div.inspectorCondensed {
 	text-decoration: none;
 	color: #000;
 	display: block;
 	overflow: hidden;
 	padding: 20px;
-	border-radius: 90px;
+	border-radius: 10px;
 }
 
 div.inspectorCondensed > .table th,
 div.inspectorCondensed > .table td {
 	border-top: none;
-	line-height: 14px;
+	line-height: 12px;
 }
 
 div.inspector > table {
@@ -361,13 +365,13 @@ div.inspector:hover,div.inspector:focus{
 }
 
 .property {
-  font-size: 10px;
+  font-size: 12px;
   font-weight: normal;
 }
 
 .properties {
   padding-top:10px;
-	width: 100%;	
+  width: 100%;	
 }
 
 .properties td:nth-child(odd) {

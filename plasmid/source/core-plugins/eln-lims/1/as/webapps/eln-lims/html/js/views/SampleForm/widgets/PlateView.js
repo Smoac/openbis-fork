@@ -37,6 +37,11 @@ function PlateView(plateController, plateModel) {
 					$cell = $("<td>").append("&nbsp;");
 					if(well) {
 						$cell.addClass('well');
+						var tooltip = PrintUtil.getTable(well, false, false, false, well.code, true, 'inspectorWhiteFont');
+						$cell.tooltipster({
+			                content: $(tooltip),
+			                interactive: true
+			            });
 					}
 				}
 				$row.append($cell);

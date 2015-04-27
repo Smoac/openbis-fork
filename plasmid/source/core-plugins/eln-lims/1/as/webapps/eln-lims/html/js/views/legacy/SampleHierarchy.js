@@ -280,7 +280,7 @@ function SampleHierarchy(serverFacade, containerId, profile, sample) {
 					'padding' : '10px',
 					'margin' : '10px',
 					'background-color' : (sample.permId === rootPermId)?'lightgreen':'transparent',
-					'border-radius' : '90px'
+					'border-radius' : '10px'
 				});
 				
 				var $hideLink = $('<a>', {

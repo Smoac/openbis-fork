@@ -71,11 +71,11 @@ var PrintUtil = new function() {
 		return allParentCodesAsText;
 	}
 	
-	this.getTable = function(entity, showClose, withColors, withLinks, optionalTitle, isCondensed) {
+	this.getTable = function(entity, showClose, withColors, withLinks, optionalTitle, isCondensed, customClass) {
 		var defaultColor = null;
 		
 		if(!withColors) {
-			defaultColor = "#ffffff"
+			defaultColor = "transparent"
 		} else {
 			defaultColor = profile.getColorForInspectors(entity.sampleTypeCode);
 		} 
@@ -90,6 +90,9 @@ var PrintUtil = new function() {
 				inspectorClass = 'inspector';
 			}
 			
+			if(customClass) {
+				inspectorClass += ' ' + customClass;
+			}
 			inspector += "<div id='"+divID+"' class='" + inspectorClass + "' style='background-color:" + defaultColor + ";' >";
 			
 			if(showClose) {

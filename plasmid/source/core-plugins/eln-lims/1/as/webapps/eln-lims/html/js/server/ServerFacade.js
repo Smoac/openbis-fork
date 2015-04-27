@@ -560,7 +560,7 @@ function ServerFacade(openbisServer) {
 		};
 		
 		var localReference = this;
-		this.openbisServer.searchForSamplesWithFetchOptions(sampleCriteria, ["PROPERTIES"], function(data) {
+		this.openbisServer.searchForSamplesWithFetchOptions(sampleCriteria, ["PROPERTIES", "PARENTS", "CHILDREN"], function(data) {
 			callbackFunction(localReference.getInitializedSamples(data.result));
 		});
 	}
