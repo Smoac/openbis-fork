@@ -49,10 +49,6 @@ function SampleHierarchyTableView(controller, model) {
 			property : 'level',
 			sortable : true
 		} , {
-			label : 'Path',
-			property : 'path',
-			sortable : true
-		} , {
 			label : 'Sample Type',
 			property : 'sampleType',
 			sortable : true,
@@ -66,6 +62,10 @@ function SampleHierarchyTableView(controller, model) {
 		} , {
 			label : 'Name',
 			property : 'name',
+			sortable : true
+		} , {
+			label : 'Path',
+			property : 'path',
 			sortable : true
 		} , {
 			label : 'Parent/Annotations',
