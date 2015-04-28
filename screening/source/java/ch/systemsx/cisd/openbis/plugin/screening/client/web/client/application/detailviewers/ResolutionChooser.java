@@ -16,8 +16,11 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers;
 
-import java.util.Collections;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.Events;
@@ -40,16 +43,11 @@ public class ResolutionChooser extends LayoutContainer
     private SimpleModelComboBox<ImageResolution> comboBox;
 
     public ResolutionChooser(final IViewContext<IScreeningClientServiceAsync> viewContext,
-            final List<ImageResolution> resolutions, final ImageResolution defaultResolution)
+            List<ImageResolution> incomingResolutions, final ImageResolution defaultResolution)
     {
 
-        List<LabeledItem<ImageResolution>> defaultItems =
-                Collections.singletonList(new LabeledItem<ImageResolution>(null, viewContext
-                        .getMessage(Dict.RESOLUTION_CHOOSER_DEFAULT)));
-
-        this.comboBox = new SimpleModelComboBox<ImageResolution>(viewContext, defaultItems, null);
-
-        Collections.sort(resolutions);
+        List<ImageResolution> resolutions = prepareResolutions(incomingResolutions);
+        List<LabeledItem<ImageResolution>> items = new ArrayList<LabeledItem<ImageResolution>>();
 
         if (resolutions != null)
         {
@@ -58,18 +56,63 @@ public class ResolutionChooser extends LayoutContainer
                 String resolutionText =
                         viewContext.getMessage(Dict.RESOLUTION_CHOOSER_RESOLUTION,
                                 resolution.getWidth(), resolution.getHeight());
-                comboBox.add(new LabeledItem<ImageResolution>(resolution, resolutionText));
+                items.add(new LabeledItem<ImageResolution>(resolution, resolutionText));
             }
         }
 
-        LabeledItem<ImageResolution> defaultResolutionItem =
-                comboBox.findModelForVal(defaultResolution);
+        comboBox = new SimpleModelComboBox<ImageResolution>(viewContext, items, null);
+        LabeledItem<ImageResolution> defaultResolutionItem = comboBox.findModelForVal(defaultResolution);
+
         if (defaultResolutionItem != null)
         {
             comboBox.setSelection(defaultResolutionItem);
+        } else if (false == items.isEmpty())
+        {
+            comboBox.setSelection(items.get(0));
         }
 
         add(comboBox);
+    }
+
+    private List<ImageResolution> prepareResolutions(List<ImageResolution> resolutions)
+    {
+        Set<ImageResolution> allResolutions = new TreeSet<ImageResolution>(resolutions);
+        maybeAddThumbnailResolution(allResolutions);
+        return new ArrayList<ImageResolution>(allResolutions);
+    }
+
+    private void maybeAddThumbnailResolution(Collection<ImageResolution> resolutions)
+    {
+        boolean hasThumbnails = false;
+
+        for (ImageResolution resolution : resolutions)
+        {
+            if (false == resolution.isOriginal())
+            {
+                hasThumbnails = true;
+                break;
+            }
+        }
+
+        if (false == hasThumbnails)
+        {
+            ImageResolution originalResolution = null;
+
+            for (ImageResolution resolution : resolutions)
+            {
+                if (resolution.isOriginal())
+                {
+                    originalResolution = resolution;
+                    break;
+                }
+            }
+
+            if (originalResolution != null)
+            {
+                resolutions.add(new ImageResolution(Math.round(originalResolution.getWidth() / 4), Math.round(originalResolution.getHeight() / 4),
+                        false));
+            }
+        }
     }
 
     public ImageResolution getResolution()

@@ -79,7 +79,7 @@ public class HCSImageResolutionLoader implements IImageResolutionLoader
             for (ImgImageZoomLevelDTO zoomLevel : zoomLevels)
             {
                 ImageResolution resolution =
-                        new ImageResolution(zoomLevel.getWidth(), zoomLevel.getHeight());
+                        new ImageResolution(zoomLevel.getWidth(), zoomLevel.getHeight(), zoomLevel.getIsOriginal());
                 resolutions.add(resolution);
             }
 
