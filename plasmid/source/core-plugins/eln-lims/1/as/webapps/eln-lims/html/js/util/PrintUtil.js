@@ -71,13 +71,13 @@ var PrintUtil = new function() {
 		return allParentCodesAsText;
 	}
 	
-	this.getTable = function(entity, showClose, withColors, withLinks, optionalTitle, isCondensed, customClass) {
+	this.getTable = function(entity, showClose, withColors, withLinks, optionalTitle, isCondensed, customClass, extraCustomId, extraContent) {
 		var defaultColor = null;
 		
 		if(!withColors) {
 			defaultColor = "transparent"
 		} else {
-			defaultColor = profile.getColorForInspectors(entity.sampleTypeCode);
+			defaultColor = "#FBFBFB";
 		} 
 
 		var inspector = "";
@@ -238,13 +238,25 @@ var PrintUtil = new function() {
 			
 			inspector += "</table>"
 			
-			var extraContainerId = entity.sampleTypeCode + "_" + entity.code+"_INSPECTOR_EXTRA";
-			inspector += "<div class='inspectorExtra' id='"+ extraContainerId + "'></div>";
+			var extraContainerId = null;
+			var extraHTML = null;
+			if(extraContent && extraCustomId) {
+				extraContainerId = extraCustomId;
+				extraHTML = extraContent;
+			} else {
+				extraContainerId = this.getExtraContainerId(entity);
+				extraHTML = "";
+			}
+			inspector += "<div class='inspectorExtra' id='"+ extraContainerId + "'>" + extraHTML + "</div>";
 			profile.inspectorContentExtra(extraContainerId, entity);
 			
 			inspector += "</div>"
 			
 			
 		return inspector;
+	}
+	
+	this.getExtraContainerId = function(entity) {
+		return "INSPECTOR_EXTRA_" + entity.permId;
 	}
 }

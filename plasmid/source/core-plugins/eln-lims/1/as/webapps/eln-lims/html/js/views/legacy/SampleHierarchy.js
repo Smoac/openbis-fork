@@ -321,14 +321,9 @@ function SampleHierarchy(serverFacade, containerId, profile, sample) {
 				
 				if(sample.showDataOnGraph) {
 					var title = $nodeContent[0].outerHTML;
-					var $graphTable = PrintUtil.getTable(sample, false, true, false, title, true);
 					
-					$nodeContent.empty();
-					$nodeContent.css({
-						'background-color' : 'transparent'
-					});
-					$nodeContent.append($graphTable);
-					
+					var extraCustomId = null;
+					var extraContent = null;
 					if(sample.sampleTypeCode === "PLATE") {
 						var plateController = new PlateController(sample);
 						
@@ -339,9 +334,17 @@ function SampleHierarchy(serverFacade, containerId, profile, sample) {
 						}
 						
 						//Normal plate draw using place holder for the svg graph size calculations 
-						$nodeContent.append(plateController.getPlaceHolder());
+						extraContent = plateController.getPlaceHolder();
+						extraCustomId = plateController.getPlaceHolderId();
 						plateController.initWithPlaceHolder();
 					}
+					var $graphTable = PrintUtil.getTable(sample, false, true, false, title, true, null, extraCustomId, extraContent);
+					
+					$nodeContent.empty();
+					$nodeContent.css({
+						'background-color' : 'transparent'
+					});
+					$nodeContent.append($graphTable);
 				}
 					
 				} else {
