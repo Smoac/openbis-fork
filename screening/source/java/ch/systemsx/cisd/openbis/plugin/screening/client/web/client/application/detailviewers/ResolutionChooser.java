@@ -49,7 +49,10 @@ public class ResolutionChooser extends LayoutContainer
         List<ImageResolution> resolutions = prepareResolutions(incomingResolutions);
         List<LabeledItem<ImageResolution>> items = new ArrayList<LabeledItem<ImageResolution>>();
 
-        if (resolutions != null)
+        if (resolutions.isEmpty())
+        {
+            items.add(new LabeledItem<ImageResolution>(null, viewContext.getMessage(Dict.RESOLUTION_CHOOSER_DEFAULT)));
+        } else
         {
             for (ImageResolution resolution : resolutions)
             {
