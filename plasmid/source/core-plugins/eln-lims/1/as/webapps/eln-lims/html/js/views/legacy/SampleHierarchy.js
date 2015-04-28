@@ -81,8 +81,6 @@ function SampleHierarchy(serverFacade, containerId, profile, sample) {
 	}
 	
 	this.filterSampleAndUpdate = function() {
-		var newSample = jQuery.extend(true, {}, this.sample);
-		
 		//
 		// Used to remove the type label when rendering
 		//
@@ -111,7 +109,7 @@ function SampleHierarchy(serverFacade, containerId, profile, sample) {
 				}
 			}
 		}
-		selectedSampleTypesFilter(newSample, selectedSampleTypes);
+		selectedSampleTypesFilter(this.sample, selectedSampleTypes);
 		
 		//
 		// Used to cut the tree
@@ -120,15 +118,16 @@ function SampleHierarchy(serverFacade, containerId, profile, sample) {
 		var parentsLimitFilter = function(sample, depthLimit) {
 			if(sample.parents) {
 				if(depthLimit === 0) {
-					sample.parents = null;
+					sample.hideParents = true;
 				} else {
+					sample.hideParents = false;
 					for(var i = 0; i < sample.parents.length; i++) {
 						parentsLimitFilter(sample.parents[i], (depthLimit - 1));
 					}
 				}
 			}
 		}
-		parentsLimitFilter(newSample, parentsLimit);
+		parentsLimitFilter(this.sample, parentsLimit);
 		
 		//
 		// Used to cut the tree
@@ -137,17 +136,18 @@ function SampleHierarchy(serverFacade, containerId, profile, sample) {
 		var childrenLimitFilter = function(sample, depthLimit) {
 			if(sample.children) {
 				if(depthLimit === 0) {
-					sample.children = null;
+					sample.hideChildren = true;
 				} else {
+					sample.hideChildren = false;
 					for(var i = 0; i < sample.children.length; i++) {
 						childrenLimitFilter(sample.children[i], (depthLimit - 1));
 					}
 				}
 			}
 		}
-		childrenLimitFilter(newSample, childrenLimit);
+		childrenLimitFilter(this.sample, childrenLimit);
 		
-		this._repaintGraph(newSample);
+		this._repaintGraph(this.sample);
 	}
 	
 	this._addChildFor = function(permId) {
@@ -359,10 +359,10 @@ function SampleHierarchy(serverFacade, containerId, profile, sample) {
 				NODES[sample.permId] = true;
 			}
 			
-			if(sample.parents && !sample.hideGraphConnections) {
+			if(sample.parents && !sample.hideGraphConnections && !sample.hideParents) {
 				sample.parents.forEach(addSampleNodes, rootPermId);
 			}
-			if(sample.children && !sample.hideGraphConnections) {
+			if(sample.children && !sample.hideGraphConnections && !sample.hideChildren) {
 				sample.children.forEach(addSampleNodes, rootPermId);
 			}
 		}
@@ -370,7 +370,7 @@ function SampleHierarchy(serverFacade, containerId, profile, sample) {
 		var EDGES = {};
 		
 		function addSampleEdges(sample) {
-			if(sample.parents && !sample.hideGraphConnections) {
+			if(sample.parents && !sample.hideGraphConnections && !sample.hideParents) {
 				for(var i=0; i < sample.parents.length; i++) {
 					if(!EDGES[sample.parents[i].permId + ' -> ' + sample.permId]) {
 						g.addEdge(null, sample.parents[i].permId, sample.permId);
@@ -379,7 +379,7 @@ function SampleHierarchy(serverFacade, containerId, profile, sample) {
 				}
 				sample.parents.forEach(addSampleEdges);
 			}
-			if(sample.children && !sample.hideGraphConnections) {
+			if(sample.children && !sample.hideGraphConnections && !sample.hideChildren) {
 				for(var i=0; i < sample.children.length; i++) {
 					if(!EDGES[sample.permId + ' -> ' + sample.children[i].permId]) {
 						g.addEdge(null, sample.permId, sample.children[i].permId);

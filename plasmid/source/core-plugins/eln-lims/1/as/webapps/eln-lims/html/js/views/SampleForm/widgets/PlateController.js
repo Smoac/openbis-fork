@@ -42,9 +42,14 @@ function PlateController(sample) {
 		var _this = this;
 		$container.empty();
 		$container.append("Loading Wells ...");
-		mainController.serverFacade.searchContained(this._plateModel.sample.permId, function(contained) {
-			_this._plateModel.wells = contained;
-			_this._plateView.repaint($container);
-		});
+		if(this._plateModel.sample.contained) {
+			this._plateView.repaint($container);
+		} else {
+			mainController.serverFacade.searchContained(this._plateModel.sample.permId, function(contained) {
+				_this._plateModel.sample.contained = contained;
+				_this._plateView.repaint($container);
+			});
+		}
+		
 	}
 }
