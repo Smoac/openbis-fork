@@ -102,6 +102,7 @@ public class Utils
         Long id = dataSetNode.getId();
         data.setId(id);
         data.setCode(dataSetNode.getCode());
+        data.setStatus(dataSetNode.isDeletable() ? DataSetArchivingStatus.AVAILABLE : DataSetArchivingStatus.ARCHIVE_PENDING);
         ExperimentNode experimentNode;
         SampleNode sampleNode = dataSetNode.getSample();
         if (sampleNode != null)
