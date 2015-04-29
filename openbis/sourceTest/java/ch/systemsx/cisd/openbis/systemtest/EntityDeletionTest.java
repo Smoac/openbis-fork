@@ -84,6 +84,19 @@ public class EntityDeletionTest extends BaseTest
     }
     
     @Test
+    public final void testTrashExperimentWithSampleWhichIsAComponentOfASpaceSample()
+    {
+        EntityGraphGenerator g = parseAndCreateGraph("E1, samples: S2\n"
+                + "S1, components: S2\n");
+        
+        failTrashExperiment(g.e(1), createExpectedErrorMessage(g.s(2), g.s(1)));
+        
+        assertEquals("E1, samples: S2\n"
+                + "S1, components: S2\n", renderGraph(g));
+        assertUnmodifiedAndUndeleted(g);
+    }
+    
+    @Test
     public final void testTrashExperimentWithSamplesAndDataSetsAndNoExternalLinks()
     {
         EntityGraphGenerator g = parseAndCreateGraph("E1, samples: S1, data sets: DS1\n"
@@ -125,7 +138,7 @@ public class EntityDeletionTest extends BaseTest
                 + "S1, data sets: DS1\n"
                 + "DS1, components: DS2\n");
         
-        failTrashExperiment(g.e(2), g.ds(2), g.ds(1), g.s(1));
+        failTrashExperiment(g.e(2), createExpectedErrorMessage(g.ds(2), g.ds(1), g.s(1)));
         
         assertEquals("E1, samples: S1, data sets: DS1\n"
                 + "E2, data sets: DS2\n"
@@ -184,7 +197,7 @@ public class EntityDeletionTest extends BaseTest
                 + "DS2, components: DS3\n"
                 );
         
-        failTrashExperiment(g.e(1), g.ds(2), g.ds(1), g.e(2));
+        failTrashExperiment(g.e(1), createExpectedErrorMessage(g.ds(2), g.ds(1), g.e(2)));
         
         assertEquals("E1, samples: S1, data sets: DS2 DS3\n"
                 + "E2, data sets: DS1\n"
@@ -250,6 +263,19 @@ public class EntityDeletionTest extends BaseTest
     }
     
     @Test
+    public final void testTrashComponentSample()
+    {
+        EntityGraphGenerator g = parseAndCreateGraph("S1, components: S2\n");
+        
+        deleteSamples(g.s(2));
+        
+        assertEquals("", renderGraph(g));
+        assertDeleted(g.s(2));
+        assertModified(g.s(1));
+        assertUnmodifiedAndUndeleted(g);
+    }
+    
+    @Test
     public final void testTrashSampleWithAComponentWithAContainerDataSetWithAComponentDataSetOfFirstSample()
     {
         EntityGraphGenerator g = parseAndCreateGraph("S1, components: S2, data sets: DS2[NET]\n"
@@ -286,7 +312,7 @@ public class EntityDeletionTest extends BaseTest
                 + "S1, components: S2\n"
                 + "S2, data sets: DS1\n");
         
-        failTrashSample(g.s(1), g.s(2), g.e(1));
+        failTrashSample(g.s(1), createExpectedErrorMessage(g.s(2), g.e(1)));
         
         assertEquals("E1, samples: S2, data sets: DS1\n"
                 + "S1, components: S2\n"
@@ -310,6 +336,21 @@ public class EntityDeletionTest extends BaseTest
     }
     
     @Test
+    public final void testTrashExperimentSampleWhichIsAComponentOfASpaceSample()
+    {
+        EntityGraphGenerator g = parseAndCreateGraph("E1, samples: S2\n"
+                + "S1, components: S2\n");
+        
+        deleteSamples(g.s(2));
+        
+        assertEquals("", renderGraph(g));
+        assertModified(g.e(1));
+        assertModified(g.s(1));
+        assertDeleted(g.s(2));
+        assertUnmodifiedAndUndeleted(g);
+    }
+    
+    @Test
     public final void testTrashSampleWithComponentWithDataSetWithComponentOfAnotherSample()
     {
         EntityGraphGenerator g = parseAndCreateGraph("S1, components: S2\n"
@@ -317,7 +358,7 @@ public class EntityDeletionTest extends BaseTest
                 + "S3, data sets: DS1[NECT]\n"
                 + "DS1[NECT], components: DS2[NET]\n");
         
-        failTrashSample(g.s(1), g.ds(2), g.ds(1), g.s(3));
+        failTrashSample(g.s(1), createExpectedErrorMessage(g.ds(2), g.ds(1), g.s(3)));
         
         assertEquals("S1, components: S2\n"
                 + "S2, data sets: DS2[NET]\n"
@@ -334,7 +375,7 @@ public class EntityDeletionTest extends BaseTest
                 + "S2, data sets: DS2[NET]\n"
                 + "DS1, components: DS2[NET]\n");
         
-        failTrashSample(g.s(1), g.ds(2), g.ds(1), g.e(1));
+        failTrashSample(g.s(1), createExpectedErrorMessage(g.ds(2), g.ds(1), g.e(1)));
         
         assertEquals("E1, data sets: DS1\n"
                 + "S1, components: S2\n"
@@ -352,7 +393,7 @@ public class EntityDeletionTest extends BaseTest
                 + "DS2[NECT], components: DS4[NECT]\n"
                 + "DS4[NECT], components: DS5[NET] DS6[NET]\n");
         
-        failTrashSample(g.s(1), g.ds(4), g.ds(2), g.s(2));
+        failTrashSample(g.s(1), createExpectedErrorMessage(g.ds(4), g.ds(2), g.s(2)));
         
         assertEquals("S1, data sets: DS1[NECT] DS3[NET] DS4[NECT] DS5[NET] DS6[NET]\n"
                 + "S2, data sets: DS2[NECT]\n"
@@ -393,6 +434,38 @@ public class EntityDeletionTest extends BaseTest
     }
     
     @Test
+    public final void testTrashDataSetOfAContainerWhichBelongingToSameExperiment()
+    {
+        EntityGraphGenerator g = parseAndCreateGraph("E1, data sets: DS1 DS2\n"
+                + "DS1, components: DS2\n");
+        
+        deleteDataSets(g.ds(2));
+        
+        assertEquals("E1, data sets: DS1\n", renderGraph(g));
+        assertModified(g.e(1));
+        assertModified(g.ds(1));
+        assertDeleted(g.ds(2));
+        assertUnmodifiedAndUndeleted(g);
+    }
+    
+    @Test
+    public final void testTrashDataSetOfAContainerWhichBelongingToSameExperimentButDifferentSample()
+    {
+        EntityGraphGenerator g = parseAndCreateGraph("E1, samples: S1, data sets: DS1 DS2\n"
+                + "S1, data sets: DS2\n"
+                + "DS1, components: DS2\n");
+        
+        deleteDataSets(g.ds(2));
+        
+        assertEquals("E1, samples: S1, data sets: DS1\n", renderGraph(g));
+        assertModified(g.e(1));
+        assertModified(g.s(1));
+        assertModified(g.ds(1));
+        assertDeleted(g.ds(2));
+        assertUnmodifiedAndUndeleted(g);
+    }
+    
+    @Test
     public void testTrashDataSetsWithDataSetInAContainer()
     {
         EntityGraphGenerator g = parseAndCreateGraph("S1, data sets: DS1[NECT] DS2[NECT] DS3[NET]\n"
@@ -426,8 +499,7 @@ public class EntityDeletionTest extends BaseTest
         assertUnmodifiedAndUndeleted(g);
     }
     
-    private void failTrashExperiment(ExperimentNode experimentNode, DataSetNode originalDataSet,
-            DataSetNode relatedDataSet, EntityNode outsiderNode)
+    private void failTrashExperiment(ExperimentNode experimentNode, String expectedErrorMessage)
     {
         try
         {
@@ -435,11 +507,12 @@ public class EntityDeletionTest extends BaseTest
             fail("UserFailureException expected");
         } catch (UserFailureException ex)
         {
-            assertExceptionMessage(originalDataSet, relatedDataSet, outsiderNode, ex);
+            assertEquals(expectedErrorMessage, 
+            ex.getMessage());
         }
     }
     
-    private void failTrashSample(SampleNode sampleNode, SampleNode relatedSample, EntityNode outsiderNode)
+    private void failTrashSample(SampleNode sampleNode, String expectedErrorMessage)
     {
         try
         {
@@ -447,50 +520,28 @@ public class EntityDeletionTest extends BaseTest
             fail("UserFailureException expected");
         } catch (UserFailureException ex)
         {
-            assertEquals("The sample " + entityGraphManager.getSample(relatedSample).getIdentifier() 
-                    + " belongs to " + renderOutsider(outsiderNode) + " is outside the deletion set.", 
-                    ex.getMessage());
-        }
-    }
-
-    private void failTrashSample(SampleNode sampleNode, DataSetNode originalDataSet,
-            DataSetNode relatedDataSet, EntityNode outsiderNode)
-    {
-        try
-        {
-            deleteSamples(sampleNode);
-            fail("UserFailureException expected");
-        } catch (UserFailureException ex)
-        {
-            assertExceptionMessage(originalDataSet, relatedDataSet, outsiderNode, ex);
+            assertEquals(expectedErrorMessage, ex.getMessage());
         }
     }
     
-    private void assertExceptionMessage(DataSetNode originalDataSet, DataSetNode relatedDataSet, 
-            EntityNode outsiderNode, UserFailureException ex)
+    private String render(EntityNode entityNode)
     {
-        assertEquals("The data set " + entityGraphManager.getDataSetCodeOrNull(originalDataSet) 
-                + " is a component of the data set " + entityGraphManager.getDataSetCodeOrNull(relatedDataSet) 
-                + " which belongs to " + renderOutsider(outsiderNode) + " outside the deletion set.", 
-                ex.getMessage());
-    }
-
-    private String renderOutsider(EntityNode outsiderNode)
-    {
-        String outsiderType;
-        String outsiderIdentifier;
-        if (outsiderNode instanceof ExperimentNode)
+        String type;
+        String identifier;
+        if (entityNode instanceof ExperimentNode)
         {
-            outsiderType = "experiment";
-            outsiderIdentifier = entityGraphManager.getExperimentIdentifierOrNull((ExperimentNode) outsiderNode);
+            type = "experiment";
+            identifier = entityGraphManager.getExperimentIdentifierOrNull((ExperimentNode) entityNode);
+        } else if (entityNode instanceof SampleNode)
+        {
+            type = "sample";
+            identifier = entityGraphManager.getSample((SampleNode) entityNode).getIdentifier();
         } else
         {
-            outsiderType = "sample";
-            outsiderIdentifier = entityGraphManager.getSample((SampleNode) outsiderNode).getIdentifier();
+            type = "data set";
+            identifier = entityGraphManager.getDataSetCodeOrNull((DataSetNode) entityNode);
         }
-        String outsider = outsiderType + " " 
-        + outsiderIdentifier;
-        return outsider;
+        return type + " " + identifier;
     }
     
     private void deleteExperiments(ExperimentNode...experimentNodes)
@@ -528,6 +579,23 @@ public class EntityDeletionTest extends BaseTest
         return create(aSession().withInstanceRole(RoleCode.ADMIN));
     }
     
+    protected String createExpectedErrorMessage(SampleNode relatedSample, EntityNode outsiderNode)
+    {
+        String relation = outsiderNode instanceof ExperimentNode ? "belongs to" : "is a component of";
+        return "The sample " + entityGraphManager.getSample(relatedSample).getIdentifier() 
+                + " " + relation + " the " + render(outsiderNode) + " which is outside the deletion set.";
+    }
+
+    protected String createExpectedErrorMessage(EntityNode originalNode, EntityNode relatedEntity, EntityNode outsiderNode)
+    {
+        return "The " + render(originalNode) 
+                + " is a component of the " + render(relatedEntity) 
+                + " which belongs to the " + render(outsiderNode) + " which is outside the deletion set.";
+    }
+
+    /**
+     * Trashes specified experiments for specified user session token.
+     */
     protected void deleteExperiments(List<String> experimentIdentifiers, String userSessionToken)
     {
         List<ExperimentIdentifier> identifiers = new ArrayList<ExperimentIdentifier>();
@@ -539,12 +607,18 @@ public class EntityDeletionTest extends BaseTest
         commonServer.deleteExperiments(userSessionToken, experimentIds, "test", DeletionType.TRASH);
     }
     
+    /**
+     * Trashes specified samples for specified user session token.
+     */
     protected void deleteSamples(List<String> samplePermIds, String userSessionToken)
     {
         Sample[] samples = loadSamples(samplePermIds);
         commonServer.deleteSamples(userSessionToken, TechId.createList(Arrays.asList(samples)), "test", DeletionType.TRASH);
     }
 
+    /**
+     * Trashes specified data sets for specified user session token.
+     */
     protected void deleteDataSets(List<String> dataSetCodes, String userSessionToken)
     {
         commonServer.deleteDataSets(userSessionToken, dataSetCodes, "test", DeletionType.TRASH, true);

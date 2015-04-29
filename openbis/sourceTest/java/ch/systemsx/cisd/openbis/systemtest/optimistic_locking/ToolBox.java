@@ -22,7 +22,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import ch.systemsx.cisd.common.shared.basic.string.CommaSeparatedListBuilder;
 import ch.systemsx.cisd.openbis.generic.server.util.TimeIntervalChecker;
@@ -37,6 +39,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletionType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
@@ -65,6 +68,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifierFactory;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 
@@ -145,8 +149,9 @@ public class ToolBox
 
     private void deleteSpace(Space space)
     {
-        trashExperiments(space);
+        trashDataSets(space);
         trashSamples(space);
+        trashExperiments(space);
         emptyTrashCan();
         deleteProjects(space);
         commonServer.deleteSpaces(systemSessionToken, Arrays.asList(new TechId(space.getId())),
@@ -175,6 +180,50 @@ public class ToolBox
 
     private void trashSamples(Space space)
     {
+        List<TechId> sampleIds = listSampleIds(space);
+        commonServer.deleteSamples(systemSessionToken, sampleIds, "cleanup",
+                DeletionType.TRASH);
+    }
+
+    private void trashExperiments(Space space)
+    {
+        commonServer.deleteExperiments(systemSessionToken, listExperimentIds(space),
+                "cleanup", DeletionType.TRASH);
+    }
+
+    private void trashDataSets(Space space)
+    {
+        Set<String> codes = new HashSet<String>();
+        for (TechId id : listExperimentIds(space))
+        {
+            List<AbstractExternalData> dataSets = etlService.listDataSetsByExperimentID(systemSessionToken, id);
+            for (AbstractExternalData dataSet : dataSets)
+            {
+                codes.add(dataSet.getCode());
+            }
+        }
+        List<TechId> sampleIds = listSampleIds(space);
+        for (TechId id : sampleIds)
+        {
+            List<AbstractExternalData> dataSets = etlService.listDataSetsBySampleID(systemSessionToken, id, true);
+            for (AbstractExternalData dataSet : dataSets)
+            {
+                codes.add(dataSet.getCode());
+            }
+        }
+        List<String> dataSetCodes = new ArrayList<String>(codes);
+        commonServer.deleteDataSets(systemSessionToken, dataSetCodes, "cleanup", DeletionType.TRASH, true);
+    }
+    
+    private List<TechId> listExperimentIds(Space space)
+    {
+        ExperimentType experimentType = new ExperimentTypeBuilder().code(EXPERIMENT_TYPE_CODE).getExperimentType();
+        SpaceIdentifier spaceIdentifier = new SpaceIdentifierFactory(space.getIdentifier()).createIdentifier();
+        return TechId.createList(commonServer.listExperiments(systemSessionToken, experimentType, spaceIdentifier));
+    }
+    
+    private List<TechId> listSampleIds(Space space)
+    {
         ListSampleCriteria criteria = new ListSampleCriteria();
         criteria.setSampleType(SampleType.createAllSampleType(Collections.<SampleType> emptyList(),
                 false));
@@ -182,19 +231,7 @@ public class ToolBox
         criteria.setIncludeSpace(true);
         criteria.setIncludeInstance(false);
         criteria.setExcludeWithoutExperiment(false);
-        List<Sample> samples = commonServer.listSamples(systemSessionToken, criteria);
-        commonServer.deleteSamples(systemSessionToken, TechId.createList(samples), "cleanup",
-                DeletionType.TRASH);
-    }
-
-    private void trashExperiments(Space space)
-    {
-        List<Experiment> experiments =
-                commonServer.listExperiments(systemSessionToken,
-                        new ExperimentTypeBuilder().code(EXPERIMENT_TYPE_CODE).getExperimentType(),
-                        new SpaceIdentifierFactory(space.getIdentifier()).createIdentifier());
-        commonServer.deleteExperiments(systemSessionToken, TechId.createList(experiments),
-                "cleanup", DeletionType.TRASH);
+        return TechId.createList(commonServer.listSamples(systemSessionToken, criteria));
     }
 
     public void createInstanceAdmin(String userId)

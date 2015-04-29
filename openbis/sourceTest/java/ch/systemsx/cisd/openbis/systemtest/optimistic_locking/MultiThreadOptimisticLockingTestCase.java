@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.systemtest.optimistic_locking;
 
+import java.lang.reflect.Method;
+
 import org.springframework.transaction.annotation.Transactional;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
@@ -40,8 +42,15 @@ public class MultiThreadOptimisticLockingTestCase extends PersistentSystemTestCa
     }
 
     @AfterMethod
-    public void deleteSpaces()
+    public void deleteSpaces(Method m)
     {
-        toolBox.deleteSpaces();
+        try
+        {
+            toolBox.deleteSpaces();
+        } catch (Throwable t)
+        {
+            throw new Error(m.getName() + "() : ", t);
+        }
     }
+    
 }
