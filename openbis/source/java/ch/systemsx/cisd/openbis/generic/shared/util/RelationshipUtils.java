@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
@@ -29,6 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IModifierAndModificationDateBean;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleRelationshipPE;
 
 /**
  * Utility function for relation ship.
@@ -37,6 +39,81 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
  */
 public class RelationshipUtils
 {
+
+    public static void updateModificationDateAndModifierOfRelatedProjectsOfExperiments(List<ExperimentPE> experiments, IAuthSession session)
+    {
+        for (ExperimentPE experiment : experiments)
+        {
+            updateModificationDateAndModifier(experiment.getProject(), session);
+        }
+    }
+
+    public static void updateModificationDateAndModifierOfRelatedEntitiesOfSamples(List<SamplePE> samples, IAuthSession session)
+    {
+        for (SamplePE sample : samples)
+        {
+            ExperimentPE experiment = sample.getExperiment();
+            if (experiment != null)
+            {
+                updateModificationDateAndModifier(experiment, session);
+            }
+            SamplePE container = sample.getContainer();
+            if (container != null)
+            {
+                updateModificationDateAndModifier(container, session);
+            }
+            List<SamplePE> parents = sample.getParents();
+            if (parents != null)
+            {
+                for (SamplePE parent : parents)
+                {
+                    updateModificationDateAndModifier(parent, session);
+                }
+            }
+            Set<SampleRelationshipPE> childRelationships = sample.getChildRelationships();
+            if (childRelationships != null)
+            {
+                for (SampleRelationshipPE childRelationship : childRelationships)
+                {
+                    SamplePE childSample = childRelationship.getChildSample();
+                    updateModificationDateAndModifier(childSample, session);
+                }
+            }
+        }
+    }
+
+    public static void updateModificationDateAndModifierOfRelatedEntitiesOfDataSets(List<DataPE> dataSets, IAuthSession session)
+    {
+        for (DataPE dataSet : dataSets)
+        {
+            ExperimentPE experiment = dataSet.getExperiment();
+            updateModificationDateAndModifier(experiment, session);
+            SamplePE sample = dataSet.tryGetSample();
+            if (sample != null)
+            {
+                updateModificationDateAndModifier(sample, session);
+            }
+            RelationshipUtils.updateModificationDateAndModifierOfDataSets(dataSet.getChildren(), session);
+            RelationshipUtils.updateModificationDateAndModifierOfDataSets(dataSet.getParents(), session);
+            Set<DataSetRelationshipPE> relationships = dataSet.getParentRelationships();
+            for (DataSetRelationshipPE relationship : getContainerComponentRelationships(relationships))
+            {
+                updateModificationDateAndModifier(relationship.getParentDataSet(), session);
+            }
+        }
+    }
+
+    private static void updateModificationDateAndModifierOfDataSets(List<DataPE> dataSets, IAuthSession session)
+    {
+        if (dataSets != null)
+        {
+            for (DataPE child : dataSets)
+            {
+                updateModificationDateAndModifier(child, session);
+            }
+        }
+    }
+
     public static boolean isParentChildRelationship(DataSetRelationshipPE relationship)
     {
         return isRelationshipOfType(relationship, BasicConstant.PARENT_CHILD_INTERNAL_RELATIONSHIP);

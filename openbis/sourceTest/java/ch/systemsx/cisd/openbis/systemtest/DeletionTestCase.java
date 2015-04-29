@@ -31,6 +31,7 @@ import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
+import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.testng.annotations.AfterMethod;
@@ -183,6 +184,7 @@ public class DeletionTestCase extends SystemTestCase
                     }
                 }
             }
+            flushAndClearHibernateSession();
             commonServer.deleteExperiments(sessionToken, TechId.createList(existingExperiments),
                     REASON, DeletionType.TRASH);
             commonServer.deletePermanently(sessionToken, TechId.createList(listDeletions()));
@@ -220,6 +222,7 @@ public class DeletionTestCase extends SystemTestCase
         assertSamplesExist(registeredSamples);
 
         // delete permanently
+        flushAndClearHibernateSession();
         commonServer.deleteExperiments(sessionToken, Collections.singletonList(experimentId),
                 REASON, DeletionType.TRASH);
         final TechId deletionId2 = TechId.create(listDeletions().get(0));
@@ -228,7 +231,6 @@ public class DeletionTestCase extends SystemTestCase
         assertSamplesDoNotExist(registeredSamplesThatShouldBeDeleted);
     }
 
-    
     @Autowired
     SessionFactory sessionFactory;
     @Test
@@ -527,6 +529,13 @@ public class DeletionTestCase extends SystemTestCase
             }
         }
         return result;
+    }
+
+    private void flushAndClearHibernateSession()
+    {
+        Session currentSession = daoFactory.getSessionFactory().getCurrentSession();
+        currentSession.flush();
+        currentSession.clear();
     }
 
 }

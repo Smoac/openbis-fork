@@ -689,6 +689,11 @@ public class EntityGraphManager
                 CodeWithRegistrationAndModificationDate<?> entity)
         {
             builder.append(prefix).append(id).append(" -> ").append(entity.getCode()).append(" (");
+            if (entity instanceof IIdHolder)
+            {
+                IIdHolder idHolder = (IIdHolder) entity;
+                builder.append(idHolder.getId()).append(", ");
+            }
             builder.append(entity.getModifier().getUserId()).append(", ");
             builder.append(entity.getModificationDate()).append(")\n");
         }

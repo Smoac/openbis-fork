@@ -89,10 +89,12 @@ public class EntityDeletionTest extends BaseTest
         EntityGraphGenerator g = parseAndCreateGraph("E1, samples: S2\n"
                 + "S1, components: S2\n");
         
-        failTrashExperiment(g.e(1), createExpectedErrorMessage(g.s(2), g.s(1)));
+        deleteExperiments(g.e(1));
         
-        assertEquals("E1, samples: S2\n"
-                + "S1, components: S2\n", renderGraph(g));
+        assertEquals("", renderGraph(g));
+        assertModified(g.s(1));
+        assertDeleted(g.e(1));
+        assertDeleted(g.s(2));
         assertUnmodifiedAndUndeleted(g);
     }
     
@@ -265,12 +267,14 @@ public class EntityDeletionTest extends BaseTest
     @Test
     public final void testTrashComponentSample()
     {
-        EntityGraphGenerator g = parseAndCreateGraph("S1, components: S2\n");
+        EntityGraphGenerator g = parseAndCreateGraph("E1, samples: S2\n"
+                + "S1, components: S2\n");
         
         deleteSamples(g.s(2));
         
         assertEquals("", renderGraph(g));
         assertDeleted(g.s(2));
+        assertModified(g.e(1));
         assertModified(g.s(1));
         assertUnmodifiedAndUndeleted(g);
     }
@@ -312,11 +316,12 @@ public class EntityDeletionTest extends BaseTest
                 + "S1, components: S2\n"
                 + "S2, data sets: DS1\n");
         
-        failTrashSample(g.s(1), createExpectedErrorMessage(g.s(2), g.e(1)));
+        deleteSamples(g.s(1));
         
-        assertEquals("E1, samples: S2, data sets: DS1\n"
-                + "S1, components: S2\n"
-                + "S2, data sets: DS1\n", renderGraph(g));
+        assertEquals("", renderGraph(g));
+        assertDeleted(g.s(1), g.s(2));
+        assertDeleted(g.ds(1));
+        assertModified(g.e(1));
         assertUnmodifiedAndUndeleted(g);
     }
     
@@ -552,6 +557,7 @@ public class EntityDeletionTest extends BaseTest
             experimentIdentifiers.add(entityGraphManager.getExperimentIdentifierOrNull(experimentNode));
         }
         deleteExperiments(experimentIdentifiers, createAdminUser());
+        flushAndClearHibernateSession();
     }
 
     private void deleteSamples(SampleNode...sampleNodes)
@@ -562,6 +568,7 @@ public class EntityDeletionTest extends BaseTest
             samplePermIds.add(entityGraphManager.getSamplePermIdOrNull(sampleNode));
         }
         deleteSamples(samplePermIds, createAdminUser());
+        flushAndClearHibernateSession();
     }
     
     private void deleteDataSets(DataSetNode...dataSetNodes)
@@ -572,6 +579,7 @@ public class EntityDeletionTest extends BaseTest
             dataSetCodes.add(entityGraphManager.getDataSetCodeOrNull(dataSetNode));
         }
         deleteDataSets(dataSetCodes, createAdminUser());
+        flushAndClearHibernateSession();
     }
     
     private String createAdminUser()
