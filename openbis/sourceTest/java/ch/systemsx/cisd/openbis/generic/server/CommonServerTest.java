@@ -1813,8 +1813,6 @@ public final class CommonServerTest extends AbstractServerTestCase
                     one(trashBO).createDeletion(reason);
                     one(trashBO).trashDataSets(TechId.createList(dataSets));
 
-                    one(dataSetDAO).listByCode(new HashSet<String>(dataSetCodes));
-                    will(returnValue(Arrays.asList()));
                 }
             });
 

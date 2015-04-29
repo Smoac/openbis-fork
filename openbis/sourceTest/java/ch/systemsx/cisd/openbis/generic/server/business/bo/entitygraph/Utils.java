@@ -133,6 +133,18 @@ public class Utils
         return experiment;
     }
     
+    public static ExperimentPE createExperimentPE(ExperimentNode experimentNode)
+    {
+        if (experimentNode == null)
+        {
+            return null;
+        }
+        ExperimentPE experiment = new ExperimentPE();
+        experiment.setId(experimentNode.getId());
+        experiment.setCode(experimentNode.getCode());
+        return experiment;
+    }
+    
     static final void appendTo(StringBuilder builder, String label, List<? extends EntityNode> entityNodes)
     {
         if (entityNodes.isEmpty())

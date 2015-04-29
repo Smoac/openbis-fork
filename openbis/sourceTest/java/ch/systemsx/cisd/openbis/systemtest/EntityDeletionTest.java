@@ -310,6 +310,20 @@ public class EntityDeletionTest extends BaseTest
     }
     
     @Test
+    public final void testTrashSampleWithAnExperimentSample()
+    {
+        EntityGraphGenerator g = parseAndCreateGraph("E1, samples: S2\n"
+                + "S1, components: S2\n");
+        
+        deleteSamples(g.s(1));
+        
+        assertEquals("", renderGraph(g));
+        assertDeleted(g.s(1), g.s(2));
+        assertModified(g.e(1));
+        assertUnmodifiedAndUndeleted(g);
+    }
+    
+    @Test
     public final void testTrashSampleWithAnExperimentSampleWithADataSet()
     {
         EntityGraphGenerator g = parseAndCreateGraph("E1, samples: S2, data sets: DS1\n"

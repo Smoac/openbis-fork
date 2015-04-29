@@ -41,6 +41,7 @@ import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.entitygraph.DataSetNode;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.entitygraph.EntityGraphGenerator;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.entitygraph.ExperimentNode;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.entitygraph.SampleNode;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.entitygraph.Utils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
@@ -51,6 +52,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCrite
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RelationshipTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE;
@@ -234,6 +236,7 @@ public final class TrashBOTest extends AbstractBOTest
     private void prepareEntityGraph(EntityGraphGenerator g)
     {
         g.assertConsistency();
+        prepareListExperimentsByIds(g);
         prepareListSampleIdsByExperimentIds(g);
         prepareListDataSetIdsByExperimentIds(g);
         prepareListDataSetIdsBySampleIds(g);
@@ -468,6 +471,34 @@ public final class TrashBOTest extends AbstractBOTest
                     will(handler);
                 }
             });
+    }
+    
+    private void prepareListExperimentsByIds(final EntityGraphGenerator g)
+    {
+        final AbstractMockHandler<Collection<Long>> handler = new AbstractMockHandler<Collection<Long>>()
+                {
+            @Override
+            public Object invoke(Invocation invocation) throws Throwable
+            {
+                List<ExperimentPE> experiments = new ArrayList<ExperimentPE>();
+                Map<Long, ExperimentNode> experimentNodes = g.getExperiments();
+                for (Long id : argument)
+                {
+                    ExperimentNode experimentNode = experimentNodes.get(id);
+                    experiments.add(Utils.createExperimentPE(experimentNode));
+                }
+                print("listByExperimentIds(" + argument + ") = " + experiments);
+                return experiments;
+            }
+                };
+                context.checking(new Expectations()
+                {
+                    {
+                        allowing(experimentDAO).listByIDs(with(handler));
+                        will(handler);
+                    }
+                });
+
     }
     
     private void prepareListByDataSetIds(final EntityGraphGenerator g)

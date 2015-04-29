@@ -177,8 +177,6 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
         TrashOperationsManager trashManager = new TrashOperationsManager(session, deletion, this);
         Set<TechId> allSampleIds 
                 = trashSamples(trashManager, sampleIds, CascadeSampleDependentComponents.TRUE, true);
-        Set<TechId> dependentSampleIds = new HashSet<TechId>(allSampleIds);
-        dependentSampleIds.removeAll(sampleIds);
         Set<TechId> experimentsOfSamples = getExperimentsOfSamples(sampleIds);
         trashSampleDependentDataSets(trashManager, experimentsOfSamples, allSampleIds);
         trashManager.trash();
@@ -523,7 +521,7 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
             {
                 entityIdsByKind.get(entityKind).addAll(entityIds);
                 IDeletionDAO deletionDAO = daoFactory.getDeletionDAO();
-                operations.add(new TrashBatchOperation(entityKind, entityIds, deletion, deletionDAO, isOriginalDeletion));
+                operations.add(0, new TrashBatchOperation(entityKind, entityIds, deletion, deletionDAO, isOriginalDeletion));
             }
         }
         
@@ -541,23 +539,31 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
         private void updateModificationDateAndModifierOfRelatedProjectsOfExperiments()
         {
             List<Long> ids = TechId.asLongs(entityIdsByKind.get(EntityKind.EXPERIMENT));
-            List<ExperimentPE> experiments = daoFactory.getExperimentDAO().listByIDs(ids);
-            RelationshipUtils.updateModificationDateAndModifierOfRelatedProjectsOfExperiments(experiments, session);
+            if (ids.isEmpty() == false)
+            {
+                List<ExperimentPE> experiments = daoFactory.getExperimentDAO().listByIDs(ids);
+                RelationshipUtils.updateModificationDateAndModifierOfRelatedProjectsOfExperiments(experiments, session);
+            }
         }
         
         private void updateModificationDateAndModifierOfRelatedEntitiesOfSamples()
         {
             List<Long> ids = TechId.asLongs(entityIdsByKind.get(EntityKind.SAMPLE));
-            List<SamplePE> samples = daoFactory.getSampleDAO().listByIDs(ids);
-            RelationshipUtils.updateModificationDateAndModifierOfRelatedEntitiesOfSamples(samples, session);
+            if (ids.isEmpty() == false)
+            {
+                List<SamplePE> samples = daoFactory.getSampleDAO().listByIDs(ids);
+                RelationshipUtils.updateModificationDateAndModifierOfRelatedEntitiesOfSamples(samples, session);
+            }
         }
         
         private void updateModificationDateAndModifierOfRelatedEntitiesOfDataSets()
         {
             List<Long> ids = TechId.asLongs(entityIdsByKind.get(EntityKind.DATA_SET));
-            List<DataPE> dataSets = daoFactory.getDataDAO().listByIDs(ids);
-            RelationshipUtils.updateModificationDateAndModifierOfRelatedEntitiesOfDataSets(dataSets, session);
-
+            if (ids.isEmpty() == false)
+            {
+                List<DataPE> dataSets = daoFactory.getDataDAO().listByIDs(ids);
+                RelationshipUtils.updateModificationDateAndModifierOfRelatedEntitiesOfDataSets(dataSets, session);
+            }
         }
     }
 
