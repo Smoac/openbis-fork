@@ -132,6 +132,29 @@ def verify(tr, sample):
     for parentAnnotationIdentifier in requiredAnnotationsFromParents:
         if not requiredAnnotationsFromParents[parentAnnotationIdentifier]:
             log("AUTO-FIX-2", "CASE 2 - MISSING LOST ANNOTATIONS ON SAMPLE: " + sample.getSampleIdentifier() + " FOR LOST ANNOTATION: " + parentAnnotationIdentifier + " PRESENT INTO ONE OF THE PARENTS")
+    #4 Check parents from contained
+    expectedParents = getContainedFromAnnotations(sample)
+    lostParents = areParentsPresent(sample, expectedParents)
+    if len(lostParents) > 0:
+        logManualFix("Case 5 - Missing Parents present in Contained: ", sample.getSample().getRegistrator().getUserId(), sample.getSampleIdentifier(), str(lostParents), "?", "?")
+
+def getContainedFromAnnotations(sample):
+    contained = []; #They should be parents of the sample and not been missing
+    annotationsRoot = getAnnotationsRootNodeFromSample(sample);
+    if annotationsRoot is not None:
+        for annotation in annotationsRoot:
+            containedFound = getValueOrNull(annotation.attrib, "CONTAINED");
+            if containedFound is not None and ('/' in containedFound):
+                contained.append(containedFound);
+    return contained;
+
+def areParentsPresent(sample, parents):
+    notPresent = [];
+    for parent in parents:
+        isPresent = (parent in sample.getParentSampleIdentifiers())
+        if not isPresent:
+            notPresent.append(parent);
+    return notPresent
 
 def getRequiredAnnotationsFromParents(sample):
     requiredAnnotationsFromParents = {}
