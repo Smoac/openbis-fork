@@ -31,15 +31,16 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentIde
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SamplePermId;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.entitygraph.EntityNode;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.entitygraph.SampleNode;
+import ch.systemsx.cisd.openbis.systemtest.AbstractEntityDeletionTestCase;
 
 
 /**
- * 
+ * Implementation of {@link AbstractEntityDeletionTestCase} based in V3 API.
  *
  * @author Franz-Josef Elmer
  */
 @Test(groups = { "system-cleandb" })
-public class EntityDeletionTest extends ch.systemsx.cisd.openbis.systemtest.EntityDeletionTest
+public class EntityDeletionTest extends AbstractEntityDeletionTestCase
 {
 
     private static final String CONTEXT_DESCRIPTION = " (Context: [])";
