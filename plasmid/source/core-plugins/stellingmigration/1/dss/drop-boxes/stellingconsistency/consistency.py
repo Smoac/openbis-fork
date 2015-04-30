@@ -110,7 +110,7 @@ def verify(tr, sample):
                     foundAncestor = foundAnnotationAndAncestor[1]
                     if foundAnnotation is not None and foundAncestor is not None:
                         log("INFO", "BAD ANNOTATION FOUND - ON:" + sample.getSampleIdentifier() + " ANNOTATION:" + annotatedSampleIdentifier)
-                        if areAnnotationsEqual(annotation, foundAnnotation):
+                        if areAnnotationsEqual(annotation, foundAnnotation) and areAnnotationsEqual(foundAnnotation, annotation):
                             log("AUTO-FIX", "CASE 1 - GOOD REPEATED ANNOTATION THAT CAN BE DELETED - AT SAMPLE: " + sample.getSampleIdentifier() + " FOR ANNOTATION: " + annotatedSampleIdentifier + " FOUND ORIGINAL AT: " + foundAncestor.getSampleIdentifier())
                         else:
                             #log("MANUAL-FIX", "CASE 3 - THE ANNOTATION: " + annotatedSampleIdentifier + " IS DIFFERENT AT SAMPLE: " + sample.getSampleIdentifier() + " AND ORIGINAL ANCESTOR:" + foundAncestor.getSampleIdentifier())
@@ -178,16 +178,20 @@ def getRequiredAnnotations(sample):
 
 def areAnnotationsEqual(annotationA, annotationB):
     for key in annotationA.attrib:
-        value = annotationA.attrib[key]
+        value = getValueOrNull(annotationA.attrib, key)
         if key != "CONTAINED":
             if value != getValueOrNull(annotationB.attrib, key):
-                log("INFO", "EQUALITY FAILED FOR " + key + ": - " + value + " " + str(getValueOrNull(annotationB.attrib, key)))
+                log("INFO", "EQUALITY FAILED FOR " + key + ": - " + str(value) + " " + str(getValueOrNull(annotationB.attrib, key)))
                 return False
     return True
 
 def getValueOrNull(map, key):
     if key in map:
-        return map[key]
+        value = map[key]
+        if not value: #Check for null strings
+            return None
+        else:
+            return value
     else:
         return None
     
