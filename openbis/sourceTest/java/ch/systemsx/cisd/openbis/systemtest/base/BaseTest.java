@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.systemtest.base;
 
 import static org.hamcrest.CoreMatchers.is;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -29,6 +30,7 @@ import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.testng.AbstractTransactionalTestNGSpringContextTests;
+import org.springframework.test.context.transaction.TestTransaction;
 import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
@@ -48,6 +50,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.entitygraph.Experimen
 import ch.systemsx.cisd.openbis.generic.server.business.bo.entitygraph.SampleNode;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.DataSetTypeWithoutExperimentChecker;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataStoreDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IndexMode;
 import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -166,17 +169,29 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
     }
 
     @BeforeMethod(alwaysRun = true)
-    public void createDataStore()
+    public void createDataStore(Method method)
     {
+        System.err.println(">>>> run " + method.getName() + " (test transaction: active: "
+                + TestTransaction.isActive() + ", flagged for rollback: " 
+                + TestTransaction.isFlaggedForRollback() + ")");
+    IDataStoreDAO dataStoreDAO = this.daoFactory.getDataStoreDAO();
+        List<DataStorePE> dataStores = dataStoreDAO.listDataStores();
+        for (DataStorePE dataStorePE : dataStores)
+        {
+            if (dataStorePE.getCode().equals("STANDARD"))
+            {
+                return;
+            }
+        }
         DataStorePE dataStore = new DataStorePE();
         dataStore.setCode("STANDARD");
         dataStore.setDatabaseInstanceUUID(UUID.randomUUID().toString());
         dataStore.setDownloadUrl("http://localhost");
         dataStore.setRemoteUrl("http://remotehost");
         dataStore.setSessionToken("");
-        this.daoFactory.getDataStoreDAO().createOrUpdateDataStore(dataStore);
+        dataStoreDAO.createOrUpdateDataStore(dataStore);
     }
-
+    
     @AfterSuite(groups = "system-cleandb")
     public void testingThis()
     {
@@ -187,7 +202,7 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
     public void loginAsSystem()
     {
         systemSessionToken = commonServer.tryToAuthenticateAsSystem().getSessionToken();
-        entityGraphManager = new EntityGraphManager(etlService, commonServer, systemSessionToken);
+        entityGraphManager = new EntityGraphManager(etlService, commonServer, daoFactory.getSessionFactory(), systemSessionToken);
     }
 
     @Autowired
@@ -477,7 +492,6 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
     protected EntityGraphGenerator parseAndCreateGraph(String graphDefinition)
     {
         EntityGraphGenerator graphGenerator = entityGraphManager.parseAndCreateGraph(graphDefinition);
-        flushAndClearHibernateSession();
         return graphGenerator;
     }
 

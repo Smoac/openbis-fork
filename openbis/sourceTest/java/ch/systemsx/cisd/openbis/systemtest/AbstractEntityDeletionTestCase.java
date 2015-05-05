@@ -22,6 +22,8 @@ import static org.testng.AssertJUnit.fail;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.test.annotation.Rollback;
+import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -38,6 +40,7 @@ import ch.systemsx.cisd.openbis.systemtest.base.BaseTest;
  *
  * @author Franz-Josef Elmer
  */
+@TransactionConfiguration(transactionManager = "transaction-manager", defaultRollback = false)
 public abstract class AbstractEntityDeletionTestCase extends BaseTest
 {
     @Test
@@ -93,7 +96,23 @@ public abstract class AbstractEntityDeletionTestCase extends BaseTest
     }
     
     @Test
-    public final void testTrashExperimentWithSamplesAndDataSetsAndNoExternalLinks()
+    @Rollback(false)
+    public final void testTrashExperimentWithSampleAndDataSet()
+    {
+        EntityGraphGenerator g = parseAndCreateGraph("E1, samples: S1, data sets: DS1\n"
+                + "S1, data sets: DS1\n");
+
+        deleteExperiments(g.e(1));
+        
+        assertEquals("", renderGraph(g));
+        assertDeleted(g.e(1));
+        assertDeleted(g.s(1));
+        assertDeleted(g.ds(1));
+        assertUnmodifiedAndUndeleted(g);
+    }
+    
+    @Test
+    public final void testTrashExperimentsWithSampleAndDataSetsAndNoExternalLinks()
     {
         EntityGraphGenerator g = parseAndCreateGraph("E1, samples: S1, data sets: DS1\n"
                 + "E2, data sets: DS2\n"
@@ -101,7 +120,7 @@ public abstract class AbstractEntityDeletionTestCase extends BaseTest
                 + "DS1, components: DS2\n");
         
         deleteExperiments(g.e(1), g.e(2));
-
+        
         assertEquals("", renderGraph(g));
         assertDeleted(g.e(1), g.e(2));
         assertDeleted(g.s(1));
@@ -127,6 +146,7 @@ public abstract class AbstractEntityDeletionTestCase extends BaseTest
     }
     
     @Test
+    @Rollback(true)
     public final void testTrashExperimentWithARelatedDataSetInAnExternalContainer()
     {
         EntityGraphGenerator g = parseAndCreateGraph("E1, samples: S1, data sets: DS1\n"
@@ -184,6 +204,7 @@ public abstract class AbstractEntityDeletionTestCase extends BaseTest
     }
     
     @Test
+    @Rollback(true)
     public final void testTrashOrginalExperimentWithSample()
     {
         EntityGraphGenerator g = parseAndCreateGraph("E1, samples: S1, data sets: DS2 DS3\n"
@@ -364,6 +385,7 @@ public abstract class AbstractEntityDeletionTestCase extends BaseTest
     }
     
     @Test
+    @Rollback(true)
     public final void testTrashSampleWithComponentWithDataSetWithComponentOfAnotherSample()
     {
         EntityGraphGenerator g = parseAndCreateGraph("S1, components: S2\n"
@@ -381,6 +403,7 @@ public abstract class AbstractEntityDeletionTestCase extends BaseTest
     }
     
     @Test
+    @Rollback(true)
     public final void testTrashSampleWithComponentWithDataSetWithComponentOfAnotherExperiment()
     {
         EntityGraphGenerator g = parseAndCreateGraph("E1, data sets: DS1\n"
@@ -398,6 +421,7 @@ public abstract class AbstractEntityDeletionTestCase extends BaseTest
     }
     
     @Test
+    @Rollback(true)
     public void testTrashSampleWithDataSetWithDataSetComponentIndirectlyDependentOnOutsideContainer()
     {
         EntityGraphGenerator g = parseAndCreateGraph("S1, data sets: DS1[NECT] DS3[NET] DS4[NECT] DS5[NET] DS6[NET]\n"

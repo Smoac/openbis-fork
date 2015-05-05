@@ -16,6 +16,7 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.entity;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -26,6 +27,9 @@ import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion.AbstractObjectDeletionOptions;
 import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
  * @author pkupczyk
@@ -71,6 +75,16 @@ public abstract class AbstractDeleteEntityExecutor<DELETION_ID, ENTITY_ID, ENTIT
         return delete(context, entityMap.values(), deletionOptions);
     }
 
+    protected List<TechId> asTechIds(Collection<? extends IIdHolder> entities)
+    {
+        List<TechId> techIds = new ArrayList<TechId>();
+        for (IIdHolder entity : entities)
+        {
+            techIds.add(new TechId(HibernateUtils.getId(entity)));
+        }
+        return techIds;
+    }
+    
     protected abstract Map<ENTITY_ID, ENTITY_PE> map(IOperationContext context, List<? extends ENTITY_ID> entityIds);
 
     protected abstract void checkAccess(IOperationContext context, ENTITY_ID entityId, ENTITY_PE entity);

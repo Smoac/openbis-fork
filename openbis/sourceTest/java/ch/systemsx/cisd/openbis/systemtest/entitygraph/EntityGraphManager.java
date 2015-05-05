@@ -35,6 +35,8 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.UUID;
 
+import org.hibernate.SessionFactory;
+
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.entitygraph.DataSetNode;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.entitygraph.EntityGraphGenerator;
@@ -54,6 +56,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LocatorType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
@@ -63,6 +66,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
@@ -115,11 +119,14 @@ public class EntityGraphManager
     private SampleType defaultSampleType;
     
     private EntityRepository repository;
+    private SessionFactory sessionFactory;
     
-    public EntityGraphManager(IServiceForDataStoreServer service, ICommonServer commonService, String sessionToken)
+    public EntityGraphManager(IServiceForDataStoreServer service, ICommonServer commonService, 
+            SessionFactory sessionFactory, String sessionToken)
     {
         this.service = service;
         this.commonService = commonService;
+        this.sessionFactory = sessionFactory;
         this.sessionToken = sessionToken;
     }
     
@@ -610,6 +617,9 @@ public class EntityGraphManager
         createExperiments(defaultProject, g);
         createSamples(defaultSpace, g);
         createDataSets(g);
+        org.hibernate.Session currentSession = sessionFactory.getCurrentSession();
+        currentSession.flush();
+        currentSession.clear();
     }
 
     private void createDataSets(EntityGraphGenerator g)
@@ -793,12 +803,13 @@ public class EntityGraphManager
 
         private void refreshSampleDtos()
         {
+            Map<Long, Sample> existingSamples = getExistingSamples();
             List<Entry<Long, Sample>> nodeToDtoMapping = new ArrayList<Entry<Long, Sample>>(samplesNodeToDtoMap.entrySet());
             samplesNodeToDtoMap.clear();
             for (Entry<Long, Sample> entry : nodeToDtoMapping)
             {
                 Long sampleDtoId = entry.getValue().getId();
-                Sample refreshedSample = refresh(entry.getValue());
+                Sample refreshedSample = existingSamples.get(sampleDtoId);
                 if (refreshedSample != null)
                 {
                     samplesNodeToDtoMap.put(entry.getKey(), refreshedSample);
@@ -807,6 +818,25 @@ public class EntityGraphManager
                     samplesDtoToNodeMap.remove(sampleDtoId);
                 }
             }
+        }
+
+        private Map<Long, Sample> getExistingSamples()
+        {
+            Map<Long, Sample> existingSamples = new HashMap<Long, Sample>();
+            List<SampleType> sampleTypes = commonService.listSampleTypes(sessionToken);
+            for (SampleType sampleType : sampleTypes)
+            {
+                ListSampleCriteria criteria = new ListSampleCriteria();
+                criteria.setSampleType(sampleType);
+                criteria.setIncludeInstance(true);
+                criteria.setIncludeSpace(true);
+                List<Sample> samples = service.listSamples(sessionToken, criteria);
+                for (Sample sample : samples)
+                {
+                    existingSamples.put(sample.getId(), sample);
+                }
+            }
+            return existingSamples;
         }
 
         private void refreshExperimentDtos()

@@ -33,7 +33,6 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.deletion.IDeletionId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SimpleSpaceValidator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ITrashBO;
-import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetRelationshipPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
@@ -95,7 +94,7 @@ public class DeleteDataSetExecutor extends AbstractDeleteEntityExecutor<IDeletio
     {
         ITrashBO trashBO = businessObjectFactory.createTrashBO(context.getSession());
         trashBO.createDeletion(deletionOptions.getReason());
-        trashBO.trashDataSets(TechId.createList(dataSets));
+        trashBO.trashDataSets(asTechIds(dataSets));
         DeletionPE deletion = trashBO.getDeletion();
         return new DeletionTechId(deletion.getId());
     }

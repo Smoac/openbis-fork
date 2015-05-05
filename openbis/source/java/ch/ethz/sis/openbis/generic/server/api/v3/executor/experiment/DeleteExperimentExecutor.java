@@ -32,7 +32,6 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.IExperimentId
 import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ExperimentByIdentiferValidator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ITrashBO;
-import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.util.RelationshipUtils;
@@ -74,7 +73,7 @@ public class DeleteExperimentExecutor extends AbstractDeleteEntityExecutor<IDele
     {
         ITrashBO trashBO = businessObjectFactory.createTrashBO(context.getSession());
         trashBO.createDeletion(deletionOptions.getReason());
-        trashBO.trashExperiments(TechId.createList(entities));
+        trashBO.trashExperiments(asTechIds(entities));
         DeletionPE deletion = trashBO.getDeletion();
         return new DeletionTechId(deletion.getId());
     }

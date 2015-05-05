@@ -33,7 +33,6 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.ISampleId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SampleByIdentiferValidator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ITrashBO;
-import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -103,7 +102,7 @@ public class DeleteSampleExecutor extends AbstractDeleteEntityExecutor<IDeletion
     {
         ITrashBO trashBO = businessObjectFactory.createTrashBO(context.getSession());
         trashBO.createDeletion(deletionOptions.getReason());
-        trashBO.trashSamples(TechId.createList(entities));
+        trashBO.trashSamples(asTechIds(entities));
         DeletionPE deletion = trashBO.getDeletion();
         return new DeletionTechId(deletion.getId());
     }
