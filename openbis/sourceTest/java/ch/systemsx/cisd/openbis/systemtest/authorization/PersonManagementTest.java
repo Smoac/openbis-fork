@@ -50,11 +50,14 @@ import ch.systemsx.cisd.openbis.util.LogRecordingUtils;
 public class PersonManagementTest extends BaseTest
 {
     private BufferedAppender logRecorder;
+    private int initialNumberOfActivePersons;
 
     @BeforeMethod
     public void setUpLogger()
     {
         logRecorder = LogRecordingUtils.createRecorder("%-5p %c - %m%n", Level.INFO, ".*AUTH.CommonServer");
+        initialNumberOfActivePersons = etlService.countActivePersons(systemSessionToken);
+
     }
 
     @AfterMethod
@@ -70,7 +73,7 @@ public class PersonManagementTest extends BaseTest
 
         int numberOfActivePersons = commonServer.countActivePersons(sessionToken);
 
-        assertEquals(2, numberOfActivePersons);
+        assertEquals(1, numberOfActivePersons - initialNumberOfActivePersons);
     }
 
     @Test
@@ -80,7 +83,7 @@ public class PersonManagementTest extends BaseTest
 
         int numberOfActivePersons = etlService.countActivePersons(sessionToken);
 
-        assertEquals(2, numberOfActivePersons);
+        assertEquals(1, numberOfActivePersons - initialNumberOfActivePersons);
     }
 
     @Test
@@ -90,7 +93,7 @@ public class PersonManagementTest extends BaseTest
 
         int numberOfActivePersons = genericServer.countActivePersons(sessionToken);
 
-        assertEquals(2, numberOfActivePersons);
+        assertEquals(1, numberOfActivePersons - initialNumberOfActivePersons);
     }
 
     @Test
@@ -100,7 +103,7 @@ public class PersonManagementTest extends BaseTest
 
         int numberOfActivePersons = queryServer.countActivePersons(sessionToken);
 
-        assertEquals(2, numberOfActivePersons);
+        assertEquals(1, numberOfActivePersons - initialNumberOfActivePersons);
     }
 
     @Test(expectedExceptions =
