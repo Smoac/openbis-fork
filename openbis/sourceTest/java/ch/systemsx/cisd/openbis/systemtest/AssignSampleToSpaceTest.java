@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.systemtest;
 import static org.hamcrest.CoreMatchers.is;
 
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -259,7 +260,7 @@ public class AssignSampleToSpaceTest extends BaseTest
         assertThat(sample, is(inSpace(sourceSpace)));
     }
 
-    @BeforeClass(dependsOnMethods = "loginAsSystem")
+    @BeforeMethod
     void createFixture() throws Exception
     {
         sourceSpace = create(aSpace());

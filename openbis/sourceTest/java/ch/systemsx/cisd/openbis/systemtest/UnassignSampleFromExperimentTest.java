@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.systemtest;
 import static org.hamcrest.CoreMatchers.is;
 
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -211,7 +212,7 @@ public class UnassignSampleFromExperimentTest extends BaseTest
         perform(anUpdateOf(sample).removingExperiment().as(user));
     }
 
-    @BeforeClass(dependsOnMethods = "loginAsSystem")
+    @BeforeMethod
     void createFixture() throws Exception
     {
         space = create(aSpace());

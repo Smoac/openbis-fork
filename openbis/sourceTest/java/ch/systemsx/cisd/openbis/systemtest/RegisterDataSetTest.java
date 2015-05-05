@@ -24,7 +24,7 @@ import static org.testng.AssertJUnit.fail;
 import java.util.Arrays;
 import java.util.List;
 
-import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -57,7 +57,7 @@ public class RegisterDataSetTest extends BaseTest
 
     private Experiment experiment;
 
-    @BeforeClass(dependsOnMethods = "loginAsSystem")
+    @BeforeMethod
     void createFixture() throws Exception
     {
         Space space = create(aSpace());

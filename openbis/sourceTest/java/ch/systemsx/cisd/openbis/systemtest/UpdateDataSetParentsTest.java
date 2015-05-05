@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.systemtest;
 
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -219,7 +220,7 @@ public class UpdateDataSetParentsTest extends BaseTest
         perform(anUpdateOf(child).withParent(parent1).as(user));
     }
 
-    @BeforeClass(dependsOnMethods = "loginAsSystem")
+    @BeforeMethod
     void createFixture() throws Exception
     {
         Space space = create(aSpace());

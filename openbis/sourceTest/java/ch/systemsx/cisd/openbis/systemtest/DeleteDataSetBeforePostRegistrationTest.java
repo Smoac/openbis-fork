@@ -20,11 +20,11 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.Collection;
 
-import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
@@ -59,7 +59,7 @@ public class DeleteDataSetBeforePostRegistrationTest extends BaseTest
         return daoFactory.getPostRegistrationDAO().listDataSetsForPostRegistration();
     }
 
-    @BeforeClass(dependsOnMethods = "loginAsSystem")
+    @BeforeMethod
     void createFixture() throws Exception
     {
         Space space = create(aSpace());

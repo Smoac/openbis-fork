@@ -24,7 +24,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
@@ -71,7 +71,7 @@ public class ETLServiceAuthorizationTest extends BaseTest
 
     private Project anotherProject;
 
-    @BeforeClass(dependsOnMethods = "loginAsSystem")
+    @BeforeMethod
     public void createSomeEntities()
     {
         space = create(aSpace());

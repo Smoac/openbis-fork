@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.systemtest;
 
-import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -72,7 +72,7 @@ public class RelationshipServiceAuthorizationTest extends BaseTest
 
     AbstractExternalData destinationDataSet;
 
-    @BeforeClass(dependsOnMethods = "loginAsSystem")
+    @BeforeMethod
     public void createFixture() throws Exception
     {
         sourceSpace = create(aSpace());
