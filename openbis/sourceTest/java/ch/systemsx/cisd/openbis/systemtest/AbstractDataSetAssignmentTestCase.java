@@ -19,6 +19,8 @@ package ch.systemsx.cisd.openbis.systemtest;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.fail;
 
+import org.springframework.test.annotation.Rollback;
+import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -52,6 +54,7 @@ import ch.systemsx.cisd.openbis.systemtest.base.auth.SpaceDomain;
  * @author anttil
  * @author Franz-Josef Elmer
  */
+@TransactionConfiguration(transactionManager = "transaction-manager", defaultRollback = false)
 public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
 {
     Sample sourceSample;
@@ -549,6 +552,7 @@ public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
     }
     
     @Test
+    @Rollback(true)
     public void containerWithAComponentOfWrongTypeReassignedFromExperimentToSampleWithoutExperiment()
     {
         EntityGraphGenerator g = parseAndCreateGraph("E1, data sets: DS1[NECT] DS2\n"
@@ -568,6 +572,7 @@ public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
     }
     
     @Test
+    @Rollback(true)
     public void dataSetCannotBeAssignedToSpaceSample()
     {
         EntityGraphGenerator g = parseAndCreateGraph("E1, data sets: DS1\nS2\n");
@@ -585,19 +590,20 @@ public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
     }
 
     @Test
+    @Rollback(true)
     public void dataSetCannotBeAssignedToSharedSample()
     {
-        Sample sample = create(aSample());
-        AbstractExternalData dataset = create(aDataSet().inSample(sourceSample));
+        EntityGraphGenerator g = parseAndCreateGraph("S1, data sets: DS1[NET]\n/S2\n");
 
         try
         {
-            String user = create(aSession().withInstanceRole(RoleCode.ADMIN));
-            reassignToSample(dataset.getCode(), sample.getPermId(), user);
+            reassignToSample(g.ds(1), g.s(2));
             fail("UserFailureException expected");
         } catch (UserFailureException ex)
         {
-            assertDataSetToSampleExceptionMessage(ex, sample, dataset);
+            AbstractExternalData dataSet = entityGraphManager.tryGetDataSet(g.ds(1));
+            Sample sample = entityGraphManager.tryGetSample(g.s(2));
+            assertDataSetToSampleExceptionMessage(ex, sample, dataSet);
         }
     }
 
@@ -776,6 +782,7 @@ public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
 
     @Test(dataProvider = "rolesNotAllowedToAssignDataSetToExperiment", expectedExceptions =
         { AuthorizationFailureException.class }, groups = "authorization")
+    @Rollback(true)
     public void assigningDataSetToAnotherExperimentIsNotAllowedFor(
             RoleWithHierarchy sourceSpaceRole, RoleWithHierarchy destinationSpaceRole,
             RoleWithHierarchy instanceRole) throws Exception
@@ -793,6 +800,7 @@ public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
     
     @Test(dataProvider = "rolesNotAllowedToAssignDataSetToSample", expectedExceptions =
         { AuthorizationFailureException.class }, groups = "authorization")
+    @Rollback(true)
     public void assigningDataSetToSampleIsNotAllowedFor(RoleWithHierarchy sourceSpaceRole,
             RoleWithHierarchy destinationSpaceRole, RoleWithHierarchy instanceRole)
     {

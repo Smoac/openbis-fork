@@ -37,13 +37,12 @@ import java.util.UUID;
 
 import org.hibernate.SessionFactory;
 
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.server.ICommonServerForInternalUse;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.entitygraph.DataSetNode;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.entitygraph.EntityGraphGenerator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.entitygraph.EntityNode;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.entitygraph.ExperimentNode;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.entitygraph.SampleNode;
-import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -66,7 +65,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
@@ -110,7 +108,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 public class EntityGraphManager
 {
     private final IServiceForDataStoreServer service;
-    private final ICommonServer commonService;
+    private final ICommonServerForInternalUse commonService;
+    private final SessionFactory sessionFactory;
     private final String sessionToken;
     
     private Space defaultSpace;
@@ -119,9 +118,8 @@ public class EntityGraphManager
     private SampleType defaultSampleType;
     
     private EntityRepository repository;
-    private SessionFactory sessionFactory;
     
-    public EntityGraphManager(IServiceForDataStoreServer service, ICommonServer commonService, 
+    public EntityGraphManager(IServiceForDataStoreServer service, ICommonServerForInternalUse commonService,
             SessionFactory sessionFactory, String sessionToken)
     {
         this.service = service;
@@ -512,18 +510,6 @@ public class EntityGraphManager
         return prefix + sampleNode.getCode() + generateUniqueId();
     }
     
-    private Sample refresh(Sample sample)
-    {
-        try
-        {
-            SampleParentWithDerived result = commonService.getSampleInfo(sessionToken, new TechId(sample.getId()));
-            return result.getParent();
-        } catch (UserFailureException ex)
-        {
-            return null;
-        }
-    }
-    
     private AbstractExternalData createDataSet(DataSetNode dataSetNode)
     {
         try
@@ -833,7 +819,9 @@ public class EntityGraphManager
                 List<Sample> samples = service.listSamples(sessionToken, criteria);
                 for (Sample sample : samples)
                 {
-                    existingSamples.put(sample.getId(), sample);
+                    Long id = sample.getId();
+                    SampleParentWithDerived result = commonService.getSampleInfo(sessionToken, new TechId(id));
+                    existingSamples.put(id, result.getParent());
                 }
             }
             return existingSamples;

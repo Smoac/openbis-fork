@@ -23,6 +23,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.springframework.test.annotation.Rollback;
+import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -51,6 +53,7 @@ import ch.systemsx.cisd.openbis.systemtest.base.auth.SpaceDomain;
  * @author anttil
  * @author Franz-Josef Elmer
  */
+@TransactionConfiguration(transactionManager = "transaction-manager", defaultRollback = false)
 public abstract class AbstractAssignmentSampleToExperimentTestCase extends BaseTest
 {
     Experiment sourceExperiment;
@@ -370,6 +373,7 @@ public abstract class AbstractAssignmentSampleToExperimentTestCase extends BaseT
     }
 
     @Test
+    @Rollback(true)
     public void registerExperimentWithSampleInDifferentSpace()
     {
         EntityGraphGenerator g = parseAndCreateGraph("/S1/S1\n");
@@ -386,6 +390,7 @@ public abstract class AbstractAssignmentSampleToExperimentTestCase extends BaseT
     }
     
     @Test
+    @Rollback(true)
     public void removeSamplesWithDataSetsFromExperimentFailsBecauseOneDataSetNeedsAnExperiment()
     {
         EntityGraphGenerator g = parseAndCreateGraph("E1, samples: S1, data sets: DS1[NET] DS2\n"
@@ -412,6 +417,7 @@ public abstract class AbstractAssignmentSampleToExperimentTestCase extends BaseT
     }
     
     @Test
+    @Rollback(true)
     public void addSampleToAnExperimentFailingBecauseSampleHasAlreadyAnExperiment()
     {
         EntityGraphGenerator g = parseAndCreateGraph("E1, samples: S1\n"
@@ -475,6 +481,7 @@ public abstract class AbstractAssignmentSampleToExperimentTestCase extends BaseT
     }
     
     @Test
+    @Rollback(true)
     public void spaceSampleCanNotBeAddedToExperimentFromAnotherSpace()
     {
         EntityGraphGenerator g = parseAndCreateGraph("/S2/P1/E1\n"
@@ -589,6 +596,7 @@ public abstract class AbstractAssignmentSampleToExperimentTestCase extends BaseT
     }
 
     @Test
+    @Rollback(true)
     public void sampleWithExperimentCanNotBeAssignedToAnotherExperimentThroughExperimentUpdate()
     {
         EntityGraphGenerator g = parseAndCreateGraph("/S1/P1/E1, samples: /S1/S1\n"
@@ -607,6 +615,7 @@ public abstract class AbstractAssignmentSampleToExperimentTestCase extends BaseT
     }
 
     @Test
+    @Rollback(true)
     public void sharedSampleCanNotBeAssignedToExperimentThroughExperimentUpdate()
     {
         EntityGraphGenerator g = parseAndCreateGraph("/S1/P1/E1\n"
@@ -633,6 +642,7 @@ public abstract class AbstractAssignmentSampleToExperimentTestCase extends BaseT
 
     @Test(dataProvider = "rolesNotAllowedToAssignSampleToExperiment", expectedExceptions =
         { AuthorizationFailureException.class }, groups = "authorization")
+    @Rollback(true)
     public void assigningSampleToExperimentIsNotAllowedFor(RoleWithHierarchy sourceSpaceRole,
             RoleWithHierarchy destinationSpaceRole, RoleWithHierarchy instanceRole)
             throws Exception
@@ -650,6 +660,7 @@ public abstract class AbstractAssignmentSampleToExperimentTestCase extends BaseT
 
     @Test(dataProvider = "rolesNotAllowedToAssignSharedSampleToExperiment", expectedExceptions =
         { AuthorizationFailureException.class }, groups = "authorization")
+    @Rollback(true)
     public void assigningSharedSampleToExperimentIsNotAllowedFor(
             RoleWithHierarchy destinationSpaceRole, RoleWithHierarchy instanceRole)
             throws Exception
@@ -667,6 +678,7 @@ public abstract class AbstractAssignmentSampleToExperimentTestCase extends BaseT
 
     @Test(dataProvider = "rolesNotAllowedToAssignSampleToExperimentThroughExperimentUpdate", expectedExceptions =
         { AuthorizationFailureException.class }, groups = "authorization")
+    @Rollback(true)
     public void assigningSampleToExperimentThroughExperimentUpdateIsNotAllowedFor(
             RoleWithHierarchy destinationSpaceRole, RoleWithHierarchy instanceRole)
             throws Exception

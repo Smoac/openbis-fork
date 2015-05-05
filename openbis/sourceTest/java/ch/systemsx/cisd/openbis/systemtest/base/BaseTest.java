@@ -30,6 +30,7 @@ import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.testng.AbstractTransactionalTestNGSpringContextTests;
+import org.springframework.test.context.transaction.AfterTransaction;
 import org.springframework.test.context.transaction.TestTransaction;
 import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.testng.annotations.AfterSuite;
@@ -55,14 +56,19 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IndexMode;
 import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletionType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
@@ -172,9 +178,9 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
     public void createDataStore(Method method)
     {
         System.err.println(">>>> run " + method.getName() + " (test transaction: active: "
-                + TestTransaction.isActive() + ", flagged for rollback: " 
+                + TestTransaction.isActive() + ", flagged for rollback: "
                 + TestTransaction.isFlaggedForRollback() + ")");
-    IDataStoreDAO dataStoreDAO = this.daoFactory.getDataStoreDAO();
+        IDataStoreDAO dataStoreDAO = this.daoFactory.getDataStoreDAO();
         List<DataStorePE> dataStores = dataStoreDAO.listDataStores();
         for (DataStorePE dataStorePE : dataStores)
         {
@@ -192,6 +198,18 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
         dataStoreDAO.createOrUpdateDataStore(dataStore);
     }
     
+    @AfterTransaction
+    public void cleanDatabase()
+    {
+        List<DataPE> allDataSets = daoFactory.getDataDAO().listAllEntities();
+        DeletionType deletionType = DeletionType.TRASH;
+        commonServer.deleteDataSets(systemSessionToken, Code.extractCodes(allDataSets), "test", deletionType, false);
+        List<SamplePE> allSamples = daoFactory.getSampleDAO().listAllEntities();
+        commonServer.deleteSamples(systemSessionToken, TechId.createList(allSamples), "test", deletionType);
+        List<ExperimentPE> allExperiments = daoFactory.getExperimentDAO().listAllEntities();
+        commonServer.deleteExperiments(systemSessionToken, TechId.createList(allExperiments), "test", deletionType);
+    }
+    
     @AfterSuite(groups = "system-cleandb")
     public void testingThis()
     {
@@ -202,7 +220,8 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
     public void loginAsSystem()
     {
         systemSessionToken = commonServer.tryToAuthenticateAsSystem().getSessionToken();
-        entityGraphManager = new EntityGraphManager(etlService, commonServer, daoFactory.getSessionFactory(), systemSessionToken);
+        entityGraphManager = new EntityGraphManager(etlService, commonServer, daoFactory.getSessionFactory(), 
+                systemSessionToken);
     }
 
     @Autowired
