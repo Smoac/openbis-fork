@@ -226,9 +226,9 @@ public class MultiDataSetArchiveCleanerTest extends AbstractFileSystemTestCase
         
         assertEquals("INFO  OPERATION.FileDeleter - Schedule for deletion: " + file + "\n"
                 + "INFO  OPERATION.FileDeleter - Deletion request file for '" + file
-                + "': " + deletionRequestDir + "/19700101-012000_1.deletionrequest\n"
+                + "': " + deletionRequestDir + "/19700101-01?000_1.deletionrequest\n"
                 + "INFO  OPERATION.FileDeleter - Successfully deleted: " + file.getAbsolutePath(),
-                logRecorder.getLogContent());
+                logRecorder.getLogContent().replaceAll("01.000", "01?000"));
         assertEquals(false, file.exists());
         assertEquals("[]", Arrays.asList(deletionRequestDir.list()).toString());
         context.assertIsSatisfied();
