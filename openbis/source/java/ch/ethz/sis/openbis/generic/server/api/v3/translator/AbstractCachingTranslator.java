@@ -150,22 +150,7 @@ public abstract class AbstractCachingTranslator<I extends IIdHolder, O, F> exten
 
     private Long getId(I input)
     {
-        if (input.getId() == null)
-        {
-            HibernateUtils.initialize(input);
-            I realInput = HibernateUtils.unproxy(input);
-
-            if (realInput.getId() == null)
-            {
-                throw new IllegalArgumentException("Could not translate object: " + input + " because its id was null");
-            } else
-            {
-                return realInput.getId();
-            }
-        } else
-        {
-            return input.getId();
-        }
+        return HibernateUtils.getId(input);
     }
 
     /**
