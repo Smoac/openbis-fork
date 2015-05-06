@@ -19,7 +19,7 @@ svn mkdir --parents svn+ssh://svncisd.ethz.ch/repos/cisd/openbis_all/tags/$1 -m 
 svn copy svn+ssh://svncisd.ethz.ch/repos/cisd/openbis_all/branches/$1 svn+ssh://svncisd.ethz.ch/repos/cisd/openbis_all/tags/$1/$2 -m "create tag $1/$2"
 
 rm -rf elntemp
-svn co --depth=immediates svn+ssh://svncisd.ethz.ch/repos/cisd/openbis_all/tags/$1/$2/plasmid/source/core-plugins/newbrowser elntemp
+svn co --depth=immediates svn+ssh://svncisd.ethz.ch/repos/cisd/openbis_all/tags/$1/$2/plasmid/source/core-plugins/eln-lims elntemp
 svn info svn+ssh://svncisd.ethz.ch/repos/cisd/openbis_all/tags/$1/$2|grep Path|awk -F: '{print $2}'|sed -e 's/ //g' > elntemp/version.txt
 svn add elntemp/version.txt
 svn commit elntemp -m "Added ELN build info to tag $1/$2"
