@@ -96,6 +96,21 @@ public abstract class AbstractEntityDeletionTestCase extends BaseTest
     }
     
     @Test
+    public void testTrashExperimentWithSampleWhichHasAChild()
+    {
+        EntityGraphGenerator g = parseAndCreateGraph("E1, samples: S1\n"
+                + "S1, children: S3\n");
+
+        deleteExperiments(g.e(1));
+        
+        assertEquals("", renderGraph(g));
+        assertDeleted(g.e(1));
+        assertDeleted(g.s(1));
+        assertModified(g.s(3));
+        assertUnmodifiedAndUndeleted(g);
+    }
+    
+    @Test
     @Rollback(false)
     public final void testTrashExperimentWithSampleAndDataSet()
     {
