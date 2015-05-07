@@ -34,6 +34,8 @@ function PlateView(plateController, plateModel) {
 				} else {
 					$cell = $("<td>").append("&nbsp;");
 				}
+				
+				$cell.css('width', Math.floor(80/this._plateModel.numColumns+1) +'%');
 				$row.append($cell);
 			}
 			gridTable.append($row);
@@ -68,6 +70,7 @@ function PlateView(plateController, plateModel) {
 			            });
 					}
 				}
+				$cell.css('width', Math.floor(80/this._plateModel.numColumns+1) +'%');
 				$row.append($cell);
 			}
 			gridTable.append($row);
