@@ -1,0 +1,57 @@
+<!--
+Copyright 2012 Oliver Lau, Heise Zeitschriften Verlag
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+<div id="session-workspace-uploader-main-title"></div>
+<div id="filedrop">
+  <div id="filedrop-inner-box">
+    <div id="filedrop-chooser">
+      <svg id="upload-icon" xmlns="http://www.w3.org/2000/svg" version="1.1" width="200" height="140">
+        <linearGradient id="grd" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="10%" style="stop-color: rgb(27, 132, 224);" />
+          <stop offset="90%" style="stop-color: rgb(27, 62, 94);" />
+        </linearGradient>
+        <path transform="translate(10, 10) scale(1.5)" fill="White" d="M 0 10 Q 0 0 10 0 L 110 0 Q 120 0 120 10 L 120 60 Q 120 70 110 70 L 10 70 Q 0 70 0 60 L 0 10 Z" />
+        <path transform="translate(10, 10) scale(1.5)" fill="url(#grd)" d="M 0 10 Q 0 0 10 0 L 110 0 Q 120 0 120 10 L 120 60 Q 120 70 110 70 L 85 70 L 85 45 L 110 45 L 60 10 L 10 45 L 35 45 L 35 70 L 10 70 Q 0 70 0 60 L 0 10 Z" />
+      </svg>
+      <br />
+      <button class="huge" id="fileinput-button" type="button">Select files to upload</button>
+    </div><!-- filedrop-chooser -->
+    <div id="filedrop-hint"></div><!-- filedrop-hint -->
+    <form id="upload-form">
+      <input type="file" id="fileinput" multiple />
+    </form>
+  </div><!-- filedrop-inner-box -->
+</div><!-- filedrop -->
+<div id="session-workspace-uploader-uploads-title"></div>
+<div id="filelist-container">
+  <ul id="filelist"></ul>
+  <button id="filelist-clear-button" style="display: none">Clear all</button>
+</div><!-- filelist-container -->
+<div style="display: none" id="secret-elements">
+  <svg class="mini-button" title="Abort" id="stop-button" xmlns="http://www.w3.org/2000/svg" version="1.1" width="12" height="12">
+    <rect x="0" y="0" width="12" height="12" fill="#fff" />
+    <rect x="1" y="1" width="10" height="10" fill="#c00" />
+  </svg>
+  <svg class="mini-button" title="Paus" id="pause-button" xmlns="http://www.w3.org/2000/svg" version="1.1" width="12" height="12">
+    <rect x="0" y="0" width="12" height="12" fill="#fff" />
+    <rect x="2" y="1" width="3" height="10" fill="#00c" />
+    <rect x="7" y="1" width="3" height="10" fill="#00c" />
+  </svg>
+  <svg class="mini-button" title="Continue" id="play-button" xmlns="http://www.w3.org/2000/svg" version="1.1" width="12" height="12">
+    <rect x="0" y="0" width="12" height="12" fill="#fff" />
+    <path d="M 1 1 L 11 5.5 L 1 11 Z" fill="#0c0" />
+  </svg>
+</div>
+<div id="iframe-container"></div>

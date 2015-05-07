@@ -119,7 +119,7 @@ function DataSetViewer(containerId, profile, sample, serverFacade, datastoreDown
 				$containerTitle.append(localReference._getSwitch());				
 				
 				//Repaint
-				localReference.repaintImages();
+				localReference.repaintFiles();
 			}
 		}
 		
@@ -172,10 +172,10 @@ function DataSetViewer(containerId, profile, sample, serverFacade, datastoreDown
 		});
 		
 		$switch
-			.append($("<input>", {"value" : "imageMode", "id" : "imageMode", "name" : "dataSetVieweMode", "type" : "radio", "checked" : ""}))
-			.append($("<label>", {"for" : "imageMode", "onclick" : "", "style" : "padding-top:3px;"}).append("Images"))
-			.append($("<input>", {"value" : "fileMode", "id" : "fileMode","name" : "dataSetVieweMode", "type" : "radio"}))
-			.append($("<label>", {"for" : "fileMode", "onclick" : "", "style" : "padding-top:3px;"}).append("Files"));
+			.append($("<input>", {"value" : "fileMode", "id" : "fileMode","name" : "dataSetVieweMode", "type" : "radio", "checked" : ""}))
+			.append($("<label>", {"for" : "fileMode", "onclick" : "", "style" : "padding-top:3px;"}).append("Files"))
+			.append($("<input>", {"value" : "imageMode", "id" : "imageMode", "name" : "dataSetVieweMode", "type" : "radio"}))
+			.append($("<label>", {"for" : "imageMode", "onclick" : "", "style" : "padding-top:3px;"}).append("Image Previews"));
 
 		$switch.append($("<a>", {"class" : "btn btn-primary"}));
 		return $switch;
