@@ -174,6 +174,7 @@ var Uploader = new function () {
                          "&endByte=" + endByte + 
                          "&sessionID=" + settings.sessionID,
                          true);
+                xhr.setRequestHeader("Content-type", "multipart/form-data");
                 xhr.onload = function(e) {
                     var d = JSON.parse(xhr.responseText);
                     if (typeof progress[d.id] === "undefined")
