@@ -30,16 +30,19 @@ public class ImageResolution implements Serializable, Comparable<ImageResolution
 
     private int height;
 
+    private boolean isOriginal;
+
     // GWT only
     @SuppressWarnings("unused")
     private ImageResolution()
     {
     }
 
-    public ImageResolution(int width, int height)
+    public ImageResolution(int width, int height, boolean isOriginal)
     {
         this.width = width;
         this.height = height;
+        this.isOriginal = isOriginal;
     }
 
     public int getWidth()
@@ -50,6 +53,11 @@ public class ImageResolution implements Serializable, Comparable<ImageResolution
     public int getHeight()
     {
         return height;
+    }
+
+    public boolean isOriginal()
+    {
+        return isOriginal;
     }
 
     @Override
