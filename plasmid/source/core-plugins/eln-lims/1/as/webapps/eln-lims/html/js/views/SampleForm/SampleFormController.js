@@ -21,7 +21,24 @@ function SampleFormController(mainController, mode, sample) {
 	this._storageControllers = [];
 	
 	this.init = function($container) {
-		this._sampleFormView.repaint($container);
+		// Loading datasets
+		var cleanSample = $.extend({}, this._sampleFormModel.sample);
+		delete cleanSample.parents;
+		delete cleanSample.children; 
+		
+		var _this = this;
+		if(mode !== FormMode.CREATE) {
+			mainController.serverFacade.listDataSetsForSample(cleanSample, true, function(datasets) {
+				_this._sampleFormModel.datasets = datasets.result;
+				
+				//Load view
+				_this._sampleFormView.repaint($container);
+			});
+		} else {
+			//Load view
+			_this._sampleFormView.repaint($container);
+		}
+		
 	}
 	
 	this.isDirty = function() {

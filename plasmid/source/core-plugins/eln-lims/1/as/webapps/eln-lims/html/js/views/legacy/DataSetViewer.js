@@ -123,8 +123,8 @@ function DataSetViewer(containerId, profile, sample, serverFacade, datastoreDown
 			}
 		}
 		
-		for(var i = 0; i < datasets.result.length; i++) { //DataSets for sample
-			var dataset = datasets.result[i];
+		for(var i = 0; i < datasets.length; i++) { //DataSets for sample
+			var dataset = datasets[i];
 			var listFilesForDataSet = function(dataset){ return function() { //Files in dataset
 				localReference.serverFacade.listFilesForDataSet(dataset.code, "/", true, function(files) {
 					localReference.sampleDataSets[dataset.code] = dataset;
@@ -151,7 +151,7 @@ function DataSetViewer(containerId, profile, sample, serverFacade, datastoreDown
 		} else {
 			var localReference = this;
 			this.serverFacade.listDataSetsForSample(cleanSample, true, function(datasets) {
-				localReference._init(datasets);
+				localReference._init(datasets.result);
 			});
 		}
 	}
