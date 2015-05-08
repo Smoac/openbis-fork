@@ -114,22 +114,26 @@ function MainController(profile) {
 									//Start App
 									
 									localReference.sideMenu = new SideMenuWidgetController(localReference);
-									localReference.sideMenu.init($("#sideMenu"));
-									
-									//Page reload using the URL info
-									var queryString = Util.queryString();
-									var viewName = queryString.viewName;
-									var viewData = queryString.viewData;
-									var hideMenu = queryString.hideMenu;
-									if(viewName && viewData) {
-										localReference.changeView(viewName, viewData);
-										if(hideMenu === "true") {
-											localReference.sideMenu.hideSideMenu();
+									localReference.sideMenu.init($("#sideMenu"), function() {
+										//Page reload using the URL info
+										var queryString = Util.queryString();
+										var menuUniqueId = queryString.menuUniqueId;
+										var viewName = queryString.viewName;
+										var viewData = queryString.viewData;
+										var hideMenu = queryString.hideMenu;
+										
+										if(viewName && viewData) {
+											localReference.sideMenu.moveToNodeId(menuUniqueId);
+											localReference.changeView(viewName, viewData);
+											
+											if(hideMenu === "true") {
+												localReference.sideMenu.hideSideMenu();
+											}
+										} else {
+											localReference.changeView("showBlancPage", null);
 										}
-									} else {
-										localReference.changeView("showBlancPage", null);
-									}
-									Util.unblockUI();
+										Util.unblockUI();
+									});
 								});
 								
 							});
@@ -367,7 +371,8 @@ function MainController(profile) {
 		//
 		// Permanent URLs
 		//
-		var url = window.location.href.split("?")[0] + "?viewName=" + newViewChange + "&viewData=" + arg;
+		var menuUniqueId = this.sideMenu.getCurrentNodeId();
+		var url = window.location.href.split("?")[0] + "?menuUniqueId=" +  menuUniqueId+ "&viewName=" + newViewChange + "&viewData=" + arg;
 		history.pushState(null, "", url); //History Push State
 	}
 	

@@ -58,6 +58,31 @@ function SideMenuWidgetController(mainController) {
         this._sideMenuWidgetView.showSideMenu();
     };
     
+    this.getCurrentNodeId = function() {
+    	return this._sideMenuWidgetModel.pointerToMenuNode.uniqueId;
+    }
+    
+    this.moveToNodeId = function(uniqueId) {
+    	var nodesToCheck = [this._sideMenuWidgetModel.menuStructure];
+    	while(nodesToCheck.length > 0) {
+    		var current = nodesToCheck[0];
+    		nodesToCheck.splice(0, 1);
+    		
+    		if(current.uniqueId === uniqueId) {
+    			this._sideMenuWidgetModel.pointerToMenuNode = current;
+    			this._sideMenuWidgetView.repaint();
+    			break;
+    		} else {
+    			if(current.newMenuIfSelected) {
+    				for (var i = 0; i < current.newMenuIfSelected.children.length; i++) {
+        				nodesToCheck.push(current.newMenuIfSelected.children[i]);
+        			}
+    			}
+    		}
+    	}
+    }
+    
+    
     this.refreshProject = function(spaceCode, projectCode) {
         var menuItemSpace = this._getSpaceNodeForCode(spaceCode);
         var newMenuIfSelectedProject = {
@@ -132,12 +157,12 @@ function SideMenuWidgetController(mainController) {
     //
     // Init method that builds the menu object hierarchy
     //
-    this.init = function($container) {
+    this.init = function($container, initCallback) {
     	this._sideMenuWidgetModel.$container = $container;
         var _this = this;
 
         this._sideMenuWidgetModel.menuStructure.newMenuIfSelected.children.push(
-                new SideMenuWidgetComponent(false, true, "LAB NOTEBOOK", "LAB NOTEBOOK", this._sideMenuWidgetModel.menuStructure, null, null, null, "")
+                new SideMenuWidgetComponent(false, true, "LAB NOTEBOOK", "LAB_NOTEBOOK", this._sideMenuWidgetModel.menuStructure, null, null, null, "")
                 );
 
         mainController.serverFacade.listSpacesWithProjectsAndRoleAssignments(null, function(dataWithSpacesAndProjects) {
@@ -312,27 +337,28 @@ function SideMenuWidgetController(mainController) {
                                 new SideMenuWidgetComponent(false, true, "UTILITIES", "UTILITIES", _this._sideMenuWidgetModel.menuStructure, null, null, null, "")
                                 );
                         _this._sideMenuWidgetModel.menuStructure.newMenuIfSelected.children.push(
-                                new SideMenuWidgetComponent(true, false, "SAMPLE BROWSER", "SAMPLE BROWSER", _this._sideMenuWidgetModel.menuStructure, null, "showSamplesPage", null, "")
+                                new SideMenuWidgetComponent(true, false, "SAMPLE BROWSER", "SAMPLE_BROWSER", _this._sideMenuWidgetModel.menuStructure, null, "showSamplesPage", null, "")
                                 );
                         if (profile.storagesConfiguration["isEnabled"]) {
                             _this._sideMenuWidgetModel.menuStructure.newMenuIfSelected.children.push(
-                                    new SideMenuWidgetComponent(true, false, "STORAGE MANAGER", "STORAGE MANAGER", _this._sideMenuWidgetModel.menuStructure, null, "showStorageManager", null, "")
+                                    new SideMenuWidgetComponent(true, false, "STORAGE MANAGER", "STORAGE_MANAGER", _this._sideMenuWidgetModel.menuStructure, null, "showStorageManager", null, "")
                                     );
                         }
                         _this._sideMenuWidgetModel.menuStructure.newMenuIfSelected.children.push(
                                 new SideMenuWidgetComponent(true, false, "TRASHCAN", "TRASHCAN", _this._sideMenuWidgetModel.menuStructure, null, "showTrashcanPage", null, "")
                                 );
                         _this._sideMenuWidgetModel.menuStructure.newMenuIfSelected.children.push(
-                                new SideMenuWidgetComponent(true, false, "VOCABULARY VIEWER", "VOCABULARY VIEWER", _this._sideMenuWidgetModel.menuStructure, null, "showVocabularyManagerPage", null, "")
+                                new SideMenuWidgetComponent(true, false, "VOCABULARY VIEWER", "VOCABULARY_VIEWER", _this._sideMenuWidgetModel.menuStructure, null, "showVocabularyManagerPage", null, "")
                                 );
                         
                         mainController.serverFacade.listPersons(function(data) {
                 			if(data.result && data.result.length > 0) {
                 				_this._sideMenuWidgetModel.menuStructure.newMenuIfSelected.children.push(
-                                        new SideMenuWidgetComponent(true, false, "USER MANAGER", "USER MANAGER", _this._sideMenuWidgetModel.menuStructure, null, "showUserManagerPage", null, "")
+                                        new SideMenuWidgetComponent(true, false, "USER MANAGER", "USER_MANAGER", _this._sideMenuWidgetModel.menuStructure, null, "showUserManagerPage", null, "")
                                 );
                 			}
                 			_this._sideMenuWidgetView.repaintFirst($container);
+                			initCallback();
                         });
                     });
 
