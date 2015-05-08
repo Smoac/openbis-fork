@@ -182,7 +182,7 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
 
         // Fix for long names
         var cutDisplayNameAtLength = 15;
-        var titleShowTooltip = (menuToPaint.displayName).length > cutDisplayNameAtLength;
+        var titleShowTooltip = menuToPaint.displayName.length > cutDisplayNameAtLength;
         if (titleShowTooltip) {
             var titleDisplayName = (menuToPaint.displayName).substring(0, cutDisplayNameAtLength) + "...";
         } else {
@@ -256,7 +256,7 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
             }
 
             //
-            var itemShowTooltip = menuItemDisplayName > cutDisplayNameAtLength;
+            var itemShowTooltip = menuItemDisplayName.length > cutDisplayNameAtLength;
             if (itemShowTooltip) {
                 var itemDisplayName = menuItemDisplayName.substring(0, cutDisplayNameAtLength) + "...";
             } else {
