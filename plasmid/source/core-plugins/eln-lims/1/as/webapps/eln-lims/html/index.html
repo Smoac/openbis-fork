@@ -64,24 +64,6 @@
 	
 	<script type="text/javascript" src="./js/config/Profile.js"></script>
 	<script type="text/javascript" src="./js/config/StandardProfile.js"></script>
-	<script type="text/javascript" src="./js/config/BioATProfile.js"></script>
-	<script type="text/javascript" src="./js/config/BodenmillerLabProfile.js"></script>
-	<script type="text/javascript" src="./js/config/ExampleProfile.js"></script>
-	<script type="text/javascript" src="./js/config/LSILabProfile.js"></script>
-	<script type="text/javascript" src="./js/config/PhosphoProfile.js"></script>
-	<script type="text/javascript" src="./js/config/TestProfile.js"></script>
-	<script type="text/javascript" src="./js/config/CaterinaTestProfile.js"></script>
-	<script type="text/javascript" src="./js/config/YeastLabProfile.js"></script>
-	<script type="text/javascript" src="./js/config/YeastLabProfile2.js"></script>
-	<script type="text/javascript" src="./js/config/LimsProfile.js"></script>
-	<script type="text/javascript" src="./js/config/KrekLabProfile.js"></script>
-	<script type="text/javascript" src="./js/config/StoffelLabProfile.js"></script>
-	<script type="text/javascript" src="./js/config/PeterLabProfile.js"></script>
-	<script type="text/javascript" src="./js/config/CiaudoLabProfile.js"></script>
-	<script type="text/javascript" src="./js/config/OBISELNTestProfile.js"></script>
-	<script type="text/javascript" src="./js/config/ELNPaperProfile.js"></script>
-	<script type="text/javascript" src="./js/config/BSAProfile.js"></script>	
-	<script type="text/javascript" src="./js/config/MuellerProfile.js"></script>	
 			
 	<script type="text/javascript" src="./js/server/ServerFacade.js"></script>
 	
@@ -205,6 +187,13 @@
 	// Application Startup
 	//
 	$(document).ready(function() {
+		$(document).ajaxError(function( event, jqxhr, settings, thrownError ) {
+			try {
+				Util.showError("AJAX Error status: " + jqxhr.status + " - Status text: " + jqxhr.statusText + " - Calling: " + settings.url + " - With Data: " + settings.data);
+			} catch(err) {
+				Util.showError("Unknown AJAX Error");
+			}
+		});
 		
 		$('#main').hide();
 		var username = $("#username").value;
