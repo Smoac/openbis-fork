@@ -27,6 +27,9 @@ function DeleteEntityView(deleteEntityController, deleteEntityModel) {
 		});
 		
 		$window.append($('<legend>').append('Confirm Delete'));
+		if(this._deleteEntityModel.warningText) {
+			$window.append(FormUtil.getFieldForLabelWithText("Warning", this._deleteEntityModel.warningText));
+		}
 		
 		if(this._deleteEntityModel.includeReason) {
 			var $reasonTextBox = FormUtil._getTextBox(null, 'Reason for the delete', true);

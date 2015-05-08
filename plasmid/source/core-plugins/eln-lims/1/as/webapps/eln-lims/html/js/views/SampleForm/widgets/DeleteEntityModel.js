@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-function DeleteEntityModel(deleteFunction, includeReason) {
+function DeleteEntityModel(deleteFunction, includeReason, warningText) {
 	this.deleteFunction = deleteFunction;
 	this.includeReason = includeReason;
+	this.warningText = warningText;
 	this.reason = null;
 }

@@ -67,9 +67,26 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		//
 		if(this._sampleFormModel.mode !== FormMode.CREATE) {
 			//Delete
+			var warningText = null;
+			if(this._sampleFormModel.sample.children.length > 0 || this._sampleFormModel.datasets.length > 0) {
+				warningText = 'Are you sure you want to move this sample to the trashcan? The next relationships will be broken but the entities will remain.'
+				if(this._sampleFormModel.sample.children.length > 0) {
+					warningText += "\n- The sample has " + this._sampleFormModel.sample.children.length + " children samples:";
+					for(var cIdx = 0 ; cIdx < this._sampleFormModel.sample.children.length; cIdx++) {
+						warningText += "\n\t" + this._sampleFormModel.sample.children[cIdx].code;
+					}
+				}
+				if(this._sampleFormModel.datasets.length > 0) {
+					warningText += "\n- The sample has " + this._sampleFormModel.datasets.length + " datasets:";
+					for(var cIdx = 0 ; cIdx < this._sampleFormModel.datasets.length; cIdx++) {
+						warningText += "\n\t" + this._sampleFormModel.datasets[cIdx].code;
+					}
+				}
+			}
+				
 			$formTitle.append(FormUtil.getDeleteButton(function(reason) {
 				_this._sampleFormController.deleteSample(reason);
-			}, true));
+			}, true, warningText));
 			//Hierarchy
 			$formTitle.append("&nbsp;");
 			$formTitle.append(FormUtil.getHierarchyButton(this._sampleFormModel.sample.permId));

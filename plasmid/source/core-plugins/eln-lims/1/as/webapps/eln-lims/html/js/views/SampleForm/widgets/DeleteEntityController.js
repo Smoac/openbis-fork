@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-function DeleteEntityController(deleteFunction, includeReason) {
-	this._deleteEntityModel = new DeleteEntityModel(deleteFunction, includeReason);
+function DeleteEntityController(deleteFunction, includeReason, warningText) {
+	this._deleteEntityModel = new DeleteEntityModel(deleteFunction, includeReason, warningText);
 	this._deleteEntityView = new DeleteEntityView(this, this._deleteEntityModel);
 	
 	this.init = function() {

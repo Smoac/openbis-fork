@@ -249,11 +249,11 @@ var FormUtil = new function() {
 		return $component;
 	}
 	
-	this.getDeleteButton = function(deleteFunction, includeReason) {
+	this.getDeleteButton = function(deleteFunction, includeReason, warningText) {
 		var $deleteBtn = $("<a>", { 'class' : 'btn btn-default ' });
 		$deleteBtn.append($("<span>", { 'class' : 'glyphicon glyphicon-trash', 'style' : 'width:16px; height:16px;'}));
 		$deleteBtn.click(function() {
-			var modalView = new DeleteEntityController(deleteFunction, includeReason);
+			var modalView = new DeleteEntityController(deleteFunction, includeReason, warningText);
 			modalView.init();
 		});
 		return $deleteBtn;
