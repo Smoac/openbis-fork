@@ -18,6 +18,10 @@
  * General Overrides
  */
 
+.form-group {
+    margin-bottom: 5px;
+}
+
 a:hover {
     text-decoration: none;
     cursor: pointer;
