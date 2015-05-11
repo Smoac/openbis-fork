@@ -404,7 +404,7 @@ public final class IncomingProcessorTest
                     one(fileSysOperationFactory).getCopier(false);
                     will(returnValue(copier));
 
-                    allowing(copier).copy(incomingDeletionCheckFile, copyInProgressDir);
+                    allowing(copier).copy(incomingDeletionCheckFile, copyInProgressDir, null, null);
                     will(returnValue(Status.OK));
                     
                     one(remover).remove(incomingDeletionCheckFile);

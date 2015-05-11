@@ -32,6 +32,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.test.LogMonitoringAppender;
 import ch.systemsx.cisd.common.utilities.ISelfTestable;
+import ch.systemsx.cisd.common.utilities.ITextHandler;
 import ch.systemsx.cisd.datamover.filesystem.FileStoreFactory;
 import ch.systemsx.cisd.datamover.filesystem.intf.AbstractFileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileStore;
@@ -102,7 +103,8 @@ public class SelfTestTest
         return new IPathCopier()
             {
                 @Override
-                public Status copy(File sourcePath, File destinationDirectory)
+                public Status copy(File sourcePath, File destinationDirectory, 
+                        ITextHandler stdoutHandlerOrNull, ITextHandler stderrHandlerOrNull)
                 {
                     throw new AssertionError();
                 }
@@ -110,7 +112,8 @@ public class SelfTestTest
                 @Override
                 public Status copyFromRemote(String sourcePath, String sourceHost,
                         File destinationDirectory, String rsyncModuleNameOrNull,
-                        String rsyncPasswordFileOrNull)
+                        String rsyncPasswordFileOrNull, 
+                        ITextHandler stdoutHandlerOrNull, ITextHandler stderrHandlerOrNull)
                 {
                     throw new AssertionError();
                 }
@@ -118,13 +121,15 @@ public class SelfTestTest
                 @Override
                 public Status copyToRemote(File sourcePath, String destinationDirectory,
                         String destinationHostOrNull, String rsyncModuleNameOrNull,
-                        String rsyncPasswordFileOrNull)
+                        String rsyncPasswordFileOrNull, 
+                        ITextHandler stdoutHandlerOrNull, ITextHandler stderrHandlerOrNull)
                 {
                     throw new AssertionError();
                 }
 
                 @Override
-                public Status copyContent(File sourcePath, File destinationDirectory)
+                public Status copyContent(File sourcePath, File destinationDirectory, 
+                        ITextHandler stdoutHandlerOrNull, ITextHandler stderrHandlerOrNull)
                 {
                     throw new AssertionError();
                 }
@@ -132,7 +137,8 @@ public class SelfTestTest
                 @Override
                 public Status copyContentFromRemote(String sourcePath, String sourceHost,
                         File destinationDirectory, String rsyncModuleNameOrNull,
-                        String rsyncPasswordFileOrNull)
+                        String rsyncPasswordFileOrNull, 
+                        ITextHandler stdoutHandlerOrNull, ITextHandler stderrHandlerOrNull)
                 {
                     throw new AssertionError();
                 }
@@ -140,7 +146,8 @@ public class SelfTestTest
                 @Override
                 public Status copyContentToRemote(File sourcePath, String destinationDirectory,
                         String destinationHostOrNull, String rsyncModuleNameOrNull,
-                        String rsyncPasswordFileOrNull)
+                        String rsyncPasswordFileOrNull, 
+                        ITextHandler stdoutHandlerOrNull, ITextHandler stderrHandlerOrNull)
                 {
                     throw new AssertionError();
                 }

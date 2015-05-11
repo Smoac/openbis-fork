@@ -133,12 +133,12 @@ public abstract class AbstractFileStore implements IFileStore
                         final File srcItem = getChildFile(item);
                         if (destHostOrNull == null)
                         {
-                            return copier.copy(srcItem, destinationStore.getLocalFile());
+                            return copier.copy(srcItem, destinationStore.getLocalFile(), null, null);
                         } else
                         {
                             return copier.copyToRemote(srcItem, destinationStore.getPath(),
                                     destHostOrNull, destinationStore.tryGetRsyncModuleName(),
-                                    DatamoverConstants.RSYNC_PASSWORD_FILE_OUTGOING);
+                                    DatamoverConstants.RSYNC_PASSWORD_FILE_OUTGOING, null, null);
                         }
                     } else
                     {
@@ -146,7 +146,7 @@ public abstract class AbstractFileStore implements IFileStore
                         assert destHostOrNull == null;
                         return copier.copyFromRemote(srcItem, srcHostOrNull,
                                 destinationStore.getLocalFile(), tryGetRsyncModuleName(),
-                                DatamoverConstants.RSYNC_PASSWORD_FILE_INCOMING);
+                                DatamoverConstants.RSYNC_PASSWORD_FILE_INCOMING, null, null);
                     }
                 }
 

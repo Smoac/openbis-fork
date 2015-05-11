@@ -309,10 +309,10 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
             {
                 {
                     one(copier).copyToRemote(ds1Data, getCanonicalFile("tmp/test").getPath(), null,
-                            null, null);
+                            null, null, null, null);
                     will(returnValue(Status.OK));
                     one(copier).copyToRemote(ds2Data, getCanonicalFile("tmp/test").getPath(), null,
-                            null, null);
+                            null, null, null, null);
                     will(returnValue(Status.OK));
                 }
             });
@@ -340,7 +340,7 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
             {
                 {
                     one(copier).copyToRemote(ds3Data, getCanonicalFile("tmp/test").getPath(), null,
-                            null, null);
+                            null, null, null, null);
                     will(returnValue(Status.OK));
 
                     one(mailClient).sendEmailMessage(with(subjectRecorder), with(contentRecorder),
@@ -378,7 +378,7 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
             {
                 {
                     one(copier).copyToRemote(ds3Data, getCanonicalFile("tmp/test").getPath(), null,
-                            null, null);
+                            null, null, null, null);
                     will(returnValue(Status.createError("Oophs!")));
 
                     one(mailClient).sendEmailMessage(with(subjectRecorder), with(contentRecorder),
@@ -416,7 +416,7 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
             {
                 {
                     one(copier).copyToRemote(ds1Data, getCanonicalFile("tmp/test").getPath(), null,
-                            null, null);
+                            null, null, null, null);
                     will(returnValue(Status.OK));
 
                     one(mailClient).sendEmailMessage(with(subjectRecorder), with(contentRecorder),
@@ -454,7 +454,7 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
             {
                 {
                     one(copier).copyToRemote(ds1Data, getCanonicalFile("tmp/test").getPath(), null,
-                            null, null);
+                            null, null, null, null);
                     will(returnValue(Status.createError("Oophs!")));
 
                     one(mailClient).sendEmailMessage(with(subjectRecorder), with(contentRecorder),
@@ -491,11 +491,11 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
             {
                 {
                     one(copier).copyToRemote(ds1Data, getCanonicalFile(destination).getPath(),
-                            null, null, null);
+                            null, null, null, null, null);
                     will(returnValue(Status.createError("error message")));
 
                     one(copier).copyToRemote(ds2Data, getCanonicalFile(destination).getPath(),
-                            null, null, null);
+                            null, null, null, null, null);
                     will(returnValue(Status.OK));
                 }
             });
@@ -545,7 +545,7 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
                     one(sshCommandExecutor).exists("tmp/test/data.txt",
                             DataSetCopier.SSH_TIMEOUT_MILLIS);
                     will(returnValue(BooleanStatus.createFalse()));
-                    one(copier).copyToRemote(ds1Data, "tmp/test", "host", null, null);
+                    one(copier).copyToRemote(ds1Data, "tmp/test", "host", null, null, null, null);
                     will(returnValue(Status.OK));
                 }
             });
@@ -569,13 +569,13 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
                     one(sshCommandExecutor).exists("tmp/test/data.txt",
                             DataSetCopier.SSH_TIMEOUT_MILLIS);
                     will(returnValue(BooleanStatus.createFalse()));
-                    one(copier).copyToRemote(ds1Data, "tmp/test", "host", null, null);
+                    one(copier).copyToRemote(ds1Data, "tmp/test", "host", null, null, null, null);
                     will(returnValue(Status.createError("error message")));
 
                     one(sshCommandExecutor).exists("tmp/test/images",
                             DataSetCopier.SSH_TIMEOUT_MILLIS);
                     will(returnValue(BooleanStatus.createFalse()));
-                    one(copier).copyToRemote(ds2Data, "tmp/test", "host", null, null);
+                    one(copier).copyToRemote(ds2Data, "tmp/test", "host", null, null, null, null);
                     will(returnValue(Status.OK));
 
                     one(sshCommandExecutor).exists("tmp/test/existing",
@@ -615,7 +615,7 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
                     one(sshCommandExecutor).exists("tmp/test/data.txt",
                             DataSetCopier.SSH_TIMEOUT_MILLIS);
                     will(returnValue(BooleanStatus.createFalse()));
-                    one(copier).copyToRemote(ds1Data, "tmp/test", "host", "abc", "abc-password");
+                    one(copier).copyToRemote(ds1Data, "tmp/test", "host", "abc", "abc-password", null, null);
                     will(returnValue(Status.OK));
                 }
             });
@@ -640,13 +640,13 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
                     one(sshCommandExecutor).exists("tmp/test/data.txt",
                             DataSetCopier.SSH_TIMEOUT_MILLIS);
                     will(returnValue(BooleanStatus.createFalse()));
-                    one(copier).copyToRemote(ds1Data, "tmp/test", "host", "abc", "abc-password");
+                    one(copier).copyToRemote(ds1Data, "tmp/test", "host", "abc", "abc-password", null, null);
                     will(returnValue(Status.createError("error message")));
 
                     one(sshCommandExecutor).exists("tmp/test/images",
                             DataSetCopier.SSH_TIMEOUT_MILLIS);
                     will(returnValue(BooleanStatus.createFalse()));
-                    one(copier).copyToRemote(ds2Data, "tmp/test", "host", "abc", "abc-password");
+                    one(copier).copyToRemote(ds2Data, "tmp/test", "host", "abc", "abc-password", null, null);
                     will(returnValue(Status.OK));
                 }
             });

@@ -584,7 +584,7 @@ public class SegmentedStoreUtils
         logger.log(LogLevel.INFO, String.format("Start moving directory '%s' to new share '%s'",
                 file.getPath(), share.getPath()));
         final RsyncCopier copier = new RsyncCopier(OSUtilities.findExecutable(RSYNC_EXEC));
-        copier.copyContent(file, share);
+        copier.copyContent(file, share, null, null);
         logger.log(LogLevel.INFO, String.format(
                 "Finished moving directory '%s' to new share '%s' in %.2f s", file.getPath(),
                 share.getPath(), (System.currentTimeMillis() - start) / 1000.0));

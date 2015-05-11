@@ -28,6 +28,8 @@ import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
 import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
+import ch.systemsx.cisd.common.utilities.AddToListTextHandler;
+import ch.systemsx.cisd.common.utilities.ITextHandler;
 
 /**
  * Utility methods to execute a command from a command line and log all events.
@@ -102,7 +104,7 @@ public final class ProcessExecutionHelper
             final Logger machineLog, boolean stopOnInterrupt) throws InterruptedExceptionUnchecked
     {
         return new ProcessExecutor(cmd, null, false, ConcurrencyUtilities.NO_TIMEOUT,
-                ProcessIOStrategy.DEFAULT_IO_STRATEGY, operationLog, machineLog)
+                ProcessIOStrategy.DEFAULT_IO_STRATEGY, operationLog, machineLog, null, null)
                 .run(stopOnInterrupt);
     }
 
@@ -179,7 +181,7 @@ public final class ProcessExecutionHelper
             final boolean stopOnInterrupt) throws InterruptedExceptionUnchecked
     {
         return new ProcessExecutor(cmd, null, false, millisToWaitForCompletion,
-                ProcessIOStrategy.DEFAULT_IO_STRATEGY, operationLog, machineLog)
+                ProcessIOStrategy.DEFAULT_IO_STRATEGY, operationLog, machineLog, null, null)
                 .run(stopOnInterrupt);
     }
 
@@ -206,7 +208,7 @@ public final class ProcessExecutionHelper
             throws InterruptedExceptionUnchecked
     {
         return new ProcessExecutor(cmd, null, false, millisToWaitForCompletion, ioStrategy,
-                operationLog, machineLog).run(stopOnInterrupt);
+                operationLog, machineLog, null, null).run(stopOnInterrupt);
     }
 
     /**
@@ -237,7 +239,7 @@ public final class ProcessExecutionHelper
             final boolean stopOnInterrupt) throws InterruptedExceptionUnchecked
     {
         return new ProcessExecutor(cmd, environment, replaceEnvironment, millisToWaitForCompletion,
-                ioStrategy, operationLog, machineLog).run(stopOnInterrupt);
+                ioStrategy, operationLog, machineLog, null, null).run(stopOnInterrupt);
     }
 
     /**
@@ -362,7 +364,7 @@ public final class ProcessExecutionHelper
                 false,
                 millisToWaitForCompletion,
                 outputReadingStrategy == OutputReadingStrategy.NEVER ? ProcessIOStrategy.DISCARD_IO_STRATEGY
-                        : ProcessIOStrategy.DEFAULT_IO_STRATEGY, operationLog, machineLog)
+                        : ProcessIOStrategy.DEFAULT_IO_STRATEGY, operationLog, machineLog, null, null)
                 .run(stopOnInterrupt);
     }
 
@@ -398,7 +400,7 @@ public final class ProcessExecutionHelper
                 millisToWaitForCompletion,
                 outputReadingStrategy == OutputReadingStrategy.NEVER ? ProcessIOStrategy.DISCARD_IO_STRATEGY
                         : (binaryOutput ? ProcessIOStrategy.BINARY_IO_STRATEGY
-                                : ProcessIOStrategy.DEFAULT_IO_STRATEGY), operationLog, machineLog)
+                                : ProcessIOStrategy.DEFAULT_IO_STRATEGY), operationLog, machineLog, null, null)
                 .run(stopOnInterrupt);
     }
 
@@ -410,13 +412,16 @@ public final class ProcessExecutionHelper
      * @param operationLog The {@link Logger} to use for all message on the higher level.
      * @param machineLog The {@link Logger} to use for all message on the lower (machine) level.
      * @param processIOStrategy The strategy on how to deal with process I/O.
+     * @param stdoutHandlerOrNull Handler of stdout lines. Can be <code>null</code>.
+     * @param stderrHandlerOrNull Handler of stderr lines. Can be <code>null</code>.
      * @return The handler which allows to wait for the result or terminate the process.
      */
     public static IProcessHandler runUnblocking(final List<String> cmd, Logger operationLog,
-            final Logger machineLog, final ProcessIOStrategy processIOStrategy)
+            final Logger machineLog, final ProcessIOStrategy processIOStrategy, 
+            ITextHandler stdoutHandlerOrNull, ITextHandler stderrHandlerOrNull)
     {
         return new ProcessExecutor(cmd, null, false, ConcurrencyUtilities.NO_TIMEOUT,
-                processIOStrategy, operationLog, machineLog).runUnblocking();
+                processIOStrategy, operationLog, machineLog, stdoutHandlerOrNull, stderrHandlerOrNull).runUnblocking();
     }
 
     /**
@@ -431,15 +436,19 @@ public final class ProcessExecutionHelper
      *            before.
      * @param operationLog The {@link Logger} to use for all message on the higher level.
      * @param machineLog The {@link Logger} to use for all message on the lower (machine) level.
+     * @param stdoutHandlerOrNull Handler of stdout lines. Can be <code>null</code>.
+     * @param stderrHandlerOrNull Handler of stderr lines. Can be <code>null</code>.
      * @param processIOStrategy The strategy on how to deal with process I/O.
      * @return The handler which allows to wait for the result or terminate the process.
      */
     public static IProcessHandler runUnblocking(final List<String> cmd,
             final Map<String, String> environment, final boolean replaceEnvironment,
-            Logger operationLog, final Logger machineLog, final ProcessIOStrategy processIOStrategy)
+            Logger operationLog, final Logger machineLog, final ProcessIOStrategy processIOStrategy, 
+            ITextHandler stdoutHandlerOrNull, ITextHandler stderrHandlerOrNull)
     {
         return new ProcessExecutor(cmd, environment, replaceEnvironment,
-                ConcurrencyUtilities.NO_TIMEOUT, processIOStrategy, operationLog, machineLog)
+                ConcurrencyUtilities.NO_TIMEOUT, processIOStrategy, operationLog, machineLog, 
+                stdoutHandlerOrNull, stderrHandlerOrNull)
                 .runUnblocking();
     }
 
@@ -452,7 +461,7 @@ public final class ProcessExecutionHelper
      * @param operationLog The {@link Logger} to use for all message on the higher level.
      * @param machineLog The {@link Logger} to use for all message on the lower (machine) level.
      * @return The handler which allows to wait for the result or terminate the process.
-     * @deprecated Use {@link #runUnblocking(List, Logger, Logger, ProcessIOStrategy)} instead.
+     * @deprecated Use {@link #runUnblocking(List, Logger, Logger, ProcessIOStrategy, ITextHandler, ITextHandler)} instead.
      */
     @Deprecated
     public static IProcessHandler runUnblocking(final List<String> cmd,
@@ -465,7 +474,7 @@ public final class ProcessExecutionHelper
                 false,
                 ConcurrencyUtilities.NO_TIMEOUT,
                 outputReadingStrategy == OutputReadingStrategy.NEVER ? ProcessIOStrategy.DISCARD_IO_STRATEGY
-                        : ProcessIOStrategy.DEFAULT_IO_STRATEGY, operationLog, machineLog)
+                        : ProcessIOStrategy.DEFAULT_IO_STRATEGY, operationLog, machineLog, null, null)
                 .runUnblocking();
     }
 
@@ -480,6 +489,12 @@ public final class ProcessExecutionHelper
     public static boolean readTextIfAvailable(final BufferedReader reader,
             final List<String> outputOrNull, final boolean discard) throws IOException
     {
+        return readTextIfAvailable(reader, new AddToListTextHandler(outputOrNull), discard);
+    }
+    
+    static boolean readTextIfAvailable(final BufferedReader reader,
+            final ITextHandler textHandler, final boolean discard) throws IOException
+    {
         while (reader.ready())
         {
             final String line = reader.readLine();
@@ -489,7 +504,7 @@ public final class ProcessExecutionHelper
             }
             if (discard == false)
             {
-                outputOrNull.add(line);
+                textHandler.handle(line);
             }
         }
         return true;

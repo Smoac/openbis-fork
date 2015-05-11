@@ -150,7 +150,7 @@ public class Copier implements Serializable, IPostRegistrationDatasetHandler
         {
             status =
                     copier.copyToRemote(originalData, destination, host, rsyncModule,
-                            rsyncPasswordFile);
+                            rsyncPasswordFile, null, null);
         }
         if (status.isError())
         {

@@ -46,6 +46,7 @@ import ch.systemsx.cisd.common.process.ProcessExecutionHelper;
 import ch.systemsx.cisd.common.process.ProcessIOStrategy;
 import ch.systemsx.cisd.common.process.ProcessResult;
 import ch.systemsx.cisd.common.process.IProcessHandler;
+import ch.systemsx.cisd.common.utilities.ITextHandler;
 
 /**
  * A class that encapsulates the <code>rsync</code> call for doing an archive copy.
@@ -229,52 +230,59 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
     //
 
     @Override
-    public final Status copy(final File sourcePath, final File destinationDirectory)
+    public final Status copy(final File sourcePath, final File destinationDirectory, 
+            ITextHandler stdoutHandlerOrNull, ITextHandler stderrHandlerOrNull)
     {
         return copy(sourcePath.getAbsolutePath(), null, destinationDirectory.getAbsolutePath(),
-                null, null, null, false);
+                null, null, null, false, stderrHandlerOrNull, stderrHandlerOrNull);
     }
 
     @Override
-    public final Status copyContent(final File sourcePath, final File destinationDirectory)
+    public final Status copyContent(final File sourcePath, final File destinationDirectory, 
+            ITextHandler stdoutHandlerOrNull, ITextHandler stderrHandlerOrNull)
     {
         return copy(sourcePath.getAbsolutePath(), null, destinationDirectory.getAbsolutePath(),
-                null, null, null, true);
+                null, null, null, true, stderrHandlerOrNull, stderrHandlerOrNull);
     }
 
     @Override
     public final Status copyFromRemote(final String sourcePath, final String sourceHost,
             final File destinationDirectory, String rsyncModuleNameOrNull,
-            String rsyncPasswordFileOrNull)
+            String rsyncPasswordFileOrNull, 
+            ITextHandler stdoutHandlerOrNull, ITextHandler stderrHandlerOrNull)
     {
         return copy(sourcePath, sourceHost, destinationDirectory.getAbsolutePath(), null,
-                rsyncModuleNameOrNull, rsyncPasswordFileOrNull, false);
+                rsyncModuleNameOrNull, rsyncPasswordFileOrNull, false, stderrHandlerOrNull, stderrHandlerOrNull);
     }
 
     @Override
     public Status copyContentFromRemote(String sourcePath, String sourceHost,
-            File destinationDirectory, String rsyncModuleNameOrNull, String rsyncPasswordFileOrNull)
+            File destinationDirectory, String rsyncModuleNameOrNull, String rsyncPasswordFileOrNull, 
+            ITextHandler stdoutHandlerOrNull, ITextHandler stderrHandlerOrNull)
     {
         return copy(sourcePath, sourceHost, destinationDirectory.getAbsolutePath(), null,
-                rsyncModuleNameOrNull, rsyncPasswordFileOrNull, true);
+                rsyncModuleNameOrNull, rsyncPasswordFileOrNull, true, stderrHandlerOrNull, stderrHandlerOrNull);
     }
 
     @Override
     public final Status copyToRemote(final File sourcePath, final String destinationDirectory,
             final String destinationHost, String rsyncModuleNameOrNull,
-            String rsyncPasswordFileOrNull)
+            String rsyncPasswordFileOrNull, 
+            ITextHandler stdoutHandlerOrNull, ITextHandler stderrHandlerOrNull)
     {
         return copy(sourcePath.getAbsolutePath(), null, destinationDirectory, destinationHost,
-                rsyncModuleNameOrNull, rsyncPasswordFileOrNull, false);
+                rsyncModuleNameOrNull, rsyncPasswordFileOrNull, false, stderrHandlerOrNull, stderrHandlerOrNull);
     }
 
     @Override
     public Status copyContentToRemote(File sourcePath, String destinationDirectory,
             String destinationHostOrNull, String rsyncModuleNameOrNull,
-            String rsyncPasswordFileOrNull)
+            String rsyncPasswordFileOrNull, 
+            ITextHandler stdoutHandlerOrNull, ITextHandler stderrHandlerOrNull)
     {
         return copy(sourcePath.getAbsolutePath(), null, destinationDirectory,
-                destinationHostOrNull, rsyncModuleNameOrNull, rsyncPasswordFileOrNull, true);
+                destinationHostOrNull, rsyncModuleNameOrNull, rsyncPasswordFileOrNull, true, 
+                stderrHandlerOrNull, stderrHandlerOrNull);
     }
 
     //
@@ -307,7 +315,7 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
         final List<String> commandLine =
                 createCommandLineForImmutableCopy(sourceDirectory, targetDirectory, mode);
         final ProcessResult processResult =
-                runCommand(commandLine, ConcurrencyUtilities.NO_TIMEOUT);
+                runCommand(commandLine, ConcurrencyUtilities.NO_TIMEOUT, null, null);
         return createStatus(processResult);
     }
 
@@ -428,7 +436,7 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
             commandLineList.add(rsyncPasswordFileOrNull);
         }
         commandLineList.add(buildUnixPathForServer(host, "/", rsyncModule, false));
-        final ProcessResult processResult = runCommand(commandLineList, millisToWaitForCompletion);
+        final ProcessResult processResult = runCommand(commandLineList, millisToWaitForCompletion, null, null);
         processResult.log();
         return processResult.isOK();
     }
@@ -469,7 +477,7 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
         }
         final List<String> commandLineList =
                 createSshCommand(host, sshExecutablePathOrNull, rsyncExec + " --version");
-        final ProcessResult verResult = runCommand(commandLineList, millisToWaitForCompletion);
+        final ProcessResult verResult = runCommand(commandLineList, millisToWaitForCompletion, null, null);
         verResult.log();
         if (verResult.isOK() == false || verResult.getOutput().size() == 0)
         {
@@ -500,7 +508,7 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
     {
         List<String> commandLineList =
                 createSshCommand(host, sshExecutablePathOrNull, "type -p rsync");
-        final ProcessResult result = runCommand(commandLineList, millisToWaitForCompletion);
+        final ProcessResult result = runCommand(commandLineList, millisToWaitForCompletion, null, null);
         result.log();
         if (result.isOK() && result.getOutput().size() != 1)
         {
@@ -527,7 +535,8 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
     private final Status copy(final String sourcePath, final String sourceHostOrNull,
             final String destinationDirectory, final String destinationHostOrNull,
             final String rsyncModuleNameOrNull, final String rsyncPasswordFileOrNull,
-            final boolean copyDirectoryContent)
+            final boolean copyDirectoryContent, 
+            ITextHandler stdoutHandlerOrNull, ITextHandler stderrHandlerOrNull)
     {
         assert sourcePath != null;
         assert destinationDirectory != null;
@@ -553,7 +562,8 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
                 createCommandLineForMutableCopy(sourcePath, sourceHostOrNull, destinationDirectory,
                         destinationHostOrNull, rsyncModuleNameOrNull, rsyncPasswordFileOrNull,
                         copyDirectoryContent);
-        return createStatus(runCommand(commandLine, ConcurrencyUtilities.NO_TIMEOUT));
+        return createStatus(runCommand(commandLine, ConcurrencyUtilities.NO_TIMEOUT, stderrHandlerOrNull, 
+                stderrHandlerOrNull));
     }
 
     private final String logNonExistent(final File path)
@@ -720,7 +730,8 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
         return Status.createError(retriableError, RsyncExitValueTranslator.getMessage(exitValue));
     }
 
-    private ProcessResult runCommand(final List<String> commandLine, long millisToWaitForCompletion)
+    private ProcessResult runCommand(final List<String> commandLine, long millisToWaitForCompletion,
+            ITextHandler stdoutHandlerOrNull, ITextHandler stderrHandlerOrNull)
     {
         IProcessHandler processHandler;
         if (operationLog.isTraceEnabled())
@@ -736,7 +747,7 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
             }
             processHandler =
                     ProcessExecutionHelper.runUnblocking(commandLine, operationLog, machineLog,
-                            ProcessIOStrategy.DEFAULT_IO_STRATEGY);
+                            ProcessIOStrategy.DEFAULT_IO_STRATEGY, stderrHandlerOrNull, stderrHandlerOrNull);
             rsyncTerminator.set(processHandler);
         }
         if (operationLog.isTraceEnabled())

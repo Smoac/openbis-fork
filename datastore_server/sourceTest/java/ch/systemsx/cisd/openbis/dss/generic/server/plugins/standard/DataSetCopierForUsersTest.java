@@ -161,7 +161,7 @@ public class DataSetCopierForUsersTest extends AbstractFileSystemTestCase
             {
                 {
                     File canonicalFile = getCanonicalFile("tmp/" + USER_ID);
-                    one(copier).copyToRemote(dsData, canonicalFile.getPath(), null, null, null);
+                    one(copier).copyToRemote(dsData, canonicalFile.getPath(), null, null, null, null, null);
                     will(returnValue(Status.OK));
 
                     one(mailClient).sendEmailMessage(with(subjectRecorder), with(contentRecorder),
@@ -197,7 +197,7 @@ public class DataSetCopierForUsersTest extends AbstractFileSystemTestCase
             {
                 {
                     File canonicalFile = getCanonicalFile("tmp/test");
-                    one(copier).copyToRemote(dsData, canonicalFile.getPath(), null, null, null);
+                    one(copier).copyToRemote(dsData, canonicalFile.getPath(), null, null, null, null, null);
                     will(returnValue(Status.OK));
                 }
             });

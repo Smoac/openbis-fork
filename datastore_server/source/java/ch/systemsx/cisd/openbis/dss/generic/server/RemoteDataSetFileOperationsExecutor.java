@@ -125,7 +125,7 @@ public final class RemoteDataSetFileOperationsExecutor implements IDataSetFileOp
     {
         Status result =
                 copier.copyToRemote(dataSet, destination.getPath(), host, rsyncModuleNameOrNull,
-                        rsyncPasswordFileOrNull);
+                        rsyncPasswordFileOrNull, null, null);
         if (result.isError())
         {
             throw new ExceptionWithStatus(result);
@@ -143,7 +143,7 @@ public final class RemoteDataSetFileOperationsExecutor implements IDataSetFileOp
     {
         Status result =
                 copier.copyFromRemote(destination.getPath(), host, dataSet, rsyncModuleNameOrNull,
-                        rsyncPasswordFileOrNull);
+                        rsyncPasswordFileOrNull, null, null);
         if (result.isError())
         {
             throw new ExceptionWithStatus(result);

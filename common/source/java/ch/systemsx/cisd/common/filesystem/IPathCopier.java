@@ -22,6 +22,7 @@ import ch.systemsx.cisd.common.action.ITerminable;
 import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.utilities.ISelfTestable;
+import ch.systemsx.cisd.common.utilities.ITextHandler;
 
 /**
  * Interface that represents a role that copies files and directories to another directory, usually
@@ -46,7 +47,8 @@ public interface IPathCopier extends ITerminable, ISelfTestable
      *            will be overwritten.
      * @return The status of the operation, {@link Status#OK} if everything went OK.
      */
-    Status copy(File sourcePath, File destinationDirectory);
+    Status copy(File sourcePath, File destinationDirectory, 
+            ITextHandler stdoutHandlerOrNull, ITextHandler stderrHandlerOrNull);
 
     /**
      * Copies the content of <var>sourcePath</var> to <var>destinationDir</var>.
@@ -58,7 +60,8 @@ public interface IPathCopier extends ITerminable, ISelfTestable
      *            will be overwritten.
      * @return The status of the operation, {@link Status#OK} if everything went OK.
      */
-    Status copyContent(File sourcePath, File destinationDirectory);
+    Status copyContent(File sourcePath, File destinationDirectory, 
+            ITextHandler stdoutHandlerOrNull, ITextHandler stderrHandlerOrNull);
 
     /**
      * Copies <var>sourcePath</var> to <var>destinationDir</var> on <var>destinationHost</var>.
@@ -78,7 +81,8 @@ public interface IPathCopier extends ITerminable, ISelfTestable
      * @return The status of the operation, {@link Status#OK} if everything went OK.
      */
     Status copyToRemote(File sourcePath, String destinationDirectory, String destinationHostOrNull,
-            String rsyncModuleNameOrNull, String rsyncPasswordFileOrNull);
+            String rsyncModuleNameOrNull, String rsyncPasswordFileOrNull, 
+            ITextHandler stdoutHandlerOrNull, ITextHandler stderrHandlerOrNull);
 
     /**
      * Copies the content of <var>sourcePath</var> to <var>destinationDir</var> on
@@ -100,7 +104,8 @@ public interface IPathCopier extends ITerminable, ISelfTestable
      */
     Status copyContentToRemote(File sourcePath, String destinationDirectory,
             String destinationHostOrNull, String rsyncModuleNameOrNull,
-            String rsyncPasswordFileOrNull);
+            String rsyncPasswordFileOrNull, 
+            ITextHandler stdoutHandlerOrNull, ITextHandler stderrHandlerOrNull);
 
     /**
      * Copies <var>sourcePath</var> on <var>sourceHost</var> to <var>destinationDir</var>.
@@ -119,7 +124,8 @@ public interface IPathCopier extends ITerminable, ISelfTestable
      * @return The status of the operation, {@link Status#OK} if everything went OK.
      */
     Status copyFromRemote(String sourcePath, String sourceHost, File destinationDirectory,
-            String rsyncModuleNameOrNull, String rsyncPasswordFileOrNull);
+            String rsyncModuleNameOrNull, String rsyncPasswordFileOrNull, 
+            ITextHandler stdoutHandlerOrNull, ITextHandler stderrHandlerOrNull);
 
     /**
      * Copies the content of <var>sourcePath</var> on <var>sourceHost</var> to
@@ -139,7 +145,8 @@ public interface IPathCopier extends ITerminable, ISelfTestable
      * @return The status of the operation, {@link Status#OK} if everything went OK.
      */
     Status copyContentFromRemote(String sourcePath, String sourceHost, File destinationDirectory,
-            String rsyncModuleNameOrNull, String rsyncPasswordFileOrNull);
+            String rsyncModuleNameOrNull, String rsyncPasswordFileOrNull, 
+            ITextHandler stdoutHandlerOrNull, ITextHandler stderrHandlerOrNull);
 
     /**
      * Try to connect to the <var>host</var> via ssh and return whether the connection is OK.

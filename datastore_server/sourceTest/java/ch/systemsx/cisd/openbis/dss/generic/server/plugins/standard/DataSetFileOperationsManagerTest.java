@@ -272,7 +272,7 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
                      */
                     one(copier).copyToRemote(ds1Location,
                             ds1ArchivedLocationFile.getParentFile().getAbsolutePath(), null, null,
-                            null);
+                            null, null, null);
                     will(returnValue(Status.OK));
                 }
             });
@@ -617,7 +617,7 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
 
                     one(copier).copyToRemote(ds1Location,
                             ds1ArchivedLocationFile.getParentFile().getPath(),
-                            HOST, null, null);
+                            HOST, null, null, null, null);
                     will(returnValue(Status.OK));
 
                     /*
@@ -631,7 +631,7 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
 
                     one(copier).copyToRemote(ds2Location,
                             ds2ArchivedLocationFile.getParentFile().getPath(),
-                            HOST, null, null);
+                            HOST, null, null, null, null);
                     will(returnValue(Status.OK));
                 }
             });
@@ -664,7 +664,7 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
 
                     one(copier).copyToRemote(ds1Location,
                             ds1ArchivedLocationFile.getParentFile().getPath(),
-                            HOST, null, null);
+                            HOST, null, null, null, null);
                     will(returnValue(Status.createError(DUMMY_ERROR_MESSAGE)));
                 }
             });
@@ -687,7 +687,7 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
                     one(sshExecutor).exists(ds1ArchivedLocationFile.getPath(), timeoutMillis());
                     will(returnValue(BooleanStatus.createTrue()));
                     one(copier).copyFromRemote(ds1ArchivedLocationFile.getPath(), HOST,
-                            ds1Location.getParentFile(), null, null);
+                            ds1Location.getParentFile(), null, null, null, null);
                     will(returnValue(Status.OK));
                 }
             });
@@ -718,7 +718,7 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
                     one(sshExecutor).exists(ds2ArchivedLocationFile.getPath(), timeoutMillis());
                     will(returnValue(BooleanStatus.createTrue()));
                     one(copier).copyFromRemote(ds2ArchivedLocationFile.getPath(), HOST,
-                            ds2Location.getParentFile(), null, null);
+                            ds2Location.getParentFile(), null, null, null, null);
                     will(returnValue(Status.createError(DUMMY_ERROR_MESSAGE)));
                 }
             });

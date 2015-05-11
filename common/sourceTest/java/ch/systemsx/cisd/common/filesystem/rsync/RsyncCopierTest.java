@@ -44,6 +44,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.test.StoringUncaughtExceptionHandler;
+import ch.systemsx.cisd.common.utilities.AddToListTextHandler;
 
 /**
  * Test cases for the {@link RsyncCopier} class.
@@ -86,6 +87,14 @@ public final class RsyncCopierTest
 
     private final String sleepyMessage = "I am feeling sooo sleepy...";
 
+    private List<String> stdoutContent;
+
+    private AddToListTextHandler stdoutHandler;
+
+    private List<String> stderrContent;
+
+    private AddToListTextHandler stderrHandler;
+
     private File createSleepingRsyncExecutable(String name, long millisToSleep) throws IOException,
             InterruptedException
     {
@@ -120,6 +129,11 @@ public final class RsyncCopierTest
         destinationDirectory.delete();
         assertTrue(destinationDirectory.mkdir());
         destinationDirectory.deleteOnExit();
+        
+        stdoutContent = new ArrayList<String>();
+        stdoutHandler = new AddToListTextHandler(stdoutContent);
+        stderrContent = new ArrayList<String>();
+        stderrHandler = new AddToListTextHandler(stderrContent);
     }
 
     private File createRsync(final String rsyncVersion, final String... additionalLines)
@@ -154,6 +168,8 @@ public final class RsyncCopierTest
         assertEquals(rsyncBinary.getAbsolutePath(), cmdLine.get(0));
         assertEquals(sourceDirectory.getAbsolutePath(), cmdLine.get(cmdLine.size() - 2));
         assertEquals(destinationDirectory.getAbsolutePath() + "/", cmdLine.get(cmdLine.size() - 1));
+        assertEquals("[]", stdoutContent.toString());
+        assertEquals("[]", stderrContent.toString());
     }
 
     @Test
@@ -171,6 +187,8 @@ public final class RsyncCopierTest
         assertEquals("--no-group", cmdLine.get(cmdLine.size() - 3));
         assertEquals(sourceDirectory.getAbsolutePath(), cmdLine.get(cmdLine.size() - 2));
         assertEquals(destinationDirectory.getAbsolutePath() + "/", cmdLine.get(cmdLine.size() - 1));
+        assertEquals("[]", stdoutContent.toString());
+        assertEquals("[]", stderrContent.toString());
     }
 
     @Test
@@ -188,6 +206,8 @@ public final class RsyncCopierTest
         assertEquals("--no-perms", cmdLine.get(2));
         assertEquals(sourceDirectory.getAbsolutePath(), cmdLine.get(3));
         assertEquals(destinationDirectory.getAbsolutePath() + "/", cmdLine.get(4));
+        assertEquals("[]", stdoutContent.toString());
+        assertEquals("[]", stderrContent.toString());
     }
 
     @Test
@@ -251,6 +271,8 @@ public final class RsyncCopierTest
         assertEquals(rsyncBinary.getAbsolutePath(), cmdLine.get(0));
         assertEquals(sourceDirectory.getAbsolutePath(), cmdLine.get(cmdLine.size() - 2));
         assertEquals(host + "::" + rsyncModule + "/", cmdLine.get(cmdLine.size() - 1));
+        assertEquals("[]", stdoutContent.toString());
+        assertEquals("[]", stderrContent.toString());
     }
 
     @Test
@@ -268,6 +290,8 @@ public final class RsyncCopierTest
         assertEquals(rsyncBinary.getAbsolutePath(), cmdLine.get(0));
         assertEquals(sourceDirectory.getAbsolutePath() + "/", cmdLine.get(cmdLine.size() - 2));
         assertEquals(host + "::" + rsyncModule + "/", cmdLine.get(cmdLine.size() - 1));
+        assertEquals("[]", stdoutContent.toString());
+        assertEquals("[]", stderrContent.toString());
     }
 
     @Test
@@ -290,6 +314,8 @@ public final class RsyncCopierTest
         assertEquals(workingDirectory + "/rsync.pwd", cmdLine.get(cmdLine.size() - 3));
         assertEquals(sourceDirectory.getAbsolutePath(), cmdLine.get(cmdLine.size() - 2));
         assertEquals(host + "::" + rsyncModule + "/", cmdLine.get(cmdLine.size() - 1));
+        assertEquals("[]", stdoutContent.toString());
+        assertEquals("[]", stderrContent.toString());
     }
 
     @Test
@@ -312,6 +338,8 @@ public final class RsyncCopierTest
         assertFalse((workingDirectory + "/rsync.pwd").equals(cmdLine.get(cmdLine.size() - 3)));
         assertEquals(sourceDirectory.getAbsolutePath(), cmdLine.get(cmdLine.size() - 2));
         assertEquals(host + "::" + rsyncModule + "/", cmdLine.get(cmdLine.size() - 1));
+        assertEquals("[]", stdoutContent.toString());
+        assertEquals("[]", stderrContent.toString());
     }
 
     @Test
@@ -327,6 +355,8 @@ public final class RsyncCopierTest
         assertEquals(rsyncBinary.getAbsolutePath(), cmdLine.get(0));
         assertEquals(host + ":" + sourceDirectory.getPath(), cmdLine.get(cmdLine.size() - 2));
         assertEquals(destinationDirectory.getAbsolutePath() + "/", cmdLine.get(cmdLine.size() - 1));
+        assertEquals("[]", stdoutContent.toString());
+        assertEquals("[]", stderrContent.toString());
     }
 
     @Test
@@ -349,6 +379,8 @@ public final class RsyncCopierTest
         assertEquals(workingDirectory + "/rsync.pwd", cmdLine.get(cmdLine.size() - 3));
         assertEquals(host + "::" + rsyncModule, cmdLine.get(cmdLine.size() - 2));
         assertEquals(destinationDirectory.getAbsolutePath() + "/", cmdLine.get(cmdLine.size() - 1));
+        assertEquals("[]", stdoutContent.toString());
+        assertEquals("[]", stderrContent.toString());
     }
 
     @Test(groups =
@@ -357,8 +389,10 @@ public final class RsyncCopierTest
     {
         final File rsyncBinary = createRsync(0);
         final RsyncCopier copier = new RsyncCopier(rsyncBinary, null, false, false);
-        final Status status = copier.copy(sourceFile, destinationDirectory);
+        final Status status = copier.copy(sourceFile, destinationDirectory, stdoutHandler, stderrHandler);
         assertEquals(Status.OK, status);
+        assertEquals("[]", stdoutContent.toString());
+        assertEquals("[]", stderrContent.toString());
     }
 
     @Test(groups =
@@ -370,13 +404,15 @@ public final class RsyncCopierTest
                 createRsync("2.6.7",
                         String.format("echo \"$@\" > %s", parametersLogFile.getAbsolutePath()));
         final RsyncCopier copier = new RsyncCopier(loggingRsyncBinary, null, false, false);
-        final Status status = copier.copy(sourceDirectory, destinationDirectory);
+        final Status status = copier.copy(sourceDirectory, destinationDirectory, stdoutHandler, stderrHandler);
         assertEquals(Status.OK, status);
         final String expectedRsyncCmdLine =
                 String.format("--archive --delete-before --inplace --append %s %s/\n",
                         sourceDirectory.getAbsolutePath(), destinationDirectory.getAbsolutePath());
         final String observedRsyncCmdLine = FileUtilities.loadToString(parametersLogFile);
         assertEquals(expectedRsyncCmdLine, observedRsyncCmdLine);
+        assertEquals("[]", stdoutContent.toString());
+        assertEquals("[]", stderrContent.toString());
     }
 
     @Test(groups =
@@ -391,7 +427,7 @@ public final class RsyncCopierTest
                 new RsyncCopier(loggingRsyncBinary, new File("ssh"), false, false);
         final Status status =
                 copier.copyToRemote(sourceDirectory, destinationDirectory.getAbsolutePath(),
-                        "localhost", null, null);
+                        "localhost", null, null, stdoutHandler, stderrHandler);
         assertEquals(Status.OK, status);
         final String expectedRsyncCmdLine =
                 String.format(
@@ -400,6 +436,8 @@ public final class RsyncCopierTest
                         destinationDirectory.getAbsolutePath());
         final String observedRsyncCmdLine = FileUtilities.loadToString(parametersLogFile);
         assertEquals(expectedRsyncCmdLine, observedRsyncCmdLine);
+        assertEquals("[]", stdoutContent.toString());
+        assertEquals("[]", stderrContent.toString());
     }
 
     @Test(groups =
@@ -411,13 +449,15 @@ public final class RsyncCopierTest
                 createRsync("2.6.7",
                         String.format("echo \"$@\" > %s", parametersLogFile.getAbsolutePath()));
         final RsyncCopier copier = new RsyncCopier(loggingRsyncBinary, null, false, false);
-        final Status status = copier.copyContent(sourceDirectory, destinationDirectory);
+        final Status status = copier.copyContent(sourceDirectory, destinationDirectory, stdoutHandler, stderrHandler);
         assertEquals(Status.OK, status);
         final String expectedRsyncCmdLine =
                 String.format("--archive --delete-before --inplace --append %s/ %s/\n",
                         sourceDirectory.getAbsolutePath(), destinationDirectory.getAbsolutePath());
         final String observedRsyncCmdLine = FileUtilities.loadToString(parametersLogFile);
         assertEquals(expectedRsyncCmdLine, observedRsyncCmdLine);
+        assertEquals("[]", stdoutContent.toString());
+        assertEquals("[]", stderrContent.toString());
     }
 
     @Test(groups =
@@ -436,6 +476,8 @@ public final class RsyncCopierTest
                 String.format("--archive --link-dest=%s/aa %s/aa/ %s/b/aa\n", absWd, absWd, absWd);
         final String observedRsyncCmdLine = FileUtilities.loadToString(parametersLogFile);
         assertEquals(expectedRsyncCmdLine, observedRsyncCmdLine);
+        assertEquals("[]", stdoutContent.toString());
+        assertEquals("[]", stderrContent.toString());
     }
 
     @Test(groups =
@@ -456,6 +498,8 @@ public final class RsyncCopierTest
                         name);
         final String observedRsyncCmdLine = FileUtilities.loadToString(parametersLogFile);
         assertEquals(expectedRsyncCmdLine, observedRsyncCmdLine);
+        assertEquals("[]", stdoutContent.toString());
+        assertEquals("[]", stderrContent.toString());
     }
 
     @Test(groups =
@@ -467,6 +511,8 @@ public final class RsyncCopierTest
         final Status status =
                 copier.copyDirectoryImmutably(sourceDirectory, destinationDirectory, null);
         assertTrue(status.isError());
+        assertEquals("[]", stdoutContent.toString());
+        assertEquals("[]", stderrContent.toString());
     }
 
     @Test(groups =
@@ -477,6 +523,8 @@ public final class RsyncCopierTest
         StatusFlag expectedStatus = StatusFlag.RETRIABLE_ERROR;
 
         testRsyncFailure(exitValue, expectedStatus);
+        assertEquals("[]", stdoutContent.toString());
+        assertEquals("[]", stderrContent.toString());
     }
 
     @Test(groups =
@@ -487,6 +535,8 @@ public final class RsyncCopierTest
         StatusFlag expectedStatus = StatusFlag.ERROR;
 
         testRsyncFailure(exitValue, expectedStatus);
+        assertEquals("[]", stdoutContent.toString());
+        assertEquals("[]", stderrContent.toString());
     }
 
     private void testRsyncFailure(final int exitValue, StatusFlag expectedStatus)
@@ -494,7 +544,7 @@ public final class RsyncCopierTest
     {
         final File buggyRsyncBinary = createRsync(exitValue);
         final RsyncCopier copier = new RsyncCopier(buggyRsyncBinary, null, false, false);
-        final Status status = copier.copy(sourceFile, destinationDirectory);
+        final Status status = copier.copy(sourceFile, destinationDirectory, stdoutHandler, stderrHandler);
         assertEquals(expectedStatus, status.getFlag());
         assertEquals(RsyncExitValueTranslator.getMessage(exitValue), status.tryGetErrorMessage());
     }
@@ -508,10 +558,12 @@ public final class RsyncCopierTest
                 createRsync("2.6.7",
                         String.format("echo \"$@\" > %s", parametersLogFile.getAbsolutePath()));
         final RsyncCopier copier = new RsyncCopier(loggingRsyncBinary, null, false, false);
-        copier.copy(sourceFile, destinationDirectory);
+        copier.copy(sourceFile, destinationDirectory, stdoutHandler, stderrHandler);
         final String rsyncParameters = FileUtilities.loadToString(parametersLogFile);
         assertFalse(rsyncParameters.indexOf("--whole-file") >= 0);
         assertTrue(rsyncParameters.indexOf("--append") >= 0);
+        assertEquals("[]", stdoutContent.toString());
+        assertEquals("[]", stderrContent.toString());
     }
 
     @Test(groups =
@@ -523,10 +575,12 @@ public final class RsyncCopierTest
                 createRsync("2.6.6",
                         String.format("echo \"$@\" > %s", parametersLogFile.getAbsolutePath()));
         final RsyncCopier copier = new RsyncCopier(loggingRsyncBinary, null, false, false);
-        copier.copy(sourceFile, destinationDirectory);
+        copier.copy(sourceFile, destinationDirectory, stdoutHandler, stderrHandler);
         final String rsyncParameters = FileUtilities.loadToString(parametersLogFile);
         assertTrue(rsyncParameters.indexOf("--whole-file") >= 0);
         assertFalse(rsyncParameters.indexOf("--append") >= 0);
+        assertEquals("[]", stdoutContent.toString());
+        assertEquals("[]", stderrContent.toString());
     }
 
     @Test(groups =
@@ -538,10 +592,12 @@ public final class RsyncCopierTest
                 createRsync("2.6.7",
                         String.format("echo \"$@\" > %s", parametersLogFile.getAbsolutePath()));
         final RsyncCopier copier = new RsyncCopier(loggingRsyncBinary, null, false, true);
-        copier.copy(sourceFile, destinationDirectory);
+        copier.copy(sourceFile, destinationDirectory, stdoutHandler, stderrHandler);
         final String rsyncParameters = FileUtilities.loadToString(parametersLogFile);
         assertTrue(rsyncParameters.indexOf("--whole-file") >= 0);
         assertFalse(rsyncParameters.indexOf("--append") >= 0);
+        assertEquals("[]", stdoutContent.toString());
+        assertEquals("[]", stderrContent.toString());
     }
 
     @Test(groups =
@@ -578,8 +634,10 @@ public final class RsyncCopierTest
                 }
             });
         thread.start();
-        final Status status = copier.copy(sourceFile, destinationDirectory);
+        final Status status = copier.copy(sourceFile, destinationDirectory, stdoutHandler, stderrHandler);
         assertEquals(RsyncCopier.TERMINATED_STATUS, status);
+        assertEquals("[]", stdoutContent.toString());
+        assertEquals("[]", stderrContent.toString());
     }
 
     private File createSleepProcess(int seconds) throws IOException, InterruptedException

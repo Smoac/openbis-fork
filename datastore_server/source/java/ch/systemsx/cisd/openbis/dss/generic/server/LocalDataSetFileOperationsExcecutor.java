@@ -164,7 +164,7 @@ public final class LocalDataSetFileOperationsExcecutor implements IDataSetFileOp
         String host = null; // local
         Status result =
                 copier.copyToRemote(dataSet, destination.getPath(), host, rsyncModuleNameOrNull,
-                        rsyncPasswordFileOrNull);
+                        rsyncPasswordFileOrNull, null, null);
         if (result.isError())
         {
             throw new ExceptionWithStatus(result);

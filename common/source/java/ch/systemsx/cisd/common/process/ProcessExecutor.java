@@ -43,6 +43,9 @@ import ch.systemsx.cisd.base.namedthread.NamingThreadPoolExecutor;
 import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
 import ch.systemsx.cisd.common.concurrent.ExecutionResult;
 import ch.systemsx.cisd.common.concurrent.ExecutionStatus;
+import ch.systemsx.cisd.common.utilities.AddToListTextHandler;
+import ch.systemsx.cisd.common.utilities.DelegatingTextHandler;
+import ch.systemsx.cisd.common.utilities.ITextHandler;
 
 /**
  * Utility class to execute a command from a command line and deal with possible process results and
@@ -52,7 +55,6 @@ import ch.systemsx.cisd.common.concurrent.ExecutionStatus;
  */
 class ProcessExecutor
 {
-
     private final class ProcessOutput
     {
         private final List<String> processTextOutput;
@@ -61,19 +63,37 @@ class ProcessExecutor
 
         private final ByteArrayOutputStream processBinaryOutput;
 
-        ProcessOutput()
+        private final ITextHandler processErrorOutputHandler;
+
+        private final ITextHandler processTextOutputHandler;
+
+        ProcessOutput(ITextHandler stdoutHandlerOrNull, ITextHandler stderrHandlerOrNull)
         {
             if (processIOStrategy.isBinaryOutput())
             {
                 this.processTextOutput = null;
-                this.processErrorOutput = new ArrayList<String>();
+                processTextOutputHandler = null;
                 this.processBinaryOutput = new ByteArrayOutputStream();
             } else
             {
                 this.processTextOutput = new ArrayList<String>();
-                this.processErrorOutput = new ArrayList<String>();
+                processTextOutputHandler = new DelegatingTextHandler(new AddToListTextHandler(processTextOutput),
+                        stdoutHandlerOrNull);
                 this.processBinaryOutput = null;
             }
+            processErrorOutput = new ArrayList<String>();
+            processErrorOutputHandler = new DelegatingTextHandler(new AddToListTextHandler(processErrorOutput),
+                    stderrHandlerOrNull);
+        }
+        
+        ITextHandler getProcessTextOutputHandler()
+        {
+            return processTextOutputHandler;
+        }
+        
+        ITextHandler getProcessErrorOutputHandler()
+        {
+            return processErrorOutputHandler;
         }
 
         List<String> getTextProcessOutput()
@@ -546,19 +566,20 @@ class ProcessExecutor
         {
             final BufferedReader bufStderr = new BufferedReader(new InputStreamReader(stderr));
             final byte[] buf = new byte[ProcessExecutionHelper.RECOMMENDED_BUFFER_SIZE];
+            ITextHandler processErrorOutputHandler = processOutput.getProcessErrorOutputHandler();
             while (processRunning.get())
             {
                 ProcessExecutionHelper.readBytesIfAvailable(stdout,
                         processOutput.processBinaryOutput, buf, -1,
                         processIOStrategy.isDiscardStandardOutput());
                 ProcessExecutionHelper.readTextIfAvailable(bufStderr,
-                        processOutput.processErrorOutput,
+                        processErrorOutputHandler,
                         processIOStrategy.isDiscardStandardError());
                 ConcurrencyUtilities.sleep(200);
             }
             ProcessExecutionHelper.readBytesIfAvailable(stdout, processOutput.processBinaryOutput,
                     buf, -1, processIOStrategy.isDiscardStandardOutput());
-            ProcessExecutionHelper.readTextIfAvailable(bufStderr, processOutput.processErrorOutput,
+            ProcessExecutionHelper.readTextIfAvailable(bufStderr, processErrorOutputHandler,
                     processIOStrategy.isDiscardStandardError());
         }
     }
@@ -574,26 +595,29 @@ class ProcessExecutor
         {
             final BufferedReader bufStdout = new BufferedReader(new InputStreamReader(stdout));
             final BufferedReader bufStderr = new BufferedReader(new InputStreamReader(stderr));
+            ITextHandler processErrorOutputHandler = processOutput.getProcessErrorOutputHandler();
+            ITextHandler processTextOutputHandler = processOutput.getProcessTextOutputHandler();
             while (processRunning.get())
             {
                 ProcessExecutionHelper.readTextIfAvailable(bufStdout,
-                        processOutput.processTextOutput,
+                        processTextOutputHandler,
                         processIOStrategy.isDiscardStandardOutput());
                 ProcessExecutionHelper.readTextIfAvailable(bufStderr,
-                        processOutput.processErrorOutput,
+                        processErrorOutputHandler,
                         processIOStrategy.isDiscardStandardError());
                 ConcurrencyUtilities.sleep(200);
             }
-            ProcessExecutionHelper.readTextIfAvailable(bufStdout, processOutput.processTextOutput,
+            ProcessExecutionHelper.readTextIfAvailable(bufStdout, processTextOutputHandler,
                     processIOStrategy.isDiscardStandardOutput());
-            ProcessExecutionHelper.readTextIfAvailable(bufStderr, processOutput.processErrorOutput,
+            ProcessExecutionHelper.readTextIfAvailable(bufStderr, processErrorOutputHandler,
                     processIOStrategy.isDiscardStandardError());
         }
     }
 
     ProcessExecutor(final List<String> commandLine, final Map<String, String> environment,
             final boolean replaceEnvironment, final long millisToWaitForCompletion,
-            final ProcessIOStrategy ioStrategy, final Logger operationLog, final Logger machineLog)
+            final ProcessIOStrategy ioStrategy, final Logger operationLog, final Logger machineLog,
+            ITextHandler stdoutHandlerOrNull, ITextHandler stderrHandlerOrNull)
     {
         this.processNumber = processCounter.getAndIncrement();
         this.callingThreadName = Thread.currentThread().getName();
@@ -615,7 +639,7 @@ class ProcessExecutor
         this.commandLine = Collections.unmodifiableList(commandLine);
         this.environment = environment;
         this.replaceEnvironment = replaceEnvironment;
-        this.processOutput = new ProcessOutput();
+        this.processOutput = new ProcessOutput(stdoutHandlerOrNull, stderrHandlerOrNull);
         this.processWrapper = new AtomicReference<ProcessRecord>();
         if (ioStrategy.isUseNoIOHandler() == false && ioStrategy.tryGetCustomIOHandler() == null)
         {
