@@ -24,11 +24,18 @@ from net.lingala.zip4j.core import ZipFile
 from ch.systemsx.cisd.common.exceptions import UserFailureException
 from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto import SearchCriteria
 from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria import MatchClause, SearchOperator, MatchClauseAttribute
-
+from ch.ethz.ssdm.eln import PlasMapperUploaderWrapper
 import time
 import subprocess
 import os.path
+from ch.systemsx.cisd.common.ssl import SslCertificateHelper;
 
+#Plasmapper Configuration
+#Configure ./PlasMapper/WEB-INF/classes/ca/ualberta/xdong/plasMapper/annotate/plasMapConfiguration_en_CA
+
+PLASMAPPER_BASE_URL = "https://localhost:8443/PlasMapper"
+PLASMAPPER_SERVER_ROOT = "/Users/juanf/Documents/installations/S200/servers/openBIS-server/jetty/webapps"
+            
 def getSampleByIdentifierForUpdate(tr, identifier):
 	space = identifier.split("/")[1];
 	code = identifier.split("/")[2];
@@ -242,9 +249,25 @@ def insertDataSet(tr, parameters, tableBuilder):
 		tr.moveFile(temFile.getAbsolutePath(), dataSet);
 	else: #CASE - 3: One file only
 		temFile = File(tempDir + "/" + folderName + "/" + fileNames.get(0));
-		tr.moveFile(temFile.getAbsolutePath(), dataSet);
-	
-	
+		if 	temFile.getName().endswith(".fasta") and dataSetType == "SEQ_FILE" and PLASMAPPER_BASE_URL != None and PLASMAPPER_SERVER_ROOT != None:
+			futureSVG = File(tempDir + "/" + folderName + "/generated/" + temFile.getName().replace(".fasta", ".svg"));
+			futureHTML = File(tempDir + "/" + folderName + "/generated/" + temFile.getName().replace(".fasta", ".html"));
+			print "SVG: " + futureSVG.getAbsolutePath();
+			print "SVG: " + str(futureSVG.exists());
+			print "BEFORE PLASMAPPER";
+			#Only for development
+			#SslCertificateHelper.trustAnyCertificate("https://localhost:8443/PlasMapper");
+			PlasMapperUploaderWrapper.uploadAndCopyGeneratedFile(
+                PLASMAPPER_BASE_URL,
+                PLASMAPPER_SERVER_ROOT,
+                temFile.getAbsolutePath(),
+                futureSVG.getAbsolutePath()
+        	);
+			print "AFTER PLASMAPPER";
+			print "SVG: " + str(futureSVG.exists());
+			tr.moveFile(temFile.getParentFile().getAbsolutePath(), dataSet);
+		else:
+			tr.moveFile(temFile.getAbsolutePath(), dataSet);
 	#Clean Files from workspace
 	for fileName in fileNames:
 		dss_component.deleteSessionWorkspaceFile(fileName);
