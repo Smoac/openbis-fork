@@ -33,8 +33,8 @@ from ch.systemsx.cisd.common.ssl import SslCertificateHelper;
 #Plasmapper Configuration
 #Configure ./PlasMapper/WEB-INF/classes/ca/ualberta/xdong/plasMapper/annotate/plasMapConfiguration_en_CA
 
-PLASMAPPER_BASE_URL = "https://localhost:8443/PlasMapper"
-PLASMAPPER_SERVER_ROOT = "/Users/juanf/Documents/installations/S200/servers/openBIS-server/jetty/webapps"
+PLASMAPPER_BASE_URL = None #"https://localhost:8443/PlasMapper"
+PLASMAPPER_SERVER_ROOT = None #"/Users/juanf/Documents/installations/S200/servers/openBIS-server/jetty/webapps"
             
 def getSampleByIdentifierForUpdate(tr, identifier):
 	space = identifier.split("/")[1];
