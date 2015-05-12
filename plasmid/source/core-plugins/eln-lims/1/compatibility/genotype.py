@@ -1,3 +1,6 @@
+import xml.dom.minidom
+from ch.systemsx.cisd.common.exceptions import UserFailureException
+
 configuration = {}
 configuration["YEAST"] = ["PLASMID"]
 configuration["BACTERIA"] = ["PLASMID"]
@@ -28,10 +31,41 @@ def calculate():
                     if isFirst:
                         isFirst = False
                     else:
-                        genotypeResult = genotypeResult + ", "
+                        genotypeResult = genotypeResult + "\n "
                     #Add the code
-                    genotypeResult = genotypeResult + parent.code()
+                    genotypeResult = genotypeResult + parent.code() + " " + str(getAnnotationsForParent(parent, entity))
                     sampleCodesInGenotype[parent.code()] = True
             else:
                 parentIterables.append(parent.parents())
     return genotypeResult
+
+def getAnnotationsForParent(parent, child):
+    permId = parent.entityPE().getPermId()
+    annotations = child.propertyValue("ANNOTATIONS_STATE")
+    if (annotations is not None) and ('<root>' in annotations):
+        relationship = getAnnotationFromPermId(annotations, permId, "PLASMID_RELATIONSHIP")
+        annotation = getAnnotationFromPermId(annotations, permId, "PLASMID_ANNOTATION")
+        return str(relationship) + " " + str(annotation)
+    return None
+    
+def getAnnotationFromPermId(annotations, permId, key):
+    dom = xml.dom.minidom.parseString(annotations)
+    for child in dom.childNodes[0].childNodes:
+        if child.localName != None:
+            permIdFound = child.attributes["permId"].value
+            if permIdFound == permId:
+                keys = child.attributes.keys();
+                for keyFound in keys:
+                    if keyFound == key:
+                        return child.attributes[key].value
+    return None
+
+def getValueOrNull(map, key):
+    if key in map:
+        value = map[key]
+        if not value: #Check for null strings
+            return None
+        else:
+            return value
+    else:
+        return None
