@@ -16,9 +16,11 @@
 
 package ch.systemsx.cisd.datamover.filesystem.remote;
 
+import org.apache.commons.lang.time.DurationFormatUtils;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.concurrent.InactivityMonitor;
+import ch.systemsx.cisd.common.concurrent.InactivityMonitor.IDescribingActivitySensor;
 import ch.systemsx.cisd.common.concurrent.InactivityMonitor.IInactivityObserver;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.Status;
@@ -30,6 +32,9 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogLevel;
 import ch.systemsx.cisd.common.time.TimingParameters;
+import ch.systemsx.cisd.common.utilities.ITextHandler;
+import ch.systemsx.cisd.common.utilities.ITimeProvider;
+import ch.systemsx.cisd.common.utilities.SystemTimeProvider;
 import ch.systemsx.cisd.datamover.common.IStoreMover;
 import ch.systemsx.cisd.datamover.common.MarkerFile;
 import ch.systemsx.cisd.datamover.filesystem.intf.IExtendedFileStore;
@@ -94,6 +99,8 @@ public final class RemotePathMover implements IStoreMover
 
     private final IStoreCopier copier;
 
+    private final ITimeProvider timeProvider;
+    
     private final long intervallToWaitAfterFailure;
 
     private final long inactivityPeriodMillis;
@@ -134,6 +141,7 @@ public final class RemotePathMover implements IStoreMover
         this.inactivityPeriodMillis = timingParameters.getInactivityPeriodMillis();
         this.notifyLogOnDeletionFailure = notifyLogOnDeletionFailure;
         this.stopped = false;
+        this.timeProvider = SystemTimeProvider.SYSTEM_TIME_PROVIDER;
 
         assert intervallToWaitAfterFailure >= 0;
         assert maximalNumberOfRetries >= 0;
@@ -146,8 +154,11 @@ public final class RemotePathMover implements IStoreMover
 
     private final Status copyAndMonitor(final StoreItem item)
     {
+        LastLineHandler lastLineHandler = new LastLineHandler();
+        IDescribingActivitySensor sensor = createSensor(item, lastLineHandler);
+        
         final InactivityMonitor monitor =
-                new InactivityMonitor(new RemoteStoreCopyActivitySensor(destinationStore, item),
+                new InactivityMonitor(sensor,
                         new IInactivityObserver()
                             {
                                 @Override
@@ -160,9 +171,39 @@ public final class RemotePathMover implements IStoreMover
                                     copier.terminate();
                                 }
                             }, inactivityPeriodMillis, true);
-        final Status copyStatus = copier.copy(item);
+        final Status copyStatus = copier.copy(item, lastLineHandler);
         monitor.stop();
         return copyStatus;
+    }
+    
+    private IDescribingActivitySensor createSensor(StoreItem item, final LastLineHandler lineHandler)
+    {
+        if (copier.isProgressEnabled() == false)
+        {
+            return new RemoteStoreCopyActivitySensor(destinationStore, item);
+        }
+        return new IDescribingActivitySensor()
+            {
+                
+                @Override
+                public boolean hasActivityMoreRecentThan(long thresholdMillis)
+                {
+                    return lineHandler.getLastTimestamp() > thresholdMillis;
+                }
+                
+                @Override
+                public long getLastActivityMillisMoreRecentThan(long thresholdMillis)
+                {
+                    return lineHandler.getLastTimestamp();
+                }
+                
+                @Override
+                public String describeInactivity(long now)
+                {
+                    final String inactivityPeriod =
+                            DurationFormatUtils.formatDurationHMS(now - lineHandler.getLastTimestamp());
+                    return "No write activity on for " + inactivityPeriod;                }
+            };
     }
 
     private final boolean removeAndMark(final StoreItem item)
@@ -429,4 +470,22 @@ public final class RemotePathMover implements IStoreMover
         return stopped;
     }
 
+    private class LastLineHandler implements ITextHandler
+    {
+        private long lastTimestamp;
+
+        @Override
+        public void handle(String text)
+        {
+            operationLog.trace("rsync progress: " + text);
+            lastTimestamp = timeProvider.getTimeInMilliseconds();
+        }
+
+        public long getLastTimestamp()
+        {
+            return lastTimestamp;
+        }
+        
+    }
+    
 }

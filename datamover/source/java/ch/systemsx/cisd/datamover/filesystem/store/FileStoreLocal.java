@@ -250,10 +250,10 @@ public class FileStoreLocal extends AbstractFileStore implements IExtendedFileSt
         }
         final StoreItem item = MarkerFile.createRequiresDeletionBeforeCreationMarker();
         createNewFile(item);
-        copier.copy(item);
+        copier.copy(item, null);
         boolean requiresDeletion;
         // A CIFS mount from a Cellera NAS server is an example that gives 'true' here.
-        requiresDeletion = Status.OK.equals(copier.copy(item)) == false;
+        requiresDeletion = Status.OK.equals(copier.copy(item, null)) == false;
         logCopierOverwriteState(destinationStore, requiresDeletion);
 
         // We don't check for success because there is nothing we can do if we fail.

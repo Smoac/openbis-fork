@@ -103,7 +103,13 @@ public class SelfTestTest
         return new IPathCopier()
             {
                 @Override
-                public Status copy(File sourcePath, File destinationDirectory, 
+                public boolean isProgressEnabled()
+                {
+                    return false;
+                }
+
+                @Override
+                public Status copy(File sourcePath, File destinationDirectory,
                         ITextHandler stdoutHandlerOrNull, ITextHandler stderrHandlerOrNull)
                 {
                     throw new AssertionError();

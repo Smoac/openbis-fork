@@ -32,6 +32,7 @@ import ch.systemsx.cisd.common.filesystem.IPathCopier;
 import ch.systemsx.cisd.common.filesystem.StoreItem;
 import ch.systemsx.cisd.common.filesystem.highwatermark.HostAwareFileWithHighwaterMark;
 import ch.systemsx.cisd.common.time.TimingParameters;
+import ch.systemsx.cisd.common.utilities.ITextHandler;
 import ch.systemsx.cisd.datamover.DatamoverConstants;
 
 /**
@@ -126,19 +127,25 @@ public abstract class AbstractFileStore implements IFileStore
         return new IStoreCopier()
             {
                 @Override
-                public Status copy(final StoreItem item)
+                public boolean isProgressEnabled()
+                {
+                    return copier.isProgressEnabled();
+                }
+
+                @Override
+                public Status copy(final StoreItem item, ITextHandler stdoutHandler)
                 {
                     if (srcHostOrNull == null)
                     {
                         final File srcItem = getChildFile(item);
                         if (destHostOrNull == null)
                         {
-                            return copier.copy(srcItem, destinationStore.getLocalFile(), null, null);
+                            return copier.copy(srcItem, destinationStore.getLocalFile(), stdoutHandler, null);
                         } else
                         {
                             return copier.copyToRemote(srcItem, destinationStore.getPath(),
                                     destHostOrNull, destinationStore.tryGetRsyncModuleName(),
-                                    DatamoverConstants.RSYNC_PASSWORD_FILE_OUTGOING, null, null);
+                                    DatamoverConstants.RSYNC_PASSWORD_FILE_OUTGOING, stdoutHandler, null);
                         }
                     } else
                     {
@@ -146,7 +153,7 @@ public abstract class AbstractFileStore implements IFileStore
                         assert destHostOrNull == null;
                         return copier.copyFromRemote(srcItem, srcHostOrNull,
                                 destinationStore.getLocalFile(), tryGetRsyncModuleName(),
-                                DatamoverConstants.RSYNC_PASSWORD_FILE_INCOMING, null, null);
+                                DatamoverConstants.RSYNC_PASSWORD_FILE_INCOMING, stdoutHandler, null);
                     }
                 }
 

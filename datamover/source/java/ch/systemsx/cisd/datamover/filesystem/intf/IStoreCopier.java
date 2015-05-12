@@ -20,11 +20,13 @@ import ch.systemsx.cisd.common.action.ITerminable;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.filesystem.StoreItem;
 import ch.systemsx.cisd.common.utilities.ISelfTestable;
+import ch.systemsx.cisd.common.utilities.ITextHandler;
 
 /**
  * @author Tomasz Pylak
  */
 public interface IStoreCopier extends ITerminable, ISelfTestable
 {
-    Status copy(StoreItem item);
+    boolean isProgressEnabled();
+    Status copy(StoreItem item, ITextHandler stdoutHandler);
 }
