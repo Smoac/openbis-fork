@@ -282,6 +282,12 @@ public class LocalAndRemoteCopierTest extends AbstractFileSystemTestCase
     {
 
         @Override
+        public boolean isProgressEnabled()
+        {
+            return false;
+        }
+
+        @Override
         public boolean terminate()
         {
             return false;
