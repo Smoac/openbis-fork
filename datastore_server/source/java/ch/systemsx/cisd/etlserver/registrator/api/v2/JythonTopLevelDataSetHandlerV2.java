@@ -18,15 +18,14 @@ package ch.systemsx.cisd.etlserver.registrator.api.v2;
 
 import java.io.File;
 
-import org.python.core.Py;
-import org.python.core.PyBaseCode;
-import org.python.core.PyFunction;
-import org.python.core.PyObject;
-
 import ch.systemsx.cisd.common.action.IDelegatedActionWithResult;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
-import ch.systemsx.cisd.common.jython.PythonInterpreter;
+import ch.systemsx.cisd.common.jython.all.IJythonFunction;
+import ch.systemsx.cisd.common.jython.all.IJythonInterpreter;
+import ch.systemsx.cisd.common.jython.all.IJythonInterpreterFactory;
+import ch.systemsx.cisd.common.jython.all.Jython25InterpreterFactory;
+import ch.systemsx.cisd.common.jython.all.Jython27InterpreterFactory;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.etlserver.DssRegistrationLogger;
 import ch.systemsx.cisd.etlserver.ITopLevelDataSetRegistratorDelegate;
@@ -47,6 +46,11 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extends
         AbstractProgrammableTopLevelDataSetHandler<T>
 {
+    protected final IJythonInterpreterFactory jythonInterpreterFactory;
+
+    // version of jython. 2.7 for jython 2.7. Default is jython 2.5
+    public static final String JYTHON_VERSION = "jython-version";
+
     /**
      * Constructor.
      * 
@@ -66,6 +70,18 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
                     path);
         }
 
+        String jythonVersion = PropertyUtils.getProperty(globalState.getThreadParameters()
+                .getThreadProperties(), JYTHON_VERSION);
+
+        if ("2.7".equals(jythonVersion))
+        {
+            jythonInterpreterFactory = new Jython27InterpreterFactory();
+        }
+        else
+        {
+            jythonInterpreterFactory = new Jython25InterpreterFactory();
+        }
+
         DssRegistrationHealthMonitor.getInstance(globalState.getOpenBisService(),
                 globalState.getRecoveryStateDir());
 
@@ -82,7 +98,7 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
     {
         return createJythonDataSetRegistrationServiceV2(incomingDataSetFile,
                 callerDataSetInformationOrNull, cleanAfterwardsAction, delegate,
-                PythonInterpreter.createIsolatedPythonInterpreter(), getGlobalState());
+                jythonInterpreterFactory.createInterpreter(), getGlobalState());
     }
 
     /**
@@ -94,7 +110,7 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
             DataSetFile incomingDataSetFile,
             DataSetInformation userProvidedDataSetInformationOrNull,
             IDelegatedActionWithResult<Boolean> cleanAfterwardsAction,
-            ITopLevelDataSetRegistratorDelegate delegate, PythonInterpreter pythonInterpreter,
+            ITopLevelDataSetRegistratorDelegate delegate, IJythonInterpreter pythonInterpreter,
             TopLevelDataSetRegistratorGlobalState globalState)
     {
         return new JythonDataSetRegistrationServiceV2<T>(this, incomingDataSetFile,
@@ -103,7 +119,7 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
     }
 
     private void configureEvaluator(File dataSetFile, JythonDataSetRegistrationService<T> service,
-            PythonInterpreter interpreter)
+            IJythonInterpreter interpreter)
     {
         interpreter.set(INCOMING_DATA_SET_VARIABLE_NAME, dataSetFile);
         interpreter.set(STATE_VARIABLE_NAME, getGlobalState());
@@ -120,7 +136,7 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
         DssRegistrationLogger logger = service.getDssRegistrationLog();
 
         // Configure the evaluator
-        PythonInterpreter interpreter = service.getInterpreter();
+        IJythonInterpreter interpreter = service.getInterpreter();
 
         IJavaDataSetRegistrationDropboxV2 v2Programm =
                 new JythonAsJavaDataSetRegistrationDropboxV2Wrapper(interpreter);
@@ -183,8 +199,8 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
                 {
                     if (v2ProgramInternal == null)
                     {
-                        PythonInterpreter internalInterpreter =
-                                PythonInterpreter.createIsolatedPythonInterpreter();
+                        IJythonInterpreter internalInterpreter =
+                                jythonInterpreterFactory.createInterpreter();
                         // interpreter.execute script
 
                         configureEvaluator(incoming, null, internalInterpreter);
@@ -313,22 +329,28 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
         executeJythonScript(dataSetFile, scriptString, service);
     }
 
-    protected void verifyEvaluatorHookFunctions(PythonInterpreter interpreter)
+    public static IJythonFunction tryJythonFunction(IJythonInterpreter interpreter,
+            JythonHookFunction functionDefinition)
+    {
+        return interpreter.tryJythonFunction(functionDefinition.name);
+    }
+
+    protected void verifyEvaluatorHookFunctions(IJythonInterpreter interpreter)
     {
         for (JythonHookFunction function : JythonHookFunction.values())
         {
-            PyFunction py = tryJythonFunction(interpreter, function);
+            IJythonFunction py = tryJythonFunction(interpreter, function);
             if (py != null)
             {
-                if (py.func_code instanceof PyBaseCode)
+                int argCount = py.getArgumentCount();
+                if (argCount >= 0)
                 {
-                    int co_argcount = ((PyBaseCode) py.func_code).co_argcount;
-                    if (co_argcount != function.argCount)
+                    if (argCount != function.argCount)
                     {
                         throw new IllegalArgumentException(
                                 String.format(
                                         "The function %s in %s has wrong number of arguments(%s instead of %s).",
-                                        function.name, scriptFile.getName(), co_argcount,
+                                        function.name, scriptFile.getName(), argCount,
                                         function.argCount));
                     }
                 } else
@@ -338,32 +360,6 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
                 }
             }
         }
-    }
-
-    protected PyFunction tryJythonFunction(PythonInterpreter interpreter,
-            JythonHookFunction functionDefinition)
-    {
-        try
-        {
-            PyFunction function = interpreter.get(functionDefinition.name, PyFunction.class);
-            return function;
-        } catch (Exception e)
-        {
-            return null;
-        }
-    }
-
-    /**
-     * Turn all arguments into a python objects, and calls the specified function.
-     */
-    protected PyObject invokeFunction(PyFunction function, Object... args)
-    {
-        PyObject[] pyArgs = new PyObject[args.length];
-        for (int i = 0; i < args.length; i++)
-        {
-            pyArgs[i] = Py.java2py(args[i]);
-        }
-        return function.__call__(pyArgs);
     }
 
     public abstract static class ProgrammableDropboxObjectFactory<T extends DataSetInformation>
@@ -402,14 +398,15 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
     public static class JythonDataSetRegistrationService<T extends DataSetInformation> extends
             DataSetRegistrationService<T>
     {
-        private final PythonInterpreter interpreter;
+        private IJythonInterpreter interpreter;
 
         public JythonDataSetRegistrationService(
                 AbstractProgrammableTopLevelDataSetHandler<T> registrator,
                 DataSetFile incomingDataSetFile,
                 DataSetInformation userProvidedDataSetInformationOrNull,
                 IDelegatedActionWithResult<Boolean> globalCleanAfterwardsAction,
-                ITopLevelDataSetRegistratorDelegate delegate, PythonInterpreter interpreter,
+                ITopLevelDataSetRegistratorDelegate delegate,
+                IJythonInterpreter interpreter,
                 TopLevelDataSetRegistratorGlobalState globalState)
         {
             super(registrator, incomingDataSetFile, registrator
@@ -419,7 +416,7 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
             this.interpreter = interpreter;
         }
 
-        public PythonInterpreter getInterpreter()
+        public IJythonInterpreter getInterpreter()
         {
             return interpreter;
         }
@@ -436,9 +433,9 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
         }
     }
 
-    protected PythonInterpreter getInterpreterFromService(DataSetRegistrationService<T> service)
+    protected IJythonInterpreter getInterpreterFromService(DataSetRegistrationService<T> service)
     {
-        PythonInterpreter interpreter = ((JythonDataSetRegistrationService<T>) service).interpreter;
+        IJythonInterpreter interpreter = ((JythonDataSetRegistrationService<T>) service).interpreter;
         return interpreter;
     }
 

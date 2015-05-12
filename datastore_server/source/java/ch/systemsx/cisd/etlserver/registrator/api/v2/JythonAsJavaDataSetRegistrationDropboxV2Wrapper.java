@@ -17,14 +17,12 @@
 package ch.systemsx.cisd.etlserver.registrator.api.v2;
 
 import org.apache.log4j.Logger;
-import org.python.core.PyFunction;
-import org.python.core.PyInteger;
-import org.python.core.PyObject;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.NotImplementedException;
-import ch.systemsx.cisd.common.jython.JythonUtils;
-import ch.systemsx.cisd.common.jython.PythonInterpreter;
+import ch.systemsx.cisd.common.jython.all.IJythonFunction;
+import ch.systemsx.cisd.common.jython.all.IJythonInterpreter;
+import ch.systemsx.cisd.common.jython.all.IJythonObject;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationContext;
@@ -39,11 +37,11 @@ public class JythonAsJavaDataSetRegistrationDropboxV2Wrapper implements
     protected static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             JythonAsJavaDataSetRegistrationDropboxV2Wrapper.class);
 
-    private PythonInterpreter interpreter;
+    private IJythonInterpreter interpreter;
 
     private Boolean retryDefined;
 
-    public JythonAsJavaDataSetRegistrationDropboxV2Wrapper(PythonInterpreter interpreter)
+    public JythonAsJavaDataSetRegistrationDropboxV2Wrapper(IJythonInterpreter interpreter)
     {
         this.interpreter = interpreter;
     }
@@ -53,14 +51,13 @@ public class JythonAsJavaDataSetRegistrationDropboxV2Wrapper implements
     {
         try
         {
-            PyFunction function =
-                    JythonUtils.tryJythonFunction(interpreter,
-                            JythonHookFunction.PROCESS_FUNCTION.name);
+            IJythonFunction function = interpreter.tryJythonFunction(JythonHookFunction.PROCESS_FUNCTION.name);
+
             if (function == null)
             {
                 throw new IllegalStateException("Undefined process() function");
             }
-            JythonUtils.invokeFunction(function, transaction);
+            function.invoke(transaction);
         } catch (Exception e)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(e);
@@ -70,12 +67,11 @@ public class JythonAsJavaDataSetRegistrationDropboxV2Wrapper implements
     @Override
     public void postStorage(DataSetRegistrationContext context)
     {
-        PyFunction function =
-                JythonUtils.tryJythonFunction(getInterpreter(),
-                        JythonHookFunction.POST_STORAGE_FUNCTION_NAME.name);
+        IJythonFunction function = getInterpreter().tryJythonFunction(
+                JythonHookFunction.POST_STORAGE_FUNCTION_NAME.name);
         if (function != null)
         {
-            JythonUtils.invokeFunction(function, context);
+            function.invoke(context);
         } else
         {
             throw new NotImplementedException("postStorage is not implemented.");
@@ -85,13 +81,12 @@ public class JythonAsJavaDataSetRegistrationDropboxV2Wrapper implements
     @Override
     public void preMetadataRegistration(DataSetRegistrationContext context)
     {
-        PyFunction function =
-                JythonUtils.tryJythonFunction(getInterpreter(),
-                        JythonHookFunction.PRE_REGISTRATION_FUNCTION_NAME.name);
+        IJythonFunction function = getInterpreter().tryJythonFunction(
+                JythonHookFunction.PRE_REGISTRATION_FUNCTION_NAME.name);
 
         if (null != function)
         {
-            JythonUtils.invokeFunction(function, context);
+            function.invoke(context);
         } else
         {
             throw new NotImplementedException("preMetadataRegistration is not implemented.");
@@ -101,12 +96,10 @@ public class JythonAsJavaDataSetRegistrationDropboxV2Wrapper implements
     @Override
     public void postMetadataRegistration(DataSetRegistrationContext context)
     {
-        PyFunction function =
-                JythonUtils.tryJythonFunction(getInterpreter(),
-                        JythonHookFunction.POST_REGISTRATION_FUNCTION_NAME.name);
+        IJythonFunction function = getInterpreter().tryJythonFunction(JythonHookFunction.POST_REGISTRATION_FUNCTION_NAME.name);
         if (function != null)
         {
-            JythonUtils.invokeFunction(function, context);
+            function.invoke(context);
         } else
         {
             throw new NotImplementedException("postMetadataRegistration is not implemented.");
@@ -116,12 +109,11 @@ public class JythonAsJavaDataSetRegistrationDropboxV2Wrapper implements
     @Override
     public void rollbackPreRegistration(DataSetRegistrationContext context, Throwable throwable)
     {
-        PyFunction function =
-                JythonUtils.tryJythonFunction(getInterpreter(),
-                        JythonHookFunction.ROLLBACK_PRE_REGISTRATION_FUNCTION_NAME.name);
+        IJythonFunction function = getInterpreter().tryJythonFunction(
+                JythonHookFunction.ROLLBACK_PRE_REGISTRATION_FUNCTION_NAME.name);
         if (function != null)
         {
-            JythonUtils.invokeFunction(function, context, throwable);
+            function.invoke(context, throwable);
         } else
         {
             throw new NotImplementedException("rollbackPreRegistration is not implemented.");
@@ -133,9 +125,8 @@ public class JythonAsJavaDataSetRegistrationDropboxV2Wrapper implements
     {
         if (retryDefined == null)
         {
-            PyFunction function =
-                    JythonUtils.tryJythonFunction(getInterpreter(),
-                            JythonHookFunction.SHOULD_RETRY_PROCESS_FUNCTION_NAME.name);
+            IJythonFunction function = getInterpreter().tryJythonFunction(
+                    JythonHookFunction.SHOULD_RETRY_PROCESS_FUNCTION_NAME.name);
             if (function == null)
             {
                 retryDefined = false;
@@ -155,13 +146,11 @@ public class JythonAsJavaDataSetRegistrationDropboxV2Wrapper implements
             throw new NotImplementedException("shouldRetryProcessing is not implemented.");
         }
 
-        PyFunction retryFunction =
-                JythonUtils.tryJythonFunction(getInterpreter(),
-                        JythonHookFunction.SHOULD_RETRY_PROCESS_FUNCTION_NAME.name);
-        PyObject retryFunctionResult = null;
+        IJythonFunction retryFunction = getInterpreter().tryJythonFunction(JythonHookFunction.SHOULD_RETRY_PROCESS_FUNCTION_NAME.name);
+        IJythonObject retryFunctionResult = null;
         try
         {
-            retryFunctionResult = JythonUtils.invokeFunction(retryFunction, context, problem);
+            retryFunctionResult = retryFunction.invoke(context, problem);
         } catch (Exception ex)
         {
             operationLog.error("The retry function has failed. Rolling back.", ex);
@@ -175,7 +164,7 @@ public class JythonAsJavaDataSetRegistrationDropboxV2Wrapper implements
             throw CheckedExceptionTunnel.wrapIfNecessary(problem);
         }
 
-        if (false == retryFunctionResult instanceof PyInteger)
+        if (false == retryFunctionResult.isInteger())
         { // the python booleans are returned as PyIntegers
             operationLog
                     .error("The should_retry_processing function returned object of non-boolean type "
@@ -183,7 +172,7 @@ public class JythonAsJavaDataSetRegistrationDropboxV2Wrapper implements
             throw CheckedExceptionTunnel.wrapIfNecessary(problem);
         }
 
-        if (((PyInteger) retryFunctionResult).asInt() != 0)
+        if (retryFunctionResult.asInteger() != 0)
         {
             return true;
         }
@@ -191,7 +180,7 @@ public class JythonAsJavaDataSetRegistrationDropboxV2Wrapper implements
         return false;
     }
 
-    private PythonInterpreter getInterpreter()
+    private IJythonInterpreter getInterpreter()
     {
         return interpreter;
     }

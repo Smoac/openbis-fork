@@ -20,15 +20,15 @@ import java.io.File;
 import java.util.List;
 
 import org.python.core.Py;
-import org.python.core.PyBaseCode;
-import org.python.core.PyFunction;
-import org.python.core.PyObject;
 
 import ch.systemsx.cisd.common.action.IDelegatedActionWithResult;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.NotImplementedException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
-import ch.systemsx.cisd.common.jython.PythonInterpreter;
+import ch.systemsx.cisd.common.jython.all.IJythonFunction;
+import ch.systemsx.cisd.common.jython.all.IJythonInterpreter;
+import ch.systemsx.cisd.common.jython.all.IJythonInterpreterFactory;
+import ch.systemsx.cisd.common.jython.all.Jython25InterpreterFactory;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.etlserver.ITopLevelDataSetRegistratorDelegate;
 import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
@@ -53,8 +53,7 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
     public enum JythonHookFunction
     {
         /**
-         * The name of the v2 process function, that is executed during the registration. A
-         * replacement for a top-level file body code in v1.
+         * The name of the v2 process function, that is executed during the registration. A replacement for a top-level file body code in v1.
          */
         PROCESS_FUNCTION("process", 1),
 
@@ -64,8 +63,7 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
         ROLLBACK_SERVICE_FUNCTION_NAME("rollback_service", 2),
 
         /**
-         * The name of the function to define to hook into the transaction rollback mechanism. V1
-         * only.
+         * The name of the function to define to hook into the transaction rollback mechanism. V1 only.
          */
         ROLLBACK_TRANSACTION_FUNCTION_NAME("rollback_transaction", 4),
 
@@ -80,14 +78,12 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
         POST_STORAGE_FUNCTION_NAME("post_storage", 1),
 
         /**
-         * The name of the function called just before registration of datasets in application
-         * server.
+         * The name of the function called just before registration of datasets in application server.
          */
         PRE_REGISTRATION_FUNCTION_NAME("pre_metadata_registration", 1),
 
         /**
-         * The name of the function called just after successful registration of datasets in
-         * application server.
+         * The name of the function called just after successful registration of datasets in application server.
          */
         POST_REGISTRATION_FUNCTION_NAME("post_metadata_registration", 1),
 
@@ -102,8 +98,7 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
         SHOULD_RETRY_PROCESS_FUNCTION_NAME("should_retry_processing", 2),
 
         /**
-         * The name of the function called when secondary transactions, DynamicTransactionQuery
-         * objects, fail.
+         * The name of the function called when secondary transactions, DynamicTransactionQuery objects, fail.
          */
         DID_ENCOUNTER_SECONDARY_TRANSACTION_ERRORS_FUNCTION_NAME(
                 "did_encounter_secondary_transaction_errors", 3);
@@ -133,8 +128,7 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
     protected static final String STATE_VARIABLE_NAME = "state";
 
     /**
-     * The name of the local variable under which the incoming directory is made available to the
-     * script.
+     * The name of the local variable under which the incoming directory is made available to the script.
      */
     protected static final String INCOMING_DATA_SET_VARIABLE_NAME = "incoming";
 
@@ -153,11 +147,10 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
                     DataSetRegistrationTransaction<T> transaction,
                     DataSetStorageAlgorithmRunner<T> algorithmRunner, Throwable ex)
             {
-                PythonInterpreter interpreter = getInterpreterFromService(service);
+                IJythonInterpreter interpreter = getInterpreterFromService(service);
 
-                PyFunction function =
-                        tryJythonFunction(interpreter,
-                                JythonHookFunction.ROLLBACK_TRANSACTION_FUNCTION_NAME);
+                IJythonFunction function = tryJythonFunction(interpreter,
+                        JythonHookFunction.ROLLBACK_TRANSACTION_FUNCTION_NAME);
                 if (null != function)
                 {
                     invokeRollbackTransactionFunction(function, service, transaction,
@@ -171,10 +164,9 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
             @Override
             public void rollbackService(DataSetRegistrationService<T> service, Throwable ex)
             {
-                PythonInterpreter interpreter = getInterpreterFromService(service);
-                PyFunction function =
-                        tryJythonFunction(interpreter,
-                                JythonHookFunction.ROLLBACK_SERVICE_FUNCTION_NAME);
+                IJythonInterpreter interpreter = getInterpreterFromService(service);
+                IJythonFunction function = tryJythonFunction(interpreter,
+                        JythonHookFunction.ROLLBACK_SERVICE_FUNCTION_NAME);
                 if (null != function)
                 {
                     invokeRollbackServiceFunction(function, service, ex);
@@ -188,10 +180,9 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
             public void commitTransaction(DataSetRegistrationService<T> service,
                     DataSetRegistrationTransaction<T> transaction)
             {
-                PythonInterpreter interpreter = getInterpreterFromService(service);
-                PyFunction function =
-                        tryJythonFunction(interpreter,
-                                JythonHookFunction.COMMIT_TRANSACTION_FUNCTION_NAME);
+                IJythonInterpreter interpreter = getInterpreterFromService(service);
+                IJythonFunction function = tryJythonFunction(interpreter,
+                        JythonHookFunction.COMMIT_TRANSACTION_FUNCTION_NAME);
                 if (null != function)
                 {
                     invokeServiceTransactionFunction(function, service, transaction);
@@ -207,11 +198,9 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
                     DataSetRegistrationTransaction<T> transaction,
                     List<SecondaryTransactionFailure> secondaryErrors)
             {
-                PythonInterpreter interpreter = getInterpreterFromService(service);
-                PyFunction function =
-                        tryJythonFunction(
-                                interpreter,
-                                JythonHookFunction.DID_ENCOUNTER_SECONDARY_TRANSACTION_ERRORS_FUNCTION_NAME);
+                IJythonInterpreter interpreter = getInterpreterFromService(service);
+                IJythonFunction function =
+                        tryJythonFunction(interpreter, JythonHookFunction.DID_ENCOUNTER_SECONDARY_TRANSACTION_ERRORS_FUNCTION_NAME);
                 if (null != function)
                 {
                     invokeDidEncounterSecondaryTransactionErrorsFunction(function, service,
@@ -225,6 +214,8 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
 
     protected final File scriptFile;
 
+    protected final IJythonInterpreterFactory jythonInterpreterFactory;
+
     /**
      * Constructor.
      * 
@@ -237,6 +228,9 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
         String path =
                 PropertyUtils.getMandatoryProperty(globalState.getThreadParameters()
                         .getThreadProperties(), SCRIPT_PATH_KEY);
+
+        jythonInterpreterFactory = new Jython25InterpreterFactory();
+
         scriptFile = new File(path);
         if (scriptFile.isFile() == false)
         {
@@ -246,7 +240,6 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
 
         DssRegistrationHealthMonitor.getInstance(globalState.getOpenBisService(),
                 globalState.getRecoveryStateDir());
-
     }
 
     @Override
@@ -268,7 +261,7 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
             JythonDataSetRegistrationService<T> service)
     {
         // Configure the evaluator
-        PythonInterpreter interpreter = service.interpreter;
+        IJythonInterpreter interpreter = service.interpreter;
         configureEvaluator(dataSetFile.getLogicalIncomingFile(), service, interpreter);
 
         // Invoke the evaluator
@@ -277,22 +270,22 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
         verifyEvaluatorHookFunctions(interpreter);
     }
 
-    protected void verifyEvaluatorHookFunctions(PythonInterpreter interpreter)
+    protected void verifyEvaluatorHookFunctions(IJythonInterpreter interpreter)
     {
         for (JythonHookFunction function : JythonHookFunction.values())
         {
-            PyFunction py = tryJythonFunction(interpreter, function);
+            IJythonFunction py = tryJythonFunction(interpreter, function);
             if (py != null)
             {
-                if (py.func_code instanceof PyBaseCode)
+                int argCount = py.getArgumentCount();
+                if (argCount >= 0)
                 {
-                    int co_argcount = ((PyBaseCode) py.func_code).co_argcount;
-                    if (co_argcount != function.argCount)
+                    if (argCount != function.argCount)
                     {
                         throw new IllegalArgumentException(
                                 String.format(
                                         "The function %s in %s has wrong number of arguments(%s instead of %s).",
-                                        function.name, scriptFile.getName(), co_argcount,
+                                        function.name, scriptFile.getName(), argCount,
                                         function.argCount));
                     }
                 } else
@@ -305,7 +298,7 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
     }
 
     private void configureEvaluator(File dataSetFile, JythonDataSetRegistrationService<T> service,
-            PythonInterpreter interpreter)
+            IJythonInterpreter interpreter)
     {
         interpreter.set(SERVICE_VARIABLE_NAME, service);
         interpreter.set(INCOMING_DATA_SET_VARIABLE_NAME, dataSetFile);
@@ -315,8 +308,7 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
     }
 
     /**
-     * Create a registration service that includes a python interpreter (we need the interpreter in
-     * the service so we can use it in error handling).
+     * Create a registration service that includes a python interpreter (we need the interpreter in the service so we can use it in error handling).
      */
     @Override
     protected DataSetRegistrationService<T> createDataSetRegistrationService(
@@ -326,7 +318,7 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
     {
         return createJythonDataSetRegistrationService(incomingDataSetFile,
                 callerDataSetInformationOrNull, cleanAfterwardsAction, delegate,
-                PythonInterpreter.createIsolatedPythonInterpreter(), getGlobalState());
+                jythonInterpreterFactory.createInterpreter(), getGlobalState());
     }
 
     /**
@@ -338,7 +330,7 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
             DataSetFile incomingDataSetFile,
             DataSetInformation userProvidedDataSetInformationOrNull,
             IDelegatedActionWithResult<Boolean> cleanAfterwardsAction,
-            ITopLevelDataSetRegistratorDelegate delegate, PythonInterpreter pythonInterpreter,
+            ITopLevelDataSetRegistratorDelegate delegate, IJythonInterpreter pythonInterpreter,
             TopLevelDataSetRegistratorGlobalState globalState)
     {
         return new JythonDataSetRegistrationService<T>(this, incomingDataSetFile,
@@ -360,39 +352,32 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
         super.rollback(service, throwable);
     }
 
-    protected PyFunction tryJythonFunction(PythonInterpreter interpreter,
+    protected IJythonFunction tryJythonFunction(IJythonInterpreter interpreter,
             JythonHookFunction functionDefinition)
     {
-        try
-        {
-            PyFunction function = interpreter.get(functionDefinition.name, PyFunction.class);
-            return function;
-        } catch (Exception e)
-        {
-            return null;
-        }
+        return interpreter.tryJythonFunction(functionDefinition.name);
     }
 
-    private void invokeRollbackServiceFunction(PyFunction function,
+    private void invokeRollbackServiceFunction(IJythonFunction function,
             DataSetRegistrationService<T> service, Throwable throwable)
     {
         invokeFunction(function, service, throwable);
     }
 
-    private void invokeRollbackTransactionFunction(PyFunction function,
+    private void invokeRollbackTransactionFunction(IJythonFunction function,
             DataSetRegistrationService<T> service, DataSetRegistrationTransaction<T> transaction,
             DataSetStorageAlgorithmRunner<T> algorithmRunner, Throwable throwable)
     {
         invokeFunction(function, service, transaction, algorithmRunner, throwable);
     }
 
-    private void invokeServiceTransactionFunction(PyFunction function,
+    private void invokeServiceTransactionFunction(IJythonFunction function,
             DataSetRegistrationService<T> service, DataSetRegistrationTransaction<T> transaction)
     {
         invokeFunction(function, service, transaction);
     }
 
-    private void invokeDidEncounterSecondaryTransactionErrorsFunction(PyFunction function,
+    private void invokeDidEncounterSecondaryTransactionErrorsFunction(IJythonFunction function,
             DataSetRegistrationService<T> service, DataSetRegistrationTransaction<T> transaction,
             List<SecondaryTransactionFailure> secondaryErrors)
     {
@@ -402,14 +387,9 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
     /**
      * Turn all arguments into a python objects, and calls the specified function.
      */
-    protected PyObject invokeFunction(PyFunction function, Object... args)
+    protected void invokeFunction(IJythonFunction function, Object... args)
     {
-        PyObject[] pyArgs = new PyObject[args.length];
-        for (int i = 0; i < args.length; i++)
-        {
-            pyArgs[i] = Py.java2py(args[i]);
-        }
-        return function.__call__(pyArgs);
+        function.invoke(args);
     }
 
     public abstract static class ProgrammableDropboxObjectFactory<T extends DataSetInformation>
@@ -448,14 +428,14 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
     public static class JythonDataSetRegistrationService<T extends DataSetInformation> extends
             DataSetRegistrationService<T>
     {
-        private final PythonInterpreter interpreter;
+        private final IJythonInterpreter interpreter;
 
         public JythonDataSetRegistrationService(
                 AbstractProgrammableTopLevelDataSetHandler<T> registrator,
                 DataSetFile incomingDataSetFile,
                 DataSetInformation userProvidedDataSetInformationOrNull,
                 IDelegatedActionWithResult<Boolean> globalCleanAfterwardsAction,
-                ITopLevelDataSetRegistratorDelegate delegate, PythonInterpreter interpreter,
+                ITopLevelDataSetRegistratorDelegate delegate, IJythonInterpreter interpreter,
                 TopLevelDataSetRegistratorGlobalState globalState)
         {
             super(registrator, incomingDataSetFile, registrator
@@ -465,7 +445,7 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
             this.interpreter = interpreter;
         }
 
-        public PythonInterpreter getInterpreter()
+        public IJythonInterpreter getInterpreter()
         {
             return interpreter;
         }
@@ -482,9 +462,9 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
         }
     }
 
-    protected PythonInterpreter getInterpreterFromService(DataSetRegistrationService<T> service)
+    protected IJythonInterpreter getInterpreterFromService(DataSetRegistrationService<T> service)
     {
-        PythonInterpreter interpreter = ((JythonDataSetRegistrationService<T>) service).interpreter;
+        IJythonInterpreter interpreter = ((JythonDataSetRegistrationService<T>) service).interpreter;
         return interpreter;
     }
 

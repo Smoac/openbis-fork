@@ -19,7 +19,7 @@ package ch.systemsx.cisd.etlserver.registrator.api.v2;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.action.IDelegatedActionWithResult;
-import ch.systemsx.cisd.common.jython.PythonInterpreter;
+import ch.systemsx.cisd.common.jython.all.IJythonInterpreter;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.etlserver.ITopLevelDataSetRegistratorDelegate;
@@ -43,7 +43,7 @@ public class JythonDataSetRegistrationServiceV2<T extends DataSetInformation> ex
             DataSetFile incomingDataSetFile,
             DataSetInformation userProvidedDataSetInformationOrNull,
             IDelegatedActionWithResult<Boolean> globalCleanAfterwardsAction,
-            ITopLevelDataSetRegistratorDelegate delegate, PythonInterpreter interpreter,
+            ITopLevelDataSetRegistratorDelegate delegate, IJythonInterpreter interpreter,
             TopLevelDataSetRegistratorGlobalState globalState)
     {
         super(registrator, incomingDataSetFile, userProvidedDataSetInformationOrNull,

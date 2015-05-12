@@ -16,9 +16,9 @@
 
 package ch.systemsx.cisd.etlserver.registrator.api.v2;
 
-import org.python.core.PyObject;
-
 import ch.systemsx.cisd.common.action.IDelegatedActionWithResult;
+import ch.systemsx.cisd.common.jython.all.IJythonFunction;
+import ch.systemsx.cisd.common.jython.all.IJythonInterpreter;
 import ch.systemsx.cisd.etlserver.ITopLevelDataSetRegistratorDelegate;
 import ch.systemsx.cisd.etlserver.registrator.DataSetFile;
 import ch.systemsx.cisd.etlserver.registrator.v2.AbstractProgrammableTopLevelDataSetHandler;
@@ -41,20 +41,26 @@ public class DataSetRegistrationServiceV2<T extends DataSetInformation> extends
     {
         super(registrator, incomingDataSetFile, userProvidedDataSetInformationOrNull,
                 globalCleanAfterwardsAction, delegate,
-                new ch.systemsx.cisd.common.jython.PythonInterpreter()
+                new IJythonInterpreter()
                     {
                         @Override
-                        public void set(String name, Object value)
+                        public IJythonFunction tryJythonFunction(String name)
                         {
+                            return null;
                         }
 
                         @Override
-                        public void set(String name, PyObject value)
+                        public void set(String variableName, Object object)
                         {
                         }
 
                         @Override
                         public void releaseResources()
+                        {
+                        }
+
+                        @Override
+                        public void exec(String scriptString, String scriptFile)
                         {
                         }
                     }, null);
