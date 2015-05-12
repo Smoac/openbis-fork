@@ -230,11 +230,17 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
     //
 
     @Override
+    public boolean isProgressEnabled()
+    {
+        return cmdLineFlagsOrNull != null && cmdLineFlagsOrNull.contains("--progress");
+    }
+    
+    @Override
     public final Status copy(final File sourcePath, final File destinationDirectory, 
             ITextHandler stdoutHandlerOrNull, ITextHandler stderrHandlerOrNull)
     {
         return copy(sourcePath.getAbsolutePath(), null, destinationDirectory.getAbsolutePath(),
-                null, null, null, false, stderrHandlerOrNull, stderrHandlerOrNull);
+                null, null, null, false, stdoutHandlerOrNull, stderrHandlerOrNull);
     }
 
     @Override
@@ -242,7 +248,7 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
             ITextHandler stdoutHandlerOrNull, ITextHandler stderrHandlerOrNull)
     {
         return copy(sourcePath.getAbsolutePath(), null, destinationDirectory.getAbsolutePath(),
-                null, null, null, true, stderrHandlerOrNull, stderrHandlerOrNull);
+                null, null, null, true, stdoutHandlerOrNull, stderrHandlerOrNull);
     }
 
     @Override
@@ -252,7 +258,7 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
             ITextHandler stdoutHandlerOrNull, ITextHandler stderrHandlerOrNull)
     {
         return copy(sourcePath, sourceHost, destinationDirectory.getAbsolutePath(), null,
-                rsyncModuleNameOrNull, rsyncPasswordFileOrNull, false, stderrHandlerOrNull, stderrHandlerOrNull);
+                rsyncModuleNameOrNull, rsyncPasswordFileOrNull, false, stdoutHandlerOrNull, stderrHandlerOrNull);
     }
 
     @Override
@@ -261,7 +267,7 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
             ITextHandler stdoutHandlerOrNull, ITextHandler stderrHandlerOrNull)
     {
         return copy(sourcePath, sourceHost, destinationDirectory.getAbsolutePath(), null,
-                rsyncModuleNameOrNull, rsyncPasswordFileOrNull, true, stderrHandlerOrNull, stderrHandlerOrNull);
+                rsyncModuleNameOrNull, rsyncPasswordFileOrNull, true, stdoutHandlerOrNull, stderrHandlerOrNull);
     }
 
     @Override
@@ -271,7 +277,7 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
             ITextHandler stdoutHandlerOrNull, ITextHandler stderrHandlerOrNull)
     {
         return copy(sourcePath.getAbsolutePath(), null, destinationDirectory, destinationHost,
-                rsyncModuleNameOrNull, rsyncPasswordFileOrNull, false, stderrHandlerOrNull, stderrHandlerOrNull);
+                rsyncModuleNameOrNull, rsyncPasswordFileOrNull, false, stdoutHandlerOrNull, stderrHandlerOrNull);
     }
 
     @Override
@@ -282,7 +288,7 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
     {
         return copy(sourcePath.getAbsolutePath(), null, destinationDirectory,
                 destinationHostOrNull, rsyncModuleNameOrNull, rsyncPasswordFileOrNull, true, 
-                stderrHandlerOrNull, stderrHandlerOrNull);
+                stdoutHandlerOrNull, stderrHandlerOrNull);
     }
 
     //
@@ -562,7 +568,7 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
                 createCommandLineForMutableCopy(sourcePath, sourceHostOrNull, destinationDirectory,
                         destinationHostOrNull, rsyncModuleNameOrNull, rsyncPasswordFileOrNull,
                         copyDirectoryContent);
-        return createStatus(runCommand(commandLine, ConcurrencyUtilities.NO_TIMEOUT, stderrHandlerOrNull, 
+        return createStatus(runCommand(commandLine, ConcurrencyUtilities.NO_TIMEOUT, stdoutHandlerOrNull, 
                 stderrHandlerOrNull));
     }
 
@@ -747,7 +753,7 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
             }
             processHandler =
                     ProcessExecutionHelper.runUnblocking(commandLine, operationLog, machineLog,
-                            ProcessIOStrategy.DEFAULT_IO_STRATEGY, stderrHandlerOrNull, stderrHandlerOrNull);
+                            ProcessIOStrategy.DEFAULT_IO_STRATEGY, stdoutHandlerOrNull, stderrHandlerOrNull);
             rsyncTerminator.set(processHandler);
         }
         if (operationLog.isTraceEnabled())

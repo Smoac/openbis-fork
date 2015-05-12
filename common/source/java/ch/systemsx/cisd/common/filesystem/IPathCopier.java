@@ -36,6 +36,12 @@ import ch.systemsx.cisd.common.utilities.ITextHandler;
  */
 public interface IPathCopier extends ITerminable, ISelfTestable
 {
+    /**
+     * Returns <code>true</code> if progress is enabled. Enabled progress allows to retrieve progress
+     * information via stdout. In this case a provided {@link ITextHandler} in the copy commands will
+     * receive this progress information
+     */
+    boolean isProgressEnabled();
 
     /**
      * Copies <var>sourcePath</var> to <var>destinationDir</var>.
@@ -45,6 +51,8 @@ public interface IPathCopier extends ITerminable, ISelfTestable
      * @param destinationDirectory The directory to use as a destination in the copy operation. It
      *            must be readable and writable. If <var>destinationDir/sourcePath</var> exists, it
      *            will be overwritten.
+     * @param stdoutHandlerOrNull Handler of stdout lines. Can be <code>null</code>.
+     * @param stderrHandlerOrNull Handler of stderr lines. Can be <code>null</code>.
      * @return The status of the operation, {@link Status#OK} if everything went OK.
      */
     Status copy(File sourcePath, File destinationDirectory, 
@@ -58,6 +66,8 @@ public interface IPathCopier extends ITerminable, ISelfTestable
      * @param destinationDirectory The directory to use as a destination in the copy operation. It
      *            must be readable and writable. If <var>destinationDir/sourcePath</var> exists, it
      *            will be overwritten.
+     * @param stdoutHandlerOrNull Handler of stdout lines. Can be <code>null</code>.
+     * @param stderrHandlerOrNull Handler of stderr lines. Can be <code>null</code>.
      * @return The status of the operation, {@link Status#OK} if everything went OK.
      */
     Status copyContent(File sourcePath, File destinationDirectory, 
@@ -78,6 +88,8 @@ public interface IPathCopier extends ITerminable, ISelfTestable
      * @param rsyncPasswordFileOrNull The name of the password file to use if an rsync server is
      *            used. May be <code>null</code> or the name of a non-existent file, in which case
      *            no password is used when accessing the rsync server.
+     * @param stdoutHandlerOrNull Handler of stdout lines. Can be <code>null</code>.
+     * @param stderrHandlerOrNull Handler of stderr lines. Can be <code>null</code>.
      * @return The status of the operation, {@link Status#OK} if everything went OK.
      */
     Status copyToRemote(File sourcePath, String destinationDirectory, String destinationHostOrNull,
@@ -100,11 +112,12 @@ public interface IPathCopier extends ITerminable, ISelfTestable
      * @param rsyncPasswordFileOrNull The name of the password file to use if an rsync server is
      *            used. May be <code>null</code> or the name of a non-existent file, in which case
      *            no password is used when accessing the rsync server.
+     * @param stdoutHandlerOrNull Handler of stdout lines. Can be <code>null</code>.
+     * @param stderrHandlerOrNull Handler of stderr lines. Can be <code>null</code>.
      * @return The status of the operation, {@link Status#OK} if everything went OK.
      */
     Status copyContentToRemote(File sourcePath, String destinationDirectory,
-            String destinationHostOrNull, String rsyncModuleNameOrNull,
-            String rsyncPasswordFileOrNull, 
+            String destinationHostOrNull, String rsyncModuleNameOrNull, String rsyncPasswordFileOrNull,
             ITextHandler stdoutHandlerOrNull, ITextHandler stderrHandlerOrNull);
 
     /**
@@ -121,6 +134,8 @@ public interface IPathCopier extends ITerminable, ISelfTestable
      * @param rsyncPasswordFileOrNull The name of the password file to use if an rsync server is
      *            used. May be <code>null</code> or the name of a non-existent file, in which case
      *            no password is used when accessing the rsync server.
+     * @param stdoutHandlerOrNull Handler of stdout lines. Can be <code>null</code>.
+     * @param stderrHandlerOrNull Handler of stderr lines. Can be <code>null</code>.
      * @return The status of the operation, {@link Status#OK} if everything went OK.
      */
     Status copyFromRemote(String sourcePath, String sourceHost, File destinationDirectory,
@@ -142,6 +157,8 @@ public interface IPathCopier extends ITerminable, ISelfTestable
      * @param rsyncPasswordFileOrNull The name of the password file to use if an rsync server is
      *            used. May be <code>null</code> or the name of a non-existent file, in which case
      *            no password is used when accessing the rsync server.
+     * @param stdoutHandlerOrNull Handler of stdout lines. Can be <code>null</code>.
+     * @param stderrHandlerOrNull Handler of stderr lines. Can be <code>null</code>.
      * @return The status of the operation, {@link Status#OK} if everything went OK.
      */
     Status copyContentFromRemote(String sourcePath, String sourceHost, File destinationDirectory,

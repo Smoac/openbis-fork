@@ -168,8 +168,6 @@ public final class RsyncCopierTest
         assertEquals(rsyncBinary.getAbsolutePath(), cmdLine.get(0));
         assertEquals(sourceDirectory.getAbsolutePath(), cmdLine.get(cmdLine.size() - 2));
         assertEquals(destinationDirectory.getAbsolutePath() + "/", cmdLine.get(cmdLine.size() - 1));
-        assertEquals("[]", stdoutContent.toString());
-        assertEquals("[]", stderrContent.toString());
     }
 
     @Test
@@ -187,8 +185,6 @@ public final class RsyncCopierTest
         assertEquals("--no-group", cmdLine.get(cmdLine.size() - 3));
         assertEquals(sourceDirectory.getAbsolutePath(), cmdLine.get(cmdLine.size() - 2));
         assertEquals(destinationDirectory.getAbsolutePath() + "/", cmdLine.get(cmdLine.size() - 1));
-        assertEquals("[]", stdoutContent.toString());
-        assertEquals("[]", stderrContent.toString());
     }
 
     @Test
@@ -206,8 +202,6 @@ public final class RsyncCopierTest
         assertEquals("--no-perms", cmdLine.get(2));
         assertEquals(sourceDirectory.getAbsolutePath(), cmdLine.get(3));
         assertEquals(destinationDirectory.getAbsolutePath() + "/", cmdLine.get(4));
-        assertEquals("[]", stdoutContent.toString());
-        assertEquals("[]", stderrContent.toString());
     }
 
     @Test
@@ -271,8 +265,6 @@ public final class RsyncCopierTest
         assertEquals(rsyncBinary.getAbsolutePath(), cmdLine.get(0));
         assertEquals(sourceDirectory.getAbsolutePath(), cmdLine.get(cmdLine.size() - 2));
         assertEquals(host + "::" + rsyncModule + "/", cmdLine.get(cmdLine.size() - 1));
-        assertEquals("[]", stdoutContent.toString());
-        assertEquals("[]", stderrContent.toString());
     }
 
     @Test
@@ -290,8 +282,6 @@ public final class RsyncCopierTest
         assertEquals(rsyncBinary.getAbsolutePath(), cmdLine.get(0));
         assertEquals(sourceDirectory.getAbsolutePath() + "/", cmdLine.get(cmdLine.size() - 2));
         assertEquals(host + "::" + rsyncModule + "/", cmdLine.get(cmdLine.size() - 1));
-        assertEquals("[]", stdoutContent.toString());
-        assertEquals("[]", stderrContent.toString());
     }
 
     @Test
@@ -314,8 +304,6 @@ public final class RsyncCopierTest
         assertEquals(workingDirectory + "/rsync.pwd", cmdLine.get(cmdLine.size() - 3));
         assertEquals(sourceDirectory.getAbsolutePath(), cmdLine.get(cmdLine.size() - 2));
         assertEquals(host + "::" + rsyncModule + "/", cmdLine.get(cmdLine.size() - 1));
-        assertEquals("[]", stdoutContent.toString());
-        assertEquals("[]", stderrContent.toString());
     }
 
     @Test
@@ -338,8 +326,6 @@ public final class RsyncCopierTest
         assertFalse((workingDirectory + "/rsync.pwd").equals(cmdLine.get(cmdLine.size() - 3)));
         assertEquals(sourceDirectory.getAbsolutePath(), cmdLine.get(cmdLine.size() - 2));
         assertEquals(host + "::" + rsyncModule + "/", cmdLine.get(cmdLine.size() - 1));
-        assertEquals("[]", stdoutContent.toString());
-        assertEquals("[]", stderrContent.toString());
     }
 
     @Test
@@ -355,8 +341,6 @@ public final class RsyncCopierTest
         assertEquals(rsyncBinary.getAbsolutePath(), cmdLine.get(0));
         assertEquals(host + ":" + sourceDirectory.getPath(), cmdLine.get(cmdLine.size() - 2));
         assertEquals(destinationDirectory.getAbsolutePath() + "/", cmdLine.get(cmdLine.size() - 1));
-        assertEquals("[]", stdoutContent.toString());
-        assertEquals("[]", stderrContent.toString());
     }
 
     @Test
@@ -379,8 +363,6 @@ public final class RsyncCopierTest
         assertEquals(workingDirectory + "/rsync.pwd", cmdLine.get(cmdLine.size() - 3));
         assertEquals(host + "::" + rsyncModule, cmdLine.get(cmdLine.size() - 2));
         assertEquals(destinationDirectory.getAbsolutePath() + "/", cmdLine.get(cmdLine.size() - 1));
-        assertEquals("[]", stdoutContent.toString());
-        assertEquals("[]", stderrContent.toString());
     }
 
     @Test(groups =
@@ -388,7 +370,7 @@ public final class RsyncCopierTest
     public void testRsyncFileOK() throws IOException, InterruptedException
     {
         final File rsyncBinary = createRsync(0);
-        final RsyncCopier copier = new RsyncCopier(rsyncBinary, null, false, false);
+        final RsyncCopier copier = new RsyncCopier(rsyncBinary, null, false, false, "--progress");
         final Status status = copier.copy(sourceFile, destinationDirectory, stdoutHandler, stderrHandler);
         assertEquals(Status.OK, status);
         assertEquals("[]", stdoutContent.toString());
