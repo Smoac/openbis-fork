@@ -60,7 +60,11 @@ def process(tr, parameters, tableBuilder):
 	# Obtain the user using the dropbox
 	sessionToken = parameters.get("sessionToken"); #String
 	sessionId = sessionToken.split("-")[0]; #String
-	tr.setUserId(sessionId);
+	if sessionId == userId:
+		tr.setUserId(userId);
+	else:
+		print "[SECURITY] User " + userId + " tried to execute the eln-lims dropbox using " + sessionId + " account.";
+		raise UserFailureException("[SECURITY] User " + userId + " tried to use " + sessionId + " account, this will be communicated to the admin.");
 	
 	if method == "init":
 		isOk = init(tr, parameters, tableBuilder);
