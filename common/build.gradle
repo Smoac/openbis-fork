@@ -6,6 +6,7 @@ dependencies {
 			'javax:servlet-api:+',
 			'cisd:cisd-args4j:+',
 			'python:jython:+',
+			'python:jython27:+',
 			'apache:log4j:+',
 			'javax:activation:+',
 			'javax:mail:+',
