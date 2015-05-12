@@ -33,7 +33,7 @@ def calculate():
                     else:
                         genotypeResult = genotypeResult + "\n "
                     #Add the code
-                    genotypeResult = genotypeResult + parent.code() + " " + str(getAnnotationsForParent(parent, entity))
+                    genotypeResult = genotypeResult + parent.code() + " " + str(getAnnotationsForParent(parent, entity)) #TO-DO Change entity by the child of the parent for each iteration
                     sampleCodesInGenotype[parent.code()] = True
             else:
                 parentIterables.append(parent.parents())
