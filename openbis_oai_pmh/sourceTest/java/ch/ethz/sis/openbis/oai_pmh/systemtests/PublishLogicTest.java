@@ -67,6 +67,32 @@ public class PublishLogicTest extends OAIPMHSystemTest
 
     @Test
     @SuppressWarnings("unchecked")
+    public void testGetTags()
+    {
+        Experiment originalExperiment = createExperiment();
+        DataSet originalPhysical = createPhysicalDataSet(originalExperiment);
+        DataSet originalPhysical2 = createPhysicalDataSet(originalExperiment);
+        DataSet originalPhysical3 = createPhysicalDataSet(originalExperiment);
+        createPhysicalDataSet(originalExperiment);
+
+        MetaprojectIdentifier tag = new MetaprojectIdentifier(ADMIN_USER_ID, "TEST_TAG");
+        MetaprojectIdentifier tag2 = new MetaprojectIdentifier(ADMIN_USER_ID, "TEST_TAG_2");
+        MetaprojectIdentifier tag3 = new MetaprojectIdentifier(ADMIN_USER_ID, "TEST_TAG_3");
+
+        tagDataSets(tag, originalPhysical, originalPhysical2);
+        tagDataSets(tag2, originalPhysical2, originalPhysical3);
+        tagDataSets(tag3, originalPhysical3);
+
+        String result =
+                callLogic(adminUserSessionToken, "getTags",
+                        Collections.<String, Object> singletonMap("experiment", originalExperiment.getIdentifier()));
+
+        ArrayList<String> resultList = (ArrayList<String>) parseJson(result);
+        Assert.assertEquals(resultList, Arrays.asList("TEST_TAG", "TEST_TAG_2", "TEST_TAG_3"));
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
     public void testGetMeshTermChildrenWithParentNull()
     {
         String result = callLogic(adminUserSessionToken, "getMeshTermChildren", Collections.singletonMap("parent", null));

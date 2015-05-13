@@ -89,7 +89,10 @@ def getTags(tr, parameters, tableBuilder):
 	for dataSetCode, tagNames in tagsMap.iteritems():
 		tags.update(tagNames)
 
-	return json.dumps(list(tags))
+	tagsList = list(tags)
+	tagsList.sort()
+
+	return json.dumps(tagsList)
 
 def getMeshTermChildren(tr, parameters, tableBuilder):
 	parentIdentifier = parameters["parent"]
