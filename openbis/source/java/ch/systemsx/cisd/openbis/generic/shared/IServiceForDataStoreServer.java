@@ -817,6 +817,13 @@ public interface IServiceForDataStoreServer extends IServer, ISessionProvider
             IObjectId entityId);
 
     /**
+     * List metaprojects for the given entities
+     */
+    @Transactional(readOnly = true)
+    public Map<IObjectId, List<Metaproject>> listMetaprojectsForEntities(String systemSessionToken, String userId,
+            Collection<? extends IObjectId> entityIds);
+
+    /**
      * Return the authorization groups in openBIS
      */
     @Transactional(readOnly = true)

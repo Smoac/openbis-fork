@@ -1006,6 +1006,13 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     }
 
     @Override
+    public Map<IObjectId, List<Metaproject>> listMetaprojectsForEntities(Collection<? extends IObjectId> entityIds)
+    {
+        throw new UnsupportedOperationException(
+                "Listing metaprojects is available only for the user-filtered version of service");
+    }
+
+    @Override
     public List<AuthorizationGroup> listAuthorizationGroups()
     {
         return service.listAuthorizationGroups(session.getSessionToken());

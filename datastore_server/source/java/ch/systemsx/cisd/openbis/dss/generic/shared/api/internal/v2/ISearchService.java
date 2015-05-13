@@ -16,7 +16,9 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 
@@ -156,6 +158,11 @@ public interface ISearchService
      * @return metaprojects for current user, which are assigned to the given entity
      */
     public List<IMetaprojectImmutable> listMetaprojectsForEntity(IMetaprojectContent entity);
+
+    /**
+     * @return metaprojects for current user, which are assigned to the given entities
+     */
+    public Map<IMetaprojectContent, List<IMetaprojectImmutable>> listMetaprojectsForEntities(Collection<? extends IMetaprojectContent> entity);
 
     /**
      * Get a data set from the openBIS AS. Returns null if the data set does not exist.

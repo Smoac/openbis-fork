@@ -839,6 +839,15 @@ public class ServiceForDataStoreServerLogger extends AbstractServerLogger implem
     }
 
     @Override
+    public Map<IObjectId, List<Metaproject>> listMetaprojectsForEntities(String systemSessionToken, String userId,
+            Collection<? extends IObjectId> entityIds)
+    {
+        logAccess(Level.DEBUG, systemSessionToken, "listMetaprojects", "USER_ID(%s) ENTITY_IDS(%s)",
+                userId, abbreviate(entityIds));
+        return null;
+    }
+
+    @Override
     public List<AuthorizationGroup> listAuthorizationGroups(String sessionToken)
     {
         logAccess(Level.DEBUG, sessionToken, "listAuthorizationGroups", "");

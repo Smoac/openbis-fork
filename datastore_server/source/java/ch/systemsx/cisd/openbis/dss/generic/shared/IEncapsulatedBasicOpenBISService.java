@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.dss.generic.shared;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
@@ -187,5 +188,11 @@ public interface IEncapsulatedBasicOpenBISService
      */
     @ManagedAuthentication
     public List<Metaproject> listMetaprojectsForEntity(IObjectId entityId);
+
+    /**
+     * List metaproject for the current user, which are assigned to the given entities.
+     */
+    @ManagedAuthentication
+    public Map<IObjectId, List<Metaproject>> listMetaprojectsForEntities(Collection<? extends IObjectId> entityIds);
 
 }

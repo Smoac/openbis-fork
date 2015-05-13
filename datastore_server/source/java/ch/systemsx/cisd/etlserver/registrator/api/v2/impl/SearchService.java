@@ -18,10 +18,13 @@ package ch.systemsx.cisd.etlserver.registrator.api.v2.impl;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.collections.Transformer;
@@ -361,6 +364,39 @@ public class SearchService implements ISearchService
         List<Metaproject> metaprojects =
                 openBisService.listMetaprojectsForEntity(Translator.translate(entity.getEntityId()));
         return ConversionUtils.convertToMetaprojectsImmutable(metaprojects);
+    }
+
+    @Override
+    public Map<IMetaprojectContent, List<IMetaprojectImmutable>> listMetaprojectsForEntities(Collection<? extends IMetaprojectContent> entities)
+    {
+        if (entities == null || entities.isEmpty())
+        {
+            return Collections.emptyMap();
+        }
+
+        Map<ch.systemsx.cisd.openbis.generic.shared.basic.dto.id.IObjectId, IMetaprojectContent> entityIdToEntityMap =
+                new HashMap<ch.systemsx.cisd.openbis.generic.shared.basic.dto.id.IObjectId, IMetaprojectContent>();
+
+        for (IMetaprojectContent entity : entities)
+        {
+            entityIdToEntityMap.put(Translator.translate(entity.getEntityId()), entity);
+        }
+
+        Map<ch.systemsx.cisd.openbis.generic.shared.basic.dto.id.IObjectId, List<Metaproject>> entityIdToMetaprojectsMap =
+                openBisService.listMetaprojectsForEntities(new ArrayList<ch.systemsx.cisd.openbis.generic.shared.basic.dto.id.IObjectId>(
+                        entityIdToEntityMap.keySet()));
+
+        Map<IMetaprojectContent, List<IMetaprojectImmutable>> entityToMetaprojectsMap =
+                new HashMap<IMetaprojectContent, List<IMetaprojectImmutable>>();
+
+        for (Map.Entry<ch.systemsx.cisd.openbis.generic.shared.basic.dto.id.IObjectId, List<Metaproject>> entry : entityIdToMetaprojectsMap
+                .entrySet())
+        {
+            IMetaprojectContent entity = entityIdToEntityMap.get(entry.getKey());
+            entityToMetaprojectsMap.put(entity, ConversionUtils.convertToMetaprojectsImmutable(entry.getValue()));
+        }
+
+        return entityToMetaprojectsMap;
     }
 
     @Override

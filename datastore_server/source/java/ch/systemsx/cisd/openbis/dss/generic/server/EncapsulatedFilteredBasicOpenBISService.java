@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.dss.generic.server;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Map;
 
 import ch.systemsx.cisd.common.action.IMapper;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -240,6 +241,12 @@ public class EncapsulatedFilteredBasicOpenBISService implements IEncapsulatedBas
     public List<Metaproject> listMetaprojectsForEntity(IObjectId entityId)
     {
         return etlService.listMetaprojectsForEntity(systemSessionToken, userName, entityId);
+    }
+
+    @Override
+    public Map<IObjectId, List<Metaproject>> listMetaprojectsForEntities(Collection<? extends IObjectId> entityIds)
+    {
+        return etlService.listMetaprojectsForEntities(systemSessionToken, userName, entityIds);
     }
 
     @Override
