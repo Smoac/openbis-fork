@@ -289,7 +289,7 @@ public class PublishLogicTest extends OAIPMHSystemTest
     }
 
     @Test
-    public void testPublishTaggedWithPhysicalDataSets()
+    public void testPublishTaggedWithPhysicalDataSetsWithAndWithoutTag()
     {
         // DS(TAG), DS()
 
@@ -308,6 +308,100 @@ public class PublishLogicTest extends OAIPMHSystemTest
         DataSet publicationDataSet = result.getPublicationDataSetFor(originalPhysical.getCode());
         Assert.assertEquals(publicationDataSet.getDataSetTypeCode(), "PUBLICATION_CONTAINER");
         AssertionUtil.assertCollectionContainsOnly(publicationDataSet.getContainedDataSets(), originalPhysical);
+    }
+
+    @Test
+    public void testPublishTaggedWithPhysicalDataSetsWithAndWithoutTagWithContainerWithTag()
+    {
+        // DS(TAG) -> CDS(TAG) <- DS()
+
+        Experiment originalExperiment = createExperiment();
+        DataSet originalPhysical = createPhysicalDataSet(originalExperiment);
+        DataSet originalPhysical2 = createPhysicalDataSet(originalExperiment);
+        DataSet originalContainer = createContainerDataSet(originalExperiment, originalPhysical, originalPhysical2);
+
+        MetaprojectIdentifier tag = new MetaprojectIdentifier(ADMIN_USER_ID, "TEST_TAG");
+        tagDataSets(tag, originalPhysical, originalContainer);
+
+        Publication publication = publication(originalExperiment.getIdentifier(), tag.getMetaprojectName());
+        PublicationResult result = publish(adminUserSessionToken, publication);
+
+        Assert.assertEquals(result.getDataSetMapping().size(), 1);
+
+        DataSet containerPublished = result.getPublicationDataSetFor(originalContainer.getCode());
+        Assert.assertEquals(containerPublished.getDataSetTypeCode(), originalContainer.getDataSetTypeCode());
+        AssertionUtil.assertCollectionContainsOnly(containerPublished.getContainedDataSets(), originalContainer);
+    }
+
+    @Test
+    public void testPublishTaggedWithPhysicalDataSetsWithAndWithoutTagWithContainerWithoutTag()
+    {
+        // DS(TAG) -> CDS() <- DS()
+
+        Experiment originalExperiment = createExperiment();
+        DataSet originalPhysical = createPhysicalDataSet(originalExperiment);
+        DataSet originalPhysical2 = createPhysicalDataSet(originalExperiment);
+        createContainerDataSet(originalExperiment, originalPhysical, originalPhysical2);
+
+        MetaprojectIdentifier tag = new MetaprojectIdentifier(ADMIN_USER_ID, "TEST_TAG");
+        tagDataSets(tag, originalPhysical);
+
+        Publication publication = publication(originalExperiment.getIdentifier(), tag.getMetaprojectName());
+        PublicationResult result = publish(adminUserSessionToken, publication);
+
+        Assert.assertEquals(result.getDataSetMapping().size(), 1);
+
+        DataSet publicationDataSet = result.getPublicationDataSetFor(originalPhysical.getCode());
+        Assert.assertEquals(publicationDataSet.getDataSetTypeCode(), "PUBLICATION_CONTAINER");
+        AssertionUtil.assertCollectionContainsOnly(publicationDataSet.getContainedDataSets(), originalPhysical);
+    }
+
+    @Test
+    public void testPublishTaggedWithPhysicalDataSetWithoutTagWithContainerWithTagWithContainerWithTag()
+    {
+        // DS() -> CDS(TAG) -> CSD(TAG)
+
+        Experiment originalExperiment = createExperiment();
+        DataSet originalPhysical = createPhysicalDataSet(originalExperiment);
+        DataSet originalContainer = createContainerDataSet(originalExperiment, originalPhysical);
+        DataSet originalTopContainer = createContainerDataSet(originalExperiment, originalContainer);
+
+        MetaprojectIdentifier tag = new MetaprojectIdentifier(ADMIN_USER_ID, "TEST_TAG");
+        tagDataSets(tag, originalContainer, originalTopContainer);
+
+        Publication publication = publication(originalExperiment.getIdentifier(), tag.getMetaprojectName());
+        PublicationResult result = publish(adminUserSessionToken, publication);
+
+        Assert.assertEquals(result.getDataSetMapping().size(), 1);
+
+        DataSet containerTopPublished = result.getPublicationDataSetFor(originalTopContainer.getCode());
+        Assert.assertEquals(containerTopPublished.getDataSetTypeCode(), originalTopContainer.getDataSetTypeCode());
+        AssertionUtil.assertCollectionContainsOnly(containerTopPublished.getContainedDataSets(), originalTopContainer);
+    }
+
+    @Test
+    public void testPublishTaggedWithPhysicalDataSetsWithTagsWithContainerWithTagWithContainerWithoutTag()
+    {
+        // DS(TAG) -> CDS(TAG) -> CSD()
+        // DS(TAG) ->
+
+        Experiment originalExperiment = createExperiment();
+        DataSet originalPhysical = createPhysicalDataSet(originalExperiment);
+        DataSet originalPhysical2 = createPhysicalDataSet(originalExperiment);
+        DataSet originalContainer = createContainerDataSet(originalExperiment, originalPhysical, originalPhysical2);
+        createContainerDataSet(originalExperiment, originalContainer);
+
+        MetaprojectIdentifier tag = new MetaprojectIdentifier(ADMIN_USER_ID, "TEST_TAG");
+        tagDataSets(tag, originalPhysical, originalPhysical2, originalContainer);
+
+        Publication publication = publication(originalExperiment.getIdentifier(), tag.getMetaprojectName());
+        PublicationResult result = publish(adminUserSessionToken, publication);
+
+        Assert.assertEquals(result.getDataSetMapping().size(), 1);
+
+        DataSet containerPublished = result.getPublicationDataSetFor(originalContainer.getCode());
+        Assert.assertEquals(containerPublished.getDataSetTypeCode(), originalContainer.getDataSetTypeCode());
+        AssertionUtil.assertCollectionContainsOnly(containerPublished.getContainedDataSets(), originalContainer);
     }
 
     private Publication publication(String experiment, String tag)
@@ -405,7 +499,7 @@ public class PublishLogicTest extends OAIPMHSystemTest
 
         for (Metaproject tag : tags)
         {
-            if (tag.getIdentifier().equals(tagIdentifier.toString()))
+            if (tag.getOwnerId().equals(tagIdentifier.getMetaprojectOwnerId()) && tag.getName().equals(tagIdentifier.getMetaprojectName()))
             {
                 tagExists = true;
                 break;
