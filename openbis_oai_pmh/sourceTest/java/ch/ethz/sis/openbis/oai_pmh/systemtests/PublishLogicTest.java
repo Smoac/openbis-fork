@@ -36,9 +36,15 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.ProjectIdentifie
 import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.MetaprojectAssignmentsIds;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.dataset.DataSetCodeId;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.metaproject.IMetaprojectId;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.metaproject.MetaprojectIdentifierId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LocatorType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
@@ -103,14 +109,14 @@ public class PublishLogicTest extends OAIPMHSystemTest
     }
 
     @Test
-    public void testPublishExperimentWithPhysicalDataSet()
+    public void testPublishWithPhysicalDataSet()
     {
         // DS(E)
 
         Experiment originalExperiment = createExperiment();
         DataSet originalPhysical = createPhysicalDataSet(originalExperiment);
 
-        Publication publication = publication(originalExperiment.getIdentifier());
+        Publication publication = publication(originalExperiment.getIdentifier(), null);
         PublicationResult result = publish(adminUserSessionToken, publication);
 
         Assert.assertEquals(result.getDataSetMapping().size(), 1);
@@ -121,7 +127,7 @@ public class PublishLogicTest extends OAIPMHSystemTest
     }
 
     @Test
-    public void testPublishExperimentWithPhysicalDataSetWithContainer()
+    public void testPublishWithPhysicalDataSetWithContainer()
     {
         // DS(E) -> CDS(E)
 
@@ -129,7 +135,7 @@ public class PublishLogicTest extends OAIPMHSystemTest
         DataSet originalPhysical = createPhysicalDataSet(originalExperiment);
         DataSet originalContainer = createContainerDataSet(originalExperiment, originalPhysical);
 
-        Publication publication = publication(originalExperiment.getIdentifier());
+        Publication publication = publication(originalExperiment.getIdentifier(), null);
         PublicationResult result = publish(adminUserSessionToken, publication);
 
         Assert.assertEquals(result.getDataSetMapping().size(), 1);
@@ -143,7 +149,7 @@ public class PublishLogicTest extends OAIPMHSystemTest
     }
 
     @Test
-    public void testPublishExperimentWithPhysicalDataSetWithContainerInDifferentExperiment()
+    public void testPublishWithPhysicalDataSetWithContainerInDifferentExperiment()
     {
         // DS(E1) -> CDS(E2), publish E1
 
@@ -153,7 +159,7 @@ public class PublishLogicTest extends OAIPMHSystemTest
         DataSet originalPhysical = createPhysicalDataSet(originalExperimentWithPhysical);
         DataSet originalContainer = createContainerDataSet(originalExperimentWithContainer, originalPhysical);
 
-        Publication publication = publication(originalExperimentWithPhysical.getIdentifier());
+        Publication publication = publication(originalExperimentWithPhysical.getIdentifier(), null);
         PublicationResult result = publish(adminUserSessionToken, publication);
 
         Assert.assertEquals(result.getDataSetMapping().size(), 1);
@@ -167,7 +173,7 @@ public class PublishLogicTest extends OAIPMHSystemTest
     }
 
     @Test
-    public void testPublishExperimentWithPhysicalDataSetWithContainerWithContainer()
+    public void testPublishWithPhysicalDataSetWithContainerWithContainer()
     {
         // DS(E) -> CDS(E) -> CDS(E)
 
@@ -176,7 +182,7 @@ public class PublishLogicTest extends OAIPMHSystemTest
         DataSet originalContainer = createContainerDataSet(originalExperiment, originalPhysical);
         DataSet originalTopContainer = createContainerDataSet(originalExperiment, originalContainer);
 
-        Publication publication = publication(originalExperiment.getIdentifier());
+        Publication publication = publication(originalExperiment.getIdentifier(), null);
         PublicationResult result = publish(adminUserSessionToken, publication);
 
         Assert.assertEquals(result.getDataSetMapping().size(), 1);
@@ -192,7 +198,7 @@ public class PublishLogicTest extends OAIPMHSystemTest
     }
 
     @Test
-    public void testPublishExperimentWithPhysicalDataSetWithContainerWithContainerInDifferentExperiment()
+    public void testPublishWithPhysicalDataSetWithContainerWithContainerInDifferentExperiment()
     {
         // DS(E1) -> CDS(E1) -> CDS(E2), publishing E1
 
@@ -203,7 +209,7 @@ public class PublishLogicTest extends OAIPMHSystemTest
         DataSet originalContainer = createContainerDataSet(originalExperimentWithPhysicalAndContainer, originalPhysical);
         DataSet originalTopContainer = createContainerDataSet(originalExperimentWithTopContainer, originalContainer);
 
-        Publication publication = publication(originalExperimentWithPhysicalAndContainer.getIdentifier());
+        Publication publication = publication(originalExperimentWithPhysicalAndContainer.getIdentifier(), null);
         PublicationResult result = publish(adminUserSessionToken, publication);
 
         Assert.assertEquals(result.getDataSetMapping().size(), 1);
@@ -219,7 +225,7 @@ public class PublishLogicTest extends OAIPMHSystemTest
     }
 
     @Test
-    public void testPublishExperimentWithPhysicalDataSetWithContainerInDifferentExperimentWithContainerInSameExperiment()
+    public void testPublishWithPhysicalDataSetWithContainerInDifferentExperimentWithContainerInSameExperiment()
     {
         // DS(E1) -> CDS(E2) -> CDS(E1), publishing E1
 
@@ -230,7 +236,7 @@ public class PublishLogicTest extends OAIPMHSystemTest
         DataSet originalContainer = createContainerDataSet(originalExperimentWithContainer, originalPhysical);
         DataSet originalTopContainer = createContainerDataSet(originalExperimentWithPhysicalAndTopContainer, originalContainer);
 
-        Publication publication = publication(originalExperimentWithPhysicalAndTopContainer.getIdentifier());
+        Publication publication = publication(originalExperimentWithPhysicalAndTopContainer.getIdentifier(), null);
         PublicationResult result = publish(adminUserSessionToken, publication);
 
         Assert.assertEquals(result.getDataSetMapping().size(), 1);
@@ -246,9 +252,9 @@ public class PublishLogicTest extends OAIPMHSystemTest
     }
 
     @Test
-    public void testPublishExperimentWithMultipleDataSets()
+    public void testPublishWithMultipleDataSets()
     {
-        Publication publication = publication("/CISD/DEFAULT/EXP-REUSE");
+        Publication publication = publication("/CISD/DEFAULT/EXP-REUSE", null);
         PublicationResult result = publish(adminUserSessionToken, publication);
 
         Experiment originalExperiment = result.getOriginalExperiment();
@@ -282,7 +288,29 @@ public class PublishLogicTest extends OAIPMHSystemTest
         AssertionUtil.assertCollectionContains(dataSet0Published.getContainedDataSets(), dataSet0);
     }
 
-    private Publication publication(String experiment)
+    @Test
+    public void testPublishTaggedWithPhysicalDataSets()
+    {
+        // DS(TAG), DS()
+
+        Experiment originalExperiment = createExperiment();
+        DataSet originalPhysical = createPhysicalDataSet(originalExperiment);
+        createPhysicalDataSet(originalExperiment);
+
+        MetaprojectIdentifier tag = new MetaprojectIdentifier(ADMIN_USER_ID, "TEST_TAG");
+        tagDataSets(tag, originalPhysical);
+
+        Publication publication = publication(originalExperiment.getIdentifier(), tag.getMetaprojectName());
+        PublicationResult result = publish(adminUserSessionToken, publication);
+
+        Assert.assertEquals(result.getDataSetMapping().size(), 1);
+
+        DataSet publicationDataSet = result.getPublicationDataSetFor(originalPhysical.getCode());
+        Assert.assertEquals(publicationDataSet.getDataSetTypeCode(), "PUBLICATION_CONTAINER");
+        AssertionUtil.assertCollectionContainsOnly(publicationDataSet.getContainedDataSets(), originalPhysical);
+    }
+
+    private Publication publication(String experiment, String tag)
     {
         Publication parameters = new Publication();
         parameters.space = "ADMIN-SPACE";
@@ -294,6 +322,7 @@ public class PublishLogicTest extends OAIPMHSystemTest
         parameters.license = "CC_BY";
         parameters.notes = "Test notes";
         parameters.meshTerms = new String[] { "B04", "B04.715" };
+        parameters.tag = tag;
         return parameters;
     }
 
@@ -353,6 +382,47 @@ public class PublishLogicTest extends OAIPMHSystemTest
         waitUntilIndexUpdaterIsIdle();
 
         return getDataSetsByCode(adminUserSessionToken, permId);
+    }
+
+    private void tagDataSets(MetaprojectIdentifier tagIdentifier, DataSet... dataSets)
+    {
+        IMetaprojectId tagId = new MetaprojectIdentifierId(tagIdentifier);
+
+        String sessionToken = null;
+        if (ADMIN_USER_ID.equals(tagIdentifier.getMetaprojectOwnerId()))
+        {
+            sessionToken = adminUserSessionToken;
+        } else if (REVIEWER_USER_ID.equals(tagIdentifier.getMetaprojectOwnerId()))
+        {
+            sessionToken = reviewerUserSessionToken;
+        } else
+        {
+            throw new IllegalArgumentException("Unsupported tag owner: " + tagIdentifier.getMetaprojectOwnerId());
+        }
+
+        List<Metaproject> tags = getGeneralInformationService().listMetaprojects(sessionToken);
+        boolean tagExists = false;
+
+        for (Metaproject tag : tags)
+        {
+            if (tag.getIdentifier().equals(tagIdentifier.toString()))
+            {
+                tagExists = true;
+                break;
+            }
+        }
+
+        if (false == tagExists)
+        {
+            getGeneralInformationChangingService().createMetaproject(sessionToken, tagIdentifier.getMetaprojectName(), null);
+        }
+
+        MetaprojectAssignmentsIds assignmentIds = new MetaprojectAssignmentsIds();
+        for (DataSet dataSet : dataSets)
+        {
+            assignmentIds.addDataSet(new DataSetCodeId(dataSet.getCode()));
+        }
+        getGeneralInformationChangingService().addToMetaproject(sessionToken, tagId, assignmentIds);
     }
 
 }

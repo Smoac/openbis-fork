@@ -37,6 +37,7 @@ import ch.systemsx.cisd.openbis.datastoreserver.systemtests.GenericSystemTest;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
 import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationChangingService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
@@ -60,6 +61,9 @@ public abstract class OAIPMHSystemTest extends GenericSystemTest
 
     private static final String GENERAL_INFORMATION_SERVICE_URL = TestInstanceHostUtils.getOpenBISUrl() + IGeneralInformationService.SERVICE_URL;
 
+    private static final String GENERAL_INFORMATION_CHANGING_SERVICE_URL = TestInstanceHostUtils.getOpenBISUrl()
+            + IGeneralInformationChangingService.SERVICE_URL;
+
     private static final String DSS_SERVICE_RPC_GENERIC_URL = TestInstanceHostUtils.getDSSUrl() + "/datastore_server/rmi-dss-api-v1";
 
     private static final String SERVICE_FOR_DATA_STORE_SERVER_URL = TestInstanceHostUtils.getOpenBISUrl() + ResourceNames.ETL_SERVICE_URL;
@@ -77,6 +81,8 @@ public abstract class OAIPMHSystemTest extends GenericSystemTest
     protected static final String REVIEWER_USER_PASSWORD = "password";
 
     private IGeneralInformationService generalInformationService;
+
+    private IGeneralInformationChangingService generalInformationChangingService;
 
     private IApplicationServerApi applicationServerApi;
 
@@ -101,6 +107,8 @@ public abstract class OAIPMHSystemTest extends GenericSystemTest
     {
         applicationServerApi = HttpInvokerUtils.createServiceStub(IApplicationServerApi.class, APPLICATION_SERVER_API_URL, TIMEOUT);
         generalInformationService = HttpInvokerUtils.createServiceStub(IGeneralInformationService.class, GENERAL_INFORMATION_SERVICE_URL, TIMEOUT);
+        generalInformationChangingService =
+                HttpInvokerUtils.createServiceStub(IGeneralInformationChangingService.class, GENERAL_INFORMATION_CHANGING_SERVICE_URL, TIMEOUT);
         dssServiceRpcGeneric = HttpInvokerUtils.createServiceStub(IDssServiceRpcGeneric.class, DSS_SERVICE_RPC_GENERIC_URL, TIMEOUT);
         serviceForDataStoreServer = HttpInvokerUtils.createServiceStub(IServiceForDataStoreServer.class, SERVICE_FOR_DATA_STORE_SERVER_URL, TIMEOUT);
         adminUserSessionToken = generalInformationService.tryToAuthenticateForAllServices(ADMIN_USER_ID, ADMIN_USER_PASSWORD);
@@ -189,6 +197,7 @@ public abstract class OAIPMHSystemTest extends GenericSystemTest
         parameters.put("license", publication.license);
         parameters.put("notes", publication.notes);
         parameters.put("meshTerms", publication.meshTerms);
+        parameters.put("tag", publication.tag);
 
         String permId = callLogic(sessionToken, "publish", parameters);
 
@@ -286,6 +295,8 @@ public abstract class OAIPMHSystemTest extends GenericSystemTest
 
         public String[] meshTerms;
 
+        public String tag;
+
     }
 
     public static class PublicationResult
@@ -348,6 +359,11 @@ public abstract class OAIPMHSystemTest extends GenericSystemTest
     protected IGeneralInformationService getGeneralInformationService()
     {
         return generalInformationService;
+    }
+
+    protected IGeneralInformationChangingService getGeneralInformationChangingService()
+    {
+        return generalInformationChangingService;
     }
 
     protected IDssServiceRpcGeneric getDssServiceRpcGeneric()
