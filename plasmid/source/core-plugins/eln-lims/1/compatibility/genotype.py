@@ -18,11 +18,16 @@ def calculate():
     genotypeResult = ""
     sampleCodesInGenotype = {} #To avoid to add repetitions
     isFirst = True
-    parentIterables = [entity.parents()]
+    parentIterables = [{
+                        "child" : entity,
+                        "parents" : entity.parents()
+                        }]
 
     while len(parentIterables) > 0:
-        parentIterable = parentIterables.pop(0)
-        for parent in parentIterable:
+        parentGroup = parentIterables.pop(0)
+        parents = parentGroup["parents"]
+        child = parentGroup["child"]
+        for parent in parents:
             parentTypeCode = getSampleTypeCode(parent)
             if parentTypeCode in typesForGenotype:
                 parentCode = parent.code()
@@ -33,19 +38,27 @@ def calculate():
                     else:
                         genotypeResult = genotypeResult + "\n "
                     #Add the code
-                    genotypeResult = genotypeResult + parent.code() + " " + str(getAnnotationsForParent(parent, entity)) #TO-DO Change entity by the child of the parent for each iteration
+                    genotypeResult = genotypeResult + parent.code() + " " + str(getAnnotationsForParent(parent, child)) #TO-DO Change entity by the child of the parent for each iteration
                     sampleCodesInGenotype[parent.code()] = True
             else:
-                parentIterables.append(parent.parents())
+                parentIterables.append({
+                                        "child" : parent,
+                                        "parents" : parent.parents()
+                                        })
     return genotypeResult
 
 def getAnnotationsForParent(parent, child):
     permId = parent.entityPE().getPermId()
     annotations = child.propertyValue("ANNOTATIONS_STATE")
     if (annotations is not None) and ('<root>' in annotations):
-        relationship = getAnnotationFromPermId(annotations, permId, "PLASMID_RELATIONSHIP")
-        annotation = getAnnotationFromPermId(annotations, permId, "PLASMID_ANNOTATION")
-        return str(relationship) + " " + str(annotation)
+        relationshipValue = getAnnotationFromPermId(annotations, permId, "PLASMID_RELATIONSHIP")
+        if relationshipValue is None:
+            relationshipValue = "None"
+        annotationValue = getAnnotationFromPermId(annotations, permId, "PLASMID_ANNOTATION");
+        if annotationValue is None:
+            annotationValue = ""
+        annotation = "\"" + str(annotationValue) + "\""
+        return str(relationshipValue) + " " + str(annotation)
     return None
     
 def getAnnotationFromPermId(annotations, permId, key):
@@ -59,7 +72,7 @@ def getAnnotationFromPermId(annotations, permId, key):
                     if keyFound == key:
                         return child.attributes[key].value
     return None
-
+    
 def getValueOrNull(map, key):
     if key in map:
         value = map[key]
