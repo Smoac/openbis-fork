@@ -39,10 +39,15 @@
 	color: #fff;
 }
 
+.fuelux .filter {
+	margin-bottom: 7px;
+}
+
 .fuelux .pillbox {
 	border: 0px;
 	padding: 0px;
 	margin-bottom: 5px;
+	margin-left: -2px;
 }
 
 .fuelux .text-success a {

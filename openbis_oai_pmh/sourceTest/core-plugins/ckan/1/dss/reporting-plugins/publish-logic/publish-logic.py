@@ -18,6 +18,7 @@ import sys
 import datetime
 import traceback
 
+from java.lang import Thread
 from com.xhaus.jyson import JysonCodec as json
 from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto import SearchCriteria
 from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto import SearchSubCriteria
@@ -34,7 +35,9 @@ def process(tr, parameters, tableBuilder):
 	method = parameters.get("method")
 	methodParameters = parameters.get("methodParameters")
 
-	log("Started processing '%s' publication method '%s'" % (method, str(datetime.datetime.utcnow())), INFO) 
+	log("Started processing '%s' publication method" % method, INFO) 
+	log("Setting user to '%s'" % userId, INFO) 
+	tr.setUserId(userId);
 
 	tableBuilder.addHeader("RESULT")
 	row = tableBuilder.addRow()
@@ -43,6 +46,8 @@ def process(tr, parameters, tableBuilder):
 
 		if method == "getSpaces":
 			result = getSpaces(tr, methodParameters, tableBuilder)
+		elif method == "getTags":
+			result = getTags(tr, methodParameters, tableBuilder)
 		elif method == "getMeshTermChildren":
 			result = getMeshTermChildren(tr, methodParameters, tableBuilder)
 		elif method == "publish":
@@ -53,7 +58,7 @@ def process(tr, parameters, tableBuilder):
 		row.setCell("RESULT", result)
 			
 	finally:
-		log("Finished processing '%s' publication method '%s'" % (method, str(datetime.datetime.utcnow())), INFO)
+		log("Finished processing '%s' publication method" % method, INFO)
 
 def getSpaces(tr, parameters, tableBuilder):
 	property = getProperty(tr, "published-spaces")
@@ -71,28 +76,78 @@ def getSpaces(tr, parameters, tableBuilder):
 	else:
 		raise "No publication spaces have been configured. Please check that 'published-spaces' property has been properly set in the reporting plugin plugin.properties."	
 
+def getTags(tr, parameters, tableBuilder):
+
+	paramExperiment = parameters["experiment"]
+	validateNotEmpty(paramExperiment, "experiment")
+
+	experiment = tr.getSearchService().getExperiment(paramExperiment)
+	dataSets = getDataSetsByExperiment(tr, experiment)
+	tagsMap = getDataSetsTags(tr, dataSets)
+	tags = set()
+	
+	for dataSetCode, tagNames in tagsMap.iteritems():
+		tags.update(tagNames)
+
+	return json.dumps(list(tags))
+
 def getMeshTermChildren(tr, parameters, tableBuilder):
 	parentIdentifier = parameters["parent"]
+	filter = parameters["filter"]
 	
 	if(not parentIdentifier):
 		parentIdentifier = ""
-	
+		
 	termMap = loadMeshTerms()
+	
 	parent = termMap.get(parentIdentifier)
+	filterTokens = getMeshTermFilterTokens(filter)
 
 	if parent:
 		childrenData = []
 		for child in parent["children"]:
-			childData = {
-				"identifier" : child["identifier"],
-				"name" : child["name"],
-				"fullName" : child["fullName"],
-				"hasChildren" : len(child["children"]) > 0
-			}
-			childrenData.append(childData)
+			if matchesMeshTermFilterTokens(child, filterTokens): 
+				childData = {
+					"identifier" : child["identifier"],
+					"name" : child["name"],
+					"fullName" : child["fullName"],
+					"hasChildren" : len(child["children"]) > 0
+				}
+				childrenData.append(childData)
 		return json.dumps(childrenData)
 	else:
 		raise "No term have been found for '" + identifier + "'."	
+
+def getMeshTermFilterTokens(filter):
+	if filter and filter.strip():
+		tokens = []
+		for part in filter.lower().split():
+			if part and part.strip():
+				tokens.append(part.strip())
+		print "Mesh terms filter tokens: " + str(tokens)
+		return tokens
+	else:
+		return []
+
+def matchesMeshTermFilterTokens(term, tokens):
+	if tokens:
+		name = term["name"].lower()
+		count = 0
+
+		for token in tokens:
+			if token in name:
+				count = count + 1
+		
+		if count == len(tokens):
+			return True		
+		else:
+			children = term["children"]
+			for child in children:
+				if matchesMeshTermFilterTokens(child, tokens):
+					return True
+		return False
+	else:
+		return True
 
 def loadMeshTerms():
 
@@ -221,6 +276,7 @@ def publish(tr, parameters, tableBuilder):
 	paramLicense = parameters["license"]
 	paramNotes = parameters["notes"]
 	paramMeshTerms = parameters["meshTerms"]
+	paramTag = parameters["tag"]
 
 	meshTermMap = loadMeshTerms()
 	meshTermVersion = loadMeshTermsVersion()
@@ -238,7 +294,7 @@ def publish(tr, parameters, tableBuilder):
 	publicationSpace = getOrCreateSpace(tr, paramSpace)
 	publicationProject = getOrCreateProject(tr, paramSpace, "DEFAULT")
 	publicationExperiment = getOrCreateExperiment(tr, paramSpace, "DEFAULT", originalExperiment.getPermId())
-	
+
 	publicationExperiment.setPropertyValue("PUBLICATION_ID", paramPublicationId)
 	publicationExperiment.setPropertyValue("PUBLICATION_TITLE", paramTitle)
 	publicationExperiment.setPropertyValue("PUBLICATION_AUTHOR", paramAuthor)
@@ -254,7 +310,7 @@ def publish(tr, parameters, tableBuilder):
 	publicationExperiment.setPropertyValue("PUBLICATION_MESH_TERMS", meshTermsPropertyValue)
 	publicationExperiment.setPropertyValue("PUBLICATION_MESH_TERMS_DATABASE", meshTermVersion)
 	
-	copyOrUpdateDataSets(tr, originalExperiment, publicationExperiment)
+	copyOrUpdateDataSets(tr, originalExperiment, publicationExperiment, paramTag)
 
 	return publicationExperiment.getPermId()
 
@@ -303,48 +359,61 @@ def setMapping(experiment, mapping):
 	string = json.dumps(mapping)
 	experiment.setPropertyValue("PUBLICATION_MAPPING", string)
 
-def getDataSetsToPublish(tr, experiment):
-	log("getDataSetsToPublish - experiment: " + str(experiment.getExperimentIdentifier()), DEBUG)
+def getDataSetsToPublish(tr, experiment, tag):
+	log("getDataSetsToPublish - experiment: " + str(experiment.getExperimentIdentifier()) + ", tag: " + str(tag), DEBUG)
 
-	experimentDataSets = getDataSetsByExperiment(tr, experiment);
+	dataSets = getDataSetsByExperiment(tr, experiment);
+	containerMap = getDataSetsContainers(tr, dataSets)
+	tagsMap = {}
 
-	containerList = experimentDataSets;
-	containerMap = {}
-	
-	while containerList:
-		nextLevelCodes = set()
-		for container in containerList:
-			containerMap[container.getDataSetCode()] = container
-			for containerCode in container.getContainerDataSets():
-				nextLevelCodes.add(containerCode)
-		containerList = getDataSetsByCodes(tr, nextLevelCodes)
-	
+	if tag:
+		tagsMap = getDataSetsTags(tr, dataSets)
+
 	dataSetsToPublish = []
-	
-	for experimentDataSet in experimentDataSets:
-		if not hasContainerInExperiment(tr, containerMap, experimentDataSet, experiment):
-			dataSetsToPublish.append(experimentDataSet)
-	
+
+	for dataSet in dataSets:
+		if isPublishable(dataSet, tagsMap, tag, experiment) and not hasPublishableContainer(tr, dataSet, tagsMap, tag, experiment, containerMap):
+			dataSetsToPublish.append(dataSet)
+
 	log("getDataSetsToPublish - found: " + str(len(dataSetsToPublish)), DEBUG) 
-	
+
 	return dataSetsToPublish
 
-def hasContainerInExperiment(tr, containerMap, dataSet, experiment):
-	log("hasContainerInExperiment - dataSet: " + str(dataSet.getDataSetCode()) + ", experiment: " + str(experiment.getExperimentIdentifier()), DEBUG)
+def isPublishable(dataSet, tagsMap, tag, experiment):
+	log("isPublishable - dataSet: " + str(dataSet.getDataSetCode()), DEBUG)
+
+	if tag:
+		dataSetTags = tagsMap.get(dataSet.getDataSetCode())
+		if not dataSetTags or not tag in dataSetTags:
+			log("isPublishable - False (does not match tag)", DEBUG)
+			return False
+
+	if not experiment.equals(dataSet.getExperiment()):
+		log("isPublishable - False (does not match experiment)", DEBUG)
+		return False
+
+	log("isPublishable - True", DEBUG)
+	return True
+
+def hasPublishableContainer(tr, dataSet, tagsMap, tag, experiment, containerMap):
+	log("hasPublishableContainer - dataSet: " + str(dataSet.getDataSetCode()), DEBUG)
 	
 	if dataSet.getContainerDataSets():
 		for containerCode in dataSet.getContainerDataSets():
-			container = containerMap[containerCode]
-			if experiment.equals(container.getExperiment()):
-				log("hasContainerInExperiment - True", DEBUG)
+			container = containerMap.get(containerCode)
+
+			log("hasPublishableContainer - containerCode: " + containerCode + ", container: " + str(container), DEBUG)
+
+			if isPublishable(container, tagsMap, tag, experiment):
+				log("hasPublishableContainer - True", DEBUG)
 				return True
-			elif hasContainerInExperiment(tr, containerMap, container, experiment):
-				log("hasContainerInExperiment - True", DEBUG)
+			elif hasPublishableContainer(tr, container, tagsMap, tag, experiment, containerMap):
+				log("hasPublishableContainer - True", DEBUG)
 				return True
-		log("hasContainerInExperiment - False", DEBUG)
+		log("hasPublishableContainer - False", DEBUG)
 		return False
 	else:
-		log("hasContainerInExperiment - False", DEBUG)
+		log("hasPublishableContainer - False", DEBUG)
 		return False
 
 def getDataSetsByExperiment(tr, experiment):
@@ -355,14 +424,15 @@ def getDataSetsByExperiment(tr, experiment):
 	dataSetCriteria = SearchCriteria()
 	dataSetCriteria.addSubCriteria(SearchSubCriteria.createExperimentCriteria(experimentCriteria))
 
-	dataSets =  tr.getSearchService().searchForDataSets(dataSetCriteria)
+	dataSets = tr.getSearchService().searchForDataSets(dataSetCriteria)
 	log("getDataSetsByExperiment found: " + str(len(dataSets)), DEBUG)
 	return dataSets
 
 def getDataSetsByCodes(tr, codes):
-	log("getDataSetsByCodes - codes: " + str(codes), DEBUG)
+	log("getDataSetsByCodes - codes size: " + str(len(codes)) + ", codes: " + str(codes), DEBUG)
 	
 	if not codes:
+		log("getDataSetsByCodes - found: 0", DEBUG)
 		return []
 
 	criteria = SearchCriteria()
@@ -374,10 +444,68 @@ def getDataSetsByCodes(tr, codes):
 	log("getDataSetsByCodes found: " + str(len(dataSets)), DEBUG)
 	return dataSets
 
-def copyOrUpdateDataSets(tr, originalExperiment, publicationExperiment):
+def getDataSetsContainers(tr, dataSets):
+	log("getDataSetsContainers data sets size: " + str(len(dataSets)), DEBUG)
+
+	containerList = dataSets;
+	containerMap = {}
+	
+	allCodes = set()
+	missingCodes = set()
+	
+	while containerList:
+		nextLevelCodes = set()
+		for container in containerList:
+			containerMap[container.getDataSetCode()] = container
+
+			log("getDataSetsContainers - dataSet: " + container.getDataSetCode() + " has containers: " + str(container.getContainerDataSets()), DEBUG)
+
+			for containerCode in container.getContainerDataSets():
+				nextLevelCodes.add(containerCode)
+				allCodes.add(containerCode)
+
+		containerList = getDataSetsByCodes(tr, nextLevelCodes)
+
+		if len(containerList) != len(nextLevelCodes):
+			foundCodes = set()
+			for container in containerList:
+				foundCodes.add(container.getDataSetCode())
+			missingCodes.update(nextLevelCodes.difference(foundCodes))	
+
+	if missingCodes:
+		raise "%s out of %s data sets that are related to the published experiment haven't been indexed yet: %s. Please try to publish the experiment later." % (str(len(missingCodes)), str(len(allCodes)), str(missingCodes))
+
+	log("getDataSetsContainers - containerMap size: " + str(len(containerMap)), DEBUG)
+
+	return containerMap
+
+def getDataSetsTags(tr, dataSets):
+	log("getDataSetsTags data sets size: " + str(len(dataSets)), DEBUG)
+	
+	dataSetToTagsMap = tr.getSearchService().listMetaprojectsForEntities(dataSets)
+	dataSetCodeToTagNameMap = {}
+	
+	for entry in dataSetToTagsMap.entrySet():
+		dataSet = entry.getKey()
+		tags = entry.getValue()
+	
+		dataSetCode = dataSet.getDataSetCode()
+		tagNames = set()
+	
+		for tag in tags:
+			tagNames.add(tag.getName())
+
+		if tagNames:
+			dataSetCodeToTagNameMap[dataSetCode] = tagNames
+
+	log("getDataSetsTags found: " + str(dataSetCodeToTagNameMap), DEBUG)
+	
+	return dataSetCodeToTagNameMap
+
+def copyOrUpdateDataSets(tr, originalExperiment, publicationExperiment, tag):
 	log("copyOrUpdateDataSets - originalExperiment: " + str(originalExperiment.getExperimentIdentifier()) + ", publicationExperiment: " + str(publicationExperiment.getExperimentIdentifier()), DEBUG) 
 	
-	originalDataSets = getDataSetsToPublish(tr, originalExperiment)	
+	originalDataSets = getDataSetsToPublish(tr, originalExperiment, tag)	
 	publicationDataSets = getDataSetsByExperiment(tr, publicationExperiment)
 	
 	mapping = getMapping(originalExperiment, publicationExperiment)
@@ -420,4 +548,4 @@ def getProperty(tr, propertyName):
   return properties.getProperty(propertyName)
  
 def log(message, level):
-	print message
+	print str(datetime.datetime.utcnow()) + " [" + Thread.currentThread().getName() + "] - " + message

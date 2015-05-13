@@ -21,6 +21,36 @@ var PublishFormModel = Backbone.Model.extend({
 		return match[3];
 	},
 
+	setTag : function(tag) {
+		this.set("tag", tag, {
+			validate : true
+		});
+	},
+
+	getTag : function() {
+		return this.get("tag");
+	},
+
+	getTags : function(callback) {
+		var thisModel = this;
+
+		var tags = this.get("tags");
+		if (tags) {
+			return callback(tags);
+		} else {
+			this.getService().getTags(thisModel.getExperiment(), function(executeResult) {
+				if (executeResult.isSuccessful()) {
+					var result = executeResult.getResult();
+					result.sort();
+					thisModel.set("tags", result);
+					callback(result);
+				} else {
+					thisModel.set('formMessages', executeResult.getMessages());
+				}
+			});
+		}
+	},
+
 	setSpace : function(space) {
 		this.set("space", space, {
 			validate : true
@@ -59,9 +89,9 @@ var PublishFormModel = Backbone.Model.extend({
 		return this.get("meshTerms");
 	},
 
-	getMeshTermChildren : function(parent, callback) {
+	getMeshTermChildren : function(parent, filter, callback) {
 		var thisModel = this;
-		this.getService().getMeshTermChildren(parent, function(executeResult) {
+		this.getService().getMeshTermChildren(parent, filter, function(executeResult) {
 			if (executeResult.isSuccessful()) {
 				callback(executeResult.getResult());
 			} else {
@@ -239,6 +269,7 @@ var PublishFormModel = Backbone.Model.extend({
 
 			var parameters = {
 				"experiment" : thisModel.getExperiment(),
+				"tag" : thisModel.getTag(),
 				"space" : thisModel.getSpace(),
 				"publicationId" : thisModel.getPublicationId(),
 				"title" : thisModel.getTitle(),
@@ -250,6 +281,7 @@ var PublishFormModel = Backbone.Model.extend({
 			};
 
 			this.getService().publish(parameters, function(executeResult) {
+				executeResult.addMessage("timestamp", new Date());
 				thisModel.set({
 					"formMessages" : executeResult.getMessages(),
 					"submitDisabled" : false
@@ -257,6 +289,7 @@ var PublishFormModel = Backbone.Model.extend({
 			});
 		} else {
 			var result = new OperationResult();
+			result.addMessage("timestamp", new Date());
 			result.addMessage("error", "Please fill in the form.")
 			thisModel.set({
 				"formMessages" : result.getMessages(),

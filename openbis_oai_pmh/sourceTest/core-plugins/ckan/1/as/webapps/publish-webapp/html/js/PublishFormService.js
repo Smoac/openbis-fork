@@ -95,19 +95,42 @@ $.extend(PublishFormService.prototype, {
 		var createCallback = function(createResult) {
 			if (createResult.isSuccessful()) {
 				var result = createResult.getResult();
-				var reportResult = result.rows[0][0].value;
+				var executeResult = new OperationResult();
 
-				if (reportResult) {
-					try {
-						reportResult = JSON.parse(reportResult);
-					} catch (err) {
-						// do nothing
+				if (!result.rows) {
+					executeResult.setSuccessful(false);
+					executeResult.addMessage("error", "Incorrect response format. Got a null table model");
+				} else if (result.rows.length == 1) {
+					var row = result.rows[0];
+
+					if (!row) {
+						executeResult.setSuccessful(false);
+						executeResult.addMessage("error", "Incorrect response format. Got a null table model row");
+					} else if (row.length == 1) {
+						var reportResult = row[0].value;
+
+						if (reportResult) {
+							try {
+								reportResult = JSON.parse(reportResult);
+							} catch (err) {
+								// do nothing
+							}
+						}
+
+						executeResult.setSuccessful(true);
+						executeResult.setResult(reportResult);
+					} else if (row.length == 2) {
+						executeResult.setSuccessful(false);
+						executeResult.addMessage("error", row[1].value);
+					} else {
+						executeResult.setSuccessful(false);
+						executeResult.addMessage("error", "Incorrect response format. Got a table model row with " + row.length + " columns.");
 					}
+				} else {
+					executeResult.setSuccessful(false);
+					executeResult.addMessage("error", "Incorrect response format. Got a table model with " + result.rows.length + " rows");
 				}
 
-				var executeResult = new OperationResult();
-				executeResult.setSuccessful(true);
-				executeResult.setResult(reportResult);
 				callback(executeResult);
 
 			} else {
@@ -144,6 +167,18 @@ $.extend(PublishFormService.prototype, {
 		};
 
 		this.loadDataStoreCode(loadCallback);
+	},
+
+	getTags : function(experiment, callback) {
+		var parameters = {
+			"experiment" : experiment
+		};
+		this.executeOnDataStore("getTags", parameters, function(operationResult) {
+			if (!operationResult.isSuccessful()) {
+				operationResult.addMessage("error", "Couldn't load tags.");
+			}
+			callback(operationResult);
+		});
 	},
 
 	getSpaces : function(callback) {
@@ -188,9 +223,10 @@ $.extend(PublishFormService.prototype, {
 		this.getFacade().listVocabularies(thisModel.handleResponse(listCallback));
 	},
 
-	getMeshTermChildren : function(parent, callback) {
+	getMeshTermChildren : function(parent, filter, callback) {
 		var parameters = {
-			"parent" : parent
+			"parent" : parent,
+			"filter" : filter
 		};
 		this.executeOnDataStore("getMeshTermChildren", parameters, function(operationResult) {
 			if (operationResult.isSuccessful()) {

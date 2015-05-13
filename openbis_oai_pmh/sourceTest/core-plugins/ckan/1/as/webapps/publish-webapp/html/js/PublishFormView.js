@@ -11,6 +11,13 @@ var PublishFormView = Backbone.View.extend({
 		var header = $("<h2>").text("Publication").appendTo(this.$el);
 		var form = $("<form>").addClass("publicationForm fuelux").appendTo(this.$el);
 
+		$(form).keydown(function(event) {
+			if (event.keyCode == 13) {
+				event.preventDefault();
+				return false;
+			}
+		});
+
 		$("<div>").addClass("spaceContainer").appendTo(form);
 		$("<div>").addClass("publicationIdContainer").appendTo(form);
 		$("<div>").addClass("titleContainer").appendTo(form);
@@ -19,6 +26,7 @@ var PublishFormView = Backbone.View.extend({
 		$("<div>").addClass("notesContainer").appendTo(form);
 		$("<div>").addClass("meshTermsContainer").appendTo(form);
 		$("<div>").addClass("licenseContainer").appendTo(form);
+		$("<div>").addClass("tagContainer").appendTo(form);
 		$("<div>").addClass("buttonsContainer").appendTo(form);
 		$("<div>").addClass("messagesContainer").appendTo(form);
 
@@ -36,6 +44,7 @@ var PublishFormView = Backbone.View.extend({
 		this.refreshOrRenderNotes();
 		this.refreshOrRenderMeshTerms();
 		this.refreshOrRenderLicense();
+		this.refreshOrRenderTag();
 		this.refreshOrRenderButtons();
 		this.refreshOrRenderMessages();
 	},
@@ -103,6 +112,43 @@ var PublishFormView = Backbone.View.extend({
 			errors.text(this.model.getValidationError(name));
 			errors.css("display", "block");
 		}
+	},
+
+	refreshOrRenderTag : function() {
+		var thisView = this;
+
+		var create = function() {
+			var widget = $("<div>").text("Loading...");
+
+			thisView.model.getTags(function(tags) {
+				if (tags && tags.length > 0) {
+					var select = $("<select>").addClass("form-control");
+					$("<option>").appendTo(select);
+
+					tags.forEach(function(tag) {
+						$("<option>").text(tag).appendTo(select);
+					});
+
+					select.change(function() {
+						thisView.model.setTag(select.val());
+					});
+
+					widget.empty();
+					widget.append(select);
+				} else {
+					widget.text("None of the data sets have been tagged.")
+				}
+			});
+
+			return widget;
+		}
+
+		var update = function(widget) {
+			var select = widget.find("select");
+			select.val(thisView.model.getTag());
+		}
+
+		this.refreshOrRenderField("tag", "openBIS Tag", create, update);
 	},
 
 	refreshOrRenderSpace : function() {
@@ -252,15 +298,14 @@ var PublishFormView = Backbone.View.extend({
 		var thisView = this;
 
 		var create = function() {
-			var pillbox = thisView.createMeshTermsPillbox();
-			var tree = thisView.createMeshTermsTree();
+			thisView.meshTermsPillbox = thisView.createMeshTermsPillbox();
+			thisView.meshTermsFilter = thisView.createMeshTermsFilter();
+			thisView.meshTermsTree = thisView.createMeshTermsTree();
 
 			var widget = $("<div>");
-			widget.append(pillbox);
-			widget.append(tree);
-
-			thisView.addMeshTermsPillboxListeners(pillbox, tree);
-			thisView.addMeshTermsTreeListeners(tree, pillbox);
+			widget.append(thisView.meshTermsPillbox);
+			widget.append(thisView.meshTermsFilter);
+			widget.append($("<div>").append(thisView.meshTermsTree));
 
 			return widget;
 		}
@@ -271,10 +316,86 @@ var PublishFormView = Backbone.View.extend({
 		this.refreshOrRenderField("meshTerms", "Mesh Terms*", create, update);
 	},
 
+	createMeshTermsFilter : function() {
+		var thisView = this;
+
+		var input = $("<input>").attr("type", "text").attr("placeholder", "Filter").addClass("form-control filter");
+		var lastFilter = input.val();
+		var timeout = null;
+		var scheduleTimeout = function() {
+			if (input.val() == lastFilter) {
+				return;
+			} else {
+				lastFilter = input.val();
+			}
+
+			if (timeout) {
+				clearTimeout(timeout);
+			}
+
+			timeout = setTimeout(function() {
+				var treeContainer = thisView.meshTermsTree.parent();
+				treeContainer.empty();
+				thisView.meshTermsTree = thisView.createMeshTermsTree();
+				treeContainer.append(thisView.meshTermsTree);
+			}, 1000);
+		}
+
+		input.keyup(function(e) {
+			scheduleTimeout();
+		});
+
+		input.blur(function(e) {
+			scheduleTimeout();
+		})
+
+		return input;
+	},
+
 	createMeshTermsPillbox : function() {
+		var thisView = this;
+
 		var pillbox = $("<div>").addClass("pillbox").attr("data-initialize", "pillbox");
 		var pillGroup = $("<ul>").addClass("clearfix pill-group").appendTo(pillbox);
+
 		pillbox.hide();
+		pillbox.pillbox({
+			onRemove : function(data, callback) {
+				thisView.meshTermsTree.selectItem(data, false);
+
+				if (pillbox.pillbox("itemCount") <= 0) {
+					pillbox.hide();
+				}
+
+				callback(data);
+			}
+		});
+
+		pillbox.getItems = function() {
+			return pillbox.pillbox("items");
+		};
+
+		pillbox.addItem = function(item) {
+			var exists = pillbox.pillbox("items").some(function(i) {
+				return i.data.id == item.data.id;
+			});
+
+			if (!exists) {
+				pillbox.pillbox("addItems", item);
+				if (pillbox.pillbox("itemCount") > 0) {
+					pillbox.show();
+				}
+			}
+		};
+
+		pillbox.removeItem = function(value) {
+			pillbox.pillbox("removeByValue", value);
+
+			if (pillbox.pillbox("itemCount") <= 0) {
+				pillbox.hide();
+			}
+		};
+
 		return pillbox;
 	},
 
@@ -300,7 +421,10 @@ var PublishFormView = Backbone.View.extend({
 		$("<span>").addClass("tree-label").appendTo(itemButton);
 
 		var dataSource = function(parentData, callback) {
-			thisView.model.getMeshTermChildren(parentData.identifier, function(meshTerms) {
+			var filter = thisView.meshTermsFilter;
+			var pillbox = thisView.meshTermsPillbox;
+
+			thisView.model.getMeshTermChildren(parentData.identifier, filter.val(), function(meshTerms) {
 				var data = [];
 
 				meshTerms.forEach(function(meshTerm) {
@@ -320,6 +444,10 @@ var PublishFormView = Backbone.View.extend({
 				callback({
 					"data" : data
 				});
+
+				pillbox.getItems().forEach(function(item) {
+					tree.selectItem(item, true);
+				});
 			});
 		}
 
@@ -330,50 +458,40 @@ var PublishFormView = Backbone.View.extend({
 			cacheItems : true
 		});
 
-		return tree;
-	},
-
-	addMeshTermsPillboxListeners : function(pillbox, tree) {
-		pillbox.pillbox({
-			onRemove : function(data, callback) {
-				var node = tree.find("#" + data.data.id);
-				tree.tree("selectItem", node);
-
-				if (pillbox.pillbox("itemCount") <= 0) {
-					pillbox.hide();
-				}
-
-				callback(data);
-			}
-		});
-	},
-
-	addMeshTermsTreeListeners : function(tree, pillbox) {
 		tree.click(function(event) {
 			// do not submit the form
 			event.preventDefault();
 		});
 
 		tree.on("selected.fu.tree", function(event, selection) {
-			pillbox.pillbox("addItems", {
+			thisView.meshTermsPillbox.addItem({
 				"text" : selection.target.fullName,
 				"value" : selection.target.identifier,
 				"data" : {
 					"id" : selection.target.attr.id
 				}
 			});
-			if (pillbox.pillbox("itemCount") > 0) {
-				pillbox.show();
-			}
 		});
 
 		tree.on("deselected.fu.tree", function(event, selection) {
-			pillbox.pillbox("removeByValue", selection.target.identifier);
-
-			if (pillbox.pillbox("itemCount") <= 0) {
-				pillbox.hide();
-			}
+			thisView.meshTermsPillbox.removeItem(selection.target.identifier);
 		});
+
+		tree.selectItem = function(item, selectItem) {
+			var selectedItems = tree.tree("selectedItems");
+			var isItemSelected = selectedItems.some(function(i) {
+				return i.identifier == item.value;
+			});
+
+			if (isItemSelected ^ selectItem) {
+				var node = tree.find("#" + item.data.id);
+				if (node.length > 0) {
+					tree.tree("selectItem", node);
+				}
+			}
+		};
+
+		return tree;
 	},
 
 	refreshOrRenderButtons : function() {
@@ -449,10 +567,13 @@ var PublishFormView = Backbone.View.extend({
 				});
 
 				if (false == _.isEqual(thisView.messages, messages)) {
-					$("html, body").animate({
-						scrollTop : $(document).height()
-					}, "slow");
 					thisView.messages = messages;
+					setTimeout(function() {
+						$("html, body").animate({
+							scrollTop : $(document).height()
+						}, "slow");
+
+					}, 250);
 				}
 			}
 		}

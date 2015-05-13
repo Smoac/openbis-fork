@@ -123,7 +123,7 @@ def createExperimentMetadata(experiment):
                 subjectNode.text = meshTerm.strip()
 
     sourceNode = ET.SubElement(oai, "dc:source")
-    sourceNode.text = getServerUrl() + "/openbis/?viewMode=SIMPLE#entity=EXPERIMENT&permId=" + str(experiment.getPermId())
+    sourceNode.text = getServerUrl() + "/openbis/?viewMode=SIMPLE&anonymous=true#entity=EXPERIMENT&permId=" + str(experiment.getPermId())
 
     dateNode = ET.SubElement(oai, "dc:date")
     dateNode.text = DATE_FORMAT_WITH_TIME.format(experiment.getRegistrationDate())
