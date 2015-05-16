@@ -17,11 +17,16 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
+import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.button.Button;
@@ -59,6 +64,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetCo
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListEntityDisplayCriteriaKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayCriteria2;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleChildrenInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGridColumnIDs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
@@ -566,18 +572,64 @@ public class SampleBrowserGrid extends AbstractEntityGrid<Sample>
 
         final String deleteTitle = viewContext.getMessage(Dict.BUTTON_DELETE);
         final String deleteAllTitle = deleteTitle + " All";
-        final Button deleteButton = new Button(deleteAllTitle, new AbstractCreateDialogListener()
+        final Button deleteButton = new Button(deleteAllTitle, new AbstractCreateDialogListenerForSampleGrid()
             {
                 @Override
-                protected Dialog createDialog(List<TableModelRowWithObject<Sample>> samples,
+                protected void createAndShowDialog(final List<TableModelRowWithObject<Sample>> samples,
                         IBrowserGridActionInvoker invoker)
                 {
-                    AbstractAsyncCallback<Void> callback = createRefreshCallback(invoker);
-                    DisplayedAndSelectedEntities<TableModelRowWithObject<Sample>> s =
+                    final AbstractAsyncCallback<Void> callback = createRefreshCallback(invoker);
+                    final DisplayedAndSelectedEntities<TableModelRowWithObject<Sample>> s =
                             getDisplayedAndSelectedItemsAction().execute();
-                    return new SampleListDeletionConfirmationDialog<TableModelRowWithObject<Sample>>(
-                            viewContext, samples, callback, s);
+                    
+                    List<TableModelRowWithObject<Sample>> selectedSamples = s.getSelectedItems();
+                    final Map<String, String> techIdsToSampleIds = new HashMap<String, String>();
+                    
+                    List<TechId> sampleIds = TechId.createList(samples);
+                    //put the TechId:SampleIdentifier pairs to a map to use
+                    //later when displaying message to the user
+                    for (TableModelRowWithObject<Sample> rowObj : selectedSamples)
+                    {                                                
+                        Sample smp = rowObj.getObjectOrNull();
+                        techIdsToSampleIds.put(TechId.create(smp).toString(), smp.getIdentifier());
+                    }
+                    
+                    AbstractAsyncCallback<List<SampleChildrenInfo>> confirmationCallback =
+                          new AbstractAsyncCallback<List<SampleChildrenInfo>>(viewContext)
+                          {
+                              @Override
+                              protected void process(List<SampleChildrenInfo> sampleChildrenInfo)
+                              {
+                                   StringBuffer sampleSb = new StringBuffer();
+                        
+                                  for(SampleChildrenInfo info: sampleChildrenInfo) {
+                                      if(info.getChildCount() > 0 || info.getDataSetCount() > 0) {
+                                          sampleSb.append("<br>" + techIdsToSampleIds.get(info.getSampleIdentifier())+ " : ");
+                                          if(info.getChildCount() > 0) {
+                                              sampleSb.append(info.getChildCount() + " derived samples");
+                                          }
+                                          if(info.getDataSetCount() > 0) {
+                                              if(info.getChildCount() > 0) 
+                                                  sampleSb.append(",");
+                                              sampleSb.append(info.getDataSetCount() + " data sets");
+                                          }
+                                      }
+                                  }
+                                  String additionalMessage="";
+                                 if(sampleSb.length() > 0) {
+                                    additionalMessage = "<br>The following samples have children or datasets:<br>";
+                                    additionalMessage += sampleSb.toString();
+                                  }
+                                 if(sampleChildrenInfo.size() >= 10) {
+                                     additionalMessage += "<br>... and possibly more";
+                                 }
+                                 additionalMessage += "<br>";
+                                 new SampleListDeletionConfirmationDialog<TableModelRowWithObject<Sample>>(viewContext.getCommonViewContext(), samples, callback, s, additionalMessage).show();;
+                               }
+                          };
+                          viewContext.getCommonService().getSampleChildrenInfo(sampleIds, true, confirmationCallback);
                 }
+
             });
         deleteButton.setId(createChildComponentId(DELETE_BUTTON_ID_SUFFIX));
         changeButtonTitleOnSelectedItems(deleteButton, deleteAllTitle, deleteTitle);
@@ -585,6 +637,20 @@ public class SampleBrowserGrid extends AbstractEntityGrid<Sample>
         allowMultipleSelection(); // we allow deletion of multiple samples
     }
 
+    protected Button createDeleteButton(String label, final IDelegatedAction deleteAction)
+    {
+        Button button = new Button(label);
+        button.addListener(Events.Select, new Listener<BaseEvent>()
+            {
+                @Override
+                public void handleEvent(BaseEvent be)
+                {
+                    deleteAction.execute();
+                }
+            });
+        return button;
+    }
+    
     protected final IDelegatedActionWithResult<DisplayedAndSelectedEntities<TableModelRowWithObject<Sample>>> getDisplayedAndSelectedItemsAction()
     {
         return new IDelegatedActionWithResult<DisplayedAndSelectedEntities<TableModelRowWithObject<Sample>>>()
@@ -669,4 +735,17 @@ public class SampleBrowserGrid extends AbstractEntityGrid<Sample>
                 }
             };
     }
+    
+    private abstract class AbstractCreateDialogListenerForSampleGrid extends AbstractCreateDialogListener {
+
+        @Override
+        protected Dialog createDialog(List<TableModelRowWithObject<Sample>> data, IBrowserGridActionInvoker invoker)
+        {
+           createAndShowDialog(data, invoker);
+           return null;
+        }
+        protected abstract void createAndShowDialog(List<TableModelRowWithObject<Sample>> data,
+                IBrowserGridActionInvoker invoker) ;
+    }
+
 }

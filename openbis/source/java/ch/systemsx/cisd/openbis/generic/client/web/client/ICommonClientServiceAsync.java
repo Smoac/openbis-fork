@@ -40,6 +40,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayC
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListScriptsCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RelatedDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetWithEntityTypes;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleChildrenInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableModelReference;
@@ -502,7 +503,18 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
             DefaultResultSetConfig<String, TableModelRowWithObject<AbstractExternalData>> criteria,
             boolean showOnlyDirectlyConnected,
             AsyncCallback<TypedTableResultSet<AbstractExternalData>> asyncCallback);
+    
+    /**
+     * @see ICommonClientService#listSampleDataSets(TechId sampleId, boolean showOnlyDirectlyConnected)
+     */
+    public void listSampleDataSets(TechId sampleId, boolean showOnlyDirectlyConnected,
+           AsyncCallback<List<String>> asyncCallback);
 
+    /**
+     * @see ICommonClientService#getSampleChildrenInfo(List<TechId> sampleIds, boolean showOnlyDirectlyConnected)
+     */
+    public void getSampleChildrenInfo(List<TechId> sampleIds, boolean showOnlyDirectlyConnected,
+            AsyncCallback<List<SampleChildrenInfo>> asyncCallback);
     /**
      * @see ICommonClientService#listExperimentDataSets(TechId, DefaultResultSetConfig, boolean)
      */

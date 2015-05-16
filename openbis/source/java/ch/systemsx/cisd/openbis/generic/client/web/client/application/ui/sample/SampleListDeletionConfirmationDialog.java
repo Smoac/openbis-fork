@@ -43,26 +43,30 @@ public final class SampleListDeletionConfirmationDialog<T extends IIdHolder> ext
 
     private final T singleDataOrNull;
 
+    private String additionalMessage = "";
+
     public SampleListDeletionConfirmationDialog(
             IViewContext<ICommonClientServiceAsync> viewContext, List<T> data,
-            AsyncCallback<Void> callback, DisplayedAndSelectedEntities<T> selectedAndDisplayedItems)
+            AsyncCallback<Void> callback, DisplayedAndSelectedEntities<T> selectedAndDisplayedItems, String additionalMessage)
     {
         super(viewContext, data, callback);
         this.withRadio();
         this.singleDataOrNull = null;
         this.selectedAndDisplayedItemsOrNull = selectedAndDisplayedItems;
         this.setId("deletion-confirmation-dialog");
+        this.additionalMessage = additionalMessage;
     }
 
     public SampleListDeletionConfirmationDialog(
             IViewContext<ICommonClientServiceAsync> viewContext, List<T> data,
-            AsyncCallback<Void> deletionCallback, T sample)
+            AsyncCallback<Void> deletionCallback, T sample, String additionalMessage)
     {
         super(viewContext, data, deletionCallback);
         this.singleDataOrNull = sample;
         this.selectedAndDisplayedItemsOrNull = null;
         this.setId("deletion-confirmation-dialog");
-    }
+        this.additionalMessage = additionalMessage;
+     }    
 
     @Override
     protected void executeDeletion(AsyncCallback<Void> deletionCallback)
@@ -80,7 +84,14 @@ public final class SampleListDeletionConfirmationDialog<T extends IIdHolder> ext
                     reason.getValue(), deletionType, deletionCallback);
         }
     }
-
+    
+    @Override
+    protected String getAdditionalMessage()
+    {
+        return this.additionalMessage;    
+   }
+   
+    
     @Override
     protected String getEntityName()
     {

@@ -70,6 +70,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RelatedDataSetCrit
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetFetchConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetWithEntityTypes;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleChildrenInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableModelReference;
@@ -163,6 +164,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyTermUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LastModificationState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkModel;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MatchingEntity;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
@@ -2912,5 +2914,83 @@ public final class CommonClientService extends AbstractClientService implements
     public String getDisabledText()
     {
         return commonServer.getDisabledText();
+    }
+
+    @Override
+    public List<String> listSampleDataSets(TechId sampleId, boolean showOnlyDirectlyConnected)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        final String sessionToken = getSessionToken();
+        List<AbstractExternalData> list = commonServer.listSampleExternalData(sessionToken, sampleId, showOnlyDirectlyConnected);
+        return Code.extractCodes(list);
+    }
+
+    @Override
+     public List<SampleChildrenInfo> getSampleChildrenInfo(List<TechId> sampleIds, boolean showOnlyDirectlyConnected)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        final int MAX_INFO_SIZE = 10;
+        
+        List<SampleChildrenInfo> list = new ArrayList<SampleChildrenInfo>();
+        final String sessionToken = getSessionToken();
+ 
+        // if we need info for just one sample send back the
+        // MAX_INFO_SIZE number of children and data sets
+        if(sampleIds.size() == 1) {
+            TechId sampleId = sampleIds.get(0);
+            SampleChildrenInfo childrenInfo = new SampleChildrenInfo(sampleId.toString());
+            list.add(childrenInfo);
+            final ListSampleCriteria sampleCriteria = ListSampleCriteria.createForParent(sampleId);
+            List<Sample> results= commonServer.listSamples(sessionToken, sampleCriteria);
+            
+            int count = 0;
+            //get the derived samples
+            for (Sample child : results)
+            {
+                // after showing MAX_INFO_SIZE children/datasets we say
+                // how many more is not shown
+                if(++count == MAX_INFO_SIZE) {
+                    break;
+                }
+                childrenInfo.addDerivedSample(child.getIdentifier());
+            }
+            childrenInfo.setChildCount(results.size());
+
+            //get the data sets
+            List<AbstractExternalData> dataSetList = commonServer.listSampleExternalData(sessionToken, sampleId, showOnlyDirectlyConnected);
+            List<String> dataSetCodes = Code.extractCodes(dataSetList);
+            count = 0;
+            for (String str : dataSetCodes)
+            {
+                if(++count == MAX_INFO_SIZE) {
+                    break;
+                }
+                childrenInfo.addDataSet(str);
+            }
+            childrenInfo.setDataSetCount(dataSetCodes.size());
+        }
+        else {
+            //if we need info for multiple samples, send back the
+            // children and data set count for the first MAX_INFO_SIZE
+            int count = 0;
+            for (TechId sampleId : sampleIds)
+            {
+                SampleChildrenInfo childrenInfo = new SampleChildrenInfo(sampleId.toString());
+                list.add(childrenInfo);
+                final ListSampleCriteria sampleCriteria = ListSampleCriteria.createForParent(sampleId);
+                List<Sample> results= commonServer.listSamples(sessionToken, sampleCriteria);
+                childrenInfo.setChildCount(results.size());
+
+                List<AbstractExternalData> dataSetList = commonServer.listSampleExternalData(sessionToken, sampleId, showOnlyDirectlyConnected);
+                List<String> dataSetCodes = Code.extractCodes(dataSetList);
+                childrenInfo.setDataSetCount(dataSetCodes.size());
+                if(childrenInfo.getChildCount() >0 || childrenInfo.getDataSetCount() > 0) {
+                    if(++count == MAX_INFO_SIZE) {
+                        break;
+                    }
+                }
+            }
+        }
+        return list;
     }
 }

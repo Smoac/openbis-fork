@@ -38,6 +38,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayC
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListScriptsCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RelatedDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetWithEntityTypes;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleChildrenInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableModelReference;
@@ -597,6 +598,16 @@ public interface ICommonClientService extends IClientService
     public TypedTableResultSet<AbstractExternalData> listSampleDataSets(final TechId sampleId,
             DefaultResultSetConfig<String, TableModelRowWithObject<AbstractExternalData>> criteria,
             final boolean showOnlyDirectlyConnected) throws UserFailureException;
+    
+    /**
+     * For given the given sample returns contained data sets.
+     */
+    public List<String> listSampleDataSets(TechId sampleId, boolean showOnlyDirectlyConnected) throws UserFailureException;
+
+    /**
+     * For given the given samples, returns information about derived sampled and contained data sets.
+     */
+    public List<SampleChildrenInfo> getSampleChildrenInfo(List<TechId> sampleIds, boolean showOnlyDirectlyConnected);
 
     /**
      * For given <var>experimentId</var> returns corresponding list of {@link AbstractExternalData}.
@@ -1295,4 +1306,5 @@ public interface ICommonClientService extends IClientService
      * Gets text for front page if the AS is disabled, null otherwise.
      */
     public String getDisabledText();
+
 }

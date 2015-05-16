@@ -105,9 +105,14 @@ public abstract class AbstractDataListDeletionConfirmationDialog<T> extends
                     (isOnlySelected() ? data.size() + SELECTED : ALL_EMPHASIZED) + getEntityName();
         }
         return messageProvider.getMessage(Dict.DELETE_CONFIRMATION_MESSAGE_WITH_REASON_TEMPLATE,
-                getOperationName(), deletedObjects);
-    }
+                getOperationName(), deletedObjects, getAdditionalMessage());
+     }
+        
 
+    protected  String getAdditionalMessage() {
+        return null;
+    }
+    
     protected abstract String getEntityName();
 
     protected abstract void executeDeletion(AsyncCallback<Void> callback);

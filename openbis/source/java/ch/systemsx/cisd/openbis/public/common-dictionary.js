@@ -92,7 +92,7 @@ var common = {
   reason: "Reason",
   delete_confirmation_title: "Confirm Deletion",
   delete_confirmation_message: "Are you sure you want to delete [{0}]?",
-  delete_confirmation_message_with_reason_template: "You are {0} {1}(s).<br><br>Please enter a reason or cancel the operation.",
+  delete_confirmation_message_with_reason_template: "You are {0} {1}(s).<br> {2} <br>Please enter a reason or cancel the operation.",
   deleting_permanently: "<b>permanently</b> deleting",
   deleting_force_section: "Force",
   deleting_force: "Force not existing locations:",
