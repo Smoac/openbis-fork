@@ -75,7 +75,9 @@ public abstract class IngestionService<T extends DataSetInformation> extends Agg
 {
 
     private static final String AGGREGATION_SERVICE_SCRATCH_DIR_NAME = "aggregation-service";
-
+    
+    private static final String AGGREGATION_SERVICE_SHARE_ID = "share-id";
+    
     private static final long serialVersionUID = 1L;
 
     private static IMailClient getMailClientFromProperties(Properties dssProperties)
@@ -115,6 +117,8 @@ public abstract class IngestionService<T extends DataSetInformation> extends Agg
                 getMailClientFromProperties(dssProperties));
     }
 
+    private String shareId;
+    
     /**
      * Internal constructor that allows explicit configuration of all services. Used in testing.
      * 
@@ -131,6 +135,7 @@ public abstract class IngestionService<T extends DataSetInformation> extends Agg
         this.dssProperties = dssProperties;
         this.openBisService = openBisService;
         this.mailClient = mailClient;
+        this.shareId = dssProperties.getProperty(AGGREGATION_SERVICE_SHARE_ID);
     }
 
     @Override
@@ -373,8 +378,11 @@ public abstract class IngestionService<T extends DataSetInformation> extends Agg
 
     protected String getShareId()
     {
-        // hard coded to share 1 -- could be made configurable in the future.
-        return "1";
+        if(this.shareId != null) {
+            return this.shareId;
+        } else {
+            return "1";
+        }
     }
 
     protected boolean shouldNotifySuccessfulRegistration()
