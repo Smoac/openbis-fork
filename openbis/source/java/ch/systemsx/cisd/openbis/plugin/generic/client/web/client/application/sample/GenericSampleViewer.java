@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -56,6 +57,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDele
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModels;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayCriteria2;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleChildrenInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
@@ -107,6 +109,8 @@ abstract public class GenericSampleViewer extends AbstractViewerWithVerticalSpli
     private PropertyGrid propertyGrid;
 
     private SectionsPanel rightPanel;
+    
+    private StringBuffer additionalMessage;
 
     public static DatabaseModificationAwareComponent create(
             final IViewContext<IGenericClientServiceAsync> creationViewContext,
@@ -165,20 +169,67 @@ abstract public class GenericSampleViewer extends AbstractViewerWithVerticalSpli
             return;
         }
         addToolBarButton(createDeleteButton(new IDelegatedAction()
+        {
+            @Override
+            @SuppressWarnings(
+                    { "unchecked", "rawtypes" })
+            public void execute()
             {
-                @Override
-                @SuppressWarnings(
-                { "unchecked", "rawtypes" })
-                public void execute()
-                {
-                    final AsyncCallback<Void> callback =
-                            isTrashEnabled() ? createDeletionCallback()
-                                    : createPermanentDeletionCallback();
-                    new SampleListDeletionConfirmationDialog(getViewContext()
-                            .getCommonViewContext(), getOriginalDataAsSingleton(), callback,
-                            getOriginalData()).show();
-                }
-            }));
+                final AsyncCallback<Void> callback =
+                        isTrashEnabled() ? createDeletionCallback()
+                                : createPermanentDeletionCallback();
+                        additionalMessage = new StringBuffer();
+
+                        //we need info for just 1 sample/                   
+                        List<TechId> sampleIds = new ArrayList<TechId>(Arrays.asList(TechId.create(getOriginalData())));
+                        //                           new ArrayList<TechId>();
+                        //                    sampleIds.add(TechId.create(getOriginalData()));
+
+                        viewContext.getCommonService().getSampleChildrenInfo(sampleIds, true, 
+                                new AbstractAsyncCallback<List<SampleChildrenInfo>>(viewContext)
+                                {
+                            @Override
+                            protected void process(List<SampleChildrenInfo> info)
+                            {
+                                final int MAX_INFO_SIZE = 10;
+                                SampleChildrenInfo sampleInfo = info.get(0);
+
+                                StringBuffer sampleSb = new StringBuffer();
+                                StringBuffer dataSetSb = new StringBuffer();
+                                for (String child : sampleInfo.getDerivedSamples())
+                                {
+                                    sampleSb.append(child + "<br>");
+                                }
+                                for (String ds : sampleInfo.getDataSets())
+                                {
+                                    dataSetSb.append(ds + "<br>");
+                                }
+
+                                if(sampleSb.length() > 0 || dataSetSb.length() > 0) {
+                                    additionalMessage.append("<br>Sample " +  getOriginalData().getIdentifier() + " has the following:");
+                                }
+                                if(sampleSb.length() > 0) {
+                                    additionalMessage.append("<br><br>Derived Samples:<br>");
+                                    additionalMessage.append(sampleSb);
+                                    if(sampleInfo.getChildCount() > MAX_INFO_SIZE )
+                                        additionalMessage.append("<br> and " + (sampleInfo.getChildCount()-MAX_INFO_SIZE) + " more");
+                                }
+                                if(dataSetSb.length() > 0) {
+                                    additionalMessage.append("<br>Data Sets:<br>");
+                                    additionalMessage.append(dataSetSb);
+                                    if(sampleInfo.getDataSetCount() > MAX_INFO_SIZE)
+                                        additionalMessage.append("<br> and " + (sampleInfo.getDataSetCount()-MAX_INFO_SIZE) + " more");
+                                }
+                                if(sampleSb.length() > 0 || dataSetSb.length() > 0) {
+                                    additionalMessage.append("<br>");
+                                }
+                                new SampleListDeletionConfirmationDialog(getViewContext()
+                                        .getCommonViewContext(), getOriginalDataAsSingleton(), callback,
+                                        getOriginalData(), additionalMessage.toString()).show();     
+                            }
+                    });
+            }
+        }));
         addToolBarButton(createRevertDeletionButton(new IDelegatedAction()
             {
                 @Override
