@@ -36,7 +36,7 @@ def calculate():
                     if isFirst:
                         isFirst = False
                     else:
-                        genotypeResult = genotypeResult + "\n "
+                        genotypeResult = genotypeResult + "\n"
                     #Add the code
                     genotypeResult = genotypeResult + parent.code() + " " + str(getAnnotationsForParent(parent, child)) #TO-DO Change entity by the child of the parent for each iteration
                     sampleCodesInGenotype[parent.code()] = True
