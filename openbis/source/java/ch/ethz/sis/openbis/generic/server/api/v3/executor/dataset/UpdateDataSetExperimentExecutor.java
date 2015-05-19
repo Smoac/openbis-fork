@@ -30,7 +30,6 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSetUpdat
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentIdentifier;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.IExperimentId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.UnauthorizedObjectAccessException;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ExperimentByIdentiferValidator;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
@@ -83,13 +82,6 @@ public class UpdateDataSetExperimentExecutor extends
     @Override
     protected void update(IOperationContext context, DataPE entity, ExperimentPE related)
     {
-        if (related == null)
-        {
-            throw new UserFailureException("Data set '" + entity.getCode() + "' cannot have experiment set to null");
-        } else
-        {
-            relationshipService.assignDataSetToExperiment(context.getSession(), entity, related);
-        }
+        this.BOfactory.createDataBO(context.getSession()).assignDataSetToSampleAndExperiment(entity, null, related);
     }
-
 }

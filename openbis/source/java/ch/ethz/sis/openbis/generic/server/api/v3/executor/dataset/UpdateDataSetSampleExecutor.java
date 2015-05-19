@@ -30,7 +30,6 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSetUpdat
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.ISampleId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SampleIdentifier;
 import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.UnauthorizedObjectAccessException;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SampleByIdentiferValidator;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -39,7 +38,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
  * @author pkupczyk
  */
 @Component
-public class UpdateDataSetSampleExecutor extends AbstractUpdateEntityFieldUpdateValueRelationExecutor<DataSetUpdate, DataPE, ISampleId, SamplePE> implements
+public class UpdateDataSetSampleExecutor extends AbstractUpdateEntityFieldUpdateValueRelationExecutor<DataSetUpdate, DataPE, ISampleId, SamplePE>
+        implements
         IUpdateDataSetSampleExecutor
 {
 
@@ -73,18 +73,6 @@ public class UpdateDataSetSampleExecutor extends AbstractUpdateEntityFieldUpdate
     @Override
     protected void check(IOperationContext context, DataPE entity, ISampleId relatedId, SamplePE related)
     {
-        if (related.getSpace() == null)
-        {
-            throw new UserFailureException("Data set '" + entity.getCode() + "' cannot be connected to a shared sample '" + related.getIdentifier()
-                    + "'");
-        }
-
-        if (related.getExperiment() == null)
-        {
-            throw new UserFailureException("Data set '" + entity.getCode() + "' cannot be connected to a sample '" + related.getIdentifier()
-                    + "' that does not have an experiment");
-        }
-
         if (false == new SampleByIdentiferValidator().doValidation(context.getSession().tryGetPerson(), related))
         {
             throw new UnauthorizedObjectAccessException(relatedId);
@@ -94,12 +82,12 @@ public class UpdateDataSetSampleExecutor extends AbstractUpdateEntityFieldUpdate
     @Override
     protected void update(IOperationContext context, DataPE entity, SamplePE related)
     {
-        if (related == null)
+        if (related != null)
         {
-            entity.setSample(null);
+            this.BOfactory.createDataBO(context.getSession()).assignDataSetToSampleAndExperiment(entity, related, related.getExperiment());
         } else
         {
-            relationshipService.assignDataSetToSample(context.getSession(), entity, related);
+            this.BOfactory.createDataBO(context.getSession()).assignDataSetToSampleAndExperiment(entity, null, entity.getExperiment());
         }
     }
 

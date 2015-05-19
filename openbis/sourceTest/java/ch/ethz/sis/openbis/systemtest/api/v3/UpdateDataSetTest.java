@@ -45,6 +45,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SamplePermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.ITagId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.TagCode;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.test.AssertionUtil;
 
 /**
@@ -127,13 +128,36 @@ public class UpdateDataSetTest extends AbstractSampleTest
 
         DataSetFetchOptions fe = new DataSetFetchOptions();
         fe.withSample();
+        fe.withExperiment();
+        Map<IDataSetId, DataSet> map = v3api.mapDataSets(sessionToken, Arrays.asList(dataSetId), fe);
+
+        DataSet result = map.get(dataSetId);
+        assertEquals(result.getSample().getPermId(), sampleId);
+        assertEquals(result.getExperiment().getCode(), "EXP-SPACE-TEST");
+    }
+
+    @Test(expectedExceptions = { UserFailureException.class }, expectedExceptionsMessageRegExp = "Access denied.*")
+    public void testUpdateWithSampleNotAllowed()
+    {
+        String sessionToken = v3api.login(TEST_POWER_USER_CISD, PASSWORD);
+
+        DataSetPermId dataSetId = new DataSetPermId("COMPONENT_1A");
+
+        DataSetUpdate update = new DataSetUpdate();
+        update.setDataSetId(dataSetId);
+        SamplePermId sampleId = new SamplePermId("200902091250077-1060");
+        update.setSampleId(sampleId);
+        v3api.updateDataSets(sessionToken, Collections.singletonList(update));
+
+        DataSetFetchOptions fe = new DataSetFetchOptions();
+        fe.withSample();
         Map<IDataSetId, DataSet> map = v3api.mapDataSets(sessionToken, Arrays.asList(dataSetId), fe);
 
         DataSet result = map.get(dataSetId);
         assertEquals(result.getSample().getPermId(), sampleId);
     }
 
-    // @Test broken
+    @Test
     public void testUpdateWithSampleWithoutAnExperiment()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
@@ -265,7 +289,7 @@ public class UpdateDataSetTest extends AbstractSampleTest
                 {
                     v3api.updateDataSets(sessionToken, Collections.singletonList(update));
                 }
-            }, "Data set '20081105092259000-18' cannot have experiment set to null");
+            }, "Neither experiment nor sample is specified for data set 20081105092259000-18");
     }
 
     @Test

@@ -27,6 +27,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.FieldUpdateValue;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.IObjectId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.ObjectNotFoundException;
 import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
 
 /**
  * @author pkupczyk
@@ -38,6 +39,9 @@ public abstract class AbstractUpdateEntityFieldUpdateValueRelationExecutor<ENTIT
 
     @Autowired
     protected IRelationshipService relationshipService;
+
+    @Autowired
+    protected ICommonBusinessObjectFactory BOfactory;
 
     @Override
     public void update(IOperationContext context, Map<ENTITY_UPDATE, ENTITY_PE> entitiesMap)
