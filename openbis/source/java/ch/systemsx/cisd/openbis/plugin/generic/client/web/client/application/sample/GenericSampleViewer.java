@@ -198,29 +198,29 @@ abstract public class GenericSampleViewer extends AbstractViewerWithVerticalSpli
                                 StringBuffer dataSetSb = new StringBuffer();
                                 for (String child : sampleInfo.getDerivedSamples())
                                 {
-                                    sampleSb.append(child + "<br>");
+                                    sampleSb.append("<br>" + child);
                                 }
                                 for (String ds : sampleInfo.getDataSets())
                                 {
-                                    dataSetSb.append(ds + "<br>");
+                                    dataSetSb.append("<br>" + ds);
                                 }
 
-                                if(sampleSb.length() > 0 || dataSetSb.length() > 0) {
-                                    additionalMessage.append("<br>Sample " +  getOriginalData().getIdentifier() + " has the following:");
-                                }
                                 if(sampleSb.length() > 0) {
-                                    additionalMessage.append("<br><br>Derived Samples:<br>");
+                                    additionalMessage.append("<br>The sample has " +  sampleInfo.getChildCount() + " children samples, these relationships will be broken but the children will remain:");
+                                    additionalMessage.append("<br>");
                                     additionalMessage.append(sampleSb);
-                                    if(sampleInfo.getChildCount() > MAX_INFO_SIZE )
+                                    if(sampleInfo.getChildCount() > MAX_INFO_SIZE ) {
                                         additionalMessage.append("<br> and " + (sampleInfo.getChildCount()-MAX_INFO_SIZE) + " more");
+                                    }
+                                    additionalMessage.append("<br>");
                                 }
                                 if(dataSetSb.length() > 0) {
-                                    additionalMessage.append("<br>Data Sets:<br>");
+                                    additionalMessage.append("<br>The sample has " + sampleInfo.getDataSetCount() + " datasets, these will be deleted with the sample:");
+                                    additionalMessage.append("<br>");
                                     additionalMessage.append(dataSetSb);
-                                    if(sampleInfo.getDataSetCount() > MAX_INFO_SIZE)
-                                        additionalMessage.append("<br> and " + (sampleInfo.getDataSetCount()-MAX_INFO_SIZE) + " more");
-                                }
-                                if(sampleSb.length() > 0 || dataSetSb.length() > 0) {
+                                    if(sampleInfo.getDataSetCount() > MAX_INFO_SIZE) {
+                                        additionalMessage.append("<br>and " + (sampleInfo.getDataSetCount()-MAX_INFO_SIZE) + " more");
+                                    }
                                     additionalMessage.append("<br>");
                                 }
                                 new SampleListDeletionConfirmationDialog(getViewContext()

@@ -600,30 +600,48 @@ public class SampleBrowserGrid extends AbstractEntityGrid<Sample>
                               @Override
                               protected void process(List<SampleChildrenInfo> sampleChildrenInfo)
                               {
-                                   StringBuffer sampleSb = new StringBuffer();
-                        
+                                  int samplesWithChildren = 0; 
+                                  int samplesWithDataSets = 0; 
+                                  final int MAX_DISPLAY_SIZE = 10;
+                                  
+                                  Set<String> samplesWithChildrenToDisplay = new HashSet<String>();
+                                  Set<String> samplesWithDataSetsToDisplay = new HashSet<String>();
+                                  
                                   for(SampleChildrenInfo info: sampleChildrenInfo) {
-                                      if(info.getChildCount() > 0 || info.getDataSetCount() > 0) {
-                                          sampleSb.append("<br>" + techIdsToSampleIds.get(info.getSampleIdentifier())+ " : ");
-                                          if(info.getChildCount() > 0) {
-                                              sampleSb.append(info.getChildCount() + " derived samples");
+                                      if(info.getChildCount() > 0) {
+                                          samplesWithChildren++;
+                                          if(samplesWithChildren <= MAX_DISPLAY_SIZE) {
+                                              samplesWithChildrenToDisplay.add(techIdsToSampleIds.get(info.getSampleIdentifier()));
                                           }
-                                          if(info.getDataSetCount() > 0) {
-                                              if(info.getChildCount() > 0) 
-                                                  sampleSb.append(",");
-                                              sampleSb.append(info.getDataSetCount() + " data sets");
+                                      }
+                                      if(info.getDataSetCount() > 0) {
+                                          samplesWithDataSets++;
+                                          if(samplesWithDataSets <= MAX_DISPLAY_SIZE) {
+                                              samplesWithDataSetsToDisplay.add(techIdsToSampleIds.get(info.getSampleIdentifier()));
                                           }
                                       }
                                   }
-                                  String additionalMessage="";
-                                 if(sampleSb.length() > 0) {
-                                    additionalMessage = "<br>The following samples have children or datasets:<br>";
-                                    additionalMessage += sampleSb.toString();
+                                 String additionalMessage="";
+                                 if(samplesWithChildren > 0) {
+                                    additionalMessage += "<br>There are " + samplesWithChildren + " sample(s) with children samples, these relationships will be broken but the children will remain:<br>";
+                                    for(String sample : samplesWithChildrenToDisplay) {
+                                        additionalMessage += "<br>" + sample;
+                                    }
+                                    if(samplesWithChildren > MAX_DISPLAY_SIZE) {
+                                        additionalMessage += "<br>and " + (samplesWithChildren-MAX_DISPLAY_SIZE) + " more";
+                                    }
+                                    additionalMessage += "<br>";
                                   }
-                                 if(sampleChildrenInfo.size() >= 10) {
-                                     additionalMessage += "<br>... and possibly more";
-                                 }
-                                 additionalMessage += "<br>";
+                                 if(samplesWithDataSets > 0) {
+                                     additionalMessage += "<br>There are " + samplesWithDataSets + " sample(s) with data sets, these will be deleted with the sample:<br>";
+                                     for(String sample : samplesWithDataSetsToDisplay) {
+                                         additionalMessage += "<br>" + sample;
+                                     }
+                                     if(samplesWithDataSets > MAX_DISPLAY_SIZE) {
+                                         additionalMessage += "<br>and " + (samplesWithDataSets-MAX_DISPLAY_SIZE) + " more";
+                                     }
+                                     additionalMessage += "<br>";
+                                   }
                                  new SampleListDeletionConfirmationDialog<TableModelRowWithObject<Sample>>(viewContext.getCommonViewContext(), samples, callback, s, additionalMessage).show();;
                                }
                           };
