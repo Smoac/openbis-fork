@@ -1,0 +1,18 @@
+Hi Xiaoli and Paul,
+
+I have gathered 288 vector sequences from nine different vendors (amersham_pharmacia, clontech, epicentre, ibi, invitrogen, neb, promega, public, and stratagene).
+
+Each vendor has its own directory. Each directory contains individual vector sequences as FASTA files. Here is the directory structure:
+
+amersham_pharmacia  CVS        ibi         neb             promega  stratagene
+clontech            epicentre  invitrogen  PlasMapVectors  public
+
+Ignore the CVS directory.
+
+PlasMapVectors is a concatenated FASTA file that contains all 288 vector sequences in one file.
+
+If you have any questions, please don't hesitate to call me on my cell phone (504-1606).
+
+Regards, 
+
+Ian

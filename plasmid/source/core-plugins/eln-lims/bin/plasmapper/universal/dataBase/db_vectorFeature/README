@@ -1,0 +1,21 @@
+
+UPDATE the PlasMapper's Vector Features Database 
+-Written by savita, For more information contact Xioli or Ian
+
+For adding sequence to the database
+
+-Header of the Sequence should be like the example shown below.
+
+example: ">ampicillin_resistance_gene2[SEL]{amp2},1015 bases, 5A8 checksum."
+
+-[SEL] is a category. Chekcout for a proper category
+-{} should contain a small string of the sequence decription, for example in above case
+ is {amp2}.
+-Sequence length is after {amp2}, Note that there should not be any space between {} and sequece
+ length
+
+
+Reindex the database after updation
+-Command for indexing the database is
+
+  formatdb -i <name of the file> -p F -o T
