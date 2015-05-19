@@ -6,15 +6,16 @@ if type -p java; then
     _java=java
 else
     echo "Java not available"
+	exit -1
 fi
 
 if [[ "$_java" ]]; then
-    version=$("$_java" -version 2>&1 | awk -F '"' '/version/ {print $2}')
+    version=$("$_java" -version 2>&1 | awk -F '"' '/version/ {print $2}'| cut -c1 -c2 -c3)
     if [[ "$version" > "1.6" ]]; then
         echo Java version $version found.
     else         
         echo Java version $version found is under the required 1.7.
-		exit -1
+        exit -1
     fi
 fi
 
