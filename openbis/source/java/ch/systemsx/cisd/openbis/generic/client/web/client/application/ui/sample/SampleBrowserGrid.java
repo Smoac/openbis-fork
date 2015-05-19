@@ -56,6 +56,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IC
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IDataRefreshCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.EntityDeletionConfirmationUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedActionWithResult;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDirectlyConnectedController;
@@ -598,50 +599,16 @@ public class SampleBrowserGrid extends AbstractEntityGrid<Sample>
                           new AbstractAsyncCallback<List<SampleChildrenInfo>>(viewContext)
                           {
                               @Override
-                              protected void process(List<SampleChildrenInfo> sampleChildrenInfo)
+                              protected void process(List<SampleChildrenInfo> sampleChildrenInfoList)
                               {
-                                  int samplesWithChildren = 0; 
-                                  int samplesWithDataSets = 0; 
-                                  final int MAX_DISPLAY_SIZE = 10;
-                                  
-                                  Set<String> samplesWithChildrenToDisplay = new HashSet<String>();
-                                  Set<String> samplesWithDataSetsToDisplay = new HashSet<String>();
-                                  
-                                  for(SampleChildrenInfo info: sampleChildrenInfo) {
-                                      if(info.getChildCount() > 0) {
-                                          samplesWithChildren++;
-                                          if(samplesWithChildren <= MAX_DISPLAY_SIZE) {
-                                              samplesWithChildrenToDisplay.add(techIdsToSampleIds.get(info.getSampleIdentifier()));
-                                          }
-                                      }
-                                      if(info.getDataSetCount() > 0) {
-                                          samplesWithDataSets++;
-                                          if(samplesWithDataSets <= MAX_DISPLAY_SIZE) {
-                                              samplesWithDataSetsToDisplay.add(techIdsToSampleIds.get(info.getSampleIdentifier()));
-                                          }
-                                      }
+                                String additionalMessage = null;
+                                 if(sampleChildrenInfoList.size() == 1) 
+                                  {
+                                      additionalMessage = EntityDeletionConfirmationUtils.getMessageForSingleSample(sampleChildrenInfoList.get(0));
                                   }
-                                 String additionalMessage="";
-                                 if(samplesWithChildren > 0) {
-                                    additionalMessage += "<br>There are " + samplesWithChildren + " sample(s) with children samples, these relationships will be broken but the children will remain:<br>";
-                                    for(String sample : samplesWithChildrenToDisplay) {
-                                        additionalMessage += "<br>" + sample;
-                                    }
-                                    if(samplesWithChildren > MAX_DISPLAY_SIZE) {
-                                        additionalMessage += "<br>and " + (samplesWithChildren-MAX_DISPLAY_SIZE) + " more";
-                                    }
-                                    additionalMessage += "<br>";
-                                  }
-                                 if(samplesWithDataSets > 0) {
-                                     additionalMessage += "<br>There are " + samplesWithDataSets + " sample(s) with data sets, these will be deleted with the sample:<br>";
-                                     for(String sample : samplesWithDataSetsToDisplay) {
-                                         additionalMessage += "<br>" + sample;
-                                     }
-                                     if(samplesWithDataSets > MAX_DISPLAY_SIZE) {
-                                         additionalMessage += "<br>and " + (samplesWithDataSets-MAX_DISPLAY_SIZE) + " more";
-                                     }
-                                     additionalMessage += "<br>";
-                                   }
+                                 else {
+                                     additionalMessage = EntityDeletionConfirmationUtils.getMessageForMultipleSamples(sampleChildrenInfoList, techIdsToSampleIds);
+                                 }
                                  new SampleListDeletionConfirmationDialog<TableModelRowWithObject<Sample>>(viewContext.getCommonViewContext(), samples, callback, s, additionalMessage).show();;
                                }
                           };

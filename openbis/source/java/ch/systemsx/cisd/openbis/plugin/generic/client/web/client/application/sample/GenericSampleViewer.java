@@ -53,6 +53,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.propert
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleListDeletionConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ExternalHyperlink;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.SectionsPanel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.EntityDeletionConfirmationUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModels;
@@ -182,47 +183,16 @@ abstract public class GenericSampleViewer extends AbstractViewerWithVerticalSpli
 
                         //we need info for just 1 sample/                   
                         List<TechId> sampleIds = new ArrayList<TechId>(Arrays.asList(TechId.create(getOriginalData())));
-                        //                           new ArrayList<TechId>();
-                        //                    sampleIds.add(TechId.create(getOriginalData()));
-
                         viewContext.getCommonService().getSampleChildrenInfo(sampleIds, true, 
                                 new AbstractAsyncCallback<List<SampleChildrenInfo>>(viewContext)
                                 {
                             @Override
                             protected void process(List<SampleChildrenInfo> info)
                             {
-                                final int MAX_INFO_SIZE = 10;
                                 SampleChildrenInfo sampleInfo = info.get(0);
+                                
+                                additionalMessage.append(EntityDeletionConfirmationUtils.getMessageForSingleSample(sampleInfo));
 
-                                StringBuffer sampleSb = new StringBuffer();
-                                StringBuffer dataSetSb = new StringBuffer();
-                                for (String child : sampleInfo.getDerivedSamples())
-                                {
-                                    sampleSb.append("<br>" + child);
-                                }
-                                for (String ds : sampleInfo.getDataSets())
-                                {
-                                    dataSetSb.append("<br>" + ds);
-                                }
-
-                                if(sampleSb.length() > 0) {
-                                    additionalMessage.append("<br>The sample has " +  sampleInfo.getChildCount() + " children samples, these relationships will be broken but the children will remain:");
-                                    additionalMessage.append("<br>");
-                                    additionalMessage.append(sampleSb);
-                                    if(sampleInfo.getChildCount() > MAX_INFO_SIZE ) {
-                                        additionalMessage.append("<br> and " + (sampleInfo.getChildCount()-MAX_INFO_SIZE) + " more");
-                                    }
-                                    additionalMessage.append("<br>");
-                                }
-                                if(dataSetSb.length() > 0) {
-                                    additionalMessage.append("<br>The sample has " + sampleInfo.getDataSetCount() + " datasets, these will be deleted with the sample:");
-                                    additionalMessage.append("<br>");
-                                    additionalMessage.append(dataSetSb);
-                                    if(sampleInfo.getDataSetCount() > MAX_INFO_SIZE) {
-                                        additionalMessage.append("<br>and " + (sampleInfo.getDataSetCount()-MAX_INFO_SIZE) + " more");
-                                    }
-                                    additionalMessage.append("<br>");
-                                }
                                 new SampleListDeletionConfirmationDialog(getViewContext()
                                         .getCommonViewContext(), getOriginalDataAsSingleton(), callback,
                                         getOriginalData(), additionalMessage.toString()).show();     
