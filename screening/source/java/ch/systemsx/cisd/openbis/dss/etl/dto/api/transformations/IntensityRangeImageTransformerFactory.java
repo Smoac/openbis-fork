@@ -73,7 +73,7 @@ public class IntensityRangeImageTransformerFactory implements IImageTransformerF
                         EnumSet<Channel> channels = IntensityRescaling.getUsedRgbChannels(image);
                         if (channels.size() != 1)
                         {
-                            return IntensityRescaling.rescaleIntensityLevelTo8Bits(image, levels);
+                            return IntensityRescaling.rescaleAllIntensityLevelTo8Bits(image, levels);
                         }
                         return IntensityRescaling.rescaleIntensityLevelTo8Bits(image, levels,
                                 channels.iterator().next());

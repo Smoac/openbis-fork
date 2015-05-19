@@ -23,6 +23,7 @@ import java.util.EnumSet;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 import ch.systemsx.cisd.base.image.IImageTransformer;
 import ch.systemsx.cisd.base.image.IImageTransformerFactory;
+import ch.systemsx.cisd.common.image.ImageHistogram;
 import ch.systemsx.cisd.common.image.IntensityRescaling;
 import ch.systemsx.cisd.common.image.IntensityRescaling.Channel;
 import ch.systemsx.cisd.common.image.IntensityRescaling.Levels;
@@ -61,6 +62,15 @@ public class AutoRescaleIntensityImageTransformerFactory implements IImageTransf
                         EnumSet<Channel> channels = IntensityRescaling.getUsedRgbChannels(image);
                         if (channels.size() != 1)
                         {
+                            ImageHistogram histogram = ImageHistogram.calculateHistogram(image);
+                            boolean isGray = histogram.isGray();
+                            if (isGray)
+                            {
+                                Levels levels = IntensityRescaling.computeLevels(
+                                        Math.round(image.getHeight() * image.getWidth() * threshold), 
+                                        histogram.getRedHistogram());
+                                return IntensityRescaling.rescaleAllIntensityLevelTo8Bits(image, levels);
+                            }
                             return image;
                         } else
                         {
@@ -72,7 +82,7 @@ public class AutoRescaleIntensityImageTransformerFactory implements IImageTransf
                                     channel);
                         }
                     }
-                    Levels levels = IntensityRescaling.computeLevels(toGrayScale(image, Channel.RED), threshold);
+                    Levels levels = IntensityRescaling.computeLevels(image, threshold);
                     return IntensityRescaling.rescaleIntensityLevelTo8Bits(image, levels);
                 }
             };

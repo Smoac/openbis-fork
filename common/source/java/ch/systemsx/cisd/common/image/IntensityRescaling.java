@@ -438,6 +438,11 @@ public class IntensityRescaling
      */
     public static BufferedImage rescaleIntensityLevelTo8Bits(BufferedImage image, Levels levels)
     {
+        return rescaleIntensityLevelTo8Bits(new GrayscalePixels(image), levels);
+    }
+
+    public static BufferedImage rescaleAllIntensityLevelTo8Bits(BufferedImage image, Levels levels)
+    {
         final int width = image.getWidth();
         final int height = image.getHeight();
         final BufferedImage rescaledImage =
