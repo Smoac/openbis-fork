@@ -54,6 +54,9 @@ public class Simple16BitImageDropboxTest extends AbstractImageDropboxTestCase
                 new ImageLoader(dataSet, sessionToken).tileColumn(2).channel("DAPI"));
         imageChecker.check(new File(getTestDataFolder(), "1_2_DAPI_256x256.png"), 
                 new ImageLoader(dataSet, sessionToken).tileColumn(2).channel("DAPI").mode("thumbnail256x256"));
+        imageChecker.check(new File(getTestDataFolder(), "1_2_DAPI_256x256_250_500.png"), 
+                new ImageLoader(dataSet, sessionToken).tileColumn(2).channel("DAPI")
+                    .rescaling("", 250, 500).mode("thumbnail256x256"));
         imageChecker.check(new File(getTestDataFolder(), "1_2_DAPI_1392x1040.png"), 
                 new ImageLoader(dataSet, sessionToken).tileColumn(2).channel("DAPI").mode("thumbnail1392x1040"));
         imageChecker.check(new File(getTestDataFolder(), "1_2_Merged_1392x1040.png"), 
