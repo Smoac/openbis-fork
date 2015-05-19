@@ -17,8 +17,8 @@
 package ch.systemsx.cisd.etlserver.registrator.api.v2;
 
 import ch.systemsx.cisd.common.action.IDelegatedActionWithResult;
-import ch.systemsx.cisd.common.jython.all.IJythonFunction;
-import ch.systemsx.cisd.common.jython.all.IJythonInterpreter;
+import ch.systemsx.cisd.common.jython.IJythonFunction;
+import ch.systemsx.cisd.common.jython.IJythonInterpreter;
 import ch.systemsx.cisd.etlserver.ITopLevelDataSetRegistratorDelegate;
 import ch.systemsx.cisd.etlserver.registrator.DataSetFile;
 import ch.systemsx.cisd.etlserver.registrator.v2.AbstractProgrammableTopLevelDataSetHandler;

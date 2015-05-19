@@ -14,15 +14,13 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.jython.all;
+package ch.systemsx.cisd.common.jython;
 
-public interface IJythonInterpreter
+public interface IJythonObject
 {
-    void exec(String scriptString, String scriptFile);
+    String getJythonType();
 
-    void set(String variableName, Object object);
+    boolean isInteger();
 
-    void releaseResources();
-
-    IJythonFunction tryJythonFunction(String name);
+    int asInteger();
 }

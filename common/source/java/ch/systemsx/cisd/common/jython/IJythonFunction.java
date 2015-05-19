@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 ETH Zuerich, CISD
+ * Copyright 2015 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.jython27;
+package ch.systemsx.cisd.common.jython;
 
-/**
- * @author pkupczyk
- */
-class JythonScriptBatch extends JythonScriptLines
+public interface IJythonFunction
 {
+    IJythonObject invoke(Object... arguments);
 
+    /**
+     * @returns number of arguments for this function, -1 when cannot determine
+     */
+    int getArgumentCount();
 }

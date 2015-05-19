@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.jython27;
+package ch.systemsx.cisd.common.jython.v27;
 
 import org.apache.log4j.Logger;
 import org.python27.core.CompileMode;
@@ -31,7 +31,7 @@ import ch.systemsx.cisd.common.resource.Resources;
 /**
  * @author pkupczyk
  */
-public class PythonInterpreter27 extends org.python27.util.PythonInterpreter
+class PythonInterpreter27 extends org.python27.util.PythonInterpreter
 {
 
     private Logger log = LogFactory.getLogger(LogCategory.OPERATION, getClass());
@@ -133,7 +133,7 @@ public class PythonInterpreter27 extends org.python27.util.PythonInterpreter
 
     public void exec(String data, String filename)
     {
-        String[] pythonPath = JythonUtils.getScriptDirectoryPythonPath(filename);
+        String[] pythonPath = ch.systemsx.cisd.common.jython.JythonUtils.getScriptDirectoryPythonPath(filename);
 
         try
         {

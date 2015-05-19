@@ -19,7 +19,7 @@ package ch.systemsx.cisd.common.jython;
 /**
  * @author pkupczyk
  */
-class JythonScriptBatch extends JythonScriptLines
+public class JythonScriptBatch extends JythonScriptLines
 {
 
 }

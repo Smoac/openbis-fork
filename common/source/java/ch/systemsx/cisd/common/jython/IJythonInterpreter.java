@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 ETH Zuerich, CISD
+ * Copyright 2015 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,30 +14,15 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.jython27;
+package ch.systemsx.cisd.common.jython;
 
-/**
- * @author pkupczyk
- */
-class JythonScript
+public interface IJythonInterpreter
 {
+    void exec(String scriptString, String scriptFile);
 
-    private String script;
+    void set(String variableName, Object object);
 
-    public JythonScript(String script)
-    {
-        this.script = script;
-    }
+    void releaseResources();
 
-    public String[] getLines()
-    {
-        if (script == null)
-        {
-            return new String[] {};
-        } else
-        {
-            return script.split("\n", -1);
-        }
-    }
-
+    IJythonFunction tryJythonFunction(String name);
 }

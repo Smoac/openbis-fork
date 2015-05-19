@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.jython27;
+package ch.systemsx.cisd.common.jython.v27;
 
 import org.python27.core.CompileMode;
 import org.python27.core.CompilerFlags;
@@ -22,10 +22,12 @@ import org.python27.core.Py;
 import org.python27.core.PyException;
 import org.python27.core.PyObject;
 
+import ch.systemsx.cisd.common.jython.JythonScriptLines;
+
 /**
  * @author pkupczyk
  */
-public class JythonScriptCommand extends JythonScriptLines
+class JythonScriptCommand extends JythonScriptLines
 {
 
     public boolean isNextCommand(String line)

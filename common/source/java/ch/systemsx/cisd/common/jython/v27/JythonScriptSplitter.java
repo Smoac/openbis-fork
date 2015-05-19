@@ -14,11 +14,15 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.jython27;
+package ch.systemsx.cisd.common.jython.v27;
 
 import java.util.List;
 
 import org.python27.core.PyException;
+
+import ch.systemsx.cisd.common.jython.JythonScript;
+import ch.systemsx.cisd.common.jython.JythonScriptBatch;
+import ch.systemsx.cisd.common.jython.JythonScriptBatches;
 
 /**
  * Splits jython code into smaller batches to overcome 64KB script size limitation.

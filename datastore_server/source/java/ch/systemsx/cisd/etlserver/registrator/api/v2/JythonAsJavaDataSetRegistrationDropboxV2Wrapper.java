@@ -20,9 +20,9 @@ import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.NotImplementedException;
-import ch.systemsx.cisd.common.jython.all.IJythonFunction;
-import ch.systemsx.cisd.common.jython.all.IJythonInterpreter;
-import ch.systemsx.cisd.common.jython.all.IJythonObject;
+import ch.systemsx.cisd.common.jython.IJythonFunction;
+import ch.systemsx.cisd.common.jython.IJythonInterpreter;
+import ch.systemsx.cisd.common.jython.IJythonObject;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationContext;

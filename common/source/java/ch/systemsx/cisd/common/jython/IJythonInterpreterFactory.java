@@ -14,14 +14,10 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.jython.all;
+package ch.systemsx.cisd.common.jython;
 
-public interface IJythonFunction
+
+public interface IJythonInterpreterFactory
 {
-    IJythonObject invoke(Object... arguments);
-
-    /**
-     * @returns number of arguments for this function, -1 when cannot determine
-     */
-    int getArgumentCount();
+    IJythonInterpreter createInterpreter();
 }

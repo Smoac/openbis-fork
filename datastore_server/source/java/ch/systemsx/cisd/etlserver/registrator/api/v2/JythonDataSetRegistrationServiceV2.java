@@ -19,7 +19,7 @@ package ch.systemsx.cisd.etlserver.registrator.api.v2;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.action.IDelegatedActionWithResult;
-import ch.systemsx.cisd.common.jython.all.IJythonInterpreter;
+import ch.systemsx.cisd.common.jython.IJythonInterpreter;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.etlserver.ITopLevelDataSetRegistratorDelegate;

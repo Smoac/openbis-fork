@@ -19,7 +19,7 @@ package ch.systemsx.cisd.common.jython;
 /**
  * @author pkupczyk
  */
-class JythonScript
+public class JythonScript
 {
 
     private String script;
