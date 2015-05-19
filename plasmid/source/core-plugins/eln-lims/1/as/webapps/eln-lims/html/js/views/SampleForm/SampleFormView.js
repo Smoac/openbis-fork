@@ -69,9 +69,9 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 			//Delete
 			var warningText = null;
 			if(this._sampleFormModel.sample.children.length > 0 || this._sampleFormModel.datasets.length > 0) {
-				warningText = 'Are you sure you want to delete this sample? The next relationships will be broken but the entities will remain.'
+				warningText = ''
 				if(this._sampleFormModel.sample.children.length > 0) {
-					warningText += "\n- The sample has " + this._sampleFormModel.sample.children.length + " children samples:";
+					warningText += "\n- The sample has " + this._sampleFormModel.sample.children.length + " children samples, these relationships will be broken but the children will remain:";
 					var numChildrenToShow = this._sampleFormModel.sample.children.length;
 					if(numChildrenToShow > 10) {
 						numChildrenToShow = 10;
@@ -84,7 +84,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 					}
 				}
 				if(this._sampleFormModel.datasets.length > 0) {
-					warningText += "\n- The sample has " + this._sampleFormModel.datasets.length + " datasets:";
+					warningText += "\n- The sample has " + this._sampleFormModel.datasets.length + " datasets, these will be deleted with the sample:";
 					var numDatasetsToShow = this._sampleFormModel.datasets.length;
 					if(numDatasetsToShow > 10) {
 						numDatasetsToShow = 10;
