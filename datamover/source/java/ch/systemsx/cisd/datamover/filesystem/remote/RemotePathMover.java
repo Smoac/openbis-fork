@@ -472,13 +472,21 @@ public final class RemotePathMover implements IStoreMover
 
     private class LastLineHandler implements ITextHandler
     {
+        private static final long MAX_LOG_TIME_INTERVAL = 60000;
         private long lastTimestamp;
+        private long lastLogTimestamp;
+        private long logTimeInterval = 1000;
 
         @Override
         public void handle(String text)
         {
-            operationLog.trace("rsync progress: " + text);
             lastTimestamp = timeProvider.getTimeInMilliseconds();
+            if (lastTimestamp > lastLogTimestamp + logTimeInterval)
+            {
+                operationLog.info("rsync progress: " + text);
+                lastLogTimestamp = lastTimestamp;
+                logTimeInterval = Math.min(MAX_LOG_TIME_INTERVAL, logTimeInterval * 2);
+            }
         }
 
         public long getLastTimestamp()
