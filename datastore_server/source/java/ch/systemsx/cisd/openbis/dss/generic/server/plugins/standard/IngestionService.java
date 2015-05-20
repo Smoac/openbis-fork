@@ -135,7 +135,7 @@ public abstract class IngestionService<T extends DataSetInformation> extends Agg
         this.dssProperties = dssProperties;
         this.openBisService = openBisService;
         this.mailClient = mailClient;
-        this.shareId = dssProperties.getProperty(AGGREGATION_SERVICE_SHARE_ID);
+        this.shareId = instanceProperties.getProperty(AGGREGATION_SERVICE_SHARE_ID);
     }
 
     @Override
