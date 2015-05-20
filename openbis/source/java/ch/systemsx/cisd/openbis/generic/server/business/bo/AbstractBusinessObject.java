@@ -37,7 +37,6 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.IDataStoreServiceFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.DataSetTypeWithoutExperimentChecker;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.EntityPropertiesConverter;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAttachmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationGroupDAO;
@@ -798,19 +797,6 @@ abstract class AbstractBusinessObject implements IDAOFactory
 
     protected void assignDataSetToSampleAndExperiment(DataPE data, SamplePE newSample, ExperimentPE experiment)
     {
-        if (newSample != null)
-        {
-            SamplePE previousSampleOrNull = data.tryGetSample();
-            if (newSample.equals(previousSampleOrNull))
-            {
-                return; // nothing to change
-            }
-            if (newSample.getSpace() == null)
-            {
-                throw SampleUtils.createWrongSampleException(data, newSample, "the new sample is shared");
-            }
-        }
-
         NewDataSetToSampleExperimentAssignmentManager assignmentManager = new NewDataSetToSampleExperimentAssignmentManager(dataSetTypeChecker);
         assignmentManager.assignDataSetAndRelatedComponents(data, newSample, experiment);
         assignmentManager.performAssignment(relationshipService, session);

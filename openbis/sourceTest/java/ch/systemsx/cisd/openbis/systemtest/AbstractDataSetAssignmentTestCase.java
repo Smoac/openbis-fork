@@ -27,7 +27,6 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.entitygraph.DataSetNode;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.entitygraph.EntityGraphGenerator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.entitygraph.ExperimentNode;
@@ -47,9 +46,11 @@ import ch.systemsx.cisd.openbis.systemtest.base.auth.RolePermutator;
 import ch.systemsx.cisd.openbis.systemtest.base.auth.SpaceDomain;
 
 /**
- * Abstract super class for all tests assigning a data set to a sample or an experiment. Subclasses for the different versions of the API have only to
- * implement {@link #reassignToExperiment(String, String, String)} and {@link #reassignToSample(String, String, String)}.
- * 
+ * Abstract super class for all tests assigning a data set to a sample or an experiment.
+ * Subclasses for the different versions of the API have only to implement 
+ * {@link #reassignToExperiment(String, String, String)} and
+ * {@link #reassignToSample(String, String, String)}.
+ *
  * @author anttil
  * @author Franz-Josef Elmer
  */
@@ -67,7 +68,7 @@ public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
     Space sourceSpace;
 
     Space destinationSpace;
-
+    
     Space unrelatedAdmin;
 
     Space unrelatedObserver;
@@ -812,7 +813,7 @@ public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
                 "not connected to any experiment and the data set type ("
                         + dataset.getDataSetType().getCode()
                         + ") doesn't match one of the following regular expressions:   NO-EXP-.* ,   NE.*  .";
-        AssertionUtil.assertStarts("The dataset '" + dataset.getCode()
+        assertEquals("The dataset '" + dataset.getCode()
                 + "' cannot be connected to the sample '" + sample.getIdentifier()
                 + "' because the new sample is " + postfix, ex.getMessage());
     }

@@ -31,7 +31,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.NewContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 
 /**
  * @author Franz-Josef Elmer
@@ -147,8 +146,4 @@ public interface IDataBO extends IEntityBusinessObject
      */
     public boolean isStorageConfirmed();
 
-    /**
-     * Set sample and experiment of a specified data set
-     */
-    public void assignDataSetToSampleAndExperiment(DataPE data, SamplePE sample, ExperimentPE experiment);
 }

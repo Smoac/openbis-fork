@@ -156,21 +156,6 @@ public class RelationshipUtils
     {
         updateModificationDateAndModifier(dataSet.tryGetSample(), session);
         dataSet.setSample(sample);
-        if (sample != null)
-        {
-            if (dataSet.getExperiment() != sample.getExperiment())
-            {
-                if (dataSet.getExperiment() != null)
-                {
-                    updateModificationDateAndModifier(dataSet.getExperiment(), session);
-                }
-                if (sample.getExperiment() != null)
-                {
-                    updateModificationDateAndModifier(sample.getExperiment(), session);
-                }
-            }
-            dataSet.setExperiment(sample.getExperiment());
-        }
         updateModificationDateAndModifier(sample, session);
         updateModificationDateAndModifier(dataSet, session);
     }
@@ -189,7 +174,6 @@ public class RelationshipUtils
     {
         updateModificationDateAndModifier(dataSet.getExperiment(), session);
         dataSet.setExperiment(experiment);
-        dataSet.setSample(null);
         updateModificationDateAndModifier(experiment, session);
         updateModificationDateAndModifier(dataSet, session);
     }
