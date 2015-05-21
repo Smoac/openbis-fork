@@ -334,7 +334,7 @@ var FormUtil = new function() {
 		}
 		$fieldset.append($controlGroup);
 		
-		var $component = $("<p>", {'class' : 'form-control-static', 'style' : 'border:none; box-shadow:none; background:transparent; white-space: pre;'});
+		var $component = $("<p>", {'class' : 'form-control-static', 'style' : 'border:none; box-shadow:none; background:transparent; word-wrap: break-word; white-space: pre-line;'});
 		if(cssForText) {
 			$component.css(cssForText);
 		}
