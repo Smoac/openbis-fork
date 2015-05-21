@@ -319,7 +319,12 @@ var FormUtil = new function() {
 		var $fieldset = $('<div>');
 		
 		var $controlGroup = $('<div>', {class : 'form-group'});
-		var $controlLabel = $('<label>', {class : 'control-label ' + this.labelColumnClass}).text(label + ":");
+		
+		var $controlLabel = $('<label>', {class : 'control-label ' + this.labelColumnClass});
+		if(label) {
+			$controlLabel.text(label + ":");
+		}
+		
 		var $controls = $('<div>', {class : 'controls ' + this.controlColumnClass });
 		
 		$controlGroup.append($controlLabel);
