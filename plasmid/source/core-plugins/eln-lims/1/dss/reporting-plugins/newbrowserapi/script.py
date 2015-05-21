@@ -395,9 +395,11 @@ def insertUpdateSample(tr, parameters, tableBuilder):
 		sample.setParentSampleIdentifiers(sampleParents);
 	
 	#Create new sample children
+	sampleChildrenNewIdentifiers = [];
 	if sampleChildrenNew != None:
 		for newSampleChild in sampleChildrenNew:
 			child = tr.createNewSample(newSampleChild["identifier"], newSampleChild["sampleTypeCode"]); #Create Sample given his id
+			sampleChildrenNewIdentifiers.append(newSampleChild["identifier"]);
 			child.setParentSampleIdentifiers([sampleIdentifier]);
 			for key in newSampleChild["properties"].keySet():
 				propertyValue = unicode(newSampleChild["properties"][key]);
@@ -406,11 +408,11 @@ def insertUpdateSample(tr, parameters, tableBuilder):
 				
 				child.setPropertyValue(key,propertyValue);
 		
-	#Add sample children
+	#Add sample children that are not newly created
 	if sampleChildren != None:
 		for sampleChildIdentifier in sampleChildren:
-			child = getSampleByIdentifierForUpdate(tr, sampleChildIdentifier); #Retrieve Sample
-			if child != None: #The new created ones will not be found
+			if sampleChildIdentifier not in sampleChildrenNewIdentifiers:
+				child = getSampleByIdentifierForUpdate(tr, sampleChildIdentifier); #Retrieve Sample
 				childParents = child.getParentSampleIdentifiers();
 				childParents.add(sampleIdentifier);
 				child.setParentSampleIdentifiers(childParents);
