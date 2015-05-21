@@ -28,6 +28,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 
 /**
  * 
@@ -142,7 +144,19 @@ public class Utils
         }
         ExperimentPE experiment = new ExperimentPE();
         experiment.setId(experimentNode.getId());
-        experiment.setCode(experimentNode.getCode());
+        String identifier = experimentNode.getIdentifier();
+        if (identifier.startsWith("///"))
+        {
+            identifier = "/S0/P0/" + experimentNode.getCode();
+        }
+        ExperimentIdentifier experimentIdentifier = ExperimentIdentifierFactory.parse(identifier);
+        experiment.setCode(experimentIdentifier.getExperimentCode());
+        ProjectPE project = new ProjectPE();
+        project.setCode(experimentIdentifier.getProjectCode());
+        SpacePE space = new SpacePE();
+        space.setCode(experimentIdentifier.getSpaceCode());
+        project.setSpace(space);
+        experiment.setProject(project);
         return experiment;
     }
     

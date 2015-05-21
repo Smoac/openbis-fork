@@ -20,6 +20,7 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.fail;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.test.annotation.Rollback;
@@ -32,8 +33,10 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.entitygraph.EntityGra
 import ch.systemsx.cisd.openbis.generic.server.business.bo.entitygraph.EntityNode;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.entitygraph.ExperimentNode;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.entitygraph.SampleNode;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.systemtest.base.BaseTest;
+import ch.systemsx.cisd.openbis.systemtest.base.builder.SessionBuilder;
 
 /**
  * Abstract super class of all entity deletion system tests.
@@ -454,6 +457,23 @@ public abstract class AbstractEntityDeletionTestCase extends BaseTest
                 + "DS4[NECT], components: DS5[NET] DS6[NET]\n", renderGraph(g));
         assertUnmodifiedAndUndeleted(g);
     }
+    
+    @Test
+    @Rollback(true)
+    public void testTrashSampleWithComponentsFromAnInvisibleSpace()
+    {
+        EntityGraphGenerator g = parseAndCreateGraph("/S1/S1, components: /S2/S2\n");
+        SessionBuilder sessionBuilder = aSession().withSpaceRole(RoleWithHierarchy.SPACE_ADMIN, 
+                entityGraphManager.getSample(g.s(1)).getSpace());
+        String userSessionToken = create(sessionBuilder);
+        
+        String userID = sessionBuilder.getUserID();
+        String sample = entityGraphManager.getSample(g.s(2)).getIdentifier();
+        failTrashSample(userSessionToken, g.s(1), createExpectedErrorMessage(userID, sample));
+        
+        assertEquals("/S1/S1, components: /S2/S2\n", renderGraph(g));
+        assertUnmodifiedAndUndeleted(g);
+    }
 
     @Test
     public final void testTrashDataSets()
@@ -566,9 +586,15 @@ public abstract class AbstractEntityDeletionTestCase extends BaseTest
     
     private void failTrashSample(SampleNode sampleNode, String expectedErrorMessage)
     {
+        String userSessionToken = createAdminUser();
+        failTrashSample(userSessionToken, sampleNode, expectedErrorMessage);
+    }
+
+    private void failTrashSample(String userSessionToken, SampleNode sampleNode, String expectedErrorMessage)
+    {
         try
         {
-            deleteSamples(sampleNode);
+            deleteSamples(userSessionToken, sampleNode);
             fail("UserFailureException expected");
         } catch (UserFailureException ex)
         {
@@ -589,6 +615,13 @@ public abstract class AbstractEntityDeletionTestCase extends BaseTest
                 + " is a component of the " + render(relatedEntity) 
                 + " which belongs to the " + render(outsiderNode) + " which is outside the deletion set.";
     }
+    
+    protected String createExpectedErrorMessage(String userID, String... samples)
+    {
+        return "Authorization failure: Can not delete samples " + Arrays.asList(samples) 
+                + " because user " + userID + " does not have enough privileges.";
+    }
+    
 
     private String render(EntityNode entityNode)
     {
@@ -623,12 +656,17 @@ public abstract class AbstractEntityDeletionTestCase extends BaseTest
 
     private void deleteSamples(SampleNode...sampleNodes)
     {
+        deleteSamples(createAdminUser(), sampleNodes);
+    }
+
+    private void deleteSamples(String userSessionToken, SampleNode... sampleNodes)
+    {
         List<String> samplePermIds = new ArrayList<String>();
         for (SampleNode sampleNode : sampleNodes)
         {
             samplePermIds.add(entityGraphManager.getSamplePermIdOrNull(sampleNode));
         }
-        deleteSamples(samplePermIds, createAdminUser());
+        deleteSamples(samplePermIds, userSessionToken);
         flushAndClearHibernateSession();
     }
     

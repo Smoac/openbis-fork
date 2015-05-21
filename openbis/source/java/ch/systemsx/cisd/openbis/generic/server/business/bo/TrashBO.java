@@ -28,9 +28,19 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 
+import org.apache.commons.lang.StringUtils;
 import org.springframework.dao.DataAccessException;
 
+import ch.systemsx.cisd.common.collection.CollectionUtils;
+import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
+import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.server.authorization.DefaultAccessController;
+import ch.systemsx.cisd.openbis.generic.server.authorization.RoleWithIdentifier;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.DataPEPredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ExperimentPEPredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.PersistentEntityPredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SamplePEPredicate;
 import ch.systemsx.cisd.openbis.generic.server.batch.BatchOperationExecutor;
 import ch.systemsx.cisd.openbis.generic.server.batch.IBatchOperation;
 import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
@@ -44,6 +54,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
@@ -54,6 +65,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
@@ -513,6 +525,11 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
         
         private final Map<EntityKind, Set<TechId>> entityIdsByKind = new HashMap<EntityKind, Set<TechId>>();
         private final List<TrashBatchOperation> operations = new ArrayList<TrashBatchOperation>();
+        private final PersonPE person;
+        private final List<RoleWithIdentifier> allowedRoles;
+        private final ExperimentPEPredicate experimentPredicate;
+        private final SamplePEPredicate samplesPredicate;
+        private final DataPEPredicate dataSetPredicate;
         
         TrashOperationsManager(Session session, DeletionPE deletion, IDAOFactory daoFactory)
         {
@@ -524,15 +541,57 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
             {
                 entityIdsByKind.put(entityKind, new HashSet<TechId>());
             }
+            person = session.tryGetPerson();
+            allowedRoles = DefaultAccessController.getUserRoles(person);
+            experimentPredicate = new ExperimentPEPredicate();
+            samplesPredicate = new SamplePEPredicate();
+            dataSetPredicate = new DataPEPredicate();
         }
         
         void addTrashOperation(EntityKind entityKind, List<TechId> entityIds, boolean isOriginalDeletion)
         {
             if (entityIds.isEmpty() == false)
             {
+                List<Long> ids = TechId.asLongs(entityIds);
+                if (entityKind == EntityKind.EXPERIMENT)
+                {
+                    List<ExperimentPE> experiments = daoFactory.getExperimentDAO().listByIDs(ids);
+                    assertAuthorization(experimentPredicate, experiments, "experiments");
+                } else if (entityKind == EntityKind.SAMPLE)
+                {
+                    List<SamplePE> samples = daoFactory.getSampleDAO().listByIDs(ids);
+                    assertAuthorization(samplesPredicate, samples, "samples");
+                } else if (entityKind == EntityKind.DATA_SET)
+                {
+                    List<DataPE> dataSets = daoFactory.getDataDAO().listByIDs(ids);
+                    assertAuthorization(dataSetPredicate, dataSets, "data sets");
+                }
                 entityIdsByKind.get(entityKind).addAll(entityIds);
                 IDeletionDAO deletionDAO = daoFactory.getDeletionDAO();
                 operations.add(0, new TrashBatchOperation(entityKind, entityIds, deletion, deletionDAO, isOriginalDeletion));
+            }
+        }
+
+        @SuppressWarnings({ "unchecked", "rawtypes" })
+        private void assertAuthorization(PersistentEntityPredicate entityPredicate, 
+                List<? extends IIdentifierHolder> entities, String entityKindName)
+        {
+            List<String> identifiers = new ArrayList<String>();
+            String errorMessage = "";
+            for (IIdentifierHolder identifierHolder : entities)
+            {
+                Status status = entityPredicate.evaluate(person, allowedRoles, identifierHolder);
+                if (status.isOK() == false)
+                {
+                    identifiers.add(identifierHolder.getIdentifier());
+                    errorMessage = status.tryGetErrorMessage();
+                }
+            }
+            if (identifiers.isEmpty() == false)
+            {
+                throw new AuthorizationFailureException("Can not delete " + entityKindName + " " 
+                        + CollectionUtils.abbreviate(identifiers, 10) + " because user " 
+                        + errorMessage);
             }
         }
         
@@ -576,6 +635,7 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
                 RelationshipUtils.updateModificationDateAndModifierOfRelatedEntitiesOfDataSets(dataSets, session);
             }
         }
+        
     }
 
     private static class TrashBatchOperation implements IBatchOperation<TechId>

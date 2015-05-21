@@ -35,7 +35,7 @@ import ch.systemsx.cisd.openbis.systemtest.AbstractEntityDeletionTestCase;
 
 
 /**
- * Implementation of {@link AbstractEntityDeletionTestCase} based in V3 API.
+ * Implementation of {@link AbstractEntityDeletionTestCase} based on V3 API.
  *
  * @author Franz-Josef Elmer
  */
@@ -44,6 +44,7 @@ public class EntityDeletionTest extends AbstractEntityDeletionTestCase
 {
 
     private static final String CONTEXT_DESCRIPTION = " (Context: [])";
+    
     @Autowired
     protected IApplicationServerApi v3api;
 
@@ -57,6 +58,12 @@ public class EntityDeletionTest extends AbstractEntityDeletionTestCase
     protected String createExpectedErrorMessage(EntityNode originalNode, EntityNode relatedEntity, EntityNode outsiderNode)
     {
         return super.createExpectedErrorMessage(originalNode, relatedEntity, outsiderNode) + CONTEXT_DESCRIPTION;
+    }
+
+    @Override
+    protected String createExpectedErrorMessage(String userID, String... samples)
+    {
+        return super.createExpectedErrorMessage(userID, samples) + CONTEXT_DESCRIPTION;
     }
 
     @Override

@@ -49,13 +49,16 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RelationshipTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
@@ -85,6 +88,8 @@ public final class TrashBOTest extends AbstractBOTest
 
     private int dataSetTableSequenceId;
 
+    private Session session;
+
     @Override
     @BeforeMethod
     public void beforeMethod()
@@ -92,13 +97,15 @@ public final class TrashBOTest extends AbstractBOTest
         super.beforeMethod();
         boFactory = context.mock(ICommonBusinessObjectFactory.class);
         dataSetTable = context.mock(IDataSetTable.class);
-        trashBO =
-                new TrashBO(daoFactory, boFactory, ManagerTestTool.EXAMPLE_SESSION,
-                        managedPropertyEvaluatorFactory, null, null);
+        session = ManagerTestTool.createSession();
+        RoleAssignmentPE roleAssignment = new RoleAssignmentPE();
+        roleAssignment.setRole(RoleCode.ADMIN);
+        session.tryGetPerson().addRoleAssignment(roleAssignment);
+        trashBO = new TrashBO(daoFactory, boFactory, session, managedPropertyEvaluatorFactory, null, null);
         context.checking(new Expectations()
             {
                 {
-                    allowing(boFactory).createDataSetTable(ManagerTestTool.EXAMPLE_SESSION);
+                    allowing(boFactory).createDataSetTable(session);
                     will(returnValue(dataSetTable));
 
                     allowing(relationshipTypeDAO).tryFindRelationshipTypeByCode(BasicConstant.CONTAINER_COMPONENT_INTERNAL_RELATIONSHIP);
@@ -111,10 +118,10 @@ public final class TrashBOTest extends AbstractBOTest
                     type.setId(CHILDREN_PARENT_RELATIONSHIP_ID);
                     will(returnValue(type));
                     
-                    allowing(boFactory).createSampleLister(ManagerTestTool.EXAMPLE_SESSION);
+                    allowing(boFactory).createSampleLister(session);
                     will(returnValue(sampleLister));
                     
-                    allowing(boFactory).createDatasetLister(ManagerTestTool.EXAMPLE_SESSION);
+                    allowing(boFactory).createDatasetLister(session);
                     will(returnValue(datasetLister));
                 }
             });
@@ -144,7 +151,7 @@ public final class TrashBOTest extends AbstractBOTest
         final String reason = EXAMPLE_REASON;
         DeletionPE deletionPE = createDeletion(reason);
         assertEquals(reason, deletionPE.getReason());
-        assertEquals(ManagerTestTool.EXAMPLE_SESSION.tryGetPerson(), deletionPE.getRegistrator());
+        assertEquals(session.tryGetPerson(), deletionPE.getRegistrator());
 
         context.assertIsSatisfied();
     }
@@ -161,8 +168,7 @@ public final class TrashBOTest extends AbstractBOTest
                     one(deletionDAO).getByTechId(deletionId);
                     will(returnValue(dummyDeletion));
 
-                    one(deletionDAO).revert(dummyDeletion,
-                            ManagerTestTool.EXAMPLE_SESSION.tryGetPerson());
+                    one(deletionDAO).revert(dummyDeletion, session.tryGetPerson());
                 }
             });
         trashBO.revertDeletion(deletionId);
