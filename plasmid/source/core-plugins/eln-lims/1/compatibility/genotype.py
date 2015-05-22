@@ -16,7 +16,6 @@ def calculate():
     typesForGenotype = configuration[sampleTypeCode]
     
     genotypeResult = ""
-    sampleCodesInGenotype = {} #To avoid to add repetitions
     isFirst = True
     parentIterables = [{
                         "child" : entity,
@@ -31,15 +30,13 @@ def calculate():
             parentTypeCode = getSampleTypeCode(parent)
             if parentTypeCode in typesForGenotype:
                 parentCode = parent.code()
-                if parentCode not in sampleCodesInGenotype: #To avoid to add repetitions
-                    #Check if is the first to add the separator or not
-                    if isFirst:
-                        isFirst = False
-                    else:
-                        genotypeResult = genotypeResult + "\n"
-                    #Add the code
-                    genotypeResult = genotypeResult + parent.code() + " " + str(getAnnotationsForParent(parent, child)) #TO-DO Change entity by the child of the parent for each iteration
-                    sampleCodesInGenotype[parent.code()] = True
+                 #Check if is the first to add the separator or not
+                if isFirst:
+                    isFirst = False
+                else:
+                    genotypeResult = genotypeResult + "\n"
+                #Add the code
+                genotypeResult = genotypeResult + parent.code() + " " + str(getAnnotationsForParent(parent, child)) #TO-DO Change entity by the child of the parent for each iteration
             else:
                 parentIterables.append({
                                         "child" : parent,
