@@ -7,9 +7,10 @@ import xml.etree.ElementTree as ET
 ##
 ## Definitions
 ##
+UPDATES_ENABLED = False
 
 sampleTypesToVerify = ["YEAST","POMBE"]
-logLevelsToPrint = ["ERROR", "REPORT", "MANUAL-FIX"] #INFO not included, use it for debug only
+logLevelsToPrint = ["ERROR", "REPORT", "MANUAL-FIX", "UPDATED"] #INFO not included, use it for debug only
 
 ##
 ## Logging
@@ -152,13 +153,22 @@ def verify(tr, sample):
     if areAnnotationDuplicated(sample):
         logManualFix("Case 6 - Same annotation coming from different parents: ", sample.getSample().getRegistrator().getUserId(), sample.getSampleIdentifier(), "?", "?", "?")
         newAnnotationsReady = False
-    if newAnnotationsReady:
+    global UPDATES_ENABLED;
+    if newAnnotationsReady and UPDATES_ENABLED:
         global numberOfCanBeUpdated;
         numberOfCanBeUpdated = numberOfCanBeUpdated + 1;
+        log("UPDATED", str(newAnnotations))
+        sample =  tr.makeSampleMutable(sample);
         #1. Create new annotations XML
-        
-        #2. Add LOST parents
-        
+        newAnnotationsRoot = ET.Element("root");
+        for newAnnotation in newAnnotations:
+            newAnnotationsNode = ET.SubElement(newAnnotationsRoot, "Sample")
+            for newAttribute in newAnnotation:
+                newAnnotationsNode.attrib[newAttribute] = newAnnotation[newAttribute];
+            if getValueOrNull(newAnnotation, "PLASMID_RELATIONSHIP") == "LOT": #2. Add LOST parents
+                sample.getParentSampleIdentifiers().add(newAnnotation["identifier"]);
+        sample.setPropertyValue("ANNOTATIONS_STATE", ET.tostring(newAnnotationsRoot, encoding='utf-8'));
+
 def areAnnotationDuplicated(sample):
     annotated = {}; #They should be parents of the sample and not been missing
     annotationsRoot = getAnnotationsRootNodeFromSample(sample);
@@ -226,7 +236,8 @@ def getAnnotationMap(annotation):
     map = {};
     for key in annotation.attrib:
         value = getValueOrNull(annotation.attrib, key)
-        map[key] = value;
+        if value is not None:
+            map[key] = value;
     return map
 
 def areAnnotationsEqual(annotationA, annotationB):
