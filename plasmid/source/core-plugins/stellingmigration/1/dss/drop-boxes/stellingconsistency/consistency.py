@@ -18,6 +18,7 @@ logLevelsToPrint = ["ERROR", "REPORT", "MANUAL-FIX"] #INFO not included, use it 
 numberOfManualFixes = 0
 numberOfAutoFixesDeletes = 0
 numberOfAutoFixesLost = 0
+numberOfCanBeUpdated = 0
 
 def logManualFix(message, creator, sampleIdentifier, affectedSampleToBeAnnotated, creatorOfAncestor, ancestor):
     log("MANUAL-FIX", message + "\t" + creator + "\t" + sampleIdentifier + "\t" + affectedSampleToBeAnnotated + "\t" + creatorOfAncestor + "\t" + ancestor)
@@ -85,12 +86,16 @@ def process(tr):
     global numberOfManualFixes
     global numberOfAutoFixesDeletes
     global numberOfAutoFixesLost
+    global numberOfCanBeUpdated
     log("REPORT", "FOUND " + str(numberOfAutoFixesDeletes) + " AUTOMATIC DELETE FIXES!")
     log("REPORT", "FOUND " + str(numberOfAutoFixesLost) + " AUTOMATIC LOST FIXES!")
+    log("REPORT", "UPDATABLE " + str(numberOfCanBeUpdated) + " SAMPLES!")
     log("REPORT", "REQUIRED " + str(numberOfManualFixes-1) + " MANUAL FIXES!") #-1 For the Header
     log("REPORT", "FINISH VERIFICATION REPORT!")
 
 def verify(tr, sample):
+    newAnnotations = [];
+    newAnnotationsReady = True;
     annotationsRoot = getAnnotationsRootNodeFromSample(sample)
     #1.Annotations hierarchy
     requiredAnnotationsFound = getRequiredAnnotations(sample) #To detect case 4
@@ -103,6 +108,7 @@ def verify(tr, sample):
             try:
                 if isChild(sample, annotatedSampleIdentifier):
                     #This is an annotation from a parent, this is by default correct and don't needs further inspection.
+                    newAnnotations.append(getAnnotationMap(annotation));
                     log("INFO", "GOOT ANNOTATION AT SAMPLE: " + sample.getSampleIdentifier() + " ANNOTATION: " + annotatedSampleIdentifier)
                 else:
                     foundAnnotationAndAncestor = getAnnotationAndAncestor(annotatedSampleIdentifier, sample.getParentSampleIdentifiers())
@@ -113,31 +119,58 @@ def verify(tr, sample):
                         if areAnnotationsEqual(annotation, foundAnnotation) and areAnnotationsEqual(foundAnnotation, annotation):
                             log("AUTO-FIX", "CASE 1 - GOOD REPEATED ANNOTATION THAT CAN BE DELETED - AT SAMPLE: " + sample.getSampleIdentifier() + " FOR ANNOTATION: " + annotatedSampleIdentifier + " FOUND ORIGINAL AT: " + foundAncestor.getSampleIdentifier())
                         else:
-                            #log("MANUAL-FIX", "CASE 3 - THE ANNOTATION: " + annotatedSampleIdentifier + " IS DIFFERENT AT SAMPLE: " + sample.getSampleIdentifier() + " AND ORIGINAL ANCESTOR:" + foundAncestor.getSampleIdentifier())
                             logManualFix("Case 3 - The annotation is different on the sample and his ancestor.", sample.getSample().getRegistrator().getUserId(), sample.getSampleIdentifier(), annotatedSampleIdentifier, foundAncestor.getSample().getRegistrator().getUserId(), foundAncestor.getSampleIdentifier())
+                            newAnnotationsReady = False
                     elif foundAncestor is None:
                         logManualFix("Case 1 - The annotated sample is not an ancestor, is missing on the hierarchy for some reason.", sample.getSample().getRegistrator().getUserId(), sample.getSampleIdentifier(), annotatedSampleIdentifier, "?", "?")
-                        #log("MANUAL-FIX", "CASE 1 - THE ANNOTATED SAMPLE IS NOT AN ANCESTOR - FOR SAMPLE: " + sample.getSampleIdentifier() + " ANNOTATION WITH MISSING ANCESTOR:" + annotatedSampleIdentifier)
+                        newAnnotationsReady = False
                     elif foundAnnotation is None:
                         logManualFix("Case 2 - The annotated sample is not annotated on the appropriate ancestor.", sample.getSample().getRegistrator().getUserId(), sample.getSampleIdentifier(), annotatedSampleIdentifier, foundAncestor.getSample().getRegistrator().getUserId(), foundAncestor.getSampleIdentifier())
-                        #log("MANUAL-FIX", "CASE 2 - THE ANNOTATED SAMPLE IS NOT ANNOTATED WHERE IT SHOULD - FOR SAMPLE: " + sample.getSampleIdentifier() + " ANNOTATION: " + annotatedSampleIdentifier +" NOT AT " + foundAncestor.getSampleIdentifier())
+                        newAnnotationsReady = False
             except Exception, err:
                 log("ERROR", "PROCESSING ANNOTATIONS XML CHILD " + sample.getSampleIdentifier() + " ERR: " + str(err))
     #2.Missing Parents Annotations
     for parentIdentifier in requiredAnnotationsFound:
         if not requiredAnnotationsFound[parentIdentifier]:
-            #log("MANUAL-FIX", "CASE 4 - MISSING ANNOTATIONS ON SAMPLE: " + sample.getSampleIdentifier() + " FOR PARENT:" + parentIdentifier)
             logManualFix("Case 4 - Missing annotation on sample for parent.", sample.getSample().getRegistrator().getUserId(), sample.getSampleIdentifier(), parentIdentifier, "-", "-")
+            newAnnotationsReady = False
     #3.Missing Annotations LOST
     for parentAnnotationIdentifier in requiredAnnotationsFromParents:
         if not requiredAnnotationsFromParents[parentAnnotationIdentifier]:
+            lostPermId = getRequiredAnnotationsFromParentsPermId(sample, parentAnnotationIdentifier)
+            if lostPermId is None:
+                raise Exception("Lost PermId Not Found");
+            newAnnotations.append({ "permId" : lostPermId, "identifier" : parentAnnotationIdentifier, "PLASMID_RELATIONSHIP" : "LOT" });
             log("AUTO-FIX-2", "CASE 2 - MISSING LOST ANNOTATIONS ON SAMPLE: " + sample.getSampleIdentifier() + " FOR LOST ANNOTATION: " + parentAnnotationIdentifier + " PRESENT INTO ONE OF THE PARENTS")
     #4 Check parents from contained
     expectedParents = getContainedFromAnnotations(sample)
     lostParents = areParentsPresent(sample, expectedParents)
     if len(lostParents) > 0:
         logManualFix("Case 5 - Missing Parents present in Contained: ", sample.getSample().getRegistrator().getUserId(), sample.getSampleIdentifier(), str(lostParents), "?", "?")
-
+        newAnnotationsReady = False
+    #5 Check repeated parents in annotations
+    if areAnnotationDuplicated(sample):
+        logManualFix("Case 6 - Same annotation coming from different parents: ", sample.getSample().getRegistrator().getUserId(), sample.getSampleIdentifier(), "?", "?", "?")
+        newAnnotationsReady = False
+    if newAnnotationsReady:
+        global numberOfCanBeUpdated;
+        numberOfCanBeUpdated = numberOfCanBeUpdated + 1;
+        #1. Create new annotations XML
+        
+        #2. Add LOST parents
+        
+def areAnnotationDuplicated(sample):
+    annotated = {}; #They should be parents of the sample and not been missing
+    annotationsRoot = getAnnotationsRootNodeFromSample(sample);
+    if annotationsRoot is not None:
+        for annotation in annotationsRoot:
+            permId = getValueOrNull(annotation.attrib, "permId");
+            if permId in annotated:
+                return True
+            else:
+                annotated[permId] = True
+    return False
+            
 def getContainedFromAnnotations(sample):
     contained = []; #They should be parents of the sample and not been missing
     annotationsRoot = getAnnotationsRootNodeFromSample(sample);
@@ -155,6 +188,19 @@ def areParentsPresent(sample, parents):
         if not isPresent:
             notPresent.append(parent);
     return notPresent
+
+def getRequiredAnnotationsFromParentsPermId(sample, identifier):
+    for parentIdentifier in sample.getParentSampleIdentifiers():
+        if ("/FRY" in parentIdentifier) or ("/FRS" in parentIdentifier): #Only check Yeast and Pombe Parents
+            parent = getSampleFromCache(parentIdentifier)
+            parentAnnotationsRoot = getAnnotationsRootNodeFromSample(parent)
+            if parentAnnotationsRoot is not None:
+                for parentAnnotation in parentAnnotationsRoot:
+                    parentAnnotationIdentifier = parentAnnotation.attrib["identifier"]
+                    if "/FRP" in parentAnnotationIdentifier: #Only require Plasmids
+                        if identifier == parentAnnotationIdentifier:
+                            return parentAnnotation.attrib["permId"]
+    return None
 
 def getRequiredAnnotationsFromParents(sample):
     requiredAnnotationsFromParents = {}
@@ -175,6 +221,13 @@ def getRequiredAnnotations(sample):
         if "/FRP" in parentIdentifier: #Only require Plasmids
             requiredAnnotationsFound[parentIdentifier] = False
     return requiredAnnotationsFound
+
+def getAnnotationMap(annotation):
+    map = {};
+    for key in annotation.attrib:
+        value = getValueOrNull(annotation.attrib, key)
+        map[key] = value;
+    return map
 
 def areAnnotationsEqual(annotationA, annotationB):
     for key in annotationA.attrib:
