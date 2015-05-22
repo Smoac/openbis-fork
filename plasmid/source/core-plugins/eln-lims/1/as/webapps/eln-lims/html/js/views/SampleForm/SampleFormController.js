@@ -345,7 +345,7 @@ function SampleFormController(mainController, mode, sample) {
 			
 			var callbackOk = function() {
 				Util.unblockUI();
-				if((isCopyWithNewCode || _this._sampleFormModel.mode === FormMode.CREATE) && _this._sampleFormModel.isELNSubExperiment) {
+				if((isCopyWithNewCode || _this._sampleFormModel.mode === FormMode.CREATE || _this._sampleFormModel.mode === FormMode.EDIT) && _this._sampleFormModel.isELNSubExperiment) {
 					mainController.sideMenu.refreshSubExperiment(_this._sampleFormModel.sample.experimentIdentifierOrNull);
 				}
 				

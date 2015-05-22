@@ -106,6 +106,8 @@ function ExperimentFormController(mainController, mode, experiment) {
 						if(_this._experimentFormModel.mode === FormMode.CREATE) {
 							var isInventory = profile.isInventorySpace(experimentSpace);
 							_this._mainController.sideMenu.refreshExperiment(experiment, isInventory);
+						} else if(_this._experimentFormModel.mode === FormMode.EDIT) {
+							_this._mainController.sideMenu.updateExperimentName(experiment);
 						}
 						_this._experimentFormModel.isFormDirty = false;
 						_this._mainController.changeView("showExperimentPageFromIdentifier", experimentIdentifier);

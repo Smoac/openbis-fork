@@ -46,17 +46,20 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		// TITLE
 		//
 		var $formTitle = null;
-		
+		var nameLabel = this._sampleFormModel.sample.properties[profile.propertyReplacingCode];
+		if(!nameLabel) {
+			nameLabel = this._sampleFormModel.sample.code;
+		}
 		var title = null;
 		switch(this._sampleFormModel.mode) {
 	    	case FormMode.CREATE:
 	    		title = "Create " + this._sampleFormModel.sample.sampleTypeCode;
 	    		break;
 	    	case FormMode.EDIT:
-	    		title = "Update " + this._sampleFormModel.sample.code;
+	    		title = "Update " + nameLabel;
 	    		break;
 	    	case FormMode.VIEW:
-	    		title = "View " + this._sampleFormModel.sample.code;
+	    		title = "View " + nameLabel;
 	    		break;
 		} 
 		
@@ -192,9 +195,9 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		
 		$formColumn.append($codeField);
 		
-		if(profile.hideCodes) {
-			$codeField.hide();
-		}
+//		if(profile.hideCodes) {
+//			$codeField.hide();
+//		}
 		
 		//
 		// Registration and modification info

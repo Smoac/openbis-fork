@@ -95,6 +95,37 @@ function SideMenuWidgetController(mainController) {
         this._sideMenuWidgetView.repaint();
     };
 
+    this._getUniqueId = function(uniqueId) {
+    	var itemsToCheck = [this._sideMenuWidgetModel.menuStructure];
+    	var currentItem = null;
+    	while(currentItem = itemsToCheck.shift()) {
+    		if(currentItem.newMenuIfSelected) {
+    			for (var i = 0; i < currentItem.newMenuIfSelected.children.length; i++) {
+        			var currentItemChild = currentItem.newMenuIfSelected.children[i];
+            		if(currentItemChild.uniqueId === uniqueId) {
+            			return currentItemChild;
+            		}
+            		itemsToCheck.push(currentItemChild);
+        		}
+    		}
+    	}
+    };
+    
+    this.updateExperimentName = function(experiment) {
+    	var node = this._getUniqueId(experiment.identifier);
+    	
+    	var displayName = null;
+        if (profile.hideCodes) {
+            displayName = experiment.properties[profile.propertyReplacingCode];
+        }
+        if (!displayName) {
+            displayName = experiment.code;
+        }
+        
+    	node.displayName = displayName;
+    	this._sideMenuWidgetView.repaint();
+    }
+    
     this.refreshExperiment = function(experiment, isInventory) {
         var projectIdentifierEnd = experiment.identifier.lastIndexOf("/");
         var projectIdentifier = experiment.identifier.substring(0, projectIdentifierEnd);
