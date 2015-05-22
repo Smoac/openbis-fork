@@ -103,6 +103,8 @@ def verify(tr, sample):
     requiredAnnotationsFromParents = getRequiredAnnotationsFromParents(sample) #To detect case 5
     if annotationsRoot is not None:
         for annotation in annotationsRoot:
+            if getValueOrNull(annotation.attrib, "PLASMID_RELATIONSHIP") == "LOT": #Skip auto generated
+                continue;
             annotatedSampleIdentifier = annotation.attrib["identifier"] #Identifier from annotated sample
             requiredAnnotationsFound[annotatedSampleIdentifier] = True
             requiredAnnotationsFromParents[annotatedSampleIdentifier] = True
@@ -150,9 +152,9 @@ def verify(tr, sample):
         logManualFix("Case 5 - Missing Parents present in Contained: ", sample.getSample().getRegistrator().getUserId(), sample.getSampleIdentifier(), str(lostParents), "?", "?")
         newAnnotationsReady = False
     #5 Check repeated parents in annotations
-    if areAnnotationDuplicated(sample):
-        logManualFix("Case 6 - Same annotation coming from different parents: ", sample.getSample().getRegistrator().getUserId(), sample.getSampleIdentifier(), "?", "?", "?")
-        newAnnotationsReady = False
+#     if areAnnotationDuplicated(sample):
+#         logManualFix("Case 6 - Same annotation coming from different parents: ", sample.getSample().getRegistrator().getUserId(), sample.getSampleIdentifier(), "?", "?", "?")
+#         newAnnotationsReady = False
     global UPDATES_ENABLED;
     if newAnnotationsReady and UPDATES_ENABLED:
         global numberOfCanBeUpdated;
