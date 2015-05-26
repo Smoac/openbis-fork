@@ -19,6 +19,8 @@ package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard;
 import java.io.File;
 import java.util.Properties;
 
+import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
+
 /**
  * Archiver which distributes and tars data sets to be archived on archive destinations specified by the space to which the data set belongs. In
  * addition all meta data of the data set, its related experiment and sample are stored in a tab-separated value file inside the tarred data set.
@@ -44,7 +46,8 @@ public class TarArchiver extends RsyncArchiver
         @Override
         public IDataSetFileOperationsManager create()
         {
-            return new DistributedPackagingDataSetFileOperationsManager(properties, new TarPackageManager(properties));
+            TarPackageManager packageManager = new TarPackageManager(properties, new Log4jSimpleLogger(operationLog));
+            return new DistributedPackagingDataSetFileOperationsManager(properties, packageManager);
         }
     }
 

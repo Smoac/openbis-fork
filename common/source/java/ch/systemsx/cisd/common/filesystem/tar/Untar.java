@@ -29,8 +29,11 @@ import java.util.Map;
 
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
+import org.apache.commons.io.FileUtils;
 
 import ch.systemsx.cisd.base.unix.Unix;
+import ch.systemsx.cisd.common.io.MonitoredIOStreamCopier;
+import ch.systemsx.cisd.common.logging.ConsoleLogger;
 
 /**
  * Simple interface to the Apache commons tar classes for extracting tar files to a directory.
@@ -44,20 +47,24 @@ public class Untar implements Closeable
 
     private final TarArchiveInputStream in;
 
-    private final byte[] buf;
-
     private final boolean setOwner;
+
+    private final MonitoredIOStreamCopier copier;
 
     public Untar(final File tarFile) throws FileNotFoundException
     {
         this(tarFile, DEFAULT_BUFFER_SIZE);
     }
 
-    public Untar(final File tarFile, final int bufferSize)
-            throws FileNotFoundException
+    public Untar(final File tarFile, final int bufferSize) throws FileNotFoundException
     {
+        this(tarFile, new MonitoredIOStreamCopier(bufferSize));
+    }
+    
+    public Untar(final File tarFile, MonitoredIOStreamCopier copier) throws FileNotFoundException
+    {
+        this.copier = copier;
         this.in = new TarArchiveInputStream(new FileInputStream(tarFile));
-        this.buf = new byte[bufferSize];
         this.setOwner = (Unix.isOperational() && Unix.getEuid() == 0);
     }
 
@@ -186,17 +193,12 @@ public class Untar implements Closeable
         entryFile.setLastModified(entry.getModTime().getTime());
     }
 
-    private void extractFileContent(final File entryFile)
-            throws FileNotFoundException, IOException
+    private void extractFileContent(final File entryFile) throws FileNotFoundException, IOException
     {
         final FileOutputStream out = new FileOutputStream(entryFile);
-        int length;
         try
         {
-            while ((length = in.read(buf)) > 0)
-            {
-                out.write(buf, 0, length);
-            }
+            copier.copy(in, out);
         } finally 
         {
             out.close();
@@ -207,10 +209,10 @@ public class Untar implements Closeable
     public void close() throws IOException
     {
         in.close();
+        copier.close();
     }
 
-    public static void main(String[] args) throws FileNotFoundException,
-            IOException
+    public static void main(String[] args) throws FileNotFoundException, IOException
     {
         if (args.length != 2)
         {
@@ -222,7 +224,9 @@ public class Untar implements Closeable
         Untar untar = null;
         try
         {
-            untar = new Untar(tarFile);
+            MonitoredIOStreamCopier copier = new MonitoredIOStreamCopier((int) FileUtils.ONE_MB);
+            copier.setLogger(new ConsoleLogger());
+            untar = new Untar(tarFile, copier);
             untar.extract(directory);
             untar.close();
         } finally
