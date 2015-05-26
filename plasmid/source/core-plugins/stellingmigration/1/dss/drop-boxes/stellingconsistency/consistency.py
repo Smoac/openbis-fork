@@ -286,7 +286,7 @@ def isChild(sample, identifier):
     
 def getAnnotationsRootNodeFromSample(sample):
     annotations = sample.getPropertyValue("ANNOTATIONS_STATE")
-    if '<root>' in annotations:
+    if '<root' in annotations:
         try:
             return ET.fromstring(annotations)
         except Exception:
