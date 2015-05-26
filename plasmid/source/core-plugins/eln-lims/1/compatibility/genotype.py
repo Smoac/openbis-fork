@@ -56,7 +56,7 @@ def getAnnotationsForParent(parent, child):
             annotationValue = ""
         annotation = "\"" + str(annotationValue) + "\""
         return str(relationshipValue) + " " + str(annotation)
-    return None
+    return "No Annotations Found"
     
 def getAnnotationFromPermId(annotations, permId, key):
     dom = xml.dom.minidom.parseString(annotations)
