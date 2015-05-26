@@ -47,7 +47,7 @@ def calculate():
 def getAnnotationsForParent(parent, child):
     permId = parent.entityPE().getPermId()
     annotations = child.propertyValue("ANNOTATIONS_STATE")
-    if (annotations is not None) and ('<root>' in annotations):
+    if (annotations is not None) and ('<root' in annotations):
         relationshipValue = getAnnotationFromPermId(annotations, permId, "PLASMID_RELATIONSHIP")
         if relationshipValue is None:
             relationshipValue = "None"
