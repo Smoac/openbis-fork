@@ -56,9 +56,9 @@ public class MonitoredIOStreamCopierTest extends AssertJUnit
         copier.close();
 
         assertEquals("INFO: Reading statistics for input stream: 2.50 MB bytes in 3 chunks took 5sec. "
-                + "Average speed: 489.95 KB/sec, median speed: 605.70 KB/sec.\n"
+                + "Average speed: 489.95 KB/sec. Median speed: 605.70 KB/sec.\n"
                 + "INFO: Writing statistics for output stream: 2.50 MB bytes in 3 chunks took 11sec. "
-                + "Average speed: 239.48 KB/sec, median speed: 280.21 KB/sec.\n", logger.toString());
+                + "Average speed: 239.48 KB/sec. Median speed: 280.21 KB/sec.\n", logger.toString());
     }
 
     @Test
@@ -76,11 +76,48 @@ public class MonitoredIOStreamCopierTest extends AssertJUnit
         copier.close();
 
         assertEquals("INFO: Reading statistics for input stream: 3.50 MB bytes in 4 chunks took 11sec. "
-                + "Average speed: 328.05 KB/sec, median speed: 301.18 KB/sec.\n"
+                + "Average speed: 328.05 KB/sec. Median speed: 301.18 KB/sec.\n"
                 + "INFO: Writing statistics for output stream: 3.50 MB bytes in 4 chunks took 18sec. "
-                + "Average speed: 194.36 KB/sec, median speed: 150.81 KB/sec.\n", logger.toString());
+                + "Average speed: 194.36 KB/sec. Median speed: 150.81 KB/sec.\n", logger.toString());
+    }
+    
+    @Test
+    public void testCopyingWithChunksToSmallForMedianCalculation()
+    {
+        MonitoredIOStreamCopier copier = new MonitoredIOStreamCopier((int) FileUtils.ONE_MB);
+        ITimeProvider timeProvider = new MockTimeProvider(123456789, 1125, 0, 2500, 0, 0, 0, 3400, 0, 6790);
+        copier.setTimeProvider(timeProvider);
+        MockLogger logger = new MockLogger();
+        copier.setLogger(logger);
+        
+        copy(copier, (int) (0.5 * FileUtils.ONE_MB));
+        copy(copier, (int) (0.5 * FileUtils.ONE_MB));
+        copier.close();
+        
+        assertEquals("INFO: Reading statistics for input stream: 1.00 MB bytes in 2 chunks took 5sec. "
+                + "Average speed: 226.30 KB/sec.\n"
+                + "INFO: Writing statistics for output stream: 1.00 MB bytes in 2 chunks took 9sec. "
+                + "Average speed: 110.23 KB/sec.\n", logger.toString());
     }
 
+    @Test
+    public void testCopyingWithChunksToSmallForAverageCalculation()
+    {
+        MonitoredIOStreamCopier copier = new MonitoredIOStreamCopier((int) FileUtils.ONE_MB);
+        ITimeProvider timeProvider = new MockTimeProvider(123456789, 1125, 0, 2500, 0, 0, 0, 3400, 0, 6790);
+        copier.setTimeProvider(timeProvider);
+        MockLogger logger = new MockLogger();
+        copier.setLogger(logger);
+        
+        copy(copier, (int) (0.25 * FileUtils.ONE_MB));
+        copy(copier, (int) (0.5 * FileUtils.ONE_MB));
+        copier.close();
+        
+        assertEquals("INFO: Reading statistics for input stream: 768.00 KB bytes in 2 chunks took 5sec.\n"
+                + "INFO: Writing statistics for output stream: 768.00 KB bytes in 2 chunks took 9sec.\n",
+                logger.toString());
+    }
+    
     private void copy(MonitoredIOStreamCopier copier, int numberOfBytes)
     {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
