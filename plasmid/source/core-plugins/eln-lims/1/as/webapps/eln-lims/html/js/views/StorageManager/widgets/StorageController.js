@@ -32,6 +32,7 @@ function StorageController(configOverride) {
 				_this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.columnProperty] = posY;
 				_this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.boxProperty] = label;
 				// TO-DO: Get box size for that name
+				_this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.boxSizeProperty] = null;
 			}
 			
 			
@@ -56,6 +57,7 @@ function StorageController(configOverride) {
 				_this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.rowProperty] = posX;
 				_this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.columnProperty] = posY;
 				_this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.boxProperty] = null;
+				_this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.boxSizeProperty] = null;
 			}
 			// Delete old state in model and view and set new sate in model and view
 			_this._storageModel.resetBoxInfo(posX, posY, null, null, null);
