@@ -190,6 +190,8 @@ var FormUtil = new function() {
 			$component.attr('required', '');
 		}
 		
+		$component.append($("<option>").attr('value', '').attr('selected', '').text(''));
+		
 		var alphabet = [null,'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'];
 		for(var i = 1; i <= numRows; i++) {
 			var rowLetter = alphabet[i];

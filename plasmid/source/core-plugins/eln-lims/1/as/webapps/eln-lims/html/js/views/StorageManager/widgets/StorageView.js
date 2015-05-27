@@ -153,7 +153,7 @@ function StorageView(storageController, storageModel, gridView) {
 		
 		$container.append(this._positionContainer);
 		if(this._storageModel.config.positionSelector === "on" && this._storageModel.sample) {
-			this.showPosField(this._storageModel.sample.properties[this._storageModel.storagePropertyGroup.boxSizeProperty]);
+			this.showPosField(this._storageModel.sample.properties[this._storageModel.storagePropertyGroup.boxSizeProperty], false);
 		}
 		
 		if(this._storageModel.isDisabled) {
@@ -219,7 +219,7 @@ function StorageView(storageController, storageModel, gridView) {
 		}
 	}
 	
-	this.showPosField = function(boxSizeCode) {
+	this.showPosField = function(boxSizeCode, isNew) {
 		if(this._storageModel.config.positionSelector === "on" && this._storageModel.sample) {
 			//Pointer to himself
 			var _this = this;
@@ -237,8 +237,12 @@ function StorageView(storageController, storageModel, gridView) {
 //					_this._storageController.setBoxPosition($(this).val()); //TO-DO Check Position is not already used by other sample that is not this one
 				}
 			});
-				
-			this._positionField.val(this._storageModel.sample.properties[this._storageModel.storagePropertyGroup.positionProperty]);
+			
+			if(isNew) {
+				_this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.positionProperty] = null;
+			} else {
+				this._positionField.val(this._storageModel.sample.properties[this._storageModel.storagePropertyGroup.positionProperty]);
+			}
 			this._positionField.show();
 		}
 	}
