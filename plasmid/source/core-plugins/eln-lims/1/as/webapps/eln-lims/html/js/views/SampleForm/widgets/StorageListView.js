@@ -45,6 +45,10 @@ function StorageListView(storageListController, storageListModel) {
 			property : 'boxProperty',
 			sortable : true
 		}, {
+			label : 'Box Size',
+			property : 'boxSizeProperty',
+			sortable : true
+		}, {
 			label : 'Position',
 			property : 'positionProperty',
 			sortable : true
@@ -76,6 +80,7 @@ function StorageListView(storageListController, storageListModel) {
 							rowProperty : sample.properties[storagePropertyGroup.rowProperty],
 							columnProperty : sample.properties[storagePropertyGroup.columnProperty],
 							boxProperty : sample.properties[storagePropertyGroup.boxProperty],
+							boxSizeProperty : sample.properties[storagePropertyGroup.boxSizeProperty],
 							positionProperty : sample.properties[storagePropertyGroup.positionProperty],
 							userProperty : userProperty
 						});
@@ -163,6 +168,7 @@ function StorageListView(storageListController, storageListModel) {
 			storageSelector : "on",
 			userSelector : "off",
 			boxSelector: "on",
+			boxSizeSelector: "on",
 			rackSelector: "on",
 			contentsSelector: "off",
 			positionSelector: "on"

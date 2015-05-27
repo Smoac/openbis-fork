@@ -132,6 +132,22 @@ var FormUtil = new function() {
 		return $storageDropDown;
 	}
 	
+	this.getDefaultStorageBoxSizesDropDown = function(id, isRequired) {
+		if(!this.profile.storagesConfiguration["isEnabled"]) {
+			return null;
+		}
+		var storageBoxesVocabularyProp = this.profile.getPropertyType(this.profile.storagesConfiguration["STORAGE_PROPERTIES"][0]["BOX_SIZE_PROPERTY"]);
+		if(!storageBoxesVocabularyProp) {
+			return null;
+		}
+		var $storageBoxesDropDown = this.getFieldForPropertyType(storageBoxesVocabularyProp);
+		$storageBoxesDropDown.attr('id', id);
+		if (isRequired) {
+			$storageBoxesDropDown.attr('required', '');
+		}
+		return $storageBoxesDropDown;
+	}
+	
 	this.getDefaultStoragesDropDown = function(id, isRequired) {
 		if(!this.profile.storagesConfiguration["isEnabled"]) {
 			return null;

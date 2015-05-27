@@ -18,7 +18,7 @@ function SampleFormController(mainController, mode, sample) {
 	this._mainController = mainController;
 	this._sampleFormModel = new SampleFormModel(mode, sample);
 	this._sampleFormView = new SampleFormView(this, this._sampleFormModel);
-	this._storageControllers = [];
+//	this._storageControllers = [];
 	
 	this.init = function($container) {
 		// Loading datasets
@@ -59,20 +59,21 @@ function SampleFormController(mainController, mode, sample) {
 		return this._storageControllers[this._storageControllers.length-1];
 	}
 	
-	this.addStorageController = function(storagePropertyGroupName) {
-		var storageController = new StorageController({
-			title : null,
-			storagePropertyGroupSelector : "off",
-			storageSelector : "on",
-			userSelector : "off",
-			boxSelector: "on",
-			rackSelector: "on",
-			contentsSelector: "off",
-			positionSelector: "on"
-		});
-		storageController.getModel().storagePropertyGroup = profile.getStoragePropertyGroup(storagePropertyGroupName);
-		this._storageControllers.push(storageController);
-	}
+//	this.addStorageController = function(storagePropertyGroupName) {
+//		var storageController = new StorageController({
+//			title : null,
+//			storagePropertyGroupSelector : "off",
+//			storageSelector : "on",
+//			userSelector : "off",
+//			boxSelector: "on",
+//			boxSizeSelector: "on",
+//			rackSelector: "on",
+//			contentsSelector: "off",
+//			positionSelector: "on"
+//		});
+//		storageController.getModel().storagePropertyGroup = profile.getStoragePropertyGroup(storagePropertyGroupName);
+//		this._storageControllers.push(storageController);
+//	}
 	
 	this.deleteSample = function(reason) {
 		var _this = this;

@@ -103,6 +103,7 @@ $.extend(DefaultProfile.prototype, {
 					propertyGroup.rowProperty = storagePropertyGroups[i]["ROW_PROPERTY"];
 					propertyGroup.columnProperty = storagePropertyGroups[i]["COLUMN_PROPERTY"];
 					propertyGroup.boxProperty = storagePropertyGroups[i]["BOX_PROPERTY"];
+					propertyGroup.boxSizeProperty = storagePropertyGroups[i]["BOX_SIZE_PROPERTY"];
 					propertyGroup.userProperty = storagePropertyGroups[i]["USER_PROPERTY"];
 					propertyGroup.positionProperty = storagePropertyGroups[i]["POSITION_PROPERTY"];
 					return propertyGroup;
@@ -130,6 +131,7 @@ $.extend(DefaultProfile.prototype, {
 				propertyGroups[i].rowProperty = storagePropertyGroups[i]["ROW_PROPERTY"];
 				propertyGroups[i].columnProperty = storagePropertyGroups[i]["COLUMN_PROPERTY"];
 				propertyGroups[i].boxProperty = storagePropertyGroups[i]["BOX_PROPERTY"];
+				propertyGroups[i].boxSizeProperty = storagePropertyGroups[i]["BOX_SIZE_PROPERTY"];
 				propertyGroups[i].userProperty = storagePropertyGroups[i]["USER_PROPERTY"];
 				propertyGroups[i].positionProperty = storagePropertyGroups[i]["POSITION_PROPERTY"];
 			}

@@ -470,6 +470,11 @@ createVocabularyWithTerms("STORAGE_NAMES", "Storages available on the lab", [
 										["DEFAULT_STORAGE", "Default Storage", None]
 									]);
 
+createVocabularyWithTerms("STORAGE_BOX_SIZE", "Boxes available on the lab", [
+										["1X1", "1 x 1 box", None],
+										["4X4", "4 x 4 box", None],
+										["20X40", "20 x 40 box", None]
+									]);
 ##
 ## Property Types for annotations
 ##
@@ -747,6 +752,7 @@ addPropertiesToSamples([
 	["STORAGE_ROW",			"Physical Storage",		"Storage Row",			DataType.INTEGER,					None,				"Storage Row", None, None],
 	["STORAGE_COLUMN",		"Physical Storage",		"Storage Column",		DataType.INTEGER,					None,				"Storage Column", None, None],
 	["STORAGE_BOX_NAME",	"Physical Storage",		"Storage Box Name",		DataType.VARCHAR,					None,				"Storage Box Name", None, None],
+	["STORAGE_BOX_SIZE",	"Physical Storage",		"Storage Box Size",		DataType.CONTROLLEDVOCABULARY,		"STORAGE_BOX_SIZE",	"Storage Box Size", None, None],
 	["STORAGE_USER",		"Physical Storage",		"Storage User Id",		DataType.VARCHAR,					None,				"Storage User Id", None, None],
 	["STORAGE_POSITION",	"Physical Storage",		"Storage Position",		DataType.VARCHAR,					None,				"Storage Position", None, None]
 ]);

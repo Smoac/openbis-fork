@@ -31,10 +31,14 @@ function StorageController(configOverride) {
 				_this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.rowProperty] = posX;
 				_this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.columnProperty] = posY;
 				_this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.boxProperty] = label;
+				// TO-DO: Get box size for that name
 			}
+			
+			
 			// Delete old state in model and view and set new sate in model and view
-			_this._storageModel.resetBoxInfo(posX, posY, label, null);
+			_this._storageModel.resetBoxInfo(posX, posY, label, null, null);
 			_this._storageView.showBoxName();
+			// TO-DO: Show box size for that name
 			_this._storageView.showPosField();
 			
 			if(_this._storageModel.config.contentsSelector === "on") {
@@ -54,8 +58,9 @@ function StorageController(configOverride) {
 				_this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.boxProperty] = null;
 			}
 			// Delete old state in model and view and set new sate in model and view
-			_this._storageModel.resetBoxInfo(posX, posY, null, null);
+			_this._storageModel.resetBoxInfo(posX, posY, null, null, null);
 			_this._storageView.showBoxField();
+			_this._storageView.showBoxSizeField();
 			_this._storageView.showPosField();
 			if(_this._storageModel.config.contentsSelector === "on") {
 				_this._storageView.refreshBoxContents();
@@ -100,9 +105,10 @@ function StorageController(configOverride) {
 			return labelSamplesSelected;
 		}
 		
-		this._storageModel.resetBoxInfo(null, null, null, null);
+		this._storageModel.resetBoxInfo(null, null, null, null, null);
 		this._storageView.refreshGrid();
 		this._storageView.hideBoxField();
+		this._storageView.hideBoxSizeField();
 		this._storageView.hidePosField();
 		this._storageView.refreshBoxContents();
 	}
@@ -118,8 +124,9 @@ function StorageController(configOverride) {
 	
 	this._deleteRackBoxContentStateInModelView = function() {
 		// Delete old state in model and view and set new sate in model and view
-		this._storageModel.resetBoxInfo(null, null, null, null);
+		this._storageModel.resetBoxInfo(null, null, null, null, null);
 		this._storageView.hideBoxField();
+		this._storageView.hideBoxSizeField();
 		this._storageView.hidePosField();
 		if(this._storageModel.config.contentsSelector === "on") {
 			this._storageView.refreshBoxContents();

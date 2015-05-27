@@ -24,6 +24,7 @@ function StorageManagerController(mainController) {
 		storageSelector : "on",
 		userSelector : "on",
 		boxSelector: "on",
+		boxSizeSelector: "off",
 		rackSelector: "off",
 		contentsSelector: "on",
 		positionSelector: "off"
@@ -35,6 +36,7 @@ function StorageManagerController(mainController) {
 		storageSelector : "on",
 		userSelector : "on",
 		boxSelector: "on",
+		boxSizeSelector: "on",
 		rackSelector: "on",
 		contentsSelector: "off",
 		positionSelector: "off"
@@ -70,6 +72,8 @@ function StorageManagerController(mainController) {
 			sample.properties[fromModel.storagePropertyGroup.rowProperty] = "";
 			sample.properties[fromModel.storagePropertyGroup.columnProperty] = "";
 			sample.properties[fromModel.storagePropertyGroup.boxProperty] = "";
+//	IGNORING BOX SIZE ON UPDATES, ARE NOT SUPPORTED YET
+//			sample.properties[fromModel.storagePropertyGroup.boxSizeProperty] = "";
 			sample.properties[fromModel.storagePropertyGroup.userProperty] = "";
 //	IGNORING POSITIONS ON UPDATES, ARE NOT SUPPORTED YET
 //			sample.properties[fromModel.storagePropertyGroup.positionProperty] = "";
@@ -78,6 +82,7 @@ function StorageManagerController(mainController) {
 			sample.properties[toModel.storagePropertyGroup.rowProperty] = toModel.row;
 			sample.properties[toModel.storagePropertyGroup.columnProperty] = toModel.column;
 			sample.properties[toModel.storagePropertyGroup.boxProperty] = toModel.boxName;
+//			sample.properties[toModel.storagePropertyGroup.boxSizeProperty] = "";
 			sample.properties[toModel.storagePropertyGroup.userProperty] = mainController.serverFacade.openbisServer.getSession().split("-")[0];
 //			sample.properties[toModel.storagePropertyGroup.positionProperty] = "";
 			

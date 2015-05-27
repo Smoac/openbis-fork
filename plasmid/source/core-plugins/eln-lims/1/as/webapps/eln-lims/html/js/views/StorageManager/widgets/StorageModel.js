@@ -17,13 +17,14 @@
 function StorageModel(configOverride) {
 	if(configOverride) {
 		this.config = configOverride;
-	} else {
+	} else { //Default configuration, not used anywhere, given as example
 		this.config = {
 				title : "",
 				storagePropertyGroupSelector : "on",
 				storageSelector : "on",
-				userSelector : "on",
+				userSelector : "off",
 				boxSelector: "on",
+				boxSizeSelector: "on",
 				rackSelector: "on",
 				contentsSelector: "off",
 				positionSelector: "off"
@@ -41,6 +42,7 @@ function StorageModel(configOverride) {
 	this.row = null; //Selected Row
 	this.column = null; //Selected Column
 	this.boxName = null; //Selected Box
+	this.boxSize = null; //Selected Box Size
 	this.boxContents = null; //Selected Box contents (samples)
 	
 	this.cleanSample = function(setUser) {
@@ -48,6 +50,7 @@ function StorageModel(configOverride) {
 			this.sample.properties[this.storagePropertyGroup.rowProperty] = "";
 			this.sample.properties[this.storagePropertyGroup.columnProperty] = "";
 			this.sample.properties[this.storagePropertyGroup.boxProperty] = "";
+			this.sample.properties[this.storagePropertyGroup.boxSizeProperty] = "";
 			this.sample.properties[this.storagePropertyGroup.positionProperty] = "";
 			var userId = "";
 			if(setUser) {
@@ -57,10 +60,11 @@ function StorageModel(configOverride) {
 		}
 	}
 	
-	this.resetBoxInfo = function(row, column, boxName, boxContents) {
+	this.resetBoxInfo = function(row, column, boxName, boxSize, boxContents) {
 		this.row = row; //Selected Row
 		this.column = column; //Selected Column
 		this.boxName = boxName; //Selected Box
+		this.boxSize = boxSize; //Selected Box
 		this.boxContents = boxContents; //Selected Box contents (samples)
 	}
 }

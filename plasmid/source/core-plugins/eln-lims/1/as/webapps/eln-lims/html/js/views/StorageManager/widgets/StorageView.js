@@ -24,6 +24,7 @@ function StorageView(storageController, storageModel, gridView) {
 	this._userIdDropdown = $('<select>', { 'id' : 'userIdSelector' , class : 'multiselect' , 'multiple' : 'multiple'});
 	this._gridContainer = $("<div>");
 	this._boxField = FormUtil._getInputField("text", "", "Box Name", null, false);
+	this._boxSizeDropDown = FormUtil.getDefaultStorageBoxSizesDropDown("", false);
 	this._boxContentsDropDown = $('<select>', { 'id' : 'boxSamplesSelector' , class : 'multiselect' , 'multiple' : 'multiple'});
 	this._positionField = FormUtil._getInputField("text", "", "Position", null, false);
 	
@@ -110,6 +111,25 @@ function StorageView(storageController, storageModel, gridView) {
 			}
 		}
 		
+		if(this._storageModel.config.boxSizeSelector === "on") {
+			//Paint
+			this._boxSizeDropDown.hide();
+			var $controlGroupBox = FormUtil.getFieldForComponentWithLabel(this._boxSizeDropDown, "Box Size");
+			$container.append($controlGroupBox);
+			//Attach Event
+			this._boxSizeDropDown.change(function() {
+				if(_this._storageModel.sample) { // Sample to bind
+					_this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.boxSizeProperty] = $(this).val();
+				}
+//				_this._storageController.setBoxSizeSelected($(this).val()); //TO-DO Check all entities on that box fit
+			});
+			// Sample to bind
+			if(this._storageModel.sample) {
+				this._boxSizeDropDown.show();
+				this._boxSizeDropDown.val(this._storageModel.sample.properties[this._storageModel.storagePropertyGroup.boxSizeProperty]);
+			}
+		}
+		
 		if(this._storageModel.config.contentsSelector === "on") {
 			//Paint
 			var $controlGroupBoxContents = FormUtil.getFieldForComponentWithLabel(this._boxContentsDropDown, "Box Contents");
@@ -138,6 +158,7 @@ function StorageView(storageController, storageModel, gridView) {
 			this._positionField.change(function() {
 				if(_this._storageModel.sample) { //Sample to bind
 					_this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.positionProperty] = $(this).val();
+//					_this._storageController.setBoxPosition($(this).val()); //TO-DO Check Position is not already used by other sample that is not this one
 				}
 			});
 			//Sample to bind
@@ -188,6 +209,17 @@ function StorageView(storageController, storageModel, gridView) {
 	
 	this.refreshGrid = function() {
 		this._gridView.repaint(this._gridContainer);
+	}
+	
+	this.hideBoxSizeField = function() {
+		this._boxSizeDropDown.val("");
+		this._boxSizeDropDown.hide();
+	}
+	
+	this.showBoxSizeField = function() {
+		this._boxSizeDropDown.val("");
+		this._boxSizeDropDown.removeAttr("disabled");
+		this._boxSizeDropDown.show();
 	}
 	
 	this.hidePosField = function() {
