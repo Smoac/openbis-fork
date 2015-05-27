@@ -121,7 +121,7 @@ function StorageView(storageController, storageModel, gridView) {
 				if(_this._storageModel.sample) { // Sample to bind
 					_this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.boxSizeProperty] = $(this).val();
 				}
-//				_this._storageController.setBoxSizeSelected($(this).val()); //TO-DO Check all entities on that box fit
+				_this._storageController.setBoxSizeSelected($(this).val()); //TO-DO Check all entities on that box fit
 			});
 			// Sample to bind
 			if(this._storageModel.sample) {
@@ -248,6 +248,12 @@ function StorageView(storageController, storageModel, gridView) {
 		this._boxField.val(this._storageModel.boxName);
 		this._boxField.attr("disabled", "");
 		this._boxField.show();
+	}
+	
+	this.showBoxSize = function() {
+		this._boxSizeDropDown.val(this._storageModel.boxSize);
+		this._boxSizeDropDown.attr("disabled", "");
+		this._boxSizeDropDown.show();
 	}
 
 

@@ -33,18 +33,10 @@ function GridModel() {
 			if(this.labels[posX]) {
 				if(this.labels[posX][posY]) {
 					var labelsToReturn = this.labels[posX][posY];
-					
-					var labelsToReturnArray = [];
-					for(var labelToReturn in labelsToReturn) {
-						labelsToReturnArray.push(labelToReturn);
-					}
-					
-					var sortedLabelsToReturn = labelsToReturnArray.sort(naturalSort);
-					
 					if(this.labelsFilter) {
-						return this.labelsFilter(posX, posY, sortedLabelsToReturn);
+						return this.labelsFilter(posX, posY, labelsToReturn);
 					} else {
-						return sortedLabelsToReturn;
+						return labelsToReturn;
 					}
 				}
 			}
@@ -56,13 +48,13 @@ function GridModel() {
 	
 	this.getLabelDataByLabelName = function(posX, posY, name) {
 		var columnData = this.labels[posX][posY];
-		for(boxName in columnData) {
-			if(boxName === name) {
-				var boxData = columnData[boxName];
+		for(var i = 0; i < columnData.length; i++) {
+			var box = columnData[i];
+			if(box.displayName === name) {
 				if(this.dataFilter) {
-					return this.dataFilter(posX, posY, boxData);
+					return this.dataFilter(posX, posY, box.data);
 				} else {
-					return boxData;
+					return box.data;
 				}
 			}
 		}

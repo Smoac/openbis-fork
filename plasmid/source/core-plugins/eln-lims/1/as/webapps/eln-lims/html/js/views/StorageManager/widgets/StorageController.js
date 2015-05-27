@@ -25,26 +25,25 @@ function StorageController(configOverride) {
 	this._storageView = new StorageView(this, this._storageModel, this._gridController.getView());
 	
 	if(this._storageModel.config.boxSelector === "on") {
-		this._gridController.getView().setLabelSelectedEventHandler(function(posX, posY, label) {
+		this._gridController.getView().setLabelSelectedEventHandler(function(posX, posY, label, data) {
 			//Binded sample
 			if(_this._storageModel.sample) {
 				_this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.rowProperty] = posX;
 				_this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.columnProperty] = posY;
 				_this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.boxProperty] = label;
-				// TO-DO: Get box size for that name
-				_this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.boxSizeProperty] = null;
+				_this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.boxSizeProperty] = data.size;
 			}
 			
 			
 			// Delete old state in model and view and set new sate in model and view
-			_this._storageModel.resetBoxInfo(posX, posY, label, null, null);
+			_this._storageModel.resetBoxInfo(posX, posY, label, data.size, null);
 			_this._storageView.showBoxName();
-			// TO-DO: Show box size for that name
+			_this._storageView.showBoxSize();
 			_this._storageView.showPosField();
 			
 			if(_this._storageModel.config.contentsSelector === "on") {
 				var labelData = _this._gridController.getModel().getLabelDataByLabelName(posX, posY, label);
-				_this._storageModel.boxContents = labelData;
+				_this._storageModel.boxContents = labelData.samples;
 				_this._storageView.refreshBoxContents();
 			}
 		}); 
@@ -79,7 +78,7 @@ function StorageController(configOverride) {
 		this._gridController.getModel().labelsFilter = function(posX, posY, sortedLabels) {
 			var sortedLabelsToReturn = [];
 			for(var i = 0; i < sortedLabels.length; i++) {
-				var labelSamples = _this._gridController.getModel().getLabelDataByLabelName(posX, posY, sortedLabels[i]);
+				var labelSamples = _this._gridController.getModel().getLabelDataByLabelName(posX, posY, sortedLabels[i].displayName).samples;
 				var labelSamplesSelected = [];
 				for(var j = 0; j < labelSamples.length; j++) {
 					var labelSample = labelSamples[j];
@@ -95,16 +94,16 @@ function StorageController(configOverride) {
 			return sortedLabelsToReturn;
 		}
 		
-		this._gridController.getModel().dataFilter = function(posX, posY, labelSamples) {
+		this._gridController.getModel().dataFilter = function(posX, posY, labelData) {
 			var labelSamplesSelected = [];
-			for(var j = 0; j < labelSamples.length; j++) {
-				var labelSample = labelSamples[j];
+			for(var j = 0; j < labelData.samples.length; j++) {
+				var labelSample = labelData.samples[j];
 				var sampleUserId = labelSample.properties[_this._storageModel.storagePropertyGroup.userProperty];
 				if($.inArray(sampleUserId, userIdsSelected) !== -1) {
 					labelSamplesSelected.push(labelSample);
 				}
 			}
-			return labelSamplesSelected;
+			return { size : labelData.size , samples : labelSamplesSelected}; //Create new data object with selected samples
 		}
 		
 		this._storageModel.resetBoxInfo(null, null, null, null, null);
@@ -122,6 +121,10 @@ function StorageController(configOverride) {
 	
 	this.setBoxSelected = function(boxName) {
 		this._storageModel.boxName = boxName;
+	}
+	
+	this.setBoxSizeSelected = function(boxSize) {
+		this._storageModel.boxSize = boxSize;
 	}
 	
 	this._deleteRackBoxContentStateInModelView = function() {
@@ -176,6 +179,7 @@ function StorageController(configOverride) {
 					var userIds = [];
 					samples.forEach(function(element, index, array) {
 						var boxCode = element.properties[_this._storageModel.storagePropertyGroup.boxProperty];
+						var boxSize = element.properties[_this._storageModel.storagePropertyGroup.boxSizeProperty];
 						var boxRow  = element.properties[_this._storageModel.storagePropertyGroup.rowProperty];
 						var boxCol  = element.properties[_this._storageModel.storagePropertyGroup.columnProperty];
 						var userId = element.properties[_this._storageModel.storagePropertyGroup.userProperty];
@@ -192,17 +196,29 @@ function StorageController(configOverride) {
 						
 						var boxesCol = boxesRow[boxCol];
 						if(!boxesCol) {
-							boxesCol = {};
+							boxesCol = [];
 							boxesRow[boxCol] = boxesCol;
 						}
 						
-						var boxSamples = boxesCol[boxCode];
-						if(!boxSamples) {
-							boxSamples = [];
+						var getBoxFromCol = function(col, boxName) {
+							for(var i = 0; i < col.length; i++) {
+								box = col[i];
+								if(box.displayName = boxName) {
+									return box;
+								}
+							}
+							return null;
 						}
-						boxSamples.push(element);
 						
-						boxesCol[boxCode] = boxSamples;
+						var boxSamples = getBoxFromCol(boxesCol, boxCode);
+						if(!boxSamples) {
+							boxSamples = { displayName : boxCode, data : { size: boxSize, samples: [] } };
+						} else if(!boxSamples.data.size) { //To help instances where they are migrating data where not all boxes are set
+								boxSamples.data.size = boxSize;
+						}
+						boxSamples.data.samples.push(element);
+						
+						boxesCol.push(boxSamples);
 					}, true);
 					
 					//
