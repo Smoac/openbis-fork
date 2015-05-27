@@ -180,6 +180,27 @@ var FormUtil = new function() {
 		return $component;
 	}
 	
+	this.getBoxPositionsDropdown = function(id, isRequired, code) {
+		var rowsAndCols = code.split("X");
+		var numRows = parseInt(rowsAndCols[0]);
+		var numCols = parseInt(rowsAndCols[1]);
+		
+		var $component = $("<select>", {"id" : id, class : 'form-control'});
+		if (isRequired) {
+			$component.attr('required', '');
+		}
+		
+		var alphabet = [null,'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'];
+		for(var i = 1; i <= numRows; i++) {
+			var rowLetter = alphabet[i];
+			for(var j = 1; j <= numCols; j++) {
+				$component.append($("<option>").attr('value',rowLetter+j).text(rowLetter+j));
+			}
+			
+		}
+		return $component;
+	}
+	
 	this.getSampleTypeDropdown = function(id, isRequired) {
 		var sampleTypes = this.profile.getAllSampleTypes();
 		

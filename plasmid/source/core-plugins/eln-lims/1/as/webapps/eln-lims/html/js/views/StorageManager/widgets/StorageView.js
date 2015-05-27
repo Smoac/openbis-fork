@@ -26,7 +26,8 @@ function StorageView(storageController, storageModel, gridView) {
 	this._boxField = FormUtil._getInputField("text", "", "Box Name", null, false);
 	this._boxSizeDropDown = FormUtil.getDefaultStorageBoxSizesDropDown("", false);
 	this._boxContentsDropDown = $('<select>', { 'id' : 'boxSamplesSelector' , class : 'multiselect' , 'multiple' : 'multiple'});
-	this._positionField = FormUtil._getInputField("text", "", "Position", null, false);
+	this._positionContainer = $("<div>");
+	this._positionField = null;
 	
 	this.repaint = function($container) {
 		//
@@ -150,22 +151,9 @@ function StorageView(storageController, storageModel, gridView) {
 			});
 		}
 		
-		if(this._storageModel.config.positionSelector === "on") {
-			//Paint
-			var $controlGroupPosition = FormUtil.getFieldForComponentWithLabel(this._positionField, "Position");
-			$container.append($controlGroupPosition);
-			//Attach Event
-			this._positionField.change(function() {
-				if(_this._storageModel.sample) { //Sample to bind
-					_this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.positionProperty] = $(this).val();
-//					_this._storageController.setBoxPosition($(this).val()); //TO-DO Check Position is not already used by other sample that is not this one
-				}
-			});
-			//Sample to bind
-			if(this._storageModel.sample) {
-				this._positionField.val(this._storageModel.sample.properties[this._storageModel.storagePropertyGroup.positionProperty]);
-				this._positionField.show();
-			}
+		$container.append(this._positionContainer);
+		if(this._storageModel.config.positionSelector === "on" && this._storageModel.sample) {
+			this.showPosField(this._storageModel.sample.properties[this._storageModel.storagePropertyGroup.boxSizeProperty]);
 		}
 		
 		if(this._storageModel.isDisabled) {
@@ -174,7 +162,9 @@ function StorageView(storageController, storageModel, gridView) {
 			this._userIdDropdown.attr("disabled", "");
 			this._boxField.attr("disabled", "");
 			this._boxContentsDropDown.attr("disabled", "");
-			this._positionField.attr("disabled", "");
+			if(this._positionField) {
+				this._positionField.attr("disabled", "");
+			}
 		}
 	}
 	
@@ -223,14 +213,34 @@ function StorageView(storageController, storageModel, gridView) {
 	}
 	
 	this.hidePosField = function() {
-		this._positionField.val("");
-		this._positionField.hide();
+		if(this._positionField) {
+			this._positionField.val("");
+			this._positionField.hide();
+		}
 	}
 	
-	this.showPosField = function() {
-		this._positionField.val("");
-		this._positionField.removeAttr("disabled");
-		this._positionField.show();
+	this.showPosField = function(boxSizeCode) {
+		if(this._storageModel.config.positionSelector === "on" && this._storageModel.sample) {
+			//Pointer to himself
+			var _this = this;
+			
+			this._positionField = FormUtil.getBoxPositionsDropdown("", false, boxSizeCode);
+				
+			var $controlGroupPosition = FormUtil.getFieldForComponentWithLabel(this._positionField, "Position");
+			this._positionContainer.empty();
+			this._positionContainer.append($controlGroupPosition);
+				
+			//Attach Event
+			this._positionField.change(function() {
+				if(_this._storageModel.sample) { //Sample to bind
+					_this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.positionProperty] = $(this).val();
+//					_this._storageController.setBoxPosition($(this).val()); //TO-DO Check Position is not already used by other sample that is not this one
+				}
+			});
+				
+			this._positionField.val(this._storageModel.sample.properties[this._storageModel.storagePropertyGroup.positionProperty]);
+			this._positionField.show();
+		}
 	}
 	
 	this.hideBoxField = function() {

@@ -39,7 +39,7 @@ function StorageController(configOverride) {
 			_this._storageModel.resetBoxInfo(posX, posY, label, data.size, null);
 			_this._storageView.showBoxName();
 			_this._storageView.showBoxSize();
-			_this._storageView.showPosField();
+			_this._storageView.showPosField(data.size);
 			
 			if(_this._storageModel.config.contentsSelector === "on") {
 				var labelData = _this._gridController.getModel().getLabelDataByLabelName(posX, posY, label);
@@ -62,7 +62,7 @@ function StorageController(configOverride) {
 			_this._storageModel.resetBoxInfo(posX, posY, null, null, null);
 			_this._storageView.showBoxField();
 			_this._storageView.showBoxSizeField();
-			_this._storageView.showPosField();
+			_this._storageView.hidePosField();
 			if(_this._storageModel.config.contentsSelector === "on") {
 				_this._storageView.refreshBoxContents();
 			}
@@ -125,6 +125,7 @@ function StorageController(configOverride) {
 	
 	this.setBoxSizeSelected = function(boxSize) {
 		this._storageModel.boxSize = boxSize;
+		this._storageView.showPosField(boxSize);
 	}
 	
 	this._deleteRackBoxContentStateInModelView = function() {
