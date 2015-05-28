@@ -13,7 +13,7 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 		
 		this.storagesConfiguration = {
 				"isEnabled" : true,
-				"isBoxSizeAndPositionEnabled" : true,
+				"isBoxSizeAndPositionEnabled" : true, //To avoid old running models to run the latest storage manager until the admins update their model and configuration
 				/*
 				 * Should be the same across all storages, if not correct behaviour is not guaranteed.
 				*/
