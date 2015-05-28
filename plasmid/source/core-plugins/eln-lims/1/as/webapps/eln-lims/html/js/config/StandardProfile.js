@@ -13,6 +13,7 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 		
 		this.storagesConfiguration = {
 				"isEnabled" : true,
+				"isBoxSizeAndPositionEnabled" : true,
 				/*
 				 * Should be the same across all storages, if not correct behaviour is not guaranteed.
 				*/
