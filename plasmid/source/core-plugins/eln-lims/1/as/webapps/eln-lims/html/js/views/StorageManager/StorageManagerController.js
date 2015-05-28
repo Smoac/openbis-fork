@@ -72,19 +72,18 @@ function StorageManagerController(mainController) {
 			sample.properties[fromModel.storagePropertyGroup.rowProperty] = "";
 			sample.properties[fromModel.storagePropertyGroup.columnProperty] = "";
 			sample.properties[fromModel.storagePropertyGroup.boxProperty] = "";
-//	IGNORING BOX SIZE ON UPDATES, ARE NOT SUPPORTED YET
-//			sample.properties[fromModel.storagePropertyGroup.boxSizeProperty] = "";
+			sample.properties[fromModel.storagePropertyGroup.boxSizeProperty] = "";
 			sample.properties[fromModel.storagePropertyGroup.userProperty] = "";
-//	IGNORING POSITIONS ON UPDATES, ARE NOT SUPPORTED YET
-//			sample.properties[fromModel.storagePropertyGroup.positionProperty] = "";
+			sample.properties[fromModel.storagePropertyGroup.positionProperty] = "";
 			
+			//TODO: Assign position
 			sample.properties[toModel.storagePropertyGroup.nameProperty] = toModel.storageCode;
 			sample.properties[toModel.storagePropertyGroup.rowProperty] = toModel.row;
 			sample.properties[toModel.storagePropertyGroup.columnProperty] = toModel.column;
 			sample.properties[toModel.storagePropertyGroup.boxProperty] = toModel.boxName;
-//			sample.properties[toModel.storagePropertyGroup.boxSizeProperty] = "";
+			sample.properties[toModel.storagePropertyGroup.boxSizeProperty] = toModel.boxSize
 			sample.properties[toModel.storagePropertyGroup.userProperty] = mainController.serverFacade.openbisServer.getSession().split("-")[0];
-//			sample.properties[toModel.storagePropertyGroup.positionProperty] = "";
+			sample.properties[toModel.storagePropertyGroup.positionProperty] = "";
 			
 			var sampleSpace = sample.spaceCode;
 			var sampleProject = null;

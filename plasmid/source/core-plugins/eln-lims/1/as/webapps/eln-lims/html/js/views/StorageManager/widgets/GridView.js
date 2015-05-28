@@ -76,22 +76,25 @@ function GridView(gridModel) {
 	this._addLabels = function($component, posX, posY) {
 		var _this = this;
 		var labels = this._gridModel.getLabels(posX, posY);
+		var usedLabels = [];
 		if(labels) {
 			for(var i = 0; i < labels.length; i++) {
-				var labelContainer = $("<div>", { class: "storageBox" }).append(labels[i].displayName);
-				
-				var clickEvent = function(posX, posY, label, data) {
-					return function(event) {
-						event.stopPropagation();
-						_this._labelClicked(posX, posY, label, data);
+				if(!usedLabels[labels[i].displayName]) {
+					var labelContainer = $("<div>", { class: "storageBox" }).append(labels[i].displayName);
+					usedLabels[labels[i].displayName] = true
+					var clickEvent = function(posX, posY, label, data) {
+						return function(event) {
+							event.stopPropagation();
+							_this._labelClicked(posX, posY, label, data);
+						}
 					}
+					
+					if(!this._gridModel.isDisabled) {
+						labelContainer.click(clickEvent(posX, posY, labels[i].displayName, labels[i].data));
+					}
+					
+					$component.append(labelContainer);
 				}
-				
-				if(!this._gridModel.isDisabled) {
-					labelContainer.click(clickEvent(posX, posY, labels[i].displayName, labels[i].data));
-				}
-				
-				$component.append(labelContainer);
 			}
 		}
 	}
