@@ -15,6 +15,10 @@
  */
 
 function StorageController(configOverride) {
+	if(!profile.storagesConfiguration["isBoxSizeAndPositionEnabled"]) {
+		Util.showError("Your Storage Model don't works properly with the lattest ELN version, contact your admin.");
+		return;
+	}
 	//Pointer to himself
 	var _this = this;
 	//Dependent widgets
