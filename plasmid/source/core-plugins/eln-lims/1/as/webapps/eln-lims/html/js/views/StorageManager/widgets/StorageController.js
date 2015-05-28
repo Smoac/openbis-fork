@@ -124,9 +124,11 @@ function StorageController(configOverride) {
 		this._storageModel.boxName = boxName;
 	}
 	
-	this.setBoxSizeSelected = function(boxSize) {
+	this.setBoxSizeSelected = function(boxSize, isNew) {
 		this._storageModel.boxSize = boxSize;
-		this._storageView.showPosField(boxSize, true);
+		if(isNew) {
+			this._storageView.showPosField(boxSize, isNew);
+		}
 	}
 	
 	this._deleteRackBoxContentStateInModelView = function() {
@@ -240,6 +242,7 @@ function StorageController(configOverride) {
 		this._storageModel.isDisabled = isDisabled;
 		this._gridController.getModel().isDisabled = isDisabled;
 	}
+	
 	//
 	// Getters
 	//
@@ -249,5 +252,75 @@ function StorageController(configOverride) {
 	
 	this.getView = function() {
 		return this._storageView;
+	}
+	
+	//
+	// Validation
+	//
+	this.isValid = function(callback) {
+		var _this = this;
+		this._isUserTypingExistingBox(function(error1) {
+			if(error1) {
+				Util.showError(error1, function() {}, true);
+				callback(false);
+			} else {
+				_this._isPositionAlreadyUsed(function(error2) {
+					if(error2) {
+						Util.showError(error2, function() {}, true);
+						callback(false);
+					} else {
+						callback(true);
+					}
+				});
+			}
+		});
+	}
+	
+	this._isPositionAlreadyUsed = function(callback) {
+		var _this = this;
+		// Check user don't selects a position already selected by a sample that is not the binded one
+		// ERROR: You selected a position already used by <SAMPLE_CODE>, please choose another.
+		var propertyTypeCodes = [this._storageModel.storagePropertyGroup.boxProperty, this._storageModel.storagePropertyGroup.positionProperty];
+		var propertyValues = ["'" + this._storageModel.boxName + "'", "'" + this._storageView.getSelectedPosition() + "'"];
+		mainController.serverFacade.searchWithProperties(propertyTypeCodes, propertyValues, function(samples) {
+			var sampleCodes = [];
+			var isBinded = false;
+			for(var sIdx = 0; sIdx < samples.length; sIdx++) {
+				sampleCodes.push(samples[sIdx].code);
+				if(_this._storageModel.sample) {
+					isBinded = isBinded || (samples[sIdx].code === _this._storageModel.sample.code);
+				}
+			}
+			if(samples.length > 1) { //More than one sample in that position
+				callback("There is more than one sample in that position, exactly " + sampleCodes + ", weird?, contact your administrator.");
+			} else if(samples.length > 0 && !_this._storageModel.sample) { //Sample in that position
+				callback("You selected a position already used by " + sampleCodes + ", please choose another.");
+			} else if(samples.length === 1 && _this._storageModel.sample && !isBinded) {
+				callback("You selected a position already used by " + sampleCodes + ", please choose another.");
+			} else if(samples.length === 1 && _this._storageModel.sample && isBinded) {
+				callback(null);
+			} else if(samples.length === 0) {
+				callback(null);
+			}
+		});
+	}
+	
+	this._isUserTypingExistingBox = function(callback) {
+		var _this = this;
+		// Check user don't types by hand an existing box
+		// ERROR: You typed by hand an already exiting box <BOX_CODE>, please click on it to auto fill correct size and available positions.
+		if(this._storageView.isNewBoxName()) {
+			var propertyTypeCodes = [this._storageModel.storagePropertyGroup.boxProperty];
+			var propertyValues = ["'" + this._storageModel.boxName + "'"];
+			mainController.serverFacade.searchWithProperties(propertyTypeCodes, propertyValues, function(samples) {
+				if(samples.length > 0) { //Box already exists with same name
+					callback("You typed by hand an already exiting box '" + _this._storageModel.boxName + "', please click on it to auto fill correct size and available positions or choose other box name.");
+				} else {
+					callback(null);
+				}
+			});
+		} else {
+			callback(null);
+		}
 	}
 }

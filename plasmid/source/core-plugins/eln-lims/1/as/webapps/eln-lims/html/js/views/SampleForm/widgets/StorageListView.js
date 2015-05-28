@@ -178,8 +178,12 @@ function StorageListView(storageListController, storageListModel) {
 		storageController.getView().repaint($("#storage-pop-up-container"));
 		
 		$("#storage-close").on("click", function(event) {
-			Util.unblockUI();
-			_this._dataGrid.refresh();
+			storageController.isValid(function(isValid) {
+				if(isValid) {
+					Util.unblockUI();
+					_this._dataGrid.refresh();
+				}
+			});
 		});
 	}
 }

@@ -89,7 +89,7 @@ function StorageView(storageController, storageModel, gridView) {
 		}
 		
 		$container.append(FormUtil.getFieldForComponentWithLabel(this._gridContainer, "Rack"));
-		if(this._storageModel.sample) { //If someone is updating a sample, his user should go with it
+		if(this._storageModel.sample) {
 			this._storageController.setSelectStorage(this._storageModel.sample.properties[this._storageModel.storagePropertyGroup.nameProperty]);
 		}
 		
@@ -109,6 +109,7 @@ function StorageView(storageController, storageModel, gridView) {
 			if(this._storageModel.sample) {
 				this._boxField.show();
 				this._boxField.val(this._storageModel.sample.properties[this._storageModel.storagePropertyGroup.boxProperty]);
+				this._storageController.setBoxSelected(this._storageModel.sample.properties[this._storageModel.storagePropertyGroup.boxProperty]);
 			}
 		}
 		
@@ -122,12 +123,13 @@ function StorageView(storageController, storageModel, gridView) {
 				if(_this._storageModel.sample) { // Sample to bind
 					_this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.boxSizeProperty] = $(this).val();
 				}
-				_this._storageController.setBoxSizeSelected($(this).val()); //TO-DO Check all entities on that box fit
+				_this._storageController.setBoxSizeSelected($(this).val(), true);
 			});
 			// Sample to bind
 			if(this._storageModel.sample) {
 				this._boxSizeDropDown.show();
 				this._boxSizeDropDown.val(this._storageModel.sample.properties[this._storageModel.storagePropertyGroup.boxSizeProperty]);
+				_this._storageController.setBoxSizeSelected(this._storageModel.sample.properties[this._storageModel.storagePropertyGroup.boxSizeProperty], false);
 			}
 		}
 		
@@ -193,6 +195,18 @@ function StorageView(storageController, storageModel, gridView) {
 	//
 	// View specific methods
 	//
+	this.isNewBoxName = function() {
+		return !this._boxField.prop('disabled');
+	}
+	
+	this.getSelectedPosition = function() {
+		if(this._positionField) {
+			return this._positionField.val();
+		} else {
+			return null;
+		}
+	}
+	
 	this.resetSelectStorageDropdown = function() {
 		this._defaultStoragesDropDown.val("");
 	}

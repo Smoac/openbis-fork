@@ -181,9 +181,17 @@ var FormUtil = new function() {
 	}
 	
 	this.getBoxPositionsDropdown = function(id, isRequired, code) {
-		var rowsAndCols = code.split("X");
-		var numRows = parseInt(rowsAndCols[0]);
-		var numCols = parseInt(rowsAndCols[1]);
+		var numRows = null;
+		var numCols = null;
+		
+		if(code) {
+			var rowsAndCols = code.split("X");
+			numRows = parseInt(rowsAndCols[0]);
+			numCols = parseInt(rowsAndCols[1]);
+		} else {
+			numRows = 0;
+			numCols = 0;
+		}
 		
 		var $component = $("<select>", {"id" : id, class : 'form-control'});
 		if (isRequired) {
