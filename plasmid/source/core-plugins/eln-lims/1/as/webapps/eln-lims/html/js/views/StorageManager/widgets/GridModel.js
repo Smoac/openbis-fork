@@ -21,6 +21,7 @@ function GridModel() {
 	this.labels = null;
 	this.labelsFilter = null;
 	this.dataFilter = null;
+	this.useLettersOnRows = false;
 	
 	this.reset = function(numRows, numColumns, labels) {
 		this.numRows = numRows;

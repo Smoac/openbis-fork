@@ -238,6 +238,46 @@ function StorageView(storageController, storageModel, gridView) {
 			//Pointer to himself
 			var _this = this;
 			
+//			var propertyTypeCodes = [this._storageModel.storagePropertyGroup.boxProperty];
+//			var propertyValues = ["'" + this._storageModel.boxName + "'"];
+//			mainController.serverFacade.searchWithProperties(propertyTypeCodes, propertyValues, function(samples) {
+//				//Labels
+//				var labels = [];
+//				samples.forEach(function(element, index, array) {
+//					var code = element.code;
+//					var position  = element.properties[_this._storageModel.storagePropertyGroup.positionProperty];
+//					if(position) {
+//						var xyPos = Util.getXYfromLetterNumberCombination(position);
+//						var x = xyPos[0];
+//						var y = xyPos[1];
+//						
+//						var row = labels[x];
+//						if(!row) {
+//							row = [];
+//							labels[x] = row;
+//						}
+//						
+//						var col = row[y];
+//						if(!col) {
+//							col = [];
+//							row[y] = col;
+//						}
+//						
+//						label = { displayName : code, data : {} };
+//						col.push(label);
+//					} else {
+//						//Not position found
+//					}
+//				});
+//				
+//				//Repaint
+//				this._storageController._gridControllerPosition.getModel().useLettersOnRows = true;
+//				var rowsAndCols = boxSizeCode.split("X");
+//				var numRows = parseInt(rowsAndCols[0]);
+//				var numCols = parseInt(rowsAndCols[1]);
+//				this._storageController._gridControllerPosition.getModel().reset(numRows, numCols, labels);
+//			});
+			
 			this._positionField = FormUtil.getBoxPositionsDropdown("", false, boxSizeCode);
 				
 			var $controlGroupPosition = FormUtil.getFieldForComponentWithLabel(this._positionField, "Position");
@@ -248,7 +288,6 @@ function StorageView(storageController, storageModel, gridView) {
 			this._positionField.change(function() {
 				if(_this._storageModel.sample) { //Sample to bind
 					_this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.positionProperty] = $(this).val();
-//					_this._storageController.setBoxPosition($(this).val()); //TO-DO Check Position is not already used by other sample that is not this one
 				}
 			});
 			

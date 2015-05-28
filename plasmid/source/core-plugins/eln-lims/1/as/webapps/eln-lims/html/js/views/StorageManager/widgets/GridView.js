@@ -47,7 +47,11 @@ function GridView(gridModel) {
 		
 		for(var i = 0; i < this._gridModel.numRows; i++) {
 			var $newRow = $("<tr>");
-			var $numberCell = $("<th>").append(i+1);
+			var rowLabel = i+1;
+			if(this._gridModel.useLettersOnRows) {
+				rowLabel = Util.getLetterForNumber(rowLabel);
+			}
+			var $numberCell = $("<th>").append(rowLabel);
 			$newRow.append($numberCell);
 			
 			for(var j = 0; j < this._gridModel.numColumns; j++) {

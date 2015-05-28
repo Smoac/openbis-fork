@@ -386,6 +386,30 @@ var Util = new function() {
 		  return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
 		           s4() + '-' + s4() + s4() + s4();
 	};
+	
+	//
+	// Grid related function
+	//
+	var alphabet = [null,'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'];
+	this.getLetterForNumber = function(number) { //TODO Generate big numbers
+		return alphabet[number];
+	}
+	
+	this.getNumberFromLetter = function(letter) { //TODO Generate big numbers
+		for(var i = 0; i < alphabet.length; i++) {
+			if(letter === alphabet[i]) {
+				return i;
+			}
+		}
+		return null;
+	}
+	
+	this.getXYfromLetterNumberCombination = function(label) {
+		var parts = label.match(/[a-zA-Z]+|[0-9]+/g);
+		var row = this.getNumberFromLetter(parts[0]);
+		var column = parseInt(parts[1]);
+		return [row, column];
+	}
 }
 
 
