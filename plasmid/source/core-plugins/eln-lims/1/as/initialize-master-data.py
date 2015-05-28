@@ -504,25 +504,20 @@ createDataSetTypeWithProperties("RAW_DATA", "PHYSICAL", "", [
 	["XMLCOMMENTS",	"Comments","Comments List",	DataType.XML,	None,	"Several comments can be added by different users", commentsDatasetScriptName, None]
 ]);
 
+createDataSetTypeWithProperties("ANALYZED_DATA", "PHYSICAL", "", [
+	["NOTES", "General information", "Notes", DataType.MULTILINE_VARCHAR, None, "Notes regarding the dataset", None, None],
+	["XMLCOMMENTS",	"Comments","Comments List",	DataType.XML,	None,	"Several comments can be added by different users", commentsDatasetScriptName, None]
+]);
+
+
+
 ##
 ## Experiment Types
 ##
-createExperimentTypeWithProperties("ANTIBODY", "BOX TO HOLD SAMPLES OF THIS TYPE FOR ORGANIZATIONAL PURPOSES", []);
-createExperimentTypeWithProperties("BACTERIA", "BOX TO HOLD SAMPLES OF THIS TYPE FOR ORGANIZATIONAL PURPOSES", []);
-createExperimentTypeWithProperties("CHEMICAL", "BOX TO HOLD SAMPLES OF THIS TYPE FOR ORGANIZATIONAL PURPOSES", []);
-createExperimentTypeWithProperties("ENZYME", "BOX TO HOLD SAMPLES OF THIS TYPE FOR ORGANIZATIONAL PURPOSES", []);
-createExperimentTypeWithProperties("MEDIA", "BOX TO HOLD SAMPLES OF THIS TYPE FOR ORGANIZATIONAL PURPOSES", []);
-createExperimentTypeWithProperties("OLIGO", "BOX TO HOLD SAMPLES OF THIS TYPE FOR ORGANIZATIONAL PURPOSES", []);
-createExperimentTypeWithProperties("RNA", "BOX TO HOLD SAMPLES OF THIS TYPE FOR ORGANIZATIONAL PURPOSES", []);
-createExperimentTypeWithProperties("PLASMID", "BOX TO HOLD SAMPLES OF THIS TYPE FOR ORGANIZATIONAL PURPOSES", []);
-createExperimentTypeWithProperties("SOLUTION_BUFFER", "BOX TO HOLD SAMPLES OF THIS TYPE FOR ORGANIZATIONAL PURPOSES", []);
-createExperimentTypeWithProperties("YEAST", "BOX TO HOLD SAMPLES OF THIS TYPE FOR ORGANIZATIONAL PURPOSES", []);
-createExperimentTypeWithProperties("CELL_LINE", "BOX TO HOLD SAMPLES OF THIS TYPE FOR ORGANIZATIONAL PURPOSES", []);
-createExperimentTypeWithProperties("FLY", "BOX TO HOLD SAMPLES OF THIS TYPE FOR ORGANIZATIONAL PURPOSES", []);
+createExperimentTypeWithProperties("MATERIALS", "FOLDER TO HOLD MATERIALS SAMPLES FOR ORGANIZATIONAL PURPOSES", []);
+createExperimentTypeWithProperties("METHODS", "FOLDER TO HOLD METHODS SAMPLES FOR ORGANIZATIONAL PURPOSES", []);
 
-createExperimentTypeWithProperties("GENERAL_PROTOCOL", "BOX TO HOLD SAMPLES OF THIS TYPE FOR ORGANIZATIONAL PURPOSES", []);
-createExperimentTypeWithProperties("PCR_PROTOCOL", "BOX TO HOLD SAMPLES OF THIS TYPE FOR ORGANIZATIONAL PURPOSES", []);
-createExperimentTypeWithProperties("WESTERN_BLOTTING_PROTOCOL", "BOX TO HOLD SAMPLES OF THIS TYPE FOR ORGANIZATIONAL PURPOSES", []);
+
 
 createExperimentTypeWithProperties("DEFAULT_EXPERIMENT", "Default Experiment", [
 	["NAME", 				"General", "Name", 					DataType.VARCHAR, 			None,	"Name", None, None],
