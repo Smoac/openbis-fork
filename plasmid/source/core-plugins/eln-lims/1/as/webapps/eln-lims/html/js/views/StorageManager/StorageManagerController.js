@@ -61,6 +61,19 @@ function StorageManagerController(mainController) {
 			return;
 		}
 		
+		if(!toModel.boxSize) {
+			Util.showError("Please choose a box size.");
+			return;
+		}
+		
+		if(toModel.boxSize) {
+			var size = parseInt(toModel.boxSize.split("X")[0]) * parseInt(toModel.boxSize.split("X")[1]);
+			if(size < fromModel.boxContents.length) {
+				Util.showError("Please choose a box size that is big enough for everything you are moving.");
+				return;
+			}
+		}
+		
 		var samplesToUpdateParams = [];
 		for(var i = 0; i < fromModel.boxContents.length; i++) {
 			var sample = fromModel.boxContents[i];
