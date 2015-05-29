@@ -32,7 +32,6 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.server.business.IServiceConversationClientManagerLocal;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.DataSetTypeWithoutExperimentChecker;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertiesConverter;
@@ -104,16 +103,6 @@ public abstract class AbstractDataSetBusinessObject extends AbstractSampleIdenti
     {
         assert sampleIdentifierOrNull != null;
         SamplePE newSample = getSampleByIdentifier(sampleIdentifierOrNull);
-        SamplePE previousSampleOrNull = data.tryGetSample();
-
-        if (newSample.equals(previousSampleOrNull))
-        {
-            return; // nothing to change
-        }
-        if (newSample.getSpace() == null)
-        {
-            throw SampleUtils.createWrongSampleException(data, newSample, "the new sample is shared");
-        }
         assignDataSetToSampleAndExperiment(data, newSample, newSample.getExperiment());
     }
 

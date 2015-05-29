@@ -33,40 +33,34 @@ import ch.systemsx.cisd.openbis.systemtest.AbstractDataSetAssignmentTestCase;
  * 
  * @author Franz-Josef Elmer
  */
-@Test(groups = { "system-cleandb", "broken" })
+@Test(groups = { "system-cleandb" })
 public class AssignDataSetToExperimentAndSampleTest extends AbstractDataSetAssignmentTestCase
 {
-
     @Autowired
     protected IApplicationServerApi v3api;
 
     @Override
     protected void reassignToExperiment(String dataSetCode, String experimentIdentifierOrNull, String userSessionToken)
     {
-        reassignDataSet(dataSetCode, experimentIdentifierOrNull, null, userSessionToken);
+        DataSetUpdate dataSetUpdate = new DataSetUpdate();
+        dataSetUpdate.setDataSetId(new DataSetPermId(dataSetCode));
+        dataSetUpdate.setExperimentId(new ExperimentIdentifier(experimentIdentifierOrNull));
+        v3api.updateDataSets(userSessionToken, Arrays.asList(dataSetUpdate));
     }
 
     @Override
     protected void reassignToSample(String dataSetCode, String samplePermIdOrNull, String userSessionToken)
     {
-        reassignDataSet(dataSetCode, null, samplePermIdOrNull, userSessionToken);
-    }
-    
-    private void reassignDataSet(String dataSetCode, String experimentIdentifierOrNull, String samplePermIdOrNull, 
-            String userSessionToken)
-    {
         DataSetUpdate dataSetUpdate = new DataSetUpdate();
         dataSetUpdate.setDataSetId(new DataSetPermId(dataSetCode));
-        if (experimentIdentifierOrNull != null)
+        if (samplePermIdOrNull == null)
         {
-            dataSetUpdate.setExperimentId(new ExperimentIdentifier(experimentIdentifierOrNull));
+            dataSetUpdate.setSampleId(null);
         }
-        if (samplePermIdOrNull != null)
+        else
         {
             dataSetUpdate.setSampleId(new SamplePermId(samplePermIdOrNull));
         }
         v3api.updateDataSets(userSessionToken, Arrays.asList(dataSetUpdate));
-        
     }
-
 }
