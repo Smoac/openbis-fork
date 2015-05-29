@@ -86,9 +86,14 @@ configurationCopyParents["YEAST"] = { "YEAST" : "PLASMID" };
 
 #Global Variables
 annotableType = "<REPLACE_WITH_ANNOTABLE_TYPE>"
-server = CommonServiceProvider.getCommonServer()
-contextOrNull = server.tryToAuthenticateAsSystem()
-propertyTypes = server.listPropertyTypes(contextOrNull.getSessionToken(), False)
+propertyTypes = None
+def getPropertyTypes():
+    global propertyTypes
+    if propertyTypes is None:
+        server = CommonServiceProvider.getCommonServer()
+        contextOrNull = server.tryToAuthenticateAsSystem()
+        propertyTypes = server.listPropertyTypes(contextOrNull.getSessionToken(), False)
+    return propertyTypes;
 
 ##
 ## Help Methods
@@ -110,7 +115,7 @@ def getPropertyTypesForSampleTypeFromAnnotableType(sampleTypeCodeToFind, fromAnn
     return None;
     
 def getPropertyType(propertyTypeCode):
-    for propertyType in propertyTypes:
+    for propertyType in getPropertyTypes():
         if propertyType.code == propertyTypeCode:
             return propertyType
     return None;
