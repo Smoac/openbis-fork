@@ -103,10 +103,21 @@ function GridView(gridModel) {
 		}
 	}
 	
+	this._selectPosition = function(posX, posY, label) { //To give user feedback so he knows what he have selected
+		if(this._gridTable && posX > 0 && posY > 0) {//API only available if the table is loaded and 0 positions are labels that can't be selected
+			this._gridTable.find("td").removeClass("rackSelected");
+			var rows = this._gridTable.find("tr");
+			var columns = $(rows[posX]).find("td");
+			var cell = $(columns[posY-1]); //-1 because the th tag is skipped by the selector
+			cell.addClass("rackSelected");
+		}
+	}
+	
 	//
 	// Event Handlers
 	//
 	this._posClicked = function(posX, posY) {
+		this._selectPosition(posX, posY, null);
 		if(this._posClickedEventHandler) {
 			this._posClickedEventHandler(posX, posY);
 		}

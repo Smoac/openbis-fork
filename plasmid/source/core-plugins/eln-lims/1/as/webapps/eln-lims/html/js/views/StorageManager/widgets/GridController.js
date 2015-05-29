@@ -32,4 +32,11 @@ function GridController() {
 	this.getView = function() {
 		return this._gridView;
 	}
+	
+	//
+	// API
+	//
+	this.selectPosition = function(posX, posY, label) {
+		this._gridView._selectPosition(posX, posY, label);
+	}
 }

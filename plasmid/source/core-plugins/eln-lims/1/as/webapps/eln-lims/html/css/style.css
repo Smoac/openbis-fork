@@ -522,6 +522,10 @@ table.downloads {
 	background-color : #FFFFFF;
 }
 
+.rackSelected {
+	background-color : #DDDDDD;
+}
+
 .storageSelectedCorner {
 	background-color : #EEEEEE;
 }
