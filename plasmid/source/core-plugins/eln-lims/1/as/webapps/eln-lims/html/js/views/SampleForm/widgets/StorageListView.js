@@ -158,7 +158,7 @@ function StorageListView(storageListController, storageListModel) {
 				'overflow' : 'auto'
 		};
 		
-		var container = "<div class='col-md-12 form-horizontal' id='storage-pop-up-container'></div><br><a class='btn btn-default' id='storage-close'>Accept</a>"
+		var container = "<div class='col-md-12 form-horizontal' id='storage-pop-up-container'></div><br><a class='btn btn-default' id='storage-accept'>Accept</a>"
 		Util.blockUI(container, css);
 		
 		
@@ -177,7 +177,7 @@ function StorageListView(storageListController, storageListModel) {
 		storageController.bindSample(this._storageListModel.sample, this._storageListModel.isDisabled);
 		storageController.getView().repaint($("#storage-pop-up-container"));
 		
-		$("#storage-close").on("click", function(event) {
+		$("#storage-accept").on("click", function(event) {
 			storageController.isValid(function(isValid) {
 				if(isValid) {
 					Util.unblockUI();
