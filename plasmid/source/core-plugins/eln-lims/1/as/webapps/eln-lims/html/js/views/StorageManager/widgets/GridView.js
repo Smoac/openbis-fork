@@ -69,7 +69,7 @@ function GridView(gridModel) {
 				}
 				
 				this._addLabels($newColumn, i + 1, j + 1);
-				
+				$newColumn.css('width', Math.floor(80/this._gridModel.numColumns+1) +'%');
 				$newRow.append($newColumn);
 			}
 			gridTable.append($newRow);
