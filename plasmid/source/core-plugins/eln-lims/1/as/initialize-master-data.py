@@ -462,6 +462,7 @@ createVocabularyWithTerms("PLASMID_RELATIONSHIP", "Kind of plasmid relationship"
 										["DELETION", "Deletion", None],
 										["INTEGRATION", "Integration", None],
 										["MODIFICATION", "Modification", None],
+										["LOST", "Lost", None],
 										["OTHER", "Other", None]
 									]);
 
@@ -514,8 +515,8 @@ createDataSetTypeWithProperties("ANALYZED_DATA", "PHYSICAL", "", [
 ##
 ## Experiment Types
 ##
-createExperimentTypeWithProperties("MATERIALS", "FOLDER TO HOLD MATERIALS SAMPLES FOR ORGANIZATIONAL PURPOSES", []);
-createExperimentTypeWithProperties("METHODS", "FOLDER TO HOLD METHODS SAMPLES FOR ORGANIZATIONAL PURPOSES", []);
+createExperimentTypeWithProperties("MATERIALS", "Folder used to organize samples in the Inventory/MATERIALS", []);
+createExperimentTypeWithProperties("METHODS", "Folder used to organize samples in the Inventory/METHODS", []);
 
 
 
