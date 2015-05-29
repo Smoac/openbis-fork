@@ -158,7 +158,7 @@ function StorageListView(storageListController, storageListModel) {
 				'overflow' : 'auto'
 		};
 		
-		var container = "<div class='col-md-12 form-horizontal' id='storage-pop-up-container'></div><br><a class='btn btn-default' id='storage-close'>Close</a>"
+		var container = "<div class='col-md-12 form-horizontal' id='storage-pop-up-container'></div><br><a class='btn btn-default' id='storage-close'>Accept</a>"
 		Util.blockUI(container, css);
 		
 		
