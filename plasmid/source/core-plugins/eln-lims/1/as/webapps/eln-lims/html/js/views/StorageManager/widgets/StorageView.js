@@ -203,6 +203,14 @@ function StorageView(storageController, storageModel, gridView) {
 	
 	this.refreshGrid = function() {
 		this._gridView.repaint(this._gridContainer);
+		
+		if(this._storageModel.sample && 
+				this._storageModel.sample.properties[this._storageModel.storagePropertyGroup.rowProperty] &&
+				this._storageModel.sample.properties[this._storageModel.storagePropertyGroup.columnProperty]) {
+			this._storageController._gridController.selectPosition(
+					this._storageModel.sample.properties[this._storageModel.storagePropertyGroup.rowProperty],
+					this._storageModel.sample.properties[this._storageModel.storagePropertyGroup.columnProperty]);
+		}
 	}
 	
 	this.hideBoxSizeField = function() {
@@ -277,7 +285,11 @@ function StorageView(storageController, storageModel, gridView) {
 					_this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.positionProperty] = null;
 					_this._storageModel.boxPosition = null;
 				} else {
-					_this._storageModel.boxPosition = _this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.positionProperty];
+					if(_this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.positionProperty]) {
+						_this._storageModel.boxPosition = _this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.positionProperty];
+						var xyPos = Util.getXYfromLetterNumberCombination(_this._storageModel.boxPosition);
+						_this._storageController._gridControllerPosition.selectPosition(xyPos[0], xyPos[1]);
+					}
 				}
 			});
 		}
