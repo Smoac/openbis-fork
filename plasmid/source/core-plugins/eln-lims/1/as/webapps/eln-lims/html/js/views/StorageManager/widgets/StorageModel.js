@@ -44,6 +44,7 @@ function StorageModel(configOverride) {
 	this.boxName = null; //Selected Box
 	this.boxSize = null; //Selected Box Size
 	this.boxContents = null; //Selected Box contents (samples)
+	this.boxPosition = null;
 	
 	this.cleanSample = function(setUser) {
 		if(this.sample) {

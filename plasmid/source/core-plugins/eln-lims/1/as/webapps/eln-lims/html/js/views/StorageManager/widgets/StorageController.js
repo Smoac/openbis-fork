@@ -63,6 +63,7 @@ function StorageController(configOverride) {
 				_this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.columnProperty] = posY;
 				_this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.boxProperty] = null;
 				_this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.boxSizeProperty] = null;
+				_this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.positionProperty] = null;
 			}
 			// Delete old state in model and view and set new sate in model and view
 			_this._storageModel.resetBoxInfo(posX, posY, null, null, null);
@@ -286,7 +287,7 @@ function StorageController(configOverride) {
 		// Check user don't selects a position already selected by a sample that is not the binded one
 		// ERROR: You selected a position already used by <SAMPLE_CODE>, please choose another.
 		var propertyTypeCodes = [this._storageModel.storagePropertyGroup.boxProperty, this._storageModel.storagePropertyGroup.positionProperty];
-		var propertyValues = ["'" + this._storageModel.boxName + "'", "'" + this._storageView.getSelectedPosition() + "'"];
+		var propertyValues = ["'" + this._storageModel.boxName + "'", "'" + this._storageModel.boxPosition + "'"];
 		mainController.serverFacade.searchWithProperties(propertyTypeCodes, propertyValues, function(samples) {
 			var sampleCodes = [];
 			var isBinded = false;

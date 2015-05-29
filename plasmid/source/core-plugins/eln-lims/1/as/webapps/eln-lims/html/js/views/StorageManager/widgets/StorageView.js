@@ -27,7 +27,6 @@ function StorageView(storageController, storageModel, gridView) {
 	this._boxSizeDropDown = FormUtil.getDefaultStorageBoxSizesDropDown("", false);
 	this._boxContentsDropDown = $('<select>', { 'id' : 'boxSamplesSelector' , class : 'multiselect' , 'multiple' : 'multiple'});
 	this._positionContainer = $("<div>");
-	this._positionField = null;
 	
 	this.repaint = function($container) {
 		//
@@ -106,10 +105,11 @@ function StorageView(storageController, storageModel, gridView) {
 				_this._storageController.setBoxSelected($(this).val());
 			});
 			// Sample to bind
-			if(this._storageModel.sample) {
+			if(this._storageModel.sample && this._storageModel.sample.properties[this._storageModel.storagePropertyGroup.boxProperty]) {
 				this._boxField.show();
 				this._boxField.val(this._storageModel.sample.properties[this._storageModel.storagePropertyGroup.boxProperty]);
 				this._storageController.setBoxSelected(this._storageModel.sample.properties[this._storageModel.storagePropertyGroup.boxProperty]);
+				this._boxField.attr("disabled", "");
 			}
 		}
 		
@@ -126,10 +126,11 @@ function StorageView(storageController, storageModel, gridView) {
 				_this._storageController.setBoxSizeSelected($(this).val(), true);
 			});
 			// Sample to bind
-			if(this._storageModel.sample) {
+			if(this._storageModel.sample && this._storageModel.sample.properties[this._storageModel.storagePropertyGroup.boxSizeProperty]) {
 				this._boxSizeDropDown.show();
 				this._boxSizeDropDown.val(this._storageModel.sample.properties[this._storageModel.storagePropertyGroup.boxSizeProperty]);
 				_this._storageController.setBoxSizeSelected(this._storageModel.sample.properties[this._storageModel.storagePropertyGroup.boxSizeProperty], false);
+				this._boxSizeDropDown.attr("disabled", "");
 			}
 		}
 		
@@ -153,8 +154,8 @@ function StorageView(storageController, storageModel, gridView) {
 			});
 		}
 		
-		$container.append(this._positionContainer);
 		if(this._storageModel.config.positionSelector === "on" && this._storageModel.sample) {
+			$container.append(FormUtil.getFieldForComponentWithLabel(this._positionContainer, "Box Position"));
 			this.showPosField(this._storageModel.sample.properties[this._storageModel.storagePropertyGroup.boxSizeProperty], false);
 		}
 		
@@ -164,9 +165,6 @@ function StorageView(storageController, storageModel, gridView) {
 			this._userIdDropdown.attr("disabled", "");
 			this._boxField.attr("disabled", "");
 			this._boxContentsDropDown.attr("disabled", "");
-			if(this._positionField) {
-				this._positionField.attr("disabled", "");
-			}
 		}
 	}
 	
@@ -199,14 +197,6 @@ function StorageView(storageController, storageModel, gridView) {
 		return !this._boxField.prop('disabled');
 	}
 	
-	this.getSelectedPosition = function() {
-		if(this._positionField) {
-			return this._positionField.val();
-		} else {
-			return null;
-		}
-	}
-	
 	this.resetSelectStorageDropdown = function() {
 		this._defaultStoragesDropDown.val("");
 	}
@@ -227,10 +217,8 @@ function StorageView(storageController, storageModel, gridView) {
 	}
 	
 	this.hidePosField = function() {
-		if(this._positionField) {
-			this._positionField.val("");
-			this._positionField.hide();
-		}
+		this._positionContainer.empty();
+		this._positionContainer.append($("<p>").append("Select a box to see his contents."));
 	}
 	
 	this.showPosField = function(boxSizeCode, isNew) {
@@ -238,65 +226,60 @@ function StorageView(storageController, storageModel, gridView) {
 			//Pointer to himself
 			var _this = this;
 			
-//			var propertyTypeCodes = [this._storageModel.storagePropertyGroup.boxProperty];
-//			var propertyValues = ["'" + this._storageModel.boxName + "'"];
-//			mainController.serverFacade.searchWithProperties(propertyTypeCodes, propertyValues, function(samples) {
-//				//Labels
-//				var labels = [];
-//				samples.forEach(function(element, index, array) {
-//					var code = element.code;
-//					var position  = element.properties[_this._storageModel.storagePropertyGroup.positionProperty];
-//					if(position) {
-//						var xyPos = Util.getXYfromLetterNumberCombination(position);
-//						var x = xyPos[0];
-//						var y = xyPos[1];
-//						
-//						var row = labels[x];
-//						if(!row) {
-//							row = [];
-//							labels[x] = row;
-//						}
-//						
-//						var col = row[y];
-//						if(!col) {
-//							col = [];
-//							row[y] = col;
-//						}
-//						
-//						label = { displayName : code, data : {} };
-//						col.push(label);
-//					} else {
-//						//Not position found
-//					}
-//				});
-//				
-//				//Repaint
-//				this._storageController._gridControllerPosition.getModel().useLettersOnRows = true;
-//				var rowsAndCols = boxSizeCode.split("X");
-//				var numRows = parseInt(rowsAndCols[0]);
-//				var numCols = parseInt(rowsAndCols[1]);
-//				this._storageController._gridControllerPosition.getModel().reset(numRows, numCols, labels);
-//			});
-			
-			this._positionField = FormUtil.getBoxPositionsDropdown("", false, boxSizeCode);
+			var propertyTypeCodes = [this._storageModel.storagePropertyGroup.boxProperty];
+			var propertyValues = ["'" + this._storageModel.boxName + "'"];
+			mainController.serverFacade.searchWithProperties(propertyTypeCodes, propertyValues, function(samples) {
+				//Labels
+				var labels = [];
+				samples.forEach(function(element, index, array) {
+					var code = element.code;
+					var position  = element.properties[_this._storageModel.storagePropertyGroup.positionProperty];
+					if(position) {
+						var xyPos = Util.getXYfromLetterNumberCombination(position);
+						var x = xyPos[0];
+						var y = xyPos[1];
+						
+						var row = labels[x];
+						if(!row) {
+							row = [];
+							labels[x] = row;
+						}
+						
+						var col = row[y];
+						if(!col) {
+							col = [];
+							row[y] = col;
+						}
+						
+						label = { displayName : code, data : {} };
+						col.push(label);
+					} else {
+						//Not position found
+					}
+				});
 				
-			var $controlGroupPosition = FormUtil.getFieldForComponentWithLabel(this._positionField, "Position");
-			this._positionContainer.empty();
-			this._positionContainer.append($controlGroupPosition);
+				//Repaint
+				_this._storageController._gridControllerPosition.getModel().useLettersOnRows = true;
+				var rowsAndCols = boxSizeCode.split("X");
+				var numRows = parseInt(rowsAndCols[0]);
+				var numCols = parseInt(rowsAndCols[1]);
+				_this._storageController._gridControllerPosition.getModel().reset(numRows, numCols, labels);
+				_this._storageController._gridControllerPosition.getView().setPosSelectedEventHandler(function(posX, posY) {
+					//Binded sample
+					if(_this._storageModel.sample) {
+						_this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.positionProperty] = Util.getLetterForNumber(posX) + posY;
+					}
+				}); 
 				
-			//Attach Event
-			this._positionField.change(function() {
-				if(_this._storageModel.sample) { //Sample to bind
-					_this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.positionProperty] = $(this).val();
+				_this._storageController._gridControllerPosition.init(_this._positionContainer);
+				
+				if(isNew) {
+					_this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.positionProperty] = null;
+					_this._storageModel.boxPosition = null;
+				} else {
+					_this._storageModel.boxPosition = _this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.positionProperty];
 				}
 			});
-			
-			if(isNew) {
-				_this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.positionProperty] = null;
-			} else {
-				this._positionField.val(this._storageModel.sample.properties[this._storageModel.storagePropertyGroup.positionProperty]);
-			}
-			this._positionField.show();
 		}
 	}
 	
