@@ -10,7 +10,7 @@ import xml.etree.ElementTree as ET
 UPDATES_ENABLED = False
 
 sampleTypesToVerify = ["YEAST","POMBE"]
-logLevelsToPrint = ["ERROR", "REPORT", "MANUAL-FIX", "UPDATED"] #INFO not included, use it for debug only
+logLevelsToPrint = ["ERROR", "REPORT", "MANUAL-FIX", "UPDATED", "LOSTDEBUG"] #INFO not included, use it for debug only
 
 ##
 ## Logging
@@ -93,6 +93,7 @@ def process(tr):
     log("REPORT", "UPDATABLE " + str(numberOfCanBeUpdated) + " SAMPLES!")
     log("REPORT", "REQUIRED " + str(numberOfManualFixes-1) + " MANUAL FIXES!") #-1 For the Header
     log("REPORT", "FINISH VERIFICATION REPORT!")
+#     raise Exception("Test");
 
 def verify(tr, sample):
     newAnnotations = [];
@@ -103,7 +104,7 @@ def verify(tr, sample):
     requiredAnnotationsFromParents = getRequiredAnnotationsFromParents(sample) #To detect case 5
     if annotationsRoot is not None:
         for annotation in annotationsRoot:
-            if getValueOrNull(annotation.attrib, "PLASMID_RELATIONSHIP") == "LOT": #Skip auto generated
+            if getValueOrNull(annotation.attrib, "PLASMID_RELATIONSHIP") == "LOT": #Skip auto generated lot
                 continue;
             annotatedSampleIdentifier = annotation.attrib["identifier"] #Identifier from annotated sample
             requiredAnnotationsFound[annotatedSampleIdentifier] = True
@@ -144,6 +145,7 @@ def verify(tr, sample):
             if lostPermId is None:
                 raise Exception("Lost PermId Not Found");
             newAnnotations.append({ "permId" : lostPermId, "identifier" : parentAnnotationIdentifier, "PLASMID_RELATIONSHIP" : "LOT" });
+            log("LOSTDEBUG", "Lost debug " + str(requiredAnnotationsFromParents));
             log("AUTO-FIX-2", "CASE 2 - MISSING LOST ANNOTATIONS ON SAMPLE: " + sample.getSampleIdentifier() + " FOR LOST ANNOTATION: " + parentAnnotationIdentifier + " PRESENT INTO ONE OF THE PARENTS")
     #4 Check parents from contained
     expectedParents = getContainedFromAnnotations(sample)
@@ -159,7 +161,7 @@ def verify(tr, sample):
     if newAnnotationsReady and UPDATES_ENABLED:
         global numberOfCanBeUpdated;
         numberOfCanBeUpdated = numberOfCanBeUpdated + 1;
-        log("UPDATED", str(newAnnotations))
+        log("UPDATED", "Updated: " + sample.getSampleIdentifier() + " - "+ str(newAnnotations))
         sample =  tr.makeSampleMutable(sample);
         #1. Create new annotations XML
         newAnnotationsRoot = ET.Element("root");
@@ -168,8 +170,16 @@ def verify(tr, sample):
             for newAttribute in newAnnotation:
                 newAnnotationsNode.attrib[newAttribute] = newAnnotation[newAttribute];
             if getValueOrNull(newAnnotation, "PLASMID_RELATIONSHIP") == "LOT": #2. Add LOST parents
-                sample.getParentSampleIdentifiers().add(newAnnotation["identifier"]);
+                log("LOSTDEBUG", "Adding lost Parent " + newAnnotation["identifier"]);
+                parents = sample.getParentSampleIdentifiers();
+                parents.add(newAnnotation["identifier"]);
+                sample.setParentSampleIdentifiers(parents);
+                log("LOSTDEBUG", "Adding lost Parent list" + str(sample.getParentSampleIdentifiers()));
         sample.setPropertyValue("ANNOTATIONS_STATE", ET.tostring(newAnnotationsRoot, encoding='utf-8'));
+    elif not newAnnotationsReady:
+        log("UPDATED", "Not ready for update: " + sample.getSampleIdentifier());
+    else:
+        log("UPDATED", "Not updated but ready:" + sample.getSampleIdentifier() + " - "+ str(newAnnotations))
 
 def areAnnotationDuplicated(sample):
     annotated = {}; #They should be parents of the sample and not been missing
@@ -223,7 +233,8 @@ def getRequiredAnnotationsFromParents(sample):
             if parentAnnotationsRoot is not None:
                 for parentAnnotation in parentAnnotationsRoot:
                     parentAnnotationIdentifier = parentAnnotation.attrib["identifier"]
-                    if "/FRP" in parentAnnotationIdentifier: #Only require Plasmids
+                    annotationType = getValueOrNull(parentAnnotation.attrib, "PLASMID_RELATIONSHIP");
+                    if "/FRP" in parentAnnotationIdentifier and ((annotationType is None) or (annotationType is not "LOT")): #Only require Plasmids not LOT
                         requiredAnnotationsFromParents[parentAnnotationIdentifier] = False
     return requiredAnnotationsFromParents
 
