@@ -41,7 +41,7 @@ public abstract class AbstractUpdateEntityFieldUpdateValueRelationExecutor<ENTIT
     protected IRelationshipService relationshipService;
 
     @Autowired
-    protected ICommonBusinessObjectFactory BOfactory;
+    protected ICommonBusinessObjectFactory boFactory;
 
     @Override
     public void update(IOperationContext context, Map<ENTITY_UPDATE, ENTITY_PE> entitiesMap)

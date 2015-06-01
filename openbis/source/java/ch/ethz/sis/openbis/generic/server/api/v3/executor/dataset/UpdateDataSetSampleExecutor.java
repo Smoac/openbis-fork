@@ -84,10 +84,10 @@ public class UpdateDataSetSampleExecutor extends AbstractUpdateEntityFieldUpdate
     {
         if (related != null)
         {
-            this.BOfactory.createDataBO(context.getSession()).assignDataSetToSampleAndExperiment(entity, related, related.getExperiment());
+            this.boFactory.createDataBO(context.getSession()).assignDataSetToSampleAndExperiment(entity, related, related.getExperiment());
         } else
         {
-            this.BOfactory.createDataBO(context.getSession()).assignDataSetToSampleAndExperiment(entity, null, entity.getExperiment());
+            this.boFactory.createDataBO(context.getSession()).assignDataSetToSampleAndExperiment(entity, null, entity.getExperiment());
         }
     }
 

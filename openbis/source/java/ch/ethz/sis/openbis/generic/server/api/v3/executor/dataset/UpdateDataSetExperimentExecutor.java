@@ -82,6 +82,6 @@ public class UpdateDataSetExperimentExecutor extends
     @Override
     protected void update(IOperationContext context, DataPE entity, ExperimentPE related)
     {
-        this.BOfactory.createDataBO(context.getSession()).assignDataSetToSampleAndExperiment(entity, null, related);
+        this.boFactory.createDataBO(context.getSession()).assignDataSetToSampleAndExperiment(entity, null, related);
     }
 }
