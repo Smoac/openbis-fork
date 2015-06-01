@@ -27,7 +27,6 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.entitygraph.DataSetNode;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.entitygraph.EntityGraphGenerator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.entitygraph.ExperimentNode;
@@ -812,9 +811,13 @@ public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
                 "not connected to any experiment and the data set type ("
                         + dataset.getDataSetType().getCode()
                         + ") doesn't match one of the following regular expressions:   NO-EXP-.* ,   NE.*  .";
-        AssertionUtil.assertStarts("The dataset '" + dataset.getCode()
-                + "' cannot be connected to the sample '" + sample.getIdentifier()
-                + "' because the new sample is " + postfix, ex.getMessage());
+        assertEquals(createErrorMessage(dataset, sample, postfix), ex.getMessage());
+    }
+
+    protected String createErrorMessage(AbstractExternalData dataset, Sample sample, String postfix)
+    {
+        return "The dataset '" + dataset.getCode() + "' cannot be connected to the sample '" 
+                + sample.getIdentifier() + "' because the new sample is " + postfix;
     }
 
     private void checkAssignmentToExperiment(RoleWithHierarchy sourceSpaceRole, 

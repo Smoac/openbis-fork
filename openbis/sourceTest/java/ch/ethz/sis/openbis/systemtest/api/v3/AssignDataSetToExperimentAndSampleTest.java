@@ -26,6 +26,8 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSetUpdat
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.DataSetPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentIdentifier;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SamplePermId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.systemtest.AbstractDataSetAssignmentTestCase;
 
 /**
@@ -36,6 +38,8 @@ import ch.systemsx.cisd.openbis.systemtest.AbstractDataSetAssignmentTestCase;
 @Test(groups = { "system-cleandb" })
 public class AssignDataSetToExperimentAndSampleTest extends AbstractDataSetAssignmentTestCase
 {
+    private static final String CONTEXT_DESCRIPTION = " (Context: [])";
+    
     @Autowired
     protected IApplicationServerApi v3api;
 
@@ -63,4 +67,11 @@ public class AssignDataSetToExperimentAndSampleTest extends AbstractDataSetAssig
         }
         v3api.updateDataSets(userSessionToken, Arrays.asList(dataSetUpdate));
     }
+
+    @Override
+    protected String createErrorMessage(AbstractExternalData dataset, Sample sample, String postfix)
+    {
+        return super.createErrorMessage(dataset, sample, postfix) + CONTEXT_DESCRIPTION;
+    }
+    
 }
