@@ -213,7 +213,7 @@ function StorageController(configOverride) {
 						var getBoxFromCol = function(col, boxName) {
 							for(var i = 0; i < col.length; i++) {
 								box = col[i];
-								if(box.displayName = boxName) {
+								if(box.displayName === boxName) {
 									return box;
 								}
 							}
