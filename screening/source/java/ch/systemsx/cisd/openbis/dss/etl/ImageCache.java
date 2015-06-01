@@ -30,13 +30,14 @@ import ch.systemsx.cisd.openbis.dss.etl.dto.ImageLibraryInfo;
  *
  * @author Franz-Josef Elmer
  */
-public class ImageCache
+public class ImageCache implements IImageProvider
 {
     private final Map<String, BufferedImage> images = new ReferenceMap<String, BufferedImage>();
 
     /**
      * Returns or loads the image specified by file name, identifier and loading library.
      */
+    @Override
     public synchronized BufferedImage getImage(IHierarchicalContentNode contentNode, 
             String imageIdOrNull, ImageLibraryInfo imageLibraryOrNull)
     {

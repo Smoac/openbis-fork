@@ -34,6 +34,8 @@ import org.testng.annotations.Test;
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.image.ImageHistogram;
+import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
+import ch.systemsx.cisd.openbis.dss.etl.IImageProvider;
 import ch.systemsx.cisd.openbis.dss.etl.dto.ImageLibraryInfo;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.Channel;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.ChannelColorRGB;
@@ -93,8 +95,9 @@ public class MaximumIntensityProjectionGenerationAlgorithmTest extends AbstractF
         }
 
         @Override
-        BufferedImage loadImage(File incomingDirectory, String imagePath, String identifier, ImageLibraryInfo library)
+        BufferedImage loadImage(IImageProvider imageProvider, File incomingDirectory, String imagePath, String identifier, ImageLibraryInfo library)
         {
+            assertSame(DUMMY_IMAGE_PROVIDER, imageProvider);
             recorder.add(incomingDirectory.getName() + "/" + imagePath + ": " + identifier + " [" + library + "]");
             BufferedImage bufferedImage = images.get(identifier);
             assertNotNull("image " + identifier, bufferedImage);
@@ -107,6 +110,15 @@ public class MaximumIntensityProjectionGenerationAlgorithmTest extends AbstractF
             return imagesToIgnore.contains(image.tryGetUniqueStringIdentifier());
         }
     }
+    
+    private static final IImageProvider DUMMY_IMAGE_PROVIDER = new IImageProvider()
+        {
+            @Override
+            public BufferedImage getImage(IHierarchicalContentNode contentNode, String imageIdOrNull, ImageLibraryInfo imageLibraryOrNull)
+            {
+                return null;
+            }
+        };
     
     private Map<String, BufferedImage> images;
     private ImageDataSetInformation information;
@@ -153,7 +165,7 @@ public class MaximumIntensityProjectionGenerationAlgorithmTest extends AbstractF
         Channel channel2 = new Channel("CI2", "i2", new ChannelColorRGB(0, 120, 180));
         structure.setChannels(Arrays.asList(channel1, channel2));
         
-        List<BufferedImage> generatedImages = generationAlgorithm.generateImages(information);
+        List<BufferedImage> generatedImages = generationAlgorithm.generateImages(information, DUMMY_IMAGE_PROVIDER);
         
         assertEquals("[incoming/images/i1.png: i1 [lib (reader: reader)], "
                 + "incoming/images/i2.png: i2 [lib (reader: reader)]]", generationAlgorithm.recorder.toString());
@@ -175,7 +187,7 @@ public class MaximumIntensityProjectionGenerationAlgorithmTest extends AbstractF
         Channel channel2 = new Channel("CI3", "i3", new ChannelColorRGB(0, 120, 180));
         structure.setChannels(Arrays.asList(channel1, channel2));
         
-        List<BufferedImage> generatedImages = generationAlgorithm.generateImages(information);
+        List<BufferedImage> generatedImages = generationAlgorithm.generateImages(information, DUMMY_IMAGE_PROVIDER);
         
         assertEquals("[incoming/images/i2.png: i2 [lib (reader: reader)], "
                 + "incoming/images/i3.png: i3 [lib (reader: reader)]]", generationAlgorithm.recorder.toString());

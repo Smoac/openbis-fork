@@ -12,7 +12,7 @@ import java.util.Map;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.openbis.common.io.FileBasedContentNode;
-import ch.systemsx.cisd.openbis.dss.etl.Utils;
+import ch.systemsx.cisd.openbis.dss.etl.IImageProvider;
 import ch.systemsx.cisd.openbis.dss.etl.dto.ImageLibraryInfo;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.Channel;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.ChannelColorComponent;
@@ -102,7 +102,7 @@ public class MaximumIntensityProjectionGenerationAlgorithm implements IImageGene
     }
     
     @Override
-    public List<BufferedImage> generateImages(ImageDataSetInformation information)
+    public List<BufferedImage> generateImages(ImageDataSetInformation information, IImageProvider imageProvider)
     {
         ImageDataSetStructure structure = information.getImageDataSetStructure();
         ImageLibraryInfo library = structure.getImageStorageConfiguraton().tryGetImageLibrary();
@@ -119,13 +119,12 @@ public class MaximumIntensityProjectionGenerationAlgorithm implements IImageGene
             String imagePath = imageFileInfo.getImageRelativePath();
             ChannelAndColorComponent channelAndColorComponent = channelsByCode.get(imageFileInfo.getChannelCode());
             String identifier = imageFileInfo.tryGetUniqueStringIdentifier();
-            BufferedImage image = loadImage(incomingDirectory, imagePath, identifier, library);
+            BufferedImage image = loadImage(imageProvider, incomingDirectory, imagePath, identifier, library);
             image = ImageChannelsUtils.rescaleIfNot8Bit(image, 0f);
             image = ImageChannelsUtils.extractChannel(image, channelAndColorComponent.colorComponent);
             image = ImageChannelsUtils.transformGrayToColor(image, channelAndColorComponent.channel.tryGetChannelColor());
             maxIntensity = addImage(image);
         }
-
         if (result == null)
         {
             return Collections.emptyList();
@@ -151,10 +150,11 @@ public class MaximumIntensityProjectionGenerationAlgorithm implements IImageGene
         }
     }
 
-    @Private BufferedImage loadImage(File incomingDirectory, String imagePath, String identifier, ImageLibraryInfo library)
+    @Private BufferedImage loadImage(IImageProvider imageProvider, File incomingDirectory, String imagePath, 
+            String identifier, ImageLibraryInfo library)
     {
         File file = new File(incomingDirectory, imagePath);
-        return Utils.loadUnchangedImage(new FileBasedContentNode(file), identifier, library);
+        return imageProvider.getImage(new FileBasedContentNode(file), identifier, library);
     }
 
     /**
