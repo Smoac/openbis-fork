@@ -91,6 +91,14 @@ public abstract class IngestionService<T extends DataSetInformation> extends Agg
     // openBisService may be initialized lazily
     private IEncapsulatedOpenBISService openBisService;
 
+    private final File dssInternalTempDir;
+
+    private final File dssRegistrationLogDir;
+
+    private final File dssRecoveryStateDir;
+
+    private final String dssCode;
+
     private final IMailClient mailClient;
 
     /**
@@ -136,6 +144,11 @@ public abstract class IngestionService<T extends DataSetInformation> extends Agg
         this.openBisService = openBisService;
         this.mailClient = mailClient;
         this.shareId = instanceProperties.getProperty(AGGREGATION_SERVICE_SHARE_ID);
+        this.dssInternalTempDir = DssPropertyParametersUtil.getDssInternalTempDir(dssProperties);
+        this.dssRegistrationLogDir =
+                DssPropertyParametersUtil.getDssRegistrationLogDir(dssProperties);
+        this.dssRecoveryStateDir = DssPropertyParametersUtil.getDssRecoveryStateDir(dssProperties);
+        this.dssCode = DssPropertyParametersUtil.getDataStoreCode(dssProperties);
     }
 
     @Override
@@ -335,19 +348,13 @@ public abstract class IngestionService<T extends DataSetInformation> extends Agg
 
     protected TopLevelDataSetRegistratorGlobalState createGlobalState()
     {
-
-        File dssInternalTempDir = DssPropertyParametersUtil.getDssInternalTempDir(dssProperties);
-        File dssRegistrationLogDir =
-                DssPropertyParametersUtil.getDssRegistrationLogDir(dssProperties);
-        File dssRecoveryStateDir = DssPropertyParametersUtil.getDssRecoveryStateDir(dssProperties);
-        String dssCode = DssPropertyParametersUtil.getDataStoreCode(dssProperties);
-        String shareId = getShareId();
+        String localShareId = getShareId();
         DataSetValidator dataSetValidator = new DataSetValidator(dssProperties);
         DataSourceQueryService dataSourceQueryService = new DataSourceQueryService();
         ThreadParameters threadParameters = createThreadParameters();
 
         TopLevelDataSetRegistratorGlobalState globalState =
-                new TopLevelDataSetRegistratorGlobalState(dssCode, shareId, storeRoot,
+                new TopLevelDataSetRegistratorGlobalState(dssCode, localShareId, storeRoot,
                         dssInternalTempDir, dssRegistrationLogDir, dssRecoveryStateDir,
                         getOpenBisService(), mailClient, dataSetValidator, dataSourceQueryService,
                         new DynamicTransactionQueryFactory(), shouldNotifySuccessfulRegistration(),
@@ -378,9 +385,11 @@ public abstract class IngestionService<T extends DataSetInformation> extends Agg
 
     protected String getShareId()
     {
-        if(this.shareId != null) {
+        if (this.shareId != null)
+        {
             return this.shareId;
-        } else {
+        } else
+        {
             return "1";
         }
     }
