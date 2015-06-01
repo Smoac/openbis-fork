@@ -18,7 +18,10 @@ function StorageManagerController(mainController) {
 	if(!profile.storagesConfiguration["isBoxSizeAndPositionEnabled"]) {
 		Util.showError("Your Storage Model don't works properly with the lattest ELN version, contact your admin.");
 		return;
+	} else {
+		window.alert("Warning: The Storage manager don't supports positions yet, when moving entities from one box to another the position will be deleted.");
 	}
+	
 	this._mainController = mainController;
 	
 	//Sub Views Setup
