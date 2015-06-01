@@ -17,4 +17,5 @@
 function StorageListModel(sample, isDisabled) {
 	this.sample = sample;
 	this.isDisabled = isDisabled;
+	this.savedState = null;
 }

@@ -21,4 +21,22 @@ function StorageListController(sample, isDisabled) {
 	this.init = function($container) {
 		this._storageListView.repaint($container);
 	}
+	
+	this._saveState = function(storagePropGroup){
+		delete this._storageListModel.savedState;
+		var savedState = {};
+		for(key in storagePropGroup) {
+			var propertyKey = storagePropGroup[key];
+			if(key != "groupDisplayName") {
+				savedState[propertyKey] = this._storageListModel.sample.properties[propertyKey];
+			}
+		}
+		this._storageListModel.savedState = savedState;
+	}
+	
+	this._restoreState = function() {
+		for(key in this._storageListModel.savedState) {
+			this._storageListModel.sample.properties[key] = this._storageListModel.savedState[key];
+		}
+	}
 }

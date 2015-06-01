@@ -147,18 +147,20 @@ function StorageListView(storageListController, storageListModel) {
 		}
 		return count;
 	}
+	
 	this.showStorageWidget = function(e) {
 		var _this = this;
 		var css = {
 				'text-align' : 'left',
-				'top' : '15%',
-				'width' : '70%',
-				'left' : '15%',
-				'right' : '20%',
-				'overflow' : 'auto'
+				'top' : '5%',
+				'width' : '80%',
+				'left' : '10%',
+				'right' : '10%',
+				'overflow' : 'auto',
+				'height' : '90%'
 		};
 		
-		var container = "<div class='col-md-12 form-horizontal' id='storage-pop-up-container'></div><br><a class='btn btn-default' id='storage-accept'>Accept</a>"
+		var container = "<div class='col-md-12 form-horizontal' id='storage-pop-up-container'></div><br><a class='btn btn-default' id='storage-accept'>Accept</a> <a class='btn btn-default' id='storage-cancel'>Cancel</a>"
 		Util.blockUI(container, css);
 		
 		
@@ -173,7 +175,9 @@ function StorageListView(storageListController, storageListModel) {
 			contentsSelector: "off",
 			positionSelector: "on"
 		});
-		storageController.getModel().storagePropertyGroup = profile.getStoragePropertyGroup(e.data.groupDisplayName);
+		var storagePropGroup = profile.getStoragePropertyGroup(e.data.groupDisplayName);
+		storageController.getModel().storagePropertyGroup = storagePropGroup;
+		this._storageListController._saveState(storagePropGroup);
 		storageController.bindSample(this._storageListModel.sample, this._storageListModel.isDisabled);
 		storageController.getView().repaint($("#storage-pop-up-container"));
 		
@@ -184,6 +188,12 @@ function StorageListView(storageListController, storageListModel) {
 					_this._dataGrid.refresh();
 				}
 			});
+		});
+		
+		$("#storage-cancel").on("click", function(event) {
+			_this._storageListController._restoreState();
+			Util.unblockUI();
+			_this._dataGrid.refresh();
 		});
 	}
 }
