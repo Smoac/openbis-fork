@@ -26,9 +26,11 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 
 import javax.imageio.ImageIO;
 
@@ -530,6 +532,7 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
                 imageDataSetStructure.getImageStorageConfiguraton().tryGetImageLibrary();
         List<ImageFileInfo> images = imageDataSetStructure.getImages();
 
+        Set<String> usedFiles = new HashSet<String>();
         if (imageDataSetInformation.isGenerateOverviewImagesFromRegisteredImages())
         {
             IHierarchicalContent content =
@@ -540,7 +543,7 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
                 for (ImageFileInfo imageFileInfo : images)
                 {
                     setBoundingBox(imageDataSetInformation,
-                            content.getNode(imageFileInfo.getImageRelativePath()), imageLibrary);
+                            content.getNode(imageFileInfo.getImageRelativePath()), imageLibrary, usedFiles);
                 }
             } finally
             {
@@ -555,14 +558,20 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
             {
                 File file = new File(incomingDirectory, imageFileInfo.getImageRelativePath());
                 setBoundingBox(imageDataSetInformation, new FileBasedContentNode(file),
-                        imageLibrary);
+                        imageLibrary, usedFiles);
             }
         }
     }
 
     private void setBoundingBox(ImageDataSetInformation imageDataSetInformation,
-            IHierarchicalContentNode content, ImageLibraryInfo imageLibrary)
+            IHierarchicalContentNode content, ImageLibraryInfo imageLibrary, Set<String> usedFiles)
     {
+        String relativePath = content.getRelativePath();
+        if (usedFiles.contains(relativePath))
+        {
+            return;
+        }
+        usedFiles.add(relativePath);
         try
         {
             Size size = Utils.loadUnchangedImageSize(content, null, imageLibrary);
@@ -577,7 +586,7 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
             }
         } catch (Exception ex)
         {
-            throw new UserFailureException("Error ocured when calculating bounding box of " + content.getRelativePath(), ex);
+            throw new UserFailureException("Error ocured when calculating bounding box of " + relativePath, ex);
         }
     }
 
