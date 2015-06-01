@@ -20,7 +20,6 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -44,10 +43,9 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationDetails;
 import ch.systemsx.cisd.etlserver.registrator.v2.IDataSetRegistrationDetailsFactory;
 import ch.systemsx.cisd.imagereaders.IImageReader;
-import ch.systemsx.cisd.imagereaders.ImageID;
 import ch.systemsx.cisd.imagereaders.ImageReaderFactory;
 import ch.systemsx.cisd.openbis.common.io.FileBasedContentNode;
-import ch.systemsx.cisd.openbis.dss.etl.ImageCache;
+import ch.systemsx.cisd.openbis.dss.etl.IImageProvider;
 import ch.systemsx.cisd.openbis.dss.etl.dto.ImageLibraryInfo;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.Channel;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.ChannelColorComponent;
@@ -122,9 +120,9 @@ public class SimpleImageDataSetRegistrator
 
     public static DataSetRegistrationDetails<ImageDataSetInformation> createImageDatasetDetails(
             SimpleImageDataConfig simpleImageConfig, File incoming,
-            IDataSetRegistrationDetailsFactory<ImageDataSetInformation> factory, ImageCache imageCache)
+            IDataSetRegistrationDetailsFactory<ImageDataSetInformation> factory, IImageProvider imageProvider)
     {
-        return createImageDatasetDetails(simpleImageConfig, incoming, factory, imageCache,
+        return createImageDatasetDetails(simpleImageConfig, incoming, factory, imageProvider,
                 new IImageReaderFactory()
                     {
                         @Override
@@ -143,11 +141,11 @@ public class SimpleImageDataSetRegistrator
 
     private static DataSetRegistrationDetails<ImageDataSetInformation> createImageDatasetDetails(
             SimpleImageDataConfig simpleImageConfig, File incoming,
-            IDataSetRegistrationDetailsFactory<ImageDataSetInformation> factory, ImageCache imageCache,
+            IDataSetRegistrationDetailsFactory<ImageDataSetInformation> factory, IImageProvider imageProvider,
             IImageReaderFactory readerFactory)
     {
         SimpleImageDataSetRegistrator registrator =
-                new SimpleImageDataSetRegistrator(simpleImageConfig, imageCache, readerFactory);
+                new SimpleImageDataSetRegistrator(simpleImageConfig, imageProvider, readerFactory);
         return registrator.createImageDatasetDetails(incoming, factory);
     }
 
@@ -158,13 +156,13 @@ public class SimpleImageDataSetRegistrator
 
     private final IImageReaderFactory readerFactory;
 
-    private final ImageCache imageCache;
+    private final IImageProvider imageProvider;
 
-    private SimpleImageDataSetRegistrator(SimpleImageDataConfig simpleImageConfig, ImageCache imageCache,
+    private SimpleImageDataSetRegistrator(SimpleImageDataConfig simpleImageConfig, IImageProvider imageProvider,
             IImageReaderFactory readerFactory)
     {
         this.simpleImageConfig = simpleImageConfig;
-        this.imageCache = imageCache;
+        this.imageProvider = imageProvider;
         this.readerFactory = readerFactory;
     }
 
@@ -254,7 +252,7 @@ public class SimpleImageDataSetRegistrator
     /**
      * Tokenizes file names of all images in the directory.
      */
-    protected List<ImageTokensWithPath> parseImageTokens(List<File> imageFiles,
+    private List<ImageTokensWithPath> parseImageTokens(List<File> imageFiles,
             File incomingDirectory, IImageReader imageReaderOrNull)
     {
         List<ImageTokensWithPath> imageTokensList = new ArrayList<ImageTokensWithPath>();
@@ -264,7 +262,7 @@ public class SimpleImageDataSetRegistrator
             try
             {
                 File file = new File(imageFile.getPath());
-                List<ImageIdentifier> identifiers = getImageIdentifiers(imageReaderOrNull, file);
+                List<ImageIdentifier> identifiers = imageProvider.getImageIdentifiers(imageReaderOrNull, file);
                 String imageRelativePath = FileUtilities.getRelativeFilePath(incomingDirectory, file);
                 ImageMetadata[] imageTokens =
                         simpleImageConfig.extractImagesMetadata(imageRelativePath, identifiers);
@@ -353,26 +351,6 @@ public class SimpleImageDataSetRegistrator
     private ImageLibraryInfo tryGetImageLibrary()
     {
         return simpleImageConfig.getImageStorageConfiguration().tryGetImageLibrary();
-    }
-
-    private static List<ImageIdentifier> getImageIdentifiers(IImageReader readerOrNull,
-            File imageFile)
-    {
-        List<ImageIdentifier> ids = new ArrayList<ImageIdentifier>();
-        if (readerOrNull == null)
-        {
-            ids.add(ImageIdentifier.NULL);
-        } else
-        {
-            List<ImageID> imageIDs = readerOrNull.getImageIDs(imageFile);
-            for (ImageID imageID : imageIDs)
-            {
-                ids.add(new ImageIdentifier(imageID.getSeriesIndex(), imageID.getTimeSeriesIndex(),
-                        imageID.getFocalPlaneIndex(), imageID.getColorChannelIndex()));
-            }
-        }
-        Collections.sort(ids);
-        return ids;
     }
 
     /**
@@ -606,7 +584,7 @@ public class SimpleImageDataSetRegistrator
             try
             {
                 FileBasedContentNode contentNode = new FileBasedContentNode(imageFile);
-                BufferedImage image = imageCache.getImage(contentNode, imageId, libraryInfo);
+                BufferedImage image = imageProvider.getImage(contentNode, imageId, libraryInfo);
                 if (IntensityRescaling.isNotGrayscale(image))
                 {
                     operationLog.warn("Intensity range cannot be computed because " + humanReadableImageId
@@ -630,7 +608,7 @@ public class SimpleImageDataSetRegistrator
      * @param incoming - folder with images
      * @param dataset - here the result will be stored
      */
-    protected void setImageDataset(File incoming, ImageDataSetInformation dataset)
+    private void setImageDataset(File incoming, ImageDataSetInformation dataset)
     {
         dataset.setDatasetTypeCode(simpleImageConfig.getDataSetType());
         dataset.setFileFormatCode(simpleImageConfig.getFileFormatType());

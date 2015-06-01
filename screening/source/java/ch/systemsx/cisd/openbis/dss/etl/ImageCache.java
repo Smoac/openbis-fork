@@ -17,12 +17,20 @@
 package ch.systemsx.cisd.openbis.dss.etl;
 
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections.map.ReferenceMap;
 
+import ch.systemsx.cisd.imagereaders.IImageReader;
+import ch.systemsx.cisd.imagereaders.ImageID;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.openbis.dss.etl.dto.ImageLibraryInfo;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.ImageIdentifier;
+import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
 
 /**
  * An image cache based on {@link ReferenceMap}. 
@@ -33,6 +41,9 @@ import ch.systemsx.cisd.openbis.dss.etl.dto.ImageLibraryInfo;
 public class ImageCache implements IImageProvider
 {
     private final Map<String, BufferedImage> images = new ReferenceMap<String, BufferedImage>();
+    private final Map<String, Size> imageSizes = new ReferenceMap<String, Size>();
+    private final Map<String, Integer> imageColorDepths = new ReferenceMap<String, Integer>();
+    private final Map<String, List<ImageIdentifier>> imageIdentifiers = new ReferenceMap<String, List<ImageIdentifier>>();
 
     /**
      * Returns or loads the image specified by file name, identifier and loading library.
@@ -41,7 +52,7 @@ public class ImageCache implements IImageProvider
     public synchronized BufferedImage getImage(IHierarchicalContentNode contentNode, 
             String imageIdOrNull, ImageLibraryInfo imageLibraryOrNull)
     {
-        String key = contentNode.getName() + ":" + imageIdOrNull + " [" + imageLibraryOrNull + "]";
+        String key = createKey(contentNode, imageIdOrNull, imageLibraryOrNull);
         BufferedImage image = images.get(key);
         if (image == null)
         {
@@ -51,8 +62,73 @@ public class ImageCache implements IImageProvider
         return image;
     }
     
+    @Override
+    public Size getImageSize(IHierarchicalContentNode contentNode, String imageIdOrNull, ImageLibraryInfo imageLibraryOrNull)
+    {
+        String key = createKey(contentNode, imageIdOrNull, imageLibraryOrNull);
+        Size size = imageSizes.get(key);
+        if (size == null)
+        {
+            size = Utils.loadUnchangedImageSize(contentNode, imageIdOrNull, imageLibraryOrNull);
+            imageSizes.put(key, size);
+        }
+        return size;
+    }
+
+    @Override
+    public int getImageColorDepth(IHierarchicalContentNode contentNode, String imageIdOrNull, ImageLibraryInfo imageLibraryOrNull)
+    {
+        String key = createKey(contentNode, imageIdOrNull, imageLibraryOrNull);
+        Integer colorDepth = imageColorDepths.get(key);
+        if (colorDepth == null)
+        {
+            colorDepth = Utils.loadUnchangedImageColorDepth(contentNode, imageIdOrNull, imageLibraryOrNull);
+            imageColorDepths.put(key, colorDepth);
+        }
+        return colorDepth;
+    }
+    
+    @Override
+    public List<ImageIdentifier> getImageIdentifiers(IImageReader imageReaderOrNull, File file)
+    {
+        String key = (imageReaderOrNull == null ? "" : imageReaderOrNull.getName() + ":") + file;
+        List<ImageIdentifier> identifiers = imageIdentifiers.get(key);
+        if (identifiers == null)
+        {
+            identifiers = readImageIdentifiers(imageReaderOrNull, file);
+            imageIdentifiers.put(key, identifiers);
+        }
+        return identifiers;
+    }
+    
     public int size()
     {
         return images.size();
     }
+    
+    private String createKey(IHierarchicalContentNode contentNode, String imageIdOrNull, ImageLibraryInfo imageLibraryOrNull)
+    {
+        return contentNode.getName() + ":" + imageIdOrNull + " [" + imageLibraryOrNull + "]";
+    }
+    
+    private static List<ImageIdentifier> readImageIdentifiers(IImageReader readerOrNull,
+            File imageFile)
+    {
+        List<ImageIdentifier> ids = new ArrayList<ImageIdentifier>();
+        if (readerOrNull == null)
+        {
+            ids.add(ImageIdentifier.NULL);
+        } else
+        {
+            List<ImageID> imageIDs = readerOrNull.getImageIDs(imageFile);
+            for (ImageID imageID : imageIDs)
+            {
+                ids.add(new ImageIdentifier(imageID.getSeriesIndex(), imageID.getTimeSeriesIndex(),
+                        imageID.getFocalPlaneIndex(), imageID.getColorChannelIndex()));
+            }
+        }
+        Collections.sort(ids);
+        return Collections.unmodifiableList(ids);
+    }
+
 }

@@ -17,12 +17,17 @@
 package ch.systemsx.cisd.openbis.dss.etl;
 
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.util.List;
 
+import ch.systemsx.cisd.imagereaders.IImageReader;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.openbis.dss.etl.dto.ImageLibraryInfo;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.ImageIdentifier;
+import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
 
 /**
- * Provider for images specified by a {@link IHierarchicalContentNode}, an image ID and an image library.
+ * Provider for images and some meta data specified by a {@link IHierarchicalContentNode}, an image ID and an image library.
  *
  * @author Franz-Josef Elmer
  */
@@ -30,4 +35,12 @@ public interface IImageProvider
 {
     public BufferedImage getImage(IHierarchicalContentNode contentNode, 
             String imageIdOrNull, ImageLibraryInfo imageLibraryOrNull);
+    
+    public Size getImageSize(IHierarchicalContentNode contentNode, 
+            String imageIdOrNull, ImageLibraryInfo imageLibraryOrNull);
+    
+    public int getImageColorDepth(IHierarchicalContentNode contentNode, 
+            String imageIdOrNull, ImageLibraryInfo imageLibraryOrNull);
+
+    public List<ImageIdentifier> getImageIdentifiers(IImageReader imageReaderOrNull, File file);
 }

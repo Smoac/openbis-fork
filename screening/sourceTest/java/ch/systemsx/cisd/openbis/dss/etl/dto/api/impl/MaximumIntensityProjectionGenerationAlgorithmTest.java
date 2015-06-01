@@ -34,13 +34,16 @@ import org.testng.annotations.Test;
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.image.ImageHistogram;
+import ch.systemsx.cisd.imagereaders.IImageReader;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.openbis.dss.etl.IImageProvider;
 import ch.systemsx.cisd.openbis.dss.etl.dto.ImageLibraryInfo;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.Channel;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.ChannelColorRGB;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.ImageFileInfo;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.ImageIdentifier;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.ImageStorageConfiguraton;
+import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
 
 
 /**
@@ -115,6 +118,24 @@ public class MaximumIntensityProjectionGenerationAlgorithmTest extends AbstractF
         {
             @Override
             public BufferedImage getImage(IHierarchicalContentNode contentNode, String imageIdOrNull, ImageLibraryInfo imageLibraryOrNull)
+            {
+                return null;
+            }
+
+            @Override
+            public Size getImageSize(IHierarchicalContentNode contentNode, String imageIdOrNull, ImageLibraryInfo imageLibraryOrNull)
+            {
+                return null;
+            }
+
+            @Override
+            public int getImageColorDepth(IHierarchicalContentNode contentNode, String imageIdOrNull, ImageLibraryInfo imageLibraryOrNull)
+            {
+                return 0;
+            }
+
+            @Override
+            public List<ImageIdentifier> getImageIdentifiers(IImageReader imageReaderOrNull, File file)
             {
                 return null;
             }

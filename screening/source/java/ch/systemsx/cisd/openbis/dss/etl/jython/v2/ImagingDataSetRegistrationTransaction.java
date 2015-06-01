@@ -50,7 +50,6 @@ import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchical
 import ch.systemsx.cisd.openbis.dss.Constants;
 import ch.systemsx.cisd.openbis.dss.etl.Hdf5ThumbnailGenerator;
 import ch.systemsx.cisd.openbis.dss.etl.ImageCache;
-import ch.systemsx.cisd.openbis.dss.etl.Utils;
 import ch.systemsx.cisd.openbis.dss.etl.dto.ImageLibraryInfo;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.IImageGenerationAlgorithm;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.ImageFileInfo;
@@ -574,14 +573,14 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
         usedFiles.add(relativePath);
         try
         {
-            Size size = Utils.loadUnchangedImageSize(content, null, imageLibrary);
+            Size size = imageCache.getImageSize(content, null, imageLibrary);
             imageDataSetInformation.setMaximumImageWidth(Math.max(
                     imageDataSetInformation.getMaximumImageWidth(), size.getWidth()));
             imageDataSetInformation.setMaximumImageHeight(Math.max(
                     imageDataSetInformation.getMaximumImageHeight(), size.getHeight()));
             if (imageDataSetInformation.getColorDepth() == null)
             {
-                imageDataSetInformation.setColorDepth(Utils.loadUnchangedImageColorDepth(content, null,
+                imageDataSetInformation.setColorDepth(imageCache.getImageColorDepth(content, null,
                         imageLibrary));
             }
         } catch (Exception ex)
