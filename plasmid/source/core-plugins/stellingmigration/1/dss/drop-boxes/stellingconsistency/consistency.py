@@ -8,6 +8,7 @@ import xml.etree.ElementTree as ET
 ## Definitions
 ##
 UPDATES_ENABLED = False
+updatesToExecute = {}
 
 sampleTypesToVerify = ["YEAST","POMBE"]
 logLevelsToPrint = ["ERROR", "REPORT", "MANUAL-FIX", "UPDATED", "LOSTDEBUG"] #INFO not included, use it for debug only
@@ -40,7 +41,7 @@ def log(level, message):
 ##
 ## Cache
 ##
-currentCache = None
+currentCache = []
 
 def getSampleFromCache(identifier):
     sampleToReturn = None
@@ -79,7 +80,7 @@ def process(tr):
     for sampleType in sampleTypesToVerify:
         samples = getSamplesByType(tr, sampleType)
         global currentCache
-        currentCache = samples
+        currentCache.extend(samples)
         print sampleType + ": "+ str(len(samples))
         for sample in samples:
             verify(tr, sample)
@@ -92,6 +93,29 @@ def process(tr):
     log("REPORT", "FOUND " + str(numberOfAutoFixesLost) + " AUTOMATIC LOST FIXES!")
     log("REPORT", "UPDATABLE " + str(numberOfCanBeUpdated) + " SAMPLES!")
     log("REPORT", "REQUIRED " + str(numberOfManualFixes-1) + " MANUAL FIXES!") #-1 For the Header
+    log("REPORT", "RUNNING UPDATES!")
+    global updatesToExecute;
+    for sampleIdentifierToUpdate in updatesToExecute:
+        sample = getSampleFromCache(sampleIdentifierToUpdate)
+        newAnnotations = updatesToExecute[sampleIdentifierToUpdate]
+        global numberOfCanBeUpdated;
+        numberOfCanBeUpdated = numberOfCanBeUpdated + 1;
+        log("UPDATED", "Updated: " + sample.getSampleIdentifier() + " - "+ str(newAnnotations))
+        sample =  tr.makeSampleMutable(sample);
+        #1. Create new annotations XML
+        newAnnotationsRoot = ET.Element("root");
+        for newAnnotation in newAnnotations:
+            newAnnotationsNode = ET.SubElement(newAnnotationsRoot, "Sample")
+            for newAttribute in newAnnotation:
+                newAnnotationsNode.attrib[newAttribute] = newAnnotation[newAttribute];
+            if getValueOrNull(newAnnotation, "PLASMID_RELATIONSHIP") == "LOT": #2. Add LOST parents
+                log("LOSTDEBUG", "Adding lost Parent " + newAnnotation["identifier"]);
+                parents = sample.getParentSampleIdentifiers();
+                parents.add(newAnnotation["identifier"]);
+                sample.setParentSampleIdentifiers(parents);
+                log("LOSTDEBUG", "Adding lost Parent list" + str(sample.getParentSampleIdentifiers()));
+        sample.setPropertyValue("ANNOTATIONS_STATE", ET.tostring(newAnnotationsRoot, encoding='utf-8'));
+    log("REPORT", "UPDATES FINISH!")
     log("REPORT", "FINISH VERIFICATION REPORT!")
 #     raise Exception("Test");
 
@@ -139,13 +163,13 @@ def verify(tr, sample):
             logManualFix("Case 4 - Missing annotation on sample for parent.", sample.getSample().getRegistrator().getUserId(), sample.getSampleIdentifier(), parentIdentifier, "-", "-")
             newAnnotationsReady = False
     #3.Missing Annotations LOST
+    log("LOSTDEBUG", "Lost debug: " + sample.getSampleIdentifier() + " " + str(requiredAnnotationsFromParents));
     for parentAnnotationIdentifier in requiredAnnotationsFromParents:
         if not requiredAnnotationsFromParents[parentAnnotationIdentifier]:
             lostPermId = getRequiredAnnotationsFromParentsPermId(sample, parentAnnotationIdentifier)
             if lostPermId is None:
                 raise Exception("Lost PermId Not Found");
             newAnnotations.append({ "permId" : lostPermId, "identifier" : parentAnnotationIdentifier, "PLASMID_RELATIONSHIP" : "LOT" });
-            log("LOSTDEBUG", "Lost debug " + str(requiredAnnotationsFromParents));
             log("AUTO-FIX-2", "CASE 2 - MISSING LOST ANNOTATIONS ON SAMPLE: " + sample.getSampleIdentifier() + " FOR LOST ANNOTATION: " + parentAnnotationIdentifier + " PRESENT INTO ONE OF THE PARENTS")
     #4 Check parents from contained
     expectedParents = getContainedFromAnnotations(sample)
@@ -160,22 +184,8 @@ def verify(tr, sample):
     global UPDATES_ENABLED;
     if newAnnotationsReady and UPDATES_ENABLED:
         global numberOfCanBeUpdated;
-        numberOfCanBeUpdated = numberOfCanBeUpdated + 1;
-        log("UPDATED", "Updated: " + sample.getSampleIdentifier() + " - "+ str(newAnnotations))
-        sample =  tr.makeSampleMutable(sample);
-        #1. Create new annotations XML
-        newAnnotationsRoot = ET.Element("root");
-        for newAnnotation in newAnnotations:
-            newAnnotationsNode = ET.SubElement(newAnnotationsRoot, "Sample")
-            for newAttribute in newAnnotation:
-                newAnnotationsNode.attrib[newAttribute] = newAnnotation[newAttribute];
-            if getValueOrNull(newAnnotation, "PLASMID_RELATIONSHIP") == "LOT": #2. Add LOST parents
-                log("LOSTDEBUG", "Adding lost Parent " + newAnnotation["identifier"]);
-                parents = sample.getParentSampleIdentifiers();
-                parents.add(newAnnotation["identifier"]);
-                sample.setParentSampleIdentifiers(parents);
-                log("LOSTDEBUG", "Adding lost Parent list" + str(sample.getParentSampleIdentifiers()));
-        sample.setPropertyValue("ANNOTATIONS_STATE", ET.tostring(newAnnotationsRoot, encoding='utf-8'));
+        updatesToExecute[sample.getSampleIdentifier()] = newAnnotations;
+        log("UPDATED", "Ready to updated: " + sample.getSampleIdentifier() + " - "+ str(newAnnotations))
     elif not newAnnotationsReady:
         log("UPDATED", "Not ready for update: " + sample.getSampleIdentifier());
     else:
@@ -225,17 +235,24 @@ def getRequiredAnnotationsFromParentsPermId(sample, identifier):
     return None
 
 def getRequiredAnnotationsFromParents(sample):
+    log("LOSTDEBUG", "getRequiredAnnotationsFromParents - START: " + sample.getSampleIdentifier());
     requiredAnnotationsFromParents = {}
+    log("LOSTDEBUG", "getRequiredAnnotationsFromParents - parents: " + str(sample.getParentSampleIdentifiers()));
     for parentIdentifier in sample.getParentSampleIdentifiers():
         if ("/FRY" in parentIdentifier) or ("/FRS" in parentIdentifier): #Only check Yeast and Pombe Parents
             parent = getSampleFromCache(parentIdentifier)
             parentAnnotationsRoot = getAnnotationsRootNodeFromSample(parent)
+            log("LOSTDEBUG", "getRequiredAnnotationsFromParents - parent: " + parent.getSampleIdentifier() + " annotations " + str(sample.getPropertyValue("ANNOTATIONS_STATE")));
             if parentAnnotationsRoot is not None:
+                log("LOSTDEBUG", "getRequiredAnnotationsFromParents - parent: " + parent.getSampleIdentifier() + " root not none");
                 for parentAnnotation in parentAnnotationsRoot:
+                    log("LOSTDEBUG", "getRequiredAnnotationsFromParents - parent annotation: " + parent.getSampleIdentifier() + " " + str(parentAnnotation));
                     parentAnnotationIdentifier = parentAnnotation.attrib["identifier"]
                     annotationType = getValueOrNull(parentAnnotation.attrib, "PLASMID_RELATIONSHIP");
+                    log("LOSTDEBUG", "getRequiredAnnotationsFromParents - parent annotation: " + str(parentAnnotationIdentifier) + " " + str(annotationType));
                     if "/FRP" in parentAnnotationIdentifier and ((annotationType is None) or (annotationType is not "LOT")): #Only require Plasmids not LOT
                         requiredAnnotationsFromParents[parentAnnotationIdentifier] = False
+    log("LOSTDEBUG", "getRequiredAnnotationsFromParents - FINISH: " + sample.getSampleIdentifier());
     return requiredAnnotationsFromParents
 
 def getRequiredAnnotations(sample):
