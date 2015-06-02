@@ -15,8 +15,6 @@
  */
 package ch.systemsx.cisd.etlserver.plugins;
 
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
@@ -91,22 +89,16 @@ public abstract class AbstractDataSetDeletionPostProcessingMaintenanceTask imple
             Long lastSeenEventId = getLastSeenEventId();
             List<DeletedDataSet> deletedDataSets =
                     openBISService.listDeletedDataSets(lastSeenEventId, computeMaxDeletionDate());
-            if (deletedDataSets.size() > chunkSize) {
-                Collections.sort(deletedDataSets, new Comparator<DeletedDataSet>() {
-                    @Override
-                    public int compare(DeletedDataSet arg0, DeletedDataSet arg1)
-                    {
-                        return new Long(arg0.getEventId()).compareTo(new Long(arg1.getEventId()));
-                    }
-                });
-                deletedDataSets = deletedDataSets.subList(0, chunkSize);
-            }
             if (deletedDataSets.size() > 0)
             {
                 
                 long t0 = getCurrentTime();
                 
-                execute(deletedDataSets);
+                for (int i = 0; i < deletedDataSets.size(); i += chunkSize)
+                {
+                    List<DeletedDataSet> chunk = deletedDataSets.subList(i, Math.min(deletedDataSets.size(), i + chunkSize));
+                    execute(chunk);
+                }
                 updateLastSeenEventId(deletedDataSets, lastSeenEventId);
 
                 if (operationLog.isInfoEnabled())
