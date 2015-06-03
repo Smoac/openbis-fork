@@ -31,9 +31,9 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 		if(this._dataSetFormModel.mode === FormMode.CREATE) {
 			titleText = 'Create Dataset';
 		} else if(this._dataSetFormModel.mode === FormMode.EDIT) {
-			titleText = 'Update Dataset';
+			titleText = 'Update Dataset ' + this._dataSetFormModel.dataSet.code;
 		} else if(this._dataSetFormModel.mode === FormMode.VIEW) {
-			titleText = 'View Dataset';
+			titleText = 'Dataset ' + this._dataSetFormModel.dataSet.code;
 		}
 		var $title = $('<h2>').text(titleText);
 		$wrapper.append($title);
@@ -84,6 +84,8 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 			$wrapper.append($dataSetTypeFieldSet);
 		} else {
 			var $dataSetTypeLabel = FormUtil.getFieldForLabelWithText('Data Set Type', this._dataSetFormModel.dataSet.dataSetTypeCode, "CODE");
+			$wrapper.append($dataSetTypeLabel);
+			var $dataSetTypeLabel = FormUtil.getFieldForLabelWithText('Code', this._dataSetFormModel.dataSet.code, null);
 			$wrapper.append($dataSetTypeLabel);
 		}
 		

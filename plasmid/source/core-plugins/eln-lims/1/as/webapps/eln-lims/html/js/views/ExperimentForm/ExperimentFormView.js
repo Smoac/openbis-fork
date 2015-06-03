@@ -38,7 +38,7 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 		//
 		var nameLabel = this._experimentFormModel.experiment.properties[profile.propertyReplacingCode];
 		if(!nameLabel) {
-			nameLabel = this._experimentFormModel.experiment.code;
+			nameLabel = this._experimentFormModel.experiment.identifier;
 		}
 		var title = '';
 		switch(this._experimentFormModel.mode) {
@@ -49,7 +49,7 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 	    		title = "Update Experiment " + nameLabel;
 	    		break;
 	    	case FormMode.VIEW:
-	    		title = "View Experiment " + nameLabel;
+	    		title = "Experiment " + nameLabel;
 	    		break;
 		}
 		
@@ -261,14 +261,15 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 		}
 		
 		//Sample List Container
-		$formColumn.append($("<legend>").append("Samples"));
-		var sampleListContainer = $("<div>");
-		$formColumn.append(sampleListContainer);
-		var sampleList = new SampleTableController(this._experimentFormController, null, this._experimentFormModel.experiment.identifier);
-		sampleList.init(sampleListContainer);
+		if(this._experimentFormModel.mode !== FormMode.CREATE) {
+			$formColumn.append($("<legend>").append("Samples"));
+			var sampleListContainer = $("<div>");
+			$formColumn.append(sampleListContainer);
+			var sampleList = new SampleTableController(this._experimentFormController, null, this._experimentFormModel.experiment.identifier);
+			sampleList.init(sampleListContainer);
+		}
 		
 		$container.append($form);
-		
 		Util.unblockUI();
 	}
 }

@@ -99,12 +99,11 @@ function DataSetFormController(mainController, mode, sample, dataSet) {
 		}
 		
 		var method = null;
-		var sampleIdentifier = null;
+		var sampleIdentifier = this._dataSetFormModel.sample.identifier;
 		var dataSetTypeCode = null;
 		var dataSetCode = null;
 		if(this._dataSetFormModel.mode === FormMode.CREATE) {
 			method = "insertDataSet";
-			sampleIdentifier = this._dataSetFormModel.sample.identifier;
 			dataSetTypeCode = $('#DATASET_TYPE').val();
 		} else if(this._dataSetFormModel.mode === FormMode.EDIT) {
 			method = "updateDataSet";
@@ -157,7 +156,14 @@ function DataSetFormController(mainController, mode, sample, dataSet) {
 							mainController.changeView('showViewDataSetPageFromPermId', _this._dataSetFormModel.dataSet.code);
 						}
 					}
-					Util.showSuccess("DataSet Created.", callbackOk);
+					
+					
+					if(_this._dataSetFormModel.mode === FormMode.CREATE) {
+						Util.showSuccess("DataSet Created.", callbackOk);
+					} else if(_this._dataSetFormModel.mode === FormMode.EDIT) {
+						Util.showSuccess("DataSet Updated.", callbackOk);
+					}
+					
 				} else { //This should never happen
 					Util.showError("Unknown Error.", function() {Util.unblockUI();});
 				}

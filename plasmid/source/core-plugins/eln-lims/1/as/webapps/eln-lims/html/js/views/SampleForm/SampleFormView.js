@@ -48,7 +48,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		var $formTitle = null;
 		var nameLabel = this._sampleFormModel.sample.properties[profile.propertyReplacingCode];
 		if(!nameLabel) {
-			nameLabel = this._sampleFormModel.sample.code;
+			nameLabel = this._sampleFormModel.sample.experimentIdentifierOrNull + "/" + this._sampleFormModel.sample.code;
 		}
 		var title = null;
 		switch(this._sampleFormModel.mode) {
@@ -59,7 +59,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 	    		title = "Update Sample " + nameLabel;
 	    		break;
 	    	case FormMode.VIEW:
-	    		title = "View Sample " + nameLabel;
+	    		title = "Sample " + nameLabel;
 	    		break;
 		} 
 		

@@ -40,7 +40,7 @@ function ProjectFormView(projectFormController, projectFormModel) {
 		if(this._projectFormModel.mode === FormMode.CREATE) {
 			title = "Create Project ";
 		} else {
-			title = "View Project /" + this._projectFormModel.project.spaceCode + "/" + this._projectFormModel.project.code;
+			title = "Project /" + this._projectFormModel.project.spaceCode + "/" + this._projectFormModel.project.code;
 		}
 		var $formTitle = $("<h2>").append(title);
 		$formColumn.append($formTitle);

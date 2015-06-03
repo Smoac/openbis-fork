@@ -27,7 +27,7 @@ function SpaceFormView(spaceFormController, spaceFormModel) {
 			
 		$form.append($formColumn);
 		
-		var $formTitle = $("<h2>").append("View Space " + this._spaceFormModel.space.code);
+		var $formTitle = $("<h2>").append("Space " + this._spaceFormModel.space.code);
 		
 		var $btn = $("<a>", { "class" : "btn btn-default"}).append("Create Project");
 		$btn.click(function() {
