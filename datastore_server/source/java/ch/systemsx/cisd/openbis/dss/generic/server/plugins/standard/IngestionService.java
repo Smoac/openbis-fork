@@ -155,9 +155,10 @@ public abstract class IngestionService<T extends DataSetInformation> extends Agg
     public final TableModel createAggregationReport(Map<String, Object> parameters,
             DataSetProcessingContext context)
     {
+        DataSetRegistrationService<T> service = null;
         try
         {
-            DataSetRegistrationService<T> service = createRegistrationService(parameters);
+            service = createRegistrationService(parameters);
             if (context.trySessionToken() != null)
             {
                 service.setUserSessionToken(context.trySessionToken());
@@ -175,8 +176,18 @@ public abstract class IngestionService<T extends DataSetInformation> extends Agg
             return tableModel;
         } catch (Throwable e)
         {
+            if (service != null)
+            {
+                service.abort(e);
+            }
             logInvocationError(parameters, e);
             return errorTableModel(parameters, e);
+        } finally
+        {
+            if (service != null)
+            {
+                service.cleanAfterRegistrationIfNecessary();
+            }
         }
     }
 
