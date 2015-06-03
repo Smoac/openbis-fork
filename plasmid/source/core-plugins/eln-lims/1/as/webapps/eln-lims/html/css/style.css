@@ -598,10 +598,12 @@ table.downloads {
  
  .sideMenuItemTitle {
  	font-weight:bold;
+ 	background-color:#EEEEEE;
  }
   
  .sideMenuItemSelectable:hover {
  	background-color:#3399FF;
+ 	cursor: pointer;
  }
  
  .put-chevron-right {
