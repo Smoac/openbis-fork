@@ -53,13 +53,13 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		var title = null;
 		switch(this._sampleFormModel.mode) {
 	    	case FormMode.CREATE:
-	    		title = "Create " + this._sampleFormModel.sample.sampleTypeCode;
+	    		title = "Create Sample " + this._sampleFormModel.sample.sampleTypeCode;
 	    		break;
 	    	case FormMode.EDIT:
-	    		title = "Update " + nameLabel;
+	    		title = "Update Sample " + nameLabel;
 	    		break;
 	    	case FormMode.VIEW:
-	    		title = "View " + nameLabel;
+	    		title = "View Sample " + nameLabel;
 	    		break;
 		} 
 		

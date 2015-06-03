@@ -43,13 +43,13 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 		var title = '';
 		switch(this._experimentFormModel.mode) {
 	    	case FormMode.CREATE:
-	    		title = "Create " + this._experimentFormModel.experiment.experimentTypeCode;
+	    		title = "Create Experiment " + this._experimentFormModel.experiment.experimentTypeCode;
 	    		break;
 	    	case FormMode.EDIT:
-	    		title = "Update " + nameLabel;
+	    		title = "Update Experiment " + nameLabel;
 	    		break;
 	    	case FormMode.VIEW:
-	    		title = "View " + nameLabel;
+	    		title = "View Experiment " + nameLabel;
 	    		break;
 		}
 		
