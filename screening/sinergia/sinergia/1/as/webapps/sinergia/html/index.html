@@ -44,25 +44,30 @@
 		// Login
 		//
 		$(document).ready(function() {
-			//Attach function to form login
-			var submitFunction = function(event) {
-				event.preventDefault();
-				 blockUIWithMessage();
-				
-				$('#username').val() = 'testuser'
-				$('#password').val() ='testuser'
+			// //Attach function to form login
+			// var submitFunction = function(event) {
+			// 	event.preventDefault();
+			// 	 blockUIWithMessage();
 
-				//openbis.login($.trim($('#username').val()), $.trim($('#password').val()),
+			// 	//openbis.login($.trim($('#username').val()), $.trim($('#password').val()),
 				
-				openbis.login($.trim($('#username').val()), $.trim($('#password').val()),	
-				function(data) {
-					enterApp(data) 
-				});
-			}
-			$("#loginForm").submit(submitFunction);
+			// 	openbis.login($.trim($('#username').val()), $.trim($('#password').val()),	
+			// 	function(data) {
+			// 		enterApp(data) 
+			// 	});
+			// }
+
+
 			
+			// $("#loginForm").submit(submitFunction);
+			
+
+			openbis.login('testuser', 'testuser', function(data) {
+					enterApp(data) 
+			});
+
 			//Avoid login if we got already a cookie
-			openbis.ifRestoredSessionActive(function(data) { enterApp(data) });
+			// openbis.ifRestoredSessionActive(function(data) { enterApp(data) });
 		});
 
 		function enterApp(data){
