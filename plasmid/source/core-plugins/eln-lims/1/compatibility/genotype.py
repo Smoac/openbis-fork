@@ -19,30 +19,46 @@ def calculate():
     isFirst = True
     parentIterables = [{
                         "child" : entity,
-                        "parents" : entity.parents()
+                        "parents" : entity.parents(),
+                        "lost" : []
                         }]
 
     while len(parentIterables) > 0:
         parentGroup = parentIterables.pop(0)
         parents = parentGroup["parents"]
         child = parentGroup["child"]
+        lostList = parentGroup["lost"]
+        
+        newLostList = []
+        newParentIterables = []
         for parent in parents:
             parentTypeCode = getSampleTypeCode(parent)
             if parentTypeCode in typesForGenotype:
                 parentCode = parent.code()
-                 #Check if is the first to add the separator or not
-                if isFirst:
-                    isFirst = False
-                else:
-                    genotypeResult = genotypeResult + "\n"
                 #Add the code
-                genotypeResult = genotypeResult + parent.code() + " " + str(getAnnotationsForParent(parent, child)) #TO-DO Change entity by the child of the parent for each iteration
+                annotationMap = getAnnotationsForParent(parent, child)
+                if(annotationMap["PLASMID_RELATIONSHIP"] == "LOT"):
+                    newLostList.append(parent.entityPE().getPermId())
+                elif parent.entityPE().getPermId() not in lostList:
+                     #Check if is the first to add the separator or not
+                    if isFirst:
+                        isFirst = False
+                    else:
+                        genotypeResult = genotypeResult + "\n"
+                    genotypeResult = genotypeResult + parent.code() + " " + getAnnotationString(annotationMap)
             else:
-                parentIterables.append({
+                newParentIterables.append({
                                         "child" : parent,
                                         "parents" : parent.parents()
                                         })
+        for newParentIterable in newParentIterables:
+            lostList.extend(newLostList);
+            newParentIterable["lost"] = lostList;
+            parentIterables.append(newParentIterable);
     return genotypeResult
+
+def getAnnotationString(annotationMap):
+    return annotationMap["PLASMID_RELATIONSHIP"] + " " + annotationMap["PLASMID_ANNOTATION"]
 
 def getAnnotationsForParent(parent, child):
     permId = parent.entityPE().getPermId()
@@ -55,7 +71,7 @@ def getAnnotationsForParent(parent, child):
         if annotationValue is None:
             annotationValue = ""
         annotation = "\"" + str(annotationValue) + "\""
-        return str(relationshipValue) + " " + str(annotation)
+        return {"PLASMID_RELATIONSHIP" : str(relationshipValue), "PLASMID_ANNOTATION" : str(annotation)}; 
     return "No Annotations Found"
     
 def getAnnotationFromPermId(annotations, permId, key):
