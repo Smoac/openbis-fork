@@ -23,7 +23,6 @@ import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.Dialog;
-import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.TextField;
@@ -53,6 +52,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ID
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.vocabulary.VocabularyRegistrationFieldSet.CommonVocabularyRegistrationAndEditionFieldsFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractRegistrationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
@@ -233,7 +233,7 @@ public class VocabularyGrid extends TypedTableGrid<Vocabulary>
                             if (vocabulary.isManagedInternally())
                             {
                                 String errorMsg = "Internally managed vocabulary cannot be edited.";
-                                MessageBox.alert("Error", errorMsg, null);
+                                GWTUtils.alert("Error", errorMsg);
                             } else
                             {
                                 createEditEntityDialog(vocabulary).show();
@@ -264,7 +264,7 @@ public class VocabularyGrid extends TypedTableGrid<Vocabulary>
                             {
                                 if (vocabulary.getObjectOrNull().isManagedInternally())
                                 {
-                                    MessageBox.alert("Error", errorMsg, null);
+                                    GWTUtils.alert("Error", errorMsg);
                                     return false;
                                 }
                             }

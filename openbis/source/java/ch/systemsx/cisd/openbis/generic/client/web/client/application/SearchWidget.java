@@ -20,7 +20,6 @@ import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.layout.TableRowLayout;
 import com.google.gwt.user.client.History;
@@ -32,6 +31,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.Gl
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.ViewLocator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.EnterKeyListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ButtonWithLoadingMask;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.shared.basic.URLMethodWithParameters;
 
@@ -152,8 +152,8 @@ public final class SearchWidget extends LayoutContainer
         }
         if (hasOnlyWildcards(queryText))
         {
-            MessageBox.alert(viewContext.getMessage(Dict.MESSAGEBOX_WARNING),
-                    viewContext.getMessage(Dict.TOO_GENERIC, queryText), null);
+            GWTUtils.alert(viewContext.getMessage(Dict.MESSAGEBOX_WARNING),
+                    viewContext.getMessage(Dict.TOO_GENERIC, queryText));
             return;
         }
 

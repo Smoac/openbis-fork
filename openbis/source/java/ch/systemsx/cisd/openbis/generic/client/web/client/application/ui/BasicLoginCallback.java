@@ -116,7 +116,7 @@ public class BasicLoginCallback extends AbstractAsyncCallback<SessionContext>
                                 if (reasonOrNull != null)
                                 {
                                     cancel();
-                                    MessageBox.alert("Session Expiration", reasonOrNull, null);
+                                    GWTUtils.alert("Session Expiration", reasonOrNull);
                                 }
                             }
 
@@ -124,7 +124,7 @@ public class BasicLoginCallback extends AbstractAsyncCallback<SessionContext>
                             public void onFailure(Throwable caught)
                             {
                                 cancel();
-                                MessageBox.alert("Server Connection", "Connection to the server is broken.", null);
+                                GWTUtils.alert("Server Connection", "Connection to the server is broken.");
                             }
                         };
                     viewContext.getCommonService().keepSessionAlive(callback);

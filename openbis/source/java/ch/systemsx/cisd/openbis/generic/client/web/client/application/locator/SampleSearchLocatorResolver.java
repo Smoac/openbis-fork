@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpP
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleSearchHitGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetWithEntityTypes;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
@@ -83,7 +84,7 @@ public class SampleSearchLocatorResolver
         public final void onFailure(Throwable caught)
         {
             // Error in the search -- notify the user
-            MessageBox.alert("Error", caught.getMessage(), null);
+            GWTUtils.alert("Error", caught.getMessage());
         }
 
         @Override
@@ -95,9 +96,8 @@ public class SampleSearchLocatorResolver
             {
                 // Nothing found -- notify the user
                 case 0:
-                    MessageBox.alert("Error", "No samples matching criteria ["
-                            + displayCriteria.getSearchCriteria().toString() + "] were found.",
-                            null);
+                    GWTUtils.alert("Error", "No samples matching criteria ["
+                            + displayCriteria.getSearchCriteria().toString() + "] were found.");
                     break;
                 // One result found -- show it in the details view
                 case 1:

@@ -208,7 +208,7 @@ public class SpaceSelectionWidget extends DropDownList<SpaceModel, Space>
                         initialSpaceOrNull);
             } catch (IllegalArgumentException ex)
             {
-                MessageBox.alert("Error", "Space '" + space + "' doesn't exist.", null);
+                GWTUtils.alert("Error", "Space '" + space + "' doesn't exist.");
             }
             updateOriginalValue();
         }

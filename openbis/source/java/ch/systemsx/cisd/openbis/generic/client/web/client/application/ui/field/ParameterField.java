@@ -24,7 +24,6 @@ import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.FieldEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
-import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.TriggerField;
 import com.google.gwt.user.client.Element;
@@ -112,8 +111,7 @@ public class ParameterField extends TriggerField<ModelData> implements IParamete
                 // OK
             } else
             {
-                MessageBox.alert("Error", "Filter parameter '" + namePart
-                        + "' is not defined properly.", null);
+                GWTUtils.alert("Error", "Filter parameter '" + namePart + "' is not defined properly.");
             }
         }
     }

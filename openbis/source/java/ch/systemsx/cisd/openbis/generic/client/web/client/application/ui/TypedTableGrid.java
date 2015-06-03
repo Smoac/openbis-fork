@@ -1282,8 +1282,8 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
                 public void invoke(BaseEntityModel<TableModelRowWithObject<T>> selectedItem,
                         boolean keyPressed)
                 {
-                    MessageBox.alert(viewContext.getMessage(Dict.MESSAGEBOX_WARNING),
-                            viewContext.getMessage(Dict.NOT_IMPLEMENTED), null);
+                    GWTUtils.alert(viewContext.getMessage(Dict.MESSAGEBOX_WARNING),
+                            viewContext.getMessage(Dict.NOT_IMPLEMENTED));
                 }
             };
     }
@@ -2460,7 +2460,7 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
             {
                 String failureTitle = modificationsData.createFailureTitle();
                 String failureReport = modificationsData.createFailedModificationsReport();
-                MessageBox.alert(failureTitle, failureReport, null);
+                GWTUtils.alert(failureTitle, failureReport);
                 refresh();
             } else
             {

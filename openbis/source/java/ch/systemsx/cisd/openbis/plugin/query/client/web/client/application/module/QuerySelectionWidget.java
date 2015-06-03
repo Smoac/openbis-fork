@@ -111,7 +111,7 @@ public final class QuerySelectionWidget extends DropDownList<QueryModel, QueryEx
             GWTUtils.setSelectedItem(this, ModelDataPropertyNames.NAME, queryName);
         } catch (IllegalArgumentException ex)
         {
-            MessageBox.alert("Error", "Query '" + queryName + "' doesn't exist.", null);
+            GWTUtils.alert("Error", "Query '" + queryName + "' doesn't exist.");
         }
     }
 

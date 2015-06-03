@@ -18,10 +18,10 @@ package ch.systemsx.cisd.openbis.plugin.demo.client.web.client.application.modul
 
 import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.widget.HorizontalPanel;
-import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.plugin.demo.client.web.client.IDemoClientServiceAsync;
 
 /**
@@ -40,7 +40,7 @@ public class CustomizedWidgetDemoModuleMenu extends HorizontalPanel
                 protected void onClick(ComponentEvent ce)
                 {
                     super.onClick(ce);
-                    MessageBox.alert("Response", "You are right!", null);
+                    GWTUtils.alert("Response", "You are right!");
                 }
             });
         add(new Button("Disagree")
@@ -49,7 +49,7 @@ public class CustomizedWidgetDemoModuleMenu extends HorizontalPanel
                 protected void onClick(ComponentEvent ce)
                 {
                     super.onClick(ce);
-                    MessageBox.alert("Response", "You are wrong!", null);
+                    GWTUtils.alert("Response", "You are wrong!");
                 }
             });
     }

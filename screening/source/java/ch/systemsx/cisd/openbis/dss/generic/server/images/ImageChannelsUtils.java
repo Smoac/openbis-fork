@@ -421,6 +421,7 @@ public class ImageChannelsUtils
 
     public static BufferedImage rescaleIfNot8Bit(BufferedImage image, Float threshold)
     {
+//        ImageDebugViewer.view("rescale", image);
         if (ImageUtil.getMaxNumberOfBitsPerComponent(image) <= 8)
         {
             return image;

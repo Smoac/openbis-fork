@@ -84,7 +84,7 @@ public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
                             }
                         }
                         // no details - show simple error message box
-                        MessageBox.alert("Error", message, null);
+                        GWTUtils.alert("Error", message);
                     }
 
                 };

@@ -20,6 +20,7 @@ import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.IRealNumberRenderer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Dict;
@@ -128,7 +129,7 @@ class HeatmapPresenter
                         createChangeHeatmapCallback(viewContext, featureName));
             } else
             {
-                MessageBox.alert("Error", "No data set selected", null);
+                GWTUtils.alert("Error", "No data set selected");
             }
         }
     }
@@ -162,8 +163,7 @@ class HeatmapPresenter
                     boolean success = changeFeatureValueMode(featureName);
                     if (success == false)
                     {
-                        MessageBox.alert("Error",
-                                "No values found for feature " + featureName.getLabel(), null);
+                        GWTUtils.alert("Error", "No values found for feature " + featureName.getLabel());
                     }
                 }
             };

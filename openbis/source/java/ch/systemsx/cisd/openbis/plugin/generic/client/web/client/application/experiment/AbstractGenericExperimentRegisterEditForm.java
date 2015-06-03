@@ -28,7 +28,6 @@ import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FileUploadField;
@@ -53,6 +52,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.file.At
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.file.BasicFileFieldManager;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleTypeSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WindowUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchOperationKind;
@@ -258,9 +258,8 @@ abstract public class AbstractGenericExperimentRegisterEditForm extends
                                 false, BatchOperationKind.REGISTRATION));
                     } else
                     {
-                        MessageBox.alert("Sample type not selected.",
-                                "Sample type must be selected before downloading file template.",
-                                null);
+                        GWTUtils.alert("Sample type not selected.",
+                                "Sample type must be selected before downloading file template.");
                     }
                 }
             });

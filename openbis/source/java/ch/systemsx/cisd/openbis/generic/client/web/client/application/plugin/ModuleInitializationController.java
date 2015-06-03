@@ -19,8 +19,9 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 
 /**
  * This class controls initialization process of all modules and notifies the
@@ -121,7 +122,7 @@ public class ModuleInitializationController
         }
         sb.setLength(sb.length() - 2);
 
-        MessageBox.alert("Error", sb.toString(), null);
+        GWTUtils.alert("Error", sb.toString());
     }
 
     private static class ModuleInitializationCallback implements AsyncCallback<Void>

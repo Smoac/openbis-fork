@@ -99,7 +99,7 @@ public class WindowUtils
         boolean opened = openWindow(url, target, "scrollbars=yes,resizable=yes");
         if (opened == false)
         {
-            MessageBox.alert("", GenericConstants.POPUP_BLOCKER_DETECTED, null);
+            GWTUtils.alert("", GenericConstants.POPUP_BLOCKER_DETECTED);
             return;
         }
     }

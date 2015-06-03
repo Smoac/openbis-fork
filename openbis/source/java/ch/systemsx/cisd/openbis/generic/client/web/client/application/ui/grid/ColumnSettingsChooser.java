@@ -135,9 +135,8 @@ class ColumnSettingsChooser
                             }
                             if (counter >= maxVisibleColumns)
                             {
-                                MessageBox.alert("Warning",
-                                        createVisibleColumnsLimitExceededMsg(maxVisibleColumns),
-                                        null);
+                                GWTUtils.alert("Warning",
+                                        createVisibleColumnsLimitExceededMsg(maxVisibleColumns));
                             } else
                             {
                                 r.set(getDataIndex(), !b);
@@ -328,7 +327,7 @@ class ColumnSettingsChooser
                             if (counter == limit)
                             {
                                 limitReached = true;
-                                MessageBox.alert("Warning", limitExceededMsg, null);
+                                GWTUtils.alert("Warning", limitExceededMsg);
                             }
                             r.set(selectable.columnName, limitReached ? !select : select);
                             counter++;

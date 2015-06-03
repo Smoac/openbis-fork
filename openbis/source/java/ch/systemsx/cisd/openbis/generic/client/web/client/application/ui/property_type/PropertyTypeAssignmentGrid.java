@@ -58,6 +58,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IDataRefreshCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DialogWithOnlineHelpUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WindowUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
@@ -270,7 +271,7 @@ public class PropertyTypeAssignmentGrid extends TypedTableGrid<EntityTypePropert
                                 if (etpt.isManagedInternally())
                                 {
                                     final String errorMsg = "Assignments of internally managed property types cannot be edited.";
-                                    MessageBox.alert("Error", errorMsg, null);
+                                    GWTUtils.alert("Error", errorMsg);
                                 } else
                                 {
                                     createEditDialog(etpt, assignmentsHolder.getAssignments()).show();
@@ -357,7 +358,7 @@ public class PropertyTypeAssignmentGrid extends TypedTableGrid<EntityTypePropert
                                 {
                                     final String errorMsg =
                                             "Assignments of internally managed property types cannot be edited.";
-                                    MessageBox.alert("Error", errorMsg, null);
+                                    GWTUtils.alert("Error", errorMsg);
                                 } else
                                 {
                                     createEditDialog(etpt, null).show();
@@ -429,7 +430,7 @@ public class PropertyTypeAssignmentGrid extends TypedTableGrid<EntityTypePropert
                     });
             } catch (Exception ex)
             {
-                MessageBox.alert("Error", ex.getMessage(), null);
+                GWTUtils.alert("Error", ex.getMessage());
             }
         }
     }

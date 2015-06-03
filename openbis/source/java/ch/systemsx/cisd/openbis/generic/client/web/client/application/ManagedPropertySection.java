@@ -201,7 +201,7 @@ public class ManagedPropertySection extends DisposableTabContent
                         .show();
             } else
             {
-                MessageBox.alert("Error", basicMsg, null);
+                GWTUtils.alert("Error", basicMsg);
             }
             return DUMMY_CONTENT;
         }
@@ -249,7 +249,7 @@ public class ManagedPropertySection extends DisposableTabContent
                         .show();
             } else
             {
-                MessageBox.alert("Error", basicMsg, null);
+                GWTUtils.alert("Error", basicMsg);
             }
             return DUMMY_CONTENT;
         }

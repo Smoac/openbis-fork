@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
-import com.extjs.gxt.ui.client.widget.MessageBox;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AbstractTabItemFactory;
@@ -29,6 +28,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpP
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageDomain;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IDataRefreshCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
 
 /**
@@ -97,8 +97,8 @@ public class GlobalSearchTabItemFactory
                         Object[] msgParameters = (useWildcardSearchMode == true) ? new String[]
                         { queryText, "", "off", } : new String[]
                         { queryText, "not", "on" };
-                        MessageBox.alert(viewContext.getMessage(Dict.MESSAGEBOX_WARNING),
-                                viewContext.getMessage(Dict.NO_MATCH, msgParameters), null);
+                        GWTUtils.alert(viewContext.getMessage(Dict.MESSAGEBOX_WARNING),
+                                viewContext.getMessage(Dict.NO_MATCH, msgParameters));
 
                         if (openIfNoEntitiesFound == false)
                         {

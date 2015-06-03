@@ -106,8 +106,8 @@ public final class QueryDatabaseSelectionWidget extends
         } catch (IllegalArgumentException ex)
         {
             viewContext.log(ex.getMessage());
-            MessageBox.alert("Error", "Query Database '" + database.getLabel()
-                    + "' isn't configured.", null);
+            GWTUtils.alert("Error", "Query Database '" + database.getLabel()
+                    + "' isn't configured.");
         }
     }
 

@@ -25,7 +25,6 @@ import java.util.TreeSet;
 
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.Html;
-import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 
@@ -37,6 +36,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpP
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnConfigFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractDataConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DialogWithOnlineHelpUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
@@ -135,7 +135,7 @@ class PerformComputationDialog extends AbstractDataConfirmationDialog<Computatio
             if (unsupportedDataSetTypes.size() > 0)
             {
                 final String msg = createUnsupportedDataSetTypesText(unsupportedDataSetTypes);
-                MessageBox.alert("Error", msg, null);
+                GWTUtils.alert("Error", msg);
                 return false;
             }
         }

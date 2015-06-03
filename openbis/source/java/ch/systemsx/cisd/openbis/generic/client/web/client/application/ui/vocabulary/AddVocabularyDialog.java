@@ -13,6 +13,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Abstrac
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.vocabulary.VocabularyRegistrationForm.VocabularyRegistrationCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractRegistrationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.HtmlMessageElement;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 
@@ -30,7 +31,7 @@ public class AddVocabularyDialog extends AbstractRegistrationDialog
                 final AbstractAsyncCallback<Void> callback, final String failureMessage,
                 final Throwable throwable)
         {
-            MessageBox.alert("Error", failureMessage, null);
+            GWTUtils.alert("Error", failureMessage);
         }
 
         @Override

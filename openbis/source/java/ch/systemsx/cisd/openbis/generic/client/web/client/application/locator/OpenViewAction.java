@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.locator;
 
 import com.extjs.gxt.ui.client.widget.MessageBox;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 
@@ -65,7 +66,7 @@ public class OpenViewAction implements IDelegatedAction
             openViewUnderExceptionHandler();
         } catch (UserFailureException exception)
         {
-            MessageBox.alert("Error", exception.getMessage(), null);
+            GWTUtils.alert("Error", exception.getMessage());
         }
     }
 

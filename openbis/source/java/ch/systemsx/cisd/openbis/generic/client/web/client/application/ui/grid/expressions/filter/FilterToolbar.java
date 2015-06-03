@@ -12,7 +12,6 @@ import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
-import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.ButtonGroup;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
@@ -29,6 +28,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.P
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisplayTypeIDProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.TextColumnFilterWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IDataRefreshCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.TextToolItem;
@@ -463,8 +463,8 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
     {
         if (filteredColumns.size() > MAX_FILTER_FIELDS)
         {
-            MessageBox.alert("Warning", "Only up to " + MAX_FILTER_FIELDS
-                    + " column filters can be used at the same time for one table.", null);
+            GWTUtils.alert("Warning", "Only up to " + MAX_FILTER_FIELDS
+                    + " column filters can be used at the same time for one table.");
             return filteredColumns.subList(0, MAX_FILTER_FIELDS);
         } else
         {

@@ -532,7 +532,7 @@ public class NewEntityTypeForm extends ContentPanel implements IComponentWithClo
                     message = details;
                 }
             }
-            MessageBox.alert("Error", message, null);
+            GWTUtils.alert("Error", message);
             saveButton.setEnabled(true);
         }
 

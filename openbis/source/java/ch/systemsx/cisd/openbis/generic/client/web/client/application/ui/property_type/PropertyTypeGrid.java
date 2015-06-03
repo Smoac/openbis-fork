@@ -49,6 +49,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IB
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractRegistrationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyTypeGridColumnIDs;
@@ -121,7 +122,7 @@ public class PropertyTypeGrid extends TypedTableGrid<PropertyType>
                             {
                                 final String errorMsg =
                                         "Internally managed property types cannot be edited.";
-                                MessageBox.alert("Error", errorMsg, null);
+                                GWTUtils.alert("Error", errorMsg);
                             } else
                             {
                                 createEditDialog(propertyType).show();
@@ -152,7 +153,7 @@ public class PropertyTypeGrid extends TypedTableGrid<PropertyType>
                             {
                                 if (propertyType.getObjectOrNull().isManagedInternally())
                                 {
-                                    MessageBox.alert("Error", errorMsg, null);
+                                    GWTUtils.alert("Error", errorMsg);
                                     return false;
                                 }
                             }

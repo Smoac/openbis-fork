@@ -97,6 +97,11 @@ public final class GWTUtils
                         + CommonViewContext.ClientStaticState.getPageTitleSuffix();
         Window.setTitle(title);
     }
+    
+    public static void alert(String title, String message)
+    {
+        MessageBox.alert(title, message, null).getDialog().setResizable(true);
+    }
 
     public static com.extjs.gxt.ui.client.widget.Window createErrorMessageWithDetailsDialog(
             final IMessageProvider messageProvider, final String basicMsg, final String detailedMsg)
@@ -114,12 +119,12 @@ public final class GWTUtils
                 @Override
                 public void execute()
                 {
-                    MessageBox.alert("Error Details", detailedMsg, null);
+                    alert("Error Details", detailedMsg);
                 }
             });
         return dialog;
     }
-
+    
     /**
      * Sets up {@link ComboBox} to have width of list auto adjusted to maximum width of elements in
      * the list.
