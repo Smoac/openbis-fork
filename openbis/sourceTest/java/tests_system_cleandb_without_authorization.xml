@@ -8,6 +8,7 @@
   <test name="system-cleandb-basic" annotations="JDK">
     <run>
       <exclude name="authorization"/>
+      <exclude name="broken"/>
     </run>
   
     <classes>
