@@ -47,7 +47,9 @@ function DataGridController(title, columns, data, rowClickEventHandler, showAllC
 				tableSettings = JSON.parse(settings[configKey]);
 			}
 			_this._grid = new Grid(columns, data, showAllColumns, tableSettings, onColumnsChange);
-			_this._grid.addRowClickListener(rowClickEventHandler);
+			if(rowClickEventHandler) {
+				_this._grid.addRowClickListener(rowClickEventHandler);
+			}
 			_this._dataGridModel = new DataGridModel(title, columns, data, rowClickEventHandler, _this._grid.render());
 			_this._dataGridView = new DataGridView(this, _this._dataGridModel);
 			
