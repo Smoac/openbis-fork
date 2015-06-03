@@ -74,7 +74,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 			if(this._sampleFormModel.sample.children.length > 0 || this._sampleFormModel.datasets.length > 0) {
 				warningText = ""
 				if(this._sampleFormModel.sample.children.length > 0) {
-					warningText += "The sample has " + this._sampleFormModel.sample.children.length + " children samples, these relationships will be broken but the children will remain:";
+					warningText += "The sample has " + this._sampleFormModel.sample.children.length + " children samples, these relationships will be broken but the children will remain:\n";
 					var numChildrenToShow = this._sampleFormModel.sample.children.length;
 					if(numChildrenToShow > 10) {
 						numChildrenToShow = 10;
@@ -87,7 +87,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 					}
 				}
 				if(this._sampleFormModel.datasets.length > 0) {
-					warningText += "\nThe sample has " + this._sampleFormModel.datasets.length + " datasets, these will be deleted with the sample:";
+					warningText += "\n\nThe sample has " + this._sampleFormModel.datasets.length + " datasets, these will be deleted with the sample:\n";
 					var numDatasetsToShow = this._sampleFormModel.datasets.length;
 					if(numDatasetsToShow > 10) {
 						numDatasetsToShow = 10;
