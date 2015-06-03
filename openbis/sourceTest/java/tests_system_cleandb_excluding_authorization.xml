@@ -9,6 +9,7 @@
     </groups>
     <packages>
       <package name="ch.systemsx.cisd.openbis.systemtest.*" />
+      <package name="ch.ethz.sis.openbis.systemtest.*" />
     </packages>
   </test>
   
