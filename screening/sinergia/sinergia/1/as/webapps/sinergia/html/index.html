@@ -204,9 +204,13 @@
 					}
 
 
-					var $sampleLevel = $("<li>", {'class' : 'folder' + explandFolderClass})
-											.append("<a href='javascript:showSamples(\""+clusters[i].identifier+"\")'>" + "Cluster " + clusters[i].code.substring(clusters[i].code.indexOf("CLUSTER")+7) + "</a>");
+//ORIGINAL CODE
+//					var $sampleLevel = $("<li>", {'class' : 'folder' + explandFolderClass})
+//											.append("<a href='javascript:showSamples(\""+clusters[i].identifier+"\")'>" + "Cluster " + clusters[i].code.substring(clusters[i].code.indexOf("CLUSTER")+7) + "</a>");
 					
+
+				var $sampleLevel = $("<li>", {'class' : 'folder' + explandFolderClass})
+											.append("<a href='javascript:showSamples(\""+clusters[i].identifier+"\")'>" + clusters[i].properties['NAME']  + "</a>");
 					
 					var $containedSamplesMenu = $("<ul>");
 						$sampleLevel
