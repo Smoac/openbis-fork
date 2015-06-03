@@ -184,7 +184,10 @@ def updateDataSet(tr, parameters, tableBuilder):
 	dataSetCode = parameters.get("dataSetCode"); #String
 	metadata = parameters.get("metadata"); #java.util.LinkedHashMap<String, String> where the key is the name
 	dataSet = tr.getDataSetForUpdate(dataSetCode);
-	
+	#Hack - Fix Sample Lost bug from openBIS, remove when SSDM-1979 is fix
+	sampleIdentifier = parameters.get("sampleIdentifier"); #String
+	dataSetSample = getSampleByIdentifierForUpdate(tr, sampleIdentifier);
+	dataSet.setSample(dataSetSample);
 	#Assign Data Set properties
 	for key in metadata.keySet():
 		propertyValue = unicode(metadata[key]);
