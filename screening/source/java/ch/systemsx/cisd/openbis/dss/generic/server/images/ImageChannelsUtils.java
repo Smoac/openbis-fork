@@ -405,6 +405,15 @@ public class ImageChannelsUtils
      * If there is no transformation in the imaging database {@link AutoRescaleIntensityImageTransformerFactory} is used.
      * <li>Finally the gray image is colored by the corresponding channel color.
      * </ol>
+     * 
+     * Because rescaling 12/16-bit images to 8-bit before applying user-defined scaling was necessary. Reasons:
+     * <ul><li>A user-defined scale applies for all resolutions.
+     * <li>Depending on the resolution the original 12/16-bit images or the thumbnails are used.
+     * <li>Thumbnails may be in original 12/16-bit resolution or in 8-bit resolution. 
+     * This depends on settings specified in drop-box script as well as type of original image.
+     * </ul>
+     * In 13.04.x we had some bugs because of this. This solution will also have some bugs but hopefully 
+     * less. The big refactoring in autumn 2014 was triggered by issues SOB-171 and SSDM-773 an related.
      */
     private static BufferedImage calculateAndTransformSingleImageForDisplay(
             AbsoluteImageReference imageReference, ImageTransformationParams transformationInfo,
@@ -421,7 +430,6 @@ public class ImageChannelsUtils
 
     public static BufferedImage rescaleIfNot8Bit(BufferedImage image, Float threshold)
     {
-//        ImageDebugViewer.view("rescale", image);
         if (ImageUtil.getMaxNumberOfBitsPerComponent(image) <= 8)
         {
             return image;
@@ -500,6 +508,8 @@ public class ImageChannelsUtils
      * <li>The merged image is transformed either by a transformation found in imaging database or
      * by an intensity range re-scaling transformation. 
      * </ol>
+     * 
+     * @see #calculateAndTransformSingleImageForDisplay(AbsoluteImageReference, ImageTransformationParams, Float)
      */
     private static BufferedImage mergeChannels(List<AbsoluteImageReference> imageReferences,
             ImageTransformationParams transformationInfo,
