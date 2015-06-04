@@ -33,7 +33,7 @@ define([ "support/underscore-min" ], function(_) {
 				moduleMap[moduleName] = module;
 			}
 
-			var dto = fromJsonObjectWithTypeOrArrayOrMap(jsonObject, {}, moduleMap);
+			var dto = fromJsonObjectWithTypeOrArrayOrMap(null, jsonObject, {}, moduleMap);
 			dfd.resolve(dto);
 		});
 
@@ -65,31 +65,40 @@ define([ "support/underscore-min" ], function(_) {
 		return type.replace(/\./g, '/');
 	}
 
-	var fromJsonObjectWithTypeOrArrayOrMap = function(jsonObject, hashedObjects, modulesMap) {
+	var fromJsonObjectWithTypeOrArrayOrMap = function(jsonName, jsonObject, hashedObjects, modulesMap) {
 		if (jsonObject instanceof Array) {
 			var array = [];
-			jsonObject.forEach(function(item) {
-				var dto = fromJsonObjectWithTypeOrArrayOrMap(item, hashedObjects, modulesMap);
+			jsonObject.forEach(function(item, index) {
+				var dto = fromJsonObjectWithTypeOrArrayOrMap(index, item, hashedObjects, modulesMap);
 				array.push(dto);
 			});
 			return array;
 		} else if (jsonObject instanceof Object) {
 			if (jsonObject["@type"]) {
-				return fromJsonObjectWithType(jsonObject, hashedObjects, modulesMap)
+				return fromJsonObjectWithType(jsonName, jsonObject, hashedObjects, modulesMap)
 			} else {
 				var map = {};
 				Object.keys(jsonObject).forEach(function(key) {
-					var dto = fromJsonObjectWithTypeOrArrayOrMap(jsonObject[key], hashedObjects, modulesMap);
+					var dto = fromJsonObjectWithTypeOrArrayOrMap(key, jsonObject[key], hashedObjects, modulesMap);
 					map[key] = dto;
 				});
 				return map;
 			}
 		} else {
-			return jsonObject;
+			if (_.isNumber(jsonObject) && (false == _.isString(jsonName) || (jsonName.indexOf("Date") == -1 && jsonName != "@id"))) {
+				// TODO we have to come up with ids that are easier to recognize
+				if (jsonObject in hashedObjects) {
+					return hashedObjects[jsonObject];
+				} else {
+					throw "Expected that integer fields are id's of objects, and they should be present in cache"
+				}
+			} else {
+				return jsonObject;
+			}
 		}
 	}
 
-	var fromJsonObjectWithType = function(jsonObject, hashedObjects, modulesMap) {
+	var fromJsonObjectWithType = function(jsonName, jsonObject, hashedObjects, modulesMap) {
 		var jsonId = jsonObject["@id"]
 		var jsonType = jsonObject["@type"]
 
@@ -105,22 +114,23 @@ define([ "support/underscore-min" ], function(_) {
 		}
 
 		for ( var key in jsonObject) {
-			object[key] = fromJsonObjectWithTypeProperty(key, jsonObject[key], hashedObjects, modulesMap)
+			object[key] = fromJsonObjectWithTypeOrArrayOrMap(key, jsonObject[key], hashedObjects, modulesMap)
 		}
 		return object;
 	};
-	
-	
+
 	var decycleLocal = function(object, references) {
 		if (object === null) {
-			return object; 
+			return object;
 		}
 		index = _.indexOf(references, object);
-		if (index >= 0) { 
-			return index; 
+		if (index >= 0) {
+			return index;
 		}
 		if (_.isArray(object)) {
-			return _.map(object, function(el, key) { return decycleLocal(el, references) });
+			return _.map(object, function(el, key) {
+				return decycleLocal(el, references)
+			});
 		} else if (_.isObject(object)) {
 			var result = {};
 			if (object["@type"] != null) {
@@ -128,7 +138,7 @@ define([ "support/underscore-min" ], function(_) {
 				result["@id"] = id;
 				references.push(object);
 			}
-			for (var i in object) {
+			for ( var i in object) {
 				if (_.isFunction(object[i]) === false && i !== "@id") {
 					result[i] = decycleLocal(object[i], references);
 				}
@@ -137,23 +147,6 @@ define([ "support/underscore-min" ], function(_) {
 		}
 		return object;
 	};
-		
-	var fromJsonObjectWithTypeProperty = function(propertyName, propertyValue, hashedObjects, modulesMap) {
-		if (_.isNumber(propertyValue) && propertyName.indexOf("Date") == -1 && propertyName != "@id") {
-			// I don't know what is the better way to distinguish between id
-			// numbers, and real numbers
-			// As here we only analyse the fields and not property values the
-			// check if a field is not a date
-			// should be enough
-			if (propertyValue in hashedObjects) {
-				return hashedObjects[propertyValue];
-			} else {
-				throw "Expected that integer fields are id's of objects, and they should be present in cache"
-			}
-		} else {
-			return fromJsonObjectWithTypeOrArrayOrMap(propertyValue, hashedObjects, modulesMap);
-		}
-	}
 
 	var stjsUtil = new STJSUtil();
 

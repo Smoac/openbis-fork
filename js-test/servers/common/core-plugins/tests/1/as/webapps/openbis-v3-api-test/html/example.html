@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Openbis V3 Demo</title>
+
+<script src="support/require-config.js"></script>
+<script src="support/require-src.js"></script>
+
+<script>
+	require([ 'openbis-v3-api', "dto/search/SampleSearchCriterion", "dto/fetchoptions/sample/SampleFetchOptions" ], function(openbis, SampleSearchCriterion, SampleFetchOptions) {
+
+		var facade = new openbis();
+
+		facade.login("admin", "password").done(function() {
+
+			var criterion = new SampleSearchCriterion();
+			criterion.withExperiment().withPermId().thatEquals("20130412105232616-2");
+			criterion.withType().withCode().thatEquals("PLATE");
+
+			var fetchOptions = new SampleFetchOptions();
+			fetchOptions.withExperiment().withProject();
+			fetchOptions.withChildrenUsing(fetchOptions);
+
+			facade.searchSamples(criterion, fetchOptions).done(function(samples) {
+				samples.forEach(function(sample) {
+					console.log(sample);
+				})
+			});
+		});
+	});
+</script>
+
+
+</head>
+<body>
+</body>
+</html>

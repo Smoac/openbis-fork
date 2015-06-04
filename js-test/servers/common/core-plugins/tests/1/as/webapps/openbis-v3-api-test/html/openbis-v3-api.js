@@ -11,7 +11,7 @@ define([ 'jquery', 'support/Utils' ], function($, stjsUtil) {
 			data["id"] = "1";
 			data["jsonrpc"] = "2.0";
 			settings.data = JSON.stringify(stjsUtil.decycle(data));
-			
+
 			var originalSuccess = settings.success || function() {
 			};
 			var originalError = settings.error || function() {
@@ -54,6 +54,10 @@ define([ 'jquery', 'support/Utils' ], function($, stjsUtil) {
 	}
 
 	return function(openbisUrl) {
+
+		if (!openbisUrl) {
+			openbisUrl = "/openbis/openbis/rmi-application-server-v3.json";
+		}
 
 		this.login = function(user, password) {
 			var dfd = $.Deferred();
