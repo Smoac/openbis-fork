@@ -34,7 +34,7 @@ import ch.systemsx.cisd.openbis.systemtest.AbstractAssignmentSampleToExperimentT
  *
  * @author Franz-Josef Elmer
  */
-@Test(groups = { "system-cleandb", "broken" })
+@Test(groups = { "system-cleandb"}, enabled = false)
 public class AssignSampleToExperimentTest extends AbstractAssignmentSampleToExperimentTestCase
 {
     private static final String CONTEXT_DESCRIPTION = " (Context: [])";
