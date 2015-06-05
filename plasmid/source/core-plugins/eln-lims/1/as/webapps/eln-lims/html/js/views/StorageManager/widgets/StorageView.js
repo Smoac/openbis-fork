@@ -144,8 +144,8 @@ function StorageView(storageController, storageModel, gridView) {
 				var samplesOfBox = _this._gridView._gridModel.getLabelDataByLabelName(_this._storageModel.row,  _this._storageModel.column, _this._storageModel.boxName);
 				var selectedSamplePermIds = $(this).val();
 				var selectedSamples = [];
-				for(var i = 0; i < samplesOfBox.length; i++) {
-					var sample = samplesOfBox[i];
+				for(var i = 0; i < samplesOfBox.samples.length; i++) {
+					var sample = samplesOfBox.samples[i];
 					if($.inArray(sample.permId, selectedSamplePermIds) !== -1) {
 						selectedSamples.push(sample);
 					}
