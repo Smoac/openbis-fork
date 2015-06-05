@@ -197,7 +197,7 @@ function FreeFormTableView(freeFormTableController, freeFormTableModel) {
 	
 	this._getTableWithContainer = function(tableData) {
 		var _this = this;
-		var $tableContainer = $("<div>", {"style" : "margin:5px; border-radius:4px 4px 4px 4px;" });
+		var $tableContainer = $("<div>", {"style" : "margin:5px; border-radius:4px 4px 4px 4px; overflow:auto;" });
 		$tableContainer.css({
 			'background-color' : '#EEEEEE',
 			'padding' : '10px'
@@ -379,7 +379,7 @@ function FreeFormTableView(freeFormTableController, freeFormTableModel) {
 		}
 		
 		
-		$container.append($("<legend>").text("Free Form Table ").append($addTableWhenEmptyBtn));
+		$container.append($("<legend>").text("Free Form Tables ").append($addTableWhenEmptyBtn));
 		
 		var tables = this._freeFormTableModel.tables;
 		var lastTable = null;
