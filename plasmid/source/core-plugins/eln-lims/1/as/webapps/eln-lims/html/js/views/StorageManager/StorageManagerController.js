@@ -57,7 +57,7 @@ function StorageManagerController(mainController) {
 	var _this = this;
 	this._storageManagerView.getMoveButton().click(function() {
 		var fromModel = _this._storageFromController.getModel();
-		if(!fromModel.boxContents) {
+		if(!fromModel.boxContents || fromModel.boxContents.length === 0) {
 			Util.showError("Please select something to move.");
 			return;
 		}
