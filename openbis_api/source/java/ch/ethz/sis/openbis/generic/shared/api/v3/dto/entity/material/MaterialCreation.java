@@ -29,7 +29,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("dto.entity.space.MaterialCreation")
+@JsonObject("dto.entity.material.MaterialCreation")
 public class MaterialCreation implements Serializable
 {
     private static final long serialVersionUID = 1L;
@@ -89,6 +89,12 @@ public class MaterialCreation implements Serializable
     public Map<String, String> getProperties()
     {
         return properties;
+    }
+
+    // NOTE: does this construct work well with JSON?
+    public void setProperty(String key, String value)
+    {
+        this.properties.put(key, value);
     }
 
     public void setProperties(Map<String, String> properties)

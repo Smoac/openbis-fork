@@ -22,8 +22,10 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author Jakub Straszewski
  */
-@JsonObject("dto.deletion.space.MaterialDeletionOptions")
+@JsonObject("dto.deletion.material.MaterialDeletionOptions")
 public class MaterialDeletionOptions extends AbstractObjectDeletionOptions
 {
+
+    private static final long serialVersionUID = 1L;
 
 }

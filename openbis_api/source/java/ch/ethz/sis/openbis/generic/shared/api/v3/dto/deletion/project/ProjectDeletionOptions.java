@@ -22,7 +22,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("dto.deletion.space.ProjectDeletionOptions")
+@JsonObject("dto.deletion.project.ProjectDeletionOptions")
 public class ProjectDeletionOptions extends AbstractObjectDeletionOptions
 {
 
