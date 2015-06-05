@@ -106,40 +106,42 @@ def process(tr, parameters, tableBuilder):
 def init(tr, parameters, tableBuilder):
 	inventorySpace = tr.getSpace("DEFAULT_LAB_NOTEBOOK");
 	if inventorySpace == None:
-		tr.createNewSpace("MATERIALS", None);
-		
-		tr.createNewProject("/MATERIALS/REAGENTS");
-		tr.createNewExperiment("/MATERIALS/REAGENTS/ANTIBODIES", 		"MATERIALS");
-		tr.createNewExperiment("/MATERIALS/REAGENTS/CHEMICALS", 		"MATERIALS");
-		tr.createNewExperiment("/MATERIALS/REAGENTS/ENZYMES", 			"MATERIALS");
-		tr.createNewExperiment("/MATERIALS/REAGENTS/MEDIA", 			"MATERIALS");
-		tr.createNewExperiment("/MATERIALS/REAGENTS/SOLUTIONS_BUFFERS",	"MATERIALS");
-		
-		tr.createNewProject("/MATERIALS/BACTERIA");
-		tr.createNewExperiment("/MATERIALS/BACTERIA/BACTERIA_COLLECTION_1",		"MATERIALS");
-		tr.createNewProject("/MATERIALS/CELL_LINES");
-		tr.createNewExperiment("/MATERIALS/CELL_LINES/CELL_LINE_COLLECTION_1",	"MATERIALS");
-		tr.createNewProject("/MATERIALS/FLIES");
-		tr.createNewExperiment("/MATERIALS/FLIES/FLY_COLLECTION_1",				"MATERIALS");
-		tr.createNewProject("/MATERIALS/YEASTS");
-		tr.createNewExperiment("/MATERIALS/YEASTS/YEAST_COLLECTION_1",			"MATERIALS");
-		tr.createNewProject("/MATERIALS/PLASMIDS");
-		tr.createNewExperiment("/MATERIALS/PLASMIDS/PLASMID_COLLECTION_1",		"MATERIALS");
-		tr.createNewProject("/MATERIALS/POLYNUCLEOTIDES");
-		tr.createNewExperiment("/MATERIALS/POLYNUCLEOTIDES/OLIGO_COLLECTION_1",	"MATERIALS");
-		tr.createNewExperiment("/MATERIALS/POLYNUCLEOTIDES/RNA_COLLECTION_1",	"MATERIALS");
-		
-		tr.createNewSpace("METHODS", None);
-		
-		tr.createNewProject("/METHODS/PROTOCOLS");
-		tr.createNewExperiment("/METHODS/PROTOCOLS/GENERAL_PROTOCOLS", 			"METHODS");
-		tr.createNewExperiment("/METHODS/PROTOCOLS/PCR_PROTOCOLS", 				"METHODS");
-		tr.createNewExperiment("/METHODS/PROTOCOLS/WESTERN_BLOTTING_PROTOCOLS", 	"METHODS");
-		
-		tr.createNewSpace("DEFAULT_LAB_NOTEBOOK", None);
-		
-		tr.createNewProject("/DEFAULT_LAB_NOTEBOOK/DEFAULT_PROJECT");
-		tr.createNewExperiment("/DEFAULT_LAB_NOTEBOOK/DEFAULT_PROJECT/DEFAULT_EXPERIMENT", 	"DEFAULT_EXPERIMENT");
+		storageVocabulary = tr.getVocabularyForUpdate("STORAGE_NAMES");
+		if storageVocabulary is not None: # We can only create the data if the ELN metadata is present, this is not true on highly customized systems.
+			tr.createNewSpace("MATERIALS", None);
+			
+			tr.createNewProject("/MATERIALS/REAGENTS");
+			tr.createNewExperiment("/MATERIALS/REAGENTS/ANTIBODIES", 		"MATERIALS");
+			tr.createNewExperiment("/MATERIALS/REAGENTS/CHEMICALS", 		"MATERIALS");
+			tr.createNewExperiment("/MATERIALS/REAGENTS/ENZYMES", 			"MATERIALS");
+			tr.createNewExperiment("/MATERIALS/REAGENTS/MEDIA", 			"MATERIALS");
+			tr.createNewExperiment("/MATERIALS/REAGENTS/SOLUTIONS_BUFFERS",	"MATERIALS");
+			
+			tr.createNewProject("/MATERIALS/BACTERIA");
+			tr.createNewExperiment("/MATERIALS/BACTERIA/BACTERIA_COLLECTION_1",		"MATERIALS");
+			tr.createNewProject("/MATERIALS/CELL_LINES");
+			tr.createNewExperiment("/MATERIALS/CELL_LINES/CELL_LINE_COLLECTION_1",	"MATERIALS");
+			tr.createNewProject("/MATERIALS/FLIES");
+			tr.createNewExperiment("/MATERIALS/FLIES/FLY_COLLECTION_1",				"MATERIALS");
+			tr.createNewProject("/MATERIALS/YEASTS");
+			tr.createNewExperiment("/MATERIALS/YEASTS/YEAST_COLLECTION_1",			"MATERIALS");
+			tr.createNewProject("/MATERIALS/PLASMIDS");
+			tr.createNewExperiment("/MATERIALS/PLASMIDS/PLASMID_COLLECTION_1",		"MATERIALS");
+			tr.createNewProject("/MATERIALS/POLYNUCLEOTIDES");
+			tr.createNewExperiment("/MATERIALS/POLYNUCLEOTIDES/OLIGO_COLLECTION_1",	"MATERIALS");
+			tr.createNewExperiment("/MATERIALS/POLYNUCLEOTIDES/RNA_COLLECTION_1",	"MATERIALS");
+			
+			tr.createNewSpace("METHODS", None);
+			
+			tr.createNewProject("/METHODS/PROTOCOLS");
+			tr.createNewExperiment("/METHODS/PROTOCOLS/GENERAL_PROTOCOLS", 			"METHODS");
+			tr.createNewExperiment("/METHODS/PROTOCOLS/PCR_PROTOCOLS", 				"METHODS");
+			tr.createNewExperiment("/METHODS/PROTOCOLS/WESTERN_BLOTTING_PROTOCOLS", 	"METHODS");
+			
+			tr.createNewSpace("DEFAULT_LAB_NOTEBOOK", None);
+			
+			tr.createNewProject("/DEFAULT_LAB_NOTEBOOK/DEFAULT_PROJECT");
+			tr.createNewExperiment("/DEFAULT_LAB_NOTEBOOK/DEFAULT_PROJECT/DEFAULT_EXPERIMENT", 	"DEFAULT_EXPERIMENT");
 	
 	return True;
 
