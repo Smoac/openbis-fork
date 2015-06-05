@@ -64,12 +64,12 @@ function FreeFormTableController(sample, isEnabled) {
 		this.save();
 		
 		//Update View
-		var isMini = $($wrappedTable.parent().children()[0]).children()[0].childNodes[0].checked;
+		var isDetailed = $($wrappedTable.parent().children()[0]).children()[0].childNodes[0].checked;
 		$wrappedTable.empty();
-		if(isMini) {
-			tableView = this._freeFormTableView._getMiniTable(tableModel);
-		} else {
+		if(isDetailed) {
 			tableView = this._freeFormTableView._getDetailedTable(tableModel);
+		} else {
+			tableView = this._freeFormTableView._getMiniTable(tableModel);
 		}
 		$wrappedTable.append(tableView);
 		
