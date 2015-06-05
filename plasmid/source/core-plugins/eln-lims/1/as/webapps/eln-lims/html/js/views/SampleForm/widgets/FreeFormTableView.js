@@ -48,14 +48,14 @@ function FreeFormTableView(freeFormTableController, freeFormTableModel) {
 		var $switch = $("<div>", {'id' : 'SwitchFreeFormTable_' + uniqueId, "class" : "switch-toggle well", "style" : "width:33%; margin-left: auto; margin-right: auto; min-height: 38px !important;"});
 		var changeEvent = function(tableData, $tableContainer) {
 			return function(event) {
-				var isMini = $(this).children()[0].checked;
+				var isDetailed = $(this).children()[0].checked;
 				var tableView = null;
 				$tableContainer.empty();
 				
-				if(isMini) {
-					tableView = _this._getMiniTable(tableData);
-				} else {
+				if(isDetailed) {
 					tableView = _this._getDetailedTable(tableData);
+				} else {
+					tableView = _this._getMiniTable(tableData);
 				}
 				
 				$tableContainer.append(tableView);
@@ -65,10 +65,10 @@ function FreeFormTableView(freeFormTableController, freeFormTableModel) {
 		$switch.change(changeEvent(tableData, $wrappedTable));
 		
 		$switch
-			.append($("<input>", {"value" : "mini", "id" : "tableModeMini_" + uniqueId, "name" : "tableMode_" + uniqueId, "type" : "radio", "checked" : ""}))
-			.append($("<label>", {"for" : "tableModeMini_" + uniqueId, "onclick" : "", "style" : "padding-top:3px;"}).append("Mini"))
-			.append($("<input>", {"value" : "detailed", "id" : "tableModeDetailed_" + uniqueId,"name" : "tableMode_" + uniqueId, "type" : "radio"}))
-			.append($("<label>", {"for" : "tableModeDetailed_" + uniqueId, "onclick" : "", "style" : "padding-top:3px;"}).append("Detailed"));
+			.append($("<input>", {"value" : "detailed", "id" : "tableModeDetailed_" + uniqueId,"name" : "tableMode_" + uniqueId, "type" : "radio", "checked" : ""}))
+			.append($("<label>", {"for" : "tableModeDetailed_" + uniqueId, "onclick" : "", "style" : "padding-top:3px;"}).append("Detailed"))
+			.append($("<input>", {"value" : "mini", "id" : "tableModeMini_" + uniqueId, "name" : "tableMode_" + uniqueId, "type" : "radio"}))
+			.append($("<label>", {"for" : "tableModeMini_" + uniqueId, "onclick" : "", "style" : "padding-top:3px;"}).append("Mini"));
 		
 		$switch.append($("<a>", {"class" : "btn btn-primary"}));
 		return $switch;
@@ -220,7 +220,7 @@ function FreeFormTableView(freeFormTableController, freeFormTableModel) {
 			$title.append(tableData.name);
 		}
 		
-		var $wrappedTable = $("<div>", { 'style' : 'margin-top:10px;' }).append(this._getMiniTable(tableData));
+		var $wrappedTable = $("<div>", { 'style' : 'margin-top:10px;' }).append(this._getDetailedTable(tableData));
 		
 		var $switch = this._getSwitchForTable(tableData, $wrappedTable);
 		
