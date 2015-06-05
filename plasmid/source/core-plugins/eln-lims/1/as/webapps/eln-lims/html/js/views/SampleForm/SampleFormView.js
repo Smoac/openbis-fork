@@ -555,61 +555,67 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 	this._getCopyButtonEvent = function() {
 		var _this = this;
 		return function() {
-			var component = "<div class='form-horizontal'>"
-				component += "<legend>Duplicate Entity</legend>";
-				component += "<div class='form-inline'>";
-				component += "<div class='form-group " + FormUtil.shortformColumClass + "'>";
-				component += "<label class='control-label " + FormUtil.labelColumnClass + "'>Options </label>";
-				component += "<div class='" + FormUtil.controlColumnClass + "'>";
-				component += "<span class='checkbox'><label><input type='checkbox' id='linkParentsOnCopy' checked> Link Parents </label></span>";
-				component += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
-				component += "<span class='checkbox'><label><input type='checkbox' id='copyChildrenOnCopy' checked> Copy Children </label></span>";
-				component += "</div>";
-				component += "</div>";
-				component += "</div>";
-				component += "<br /><br />";
-				component += "<div class='form-group " + FormUtil.shortformColumClass + "'>";
-				component += "<label class='control-label  " + FormUtil.labelColumnClass+ "'>Code&nbsp;(*):</label>";
-				component += "<div class='" + FormUtil.shortControlColumnClass + "'>";
-				component += "<input type='text' class='form-control' placeholder='Code' id='newSampleCodeForCopy' pattern='[a-zA-Z0-9_\\-\\.]+' required>";
-				component += "</div>";
-				component += "<div class='" + FormUtil.shortControlColumnClass + "'>";
-				component += " (Allowed characters are: letters, numbers, '-', '_', '.')";
-				component += "</div>";
-				component += "</div>";
+			Util.blockUINoMessage();
+			_this._sampleFormController.getNextCopyCode(function(defaultCode) {
+				var component = "<div class='form-horizontal'>"
+					component += "<legend>Duplicate Entity</legend>";
+					component += "<div class='form-inline'>";
+					component += "<div class='form-group " + FormUtil.shortformColumClass + "'>";
+					component += "<label class='control-label " + FormUtil.labelColumnClass + "'>Options </label>";
+					component += "<div class='" + FormUtil.controlColumnClass + "'>";
+					component += "<span class='checkbox'><label><input type='checkbox' id='linkParentsOnCopy' checked> Link Parents </label></span>";
+					component += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+					component += "<span class='checkbox'><label><input type='checkbox' id='copyChildrenOnCopy' checked> Copy Children </label></span>";
+					component += "</div>";
+					component += "</div>";
+					component += "</div>";
+					component += "<br /><br />";
+					component += "<div class='form-group " + FormUtil.shortformColumClass + "'>";
+					component += "<label class='control-label  " + FormUtil.labelColumnClass+ "'>Code&nbsp;(*):</label>";
+					component += "<div class='" + FormUtil.shortControlColumnClass + "'>";
+					component += "<input type='text' class='form-control' placeholder='Code' id='newSampleCodeForCopy' pattern='[a-zA-Z0-9_\\-\\.]+' required>";
+					component += "</div>";
+					component += "<div class='" + FormUtil.shortControlColumnClass + "'>";
+					component += " (Allowed characters are: letters, numbers, '-', '_', '.')";
+					component += "</div>";
+					component += "</div>";
+					
+				var css = {
+						'text-align' : 'left',
+						'top' : '15%',
+						'width' : '70%',
+						'left' : '15%',
+						'right' : '20%',
+						'overflow' : 'auto'
+				};
 				
-			var css = {
-					'text-align' : 'left',
-					'top' : '15%',
-					'width' : '70%',
-					'left' : '15%',
-					'right' : '20%',
-					'overflow' : 'auto'
-			};
-			
-			Util.blockUI(component + "<br><br><br> <a class='btn btn-default' id='copyAccept'>Accept</a> <a class='btn btn-default' id='copyCancel'>Cancel</a>", css);
-			
-			$("#newSampleCodeForCopy").on("keyup", function(event) {
-				$(this).val($(this).val().toUpperCase());
-			});
-			
-			$("#copyAccept").on("click", function(event) {
-				var newSampleCodeForCopy = $("#newSampleCodeForCopy");
-				var linkParentsOnCopy = $("#linkParentsOnCopy")[0].checked;
-				var copyChildrenOnCopy = $("#copyChildrenOnCopy")[0].checked;
-				var isValid = newSampleCodeForCopy[0].checkValidity();
-				if(isValid) {
-					var newSampleCodeForCopyValue = newSampleCodeForCopy.val();
-					_this._sampleFormController.createUpdateCopySample(newSampleCodeForCopyValue, linkParentsOnCopy, copyChildrenOnCopy);
+				Util.blockUI(component + "<br><br><br> <a class='btn btn-default' id='copyAccept'>Accept</a> <a class='btn btn-default' id='copyCancel'>Cancel</a>", css);
+				
+				$("#newSampleCodeForCopy").on("keyup", function(event) {
+					$(this).val($(this).val().toUpperCase());
+				});
+				
+				$("#newSampleCodeForCopy").val(defaultCode);
+				
+				$("#copyAccept").on("click", function(event) {
+					var newSampleCodeForCopy = $("#newSampleCodeForCopy");
+					var linkParentsOnCopy = $("#linkParentsOnCopy")[0].checked;
+					var copyChildrenOnCopy = $("#copyChildrenOnCopy")[0].checked;
+					var isValid = newSampleCodeForCopy[0].checkValidity();
+					if(isValid) {
+						var newSampleCodeForCopyValue = newSampleCodeForCopy.val();
+						_this._sampleFormController.createUpdateCopySample(newSampleCodeForCopyValue, linkParentsOnCopy, copyChildrenOnCopy);
+						Util.unblockUI();
+					} else {
+						Util.showError("Invalid code.", function() {}, true);
+					}
+				});
+				
+				$("#copyCancel").on("click", function(event) { 
 					Util.unblockUI();
-				} else {
-					Util.showError("Invalid code.", function() {}, true);
-				}
+				});
 			});
 			
-			$("#copyCancel").on("click", function(event) { 
-				Util.unblockUI();
-			});
 		}
 	}
 	

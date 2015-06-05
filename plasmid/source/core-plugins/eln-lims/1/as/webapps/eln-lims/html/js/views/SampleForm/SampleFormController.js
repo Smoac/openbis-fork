@@ -49,7 +49,6 @@ function SampleFormController(mainController, mode, sample) {
 		return this._sampleFormModel.isFormLoaded;
 	}
 	
-
 	this._addCommentsWidget = function($container) {
 		var commentsController = new CommentsController(this._sampleFormModel.sample, this._sampleFormModel.mode, this._sampleFormModel);
 		commentsController.init($container);
@@ -74,6 +73,16 @@ function SampleFormController(mainController, mode, sample) {
 //		storageController.getModel().storagePropertyGroup = profile.getStoragePropertyGroup(storagePropertyGroupName);
 //		this._storageControllers.push(storageController);
 //	}
+	
+	this.getNextCopyCode = function(callback) {
+		var _this = this;
+		mainController.serverFacade.searchWithType(
+				this._sampleFormModel.sample.sampleTypeCode,
+				this._sampleFormModel.sample.code + "*",
+				function(results) {
+					callback(_this._sampleFormModel.sample.code + "_" + (results.length + 1));
+				});
+	}
 	
 	this.deleteSample = function(reason) {
 		var _this = this;
