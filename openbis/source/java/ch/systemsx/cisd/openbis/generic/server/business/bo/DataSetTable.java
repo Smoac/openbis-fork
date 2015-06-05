@@ -39,7 +39,6 @@ import org.springframework.dao.DataIntegrityViolationException;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.collection.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
-import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -1078,7 +1077,7 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
                 sb.append("[Current: " + version);
                 sb.append(", Retrieved: " + update.getVersion());
                 sb.append("]");
-                throw new EnvironmentFailureException(sb.toString());
+                throw new UserFailureException(sb.toString());
             }
         }
     }
