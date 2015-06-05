@@ -22,9 +22,14 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
+import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.filesystem.tar.Tar;
+import ch.systemsx.cisd.common.io.MonitoredIOStreamCopier;
+import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DataSetExistenceChecker;
 
@@ -33,15 +38,19 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DataSetExistenceChecker
  */
 public class TarDataSetPackager extends AbstractDataSetPackager
 {
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, TarDataSetPackager.class);
 
     private final Tar tar;
 
-    public TarDataSetPackager(File tarFile, IHierarchicalContentProvider contentProvider, DataSetExistenceChecker dataSetExistenceChecker)
+    public TarDataSetPackager(File tarFile, IHierarchicalContentProvider contentProvider, 
+            DataSetExistenceChecker dataSetExistenceChecker, int bufferSize)
     {
         super(contentProvider, dataSetExistenceChecker);
         try
         {
-            tar = new Tar(tarFile);
+            MonitoredIOStreamCopier copier = new MonitoredIOStreamCopier(bufferSize);
+            copier.setLogger(new Log4jSimpleLogger(operationLog));
+            tar = new Tar(tarFile, copier);
         } catch (FileNotFoundException e)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(e);

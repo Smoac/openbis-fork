@@ -29,11 +29,13 @@ import java.util.Map;
 
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
-import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.FileUtils;
 
 import ch.systemsx.cisd.base.unix.FileLinkType;
 import ch.systemsx.cisd.base.unix.Unix;
 import ch.systemsx.cisd.base.unix.Unix.Stat;
+import ch.systemsx.cisd.common.io.MonitoredIOStreamCopier;
+import ch.systemsx.cisd.common.logging.ConsoleLogger;
 import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
 
 /**
@@ -52,21 +54,25 @@ public class Tar implements Closeable
 
     private final TarArchiveOutputStream out;
 
-    private final byte[] buf;
+    private final MonitoredIOStreamCopier copier;
 
     public Tar(final File tarFile) throws FileNotFoundException
     {
         this(tarFile, DEFAULT_BUFFER_SIZE);
     }
 
-    public Tar(final File tarFile, final int bufferSize)
-            throws FileNotFoundException
+    public Tar(final File tarFile, final int bufferSize) throws FileNotFoundException
+    {
+        this(tarFile, new MonitoredIOStreamCopier(bufferSize));
+    }
+    
+    public Tar(final File tarFile, MonitoredIOStreamCopier copier) throws FileNotFoundException
     {
         this.out = new TarArchiveOutputStream(new FileOutputStream(tarFile));
         out.setLongFileMode(TarArchiveOutputStream.LONGFILE_GNU);
         out.setBigNumberMode(TarArchiveOutputStream.BIGNUMBER_POSIX);
         out.setAddPaxHeadersForNonAsciiNames(true);
-        this.buf = new byte[bufferSize];
+        this.copier = copier;
     }
 
     /**
@@ -104,8 +110,7 @@ public class Tar implements Closeable
      * @param name The name of the archive entry.
      * @param data The data to write to the archive.
      */
-    public void add(String name, byte[] data)
-            throws IOException
+    public void add(String name, byte[] data) throws IOException
     {
         final TarArchiveEntry entry = new TarArchiveEntry(name);
         if (Unix.isOperational())
@@ -122,8 +127,7 @@ public class Tar implements Closeable
      * @param entry The metadata of the archive entry.
      * @param data The data to write to the archive.
      */
-    public void add(TarArchiveEntry entry, byte[] data)
-            throws IOException
+    public void add(TarArchiveEntry entry, byte[] data) throws IOException
     {
         entry.setSize(data.length);
         add(entry, new ByteArrayInputStream(data));
@@ -135,8 +139,7 @@ public class Tar implements Closeable
      * @param entry The metadata of the archive entry.
      * @param input The stream to write to the archive.
      */
-    public void add(TarArchiveEntry entry, InputStream input)
-            throws IOException
+    public void add(TarArchiveEntry entry, InputStream input) throws IOException
     {
         if (StringUtils.isBlank(entry.getUserName()))
         {
@@ -161,7 +164,7 @@ public class Tar implements Closeable
         {
             if (input != null)
             {
-                IOUtils.copyLarge(input, out);
+                copier.copy(input, out);
             }
         } finally
         {
@@ -172,11 +175,11 @@ public class Tar implements Closeable
     @Override
     public void close() throws IOException
     {
+        copier.close();
         out.close();
     }
 
-    private void addDirectory(int rootDirectoryLength, File directory)
-            throws IOException
+    private void addDirectory(int rootDirectoryLength, File directory) throws IOException
     {
         final String relativeDirName = directory.getPath().substring(
                 rootDirectoryLength);
@@ -199,19 +202,18 @@ public class Tar implements Closeable
         }
     }
 
-    private void addFile(int rootDirectoryLength, File f) throws IOException,
-            FileNotFoundException
+    private void addFile(int rootDirectoryLength, File f) throws IOException, FileNotFoundException
     {
         out.putArchiveEntry(createArchiveEntry(f, rootDirectoryLength, false));
-        final FileInputStream in = new FileInputStream(f);
-        int length;
-
-        while ((length = in.read(buf)) > 0)
+        final InputStream in = new FileInputStream(f);
+        try
         {
-            out.write(buf, 0, length);
+            copier.copy(in, out);
+        } finally
+        {
+            out.closeArchiveEntry();
+            in.close();
         }
-        out.closeArchiveEntry();
-        in.close();
     }
 
     private String tryGetGroupName(int gid)
@@ -275,8 +277,7 @@ public class Tar implements Closeable
         }
     }
 
-    private TarArchiveEntry createArchiveEntry(final String name,
-            final Stat stat)
+    private TarArchiveEntry createArchiveEntry(final String name, final Stat stat)
     {
         final byte linkType =
                 stat.getLinkType() == FileLinkType.SYMLINK ? TarArchiveEntry.LF_SYMLINK
@@ -323,7 +324,9 @@ public class Tar implements Closeable
         Tar tar = null;
         try
         {
-            tar = new Tar(tarFile);
+            MonitoredIOStreamCopier copier = new MonitoredIOStreamCopier((int) FileUtils.ONE_MB);
+            copier.setLogger(new ConsoleLogger());
+            tar = new Tar(tarFile, copier);
             tar.add(directory, directory.getPath().length());
             tar.close();
         } finally

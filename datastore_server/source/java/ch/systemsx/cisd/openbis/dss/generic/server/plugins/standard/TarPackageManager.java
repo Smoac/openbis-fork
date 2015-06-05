@@ -22,10 +22,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
+import org.apache.commons.io.FileUtils;
+
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.tar.Untar;
+import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.TarBasedHierarchicalContent;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
@@ -39,12 +42,21 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DataSetExistenceChecker
  */
 public class TarPackageManager extends AbstractPackageManager
 {
+    private static final String BUFFER_SIZE_KEY = "buffer-size";
 
+    private static final int DEFAULT_BUFFER_SIZE = (int) (10 * FileUtils.ONE_MB);
+    
     private final File tempFolder;
 
-    public TarPackageManager(Properties properties)
+    private final int bufferSize;
+    
+    private final ISimpleLogger ioSpeedLogger;
+
+    public TarPackageManager(Properties properties, ISimpleLogger ioSpeedLogger)
     {
         this.tempFolder = PropertyUtils.getDirectory(properties, RsyncArchiver.TEMP_FOLDER, null);
+        bufferSize = PropertyUtils.getInt(properties, BUFFER_SIZE_KEY, DEFAULT_BUFFER_SIZE);
+        this.ioSpeedLogger = ioSpeedLogger;
     }
 
     @Override
@@ -56,7 +68,7 @@ public class TarPackageManager extends AbstractPackageManager
     @Override
     protected AbstractDataSetPackager createPackager(File packageFile, DataSetExistenceChecker existenceChecker)
     {
-        return new TarDataSetPackager(packageFile, getContentProvider(), existenceChecker);
+        return new TarDataSetPackager(packageFile, getContentProvider(), existenceChecker, bufferSize);
     }
     
     @Override
@@ -102,7 +114,7 @@ public class TarPackageManager extends AbstractPackageManager
     @Override
     public IHierarchicalContent asHierarchialContent(File packageFile)
     {
-        return new TarBasedHierarchicalContent(packageFile, tempFolder);
+        return new TarBasedHierarchicalContent(packageFile, tempFolder, bufferSize, ioSpeedLogger);
     }
 
 }

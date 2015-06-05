@@ -23,6 +23,8 @@ import java.util.UUID;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.tar.Untar;
+import ch.systemsx.cisd.common.io.MonitoredIOStreamCopier;
+import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.openbis.common.io.HierarchicalContentNodeBasedHierarchicalContentNode;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
@@ -39,10 +41,16 @@ public class TarBasedHierarchicalContent extends AbstractHierarchicalContent
 
     private final File tempFolder;
 
-    public TarBasedHierarchicalContent(File packageFile, File tempFolder)
+    private final ISimpleLogger ioSpeedLoggerOrNull;
+
+    private final int bufferSize;
+
+    public TarBasedHierarchicalContent(File packageFile, File tempFolder, int bufferSize, ISimpleLogger ioSpeedLoggerOrNull)
     {
         this.packageFile = packageFile;
         this.tempFolder = tempFolder;
+        this.bufferSize = bufferSize;
+        this.ioSpeedLoggerOrNull = ioSpeedLoggerOrNull;
     }
 
     @Override
@@ -114,7 +122,9 @@ public class TarBasedHierarchicalContent extends AbstractHierarchicalContent
                 extractTo = new File(temp, UUID.randomUUID().toString());
                 extractTo.mkdirs();
 
-                untar = new Untar(packageFile);
+                MonitoredIOStreamCopier copier = new MonitoredIOStreamCopier(bufferSize);
+                copier.setLogger(ioSpeedLoggerOrNull);
+                untar = new Untar(packageFile, copier);
                 untar.extract(extractTo);
             } catch (Exception e)
             {

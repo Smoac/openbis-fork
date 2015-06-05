@@ -24,7 +24,9 @@ package ch.systemsx.cisd.common.utilities;
 public class MockTimeProvider implements ITimeAndWaitingProvider
 {
     private long time;
-    private final long timeStep;
+    private final long[] timeSteps;
+    
+    private int index;
     
     /**
      * Creates an instance which increases from 0 in steps of one second.
@@ -34,17 +36,17 @@ public class MockTimeProvider implements ITimeAndWaitingProvider
         this(0, 1000);
     }
     
-    public MockTimeProvider(long startTime, long timeStep)
+    public MockTimeProvider(long startTime, long... timeSteps)
     {
         time = startTime;
-        this.timeStep = timeStep;
+        this.timeSteps = timeSteps;
     }
     
     @Override
     public long getTimeInMilliseconds()
     {
         long result = time;
-        time += timeStep;
+        time += timeSteps[index++ % timeSteps.length];
         return result;
     }
     

@@ -25,6 +25,7 @@ import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.tar.Untar;
+import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.openbis.dss.generic.server.AbstractDataSetPackager;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.TarPackageManager;
 
@@ -34,9 +35,9 @@ import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.TarPackageMa
 public class MultiDataSetPackageManager extends TarPackageManager implements IMultiDataSetPackageManager
 {
 
-    public MultiDataSetPackageManager(Properties properties)
+    public MultiDataSetPackageManager(Properties properties, ISimpleLogger ioSpeedLogger)
     {
-        super(properties);
+        super(properties, ioSpeedLogger);
     }
 
     @Override

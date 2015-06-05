@@ -130,7 +130,7 @@ public class MultiDataSetFileOperationsManager extends AbstractDataSetFileOperat
     {
         this.freeSpaceProviderOrNull = freeSpaceProviderOrNull;
         this.timeProvider = timeProvider;
-        this.packageManager = new MultiDataSetPackageManager(properties);
+        this.packageManager = new MultiDataSetPackageManager(properties, new Log4jSimpleLogger(operationLog));
 
         this.withSharding = PropertyUtils.getBoolean(properties, WITH_SHARDING_KEY, false);
 
