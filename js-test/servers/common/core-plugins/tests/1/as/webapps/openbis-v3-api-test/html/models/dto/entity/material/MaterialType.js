@@ -2,15 +2,14 @@
  * Class automatically generated with
  * {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
  */
-define([ "support/stjs" ], function(stjs) {
-	var DataSetType = function() {
+define([ "support/stjs", "sys/exceptions" ], function(stjs, exceptions) {
+	var MaterialType = function() {
 	};
-	stjs.extend(DataSetType, null, [], function(constructor, prototype) {
-		prototype['@type'] = 'dto.entity.dataset.DataSetType';
+	stjs.extend(MaterialType, null, [], function(constructor, prototype) {
+		prototype['@type'] = 'dto.entity.material.MaterialType';
 		constructor.serialVersionUID = 1;
 		prototype.fetchOptions = null;
 		prototype.permId = null;
-		prototype.kind = null;
 		prototype.code = null;
 		prototype.description = null;
 		prototype.modificationDate = null;
@@ -25,12 +24,6 @@ define([ "support/stjs" ], function(stjs) {
 		};
 		prototype.setPermId = function(permId) {
 			this.permId = permId;
-		};
-		prototype.getKind = function() {
-			return this.kind;
-		};
-		prototype.setKind = function(kind) {
-			this.kind = kind;
 		};
 		prototype.getCode = function() {
 			return this.code;
@@ -51,10 +44,9 @@ define([ "support/stjs" ], function(stjs) {
 			this.modificationDate = modificationDate;
 		};
 	}, {
-		fetchOptions : "DataSetTypeFetchOptions",
+		fetchOptions : "MaterialTypeFetchOptions",
 		permId : "EntityTypePermId",
-		kind : "DataSetKind",
 		modificationDate : "Date"
 	});
-	return DataSetType;
+	return MaterialType;
 })

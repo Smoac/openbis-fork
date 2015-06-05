@@ -1,29 +1,28 @@
 /**
  * @author pkupczyk
  */
-define([ "support/stjs", "dto/entity/FieldUpdateValue", "dto/entity/IdListUpdateValue", "dto/entity/AttachmentListUpdateValue" ], function(stjs, FieldUpdateValue, IdListUpdateValue,
-		AttachmentListUpdateValue) {
-	var SampleUpdate = function() {
-		this.properties = {};
+define([ "support/stjs", "dto/entity/FieldUpdateValue", "dto/entity/IdListUpdateValue" ], function(stjs, FieldUpdateValue, IdListUpdateValue) {
+	var DataSetUpdate = function() {
 		this.experimentId = new FieldUpdateValue();
-		this.spaceId = new FieldUpdateValue();
+		this.sampleId = new FieldUpdateValue();
+		this.externalData = new FieldUpdateValue();
+		this.properties = {};
 		this.tagIds = new IdListUpdateValue();
-		this.containerId = new FieldUpdateValue();
+		this.containerIds = new IdListUpdateValue();
 		this.containedIds = new IdListUpdateValue();
 		this.parentIds = new IdListUpdateValue();
 		this.childIds = new IdListUpdateValue();
-		this.attachments = new AttachmentListUpdateValue();
 	};
-	stjs.extend(SampleUpdate, null, [], function(constructor, prototype) {
-		prototype['@type'] = 'dto.entity.sample.SampleUpdate';
+	stjs.extend(DataSetUpdate, null, [], function(constructor, prototype) {
+		prototype['@type'] = 'dto.entity.dataset.DataSetUpdate';
 		constructor.serialVersionUID = 1;
-		prototype.sampleId = null;
+		prototype.dataSetId = null;
 
-		prototype.getSampleId = function() {
-			return this.sampleId;
+		prototype.getDataSetId = function() {
+			return this.dataSetId;
 		};
-		prototype.setSampleId = function(sampleId) {
-			this.sampleId = sampleId;
+		prototype.setDataSetId = function(dataSetId) {
+			this.dataSetId = dataSetId;
 		};
 		prototype.getExperimentId = function() {
 			return this.experimentId;
@@ -31,17 +30,17 @@ define([ "support/stjs", "dto/entity/FieldUpdateValue", "dto/entity/IdListUpdate
 		prototype.setExperimentId = function(experimentId) {
 			this.experimentId.setValue(experimentId);
 		};
-		prototype.getSpaceId = function() {
-			return this.spaceId;
+		prototype.getSampleId = function() {
+			return this.sampleId;
 		};
-		prototype.setSpaceId = function(spaceId) {
-			this.spaceId.setValue(spaceId);
+		prototype.setSampleId = function(sampleId) {
+			this.sampleId.setValue(sampleId);
 		};
-		prototype.getContainerId = function() {
-			return this.containerId;
+		prototype.getExternalData = function() {
+			return this.externalData;
 		};
-		prototype.setContainerId = function(containerId) {
-			this.containerId.setValue(containerId);
+		prototype.setExternalData = function(externalData) {
+			this.externalData.setValue(externalData);
 		};
 		prototype.setProperty = function(key, value) {
 			this.properties[key] = value;
@@ -54,6 +53,12 @@ define([ "support/stjs", "dto/entity/FieldUpdateValue", "dto/entity/IdListUpdate
 		};
 		prototype.setTagActions = function(actions) {
 			this.tagIds.setActions(actions);
+		};
+		prototype.getContainerIds = function() {
+			return this.containerIds;
+		};
+		prototype.setContainerActions = function(actions) {
+			this.containerIds.setActions(actions);
 		};
 		prototype.getContainedIds = function() {
 			return this.containedIds;
@@ -73,47 +78,44 @@ define([ "support/stjs", "dto/entity/FieldUpdateValue", "dto/entity/IdListUpdate
 		prototype.setChildActions = function(actions) {
 			this.childIds.setActions(actions);
 		};
-		prototype.getAttachments = function() {
-			return this.attachments;
-		};
-		prototype.setAttachmentsActions = function(actions) {
-			this.attachments.setActions(actions);
-		};
 	}, {
-		sampleId : "ISampleId",
+		dataSetId : "IDataSetId",
 		experimentId : {
 			name : "FieldUpdateValue",
 			arguments : [ "IExperimentId" ]
 		},
-		spaceId : {
+		sampleId : {
 			name : "FieldUpdateValue",
-			arguments : [ "ISpaceId" ]
+			arguments : [ "ISampleId" ]
 		},
-		tagIds : {
-			name : "IdListUpdateValue",
-			arguments : [ "ITagId" ]
+		externalData : {
+			name : "FieldUpdateValue",
+			arguments : [ "ExternalDataUpdate" ]
 		},
 		properties : {
 			name : "Map",
 			arguments : [ null, null ]
 		},
-		containerId : {
-			name : "FieldUpdateValue",
-			arguments : [ "ISampleId" ]
+		tagIds : {
+			name : "IdListUpdateValue",
+			arguments : [ "ITagId" ]
+		},
+		containerIds : {
+			name : "IdListUpdateValue",
+			arguments : [ "IDataSetId" ]
 		},
 		containedIds : {
 			name : "IdListUpdateValue",
-			arguments : [ "ISampleId" ]
+			arguments : [ "IDataSetId" ]
 		},
 		parentIds : {
 			name : "IdListUpdateValue",
-			arguments : [ "ISampleId" ]
+			arguments : [ "IDataSetId" ]
 		},
 		childIds : {
 			name : "IdListUpdateValue",
-			arguments : [ "ISampleId" ]
-		},
-		attachments : "AttachmentListUpdateValue"
+			arguments : [ "IDataSetId" ]
+		}
 	});
-	return SampleUpdate;
+	return DataSetUpdate;
 })

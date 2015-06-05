@@ -9,6 +9,7 @@ define([ "support/stjs", "sys/exceptions" ], function(stjs, exceptions) {
 		prototype['@type'] = 'dto.entity.person.Person';
 		constructor.serialVersionUID = 1;
 		prototype.fetchOptions = null;
+		prototype.permId = null;
 		prototype.userId = null;
 		prototype.firstName = null;
 		prototype.lastName = null;
@@ -22,6 +23,12 @@ define([ "support/stjs", "sys/exceptions" ], function(stjs, exceptions) {
 		};
 		prototype.setFetchOptions = function(fetchOptions) {
 			this.fetchOptions = fetchOptions;
+		};
+		prototype.getPermId = function() {
+			return this.permId;
+		};
+		prototype.setPermId = function(permId) {
+			this.permId = permId;
 		};
 		prototype.getUserId = function() {
 			return this.userId;
@@ -81,6 +88,7 @@ define([ "support/stjs", "sys/exceptions" ], function(stjs, exceptions) {
 		};
 	}, {
 		fetchOptions : "PersonFetchOptions",
+		permId : "PersonPermId",
 		registrationDate : "Date",
 		space : "Space",
 		registrator : "Person"

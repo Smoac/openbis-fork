@@ -15,9 +15,12 @@ define([ "support/stjs", "sys/exceptions" ], function(stjs, exceptions) {
 		prototype.description = null;
 		prototype.registrationDate = null;
 		prototype.modificationDate = null;
+		prototype.experiments = null;
 		prototype.space = null;
 		prototype.registrator = null;
 		prototype.modifier = null;
+		prototype.leader = null;
+		prototype.attachments = null;
 		prototype.getFetchOptions = function() {
 			return this.fetchOptions;
 		};
@@ -60,6 +63,16 @@ define([ "support/stjs", "sys/exceptions" ], function(stjs, exceptions) {
 		prototype.setModificationDate = function(modificationDate) {
 			this.modificationDate = modificationDate;
 		};
+		prototype.getExperiments = function() {
+			if (this.getFetchOptions().hasExperiments()) {
+				return this.experiments;
+			} else {
+				throw new exceptions.NotFetchedException("Experiments have not been fetched.");
+			}
+		};
+		prototype.setExperiments = function(experiments) {
+			this.experiments = experiments;
+		};
 		prototype.getSpace = function() {
 			if (this.getFetchOptions().hasSpace()) {
 				return this.space;
@@ -90,15 +103,44 @@ define([ "support/stjs", "sys/exceptions" ], function(stjs, exceptions) {
 		prototype.setModifier = function(modifier) {
 			this.modifier = modifier;
 		};
+		prototype.getLeader = function() {
+			if (this.getFetchOptions().hasLeader()) {
+				return this.leader;
+			} else {
+				throw new exceptions.NotFetchedException("Leader has not been fetched.");
+			}
+		};
+		prototype.setLeader = function(leader) {
+			this.leader = leader;
+		};
+		prototype.getAttachments = function() {
+			if (this.getFetchOptions().hasAttachments()) {
+				return this.attachments;
+			} else {
+				throw new exceptions.NotFetchedException("Attachments have not been fetched.");
+			}
+		};
+		prototype.setAttachments = function(attachments) {
+			this.attachments = attachments;
+		};
 	}, {
 		fetchOptions : "ProjectFetchOptions",
 		permId : "ProjectPermId",
 		identifier : "ProjectIdentifier",
 		registrationDate : "Date",
 		modificationDate : "Date",
+		experiments : {
+			name : "List",
+			arguments : [ "Experiment" ]
+		},
 		space : "Space",
 		registrator : "Person",
-		modifier : "Person"
+		modifier : "Person",
+		leader : "Person",
+		attachments : {
+			name : "List",
+			arguments : [ "Attachment" ]
+		}
 	});
 	return Project;
 })

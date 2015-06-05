@@ -18,10 +18,13 @@ define([ "support/stjs", "sys/exceptions" ], function(stjs, exceptions) {
 		prototype.space = null;
 		prototype.experiment = null;
 		prototype.properties = null;
+		prototype.materialProperties = null;
 		prototype.parents = null;
 		prototype.children = null;
 		prototype.container = null;
 		prototype.contained = null;
+		prototype.dataSets = null;
+		prototype.history = null;
 		prototype.tags = null;
 		prototype.registrator = null;
 		prototype.modifier = null;
@@ -96,11 +99,21 @@ define([ "support/stjs", "sys/exceptions" ], function(stjs, exceptions) {
 			if (this.getFetchOptions().hasProperties()) {
 				return this.properties;
 			} else {
-				throw new exceptions.NotFetchedException("Properties has not been fetched.");
+				throw new exceptions.NotFetchedException("Properties have not been fetched.");
 			}
 		};
 		prototype.setProperties = function(properties) {
 			this.properties = properties;
+		};
+		prototype.getMaterialProperties = function() {
+			if (this.getFetchOptions().hasMaterialProperties()) {
+				return this.materialProperties;
+			} else {
+				throw new exceptions.NotFetchedException("Material properties have not been fetched.");
+			}
+		};
+		prototype.setMaterialProperties = function(materialProperties) {
+			this.materialProperties = materialProperties;
 		};
 		prototype.getParents = function() {
 			if (this.getFetchOptions().hasParents()) {
@@ -141,6 +154,26 @@ define([ "support/stjs", "sys/exceptions" ], function(stjs, exceptions) {
 		};
 		prototype.setContained = function(contained) {
 			this.contained = contained;
+		};
+		prototype.getDataSets = function() {
+			if (this.getFetchOptions().hasDataSets()) {
+				return this.dataSets;
+			} else {
+				throw new exceptions.NotFetchedException("Data sets have not been fetched.");
+			}
+		};
+		prototype.setDataSets = function(dataSets) {
+			this.dataSets = dataSets;
+		};
+		prototype.getHistory = function() {
+			if (this.getFetchOptions().hasHistory()) {
+				return this.history;
+			} else {
+				throw new exceptions.NotFetchedException("History has not been fetched.");
+			}
+		};
+		prototype.setHistory = function(history) {
+			this.history = history;
 		};
 		prototype.getTags = function() {
 			if (this.getFetchOptions().hasTags()) {
@@ -198,6 +231,10 @@ define([ "support/stjs", "sys/exceptions" ], function(stjs, exceptions) {
 			name : "Map",
 			arguments : [ null, null ]
 		},
+		materialProperties : {
+			name : "Map",
+			arguments : [ null, "Material" ]
+		},
 		parents : {
 			name : "List",
 			arguments : [ "Sample" ]
@@ -210,6 +247,14 @@ define([ "support/stjs", "sys/exceptions" ], function(stjs, exceptions) {
 		contained : {
 			name : "List",
 			arguments : [ "Sample" ]
+		},
+		dataSets : {
+			name : "List",
+			arguments : [ "DataSet" ]
+		},
+		history : {
+			name : "List",
+			arguments : [ "HistoryEntry" ]
 		},
 		tags : {
 			name : "Set",

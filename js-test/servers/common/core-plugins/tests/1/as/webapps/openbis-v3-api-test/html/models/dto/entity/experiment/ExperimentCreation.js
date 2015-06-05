@@ -12,6 +12,7 @@ define([ "support/stjs" ], function(stjs) {
 		prototype.projectId = null;
 		prototype.code = null;
 		prototype.tagIds = null;
+		prototype.properties = null;
 		prototype.attachments = null;
 		prototype.setTypeId = function(typeId) {
 			this.typeId = typeId;

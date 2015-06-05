@@ -1,0 +1,67 @@
+/**
+ * @author pkupczyk
+ */
+define([ "support/stjs" ], function(stjs) {
+	var MaterialCreation = function() {
+		this.properties = {};
+	};
+	stjs.extend(MaterialCreation, null, [], function(constructor, prototype) {
+		prototype['@type'] = 'dto.entity.material.MaterialCreation';
+		constructor.serialVersionUID = 1;
+		prototype.code = null;
+		prototype.typeId = null;
+		prototype.description = null;
+		prototype.creationId = null;
+		prototype.tagIds = null;
+		prototype.properties = null;
+
+		prototype.getCode = function() {
+			return this.code;
+		};
+		prototype.setCode = function(code) {
+			this.code = code;
+		};
+		prototype.getTypeId = function() {
+			return this.typeId;
+		};
+		prototype.setTypeId = function(typeId) {
+			this.typeId = typeId;
+		};
+		prototype.getDescription = function() {
+			return this.description;
+		};
+		prototype.setDescription = function(description) {
+			this.description = description;
+		};
+		prototype.getCreationId = function() {
+			return this.creationId;
+		};
+		prototype.setCreationId = function(creationId) {
+			this.creationId = creationId;
+		};
+		prototype.getTagIds = function() {
+			return this.tagIds;
+		};
+		prototype.setTagIds = function(tagIds) {
+			this.tagIds = tagIds;
+		};
+		prototype.setProperty = function(key, value) {
+			this.properties[key] = value;
+		};
+		prototype.getProperties = function() {
+			return this.properties;
+		};
+	}, {
+		typeId : "IEntityTypeId",
+		creationId : "CreationId",
+		tagIds : {
+			name : "List",
+			arguments : [ "Object" ]
+		},
+		properties : {
+			name : "Map",
+			arguments : [ null, null ]
+		}
+	});
+	return MaterialCreation;
+})

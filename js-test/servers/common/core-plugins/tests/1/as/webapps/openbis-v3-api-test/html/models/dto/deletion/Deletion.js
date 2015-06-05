@@ -11,6 +11,7 @@ define([ "support/stjs", "sys/exceptions" ], function(stjs, exceptions) {
 		prototype.fetchOptions = null;
 		prototype.id = null;
 		prototype.reason = null;
+		prototype.deletedObjects = null;
 		prototype.getFetchOptions = function() {
 			return this.fetchOptions;
 		};
