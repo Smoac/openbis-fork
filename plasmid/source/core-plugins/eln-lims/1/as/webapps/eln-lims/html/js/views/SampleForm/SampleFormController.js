@@ -78,7 +78,7 @@ function SampleFormController(mainController, mode, sample) {
 		var _this = this;
 		mainController.serverFacade.searchWithType(
 				this._sampleFormModel.sample.sampleTypeCode,
-				this._sampleFormModel.sample.code + "*",
+				this._sampleFormModel.sample.code + "_*",
 				function(results) {
 					callback(_this._sampleFormModel.sample.code + "_" + (results.length + 1));
 				});
