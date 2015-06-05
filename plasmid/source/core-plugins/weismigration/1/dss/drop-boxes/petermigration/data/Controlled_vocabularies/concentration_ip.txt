@@ -1,0 +1,1 @@
+code	label1UL	1 µl5UL	5 µl10UL	10 µl15UL	15 µl20UL	20 µlNOT_TESTED	not testedNOT_WORKING	not working						

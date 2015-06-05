@@ -1,0 +1,1 @@
+entity.propertyValue('SEQUENCE').count('C')+entity.propertyValue('SEQUENCE').count('c')
