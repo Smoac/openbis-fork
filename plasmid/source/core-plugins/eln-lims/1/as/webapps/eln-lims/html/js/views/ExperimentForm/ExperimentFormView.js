@@ -76,6 +76,22 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 			$formTitle.append($editBtn);
 		}
 		
+		if(this._experimentFormModel.mode !== FormMode.CREATE) {
+			//Add Experiment Step
+			if(profile.getSampleTypeForSampleTypeCode("EXPERIMENTAL_STEP")) {
+				$formTitle.append("&nbsp;");
+				$formTitle.append(FormUtil.getButtonWithText("Create Exp. Step", function() {
+					var argsMap = {
+							"sampleTypeCode" : "EXPERIMENTAL_STEP",
+							"experimentIdentifier" : _this._experimentFormModel.experiment.identifier
+					}
+					var argsMapStr = JSON.stringify(argsMap);
+					Util.unblockUI();
+					mainController.changeView("showCreateSubExperimentPage", argsMapStr);
+				}));
+			}
+		}
+		
 		//
 		// Metadata Identification
 		//
