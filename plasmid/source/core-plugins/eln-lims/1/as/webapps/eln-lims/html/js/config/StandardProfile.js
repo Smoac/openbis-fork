@@ -14,6 +14,8 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 		this.storagesConfiguration = {
 				"isEnabled" : true,
 				"isBoxSizeAndPositionEnabled" : true, //To avoid old running models to run the latest storage manager until the admins update their model and configuration
+				"storageSpaceLowWarning" : 0.8, //Storage goes over 80%
+				"boxSpaceLowWarning" : 0.8, //Box goes over 80%
 				/*
 				 * Should be the same across all storages, if not correct behaviour is not guaranteed.
 				*/
@@ -35,12 +37,12 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 					"BENCH" : { //Freezer name given by the NAME_PROPERTY
 						"ROW_NUM" : 1, //Number of rows
 						"COLUMN_NUM" : 1, //Number of columns
-						"BOX_NUM" : 999999 //Boxes on each rack, used for validation, to avoid validation increase the number to 9999 for example
+						"BOX_NUM" : 1 //Boxes on each rack, used for validation, to avoid validation increase the number to 9999 for example
 					},
 					"DEFAULT_STORAGE" : { //Freezer name given by the NAME_PROPERTY
 						"ROW_NUM" : 1, //Number of rows
 						"COLUMN_NUM" : 1, //Number of columns
-						"BOX_NUM" : 999999 //Boxes on each rack, used for validation, to avoid validation increase the number to 9999 for example
+						"BOX_NUM" : 9999 //Boxes on each rack, used for validation, to avoid validation increase the number to 9999 for example
 					}
 				}
 			};

@@ -149,13 +149,16 @@ var Util = new function() {
 		});
 	}
 	
-	this.showInfo = function(withHTML, andCallback) {
+	this.showInfo = function(withHTML, andCallback, noBlock) {
 		var isiPad = navigator.userAgent.match(/iPad/i) != null;
 		if(!isiPad) {
 			withHTML = withHTML + "<br>" + "<a class='btn btn-default'>OK</a>";
 		}
 		
-		this.blockUINoMessage();
+		if(!noBlock) {
+			this.blockUINoMessage();
+		}
+		
 		var localReference = this;
 		jNotify(
 				withHTML,

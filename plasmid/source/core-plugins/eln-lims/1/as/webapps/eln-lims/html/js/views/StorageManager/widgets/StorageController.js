@@ -187,6 +187,7 @@ function StorageController(configOverride) {
 				function(samples) {
 					var boxes = [];
 					var userIds = [];
+					positionsUsed = 0;
 					samples.forEach(function(element, index, array) {
 						var boxCode = element.properties[_this._storageModel.storagePropertyGroup.boxProperty];
 						var boxSize = element.properties[_this._storageModel.storagePropertyGroup.boxSizeProperty];
@@ -222,6 +223,7 @@ function StorageController(configOverride) {
 						
 						var boxSamples = getBoxFromCol(boxesCol, boxCode);
 						if(!boxSamples) {
+							positionsUsed++;
 							boxSamples = { displayName : boxCode, data : { size: boxSize, samples: [] } };
 						} else if(!boxSamples.data.size) { //To help instances where they are migrating data where not all boxes are set
 								boxSamples.data.size = boxSize;
@@ -231,6 +233,14 @@ function StorageController(configOverride) {
 						boxesCol.push(boxSamples);
 					}, true);
 					
+					//
+					// Storage low of space alert
+					//
+					var totalPositions = storageConfig.rowNum * storageConfig.colNum * storageConfig.boxNum;
+					var used = positionsUsed / totalPositions;
+					if(used >= profile.storagesConfiguration["storageSpaceLowWarning"]) {
+						Util.showInfo("Storage space is getting low, currently " + positionsUsed + " out of " + totalPositions + " posible positions are taken.", function() {}, true);
+					}
 					//
 					// Refresh Grid with the boxes
 					//

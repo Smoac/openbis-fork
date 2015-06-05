@@ -279,6 +279,16 @@ function StorageView(storageController, storageModel, gridView) {
 							_this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.positionProperty] = Util.getLetterForNumber(posX) + posY;
 						}
 					}); 
+					
+					//
+					// Box low of space alert
+					//
+					var positionsUsed = samples.length;
+					var totalPositions = numRows * numCols;
+					var used = positionsUsed / totalPositions;
+					if(used >= profile.storagesConfiguration["boxSpaceLowWarning"]) {
+						Util.showInfo("Box space is getting low, currently " + positionsUsed + " out of " + totalPositions + " posible positions are taken.", function() {}, true);
+					}
 				}
 				
 				_this._storageController._gridControllerPosition.init(_this._positionContainer);
