@@ -27,7 +27,7 @@ def calculate():
         parentGroup = parentIterables.pop(0)
         parents = parentGroup["parents"]
         child = parentGroup["child"]
-        lostList = parentGroup["lost"]
+        lostList = parentGroup["lost"][:]
         
         newLostList = []
         newParentIterables = []
