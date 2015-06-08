@@ -69,5 +69,17 @@ public class FastaUtilitiesTest extends AssertJUnit
     {
         assertEquals(SequenceType.NUCL, FastaUtilities.determineSequenceType("aagcunnau"));
     }
+    
+    @Test
+    public void testLineWithSpacesInNuclCodes()
+    {
+        assertEquals(SequenceType.NUCL, FastaUtilities.determineSequenceType("3'-aag ttg cca-5'"));
+    }
+    
+    @Test
+    public void testLineWithSpacesInProtCodes()
+    {
+        assertEquals(SequenceType.PROT, FastaUtilities.determineSequenceType("TLI IGGBC"));
+    }
 
 }

@@ -55,6 +55,7 @@ public class FastaUtilities
     public static SequenceType determineSequenceType(String line)
     {
         Counters<Character> counters = new Counters<Character>();
+        int sequenceCharacters = 0;
         for (char c : line.toUpperCase().toCharArray())
         {
             boolean isNucleicAcidCode = NUCLEIC_ACID_CODES_SET.contains(c);
@@ -63,18 +64,19 @@ public class FastaUtilities
             {
                 continue;
             }
+            sequenceCharacters++;
             if (isNucleicAcidCode == false)
             {
                 return SequenceType.PROT;
             }
             counters.count(c);
         }
-        if (counters.getNumberOfDifferentObjectsCounted() > 5 || containsUAndT(counters))
+        if (counters.getNumberOfDifferentObjectsCounted() > 6 || containsUAndT(counters))
         {
             return SequenceType.PROT;
         }
-        int nonCommonNucleicAcidCodeSites = line.length();
-        for (Character c : "ACGTUN".toCharArray())
+        int nonCommonNucleicAcidCodeSites = sequenceCharacters;
+        for (Character c : "ACGTUN-".toCharArray())
         {
             nonCommonNucleicAcidCodeSites -= counters.getCountOf(c);
         }
