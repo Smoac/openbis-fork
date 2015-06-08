@@ -40,7 +40,7 @@ mkdir -p $BEEWM_ROOT/work/datasets
 mkdir -p $BEEWM_ROOT/work/scratch
 
 SYSTEM_CONFIG=`find $BEEWM_ROOT -name system.config`
-echo "BEEWM_WORKDIR = $BEEWM_ROOT/work" >> $SYSTEM_CONFIG
+echo "BEE_WORK_DIRECTORY = $BEEWM_ROOT/work" >> $SYSTEM_CONFIG
 
 OPENBIS_CONFIG=`find $BEEWM_ROOT -name openbis.config`
 echo "openbis.data_dir = $OPENBIS_DATA" >> $OPENBIS_CONFIG
