@@ -95,7 +95,7 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
     
     public static final String PAUSE_FILE_KEY = "pause-file";
     
-    public static final String DEFAULT_PAUSE_FILE = "pause";
+    public static final String DEFAULT_PAUSE_FILE = "pause-archiving";
 
     public static final String PAUSE_FILE_POLLING_TIME_KEY = "pause-file-polling-time";
     
