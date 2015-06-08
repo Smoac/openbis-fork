@@ -239,6 +239,10 @@ public class AbstractArchiverProcessingPluginTest extends AbstractFileSystemTest
 
         private final IAbstractArchiverMethods methods;
 
+        private final String pauseFile;
+
+        private long pollingTime;
+
         @Override
         public DatasetProcessingStatuses doArchive(List<DatasetDescription> datasets,
                 ArchiverTaskContext context, boolean removeFromDataStore)
@@ -273,11 +277,23 @@ public class AbstractArchiverProcessingPluginTest extends AbstractFileSystemTest
             return methods.isDataSetPresentInArchive(dataset);
         }
 
+        @Override
+        protected void pauseStartingArchiving(long waitingTime)
+        {
+            this.pollingTime = waitingTime;
+            File f = new File(pauseFile);
+            if (f.exists())
+            {
+                f.delete();
+            }
+        }
+
         public MockArchiver(Properties properties, File storeRoot,
                 IAbstractArchiverMethods methods, IStatusChecker archivePrerequisiteOrNull,
                 IStatusChecker unarchivePrerequisiteOrNull)
         {
             super(properties, storeRoot, archivePrerequisiteOrNull, unarchivePrerequisiteOrNull);
+            pauseFile = properties.getProperty(PAUSE_FILE_KEY);
             this.methods = methods;
         }
     }
@@ -302,6 +318,8 @@ public class AbstractArchiverProcessingPluginTest extends AbstractFileSystemTest
 
     private IStatusChecker statusChecker;
 
+    private File pauseFile;
+
     @BeforeMethod
     public void beforeMethod()
     {
@@ -320,6 +338,8 @@ public class AbstractArchiverProcessingPluginTest extends AbstractFileSystemTest
         dataStoreService =
                 ServiceProviderTestWrapper.mock(context, IDataStoreServiceInternal.class);
         shareIdManager = ServiceProviderTestWrapper.mock(context, IShareIdManager.class);
+        
+        pauseFile = new File(workingDirectory, "pause-file");
 
         File dataSet1 = new File(workingDirectory, "1/ds1");
         dataSet1.mkdirs();
@@ -472,7 +492,7 @@ public class AbstractArchiverProcessingPluginTest extends AbstractFileSystemTest
     }
 
     @Test
-    public void testArchiveDataSetWithUnknownSize()
+    public void testArchiveDataSetWithUnknownSizeAndPause() throws Exception
     {
         final DatasetDescription ds1 =
                 new DatasetDescriptionBuilder("ds1").location("ds1").getDatasetDescription();
@@ -493,9 +513,13 @@ public class AbstractArchiverProcessingPluginTest extends AbstractFileSystemTest
                 }
             });
         SimpleArchiver simpleArchiver = new SimpleArchiver();
+        Properties properties = new Properties();
+        properties.setProperty(AbstractArchiverProcessingPlugin.PAUSE_FILE_KEY, pauseFile.getAbsolutePath());
+        properties.setProperty(AbstractArchiverProcessingPlugin.PAUSE_FILE_POLLING_TIME_KEY, "3 min");
         MockArchiver mockArchiver =
-                new MockArchiver(new Properties(), workingDirectory, simpleArchiver, null, null);
+                new MockArchiver(properties, workingDirectory, simpleArchiver, null, null);
         mockArchiver.statusUpdater = statusUpdater;
+        pauseFile.createNewFile();
 
         ProcessingStatus status = mockArchiver.archive(Arrays.asList(ds1), archiverContext, true);
 
@@ -504,8 +528,12 @@ public class AbstractArchiverProcessingPluginTest extends AbstractFileSystemTest
         assertEquals("[]", status.getErrorStatuses().toString());
         assertEquals("[]", status.getDatasetsByStatus(Status.createError()).toString());
         assertEquals("INFO  OPERATION.AbstractDatastorePlugin - "
-                + "Archiving of the following datasets has been requested: [Dataset 'ds1']",
+                + "Archiving of the following datasets has been requested: [Dataset 'ds1']\n"
+                + "INFO  OPERATION.AbstractDatastorePlugin - Presents of pause file '"
+                        + pauseFile.getAbsolutePath()
+                        + "' prevents starting archiving the following data sets: [Dataset 'ds1']",
                 logRecorder.getLogContent());
+        assertEquals(180000, mockArchiver.pollingTime);
         context.assertIsSatisfied();
     }
 

@@ -30,10 +30,13 @@ import java.util.Properties;
 import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.time.DateUtils;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.collection.CollectionUtils;
+import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.filesystem.BooleanStatus;
@@ -43,6 +46,7 @@ import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
 import ch.systemsx.cisd.common.properties.PropertyParametersUtil;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.common.reflection.ClassUtils;
+import ch.systemsx.cisd.common.time.DateTimeUtils;
 import ch.systemsx.cisd.common.time.TimingParameters;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ArchiverTaskContext;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IArchiverPlugin;
@@ -88,7 +92,15 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
     public static final String BATCH_SIZE_IN_BYTES = "batch-size-in-bytes";
 
     public static final String TEMP_FOLDER = "temp-folder";
+    
+    public static final String PAUSE_FILE_KEY = "pause-file";
+    
+    public static final String DEFAULT_PAUSE_FILE = "pause";
 
+    public static final String PAUSE_FILE_POLLING_TIME_KEY = "pause-file-polling-time";
+    
+    public static final long DEFAULT_PAUSE_FILE_POOLING_TIME = 10 * DateUtils.MILLIS_PER_MINUTE;
+    
     private final IStatusChecker archivePrerequisiteOrNull;
 
     private final IStatusChecker unarchivePrerequisiteOrNull;
@@ -96,7 +108,11 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
     private final boolean synchronizeArchive;
 
     private final File tempFolder;
+    
+    private final File pauseFile;
 
+    private final long pauseFilePollingTime;
+    
     private transient IShareIdManager shareIdManager;
 
     private transient IEncapsulatedOpenBISService service;
@@ -117,6 +133,28 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
         this.synchronizeArchive = PropertyUtils.getBoolean(properties, SYNCHRONIZE_ARCHIVE, true);
         this.maximumBatchSizeInBytes = PropertyUtils.getLong(properties, BATCH_SIZE_IN_BYTES, 1024L * 1024 * 1024);
         this.tempFolder = PropertyUtils.getDirectory(properties, TEMP_FOLDER, null);
+        String pauseFilePath = properties.getProperty(PAUSE_FILE_KEY);
+        if (pauseFilePath == null)
+        {
+            pauseFile = new File(storeRoot, DEFAULT_PAUSE_FILE);
+            
+        } else
+        {
+            int prefixLength = FilenameUtils.getPrefixLength(pauseFilePath);
+            if (prefixLength > 0)
+            {
+                pauseFile = new File(pauseFilePath);
+            } else if (prefixLength == 0)
+            {
+                pauseFile = new File(storeRoot, pauseFilePath);
+            } else
+            {
+                throw new ConfigurationFailureException("Invalid value of property '" + PAUSE_FILE_KEY 
+                        + "': " + pauseFilePath);
+            }
+        }
+        pauseFilePollingTime = DateTimeUtils.getDurationInMillis(properties, PAUSE_FILE_POLLING_TIME_KEY, 
+                DEFAULT_PAUSE_FILE_POOLING_TIME);
     }
 
     /**
@@ -154,8 +192,14 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
     public ProcessingStatus archive(List<DatasetDescription> datasets,
             final ArchiverTaskContext context, boolean removeFromDataStore)
     {
-        operationLog.info("Archiving of the following datasets has been requested: "
-                + CollectionUtils.abbreviate(datasets, 10));
+        String dataSetsDescription = CollectionUtils.abbreviate(datasets, 10);
+        operationLog.info("Archiving of the following datasets has been requested: " + dataSetsDescription);
+        while (pauseFile.exists())
+        {
+            operationLog.info("Presents of pause file '" + pauseFile 
+                    + "' prevents starting archiving the following data sets: " + dataSetsDescription);
+            pauseStartingArchiving(pauseFilePollingTime);
+        }
 
         DatasetProcessingStatuses finalstatuses = new DatasetProcessingStatuses();
 
@@ -177,6 +221,11 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
         }
 
         return finalstatuses.getProcessingStatus();
+    }
+
+    protected void pauseStartingArchiving(long waitingTime)
+    {
+        ConcurrencyUtilities.sleep(waitingTime);
     }
 
     protected List<List<DatasetDescription>> splitIntoGroups(List<DatasetDescription> datasets)
