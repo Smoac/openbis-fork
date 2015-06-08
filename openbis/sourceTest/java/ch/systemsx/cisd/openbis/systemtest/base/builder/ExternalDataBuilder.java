@@ -20,20 +20,31 @@ import static ch.systemsx.cisd.openbis.systemtest.base.BaseTest.id;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 import java.util.UUID;
 
 import ch.systemsx.cisd.openbis.generic.server.ICommonServerForInternalUse;
 import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypePropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LocatorType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETPTAssignment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
@@ -52,6 +63,8 @@ public class ExternalDataBuilder extends Builder<AbstractExternalData>
     private List<String> parentCodes;
 
     private List<String> componentCodes;
+    
+    private Map<String, String> properties;
 
     private String code;
     
@@ -68,6 +81,7 @@ public class ExternalDataBuilder extends Builder<AbstractExternalData>
         this.parentCodes = new ArrayList<String>();
         this.container = false;
         this.componentCodes = new ArrayList<String>();
+        this.properties = new HashMap<String, String>();
     }
 
     public ExternalDataBuilder withType(String type)
@@ -123,6 +137,12 @@ public class ExternalDataBuilder extends Builder<AbstractExternalData>
         return this.withComponents(data.getCode());
     }
 
+    public ExternalDataBuilder withProperty(String propertyTypeCode, String value)
+    {
+        properties.put(propertyTypeCode, value);
+        return this;
+    }
+    
     @Override
     public AbstractExternalData create()
     {
@@ -177,6 +197,13 @@ public class ExternalDataBuilder extends Builder<AbstractExternalData>
         data.setDataStoreCode("STANDARD");
         data.setExperimentIdentifierOrNull(this.experimentIdentifier);
         data.setParentDataSetCodes(this.parentCodes);
+        List<NewProperty> dataSetProperties = new ArrayList<NewProperty>();
+        Set<Entry<String, String>> set = properties.entrySet();
+        for (Entry<String, String> entry : set)
+        {
+            dataSetProperties.add(new NewProperty(entry.getKey(), entry.getValue()));
+        }
+        data.setDataSetProperties(dataSetProperties);
         return data;
     }
 
@@ -187,9 +214,61 @@ public class ExternalDataBuilder extends Builder<AbstractExternalData>
         {
             if (type.getCode().equals(dataSetType.getCode()))
             {
+                if (properties.isEmpty() == false)
+                {
+                    Set<String> knownPropertyTypes = new HashSet<String>(); 
+                    List<DataSetTypePropertyType> assignedPropertyTypes = type.getAssignedPropertyTypes();
+                    for (DataSetTypePropertyType dtpt : assignedPropertyTypes)
+                    {
+                        knownPropertyTypes.add(dtpt.getPropertyType().getCode());
+                    }
+                    Set<String> unassignedPropertyTypes = properties.keySet();
+                    unassignedPropertyTypes.removeAll(knownPropertyTypes);
+                    registerAndAssignPropertyTypes(type, unassignedPropertyTypes);
+                }
                 return;
             }
         }
         commonServer.registerDataSetType(sessionToken, dataSetType);
+        if (properties.isEmpty() == false)
+        {
+            registerAndAssignPropertyTypes(dataSetType, properties.keySet());
+        }
     }
+
+    protected void registerAndAssignPropertyTypes(DataSetType type, Set<String> unassignedPropertyTypes)
+    {
+        Set<String> knownPropertyTypes = getKnownPropertyTypes();
+        for (String propertyTypeCode : unassignedPropertyTypes)
+        {
+            if (knownPropertyTypes.contains(propertyTypeCode) == false)
+            {
+                PropertyType propertyType = new PropertyType();
+                propertyType.setCode(propertyTypeCode);
+                DataType dataType = new DataType();
+                dataType.setCode(DataTypeCode.VARCHAR);
+                propertyType.setDataType(dataType);
+                propertyType.setLabel(propertyTypeCode.toLowerCase());
+                propertyType.setDescription("");
+                commonServer.registerPropertyType(sessionToken, propertyType);
+            }
+            NewETPTAssignment assignment = new NewETPTAssignment();
+            assignment.setEntityKind(type.getEntityKind());
+            assignment.setEntityTypeCode(type.getCode());
+            assignment.setPropertyTypeCode(propertyTypeCode);
+            commonServer.assignPropertyType(sessionToken, assignment);
+        }
+    }
+
+    private Set<String> getKnownPropertyTypes()
+    {
+        Set<String> knownPropertyTypes = new HashSet<String>();
+        List<PropertyType> propertyTypes = commonServer.listPropertyTypes(sessionToken, false);
+        for (PropertyType propertyType : propertyTypes)
+        {
+            knownPropertyTypes.add(propertyType.getCode());
+        }
+        return knownPropertyTypes;
+    }
+
 }
