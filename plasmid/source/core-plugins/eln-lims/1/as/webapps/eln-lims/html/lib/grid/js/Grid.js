@@ -351,7 +351,13 @@ $.extend(Grid.prototype, {
 			result.end = (result.end <= result.count) ? result.end : result.count;
 			
 			dataList = dataList.slice(result.start, result.end);
-			result.start = result.start + 1;
+			
+			if(dataList.length === 0) { //Special case, empty table
+				result.start = 0;
+			} else { //Normal Case
+				result.start = result.start + 1;
+			}
+			
 			itemList = thisGrid.renderData(dataList);
 			itemList.forEach(function(item, index) {
 				result.datas.push(dataList[index]);
