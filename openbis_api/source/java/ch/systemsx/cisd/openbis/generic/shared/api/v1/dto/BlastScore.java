@@ -19,33 +19,56 @@ package ch.systemsx.cisd.openbis.generic.shared.api.v1.dto;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
- * Extension of {@link EntityPropertySearchResultLocation} for BLAST search. Matching sequence/query start
- * and end are available. 
- * 
+ * Wraps raw score, bit score and evalue of a BLAST search result.
+ *
  * @author Franz-Josef Elmer
  */
-@JsonObject("EntityPropertyBlastSearchResultLocation")
-public class EntityPropertyBlastSearchResultLocation extends EntityPropertySearchResultLocation
+@JsonObject("BlastScore")
+public class BlastScore implements ISearchDomainResultScore
 {
     private static final long serialVersionUID = 1L;
     
+    private double score;
     
-    private AlignmentMatch alignmentMatch;
+    private double bitScore;
     
-    public AlignmentMatch getAlignmentMatch()
+    private double evalue;
+
+    @Override
+    public double getScore()
     {
-        return alignmentMatch;
+        return score;
     }
 
-    public void setAlignmentMatch(AlignmentMatch alignmentMatch)
+    public void setScore(double score)
     {
-        this.alignmentMatch = alignmentMatch;
-        setPosition(alignmentMatch.getSequenceStart());
+        this.score = score;
+    }
+    
+    public double getBitScore()
+    {
+        return bitScore;
+    }
+
+    public void setBitScore(double bitScore)
+    {
+        this.bitScore = bitScore;
+    }
+
+    public double getEvalue()
+    {
+        return evalue;
+    }
+
+    public void setEvalue(double evalue)
+    {
+        this.evalue = evalue;
     }
 
     @Override
-    protected String appendToString()
+    public String toString()
     {
-        return alignmentMatch.toString();
+        return "Score: " + score + ", bit score: " + bitScore + ", evalue: " + evalue;
     }
+
 }

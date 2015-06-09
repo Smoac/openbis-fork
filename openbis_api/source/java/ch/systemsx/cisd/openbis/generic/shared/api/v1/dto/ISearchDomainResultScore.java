@@ -16,34 +16,20 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.api.v1.dto;
 
+import java.io.Serializable;
+
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
- * Result location for a search in a sequence in an entity property.
- * 
+ * Basic interface of classes specifying a score of search domain result.
+ *
  * @author Franz-Josef Elmer
  */
-@JsonObject("EntityPropertySearchResultLocation")
-public class EntityPropertySearchResultLocation extends AbstractEntitySearchResultLocation
+@JsonObject("ISearchDomainResultScore")
+public interface ISearchDomainResultScore extends Serializable
 {
-    private static final long serialVersionUID = 1L;
-
-    private String propertyType;
-
-    public String getPropertyType()
-    {
-        return propertyType;
-    }
-
-    public void setPropertyType(String propertyType)
-    {
-        this.propertyType = propertyType;
-    }
-
-    @Override
-    public String toString()
-    {
-        return renderEntityKind() + " type: " + getEntityType() + ", perm id: " + getPermId() 
-                + ", code: " + getCode() + ", property type: " + propertyType + ", " + appendToString();
-    }
+    /**
+     * Returns the score of the result.
+     */
+    public double getScore();
 }

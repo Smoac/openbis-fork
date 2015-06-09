@@ -136,7 +136,7 @@ public class DataStoreServiceTest extends AssertJUnit
             SearchDomainSearchResult sequenceSearchResult = new SearchDomainSearchResult();
             DataSetFileSearchResultLocation resultLocation = new DataSetFileSearchResultLocation();
             sequenceSearchResult.setResultLocation(resultLocation);
-            resultLocation.setDataSetCode(dataSetCode);
+            resultLocation.setPermId(dataSetCode);
             return Arrays.asList(sequenceSearchResult);
         }
     }
@@ -167,8 +167,6 @@ public class DataStoreServiceTest extends AssertJUnit
 
     private Mockery context;
 
-    private IDataSetCommandExecutorFactory commandExecutorFactory;
-
     private IDataSetCommandExecutor commandExecutor;
 
     private ICIFEXRPCServiceFactory cifexServiceFactory;
@@ -193,7 +191,6 @@ public class DataStoreServiceTest extends AssertJUnit
         sessionToken = sessionTokenManager.drawSessionToken();
         userSessionToken = sessionTokenManager.drawSessionToken();
         openbisService = context.mock(IServiceForDataStoreServer.class);
-        commandExecutorFactory = context.mock(IDataSetCommandExecutorFactory.class);
         executorProvider = context.mock(IDataSetCommandExecutorProvider.class);
         commandExecutor = context.mock(IDataSetCommandExecutor.class);
         shareIdManager = context.mock(IShareIdManager.class);
@@ -257,7 +254,7 @@ public class DataStoreServiceTest extends AssertJUnit
         List<SearchDomainSearchResult> result = createService().searchForEntitiesWithSequences(sessionToken,
                 null, SEQUENCE_SNIPPET, OPTIONAL_PARAMETERS);
 
-        assertEquals("DS-1", ((DataSetFileSearchResultLocation) result.get(0).getResultLocation()).getDataSetCode());
+        assertEquals("DS-1", ((DataSetFileSearchResultLocation) result.get(0).getResultLocation()).getPermId());
         assertEquals(1, result.size());
         context.assertIsSatisfied();
     }
@@ -270,7 +267,7 @@ public class DataStoreServiceTest extends AssertJUnit
         List<SearchDomainSearchResult> result = createService().searchForEntitiesWithSequences(sessionToken,
                 "db-2", SEQUENCE_SNIPPET, OPTIONAL_PARAMETERS);
 
-        assertEquals("DS-2", ((DataSetFileSearchResultLocation) result.get(0).getResultLocation()).getDataSetCode());
+        assertEquals("DS-2", ((DataSetFileSearchResultLocation) result.get(0).getResultLocation()).getPermId());
         assertEquals(1, result.size());
         context.assertIsSatisfied();
     }
@@ -283,7 +280,7 @@ public class DataStoreServiceTest extends AssertJUnit
         List<SearchDomainSearchResult> result = createService().searchForEntitiesWithSequences(sessionToken,
                 "db-3", SEQUENCE_SNIPPET, OPTIONAL_PARAMETERS);
 
-        assertEquals("DS-2", ((DataSetFileSearchResultLocation) result.get(0).getResultLocation()).getDataSetCode());
+        assertEquals("DS-2", ((DataSetFileSearchResultLocation) result.get(0).getResultLocation()).getPermId());
         assertEquals(1, result.size());
         context.assertIsSatisfied();
     }

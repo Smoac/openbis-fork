@@ -42,11 +42,10 @@ public class DataSetFileBlastSearchResultLocation extends DataSetFileSearchResul
         setPosition(alignmentMatch.getSequenceStart());
     }
 
-    @Override
-    public String toString()
-    {
-        return "Data set: " + getDataSetCode() + ", path: " + getPathInDataSet()
-                + ", identifier: [" + getIdentifier() + "], " + alignmentMatch;
-    }
     
+    @Override
+    protected String appendToString()
+    {
+        return alignmentMatch.toString();
+    }
 }
