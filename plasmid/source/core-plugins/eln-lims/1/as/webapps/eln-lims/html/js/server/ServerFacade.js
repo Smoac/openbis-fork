@@ -28,6 +28,26 @@ function ServerFacade(openbisServer) {
 	this.openbisServer = openbisServer;
 	
 	//
+	// General Error Handler
+	//
+	
+	var getGeneralHandler = function(action){
+		return function(response){
+			if(response && response.error) {
+				if(response.error.message === "Session no longer available. Please login again.") {
+					Util.showError(response.error.message, function() {
+						location.reload(true);
+					}, true);
+				}
+			}
+			
+			if(action){
+				action(response);
+			}
+		};
+	}
+	
+	//
 	// Login Related Functions
 	//
 	this.getUserId = function() {
@@ -37,22 +57,22 @@ function ServerFacade(openbisServer) {
 	}
 	
 	this.login = function(username, pass, callbackFunction) {
-		this.openbisServer.login(username, pass, callbackFunction);
+		this.openbisServer.login(username, pass, getGeneralHandler(callbackFunction));
 	}
 
 	this.ifRestoredSessionActive = function(callbackFunction) {
-		this.openbisServer.ifRestoredSessionActive(callbackFunction);
+		this.openbisServer.ifRestoredSessionActive(getGeneralHandler(callbackFunction));
 	}
 
 	this.logout = function(callbackFunction) {
-		this.openbisServer.logout(callbackFunction);
+		this.openbisServer.logout(getGeneralHandler(callbackFunction));
 	}
 	
 	//
 	// User Related Functions
 	//
 	this.listPersons = function(callbackFunction) {
-		this.openbisServer.listPersons(callbackFunction);
+		this.openbisServer.listPersons(getGeneralHandler(callbackFunction));
 	};
 	
 	this.registerUserPassword = function(userId, userPass, callbackFunction) {
@@ -63,13 +83,13 @@ function ServerFacade(openbisServer) {
 				"userId" : userId,
 				"password" : userPass
 			},
-			function(data){
+			getGeneralHandler(function(data){
 				if(data.result.rows[0][0].value == "OK") {
 					callbackFunction(true);
 				} else {
 					callbackFunction(false);
 				}
-			});
+			}));
 	}
 	
 	this.createELNUser = function(userId, callback) {
@@ -77,7 +97,7 @@ function ServerFacade(openbisServer) {
  		var inventorySpacesToRegister = [];
  		var inventorySpaceToRegisterFunc = function(spaceCode, callback) {
 			return function() {
-				_this.openbisServer.registerPersonSpaceRole(spaceCode, userId, "USER", function(data) {
+				_this.openbisServer.registerPersonSpaceRole(spaceCode, userId, "USER", getGeneralHandler(function(data) {
 					if(data.error) {
 						callback(false, data.error.message);
 					} else {
@@ -88,19 +108,19 @@ function ServerFacade(openbisServer) {
 							callback(true, "User " + userId + " created successfully.");
 						}
 					}
-				});
+				}));
 			}
 		};
  		
-		_this.openbisServer.registerPerson(userId, function(data) {
+		_this.openbisServer.registerPerson(userId, getGeneralHandler(function(data) {
 			if(data.error) {
 				callback(false, data.error.message);
 			} else {
-				_this.openbisServer.registerSpace(userId, "Space for user " + userId, function(data) {
+				_this.openbisServer.registerSpace(userId, "Space for user " + userId, getGeneralHandler(function(data) {
 					if(data.error) {
 						callback(false, data.error.message);
 					} else {
-						_this.openbisServer.registerPersonSpaceRole(userId, userId, "ADMIN", function(data) {
+						_this.openbisServer.registerPersonSpaceRole(userId, userId, "ADMIN", getGeneralHandler(function(data) {
 							if(data.error) {
 								callback(false, data.error.message);
 							} else {
@@ -116,62 +136,62 @@ function ServerFacade(openbisServer) {
 									callback(true, "User " + userId + " created successfully.");
 								}
 							}
-						});
+						}));
 					}			
-				});
+				}));
 			}			
-		});
+		}));
 	}
 	
 	//
 	// Metadata Related Functions
 	//
 	this.listSampleTypes = function(callbackFunction) {
-		this.openbisServer.listSampleTypes(callbackFunction);
+		this.openbisServer.listSampleTypes(getGeneralHandler(callbackFunction));
 	}
 	
 	this.listExperimentTypes = function(callbackFunction) {
-		this.openbisServer.listExperimentTypes(callbackFunction);
+		this.openbisServer.listExperimentTypes(getGeneralHandler(callbackFunction));
 	}
 	
 	this.listVocabularies = function(callbackFunction) {
-		this.openbisServer.listVocabularies(callbackFunction);
+		this.openbisServer.listVocabularies(getGeneralHandler(callbackFunction));
 	}
 	
 	this.listDataSetTypes = function(callbackFunction) {
-		this.openbisServer.listDataSetTypes(callbackFunction);
+		this.openbisServer.listDataSetTypes(getGeneralHandler(callbackFunction));
 	}
 	
 	this.listSpaces = function(callbackFunction) {
-		this.openbisServer.listSpacesWithProjectsAndRoleAssignments(null, function(data) {
+		this.openbisServer.listSpacesWithProjectsAndRoleAssignments(null, getGeneralHandler(function(data) {
 			var spaces = [];
 			for(var i = 0; i < data.result.length; i++) {
 				spaces.push(data.result[i].code);
 			}
 			callbackFunction(spaces);
-		});
+		}));
 	}
 	
 	this.listSpacesWithProjectsAndRoleAssignments = function(somethingOrNull, callbackFunction) {
-		this.openbisServer.listSpacesWithProjectsAndRoleAssignments(somethingOrNull, callbackFunction);
+		this.openbisServer.listSpacesWithProjectsAndRoleAssignments(somethingOrNull, getGeneralHandler(callbackFunction));
 	}
 	
 	this.getSpaceFromCode = function(spaceCode, callbackFunction) {
-		this.openbisServer.listSpacesWithProjectsAndRoleAssignments(null, function(data) {
+		this.openbisServer.listSpacesWithProjectsAndRoleAssignments(null, getGeneralHandler(function(data) {
 			data.result.forEach(function(space){
 				if(space.code === spaceCode) {
 					callbackFunction(space);
 				}
 			});
-		});
+		}));
 	}
 	
 	this.listExperiments = function(projects, callbackFunction) {
-		this.openbisServer.listExperiments(projects, null, callbackFunction);
+		this.openbisServer.listExperiments(projects, null, getGeneralHandler(callbackFunction));
 	}
 	
 	this.getProjectFromIdentifier = function(identifier, callbackFunction) {
-		this.openbisServer.listProjects(function(data) {
+		this.openbisServer.listProjects(getGeneralHandler(function(data) {
 			data.result.forEach(function(project){
 				var projIden = "/" + project.spaceCode + "/" + project.code;
 				if(projIden === identifier) {
@@ -179,59 +199,27 @@ function ServerFacade(openbisServer) {
 					return;
 				}
 			});
-		});
+		}));
 	}
 	
 	this.getProjectFromPermId = function(permId, callbackFunction) {
-		this.openbisServer.listProjects(function(data) {
+		this.openbisServer.listProjects(getGeneralHandler(function(data) {
 			data.result.forEach(function(project){
 				if(project.permId === permId) {
 					callbackFunction(project);
 					return;
 				}
 			});
-		});
+		}));
 	}
 	
 	this.listExperimentsForIdentifiers = function(experimentsIdentifiers, callbackFunction) {
-		this.openbisServer.listExperimentsForIdentifiers(experimentsIdentifiers, callbackFunction);
-	}
-	
-	this.listSamplesForExperiments = function(experiments, callbackFunction) {
-		var experimentsMatchClauses = []
-		
-		experiments.forEach(function(experiment){
-			experimentsMatchClauses.push({
-				"@type":"AttributeMatchClause",
-				fieldType : "ATTRIBUTE",			
-				attribute : "PERM_ID",
-				desiredValue : experiment.permId
-			});
-		});
-		
-		var experimentCriteria = {
-				matchClauses : experimentsMatchClauses,
-				operator : "MATCH_ANY_CLAUSES"
-		}
-		
-		var experimentSubCriteria = {
-				"@type" : "SearchSubCriteria",
-				"targetEntityKind" : "EXPERIMENT",	
-				"criteria" : experimentCriteria
-		}
-
-		var sampleCriteria = 
-		{
-			subCriterias : [ experimentSubCriteria ],
-			operator : "MATCH_ALL_CLAUSES"
-		};
-		
-		this.openbisServer.searchForSamples(sampleCriteria, callbackFunction)
+		this.openbisServer.listExperimentsForIdentifiers(experimentsIdentifiers, getGeneralHandler(callbackFunction));
 	}
 	
 	this.listPropertyTypes = function(callbackFunction) {
 		if(this.openbisServer.listPropertyTypes) { //If not present will not break, but annotations should not be used.
-			this.openbisServer.listPropertyTypes(false, callbackFunction);
+			this.openbisServer.listPropertyTypes(false, getGeneralHandler(callbackFunction));
 		}
 	}
 	
@@ -239,64 +227,64 @@ function ServerFacade(openbisServer) {
 	//
 	// Others
 	//
-	this.generateCode = function(prefix, action) {
+	this.generateCode = function(prefix, callbackFunction) {
 		if(this.openbisServer.generateCode) { //Old instances can't auto generate the code
-			this.openbisServer.generateCode(prefix, "SAMPLE", action);
+			this.openbisServer.generateCode(prefix, "SAMPLE", getGeneralHandler(callbackFunction));
 		}
 	}
 	
-	this.deleteDataSets = function(datasetIds, reason, callback) {
-		this.openbisServer.deleteDataSets(datasetIds, reason, "TRASH", callback);
+	this.deleteDataSets = function(datasetIds, reason, callbackFunction) {
+		this.openbisServer.deleteDataSets(datasetIds, reason, "TRASH", getGeneralHandler(callbackFunction));
 	}
 	
-	this.deleteSamples = function(sampleIds, reason, callback) {
-		this.openbisServer.deleteSamples(sampleIds, reason, "TRASH", callback);
+	this.deleteSamples = function(sampleIds, reason, callbackFunction) {
+		this.openbisServer.deleteSamples(sampleIds, reason, "TRASH", getGeneralHandler(callbackFunction));
 	}
 	
-	this.deleteExperiments = function(experimentIds, reason, callback) {
-		this.openbisServer.deleteExperiments(experimentIds, reason, "TRASH", callback);
+	this.deleteExperiments = function(experimentIds, reason, callbackFunction) {
+		this.openbisServer.deleteExperiments(experimentIds, reason, "TRASH", getGeneralHandler(callbackFunction));
 	}
 	
-	this.deleteProjects = function(projectIds, reason, callback) {
-		this.openbisServer.deleteProjects(projectIds, reason, callback);
+	this.deleteProjects = function(projectIds, reason, callbackFunction) {
+		this.openbisServer.deleteProjects(projectIds, reason, getGeneralHandler(callbackFunction));
 	}
 	
-	this.listDeletions = function(callback) {
-		this.openbisServer.listDeletions(["ALL_ENTITIES"], callback);
+	this.listDeletions = function(callbackFunction) {
+		this.openbisServer.listDeletions(["ALL_ENTITIES"], getGeneralHandler(callbackFunction));
 	}
 	
-	this.deletePermanently = function(deletionIds, callback) {
-		this.openbisServer.deletePermanently(deletionIds, callback);
+	this.deletePermanently = function(deletionIds, callbackFunction) {
+		this.openbisServer.deletePermanently(deletionIds, getGeneralHandler(callbackFunction));
 	}
 	
-	this.revertDeletions = function(deletionIds, callback) {
-		this.openbisServer.revertDeletions(deletionIds, callback);
+	this.revertDeletions = function(deletionIds, callbackFunction) {
+		this.openbisServer.revertDeletions(deletionIds, getGeneralHandler(callbackFunction));
 	}
 	
 	//
 	// Data Set Related Functions
 	//
 	this.listDataSetsForSample = function(sampleToSend, trueOrFalse, callbackFunction) {
-		this.openbisServer.listDataSetsForSample(sampleToSend, trueOrFalse, callbackFunction);
+		this.openbisServer.listDataSetsForSample(sampleToSend, trueOrFalse, getGeneralHandler(callbackFunction));
 	}
 
 	this.listFilesForDataSet = function(datasetCode, pathInDataset, trueOrFalse, callbackFunction) {
-		this.openbisServer.listFilesForDataSet(datasetCode, pathInDataset, trueOrFalse, callbackFunction);
+		this.openbisServer.listFilesForDataSet(datasetCode, pathInDataset, trueOrFalse, getGeneralHandler(callbackFunction));
 	}
 
 	//
 	// Samples Import Related Functions
 	//
 	this.uploadedSamplesInfo = function(sampleTypeCode, fileKeyAtHTTPSession, callbackFunction) {
-		this.openbisServer.uploadedSamplesInfo(sampleTypeCode, fileKeyAtHTTPSession, callbackFunction);
+		this.openbisServer.uploadedSamplesInfo(sampleTypeCode, fileKeyAtHTTPSession, getGeneralHandler(callbackFunction));
 	}
 
 	this.registerSamples = function(sampleTypeCode, fileKeyAtHTTPSession, somethingOrNull, callbackFunction) {
-		this.openbisServer.registerSamples(sampleTypeCode, fileKeyAtHTTPSession, somethingOrNull, callbackFunction);
+		this.openbisServer.registerSamples(sampleTypeCode, fileKeyAtHTTPSession, somethingOrNull, getGeneralHandler(callbackFunction));
 	}
 
 	this.updateSamples = function(sampleTypeCode, fileKeyAtHTTPSession, somethingOrNull, callbackFunction) {
-		this.openbisServer.updateSamples(sampleTypeCode, fileKeyAtHTTPSession, somethingOrNull, callbackFunction);
+		this.openbisServer.updateSamples(sampleTypeCode, fileKeyAtHTTPSession, somethingOrNull, getGeneralHandler(callbackFunction));
 	}
 
 	this.fileUpload = function(file, callbackFunction) {
@@ -313,9 +301,7 @@ function ServerFacade(openbisServer) {
 			contentType: false,
 			processData: false,
 			data: formData,
-			success: function(result) {
-				callbackFunction(result);
-			}
+			success: getGeneralHandler(callbackFunction)
 		});
 	}
 	
@@ -335,7 +321,7 @@ function ServerFacade(openbisServer) {
 	// Data Set Import Related Functions
 	//
 	
-	this.fileUploadToWorkspace = function(dataStoreURL, fileFieldId, fileSessionKey, callbackHandler) {
+	this.fileUploadToWorkspace = function(dataStoreURL, fileFieldId, fileSessionKey, callbackFunction) {
 		//File
 		var file = document.getElementById(fileFieldId).files[0];
 		var sessionID = this.openbisServer.getSession();
@@ -349,9 +335,7 @@ function ServerFacade(openbisServer) {
 			contentType: "multipart/form-data",
 			processData: false,
 			data: file,
-			success: function(result) {
-				callbackHandler(result);
-			},
+			success: getGeneralHandler(callbackFunction),
 			error: function(result) {
 				Util.showError("The upload failed. Configure your environment properly.", function() {Util.unblockUI();});
 			}
@@ -366,7 +350,7 @@ function ServerFacade(openbisServer) {
  			parameters = {};
  		}
  		parameters["sessionToken"] = this.openbisServer.getSession();
-		this.openbisServer.createReportFromAggregationService(dataStoreCode, "newbrowserapi", parameters, callbackFunction);
+		this.openbisServer.createReportFromAggregationService(dataStoreCode, "newbrowserapi", parameters, getGeneralHandler(callbackFunction));
 	}
 	
 	//
@@ -377,12 +361,12 @@ function ServerFacade(openbisServer) {
 	}
 
 	this.listDataStores = function(callbackFunction) {
-		this.openbisServer.listDataStores(callbackFunction);
+		this.openbisServer.listDataStores(getGeneralHandler(callbackFunction));
 	}
 
 	this.getUserDisplaySettings = function(callbackFunction) {
 		if(this.openbisServer.getUserDisplaySettings) { //If the call exists
-			this.openbisServer.getUserDisplaySettings(callbackFunction);
+			this.openbisServer.getUserDisplaySettings(getGeneralHandler(callbackFunction));
 		}
 	}
 
@@ -491,7 +475,7 @@ function ServerFacade(openbisServer) {
 			operator : "MATCH_ALL_CLAUSES"
 		};
 		
-		this.openbisServer.searchForDataSets(dataSetCriteria, callbackFunction)
+		this.openbisServer.searchForDataSets(dataSetCriteria, getGeneralHandler(callbackFunction))
 	}
 	
 	this.searchDataSetsWithTypeForSamples = function(dataSetTypeCode, samplesPermIds, callbackFunction)
@@ -532,7 +516,7 @@ function ServerFacade(openbisServer) {
 			operator : "MATCH_ALL_CLAUSES"
 		};
 		
-		this.openbisServer.searchForDataSets(dataSetCriteria, callbackFunction)
+		this.openbisServer.searchForDataSets(dataSetCriteria, getGeneralHandler(callbackFunction))
 	}
 	
 	this.searchContained = function(permId, callbackFunction) {
@@ -560,14 +544,47 @@ function ServerFacade(openbisServer) {
 		};
 		
 		var localReference = this;
-		this.openbisServer.searchForSamplesWithFetchOptions(sampleCriteria, ["PROPERTIES", "PARENTS", "CHILDREN"], function(data) {
+		
+		this.openbisServer.searchForSamplesWithFetchOptions(sampleCriteria, ["PROPERTIES", "PARENTS", "CHILDREN"], getGeneralHandler(function(data) {
 			callbackFunction(localReference.getInitializedSamples(data.result));
+		}));
+	}
+	
+	this.listSamplesForExperiments = function(experiments, callbackFunction) {
+		var experimentsMatchClauses = []
+		
+		experiments.forEach(function(experiment){
+			experimentsMatchClauses.push({
+				"@type":"AttributeMatchClause",
+				fieldType : "ATTRIBUTE",			
+				attribute : "PERM_ID",
+				desiredValue : experiment.permId
+			});
 		});
+		
+		var experimentCriteria = {
+				matchClauses : experimentsMatchClauses,
+				operator : "MATCH_ANY_CLAUSES"
+		}
+		
+		var experimentSubCriteria = {
+				"@type" : "SearchSubCriteria",
+				"targetEntityKind" : "EXPERIMENT",	
+				"criteria" : experimentCriteria
+		}
+
+		var sampleCriteria = 
+		{
+			subCriterias : [ experimentSubCriteria ],
+			operator : "MATCH_ALL_CLAUSES"
+		};
+		
+		this.openbisServer.searchForSamples(sampleCriteria, getGeneralHandler(callbackFunction))
 	}
 	
 	this.searchWithIdentifier = function(sampleIdentifier, callbackFunction)
 	{	
-		this.searchWithIdentifiers([sampleIdentifier], callbackFunction);
+		this.searchWithIdentifiers([sampleIdentifier], getGeneralHandler(callbackFunction));
 	}
 	
 	this.searchWithIdentifiers = function(sampleIdentifiers, callbackFunction)
@@ -604,14 +621,13 @@ function ServerFacade(openbisServer) {
 					operator : "MATCH_ALL_CLAUSES"
 			}
 			
-			_this.openbisServer.searchForSamplesWithFetchOptions(sampleCriteria, ["PROPERTIES", "ANCESTORS", "DESCENDANTS"], function(data) {
+			_this.openbisServer.searchForSamplesWithFetchOptions(sampleCriteria, ["PROPERTIES", "ANCESTORS", "DESCENDANTS"], getGeneralHandler(function(data) {
 				var partialResults = _this.getInitializedSamples(data.result);
 				partialResults.forEach(function(partialResult) {
 					searchResults.push(partialResult);
 				});
-				
 				searchNext();
-			});
+			}));
 		}
 		
 		searchNext();
@@ -636,9 +652,9 @@ function ServerFacade(openbisServer) {
 		};
 		
 		var localReference = this;
-		this.openbisServer.searchForSamplesWithFetchOptions(sampleCriteria, ["PROPERTIES", "ANCESTORS", "DESCENDANTS"], function(data) {
+		this.openbisServer.searchForSamplesWithFetchOptions(sampleCriteria, ["PROPERTIES", "ANCESTORS", "DESCENDANTS"], getGeneralHandler(function(data) {
 			callbackFunction(localReference.getInitializedSamples(data.result));
-		});
+		}));
 	}
 	
 	this.searchWithTypeAndLinks = function(sampleType, sampleCode, callbackFunction)
@@ -668,13 +684,13 @@ function ServerFacade(openbisServer) {
 		};
 		
 		var localReference = this;
-		this.openbisServer.searchForSamplesWithFetchOptions(sampleCriteria, ["PROPERTIES", "ANCESTORS", "DESCENDANTS"], function(data) {
+		this.openbisServer.searchForSamplesWithFetchOptions(sampleCriteria, ["PROPERTIES", "ANCESTORS", "DESCENDANTS"], getGeneralHandler(function(data) {
 			callbackFunction(localReference.getInitializedSamples(data.result));
-		});
+		}));
 	}
 	
-	this.getSamplesForDataSets = function(dataSetCodes, callback) {
-		this.openbisServer.getDataSetMetaDataWithFetchOptions(dataSetCodes, [ 'SAMPLE' ], callback);
+	this.getSamplesForDataSets = function(dataSetCodes, callbackFunction) {
+		this.openbisServer.getDataSetMetaDataWithFetchOptions(dataSetCodes, [ 'SAMPLE' ], getGeneralHandler(callbackFunction));
 	}
 	
 	this.searchWithType = function(sampleType, sampleCode, callbackFunction)
@@ -704,9 +720,9 @@ function ServerFacade(openbisServer) {
 		};
 		
 		var localReference = this;
-		this.openbisServer.searchForSamplesWithFetchOptions(sampleCriteria, ["PROPERTIES"], function(data) {
+		this.openbisServer.searchForSamplesWithFetchOptions(sampleCriteria, ["PROPERTIES"], getGeneralHandler(function(data) {
 			callbackFunction(localReference.getInitializedSamples(data.result));
-		});
+		}));
 	}
 	
 	this.searchWithExperiment = function(experimentIdentifier, callbackFunction)
@@ -751,9 +767,9 @@ function ServerFacade(openbisServer) {
 		};
 		
 		var localReference = this;
-		this.openbisServer.searchForSamplesWithFetchOptions(sampleCriteria, ["PROPERTIES", "PARENTS"], function(data) {
+		this.openbisServer.searchForSamplesWithFetchOptions(sampleCriteria, ["PROPERTIES", "PARENTS"], getGeneralHandler(function(data) {
 			callbackFunction(localReference.getInitializedSamples(data.result));
-		});
+		}));
 	}
 	
 	this.searchWithProperties = function(propertyTypeCodes, propertyValues, callbackFunction, isComplete)
@@ -785,9 +801,9 @@ function ServerFacade(openbisServer) {
 			lookFor.append("DESCENDANTS");
 		}
 		
-		this.openbisServer.searchForSamplesWithFetchOptions(sampleCriteria, lookFor, function(data) {
+		this.openbisServer.searchForSamplesWithFetchOptions(sampleCriteria, lookFor, getGeneralHandler(function(data) {
 			callbackFunction(data.result);
-		});
+		}));
 	}
 	
 	this.searchWithText = function(freeText, callbackFunction)
@@ -802,14 +818,14 @@ function ServerFacade(openbisServer) {
 		};
 		
 		var localReference = this;
-		this.openbisServer.searchForSamplesWithFetchOptions(sampleCriteria, ["PROPERTIES"], function(data) {
+		this.openbisServer.searchForSamplesWithFetchOptions(sampleCriteria, ["PROPERTIES"], getGeneralHandler(function(data) {
 			callbackFunction(localReference.getInitializedSamples(data.result));
-		});
+		}));
 	}
 	
 	this.listSearchDomains = function(callbackFunction) {
 		if(this.openbisServer.listAvailableSearchDomains) {
-			this.openbisServer.listAvailableSearchDomains(callbackFunction);
+			this.openbisServer.listAvailableSearchDomains(getGeneralHandler(callbackFunction));
 		} else {
 			callbackFunction();
 		}
@@ -835,6 +851,6 @@ function ServerFacade(openbisServer) {
 				})
 		}
 		
-		this.openbisServer.searchOnSearchDomain(preferredSearchDomainOrNull, searchText, null, callbackFunction);
+		this.openbisServer.searchOnSearchDomain(preferredSearchDomainOrNull, searchText, null, getGeneralHandler(callbackFunction));
 	}
 }
