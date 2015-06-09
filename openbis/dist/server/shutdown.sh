@@ -8,7 +8,7 @@ source `dirname "$0"`/setup-env
 $JVM -DSTOP.PORT=$JETTY_STOP_PORT \
      -DSTOP.KEY=$JETTY_STOP_KEY \
      $JAVA_OPTS $JAVA_MEM_OPTS \
-     -jar start.jar --stop
+     -jar ../jetty-dist/start.jar --stop
 
 # Delete PID file
 if [ -f "$JETTY_PID_FILE" ]; then

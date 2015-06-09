@@ -152,18 +152,16 @@ public class ExecuteSetupScriptsAction extends AbstractScriptExecutor
         
         if (Utils.isASInstalled(installDir))
         {
-            File jettyXMLFile = new File(installDir, Utils.AS_PATH + Utils.JETTY_XML_PATH);
+            File jettySSLIniFile = new File(installDir, Utils.AS_PATH + Utils.JETTY_SSL_INI_PATH);
             try
             {
-                String jettyXML = FileUtils.readFileToString(jettyXMLFile);
-                jettyXML =
-                        jettyXML.replaceAll("<Set name=\"Password\">.*</Set>",
-                                "<Set name=\"Password\"><![CDATA[" + keyStorePassword + "]]></Set>")
-                                .replaceAll(
-                                        "<Set name=\"KeyPassword\">.*</Set>",
-                                        "<Set name=\"KeyPassword\"><![CDATA[" + keyPassword
-                                        + "]]></Set>");
-                FileUtils.writeStringToFile(jettyXMLFile, jettyXML);
+                String jettySSLIni = FileUtils.readFileToString(jettySSLIniFile);
+                jettySSLIni =
+                		jettySSLIni.replaceAll("jetty\\.keystore\\.password=.*", "jetty.keystore.password="+ keyStorePassword)
+                				.replaceAll("jetty\\.keymanager\\.password=.*", "jetty.keymanager.password="+ keyPassword)
+                				.replaceAll("jetty\\.truststore\\.password=.*", "jetty.truststore.password="+ keyStorePassword);
+
+                				FileUtils.writeStringToFile(jettySSLIniFile, jettySSLIni);
             } catch (IOException ex)
             {
                 throw CheckedExceptionTunnel.wrapIfNecessary(ex);

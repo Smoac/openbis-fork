@@ -25,8 +25,10 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
+import org.eclipse.jetty.server.HttpConfiguration;
+import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.nio.SelectChannelConnector;
+import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.hamcrest.Description;
@@ -686,10 +688,11 @@ public class ServiceConversationTest
         public ServiceExporter(final int port, final String path, final Class<?> serviceInterface,
                 final S service)
         {
-            SelectChannelConnector connector = new SelectChannelConnector();
+        	this.server = new Server();
+            HttpConfiguration httpConfig = new HttpConfiguration();
+            ServerConnector connector = new ServerConnector(server, new HttpConnectionFactory(httpConfig));
             connector.setPort(port);
 
-            this.server = new Server();
             this.server.addConnector(connector);
 
             DispatcherServlet dispatcher = new DispatcherServlet()

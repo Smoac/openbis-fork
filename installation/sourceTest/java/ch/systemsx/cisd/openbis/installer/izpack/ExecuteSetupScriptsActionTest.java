@@ -39,7 +39,7 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
 public class ExecuteSetupScriptsActionTest extends AbstractFileSystemTestCase
 {
     private File dssServicePropertiesFile;
-    private File jettyXMLFile;
+    private File jettySSLIniFile;
     private ExecuteSetupScriptsAction action;
     private File myKeystoreFile;
     private File keystoreFileAS;
@@ -50,10 +50,10 @@ public class ExecuteSetupScriptsActionTest extends AbstractFileSystemTestCase
     {
         dssServicePropertiesFile =
                 new File(workingDirectory, Utils.DSS_PATH + Utils.SERVICE_PROPERTIES_PATH);
-        jettyXMLFile = new File(workingDirectory, Utils.AS_PATH + Utils.JETTY_XML_PATH);
+        jettySSLIniFile = new File(workingDirectory, Utils.AS_PATH + Utils.JETTY_SSL_INI_PATH);
         FileUtils.copyFile(new File("../openbis_standard_technologies/dist/etc/service.properties/"),
                 dssServicePropertiesFile);
-        FileUtils.copyFile(new File("../openbis/dist/server/jetty.xml/"), jettyXMLFile);
+        FileUtils.copyFile(new File("../openbis/dist/server/base/start.d/ssl.ini"), jettySSLIniFile);
 
         keystoreFileAS = new File(workingDirectory, Utils.AS_PATH + Utils.KEYSTORE_PATH);
         keystoreFileDSS = new File(workingDirectory, Utils.DSS_PATH + Utils.KEYSTORE_PATH);
@@ -174,18 +174,17 @@ public class ExecuteSetupScriptsActionTest extends AbstractFileSystemTestCase
         Properties properties = loadProperties(dssServicePropertiesFile);
         assertEquals("my-<store>", properties.getProperty(Utils.DSS_KEYSTORE_PASSWORD_KEY));
         assertEquals("my-<key>", properties.getProperty(Utils.DSS_KEYSTORE_KEY_PASSWORD_KEY));
-        assertEquals("[<Set name=\"Password\"><![CDATA[my-<store>]]></Set>, "
-                + "<Set name=\"KeyPassword\"><![CDATA[my-<key>]]></Set>]",
+        assertEquals("[jetty.keystore.password=my-<store>, jetty.keymanager.password=my-<key>, jetty.truststore.password=my-<store>]",
                 loadFilteredAndTrimmedJettyXMLFile().toString());
     }
 
     public List<String> loadFilteredAndTrimmedJettyXMLFile()
     {
-        List<String> lines = FileUtilities.loadToStringList(jettyXMLFile);
+        List<String> lines = FileUtilities.loadToStringList(jettySSLIniFile);
         List<String> result = new ArrayList<String>();
         for (String line : lines)
         {
-            if (line.indexOf("Password") > 0)
+            if (line.indexOf("password=") > 0)
             {
                 result.add(line.trim());
             }

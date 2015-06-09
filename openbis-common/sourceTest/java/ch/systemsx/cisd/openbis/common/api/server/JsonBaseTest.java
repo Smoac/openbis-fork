@@ -22,8 +22,10 @@ import static org.hamcrest.Matchers.is;
 import java.net.URL;
 
 import org.eclipse.jetty.server.Connector;
+import org.eclipse.jetty.server.HttpConfiguration;
+import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.nio.SelectChannelConnector;
+import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.springframework.beans.MutablePropertyValues;
@@ -90,7 +92,8 @@ public class JsonBaseTest
         LogInitializer.init();
 
         server = new Server();
-        Connector clientConnector = new SelectChannelConnector();
+        HttpConfiguration httpConfig = new HttpConfiguration();
+        ServerConnector clientConnector = new ServerConnector(server, new HttpConnectionFactory(httpConfig));
         clientConnector.setPort(8882);
         server.addConnector(clientConnector);
 
@@ -136,6 +139,6 @@ public class JsonBaseTest
     @AfterClass
     public void afterClass() throws Exception
     {
-        server.getGracefulShutdown();
+        server.stop();
     }
 }

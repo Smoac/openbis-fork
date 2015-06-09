@@ -58,7 +58,8 @@ if [ "$1" ]; then
 fi
 
 jetty_with_version="jetty-`cat $installation_folder/jetty-version.txt`"
-jetty_folder="${server_folder}/jetty"
+jetty_folder="${server_folder}/jetty-dist"
+base_folder="${server_folder}/jetty"
 
 # Creates server folder.
 mkdir -p "$server_folder"
@@ -75,20 +76,23 @@ echo Unzipping Jetty...
 # Files are unzipped in $jetty_with_version
 unzip -q "$installation_folder/jetty.zip" -d "$server_folder"
 mv "$server_folder/${jetty_with_version}" "$jetty_folder"
-JETTY_BIN_DIR="$jetty_folder/bin"
+mv "$installation_folder/base" "$base_folder"
+
+
+JETTY_BIN_DIR="$base_folder/bin"
 mkdir -p "$JETTY_BIN_DIR"
-JETTY_ETC_DIR="$jetty_folder/etc"
+JETTY_ETC_DIR="$base_folder/etc"
 mkdir -p "$JETTY_ETC_DIR"
 
-test -f "$installation_folder/jetty.xml" && cp -p "$installation_folder/jetty.xml" "$JETTY_ETC_DIR"
 test -f "$installation_folder/web-client.properties" && cp -p "$installation_folder/web-client.properties" "$JETTY_ETC_DIR"
 test -f "$JETTY_ETC_DIR/keystore" && rm "$JETTY_ETC_DIR/keystore"
 cp -p "$installation_folder/openBIS.keystore" "$JETTY_ETC_DIR"
+cp -p "$installation_folder/openBIS.keystore" "$JETTY_ETC_DIR"/keystore
 cp -p $startup_properties_file "$JETTY_ETC_DIR"
 
 
 echo installing web archive...
-openbis_webapp="$jetty_folder/webapps/openbis"
+openbis_webapp="$base_folder/webapps/openbis"
 mkdir "$openbis_webapp"
 unzip -q "$installation_folder/openBIS.war" -d "$openbis_webapp"
 war_classes="$openbis_webapp/WEB-INF/classes"
@@ -99,7 +103,7 @@ test -f "$properties_file" && cp -p "$properties_file" "$war_classes/"
 echo "Replace log.xml by following file (if it exists): " $logconf_file
 test -f "$logconf_file" && cp -p "$logconf_file" "$war_classes/etc/"
 echo "Make the configuration checksum file available : " $checksum_file
-test -f "$checksum_file" && cp -p "$checksum_file" "$jetty_folder"
+test -f "$checksum_file" && cp -p "$checksum_file" "$base_folder"
 
 echo installing core-plugins
 if [ -f "$server_folder/../core-plugins/core-plugins.properties" ]; then
@@ -108,7 +112,6 @@ fi
 unzip -quo "$installation_folder/core-plugins.zip" $excludingStuff -d "$server_folder/.."
 
 # Move config files to etc and create symlinks.
-mv "$war_classes/etc/log.xml" "$JETTY_ETC_DIR"
 mv "$war_classes/service.properties" "$JETTY_ETC_DIR"
 cd "$war_classes"
 ln -s ../../../../etc/service.properties .
@@ -134,9 +137,9 @@ JETTY_PROPERTIES="$JETTY_ETC_DIR/jetty.properties"
 echo "JETTY_STOP_PORT=8079" > "$JETTY_PROPERTIES"
 echo "JETTY_STOP_KEY=secret" >> "$JETTY_PROPERTIES"
 
-mkdir -p "$jetty_folder/work"
+mkdir -p "$base_folder/work"
 
-cd "$jetty_folder"
+cd "$base_folder"
 
 echo openBIS Application Server installation finished
 echo Starting server by jetty/bin/startup.sh

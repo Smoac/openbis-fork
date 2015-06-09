@@ -24,6 +24,7 @@ import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
+import javax.servlet.WriteListener;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -131,6 +132,18 @@ public class IdentifiedStreamHandlingServletTest extends AssertJUnit
                             {
                                 output.write(b);
                             }
+
+							@Override
+							public boolean isReady() {
+								// TODO Auto-generated method stub
+								return true;
+							}
+
+							@Override
+							public void setWriteListener(WriteListener arg0) {
+								// TODO Auto-generated method stub
+								
+							}
                         }));
                 }
             });

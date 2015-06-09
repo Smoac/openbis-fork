@@ -34,15 +34,15 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 import org.eclipse.jetty.server.Connector;
+import org.eclipse.jetty.server.HttpConfiguration;
+import org.eclipse.jetty.server.HttpConnectionFactory;
+import org.eclipse.jetty.server.SecureRequestCustomizer;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.bio.SocketConnector;
+import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.server.SslConnectionFactory;
 import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
 import org.eclipse.jetty.server.handler.ResourceHandler;
-import org.eclipse.jetty.server.nio.SelectChannelConnector;
-import org.eclipse.jetty.server.ssl.SslConnector;
-import org.eclipse.jetty.server.ssl.SslSelectChannelConnector;
-import org.eclipse.jetty.server.ssl.SslSocketConnector;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
@@ -226,9 +226,9 @@ public class DataStoreServer
     private static void initializeServer(final ConfigParameters configParams, final int port,
             final Server thisServer)
     {
-        final Connector socketConnector = createSocketConnector(configParams);
+        final ServerConnector socketConnector = createSocketConnector(configParams, thisServer);
         socketConnector.setPort(port);
-        socketConnector.setMaxIdleTime(300000);
+        socketConnector.setIdleTimeout(300000);
         thisServer.addConnector(socketConnector);
     }
 
@@ -426,22 +426,28 @@ public class DataStoreServer
         webstartContextHandler.setHandler(webstartJarHandler);
     }
 
-    private static Connector createSocketConnector(ConfigParameters configParams)
+    private static ServerConnector createSocketConnector(ConfigParameters configParams, Server thisServer)
     {
-        if (configParams.isUseSSL())
+        HttpConfiguration httpConfig = new HttpConfiguration();
+        httpConfig.setSecureScheme("https");
+
+    	if (configParams.isUseSSL())
         {
             final SslContextFactory sslContextFactory = new SslContextFactory();
             sslContextFactory.setKeyStorePath(configParams.getKeystorePath());
             sslContextFactory.setKeyStorePassword(configParams.getKeystorePassword());
             sslContextFactory.setKeyManagerPassword(configParams.getKeystoreKeyPassword());
-            final SslConnector socketConnector =
-                    configParams.isUseNIO() ? new SslSelectChannelConnector(sslContextFactory)
-                            : new SslSocketConnector(sslContextFactory);
-            return socketConnector;
+            
+            HttpConfiguration httpsConfig = new HttpConfiguration(httpConfig);
+            httpsConfig.addCustomizer(new SecureRequestCustomizer());
+            
+            return new ServerConnector(thisServer, 
+            	       new SslConnectionFactory(sslContextFactory, "http/1.1"),
+            	       new HttpConnectionFactory(httpsConfig));
         } else
         {
             operationLog.warn("creating connector to openBIS without SSL");
-            return configParams.isUseNIO() ? new SelectChannelConnector() : new SocketConnector();
+            return new ServerConnector(thisServer, new HttpConnectionFactory(httpConfig));
         }
     }
 

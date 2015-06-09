@@ -28,7 +28,7 @@ configurations.create('datastore_server')
 configurations.create('javadoc_sources')
 configurations.create('javadoc_compilation')
 
-def jettyVersion = '8.1.8'
+def jettyVersion = '9.2.10'
 
 dependencies {
 	compile project(':screening'),
@@ -36,8 +36,8 @@ dependencies {
 	
 	providedCompile 'google:gwt-user:2.4'
 					
-	providedRuntime	"eclipse:jetty-util:${jettyVersion}.v20121106",
-					"eclipse:jetty-deploy:${jettyVersion}.v20121106"
+	providedRuntime	"eclipse:jetty-util:${jettyVersion}.v20150310",
+					"eclipse:jetty-deploy:${jettyVersion}.v20150310"
 		
 	gwt 'reveregroup:gwt-image-loader:1.1.4',
                 'google:gwt-dev:+'
@@ -152,7 +152,6 @@ ext.zipEntries = files(
 	project(':openbis').file('dist/server/export-master-data.py'),
 	project(':openbis').file('dist/server/export-master-data.sh'),
 	project(':openbis').file('dist/server/install.sh'),
-	project(':openbis').file('dist/server/jetty.xml'),		
 	project(':openbis').file('dist/server/openBIS.keystore'),
 	project(':openbis').file('dist/server/openbis.conf'),	
 	project(':openbis').file('dist/server/passwd.sh'),
@@ -163,6 +162,9 @@ ext.zipEntries = files(
 	project(':openbis').file('dist/server/status.sh'),
 	project(':openbis').file('dist/server/version.sh'),
 	project(':openbis').file('dist/server/watchdog.sh'),
+	project(':openbis').fileTree(dir: 'dist/server').matching {
+	   include 'base/**'
+	}, 	
 	file('dist/server/service.properties'),
 	file('dist/server/web-client.properties')
 )

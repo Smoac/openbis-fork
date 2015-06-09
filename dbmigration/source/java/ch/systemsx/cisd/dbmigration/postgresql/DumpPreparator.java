@@ -62,7 +62,7 @@ public class DumpPreparator
 
     private static final String[] MAC_POSTGRESQL_93_PATH = {"/opt/local/lib/postgresql93/bin/", "/Library/PostgreSQL/9.3/bin/"};
 
-    private static final String MAC_POSTGRESQL_94_PATH = "/opt/local/lib/postgresql94/bin/";
+    private static final String[] MAC_POSTGRESQL_94_PATH = {"/opt/local/lib/postgresql94/bin/", "/Library/PostgreSQL/9.3/bin/"};
 
     private static final String DUMP_EXEC = "pg_dump";
 
@@ -172,7 +172,9 @@ public class DumpPreparator
         for (String path : MAC_POSTGRESQL_93_PATH) {
             paths.add(path);
         }
-        paths.add(MAC_POSTGRESQL_94_PATH);
+        for (String path : MAC_POSTGRESQL_94_PATH) {
+            paths.add(path);
+        }
         final File dumbExec = OSUtilities.findExecutable(executable, paths);
         if (dumbExec == null)
         {

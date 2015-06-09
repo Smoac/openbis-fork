@@ -37,6 +37,7 @@ import java.util.Vector;
 
 import javax.imageio.ImageIO;
 import javax.servlet.ServletOutputStream;
+import javax.servlet.WriteListener;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -444,6 +445,17 @@ public class DatasetDownloadServletTest
                             {
                                 outputStream.write(b);
                             }
+
+							@Override
+							public boolean isReady() {
+								return true;
+							}
+
+							@Override
+							public void setWriteListener(WriteListener arg0) {
+								// TODO Auto-generated method stub
+								
+							}
                         }));
                 }
             });
@@ -493,6 +505,18 @@ public class DatasetDownloadServletTest
                             {
                                 outputStream.write(b);
                             }
+
+							@Override
+							public boolean isReady() {
+								// TODO Auto-generated method stub
+								return true;
+							}
+
+							@Override
+							public void setWriteListener(WriteListener arg0) {
+								// TODO Auto-generated method stub
+								
+							}
                         }));
                 }
             });

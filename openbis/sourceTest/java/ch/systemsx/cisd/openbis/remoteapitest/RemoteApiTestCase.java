@@ -17,8 +17,10 @@
 package ch.systemsx.cisd.openbis.remoteapitest;
 
 import org.eclipse.jetty.server.Connector;
+import org.eclipse.jetty.server.HttpConfiguration;
+import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.nio.SelectChannelConnector;
+import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.springframework.beans.factory.xml.XmlBeanFactory;
@@ -52,7 +54,8 @@ public class RemoteApiTestCase extends AbstractTransactionalTestNGSpringContextT
     {
         TestInitializer.init();
         server = new Server();
-        Connector connector = new SelectChannelConnector();
+        HttpConfiguration httpConfig = new HttpConfiguration();
+        ServerConnector connector = new ServerConnector(server, new HttpConnectionFactory(httpConfig));
         connector.setPort(TestInstanceHostUtils.getOpenBISPort());
         server.addConnector(connector);
         DispatcherServlet dispatcherServlet = new DispatcherServlet()
