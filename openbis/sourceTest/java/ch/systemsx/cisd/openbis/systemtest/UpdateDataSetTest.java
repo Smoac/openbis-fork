@@ -19,7 +19,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 import ch.systemsx.cisd.openbis.systemtest.base.BaseTest;
 
-public class UpdataDataSetTest extends BaseTest{
+public class UpdateDataSetTest extends BaseTest{
     
     Sample sample;
 
