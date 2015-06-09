@@ -236,10 +236,12 @@ function StorageController(configOverride) {
 					//
 					// Storage low of space alert
 					//
-					var totalPositions = storageConfig.rowNum * storageConfig.colNum * storageConfig.boxNum;
-					var used = positionsUsed / totalPositions;
-					if(used >= profile.storagesConfiguration["storageSpaceLowWarning"]) {
-						Util.showInfo("Storage space is getting low, currently " + positionsUsed + " out of " + totalPositions + " posible positions are taken.", function() {}, true);
+					if(storageConfig) {
+						var totalPositions = storageConfig.rowNum * storageConfig.colNum * storageConfig.boxNum;
+						var used = positionsUsed / totalPositions;
+						if(used >= profile.storagesConfiguration["storageSpaceLowWarning"]) {
+							Util.showInfo("Storage space is getting low, currently " + positionsUsed + " out of " + totalPositions + " posible positions are taken.", function() {}, true);
+						}
 					}
 					//
 					// Refresh Grid with the boxes
