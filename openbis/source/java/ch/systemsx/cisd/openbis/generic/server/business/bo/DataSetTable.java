@@ -85,6 +85,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTranslator;
@@ -1119,13 +1120,19 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
         updateProperties(dataSet.getEntityType(), dataSetUpdates.getProperties(), details.getPropertiesToUpdate(), dataSet, dataSet);
         checkPropertiesBusinessRules(dataSet);
 
-        if (details.isSampleUpdateRequested() && dataSetUpdates.getSampleIdentifierOrNull() != null)
+        if (details.isSampleUpdateRequested())
         {
-            updateSample(dataSet, dataSetUpdates.getSampleIdentifierOrNull());
-        } else if (dataSetUpdates.getExperimentIdentifierOrNull() != null)
+            SampleIdentifier sampleIdentifierOrNull = dataSetUpdates.getSampleIdentifierOrNull();
+            if (sampleIdentifierOrNull != null)
+            {
+                updateSample(dataSet, sampleIdentifierOrNull);
+            } else
+            {
+                updateExperiment(dataSet,dataSetUpdates.getExperimentIdentifierOrNull());
+            }
+        } else if (details.isExperimentUpdateRequested() && dataSetUpdates.getExperimentIdentifierOrNull() != null)
         {
-            updateExperiment(dataSet, dataSetUpdates.getExperimentIdentifierOrNull());
-            dataSet.setSample(null);
+            updateExperiment(dataSet,dataSetUpdates.getExperimentIdentifierOrNull());
         }
         if (details.isContainerUpdateRequested())
         {
