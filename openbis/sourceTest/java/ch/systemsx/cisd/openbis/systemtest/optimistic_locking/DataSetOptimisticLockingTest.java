@@ -24,7 +24,6 @@ import java.util.HashSet;
 
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.util.TimeIntervalChecker;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.IObjectId;
@@ -200,7 +199,7 @@ public class DataSetOptimisticLockingTest extends OptimisticLockingTestCase
         {
             etlService.performEntityOperations(systemSessionToken, builder.getDetails());
             fail("EnvironmentFailureException expected");
-        } catch (EnvironmentFailureException ex)
+        } catch (UserFailureException ex)
         {
             assertEquals("Data set DS-1 has been updated since it was retrieved.\n"
                     + "[Current: 1, Retrieved: 0]", ex.getMessage());

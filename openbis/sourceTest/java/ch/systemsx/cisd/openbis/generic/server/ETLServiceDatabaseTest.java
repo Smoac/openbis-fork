@@ -35,7 +35,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.AbstractDAOTest;
 import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
@@ -177,7 +177,7 @@ public class ETLServiceDatabaseTest extends AbstractDAOTest
         assertEquals(2, updatedSample.getParents().size());
     }
 
-    @Test(expectedExceptions = EnvironmentFailureException.class)
+    @Test(expectedExceptions = UserFailureException.class)
     public void testPerformEntityOperationsUpdateStaleSample()
     {
         Sample sampleToUpdate = findSampleByCode("3VCP7");
@@ -294,7 +294,7 @@ public class ETLServiceDatabaseTest extends AbstractDAOTest
 
     }
 
-    @Test(expectedExceptions = EnvironmentFailureException.class)
+    @Test(expectedExceptions = UserFailureException.class)
     public void testPerformEntityOperationsUpdateStaleDataSet()
     {
         AbstractExternalData dataSetToUpdate = findDatasetByCode("20081105092159188-3");

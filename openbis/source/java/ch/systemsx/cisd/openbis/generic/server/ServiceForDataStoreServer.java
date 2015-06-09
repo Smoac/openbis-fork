@@ -1769,6 +1769,9 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
                     materialsCreated, materialsUpdates, experimentsCreated, experimentsUpdates,
                     samplesCreated, samplesUpdated, dataSetsCreated, dataSetsUpdated,
                     metaprojectsCreated, metaprojectsUpdates, vocabulariesUpdated, spaceRolesAssigned, spaceRolesRevoked);
+        } catch (org.hibernate.StaleObjectStateException e)
+        {
+            throw new UserFailureException("The operation has failed due to conflict with simultanous operations.");
         } finally
         {
             EntityOperationsInProgress.getInstance().removeRegistrationPending(registrationId);

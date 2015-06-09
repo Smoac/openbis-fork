@@ -26,7 +26,6 @@ import java.util.Set;
 
 import org.springframework.dao.DataAccessException;
 
-import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.IEntityOperationChecker;
 import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
@@ -506,7 +505,7 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
                 sb.append("[Current: " + version);
                 sb.append(", Retrieved: " + update.getVersion());
                 sb.append("]");
-                throw new EnvironmentFailureException(sb.toString());
+                throw new UserFailureException(sb.toString());
             }
         }
     }
