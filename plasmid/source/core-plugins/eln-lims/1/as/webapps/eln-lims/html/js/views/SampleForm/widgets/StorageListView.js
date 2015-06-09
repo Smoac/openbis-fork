@@ -104,9 +104,7 @@ function StorageListView(storageListController, storageListModel) {
 		$container.append($dataGridContainer);
 		
 		var $storageAddButton = $("<a>", { class : 'btn btn-default', style : "float: right; background-color:#f9f9f9;" }).append($("<i>", { class : "glyphicon glyphicon-plus" } ));
-		if(this._storageListModel.isDisabled) {
-			$storageAddButton.attr("disabled", "");
-		}
+		
 		
 		$storageAddButton.on("click", function(event) {
 			var sample = _this._storageListModel.sample;
@@ -125,10 +123,39 @@ function StorageListView(storageListController, storageListModel) {
 				}
 			}
 			
+			if(_this.getUsedStorages() === _this.getMaxStorages()) {
+				$storageAddButton.attr("disabled", "");
+			}
+			
 			_this._dataGrid.refresh();
 		});
+		
+		if(this._storageListModel.isDisabled || this.getUsedStorages() === this.getMaxStorages()) {
+			$storageAddButton.attr("disabled", "");
+		}
+		
 		$container.append($storageAddButton);
 		$container.append("NOTE: Storages limited to " + this.getMaxStorages() + " for this type.");
+	}
+	
+	this.getUsedStorages = function() {
+		var count = 0;
+		var sample = this._storageListModel.sample;
+		var sampleTypeCode = sample.sampleTypeCode;
+		var sampleType = mainController.profile.getSampleTypeForSampleTypeCode(sampleTypeCode);
+		
+		for(var i = 0; i < sampleType.propertyTypeGroups.length; i++) {
+			var propertyTypeGroup = sampleType.propertyTypeGroups[i];
+			var storagePropertyGroup = profile.getStoragePropertyGroup(propertyTypeGroup.name);
+			
+			if(storagePropertyGroup) {
+				var userProperty = sample.properties[storagePropertyGroup.userProperty];
+				if(userProperty) {
+					count++;
+				}
+			}
+		}
+		return count;
 	}
 	
 	this.getMaxStorages = function() {
