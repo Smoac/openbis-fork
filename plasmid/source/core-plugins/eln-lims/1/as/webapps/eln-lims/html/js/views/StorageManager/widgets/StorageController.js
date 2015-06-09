@@ -277,21 +277,42 @@ function StorageController(configOverride) {
 	//
 	this.isValid = function(callback) {
 		var _this = this;
-		this._isUserTypingExistingBox(function(error1) {
-			if(error1) {
-				Util.showError(error1, function() {}, true);
+		this._isValidState(function(error0) {
+			if(error0) {
+				Util.showError(error0, function() {}, true);
 				callback(false);
 			} else {
-				_this._isPositionAlreadyUsed(function(error2) {
-					if(error2) {
-						Util.showError(error2, function() {}, true);
+				_this._isUserTypingExistingBox(function(error1) {
+					if(error1) {
+						Util.showError(error1, function() {}, true);
 						callback(false);
 					} else {
-						callback(true);
+						_this._isPositionAlreadyUsed(function(error2) {
+							if(error2) {
+								Util.showError(error2, function() {}, true);
+								callback(false);
+							} else {
+								callback(true);
+							}
+						});
 					}
 				});
 			}
 		});
+	}
+	
+	this._isValidState = function(callback) {
+		if(!this._storageModel.row || !this._storageModel.column) {
+			callback("Select a rack please.");
+		} else if(!this._storageModel.boxName) {
+			callback("Select a box please.");
+		} else if(!this._storageModel.boxSize) {
+			callback("Select a box size please.");
+		} else if(!this._storageModel.boxPosition) {
+			callback("Select a box position please.");
+		} else {
+			callback(null);
+		}
 	}
 	
 	this._isPositionAlreadyUsed = function(callback) {
