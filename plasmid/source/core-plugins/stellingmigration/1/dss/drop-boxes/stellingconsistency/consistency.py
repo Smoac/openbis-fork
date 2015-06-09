@@ -11,7 +11,7 @@ UPDATES_ENABLED = False
 updatesToExecute = {}
 
 sampleTypesToVerify = ["YEAST","POMBE"]
-logLevelsToPrint = ["ERROR", "REPORT", "MANUAL-FIX", "UPDATED", "LOSTDEBUG"] #INFO not included, use it for debug only
+logLevelsToPrint = ["ERROR", "REPORT", "MANUAL-FIX", "LOSTDEBUG", "UPDATED", "COUNTER"] #INFO not included, use it for debug only
 
 ##
 ## Logging
@@ -104,7 +104,9 @@ def process(tr):
         sample =  tr.makeSampleMutable(sample);
         #1. Create new annotations XML
         newAnnotationsRoot = ET.Element("root");
+        counter = {};
         for newAnnotation in newAnnotations:
+            addCount(counter, newAnnotation["identifier"])
             newAnnotationsNode = ET.SubElement(newAnnotationsRoot, "Sample")
             for newAttribute in newAnnotation:
                 newAnnotationsNode.attrib[newAttribute] = newAnnotation[newAttribute];
@@ -114,10 +116,24 @@ def process(tr):
                 parents.add(newAnnotation["identifier"]);
                 sample.setParentSampleIdentifiers(parents);
                 log("LOSTDEBUG", "Adding lost Parent list" + str(sample.getParentSampleIdentifiers()));
+        printCount(sample, counter)
         sample.setPropertyValue("ANNOTATIONS_STATE", ET.tostring(newAnnotationsRoot, encoding='utf-8'));
     log("REPORT", "UPDATES FINISH!")
     log("REPORT", "FINISH VERIFICATION REPORT!")
-#     raise Exception("Test");
+    #raise Exception("Test");
+
+def addCount(counter, identifier):
+    value = 0
+    if(identifier in counter):
+        value = counter[identifier]
+    value = value + 1
+    counter[identifier] = value
+
+def printCount(sample, counter):
+    for identifier in counter:
+        value = counter[identifier]
+        if value > 1:
+            log("COUNTER", sample.getSample().getRegistrator().getUserId() + " " + sample.getSampleIdentifier() + " " + identifier + " " + str(value))
 
 def verify(tr, sample):
     newAnnotations = [];
