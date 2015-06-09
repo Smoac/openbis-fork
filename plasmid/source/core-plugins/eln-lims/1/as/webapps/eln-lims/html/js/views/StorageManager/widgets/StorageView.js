@@ -274,10 +274,12 @@ function StorageView(storageController, storageModel, gridView) {
 					var numCols = parseInt(rowsAndCols[1]);
 					_this._storageController._gridControllerPosition.getModel().reset(numRows, numCols, labels);
 					_this._storageController._gridControllerPosition.getView().setPosSelectedEventHandler(function(posX, posY) {
+						var newPosition = Util.getLetterForNumber(posX) + posY;
 						//Binded sample
 						if(_this._storageModel.sample) {
-							_this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.positionProperty] = Util.getLetterForNumber(posX) + posY;
+							_this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.positionProperty] = newPosition;
 						}
+						_this._storageModel.boxPosition = newPosition;
 					}); 
 					
 					//
@@ -294,7 +296,10 @@ function StorageView(storageController, storageModel, gridView) {
 				_this._storageController._gridControllerPosition.init(_this._positionContainer);
 				
 				if(isNew) {
-					_this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.positionProperty] = null;
+					//Binded sample
+					if(_this._storageModel.sample) {
+						_this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.positionProperty] = null;
+					}
 					_this._storageModel.boxPosition = null;
 				} else {
 					if(_this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.positionProperty]) {
