@@ -192,7 +192,6 @@ public class MultiDataSetArchivingFinalizerTest extends AbstractFileSystemTestCa
     public void testReplicationForAddToArchiv()
     {
         DatasetDescription ds1 = new DatasetDescriptionBuilder("ds1").getDatasetDescription();
-        prepareScheduleDeletion(ds1);
         parameterBindings.put(MultiDataSetArchivingFinalizer.STATUS_KEY, DataSetArchivingStatus.AVAILABLE.toString());
         
         ProcessingStatus status = finalizer.process(Arrays.asList(ds1), processingContext);

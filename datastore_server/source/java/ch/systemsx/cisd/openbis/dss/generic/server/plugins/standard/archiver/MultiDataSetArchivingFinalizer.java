@@ -90,13 +90,17 @@ class MultiDataSetArchivingFinalizer implements IProcessingPluginTask
                     + "' containing the following data sets: " + CollectionUtils.abbreviate(dataSetCodes, 20));
             boolean noTimeout = waitUntilReplicated(parameters);
             DataSetArchivingStatus archivingStatus = parameters.getStatus();
+            boolean removeFromDataStore = archivingStatus.isAvailable() == false;
             if (noTimeout)
             {
                 DataSetCodesWithStatus codesWithStatus = new DataSetCodesWithStatus(dataSetCodes, archivingStatus, true);
                 IDataSetDeleter dataSetDeleter = ServiceProvider.getDataStoreService().getDataSetDeleter();
-                dataSetDeleter.scheduleDeletionOfDataSets(datasets,
-                        TimingParameters.DEFAULT_MAXIMUM_RETRY_COUNT,
-                        TimingParameters.DEFAULT_INTERVAL_TO_WAIT_AFTER_FAILURE_SECONDS);
+                if (removeFromDataStore)
+                {
+                    dataSetDeleter.scheduleDeletionOfDataSets(datasets,
+                            TimingParameters.DEFAULT_MAXIMUM_RETRY_COUNT,
+                            TimingParameters.DEFAULT_INTERVAL_TO_WAIT_AFTER_FAILURE_SECONDS);
+                }
                 updateStatus(codesWithStatus);
             } else
             {
@@ -107,7 +111,7 @@ class MultiDataSetArchivingFinalizer implements IProcessingPluginTask
                 getCleaner().delete(parameters.getReplicatedFile());
                 removeFromMapping(originalFile);
                 updateStatus(new DataSetCodesWithStatus(dataSetCodes, DataSetArchivingStatus.AVAILABLE, false));
-                ServiceProvider.getOpenBISService().archiveDataSets(dataSetCodes, archivingStatus.isAvailable() == false);
+                ServiceProvider.getOpenBISService().archiveDataSets(dataSetCodes, removeFromDataStore);
             }
         } catch (Exception ex)
         {
