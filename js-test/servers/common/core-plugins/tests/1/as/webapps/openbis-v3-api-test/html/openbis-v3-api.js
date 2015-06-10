@@ -46,6 +46,21 @@ define([ 'jquery', 'support/Utils' ], function($, stjsUtil) {
 			return dfd.promise();
 		},
 
+		loginCommon : function(response) {
+			var dfd = $.Deferred();
+			response.done(function(sessionToken) {
+				if (sessionToken && sessionToken.indexOf(user) > -1) {
+					_private.sessionToken = sessionToken;
+					dfd.resolve(sessionToken);
+				} else {
+					dfd.reject();
+				}
+			}).fail(function() {
+				dfd.reject();
+			});
+			return dfd.promise();
+		},
+
 		log : function(msg) {
 			if (console) {
 				console.log(msg);
@@ -60,25 +75,23 @@ define([ 'jquery', 'support/Utils' ], function($, stjsUtil) {
 		}
 
 		this.login = function(user, password) {
-			var dfd = $.Deferred();
-			return _private.ajaxRequest({
+			return _private.loginCommon(_private.ajaxRequest({
 				url : openbisUrl,
 				data : {
 					"method" : "login",
 					"params" : [ user, password ]
 				}
-			}).done(function(sessionToken) {
-				if (sessionToken && sessionToken.indexOf(user) > -1) {
-					_private.sessionToken = sessionToken;
-					dfd.resolve(sessionToken);
-				} else {
-					dfd.reject();
-				}
-			}).fail(function() {
-				dfd.reject();
-			});
+			}));
+		}
 
-			return dfd.promise();
+		this.loginAs = function(user, password, asUserId) {
+			return _private.loginCommon(_private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "loginAs",
+					"params" : [ user, password, asUserId ]
+				}
+			}));
 		}
 
 		this.logout = function() {
@@ -93,119 +106,292 @@ define([ 'jquery', 'support/Utils' ], function($, stjsUtil) {
 			});
 		}
 
-		this.mapExperiments = function(experimentIds, experimentFetchOptions) {
+		this.createSpaces = function(creations) {
 			return _private.ajaxRequest({
 				url : openbisUrl,
 				data : {
-					"method" : "mapExperiments",
-					"params" : [ _private.sessionToken, experimentIds, experimentFetchOptions ]
+					"method" : "createSpaces",
+					"params" : [ _private.sessionToken, creations ]
 				}
 			});
 		}
 
-		this.performOperations = function(operations) {
-			return _private.ajaxRequest({
-				"method" : "performOperations",
-				"params" : [ _private.sessionToken, operations ]
-			});
-		}
-
-		this.mapSamples = function(sampleIds, sampleFetchOptions) {
+		this.createProjects = function(creations) {
 			return _private.ajaxRequest({
 				url : openbisUrl,
 				data : {
-					"method" : "mapSamples",
-					"params" : [ _private.sessionToken, sampleIds, sampleFetchOptions ]
+					"method" : "createProjects",
+					"params" : [ _private.sessionToken, creations ]
 				}
 			});
 		}
 
-		this.searchExperiments = function(experimentSearchCriterion, experimentFetchOptions) {
-			return _private.ajaxRequest({
-				url : openbisUrl,
-				data : {
-					"method" : "searchExperiments",
-					"params" : [ _private.sessionToken, experimentSearchCriterion, experimentFetchOptions ]
-				}
-			});
-		}
-
-		this.searchSamples = function(sampleSearchCriterion, sampleFetchOptions) {
-			return _private.ajaxRequest({
-				url : openbisUrl,
-				data : {
-					"method" : "searchSamples",
-					"params" : [ _private.sessionToken, sampleSearchCriterion, sampleFetchOptions ]
-				}
-			})
-		}
-
-		this.searchDataSets = function(dataSetSearchCriterion, dataSetFetchOptions) {
-			return _private.ajaxRequest({
-				url : openbisUrl,
-				data : {
-					"method" : "searchDataSets",
-					"params" : [ _private.sessionToken, dataSetSearchCriterion, dataSetFetchOptions ]
-				}
-			});
-		}
-
-		this.createExperiments = function(experimentCreations) {
+		this.createExperiments = function(creations) {
 			return _private.ajaxRequest({
 				url : openbisUrl,
 				data : {
 					"method" : "createExperiments",
-					"params" : [ _private.sessionToken, experimentCreations ]
+					"params" : [ _private.sessionToken, creations ]
 				}
 			});
 		}
 
-		this.createSamples = function(sampleCreations) {
+		this.createSamples = function(creations) {
 			return _private.ajaxRequest({
 				url : openbisUrl,
 				data : {
 					"method" : "createSamples",
-					"params" : [ _private.sessionToken, sampleCreations ]
+					"params" : [ _private.sessionToken, creations ]
 				}
 			});
 		}
 
-		this.updateExperiments = function(experimentUpdates) {
+		this.createMaterials = function(creations) {
+			return _private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "createMaterials",
+					"params" : [ _private.sessionToken, creations ]
+				}
+			});
+		}
+
+		this.updateSpaces = function(updates) {
+			return _private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "updateSpaces",
+					"params" : [ _private.sessionToken, updates ]
+				}
+			});
+		}
+
+		this.updateProjects = function(updates) {
+			return _private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "updateProjects",
+					"params" : [ _private.sessionToken, updates ]
+				}
+			});
+		}
+
+		this.updateExperiments = function(updates) {
 			return _private.ajaxRequest({
 				url : openbisUrl,
 				data : {
 					"method" : "updateExperiments",
-					"params" : [ _private.sessionToken, experimentUpdates ]
+					"params" : [ _private.sessionToken, updates ]
 				}
 			});
 		}
 
-		this.updateSamples = function(sampleUpdates) {
+		this.updateSamples = function(updates) {
 			return _private.ajaxRequest({
 				url : openbisUrl,
 				data : {
 					"method" : "updateSamples",
-					"params" : [ _private.sessionToken, sampleUpdates ]
+					"params" : [ _private.sessionToken, updates ]
 				}
 			});
 		}
 
-		this.deleteExperiments = function(experimentIds, deletionOptions) {
+		this.updateDataSets = function(updates) {
+			return _private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "updateDataSets",
+					"params" : [ _private.sessionToken, updates ]
+				}
+			});
+		}
+
+		this.updateMaterials = function(updates) {
+			return _private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "updateMaterials",
+					"params" : [ _private.sessionToken, updates ]
+				}
+			});
+		}
+
+		this.mapSpaces = function(ids, fetchOptions) {
+			return _private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "mapSpaces",
+					"params" : [ _private.sessionToken, ids, fetchOptions ]
+				}
+			});
+		}
+
+		this.mapProjects = function(ids, fetchOptions) {
+			return _private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "mapProjects",
+					"params" : [ _private.sessionToken, ids, fetchOptions ]
+				}
+			});
+		}
+
+		this.mapExperiments = function(ids, fetchOptions) {
+			return _private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "mapExperiments",
+					"params" : [ _private.sessionToken, ids, fetchOptions ]
+				}
+			});
+		}
+
+		this.mapSamples = function(ids, fetchOptions) {
+			return _private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "mapSamples",
+					"params" : [ _private.sessionToken, ids, fetchOptions ]
+				}
+			});
+		}
+
+		this.mapDataSets = function(ids, fetchOptions) {
+			return _private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "mapDataSets",
+					"params" : [ _private.sessionToken, ids, fetchOptions ]
+				}
+			});
+		}
+
+		this.mapMaterials = function(ids, fetchOptions) {
+			return _private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "mapMaterials",
+					"params" : [ _private.sessionToken, ids, fetchOptions ]
+				}
+			});
+		}
+
+		this.searchSpaces = function(criterion, fetchOptions) {
+			return _private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "searchSpaces",
+					"params" : [ _private.sessionToken, criterion, fetchOptions ]
+				}
+			});
+		}
+
+		this.searchProjects = function(criterion, fetchOptions) {
+			return _private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "searchProjects",
+					"params" : [ _private.sessionToken, criterion, fetchOptions ]
+				}
+			});
+		}
+
+		this.searchExperiments = function(criterion, fetchOptions) {
+			return _private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "searchExperiments",
+					"params" : [ _private.sessionToken, criterion, fetchOptions ]
+				}
+			})
+		}
+
+		this.searchSamples = function(criterion, fetchOptions) {
+			return _private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "searchSamples",
+					"params" : [ _private.sessionToken, criterion, fetchOptions ]
+				}
+			});
+		}
+
+		this.searchDataSets = function(criterion, fetchOptions) {
+			return _private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "searchDataSets",
+					"params" : [ _private.sessionToken, criterion, fetchOptions ]
+				}
+			});
+		}
+
+		this.searchMaterials = function(criterion, fetchOptions) {
+			return _private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "searchMaterials",
+					"params" : [ _private.sessionToken, criterion, fetchOptions ]
+				}
+			});
+		}
+
+		this.deleteSpaces = function(ids, deletionOptions) {
+			return _private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "deleteSpaces",
+					"params" : [ _private.sessionToken, ids, deletionOptions ]
+				}
+			});
+		}
+
+		this.deleteProjects = function(ids, deletionOptions) {
+			return _private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "deleteProjects",
+					"params" : [ _private.sessionToken, ids, deletionOptions ]
+				}
+			});
+		}
+
+		this.deleteExperiments = function(ids, deletionOptions) {
 			return _private.ajaxRequest({
 				url : openbisUrl,
 				data : {
 					"method" : "deleteExperiments",
-					"params" : [ _private.sessionToken, experimentIds, deletionOptions ]
+					"params" : [ _private.sessionToken, ids, deletionOptions ]
 				}
 			});
 		}
 
-		this.deleteSamples = function(sampleIds, deletionOptions) {
+		this.deleteSamples = function(ids, deletionOptions) {
 			return _private.ajaxRequest({
 				url : openbisUrl,
 				data : {
 					"method" : "deleteSamples",
-					"params" : [ _private.sessionToken, sampleIds, deletionOptions ]
+					"params" : [ _private.sessionToken, ids, deletionOptions ]
+				}
+			});
+		}
+
+		this.deleteDataSets = function(ids, deletionOptions) {
+			return _private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "deleteDataSets",
+					"params" : [ _private.sessionToken, ids, deletionOptions ]
+				}
+			});
+		}
+
+		this.deleteMaterials = function(ids, deletionOptions) {
+			return _private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "deleteMaterials",
+					"params" : [ _private.sessionToken, ids, deletionOptions ]
 				}
 			});
 		}
@@ -220,22 +406,22 @@ define([ 'jquery', 'support/Utils' ], function($, stjsUtil) {
 			});
 		}
 
-		this.revertDeletions = function(deletionIds) {
+		this.revertDeletions = function(ids) {
 			return _private.ajaxRequest({
 				url : openbisUrl,
 				data : {
 					"method" : "revertDeletions",
-					"params" : [ _private.sessionToken, deletionIds ]
+					"params" : [ _private.sessionToken, ids ]
 				}
 			});
 		}
 
-		this.confirmDeletions = function(deletionIds) {
+		this.confirmDeletions = function(ids) {
 			return _private.ajaxRequest({
 				url : openbisUrl,
 				data : {
 					"method" : "confirmDeletions",
-					"params" : [ _private.sessionToken, deletionIds ]
+					"params" : [ _private.sessionToken, ids ]
 				}
 			});
 		}
