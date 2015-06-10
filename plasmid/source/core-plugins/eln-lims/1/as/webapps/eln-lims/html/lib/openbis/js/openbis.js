@@ -61,15 +61,22 @@ _openbisInternal.prototype.ajaxRequest = function(settings) {
 	$.ajax(settings)
 }
 
+_openbisInternal.prototype.responseInterceptor = function(response, action) {
+	action(response);
+}
+
 _openbisInternal.prototype.ajaxRequestSuccess = function(action){
 	var openbisObj = this;
 	return function(response){
 		if(response.error){
 			openbisObj.log("Request failed: " + JSON.stringify(response.error));
 		}
-		if(action){
-			action(response);
-		}
+		
+		openbisObj.responseInterceptor(response, function() {
+			if(action){
+				action(response);
+			}
+		});
 	};
 }
 
@@ -268,6 +275,11 @@ _openbisInternal.prototype.getDataStoreHostForDataStoreCode = function(dataStore
 
 function openbis(openbisUrlOrNull) {
 	this._internal = new _openbisInternal(openbisUrlOrNull);
+}
+
+
+openbis.prototype.setResponseInterceptor = function(responseInterceptor) {
+	this._internal.responseInterceptor = responseInterceptor;
 }
 
 /**

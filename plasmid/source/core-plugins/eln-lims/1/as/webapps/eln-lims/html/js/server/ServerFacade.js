@@ -28,6 +28,27 @@ function ServerFacade(openbisServer) {
 	this.openbisServer = openbisServer;
 	
 	//
+	// Intercepting general errors
+	//
+	var responseInterceptor = function(response, action){
+		var isError = false;
+		if(response && response.error) {
+			if(response.error.message === "Session no longer available. Please login again.") {
+				isError = true;
+				Util.showError(response.error.message, function() {
+					location.reload(true);
+				}, true);
+			}
+		}
+		
+		if(action && !isError){
+			action(response);
+		}
+	}
+	
+	this.openbisServer.setResponseInterceptor(responseInterceptor);
+	
+	//
 	// Login Related Functions
 	//
 	this.getUserId = function() {
