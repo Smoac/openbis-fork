@@ -2,7 +2,7 @@
  * Class automatically generated with
  * {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
  */
-define([ "support/stjs", "dto/fetchoptions/person/PersonFetchOptions" ], function(stjs) {
+define([ "support/stjs", "dto/fetchoptions/person/PersonFetchOptions" ], function(stjs, PersonFetchOptions) {
 	var TagFetchOptions = function() {
 	};
 	stjs.extend(TagFetchOptions, null, [], function(constructor, prototype) {

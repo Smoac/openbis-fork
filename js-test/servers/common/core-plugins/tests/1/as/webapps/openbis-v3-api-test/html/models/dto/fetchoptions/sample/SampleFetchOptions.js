@@ -3,9 +3,10 @@
  * {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
  */
 define([ "support/stjs", 'dto/fetchoptions/sample/SampleTypeFetchOptions', 'dto/fetchoptions/space/SpaceFetchOptions', 'dto/fetchoptions/experiment/ExperimentFetchOptions',
-		'dto/fetchoptions/property/PropertyFetchOptions', 'dto/fetchoptions/sample/SampleFetchOptions', 'dto/fetchoptions/tag/TagFetchOptions', 'dto/fetchoptions/person/PersonFetchOptions',
-		'dto/fetchoptions/attachment/AttachmentFetchOptions' ], function(stjs, SampleTypeFetchOptions, SpaceFetchOptions, ExperimentFetchOptions, PropertyFetchOptions, SampleFetchOptions,
-		TagFetchOptions, PersonFetchOptions, AttachmentFetchOptions) {
+		'dto/fetchoptions/property/PropertyFetchOptions', 'dto/fetchoptions/tag/TagFetchOptions', 'dto/fetchoptions/person/PersonFetchOptions', 'dto/fetchoptions/attachment/AttachmentFetchOptions',
+		'dto/fetchoptions/material/MaterialFetchOptions', 'dto/fetchoptions/dataset/DataSetFetchOptions', 'dto/fetchoptions/history/HistoryEntryFetchOptions' ], function(stjs, SampleTypeFetchOptions,
+		SpaceFetchOptions, ExperimentFetchOptions, PropertyFetchOptions, TagFetchOptions, PersonFetchOptions, AttachmentFetchOptions, MaterialFetchOptions, DataSetFetchOptions,
+		HistoryEntryFetchOptions) {
 	var SampleFetchOptions = function() {
 	};
 	stjs.extend(SampleFetchOptions, null, [], function(constructor, prototype) {
@@ -15,10 +16,13 @@ define([ "support/stjs", 'dto/fetchoptions/sample/SampleTypeFetchOptions', 'dto/
 		prototype.space = null;
 		prototype.experiment = null;
 		prototype.properties = null;
+		prototype.materialProperties = null;
 		prototype.parents = null;
 		prototype.children = null;
 		prototype.container = null;
 		prototype.contained = null;
+		prototype.dataSets = null;
+		prototype.history = null;
 		prototype.tags = null;
 		prototype.registrator = null;
 		prototype.modifier = null;
@@ -71,6 +75,18 @@ define([ "support/stjs", 'dto/fetchoptions/sample/SampleTypeFetchOptions', 'dto/
 		prototype.hasProperties = function() {
 			return this.properties != null;
 		};
+		prototype.withMaterialProperties = function() {
+			if (this.materialProperties == null) {
+				this.materialProperties = new MaterialFetchOptions();
+			}
+			return this.materialProperties;
+		};
+		prototype.withMaterialPropertiesUsing = function(fetchOptions) {
+			return this.materialProperties = fetchOptions;
+		};
+		prototype.hasMaterialProperties = function() {
+			return this.materialProperties != null;
+		};
 		prototype.withParents = function() {
 			if (this.parents == null) {
 				this.parents = new SampleFetchOptions();
@@ -118,6 +134,30 @@ define([ "support/stjs", 'dto/fetchoptions/sample/SampleTypeFetchOptions', 'dto/
 		};
 		prototype.hasContained = function() {
 			return this.contained != null;
+		};
+		prototype.withDataSets = function() {
+			if (this.dataSets == null) {
+				this.dataSets = new DataSetFetchOptions();
+			}
+			return this.dataSets;
+		};
+		prototype.withDataSetsUsing = function(fetchOptions) {
+			return this.dataSets = fetchOptions;
+		};
+		prototype.hasDataSets = function() {
+			return this.dataSets != null;
+		};
+		prototype.withHistory = function() {
+			if (this.history == null) {
+				this.history = new HistoryEntryFetchOptions();
+			}
+			return this.history;
+		};
+		prototype.withHistoryUsing = function(fetchOptions) {
+			return this.history = fetchOptions;
+		};
+		prototype.hasHistory = function() {
+			return this.history != null;
 		};
 		prototype.withTags = function() {
 			if (this.tags == null) {

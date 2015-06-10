@@ -3,8 +3,9 @@
  * {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
  */
 define([ "support/stjs", "dto/fetchoptions/tag/TagFetchOptions", "dto/fetchoptions/dataset/DataSetTypeFetchOptions", "dto/fetchoptions/person/PersonFetchOptions",
-		"dto/fetchoptions/experiment/ExperimentFetchOptions", "dto/fetchoptions/sample/SampleFetchOptions", "dto/fetchoptions/property/PropertyFetchOptions" ], function(stjs, TagFetchOptions,
-		DataSetTypeFetchOptions, PersonFetchOptions, ExperimentFetchOptions, SampleFetchOptions, PropertyFetchOptions) {
+		"dto/fetchoptions/experiment/ExperimentFetchOptions", "dto/fetchoptions/sample/SampleFetchOptions", "dto/fetchoptions/property/PropertyFetchOptions",
+		"dto/fetchoptions/dataset/ExternalDataFetchOptions", "dto/fetchoptions/history/HistoryEntryFetchOptions", "dto/fetchoptions/material/MaterialFetchOptions" ], function(stjs, TagFetchOptions,
+		DataSetTypeFetchOptions, PersonFetchOptions, ExperimentFetchOptions, SampleFetchOptions, PropertyFetchOptions, ExternalDataFetchOptions, HistoryEntryFetchOptions, MaterialFetchOptions) {
 	var DataSetFetchOptions = function() {
 	};
 	stjs.extend(DataSetFetchOptions, null, [], function(constructor, prototype) {
@@ -14,13 +15,16 @@ define([ "support/stjs", "dto/fetchoptions/tag/TagFetchOptions", "dto/fetchoptio
 		prototype.children = null;
 		prototype.containers = null;
 		prototype.contained = null;
+		prototype.externalData = null;
 		prototype.tags = null;
 		prototype.type = null;
+		prototype.history = null;
 		prototype.modifier = null;
 		prototype.registrator = null;
 		prototype.experiment = null;
 		prototype.sample = null;
 		prototype.properties = null;
+		prototype.materialProperties = null;
 		prototype.withParents = function() {
 			if (this.parents == null) {
 				this.parents = new DataSetFetchOptions();
@@ -69,6 +73,18 @@ define([ "support/stjs", "dto/fetchoptions/tag/TagFetchOptions", "dto/fetchoptio
 		prototype.hasContained = function() {
 			return this.contained != null;
 		};
+		prototype.withExternalData = function() {
+			if (this.externalData == null) {
+				this.externalData = new ExternalDataFetchOptions();
+			}
+			return this.externalData;
+		};
+		prototype.withExternalDataUsing = function(fetchOptions) {
+			return this.externalData = fetchOptions;
+		};
+		prototype.hasExternalData = function() {
+			return this.externalData != null;
+		};
 		prototype.withTags = function() {
 			if (this.tags == null) {
 				this.tags = new TagFetchOptions();
@@ -92,6 +108,18 @@ define([ "support/stjs", "dto/fetchoptions/tag/TagFetchOptions", "dto/fetchoptio
 		};
 		prototype.hasType = function() {
 			return this.type != null;
+		};
+		prototype.withHistory = function() {
+			if (this.history == null) {
+				this.history = new HistoryEntryFetchOptions();
+			}
+			return this.history;
+		};
+		prototype.withHistoryUsing = function(fetchOptions) {
+			return this.history = fetchOptions;
+		};
+		prototype.hasHistory = function() {
+			return this.history != null;
 		};
 		prototype.withModifier = function() {
 			if (this.modifier == null) {
@@ -153,18 +181,33 @@ define([ "support/stjs", "dto/fetchoptions/tag/TagFetchOptions", "dto/fetchoptio
 		prototype.hasProperties = function() {
 			return this.properties != null;
 		};
+		prototype.withMaterialProperties = function() {
+			if (this.materialProperties == null) {
+				this.materialProperties = new MaterialFetchOptions();
+			}
+			return this.materialProperties;
+		};
+		prototype.withMaterialPropertiesUsing = function(fetchOptions) {
+			return this.materialProperties = fetchOptions;
+		};
+		prototype.hasMaterialProperties = function() {
+			return this.materialProperties != null;
+		};
 	}, {
 		parents : "DataSetFetchOptions",
 		children : "DataSetFetchOptions",
 		containers : "DataSetFetchOptions",
 		contained : "DataSetFetchOptions",
+		externalData : "ExternalDataFetchOptions",
 		tags : "TagFetchOptions",
 		type : "DataSetTypeFetchOptions",
+		history : "HistoryEntryFetchOptions",
 		modifier : "PersonFetchOptions",
 		registrator : "PersonFetchOptions",
 		experiment : "ExperimentFetchOptions",
 		sample : "SampleFetchOptions",
-		properties : "PropertyFetchOptions"
+		properties : "PropertyFetchOptions",
+		materialProperties : "MaterialFetchOptions"
 	});
 	return DataSetFetchOptions;
 })
