@@ -277,7 +277,12 @@ function openbis(openbisUrlOrNull) {
 	this._internal = new _openbisInternal(openbisUrlOrNull);
 }
 
-
+/**
+ * Intercepts responses so clients can handle generic errors like session timeouts with a
+ * single handler.
+ * 
+ * @method
+ */
 openbis.prototype.setResponseInterceptor = function(responseInterceptor) {
 	this._internal.responseInterceptor = responseInterceptor;
 }
