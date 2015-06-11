@@ -476,6 +476,10 @@ createVocabularyWithTerms("STORAGE_BOX_SIZE", "Boxes available on the lab", [
 										["4X4", "4 x 4 box", None],
 										["20X40", "20 x 40 box", None]
 									]);
+									
+createVocabularyWithTerms("ELN_TYPES_METADATA", "The presence of this vocabulary indicates the ELN Plugin that the ELN master data script was executed.", [
+										["TYPES_VERSION", "Types Version S207", None]
+									]);
 ##
 ## Property Types for annotations
 ##

@@ -106,8 +106,8 @@ def process(tr, parameters, tableBuilder):
 def init(tr, parameters, tableBuilder):
 	inventorySpace = tr.getSpace("DEFAULT_LAB_NOTEBOOK");
 	if inventorySpace == None:
-		storageVocabulary = tr.getVocabularyForUpdate("STORAGE_NAMES");
-		if storageVocabulary is not None: # We can only create the data if the ELN metadata is present, this is not true on highly customized systems.
+		elnTypes = tr.getVocabularyForUpdate("ELN_TYPES_METADATA");
+		if elnTypes is not None: # We can only create the data if the ELN metadata is present, this is not true on highly customized systems.
 			tr.createNewSpace("MATERIALS", None);
 			
 			tr.createNewProject("/MATERIALS/REAGENTS");
@@ -262,12 +262,15 @@ def insertDataSet(tr, parameters, tableBuilder):
 			print "SVG: " + str(futureSVG.exists());
 			#File(tempDir + "/" + folderName + "/generated/").mkdirs();
 			print "BEFORE PLASMAPPER";
-			PlasmapperConnector.downloadPlasmidMap(
-				PLASMAPPER_BASE_URL,
-				tempDir + "/" + folderName + "/" + temFile.getName(),
-				tempDir + "/" + folderName + "/generated/" + temFile.getName().replace(".fasta", ".svg"),
-				tempDir + "/" + folderName + "/generated/" + temFile.getName().replace(".fasta", ".html")
-			);
+			try:
+				PlasmapperConnector.downloadPlasmidMap(
+					PLASMAPPER_BASE_URL,
+					tempDir + "/" + folderName + "/" + temFile.getName(),
+					tempDir + "/" + folderName + "/generated/" + temFile.getName().replace(".fasta", ".svg"),
+					tempDir + "/" + folderName + "/generated/" + temFile.getName().replace(".fasta", ".html")
+				);
+			except:
+				raise UserFailureException("Plasmapper service unavailable, try to upload your dataset later."); 
 			print "AFTER PLASMAPPER";
 			print "SVG: " + str(futureSVG.exists());
 			tr.moveFile(temFile.getParentFile().getAbsolutePath(), dataSet);
