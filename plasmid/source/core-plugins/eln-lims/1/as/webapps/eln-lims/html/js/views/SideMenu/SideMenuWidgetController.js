@@ -388,6 +388,10 @@ function SideMenuWidgetController(mainController) {
                                         new SideMenuWidgetComponent(true, false, "USER MANAGER", "USER_MANAGER", _this._sideMenuWidgetModel.menuStructure, null, "showUserManagerPage", null, "")
                                 );
                 			}
+                			
+                			_this._sideMenuWidgetModel.menuStructure.newMenuIfSelected.children.push(
+                                    new SideMenuWidgetComponent(true, false, "ABOUT", "ABOUT", _this._sideMenuWidgetModel.menuStructure, null, "showAbout", null, "")
+                                    );
                 			_this._sideMenuWidgetView.repaintFirst($container);
                 			initCallback();
                         });

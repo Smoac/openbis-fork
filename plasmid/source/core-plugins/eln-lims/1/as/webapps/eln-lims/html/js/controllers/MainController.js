@@ -363,6 +363,11 @@ function MainController(profile) {
 					}
 				});
 				break;
+			case "showAbout":
+				$.get('version.txt', function(data) {
+					Util.showInfo("Current Version: " + data);
+				}, 'text');
+				break;
 			default:
 				window.alert("The system tried to create a non existing view");
 				break;
