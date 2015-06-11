@@ -13,7 +13,6 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 		
 		this.storagesConfiguration = {
 				"isEnabled" : true,
-				"isBoxSizeAndPositionEnabled" : true, //To avoid old running models to run the latest storage manager until the admins update their model and configuration
 				"storageSpaceLowWarning" : 0.8, //Storage goes over 80%
 				"boxSpaceLowWarning" : 0.8, //Box goes over 80%
 				/*

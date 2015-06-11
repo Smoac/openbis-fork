@@ -15,12 +15,18 @@
  */
 
 function StorageManagerController(mainController) {
-	if(!profile.storagesConfiguration["isBoxSizeAndPositionEnabled"]) {
-		Util.showError("Your Storage Model don't works properly with the lattest ELN version, contact your admin.");
-		return;
-	} else {
-		window.alert("Warning: The Storage manager don't supports positions yet, when moving entities from one box to another the position will be deleted.");
+	//Upgraded storage model detection
+	if(profile.storagesConfiguration["isEnabled"]) {
+		var groups = profile.getStoragePropertyGroups();
+		for(var i = 0; i < groups.length; i++) {
+			if(!groups[i].boxSizeProperty || !groups[i].positionProperty) {
+				Util.showError("Your Storage Model don't works properly with the lattest ELN version: Storage group '" + groups[i].groupDisplayName + "' is missing the boxSizeProperty or positionProperty.");
+				return;
+			}
+		}
 	}
+	
+	window.alert("Warning: The Storage Manager does not support box positions yet. If entities are moved from one box to another the position will be lost.");
 	
 	this._mainController = mainController;
 	
