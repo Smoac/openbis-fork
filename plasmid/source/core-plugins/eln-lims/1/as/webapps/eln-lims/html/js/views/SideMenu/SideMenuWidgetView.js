@@ -25,7 +25,7 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
     this._sideMenuWidgetModel = sideMenuWidgetModel;
     
     var toggleMenuSizeBig = false;
-    var DISPLAY_NAME_LENGTH_SHORT = 20;
+    var DISPLAY_NAME_LENGTH_SHORT = 15;
     var DISPLAY_NAME_LENGTH_LONG = 300;
     var cutDisplayNameAtLength = DISPLAY_NAME_LENGTH_SHORT; // Fix for long names
     
