@@ -24,13 +24,36 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
     this._sideMenuWidgetController = sideMenuWidgetController;
     this._sideMenuWidgetModel = sideMenuWidgetModel;
     
+    var toggleMenuSizeBig = false;
+    var DISPLAY_NAME_LENGTH_SHORT = 20;
+    var DISPLAY_NAME_LENGTH_LONG = 300;
+    var cutDisplayNameAtLength = DISPLAY_NAME_LENGTH_SHORT; // Fix for long names
+    
+    this.toggleMenuSize = function() {
+    	toggleMenuSizeBig = !toggleMenuSizeBig;
+    	if(toggleMenuSizeBig) {
+        	$("#sideMenu").removeClass("col-md-2");
+        	$("#mainContainer").removeClass("col-md-10");
+        	$("#sideMenu").addClass("col-md-6");
+        	$("#mainContainer").addClass("col-md-6");
+        	cutDisplayNameAtLength = DISPLAY_NAME_LENGTH_LONG;
+    	} else {
+    		$("#sideMenu").removeClass("col-md-6");
+    		$("#mainContainer").removeClass("col-md-6");
+    		$("#sideMenu").addClass("col-md-2");
+    		$("#mainContainer").addClass("col-md-10");
+    		cutDisplayNameAtLength = DISPLAY_NAME_LENGTH_SHORT;
+    	}
+    	this.repaint();
+    };
+    
     this.hideSideMenu = function() {
         this._sideMenuWidgetModel.$container.hide();
         $("#mainContainer").removeClass("col-md-10");
         $("#mainContainer").addClass("col-md-12");
 
         var $toggleButtonShow = $("<a>", {"class": "btn btn-default", "id": "toggleButtonShow", "href": "javascript:mainController.sideMenu.showSideMenu();", "style": "position: fixed; top:0px; left:0px;"})
-                .append($("<span>", {"class": "glyphicon glyphicon-resize-horizontal"}));
+                .append($("<span>", {"class": "glyphicon glyphicon-resize-small"}));
 
         $("#main").append($toggleButtonShow);
         this._sideMenuWidgetModel.isHidden = true;
@@ -47,7 +70,6 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
     this.repaintFirst = function($container) {
         var _this = this;
         var $widget = $("<div>");
-
         //
         // Fix Header
         //
@@ -59,9 +81,14 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
 
         var $toggleButton = $("<li>")
                 .append($("<a>", {"href": "javascript:mainController.sideMenu.hideSideMenu();"})
-                        .append($("<span>", {"class": "glyphicon glyphicon-resize-horizontal"}))
+                        .append($("<span>", {"class": "glyphicon glyphicon-resize-full"}))
                         );
-
+        
+        var $toggleMenuButton = $("<li>")
+        .append($("<a>", {"href": "javascript:mainController.sideMenu.toggleMenuSize();"})
+                .append($("<span>", {"class": "glyphicon glyphicon-resize-horizontal"}))
+                );
+        
         var dropDownSearch = "";
         var searchDomains = profile.getSearchDomains();
 
@@ -147,6 +174,7 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
 
         $headerItemList.append($logoutButton);
         $headerItemList.append($toggleButton);
+        $headerItemList.append($toggleMenuButton);
         $headerItemList.append($searchForm);
         if(dropDownSearch !== "") {
         	$headerItemList.append($searchFormDropdown);
@@ -175,13 +203,9 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
     this.repaint = function() {
         var _this = this;
         var menuToPaint = this._sideMenuWidgetModel.pointerToMenuNode;
-
         //
         // Title
         //
-
-        // Fix for long names
-        var cutDisplayNameAtLength = 15;
         var titleShowTooltip = menuToPaint.displayName.length > cutDisplayNameAtLength;
         if (titleShowTooltip) {
             var titleDisplayName = (menuToPaint.displayName).substring(0, cutDisplayNameAtLength) + "...";

@@ -50,6 +50,10 @@ function SideMenuWidgetController(mainController) {
     	}
     };
     
+    this.toggleMenuSize = function() {
+    	this._sideMenuWidgetView.toggleMenuSize();
+    }
+    
     this.hideSideMenu = function() {
         this._sideMenuWidgetView.hideSideMenu();
     };
