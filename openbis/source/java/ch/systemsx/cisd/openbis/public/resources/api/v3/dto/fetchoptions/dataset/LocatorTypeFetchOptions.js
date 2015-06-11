@@ -5,7 +5,7 @@
 define([ "stjs" ], function(stjs) {
 	var LocatorTypeFetchOptions = function() {
 	};
-	stjs.extend(FileFormatTypeFetchOptions, null, [], function(constructor, prototype) {
+	stjs.extend(LocatorTypeFetchOptions, null, [], function(constructor, prototype) {
 		prototype['@type'] = 'dto.fetchoptions.dataset.LocatorTypeFetchOptions';
 		constructor.serialVersionUID = 1;
 	}, {});
