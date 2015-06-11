@@ -377,10 +377,10 @@ $.extend(Grid.prototype, {
 					}
 				}
 				//HACK:	Legacy Hacks no longer needed
-				//$(window).trigger('resize'); // HACK: Fixes table rendering issues when refreshing the grid on fuelux 3.1.0 for all browsers
-				//$(thisGrid.panel).hide().show(0); // HACK: Fixes Chrome rendering issues when refreshing the grid on fuelux 3.1.0
+				$(window).trigger('resize'); // HACK: Fixes table rendering issues when refreshing the grid on fuelux 3.1.0 for all browsers
+				$(thisGrid.panel).hide().show(0); // HACK: Fixes Chrome rendering issues when refreshing the grid on fuelux 3.1.0
 				
-				// HACK: Fix that only works if there is only one table at a time
+				// HACK: Fix that only works if there is only one table at a time (dont works Safari)
 				var newWidth = $(".repeater-list-wrapper > .table").width();
 				$(".repeater").width(newWidth);
 			}, 1);
