@@ -41,6 +41,7 @@ if [ -d $ROOT/openBIS-server ]; then
     copyIfExists $ROOT/openBIS-server/jetty/etc/openBIS.keystore $CONF/.keystore 
     copyIfExists $ROOT/openBIS-server/jetty/etc/passwd $CONF/
     copyIfExists $ROOT/openBIS-server/jetty/etc/web-client.properties $CONF/
+    cp -R $ROOT/openBIS-server/jetty/start.d $CONF/start.d
 fi
 
 # -- DSS

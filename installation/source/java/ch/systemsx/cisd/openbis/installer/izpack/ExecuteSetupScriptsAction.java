@@ -153,6 +153,10 @@ public class ExecuteSetupScriptsAction extends AbstractScriptExecutor
         if (Utils.isASInstalled(installDir))
         {
             File jettySSLIniFile = new File(installDir, Utils.AS_PATH + Utils.JETTY_SSL_INI_PATH);
+            if (jettySSLIniFile.exists() == false) {
+            	// ssl not configured
+            	return;
+            }
             try
             {
                 String jettySSLIni = FileUtils.readFileToString(jettySSLIniFile);

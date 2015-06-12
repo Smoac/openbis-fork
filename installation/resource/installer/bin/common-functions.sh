@@ -156,6 +156,18 @@ copyIfExists()
 }
 
 #
+# overwrites a folder (second parameter) with first parameter
+#
+copyFolderIfExists() 
+{
+  if [ -e "$1" ]; then
+      rm -r "$2"
+      cp -R "$1" "$2"
+  fi
+}
+
+
+#
 # Installs openBIS server to a given destination
 # The function assumes that the openBIS-server*.zip file is already present in the destination.  
 #

@@ -40,6 +40,7 @@ if [ -d $ROOT/openBIS-server ]; then
     copyIfExists $CONF/web-client.properties $ROOT/openBIS-server/jetty/etc/
     copyIfExists $CONF/capabilities $ROOT/openBIS-server/jetty/etc/
     copyIfExists $CONF/dss-datasource-mapping $ROOT/openBIS-server/jetty/etc/
+    copyFolderIfExists $CONF/start.d $ROOT/openBIS-server/jetty/start.d
 fi
 
 # -- DSS
