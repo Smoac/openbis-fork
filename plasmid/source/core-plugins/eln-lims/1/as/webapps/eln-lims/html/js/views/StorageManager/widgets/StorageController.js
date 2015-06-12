@@ -20,7 +20,7 @@ function StorageController(configOverride) {
 		var groups = profile.getStoragePropertyGroups();
 		for(var i = 0; i < groups.length; i++) {
 			if(!groups[i].boxSizeProperty || !groups[i].positionProperty) {
-				Util.showError("Your Storage Model don't works properly with the lattest ELN version: Storage group '" + groups[i].groupDisplayName + "' is missing the boxSizeProperty or positionProperty.");
+				Util.showError("Your Storage Model does not work properly with the current ELN version: Storage group '" + groups[i].groupDisplayName + "' is missing the boxSizeProperty or positionProperty.");
 				return;
 			}
 		}
