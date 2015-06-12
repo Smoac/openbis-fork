@@ -2,8 +2,7 @@
  * Class automatically generated with
  * {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
  */
-define([ "stjs", "dto/fetchoptions/person/PersonFetchOptions", "dto/fetchoptions/sample/SampleFetchOptions", "dto/fetchoptions/project/ProjectFetchOptions" ], function(stjs,
-		PersonFetchOptions, SampleFetchOptions, ProjectFetchOptions) {
+define([ "require", "stjs", "dto/fetchoptions/person/PersonFetchOptions", "dto/fetchoptions/sample/SampleFetchOptions", "dto/fetchoptions/project/ProjectFetchOptions" ], function(require, stjs) {
 	var SpaceFetchOptions = function() {
 	};
 	stjs.extend(SpaceFetchOptions, null, [], function(constructor, prototype) {
@@ -14,6 +13,7 @@ define([ "stjs", "dto/fetchoptions/person/PersonFetchOptions", "dto/fetchoptions
 		prototype.projects = null;
 		prototype.withRegistrator = function() {
 			if (this.registrator == null) {
+				var PersonFetchOptions = require("dto/fetchoptions/person/PersonFetchOptions");
 				this.registrator = new PersonFetchOptions();
 			}
 			return this.registrator;
@@ -26,6 +26,7 @@ define([ "stjs", "dto/fetchoptions/person/PersonFetchOptions", "dto/fetchoptions
 		};
 		prototype.withSamples = function() {
 			if (this.samples == null) {
+				var SampleFetchOptions = require("dto/fetchoptions/sample/SampleFetchOptions");
 				this.samples = new SampleFetchOptions();
 			}
 			return this.samples;
@@ -38,6 +39,7 @@ define([ "stjs", "dto/fetchoptions/person/PersonFetchOptions", "dto/fetchoptions
 		};
 		prototype.withProjects = function() {
 			if (this.projects == null) {
+				var ProjectFetchOptions = require("dto/fetchoptions/project/ProjectFetchOptions");
 				this.projects = new ProjectFetchOptions();
 			}
 			return this.projects;

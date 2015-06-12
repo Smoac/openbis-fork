@@ -2,11 +2,9 @@
  * Class automatically generated with
  * {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
  */
-define([ "stjs", 'dto/fetchoptions/sample/SampleTypeFetchOptions', 'dto/fetchoptions/space/SpaceFetchOptions', 'dto/fetchoptions/experiment/ExperimentFetchOptions',
+define([ "require", "stjs", 'dto/fetchoptions/sample/SampleTypeFetchOptions', 'dto/fetchoptions/space/SpaceFetchOptions', 'dto/fetchoptions/experiment/ExperimentFetchOptions',
 		'dto/fetchoptions/property/PropertyFetchOptions', 'dto/fetchoptions/tag/TagFetchOptions', 'dto/fetchoptions/person/PersonFetchOptions', 'dto/fetchoptions/attachment/AttachmentFetchOptions',
-		'dto/fetchoptions/material/MaterialFetchOptions', 'dto/fetchoptions/dataset/DataSetFetchOptions', 'dto/fetchoptions/history/HistoryEntryFetchOptions' ], function(stjs, SampleTypeFetchOptions,
-		SpaceFetchOptions, ExperimentFetchOptions, PropertyFetchOptions, TagFetchOptions, PersonFetchOptions, AttachmentFetchOptions, MaterialFetchOptions, DataSetFetchOptions,
-		HistoryEntryFetchOptions) {
+		'dto/fetchoptions/material/MaterialFetchOptions', 'dto/fetchoptions/dataset/DataSetFetchOptions', 'dto/fetchoptions/history/HistoryEntryFetchOptions' ], function(require, stjs) {
 	var SampleFetchOptions = function() {
 	};
 	stjs.extend(SampleFetchOptions, null, [], function(constructor, prototype) {
@@ -29,6 +27,7 @@ define([ "stjs", 'dto/fetchoptions/sample/SampleTypeFetchOptions', 'dto/fetchopt
 		prototype.attachments = null;
 		prototype.withType = function() {
 			if (this.type == null) {
+				var SampleTypeFetchOptions = require("dto/fetchoptions/sample/SampleTypeFetchOptions");
 				this.type = new SampleTypeFetchOptions();
 			}
 			return this.type;
@@ -41,6 +40,7 @@ define([ "stjs", 'dto/fetchoptions/sample/SampleTypeFetchOptions', 'dto/fetchopt
 		};
 		prototype.withSpace = function() {
 			if (this.space == null) {
+				var SpaceFetchOptions = require("dto/fetchoptions/space/SpaceFetchOptions");
 				this.space = new SpaceFetchOptions();
 			}
 			return this.space;
@@ -53,6 +53,7 @@ define([ "stjs", 'dto/fetchoptions/sample/SampleTypeFetchOptions', 'dto/fetchopt
 		};
 		prototype.withExperiment = function() {
 			if (this.experiment == null) {
+				var ExperimentFetchOptions = require("dto/fetchoptions/experiment/ExperimentFetchOptions");
 				this.experiment = new ExperimentFetchOptions();
 			}
 			return this.experiment;
@@ -65,6 +66,7 @@ define([ "stjs", 'dto/fetchoptions/sample/SampleTypeFetchOptions', 'dto/fetchopt
 		};
 		prototype.withProperties = function() {
 			if (this.properties == null) {
+				var PropertyFetchOptions = require("dto/fetchoptions/property/PropertyFetchOptions");
 				this.properties = new PropertyFetchOptions();
 			}
 			return this.properties;
@@ -77,6 +79,7 @@ define([ "stjs", 'dto/fetchoptions/sample/SampleTypeFetchOptions', 'dto/fetchopt
 		};
 		prototype.withMaterialProperties = function() {
 			if (this.materialProperties == null) {
+				var MaterialFetchOptions = require("dto/fetchoptions/material/MaterialFetchOptions");
 				this.materialProperties = new MaterialFetchOptions();
 			}
 			return this.materialProperties;
@@ -137,6 +140,7 @@ define([ "stjs", 'dto/fetchoptions/sample/SampleTypeFetchOptions', 'dto/fetchopt
 		};
 		prototype.withDataSets = function() {
 			if (this.dataSets == null) {
+				var DataSetFetchOptions = require("dto/fetchoptions/dataset/DataSetFetchOptions");
 				this.dataSets = new DataSetFetchOptions();
 			}
 			return this.dataSets;
@@ -149,6 +153,7 @@ define([ "stjs", 'dto/fetchoptions/sample/SampleTypeFetchOptions', 'dto/fetchopt
 		};
 		prototype.withHistory = function() {
 			if (this.history == null) {
+				var HistoryEntryFetchOptions = require("dto/fetchoptions/history/HistoryEntryFetchOptions");
 				this.history = new HistoryEntryFetchOptions();
 			}
 			return this.history;
@@ -161,6 +166,7 @@ define([ "stjs", 'dto/fetchoptions/sample/SampleTypeFetchOptions', 'dto/fetchopt
 		};
 		prototype.withTags = function() {
 			if (this.tags == null) {
+				var TagFetchOptions = require("dto/fetchoptions/tag/TagFetchOptions");
 				this.tags = new TagFetchOptions();
 			}
 			return this.tags;
@@ -173,6 +179,7 @@ define([ "stjs", 'dto/fetchoptions/sample/SampleTypeFetchOptions', 'dto/fetchopt
 		};
 		prototype.withRegistrator = function() {
 			if (this.registrator == null) {
+				var PersonFetchOptions = require("dto/fetchoptions/person/PersonFetchOptions");
 				this.registrator = new PersonFetchOptions();
 			}
 			return this.registrator;
@@ -185,6 +192,7 @@ define([ "stjs", 'dto/fetchoptions/sample/SampleTypeFetchOptions', 'dto/fetchopt
 		};
 		prototype.withModifier = function() {
 			if (this.modifier == null) {
+				var PersonFetchOptions = require("dto/fetchoptions/person/PersonFetchOptions");
 				this.modifier = new PersonFetchOptions();
 			}
 			return this.modifier;
@@ -197,6 +205,7 @@ define([ "stjs", 'dto/fetchoptions/sample/SampleTypeFetchOptions', 'dto/fetchopt
 		};
 		prototype.withAttachments = function() {
 			if (this.attachments == null) {
+				var AttachmentFetchOptions = require("dto/fetchoptions/attachment/AttachmentFetchOptions");
 				this.attachments = new AttachmentFetchOptions();
 			}
 			return this.attachments;

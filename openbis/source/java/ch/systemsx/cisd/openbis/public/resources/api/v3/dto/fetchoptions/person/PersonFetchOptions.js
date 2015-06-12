@@ -2,7 +2,7 @@
  * Class automatically generated with
  * {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
  */
-define([ "stjs", "dto/fetchoptions/space/SpaceFetchOptions" ], function(stjs, SpaceFetchOptions) {
+define([ "require", "stjs", "dto/fetchoptions/space/SpaceFetchOptions" ], function(require, stjs) {
 	var PersonFetchOptions = function() {
 	};
 	stjs.extend(PersonFetchOptions, null, [], function(constructor, prototype) {
@@ -12,6 +12,7 @@ define([ "stjs", "dto/fetchoptions/space/SpaceFetchOptions" ], function(stjs, Sp
 		prototype.registrator = null;
 		prototype.withSpace = function() {
 			if (this.space == null) {
+				var SpaceFetchOptions = require("dto/fetchoptions/space/SpaceFetchOptions");
 				this.space = new SpaceFetchOptions();
 			}
 			return this.space;

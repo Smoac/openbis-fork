@@ -2,7 +2,7 @@
  * Class automatically generated with
  * {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
  */
-define([ "stjs", "dto/fetchoptions/vocabulary/VocabularyFetchOptions", "dto/fetchoptions/person/PersonFetchOptions" ], function(stjs, VocabularyFetchOptions, PersonFetchOptions) {
+define([ "require", "stjs", "dto/fetchoptions/vocabulary/VocabularyFetchOptions", "dto/fetchoptions/person/PersonFetchOptions" ], function(require, stjs) {
 	var VocabularyTermFetchOptions = function() {
 	};
 	stjs.extend(VocabularyTermFetchOptions, null, [], function(constructor, prototype) {
@@ -12,6 +12,7 @@ define([ "stjs", "dto/fetchoptions/vocabulary/VocabularyFetchOptions", "dto/fetc
 		prototype.registrator = null;
 		prototype.withVocabulary = function() {
 			if (this.vocabulary == null) {
+				var VocabularyFetchOptions = require("dto/fetchoptions/vocabulary/VocabularyFetchOptions");
 				this.vocabulary = new VocabularyFetchOptions();
 			}
 			return this.vocabulary;
@@ -24,6 +25,7 @@ define([ "stjs", "dto/fetchoptions/vocabulary/VocabularyFetchOptions", "dto/fetc
 		};
 		prototype.withRegistrator = function() {
 			if (this.registrator == null) {
+				var PersonFetchOptions = require("dto/fetchoptions/person/PersonFetchOptions");
 				this.registrator = new PersonFetchOptions();
 			}
 			return this.registrator;

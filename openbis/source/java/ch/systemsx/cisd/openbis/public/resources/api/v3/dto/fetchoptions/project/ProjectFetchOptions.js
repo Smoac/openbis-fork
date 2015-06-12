@@ -2,8 +2,8 @@
  * Class automatically generated with
  * {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
  */
-define([ "stjs", 'dto/fetchoptions/person/PersonFetchOptions', 'dto/fetchoptions/space/SpaceFetchOptions', 'dto/fetchoptions/experiment/ExperimentFetchOptions',
-		'dto/fetchoptions/attachment/AttachmentFetchOptions' ], function(stjs, PersonFetchOptions, SpaceFetchOptions, ExperimentFetchOptions, AttachmentFetchOptions) {
+define([ "require", "stjs", 'dto/fetchoptions/person/PersonFetchOptions', 'dto/fetchoptions/space/SpaceFetchOptions', 'dto/fetchoptions/experiment/ExperimentFetchOptions',
+		'dto/fetchoptions/attachment/AttachmentFetchOptions' ], function(require, stjs) {
 	var ProjectFetchOptions = function() {
 	};
 	stjs.extend(ProjectFetchOptions, null, [], function(constructor, prototype) {
@@ -17,6 +17,7 @@ define([ "stjs", 'dto/fetchoptions/person/PersonFetchOptions', 'dto/fetchoptions
 		prototype.attachments = null;
 		prototype.withExperiments = function() {
 			if (this.experiments == null) {
+				var ExperimentFetchOptions = require("dto/fetchoptions/experiment/ExperimentFetchOptions");
 				this.experiments = new ExperimentFetchOptions();
 			}
 			return this.experiments;
@@ -29,6 +30,7 @@ define([ "stjs", 'dto/fetchoptions/person/PersonFetchOptions', 'dto/fetchoptions
 		};
 		prototype.withSpace = function() {
 			if (this.space == null) {
+				var SpaceFetchOptions = require("dto/fetchoptions/space/SpaceFetchOptions");
 				this.space = new SpaceFetchOptions();
 			}
 			return this.space;
@@ -41,6 +43,7 @@ define([ "stjs", 'dto/fetchoptions/person/PersonFetchOptions', 'dto/fetchoptions
 		};
 		prototype.withRegistrator = function() {
 			if (this.registrator == null) {
+				var PersonFetchOptions = require("dto/fetchoptions/person/PersonFetchOptions");
 				this.registrator = new PersonFetchOptions();
 			}
 			return this.registrator;
@@ -53,6 +56,7 @@ define([ "stjs", 'dto/fetchoptions/person/PersonFetchOptions', 'dto/fetchoptions
 		};
 		prototype.withModifier = function() {
 			if (this.modifier == null) {
+				var PersonFetchOptions = require("dto/fetchoptions/person/PersonFetchOptions");
 				this.modifier = new PersonFetchOptions();
 			}
 			return this.modifier;
@@ -65,6 +69,7 @@ define([ "stjs", 'dto/fetchoptions/person/PersonFetchOptions', 'dto/fetchoptions
 		};
 		prototype.withLeader = function() {
 			if (this.leader == null) {
+				var PersonFetchOptions = require("dto/fetchoptions/person/PersonFetchOptions");
 				this.leader = new PersonFetchOptions();
 			}
 			return this.leader;
@@ -77,6 +82,7 @@ define([ "stjs", 'dto/fetchoptions/person/PersonFetchOptions', 'dto/fetchoptions
 		};
 		prototype.withAttachments = function() {
 			if (this.attachments == null) {
+				var AttachmentFetchOptions = require("dto/fetchoptions/attachment/AttachmentFetchOptions");
 				this.attachments = new AttachmentFetchOptions();
 			}
 			return this.attachments;

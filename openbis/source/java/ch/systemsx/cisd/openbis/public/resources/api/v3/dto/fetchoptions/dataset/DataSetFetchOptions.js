@@ -2,10 +2,9 @@
  * Class automatically generated with
  * {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
  */
-define([ "stjs", "dto/fetchoptions/tag/TagFetchOptions", "dto/fetchoptions/dataset/DataSetTypeFetchOptions", "dto/fetchoptions/person/PersonFetchOptions",
+define([ "require", "stjs", "dto/fetchoptions/tag/TagFetchOptions", "dto/fetchoptions/dataset/DataSetTypeFetchOptions", "dto/fetchoptions/person/PersonFetchOptions",
 		"dto/fetchoptions/experiment/ExperimentFetchOptions", "dto/fetchoptions/sample/SampleFetchOptions", "dto/fetchoptions/property/PropertyFetchOptions",
-		"dto/fetchoptions/dataset/ExternalDataFetchOptions", "dto/fetchoptions/history/HistoryEntryFetchOptions", "dto/fetchoptions/material/MaterialFetchOptions" ], function(stjs, TagFetchOptions,
-		DataSetTypeFetchOptions, PersonFetchOptions, ExperimentFetchOptions, SampleFetchOptions, PropertyFetchOptions, ExternalDataFetchOptions, HistoryEntryFetchOptions, MaterialFetchOptions) {
+		"dto/fetchoptions/dataset/ExternalDataFetchOptions", "dto/fetchoptions/history/HistoryEntryFetchOptions", "dto/fetchoptions/material/MaterialFetchOptions" ], function(require, stjs) {
 	var DataSetFetchOptions = function() {
 	};
 	stjs.extend(DataSetFetchOptions, null, [], function(constructor, prototype) {
@@ -75,6 +74,7 @@ define([ "stjs", "dto/fetchoptions/tag/TagFetchOptions", "dto/fetchoptions/datas
 		};
 		prototype.withExternalData = function() {
 			if (this.externalData == null) {
+				var ExternalDataFetchOptions = require("dto/fetchoptions/dataset/ExternalDataFetchOptions");
 				this.externalData = new ExternalDataFetchOptions();
 			}
 			return this.externalData;
@@ -87,6 +87,7 @@ define([ "stjs", "dto/fetchoptions/tag/TagFetchOptions", "dto/fetchoptions/datas
 		};
 		prototype.withTags = function() {
 			if (this.tags == null) {
+				var TagFetchOptions = require("dto/fetchoptions/tag/TagFetchOptions");
 				this.tags = new TagFetchOptions();
 			}
 			return this.tags;
@@ -99,6 +100,7 @@ define([ "stjs", "dto/fetchoptions/tag/TagFetchOptions", "dto/fetchoptions/datas
 		};
 		prototype.withType = function() {
 			if (this.type == null) {
+				var DataSetTypeFetchOptions = require("dto/fetchoptions/dataset/DataSetTypeFetchOptions");
 				this.type = new DataSetTypeFetchOptions();
 			}
 			return this.type;
@@ -111,6 +113,7 @@ define([ "stjs", "dto/fetchoptions/tag/TagFetchOptions", "dto/fetchoptions/datas
 		};
 		prototype.withHistory = function() {
 			if (this.history == null) {
+				var HistoryEntryFetchOptions = require("dto/fetchoptions/history/HistoryEntryFetchOptions");
 				this.history = new HistoryEntryFetchOptions();
 			}
 			return this.history;
@@ -123,6 +126,7 @@ define([ "stjs", "dto/fetchoptions/tag/TagFetchOptions", "dto/fetchoptions/datas
 		};
 		prototype.withModifier = function() {
 			if (this.modifier == null) {
+				var PersonFetchOptions = require("dto/fetchoptions/person/PersonFetchOptions");
 				this.modifier = new PersonFetchOptions();
 			}
 			return this.modifier;
@@ -135,6 +139,7 @@ define([ "stjs", "dto/fetchoptions/tag/TagFetchOptions", "dto/fetchoptions/datas
 		};
 		prototype.withRegistrator = function() {
 			if (this.registrator == null) {
+				var PersonFetchOptions = require("dto/fetchoptions/person/PersonFetchOptions");
 				this.registrator = new PersonFetchOptions();
 			}
 			return this.registrator;
@@ -147,6 +152,7 @@ define([ "stjs", "dto/fetchoptions/tag/TagFetchOptions", "dto/fetchoptions/datas
 		};
 		prototype.withExperiment = function() {
 			if (this.experiment == null) {
+				var ExperimentFetchOptions = require("dto/fetchoptions/experiment/ExperimentFetchOptions");
 				this.experiment = new ExperimentFetchOptions();
 			}
 			return this.experiment;
@@ -159,6 +165,7 @@ define([ "stjs", "dto/fetchoptions/tag/TagFetchOptions", "dto/fetchoptions/datas
 		};
 		prototype.withSample = function() {
 			if (this.sample == null) {
+				var SampleFetchOptions = require("dto/fetchoptions/sample/SampleFetchOptions");
 				this.sample = new SampleFetchOptions();
 			}
 			return this.sample;
@@ -171,6 +178,7 @@ define([ "stjs", "dto/fetchoptions/tag/TagFetchOptions", "dto/fetchoptions/datas
 		};
 		prototype.withProperties = function() {
 			if (this.properties == null) {
+				var PropertyFetchOptions = require("dto/fetchoptions/property/PropertyFetchOptions");
 				this.properties = new PropertyFetchOptions();
 			}
 			return this.properties;
@@ -183,6 +191,7 @@ define([ "stjs", "dto/fetchoptions/tag/TagFetchOptions", "dto/fetchoptions/datas
 		};
 		prototype.withMaterialProperties = function() {
 			if (this.materialProperties == null) {
+				var MaterialFetchOptions = require("dto/fetchoptions/material/MaterialFetchOptions");
 				this.materialProperties = new MaterialFetchOptions();
 			}
 			return this.materialProperties;

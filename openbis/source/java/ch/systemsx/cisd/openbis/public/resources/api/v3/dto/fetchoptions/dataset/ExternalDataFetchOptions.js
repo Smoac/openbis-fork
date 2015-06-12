@@ -2,8 +2,8 @@
  * Class automatically generated with
  * {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
  */
-define([ "stjs", "dto/fetchoptions/vocabulary/VocabularyTermFetchOptions", "dto/fetchoptions/dataset/FileFormatTypeFetchOptions", "dto/fetchoptions/dataset/LocatorTypeFetchOptions" ],
-		function(stjs, VocabularyTermFetchOptions, FileFormatTypeFetchOptions, LocatorTypeFetchOptions) {
+define([ "require", "stjs", "dto/fetchoptions/vocabulary/VocabularyTermFetchOptions", "dto/fetchoptions/dataset/FileFormatTypeFetchOptions", "dto/fetchoptions/dataset/LocatorTypeFetchOptions" ],
+		function(require, stjs) {
 			var ExternalDataFetchOptions = function() {
 			};
 			stjs.extend(ExternalDataFetchOptions, null, [], function(constructor, prototype) {
@@ -14,6 +14,7 @@ define([ "stjs", "dto/fetchoptions/vocabulary/VocabularyTermFetchOptions", "dto/
 				prototype.locatorType = null;
 				prototype.withStorageFormat = function() {
 					if (this.storageFormat == null) {
+						var VocabularyTermFetchOptions = require("dto/fetchoptions/vocabulary/VocabularyTermFetchOptions");
 						this.storageFormat = new VocabularyTermFetchOptions();
 					}
 					return this.storageFormat;
@@ -26,6 +27,7 @@ define([ "stjs", "dto/fetchoptions/vocabulary/VocabularyTermFetchOptions", "dto/
 				};
 				prototype.withFileFormatType = function() {
 					if (this.fileFormatType == null) {
+						var FileFormatTypeFetchOptions = require("dto/fetchoptions/dataset/FileFormatTypeFetchOptions");
 						this.fileFormatType = new FileFormatTypeFetchOptions();
 					}
 					return this.fileFormatType;
@@ -38,6 +40,7 @@ define([ "stjs", "dto/fetchoptions/vocabulary/VocabularyTermFetchOptions", "dto/
 				};
 				prototype.withLocatorType = function() {
 					if (this.locatorType == null) {
+						var LocatorTypeFetchOptions = require("dto/fetchoptions/dataset/LocatorTypeFetchOptions");
 						this.locatorType = new LocatorTypeFetchOptions();
 					}
 					return this.locatorType;

@@ -2,7 +2,7 @@
  * Class automatically generated with
  * {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
  */
-define([ "stjs", "dto/fetchoptions/person/PersonFetchOptions" ], function(stjs, PersonFetchOptions) {
+define([ "require", "stjs", "dto/fetchoptions/person/PersonFetchOptions" ], function(require, stjs) {
 	var HistoryEntryFetchOptions = function() {
 	};
 	stjs.extend(HistoryEntryFetchOptions, null, [], function(constructor, prototype) {
@@ -11,6 +11,7 @@ define([ "stjs", "dto/fetchoptions/person/PersonFetchOptions" ], function(stjs, 
 		prototype.author = null;
 		prototype.withAuthor = function() {
 			if (this.author == null) {
+				var PersonFetchOptions = require("dto/fetchoptions/person/PersonFetchOptions");
 				this.author = new PersonFetchOptions();
 			}
 			return this.author;

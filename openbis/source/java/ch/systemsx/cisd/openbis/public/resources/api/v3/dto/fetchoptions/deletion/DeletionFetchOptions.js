@@ -1,7 +1,7 @@
 /**
  * @author pkupczyk
  */
-define([ "stjs", "dto/fetchoptions/deletion/DeletedObjectFetchOptions" ], function(stjs, DeletedObjectFetchOptions) {
+define([ "require", "stjs", "dto/fetchoptions/deletion/DeletedObjectFetchOptions" ], function(require, stjs) {
 	var DeletionFetchOptions = function() {
 	};
 	stjs.extend(DeletionFetchOptions, null, [], function(constructor, prototype) {
@@ -10,6 +10,7 @@ define([ "stjs", "dto/fetchoptions/deletion/DeletedObjectFetchOptions" ], functi
 		prototype.deletedObjects = null;
 		prototype.fetchDeletedObjects = function() {
 			if (this.deletedObjects == null) {
+				var DeletedObjectFetchOptions = require("dto/fetchoptions/deletion/DeletedObjectFetchOptions");
 				this.deletedObjects = new DeletedObjectFetchOptions();
 			}
 			return this.deletedObjects;

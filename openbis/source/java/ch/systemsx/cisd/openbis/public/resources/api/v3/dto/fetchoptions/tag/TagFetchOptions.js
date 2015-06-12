@@ -2,7 +2,7 @@
  * Class automatically generated with
  * {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
  */
-define([ "stjs", "dto/fetchoptions/person/PersonFetchOptions" ], function(stjs, PersonFetchOptions) {
+define([ "require", "stjs", "dto/fetchoptions/person/PersonFetchOptions" ], function(require, stjs) {
 	var TagFetchOptions = function() {
 	};
 	stjs.extend(TagFetchOptions, null, [], function(constructor, prototype) {
@@ -11,6 +11,7 @@ define([ "stjs", "dto/fetchoptions/person/PersonFetchOptions" ], function(stjs, 
 		prototype.owner = null;
 		prototype.withOwner = function() {
 			if (this.owner == null) {
+				var PersonFetchOptions = require("dto/fetchoptions/person/PersonFetchOptions");
 				this.owner = new PersonFetchOptions();
 			}
 			return this.owner;

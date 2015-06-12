@@ -2,9 +2,8 @@
  * Class automatically generated with
  * {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
  */
-define([ "stjs", "dto/fetchoptions/material/MaterialTypeFetchOptions", "dto/fetchoptions/history/HistoryEntryFetchOptions", "dto/fetchoptions/person/PersonFetchOptions",
-		"dto/fetchoptions/property/PropertyFetchOptions", "dto/fetchoptions/tag/TagFetchOptions" ], function(stjs, MaterialTypeFetchOptions, HistoryEntryFetchOptions, PersonFetchOptions,
-		PropertyFetchOptions, TagFetchOptions) {
+define([ "require", "stjs", "dto/fetchoptions/material/MaterialTypeFetchOptions", "dto/fetchoptions/history/HistoryEntryFetchOptions", "dto/fetchoptions/person/PersonFetchOptions",
+		"dto/fetchoptions/property/PropertyFetchOptions", "dto/fetchoptions/tag/TagFetchOptions" ], function(require, stjs) {
 	var MaterialFetchOptions = function() {
 	};
 	stjs.extend(MaterialFetchOptions, null, [], function(constructor, prototype) {
@@ -18,6 +17,7 @@ define([ "stjs", "dto/fetchoptions/material/MaterialTypeFetchOptions", "dto/fetc
 		prototype.tags = null;
 		prototype.withType = function() {
 			if (this.type == null) {
+				var MaterialTypeFetchOptions = require("dto/fetchoptions/material/MaterialTypeFetchOptions");
 				this.type = new MaterialTypeFetchOptions();
 			}
 			return this.type;
@@ -30,6 +30,7 @@ define([ "stjs", "dto/fetchoptions/material/MaterialTypeFetchOptions", "dto/fetc
 		};
 		prototype.withHistory = function() {
 			if (this.history == null) {
+				var HistoryEntryFetchOptions = require("dto/fetchoptions/history/HistoryEntryFetchOptions");
 				this.history = new HistoryEntryFetchOptions();
 			}
 			return this.history;
@@ -42,6 +43,7 @@ define([ "stjs", "dto/fetchoptions/material/MaterialTypeFetchOptions", "dto/fetc
 		};
 		prototype.withRegistrator = function() {
 			if (this.registrator == null) {
+				var PersonFetchOptions = require("dto/fetchoptions/person/PersonFetchOptions");
 				this.registrator = new PersonFetchOptions();
 			}
 			return this.registrator;
@@ -54,6 +56,7 @@ define([ "stjs", "dto/fetchoptions/material/MaterialTypeFetchOptions", "dto/fetc
 		};
 		prototype.withProperties = function() {
 			if (this.properties == null) {
+				var PropertyFetchOptions = require("dto/fetchoptions/property/PropertyFetchOptions");
 				this.properties = new PropertyFetchOptions();
 			}
 			return this.properties;
@@ -78,6 +81,7 @@ define([ "stjs", "dto/fetchoptions/material/MaterialTypeFetchOptions", "dto/fetc
 		};
 		prototype.withTags = function() {
 			if (this.tags == null) {
+				var TagFetchOptions = require("dto/fetchoptions/tag/TagFetchOptions");
 				this.tags = new TagFetchOptions();
 			}
 			return this.tags;
