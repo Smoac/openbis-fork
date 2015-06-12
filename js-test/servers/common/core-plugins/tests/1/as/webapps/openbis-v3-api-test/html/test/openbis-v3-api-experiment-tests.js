@@ -62,10 +62,9 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-v3-api-test-common', '
 			experimentCreation.setAttachments([ attachmentCreation ]);
 			experimentCreation.setProperty("EXPERIMENT_DESIGN", "SEQUENCE_ENRICHMENT");
 
-			$.when(c.createFacadeAndLogin(), c.createExperimentFetchOptions()).then(function(facade, fetchOptions) {
+			$.when(c.createFacadeAndLogin(), c.createExperimentIdentifier("/TEST/TEST-PROJECT/" + code), c.createExperimentFetchOptions()).then(function(facade, identifier, fetchOptions) {
 				return facade.createExperiments([ experimentCreation ]).then(function(permIds) {
 					return facade.mapExperiments(permIds, fetchOptions).done(function() {
-						var identifier = c.createExperimentIdentifier("/TEST/TEST-PROJECT/" + code);
 						var options = new ExperimentDeletionOptions();
 						options.setReason("test");
 						facade.deleteExperiments([ identifier ], options).then(function(deletionId) {

@@ -1,4 +1,4 @@
-define([ 'jquery', 'openbis', 'dto/id/experiment/ExperimentIdentifier' ], function($, openbis, ExperimentIdentifier) {
+define([ 'jquery', 'openbis' ], function($, openbis) {
 	/*
 	 * These tests should be run against openBIS instance with screening sprint
 	 * server database version
@@ -16,124 +16,162 @@ define([ 'jquery', 'openbis', 'dto/id/experiment/ExperimentIdentifier' ], functi
 	var Common = function() {
 	}
 
-	var createFacade = function(action) {
-		stop();
+	$.extend(Common.prototype, {
 
-		var facade = new openbis(testApiUrl);
+		createFacade : function(action) {
+			stop();
 
-		action(facade);
-	}
-	Common.prototype.createFacade = createFacade;
+			var facade = new openbis(testApiUrl);
 
-	var createFacadeAndLogin = function() {
-		var dfd = $.Deferred();
+			action(facade);
+		},
 
-		createFacade(function(facade) {
-			facade.login(testUserId, testUserPassword).done(function() {
-				dfd.resolve(facade);
-				start();
-			}).fail(function() {
-				dfd.reject(arguments);
-				start();
+		createFacadeAndLogin : function() {
+			var dfd = $.Deferred();
+
+			this.createFacade(function(facade) {
+				facade.login(testUserId, testUserPassword).done(function() {
+					dfd.resolve(facade);
+					start();
+				}).fail(function() {
+					dfd.reject(arguments);
+					start();
+				});
 			});
-		});
 
-		return dfd.promise();
-	}
-	Common.prototype.createFacadeAndLogin = createFacadeAndLogin;
+			return dfd.promise();
+		},
 
-	var createExperimentPermId = function(permId) {
-		var dfd = $.Deferred();
+		createSpacePermId : function(permId) {
+			var dfd = $.Deferred();
 
-		require([ 'dto/id/experiment/ExperimentPermId' ], function(ExperimentPermId) {
-			var id = new ExperimentPermId(permId);
-			dfd.resolve(id);
-		});
+			require([ 'dto/id/space/SpacePermId' ], function(SpacePermId) {
+				var id = new SpacePermId(permId);
+				dfd.resolve(id);
+			});
 
-		return dfd.promise();
-	}
-	Common.prototype.createExperimentPermId = createExperimentPermId;
+			return dfd.promise();
+		},
 
-	var createExperimentIdentifier = function(identifier) {
-		return new ExperimentIdentifier(identifier);
-	}
-	Common.prototype.createExperimentIdentifier = createExperimentIdentifier;
+		createExperimentPermId : function(permId) {
+			var dfd = $.Deferred();
 
-	var createSamplePermId = function(permId) {
-		var dfd = $.Deferred();
+			require([ 'dto/id/experiment/ExperimentPermId' ], function(ExperimentPermId) {
+				var id = new ExperimentPermId(permId);
+				dfd.resolve(id);
+			});
 
-		require([ 'dto/id/sample/SamplePermId' ], function(SamplePermId) {
-			var id = new SamplePermId(permId);
-			dfd.resolve(id);
-		});
+			return dfd.promise();
+		},
 
-		return dfd.promise();
-	}
-	Common.prototype.createSamplePermId = createSamplePermId;
+		createExperimentIdentifier : function(identifier) {
+			var dfd = $.Deferred();
 
-	var createExperimentSearchCriterion = function() {
-		var dfd = $.Deferred();
+			require([ 'dto/id/experiment/ExperimentIdentifier' ], function(ExperimentIdentifier) {
+				var id = new ExperimentIdentifier(identifier);
+				dfd.resolve(id);
+			});
 
-		require([ 'dto/search/ExperimentSearchCriterion' ], function(ExperimentSearchCriterion) {
-			var criterion = new ExperimentSearchCriterion();
-			dfd.resolve(criterion);
-		});
+			return dfd.promise();
+		},
 
-		return dfd.promise();
-	}
-	Common.prototype.createExperimentSearchCriterion = createExperimentSearchCriterion;
+		createSamplePermId : function(permId) {
+			var dfd = $.Deferred();
 
-	var createExperimentFetchOptions = function() {
-		var dfd = $.Deferred();
+			require([ 'dto/id/sample/SamplePermId' ], function(SamplePermId) {
+				var id = new SamplePermId(permId);
+				dfd.resolve(id);
+			});
 
-		require([ 'dto/fetchoptions/experiment/ExperimentFetchOptions' ], function(efo) {
-			var fo = new efo;
-			fo.withType();
-			fo.withProject().withSpace();
-			fo.withProperties();
-			fo.withTags();
-			fo.withRegistrator();
-			fo.withModifier();
-			fo.withAttachments().withContent();
+			return dfd.promise();
+		},
 
-			dfd.resolve(fo);
-		});
+		createSpaceSearchCriterion : function() {
+			var dfd = $.Deferred();
 
-		return dfd.promise();
-	}
-	Common.prototype.createExperimentFetchOptions = createExperimentFetchOptions;
+			require([ 'dto/search/SpaceSearchCriterion' ], function(SpaceSearchCriterion) {
+				var criterion = new SpaceSearchCriterion();
+				dfd.resolve(criterion);
+			});
 
-	var createSampleSearchCriterion = function() {
-		var dfd = $.Deferred();
+			return dfd.promise();
+		},
 
-		require([ 'dto/search/SampleSearchCriterion' ], function(SampleSearchCriterion) {
-			var criterion = new SampleSearchCriterion();
-			dfd.resolve(criterion);
-		});
+		createSpaceFetchOptions : function() {
+			var dfd = $.Deferred();
 
-		return dfd.promise();
-	}
-	Common.prototype.createSampleSearchCriterion = createSampleSearchCriterion;
+			require([ 'dto/fetchoptions/space/SpaceFetchOptions' ], function(sfo) {
+				var fo = new sfo;
+				fo.withProjects();
+				fo.withSamples();
+				fo.withRegistrator();
 
-	var createSampleFetchOptions = function() {
-		var dfd = $.Deferred();
+				dfd.resolve(fo);
+			});
 
-		require([ 'dto/fetchoptions/sample/SampleFetchOptions' ], function(sfo) {
-			var fo = new sfo;
-			fo.withType();
-			fo.withExperiment().withProject().withSpace();
-			fo.withSpace();
-			fo.withProperties();
-			fo.withTags();
-			fo.withRegistrator();
-			fo.withModifier();
-			fo.withAttachments();
-			fo.withChildrenUsing(fo);
-			dfd.resolve(fo);
-		});
-		return dfd.promise();
-	}
-	Common.prototype.createSampleFetchOptions = createSampleFetchOptions;
+			return dfd.promise();
+		},
+
+		createExperimentSearchCriterion : function() {
+			var dfd = $.Deferred();
+
+			require([ 'dto/search/ExperimentSearchCriterion' ], function(ExperimentSearchCriterion) {
+				var criterion = new ExperimentSearchCriterion();
+				dfd.resolve(criterion);
+			});
+
+			return dfd.promise();
+		},
+
+		createExperimentFetchOptions : function() {
+			var dfd = $.Deferred();
+
+			require([ 'dto/fetchoptions/experiment/ExperimentFetchOptions' ], function(efo) {
+				var fo = new efo;
+				fo.withType();
+				fo.withProject().withSpace();
+				fo.withProperties();
+				fo.withTags();
+				fo.withRegistrator();
+				fo.withModifier();
+				fo.withAttachments().withContent();
+
+				dfd.resolve(fo);
+			});
+
+			return dfd.promise();
+		},
+
+		createSampleSearchCriterion : function() {
+			var dfd = $.Deferred();
+
+			require([ 'dto/search/SampleSearchCriterion' ], function(SampleSearchCriterion) {
+				var criterion = new SampleSearchCriterion();
+				dfd.resolve(criterion);
+			});
+
+			return dfd.promise();
+		},
+
+		createSampleFetchOptions : function() {
+			var dfd = $.Deferred();
+
+			require([ 'dto/fetchoptions/sample/SampleFetchOptions' ], function(sfo) {
+				var fo = new sfo;
+				fo.withType();
+				fo.withExperiment().withProject().withSpace();
+				fo.withSpace();
+				fo.withProperties();
+				fo.withTags();
+				fo.withRegistrator();
+				fo.withModifier();
+				fo.withAttachments();
+				fo.withChildrenUsing(fo);
+				dfd.resolve(fo);
+			});
+			return dfd.promise();
+		}
+	});
 
 	return new Common();
 })
