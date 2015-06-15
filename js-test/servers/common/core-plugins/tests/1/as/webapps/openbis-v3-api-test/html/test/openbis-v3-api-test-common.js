@@ -18,6 +18,24 @@ define([ 'jquery', 'openbis' ], function($, openbis) {
 
 	$.extend(Common.prototype, {
 
+		createObject : function() {
+			var dfd = $.Deferred();
+			var objectPath = arguments[0];
+			var objectParameters = [];
+
+			for (var i = 1; i < arguments.length; i++) {
+				objectParameters.push(arguments[i]);
+			}
+
+			require([ objectPath ], function(objectClass) {
+				objectParameters.unshift(objectClass);
+				var object = new (objectClass.bind.apply(objectClass, objectParameters))();
+				dfd.resolve(object);
+			});
+
+			return dfd.promise();
+		},
+
 		createFacade : function(action) {
 			stop();
 
@@ -43,91 +61,71 @@ define([ 'jquery', 'openbis' ], function($, openbis) {
 		},
 
 		createSpacePermId : function(permId) {
-			var dfd = $.Deferred();
+			return this.createObject('dto/id/space/SpacePermId', permId);
+		},
 
-			require([ 'dto/id/space/SpacePermId' ], function(SpacePermId) {
-				var id = new SpacePermId(permId);
-				dfd.resolve(id);
-			});
+		createProjectPermId : function(permId) {
+			return this.createObject('dto/id/project/ProjectPermId', permId);
+		},
 
-			return dfd.promise();
+		createProjectIdentifier : function(identifier) {
+			return this.createObject('dto/id/project/ProjectIdentifier', identifier);
 		},
 
 		createExperimentPermId : function(permId) {
-			var dfd = $.Deferred();
-
-			require([ 'dto/id/experiment/ExperimentPermId' ], function(ExperimentPermId) {
-				var id = new ExperimentPermId(permId);
-				dfd.resolve(id);
-			});
-
-			return dfd.promise();
+			return this.createObject('dto/id/experiment/ExperimentPermId', permId);
 		},
 
 		createExperimentIdentifier : function(identifier) {
-			var dfd = $.Deferred();
-
-			require([ 'dto/id/experiment/ExperimentIdentifier' ], function(ExperimentIdentifier) {
-				var id = new ExperimentIdentifier(identifier);
-				dfd.resolve(id);
-			});
-
-			return dfd.promise();
+			return this.createObject('dto/id/experiment/ExperimentIdentifier', identifier);
 		},
 
 		createSamplePermId : function(permId) {
-			var dfd = $.Deferred();
-
-			require([ 'dto/id/sample/SamplePermId' ], function(SamplePermId) {
-				var id = new SamplePermId(permId);
-				dfd.resolve(id);
-			});
-
-			return dfd.promise();
+			return this.createObject('dto/id/sample/SamplePermId', permId);
 		},
 
 		createSpaceSearchCriterion : function() {
-			var dfd = $.Deferred();
-
-			require([ 'dto/search/SpaceSearchCriterion' ], function(SpaceSearchCriterion) {
-				var criterion = new SpaceSearchCriterion();
-				dfd.resolve(criterion);
-			});
-
-			return dfd.promise();
+			return this.createObject('dto/search/SpaceSearchCriterion');
 		},
 
-		createSpaceFetchOptions : function() {
-			var dfd = $.Deferred();
-
-			require([ 'dto/fetchoptions/space/SpaceFetchOptions' ], function(sfo) {
-				var fo = new sfo;
-				fo.withProjects();
-				fo.withSamples();
-				fo.withRegistrator();
-
-				dfd.resolve(fo);
-			});
-
-			return dfd.promise();
+		createProjectSearchCriterion : function() {
+			return this.createObject('dto/search/ProjectSearchCriterion');
 		},
 
 		createExperimentSearchCriterion : function() {
-			var dfd = $.Deferred();
+			return this.createObject('dto/search/ExperimentSearchCriterion');
+		},
 
-			require([ 'dto/search/ExperimentSearchCriterion' ], function(ExperimentSearchCriterion) {
-				var criterion = new ExperimentSearchCriterion();
-				dfd.resolve(criterion);
+		createSampleSearchCriterion : function() {
+			return this.createObject('dto/search/SampleSearchCriterion');
+		},
+
+		createSpaceFetchOptions : function() {
+			var promise = this.createObject('dto/fetchoptions/space/SpaceFetchOptions');
+			promise.done(function(fo) {
+				fo.withProjects();
+				fo.withSamples();
+				fo.withRegistrator();
 			});
+			return promise;
+		},
 
-			return dfd.promise();
+		createProjectFetchOptions : function() {
+			var promise = this.createObject('dto/fetchoptions/project/ProjectFetchOptions');
+			promise.done(function(fo) {
+				fo.withSpace();
+				fo.withExperiments();
+				fo.withRegistrator();
+				fo.withModifier();
+				fo.withLeader();
+				fo.withAttachments();
+			});
+			return promise;
 		},
 
 		createExperimentFetchOptions : function() {
-			var dfd = $.Deferred();
-
-			require([ 'dto/fetchoptions/experiment/ExperimentFetchOptions' ], function(efo) {
-				var fo = new efo;
+			var promise = this.createObject('dto/fetchoptions/experiment/ExperimentFetchOptions');
+			promise.done(function(fo) {
 				fo.withType();
 				fo.withProject().withSpace();
 				fo.withProperties();
@@ -135,29 +133,13 @@ define([ 'jquery', 'openbis' ], function($, openbis) {
 				fo.withRegistrator();
 				fo.withModifier();
 				fo.withAttachments().withContent();
-
-				dfd.resolve(fo);
-			});
-
-			return dfd.promise();
-		},
-
-		createSampleSearchCriterion : function() {
-			var dfd = $.Deferred();
-
-			require([ 'dto/search/SampleSearchCriterion' ], function(SampleSearchCriterion) {
-				var criterion = new SampleSearchCriterion();
-				dfd.resolve(criterion);
-			});
-
-			return dfd.promise();
+			})
+			return promise;
 		},
 
 		createSampleFetchOptions : function() {
-			var dfd = $.Deferred();
-
-			require([ 'dto/fetchoptions/sample/SampleFetchOptions' ], function(sfo) {
-				var fo = new sfo;
+			var promise = this.createObject('dto/fetchoptions/sample/SampleFetchOptions');
+			promise.done(function(fo) {
 				fo.withType();
 				fo.withExperiment().withProject().withSpace();
 				fo.withSpace();
@@ -167,9 +149,8 @@ define([ 'jquery', 'openbis' ], function($, openbis) {
 				fo.withModifier();
 				fo.withAttachments();
 				fo.withChildrenUsing(fo);
-				dfd.resolve(fo);
 			});
-			return dfd.promise();
+			return promise;
 		}
 	});
 
