@@ -103,8 +103,8 @@ public class TarBasedPathInfoProviderTest extends AbstractFileSystemTestCase
         
         assertPathInfo("data/sub/hello.txt[hello.txt, 10, 3d4448e7]", children.get(0));
         assertPathInfo("data/sub/some.txt[some.txt, 38, 2f7b8cfb]", children.get(1));
-        assertEquals("INFO: Reading statistics for input stream: 59 bytes bytes in 7 chunks took < 1sec.\n"
-                + "INFO: Writing statistics for output stream: 59 bytes bytes in 7 chunks took < 1sec.\n",
+        assertEquals("INFO: Reading statistics for input stream: 59 bytes in 7 chunks took < 1sec.\n"
+                + "INFO: Writing statistics for output stream: 59 bytes in 7 chunks took < 1sec.\n",
                 logger.toString());
         assertEquals(2, children.size());
     }

@@ -175,7 +175,7 @@ public class MonitoredIOStreamCopier
                 averageSpeedInfo = " Average speed: " + FileUtilities.byteCountToDisplaySize(averageBytesPerSecond) 
                         + "/sec.";
             }
-            return FileUtilities.byteCountToDisplaySize(totalNumberOfBytes) + " bytes in " + data.size() 
+            return FileUtilities.byteCountToDisplaySize(totalNumberOfBytes) + " in " + data.size() 
                     + " chunks took " + DateTimeUtils.renderDuration(totalTime) + "." 
                     + averageSpeedInfo + medianSpeedInfo;
         }
