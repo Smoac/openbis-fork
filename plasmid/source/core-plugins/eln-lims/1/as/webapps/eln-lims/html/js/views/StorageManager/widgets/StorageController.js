@@ -137,9 +137,16 @@ function StorageController(configOverride) {
 	}
 	
 	this.setBoxSizeSelected = function(boxSize, isNew) {
+		var _this = this;
 		this._storageModel.boxSize = boxSize;
 		if(isNew) {
-			this._storageView.showPosField(boxSize, isNew);
+			this._isUserTypingExistingBox(function(error) {
+				if(error !== null) {
+					Util.showError(error, function() {}, true);
+				} else {
+					_this._storageView.showPosField(boxSize, isNew);
+				}
+			});
 		}
 	}
 	
