@@ -24,7 +24,8 @@
 	<link type="text/css" rel="stylesheet" href="./css/style.css" />
 	<script type="text/javascript" src="./js/search.js"></script>
 
-	<script type="text/javascript">	
+	<script type="text/javascript">
+
 		/**
 		* 
 		* Natural Sort algorithm for Javascript - Version 0.7 - Released under MIT license
@@ -82,8 +83,7 @@
 		return 0;
 		};
 	
-	
-	
+
 		//
 		// Global variables
 		//
@@ -128,7 +128,6 @@
 			//Avoid login if we got already a cookie
 			// openbis.ifRestoredSessionActive(function(data) { enterApp(data) });
 		});
-
 		function enterApp(data){
 			if(data.result === null) {
 				//Login not correct
@@ -160,7 +159,7 @@
 						$("#menuOptions").append($("<a>", {'href' : "javascript:showIFrame('unclusteredGeneList.htm')" , 'class' : 'btn', 'style' : 'margin-bottom:20px', }).text("Unclustered genes"));
 
 						//Genes Link
-						$("#menuOptions").append($("<a>", {'href' : "javascript:showIFrame('genefamilies.htm')" , 'class' : 'btn', }).text("Gene Families"));
+						$("#menuOptions").append($("<a>", {'href' : "javascript:showIFrame('GeneNames_FamilyNames_corrected_100615.htm')" , 'class' : 'btn', }).text("Gene Families"));
 						
 						
 					}
@@ -255,23 +254,26 @@
 				$experimentLevel
 					.append($samplesMenu);
 
-
-				clusters.sort(function(clusterA, clusterB) {
-					return naturalSort(clusterA.properties['NAME'], clusterB.properties['NAME']);
-				});
+				// clusters.sort(function(clusterA, clusterB) {
+				// 	return naturalSort(clusterA.properties['NAME'], clusterB.properties['NAME']);
+				// });					
 
 				for (var i = 0; i < clusters.length; i++) {
 					
 					var explandFolderClass = "";
 					if(filterText) {
-						explandFolderClass = "expanded";
+						explandFolderClass = " expanded";
 					}
 
-					
-					var $sampleLevel = $("<li>", {'class' : 'folder' + explandFolderClass})
-											.append("<a href='javascript:showSamples(\""+clusters[i].identifier+"\")'>" + clusters[i].properties['NAME']  + "</a>");
 
-		
+//ORIGINAL CODE
+					var $sampleLevel = $("<li>", {'class' : 'folder' + explandFolderClass})
+											.append("<a href='javascript:showSamples(\""+clusters[i].identifier+"\")'>" + "Cluster " + clusters[i].code.substring(clusters[i].code.indexOf("CLUSTER")+7) + "</a>");
+					
+console.log(clusters[i].identifier, clusters[i].code.substring(clusters[i].code.indexOf("CLUSTER")))
+			//	var $sampleLevel = $("<li>", {'class' : 'folder' + explandFolderClass})
+			//								.append("<a href='javascript:showSamples(\""+clusters[i].identifier+"\")'>" + clusters[i].properties['NAME']  + "</a>");					
+					
 					
 					var $containedSamplesMenu = $("<ul>");
 						$sampleLevel
@@ -354,9 +356,13 @@
 			//Obtain PDF URL
 			getDataSetFilesFor(null, "CLUSTER_PNG", allDataStores[0].downloadUrl,
 				function(files) {
-					var pdfFileUrl = files[0];
+					var imagePath = files[0];
 					$("#main").append("<h1 center>Gene Clusters</h1>");
-					$("#main").append("<iframe src='" + pdfFileUrl + "' style='width:100%; margin-top:20px; height:" + $(window).height() + "px; '  frameborder='0'></iframe>");
+					var $image = $("<image src='" + imagePath + "' style='width:100%; margin-top:20px; cursor:pointer;' />");
+					$image.click(function() {
+    					window.open(imagePath,'_blank','',''); 	
+					});
+					$("#main").append($image);
 					$.unblockUI();
 				}
 			);
@@ -411,7 +417,7 @@
 
 												for(var i=0; i<data.length; i++){
 													var sample = data[i];
-													if(sample.experimentIdentifierOrNull.indexOf("/SIRNA_TIMELAPSES_10X/") === -1) {
+													if(sample.experimentIdentifierOrNull.indexOf("/METADATA_TIMELAPSES_10X/") === -1) {
 														continue;
 													}
 
@@ -448,9 +454,9 @@
 						
 						component += "<div style='margin-top:40px; margin-right:20px;'>";
 						if(pdfFileUrl.indexOf("rnaProfile.png") !== -1) {
-							component += "<h2>RNA Profile:</h2>";
+							component += "<h2>siRNA MDS:</h2>";
 						} else if(pdfFileUrl.indexOf("geneProfile.png") !== -1) {
-							component += "<h2>Gene Profile:</h2>";
+							component += "<h2>Gene MDS:</h2>";
 						}
 						component += "<iframe src='" + pdfFileUrl + "' style='width:100%; height:" + $(window).height()/2 + "px'  scrolling='no' frameborder='0'></iframe>";
 						component += "</div>";	
@@ -598,7 +604,7 @@
                     'font-size' : '50px'
         };
         
-        $.blockUI({ message: '<img class="half" src="./css/busy.gif" /> Please wait...' , css: css });
+        $.blockUI({ message: '<img  src="./css/busy.gif" style="width: 20%; height:20%;" /> Please wait...' , css: css });
  
     }
 
