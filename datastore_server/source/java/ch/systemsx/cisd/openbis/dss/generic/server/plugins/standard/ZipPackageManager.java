@@ -139,7 +139,7 @@ public class ZipPackageManager extends AbstractPackageManager
     }
 
     @Override
-    public IHierarchicalContent asHierarchialContent(File packageFile)
+    public IHierarchicalContent asHierarchialContent(File packageFile, boolean onlyMetaData)
     {
         return new ZipBasedHierarchicalContent(packageFile);
     }

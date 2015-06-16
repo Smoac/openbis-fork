@@ -89,6 +89,8 @@ public class MultiDataSetFileOperationsManager extends AbstractDataSetFileOperat
     
     public static final String MINIMUM_FREE_SPACE_IN_MB_KEY = "minimum-free-space-in-MB";
     
+    public static final String HDF5_FILES_IN_DATA_SET = "hdf5-files-in-data-set";
+    
     private static final long DEFAULT_WAITING_FOR_FREE_SPACE_POLLING_TIME = DateUtils.MILLIS_PER_MINUTE;
     
     private static final long DEFAULT_WAITING_FOR_FREE_SPACE_TIME_OUT = 4 * DateUtils.MILLIS_PER_HOUR;
@@ -121,6 +123,8 @@ public class MultiDataSetFileOperationsManager extends AbstractDataSetFileOperat
 
     private long minimumFreeSpace;
 
+    private boolean hdf5FilesInDataSet;
+
     // TODO: some features existing in rsync archiver:
     // - ignore existing
 
@@ -133,6 +137,7 @@ public class MultiDataSetFileOperationsManager extends AbstractDataSetFileOperat
         this.packageManager = new MultiDataSetPackageManager(properties, new Log4jSimpleLogger(operationLog));
 
         this.withSharding = PropertyUtils.getBoolean(properties, WITH_SHARDING_KEY, false);
+        hdf5FilesInDataSet = PropertyUtils.getBoolean(properties, HDF5_FILES_IN_DATA_SET, true);
 
         long timeoutInSeconds =
                 PropertyUtils.getLong(properties, TIMEOUT_KEY, DEFAULT_TIMEOUT_SECONDS);
@@ -491,8 +496,9 @@ public class MultiDataSetFileOperationsManager extends AbstractDataSetFileOperat
         String destinationRoot = archiveDestination.getDestination();
         File containerInDestination = new File(destinationRoot, containerPath);
 
-        return new FilteredHierarchicalContent(packageManager.asHierarchialContent(containerInDestination), METADATA_IN_CONTAINER_FILTER);
-
+        IHierarchicalContent containerMetaData 
+                = packageManager.asHierarchialContent(containerInDestination, hdf5FilesInDataSet == false);
+        return new FilteredHierarchicalContent(containerMetaData, METADATA_IN_CONTAINER_FILTER);
     }
 
     private boolean createFolderIfNotExists(ArchiveDestination archiveDestination, File destinationFolder)

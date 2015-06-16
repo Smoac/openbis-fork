@@ -25,6 +25,7 @@ import java.util.Properties;
 import org.apache.commons.io.FileUtils;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.common.action.IDelegatedAction;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.tar.Untar;
@@ -35,6 +36,8 @@ import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchical
 import ch.systemsx.cisd.openbis.dss.archiveverifier.batch.VerificationError;
 import ch.systemsx.cisd.openbis.dss.generic.server.AbstractDataSetPackager;
 import ch.systemsx.cisd.openbis.dss.generic.server.TarDataSetPackager;
+import ch.systemsx.cisd.openbis.dss.generic.shared.ISingleDataSetPathInfoProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.content.PathInfoProviderBasedHierarchicalContent;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DataSetExistenceChecker;
 
 /**
@@ -112,8 +115,20 @@ public class TarPackageManager extends AbstractPackageManager
     }
 
     @Override
-    public IHierarchicalContent asHierarchialContent(File packageFile)
+    public IHierarchicalContent asHierarchialContent(File packageFile, boolean onlyMetaData)
     {
+        if (onlyMetaData)
+        {
+            final ISingleDataSetPathInfoProvider pathInfoProvider 
+                    = new TarBasedPathInfoProvider(packageFile, bufferSize, ioSpeedLogger);
+            return new PathInfoProviderBasedHierarchicalContent(pathInfoProvider, null, new IDelegatedAction()
+                {
+                    @Override
+                    public void execute()
+                    {
+                    }
+                });
+        }
         return new TarBasedHierarchicalContent(packageFile, tempFolder, bufferSize, ioSpeedLogger);
     }
 
