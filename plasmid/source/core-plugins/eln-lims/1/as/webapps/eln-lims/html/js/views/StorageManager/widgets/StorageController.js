@@ -359,7 +359,12 @@ function StorageController(configOverride) {
 			var propertyValues = ["'" + this._storageModel.boxName + "'"];
 			mainController.serverFacade.searchWithProperties(propertyTypeCodes, propertyValues, function(samples) {
 				if(samples.length > 0) { //Box already exists with same name
-					callback("You typed by hand an already exiting box '" + _this._storageModel.boxName + "', please click on it to auto fill correct size and available positions or choose other box name.");
+					if(samples[0].properties[_this._storageModel.storagePropertyGroup.nameProperty] === _this._storageModel.storageCode) {
+						callback("You entered the name of an already existing box. Please click on the box itself to view the available positions, or select another box name.");
+					} else {
+						callback("You entered the name of a box already existing in another storage location. Please choose a different name.");
+					}
+					
 				} else {
 					callback(null);
 				}
