@@ -203,7 +203,7 @@ public class JettyWebAppPluginInjector
     private List<File> findInjectionTargets()
     {
         List<File> list = new ArrayList<File>();
-        String jettyHome = System.getProperty("jetty.home");
+        String jettyHome = System.getProperty("jetty.base");
         if (jettyHome != null)
         {
             list.add(new File(jettyHome + "/webapps/openbis/"));

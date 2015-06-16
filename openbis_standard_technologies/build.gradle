@@ -199,6 +199,7 @@ war {
         from "${compileGwt.buildDir}/WEB-INF",
         project(':openbis').file('resource/server/bis-common.xml'),
         file('resource/server/spring-servlet.xml'),
+        file('resource/server/jetty-web.xml'),
         project(':common').file('resource/server/web-common.xml')
     }
     
