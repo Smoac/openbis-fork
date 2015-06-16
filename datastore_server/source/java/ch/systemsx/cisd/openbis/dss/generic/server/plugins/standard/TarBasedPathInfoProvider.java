@@ -22,6 +22,7 @@ import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -67,7 +68,7 @@ class TarBasedPathInfoProvider implements ISingleDataSetPathInfoProvider
     @Override
     public DataSetPathInfo getRootPathInfo()
     {
-        return tryGetPathInfoByRelativePath("");
+        return tryGetPathInfoByRelativePath(Collections.min(getPathInfoChildren().keySet()));
     }
 
     @Override
@@ -79,7 +80,7 @@ class TarBasedPathInfoProvider implements ISingleDataSetPathInfoProvider
     @Override
     public List<DataSetPathInfo> listChildrenPathInfos(DataSetPathInfo parent)
     {
-        return pathInfoChildren.get(parent.getRelativePath());
+        return getPathInfoChildren().get(parent.getRelativePath());
     }
 
     @Override
@@ -87,7 +88,7 @@ class TarBasedPathInfoProvider implements ISingleDataSetPathInfoProvider
     {
         List<DataSetPathInfo> result = new ArrayList<DataSetPathInfo>();
         Pattern pattern = Pattern.compile(relativePathPattern);
-        for (DataSetPathInfo pathInfo : pathInfos.values())
+        for (DataSetPathInfo pathInfo : getPathInfos().values())
         {
             if (pattern.matcher(pathInfo.getRelativePath()).matches())
             {
@@ -102,7 +103,7 @@ class TarBasedPathInfoProvider implements ISingleDataSetPathInfoProvider
     {
         List<DataSetPathInfo> result = new ArrayList<DataSetPathInfo>();
         Pattern pattern = Pattern.compile(fileNamePattern);
-        for (DataSetPathInfo pathInfo : pathInfos.values())
+        for (DataSetPathInfo pathInfo : getPathInfos().values())
         {
             if (pathInfo.getRelativePath().startsWith(startingPath) 
                     && pattern.matcher(pathInfo.getFileName()).matches())
@@ -113,6 +114,12 @@ class TarBasedPathInfoProvider implements ISingleDataSetPathInfoProvider
         return result;
     }
     
+    private Map<String, List<DataSetPathInfo>> getPathInfoChildren()
+    {
+        getPathInfos(); // lazy creation of pathInfoChildren
+        return pathInfoChildren;
+    }
+
 
     private Map<String, DataSetPathInfo> getPathInfos()
     {
@@ -154,15 +161,18 @@ class TarBasedPathInfoProvider implements ISingleDataSetPathInfoProvider
         {
             String relativePath = pathInfo.getRelativePath();
             String parentRelativePath = FileUtilities.getParentRelativePath(relativePath);
-            DataSetPathInfo parentPathInfo = pathInfos.get(parentRelativePath);
-            pathInfo.setParent(parentPathInfo);
-            List<DataSetPathInfo> children = pathInfoChildren.get(parentRelativePath);
-            if (children == null)
+            if (StringUtils.isNotBlank(parentRelativePath))
             {
-                children = new ArrayList<DataSetPathInfo>();
-                pathInfoChildren.put(parentRelativePath, children);
+                DataSetPathInfo parentPathInfo = pathInfos.get(parentRelativePath);
+                pathInfo.setParent(parentPathInfo);
+                List<DataSetPathInfo> children = pathInfoChildren.get(parentRelativePath);
+                if (children == null)
+                {
+                    children = new ArrayList<DataSetPathInfo>();
+                    pathInfoChildren.put(parentRelativePath, children);
+                }
+                children.add(pathInfo);
             }
-            children.add(pathInfo);
         }
     }
     
