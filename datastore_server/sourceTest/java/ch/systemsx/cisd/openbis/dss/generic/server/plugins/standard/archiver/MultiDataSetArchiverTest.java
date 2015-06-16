@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver;
 import static ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.MultiDataSetArchiver.MAXIMUM_CONTAINER_SIZE_IN_BYTES;
 import static ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.MultiDataSetArchiver.MINIMUM_CONTAINER_SIZE_IN_BYTES;
 import static ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.MultiDataSetFileOperationsManager.FINAL_DESTINATION_KEY;
+import static ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.MultiDataSetFileOperationsManager.HDF5_FILES_IN_DATA_SET;
 import static ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.MultiDataSetFileOperationsManager.REPLICATED_DESTINATION_KEY;
 import static ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.MultiDataSetFileOperationsManager.STAGING_DESTINATION_KEY;
 import static ch.systemsx.cisd.openbis.dss.generic.shared.utils.ShareFactory.SHARE_PROPS_FILE;
@@ -526,6 +527,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
         properties = new Properties();
         properties.setProperty(STAGING_DESTINATION_KEY, staging.getAbsolutePath());
         properties.setProperty(FINAL_DESTINATION_KEY, archive.getAbsolutePath());
+        properties.setProperty(HDF5_FILES_IN_DATA_SET, "true");
         directoryProvider = new MockDataSetDirectoryProvider(store, share.getName(), shareIdManager);
         archiverContext = new ArchiverTaskContext(directoryProvider, hierarchicalContentProvider);
         experiment = new ExperimentBuilder().identifier(EXPERIMENT_IDENTIFIER).type("MET").getExperiment();
@@ -762,7 +764,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
     }
 
     @Test
-    public void testArchiveTwoDataSetsWithoutStaging()
+    public void testArchiveTwoDataSetsWithoutStagingWithFastSanityCheck()
     {
         prepareUpdateShareIdAndSize(ds1, 10);
         prepareLockAndReleaseDataSet(ds1);
@@ -771,6 +773,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
         RecordingMatcher<HostAwareFile> freeSpaceRecorder = prepareFixedFreeSpace(20 * FileUtils.ONE_GB);
         properties.remove(STAGING_DESTINATION_KEY);
         properties.setProperty(MINIMUM_CONTAINER_SIZE_IN_BYTES, "15");
+        properties.setProperty(HDF5_FILES_IN_DATA_SET, "false");
 
         MultiDataSetArchiver archiver = createArchiver(null);
         ProcessingStatus status = archiver.archive(Arrays.asList(ds1, ds2), archiverContext, false);
