@@ -63,7 +63,7 @@ task copyResources(type: Copy, dependsOn: [compileJava, ':openbis_standard_techn
     def beeRelease = beeReleaseTar.name.replace(".tar.gz","")
     print "bee version: " + beeRelease + "\n"
     from (tarTree(resources.gzip(beeReleaseTar))) {
-        into "beewm"
+        into "beewm/" + beeRelease
         exclude '**/etc/*_skeleton'
     }
     from (tarTree(resources.gzip(fileTree(dir: 'resource/beewm', include: 'beewm-democonfig.tar.gz').getSingleFile()))) {
