@@ -22,10 +22,10 @@ import java.io.InputStreamReader;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.io.PrintStream;
-import java.util.Map;
 
-import org.mortbay.jetty.Server;
-import org.mortbay.jetty.webapp.WebAppContext;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.handler.AllowSymLinkAliasChecker;
+import org.eclipse.jetty.webapp.WebAppContext;
 
 /**
  * @author anttil
@@ -64,9 +64,7 @@ public class TestApplicationServer
                     	context.setWar(war.getAbsolutePath());
                     	context.setExtractWAR(true);
                     	context.setTempDirectory(new File(System.getProperty("jetty.home")+"/webapps"));
-						Map initParams = context.getInitParams();
-                    	initParams.put("org.mortbay.jetty.servlet.Default.aliases", "true");
-                    	context.setInitParams(initParams);
+                        context.addAliasCheck(new AllowSymLinkAliasChecker());
                     } else {
 	                    context.setDescriptor(getWebXmlPath());
 	                    context.setResourceBase(getRootPath());

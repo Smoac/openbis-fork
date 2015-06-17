@@ -31,8 +31,7 @@ configurations.create('externalDss')
 
 dependencies {
 	testCompile project(':datastore_server'),
-			'selenium:selenium-java:+',
-			'mortbay:jetty:+'
+			'selenium:selenium-java:+'
 			
 	testRuntimeFirst 'javax:servlet-api:+', 'reflections:reflections:+'
 

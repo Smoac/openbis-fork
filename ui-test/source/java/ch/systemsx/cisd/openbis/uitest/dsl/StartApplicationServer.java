@@ -23,8 +23,9 @@ import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.io.PrintStream;
 
-import org.mortbay.jetty.Server;
-import org.mortbay.jetty.webapp.WebAppContext;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.handler.AllowSymLinkAliasChecker;
+import org.eclipse.jetty.webapp.WebAppContext;
 
 /**
  * @author anttil
@@ -47,8 +48,8 @@ public class StartApplicationServer
                                 "../openbis/targets/www", "-logLevel", "INFO" });
 
                     */
-                    Server server = new Server(10000);
-
+                	Server server = new Server(10000);
+                	
                     WebAppContext context = new WebAppContext();
                     
                     if (new File("targets/gradle/openbis-war/openbis.war").exists() == false) {
@@ -60,7 +61,8 @@ public class StartApplicationServer
                     
                     context.setContextPath("/");
                     context.setParentLoaderPriority(true);
-
+                    context.addAliasCheck(new AllowSymLinkAliasChecker());
+                    
                     server.setHandler(context);
                     try
                     {
