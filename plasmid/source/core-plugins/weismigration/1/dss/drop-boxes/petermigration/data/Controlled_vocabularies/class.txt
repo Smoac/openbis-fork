@@ -1,1 +1,0 @@
-code	labelIGM	IgMIGG1	IgG1IGG2	IgG2										
