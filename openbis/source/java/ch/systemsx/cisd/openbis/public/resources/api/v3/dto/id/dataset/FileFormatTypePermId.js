@@ -3,7 +3,7 @@
  *  
  *  @author pkupczyk
  */
-define(["stjs", "dto/id/ObjectIdentifier", "dto/id/dataset/IFileFormatTypeId"], function (stjs, ObjectPermId, IFileFormatTypeId) {
+define(["stjs", "dto/id/ObjectPermId", "dto/id/dataset/IFileFormatTypeId"], function (stjs, ObjectPermId, IFileFormatTypeId) {
     var FileFormatTypePermId = /**
      *  @param permId File format type perm id, e.g. "PROPRIETARY".
      */

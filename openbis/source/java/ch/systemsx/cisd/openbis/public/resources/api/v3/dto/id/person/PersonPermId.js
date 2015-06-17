@@ -3,7 +3,7 @@
  * 
  * @author pkupczyk
  */
-define([ "stjs", "dto/id/ObjectIdentifier", "dto/id/person/IPersonId" ], function(stjs, ObjectPermId, IPersonId) {
+define([ "stjs", "dto/id/ObjectPermId", "dto/id/person/IPersonId" ], function(stjs, ObjectPermId, IPersonId) {
 
 	/**
 	 * @param permId

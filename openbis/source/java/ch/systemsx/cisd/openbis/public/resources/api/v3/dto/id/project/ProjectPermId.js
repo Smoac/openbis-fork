@@ -3,7 +3,7 @@
  *  
  *  @author pkupczyk
  */
-define(["stjs", "dto/id/ObjectIdentifier", "dto/id/project/IProjectId"], function (stjs, ObjectPermId, IProjectId) {
+define(["stjs", "dto/id/ObjectPermId", "dto/id/project/IProjectId"], function (stjs, ObjectPermId, IProjectId) {
     var ProjectPermId = /**
      *  @param permId Project perm id, e.g. "201108050937246-1031".
      */
