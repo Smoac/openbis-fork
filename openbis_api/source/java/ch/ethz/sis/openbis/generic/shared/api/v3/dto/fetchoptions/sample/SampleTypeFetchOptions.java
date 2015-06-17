@@ -15,9 +15,9 @@
  */
 package ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sample;
 
-import ch.systemsx.cisd.base.annotation.JsonObject;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.Serializable;
+
+import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
  * Class automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
