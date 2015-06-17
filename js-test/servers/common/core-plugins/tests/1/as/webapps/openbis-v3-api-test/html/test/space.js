@@ -1,4 +1,4 @@
-define([ 'jquery', 'underscore', 'openbis', 'test/openbis-v3-api-test-common' ], function($, _, openbis, c) {
+define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, openbis, c) {
 	return function() {
 		QUnit.module("Space tests");
 
@@ -11,7 +11,17 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-v3-api-test-common' ],
 				assertObjectsCount(Object.keys(spaces), 1);
 
 				var space = spaces["TEST"];
-				equal(space.getCode(), "TEST", "Space code");
+				equal(space.getPermId(), "TEST", "PermId");
+				equal(space.getCode(), "TEST", "Code");
+				equal(space.getDescription(), null, "Description");
+				assertDate(space.getRegistrationDate(), "Registration date", 2013, 04, 12, 12, 59);
+				equal(space.getRegistrator().getUserId(), "admin", "Registrator userId");
+				assertObjectsWithCollections(space, function(object) {
+					return object.getSamples()
+				});
+				assertObjectsWithCollections(space, function(object) {
+					return object.getProjects()
+				});
 				start();
 			}).fail(function(error) {
 				ok(false, error.message);
@@ -31,7 +41,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-v3-api-test-common' ],
 				assertObjectsCount(spaces, 1);
 
 				var space = spaces[0];
-				equal(space.getCode(), "TEST", "Space code");
+				equal(space.getCode(), "TEST", "Code");
 				start();
 			}).fail(function(error) {
 				ok(false, error.message);

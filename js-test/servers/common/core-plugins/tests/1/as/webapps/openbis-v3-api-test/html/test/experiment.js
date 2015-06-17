@@ -1,6 +1,6 @@
-define([ 'jquery', 'underscore', 'openbis', 'test/openbis-v3-api-test-common', 'dto/entity/experiment/ExperimentCreation', 'dto/id/entitytype/EntityTypePermId', 'dto/id/project/ProjectIdentifier',
-		'dto/id/tag/TagCode', 'dto/entity/experiment/ExperimentUpdate', 'dto/entity/attachment/AttachmentCreation', 'dto/deletion/experiment/ExperimentDeletionOptions' ], function($, _, openbis, c,
-		ExperimentCreation, EntityTypePermId, ProjectIdentifier, TagCode, ExperimentUpdate, AttachmentCreation, ExperimentDeletionOptions) {
+define([ 'jquery', 'underscore', 'openbis', 'test/common', 'dto/entity/experiment/ExperimentCreation', 'dto/id/entitytype/EntityTypePermId', 'dto/id/project/ProjectIdentifier', 'dto/id/tag/TagCode',
+		'dto/entity/experiment/ExperimentUpdate', 'dto/entity/attachment/AttachmentCreation', 'dto/deletion/experiment/ExperimentDeletionOptions' ], function($, _, openbis, c, ExperimentCreation,
+		EntityTypePermId, ProjectIdentifier, TagCode, ExperimentUpdate, AttachmentCreation, ExperimentDeletionOptions) {
 	return function() {
 		QUnit.module("Experiment tests");
 

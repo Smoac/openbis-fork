@@ -32,10 +32,10 @@
 <script src="/openbis/resources/api/v3/require.js"></script>
 
 <script>
-	require([ 'test/qunit', 'test/common-test', 'test/openbis-v3-api-test' ], function(qunit, common, test) {
+	require([ 'test/qunit', 'test/common-test', 'test/main' ], function(qunit, common, main) {
 		qunit.load();
 		qunit.start();
-		test();
+		main();
 	});
 </script>
 

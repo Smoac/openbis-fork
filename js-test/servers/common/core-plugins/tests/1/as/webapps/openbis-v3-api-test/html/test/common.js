@@ -84,6 +84,10 @@ define([ 'jquery', 'openbis' ], function($, openbis) {
 			return this.createObject('dto/id/sample/SamplePermId', permId);
 		},
 
+		createMaterialPermId : function(code, typeCode) {
+			return this.createObject('dto/id/material/MaterialPermId', code, typeCode);
+		},
+
 		createSpaceSearchCriterion : function() {
 			return this.createObject('dto/search/SpaceSearchCriterion');
 		},
@@ -98,6 +102,10 @@ define([ 'jquery', 'openbis' ], function($, openbis) {
 
 		createSampleSearchCriterion : function() {
 			return this.createObject('dto/search/SampleSearchCriterion');
+		},
+
+		createMaterialSearchCriterion : function() {
+			return this.createObject('dto/search/MaterialSearchCriterion');
 		},
 
 		createSpaceFetchOptions : function() {
@@ -118,7 +126,7 @@ define([ 'jquery', 'openbis' ], function($, openbis) {
 				fo.withRegistrator();
 				fo.withModifier();
 				fo.withLeader();
-				fo.withAttachments();
+				fo.withAttachments().withContent();
 			});
 			return promise;
 		},
@@ -128,7 +136,11 @@ define([ 'jquery', 'openbis' ], function($, openbis) {
 			promise.done(function(fo) {
 				fo.withType();
 				fo.withProject().withSpace();
+				fo.withDataSets();
+				fo.withSamples();
+				//fo.withHistory();
 				fo.withProperties();
+				fo.withMaterialProperties();
 				fo.withTags();
 				fo.withRegistrator();
 				fo.withModifier();
@@ -144,11 +156,31 @@ define([ 'jquery', 'openbis' ], function($, openbis) {
 				fo.withExperiment().withProject().withSpace();
 				fo.withSpace();
 				fo.withProperties();
+				fo.withMaterialProperties();
+				fo.withParents();
+				fo.withChildren();
+				fo.withContainer();
+				fo.withContained();
+				fo.withDataSets();
+				//fo.withHistory();
 				fo.withTags();
 				fo.withRegistrator();
 				fo.withModifier();
-				fo.withAttachments();
+				fo.withAttachments().withContent();
 				fo.withChildrenUsing(fo);
+			});
+			return promise;
+		},
+
+		createMaterialFetchOptions : function() {
+			var promise = this.createObject('dto/fetchoptions/material/MaterialFetchOptions');
+			promise.done(function(fo) {
+				fo.withType();
+				//fo.withHistory();
+				fo.withRegistrator();
+				fo.withProperties();
+				fo.withMaterialProperties();
+				fo.withTags();
 			});
 			return promise;
 		}
