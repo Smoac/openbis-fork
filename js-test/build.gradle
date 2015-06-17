@@ -61,7 +61,7 @@ test {
     testLogging.showStandardStreams = true
     ignoreFailures = true
     systemProperty 'selenium.dss-runtime-classpath', configurations.externalDss.asPath
-    systemProperty 'jetty.base', '../../../targets/gradle'
+    systemProperty 'jetty.home', '../../../targets/gradle'
     systemProperty 'ui-test.start-page', 'http://localhost:20000/openbis'
     systemProperty 'org.mortbay.util.FileResource.checkAliases', 'false'
     
@@ -69,5 +69,3 @@ test {
 }
 test.dependsOn clean
 test.dependsOn copyWar
-
-
