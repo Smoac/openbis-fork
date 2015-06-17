@@ -117,8 +117,8 @@ public class TestInitializer
                 IndexCreationUtil.main(databaseKind, temporaryFile.getAbsolutePath(), String.valueOf(getCreateDBFromScratch()));
             } catch (Exception ex)
             {
-                operationLog.error(ex);
-                CheckedExceptionTunnel.wrapIfNecessary(ex);
+                operationLog.error("Couldn't create Lucene index", ex);
+                throw CheckedExceptionTunnel.wrapIfNecessary(ex);
             } finally
             {
                 String psql = DumpPreparator.getPSQLExecutable();
