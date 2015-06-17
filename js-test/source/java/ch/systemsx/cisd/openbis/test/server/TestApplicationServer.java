@@ -63,7 +63,6 @@ public class TestApplicationServer
                     if (war.exists()) {
                     	context.setWar(war.getAbsolutePath());
                     	context.setExtractWAR(true);
-                    	context.setTempDirectory(new File(System.getProperty("jetty.home")+"/webapps"));
                         context.addAliasCheck(new AllowSymLinkAliasChecker());
                     } else {
 	                    context.setDescriptor(getWebXmlPath());
