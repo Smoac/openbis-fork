@@ -16,15 +16,10 @@ def getPropertyDefinitionByCode(definition, code):
 # Scripts
 #
 commentsScriptName = "COMMENTS";
-adenosineScriptName = "ADENOSINE_COUNT"
-cytosineScriptName= "CYTOSINE_COUNT"
 gcScriptName= "GC"
 atScriptName= "AT"
-guanosineScriptName= "GUANOSINE_COUNT"
 lengthScriptName= "SEQUENCE_LENGTH"
-nucelotideScriptName= "ONUCLEOTIDE_COUNT"
-thymidineScriptName= "THYMIDINE_COUNT"
-tmScriptName= "TM"
+
 
 #
 # Storage 
@@ -97,7 +92,7 @@ strainDefinition = [
     ["DISRUPTIONS",                             "General",                  "disruptions",                             DataType.VARCHAR,       None,  "", None, None, False],    
     ["FROZEN_STOCK",                             "General",                  "frozen stock",                             DataType.BOOLEAN,       None,  "", None, None, False],    
     ["GENOTYPE_CONFIRMATION",                             "General",                  "genotype confirmation",                             DataType.VARCHAR,       None,  "", None, None, False],    
-    ["GLYCEROL_STOCK_NUMBER ",                             "General",                  "glycerol stock number",                             DataType.INTEGER,       None,  "", None, None, False],    
+    ["GLYCEROL_STOCK_NUMBER",                             "General",                  "glycerol stock number",                             DataType.INTEGER,       None,  "", None, None, False],    
     ["KWY_NUMBER",                             "General",                  "KWY number",                             DataType.VARCHAR,       None,  "", None, None, False],    
     ["MARKERS",                             "General",                  "markers",                             DataType.VARCHAR,       None,  "", None, None, False],    
     ["MAT",                             "General",                  "MAT",                             DataType.VARCHAR,       None,  "", None, None, False],    
@@ -150,7 +145,7 @@ plasmidDefinition = [
     ["5END",                        "General",                  "5' end",                         DataType.VARCHAR,      None,  "", None, None, False],
     ["5END_MOD",                        "General",                  "5' end insert",                         DataType.VARCHAR,      None,  "", None, None, False],
     ["5INSERT_MOD",                        "General",                  "5' insert modif.",                         DataType.VARCHAR,      None,  "", None, None, False],
-    ["3MOD",                        "General",                  "5' Modif.",                         DataType.VARCHAR,      None,  "", None, None, False],
+    ["5MOD",                        "General",                  "5' Modif.",                         DataType.VARCHAR,      None,  "", None, None, False],
     ["BACTERIAL_STRAIN",                        "General",                  "Bacterial strain",                         DataType.VARCHAR,      None,  "", None, None, False],
     ["CONCENTRATION",                        "General",                  "Concentration",                         DataType.REAL,      None,  "", None, None, False],    
     ["DNA_PREPARED_ON",                        "General",                  "DNA prepared on",                         DataType.VARCHAR,      None,  "", None, None, False],
