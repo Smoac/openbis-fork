@@ -1,7 +1,7 @@
 /**
  * @author pkupczyk
  */
-define([ "stjs", "dto/search/AbstractSearchCriterion" ], function(stjs, AbstractSearchCriterion) {
+define([ "stjs", "dto/search/AbstractSearchCriterion", "dto/search/SearchOperator" ], function(stjs, AbstractSearchCriterion, SearchOperator) {
 	var AbstractCompositeSearchCriterion = function() {
 		AbstractSearchCriterion.call(this);
 		this.criteria = [];
@@ -9,6 +9,7 @@ define([ "stjs", "dto/search/AbstractSearchCriterion" ], function(stjs, Abstract
 	stjs.extend(AbstractCompositeSearchCriterion, AbstractSearchCriterion, [ AbstractSearchCriterion ], function(constructor, prototype) {
 		prototype['@type'] = 'dto.search.AbstractCompositeSearchCriterion';
 		constructor.serialVersionUID = 1;
+		prototype.operator = SearchOperator.AND;
 		prototype.getCriteria = function() {
 			return this.criteria;
 		};
@@ -19,6 +20,12 @@ define([ "stjs", "dto/search/AbstractSearchCriterion" ], function(stjs, Abstract
 			this.criteria.push(criterion);
 			return criterion;
 		};
+		prototype.withOrOperator = function() {
+			this.operator = SearchOperator.OR;
+		}
+		prototype.withAndOperator = function() {
+			this.operator = SearchOperator.AND;
+		}
 		prototype.toString = function() {
 			return this.toString("");
 		};
@@ -33,6 +40,7 @@ define([ "stjs", "dto/search/AbstractSearchCriterion" ], function(stjs, Abstract
 	}, {
 		criteria : {
 			name : "Collection",
+			operator : "SearchOperator",
 			arguments : [ "ISearchCriterion" ]
 		}
 	});
