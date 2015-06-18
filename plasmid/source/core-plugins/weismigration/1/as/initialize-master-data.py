@@ -130,7 +130,21 @@ def createScript(path, name, description, scriptType, entityType):
     script.setScriptType(scriptType);
     script.setEntityForScript(entityType);
     return script;
-    
+
+
+def createAnnotationsScriptForType(sampleTypeCode):
+    annotationsScriptName = None;
+    if PATH_TO_MANAGE_PROPERTIES_SCRIPTS != None:
+        annotationsScriptName = "ANNOTATIONS_" + sampleTypeCode;
+        annotationsScriptAsString = open(PATH_TO_MANAGE_PROPERTIES_SCRIPTS + "managed.py", 'r').read();
+        annotationsScriptAsString = annotationsScriptAsString.replace("<REPLACE_WITH_ANNOTABLE_TYPE>", sampleTypeCode);
+        annotationsScript = tr.getOrCreateNewScript(annotationsScriptName);
+        annotationsScript.setName(annotationsScriptName);
+        annotationsScript.setDescription("Annotations Handler for " + sampleTypeCode);
+        annotationsScript.setScript(annotationsScriptAsString);
+        annotationsScript.setScriptType("MANAGED_PROPERTY");
+        annotationsScript.setEntityForScript("SAMPLE");
+    return annotationsScriptName;    
 ##
 ## Managed properties scripts
 ##
@@ -166,6 +180,9 @@ lengthScriptName = createScript(PATH_TO_MANAGE_PROPERTIES_SCRIPTS + "length.py",
                                   "Count length sequence",
                                   "DYNAMIC_PROPERTY",
                                   "SAMPLE");
+
+
+
 ##
 ## Vocabulary Types
 ##

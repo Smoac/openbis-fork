@@ -19,7 +19,7 @@ commentsScriptName = "COMMENTS";
 gcScriptName= "GC"
 atScriptName= "AT"
 lengthScriptName= "SEQUENCE_LENGTH"
-
+annotationsScriptName="ANNOTATIONS"
 
 #
 # Storage 
