@@ -81,7 +81,7 @@ antibodyDefinition = [
     ["FORM",                          "General",                  "Form",                           DataType.VARCHAR,                      None, "", None, None, False],       
     ["PRIMARY",                          "General",                  "Primary",                           DataType.VARCHAR,                      None, "", None, None, False],       
     ["SECONDARY",                          "General",                  "Secondary",                           DataType.VARCHAR,                      None, "", None, None, False],       
-    ["COUPLED",                          "General",                  "Coupled",                           DataType.VARCHAR,                      None, "", None, None, False]       
+    ["COUPLED",                          "General",                  "Coupled",                           DataType.VARCHAR,                      None, "", None, None, False],       
     ["BOX",                          "General",                  "Box",                           DataType.VARCHAR,                      None, "", None, None, False],       
     ["EMPTY",                          "General",                  "empty?",                           DataType.VARCHAR,                      None, "", None, None, False],       
     ["CATALOG_NUM",                  "General",                 "Catalog#",                        DataType.VARCHAR,                   None,  "", None, None, False]
