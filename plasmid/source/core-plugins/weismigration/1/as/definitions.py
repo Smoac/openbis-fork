@@ -80,7 +80,7 @@ antibodyDefinition = [
     ["BOX",                          "General",                  "Box",                           DataType.VARCHAR,                      None, "", None, None, False],       
     ["EMPTY",                          "General",                  "empty?",                           DataType.VARCHAR,                      None, "", None, None, False],       
     ["CATALOG_NUM",                  "General",                 "Catalog#",                        DataType.VARCHAR,                   None,  "", None, None, False]
-    
+    ["ANNOTATIONS_STATE",                "Comments",                "Annotations State",                    DataType.XML,                    None,                                "Annotations State", annotationsScriptName, None]    
     
 ];
 
@@ -99,7 +99,7 @@ strainDefinition = [
     ["REMOVED",                             "General",                  "removed",                             DataType.VARCHAR,       None,  "", None, None, False],    
     ["UNMARKED_MUTATIONS",                             "General",                  "unmarked mutations",                             DataType.VARCHAR,       None,  "", None, None, False],    
     ["WHO_ENTERED",                             "General",                  "who entered",                             DataType.VARCHAR,       None,  "", None, None, False]    
-    
+    ["ANNOTATIONS_STATE",                "Comments",                "Annotations State",                    DataType.XML,                    None,                                "Annotations State", annotationsScriptName, None]    
 ];
 
 oligoDefinition = [
@@ -135,6 +135,7 @@ oligoDefinition = [
     ["CATEGORY",                          "General",                  "category",                           DataType.CONTROLLEDVOCABULARY,                      "OLIGO_CATEGORY", "", None, None, False],
     ["REORDERED",                          "General",                  "Reordered",                           DataType.VARCHAR,                      None, "", None, None, False],
     ["NOTES",                          "Comments",                  "Notes",                           DataType.VARCHAR,                      None, "", None, None, False]
+    ["ANNOTATIONS_STATE",                "Comments",                "Annotations State",                    DataType.XML,                    None,                                "Annotations State", annotationsScriptName, None]
 ];
 
 plasmidDefinition = [
@@ -165,6 +166,7 @@ plasmidDefinition = [
     ["SIZE_PARENT",                        "General",                  "Size parent",                         DataType.REAL,      None,  "", None, None, False],    
     ["VECTOR",                        "General",                  "Vector",                         DataType.VARCHAR,      None,  "", None, None, False],    
     ["VECTOR_TYPE",                        "General",                  "Vector Type",                         DataType.VARCHAR,      None,  "", None, None, False]    
+    ["ANNOTATIONS_STATE",                "Comments",                "Annotations State",                    DataType.XML,                    None,                                "Annotations State", annotationsScriptName, None]
    ];
 
 chemicalDefinition = [
@@ -181,6 +183,7 @@ chemicalDefinition = [
     ["USED_BY",                      "General",                 "used by",                          DataType.VARCHAR,                   None,  "", None, None, False],
     ["LOCATION",                     "Storage",                 "Location",                         DataType.VARCHAR,                   None,  "", None, None, False],       
     ["COMMENTS",                     "Comments",                "Comments",                         DataType.VARCHAR,                   None,  "", None, None, False],
+    ["ANNOTATIONS_STATE",                "Comments",                "Annotations State",                    DataType.XML,                    None,                                "Annotations State", annotationsScriptName, None]
 ];
 
 RestrictionEnzymeDefinition = [
@@ -188,7 +191,21 @@ RestrictionEnzymeDefinition = [
     ["BLOCK",                           "Storage",                  "Block",                            DataType.VARCHAR,                   None,  "", None, None, False],
     ["POSITION",                        "Storage",                  "Position",                         DataType.VARCHAR,                   None,  "", None, None, False],
     ["COMMENT",                         "Comments",                  "Comment",                          DataType.VARCHAR,                   None,  "", None, None, False]
-  
+    ["ANNOTATIONS_STATE",                "Comments",                "Annotations State",                    DataType.XML,                    None,                                "Annotations State", annotationsScriptName, None]  
 ];
 
-
+ExperimentalStepDefinition= [
+    ["NAME",                             "General",                "Name",                                    DataType.MULTILINE_VARCHAR,        None,                                "Name", None, None],
+    ["OWNER",                             "General",                "Owner",                                DataType.CONTROLLEDVOCABULARY,    "LAB_MEMBERS",                            "Who produced/owned the sample", None, None],
+    ["EXPERIMENTAL_GOALS",                 "General",                "Experimental Goals",                    DataType.MULTILINE_VARCHAR,        None,                                "Goal of the experiment", None, None],
+    ["EXPERIMENTAL_RESULTS",             "General",                "Experimental Results",                    DataType.MULTILINE_VARCHAR,        None,                                "Brief summary of the results obtained", None, None],
+    ["START_DATE",             "General",                "Start date",                    DataType.TIMESTAMP,        None,                                "Date when the experimental step is started", None, None],
+    ["END_DATE",             "General",                "End date",                    DataType.TIMESTAMP,        None,                                "Date when the experimental step is completed", None, None],
+    ["EXPERIMENTAL_READOUT",             "Readout details",        "Experimental readout",                    DataType.CONTROLLEDVOCABULARY,    "EXPERIMENTAL_READOUT",                "Experimental readout used in the experiment", None, None],
+    ["MACHINE",                         "Readout details",        "Machine",                                DataType.CONTROLLEDVOCABULARY,    "MACHINE",                            "Machine used to perform the experiment", None, None],
+    ["FREEFORM_TABLE_STATE",             "Readout details",        "Freeform Table State",                    DataType.MULTILINE_VARCHAR,        None,                                "Table describing how the order of samples measured in the experiments", None, None],
+    ["PUBLICATION",                     "Comments",                "Publication",                            DataType.MULTILINE_VARCHAR,        None,                                "Publication from where the information was first found OR technical sheet given by the manufacturer", None, None],
+    ["NOTES",                             "Comments",             "Notes",                                DataType.MULTILINE_VARCHAR,        None,                                "Notes", None, None],
+    ["XMLCOMMENTS",                     "Comments",                "Comments List",                        DataType.XML,                    None,                                "Several comments can be added by different users", commentsSampleScriptName, None],
+    ["ANNOTATIONS_STATE",                "Comments",                "Annotations State",                    DataType.XML,                    None,                                "Annotations State", annotationsScriptName, None]
+];

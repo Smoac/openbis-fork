@@ -147,13 +147,25 @@ commentsScript = createScript(PATH_TO_MANAGE_PROPERTIES_SCRIPTS + "comments.py",
 
 
 
-thymidineScript = createScript(PATH_TO_MANAGE_PROPERTIES_SCRIPTS + "thymidine_count.py",
-                                  definitions.thymidineScriptName,
-                                  "Count number of thymidine in sequence",
+gcScriptName = createScript(PATH_TO_MANAGE_PROPERTIES_SCRIPTS + "gc.py",
+                                  definitions.gcScriptName,
+                                  "Count percentage of G and C in sequence",
                                   "DYNAMIC_PROPERTY",
                                   "SAMPLE");
 
 
+atScriptName = createScript(PATH_TO_MANAGE_PROPERTIES_SCRIPTS + "at.py",
+                                  definitions.atScriptName,
+                                  "Count percentage of A and T in sequence",
+                                  "DYNAMIC_PROPERTY",
+                                  "SAMPLE");
+
+
+lengthScriptName = createScript(PATH_TO_MANAGE_PROPERTIES_SCRIPTS + "length.py",
+                                  definitions.lengthScriptName,
+                                  "Count length sequence",
+                                  "DYNAMIC_PROPERTY",
+                                  "SAMPLE");
 ##
 ## Vocabulary Types
 ##
@@ -171,11 +183,11 @@ createExperimentTypeWithProperties("METHOD", "FOLDER FOR ORGANIZING METHODS SAMP
 ##
 ## Sample Types
 ##
-#createSampleTypeWithProperties("ANTIBODY", "", definitions.antibodyDefinition);
+createSampleTypeWithProperties("ANTIBODY", "", definitions.antibodyDefinition);
 #addStorageGroups(definitions.numberOfStorageGroups, "ANTIBODY");
-# createSampleTypeWithProperties("STRAIN", "", definitions.strainDefinition);
+createSampleTypeWithProperties("STRAIN", "", definitions.strainDefinition);
 # addStorageGroups(definitions.numberOfStorageGroups, "STRAIN");
-# createSampleTypeWithProperties("PLASMID", "", definitions.plasmidDefinition);
+createSampleTypeWithProperties("PLASMID", "", definitions.plasmidDefinition);
 # addStorageGroups(definitions.numberOfStorageGroups, "PLASMID");
 createSampleTypeWithProperties("OLIGO", "", definitions.oligoDefinition);
 createSampleTypeWithProperties("CHEMICAL", "", definitions.chemicalDefinition);
