@@ -132,7 +132,7 @@ oligoDefinition = [
     ["TEXT_SEQUENCE",                          "General",                  "TextSequence",                           DataType.VARCHAR,                      None, "", None, None, False],
     ["TONUC",                          "General",                  "toNuc",                           DataType.INTEGER,                      None, "", None, None, False],
     ["TYPE",                          "General",                  "Type",                           DataType.CONTROLLEDVOCABULARY,                      "OLIGO_TYPE", "", None, None, False],
-    ["UC_NUMBER",                          "General",                  "UC Number",                           DataType.TEXT,                      None, "", None, None, False],
+    ["UC_NUMBER",                          "General",                  "UC Number",                           DataType.VARCHAR,                      None, "", None, None, False],
     ["UG_UL",                          "General",                  "ug_ul",                           DataType.REAL,                      None, "", None, None, False],
     ["VOLUME",                          "General",                  "Volume",                           DataType.REAL,                      None, "", None, None, False],
     ["STATUS_RECORDS",                          "General",                  "StatusRecords",                           DataType.INTEGER,                      None, "", None, None, False],
