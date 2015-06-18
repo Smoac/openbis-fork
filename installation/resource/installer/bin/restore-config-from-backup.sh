@@ -31,6 +31,7 @@ echo "Restoring configuration backup from $CONF to $ROOT ..."
 # -- AS
 if [ -d $ROOT/openBIS-server ]; then
     cp $CONF/service.properties $ROOT/openBIS-server/jetty/etc/
+    cp $CONF/log.xml $ROOT/openBIS-server/jetty/etc/ 
     cp $CONF/openbis.conf $ROOT/openBIS-server/jetty/etc/
     cp $CONF/jetty.properties $ROOT/openBIS-server/jetty/etc/
     cp $CONF/welcomePageSimpleGeneric.html $ROOT/openBIS-server/jetty/webapps/openbis/custom
