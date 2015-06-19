@@ -148,7 +148,7 @@ def createAnnotationsScriptForType(sampleTypeCode):
 ##
 ## Managed properties scripts
 ##
-commentsScript = createScript(PATH_TO_MANAGE_PROPERTIES_SCRIPTS + "comments.py",
+commentsScriptName = createScript(PATH_TO_MANAGE_PROPERTIES_SCRIPTS + "comments.py",
                                   definitions.commentsScriptName,
                                   "Comments Handler",
                                   "MANAGED_PROPERTY",
@@ -200,14 +200,21 @@ createExperimentTypeWithProperties("METHOD", "FOLDER FOR ORGANIZING METHODS SAMP
 ##
 ## Sample Types
 ##
+annotationsScriptName = createAnnotationsScriptForType("ANTIBODY");
 createSampleTypeWithProperties("ANTIBODY", "", definitions.antibodyDefinition);
 #addStorageGroups(definitions.numberOfStorageGroups, "ANTIBODY");
+annotationsScriptName = createAnnotationsScriptForType("STRAIN");
 createSampleTypeWithProperties("STRAIN", "", definitions.strainDefinition);
 # addStorageGroups(definitions.numberOfStorageGroups, "STRAIN");
+annotationsScriptName = createAnnotationsScriptForType("PLASMID");
 createSampleTypeWithProperties("PLASMID", "", definitions.plasmidDefinition);
 # addStorageGroups(definitions.numberOfStorageGroups, "PLASMID");
+annotationsScriptName = createAnnotationsScriptForType("OLIGO");
 createSampleTypeWithProperties("OLIGO", "", definitions.oligoDefinition);
+annotationsScriptName = createAnnotationsScriptForType("CHEMICAL");
 createSampleTypeWithProperties("CHEMICAL", "", definitions.chemicalDefinition);
+annotationsScriptName = createAnnotationsScriptForType("RESTRICTION_ENZYME");
 createSampleTypeWithProperties("RESTRICTION_ENZYME", "", definitions.RestrictionEnzymeDefinition);
-
+annotationsScriptName = createAnnotationsScriptForType("EXPERIMENTAL_STEP");
+createSampleTypeWithProperties("EXPERIMENTAL_STEP", "", definitions.ExperimentalStepDefinition);
 
