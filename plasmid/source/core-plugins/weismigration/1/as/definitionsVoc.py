@@ -136,6 +136,7 @@ vocabularyDefinitions = {
                                           ["USBIOLOGICAL",   "USBiological"],
                                           ["WERNER_BIOAGENTS",   "Werner BioAgents"],
                                           ["WITECAG",   "witecag"],
+                                          ["UNKNOWN",   "unknown"],                                          
                                      ],
                               "OLIGO_CATEGORY" : [
                                          ["CHECKING",   "Checking"],

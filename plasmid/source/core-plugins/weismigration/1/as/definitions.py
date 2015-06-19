@@ -176,7 +176,7 @@ chemicalDefinition = [
     ["DISSOLVED_IN",                 "General",                 "dissolved in",                     DataType.VARCHAR,                   None,  "", None, None, False],
     ["USED_FOR",                     "General",                 "Used for",                         DataType.VARCHAR,                   None,  "", None, None, False],
     ["EMPTY",                        "General",                 "empty?",                           DataType.BOOLEAN,                   None,  "", None, None, False],
-    ["DATE_ORDERED",                 "General",                 "date ordered",                     DataType.TIMESTAMP,                 None,  "", None, None, False],
+    ["DATE_ORDERED",                 "General",                 "date ordered",                     DataType.VARCHAR,                 None,  "", None, None, False],
     ["LOT_NUM",                      "General",                 "Lot #",                            DataType.VARCHAR,                   None,  "", None, None, False],
     ["CATALOG_NUM",                  "General",                 "Catalog #",                        DataType.VARCHAR,                   None,  "", None, None, False],
     ["STOCK_CONCENTRATION",          "General",                 "Stock concentration",              DataType.VARCHAR,                   None,  "", None, None, False],
