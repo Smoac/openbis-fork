@@ -62,6 +62,7 @@ test {
     ignoreFailures = true
     systemProperty 'selenium.dss-runtime-classpath', configurations.externalDss.asPath
     systemProperty 'jetty.home', '../../../targets/gradle'
+    systemProperty 'jetty.base', '../../../targets/gradle'
     systemProperty 'ui-test.start-page', 'http://localhost:20000/openbis'
     systemProperty 'org.mortbay.util.FileResource.checkAliases', 'false'
     

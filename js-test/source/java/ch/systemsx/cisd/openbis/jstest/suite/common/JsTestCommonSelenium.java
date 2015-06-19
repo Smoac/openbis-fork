@@ -38,12 +38,14 @@ import ch.systemsx.cisd.openbis.uitest.layout.Location;
  */
 public class JsTestCommonSelenium extends SeleniumTest
 {
+
+    private void createWebappLink()
     {
         try
         {
             String jettyHome = new File(System.getProperty("jetty.home")).getAbsolutePath();
             new File(jettyHome + "/webapps").mkdirs();
-            Unix.createSymbolicLink(jettyHome + "/webapps/webapp", jettyHome + "/webapps/openbis");
+            Unix.createSymbolicLink(jettyHome + "/webapps/openbis/webapp", jettyHome + "/webapps/webapp/webapp");
         } catch (Exception e)
         {
             e.printStackTrace();
@@ -55,7 +57,9 @@ public class JsTestCommonSelenium extends SeleniumTest
     {
         JsTestCommonApplicationServer as = new JsTestCommonApplicationServer();
         as.setDeamon(true);
-        return as.start();
+        String result = as.start();
+        createWebappLink();
+        return result;
     }
 
     @Override
@@ -111,12 +115,13 @@ public class JsTestCommonSelenium extends SeleniumTest
         try
         {
             OpenbisJsCommonWebapp webapp = browser().goTo(location);
-            
+
             String junitReport = "";
             for (int x = 0; x < 120; x++)
             {
                 junitReport = webapp.getJunitReport();
-                if (junitReport.length() == 0) {
+                if (junitReport.length() == 0)
+                {
                     try
                     {
                         System.out.println("JUnit report is not there yet. Waiting...");
