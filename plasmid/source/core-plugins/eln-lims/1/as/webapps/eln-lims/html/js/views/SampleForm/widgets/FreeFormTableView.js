@@ -367,7 +367,7 @@ function FreeFormTableView(freeFormTableController, freeFormTableModel) {
 	this.repaint = function($container) {
 		var _this = this;
 		this._container = $container;
-		$container.attr("style", "margin:5px; border-radius:4px 4px 4px 4px;");
+		$container.attr("style", "border-radius:4px 4px 4px 4px;");
 		
 		var $addTableWhenEmptyBtn = "";
 		if(this._freeFormTableModel.isEnabled) {
