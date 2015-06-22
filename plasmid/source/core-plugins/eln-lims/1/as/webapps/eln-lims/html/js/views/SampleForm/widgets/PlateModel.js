@@ -35,9 +35,12 @@ function PlateModel(sample) {
 	this.numColumns = getRowsAndColsFromPlateSample(sample)[1];
 	
 	this.getWell = function(rowNum, colNum) {
-		var wellIdentifier = this.sample.identifier + ":" + this.getAlphabetLabel(rowNum) + colNum;
+		//NOTE: We are currently handling two naming conventions ":A01" and ":A1"
+		var wellIdentifier = this.sample.identifier + ":" + this.getAlphabetLabel(rowNum) + ((colNum < 10)?"0":"") + colNum;
+		var wellIdentifier2 = this.sample.identifier + ":" + this.getAlphabetLabel(rowNum) + colNum;
 		for(var wellIdx = 0; wellIdx < this.sample.contained.length; wellIdx++) {
-			if(this.sample.contained[wellIdx].identifier === wellIdentifier) {
+			if(	this.sample.contained[wellIdx].identifier === wellIdentifier ||
+				this.sample.contained[wellIdx].identifier === wellIdentifier2) {
 				var toReturn = this.sample.contained[wellIdx];
 				return toReturn;
 			}
