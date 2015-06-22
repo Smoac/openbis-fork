@@ -189,7 +189,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		for(var i = 0; i < sampleType.propertyTypeGroups.length; i++) {
 			var propertyTypeGroup = sampleType.propertyTypeGroups[i];
 			if(propertyTypeGroup.name === "General") {
-				isStorageAvailable = isStorageAvailable || this._paintPropertiesForSection($formColumn, propertyTypeGroup);
+				isStorageAvailable = isStorageAvailable || this._paintPropertiesForSection($formColumn, propertyTypeGroup, i);
 			}
 		}
 		
@@ -428,7 +428,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		this._sampleFormModel.isFormLoaded = true;
 	}
 	
-	this._paintPropertiesForSection = function($formColumn, propertyTypeGroup) {
+	this._paintPropertiesForSection = function($formColumn, propertyTypeGroup, i) {
 		var _this = this;
 		var sampleTypeCode = this._sampleFormModel.sample.sampleTypeCode;
 		var sampleType = mainController.profile.getSampleTypeForSampleTypeCode(sampleTypeCode);

@@ -117,7 +117,7 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 		var experimentType = mainController.profile.getExperimentTypeForExperimentTypeCode(this._experimentFormModel.experiment.experimentTypeCode);
 		for(var i = 0; i < experimentType.propertyTypeGroups.length; i++) {
 			var propertyTypeGroup = experimentType.propertyTypeGroups[i];
-			this._paintPropertiesForSection($formColumn, propertyTypeGroup);
+			this._paintPropertiesForSection($formColumn, propertyTypeGroup, i);
 		}
 		
 		//Create/Update Buttons
@@ -218,7 +218,7 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 		}
 	}
 	
-	this._paintPropertiesForSection = function($formColumn, propertyTypeGroup) {
+	this._paintPropertiesForSection = function($formColumn, propertyTypeGroup, i) {
 		var _this = this;
 		var experimentType = mainController.profile.getExperimentTypeForExperimentTypeCode(this._experimentFormModel.experiment.experimentTypeCode);
 		
