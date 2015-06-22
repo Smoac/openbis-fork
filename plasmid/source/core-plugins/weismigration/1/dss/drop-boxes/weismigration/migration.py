@@ -84,19 +84,7 @@ def setEntityProperties(tr, definition, entity, properties):
                     print "EXISTING VALUE:", propertyValue
                 else:
                     print "MISSING VALUE FOR:", propertyValue
-                # else:  #We rely on the Add Hock Terms if is None, since there is no API we create a new one
-                #    #Create new vocabulary term
-                #     codeToUse = re.sub(r'\W+','_',propertyValue)
-                #     labelToUse = propertyValue
-                #     if len(codeToUse) is 0:
-                #         codeToUse = "None" + str(random.random())
-                #     if len(codeToUse) > 60:
-                #         codeToUse = codeToUse[:50]
-                # #Uses new vocabulary term
-                #     newTerm = definitionsVoc.createVocabularyTerm(tr, propertyDefinition[4], codeToUse, labelToUse)
-                #     propertyValue = newTerm.getCode()
-                #     print "* WARNING ENTITY [" + entity.getCode() + "]: for Vocabulary [" + propertyDefinition[4] + "], found value not in list: [" + repr(labelToUse) + "]. Created new term with code [" + codeToUse + "]"
-        
+       
             if propertyDefinition is not None: #Sometimes special fields are added for other purposes, these should not be set
                     if propertyDefinition[0] =="COMPANY":   
                         if propertyValue == "Sgmal-Aldrich":
@@ -142,6 +130,19 @@ def setEntityProperties(tr, definition, entity, properties):
                     else:
                         entity.setPropertyValue(propertyCode, propertyValue)
 
+
+def setEntityParents(tr, definition, entity, properties):
+    for propertyCode, propertyValue in properties.iteritems():
+            propertyDefinition = definitions.getPropertyDefinitionByCode(definition, propertyCode)
+            if propertyValue is not None:
+                propertyValue =  unicode(propertyValue)
+
+            if propertyDefinition[0] == "PCR_3_OLIGO":
+                if re.match ("UC", propertyValue):
+                    print propertyDefinition[0], propertyValue
+                    propertyValue= str.replace("UC", "US", propertyValue)
+                    print propertyDefinition[0], propertyValue
+                #entity.setParentSampleIdentifiers()            
 ##
 ## Generic Pattern
 ##
@@ -222,8 +223,8 @@ def getSampleForUpdate(sampleIdentifier, sampleType, tr):
              	experiment = getExperimentForUpdate("/MATERIALS/REAGENTS/ANTIBODIES", sampleType, tr)
              # elif sampleType == "STRAIN":
              # 	experiment = getExperimentForUpdate("/MATERIALS/YEASTS/YEAST_COLLECTION_1", sampleType, tr)              
-             # elif sampleType == "PLASMID":
-             # 	experiment = getExperimentForUpdate("/MATERIALS/PLASMIDS/PLASMID_COLLECTION_1", sampleType, tr)              
+             elif sampleType == "PLASMID":
+              	experiment = getExperimentForUpdate("/MATERIALS/PLASMIDS/PLASMID_COLLECTION_1", sampleType, tr)              
              elif sampleType == "CHEMICAL":
               	experiment = getExperimentForUpdate("/MATERIALS/REAGENTS/CHEMICALS", sampleType, tr) 
              elif sampleType == "RESTRICTION_ENZYME":
@@ -416,22 +417,31 @@ class FMPeterEntityBoxOpenBISDTO(OpenBISDTO):
 ##
 ## Antibodies
 ##
+
 class AntibodyAdaptor(FileMakerEntityAdaptor):
+    
     def init(self):
-        self.selectQuery = "SELECT * FROM \"Weis Lab Antibodies\""
+        self.selectQuery = "SELECT * FROM \"Weis Lab  Antibodies\""
         self.definition = definitions.antibodyDefinition
         FileMakerEntityAdaptor.init(self)
     
     def addEntity(self, values):
         self.entities.append(AntibodyOpenBISDTO(values, self.definition))
+       
         
 class AntibodyOpenBISDTO(FMPeterOpenBISDTO):
+    def isSampleCacheable(self):
+        return False
+        
     def write(self, tr):
-        sample = getSampleForUpdate("/MATERIALS/"+self.values["REF_NUM"],"ANTIBODY", tr)
-        setEntityProperties(tr, self.definition, sample, self.values);
+        code = "AB_" + self.values["REF_NUM"]
+        if code is not None:
+            sample = getSampleForUpdate("/MATERIALS/"+code,"ANTIBODY", tr)
+            setEntityProperties(tr, self.definition, sample, self.values);
     
     def getIdentifier(self, tr):
-        return self.values["REF_NUM"]
+        code = "AB_"+ self.values["REF_NUM"]
+        return code
     
 
 
@@ -466,7 +476,7 @@ class StrainOpenBISDTO(FMPeterOpenBISDTO):
 class PlasmidAdaptor(FileMakerEntityAdaptor):
     
     def init(self):
-        self.selectQuery = "SELECT * FROM \"boxit plasmids\""
+        self.selectQuery = "SELECT * FROM \"Weis Lab Plasmids\""
         self.definition = definitions.plasmidDefinition
         FileMakerEntityAdaptor.init(self)
     
@@ -475,13 +485,14 @@ class PlasmidAdaptor(FileMakerEntityAdaptor):
         
 class PlasmidOpenBISDTO(FMPeterOpenBISDTO):
     def write(self, tr):
-        code = self.values["PLASMID_ID_NR"]
+        code = self.values["NAME"]
         if code is not None:
             sample = getSampleForUpdate("/MATERIALS/"+code,"PLASMID", tr)
             setEntityProperties(tr, self.definition, sample, self.values);
+            setEntityParents(tr, self.definition, sample, self.values)
     
     def getIdentifier(self, tr):
-        code = self.values["PLASMID_ID_NR"]
+        code = self.values["NAME"]
         return code
 
 
@@ -570,7 +581,7 @@ class EnzymeOpenBISDTO(FMPeterOpenBISDTO):
 
         
 fmConnString = "jdbc:filemaker://127.0.0.1/"
-#fmConnString = "jdbc:filemaker://fm.ethz.ch/"
+#fmConnString = "jdbc:filemaker://fmsrv.ethz.ch/"
 fmUser= "admin"
 fmPass = "nucleus"
 
@@ -593,8 +604,9 @@ fmPass = "nucleus"
 adaptors = [ 
              #EnzymeAdaptor(fmConnString, fmUser, fmPass, "Weis_Restriction_enzymes")
              #ChemicalAdaptor(fmConnString, fmUser, fmPass, "Weis_Chemicals")
-             #OligoAdaptor(fmConnString, fmUser, fmPass, "Weis_Oligos")
-             AntibodyAdaptor(fmConnString, fmUser, fmPass, "Weis_Antibodies")
+             OligoAdaptor(fmConnString, fmUser, fmPass, "Weis_Oligos"),
+             #AntibodyAdaptor(fmConnString, fmUser, fmPass, "Weis _Antibodies")
+             PlasmidAdaptor(fmConnString, fmUser, fmPass, "Weis_Plasmids")
              ]
                        
             

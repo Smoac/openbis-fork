@@ -78,9 +78,9 @@ antibodyDefinition = [
     ["SECONDARY",                          "General",                  "Secondary",                           DataType.VARCHAR,                      None, "", None, None, False],       
     ["COUPLED",                          "General",                  "Coupled",                           DataType.VARCHAR,                      None, "", None, None, False],       
     ["BOX",                          "General",                  "Box",                           DataType.VARCHAR,                      None, "", None, None, False],       
-    ["EMPTY",                          "General",                  "empty?",                           DataType.VARCHAR,                      None, "", None, None, False],       
+    ["EMPTY",                          "General",                  "emtpy?",                           DataType.VARCHAR,                      None, "", None, None, False],       
     ["CATALOG_NUM",                  "General",                 "Catalog#",                        DataType.VARCHAR,                   None,  "", None, None, False],
-    ["ANNOTATIONS_STATE",                "Comments",                "Annotations State",                    DataType.XML,                    None,                                "Annotations State", annotationsScriptName, None, False]    
+    ["ANNOTATIONS_STATE",                "Comments",                "Annotations State",                    DataType.XML,                    None, "Annotations State", annotationsScriptName, None, False]    
     
 ];
 
@@ -157,6 +157,9 @@ plasmidDefinition = [
     ["MUTAGENIC_OLIGO",                        "General",                  "Mutagenic oligo",                         DataType.VARCHAR,      None,  "", None, None, False],    
     ["MUTATION",                        "General",                  "Mutation",                         DataType.VARCHAR,      None,  "", None, None, False],    
     ["NOTEBOOK_REF",                        "General",                  "Note Book ref.",                         DataType.VARCHAR,      None,  "", None, None, False],    
+    ["PARENT_PLASMID",                        "General",                  "Parent plasmid",                         DataType.VARCHAR,      None,  "", None, None, False],        
+    ["PCR_3_OLIGO",                        "General",                  "PCR 3' oligo",                         DataType.VARCHAR,      None,  "", None, None, False],    
+    ["PCR_5_OLIGO",                        "General",                  "PCR 5' oligo",                         DataType.VARCHAR,      None,  "", None, None, False],            
     ["NAME",                        "General",                  "pKW Number",                         DataType.VARCHAR,      None,  "", None, None, False],    
     ["PLASMID_NAME",                        "General",                  "Plasmid name",                         DataType.VARCHAR,      None,  "", None, None, False],    
     ["REF_NUM",                        "General",                  "Ref. N.",                         DataType.INTEGER,      None,  "", None, None, False],    
