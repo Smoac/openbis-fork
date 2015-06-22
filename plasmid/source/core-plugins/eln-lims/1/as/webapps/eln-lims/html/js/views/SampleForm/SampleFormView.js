@@ -69,7 +69,10 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 				.append($("<h2>").append(title))
 				.append($("<h4>", { "style" : "font-weight:normal;" } ).append(entityPath));
 		} else {
-			title += entityPath;
+			if(this._sampleFormModel.mode !== FormMode.CREATE) {
+				title += entityPath;
+			}
+			
 			$formTitle
 				.append($("<h2>").append(title));
 		}
@@ -426,6 +429,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 	}
 	
 	this._paintPropertiesForSection = function($formColumn, propertyTypeGroup) {
+		var _this = this;
 		var sampleTypeCode = this._sampleFormModel.sample.sampleTypeCode;
 		var sampleType = mainController.profile.getSampleTypeForSampleTypeCode(sampleTypeCode);
 		
