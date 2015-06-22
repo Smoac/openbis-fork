@@ -110,106 +110,12 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 		}
 		
 		//
-		// Metadata Fields
+		// Form Defined Properties from General Section
 		//
 		var experimentType = mainController.profile.getExperimentTypeForExperimentTypeCode(this._experimentFormModel.experiment.experimentTypeCode);
-		
 		for(var i = 0; i < experimentType.propertyTypeGroups.length; i++) {
 			var propertyTypeGroup = experimentType.propertyTypeGroups[i];
-			
-			var $fieldset = $('<div>');
-			var $legend = $('<legend>'); 
-			$fieldset.append($legend);
-			
-			if((propertyTypeGroup.name !== null) && (propertyTypeGroup.name !== "")) {
-				$legend.text(propertyTypeGroup.name);
-			} else if((i === 0) || ((i !== 0) && (experimentType.propertyTypeGroups[i-1].name !== null) && (experimentType.propertyTypeGroups[i-1].name !== ""))) {
-				$legend.text("Metadata");
-			} else {
-				$legend.remove();
-			}
-			
-			var propertyGroupPropertiesOnForm = 0;
-			for(var j = 0; j < propertyTypeGroup.propertyTypes.length; j++) {
-				var propertyType = propertyTypeGroup.propertyTypes[j];
-				if(propertyType.code === "XMLCOMMENTS") {
-					var $commentsContainer = $("<div>");
-					$fieldset.append($commentsContainer);
-					this._experimentFormController._addCommentsWidget($commentsContainer);
-					continue;
-				}
-				var $controlGroup =  null;
-				
-				var value = this._experimentFormModel.experiment.properties[propertyType.code];
-				var isSystemProperty = false;
-				if(!value && propertyType.code.charAt(0) === '$') {
-					value = this._experimentFormModel.experiment.properties[propertyType.code.substr(1)];
-					isSystemProperty = true;
-				}
-				
-				if(this._experimentFormModel.mode === FormMode.VIEW) { //Show values without input boxes if the form is in view mode
-					if(Util.getEmptyIfNull(value) !== "") { //Don't show empty fields, whole empty sections will show the title
-						if(propertyType.dataType === "CONTROLLEDVOCABULARY") {
-							value = FormUtil.getVocabularyLabelForTermCode(propertyType, value);
-						}
-						$controlGroup = FormUtil.getFieldForLabelWithText(propertyType.label, value);
-					} else {
-						continue;
-					}
-				} else {
-					var $component = FormUtil.getFieldForPropertyType(propertyType);
-					//Update values if is into edit mode
-					if(this._experimentFormModel.mode === FormMode.EDIT) {
-						if(propertyType.dataType === "BOOLEAN") {
-							$($component.children()[0]).prop('checked', value === "true");
-						} else if(propertyType.dataType === "TIMESTAMP") {
-							$($($component.children()[0]).children()[0]).val(value);
-						} else {
-							$component.val(value);
-						}
-					} else {
-						$component.val(""); //HACK-FIX: Not all browsers show the placeholder in Bootstrap 3 if you don't set an empty value.
-					}
-					
-					var changeEvent = function(propertyType, isSystemProperty) {
-						return function() {
-							var propertyTypeCode = null;
-							if(isSystemProperty) {
-								propertyTypeCode = propertyType.code.substr(1);
-							} else {
-								propertyTypeCode = propertyType.code;
-							}
-							_this._experimentFormModel.isFormDirty = true;
-							var field = $(this);
-							if(propertyType.dataType === "BOOLEAN") {
-								_this._experimentFormModel.experiment.properties[propertyTypeCode] = field.children()[0].checked;
-							} else if (propertyType.dataType === "TIMESTAMP") {
-								var timeValue = $($(field.children()[0]).children()[0]).val();
-								_this._experimentFormModel.experiment.properties[propertyTypeCode] = timeValue;
-							} else {
-								_this._experimentFormModel.experiment.properties[propertyTypeCode] = Util.getEmptyIfNull(field.val());
-							}
-						}
-					}
-					
-					//Avoid modifications in properties managed by scripts
-					if(propertyType.managed || propertyType.dinamic) {
-						$component.prop('disabled', true);
-					}
-					
-					$component.change(changeEvent(propertyType, isSystemProperty));
-					$controlGroup = FormUtil.getFieldForComponentWithLabel($component, propertyType.label);
-				}
-				
-				$fieldset.append($controlGroup);
-				propertyGroupPropertiesOnForm++;
-			}
-			
-			if(propertyGroupPropertiesOnForm === 0) {
-				$legend.remove();
-			}
-			
-			$formColumn.append($fieldset);
+			this._paintPropertiesForSection($formColumn, propertyTypeGroup);
 		}
 		
 		//Create/Update Buttons
@@ -308,5 +214,103 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 			var $modificationDate = FormUtil.getFieldForLabelWithText("Modification Date", (new Date(registrationDetails.modificationDate)).toLocaleString());
 			$formColumn.append($modificationDate);
 		}
+	}
+	
+	this._paintPropertiesForSection = function($formColumn, propertyTypeGroup) {
+		var experimentType = mainController.profile.getExperimentTypeForExperimentTypeCode(this._experimentFormModel.experiment.experimentTypeCode);
+		
+		var $fieldset = $('<div>');
+		var $legend = $('<legend>'); 
+		$fieldset.append($legend);
+		
+		if((propertyTypeGroup.name !== null) && (propertyTypeGroup.name !== "")) {
+			$legend.text(propertyTypeGroup.name);
+		} else if((i === 0) || ((i !== 0) && (experimentType.propertyTypeGroups[i-1].name !== null) && (experimentType.propertyTypeGroups[i-1].name !== ""))) {
+			$legend.text("Metadata");
+		} else {
+			$legend.remove();
+		}
+		
+		var propertyGroupPropertiesOnForm = 0;
+		for(var j = 0; j < propertyTypeGroup.propertyTypes.length; j++) {
+			var propertyType = propertyTypeGroup.propertyTypes[j];
+			if(propertyType.code === "XMLCOMMENTS") {
+				var $commentsContainer = $("<div>");
+				$fieldset.append($commentsContainer);
+				this._experimentFormController._addCommentsWidget($commentsContainer);
+				continue;
+			}
+			var $controlGroup =  null;
+			
+			var value = this._experimentFormModel.experiment.properties[propertyType.code];
+			var isSystemProperty = false;
+			if(!value && propertyType.code.charAt(0) === '$') {
+				value = this._experimentFormModel.experiment.properties[propertyType.code.substr(1)];
+				isSystemProperty = true;
+			}
+			
+			if(this._experimentFormModel.mode === FormMode.VIEW) { //Show values without input boxes if the form is in view mode
+				if(Util.getEmptyIfNull(value) !== "") { //Don't show empty fields, whole empty sections will show the title
+					if(propertyType.dataType === "CONTROLLEDVOCABULARY") {
+						value = FormUtil.getVocabularyLabelForTermCode(propertyType, value);
+					}
+					$controlGroup = FormUtil.getFieldForLabelWithText(propertyType.label, value);
+				} else {
+					continue;
+				}
+			} else {
+				var $component = FormUtil.getFieldForPropertyType(propertyType);
+				//Update values if is into edit mode
+				if(this._experimentFormModel.mode === FormMode.EDIT) {
+					if(propertyType.dataType === "BOOLEAN") {
+						$($component.children()[0]).prop('checked', value === "true");
+					} else if(propertyType.dataType === "TIMESTAMP") {
+						$($($component.children()[0]).children()[0]).val(value);
+					} else {
+						$component.val(value);
+					}
+				} else {
+					$component.val(""); //HACK-FIX: Not all browsers show the placeholder in Bootstrap 3 if you don't set an empty value.
+				}
+					
+				var changeEvent = function(propertyType, isSystemProperty) {
+					return function() {
+						var propertyTypeCode = null;
+						if(isSystemProperty) {
+							propertyTypeCode = propertyType.code.substr(1);
+						} else {
+							propertyTypeCode = propertyType.code;
+						}
+						_this._experimentFormModel.isFormDirty = true;
+						var field = $(this);
+						if(propertyType.dataType === "BOOLEAN") {
+							_this._experimentFormModel.experiment.properties[propertyTypeCode] = field.children()[0].checked;
+						} else if (propertyType.dataType === "TIMESTAMP") {
+							var timeValue = $($(field.children()[0]).children()[0]).val();
+							_this._experimentFormModel.experiment.properties[propertyTypeCode] = timeValue;
+						} else {
+							_this._experimentFormModel.experiment.properties[propertyTypeCode] = Util.getEmptyIfNull(field.val());
+						}
+					}
+				}
+				
+				//Avoid modifications in properties managed by scripts
+				if(propertyType.managed || propertyType.dinamic) {
+					$component.prop('disabled', true);
+				}
+				
+				$component.change(changeEvent(propertyType, isSystemProperty));
+				$controlGroup = FormUtil.getFieldForComponentWithLabel($component, propertyType.label);
+			}
+			
+			$fieldset.append($controlGroup);
+			propertyGroupPropertiesOnForm++;
+		}
+		
+		if(propertyGroupPropertiesOnForm === 0) {
+			$legend.remove();
+		}
+		
+		$formColumn.append($fieldset);
 	}
 }

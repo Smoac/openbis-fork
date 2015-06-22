@@ -426,7 +426,8 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 	}
 	
 	this._paintPropertiesForSection = function($formColumn, propertyTypeGroup) {
-			
+		var sampleType = mainController.profile.getSampleTypeForSampleTypeCode(sampleTypeCode);
+		
 		var $fieldset = $('<div>');
 		var $legend = $('<legend>'); 
 		$fieldset.append($legend);
