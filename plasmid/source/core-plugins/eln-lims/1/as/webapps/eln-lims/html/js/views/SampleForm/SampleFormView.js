@@ -426,6 +426,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 	}
 	
 	this._paintPropertiesForSection = function($formColumn, propertyTypeGroup) {
+		var sampleTypeCode = this._sampleFormModel.sample.sampleTypeCode;
 		var sampleType = mainController.profile.getSampleTypeForSampleTypeCode(sampleTypeCode);
 		
 		var $fieldset = $('<div>');
