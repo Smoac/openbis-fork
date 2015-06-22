@@ -48,7 +48,7 @@ function StorageController(configOverride) {
 			
 			
 			// Delete old state in model and view and set new sate in model and view
-			_this._storageModel.resetBoxInfo(posX, posY, label, data.size, null);
+			_this._storageModel.resetBoxInfo(posX, posY, label, data.size, null, null);
 			_this._storageView.showBoxName();
 			_this._storageView.showBoxSize();
 			_this._storageView.showPosField(data.size, true);
@@ -72,7 +72,7 @@ function StorageController(configOverride) {
 				_this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.positionProperty] = null;
 			}
 			// Delete old state in model and view and set new sate in model and view
-			_this._storageModel.resetBoxInfo(posX, posY, null, null, null);
+			_this._storageModel.resetBoxInfo(posX, posY, null, null, null, null);
 			_this._storageView.showBoxField();
 			_this._storageView.showBoxSizeField();
 			_this._storageView.hidePosField();
@@ -119,7 +119,7 @@ function StorageController(configOverride) {
 			return { size : labelData.size , samples : labelSamplesSelected}; //Create new data object with selected samples
 		}
 		
-		this._storageModel.resetBoxInfo(null, null, null, null, null);
+		this._storageModel.resetBoxInfo(null, null, null, null, null, null);
 		this._storageView.refreshGrid();
 		this._storageView.hideBoxField();
 		this._storageView.hideBoxSizeField();
@@ -152,7 +152,7 @@ function StorageController(configOverride) {
 	
 	this._deleteRackBoxContentStateInModelView = function() {
 		// Delete old state in model and view and set new sate in model and view
-		this._storageModel.resetBoxInfo(null, null, null, null, null);
+		this._storageModel.resetBoxInfo(null, null, null, null, null, null);
 		this._storageView.hideBoxField();
 		this._storageView.hideBoxSizeField();
 		this._storageView.hidePosField();
@@ -315,7 +315,13 @@ function StorageController(configOverride) {
 	}
 	
 	this._isValidState = function(callback) {
-		if(!this._storageModel.row || !this._storageModel.column) {
+		if(!this._storageModel.row && 
+			!this._storageModel.column && 
+			!this._storageModel.boxName && 
+			!this._storageModel.boxSize && 
+			!this._storageModel.boxPosition) { //Dirty delete case
+			callback(null);
+		} else if(!this._storageModel.row || !this._storageModel.column) {
 			callback("Select a rack please.");
 		} else if(!this._storageModel.boxName) {
 			callback("Select a box please.");

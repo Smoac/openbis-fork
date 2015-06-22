@@ -61,11 +61,12 @@ function StorageModel(configOverride) {
 		}
 	}
 	
-	this.resetBoxInfo = function(row, column, boxName, boxSize, boxContents) {
+	this.resetBoxInfo = function(row, column, boxName, boxSize, boxContents, boxPosition) {
 		this.row = row; //Selected Row
 		this.column = column; //Selected Column
 		this.boxName = boxName; //Selected Box
 		this.boxSize = boxSize; //Selected Box
 		this.boxContents = boxContents; //Selected Box contents (samples)
+		this.boxPosition = boxPosition;
 	}
 }
