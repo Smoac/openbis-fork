@@ -45,25 +45,34 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		//
 		// TITLE
 		//
-		var $formTitle = null;
+		var $formTitle = $("<div>");
 		var nameLabel = this._sampleFormModel.sample.properties[profile.propertyReplacingCode];
-		if(!nameLabel) {
-			nameLabel = this._sampleFormModel.sample.experimentIdentifierOrNull + "/" + this._sampleFormModel.sample.code;
-		}
+		var entityPath = this._sampleFormModel.sample.experimentIdentifierOrNull + "/" + this._sampleFormModel.sample.code;
+		var isName = (nameLabel)?true:false;
+		
 		var title = null;
 		switch(this._sampleFormModel.mode) {
 	    	case FormMode.CREATE:
 	    		title = "Create Sample " + this._sampleFormModel.sample.sampleTypeCode;
 	    		break;
 	    	case FormMode.EDIT:
-	    		title = "Update Sample " + nameLabel;
+	    		title = "Update Sample ";
 	    		break;
 	    	case FormMode.VIEW:
-	    		title = "Sample " + nameLabel;
+	    		title = "Sample ";
 	    		break;
-		} 
+		}
 		
-		var $formTitle = $("<h2>").append(title + " ");
+		if(isName) {
+			title += nameLabel;
+			$formTitle
+				.append($("<h2>").append(title))
+				.append($("<h4>", { "style" : "font-weight:normal;" } ).append(entityPath));
+		} else {
+			title += entityPath;
+			$formTitle
+				.append($("<h2>").append(title));
+		}
 		
 		//
 		// TITLE BUTTONS
@@ -164,58 +173,10 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		}
 		
 		//
-		// SELECT EXPERIMENT/SPACE
+		// Identification Info on Create
 		//
-		$formColumn.append($("<legend>").append("Identification Info"));
-		$formColumn.append(FormUtil.getFieldForLabelWithText("Type", this._sampleFormModel.sample.sampleTypeCode));
-		$formColumn.append(FormUtil.getFieldForLabelWithText("Experiment", this._sampleFormModel.sample.experimentIdentifierOrNull));
-		
-		//
-		// CODE
-		//
-		var $codeField = null;
 		if(this._sampleFormModel.mode === FormMode.CREATE) {
-			var $textField = FormUtil._getInputField('text', null, "Code", null, true);
-			$textField.keyup(function(event){
-				var textField = $(this);
-				textField.val(textField.val().toUpperCase());
-				_this._sampleFormModel.sample.code = textField.val();
-				_this._sampleFormModel.isFormDirty = true;
-			});
-			$codeField = FormUtil.getFieldForComponentWithLabel($textField, "Code");
-			
-			mainController.serverFacade.generateCode(sampleType.codePrefix, function(data) {
-				$textField.val(data.result);
-				_this._sampleFormModel.sample.code = data.result;
-			});
-			
-		} else {
-			$codeField = FormUtil.getFieldForLabelWithText("Code", this._sampleFormModel.sample.code);
-		}
-		
-		$formColumn.append($codeField);
-		
-//		if(profile.hideCodes) {
-//			$codeField.hide();
-//		}
-		
-		//
-		// Registration and modification info
-		//
-		if(this._sampleFormModel.mode !== FormMode.CREATE) {
-			var registrationDetails = this._sampleFormModel.sample.registrationDetails;
-			
-			var $registrator = FormUtil.getFieldForLabelWithText("Registrator", registrationDetails.userId);
-			$formColumn.append($registrator);
-			
-			var $registationDate = FormUtil.getFieldForLabelWithText("Registration Date", (new Date(registrationDetails.registrationDate)).toLocaleString())
-			$formColumn.append($registationDate);
-			
-			var $modifier = FormUtil.getFieldForLabelWithText("Modifier", registrationDetails.modifierUserId);
-			$formColumn.append($modifier);
-			
-			var $modificationDate = FormUtil.getFieldForLabelWithText("Modification Date", (new Date(registrationDetails.modificationDate)).toLocaleString());
-			$formColumn.append($modificationDate);
+			this._paintIdentificationInfo($formColumn, sampleType);
 		}
 		
 		//
@@ -266,77 +227,77 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		//
 		// LINKS
 		//
-		var requiredLinks = [];
-		if(sampleTypeDefinitionsExtension && sampleTypeDefinitionsExtension["SAMPLE_LINKS_HINT"]) {
-			requiredLinks = sampleTypeDefinitionsExtension["SAMPLE_LINKS_HINT"];
-		}
-		
-		var sampleLinksWidgetId = "sampleLinksWidgetId";
-		var $sampleLinksWidget = $("<div>", { "id" : sampleLinksWidgetId });
-		$formColumn.append($sampleLinksWidget);
-		
-		var currentOrphanLinksIdentifiers = [];
-		var currentOrphanLinksPermIds = [];
-		
-		//Read the XML to build the orphan links list
-		var annotationsFromSample = FormUtil.getAnnotationsFromSample(this._sampleFormModel.sample);
-		//Delete parents and children
-		if(this._sampleFormModel.sample.parents) {
-			for(var idxF = 0; idxF < this._sampleFormModel.sample.parents.length; idxF++) {
-				var sample = this._sampleFormModel.sample.parents[idxF];
-				delete annotationsFromSample[sample.permId];
-			}
-		}
-		if(this._sampleFormModel.sample.children) {
-			for(var idxC = 0; idxC < this._sampleFormModel.sample.children.length; idxC++) {
-				var sample = this._sampleFormModel.sample.children[idxC];
-				delete annotationsFromSample[sample.permId];
-			}
-		}
-		//Make samples from Orphans left
-		if(annotationsFromSample) {
-			for(var orphanSamplePermId in annotationsFromSample) {
-				currentOrphanLinksIdentifiers.push(annotationsFromSample[orphanSamplePermId].identifier);
-				currentOrphanLinksPermIds.push(orphanSamplePermId);
-			}
-		}
-		
-		var isPresentLinkOnData = function(orphanSamplePermId, data) {
-			for(var dIdx = 0; dIdx <data.length; dIdx++)  {
-				if(data[dIdx].permId === orphanSamplePermId) {
-					return true;
-				}
-			}
-			return false;
-		}
-		
-		var buildFakeSampleIfNotFoundLink = function(orphanSamplePermId, annotationsFromSample) {
-			var orphanSample = {};
-			orphanSample.notFound = true;
-			orphanSample.permId = orphanSamplePermId;
-			orphanSample.code = annotationsFromSample[orphanSamplePermId].identifier.split('/')[2];
-			orphanSample.identifier = annotationsFromSample[orphanSamplePermId].identifier;
-			orphanSample.sampleTypeCode = annotationsFromSample[orphanSamplePermId].sampleType;
-			return orphanSample;
-		}
-		
-		var showLinksWidgetAction = function(data) {
-			for(var oIdx = 0; oIdx < currentOrphanLinksPermIds.length; oIdx++)  {
-				if(!isPresentLinkOnData(currentOrphanLinksPermIds[oIdx], data)) {
-					data.push(buildFakeSampleIfNotFoundLink(currentOrphanLinksPermIds[oIdx], annotationsFromSample));
-				}
-			}
-			
-			_this._sampleFormModel.sampleLinks = new SampleLinksWidget(sampleLinksWidgetId,
-					profile,
-					mainController.serverFacade,
-					"Links",
-					requiredLinks,
-					isDisabled,
-					data,
-					_this._sampleFormModel.mode === FormMode.CREATE);
-			_this._sampleFormModel.sampleLinks.repaint();
-		}
+//		var requiredLinks = [];
+//		if(sampleTypeDefinitionsExtension && sampleTypeDefinitionsExtension["SAMPLE_LINKS_HINT"]) {
+//			requiredLinks = sampleTypeDefinitionsExtension["SAMPLE_LINKS_HINT"];
+//		}
+//		
+//		var sampleLinksWidgetId = "sampleLinksWidgetId";
+//		var $sampleLinksWidget = $("<div>", { "id" : sampleLinksWidgetId });
+//		$formColumn.append($sampleLinksWidget);
+//		
+//		var currentOrphanLinksIdentifiers = [];
+//		var currentOrphanLinksPermIds = [];
+//		
+//		//Read the XML to build the orphan links list
+//		var annotationsFromSample = FormUtil.getAnnotationsFromSample(this._sampleFormModel.sample);
+//		//Delete parents and children
+//		if(this._sampleFormModel.sample.parents) {
+//			for(var idxF = 0; idxF < this._sampleFormModel.sample.parents.length; idxF++) {
+//				var sample = this._sampleFormModel.sample.parents[idxF];
+//				delete annotationsFromSample[sample.permId];
+//			}
+//		}
+//		if(this._sampleFormModel.sample.children) {
+//			for(var idxC = 0; idxC < this._sampleFormModel.sample.children.length; idxC++) {
+//				var sample = this._sampleFormModel.sample.children[idxC];
+//				delete annotationsFromSample[sample.permId];
+//			}
+//		}
+//		//Make samples from Orphans left
+//		if(annotationsFromSample) {
+//			for(var orphanSamplePermId in annotationsFromSample) {
+//				currentOrphanLinksIdentifiers.push(annotationsFromSample[orphanSamplePermId].identifier);
+//				currentOrphanLinksPermIds.push(orphanSamplePermId);
+//			}
+//		}
+//		
+//		var isPresentLinkOnData = function(orphanSamplePermId, data) {
+//			for(var dIdx = 0; dIdx <data.length; dIdx++)  {
+//				if(data[dIdx].permId === orphanSamplePermId) {
+//					return true;
+//				}
+//			}
+//			return false;
+//		}
+//		
+//		var buildFakeSampleIfNotFoundLink = function(orphanSamplePermId, annotationsFromSample) {
+//			var orphanSample = {};
+//			orphanSample.notFound = true;
+//			orphanSample.permId = orphanSamplePermId;
+//			orphanSample.code = annotationsFromSample[orphanSamplePermId].identifier.split('/')[2];
+//			orphanSample.identifier = annotationsFromSample[orphanSamplePermId].identifier;
+//			orphanSample.sampleTypeCode = annotationsFromSample[orphanSamplePermId].sampleType;
+//			return orphanSample;
+//		}
+//		
+//		var showLinksWidgetAction = function(data) {
+//			for(var oIdx = 0; oIdx < currentOrphanLinksPermIds.length; oIdx++)  {
+//				if(!isPresentLinkOnData(currentOrphanLinksPermIds[oIdx], data)) {
+//					data.push(buildFakeSampleIfNotFoundLink(currentOrphanLinksPermIds[oIdx], annotationsFromSample));
+//				}
+//			}
+//			
+//			_this._sampleFormModel.sampleLinks = new SampleLinksWidget(sampleLinksWidgetId,
+//					profile,
+//					mainController.serverFacade,
+//					"Links",
+//					requiredLinks,
+//					isDisabled,
+//					data,
+//					_this._sampleFormModel.mode === FormMode.CREATE);
+//			_this._sampleFormModel.sampleLinks.repaint();
+//		}
 		
 		//
 		// GENERATE CHILDREN
@@ -473,6 +434,12 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 			$formColumn.append(plateContainer);
 		}
 		
+		//
+		// Identification Info on View/Edit
+		//
+		if(this._sampleFormModel.mode !== FormMode.CREATE) {
+			this._paintIdentificationInfo($formColumn);
+		}
 		
 		//
 		// Storage
@@ -543,6 +510,60 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		}
 		
 		this._sampleFormModel.isFormLoaded = true;
+	}
+	
+	this._paintIdentificationInfo = function($formColumn, sampleType) {
+		var _this = this;
+		//
+		// Identification Info
+		//
+		$formColumn.append($("<legend>").append("Identification Info"));
+		$formColumn.append(FormUtil.getFieldForLabelWithText("Type", this._sampleFormModel.sample.sampleTypeCode));
+		$formColumn.append(FormUtil.getFieldForLabelWithText("Experiment", this._sampleFormModel.sample.experimentIdentifierOrNull));
+		
+		//
+		// Identification Info - Code
+		//
+		var $codeField = null;
+		if(this._sampleFormModel.mode === FormMode.CREATE) {
+			var $textField = FormUtil._getInputField('text', null, "Code", null, true);
+			$textField.keyup(function(event){
+				var textField = $(this);
+				textField.val(textField.val().toUpperCase());
+				_this._sampleFormModel.sample.code = textField.val();
+				_this._sampleFormModel.isFormDirty = true;
+			});
+			$codeField = FormUtil.getFieldForComponentWithLabel($textField, "Code");
+			
+			mainController.serverFacade.generateCode(sampleType.codePrefix, function(data) {
+				$textField.val(data.result);
+				_this._sampleFormModel.sample.code = data.result;
+			});
+			
+		} else {
+			$codeField = FormUtil.getFieldForLabelWithText("Code", this._sampleFormModel.sample.code);
+		}
+		
+		$formColumn.append($codeField);
+		
+		//
+		// Identification Info - Registration and modification times
+		//
+		if(this._sampleFormModel.mode !== FormMode.CREATE) {
+			var registrationDetails = this._sampleFormModel.sample.registrationDetails;
+			
+			var $registrator = FormUtil.getFieldForLabelWithText("Registrator", registrationDetails.userId);
+			$formColumn.append($registrator);
+			
+			var $registationDate = FormUtil.getFieldForLabelWithText("Registration Date", (new Date(registrationDetails.registrationDate)).toLocaleString())
+			$formColumn.append($registationDate);
+			
+			var $modifier = FormUtil.getFieldForLabelWithText("Modifier", registrationDetails.modifierUserId);
+			$formColumn.append($modifier);
+			
+			var $modificationDate = FormUtil.getFieldForLabelWithText("Modification Date", (new Date(registrationDetails.modificationDate)).toLocaleString());
+			$formColumn.append($modificationDate);
+		}
 	}
 	
 	//
