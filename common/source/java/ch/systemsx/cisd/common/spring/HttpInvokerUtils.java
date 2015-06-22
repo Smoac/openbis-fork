@@ -30,6 +30,7 @@ import org.apache.http.conn.socket.PlainConnectionSocketFactory;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.SSLContextBuilder;
 import org.apache.http.conn.ssl.SSLContexts;
+import org.apache.http.impl.NoConnectionReuseStrategy;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
@@ -84,7 +85,10 @@ public class HttpInvokerUtils
         PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager(schemeRegistry);
         connectionManager.setMaxTotal(100);
         connectionManager.setDefaultMaxPerRoute(5);
-        CloseableHttpClient client = HttpClientBuilder.create().setConnectionManager(connectionManager).useSystemProperties().build();
+        CloseableHttpClient client =
+                HttpClientBuilder.create().setConnectionManager(connectionManager).useSystemProperties()
+                        .setConnectionReuseStrategy(new NoConnectionReuseStrategy())
+                        .build();
 
         HttpComponentsHttpInvokerRequestExecutor httpInvokerRequestExecutor = new HttpComponentsHttpInvokerRequestExecutor(client);
 
@@ -100,7 +104,8 @@ public class HttpInvokerUtils
         {
             HttpHost proxy = new HttpHost(proxyAddressOrNull.getHostName(), proxyAddressOrNull.getPort(), "http");
             CloseableHttpClient client2 =
-                    HttpClientBuilder.create().setProxy(proxy).useSystemProperties().setConnectionManager(connectionManager).build();
+                    HttpClientBuilder.create().setProxy(proxy).useSystemProperties().setConnectionManager(connectionManager)
+                            .setConnectionReuseStrategy(new NoConnectionReuseStrategy()).build();
             httpInvokerRequestExecutor.setHttpClient(client2);
         }
         httpInvokerProxy.afterPropertiesSet();
@@ -132,12 +137,14 @@ public class HttpInvokerUtils
         {
             HttpHost proxy = new HttpHost(proxyAddressOrNull.getHostName(), proxyAddressOrNull.getPort(), "http");
             CloseableHttpClient client2 =
-                    HttpClientBuilder.create().setProxy(proxy).useSystemProperties().setConnectionManager(connectionManager).build();
+                    HttpClientBuilder.create().setConnectionReuseStrategy(new NoConnectionReuseStrategy()).setProxy(proxy).useSystemProperties()
+                            .setConnectionManager(connectionManager).build();
             httpInvokerRequestExecutor.setHttpClient(client2);
         } else
         {
             httpInvokerRequestExecutor
-                    .setHttpClient(HttpClientBuilder.create().useSystemProperties().setConnectionManager(connectionManager).build());
+                    .setHttpClient(HttpClientBuilder.create().setConnectionReuseStrategy(new NoConnectionReuseStrategy()).useSystemProperties()
+                            .setConnectionManager(connectionManager).build());
         }
         httpInvokerProxy.afterPropertiesSet();
         return getCastedService(httpInvokerProxy);
