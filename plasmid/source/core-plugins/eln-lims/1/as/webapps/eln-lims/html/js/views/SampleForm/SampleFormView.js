@@ -47,7 +47,12 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		//
 		var $formTitle = $("<div>");
 		var nameLabel = this._sampleFormModel.sample.properties[profile.propertyReplacingCode];
-		var entityPath = this._sampleFormModel.sample.experimentIdentifierOrNull + "/" + this._sampleFormModel.sample.code;
+		var entityPath = null;
+		if(this._sampleFormModel.sample.experimentIdentifierOrNull) {
+			entityPath = this._sampleFormModel.sample.experimentIdentifierOrNull + "/" + this._sampleFormModel.sample.code;
+		} else {
+			entityPath = this._sampleFormModel.sample.identifier;
+		}
 		var isName = (nameLabel)?true:false;
 		
 		var title = null;
@@ -335,7 +340,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		for(var i = 0; i < sampleType.propertyTypeGroups.length; i++) {
 			var propertyTypeGroup = sampleType.propertyTypeGroups[i];
 			if(propertyTypeGroup.name !== "General") {
-				isStorageAvailable = isStorageAvailable || this._paintPropertiesForSection($formColumn, propertyTypeGroup);
+				isStorageAvailable = isStorageAvailable || this._paintPropertiesForSection($formColumn, propertyTypeGroup, i);
 			}
 		}
 		

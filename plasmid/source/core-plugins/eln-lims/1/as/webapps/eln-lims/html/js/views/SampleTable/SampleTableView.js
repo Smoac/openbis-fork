@@ -25,23 +25,24 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 		if(this._sampleTableModel.title) {
 			var $title = $("<h1>").append(this._sampleTableModel.title);
 			
-			var experimentCode = this._sampleTableModel.experimentIdentifier.split("/")[3];
-			var sampleTypeCode = experimentCode.substring(0,experimentCode.indexOf("_COLLECTION"));
-			
-			//Add Experiment Step
-			if(profile.getSampleTypeForSampleTypeCode(sampleTypeCode)) {
-				$title.append("&nbsp;");
-				$title.append(FormUtil.getButtonWithText("Create " + sampleTypeCode, function() {
-					var argsMap = {
-							"sampleTypeCode" : sampleTypeCode,
-							"experimentIdentifier" : _this._sampleTableModel.experimentIdentifier
-					}
-					var argsMapStr = JSON.stringify(argsMap);
-					Util.unblockUI();
-					mainController.changeView("showCreateSubExperimentPage", argsMapStr);
-				}));
+			if(this._sampleTableModel.experimentIdentifier) {
+				var experimentCode = this._sampleTableModel.experimentIdentifier.split("/")[3];
+				var sampleTypeCode = experimentCode.substring(0,experimentCode.indexOf("_COLLECTION"));
+				
+				//Add Experiment Step
+				if(profile.getSampleTypeForSampleTypeCode(sampleTypeCode)) {
+					$title.append("&nbsp;");
+					$title.append(FormUtil.getButtonWithText("Create " + sampleTypeCode, function() {
+						var argsMap = {
+								"sampleTypeCode" : sampleTypeCode,
+								"experimentIdentifier" : _this._sampleTableModel.experimentIdentifier
+						}
+						var argsMapStr = JSON.stringify(argsMap);
+						Util.unblockUI();
+						mainController.changeView("showCreateSubExperimentPage", argsMapStr);
+					}));
+				}
 			}
-			
 			$container.append($title);
 		}
 		
