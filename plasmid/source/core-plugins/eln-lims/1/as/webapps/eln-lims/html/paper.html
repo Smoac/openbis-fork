@@ -1,0 +1,166 @@
+<!--
+/*
+ * Copyright 2014 ETH Zuerich, Scientific IT Services
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+	<title>Publication</title>
+	
+	<!-- Third party Stylesheets -->
+	<link type="text/css" rel="stylesheet" href="./lib/bootstrap/css/bootstrap.min.css" />
+	
+	<!-- Third party libraries -->
+	<script type="text/javascript" src="./lib/jquery/js/jquery-1.11.3.min.js"></script>
+	<script type="text/javascript" src="./lib/bootstrap/js/bootstrap.min.js"></script>
+	
+	<style>
+		p {
+			text-align: justify;
+		}
+		/* title */
+		.header {
+			margin-top: 20px;
+			padding: 40px;
+			background: lightgrey;
+		}
+		/* groups */
+		.group .subgroup {
+		    background: orange;
+		    width: 150px;
+		    height: 200px;
+		}
+		.fixed {
+		    position: fixed;
+		}
+		
+		/* sidebar */
+		.bs-docs-sidebar {
+		    padding-left: 20px;
+		    margin-top: 20px;
+		    margin-bottom: 20px;
+		}
+		
+		/* all links */
+		.bs-docs-sidebar .nav>li>a {
+		    color: #999;
+		    border-left: 2px solid transparent;
+		    padding: 4px 20px;
+		    font-size: 13px;
+		    font-weight: 400;
+		}
+		
+		/* nested links */
+		.bs-docs-sidebar .nav .nav>li>a {
+		    padding-top: 1px;
+		    padding-bottom: 1px;
+		    padding-left: 30px;
+		    font-size: 12px;
+		}
+		
+		/* active & hover links */
+		.bs-docs-sidebar .nav>.active>a, 
+		.bs-docs-sidebar .nav>li>a:hover, 
+		.bs-docs-sidebar .nav>li>a:focus {
+		    color: grey;                 
+		    text-decoration: none;          
+		    background-color: transparent;
+		    border-left-color: lightgrey; 
+		}
+		/* all active links */
+		.bs-docs-sidebar .nav>.active>a, 
+		.bs-docs-sidebar .nav>.active:hover>a,
+		.bs-docs-sidebar .nav>.active:focus>a {
+		    font-weight: 700;
+		}
+		/* nested active links */
+		.bs-docs-sidebar .nav .nav>.active>a, 
+		.bs-docs-sidebar .nav .nav>.active:hover>a,
+		.bs-docs-sidebar .nav .nav>.active:focus>a {
+		    font-weight: 500;
+		}
+		
+		/* hide inactive nested list */
+		.bs-docs-sidebar .nav ul.nav {
+		    display: none;           
+		}
+		/* show active nested list */
+		.bs-docs-sidebar .nav>.active>ul.nav {
+		    display: block;           
+		}
+	</style>
+	
+	<script>
+		$(document).ready(function(){
+			$('body').scrollspy({
+			    target: '.bs-docs-sidebar',
+			    offset: 40
+			});
+		});
+	</script>
+</head>
+<body>
+	<div class="container-fluid">
+		<div class="row header">
+			<div class="col-xs-12">
+				<h1>ELN-LIMS Plugin for openBIS</h1>
+	        	<p>An easy to use, intuitive interface for day to day laboratory operations build on top of modern web technologies.</p>
+	        	<p><a class="btn btn-default" href="./index.html" role="button">Log in</a></p>
+        	</div>
+		</div>
+	</div>
+	<div class="container-fluid">
+		<div class="row">
+			<!--Main Content -->
+		    <div class="col-xs-9">
+		        <section id="Introduction" class="group">
+		            <h3>Introduction</h3>
+		            <p> This instance demonstrates how openBIS ELN-LIMS can be used to record, manage, and retrieve data produced in a typical academic bio-molecular laboratory.
+To illustrate the concept we used some of our recently published data on inducible transcription factors in yeast (Ottoz et al., Nucleic Acids Research, 2014). </p>
+		        </section>
+		        <section id="LIMS" class="group">
+					<h3>LIMS</h3>
+					<p>The materials and methods used for this work were entered in the Inventory section as Samples. This section contains two Data Spaces: MATERIALS and METHODS. The hierarchical structure of openBIS allows us to organize the materials in several categories: PLASMIDS, POLYNUCLEOTIDES, REAGENTS (including ANTIBODIES, CHEMICALS, SOLUTIONS_BUFFERS etc.), and YEASTS. Similarly, we organized the methods in two groups: GENERAL_PROTOCOLS and WESTERN_BLOTTING_PROTOCOLS.</p>
+		        	<p>All information stored in a Sample, including the attached Datasets, can be visualized by clicking on it. Parent-child relationships illustrate the Sample’s context in the database. For example, the parents of the SOLUTIONS_BUFFERS Samples are the CHEMICALS or SOLUTIONS_BUFFERS to be mixed together. To specify the nature of these relationships, we annotate the links with the needed quantities.</p>
+		        </section>
+		        <section id="ELN" class="group">
+		            <h3>ELN</h3>
+		            <p>The experimental results are organized and stored in the Lab Notebook section. Here, we created a dedicated Data Space called DIANA_OTTOZ. Within this Data Space, we created the INDUCIBLE_TRANSCRIPTION_FACTOR Project where we organized the work in Experiments. In the Lab Notebook section, each Experiment represents a scientific question where the experimental goals and outcomes are briefly described. We created two Experiments:  INDUCTION_OF_TF, where the goal was to analyze the induction of the transcription factor in different concentrations of inducer using flow cytometry and western blotting; TF_ABUNDANCE, where the goal was to analyze the correlation between the transcription factor abundance and the reached induction levels using western blotting.
+Within each Experiment, we listed the bench experiments performed to answer the scientific question as Experimental Steps. For example, INDUCTION_OF_TF contains three Experimental steps: FC_LEXA-ER-B42, WB_LEXA-ER-B42, and WB_LEXA-ER-B112.</p>
+		        	<p>The Sample WB_LEXA-ER-B42 describes a western blotting performed to assess the induction levels of the transcription factor variant called LexA-ER-B42. Materials and methods Samples used to obtain these data are listed as Parents. The annotation of each of these relationships gives practical information about how the particular experiment was performed, and is necessary to reproduce the results. Additional information, like the readout details and the general comments on the outcome of the experiment, is also contained in the Sample. The actual results, the western blot images, are uploaded as Datasets. A table describes the order of the protein extracts loaded on each lane of the gel, allowing one to fully understand the western blot images.</p>
+		        </section> 
+		    </div>
+		    
+		    <!--Nav Bar -->
+		    <nav class="col-xs-3 bs-docs-sidebar">
+		        <ul id="sidebar" class="nav nav-stacked fixed affix">
+		            <li>
+		                <a href="#Introduction">Introduction</a>
+		            </li>
+		            <li>
+		                <a href="#LIMS">LIMS</a>
+		            </li>
+		            <li>
+		                <a href="#ELN">ELN</a>
+		            </li>
+		        </ul>
+		    </nav>
+		</div>
+	</div>
+</body>
+</html>
