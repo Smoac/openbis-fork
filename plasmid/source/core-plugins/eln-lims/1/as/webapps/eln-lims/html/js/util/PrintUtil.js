@@ -25,7 +25,7 @@ var PrintUtil = new function() {
 		$(newWindow.document.body).html(pageToPrint);
 	}
 	
-	this.getParentsChildrenText = function(samplesList) {
+	this._getCodesFromSamples = function(samplesList) {
 		var allSamplesByType = {};
 		
 		if(samplesList) {
@@ -110,12 +110,12 @@ var PrintUtil = new function() {
 				if(isSingleColumn) {
 					$newInspectorTable
 					.append($("<tr>")
-								.append($("<td>", { "class" : "property", "colspan" : "2" }).append($("<p>", { "class" : "inspectorLineBreak"}).append(propertyLabel).append("<br>").append(propertyContent)))
+								.append($("<td>", { "class" : "property", "colspan" : "2" }).append($("<p>", { "class" : "inspectorLineBreak"}).append(propertyLabel + ":").append("<br>").append(propertyContent)))
 							);
 				} else {
 					$newInspectorTable
 					.append($("<tr>")
-								.append($("<td>", { "class" : "property", "colspan" : "1" }).append($("<p>", { "class" : ""}).append(propertyLabel)))
+								.append($("<td>", { "class" : "property", "colspan" : "1" }).append($("<p>", { "class" : ""}).append(propertyLabel + ":")))
 								.append($("<td>", { "class" : "property", "colspan" : "1" }).append($("<p>", { "class" : "inspectorLineBreak"}).append(propertyContent)))
 							);
 				}
@@ -123,21 +123,21 @@ var PrintUtil = new function() {
 		}
 			
 		//Show Parent Codes
-		var allParentCodesAsText = this.getParentsChildrenText(entity.parents);
+		var allParentCodesAsText = this._getCodesFromSamples(entity.parents);
 		if(allParentCodesAsText.length > 0) {
 			$newInspectorTable
 				.append($("<tr>")
-							.append($("<td>", { "class" : "property", "colspan" : "1" }).append($("<p>", { "class" : ""}).append("Parents")))
+							.append($("<td>", { "class" : "property", "colspan" : "1" }).append($("<p>", { "class" : ""}).append("Parents:")))
 							.append($("<td>", { "class" : "property", "colspan" : "1" }).append($("<p>", { "class" : "inspectorLineBreak"}).append(allParentCodesAsText)))
 						);
 		}
 			
 		//Show Children Codes
-		var allChildrenCodesAsText = this.getParentsChildrenText(entity.children);
+		var allChildrenCodesAsText = this._getCodesFromSamples(entity.children);
 		if(allChildrenCodesAsText.length > 0) {
 			$newInspectorTable
 			.append($("<tr>")
-						.append($("<td>", { "class" : "property", "colspan" : "1" }).append($("<p>", { "class" : ""}).append("Children")))
+						.append($("<td>", { "class" : "property", "colspan" : "1" }).append($("<p>", { "class" : ""}).append("Children:")))
 						.append($("<td>", { "class" : "property", "colspan" : "1" }).append($("<p>", { "class" : "inspectorLineBreak"}).append(allChildrenCodesAsText)))
 					);
 		}
@@ -145,14 +145,14 @@ var PrintUtil = new function() {
 		//Show Modification Date
 		$newInspectorTable
 		.append($("<tr>")
-					.append($("<td>", { "class" : "property", "colspan" : "1" }).append($("<p>", { "class" : ""}).append("Modification Date")))
+					.append($("<td>", { "class" : "property", "colspan" : "1" }).append($("<p>", { "class" : ""}).append("Modification Date:")))
 					.append($("<td>", { "class" : "property", "colspan" : "1" }).append($("<p>", { "class" : "inspectorLineBreak"}).append(new Date(entity.registrationDetails["modificationDate"]))))
 				);
 		
 		//Show Creation Date
 		$newInspectorTable
 		.append($("<tr>")
-					.append($("<td>", { "class" : "property", "colspan" : "1" }).append($("<p>", { "class" : ""}).append("Registration Date")))
+					.append($("<td>", { "class" : "property", "colspan" : "1" }).append($("<p>", { "class" : ""}).append("Registration Date:")))
 					.append($("<td>", { "class" : "property", "colspan" : "1" }).append($("<p>", { "class" : "inspectorLineBreak"}).append(new Date(entity.registrationDetails["registrationDate"]))))
 				);
 		
