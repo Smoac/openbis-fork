@@ -72,7 +72,7 @@ define([ 'jquery', 'util/Json' ], function($, stjsUtil) {
 		}
 	}
 
-	return function(openbisUrl) {
+	var facade = function(openbisUrl) {
 
 		if (!openbisUrl) {
 			openbisUrl = "/openbis/openbis/rmi-application-server-v3.json";
@@ -467,5 +467,7 @@ define([ 'jquery', 'util/Json' ], function($, stjsUtil) {
 			});
 		}
 	}
+
+	return facade;
 
 });

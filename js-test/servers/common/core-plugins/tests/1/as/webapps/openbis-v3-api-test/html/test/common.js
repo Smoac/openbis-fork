@@ -15,11 +15,8 @@ define([ 'jquery', 'openbis' ], function($, openbis) {
 
 	var Common = function(assert) {
 		this.assert = assert;
-	}
 
-	$.extend(Common.prototype, {
-
-		createObject : function() {
+		this.createObject = function() {
 			var dfd = $.Deferred();
 			var objectPath = arguments[0];
 			var objectParameters = [];
@@ -35,14 +32,14 @@ define([ 'jquery', 'openbis' ], function($, openbis) {
 			});
 
 			return dfd.promise();
-		},
+		};
 
-		createFacade : function(action) {
+		this.createFacade = function(action) {
 			var facade = new openbis(testApiUrl);
 			action(facade);
-		},
+		};
 
-		createFacadeAndLogin : function() {
+		this.createFacadeAndLogin = function() {
 			var dfd = $.Deferred();
 
 			this.createFacade(function(facade) {
@@ -54,57 +51,57 @@ define([ 'jquery', 'openbis' ], function($, openbis) {
 			});
 
 			return dfd.promise();
-		},
+		};
 
-		createSpacePermId : function(permId) {
+		this.createSpacePermId = function(permId) {
 			return this.createObject('dto/id/space/SpacePermId', permId);
-		},
+		};
 
-		createProjectPermId : function(permId) {
+		this.createProjectPermId = function(permId) {
 			return this.createObject('dto/id/project/ProjectPermId', permId);
-		},
+		};
 
-		createProjectIdentifier : function(identifier) {
+		this.createProjectIdentifier = function(identifier) {
 			return this.createObject('dto/id/project/ProjectIdentifier', identifier);
-		},
+		};
 
-		createExperimentPermId : function(permId) {
+		this.createExperimentPermId = function(permId) {
 			return this.createObject('dto/id/experiment/ExperimentPermId', permId);
-		},
+		};
 
-		createExperimentIdentifier : function(identifier) {
+		this.createExperimentIdentifier = function(identifier) {
 			return this.createObject('dto/id/experiment/ExperimentIdentifier', identifier);
-		},
+		};
 
-		createSamplePermId : function(permId) {
+		this.createSamplePermId = function(permId) {
 			return this.createObject('dto/id/sample/SamplePermId', permId);
-		},
+		};
 
-		createMaterialPermId : function(code, typeCode) {
+		this.createMaterialPermId = function(code, typeCode) {
 			return this.createObject('dto/id/material/MaterialPermId', code, typeCode);
-		},
+		};
 
-		createSpaceSearchCriterion : function() {
+		this.createSpaceSearchCriterion = function() {
 			return this.createObject('dto/search/SpaceSearchCriterion');
-		},
+		};
 
-		createProjectSearchCriterion : function() {
+		this.createProjectSearchCriterion = function() {
 			return this.createObject('dto/search/ProjectSearchCriterion');
-		},
+		};
 
-		createExperimentSearchCriterion : function() {
+		this.createExperimentSearchCriterion = function() {
 			return this.createObject('dto/search/ExperimentSearchCriterion');
-		},
+		};
 
-		createSampleSearchCriterion : function() {
+		this.createSampleSearchCriterion = function() {
 			return this.createObject('dto/search/SampleSearchCriterion');
-		},
+		};
 
-		createMaterialSearchCriterion : function() {
+		this.createMaterialSearchCriterion = function() {
 			return this.createObject('dto/search/MaterialSearchCriterion');
-		},
+		};
 
-		createSpaceFetchOptions : function() {
+		this.createSpaceFetchOptions = function() {
 			var promise = this.createObject('dto/fetchoptions/space/SpaceFetchOptions');
 			promise.done(function(fo) {
 				fo.withProjects();
@@ -112,9 +109,9 @@ define([ 'jquery', 'openbis' ], function($, openbis) {
 				fo.withRegistrator();
 			});
 			return promise;
-		},
+		};
 
-		createProjectFetchOptions : function() {
+		this.createProjectFetchOptions = function() {
 			var promise = this.createObject('dto/fetchoptions/project/ProjectFetchOptions');
 			promise.done(function(fo) {
 				fo.withSpace();
@@ -125,9 +122,9 @@ define([ 'jquery', 'openbis' ], function($, openbis) {
 				fo.withAttachments().withContent();
 			});
 			return promise;
-		},
+		};
 
-		createExperimentFetchOptions : function() {
+		this.createExperimentFetchOptions = function() {
 			var promise = this.createObject('dto/fetchoptions/experiment/ExperimentFetchOptions');
 			promise.done(function(fo) {
 				fo.withType();
@@ -143,9 +140,9 @@ define([ 'jquery', 'openbis' ], function($, openbis) {
 				fo.withAttachments().withContent();
 			})
 			return promise;
-		},
+		};
 
-		createSampleFetchOptions : function() {
+		this.createSampleFetchOptions = function() {
 			var promise = this.createObject('dto/fetchoptions/sample/SampleFetchOptions');
 			promise.done(function(fo) {
 				fo.withType();
@@ -166,9 +163,9 @@ define([ 'jquery', 'openbis' ], function($, openbis) {
 				fo.withChildrenUsing(fo);
 			});
 			return promise;
-		},
+		};
 
-		createMaterialFetchOptions : function() {
+		this.createMaterialFetchOptions = function() {
 			var promise = this.createObject('dto/fetchoptions/material/MaterialFetchOptions');
 			promise.done(function(fo) {
 				fo.withType();
@@ -179,17 +176,17 @@ define([ 'jquery', 'openbis' ], function($, openbis) {
 				fo.withTags();
 			});
 			return promise;
-		},
+		};
 
-		assertEqual : function(actual, expected, msg) {
+		this.assertEqual = function(actual, expected, msg) {
 			this.assert.equal(actual, expected, msg);
-		},
+		};
 
-		assertNotEqual : function(actual, expected, msg) {
+		this.assertNotEqual = function(actual, expected, msg) {
 			this.assert.notEqual(actual, expected, msg);
-		},
+		};
 
-		assertDate : function(millis, msg, year, month, day, hour, minute) {
+		this.assertDate = function(millis, msg, year, month, day, hour, minute) {
 			var date = new Date(millis);
 			var actual = "";
 			var expected = "";
@@ -216,18 +213,18 @@ define([ 'jquery', 'openbis' ], function($, openbis) {
 			}
 
 			this.assertEqual(actual, expected, msg);
-		},
+		};
 
-		assertToday : function(millis, msg) {
+		this.assertToday = function(millis, msg) {
 			var today = new Date();
 			this.assertDate(millis, msg, today.getUTCFullYear(), today.getUTCMonth() + 1, today.getUTCDate());
-		},
+		};
 
-		assertObjectsCount : function(objects, count) {
+		this.assertObjectsCount = function(objects, count) {
 			this.assertEqual(objects.length, count, 'Got ' + count + ' object(s)');
-		},
+		};
 
-		assertObjectsWithOrWithoutCollections : function(objects, accessor, checker) {
+		this.assertObjectsWithOrWithoutCollections = function(objects, accessor, checker) {
 			var theObjects = null;
 
 			if ($.isArray(objects)) {
@@ -247,9 +244,9 @@ define([ 'jquery', 'openbis' ], function($, openbis) {
 			}
 
 			checker(theObjects, theAccessor);
-		},
+		};
 
-		assertObjectsWithCollections : function(objects, accessor) {
+		this.assertObjectsWithCollections = function(objects, accessor) {
 			var thisCommon = this;
 			this.assertObjectsWithOrWithoutCollections(objects, accessor, function(objects, accessor) {
 				thisCommon.assert.ok(objects.some(function(object) {
@@ -257,9 +254,9 @@ define([ 'jquery', 'openbis' ], function($, openbis) {
 					return value && Object.keys(value).length > 0;
 				}), 'Objects have non-empty collections accessed via: ' + accessor);
 			});
-		},
+		};
 
-		assertObjectsWithoutCollections : function(objects, accessor) {
+		this.assertObjectsWithoutCollections = function(objects, accessor) {
 			var thisCommon = this;
 			this.assertObjectsWithOrWithoutCollections(objects, accessor, function(objects, accessor) {
 				thisCommon.assert.ok(objects.every(function(object) {
@@ -267,13 +264,13 @@ define([ 'jquery', 'openbis' ], function($, openbis) {
 					return !value || Object.keys(value).length == 0;
 				}), 'Objects have empty collections accessed via: ' + accessor);
 			});
-		},
+		};
 
-		fail : function(msg) {
+		this.fail = function(msg) {
 			this.assert.ok(false, msg);
-		}
+		};
 
-	});
+	};
 
 	return Common;
 })
