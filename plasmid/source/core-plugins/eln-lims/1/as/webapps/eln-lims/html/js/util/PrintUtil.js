@@ -57,29 +57,27 @@ var PrintUtil = new function() {
 	}
 	
 	this.getTable = function(entity, isNotTransparent, optionalTitle, customClass, extraCustomId, extraContent) {
-		var defaultColor = null;
-		
+		var $newInspector = $("<div>");
 		if(isNotTransparent) {
-			defaultColor = "#FBFBFB";
+			$newInspector.css("background-color", "#FBFBFB");
 		} else {
-			defaultColor = "transparent"
+			$newInspector.css("background-color", "transparent");
 		} 
 		
-		var inspector = "";
-			
-		var inspectorClass = 'inspector';
+		
+		$newInspector.addClass("inspector");
 		if(customClass) {
-			inspectorClass += ' ' + customClass;
+			$newInspector.addClass(customClass);
 		}
-		inspector += "<div class='" + inspectorClass + "' style='background-color:" + defaultColor + ";' >";
 			
 		if(optionalTitle) {
-			inspector += optionalTitle;
+			$newInspector.append(optionalTitle);
 		} else {
-			inspector += "<strong>" + entity.code + "</strong>";
+			$newInspector.append($("<strong>").append(entity.code));
 		}
 		
-		inspector += "<table id='" + entity.permId +"_TOOGLE' class='properties table table-condensed'>"
+		var $newInspectorTable = $("<table>", { "class" : "properties table table-condensed" });
+		$newInspector.append($newInspectorTable);
 		
 		//Show Properties following the order given on openBIS
 		var sampleTypePropertiesCode = profile.getAllPropertiCodesForTypeCode(entity.sampleTypeCode);
@@ -109,57 +107,59 @@ var PrintUtil = new function() {
 			
 			if(propertyContent !== "") {
 				propertyContent = Util.replaceURLWithHTMLLinks(propertyContent);
-				inspector += "<tr>";
-					
 				if(isSingleColumn) {
-					inspector += "<td class='property' colspan='2'>"+propertyLabel+"<br />"+propertyContent+"</td>";
+					$newInspectorTable
+					.append($("<tr>")
+								.append($("<td>", { "class" : "property", "colspan" : "2" }).append($("<p>", { "class" : "inspectorLineBreak"}).append(propertyLabel).append("<br>").append(propertyContent)))
+							);
 				} else {
-					inspector += "<td class='property'>"+propertyLabel+"</td>";
-					inspector += "<td class='property'><p class='inspectorLineBreak'>"+propertyContent+"</p></td>";
+					$newInspectorTable
+					.append($("<tr>")
+								.append($("<td>", { "class" : "property", "colspan" : "1" }).append($("<p>", { "class" : ""}).append(propertyLabel)))
+								.append($("<td>", { "class" : "property", "colspan" : "1" }).append($("<p>", { "class" : "inspectorLineBreak"}).append(propertyContent)))
+							);
 				}
-				
-				inspector += "</tr>";
 			}
 		}
 			
 		//Show Parent Codes
 		var allParentCodesAsText = this.getParentsChildrenText(entity.parents);
 		if(allParentCodesAsText.length > 0) {
-			inspector += "<tr>";
-			inspector += "<td class='property'>Parents</td>";
-			inspector += "<td class='property'>"+allParentCodesAsText+"</td>";
-			inspector += "</tr>";
+			$newInspectorTable
+				.append($("<tr>")
+							.append($("<td>", { "class" : "property", "colspan" : "1" }).append($("<p>", { "class" : ""}).append("Parents")))
+							.append($("<td>", { "class" : "property", "colspan" : "1" }).append($("<p>", { "class" : "inspectorLineBreak"}).append(allParentCodesAsText)))
+						);
 		}
 			
 		//Show Children Codes
 		var allChildrenCodesAsText = this.getParentsChildrenText(entity.children);
 		if(allChildrenCodesAsText.length > 0) {
-			inspector += "<tr>";
-			inspector += "<td class='property'>Children</td>";
-			inspector += "<td class='property'>"+allChildrenCodesAsText+"</td>";
-			inspector += "</tr>";
+			$newInspectorTable
+			.append($("<tr>")
+						.append($("<td>", { "class" : "property", "colspan" : "1" }).append($("<p>", { "class" : ""}).append("Children")))
+						.append($("<td>", { "class" : "property", "colspan" : "1" }).append($("<p>", { "class" : "inspectorLineBreak"}).append(allChildrenCodesAsText)))
+					);
 		}
 			
 		//Show Modification Date
-		inspector += "<tr>";
-		inspector += "<td class='property'>Modification Date</td>";
-		inspector += "<td class='property'>"+new Date(entity.registrationDetails["modificationDate"])+"</td>";
-		inspector += "</tr>";
+		$newInspectorTable
+		.append($("<tr>")
+					.append($("<td>", { "class" : "property", "colspan" : "1" }).append($("<p>", { "class" : ""}).append("Modification Date")))
+					.append($("<td>", { "class" : "property", "colspan" : "1" }).append($("<p>", { "class" : "inspectorLineBreak"}).append(new Date(entity.registrationDetails["modificationDate"]))))
+				);
 		
 		//Show Creation Date
-		inspector += "<tr>";
-		inspector += "<td class='property'>Registration Date</td>";
-		inspector += "<td class='property'>"+new Date(entity.registrationDetails["registrationDate"])+"</td>";
-		inspector += "</tr>";
-		
-		inspector += "</table>"
+		$newInspectorTable
+		.append($("<tr>")
+					.append($("<td>", { "class" : "property", "colspan" : "1" }).append($("<p>", { "class" : ""}).append("Registration Date")))
+					.append($("<td>", { "class" : "property", "colspan" : "1" }).append($("<p>", { "class" : "inspectorLineBreak"}).append(new Date(entity.registrationDetails["registrationDate"]))))
+				);
 		
 		if(extraCustomId && extraContent) {
-			inspector += "<div class='inspectorExtra' id='"+ extraCustomId + "'>" + extraContent + "</div>";
+			$newInspector.append($("<div>", { "class" : "inspectorExtra", "id" : extraCustomId}).append(extraContent));
 		}
 		
-		inspector += "</div>"
-			
-		return inspector;
+		return $newInspector;
 	}
 }
