@@ -1,9 +1,9 @@
 /**
- * JUnit reporter for QUnit v1.0.2pre
+ * JUnit reporter for QUnit v1.0.2
  *
- * https://github.com/jquery/qunit-reporter-junit
+ * https://github.com/JamesMGreene/qunit-reporter-junit
  *
- * Copyright 2013 jQuery Foundation and other contributors
+ * Copyright jQuery Foundation and other contributors
  * Released under the MIT license.
  * https://jquery.org/license/
  */
@@ -11,7 +11,7 @@
 
 	'use strict';
 
-	var currentRun, currentModule, currentTest = {}, assertCount;
+	var currentRun, currentModule, currentTest, assertCount;
 
 	// Gets called when a report is generated.
 	QUnit.jUnitReport = function(/* data */) {
@@ -29,24 +29,9 @@
 		};
 	});
 
-	function getUsefulModuleName(dataName) {
-		try {
-			if(dataName === undefined) {
-				var i = location.pathname.lastIndexOf('/');
-				var name = location.pathname.substring(i + 1, location.pathname.length);
-				i = name.indexOf('.html', name.length - '.html'.length);
-				if(i !== -1) {
-					name = name.substring(0, i);
-				}
-				return name;
-			}
-		} catch(e) {}
-		return dataName;
-	}
-
 	QUnit.moduleStart(function(data) {
 		currentModule = {
-			name: getUsefulModuleName(data.name),
+			name: data.name,
 			tests: [],
 			total: 0,
 			passed: 0,
@@ -61,9 +46,10 @@
 	});
 
 	QUnit.testStart(function(data) {
+		// Setup default module if no module was specified
 		if (!currentModule) {
 			currentModule = {
-				name: getUsefulModuleName() || 'default',
+				name: data.module || 'default',
 				tests: [],
 				total: 0,
 				passed: 0,
@@ -80,7 +66,7 @@
 		// Reset the assertion count
 		assertCount = 0;
 
-		currentTest[data.name] = {
+		currentTest = {
 			name: data.name,
 			failedAssertions: [],
 			total: 0,
@@ -90,27 +76,28 @@
 			time: 0
 		};
 
-		currentModule.tests.push(currentTest[data.name]);
+		currentModule.tests.push(currentTest);
 	});
 
 	QUnit.log(function(data) {
 		assertCount++;
+
 		// Ignore passing assertions
 		if (!data.result) {
-			currentTest[data.name].failedAssertions.push(data);
+			currentTest.failedAssertions.push(data);
 
 			// Add log message of failure to make it easier to find in Jenkins CI
-			currentModule.stdout.push('[' + currentModule.name + ', ' + data.name + ', ' + assertCount + '] ' + data.message);
+			currentModule.stdout.push('[' + currentModule.name + ', ' + currentTest.name + ', ' + assertCount + '] ' + data.message);
 		}
 	});
 
 	QUnit.testDone(function(data) {
-		var t = currentTest[data.name];
-		delete currentTest[data.name];
-		t.time = (new Date()).getTime() - t.start.getTime();  // ms
-		t.total = data.total;
-		t.passed = data.passed;
-		t.failed = data.failed;
+		currentTest.time = (new Date()).getTime() - currentTest.start.getTime();  // ms
+		currentTest.total = data.total;
+		currentTest.passed = data.passed;
+		currentTest.failed = data.failed;
+
+		currentTest = null;
 	});
 
 	QUnit.moduleDone(function(data) {

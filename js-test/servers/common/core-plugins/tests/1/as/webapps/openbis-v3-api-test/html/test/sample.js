@@ -1,42 +1,48 @@
-define([ 'jquery', 'openbis', 'test/common', 'dto/entity/sample/SampleCreation', 'dto/id/entitytype/EntityTypePermId', 'dto/id/space/SpacePermId', 'dto/id/tag/TagCode' ], function($, openbis, c,
+define([ 'jquery', 'openbis', 'test/common', 'dto/entity/sample/SampleCreation', 'dto/id/entitytype/EntityTypePermId', 'dto/id/space/SpacePermId', 'dto/id/tag/TagCode' ], function($, openbis, common,
 		SampleCreation, EntityTypePermId, SpacePermId, TagCode) {
 	return function() {
 		QUnit.module("Sample tests");
 
-		asyncTest("mapSamples()", function() {
+		QUnit.test("mapSamples()", function(assert) {
+			var c = new common(assert);
+			var done = assert.async();
+
 			$.when(c.createFacadeAndLogin(), c.createSamplePermId("20130415095748527-404"), c.createSampleFetchOptions()).then(function(facade, permId, fetchOptions) {
 				return facade.mapSamples([ permId ], fetchOptions).done(function() {
 					facade.logout()
 				})
 			}).done(function(samples) {
-				assertObjectsCount(Object.keys(samples), 1);
+				c.assertObjectsCount(Object.keys(samples), 1);
 				var sample = samples["20130415095748527-404"];
-				equal(sample.code, "TEST-SAMPLE-2-PARENT", "Sample code");
-				equal(sample.type.code, "UNKNOWN", "Type code");
-				equal(sample.experiment.code, "TEST-EXPERIMENT-2", "Experiment code");
-				equal(sample.experiment.project.code, "TEST-PROJECT", "Project code");
-				equal(sample.space.code, "TEST", "Space code");
-				notEqual(sample.children, null, "Children expected");
+				c.assertEqual(sample.code, "TEST-SAMPLE-2-PARENT", "Sample code");
+				c.assertEqual(sample.type.code, "UNKNOWN", "Type code");
+				c.assertEqual(sample.experiment.code, "TEST-EXPERIMENT-2", "Experiment code");
+				c.assertEqual(sample.experiment.project.code, "TEST-PROJECT", "Project code");
+				c.assertEqual(sample.space.code, "TEST", "Space code");
+				c.assertNotEqual(sample.children, null, "Children expected");
 				if (sample.children !== null) {
 					console.log("Children %s", sample.children);
 					var child = sample.children[0];
-					equal(sample.children.length, 1, "Number of children");
-					equal(child.code, "TEST-SAMPLE-2", "Child sample code");
-					equal(child.type.code, "UNKNOWN", "Child type code");
-					equal(child.experiment.code, "TEST-EXPERIMENT-2", "Child experiment code");
-					notEqual(child.children, null, "Grand children expected");
+					c.assertEqual(sample.children.length, 1, "Number of children");
+					c.assertEqual(child.code, "TEST-SAMPLE-2", "Child sample code");
+					c.assertEqual(child.type.code, "UNKNOWN", "Child type code");
+					c.assertEqual(child.experiment.code, "TEST-EXPERIMENT-2", "Child experiment code");
+					c.assertNotEqual(child.children, null, "Grand children expected");
 					if (child.children !== null) {
-						equal(child.children.length, 2, "Number of grand children");
+						c.assertEqual(child.children.length, 2, "Number of grand children");
 					}
 				}
-				start();
+				done();
 			}).fail(function(error) {
-				ok(false, error.message);
-				start();
+				c.fail(error.message);
+				done();
 			});
 		});
 
-		asyncTest("searchSamples()", function() {
+		QUnit.test("searchSamples()", function(assert) {
+			var c = new common(assert);
+			var done = assert.async();
+			
 			$.when(c.createFacadeAndLogin(), c.createSampleSearchCriterion(), c.createSampleFetchOptions()).then(function(facade, criterion, fetchOptions) {
 
 				criterion.withCode().thatEquals("PLATE-1");
@@ -45,22 +51,25 @@ define([ 'jquery', 'openbis', 'test/common', 'dto/entity/sample/SampleCreation',
 					facade.logout();
 				})
 			}).done(function(samples) {
-				assertObjectsCount(samples, 1);
+				c.assertObjectsCount(samples, 1);
 
 				var sample = samples[0];
-				equal(sample.getCode(), "PLATE-1", "Sample code");
-				equal(sample.getType().getCode(), "PLATE", "Type code");
-				equal(sample.getExperiment().getCode(), "EXP-1", "Experiment code");
-				equal(sample.getExperiment().getProject().getCode(), "SCREENING-EXAMPLES", "Project  code");
-				equal(sample.getSpace().getCode(), "PLATONIC", "Space code");
-				start();
+				c.assertEqual(sample.getCode(), "PLATE-1", "Sample code");
+				c.assertEqual(sample.getType().getCode(), "PLATE", "Type code");
+				c.assertEqual(sample.getExperiment().getCode(), "EXP-1", "Experiment code");
+				c.assertEqual(sample.getExperiment().getProject().getCode(), "SCREENING-EXAMPLES", "Project  code");
+				c.assertEqual(sample.getSpace().getCode(), "PLATONIC", "Space code");
+				done();
 			}).fail(function(error) {
-				ok(false, error.message);
-				start();
+				c.fail(error.message);
+				done();
 			});
 		});
 
-		asyncTest("createSamples()", function() {
+		QUnit.test("createSamples()", function(assert) {
+			var c = new common(assert);
+			var done = assert.async();
+
 			var creation = new SampleCreation();
 			creation.setTypeId(new EntityTypePermId("UNKNOWN"));
 			creation.setCode("CREATE_JSON_SAMPLE_" + (new Date().getTime()));
@@ -75,23 +84,23 @@ define([ 'jquery', 'openbis', 'test/common', 'dto/entity/sample/SampleCreation',
 				})
 			}).done(function(samples) {
 				var keys = Object.keys(samples);
-				assertObjectsCount(keys, 1);
+				c.assertObjectsCount(keys, 1);
 
 				var sample = samples[keys[0]];
-				equal(sample.getCode(), creation.getCode(), "Sample code");
-				equal(sample.getType().getCode(), creation.getTypeId().getPermId(), "Type code");
-				equal(sample.getSpace().getCode(), creation.getSpaceId().getPermId(), "Space code");
-				equal(sample.getTags()[0].getCode(), creation.getTagIds()[0].getCode(), "Tag code");
-				start();
+				c.assertEqual(sample.getCode(), creation.getCode(), "Sample code");
+				c.assertEqual(sample.getType().getCode(), creation.getTypeId().getPermId(), "Type code");
+				c.assertEqual(sample.getSpace().getCode(), creation.getSpaceId().getPermId(), "Space code");
+				c.assertEqual(sample.getTags()[0].getCode(), creation.getTagIds()[0].getCode(), "Tag code");
+				done();
 			}).fail(function(error) {
-				ok(false, error.message);
-				start();
+				c.fail(error.message);
+				done();
 			});
 		});
 
 		/*
-		 * asyncTest("updateSamples()", function() { var code =
-		 * "UPDATE_JSON_SAMPLE_" + (new Date().getTime());
+		 * test("updateSamples()", function() { var code = "UPDATE_JSON_SAMPLE_" +
+		 * (new Date().getTime());
 		 * 
 		 * createFacadeAndLogin().then(function(facade) { var creations = [ {
 		 * "@type" : "SampleCreation",

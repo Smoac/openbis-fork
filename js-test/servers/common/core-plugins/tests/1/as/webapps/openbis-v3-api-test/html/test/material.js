@@ -1,22 +1,25 @@
-define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, openbis, c) {
+define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, openbis, common) {
 	return function() {
 		QUnit.module("Material tests");
 
-		asyncTest("mapMaterials()", function() {
+		QUnit.test("mapMaterials()", function(assert) {
+			var c = new common(assert);
+			var done = assert.async();
+
 			$.when(c.createFacadeAndLogin(), c.createMaterialPermId("H2O", "COMPOUND"), c.createMaterialFetchOptions()).then(function(facade, permId, fetchOptions) {
 				return facade.mapMaterials([ permId ], fetchOptions).done(function() {
 					facade.logout()
 				});
 			}).done(function(materials) {
-				assertObjectsCount(Object.keys(materials), 1);
+				c.assertObjectsCount(Object.keys(materials), 1);
 
 				var material = materials["H2O (COMPOUND)"];
-				equal(material.getCode(), "H2O", "Code");
-				equal(material.getType().getCode(), "COMPOUND", "Type code");
-				start();
+				c.assertEqual(material.getCode(), "H2O", "Code");
+				c.assertEqual(material.getType().getCode(), "COMPOUND", "Type code");
+				done();
 			}).fail(function(error) {
-				ok(false, error.message);
-				start();
+				c.fail(error.message);
+				done();
 			});
 		});
 

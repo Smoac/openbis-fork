@@ -13,7 +13,8 @@ define([ 'jquery', 'openbis' ], function($, openbis) {
 	var testUserId = "openbis_test_js";
 	var testUserPassword = "password";
 
-	var Common = function() {
+	var Common = function(assert) {
+		this.assert = assert;
 	}
 
 	$.extend(Common.prototype, {
@@ -37,10 +38,7 @@ define([ 'jquery', 'openbis' ], function($, openbis) {
 		},
 
 		createFacade : function(action) {
-			stop();
-
 			var facade = new openbis(testApiUrl);
-
 			action(facade);
 		},
 
@@ -50,10 +48,8 @@ define([ 'jquery', 'openbis' ], function($, openbis) {
 			this.createFacade(function(facade) {
 				facade.login(testUserId, testUserPassword).done(function() {
 					dfd.resolve(facade);
-					start();
 				}).fail(function() {
 					dfd.reject(arguments);
-					start();
 				});
 			});
 
@@ -138,7 +134,7 @@ define([ 'jquery', 'openbis' ], function($, openbis) {
 				fo.withProject().withSpace();
 				fo.withDataSets();
 				fo.withSamples();
-				//fo.withHistory();
+				fo.withHistory();
 				fo.withProperties();
 				fo.withMaterialProperties();
 				fo.withTags();
@@ -162,7 +158,7 @@ define([ 'jquery', 'openbis' ], function($, openbis) {
 				fo.withContainer();
 				fo.withContained();
 				fo.withDataSets();
-				//fo.withHistory();
+				fo.withHistory();
 				fo.withTags();
 				fo.withRegistrator();
 				fo.withModifier();
@@ -176,15 +172,108 @@ define([ 'jquery', 'openbis' ], function($, openbis) {
 			var promise = this.createObject('dto/fetchoptions/material/MaterialFetchOptions');
 			promise.done(function(fo) {
 				fo.withType();
-				//fo.withHistory();
+				fo.withHistory();
 				fo.withRegistrator();
 				fo.withProperties();
 				fo.withMaterialProperties();
 				fo.withTags();
 			});
 			return promise;
+		},
+
+		assertEqual : function(actual, expected, msg) {
+			this.assert.equal(actual, expected, msg);
+		},
+
+		assertNotEqual : function(actual, expected, msg) {
+			this.assert.notEqual(actual, expected, msg);
+		},
+
+		assertDate : function(millis, msg, year, month, day, hour, minute) {
+			var date = new Date(millis);
+			var actual = "";
+			var expected = "";
+
+			if (year) {
+				actual += date.getUTCFullYear();
+				expected += year;
+			}
+			if (month) {
+				actual += "-" + (date.getUTCMonth() + 1);
+				expected += "-" + month;
+			}
+			if (day) {
+				actual += "-" + date.getUTCDate();
+				expected += "-" + day;
+			}
+			if (hour) {
+				actual += " " + date.getUTCHours();
+				expected += " " + hour;
+			}
+			if (minute) {
+				actual += ":" + date.getUTCMinutes();
+				expected += ":" + minute;
+			}
+
+			this.assertEqual(actual, expected, msg);
+		},
+
+		assertToday : function(millis, msg) {
+			var today = new Date();
+			this.assertDate(millis, msg, today.getUTCFullYear(), today.getUTCMonth() + 1, today.getUTCDate());
+		},
+
+		assertObjectsCount : function(objects, count) {
+			this.assertEqual(objects.length, count, 'Got ' + count + ' object(s)');
+		},
+
+		assertObjectsWithOrWithoutCollections : function(objects, accessor, checker) {
+			var theObjects = null;
+
+			if ($.isArray(objects)) {
+				theObjects = objects;
+			} else {
+				theObjects = [ objects ];
+			}
+
+			var theAccessor = null;
+
+			if ($.isFunction(accessor)) {
+				theAccessor = accessor;
+			} else {
+				theAccessor = function(object) {
+					return object[accessor];
+				}
+			}
+
+			checker(theObjects, theAccessor);
+		},
+
+		assertObjectsWithCollections : function(objects, accessor) {
+			var thisCommon = this;
+			this.assertObjectsWithOrWithoutCollections(objects, accessor, function(objects, accessor) {
+				thisCommon.assert.ok(objects.some(function(object) {
+					var value = accessor(object);
+					return value && Object.keys(value).length > 0;
+				}), 'Objects have non-empty collections accessed via: ' + accessor);
+			});
+		},
+
+		assertObjectsWithoutCollections : function(objects, accessor) {
+			var thisCommon = this;
+			this.assertObjectsWithOrWithoutCollections(objects, accessor, function(objects, accessor) {
+				thisCommon.assert.ok(objects.every(function(object) {
+					var value = accessor(object);
+					return !value || Object.keys(value).length == 0;
+				}), 'Objects have empty collections accessed via: ' + accessor);
+			});
+		},
+
+		fail : function(msg) {
+			this.assert.ok(false, msg);
 		}
+
 	});
 
-	return new Common();
+	return Common;
 })

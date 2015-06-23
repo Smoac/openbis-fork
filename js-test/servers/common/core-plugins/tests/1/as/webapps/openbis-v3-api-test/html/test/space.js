@@ -1,35 +1,41 @@
-define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, openbis, c) {
+define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, openbis, common) {
 	return function() {
 		QUnit.module("Space tests");
 
-		asyncTest("mapSpaces()", function() {
+		QUnit.test("mapSpaces()", function(assert) {
+			var c = new common(assert);
+			var done = assert.async();
+
 			$.when(c.createFacadeAndLogin(), c.createSpacePermId("TEST"), c.createSpaceFetchOptions()).then(function(facade, permId, fetchOptions) {
 				return facade.mapSpaces([ permId ], fetchOptions).done(function() {
 					facade.logout()
 				});
 			}).done(function(spaces) {
-				assertObjectsCount(Object.keys(spaces), 1);
+				c.assertObjectsCount(Object.keys(spaces), 1);
 
 				var space = spaces["TEST"];
-				equal(space.getPermId(), "TEST", "PermId");
-				equal(space.getCode(), "TEST", "Code");
-				equal(space.getDescription(), null, "Description");
-				assertDate(space.getRegistrationDate(), "Registration date", 2013, 04, 12, 12, 59);
-				equal(space.getRegistrator().getUserId(), "admin", "Registrator userId");
-				assertObjectsWithCollections(space, function(object) {
+				c.assertEqual(space.getPermId(), "TEST", "PermId");
+				c.assertEqual(space.getCode(), "TEST", "Code");
+				c.assertEqual(space.getDescription(), null, "Description");
+				c.assertDate(space.getRegistrationDate(), "Registration date", 2013, 04, 12, 12, 59);
+				c.assertEqual(space.getRegistrator().getUserId(), "admin", "Registrator userId");
+				c.assertObjectsWithCollections(space, function(object) {
 					return object.getSamples()
 				});
-				assertObjectsWithCollections(space, function(object) {
+				c.assertObjectsWithCollections(space, function(object) {
 					return object.getProjects()
 				});
-				start();
+				done();
 			}).fail(function(error) {
-				ok(false, error.message);
-				start();
+				c.fail(error.message);
+				done();
 			});
 		});
 
-		asyncTest("searchSpaces()", function() {
+		QUnit.test("searchSpaces()", function(assert) {
+			var c = new common(assert);
+			var done = assert.async();
+
 			$.when(c.createFacadeAndLogin(), c.createSpaceSearchCriterion(), c.createSpaceFetchOptions()).then(function(facade, criterion, fetchOptions) {
 
 				criterion.withCode().thatEquals("TEST");
@@ -38,14 +44,14 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 					facade.logout();
 				})
 			}).done(function(spaces) {
-				assertObjectsCount(spaces, 1);
+				c.assertObjectsCount(spaces, 1);
 
 				var space = spaces[0];
-				equal(space.getCode(), "TEST", "Code");
-				start();
+				c.assertEqual(space.getCode(), "TEST", "Code");
+				done();
 			}).fail(function(error) {
-				ok(false, error.message);
-				start();
+				c.fail(error.message);
+				done();
 			});
 		});
 	}
