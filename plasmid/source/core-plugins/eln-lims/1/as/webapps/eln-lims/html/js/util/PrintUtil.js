@@ -25,39 +25,35 @@ var PrintUtil = new function() {
 		$(newWindow.document.body).html(pageToPrint);
 	}
 	
-	this.getParentsChildrenText = function(parentsChildrenList) {
-		var allParentCodesByType = {};
+	this.getParentsChildrenText = function(samplesList) {
+		var allSamplesByType = {};
 		
-		if(parentsChildrenList) {
-			for(var i = 0; i < parentsChildrenList.length; i++) {
-				var parent = parentsChildrenList[i];
-				var parentsWithType = allParentCodesByType[parent.sampleTypeCode];
-				if(parentsWithType === null || parentsWithType === undefined) {
-					parentsWithType = new Array();
+		if(samplesList) {
+			for(var i = 0; i < samplesList.length; i++) {
+				var sample = samplesList[i];
+				var samplesByType = allSamplesByType[sample.sampleTypeCode];
+				if(samplesByType === null || samplesByType === undefined) {
+					samplesByType = new Array();
 				}
-				parentsWithType.push(parent);
+				samplesByType.push(sample);
 				
-				allParentCodesByType[parent.sampleTypeCode] = parentsWithType;
+				allSamplesByType[sample.sampleTypeCode] = samplesByType;
 			}
 		}
 		
-		var allParentCodesAsText = "";
+		var samplesListOfCodes = "";
 		
-		for(var sampleType in allParentCodesByType) {
-			var displayName = profile.getSampleTypeForSampleTypeCode(sampleType).description;
-			if(displayName === null) {
-				displayName = sampleType;
+		for(var sampleTypeCode in allSamplesByType) {
+			samplesListOfCodes += sampleTypeCode + ": ";
+			var samples = allSamplesByType[sampleTypeCode];
+			for(var i = 0; i < samples.length; i++) {
+				var sample = samples[i];
+				samplesListOfCodes += sample.code + " ";
 			}
-			allParentCodesAsText += displayName + ": ";
-			var parents = allParentCodesByType[sampleType];
-			for(var i = 0; i < parents.length; i++) {
-				var parent = parents[i];
-				allParentCodesAsText += parent.code + " ";
-			}
-			allParentCodesAsText += "</br>";
+			samplesListOfCodes += "</br>";
 		}
 		
-		return allParentCodesAsText;
+		return samplesListOfCodes;
 	}
 	
 	this.getTable = function(entity, isNotTransparent, optionalTitle, customClass, extraCustomId, extraContent) {
@@ -158,24 +154,12 @@ var PrintUtil = new function() {
 		
 		inspector += "</table>"
 		
-		var extraContainerId = null;
-		var extraHTML = null;
-		if(extraContent && extraCustomId) {
-			extraContainerId = extraCustomId;
-			extraHTML = extraContent;
-		} else {
-			extraContainerId = this.getExtraContainerId(entity);
-			extraHTML = "";
+		if(extraCustomId && extraContent) {
+			inspector += "<div class='inspectorExtra' id='"+ extraCustomId + "'>" + extraContent + "</div>";
 		}
-		inspector += "<div class='inspectorExtra' id='"+ extraContainerId + "'>" + extraHTML + "</div>";
-		profile.inspectorContentExtra(extraContainerId, entity);
 		
 		inspector += "</div>"
 			
 		return inspector;
-	}
-	
-	this.getExtraContainerId = function(entity) {
-		return "INSPECTOR_EXTRA_" + entity.permId;
 	}
 }

@@ -235,10 +235,6 @@ $.extend(DefaultProfile.prototype, {
 				};
 			}
 		}
-	
-		this.inspectorContentExtra = function(sample, propertyContent) {
-			return "";
-		}
 		
 		this.getHTMLTableFromManagePropertyXML = function(xmlDocument) {
 			var table_head = null;
