@@ -1714,7 +1714,8 @@ test("listAllSharesForDataStore()", function() {
 	});
 });
 
-skip("shuffleDataSet()", function() {
+/*
+test("shuffleDataSet()", function() {
 	createFacadeAndLogin(function(facade) {
 		var dataSetCode = "20130415100308111-409";
 		var share1Id = "1";
@@ -1742,6 +1743,7 @@ skip("shuffleDataSet()", function() {
 		});
 	});
 });
+*/
 
 test("getValidationScript()", function() {
 	createFacadeAndLogin(function(facade) {
