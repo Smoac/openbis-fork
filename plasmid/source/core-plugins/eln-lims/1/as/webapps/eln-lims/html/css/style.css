@@ -289,6 +289,9 @@ h1, h2, legend {
 	float:left;
 }
 
+.inspectorLabel {
+	white-space: nowrap;
+}
 .inspectorLineBreak {
 	word-wrap: break-word;
 	width:300px;

@@ -115,7 +115,7 @@ var PrintUtil = new function() {
 				} else {
 					$newInspectorTable
 					.append($("<tr>")
-								.append($("<td>", { "class" : "property", "colspan" : "1" }).append($("<p>", { "class" : ""}).append(propertyLabel + ":")))
+								.append($("<td>", { "class" : "property", "colspan" : "1" }).append($("<p>", { "class" : "inspectorLabel"}).append(propertyLabel + ":")))
 								.append($("<td>", { "class" : "property", "colspan" : "1" }).append($("<p>", { "class" : "inspectorLineBreak"}).append(propertyContent)))
 							);
 				}
@@ -127,7 +127,7 @@ var PrintUtil = new function() {
 		if(allParentCodesAsText.length > 0) {
 			$newInspectorTable
 				.append($("<tr>")
-							.append($("<td>", { "class" : "property", "colspan" : "1" }).append($("<p>", { "class" : ""}).append("Parents:")))
+							.append($("<td>", { "class" : "property", "colspan" : "1" }).append($("<p>", { "class" : "inspectorLabel"}).append("Parents:")))
 							.append($("<td>", { "class" : "property", "colspan" : "1" }).append($("<p>", { "class" : "inspectorLineBreak"}).append(allParentCodesAsText)))
 						);
 		}
@@ -137,7 +137,7 @@ var PrintUtil = new function() {
 		if(allChildrenCodesAsText.length > 0) {
 			$newInspectorTable
 			.append($("<tr>")
-						.append($("<td>", { "class" : "property", "colspan" : "1" }).append($("<p>", { "class" : ""}).append("Children:")))
+						.append($("<td>", { "class" : "property", "colspan" : "1" }).append($("<p>", { "class" : "inspectorLabel"}).append("Children:")))
 						.append($("<td>", { "class" : "property", "colspan" : "1" }).append($("<p>", { "class" : "inspectorLineBreak"}).append(allChildrenCodesAsText)))
 					);
 		}
@@ -145,14 +145,14 @@ var PrintUtil = new function() {
 		//Show Modification Date
 		$newInspectorTable
 		.append($("<tr>")
-					.append($("<td>", { "class" : "property", "colspan" : "1" }).append($("<p>", { "class" : ""}).append("Modification Date:")))
+					.append($("<td>", { "class" : "property", "colspan" : "1" }).append($("<p>", { "class" : "inspectorLabel"}).append("Modification Date:")))
 					.append($("<td>", { "class" : "property", "colspan" : "1" }).append($("<p>", { "class" : "inspectorLineBreak"}).append(new Date(entity.registrationDetails["modificationDate"]))))
 				);
 		
 		//Show Creation Date
 		$newInspectorTable
 		.append($("<tr>")
-					.append($("<td>", { "class" : "property", "colspan" : "1" }).append($("<p>", { "class" : ""}).append("Registration Date:")))
+					.append($("<td>", { "class" : "property", "colspan" : "1" }).append($("<p>", { "class" : "inspectorLabel"}).append("Registration Date:")))
 					.append($("<td>", { "class" : "property", "colspan" : "1" }).append($("<p>", { "class" : "inspectorLineBreak"}).append(new Date(entity.registrationDetails["registrationDate"]))))
 				);
 		
