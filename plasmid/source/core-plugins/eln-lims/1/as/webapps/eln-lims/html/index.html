@@ -205,8 +205,9 @@
 	
 		$('#login-form').submit(function() {
 			Util.blockUI();
-			mainController.serverFacade.login( $.trim($('#username').val()), $.trim($('#password').val()), 
-				function(data) { mainController.enterApp(data) })
+			mainController.serverFacade.login(
+					$.trim($('#username').val()), $.trim($('#password').val()), 
+					function(data) { mainController.enterApp(data) });
 		});
 		
 		mainController.serverFacade.ifRestoredSessionActive(function(data) { mainController.enterApp(data) });
@@ -220,6 +221,15 @@
 				return true;
 			}
 		});
+		
+		//Automatic login if special parameters are given
+		var queryString = Util.queryString();
+		var user = queryString.user;
+		var pass = queryString.pass;
+		if(user && pass) {
+			Util.blockUI();
+			mainController.serverFacade.login(user, pass, function(data) { mainController.enterApp(data) });
+		}
 	});
 	</script>
 </head>
