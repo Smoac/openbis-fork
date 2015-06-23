@@ -73,7 +73,11 @@ var PrintUtil = new function() {
 		if(optionalTitle) {
 			$newInspector.append(optionalTitle);
 		} else {
-			$newInspector.append($("<strong>").append(entity.code));
+			var nameLabel = entity.properties[profile.propertyReplacingCode];
+			if(!nameLabel) {
+				nameLabel = entity.code;
+			}
+			$newInspector.append($("<strong>").append(nameLabel));
 		}
 		
 		var $newInspectorTable = $("<table>", { "class" : "properties table table-condensed" });
