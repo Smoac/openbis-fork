@@ -68,153 +68,109 @@ var PrintUtil = new function() {
 		} else {
 			defaultColor = "transparent"
 		} 
-
-		var inspector = "";
-			var divID = entity.sampleTypeCode + "_" + entity.code + "_INSPECTOR";
-			
-			var inspectorClass = 'inspector';
-			if(customClass) {
-				inspectorClass += ' ' + customClass;
-			}
-			inspector += "<div id='"+divID+"' class='" + inspectorClass + "' style='background-color:" + defaultColor + ";' >";
-			
-			if(optionalTitle) {
-				inspector += optionalTitle;
-			} else {
-				inspector += "<strong>" + entity.code + "</strong>";
-			}
-			
-			inspector += "<table id='" + entity.permId +"_TOOGLE' class='properties table table-condensed'>"
-			
-			//Show Properties following the order given on openBIS
-			var sampleTypePropertiesCode = profile.getAllPropertiCodesForTypeCode(entity.sampleTypeCode);
-			var sampleTypePropertiesDisplayName = profile.getPropertiesDisplayNamesForTypeCode(entity.sampleTypeCode, sampleTypePropertiesCode);
-			
-			for(var i = 0; i < sampleTypePropertiesCode.length; i++) {
-				
-				var propertyCode = sampleTypePropertiesCode[i];
-				var propertyLabel = sampleTypePropertiesDisplayName[i];
-				var propertyContent = entity.properties[propertyCode];
-				
-				//
-				// Fix to show vocabulary labels instead of codes
-				//
-				var sampleType = profile.getSampleTypeForSampleTypeCode(entity.sampleTypeCode);
-				var propertyType = profile.getPropertyTypeFrom(sampleType, propertyCode);
-				if(propertyType && propertyType.dataType === "CONTROLLEDVOCABULARY") {
-					var vocabulary = propertyType.vocabulary;
-					if(vocabulary) {
-						for(var j = 0; j < vocabulary.terms.length; j++) {
-							if(vocabulary.terms[j].code === propertyContent) {
-								propertyContent = vocabulary.terms[j].label;
-								break;
-							}
-						}
-					}
-				}
-				// End Fix
-				
-				propertyContent = Util.getEmptyIfNull(propertyContent);
-				
-				var isSingleColumn = false;
-				if((propertyContent instanceof String) || (typeof propertyContent === "string")) {
-					var transformerResult = profile.inspectorContentTransformer(entity, propertyCode, propertyContent);
-					isSingleColumn = transformerResult["isSingleColumn"];
-					propertyContent = transformerResult["content"];
-					propertyContent = propertyContent.replace(/\n/g, "<br />");
-				}
-				
-				if(propertyContent !== "") {
-					propertyContent = Util.replaceURLWithHTMLLinks(propertyContent);
-					inspector += "<tr>";
-						
-					if(isSingleColumn) {
-						inspector += "<td class='property' colspan='2'>"+propertyLabel+"<br />"+propertyContent+"</td>";
-					} else {
-						inspector += "<td class='property'>"+propertyLabel+"</td>";
-						inspector += "<td class='property'><p class='inspectorLineBreak'>"+propertyContent+"</p></td>";
-					}
-					
-					inspector += "</tr>";
-				}
-			}
-			
-			//Show Properties not found on openBIS (TO-DO Clean duplicated code)
-			for(propertyCode in entity.properties) {
-				if($.inArray(propertyCode, sampleTypePropertiesCode) === -1) {
-					var propertyLabel = propertyCode;
-					var propertyContent = entity.properties[propertyCode];
-					propertyContent = Util.getEmptyIfNull(propertyContent);
-					
-					var isSingleColumn = false;
-					if((propertyContent instanceof String) || (typeof propertyContent === "string")) {
-						var transformerResult = profile.inspectorContentTransformer(entity, propertyCode, propertyContent);
-						isSingleColumn = transformerResult["isSingleColumn"];
-						propertyContent = transformerResult["content"];
-						propertyContent = propertyContent.replace(/\n/g, "<br />");
-					}
-					
-					if(propertyContent !== "") {
-						inspector += "<tr>";
-							
-						if(isSingleColumn) {
-							inspector += "<td class='property' colspan='2'>"+propertyLabel+"<br />"+propertyContent+"</td>";
-						} else {
-							inspector += "<td class='property'>"+propertyLabel+"</td>";
-							inspector += "<td class='property'><p class='inspectorLineBreak'>"+propertyContent+"</p></td>";
-						}
-						
-						inspector += "</tr>";
-					}
-				}
-			}
-			
-			//Show Parent Codes
-			var allParentCodesAsText = this.getParentsChildrenText(entity.parents);
-			if(allParentCodesAsText.length > 0) {
-				inspector += "<tr>";
-				inspector += "<td class='property'>Parents</td>";
-				inspector += "<td class='property'>"+allParentCodesAsText+"</td>";
-				inspector += "</tr>";
-			}
-			
-			//Show Children Codes
-			var allChildrenCodesAsText = this.getParentsChildrenText(entity.children);
-			if(allChildrenCodesAsText.length > 0) {
-				inspector += "<tr>";
-				inspector += "<td class='property'>Children</td>";
-				inspector += "<td class='property'>"+allChildrenCodesAsText+"</td>";
-				inspector += "</tr>";
-			}
-			
-			//Show Modification Date
-			inspector += "<tr>";
-			inspector += "<td class='property'>Modification Date</td>";
-			inspector += "<td class='property'>"+new Date(entity.registrationDetails["modificationDate"])+"</td>";
-			inspector += "</tr>";
 		
-			//Show Creation Date
-			inspector += "<tr>";
-			inspector += "<td class='property'>Registration Date</td>";
-			inspector += "<td class='property'>"+new Date(entity.registrationDetails["registrationDate"])+"</td>";
-			inspector += "</tr>";
+		var inspector = "";
 			
-			inspector += "</table>"
+		var inspectorClass = 'inspector';
+		if(customClass) {
+			inspectorClass += ' ' + customClass;
+		}
+		inspector += "<div class='" + inspectorClass + "' style='background-color:" + defaultColor + ";' >";
 			
-			var extraContainerId = null;
-			var extraHTML = null;
-			if(extraContent && extraCustomId) {
-				extraContainerId = extraCustomId;
-				extraHTML = extraContent;
+		if(optionalTitle) {
+			inspector += optionalTitle;
+		} else {
+			inspector += "<strong>" + entity.code + "</strong>";
+		}
+		
+		inspector += "<table id='" + entity.permId +"_TOOGLE' class='properties table table-condensed'>"
+		
+		//Show Properties following the order given on openBIS
+		var sampleTypePropertiesCode = profile.getAllPropertiCodesForTypeCode(entity.sampleTypeCode);
+		var sampleTypePropertiesDisplayName = profile.getPropertiesDisplayNamesForTypeCode(entity.sampleTypeCode, sampleTypePropertiesCode);
+			
+		for(var i = 0; i < sampleTypePropertiesCode.length; i++) {
+			var propertyCode = sampleTypePropertiesCode[i];
+			var propertyLabel = sampleTypePropertiesDisplayName[i];
+			var propertyContent = null;
+			
+			var propertyType = profile.getPropertyType(propertyCode);
+			if(propertyType && propertyType.dataType === "CONTROLLEDVOCABULARY") {
+				propertyContent = FormUtil.getVocabularyLabelForTermCode(propertyType, entity.properties[propertyCode]);
 			} else {
-				extraContainerId = this.getExtraContainerId(entity);
-				extraHTML = "";
+				propertyContent = entity.properties[propertyCode];
 			}
-			inspector += "<div class='inspectorExtra' id='"+ extraContainerId + "'>" + extraHTML + "</div>";
-			profile.inspectorContentExtra(extraContainerId, entity);
+				
+			propertyContent = Util.getEmptyIfNull(propertyContent);
 			
-			inspector += "</div>"
+			var isSingleColumn = false;
+			if((propertyContent instanceof String) || (typeof propertyContent === "string")) {
+				var transformerResult = profile.inspectorContentTransformer(entity, propertyCode, propertyContent);
+				isSingleColumn = transformerResult["isSingleColumn"];
+				propertyContent = transformerResult["content"];
+				propertyContent = propertyContent.replace(/\n/g, "<br />");
+			}
 			
+			if(propertyContent !== "") {
+				propertyContent = Util.replaceURLWithHTMLLinks(propertyContent);
+				inspector += "<tr>";
+					
+				if(isSingleColumn) {
+					inspector += "<td class='property' colspan='2'>"+propertyLabel+"<br />"+propertyContent+"</td>";
+				} else {
+					inspector += "<td class='property'>"+propertyLabel+"</td>";
+					inspector += "<td class='property'><p class='inspectorLineBreak'>"+propertyContent+"</p></td>";
+				}
+				
+				inspector += "</tr>";
+			}
+		}
+			
+		//Show Parent Codes
+		var allParentCodesAsText = this.getParentsChildrenText(entity.parents);
+		if(allParentCodesAsText.length > 0) {
+			inspector += "<tr>";
+			inspector += "<td class='property'>Parents</td>";
+			inspector += "<td class='property'>"+allParentCodesAsText+"</td>";
+			inspector += "</tr>";
+		}
+			
+		//Show Children Codes
+		var allChildrenCodesAsText = this.getParentsChildrenText(entity.children);
+		if(allChildrenCodesAsText.length > 0) {
+			inspector += "<tr>";
+			inspector += "<td class='property'>Children</td>";
+			inspector += "<td class='property'>"+allChildrenCodesAsText+"</td>";
+			inspector += "</tr>";
+		}
+			
+		//Show Modification Date
+		inspector += "<tr>";
+		inspector += "<td class='property'>Modification Date</td>";
+		inspector += "<td class='property'>"+new Date(entity.registrationDetails["modificationDate"])+"</td>";
+		inspector += "</tr>";
+		
+		//Show Creation Date
+		inspector += "<tr>";
+		inspector += "<td class='property'>Registration Date</td>";
+		inspector += "<td class='property'>"+new Date(entity.registrationDetails["registrationDate"])+"</td>";
+		inspector += "</tr>";
+		
+		inspector += "</table>"
+		
+		var extraContainerId = null;
+		var extraHTML = null;
+		if(extraContent && extraCustomId) {
+			extraContainerId = extraCustomId;
+			extraHTML = extraContent;
+		} else {
+			extraContainerId = this.getExtraContainerId(entity);
+			extraHTML = "";
+		}
+		inspector += "<div class='inspectorExtra' id='"+ extraContainerId + "'>" + extraHTML + "</div>";
+		profile.inspectorContentExtra(extraContainerId, entity);
+		
+		inspector += "</div>"
 			
 		return inspector;
 	}

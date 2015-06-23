@@ -19,7 +19,7 @@ function PlateView(plateController, plateModel) {
 	
 	this.getPlaceHolder = function() {
 		var container = $("<div>", { "id" : this._plateModel.getPlaceHolderId() });
-		var gridTable = $("<table>", { "class" : "table table-bordered gridTable" });
+		var gridTable = $("<table>", { "class" : "table table-bordered gridTable", "style" : "table-layout: fixed;" });
 		
 		for(var i = 0; i <= this._plateModel.numRows; i++) {
 			var $row = $("<tr>");
@@ -46,7 +46,7 @@ function PlateView(plateController, plateModel) {
 	this.repaint = function($container) {
 		var _this = this;
 		$container.empty();
-		var gridTable = $("<table>", { "class" : "table table-bordered gridTable" });
+		var gridTable = $("<table>", { "class" : "table table-bordered gridTable", "style" : "table-layout: fixed;" });
 		
 		for(var i = 0; i <= this._plateModel.numRows; i++) {
 			var $row = $("<tr>");
@@ -63,11 +63,11 @@ function PlateView(plateController, plateModel) {
 					$cell = $("<td>").append("&nbsp;");
 					if(well) {
 						$cell.addClass('well');
-						var tooltip = PrintUtil.getTable(well, false, well.code, 'inspectorWhiteFont');
+						var tooltip = PrintUtil.getTable(well, false, null, 'inspectorWhiteFont');
 						$cell.tooltipster({
-			                content: $(tooltip),
-			                interactive: true
-			            });
+							content: $(tooltip),
+							interactive: true
+						});
 					}
 				}
 				$cell.css('width', Math.floor(80/this._plateModel.numColumns+1) +'%');

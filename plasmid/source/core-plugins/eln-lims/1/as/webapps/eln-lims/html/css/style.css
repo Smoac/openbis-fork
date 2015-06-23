@@ -299,6 +299,7 @@ div.inspectorWhiteFont {
 }
 
 div.inspector {
+	width: 400px;
 	text-decoration: none;
 	color: #000;
 	display: block;
