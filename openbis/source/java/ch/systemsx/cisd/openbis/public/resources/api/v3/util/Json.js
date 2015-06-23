@@ -55,32 +55,35 @@ define([ "underscore" ], function(_) {
 		return type.replace(/\./g, '/');
 	}
 
-	var fromJsonObjectWithTypeOrArrayOrMap = function(jsonName, jsonObject, hashedObjects, modulesMap) {
+	var fromJsonObjectWithTypeOrArrayOrMap = function(jsonType, jsonObject, hashedObjects, modulesMap) {
 		if (jsonObject instanceof Array) {
 			var array = [];
+			var jsonType = jsonType ? jsonType["arguments"][0] : null;
+
 			jsonObject.forEach(function(item, index) {
-				var dto = fromJsonObjectWithTypeOrArrayOrMap(index, item, hashedObjects, modulesMap);
+				var dto = fromJsonObjectWithTypeOrArrayOrMap(jsonType, item, hashedObjects, modulesMap);
 				array.push(dto);
 			});
 			return array;
 		} else if (jsonObject instanceof Object) {
 			if (jsonObject["@type"]) {
-				return fromJsonObjectWithType(jsonName, jsonObject, hashedObjects, modulesMap)
+				return fromJsonObjectWithType(jsonObject, hashedObjects, modulesMap)
 			} else {
 				var map = {};
+				var jsonType = jsonType ? jsonType["arguments"][1] : null;
+
 				Object.keys(jsonObject).forEach(function(key) {
-					var dto = fromJsonObjectWithTypeOrArrayOrMap(key, jsonObject[key], hashedObjects, modulesMap);
+					var dto = fromJsonObjectWithTypeOrArrayOrMap(jsonType, jsonObject[key], hashedObjects, modulesMap);
 					map[key] = dto;
 				});
 				return map;
 			}
 		} else {
-			if (_.isNumber(jsonObject) && (false == _.isString(jsonName) || (jsonName.indexOf("Date") == -1 && jsonName != "@id"))) {
-				// TODO we have to come up with ids that are easier to recognize
+			if (_.isNumber(jsonObject) && jsonType && jsonType != "Date") {
 				if (jsonObject in hashedObjects) {
 					return hashedObjects[jsonObject];
 				} else {
-					throw "Expected that integer fields are id's of objects, and they should be present in cache"
+					throw "Object with id: " + jsonObject + " and type: " + jsonType + " haven't been found in cache";
 				}
 			} else {
 				return jsonObject;
@@ -88,12 +91,13 @@ define([ "underscore" ], function(_) {
 		}
 	}
 
-	var fromJsonObjectWithType = function(jsonName, jsonObject, hashedObjects, modulesMap) {
+	var fromJsonObjectWithType = function(jsonObject, hashedObjects, modulesMap) {
 		var jsonId = jsonObject["@id"]
 		var jsonType = jsonObject["@type"]
 
 		var moduleName = typeToModuleName(jsonType);
 		var module = modulesMap[moduleName];
+		var moduleFieldTypeMap = module.$typeDescription || {};
 		var object = new module;
 
 		if (jsonId) {
@@ -104,7 +108,9 @@ define([ "underscore" ], function(_) {
 		}
 
 		for ( var key in jsonObject) {
-			object[key] = fromJsonObjectWithTypeOrArrayOrMap(key, jsonObject[key], hashedObjects, modulesMap)
+			var fieldType = moduleFieldTypeMap[key];
+			var fieldValue = jsonObject[key];
+			object[key] = fromJsonObjectWithTypeOrArrayOrMap(fieldType, fieldValue, hashedObjects, modulesMap)
 		}
 		return object;
 	};
