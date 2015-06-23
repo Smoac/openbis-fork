@@ -22,8 +22,10 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 
+import org.aopalliance.intercept.MethodInvocation;
 import org.springframework.remoting.httpinvoker.CommonsHttpInvokerRequestExecutor;
 import org.springframework.remoting.httpinvoker.HttpInvokerProxyFactoryBean;
+import org.springframework.remoting.httpinvoker.HttpInvokerRequestExecutor;
 
 import com.marathon.util.spring.StreamSupportingHttpInvokerProxyFactoryBean;
 
@@ -36,6 +38,25 @@ import com.marathon.util.spring.StreamSupportingHttpInvokerProxyFactoryBean;
  */
 public class HttpInvokerUtils
 {
+    private static class ClosableHttpInvokerProxyFactoryBean extends HttpInvokerProxyFactoryBean
+    {
+        @Override
+        public Object invoke(MethodInvocation methodInvocation) throws Throwable
+        {
+            try
+            {
+                return super.invoke(methodInvocation);
+            } finally
+            {
+                HttpInvokerRequestExecutor httpInvokerRequestExecutor = getHttpInvokerRequestExecutor();
+                if (httpInvokerRequestExecutor instanceof CommonsHttpInvokerRequestExecutor)
+                {
+                    ((CommonsHttpInvokerRequestExecutor) httpInvokerRequestExecutor).getHttpClient().getHttpConnectionManager()
+                            .closeIdleConnections(0);
+                }
+            }
+        }
+    }
     /**
      * Creates a service stub for the specified service interface.
      * 
@@ -46,7 +67,7 @@ public class HttpInvokerUtils
     public static <T> T createServiceStub(final Class<T> serviceInterface, final String serviceURL,
             final long serverTimeoutInMillis)
     {
-        final HttpInvokerProxyFactoryBean httpInvokerProxy = new HttpInvokerProxyFactoryBean();
+        final HttpInvokerProxyFactoryBean httpInvokerProxy = new ClosableHttpInvokerProxyFactoryBean();
         httpInvokerProxy.setBeanClassLoader(serviceInterface.getClassLoader());
         httpInvokerProxy.setServiceUrl(serviceURL);
         httpInvokerProxy.setServiceInterface(serviceInterface);
