@@ -17,11 +17,11 @@
 
 var PrintUtil = new function() {
 
-	this.printSample = function(sample) {
-		var newWindow = window.open(undefined,"print " + sample.permId);
+	this.printEntity = function(entity) {
+		var newWindow = window.open(undefined,"print " + entity.permId);
 		var pageToPrint = $("<html>")
 							.append($("<head>"))
-							.append($("<body>").append(this.getTable(sample)));
+							.append($("<body>").append(this.getTable(entity)));
 		$(newWindow.document.body).html(pageToPrint);
 	}
 	
@@ -89,13 +89,17 @@ var PrintUtil = new function() {
 			var propertyContent = null;
 			
 			var propertyType = profile.getPropertyType(propertyCode);
-			if(propertyType && propertyType.dataType === "CONTROLLEDVOCABULARY") {
+			if(propertyType.dataType === "CONTROLLEDVOCABULARY") {
 				propertyContent = FormUtil.getVocabularyLabelForTermCode(propertyType, entity.properties[propertyCode]);
+			} else if(propertyType.dataType === "MATERIAL") {
+				propertyContent = $("<a>").append(entity.properties[propertyCode]);
 			} else {
 				propertyContent = entity.properties[propertyCode];
+				propertyContent = Util.getEmptyIfNull(propertyContent);
+				propertyContent = Util.replaceURLWithHTMLLinks(propertyContent);
 			}
 				
-			propertyContent = Util.getEmptyIfNull(propertyContent);
+			
 			
 			var isSingleColumn = false;
 			if((propertyContent instanceof String) || (typeof propertyContent === "string")) {
@@ -106,7 +110,6 @@ var PrintUtil = new function() {
 			}
 			
 			if(propertyContent !== "") {
-				propertyContent = Util.replaceURLWithHTMLLinks(propertyContent);
 				if(isSingleColumn) {
 					$newInspectorTable
 					.append($("<tr>")
@@ -121,27 +124,28 @@ var PrintUtil = new function() {
 				}
 			}
 		}
-			
-		//Show Parent Codes
-		var allParentCodesAsText = this._getCodesFromSamples(entity.parents);
-		if(allParentCodesAsText.length > 0) {
-			$newInspectorTable
+		if(entity["@type"] === "Sample") {
+			//Show Parent Codes
+			var allParentCodesAsText = this._getCodesFromSamples(entity.parents);
+			if(allParentCodesAsText.length > 0) {
+				$newInspectorTable
+					.append($("<tr>")
+								.append($("<td>", { "class" : "property", "colspan" : "1" }).append($("<p>", { "class" : "inspectorLabel"}).append("Parents:")))
+								.append($("<td>", { "class" : "property", "colspan" : "1" }).append($("<p>", { "class" : "inspectorLineBreak"}).append(allParentCodesAsText)))
+							);
+			}
+				
+			//Show Children Codes
+			var allChildrenCodesAsText = this._getCodesFromSamples(entity.children);
+			if(allChildrenCodesAsText.length > 0) {
+				$newInspectorTable
 				.append($("<tr>")
-							.append($("<td>", { "class" : "property", "colspan" : "1" }).append($("<p>", { "class" : "inspectorLabel"}).append("Parents:")))
-							.append($("<td>", { "class" : "property", "colspan" : "1" }).append($("<p>", { "class" : "inspectorLineBreak"}).append(allParentCodesAsText)))
+							.append($("<td>", { "class" : "property", "colspan" : "1" }).append($("<p>", { "class" : "inspectorLabel"}).append("Children:")))
+							.append($("<td>", { "class" : "property", "colspan" : "1" }).append($("<p>", { "class" : "inspectorLineBreak"}).append(allChildrenCodesAsText)))
 						);
+			}
 		}
-			
-		//Show Children Codes
-		var allChildrenCodesAsText = this._getCodesFromSamples(entity.children);
-		if(allChildrenCodesAsText.length > 0) {
-			$newInspectorTable
-			.append($("<tr>")
-						.append($("<td>", { "class" : "property", "colspan" : "1" }).append($("<p>", { "class" : "inspectorLabel"}).append("Children:")))
-						.append($("<td>", { "class" : "property", "colspan" : "1" }).append($("<p>", { "class" : "inspectorLineBreak"}).append(allChildrenCodesAsText)))
-					);
-		}
-			
+		
 		//Show Modification Date
 		$newInspectorTable
 		.append($("<tr>")

@@ -143,7 +143,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 			$formTitle.append("&nbsp;");
 			var $printButton = $("<a>", { 'class' : 'btn btn-default'} ).append($('<span>', { 'class' : 'glyphicon glyphicon-print' }));
 			$printButton.click(function() {
-				PrintUtil.printSample(_this._sampleFormModel.sample);
+				PrintUtil.printEntity(_this._sampleFormModel.sample);
 			});
 			$formTitle.append($printButton);
 			//Edit
