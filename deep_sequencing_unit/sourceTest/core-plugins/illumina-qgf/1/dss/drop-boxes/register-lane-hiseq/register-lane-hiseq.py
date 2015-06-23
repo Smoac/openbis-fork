@@ -22,12 +22,6 @@ from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto import SearchCriteria
 
 FASTQ_GZ_PATTERN = "*.fastq.gz"
 METADATA_FILE_SUFFIX = "_metadata.tsv"
-# AFFILIATION= {'FMI': '/links/shared/dsu/dss/customers/fmi/drop-box/',
-#               #'BIOCENTER_BASEL': '/links/shared/dsu/dss/customers/biozentrum/drop-box/',
-#               'BIOCENTER_BASEL': '/Users/kohleman/tmp/biozentrum',
-#               'SWISS_TPH' : '/Users/kohleman/tmp/biozentrum',
-#               #'SWISS_TPH': '/links/shared/dsu/dss/customers/biozentrum/drop-box/',
-#               'NEUROSTEMX': '/links/shared/dsu/dss/customers/biozentrum',}
 AFFILIATION_PROPERTY_NAME='AFFILIATION'
 INDEX1='BARCODE'
 INDEX2='INDEX2'
@@ -35,7 +29,7 @@ EXTERNAL_SAMPLE_NAME='EXTERNAL_SAMPLE_NAME'
 SAMPLE_TYPE = 'SAMPLE_TYPE'
 SAMPLE_CODE = 'SAMPLE_CODE'
 CRC32_PATH='lib/crc32'
-
+#CRC32_PATH='lib/a.out'
 
 DEFAULT_INDEX='NoIndex'
 
@@ -163,11 +157,15 @@ def extraCopy (affiliation_name, path):
 
 # -------------------------------------------------------------------------------
 
-def extraCopySciCore (affiliation_name, filePath, destinationFolder=""):
+def extraCopySciCore (sample_space, filePath, destinationFolder=""):
     '''
     Handles the extra copies of the data for transfer with datamover for SCICORE
     '''
-    dirname = '' 
+    dirname = ''
+    # if a sample is part of this space list then it will be transferred to sciCore
+    SPACE_LIST = ["UNI_BASEL_SALZBURGER", "BIOCENTER_HANDSCHIN", "BIOCENTER_ZAVOLAN",
+                  "BIOCENTER_KELLER", "BIOCENTER_SILANDER", "ETHZ_NEUROSTEMX",
+                  "UNI_BASEL_UTZINGER", "UNI_BASEL_GAGNEUX"]
     
     dropBoxFolder = '/links/shared/dsu/dss/customers/biozentrum_scicore/drop-box/'
     #dropBoxFolder = '/Users/kohleman/tmp/scicore'
@@ -176,7 +174,7 @@ def extraCopySciCore (affiliation_name, filePath, destinationFolder=""):
     splits = basename.split('_')
     folderName = "_".join(splits[0:8])
 
-    if (affiliation_name == 'BIOCENTER_BASEL' or affiliation_name == 'NEUROSTEMX' or affiliation_name == 'SWISS_TPH'):
+    if (sample_space in SPACE_LIST):
         dirname = os.path.join(dropBoxFolder, folderName)
         if destinationFolder:
           shutil.copy(filePath, destinationFolder)
@@ -372,6 +370,10 @@ def process(transaction):
 
   foundParents = searchParents(search_service, parents)
 
+  if foundSamples.size() > 0:
+    sa = transaction.getSampleForUpdate(foundSamples[0].getSampleIdentifier())
+    sa.setPropertyValue("DATA_TRANSFERRED", create_openbis_timestamp())
+
   # -------------------------------------------------------------------------------
 
   flowcell_sample_immutable = searchSample (runningDate+ '_'+ sequencerId + '_' + sequentialNumber + '_' + hiseqTray + flowCellId , search_service)
@@ -400,6 +402,8 @@ def process(transaction):
     dataSet.setMeasuredData(False)
     dataSet.setPropertyValue(INDEX1, DEFAULT_INDEX)
     dataSet.setPropertyValue(INDEX2, DEFAULT_INDEX)
+
+    dataSet.setSample(foundSamples[0])
     dirName = transaction.createNewDirectory(dataSet,folders[f])
     usableExternalSampleName = "EXTERNAL_NAME"
 
@@ -421,6 +425,7 @@ def process(transaction):
       organism = parentPropertiesMap['NCBI_ORGANISM_TAXONOMY'].tryGetAsString().split(":")[-1].strip() 
 
       if (parentCode == folderSplit):
+        sample_space = foundParent.getSpace()
 
         externalSampleName = parentPropertiesMap[EXTERNAL_SAMPLE_NAME].tryGetAsString()
         lengthLimit = 30
@@ -440,19 +445,14 @@ def process(transaction):
         pathToFile = transaction.createNewFile(dataSet, folders[f], nameOfFile)
         externalNamesFastqFileDict = addExternalSampleName(fastqFileList, usableExternalSampleName)
         
-        try:
-          affiliation_name = parentPropertiesMap[AFFILIATION_PROPERTY_NAME].tryGetAsString()
-        except:
-          affiliation_name = 'NEUROSTEMX'
-        
         for extFileNameFastQ in externalNamesFastqFileDict:
             print ("RENAME file " + str(os.path.basename(extFileNameFastQ)) + " TO " + str(os.path.basename(externalNamesFastqFileDict[extFileNameFastQ])))
             os.rename(extFileNameFastQ, externalNamesFastqFileDict[extFileNameFastQ])
             destinationFolder = ''
-            extraCopySciCore (affiliation_name, externalNamesFastqFileDict[extFileNameFastQ], destinationFolder)
+            extraCopySciCore (sample_space, externalNamesFastqFileDict[extFileNameFastQ], destinationFolder)
             
         writeMetadataFile(transaction, pathToFile, parentPropertyTypes, parentPropertiesMap, fcMetaDataDict_NEW, experiment, externalNamesFastqFileDict.values(), flowLane)
-        extraCopySciCore (affiliation_name, pathToFile)
+        extraCopySciCore (sample_space, pathToFile)
             
         for extFileNameFastQ in externalNamesFastqFileDict:
             transaction.moveFile(externalNamesFastqFileDict[extFileNameFastQ] , dataSet, folders[f])
@@ -466,17 +466,14 @@ def process(transaction):
         pathToFile = transaction.createNewFile(dataSet, folders[f], nameOfFile)
         externalNamesFastqFileDict = addExternalSampleName(fastqFileList, usableExternalSampleName)
         writeMetadataFile(transaction, pathToFile, parentPropertyTypes, parentPropertiesMap, fcMetaDataDict_NEW, experiment, externalNamesFastqFileDict.values(), flowLane)
-        try:
-          affiliation_name = parentPropertiesMap[AFFILIATION_PROPERTY_NAME].tryGetAsString()
-        except:
-          affiliation_name = 'NEUROSTEMX'
         
-        dirName = extraCopySciCore (affiliation_name, pathToFile)
+        sample_space = foundParent.getSpace()
+        dirName = extraCopySciCore (sample_space, pathToFile)
 
         externalNamesFastqFileDict = addExternalSampleName(fastqFileList, usableExternalSampleName)
         for extFileNameFastQ in externalNamesFastqFileDict:
-            extraCopySciCore (affiliation_name, externalNamesFastqFileDict[extFileNameFastQ], dirName)
-
+            extraCopySciCore (sample_space, externalNamesFastqFileDict[extFileNameFastQ], dirName)
+        
         # Write Meta data for Parents Files
         for foundParent in foundParents:
           addParentCode, parentProperties, parentPropertyTypes, parentPropertiesMap, experiment, barcode, index2, completeBarcode = getProperties (foundParent, fcMetaDataDict)
@@ -485,12 +482,8 @@ def process(transaction):
             tmpDir = tempfile.mkdtemp() 
             fileName = os.path.join(tmpDir, "PARENT_" + nameOfFile)
             writeMetadataFile(transaction, fileName, parentPropertyTypes, parentPropertiesMap, fcMetaDataDict_NEW, experiment, [], flowLane)
-            try:
-              affiliation_name = parentPropertiesMap[AFFILIATION_PROPERTY_NAME].tryGetAsString()
-            except:
-              affiliation_name = 'NEUROSTEMX'
-#             extraCopy (affiliation_name, fileName)
-            extraCopySciCore (affiliation_name, fileName, dirName)
+            sample_space = foundParent.getSpace()
+            extraCopySciCore (sample_space, fileName, dirName)
 
         try:
             for extFileNameFastQ in externalNamesFastqFileDict:
@@ -498,11 +491,3 @@ def process(transaction):
         except:
             # Happens when we have more than one pool registered, then the files have been moved away already
             pass
-            
-   
-    if foundSamples.size() > 0:
-      sa = transaction.getSampleForUpdate(foundSamples[0].getSampleIdentifier())
-      sa.setPropertyValue("DATA_TRANSFERRED", create_openbis_timestamp())
-      dataSet.setSample(foundSamples[0])
-
-  shutil.rmtree(incomingPath)
