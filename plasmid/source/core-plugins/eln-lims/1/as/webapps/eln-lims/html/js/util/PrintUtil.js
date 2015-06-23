@@ -19,20 +19,13 @@ var PrintUtil = new function() {
 
 	this.printSample = function(sample) {
 		var newWindow = window.open(undefined,"print " + sample.permId);
-		
-		var pageToPrint = "";
-			pageToPrint += "<html>";
-			pageToPrint += "<head>";
-			pageToPrint += "</head>";
-			pageToPrint += "<body stlye='font-family: '\"'Helvetica Neue\",Helvetica,Arial,sans-serif;'>";
-			pageToPrint += this.getTable(sample, false, false, false);
-			pageToPrint += "</body>";
-			pageToPrint += "</html>";
-		
+		var pageToPrint = $("<html>")
+							.append($("<head>"))
+							.append($("<body>").append(this.getTable(sample)));
 		$(newWindow.document.body).html(pageToPrint);
 	}
 	
-	this.getParentsChildrenText = function(parentsChildrenList, withLinks) {
+	this.getParentsChildrenText = function(parentsChildrenList) {
 		var allParentCodesByType = {};
 		
 		if(parentsChildrenList) {
@@ -59,11 +52,7 @@ var PrintUtil = new function() {
 			var parents = allParentCodesByType[sampleType];
 			for(var i = 0; i < parents.length; i++) {
 				var parent = parents[i];
-				if(withLinks) {
-					allParentCodesAsText += "<a href=\"javascript:mainController.inspector.showSampleOnInspector('" + parent.permId + "');\">" + parent.code + "</a> ";
-				} else {
-					allParentCodesAsText += parent.code + " ";
-				}
+				allParentCodesAsText += parent.code + " ";
 			}
 			allParentCodesAsText += "</br>";
 		}
@@ -71,54 +60,28 @@ var PrintUtil = new function() {
 		return allParentCodesAsText;
 	}
 	
-	this.getTable = function(entity, showClose, withColors, withLinks, optionalTitle, isCondensed, customClass, extraCustomId, extraContent) {
+	this.getTable = function(entity, isNotTransparent, optionalTitle, customClass, extraCustomId, extraContent) {
 		var defaultColor = null;
 		
-		if(!withColors) {
-			defaultColor = "transparent"
-		} else {
+		if(isNotTransparent) {
 			defaultColor = "#FBFBFB";
+		} else {
+			defaultColor = "transparent"
 		} 
 
 		var inspector = "";
 			var divID = entity.sampleTypeCode + "_" + entity.code + "_INSPECTOR";
 			
-			var inspectorClass = null;
-			if(isCondensed) {
-				inspectorClass = 'inspectorCondensed';
-			} else {
-				inspectorClass = 'inspector';
-			}
-			
+			var inspectorClass = 'inspector';
 			if(customClass) {
 				inspectorClass += ' ' + customClass;
 			}
 			inspector += "<div id='"+divID+"' class='" + inspectorClass + "' style='background-color:" + defaultColor + ";' >";
 			
-			if(showClose) {
-				var removeButton = "<span class='btn inspectorToolbar btn-default' style='float:left; margin: 2px' onclick='mainController.inspector.closeNewInspector(\""+entity.id+"\")'><i class='glyphicon glyphicon-remove'></i></span>";
-				inspector += removeButton;
-			}
-			
-			if(withLinks) {
-				var toogleButton = "<span class='btn inspectorToolbar btn-default' style='float:left; margin: 2px' onclick='mainController.inspector.toogleInspector(\""+entity.permId+"_TOOGLE\")'><i id='"+entity.permId+"_TOOGLE_ICON' class='glyphicon glyphicon-chevron-up'></i></span>";
-				inspector += toogleButton;
-			}
-			
 			if(optionalTitle) {
 				inspector += optionalTitle;
 			} else {
 				inspector += "<strong>" + entity.code + "</strong>";
-			}
-			
-			
-			if(withLinks) {
-				var printButton = "<span class='btn btn-default inspectorToolbar' style='float:right; margin: 2px;' onclick='javascript:mainController.inspector.printInspector(\""+entity.permId+"\")'><i class='glyphicon glyphicon-print'></i></span>";
-				inspector += printButton;
-				var viewButton = "<span class='btn btn-default inspectorToolbar' style='float:right; margin: 2px' onclick='javascript:mainController.changeView(\"showViewSamplePageFromPermId\",\""+entity.permId+"\")'><i class='glyphicon glyphicon-edit'></i></span>";
-				inspector += viewButton;
-				var hierarchyButton = "<span class='btn btn-default inspectorToolbar' style='float:right; margin: 2px' onclick=\"javascript:mainController.changeView('showSampleHierarchyPage','"+entity.permId+"');\"><img src='./img/hierarchy-icon.png' style='width:16px; height:17px;' /></span>";
-				inspector += hierarchyButton;
 			}
 			
 			inspector += "<table id='" + entity.permId +"_TOOGLE' class='properties table table-condensed'>"
@@ -207,7 +170,7 @@ var PrintUtil = new function() {
 			}
 			
 			//Show Parent Codes
-			var allParentCodesAsText = this.getParentsChildrenText(entity.parents, withLinks);
+			var allParentCodesAsText = this.getParentsChildrenText(entity.parents);
 			if(allParentCodesAsText.length > 0) {
 				inspector += "<tr>";
 				inspector += "<td class='property'>Parents</td>";
@@ -216,7 +179,7 @@ var PrintUtil = new function() {
 			}
 			
 			//Show Children Codes
-			var allChildrenCodesAsText = this.getParentsChildrenText(entity.children, withLinks);
+			var allChildrenCodesAsText = this.getParentsChildrenText(entity.children);
 			if(allChildrenCodesAsText.length > 0) {
 				inspector += "<tr>";
 				inspector += "<td class='property'>Children</td>";

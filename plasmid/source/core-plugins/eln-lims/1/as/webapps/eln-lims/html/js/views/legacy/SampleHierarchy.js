@@ -338,7 +338,7 @@ function SampleHierarchy(serverFacade, containerId, profile, sample) {
 						extraCustomId = plateController.getPlaceHolderId();
 						plateController.initWithPlaceHolder();
 					}
-					var $graphTable = PrintUtil.getTable(sample, false, true, false, title, true, null, extraCustomId, extraContent);
+					var $graphTable = PrintUtil.getTable(sample, true, title, null, extraCustomId, extraContent);
 					
 					$nodeContent.empty();
 					$nodeContent.css({

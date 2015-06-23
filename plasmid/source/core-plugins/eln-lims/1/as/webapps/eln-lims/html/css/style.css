@@ -289,10 +289,6 @@ h1, h2, legend {
 	float:left;
 }
 
-.inspector {
-	margin: 10px 10px 10px 10px;	
-}
-
 .inspectorLineBreak {
 	word-wrap: break-word;
 	width:300px;
@@ -302,7 +298,7 @@ div.inspectorWhiteFont {
 	color: white !important;	
 }
 
-div.inspectorCondensed {
+div.inspector {
 	text-decoration: none;
 	color: #000;
 	display: block;
@@ -311,52 +307,10 @@ div.inspectorCondensed {
 	border-radius: 10px;
 }
 
-div.inspectorCondensed > .table th,
-div.inspectorCondensed > .table td {
+div.inspector > .table th,
+div.inspector > .table td {
 	border-top: none;
 	line-height: 12px;
-}
-
-div.inspector > table {
-	width: 400px;
-}
-
-div.inspector {
-	text-decoration: none;
-	color: #000;
-	display: block;
-	width: 400px;
-	overflow: hidden;
-	padding: 0.5em;
-	-moz-box-shadow: 5px 5px 7px rgba(33,33,33,1);
-	-webkit-box-shadow: 5px 5px 7px rgba(33,33,33,.7);
-	box-shadow: 5px 5px 7px rgba(33,33,33,.7);
-	/*
-	-o-transform: rotate(1deg);
-	-webkit-transform: rotate(1deg);
-	-moz-transform: rotate(1deg);
-	*/
-	position: relative;
-	/*
-	-moz-transition:-moz-transform .15s linear;
-	-o-transition:-o-transform .15s linear;
-	-webkit-transition:-webkit-transform .15s linear;
-	*/
-	
-}
-
-div.inspector:hover,div.inspector:focus{
-	/*
-  box-shadow:10px 10px 7px rgba(0,0,0,.7);
-  -moz-box-shadow:10px 10px 7px rgba(0,0,0,.7);
-  -webkit-box-shadow: 10px 10px 7px rgba(0,0,0,.7);
-  
-  -webkit-transform: scale(1.25);
-  -moz-transform: scale(1.25);
-  -o-transform: scale(1.25);
-  */
-  position:relative;
-  z-index:5;
 }
 
 .inspectorExtra {
