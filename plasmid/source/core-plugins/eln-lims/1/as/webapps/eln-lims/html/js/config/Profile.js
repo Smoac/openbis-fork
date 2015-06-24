@@ -38,7 +38,11 @@ $.extend(DefaultProfile.prototype, {
 			return ($.inArray(spaceCode, this.inventorySpaces) !== -1);
 		}
 		
-		this.hideCodes = false;
+		this.hideCodes = true;
+		this.hideTypes = {
+				"sampleTypeCodes" : [],
+				"experimentTypeCodes" : []
+		}		
 		this.propertyReplacingCode = "NAME";
 		this.softLinks = false;
 		
@@ -64,6 +68,14 @@ $.extend(DefaultProfile.prototype, {
 		this.storagesConfiguration = {
 			"isEnabled" : false
 		};
+		
+		this.isSampleTypeHidden = function(sampleTypeCode) {
+			return ($.inArray(sampleTypeCode, this.hideTypes["sampleTypeCodes"]) !== -1);
+		}
+		
+		this.isExperimentTypeHidden = function(experimentTypeCode) {
+			return ($.inArray(experimentTypeCode, this.hideTypes["experimentTypeCodes"]) !== -1);
+		}
 		
 		this.getSearchDomains = function() {
 			return this.searchDomains;

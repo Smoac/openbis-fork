@@ -221,6 +221,9 @@ var FormUtil = new function() {
 		$component.append($("<option>").attr('value', '').attr('selected', '').text(''));
 		for(var i = 0; i < sampleTypes.length; i++) {
 			var sampleType = sampleTypes[i];
+			if(profile.isSampleTypeHidden(sampleType.code)) {
+				continue;
+			}
 			var label = Util.getEmptyIfNull(sampleType.description);
 			if(label === "") {
 				label = sampleType.code;
@@ -243,6 +246,10 @@ var FormUtil = new function() {
 		$component.append($("<option>").attr('value', '').attr('selected', '').text(''));
 		for(var i = 0; i < experimentTypes.length; i++) {
 			var experimentType = experimentTypes[i];
+			if(profile.isExperimentTypeHidden(experimentType.code)) {
+				continue;
+			}
+			
 			var label = experimentType.code;
 			var description = Util.getEmptyIfNull(experimentType.description);
 			if(description !== "") {
