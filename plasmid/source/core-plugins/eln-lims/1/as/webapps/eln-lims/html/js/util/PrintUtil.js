@@ -97,7 +97,7 @@ var PrintUtil = new function() {
 			} else if(propertyType.dataType === "MATERIAL") {
 				var materialValue = entity.properties[propertyCode];
 				var materialType = this._getMaterialTypeFromPropertyValue(materialValue);
-				if(materialType === "GENE" && entity.cachedMaterials) {
+				if(materialType === "GENE" && entity.cachedMaterials) { //Specially supported materials from openBIS
 					var gene = this._getMaterialFromCode(entity.cachedMaterials, this._getMaterialCodeFromPropertyValue(materialValue));
 					propertyContent = $("<span>").append(gene.properties["GENE_SYMBOLS"]);
 				} else {
