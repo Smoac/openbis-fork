@@ -133,16 +133,51 @@ def setEntityProperties(tr, definition, entity, properties):
 
 def setEntityParents(tr, definition, entity, properties):
     for propertyCode, propertyValue in properties.iteritems():
+       
             propertyDefinition = definitions.getPropertyDefinitionByCode(definition, propertyCode)
-            if propertyValue is not None:
+            if propertyValue is not None and propertyDefinition[0] == "PCR_3_OLIGO" or propertyDefinition[0] == "PCR_5_OLIGO":
                 propertyValue =  unicode(propertyValue)
+                print  "PROP_PARENTS", propertyDefinition[0], propertyValue
+                if re.match ("UC# ", propertyValue) and not re.search("/", propertyValue):
+                    parentCode = "/MATERIALS/"+ propertyValue.replace("UC# ", "US").strip(" ")
+                    currentParentsList = entity.getParentSampleIdentifiers()
+                    currentParentsList.add(parentCode)
+                    entity.setParentSampleIdentifiers(currentParentsList)
+                elif re.match ("UC#", propertyValue) and not re.search("/", propertyValue):
+                    parentCode= "/MATERIALS/"+ propertyValue.replace("UC#", "US").strip(" ")
+                    currentParentsList = entity.getParentSampleIdentifiers()
+                    currentParentsList.add(parentCode)
+                    entity.setParentSampleIdentifiers(currentParentsList)
+                elif re.match ("UC #", propertyValue) and not re.search("/", propertyValue):
+                    parentCode= "/MATERIALS/"+ propertyValue.replace("UC #", "US").strip(" ")
+                    currentParentsList = entity.getParentSampleIdentifiers()
+                    currentParentsList.add(parentCode)
+                    entity.setParentSampleIdentifiers(currentParentsList)
+                elif re.match ("UC ", propertyValue) and not re.search("/", propertyValue):
+                    parentCode="/MATERIALS/"+  propertyValue.replace("UC ", "US").strip(" ")
+                    currentParentsList = entity.getParentSampleIdentifiers()
+                    currentParentsList.add(parentCode)
+                    entity.setParentSampleIdentifiers(currentParentsList)
+                elif re.match ("UC", propertyValue) and not re.search("/", propertyValue):
+                    parentCode= "/MATERIALS/"+ propertyValue.replace("UC", "US").strip(" ")
+                    currentParentsList = entity.getParentSampleIdentifiers()
+                    currentParentsList.add(parentCode)
+                    entity.setParentSampleIdentifiers(currentParentsList)
+                elif re.match ("CH", propertyValue):
+                    parentCode="/MATERIALS/"+ propertyValue.strip(" ")
+                    currentParentsList = entity.getParentSampleIdentifiers()
+                    currentParentsList.add(parentCode)
+                    entity.setParentSampleIdentifiers(currentParentsList)
+                else:
+                    print "NO PARENT WAS SET FOR THIS FOUND VALUE:", propertyValue
 
-            if propertyDefinition[0] == "PCR_3_OLIGO":
-                if re.match ("UC", propertyValue):
-                    print propertyDefinition[0], propertyValue
-                    propertyValue= str.replace("UC", "US", propertyValue)
-                    print propertyDefinition[0], propertyValue
-                #entity.setParentSampleIdentifiers()            
+             
+ 
+#            elif propertyDefinition[0] == "INSERT":
+#                if re.match()
+            #entity.setParentSampleIdentifiers()            
+
+
 ##
 ## Generic Pattern
 ##
@@ -207,7 +242,7 @@ def getExperimentForUpdate(experimentIdentifier, experimentType, tr):
              experimentCache[experimentIdentifier] = experiment
     else:
         pass
-        print "Cache hit " + experimentIdentifier + ":" + str(experimentType)
+        #print "Cache hit " + experimentIdentifier + ":" + str(experimentType)
     if experimentIdentifier not in experimentCache:
          return None
     else:
@@ -485,14 +520,15 @@ class PlasmidAdaptor(FileMakerEntityAdaptor):
         
 class PlasmidOpenBISDTO(FMPeterOpenBISDTO):
     def write(self, tr):
-        code = self.values["NAME"]
+        code = "PKW" + self.values["NAME"]
         if code is not None:
             sample = getSampleForUpdate("/MATERIALS/"+code,"PLASMID", tr)
-            setEntityProperties(tr, self.definition, sample, self.values);
+            setEntityProperties(tr, self.definition, sample, self.values)
             setEntityParents(tr, self.definition, sample, self.values)
+            print "SETPARENTS", setEntityParents(tr, self.definition, sample, self.values)
     
     def getIdentifier(self, tr):
-        code = self.values["NAME"]
+        code = "PKW" +self.values["NAME"]
         return code
 
 
@@ -604,7 +640,7 @@ fmPass = "nucleus"
 adaptors = [ 
              #EnzymeAdaptor(fmConnString, fmUser, fmPass, "Weis_Restriction_enzymes")
              #ChemicalAdaptor(fmConnString, fmUser, fmPass, "Weis_Chemicals")
-             OligoAdaptor(fmConnString, fmUser, fmPass, "Weis_Oligos"),
+             #OligoAdaptor(fmConnString, fmUser, fmPass, "Weis_Oligos"),
              #AntibodyAdaptor(fmConnString, fmUser, fmPass, "Weis _Antibodies")
              PlasmidAdaptor(fmConnString, fmUser, fmPass, "Weis_Plasmids")
              ]
