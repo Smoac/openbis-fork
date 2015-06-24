@@ -15,8 +15,13 @@
  */
 package ch.ethz.sis.openbis.generic.dss.api.v3;
 
-import java.util.Collections;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,11 +30,20 @@ import org.springframework.transaction.annotation.Transactional;
 
 import ch.ethz.sis.openbis.generic.dss.api.v3.dto.entity.datasetfile.DataSetFile;
 import ch.ethz.sis.openbis.generic.dss.api.v3.dto.search.FileSearchCriterion;
+import ch.ethz.sis.openbis.generic.shared.api.v3.IApplicationServerApi;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSet;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.DataSetFetchOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.DataSetPermId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.DataSetSearchCriterion;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ISearchCriterion;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SearchOperator;
 import ch.systemsx.cisd.common.filesystem.IFreeSpaceProvider;
 import ch.systemsx.cisd.common.filesystem.SimpleFreeSpaceProvider;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.etlserver.api.v1.PutDataSetService;
+import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
+import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.openbis.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.dss.generic.server.AbstractDssServiceRpc;
 import ch.systemsx.cisd.openbis.dss.generic.server.IStreamRepository;
@@ -56,6 +70,9 @@ public class DataStoreServerApi extends AbstractDssServiceRpc<IDataStoreServerAp
             DataStoreServerApi.class);
 
     public String DSS_SERVICE_NAME = "DSS Service";
+
+    @Autowired
+    private IApplicationServerApi as;
 
     /**
      * The designated constructor.
@@ -98,7 +115,51 @@ public class DataStoreServerApi extends AbstractDssServiceRpc<IDataStoreServerAp
     @Override
     public List<DataSetFile> searchFiles(String sessionToken, FileSearchCriterion searchCriterion)
     {
-        return Collections.emptyList();
+        List<DataSetFile> result = new ArrayList<>();
+
+        Collection<ISearchCriterion> criteria = searchCriterion.getCriteria();
+
+        Set<String> resultDataSets = null;
+        Map<String, DataSetPermId> permIds = new HashMap<>();
+
+        for (ISearchCriterion iSearchCriterion : criteria)
+        {
+            if (iSearchCriterion instanceof DataSetSearchCriterion)
+            {
+                List<DataSet> dataSets = as.searchDataSets(sessionToken, (DataSetSearchCriterion) iSearchCriterion, new DataSetFetchOptions());
+                System.err.println(dataSets.size());
+                HashSet<String> codes = new HashSet<String>();
+                for (DataSet dataSet : dataSets)
+                {
+                    codes.add(dataSet.getCode());
+                    permIds.put(dataSet.getCode(), dataSet.getPermId());
+                }
+
+                if (resultDataSets == null)
+                {
+                    resultDataSets = codes;
+                } else if (searchCriterion.getOperator().equals(SearchOperator.OR)) // is an or
+                {
+                    resultDataSets.addAll(codes);
+                } else
+                { // is an and
+                    resultDataSets.retainAll(codes);
+                }
+            }
+        }
+        for (String code : resultDataSets)
+        {
+            IHierarchicalContent content = getHierarchicalContentProvider(sessionToken).asContent(code);
+            List<IHierarchicalContentNode> nodes = content.listMatchingNodes("");
+            for (IHierarchicalContentNode node : nodes)
+            {
+                DataSetFile file = new DataSetFile();
+                file.setFileName(node.getFile().getPath());
+                file.setPermId(permIds.get(code));
+                result.add(file);
+            }
+        }
+        return result;
     }
 
     @Override
