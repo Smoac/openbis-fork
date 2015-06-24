@@ -85,6 +85,10 @@ define([ 'jquery', 'openbis' ], function($, openbis) {
 			return this.createObject('dto/id/sample/SamplePermId', permId);
 		};
 
+		this.createDataSetPermId = function(permId) {
+			return this.createObject('dto/id/dataset/DataSetPermId', permId);
+		};
+
 		this.createMaterialPermId = function(code, typeCode) {
 			return this.createObject('dto/id/material/MaterialPermId', code, typeCode);
 		};
@@ -103,6 +107,10 @@ define([ 'jquery', 'openbis' ], function($, openbis) {
 
 		this.createSampleSearchCriterion = function() {
 			return this.createObject('dto/search/SampleSearchCriterion');
+		};
+
+		this.createDataSetSearchCriterion = function() {
+			return this.createObject('dto/search/DataSetSearchCriterion');
 		};
 
 		this.createMaterialSearchCriterion = function() {
@@ -169,6 +177,28 @@ define([ 'jquery', 'openbis' ], function($, openbis) {
 				fo.withModifier();
 				fo.withAttachments().withContent();
 				fo.withChildrenUsing(fo);
+			});
+			return promise;
+		};
+
+		this.createDataSetFetchOptions = function() {
+			var promise = this.createObject('dto/fetchoptions/dataset/DataSetFetchOptions');
+			promise.done(function(fo) {
+				fo.withType();
+				fo.withExperiment().withProject().withSpace();
+				fo.withSample();
+				fo.withProperties();
+				fo.withMaterialProperties();
+				fo.withParents();
+				fo.withChildren();
+				fo.withContainers();
+				fo.withContained();
+				fo.withExternalData().withFileFormatType();
+				fo.withExternalData().withLocatorType();
+				fo.withHistory();
+				fo.withTags();
+				fo.withRegistrator();
+				fo.withModifier();
 			});
 			return promise;
 		};
