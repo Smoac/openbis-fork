@@ -1,4 +1,5 @@
-define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, openbis, common) {
+define([ 'jquery', 'underscore', 'openbis', 'test/common', 'dto/entity/project/ProjectCreation', 'dto/deletion/project/ProjectDeletionOptions', 'dto/entity/project/ProjectUpdate', 
+         'dto/id/space/SpacePermId', 'dto/entity/attachment/AttachmentCreation', ], function($, _, openbis, common, ProjectCreation, ProjectDeletionOptions, ProjectUpdate, SpacePermId, AttachmentCreation) {
 	return function() {
 		QUnit.module("Project tests");
 
@@ -65,5 +66,132 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 			});
 		});
 
+		QUnit.test("createAndDeleteAProject", function(assert) {
+			var c = new common(assert);
+			var done = assert.async();
+
+			var code = "CREATE_JSON_PROJECT_" + (new Date().getTime());
+			var projectCreation = new ProjectCreation();
+			projectCreation.setSpaceId(new SpacePermId("TEST"));
+			projectCreation.setCode(code);
+			projectCreation.setDescription("JS test project");
+			attachmentCreation = new AttachmentCreation();
+			attachmentCreation.setFileName("test_file");
+			attachmentCreation.setTitle("test_title");
+			attachmentCreation.setDescription("test_description");
+			attachmentCreation.setContent(btoa("hello world!"));
+			projectCreation.setAttachments([ attachmentCreation ]);
+
+			$.when(c.createFacadeAndLogin(), c.createProjectIdentifier("/TEST/" + code), c.createProjectFetchOptions()).then(function(facade, identifier, fetchOptions) {
+				return facade.createProjects([ projectCreation ]).then(function(permIds) {
+					return facade.mapProjects(permIds, fetchOptions).done(function() {
+						var options = new ProjectDeletionOptions();
+						options.setReason("test");
+						facade.deleteProjects([ identifier ], options).then(function(deletionId) {
+							console.log(deletionId);
+							facade.logout();
+						}).fail(function(error) {
+							c.fail(error.message);
+							done();
+						});
+					})
+				})
+			}).done(function(projects) {
+				var keys = Object.keys(projects);
+				c.assertObjectsCount(keys, 1);
+				var project = projects[keys[0]];
+				c.assertEqual(project.getCode(), code, "Project code");
+				c.assertEqual(project.getSpace().getCode(), "TEST", "Space code");
+				c.assertEqual(project.getDescription(), "JS test project", "Description");
+				var attachments = project.getAttachments();
+				c.assertEqual(attachments[0].fileName, "test_file", "Attachment file name");
+				c.assertEqual(attachments[0].title, "test_title", "Attachment title");
+				c.assertEqual(attachments[0].description, "test_description", "Attachment description");
+				c.assertEqual(atob(attachments[0].content), "hello world!", "Attachment content");
+				c.assertEqual(attachments.length, 1, "Number of attachments");
+				done();
+			}).fail(function(error) {
+				c.fail(error.message);
+				done();
+			});
+		});
+		
+		var asyncUpdateProjectsTest = function(testNamePostfix, projectUpdateModifier, projectCheckerOrExpectedErrorMessage) {
+			QUnit.test("updateProjects" + testNamePostfix + "()", function(assert) {
+				var c = new common(assert);
+				var done = assert.async();
+	
+				var expectingFailure = _.isFunction(projectCheckerOrExpectedErrorMessage) === false;
+				var code = "UPDATE_JSON_PROJECT_" + (new Date().getTime());
+				var projectCreation = new ProjectCreation();
+				projectCreation.setSpaceId(new SpacePermId("TEST"));
+				projectCreation.setCode(code);
+				projectCreation.setDescription("JS test project");
+				c.createFacadeAndLogin().then(function(facade) {
+					var ids = facade.createProjects([ projectCreation ]).then(function(permIds) {
+						var projectUpdate = new ProjectUpdate();
+						projectUpdate.setProjectId(permIds[0]);
+						projectUpdateModifier(c, projectUpdate);
+						return facade.updateProjects([ projectUpdate ]).then(function() {
+							return permIds;
+						});
+					});
+					$.when(ids, c.createProjectFetchOptions()).then(function(permIds, fetchOptions) {
+						return facade.mapProjects(permIds, fetchOptions).done(function() {
+							facade.logout();
+						});
+					}).done(function(projects) {
+						if (expectingFailure) {
+							c.fail("Project update didn't failed as expected.");
+						} else {
+							var keys = Object.keys(projects);
+							c.assertObjectsCount(keys, 1);
+							var project = projects[keys[0]];
+							projectCheckerOrExpectedErrorMessage(c, code, project);
+						}
+						done();
+					}).fail(function(error) {
+						if (expectingFailure) {
+							c.assertEqual(error.message, projectCheckerOrExpectedErrorMessage, "Error message");
+						} else {
+							c.fail(error.message);
+						}
+						done();
+					});
+				});
+			});	
+		}
+
+		asyncUpdateProjectsTest("WithChangedSpaceAndAddedAttachment", function(c, projectUpdate) {
+			projectUpdate.setSpaceId(new SpacePermId("PLATONIC"));
+			attachmentCreation = new AttachmentCreation();
+			attachmentCreation.setFileName("test_file");
+			attachmentCreation.setTitle("test_title");
+			attachmentCreation.setDescription("test_description");
+			attachmentCreation.setContent(btoa("hello world"));
+			projectUpdate.getAttachments().add([ attachmentCreation ]);
+		}, function(c, code, project) {
+			c.assertEqual(project.getCode(), code, "Project code");
+			c.assertEqual(project.getSpace().getCode(), "PLATONIC", "Space code");
+			c.assertEqual(project.getDescription(), "JS test project", "Description");
+			var attachments = project.getAttachments();
+			c.assertEqual(attachments[0].fileName, "test_file", "Attachment file name");
+			c.assertEqual(attachments[0].title, "test_title", "Attachment title");
+			c.assertEqual(attachments[0].description, "test_description", "Attachment description");
+			c.assertEqual(atob(attachments[0].content), "hello world", "Attachment content");
+			c.assertEqual(attachments.length, 1, "Number of attachments");
+		});	
+		
+		asyncUpdateProjectsTest("WithUnChangedSpaceButChangedProperties", function(c, projectUpdate) {
+			projectUpdate.setDescription("test_description");
+		}, function(c, code, project) {
+			c.assertEqual(project.getCode(), code, "Project code");
+			c.assertEqual(project.getSpace().getCode(), "TEST", "Space code");
+			c.assertEqual(project.getDescription(), "test_description", "Description");
+		});	
+		
+		asyncUpdateProjectsTest("WithRemovedSpace", function(c, projectUpdate) {
+			projectUpdate.setSpaceId(null);
+		}, "Space id cannot be null (Context: [])");
 	}
 });
