@@ -2,15 +2,23 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:tx="http://www.springframework.org/schema/tx"
-    xmlns:plugins="http://www.springframework.org/schema/context"
+    xmlns:context="http://www.springframework.org/schema/context"
     xsi:schemaLocation="http://www.springframework.org/schema/beans
 			http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
 			http://www.springframework.org/schema/tx
 			http://www.springframework.org/schema/tx/spring-tx-2.5.xsd
 			http://www.springframework.org/schema/context
       http://www.springframework.org/schema/context/spring-context-2.5.xsd">
-      
-    <plugins:annotation-config />
+    <context:annotation-config />
+
+    <context:component-scan base-package="ch.ethz.sis.openbis.generic.dss.api.v3" use-default-filters="false">
+        <context:include-filter type="annotation"
+            expression="org.springframework.stereotype.Controller" />
+    </context:component-scan>
+    
+    <context:component-scan base-package="ch.ethz.sis.openbis.generic.dss.api.v3" annotation-config="false">
+        <context:include-filter type="annotation" expression="org.springframework.stereotype.Component" />
+    </context:component-scan>
     
     <!--
         // Replaces ${...} with corresponding values found in 'location' property. A value

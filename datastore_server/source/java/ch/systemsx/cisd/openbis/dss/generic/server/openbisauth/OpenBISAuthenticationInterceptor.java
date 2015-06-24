@@ -64,7 +64,7 @@ public class OpenBISAuthenticationInterceptor implements MethodInterceptor
 {
 
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
-            OpenBISAuthenticationAdvisor.class);
+            OpenBISAuthenticationInterceptor.class);
 
     private final SessionTokenManager sessionTokenManager;
 

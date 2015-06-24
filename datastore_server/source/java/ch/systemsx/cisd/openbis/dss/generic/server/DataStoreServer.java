@@ -33,7 +33,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
-import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.eclipse.jetty.server.SecureRequestCustomizer;
@@ -57,6 +56,7 @@ import org.springframework.web.context.WebApplicationContext;
 import com.googlecode.jsonrpc4j.spring.JsonServiceExporter;
 import com.marathon.util.spring.StreamSupportingHttpInvokerServiceExporter;
 
+import ch.ethz.sis.openbis.generic.dss.api.v3.IDataStoreServerApi;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.api.IRpcServiceNameServer;
 import ch.systemsx.cisd.common.api.RpcServiceInterfaceVersionDTO;
@@ -318,6 +318,17 @@ public class DataStoreServer
         jsonV1ServiceExporter
                 .setApplicationContext((org.springframework.context.ApplicationContext) ServiceProvider
                         .getApplicationContext());
+
+        //
+        // export the V3 API
+        //
+        String rpcV3Path = DataStoreApiUrlUtilities.getUrlForRpcService(IDataStoreServerApi.SERVICE_URL);
+        HttpInvokerServiceExporter v3ServiceExporter = ServiceProvider.getDssServiceV3();
+        // TODO: 24.06.2015 Include the V3 service in name-server
+        // IDataStoreServerApi serviceV3 = (IDataStoreServerApi) v3ServiceExporter .getService();
+        context.addServlet(new ServletHolder(new HttpInvokerServlet(v3ServiceExporter, rpcV3Path)),
+                rpcV3Path);
+
         try
         {
             jsonV1ServiceExporter.afterPropertiesSet();
@@ -431,19 +442,19 @@ public class DataStoreServer
         HttpConfiguration httpConfig = new HttpConfiguration();
         httpConfig.setSecureScheme("https");
 
-    	if (configParams.isUseSSL())
+        if (configParams.isUseSSL())
         {
             final SslContextFactory sslContextFactory = new SslContextFactory();
             sslContextFactory.setKeyStorePath(configParams.getKeystorePath());
             sslContextFactory.setKeyStorePassword(configParams.getKeystorePassword());
             sslContextFactory.setKeyManagerPassword(configParams.getKeystoreKeyPassword());
-            
+
             HttpConfiguration httpsConfig = new HttpConfiguration(httpConfig);
             httpsConfig.addCustomizer(new SecureRequestCustomizer());
-            
-            return new ServerConnector(thisServer, 
-            	       new SslConnectionFactory(sslContextFactory, "http/1.1"),
-            	       new HttpConnectionFactory(httpsConfig));
+
+            return new ServerConnector(thisServer,
+                    new SslConnectionFactory(sslContextFactory, "http/1.1"),
+                    new HttpConnectionFactory(httpsConfig));
         } else
         {
             operationLog.warn("creating connector to openBIS without SSL");

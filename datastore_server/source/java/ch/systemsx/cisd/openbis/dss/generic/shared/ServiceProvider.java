@@ -24,6 +24,7 @@ import org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter;
 
 import com.marathon.util.spring.StreamSupportingHttpInvokerServiceExporter;
 
+import ch.ethz.sis.openbis.generic.dss.api.v3.DataStoreServerApiServer;
 import ch.ethz.sis.openbis.generic.shared.api.v3.IApplicationServerApi;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -57,8 +58,8 @@ public class ServiceProvider
     private static boolean buildingApplicationContext;
 
     /**
-     * @deprecated This method should only be used from {@link ServiceProviderTestWrapper} to avoid
-     *             leaving the application context uncleaned after test execution.
+     * @deprecated This method should only be used from {@link ServiceProviderTestWrapper} to avoid leaving the application context uncleaned after
+     *             test execution.
      */
     @Deprecated
     public static void setBeanFactory(BeanFactory applicationContext)
@@ -69,8 +70,7 @@ public class ServiceProvider
     /**
      * Return the application context
      * 
-     * @param create <code>true</code> if the application context should be created when it does not
-     *            exist.
+     * @param create <code>true</code> if the application context should be created when it does not exist.
      */
     public static BeanFactory tryGetApplicationContext(boolean create)
     {
@@ -88,12 +88,12 @@ public class ServiceProvider
                     }
                     buildingApplicationContext = true;
                     applicationContext = new ClassPathXmlApplicationContext(new String[]
-                        { "dssApplicationContext.xml" }, true)
-                    {
+                    { "dssApplicationContext.xml" }, true)
                         {
-                            setDisplayName("Application Context from { dssApplicationContext.xml }");
-                        }
-                    };
+                            {
+                                setDisplayName("Application Context from { dssApplicationContext.xml }");
+                            }
+                        };
                     buildingApplicationContext = false;
                 }
             }
@@ -172,6 +172,12 @@ public class ServiceProvider
     {
         return ((StreamSupportingHttpInvokerServiceExporter) getApplicationContext().getBean(
                 "data-store-rpc-service-generic"));
+    }
+
+    public static HttpInvokerServiceExporter getDssServiceV3()
+    {
+        return ((HttpInvokerServiceExporter) getApplicationContext().getBean(
+                DataStoreServerApiServer.INTERNAL_BEAN_NAME));
     }
 
     public static IDataSourceProvider getDataSourceProvider()
