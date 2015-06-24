@@ -34,6 +34,14 @@ define([ 'jquery', 'openbis' ], function($, openbis) {
 			return dfd.promise();
 		};
 
+		this.getObjectProperty = function(object, propertyName) {
+			var propertyNames = propertyName.split('.');
+			for ( var pn in propertyNames) {
+				object = object[propertyNames[pn]];
+			}
+			return object;
+		};
+
 		this.createFacade = function(action) {
 			var facade = new openbis(testApiUrl);
 			action(facade);
@@ -222,6 +230,20 @@ define([ 'jquery', 'openbis' ], function($, openbis) {
 
 		this.assertObjectsCount = function(objects, count) {
 			this.assertEqual(objects.length, count, 'Got ' + count + ' object(s)');
+		};
+
+		this.assertObjectsWithValues = function(objects, propertyName, propertyValues) {
+			var thisCommon = this;
+			var values = {};
+
+			$.each(objects, function(index, object) {
+				var value = thisCommon.getObjectProperty(object, propertyName);
+				if (value in values == false) {
+					values[value] = true;
+				}
+			});
+
+			this.assert.deepEqual(Object.keys(values).sort(), propertyValues.sort(), 'Objects have correct ' + propertyName + ' values')
 		};
 
 		this.assertObjectsWithOrWithoutCollections = function(objects, accessor, checker) {

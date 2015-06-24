@@ -1,5 +1,5 @@
-define([ 'jquery', 'openbis', 'test/common', 'dto/entity/sample/SampleCreation', 'dto/id/entitytype/EntityTypePermId', 'dto/id/space/SpacePermId', 'dto/id/tag/TagCode' ], function($, openbis, common,
-		SampleCreation, EntityTypePermId, SpacePermId, TagCode) {
+define([ 'jquery', 'openbis', 'test/common', 'dto/entity/sample/SampleCreation', 'dto/entity/sample/SampleUpdate', 'dto/id/entitytype/EntityTypePermId', 'dto/id/space/SpacePermId',
+		'dto/id/tag/TagCode' ], function($, openbis, common, SampleCreation, SampleUpdate, EntityTypePermId, SpacePermId, TagCode) {
 	return function() {
 		QUnit.module("Sample tests");
 
@@ -42,7 +42,7 @@ define([ 'jquery', 'openbis', 'test/common', 'dto/entity/sample/SampleCreation',
 		QUnit.test("searchSamples()", function(assert) {
 			var c = new common(assert);
 			var done = assert.async();
-			
+
 			$.when(c.createFacadeAndLogin(), c.createSampleSearchCriterion(), c.createSampleFetchOptions()).then(function(facade, criterion, fetchOptions) {
 
 				criterion.withCode().thatEquals("PLATE-1");
@@ -98,40 +98,47 @@ define([ 'jquery', 'openbis', 'test/common', 'dto/entity/sample/SampleCreation',
 			});
 		});
 
-		/*
-		 * test("updateSamples()", function() { var code = "UPDATE_JSON_SAMPLE_" +
-		 * (new Date().getTime());
-		 * 
-		 * createFacadeAndLogin().then(function(facade) { var creations = [ {
-		 * "@type" : "SampleCreation",
-		 * 
-		 * "typeId" : { "@type" : "EntityTypePermId", "permId" : "UNKNOWN" },
-		 * 
-		 * "code" : code,
-		 * 
-		 * "spaceId" : { "@type" : "SpacePermId", "permId" : "PLATONIC" } } ];
-		 * 
-		 * var ids = facade.createSamples(creations).then(function(permIds) {
-		 * var updates = [ { "@type" : "SampleUpdate",
-		 * 
-		 * "sampleId" : permIds[0],
-		 * 
-		 * "spaceId" : { "@type" : "SpacePermId", "permId" : "TEST" } } ];
-		 * 
-		 * return facade.updateSamples(updates).then(function() { return
-		 * permIds; }); });
-		 * 
-		 * return $.when(ids, createSampleFetchOptions()).then(function(permIds,
-		 * fetchOptions) { return facade.mapSamples(permIds,
-		 * fetchOptions).done(function() { facade.logout(); }) })
-		 * }).done(function(samples) { var keys = Object.keys(samples);
-		 * assertObjectsCount(keys, 1);
-		 * 
-		 * var sample = samples[keys[0]]; equal(sample.code, code, "Sample
-		 * code"); equal(sample.type.code, "UNKNOWN", "Type code");
-		 * equal(sample.space.code, "TEST", "Space code"); start();
-		 * }).fail(function(error) { ok(false, error.message); start(); }); });
-		 */
+		QUnit.test("updateSamples()", function(assert) {
+			var c = new common(assert);
+			var done = assert.async();
+
+			var creation = new SampleCreation();
+			creation.setTypeId(new EntityTypePermId("UNKNOWN"));
+			creation.setCode("CREATE_JSON_SAMPLE_" + (new Date().getTime()));
+			creation.setSpaceId(new SpacePermId("TEST"));
+			creation.setTagIds([ new TagCode("CREATE_JSON_TAG") ]);
+
+			$.when(c.createFacadeAndLogin(), c.createSampleFetchOptions()).then(function(facade, fetchOptions) {
+				return facade.createSamples([ creation ]).then(function(permIds) {
+
+					var update = new SampleUpdate();
+					update.setSampleId(permIds[0]);
+					update.getTagIds().remove(new TagCode("CREATE_JSON_TAG"));
+					update.getTagIds().add(new TagCode("CREATE_JSON_TAG_2"));
+					update.getTagIds().add(new TagCode("CREATE_JSON_TAG_3"));
+
+					return facade.updateSamples([ update ]).then(function() {
+						return facade.mapSamples(permIds, fetchOptions).done(function() {
+							facade.logout();
+						})
+					});
+				})
+			}).done(function(samples) {
+				var keys = Object.keys(samples);
+				c.assertObjectsCount(keys, 1);
+
+				var sample = samples[keys[0]];
+				c.assertEqual(sample.getCode(), creation.getCode(), "Sample code");
+				c.assertEqual(sample.getType().getCode(), creation.getTypeId().getPermId(), "Type code");
+				c.assertEqual(sample.getSpace().getCode(), creation.getSpaceId().getPermId(), "Space code");
+				c.assertObjectsCount(sample.getTags(), 2);
+				c.assertObjectsWithValues(sample.getTags(), "code", [ "CREATE_JSON_TAG_2", "CREATE_JSON_TAG_3" ]);
+				done();
+			}).fail(function(error) {
+				c.fail(error.message);
+				done();
+			});
+		});
 
 	}
 });

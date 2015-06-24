@@ -22,7 +22,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common', 'dto/entity/experimen
 				c.assertEqual(experiment.getProject().getSpace().getCode(), "PLATONIC", "Space code");
 				done();
 			}).fail(function(error) {
-				f.fail(error.message);
+				c.fail(error.message);
 				done();
 			});
 		});
