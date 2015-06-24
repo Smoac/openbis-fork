@@ -23,10 +23,6 @@ from __builtin__ import file
 
 FASTQ_GZ_PATTERN = "*.fastq.gz"
 METADATA_FILE_SUFFIX = "_metadata.tsv"
-AFFILIATION= {'FMI': '/links/shared/dsu/dss/customers/fmi/drop-box/',
-              'BIOCENTER_BASEL': '/links/shared/dsu/dss/customers/biozentrum/drop-box/',
-              'NEUROSTEMX': '/links/shared/dsu/dss/customers/biozentrum/drop-box/',
-              'SWISS_TPH' : '/links/shared/dsu/dss/customers/biozentrum/drop-box/'}
 AFFILIATION_PROPERTY_NAME='AFFILIATION'
 INDEX1='BARCODE'
 INDEX2='INDEX2'
@@ -39,6 +35,7 @@ NCBI_ORGANISM_TAXONOMY='NCBI_ORGANISM_TAXONOMY'
 PHIX_TAXONOMY_ID='10847'
 DEFAULT_INDEX='NoIndex'
 CRC32_PATH='lib/crc32'
+CRC32_PATH='lib/a.out'
 
 # -------------------------------------------------------------------------------
 
@@ -85,7 +82,7 @@ def getFileNames(path):
   return(matches)
 
 def writeMetadataFile(transaction, folder_name, meta_data_file_name, sequencing_sample_properties_dict,
-                      fcMetaDataDict, experiment, affiliation_name, fastqFileList, flowLane):
+                      fcMetaDataDict, experiment, sample_space, fastqFileList, flowLane):
   '''
   Writes a file of meta data related to one sample
   '''
@@ -128,8 +125,7 @@ def writeMetadataFile(transaction, folder_name, meta_data_file_name, sequencing_
     meta_data_file.close()
   
   destinationFolder = folder_name
-  #extraCopy (affiliation_name, meta_data_file_name)
-  extraCopySciCore (affiliation_name, meta_data_file_name, destinationFolder)
+  extraCopySciCore (sample_space, meta_data_file_name, destinationFolder)
 
 def create_openbis_timestamp ():
   '''
@@ -155,38 +151,22 @@ def create_openbis_timestamp ():
 
 # -------------------------------------------------------------------------------
 
-def extraCopy (affiliation_name, path):
-  '''
-  @deprecated: replaced with extraCopySciCore
-  Handles the extra copies of the data for transfer with datamover via the
-  bc2 network to the FMI and BIOCENTER
-  For the BIOCENTER there is a folder created in which all data gets into
-  '''
-  if (affiliation_name in AFFILIATION):
-    if (affiliation_name == 'BIOCENTER_BASEL' or affiliation_name == 'NEUROSTEMX' ):
-      dirname = AFFILIATION[affiliation_name] + datetime.now().strftime("%Y-%m-%d")
-      if not os.path.exists(dirname):
-        os.mkdir(dirname)
-      shutil.copy(path, dirname)
-    else:
-      shutil.copy(path, AFFILIATION[affiliation_name])
-
-# -------------------------------------------------------------------------------
-
-def extraCopySciCore (affiliation_name, filePath, destinationFolder=""):
+def extraCopySciCore (sample_space, filePath, destinationFolder=""):
     '''
     Handles the extra copies of the data for transfer with datamover for SCICORE
     '''
     
-    dropBoxFolder = '/tmp/scicore'
-#     dropBoxFolder = '/links/shared/dsu/dss/customers/biozentrum_scicore/drop-box'
+    dropBoxFolder = '/Users/kohleman/tmp/scicore'
+    #dropBoxFolder = '/links/shared/dsu/dss/customers/biozentrum_scicore/drop-box'
+    
+    # if a sample is part of this space list then it will be transferred to sciCore
+    SPACE_LIST = ["UNI_BASEL_SALZBURGER", "BIOCENTER_HANDSCHIN", "BIOCENTER_ZAVOLAN",
+                  "BIOCENTER_KELLER", "BIOCENTER_SILANDER", "ETHZ_NEUROSTEMX",
+                  "UNI_BASEL_UTZINGER", "UNI_BASEL_GAGNEUX"]
+    
     basename = os.path.basename(filePath)
     
-    print("extraCopySciCore")
-    print basename
-    print affiliation_name
- 
-    if (affiliation_name in ['BIOCENTER_BASEL', 'NEUROSTEMX', 'SWISS_TPH']):
+    if (sample_space in SPACE_LIST):
         dirname = os.path.join(dropBoxFolder, destinationFolder)
         if not os.path.exists(dirname):
             os.mkdir(dirname)
@@ -261,10 +241,10 @@ def renameFiles (fastq_files, undetermined, flow_cell_id):
 
 # -------------------------------------------------------------------------------
 
-def put_files_to_dataset (transaction, dataSet, fastq_files, folder_name, flow_cell_id, affiliation_name, undetermined):
+def put_files_to_dataset (transaction, dataSet, fastq_files, folder_name, flow_cell_id, sample_space, undetermined):
 
     for file in fastq_files:
-        extraCopySciCore (affiliation_name, file, folder_name)
+        extraCopySciCore (sample_space, file, folder_name)
         transaction.moveFile(file, dataSet, folder_name)
 
 # -------------------------------------------------------------------------------
@@ -358,32 +338,30 @@ def process(transaction):
     if (INDEX2 in sequencing_sample_properties_dict) and (fcMetaDataDict[INDEXREAD2] > 0):
       dataSet.setPropertyValue(INDEX2, sequencing_sample_properties_dict[INDEX2])
     dataSet.setPropertyValue(EXTERNAL_SAMPLE_NAME, sequencing_sample_properties_dict[EXTERNAL_SAMPLE_NAME])
-  
-    if (AFFILIATION_PROPERTY_NAME in sequencing_sample_properties_dict):
-      affiliation_name = sequencing_sample_properties_dict[AFFILIATION_PROPERTY_NAME]
-
+    sample_space = foundSample[0].getSpace()
+    
     filepart, suffix = first_fastq_file.split('.',1)
     meta_data_file_name = filepart.rsplit('_',2)[0] +  METADATA_FILE_SUFFIX
     # get a file from the IDataSetRegistrationTransaction so it is automatically part of the data set
     meta_data_file_path = transaction.createNewFile(dataSet, name, meta_data_file_name)
     writeMetadataFile(transaction, name, meta_data_file_path, sequencing_sample_properties_dict,
-                      fcMetaDataDict, experiment, affiliation_name, fastq_files, flowLane)
-    affiliation_for_Undetermined = affiliation_name
+                      fcMetaDataDict, experiment, sample_space, fastq_files, flowLane)
+    affiliation_for_Undetermined = sample_space
   
   # Undetermined Files
   else:
-    affiliation_name = ""
+    sample_space = ""
     affiliation_for_Undetermined = ""
     newFastqFiles = []
     lane_parents = searchParents (search_service, parents)
     newFastqFiles = renameFiles(fastq_files, undetermined, flowCellId)
     for parent in lane_parents:
-      sequencing_sample_properties_dict = get_sample_properties (transaction, parent)
-      parent_sample = parent.getSample()
-      sample_code = parent_sample.getCode()
-      experiment = parent_sample.getExperiment()
-      if (AFFILIATION_PROPERTY_NAME in sequencing_sample_properties_dict):
-        affiliation_name = sequencing_sample_properties_dict[AFFILIATION_PROPERTY_NAME]
+        sequencing_sample_properties_dict = get_sample_properties (transaction, parent)
+        parent_sample = parent.getSample()
+        sample_code = parent_sample.getCode()
+        experiment = parent_sample.getExperiment()
+        sample_space = parent.getSpace()
+        print(sample_space)
      
         # Special Sample Types without index (e.g. ILLUMINA_SEQUENCING_NEUROSTEMX_SINGLECELL) are caught here.
         # as those samples do not have a NCBI ORGANISM TAXONOMY    
@@ -391,23 +369,24 @@ def process(transaction):
             print(sample_code + ": Processing Sample without NCBI ORGANISM TAXONOMY: ILLUMINA_SEQUENCING_NEUROSTEMX_SINGLECELL")
             meta_data_file_path = transaction.createNewFile(dataSet, name, sample_code + '_' + flowCellId + '_' + first_fastq_file.split('.')[0] + METADATA_FILE_SUFFIX)
             writeMetadataFile(transaction, name, meta_data_file_path, sequencing_sample_properties_dict,
-                       fcMetaDataDict, experiment, affiliation_name, newFastqFiles, flowLane)
-            affiliation_for_Undetermined = affiliation_name
+                       fcMetaDataDict, experiment, sample_space, newFastqFiles, flowLane)
+            affiliation_for_Undetermined = sample_space
         
-        elif (INDEX1 not in sequencing_sample_properties_dict) and (INDEX2 not in sequencing_sample_properties_dict) and \
+        elif (INDEX1 not in sequencing_sample_properties_dict or sequencing_sample_properties_dict[INDEX1]== 'NOINDEX') and \
+             (INDEX2 not in sequencing_sample_properties_dict or sequencing_sample_properties_dict[INDEX2]== 'NOINDEX') and \
               (sequencing_sample_properties_dict[NCBI_ORGANISM_TAXONOMY] != PHIX_TAXONOMY_ID):
-          print('NONINDEXED sample and Taxonomy id is NOT' + PHIX_TAXONOMY_ID +', probably a pool: ' + sample_code)
+          print('NONINDEXED sample and Taxonomy id is NOT ' + PHIX_TAXONOMY_ID +', probably a pool: ' + sample_code)
           meta_data_file_path = transaction.createNewFile(dataSet, name, sample_code + '_' + flowCellId + '_' + first_fastq_file.split('.')[0] + METADATA_FILE_SUFFIX)
           writeMetadataFile(transaction, name, meta_data_file_path, sequencing_sample_properties_dict,
-                         fcMetaDataDict, experiment, affiliation_name, newFastqFiles, flowLane)
-          affiliation_for_Undetermined = affiliation_name
+                         fcMetaDataDict, experiment, sample_space, newFastqFiles, flowLane)
+          affiliation_for_Undetermined = sample_space
         # PARENTS:
         else:
           # Create Parent Meta data
           print(sample_code + ": Create parent meta data file")
           meta_data_file_path = transaction.createNewFile(dataSet, name, 'PARENT_' + sample_code + '_' + flowCellId + METADATA_FILE_SUFFIX)
           writeMetadataFile(transaction, name, meta_data_file_path, sequencing_sample_properties_dict,
-                         fcMetaDataDict, experiment, affiliation_name, [], flowLane)
+                         fcMetaDataDict, experiment, sample_space, [], flowLane)
           continue
       
   put_files_to_dataset (transaction, dataSet, newFastqFiles, name, flowCellId, affiliation_for_Undetermined, undetermined)
@@ -416,3 +395,4 @@ def process(transaction):
     sa = transaction.getSampleForUpdate(foundLane[0].getSampleIdentifier())
     sa.setPropertyValue("DATA_TRANSFERRED", create_openbis_timestamp())
     dataSet.setSample(foundLane[0])
+
