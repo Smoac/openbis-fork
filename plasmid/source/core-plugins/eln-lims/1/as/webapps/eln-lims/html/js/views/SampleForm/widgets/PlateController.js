@@ -38,6 +38,33 @@ function PlateController(sample) {
 		}
 		repeatUntilSet();
 	}
+	
+	this._getMaterialFromCode = function(materials, code) {
+		for(var mIdx = 0; mIdx < materials.length; mIdx++) {
+			if(materials[mIdx].materialCode === code) {
+				return materials[mIdx];
+			}
+		}
+		return null;
+	}
+	
+	this._getMaterialTypeFromPropertyValue = function(propertyValue) {
+		var materialIdentifierParts = propertyValue.split(" ");
+		var materialType = materialIdentifierParts[1].substring(1, materialIdentifierParts[1].length-1);
+		return materialType;
+	}
+	
+	this._getMaterialCodeFromPropertyValue = function(propertyValue) {
+		return propertyValue.split(" ")[0];
+	}
+	
+	this._getMaterialIdentifierFromPropertyValue = function(propertyValue) {
+		var materialIdentifierParts = propertyValue.split(" ");
+		var materialType = materialIdentifierParts[1].substring(1, materialIdentifierParts[1].length-1);
+		var materialIdentifier = "/" + materialType + "/" + materialIdentifierParts[0];
+		return materialIdentifier;
+	}
+	
 	this.init = function($container) {
 		var _this = this;
 		$container.empty();
@@ -46,8 +73,38 @@ function PlateController(sample) {
 			this._plateView.repaint($container);
 		} else {
 			mainController.serverFacade.searchContained(this._plateModel.sample.permId, function(contained) {
-				_this._plateModel.sample.contained = contained;
-				_this._plateView.repaint($container);
+				//GENES - Used by Nexus
+				var materialIdentifiers = [];
+				for(var i = 0; i < contained.length; i++) {
+					if(contained[i].properties) {
+						var genePropertyValue = contained[i].properties["GENE"];
+						if(genePropertyValue) {
+							var genePropertyIdentifier = _this._getMaterialIdentifierFromPropertyValue(genePropertyValue);
+							if(($.inArray(genePropertyIdentifier, materialIdentifiers) === -1)) {
+								materialIdentifiers.push(genePropertyIdentifier);
+							}
+						}
+					}
+				}
+				
+				mainController.serverFacade.getMaterialsForIdentifiers(materialIdentifiers, function(materials) {
+					if(materials.result) {
+						for(var i = 0; i < contained.length; i++) {
+							if(contained[i].properties["GENE"]) {
+								if(contained[i].properties && contained[i].properties["GENE"]) {
+									var geneCode = _this._getMaterialCodeFromPropertyValue(contained[i].properties["GENE"]);
+									var gene = _this._getMaterialFromCode(materials.result, geneCode);
+									if(gene) {
+										contained[i].cachedMaterials = [gene];
+									}
+								}
+							}
+						}
+					}
+					
+					_this._plateModel.sample.contained = contained;
+					_this._plateView.repaint($container);
+				});
 			});
 		}
 		

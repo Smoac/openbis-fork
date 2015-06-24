@@ -91,22 +91,26 @@ var PrintUtil = new function() {
 			var propertyCode = sampleTypePropertiesCode[i];
 			var propertyLabel = sampleTypePropertiesDisplayName[i];
 			var propertyContent = null;
-			
 			var propertyType = profile.getPropertyType(propertyCode);
 			if(propertyType.dataType === "CONTROLLEDVOCABULARY") {
 				propertyContent = FormUtil.getVocabularyLabelForTermCode(propertyType, entity.properties[propertyCode]);
 			} else if(propertyType.dataType === "MATERIAL") {
-				propertyContent = $("<a>").append(entity.properties[propertyCode]);
+				var materialValue = entity.properties[propertyCode];
+				var materialType = this._getMaterialTypeFromPropertyValue(materialValue);
+				if(materialType === "GENE" && entity.cachedMaterials) {
+					var gene = this._getMaterialFromCode(entity.cachedMaterials, this._getMaterialCodeFromPropertyValue(materialValue));
+					propertyContent = $("<span>").append(gene.properties["GENE_SYMBOLS"]);
+				} else {
+					propertyContent = $("<span>").append(materialValue);
+				}
 			} else {
 				propertyContent = entity.properties[propertyCode];
 				propertyContent = Util.getEmptyIfNull(propertyContent);
 				propertyContent = Util.replaceURLWithHTMLLinks(propertyContent);
 			}
-				
-			
 			
 			var isSingleColumn = false;
-			if((propertyContent instanceof String) || (typeof propertyContent === "string")) {
+			if(((propertyContent instanceof String) || (typeof propertyContent === "string"))) {
 				var transformerResult = profile.inspectorContentTransformer(entity, propertyCode, propertyContent);
 				isSingleColumn = transformerResult["isSingleColumn"];
 				propertyContent = transformerResult["content"];
@@ -170,4 +174,31 @@ var PrintUtil = new function() {
 		
 		return $newInspector;
 	}
+	
+	this._getMaterialFromCode = function(materials, code) {
+		for(var mIdx = 0; mIdx < materials.length; mIdx++) {
+			if(materials[mIdx].materialCode === code) {
+				return materials[mIdx];
+			}
+		}
+		return null;
+	}
+	
+	this._getMaterialTypeFromPropertyValue = function(propertyValue) {
+		var materialIdentifierParts = propertyValue.split(" ");
+		var materialType = materialIdentifierParts[1].substring(1, materialIdentifierParts[1].length-1);
+		return materialType;
+	}
+	
+	this._getMaterialCodeFromPropertyValue = function(propertyValue) {
+		return propertyValue.split(" ")[0];
+	}
+	
+	this._getMaterialIdentifierFromPropertyValue = function(propertyValue) {
+		var materialIdentifierParts = propertyValue.split(" ");
+		var materialType = materialIdentifierParts[1].substring(1, materialIdentifierParts[1].length-1);
+		var materialIdentifier = "/" + materialType + "/" + materialIdentifierParts[0];
+		return materialIdentifier;
+	}
+	
 }
