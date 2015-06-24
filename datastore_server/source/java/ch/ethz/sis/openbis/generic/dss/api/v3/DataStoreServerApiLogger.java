@@ -30,8 +30,8 @@ public class DataStoreServerApiLogger extends AbstractServerLogger implements
     @Override
     public List<DataSetFile> searchFiles(String sessionToken, FileSearchCriterion searchCriterion)
     {
-        System.out.println("search files");
-        return null; // TODO kuba implement this method
+        logAccess(sessionToken, "search-files", "SEARCH_CRITERION:\n%s\n", searchCriterion);
+        return null;
     }
 
 }

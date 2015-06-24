@@ -15,6 +15,7 @@
  */
 package ch.ethz.sis.openbis.generic.dss.api.v3;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -97,7 +98,7 @@ public class DataStoreServerApi extends AbstractDssServiceRpc<IDataStoreServerAp
     @Override
     public List<DataSetFile> searchFiles(String sessionToken, FileSearchCriterion searchCriterion)
     {
-        return null;
+        return Collections.emptyList();
     }
 
     @Override

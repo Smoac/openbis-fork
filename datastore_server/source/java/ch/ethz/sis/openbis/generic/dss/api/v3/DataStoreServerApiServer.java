@@ -42,7 +42,6 @@ public class DataStoreServerApiServer extends AbstractApiServiceExporter
     @Override
     public void afterPropertiesSet()
     {
-        System.err.println("After properties set of datastore server server " + service);
         establishService(IDataStoreServerApi.class, service, IDataStoreServerApi.SERVICE_NAME,
                 IDataStoreServerApi.SERVICE_URL);
         super.afterPropertiesSet();
