@@ -262,7 +262,7 @@ function ServerFacade(openbisServer) {
 	//
 	this.generateCode = function(sampleType, action) {
 		this.openbisServer.countNumberOfSamplesForType(sampleType.code, function(response) {
-			if(response.result) {
+			if(response.result || response.result === 0) {
 				action(sampleType.codePrefix + "_" + (parseInt(response.result) + 1));
 			}
 		});
