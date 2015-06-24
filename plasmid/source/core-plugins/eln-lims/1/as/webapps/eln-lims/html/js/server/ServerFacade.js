@@ -260,10 +260,12 @@ function ServerFacade(openbisServer) {
 	//
 	// Others
 	//
-	this.generateCode = function(prefix, action) {
-		if(this.openbisServer.generateCode) { //Old instances can't auto generate the code
-			this.openbisServer.generateCode(prefix, "SAMPLE", action);
-		}
+	this.generateCode = function(sampleType, action) {
+		this.openbisServer.countNumberOfSamplesForType(sampleType.code, function(response) {
+			if(response.result) {
+				action(sampleType.codePrefix + "_" + (parseInt(response.result) + 1));
+			}
+		});
 	}
 	
 	this.deleteDataSets = function(datasetIds, reason, callback) {
