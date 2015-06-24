@@ -10,7 +10,7 @@ define(["stjs", "dto/id/ObjectPermId", "dto/id/dataset/IFileFormatTypeId"], func
     function(permId) {
         ObjectPermId.call(this, permId);
     };
-    stjs.extend(DataSetPermId, ObjectPermId, [ObjectPermId, IFileFormatTypeId], function(constructor, prototype) {
+    stjs.extend(FileFormatTypePermId, ObjectPermId, [ObjectPermId, IFileFormatTypeId], function(constructor, prototype) {
         prototype['@type'] = 'dto.id.dataset.FileFormatTypePermId';
         constructor.serialVersionUID = 1;
     }, {});
