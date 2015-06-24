@@ -580,10 +580,16 @@ public interface IGeneralInformationService extends IRpcService
     /**
      * Returns all persons.
      * 
-     * @param fetchOptions Options that control which parts of the deletions are fetched.
      * @return a list of maps with the user information.
      * @since 1.31
      */
-    List<Person> listPersons(String sessionToken);
+     public List<Person> listPersons(String sessionToken);
 
+    /**
+     * Returns number of samples for a sample type code.
+     * 
+     * @return the number of samples for certain type.
+     * @since 1.32
+     */
+    public Long countNumberOfSamplesForType(String sessionToken, String sampleTypeCode);
 }

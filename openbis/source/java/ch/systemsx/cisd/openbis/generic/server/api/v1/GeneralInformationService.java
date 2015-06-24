@@ -32,6 +32,7 @@ import javax.annotation.Resource;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Transformer;
+import org.hibernate.SQLQuery;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -147,7 +148,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 public class GeneralInformationService extends AbstractServer<IGeneralInformationService> implements
         IGeneralInformationService
 {
-    public static final int MINOR_VERSION = 31;
+    public static final int MINOR_VERSION = 32;
 
     @Resource(name = ch.systemsx.cisd.openbis.generic.shared.ResourceNames.COMMON_SERVER)
     private ICommonServer commonServer;
@@ -1356,5 +1357,22 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
     public List<Person> listPersons(String sessionToken)
     {
         return commonServer.listPersons(sessionToken);
+    }
+    
+    @Override
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    public Long countNumberOfSamplesForType(String sessionToken, String sampleTypeCode)
+    {
+        org.hibernate.Session currentSession = this.getDAOFactory().getSessionFactory().getCurrentSession();
+        SQLQuery querySampleTypeId = currentSession.createSQLQuery("SELECT id from sample_types WHERE code = :sampleTypeCode");
+        querySampleTypeId.setParameter("sampleTypeCode", sampleTypeCode);
+        int sampleTypeId = ((Number) querySampleTypeId.uniqueResult()).intValue();
+        
+        SQLQuery querySampleCount = currentSession.createSQLQuery("SELECT COUNT(*) FROM samples_all WHERE saty_id = :sampleTypeId");
+        querySampleCount.setParameter("sampleTypeId", sampleTypeId);
+        long sampleCount = ((Number) querySampleCount.uniqueResult()).longValue();
+        
+        return sampleCount;
     }
 }

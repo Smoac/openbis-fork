@@ -1144,6 +1144,20 @@ openbis.prototype.listPersons = function(action) {
 }
 
 /**
+ * @see GeneralInformationService.countNumberOfSamplesForType(String, String)
+ * @method
+ */
+openbis.prototype.countNumberOfSamplesForType = function(sampleTypeCode, action) {
+	this._internal.ajaxRequest({
+		url: this._internal.generalInfoServiceUrl,
+		data: { "method" : "countNumberOfSamplesForType",
+				"params" : [ this.getSession(),
+				             sampleTypeCode ] },
+		success: action
+	});
+}
+
+/**
  * ==========================================================================================
  * ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationChangingService methods
  * ==========================================================================================

@@ -514,4 +514,11 @@ class GeneralInformationServiceLogger extends AbstractServerLogger implements
         return null;
     }
 
+    @Override
+    public Long countNumberOfSamplesForType(String sessionToken, String sampleTypeCode)
+    {
+        logAccess(sessionToken, "countNumberOfSamplesForType", "sampleTypeCode(%s)", sampleTypeCode);
+        return null;
+    }
+
 }
