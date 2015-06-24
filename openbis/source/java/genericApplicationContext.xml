@@ -399,6 +399,7 @@
     </plugins:component-scan>
     
     <plugins:component-scan base-package="ch.ethz.sis.openbis" annotation-config="false">
+        <plugins:exclude-filter type="regex" expression="ch\.ethz\.sis\.openbis\.generic\.dss\..*" />
         <plugins:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller" />
     </plugins:component-scan>
     
