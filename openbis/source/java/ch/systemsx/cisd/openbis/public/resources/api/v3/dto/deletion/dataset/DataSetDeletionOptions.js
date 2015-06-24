@@ -1,7 +1,7 @@
 /**
  * @author pkupczyk
  */
-define([ "stjs", "dto/search/AbstractObjectDeletionOptions" ], function(stjs, AbstractObjectDeletionOptions) {
+define([ "stjs", "dto/deletion/AbstractObjectDeletionOptions" ], function(stjs, AbstractObjectDeletionOptions) {
 	var DataSetDeletionOptions = function() {
 		AbstractObjectDeletionOptions.call(this);
 	};
