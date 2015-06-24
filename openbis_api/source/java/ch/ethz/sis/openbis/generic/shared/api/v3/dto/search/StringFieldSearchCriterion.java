@@ -24,7 +24,7 @@ public class StringFieldSearchCriterion extends AbstractFieldSearchCriterion<Abs
 
     private static final long serialVersionUID = 1L;
 
-    StringFieldSearchCriterion(String fieldName, SearchFieldType fieldType)
+    public StringFieldSearchCriterion(String fieldName, SearchFieldType fieldType)
     {
         super(fieldName, fieldType);
         setFieldValue(new AnyStringValue());
