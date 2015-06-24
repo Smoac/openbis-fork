@@ -18,6 +18,7 @@ package ch.ethz.sis.openbis.generic.dss.api.v3.dto.search;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.AbstractCompositeSearchCriterion;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.DataSetSearchCriterion;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SearchCriterionToStringBuilder;
 
 /**
  * @author jakubs
@@ -30,4 +31,13 @@ public class FileSearchCriterion extends AbstractCompositeSearchCriterion
     {
         return with(new DataSetSearchCriterion());
     }
+
+    @Override
+    protected SearchCriterionToStringBuilder createBuilder()
+    {
+        SearchCriterionToStringBuilder builder = super.createBuilder();
+        builder.setName("FILE");
+        return builder;
+    }
+
 }

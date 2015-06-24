@@ -34,7 +34,6 @@ import java.util.regex.Pattern;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.eclipse.jetty.server.Server;
@@ -91,6 +90,8 @@ public abstract class SystemTestCase extends AssertJUnit
     private static final String ROOT_DIR_KEY = "root-dir";
 
     private static final String DATA_SET_IMPORTED_LOG_MARKER = "Successfully registered data set";
+
+    private static final String POST_REGISTRATION_COMPLETE_MARKER = "markSuccessfulPostRegistration";
 
     public static final ILogMonitoringStopCondition FINISHED_POST_REGISTRATION_CONDITION = new RegexCondition(
             ".*Post registration of (\\d*). of \\1 data sets: (.*)");
@@ -255,6 +256,26 @@ public abstract class SystemTestCase extends AssertJUnit
     protected File getRegistrationLogDir()
     {
         return new File(workingDirectory, "log-registrations");
+    }
+
+    protected void waitUntilDataSetPostRegistrationCompleted(final String dataSetCode) throws Exception
+    {
+        waitUntilDataSetImported(new ILogMonitoringStopCondition()
+            {
+                @Override
+                public boolean stopConditionFulfilled(ParsedLogEntry logEntry)
+                {
+                    String logMessage = logEntry.getLogMessage();
+                    return logMessage.contains(POST_REGISTRATION_COMPLETE_MARKER) && logMessage.contains(dataSetCode);
+                }
+
+                @Override
+                public String toString()
+                {
+                    return "Log message contains '" + POST_REGISTRATION_COMPLETE_MARKER
+                            + "' and '" + dataSetCode + "'";
+                }
+            });
     }
 
     protected void waitUntilDataSetImported() throws Exception
