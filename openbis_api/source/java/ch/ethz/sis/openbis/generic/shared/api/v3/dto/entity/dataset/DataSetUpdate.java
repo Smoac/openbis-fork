@@ -107,11 +107,13 @@ public class DataSetUpdate implements Serializable
         this.sampleId.setValue(sampleId);
     }
 
+    @JsonIgnore
     public FieldUpdateValue<ExternalDataUpdate> getExternalData()
     {
         return externalData;
     }
 
+    @JsonIgnore
     public void setExternalData(ExternalDataUpdate externalData)
     {
         this.externalData.setValue(externalData);
