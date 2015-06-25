@@ -188,7 +188,7 @@ function MainController(profile) {
 				window.scrollTo(0,0);
 				break;
 			case "showBlancPage":
-				document.title = "";
+				document.title = "Main Menu";
 				this._showBlancPage();
 				window.scrollTo(0,0);
 				break;
@@ -303,7 +303,7 @@ function MainController(profile) {
 					if(!data[0]) {
 						window.alert("The item is no longer available, refresh the page, if the problem persists tell your admin that the Lucene index is probably corrupted.");
 					} else {
-						document.title = data[0].code;
+						document.title = "Sample " + data[0].code;
 						var isELNSubExperiment = $.inArray(data[0].spaceCode, _this.profile.inventorySpaces) === -1 && _this.profile.inventorySpaces.length > 0;
 						_this._showEditSamplePage(data[0], isELNSubExperiment);
 						window.scrollTo(0,0);
@@ -316,7 +316,7 @@ function MainController(profile) {
 					if(!data[0]) {
 						window.alert("The item is no longer available, refresh the page, if the problem persists tell your admin that the Lucene index is probably corrupted.");
 					} else {
-						document.title = data[0].code;
+						document.title = "Sample " + data[0].code;
 						var isELNSubExperiment = $.inArray(data[0].spaceCode, _this.profile.inventorySpaces) === -1&& _this.profile.inventorySpaces.length > 0;
 						_this._showViewSamplePage(data[0], isELNSubExperiment);
 						window.scrollTo(0,0);
@@ -342,7 +342,7 @@ function MainController(profile) {
 						window.alert("The item is no longer available, refresh the page, if the problem persists tell your admin that the Lucene index is probably corrupted.");
 					} else {
 						_this.serverFacade.searchWithIdentifier(dataSetData.result[0].sampleIdentifierOrNull, function(sampleData) {
-							document.title = "View Data Set " + dataSetData.result[0].code;
+							document.title = "Data Set " + dataSetData.result[0].code;
 							_this._showViewDataSetPage(sampleData[0], dataSetData.result[0]);
 							window.scrollTo(0,0);
 						});
@@ -356,7 +356,7 @@ function MainController(profile) {
 						window.alert("The item is no longer available, refresh the page, if the problem persists tell your admin that the Lucene index is probably corrupted.");
 					} else {
 						_this.serverFacade.searchWithIdentifier(dataSetData.result[0].sampleIdentifierOrNull, function(sampleData) {
-							document.title = "Edit Data Set " + dataSetData.result[0].code;
+							document.title = "Data Set " + dataSetData.result[0].code;
 							_this._showEditDataSetPage(sampleData[0], dataSetData.result[0]);
 							window.scrollTo(0,0);
 						});
