@@ -505,22 +505,26 @@ def initELNMasterData():
 	## DataSet Types
 	##
 	createDataSetTypeWithProperties("ELN_PREVIEW", "PHYSICAL", "ELN Preview image", [
+		["NAME", "General", "Name", DataType.VARCHAR, None,	"Name", None, None],
 		["NOTES", "General information", "Notes", DataType.MULTILINE_VARCHAR, None, "Notes regarding the dataset", None, None],
 		["XMLCOMMENTS",	"Comments","Comments List",	DataType.XML,	None,	"Several comments can be added by different users", commentsDatasetScriptName, None]
 	]);
 	
 	createDataSetTypeWithProperties("SEQ_FILE", "PHYSICAL", "", [
+		["NAME", "General", "Name", DataType.VARCHAR, None,	"Name", None, None],
 		["NOTES", "General information", "Notes", DataType.MULTILINE_VARCHAR, None, "Notes regarding the dataset", None, None],
 		["XMLCOMMENTS",	"Comments","Comments List",	DataType.XML,	None,	"Several comments can be added by different users", commentsDatasetScriptName, None]
 		
 	]);
 	
 	createDataSetTypeWithProperties("RAW_DATA", "PHYSICAL", "", [
+		["NAME", "General", "Name", DataType.VARCHAR, None,	"Name", None, None],
 		["NOTES", "General information", "Notes", DataType.MULTILINE_VARCHAR, None, "Notes regarding the dataset", None, None],
 		["XMLCOMMENTS",	"Comments","Comments List",	DataType.XML,	None,	"Several comments can be added by different users", commentsDatasetScriptName, None]
 	]);
 	
 	createDataSetTypeWithProperties("ANALYZED_DATA", "PHYSICAL", "", [
+		["NAME", "General", "Name", DataType.VARCHAR, None,	"Name", None, None],
 		["NOTES", "General information", "Notes", DataType.MULTILINE_VARCHAR, None, "Notes regarding the dataset", None, None],
 		["XMLCOMMENTS",	"Comments","Comments List",	DataType.XML,	None,	"Several comments can be added by different users", commentsDatasetScriptName, None]
 	]);

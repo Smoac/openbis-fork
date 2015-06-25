@@ -26,17 +26,46 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 		var $wrapper = $('<form>', { class : 'form-horizontal ', 'id' : 'mainDataSetForm', 'role' : 'form'});
 		$wrapper.submit(function(event) {_this._dataSetFormController.submitDataSet(); event.preventDefault();});
 		
-		//Title
+		//
+		// Title
+		//
+		var $title = $('<div>');
+		var nameLabel = this._dataSetFormModel.dataSet.properties[profile.propertyReplacingCode]; //sample.properties[profile.propertyReplacingCode];
+		var entityPath = null;
+		if(this._dataSetFormModel.sample && this._dataSetFormModel.sample.experimentIdentifierOrNull) { //Both Sample and Experiment exist
+			entityPath = this._dataSetFormModel.sample.experimentIdentifierOrNull + "/" + this._dataSetFormModel.sample.code + "/" + this._dataSetFormModel.dataSet.code;
+		} else { //Only Experiment exists (Not Supported on the ELN Yet)
+			entityPath = this._dataSetFormModel.dataSet.code;
+		}
+		
 		var titleText = null;
 		if(this._dataSetFormModel.mode === FormMode.CREATE) {
 			titleText = 'Create Dataset';
 		} else if(this._dataSetFormModel.mode === FormMode.EDIT) {
-			titleText = 'Update Dataset ' + this._dataSetFormModel.dataSet.code;
+			titleText = 'Update Dataset '; //+ this._dataSetFormModel.dataSet.code;
 		} else if(this._dataSetFormModel.mode === FormMode.VIEW) {
-			titleText = 'Dataset ' + this._dataSetFormModel.dataSet.code;
+			titleText = 'Dataset '; //+ this._dataSetFormModel.dataSet.code;
 		}
-		var $title = $('<h2>').text(titleText);
+		
+		var isName = (nameLabel)?true:false;
+		if(isName) {
+			titleText += nameLabel;
+			$title
+				.append($("<h2>").append(titleText))
+				.append($("<h4>", { "style" : "font-weight:normal;" } ).append(entityPath));
+		} else {
+			if(this._dataSetFormModel.mode !== FormMode.CREATE) {
+				titleText += entityPath;
+			}
+			
+			$title
+				.append($("<h2>").append(titleText));
+		}
 		$wrapper.append($title);
+		
+		//
+		// Toolbar
+		//
 		var $toolbar = $('<div>');
 		$wrapper.append($toolbar);
 		
