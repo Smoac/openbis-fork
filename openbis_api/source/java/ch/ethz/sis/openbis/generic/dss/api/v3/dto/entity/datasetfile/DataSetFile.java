@@ -18,11 +18,11 @@ package ch.ethz.sis.openbis.generic.dss.api.v3.dto.entity.datasetfile;
 
 import java.io.Serializable;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.DataSetPermId;
 import ch.systemsx.cisd.base.annotation.JsonObject;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * @author Jakub Straszewski
@@ -58,5 +58,11 @@ public class DataSetFile implements Serializable
     public void setFileName(String fileName)
     {
         this.fileName = fileName;
+    }
+
+    @Override
+    public String toString()
+    {
+        return "DataSetFile: " + fileName + ", " + dataSetPermId;
     }
 }
