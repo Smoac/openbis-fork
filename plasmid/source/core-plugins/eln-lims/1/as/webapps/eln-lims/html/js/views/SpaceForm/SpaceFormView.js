@@ -34,10 +34,10 @@ function SpaceFormView(spaceFormController, spaceFormModel) {
 			_this._spaceFormController.createProject();
 		});
 		
-		$formTitle.append(" ");
-		$formTitle.append($btn);
-		
 		$formColumn.append($formTitle);
+		$formColumn.append($btn);
+		$formColumn.append("<br>");
+		
 		$container.append($form);
 	}
 }

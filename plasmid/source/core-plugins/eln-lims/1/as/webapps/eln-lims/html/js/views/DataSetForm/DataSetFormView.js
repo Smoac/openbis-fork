@@ -37,13 +37,15 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 		}
 		var $title = $('<h2>').text(titleText);
 		$wrapper.append($title);
+		var $toolbar = $('<div>');
+		$wrapper.append($toolbar);
 		
 		//Delete Button
 		if(this._dataSetFormModel.mode !== FormMode.CREATE) {
-			$title.append("&nbsp;");
-			$title.append(FormUtil.getDeleteButton(function(reason) {
+			$toolbar.append(FormUtil.getDeleteButton(function(reason) {
 				_this._dataSetFormController.deleteDataSet(reason);
 			}, true));
+			$toolbar.append("&nbsp;");
 		}
 		
 		//Edit Button
@@ -57,12 +59,15 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 				mainController.changeView('showEditDataSetPageFromPermId', _this._dataSetFormModel.dataSet.code);
 			});
 			
-			$title.append($editButton)
+			$toolbar.append($editButton)
 		}
+		
+		$wrapper.append("<br>");
 		
 		//Drop Down DataSetType Field Set
 		var $dataSetTypeFieldSet = $('<div>');
-		$dataSetTypeFieldSet.append($('<legend>').text('Type Info'));
+		$dataSetTypeFieldSet.append($('<legend>').text('Identification Info'));
+		$wrapper.append($dataSetTypeFieldSet);
 		
 		var $dataSetTypeSelector = null;
 		if(this._dataSetFormModel.mode === FormMode.CREATE) {
@@ -81,12 +86,11 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 					.append($dataSetTypeSelector)
 			);
 			$dataSetTypeFieldSet.append($dataSetTypeDropDown);
-			$wrapper.append($dataSetTypeFieldSet);
 		} else {
 			var $dataSetTypeLabel = FormUtil.getFieldForLabelWithText('Data Set Type', this._dataSetFormModel.dataSet.dataSetTypeCode, "CODE");
-			$wrapper.append($dataSetTypeLabel);
-			var $dataSetTypeLabel = FormUtil.getFieldForLabelWithText('Code', this._dataSetFormModel.dataSet.code, null);
-			$wrapper.append($dataSetTypeLabel);
+			$dataSetTypeFieldSet.append($dataSetTypeLabel);
+			var $dataSetCodeLabel = FormUtil.getFieldForLabelWithText('Code', this._dataSetFormModel.dataSet.code, null);
+			$dataSetTypeFieldSet.append($dataSetCodeLabel);
 		}
 		
 		var ownerName = "Sample";
@@ -94,7 +98,7 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 		if(this._dataSetFormModel.sample.experimentIdentifierOrNull) {
 			owner = this._dataSetFormModel.sample.experimentIdentifierOrNull + "/" + this._dataSetFormModel.sample.code;
 		}
-		$wrapper.append(FormUtil.getFieldForLabelWithText(ownerName, owner));
+		$dataSetTypeFieldSet.append(FormUtil.getFieldForLabelWithText(ownerName, owner));
 		
 		//
 		// Registration and modification info
@@ -103,16 +107,16 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 			var registrationDetails = this._dataSetFormModel.dataSet.registrationDetails;
 			
 			var $registrator = FormUtil.getFieldForLabelWithText("Registrator", registrationDetails.userId);
-			$wrapper.append($registrator);
+			$dataSetTypeFieldSet.append($registrator);
 			
 			var $registationDate = FormUtil.getFieldForLabelWithText("Registration Date", (new Date(registrationDetails.registrationDate)).toLocaleString())
-			$wrapper.append($registationDate);
+			$dataSetTypeFieldSet.append($registationDate);
 			
 			var $modifier = FormUtil.getFieldForLabelWithText("Modifier", registrationDetails.modifierUserId);
-			$wrapper.append($modifier);
+			$dataSetTypeFieldSet.append($modifier);
 			
 			var $modificationDate = FormUtil.getFieldForLabelWithText("Modification Date", (new Date(registrationDetails.modificationDate)).toLocaleString());
-			$wrapper.append($modificationDate);
+			$dataSetTypeFieldSet.append($modificationDate);
 		}
 		
 		//Metadata Container
