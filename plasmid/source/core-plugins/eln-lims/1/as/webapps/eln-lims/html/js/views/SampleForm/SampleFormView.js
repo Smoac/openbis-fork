@@ -162,7 +162,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		}
 		
 		$formColumn.append($formTitle);
-		
+		$formColumn.append($("<br>"));
 		//
 		// PREVIEW IMAGE
 		//

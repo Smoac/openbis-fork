@@ -45,10 +45,12 @@ function ProjectFormView(projectFormController, projectFormModel) {
 		var $formTitle = $("<h2>").append(title);
 		$formColumn.append($formTitle);
 		
+		var $toolbar = $("<div>");
+		$formColumn.append($toolbar);
+		
 		if(this._projectFormModel.mode !== FormMode.CREATE) {
 			//Delete
-			$formTitle.append("&nbsp;");
-			$formTitle.append(FormUtil.getDeleteButton(function(reason) {
+			$toolbar.append(FormUtil.getDeleteButton(function(reason) {
 				_this._projectFormController.deleteProject(reason);
 			}, true));
 		}
@@ -68,17 +70,17 @@ function ProjectFormView(projectFormController, projectFormModel) {
 					Util.unblockUI();
 				});
 			});
-			$formTitle.append("&nbsp;");
-			$formTitle.append($createExpBtn);
-			$formTitle.append("&nbsp;");
+			$toolbar.append("&nbsp;");
+			$toolbar.append($createExpBtn);
+			$toolbar.append("&nbsp;");
 			var $editBtn = $("<a>", { "class" : "btn btn-default"}).append("<span class='glyphicon glyphicon-edit'></span> Enable Editing");
 			$editBtn.click(function() {
 				_this._projectFormController.enableEditing();
 			});
-			$formTitle.append($editBtn);
+			$toolbar.append($editBtn);
 		}
 		
-		
+		$formColumn.append("<br>");
 		//
 		// Metadata Fields
 		//

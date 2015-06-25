@@ -67,6 +67,7 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 				.append($("<h2>").append(title));
 		}
 		$formColumn.append($formTitle);
+		$formColumn.append($("<br>"));
 		
 		if(this._experimentFormModel.mode !== FormMode.CREATE) {
 			//Delete
