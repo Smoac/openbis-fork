@@ -321,7 +321,8 @@ public class DistributedPackagingDataSetFileOperationsManager extends AbstractDa
     @Override
     public IHierarchicalContent getAsHierarchicalContent(DatasetDescription dataset)
     {
-        return new FilteredHierarchicalContent(packageManager.asHierarchialContent(getArchiveFile(dataset)), FILTER);
+        IHierarchicalContent content = packageManager.asHierarchialContent(getArchiveFile(dataset), false);
+        return new FilteredHierarchicalContent(content, FILTER);
     }
 
     private File getArchiveFile(DatasetDescription datasetDescription)

@@ -39,6 +39,6 @@ public interface IPackageManager
 
     Status extract(File packageFile, File toDirectory);
 
-    IHierarchicalContent asHierarchialContent(File packageFile);
+    IHierarchicalContent asHierarchialContent(File packageFile, boolean onlyMetaData);
 
 }

@@ -22,6 +22,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
@@ -139,21 +140,13 @@ public class Untar implements Closeable
         if (entry.isDirectory())
         {
             dirEntries.add(entry);
-            entryFile.mkdirs();
+            createDirectory(entryFile);
         } else if (entry.isLink())
         {
-            if (Unix.isOperational())
-            {
-                Unix.createHardLink(entry.getLinkName(),
-                        entryFile.getPath());
-            }
+            createHardLink(entryFile, entry);
         } else if (entry.isSymbolicLink())
         {
-            if (Unix.isOperational())
-            {
-                Unix.createSymbolicLink(entry.getLinkName(),
-                        entryFile.getPath());
-            }
+            createSymbolicLink(entryFile, entry);
         } else if (entry.isFile())
         {
             // We need to work around that isFile() is giving all
@@ -165,16 +158,56 @@ public class Untar implements Closeable
             {
                 return;
             }
-            if (entryFile.getParentFile().exists() == false)
-            {
-                entryFile.getParentFile().mkdirs();
-            }
-            extractFileContent(entryFile);
+            createParentDirectories(entryFile);
+            extractFileContent(entryFile, entry);
             setFileMetadata(entryFile, entry);
         }
     }
 
-    private void setFileMetadata(final File entryFile, TarArchiveEntry entry)
+    private void extractFileContent(final File entryFile, TarArchiveEntry entry) throws FileNotFoundException, IOException
+    {
+        final OutputStream out = createOutputStream(entryFile, entry);
+        try
+        {
+            copier.copy(in, out);
+        } finally 
+        {
+            out.close();
+        }
+    }
+
+    protected void createParentDirectories(final File file)
+    {
+        if (file.getParentFile().exists() == false)
+        {
+            file.getParentFile().mkdirs();
+        }
+    }
+
+    protected void createSymbolicLink(final File file, TarArchiveEntry entry)
+    {
+        if (Unix.isOperational())
+        {
+            Unix.createSymbolicLink(entry.getLinkName(),
+                    file.getPath());
+        }
+    }
+
+    protected void createHardLink(final File file, TarArchiveEntry entry)
+    {
+        if (Unix.isOperational())
+        {
+            Unix.createHardLink(entry.getLinkName(),
+                    file.getPath());
+        }
+    }
+
+    protected void createDirectory(final File directory)
+    {
+        directory.mkdirs();
+    }
+
+    protected void setFileMetadata(final File entryFile, TarArchiveEntry entry)
     {
         if (Unix.isOperational())
         {
@@ -193,16 +226,9 @@ public class Untar implements Closeable
         entryFile.setLastModified(entry.getModTime().getTime());
     }
 
-    private void extractFileContent(final File entryFile) throws FileNotFoundException, IOException
+    protected OutputStream createOutputStream(final File file, TarArchiveEntry entry) throws IOException
     {
-        final FileOutputStream out = new FileOutputStream(entryFile);
-        try
-        {
-            copier.copy(in, out);
-        } finally 
-        {
-            out.close();
-        }
+        return new FileOutputStream(file);
     }
 
     @Override

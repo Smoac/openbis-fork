@@ -55,9 +55,9 @@ public class MonitoredIOStreamCopierTest extends AssertJUnit
         copy(copier, (int) (2.5 * FileUtils.ONE_MB));
         copier.close();
 
-        assertEquals("INFO: Reading statistics for input stream: 2.50 MB bytes in 3 chunks took 5sec. "
+        assertEquals("INFO: Reading statistics for input stream: 2.50 MB in 3 chunks took 5sec. "
                 + "Average speed: 489.95 KB/sec. Median speed: 605.70 KB/sec.\n"
-                + "INFO: Writing statistics for output stream: 2.50 MB bytes in 3 chunks took 11sec. "
+                + "INFO: Writing statistics for output stream: 2.50 MB in 3 chunks took 11sec. "
                 + "Average speed: 239.48 KB/sec. Median speed: 280.21 KB/sec.\n", logger.toString());
     }
 
@@ -75,9 +75,9 @@ public class MonitoredIOStreamCopierTest extends AssertJUnit
         copy(copier, (int) (1.5 * FileUtils.ONE_MB));
         copier.close();
 
-        assertEquals("INFO: Reading statistics for input stream: 3.50 MB bytes in 4 chunks took 11sec. "
+        assertEquals("INFO: Reading statistics for input stream: 3.50 MB in 4 chunks took 11sec. "
                 + "Average speed: 328.05 KB/sec. Median speed: 301.18 KB/sec.\n"
-                + "INFO: Writing statistics for output stream: 3.50 MB bytes in 4 chunks took 18sec. "
+                + "INFO: Writing statistics for output stream: 3.50 MB in 4 chunks took 18sec. "
                 + "Average speed: 194.36 KB/sec. Median speed: 150.81 KB/sec.\n", logger.toString());
     }
     
@@ -94,9 +94,9 @@ public class MonitoredIOStreamCopierTest extends AssertJUnit
         copy(copier, (int) (0.5 * FileUtils.ONE_MB));
         copier.close();
         
-        assertEquals("INFO: Reading statistics for input stream: 1.00 MB bytes in 2 chunks took 5sec. "
+        assertEquals("INFO: Reading statistics for input stream: 1.00 MB in 2 chunks took 5sec. "
                 + "Average speed: 226.30 KB/sec.\n"
-                + "INFO: Writing statistics for output stream: 1.00 MB bytes in 2 chunks took 9sec. "
+                + "INFO: Writing statistics for output stream: 1.00 MB in 2 chunks took 9sec. "
                 + "Average speed: 110.23 KB/sec.\n", logger.toString());
     }
 
@@ -113,8 +113,8 @@ public class MonitoredIOStreamCopierTest extends AssertJUnit
         copy(copier, (int) (0.5 * FileUtils.ONE_MB));
         copier.close();
         
-        assertEquals("INFO: Reading statistics for input stream: 768.00 KB bytes in 2 chunks took 5sec.\n"
-                + "INFO: Writing statistics for output stream: 768.00 KB bytes in 2 chunks took 9sec.\n",
+        assertEquals("INFO: Reading statistics for input stream: 768.00 KB in 2 chunks took 5sec.\n"
+                + "INFO: Writing statistics for output stream: 768.00 KB in 2 chunks took 9sec.\n",
                 logger.toString());
     }
     

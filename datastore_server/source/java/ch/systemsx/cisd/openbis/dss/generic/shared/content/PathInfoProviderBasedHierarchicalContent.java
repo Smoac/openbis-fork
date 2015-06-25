@@ -44,7 +44,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetPathInfo;
  * 
  * @author Piotr Buczek
  */
-class PathInfoProviderBasedHierarchicalContent implements IHierarchicalContent
+public class PathInfoProviderBasedHierarchicalContent implements IHierarchicalContent
 {
 
     private final File root;
@@ -55,7 +55,7 @@ class PathInfoProviderBasedHierarchicalContent implements IHierarchicalContent
 
     private final ISingleDataSetPathInfoProvider dataSetPathInfoProvider;
 
-    PathInfoProviderBasedHierarchicalContent(
+    public PathInfoProviderBasedHierarchicalContent(
             ISingleDataSetPathInfoProvider dataSetPathInfoProvider, File dataSetDir,
             IDelegatedAction onCloseAction)
     {
