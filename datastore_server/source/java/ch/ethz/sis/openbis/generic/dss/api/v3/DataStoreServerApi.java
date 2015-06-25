@@ -17,12 +17,15 @@ package ch.ethz.sis.openbis.generic.dss.api.v3;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.collections.iterators.IteratorChain;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -65,7 +68,6 @@ public class DataStoreServerApi extends AbstractDssServiceRpc<IDataStoreServerAp
     /**
      * Logger with {@link LogCategory#OPERATION} with name of the concrete class, needs to be static for our purpose.
      */
-    @SuppressWarnings("hiding")
     protected static Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             DataStoreServerApi.class);
 
@@ -127,7 +129,6 @@ public class DataStoreServerApi extends AbstractDssServiceRpc<IDataStoreServerAp
             if (iSearchCriterion instanceof DataSetSearchCriterion)
             {
                 List<DataSet> dataSets = as.searchDataSets(sessionToken, (DataSetSearchCriterion) iSearchCriterion, new DataSetFetchOptions());
-                System.err.println(dataSets.size());
                 HashSet<String> codes = new HashSet<String>();
                 for (DataSet dataSet : dataSets)
                 {
@@ -150,8 +151,7 @@ public class DataStoreServerApi extends AbstractDssServiceRpc<IDataStoreServerAp
         for (String code : resultDataSets)
         {
             IHierarchicalContent content = getHierarchicalContentProvider(sessionToken).asContent(code);
-            List<IHierarchicalContentNode> nodes = content.listMatchingNodes("");
-            for (IHierarchicalContentNode node : nodes)
+            for (IHierarchicalContentNode node : iterate(content.getRootNode()))
             {
                 DataSetFile file = new DataSetFile();
                 file.setFileName(node.getFile().getPath());
@@ -160,6 +160,27 @@ public class DataStoreServerApi extends AbstractDssServiceRpc<IDataStoreServerAp
             }
         }
         return result;
+    }
+
+    private Iterable<IHierarchicalContentNode> iterate(final IHierarchicalContentNode node)
+    {
+        return new Iterable<IHierarchicalContentNode>()
+            {
+                @Override
+                public Iterator<IHierarchicalContentNode> iterator()
+                {
+                    IteratorChain<IHierarchicalContentNode> chain = new IteratorChain<>(Collections.singleton(node).iterator());
+
+                    if (node.isDirectory())
+                    {
+                        for (IHierarchicalContentNode child : node.getChildNodes())
+                        {
+                            chain.addIterator(iterate(child).iterator());
+                        }
+                    }
+                    return chain;
+                }
+            };
     }
 
     @Override
