@@ -232,7 +232,7 @@ $.extend(DefaultProfile.prototype, {
 		 */
 		this.inspectorContentTransformer = function(sample, propertyCode, propertyContent) {
 			
-			if(propertyContent.indexOf("<root>") != -1) {
+			if(propertyContent.indexOf("<root ") != -1) {
 				return {
 					"isSingleColumn" : true,
 					"content" : this.getHTMLTableFromManagePropertyXML(propertyContent)
