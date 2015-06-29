@@ -540,11 +540,7 @@ public class PropertyTypeAssignmentGrid extends TypedTableGrid<EntityTypePropert
                     // Show in edit views Field
                     shownInEditViewCheckBox = new CheckBoxField(viewContext.getMessage(Dict.SHOWN_IN_EDIT_VIEW), false);
                     shownInEditViewCheckBox.setValue(etpt.isShownInEditView());
-                    if (false == etpt.isManaged())
-                    {
-                        // This option is currently only available for managed properties.
-                        shownInEditViewCheckBox.setVisible(false);
-                    }
+                    shownInEditViewCheckBox.setVisible(!etpt.isDynamic());  // This option is shown for all non system generated properties
                     addField(shownInEditViewCheckBox);
 
                     // Show raw values Field
@@ -684,20 +680,12 @@ public class PropertyTypeAssignmentGrid extends TypedTableGrid<EntityTypePropert
 
                 private boolean isShownInEditView()
                 {
-                    // The logic for defaulting the value of the shownInEditView check box is
-                    // duplicated here to enforce the current semantics that this value is only
-                    // considered by managed properties
-                    if (false == etpt.isManaged())
+                    if (etpt.isDynamic())
                     {
-                        if (etpt.isDynamic())
-                        {
-                            return false;
-                        } else
-                        {
-                            return true;
-                        }
+                        return false;
+                    } else {
+                        return shownInEditViewCheckBox.getValue();
                     }
-                    return shownInEditViewCheckBox.getValue();
                 }
 
                 private boolean getShowRawValue()

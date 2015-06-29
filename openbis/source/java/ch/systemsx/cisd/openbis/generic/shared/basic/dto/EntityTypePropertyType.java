@@ -120,12 +120,9 @@ public abstract class EntityTypePropertyType<T extends EntityType> implements Se
         if (isDynamic())
         {
             return false;
+        } else {
+            return showInEditView;
         }
-        if (false == isManaged())
-        {
-            return true;
-        }
-        return showInEditView;
     }
 
     /**
