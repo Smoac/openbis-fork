@@ -68,7 +68,7 @@ def setEntityProperties(tr, definition, entity, properties):
     for propertyCode, propertyValue in properties.iteritems():
             propertyDefinition = definitions.getPropertyDefinitionByCode(definition, propertyCode)
             if propertyValue is not None:
-                propertyValue =  unicode(propertyValue)
+                propertyValue =  unicode(propertyValue) 
 
             if propertyDefinition is not None and propertyDefinition[3] == DataType.TIMESTAMP and propertyValue is not None:
                 date_val = datetime.strptime(propertyValue, "%Y")
@@ -129,9 +129,12 @@ def setEntityProperties(tr, definition, entity, properties):
                              entity.setPropertyValue("COMPANY", propertyValue)                            
                     else:
                         entity.setPropertyValue(propertyCode, propertyValue)
+        
 
 
-def setEntityParents(tr, definition, entity, properties):
+                                
+                 
+def setPlasmidParents(tr, definition, entity, properties):
     for propertyCode, propertyValue in properties.iteritems():
        
             propertyDefinition = definitions.getPropertyDefinitionByCode(definition, propertyCode)
@@ -171,11 +174,8 @@ def setEntityParents(tr, definition, entity, properties):
                 else:
                     print "NO PARENT WAS SET FOR THIS FOUND VALUE:", propertyValue
 
-             
+
  
-#            elif propertyDefinition[0] == "INSERT":
-#                if re.match()
-            #entity.setParentSampleIdentifiers()            
 
 
 ##
@@ -256,8 +256,8 @@ def getSampleForUpdate(sampleIdentifier, sampleType, tr):
              #print "Cache Create " + sampleIdentifier + ":" + str(sampleType)
              if sampleType == "ANTIBODY":
              	experiment = getExperimentForUpdate("/MATERIALS/REAGENTS/ANTIBODIES", sampleType, tr)
-             # elif sampleType == "STRAIN":
-             # 	experiment = getExperimentForUpdate("/MATERIALS/YEASTS/YEAST_COLLECTION_1", sampleType, tr)              
+             elif sampleType == "STRAIN":
+              	experiment = getExperimentForUpdate("/MATERIALS/YEASTS/YEAST_COLLECTION_1", sampleType, tr)              
              elif sampleType == "PLASMID":
               	experiment = getExperimentForUpdate("/MATERIALS/PLASMIDS/PLASMID_COLLECTION_1", sampleType, tr)              
              elif sampleType == "CHEMICAL":
@@ -329,124 +329,107 @@ class FMPeterOpenBISDTO(OpenBISDTO):
                 print "* ERROR [" + str(code) + "] - Invalid Code found for '" + self.__class__.__name__ + "'"
                 raise Exception('Invalid Code found ' + str(code))
 
-class FMPeterBoxAdaptor(FileMakerEntityAdaptor):
-    selectBoxQuery = None
+class FMPeterMultipleValuesAdaptor(FileMakerEntityAdaptor):
+    selectMultipleValuesQuery = None
     entityIdFieldName = None
     entityCodeFieldName = None
     
     def addEntity(self, values):
-        self.entities.append(FMPeterEntityBoxOpenBISDTO(values, self.definition))
+        self.entities.append(FMPeterEntityMultipleValuesOpenBISDTO(values, self.definition))
         
     def init(self):
-        #print "Reading boxes for: " + self.__class__.__name__
-        emptyBox = 0
-        boxes = {}
+        print "Reading MultipleValueses for: " + self.__class__.__name__
+        emptyMultipleValues = 0
+        MultipleValueses = {}
         EntityAdaptor.init(self)
-        preparedStatement = self.connection.prepareStatement(self.selectBoxQuery)
+        preparedStatement = self.connection.prepareStatement(self.selectMultipleValuesQuery)
         result = preparedStatement.executeQuery()
         while result.next():
             entityId = unicode(result.getString(self.entityIdFieldName))
             if entityId is not None:
                 if entityId in sampleID2Sample:
-                    antibodyNumber = sampleID2Sample[entityId][self.entityCodeFieldName]
-                    if antibodyNumber is not None:
+                    entityNumber = sampleID2Sample[entityId][self.entityCodeFieldName]
+                    if entityNumber is not None:
                         values = {}
-                        values["STORAGE_NAME"] = result.getString("location")
-                        values["STORAGE_ROW"] = None
-                        values["STORAGE_COLUMN"] = None
-                        values["STORAGE_BOX_NAME"] = result.getString("box label")
-                        values["STORAGE_USER"] = result.getString("frozen by")
-                        values["STORAGE_BOX_POSITION"] = result.getString("position")
+                        values["DISRUPTIONS"] = result.getString("disruptions")
+                        values["MARKERS"] = result.getString("markers")
+                        values["UNMARKED_MUTATIONS"] = result.getString("unmarked mutations")
+
                         
-                        allBoxes = []
-                        if antibodyNumber in boxes:
-                            allBoxes = boxes[antibodyNumber]
+                        allMultipleValueses = []
+                        if entityNumber in MultipleValueses:
+                            allMultipleValueses = MultipleValueses[entityNumber]
                         else:
-                            boxes[antibodyNumber] = allBoxes
-                        allBoxes.append(values)
+                            MultipleValueses[entityNumber] = allMultipleValueses
+                        allMultipleValueses.append(values)
                 else:
-                    #The antibody is not there. What the *#%$&
-                    emptyBox += 1
+                    #The entity is not there. What the *#%$&
+                    emptyMultipleValues += 1
             else:
-                #The antibody is not there. What the *#%$&
-                emptyBox += 1
+                #The entity is not there. What the *#%$&
+                emptyMultipleValues += 1
         
-        print "- ERROR ADAPTOR Boxes positions with empty entityId for " + self.__class__.__name__ + ":" + str(emptyBox)
+        print "- ERROR ADAPTOR MultipleValueses positions with empty entityId for " + self.__class__.__name__ + ":" + str(emptyMultipleValues)
         
-        for entiyCode, allBoxes in boxes.iteritems():
+        for entiyCode, allMultipleValueses in MultipleValueses.iteritems():
             self.addEntity({
                         "*CODE" : entiyCode,
-                        "*BOXESLIST" : allBoxes
+                        "*MultipleValuesESLIST" : allMultipleValueses
             })
         
         result.close()
         preparedStatement.close()
 
-class FMPeterEntityBoxOpenBISDTO(OpenBISDTO):
+class FMPeterEntityMultipleValuesOpenBISDTO(OpenBISDTO):
     def getIdentifier(self, tr):
         return self.values["*CODE"]
     
     def write(self, tr):
         sample = getSampleForUpdate("/MATERIALS/"+self.values["*CODE"], None, tr)
-        print "* INFO Boxes size: " + str(len(self.values["*BOXESLIST"]))
-        #Delete old boxes
-        for boxNum in range(1, definitions.numberOfStorageGroups+1):
-            for propertyCode in definitions.getStorageGroupPropertyCodes():
-                sample.setPropertyValue(propertyCode + "_" + str(boxNum), None)
+        print "* INFO MultipleValueses size: " + str(len(self.values["*MultipleValuesESLIST"]))
+        #Delete old MultipleValueses
+        for MultipleValuesNum in range(1, definitions.numberOfRepetitions+1):
+            for propertyCode in definitions.getRepetitionPropertyCodes():
+                sample.setPropertyValue(propertyCode + "_" + str(MultipleValuesNum), None)
+                 
         
-        #Add new boxes
-        boxNum = 1
-        for box in self.values["*BOXESLIST"]:
-            boxNum += 1
-            for propertyCode, propertyValue in box.iteritems():
-                if propertyCode == "STORAGE_NAME":
-                    freezerName = definitionsVoc.getVocabularyTermCodeForVocabularyAndTermLabel("FREEZER", propertyValue)
-                    if freezerName is None:
-                        #print repr("NOT FOUND FEEZER: " + self.values["ANTIBODY_ID_NR"] + " : '" + unicode(propertyValue) + "'")
-                        propertyValue = None
-                    else:
-                        propertyValue = freezerName
-                if propertyCode == "STORAGE_USER":
-                    storageUser = definitionsVoc.getVocabularyTermCodeForVocabularyAndTermLabel("LAB_MEMBERS", propertyValue)
-                    if storageUser is None:
-                        #print repr("NOT FOUND USER: " + self.values["ANTIBODY_ID_NR"] + " : '" + unicode(propertyValue) + "'")
-                        propertyValue = None
-                    else:
-                        propertyValue = storageUser
+        #Add new MultipleValueses
+        MultipleValuesNum = 0
+        for MultipleValues in self.values["*MultipleValuesESLIST"]:
+            MultipleValuesNum += 1
+            for propertyCode, propertyValue in MultipleValues.iteritems():
                 
                 if propertyValue is not None:
                     propertyValue =  unicode(propertyValue)
-                    sample.setPropertyValue(propertyCode + "_" + str(boxNum), propertyValue)
+                    print "PROPCODE", propertyCode, str(MultipleValuesNum), propertyValue
+                    sample.setPropertyValue(propertyCode + "_" + str(MultipleValuesNum), propertyValue)
     
-    def isBoxPressent(self, boxSignature, tr):
+    def isMultipleValuesPressent(self, MultipleValuesSignature, tr):
         sample = getSampleForUpdate("/MATERIALS/"+self.values["*CODE"], None, tr)
         if sample is not None:
-            for boxNum in range(1, definitions.numberOfStorageGroups+1):
+            for MultipleValuesNum in range(1, definitions.numberOfRepetitions+1):
                 storedSignature = "";
-                for propertyCode in definitions.getStorageGroupPropertyCodes():
-                    propertyValue = sample.getPropertyValue(propertyCode + "_" + str(boxNum))
+                for propertyCode in definitions.getRepetitionPropertyCodes():
+                    propertyValue = sample.getPropertyValue(propertyCode + "_" + str(MultipleValuesNum))
+                    print propertyCode+ "_" + str(MultipleValuesNum), propertyValue
                     if propertyValue is not None:
                         propertyValue = unicode(propertyValue)
-                        storedSignature += propertyValue
-                if storedSignature == boxSignature:
-                    #print "Found Box " + storedSignature.encode('ascii', 'ignore')
+                        storedSignature += propertyValue                       
+                if storedSignature == MultipleValuesSignature:
+                    #print "Found MultipleValues " + storedSignature.encode('ascii', 'ignore')
                     return True
         return False
     
     def isInOpenBIS(self, tr):
-        for box in self.values["*BOXESLIST"]:
-            boxSignature = "";
-            for propertyCode in definitions.getStorageGroupPropertyCodes():
-                propertyValue = box[propertyCode]
-                if propertyCode == "STORAGE_NAME":
-                    propertyValue = definitionsVoc.getVocabularyTermCodeForVocabularyAndTermLabel("FREEZER", propertyValue)
-                if propertyCode == "STORAGE_USER":
-                    propertyValue = definitionsVoc.getVocabularyTermCodeForVocabularyAndTermLabel("LAB_MEMBERS_INITIALS", propertyValue)
-                    
+        for MultipleValues in self.values["*MultipleValuesESLIST"]:
+            MultipleValuesSignature = "";
+            for propertyCode in definitions.getRepetitionPropertyCodes():
+                propertyValue = MultipleValues[propertyCode]
+                   
                 if propertyValue is not None:
                     propertyValue = unicode(propertyValue)
-                    boxSignature += propertyValue
-            if not self.isBoxPressent(boxSignature, tr):
+                    MultipleValuesSignature += propertyValue
+            if not self.isMultipleValuesPressent(MultipleValuesSignature, tr):
                 return False
         return True
 ##
@@ -486,7 +469,7 @@ class AntibodyOpenBISDTO(FMPeterOpenBISDTO):
 class StrainAdaptor(FileMakerEntityAdaptor):
     
     def init(self):
-        self.selectQuery = "SELECT * FROM \"boxit strains\""
+        self.selectQuery = "SELECT * FROM \"Weis Lab Yeast Strains\""
         self.definition = definitions.strainDefinition
         FileMakerEntityAdaptor.init(self)
     
@@ -495,16 +478,20 @@ class StrainAdaptor(FileMakerEntityAdaptor):
         
 class StrainOpenBISDTO(FMPeterOpenBISDTO):
     def write(self, tr):
-        code = self.values["STRAIN_ID_NR"]
+        code = self.values["NAME"]
         if code is not None:
             sample = getSampleForUpdate("/MATERIALS/"+code,"STRAIN", tr)
-            setEntityProperties(tr, self.definition, sample, self.values);
-    
+            setEntityProperties(tr, self.definition, sample, self.values)
+            print setEntityProperties(tr, self.definition, sample, self.values)
+            
     def getIdentifier(self, tr):
-        code = self.values["STRAIN_ID_NR"]
+        code = self.values["NAME"]
         return code
 
-
+class StrainMultipleValuesAdaptor(FMPeterMultipleValuesAdaptor):
+    selectMultipleValuesQuery = "SELECT * FROM \"Weis Lab Yeast Strains\""
+    entityIdFieldName = "KWY number"
+    entityCodeFieldName = "NAME"
 ##
 ## Plasmids
 ##
@@ -524,8 +511,8 @@ class PlasmidOpenBISDTO(FMPeterOpenBISDTO):
         if code is not None:
             sample = getSampleForUpdate("/MATERIALS/"+code,"PLASMID", tr)
             setEntityProperties(tr, self.definition, sample, self.values)
-            setEntityParents(tr, self.definition, sample, self.values)
-            print "SETPARENTS", setEntityParents(tr, self.definition, sample, self.values)
+            setPlasmidParents(tr, self.definition, sample, self.values)
+            print "SETPARENTS", setPlasmidParents(tr, self.definition, sample, self.values)
     
     def getIdentifier(self, tr):
         code = "PKW" +self.values["NAME"]
@@ -621,19 +608,19 @@ fmConnString = "jdbc:filemaker://127.0.0.1/"
 fmUser= "admin"
 fmPass = "nucleus"
 
-# adaptors = [ AntibodyAdaptor(fmConnString, fmUser, fmPass, "BOXIT_antibodies_Peter"), 
-#              AntibodyBoxAdaptor(fmConnString, fmUser, fmPass, "BOXIT_antibody_boxes_Peter"),
-#              PlasmidAdaptor(fmConnString, fmUser, fmPass, "BOXIT_plasmids_Peter"),
-#              PlasmidBoxAdaptor(fmConnString, fmUser, fmPass, "BOXIT_plasmid_boxes_Peter"),
-#              StrainAdaptor(fmConnString, fmUser, fmPass, "BOXIT_strains_Peter"),
-#              StrainBoxAdaptor(fmConnString, fmUser, fmPass, "BOXIT_strain_boxes_Peter"),
-#              OligoAdaptor(fmConnString, fmUser, fmPass, "BOXIT_oligos_Peter"),
-#              OligoBoxAdaptor(fmConnString, fmUser, fmPass, "BOXIT_oligo_boxes_Peter"),
-#              CellAdaptor(fmConnString, fmUser, fmPass, "BOXIT_cells_Peter"),
-#              CellBoxAdaptor(fmConnString, fmUser, fmPass, "BOXIT_cell_boxes_Peter"),
-#              SirnaAdaptor(fmConnString, fmUser, fmPass, "BOXIT_Main_Menu_Peter"),
-#              ChemicalAdaptor(fmConnString, fmUser, fmPass, "BOXIT_Main_Menu_Peter"),
-#              DocumentsAdaptor(fmConnString, fmUser, fmPass, "BOXIT_documents_Peter")]
+# adaptors = [ AntibodyAdaptor(fmConnString, fmUser, fmPass, "MultipleValuesIT_antibodies_Peter"), 
+#              AntibodyMultipleValuesAdaptor(fmConnString, fmUser, fmPass, "MultipleValuesIT_antibody_MultipleValueses_Peter"),
+#              PlasmidAdaptor(fmConnString, fmUser, fmPass, "MultipleValuesIT_plasmids_Peter"),
+#              PlasmidMultipleValuesAdaptor(fmConnString, fmUser, fmPass, "MultipleValuesIT_plasmid_MultipleValueses_Peter"),
+#              StrainAdaptor(fmConnString, fmUser, fmPass, "MultipleValuesIT_strains_Peter"),
+#              StrainMultipleValuesAdaptor(fmConnString, fmUser, fmPass, "MultipleValuesIT_strain_MultipleValueses_Peter"),
+#              OligoAdaptor(fmConnString, fmUser, fmPass, "MultipleValuesIT_oligos_Peter"),
+#              OligoMultipleValuesAdaptor(fmConnString, fmUser, fmPass, "MultipleValuesIT_oligo_MultipleValueses_Peter"),
+#              CellAdaptor(fmConnString, fmUser, fmPass, "MultipleValuesIT_cells_Peter"),
+#              CellMultipleValuesAdaptor(fmConnString, fmUser, fmPass, "MultipleValuesIT_cell_MultipleValueses_Peter"),
+#              SirnaAdaptor(fmConnString, fmUser, fmPass, "MultipleValuesIT_Main_Menu_Peter"),
+#              ChemicalAdaptor(fmConnString, fmUser, fmPass, "MultipleValuesIT_Main_Menu_Peter"),
+#              DocumentsAdaptor(fmConnString, fmUser, fmPass, "MultipleValuesIT_documents_Peter")]
            
 
 
@@ -642,7 +629,9 @@ adaptors = [
              #ChemicalAdaptor(fmConnString, fmUser, fmPass, "Weis_Chemicals")
              #OligoAdaptor(fmConnString, fmUser, fmPass, "Weis_Oligos"),
              #AntibodyAdaptor(fmConnString, fmUser, fmPass, "Weis _Antibodies")
-             PlasmidAdaptor(fmConnString, fmUser, fmPass, "Weis_Plasmids")
+             #PlasmidAdaptor(fmConnString, fmUser, fmPass, "Weis_Plasmids")
+             StrainAdaptor(fmConnString, fmUser, fmPass, "Weis_Yeast_Strains"),
+             StrainMultipleValuesAdaptor(fmConnString, fmUser, fmPass, "Weis_Yeast_Strains")
              ]
                        
             
