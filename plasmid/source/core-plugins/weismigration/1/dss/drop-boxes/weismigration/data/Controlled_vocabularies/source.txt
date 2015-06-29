@@ -1,1 +1,0 @@
-code	labelMOUSE	mouseRABBIT	rabbitHAMSTER	hamsterGOAT	goatRAT	ratCHICKEN	chickenSHEEP	sheepHUMAN	humanGUINEA_PIG	guinea pigDONEKY	donkeyUNKNOWN	unknown		

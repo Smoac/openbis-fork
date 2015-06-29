@@ -1,1 +1,0 @@
-code	label1H-RT	1h, RTPTEMF	PTEMFPFA	PFAMEOH	MeOH								

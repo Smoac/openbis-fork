@@ -1,1 +1,0 @@
-code	label1BSA_01TRITON-X100	1% BSA; 0.1% Triton X100

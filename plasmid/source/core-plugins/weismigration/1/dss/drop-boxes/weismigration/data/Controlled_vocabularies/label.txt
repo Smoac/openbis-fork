@@ -1,1 +1,0 @@
-code	labelHRP	hrpAP	apFITC	fitcCY3	Cy3ALEXA647	Alexa 647								
