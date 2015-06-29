@@ -24,22 +24,19 @@ annotationsScriptName="ANNOTATIONS"
 #
 # Storage 
 #
-numberOfStorageGroups = 1
+numberOfRepetitions = 5
 
-def getStorageGroupPropertyCodes():
+def getRepetitionPropertyCodes():
     propertyCodes = [];
-    for property in getStorageGroupDefinition():
+    for property in getRepetitionDefinition():
         propertyCodes.append(property[0]);
     return propertyCodes;
 
-def getStorageGroupDefinition():
+def getRepetitionDefinition():
     return [
-    ["STORAGE_NAME",         "Physical Storage",        "location",         DataType.CONTROLLEDVOCABULARY,      "FREEZER",            "Storage Name",       None, None, False],
-    ["STORAGE_ROW",          "Physical Storage",        "Storage Row",      DataType.INTEGER,                    None,                "Storage Row",        None, None, False],
-    ["STORAGE_COLUMN",       "Physical Storage",        "Storage Column",   DataType.INTEGER,                    None,                "Storage Column",     None, None, False],
-    ["STORAGE_BOX_NAME",     "Physical Storage",        "box label",        DataType.VARCHAR,                    None,                "Storage Box Name",   None, None, False],
-    ["STORAGE_USER",         "Physical Storage",        "frozen by",        DataType.CONTROLLEDVOCABULARY,      "LAB_MEMBERS",    "Storage User Id",    None, None, False],
-    ["STORAGE_BOX_POSITION", "Physical Storage",        "position",         DataType.CONTROLLEDVOCABULARY,       None,                "Storage Box Position",    None, None, False]
+    ["DISRUPTIONS",         "Genotype",        "disruptions",         DataType.VARCHAR,                     None, "",       None, None, False],
+    ["MARKERS",          "Genotypee",        "markers",      DataType.VARCHAR,                    None, "",        None, None, False],
+    ["UNMARKED_MUTATIONS",       "Genotype",        "unmarked mutations",   DataType.VARCHAR,                    None, "",     None, None, False],
 ];
 
 #
@@ -89,15 +86,13 @@ strainDefinition = [
     ["BASE_STRAIN",                             "General",                  "base strain",                             DataType.VARCHAR,       None,  "", None, None, False],
     ["COMMENTS",                             "General",                  "comments",                             DataType.VARCHAR,       None,  "", None, None, False],
     ["DATE_ENTERED",                             "General",                  "date entered",                             DataType.TIMESTAMP,       None,  "", None, None, False],    
-    ["DISRUPTIONS",                             "General",                  "disruptions",                             DataType.VARCHAR,       None,  "", None, None, False],    
-    ["FROZEN_STOCK",                             "General",                  "frozen stock",                             DataType.BOOLEAN,       None,  "", None, None, False],    
+    ["DERIVED_FROM",                             "General",                  "derived from",                             DataType.VARCHAR,       None,  "", None, None, False],    
+    ["FROZEN_STOCK",                             "General",                  "frozen stock",                             DataType.VARCHAR,       None,  "", None, None, False],    
     ["GENOTYPE_CONFIRMATION",                             "General",                  "genotype confirmation",                             DataType.VARCHAR,       None,  "", None, None, False],    
     ["GLYCEROL_STOCK_NUMBER",                             "General",                  "glycerol stock number",                             DataType.INTEGER,       None,  "", None, None, False],    
-    ["NAME",                             "General",                  "KWY number",                             DataType.VARCHAR,       None,  "", None, None, False],    
-    ["MARKERS",                             "General",                  "markers",                             DataType.VARCHAR,       None,  "", None, None, False],    
+    ["NAME",                             "General",                  "KWY number",                             DataType.VARCHAR,       None,  "", None, None, False],      
     ["MAT",                             "General",                  "MAT",                             DataType.VARCHAR,       None,  "", None, None, False],    
     ["REMOVED",                             "General",                  "removed",                             DataType.VARCHAR,       None,  "", None, None, False],    
-    ["UNMARKED_MUTATIONS",                             "General",                  "unmarked mutations",                             DataType.VARCHAR,       None,  "", None, None, False],    
     ["WHO_ENTERED",                             "General",                  "who entered",                             DataType.VARCHAR,       None,  "", None, None, False],    
     ["ANNOTATIONS_STATE",                "Comments",                "Annotations State",                    DataType.XML,                    None,                                "Annotations State", annotationsScriptName, None, False]    
 ];
@@ -148,6 +143,8 @@ plasmidDefinition = [
     ["5INSERT_MOD",                        "General",                  "5' insert modif.",                         DataType.VARCHAR,      None,  "", None, None, False],
     ["5MOD",                        "General",                  "5' Modif.",                         DataType.VARCHAR,      None,  "", None, None, False],
     ["BACTERIAL_STRAIN",                        "General",                  "Bacterial strain",                         DataType.VARCHAR,      None,  "", None, None, False],
+    ["BY",                        "General",                  "By",                         DataType.VARCHAR,      None,  "", None, None, False],
+    ["COMMENT",                        "General",                  "Comment",                         DataType.VARCHAR,      None,  "", None, None, False],
     ["CONCENTRATION",                        "General",                  "Concentration",                         DataType.REAL,      None,  "", None, None, False],    
     ["DNA_PREPARED_ON",                        "General",                  "DNA prepared on",                         DataType.VARCHAR,      None,  "", None, None, False],
     ["DRUG_RES",                        "General",                  "Drug res.",                         DataType.VARCHAR,      None,  "", None, None, False],    
