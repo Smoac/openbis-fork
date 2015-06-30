@@ -541,6 +541,18 @@ public class PropertyTypeAssignmentGrid extends TypedTableGrid<EntityTypePropert
                     shownInEditViewCheckBox = new CheckBoxField(viewContext.getMessage(Dict.SHOWN_IN_EDIT_VIEW), false);
                     shownInEditViewCheckBox.setValue(etpt.isShownInEditView());
                     shownInEditViewCheckBox.setVisible(!etpt.isDynamic());  // This option is shown for all non system generated properties
+                    shownInEditViewCheckBox.addListener(Events.Change, new Listener<FieldEvent>()
+                    {
+                        @Override
+                        public void handleEvent(FieldEvent be)
+                        {
+                            if(!shownInEditViewCheckBox.getValue())
+                            {
+                                mandatoryCheckbox.setValue(Boolean.FALSE);
+                            }
+                        }
+                    });
+                    
                     addField(shownInEditViewCheckBox);
 
                     // Show raw values Field
