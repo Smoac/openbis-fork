@@ -111,25 +111,25 @@ def init(tr, parameters, tableBuilder):
 			tr.createNewSpace("MATERIALS", None);
 			
 			tr.createNewProject("/MATERIALS/REAGENTS");
-			tr.createNewExperiment("/MATERIALS/REAGENTS/ANTIBODIES", 		"MATERIALS");
-			tr.createNewExperiment("/MATERIALS/REAGENTS/CHEMICALS", 		"MATERIALS");
-			tr.createNewExperiment("/MATERIALS/REAGENTS/ENZYMES", 			"MATERIALS");
-			tr.createNewExperiment("/MATERIALS/REAGENTS/MEDIA", 			"MATERIALS");
-			tr.createNewExperiment("/MATERIALS/REAGENTS/SOLUTIONS_BUFFERS",	"MATERIALS");
+			tr.createNewExperiment("/MATERIALS/REAGENTS/ANTIBODIES_COLLECTION", 		"MATERIALS");
+			tr.createNewExperiment("/MATERIALS/REAGENTS/CHEMICALS_COLLECTION", 		"MATERIALS");
+			tr.createNewExperiment("/MATERIALS/REAGENTS/ENZYMES_COLLECTION", 			"MATERIALS");
+			tr.createNewExperiment("/MATERIALS/REAGENTS/MEDIA_COLLECTION", 			"MATERIALS");
+			tr.createNewExperiment("/MATERIALS/REAGENTS/BUFFERS_COLLECTION",	"MATERIALS");
 			
 			tr.createNewProject("/MATERIALS/BACTERIA");
 			tr.createNewExperiment("/MATERIALS/BACTERIA/BACTERIA_COLLECTION_1",		"MATERIALS");
 			tr.createNewProject("/MATERIALS/CELL_LINES");
-			tr.createNewExperiment("/MATERIALS/CELL_LINES/CELL_LINE_COLLECTION_1",	"MATERIALS");
+			tr.createNewExperiment("/MATERIALS/CELL_LINES/CELL_LINES_COLLECTION_1",	"MATERIALS");
 			tr.createNewProject("/MATERIALS/FLIES");
-			tr.createNewExperiment("/MATERIALS/FLIES/FLY_COLLECTION_1",				"MATERIALS");
+			tr.createNewExperiment("/MATERIALS/FLIES/FLIES_COLLECTION_1",				"MATERIALS");
 			tr.createNewProject("/MATERIALS/YEASTS");
-			tr.createNewExperiment("/MATERIALS/YEASTS/YEAST_COLLECTION_1",			"MATERIALS");
+			tr.createNewExperiment("/MATERIALS/YEASTS/YEASTS_COLLECTION_1",			"MATERIALS");
 			tr.createNewProject("/MATERIALS/PLASMIDS");
-			tr.createNewExperiment("/MATERIALS/PLASMIDS/PLASMID_COLLECTION_1",		"MATERIALS");
+			tr.createNewExperiment("/MATERIALS/PLASMIDS/PLASMIDS_COLLECTION_1",		"MATERIALS");
 			tr.createNewProject("/MATERIALS/POLYNUCLEOTIDES");
-			tr.createNewExperiment("/MATERIALS/POLYNUCLEOTIDES/OLIGO_COLLECTION_1",	"MATERIALS");
-			tr.createNewExperiment("/MATERIALS/POLYNUCLEOTIDES/RNA_COLLECTION_1",	"MATERIALS");
+			tr.createNewExperiment("/MATERIALS/POLYNUCLEOTIDES/OLIGOS_COLLECTION_1",	"MATERIALS");
+			tr.createNewExperiment("/MATERIALS/POLYNUCLEOTIDES/RNAS_COLLECTION_1",	"MATERIALS");
 			
 			tr.createNewSpace("METHODS", None);
 			
