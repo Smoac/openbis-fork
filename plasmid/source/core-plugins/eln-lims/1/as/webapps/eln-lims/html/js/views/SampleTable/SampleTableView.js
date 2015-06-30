@@ -29,8 +29,10 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 				var experimentCode = this._sampleTableModel.experimentIdentifier.split("/")[3];
 				var sampleTypeCode = experimentCode.substring(0,experimentCode.indexOf("_COLLECTION"));
 				
-				//Add Experiment Step
-				if(profile.getSampleTypeForSampleTypeCode(sampleTypeCode)) {
+				//Add Sample Type
+				if(profile.getSampleTypeForSampleTypeCode(sampleTypeCode) &&
+					!profile.isSampleTypeHidden(sampleTypeCode)) {
+					
 					$title.append("&nbsp;");
 					$title.append(FormUtil.getButtonWithText("Create " + sampleTypeCode, function() {
 						var argsMap = {
