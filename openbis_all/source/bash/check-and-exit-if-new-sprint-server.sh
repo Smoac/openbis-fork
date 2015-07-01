@@ -24,7 +24,7 @@ function getValue {
 
 SERVERS="$1"
 VERSION_FILE="$2"
-LOG_FILE=$SERVERS/openBIS-server/jetty/logs/jetty.out
+LOG_FILE=`ls -t $SERVERS/openBIS-server/jetty/logs/openbis_log.txt*|tail -n 1`
 
 CURRENT_VERSION=UNKNOWN
 if [ -f $LOG_FILE ]; then
