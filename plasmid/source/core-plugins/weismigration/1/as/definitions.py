@@ -35,7 +35,7 @@ def getRepetitionPropertyCodes():
 def getRepetitionDefinition():
     return [
     ["DISRUPTIONS",         "Genotype",        "disruptions",         DataType.VARCHAR,                     None, "",       None, None, False],
-    ["MARKERS",          "Genotypee",        "markers",      DataType.VARCHAR,                    None, "",        None, None, False],
+    ["MARKERS",          "Genotype",        "markers",      DataType.VARCHAR,                    None, "",        None, None, False],
     ["UNMARKED_MUTATIONS",       "Genotype",        "unmarked mutations",   DataType.VARCHAR,                    None, "",     None, None, False],
 ];
 

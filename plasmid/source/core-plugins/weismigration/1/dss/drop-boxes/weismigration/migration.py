@@ -653,13 +653,13 @@ fmPass = "nucleus"
 
 
 adaptors = [ 
-             #EnzymeAdaptor(fmConnString, fmUser, fmPass, "Weis_Restriction_enzymes")
-             #ChemicalAdaptor(fmConnString, fmUser, fmPass, "Weis_Chemicals")
-             #AntibodyAdaptor(fmConnString, fmUser, fmPass, "Weis _Antibodies")
+             EnzymeAdaptor(fmConnString, fmUser, fmPass, "Weis_Restriction_enzymes")
+             #ChemicalAdaptor(fmConnString, fmUser, fmPass, "Weis_Chemicals"),
+             #AntibodyAdaptor(fmConnString, fmUser, fmPass, "Weis _Antibodies"),
              #OligoAdaptor(fmConnString, fmUser, fmPass, "Weis_Oligos"),
              #PlasmidAdaptor(fmConnString, fmUser, fmPass, "Weis_Plasmids")
-             StrainAdaptor(fmConnString, fmUser, fmPass, "Weis_Yeast_Strains"),
-             StrainMultipleValuesAdaptor(fmConnString, fmUser, fmPass, "Weis_Yeast_Strains")
+             #StrainAdaptor(fmConnString, fmUser, fmPass, "Weis_Yeast_Strains"),
+             #StrainMultipleValuesAdaptor(fmConnString, fmUser, fmPass, "Weis_Yeast_Strains")
              ]
                        
             

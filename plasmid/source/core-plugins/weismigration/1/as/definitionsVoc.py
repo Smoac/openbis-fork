@@ -189,7 +189,7 @@ vocabularyDefinitions = {
                                                     ],    
 
                              "PLASMID_SELECTION_MAKER" : [                            
-                                                   ["URA3_ ADE3",    "URA3, ADE3"],
+                                                   ["URA3_ADE3",    "URA3, ADE3"],
                                                    ["ADE2",    "ADE2"],
                                                    ["CAURA",    "CaURA"],
                                                    ["CAURA3",    "CaURA3"],
