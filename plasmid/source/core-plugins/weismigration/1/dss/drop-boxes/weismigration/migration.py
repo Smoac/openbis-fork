@@ -81,7 +81,6 @@ def setEntityProperties(tr, definition, entity, properties):
                 possiblePropertyValue = definitionsVoc.getVocabularyTermCodeForVocabularyAndTermLabel(propertyDefinition[4], propertyValue)
                 if possiblePropertyValue is not None:
                     propertyValue = possiblePropertyValue
-                    print "EXISTING VALUE:", propertyValue
                 else:
                     print "MISSING VALUE FOR:", propertyValue
        
@@ -265,17 +264,17 @@ def getSampleForUpdate(sampleIdentifier, sampleType, tr):
          if sample is None and sampleType is not None:
              #print "Cache Create " + sampleIdentifier + ":" + str(sampleType)
              if sampleType == "ANTIBODY":
-             	experiment = getExperimentForUpdate("/MATERIALS/REAGENTS/ANTIBODIES", sampleType, tr)
+                 experiment = getExperimentForUpdate("/MATERIALS/REAGENTS/ANTIBODIES", sampleType, tr)
              elif sampleType == "STRAIN":
-              	experiment = getExperimentForUpdate("/MATERIALS/YEASTS/YEAST_COLLECTION_1", sampleType, tr)              
+                  experiment = getExperimentForUpdate("/MATERIALS/YEASTS/YEAST_COLLECTION_1", sampleType, tr)              
              elif sampleType == "PLASMID":
-              	experiment = getExperimentForUpdate("/MATERIALS/PLASMIDS/PLASMID_COLLECTION_1", sampleType, tr)              
+                  experiment = getExperimentForUpdate("/MATERIALS/PLASMIDS/PLASMID_COLLECTION_1", sampleType, tr)              
              elif sampleType == "CHEMICAL":
-              	experiment = getExperimentForUpdate("/MATERIALS/REAGENTS/CHEMICALS", sampleType, tr) 
+                  experiment = getExperimentForUpdate("/MATERIALS/REAGENTS/CHEMICALS", sampleType, tr) 
              elif sampleType == "RESTRICTION_ENZYME":
-                experiment = getExperimentForUpdate("/MATERIALS/REAGENTS/RESTRICTION_ENZYMES", sampleType, tr)              	
+                experiment = getExperimentForUpdate("/MATERIALS/REAGENTS/RESTRICTION_ENZYMES", sampleType, tr)                  
              elif sampleType == "OLIGO":
-              	experiment = getExperimentForUpdate("/MATERIALS/POLYNUCLEOTIDES/OLIGO_COLLECTION_1", sampleType, tr)              	
+                  experiment = getExperimentForUpdate("/MATERIALS/POLYNUCLEOTIDES/OLIGO_COLLECTION_1", sampleType, tr)                  
              sample = tr.createNewSample(sampleIdentifier, sampleType)
              sample.setExperiment(experiment)
          if sample is not None:
@@ -462,14 +461,19 @@ class AntibodyOpenBISDTO(FMPeterOpenBISDTO):
         return False
         
     def write(self, tr):
-        code = "AB_" + self.values["REF_NUM"]
-        if code is not None:
-            sample = getSampleForUpdate("/MATERIALS/"+code,"ANTIBODY", tr)
-            setEntityProperties(tr, self.definition, sample, self.values);
+        if self.values["REF_NUM"] is not None:
+
+            code = "AB" + self.values["REF_NUM"]
+            if code is not None:
+                sample = getSampleForUpdate("/MATERIALS/"+code,"ANTIBODY", tr)
+                setEntityProperties(tr, self.definition, sample, self.values);
+        else:
+            print  "Sample ", self.values["REF_NUM"], " does not have a REF_NUM"
     
     def getIdentifier(self, tr):
-        code = "AB_"+ self.values["REF_NUM"]
-        return code
+        if self.values["REF_NUM"]:
+            code = "AB"+ self.values["REF_NUM"]
+            return code
     
 
 
@@ -493,6 +497,7 @@ class StrainOpenBISDTO(FMPeterOpenBISDTO):
             sample = getSampleForUpdate("/MATERIALS/"+code,"STRAIN", tr)
             setEntityProperties(tr, self.definition, sample, self.values)
             print setEntityProperties(tr, self.definition, sample, self.values)
+        
             
     def getIdentifier(self, tr):
         code = self.values["NAME"]
@@ -575,13 +580,13 @@ class ChemicalOpenBISDTO(FMPeterOpenBISDTO):
         return False
         
     def write(self, tr):
-        code = "CHEM_" + self.values["ID"]
+        code = "CHEM" + self.values["ID"]
         if code is not None:
             sample = getSampleForUpdate("/MATERIALS/"+code,"CHEMICAL", tr)
             setEntityProperties(tr, self.definition, sample, self.values);
     
     def getIdentifier(self, tr):
-        code = "CHEM_" + self.values["ID"]
+        code = "CHEM" + self.values["ID"]
         return code
 
 ##
@@ -601,15 +606,17 @@ class EnzymeOpenBISDTO(FMPeterOpenBISDTO):
             return False
     
     def write(self, tr):
-        code = self.values["NAME"] 
+        for i in range(1,45):
+            code = "RE" + str(i)
         
-        if code is not None:
+       
             sample = getSampleForUpdate("/MATERIALS/"+code,"RESTRICTION_ENZYME", tr)
             setEntityProperties(tr, self.definition, sample, self.values);
     
     def getIdentifier(self, tr):
-        code = self.values["NAME"]
-        return code
+        for i in range(1,45):
+            code = "RE" + str(i)
+            return code
 
 
         
@@ -635,13 +642,13 @@ fmPass = "nucleus"
 
 
 adaptors = [ 
-             EnzymeAdaptor(fmConnString, fmUser, fmPass, "Weis_Restriction_enzymes")
+             #EnzymeAdaptor(fmConnString, fmUser, fmPass, "Weis_Restriction_enzymes")
              #ChemicalAdaptor(fmConnString, fmUser, fmPass, "Weis_Chemicals")
-             #OligoAdaptor(fmConnString, fmUser, fmPass, "Weis_Oligos"),
              #AntibodyAdaptor(fmConnString, fmUser, fmPass, "Weis _Antibodies")
+             #OligoAdaptor(fmConnString, fmUser, fmPass, "Weis_Oligos"),
              #PlasmidAdaptor(fmConnString, fmUser, fmPass, "Weis_Plasmids")
-             #StrainAdaptor(fmConnString, fmUser, fmPass, "Weis_Yeast_Strains"),
-             #StrainMultipleValuesAdaptor(fmConnString, fmUser, fmPass, "Weis_Yeast_Strains")
+             StrainAdaptor(fmConnString, fmUser, fmPass, "Weis_Yeast_Strains"),
+             StrainMultipleValuesAdaptor(fmConnString, fmUser, fmPass, "Weis_Yeast_Strains")
              ]
                        
             
