@@ -161,6 +161,16 @@ def setPlasmidParents(tr, definition, entity, properties):
                     currentParentsList = entity.getParentSampleIdentifiers()
                     currentParentsList.add(parentCode)
                     entity.setParentSampleIdentifiers(currentParentsList)
+                elif re.match ("UC1388cc", propertyValue):
+                    parentCode="/MATERIALS/"+  propertyValue.replace("UC1388cc", "US1388").strip(" ")
+                    currentParentsList = entity.getParentSampleIdentifiers()
+                    currentParentsList.add(parentCode)
+                    entity.setParentSampleIdentifiers(currentParentsList) 
+                elif re.match ("UC2396c", propertyValue):
+                    parentCode="/MATERIALS/"+  propertyValue.replace("UC2396c", "US2396").strip(" ")
+                    currentParentsList = entity.getParentSampleIdentifiers()
+                    currentParentsList.add(parentCode)
+                    entity.setParentSampleIdentifiers(currentParentsList)                                               
                 elif re.match ("UC", propertyValue) and not re.search("/", propertyValue):
                     parentCode= "/MATERIALS/"+ propertyValue.replace("UC", "US").strip(" ")
                     currentParentsList = entity.getParentSampleIdentifiers()
@@ -603,8 +613,8 @@ class EnzymeOpenBISDTO(FMPeterOpenBISDTO):
 
 
         
-fmConnString = "jdbc:filemaker://127.0.0.1/"
-#fmConnString = "jdbc:filemaker://fmsrv.ethz.ch/"
+#fmConnString = "jdbc:filemaker://127.0.0.1/"
+fmConnString = "jdbc:filemaker://fmsrv.ethz.ch/"
 fmUser= "admin"
 fmPass = "nucleus"
 
@@ -625,13 +635,13 @@ fmPass = "nucleus"
 
 
 adaptors = [ 
-             #EnzymeAdaptor(fmConnString, fmUser, fmPass, "Weis_Restriction_enzymes")
+             EnzymeAdaptor(fmConnString, fmUser, fmPass, "Weis_Restriction_enzymes")
              #ChemicalAdaptor(fmConnString, fmUser, fmPass, "Weis_Chemicals")
              #OligoAdaptor(fmConnString, fmUser, fmPass, "Weis_Oligos"),
              #AntibodyAdaptor(fmConnString, fmUser, fmPass, "Weis _Antibodies")
              #PlasmidAdaptor(fmConnString, fmUser, fmPass, "Weis_Plasmids")
-             StrainAdaptor(fmConnString, fmUser, fmPass, "Weis_Yeast_Strains"),
-             StrainMultipleValuesAdaptor(fmConnString, fmUser, fmPass, "Weis_Yeast_Strains")
+             #StrainAdaptor(fmConnString, fmUser, fmPass, "Weis_Yeast_Strains"),
+             #StrainMultipleValuesAdaptor(fmConnString, fmUser, fmPass, "Weis_Yeast_Strains")
              ]
                        
             
