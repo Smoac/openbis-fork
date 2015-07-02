@@ -27,6 +27,10 @@ def jarConfiguration(parameters){
             include '**/imagereaders/*.class'
             include "**/imagereaders/${libraryName}/*.class"
         })
+        from(project.compileTestJava.outputs.getFiles().getAsFileTree().matching {
+            include '**/imagereaders/*.class'
+            include "**/imagereaders/${libraryName}/*.class"
+        })
         from("resource/manifest/${libraryName}")
         manifest {
             attributes("Version": project.versionNumber,
