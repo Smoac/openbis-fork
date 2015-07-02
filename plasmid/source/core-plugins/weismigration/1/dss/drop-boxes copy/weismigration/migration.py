@@ -81,10 +81,11 @@ def setEntityProperties(tr, definition, entity, properties):
                 possiblePropertyValue = definitionsVoc.getVocabularyTermCodeForVocabularyAndTermLabel(propertyDefinition[4], propertyValue)
                 if possiblePropertyValue is not None:
                     propertyValue = possiblePropertyValue
+                    print "EXISTING VALUE:", propertyValue
                 else:
                     print "MISSING VALUE FOR:", propertyValue
        
-            if propertyDefinition is not None: 
+            if propertyDefinition is not None: #Sometimes special fields are added for other purposes, these should not be set
                     if propertyDefinition[0] =="COMPANY":   
                         if propertyValue == "Sgmal-Aldrich":
                             entity.setPropertyValue("COMPANY", "SIGMA-ALDRICH")
@@ -126,17 +127,6 @@ def setEntityProperties(tr, definition, entity, properties):
                              entity.setPropertyValue("COMPANY", "UNKNOWN")
                         else:
                              entity.setPropertyValue("COMPANY", propertyValue)                            
-                    elif propertyDefinition[0] =="PLASMID_BACTERIAL_STRAIN":   
-                        if propertyValue == "XL10 Gold":
-                            entity.setPropertyValue("PLASMID_BACTERIAL_STRAIN", "XL10-GOLD")
-                        elif propertyValue =="STABL2":
-                             entity.setPropertyValue("PLASMID_BACTERIAL_STRAIN", "STBL2")
-                        elif propertyValue =="E. coli":
-                             entity.setPropertyValue("PLASMID_BACTERIAL_STRAIN", "E_COLI")
-                        elif propertyValue =="?":
-                             entity.setPropertyValue("PLASMID_BACTERIAL_STRAIN", "UNKWON")
-                        else:
-                             entity.setPropertyValue("PLASMID_BACTERIAL_STRAIN", propertyValue)      
                     else:
                         entity.setPropertyValue(propertyCode, propertyValue)
         
@@ -171,16 +161,6 @@ def setPlasmidParents(tr, definition, entity, properties):
                     currentParentsList = entity.getParentSampleIdentifiers()
                     currentParentsList.add(parentCode)
                     entity.setParentSampleIdentifiers(currentParentsList)
-                elif re.match ("UC1388cc", propertyValue):
-                    parentCode="/MATERIALS/"+  propertyValue.replace("UC1388cc", "US1388").strip(" ")
-                    currentParentsList = entity.getParentSampleIdentifiers()
-                    currentParentsList.add(parentCode)
-                    entity.setParentSampleIdentifiers(currentParentsList) 
-                elif re.match ("UC2396c", propertyValue):
-                    parentCode="/MATERIALS/"+  propertyValue.replace("UC2396c", "US2396").strip(" ")
-                    currentParentsList = entity.getParentSampleIdentifiers()
-                    currentParentsList.add(parentCode)
-                    entity.setParentSampleIdentifiers(currentParentsList)                                               
                 elif re.match ("UC", propertyValue) and not re.search("/", propertyValue):
                     parentCode= "/MATERIALS/"+ propertyValue.replace("UC", "US").strip(" ")
                     currentParentsList = entity.getParentSampleIdentifiers()
@@ -275,17 +255,17 @@ def getSampleForUpdate(sampleIdentifier, sampleType, tr):
          if sample is None and sampleType is not None:
              #print "Cache Create " + sampleIdentifier + ":" + str(sampleType)
              if sampleType == "ANTIBODY":
-                 experiment = getExperimentForUpdate("/MATERIALS/REAGENTS/ANTIBODIES", sampleType, tr)
+             	experiment = getExperimentForUpdate("/MATERIALS/REAGENTS/ANTIBODIES", sampleType, tr)
              elif sampleType == "STRAIN":
-                  experiment = getExperimentForUpdate("/MATERIALS/YEASTS/YEAST_COLLECTION_1", sampleType, tr)              
+              	experiment = getExperimentForUpdate("/MATERIALS/YEASTS/YEAST_COLLECTION_1", sampleType, tr)              
              elif sampleType == "PLASMID":
-                  experiment = getExperimentForUpdate("/MATERIALS/PLASMIDS/PLASMID_COLLECTION_1", sampleType, tr)              
+              	experiment = getExperimentForUpdate("/MATERIALS/PLASMIDS/PLASMID_COLLECTION_1", sampleType, tr)              
              elif sampleType == "CHEMICAL":
-                  experiment = getExperimentForUpdate("/MATERIALS/REAGENTS/CHEMICALS", sampleType, tr) 
+              	experiment = getExperimentForUpdate("/MATERIALS/REAGENTS/CHEMICALS", sampleType, tr) 
              elif sampleType == "RESTRICTION_ENZYME":
-                experiment = getExperimentForUpdate("/MATERIALS/REAGENTS/RESTRICTION_ENZYMES", sampleType, tr)                  
+                experiment = getExperimentForUpdate("/MATERIALS/REAGENTS/RESTRICTION_ENZYMES", sampleType, tr)              	
              elif sampleType == "OLIGO":
-                  experiment = getExperimentForUpdate("/MATERIALS/POLYNUCLEOTIDES/OLIGO_COLLECTION_1", sampleType, tr)                  
+              	experiment = getExperimentForUpdate("/MATERIALS/POLYNUCLEOTIDES/OLIGO_COLLECTION_1", sampleType, tr)              	
              sample = tr.createNewSample(sampleIdentifier, sampleType)
              sample.setExperiment(experiment)
          if sample is not None:
@@ -472,19 +452,14 @@ class AntibodyOpenBISDTO(FMPeterOpenBISDTO):
         return False
         
     def write(self, tr):
-        if self.values["REF_NUM"] is not None:
-
-            code = "AB" + self.values["REF_NUM"]
-            if code is not None:
-                sample = getSampleForUpdate("/MATERIALS/"+code,"ANTIBODY", tr)
-                setEntityProperties(tr, self.definition, sample, self.values);
-        else:
-            print  "Sample ", self.values["REF_NUM"], " does not have a REF_NUM"
+        code = "AB_" + self.values["REF_NUM"]
+        if code is not None:
+            sample = getSampleForUpdate("/MATERIALS/"+code,"ANTIBODY", tr)
+            setEntityProperties(tr, self.definition, sample, self.values);
     
     def getIdentifier(self, tr):
-        if self.values["REF_NUM"]:
-            code = "AB"+ self.values["REF_NUM"]
-            return code
+        code = "AB_"+ self.values["REF_NUM"]
+        return code
     
 
 
@@ -508,7 +483,6 @@ class StrainOpenBISDTO(FMPeterOpenBISDTO):
             sample = getSampleForUpdate("/MATERIALS/"+code,"STRAIN", tr)
             setEntityProperties(tr, self.definition, sample, self.values)
             print setEntityProperties(tr, self.definition, sample, self.values)
-        
             
     def getIdentifier(self, tr):
         code = self.values["NAME"]
@@ -591,13 +565,13 @@ class ChemicalOpenBISDTO(FMPeterOpenBISDTO):
         return False
         
     def write(self, tr):
-        code = "CHEM" + self.values["ID"]
+        code = "CHEM_" + self.values["ID"]
         if code is not None:
             sample = getSampleForUpdate("/MATERIALS/"+code,"CHEMICAL", tr)
             setEntityProperties(tr, self.definition, sample, self.values);
     
     def getIdentifier(self, tr):
-        code = "CHEM" + self.values["ID"]
+        code = "CHEM_" + self.values["ID"]
         return code
 
 ##
@@ -617,22 +591,20 @@ class EnzymeOpenBISDTO(FMPeterOpenBISDTO):
             return False
     
     def write(self, tr):
-        for i in range(1,45):
-            code = "RE" + str(i)
+        code = self.values["NAME"] 
         
-       
+        if code is not None:
             sample = getSampleForUpdate("/MATERIALS/"+code,"RESTRICTION_ENZYME", tr)
             setEntityProperties(tr, self.definition, sample, self.values);
     
     def getIdentifier(self, tr):
-        for i in range(1,45):
-            code = "RE" + str(i)
-            return code
+        code = self.values["NAME"]
+        return code
 
 
         
-#fmConnString = "jdbc:filemaker://127.0.0.1/"
-fmConnString = "jdbc:filemaker://fmsrv.ethz.ch/"
+fmConnString = "jdbc:filemaker://127.0.0.1/"
+#fmConnString = "jdbc:filemaker://fmsrv.ethz.ch/"
 fmUser= "admin"
 fmPass = "nucleus"
 
@@ -655,8 +627,8 @@ fmPass = "nucleus"
 adaptors = [ 
              #EnzymeAdaptor(fmConnString, fmUser, fmPass, "Weis_Restriction_enzymes")
              #ChemicalAdaptor(fmConnString, fmUser, fmPass, "Weis_Chemicals")
-             #AntibodyAdaptor(fmConnString, fmUser, fmPass, "Weis _Antibodies")
              #OligoAdaptor(fmConnString, fmUser, fmPass, "Weis_Oligos"),
+             #AntibodyAdaptor(fmConnString, fmUser, fmPass, "Weis _Antibodies")
              #PlasmidAdaptor(fmConnString, fmUser, fmPass, "Weis_Plasmids")
              StrainAdaptor(fmConnString, fmUser, fmPass, "Weis_Yeast_Strains"),
              StrainMultipleValuesAdaptor(fmConnString, fmUser, fmPass, "Weis_Yeast_Strains")
