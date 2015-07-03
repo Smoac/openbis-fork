@@ -31,7 +31,7 @@ def update_sample_with_parents(tr, sample_dict):
   parents_code=sample_dict['Parents']
   parents_code_list=re.split(" ", parents_code)
   plasmid_parent_code = sample_dict['Parent plasmid']
-  plasmid_parent_code_split = re.split("/|-|\?|\(|\)", plasmid_parent_code)
+  plasmid_parent_code_split = re.split("/|\+|-|\?|\(|\)", plasmid_parent_code)
   print sample_code, plasmid_parent_code_split
   # insert=sample_dict['Insert']
   # insert_split=re.split("/|-|\?|\(|\|+)", insert)
@@ -48,23 +48,30 @@ def update_sample_with_parents(tr, sample_dict):
   # if 
   for name in plasmid_parent_code_split:
     sample = tr.getSample(sample_id)
-    sample_for_update = tr.makeSampleMutable(sample)   
-    if re.search ("pKW ", name):
-      plasmid_parent_id = "/MATERIALS/"+name.replace("pKW ","PKW").strip()
-      if not parents_code_list ==['']:
-        parents_code_list.append(plasmid_parent_id)
-        print "P1", parents_code_list
-        sample_for_update.setParentSampleIdentifiers(parents_code_list)
-      else:
-        sample_for_update.setParentSampleIdentifiers([plasmid_parent_id])        
-    elif re.search ("pKW", name): 
-      plasmid_parent_id = "/MATERIALS/"+name.replace("pKW","PKW").strip()
-      if not parents_code_list ==['']:
-        parents_code_list.append(plasmid_parent_id)
-        print "P2", parents_code_list
-        sample_for_update.setParentSampleIdentifiers(parents_code_list)
-      else:
-        sample_for_update.setParentSampleIdentifiers([plasmid_parent_id])        
+    sample_for_update = tr.makeSampleMutable(sample)
+    if not sample_id =="/MATERIALS/PKW581":   
+      if re.search ("pKW ", name):
+        plasmid_parent_id = "/MATERIALS/"+name.replace("pKW ","PKW").strip()
+        if not parents_code_list ==['']:
+          parents_code_list.append(plasmid_parent_id)
+          print "P1", parents_code_list
+          sample_for_update.setParentSampleIdentifiers(parents_code_list)
+        else:
+          sample_for_update.setParentSampleIdentifiers([plasmid_parent_id])        
+      elif re.search ("pKW", name): 
+        plasmid_parent_id = "/MATERIALS/"+name.replace("pKW","PKW").strip()
+        if not parents_code_list ==['']:
+          parents_code_list.append(plasmid_parent_id)
+          print "P2", parents_code_list
+          sample_for_update.setParentSampleIdentifiers(parents_code_list)
+      elif re.search ("pKW001", name): 
+        plasmid_parent_id = "/MATERIALS/"+name.replace("pKW001","PKW1").strip()
+        if not parents_code_list ==['']:
+          parents_code_list.append(plasmid_parent_id)
+          print "P2", parents_code_list
+          sample_for_update.setParentSampleIdentifiers(parents_code_list)        
+        else:
+          sample_for_update.setParentSampleIdentifiers([plasmid_parent_id])        
     
 
 def register_samples_in_openbis(tr, data_rows):

@@ -76,70 +76,114 @@ def setEntityProperties(tr, definition, entity, properties):
             if propertyDefinition is not None and propertyDefinition[3] == DataType.REAL and propertyValue is not None:
                 if propertyValue =="?":
                     propertyValue=""
-            
+
             if propertyDefinition is not None and propertyDefinition[3] == DataType.CONTROLLEDVOCABULARY and propertyValue is not None:
                 possiblePropertyValue = definitionsVoc.getVocabularyTermCodeForVocabularyAndTermLabel(propertyDefinition[4], propertyValue)
                 if possiblePropertyValue is not None:
                     propertyValue = possiblePropertyValue
-                else:
-                    print "MISSING VALUE FOR:", propertyValue
+                else:  #We rely on the Add Hock Terms if is None, since there is no API we create a new one
+                    #Create new vocabulary term
+                    codeToUse = re.sub(r'\W+','_',propertyValue)
+                    labelToUse = propertyValue
+                    if len(codeToUse) is 0:
+                        codeToUse = "None" + str(random.random())
+                    if len(codeToUse) > 60:
+                        codeToUse = codeToUse[:50]
+                    #Uses new vocabulary term
+                    newTerm = definitionsVoc.createVocabularyTerm(tr, propertyDefinition[4], codeToUse, labelToUse)
+                    propertyValue = newTerm.getCode()
+                    print "* WARNING ENTITY [" + entity.getCode() + "]: for Vocabulary [" + propertyDefinition[4] + "], found value not in list: [" + repr(labelToUse) + "]. Created new term with code [" + codeToUse + "]"
+            
+            if propertyDefinition is not None: #Sometimes special fields are added for other purposes, these should not be set
+                entity.setPropertyValue(propertyCode, propertyValue)
+
+
+
+
+            # if propertyDefinition is not None and propertyDefinition[3] == DataType.CONTROLLEDVOCABULARY and propertyValue is not None:
+            #     possiblePropertyValue = definitionsVoc.getVocabularyTermCodeForVocabularyAndTermLabel(propertyDefinition[4], propertyValue)
+            #     if possiblePropertyValue is not None:
+            #         propertyValue = possiblePropertyValue.strip(" ")
+            #     else:
+            #         print "MISSING VALUE for: ", propertyDefinition[0], ": VALUE ", propertyValue, "POSS VALUE:",  possiblePropertyValue
+                
        
-            if propertyDefinition is not None: 
-                    if propertyDefinition[0] =="COMPANY":   
-                        if propertyValue == "Sgmal-Aldrich":
-                            entity.setPropertyValue("COMPANY", "SIGMA-ALDRICH")
-                        elif propertyValue =="fluka":
-                             entity.setPropertyValue("COMPANY", "FLUKA")
-                        elif propertyValue =="Bio rad":
-                             entity.setPropertyValue("COMPANY", "BIO-RAD")
-                        elif propertyValue =="merk":
-                             entity.setPropertyValue("COMPANY", "MERCK")
-                        elif propertyValue =="JT Baker":
-                             entity.setPropertyValue("COMPANY", "JTBAKER")
-                        elif propertyValue =="Sigma":
-                             entity.setPropertyValue("COMPANY", "SIGMA-ALDRICH")
-                        elif propertyValue =="sigma":
-                             entity.setPropertyValue("COMPANY", "SIGMA-ALDRICH")                         
-                        elif propertyValue =="BioChemica":
-                             entity.setPropertyValue("COMPANY", "BIOCHEMICA")
-                        elif propertyValue =="molecular Probes":
-                             entity.setPropertyValue("COMPANY", "MOLECULAR_PROBES")
-                        elif propertyValue =="SIGMA":
-                             entity.setPropertyValue("COMPANY", "SIGMA-ALDRICH")
-                        elif propertyValue =="Invitrogen\r\r\r":
-                             entity.setPropertyValue("COMPANY", "INVITROGEN")
-                        elif propertyValue =="Sigma Aldrich":
-                             entity.setPropertyValue("COMPANY", "SIGMA-ALDRICH")
-                        elif propertyValue =="pierce":
-                             entity.setPropertyValue("COMPANY", "PIERCE")
-                        elif propertyValue =="Merck":
-                             entity.setPropertyValue("COMPANY", "MERCK")
-                        elif propertyValue =="calbiochem":
-                             entity.setPropertyValue("COMPANY", "CALBIOCHEM")
-                        elif propertyValue =="Biorad":
-                             entity.setPropertyValue("COMPANY", "BIO-RAD")
-                        elif propertyValue =="bd":
-                             entity.setPropertyValue("COMPANY", "BD")
-                        elif propertyValue =="AppliChem":
-                             entity.setPropertyValue("COMPANY", "APPLICHEM")
-                        elif propertyValue =="?":
-                             entity.setPropertyValue("COMPANY", "UNKNOWN")
-                        else:
-                             entity.setPropertyValue("COMPANY", propertyValue)                            
-                    elif propertyDefinition[0] =="PLASMID_BACTERIAL_STRAIN":   
-                        if propertyValue == "XL10 Gold":
-                            entity.setPropertyValue("PLASMID_BACTERIAL_STRAIN", "XL10-GOLD")
-                        elif propertyValue =="STABL2":
-                             entity.setPropertyValue("PLASMID_BACTERIAL_STRAIN", "STBL2")
-                        elif propertyValue =="E. coli":
-                             entity.setPropertyValue("PLASMID_BACTERIAL_STRAIN", "E_COLI")
-                        elif propertyValue =="?":
-                             entity.setPropertyValue("PLASMID_BACTERIAL_STRAIN", "UNKWON")
-                        else:
-                             entity.setPropertyValue("PLASMID_BACTERIAL_STRAIN", propertyValue)      
-                    else:
-                        entity.setPropertyValue(propertyCode, propertyValue)
-        
+            #         if propertyDefinition[0] =="COMPANY" and propertyValue is not None:   
+            #             if propertyValue == "Sgmal-Aldrich":
+            #                 entity.setPropertyValue("COMPANY", "SIGMA-ALDRICH")
+            #             elif propertyValue =="fluka":
+            #                  entity.setPropertyValue("COMPANY", "FLUKA")
+            #             elif propertyValue =="Bio rad":
+            #                  entity.setPropertyValue("COMPANY", "BIO-RAD")
+            #             elif propertyValue =="merk":
+            #                  entity.setPropertyValue("COMPANY", "MERCK")
+            #             elif propertyValue =="JT Baker":
+            #                  entity.setPropertyValue("COMPANY", "JTBAKER")
+            #             elif propertyValue =="Sigma":
+            #                  entity.setPropertyValue("COMPANY", "SIGMA-ALDRICH")
+            #             elif propertyValue =="sigma":
+            #                  entity.setPropertyValue("COMPANY", "SIGMA-ALDRICH")                         
+            #             elif propertyValue =="BioChemica":
+            #                  entity.setPropertyValue("COMPANY", "BIOCHEMICA")
+            #             elif propertyValue =="molecular Probes":
+            #                  entity.setPropertyValue("COMPANY", "MOLECULAR_PROBES")
+            #             elif propertyValue =="SIGMA":
+            #                  entity.setPropertyValue("COMPANY", "SIGMA-ALDRICH")
+            #             elif propertyValue =="Invitrogen\r\r\r":
+            #                  entity.setPropertyValue("COMPANY", "INVITROGEN")
+            #             elif propertyValue =="Sigma Aldrich":
+            #                  entity.setPropertyValue("COMPANY", "SIGMA-ALDRICH")
+            #             elif propertyValue =="pierce":
+            #                  entity.setPropertyValue("COMPANY", "PIERCE")
+            #             elif propertyValue =="Merck":
+            #                  entity.setPropertyValue("COMPANY", "MERCK")
+            #             elif propertyValue =="calbiochem":
+            #                  entity.setPropertyValue("COMPANY", "CALBIOCHEM")
+            #             elif propertyValue =="Biorad":
+            #                  entity.setPropertyValue("COMPANY", "BIO-RAD")
+            #             elif propertyValue =="bd":
+            #                  entity.setPropertyValue("COMPANY", "BD")
+            #             elif propertyValue =="AppliChem":
+            #                  entity.setPropertyValue("COMPANY", "APPLICHEM")
+            #             elif propertyValue =="?":
+            #                  entity.setPropertyValue("COMPANY", "UNKNOWN")
+            #             else:
+            #                  entity.setPropertyValue("COMPANY", propertyValue)                            
+                   
+            #         elif propertyDefinition[0] =="BACTERIAL_STRAIN" and propertyValue is not None:   
+            #             print "BAC STRAIN", propertyDefinition[0], propertyValue 
+            #             if propertyValue == "XL10 Gold":
+            #                  entity.setPropertyValue("BACTERIAL_STRAIN", "XL10-GOLD")
+            #             elif propertyValue =="STABL2":
+            #                  entity.setPropertyValue("BACTERIAL_STRAIN", "STBL2")
+            #             elif propertyValue =="E. coli":
+            #                  entity.setPropertyValue("BACTERIAL_STRAIN", "E_COLI")                                 
+            #             elif propertyValue == "?":
+            #                  entity.setPropertyValue("BACTERIAL_STRAIN", "UNKNOWN")
+            #             else:
+            #       #We rely on the Add Hock Terms if is None, since there is no API we create a new one
+            #         #Create new vocabulary term
+            #                 codeToUse = re.sub(r'\W+','_',propertyValue)
+            #                 labelToUse = propertyValue
+            #                 if len(codeToUse) is 0:
+            #                     codeToUse = "None" + str(random.random())
+            #                 if len(codeToUse) > 60:
+            #                     codeToUse = codeToUse[:50]
+            #                 #Uses new vocabulary term
+            #                 newTerm = definitionsVoc.createVocabularyTerm(tr, propertyDefinition[4], codeToUse, labelToUse)
+            #                 propertyValue = newTerm.getCode()
+            #                 print "* WARNING ENTITY [" + entity.getCode() + "]: for Vocabulary [" + propertyDefinition[4] + "], found value not in list: [" + repr(labelToUse) + "]. Created new term with code [" + codeToUse + "]"  
+                            
+            #         elif propertyDefinition[0] =="DRUG_RES" and propertyValue is not None:
+            #             print  "DRUG RES is: ", propertyDefinition[0], "=",  propertyValue
+            #             if propertyValue == "CAM ":
+            #                 print "CAM IS:", propertyValue
+            #                 entity.setPropertyValue("DRUG_RES", "CAM")
+            #             else:
+            #                  entity.setPropertyValue("DRUG_RES", propertyValue)      
+
+            # if propertyDefinition is not None: #Sometimes special fields are added for other purposes, these should not be set
+            #     entity.setPropertyValue(propertyCode, propertyValue)
 
 
                                 
@@ -150,7 +194,6 @@ def setPlasmidParents(tr, definition, entity, properties):
             propertyDefinition = definitions.getPropertyDefinitionByCode(definition, propertyCode)
             if propertyValue is not None and propertyDefinition[0] == "PCR_3_OLIGO" or propertyDefinition[0] == "PCR_5_OLIGO":
                 propertyValue =  unicode(propertyValue)
-                print  "PROP_PARENTS", propertyDefinition[0], propertyValue
                 if re.match ("UC# ", propertyValue) and not re.search("/", propertyValue):
                     parentCode = "/MATERIALS/"+ propertyValue.replace("UC# ", "US").strip(" ")
                     currentParentsList = entity.getParentSampleIdentifiers()
@@ -191,10 +234,7 @@ def setPlasmidParents(tr, definition, entity, properties):
                     currentParentsList = entity.getParentSampleIdentifiers()
                     currentParentsList.add(parentCode)
                     entity.setParentSampleIdentifiers(currentParentsList)
-                else:
-                    print "NO PARENT WAS SET FOR THIS FOUND VALUE:", propertyValue
-
-
+             
  
 
 
@@ -275,15 +315,15 @@ def getSampleForUpdate(sampleIdentifier, sampleType, tr):
          if sample is None and sampleType is not None:
              #print "Cache Create " + sampleIdentifier + ":" + str(sampleType)
              if sampleType == "ANTIBODY":
-                 experiment = getExperimentForUpdate("/MATERIALS/REAGENTS/ANTIBODIES", sampleType, tr)
+                 experiment = getExperimentForUpdate("/MATERIALS/REAGENTS/ANTIBODY_COLLECTION", sampleType, tr)
              elif sampleType == "STRAIN":
-                  experiment = getExperimentForUpdate("/MATERIALS/YEASTS/YEAST_COLLECTION_1", sampleType, tr)              
+                  experiment = getExperimentForUpdate("/MATERIALS/STRAINS/STRAIN_COLLECTION_1", sampleType, tr)              
              elif sampleType == "PLASMID":
                   experiment = getExperimentForUpdate("/MATERIALS/PLASMIDS/PLASMID_COLLECTION_1", sampleType, tr)              
              elif sampleType == "CHEMICAL":
-                  experiment = getExperimentForUpdate("/MATERIALS/REAGENTS/CHEMICALS", sampleType, tr) 
+                  experiment = getExperimentForUpdate("/MATERIALS/REAGENTS/CHEMICAL_COLLECTION", sampleType, tr) 
              elif sampleType == "RESTRICTION_ENZYME":
-                experiment = getExperimentForUpdate("/MATERIALS/REAGENTS/RESTRICTION_ENZYMES", sampleType, tr)                  
+                experiment = getExperimentForUpdate("/MATERIALS/REAGENTS/RESTRICTION_ENZYME_COLLECTION", sampleType, tr)                  
              elif sampleType == "OLIGO":
                   experiment = getExperimentForUpdate("/MATERIALS/POLYNUCLEOTIDES/OLIGO_COLLECTION_1", sampleType, tr)                  
              sample = tr.createNewSample(sampleIdentifier, sampleType)
@@ -538,7 +578,7 @@ class PlasmidOpenBISDTO(FMPeterOpenBISDTO):
             sample = getSampleForUpdate("/MATERIALS/"+code,"PLASMID", tr)
             setEntityProperties(tr, self.definition, sample, self.values)
             setPlasmidParents(tr, self.definition, sample, self.values)
-            print "SETPARENTS", setPlasmidParents(tr, self.definition, sample, self.values)
+            #print "SETPARENTS", setPlasmidParents(tr, self.definition, sample, self.values)
     
     def getIdentifier(self, tr):
         code = "PKW" +self.values["NAME"]
@@ -653,13 +693,13 @@ fmPass = "nucleus"
 
 
 adaptors = [ 
-             EnzymeAdaptor(fmConnString, fmUser, fmPass, "Weis_Restriction_enzymes")
-             #ChemicalAdaptor(fmConnString, fmUser, fmPass, "Weis_Chemicals"),
+             #EnzymeAdaptor(fmConnString, fmUser, fmPass, "Weis_Restriction_enzymes"),
+             #hemicalAdaptor(fmConnString, fmUser, fmPass, "Weis_Chemicals"),
              #AntibodyAdaptor(fmConnString, fmUser, fmPass, "Weis _Antibodies"),
              #OligoAdaptor(fmConnString, fmUser, fmPass, "Weis_Oligos"),
-             #PlasmidAdaptor(fmConnString, fmUser, fmPass, "Weis_Plasmids")
-             #StrainAdaptor(fmConnString, fmUser, fmPass, "Weis_Yeast_Strains"),
-             #StrainMultipleValuesAdaptor(fmConnString, fmUser, fmPass, "Weis_Yeast_Strains")
+             #PlasmidAdaptor(fmConnString, fmUser, fmPass, "Weis_Plasmids"),
+             StrainAdaptor(fmConnString, fmUser, fmPass, "Weis_Yeast_Strains"),
+             StrainMultipleValuesAdaptor(fmConnString, fmUser, fmPass, "Weis_Yeast_Strains")
              ]
                        
             
@@ -670,6 +710,6 @@ def createDataHierarchy(tr):
         tr.createNewProject("/MATERIALS/REAGENTS")
         tr.createNewProject("/MATERIALS/POLYNUCLEOTIDES")
         tr.createNewProject("/MATERIALS/PLASMIDS")
-        tr.createNewProject("/MATERIALS/YEASTS")        
+        tr.createNewProject("/MATERIALS/STRAINS")        
         
         
