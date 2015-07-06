@@ -164,7 +164,6 @@ final class BioFormatsImageUtils
     static List<ImageID> listImageIDs(IFormatReader reader, IRandomAccess handle)
     {
         String handleId = generateHandleId(reader, null);
-        // Add to static map.
         Location.mapFile(handleId, handle);
         try
         {
@@ -189,7 +188,7 @@ final class BioFormatsImageUtils
                     }
                 }
             }
-            reader.close();
+            close(reader);
             return ids;
         } catch (Exception ex)
         {
@@ -223,7 +222,7 @@ final class BioFormatsImageUtils
                     BufferedImageReader.makeBufferedImageReader(reader);
             int index = calculateImageIndex(reader, imageID);
             final BufferedImage image = biReader.openImage(index);
-            reader.close();
+            close(reader);
             return image;
         } catch (FormatException ex)
         {
@@ -236,6 +235,13 @@ final class BioFormatsImageUtils
             // Remove from static map.
             Location.mapFile(handleId, null);
         }
+    }
+
+    private static void close(IFormatReader reader) throws IOException
+    {
+        // closing is not needed if the IImageReader instance calling this utility method
+        // has a finalize method closing the IFormatReader
+//        reader.close();
     }
 
     private static int calculateImageIndex(IFormatReader reader, ImageID imageID)
@@ -267,7 +273,7 @@ final class BioFormatsImageUtils
             reader.setSeries(imageID.getSeriesIndex());
             nullSafeAddAll(result, reader.getGlobalMetadata());
             nullSafeAddAll(result, reader.getSeriesMetadata());
-            reader.close();
+            close(reader);
 
             return result;
         } catch (Exception ex)
@@ -313,7 +319,7 @@ final class BioFormatsImageUtils
             final ImagePlus imp = new ImagePlus(handleId, stack);
 
             final BufferedImage image = imp.getBufferedImage();
-            reader.close();
+            close(reader);
             return image;
         } catch (FormatException ex)
         {
@@ -346,7 +352,7 @@ final class BioFormatsImageUtils
             reader.setSeries(imageID.getSeriesIndex());
             int width = reader.getSizeX();
             int height = reader.getSizeY();
-            reader.close();
+            close(reader);
             return new Dimension(width, height);
         } catch (FormatException ex)
         {
@@ -409,7 +415,7 @@ final class BioFormatsImageUtils
             reader.setId(handleId);
             reader.setSeries(imageID.getSeriesIndex());
             int depth = reader.getBitsPerPixel();
-            reader.close();
+            close(reader);
             return depth;
         } catch (FormatException ex)
         {
@@ -427,9 +433,7 @@ final class BioFormatsImageUtils
     public static String generateHandleId(IFormatHandler formatHandler, ImageID imageId)
     {
         String id = UUID.randomUUID().toString() + "." + formatHandler.getSuffixes()[0];
-        if (imageId != null
-                && imageId.getFileName() != null
-                && (imageId.getFileName().endsWith(".c01") || imageId.getFileName().endsWith("C01")))
+        if (imageId != null && imageId.getFileName() != null)
         {
             id = imageId.getFileName();
         }

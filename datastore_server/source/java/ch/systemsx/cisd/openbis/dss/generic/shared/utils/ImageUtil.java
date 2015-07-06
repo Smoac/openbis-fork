@@ -45,7 +45,6 @@ import ar.com.hjg.pngj.ImageInfo;
 import ar.com.hjg.pngj.ImageLine;
 import ar.com.hjg.pngj.PngFilterType;
 import ar.com.hjg.pngj.PngWriter;
-
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.base.io.IRandomAccessFile;
@@ -101,6 +100,12 @@ public class ImageUtil
         public int readColorDepth(IRandomAccessFile handle, ImageID imageID);
     }
 
+    private static interface IReadingOperation<T> {
+        T read(IImageReader imageReader, IRandomAccessFile handle, ImageID imageID, IReadParams params);
+        
+        T read(ImageLoader imageLoader, IRandomAccessFile handle, ImageID imageID);
+    }
+ 
     private static final class MagicNumber
     {
         private final String fileType;
@@ -468,6 +473,33 @@ public class ImageUtil
 
     }
 
+    private static class ReaderAndFileHandler
+    {
+        private IImageReader imageReader;
+
+        private IRandomAccessFile handle;
+
+        private String filePath;
+
+        void setFileHandler(IHierarchicalContentNode contentNode)
+        {
+            String newFilePath = contentNode.getRelativePath();
+            if (newFilePath.equals(filePath))
+            {
+                return;
+            }
+            filePath = newFilePath;
+            handle = contentNode.getFileContent();
+        }
+
+        @Override
+        protected void finalize() throws Throwable
+        {
+            closeQuietly(handle);
+        }
+    }
+
+    private static final ThreadLocal<ReaderAndFileHandler> readerStore = new ThreadLocal<ReaderAndFileHandler>();
     private static final Map<String, ImageLoader> imageLoaders = new HashMap<String, ImageLoader>();
 
     static
@@ -490,7 +522,7 @@ public class ImageUtil
         String fileType = FilenameUtils.getExtension(fileName);
         return fileType != null && FILE_TYPES.contains(fileType.toLowerCase());
     }
-
+    
     /**
      * Loads the image specified by <var>imageIdOrNull</var> from the given </var>inputStream</var>.
      * Supported images formats are GIF, JPG, PNG, and TIFF. The input stream will be closed after
@@ -506,30 +538,87 @@ public class ImageUtil
             String imageIdOrNull, String imageLibraryNameOrNull,
             String imageLibraryReaderNameOrNull, IReadParams params)
     {
+        IReadingOperation<BufferedImage> operation = new IReadingOperation<BufferedImage>()
+            {
+
+                @Override
+                public BufferedImage read(IImageReader imageReader, IRandomAccessFile handle, ImageID imageID, IReadParams params)
+                {
+                    return imageReader.readImage(handle, imageID, params);
+                }
+
+                @Override
+                public BufferedImage read(ImageLoader imageLoader, IRandomAccessFile handle, ImageID imageID)
+                {
+                    return imageLoader.load(handle, imageID);
+                }
+
+            };
+        return loadUnchangedData(contentNode, imageIdOrNull, imageLibraryNameOrNull, imageLibraryReaderNameOrNull, params, operation);
+    }
+
+    private static <T> T loadUnchangedData(IHierarchicalContentNode contentNode, String imageIdOrNull, String imageLibraryNameOrNull,
+            String imageLibraryReaderNameOrNull, IReadParams params, IReadingOperation<T> operation)
+    {
         assert (imageLibraryReaderNameOrNull == null || imageLibraryNameOrNull != null) : "if image reader "
                 + "is specified then library name should be specified as well";
         ImageID imageID = parseImageID(imageIdOrNull, contentNode);
 
         if (imageLibraryNameOrNull != null && imageLibraryReaderNameOrNull != null)
         {
-            IImageReader reader =
-                    ImageReaderFactory.tryGetReader(imageLibraryNameOrNull,
-                            imageLibraryReaderNameOrNull);
-            if (reader != null)
+            ReaderAndFileHandler reader = readerStore.get();
+            if (reader == null)
             {
-                IRandomAccessFile handle = contentNode.getFileContent();
-                try
-                {
-                    return reader.readImage(handle, imageID, params);
-                } finally
-                {
-                    closeQuietly(handle);
+                IImageReader imageReader = ImageReaderFactory.tryGetReader(imageLibraryNameOrNull,
+                            imageLibraryReaderNameOrNull);
+                if(imageReader != null) {
+                    reader = new ReaderAndFileHandler();
+                    reader.imageReader = imageReader;
+                    readerStore.set(reader);
                 }
             }
+            if (reader != null)
+            {
+                reader.setFileHandler(contentNode);
+                return operation.read(reader.imageReader, reader.handle, imageID, params);
+            }
         }
-        return loadImageGuessingLibrary(contentNode, imageID);
+        return loadUnchangedDataGuessingLibrary(contentNode, operation, imageID);
     }
 
+    /**
+     * Loads the data specified by <var>imageID</var> from the image from the given
+     * </var>handle</var>. Supported images formats are GIF, JPG, PNG, and TIFF. The input stream
+     * will be closed after loading.
+     * 
+     * @throws IllegalArgumentException if the input stream doesn't start with a magic number
+     *             identifying supported image format.
+     */
+    private static <T> T loadUnchangedDataGuessingLibrary(IHierarchicalContentNode contentNode, IReadingOperation<T> operation, ImageID imageID)
+    {
+        IRandomAccessFile handle = contentNode.getFileContent();
+        String fileType = tryToFigureOutFileTypeOf(handle);
+
+        try
+        {
+            if (fileType == null)
+            {
+                throw new IllegalArgumentException(
+                        "File type of an image input stream couldn't be determined.");
+            }
+            ImageLoader imageLoader = imageLoaders.get(fileType);
+            if (imageLoader == null)
+            {
+                throw new IllegalArgumentException("Unable to load image of file type '" + fileType
+                        + "'.");
+            }
+            return operation.read(imageLoader, handle, imageID);
+        } finally
+        {
+            closeQuietly(handle);
+        }
+    }
+   
     /**
      * Loads the size of image specified by <var>imageIdOrNull</var> from the given
      * </var>inputStream</var>. Supported images formats are GIF, JPG, PNG, and TIFF. The input
@@ -542,28 +631,22 @@ public class ImageUtil
     public static Dimension loadUnchangedImageDimension(IHierarchicalContentNode contentNode,
             String imageIdOrNull, String imageLibraryNameOrNull, String imageLibraryReaderNameOrNull)
     {
-        assert (imageLibraryReaderNameOrNull == null || imageLibraryNameOrNull != null) : "if image reader "
-                + "is specified then library name should be specified as well";
-        ImageID imageID = parseImageID(imageIdOrNull, contentNode);
-
-        if (imageLibraryNameOrNull != null && imageLibraryReaderNameOrNull != null)
-        {
-            IImageReader reader =
-                    ImageReaderFactory.tryGetReader(imageLibraryNameOrNull,
-                            imageLibraryReaderNameOrNull);
-            if (reader != null)
-            {
-                IRandomAccessFile handle = contentNode.getFileContent();
-                try
+        IReadingOperation<Dimension> operation = new IReadingOperation<Dimension>()
                 {
-                    return reader.readDimensions(handle, imageID);
-                } finally
+                @Override
+                public Dimension read(IImageReader imageReader, IRandomAccessFile handle, ImageID imageID, IReadParams params)
                 {
-                    closeQuietly(handle);
+                    return imageReader.readDimensions(handle, imageID);
                 }
-            }
-        }
-        return loadImageDimensionGuessingLibrary(contentNode, imageID);
+
+                @Override
+                public Dimension read(ImageLoader imageLoader, IRandomAccessFile handle, ImageID imageID)
+                {
+                    return imageLoader.readDimension(handle, imageID);
+                }
+
+            };
+        return loadUnchangedData(contentNode, imageIdOrNull, imageLibraryNameOrNull, imageLibraryReaderNameOrNull, null, operation);
     }
 
     /**
@@ -578,28 +661,22 @@ public class ImageUtil
     public static int loadUnchangedImageColorDepth(IHierarchicalContentNode contentNode,
             String imageIdOrNull, String imageLibraryNameOrNull, String imageLibraryReaderNameOrNull)
     {
-        assert (imageLibraryReaderNameOrNull == null || imageLibraryNameOrNull != null) : "if image reader "
-                + "is specified then library name should be specified as well";
-        ImageID imageID = parseImageID(imageIdOrNull, contentNode);
-
-        if (imageLibraryNameOrNull != null && imageLibraryReaderNameOrNull != null)
-        {
-            IImageReader reader =
-                    ImageReaderFactory.tryGetReader(imageLibraryNameOrNull,
-                            imageLibraryReaderNameOrNull);
-            if (reader != null)
-            {
-                IRandomAccessFile handle = contentNode.getFileContent();
-                try
+        IReadingOperation<Integer> operation = new IReadingOperation<Integer>()
                 {
-                    return reader.readColorDepth(handle, imageID);
-                } finally
+                @Override
+                public Integer read(IImageReader imageReader, IRandomAccessFile handle, ImageID imageID, IReadParams params)
                 {
-                    closeQuietly(handle);
+                    return imageReader.readColorDepth(handle, imageID);
                 }
-            }
-        }
-        return loadImageColorDepthGuessingLibrary(contentNode, imageID);
+
+                @Override
+                public Integer read(ImageLoader imageLoader, IRandomAccessFile handle, ImageID imageID)
+                {
+                    return imageLoader.readColorDepth(handle, imageID);
+                }
+
+            };
+        return loadUnchangedData(contentNode, imageIdOrNull, imageLibraryNameOrNull, imageLibraryReaderNameOrNull, null, operation);
     }
     
     /**
@@ -753,107 +830,6 @@ public class ImageUtil
             operationLog.warn("Unable to set file name on image id. ", ex);
         }
         return id;
-    }
-
-    private static BufferedImage loadImageGuessingLibrary(IHierarchicalContentNode contentNode,
-            ImageID imageID)
-    {
-        IRandomAccessFile handle = contentNode.getFileContent();
-        String fileType = tryToFigureOutFileTypeOf(handle);
-        return loadImageGuessingLibrary(handle, fileType, imageID);
-    }
-
-    private static Dimension loadImageDimensionGuessingLibrary(
-            IHierarchicalContentNode contentNode, ImageID imageID)
-    {
-        IRandomAccessFile handle = contentNode.getFileContent();
-        String fileType = tryToFigureOutFileTypeOf(handle);
-        return loadImageDimensionGuessingLibrary(handle, fileType, imageID);
-    }
-
-    private static int loadImageColorDepthGuessingLibrary(IHierarchicalContentNode contentNode,
-            ImageID imageID)
-    {
-        IRandomAccessFile handle = contentNode.getFileContent();
-        String fileType = tryToFigureOutFileTypeOf(handle);
-        return loadImageColorDepthGuessingLibrary(handle, fileType, imageID);
-    }
-
-    /**
-     * Loads the image specified by <var>imageID</var> from the image from the given
-     * </var>handle</var>. Supported images formats are GIF, JPG, PNG, and TIFF. The input stream
-     * will be closed after loading.
-     * 
-     * @throws IllegalArgumentException if the input stream doesn't start with a magic number
-     *             identifying supported image format.
-     */
-    private static BufferedImage loadImageGuessingLibrary(IRandomAccessFile handle,
-            String fileType, ImageID imageID)
-    {
-        try
-        {
-            if (fileType == null)
-            {
-                throw new IllegalArgumentException(
-                        "File type of an image input stream couldn't be determined.");
-            }
-            ImageLoader imageLoader = imageLoaders.get(fileType);
-            if (imageLoader == null)
-            {
-                throw new IllegalArgumentException("Unable to load image of file type '" + fileType
-                        + "'.");
-            }
-            return imageLoader.load(handle, imageID);
-        } finally
-        {
-            closeQuietly(handle);
-        }
-    }
-
-    private static Dimension loadImageDimensionGuessingLibrary(IRandomAccessFile handle,
-            String fileType, ImageID imageID)
-    {
-        try
-        {
-            if (fileType == null)
-            {
-                throw new IllegalArgumentException(
-                        "File type of an image input stream couldn't be determined.");
-            }
-            ImageLoader imageLoader = imageLoaders.get(fileType);
-            if (imageLoader == null)
-            {
-                throw new IllegalArgumentException("Unable to load image of file type '" + fileType
-                        + "'.");
-            }
-            return imageLoader.readDimension(handle, imageID);
-        } finally
-        {
-            closeQuietly(handle);
-        }
-    }
-
-    private static int loadImageColorDepthGuessingLibrary(IRandomAccessFile handle,
-            String fileType, ImageID imageID)
-    {
-        try
-        {
-            if (fileType == null)
-            {
-                throw new IllegalArgumentException(
-                        "File type of an image input stream couldn't be determined.");
-            }
-            ImageLoader imageLoader = imageLoaders.get(fileType);
-            if (imageLoader == null)
-            {
-                throw new IllegalArgumentException("Unable to load image of file type '" + fileType
-                        + "'.");
-            }
-            return imageLoader.readColorDepth(handle, imageID);
-        } finally
-        {
-            closeQuietly(handle);
-        }
     }
 
     /**

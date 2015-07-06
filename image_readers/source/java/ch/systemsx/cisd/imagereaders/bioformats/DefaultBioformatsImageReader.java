@@ -23,7 +23,6 @@ import java.util.Map;
 
 import loci.common.IRandomAccess;
 import loci.formats.IFormatReader;
-
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.base.io.IRandomAccessFile;
 import ch.systemsx.cisd.imagereaders.AbstractMetaDataAwareImageReader;
@@ -106,5 +105,11 @@ class DefaultBioformatsImageReader extends AbstractMetaDataAwareImageReader
     {
         IRandomAccess input = new BioFormatsRandomAccessAdapter(handle);
         return BioFormatsImageUtils.readImageColorDepth(formatReader, input, imageID);
+    }
+    
+    @Override
+    protected void finalize() throws Throwable
+    {
+        formatReader.close();
     }
 }
