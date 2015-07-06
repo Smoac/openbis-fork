@@ -64,6 +64,8 @@ def update_sample_with_parents(tr, sample_dict):
           parents_code_list.append(plasmid_parent_id)
           print "P2", parents_code_list
           sample_for_update.setParentSampleIdentifiers(parents_code_list)
+        else:
+          sample_for_update.setParentSampleIdentifiers([plasmid_parent_id])            
       elif re.search ("pKW001", name): 
         plasmid_parent_id = "/MATERIALS/"+name.replace("pKW001","PKW1").strip()
         if not parents_code_list ==['']:
