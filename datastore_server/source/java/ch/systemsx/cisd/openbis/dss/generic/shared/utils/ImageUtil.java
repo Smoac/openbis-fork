@@ -45,6 +45,7 @@ import ar.com.hjg.pngj.ImageInfo;
 import ar.com.hjg.pngj.ImageLine;
 import ar.com.hjg.pngj.PngFilterType;
 import ar.com.hjg.pngj.PngWriter;
+
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.base.io.IRandomAccessFile;
@@ -481,6 +482,16 @@ public class ImageUtil
 
         private String filePath;
 
+        private String imageLibraryName;
+
+        private String imageLibraryReaderName;
+
+        public ReaderAndFileHandler(String imageLibraryName, String imageLibraryReaderName)
+        {
+            this.imageLibraryName = imageLibraryName;
+            this.imageLibraryReaderName = imageLibraryReaderName;
+        }
+
         void setFileHandler(IHierarchicalContentNode contentNode)
         {
             String newFilePath = contentNode.getRelativePath();
@@ -491,11 +502,16 @@ public class ImageUtil
             filePath = newFilePath;
             handle = contentNode.getFileContent();
         }
+        
+        void close()
+        {
+            closeQuietly(handle);
+            imageReader.close();
+        }
 
         @Override
         protected void finalize() throws Throwable
         {
-            closeQuietly(handle);
         }
     }
 
@@ -567,14 +583,23 @@ public class ImageUtil
         if (imageLibraryNameOrNull != null && imageLibraryReaderNameOrNull != null)
         {
             ReaderAndFileHandler reader = readerStore.get();
-            if (reader == null)
+            if (reader == null || isSameReader(reader, imageLibraryNameOrNull, imageLibraryReaderNameOrNull) == false)
             {
                 IImageReader imageReader = ImageReaderFactory.tryGetReader(imageLibraryNameOrNull,
+                        imageLibraryReaderNameOrNull);
+                if (imageReader != null)
+                {
+                    if (reader != null)
+                    {
+                        reader.close();
+                    }
+                    reader = new ReaderAndFileHandler(imageLibraryNameOrNull,
                             imageLibraryReaderNameOrNull);
-                if(imageReader != null) {
-                    reader = new ReaderAndFileHandler();
                     reader.imageReader = imageReader;
                     readerStore.set(reader);
+                } else
+                {
+                    reader = null;
                 }
             }
             if (reader != null)
@@ -584,6 +609,12 @@ public class ImageUtil
             }
         }
         return loadUnchangedDataGuessingLibrary(contentNode, operation, imageID);
+    }
+
+    protected static boolean isSameReader(ReaderAndFileHandler reader, String imageLibraryNameOrNull, String imageLibraryReaderNameOrNull)
+    {
+        return reader.imageLibraryName.equals(imageLibraryNameOrNull) 
+                && reader.imageLibraryReaderName.equals(imageLibraryReaderNameOrNull);
     }
 
     /**
