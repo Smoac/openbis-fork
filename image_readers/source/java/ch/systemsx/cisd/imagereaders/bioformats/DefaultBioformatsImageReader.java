@@ -18,11 +18,14 @@ package ch.systemsx.cisd.imagereaders.bioformats;
 
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
 import loci.common.IRandomAccess;
 import loci.formats.IFormatReader;
+
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.base.io.IRandomAccessFile;
 import ch.systemsx.cisd.imagereaders.AbstractMetaDataAwareImageReader;
@@ -108,8 +111,20 @@ class DefaultBioformatsImageReader extends AbstractMetaDataAwareImageReader
     }
     
     @Override
+    public void close()
+    {
+        try
+        {
+            formatReader.close();
+        } catch (IOException ex)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+        }
+    }
+
+    @Override
     protected void finalize() throws Throwable
     {
-        formatReader.close();
+        close();
     }
 }

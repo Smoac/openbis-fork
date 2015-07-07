@@ -141,4 +141,9 @@ public interface IImageReader
      * @return the size of the color component
      */
     public Integer readColorDepth(IRandomAccessFile handle, ImageID imageID);
+    
+    /**
+     * Closes this reader and releases resource.
+     */
+    public void close();
 }

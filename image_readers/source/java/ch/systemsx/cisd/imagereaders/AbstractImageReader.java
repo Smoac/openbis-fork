@@ -126,4 +126,10 @@ public abstract class AbstractImageReader implements IImageReader
     {
         return Collections.emptyMap();
     }
+
+    @Override
+    public void close()
+    {
+    }
+    
 }
