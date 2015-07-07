@@ -500,6 +500,10 @@ public class ImageUtil
                 return;
             }
             filePath = newFilePath;
+            if (handle != null)
+            {
+                closeQuietly(handle);
+            }
             handle = contentNode.getFileContent();
         }
         
