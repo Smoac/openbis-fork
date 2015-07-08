@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver;
 
 import java.io.File;
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -347,7 +348,8 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
         {
             return;
         }
-        MultiDataSetArchivingFinalizer task = new MultiDataSetArchivingFinalizer(cleanerProperties, SystemTimeProvider.SYSTEM_TIME_PROVIDER);
+        ITimeAndWaitingProvider timeProvider = SystemTimeProvider.SYSTEM_TIME_PROVIDER;
+        MultiDataSetArchivingFinalizer task = new MultiDataSetArchivingFinalizer(cleanerProperties, timeProvider);
         String userId = archiverContext.getUserId();
         String userEmail = archiverContext.getUserEmail();
         String userSessionToken = archiverContext.getUserSessionToken();
@@ -358,6 +360,8 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
         parameterBindings.put(MultiDataSetArchivingFinalizer.REPLICATED_FILE_PATH_KEY, 
                 operations.getReplicatedArchiveFilePath(containerPath));
         parameterBindings.put(MultiDataSetArchivingFinalizer.FINALIZER_POLLING_TIME_KEY, Long.toString(finalizerPollingTime));
+        SimpleDateFormat dateFormat = new SimpleDateFormat(MultiDataSetArchivingFinalizer.TIME_STAMP_FORMAT);
+        parameterBindings.put(MultiDataSetArchivingFinalizer.START_TIME_KEY, dateFormat.format(timeProvider.getTimeInMilliseconds()));
         parameterBindings.put(MultiDataSetArchivingFinalizer.FINALIZER_MAX_WAITING_TIME_KEY, Long.toString(finalizerMaxWaitingTime));
         DataSetArchivingStatus status = removeFromDataStore ? DataSetArchivingStatus.ARCHIVED : DataSetArchivingStatus.AVAILABLE;
         parameterBindings.put(MultiDataSetArchivingFinalizer.STATUS_KEY, status.toString());

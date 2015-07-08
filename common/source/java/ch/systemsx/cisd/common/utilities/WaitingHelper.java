@@ -77,13 +77,24 @@ public class WaitingHelper
      */
     public boolean waitOn(IWaitingCondition condition)
     {
-        long t0 = provider.getTimeInMilliseconds();
-        long t = t0;
-        long lastLogTime = t0;
+        return waitOn(provider.getTimeInMilliseconds(), condition);
+    }
+
+    /**
+     * Waits until specified condition is fulfilled.
+     * 
+     * @param startTime Start time. Waiting times out after startTime + timeOut.
+     *      * @return <code>true</code> if waiting stops because condition has been fulfilled. 
+     *      If this isn't the case after the specified time out <code>false</code> will be returned.
+     */
+    public boolean waitOn(long startTime, IWaitingCondition condition)
+    {
+        long t = startTime;
+        long lastLogTime = startTime;
         long logInterval = MINIMUM_LOG_INTERVAL;
-        while (t < t0 + timeOut)
+        while (t < startTime + timeOut)
         {
-            long duration = t - t0;
+            long duration = t - startTime;
             String renderedDuration = DateTimeUtils.renderDuration(duration);
             if (condition.conditionFulfilled())
             {

@@ -17,6 +17,8 @@
 package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver;
 
 import java.io.File;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -60,7 +62,10 @@ class MultiDataSetArchivingFinalizer implements IProcessingPluginTask
     public static final String REPLICATED_FILE_PATH_KEY = "replicated-file-path";
     public static final String FINALIZER_POLLING_TIME_KEY = "finalizer-polling-time";
     public static final String FINALIZER_MAX_WAITING_TIME_KEY = "finalizer-max-waiting-time";
+    public static final String START_TIME_KEY = "start-time";
     public static final String STATUS_KEY = "status";
+    
+    public static final String TIME_STAMP_FORMAT = "yyyy-MM-dd HH:mm:ss";
     
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             MultiDataSetArchivingFinalizer.class);
@@ -165,7 +170,8 @@ class MultiDataSetArchivingFinalizer implements IProcessingPluginTask
         long waitingTime = parameters.getWaitingTime();
         Log4jSimpleLogger logger = new Log4jSimpleLogger(operationLog);
         WaitingHelper waitingHelper = new WaitingHelper(waitingTime, parameters.getPollingTime(), timeProvider, logger);
-        return waitingHelper.waitOn(new IWaitingCondition()
+        long startTime = parameters.getStartTime();
+        return waitingHelper.waitOn(startTime, new IWaitingCondition()
             {
                 @Override
                 public boolean conditionFulfilled()
@@ -201,9 +207,23 @@ class MultiDataSetArchivingFinalizer implements IProcessingPluginTask
         parameters.setOriginalFile(new File(getProperty(parameterBindings, ORIGINAL_FILE_PATH_KEY)));
         parameters.setReplicatedFile(new File(getProperty(parameterBindings, REPLICATED_FILE_PATH_KEY)));
         parameters.setPollingTime(getNumber(parameterBindings, FINALIZER_POLLING_TIME_KEY));
+        parameters.setStartTime(getTimestamp(parameterBindings, START_TIME_KEY));
         parameters.setWaitingTime(getNumber(parameterBindings, FINALIZER_MAX_WAITING_TIME_KEY));
         parameters.setStatus(DataSetArchivingStatus.valueOf(getProperty(parameterBindings, STATUS_KEY)));
         return parameters;
+    }
+    
+    private long getTimestamp(Map<String, String> parameterBindings, String property)
+    {
+        String value = getProperty(parameterBindings, property);
+        try
+        {
+            return new SimpleDateFormat(TIME_STAMP_FORMAT).parse(value).getTime();
+        } catch (ParseException ex)
+        {
+            throw new IllegalArgumentException("Property '" + property + "' isn't a time stamp of format " 
+                    + TIME_STAMP_FORMAT + ": " + value);
+        }
     }
     
     private long getNumber(Map<String, String> parameterBindings, String property)
@@ -234,6 +254,7 @@ class MultiDataSetArchivingFinalizer implements IProcessingPluginTask
         private File originalFile;
         private File replicatedFile;
         private long pollingTime;
+        private long startTime;
         private long waitingTime;
         private DataSetArchivingStatus status;
 
@@ -257,6 +278,16 @@ class MultiDataSetArchivingFinalizer implements IProcessingPluginTask
             return pollingTime;
         }
         
+        public long getStartTime()
+        {
+            return startTime;
+        }
+
+        public void setStartTime(long startTime)
+        {
+            this.startTime = startTime;
+        }
+
         public void setWaitingTime(long waitingTime)
         {
             this.waitingTime = waitingTime;
