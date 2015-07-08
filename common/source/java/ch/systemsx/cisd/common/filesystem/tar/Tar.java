@@ -314,21 +314,29 @@ public class Tar implements Closeable
 
     public static void main(String[] args) throws IOException
     {
-        if (args.length != 2)
+        if (args.length < 2)
         {
-            System.err.println("Tar <tarfile> <directory>");
+            System.err.println("Tar [-p] <tarfile> <directory>");
             System.exit(1);
         }
-        final File tarFile = new File(args[0]);
-        final File directory = new File(args[1]);
+        int tarFileIndex = 0;
+        int dirIndex = 1;
+        boolean parallel = args[0].equals("-p");
+        if (parallel)
+        {
+            tarFileIndex++;
+            dirIndex++;
+        }
+        final File tarFile = new File(args[tarFileIndex]);
+        final File directory = new File(args[dirIndex]);
         Tar tar = null;
         try
         {
-            MonitoredIOStreamCopier copier = new MonitoredIOStreamCopier((int) FileUtils.ONE_MB);
+            Long maxQueueSize = parallel ? 5 * FileUtils.ONE_MB : null;
+            MonitoredIOStreamCopier copier = new MonitoredIOStreamCopier((int) FileUtils.ONE_MB, maxQueueSize);
             copier.setLogger(new ConsoleLogger());
             tar = new Tar(tarFile, copier);
             tar.add(directory, directory.getPath().length());
-            tar.close();
         } finally
         {
             if (tar != null)

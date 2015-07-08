@@ -45,6 +45,8 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DataSetExistenceChecker
  */
 public class TarPackageManager extends AbstractPackageManager
 {
+    private static final String MAXIMUM_QUEUE_SIZE_IN_BYTES_KEY = "maximum-queue-size-in-bytes";
+
     private static final String BUFFER_SIZE_KEY = "buffer-size";
 
     private static final int DEFAULT_BUFFER_SIZE = (int) (10 * FileUtils.ONE_MB);
@@ -55,10 +57,14 @@ public class TarPackageManager extends AbstractPackageManager
     
     private final ISimpleLogger ioSpeedLogger;
 
+    private Long maxQueueSize;
+
     public TarPackageManager(Properties properties, ISimpleLogger ioSpeedLogger)
     {
         this.tempFolder = PropertyUtils.getDirectory(properties, RsyncArchiver.TEMP_FOLDER, null);
         bufferSize = PropertyUtils.getInt(properties, BUFFER_SIZE_KEY, DEFAULT_BUFFER_SIZE);
+        long maxSize = PropertyUtils.getLong(properties, MAXIMUM_QUEUE_SIZE_IN_BYTES_KEY, 5 * bufferSize);
+        maxQueueSize = maxSize == 0 ? null : maxSize;
         this.ioSpeedLogger = ioSpeedLogger;
     }
 
@@ -71,7 +77,7 @@ public class TarPackageManager extends AbstractPackageManager
     @Override
     protected AbstractDataSetPackager createPackager(File packageFile, DataSetExistenceChecker existenceChecker)
     {
-        return new TarDataSetPackager(packageFile, getContentProvider(), existenceChecker, bufferSize);
+        return new TarDataSetPackager(packageFile, getContentProvider(), existenceChecker, bufferSize, maxQueueSize);
     }
     
     @Override

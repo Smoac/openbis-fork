@@ -167,26 +167,23 @@ public class MonitoredIOStreamCopier
                 @Override
                 public void run()
                 {
-                    synchronized (queue)
+                    while (true)
                     {
-                        while (true)
+                        try
                         {
-                            try
+                            WritingItem writingItem = queue.take();
+                            if (writingItem.data == null)
                             {
-                                WritingItem writingItem = queue.take();
-                                if (writingItem.data == null)
-                                {
-                                    break;
-                                }
-                                writingItem.write();
-                            } catch (InterruptedException ex)
-                            {
-                                // silently ignored
-                            } catch (Throwable ex)
-                            {
-                                writingException = ex;
                                 break;
                             }
+                            writingItem.write();
+                        } catch (InterruptedException ex)
+                        {
+                            // silently ignored
+                        } catch (Throwable ex)
+                        {
+                            writingException = ex;
+                            break;
                         }
                     }
                 }
@@ -201,19 +198,16 @@ public class MonitoredIOStreamCopier
             return;
         }
         addToQueue(new WritingItem(null, null, 0));
-        synchronized (queue)
+        try
         {
-            try
-            {
-                writingThread.join();
-            } catch (InterruptedException ex)
-            {
-                // silently ignored
-            }
-            if (writingException != null)
-            {
-                throw writingException;
-            }
+            writingThread.join();
+        } catch (InterruptedException ex)
+        {
+            // silently ignored
+        }
+        if (writingException != null)
+        {
+            throw writingException;
         }
     }
     
