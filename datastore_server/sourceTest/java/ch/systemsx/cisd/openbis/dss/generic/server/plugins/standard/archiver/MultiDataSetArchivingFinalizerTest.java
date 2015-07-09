@@ -17,9 +17,11 @@
 package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver;
 
 import java.io.File;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,10 +35,13 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
+import ch.systemsx.cisd.common.action.IDelegatedAction;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.time.TimingParameters;
+import ch.systemsx.cisd.common.utilities.ITimeAndWaitingProvider;
 import ch.systemsx.cisd.common.utilities.MockTimeProvider;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.dataaccess.IMultiDataSetArchiverDBTransaction;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
@@ -71,8 +76,6 @@ public class MultiDataSetArchivingFinalizerTest extends AbstractFileSystemTestCa
     private Mockery context;
 
     private IDataStoreServiceInternal dssService;
-
-    private MultiDataSetArchivingFinalizer finalizer;
 
     private Map<String, String> parameterBindings;
 
@@ -129,28 +132,6 @@ public class MultiDataSetArchivingFinalizerTest extends AbstractFileSystemTestCa
                 parameterBindings, null, USER_ID, USER_EMAIL);
         updatedStatus = new ArrayList<DataSetCodesWithStatus>();
         cleaner = new MockCleaner();
-        finalizer = new MultiDataSetArchivingFinalizer(null, pauseFile, 10, new MockTimeProvider(START_TIME, 1000))
-            {
-                private static final long serialVersionUID = 1L;
-
-                @Override
-                protected void updateStatus(DataSetCodesWithStatus codesWithStatus)
-                {
-                    updatedStatus.add(codesWithStatus);
-                }
-
-                @Override
-                IMultiDataSetArchiverDBTransaction getTransaction()
-                {
-                    return transaction;
-                }
-
-                @Override
-                protected IMultiDataSetArchiveCleaner getCleaner()
-                {
-                    return cleaner;
-                }
-            };
         context.checking(new Expectations()
             {
                 {
@@ -181,7 +162,7 @@ public class MultiDataSetArchivingFinalizerTest extends AbstractFileSystemTestCa
         DatasetDescription ds1 = new DatasetDescriptionBuilder("ds1").getDatasetDescription();
         prepareScheduleDeletion(ds1);
 
-        ProcessingStatus status = finalizer.process(Arrays.asList(ds1), processingContext);
+        ProcessingStatus status = createFinalizer().process(Arrays.asList(ds1), processingContext);
 
         assertEquals("INFO  OPERATION.MultiDataSetArchivingFinalizer - "
                 + "Parameters: {original-file-path=" + dataFileInArchive.getPath()
@@ -206,7 +187,7 @@ public class MultiDataSetArchivingFinalizerTest extends AbstractFileSystemTestCa
         DatasetDescription ds1 = new DatasetDescriptionBuilder("ds1").getDatasetDescription();
         parameterBindings.put(MultiDataSetArchivingFinalizer.STATUS_KEY, DataSetArchivingStatus.AVAILABLE.toString());
         
-        ProcessingStatus status = finalizer.process(Arrays.asList(ds1), processingContext);
+        ProcessingStatus status = createFinalizer().process(Arrays.asList(ds1), processingContext);
         
         assertEquals("INFO  OPERATION.MultiDataSetArchivingFinalizer - "
                 + "Parameters: {original-file-path=" + dataFileInArchive.getPath()
@@ -224,9 +205,9 @@ public class MultiDataSetArchivingFinalizerTest extends AbstractFileSystemTestCa
         assertEquals("[]", cleaner.toString());
         context.assertIsSatisfied();
     }
-
+    
     @Test
-    public void testReplicationFailedForArchiving()
+    public void testReplicationFailedForArchivingWithPause() throws IOException
     {
         final DatasetDescription ds1 = new DatasetDescriptionBuilder("ds1").getDatasetDescription();
         final DatasetDescription ds2 = new DatasetDescriptionBuilder("ds2").getDatasetDescription();
@@ -240,6 +221,24 @@ public class MultiDataSetArchivingFinalizerTest extends AbstractFileSystemTestCa
                     one(openBISService).archiveDataSets(Arrays.asList(ds1.getDataSetCode(), ds2.getDataSetCode()), true);
                 }
             });
+        MockTimeProviderWithActions timeProviderWithActions = new MockTimeProviderWithActions(START_TIME, 1000);
+        timeProviderWithActions.bindAction(START_TIME + 24000, new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    createPauseFile();
+                }
+            });
+        timeProviderWithActions.bindActionAfter(START_TIME + 50000, new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    pauseFile.delete();
+                }
+            });
+        MultiDataSetArchivingFinalizer finalizer = createFinalizer(timeProviderWithActions);
 
         ProcessingStatus status = finalizer.process(Arrays.asList(ds1, ds2), processingContext);
 
@@ -252,6 +251,12 @@ public class MultiDataSetArchivingFinalizerTest extends AbstractFileSystemTestCa
                 + "'" + dataFileInArchive.getPath() + "' containing the following data sets: [ds1, ds2]\n"
                 + "INFO  OPERATION.MultiDataSetArchivingFinalizer - Condition still not fulfilled after < 1sec, "
                 + "condition: 5 bytes of 13 bytes are replicated for " + dataFileInArchive + "\n"
+                + "INFO  OPERATION.MultiDataSetArchivingFinalizer - Condition still not fulfilled after 1sec, "
+                + "condition: Pause file '" + pauseFile + "' is present. "
+                + "The following action is paused: Waiting for replicated file " + dataFilePartiallyReplicated + "\n" 
+                + "INFO  OPERATION.MultiDataSetArchivingFinalizer - Condition fulfilled after 12sec, "
+                + "condition: Pause file '" + pauseFile + "' has been removed. "
+                + "The following action continues: Waiting for replicated file " + dataFilePartiallyReplicated + "\n" 
                 + "INFO  OPERATION.MultiDataSetArchivingFinalizer - Condition still not fulfilled after 2min, "
                 + "condition: 5 bytes of 13 bytes are replicated for " + dataFileInArchive + "\n"
                 + "INFO  OPERATION.MultiDataSetArchivingFinalizer - Condition still not fulfilled after 5min, "
@@ -285,7 +290,7 @@ public class MultiDataSetArchivingFinalizerTest extends AbstractFileSystemTestCa
                 }
             });
 
-        ProcessingStatus status = finalizer.process(Arrays.asList(ds1, ds2), processingContext);
+        ProcessingStatus status = createFinalizer().process(Arrays.asList(ds1, ds2), processingContext);
         
         assertEquals("INFO  OPERATION.MultiDataSetArchivingFinalizer - "
                 + "Parameters: {original-file-path=" + dataFileInArchive.getPath()
@@ -317,9 +322,92 @@ public class MultiDataSetArchivingFinalizerTest extends AbstractFileSystemTestCa
         context.checking(new Expectations()
             {
                 {
-                    one(dataSetDeleter).scheduleDeletionOfDataSets(Arrays.asList(descriptions), TimingParameters.DEFAULT_MAXIMUM_RETRY_COUNT,
+                    one(dataSetDeleter).scheduleDeletionOfDataSets(Arrays.asList(descriptions), 
+                            TimingParameters.DEFAULT_MAXIMUM_RETRY_COUNT,
                             TimingParameters.DEFAULT_INTERVAL_TO_WAIT_AFTER_FAILURE_SECONDS);
                 }
             });
     }
+
+    private void createPauseFile()
+    {
+        try
+        {
+            pauseFile.createNewFile();
+        } catch (IOException ex)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+        }
+    }
+
+    private MultiDataSetArchivingFinalizer createFinalizer()
+    {
+        return createFinalizer(new MockTimeProvider(START_TIME, 1000));
+    }
+
+    private MultiDataSetArchivingFinalizer createFinalizer(ITimeAndWaitingProvider timeProvider)
+    {
+        return new MultiDataSetArchivingFinalizer(null, pauseFile, 10000, timeProvider)
+            {
+                private static final long serialVersionUID = 1L;
+
+                @Override
+                protected void updateStatus(DataSetCodesWithStatus codesWithStatus)
+                {
+                    updatedStatus.add(codesWithStatus);
+                }
+
+                @Override
+                IMultiDataSetArchiverDBTransaction getTransaction()
+                {
+                    return transaction;
+                }
+
+                @Override
+                protected IMultiDataSetArchiveCleaner getCleaner()
+                {
+                    return cleaner;
+                }
+            };
+    }
+    
+    private static final class MockTimeProviderWithActions extends MockTimeProvider
+    {
+        private final Map<Long, IDelegatedAction> actions = new HashMap<Long, IDelegatedAction>();
+        private long afterTimeStamp;
+        private IDelegatedAction afterAction;
+        
+        public MockTimeProviderWithActions(long startTime, long... timeSteps)
+        {
+            super(startTime, timeSteps);
+        }
+        
+        void bindAction(long timeStamp, IDelegatedAction action)
+        {
+            actions.put(timeStamp, action);
+        }
+        
+        void bindActionAfter(long timeStamp, IDelegatedAction action)
+        {
+            this.afterTimeStamp = timeStamp;
+            this.afterAction = action;
+        }
+
+        @Override
+        public long getTimeInMilliseconds()
+        {
+            long time = super.getTimeInMilliseconds();
+            IDelegatedAction action = actions.get(time);
+            if (action != null)
+            {
+                action.execute();
+            } else if (time > afterTimeStamp)
+            {
+                afterAction.execute();
+            }
+            return time;
+        }
+        
+    }
+
 }

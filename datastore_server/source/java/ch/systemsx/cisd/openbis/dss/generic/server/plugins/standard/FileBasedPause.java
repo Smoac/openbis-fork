@@ -65,7 +65,7 @@ public class FileBasedPause implements IPause
                     {
                         return "Pause file '" + pauseFile + "' has been removed."
                                 + (pausedActionDescriptionOrNull == null ? ""
-                                        : " The following action can continue: " + pausedActionDescriptionOrNull);
+                                        : " The following action continues: " + pausedActionDescriptionOrNull);
                     }
                     return "Pause file '" + pauseFile + "' is present."
                             + (pausedActionDescriptionOrNull == null ? ""
