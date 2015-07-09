@@ -109,9 +109,9 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
 
     private final File tempFolder;
     
-    private final File pauseFile;
+    protected final File pauseFile;
 
-    private final long pauseFilePollingTime;
+    protected final long pauseFilePollingTime;
     
     private transient IShareIdManager shareIdManager;
 

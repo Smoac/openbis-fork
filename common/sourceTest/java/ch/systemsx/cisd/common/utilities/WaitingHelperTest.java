@@ -65,7 +65,7 @@ public class WaitingHelperTest extends AssertJUnit
     {
         MockLogger logger = new MockLogger();
         WaitingHelper waitingHelper = new WaitingHelper(5 * DateUtils.MILLIS_PER_HOUR, 
-                3 * DateUtils.MILLIS_PER_SECOND, new MockTimeProvider(310000, 0), logger);
+                3 * DateUtils.MILLIS_PER_SECOND, new MockTimeProvider(310000, 0), logger, true);
         MockWaitingCondition condition = new MockWaitingCondition(0);
         
         boolean success = waitingHelper.waitOn(condition);
@@ -80,7 +80,7 @@ public class WaitingHelperTest extends AssertJUnit
     {
         MockLogger logger = new MockLogger();
         WaitingHelper waitingHelper = new WaitingHelper(5 * DateUtils.MILLIS_PER_HOUR, 
-                3 * DateUtils.MILLIS_PER_SECOND, new MockTimeProvider(310000, 0), logger);
+                3 * DateUtils.MILLIS_PER_SECOND, new MockTimeProvider(310000, 0), logger, true);
         MockWaitingCondition condition = new MockWaitingCondition(1000);
         
         boolean success = waitingHelper.waitOn(condition);
@@ -102,7 +102,7 @@ public class WaitingHelperTest extends AssertJUnit
     {
         MockLogger logger = new MockLogger();
         WaitingHelper waitingHelper = new WaitingHelper(5 * DateUtils.MILLIS_PER_HOUR, 
-                3 * DateUtils.MILLIS_PER_SECOND, new MockTimeProvider(310000, 0), logger);
+                3 * DateUtils.MILLIS_PER_SECOND, new MockTimeProvider(310000, 0), logger, true);
         MockWaitingCondition condition = new MockWaitingCondition(10000);
 
         boolean success = waitingHelper.waitOn(condition);

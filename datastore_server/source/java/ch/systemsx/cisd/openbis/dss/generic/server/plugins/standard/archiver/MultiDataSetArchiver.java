@@ -150,6 +150,8 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
 
     private final Properties cleanerProperties;
 
+    private final ITimeAndWaitingProvider timeProvider;
+
     public MultiDataSetArchiver(Properties properties, File storeRoot)
     {
         this(properties, storeRoot, SystemTimeProvider.SYSTEM_TIME_PROVIDER, null);
@@ -159,6 +161,7 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
             IFreeSpaceProvider freeSpaceProviderOrNull)
     {
         super(properties, storeRoot, null, null);
+        this.timeProvider = timeProvider;
         delayUnarchiving = PropertyUtils.getBoolean(properties, DELAY_UNARCHIVING, false);
         this.minimumContainerSize = PropertyUtils.getLong(properties, MINIMUM_CONTAINER_SIZE_IN_BYTES, DEFAULT_MINIMUM_CONTAINER_SIZE_IN_BYTES);
         this.maximumContainerSize = PropertyUtils.getLong(properties, MAXIMUM_CONTAINER_SIZE_IN_BYTES, DEFAULT_MAXIMUM_CONTAINER_SIZE_IN_BYTES);
@@ -348,8 +351,8 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
         {
             return;
         }
-        ITimeAndWaitingProvider timeProvider = SystemTimeProvider.SYSTEM_TIME_PROVIDER;
-        MultiDataSetArchivingFinalizer task = new MultiDataSetArchivingFinalizer(cleanerProperties, timeProvider);
+        MultiDataSetArchivingFinalizer task = new MultiDataSetArchivingFinalizer(cleanerProperties, pauseFile, 
+                pauseFilePollingTime, timeProvider);
         String userId = archiverContext.getUserId();
         String userEmail = archiverContext.getUserEmail();
         String userSessionToken = archiverContext.getUserSessionToken();

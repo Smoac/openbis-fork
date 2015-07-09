@@ -37,6 +37,7 @@ import ch.systemsx.cisd.common.time.TimingParameters;
 import ch.systemsx.cisd.common.utilities.ITimeAndWaitingProvider;
 import ch.systemsx.cisd.common.utilities.IWaitingCondition;
 import ch.systemsx.cisd.common.utilities.WaitingHelper;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.FileBasedPause;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.dataaccess.IMultiDataSetArchiverDBTransaction;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.dataaccess.MultiDataSetArchiverDBTransaction;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
@@ -70,15 +71,22 @@ class MultiDataSetArchivingFinalizer implements IProcessingPluginTask
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             MultiDataSetArchivingFinalizer.class);
 
+    private final File pauseFile;
+    
+    private final long pauseFilePollingTime;
+    
     private final ITimeAndWaitingProvider timeProvider;
 
     private final Properties cleanerProperties;
     
     private transient IMultiDataSetArchiveCleaner cleaner;
 
-    MultiDataSetArchivingFinalizer(Properties cleanerProperties, ITimeAndWaitingProvider timeProvider)
+    MultiDataSetArchivingFinalizer(Properties cleanerProperties, File pauseFile, long pauseFilePollingTime, 
+            ITimeAndWaitingProvider timeProvider)
     {
         this.cleanerProperties = cleanerProperties;
+        this.pauseFile = pauseFile;
+        this.pauseFilePollingTime = pauseFilePollingTime;
         this.timeProvider = timeProvider;
     }
     
@@ -169,8 +177,10 @@ class MultiDataSetArchivingFinalizer implements IProcessingPluginTask
         final long originalSize = originalFile.length();
         long waitingTime = parameters.getWaitingTime();
         Log4jSimpleLogger logger = new Log4jSimpleLogger(operationLog);
-        WaitingHelper waitingHelper = new WaitingHelper(waitingTime, parameters.getPollingTime(), timeProvider, logger);
+        WaitingHelper waitingHelper = new WaitingHelper(waitingTime, parameters.getPollingTime(), timeProvider, logger, true);
         long startTime = parameters.getStartTime();
+        FileBasedPause pause = new FileBasedPause(pauseFile, pauseFilePollingTime, timeProvider, logger, 
+                "Waiting for replicated file " + parameters.getReplicatedFile());
         return waitingHelper.waitOn(startTime, new IWaitingCondition()
             {
                 @Override
@@ -186,7 +196,7 @@ class MultiDataSetArchivingFinalizer implements IProcessingPluginTask
                             + " of " + FileUtilities.byteCountToDisplaySize(originalSize) 
                             + " are replicated for " + originalFile;
                 }
-            });
+            }, pause);
     }
     
     private List<String> extracCodes(List<DatasetDescription> datasets)

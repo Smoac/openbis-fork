@@ -94,6 +94,8 @@ public class MultiDataSetArchivingFinalizerTest extends AbstractFileSystemTestCa
 
     private MockCleaner cleaner;
 
+    private File pauseFile;
+
     @BeforeMethod
     public void setUpTestEnvironment()
     {
@@ -105,6 +107,7 @@ public class MultiDataSetArchivingFinalizerTest extends AbstractFileSystemTestCa
         openBISService = ServiceProviderTestWrapper.mock(context, IEncapsulatedOpenBISService.class);
         dataSetDeleter = context.mock(IDataSetDeleter.class);
         transaction = context.mock(IMultiDataSetArchiverDBTransaction.class);
+        pauseFile = new File(workingDirectory, "pause");
         File archive = new File(workingDirectory, "archive");
         archive.mkdirs();
         dataFileInArchive = new File(archive, "data.txt");
@@ -126,7 +129,7 @@ public class MultiDataSetArchivingFinalizerTest extends AbstractFileSystemTestCa
                 parameterBindings, null, USER_ID, USER_EMAIL);
         updatedStatus = new ArrayList<DataSetCodesWithStatus>();
         cleaner = new MockCleaner();
-        finalizer = new MultiDataSetArchivingFinalizer(null, new MockTimeProvider(START_TIME, 1000))
+        finalizer = new MultiDataSetArchivingFinalizer(null, pauseFile, 10, new MockTimeProvider(START_TIME, 1000))
             {
                 private static final long serialVersionUID = 1L;
 

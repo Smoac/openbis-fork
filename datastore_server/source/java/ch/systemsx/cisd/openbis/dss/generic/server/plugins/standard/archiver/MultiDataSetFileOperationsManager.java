@@ -381,7 +381,7 @@ public class MultiDataSetFileOperationsManager extends AbstractDataSetFileOperat
         final String destinationPath = new File(finalDestination.getDestination()).getAbsolutePath();
         Log4jSimpleLogger logger = new Log4jSimpleLogger(operationLog);
         WaitingHelper waitingHelper = new WaitingHelper(waitingForFreeSpaceTimeOut, waitingForFreeSpacePollingTime, 
-                timeProvider, logger);
+                timeProvider, logger, true);
         boolean conditionFulfilled = waitingHelper.waitOn(new IWaitingCondition()
             {
                 private long freeSpace;

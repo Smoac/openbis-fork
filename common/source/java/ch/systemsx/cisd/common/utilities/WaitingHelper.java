@@ -29,6 +29,18 @@ import ch.systemsx.cisd.common.time.DateTimeUtils;
  */
 public class WaitingHelper
 {
+    /**
+     * Implemention of {@link IPause} which always returns 0.
+     */
+    public static final IPause NO_PAUSE = new IPause()
+    {
+        @Override
+        public long pause()
+        {
+            return 0;
+        }
+    };
+    
     private static final long MINIMUM_LOG_INTERVAL = DateUtils.MILLIS_PER_MINUTE;
 
     private static final long MAXIMUM_LOG_INTERVAL = DateUtils.MILLIS_PER_HOUR;
@@ -48,7 +60,7 @@ public class WaitingHelper
             }
         };
 
-    private final long timeOut;
+    private final Long timeOut;
 
     private final long pollingTime;
 
@@ -56,16 +68,20 @@ public class WaitingHelper
 
     private final ISimpleLogger logger;
 
-    public WaitingHelper(long timeOut, long pollingTime, ISimpleLogger loggerOrNull)
+    private boolean logSuccess;
+
+    public WaitingHelper(Long timeOut, long pollingTime, ISimpleLogger loggerOrNull)
     {
-        this(timeOut, pollingTime, SystemTimeProvider.SYSTEM_TIME_PROVIDER, loggerOrNull);
+        this(timeOut, pollingTime, SystemTimeProvider.SYSTEM_TIME_PROVIDER, loggerOrNull, true);
     }
 
-    public WaitingHelper(long timeOut, long pollingTime, ITimeAndWaitingProvider provider, ISimpleLogger loggerOrNull)
+    public WaitingHelper(Long timeOut, long pollingTime, ITimeAndWaitingProvider provider, 
+            ISimpleLogger loggerOrNull, boolean logSuccess)
     {
         this.timeOut = timeOut;
         this.pollingTime = pollingTime;
         this.provider = provider;
+        this.logSuccess = logSuccess;
         logger = loggerOrNull != null ? loggerOrNull : DUMMY_LOGGER;
     }
 
@@ -77,46 +93,57 @@ public class WaitingHelper
      */
     public boolean waitOn(IWaitingCondition condition)
     {
-        return waitOn(provider.getTimeInMilliseconds(), condition);
+        return waitOn(provider.getTimeInMilliseconds(), condition, NO_PAUSE);
     }
 
     /**
      * Waits until specified condition is fulfilled.
      * 
-     * @param startTime Start time. Waiting times out after startTime + timeOut.
+     * @param initialStartTime Start time. Waiting times out after startTime + timeOut.
      *      * @return <code>true</code> if waiting stops because condition has been fulfilled. 
      *      If this isn't the case after the specified time out <code>false</code> will be returned.
+     * @param pause Pausing operation which is executed after each condition check.
      */
-    public boolean waitOn(long startTime, IWaitingCondition condition)
+    public boolean waitOn(long initialStartTime, IWaitingCondition condition, IPause pause)
     {
+        long startTime = initialStartTime;
         long t = provider.getTimeInMilliseconds();
         long logInterval = MINIMUM_LOG_INTERVAL;
         long lastLogTime = t - logInterval;
-        while (t < startTime + timeOut)
+        boolean previousConditionFailed = false;
+        while (timeOut == null || t < startTime + timeOut)
         {
             long duration = t - startTime;
             String renderedDuration = DateTimeUtils.renderDuration(duration);
             if (condition.conditionFulfilled())
             {
-                log(renderedDuration, condition, true);
+                log(renderedDuration, condition, previousConditionFailed, true);
                 return true;
             }
+            previousConditionFailed = true;
             if (duration == 0 || t >= lastLogTime + logInterval)
             {
-                log(renderedDuration, condition, false);
+                log(renderedDuration, condition, previousConditionFailed, false);
                 lastLogTime = t;
                 logInterval = Math.min(MAXIMUM_LOG_INTERVAL, Math.round(logInterval * FACTOR));
             }
             provider.sleep(pollingTime);
+            long pausingTime = pause.pause();
+            startTime += pausingTime;
+            lastLogTime += pausingTime;
             t = provider.getTimeInMilliseconds();
         }
         return false;
     }
 
-    private void log(String renderedDuration, IWaitingCondition condition, boolean fulfilled)
+    private void log(String renderedDuration, IWaitingCondition condition, boolean previousConditionFailed, 
+            boolean fulfilled)
     {
-        logger.log(LogLevel.INFO, "Condition " + (fulfilled ? "" : "still not ") + "fulfilled after " 
-                + renderedDuration + ", condition: " + condition);
+        if (previousConditionFailed || fulfilled == false || logSuccess)
+        {
+            logger.log(LogLevel.INFO, "Condition " + (fulfilled ? "" : "still not ") + "fulfilled after " 
+                    + renderedDuration + ", condition: " + condition);
+        }
     }
 
 }
