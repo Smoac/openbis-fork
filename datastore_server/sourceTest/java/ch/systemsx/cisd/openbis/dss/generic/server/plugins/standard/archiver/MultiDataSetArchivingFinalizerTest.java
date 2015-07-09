@@ -157,6 +157,41 @@ public class MultiDataSetArchivingFinalizerTest extends AbstractFileSystemTestCa
     }
 
     @Test
+    public void testReplicationFailDueToMissingArchiveFile()
+    {
+        final DatasetDescription ds1 = new DatasetDescriptionBuilder("ds1").getDatasetDescription();
+
+        dataFileInArchive.delete();
+        
+        context.checking(new Expectations()
+            {
+                {
+                    one(transaction).deleteContainer(dataFileInArchive.getName());
+                    one(transaction).commit();
+                    one(transaction).close();
+                    one(openBISService).archiveDataSets(Arrays.asList(ds1.getDataSetCode()), true);
+                }
+            });
+        
+        ProcessingStatus status = createFinalizer().process(Arrays.asList(ds1), processingContext);
+        
+        assertEquals("INFO  OPERATION.MultiDataSetArchivingFinalizer - "
+                + "Parameters: {original-file-path=" + dataFileInArchive.getPath()
+                + ", replicated-file-path=" + dataFileReplicated.getPath() + ", "
+                + "finalizer-polling-time=20000, start-time=" + START_TIME_AS_STRING + ", "
+                + "finalizer-max-waiting-time=300000, status=ARCHIVED}\n"
+                + "ERROR OPERATION.MultiDataSetArchivingFinalizer - Replication of "
+                + "'" + dataFileInArchive.getPath() + "' failed because the original file does not exist.",
+                logRecorder.getLogContent());
+        assertEquals("ERROR: \"Replication of '" + dataFileInArchive.getPath() + "' failed because the original file does not exist.\"", 
+                status.tryGetStatusByDataset(ds1.getDataSetCode()).toString());
+        assertEquals("[[ds1] - AVAILABLE]", updatedStatus.toString());
+        assertEquals(false, updatedStatus.get(0).isPresentInArchive());
+        assertEquals(Arrays.asList(dataFileInArchive, dataFileReplicated).toString(), cleaner.toString());
+        context.assertIsSatisfied();
+    }
+
+    @Test
     public void testReplicationForArchiving()
     {
         DatasetDescription ds1 = new DatasetDescriptionBuilder("ds1").getDatasetDescription();

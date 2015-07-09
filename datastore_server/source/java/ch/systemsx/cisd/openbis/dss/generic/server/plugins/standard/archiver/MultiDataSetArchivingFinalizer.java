@@ -98,33 +98,34 @@ class MultiDataSetArchivingFinalizer implements IProcessingPluginTask
         try
         {
             Parameters parameters = getParameters(context);
-            File originalFile = parameters.getOriginalFile();
-            operationLog.info("Waiting for replication of archive '" + originalFile 
-                    + "' containing the following data sets: " + CollectionUtils.abbreviate(dataSetCodes, 20));
-            boolean noTimeout = waitUntilReplicated(parameters);
             DataSetArchivingStatus archivingStatus = parameters.getStatus();
             boolean removeFromDataStore = archivingStatus.isAvailable() == false;
-            if (noTimeout)
+            File originalFile = parameters.getOriginalFile();
+            if (originalFile.exists() == false)
             {
-                DataSetCodesWithStatus codesWithStatus = new DataSetCodesWithStatus(dataSetCodes, archivingStatus, true);
-                IDataSetDeleter dataSetDeleter = ServiceProvider.getDataStoreService().getDataSetDeleter();
-                if (removeFromDataStore)
-                {
-                    dataSetDeleter.scheduleDeletionOfDataSets(datasets,
-                            TimingParameters.DEFAULT_MAXIMUM_RETRY_COUNT,
-                            TimingParameters.DEFAULT_INTERVAL_TO_WAIT_AFTER_FAILURE_SECONDS);
-                }
-                updateStatus(codesWithStatus);
+                String message = "Replication of '" + originalFile + "' failed because the original file does not exist.";
+                status = createStatusAndRearchive(dataSetCodes, parameters, removeFromDataStore, originalFile, message);
             } else
             {
-                String message = "Replication of '" + originalFile + "' failed.";
-                operationLog.error(message);
-                status = Status.createError(message);
-                getCleaner().delete(originalFile);
-                getCleaner().delete(parameters.getReplicatedFile());
-                removeFromMapping(originalFile);
-                updateStatus(new DataSetCodesWithStatus(dataSetCodes, DataSetArchivingStatus.AVAILABLE, false));
-                ServiceProvider.getOpenBISService().archiveDataSets(dataSetCodes, removeFromDataStore);
+                operationLog.info("Waiting for replication of archive '" + originalFile
+                        + "' containing the following data sets: " + CollectionUtils.abbreviate(dataSetCodes, 20));
+                boolean noTimeout = waitUntilReplicated(parameters);
+                if (noTimeout)
+                {
+                    DataSetCodesWithStatus codesWithStatus = new DataSetCodesWithStatus(dataSetCodes, archivingStatus, true);
+                    IDataSetDeleter dataSetDeleter = ServiceProvider.getDataStoreService().getDataSetDeleter();
+                    if (removeFromDataStore)
+                    {
+                        dataSetDeleter.scheduleDeletionOfDataSets(datasets,
+                                TimingParameters.DEFAULT_MAXIMUM_RETRY_COUNT,
+                                TimingParameters.DEFAULT_INTERVAL_TO_WAIT_AFTER_FAILURE_SECONDS);
+                    }
+                    updateStatus(codesWithStatus);
+                } else
+                {
+                    String message = "Replication of '" + originalFile + "' failed.";
+                    status = createStatusAndRearchive(dataSetCodes, parameters, removeFromDataStore, originalFile, message);
+                }
             }
         } catch (Exception ex)
         {
@@ -134,6 +135,18 @@ class MultiDataSetArchivingFinalizer implements IProcessingPluginTask
         ProcessingStatus processingStatus = new ProcessingStatus();
         processingStatus.addDatasetStatuses(datasets, status);
         return processingStatus;
+    }
+
+    private Status createStatusAndRearchive(List<String> dataSetCodes, Parameters parameters, boolean removeFromDataStore, File originalFile, String message)
+    {
+        operationLog.error(message);
+        Status status = Status.createError(message);
+        getCleaner().delete(originalFile);
+        getCleaner().delete(parameters.getReplicatedFile());
+        removeFromMapping(originalFile);
+        updateStatus(new DataSetCodesWithStatus(dataSetCodes, DataSetArchivingStatus.AVAILABLE, false));
+        ServiceProvider.getOpenBISService().archiveDataSets(dataSetCodes, removeFromDataStore);
+        return status;
     }
 
     private void removeFromMapping(File originalFile)
