@@ -18,11 +18,12 @@ package ch.ethz.sis.openbis.generic.dss.api.v3.dto.entity.datasetfile;
 
 import java.io.Serializable;
 
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.DataSetPermId;
-import ch.systemsx.cisd.base.annotation.JsonObject;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
+import ch.ethz.sis.openbis.generic.dss.api.v3.dto.id.datasetfile.DataSetFilePermId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.DataSetPermId;
+import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
  * @author Jakub Straszewski
@@ -33,36 +34,64 @@ public class DataSetFile implements Serializable
     private static final long serialVersionUID = 1L;
 
     @JsonProperty
-    private String fileName;
+    private DataSetFilePermId permId;
 
     @JsonProperty
     private DataSetPermId dataSetPermId;
 
+    @JsonProperty
+    private String path;
+
+    @JsonProperty
+    private boolean isDirectory;
+
     @JsonIgnore
-    public DataSetPermId getPermId()
+    public DataSetFilePermId getPermId()
+    {
+        return permId;
+    }
+
+    public void setPermId(DataSetFilePermId permId)
+    {
+        this.permId = permId;
+    }
+
+    @JsonIgnore
+    public DataSetPermId getDataSetPermId()
     {
         return dataSetPermId;
     }
 
-    public void setPermId(DataSetPermId permId)
+    public void setDataSetPermId(DataSetPermId dataSetPermId)
     {
-        this.dataSetPermId = permId;
+        this.dataSetPermId = dataSetPermId;
     }
 
     @JsonIgnore
-    public String getFileName()
+    public String getPath()
     {
-        return fileName;
+        return path;
     }
 
-    public void setFileName(String fileName)
+    public void setPath(String path)
     {
-        this.fileName = fileName;
+        this.path = path;
+    }
+
+    @JsonIgnore
+    public boolean isDirectory()
+    {
+        return isDirectory;
+    }
+
+    public void setDirectory(boolean isDirectory)
+    {
+        this.isDirectory = isDirectory;
     }
 
     @Override
     public String toString()
     {
-        return "DataSetFile: " + fileName + ", " + dataSetPermId;
+        return "DataSetFile: " + path + ", " + dataSetPermId;
     }
 }

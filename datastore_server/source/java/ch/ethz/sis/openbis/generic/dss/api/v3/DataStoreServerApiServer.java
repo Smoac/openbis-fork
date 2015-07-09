@@ -26,14 +26,15 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import ch.systemsx.cisd.openbis.common.api.server.AbstractApiServiceExporter;
+import ch.systemsx.cisd.openbis.common.api.server.AbstractStreamSupportingApiServiceExporter;
 
 /**
  * @author Jakub Straszewski
  */
 @Controller(value = DataStoreServerApiServer.INTERNAL_BEAN_NAME)
-public class DataStoreServerApiServer extends AbstractApiServiceExporter
+public class DataStoreServerApiServer extends AbstractStreamSupportingApiServiceExporter
 {
+
     public static final String INTERNAL_BEAN_NAME = "v3-exporter";
 
     @Resource(name = IDataStoreServerApi.INTERNAL_SERVICE_NAME)

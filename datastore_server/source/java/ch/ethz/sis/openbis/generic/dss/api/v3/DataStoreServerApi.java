@@ -15,12 +15,14 @@
  */
 package ch.ethz.sis.openbis.generic.dss.api.v3;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -31,8 +33,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import ch.ethz.sis.openbis.generic.dss.api.v3.download.DataSetFileDownloadInputStream;
+import ch.ethz.sis.openbis.generic.dss.api.v3.dto.download.DataSetFileDownloadOptions;
 import ch.ethz.sis.openbis.generic.dss.api.v3.dto.entity.datasetfile.DataSetFile;
-import ch.ethz.sis.openbis.generic.dss.api.v3.dto.search.FileSearchCriterion;
+import ch.ethz.sis.openbis.generic.dss.api.v3.dto.id.datasetfile.DataSetFilePermId;
+import ch.ethz.sis.openbis.generic.dss.api.v3.dto.id.datasetfile.IDataSetFileId;
+import ch.ethz.sis.openbis.generic.dss.api.v3.dto.search.DataSetFileSearchCriterion;
 import ch.ethz.sis.openbis.generic.shared.api.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.DataSetFetchOptions;
@@ -109,16 +115,17 @@ public class DataStoreServerApi extends AbstractDssServiceRpc<IDataStoreServerAp
         // this.freeSpaceProvider = freeSpaceProvider;
         // putService = service;
         // this.sessionWorkspaceRootDirectory = infoProvider.getSessionWorkspaceRootDir();
-        operationLog.info("[rpc] Started DSS API V1 service.");
+        operationLog.info("[rpc] Started DSS API V3 service.");
     }
 
     @Transactional(readOnly = true)
     @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Override
-    public List<DataSetFile> searchFiles(String sessionToken, FileSearchCriterion searchCriterion)
+    public List<DataSetFile> searchFiles(String sessionToken, DataSetFileSearchCriterion searchCriterion)
     {
-        List<DataSetFile> result = new ArrayList<>();
+        getOpenBISService().checkSession(sessionToken);
 
+        List<DataSetFile> result = new ArrayList<>();
         Collection<ISearchCriterion> criteria = searchCriterion.getCriteria();
 
         Set<String> resultDataSets = null;
@@ -148,18 +155,71 @@ public class DataStoreServerApi extends AbstractDssServiceRpc<IDataStoreServerAp
                 }
             }
         }
-        for (String code : resultDataSets)
+
+        if (resultDataSets != null)
         {
-            IHierarchicalContent content = getHierarchicalContentProvider(sessionToken).asContent(code);
-            for (IHierarchicalContentNode node : iterate(content.getRootNode()))
+            for (String code : resultDataSets)
             {
-                DataSetFile file = new DataSetFile();
-                file.setFileName(node.getFile().getPath());
-                file.setPermId(permIds.get(code));
-                result.add(file);
+                IHierarchicalContent content = getHierarchicalContentProvider(sessionToken).asContent(code);
+                for (IHierarchicalContentNode node : iterate(content.getRootNode()))
+                {
+                    DataSetFile file = new DataSetFile();
+                    file.setPath(node.getFile().getPath());
+                    file.setDataSetPermId(permIds.get(code));
+                    result.add(file);
+                }
             }
         }
+
         return result;
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public InputStream downloadFiles(String sessionToken, List<? extends IDataSetFileId> fileIds,
+            DataSetFileDownloadOptions downloadOptions)
+    {
+        getOpenBISService().checkSession(sessionToken);
+
+        IHierarchicalContentProvider contentProvider = getHierarchicalContentProvider(sessionToken);
+        List<IHierarchicalContentNode> contentNodes = new LinkedList<IHierarchicalContentNode>();
+
+        for (IDataSetFileId fileId : fileIds)
+        {
+            if (fileId instanceof DataSetFilePermId)
+            {
+                DataSetFilePermId filePermId = (DataSetFilePermId) fileId;
+
+                if (filePermId.getDataSetId() instanceof DataSetPermId)
+                {
+                    String dataSetCode = ((DataSetPermId) filePermId.getDataSetId()).getPermId();
+                    String filePath = filePermId.getFilePath();
+
+                    IHierarchicalContent content = contentProvider.asContent(dataSetCode);
+                    IHierarchicalContentNode node = content.getNode(filePath);
+
+                    if (node.isDirectory() && downloadOptions.isRecursive())
+                    {
+                        for (IHierarchicalContentNode child : iterate(node))
+                        {
+                            contentNodes.add(child);
+                        }
+                    } else
+                    {
+                        contentNodes.add(node);
+                    }
+
+                } else
+                {
+                    throw new IllegalArgumentException("Unsupported dataSetId: " + fileId);
+                }
+            } else
+            {
+                throw new IllegalArgumentException("Unsupported fileId: " + fileId);
+            }
+        }
+
+        return new DataSetFileDownloadInputStream(contentNodes);
     }
 
     private Iterable<IHierarchicalContentNode> iterate(final IHierarchicalContentNode node)

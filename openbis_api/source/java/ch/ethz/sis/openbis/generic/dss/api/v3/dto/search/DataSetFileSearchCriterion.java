@@ -23,7 +23,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SearchCriterionToStr
 /**
  * @author jakubs
  */
-public class FileSearchCriterion extends AbstractCompositeSearchCriterion
+public class DataSetFileSearchCriterion extends AbstractCompositeSearchCriterion
 {
     private static final long serialVersionUID = 1L;
 

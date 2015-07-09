@@ -23,21 +23,26 @@ import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
 
 /**
- * Special <code>InputStream</code> that will concatenate the contents of an array of
- * {@link IHierarchicalContentNode} instances into one stream. Each content will be preceded by one
- * long which tells what is the size of the content in bytes.
+ * Special <code>InputStream</code> that will concatenate the contents of an array of {@link IHierarchicalContentNode} instances into one stream. Each
+ * content will be preceded by one long which tells what is the size of the content in bytes.
  * 
  * @author Tomasz Pylak
  */
 public class ConcatenatedContentInputStream extends InputStream
 {
     private static final int EOF = -1;
+
+    enum StreamType
+    {
+        HEADER_SIZE, HEADER, CONTENT_SIZE, CONTENT
+    }
 
     /**
      * Wraps specified {@link File} objects into {@link FileBasedContentNode} objects.
@@ -54,23 +59,19 @@ public class ConcatenatedContentInputStream extends InputStream
 
     private int currentIndex = -1;
 
-    private boolean eof = false;
+    private boolean closed = false;
 
     private IHierarchicalContentNode[] contents;
 
-    // If true then currentStream is not the content, but a short stream
-    // which encodes one long number which describes content size.
-    // This stream is created every time before a new content is appended to the stream.
-    private boolean readingContentSize;
+    private StreamType currentStreamType;
 
     private InputStream currentStream;
 
     private final boolean ignoreNonExistingContents;
 
     /**
-     * @param ignoreNonExistingContents If <code>true</code> non-existing contents or elements on
-     *            the list which are null will be handled like empty contents. Otherwise an
-     *            exception is thrown for a non-existing content.
+     * @param ignoreNonExistingContents If <code>true</code> non-existing contents or elements on the list which are null will be handled like empty
+     *            contents. Otherwise an exception is thrown for a non-existing content.
      * @param contents InputStreams provided by these contents will be concatenated into one stream.
      */
     public ConcatenatedContentInputStream(boolean ignoreNonExistingContents,
@@ -78,13 +79,11 @@ public class ConcatenatedContentInputStream extends InputStream
     {
         this.ignoreNonExistingContents = ignoreNonExistingContents;
         this.contents = contents;
-        this.readingContentSize = false;
     }
 
     /**
-     * @param ignoreNonExistingContents If <code>true</code> non-existing contents or elements on
-     *            the list which are null will be handled like empty contents. Otherwise an
-     *            exception is thrown for a non-existing content.
+     * @param ignoreNonExistingContents If <code>true</code> non-existing contents or elements on the list which are null will be handled like empty
+     *            contents. Otherwise an exception is thrown for a non-existing content.
      * @param contents InputStreams provided by these contents will be concatenated into one stream.
      */
     public ConcatenatedContentInputStream(boolean ignoreNonExistingContents,
@@ -98,33 +97,46 @@ public class ConcatenatedContentInputStream extends InputStream
     public void close() throws IOException
     {
         closeCurrentStream();
-        eof = true;
+        closed = true;
     }
 
     @Override
     public int read() throws IOException
     {
         int result = readCurrent();
+
         // we have a loop instead of an if to ignore contents which are empty
-        while (result == EOF && !eof)
+        while (result == EOF && !closed)
         {
             closeCurrentStream();
-            if (readingContentSize)
+
+            if (StreamType.HEADER_SIZE.equals(currentStreamType))
             {
-                currentStream =
-                        createContentStream(ignoreNonExistingContents, tryGetCurrentContent());
-                readingContentSize = false;
+                currentStreamType = StreamType.HEADER;
+                currentStream = createHeaderStream(tryGetCurrentContent());
+            } else if (StreamType.HEADER.equals(currentStreamType))
+            {
+                currentStreamType = StreamType.CONTENT_SIZE;
+                currentStream = createContentSizeStream(tryGetCurrentContent());
+            } else if (StreamType.CONTENT_SIZE.equals(currentStreamType))
+            {
+                currentStreamType = StreamType.CONTENT;
+                currentStream = createContentStream(tryGetCurrentContent());
             } else
             {
                 currentIndex++;
-                if (hasCurrentContent() == false)
+
+                if (hasCurrentContent())
                 {
-                    eof = true;
+                    currentStreamType = StreamType.HEADER_SIZE;
+                    currentStream = createHeaderSizeStream(tryGetCurrentContent());
+                } else
+                {
+                    closed = true;
                     return EOF;
                 }
-                currentStream = createSizeStream(tryGetCurrentContent());
-                readingContentSize = true;
             }
+
             result = currentStream.read();
         }
         return result;
@@ -149,7 +161,7 @@ public class ConcatenatedContentInputStream extends InputStream
 
     private int readCurrent() throws IOException
     {
-        return (eof || currentStream == null) ? EOF : currentStream.read();
+        return (closed || currentStream == null) ? EOF : currentStream.read();
     }
 
     private void closeCurrentStream()
@@ -160,12 +172,36 @@ public class ConcatenatedContentInputStream extends InputStream
 
     // -------------- static helper ---------------
 
-    private static InputStream createContentStream(boolean ignoreNonExistingContents,
-            IHierarchicalContentNode currentContentOrNull)
+    private static ByteArrayInputStream createEmptyStream()
+    {
+        return new ByteArrayInputStream(new byte[0]);
+    }
+
+    protected InputStream createHeaderSizeStream(IHierarchicalContentNode contentOrNull)
+            throws IOException
+    {
+        return createEmptyStream();
+    }
+
+    protected InputStream createHeaderStream(IHierarchicalContentNode contentOrNull)
+            throws IOException
+    {
+        return createEmptyStream();
+    }
+
+    protected InputStream createContentSizeStream(IHierarchicalContentNode contentOrNull)
+            throws IOException
+    {
+        long size = (contentOrNull == null || contentOrNull.isDirectory()) ? 0 : contentOrNull.getFileLength();
+        byte[] data = longToBytes(size);
+        return new ByteArrayInputStream(data);
+    }
+
+    protected InputStream createContentStream(IHierarchicalContentNode currentContentOrNull)
     {
         InputStream stream;
         if (ignoreNonExistingContents
-                && (currentContentOrNull == null || currentContentOrNull.exists() == false))
+                && (currentContentOrNull == null || currentContentOrNull.exists() == false || currentContentOrNull.isDirectory()))
         {
             stream = createEmptyStream();
         } else
@@ -176,20 +212,7 @@ public class ConcatenatedContentInputStream extends InputStream
         return new BufferedInputStream(stream);
     }
 
-    private static ByteArrayInputStream createEmptyStream()
-    {
-        return new ByteArrayInputStream(new byte[0]);
-    }
-
-    private static InputStream createSizeStream(IHierarchicalContentNode contentOrNull)
-            throws IOException
-    {
-        long size = (contentOrNull == null) ? 0 : contentOrNull.getFileLength();
-        byte[] data = longToBytes(size);
-        return new ByteArrayInputStream(data);
-    }
-
-    private static byte[] longToBytes(long size) throws IOException
+    protected byte[] longToBytes(long size) throws IOException
     {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         DataOutputStream dos = new DataOutputStream(bos);
@@ -200,9 +223,18 @@ public class ConcatenatedContentInputStream extends InputStream
         return data;
     }
 
+    protected byte[] objectToBytes(Object obj) throws IOException
+    {
+        ByteArrayOutputStream b = new ByteArrayOutputStream();
+        ObjectOutputStream o = new ObjectOutputStream(b);
+        o.writeObject(obj);
+        o.flush();
+        o.close();
+        return b.toByteArray();
+    }
+
     /**
-     * Close a stream without throwing any exception if something went wrong. Do not attempt to
-     * close it if the argument is null.
+     * Close a stream without throwing any exception if something went wrong. Do not attempt to close it if the argument is null.
      */
     private static void close(InputStream streamOrNull)
     {
