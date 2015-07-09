@@ -89,9 +89,9 @@ public class WaitingHelper
      */
     public boolean waitOn(long startTime, IWaitingCondition condition)
     {
-        long t = startTime;
-        long lastLogTime = startTime;
+        long t = provider.getTimeInMilliseconds();
         long logInterval = MINIMUM_LOG_INTERVAL;
+        long lastLogTime = t - logInterval;
         while (t < startTime + timeOut)
         {
             long duration = t - startTime;
