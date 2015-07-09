@@ -65,7 +65,7 @@ class MultiDataSetArchivingFinalizer implements IProcessingPluginTask
     public static final String START_TIME_KEY = "start-time";
     public static final String STATUS_KEY = "status";
     
-    public static final String TIME_STAMP_FORMAT = "yyyy-MM-dd HH:mm:ss";
+    public static final String TIME_STAMP_FORMAT = "yyyyMMdd-HHmmss";
     
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             MultiDataSetArchivingFinalizer.class);

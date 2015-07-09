@@ -738,7 +738,8 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
         assertEquals(1, freeSpaceRecorder.getRecordedObjects().size());
         assertEquals("{original-file-path=" + archive.getAbsolutePath() + "/ds2-yyyyMMdd-HHmmss.tar, "
                 + "replicated-file-path=" + replicate.getAbsolutePath() + "/ds2-yyyyMMdd-HHmmss.tar, "
-                + "finalizer-polling-time=300000, finalizer-max-waiting-time=172800000, status=ARCHIVED}",
+                + "finalizer-polling-time=300000, start-time=yyyyMMdd-HHmmss, "
+                + "finalizer-max-waiting-time=172800000, status=ARCHIVED}",
                 removeTimeInformationFromContent(parametersRecorder.recordedObject().toString()));
         assertEquals("", dataSetDeleter.toString());
         assertEquals("[" + staging.getAbsolutePath() + "/ds2-yyyyMMdd-HHmmss.tar]", 
@@ -1463,7 +1464,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
     private String removeTimeInformationFromContent(String content)
     {
         return content.replaceAll("0:\\d{2}:\\d{2}\\.\\d{3}", "0:??:??.???")
-                .replaceAll("\\d{8}-\\d{6}\\.tar", "yyyyMMdd-HHmmss.tar");
+                .replaceAll("\\d{8}-\\d{6}", "yyyyMMdd-HHmmss");
     }
 
 }
