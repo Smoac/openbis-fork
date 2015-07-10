@@ -132,6 +132,7 @@ def writeExcel(myoptions, configMap, service, piName, laneDict, sampleDict, piDi
   '''
   myRows = uniqueRow()
   sequencerVocabulary = getVocabulary(service, "SEQUENCER")
+  runModeVocabulary = getVocabulary(service, "RUN_MODE_VOCABULARY")
   setOfFlowcells = set ()
   try:
     # expecting the old running folder name
@@ -234,6 +235,11 @@ def writeExcel(myoptions, configMap, service, piName, laneDict, sampleDict, piDi
       val = sequencerVocabulary[flowCellProperties[property]]
     else:
       val = flowCellProperties[property]
+    
+    if (property == "RUN_MODE"):
+        val = runModeVocabulary[flowCellProperties[property]]
+    else:
+        val = flowCellProperties[property]
 
     createRow(property, val)
   createRow()
