@@ -195,37 +195,37 @@ def setPlasmidParents(tr, definition, entity, properties):
             if propertyValue is not None and propertyDefinition[0] == "PCR_3_OLIGO" or propertyDefinition[0] == "PCR_5_OLIGO":
                 propertyValue =  unicode(propertyValue)
                 if re.match ("UC# ", propertyValue) and not re.search("/", propertyValue):
-                    parentCode = "/MATERIALS/"+ propertyValue.replace("UC# ", "US").strip(" ")
+                    parentCode = "/MATERIALS/"+ propertyValue.replace("UC# ", "UC").strip(" ")
                     currentParentsList = entity.getParentSampleIdentifiers()
                     currentParentsList.add(parentCode)
                     entity.setParentSampleIdentifiers(currentParentsList)
                 elif re.match ("UC#", propertyValue) and not re.search("/", propertyValue):
-                    parentCode= "/MATERIALS/"+ propertyValue.replace("UC#", "US").strip(" ")
+                    parentCode= "/MATERIALS/"+ propertyValue.replace("UC#", "UC").strip(" ")
                     currentParentsList = entity.getParentSampleIdentifiers()
                     currentParentsList.add(parentCode)
                     entity.setParentSampleIdentifiers(currentParentsList)
                 elif re.match ("UC #", propertyValue) and not re.search("/", propertyValue):
-                    parentCode= "/MATERIALS/"+ propertyValue.replace("UC #", "US").strip(" ")
+                    parentCode= "/MATERIALS/"+ propertyValue.replace("UC #", "UC").strip(" ")
                     currentParentsList = entity.getParentSampleIdentifiers()
                     currentParentsList.add(parentCode)
                     entity.setParentSampleIdentifiers(currentParentsList)
                 elif re.match ("UC ", propertyValue) and not re.search("/", propertyValue):
-                    parentCode="/MATERIALS/"+  propertyValue.replace("UC ", "US").strip(" ")
+                    parentCode="/MATERIALS/"+  propertyValue.replace("UC ", "UC").strip(" ")
                     currentParentsList = entity.getParentSampleIdentifiers()
                     currentParentsList.add(parentCode)
                     entity.setParentSampleIdentifiers(currentParentsList)
                 elif re.match ("UC1388cc", propertyValue):
-                    parentCode="/MATERIALS/"+  propertyValue.replace("UC1388cc", "US1388").strip(" ")
+                    parentCode="/MATERIALS/"+  propertyValue.replace("UC1388cc", "UC1388").strip(" ")
                     currentParentsList = entity.getParentSampleIdentifiers()
                     currentParentsList.add(parentCode)
                     entity.setParentSampleIdentifiers(currentParentsList) 
                 elif re.match ("UC2396c", propertyValue):
-                    parentCode="/MATERIALS/"+  propertyValue.replace("UC2396c", "US2396").strip(" ")
+                    parentCode="/MATERIALS/"+  propertyValue.replace("UC2396c", "UC2396").strip(" ")
                     currentParentsList = entity.getParentSampleIdentifiers()
                     currentParentsList.add(parentCode)
                     entity.setParentSampleIdentifiers(currentParentsList)                                               
                 elif re.match ("UC", propertyValue) and not re.search("/", propertyValue):
-                    parentCode= "/MATERIALS/"+ propertyValue.replace("UC", "US").strip(" ")
+                    parentCode= "/MATERIALS/"+ propertyValue.strip(" ")
                     currentParentsList = entity.getParentSampleIdentifiers()
                     currentParentsList.add(parentCode)
                     entity.setParentSampleIdentifiers(currentParentsList)
@@ -234,6 +234,13 @@ def setPlasmidParents(tr, definition, entity, properties):
                     currentParentsList = entity.getParentSampleIdentifiers()
                     currentParentsList.add(parentCode)
                     entity.setParentSampleIdentifiers(currentParentsList)
+                elif re.match ("Ch", propertyValue):
+                    parentCode="/MATERIALS/"+ propertyValue.replace("Ch", "CH").strip(" ")
+                    currentParentsList = entity.getParentSampleIdentifiers()
+                    currentParentsList.add(parentCode)
+                    entity.setParentSampleIdentifiers(currentParentsList)
+                else:
+                    print  "PARENT NOT SET: ", propertyDefinition[0] , propertyValue
              
  
 
@@ -368,7 +375,7 @@ class FileMakerEntityAdaptor(EntityAdaptor):
 ##
 ## Customer specific logic: different sample types
 ##
-class FMPeterOpenBISDTO(OpenBISDTO):
+class FMOpenBISDTO(OpenBISDTO):
         def isSampleCacheable(self):
             return True
         
@@ -379,6 +386,7 @@ class FMPeterOpenBISDTO(OpenBISDTO):
                     sampleID2Sample[self.values["NAME"]] = self.values
                 sample = getSampleForUpdate("/MATERIALS/"+code, None, tr)
                 if sample is not None:
+                    #needs_update = db_val != prop_val
                     lastModificationData = self.values["MODIFICATION_DATE"].strip()
                     lastModificationData = str(datetime.strptime(lastModificationData, "%Y-%m-%d"))[:10]
                     lastModificationOpenBIS = sample.getPropertyValue("MODIFICATION_DATE")[:10]
@@ -389,13 +397,13 @@ class FMPeterOpenBISDTO(OpenBISDTO):
                 print "* ERROR [" + str(code) + "] - Invalid Code found for '" + self.__class__.__name__ + "'"
                 raise Exception('Invalid Code found ' + str(code))
 
-class FMPeterMultipleValuesAdaptor(FileMakerEntityAdaptor):
+class FMMultipleValuesAdaptor(FileMakerEntityAdaptor):
     selectMultipleValuesQuery = None
     entityIdFieldName = None
     entityCodeFieldName = None
     
     def addEntity(self, values):
-        self.entities.append(FMPeterEntityMultipleValuesOpenBISDTO(values, self.definition))
+        self.entities.append(FMEntityMultipleValuesOpenBISDTO(values, self.definition))
         
     def init(self):
         print "Reading MultipleValueses for: " + self.__class__.__name__
@@ -409,12 +417,12 @@ class FMPeterMultipleValuesAdaptor(FileMakerEntityAdaptor):
             if entityId is not None:
                 if entityId in sampleID2Sample:
                     entityNumber = sampleID2Sample[entityId][self.entityCodeFieldName]
+                    print "entityNumber: ", entityNumber, entityId
                     if entityNumber is not None:
                         values = {}
                         values["DISRUPTIONS"] = result.getString("disruptions")
                         values["MARKERS"] = result.getString("markers")
                         values["UNMARKED_MUTATIONS"] = result.getString("unmarked mutations")
-
                         
                         allMultipleValueses = []
                         if entityNumber in MultipleValueses:
@@ -440,7 +448,7 @@ class FMPeterMultipleValuesAdaptor(FileMakerEntityAdaptor):
         result.close()
         preparedStatement.close()
 
-class FMPeterEntityMultipleValuesOpenBISDTO(OpenBISDTO):
+class FMEntityMultipleValuesOpenBISDTO(OpenBISDTO):
     def getIdentifier(self, tr):
         return self.values["*CODE"]
     
@@ -460,8 +468,7 @@ class FMPeterEntityMultipleValuesOpenBISDTO(OpenBISDTO):
             for propertyCode, propertyValue in MultipleValues.iteritems():
                 
                 if propertyValue is not None:
-                    propertyValue =  unicode(propertyValue)
-                    print "PROPCODE", propertyCode, str(MultipleValuesNum), propertyValue
+                    propertyValue = unicode(propertyValue)
                     sample.setPropertyValue(propertyCode + "_" + str(MultipleValuesNum), propertyValue)
     
     def isMultipleValuesPressent(self, MultipleValuesSignature, tr):
@@ -471,10 +478,10 @@ class FMPeterEntityMultipleValuesOpenBISDTO(OpenBISDTO):
                 storedSignature = "";
                 for propertyCode in definitions.getRepetitionPropertyCodes():
                     propertyValue = sample.getPropertyValue(propertyCode + "_" + str(MultipleValuesNum))
-                    print propertyCode+ "_" + str(MultipleValuesNum), propertyValue
+                  
                     if propertyValue is not None:
                         propertyValue = unicode(propertyValue)
-                        storedSignature += propertyValue                       
+                        storedSignature += propertyValue 
                 if storedSignature == MultipleValuesSignature:
                     #print "Found MultipleValues " + storedSignature.encode('ascii', 'ignore')
                     return True
@@ -485,13 +492,16 @@ class FMPeterEntityMultipleValuesOpenBISDTO(OpenBISDTO):
             MultipleValuesSignature = "";
             for propertyCode in definitions.getRepetitionPropertyCodes():
                 propertyValue = MultipleValues[propertyCode]
-                   
+                #print "propertyValue = MultipleValues[propertyCode]: " ,   propertyValue
                 if propertyValue is not None:
                     propertyValue = unicode(propertyValue)
                     MultipleValuesSignature += propertyValue
             if not self.isMultipleValuesPressent(MultipleValuesSignature, tr):
                 return False
         return True
+
+
+
 ##
 ## Antibodies
 ##
@@ -507,7 +517,7 @@ class AntibodyAdaptor(FileMakerEntityAdaptor):
         self.entities.append(AntibodyOpenBISDTO(values, self.definition))
        
         
-class AntibodyOpenBISDTO(FMPeterOpenBISDTO):
+class AntibodyOpenBISDTO(FMOpenBISDTO):
     def isSampleCacheable(self):
         return False
         
@@ -534,27 +544,26 @@ class AntibodyOpenBISDTO(FMPeterOpenBISDTO):
 class StrainAdaptor(FileMakerEntityAdaptor):
     
     def init(self):
-        self.selectQuery = "SELECT * FROM \"Weis Lab Yeast Strains\""
+        self.selectQuery = "SELECT * FROM \"Weis Lab Yeast Strains\" "
         self.definition = definitions.strainDefinition
         FileMakerEntityAdaptor.init(self)
     
     def addEntity(self, values):
         self.entities.append(StrainOpenBISDTO(values, self.definition))
         
-class StrainOpenBISDTO(FMPeterOpenBISDTO):
+class StrainOpenBISDTO(FMOpenBISDTO):
     def write(self, tr):
         code = self.values["NAME"]
         if code is not None:
             sample = getSampleForUpdate("/MATERIALS/"+code,"STRAIN", tr)
             setEntityProperties(tr, self.definition, sample, self.values)
-            print setEntityProperties(tr, self.definition, sample, self.values)
-        
+ 
             
     def getIdentifier(self, tr):
         code = self.values["NAME"]
         return code
 
-class StrainMultipleValuesAdaptor(FMPeterMultipleValuesAdaptor):
+class StrainMultipleValuesAdaptor(FMMultipleValuesAdaptor):
     selectMultipleValuesQuery = "SELECT * FROM \"Weis Lab Yeast Strains\""
     entityIdFieldName = "KWY number"
     entityCodeFieldName = "NAME"
@@ -571,7 +580,7 @@ class PlasmidAdaptor(FileMakerEntityAdaptor):
     def addEntity(self, values):
         self.entities.append(PlasmidOpenBISDTO(values, self.definition))
         
-class PlasmidOpenBISDTO(FMPeterOpenBISDTO):
+class PlasmidOpenBISDTO(FMOpenBISDTO):
     def write(self, tr):
         code = "PKW" + self.values["NAME"]
         if code is not None:
@@ -599,11 +608,18 @@ class OligoAdaptor(FileMakerEntityAdaptor):
     def addEntity(self, values):
         self.entities.append(OligoOpenBISDTO(values, self.definition))
         
-class OligoOpenBISDTO(FMPeterOpenBISDTO):
+class OligoOpenBISDTO(FMOpenBISDTO):
     def write(self, tr):
         code = self.values["NAME"]
         if code is not None:
-            sample = getSampleForUpdate("/MATERIALS/"+code,"OLIGO", tr)
+            if re.search("CHCH", code): 
+                code = code.replace("CHCH", "CH")                
+                sample = getSampleForUpdate("/MATERIALS/"+code,"OLIGO", tr)
+            elif re.search("CH", code):
+                sample = getSampleForUpdate("/MATERIALS/"+code,"OLIGO", tr)                
+            elif re.search("US", code):
+                code = code.replace("US", "UC")
+                sample = getSampleForUpdate("/MATERIALS/"+code,"OLIGO", tr)
             setEntityProperties(tr, self.definition, sample, self.values);
     
     def getIdentifier(self, tr):
@@ -626,7 +642,7 @@ class ChemicalAdaptor(FileMakerEntityAdaptor):
         self.entities.append(ChemicalOpenBISDTO(values, self.definition))
        
         
-class ChemicalOpenBISDTO(FMPeterOpenBISDTO):
+class ChemicalOpenBISDTO(FMOpenBISDTO):
     def isSampleCacheable(self):
         return False
         
@@ -652,7 +668,7 @@ class EnzymeAdaptor(FileMakerEntityAdaptor):
     def addEntity(self, values):
         self.entities.append(EnzymeOpenBISDTO(values, self.definition))
         
-class EnzymeOpenBISDTO(FMPeterOpenBISDTO):
+class EnzymeOpenBISDTO(FMOpenBISDTO):
     def isSampleCacheable(self):
             return False
     
@@ -671,35 +687,21 @@ class EnzymeOpenBISDTO(FMPeterOpenBISDTO):
 
 
         
-#fmConnString = "jdbc:filemaker://127.0.0.1/"
-fmConnString = "jdbc:filemaker://fmsrv.ethz.ch/"
+fmConnString = "jdbc:filemaker://127.0.0.1/"
+#fmConnString = "jdbc:filemaker://fmsrv.ethz.ch/"
 fmUser= "admin"
 fmPass = "nucleus"
 
-# adaptors = [ AntibodyAdaptor(fmConnString, fmUser, fmPass, "MultipleValuesIT_antibodies_Peter"), 
-#              AntibodyMultipleValuesAdaptor(fmConnString, fmUser, fmPass, "MultipleValuesIT_antibody_MultipleValueses_Peter"),
-#              PlasmidAdaptor(fmConnString, fmUser, fmPass, "MultipleValuesIT_plasmids_Peter"),
-#              PlasmidMultipleValuesAdaptor(fmConnString, fmUser, fmPass, "MultipleValuesIT_plasmid_MultipleValueses_Peter"),
-#              StrainAdaptor(fmConnString, fmUser, fmPass, "MultipleValuesIT_strains_Peter"),
-#              StrainMultipleValuesAdaptor(fmConnString, fmUser, fmPass, "MultipleValuesIT_strain_MultipleValueses_Peter"),
-#              OligoAdaptor(fmConnString, fmUser, fmPass, "MultipleValuesIT_oligos_Peter"),
-#              OligoMultipleValuesAdaptor(fmConnString, fmUser, fmPass, "MultipleValuesIT_oligo_MultipleValueses_Peter"),
-#              CellAdaptor(fmConnString, fmUser, fmPass, "MultipleValuesIT_cells_Peter"),
-#              CellMultipleValuesAdaptor(fmConnString, fmUser, fmPass, "MultipleValuesIT_cell_MultipleValueses_Peter"),
-#              SirnaAdaptor(fmConnString, fmUser, fmPass, "MultipleValuesIT_Main_Menu_Peter"),
-#              ChemicalAdaptor(fmConnString, fmUser, fmPass, "MultipleValuesIT_Main_Menu_Peter"),
-#              DocumentsAdaptor(fmConnString, fmUser, fmPass, "MultipleValuesIT_documents_Peter")]
-           
 
 
 adaptors = [ 
              #EnzymeAdaptor(fmConnString, fmUser, fmPass, "Weis_Restriction_enzymes"),
-             #hemicalAdaptor(fmConnString, fmUser, fmPass, "Weis_Chemicals"),
+             #ChemicalAdaptor(fmConnString, fmUser, fmPass, "Weis_Chemicals"),
              #AntibodyAdaptor(fmConnString, fmUser, fmPass, "Weis _Antibodies"),
              #OligoAdaptor(fmConnString, fmUser, fmPass, "Weis_Oligos"),
-             #PlasmidAdaptor(fmConnString, fmUser, fmPass, "Weis_Plasmids"),
-             StrainAdaptor(fmConnString, fmUser, fmPass, "Weis_Yeast_Strains"),
-             StrainMultipleValuesAdaptor(fmConnString, fmUser, fmPass, "Weis_Yeast_Strains")
+             PlasmidAdaptor(fmConnString, fmUser, fmPass, "Weis_Plasmids"),
+             #StrainAdaptor(fmConnString, fmUser, fmPass, "Weis_Yeast_Strains_070715_Clone_for_testing2"),
+             #StrainMultipleValuesAdaptor(fmConnString, fmUser, fmPass, "Weis_Yeast_Strains_070715_Clone_for_testing2")
              ]
                        
             
