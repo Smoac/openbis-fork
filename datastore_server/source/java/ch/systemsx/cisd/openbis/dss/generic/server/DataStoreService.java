@@ -166,6 +166,11 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
             }
         }
         migrateStore();
+        ArchiverPluginFactory factory = pluginTaskInfoProvider.getArchiverPluginFactory();
+        if (factory.isArchiverConfigured())
+        {
+            factory.createInstance(storeRoot); // checks configuration of the archiver
+        }
     }
 
     @Override

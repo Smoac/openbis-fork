@@ -41,6 +41,7 @@ import ch.systemsx.cisd.common.mail.MailClientParameters;
 import ch.systemsx.cisd.common.properties.PropertyParametersUtil.SectionProperties;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.openbis.dss.generic.server.api.v2.sequencedatabases.AbstractSearchDomainService;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.ArchiverPluginFactory;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IPluginTaskInfoProvider;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.PluginTaskFactory;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.PluginTaskProvider;
@@ -210,6 +211,9 @@ public class DataStoreServiceTest extends AssertJUnit
 
                     allowing(pluginTaskParameters).getStoreRoot();
                     will(returnValue(TEST_STORE));
+                    
+                    allowing(pluginTaskParameters).getArchiverPluginFactory();
+                    will(returnValue(new ArchiverPluginFactory(new SectionProperties("archiver", new Properties()))));
                 }
             });
     }

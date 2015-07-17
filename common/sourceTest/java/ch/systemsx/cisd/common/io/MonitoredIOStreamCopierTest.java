@@ -18,12 +18,16 @@ package ch.systemsx.cisd.common.io;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.logging.MockLogger;
+import ch.systemsx.cisd.common.utilities.ITimeAndWaitingProvider;
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
 import ch.systemsx.cisd.common.utilities.MockTimeProvider;
 
@@ -46,7 +50,7 @@ public class MonitoredIOStreamCopierTest extends AssertJUnit
     public void testCopyingInThreeChunks()
     {
         MonitoredIOStreamCopier copier = new MonitoredIOStreamCopier((int) FileUtils.ONE_MB);
-        ITimeProvider timeProvider = new MockTimeProvider(123456789, 1125, 0, 2500, 0, 3400, 0, 6790,
+        ITimeProvider timeProvider = new MultiThreadMockTimeProvider(123456789, 1125, 0, 2500, 0, 3400, 0, 6790,
                 0, 700, 0, 1400);
         copier.setTimeProvider(timeProvider);
         MockLogger logger = new MockLogger();
@@ -65,7 +69,7 @@ public class MonitoredIOStreamCopierTest extends AssertJUnit
     public void testCopyingInFourChunks()
     {
         MonitoredIOStreamCopier copier = new MonitoredIOStreamCopier((int) FileUtils.ONE_MB);
-        ITimeProvider timeProvider = new MockTimeProvider(123456789, 1125, 0, 2500, 0, 3400, 0, 6790,
+        ITimeProvider timeProvider = new MultiThreadMockTimeProvider(123456789, 1125, 0, 2500, 0, 3400, 0, 6790,
                 0, 0, 0, 5700, 0, 7750, 0, 700, 0, 1400);
         copier.setTimeProvider(timeProvider);
         MockLogger logger = new MockLogger();
@@ -85,7 +89,7 @@ public class MonitoredIOStreamCopierTest extends AssertJUnit
     public void testCopyingWithChunksToSmallForMedianCalculation()
     {
         MonitoredIOStreamCopier copier = new MonitoredIOStreamCopier((int) FileUtils.ONE_MB);
-        ITimeProvider timeProvider = new MockTimeProvider(123456789, 1125, 0, 2500, 0, 0, 0, 3400, 0, 6790);
+        ITimeProvider timeProvider = new MultiThreadMockTimeProvider(123456789, 1125, 0, 2500, 0, 0, 0, 3400, 0, 6790);
         copier.setTimeProvider(timeProvider);
         MockLogger logger = new MockLogger();
         copier.setLogger(logger);
@@ -104,7 +108,7 @@ public class MonitoredIOStreamCopierTest extends AssertJUnit
     public void testCopyingWithChunksToSmallForAverageCalculation()
     {
         MonitoredIOStreamCopier copier = new MonitoredIOStreamCopier((int) FileUtils.ONE_MB);
-        ITimeProvider timeProvider = new MockTimeProvider(123456789, 1125, 0, 2500, 0, 0, 0, 3400, 0, 6790);
+        ITimeProvider timeProvider = new MultiThreadMockTimeProvider(123456789, 1125, 0, 2500, 0, 0, 0, 3400, 0, 6790);
         copier.setTimeProvider(timeProvider);
         MockLogger logger = new MockLogger();
         copier.setLogger(logger);
@@ -116,6 +120,65 @@ public class MonitoredIOStreamCopierTest extends AssertJUnit
         assertEquals("INFO: Reading statistics for input stream: 768.00 KB in 2 chunks took 5sec.\n"
                 + "INFO: Writing statistics for output stream: 768.00 KB in 2 chunks took 9sec.\n",
                 logger.toString());
+    }
+    
+    @Test
+    public void testCopyingInThreeChunksWithQueue()
+    {
+        MonitoredIOStreamCopier copier = new MonitoredIOStreamCopier((int) FileUtils.ONE_MB, 5 * FileUtils.ONE_MB);
+        MultiThreadMockTimeProvider timeProvider = new MultiThreadMockTimeProvider(123456789, 1125, 0, 3400, 0, 700);
+        timeProvider.defineMockTimeProviderForThread(null, 123456789, 2500, 0, 6790, 0, 1400);
+        copier.setTimeProvider(timeProvider);
+        MockLogger logger = new MockLogger();
+        copier.setLogger(logger);
+
+        copy(copier, (int) (2.5 * FileUtils.ONE_MB));
+        copier.close();
+
+        assertEquals("INFO: Reading statistics for input stream: 2.50 MB in 3 chunks took 5sec. "
+                + "Average speed: 489.95 KB/sec. Median speed: 605.70 KB/sec.\n"
+                + "INFO: Writing statistics for output stream: 2.50 MB in 3 chunks took 11sec. "
+                + "Average speed: 239.48 KB/sec. Median speed: 280.21 KB/sec.\n", logger.toString());
+    }
+
+    @Test
+    public void testCopyingInThreeChunksWithLimitedQueue()
+    {
+        MonitoredIOStreamCopier copier = new MonitoredIOStreamCopier((int) FileUtils.ONE_MB, 2 * FileUtils.ONE_MB);
+        MultiThreadMockTimeProvider timeProvider = new MultiThreadMockTimeProvider(123456789, 1125, 0, 3400, 0, 700);
+        timeProvider.defineMockTimeProviderForThread(null, 123456789, 2500, 0, 6790, 0, 1400);
+        copier.setTimeProvider(timeProvider);
+        MockLogger logger = new MockLogger();
+        copier.setLogger(logger);
+        
+        copy(copier, (int) (2.5 * FileUtils.ONE_MB));
+        copier.close();
+        
+        assertEquals("INFO: Reading statistics for input stream: 2.50 MB in 3 chunks took 5sec. "
+                + "Average speed: 489.95 KB/sec. Median speed: 605.70 KB/sec.\n"
+                + "INFO: Writing statistics for output stream: 2.50 MB in 3 chunks took 11sec. "
+                + "Average speed: 239.48 KB/sec. Median speed: 280.21 KB/sec.\n", logger.toString());
+    }
+    
+    @Test
+    public void testCopyingInThreeChunksWithLimitedQueueFails()
+    {
+        MonitoredIOStreamCopier copier = new MonitoredIOStreamCopier((int) FileUtils.ONE_MB, 2 * FileUtils.ONE_MB);
+        MultiThreadMockTimeProvider timeProvider = new MultiThreadMockTimeProvider(123456789, 1125, 0, 3400, 0, 700);
+        timeProvider.defineMockTimeProviderForThread(null, -1, 2500, 0, 6790, 0, 1400);
+        copier.setTimeProvider(timeProvider);
+        MockLogger logger = new MockLogger();
+        copier.setLogger(logger);
+        
+        try
+        {
+            copy(copier, (int) (2.5 * FileUtils.ONE_MB));
+            fail("EnvironmentFailureException expected");
+        } catch (EnvironmentFailureException ex)
+        {
+            assertEquals("writing error", ex.getCause().getMessage());
+        }
+        copier.close();
     }
     
     private void copy(MonitoredIOStreamCopier copier, int numberOfBytes)
@@ -143,6 +206,53 @@ public class MonitoredIOStreamCopierTest extends AssertJUnit
             assertEquals("data[" + i + "]", (byte) (i % 42), data[i]);
         }
         assertEquals(numberOfBytes, data.length);
+    }
+    
+    private static final class MultiThreadMockTimeProvider implements ITimeAndWaitingProvider
+    {
+        private Map<Thread, MockTimeProvider> timeProvidersByThread = new HashMap<Thread, MockTimeProvider>();
+        
+        private MockTimeProvider timeProvider;
+        
+        public MultiThreadMockTimeProvider(long startTime, long... timeSteps)
+        {
+            timeProvidersByThread.put(Thread.currentThread(), new MockTimeProvider(startTime, timeSteps));
+        }
+        
+        void defineMockTimeProviderForThread(Thread threadOrNull, long startTime, long... timeSteps)
+        {
+            MockTimeProvider mockTimeProvider = new MockTimeProvider(startTime, timeSteps);
+            if (threadOrNull == null)
+            {
+                timeProvider = mockTimeProvider;
+            } else
+            {
+                timeProvidersByThread.put(threadOrNull, mockTimeProvider);
+            }
+        }
+
+        @Override
+        public long getTimeInMilliseconds()
+        {
+            long timeInMilliseconds = getTimeProvider().getTimeInMilliseconds();
+            if (timeInMilliseconds < 0)
+            {
+                throw new RuntimeException("writing error");
+            }
+            return timeInMilliseconds;
+        }
+        
+        @Override
+        public void sleep(long milliseconds)
+        {
+            getTimeProvider().sleep(milliseconds);
+        }
+        
+        private ITimeAndWaitingProvider getTimeProvider()
+        {
+            MockTimeProvider provider = timeProvidersByThread.get(Thread.currentThread());
+            return provider == null ? timeProvider : provider;
+        }
     }
 
 }

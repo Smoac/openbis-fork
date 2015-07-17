@@ -72,7 +72,7 @@ class DataSetCommandExecutor implements IDataSetCommandExecutor
         this.store = store;
         this.name = name;
         File queueFile = getCommandQueueFile(queueDir, name);
-        commandQueue = PersistentExtendedBlockingQueueFactory.<IDataSetCommand> createSmartPersist(queueFile);
+        commandQueue = PersistentExtendedBlockingQueueFactory.<IDataSetCommand> createSmartQueue(queueFile, true);
     }
 
     void setShareIdManager(IShareIdManager shareIdManager)

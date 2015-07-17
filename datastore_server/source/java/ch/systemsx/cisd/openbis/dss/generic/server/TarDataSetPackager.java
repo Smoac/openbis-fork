@@ -43,12 +43,12 @@ public class TarDataSetPackager extends AbstractDataSetPackager
     private final Tar tar;
 
     public TarDataSetPackager(File tarFile, IHierarchicalContentProvider contentProvider, 
-            DataSetExistenceChecker dataSetExistenceChecker, int bufferSize)
+            DataSetExistenceChecker dataSetExistenceChecker, int bufferSize, Long maxQueueSizeInBytesOrNull)
     {
         super(contentProvider, dataSetExistenceChecker);
         try
         {
-            MonitoredIOStreamCopier copier = new MonitoredIOStreamCopier(bufferSize);
+            MonitoredIOStreamCopier copier = new MonitoredIOStreamCopier(bufferSize, maxQueueSizeInBytesOrNull);
             copier.setLogger(new Log4jSimpleLogger(operationLog));
             tar = new Tar(tarFile, copier);
         } catch (FileNotFoundException e)

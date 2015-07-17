@@ -18,6 +18,8 @@ package ch.systemsx.cisd.common.utilities;
 
 import java.io.Serializable;
 
+import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
+
 /**
  * Implementation of time and waiting provider based on {@link System#currentTimeMillis()} and {@link Thread#sleep(long)}.
  *
@@ -43,12 +45,6 @@ public class SystemTimeProvider implements ITimeAndWaitingProvider, Serializable
     @Override
     public void sleep(long milliseconds)
     {
-        try
-        {
-            Thread.sleep(milliseconds);
-        } catch (InterruptedException ex)
-        {
-            // silently ignored
-        }
+        ConcurrencyUtilities.sleep(milliseconds);
     }
 }

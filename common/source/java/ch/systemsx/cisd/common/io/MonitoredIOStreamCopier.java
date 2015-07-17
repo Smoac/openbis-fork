@@ -22,7 +22,10 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.LinkedBlockingQueue;
 
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
@@ -33,6 +36,8 @@ import ch.systemsx.cisd.common.utilities.SystemTimeProvider;
 
 /**
  * Helper class which copies bytes from an {@link InputStream} to an {@link OutputStream}. 
+ * Copying is either done in a series of reading/writing a specified amount of bytes (i.e. bufferSize) 
+ * or in parallel with an ad-hoc writing thread.
  * If {@link ISimpleLogger} is injected (via {@link #setLogger(ISimpleLogger)} statistical information
  * especially reading/writing speed will be logged after copying has been finished.
  * <p>
@@ -42,7 +47,7 @@ import ch.systemsx.cisd.common.utilities.SystemTimeProvider;
  */
 public class MonitoredIOStreamCopier
 {
-    private final byte[] buffer;
+    private int bufferSize;
     
     private ISimpleLogger logger;
 
@@ -51,10 +56,37 @@ public class MonitoredIOStreamCopier
     private Statistics readStatistics;
     
     private Statistics writeStatistics;
+
+    private LinkedBlockingQueue<WritingItem> queue;
     
+    private Throwable writingException;
+
+    private Thread writingThread;
+
+    /**
+     * Creates an instance for copying in a series of reading/writing chunks of specified size. 
+     */
     public MonitoredIOStreamCopier(int bufferSize)
     {
-        buffer = new byte[bufferSize];
+        this(bufferSize, null);
+    }
+    
+    /**
+     * Creates an instance for copying in chunks of specified size in parallel using a queue of specified size. 
+     */
+    public MonitoredIOStreamCopier(int bufferSize, Long maxQueueSizeInBytes)
+    {
+        this.bufferSize = bufferSize;
+        if (maxQueueSizeInBytes != null)
+        {
+            long maxQueueSize = maxQueueSizeInBytes / bufferSize;
+            if (maxQueueSize < 1)
+            {
+                throw new ConfigurationFailureException("Maximum queue size " 
+                        + maxQueueSize + " should be larger than buffer size " + bufferSize + ".");
+            }
+            queue = new LinkedBlockingQueue<WritingItem>((int) maxQueueSize);
+        }
     }
     
     public void setLogger(ISimpleLogger logger)
@@ -62,8 +94,8 @@ public class MonitoredIOStreamCopier
         this.logger = logger;
         if (logger != null)
         {
-            readStatistics = new Statistics(buffer.length);
-            writeStatistics = new Statistics(buffer.length);
+            readStatistics = new Statistics(bufferSize);
+            writeStatistics = new Statistics(bufferSize);
         }
     }
     
@@ -77,14 +109,18 @@ public class MonitoredIOStreamCopier
         long totalNumberOfBytes = 0;
         try
         {
+            startWritingThread();
             int numberOfBytes = 0;
-            while (-1 != (numberOfBytes = readBytes(input)))
+            byte[] buffer = new byte[bufferSize];
+            while (-1 != (numberOfBytes = readBytes(input, buffer)))
             {
-                writeBytes(output, numberOfBytes);
+                writeBytes(output, numberOfBytes, buffer);
                 totalNumberOfBytes += numberOfBytes;
+                buffer = new byte[bufferSize];
             }
+            waitOnFinished();
             return totalNumberOfBytes;
-        } catch (IOException ex)
+        } catch (Throwable ex)
         {
             throw new EnvironmentFailureException("Error after " + totalNumberOfBytes 
                     + " bytes copied: " + ex, ex);
@@ -100,7 +136,7 @@ public class MonitoredIOStreamCopier
         }
     }
     
-    private int readBytes(InputStream input) throws IOException
+    private int readBytes(InputStream input, byte[] buffer) throws IOException
     {
         long t0 = startIO();
         int numberOfBytes = input.read(buffer);
@@ -108,11 +144,86 @@ public class MonitoredIOStreamCopier
         return numberOfBytes;
     }
 
-    private void writeBytes(OutputStream output, int numberOfBytes) throws IOException
+    private void writeBytes(OutputStream output, int numberOfBytes, byte[] buffer) throws Throwable
     {
-        long t0 = startIO();
-        output.write(buffer, 0, numberOfBytes);
-        recordTime(numberOfBytes, t0, writeStatistics);
+        WritingItem writingItem = new WritingItem(output, buffer, numberOfBytes);
+        if (queue == null)
+        {
+            writingItem.write();
+        } else
+        {
+            addToQueue(writingItem);
+        }
+    }
+    
+    private void startWritingThread()
+    {
+        if (queue == null)
+        {
+            return;
+        }
+        writingThread = new Thread(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    while (true)
+                    {
+                        try
+                        {
+                            WritingItem writingItem = queue.take();
+                            if (writingItem.data == null)
+                            {
+                                break;
+                            }
+                            writingItem.write();
+                        } catch (InterruptedException ex)
+                        {
+                            // silently ignored
+                        } catch (Throwable ex)
+                        {
+                            writingException = ex;
+                            break;
+                        }
+                    }
+                }
+            });
+        writingThread.start();
+    }
+    
+    private void waitOnFinished() throws Throwable
+    {
+        if (queue == null)
+        {
+            return;
+        }
+        addToQueue(new WritingItem(null, null, 0));
+        try
+        {
+            writingThread.join();
+        } catch (InterruptedException ex)
+        {
+            // silently ignored
+        }
+        if (writingException != null)
+        {
+            throw writingException;
+        }
+    }
+    
+    private void addToQueue(WritingItem writingItem) throws Throwable
+    {
+        try
+        {
+            if (writingException != null)
+            {
+                throw writingException;
+            }
+            queue.put(writingItem);
+        } catch (InterruptedException ex)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+        }
     }
     
     private long startIO()
@@ -125,6 +236,27 @@ public class MonitoredIOStreamCopier
         if (logger != null)
         {
             statistics.add(numberOfBytes, t0, timeProvider.getTimeInMilliseconds());
+        }
+    }
+    
+    private final class WritingItem
+    {
+        private OutputStream output;
+        private byte[] data;
+        private int numberOfBytes;
+        
+        public WritingItem(OutputStream output, byte[] data, int numberOfBytes)
+        {
+            this.output = output;
+            this.data = data;
+            this.numberOfBytes = numberOfBytes;
+        }
+
+        public void write() throws IOException
+        {
+            long t0 = startIO();
+            output.write(data, 0, numberOfBytes);
+            recordTime(numberOfBytes, t0, writeStatistics);
         }
     }
     

@@ -622,7 +622,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
                 + "INFO  OPERATION.TarDataSetPackager - Reading statistics for input stream: 370 bytes in 2 chunks took < 1sec.\n"
                 + "INFO  OPERATION.TarDataSetPackager - Writing statistics for output stream: 370 bytes in 2 chunks took < 1sec.\n"
                 + "INFO  OPERATION.MultiDataSetFileOperationsManager - Data sets archived: ds2-yyyyMMdd-HHmmss.tar\n"
-                + "INFO  OPERATION.MultiDataSetFileOperationsManager - Condition still not fulfilled after < 1sec, condition: "
+                + "INFO  OPERATION.MultiDataSetFileOperationsManager - Condition still not fulfilled after 1sec, condition: "
                 + "Free space: 600.00 MB, needed space: 1.00 GB\n"
                 + "INFO  OPERATION.MultiDataSetFileOperationsManager - Condition still not fulfilled after 2min, condition: "
                 + "Free space: 700.00 MB, needed space: 1.00 GB\n"
@@ -700,7 +700,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
                 + "INFO  OPERATION.TarDataSetPackager - Reading statistics for input stream: 370 bytes in 2 chunks took < 1sec.\n"
                 + "INFO  OPERATION.TarDataSetPackager - Writing statistics for output stream: 370 bytes in 2 chunks took < 1sec.\n"
                 + "INFO  OPERATION.MultiDataSetFileOperationsManager - Data sets archived: ds2-yyyyMMdd-HHmmss.tar\n"
-                + "INFO  OPERATION.MultiDataSetFileOperationsManager - Condition fulfilled after < 1sec, condition: "
+                + "INFO  OPERATION.MultiDataSetFileOperationsManager - Condition fulfilled after 1sec, condition: "
                 + "Free space: 3.00 GB, needed space: 1.00 GB\n"
                 + "INFO  OPERATION.MultiDataSetFileOperationsManager - Copy archive container from '"
                 + staging.getAbsolutePath() + "/ds2-yyyyMMdd-HHmmss.tar' to '" + archive.getAbsolutePath() + "\n"
@@ -738,7 +738,8 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
         assertEquals(1, freeSpaceRecorder.getRecordedObjects().size());
         assertEquals("{original-file-path=" + archive.getAbsolutePath() + "/ds2-yyyyMMdd-HHmmss.tar, "
                 + "replicated-file-path=" + replicate.getAbsolutePath() + "/ds2-yyyyMMdd-HHmmss.tar, "
-                + "finalizer-polling-time=300000, finalizer-max-waiting-time=172800000, status=ARCHIVED}",
+                + "finalizer-polling-time=300000, start-time=yyyyMMdd-HHmmss, "
+                + "finalizer-max-waiting-time=172800000, status=ARCHIVED}",
                 removeTimeInformationFromContent(parametersRecorder.recordedObject().toString()));
         assertEquals("", dataSetDeleter.toString());
         assertEquals("[" + staging.getAbsolutePath() + "/ds2-yyyyMMdd-HHmmss.tar]", 
@@ -780,7 +781,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
 
         assertEquals("INFO  OPERATION.AbstractDatastorePlugin - "
                 + "Archiving of the following datasets has been requested: [Dataset 'ds1', Dataset 'ds2']\n"
-                + "INFO  OPERATION.MultiDataSetFileOperationsManager - Condition fulfilled after < 1sec, condition: "
+                + "INFO  OPERATION.MultiDataSetFileOperationsManager - Condition fulfilled after 1sec, condition: "
                 + "Free space: 20.00 GB, needed space: 1.00 GB\n"
                 + "INFO  OPERATION.MultiDataSetFileOperationsManager - Archive dataset ds1 in "
                 + archive.getAbsolutePath() + "/ds1-yyyyMMdd-HHmmss.tar\n"
@@ -891,7 +892,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
                 + "INFO  OPERATION.TarDataSetPackager - Reading statistics for input stream: 360 bytes in 2 chunks took < 1sec.\n"
                 + "INFO  OPERATION.TarDataSetPackager - Writing statistics for output stream: 360 bytes in 2 chunks took < 1sec.\n"
                 + "INFO  OPERATION.MultiDataSetFileOperationsManager - Data sets archived: ds1-yyyyMMdd-HHmmss.tar\n"
-                + "INFO  OPERATION.MultiDataSetFileOperationsManager - Condition fulfilled after < 1sec, condition: "
+                + "INFO  OPERATION.MultiDataSetFileOperationsManager - Condition fulfilled after 1sec, condition: "
                 + "Free space: 20.00 GB, needed space: 1.00 GB\n"
                 + "INFO  OPERATION.MultiDataSetFileOperationsManager - Copy archive container from '"
                 + staging.getAbsolutePath() + "/ds1-yyyyMMdd-HHmmss.tar' to '" + archive.getAbsolutePath() + "\n"
@@ -1016,7 +1017,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
                 + "INFO  OPERATION.TarDataSetPackager - Reading statistics for input stream: 730 bytes in 4 chunks took < 1sec.\n"
                 + "INFO  OPERATION.TarDataSetPackager - Writing statistics for output stream: 730 bytes in 4 chunks took < 1sec.\n"
                 + "INFO  OPERATION.MultiDataSetFileOperationsManager - Data sets archived: ds1-yyyyMMdd-HHmmss.tar\n"
-                + "INFO  OPERATION.MultiDataSetFileOperationsManager - Condition fulfilled after < 1sec, condition: "
+                + "INFO  OPERATION.MultiDataSetFileOperationsManager - Condition fulfilled after 1sec, condition: "
                 + "Free space: 35.00 GB, needed space: 1.00 GB\n"
                 + "INFO  OPERATION.MultiDataSetFileOperationsManager - Copy archive container from '"
                 + staging.getAbsolutePath() + "/ds1-yyyyMMdd-HHmmss.tar' to '" + archive.getAbsolutePath() + "\n"
@@ -1095,7 +1096,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
                 + "INFO  OPERATION.TarDataSetPackager - Reading statistics for input stream: 360 bytes in 2 chunks took < 1sec.\n"
                 + "INFO  OPERATION.TarDataSetPackager - Writing statistics for output stream: 360 bytes in 2 chunks took < 1sec.\n"
                 + "INFO  OPERATION.MultiDataSetFileOperationsManager - Data sets archived: ds1-yyyyMMdd-HHmmss.tar\n"
-                + "INFO  OPERATION.MultiDataSetFileOperationsManager - Condition fulfilled after < 1sec, condition: "
+                + "INFO  OPERATION.MultiDataSetFileOperationsManager - Condition fulfilled after 1sec, condition: "
                 + "Free space: 35.00 GB, needed space: 1.00 GB\n"
                 + "INFO  OPERATION.MultiDataSetFileOperationsManager - Copy archive container from '"
                 + staging.getAbsolutePath() + "/ds1-yyyyMMdd-HHmmss.tar' to '" + archive.getAbsolutePath() + "\n"
@@ -1463,7 +1464,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
     private String removeTimeInformationFromContent(String content)
     {
         return content.replaceAll("0:\\d{2}:\\d{2}\\.\\d{3}", "0:??:??.???")
-                .replaceAll("\\d{8}-\\d{6}\\.tar", "yyyyMMdd-HHmmss.tar");
+                .replaceAll("\\d{8}-\\d{6}", "yyyyMMdd-HHmmss");
     }
 
 }
