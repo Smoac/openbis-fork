@@ -52,15 +52,40 @@ def uploadReleaseBinaryToConfluence(filename, pagetitle):
   print "Uploading {0} to confluence......".format(filename)
   confluenceServer.confluence2.addAttachment(confluenceToken, page['id'], attachment, xmlrpclib.Binary(data))
 
+def version_split(version):
+    if not version.startswith("S"):
+        raise Exception("%s Doesn't look like openbis version. It doesn't start with S" % version)
+    split = version[1:].split('.')
+    if len(split) == 1:
+        return (split[0], "0")
+    elif (len(split) == 2):
+        return split
+    else:
+        raise Exception("%s doesn't look like openbis version. It has too many dots" % version)
+
 def fetchBinaries(version):
+  major, minor = version_split(version)
   print "Fetching {0} binaries from server ...".format(version)
   os.system("mkdir -p " + DOWNLOAD_FOLDER)
   os.system("rm {0}/*.zip".format(DOWNLOAD_FOLDER))
 
   file_patterns = ['openBIS-installation-standard-technologies', 'openBIS-clients-and-APIs']
   for file_pattern in file_patterns:
-    print "Trying to download %s" % file_pattern
+    print "Trying to download %s from sprint" % file_pattern
     os.system("scp sprint:/links/groups/cisd/sprint_builds/openBIS/*-{0}*/{1}-{0}*.* {2}".format(version, file_pattern, DOWNLOAD_FOLDER))
+
+  print "trying to delete existing eln-lims artifacts"
+  os.system("rm -r eln-lims")
+  print "Checking out ELN from svn"
+  svnresult = os.system("svn export svn+ssh://svncisd.ethz.ch/repos/cisd/openbis_all/tags/sprint/S{0}.x/S{0}.{1}/plasmid/source/core-plugins/eln-lims".format(major, minor))
+  if svnresult != 0:
+    raise Exception("Fetching ELN from svn failed. Aborting")
+  
+  print "removing installations from eln"
+  os.system("rm -r eln-lims/1/as/webapps/eln-lims/html/js/config/installations")
+
+  print "Creating a tar archive"
+  os.system("tar -cvzf {1}/eln-lims-{0}.tar.gz eln-lims".format(version, DOWNLOAD_FOLDER))
 
 def printVersion(version, headerLevel):
   today = date.today().strftime("%d %B %Y")
@@ -79,44 +104,9 @@ def uploadToConfluenceAndPrintPageText(version):
   printWiki()
   processFile("Installation and Upgrade Wizard (AS+DSS)", "openBIS-installation-standard-technologies", version)
   processFile("Clients and APIs", "openBIS-clients-and-APIs", version)
+  processFile("ELN-LIMS Plugin", "eln-lims", version)
   printWiki("* [Documentation|^CISDDoc-{0}.html.zip]".format(version))
   printWiki()
-
-def uploadToConfluenceMetabolomicsAndPrintPageText(version):
-  global wikiText
-  wikiText = ""
-  printVersion(version, 2)
-  printWiki()
-  printWiki("h5. openBIS for Metabolomics")
-  printWiki()
-  processFile("Application Server (AS)", "openBIS-server", version, 1, "openBIS Metabolomics")
-  processFile("Data Store Server (DSS)", "datastore_server_metabolomics", version, 1, "openBIS Metabolomics")
-  processFile("DSS Client", "dss_client", version, 1, "openBIS Metabolomics")
-  printWiki()
-
-
-def createMetabolomicsDssDist(version):
-  # find the files we want to work with
-  datastore_server = findFile("datastore_server" + "-" + version)
-  yeastx_plugin = findFile("datastore_server_plugin-yeastx" + "-" + version)
-
-  # cd to the tmp directory so the paths remain consistent -- do this after findFile, since that assumes a particular path
-  current_dir = os.getcwd()
-  os.chdir(DOWNLOAD_FOLDER)
-
-  # unzip the yeastx plugin and set up the dir structure
-  datastore_dir =  "datastore_server/"
-  subprocess.call(["unzip", str(yeastx_plugin)])
-
-  # update the datastore_server zip
-  version_string = datastore_server[len("datastore_server"):len(datastore_server)]
-  metabolomics_zip = "datastore_server_metabolomics" + version_string
-  shutil.copy(str(datastore_server), metabolomics_zip)
-  file_to_update = datastore_dir + "lib/datastore_server_plugin-yeastx.jar"
-  subprocess.call(["zip", "-u", metabolomics_zip, file_to_update])
-
-  # return to the original dir
-  os.chdir(current_dir)
 
 # When looking for a file this method returns the last founded, this way if there is more than one version it returns the latest.
 def findFile(filePattern):
@@ -139,13 +129,4 @@ Example command: {0} S104
     print " Paste the following text on the Sprint Releases page in confluence "
     print " Link: https://wiki-bsse.ethz.ch/display/bis/Sprint+Releases        "
     print "===================================================================="
-    print wikiText
-    
-    # Agios wants to access the yeastX version from this page
-    createMetabolomicsDssDist(version)
-    uploadToConfluenceMetabolomicsAndPrintPageText(version)
-    print "========================================================================="
-    print " Paste the following text on the openBIS Metabolomics page in confluence "
-    print " Link: https://wiki-bsse.ethz.ch/display/bis/openBIS+Metabolomics        "
-    print "========================================================================="
     print wikiText
