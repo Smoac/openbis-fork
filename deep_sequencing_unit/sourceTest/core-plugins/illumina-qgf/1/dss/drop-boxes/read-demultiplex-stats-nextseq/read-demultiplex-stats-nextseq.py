@@ -46,6 +46,8 @@ def process(transaction):
   CODE_INDEX2 = 'INDEX2'
   CODE_INDEX1LENGTH = 'INDEXREAD'
   CODE_INDEX2LENGTH = 'INDEXREAD2'
+  BARCODE_SPLIT_CHAR = "+"
+
 
   ##########################################################
   def locate(pattern, root):
@@ -287,7 +289,7 @@ def process(transaction):
     print "Connection to openBIS:"
 
     # Prepare link between XML and openBIS w.r.t to indexes in Barcode (XML):
-    indexes = s.Barcode.split("-")
+    indexes = s.Barcode.split(BARCODE_SPLIT_CHAR)
     if len(indexes) == 1: # only first part in Barcode
       index1search = indexes[0].upper()
       index2search = INDEX_EMPTY

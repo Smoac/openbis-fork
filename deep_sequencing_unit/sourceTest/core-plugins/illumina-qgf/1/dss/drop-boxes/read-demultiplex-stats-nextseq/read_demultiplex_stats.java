@@ -115,8 +115,7 @@ public final class read_demultiplex_stats
             if (event != XMLStreamConstants.START_ELEMENT || !xmlparser.getLocalName().equals("Stats"))
             {
                 errormessage =
-                        "STRANGE ERROR IN METHOD importXMLdata_and_calculateStatistics WHEN READING IN XMLFILE. => CHECK CODE AND XMLFILE-STRUCTURE!";
-                //System.out.println(errormessage);
+                        "STRANGE ERROR IN METHOD importXMLdata_and_calculateStatistics WHEN READING IN XMLFILE. => CHECK CODE AND XMLFILE-STRUCTURE! Got " + event;
                 throw new Exception(errormessage);
             }
             //System.out.println("\nStart-Element with tag " + xmlparser.getLocalName() + " with " + xmlparser.getAttributeCount() + " attributes with first attribute: " + xmlparser.getAttributeLocalName(0) +" = " + xmlparser.getAttributeValue(0));
@@ -127,7 +126,6 @@ public final class read_demultiplex_stats
             boolean doimport = true;
             while (doimport)
             {
-
                 // concerning tag Flowcell:
                 if (event == XMLStreamConstants.START_ELEMENT && xmlparser.getLocalName().equals("Flowcell"))
                 {
@@ -154,13 +152,13 @@ public final class read_demultiplex_stats
                             {
                                 case XMLStreamConstants.END_ELEMENT:
                                     skip -= 1;
-                                    break; // break-command after each case is necessary in switch-statement
+                                    break;
                                 case XMLStreamConstants.START_ELEMENT:
                                     skip += 1;
-                                    break; // break-command after each case is necessary in switch-statement
+                                    break;
                                 default:
                                     skip += 0; // text elements, spaces, ...
-                                    break; // break-command after each case is necessary in switch-statement
+                                    break;
                             }
                         }
                     } else
@@ -337,14 +335,9 @@ public final class read_demultiplex_stats
                 } else
                 {
                     doimport = false;
-                    errormessage =
-                            "STRANGE ERROR IN METHOD importXMLdata_and_calculateStatistics WHEN READING IN XMLFILE. => CHECK CODE AND XMLFILE-STRUCTURE!";
-                    //System.out.println(errormessage);
-                    throw new Exception(errormessage);
+                    System.out.println("Warning: Different XML structure than expectet. Got event: " + event);
                 }
-
             }
-
             xmlparser.close();
 
         } catch (FileNotFoundException | XMLStreamException e)
