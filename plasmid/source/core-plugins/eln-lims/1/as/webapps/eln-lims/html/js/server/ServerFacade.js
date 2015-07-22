@@ -258,16 +258,38 @@ function ServerFacade(openbisServer) {
 	
 
 	//
-	// Others
-	//
-	this.generateCode = function(sampleType, action) {
+	//OLD METHOD
+	/*this.generateCode = function(sampleType, action) {
 		this.openbisServer.countNumberOfSamplesForType(sampleType.code, function(response) {
 			if(response.result || response.result === 0) {
 				action(sampleType.codePrefix + (parseInt(response.result) + 1));
 			}
 		});
-	}
+	}*/
 	
+	this.generateCode = function(sampleType, action) {
+		var prefix = sampleType.codePrefix;
+		this.searchWithType(
+				sampleType.code,
+				"",
+				function(results) {
+					if(results.length == 0)
+						nextcode = prefix + "1";
+					else{
+						var codes = [];
+						for(var idx=0; idx<results.length; idx++){
+							numeric_code = results[idx].code.substring(3); //assuming all codes are 3 letters long!!!!
+							numeric_code = numeric_code.replace("_","");
+							codes[idx] = parseInt(numeric_code); 
+						}
+						codes.sort();
+						var nextid = codes[codes.length-1] + 1;
+						var nextcode = prefix + nextid;
+					}
+					action(nextcode);
+				});
+	}
+		
 	this.deleteDataSets = function(datasetIds, reason, callback) {
 		this.openbisServer.deleteDataSets(datasetIds, reason, "TRASH", callback);
 	}
