@@ -408,7 +408,7 @@ def get_reverse_complement(sequence):
     return reverse_complement
 
 
-def createMiSeqSampleSheet(parentDict, flowCellDict, configMap, index1Vocabulary, index2Vocabulary,
+def createSampleSheet(parentDict, flowCellDict, configMap, index1Vocabulary, index2Vocabulary,
                             flowCellName, logger, myoptions):
   '''
   '''
@@ -514,7 +514,8 @@ def createMiSeqSampleSheet(parentDict, flowCellDict, configMap, index1Vocabulary
 
     if int(flowCellDict['INDEXREAD2']) > 0:
       sampleSheetDict[lane + '_' + key] = [
-                              key + separator
+                            lane + separator
+                            + key + separator
                             + key + '_' + sanitizeString(parentDict[key][configMap['externalSampleName']]) + '_' + index1[0:len_index1] + '_' + index2[0:len_index2] + separator
                             + separator
                             + separator
@@ -526,7 +527,8 @@ def createMiSeqSampleSheet(parentDict, flowCellDict, configMap, index1Vocabulary
                             ]
     else:
             sampleSheetDict[lane + '_' + key] = [
-                              key + separator
+                              lane + separator
+                            + key + separator
                             + key + '_' + sanitizeString(parentDict[key][configMap['externalSampleName']]) + '_' + index1[0:len_index1] + separator
                             + separator
                             + separator
@@ -581,7 +583,7 @@ def main ():
 
   index1Vocabulary = getVocabulary(configMap['index1Name'], service)
   index2Vocabulary = getVocabulary(configMap['index2Name'], service)
-  SampleSheetFile = createMiSeqSampleSheet(parentDict, flowCellDict, configMap,
+  SampleSheetFile = createSampleSheet(parentDict, flowCellDict, configMap,
                              index1Vocabulary, index2Vocabulary, flowCellName, logger, myoptions)
 
   if myoptions.maillist:
