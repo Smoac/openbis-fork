@@ -76,6 +76,13 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
     public Object[][] recoveryTestCasesArray()
     {
         LinkedList<RecoveryTestCase> testCases = recoveryTestCases();
+        LinkedList<RecoveryTestCase> testCasesWithJython27 = recoveryTestCases();
+        for (RecoveryTestCase recoveryTestCase : testCasesWithJython27)
+        {
+            recoveryTestCase.overrideProperties.put("jython-version", "2.7");
+            recoveryTestCase.title += " @ jython 2.7";
+        }
+        testCases.addAll(testCasesWithJython27);
 
         // result value
         Object[][] resultsList = new Object[testCases.size()][];

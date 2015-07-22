@@ -293,8 +293,7 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
     }
 
     /**
-     * adds an extension to the Jython Path, so that all libraries in it will be visible to the
-     * Jython environment.
+     * adds an extension to the Jython Path, so that all libraries in it will be visible to the Jython environment.
      */
     protected void extendJythonLibPath(String pathExtension)
     {
@@ -545,7 +544,7 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
     }
 
     private static final String[] registrationDirectories =
-        { "1", "pre-commit", "staging", "pre-staging" };
+    { "1", "pre-commit", "staging", "pre-staging" };
 
     /**
      * Simulate the file system becoming unavailable
