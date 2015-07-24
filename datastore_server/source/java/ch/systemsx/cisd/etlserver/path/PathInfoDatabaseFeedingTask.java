@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.etlserver.path;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
@@ -172,7 +173,9 @@ public class PathInfoDatabaseFeedingTask implements IMaintenanceTask, IPostRegis
     {
         return PropertyUtils.getBoolean(properties, COMPUTE_CHECKSUM_KEY, false);
     }
-    
+
+    private static final int waitingPeriodForStorageConfirmationInSeconds = 3600;
+
     @Override
     public void execute()
     {
@@ -204,8 +207,61 @@ public class PathInfoDatabaseFeedingTask implements IMaintenanceTask, IPostRegis
         } while (dataSets.size() >= chunkSize && stopCondition.fulfilled() == false);
         operationLog.info("Feeding finished.");
     }
-    
+
     private List<SimpleDataSetInformationDTO> getNextChunk()
+    {
+        long start = System.currentTimeMillis();
+        // we will wait periods of time defined by exponential sequence with 1.5 exponent up to 1h
+        float waitingTime = 1000;
+        while (System.currentTimeMillis() - start < waitingPeriodForStorageConfirmationInSeconds * 1000)
+        {
+            List<SimpleDataSetInformationDTO> dataSets = listDataSets();
+            SimpleDataSetInformationDTO nonConfirmedData = findFirstNonConfirmedDataSet(dataSets);
+            if (nonConfirmedData == null)
+            {
+                return dataSets;
+            }
+
+            long waitingTimeInMiliseconds = (long) waitingTime;
+            operationLog.info("One of the data sets selected for path-info feeding doesn't yet have storage confirmed "
+                    + nonConfirmedData.getDataSetCode() + ". Will wait for "
+                    + (waitingTimeInMiliseconds / 1000) + " seconds");
+            try
+            {
+                Thread.sleep(waitingTimeInMiliseconds);
+            } catch (InterruptedException ex)
+            {
+            }
+            waitingTime *= 1.5;
+        }
+        List<SimpleDataSetInformationDTO> dataSets = listDataSets();
+        List<SimpleDataSetInformationDTO> result = new ArrayList<SimpleDataSetInformationDTO>();
+        for (SimpleDataSetInformationDTO dataSet : dataSets)
+        {
+            if (dataSet.isStorageConfirmed())
+            {
+                result.add(dataSet);
+            } else
+            {
+                operationLog.error("Gave up on feeding path-info db for data set " + dataSet.getDataSetCode() + "");
+            }
+        }
+        return result;
+    }
+
+    private SimpleDataSetInformationDTO findFirstNonConfirmedDataSet(List<SimpleDataSetInformationDTO> dataSets)
+    {
+        for (SimpleDataSetInformationDTO dataSet : dataSets)
+        {
+            if (dataSet.isStorageConfirmed() == false)
+            {
+                return dataSet;
+            }
+        }
+        return null;
+    }
+
+    private List<SimpleDataSetInformationDTO> listDataSets()
     {
         Date timestamp = dao.getRegistrationTimestampOfLastFeedingEvent();
         if (timestamp == null)
