@@ -71,6 +71,7 @@ public class SimpleDataSetHelper
         result.setPresentInArchive(data.isPresentInArchive());
         result.setDataSetSize(data.getSize());
         result.setSpaceCode(data.getSpace().getCode());
+        result.setStorageConfirmed(data.isStorageConfirmation());
         Experiment experiment = data.getExperiment();
         if (experiment != null)
         {
@@ -110,6 +111,7 @@ public class SimpleDataSetHelper
         result.setProjectCode(datasetDescription.getProjectCode());
         result.setSampleCode(datasetDescription.getSampleCode());
         result.setOrderInContainers(datasetDescription.getOrderInContainers());
+        result.setStorageConfirmed(datasetDescription.isStorageConfirmed());
         return result;
     }
 }

@@ -462,6 +462,7 @@ public class DataSetTranslator
             description.setDataSetSize(externalData.getSize());
             description.setSpeedHint(externalData.getSpeedHint());
             description.setFileFormatType(externalData.getFileFormatType().getCode());
+            description.setStorageConfirmed(externalData.isStorageConfirmation());
         }
         SamplePE sample = dataSet.tryGetSample();
         if (sample != null)

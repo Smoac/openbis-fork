@@ -70,6 +70,8 @@ public class SimpleDataSetInformationDTO implements Serializable, IDatasetLocati
 
     private String dataStoreUrl;
 
+    private boolean isStorageConfirmed;
+
     private Map<String, Integer> orderInContainers = new HashMap<String, Integer>();
 
     public void setDataStoreCode(String dataStoreCode)
@@ -273,4 +275,13 @@ public class SimpleDataSetInformationDTO implements Serializable, IDatasetLocati
         this.orderInContainers = orderInContainers;
     }
 
+    public boolean isStorageConfirmed()
+    {
+        return isStorageConfirmed;
+    }
+
+    public void setStorageConfirmed(boolean isStorageConfirmed)
+    {
+        this.isStorageConfirmed = isStorageConfirmed;
+    }
 }
