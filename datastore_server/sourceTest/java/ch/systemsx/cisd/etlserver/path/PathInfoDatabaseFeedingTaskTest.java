@@ -118,10 +118,12 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
         ds1.setDataSetCode("ds1");
         ds1.setDataSetLocation("abc1");
         ds1.setRegistrationTimestamp(new Date(78000));
+        ds1.setStorageConfirmed(true);
         final SimpleDataSetInformationDTO ds2 = new SimpleDataSetInformationDTO();
         ds2.setDataSetCode("ds2");
         ds2.setDataSetLocation("abc2");
         ds2.setRegistrationTimestamp(new Date(79000));
+        ds2.setStorageConfirmed(true);
         context.checking(new Expectations()
             {
                 {
@@ -138,7 +140,43 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
 
         createTask(12, 3, 0).execute();
     }
-    
+
+    @Test
+    public void testNonConfirmed()
+    {
+        final SimpleDataSetInformationDTO ds1NonConfirmed = new SimpleDataSetInformationDTO();
+        ds1NonConfirmed.setDataSetCode("ds1");
+        ds1NonConfirmed.setDataSetLocation("abc1");
+        ds1NonConfirmed.setRegistrationTimestamp(new Date(78000));
+        ds1NonConfirmed.setStorageConfirmed(false);
+
+        final SimpleDataSetInformationDTO ds1Confirmed = new SimpleDataSetInformationDTO();
+        ds1Confirmed.setDataSetCode("ds1");
+        ds1Confirmed.setDataSetLocation("abc1");
+        ds1Confirmed.setRegistrationTimestamp(new Date(78000));
+        ds1Confirmed.setStorageConfirmed(true);
+
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(dao).getRegistrationTimestampOfLastFeedingEvent();
+                    will(returnValue(null));
+
+                    one(service).listOldestPhysicalDataSets(12);
+                    will(returnValue(Arrays.asList(ds1NonConfirmed)));
+
+                    one(service).listOldestPhysicalDataSets(12);
+                    will(returnValue(Arrays.asList(ds1Confirmed)));
+
+                }
+            });
+
+        prepareHappyCase(ds1Confirmed);
+        prepareCreateLastFeedingEvent(ds1Confirmed.getRegistrationTimestamp());
+
+        createTask(12, 3, 0).execute();
+    }
+
     @Test
     public void testAsMaintenanceTaskWithFiniteNumberOfChunks()
     {
@@ -447,6 +485,7 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
         dataSet.setDataSetCode("DS-" + timeStamp);
         dataSet.setRegistrationTimestamp(new Date(timeStamp));
         dataSet.setDataSetLocation("abc" + timeStamp);
+        dataSet.setStorageConfirmed(true);
         return dataSet;
     }
     
