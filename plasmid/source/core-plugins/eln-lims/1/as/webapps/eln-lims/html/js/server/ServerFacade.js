@@ -278,7 +278,7 @@ function ServerFacade(openbisServer) {
 					else{
 						var codes = [];
 						for(var idx=0; idx<results.length; idx++){
-							numeric_code = results[idx].code.substring(3); //assuming all codes are 3 letters long!!!!
+							numeric_code = results[idx].code.substring(prefix.length); 
 							numeric_code = numeric_code.replace("_","");
 							codes[idx] = parseInt(numeric_code); 
 						}
