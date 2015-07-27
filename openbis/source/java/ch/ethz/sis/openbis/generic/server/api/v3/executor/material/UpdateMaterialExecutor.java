@@ -27,7 +27,6 @@ import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.AbstractUpdateEntityExecutor;
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.property.IUpdateEntityPropertyExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.tag.IUpdateTagForEntityExecutor;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material.MaterialUpdate;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.material.IMaterialId;
@@ -54,7 +53,7 @@ public class UpdateMaterialExecutor extends AbstractUpdateEntityExecutor<Materia
     private IMapMaterialByIdExecutor mapMaterialByIdExecutor;
 
     @Autowired
-    private IUpdateEntityPropertyExecutor updateEntityPropertyExecutor;
+    private IUpdateMaterialPropertyExecutor updateMaterialPropertyExecutor;
 
     @Autowired
     private IUpdateTagForEntityExecutor updateTagForEntityExecutor;
@@ -101,10 +100,17 @@ public class UpdateMaterialExecutor extends AbstractUpdateEntityExecutor<Materia
             MaterialUpdate update = entry.getKey();
             MaterialPE entity = entry.getValue();
             updateTagForEntityExecutor.update(context, entity, update.getTagIds());
-            propertyMap.put(entity, update.getProperties());
+
+            if (update.getProperties() != null && false == update.getProperties().isEmpty())
+            {
+                propertyMap.put(entity, update.getProperties());
+            }
         }
 
-        updateEntityPropertyExecutor.update(context, propertyMap);
+        if (false == propertyMap.isEmpty())
+        {
+            updateMaterialPropertyExecutor.update(context, propertyMap);
+        }
     }
 
     @Override

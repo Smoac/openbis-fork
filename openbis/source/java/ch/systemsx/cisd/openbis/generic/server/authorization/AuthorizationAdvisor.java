@@ -44,6 +44,7 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAll
 import ch.systemsx.cisd.openbis.generic.server.util.MethodInvocationUtils;
 import ch.systemsx.cisd.openbis.generic.shared.ISessionProvider;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;
+import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSessionProvider;
 
 /**
  * The <i>openBIS</i> authorization {@link Advisor}.
@@ -122,7 +123,7 @@ public final class AuthorizationAdvisor extends DefaultPointcutAdvisor
         }
 
         @SuppressWarnings(
-            { "unchecked", "rawtypes" })
+        { "unchecked", "rawtypes" })
         private final static Argument<?> toArgument(final Parameter<AuthorizationGuard> parameter,
                 final Object[] args)
         {
@@ -177,6 +178,11 @@ public final class AuthorizationAdvisor extends DefaultPointcutAdvisor
             {
                 IAuthSession session = (IAuthSession) firstObject;
                 return session;
+            }
+            if (firstObject instanceof IAuthSessionProvider)
+            {
+                IAuthSessionProvider sessionProvider = (IAuthSessionProvider) firstObject;
+                return sessionProvider.getSession();
             }
             if (firstObject instanceof String)
             {

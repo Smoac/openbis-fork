@@ -16,17 +16,10 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.property;
 
-import java.util.Map;
-
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
-import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityPropertiesHolder;
-
 /**
  * @author pkupczyk
  */
-public interface IUpdateEntityPropertyExecutor
+public interface IUpdateEntityPropertyExecutor extends IAbstractUpdateEntityPropertyExecutor
 {
-
-    public void update(IOperationContext context, Map<IEntityPropertiesHolder, Map<String, String>> entityToPropertiesMap);
 
 }

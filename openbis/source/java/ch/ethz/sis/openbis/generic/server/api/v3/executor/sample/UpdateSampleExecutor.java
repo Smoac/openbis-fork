@@ -26,9 +26,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.attachment.IUpdateAttachmentForEntityExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.AbstractUpdateEntityExecutor;
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.property.IUpdateEntityPropertyExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.tag.IUpdateTagForEntityExecutor;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleUpdate;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.ISampleId;
@@ -65,13 +63,13 @@ public class UpdateSampleExecutor extends AbstractUpdateEntityExecutor<SampleUpd
     private IUpdateSampleRelatedSamplesExecutor updateSampleRelatedSamplesExecutor;
 
     @Autowired
-    private IUpdateEntityPropertyExecutor updateEntityPropertyExecutor;
+    private IUpdateSamplePropertyExecutor updateSamplePropertyExecutor;
 
     @Autowired
     private IUpdateTagForEntityExecutor updateTagForEntityExecutor;
 
     @Autowired
-    private IUpdateAttachmentForEntityExecutor updateAttachmentForEntityExecutor;
+    private IUpdateSampleAttachmentExecutor updateSampleAttachmentExecutor;
 
     @Autowired
     private IVerifySampleExecutor verifySampleExecutor;
@@ -120,11 +118,22 @@ public class UpdateSampleExecutor extends AbstractUpdateEntityExecutor<SampleUpd
 
             RelationshipUtils.updateModificationDateAndModifier(entity, context.getSession().tryGetPerson());
             updateTagForEntityExecutor.update(context, entity, update.getTagIds());
-            updateAttachmentForEntityExecutor.update(context, entity, update.getAttachments());
-            propertyMap.put(entity, update.getProperties());
+
+            if (update.getAttachments() != null && update.getAttachments().hasActions())
+            {
+                updateSampleAttachmentExecutor.update(context, entity, update.getAttachments());
+            }
+
+            if (update.getProperties() != null && false == update.getProperties().isEmpty())
+            {
+                propertyMap.put(entity, update.getProperties());
+            }
         }
 
-        updateEntityPropertyExecutor.update(context, propertyMap);
+        if (false == propertyMap.isEmpty())
+        {
+            updateSamplePropertyExecutor.update(context, propertyMap);
+        }
     }
 
     @Override

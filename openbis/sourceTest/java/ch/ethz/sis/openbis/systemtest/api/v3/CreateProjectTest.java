@@ -182,6 +182,19 @@ public class CreateProjectTest extends AbstractTest
     }
 
     @Test
+    public void testCreateWithCapabilitySet()
+    {
+        final String sessionToken = v3api.login(TEST_GROUP_OBSERVER, PASSWORD);
+
+        final ISpaceId spaceId = new SpacePermId("TESTGROUP");
+        final ProjectCreation project = new ProjectCreation();
+        project.setCode("CAN_I_DO_THIS");
+        project.setSpaceId(spaceId);
+
+        v3api.createProjects(sessionToken, Arrays.asList(project));
+    }
+
+    @Test
     public void testCreateWithMultipleProjects()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);

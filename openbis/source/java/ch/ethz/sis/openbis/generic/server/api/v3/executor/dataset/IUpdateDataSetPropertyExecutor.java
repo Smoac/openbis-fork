@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 ETH Zuerich, Scientific IT Services
+ * Copyright 2015 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.api.v3.executor.attachment;
+package ch.ethz.sis.openbis.generic.server.api.v3.executor.dataset;
+
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.property.IAbstractUpdateEntityPropertyExecutor;
 
 /**
  * @author pkupczyk
  */
-public interface IUpdateAttachmentForEntityExecutor extends IAbstractUpdateAttachmentForEntityExecutor
+public interface IUpdateDataSetPropertyExecutor extends IAbstractUpdateEntityPropertyExecutor
 {
 
 }

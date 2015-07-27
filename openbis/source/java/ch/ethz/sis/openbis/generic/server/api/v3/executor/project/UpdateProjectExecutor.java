@@ -25,7 +25,6 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.attachment.IUpdateAttachmentForEntityExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.AbstractUpdateEntityExecutor;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.project.ProjectUpdate;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.IProjectId;
@@ -55,7 +54,7 @@ public class UpdateProjectExecutor extends AbstractUpdateEntityExecutor<ProjectU
     private IUpdateProjectSpaceExecutor updateProjectSpaceExecutor;
 
     @Autowired
-    private IUpdateAttachmentForEntityExecutor updateAttachmentForEntityExecutor;
+    private IUpdateProjectAttachmentExecutor updateProjectAttachmentExecutor;
 
     @Override
     protected IProjectId getId(ProjectUpdate update)
@@ -104,7 +103,10 @@ public class UpdateProjectExecutor extends AbstractUpdateEntityExecutor<ProjectU
                 project.setDescription(update.getDescription().getValue());
             }
 
-            updateAttachmentForEntityExecutor.update(context, project, update.getAttachments());
+            if (update.getAttachments() != null && update.getAttachments().hasActions())
+            {
+                updateProjectAttachmentExecutor.update(context, project, update.getAttachments());
+            }
         }
     }
 

@@ -14,30 +14,19 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.api.v3.context;
+package ch.ethz.sis.openbis.generic.server.api.v3.executor.property;
 
-import java.util.Collection;
+import java.util.Map;
 
-import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSessionProvider;
-import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
+import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityPropertiesHolder;
 
 /**
  * @author pkupczyk
  */
-public interface IContext extends IAuthSessionProvider
+public interface IAbstractUpdateEntityPropertyExecutor
 {
 
-    public void pushContextDescription(String description);
-
-    public String popContextDescription();
-
-    public Collection<String> getContextDescriptions();
-
-    @Override
-    public Session getSession();
-
-    public Object getAttribute(String attributeName);
-
-    public void setAttribute(String attributeName, Object attributeValue);
+    public void update(IOperationContext context, Map<IEntityPropertiesHolder, Map<String, String>> entityToPropertiesMap);
 
 }

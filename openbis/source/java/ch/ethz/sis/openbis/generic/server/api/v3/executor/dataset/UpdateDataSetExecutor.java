@@ -27,7 +27,6 @@ import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.AbstractUpdateEntityExecutor;
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.property.IUpdateEntityPropertyExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.tag.IUpdateTagForEntityExecutor;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSetUpdate;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.IDataSetId;
@@ -67,7 +66,7 @@ public class UpdateDataSetExecutor extends AbstractUpdateEntityExecutor<DataSetU
     private IUpdateDataSetRelatedDataSetsExecutor updateDataSetRelatedDataSetsExecutor;
 
     @Autowired
-    private IUpdateEntityPropertyExecutor updateEntityPropertyExecutor;
+    private IUpdateDataSetPropertyExecutor updateDataSetPropertyExecutor;
 
     @Autowired
     private IUpdateTagForEntityExecutor updateTagForEntityExecutor;
@@ -120,10 +119,17 @@ public class UpdateDataSetExecutor extends AbstractUpdateEntityExecutor<DataSetU
 
             RelationshipUtils.updateModificationDateAndModifier(entity, context.getSession().tryGetPerson());
             updateTagForEntityExecutor.update(context, entity, update.getTagIds());
-            propertyMap.put(entity, update.getProperties());
+
+            if (update.getProperties() != null && false == update.getProperties().isEmpty())
+            {
+                propertyMap.put(entity, update.getProperties());
+            }
         }
 
-        updateEntityPropertyExecutor.update(context, propertyMap);
+        if (false == propertyMap.isEmpty())
+        {
+            updateDataSetPropertyExecutor.update(context, propertyMap);
+        }
     }
 
     @Override

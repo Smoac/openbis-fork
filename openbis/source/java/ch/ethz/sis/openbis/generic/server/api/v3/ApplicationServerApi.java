@@ -258,7 +258,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     @Override
     @Transactional
     @RolesAllowed({ RoleWithHierarchy.SPACE_ADMIN, RoleWithHierarchy.SPACE_ETL_SERVER })
-    @Capability("REGISTER_SPACE")
+    @Capability("CREATE_SPACE")
     @DatabaseCreateOrDeleteModification(value = ObjectKind.SPACE)
     public List<SpacePermId> createSpaces(String sessionToken, List<SpaceCreation> creations)
     {
@@ -268,7 +268,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     @Override
     @Transactional
     @RolesAllowed({ RoleWithHierarchy.SPACE_POWER_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
-    @Capability("REGISTER_PROJECT")
+    @Capability("CREATE_PROJECT")
     @DatabaseCreateOrDeleteModification(value = ObjectKind.PROJECT)
     public List<ProjectPermId> createProjects(String sessionToken, List<ProjectCreation> creations)
     {
@@ -278,7 +278,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     @Override
     @Transactional
     @RolesAllowed({ RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
-    @Capability("WRITE_EXPERIMENT")
+    @Capability("CREATE_EXPERIMENT")
     @DatabaseCreateOrDeleteModification(value = ObjectKind.EXPERIMENT)
     public List<ExperimentPermId> createExperiments(String sessionToken,
             List<ExperimentCreation> creations)
@@ -289,7 +289,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     @Override
     @Transactional
     @RolesAllowed({ RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
-    @Capability("WRITE_SAMPLE")
+    @Capability("CREATE_SAMPLE")
     @DatabaseCreateOrDeleteModification(value = ObjectKind.SAMPLE)
     public List<SamplePermId> createSamples(String sessionToken,
             List<SampleCreation> creations)
@@ -300,7 +300,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     @Override
     @Transactional
     @RolesAllowed({ RoleWithHierarchy.INSTANCE_ADMIN, RoleWithHierarchy.SPACE_ETL_SERVER })
-    @Capability("WRITE_MATERIAL")
+    @Capability("CREATE_MATERIAL")
     @DatabaseCreateOrDeleteModification(value = ObjectKind.MATERIAL)
     public List<MaterialPermId> createMaterials(String sessionToken, List<MaterialCreation> creations)
     {
@@ -320,7 +320,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     @Override
     @Transactional
     @RolesAllowed({ RoleWithHierarchy.SPACE_POWER_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
-    @Capability("WRITE_PROJECT")
+    @Capability("UPDATE_PROJECT")
     @DatabaseUpdateModification(value = ObjectKind.PROJECT)
     public void updateProjects(String sessionToken, List<ProjectUpdate> updates)
     {
@@ -330,7 +330,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     @Override
     @Transactional
     @RolesAllowed({ RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
-    @Capability("WRITE_EXPERIMENT")
+    @Capability("UPDATE_EXPERIMENT")
     @DatabaseUpdateModification(value = ObjectKind.EXPERIMENT)
     public void updateExperiments(String sessionToken, List<ExperimentUpdate> updates)
     {
@@ -340,7 +340,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     @Override
     @Transactional
     @RolesAllowed({ RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
-    @Capability("WRITE_SAMPLE")
+    @Capability("UPDATE_SAMPLE")
     @DatabaseUpdateModification(value = ObjectKind.SAMPLE)
     public void updateSamples(String sessionToken, List<SampleUpdate> updates)
     {
@@ -360,7 +360,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     @Override
     @Transactional
     @RolesAllowed({ RoleWithHierarchy.SPACE_POWER_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
-    @Capability("WRITE_DATASET")
+    @Capability("UPDATE_DATASET")
     @DatabaseUpdateModification(value = ObjectKind.DATA_SET)
     public void updateDataSets(String sessionToken, List<DataSetUpdate> updates)
     {
@@ -510,7 +510,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     @Transactional
     @DatabaseCreateOrDeleteModification(value = { ObjectKind.DATA_SET, ObjectKind.DELETION })
     @RolesAllowed({ RoleWithHierarchy.SPACE_POWER_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
-    @Capability("DELETE_DATA_SET")
+    @Capability("DELETE_DATASET")
     public IDeletionId deleteDataSets(String sessionToken, List<? extends IDataSetId> dataSetIds, DataSetDeletionOptions deletionOptions)
     {
         return deleteDataSetExecutor.delete(sessionToken, dataSetIds, deletionOptions);
@@ -539,7 +539,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     @DatabaseCreateOrDeleteModification(value = ObjectKind.DELETION)
     @DatabaseUpdateModification(value = { ObjectKind.EXPERIMENT, ObjectKind.SAMPLE, ObjectKind.DATA_SET })
     @RolesAllowed({ RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
-    @Capability("RESTORE")
+    @Capability("REVERT_DELETION")
     public void revertDeletions(String sessionToken, List<? extends IDeletionId> deletionIds)
     {
         revertDeletionExecutor.revert(sessionToken, deletionIds);
@@ -549,7 +549,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     @Transactional
     @DatabaseCreateOrDeleteModification(value = { ObjectKind.DELETION, ObjectKind.EXPERIMENT, ObjectKind.SAMPLE, ObjectKind.DATA_SET })
     @RolesAllowed({ RoleWithHierarchy.SPACE_ADMIN, RoleWithHierarchy.SPACE_ETL_SERVER })
-    @Capability("PURGE")
+    @Capability("CONFIRM_DELETION")
     public void confirmDeletions(String sessionToken, List<? extends IDeletionId> deletionIds)
     {
         confirmDeletionExecutor.confirm(sessionToken, deletionIds);
