@@ -37,25 +37,23 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
  */
 class EntityTrackingEmailDataManager
 {
-    private final static String AFFILIATION = "AFFILIATION";
-
     private final static String CONTACT_PERSON_EMAIL = "CONTACT_PERSON_EMAIL";
 
     private final static String PRINCIPAL_INVESTIGATOR_EMAIL = "PRINCIPAL_INVESTIGATOR_EMAIL";
 
     private final static String CONTACT_DATA_MANAGER_EMAIL = "CONTACT_DATA_MANAGER_EMAIL";
 
-    private static Map<String, String> recipientsByAffiliation;
+    private static Map<String, String> recipientsBySpace;
 
     public static void initialize(final Map<String, String> recipients)
     {
-        recipientsByAffiliation = recipients;
+        recipientsBySpace = recipients;
     }
 
     public static Collection<EntityTrackingEmailData> groupByRecipient(
             TrackedEntities trackedEntities)
     {
-        assert recipientsByAffiliation != null : "recipientsByAffiliation not initialized";
+        assert recipientsBySpace != null : "recipientsBySpace not initialized";
         // <recipients email, email data>
         final Map<EMailAddress, EntityTrackingEmailData> dataByRecipient =
                 new HashMap<EMailAddress, EntityTrackingEmailData>();
@@ -68,7 +66,7 @@ class EntityTrackingEmailDataManager
     public static Collection<EntityTrackingEmailData> groupByRecipientDataSets(
             TrackedEntities trackedEntities)
     {
-        assert recipientsByAffiliation != null : "recipientsByAffiliation not initialized";
+        assert recipientsBySpace != null : "recipientsBySpace not initialized";
         // <recipients email, email data>
         final Map<EMailAddress, EntityTrackingEmailData> dataByRecipient =
                 new HashMap<EMailAddress, EntityTrackingEmailData>();
@@ -154,6 +152,20 @@ class EntityTrackingEmailDataManager
 
         for (Sample sequencingSample : sequencingSamples)
         {
+            for (Map.Entry<String, String> space : recipientsBySpace.entrySet())
+            {
+                if (sequencingSample.getSpace().getCode().equals(space.getKey()))
+                {
+                    String spaceRecipientOrNull =
+                            recipientsBySpace.get(space.getKey());
+                    if (spaceRecipientOrNull != null)
+                    {
+                        EMailAddress myEmail = new EMailAddress(spaceRecipientOrNull);
+                        recipients.add(myEmail);
+                    }
+                }
+            }
+
             for (IEntityProperty property : sequencingSample.getProperties())
             {
                 final String propertyCode = property.getPropertyType().getCode();
@@ -162,19 +174,6 @@ class EntityTrackingEmailDataManager
                 {
                     EMailAddress myEmail = new EMailAddress(propertyValue);
                     recipients.add(myEmail);
-                } else
-                {
-                    // add recipient for affiliation if his email was specified in properties
-                    if (propertyCode.equals(AFFILIATION))
-                    {
-                        String affiliationRecipientOrNull =
-                                recipientsByAffiliation.get(propertyValue);
-                        if (affiliationRecipientOrNull != null)
-                        {
-                            EMailAddress myEmail = new EMailAddress(affiliationRecipientOrNull);
-                            recipients.add(myEmail);
-                        }
-                    }
                 }
             }
         }

@@ -65,9 +65,11 @@ public class TrackingClient
 
     private static final String OPENBIS_RMI_TRACKING = "/rmi-tracking";
 
-    private static final String CL_PARAMETER_LANES = "lanes";
+    public static final String CL_PARAMETER_LANES = "lanes";
 
-    private static final String CL_PARAMETER_ALL = "all";
+    public static final String CL_PARAMETER_ALL = "all";
+
+    public static final String CL_PARAMETER_CHANGED_LANES = "changed_lanes";
 
     public static void main(String[] args)
     {
@@ -95,10 +97,12 @@ public class TrackingClient
                 .withDescription("list of lanes to track")
                 .create(CL_PARAMETER_LANES);
         lanes.setArgs(Option.UNLIMITED_VALUES);
-        Option all = new Option(CL_PARAMETER_ALL, "track all lanes");
+        Option all = new Option(CL_PARAMETER_ALL, "track all lanes, only for testing, never use in production!");
+        Option new_lanes = new Option(CL_PARAMETER_CHANGED_LANES, "only list lanes which have new datasets");
 
         options.addOption(lanes);
         options.addOption(all);
+        options.addOption(new_lanes);
 
         // automatically generate the help statement
         HelpFormatter formatter = new HelpFormatter();
@@ -120,6 +124,10 @@ public class TrackingClient
             {
                 commandLineMap.put(CL_PARAMETER_ALL, null);
             }
+            if (line.hasOption(CL_PARAMETER_CHANGED_LANES))
+            {
+                commandLineMap.put(CL_PARAMETER_CHANGED_LANES, null);
+            }
         } catch (ParseException exp)
         {
             LogUtils.environmentError("Parsing of command line parameters failed.", exp.getMessage());
@@ -134,14 +142,14 @@ public class TrackingClient
         Parameters params = new Parameters(props);
 
         ITrackingServer trackingServer = createOpenBISTrackingServer(params);
+        SessionContextDTO session = authentificateInOpenBIS(params, trackingServer);
+
         IEntityTrackingEmailGenerator emailGenerator =
-                new EntityTrackingEmailGenerator(props, retrieveEmailTemplate());
+                new EntityTrackingEmailGenerator(props, retrieveEmailTemplate(), session);
         IMailClient mailClient = params.getMailClient();
         TrackingBO trackingBO = new TrackingBO(trackingServer, emailGenerator, mailClient);
 
         ITrackingDAO trackingDAO = new FileBasedTrackingDAO(LOCAL_SAMPLE_DB, LOCAL_DATASET_DB);
-
-        SessionContextDTO session = authentificateInOpenBIS(params, trackingServer);
 
         trackingBO.trackAndNotify(trackingDAO, commandLineMap, session);
     }

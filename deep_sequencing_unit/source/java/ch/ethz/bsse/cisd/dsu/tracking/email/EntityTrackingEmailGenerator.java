@@ -28,14 +28,21 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.TreeMap;
 
+import org.apache.commons.lang.time.DateUtils;
+
 import ch.ethz.bsse.cisd.dsu.tracking.dto.TrackedEntities;
+import ch.ethz.bsse.cisd.dsu.tracking.main.Parameters;
 import ch.systemsx.cisd.common.mail.EMailAddress;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
+import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRoleAssignments;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 
 /**
  * @author Piotr Buczek
@@ -43,6 +50,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
  */
 public class EntityTrackingEmailGenerator implements IEntityTrackingEmailGenerator
 {
+    private static final String DB_INSTANCE = "BSSE";
+
     private static final String NOTIFICATION_EMAIL_FROM = "mail.from";
 
     private static final String NOTIFICATION_EMAIL_REPLY_TO = "notification-email-reply-to";
@@ -52,6 +61,8 @@ public class EntityTrackingEmailGenerator implements IEntityTrackingEmailGenerat
     private static final String AFFILIATION_NOTIFICATION_EMAIL_CONTACT_SUFFIX =
             "-affiliation-notification-email-contact";
 
+    private static final String SPACE_NOTIFICATION_EMAIL_CONTACT_SUFFIX = "-space-notification-email-contact";
+
     private final EMailAddress from;
 
     private final EMailAddress replyTo;
@@ -60,19 +71,21 @@ public class EntityTrackingEmailGenerator implements IEntityTrackingEmailGenerat
 
     private final String template;
 
-    public EntityTrackingEmailGenerator(Properties properties, String template)
+    public EntityTrackingEmailGenerator(Properties properties, String template, SessionContextDTO session)
     {
         this.from = new EMailAddress(PropertyUtils.getMandatoryProperty(properties, NOTIFICATION_EMAIL_FROM));
         this.replyTo = new EMailAddress(PropertyUtils.getMandatoryProperty(properties, NOTIFICATION_EMAIL_REPLY_TO));
         this.subject = PropertyUtils.getMandatoryProperty(properties, NOTIFICATION_EMAIL_SUBJECT);
         this.template = template;
 
-        final Map<String, String> recipientsByAffiliation =
-                retrieveRecipientsByAffiliation(properties);
-        EntityTrackingEmailDataManager.initialize(recipientsByAffiliation);
+        final Map<String, String> recipientsBySpace =
+                retrieveRecipientsBySpace(properties, session);
+        EntityTrackingEmailDataManager.initialize(recipientsBySpace);
+
     }
 
     // <affiliation, recipient email>
+    @Deprecated
     private Map<String, String> retrieveRecipientsByAffiliation(Properties properties)
     {
         final Map<String, String> result = new HashMap<String, String>();
@@ -93,12 +106,62 @@ public class EntityTrackingEmailGenerator implements IEntityTrackingEmailGenerat
         return result;
     }
 
+    /**
+     * Builds a Map of <spaces, email addresses> 
+     * 
+     * @author Manuel Kohler
+     */
+    private Map<String, String> retrieveRecipientsBySpace(Properties properties, SessionContextDTO session)
+    {
+        final Map<String, String> result = new HashMap<String, String>();
+
+        Parameters params = new Parameters(properties);
+        String serviceURL = params.getOpenbisServerURL() + IGeneralInformationService.SERVICE_URL;
+        IGeneralInformationService gis = HttpInvokerUtils.createServiceStub(IGeneralInformationService.class, serviceURL,
+                5 * DateUtils.MILLIS_PER_MINUTE);
+
+        List<SpaceWithProjectsAndRoleAssignments> spacesList =
+                gis.listSpacesWithProjectsAndRoleAssignments(session.getSessionToken(), DB_INSTANCE);
+
+        for (Object key : properties.keySet())
+        {
+            final String propertyKey = (String) key;
+
+            if (propertyKey.endsWith(SPACE_NOTIFICATION_EMAIL_CONTACT_SUFFIX))
+            {
+                if (propertyKey.contains("*"))
+                {
+                    String spacePreffix = propertyKey.substring(0, propertyKey.lastIndexOf("*"));
+                    System.out.println(spacePreffix);
+                    for (SpaceWithProjectsAndRoleAssignments space : spacesList)
+                    {
+                        if (space.getCode().startsWith(spacePreffix))
+                        {
+                            final String spaceRecipient =
+                                    PropertyUtils.getMandatoryProperty(properties, propertyKey);
+                            result.put(space.getCode(), spaceRecipient);
+                        }
+                    }
+                } else
+                {
+                    final String space =
+                            propertyKey.substring(0, propertyKey.length()
+                                    - SPACE_NOTIFICATION_EMAIL_CONTACT_SUFFIX.length());
+                    final String spaceRecipient =
+                            PropertyUtils.getMandatoryProperty(properties, propertyKey);
+                    result.put(space, spaceRecipient);
+                }
+            }
+        }
+        return result;
+    }
+
     @Override
     public List<EmailWithSummary> generateEmails(TrackedEntities trackedEntities)
     {
         final Collection<EntityTrackingEmailData> emailDataGroupedByRecipient =
                 EntityTrackingEmailDataManager.groupByRecipient(trackedEntities);
-       
+
         final List<EmailWithSummary> results = new ArrayList<EmailWithSummary>();
         for (EntityTrackingEmailData emailData : emailDataGroupedByRecipient)
         {
@@ -111,7 +174,7 @@ public class EntityTrackingEmailGenerator implements IEntityTrackingEmailGenerat
     {
         final Collection<EntityTrackingEmailData> emailDataGroupedByRecipientDataSets =
                 EntityTrackingEmailDataManager.groupByRecipientDataSets(trackedEntities);
-        
+
         final List<EmailWithSummary> results = new ArrayList<EmailWithSummary>();
         for (EntityTrackingEmailData emailData : emailDataGroupedByRecipientDataSets)
         {
@@ -119,7 +182,7 @@ public class EntityTrackingEmailGenerator implements IEntityTrackingEmailGenerat
         }
         return results;
     }
-    
+
     private EmailWithSummary createEmailWithSummary(EntityTrackingEmailData emailData)
     {
         return new EmailWithSummary(createEmail(emailData), emailData.getDescription());
@@ -180,7 +243,7 @@ public class EntityTrackingEmailGenerator implements IEntityTrackingEmailGenerat
                 createSeparatorLine(SUBSECTION_SEPARATOR_CHAR);
 
         private final static String EXTERNAL_SAMPLE_NAME_PROPERTY_CODE = "EXTERNAL_SAMPLE_NAME";
-        
+
         private final static String CONTACT_PERSON_NAME_PROPERTY_CODE = "CONTACT_PERSON_NAME";
 
         private final static String INDEX1_PROPERTY_CODE = "BARCODE";
@@ -255,18 +318,19 @@ public class EntityTrackingEmailGenerator implements IEntityTrackingEmailGenerat
             appendln(sb, SUBSECTION_SEPARATOR_LINE);
             appendln(sb, "There are new sequencing results available to you.");
             appendln(sb, SUBSECTION_SEPARATOR_LINE);
-            
+
             // Using a TreeMap, so the keys are sorted
             TreeMap<String, List<AbstractExternalData>> sampleMap = new TreeMap<String, List<AbstractExternalData>>();
-            List <AbstractExternalData> dsList = new ArrayList<AbstractExternalData>();
-            
+            List<AbstractExternalData> dsList = new ArrayList<AbstractExternalData>();
+
             // we just loop over the data sets and write the connected samples as keys
             // and the data sets as values in a map, so that we can group together as 
             // data sets per lane
             for (AbstractExternalData dataSet : dataSets)
             {
                 Sample s = dataSet.getSample();
-                if (sampleMap.containsKey(s.getIdentifier())) {
+                if (sampleMap.containsKey(s.getIdentifier()))
+                {
                     dsList = sampleMap.get(s.getIdentifier());
                 }
                 dsList.add(dataSet);
@@ -276,11 +340,13 @@ public class EntityTrackingEmailGenerator implements IEntityTrackingEmailGenerat
 
             // now we can write out this per sample
             Iterator<Entry<String, List<AbstractExternalData>>> it = sampleMap.entrySet().iterator();
-            while (it.hasNext()) {
-                Map.Entry pairs = (Map.Entry)it.next();
+            while (it.hasNext())
+            {
+                Map.Entry pairs = (Map.Entry) it.next();
                 appendln(sb, String.format("Results for %s", pairs.getKey()));
                 dsList = (List<AbstractExternalData>) pairs.getValue();
-                for (AbstractExternalData ed : dsList) {
+                for (AbstractExternalData ed : dsList)
+                {
                     appendDataSetDetails(sb, ed);
                 }
                 it.remove(); // avoids a ConcurrentModificationException
@@ -296,21 +362,23 @@ public class EntityTrackingEmailGenerator implements IEntityTrackingEmailGenerat
             assert flowLaneSample != null;
             sequencingSamples = flowLaneSample.getParents();
             assert sequencingSamples != null;
-            
+
             String Index1 = getIndex1(dataSet);
             String Index2 = getIndex2(dataSet);
-            
+
             HashMap<String, String> parentProperties = propertiesFromParentSample(dataSet, sequencingSamples, Index1, Index2);
-            
+
             String externalSampleName = parentProperties.get(EXTERNAL_SAMPLE_NAME_PROPERTY_CODE);
             String contactPersonName = parentProperties.get(CONTACT_PERSON_NAME_PROPERTY_CODE);
 
             String Index = null;
 
-            if (Index1 != null) {
+            if (Index1 != null)
+            {
                 Index = Index1;
             }
-            if (Index2 != null) {
+            if (Index2 != null)
+            {
                 Index = Index + "-" + Index2;
             }
 
@@ -318,10 +386,10 @@ public class EntityTrackingEmailGenerator implements IEntityTrackingEmailGenerat
             {
                 appendln(sb, "Data Set Type: " + dataSet.getDataSetType().toString() +
                         " Index: " + Index + ", External Sample Name: " + externalSampleName +
-                        ", Contact Person: " + contactPersonName
-                        );
+                        ", Contact Person: " + contactPersonName);
             }
-            else {
+            else
+            {
                 appendln(sb, "Data Set Type: " + dataSet.getDataSetType().toString() + ", No Meta Data");
             }
             appendln(sb, dataSet.getPermlink());
@@ -334,37 +402,26 @@ public class EntityTrackingEmailGenerator implements IEntityTrackingEmailGenerat
             assert externalSampleName != null;
             return externalSampleName;
         }
-        
+
         private static String getContactPersonName(Sample sequencingSample)
         {
             String contactPersonName = tryGetSamplePropertyValue(sequencingSample, CONTACT_PERSON_NAME_PROPERTY_CODE);
             assert contactPersonName != null;
             return contactPersonName;
         }
-        
-        private static String getIndex1(AbstractExternalData dataSet) {
+
+        private static String getIndex1(AbstractExternalData dataSet)
+        {
             List<IEntityProperty> properties = dataSet.getProperties();
-            
-            String Index = null; 
-            for (IEntityProperty p : properties) {
-                if (p.getPropertyType().getCode().equals(INDEX1_PROPERTY_CODE)) {
+
+            String Index = null;
+            for (IEntityProperty p : properties)
+            {
+                if (p.getPropertyType().getCode().equals(INDEX1_PROPERTY_CODE))
+                {
                     Index = p.getVocabularyTerm().getCode();
-                    if (! Index.equals("NOINDEX")) {
-                        return Index;
-                    }
-                }
-            }
-            return null;
-        }
-        
-        private static String getIndex2(AbstractExternalData dataSet) {
-            List<IEntityProperty> properties = dataSet.getProperties();
-            
-            String Index = null; 
-            for (IEntityProperty p : properties) {
-                if (p.getPropertyType().getCode().equals(INDEX2_PROPERTY_CODE)) {
-                    Index = p.getVocabularyTerm().getCode();
-                    if (! Index.equals("NOINDEX")) {
+                    if (!Index.equals("NOINDEX"))
+                    {
                         return Index;
                     }
                 }
@@ -372,59 +429,87 @@ public class EntityTrackingEmailGenerator implements IEntityTrackingEmailGenerat
             return null;
         }
 
-        private static HashMap<String, String> propertiesFromParentSample(AbstractExternalData dataSet, 
+        private static String getIndex2(AbstractExternalData dataSet)
+        {
+            List<IEntityProperty> properties = dataSet.getProperties();
+
+            String Index = null;
+            for (IEntityProperty p : properties)
+            {
+                if (p.getPropertyType().getCode().equals(INDEX2_PROPERTY_CODE))
+                {
+                    Index = p.getVocabularyTerm().getCode();
+                    if (!Index.equals("NOINDEX"))
+                    {
+                        return Index;
+                    }
+                }
+            }
+            return null;
+        }
+
+        private static HashMap<String, String> propertiesFromParentSample(AbstractExternalData dataSet,
                 Collection<Sample> sequencingSamples, String dsIndex1, String dsIndex2)
         {
             HashMap<String, String> parentPropertiesMap = new HashMap<String, String>();
-            if (dsIndex1 == null)  {
+            if (dsIndex1 == null)
+            {
                 return parentPropertiesMap;
             }
-            if (dsIndex2 == null) {
+            if (dsIndex2 == null)
+            {
                 dsIndex2 = "";
             }
 
-            for (Sample parent : sequencingSamples) 
+            for (Sample parent : sequencingSamples)
             {
                 String parentIndex1 = "";
                 String parentIndex2 = "";
                 String externalSampleName = "";
                 String contactPersonName = "";
-                
+
                 List<IEntityProperty> parentSampleProperties = parent.getProperties();
-                for (IEntityProperty pp : parentSampleProperties) {
-                    if (pp.getPropertyType().getCode().equals(INDEX1_PROPERTY_CODE)) {
+                for (IEntityProperty pp : parentSampleProperties)
+                {
+                    if (pp.getPropertyType().getCode().equals(INDEX1_PROPERTY_CODE))
+                    {
                         parentIndex1 = pp.getVocabularyTerm().getCode();
                     }
-                    
-                    if (pp.getPropertyType().getCode().equals(INDEX2_PROPERTY_CODE)) {
+
+                    if (pp.getPropertyType().getCode().equals(INDEX2_PROPERTY_CODE))
+                    {
                         parentIndex2 = pp.getVocabularyTerm().getCode();
-                        if (parentIndex2.equals(null)) {
+                        if (parentIndex2.equals(null))
+                        {
                             parentIndex2 = "";
                         }
                     }
-                    
-                    if (pp.getPropertyType().getCode().equals(EXTERNAL_SAMPLE_NAME_PROPERTY_CODE)) {
+
+                    if (pp.getPropertyType().getCode().equals(EXTERNAL_SAMPLE_NAME_PROPERTY_CODE))
+                    {
                         externalSampleName = pp.getValue();
                     }
-                    
-                    if (pp.getPropertyType().getCode().equals(CONTACT_PERSON_NAME_PROPERTY_CODE)) {
+
+                    if (pp.getPropertyType().getCode().equals(CONTACT_PERSON_NAME_PROPERTY_CODE))
+                    {
                         contactPersonName = pp.getValue();
                     }
-                    
-//                  //if(index1 == parentIndex1 && (!index2 || !parentIndex2 || index2 == parentIndex2)){
-                    if (parentIndex1.equals(dsIndex1) && (!(dsIndex2.isEmpty()) || !(parentIndex2.isEmpty()) || parentIndex2.equals(dsIndex2))) {
-                        
+
+                    //                  //if(index1 == parentIndex1 && (!index2 || !parentIndex2 || index2 == parentIndex2)){
+                    if (parentIndex1.equals(dsIndex1) && (!(dsIndex2.isEmpty()) || !(parentIndex2.isEmpty()) || parentIndex2.equals(dsIndex2)))
+                    {
+
                         parentIndex1 = "";
                         parentIndex2 = "";
-                        
-//                        System.out.println("Found matching meta data for: " + dataSet.getCode() + " from " + parent.getCode());
-                        
+
+                        //                        System.out.println("Found matching meta data for: " + dataSet.getCode() + " from " + parent.getCode());
+
                         parentPropertiesMap.put(EXTERNAL_SAMPLE_NAME_PROPERTY_CODE, externalSampleName);
                         parentPropertiesMap.put(CONTACT_PERSON_NAME_PROPERTY_CODE, contactPersonName);
                     }
-                        
+
                 }
-                   
+
             }
             return parentPropertiesMap;
         }
