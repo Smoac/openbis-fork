@@ -29,6 +29,9 @@ define([ "stjs", "dto/id/material/IMaterialId" ], function(stjs, IMaterialId) {
 		prototype.setTypeCode = function(typeCode) {
 			this.typeCode = typeCode;
 		}
+		prototype.toString = function() {
+			return this.getCode() + " (" + this.getTypeCode() + ")";
+		}
 
 	}, {});
 	return MaterialPermId;

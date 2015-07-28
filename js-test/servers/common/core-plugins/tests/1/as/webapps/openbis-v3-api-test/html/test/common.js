@@ -216,6 +216,14 @@ define([ 'jquery', 'openbis' ], function($, openbis) {
 			return promise;
 		};
 
+		this.assertNull = function(actual, msg) {
+			this.assert.equal(actual, null, msg);
+		};
+
+		this.assertNotNull = function(actual, msg) {
+			this.assert.notEqual(actual, null, msg);
+		};
+
 		this.assertEqual = function(actual, expected, msg) {
 			this.assert.equal(actual, expected, msg);
 		};
@@ -316,6 +324,10 @@ define([ 'jquery', 'openbis' ], function($, openbis) {
 					return !value || Object.keys(value).length == 0;
 				}), 'Objects have empty collections accessed via: ' + accessor);
 			});
+		};
+
+		this.ok = function(msg) {
+			this.assert.ok(true, msg);
 		};
 
 		this.fail = function(msg) {
