@@ -18,6 +18,8 @@ package ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.deletion;
 
 import java.io.Serializable;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
@@ -28,6 +30,7 @@ public class DeletionFetchOptions implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
+    @JsonProperty
     private DeletedObjectFetchOptions deletedObjects;
 
     public DeletedObjectFetchOptions fetchDeletedObjects()
