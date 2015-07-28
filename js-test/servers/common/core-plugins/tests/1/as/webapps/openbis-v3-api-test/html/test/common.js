@@ -42,15 +42,16 @@ define([ 'jquery', 'openbis' ], function($, openbis) {
 			return object;
 		};
 
-		this.createFacade = function(action) {
-			var facade = new openbis(testApiUrl);
-			action(facade);
+		this.createFacade = function() {
+			var dfd = $.Deferred();
+			dfd.resolve(new openbis(testApiUrl));
+			return dfd.promise();
 		};
 
 		this.createFacadeAndLogin = function() {
 			var dfd = $.Deferred();
 
-			this.createFacade(function(facade) {
+			this.createFacade().then(function(facade) {
 				facade.login(testUserId, testUserPassword).done(function() {
 					dfd.resolve(facade);
 				}).fail(function() {
@@ -217,11 +218,19 @@ define([ 'jquery', 'openbis' ], function($, openbis) {
 		};
 
 		this.assertNull = function(actual, msg) {
-			this.assert.equal(actual, null, msg);
+			this.assertEqual(actual, null, msg)
 		};
 
 		this.assertNotNull = function(actual, msg) {
-			this.assert.notEqual(actual, null, msg);
+			this.assertNotEqual(actual, null, msg);
+		};
+
+		this.assertTrue = function(actual, msg) {
+			this.assertEqual(actual, true, msg);
+		};
+
+		this.assertFalse = function(actual, msg) {
+			this.assertEqual(actual, false, msg);
 		};
 
 		this.assertEqual = function(actual, expected, msg) {

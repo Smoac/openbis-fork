@@ -93,7 +93,7 @@ define([ 'jquery', 'util/Json' ], function($, stjsUtil) {
 
 		this.loginAs = function(user, password, asUserId) {
 			var thisFacade = this;
-			return thisFacade._private.loginCommon(user, thisFacade._private.ajaxRequest({
+			return thisFacade._private.loginCommon(asUserId, thisFacade._private.ajaxRequest({
 				url : openbisUrl,
 				data : {
 					"method" : "loginAs",
