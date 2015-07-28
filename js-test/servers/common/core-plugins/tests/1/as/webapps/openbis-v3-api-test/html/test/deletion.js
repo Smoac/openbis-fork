@@ -1,9 +1,9 @@
 define([ 'jquery', 'underscore', 'openbis', 'test/common', 'dto/id/entitytype/EntityTypePermId', 'dto/entity/space/SpaceCreation', 'dto/entity/project/ProjectCreation',
 		'dto/entity/experiment/ExperimentCreation', 'dto/entity/sample/SampleCreation', 'dto/entity/material/MaterialCreation', 'dto/deletion/space/SpaceDeletionOptions',
-		'dto/deletion/project/ProjectDeletionOptions', 'dto/deletion/experiment/ExperimentDeletionOptions', 'dto/deletion/sample/SampleDeletionOptions',
+		'dto/deletion/project/ProjectDeletionOptions', 'dto/deletion/experiment/ExperimentDeletionOptions', 'dto/deletion/sample/SampleDeletionOptions', 'dto/deletion/dataset/DataSetDeletionOptions',
 		'dto/deletion/material/MaterialDeletionOptions', 'dto/fetchoptions/deletion/DeletionFetchOptions' ], function($, _, openbis, common, EntityTypePermId, SpaceCreation, ProjectCreation,
-		ExperimentCreation, SampleCreation, MaterialCreation, SpaceDeletionOptions, ProjectDeletionOptions, ExperimentDeletionOptions, SampleDeletionOptions, MaterialDeletionOptions,
-		DeletionFetchOptions) {
+		ExperimentCreation, SampleCreation, MaterialCreation, SpaceDeletionOptions, ProjectDeletionOptions, ExperimentDeletionOptions, SampleDeletionOptions, DataSetDeletionOptions,
+		MaterialDeletionOptions, DeletionFetchOptions) {
 	return function() {
 		QUnit.module("Deletion tests");
 
@@ -64,6 +64,23 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common', 'dto/id/entitytype/En
 			});
 		};
 
+		var createDataSet = function(c, facade) {
+			return $.ajax({
+				"url" : "http://localhost:20001/datastore_server/rmi-dss-api-v1.json",
+				"type" : "POST",
+				"processData" : false,
+				"dataType" : "json",
+				"data" : JSON.stringify({
+					"method" : "createReportFromAggregationService",
+					"params" : [ facade._private.sessionToken, "js-test", {} ],
+					"id" : "1",
+					"jsonrpc" : "2.0"
+				})
+			}).then(function(response) {
+				return c.createDataSetPermId(response.result.rows[0][0].value);
+			});
+		};
+
 		var createMaterial = function(c, facade) {
 			var creation = new MaterialCreation();
 			creation.setCode("CREATE_JSON_MATERIAL_" + (new Date().getTime()));
@@ -108,6 +125,14 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common', 'dto/id/entitytype/En
 			});
 		};
 
+		var findDataSet = function(c, facade, id) {
+			return $.when(c.createDataSetFetchOptions()).then(function(fetchOptions) {
+				return facade.mapDataSets([ id ], fetchOptions).then(function(dataSets) {
+					return dataSets[id];
+				});
+			});
+		};
+
 		var findMaterial = function(c, facade, id) {
 			return $.when(c.createMaterialFetchOptions()).then(function(fetchOptions) {
 				return facade.mapMaterials([ id ], fetchOptions).then(function(materials) {
@@ -138,6 +163,12 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common', 'dto/id/entitytype/En
 			var options = new SampleDeletionOptions();
 			options.setReason("test reason");
 			return facade.deleteSamples([ id ], options);
+		};
+
+		var deleteDataSet = function(c, facade, id) {
+			var options = new DataSetDeletionOptions();
+			options.setReason("test reason");
+			return facade.deleteDataSets([ id ], options);
 		};
 
 		var deleteMaterial = function(c, facade, id) {
@@ -278,6 +309,14 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common', 'dto/id/entitytype/En
 
 		QUnit.test("deleteSamples() with confirm", function(assert) {
 			testDeleteWithTrashAndConfirm(assert, createSample, findSample, deleteSample);
+		});
+
+		QUnit.test("deleteDataSets() with revert", function(assert) {
+			testDeleteWithTrashAndRevert(assert, createDataSet, findDataSet, deleteDataSet);
+		});
+
+		QUnit.test("deleteDataSets() with confirm", function(assert) {
+			testDeleteWithTrashAndConfirm(assert, createDataSet, findDataSet, deleteDataSet);
 		});
 
 		QUnit.test("deleteMaterials()", function(assert) {
