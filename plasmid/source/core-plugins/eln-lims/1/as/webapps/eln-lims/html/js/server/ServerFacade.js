@@ -273,14 +273,17 @@ function ServerFacade(openbisServer) {
 				sampleType.code,
 				"",
 				function(results) {
-					if(results.length == 0)
+					if(results.length == 0){
 						nextcode = prefix + "1";
-					else{
+					} else{
 						var codes = [];
 						for(var idx=0; idx<results.length; idx++){
-							numeric_code = results[idx].code.substring(prefix.length); 
+							numeric_code = results[idx].code.substring(prefix.length);							
 							numeric_code = numeric_code.replace("_","");
-							codes[idx] = parseInt(numeric_code); 
+							numeric_code = parseInt(numeric_code);
+							if(isNaN(numeric_code))
+								numeric_code = 1;
+							codes[idx] = numeric_code; 
 						}
 						codes.sort();
 						var nextid = codes[codes.length-1] + 1;
