@@ -1,14 +1,13 @@
-define([ 'jquery', 'openbis', 'test/common', 'dto/entity/sample/SampleCreation', 'dto/entity/sample/SampleUpdate', 'dto/deletion/sample/SampleDeletionOptions', 'dto/id/entitytype/EntityTypePermId',
-		'dto/id/space/SpacePermId', 'dto/id/tag/TagCode' ], function($, openbis, common, SampleCreation, SampleUpdate, SampleDeletionOptions, EntityTypePermId, SpacePermId, TagCode) {
+define([ 'jquery', 'openbis', 'test/common' ], function($, openbis, common) {
 	return function() {
 		QUnit.module("Sample tests");
 
 		QUnit.test("mapSamples()", function(assert) {
 			var c = new common(assert);
-			var done = assert.async();
+			c.start();
 
-			$.when(c.createFacadeAndLogin(), c.createSamplePermId("20130415095748527-404"), c.createSampleFetchOptions()).then(function(facade, permId, fetchOptions) {
-				return facade.mapSamples([ permId ], fetchOptions).done(function() {
+			$.when(c.createFacadeAndLogin()).then(function(facade) {
+				return facade.mapSamples([ new c.SamplePermId("20130415095748527-404") ], c.createSampleFetchOptions()).done(function() {
 					facade.logout()
 				})
 			}).done(function(samples) {
@@ -32,22 +31,22 @@ define([ 'jquery', 'openbis', 'test/common', 'dto/entity/sample/SampleCreation',
 						c.assertEqual(child.children.length, 2, "Number of grand children");
 					}
 				}
-				done();
+				c.finish();
 			}).fail(function(error) {
 				c.fail(error.message);
-				done();
+				c.finish();
 			});
 		});
 
 		QUnit.test("searchSamples()", function(assert) {
 			var c = new common(assert);
-			var done = assert.async();
+			c.start();
 
-			$.when(c.createFacadeAndLogin(), c.createSampleSearchCriterion(), c.createSampleFetchOptions()).then(function(facade, criterion, fetchOptions) {
-
+			$.when(c.createFacadeAndLogin()).then(function(facade) {
+				var criterion = new c.SampleSearchCriterion();
 				criterion.withCode().thatEquals("PLATE-1");
 
-				return facade.searchSamples(criterion, fetchOptions).done(function() {
+				return facade.searchSamples(criterion, c.createSampleFetchOptions()).done(function() {
 					facade.logout();
 				})
 			}).done(function(samples) {
@@ -59,26 +58,26 @@ define([ 'jquery', 'openbis', 'test/common', 'dto/entity/sample/SampleCreation',
 				c.assertEqual(sample.getExperiment().getCode(), "EXP-1", "Experiment code");
 				c.assertEqual(sample.getExperiment().getProject().getCode(), "SCREENING-EXAMPLES", "Project  code");
 				c.assertEqual(sample.getSpace().getCode(), "PLATONIC", "Space code");
-				done();
+				c.finish();
 			}).fail(function(error) {
 				c.fail(error.message);
-				done();
+				c.finish();
 			});
 		});
 
 		QUnit.test("createSamples()", function(assert) {
 			var c = new common(assert);
-			var done = assert.async();
+			c.start();
 
-			var creation = new SampleCreation();
-			creation.setTypeId(new EntityTypePermId("UNKNOWN"));
+			var creation = new c.SampleCreation();
+			creation.setTypeId(new c.EntityTypePermId("UNKNOWN"));
 			creation.setCode("CREATE_JSON_SAMPLE_" + (new Date().getTime()));
-			creation.setSpaceId(new SpacePermId("TEST"));
-			creation.setTagIds([ new TagCode("CREATE_JSON_TAG") ]);
+			creation.setSpaceId(new c.SpacePermId("TEST"));
+			creation.setTagIds([ new c.TagCode("CREATE_JSON_TAG") ]);
 
-			$.when(c.createFacadeAndLogin(), c.createSampleFetchOptions()).then(function(facade, fetchOptions) {
+			$.when(c.createFacadeAndLogin()).then(function(facade) {
 				return facade.createSamples([ creation ]).then(function(permIds) {
-					return facade.mapSamples(permIds, fetchOptions).done(function() {
+					return facade.mapSamples(permIds, c.createSampleFetchOptions()).done(function() {
 						facade.logout();
 					})
 				})
@@ -91,34 +90,34 @@ define([ 'jquery', 'openbis', 'test/common', 'dto/entity/sample/SampleCreation',
 				c.assertEqual(sample.getType().getCode(), creation.getTypeId().getPermId(), "Type code");
 				c.assertEqual(sample.getSpace().getCode(), creation.getSpaceId().getPermId(), "Space code");
 				c.assertEqual(sample.getTags()[0].getCode(), creation.getTagIds()[0].getCode(), "Tag code");
-				done();
+				c.finish();
 			}).fail(function(error) {
 				c.fail(error.message);
-				done();
+				c.finish();
 			});
 		});
 
 		QUnit.test("updateSamples()", function(assert) {
 			var c = new common(assert);
-			var done = assert.async();
+			c.start();
 
-			var creation = new SampleCreation();
-			creation.setTypeId(new EntityTypePermId("UNKNOWN"));
+			var creation = new c.SampleCreation();
+			creation.setTypeId(new c.EntityTypePermId("UNKNOWN"));
 			creation.setCode("CREATE_JSON_SAMPLE_" + (new Date().getTime()));
-			creation.setSpaceId(new SpacePermId("TEST"));
-			creation.setTagIds([ new TagCode("CREATE_JSON_TAG") ]);
+			creation.setSpaceId(new c.SpacePermId("TEST"));
+			creation.setTagIds([ new c.TagCode("CREATE_JSON_TAG") ]);
 
-			$.when(c.createFacadeAndLogin(), c.createSampleFetchOptions()).then(function(facade, fetchOptions) {
+			$.when(c.createFacadeAndLogin()).then(function(facade) {
 				return facade.createSamples([ creation ]).then(function(permIds) {
 
-					var update = new SampleUpdate();
+					var update = new c.SampleUpdate();
 					update.setSampleId(permIds[0]);
-					update.getTagIds().remove(new TagCode("CREATE_JSON_TAG"));
-					update.getTagIds().add(new TagCode("CREATE_JSON_TAG_2"));
-					update.getTagIds().add(new TagCode("CREATE_JSON_TAG_3"));
+					update.getTagIds().remove(new c.TagCode("CREATE_JSON_TAG"));
+					update.getTagIds().add(new c.TagCode("CREATE_JSON_TAG_2"));
+					update.getTagIds().add(new c.TagCode("CREATE_JSON_TAG_3"));
 
 					return facade.updateSamples([ update ]).then(function() {
-						return facade.mapSamples(permIds, fetchOptions).done(function() {
+						return facade.mapSamples(permIds, c.createSampleFetchOptions()).done(function() {
 							facade.logout();
 						})
 					});
@@ -133,23 +132,23 @@ define([ 'jquery', 'openbis', 'test/common', 'dto/entity/sample/SampleCreation',
 				c.assertEqual(sample.getSpace().getCode(), creation.getSpaceId().getPermId(), "Space code");
 				c.assertObjectsCount(sample.getTags(), 2);
 				c.assertObjectsWithValues(sample.getTags(), "code", [ "CREATE_JSON_TAG_2", "CREATE_JSON_TAG_3" ]);
-				done();
+				c.finish();
 			}).fail(function(error) {
 				c.fail(error.message);
-				done();
+				c.finish();
 			});
 		});
 
 		QUnit.test("deleteSamples()", function(assert) {
 			var c = new common(assert);
-			var done = assert.async();
+			c.start();
 
-			var creation = new SampleCreation();
-			creation.setTypeId(new EntityTypePermId("UNKNOWN"));
+			var creation = new c.SampleCreation();
+			creation.setTypeId(new c.EntityTypePermId("UNKNOWN"));
 			creation.setCode("CREATE_JSON_SAMPLE_" + (new Date().getTime()));
-			creation.setSpaceId(new SpacePermId("TEST"));
+			creation.setSpaceId(new c.SpacePermId("TEST"));
 
-			var deletion = new SampleDeletionOptions();
+			var deletion = new c.SampleDeletionOptions();
 			deletion.setReason("test reason");
 
 			$.when(c.createFacadeAndLogin(), c.createSampleFetchOptions()).then(function(facade, fetchOptions) {
@@ -163,10 +162,10 @@ define([ 'jquery', 'openbis', 'test/common', 'dto/entity/sample/SampleCreation',
 			}).done(function(samples) {
 				var keys = Object.keys(samples);
 				c.assertObjectsCount(keys, 0);
-				done();
+				c.finish();
 			}).fail(function(error) {
 				c.fail(error.message);
-				done();
+				c.finish();
 			});
 		});
 

@@ -1,15 +1,13 @@
-define([ 'jquery', 'underscore', 'openbis', 'test/common', 'dto/entity/experiment/ExperimentCreation', 'dto/id/entitytype/EntityTypePermId', 'dto/id/project/ProjectIdentifier', 'dto/id/tag/TagCode',
-		'dto/entity/experiment/ExperimentUpdate', 'dto/entity/attachment/AttachmentCreation', 'dto/deletion/experiment/ExperimentDeletionOptions' ], function($, _, openbis, common,
-		ExperimentCreation, EntityTypePermId, ProjectIdentifier, TagCode, ExperimentUpdate, AttachmentCreation, ExperimentDeletionOptions) {
+define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, openbis, common) {
 	return function() {
 		QUnit.module("Experiment tests");
 
 		QUnit.test("mapExperiments()", function(assert) {
 			var c = new common(assert);
-			var done = assert.async();
+			c.start();
 
-			$.when(c.createFacadeAndLogin(), c.createExperimentPermId("20130412105232616-2"), c.createExperimentFetchOptions()).then(function(facade, permId, fetchOptions) {
-				return facade.mapExperiments([ permId ], fetchOptions).done(function() {
+			$.when(c.createFacadeAndLogin()).then(function(facade) {
+				return facade.mapExperiments([ new c.ExperimentPermId("20130412105232616-2") ], c.createExperimentFetchOptions()).done(function() {
 					facade.logout()
 				});
 			}).done(function(experiments) {
@@ -20,22 +18,22 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common', 'dto/entity/experimen
 				c.assertEqual(experiment.getType().getCode(), "HCS_PLATONIC", "Type code");
 				c.assertEqual(experiment.getProject().getCode(), "SCREENING-EXAMPLES", "Project code");
 				c.assertEqual(experiment.getProject().getSpace().getCode(), "PLATONIC", "Space code");
-				done();
+				c.finish();
 			}).fail(function(error) {
 				c.fail(error.message);
-				done();
+				c.finish();
 			});
 		});
 
 		QUnit.test("searchExperiments()", function(assert) {
 			var c = new common(assert);
-			var done = assert.async();
+			c.start();
 
-			$.when(c.createFacadeAndLogin(), c.createExperimentSearchCriterion(), c.createExperimentFetchOptions()).then(function(facade, criterion, fetchOptions) {
-
+			$.when(c.createFacadeAndLogin()).then(function(facade) {
+				var criterion = new c.ExperimentSearchCriterion();
 				criterion.withCode().thatEquals("TEST-EXPERIMENT-2");
 
-				return facade.searchExperiments(criterion, fetchOptions).done(function() {
+				return facade.searchExperiments(criterion, c.createExperimentFetchOptions()).done(function() {
 					facade.logout();
 				})
 			}).done(function(experiments) {
@@ -46,24 +44,24 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common', 'dto/entity/experimen
 				c.assertEqual(experiment.getType().getCode(), "UNKNOWN", "Type code");
 				c.assertEqual(experiment.getProject().getCode(), "TEST-PROJECT", "Project code");
 				c.assertEqual(experiment.getProject().getSpace().getCode(), "TEST", "Space code");
-				done();
+				c.finish();
 			}).fail(function(error) {
 				c.fail(error.message);
-				done();
+				c.finish();
 			});
 		});
 
 		QUnit.test("createAndDeleteAnExperiment()", function(assert) {
 			var c = new common(assert);
-			var done = assert.async();
+			c.start();
 
 			var code = "CREATE_JSON_EXPERIMENT_" + (new Date().getTime());
-			var experimentCreation = new ExperimentCreation();
-			experimentCreation.setTypeId(new EntityTypePermId("HT_SEQUENCING"));
+			var experimentCreation = new c.ExperimentCreation();
+			experimentCreation.setTypeId(new c.EntityTypePermId("HT_SEQUENCING"));
 			experimentCreation.setCode(code);
-			experimentCreation.setProjectId(new ProjectIdentifier("/TEST/TEST-PROJECT"));
-			experimentCreation.setTagIds([ new TagCode("CREATE_JSON_TAG") ]);
-			attachmentCreation = new AttachmentCreation();
+			experimentCreation.setProjectId(new c.ProjectIdentifier("/TEST/TEST-PROJECT"));
+			experimentCreation.setTagIds([ new c.TagCode("CREATE_JSON_TAG") ]);
+			attachmentCreation = new c.AttachmentCreation();
 			attachmentCreation.setFileName("test_file");
 			attachmentCreation.setTitle("test_title");
 			attachmentCreation.setDescription("test_description");
@@ -71,17 +69,17 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common', 'dto/entity/experimen
 			experimentCreation.setAttachments([ attachmentCreation ]);
 			experimentCreation.setProperty("EXPERIMENT_DESIGN", "SEQUENCE_ENRICHMENT");
 
-			$.when(c.createFacadeAndLogin(), c.createExperimentIdentifier("/TEST/TEST-PROJECT/" + code), c.createExperimentFetchOptions()).then(function(facade, identifier, fetchOptions) {
+			$.when(c.createFacadeAndLogin()).then(function(facade) {
 				return facade.createExperiments([ experimentCreation ]).then(function(permIds) {
-					return facade.mapExperiments(permIds, fetchOptions).done(function() {
-						var options = new ExperimentDeletionOptions();
+					return facade.mapExperiments(permIds, c.createExperimentFetchOptions()).done(function() {
+						var options = new c.ExperimentDeletionOptions();
 						options.setReason("test");
-						facade.deleteExperiments([ identifier ], options).then(function(deletionId) {
+						facade.deleteExperiments([ new c.ExperimentIdentifier("/TEST/TEST-PROJECT/" + code) ], options).then(function(deletionId) {
 							console.log(deletionId);
 							facade.logout();
 						}).fail(function(error) {
 							c.fail(error.message);
-							done();
+							c.finish();
 						});
 					})
 				})
@@ -106,29 +104,29 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common', 'dto/entity/experimen
 				var properties = experiment.getProperties();
 				c.assertEqual(properties["EXPERIMENT_DESIGN"], "SEQUENCE_ENRICHMENT", "Property EXPERIMENT_DESIGN");
 				c.assertEqual(Object.keys(properties), "EXPERIMENT_DESIGN", "Properties");
-				done();
+				c.finish();
 			}).fail(function(error) {
 				c.fail(error.message);
-				done();
+				c.finish();
 			});
 		});
 
 		var asyncUpdateExperimentsTest = function(testNamePostfix, experimentUpdateModifier, experimentCheckerOrExpectedErrorMessage) {
 			QUnit.test("updateExperiments" + testNamePostfix + "()", function(assert) {
 				var c = new common(assert);
-				var done = assert.async();
+				c.start();
 
 				var expectingFailure = _.isFunction(experimentCheckerOrExpectedErrorMessage) === false;
 				var code = "UPDATE_JSON_EXPERIMENT_" + (new Date().getTime());
-				var experimentCreation = new ExperimentCreation();
-				experimentCreation.setTypeId(new EntityTypePermId("HT_SEQUENCING"));
+				var experimentCreation = new c.ExperimentCreation();
+				experimentCreation.setTypeId(new c.EntityTypePermId("HT_SEQUENCING"));
 				experimentCreation.setCode(code);
 				experimentCreation.setProperty("EXPERIMENT_DESIGN", "EXPRESSION");
-				experimentCreation.setTagIds([ new TagCode("CREATE_JSON_TAG") ]);
-				experimentCreation.setProjectId(new ProjectIdentifier("/TEST/TEST-PROJECT"));
+				experimentCreation.setTagIds([ new c.TagCode("CREATE_JSON_TAG") ]);
+				experimentCreation.setProjectId(new c.ProjectIdentifier("/TEST/TEST-PROJECT"));
 				c.createFacadeAndLogin().then(function(facade) {
 					var ids = facade.createExperiments([ experimentCreation ]).then(function(permIds) {
-						var experimentUpdate = new ExperimentUpdate();
+						var experimentUpdate = new c.ExperimentUpdate();
 						experimentUpdate.setExperimentId(permIds[0]);
 						experimentUpdateModifier(c, experimentUpdate);
 						return facade.updateExperiments([ experimentUpdate ]).then(function() {
@@ -148,23 +146,23 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common', 'dto/entity/experimen
 							var experiment = experiments[keys[0]];
 							experimentCheckerOrExpectedErrorMessage(c, code, experiment);
 						}
-						done();
+						c.finish();
 					}).fail(function(error) {
 						if (expectingFailure) {
 							c.assertEqual(error.message, experimentCheckerOrExpectedErrorMessage, "Error message");
 						} else {
 							c.fail(error.message);
 						}
-						done();
+						c.finish();
 					});
 				});
 			});
 		}
 
 		asyncUpdateExperimentsTest("WithChangedProjectAndAddedTagAndAttachment", function(c, experimentUpdate) {
-			experimentUpdate.setProjectId(new ProjectIdentifier("/PLATONIC/SCREENING-EXAMPLES"));
-			experimentUpdate.getTagIds().add(new TagCode("CREATE_ANOTHER_JSON_TAG"));
-			attachmentCreation = new AttachmentCreation();
+			experimentUpdate.setProjectId(new c.ProjectIdentifier("/PLATONIC/SCREENING-EXAMPLES"));
+			experimentUpdate.getTagIds().add(new c.TagCode("CREATE_ANOTHER_JSON_TAG"));
+			attachmentCreation = new c.AttachmentCreation();
 			attachmentCreation.setFileName("test_file");
 			attachmentCreation.setTitle("test_title");
 			attachmentCreation.setDescription("test_description");
@@ -189,7 +187,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common', 'dto/entity/experimen
 
 		asyncUpdateExperimentsTest("WithUnChangedProjectButChangedPropertiesAndRemovedTag", function(c, experimentUpdate) {
 			experimentUpdate.setProperty("EXPERIMENT_DESIGN", "OTHER");
-			experimentUpdate.getTagIds().remove([ new TagCode("UNKNOWN_TAG"), new TagCode("CREATE_JSON_TAG") ]);
+			experimentUpdate.getTagIds().remove([ new c.TagCode("UNKNOWN_TAG"), new c.TagCode("CREATE_JSON_TAG") ]);
 		}, function(c, code, experiment) {
 			c.assertEqual(experiment.getCode(), code, "Experiment code");
 			c.assertEqual(experiment.getType().getCode(), "HT_SEQUENCING", "Type code");

@@ -1,19 +1,18 @@
-define([ 'jquery', 'underscore', 'openbis', 'test/common', 'dto/entity/space/SpaceCreation', 'dto/entity/space/SpaceUpdate', 'dto/deletion/space/SpaceDeletionOptions' ], function($, _, openbis,
-		common, SpaceCreation, SpaceUpdate, SpaceDeletionOptions) {
+define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, openbis, common) {
 	return function() {
 		QUnit.module("Space tests");
 
 		QUnit.test("createSpaces()", function(assert) {
 			var c = new common(assert);
-			var done = assert.async();
+			c.start();
 
-			var creation = new SpaceCreation();
+			var creation = new c.SpaceCreation();
 			creation.setCode("CREATE_JSON_SPACE_" + (new Date().getTime()));
 			creation.setDescription("test description");
 
-			$.when(c.createFacadeAndLogin(), c.createSpaceFetchOptions()).then(function(facade, fetchOptions) {
+			$.when(c.createFacadeAndLogin()).then(function(facade) {
 				return facade.createSpaces([ creation ]).then(function(permIds) {
-					return facade.mapSpaces(permIds, fetchOptions).done(function() {
+					return facade.mapSpaces(permIds, c.createSpaceFetchOptions()).done(function() {
 						facade.logout()
 					});
 				});
@@ -23,31 +22,31 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common', 'dto/entity/space/Spa
 				var space = spaces[creation.getCode()];
 				c.assertEqual(space.getCode(), creation.getCode(), "Code");
 				c.assertEqual(space.getDescription(), creation.getDescription(), "Description");
-				done();
+				c.finish();
 			}).fail(function(error) {
 				c.fail(error.message);
-				done();
+				c.finish();
 			});
 		});
 
 		QUnit.test("updateSpaces()", function(assert) {
 			var c = new common(assert);
-			var done = assert.async();
+			c.start();
 
-			var creation = new SpaceCreation();
+			var creation = new c.SpaceCreation();
 			creation.setCode("CREATE_JSON_SPACE_" + (new Date().getTime()));
 			creation.setDescription("test description");
 
-			var update = new SpaceUpdate();
+			var update = new c.SpaceUpdate();
 			update.setDescription("test description 2");
 
-			$.when(c.createFacadeAndLogin(), c.createSpaceFetchOptions()).then(function(facade, fetchOptions) {
+			$.when(c.createFacadeAndLogin()).then(function(facade) {
 				return facade.createSpaces([ creation ]).then(function(permIds) {
 
 					update.setSpaceId(permIds[0]);
 
 					return facade.updateSpaces([ update ]).then(function() {
-						return facade.mapSpaces(permIds, fetchOptions).done(function() {
+						return facade.mapSpaces(permIds, c.createSpaceFetchOptions()).done(function() {
 							facade.logout()
 						});
 					});
@@ -58,19 +57,19 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common', 'dto/entity/space/Spa
 				var space = spaces[creation.getCode()];
 				c.assertEqual(space.getCode(), creation.getCode(), "Code");
 				c.assertEqual(space.getDescription(), update.getDescription().getValue(), "Description");
-				done();
+				c.finish();
 			}).fail(function(error) {
 				c.fail(error.message);
-				done();
+				c.finish();
 			});
 		});
 
 		QUnit.test("mapSpaces()", function(assert) {
 			var c = new common(assert);
-			var done = assert.async();
+			c.start();
 
-			$.when(c.createFacadeAndLogin(), c.createSpacePermId("TEST"), c.createSpaceFetchOptions()).then(function(facade, permId, fetchOptions) {
-				return facade.mapSpaces([ permId ], fetchOptions).done(function() {
+			$.when(c.createFacadeAndLogin()).then(function(facade) {
+				return facade.mapSpaces([ new c.SpacePermId("TEST") ], c.createSpaceFetchOptions()).done(function() {
 					facade.logout()
 				});
 			}).done(function(spaces) {
@@ -88,22 +87,23 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common', 'dto/entity/space/Spa
 				c.assertObjectsWithCollections(space, function(object) {
 					return object.getProjects()
 				});
-				done();
+				c.finish();
 			}).fail(function(error) {
 				c.fail(error.message);
-				done();
+				c.finish();
 			});
 		});
 
 		QUnit.test("searchSpaces()", function(assert) {
 			var c = new common(assert);
-			var done = assert.async();
+			c.start();
 
-			$.when(c.createFacadeAndLogin(), c.createSpaceSearchCriterion(), c.createSpaceFetchOptions()).then(function(facade, criterion, fetchOptions) {
+			$.when(c.createFacadeAndLogin()).then(function(facade) {
 
+				var criterion = new c.SpaceSearchCriterion();
 				criterion.withCode().thatEquals("TEST");
 
-				return facade.searchSpaces(criterion, fetchOptions).done(function() {
+				return facade.searchSpaces(criterion, c.createSpaceFetchOptions()).done(function() {
 					facade.logout();
 				})
 			}).done(function(spaces) {
@@ -111,37 +111,37 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common', 'dto/entity/space/Spa
 
 				var space = spaces[0];
 				c.assertEqual(space.getCode(), "TEST", "Code");
-				done();
+				c.finish();
 			}).fail(function(error) {
 				c.fail(error.message);
-				done();
+				c.finish();
 			});
 		});
 
 		QUnit.test("deleteSpaces()", function(assert) {
 			var c = new common(assert);
-			var done = assert.async();
+			c.start();
 
-			var creation = new SpaceCreation();
+			var creation = new c.SpaceCreation();
 			creation.setCode("CREATE_JSON_SPACE_" + (new Date().getTime()));
 
-			var deletion = new SpaceDeletionOptions();
+			var deletion = new c.SpaceDeletionOptions();
 			deletion.setReason("test reason");
 
-			$.when(c.createFacadeAndLogin(), c.createSpaceFetchOptions()).then(function(facade, fetchOptions) {
+			$.when(c.createFacadeAndLogin()).then(function(facade) {
 				return facade.createSpaces([ creation ]).then(function(permIds) {
 					return facade.deleteSpaces(permIds, deletion).then(function() {
-						return facade.mapSpaces(permIds, fetchOptions).done(function() {
+						return facade.mapSpaces(permIds, c.createSpaceFetchOptions()).done(function() {
 							facade.logout()
 						});
 					});
 				});
 			}).done(function(spaces) {
 				c.assertObjectsCount(Object.keys(spaces), 0);
-				done();
+				c.finish();
 			}).fail(function(error) {
 				c.fail(error.message);
-				done();
+				c.finish();
 			});
 		});
 	}
