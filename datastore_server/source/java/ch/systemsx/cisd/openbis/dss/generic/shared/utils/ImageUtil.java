@@ -577,6 +577,39 @@ public class ImageUtil
         return loadUnchangedData(contentNode, imageIdOrNull, imageLibraryNameOrNull, imageLibraryReaderNameOrNull, params, operation);
     }
 
+    private static ThreadLocal<String> sessionIdThreadLocal = new ThreadLocal<>();
+
+    private static List<Map<String, ReaderAndFileHandler>> allThreadLocalMaps = new ArrayList<Map<String, ReaderAndFileHandler>>();
+
+    private static ThreadLocal<Map<String, ReaderAndFileHandler>> rememberedReadersThreadLocal = new ThreadLocal<Map<String, ReaderAndFileHandler>>();
+
+    /**
+     * Set unique session id. This thread will reuse image readers between invocation with the same session id.
+     */
+    public static void setThreadLocalSessionId(String sessionId)
+    {
+        sessionIdThreadLocal.set(sessionId);
+    }
+
+    /**
+     * Closes all readers created in scope of a single session.
+     */
+    public static void closeSession(String sessionId)
+    {
+        operationLog.info("closing session " + sessionId);
+
+        for (Map<String, ReaderAndFileHandler> map : allThreadLocalMaps)
+        {
+            if (map.containsKey(sessionId))
+            {
+                ReaderAndFileHandler reader = map.get(sessionId);
+                operationLog.info("Closing reader for session " + sessionId);
+                reader.close();
+                map.remove(sessionId);
+            }
+        }
+    }
+
     private static <T> T loadUnchangedData(IHierarchicalContentNode contentNode, String imageIdOrNull, String imageLibraryNameOrNull,
             String imageLibraryReaderNameOrNull, IReadParams params, IReadingOperation<T> operation)
     {
@@ -584,40 +617,75 @@ public class ImageUtil
                 + "is specified then library name should be specified as well";
         ImageID imageID = parseImageID(imageIdOrNull, contentNode);
 
-        if (imageLibraryNameOrNull != null && imageLibraryReaderNameOrNull != null)
+        String sessionId = sessionIdThreadLocal.get();
+
+        Map<String, ReaderAndFileHandler> rememberedReaders = getThreadLocalReadersMap();
+
+        // Check if there is a thread local reader for current session ID, and if it is the right one
+        ReaderAndFileHandler reader = null;
+        if (sessionId != null)
         {
-            ReaderAndFileHandler reader = readerStore.get();
-            if (reader == null || isSameReader(reader, imageLibraryNameOrNull, imageLibraryReaderNameOrNull) == false)
+            reader = rememberedReaders.get(sessionId);
+            if (reader != null && isSameReader(reader, imageLibraryNameOrNull, imageLibraryReaderNameOrNull) == false)
             {
-                IImageReader imageReader = ImageReaderFactory.tryGetReader(imageLibraryNameOrNull,
-                        imageLibraryReaderNameOrNull);
-                if (imageReader != null)
-                {
-                    if (reader != null)
-                    {
-                        reader.close();
-                    }
-                    reader = new ReaderAndFileHandler(imageLibraryNameOrNull,
-                            imageLibraryReaderNameOrNull);
-                    reader.imageReader = imageReader;
-                    readerStore.set(reader);
-                } else
-                {
-                    reader = null;
-                }
+                reader.close();
+                reader = null;
+                rememberedReaders.remove(sessionId);
+                operationLog.info("discarding stored reader for session " + sessionId);
             }
             if (reader != null)
             {
-                reader.setFileHandler(contentNode);
-                return operation.read(reader.imageReader, reader.handle, imageID, params);
+                operationLog.info("Reusing reader for session " + sessionId);
             }
         }
-        return loadUnchangedDataGuessingLibrary(contentNode, operation, imageID);
+
+        // create reader / refer to guessing library if cannot create proper reader
+        if (reader == null)
+        {
+            IImageReader imageReader = ImageReaderFactory.tryGetReader(imageLibraryNameOrNull,
+                    imageLibraryReaderNameOrNull);
+            if (imageReader == null)
+            {
+                return loadUnchangedDataGuessingLibrary(contentNode, operation, imageID);
+            }
+            reader = new ReaderAndFileHandler(imageLibraryNameOrNull,
+                    imageLibraryReaderNameOrNull);
+            reader.imageReader = imageReader;
+        }
+
+        // The actual operation execution
+        reader.setFileHandler(contentNode);
+        T result = operation.read(reader.imageReader, reader.handle, imageID, params);
+
+        // persist the user in a thread local variable if there is specified process ID
+        if (sessionId != null)
+        {
+            rememberedReaders.put(sessionId, reader);
+        }
+        else
+        {
+            reader.close();
+        }
+
+        return result;
+
+    }
+
+    private static Map<String, ReaderAndFileHandler> getThreadLocalReadersMap()
+    {
+        Map<String, ReaderAndFileHandler> rememberedReaders = rememberedReadersThreadLocal.get();
+        if (rememberedReaders == null)
+        {
+            rememberedReaders = new HashMap<String, ImageUtil.ReaderAndFileHandler>();
+            allThreadLocalMaps.add(rememberedReaders);
+            rememberedReadersThreadLocal.set(rememberedReaders);
+        }
+        return rememberedReaders;
     }
 
     protected static boolean isSameReader(ReaderAndFileHandler reader, String imageLibraryNameOrNull, String imageLibraryReaderNameOrNull)
     {
-        return reader.imageLibraryName.equals(imageLibraryNameOrNull) 
+        return reader.imageLibraryName.equals(imageLibraryNameOrNull)
                 && reader.imageLibraryReaderName.equals(imageLibraryReaderNameOrNull);
     }
 
