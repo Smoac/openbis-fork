@@ -3,7 +3,7 @@
  */
 define([ 'test/common' ], function(common) {
 	return function() {
-		QUnit.module("SearchCriterion tests");
+		QUnit.module("DTO tests");
 
 		var assertAttributes = function(assert, criterion, expectedName, expextedType, expectedValueType, expectedValue) {
 			var c = new common(assert);

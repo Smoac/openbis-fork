@@ -75,10 +75,16 @@ define([ 'jquery', 'openbis', 'dto/entity/space/SpaceCreation', 'dto/entity/proj
 		this.MaterialFetchOptions = MaterialFetchOptions;
 		this.DeletionFetchOptions = DeletionFetchOptions;
 
+		this.generateId = function(base) {
+			var date = new Date();
+			var parts = [ "V3", base, date.getFullYear(), date.getMonth() + 1, date.getDate(), date.getHours(), date.getMinutes(), Math.random() ];
+			return parts.join("_");
+		},
+
 		this.createSpace = function(facade) {
 			var c = this;
 			var creation = new SpaceCreation();
-			creation.setCode("CREATE_JSON_SPACE_" + (new Date().getTime()));
+			creation.setCode(c.generateId("SPACE"));
 			return facade.createSpaces([ creation ]).then(function(permIds) {
 				return permIds[0];
 			});
@@ -88,7 +94,7 @@ define([ 'jquery', 'openbis', 'dto/entity/space/SpaceCreation', 'dto/entity/proj
 			var c = this;
 			return c.createSpace(facade).then(function(spacePermId) {
 				var creation = new ProjectCreation();
-				creation.setCode("CREATE_JSON_PROJECT_" + (new Date().getTime()));
+				creation.setCode(c.generateId("PROJECT"));
 				creation.setSpaceId(spacePermId);
 				return facade.createProjects([ creation ]).then(function(permIds) {
 					return permIds[0];
@@ -100,7 +106,7 @@ define([ 'jquery', 'openbis', 'dto/entity/space/SpaceCreation', 'dto/entity/proj
 			var c = this;
 			return c.createProject(facade).then(function(projectPermId) {
 				var creation = new ExperimentCreation();
-				creation.setCode("CREATE_JSON_EXPERIMENT_" + (new Date().getTime()));
+				creation.setCode(c.generateId("EXPERIMENT"));
 				creation.setTypeId(new EntityTypePermId("UNKNOWN"));
 				creation.setProjectId(projectPermId);
 				return facade.createExperiments([ creation ]).then(function(permIds) {
@@ -113,7 +119,7 @@ define([ 'jquery', 'openbis', 'dto/entity/space/SpaceCreation', 'dto/entity/proj
 			var c = this;
 			return c.createSpace(facade).then(function(spacePermId) {
 				var creation = new SampleCreation();
-				creation.setCode("CREATE_JSON_SAMPLE_" + (new Date().getTime()));
+				creation.setCode(c.generateId("SAMPLE"));
 				creation.setTypeId(new EntityTypePermId("UNKNOWN"));
 				creation.setSpaceId(spacePermId);
 				return facade.createSamples([ creation ]).then(function(permIds) {
@@ -143,7 +149,7 @@ define([ 'jquery', 'openbis', 'dto/entity/space/SpaceCreation', 'dto/entity/proj
 		this.createMaterial = function(facade) {
 			var c = this;
 			var creation = new MaterialCreation();
-			creation.setCode("CREATE_JSON_MATERIAL_" + (new Date().getTime()));
+			creation.setCode(c.generateId("MATERIAL"));
 			creation.setTypeId(new EntityTypePermId("COMPOUND"));
 			return facade.createMaterials([ creation ]).then(function(permIds) {
 				return permIds[0];

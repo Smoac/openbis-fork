@@ -40,7 +40,7 @@ def findSample(tr):
 	return samples[0]
 	
 def createDataSet(tr, sample):
-	dataSet = tr.createNewDataSet("TSV")
+	dataSet = tr.createNewDataSet("ALIGNMENT")
 	dataSet.setSample(sample)
 	tr.createNewFile(dataSet, "test")
 	return dataSet
