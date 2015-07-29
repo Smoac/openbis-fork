@@ -28,6 +28,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.log4j.Logger;
 
@@ -591,26 +592,43 @@ public class Hdf5ThumbnailGenerator implements IHDF5WriterClient
                 @Override
                 public Status execute(ImageFileInfo image)
                 {
-                    // each thread will get its own buffer to avoid allocating memory for the
-                    // internal array each time
-                    ByteArrayOutputStream outputStreamBuffer = outputStreamBuffers.get();
-                    outputStreamBuffer.reset();
-                    return generateThumbnail(writer, image, outputStreamBuffer);
+                    // For the purpose of reusing image readers for subsequent files if the same worker thread
+                    // is processing them - we set thread local variable on image readers indicating that
+                    // invokations with the same process ID can share readers
+                    ImageUtil.setThreadLocalSessionId(thumbnailGenerationProcessId);
+                    try
+                    {
+                        // each thread will get its own buffer to avoid allocating memory for the
+                        // internal array each time
+                        ByteArrayOutputStream outputStreamBuffer = outputStreamBuffers.get();
+                        outputStreamBuffer.reset();
+                        return generateThumbnail(writer, image, outputStreamBuffer);
+                    } finally
+                    {
+                        ImageUtil.setThreadLocalSessionId(null);
+                    }
                 }
             };
     }
+
+    private static AtomicInteger thumbnailGenerationProcessId = new AtomicInteger();
 
     @Override
     public void runWithSimpleWriter(IHDF5ContainerWriter writer)
     {
         final String thumbnailsName = " (" + thumbnailsStorageFormat.getThumbnailsFileName() + ")";
 
+        final String processId = "THUMBNAIL_GENERATION_" + thumbnailGenerationProcessId.incrementAndGet();
+
+        List<ImageFileInfo> images = imageDataSetStructure.getImages();
         Collection<FailureRecord<ImageFileInfo>> errors =
-                ParallelizedExecutor.process(imageDataSetStructure.getImages(),
-                        createThumbnailGenerator(writer),
+                ParallelizedExecutor.process(images,
+                        createThumbnailGenerator(writer, processId),
                         thumbnailsStorageFormat.getAllowedMachineLoadDuringGeneration(), 100,
                         "Thumbnails generation" + thumbnailsName, MAX_RETRY_OF_FAILED_GENERATION,
                         true);
+        ImageUtil.closeSession(processId);
+
         if (errors.size() > 0)
         {
             throw new IllegalStateException(String.format(
