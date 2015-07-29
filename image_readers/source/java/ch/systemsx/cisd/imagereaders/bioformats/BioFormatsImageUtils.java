@@ -239,9 +239,7 @@ final class BioFormatsImageUtils
 
     private static void close(IFormatReader reader) throws IOException
     {
-        // closing is not needed if the IImageReader instance calling this utility method
-        // has a finalize method closing the IFormatReader
-//        reader.close();
+        reader.close();
     }
 
     private static int calculateImageIndex(IFormatReader reader, ImageID imageID)
