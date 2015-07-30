@@ -575,7 +575,7 @@ public class Hdf5ThumbnailGenerator implements IHDF5WriterClient
                 thumbnailPath, ex.getMessage()));
     }
 
-    private ITaskExecutor<ImageFileInfo> createThumbnailGenerator(final IHDF5ContainerWriter writer)
+    private ITaskExecutor<ImageFileInfo> createThumbnailGenerator(final IHDF5ContainerWriter writer, final String thumbnailGenertionSessionId)
     {
         return new ITaskExecutor<ImageFileInfo>()
             {
@@ -595,7 +595,7 @@ public class Hdf5ThumbnailGenerator implements IHDF5WriterClient
                     // For the purpose of reusing image readers for subsequent files if the same worker thread
                     // is processing them - we set thread local variable on image readers indicating that
                     // invokations with the same process ID can share readers
-                    ImageUtil.setThreadLocalSessionId(thumbnailGenerationProcessId);
+                    ImageUtil.setThreadLocalSessionId(thumbnailGenertionSessionId);
                     try
                     {
                         // each thread will get its own buffer to avoid allocating memory for the
@@ -611,23 +611,23 @@ public class Hdf5ThumbnailGenerator implements IHDF5WriterClient
             };
     }
 
-    private static AtomicInteger thumbnailGenerationProcessId = new AtomicInteger();
+    private static AtomicInteger incrementalThumbnailGenerationSessionId = new AtomicInteger();
 
     @Override
     public void runWithSimpleWriter(IHDF5ContainerWriter writer)
     {
         final String thumbnailsName = " (" + thumbnailsStorageFormat.getThumbnailsFileName() + ")";
 
-        final String processId = "THUMBNAIL_GENERATION_" + thumbnailGenerationProcessId.incrementAndGet();
+        final String sessionId = "THUMBNAIL_GENERATION_" + incrementalThumbnailGenerationSessionId.incrementAndGet();
 
         List<ImageFileInfo> images = imageDataSetStructure.getImages();
         Collection<FailureRecord<ImageFileInfo>> errors =
                 ParallelizedExecutor.process(images,
-                        createThumbnailGenerator(writer, processId),
+                        createThumbnailGenerator(writer, sessionId),
                         thumbnailsStorageFormat.getAllowedMachineLoadDuringGeneration(), 100,
                         "Thumbnails generation" + thumbnailsName, MAX_RETRY_OF_FAILED_GENERATION,
                         true);
-        ImageUtil.closeSession(processId);
+        ImageUtil.closeSession(sessionId);
 
         if (errors.size() > 0)
         {
