@@ -40,7 +40,7 @@ function CommentsController(entity, mode, form) {
 	
 	this.addNewComment = function(newComment) {
 		//New Data
-		var timestamp = Math.round(new Date().getTime() / 1000);
+		var timestamp = Math.round(new Date().getTime());
 		var userId = mainController.serverFacade.getUserId();
 		
 		//Update Model
