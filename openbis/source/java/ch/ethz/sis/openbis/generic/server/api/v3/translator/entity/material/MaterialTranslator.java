@@ -16,6 +16,7 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.material;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 
@@ -28,6 +29,7 @@ import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.history.IHistoryTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.person.IPersonTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.property.IPropertyTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.property.PropertyRelation;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.tag.ITagTranslator;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material.Material;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.tag.Tag;
@@ -74,12 +76,32 @@ public class MaterialTranslator extends AbstractCachingTranslator<MaterialPE, Ma
     }
 
     @Override
+    protected Relations getObjectsRelations(TranslationContext context, Collection<MaterialPE> inputs, MaterialFetchOptions fetchOptions)
+    {
+        Relations relations = new Relations();
+
+        Collection<Long> ids = new HashSet<Long>();
+        for (MaterialPE input : inputs)
+        {
+            ids.add(input.getId());
+        }
+
+        if (fetchOptions.hasProperties())
+        {
+            relations.add(new MaterialPropertyRelation(ids));
+        }
+
+        return relations;
+    }
+
+    @Override
     protected void updateObject(TranslationContext context, MaterialPE materialPe, Material result, Relations relations,
             MaterialFetchOptions fetchOptions)
     {
         if (fetchOptions.hasProperties())
         {
-            result.setProperties(propertyTranslator.translate(context, materialPe, fetchOptions.withProperties()));
+            PropertyRelation relation = relations.get(MaterialPropertyRelation.class);
+            result.setProperties(relation.getProperties(materialPe.getId()));
             result.getFetchOptions().withPropertiesUsing(fetchOptions.withProperties());
         }
 
@@ -113,6 +135,6 @@ public class MaterialTranslator extends AbstractCachingTranslator<MaterialPE, Ma
             result.setType(typeTranslator.translate(context, materialPe.getMaterialType(), fetchOptions.withType()));
             result.getFetchOptions().withTypeUsing(fetchOptions.withType());
         }
-
     }
+
 }
