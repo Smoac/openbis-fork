@@ -110,7 +110,14 @@ function ExperimentFormController(mainController, mode, experiment) {
 							_this._mainController.sideMenu.updateExperimentName(experiment);
 						}
 						_this._experimentFormModel.isFormDirty = false;
-						_this._mainController.changeView("showExperimentPageFromIdentifier", experimentIdentifier);
+						
+						var isInventory = profile.isInventorySpace(experimentSpace);
+						if(isInventory) {
+							_this._mainController.changeView("showSamplesPage", experimentIdentifier);
+						} else {
+							_this._mainController.changeView("showExperimentPageFromIdentifier", experimentIdentifier);
+						}
+						
 						Util.unblockUI();
 					}
 					
