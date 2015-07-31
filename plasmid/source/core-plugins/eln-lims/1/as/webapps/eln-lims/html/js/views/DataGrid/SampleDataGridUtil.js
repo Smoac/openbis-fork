@@ -107,14 +107,28 @@ var SampleDataGridUtil = new function() {
 			}
 		}
 		
+		columns.push({
+			label : 'Registration Date',
+			property : 'registrationDate',
+			isExportable: false,
+			sortable : true
+		});
+		
+		columns.push({
+			label : 'Modification Date',
+			property : 'modificationDate',
+			isExportable: false,
+			sortable : true
+		});
+		
 		columns.push(mainController.createOperationsColumn());
-			
+		
 		//Fill data model
 		var getDataList = function(callback) {
 			var dataList = [];
 			for(var sIdx = 0; sIdx < samples.length; sIdx++) {
 				var sample = samples[sIdx];
-				var sampleModel = { 'identifier' : sample.identifier, 'default_space' : sample.spaceCode, 'permId' : sample.permId, 'experiment' : sample.experimentIdentifierOrNull };
+				var sampleModel = { 'identifier' : sample.identifier, 'default_space' : sample.spaceCode, 'permId' : sample.permId, 'experiment' : sample.experimentIdentifierOrNull, 'registrationDate' : (new Date(sample.registrationDetails.registrationDate)).toLocaleString(), 'modificationDate' : (new Date(sample.registrationDetails.modificationDate)).toLocaleString() };
 				for (var pIdx = 0; pIdx < propertyCodes.length; pIdx++) {
 					var propertyCode = propertyCodes[pIdx];
 					sampleModel[propertyCode] = sample.properties[propertyCode];
