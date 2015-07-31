@@ -114,7 +114,7 @@ function ExperimentFormController(mainController, mode, experiment) {
 						Util.unblockUI();
 					}
 					
-					Util.showSuccess(experimentTypeDisplayName + " " + message, callbackOk);
+					Util.showSuccess(experimentTypeDisplayName + " " + message, callbackOk, true);
 				} else { //This should never happen
 					Util.showError("Unknown Error.", function() {Util.unblockUI();});
 				}

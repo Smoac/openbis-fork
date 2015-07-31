@@ -121,7 +121,7 @@ var Util = new function() {
 		});
 	}
 	
-	this.showSuccess = function(withHTML, andCallback) {
+	this.showSuccess = function(withHTML, andCallback, forceAutoHide) {
 		var isiPad = navigator.userAgent.match(/iPad/i) != null;
 		if(!isiPad) {
 			withHTML = withHTML + "<br>" + "<a class='btn btn-default'>OK</a>";
@@ -132,7 +132,7 @@ var Util = new function() {
 		jSuccess(
 				withHTML,
 				{
-				  autoHide : isiPad,
+				  autoHide : isiPad || forceAutoHide,
 				  clickOverlay : false,
 				  MinWidth : 250,
 				  TimeShown : 2000,

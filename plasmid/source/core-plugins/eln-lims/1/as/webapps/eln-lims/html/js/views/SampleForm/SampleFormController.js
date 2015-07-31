@@ -378,7 +378,7 @@ function SampleFormController(mainController, mode, sample) {
 //				});
 			}
 			
-			Util.showSuccess(sampleTypeDisplayName + " " + message, callbackOk);
+			Util.showSuccess(sampleTypeDisplayName + " " + message, callbackOk, true);
 			_this._sampleFormModel.isFormDirty = false;
 		} else { //This should never happen
 			Util.showError("Unknown Error.", function() {Util.unblockUI();});
