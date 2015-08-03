@@ -344,7 +344,7 @@ class BioFormatsProcessor:
             if voxelX is None:
                 voxelX = 0;
             else:
-                voxelX = voxelX.getValue()
+                voxelX = voxelX.value()
 
             self._metadata[n]['voxelSizeX'] = voxelX
 
@@ -353,7 +353,7 @@ class BioFormatsProcessor:
             if voxelY is None:
                 voxelY = 0;
             else:
-                voxelY = voxelY.getValue()
+                voxelY = voxelY.value()
 
             self._metadata[n]['voxelSizeY'] = voxelY
 
@@ -362,7 +362,7 @@ class BioFormatsProcessor:
             if voxelZ is None:
                 voxelZ = 0;
             else:
-                voxelZ = voxelZ.getValue()
+                voxelZ = voxelZ.value()
 
             self._metadata[n]['voxelSizeZ'] = voxelZ
 
