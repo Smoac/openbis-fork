@@ -24,11 +24,11 @@ import java.util.Map;
 
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.imagereaders.ImageReaderTestCase;
 import ch.systemsx.cisd.imagereaders.IImageReader;
 import ch.systemsx.cisd.imagereaders.ImageID;
 import ch.systemsx.cisd.imagereaders.ImageReaderConstants;
 import ch.systemsx.cisd.imagereaders.ImageReaderFactory;
+import ch.systemsx.cisd.imagereaders.ImageReaderTestCase;
 import ch.systemsx.cisd.imagereaders.ImageReadersTestHelper;
 
 /**
@@ -89,8 +89,8 @@ public class BioFormatsMetaDataReadingTest extends ImageReaderTestCase
                 + "Subtract: Off\n"
                 + "Temperature: -29.95\n"
                 + "Trigger Mode: Normal (TIMED)\n"
-                + "X position for position #1: 73296.5\n"
-                + "Y position for position #1: 25554.2\n"
+                + "X position for position #1: ome.units.quantity.Length: value[73296.5], unit[reference frame] stored as java.lang.Double\n"
+                + "Y position for position #1: ome.units.quantity.Length: value[25554.2], unit[reference frame] stored as java.lang.Double\n"
                 + "_IllumSetting_: Cy3\n"
                 + "_MagNA_: 0.5\n"
                 + "_MagRI_: 1\n"
@@ -104,7 +104,7 @@ public class BioFormatsMetaDataReadingTest extends ImageReaderTestCase
                 + "camera-binning-y: 1\n"
                 + "camera-chip-offset-x: 0\n"
                 + "camera-chip-offset-y: 0\n"
-                + "exposure time 0 (ms): 10.0\n"
+                + "exposure time (ms) #1: 10.0\n"
                 + "gamma: 1\n"
                 + "gray-calibration-curve-fit-algorithm: 4\n"
                 + "gray-calibration-max: -1\n"
@@ -134,7 +134,7 @@ public class BioFormatsMetaDataReadingTest extends ImageReaderTestCase
                 + "threshold-high: 65535\n"
                 + "threshold-low: 0\n"
                 + "threshold-state: ThresholdOff\n"
-                + "timestamp 0: 1290354772986\n"
+                + "timestamp #1: 1290358372986\n"
                 + "wavelength: 624\n" + "z-position: 11145.7\n" + "zoom-percent: 50\n";
     }
 
