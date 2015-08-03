@@ -60,8 +60,8 @@ public class BioFormatsInfo
             System.out.println(" effective size C: " + reader.getEffectiveSizeC());
             System.out.println(" pixel type: " + reader.getPixelType());
             System.out.println(" RGB channel count: " + reader.getRGBChannelCount());
-            CoreMetadata[] coreMetadata = reader.getCoreMetadata();
-            System.out.println(" # of core meta-data: " + coreMetadata.length);
+            List<CoreMetadata> coreMetadata = reader.getCoreMetadataList();
+            System.out.println(" # of core meta-data: " + coreMetadata.size());
             printMap("  global meta-data", reader.getGlobalMetadata());
             int seriesCount = reader.getSeriesCount();
             System.out.println(" series count: " + seriesCount);
@@ -73,7 +73,7 @@ public class BioFormatsInfo
         }
 
     }
-    
+
     private static void printMap(String title, Map<String, Object> map)
     {
         System.out.println(title + ":");
