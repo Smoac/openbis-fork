@@ -423,3 +423,15 @@ String.prototype.endsWith = function(suffix) {
 String.prototype.startsWith = function (prefix) {
     return this.slice(0, prefix.length) == prefix;
 };
+
+Array.prototype.uniqueOBISEntity = function() {
+    var a = this.concat();
+    for(var i=0; i<a.length; ++i) {
+        for(var j=i+1; j<a.length; ++j) {
+            if(a[i].identifier === a[j].identifier)
+                a.splice(j--, 1);
+        }
+    }
+
+    return a;
+};

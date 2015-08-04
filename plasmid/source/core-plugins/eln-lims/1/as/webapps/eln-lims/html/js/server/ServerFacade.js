@@ -859,8 +859,7 @@ function ServerFacade(openbisServer) {
 		});
 	}
 	
-	this.searchWithText = function(freeText, callbackFunction)
-	{	
+	this._getCriteriaWithDate = function(freeText, isRegistrationDate, isModificationDate) {
 		//Find dates on string and delete them to use them differently on the search
 		var regEx = /\d{4}-\d{2}-\d{2}/g;
 		var match = freeText.match(regEx);
@@ -876,40 +875,63 @@ function ServerFacade(openbisServer) {
 			sampleCriteria.matchClauses.push({
 				"@type": "AnyFieldMatchClause",
 				fieldType: "ANY_FIELD",
-				desiredValue: "*" + freeText + "*"
+				desiredValue: "*" + freeText.trim() + "*"
 			});
 		}
 		
 		if(match && match.length > 0) {
 			for(var mIdx = 0; mIdx < match.length; mIdx++) {
-				sampleCriteria.matchClauses.push({
-					"@type":"TimeAttributeMatchClause",
-					fieldType : "ATTRIBUTE",
-					fieldCode : "REGISTRATION_DATE",
-					desiredValue : match[mIdx],
-					compareMode : "EQUALS",
-					timeZone : "+1",
-					attribute : "REGISTRATION_DATE"
-				},
-				{
-					"@type":"TimeAttributeMatchClause",
-					fieldType : "ATTRIBUTE",
-					fieldCode : "MODIFICATION_DATE",
-					desiredValue : match[mIdx],
-					compareMode : "EQUALS",
-					timeZone : "+1",
-					attribute : "MODIFICATION_DATE"
+				if(isRegistrationDate) {
+					sampleCriteria.matchClauses.push({
+						"@type":"TimeAttributeMatchClause",
+						fieldType : "ATTRIBUTE",
+						fieldCode : "REGISTRATION_DATE",
+						desiredValue : match[mIdx],
+						compareMode : "EQUALS",
+						timeZone : "+1",
+						attribute : "REGISTRATION_DATE"
+					});
 				}
-				);
+				
+				if(isModificationDate) {
+					sampleCriteria.matchClauses.push({
+						"@type":"TimeAttributeMatchClause",
+						fieldType : "ATTRIBUTE",
+						fieldCode : "MODIFICATION_DATE",
+						desiredValue : match[mIdx],
+						compareMode : "EQUALS",
+						timeZone : "+1",
+						attribute : "MODIFICATION_DATE"
+					});
+				}
 			}
 		}
 		
-		if(sampleCriteria.matchClauses.length > 0) {
-			var localReference = this;
-			this.openbisServer.searchForSamplesWithFetchOptions(sampleCriteria, ["PROPERTIES"], function(data) {
-				callbackFunction(localReference.getInitializedSamples(data.result));
+		return sampleCriteria;
+	}
+	
+	this.searchWithText = function(freeText, callbackFunction)
+	{
+		var _this = this;
+		var regEx = /\d{4}-\d{2}-\d{2}/g;
+		var match = freeText.match(regEx);
+		
+		if(match && match.length === 1) { //Search With Date Mode
+			this.openbisServer.searchForSamplesWithFetchOptions(this._getCriteriaWithDate(freeText, true, false), ["PROPERTIES"], function(data1) {
+				_this.openbisServer.searchForSamplesWithFetchOptions(_this._getCriteriaWithDate(freeText, false, true), ["PROPERTIES"], function(data2) {
+					var results1 = _this.getInitializedSamples(data1.result);
+					var results2 = _this.getInitializedSamples(data2.result);
+					var resultsF = results1.concat(results2).uniqueOBISEntity();
+					callbackFunction(resultsF);
+				});
 			});
-		} else {
+		} else if(match && match.length > 1) {
+			Util.showError("Search only supports one date at a time!");
+			callbackFunction([]);
+		} else { //Normal Search
+			this.openbisServer.searchForSamplesWithFetchOptions(this._getCriteriaWithDate(freeText, false, false), ["PROPERTIES"], function(data) {
+				callbackFunction(_this.getInitializedSamples(data.result));
+			});
 			callbackFunction([]);
 		}
 	}
