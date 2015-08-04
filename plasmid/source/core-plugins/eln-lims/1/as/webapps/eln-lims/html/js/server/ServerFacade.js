@@ -887,8 +887,20 @@ function ServerFacade(openbisServer) {
 			});
 		}
 
+		var isValidDate = function(dateString) {
+			var regEx = /^\d{4}-\d{2}-\d{2}$/;
+			return dateString.match(regEx) != null;
+		};
+		
 		if(dateText) {
 			dateText = dateText.substring(5, dateText.length);
+			
+			if(!isValidDate(dateText)) {
+				Util.showError("The date given: " + dateText + " don't follows the format YYYY-MM-DD");
+				callbackFunction([]);
+				return;
+			}
+			
 			sampleCriteria.matchClauses.push({
 				"@type":"TimeAttributeMatchClause",
 				fieldType : "ATTRIBUTE",
