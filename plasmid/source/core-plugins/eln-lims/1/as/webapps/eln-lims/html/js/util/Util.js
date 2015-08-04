@@ -318,7 +318,7 @@ var Util = new function() {
 		if(minute < 10) {
 			minute = "0" + minute;
 		}
-		return day + "/" + month + "/" + year + " " + hour + ":" + minute;
+		return year + "-" + month + "-" + day + " " + hour + ":" + minute;
 	}
 	
 	//

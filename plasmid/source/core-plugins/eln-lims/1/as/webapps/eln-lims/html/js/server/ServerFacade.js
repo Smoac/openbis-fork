@@ -861,19 +861,63 @@ function ServerFacade(openbisServer) {
 	
 	this.searchWithText = function(freeText, callbackFunction)
 	{	
+		var dateText = null;
+		if(freeText.indexOf("date:") !== -1 && freeText.indexOf(" ", freeText.indexOf("date:")) !== -1) {
+			dateText = freeText.substring(freeText.indexOf("date:"), freeText.indexOf(" ", freeText.indexOf("date:")));
+			freeText = freeText.substring(freeText.indexOf(" ", freeText.indexOf("date:")), freeText.length);
+			freeText = freeText.trim();
+			if(freeText.length < 1) {
+				freeText = null;
+			}
+		} else if(freeText.indexOf("date:") !== -1) {
+			dateText = freeText;
+			freeText = null;
+		}
+
 		var sampleCriteria = {
-			matchClauses: [{
+			matchClauses: [],
+			operator: "MATCH_ALL_CLAUSES"
+		};
+		
+		if(freeText) {
+			sampleCriteria.matchClauses.push({
 				"@type": "AnyFieldMatchClause",
 				fieldType: "ANY_FIELD",
 				desiredValue: "*" + freeText + "*"
-			}],
-			operator: "MATCH_ANY_CLAUSES"
-		};
+			});
+		}
+
+		if(dateText) {
+			dateText = dateText.substring(5, dateText.length);
+			sampleCriteria.matchClauses.push({
+				"@type":"TimeAttributeMatchClause",
+				fieldType : "ATTRIBUTE",
+				fieldCode : "REGISTRATION_DATE",
+				desiredValue : dateText,
+				compareMode : "EQUALS",
+				timeZone : "+1",
+				attribute : "REGISTRATION_DATE"
+			},
+			{
+				"@type":"TimeAttributeMatchClause",
+				fieldType : "ATTRIBUTE",
+				fieldCode : "MODIFICATION_DATE",
+				desiredValue : dateText,
+				compareMode : "EQUALS",
+				timeZone : "+1",
+				attribute : "MODIFICATION_DATE"
+			}
+			);
+		}
 		
-		var localReference = this;
-		this.openbisServer.searchForSamplesWithFetchOptions(sampleCriteria, ["PROPERTIES"], function(data) {
-			callbackFunction(localReference.getInitializedSamples(data.result));
-		});
+		if(sampleCriteria.matchClauses.length > 0) {
+			var localReference = this;
+			this.openbisServer.searchForSamplesWithFetchOptions(sampleCriteria, ["PROPERTIES"], function(data) {
+				callbackFunction(localReference.getInitializedSamples(data.result));
+			});
+		} else {
+			callbackFunction([]);
+		}
 	}
 	
 	this.listSearchDomains = function(callbackFunction) {
