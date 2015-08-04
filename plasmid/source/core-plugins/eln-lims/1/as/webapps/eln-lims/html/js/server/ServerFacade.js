@@ -916,7 +916,7 @@ function ServerFacade(openbisServer) {
 		var regEx = /\d{4}-\d{2}-\d{2}/g;
 		var match = freeText.match(regEx);
 		
-		if(match && match.length === 1) { //Search With Date Mode
+		if(match && match.length === 1) { //Search With Date Mode, we merge results with dates found on registration and modification fields what is slow for large number of entities
 			this.openbisServer.searchForSamplesWithFetchOptions(this._getCriteriaWithDate(freeText, true, false), ["PROPERTIES"], function(data1) {
 				_this.openbisServer.searchForSamplesWithFetchOptions(_this._getCriteriaWithDate(freeText, false, true), ["PROPERTIES"], function(data2) {
 					var results1 = _this.getInitializedSamples(data1.result);
