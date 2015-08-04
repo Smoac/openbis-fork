@@ -861,19 +861,12 @@ function ServerFacade(openbisServer) {
 	
 	this.searchWithText = function(freeText, callbackFunction)
 	{	
-		var dateText = null;
-		if(freeText.indexOf("date:") !== -1 && freeText.indexOf(" ", freeText.indexOf("date:")) !== -1) {
-			dateText = freeText.substring(freeText.indexOf("date:"), freeText.indexOf(" ", freeText.indexOf("date:")));
-			freeText = freeText.substring(freeText.indexOf(" ", freeText.indexOf("date:")), freeText.length);
-			freeText = freeText.trim();
-			if(freeText.length < 1) {
-				freeText = null;
-			}
-		} else if(freeText.indexOf("date:") !== -1) {
-			dateText = freeText;
-			freeText = null;
-		}
-
+		//Find dates on string and delete them to use them differently on the search
+		var regEx = /\d{4}-\d{2}-\d{2}/g;
+		var match = freeText.match(regEx);
+		freeText = freeText.replace(regEx, "");
+		
+		//Build Search
 		var sampleCriteria = {
 			matchClauses: [],
 			operator: "MATCH_ALL_CLAUSES"
@@ -886,40 +879,29 @@ function ServerFacade(openbisServer) {
 				desiredValue: "*" + freeText + "*"
 			});
 		}
-
-		var isValidDate = function(dateString) {
-			var regEx = /^\d{4}-\d{2}-\d{2}$/;
-			return dateString.match(regEx) != null;
-		};
 		
-		if(dateText) {
-			dateText = dateText.substring(5, dateText.length);
-			
-			if(!isValidDate(dateText)) {
-				Util.showError("The date given: " + dateText + " don't follows the format YYYY-MM-DD");
-				callbackFunction([]);
-				return;
+		if(match && match.length > 0) {
+			for(var mIdx = 0; mIdx < match.length; mIdx++) {
+				sampleCriteria.matchClauses.push({
+					"@type":"TimeAttributeMatchClause",
+					fieldType : "ATTRIBUTE",
+					fieldCode : "REGISTRATION_DATE",
+					desiredValue : match[mIdx],
+					compareMode : "EQUALS",
+					timeZone : "+1",
+					attribute : "REGISTRATION_DATE"
+				},
+				{
+					"@type":"TimeAttributeMatchClause",
+					fieldType : "ATTRIBUTE",
+					fieldCode : "MODIFICATION_DATE",
+					desiredValue : match[mIdx],
+					compareMode : "EQUALS",
+					timeZone : "+1",
+					attribute : "MODIFICATION_DATE"
+				}
+				);
 			}
-			
-			sampleCriteria.matchClauses.push({
-				"@type":"TimeAttributeMatchClause",
-				fieldType : "ATTRIBUTE",
-				fieldCode : "REGISTRATION_DATE",
-				desiredValue : dateText,
-				compareMode : "EQUALS",
-				timeZone : "+1",
-				attribute : "REGISTRATION_DATE"
-			},
-			{
-				"@type":"TimeAttributeMatchClause",
-				fieldType : "ATTRIBUTE",
-				fieldCode : "MODIFICATION_DATE",
-				desiredValue : dateText,
-				compareMode : "EQUALS",
-				timeZone : "+1",
-				attribute : "MODIFICATION_DATE"
-			}
-			);
 		}
 		
 		if(sampleCriteria.matchClauses.length > 0) {
