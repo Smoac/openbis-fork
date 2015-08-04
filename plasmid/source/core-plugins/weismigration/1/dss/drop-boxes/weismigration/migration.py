@@ -93,6 +93,10 @@ def setEntityProperties(tr, definition, entity, properties):
                     newTerm = definitionsVoc.createVocabularyTerm(tr, propertyDefinition[4], codeToUse, labelToUse)
                     propertyValue = newTerm.getCode()
                     print "* WARNING ENTITY [" + entity.getCode() + "]: for Vocabulary [" + propertyDefinition[4] + "], found value not in list: [" + repr(labelToUse) + "]. Created new term with code [" + codeToUse + "]"
+
+            if propertyDefinition[2] == "pKW Number":
+                propertyValue = "pKW" + propertyValue
+                
             
             if propertyDefinition is not None: #Sometimes special fields are added for other purposes, these should not be set
                 entity.setPropertyValue(propertyCode, propertyValue)
@@ -500,7 +504,11 @@ class FMEntityMultipleValuesOpenBISDTO(OpenBISDTO):
                 return False
         return True
 
-
+#    def createGenotypeProperty(selfself.tr):
+#        for MultipleValues in self.values["*MultipleValuesESLIST"]:
+#            MultipleValuesSignature = "";
+#            for propertyCode in definitions.getRepetitionPropertyCodes():
+#                propertyValue = MultipleValues[propertyCode]        
 
 ##
 ## Antibodies
