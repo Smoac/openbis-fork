@@ -47,4 +47,7 @@ public interface MaterialQuery extends BaseQuery
             + "where mp.mate_id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<MaterialPropertyRecord> getProperties(LongSet materialIds);
 
+    @Select(sql = "select m.id as materialId, m.pers_id_registerer as registratorId from materials m where m.id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    public List<MaterialRegistratorRecord> getRegistrators(LongSet materialIds);
+
 }

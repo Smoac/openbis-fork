@@ -25,11 +25,17 @@ import java.util.Map;
 
 import net.lemnik.eodsql.QueryTool;
 
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.Relation;
 
 /**
  * @author pkupczyk
  */
+@Component
+@Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class MaterialBaseRelation implements Relation
 {
 

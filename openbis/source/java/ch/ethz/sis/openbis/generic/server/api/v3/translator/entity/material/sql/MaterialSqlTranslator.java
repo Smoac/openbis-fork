@@ -19,6 +19,7 @@ package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.material.sql
 import java.util.Collection;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.AbstractCachingTranslator;
@@ -58,6 +59,9 @@ public class MaterialSqlTranslator extends AbstractCachingTranslator<Long, Mater
     @Autowired
     private IHistoryTranslator historyTranslator;
 
+    @Autowired
+    private ApplicationContext applicationContext;
+
     @Override
     protected Material createObject(TranslationContext context, Long materialId, MaterialFetchOptions fetchOptions)
     {
@@ -71,11 +75,16 @@ public class MaterialSqlTranslator extends AbstractCachingTranslator<Long, Mater
     {
         Relations relations = new Relations();
 
-        relations.add(new MaterialBaseRelation(materialIds));
+        relations.add(applicationContext.getBean(MaterialBaseRelation.class, materialIds));
 
         if (fetchOptions.hasProperties())
         {
-            relations.add(new MaterialPropertyRelation(materialIds));
+            relations.add(applicationContext.getBean(MaterialPropertyRelation.class, materialIds));
+        }
+
+        if (fetchOptions.hasRegistrator())
+        {
+            relations.add(applicationContext.getBean(MaterialRegistratorRelation.class, context, materialIds, fetchOptions.withRegistrator()));
         }
 
         return relations;
@@ -98,6 +107,13 @@ public class MaterialSqlTranslator extends AbstractCachingTranslator<Long, Mater
             PropertyRelation relation = relations.get(MaterialPropertyRelation.class);
             result.setProperties(relation.getProperties(materialId));
             result.getFetchOptions().withPropertiesUsing(fetchOptions.withProperties());
+        }
+
+        if (fetchOptions.hasRegistrator())
+        {
+            MaterialRegistratorRelation relation = relations.get(MaterialRegistratorRelation.class);
+            result.setRegistrator(relation.getRegistrator(materialId));
+            result.getFetchOptions().withRegistratorUsing(fetchOptions.withRegistrator());
         }
     }
 

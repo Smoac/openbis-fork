@@ -23,6 +23,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
 import net.lemnik.eodsql.QueryTool;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.property.PropertyRelation;
@@ -30,6 +34,8 @@ import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.property.Prop
 /**
  * @author pkupczyk
  */
+@Component
+@Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class MaterialPropertyRelation extends PropertyRelation
 {
 
