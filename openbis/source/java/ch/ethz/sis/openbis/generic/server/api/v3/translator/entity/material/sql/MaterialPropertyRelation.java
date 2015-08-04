@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.material;
+package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.material.sql;
 
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 
@@ -41,11 +41,11 @@ public class MaterialPropertyRelation extends PropertyRelation
     @Override
     protected Map<Long, Map<String, String>> loadProperties(Collection<Long> entityIds)
     {
-        MaterialPropertyQuery query = QueryTool.getManagedQuery(MaterialPropertyQuery.class);
-        List<MaterialProperty> properties = query.getProperties(new LongOpenHashSet(entityIds));
+        MaterialQuery query = QueryTool.getManagedQuery(MaterialQuery.class);
+        List<MaterialPropertyRecord> properties = query.getProperties(new LongOpenHashSet(entityIds));
         Map<Long, Map<String, String>> result = new HashMap<Long, Map<String, String>>();
 
-        for (MaterialProperty property : properties)
+        for (MaterialPropertyRecord property : properties)
         {
             Map<String, String> materialProperties = result.get(property.materialId);
 

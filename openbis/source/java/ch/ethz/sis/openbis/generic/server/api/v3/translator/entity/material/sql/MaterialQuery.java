@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.material;
+package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.material.sql;
 
 import it.unimi.dsi.fastutil.longs.LongSet;
 
@@ -28,10 +28,15 @@ import ch.systemsx.cisd.common.db.mapper.LongSetMapper;
 /**
  * @author pkupczyk
  */
-public interface MaterialPropertyQuery extends BaseQuery
+public interface MaterialQuery extends BaseQuery
 {
 
     public int FETCH_SIZE = 1000;
+
+    @Select(sql = "select m.id, m.code, mt.code as typeCode, m.pers_id_registerer as registererId, m.registration_timestamp as registrationDate, m.modification_timestamp as modificationDate "
+            + "from materials m, material_types mt "
+            + "where m.maty_id = mt.id and m.id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    public List<MaterialBaseRecord> getMaterials(LongSet materialIds);
 
     @Select(sql = "select mp.mate_id as materialId, pt.code as propertyCode, mp.value as propertyValue, m.code as materialPropertyCode, mt.code as materialPropertyTypeCode "
             + "from material_properties mp "
@@ -40,6 +45,6 @@ public interface MaterialPropertyQuery extends BaseQuery
             + "left join material_type_property_types mtpt on mp.mtpt_id = mtpt.id "
             + "left join property_types pt on mtpt.prty_id = pt.id "
             + "where mp.mate_id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
-    public List<MaterialProperty> getProperties(LongSet materialIds);
+    public List<MaterialPropertyRecord> getProperties(LongSet materialIds);
 
 }

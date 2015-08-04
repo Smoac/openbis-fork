@@ -32,7 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 /**
  * @author pkupczyk
  */
-public abstract class AbstractCachingTranslator<I extends IIdHolder, O, F> extends AbstractTranslator<I, O, F>
+public abstract class AbstractCachingTranslator<I, O, F> extends AbstractTranslator<I, O, F>
 {
 
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, AbstractCachingTranslator.class);
@@ -150,7 +150,16 @@ public abstract class AbstractCachingTranslator<I extends IIdHolder, O, F> exten
 
     private Long getId(I input)
     {
-        return HibernateUtils.getId(input);
+        if (input instanceof IIdHolder)
+        {
+            return HibernateUtils.getId((IIdHolder) input);
+        } else if (input instanceof Long)
+        {
+            return (Long) input;
+        } else
+        {
+            throw new IllegalArgumentException("Unsupported input type: " + input.getClass());
+        }
     }
 
     /**
@@ -165,7 +174,7 @@ public abstract class AbstractCachingTranslator<I extends IIdHolder, O, F> exten
     /**
      * Implementation of this method should create a translated version of the input object. Only basic attributes of the input object should be
      * translated here. Parts that have a corresponding fetch option should be translated in the
-     * {@link AbstractCachingTranslator#updateObject(TranslationContext, IIdHolder, Object, Relations, Object)} method.
+     * {@link AbstractCachingTranslator#updateObject(TranslationContext, Object, Object, Relations, Object)} method.
      */
     protected abstract O createObject(TranslationContext context, I input, F fetchOptions);
 

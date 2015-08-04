@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ETH Zuerich, CISD
+ * Copyright 2014 ETH Zuerich, Scientific IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,21 +14,15 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.material;
+package ch.ethz.sis.openbis.generic.server.api.v3.executor.material;
+
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.common.ISearchObjectExecutor;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.MaterialSearchCriterion;
 
 /**
  * @author pkupczyk
  */
-public class MaterialProperty
+public interface ISearchMaterialIdExecutor extends ISearchObjectExecutor<MaterialSearchCriterion, Long>
 {
-    public Long materialId;
-
-    public String propertyCode;
-
-    public String propertyValue;
-
-    public String materialPropertyCode;
-
-    public String materialPropertyTypeCode;
 
 }
