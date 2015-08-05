@@ -19,12 +19,20 @@ package ch.ethz.sis.openbis.generic.server.api.v3.translator;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
+
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
+
 /**
  * @author pkupczyk
  */
 @SuppressWarnings({ "unchecked" })
 public class Relations
 {
+
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, Relations.class);
+
     private Map<Class<? extends Relation>, Relation> relationMap = new HashMap<Class<? extends Relation>, Relation>();
 
     public void add(Relation relation)
@@ -41,7 +49,9 @@ public class Relations
     {
         for (Relation relation : relationMap.values())
         {
+            operationLog.debug("Started loading a relation: " + relation);
             relation.load();
+            operationLog.debug("Finished loading a relation: " + relation);
         }
     }
 }

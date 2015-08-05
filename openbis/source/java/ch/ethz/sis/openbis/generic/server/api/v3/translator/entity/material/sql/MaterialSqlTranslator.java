@@ -48,16 +48,21 @@ public class MaterialSqlTranslator extends AbstractCachingTranslator<Long, Mater
     {
         Relations relations = new Relations();
 
-        relations.add(applicationContext.getBean(MaterialBaseRelation.class, materialIds));
+        relations.add(createRelation(MaterialBaseRelation.class, materialIds));
+
+        if (fetchOptions.hasType())
+        {
+            relations.add(createRelation(MaterialTypeRelation.class, context, materialIds, fetchOptions.withType()));
+        }
 
         if (fetchOptions.hasProperties())
         {
-            relations.add(applicationContext.getBean(MaterialPropertyRelation.class, materialIds));
+            relations.add(createRelation(MaterialPropertyRelation.class, materialIds));
         }
 
         if (fetchOptions.hasRegistrator())
         {
-            relations.add(applicationContext.getBean(MaterialRegistratorRelation.class, context, materialIds, fetchOptions.withRegistrator()));
+            relations.add(createRelation(MaterialRegistratorRelation.class, context, materialIds, fetchOptions.withRegistrator()));
         }
 
         return relations;
@@ -74,6 +79,13 @@ public class MaterialSqlTranslator extends AbstractCachingTranslator<Long, Mater
         result.setCode(baseRecord.code);
         result.setModificationDate(baseRecord.modificationDate);
         result.setRegistrationDate(baseRecord.registrationDate);
+
+        if (fetchOptions.hasType())
+        {
+            MaterialTypeRelation relation = relations.get(MaterialTypeRelation.class);
+            result.setType(relation.getRelated(materialId));
+            result.getFetchOptions().withTypeUsing(fetchOptions.withType());
+        }
 
         if (fetchOptions.hasProperties())
         {

@@ -46,11 +46,11 @@ public class PersonSqlTranslator extends AbstractCachingTranslator<Long, Person,
     {
         Relations relations = new Relations();
 
-        relations.add(applicationContext.getBean(PersonBaseRelation.class, personIds));
+        relations.add(createRelation(PersonBaseRelation.class, personIds));
 
         if (fetchOptions.hasSpace())
         {
-            relations.add(applicationContext.getBean(PersonSpaceRelation.class, context, personIds, fetchOptions.withSpace()));
+            relations.add(createRelation(PersonSpaceRelation.class, context, personIds, fetchOptions.withSpace()));
         }
 
         return relations;

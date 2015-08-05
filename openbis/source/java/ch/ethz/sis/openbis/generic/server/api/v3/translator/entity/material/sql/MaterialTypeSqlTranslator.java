@@ -16,6 +16,8 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.material.sql;
 
+import java.util.Collection;
+
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.AbstractCachingTranslator;
@@ -24,31 +26,44 @@ import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material.MaterialType;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.material.MaterialTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.entitytype.EntityTypePermId;
-import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 
 /**
- * @author Jakub Straszewski
+ * @author pkupczyk
  */
 @Component
-public class MaterialTypeSqlTranslator extends AbstractCachingTranslator<MaterialTypePE, MaterialType, MaterialTypeFetchOptions> implements
+public class MaterialTypeSqlTranslator extends AbstractCachingTranslator<Long, MaterialType, MaterialTypeFetchOptions> implements
         IMaterialTypeSqlTranslator
 {
 
     @Override
-    protected MaterialType createObject(TranslationContext context, MaterialTypePE input, MaterialTypeFetchOptions fetchOptions)
+    protected MaterialType createObject(TranslationContext context, Long typeId, MaterialTypeFetchOptions fetchOptions)
     {
         final MaterialType materialType = new MaterialType();
-        materialType.setPermId(new EntityTypePermId(input.getCode()));
-        materialType.setCode(input.getCode());
-        materialType.setDescription(input.getDescription());
-        materialType.setModificationDate(input.getModificationDate());
+        materialType.setFetchOptions(new MaterialTypeFetchOptions());
         return materialType;
     }
 
     @Override
-    protected void updateObject(TranslationContext context, MaterialTypePE input, MaterialType output, Relations relations,
+    protected Relations getObjectsRelations(TranslationContext context, Collection<Long> typeIds, MaterialTypeFetchOptions fetchOptions)
+    {
+        Relations relations = new Relations();
+
+        relations.add(createRelation(MaterialTypeBaseRelation.class, typeIds));
+
+        return relations;
+    }
+
+    @Override
+    protected void updateObject(TranslationContext context, Long typeId, MaterialType result, Relations relations,
             MaterialTypeFetchOptions fetchOptions)
     {
+        MaterialTypeBaseRelation baseRelation = relations.get(MaterialTypeBaseRelation.class);
+        MaterialTypeBaseRecord baseRecord = baseRelation.getRecord(typeId);
+
+        result.setPermId(new EntityTypePermId(baseRecord.code));
+        result.setCode(baseRecord.code);
+        result.setDescription(baseRecord.description);
+        result.setModificationDate(baseRecord.modificationDate);
     }
 
 }

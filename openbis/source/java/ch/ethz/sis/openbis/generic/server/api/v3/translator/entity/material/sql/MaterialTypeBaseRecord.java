@@ -16,14 +16,20 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.material.sql;
 
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.ITranslator;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material.MaterialType;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.material.MaterialTypeFetchOptions;
+import java.util.Date;
+
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql.ObjectBaseRecord;
 
 /**
  * @author pkupczyk
  */
-public interface IMaterialTypeSqlTranslator extends ITranslator<Long, MaterialType, MaterialTypeFetchOptions>
+public class MaterialTypeBaseRecord extends ObjectBaseRecord
 {
+
+    public String code;
+
+    public String description;
+
+    public Date modificationDate;
 
 }

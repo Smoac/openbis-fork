@@ -40,8 +40,8 @@ public abstract class AbstractCachingTranslator<I, O, F> extends AbstractTransla
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, AbstractCachingTranslator.class);
 
     @Autowired
-    protected ApplicationContext applicationContext;
-    
+    private ApplicationContext applicationContext;
+
     @Override
     protected final O doTranslate(TranslationContext context, I object, F fetchOptions)
     {
@@ -190,6 +190,11 @@ public abstract class AbstractCachingTranslator<I, O, F> extends AbstractTransla
     protected Relations getObjectsRelations(TranslationContext context, Collection<I> inputs, F fetchOptions)
     {
         return new Relations();
+    }
+
+    protected Relation createRelation(Class<? extends Relation> relationClass, Object... relationParameters)
+    {
+        return applicationContext.getBean(relationClass, relationParameters);
     }
 
     /**

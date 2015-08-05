@@ -37,6 +37,12 @@ public interface MaterialQuery extends ObjectQuery
             + "where m.maty_id = mt.id and m.id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<MaterialBaseRecord> getMaterials(LongSet materialIds);
 
+    @Select(sql = "select m.id as objectId, m.maty_id as relatedId from materials m where m.id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    public List<ObjectToOneRecord> getTypeIds(LongSet materialIds);
+
+    @Select(sql = "select mt.id, mt.code, mt.description, mt.modification_timestamp as modificationDate from material_types mt where mt.id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    public List<MaterialTypeBaseRecord> getTypes(LongSet materialTypeIds);
+
     @Select(sql = "select mp.mate_id as materialId, pt.code as propertyCode, mp.value as propertyValue, m.code as materialPropertyCode, mt.code as materialPropertyTypeCode "
             + "from material_properties mp "
             + "left outer join materials m on mp.mate_prop_id = m.id "
@@ -47,6 +53,6 @@ public interface MaterialQuery extends ObjectQuery
     public List<MaterialPropertyRecord> getProperties(LongSet materialIds);
 
     @Select(sql = "select m.id as objectId, m.pers_id_registerer as relatedId from materials m where m.id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
-    public List<ObjectToOneRecord> getRegistrators(LongSet materialIds);
+    public List<ObjectToOneRecord> getRegistratorIds(LongSet materialIds);
 
 }

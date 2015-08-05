@@ -32,22 +32,21 @@ import org.springframework.stereotype.Component;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql.ObjectToOneRecord;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql.ObjectToOneRelation;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.person.sql.IPersonSqlTranslator;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.person.Person;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.person.PersonFetchOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material.MaterialType;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.material.MaterialTypeFetchOptions;
 
 /**
  * @author pkupczyk
  */
 @Component
 @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-public class MaterialRegistratorRelation extends ObjectToOneRelation<Person, PersonFetchOptions>
+public class MaterialTypeRelation extends ObjectToOneRelation<MaterialType, MaterialTypeFetchOptions>
 {
 
     @Autowired
-    private IPersonSqlTranslator personTranslator;
+    private IMaterialTypeSqlTranslator typeTranslator;
 
-    public MaterialRegistratorRelation(TranslationContext context, Collection<Long> objectIds, PersonFetchOptions relatedFetchOptions)
+    public MaterialTypeRelation(TranslationContext context, Collection<Long> objectIds, MaterialTypeFetchOptions relatedFetchOptions)
     {
         super(context, objectIds, relatedFetchOptions);
     }
@@ -56,13 +55,13 @@ public class MaterialRegistratorRelation extends ObjectToOneRelation<Person, Per
     protected List<ObjectToOneRecord> load(LongOpenHashSet objectIds)
     {
         MaterialQuery query = QueryTool.getManagedQuery(MaterialQuery.class);
-        return query.getRegistratorIds(objectIds);
+        return query.getTypeIds(objectIds);
     }
 
     @Override
-    protected Map<Long, Person> translate(TranslationContext context, Collection<Long> relatedIds, PersonFetchOptions relatedFetchOptions)
+    protected Map<Long, MaterialType> translate(TranslationContext context, Collection<Long> relatedIds, MaterialTypeFetchOptions relatedFetchOptions)
     {
-        return personTranslator.translate(context, relatedIds, relatedFetchOptions);
+        return typeTranslator.translate(context, relatedIds, relatedFetchOptions);
     }
 
 }
