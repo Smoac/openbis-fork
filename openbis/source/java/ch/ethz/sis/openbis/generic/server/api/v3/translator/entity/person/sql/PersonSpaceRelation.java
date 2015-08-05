@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.material.sql;
+package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.person.sql;
 
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 
@@ -32,22 +32,22 @@ import org.springframework.stereotype.Component;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql.ObjectToOneRecord;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql.ObjectToOneRelation;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.person.sql.IPersonSqlTranslator;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.person.Person;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.person.PersonFetchOptions;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.space.sql.ISpaceSqlTranslator;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.space.Space;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.space.SpaceFetchOptions;
 
 /**
  * @author pkupczyk
  */
 @Component
 @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-public class MaterialRegistratorRelation extends ObjectToOneRelation<Person, PersonFetchOptions>
+public class PersonSpaceRelation extends ObjectToOneRelation<Space, SpaceFetchOptions>
 {
 
     @Autowired
-    private IPersonSqlTranslator personTranslator;
+    private ISpaceSqlTranslator spaceTranslator;
 
-    public MaterialRegistratorRelation(TranslationContext context, Collection<Long> objectIds, PersonFetchOptions relatedFetchOptions)
+    public PersonSpaceRelation(TranslationContext context, Collection<Long> objectIds, SpaceFetchOptions relatedFetchOptions)
     {
         super(context, objectIds, relatedFetchOptions);
     }
@@ -55,14 +55,14 @@ public class MaterialRegistratorRelation extends ObjectToOneRelation<Person, Per
     @Override
     protected List<ObjectToOneRecord> load(LongOpenHashSet objectIds)
     {
-        MaterialQuery query = QueryTool.getManagedQuery(MaterialQuery.class);
-        return query.getRegistrators(objectIds);
+        PersonQuery query = QueryTool.getManagedQuery(PersonQuery.class);
+        return query.getSpaces(objectIds);
     }
 
     @Override
-    protected Map<Long, Person> translate(TranslationContext context, Collection<Long> relatedIds, PersonFetchOptions relatedFetchOptions)
+    protected Map<Long, Space> translate(TranslationContext context, Collection<Long> relatedIds, SpaceFetchOptions relatedFetchOptions)
     {
-        return personTranslator.translate(context, relatedIds, relatedFetchOptions);
+        return spaceTranslator.translate(context, relatedIds, relatedFetchOptions);
     }
 
 }

@@ -20,18 +20,17 @@ import it.unimi.dsi.fastutil.longs.LongSet;
 
 import java.util.List;
 
-import net.lemnik.eodsql.BaseQuery;
 import net.lemnik.eodsql.Select;
 
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql.ObjectQuery;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql.ObjectToOneRecord;
 import ch.systemsx.cisd.common.db.mapper.LongSetMapper;
 
 /**
  * @author pkupczyk
  */
-public interface MaterialQuery extends BaseQuery
+public interface MaterialQuery extends ObjectQuery
 {
-
-    public int FETCH_SIZE = 1000;
 
     @Select(sql = "select m.id, m.code, mt.code as typeCode, m.pers_id_registerer as registererId, m.registration_timestamp as registrationDate, m.modification_timestamp as modificationDate "
             + "from materials m, material_types mt "
@@ -47,7 +46,7 @@ public interface MaterialQuery extends BaseQuery
             + "where mp.mate_id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<MaterialPropertyRecord> getProperties(LongSet materialIds);
 
-    @Select(sql = "select m.id as materialId, m.pers_id_registerer as registratorId from materials m where m.id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
-    public List<MaterialRegistratorRecord> getRegistrators(LongSet materialIds);
+    @Select(sql = "select m.id as objectId, m.pers_id_registerer as relatedId from materials m where m.id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    public List<ObjectToOneRecord> getRegistrators(LongSet materialIds);
 
 }

@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.material.sql;
+package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql;
+
+import net.lemnik.eodsql.BaseQuery;
 
 /**
  * @author pkupczyk
  */
-public class MaterialRegistratorRecord
+public interface ObjectQuery extends BaseQuery
 {
 
-    public Long materialId;
-
-    public Long registratorId;
+    public int FETCH_SIZE = 1000;
 
 }

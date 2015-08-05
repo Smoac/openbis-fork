@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.material.sql;
+package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.person.sql;
 
 import java.util.Date;
 
@@ -23,17 +23,19 @@ import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql.Ob
 /**
  * @author pkupczyk
  */
-public class MaterialBaseRecord extends ObjectBaseRecord
+public class PersonBaseRecord extends ObjectBaseRecord
 {
 
-    public String code;
+    public String firstName;
 
-    public String typeCode;
+    public String lastName;
 
-    public Long registererId;
+    public String userId;
+
+    public String email;
 
     public Date registrationDate;
 
-    public Date modificationDate;
+    public Boolean isActive;
 
 }

@@ -14,26 +14,16 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.material.sql;
+package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.space.sql;
 
-import java.util.Date;
-
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql.ObjectBaseRecord;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.ITranslator;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.space.Space;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.space.SpaceFetchOptions;
 
 /**
  * @author pkupczyk
  */
-public class MaterialBaseRecord extends ObjectBaseRecord
+public interface ISpaceSqlTranslator extends ITranslator<Long, Space, SpaceFetchOptions>
 {
-
-    public String code;
-
-    public String typeCode;
-
-    public Long registererId;
-
-    public Date registrationDate;
-
-    public Date modificationDate;
 
 }

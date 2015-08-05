@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.material.sql;
+package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.person.sql;
 
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 
@@ -34,18 +34,19 @@ import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql.Ob
  */
 @Component
 @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-public class MaterialBaseRelation extends ObjectBaseRelation<MaterialBaseRecord>
+public class PersonBaseRelation extends ObjectBaseRelation<PersonBaseRecord>
 {
 
-    public MaterialBaseRelation(Collection<Long> objectIds)
+    public PersonBaseRelation(Collection<Long> objectIds)
     {
         super(objectIds);
     }
 
     @Override
-    protected List<MaterialBaseRecord> load(LongOpenHashSet objectIds)
+    protected List<PersonBaseRecord> load(LongOpenHashSet objectIds)
     {
-        MaterialQuery query = QueryTool.getManagedQuery(MaterialQuery.class);
-        return query.getMaterials(new LongOpenHashSet(objectIds));
+        PersonQuery query = QueryTool.getManagedQuery(PersonQuery.class);
+        return query.getPersons(new LongOpenHashSet(objectIds));
     }
+
 }

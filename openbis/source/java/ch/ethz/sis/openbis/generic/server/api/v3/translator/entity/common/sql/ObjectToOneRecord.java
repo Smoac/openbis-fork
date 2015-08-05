@@ -14,26 +14,13 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.material.sql;
+package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql;
 
-import java.util.Date;
-
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql.ObjectBaseRecord;
-
-/**
- * @author pkupczyk
- */
-public class MaterialBaseRecord extends ObjectBaseRecord
+public class ObjectToOneRecord
 {
 
-    public String code;
+    public Long objectId;
 
-    public String typeCode;
-
-    public Long registererId;
-
-    public Date registrationDate;
-
-    public Date modificationDate;
+    public Long relatedId;
 
 }

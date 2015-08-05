@@ -18,18 +18,12 @@ package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.material.sql
 
 import java.util.Collection;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.AbstractCachingTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.Relations;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.history.IHistoryTranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.person.IPersonTranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.property.IPropertyTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.property.PropertyRelation;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.tag.ITagTranslator;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material.Material;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.material.MaterialFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.material.MaterialPermId;
@@ -40,27 +34,6 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.material.MaterialPermId;
 @Component
 public class MaterialSqlTranslator extends AbstractCachingTranslator<Long, Material, MaterialFetchOptions> implements IMaterialSqlTranslator
 {
-
-    @Autowired
-    private IMaterialTypeSqlTranslator typeTranslator;
-
-    @Autowired
-    private IPropertyTranslator propertyTranslator;
-
-    @Autowired
-    private IMaterialPropertySqlTranslator materialPropertyTranslator;
-
-    @Autowired
-    private IPersonTranslator personTranslator;
-
-    @Autowired
-    private ITagTranslator tagTranslator;
-
-    @Autowired
-    private IHistoryTranslator historyTranslator;
-
-    @Autowired
-    private ApplicationContext applicationContext;
 
     @Override
     protected Material createObject(TranslationContext context, Long materialId, MaterialFetchOptions fetchOptions)
@@ -112,7 +85,7 @@ public class MaterialSqlTranslator extends AbstractCachingTranslator<Long, Mater
         if (fetchOptions.hasRegistrator())
         {
             MaterialRegistratorRelation relation = relations.get(MaterialRegistratorRelation.class);
-            result.setRegistrator(relation.getRegistrator(materialId));
+            result.setRegistrator(relation.getRelated(materialId));
             result.getFetchOptions().withRegistratorUsing(fetchOptions.withRegistrator());
         }
     }

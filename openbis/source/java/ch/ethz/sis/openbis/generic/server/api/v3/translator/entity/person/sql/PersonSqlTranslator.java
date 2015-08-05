@@ -16,13 +16,13 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.person.sql;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import java.util.Collection;
+
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.AbstractCachingTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.Relations;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.space.ISpaceTranslator;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.person.Person;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.person.PersonFetchOptions;
 
@@ -33,19 +33,47 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.person.PersonF
 public class PersonSqlTranslator extends AbstractCachingTranslator<Long, Person, PersonFetchOptions> implements IPersonSqlTranslator
 {
 
-    @Autowired
-    private ISpaceTranslator spaceTranslator;
-
     @Override
     protected Person createObject(TranslationContext context, Long personId, PersonFetchOptions fetchOptions)
     {
         Person result = new Person();
-        result.setUserId("USER_ID_" + personId);
+        result.setFetchOptions(new PersonFetchOptions());
         return result;
+    }
+
+    @Override
+    protected Relations getObjectsRelations(TranslationContext context, Collection<Long> personIds, PersonFetchOptions fetchOptions)
+    {
+        Relations relations = new Relations();
+
+        relations.add(applicationContext.getBean(PersonBaseRelation.class, personIds));
+
+        if (fetchOptions.hasSpace())
+        {
+            relations.add(applicationContext.getBean(PersonSpaceRelation.class, context, personIds, fetchOptions.withSpace()));
+        }
+
+        return relations;
     }
 
     @Override
     protected void updateObject(TranslationContext context, Long personId, Person result, Relations relations, PersonFetchOptions fetchOptions)
     {
+        PersonBaseRelation baseRelation = relations.get(PersonBaseRelation.class);
+        PersonBaseRecord baseRecord = baseRelation.getRecord(personId);
+
+        result.setFirstName(baseRecord.firstName);
+        result.setLastName(baseRecord.lastName);
+        result.setUserId(baseRecord.userId);
+        result.setEmail(baseRecord.email);
+        result.setRegistrationDate(baseRecord.registrationDate);
+        result.setActive(baseRecord.isActive);
+
+        if (fetchOptions.hasSpace())
+        {
+            PersonSpaceRelation relation = relations.get(PersonSpaceRelation.class);
+            result.setSpace(relation.getRelated(personId));
+            result.getFetchOptions().withSpaceUsing(fetchOptions.withSpace());
+        }
     }
 }
