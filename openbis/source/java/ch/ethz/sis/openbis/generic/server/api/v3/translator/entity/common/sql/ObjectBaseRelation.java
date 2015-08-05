@@ -54,9 +54,9 @@ public abstract class ObjectBaseRelation<RECORD extends ObjectBaseRecord> implem
     protected abstract List<RECORD> load(@SuppressWarnings("hiding")
     LongOpenHashSet objectIds);
 
-    public RECORD getRecord(Long materialId)
+    public RECORD getRecord(Long objectId)
     {
-        return recordMap.get(materialId);
+        return recordMap.get(objectId);
     }
 
 }

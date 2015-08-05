@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.person.sql;
+package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.tag.sql;
 
 import it.unimi.dsi.fastutil.longs.LongSet;
 
@@ -23,20 +23,16 @@ import java.util.List;
 import net.lemnik.eodsql.Select;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql.ObjectQuery;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql.ObjectRelationRecord;
 import ch.systemsx.cisd.common.db.mapper.LongSetMapper;
 
 /**
  * @author pkupczyk
  */
-public interface PersonQuery extends ObjectQuery
+public interface TagQuery extends ObjectQuery
 {
 
-    @Select(sql = "select id, first_name as firstName, last_name as lastName, user_id as userId, email, registration_timestamp as registrationDate, is_active as isActive "
-            + " from persons where id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
-    public List<PersonBaseRecord> getPersons(LongSet personIds);
-
-    @Select(sql = "select id as objectId, space_id as relatedId from persons where id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
-    public List<ObjectRelationRecord> getSpaces(LongSet personIds);
+    @Select(sql = "select m.id, m.name, m.description, p.user_id as owner, m.private as isPrivate, m.creation_date as registrationDate from "
+            + "metaprojects m, persons p where m.owner = p.id and m.id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    public List<TagBaseRecord> getTags(LongSet tagIds);
 
 }

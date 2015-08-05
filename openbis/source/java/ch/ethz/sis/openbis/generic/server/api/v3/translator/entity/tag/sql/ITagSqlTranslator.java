@@ -14,13 +14,16 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql;
+package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.tag.sql;
 
-public class ObjectToOneRecord
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.ITranslator;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.tag.Tag;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.tag.TagFetchOptions;
+
+/**
+ * @author pkupczyk
+ */
+public interface ITagSqlTranslator extends ITranslator<Long, Tag, TagFetchOptions>
 {
-
-    public Long objectId;
-
-    public Long relatedId;
 
 }

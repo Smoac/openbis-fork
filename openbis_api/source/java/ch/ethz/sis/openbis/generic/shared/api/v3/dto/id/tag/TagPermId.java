@@ -31,6 +31,15 @@ public class TagPermId extends ObjectPermId implements ITagId
     private static final long serialVersionUID = 1L;
 
     /**
+     * @param ownerId Tag user id, e.g. "MY_USER"
+     * @param tagCode Tag code, e.g. "MY_TAG"
+     */
+    public TagPermId(String ownerId, String tagCode)
+    {
+        this("/" + ownerId + "/" + tagCode);
+    }
+
+    /**
      * @param permId Tag perm id, e.g. "/MY_USER/MY_TAG".
      */
     public TagPermId(String permId)

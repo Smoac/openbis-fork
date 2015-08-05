@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
@@ -37,7 +38,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 public abstract class AbstractCachingTranslator<I, O, F> extends AbstractTranslator<I, O, F>
 {
 
-    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, AbstractCachingTranslator.class);
+    private final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, getClass());
 
     @Autowired
     private ApplicationContext applicationContext;
@@ -56,11 +57,13 @@ public abstract class AbstractCachingTranslator<I, O, F> extends AbstractTransla
     }
 
     @Override
-    protected final Map<I, O> doTranslate(TranslationContext context, Collection<I> inputs, F fetchOptions)
+    protected final Map<I, O> doTranslate(TranslationContext context, Collection<I> allInputs, F fetchOptions)
     {
         Map<I, O> translated = new LinkedHashMap<I, O>();
         Map<I, O> updated = new HashMap<I, O>();
         TranslationCache cache = context.getTranslationCache();
+
+        Collection<I> inputs = doShouldTranslate(context, allInputs, fetchOptions);
 
         for (I input : inputs)
         {
@@ -128,28 +131,22 @@ public abstract class AbstractCachingTranslator<I, O, F> extends AbstractTransla
     private void handleNewInput(TranslationContext context, I input, Map<I, O> translated, Map<I, O> updated, F fetchOptions)
     {
         Long id = getId(input);
-        if (shouldTranslate(context, input, fetchOptions))
+        O output = createObject(context, input, fetchOptions);
+        TranslationCache cache = context.getTranslationCache();
+
+        if (operationLog.isDebugEnabled())
         {
-            O output = createObject(context, input, fetchOptions);
-            TranslationCache cache = context.getTranslationCache();
+            operationLog.debug("Created: " + output.getClass() + " with id: " + id);
+        }
 
-            if (operationLog.isDebugEnabled())
-            {
-                operationLog.debug("Created: " + output.getClass() + " with id: " + id);
-            }
+        cache.putTranslatedObject(getClass().getName(), id, output);
+        cache.setFetchedWithOptions(output, fetchOptions);
+        updated.put(input, output);
+        translated.put(input, output);
 
-            cache.putTranslatedObject(getClass().getName(), id, output);
-            cache.setFetchedWithOptions(output, fetchOptions);
-            updated.put(input, output);
-            translated.put(input, output);
-
-            if (operationLog.isDebugEnabled())
-            {
-                operationLog.debug("Updating created: " + output.getClass() + " with id: " + id);
-            }
-        } else
+        if (operationLog.isDebugEnabled())
         {
-            operationLog.debug("Should not translate object: " + input.getClass() + " with id: " + id);
+            operationLog.debug("Updating created: " + output.getClass() + " with id: " + id);
         }
     }
 
@@ -165,6 +162,84 @@ public abstract class AbstractCachingTranslator<I, O, F> extends AbstractTransla
         {
             throw new IllegalArgumentException("Unsupported input type: " + input.getClass());
         }
+    }
+
+    private final Collection<I> doShouldTranslate(TranslationContext context, Collection<I> inputs, F fetchOptions)
+    {
+        TranslationCache cache = context.getTranslationCache();
+        Collection<I> toCheck = new LinkedHashSet<I>();
+        Collection<I> toTranslate = new LinkedHashSet<I>();
+
+        for (I input : inputs)
+        {
+            Long id = getId(input);
+
+            if (cache.hasShouldTranslateObject(getClass().getName(), id))
+            {
+                boolean should = cache.getShouldTranslateObject(getClass().getName(), id);
+                if (should)
+                {
+                    toTranslate.add(input);
+                }
+
+                if (operationLog.isDebugEnabled())
+                {
+                    if (should)
+                    {
+                        operationLog.debug("Found in cache that object with id: " + id + " should be translated");
+                    } else
+                    {
+                        operationLog.debug("Found in cache that object with id: " + id + " should NOT be translated");
+                    }
+                }
+            } else
+            {
+                toCheck.add(input);
+            }
+        }
+
+        Collection<I> checked = shouldTranslate(context, toCheck, fetchOptions);
+        toTranslate.addAll(checked);
+
+        for (I input : checked)
+        {
+            cache.putShouldTranslateObject(getClass().getName(), getId(input), true);
+            if (operationLog.isDebugEnabled())
+            {
+                operationLog.debug("Should translate object with id: " + getId(input));
+            }
+        }
+
+        toCheck.removeAll(checked);
+        for (I input : toCheck)
+        {
+            cache.putShouldTranslateObject(getClass().getName(), getId(input), false);
+            if (operationLog.isDebugEnabled())
+            {
+                operationLog.debug("Should NOT translate object with id: " + getId(input));
+            }
+        }
+
+        return toTranslate;
+    }
+
+    /**
+     * Override this method if you want to conditionally skip translation (e.g. when the input object is not visible for a user the translation is
+     * performed for)
+     */
+    protected Collection<I> shouldTranslate(TranslationContext context, Collection<I> inputs, F fetchOptions)
+    {
+        Collection<I> result = new LinkedHashSet<I>();
+
+        for (I input : inputs)
+        {
+            if (shouldTranslate(context, input, fetchOptions))
+            {
+                result.add(input);
+            }
+        }
+
+        return result;
     }
 
     /**

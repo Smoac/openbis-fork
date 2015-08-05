@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.Relation;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
@@ -30,7 +31,7 @@ import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
 /**
  * @author pkupczyk
  */
-public abstract class ObjectToOneRelation<RELATED_OBJECT, RELATED_FETCH_OPTIONS> implements Relation
+public abstract class ObjectToManyRelation<RELATED_OBJECT, RELATED_FETCH_OPTIONS> implements Relation
 {
 
     private TranslationContext context;
@@ -39,9 +40,9 @@ public abstract class ObjectToOneRelation<RELATED_OBJECT, RELATED_FETCH_OPTIONS>
 
     private RELATED_FETCH_OPTIONS relatedFetchOptions;
 
-    private Map<Long, RELATED_OBJECT> objectIdToRelatedMap = new HashMap<Long, RELATED_OBJECT>();
+    private Map<Long, Collection<RELATED_OBJECT>> objectIdToRelatedMap = new HashMap<Long, Collection<RELATED_OBJECT>>();
 
-    public ObjectToOneRelation(TranslationContext context, Collection<Long> objectIds, RELATED_FETCH_OPTIONS relatedFetchOptions)
+    public ObjectToManyRelation(TranslationContext context, Collection<Long> objectIds, RELATED_FETCH_OPTIONS relatedFetchOptions)
     {
         this.context = context;
         this.objectIds = objectIds;
@@ -63,7 +64,15 @@ public abstract class ObjectToOneRelation<RELATED_OBJECT, RELATED_FETCH_OPTIONS>
 
         for (ObjectRelationRecord record : records)
         {
-            objectIdToRelatedMap.put(record.objectId, relatedIdToRelated.get(record.relatedId));
+            Collection<RELATED_OBJECT> relatedCollection = objectIdToRelatedMap.get(record.objectId);
+
+            if (relatedCollection == null)
+            {
+                relatedCollection = createCollection();
+                objectIdToRelatedMap.put(record.objectId, relatedCollection);
+            }
+
+            relatedCollection.add(relatedIdToRelated.get(record.relatedId));
         }
     }
 
@@ -74,9 +83,16 @@ public abstract class ObjectToOneRelation<RELATED_OBJECT, RELATED_FETCH_OPTIONS>
     protected abstract Map<Long, RELATED_OBJECT> translate(TranslationContext context, Collection<Long> relatedIds,
             RELATED_FETCH_OPTIONS relatedFetchOptions);
 
-    public RELATED_OBJECT getRelated(Long objectId)
+    protected abstract Collection<RELATED_OBJECT> createCollection();
+
+    public List<RELATED_OBJECT> getRelatedList(Long objectId)
     {
-        return objectIdToRelatedMap.get(objectId);
+        return (List<RELATED_OBJECT>) objectIdToRelatedMap.get(objectId);
+    }
+
+    public Set<RELATED_OBJECT> getRelatedSet(Long objectId)
+    {
+        return (Set<RELATED_OBJECT>) objectIdToRelatedMap.get(objectId);
     }
 
 }

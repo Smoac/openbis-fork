@@ -10,6 +10,11 @@ public class TranslationCache
 {
 
     /**
+     * Map storing information whether an object with the given namespace and object id (key) should be translated (value)
+     */
+    private Map<String, Boolean> shouldTranslateObjects = new HashMap<String, Boolean>();
+
+    /**
      * Map storing information if the given fetch options (value) has already been used for the given object (key)
      */
     private Map<Object, Set<Object>> usedFetchOptions = new IdentityHashMap<Object, Set<Object>>();
@@ -19,22 +24,34 @@ public class TranslationCache
      */
     private Map<String, Object> translatedObjects = new HashMap<String, Object>();
 
+    public boolean hasShouldTranslateObject(String namespace, Long objectId)
+    {
+        return shouldTranslateObjects.containsKey(getObjectKey(namespace, objectId));
+    }
+
+    public boolean getShouldTranslateObject(String namespace, Long objectId)
+    {
+        return shouldTranslateObjects.get(getObjectKey(namespace, objectId));
+    }
+
+    public void putShouldTranslateObject(String namespace, Long objectId, boolean shouldTranslate)
+    {
+        shouldTranslateObjects.put(getObjectKey(namespace, objectId), shouldTranslate);
+    }
+
     public boolean hasTranslatedObject(String namespace, Long objectId)
     {
-        String key = namespace + "." + objectId;
-        return translatedObjects.containsKey(key);
+        return translatedObjects.containsKey(getObjectKey(namespace, objectId));
     }
 
     public Object getTranslatedObject(String namespace, Long objectId)
     {
-        String key = namespace + "." + objectId;
-        return translatedObjects.get(key);
+        return translatedObjects.get(getObjectKey(namespace, objectId));
     }
 
     public void putTranslatedObject(String namespace, Long objectId, Object object)
     {
-        String key = namespace + "." + objectId;
-        translatedObjects.put(key, object);
+        translatedObjects.put(getObjectKey(namespace, objectId), object);
     }
 
     public boolean isFetchedWithOptions(Object object, Object fetchOptions)
@@ -49,5 +66,10 @@ public class TranslationCache
             usedFetchOptions.put(object, new HashSet<Object>());
         }
         usedFetchOptions.get(object).add(fetchOptions);
+    }
+
+    private String getObjectKey(String namespace, Long objectId)
+    {
+        return namespace + "." + objectId;
     }
 }

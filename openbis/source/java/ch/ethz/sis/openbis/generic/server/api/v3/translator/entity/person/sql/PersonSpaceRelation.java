@@ -30,7 +30,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql.ObjectToOneRecord;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql.ObjectRelationRecord;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql.ObjectToOneRelation;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.space.sql.ISpaceSqlTranslator;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.space.Space;
@@ -53,7 +53,7 @@ public class PersonSpaceRelation extends ObjectToOneRelation<Space, SpaceFetchOp
     }
 
     @Override
-    protected List<ObjectToOneRecord> load(LongOpenHashSet objectIds)
+    protected List<ObjectRelationRecord> load(LongOpenHashSet objectIds)
     {
         PersonQuery query = QueryTool.getManagedQuery(PersonQuery.class);
         return query.getSpaces(objectIds);

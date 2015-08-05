@@ -29,7 +29,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.material.Mater
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.material.MaterialPermId;
 
 /**
- * @author Jakub Straszewski
+ * @author pkupczyk
  */
 @Component
 public class MaterialSqlTranslator extends AbstractCachingTranslator<Long, Material, MaterialFetchOptions> implements IMaterialSqlTranslator
@@ -63,6 +63,11 @@ public class MaterialSqlTranslator extends AbstractCachingTranslator<Long, Mater
         if (fetchOptions.hasRegistrator())
         {
             relations.add(createRelation(MaterialRegistratorRelation.class, context, materialIds, fetchOptions.withRegistrator()));
+        }
+
+        if (fetchOptions.hasTags())
+        {
+            relations.add(createRelation(MaterialTagsRelation.class, context, materialIds, fetchOptions.withTags()));
         }
 
         return relations;
@@ -100,6 +105,13 @@ public class MaterialSqlTranslator extends AbstractCachingTranslator<Long, Mater
             result.setRegistrator(relation.getRelated(materialId));
             result.getFetchOptions().withRegistratorUsing(fetchOptions.withRegistrator());
         }
-    }
 
+        if (fetchOptions.hasTags())
+        {
+            MaterialTagsRelation relation = relations.get(MaterialTagsRelation.class);
+            result.setTags(relation.getRelatedSet(materialId));
+            result.getFetchOptions().withTagsUsing(fetchOptions.withTags());
+        }
+
+    }
 }
