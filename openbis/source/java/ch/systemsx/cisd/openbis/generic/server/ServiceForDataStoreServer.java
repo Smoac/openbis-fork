@@ -32,6 +32,8 @@ import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.hibernate.SQLQuery;
+import org.springframework.transaction.annotation.Transactional;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.authentication.DefaultSessionManager;
@@ -1030,7 +1032,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
         final IDataBO dataBO = businessObjectFactory.createDataBO(session);
         dataBO.addPropertiesToDataSet(dataSetCode, properties);
     }
-
+    
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
     public void updateShareIdAndSize(String sessionToken,
@@ -1043,7 +1045,34 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
         DataPE dataSet = dataSetDAO.tryToFindFullDataSetByCode(dataSetCode, false, false);
         if (dataSet == null)
         {
-            throw new UserFailureException("Unknown data set: " + dataSetCode);
+            //Check if the dataset is on the trashcan or deleted
+            org.hibernate.Session currentSession = this.getDAOFactory().getSessionFactory().getCurrentSession();
+            
+            boolean isDataSetOnTrashCan = false;
+            SQLQuery queryDatasetOnTrashCan = currentSession.createSQLQuery("SELECT del_id from data_all WHERE code = :dataSetCode");
+            queryDatasetOnTrashCan.setParameter("dataSetCode", dataSetCode);
+            if(!queryDatasetOnTrashCan.list().isEmpty()) {
+                Object trashCanId = queryDatasetOnTrashCan.uniqueResult();
+                isDataSetOnTrashCan = trashCanId != null;
+            }
+            
+            boolean isDataSetDeleted = false;
+            SQLQuery queryDatasetDeleted = currentSession.createSQLQuery("SELECT id from events WHERE event_type = 'DELETION' and identifiers like :dataSetCode");
+            queryDatasetDeleted.setParameter("dataSetCode", dataSetCode);
+            if(!queryDatasetDeleted.list().isEmpty()) {
+                Object deletionId = queryDatasetDeleted.uniqueResult();
+                isDataSetDeleted = deletionId != null;
+            }
+            
+            if(isDataSetOnTrashCan) {
+                operationLog.info("The data set has been moved to the trashcan and the share will not be updated: " + dataSetCode);
+                return;
+            } else if(isDataSetDeleted) {
+                operationLog.info("The data set has been deleted and the share will not be updated: " + dataSetCode);
+                return;
+            } else {
+                throw new UserFailureException("Unknown data set, that has not been deleted, check for storage errors: " + dataSetCode);
+            }
         }
         ExternalDataPE externalData = dataSet.tryAsExternalData();
         if (externalData == null)
