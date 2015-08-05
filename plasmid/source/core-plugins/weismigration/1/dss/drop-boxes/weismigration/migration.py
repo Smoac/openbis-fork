@@ -389,14 +389,7 @@ class FMOpenBISDTO(OpenBISDTO):
                 if self.isSampleCacheable():
                     sampleID2Sample[self.values["NAME"]] = self.values
                 sample = getSampleForUpdate("/MATERIALS/"+code, None, tr)
-                if sample is not None:
-                    #needs_update = db_val != prop_val
-                    lastModificationData = self.values["MODIFICATION_DATE"].strip()
-                    lastModificationData = str(datetime.strptime(lastModificationData, "%Y-%m-%d"))[:10]
-                    lastModificationOpenBIS = sample.getPropertyValue("MODIFICATION_DATE")[:10]
-                    return lastModificationOpenBIS == lastModificationData
-                else :
-                    return False
+                return False
             else:
                 print "* ERROR [" + str(code) + "] - Invalid Code found for '" + self.__class__.__name__ + "'"
                 raise Exception('Invalid Code found ' + str(code))
@@ -410,18 +403,20 @@ class FMMultipleValuesAdaptor(FileMakerEntityAdaptor):
         self.entities.append(FMEntityMultipleValuesOpenBISDTO(values, self.definition))
         
     def init(self):
-        print "Reading MultipleValueses for: " + self.__class__.__name__
+        
         emptyMultipleValues = 0
         MultipleValueses = {}
         EntityAdaptor.init(self)
         preparedStatement = self.connection.prepareStatement(self.selectMultipleValuesQuery)
         result = preparedStatement.executeQuery()
         while result.next():
+ 
             entityId = unicode(result.getString(self.entityIdFieldName))
+            #print "KWY number : " + str(entityId)
             if entityId is not None:
                 if entityId in sampleID2Sample:
                     entityNumber = sampleID2Sample[entityId][self.entityCodeFieldName]
-                    print "entityNumber: ", entityNumber, entityId
+                    #print "entityNumber: ", entityNumber, entityId
                     if entityNumber is not None:
                         values = {}
                         values["DISRUPTIONS"] = result.getString("disruptions")
@@ -463,17 +458,45 @@ class FMEntityMultipleValuesOpenBISDTO(OpenBISDTO):
         for MultipleValuesNum in range(1, definitions.numberOfRepetitions+1):
             for propertyCode in definitions.getRepetitionPropertyCodes():
                 sample.setPropertyValue(propertyCode + "_" + str(MultipleValuesNum), None)
-                 
-        
+         
         #Add new MultipleValueses
         MultipleValuesNum = 0
         for MultipleValues in self.values["*MultipleValuesESLIST"]:
             MultipleValuesNum += 1
             for propertyCode, propertyValue in MultipleValues.iteritems():
-                
                 if propertyValue is not None:
                     propertyValue = unicode(propertyValue)
                     sample.setPropertyValue(propertyCode + "_" + str(MultipleValuesNum), propertyValue)
+ 
+        #1. Setting MAT
+        buildedPropertyValue = ""
+        mat = sample.getPropertyValue("MAT")
+        if mat is not None:
+            if re.search("a", mat):
+                mat = mat.replace("a", u"\u03B1")
+            if re.search("A", mat):
+                mat = mat.replace("A", "a")                
+            buildedPropertyValue = buildedPropertyValue + "MAT " + unicode(mat) + " "
+         
+        #2. Adding unmarked mutations
+        for listItemsMap in self.values["*MultipleValuesESLIST"]:
+            unmarkedMutation = listItemsMap["UNMARKED_MUTATIONS"]
+            if unmarkedMutation is not None:
+                buildedPropertyValue = buildedPropertyValue + unicode(unmarkedMutation + " ");
+         
+        #3. Add pairs of disruptions and markers
+        for listItemsMap in self.values["*MultipleValuesESLIST"]:
+            disruptions = listItemsMap["DISRUPTIONS"]
+            markers = listItemsMap["MARKERS"]
+            #print "disruptions, markers", disruptions, markers
+            if (disruptions is not None and disruptions is not "") or (markers is not None and markers is not ""):
+                if disruptions is None:
+                    disruptions = ""
+                if markers is None:
+                    markers = ""
+                buildedPropertyValue = buildedPropertyValue + unicode(disruptions) + "::" + unicode(markers) + " "
+        print repr("GENOTYPE" + unicode(buildedPropertyValue))
+        sample.setPropertyValue("GENOTYPE", buildedPropertyValue)
     
     def isMultipleValuesPressent(self, MultipleValuesSignature, tr):
         sample = getSampleForUpdate("/MATERIALS/"+self.values["*CODE"], None, tr)
@@ -492,23 +515,8 @@ class FMEntityMultipleValuesOpenBISDTO(OpenBISDTO):
         return False
     
     def isInOpenBIS(self, tr):
-        for MultipleValues in self.values["*MultipleValuesESLIST"]:
-            MultipleValuesSignature = "";
-            for propertyCode in definitions.getRepetitionPropertyCodes():
-                propertyValue = MultipleValues[propertyCode]
-                #print "propertyValue = MultipleValues[propertyCode]: " ,   propertyValue
-                if propertyValue is not None:
-                    propertyValue = unicode(propertyValue)
-                    MultipleValuesSignature += propertyValue
-            if not self.isMultipleValuesPressent(MultipleValuesSignature, tr):
-                return False
-        return True
+        return False
 
-#    def createGenotypeProperty(selfself.tr):
-#        for MultipleValues in self.values["*MultipleValuesESLIST"]:
-#            MultipleValuesSignature = "";
-#            for propertyCode in definitions.getRepetitionPropertyCodes():
-#                propertyValue = MultipleValues[propertyCode]        
 
 ##
 ## Antibodies
@@ -707,9 +715,9 @@ adaptors = [
              #ChemicalAdaptor(fmConnString, fmUser, fmPass, "Weis_Chemicals"),
              #AntibodyAdaptor(fmConnString, fmUser, fmPass, "Weis _Antibodies"),
              #OligoAdaptor(fmConnString, fmUser, fmPass, "Weis_Oligos"),
-             PlasmidAdaptor(fmConnString, fmUser, fmPass, "Weis_Plasmids"),
-             #StrainAdaptor(fmConnString, fmUser, fmPass, "Weis_Yeast_Strains_070715_Clone_for_testing2"),
-             #StrainMultipleValuesAdaptor(fmConnString, fmUser, fmPass, "Weis_Yeast_Strains_070715_Clone_for_testing2")
+             #PlasmidAdaptor(fmConnString, fmUser, fmPass, "Weis_Plasmids"),
+             StrainAdaptor(fmConnString, fmUser, fmPass, "Weis_Yeast_Strains_070715_Clone_for_testing2"),
+             StrainMultipleValuesAdaptor(fmConnString, fmUser, fmPass, "Weis_Yeast_Strains_070715_Clone_for_testing2")
              ]
                        
             
