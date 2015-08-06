@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -34,6 +35,8 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.collections.CollectionUtils;
 import org.hibernate.SQLQuery;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.google.common.collect.Sets;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.authentication.DefaultSessionManager;
@@ -199,6 +202,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.EntityCollectionForCreationOr
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityOperationsLogEntryPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
@@ -1040,29 +1044,20 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
             String dataSetCode, String shareId, long size) throws UserFailureException
     {
         final Session session = getSession(sessionToken);
-
         IDataDAO dataSetDAO = getDAOFactory().getDataDAO();
+        
         DataPE dataSet = dataSetDAO.tryToFindFullDataSetByCode(dataSetCode, false, false);
         if (dataSet == null)
         {
-            //Check if the dataset is on the trashcan or deleted
-            org.hibernate.Session currentSession = this.getDAOFactory().getSessionFactory().getCurrentSession();
-            
-            boolean isDataSetOnTrashCan = false;
-            SQLQuery queryDatasetOnTrashCan = currentSession.createSQLQuery("SELECT del_id from data_all WHERE code = :dataSetCode");
-            queryDatasetOnTrashCan.setParameter("dataSetCode", dataSetCode);
-            if(!queryDatasetOnTrashCan.list().isEmpty()) {
-                Object trashCanId = queryDatasetOnTrashCan.uniqueResult();
-                isDataSetOnTrashCan = trashCanId != null;
-            }
-            
-            boolean isDataSetDeleted = false;
-            SQLQuery queryDatasetDeleted = currentSession.createSQLQuery("SELECT id from events WHERE event_type = 'DELETION' and identifiers like :dataSetCode");
-            queryDatasetDeleted.setParameter("dataSetCode", dataSetCode);
-            if(!queryDatasetDeleted.list().isEmpty()) {
-                Object deletionId = queryDatasetDeleted.uniqueResult();
-                isDataSetDeleted = deletionId != null;
-            }
+            //Check if the dataset is on the trashcan
+            TechId dataSetTechId = getDAOFactory().getDataDAO().tryToFindDataSetIdByCode(dataSetCode);
+            List<String> queryDatasetOnTrashCan = this.getDAOFactory().getDeletionDAO().findTrashedDataSetCodes(Arrays.asList(dataSetTechId));
+            boolean isDataSetOnTrashCan = queryDatasetOnTrashCan != null && queryDatasetOnTrashCan.size() == 1;
+            //Check if the dataset is finally deleted
+            boolean isDataSetDeleted = this.getDAOFactory().getEventDAO().tryFind(
+                    dataSetCode, 
+                    ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType.DATASET,
+                    ch.systemsx.cisd.openbis.generic.shared.dto.EventType.DELETION) != null;
             
             if(isDataSetOnTrashCan) {
                 operationLog.info("The data set has been moved to the trashcan and the share will not be updated: " + dataSetCode);
