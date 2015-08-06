@@ -16,7 +16,13 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.tag.sql;
 
+import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
+
 import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
+
+import net.lemnik.eodsql.QueryTool;
 
 import org.springframework.stereotype.Component;
 
@@ -35,10 +41,21 @@ public class TagSqlTranslator extends AbstractCachingTranslator<Long, Tag, TagFe
 {
 
     @Override
-    protected Collection<Long> shouldTranslate(TranslationContext context, Collection<Long> inputs, TagFetchOptions fetchOptions)
+    protected Collection<Long> shouldTranslate(TranslationContext context, Collection<Long> tagIds, TagFetchOptions fetchOptions)
     {
-        // TODO authorization
-        return inputs;
+        TagQuery query = QueryTool.getManagedQuery(TagQuery.class);
+        List<TagAuthorizationRecord> records = query.getAuthorizations(new LongOpenHashSet(tagIds));
+        Collection<Long> result = new LinkedList<Long>();
+
+        for (TagAuthorizationRecord record : records)
+        {
+            if (record.isPublic || record.owner.equals(context.getSession().tryGetPerson().getUserId()))
+            {
+                result.add(record.id);
+            }
+        }
+
+        return result;
     }
 
     @Override
@@ -56,6 +73,11 @@ public class TagSqlTranslator extends AbstractCachingTranslator<Long, Tag, TagFe
 
         relations.add(createRelation(TagBaseRelation.class, tagIds));
 
+        if (fetchOptions.hasOwner())
+        {
+            relations.add(createRelation(TagOwnerRelation.class, context, tagIds, fetchOptions.withOwner()));
+        }
+
         return relations;
     }
 
@@ -70,6 +92,13 @@ public class TagSqlTranslator extends AbstractCachingTranslator<Long, Tag, TagFe
         result.setDescription(baseRecord.description);
         result.setPrivate(baseRecord.isPrivate);
         result.setRegistrationDate(baseRecord.registrationDate);
+
+        if (fetchOptions.hasOwner())
+        {
+            TagOwnerRelation relation = relations.get(TagOwnerRelation.class);
+            result.setOwner(relation.getRelated(tagId));
+            result.getFetchOptions().withOwnerUsing(fetchOptions.withOwner());
+        }
     }
 
 }
