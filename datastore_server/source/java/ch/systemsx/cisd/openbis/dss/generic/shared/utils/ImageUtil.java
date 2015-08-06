@@ -45,7 +45,6 @@ import ar.com.hjg.pngj.ImageInfo;
 import ar.com.hjg.pngj.ImageLine;
 import ar.com.hjg.pngj.PngFilterType;
 import ar.com.hjg.pngj.PngWriter;
-
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.base.io.IRandomAccessFile;
@@ -82,8 +81,8 @@ public class ImageUtil
     public static final String GIF_FILE = "gif";
 
     /**
-     * When a grayscale image with color depth > 8 bits has to be displayed and user has not decided
-     * how it should be converted, then this threshold will be used.
+     * When a grayscale image with color depth > 8 bits has to be displayed and user has not decided how it should be converted, then this threshold
+     * will be used.
      */
     public static final float DEFAULT_IMAGE_OPTIMAL_RESCALING_FACTOR = 0.01f;
 
@@ -101,12 +100,13 @@ public class ImageUtil
         public int readColorDepth(IRandomAccessFile handle, ImageID imageID);
     }
 
-    private static interface IReadingOperation<T> {
+    private static interface IReadingOperation<T>
+    {
         T read(IImageReader imageReader, IRandomAccessFile handle, ImageID imageID, IReadParams params);
-        
+
         T read(ImageLoader imageLoader, IRandomAccessFile handle, ImageID imageID);
     }
- 
+
     private static final class MagicNumber
     {
         private final String fileType;
@@ -506,7 +506,7 @@ public class ImageUtil
             }
             handle = contentNode.getFileContent();
         }
-        
+
         void close()
         {
             closeQuietly(handle);
@@ -520,6 +520,7 @@ public class ImageUtil
     }
 
     private static final ThreadLocal<ReaderAndFileHandler> readerStore = new ThreadLocal<ReaderAndFileHandler>();
+
     private static final Map<String, ImageLoader> imageLoaders = new HashMap<String, ImageLoader>();
 
     static
@@ -531,10 +532,8 @@ public class ImageUtil
     }
 
     /**
-     * Returns <code>true</code> if the specified file is a supported image file. Supported formats
-     * are GIF, JPG, PNG, TIFF. Only file type is taken into account for figuring out the image
-     * format. Following file types are recognized:
-     * <code>.gif, .jpg, .jpeg, .png, .tif, .tiff</code>
+     * Returns <code>true</code> if the specified file is a supported image file. Supported formats are GIF, JPG, PNG, TIFF. Only file type is taken
+     * into account for figuring out the image format. Following file types are recognized: <code>.gif, .jpg, .jpeg, .png, .tif, .tiff</code>
      */
     public static boolean isImageFile(File file)
     {
@@ -542,17 +541,14 @@ public class ImageUtil
         String fileType = FilenameUtils.getExtension(fileName);
         return fileType != null && FILE_TYPES.contains(fileType.toLowerCase());
     }
-    
+
     /**
-     * Loads the image specified by <var>imageIdOrNull</var> from the given </var>inputStream</var>.
-     * Supported images formats are GIF, JPG, PNG, and TIFF. The input stream will be closed after
-     * loading.
+     * Loads the image specified by <var>imageIdOrNull</var> from the given </var>inputStream</var>. Supported images formats are GIF, JPG, PNG, and
+     * TIFF. The input stream will be closed after loading.
      * <p>
-     * Note that the original color depth will be kept, so e.g. 12 or 16 bit grayscale images will
-     * not be converted to RGB.
+     * Note that the original color depth will be kept, so e.g. 12 or 16 bit grayscale images will not be converted to RGB.
      * 
-     * @throws IllegalArgumentException if the input stream doesn't start with a magic number
-     *             identifying supported image format.
+     * @throws IllegalArgumentException if the input stream doesn't start with a magic number identifying supported image format.
      */
     public static BufferedImage loadUnchangedImage(IHierarchicalContentNode contentNode,
             String imageIdOrNull, String imageLibraryNameOrNull,
@@ -631,11 +627,11 @@ public class ImageUtil
                 reader.close();
                 reader = null;
                 rememberedReaders.remove(sessionId);
-                operationLog.info("discarding stored reader for session " + sessionId);
+                operationLog.debug("discarding stored reader for session " + sessionId);
             }
             if (reader != null)
             {
-                operationLog.info("Reusing reader for session " + sessionId);
+                operationLog.debug("Reusing reader for session " + sessionId);
             }
         }
 
@@ -690,12 +686,10 @@ public class ImageUtil
     }
 
     /**
-     * Loads the data specified by <var>imageID</var> from the image from the given
-     * </var>handle</var>. Supported images formats are GIF, JPG, PNG, and TIFF. The input stream
-     * will be closed after loading.
+     * Loads the data specified by <var>imageID</var> from the image from the given </var>handle</var>. Supported images formats are GIF, JPG, PNG,
+     * and TIFF. The input stream will be closed after loading.
      * 
-     * @throws IllegalArgumentException if the input stream doesn't start with a magic number
-     *             identifying supported image format.
+     * @throws IllegalArgumentException if the input stream doesn't start with a magic number identifying supported image format.
      */
     private static <T> T loadUnchangedDataGuessingLibrary(IHierarchicalContentNode contentNode, IReadingOperation<T> operation, ImageID imageID)
     {
@@ -721,21 +715,19 @@ public class ImageUtil
             closeQuietly(handle);
         }
     }
-   
+
     /**
-     * Loads the size of image specified by <var>imageIdOrNull</var> from the given
-     * </var>inputStream</var>. Supported images formats are GIF, JPG, PNG, and TIFF. The input
-     * stream will be closed after loading.
+     * Loads the size of image specified by <var>imageIdOrNull</var> from the given </var>inputStream</var>. Supported images formats are GIF, JPG,
+     * PNG, and TIFF. The input stream will be closed after loading.
      * <p>
      * 
-     * @throws IllegalArgumentException if the input stream doesn't start with a magic number
-     *             identifying supported image format.
+     * @throws IllegalArgumentException if the input stream doesn't start with a magic number identifying supported image format.
      */
     public static Dimension loadUnchangedImageDimension(IHierarchicalContentNode contentNode,
             String imageIdOrNull, String imageLibraryNameOrNull, String imageLibraryReaderNameOrNull)
     {
         IReadingOperation<Dimension> operation = new IReadingOperation<Dimension>()
-                {
+            {
                 @Override
                 public Dimension read(IImageReader imageReader, IRandomAccessFile handle, ImageID imageID, IReadParams params)
                 {
@@ -753,19 +745,17 @@ public class ImageUtil
     }
 
     /**
-     * Loads the color depth of image specified by <var>imageIdOrNull</var> from the given
-     * </var>inputStream</var>. Supported images formats are GIF, JPG, PNG, and TIFF. The input
-     * stream will be closed after loading.
+     * Loads the color depth of image specified by <var>imageIdOrNull</var> from the given </var>inputStream</var>. Supported images formats are GIF,
+     * JPG, PNG, and TIFF. The input stream will be closed after loading.
      * <p>
      * 
-     * @throws IllegalArgumentException if the input stream doesn't start with a magic number
-     *             identifying supported image format.
+     * @throws IllegalArgumentException if the input stream doesn't start with a magic number identifying supported image format.
      */
     public static int loadUnchangedImageColorDepth(IHierarchicalContentNode contentNode,
             String imageIdOrNull, String imageLibraryNameOrNull, String imageLibraryReaderNameOrNull)
     {
         IReadingOperation<Integer> operation = new IReadingOperation<Integer>()
-                {
+            {
                 @Override
                 public Integer read(IImageReader imageReader, IRandomAccessFile handle, ImageID imageID, IReadParams params)
                 {
@@ -781,14 +771,12 @@ public class ImageUtil
             };
         return loadUnchangedData(contentNode, imageIdOrNull, imageLibraryNameOrNull, imageLibraryReaderNameOrNull, null, operation);
     }
-    
+
     /**
-     * Converts the given <var>image</var> to a PNG image. Uses fast parameters for the filter and
-     * deflate level (no filter and no deflation).
+     * Converts the given <var>image</var> to a PNG image. Uses fast parameters for the filter and deflate level (no filter and no deflation).
      * <p>
-     * <b>This method is about 7 times faster than
-     * {@link ImageIO#write(java.awt.image.RenderedImage, String, java.io.OutputStream)} and should
-     * be preferred whenever speed is important.</b>
+     * <b>This method is about 7 times faster than {@link ImageIO#write(java.awt.image.RenderedImage, String, java.io.OutputStream)} and should be
+     * preferred whenever speed is important.</b>
      * 
      * @param image The image to convert to the PNG <code>byte[]</code>.
      * @return The bytes of the uncompressed PNG.
@@ -801,12 +789,11 @@ public class ImageUtil
     }
 
     /**
-     * Converts the given <var>image</var> to a PNG image and writes it to the given output stream.
-     * Uses fast parameters for the filter and deflate level (no filter and no deflation).
+     * Converts the given <var>image</var> to a PNG image and writes it to the given output stream. Uses fast parameters for the filter and deflate
+     * level (no filter and no deflation).
      * <p>
-     * <b>This method is about 7 times faster than
-     * {@link ImageIO#write(java.awt.image.RenderedImage, String, java.io.OutputStream)} and should
-     * be preferred whenever speed is important.</b>
+     * <b>This method is about 7 times faster than {@link ImageIO#write(java.awt.image.RenderedImage, String, java.io.OutputStream)} and should be
+     * preferred whenever speed is important.</b>
      * 
      * @param image The image to write to the output stream.
      * @param out The output stream to write the png converted image to.
@@ -817,12 +804,10 @@ public class ImageUtil
     }
 
     /**
-     * Converts the given <var>image</var> to a PNG image. Uses default parameters for the filter
-     * and deflate level.
+     * Converts the given <var>image</var> to a PNG image. Uses default parameters for the filter and deflate level.
      * <p>
-     * <b>This method is about 7 times faster than
-     * {@link ImageIO#write(java.awt.image.RenderedImage, String, java.io.OutputStream)} and should
-     * be preferred whenever speed is important.</b>
+     * <b>This method is about 7 times faster than {@link ImageIO#write(java.awt.image.RenderedImage, String, java.io.OutputStream)} and should be
+     * preferred whenever speed is important.</b>
      * 
      * @param image The image to convert to the PNG <code>byte[]</code>.
      * @return The bytes of the uncompressed PNG.
@@ -835,12 +820,11 @@ public class ImageUtil
     }
 
     /**
-     * Converts the given <var>image</var> to a PNG image and writes it to the given output stream.
-     * Uses default parameters for the filter and deflate level.
+     * Converts the given <var>image</var> to a PNG image and writes it to the given output stream. Uses default parameters for the filter and deflate
+     * level.
      * <p>
-     * <b>This method is about 3 times faster than
-     * {@link ImageIO#write(java.awt.image.RenderedImage, String, java.io.OutputStream)} and should
-     * be preferred whenever speed is important.</b>
+     * <b>This method is about 3 times faster than {@link ImageIO#write(java.awt.image.RenderedImage, String, java.io.OutputStream)} and should be
+     * preferred whenever speed is important.</b>
      * 
      * @param image The image to write to the output stream.
      * @param out The output stream to write the png converted image to.
@@ -855,12 +839,10 @@ public class ImageUtil
      * <p>
      * 
      * @param image The image to write to the output stream.
-     * @param filterType The type of the filter (see <a
-     *            href="http://www.w3.org/TR/PNG-Filters.html">PNG filters</a>) to apply when
-     *            converting to PNG, <code>null</code> means {@link PngFilterType#FILTER_DEFAULT}.
-     * @param compressionLevel the compression level for the deflation filter of the PNG conversion,
-     *            from -1 to 9. 0 means no compression, 9 means maximal compression, -1 means 6
-     *            which is the default deflation level.
+     * @param filterType The type of the filter (see <a href="http://www.w3.org/TR/PNG-Filters.html">PNG filters</a>) to apply when converting to PNG,
+     *            <code>null</code> means {@link PngFilterType#FILTER_DEFAULT}.
+     * @param compressionLevel the compression level for the deflation filter of the PNG conversion, from -1 to 9. 0 means no compression, 9 means
+     *            maximal compression, -1 means 6 which is the default deflation level.
      * @return The bytes of the uncompressed PNG.
      */
     public static byte[] imageToPng(BufferedImage image, PngFilterType filterType,
@@ -876,12 +858,10 @@ public class ImageUtil
      * 
      * @param image The image to write to the output stream.
      * @param out The output stream to write the png converted image to
-     * @param filterType The type of the filter (see <a
-     *            href="http://www.w3.org/TR/PNG-Filters.html">PNG filters</a>) to apply when
-     *            converting to PNG, <code>null</code> means {@link PngFilterType#FILTER_DEFAULT}.
-     * @param compressionLevel the compression level for the deflation filter of the PNG conversion,
-     *            from -1 to 9. 0 means no compression, 9 means maximal compression, -1 means 6
-     *            which is the default deflation level.
+     * @param filterType The type of the filter (see <a href="http://www.w3.org/TR/PNG-Filters.html">PNG filters</a>) to apply when converting to PNG,
+     *            <code>null</code> means {@link PngFilterType#FILTER_DEFAULT}.
+     * @param compressionLevel the compression level for the deflation filter of the PNG conversion, from -1 to 9. 0 means no compression, 9 means
+     *            maximal compression, -1 means 6 which is the default deflation level.
      */
     public static void writeImageToPng(BufferedImage image, OutputStream out,
             PngFilterType filterType, int compressionLevel)
@@ -915,8 +895,7 @@ public class ImageUtil
     }
 
     /**
-     * Parses specified string representation of an {@link ImageID}. If the argument is
-     * <code>null</code> {@link ImageID#NULL} will be returned.
+     * Parses specified string representation of an {@link ImageID}. If the argument is <code>null</code> {@link ImageID#NULL} will be returned.
      */
     public static ImageID parseImageID(String imageIdOrNull, IHierarchicalContentNode contentNode)
     {
@@ -962,7 +941,7 @@ public class ImageUtil
      * 
      * @throws IllegalArgumentException if the file isn't a valid image file.
      */
-    public static BufferedImage loadImageForDisplay(IHierarchicalContentNode contentNode, 
+    public static BufferedImage loadImageForDisplay(IHierarchicalContentNode contentNode,
             IImageToPixelsConverter converterOrNull)
     {
         if (contentNode.exists() == false)
@@ -976,12 +955,10 @@ public class ImageUtil
     }
 
     /**
-     * Re-scales the image to be the biggest one which fits into a (0,0,maxWidth, maxHeight)
-     * rectangle. Preserves the aspect ratio. If the rectangle is bigger than the image does
-     * nothing.
+     * Re-scales the image to be the biggest one which fits into a (0,0,maxWidth, maxHeight) rectangle. Preserves the aspect ratio. If the rectangle
+     * is bigger than the image does nothing.
      * <p>
-     * If the specified image uses grayscale with color depth larger then 8 bits, conversion to 8
-     * bits grayscale is done.
+     * If the specified image uses grayscale with color depth larger then 8 bits, conversion to 8 bits grayscale is done.
      * </p>
      * 
      * @param maxWidth Maximum width of the result image.
@@ -996,14 +973,13 @@ public class ImageUtil
     }
 
     /**
-     * If the specified image uses grayscale with color depth larger then 8 bits, conversion to 8
-     * bits grayscale is done. Otherwise the original image is returned.
+     * If the specified image uses grayscale with color depth larger then 8 bits, conversion to 8 bits grayscale is done. Otherwise the original image
+     * is returned.
      * <p>
-     * Conversion is done by intensity rescaling (with outlier cutoff specified by <code>threshold</code>)
-     * because the actual resolution is often not know because getMaxNumberOfBitsPerComponent() might
-     * return 16 even tough the resolution is only 12.
+     * Conversion is done by intensity rescaling (with outlier cutoff specified by <code>threshold</code>) because the actual resolution is often not
+     * know because getMaxNumberOfBitsPerComponent() might return 16 even tough the resolution is only 12.
      */
-    private static BufferedImage convertForDisplayIfNecessary(BufferedImage image, Float threshold, 
+    private static BufferedImage convertForDisplayIfNecessary(BufferedImage image, Float threshold,
             IImageToPixelsConverter converterOrNull)
     {
         Channel channel = getRepresentativeChannelIfEffectiveGrayAndMoreThan8Bit(image);
@@ -1053,11 +1029,11 @@ public class ImageUtil
         }
         return getRepresentativeChannelIfEffectiveGray(image);
     }
-    
+
     /**
-     * Returns the maximum bit resolution of the specified image. It returns the maximum of the array
-     * returned by {@link ColorModel#getComponentSize()}. If not defined (which should be only the case
-     * for Index16ColorModel of the BioFormats library) {@link ColorModel#getPixelSize()} is returned.
+     * Returns the maximum bit resolution of the specified image. It returns the maximum of the array returned by
+     * {@link ColorModel#getComponentSize()}. If not defined (which should be only the case for Index16ColorModel of the BioFormats library)
+     * {@link ColorModel#getPixelSize()} is returned.
      */
     public static int getMaxNumberOfBitsPerComponent(BufferedImage image)
     {
@@ -1074,12 +1050,11 @@ public class ImageUtil
         }
         return max;
     }
-    
+
     /**
-     * Checks whether the specified image is actually a (colored) gray image. 
+     * Checks whether the specified image is actually a (colored) gray image.
      * 
-     * @return the representative color channel which can be used to extract the gray image. 
-     *          <code>null</code> if the image isn't a gray image.
+     * @return the representative color channel which can be used to extract the gray image. <code>null</code> if the image isn't a gray image.
      */
     public static Channel getRepresentativeChannelIfEffectiveGray(BufferedImage image)
     {
@@ -1093,7 +1068,7 @@ public class ImageUtil
         {
             return Channel.RED; // Black image is a gray image, doesn't matter which channel to return.
         }
-        List<Entry<Channel, int[]>> usedChannels = new ArrayList<Map.Entry<Channel,int[]>>(histogramsByChannels.entrySet());
+        List<Entry<Channel, int[]>> usedChannels = new ArrayList<Map.Entry<Channel, int[]>>(histogramsByChannels.entrySet());
         int[] representativeHistogram = usedChannels.get(0).getValue();
         for (int i = 1; i < usedChannels.size(); i++)
         {
@@ -1118,17 +1093,14 @@ public class ImageUtil
     }
 
     /**
-     * Re-scales the image to be the biggest one which fits into a (0,0,maxWidth, maxHeight)
-     * rectangle. Preserves the aspect ratio. If the rectangle is bigger than the image and
-     * 'enlargeIfNecessary' is false then nothing is done.
+     * Re-scales the image to be the biggest one which fits into a (0,0,maxWidth, maxHeight) rectangle. Preserves the aspect ratio. If the rectangle
+     * is bigger than the image and 'enlargeIfNecessary' is false then nothing is done.
      * 
      * @param maxWidth Maximum width of the result image.
      * @param maxHeight Maximum height of the result image.
-     * @param enlargeIfNecessary if false and the image has smaller width and height than the
-     *            specified limit, then the image is not changed.
-     * @param highQuality8Bit if true thumbnails will be of higher quality, but rescaling will take
-     *            longer and the image will be converted to 8 bit.
-     * @param converterOrNull 
+     * @param enlargeIfNecessary if false and the image has smaller width and height than the specified limit, then the image is not changed.
+     * @param highQuality8Bit if true thumbnails will be of higher quality, but rescaling will take longer and the image will be converted to 8 bit.
+     * @param converterOrNull
      */
     public static BufferedImage rescale(BufferedImage image, int maxWidth, int maxHeight,
             boolean enlargeIfNecessary, boolean highQuality8Bit, IImageToPixelsConverter converterOrNull)
@@ -1200,7 +1172,7 @@ public class ImageUtil
         } else if (imageType == BufferedImage.TYPE_BYTE_INDEXED)
         {
             imageType = BufferedImage.TYPE_INT_RGB;
-        } else 
+        } else
         {
             imageType = isTransparent ? BufferedImage.TYPE_INT_ARGB : BufferedImage.TYPE_INT_RGB;
         }
@@ -1220,9 +1192,8 @@ public class ImageUtil
     }
 
     /**
-     * Tries to figure out the file type of the specified binary content. It uses the first few
-     * bytes as a finger print (so-called 'magic numbers') as a heuristic to get the type of
-     * content. Currently only the following types are recognized: <code>gif, jpg, png, tif</code>.
+     * Tries to figure out the file type of the specified binary content. It uses the first few bytes as a finger print (so-called 'magic numbers') as
+     * a heuristic to get the type of content. Currently only the following types are recognized: <code>gif, jpg, png, tif</code>.
      * 
      * @param handle {@link IRandomAccessFile} which supports marking.
      * @return <code>null</code> if file type couldn't be figured out.
