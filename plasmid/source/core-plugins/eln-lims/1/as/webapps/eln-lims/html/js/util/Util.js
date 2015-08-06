@@ -123,10 +123,12 @@ var Util = new function() {
 	
 	this.showSuccess = function(withHTML, andCallback, forceAutoHide) {
 		var isiPad = navigator.userAgent.match(/iPad/i) != null;
-		if(!isiPad) {
+		if(!isiPad && !forceAutoHide) {
 			withHTML = withHTML + "<br>" + "<a class='btn btn-default'>OK</a>";
 		}
-		
+		if(!forceAutoHide) {
+			forceAutoHide = false;
+		}
 		this.blockUINoMessage();
 		var localReference = this;
 		jSuccess(
@@ -142,7 +144,7 @@ var Util = new function() {
 				  HorizontalPosition : 'center',
 				  VerticalPosition : 'top',
 				  ShowOverlay : false,
-		   		  ColorOverlay : '#000',
+				  ColorOverlay : '#000',
 				  OpacityOverlay : 0.3,
 				  onClosed : function(){ if(andCallback) { andCallback();} else { localReference.unblockUI();}},
 				  onCompleted : function(){ }
