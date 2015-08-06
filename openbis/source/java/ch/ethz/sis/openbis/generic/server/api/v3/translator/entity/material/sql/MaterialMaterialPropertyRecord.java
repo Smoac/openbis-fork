@@ -16,17 +16,16 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.material.sql;
 
-import java.util.Map;
-
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.ITranslator;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material.Material;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.material.MaterialFetchOptions;
-import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityPropertiesHolder;
-
 /**
  * @author pkupczyk
  */
-public interface IMaterialPropertySqlTranslator extends ITranslator<IEntityPropertiesHolder, Map<String, Material>, MaterialFetchOptions>
+public class MaterialMaterialPropertyRecord
 {
+
+    public Long materialId;
+
+    public String propertyCode;
+
+    public Long propertyValue;
 
 }

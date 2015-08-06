@@ -16,6 +16,7 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.material.sql;
 
+import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
 
 import java.util.List;
@@ -43,14 +44,22 @@ public interface MaterialQuery extends ObjectQuery
     @Select(sql = "select mt.id, mt.code, mt.description, mt.modification_timestamp as modificationDate from material_types mt where mt.id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<MaterialTypeBaseRecord> getTypes(LongSet materialTypeIds);
 
-    @Select(sql = "select mp.mate_id as materialId, pt.code as propertyCode, mp.value as propertyValue, m.code as materialPropertyCode, mt.code as materialPropertyTypeCode "
+    @Select(sql = "select mp.mate_id as materialId, pt.code as propertyCode, mp.value as propertyValue, m.code as materialPropertyValueCode, mt.code as materialPropertyValueTypeCode, cvt.code as vocabularyPropertyValue "
             + "from material_properties mp "
             + "left outer join materials m on mp.mate_prop_id = m.id "
+            + "left outer join controlled_vocabulary_terms cvt on mp.cvte_id = cvt.id "
             + "left join material_types mt on m.maty_id = mt.id "
             + "left join material_type_property_types mtpt on mp.mtpt_id = mtpt.id "
             + "left join property_types pt on mtpt.prty_id = pt.id "
             + "where mp.mate_id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<MaterialPropertyRecord> getProperties(LongSet materialIds);
+
+    @Select(sql = "select mp.mate_id as materialId, pt.code as propertyCode, mp.mate_prop_id as propertyValue "
+            + "from material_properties mp "
+            + "left join material_type_property_types mtpt on mp.mtpt_id = mtpt.id "
+            + "left join property_types pt on mtpt.prty_id = pt.id "
+            + "where mp.mate_prop_id is not null and mp.mate_id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    public List<MaterialMaterialPropertyRecord> getMaterialProperties(LongOpenHashSet materialIds);
 
     @Select(sql = "select m.id as objectId, m.pers_id_registerer as relatedId from materials m where m.id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<ObjectRelationRecord> getRegistratorIds(LongSet materialIds);

@@ -27,8 +27,10 @@ public class MaterialPropertyRecord
 
     public String propertyValue;
 
-    public String materialPropertyCode;
+    public String materialPropertyValueCode;
 
-    public String materialPropertyTypeCode;
+    public String materialPropertyValueTypeCode;
+
+    public String vocabularyPropertyValue;
 
 }

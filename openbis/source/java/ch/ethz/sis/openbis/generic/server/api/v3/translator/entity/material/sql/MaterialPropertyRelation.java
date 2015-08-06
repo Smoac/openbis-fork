@@ -61,12 +61,19 @@ public class MaterialPropertyRelation extends PropertyRelation
                 result.put(property.materialId, materialProperties);
             }
 
-            if (property.propertyValue == null)
-            {
-                materialProperties.put(property.propertyCode, property.materialPropertyCode + " (" + property.materialPropertyTypeCode + ")");
-            } else
+            if (property.propertyValue != null)
             {
                 materialProperties.put(property.propertyCode, property.propertyValue);
+            } else if (property.materialPropertyValueCode != null)
+            {
+                materialProperties.put(property.propertyCode, property.materialPropertyValueCode + " (" + property.materialPropertyValueTypeCode
+                        + ")");
+            } else if (property.vocabularyPropertyValue != null)
+            {
+                materialProperties.put(property.propertyCode, property.vocabularyPropertyValue);
+            } else
+            {
+                throw new IllegalArgumentException("Unsupported property kind");
             }
         }
 
