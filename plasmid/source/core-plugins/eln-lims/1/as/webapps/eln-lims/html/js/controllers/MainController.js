@@ -726,6 +726,28 @@ function MainController(profile) {
 										}
 									}
 									
+									//Check date fields
+									if(!matchedField) {
+										var regEx = /\d{4}-\d{2}-\d{2}/g;
+										var match = value.match(regEx);
+										if(match && match.length === 1) {
+											var somethingToBreak = 0;
+											if(Util.getFormatedDate(new Date(sample.registrationDetails.registrationDate)).indexOf(match[0]) != -1) {
+												matchedField = "Registration Date";
+												matchedText = match[0];
+											}
+											
+											if(Util.getFormatedDate(new Date(sample.registrationDetails.registrationDate)).indexOf(match[0]) != -1) {
+												if(matchedField) {
+													matchedField += ", Modification Date";
+												} else {
+													matchedField = "Modification Date";
+												}
+												matchedText = match[0];
+											}
+										}
+									}
+									
 									//properties
 									dataList.push({
 										permId : sample.permId,
@@ -735,6 +757,7 @@ function MainController(profile) {
 										matchedField : matchedField
 									});
 								}
+								
 								callback(dataList);
 							};
 							
