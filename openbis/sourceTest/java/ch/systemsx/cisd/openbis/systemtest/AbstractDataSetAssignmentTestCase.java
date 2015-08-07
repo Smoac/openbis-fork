@@ -66,7 +66,7 @@ public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
     Space sourceSpace;
 
     Space destinationSpace;
-    
+
     Space unrelatedAdmin;
 
     Space unrelatedObserver;
@@ -74,15 +74,15 @@ public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
     Space unrelatedNone;
 
     GuardedDomain source;
-    
+
     GuardedDomain destination;
-    
+
     GuardedDomain instance;
-    
+
     AuthorizationRule assignDataSetToSampleRule;
-    
+
     AuthorizationRule assignDataSetToExperimentRule;
-    
+
     @BeforeClass(dependsOnMethods = "loginAsSystem")
     public void createFixture() throws Exception
     {
@@ -112,18 +112,16 @@ public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
                         or(rule(destination, RoleWithHierarchy.SPACE_POWER_USER),
                                 rule(destination, RoleWithHierarchy.SPACE_ETL_SERVER)));
     }
-    
+
     /**
-     * Reassign specified data set to specified experiment for the specified user session token. 
-     * If experiment is not specified unassignment is meant.
+     * Reassign specified data set to specified experiment for the specified user session token. If experiment is not specified unassignment is meant.
      * Sub class for testing API V3 should override this method.
      */
     protected abstract void reassignToExperiment(String dataSetCode, String experimentIdentifierOrNull, String userSessionToken);
 
     /**
-     * Reassign specified data set to specified sample for the specified user session token. 
-     * If sample is not specified unassignment is meant.
-     * Sub class for testing API V3 should override this method.
+     * Reassign specified data set to specified sample for the specified user session token. If sample is not specified unassignment is meant. Sub
+     * class for testing API V3 should override this method.
      */
     protected abstract void reassignToSample(String dataSetCode, String samplePermIdOrNull, String userSessionToken);
 
@@ -179,7 +177,7 @@ public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
         assertModified(g.ds(3), g.ds(4), g.ds(5), g.ds(6));
         assertUnmodified(g);
     }
-    
+
     @Test
     public void reassignTwoPublishedDataSetToAnotherPublicExperiment()
     {
@@ -190,10 +188,10 @@ public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
                 + "DS1, components: DS3\n"
                 + "DS2, components: DS4\n"
                 + "DS3, components: DS5 DS6\n");
-        
+
         reassignToExperiment(g.ds(1), g.e(3));
         reassignToExperiment(g.ds(2), g.e(3));
-        
+
         assertEquals("E1, samples: S1, data sets: DS3 DS4 DS5 DS6\n"
                 + "E3, data sets: DS1 DS2\n"
                 + "S1, data sets: DS3\n"
@@ -204,7 +202,7 @@ public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
         assertModified(g.ds(1), g.ds(2));
         assertUnmodified(g);
     }
-    
+
     @Test
     public void containerWithSomeComponentsReassignedFromSampleWithoutExperimentToSampleWithExperiment()
     {
@@ -214,9 +212,9 @@ public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
                 + "S3, data sets: DS3[NET]\n"
                 + "DS1[NECT], components: DS2[NECT] DS3[NET]\n"
                 + "DS2[NECT], components: DS4");
-        
+
         reassignToSample(g.ds(1), g.s(2));
-        
+
         assertEquals("E1, data sets: DS4\n"
                 + "E2, samples: S2, data sets: DS1[NECT] DS2[NECT]\n"
                 + "S2, data sets: DS1[NECT] DS2[NECT]\n"
@@ -228,7 +226,7 @@ public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
         assertModified(g.ds(1), g.ds(2));
         assertUnmodified(g);
     }
-    
+
     @Test
     public void containerWithSomeComponentsReassignedFromSampleWithoutExperimentToSampleWithoutExperiment()
     {
@@ -238,9 +236,9 @@ public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
                 + "S3, data sets: DS3[NET]\n"
                 + "DS1[NECT], components: DS2[NECT] DS3[NET]\n"
                 + "DS2[NECT], components: DS4");
-        
+
         reassignToSample(g.ds(1), g.s(2));
-        
+
         assertEquals("E1, data sets: DS4\n"
                 + "S2, data sets: DS1[NECT] DS2[NECT]\n"
                 + "S3, data sets: DS3[NET]\n"
@@ -250,7 +248,7 @@ public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
         assertModified(g.ds(1), g.ds(2));
         assertUnmodified(g);
     }
-    
+
     @Test
     public void containerWithSomeComponentsReassignedFromSampleWithoutExperimentToExperiment()
     {
@@ -260,9 +258,9 @@ public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
                 + "S3, data sets: DS3[NET]\n"
                 + "DS1[NECT], components: DS2[NECT] DS3[NET]\n"
                 + "DS2[NECT], components: DS4");
-        
+
         reassignToExperiment(g.ds(1), g.e(2));
-        
+
         assertEquals("E1, data sets: DS4\n"
                 + "E2, samples: S2, data sets: DS1[NECT] DS2[NECT]\n"
                 + "S3, data sets: DS3[NET]\n"
@@ -273,7 +271,7 @@ public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
         assertModified(g.ds(1), g.ds(2));
         assertUnmodified(g);
     }
-    
+
     @Test
     public void containerWithSomeComponentsReassignedFromExperimentToSampleWithoutExperiment()
     {
@@ -283,9 +281,9 @@ public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
                 + "S2, data sets: DS5[NET]\n"
                 + "DS1[NECT], components: DS2 DS3\n"
                 + "DS2, components: DS4\n");
-        
+
         reassignToSample(g.ds(1), g.s(2));
-        
+
         assertEquals("E1, samples: S1, data sets: DS2 DS4\n"
                 + "E3, data sets: DS3\n"
                 + "S1, data sets: DS2\n"
@@ -297,7 +295,7 @@ public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
         assertModified(g.ds(1));
         assertUnmodified(g);
     }
-    
+
     @Test
     public void containerWithSomeComponentsReassignedFromExperimentToExperiment()
     {
@@ -327,9 +325,9 @@ public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
                 + "E3, data sets: DS3\n"
                 + "DS1, components: DS2 DS3\n"
                 + "DS2, components: DS4\n");
-        
+
         reassignToSample(g.ds(1), g.s(2));
-        
+
         assertEquals("E1, samples: S1\n"
                 + "E2, samples: S2, data sets: DS1 DS2 DS4\n"
                 + "E3, data sets: DS3\n"
@@ -341,7 +339,7 @@ public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
         assertModified(g.s(2));
         assertUnmodified(g);
     }
-    
+
     @Test
     public void containerWithSomeComponentsReassignedFromExperimentToSampleWithExperiment2()
     {
@@ -351,9 +349,9 @@ public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
                 + "S1, data sets: DS2\n"
                 + "DS1, components: DS2 DS3\n"
                 + "DS2, components: DS4\n");
-        
+
         reassignToSample(g.ds(1), g.s(2));
-        
+
         assertEquals("E1, samples: S1, data sets: DS2 DS4\n"
                 + "E2, samples: S2, data sets: DS1\n"
                 + "E3, data sets: DS3\n"
@@ -366,16 +364,16 @@ public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
         assertModified(g.ds(1));
         assertUnmodified(g);
     }
-    
+
     @Test
     public void containerWithAllItsComponentsReassignedFromExperimentToExperiment()
     {
         EntityGraphGenerator g = parseAndCreateGraph("E1, samples: S1, data sets: DS1 DS2\n"
                 + "E2, samples: S2\n"
                 + "DS1, components: DS2\n");
-        
+
         reassignToExperiment(g.ds(1), g.e(2));
-        
+
         assertEquals("E1, samples: S1\n"
                 + "E2, samples: S2, data sets: DS1 DS2\n"
                 + "DS1, components: DS2\n", renderGraph(g));
@@ -383,7 +381,7 @@ public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
         assertModified(g.ds(1), g.ds(2));
         assertUnmodified(g);
     }
-    
+
     @Test
     public void containerWithAllItsComponentsReassignedFromExperimentToSampleWithExperiment()
     {
@@ -401,16 +399,16 @@ public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
         assertModified(g.ds(1), g.ds(2));
         assertUnmodified(g);
     }
-    
+
     @Test
     public void containerWithAllItsComponentsReassignedFromExperimentToSampleWithoutExperiment()
     {
         EntityGraphGenerator g = parseAndCreateGraph("E1, samples: S1, data sets: DS1[NECT] DS2[NET]\n"
                 + "S2\n"
                 + "DS1[NECT], components: DS2[NET]\n");
-        
+
         reassignToSample(g.ds(1), g.s(2));
-        
+
         assertEquals("E1, samples: S1\n"
                 + "S2, data sets: DS1[NECT] DS2[NET]\n"
                 + "DS1[NECT], components: DS2[NET]\n", renderGraph(g));
@@ -419,7 +417,7 @@ public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
         assertModified(g.ds(1), g.ds(2));
         assertUnmodified(g);
     }
-    
+
     @Test
     public void containerWithAllItsComponentsReassignedFromSampleWithExperimentToExperiment()
     {
@@ -438,7 +436,7 @@ public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
         assertModified(g.ds(1), g.ds(2));
         assertUnmodified(g);
     }
-    
+
     @Test
     public void containerWithAllItsComponentsReassignedFromSampleWithExperimentToExperiment2()
     {
@@ -446,9 +444,9 @@ public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
                 + "E2, samples: S2\n"
                 + "S1, data sets: DS1 DS2\n"
                 + "DS1, components: DS2");
-        
+
         reassignToExperiment(g.ds(1), g.e(2));
-        
+
         assertEquals("E1, samples: S1\n"
                 + "E2, samples: S2, data sets: DS1 DS2\n"
                 + "DS1, components: DS2\n", renderGraph(g));
@@ -457,7 +455,7 @@ public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
         assertModified(g.ds(1), g.ds(2));
         assertUnmodified(g);
     }
-    
+
     // This is screening test case where one container data set is moved to another plate.
     @Test
     public void containerWithAllItsComponentsReassignedFromSampleWithExperimentToSampleWithExperiment()
@@ -478,7 +476,7 @@ public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
         assertModified(g.ds(1), g.ds(2));
         assertUnmodified(g);
     }
-    
+
     @Test
     public void containerWithAllItsComponentsReassignedFromSampleWithExperimentToSampleWithoutExperiment()
     {
@@ -514,7 +512,7 @@ public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
         assertModified(g.ds(1), g.ds(2));
         assertUnmodified(g);
     }
-    
+
     @Test
     public void containerWithAllItsComponentsReassignedFromSampleWithoutExperimentToSampleWithExperiment()
     {
@@ -532,7 +530,7 @@ public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
         assertModified(g.ds(1), g.ds(2));
         assertUnmodified(g);
     }
-    
+
     @Test
     public void containerWithAllItsComponentsReassignedFromSampleWithoutExperimentToSampleWithoutExperiment()
     {
@@ -548,7 +546,7 @@ public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
         assertModified(g.ds(1), g.ds(2));
         assertUnmodified(g);
     }
-    
+
     @Test
     @Rollback(true)
     public void containerWithAComponentOfWrongTypeReassignedFromExperimentToSampleWithoutExperiment()
@@ -556,7 +554,7 @@ public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
         EntityGraphGenerator g = parseAndCreateGraph("E1, data sets: DS1[NECT] DS2\n"
                 + "S2, data sets: DS5[NET]\n"
                 + "DS1[NECT], components: DS2\n");
-        
+
         try
         {
             reassignToSample(g.ds(1), g.s(2));
@@ -568,7 +566,7 @@ public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
             assertDataSetToSampleExceptionMessage(ex, sample, dataSet);
         }
     }
-    
+
     @Test
     @Rollback(true)
     public void dataSetCannotBeAssignedToSpaceSample()
@@ -611,9 +609,9 @@ public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
         EntityGraphGenerator g = parseAndCreateGraph("E1, data sets: DS1 DS2\n"
                 + "E2\n"
                 + "DS1, parents: DS2\n");
-        
+
         reassignToExperiment(g.ds(1), g.e(2));
-        
+
         assertEquals("E1, data sets: DS2\n"
                 + "E2, data sets: DS1\n"
                 + "DS1, parents: DS2\n", renderGraph(g));
@@ -628,9 +626,9 @@ public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
         EntityGraphGenerator g = parseAndCreateGraph("E1, data sets: DS1 DS2\n"
                 + "E2\n"
                 + "DS1, parents: DS2\n");
-        
+
         reassignToExperiment(g.ds(2), g.e(2));
-        
+
         assertEquals("E1, data sets: DS1\n"
                 + "E2, data sets: DS2\n"
                 + "DS1, parents: DS2\n", renderGraph(g));
@@ -639,7 +637,6 @@ public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
         assertUnmodified(g);
     }
 
-    
     @Test
     public void sampleAssignmentOfParentDataSetIsNotChangedWhenChildDataSetIsAssignedToAnotherSample()
     {
@@ -647,9 +644,9 @@ public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
                 + "E2, samples: S2\n"
                 + "S1, data sets: DS1 DS2\n"
                 + "DS1, parents: DS2\n");
-        
+
         reassignToSample(g.ds(1), g.s(2));
-        
+
         assertEquals("E1, samples: S1, data sets: DS2\n"
                 + "E2, samples: S2, data sets: DS1\n"
                 + "S1, data sets: DS2\n"
@@ -660,7 +657,7 @@ public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
         assertModified(g.ds(1));
         assertUnmodified(g);
     }
-    
+
     @Test
     public void sampleAssignmentOfChildDataSetIsNotChangedWhenParentDatasetIsAssignedToAnotherSample()
     {
@@ -668,9 +665,9 @@ public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
                 + "E2, samples: S2\n"
                 + "S1, data sets: DS1 DS2\n"
                 + "DS1, parents: DS2\n");
-        
+
         reassignToSample(g.ds(2), g.s(2));
-        
+
         assertEquals("E1, samples: S1, data sets: DS1\n"
                 + "E2, samples: S2, data sets: DS2\n"
                 + "S1, data sets: DS1\n"
@@ -681,16 +678,16 @@ public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
         assertModified(g.ds(2));
         assertUnmodified(g);
     }
-    
+
     @Test
     public void experimentAssignmentOfContainerDataSetIsNotChangedWhenComponentDataSetIsAssignedToAnotherExperiment()
     {
         EntityGraphGenerator g = parseAndCreateGraph("E1, data sets: DS1 DS2\n"
                 + "E2\n"
                 + "DS1, components: DS2\n");
-        
+
         reassignToExperiment(g.ds(2), g.e(2));
-        
+
         assertEquals("E1, data sets: DS1\n"
                 + "E2, data sets: DS2\n"
                 + "DS1, components: DS2\n", renderGraph(g));
@@ -705,16 +702,16 @@ public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
         EntityGraphGenerator g = parseAndCreateGraph("E1, data sets: DS1 DS2\n"
                 + "E2\n"
                 + "DS1, components: DS2\n");
-        
+
         reassignToExperiment(g.ds(1), g.e(2));
-        
+
         assertEquals("E2, data sets: DS1 DS2\n"
                 + "DS1, components: DS2\n", renderGraph(g));
         assertModified(g.e(1), g.e(2));
         assertModified(g.ds(1), g.ds(2));
         assertUnmodified(g);
     }
-    
+
     @Test
     public void sampleAssignmentOfContainerDataSetIsNotChangedWhenComponentDataSetIsAssignedToAnotherSample()
     {
@@ -722,9 +719,9 @@ public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
                 + "E2, samples: S2\n"
                 + "S1, data sets: DS1 DS2\n"
                 + "DS1, components: DS2\n");
-        
+
         reassignToSample(g.ds(2), g.s(2));
-        
+
         assertEquals("E1, samples: S1, data sets: DS1\n"
                 + "E2, samples: S2, data sets: DS2\n"
                 + "S1, data sets: DS1\n"
@@ -735,7 +732,7 @@ public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
         assertModified(g.ds(2));
         assertUnmodified(g);
     }
-    
+
     @Test
     public void sampleAssignmentOfComponentDataSetIsChangedWhenContainerDataSetIsAssignedToAnotherSample()
     {
@@ -743,9 +740,9 @@ public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
                 + "E2, samples: S2\n"
                 + "S1, data sets: DS1 DS2\n"
                 + "DS1, components: DS2\n");
-        
+
         reassignToSample(g.ds(1), g.s(2));
-        
+
         assertEquals("E1, samples: S1\n"
                 + "E2, samples: S2, data sets: DS1 DS2\n"
                 + "S2, data sets: DS1 DS2\n"
@@ -761,9 +758,9 @@ public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
     {
         EntityGraphGenerator g = parseAndCreateGraph("E1, samples: S1, data sets: DS1\n"
                 + "S1, data sets: DS1\n");
-        
+
         reassignToSample(g.ds(1), null);
-        
+
         assertEquals("E1, samples: S1, data sets: DS1\n", renderGraph(g));
         assertModified(g.s(1));
         assertModified(g.ds(1));
@@ -779,7 +776,7 @@ public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
     }
 
     @Test(dataProvider = "rolesNotAllowedToAssignDataSetToExperiment", expectedExceptions =
-        { AuthorizationFailureException.class }, groups = "authorization")
+    { AuthorizationFailureException.class }, groups = "authorization")
     @Rollback(true)
     public void assigningDataSetToAnotherExperimentIsNotAllowedFor(
             RoleWithHierarchy sourceSpaceRole, RoleWithHierarchy destinationSpaceRole,
@@ -791,36 +788,31 @@ public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
     @Test(dataProvider = "rolesAllowedToAssignDataSetToSample", groups = "authorization")
     public void assigningDataSetToSampleIsAllowedFor(RoleWithHierarchy sourceSpaceRole,
             RoleWithHierarchy destinationSpaceRole, RoleWithHierarchy instanceRole)
-                    throws Exception
-                    {
+            throws Exception
+    {
         checkAssignmentToSample(sourceSpaceRole, destinationSpaceRole, instanceRole);
-                    }
-    
+    }
+
     @Test(dataProvider = "rolesNotAllowedToAssignDataSetToSample", expectedExceptions =
-        { AuthorizationFailureException.class }, groups = "authorization")
+    { AuthorizationFailureException.class }, groups = "authorization")
     @Rollback(true)
     public void assigningDataSetToSampleIsNotAllowedFor(RoleWithHierarchy sourceSpaceRole,
             RoleWithHierarchy destinationSpaceRole, RoleWithHierarchy instanceRole)
     {
         checkAssignmentToSample(sourceSpaceRole, destinationSpaceRole, instanceRole);
     }
-    
+
     private void assertDataSetToSampleExceptionMessage(UserFailureException ex, Sample sample, AbstractExternalData dataset)
     {
         String postfix = sample.getSpace() == null ? "shared." :
                 "not connected to any experiment and the data set type ("
                         + dataset.getDataSetType().getCode()
                         + ") doesn't match one of the following regular expressions:   NO-EXP-.* ,   NE.*  .";
-        assertEquals(createErrorMessage(dataset, sample, postfix), ex.getMessage());
+        assertEquals("The dataset '" + dataset.getCode() + "' cannot be connected to the sample '"
+                + sample.getIdentifier() + "' because the new sample is " + postfix, getErrorMessage(ex));
     }
 
-    protected String createErrorMessage(AbstractExternalData dataset, Sample sample, String postfix)
-    {
-        return "The dataset '" + dataset.getCode() + "' cannot be connected to the sample '" 
-                + sample.getIdentifier() + "' because the new sample is " + postfix;
-    }
-
-    private void checkAssignmentToExperiment(RoleWithHierarchy sourceSpaceRole, 
+    private void checkAssignmentToExperiment(RoleWithHierarchy sourceSpaceRole,
             RoleWithHierarchy destinationSpaceRole, RoleWithHierarchy instanceRole)
     {
         AbstractExternalData dataset = create(aDataSet().inExperiment(sourceExperiment));
@@ -834,7 +826,7 @@ public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
         reassignToExperiment(dataset.getCode(), destinationExperiment.getIdentifier(), user);
     }
 
-    private void checkAssignmentToSample(RoleWithHierarchy sourceSpaceRole, 
+    private void checkAssignmentToSample(RoleWithHierarchy sourceSpaceRole,
             RoleWithHierarchy destinationSpaceRole, RoleWithHierarchy instanceRole)
     {
         AbstractExternalData dataset = create(aDataSet().inSample(sourceSample));
@@ -863,5 +855,10 @@ public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
         String user = create(aSession().withInstanceRole(RoleCode.ADMIN));
         reassignToSample(code, permIdOrNull, user);
     }
-    
+
+    protected String getErrorMessage(Exception e)
+    {
+        return e.getMessage();
+    }
+
 }

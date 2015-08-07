@@ -26,8 +26,6 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSetUpdat
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.DataSetPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentIdentifier;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SamplePermId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.systemtest.AbstractDataSetAssignmentTestCase;
 
 /**
@@ -38,8 +36,7 @@ import ch.systemsx.cisd.openbis.systemtest.AbstractDataSetAssignmentTestCase;
 @Test(groups = { "system-cleandb" })
 public class AssignDataSetToExperimentAndSampleTest extends AbstractDataSetAssignmentTestCase
 {
-    private static final String CONTEXT_DESCRIPTION = " (Context: [])";
-    
+
     @Autowired
     protected IApplicationServerApi v3api;
 
@@ -48,7 +45,15 @@ public class AssignDataSetToExperimentAndSampleTest extends AbstractDataSetAssig
     {
         DataSetUpdate dataSetUpdate = new DataSetUpdate();
         dataSetUpdate.setDataSetId(new DataSetPermId(dataSetCode));
-        dataSetUpdate.setExperimentId(new ExperimentIdentifier(experimentIdentifierOrNull));
+
+        if (experimentIdentifierOrNull == null)
+        {
+            dataSetUpdate.setExperimentId(null);
+        } else
+        {
+            dataSetUpdate.setExperimentId(new ExperimentIdentifier(experimentIdentifierOrNull));
+        }
+
         v3api.updateDataSets(userSessionToken, Arrays.asList(dataSetUpdate));
     }
 
@@ -57,11 +62,11 @@ public class AssignDataSetToExperimentAndSampleTest extends AbstractDataSetAssig
     {
         DataSetUpdate dataSetUpdate = new DataSetUpdate();
         dataSetUpdate.setDataSetId(new DataSetPermId(dataSetCode));
+
         if (samplePermIdOrNull == null)
         {
             dataSetUpdate.setSampleId(null);
-        }
-        else
+        } else
         {
             dataSetUpdate.setSampleId(new SamplePermId(samplePermIdOrNull));
         }
@@ -69,9 +74,18 @@ public class AssignDataSetToExperimentAndSampleTest extends AbstractDataSetAssig
     }
 
     @Override
-    protected String createErrorMessage(AbstractExternalData dataset, Sample sample, String postfix)
+    protected String getErrorMessage(Exception e)
     {
-        return super.createErrorMessage(dataset, sample, postfix) + CONTEXT_DESCRIPTION;
+        String msg = e.getMessage();
+        int index = msg.indexOf(" (Context: [");
+
+        if (index != -1)
+        {
+            return msg.substring(0, index);
+        } else
+        {
+            return msg;
+        }
     }
-    
+
 }
