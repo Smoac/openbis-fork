@@ -32,6 +32,7 @@ import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.attachment.Attachment;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.attachment.AttachmentCreation;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material.Material;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.Sample;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleCreation;
@@ -466,18 +467,27 @@ public class UpdateSampleTest extends AbstractSampleTest
     {
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
+        ISampleId sampleId = new SampleIdentifier("/CISD/CP-TEST-1");
         final SampleUpdate update = new SampleUpdate();
-        update.setSampleId(new SampleIdentifier("/CISD/CP-TEST-1"));
+        update.setSampleId(sampleId);
         update.setExperimentId(null);
 
-        assertUserFailureException(new IDelegatedAction()
-            {
-                @Override
-                public void execute()
-                {
-                    v3api.updateSamples(sessionToken, Arrays.asList(update));
-                }
-            }, "Cannot detach the sample '/CISD/CP-TEST-1' from the experiment because there are already datasets attached to the sample");
+        SampleFetchOptions fetchOptions = new SampleFetchOptions();
+        fetchOptions.withExperiment();
+        fetchOptions.withDataSets().withExperiment();
+
+        v3api.updateSamples(sessionToken, Arrays.asList(update));
+
+        Map<ISampleId, Sample> map = v3api.mapSamples(sessionToken, Arrays.asList(sampleId), fetchOptions);
+        Sample sample = map.get(sampleId);
+
+        Assert.assertNull(sample.getExperiment());
+        Assert.assertTrue(sample.getDataSets().size() > 0);
+
+        for (DataSet dataSet : sample.getDataSets())
+        {
+            Assert.assertNull(dataSet.getExperiment());
+        }
     }
 
     @Test
