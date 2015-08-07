@@ -285,7 +285,9 @@ function ServerFacade(openbisServer) {
 								numeric_code = 1;
 							codes[idx] = numeric_code; 
 						}
-						codes.sort();
+						codes = codes.sort(function (a, b) { 
+						    return a - b;
+						});
 						var nextid = codes[codes.length-1] + 1;
 						var nextcode = prefix + nextid;
 					}
