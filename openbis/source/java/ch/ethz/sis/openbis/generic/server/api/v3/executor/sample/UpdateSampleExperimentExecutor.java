@@ -23,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.dataset.IVerifyDataSetExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.AbstractUpdateEntityFieldUpdateValueRelationExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.experiment.IMapExperimentByIdExecutor;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.FieldUpdateValue;
@@ -31,6 +32,9 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentIde
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.IExperimentId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ExperimentByIdentiferValidator;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.NewDataSetToSampleExperimentAssignmentManager;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
@@ -38,12 +42,19 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
  * @author pkupczyk
  */
 @Component
-public class UpdateSampleExperimentExecutor extends AbstractUpdateEntityFieldUpdateValueRelationExecutor<SampleUpdate, SamplePE, IExperimentId, ExperimentPE>
+public class UpdateSampleExperimentExecutor extends
+        AbstractUpdateEntityFieldUpdateValueRelationExecutor<SampleUpdate, SamplePE, IExperimentId, ExperimentPE>
         implements IUpdateSampleExperimentExecutor
 {
 
     @Autowired
     private IMapExperimentByIdExecutor mapExperimentByIdExecutor;
+
+    @Autowired
+    private IVerifyDataSetExecutor verifyDataSetExecutor;
+
+    @Autowired
+    private IDAOFactory daoFactory;
 
     @Override
     protected IExperimentId getRelatedId(ExperimentPE related)
@@ -83,10 +94,28 @@ public class UpdateSampleExperimentExecutor extends AbstractUpdateEntityFieldUpd
     {
         if (related == null)
         {
+            List<DataPE> dataSets = daoFactory.getDataDAO().listDataSets(entity);
+            verifyDataSetExecutor.checkDataSetsDoNotNeedAnExperiment(entity.getIdentifier(), dataSets);
             relationshipService.unassignSampleFromExperiment(context.getSession(), entity);
+            for (DataPE dataSet : dataSets)
+            {
+                if (dataSet.getExperiment() != null)
+                {
+                    relationshipService.assignDataSetToExperiment(context.getSession(), dataSet, null);
+                }
+            }
         } else
         {
+            NewDataSetToSampleExperimentAssignmentManager assignmentManager =
+                    new NewDataSetToSampleExperimentAssignmentManager(verifyDataSetExecutor.getDataSetTypeChecker());
+            for (DataPE dataSet : entity.getDatasets())
+            {
+                assignmentManager.assignDataSetAndRelatedComponents(dataSet, entity, related);
+            }
+
             relationshipService.assignSampleToExperiment(context.getSession(), entity, related);
+
+            assignmentManager.performAssignment(relationshipService, context.getSession());
         }
     }
 

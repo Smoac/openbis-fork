@@ -17,8 +17,10 @@
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.dataset;
 
 import java.util.Collection;
+import java.util.List;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.util.DataSetTypeWithoutExperimentChecker;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 
 /**
@@ -28,5 +30,9 @@ public interface IVerifyDataSetExecutor
 {
 
     public void verify(IOperationContext context, Collection<DataPE> entities);
+
+    DataSetTypeWithoutExperimentChecker getDataSetTypeChecker();
+
+    void checkDataSetsDoNotNeedAnExperiment(String sampleIdentifier, List<DataPE> dataSets);
 
 }

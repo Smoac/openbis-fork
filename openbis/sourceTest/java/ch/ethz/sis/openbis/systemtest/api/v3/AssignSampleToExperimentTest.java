@@ -17,54 +17,125 @@
 package ch.ethz.sis.openbis.systemtest.api.v3;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.IApplicationServerApi;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.Sample;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleUpdate;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.experiment.ExperimentFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentIdentifier;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.IExperimentId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SamplePermId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.SpacePermId;
 import ch.systemsx.cisd.openbis.systemtest.AbstractAssignmentSampleToExperimentTestCase;
 
 /**
  * Sample to experiment assignment tests for API V3.
- *
+ * 
  * @author Franz-Josef Elmer
  */
-@Test(groups = { "system-cleandb"}, enabled = false)
-public class AssignSampleToExperimentTest //extends AbstractAssignmentSampleToExperimentTestCase
+@Test(groups = { "system-cleandb" })
+public class AssignSampleToExperimentTest extends AbstractAssignmentSampleToExperimentTestCase
 {
-    private static final String CONTEXT_DESCRIPTION = " (Context: [])";
-    
+
     @Autowired
     protected IApplicationServerApi v3api;
-/*
+
     @Override
-    protected void reassignSamplesToExperiment(String experimentIdentifier, List<String> samplePermIds, 
+    protected void updateExperimentChangeSamples(String experimentIdentifier, List<String> samplePermIds,
             String userSessionToken)
     {
-        ExperimentIdentifier experimentId 
-            = experimentIdentifier == null ? null : new ExperimentIdentifier(experimentIdentifier);
-        List<SampleUpdate> sampleUpdates = new ArrayList<SampleUpdate>();
+        IExperimentId eId = new ExperimentIdentifier(experimentIdentifier);
+        ExperimentFetchOptions efo = new ExperimentFetchOptions();
+        efo.withSamples();
+
+        Map<IExperimentId, Experiment> eMap = v3api.mapExperiments(userSessionToken, Arrays.asList(eId), efo);
+        Experiment e = eMap.get(eId);
+
+        List<SampleUpdate> suList = new LinkedList<SampleUpdate>();
+        Set<SamplePermId> sIdSet = new HashSet<SamplePermId>();
+        for (Sample s : e.getSamples())
+        {
+            if (false == samplePermIds.contains(s.getPermId()))
+            {
+                SampleUpdate su = new SampleUpdate();
+                su.setSampleId(s.getPermId());
+                su.setExperimentId(null);
+                suList.add(su);
+            }
+
+            sIdSet.add(s.getPermId());
+        }
+
         for (String samplePermId : samplePermIds)
         {
-            SampleUpdate sampleUpdate = new SampleUpdate();
-            sampleUpdate.setSampleId(new SamplePermId(samplePermId));
-            sampleUpdate.setExperimentId(experimentId);
-            sampleUpdates.add(sampleUpdate);
+            if (false == sIdSet.contains(new SamplePermId(samplePermId)))
+            {
+                SampleUpdate su = new SampleUpdate();
+                su.setSampleId(new SamplePermId(samplePermId));
+                su.setExperimentId(eId);
+                suList.add(su);
+            }
         }
+
+        v3api.updateSamples(userSessionToken, suList);
+    }
+
+    @Override
+    protected void updateSampleChangeExperiment(String samplePermId, String experimentIdentifierOrNull,
+            String userSessionToken)
+    {
+        ExperimentIdentifier experimentId = experimentIdentifierOrNull == null ? null : new ExperimentIdentifier(experimentIdentifierOrNull);
+
+        List<SampleUpdate> sampleUpdates = new ArrayList<SampleUpdate>();
+        SampleUpdate sampleUpdate = new SampleUpdate();
+        sampleUpdate.setSampleId(new SamplePermId(samplePermId));
+        sampleUpdate.setExperimentId(experimentId);
+
+        if (experimentIdentifierOrNull != null)
+        {
+            String[] tokens = experimentIdentifierOrNull.split("/");
+            sampleUpdate.setSpaceId(new SpacePermId(tokens[1]));
+        }
+
+        sampleUpdates.add(sampleUpdate);
+
         v3api.updateSamples(userSessionToken, sampleUpdates);
     }
 
     @Override
-    protected void reassignSampleToExperiment(String samplePermId, String experimentIdentifierOrNull, 
-            String userSessionToken)
+    public void addSampleToAnExperimentFailingBecauseSampleHasAlreadyAnExperiment()
     {
-        reassignSamplesToExperiment(experimentIdentifierOrNull, Collections.singletonList(samplePermId), 
-                userSessionToken);
+        // changing a list of samples via experiment update is not supported in v3
     }
-*/
+
+    @Override
+    public void sampleWithExperimentCanNotBeAssignedToAnotherExperimentThroughExperimentUpdate()
+    {
+        // changing a list of samples via experiment update is not supported in v3
+    }
+
+    @Override
+    protected String getErrorMessage(Exception e)
+    {
+        String msg = e.getMessage();
+        int index = msg.indexOf(" (Context: [");
+
+        if (index != -1)
+        {
+            return msg.substring(0, index);
+        } else
+        {
+            return msg;
+        }
+    }
 }

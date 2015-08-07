@@ -31,18 +31,18 @@ import ch.systemsx.cisd.openbis.generic.shared.util.EntityHelper;
 /**
  * @author Franz-Josef Elmer
  */
-class NewDataSetToSampleExperimentAssignmentManager
+public class NewDataSetToSampleExperimentAssignmentManager
 {
     private final DataSetTypeWithoutExperimentChecker dataSetTypeChecker;
 
     private final List<DataSetSampleExperiment> assignments = new ArrayList<DataSetSampleExperiment>();
 
-    NewDataSetToSampleExperimentAssignmentManager(DataSetTypeWithoutExperimentChecker dataSetTypeChecker)
+    public NewDataSetToSampleExperimentAssignmentManager(DataSetTypeWithoutExperimentChecker dataSetTypeChecker)
     {
         this.dataSetTypeChecker = dataSetTypeChecker;
     }
 
-    void performAssignment(IRelationshipService relationshipService, Session session)
+    public void performAssignment(IRelationshipService relationshipService, Session session)
     {
         for (DataSetSampleExperiment assignment : assignments)
         {
@@ -50,7 +50,7 @@ class NewDataSetToSampleExperimentAssignmentManager
         }
     }
 
-    void assignDataSetAndRelatedComponents(DataPE dataSet, SamplePE sample, ExperimentPE experiment)
+    public void assignDataSetAndRelatedComponents(DataPE dataSet, SamplePE sample, ExperimentPE experiment)
     {
         assignDataSetAndRelatedComponents(dataSet, dataSet, sample, experiment);
     }

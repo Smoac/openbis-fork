@@ -42,7 +42,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 public class AssignSampleToExperimentViaDropBoxAPITest extends AbstractAssignmentSampleToExperimentTestCase
 {
     @Override
-    protected void reassignSamplesToExperiment(String experimentIdentifier, List<String> samplePermIds, 
+    protected void updateExperimentChangeSamples(String experimentIdentifier, List<String> samplePermIds, 
             String userSessionToken)
     {
         ExperimentIdentifier identifier = ExperimentIdentifierFactory.parse(experimentIdentifier);
@@ -60,7 +60,7 @@ public class AssignSampleToExperimentViaDropBoxAPITest extends AbstractAssignmen
     }
     
     @Override
-    protected void reassignSampleToExperiment(String samplePermId, String experimentIdentifierOrNull, 
+    protected void updateSampleChangeExperiment(String samplePermId, String experimentIdentifierOrNull, 
             String userSessionToken)
     {
         SampleIdentifier sampleIdentifier = etlService.tryGetSampleIdentifier(systemSessionToken, samplePermId);
