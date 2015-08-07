@@ -23,7 +23,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.dataset.IVerifyDataSetExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.AbstractUpdateEntityFieldUpdateValueRelationExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.experiment.IMapExperimentByIdExecutor;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.FieldUpdateValue;
@@ -51,7 +50,7 @@ public class UpdateSampleExperimentExecutor extends
     private IMapExperimentByIdExecutor mapExperimentByIdExecutor;
 
     @Autowired
-    private IVerifyDataSetExecutor verifyDataSetExecutor;
+    private IVerifySampleDataSetsExecutor verifySampleDataSetsExecutor;
 
     @Autowired
     private IDAOFactory daoFactory;
@@ -94,10 +93,9 @@ public class UpdateSampleExperimentExecutor extends
     {
         if (related == null)
         {
-            List<DataPE> dataSets = daoFactory.getDataDAO().listDataSets(entity);
-            verifyDataSetExecutor.checkDataSetsDoNotNeedAnExperiment(entity.getIdentifier(), dataSets);
+            verifySampleDataSetsExecutor.checkDataSetsDoNotNeedAnExperiment(context, entity);
             relationshipService.unassignSampleFromExperiment(context.getSession(), entity);
-            for (DataPE dataSet : dataSets)
+            for (DataPE dataSet : entity.getDatasets())
             {
                 if (dataSet.getExperiment() != null)
                 {
@@ -107,7 +105,7 @@ public class UpdateSampleExperimentExecutor extends
         } else
         {
             NewDataSetToSampleExperimentAssignmentManager assignmentManager =
-                    new NewDataSetToSampleExperimentAssignmentManager(verifyDataSetExecutor.getDataSetTypeChecker());
+                    new NewDataSetToSampleExperimentAssignmentManager(verifySampleDataSetsExecutor.getDataSetTypeChecker());
             for (DataPE dataSet : entity.getDatasets())
             {
                 assignmentManager.assignDataSetAndRelatedComponents(dataSet, entity, related);

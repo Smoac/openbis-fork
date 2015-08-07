@@ -16,7 +16,6 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.sample;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 
@@ -24,11 +23,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.dataset.IVerifyDataSetExecutor;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
@@ -43,7 +40,7 @@ public class VerifySampleExperimentExecutor implements IVerifySampleExperimentEx
     private IDAOFactory daoFactory;
 
     @Autowired
-    private IVerifyDataSetExecutor verifyDataSetExecutor;
+    private IVerifySampleDataSetsExecutor verifySampleDataSetsExecutor;
 
     @SuppressWarnings("unused")
     private VerifySampleExperimentExecutor()
@@ -71,9 +68,7 @@ public class VerifySampleExperimentExecutor implements IVerifySampleExperimentEx
 
             if (experiment == null)
             {
-                String sampleIdentifier = sample.getIdentifier();
-                ArrayList<DataPE> dataSets = new ArrayList<DataPE>(sample.getDatasets());
-                verifyDataSetExecutor.checkDataSetsDoNotNeedAnExperiment(sampleIdentifier, dataSets);
+                verifySampleDataSetsExecutor.checkDataSetsDoNotNeedAnExperiment(context, sample);
             }
 
             if (hasDatasets && sample.getSpace() == null)

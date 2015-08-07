@@ -14,19 +14,20 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.api.v3.executor.dataset;
-
-import java.util.Collection;
+package ch.ethz.sis.openbis.generic.server.api.v3.executor.sample;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.util.DataSetTypeWithoutExperimentChecker;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
 /**
  * @author pkupczyk
  */
-public interface IVerifyDataSetExecutor
+public interface IVerifySampleDataSetsExecutor
 {
 
-    public void verify(IOperationContext context, Collection<DataPE> entities);
+    void checkDataSetsDoNotNeedAnExperiment(IOperationContext context, SamplePE sample);
+
+    DataSetTypeWithoutExperimentChecker getDataSetTypeChecker();
 
 }
