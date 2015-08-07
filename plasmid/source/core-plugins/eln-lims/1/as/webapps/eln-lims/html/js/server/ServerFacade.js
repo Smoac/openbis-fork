@@ -864,6 +864,11 @@ function ServerFacade(openbisServer) {
 		var regEx = /\d{4}-\d{2}-\d{2}/g;
 		var match = freeText.match(regEx);
 		freeText = freeText.replace(regEx, "");
+		if(!isRegistrationDate && !isModificationDate && match && match.length > 0) {
+			for(var mIdx = 0; mIdx < match.length; mIdx++) {
+				freeText += " " + match[mIdx].replace(/-/g, "");
+			}
+		}
 		
 		//Build Search
 		var sampleCriteria = {
@@ -919,10 +924,13 @@ function ServerFacade(openbisServer) {
 		if(match && match.length === 1) { //Search With Date Mode, we merge results with dates found on registration and modification fields what is slow for large number of entities
 			this.openbisServer.searchForSamplesWithFetchOptions(this._getCriteriaWithDate(freeText, true, false), ["PROPERTIES"], function(data1) {
 				_this.openbisServer.searchForSamplesWithFetchOptions(_this._getCriteriaWithDate(freeText, false, true), ["PROPERTIES"], function(data2) {
-					var results1 = _this.getInitializedSamples(data1.result);
-					var results2 = _this.getInitializedSamples(data2.result);
-					var resultsF = results1.concat(results2).uniqueOBISEntity();
-					callbackFunction(resultsF);
+					_this.openbisServer.searchForSamplesWithFetchOptions(_this._getCriteriaWithDate(freeText, false, false), ["PROPERTIES"], function(data3) {
+						var results1 = _this.getInitializedSamples(data1.result);
+						var results2 = _this.getInitializedSamples(data2.result);
+						var results3 = _this.getInitializedSamples(data3.result);
+						var resultsF = results1.concat(results2).concat(results3).uniqueOBISEntity();
+						callbackFunction(resultsF);
+					});
 				});
 			});
 		} else if(match && match.length > 1) {
