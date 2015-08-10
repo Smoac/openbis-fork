@@ -794,7 +794,7 @@ public class MapExperimentTest extends AbstractExperimentTest
         assertEquals(entry.getPropertyValue(), "a description");
     }
 
-    @Test
+    @Test(enabled = false) // SSDM-2292
     public void testMapWithHistoryProject()
     {
         ExperimentCreation creation = new ExperimentCreation();

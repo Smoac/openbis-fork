@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -20,10 +21,10 @@ import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.attachment.IAttachmentTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.dataset.IDataSetTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.experiment.IExperimentTranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.history.IHistoryTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.material.IMaterialPropertyTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.person.IPersonTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.property.IPropertyTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.sample.sql.SampleHistoryRelation;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.space.ISpaceTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.tag.ITagTranslator;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSet;
@@ -71,9 +72,6 @@ public class SampleTranslator extends AbstractCachingTranslator<SamplePE, Sample
     @Autowired
     private IDataSetTranslator dataSetTranslator;
 
-    @Autowired
-    private IHistoryTranslator historyTranslator;
-
     @Override
     protected boolean shouldTranslate(TranslationContext context, SamplePE input, SampleFetchOptions fetchOptions)
     {
@@ -107,6 +105,16 @@ public class SampleTranslator extends AbstractCachingTranslator<SamplePE, Sample
         if (fetchOptions.hasParents())
         {
             relations.add(new SampleParentsRelation(context, samples, fetchOptions.withParents()));
+        }
+
+        if (fetchOptions.hasHistory())
+        {
+            Set<Long> sampleIds = new HashSet<Long>();
+            for (SamplePE sample : samples)
+            {
+                sampleIds.add(sample.getId());
+            }
+            relations.add(createRelation(SampleHistoryRelation.class, context, sampleIds, fetchOptions.withHistory()));
         }
 
         return relations;
@@ -205,7 +213,8 @@ public class SampleTranslator extends AbstractCachingTranslator<SamplePE, Sample
 
         if (fetchOptions.hasHistory())
         {
-            result.setHistory(historyTranslator.translate(context, samplePe, fetchOptions.withHistory()));
+            SampleHistoryRelation relation = relations.get(SampleHistoryRelation.class);
+            result.setHistory(relation.getRelated(samplePe.getId()));
             result.getFetchOptions().withHistoryUsing(fetchOptions.withHistory());
         }
     }

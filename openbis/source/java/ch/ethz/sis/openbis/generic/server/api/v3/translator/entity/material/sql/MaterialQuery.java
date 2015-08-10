@@ -25,6 +25,7 @@ import net.lemnik.eodsql.Select;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql.ObjectQuery;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql.ObjectRelationRecord;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.history.sql.HistoryPropertyRecord;
 import ch.systemsx.cisd.common.db.mapper.LongSetMapper;
 
 /**
@@ -53,6 +54,13 @@ public interface MaterialQuery extends ObjectQuery
             + "left join property_types pt on mtpt.prty_id = pt.id "
             + "where mp.mate_id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<MaterialPropertyRecord> getProperties(LongSet materialIds);
+
+    @Select(sql = "select mph.mate_id as entityId, mph.pers_id_author as authorId, pt.code as propertyCode, mph.value as propertyValue, mph.material as materialPropertyValue, mph.vocabulary_term as vocabularyPropertyValue, mph.valid_from_timestamp as validFrom, mph.valid_until_timestamp as validTo "
+            + "from material_properties_history mph "
+            + "left join material_type_property_types mtpt on mph.mtpt_id = mtpt.id "
+            + "left join property_types pt on mtpt.prty_id = pt.id "
+            + "where mph.mate_id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    public List<HistoryPropertyRecord> getPropertiesHistory(LongSet materialIds);
 
     @Select(sql = "select mp.mate_id as materialId, pt.code as propertyCode, mp.mate_prop_id as propertyValue "
             + "from material_properties mp "

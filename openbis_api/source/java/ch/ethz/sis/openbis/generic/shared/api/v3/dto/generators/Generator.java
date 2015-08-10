@@ -349,6 +349,8 @@ public class Generator extends AbstractGenerator
 
         gen.addPluralFetchedField("List<Experiment>", List.class.getName(), "experiments", "Expreiments", ExperimentFetchOptions.class);
         gen.addClassForImport(Experiment.class);
+        gen.addPluralFetchedField("List<HistoryEntry>", List.class.getName(), "history", "History", HistoryEntryFetchOptions.class);
+        gen.addClassForImport(HistoryEntry.class);
 
         addSpace(gen);
         addRegistrator(gen);

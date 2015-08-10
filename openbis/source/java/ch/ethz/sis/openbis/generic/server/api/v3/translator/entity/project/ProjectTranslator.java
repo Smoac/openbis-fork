@@ -17,8 +17,11 @@
 package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.project;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -29,6 +32,7 @@ import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.attachment.IAttachmentTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.experiment.IExperimentTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.person.IPersonTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.project.sql.ProjectHistoryRelation;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.space.ISpaceTranslator;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.attachment.Attachment;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
@@ -82,6 +86,24 @@ public class ProjectTranslator extends AbstractCachingTranslator<ProjectPE, Proj
     }
 
     @Override
+    protected Relations getObjectsRelations(TranslationContext context, Collection<ProjectPE> projects, ProjectFetchOptions fetchOptions)
+    {
+        Relations relations = new Relations();
+
+        if (fetchOptions.hasHistory())
+        {
+            Set<Long> projectIds = new HashSet<Long>();
+            for (ProjectPE project : projects)
+            {
+                projectIds.add(project.getId());
+            }
+            relations.add(createRelation(ProjectHistoryRelation.class, context, projectIds, fetchOptions.withHistory()));
+        }
+
+        return relations;
+    }
+
+    @Override
     protected void updateObject(TranslationContext context, ProjectPE project, Project result, Relations relations, ProjectFetchOptions fetchOptions)
     {
         if (fetchOptions.hasSpace())
@@ -121,6 +143,13 @@ public class ProjectTranslator extends AbstractCachingTranslator<ProjectPE, Proj
             List<Attachment> attachments = attachmentTranslator.translate(context, project, fetchOptions.withAttachments());
             result.setAttachments(attachments);
             result.getFetchOptions().withAttachmentsUsing(fetchOptions.withAttachments());
+        }
+
+        if (fetchOptions.hasHistory())
+        {
+            ProjectHistoryRelation relation = relations.get(ProjectHistoryRelation.class);
+            result.setHistory(relation.getRelated(project.getId()));
+            result.getFetchOptions().withHistoryUsing(fetchOptions.withHistory());
         }
 
     }

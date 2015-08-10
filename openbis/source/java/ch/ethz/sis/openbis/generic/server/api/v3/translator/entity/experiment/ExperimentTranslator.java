@@ -17,9 +17,11 @@
 package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.experiment;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -29,7 +31,7 @@ import ch.ethz.sis.openbis.generic.server.api.v3.translator.Relations;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.attachment.IAttachmentTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.dataset.IDataSetTranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.history.IHistoryTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.experiment.sql.ExperimentHistoryRelation;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.material.IMaterialPropertyTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.person.IPersonTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.project.IProjectTranslator;
@@ -85,9 +87,6 @@ public class ExperimentTranslator extends AbstractCachingTranslator<ExperimentPE
     @Autowired
     private ITagTranslator tagTranslator;
 
-    @Autowired
-    private IHistoryTranslator historyTranslator;
-
     @Override
     protected boolean shouldTranslate(TranslationContext context, ExperimentPE input, ExperimentFetchOptions fetchOptions)
     {
@@ -107,6 +106,24 @@ public class ExperimentTranslator extends AbstractCachingTranslator<ExperimentPE
         result.setFetchOptions(new ExperimentFetchOptions());
 
         return result;
+    }
+
+    @Override
+    protected Relations getObjectsRelations(TranslationContext context, Collection<ExperimentPE> experiments, ExperimentFetchOptions fetchOptions)
+    {
+        Relations relations = new Relations();
+
+        if (fetchOptions.hasHistory())
+        {
+            Set<Long> experimentIds = new HashSet<Long>();
+            for (ExperimentPE experiment : experiments)
+            {
+                experimentIds.add(experiment.getId());
+            }
+            relations.add(createRelation(ExperimentHistoryRelation.class, context, experimentIds, fetchOptions.withHistory()));
+        }
+
+        return relations;
     }
 
     @Override
@@ -179,7 +196,8 @@ public class ExperimentTranslator extends AbstractCachingTranslator<ExperimentPE
 
         if (fetchOptions.hasHistory())
         {
-            result.setHistory(historyTranslator.translate(context, experiment, fetchOptions.withHistory()));
+            ExperimentHistoryRelation relation = relations.get(ExperimentHistoryRelation.class);
+            result.setHistory(relation.getRelated(experiment.getId()));
             result.getFetchOptions().withHistoryUsing(fetchOptions.withHistory());
         }
     }

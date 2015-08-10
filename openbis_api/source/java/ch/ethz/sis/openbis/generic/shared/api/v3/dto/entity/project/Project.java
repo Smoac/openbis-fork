@@ -17,6 +17,7 @@ package ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.project;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.attachment.Attachment;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.history.HistoryEntry;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IAttachmentsHolder;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IModificationDateHolder;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IModifierHolder;
@@ -40,7 +41,7 @@ import java.util.List;
  * Class automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
  */
 @JsonObject("dto.entity.project.Project")
-public class Project implements Serializable, ISpaceHolder, IModifierHolder, IModificationDateHolder, IAttachmentsHolder, IRegistratorHolder, IRegistrationDateHolder
+public class Project implements Serializable, IRegistrationDateHolder, IAttachmentsHolder, ISpaceHolder, IModifierHolder, IModificationDateHolder, IRegistratorHolder
 {
     private static final long serialVersionUID = 1L;
 
@@ -67,6 +68,9 @@ public class Project implements Serializable, ISpaceHolder, IModifierHolder, IMo
 
     @JsonProperty
     private List<Experiment> experiments;
+
+    @JsonProperty
+    private List<HistoryEntry> history;
 
     @JsonProperty
     private Space space;
@@ -194,6 +198,26 @@ public class Project implements Serializable, ISpaceHolder, IModifierHolder, IMo
     public void setExperiments(List<Experiment> experiments)
     {
         this.experiments = experiments;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    @JsonIgnore
+    public List<HistoryEntry> getHistory()
+    {
+        if (getFetchOptions().hasHistory())
+        {
+            return history;
+        }
+        else
+        {
+            throw new NotFetchedException("History have not been fetched.");
+        }
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public void setHistory(List<HistoryEntry> history)
+    {
+        this.history = history;
     }
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}

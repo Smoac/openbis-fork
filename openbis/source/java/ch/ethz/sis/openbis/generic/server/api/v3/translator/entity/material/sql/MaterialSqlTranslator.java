@@ -75,6 +75,11 @@ public class MaterialSqlTranslator extends AbstractCachingTranslator<Long, Mater
             relations.add(createRelation(MaterialTagsRelation.class, context, materialIds, fetchOptions.withTags()));
         }
 
+        if (fetchOptions.hasHistory())
+        {
+            relations.add(createRelation(MaterialHistoryRelation.class, context, materialIds, fetchOptions.withHistory()));
+        }
+
         return relations;
     }
 
@@ -123,6 +128,13 @@ public class MaterialSqlTranslator extends AbstractCachingTranslator<Long, Mater
             MaterialTagsRelation relation = relations.get(MaterialTagsRelation.class);
             result.setTags(relation.getRelatedSet(materialId));
             result.getFetchOptions().withTagsUsing(fetchOptions.withTags());
+        }
+
+        if (fetchOptions.hasHistory())
+        {
+            MaterialHistoryRelation relation = relations.get(MaterialHistoryRelation.class);
+            result.setHistory(relation.getRelated(materialId));
+            result.getFetchOptions().withHistoryUsing(fetchOptions.withHistory());
         }
 
     }

@@ -17,6 +17,7 @@ package ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.project;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.attachment.AttachmentFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.experiment.ExperimentFetchOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.history.HistoryEntryFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.person.PersonFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.space.SpaceFetchOptions;
 import ch.systemsx.cisd.base.annotation.JsonObject;
@@ -33,6 +34,9 @@ public class ProjectFetchOptions implements Serializable
 
     @JsonProperty
     private ExperimentFetchOptions experiments;
+
+    @JsonProperty
+    private HistoryEntryFetchOptions history;
 
     @JsonProperty
     private SpaceFetchOptions space;
@@ -69,6 +73,28 @@ public class ProjectFetchOptions implements Serializable
     public boolean hasExperiments()
     {
         return experiments != null;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public HistoryEntryFetchOptions withHistory()
+    {
+        if (history == null)
+        {
+            history = new HistoryEntryFetchOptions();
+        }
+        return history;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public HistoryEntryFetchOptions withHistoryUsing(HistoryEntryFetchOptions fetchOptions)
+    {
+        return history = fetchOptions;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public boolean hasHistory()
+    {
+        return history != null;
     }
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}

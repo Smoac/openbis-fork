@@ -17,6 +17,7 @@
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.method;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.common.ISearchObjectExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.material.ISearchMaterialIdExecutor;
@@ -29,7 +30,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.MaterialSearchCriter
 /**
  * @author pkupczyk
  */
-// @Component
+@Component
 public class SearchMaterialSqlMethodExecutor extends
         AbstractSearchMethodExecutor<Material, Long, MaterialSearchCriterion, MaterialFetchOptions>
         implements ISearchMaterialMethodExecutor
