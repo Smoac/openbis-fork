@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.dss.client.api.gui.model;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -323,6 +324,9 @@ public class DataSetUploadClientModel
         return openBISService;
     }
     
+    public boolean sampleExists(final String identifier) {
+        return !openBISService.getSamples(Arrays.asList(identifier)).isEmpty();
+    }
     public void listSamples(final Identifier identifier,
             final IAsyncAction<List<Sample>> action)
     {

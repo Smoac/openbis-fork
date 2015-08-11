@@ -21,10 +21,12 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -64,6 +66,8 @@ public abstract class AbstractTreeEntityPickerDialog extends AbstractEntityPicke
 
     private final JTextField filterField;
 
+    private final JTextField identifierField;
+    
     private final DataSetOwnerType entityKind;
 
     public AbstractTreeEntityPickerDialog(JFrame mainWindow, String title, DataSetOwnerType entityKind,
@@ -77,6 +81,7 @@ public abstract class AbstractTreeEntityPickerDialog extends AbstractEntityPicke
         tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
         addTreeSelectionListener();
         filterField = createFilterField();
+        identifierField = createIdentifierField();
         JPanel northPanel = createFilterAndRefreshButtonPanel(filterField, refreshButton);
         optionPane = createOptionPane(northPanel, this);
         this.setContentPane(optionPane);
@@ -86,14 +91,22 @@ public abstract class AbstractTreeEntityPickerDialog extends AbstractEntityPicke
             final JDialog parent)
     {
         final JScrollPane scrollPane = new JScrollPane(tree);
-
-        Object[] objects =
-                new Object[]
-                    { "Filter experiments: ", northPanel,
-                            "Select " + entityKind.toString().toLowerCase() + ":", scrollPane };
+        
+        List<Object> objectsAsList = new ArrayList<Object>();
+        objectsAsList.add("Filter experiments: ");
+        objectsAsList.add(northPanel);
+        objectsAsList.add("Select " + entityKind.toString().toLowerCase() + ":");
+        
+        objectsAsList.add(scrollPane);
+        
+        if(entityKind == DataSetOwnerType.SAMPLE) {
+            objectsAsList.add("Any " + entityKind.toString().toLowerCase() + " identifier:");
+            objectsAsList.add(identifierField);
+        }
+        
         final JOptionPane theOptionPane =
-                new JOptionPane(objects, JOptionPane.PLAIN_MESSAGE, JOptionPane.OK_CANCEL_OPTION);
-
+                new JOptionPane(objectsAsList.toArray(), JOptionPane.PLAIN_MESSAGE, JOptionPane.OK_CANCEL_OPTION);
+        
         theOptionPane.addPropertyChangeListener(new PropertyChangeListener()
             {
                 @Override
@@ -137,8 +150,11 @@ public abstract class AbstractTreeEntityPickerDialog extends AbstractEntityPicke
         String selected = tryGetSelected();
         if (selected != null)
         {
-            this.setVisible(false);
-            return;
+            if(     entityKind != DataSetOwnerType.SAMPLE ||
+                    entityKind == DataSetOwnerType.SAMPLE && clientModel.sampleExists(selected)) {
+                this.setVisible(false);
+                return;
+            }
         }
         String label = entityKind.toString();
         JOptionPane.showMessageDialog(this, label + " needs to be selected!",
@@ -248,6 +264,12 @@ public abstract class AbstractTreeEntityPickerDialog extends AbstractEntityPicke
 
     private String tryGetSelected()
     {
+        String anyIdentifier = this.identifierField.getText();
+        if (!anyIdentifier.isEmpty())
+        {
+            return anyIdentifier;
+        }
+        
         TreePath treePath = tree.getSelectionPath();
         if (treePath == null)
         {
@@ -262,6 +284,12 @@ public abstract class AbstractTreeEntityPickerDialog extends AbstractEntityPicke
         return identifier.getOwnerType() == entityKind ? identifier.toString() : null;
     }
 
+    private JTextField createIdentifierField() {
+        final JTextField textField = new JTextField();
+        textField.setEditable(true);
+        return textField;
+    }
+    
     private JTextField createFilterField()
     {
         final JTextField textField = new JTextField();
