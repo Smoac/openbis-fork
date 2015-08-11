@@ -239,23 +239,99 @@ def process(transaction):
   ##########################################################
   
   def updateLane(transaction, codeSampleFlowCell, totalLaneStatistics):
-      
-      flowcell, lanes, numberOfLanes = sampleSearch(transaction, codeSampleFlowCell)
-      lane = lanes[0]
-      mutable_lane = transaction.getSampleForUpdate(lane.getSampleIdentifier())
-      print("Setting Complete Lanes Statistics For: " + lane.getSampleIdentifier())
-      
-      mutable_lane.setPropertyValue("YIELD_MBASES", str(int(totalLaneStatistics.Sum_PfYield)))
-      mutable_lane.setPropertyValue('RAW_YIELD_MBASES', str(int(totalLaneStatistics.Sum_RawYield)))
-      mutable_lane.setPropertyValue('PERCENTAGE_PASSED_FILTERING',str(int(totalLaneStatistics.Percentage_PfClusterCount_RawClusterCount)))
-      mutable_lane.setPropertyValue('PF_READS_SUM',str(int(totalLaneStatistics.Sum_PfClusterCount)))
-      mutable_lane.setPropertyValue('RAW_READS_SUM',str(int(totalLaneStatistics.Sum_RawClusterCount)))
-      mutable_lane.setPropertyValue('PFYIELDQ30PERCENTAGE', str(int(totalLaneStatistics.Percentage_PfYieldQ30_PfYield)))
-      mutable_lane.setPropertyValue('PFMEANQUALITYSCORE', str(totalLaneStatistics.Fraction_PfQualityScoreSum_PfYield))
-      mutable_lane.setPropertyValue('CLUSTERS_PF_WITHOUT_NOINDEX', str(int(totalLaneStatistics.Clusters_PfWithoutNoindex)))
+    
+    print("Setting Complete Lanes Statistics For: " + lane.getSampleIdentifier())
+    mutable_lane = transaction.getSampleForUpdate(lane.getSampleIdentifier())
+    mutable_lane.setPropertyValue("YIELD_MBASES", str(int(totalLaneStatistics.get(lane_in_int).Sum_PfYield)))
+    mutable_lane.setPropertyValue('RAW_YIELD_MBASES', str(int(totalLaneStatistics.get(lane_in_int).Sum_RawYield)))
+    mutable_lane.setPropertyValue('PERCENTAGE_PASSED_FILTERING',str(int(totalLaneStatistics.get(lane_in_int).Percentage_PfClusterCount_RawClusterCount)))
+    mutable_lane.setPropertyValue('PF_READS_SUM',str(int(totalLaneStatistics.get(lane_in_int).Sum_PfClusterCount)))
+    mutable_lane.setPropertyValue('RAW_READS_SUM',str(int(totalLaneStatistics.get(lane_in_int).Sum_RawClusterCount)))
+    mutable_lane.setPropertyValue('PFYIELDQ30PERCENTAGE', str(int(totalLaneStatistics.get(lane_in_int).Percentage_PfYieldQ30_PfYield)))
+    mutable_lane.setPropertyValue('PFMEANQUALITYSCORE', str(totalLaneStatistics.get(lane_in_int).Fraction_PfQualityScoreSum_PfYield))
+    mutable_lane.setPropertyValue('CLUSTERS_PF_WITHOUT_NOINDEX', str(int(totalLaneStatistics.get(lane_in_int).Clusters_PfWithoutNoindex)))
 
   ##########################################################
 
+  def update_datatsets(transaction, samplestatisticslist, codeSampleFlowLane, codeSampleFlowCell):
+    # Prepare links between XML and openBIS w.r.t to indexes in DataSet (openBIS):
+    print(codeSampleFlowLane)
+    index1list, index2list = getIndexesOfDataSetsOfSample(codeSampleFlowLane)
+    print(index1list)
+    
+    propertiesCode, propertiesCodeValue = getInfoSampleProperties(codeSampleFlowCell)
+    index1length = int(propertiesCodeValue[CODE_INDEX1LENGTH])
+    index2length = int(propertiesCodeValue[CODE_INDEX2LENGTH])
+    
+    nprocessedDataSets = 0
+    for s in samplestatisticslist:
+        print "\nContent in XML file:\n", s
+    
+        # Prepare link between XML and openBIS w.r.t to indexes in Barcode (XML):
+        indexes = s.Barcode.split(BARCODE_SPLIT_CHAR)
+        if len(indexes) == 1: # only first part in Barcode
+            index1search = indexes[0].upper()
+            index2search = INDEX_EMPTY
+        elif len(indexes) == 2: # both parts in Barcode
+            index1search = indexes[0].upper()
+            index2search = indexes[1].upper()
+        else:
+            index1search = INDEX_EMPTY
+            index2search = INDEX_EMPTY
+    
+        # Set link between XML and openBIS w.r.t to indexes in DataSet (openBIS):
+        if index1search == INDEX_EMPTY or index1search == INDEX_UNKNOWN: 
+            index1 = INDEX_NO
+        else: # Hint: just two cases were known about index1length, that is 8 or 6
+            if index1length > 7:
+                index1 = [ index1 for index1 in index1list if index1search == index1 ]
+            else: # for smaller indexlength, the index is by 1 shorter in XML-file than in openBIS
+                index1 = [ index1 for index1 in index1list if index1search == index1[:index1length] ]
+            try:
+                index1 = index1[0]
+            except: 
+                print '\nOCCURRED EXCEPTION: First index \"' + index1search + '\" of Barcode in XML file has no corresponding DataSet in openBIS!'
+                index1 = 'MISSING'
+        if index2search == INDEX_EMPTY or index2search == INDEX_UNKNOWN:
+            index2 = INDEX_NO
+        else: # Hint: just one case was known about index2length, that is 8
+            if index2length > 7: # second and larger index must be reversed and complemented in contrast to first or smaller index
+                index2 = [ index2 for index2 in index2list if reversecomplement(index2search) == index2 ]
+            else: # second and smaller index is unknown how to handle
+                index2 = [ index2 for index2 in index2list if reversecomplement(index2search) == index2 ]
+            try:
+                index2 = index2[0]
+            except: 
+                print '\nOCCURRED EXCEPTION: Second index \"' + index2search + '\" of Barcode in XML file has no corresponding DataSet in openBIS!'
+                index2 = 'MISSING'
+    
+        # Get DataSet of openBIS corresponding to Project/Sample/Barcode of XML file:
+        correspondingDataSet = searchDataSetsOfSample(codeSampleFlowLane, index1, index2)
+        try:
+            assert correspondingDataSet.size() == 1
+        except AssertionError: 
+            print ('\nOCCURRED EXCEPTION: ' + str(correspondingDataSet.size()) + ' DataSets found which Sample match the criteria index1 \"' + str(index1) + '\" and index2 \"' + str(index2) + '\" and code \"' + codeSampleFlowLane + '\" and type \"' + TYPE_DATASET + '\".')
+            continue 
+        
+        # Modify Properties of corresponding DataSet:
+        # (method setPropertyValue requires Strings as Input, but Number format must fit to Properties already defined in openBIS)
+        ds = transaction.getDataSetForUpdate(correspondingDataSet[0].getDataSetCode())
+        ds.setPropertyValue('YIELD_MBASES', str(int(s.Mega_PfYield)))
+        ds.setPropertyValue('RAW_YIELD_MBASES', str(int(s.Mega_RawYield)))
+        ds.setPropertyValue('PERCENTAGE_PASSED_FILTERING',str(s.Percentage_PfClusterCount_RawClusterCount))
+        ds.setPropertyValue('PF_READS_SUM',str(int(s.Sum_PfClusterCount))) # convert first to Integer, then to String
+        ds.setPropertyValue('RAW_READS_SUM',str(int(s.Sum_RawClusterCount))) # convert first to Integer, then to String
+        ds.setPropertyValue('PERCENTAGE_RAW_CLUSTERS_PER_LANE', str(s.Percentage_RawClusterCount_AllRawClusterCounts))
+        ds.setPropertyValue('PFYIELDQ30PERCENTAGE', str(s.Percentage_PfYieldQ30_PfYield))
+        ds.setPropertyValue('PFMEANQUALITYSCORE', str(s.Fraction_PfQualityScoreSum_PfYield))
+        print "Properties in DataSet \"" + correspondingDataSet[0].getDataSetCode() + "\" are modified."
+        nprocessedDataSets += 1
+        
+    return nprocessedDataSets
+
+
+  ##########################################################
+  
   print('\nPROCESS RUNNING '+time.ctime())
   incomingPath = transaction.getIncoming().getPath()  
   FileGenerator= locate(XML_FILENAME, incomingPath)
@@ -264,89 +340,24 @@ def process(transaction):
   
   # Import data of XML file (independent of openBIS data):
   JavaClassToProcessXML = read_demultiplex_stats() # this function is implemented as Class in Java:
-  samplestatisticslist = JavaClassToProcessXML.importXMLdata_and_calculateStatistics(xmlfile)
+  samplestatisticslist = JavaClassToProcessXML.importXmlAndCalculateStatistics(xmlfile)
   totalLaneStatistics = JavaClassToProcessXML.calculateTotalLaneStatistics(samplestatisticslist)
   
   if len(samplestatisticslist) == 0:
     print "\nNo Projects/Samples/Barcodes are contained in XML-file " + xmlfile + "!"
     return
 
-  # Prepare links between XML and openBIS w.r.t. Samples:
-  codeSampleFlowCell = samplestatisticslist[0].Flowcell # expect just one equal FlowCell of all imported datasets
-  codeSampleFlowLane = samplestatisticslist[0].Flowcell + ":1" # expect just one equal FlowLane of all imported datasets
+  print(samplestatisticslist[0].Flowcell)
+  codeSampleFlowCell = samplestatisticslist[0].Flowcell # expect just one equal FlowCell
+  flowcell, lanes, numberOfLanes = sampleSearch(transaction, codeSampleFlowCell)
   
-  updateLane(transaction, codeSampleFlowCell, totalLaneStatistics)
-
-  # Prepare links between XML and openBIS w.r.t to indexes in DataSet (openBIS):
-  index1list, index2list = getIndexesOfDataSetsOfSample(codeSampleFlowLane)
-  propertiesCode, propertiesCodeValue = getInfoSampleProperties(codeSampleFlowCell)
-  index1length = int(propertiesCodeValue[CODE_INDEX1LENGTH])
-  index2length = int(propertiesCodeValue[CODE_INDEX2LENGTH])
-
-  nprocessedDataSets = 0
-  for s in samplestatisticslist:
-    print "\nContent in XML file:\n", s
-    print "Connection to openBIS:"
-
-    # Prepare link between XML and openBIS w.r.t to indexes in Barcode (XML):
-    indexes = s.Barcode.split(BARCODE_SPLIT_CHAR)
-    if len(indexes) == 1: # only first part in Barcode
-      index1search = indexes[0].upper()
-      index2search = INDEX_EMPTY
-    elif len(indexes) == 2: # both parts in Barcode
-      index1search = indexes[0].upper()
-      index2search = indexes[1].upper()
-    else:
-      index1search = INDEX_EMPTY
-      index2search = INDEX_EMPTY
-
-    # Set link between XML and openBIS w.r.t to indexes in DataSet (openBIS):
-    if index1search == INDEX_EMPTY or index1search == INDEX_UNKNOWN: 
-      index1 = INDEX_NO
-    else: # Hint: just two cases were known about index1length, that is 8 or 6
-      if index1length > 7:
-        index1 = [ index1 for index1 in index1list if index1search == index1 ]
-      else: # for smaller indexlength, the index is by 1 shorter in XML-file than in openBIS
-        index1 = [ index1 for index1 in index1list if index1search == index1[:index1length] ]
-      try:
-        index1 = index1[0]
-      except: 
-        print '\nOCCURRED EXCEPTION: First index \"' + index1search + '\" of Barcode in XML file has no corresponding DataSet in openBIS!'
-        index1 = 'MISSING'
-    if index2search == INDEX_EMPTY or index2search == INDEX_UNKNOWN:
-      index2 = INDEX_NO
-    else: # Hint: just one case was known about index2length, that is 8
-      if index2length > 7: # second and larger index must be reversed and complemented in contrast to first or smaller index
-        index2 = [ index2 for index2 in index2list if reversecomplement(index2search) == index2 ]
-      else: # second and smaller index is unknown how to handle
-        index2 = [ index2 for index2 in index2list if reversecomplement(index2search) == index2 ]
-      try:
-        index2 = index2[0]
-      except: 
-        print '\nOCCURRED EXCEPTION: Second index \"' + index2search + '\" of Barcode in XML file has no corresponding DataSet in openBIS!'
-        index2 = 'MISSING'
-
-    # Get DataSet of openBIS corresponding to Project/Sample/Barcode of XML file:
-    correspondingDataSet = searchDataSetsOfSample(codeSampleFlowLane, index1, index2)
-    try:
-      assert correspondingDataSet.size() == 1
-    except AssertionError: 
-      print ('\nOCCURRED EXCEPTION: ' + str(correspondingDataSet.size()) + ' DataSets found which Sample match the criteria index1 \"' + str(index1) + '\" and index2 \"' + str(index2) + '\" and code \"' + codeSampleFlowLane + '\" and type \"' + TYPE_DATASET + '\".')
-      continue 
-    
-    # Modify Properties of corresponding DataSet:
-    # (method setPropertyValue requires Strings as Input, but Number format must fit to Properties already defined in openBIS)
-    ds = transaction.getDataSetForUpdate(correspondingDataSet[0].getDataSetCode())
-    ds.setPropertyValue('YIELD_MBASES', str(int(s.Mega_PfYield)))
-    ds.setPropertyValue('RAW_YIELD_MBASES', str(int(s.Mega_RawYield)))
-    ds.setPropertyValue('PERCENTAGE_PASSED_FILTERING',str(s.Percentage_PfClusterCount_RawClusterCount))
-    ds.setPropertyValue('PF_READS_SUM',str(int(s.Sum_PfClusterCount))) # convert first to Integer, then to String
-    ds.setPropertyValue('RAW_READS_SUM',str(int(s.Sum_RawClusterCount))) # convert first to Integer, then to String
-    ds.setPropertyValue('PERCENTAGE_RAW_CLUSTERS_PER_LANE', str(s.Percentage_RawClusterCount_AllRawClusterCounts))
-    ds.setPropertyValue('PFYIELDQ30PERCENTAGE', str(s.Percentage_PfYieldQ30_PfYield))
-    ds.setPropertyValue('PFMEANQUALITYSCORE', str(s.Fraction_PfQualityScoreSum_PfYield))
-    print "Properties in DataSet \"" + correspondingDataSet[0].getDataSetCode() + "\" are modified."
-    nprocessedDataSets += 1
+  for lane in lanes:
+    lane_in_int = int(lane.getCode().split(":")[-1])
+    if (lane_in_int in totalLaneStatistics.keySet()):
+        updateLane(transaction, codeSampleFlowCell, totalLaneStatistics)
+        
+        codeSampleFlowLane = ":".join([codeSampleFlowCell, str(lane_in_int)])
+        nprocessedDataSets = update_datatsets(transaction, samplestatisticslist, codeSampleFlowLane, codeSampleFlowCell)
 
   print "\n", nprocessedDataSets, " openBIS-DataSets were processed." 
   print len(samplestatisticslist), " XML-Projects/-Samples/-Barcodes were processed."
