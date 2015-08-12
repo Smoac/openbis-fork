@@ -1051,7 +1051,10 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
         {
             //Check if the dataset is on the trashcan
             TechId dataSetTechId = getDAOFactory().getDataDAO().tryToFindDataSetIdByCode(dataSetCode);
-            List<String> queryDatasetOnTrashCan = getDAOFactory().getDeletionDAO().findTrashedDataSetCodes(Arrays.asList(dataSetTechId));
+            List<String> queryDatasetOnTrashCan = null;
+            if(dataSetTechId != null) {
+                queryDatasetOnTrashCan = getDAOFactory().getDeletionDAO().findTrashedDataSetCodes(Arrays.asList(dataSetTechId));
+            }
             boolean isDataSetOnTrashCan = queryDatasetOnTrashCan != null && queryDatasetOnTrashCan.size() == 1;
             //Check if the dataset is finally deleted
             boolean isDataSetDeleted = getDAOFactory().getEventDAO().tryFind(
