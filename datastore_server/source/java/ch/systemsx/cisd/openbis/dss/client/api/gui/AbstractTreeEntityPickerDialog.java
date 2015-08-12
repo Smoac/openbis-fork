@@ -157,8 +157,8 @@ public abstract class AbstractTreeEntityPickerDialog extends AbstractEntityPicke
             }
         }
         String label = entityKind.toString();
-        JOptionPane.showMessageDialog(this, label + " needs to be selected!",
-                "No " + label.toLowerCase() + " selected!", JOptionPane.WARNING_MESSAGE);
+        JOptionPane.showMessageDialog(this, "No correct " + label.toLowerCase() + " found, " + selected +" is not correct!",
+                "No correct " + label.toLowerCase() + " found, " + selected +" is not correct!", JOptionPane.WARNING_MESSAGE);
         optionPane.setValue(optionPane.getInitialValue());
     }
 
@@ -238,7 +238,7 @@ public abstract class AbstractTreeEntityPickerDialog extends AbstractEntityPicke
     {
         this.pack();
 
-        int height = this.getHeight() > 500 ? 500 : this.getHeight();
+        int height = this.getHeight() > 600 ? 600 : this.getHeight();
         int width = this.getWidth() > 600 ? 600 : this.getWidth();
         this.setSize(width, height);
 
@@ -329,6 +329,9 @@ public abstract class AbstractTreeEntityPickerDialog extends AbstractEntityPicke
                 @Override
                 public void mousePressed(MouseEvent e)
                 {
+                    identifierField.setText("");
+                    identifierField.setText(tryGetSelected());
+                    
                     if (e.getClickCount() > 1)
                     {
                         optionPane.setValue(JOptionPane.OK_OPTION);
