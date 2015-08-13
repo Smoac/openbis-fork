@@ -435,10 +435,11 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 				codeLink = $("<a>", { "style" : style }).append(sampleToAdd.code + notFound);
 				
 				codeLink.click(function() {
-					var url = document.location.href;
-					url = url.substring(0,url.lastIndexOf("/?") + 1);
-					url = url+"?viewName=showViewSamplePageFromPermId&viewData=" + sampleToAdd.permId + "&hideMenu=true";
-					var newWindow = window.open(url);
+					mainController.changeView("showViewSamplePageFromPermId", sampleToAdd.permId);
+//					var url = document.location.href;
+//					url = url.substring(0,url.lastIndexOf("/?") + 1);
+//					url = url+"?viewName=showViewSamplePageFromPermId&viewData=" + sampleToAdd.permId + "&hideMenu=true";
+//					var newWindow = window.open(url);
 				});
 			}
 			
