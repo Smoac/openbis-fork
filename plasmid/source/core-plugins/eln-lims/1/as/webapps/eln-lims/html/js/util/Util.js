@@ -138,7 +138,7 @@ var Util = new function() {
 				  ShowOverlay : false,
 				  ColorOverlay : '#000',
 				  OpacityOverlay : 0.3,
-				  onClosed : function(){ if(andCallback) { andCallback();} else { localReference.unblockUI();}},
+				  onClosed : function(){ if(andCallback) { andCallback();} else { }},
 				  onCompleted : function(){ }
 		});
 	}
