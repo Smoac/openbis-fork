@@ -159,9 +159,9 @@ function DataSetFormController(mainController, mode, sample, dataSet) {
 					
 					
 					if(_this._dataSetFormModel.mode === FormMode.CREATE) {
-						Util.showSuccess("DataSet Created.", callbackOk, true);
+						Util.showSuccess("DataSet Created.", callbackOk);
 					} else if(_this._dataSetFormModel.mode === FormMode.EDIT) {
-						Util.showSuccess("DataSet Updated.", callbackOk, true);
+						Util.showSuccess("DataSet Updated.", callbackOk);
 					}
 					
 				} else { //This should never happen

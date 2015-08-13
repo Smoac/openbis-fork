@@ -122,20 +122,12 @@ var Util = new function() {
 	}
 	
 	this.showSuccess = function(withHTML, andCallback, forceAutoHide) {
-		var isiPad = navigator.userAgent.match(/iPad/i) != null;
-		if(!isiPad && !forceAutoHide) {
-			withHTML = withHTML + "<br>" + "<a class='btn btn-default'>OK</a>";
-		}
-		if(!forceAutoHide) {
-			forceAutoHide = false;
-		}
-		this.blockUINoMessage();
 		var localReference = this;
 		jSuccess(
 				withHTML,
 				{
-				  autoHide : isiPad || forceAutoHide,
-				  clickOverlay : false,
+				  autoHide : true,
+				  clickOverlay : true,
 				  MinWidth : 250,
 				  TimeShown : 2000,
 				  ShowTimeEffect : 200,

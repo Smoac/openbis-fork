@@ -93,7 +93,7 @@ function ProjectFormController(mainController, mode, project) {
 						Util.unblockUI();
 					}
 					
-					Util.showSuccess(message, callbackOk, true);
+					Util.showSuccess(message, callbackOk);
 				} else { //This should never happen
 					Util.showError("Unknown Error.", function() {Util.unblockUI();});
 				}

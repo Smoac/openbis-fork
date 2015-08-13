@@ -371,14 +371,9 @@ function SampleFormController(mainController, mode, sample) {
 						}
 					});
 				}
-				
-//				TO-DO: The Sample is not necessarily searchable after creation since the index runs asynchronously
-//				localReference.serverFacade.searchWithType(localReference.sampleTypeCode, $("#sampleCode")[0].value, function(data) {
-//					mainController.changeView('showViewSamplePageFromPermId',data[0].permId);
-//				});
 			}
 			
-			Util.showSuccess(sampleTypeDisplayName + " " + message, callbackOk, true);
+			Util.showSuccess(sampleTypeDisplayName + " " + message, callbackOk);
 			_this._sampleFormModel.isFormDirty = false;
 		} else { //This should never happen
 			Util.showError("Unknown Error.", function() {Util.unblockUI();});
