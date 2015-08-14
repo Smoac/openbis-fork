@@ -223,6 +223,7 @@ public class SimpleShufflingTest extends AbstractFileSystemTestCase
                 {
                     allowing(service).listPhysicalDataSets();
                     will(returnValue(Arrays.asList(ds1, ds2, ds3, ds4)));
+                    allowing(service).isDataSetOnTrashCanOrDeleted(ds3.getDataSetCode());
                     one(logger).log(LogLevel.INFO,
                             "BEGIN Computing number of data sets to be moved for share 1");
                     one(logger).log(LogLevel.INFO,
@@ -246,6 +247,7 @@ public class SimpleShufflingTest extends AbstractFileSystemTestCase
                     one(shareIdManager).getShareId(ds2.getDataSetCode());
                     will(returnValue(ds2.getDataSetShareId()));
 
+                    allowing(service).isDataSetOnTrashCanOrDeleted(ds2.getDataSetCode());
                     one(dataSetMover).moveDataSetToAnotherShare(
                             new File(share1.getShare(), STORE_PATH + "ds2"), share4.getShare(),
                             null, logger);
