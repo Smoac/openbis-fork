@@ -715,9 +715,9 @@ adaptors = [
              #ChemicalAdaptor(fmConnString, fmUser, fmPass, "Weis_Chemicals"),
              #AntibodyAdaptor(fmConnString, fmUser, fmPass, "Weis _Antibodies"),
              #OligoAdaptor(fmConnString, fmUser, fmPass, "Weis_Oligos"),
-             #PlasmidAdaptor(fmConnString, fmUser, fmPass, "Weis_Plasmids"),
-             StrainAdaptor(fmConnString, fmUser, fmPass, "Weis_Yeast_Strains_070715_Clone_for_testing2"),
-             StrainMultipleValuesAdaptor(fmConnString, fmUser, fmPass, "Weis_Yeast_Strains_070715_Clone_for_testing2")
+             PlasmidAdaptor(fmConnString, fmUser, fmPass, "Weis_Plasmids"),
+             #StrainAdaptor(fmConnString, fmUser, fmPass, "Weis_Yeast_Strains_070715_Clone_for_testing2"),
+             #StrainMultipleValuesAdaptor(fmConnString, fmUser, fmPass, "Weis_Yeast_Strains_070715_Clone_for_testing2")
              ]
                        
             
