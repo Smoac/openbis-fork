@@ -27,11 +27,22 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 			
 			if(this._sampleTableModel.experimentIdentifier) {
 				var experimentCode = this._sampleTableModel.experimentIdentifier.split("/")[3];
-				var sampleTypeCode = experimentCode.substring(0,experimentCode.indexOf("_COLLECTION"));
+				var allSampleTypes = profile.getAllSampleTypes();
+				var sampleTypeCodesFound = [];
+				for(var aIdx = 0; aIdx < allSampleTypes.length; aIdx++) {
+					var auxSampleTypeCode = allSampleTypes[aIdx].code;
+					if(experimentCode.indexOf(auxSampleTypeCode) !== -1) {
+						sampleTypeCodesFound.push(auxSampleTypeCode);
+					}
+				}
+				
+				var sampleTypeCode = null;
+				if(sampleTypeCodesFound.length === 1) {
+					sampleTypeCode = sampleTypeCodesFound[0];
+				}
 				
 				//Add Sample Type
-				if(profile.getSampleTypeForSampleTypeCode(sampleTypeCode) &&
-					!profile.isSampleTypeHidden(sampleTypeCode)) {
+				if(sampleTypeCode !== null && !profile.isSampleTypeHidden(sampleTypeCode)) {
 					
 					$title.append("&nbsp;");
 					$title.append(FormUtil.getButtonWithText("Create " + sampleTypeCode, function() {
