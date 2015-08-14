@@ -5,27 +5,46 @@ var SampleDataGridUtil = new function() {
 		var propertyCodesDisplayNames = profile.getPropertiesDisplayNamesForTypeCode(sampleTypeCode, propertyCodes);
 		
 		//Fill Columns model
-		var columns = [ {
+		var columns = [];
+		
+		columns.push({
 			label : 'Identifier',
 			property : 'identifier',
 			isExportable: true,
 			sortable : true
-		}, {
+		});
+		
+		if($.inArray("NAME", propertyCodes) !== -1) {
+			columns.push({
+				label : 'Name',
+				property : 'NAME',
+				isExportable: true,
+				sortable : true
+			});
+		}
+		
+		columns.push({
 			label : 'Space',
 			property : 'default_space',
 			isExportable: true,
 			sortable : true
-		}, {
+		});
+		
+		columns.push({
 			label : 'Parents',
 			property : 'parents',
 			isExportable: true,
 			sortable : true
-		}, {
+		});
+		
+		columns.push({
 			label : 'Experiment',
 			property : 'experiment',
 			isExportable: true,
 			sortable : true
-		}, {
+		});
+		
+		columns.push({
 			label : 'Preview',
 			property : 'preview',
 			isExportable: false,
@@ -59,10 +78,14 @@ var SampleDataGridUtil = new function() {
 			sort : function(data1, data2, asc) {
 				return 0;
 			}
-		}];
+		});
 		
 		for (var idx = 0; idx < propertyCodes.length; idx++) {
+			var propertiesToSkip = ["NAME"];
 			var propertyCode = propertyCodes[idx];
+			if($.inArray(propertyCode, propertiesToSkip) !== -1) {
+				continue;
+			}
 			var propertyType = profile.getPropertyType(propertyCode);
 			if(propertyType.dataType === "CONTROLLEDVOCABULARY") {
 				var getVocabularyColumn = function(propertyType) {
