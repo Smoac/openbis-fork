@@ -103,11 +103,13 @@ def update_sample_with_parents(tr, sample_dict):
             sample_for_update.setParentSampleIdentifiers(plasmid_list)
       elif re.search ("pKW001", name): 
         plasmid_parent_id = "/MATERIALS/"+name.replace("pKW001","PKW1").strip()
-        print "P3 : ", plasmid_parent_id
         if not parents_code_list ==['']:
             parents_code_list.append(plasmid_parent_id)
             print "P3 : ", parents_code_list
             sample_for_update.setParentSampleIdentifiers(parents_code_list)
+        else:
+            plasmid_list.append(plasmid_parent_id)
+            sample_for_update.setParentSampleIdentifiers(plasmid_list)              
       elif re.search ("PKW001", name): 
         plasmid_parent_id = "/MATERIALS/"+name.replace("PKW001","PKW1").strip()
         print "P3 : ", plasmid_parent_id
@@ -121,6 +123,17 @@ def update_sample_with_parents(tr, sample_dict):
             sample_for_update.setParentSampleIdentifiers(plasmid_list)  
       elif re.search ("pKW", name): 
         plasmid_parent_id = "/MATERIALS/"+name.replace("pKW","PKW").strip()
+        print "P2 : ", plasmid_parent_id
+        if not parents_code_list ==['']:
+            parents_code_list.append(plasmid_parent_id)
+            print "P2 : ", parents_code_list
+            sample_for_update.setParentSampleIdentifiers(parents_code_list)       
+        else:
+            plasmid_list.append(plasmid_parent_id)
+            print "P2 : ", plasmid_list
+            sample_for_update.setParentSampleIdentifiers(plasmid_list)      
+      elif re.search ("pkw", name): 
+        plasmid_parent_id = "/MATERIALS/"+name.replace("pkw","PKW").strip()
         print "P2 : ", plasmid_parent_id
         if not parents_code_list ==['']:
             parents_code_list.append(plasmid_parent_id)
