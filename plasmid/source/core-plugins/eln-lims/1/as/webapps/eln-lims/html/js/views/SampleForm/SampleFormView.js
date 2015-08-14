@@ -655,7 +655,6 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 					if(isValid) {
 						var newSampleCodeForCopyValue = newSampleCodeForCopy.val();
 						_this._sampleFormController.createUpdateCopySample(newSampleCodeForCopyValue, linkParentsOnCopy, copyChildrenOnCopy);
-						Util.unblockUI();
 					} else {
 						Util.showError("Invalid code.", function() {}, true);
 					}

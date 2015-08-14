@@ -365,11 +365,25 @@ function SampleFormController(mainController, mode, sample) {
 				if(_this._sampleFormModel.isELNSubExperiment) { //Come back to the Experiment view after correct create/update/copy
 					mainController.changeView("showExperimentPageFromIdentifier", _this._sampleFormModel.sample.experimentIdentifierOrNull);
 				} else { //Show the form in view mode after modification
-					mainController.serverFacade.searchWithType(_this._sampleFormModel.sample.sampleTypeCode, _this._sampleFormModel.sample.code, function(data) {
-						if(data && data.length === 1) {
-							mainController.changeView('showViewSamplePageFromPermId',data[0].permId);
-						}
-					});
+					var sampleCodeToOpen = null;
+					if(isCopyWithNewCode) {
+						sampleCodeToOpen = isCopyWithNewCode;
+					} else {
+						sampleCodeToOpen = _this._sampleFormModel.sample.code;
+					}
+					
+					var searchUntilFound = null;
+					    searchUntilFound = function() {
+						mainController.serverFacade.searchWithType(_this._sampleFormModel.sample.sampleTypeCode, sampleCodeToOpen, function(data) {
+							if(data && data.length === 1) {
+								mainController.changeView('showViewSamplePageFromPermId',data[0].permId);
+							} else { //Recursive call
+								searchUntilFound();
+							}
+						});
+					}
+					
+					searchUntilFound(); //First call
 				}
 			}
 			
