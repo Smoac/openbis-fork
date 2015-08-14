@@ -27,11 +27,12 @@ def update_sample_with_parents(tr, sample_dict):
   space_code = "MATERIALS"
   project_code = "YEASTS"
   # The dictionary keys come from the CSV file
-  sample_id = sample_dict['identifier']
+  sample_id = "/MATERIALS/" + sample_dict['Code']
 
   yeast_parent_code = sample_dict['derived from']
   yeast_parent_code_split = re.split("and|,|\&|\+|x|/|-|\?|\(|\)", yeast_parent_code)
   print sample_id, yeast_parent_code_split
+  parents_code_list=[]
   #e.split("/|-|\?|\(|\)" 
   # insert=sample_dict['Insert']
   # insert_split=re.split("/|-|\?|\(|\|+)", insert)
@@ -46,35 +47,61 @@ def update_sample_with_parents(tr, sample_dict):
 
   # if 
   for name in yeast_parent_code_split:
-    sample = tr.getSample(sample_id)
-    sample_for_update = tr.makeSampleMutable(sample)   
-    if re.search ("kwy ", name):
-      yeast_parent_id = "/MATERIALS/"+name.replace("kwy ","KWY").strip()
-      sample_for_update.setParentSampleIdentifiers([yeast_parent_id])
-    elif re.search ("pKW", name):
-      yeast_parent_id = "/MATERIALS/"+name.replace("pKW","PKW").strip()
-      sample_for_update.setParentSampleIdentifiers([yeast_parent_id])               
-    elif re.search ("PKW", name):
-      yeast_parent_id = "/MATERIALS/"+name
-      sample_for_update.setParentSampleIdentifiers([yeast_parent_id])   
-    elif re.search ("kwy", name):
-      yeast_parent_id = "/MATERIALS/"+name.replace("kwy","KWY").strip()
-      sample_for_update.setParentSampleIdentifiers([yeast_parent_id])           
-    elif re.search ("KWY ", name): 
-      yeast_parent_id = "/MATERIALS/"+name.replace("KWY ","KWY").strip()
-      sample_for_update.setParentSampleIdentifiers([yeast_parent_id])        
-    elif re.match ("KW\d+", name): 
-      yeast_parent_id = "/MATERIALS/"+name.replace("KW","KWY").strip()
-      sample_for_update.setParentSampleIdentifiers([yeast_parent_id])             
-    elif re.search ("k", name): 
-      yeast_parent_id = "/MATERIALS/"+name.replace("k","KWY").strip()
-      sample_for_update.setParentSampleIdentifiers([yeast_parent_id])        
-    elif re.search ("KWYY", name): 
-      yeast_parent_id = "/MATERIALS/"+name.replace("KWYY","KWY").strip()
-      sample_for_update.setParentSampleIdentifiers([yeast_parent_id])        
-    elif re.search ("KWy", name): 
-      yeast_parent_id = "/MATERIALS/"+name.replace("KWy","KWY").strip()
-      sample_for_update.setParentSampleIdentifiers([yeast_parent_id])        
+    if not sample_id=="/MATERIALS/KWY5055" and not sample_id=="/MATERIALS/KWY5542" and not sample_id=="/MATERIALS/KWY4260":
+        sample = tr.getSample(sample_id)
+        sample_for_update = tr.makeSampleMutable(sample)
+        if not re.search("Roy Parker", name) and not re.search("ku",name):   
+            if re.search ("kwy ", name):
+                yeast_parent_id = "/MATERIALS/"+name.replace("kwy ","KWY").strip()
+                parents_code_list.append(yeast_parent_id)
+                print "PARENTS: ", parents_code_list
+                sample_for_update.setParentSampleIdentifiers(parents_code_list)
+            elif re.search ("KWY ", name): 
+                yeast_parent_id = "/MATERIALS/"+name.replace("KWY ","KWY").strip()
+                parents_code_list.append(yeast_parent_id)
+                print "PARENTS: ", parents_code_list
+                sample_for_update.setParentSampleIdentifiers(parents_code_list)        
+            elif re.search ("pKW", name):
+                yeast_parent_id = "/MATERIALS/"+name.replace("pKW","PKW").strip()
+                parents_code_list.append(yeast_parent_id)
+                print "PARENTS: ", parents_code_list
+                sample_for_update.setParentSampleIdentifiers(parents_code_list)               
+            elif re.search ("PKW", name):
+                yeast_parent_id = "/MATERIALS/"+name
+                parents_code_list.append(yeast_parent_id)
+                print "PARENTS: ", parents_code_list
+                sample_for_update.setParentSampleIdentifiers(parents_code_list)   
+            elif re.search ("kwy", name):
+                yeast_parent_id = "/MATERIALS/"+name.replace("kwy","KWY").strip()
+                parents_code_list.append(yeast_parent_id)
+                print "PARENTS: ", parents_code_list
+                sample_for_update.setParentSampleIdentifiers(parents_code_list)           
+            elif re.match ("KW\d+", name): 
+                yeast_parent_id = "/MATERIALS/"+name.replace("KW","KWY").strip()
+                parents_code_list.append(yeast_parent_id)
+                print "PARENTS: ", parents_code_list
+                sample_for_update.setParentSampleIdentifiers(parents_code_list)             
+#            elif re.search ("k", name): 
+#                yeast_parent_id = "/MATERIALS/"+name.replace("k","KWY").strip()
+#                parents_code_list.append(yeast_parent_id)
+
+                sample_for_update.setParentSampleIdentifiers(parents_code_list)        
+            elif re.search ("KWYY", name): 
+                yeast_parent_id = "/MATERIALS/"+name.replace("KWYY","KWY").strip()
+                parents_code_list.append(yeast_parent_id)
+                print "PARENTS: ", parents_code_list
+                sample_for_update.setParentSampleIdentifiers(parents_code_list)        
+            elif re.search ("KWy", name): 
+                yeast_parent_id = "/MATERIALS/"+name.replace("KWy","KWY").strip()
+                parents_code_list.append(yeast_parent_id)
+                print "PARENTS: ", parents_code_list
+                sample_for_update.setParentSampleIdentifiers(parents_code_list)   
+            elif re.search ("KWY", name): 
+                yeast_parent_id = "/MATERIALS/"+name.strip()
+                if not yeast_parent_id =="/MATERIALS/KWY":
+                    parents_code_list.append(yeast_parent_id)
+                    print "PARENTS: ", parents_code_list
+                    sample_for_update.setParentSampleIdentifiers(parents_code_list)                        
 
         
 
