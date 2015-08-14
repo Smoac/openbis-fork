@@ -27,8 +27,6 @@ import org.springframework.transaction.annotation.Transactional;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.common.conversation.annotation.Conversational;
 import ch.systemsx.cisd.openbis.common.conversation.annotation.Progress;
-import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.AuthorizationGuard;
-import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.DataSetCodePredicate;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.EntityOperationsState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
