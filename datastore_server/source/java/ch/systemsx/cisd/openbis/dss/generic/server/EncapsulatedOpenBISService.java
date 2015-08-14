@@ -471,6 +471,12 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     }
 
     @Override
+    public boolean isDataSetOnTrashCanOrDeleted(String dataSetCode)
+    {
+        return service.isDataSetOnTrashCanOrDeleted(session.getSessionToken(), dataSetCode);
+    }
+    
+    @Override
     public void updateShareIdAndSize(String dataSetCode, String shareId, long size)
             throws UserFailureException
     {

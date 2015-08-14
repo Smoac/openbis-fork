@@ -100,7 +100,7 @@ public class EagerShufflingTask extends AbstractPostRegistrationTaskForPhysicalD
     private final IFreeSpaceProvider freeSpaceProvider;
 
     private final IDataSetMover dataSetMover;
-
+    
     private final IChecksumProvider checksumProvider;
 
     private final ISimpleLogger logger;
@@ -110,7 +110,7 @@ public class EagerShufflingTask extends AbstractPostRegistrationTaskForPhysicalD
     private final File storeRoot;
 
     private final String dataStoreCode;
-
+    
     private final Set<String> incomingShares;
 
     private IShareFinder finder;
@@ -225,26 +225,31 @@ public class EagerShufflingTask extends AbstractPostRegistrationTaskForPhysicalD
             {
                 try
                 {
-                    long freeSpaceBefore = shareWithMostFreeOrNull.calculateFreeSpace();
-                    File share = new File(storeRoot, shareIdManager.getShareId(dataSetCode));
-                    dataSetMover.moveDataSetToAnotherShare(
-                            new File(share, dataSet.getDataSetLocation()),
-                            shareWithMostFreeOrNull.getShare(), getChecksumProvider(), logger);
+                    if(service.isDataSetOnTrashCanOrDeleted(dataSetCode)) {
+                        logger.log(LogLevel.INFO, "Data set " + dataSetCode + " will not be moved from share because is on the trashcan or deleted.");
+                    } else {
+                        long freeSpaceBefore = shareWithMostFreeOrNull.calculateFreeSpace();
+                        File share = new File(storeRoot, shareIdManager.getShareId(dataSetCode));
+                        
+                        dataSetMover.moveDataSetToAnotherShare(
+                                new File(share, dataSet.getDataSetLocation()),
+                                shareWithMostFreeOrNull.getShare(), getChecksumProvider(), logger);
 
-                    String shareId = shareWithMostFreeOrNull.getShareId();
-                    logger.log(LogLevel.INFO, "Data set " + dataSetCode
-                            + " successfully moved from share " + dataSet.getDataSetShareId()
-                            + " to " + shareId + ".");
-                    long freeSpaceAfter = shareWithMostFreeOrNull.calculateFreeSpace();
-                    if (freeSpaceBefore > freeSpaceLimitTriggeringNotification
-                            && freeSpaceAfter < freeSpaceLimitTriggeringNotification)
-                    {
-                        notifyer.log(
-                                LogLevel.WARN,
-                                "After moving data set " + dataSetCode + " to share " + shareId
-                                        + " that share has only "
-                                        + FileUtilities.byteCountToDisplaySize(freeSpaceAfter)
-                                        + " free space. It might be necessary to add a new share.");
+                        String shareId = shareWithMostFreeOrNull.getShareId();
+                        logger.log(LogLevel.INFO, "Data set " + dataSetCode
+                                + " successfully moved from share " + dataSet.getDataSetShareId()
+                                + " to " + shareId + ".");
+                        long freeSpaceAfter = shareWithMostFreeOrNull.calculateFreeSpace();
+                        if (freeSpaceBefore > freeSpaceLimitTriggeringNotification
+                                && freeSpaceAfter < freeSpaceLimitTriggeringNotification)
+                        {
+                            notifyer.log(
+                                    LogLevel.WARN,
+                                    "After moving data set " + dataSetCode + " to share " + shareId
+                                            + " that share has only "
+                                            + FileUtilities.byteCountToDisplaySize(freeSpaceAfter)
+                                            + " free space. It might be necessary to add a new share.");
+                        }
                     }
                 } catch (Throwable t)
                 {
