@@ -96,7 +96,10 @@ def setEntityProperties(tr, definition, entity, properties):
 
             if propertyDefinition[2] == "pKW Number":
                 propertyValue = "pKW" + propertyValue
-                
+
+            if propertyDefinition[2] == "UC Number":
+                if re.search("US", propertyValue):
+                    propertyValue =propertyValue.replace("US", "UC").strip(" ")                             
             
             if propertyDefinition is not None: #Sometimes special fields are added for other purposes, these should not be set
                 entity.setPropertyValue(propertyCode, propertyValue)
@@ -714,8 +717,8 @@ adaptors = [
              #EnzymeAdaptor(fmConnString, fmUser, fmPass, "Weis_Restriction_enzymes"),
              #ChemicalAdaptor(fmConnString, fmUser, fmPass, "Weis_Chemicals"),
              #AntibodyAdaptor(fmConnString, fmUser, fmPass, "Weis _Antibodies"),
-             #OligoAdaptor(fmConnString, fmUser, fmPass, "Weis_Oligos"),
-             PlasmidAdaptor(fmConnString, fmUser, fmPass, "Weis_Plasmids"),
+             OligoAdaptor(fmConnString, fmUser, fmPass, "Weis_Oligos"),
+             #PlasmidAdaptor(fmConnString, fmUser, fmPass, "Weis_Plasmids"),
              #StrainAdaptor(fmConnString, fmUser, fmPass, "Weis_Yeast_Strains_070715_Clone_for_testing2"),
              #StrainMultipleValuesAdaptor(fmConnString, fmUser, fmPass, "Weis_Yeast_Strains_070715_Clone_for_testing2")
              ]
