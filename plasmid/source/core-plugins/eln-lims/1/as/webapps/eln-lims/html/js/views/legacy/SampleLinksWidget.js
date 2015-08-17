@@ -431,8 +431,12 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 				if(sampleToAdd.notFound) {
 					style = "color: red;"
 					notFound = " (Not Found)"
+				} else {
+					style = "color: #337AB7;"
 				}
-				codeLink = $("<a>", { "style" : style }).append(sampleToAdd.code + notFound);
+				
+				var href = Util.getURLFor(mainController.sideMenu.getCurrentNodeId(), "showViewSamplePageFromPermId", sampleToAdd.permId);
+				codeLink = $("<a>", { "style" : style, "href" : href, "class" : "browser-compatible-javascript-link" }).append(sampleToAdd.code + notFound);
 				
 				codeLink.click(function() {
 					mainController.changeView("showViewSamplePageFromPermId", sampleToAdd.permId);
