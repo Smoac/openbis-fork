@@ -29,7 +29,13 @@ function ExperimentFormController(mainController, mode, experiment) {
 	
 	this._addCommentsWidget = function($container) {
 		var commentsController = new CommentsController(this._experimentFormModel.experiment, this._experimentFormModel.mode, this._experimentFormModel);
-		commentsController.init($container);
+		if(this._experimentFormModel.mode !== FormMode.VIEW || 
+			this._experimentFormModel.mode === FormMode.VIEW && !commentsController.isEmpty()) {
+			commentsController.init($container);
+			return true;
+		} else {
+			return false;
+		}
 	}
 	
 	this.deleteExperiment = function(reason) {
