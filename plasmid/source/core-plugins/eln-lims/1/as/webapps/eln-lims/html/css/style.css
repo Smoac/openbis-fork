@@ -584,3 +584,16 @@ table.downloads {
  .browser-compatible-javascript-link-menu:hover {
  	color: #FFFFFF;
  }
+ 
+ /*
+  * Forms
+  */
+ .form-group {
+    margin-top: 0;
+    margin-bottom: 2px;
+}
+
+ legend {
+    margin-top: 0;
+    margin-bottom: 5px;
+}
