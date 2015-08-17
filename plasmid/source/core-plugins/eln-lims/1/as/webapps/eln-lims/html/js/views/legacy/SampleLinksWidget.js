@@ -431,8 +431,6 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 				if(sampleToAdd.notFound) {
 					style = "color: red;"
 					notFound = " (Not Found)"
-				} else {
-					style = "color: #337AB7;"
 				}
 				
 				var href = Util.getURLFor(mainController.sideMenu.getCurrentNodeId(), "showViewSamplePageFromPermId", sampleToAdd.permId);

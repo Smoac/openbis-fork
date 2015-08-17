@@ -347,8 +347,11 @@ function DataSetViewer(containerId, profile, sample, serverFacade, datastoreDown
 			}
 			
 			for(var i = 0; i < datasetFiles.length; i++) {
+				
+				var href = Util.getURLFor(mainController.sideMenu.getCurrentNodeId(), "showViewDataSetPageFromPermId", datasetCode);
+				var $datasetLink = $("<a>", {"class" : "browser-compatible-javascript-link", "href" : href }).append(dataset.code);
 				var $tableRow = $("<tr>")
-									.append($("<td>").html(dataset.code))
+									.append($("<td>").html($datasetLink))
 									.append($("<td>").html(dataset.dataSetTypeCode));
 				
 				var downloadUrl = datastoreDownloadURL + '/' + dataset.code + "/" + encodeURIComponent(datasetFiles[i].pathInDataSet) + "?sessionID=" + this.serverFacade.getSession();
