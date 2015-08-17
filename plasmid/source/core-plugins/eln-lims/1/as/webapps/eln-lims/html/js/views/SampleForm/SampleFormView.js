@@ -393,7 +393,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 			if(propertyType.code === "XMLCOMMENTS") {
 				var $commentsContainer = $("<div>");
 				$fieldset.append($commentsContainer);
-				var isAvailable = this._sampleFormController._addCommentsWidget($commentsContainer);
+				this._sampleFormController._addCommentsWidget($commentsContainer);
 				continue;
 			}
 			var $controlGroup =  null;

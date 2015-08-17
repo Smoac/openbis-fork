@@ -54,9 +54,6 @@ function SampleFormController(mainController, mode, sample) {
 		if(this._sampleFormModel.mode !== FormMode.VIEW || 
 			this._sampleFormModel.mode === FormMode.VIEW && !commentsController.isEmpty()) {
 			commentsController.init($container);
-			return true;
-		} else {
-			return false;
 		}
 	}
 	
