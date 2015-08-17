@@ -23,7 +23,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.AbstractCachingTranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.Relations;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material.Material;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.material.MaterialFetchOptions;
@@ -68,7 +67,7 @@ public class MaterialPropertyTranslator extends
     }
 
     @Override
-    protected void updateObject(TranslationContext context, IEntityPropertiesHolder input, Map<String, Material> output, Relations relations,
+    protected void updateObject(TranslationContext context, IEntityPropertiesHolder input, Map<String, Material> output, Object relations,
             MaterialFetchOptions fetchOptions)
     {
     }

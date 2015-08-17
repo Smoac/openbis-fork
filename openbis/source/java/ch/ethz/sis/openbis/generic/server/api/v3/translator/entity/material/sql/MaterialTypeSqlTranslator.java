@@ -18,11 +18,12 @@ package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.material.sql
 
 import java.util.Collection;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.AbstractCachingTranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.Relations;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationResults;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material.MaterialType;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.material.MaterialTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.entitytype.EntityTypePermId;
@@ -35,6 +36,9 @@ public class MaterialTypeSqlTranslator extends AbstractCachingTranslator<Long, M
         IMaterialTypeSqlTranslator
 {
 
+    @Autowired
+    private MaterialTypeBaseTranslator baseTranslator;
+
     @Override
     protected MaterialType createObject(TranslationContext context, Long typeId, MaterialTypeFetchOptions fetchOptions)
     {
@@ -44,21 +48,21 @@ public class MaterialTypeSqlTranslator extends AbstractCachingTranslator<Long, M
     }
 
     @Override
-    protected Relations getObjectsRelations(TranslationContext context, Collection<Long> typeIds, MaterialTypeFetchOptions fetchOptions)
+    protected TranslationResults getObjectsRelations(TranslationContext context, Collection<Long> typeIds, MaterialTypeFetchOptions fetchOptions)
     {
-        Relations relations = new Relations();
+        TranslationResults relations = new TranslationResults();
 
-        relations.add(createRelation(MaterialTypeBaseRelation.class, typeIds));
+        relations.put(MaterialTypeBaseTranslator.class, baseTranslator.translate(context, typeIds, null));
 
         return relations;
     }
 
     @Override
-    protected void updateObject(TranslationContext context, Long typeId, MaterialType result, Relations relations,
+    protected void updateObject(TranslationContext context, Long typeId, MaterialType result, Object objectRelations,
             MaterialTypeFetchOptions fetchOptions)
     {
-        MaterialTypeBaseRelation baseRelation = relations.get(MaterialTypeBaseRelation.class);
-        MaterialTypeBaseRecord baseRecord = baseRelation.getRecord(typeId);
+        TranslationResults relations = (TranslationResults) objectRelations;
+        MaterialTypeBaseRecord baseRecord = relations.get(MaterialTypeBaseTranslator.class, typeId);
 
         result.setPermId(new EntityTypePermId(baseRecord.code));
         result.setCode(baseRecord.code);

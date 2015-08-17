@@ -3,7 +3,6 @@ package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.sample;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.AbstractCachingTranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.Relations;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleType;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sample.SampleTypeFetchOptions;
@@ -34,7 +33,7 @@ public class SampleTypeTranslator extends AbstractCachingTranslator<SampleTypePE
     }
 
     @Override
-    protected void updateObject(TranslationContext context, SampleTypePE input, SampleType output, Relations relations,
+    protected void updateObject(TranslationContext context, SampleTypePE input, SampleType output, Object relations,
             SampleTypeFetchOptions fetchOptions)
     {
 

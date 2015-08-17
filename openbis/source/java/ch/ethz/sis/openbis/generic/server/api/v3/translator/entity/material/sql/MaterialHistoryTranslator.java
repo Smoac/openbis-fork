@@ -23,28 +23,18 @@ import java.util.List;
 
 import net.lemnik.eodsql.QueryTool;
 
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.history.sql.HistoryPropertyRecord;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.history.sql.HistoryRelation;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.history.sql.HistorySqlTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.history.sql.HistoryRelationshipRecord;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.history.HistoryEntryFetchOptions;
 
 /**
  * @author pkupczyk
  */
 @Component
-@Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-public class MaterialHistoryRelation extends HistoryRelation
+public class MaterialHistoryTranslator extends HistorySqlTranslator
 {
-
-    public MaterialHistoryRelation(TranslationContext context, Collection<Long> entityIds, HistoryEntryFetchOptions fetchOptions)
-    {
-        super(context, entityIds, fetchOptions);
-    }
 
     @Override
     protected List<HistoryPropertyRecord> loadPropertyHistory(Collection<Long> entityIds)

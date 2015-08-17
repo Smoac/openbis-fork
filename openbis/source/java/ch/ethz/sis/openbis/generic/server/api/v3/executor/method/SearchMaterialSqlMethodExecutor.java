@@ -16,12 +16,17 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.method;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.common.ISearchObjectExecutor;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.material.ISearchMaterialIdExecutor;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.ITranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.material.sql.IMaterialSqlTranslator;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material.Material;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.material.MaterialFetchOptions;
@@ -31,9 +36,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.MaterialSearchCriter
  * @author pkupczyk
  */
 @Component
-public class SearchMaterialSqlMethodExecutor extends
-        AbstractSearchMethodExecutor<Material, Long, MaterialSearchCriterion, MaterialFetchOptions>
-        implements ISearchMaterialMethodExecutor
+public class SearchMaterialSqlMethodExecutor extends AbstractMethodExecutor implements ISearchMaterialMethodExecutor
 {
 
     @Autowired
@@ -43,15 +46,62 @@ public class SearchMaterialSqlMethodExecutor extends
     private IMaterialSqlTranslator translator;
 
     @Override
-    protected ISearchObjectExecutor<MaterialSearchCriterion, Long> getSearchExecutor()
+    public List<Material> search(final String sessionToken, final MaterialSearchCriterion criterion, final MaterialFetchOptions fetchOptions)
     {
-        return searchExecutor;
+        return executeInContext(sessionToken, new IMethodAction<List<Material>>()
+            {
+                @Override
+                public List<Material> execute(IOperationContext context)
+                {
+                    List<Long> results = search(context, criterion, fetchOptions);
+                    return translate(context, results, fetchOptions);
+                }
+            });
     }
 
-    @Override
-    protected ITranslator<Long, Material, MaterialFetchOptions> getTranslator()
+    @SuppressWarnings("unchecked")
+    private List<Long> search(IOperationContext context, MaterialSearchCriterion criterion, MaterialFetchOptions fetchOptions)
     {
-        return translator;
+        if (fetchOptions.getCacheMode() != null)
+        {
+            List<Long> ids = (List<Long>) context.getSession().getAttributes().get(getClass().getName() + "_ids");
+
+            if (ids == null)
+            {
+                ids = searchExecutor.search(context, criterion);
+                context.getSession().getAttributes().put(getClass().getName() + "_ids", ids);
+            }
+
+            return ids;
+        } else
+        {
+            return searchExecutor.search(context, criterion);
+        }
     }
 
+    private List<Material> translate(IOperationContext context, List<Long> peList, MaterialFetchOptions fetchOptions)
+    {
+        if (peList == null || peList.isEmpty())
+        {
+            return Collections.emptyList();
+        }
+
+        TranslationContext translationContext = null;
+
+        if (fetchOptions.getCacheMode() != null)
+        {
+            translationContext = (TranslationContext) context.getSession().getAttributes().get(getClass().getName() + "_context");
+            if (translationContext == null)
+            {
+                translationContext = new TranslationContext(context.getSession());
+                context.getSession().getAttributes().put(getClass().getName() + "_context", translationContext);
+            }
+        } else
+        {
+            translationContext = new TranslationContext(context.getSession());
+        }
+
+        Map<Long, Material> peToObjectMap = translator.translate(translationContext, peList, fetchOptions);
+        return new ArrayList<Material>(peToObjectMap.values());
+    }
 }

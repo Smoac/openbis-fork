@@ -18,11 +18,12 @@ package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.person.sql;
 
 import java.util.Collection;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.AbstractCachingTranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.Relations;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationResults;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.person.Person;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.person.PersonFetchOptions;
 
@@ -33,6 +34,12 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.person.PersonF
 public class PersonSqlTranslator extends AbstractCachingTranslator<Long, Person, PersonFetchOptions> implements IPersonSqlTranslator
 {
 
+    @Autowired
+    private PersonBaseTranslator baseTranslator;
+
+    @Autowired
+    private PersonSpaceTranslator spaceTranslator;
+
     @Override
     protected Person createObject(TranslationContext context, Long personId, PersonFetchOptions fetchOptions)
     {
@@ -42,25 +49,26 @@ public class PersonSqlTranslator extends AbstractCachingTranslator<Long, Person,
     }
 
     @Override
-    protected Relations getObjectsRelations(TranslationContext context, Collection<Long> personIds, PersonFetchOptions fetchOptions)
+    protected TranslationResults getObjectsRelations(TranslationContext context, Collection<Long> personIds, PersonFetchOptions fetchOptions)
     {
-        Relations relations = new Relations();
+        TranslationResults relations = new TranslationResults();
 
-        relations.add(createRelation(PersonBaseRelation.class, personIds));
+        relations.put(PersonBaseTranslator.class, baseTranslator.translate(context, personIds, null));
 
         if (fetchOptions.hasSpace())
         {
-            relations.add(createRelation(PersonSpaceRelation.class, context, personIds, fetchOptions.withSpace()));
+            relations.put(PersonSpaceTranslator.class, spaceTranslator.translate(context, personIds, fetchOptions.withSpace()));
         }
 
         return relations;
     }
 
     @Override
-    protected void updateObject(TranslationContext context, Long personId, Person result, Relations relations, PersonFetchOptions fetchOptions)
+    protected void updateObject(TranslationContext context, Long personId, Person result, Object objectRelations,
+            PersonFetchOptions fetchOptions)
     {
-        PersonBaseRelation baseRelation = relations.get(PersonBaseRelation.class);
-        PersonBaseRecord baseRecord = baseRelation.getRecord(personId);
+        TranslationResults relations = (TranslationResults) objectRelations;
+        PersonBaseRecord baseRecord = relations.get(PersonBaseTranslator.class, personId);
 
         result.setFirstName(baseRecord.firstName);
         result.setLastName(baseRecord.lastName);
@@ -71,8 +79,7 @@ public class PersonSqlTranslator extends AbstractCachingTranslator<Long, Person,
 
         if (fetchOptions.hasSpace())
         {
-            PersonSpaceRelation relation = relations.get(PersonSpaceRelation.class);
-            result.setSpace(relation.getRelated(personId));
+            result.setSpace(relations.get(PersonSpaceTranslator.class, personId));
             result.getFetchOptions().withSpaceUsing(fetchOptions.withSpace());
         }
     }

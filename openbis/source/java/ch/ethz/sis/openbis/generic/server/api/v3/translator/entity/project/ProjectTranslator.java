@@ -27,12 +27,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.AbstractCachingTranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.Relations;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationResults;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.attachment.IAttachmentTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.experiment.IExperimentTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.person.IPersonTranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.project.sql.ProjectHistoryRelation;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.project.sql.ProjectHistoryTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.space.ISpaceTranslator;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.attachment.Attachment;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
@@ -63,6 +63,9 @@ public class ProjectTranslator extends AbstractCachingTranslator<ProjectPE, Proj
     @Autowired
     private IAttachmentTranslator attachmentTranslator;
 
+    @Autowired
+    private ProjectHistoryTranslator historyTranslator;
+
     @Override
     protected boolean shouldTranslate(TranslationContext context, ProjectPE input, ProjectFetchOptions fetchOptions)
     {
@@ -86,9 +89,9 @@ public class ProjectTranslator extends AbstractCachingTranslator<ProjectPE, Proj
     }
 
     @Override
-    protected Relations getObjectsRelations(TranslationContext context, Collection<ProjectPE> projects, ProjectFetchOptions fetchOptions)
+    protected TranslationResults getObjectsRelations(TranslationContext context, Collection<ProjectPE> projects, ProjectFetchOptions fetchOptions)
     {
-        Relations relations = new Relations();
+        TranslationResults relations = new TranslationResults();
 
         if (fetchOptions.hasHistory())
         {
@@ -97,15 +100,18 @@ public class ProjectTranslator extends AbstractCachingTranslator<ProjectPE, Proj
             {
                 projectIds.add(project.getId());
             }
-            relations.add(createRelation(ProjectHistoryRelation.class, context, projectIds, fetchOptions.withHistory()));
+            relations.put(ProjectHistoryTranslator.class, historyTranslator.translate(context, projectIds, fetchOptions.withHistory()));
         }
 
         return relations;
     }
 
     @Override
-    protected void updateObject(TranslationContext context, ProjectPE project, Project result, Relations relations, ProjectFetchOptions fetchOptions)
+    protected void updateObject(TranslationContext context, ProjectPE project, Project result, Object objectRelations,
+            ProjectFetchOptions fetchOptions)
     {
+        TranslationResults relations = (TranslationResults) objectRelations;
+
         if (fetchOptions.hasSpace())
         {
             result.setSpace(spaceTranslator.translate(context, project.getSpace(), fetchOptions.withSpace()));
@@ -147,8 +153,7 @@ public class ProjectTranslator extends AbstractCachingTranslator<ProjectPE, Proj
 
         if (fetchOptions.hasHistory())
         {
-            ProjectHistoryRelation relation = relations.get(ProjectHistoryRelation.class);
-            result.setHistory(relation.getRelated(project.getId()));
+            result.setHistory(relations.get(ProjectHistoryTranslator.class, project.getId()));
             result.getFetchOptions().withHistoryUsing(fetchOptions.withHistory());
         }
 

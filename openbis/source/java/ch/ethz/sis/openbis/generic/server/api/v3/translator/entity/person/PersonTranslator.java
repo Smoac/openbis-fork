@@ -20,7 +20,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.AbstractCachingTranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.Relations;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.space.ISpaceTranslator;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.person.Person;
@@ -56,7 +55,7 @@ public class PersonTranslator extends AbstractCachingTranslator<PersonPE, Person
     }
 
     @Override
-    protected void updateObject(TranslationContext context, PersonPE person, Person result, Relations relations, PersonFetchOptions fetchOptions)
+    protected void updateObject(TranslationContext context, PersonPE person, Person result, Object relations, PersonFetchOptions fetchOptions)
     {
         if (fetchOptions.hasSpace())
         {

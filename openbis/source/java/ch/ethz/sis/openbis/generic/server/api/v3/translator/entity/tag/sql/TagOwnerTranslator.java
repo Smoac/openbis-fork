@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.material.sql;
+package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.tag.sql;
 
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 
@@ -25,13 +25,11 @@ import java.util.Map;
 import net.lemnik.eodsql.QueryTool;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql.ObjectRelationRecord;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql.ObjectToOneRelation;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql.ObjectToOneRelationTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.person.sql.IPersonSqlTranslator;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.person.Person;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.person.PersonFetchOptions;
@@ -40,27 +38,21 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.person.PersonF
  * @author pkupczyk
  */
 @Component
-@Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-public class MaterialRegistratorRelation extends ObjectToOneRelation<Person, PersonFetchOptions>
+public class TagOwnerTranslator extends ObjectToOneRelationTranslator<Person, PersonFetchOptions>
 {
 
     @Autowired
     private IPersonSqlTranslator personTranslator;
 
-    public MaterialRegistratorRelation(TranslationContext context, Collection<Long> objectIds, PersonFetchOptions relatedFetchOptions)
+    @Override
+    protected List<ObjectRelationRecord> loadRecords(LongOpenHashSet objectIds)
     {
-        super(context, objectIds, relatedFetchOptions);
+        TagQuery query = QueryTool.getManagedQuery(TagQuery.class);
+        return query.getOwnerIds(objectIds);
     }
 
     @Override
-    protected List<ObjectRelationRecord> load(LongOpenHashSet objectIds)
-    {
-        MaterialQuery query = QueryTool.getManagedQuery(MaterialQuery.class);
-        return query.getRegistratorIds(objectIds);
-    }
-
-    @Override
-    protected Map<Long, Person> translate(TranslationContext context, Collection<Long> relatedIds, PersonFetchOptions relatedFetchOptions)
+    protected Map<Long, Person> translateRelated(TranslationContext context, Collection<Long> relatedIds, PersonFetchOptions relatedFetchOptions)
     {
         return personTranslator.translate(context, relatedIds, relatedFetchOptions);
     }

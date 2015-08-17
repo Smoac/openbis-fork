@@ -14,38 +14,30 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.material.sql;
+package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.person.sql;
 
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 
-import java.util.Collection;
 import java.util.List;
 
 import net.lemnik.eodsql.QueryTool;
 
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql.ObjectBaseRelation;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql.ObjectBaseTranslator;
 
 /**
  * @author pkupczyk
  */
 @Component
-@Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-public class MaterialTypeBaseRelation extends ObjectBaseRelation<MaterialTypeBaseRecord>
+public class PersonBaseTranslator extends ObjectBaseTranslator<PersonBaseRecord>
 {
 
-    public MaterialTypeBaseRelation(Collection<Long> objectIds)
+    @Override
+    protected List<PersonBaseRecord> loadRecords(LongOpenHashSet objectIds)
     {
-        super(objectIds);
+        PersonQuery query = QueryTool.getManagedQuery(PersonQuery.class);
+        return query.getPersons(new LongOpenHashSet(objectIds));
     }
 
-    @Override
-    protected List<MaterialTypeBaseRecord> load(LongOpenHashSet objectIds)
-    {
-        MaterialQuery query = QueryTool.getManagedQuery(MaterialQuery.class);
-        return query.getTypes(new LongOpenHashSet(objectIds));
-    }
 }

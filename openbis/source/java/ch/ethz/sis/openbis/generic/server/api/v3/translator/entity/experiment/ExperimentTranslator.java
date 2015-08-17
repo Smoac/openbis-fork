@@ -27,11 +27,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.AbstractCachingTranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.Relations;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationResults;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.attachment.IAttachmentTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.dataset.IDataSetTranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.experiment.sql.ExperimentHistoryRelation;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.experiment.sql.ExperimentHistoryTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.material.IMaterialPropertyTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.person.IPersonTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.project.IProjectTranslator;
@@ -87,6 +87,9 @@ public class ExperimentTranslator extends AbstractCachingTranslator<ExperimentPE
     @Autowired
     private ITagTranslator tagTranslator;
 
+    @Autowired
+    private ExperimentHistoryTranslator historyTranslator;
+
     @Override
     protected boolean shouldTranslate(TranslationContext context, ExperimentPE input, ExperimentFetchOptions fetchOptions)
     {
@@ -109,9 +112,10 @@ public class ExperimentTranslator extends AbstractCachingTranslator<ExperimentPE
     }
 
     @Override
-    protected Relations getObjectsRelations(TranslationContext context, Collection<ExperimentPE> experiments, ExperimentFetchOptions fetchOptions)
+    protected TranslationResults getObjectsRelations(TranslationContext context, Collection<ExperimentPE> experiments,
+            ExperimentFetchOptions fetchOptions)
     {
-        Relations relations = new Relations();
+        TranslationResults relations = new TranslationResults();
 
         if (fetchOptions.hasHistory())
         {
@@ -120,16 +124,18 @@ public class ExperimentTranslator extends AbstractCachingTranslator<ExperimentPE
             {
                 experimentIds.add(experiment.getId());
             }
-            relations.add(createRelation(ExperimentHistoryRelation.class, context, experimentIds, fetchOptions.withHistory()));
+            relations.put(ExperimentHistoryTranslator.class, historyTranslator.translate(context, experimentIds, fetchOptions.withHistory()));
         }
 
         return relations;
     }
 
     @Override
-    protected void updateObject(TranslationContext context, ExperimentPE experiment, Experiment result, Relations relations,
+    protected void updateObject(TranslationContext context, ExperimentPE experiment, Experiment result, Object objectRelations,
             ExperimentFetchOptions fetchOptions)
     {
+        TranslationResults relations = (TranslationResults) objectRelations;
+
         if (fetchOptions.hasType())
         {
             result.setType(typeTranslator.translate(context, experiment.getExperimentType(), fetchOptions.withType()));
@@ -196,8 +202,7 @@ public class ExperimentTranslator extends AbstractCachingTranslator<ExperimentPE
 
         if (fetchOptions.hasHistory())
         {
-            ExperimentHistoryRelation relation = relations.get(ExperimentHistoryRelation.class);
-            result.setHistory(relation.getRelated(experiment.getId()));
+            result.setHistory(relations.get(ExperimentHistoryTranslator.class, experiment.getId()));
             result.getFetchOptions().withHistoryUsing(fetchOptions.withHistory());
         }
     }

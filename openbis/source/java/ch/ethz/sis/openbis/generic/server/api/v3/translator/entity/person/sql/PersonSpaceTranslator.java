@@ -25,13 +25,11 @@ import java.util.Map;
 import net.lemnik.eodsql.QueryTool;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql.ObjectRelationRecord;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql.ObjectToOneRelation;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql.ObjectToOneRelationTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.space.sql.ISpaceSqlTranslator;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.space.Space;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.space.SpaceFetchOptions;
@@ -40,27 +38,21 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.space.SpaceFet
  * @author pkupczyk
  */
 @Component
-@Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-public class PersonSpaceRelation extends ObjectToOneRelation<Space, SpaceFetchOptions>
+public class PersonSpaceTranslator extends ObjectToOneRelationTranslator<Space, SpaceFetchOptions>
 {
 
     @Autowired
     private ISpaceSqlTranslator spaceTranslator;
 
-    public PersonSpaceRelation(TranslationContext context, Collection<Long> objectIds, SpaceFetchOptions relatedFetchOptions)
-    {
-        super(context, objectIds, relatedFetchOptions);
-    }
-
     @Override
-    protected List<ObjectRelationRecord> load(LongOpenHashSet objectIds)
+    protected List<ObjectRelationRecord> loadRecords(LongOpenHashSet objectIds)
     {
         PersonQuery query = QueryTool.getManagedQuery(PersonQuery.class);
         return query.getSpaces(objectIds);
     }
 
     @Override
-    protected Map<Long, Space> translate(TranslationContext context, Collection<Long> relatedIds, SpaceFetchOptions relatedFetchOptions)
+    protected Map<Long, Space> translateRelated(TranslationContext context, Collection<Long> relatedIds, SpaceFetchOptions relatedFetchOptions)
     {
         return spaceTranslator.translate(context, relatedIds, relatedFetchOptions);
     }

@@ -23,26 +23,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
-
 import net.lemnik.eodsql.QueryTool;
 
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.property.PropertyRelation;
+import org.springframework.stereotype.Component;
+
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.property.sql.PropertySqlTranslator;
 
 /**
  * @author pkupczyk
  */
 @Component
-@Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-public class MaterialPropertyRelation extends PropertyRelation
+public class MaterialPropertySqlTranslator extends PropertySqlTranslator
 {
-
-    public MaterialPropertyRelation(Collection<Long> entityIds)
-    {
-        super(entityIds);
-    }
 
     @Override
     protected Map<Long, Map<String, String>> loadProperties(Collection<Long> entityIds)

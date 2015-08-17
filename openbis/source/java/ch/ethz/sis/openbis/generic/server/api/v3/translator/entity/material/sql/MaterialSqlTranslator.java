@@ -17,14 +17,17 @@
 package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.material.sql;
 
 import java.util.Collection;
+import java.util.Comparator;
+import java.util.Set;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.AbstractCachingTranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.Relations;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.property.PropertyRelation;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationResults;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material.Material;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.tag.Tag;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.material.MaterialFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.material.MaterialPermId;
 
@@ -35,6 +38,27 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.material.MaterialPermId;
 public class MaterialSqlTranslator extends AbstractCachingTranslator<Long, Material, MaterialFetchOptions> implements IMaterialSqlTranslator
 {
 
+    @Autowired
+    private MaterialBaseTranslator baseTranslator;
+
+    @Autowired
+    private MaterialTypeRelationTranslator typeTranslator;
+
+    @Autowired
+    private MaterialPropertySqlTranslator propertyTranslator;
+
+    @Autowired
+    private MaterialMaterialPropertyTranslator materialPropertyTranslator;
+
+    @Autowired
+    private MaterialRegistratorTranslator registratorTranslator;
+
+    @Autowired
+    private MaterialTagTranslator tagsTranslator;
+
+    @Autowired
+    private MaterialHistoryTranslator historyTranslator;
+
     @Override
     protected Material createObject(TranslationContext context, Long materialId, MaterialFetchOptions fetchOptions)
     {
@@ -44,51 +68,53 @@ public class MaterialSqlTranslator extends AbstractCachingTranslator<Long, Mater
     }
 
     @Override
-    protected Relations getObjectsRelations(TranslationContext context, Collection<Long> materialIds, MaterialFetchOptions fetchOptions)
+    protected TranslationResults getObjectsRelations(TranslationContext context, Collection<Long> materialIds, MaterialFetchOptions fetchOptions)
     {
-        Relations relations = new Relations();
+        TranslationResults relations = new TranslationResults();
 
-        relations.add(createRelation(MaterialBaseRelation.class, materialIds));
+        relations.put(MaterialBaseTranslator.class, baseTranslator.translate(context, materialIds, null));
 
         if (fetchOptions.hasType())
         {
-            relations.add(createRelation(MaterialTypeRelation.class, context, materialIds, fetchOptions.withType()));
+            relations.put(MaterialTypeRelationTranslator.class, typeTranslator.translate(context, materialIds, fetchOptions.withType()));
         }
 
         if (fetchOptions.hasProperties())
         {
-            relations.add(createRelation(MaterialPropertyRelation.class, materialIds));
+            relations.put(MaterialPropertySqlTranslator.class, propertyTranslator.translate(context, materialIds, fetchOptions.withProperties()));
         }
 
         if (fetchOptions.hasMaterialProperties())
         {
-            relations.add(createRelation(MaterialMaterialPropertyRelation.class, context, materialIds, fetchOptions.withMaterialProperties()));
+            relations.put(MaterialMaterialPropertyTranslator.class,
+                    materialPropertyTranslator.translate(context, materialIds, fetchOptions.withMaterialProperties()));
         }
 
         if (fetchOptions.hasRegistrator())
         {
-            relations.add(createRelation(MaterialRegistratorRelation.class, context, materialIds, fetchOptions.withRegistrator()));
+            relations.put(MaterialRegistratorTranslator.class,
+                    registratorTranslator.translate(context, materialIds, fetchOptions.withRegistrator()));
         }
 
         if (fetchOptions.hasTags())
         {
-            relations.add(createRelation(MaterialTagsRelation.class, context, materialIds, fetchOptions.withTags()));
+            relations.put(MaterialTagTranslator.class, tagsTranslator.translate(context, materialIds, fetchOptions.withTags()));
         }
 
         if (fetchOptions.hasHistory())
         {
-            relations.add(createRelation(MaterialHistoryRelation.class, context, materialIds, fetchOptions.withHistory()));
+            relations.put(MaterialHistoryTranslator.class, historyTranslator.translate(context, materialIds, fetchOptions.withHistory()));
         }
 
         return relations;
     }
 
     @Override
-    protected void updateObject(TranslationContext context, Long materialId, Material result, Relations relations,
+    protected void updateObject(TranslationContext context, Long materialId, Material result, Object objectRelations,
             MaterialFetchOptions fetchOptions)
     {
-        MaterialBaseRelation baseRelation = relations.get(MaterialBaseRelation.class);
-        MaterialBaseRecord baseRecord = baseRelation.getRecord(materialId);
+        TranslationResults relations = (TranslationResults) objectRelations;
+        MaterialBaseRecord baseRecord = relations.get(MaterialBaseTranslator.class, materialId);
 
         result.setPermId(new MaterialPermId(baseRecord.code, baseRecord.typeCode));
         result.setCode(baseRecord.code);
@@ -97,45 +123,81 @@ public class MaterialSqlTranslator extends AbstractCachingTranslator<Long, Mater
 
         if (fetchOptions.hasType())
         {
-            MaterialTypeRelation relation = relations.get(MaterialTypeRelation.class);
-            result.setType(relation.getRelated(materialId));
+            result.setType(relations.get(MaterialTypeRelationTranslator.class, materialId));
             result.getFetchOptions().withTypeUsing(fetchOptions.withType());
         }
 
         if (fetchOptions.hasProperties())
         {
-            PropertyRelation relation = relations.get(MaterialPropertyRelation.class);
-            result.setProperties(relation.getProperties(materialId));
+            result.setProperties(relations.get(MaterialPropertySqlTranslator.class, materialId));
             result.getFetchOptions().withPropertiesUsing(fetchOptions.withProperties());
         }
 
         if (fetchOptions.hasMaterialProperties())
         {
-            MaterialMaterialPropertyRelation relation = relations.get(MaterialMaterialPropertyRelation.class);
-            result.setMaterialProperties(relation.getMaterialProperties(materialId));
+            result.setMaterialProperties(relations.get(MaterialMaterialPropertyTranslator.class, materialId));
             result.getFetchOptions().withMaterialPropertiesUsing(fetchOptions.withMaterialProperties());
         }
 
         if (fetchOptions.hasRegistrator())
         {
-            MaterialRegistratorRelation relation = relations.get(MaterialRegistratorRelation.class);
-            result.setRegistrator(relation.getRelated(materialId));
+            result.setRegistrator(relations.get(MaterialRegistratorTranslator.class, materialId));
             result.getFetchOptions().withRegistratorUsing(fetchOptions.withRegistrator());
         }
 
         if (fetchOptions.hasTags())
         {
-            MaterialTagsRelation relation = relations.get(MaterialTagsRelation.class);
-            result.setTags(relation.getRelatedSet(materialId));
+            result.setTags((Set<Tag>) relations.get(MaterialTagTranslator.class, materialId));
             result.getFetchOptions().withTagsUsing(fetchOptions.withTags());
         }
 
         if (fetchOptions.hasHistory())
         {
-            MaterialHistoryRelation relation = relations.get(MaterialHistoryRelation.class);
-            result.setHistory(relation.getRelated(materialId));
+            result.setHistory(relations.get(MaterialHistoryTranslator.class, materialId));
             result.getFetchOptions().withHistoryUsing(fetchOptions.withHistory());
         }
 
     }
+
+    @Override
+    protected Comparator<Material> getObjectComparator(TranslationContext context, final MaterialFetchOptions fetchOptions)
+    {
+        if (fetchOptions.getSortBy() == null)
+        {
+            return null;
+        }
+
+        if (fetchOptions.getSortBy().isCode())
+        {
+            return new Comparator<Material>()
+                {
+                    @Override
+                    public int compare(Material o1, Material o2)
+                    {
+                        if (fetchOptions.getSortBy().code().isAsc())
+                        {
+                            return o1.getCode().compareTo(o2.getCode());
+                        } else
+                        {
+                            return -o1.getCode().compareTo(o2.getCode());
+                        }
+                    }
+                };
+        }
+
+        if (fetchOptions.getSortBy().isRegistrationDate())
+        {
+            return new Comparator<Material>()
+                {
+                    @Override
+                    public int compare(Material o1, Material o2)
+                    {
+                        return -o1.getRegistrationDate().compareTo(o2.getRegistrationDate());
+                    }
+                };
+        }
+
+        return null;
+    }
+
 }

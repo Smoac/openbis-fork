@@ -19,16 +19,18 @@ package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.tag.sql;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 
 import net.lemnik.eodsql.QueryTool;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.AbstractCachingTranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.Relations;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationResults;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.tag.Tag;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.tag.TagFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.TagPermId;
@@ -39,6 +41,12 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.TagPermId;
 @Component
 public class TagSqlTranslator extends AbstractCachingTranslator<Long, Tag, TagFetchOptions> implements ITagSqlTranslator
 {
+
+    @Autowired
+    private TagBaseTranslator baseTranslator;
+
+    @Autowired
+    private TagOwnerTranslator ownerTranslator;
 
     @Override
     protected Collection<Long> shouldTranslate(TranslationContext context, Collection<Long> tagIds, TagFetchOptions fetchOptions)
@@ -67,25 +75,25 @@ public class TagSqlTranslator extends AbstractCachingTranslator<Long, Tag, TagFe
     }
 
     @Override
-    protected Relations getObjectsRelations(TranslationContext context, Collection<Long> tagIds, TagFetchOptions fetchOptions)
+    protected TranslationResults getObjectsRelations(TranslationContext context, Collection<Long> tagIds, TagFetchOptions fetchOptions)
     {
-        Relations relations = new Relations();
+        TranslationResults relations = new TranslationResults();
 
-        relations.add(createRelation(TagBaseRelation.class, tagIds));
+        relations.put(TagBaseTranslator.class, baseTranslator.translate(context, tagIds, null));
 
         if (fetchOptions.hasOwner())
         {
-            relations.add(createRelation(TagOwnerRelation.class, context, tagIds, fetchOptions.withOwner()));
+            relations.put(TagOwnerTranslator.class, ownerTranslator.translate(context, tagIds, fetchOptions.withOwner()));
         }
 
         return relations;
     }
 
     @Override
-    protected void updateObject(TranslationContext context, Long tagId, Tag result, Relations relations, TagFetchOptions fetchOptions)
+    protected void updateObject(TranslationContext context, Long tagId, Tag result, Object objectRelations, TagFetchOptions fetchOptions)
     {
-        TagBaseRelation baseRelation = relations.get(TagBaseRelation.class);
-        TagBaseRecord baseRecord = baseRelation.getRecord(tagId);
+        TranslationResults relations = (TranslationResults) objectRelations;
+        TagBaseRecord baseRecord = relations.get(TagBaseTranslator.class, tagId);
 
         result.setPermId(new TagPermId(baseRecord.owner, baseRecord.name));
         result.setCode(baseRecord.name);
@@ -95,10 +103,39 @@ public class TagSqlTranslator extends AbstractCachingTranslator<Long, Tag, TagFe
 
         if (fetchOptions.hasOwner())
         {
-            TagOwnerRelation relation = relations.get(TagOwnerRelation.class);
-            result.setOwner(relation.getRelated(tagId));
+            result.setOwner(relations.get(TagOwnerTranslator.class, tagId));
             result.getFetchOptions().withOwnerUsing(fetchOptions.withOwner());
         }
+    }
+
+    @Override
+    protected Comparator<Tag> getObjectComparator(TranslationContext context, final TagFetchOptions fetchOptions)
+    {
+        if (fetchOptions.getSortBy() == null)
+        {
+            return null;
+        }
+
+        if (fetchOptions.getSortBy().isCode())
+        {
+            return new Comparator<Tag>()
+                {
+                    @Override
+                    public int compare(Tag o1, Tag o2)
+                    {
+                        if (fetchOptions.getSortBy().code().isAsc())
+                        {
+                            return o1.getCode().compareTo(o2.getCode());
+                        } else
+                        {
+                            return -o1.getCode().compareTo(o2.getCode());
+                        }
+                    }
+                };
+        }
+
+        return null;
+
     }
 
 }

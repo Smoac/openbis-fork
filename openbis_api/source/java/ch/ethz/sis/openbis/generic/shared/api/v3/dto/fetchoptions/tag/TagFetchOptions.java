@@ -15,21 +15,39 @@
  */
 package ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.tag;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.FetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.person.PersonFetchOptions;
 import ch.systemsx.cisd.base.annotation.JsonObject;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import java.io.Serializable;
 
 /**
  * Class automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
  */
 @JsonObject("dto.fetchoptions.tag.TagFetchOptions")
-public class TagFetchOptions implements Serializable
+public class TagFetchOptions extends FetchOptions
 {
     private static final long serialVersionUID = 1L;
 
     @JsonProperty
     private PersonFetchOptions owner;
+
+    @JsonProperty
+    private TagSortOptions sortBy;
+
+    public TagSortOptions sortBy()
+    {
+        if (sortBy == null)
+        {
+            sortBy = new TagSortOptions();
+        }
+        return sortBy;
+    }
+
+    public TagSortOptions getSortBy()
+    {
+        return sortBy;
+    }
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     public PersonFetchOptions withOwner()

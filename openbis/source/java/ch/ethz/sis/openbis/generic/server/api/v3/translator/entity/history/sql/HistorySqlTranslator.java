@@ -27,8 +27,9 @@ import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.Relation;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.AbstractCachingTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql.ObjectHolder;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.person.sql.IPersonSqlTranslator;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.history.HistoryEntry;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.history.PropertyHistoryEntry;
@@ -39,35 +40,24 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.history.Histor
 /**
  * @author pkupczyk
  */
-public abstract class HistoryRelation implements Relation
+public abstract class HistorySqlTranslator extends AbstractCachingTranslator<Long, ObjectHolder<List<HistoryEntry>>, HistoryEntryFetchOptions>
 {
 
     @Autowired
     private IPersonSqlTranslator personTranslator;
 
-    private TranslationContext context;
-
-    private Collection<Long> entityIds;
-
-    private HistoryEntryFetchOptions fetchOptions;
-
-    private Map<Long, List<HistoryEntry>> entriesMap = new HashMap<Long, List<HistoryEntry>>();
-
-    public HistoryRelation(TranslationContext context, Collection<Long> entityIds, HistoryEntryFetchOptions fetchOptions)
-    {
-        this.context = context;
-        this.entityIds = entityIds;
-        this.fetchOptions = fetchOptions;
-    }
-
-    @SuppressWarnings("hiding")
     protected abstract List<? extends HistoryPropertyRecord> loadPropertyHistory(Collection<Long> entityIds);
 
-    @SuppressWarnings("hiding")
     protected abstract List<? extends HistoryRelationshipRecord> loadRelationshipHistory(Collection<Long> entityIds);
 
     @Override
-    public void load()
+    protected ObjectHolder<List<HistoryEntry>> createObject(TranslationContext context, Long entityId, HistoryEntryFetchOptions fetchOptions)
+    {
+        return new ObjectHolder<List<HistoryEntry>>();
+    }
+
+    @Override
+    protected Object getObjectsRelations(TranslationContext context, Collection<Long> entityIds, HistoryEntryFetchOptions fetchOptions)
     {
         List<? extends HistoryPropertyRecord> properties = loadPropertyHistory(entityIds);
         List<? extends HistoryRelationshipRecord> relationships = loadRelationshipHistory(entityIds);
@@ -100,17 +90,40 @@ public abstract class HistoryRelation implements Relation
             authorMap = personTranslator.translate(context, authorIds, fetchOptions.withAuthor());
         }
 
+        Map<Long, List<HistoryEntry>> entriesMap = new HashMap<Long, List<HistoryEntry>>();
+
         if (properties != null)
         {
-            createPropertyEntries(properties, authorMap);
+            createPropertyEntries(entriesMap, properties, authorMap, fetchOptions);
         }
         if (relationships != null)
         {
-            createRelationshipEntries(relationships, authorMap);
+            createRelationshipEntries(entriesMap, relationships, authorMap, fetchOptions);
         }
+
+        for (Long entityId : entityIds)
+        {
+            if (false == entriesMap.containsKey(entityId))
+            {
+                entriesMap.put(entityId, Collections.<HistoryEntry> emptyList());
+            }
+        }
+
+        return entriesMap;
     }
 
-    private void createPropertyEntries(List<? extends HistoryPropertyRecord> records, Map<Long, Person> authorMap)
+    @Override
+    @SuppressWarnings("unchecked")
+    protected void updateObject(TranslationContext context, Long entityId, ObjectHolder<List<HistoryEntry>> result, Object relations,
+            HistoryEntryFetchOptions fetchOptions)
+    {
+        Map<Long, List<HistoryEntry>> entriesMap = (Map<Long, List<HistoryEntry>>) relations;
+        result.setObject(entriesMap.get(entityId));
+    }
+
+    private void createPropertyEntries(Map<Long, List<HistoryEntry>> entriesMap, List<? extends HistoryPropertyRecord> records,
+            Map<Long, Person> authorMap,
+            HistoryEntryFetchOptions fetchOptions)
     {
         for (HistoryPropertyRecord record : records)
         {
@@ -122,11 +135,12 @@ public abstract class HistoryRelation implements Relation
                 entriesMap.put(record.entityId, entries);
             }
 
-            entries.add(createPropertyEntry(record, authorMap));
+            entries.add(createPropertyEntry(record, authorMap, fetchOptions));
         }
     }
 
-    protected PropertyHistoryEntry createPropertyEntry(HistoryPropertyRecord record, Map<Long, Person> authorMap)
+    protected PropertyHistoryEntry createPropertyEntry(HistoryPropertyRecord record, Map<Long, Person> authorMap,
+            HistoryEntryFetchOptions fetchOptions)
     {
         PropertyHistoryEntry entry = new PropertyHistoryEntry();
         entry.setFetchOptions(new HistoryEntryFetchOptions());
@@ -156,7 +170,8 @@ public abstract class HistoryRelation implements Relation
         return entry;
     }
 
-    private void createRelationshipEntries(List<? extends HistoryRelationshipRecord> records, Map<Long, Person> authorMap)
+    private void createRelationshipEntries(Map<Long, List<HistoryEntry>> entriesMap, List<? extends HistoryRelationshipRecord> records,
+            Map<Long, Person> authorMap, HistoryEntryFetchOptions fetchOptions)
     {
         for (HistoryRelationshipRecord record : records)
         {
@@ -168,11 +183,12 @@ public abstract class HistoryRelation implements Relation
                 entriesMap.put(record.entityId, entries);
             }
 
-            entries.add(createRelationshipEntry(record, authorMap));
+            entries.add(createRelationshipEntry(record, authorMap, fetchOptions));
         }
     }
 
-    protected RelationHistoryEntry createRelationshipEntry(HistoryRelationshipRecord record, Map<Long, Person> authorMap)
+    protected RelationHistoryEntry createRelationshipEntry(HistoryRelationshipRecord record, Map<Long, Person> authorMap,
+            HistoryEntryFetchOptions fetchOptions)
     {
         RelationHistoryEntry entry = new RelationHistoryEntry();
         entry.setFetchOptions(new HistoryEntryFetchOptions());
@@ -186,17 +202,6 @@ public abstract class HistoryRelation implements Relation
         }
 
         return entry;
-    }
-
-    public List<HistoryEntry> getRelated(Long entityId)
-    {
-        if (entriesMap.containsKey(entityId))
-        {
-            return entriesMap.get(entityId);
-        } else
-        {
-            return Collections.emptyList();
-        }
     }
 
 }

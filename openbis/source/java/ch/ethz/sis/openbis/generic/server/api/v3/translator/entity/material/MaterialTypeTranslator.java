@@ -19,7 +19,6 @@ package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.material;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.AbstractCachingTranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.Relations;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material.MaterialType;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.material.MaterialTypeFetchOptions;
@@ -46,7 +45,7 @@ public class MaterialTypeTranslator extends AbstractCachingTranslator<MaterialTy
     }
 
     @Override
-    protected void updateObject(TranslationContext context, MaterialTypePE input, MaterialType output, Relations relations,
+    protected void updateObject(TranslationContext context, MaterialTypePE input, MaterialType output, Object relations,
             MaterialTypeFetchOptions fetchOptions)
     {
     }

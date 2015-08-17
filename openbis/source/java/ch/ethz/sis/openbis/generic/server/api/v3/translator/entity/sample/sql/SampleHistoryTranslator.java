@@ -22,15 +22,12 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
-
 import net.lemnik.eodsql.QueryTool;
 
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
+import org.springframework.stereotype.Component;
+
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.history.sql.HistoryPropertyRecord;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.history.sql.HistoryRelation;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.history.sql.HistorySqlTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.history.sql.HistoryRelationshipRecord;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.history.RelationHistoryEntry;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.history.SampleRelationType;
@@ -46,14 +43,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.RelationType;
  * @author pkupczyk
  */
 @Component
-@Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-public class SampleHistoryRelation extends HistoryRelation
+public class SampleHistoryTranslator extends HistorySqlTranslator
 {
-
-    public SampleHistoryRelation(TranslationContext context, Collection<Long> entityIds, HistoryEntryFetchOptions fetchOptions)
-    {
-        super(context, entityIds, fetchOptions);
-    }
 
     @Override
     protected List<HistoryPropertyRecord> loadPropertyHistory(Collection<Long> entityIds)
@@ -70,9 +61,10 @@ public class SampleHistoryRelation extends HistoryRelation
     }
 
     @Override
-    protected RelationHistoryEntry createRelationshipEntry(HistoryRelationshipRecord record, Map<Long, Person> authorMap)
+    protected RelationHistoryEntry createRelationshipEntry(HistoryRelationshipRecord record, Map<Long, Person> authorMap,
+            HistoryEntryFetchOptions fetchOptions)
     {
-        RelationHistoryEntry entry = super.createRelationshipEntry(record, authorMap);
+        RelationHistoryEntry entry = super.createRelationshipEntry(record, authorMap, fetchOptions);
 
         SampleRelationshipRecord sampleRecord = (SampleRelationshipRecord) record;
 

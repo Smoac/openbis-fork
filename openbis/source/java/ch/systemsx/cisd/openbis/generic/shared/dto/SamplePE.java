@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -111,9 +112,9 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
 
     private String permId;
 
-    private Set<SampleRelationshipPE> parentRelationships = new HashSet<SampleRelationshipPE>();
+    private Set<SampleRelationshipPE> parentRelationships = new LinkedHashSet<SampleRelationshipPE>();
 
-    private Set<SampleRelationshipPE> childRelationships = new HashSet<SampleRelationshipPE>();
+    private Set<SampleRelationshipPE> childRelationships = new LinkedHashSet<SampleRelationshipPE>();
 
     private Set<MetaprojectAssignmentPE> metaprojectAssignments =
             new HashSet<MetaprojectAssignmentPE>();

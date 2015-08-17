@@ -25,7 +25,6 @@ import javax.annotation.Resource;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.AbstractCachingTranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.Relations;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.property.PropertyFetchOptions;
 import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
@@ -72,7 +71,7 @@ public class PropertyTranslator extends AbstractCachingTranslator<IEntityPropert
     }
 
     @Override
-    protected void updateObject(TranslationContext context, IEntityPropertiesHolder input, Map<String, String> output, Relations relations,
+    protected void updateObject(TranslationContext context, IEntityPropertiesHolder input, Map<String, String> output, Object relations,
             PropertyFetchOptions fetchOptions)
     {
 

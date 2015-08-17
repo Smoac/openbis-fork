@@ -20,7 +20,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.AbstractCachingTranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.Relations;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.person.IPersonTranslator;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.tag.Tag;
@@ -60,7 +59,7 @@ public class TagTranslator extends AbstractCachingTranslator<MetaprojectPE, Tag,
     }
 
     @Override
-    protected void updateObject(TranslationContext context, MetaprojectPE tag, Tag result, Relations relations, TagFetchOptions fetchOptions)
+    protected void updateObject(TranslationContext context, MetaprojectPE tag, Tag result, Object relations, TagFetchOptions fetchOptions)
     {
         if (fetchOptions.hasOwner())
         {

@@ -23,7 +23,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.AbstractCachingTranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.Relations;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion.DeletedObject;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion.Deletion;
@@ -72,7 +71,7 @@ public class DeletionTranslator extends
 
     @Override
     protected void updateObject(TranslationContext context, ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion input, Deletion output,
-            Relations relations, DeletionFetchOptions fetchOptions)
+            Object relations, DeletionFetchOptions fetchOptions)
     {
         if (fetchOptions.hasDeletedObjects())
         {

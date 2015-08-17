@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 ETH Zuerich, Scientific IT Services
+ * Copyright 2015 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,33 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.api.v3.translator;
+package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql;
 
 /**
  * @author pkupczyk
  */
-public interface Relation
+public class ObjectHolder<T>
 {
 
-    public void load();
+    private T object;
+
+    public ObjectHolder()
+    {
+    }
+
+    public ObjectHolder(T object)
+    {
+        this.object = object;
+    }
+
+    public T getObject()
+    {
+        return object;
+    }
+
+    public void setObject(T object)
+    {
+        this.object = object;
+    }
 
 }

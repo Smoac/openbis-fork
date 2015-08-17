@@ -27,12 +27,11 @@ import java.util.Map;
 import net.lemnik.eodsql.QueryTool;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.Relation;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.AbstractCachingTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql.ObjectHolder;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material.Material;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.material.MaterialFetchOptions;
 
@@ -40,33 +39,23 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.material.Mater
  * @author pkupczyk
  */
 @Component
-@Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-public class MaterialMaterialPropertyRelation implements Relation
+public class MaterialMaterialPropertyTranslator extends AbstractCachingTranslator<Long, ObjectHolder<Map<String, Material>>, MaterialFetchOptions>
 {
 
     @Autowired
     private IMaterialSqlTranslator materialTranslator;
 
-    private TranslationContext context;
-
-    private Collection<Long> materialIds;
-
-    private MaterialFetchOptions fetchOptions;
-
-    private Map<Long, Map<String, Material>> materialProperties = new HashMap<Long, Map<String, Material>>();
-
-    public MaterialMaterialPropertyRelation(TranslationContext context, Collection<Long> materialIds, MaterialFetchOptions fetchOptions)
+    @Override
+    protected ObjectHolder<Map<String, Material>> createObject(TranslationContext context, Long objectId, MaterialFetchOptions fetchOptions)
     {
-        this.context = context;
-        this.materialIds = materialIds;
-        this.fetchOptions = fetchOptions;
+        return new ObjectHolder<Map<String, Material>>();
     }
 
     @Override
-    public void load()
+    protected Object getObjectsRelations(TranslationContext context, Collection<Long> objectIds, MaterialFetchOptions fetchOptions)
     {
         MaterialQuery query = QueryTool.getManagedQuery(MaterialQuery.class);
-        List<MaterialMaterialPropertyRecord> records = query.getMaterialProperties(new LongOpenHashSet(materialIds));
+        List<MaterialMaterialPropertyRecord> records = query.getMaterialProperties(new LongOpenHashSet(objectIds));
         Collection<Long> propertyValues = new HashSet<Long>();
 
         for (MaterialMaterialPropertyRecord record : records)
@@ -75,6 +64,7 @@ public class MaterialMaterialPropertyRelation implements Relation
         }
 
         Map<Long, Material> materials = materialTranslator.translate(context, propertyValues, fetchOptions);
+        Map<Long, Map<String, Material>> materialProperties = new HashMap<Long, Map<String, Material>>();
 
         for (MaterialMaterialPropertyRecord record : records)
         {
@@ -86,11 +76,17 @@ public class MaterialMaterialPropertyRelation implements Relation
             }
             properties.put(record.propertyCode, materials.get(record.propertyValue));
         }
+
+        return materialProperties;
     }
 
-    public Map<String, Material> getMaterialProperties(Long materialId)
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void updateObject(TranslationContext context, Long objectId, ObjectHolder<Map<String, Material>> result, Object relations,
+            MaterialFetchOptions fetchOptions)
     {
-        return materialProperties.get(materialId);
+        Map<Long, Map<String, Material>> materialProperties = (Map<Long, Map<String, Material>>) relations;
+        result.setObject(materialProperties.get(objectId));
     }
 
 }

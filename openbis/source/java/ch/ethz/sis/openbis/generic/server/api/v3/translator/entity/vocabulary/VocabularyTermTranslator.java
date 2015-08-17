@@ -20,7 +20,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.AbstractCachingTranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.Relations;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.person.IPersonTranslator;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.person.Person;
@@ -61,7 +60,7 @@ public class VocabularyTermTranslator extends AbstractCachingTranslator<Vocabula
     }
 
     @Override
-    protected void updateObject(TranslationContext context, VocabularyTermPE term, VocabularyTerm result, Relations relations,
+    protected void updateObject(TranslationContext context, VocabularyTermPE term, VocabularyTerm result, Object relations,
             VocabularyTermFetchOptions fetchOptions)
     {
         if (fetchOptions.hasRegistrator())

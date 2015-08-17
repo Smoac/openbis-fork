@@ -20,7 +20,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.AbstractCachingTranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.Relations;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.vocabulary.IVocabularyTermTranslator;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.ArchivingStatus;
@@ -113,7 +112,7 @@ public class ExternalDataTranslator extends AbstractCachingTranslator<ExternalDa
     }
 
     @Override
-    protected void updateObject(TranslationContext context, ExternalDataPE data, ExternalData result, Relations relations,
+    protected void updateObject(TranslationContext context, ExternalDataPE data, ExternalData result, Object relations,
             ExternalDataFetchOptions fetchOptions)
     {
         if (fetchOptions.hasFileFormatType())

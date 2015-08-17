@@ -19,7 +19,6 @@ package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.experiment;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.AbstractCachingTranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.Relations;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.ExperimentType;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.experiment.ExperimentTypeFetchOptions;
@@ -47,7 +46,7 @@ public class ExperimentTypeTranslator extends AbstractCachingTranslator<Experime
     }
 
     @Override
-    protected void updateObject(TranslationContext context, ExperimentTypePE input, ExperimentType output, Relations relations,
+    protected void updateObject(TranslationContext context, ExperimentTypePE input, ExperimentType output, Object relations,
             ExperimentTypeFetchOptions fetchOptions)
     {
     }

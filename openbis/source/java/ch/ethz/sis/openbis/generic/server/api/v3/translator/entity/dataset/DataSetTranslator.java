@@ -26,9 +26,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.AbstractCachingTranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.Relations;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.dataset.sql.DataSetHistoryRelation;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationResults;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.dataset.sql.DataSetHistoryTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.experiment.IExperimentTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.material.IMaterialPropertyTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.person.IPersonTranslator;
@@ -75,6 +75,9 @@ public class DataSetTranslator extends AbstractCachingTranslator<DataPE, DataSet
     @Autowired
     private IExternalDataTranslator externalDataTranslator;
 
+    @Autowired
+    private DataSetHistoryTranslator historyTranslator;
+
     @Override
     protected boolean shouldTranslate(TranslationContext context, DataPE input, DataSetFetchOptions fetchOptions)
     {
@@ -97,9 +100,9 @@ public class DataSetTranslator extends AbstractCachingTranslator<DataPE, DataSet
     }
 
     @Override
-    protected Relations getObjectsRelations(TranslationContext context, Collection<DataPE> dataSets, DataSetFetchOptions fetchOptions)
+    protected TranslationResults getObjectsRelations(TranslationContext context, Collection<DataPE> dataSets, DataSetFetchOptions fetchOptions)
     {
-        Relations relations = new Relations();
+        TranslationResults relations = new TranslationResults();
 
         if (fetchOptions.hasHistory())
         {
@@ -108,15 +111,18 @@ public class DataSetTranslator extends AbstractCachingTranslator<DataPE, DataSet
             {
                 dataSetIds.add(dataSet.getId());
             }
-            relations.add(createRelation(DataSetHistoryRelation.class, context, dataSetIds, fetchOptions.withHistory()));
+            relations.put(DataSetHistoryTranslator.class, historyTranslator.translate(context, dataSetIds, fetchOptions.withHistory()));
         }
 
         return relations;
     }
 
     @Override
-    protected void updateObject(TranslationContext context, DataPE dataPe, DataSet result, Relations relations, DataSetFetchOptions fetchOptions)
+    protected void updateObject(TranslationContext context, DataPE dataPe, DataSet result, Object objectRelations,
+            DataSetFetchOptions fetchOptions)
     {
+        TranslationResults relations = (TranslationResults) objectRelations;
+
         if (fetchOptions.hasChildren())
         {
             Map<DataPE, DataSet> children = translate(context, dataPe.getChildren(), fetchOptions.withChildren());
@@ -211,8 +217,7 @@ public class DataSetTranslator extends AbstractCachingTranslator<DataPE, DataSet
 
         if (fetchOptions.hasHistory())
         {
-            DataSetHistoryRelation relation = relations.get(DataSetHistoryRelation.class);
-            result.setHistory(relation.getRelated(dataPe.getId()));
+            result.setHistory(relations.get(DataSetHistoryTranslator.class, dataPe.getId()));
             result.getFetchOptions().withHistoryUsing(fetchOptions.withHistory());
         }
     }

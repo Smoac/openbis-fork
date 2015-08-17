@@ -24,13 +24,10 @@ import java.util.Map;
 
 import net.lemnik.eodsql.QueryTool;
 
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.history.sql.HistoryPropertyRecord;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.history.sql.HistoryRelation;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.history.sql.HistorySqlTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.history.sql.HistoryRelationshipRecord;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.history.ExperimentRelationType;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.history.RelationHistoryEntry;
@@ -44,14 +41,8 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SamplePermId;
  * @author pkupczyk
  */
 @Component
-@Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-public class ExperimentHistoryRelation extends HistoryRelation
+public class ExperimentHistoryTranslator extends HistorySqlTranslator
 {
-
-    public ExperimentHistoryRelation(TranslationContext context, Collection<Long> entityIds, HistoryEntryFetchOptions fetchOptions)
-    {
-        super(context, entityIds, fetchOptions);
-    }
 
     @Override
     protected List<HistoryPropertyRecord> loadPropertyHistory(Collection<Long> entityIds)
@@ -68,9 +59,10 @@ public class ExperimentHistoryRelation extends HistoryRelation
     }
 
     @Override
-    protected RelationHistoryEntry createRelationshipEntry(HistoryRelationshipRecord record, Map<Long, Person> authorMap)
+    protected RelationHistoryEntry createRelationshipEntry(HistoryRelationshipRecord record, Map<Long, Person> authorMap,
+            HistoryEntryFetchOptions fetchOptions)
     {
-        RelationHistoryEntry entry = super.createRelationshipEntry(record, authorMap);
+        RelationHistoryEntry entry = super.createRelationshipEntry(record, authorMap, fetchOptions);
 
         ExperimentRelationshipRecord experimentRecord = (ExperimentRelationshipRecord) record;
 

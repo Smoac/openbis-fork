@@ -25,13 +25,11 @@ import java.util.Map;
 import net.lemnik.eodsql.QueryTool;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql.ObjectRelationRecord;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql.ObjectToOneRelation;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql.ObjectToOneRelationTranslator;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material.MaterialType;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.material.MaterialTypeFetchOptions;
 
@@ -39,27 +37,22 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.material.Mater
  * @author pkupczyk
  */
 @Component
-@Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-public class MaterialTypeRelation extends ObjectToOneRelation<MaterialType, MaterialTypeFetchOptions>
+public class MaterialTypeRelationTranslator extends ObjectToOneRelationTranslator<MaterialType, MaterialTypeFetchOptions>
 {
 
     @Autowired
     private IMaterialTypeSqlTranslator typeTranslator;
 
-    public MaterialTypeRelation(TranslationContext context, Collection<Long> objectIds, MaterialTypeFetchOptions relatedFetchOptions)
-    {
-        super(context, objectIds, relatedFetchOptions);
-    }
-
     @Override
-    protected List<ObjectRelationRecord> load(LongOpenHashSet objectIds)
+    protected List<ObjectRelationRecord> loadRecords(LongOpenHashSet objectIds)
     {
         MaterialQuery query = QueryTool.getManagedQuery(MaterialQuery.class);
         return query.getTypeIds(objectIds);
     }
 
     @Override
-    protected Map<Long, MaterialType> translate(TranslationContext context, Collection<Long> relatedIds, MaterialTypeFetchOptions relatedFetchOptions)
+    protected Map<Long, MaterialType> translateRelated(TranslationContext context, Collection<Long> relatedIds,
+            MaterialTypeFetchOptions relatedFetchOptions)
     {
         return typeTranslator.translate(context, relatedIds, relatedFetchOptions);
     }

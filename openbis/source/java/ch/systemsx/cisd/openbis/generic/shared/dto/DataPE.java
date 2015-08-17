@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.SortedMap;
@@ -142,9 +143,9 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
 
     private DataStorePE dataStore;
 
-    private Set<DataSetRelationshipPE> parentRelationships = new HashSet<DataSetRelationshipPE>();
+    private Set<DataSetRelationshipPE> parentRelationships = new LinkedHashSet<DataSetRelationshipPE>();
 
-    private Set<DataSetRelationshipPE> childRelationships = new HashSet<DataSetRelationshipPE>();
+    private Set<DataSetRelationshipPE> childRelationships = new LinkedHashSet<DataSetRelationshipPE>();
 
     @OptimisticLock(excluded = true)
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "parentDataSet")

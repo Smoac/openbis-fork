@@ -19,7 +19,6 @@ package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.dataset;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.AbstractCachingTranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.Relations;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSetKind;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSetType;
@@ -49,7 +48,7 @@ public class DataSetTypeTranslator extends AbstractCachingTranslator<DataSetType
     }
 
     @Override
-    protected void updateObject(TranslationContext context, DataSetTypePE input, DataSetType output, Relations relations,
+    protected void updateObject(TranslationContext context, DataSetTypePE input, DataSetType output, Object relations,
             DataSetTypeFetchOptions fetchOptions)
     {
     }

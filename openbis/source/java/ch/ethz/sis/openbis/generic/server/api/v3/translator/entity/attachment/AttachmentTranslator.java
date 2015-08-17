@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.AbstractCachingTranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.Relations;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.person.IPersonTranslator;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.attachment.Attachment;
@@ -69,7 +68,7 @@ public class AttachmentTranslator extends AbstractCachingTranslator<AttachmentPE
     }
 
     @Override
-    protected void updateObject(TranslationContext context, AttachmentPE attachment, Attachment result, Relations relations,
+    protected void updateObject(TranslationContext context, AttachmentPE attachment, Attachment result, Object relations,
             AttachmentFetchOptions fetchOptions)
     {
         if (fetchOptions.hasRegistrator())

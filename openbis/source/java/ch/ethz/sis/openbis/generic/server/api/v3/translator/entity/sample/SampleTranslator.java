@@ -2,9 +2,6 @@ package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.sample;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -14,30 +11,26 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.AbstractCachingTranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.Relations;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.ToManyRelation;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.ToOneRelation;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationResults;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.attachment.IAttachmentTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.dataset.IDataSetTranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.experiment.IExperimentTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.material.IMaterialPropertyTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.person.IPersonTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.property.IPropertyTranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.sample.sql.SampleHistoryRelation;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.sample.sql.SampleExperimentTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.sample.sql.SampleHistoryTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.sample.sql.SampleParentTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.space.ISpaceTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.tag.ITagTranslator;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSet;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.Sample;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.tag.Tag;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.experiment.ExperimentFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sample.SampleFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SampleIdentifier;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SamplePermId;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SampleByIdentiferValidator;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
@@ -49,7 +42,10 @@ public class SampleTranslator extends AbstractCachingTranslator<SamplePE, Sample
     private ISpaceTranslator spaceTranslator;
 
     @Autowired
-    private IExperimentTranslator experimentTranslator;
+    private SampleExperimentTranslator experimentTranslator;
+
+    @Autowired
+    private SampleParentTranslator parentTranslator;
 
     @Autowired
     private IAttachmentTranslator attachmentTranslator;
@@ -72,6 +68,9 @@ public class SampleTranslator extends AbstractCachingTranslator<SamplePE, Sample
     @Autowired
     private IDataSetTranslator dataSetTranslator;
 
+    @Autowired
+    private SampleHistoryTranslator historyTranslator;
+
     @Override
     protected boolean shouldTranslate(TranslationContext context, SamplePE input, SampleFetchOptions fetchOptions)
     {
@@ -93,39 +92,43 @@ public class SampleTranslator extends AbstractCachingTranslator<SamplePE, Sample
     }
 
     @Override
-    protected Relations getObjectsRelations(TranslationContext context, final Collection<SamplePE> samples, SampleFetchOptions fetchOptions)
+    protected TranslationResults getObjectsRelations(TranslationContext context, final Collection<SamplePE> samples, SampleFetchOptions fetchOptions)
     {
-        Relations relations = new Relations();
+        TranslationResults relations = new TranslationResults();
+
+        Set<Long> sampleIds = new HashSet<Long>();
+        for (SamplePE sample : samples)
+        {
+            sampleIds.add(sample.getId());
+        }
 
         if (fetchOptions.hasExperiment())
         {
-            relations.add(new SampleExperimentRelation(context, samples, fetchOptions.withExperiment()));
+            relations.put(SampleExperimentTranslator.class, experimentTranslator.translate(context, sampleIds, fetchOptions.withExperiment()));
         }
 
         if (fetchOptions.hasParents())
         {
-            relations.add(new SampleParentsRelation(context, samples, fetchOptions.withParents()));
+            relations.put(SampleParentTranslator.class, parentTranslator.translate(context, sampleIds, fetchOptions.withParents()));
         }
 
         if (fetchOptions.hasHistory())
         {
-            Set<Long> sampleIds = new HashSet<Long>();
-            for (SamplePE sample : samples)
-            {
-                sampleIds.add(sample.getId());
-            }
-            relations.add(createRelation(SampleHistoryRelation.class, context, sampleIds, fetchOptions.withHistory()));
+            relations.put(SampleHistoryTranslator.class, historyTranslator.translate(context, sampleIds, fetchOptions.withHistory()));
         }
 
         return relations;
     }
 
     @Override
-    protected void updateObject(TranslationContext context, SamplePE samplePe, Sample result, Relations relations, SampleFetchOptions fetchOptions)
+    protected void updateObject(TranslationContext context, SamplePE samplePe, Sample result, Object objectRelations,
+            SampleFetchOptions fetchOptions)
     {
+        TranslationResults relations = (TranslationResults) objectRelations;
+
         if (fetchOptions.hasExperiment())
         {
-            result.setExperiment(relations.get(SampleExperimentRelation.class).getTranslated(samplePe));
+            result.setExperiment(relations.get(SampleExperimentTranslator.class, samplePe.getId()));
             result.getFetchOptions().withExperimentUsing(fetchOptions.withExperiment());
         }
 
@@ -149,7 +152,7 @@ public class SampleTranslator extends AbstractCachingTranslator<SamplePE, Sample
 
         if (fetchOptions.hasParents())
         {
-            result.setParents(relations.get(SampleParentsRelation.class).getTranslatedList(samplePe));
+            result.setParents((List<Sample>) relations.get(SampleParentTranslator.class, samplePe.getId()));
             result.getFetchOptions().withParentsUsing(fetchOptions.withParents());
         }
 
@@ -213,83 +216,9 @@ public class SampleTranslator extends AbstractCachingTranslator<SamplePE, Sample
 
         if (fetchOptions.hasHistory())
         {
-            SampleHistoryRelation relation = relations.get(SampleHistoryRelation.class);
-            result.setHistory(relation.getRelated(samplePe.getId()));
+            result.setHistory(relations.get(SampleHistoryTranslator.class, samplePe.getId()));
             result.getFetchOptions().withHistoryUsing(fetchOptions.withHistory());
         }
-    }
-
-    private class SampleExperimentRelation extends ToOneRelation<SamplePE, ExperimentPE, Experiment, ExperimentFetchOptions>
-    {
-
-        private Collection<SamplePE> samples;
-
-        public SampleExperimentRelation(TranslationContext context, Collection<SamplePE> samples, ExperimentFetchOptions fetchOptions)
-        {
-            super(context, fetchOptions);
-            this.samples = samples;
-        }
-
-        @Override
-        protected Map<SamplePE, ExperimentPE> getOriginalMap()
-        {
-            // TODO replace with one database call
-            Map<SamplePE, ExperimentPE> map = new HashMap<SamplePE, ExperimentPE>();
-            for (SamplePE sample : samples)
-            {
-                map.put(sample, sample.getExperiment());
-            }
-            return map;
-        }
-
-        @Override
-        protected Map<ExperimentPE, Experiment> getTranslatedMap(TranslationContext context, Collection<ExperimentPE> originalCollection,
-                ExperimentFetchOptions fetchOptions)
-        {
-            return experimentTranslator.translate(context, originalCollection, fetchOptions);
-        }
-    }
-
-    private class SampleParentsRelation extends ToManyRelation<SamplePE, SamplePE, Sample, SampleFetchOptions>
-    {
-
-        private Collection<SamplePE> samples;
-
-        public SampleParentsRelation(TranslationContext context, Collection<SamplePE> samples, SampleFetchOptions fetchOptions)
-        {
-            super(context, fetchOptions);
-            this.samples = samples;
-        }
-
-        @Override
-        protected Map<SamplePE, Collection<SamplePE>> getOriginalMap()
-        {
-            // TODO replace with one database call
-            Map<SamplePE, Collection<SamplePE>> map = new HashMap<SamplePE, Collection<SamplePE>>();
-            for (SamplePE sample : samples)
-            {
-                List<SamplePE> parents = new ArrayList<SamplePE>(sample.getParents());
-                // return parents in the same order as they were created
-                Collections.sort(parents, new Comparator<SamplePE>()
-                    {
-                        @Override
-                        public int compare(SamplePE s1, SamplePE s2)
-                        {
-                            return s1.getId().compareTo(s2.getId());
-                        }
-                    });
-                map.put(sample, parents);
-            }
-            return map;
-        }
-
-        @Override
-        protected Map<SamplePE, Sample> getTranslatedMap(TranslationContext context, Collection<SamplePE> originalCollection,
-                SampleFetchOptions fetchOptions)
-        {
-            return translate(context, originalCollection, fetchOptions);
-        }
-
     }
 
 }
