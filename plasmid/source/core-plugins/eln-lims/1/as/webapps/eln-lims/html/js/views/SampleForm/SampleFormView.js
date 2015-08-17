@@ -390,76 +390,79 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		var propertyGroupPropertiesOnForm = 0;
 		for(var j = 0; j < propertyTypeGroup.propertyTypes.length; j++) {
 			var propertyType = propertyTypeGroup.propertyTypes[j];
+			
 			if(propertyType.code === "XMLCOMMENTS") {
 				var $commentsContainer = $("<div>");
 				$fieldset.append($commentsContainer);
-				this._sampleFormController._addCommentsWidget($commentsContainer);
-				continue;
-			}
-			var $controlGroup =  null;
-				
-			var value = this._sampleFormModel.sample.properties[propertyType.code];
-			var isSystemProperty = false;
-			if(!value && propertyType.code.charAt(0) === '$') {
-				value = this._sampleFormModel.sample.properties[propertyType.code.substr(1)];
-				isSystemProperty = true;
-			}
-			
-			if(this._sampleFormModel.mode === FormMode.VIEW) { //Show values without input boxes if the form is in view mode
-				if(Util.getEmptyIfNull(value) !== "") { //Don't show empty fields, whole empty sections will show the title
-					if(propertyType.dataType === "CONTROLLEDVOCABULARY") {
-						value = FormUtil.getVocabularyLabelForTermCode(propertyType, value);
-					}
-					$controlGroup = FormUtil.getFieldForLabelWithText(propertyType.label, value, propertyType.code);
-				} else {
+				var isAvailable = this._sampleFormController._addCommentsWidget($commentsContainer);
+				if(!isAvailable) {
 					continue;
 				}
 			} else {
-				var $component = FormUtil.getFieldForPropertyType(propertyType);
-				//Update values if is into edit mode
-				if(this._sampleFormModel.mode === FormMode.EDIT) {
-					if(propertyType.dataType === "BOOLEAN") {
-						$($component.children()[0]).prop('checked', value === "true");
-					} else if(propertyType.dataType === "TIMESTAMP") {
-						$($($component.children()[0]).children()[0]).val(value);
+				var $controlGroup =  null;
+				var value = this._sampleFormModel.sample.properties[propertyType.code];
+				var isSystemProperty = false;
+				if(!value && propertyType.code.charAt(0) === '$') {
+					value = this._sampleFormModel.sample.properties[propertyType.code.substr(1)];
+					isSystemProperty = true;
+				}
+				
+				if(this._sampleFormModel.mode === FormMode.VIEW) { //Show values without input boxes if the form is in view mode
+					if(Util.getEmptyIfNull(value) !== "") { //Don't show empty fields, whole empty sections will show the title
+						if(propertyType.dataType === "CONTROLLEDVOCABULARY") {
+							value = FormUtil.getVocabularyLabelForTermCode(propertyType, value);
+						}
+						$controlGroup = FormUtil.getFieldForLabelWithText(propertyType.label, value, propertyType.code);
 					} else {
-						$component.val(value);
+						continue;
 					}
 				} else {
-					$component.val(""); //HACK-FIX: Not all browsers show the placeholder in Bootstrap 3 if you don't set an empty value.
-				}
-					
-				var changeEvent = function(propertyType, isSystemProperty) {
-					return function() {
-						var propertyTypeCode = null;
-						if(isSystemProperty) {
-							propertyTypeCode = propertyType.code.substr(1);
-						} else {
-							propertyTypeCode = propertyType.code;
-						}
-						_this._sampleFormModel.isFormDirty = true;
-						var field = $(this);
+					var $component = FormUtil.getFieldForPropertyType(propertyType);
+					//Update values if is into edit mode
+					if(this._sampleFormModel.mode === FormMode.EDIT) {
 						if(propertyType.dataType === "BOOLEAN") {
-							_this._sampleFormModel.sample.properties[propertyTypeCode] = field.children()[0].checked;
-						} else if (propertyType.dataType === "TIMESTAMP") {
-							var timeValue = $($(field.children()[0]).children()[0]).val();
-							_this._sampleFormModel.sample.properties[propertyTypeCode] = timeValue;
+							$($component.children()[0]).prop('checked', value === "true");
+						} else if(propertyType.dataType === "TIMESTAMP") {
+							$($($component.children()[0]).children()[0]).val(value);
 						} else {
-							_this._sampleFormModel.sample.properties[propertyTypeCode] = Util.getEmptyIfNull(field.val());
+							$component.val(value);
+						}
+					} else {
+						$component.val(""); //HACK-FIX: Not all browsers show the placeholder in Bootstrap 3 if you don't set an empty value.
+					}
+						
+					var changeEvent = function(propertyType, isSystemProperty) {
+						return function() {
+							var propertyTypeCode = null;
+							if(isSystemProperty) {
+								propertyTypeCode = propertyType.code.substr(1);
+							} else {
+								propertyTypeCode = propertyType.code;
+							}
+							_this._sampleFormModel.isFormDirty = true;
+							var field = $(this);
+							if(propertyType.dataType === "BOOLEAN") {
+								_this._sampleFormModel.sample.properties[propertyTypeCode] = field.children()[0].checked;
+							} else if (propertyType.dataType === "TIMESTAMP") {
+								var timeValue = $($(field.children()[0]).children()[0]).val();
+								_this._sampleFormModel.sample.properties[propertyTypeCode] = timeValue;
+							} else {
+								_this._sampleFormModel.sample.properties[propertyTypeCode] = Util.getEmptyIfNull(field.val());
+							}
 						}
 					}
+					
+					//Avoid modifications in properties managed by scripts
+					if(propertyType.managed || propertyType.dinamic) {
+						$component.prop('disabled', true);
+					}
+					
+					$component.change(changeEvent(propertyType, isSystemProperty));
+					$controlGroup = FormUtil.getFieldForComponentWithLabel($component, propertyType.label);
 				}
-				
-				//Avoid modifications in properties managed by scripts
-				if(propertyType.managed || propertyType.dinamic) {
-					$component.prop('disabled', true);
-				}
-				
-				$component.change(changeEvent(propertyType, isSystemProperty));
-				$controlGroup = FormUtil.getFieldForComponentWithLabel($component, propertyType.label);
+				$fieldset.append($controlGroup);
 			}
 			
-			$fieldset.append($controlGroup);
 			if(propertyType.code !== "ANNOTATIONS_STATE") {
 				propertyGroupPropertiesOnForm++;
 			}	
