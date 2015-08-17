@@ -377,7 +377,7 @@ function MainController(profile) {
 		// Permanent URLs
 		//
 		var menuUniqueId = this.sideMenu.getCurrentNodeId();
-		var url = window.location.href.split("?")[0] + "?menuUniqueId=" +  menuUniqueId+ "&viewName=" + newViewChange + "&viewData=" + arg;
+		var url = Util.getURLFor(menuUniqueId, newViewChange, arg);
 		history.pushState(null, "", url); //History Push State
 	}
 	

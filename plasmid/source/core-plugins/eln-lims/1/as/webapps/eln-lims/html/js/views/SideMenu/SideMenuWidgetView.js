@@ -293,8 +293,15 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
                 var itemDisplayName = menuItemDisplayName;
             }
             //
-
-            var $menuItemTitle = $("<span>").append(itemDisplayName);
+            var href = Util.getURLFor(menuItem.uniqueId, menuItem.newViewIfSelected, menuItem.newViewIfSelectedData);
+            
+            var $menuItemLink = null;
+            if (menuItem.isSelectable) {
+            	$menuItemLink = $("<a>", {"href": href, "class" : "browser-compatible-javascript-link"}).append(itemDisplayName);
+            } else {
+            	$menuItemLink = itemDisplayName;
+            }
+            var $menuItemTitle = $("<span>").append($menuItemLink);
 
             if (itemShowTooltip) {
                 $menuItem.attr("title", menuItemDisplayName);

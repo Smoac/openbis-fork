@@ -184,6 +184,17 @@
 	var mainController = new MainController(profile);
 	
 	//
+	// Global links handler
+	//
+	$(document).click(function(e) {
+		var elementClasses = $(e.target).attr('class');
+		if(elementClasses.indexOf("browser-compatible-javascript-link") !== -1) {
+			e.preventDefault();
+			e.stopPropagation();
+		}
+	});
+	
+	//
 	// Application Startup
 	//
 	$(document).ready(function() {

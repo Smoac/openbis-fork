@@ -570,3 +570,10 @@ table.downloads {
  }
  
  
+ /*
+  * Browser Compatible Links
+  */
+ .browser-compatible-javascript-link {
+ 	text-decoration: none;
+ 	color: #000000;
+ }

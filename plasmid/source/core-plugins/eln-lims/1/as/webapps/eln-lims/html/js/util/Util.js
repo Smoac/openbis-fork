@@ -407,6 +407,13 @@ var Util = new function() {
 		var column = parseInt(parts[1]);
 		return [row, column];
 	}
+	
+	//
+	// URL Utils
+	//
+	this.getURLFor = function(menuId, view, argsForView) {
+		return window.location.href.split("?")[0] + "?menuUniqueId=" +  menuId+ "&viewName=" + view + "&viewData=" + argsForView;
+	}
 }
 
 
