@@ -51,7 +51,13 @@ function SampleFormController(mainController, mode, sample) {
 	
 	this._addCommentsWidget = function($container) {
 		var commentsController = new CommentsController(this._sampleFormModel.sample, this._sampleFormModel.mode, this._sampleFormModel);
-		commentsController.init($container);
+		if(this._sampleFormModel.mode !== FormMode.VIEW || 
+			this._sampleFormModel.mode === FormMode.VIEW && !commentsController.isEmpty()) {
+			commentsController.init($container);
+			return true;
+		} else {
+			return false;
+		}
 	}
 	
 	this.getLastStorageController = function() {

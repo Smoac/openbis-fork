@@ -244,81 +244,6 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 														this._sampleFormModel.mode === FormMode.CREATE);
 		
 		//
-		// LINKS
-		//
-//		var requiredLinks = [];
-//		if(sampleTypeDefinitionsExtension && sampleTypeDefinitionsExtension["SAMPLE_LINKS_HINT"]) {
-//			requiredLinks = sampleTypeDefinitionsExtension["SAMPLE_LINKS_HINT"];
-//		}
-//		
-//		var sampleLinksWidgetId = "sampleLinksWidgetId";
-//		var $sampleLinksWidget = $("<div>", { "id" : sampleLinksWidgetId });
-//		$formColumn.append($sampleLinksWidget);
-//		
-//		var currentOrphanLinksIdentifiers = [];
-//		var currentOrphanLinksPermIds = [];
-//		
-//		//Read the XML to build the orphan links list
-//		var annotationsFromSample = FormUtil.getAnnotationsFromSample(this._sampleFormModel.sample);
-//		//Delete parents and children
-//		if(this._sampleFormModel.sample.parents) {
-//			for(var idxF = 0; idxF < this._sampleFormModel.sample.parents.length; idxF++) {
-//				var sample = this._sampleFormModel.sample.parents[idxF];
-//				delete annotationsFromSample[sample.permId];
-//			}
-//		}
-//		if(this._sampleFormModel.sample.children) {
-//			for(var idxC = 0; idxC < this._sampleFormModel.sample.children.length; idxC++) {
-//				var sample = this._sampleFormModel.sample.children[idxC];
-//				delete annotationsFromSample[sample.permId];
-//			}
-//		}
-//		//Make samples from Orphans left
-//		if(annotationsFromSample) {
-//			for(var orphanSamplePermId in annotationsFromSample) {
-//				currentOrphanLinksIdentifiers.push(annotationsFromSample[orphanSamplePermId].identifier);
-//				currentOrphanLinksPermIds.push(orphanSamplePermId);
-//			}
-//		}
-//		
-//		var isPresentLinkOnData = function(orphanSamplePermId, data) {
-//			for(var dIdx = 0; dIdx <data.length; dIdx++)  {
-//				if(data[dIdx].permId === orphanSamplePermId) {
-//					return true;
-//				}
-//			}
-//			return false;
-//		}
-//		
-//		var buildFakeSampleIfNotFoundLink = function(orphanSamplePermId, annotationsFromSample) {
-//			var orphanSample = {};
-//			orphanSample.notFound = true;
-//			orphanSample.permId = orphanSamplePermId;
-//			orphanSample.code = annotationsFromSample[orphanSamplePermId].identifier.split('/')[2];
-//			orphanSample.identifier = annotationsFromSample[orphanSamplePermId].identifier;
-//			orphanSample.sampleTypeCode = annotationsFromSample[orphanSamplePermId].sampleType;
-//			return orphanSample;
-//		}
-//		
-//		var showLinksWidgetAction = function(data) {
-//			for(var oIdx = 0; oIdx < currentOrphanLinksPermIds.length; oIdx++)  {
-//				if(!isPresentLinkOnData(currentOrphanLinksPermIds[oIdx], data)) {
-//					data.push(buildFakeSampleIfNotFoundLink(currentOrphanLinksPermIds[oIdx], annotationsFromSample));
-//				}
-//			}
-//			
-//			_this._sampleFormModel.sampleLinks = new SampleLinksWidget(sampleLinksWidgetId,
-//					profile,
-//					mainController.serverFacade,
-//					"Links",
-//					requiredLinks,
-//					isDisabled,
-//					data,
-//					_this._sampleFormModel.mode === FormMode.CREATE);
-//			_this._sampleFormModel.sampleLinks.repaint();
-//		}
-		
-		//
 		// GENERATE CHILDREN
 		//
 		if((this._sampleFormModel.mode !== FormMode.VIEW) && this._sampleFormModel.isELNSubExperiment) {
@@ -468,7 +393,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 			if(propertyType.code === "XMLCOMMENTS") {
 				var $commentsContainer = $("<div>");
 				$fieldset.append($commentsContainer);
-				this._sampleFormController._addCommentsWidget($commentsContainer);
+				var isAvailable = this._sampleFormController._addCommentsWidget($commentsContainer);
 				continue;
 			}
 			var $controlGroup =  null;
@@ -535,7 +460,9 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 			}
 			
 			$fieldset.append($controlGroup);
-			propertyGroupPropertiesOnForm++;
+			if(propertyType.code !== "ANNOTATIONS_STATE") {
+				propertyGroupPropertiesOnForm++;
+			}	
 		}
 			
 		if(propertyGroupPropertiesOnForm === 0) {

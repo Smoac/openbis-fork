@@ -23,11 +23,9 @@ function CommentsView(commentsController, commentsModel) {
 	this.repaint = function($container) {
 		$container.empty();
 		$container.append(this.commentsContainer);
-		this.commentsContainer.append($("<legend>").text("Comments Log"));
+		this.commentsContainer.append($("<legend>", { "style" : "border-bottom-style:none; font-weight: bold;"} ).text("Comments Log"));
 		$container.append(this.commentsAddButton);
-		var commentsXML = this._commentsModel.getComments();
-		var xmlDoc = new DOMParser().parseFromString(commentsXML, 'text/xml');
-		var comments = xmlDoc.getElementsByTagName("commentEntry");
+		var comments = this._commentsController.getComments();
 		for(var i = 0; i < comments.length; i++) {
 			this.addCommentWidgetFromXML(comments[i]);
 		}

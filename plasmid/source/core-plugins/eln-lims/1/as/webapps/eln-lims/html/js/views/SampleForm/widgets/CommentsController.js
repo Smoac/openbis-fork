@@ -22,6 +22,18 @@ function CommentsController(entity, mode, form) {
 		this._commentsView.repaint($container);
 	}
 	
+	this.isEmpty = function() {
+		var comments = this.getComments();
+		return comments === null || comments.length === 0;
+	}
+	
+	this.getComments = function() {
+		var commentsXML = this._commentsModel.getComments();
+		var xmlDoc = new DOMParser().parseFromString(commentsXML, 'text/xml');
+		var comments = xmlDoc.getElementsByTagName("commentEntry");
+		return comments;
+	}
+	
 	this.deleteComment = function(commentTimestampToDelete) {
 		var commentsXML = this._commentsModel.getComments();
 		var xmlDoc = new DOMParser().parseFromString(commentsXML, 'text/xml');
