@@ -293,7 +293,13 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
                 var itemDisplayName = menuItemDisplayName;
             }
             //
-            var href = Util.getURLFor(menuItem.uniqueId, menuItem.newViewIfSelected, menuItem.newViewIfSelectedData);
+            var hrefMenu = null;
+            if(menuItem.newMenuIfSelected && menuItem.newMenuIfSelected.children.length !== 0) {
+            	hrefMenu = menuItem.uniqueId;
+            } else {
+            	hrefMenu = menuItem.parent.uniqueId;
+            }
+            var href = Util.getURLFor(hrefMenu, menuItem.newViewIfSelected, menuItem.newViewIfSelectedData);
             
             var $menuItemLink = null;
             if (menuItem.isSelectable) {
@@ -301,6 +307,8 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
             } else {
             	$menuItemLink = itemDisplayName;
             }
+            //
+            
             var $menuItemTitle = $("<span>").append($menuItemLink);
 
             if (itemShowTooltip) {
