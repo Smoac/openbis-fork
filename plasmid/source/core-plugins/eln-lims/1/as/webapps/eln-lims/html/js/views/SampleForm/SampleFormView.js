@@ -410,8 +410,14 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		//
 		
 		//Repaint parents and children after updating the property state to show the annotations
-		this._sampleFormModel.sampleLinksParents.repaint();
-		this._sampleFormModel.sampleLinksChildren.repaint();
+		if(this._sampleFormModel.mode !== FormMode.VIEW ||
+				this._sampleFormModel.mode === FormMode.VIEW && currentParentsLinks && currentParentsLinks.length !== 0) {
+			this._sampleFormModel.sampleLinksParents.repaint();
+		}
+		if(this._sampleFormModel.mode !== FormMode.VIEW ||
+				this._sampleFormModel.mode === FormMode.VIEW && currentChildrenLinks && currentChildrenLinks.length !== 0) {
+			this._sampleFormModel.sampleLinksChildren.repaint();
+		}
 		
 		if(profile.softLinks) {
 			if(currentOrphanLinksIdentifiers.length !== 0) {
