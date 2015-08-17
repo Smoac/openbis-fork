@@ -57,13 +57,25 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 
 public class create_metadata
 {
+    private static final String SEQUENCER = "SEQUENCER";
+
+    private static final String SEQUENCER_MODEL = "SEQUENCER_MODEL";
+
+    private static final String ILLUMINA_FLOW_LANE = "ILLUMINA_FLOW_LANE";
+
+    private static final String LANE_NUMBER = "LANE_NUMBER";
+
     private static final String TSV_ENDING = ".tsv";
 
     private static final String FLOW_CELL_PROPERTIES_NAME = "FLOW_CELL_PROPERTIES";
 
     private static final String EXPERIMENT_NAME = "EXPERIMENT";
 
+    private static final String SAMPLE_CODE = "SAMPLE_CODE";
+
     private static final String SAMPLE_TYPE_ILLUMINA_SEQUENCING = "ILLUMINA_SEQUENCING";
+
+    private static final String SAMPLE_TYPE = "SAMPLE_TYPE";
 
     private static final String INDEX1_NOINDEX_VALUE = "NOINDEX";
 
@@ -83,6 +95,16 @@ public class create_metadata
 
     private static final char[] HEX_CHARACTERS =
     { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', };
+
+    private static final Map<String, String> SEQUENCER_NAMING;
+    static
+    {
+        SEQUENCER_NAMING = new HashMap<String, String>();
+        SEQUENCER_NAMING.put("D00535", "Illumina HiSeq 2500");
+        SEQUENCER_NAMING.put("J00121", "Illumina HiSeq 3000");
+        SEQUENCER_NAMING.put("M01761", "Illumina MiSeq");
+        SEQUENCER_NAMING.put("NS500318", "Illumina NextSeq 500");
+    }
 
     public static void main(String[] args)
     {
@@ -131,6 +153,11 @@ public class create_metadata
         for (String sampleCode : sampleCodeList)
         {
             List<Sample> sampleList = searchSample(infoService, sessionToken, sampleCode, fetchOptions);
+            if (sampleList.size() < 1)
+            {
+                System.out.println(sampleCode + " Not found!");
+            }
+
             SortedMap<String, SortedMap<String, String>> sampleMap = getProperties(sampleList);
             SortedMap<String, SortedMap<String, String>> flowcellMap = null;
             String flowcellCode = "";
@@ -142,9 +169,14 @@ public class create_metadata
                 HashMap<String, Integer> dbResult = DbAccess.doQuery(connection, permId);
                 for (Sample child : children)
                 {
-                    if (child.getSampleTypeCode().equals("ILLUMINA_FLOW_LANE"))
+                    if (child.getSampleTypeCode().equals(ILLUMINA_FLOW_LANE))
                     {
                         flowcellCode = child.getCode().split(":")[0];
+                        String flowlaneCode = child.getCode().split(":")[1];
+                        SortedMap<String, String> sampleProps = sampleMap.get(sampleCode);
+                        sampleProps.put(LANE_NUMBER, flowlaneCode);
+                        sampleMap.put(sampleCode, sampleProps);
+
                         List<Sample> flowcellList = searchSample(infoService, sessionToken, flowcellCode, flowcellFetchOptions);
                         flowcellMap = getProperties(flowcellList);
                     }
@@ -169,11 +201,18 @@ public class create_metadata
                 {
                     sortedProperties.put(key, cleanString(sampleProperties.get(key).toString()));
                 }
+                if (key.equals(SEQUENCER))
+                {
+                    sortedProperties.put(SEQUENCER_MODEL, SEQUENCER_NAMING.get(sampleProperties.get(key)));
+                }
             }
             if (sample.getSampleTypeCode().equals(SAMPLE_TYPE_ILLUMINA_SEQUENCING))
             {
                 sortedProperties.put(EXPERIMENT_NAME, sample.getExperimentIdentifierOrNull());
             }
+            sortedProperties.put(SAMPLE_CODE, sample.getCode());
+            sortedProperties.put(SAMPLE_TYPE, sample.getSampleTypeCode());
+
             sampleMap.put(sample.getCode(), sortedProperties);
         }
         return sampleMap;
