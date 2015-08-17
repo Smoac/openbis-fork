@@ -35,7 +35,13 @@ function DataSetFormController(mainController, mode, sample, dataSet) {
 	
 	this._addCommentsWidget = function($container) {
 		var commentsController = new CommentsController(this._dataSetFormModel.dataSet, this._dataSetFormModel.mode, this._dataSetFormModel);
-		commentsController.init($container);
+		if(this._dataSetFormModel.mode !== FormMode.VIEW || 
+			this._dataSetFormModel.mode === FormMode.VIEW && !commentsController.isEmpty()) {
+			commentsController.init($container);
+			return true;
+		} else {
+			return false;
+		}
 	}
 	
 	this._getDataSetType = function(typeCode) {

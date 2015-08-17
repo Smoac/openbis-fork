@@ -302,87 +302,90 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 				if(propertyType.code === "XMLCOMMENTS") {
 					var $commentsContainer = $("<div>");
 					$fieldset.append($commentsContainer);
-					this._dataSetFormController._addCommentsWidget($commentsContainer);
-					continue;
-				}
-				var value = "";
-				var isSystemProperty = false;
-				if(this._dataSetFormModel.mode !== FormMode.CREATE) {
-					value = this._dataSetFormModel.dataSet.properties[propertyType.code];
-					if(!value && propertyType.code.charAt(0) === '$') {
-						value = this._dataSetFormModel.dataSet.properties[propertyType.code.substr(1)];
-						isSystemProperty = true;
-					}
-				}
-				
-				if(this._dataSetFormModel.mode === FormMode.VIEW) {
-					if(Util.getEmptyIfNull(value) !== "") { //Don't show empty fields, whole empty sections will show the title
-						if(propertyType.dataType === "CONTROLLEDVOCABULARY") {
-							value = FormUtil.getVocabularyLabelForTermCode(propertyType, value);
-						}
-						var $controlGroup = FormUtil.getFieldForLabelWithText(propertyType.label, value, propertyType.code);
-						$fieldset.append($controlGroup);
-					} else {
+					var isAvailable = this._dataSetFormController._addCommentsWidget($commentsContainer);
+					if(!isAvailable) {
 						continue;
 					}
 				} else {
-					var $controlGroup = $('<div>', {class : 'form-group'});
-					var requiredStar = (propertyType.mandatory)?"&nbsp;(*)":"";				
-					var $controlLabel = $('<label>', {'class' : "control-label " + FormUtil.labelColumnClass}).html(propertyType.label + requiredStar + ":");
-					var $controls = $('<div>', {class : FormUtil.controlColumnClass});
-					
-					$controlGroup.append($controlLabel);
-					$controlGroup.append($controls);
-					
-					var $component = FormUtil.getFieldForPropertyType(propertyType);
-					
-					//Update model
-					var changeEvent = function(propertyType, isSystemProperty) {
-						return function() {
-							var propertyTypeCode = null;
-							if(isSystemProperty) {
-								propertyTypeCode = propertyType.code.substr(1);
-							} else {
-								propertyTypeCode = propertyType.code;
-							}
-							_this._dataSetFormModel.isFormDirty = true;
-							var field = $(this);
-							if(propertyType.dataType === "BOOLEAN") {
-								_this._dataSetFormModel.dataSet.properties[propertyTypeCode] = field.children()[0].checked;
-							} else if (propertyType.dataType === "TIMESTAMP") {
-								var timeValue = $($(field.children()[0]).children()[0]).val();
-								_this._dataSetFormModel.dataSet.properties[propertyTypeCode] = timeValue;
-							} else {
-								_this._dataSetFormModel.dataSet.properties[propertyTypeCode] = Util.getEmptyIfNull(field.val());
-							}
+					var value = "";
+					var isSystemProperty = false;
+					if(this._dataSetFormModel.mode !== FormMode.CREATE) {
+						value = this._dataSetFormModel.dataSet.properties[propertyType.code];
+						if(!value && propertyType.code.charAt(0) === '$') {
+							value = this._dataSetFormModel.dataSet.properties[propertyType.code.substr(1)];
+							isSystemProperty = true;
 						}
 					}
 					
-					//Avoid modifications in properties managed by scripts
-					if(propertyType.managed || propertyType.dinamic) {
-						$component.prop('disabled', true);
-					}
-					
-					$component.change(changeEvent(propertyType, isSystemProperty));
-					
-					//Update values if is into edit mode
-					if(this._dataSetFormModel.mode === FormMode.EDIT) {
-						if(propertyType.dataType === "BOOLEAN") {
-							$($component.children()[0]).prop('checked', value === "true");
-						} else if(propertyType.dataType === "TIMESTAMP") {
-							$($($component.children()[0]).children()[0]).val(value);
+					if(this._dataSetFormModel.mode === FormMode.VIEW) {
+						if(Util.getEmptyIfNull(value) !== "") { //Don't show empty fields, whole empty sections will show the title
+							if(propertyType.dataType === "CONTROLLEDVOCABULARY") {
+								value = FormUtil.getVocabularyLabelForTermCode(propertyType, value);
+							}
+							var $controlGroup = FormUtil.getFieldForLabelWithText(propertyType.label, value, propertyType.code);
+							$fieldset.append($controlGroup);
 						} else {
-							$component.val(value);
+							continue;
 						}
 					} else {
-						$component.val(""); //HACK-FIX: Not all browsers show the placeholder in Bootstrap 3 if you don't set an empty value.
+						var $controlGroup = $('<div>', {class : 'form-group'});
+						var requiredStar = (propertyType.mandatory)?"&nbsp;(*)":"";				
+						var $controlLabel = $('<label>', {'class' : "control-label " + FormUtil.labelColumnClass}).html(propertyType.label + requiredStar + ":");
+						var $controls = $('<div>', {class : FormUtil.controlColumnClass});
+						
+						$controlGroup.append($controlLabel);
+						$controlGroup.append($controls);
+						
+						var $component = FormUtil.getFieldForPropertyType(propertyType);
+						
+						//Update model
+						var changeEvent = function(propertyType, isSystemProperty) {
+							return function() {
+								var propertyTypeCode = null;
+								if(isSystemProperty) {
+									propertyTypeCode = propertyType.code.substr(1);
+								} else {
+									propertyTypeCode = propertyType.code;
+								}
+								_this._dataSetFormModel.isFormDirty = true;
+								var field = $(this);
+								if(propertyType.dataType === "BOOLEAN") {
+									_this._dataSetFormModel.dataSet.properties[propertyTypeCode] = field.children()[0].checked;
+								} else if (propertyType.dataType === "TIMESTAMP") {
+									var timeValue = $($(field.children()[0]).children()[0]).val();
+									_this._dataSetFormModel.dataSet.properties[propertyTypeCode] = timeValue;
+								} else {
+									_this._dataSetFormModel.dataSet.properties[propertyTypeCode] = Util.getEmptyIfNull(field.val());
+								}
+							}
+						}
+						
+						//Avoid modifications in properties managed by scripts
+						if(propertyType.managed || propertyType.dinamic) {
+							$component.prop('disabled', true);
+						}
+						
+						$component.change(changeEvent(propertyType, isSystemProperty));
+						
+						//Update values if is into edit mode
+						if(this._dataSetFormModel.mode === FormMode.EDIT) {
+							if(propertyType.dataType === "BOOLEAN") {
+								$($component.children()[0]).prop('checked', value === "true");
+							} else if(propertyType.dataType === "TIMESTAMP") {
+								$($($component.children()[0]).children()[0]).val(value);
+							} else {
+								$component.val(value);
+							}
+						} else {
+							$component.val(""); //HACK-FIX: Not all browsers show the placeholder in Bootstrap 3 if you don't set an empty value.
+						}
+						
+						$controls.append($component);
+						
+						$fieldset.append($controlGroup);
 					}
-					
-					$controls.append($component);
-					
-					$fieldset.append($controlGroup);
-					propertyGroupPropertiesOnForm++;
 				}
+				propertyGroupPropertiesOnForm++;
 			}
 			
 			if(propertyGroupPropertiesOnForm === 0) {
