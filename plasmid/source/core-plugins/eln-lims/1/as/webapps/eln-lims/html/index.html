@@ -188,7 +188,7 @@
 	//
 	$(document).click(function(e) {
 		var elementClasses = $(e.target).attr('class');
-		if(elementClasses.indexOf("browser-compatible-javascript-link") !== -1) {
+		if(elementClasses && elementClasses.indexOf("browser-compatible-javascript-link") !== -1) {
 			e.preventDefault();
 			e.stopPropagation();
 		}
