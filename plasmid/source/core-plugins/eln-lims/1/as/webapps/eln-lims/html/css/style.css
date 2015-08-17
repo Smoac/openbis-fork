@@ -576,3 +576,11 @@ table.downloads {
  .browser-compatible-javascript-link {
  	text-decoration: none;
  }
+ 
+ .browser-compatible-javascript-link-menu {
+ 	color: #000000;
+ }
+ 
+ .browser-compatible-javascript-link-menu:hover {
+ 	color: #FFFFFF;
+ }

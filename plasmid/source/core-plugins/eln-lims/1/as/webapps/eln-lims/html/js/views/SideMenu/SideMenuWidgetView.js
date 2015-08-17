@@ -303,7 +303,7 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
             
             var $menuItemLink = null;
             if (menuItem.isSelectable) {
-            	$menuItemLink = $("<a>", {"href": href, "class" : "browser-compatible-javascript-link", "style" : "color: #000000"}).append(itemDisplayName);
+            	$menuItemLink = $("<a>", {"href": href, "class" : "browser-compatible-javascript-link browser-compatible-javascript-link-menu" }).append(itemDisplayName);
             } else {
             	$menuItemLink = itemDisplayName;
             }
