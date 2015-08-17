@@ -11,7 +11,21 @@ var SampleDataGridUtil = new function() {
 			label : 'Identifier',
 			property : 'identifier',
 			isExportable: true,
-			sortable : true
+			sortable : true,
+			render : function(data) {
+				var href = Util.getURLFor(mainController.sideMenu.getCurrentNodeId(), "showViewSamplePageFromPermId", data.permId);
+				var link = $("<a>", { "href" : href, "class" : "browser-compatible-javascript-link" }).append(data.identifier);
+				return link;
+			},
+			filter : function(data, filter) {
+				return data.identifier.indexOf(filter) !== -1;
+			},
+			sort : function(data1, data2, asc) {
+				var value1 = data1.identifier;
+				var value2 = data2.identifier;
+				var sortDirection = (asc)? 1 : -1;
+				return sortDirection * naturalSort(value1, value2);
+			}
 		});
 		
 		if($.inArray("NAME", propertyCodes) !== -1) {
