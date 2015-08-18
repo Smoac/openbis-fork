@@ -56,6 +56,11 @@ def update_sample_with_parents(tr, sample_dict):
                 parents_code_list.append(yeast_parent_id)
                 print "PARENTS: ", parents_code_list
                 sample_for_update.setParentSampleIdentifiers(parents_code_list)
+            elif re.search ("Kwy ", name):
+                yeast_parent_id = "/MATERIALS/"+name.replace("Kwy ","KWY").strip()
+                parents_code_list.append(yeast_parent_id)
+                print "PARENTS: ", parents_code_list
+                sample_for_update.setParentSampleIdentifiers(parents_code_list)
             elif re.search ("KWY ", name): 
                 yeast_parent_id = "/MATERIALS/"+name.replace("KWY ","KWY").strip()
                 parents_code_list.append(yeast_parent_id)
