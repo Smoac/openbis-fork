@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-function GridController() {
-	this._gridModel = new GridModel();
+function GridController(isSelectMultiple) {
+	this._gridModel = new GridModel(isSelectMultiple);
 	this._gridView = new GridView(this._gridModel);
 	
 	this.init = function($container) {
