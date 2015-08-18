@@ -15,6 +15,7 @@ public class TranslationContext extends Context
 
     public TranslationCache getTranslationCache()
     {
+
         return translationCache;
     }
 

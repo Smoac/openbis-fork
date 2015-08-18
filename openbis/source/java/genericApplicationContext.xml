@@ -1,413 +1,436 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <beans xmlns="http://www.springframework.org/schema/beans"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xmlns:tx="http://www.springframework.org/schema/tx"
-    xmlns:plugins="http://www.springframework.org/schema/context"
-    xmlns:aop="http://www.springframework.org/schema/aop"
-    xsi:schemaLocation="http://www.springframework.org/schema/beans
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:plugins="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:cache="http://www.springframework.org/schema/cache"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
 			http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
 			http://www.springframework.org/schema/tx
 			http://www.springframework.org/schema/tx/spring-tx-2.5.xsd
             http://www.springframework.org/schema/context
             http://www.springframework.org/schema/context/spring-context-2.5.xsd
             http://www.springframework.org/schema/aop 
-            http://www.springframework.org/schema/aop/spring-aop.xsd"
-            >
+            http://www.springframework.org/schema/aop/spring-aop.xsd
+            http://www.springframework.org/schema/cache
+            http://www.springframework.org/schema/cache/spring-cache.xsd">
 
-    <import resource="hibernateContext.xml" />
-    <import resource="dbConfigurationContext.xml" />
+	<import resource="hibernateContext.xml" />
+	<import resource="dbConfigurationContext.xml" />
 
-    <bean id="data-source" factory-bean="db-configuration-context" factory-method="getDataSource" />
+	<bean id="data-source" factory-bean="db-configuration-context"
+		factory-method="getDataSource" />
 
-    <bean id="exception-translator" class="ch.systemsx.cisd.openbis.generic.server.business.bo.NextExceptionFallbackExceptionTranslator" />
+	<bean id="exception-translator"
+		class="ch.systemsx.cisd.openbis.generic.server.business.bo.NextExceptionFallbackExceptionTranslator" />
 
-	<bean id="memory-monitor" class="ch.systemsx.cisd.common.monitoring.JMXMemoryMonitorSpringBean" />
+	<bean id="memory-monitor"
+		class="ch.systemsx.cisd.common.monitoring.JMXMemoryMonitorSpringBean" />
 
-  <bean id="hot-deployment-plugin-container" class="ch.systemsx.cisd.openbis.generic.server.HotDeploymentController" >
-    <constructor-arg ref="common-server" />
-    <constructor-arg ref="entity-validation-factory" />
-    <constructor-arg ref="dynamic-property-calculator-factory" />
-    <constructor-arg ref="managed-property-evaluator-factory" />
-  </bean>
-  
-  <bean id="entity-validation-factory" class="ch.systemsx.cisd.openbis.generic.server.dataaccess.entity_validation.EntityValidatorFactory" >
-    <constructor-arg value="${entity-validation-plugins-directory}" />
-    <constructor-arg ref="jython-evaluator-pool" />
-  </bean>
-  
-  <bean id="dynamic-property-calculator-factory"
-        class="ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.DynamicPropertyCalculatorFactory">
-        <constructor-arg value="${dynamic-property-plugins-directory}" />
-        <constructor-arg ref="jython-evaluator-pool" />
-  </bean>
-  
-  <bean id="managed-property-evaluator-factory"
-        class="ch.systemsx.cisd.openbis.generic.shared.managed_property.ManagedPropertyEvaluatorFactory">
-        <constructor-arg value="${managed-property-plugins-directory}" />
-        <constructor-arg ref="jython-evaluator-pool" />
-  </bean>
-  
-  <bean id="properties-batch-manager" class="ch.systemsx.cisd.openbis.generic.server.business.PropertiesBatchManager" >
-        <constructor-arg ref="managed-property-evaluator-factory" />
-  </bean>
+	<bean id="hot-deployment-plugin-container"
+		class="ch.systemsx.cisd.openbis.generic.server.HotDeploymentController">
+		<constructor-arg ref="common-server" />
+		<constructor-arg ref="entity-validation-factory" />
+		<constructor-arg ref="dynamic-property-calculator-factory" />
+		<constructor-arg ref="managed-property-evaluator-factory" />
+	</bean>
 
-    <tx:annotation-driven transaction-manager="transaction-manager"/>
-    <aop:aspectj-autoproxy/>
+	<bean id="entity-validation-factory"
+		class="ch.systemsx.cisd.openbis.generic.server.dataaccess.entity_validation.EntityValidatorFactory">
+		<constructor-arg value="${entity-validation-plugins-directory}" />
+		<constructor-arg ref="jython-evaluator-pool" />
+	</bean>
 
-    <bean id="transaction-manager"
-        class="ch.systemsx.cisd.openbis.generic.server.dataaccess.db.OpenBISHibernateTransactionManager">
-        <constructor-arg ref="dao-factory" />
-        <constructor-arg ref="entity-validation-factory" />
-        <constructor-arg ref="dynamic-property-calculator-factory" />
-        <constructor-arg ref="managed-property-evaluator-factory" />
-        <constructor-arg ref="session-manager" />
-        <property name="sessionFactory" ref="hibernate-session-factory" />
-        <property name="dynamicPropertiesInterceptor">
-            <ref bean="dynamic-properties-interceptor" />
-        </property>
-    </bean>
+	<bean id="dynamic-property-calculator-factory"
+		class="ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.DynamicPropertyCalculatorFactory">
+		<constructor-arg value="${dynamic-property-plugins-directory}" />
+		<constructor-arg ref="jython-evaluator-pool" />
+	</bean>
 
-    <bean id="dynamic-properties-interceptor"
-          class="ch.systemsx.cisd.openbis.generic.server.dataaccess.db.DynamicPropertiesInterceptor">
-          <property name="dynamicPropertyScheduler" ref="dynamic-property-scheduler" />
-    </bean>
-    
-    <bean id="dynamic-property-evaluator"
-        class="ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.DynamicPropertyEvaluationRunnable">
-        <constructor-arg ref="hibernate-session-factory" />
-        <constructor-arg ref="dao-factory" />
-        <constructor-arg ref="full-text-index-updater" />
-        <constructor-arg ref="dynamic-property-scheduler" />
-        <constructor-arg ref="dynamic-property-calculator-factory" />
-        <constructor-arg ref="managed-property-evaluator-factory" />
-    </bean>
-    
-    <bean id="relationship-service"
-        class="ch.systemsx.cisd.openbis.generic.server.business.RelationshipService">
-        <property name="daoFactory" ref="dao-factory" />
-    </bean>
+	<bean id="managed-property-evaluator-factory"
+		class="ch.systemsx.cisd.openbis.generic.shared.managed_property.ManagedPropertyEvaluatorFactory">
+		<constructor-arg value="${managed-property-plugins-directory}" />
+		<constructor-arg ref="jython-evaluator-pool" />
+	</bean>
 
-    <bean id="sql-script-provider" class="ch.systemsx.cisd.dbmigration.DBMigrationEngine"
-        factory-method="createOrMigrateDatabaseAndGetScriptProvider">
-        <constructor-arg ref="db-configuration-context" />
-        <constructor-arg>
-            <bean
-                class="ch.systemsx.cisd.openbis.generic.server.dataaccess.db.DatabaseVersionHolder"
-                factory-method="getDatabaseVersion" />
-        </constructor-arg>
-    </bean>
+	<bean id="properties-batch-manager"
+		class="ch.systemsx.cisd.openbis.generic.server.business.PropertiesBatchManager">
+		<constructor-arg ref="managed-property-evaluator-factory" />
+	</bean>
 
-    <bean id="dao-factory"
-        class="ch.systemsx.cisd.openbis.generic.server.dataaccess.db.DAOFactory">
-        <constructor-arg ref="db-configuration-context" />
-        <constructor-arg ref="hibernate-session-factory" />
-        <constructor-arg ref="hibernate-search-context" />
-        <constructor-arg ref="full-text-index-updater" />
-        <constructor-arg ref="dynamic-property-scheduler" />
-    </bean>
-    
-    <bean id="dss-factory" class="ch.systemsx.cisd.openbis.generic.server.business.DataStoreServiceFactory"/>
+	<tx:annotation-driven transaction-manager="transaction-manager" />
+	<aop:aspectj-autoproxy />
 
-    <bean id="authentication-service"
-        class="ch.systemsx.cisd.openbis.generic.server.AuthenticationServiceHolder">
-        <constructor-arg ref="${authentication-service}" />
-    </bean>
+	<bean id="transaction-manager"
+		class="ch.systemsx.cisd.openbis.generic.server.dataaccess.db.OpenBISHibernateTransactionManager">
+		<constructor-arg ref="dao-factory" />
+		<constructor-arg ref="entity-validation-factory" />
+		<constructor-arg ref="dynamic-property-calculator-factory" />
+		<constructor-arg ref="managed-property-evaluator-factory" />
+		<constructor-arg ref="session-manager" />
+		<property name="sessionFactory" ref="hibernate-session-factory" />
+		<property name="dynamicPropertiesInterceptor">
+			<ref bean="dynamic-properties-interceptor" />
+		</property>
+	</bean>
 
-    <bean id="session-manager" class="ch.systemsx.cisd.openbis.generic.server.OpenBisSessionManager">
-        <constructor-arg>
-            <bean class="ch.systemsx.cisd.openbis.generic.server.SessionFactory">
-                <constructor-arg ref="dao-factory" />
-                <constructor-arg ref="dss-factory" />
-            </bean>
-        </constructor-arg>
-        <constructor-arg>
-            <bean class="ch.systemsx.cisd.openbis.generic.shared.LogMessagePrefixGenerator" />
-        </constructor-arg>
-        <constructor-arg ref="authentication-service" />
-        <constructor-arg>
-            <bean class="ch.systemsx.cisd.common.servlet.RequestContextProviderAdapter">
-                <constructor-arg ref="request-context-provider" />
-            </bean>
-        </constructor-arg>
-        <!-- The time after which an inactive session is expired by the service (in minutes). -->
-        <constructor-arg value="${session-timeout}" />
-        <constructor-arg value="${session-timeout-no-login}" />
-        <!-- Enable login with email addresses -->
-        <constructor-arg value="true" />
-        <constructor-arg ref="dao-factory"/>
-    </bean>
-    
-    <bean id="display-settings-provider" class="ch.systemsx.cisd.openbis.generic.server.DisplaySettingsProvider" />
-    
-    <bean id="remote-host-validator" class="ch.systemsx.cisd.openbis.generic.server.WhiteListBasedRemoteHostValidator">
-        <constructor-arg value="${accepted-remote-hosts-for-identity-change}"/>
-    </bean>
+	<bean id="dynamic-properties-interceptor"
+		class="ch.systemsx.cisd.openbis.generic.server.dataaccess.db.DynamicPropertiesInterceptor">
+		<property name="dynamicPropertyScheduler" ref="dynamic-property-scheduler" />
+	</bean>
 
-    <bean id="common-business-object-factory"
-        class="ch.systemsx.cisd.openbis.generic.server.CommonBusinessObjectFactory">
-        <constructor-arg ref="dao-factory" />
-        <constructor-arg ref="dss-factory" />
-        <constructor-arg ref="relationship-service" />
-        <constructor-arg ref="entity-operation-checker" />
-        <constructor-arg ref="service-conversation-client-manager" />
-        <constructor-arg ref="managed-property-evaluator-factory" />
-        <constructor-arg ref="multiplexer" />
-        <constructor-arg ref="jython-evaluator-pool" />
-    </bean>
+	<bean id="dynamic-property-evaluator"
+		class="ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.DynamicPropertyEvaluationRunnable">
+		<constructor-arg ref="hibernate-session-factory" />
+		<constructor-arg ref="dao-factory" />
+		<constructor-arg ref="full-text-index-updater" />
+		<constructor-arg ref="dynamic-property-scheduler" />
+		<constructor-arg ref="dynamic-property-calculator-factory" />
+		<constructor-arg ref="managed-property-evaluator-factory" />
+	</bean>
 
-    <bean id="last-modification-state"
-          class="ch.systemsx.cisd.openbis.generic.shared.basic.dto.LastModificationState" />
-          
-    <bean id="data-store-service-registrator" 
-          class="ch.systemsx.cisd.openbis.generic.server.DataStoreServiceRegistrator">
-        <constructor-arg ref="dao-factory" />
-    </bean>
+	<bean id="relationship-service"
+		class="ch.systemsx.cisd.openbis.generic.server.business.RelationshipService">
+		<property name="daoFactory" ref="dao-factory" />
+	</bean>
 
-    <bean id="dss-based-data-source-provider" 
-          class="ch.systemsx.cisd.openbis.generic.server.dataaccess.DataStoreServerBasedDataSourceProvider">
-        <constructor-arg ref="dao-factory" />
-        <constructor-arg value="etc/dss-datasource-mapping" />
-    </bean>
-    
-    <!-- 
-        // Common
-    -->
-    
-    <bean id="common-server" class="ch.systemsx.cisd.openbis.generic.server.CommonServer">
-        <constructor-arg ref="authentication-service" />
-        <constructor-arg ref="session-manager" />
-        <constructor-arg ref="dao-factory" />
-        <constructor-arg ref="common-business-object-factory" />
-        <constructor-arg ref="data-store-service-registrator" />
-        <constructor-arg ref="last-modification-state" />
-        <constructor-arg ref="entity-validation-factory" />
-        <constructor-arg ref="dynamic-property-calculator-factory" />
-        <constructor-arg ref="managed-property-evaluator-factory" />
-        <property name="userForAnonymousLogin" value="${user-for-anonymous-login}"/>
-        <property name="CISDHelpdeskEmail" value="cisd.helpdesk@bsse.ethz.ch" />
-        <property name="defaultPutDataStoreServerCode" value="${dss-rpc.put.dss-code}" />
-    </bean>
+	<bean id="sql-script-provider" class="ch.systemsx.cisd.dbmigration.DBMigrationEngine"
+		factory-method="createOrMigrateDatabaseAndGetScriptProvider">
+		<constructor-arg ref="db-configuration-context" />
+		<constructor-arg>
+			<bean
+				class="ch.systemsx.cisd.openbis.generic.server.dataaccess.db.DatabaseVersionHolder"
+				factory-method="getDatabaseVersion" />
+		</constructor-arg>
+	</bean>
 
-		<bean id="web-client-configuration-provider"
-        class="ch.systemsx.cisd.openbis.generic.shared.WebClientConfigurationProvider">
-        <constructor-arg value="${web-client-configuration-file}" />
-    </bean>
+	<bean id="dao-factory"
+		class="ch.systemsx.cisd.openbis.generic.server.dataaccess.db.DAOFactory">
+		<constructor-arg ref="db-configuration-context" />
+		<constructor-arg ref="hibernate-session-factory" />
+		<constructor-arg ref="hibernate-search-context" />
+		<constructor-arg ref="full-text-index-updater" />
+		<constructor-arg ref="dynamic-property-scheduler" />
+	</bean>
 
-    <bean id="common-service" class="ch.systemsx.cisd.openbis.generic.client.web.server.CommonClientService">
-        <constructor-arg ref="common-server" />
-        <constructor-arg ref="request-context-provider" />
-        <property name="cifexURL" value="${cifex-url}"/>
-        <property name="cifexRecipient" value="${cifex-recipient}"/>
-        <property name="onlineHelpGenericRootURL" value="${onlinehelp.generic.root-url}"/>
-        <property name="onlineHelpGenericPageTemplate" value="${onlinehelp.generic.page-template}"/>
-        <property name="onlineHelpSpecificRootURL" value="${onlinehelp.specific.root-url}"/>
-        <property name="onlineHelpSpecificPageTemplate" value="${onlinehelp.specific.page-template}"/>
-        <property name="maxResults" value="${hibernate.search.maxResults}" />
-    </bean>
-    
-    <bean id="registration-queue" class="ch.systemsx.cisd.openbis.generic.client.web.server.queue.ConsumerQueue">
-        <constructor-arg ref="mail-client-parameters" />
-    </bean>
-    
-    <!-- 
-        // HTML Escaping
-     -->
-    <bean id="html-escaping-advisor" class="ch.systemsx.cisd.openbis.generic.client.web.server.StringHtmlEscapingPointcutAdvisor" />
-    
-    <!--
-        // Exception translation
-     -->
-    <bean id="client-service-exception-translating-advisor" class="ch.systemsx.cisd.openbis.generic.client.web.server.ClientServiceExceptionTranslatingAdvisor" />
-    <bean id="server-exception-translating-advisor" class="ch.systemsx.cisd.openbis.generic.server.ServerExceptionTranslatingAdvisor" />
-    
-    <bean id="rpc-name-server" class="ch.systemsx.cisd.openbis.common.api.server.RpcServiceNameServer" />
-    
-    <!-- 
-        // Tracking
-    -->
-    
-    <bean id="tracking-server" class="ch.systemsx.cisd.openbis.generic.server.TrackingServer">
-        <constructor-arg ref="session-manager" />
-        <constructor-arg ref="dao-factory" />
-        <constructor-arg ref="common-business-object-factory" />
-    </bean>
+	<bean id="dss-factory"
+		class="ch.systemsx.cisd.openbis.generic.server.business.DataStoreServiceFactory" />
 
-    <!-- 
-        // Service conversation client manager 
-    -->
-    <bean id="service-conversation-client-manager" class="ch.systemsx.cisd.openbis.generic.server.ServiceConversationClientManager">
-    </bean>
-    
-    <!-- 
-        // Service conversation server manager 
-    -->
-    <bean id="service-conversation-server-manager" class="ch.systemsx.cisd.openbis.generic.server.ServiceConversationServerManager">
-        <property name="etlService" ref="etl-service" />
-    </bean>
-    
-    <!-- 
-        // ETL Service 
-    -->
-    <bean id="etl-service" class="ch.systemsx.cisd.openbis.generic.server.ServiceForDataStoreServer">
-        <constructor-arg ref="authentication-service" />
-        <constructor-arg ref="session-manager" />
-        <constructor-arg ref="dao-factory" />
-        <constructor-arg ref="common-business-object-factory" />
-        <constructor-arg ref="dss-factory" />
-        <constructor-arg ref="trusted-origin-domain-provider" />
-        <constructor-arg ref="etl-entity-operation-checker" />
-        <constructor-arg ref="data-store-service-registrator" />
-        <constructor-arg ref="dss-based-data-source-provider" />
-        <constructor-arg ref="managed-property-evaluator-factory" />
-        <property name="conversationClient" ref="service-conversation-client-manager" />
-        <property name="conversationServer" ref="service-conversation-server-manager" />
-        <property name="timeout" value="${server-timeout-in-minutes}" />
-    </bean>
-    
-    <bean id="etl-entity-operation-checker" class="ch.systemsx.cisd.openbis.generic.server.ETLEntityOperationChecker"/>
-    
-    <bean id="entity-operation-checker" class="ch.systemsx.cisd.openbis.generic.server.business.EntityOperationChecker"/>
+	<bean id="authentication-service"
+		class="ch.systemsx.cisd.openbis.generic.server.AuthenticationServiceHolder">
+		<constructor-arg ref="${authentication-service}" />
+	</bean>
 
-    <bean id="jython-evaluator-pool" 
-          class="ch.systemsx.cisd.openbis.generic.server.JythonEvaluatorPool">
-        <constructor-arg ref="dao-factory" />
-        <constructor-arg value="${jython-evaluator-pool-size}" />
-    </bean>
-    
-    <!-- 
-        // Transaction
-    -->
+	<bean id="session-manager"
+		class="ch.systemsx.cisd.openbis.generic.server.OpenBisSessionManager">
+		<constructor-arg>
+			<bean class="ch.systemsx.cisd.openbis.generic.server.SessionFactory">
+				<constructor-arg ref="dao-factory" />
+				<constructor-arg ref="dss-factory" />
+			</bean>
+		</constructor-arg>
+		<constructor-arg>
+			<bean
+				class="ch.systemsx.cisd.openbis.generic.shared.LogMessagePrefixGenerator" />
+		</constructor-arg>
+		<constructor-arg ref="authentication-service" />
+		<constructor-arg>
+			<bean class="ch.systemsx.cisd.common.servlet.RequestContextProviderAdapter">
+				<constructor-arg ref="request-context-provider" />
+			</bean>
+		</constructor-arg>
+		<!-- The time after which an inactive session is expired by the service 
+			(in minutes). -->
+		<constructor-arg value="${session-timeout}" />
+		<constructor-arg value="${session-timeout-no-login}" />
+		<!-- Enable login with email addresses -->
+		<constructor-arg value="true" />
+		<constructor-arg ref="dao-factory" />
+	</bean>
 
-    <!-- bean class="org.springframework.transaction.interceptor.TransactionAttributeSourceAdvisor">
-        <property name="transactionInterceptor" ref="transaction-interceptor" />
-    </bean -->
+	<bean id="display-settings-provider"
+		class="ch.systemsx.cisd.openbis.generic.server.DisplaySettingsProvider" />
 
-    <bean id="transaction-interceptor"
-        class="org.springframework.transaction.interceptor.TransactionInterceptor">
-        <property name="transactionManager" ref="transaction-manager" />
-        <property name="transactionAttributeSource">
-            <bean
-                class="org.springframework.transaction.annotation.AnnotationTransactionAttributeSource" />
-        </property>
-    </bean>
+	<bean id="remote-host-validator"
+		class="ch.systemsx.cisd.openbis.generic.server.WhiteListBasedRemoteHostValidator">
+		<constructor-arg value="${accepted-remote-hosts-for-identity-change}" />
+	</bean>
 
-    <!-- 
-        // Database Last Modification Monitor
-        // This advice will auto-magically used as an interceptor for server methods (e.g. ICommonServer)
-    -->
-    
-    <bean class="ch.systemsx.cisd.openbis.generic.server.DatabaseLastModificationAdvisor">
-        <constructor-arg ref="last-modification-state" />
-    </bean>
+	<bean id="common-business-object-factory"
+		class="ch.systemsx.cisd.openbis.generic.server.CommonBusinessObjectFactory">
+		<constructor-arg ref="dao-factory" />
+		<constructor-arg ref="dss-factory" />
+		<constructor-arg ref="relationship-service" />
+		<constructor-arg ref="entity-operation-checker" />
+		<constructor-arg ref="service-conversation-client-manager" />
+		<constructor-arg ref="managed-property-evaluator-factory" />
+		<constructor-arg ref="multiplexer" />
+		<constructor-arg ref="jython-evaluator-pool" />
+	</bean>
 
-    <!-- 
-        // Authorization
-    -->
+	<bean id="last-modification-state"
+		class="ch.systemsx.cisd.openbis.generic.shared.basic.dto.LastModificationState" />
 
-    <bean class="ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationAdvisor">
-        <constructor-arg ref="${authorization-component-factory}" />
-    </bean>
+	<bean id="data-store-service-registrator"
+		class="ch.systemsx.cisd.openbis.generic.server.DataStoreServiceRegistrator">
+		<constructor-arg ref="dao-factory" />
+	</bean>
 
-    <bean id="no-authorization"
-        class="ch.systemsx.cisd.openbis.generic.server.authorization.NoAuthorization" />
+	<bean id="dss-based-data-source-provider"
+		class="ch.systemsx.cisd.openbis.generic.server.dataaccess.DataStoreServerBasedDataSourceProvider">
+		<constructor-arg ref="dao-factory" />
+		<constructor-arg value="etc/dss-datasource-mapping" />
+	</bean>
 
-    <bean id="active-authorization"
-        class="ch.systemsx.cisd.openbis.generic.server.authorization.ActiveAuthorization">
-        <constructor-arg ref="dao-factory" />
-    </bean>
+	<!-- // Common -->
 
-    <!-- 
-        // Logging
-    -->
+	<bean id="common-server" class="ch.systemsx.cisd.openbis.generic.server.CommonServer">
+		<constructor-arg ref="authentication-service" />
+		<constructor-arg ref="session-manager" />
+		<constructor-arg ref="dao-factory" />
+		<constructor-arg ref="common-business-object-factory" />
+		<constructor-arg ref="data-store-service-registrator" />
+		<constructor-arg ref="last-modification-state" />
+		<constructor-arg ref="entity-validation-factory" />
+		<constructor-arg ref="dynamic-property-calculator-factory" />
+		<constructor-arg ref="managed-property-evaluator-factory" />
+		<property name="userForAnonymousLogin" value="${user-for-anonymous-login}" />
+		<property name="CISDHelpdeskEmail" value="cisd.helpdesk@bsse.ethz.ch" />
+		<property name="defaultPutDataStoreServerCode" value="${dss-rpc.put.dss-code}" />
+	</bean>
 
-    <bean class="ch.systemsx.cisd.openbis.common.spring.LogAdvisor" />
-    <bean class="ch.systemsx.cisd.openbis.common.spring.MarkerLogApplicationListener"/>
-    
-    <!--
-    	// Optimistic Lock Failure Retrying
-    -->
-    <bean class="ch.systemsx.cisd.openbis.generic.server.OptimisticLockingRetryAdvisor" />
+	<bean id="web-client-configuration-provider"
+		class="ch.systemsx.cisd.openbis.generic.shared.WebClientConfigurationProvider">
+		<constructor-arg value="${web-client-configuration-file}" />
+	</bean>
 
-    <!--
-      // Logging of long running threads
-    -->  
-    <bean class="ch.systemsx.cisd.openbis.generic.server.LongRunningThreadAdvisor" />
+	<bean id="common-service"
+		class="ch.systemsx.cisd.openbis.generic.client.web.server.CommonClientService">
+		<constructor-arg ref="common-server" />
+		<constructor-arg ref="request-context-provider" />
+		<property name="cifexURL" value="${cifex-url}" />
+		<property name="cifexRecipient" value="${cifex-recipient}" />
+		<property name="onlineHelpGenericRootURL" value="${onlinehelp.generic.root-url}" />
+		<property name="onlineHelpGenericPageTemplate" value="${onlinehelp.generic.page-template}" />
+		<property name="onlineHelpSpecificRootURL" value="${onlinehelp.specific.root-url}" />
+		<property name="onlineHelpSpecificPageTemplate" value="${onlinehelp.specific.page-template}" />
+		<property name="maxResults" value="${hibernate.search.maxResults}" />
+	</bean>
 
-        
-    <!--
-        //Mail Client Parameters
-    -->
-    <bean id="mail-client-parameters" class="ch.systemsx.cisd.common.mail.MailClientParameters">
-        <property name="from" value="${mail.from}"/>
-        <property name="smtpHost" value="${mail.smtp.host}"/>
-        <property name="smtpPort" value="${mail.smtp.port}"/>
-        <property name="smtpUser" value="${mail.smtp.user}"/>
-        <property name="smtpPassword" value="${mail.smtp.password}"/>
-        <property name="testAddress" value="${mail.smtp.address}"/>
-    </bean>
-    
-    <!--  
-       Maintenance Tasks
-     -->
-    
-    <bean id="maintenance-task-starter" 
-        class="ch.systemsx.cisd.openbis.generic.server.MaintenanceTaskStarter">
-    </bean>
+	<bean id="registration-queue"
+		class="ch.systemsx.cisd.openbis.generic.client.web.server.queue.ConsumerQueue">
+		<constructor-arg ref="mail-client-parameters" />
+	</bean>
 
-    
-    <!--  
-       Core plugins registration
-     -->
-    
-    <bean id="core-plugin-registrator" class="ch.systemsx.cisd.openbis.generic.server.coreplugin.CorePluginRegistrator">
-        <property name="commonServer" ref="common-server"/>
-        <property name="pluginsFolderName" value="${core-plugins-folder}"/>
-        <property name="enabledTechnologies" value="${enabled-modules}"/>
-        <property name="disabledMasterDataInitialization" value="${disabled-master-data-initialization}"/>
-    </bean>
-    
-    <!--
-       Material-specific configuration 
-     -->
-   <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
-     <property name="targetClass"><value>ch.systemsx.cisd.openbis.generic.shared.util.MaterialConfigurationProvider</value></property>
-     <property name="targetMethod"><value>initialize</value></property>
-     <property name="arguments">
-       <list>
-         <value>${material-relax-code-constraints}</value>
-       </list>
-     </property>     
-   </bean>
-   
-    <bean id="trusted-origin-domain-provider" class="ch.systemsx.cisd.openbis.generic.server.TrustedCrossOriginDomainsProvider">
-        <constructor-arg value="${trusted-cross-origin-domains}"/>
-    </bean>
+	<!-- // HTML Escaping -->
+	<bean id="html-escaping-advisor"
+		class="ch.systemsx.cisd.openbis.generic.client.web.server.StringHtmlEscapingPointcutAdvisor" />
 
-    <bean id="objectMapper-v1" class="ch.systemsx.cisd.openbis.generic.shared.api.v1.json.GenericObjectMapper" />
-    <bean id="objectMapper-v3" class="ch.systemsx.cisd.openbis.generic.shared.api.v3.json.GenericObjectMapper" />
+	<!-- // Exception translation -->
+	<bean id="client-service-exception-translating-advisor"
+		class="ch.systemsx.cisd.openbis.generic.client.web.server.ClientServiceExceptionTranslatingAdvisor" />
+	<bean id="server-exception-translating-advisor"
+		class="ch.systemsx.cisd.openbis.generic.server.ServerExceptionTranslatingAdvisor" />
 
-    <!--
-        // Plugins
-    -->
+	<bean id="rpc-name-server"
+		class="ch.systemsx.cisd.openbis.common.api.server.RpcServiceNameServer" />
 
-    <bean class="org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor"/>
-	  <bean class="ch.systemsx.cisd.openbis.common.spring.AnnotationBeanPostProcessorIgnoringMissingBeans"/>
+	<!-- // Tracking -->
+
+	<bean id="tracking-server" class="ch.systemsx.cisd.openbis.generic.server.TrackingServer">
+		<constructor-arg ref="session-manager" />
+		<constructor-arg ref="dao-factory" />
+		<constructor-arg ref="common-business-object-factory" />
+	</bean>
+
+	<!-- // Service conversation client manager -->
+	<bean id="service-conversation-client-manager"
+		class="ch.systemsx.cisd.openbis.generic.server.ServiceConversationClientManager">
+	</bean>
+
+	<!-- // Service conversation server manager -->
+	<bean id="service-conversation-server-manager"
+		class="ch.systemsx.cisd.openbis.generic.server.ServiceConversationServerManager">
+		<property name="etlService" ref="etl-service" />
+	</bean>
+
+	<!-- // ETL Service -->
+	<bean id="etl-service"
+		class="ch.systemsx.cisd.openbis.generic.server.ServiceForDataStoreServer">
+		<constructor-arg ref="authentication-service" />
+		<constructor-arg ref="session-manager" />
+		<constructor-arg ref="dao-factory" />
+		<constructor-arg ref="common-business-object-factory" />
+		<constructor-arg ref="dss-factory" />
+		<constructor-arg ref="trusted-origin-domain-provider" />
+		<constructor-arg ref="etl-entity-operation-checker" />
+		<constructor-arg ref="data-store-service-registrator" />
+		<constructor-arg ref="dss-based-data-source-provider" />
+		<constructor-arg ref="managed-property-evaluator-factory" />
+		<property name="conversationClient" ref="service-conversation-client-manager" />
+		<property name="conversationServer" ref="service-conversation-server-manager" />
+		<property name="timeout" value="${server-timeout-in-minutes}" />
+	</bean>
+
+	<bean id="etl-entity-operation-checker"
+		class="ch.systemsx.cisd.openbis.generic.server.ETLEntityOperationChecker" />
+
+	<bean id="entity-operation-checker"
+		class="ch.systemsx.cisd.openbis.generic.server.business.EntityOperationChecker" />
+
+	<bean id="jython-evaluator-pool"
+		class="ch.systemsx.cisd.openbis.generic.server.JythonEvaluatorPool">
+		<constructor-arg ref="dao-factory" />
+		<constructor-arg value="${jython-evaluator-pool-size}" />
+	</bean>
+
+	<!-- // Transaction -->
+
+	<!-- bean class="org.springframework.transaction.interceptor.TransactionAttributeSourceAdvisor"> 
+		<property name="transactionInterceptor" ref="transaction-interceptor" /> 
+		</bean -->
+
+	<bean id="transaction-interceptor"
+		class="org.springframework.transaction.interceptor.TransactionInterceptor">
+		<property name="transactionManager" ref="transaction-manager" />
+		<property name="transactionAttributeSource">
+			<bean
+				class="org.springframework.transaction.annotation.AnnotationTransactionAttributeSource" />
+		</property>
+	</bean>
+
+	<!-- // Database Last Modification Monitor // This advice will auto-magically 
+		used as an interceptor for server methods (e.g. ICommonServer) -->
+
+	<bean
+		class="ch.systemsx.cisd.openbis.generic.server.DatabaseLastModificationAdvisor">
+		<constructor-arg ref="last-modification-state" />
+	</bean>
+
+	<!-- // Authorization -->
+
+	<bean
+		class="ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationAdvisor">
+		<constructor-arg ref="${authorization-component-factory}" />
+	</bean>
+
+	<bean id="no-authorization"
+		class="ch.systemsx.cisd.openbis.generic.server.authorization.NoAuthorization" />
+
+	<bean id="active-authorization"
+		class="ch.systemsx.cisd.openbis.generic.server.authorization.ActiveAuthorization">
+		<constructor-arg ref="dao-factory" />
+	</bean>
+
+	<!-- // Logging -->
+
+	<bean class="ch.systemsx.cisd.openbis.common.spring.LogAdvisor" />
+	<bean
+		class="ch.systemsx.cisd.openbis.common.spring.MarkerLogApplicationListener" />
+
+	<!-- // Optimistic Lock Failure Retrying -->
+	<bean
+		class="ch.systemsx.cisd.openbis.generic.server.OptimisticLockingRetryAdvisor" />
+
+	<!-- // Logging of long running threads -->
+	<bean
+		class="ch.systemsx.cisd.openbis.generic.server.LongRunningThreadAdvisor" />
+
+
+	<!-- //Mail Client Parameters -->
+	<bean id="mail-client-parameters" class="ch.systemsx.cisd.common.mail.MailClientParameters">
+		<property name="from" value="${mail.from}" />
+		<property name="smtpHost" value="${mail.smtp.host}" />
+		<property name="smtpPort" value="${mail.smtp.port}" />
+		<property name="smtpUser" value="${mail.smtp.user}" />
+		<property name="smtpPassword" value="${mail.smtp.password}" />
+		<property name="testAddress" value="${mail.smtp.address}" />
+	</bean>
+
+	<!-- Maintenance Tasks -->
+
+	<bean id="maintenance-task-starter"
+		class="ch.systemsx.cisd.openbis.generic.server.MaintenanceTaskStarter">
+	</bean>
+
+
+	<!-- Core plugins registration -->
+
+	<bean id="core-plugin-registrator"
+		class="ch.systemsx.cisd.openbis.generic.server.coreplugin.CorePluginRegistrator">
+		<property name="commonServer" ref="common-server" />
+		<property name="pluginsFolderName" value="${core-plugins-folder}" />
+		<property name="enabledTechnologies" value="${enabled-modules}" />
+		<property name="disabledMasterDataInitialization" value="${disabled-master-data-initialization}" />
+	</bean>
+
+	<!-- Material-specific configuration -->
+	<bean
+		class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+		<property name="targetClass">
+			<value>ch.systemsx.cisd.openbis.generic.shared.util.MaterialConfigurationProvider
+			</value>
+		</property>
+		<property name="targetMethod">
+			<value>initialize</value>
+		</property>
+		<property name="arguments">
+			<list>
+				<value>${material-relax-code-constraints}</value>
+			</list>
+		</property>
+	</bean>
+
+	<bean id="trusted-origin-domain-provider"
+		class="ch.systemsx.cisd.openbis.generic.server.TrustedCrossOriginDomainsProvider">
+		<constructor-arg value="${trusted-cross-origin-domains}" />
+	</bean>
+
+	<bean id="objectMapper-v1"
+		class="ch.systemsx.cisd.openbis.generic.shared.api.v1.json.GenericObjectMapper" />
+	<bean id="objectMapper-v3"
+		class="ch.systemsx.cisd.openbis.generic.shared.api.v3.json.GenericObjectMapper" />
+
+	<!-- // Plugins -->
+
+	<bean
+		class="org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor" />
+	<bean
+		class="ch.systemsx.cisd.openbis.common.spring.AnnotationBeanPostProcessorIgnoringMissingBeans" />
+
+	<plugins:component-scan base-package="ch.systemsx.cisd.openbis"
+		annotation-config="false">
+		<plugins:exclude-filter type="annotation"
+			expression="org.springframework.stereotype.Controller" />
+	</plugins:component-scan>
+
+	<plugins:component-scan base-package="ch.ethz.sis.openbis"
+		annotation-config="false">
+		<plugins:exclude-filter type="regex"
+			expression="ch\.ethz\.sis\.openbis\.generic\.dss\..*" />
+		<plugins:exclude-filter type="annotation"
+			expression="org.springframework.stereotype.Controller" />
+	</plugins:component-scan>
+
+
+	<!-- Mutiplexer -->
+
+	<bean id="multiplexer"
+		class="ch.systemsx.cisd.common.multiplexer.ThreadPoolMultiplexer">
+		<constructor-arg value="mutiplexer-thread-pool" />
+	</bean>
+
+
+	<!-- Caching -->
 	
-    <plugins:component-scan base-package="ch.systemsx.cisd.openbis" annotation-config="false">
-        <plugins:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller" />
-    </plugins:component-scan>
-    
-    <plugins:component-scan base-package="ch.ethz.sis.openbis" annotation-config="false">
-        <plugins:exclude-filter type="regex" expression="ch\.ethz\.sis\.openbis\.generic\.dss\..*" />
-        <plugins:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller" />
-    </plugins:component-scan>
-    
-    
-    <!-- Mutiplexer -->
-    
-    <bean id="multiplexer" class="ch.systemsx.cisd.common.multiplexer.ThreadPoolMultiplexer">
-        <constructor-arg value="mutiplexer-thread-pool" />
-    </bean>
-    
+	<cache:annotation-driven />
+	
+	<bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheCacheManager">
+		<property name="cacheManager" ref="ehcache" />
+	</bean>
+	<bean id="ehcache"
+		class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
+		<property name="configLocation" value="classpath:ehcache.xml" />
+	</bean>
 </beans>

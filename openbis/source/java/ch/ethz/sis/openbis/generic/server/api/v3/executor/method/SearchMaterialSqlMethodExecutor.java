@@ -26,6 +26,7 @@ import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.material.ISearchMaterialIdExecutor;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.ITranslationContextProvider;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.material.sql.IMaterialSqlTranslator;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material.Material;
@@ -44,6 +45,9 @@ public class SearchMaterialSqlMethodExecutor extends AbstractMethodExecutor impl
 
     @Autowired
     private IMaterialSqlTranslator translator;
+
+    @Autowired
+    private ITranslationContextProvider contextProvider;
 
     @Override
     public List<Material> search(final String sessionToken, final MaterialSearchCriterion criterion, final MaterialFetchOptions fetchOptions)
@@ -86,20 +90,15 @@ public class SearchMaterialSqlMethodExecutor extends AbstractMethodExecutor impl
             return Collections.emptyList();
         }
 
-        TranslationContext translationContext = null;
+        Integer cacheMode = fetchOptions.getCacheMode();
+        cacheMode = cacheMode == null ? 0 : cacheMode;
 
-        if (fetchOptions.getCacheMode() != null)
+        if (cacheMode == 999) // TODO
         {
-            translationContext = (TranslationContext) context.getSession().getAttributes().get(getClass().getName() + "_context");
-            if (translationContext == null)
-            {
-                translationContext = new TranslationContext(context.getSession());
-                context.getSession().getAttributes().put(getClass().getName() + "_context", translationContext);
-            }
-        } else
-        {
-            translationContext = new TranslationContext(context.getSession());
+            contextProvider.discardTranslationContext(context.getSession());
         }
+
+        TranslationContext translationContext = contextProvider.getTranslationContext(context.getSession(), cacheMode > 0);
 
         Map<Long, Material> peToObjectMap = translator.translate(translationContext, peList, fetchOptions);
         return new ArrayList<Material>(peToObjectMap.values());
