@@ -29,7 +29,7 @@ function StorageController(configOverride) {
 	var _this = this;
 	//Dependent widgets
 	this._gridController = new GridController();
-	this._gridControllerPosition = new GridController();
+	this._gridControllerPosition = new GridController(true);
 	
 	//This controller M/V
 	this._storageModel = new StorageModel(configOverride);

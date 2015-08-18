@@ -210,6 +210,8 @@ function StorageView(storageController, storageModel, gridView) {
 			this._storageController._gridController.selectPosition(
 					this._storageModel.sample.properties[this._storageModel.storagePropertyGroup.rowProperty],
 					this._storageModel.sample.properties[this._storageModel.storagePropertyGroup.columnProperty]);
+			this._storageModel.row = this._storageModel.sample.properties[this._storageModel.storagePropertyGroup.rowProperty];
+			this._storageModel.column = this._storageModel.sample.properties[this._storageModel.storagePropertyGroup.columnProperty];
 		}
 	}
 	
@@ -241,26 +243,32 @@ function StorageView(storageController, storageModel, gridView) {
 				var labels = [];
 				samples.forEach(function(element, index, array) {
 					var code = element.code;
-					var position  = element.properties[_this._storageModel.storagePropertyGroup.positionProperty];
-					if(position) {
-						var xyPos = Util.getXYfromLetterNumberCombination(position);
-						var x = xyPos[0];
-						var y = xyPos[1];
-						
-						var row = labels[x];
-						if(!row) {
-							row = [];
-							labels[x] = row;
+					var positionProp  = element.properties[_this._storageModel.storagePropertyGroup.positionProperty];
+					if(positionProp) {
+						var positions = positionProp.split(" ");
+						for(var pIdx = 0; pIdx < positions.length; pIdx++) {
+							var position = positions[pIdx];
+							if (position) {
+								var xyPos = Util.getXYfromLetterNumberCombination(position);
+								var x = xyPos[0];
+								var y = xyPos[1];
+								
+								var row = labels[x];
+								if(!row) {
+									row = [];
+									labels[x] = row;
+								}
+								
+								var col = row[y];
+								if(!col) {
+									col = [];
+									row[y] = col;
+								}
+								
+								label = { displayName : code, data : {} };
+								col.push(label);
+							}
 						}
-						
-						var col = row[y];
-						if(!col) {
-							col = [];
-							row[y] = col;
-						}
-						
-						label = { displayName : code, data : {} };
-						col.push(label);
 					} else {
 						//Not position found
 					}
@@ -273,13 +281,26 @@ function StorageView(storageController, storageModel, gridView) {
 					var numRows = parseInt(rowsAndCols[0]);
 					var numCols = parseInt(rowsAndCols[1]);
 					_this._storageController._gridControllerPosition.getModel().reset(numRows, numCols, labels);
-					_this._storageController._gridControllerPosition.getView().setPosSelectedEventHandler(function(posX, posY) {
+					_this._storageController._gridControllerPosition.getView().setPosSelectedEventHandler(function(posX, posY, isSelectedOrDeleted) {
 						var newPosition = Util.getLetterForNumber(posX) + posY;
+						var isMultiple = _this._storageController._gridControllerPosition.getModel().isSelectMultiple;
+						var boxPosition = _this._storageModel.boxPosition;
+						
+						if(!boxPosition || !isMultiple) {
+							boxPosition = "";
+						}
+						
+						if(isMultiple && !isSelectedOrDeleted) {
+							boxPosition = boxPosition.replace(newPosition + " ", "");
+						} else {
+							boxPosition += newPosition + " ";
+						}
+						
 						//Binded sample
 						if(_this._storageModel.sample) {
-							_this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.positionProperty] = newPosition;
+							_this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.positionProperty] = boxPosition;
 						}
-						_this._storageModel.boxPosition = newPosition;
+						_this._storageModel.boxPosition = boxPosition;
 					}); 
 					
 					//
@@ -304,8 +325,14 @@ function StorageView(storageController, storageModel, gridView) {
 				} else {
 					if(_this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.positionProperty]) {
 						_this._storageModel.boxPosition = _this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.positionProperty];
-						var xyPos = Util.getXYfromLetterNumberCombination(_this._storageModel.boxPosition);
-						_this._storageController._gridControllerPosition.selectPosition(xyPos[0], xyPos[1]);
+						var positions = _this._storageModel.boxPosition.split(" ");
+						for(var pIdx = 0; pIdx < positions.length; pIdx++) {
+							var position = positions[pIdx];
+							if(position) {
+								var xyPos = Util.getXYfromLetterNumberCombination(position);
+								_this._storageController._gridControllerPosition.selectPosition(xyPos[0], xyPos[1]);
+							}
+						}
 					}
 				}
 			});
