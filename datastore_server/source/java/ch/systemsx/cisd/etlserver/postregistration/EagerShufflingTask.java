@@ -223,10 +223,14 @@ public class EagerShufflingTask extends AbstractPostRegistrationTaskForPhysicalD
         {
             if (shareWithMostFreeOrNull != null)
             {
+                String shareId = shareWithMostFreeOrNull.getShareId();
                 try
                 {
-                    if(service.isDataSetOnTrashCanOrDeleted(dataSetCode)) {
-                        logger.log(LogLevel.INFO, "Data set " + dataSetCode + " will not be moved from share because is on the trashcan or deleted.");
+                    if (service.isDataSetOnTrashCanOrDeleted(dataSetCode))
+                    {
+                        logger.log(LogLevel.WARN, "Data set " + dataSetCode + " will not be moved from share "
+                                + dataSet.getDataSetShareId() + " to " + shareId 
+                                + " because it is in the trash can or has been deleted.");
                     } else {
                         long freeSpaceBefore = shareWithMostFreeOrNull.calculateFreeSpace();
                         File share = new File(storeRoot, shareIdManager.getShareId(dataSetCode));
@@ -235,7 +239,6 @@ public class EagerShufflingTask extends AbstractPostRegistrationTaskForPhysicalD
                                 new File(share, dataSet.getDataSetLocation()),
                                 shareWithMostFreeOrNull.getShare(), getChecksumProvider(), logger);
 
-                        String shareId = shareWithMostFreeOrNull.getShareId();
                         logger.log(LogLevel.INFO, "Data set " + dataSetCode
                                 + " successfully moved from share " + dataSet.getDataSetShareId()
                                 + " to " + shareId + ".");
@@ -254,7 +257,7 @@ public class EagerShufflingTask extends AbstractPostRegistrationTaskForPhysicalD
                 } catch (Throwable t)
                 {
                     logger.log(LogLevel.ERROR, "Couldn't move data set " + dataSetCode
-                            + " to share " + shareWithMostFreeOrNull.getShareId() + ".", t);
+                            + " to share " + shareId + ".", t);
                 }
             }
         }
