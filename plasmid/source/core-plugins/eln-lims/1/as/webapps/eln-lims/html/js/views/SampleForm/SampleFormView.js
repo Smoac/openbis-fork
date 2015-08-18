@@ -542,7 +542,8 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		var _this = this;
 		return function() {
 			Util.blockUINoMessage();
-			_this._sampleFormController.getNextCopyCode(function(defaultCode) {
+			
+			var copyFunction = function(defaultCode) {
 				var component = "<div class='form-horizontal'>"
 					component += "<legend>Duplicate Entity</legend>";
 					component += "<div class='form-inline'>";
@@ -599,7 +600,15 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 				$("#copyCancel").on("click", function(event) { 
 					Util.unblockUI();
 				});
-			});
+			};
+			
+			var spaceCode = _this._sampleFormModel.sample.spaceCode;
+			if(profile.isInventorySpace(spaceCode)) {
+				var sampleType = profile.getSampleTypeForSampleTypeCode(_this._sampleFormModel.sample.sampleTypeCode);
+				mainController.serverFacade.generateCode(sampleType, copyFunction);
+			} else {
+				_this._sampleFormController.getNextCopyCode(copyFunction);
+			}
 			
 		}
 	}
