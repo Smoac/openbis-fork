@@ -74,6 +74,8 @@ public class DatasetDescription implements Serializable, IDatasetLocation
 
     private String dataStoreUrl;
 
+    private boolean storageConfirmed;
+
     public static List<String> extractCodes(List<DatasetDescription> dataSets)
     {
         List<String> result = new ArrayList<String>();
@@ -320,6 +322,16 @@ public class DatasetDescription implements Serializable, IDatasetLocation
     public void setOrderInContainer(Integer orderInContainer)
     {
         this.orderInContainer = orderInContainer;
+    }
+
+    public boolean isStorageConfirmed()
+    {
+        return storageConfirmed;
+    }
+
+    public void setStorageConfirmed(boolean storageConfirmed)
+    {
+        this.storageConfirmed = storageConfirmed;
     }
 
 }

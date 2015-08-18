@@ -18,6 +18,8 @@ package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
@@ -69,6 +71,9 @@ public class SimpleDataSetInformationDTO implements Serializable, IDatasetLocati
     private String dataStoreUrl;
 
     private Integer orderInContainer;
+    
+    private boolean isStorageConfirmed;
+
 
     public void setDataStoreCode(String dataStoreCode)
     {
@@ -266,4 +271,13 @@ public class SimpleDataSetInformationDTO implements Serializable, IDatasetLocati
         this.orderInContainer = orderInContainer;
     }
 
+    public boolean isStorageConfirmed()
+    {
+        return isStorageConfirmed;
+    }
+
+    public void setStorageConfirmed(boolean isStorageConfirmed)
+    {
+        this.isStorageConfirmed = isStorageConfirmed;
+    }
 }

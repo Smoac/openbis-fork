@@ -72,6 +72,7 @@ public class SimpleDataSetHelper
         result.setExperimentCode(data.getExperiment().getCode());
         result.setProjectCode(data.getExperiment().getProject().getCode());
         result.setSpaceCode(data.getExperiment().getProject().getSpace().getCode());
+        result.setStorageConfirmed(data.isStorageConfirmation());
         result.setSampleCode(data.getSampleCode());
         result.setDataSetType(data.getDataSetType().getCode());
         result.setDataStoreUrl(data.getDataStore().getHostUrl());
@@ -94,6 +95,7 @@ public class SimpleDataSetHelper
         result.setProjectCode(datasetDescription.getProjectCode());
         result.setSampleCode(datasetDescription.getSampleCode());
         result.setOrderInContainer(datasetDescription.getOrderInContainer());
+        result.setStorageConfirmed(datasetDescription.isStorageConfirmed());
         return result;
     }
 }
