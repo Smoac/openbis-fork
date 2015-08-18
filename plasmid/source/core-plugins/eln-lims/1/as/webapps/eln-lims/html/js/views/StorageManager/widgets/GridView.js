@@ -116,8 +116,10 @@ function GridView(gridModel) {
 			
 			if(this._gridModel.isSelectMultiple && cellClasses && cellClasses.indexOf("rackSelected") !== -1) {
 				cell.removeClass("rackSelected");
+				return false;
 			} else {
 				cell.addClass("rackSelected");
+				return true;
 			}
 			
 		}
@@ -127,9 +129,9 @@ function GridView(gridModel) {
 	// Event Handlers
 	//
 	this._posClicked = function(posX, posY) {
-		this._selectPosition(posX, posY, null);
+		var isSelectedOrDeleted = this._selectPosition(posX, posY, null);
 		if(this._posClickedEventHandler) {
-			this._posClickedEventHandler(posX, posY);
+			this._posClickedEventHandler(posX, posY, isSelectedOrDeleted);
 		}
 	}
 	
