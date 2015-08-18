@@ -296,6 +296,7 @@ public class EagerShufflingTaskTest extends AbstractFileSystemTestCase
                             with(LogLevel.INFO),
                             with(Matchers.startsWith("Obtained the list of all "
                                     + "datasets in all shares")));
+                    allowing(service).isDataSetOnTrashCanOrDeleted(DATA_SET_CODE1);
                 }
             });
     }
