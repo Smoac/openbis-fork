@@ -63,8 +63,6 @@ public class MLArchiverTask extends AbstractArchiverProcessingPlugin
     {
         super(properties, storeRoot, null, tryCreateUnarchivingStatusChecker(properties, storeRoot));
         dataSourceName = DataSourceProvider.extractDataSourceName(properties);
-        // Check if given data source exists
-        getDataSource(dataSourceName);
     }
 
     private static IStatusChecker tryCreateUnarchivingStatusChecker(Properties properties,
