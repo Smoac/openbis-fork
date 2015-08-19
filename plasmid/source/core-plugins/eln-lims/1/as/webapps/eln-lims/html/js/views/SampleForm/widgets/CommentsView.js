@@ -89,7 +89,7 @@ function CommentsView(commentsController, commentsModel) {
 	this.addNewComment = function() {
 		var $textBox = FormUtil._getTextBox(null, null, false);
 		var $textBoxGroup = FormUtil.getFieldForComponentWithLabel($textBox, null, null);
-		var $saveButton = FormUtil.getButtonWithText("Save");
+		var $saveButton = FormUtil.getButtonWithText("Add Comment");
 		var $saveButtonGroup = FormUtil.getFieldForComponentWithLabel($saveButton, null, null);
 		
 		this.commentsContainer.append($textBoxGroup);
