@@ -15,6 +15,8 @@
  */
 package ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sample;
 
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.Sample;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.FetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.attachment.AttachmentFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.DataSetFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.experiment.ExperimentFetchOptions;
@@ -34,7 +36,7 @@ import java.io.Serializable;
  * Class automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
  */
 @JsonObject("dto.fetchoptions.sample.SampleFetchOptions")
-public class SampleFetchOptions implements Serializable
+public class SampleFetchOptions extends FetchOptions<Sample> implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
@@ -82,6 +84,9 @@ public class SampleFetchOptions implements Serializable
 
     @JsonProperty
     private AttachmentFetchOptions attachments;
+
+    @JsonProperty
+    private SampleSortOptions sort;
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     public SampleTypeFetchOptions withType()
@@ -413,4 +418,19 @@ public class SampleFetchOptions implements Serializable
         return attachments != null;
     }
 
+    @Override
+    public SampleSortOptions sortBy()
+    {
+        if (sort == null)
+        {
+            sort = new SampleSortOptions();
+        }
+        return sort;
+    }
+
+    @Override
+    public SampleSortOptions getSortBy()
+    {
+        return sort;
+    }
 }

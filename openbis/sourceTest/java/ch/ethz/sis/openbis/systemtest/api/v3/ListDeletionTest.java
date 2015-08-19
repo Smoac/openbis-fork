@@ -23,8 +23,8 @@ import junit.framework.Assert;
 
 import org.testng.annotations.Test;
 
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion.Deletion;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion.experiment.ExperimentDeletionOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.deletion.Deletion;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.deletion.experiment.ExperimentDeletionOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.deletion.DeletionFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.deletion.IDeletionId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentPermId;
@@ -76,7 +76,7 @@ public class ListDeletionTest extends AbstractDeletionTest
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         DeletionFetchOptions fetchOptions = new DeletionFetchOptions();
-        fetchOptions.fetchDeletedObjects();
+        fetchOptions.withDeletedObjects();
         List<Deletion> beforeDeletions = v3api.listDeletions(sessionToken, fetchOptions);
 
         ExperimentPermId experimentId = createCisdExperiment();

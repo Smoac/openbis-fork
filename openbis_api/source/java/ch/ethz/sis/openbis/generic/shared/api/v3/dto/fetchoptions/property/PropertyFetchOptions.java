@@ -16,16 +16,16 @@
 
 package ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.property;
 
-import java.io.Serializable;
-
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.EmptyFetchOptions;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
  * @author pkupczyk
  */
 @JsonObject("dto.fetchoptions.property.PropertyFetchOptions")
-public class PropertyFetchOptions implements Serializable
+public class PropertyFetchOptions extends EmptyFetchOptions
 {
+
     private static final long serialVersionUID = 1L;
 
 }

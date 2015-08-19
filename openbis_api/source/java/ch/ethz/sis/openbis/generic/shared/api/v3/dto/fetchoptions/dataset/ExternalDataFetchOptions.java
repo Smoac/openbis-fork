@@ -15,6 +15,8 @@
  */
 package ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset;
 
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.ExternalData;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.FetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.FileFormatTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.LocatorTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.vocabulary.VocabularyTermFetchOptions;
@@ -26,7 +28,7 @@ import java.io.Serializable;
  * Class automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
  */
 @JsonObject("dto.fetchoptions.dataset.ExternalDataFetchOptions")
-public class ExternalDataFetchOptions implements Serializable
+public class ExternalDataFetchOptions extends FetchOptions<ExternalData> implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
@@ -38,6 +40,9 @@ public class ExternalDataFetchOptions implements Serializable
 
     @JsonProperty
     private LocatorTypeFetchOptions locatorType;
+
+    @JsonProperty
+    private ExternalDataSortOptions sort;
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     public VocabularyTermFetchOptions withStorageFormat()
@@ -105,4 +110,19 @@ public class ExternalDataFetchOptions implements Serializable
         return locatorType != null;
     }
 
+    @Override
+    public ExternalDataSortOptions sortBy()
+    {
+        if (sort == null)
+        {
+            sort = new ExternalDataSortOptions();
+        }
+        return sort;
+    }
+
+    @Override
+    public ExternalDataSortOptions getSortBy()
+    {
+        return sort;
+    }
 }

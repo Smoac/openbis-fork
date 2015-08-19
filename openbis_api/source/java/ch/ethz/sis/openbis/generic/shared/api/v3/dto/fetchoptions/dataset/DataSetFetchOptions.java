@@ -15,6 +15,8 @@
  */
 package ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset;
 
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSet;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.FetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.DataSetFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.DataSetTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.ExternalDataFetchOptions;
@@ -33,7 +35,7 @@ import java.io.Serializable;
  * Class automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
  */
 @JsonObject("dto.fetchoptions.dataset.DataSetFetchOptions")
-public class DataSetFetchOptions implements Serializable
+public class DataSetFetchOptions extends FetchOptions<DataSet> implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
@@ -78,6 +80,9 @@ public class DataSetFetchOptions implements Serializable
 
     @JsonProperty
     private MaterialFetchOptions materialProperties;
+
+    @JsonProperty
+    private DataSetSortOptions sort;
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     public DataSetFetchOptions withParents()
@@ -387,4 +392,19 @@ public class DataSetFetchOptions implements Serializable
         return materialProperties != null;
     }
 
+    @Override
+    public DataSetSortOptions sortBy()
+    {
+        if (sort == null)
+        {
+            sort = new DataSetSortOptions();
+        }
+        return sort;
+    }
+
+    @Override
+    public DataSetSortOptions getSortBy()
+    {
+        return sort;
+    }
 }

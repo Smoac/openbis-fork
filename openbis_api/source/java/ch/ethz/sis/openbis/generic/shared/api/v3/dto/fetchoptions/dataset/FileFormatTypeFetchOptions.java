@@ -15,16 +15,36 @@
  */
 package ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset;
 
-import java.io.Serializable;
-
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.FileFormatType;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.FetchOptions;
 import ch.systemsx.cisd.base.annotation.JsonObject;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import java.io.Serializable;
 
 /**
  * Class automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
  */
 @JsonObject("dto.fetchoptions.dataset.FileFormatTypeFetchOptions")
-public class FileFormatTypeFetchOptions implements Serializable
+public class FileFormatTypeFetchOptions extends FetchOptions<FileFormatType> implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
+    @JsonProperty
+    private FileFormatTypeSortOptions sort;
+
+    @Override
+    public FileFormatTypeSortOptions sortBy()
+    {
+        if (sort == null)
+        {
+            sort = new FileFormatTypeSortOptions();
+        }
+        return sort;
+    }
+
+    @Override
+    public FileFormatTypeSortOptions getSortBy()
+    {
+        return sort;
+    }
 }

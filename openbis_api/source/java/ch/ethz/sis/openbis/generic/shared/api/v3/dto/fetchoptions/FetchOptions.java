@@ -2,43 +2,46 @@ package ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions;
 
 import java.io.Serializable;
 
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.SortOptions;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 @JsonObject("dto.fetchoptions.FetchOptions")
-public abstract class FetchOptions implements Serializable
+public abstract class FetchOptions<OBJECT> implements Serializable
 {
 
     private static final long serialVersionUID = 1L;
 
-    private Integer pageSize;
+    private Integer count;
 
-    private Integer pageIndex;
+    private Integer from;
 
     private Integer cacheMode;
 
-    public FetchOptions count(Integer size)
+    @SuppressWarnings("hiding")
+    public FetchOptions<OBJECT> count(Integer count)
     {
-        this.pageSize = size;
+        this.count = count;
         return this;
     }
 
-    public Integer getPageSize()
+    public Integer getCount()
     {
-        return pageSize;
+        return count;
     }
 
-    public FetchOptions from(Integer index)
+    @SuppressWarnings("hiding")
+    public FetchOptions<OBJECT> from(Integer from)
     {
-        this.pageIndex = index;
+        this.from = from;
         return this;
     }
 
-    public Integer getPageIndex()
+    public Integer getFrom()
     {
-        return pageIndex;
+        return from;
     }
 
-    public FetchOptions cacheMode(Integer mode)
+    public FetchOptions<OBJECT> cacheMode(Integer mode)
     {
         this.cacheMode = mode;
         return this;
@@ -48,5 +51,9 @@ public abstract class FetchOptions implements Serializable
     {
         return cacheMode;
     }
+
+    public abstract SortOptions<OBJECT> sortBy();
+
+    public abstract SortOptions<OBJECT> getSortBy();
 
 }

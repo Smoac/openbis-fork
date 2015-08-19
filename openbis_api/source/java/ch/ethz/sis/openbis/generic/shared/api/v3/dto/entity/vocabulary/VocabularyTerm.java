@@ -32,7 +32,7 @@ import java.util.Date;
  * Class automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
  */
 @JsonObject("dto.entity.vocabulary.VocabularyTerm")
-public class VocabularyTerm implements Serializable, IModificationDateHolder, IRegistratorHolder, IRegistrationDateHolder
+public class VocabularyTerm implements Serializable, IRegistrationDateHolder, IModificationDateHolder, IRegistratorHolder
 {
     private static final long serialVersionUID = 1L;
 

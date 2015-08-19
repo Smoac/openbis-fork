@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 ETH Zuerich, Scientific IT Services
+ * Copyright 2015 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,31 +14,25 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion;
+package ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.deletion;
 
-import java.io.Serializable;
+import java.util.Comparator;
 
-import ch.systemsx.cisd.base.annotation.JsonObject;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.deletion.Deletion;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.SortOptions;
 
 /**
  * @author pkupczyk
  */
-@JsonObject("dto.deletion.AbstractObjectDeletionOptions")
-public class AbstractObjectDeletionOptions implements Serializable
+public class DeletionSortOptions extends SortOptions<Deletion>
 {
 
     private static final long serialVersionUID = 1L;
 
-    private String reason;
-
-    public String getReason()
+    @Override
+    public Comparator<Deletion> getComparator(String field)
     {
-        return reason;
-    }
-
-    public void setReason(String reason)
-    {
-        this.reason = reason;
+        return null;
     }
 
 }

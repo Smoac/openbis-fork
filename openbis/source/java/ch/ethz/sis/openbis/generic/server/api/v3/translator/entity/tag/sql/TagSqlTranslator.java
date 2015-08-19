@@ -19,7 +19,6 @@ package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.tag.sql;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -106,36 +105,6 @@ public class TagSqlTranslator extends AbstractCachingTranslator<Long, Tag, TagFe
             result.setOwner(relations.get(TagOwnerTranslator.class, tagId));
             result.getFetchOptions().withOwnerUsing(fetchOptions.withOwner());
         }
-    }
-
-    @Override
-    protected Comparator<Tag> getObjectComparator(TranslationContext context, final TagFetchOptions fetchOptions)
-    {
-        if (fetchOptions.getSortBy() == null)
-        {
-            return null;
-        }
-
-        if (fetchOptions.getSortBy().isCode())
-        {
-            return new Comparator<Tag>()
-                {
-                    @Override
-                    public int compare(Tag o1, Tag o2)
-                    {
-                        if (fetchOptions.getSortBy().code().isAsc())
-                        {
-                            return o1.getCode().compareTo(o2.getCode());
-                        } else
-                        {
-                            return -o1.getCode().compareTo(o2.getCode());
-                        }
-                    }
-                };
-        }
-
-        return null;
-
     }
 
 }

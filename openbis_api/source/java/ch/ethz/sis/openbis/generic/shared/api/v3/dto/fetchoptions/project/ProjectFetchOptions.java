@@ -15,6 +15,8 @@
  */
 package ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.project;
 
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.project.Project;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.FetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.attachment.AttachmentFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.experiment.ExperimentFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.history.HistoryEntryFetchOptions;
@@ -28,7 +30,7 @@ import java.io.Serializable;
  * Class automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
  */
 @JsonObject("dto.fetchoptions.project.ProjectFetchOptions")
-public class ProjectFetchOptions implements Serializable
+public class ProjectFetchOptions extends FetchOptions<Project> implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
@@ -52,6 +54,9 @@ public class ProjectFetchOptions implements Serializable
 
     @JsonProperty
     private AttachmentFetchOptions attachments;
+
+    @JsonProperty
+    private ProjectSortOptions sort;
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     public ExperimentFetchOptions withExperiments()
@@ -207,4 +212,19 @@ public class ProjectFetchOptions implements Serializable
         return attachments != null;
     }
 
+    @Override
+    public ProjectSortOptions sortBy()
+    {
+        if (sort == null)
+        {
+            sort = new ProjectSortOptions();
+        }
+        return sort;
+    }
+
+    @Override
+    public ProjectSortOptions getSortBy()
+    {
+        return sort;
+    }
 }

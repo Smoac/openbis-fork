@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 ETH Zuerich, Scientific IT Services
+ * Copyright 2015 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,18 +14,25 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion.experiment;
+package ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset;
 
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion.AbstractObjectDeletionOptions;
-import ch.systemsx.cisd.base.annotation.JsonObject;
+import java.util.Comparator;
+
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSetType;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.SortOptions;
 
 /**
  * @author pkupczyk
  */
-@JsonObject("dto.deletion.experiment.ExperimentDeletionOptions")
-public class ExperimentDeletionOptions extends AbstractObjectDeletionOptions
+public class DataSetTypeSortOptions extends SortOptions<DataSetType>
 {
 
     private static final long serialVersionUID = 1L;
+
+    @Override
+    public Comparator<DataSetType> getComparator(String field)
+    {
+        return null;
+    }
 
 }

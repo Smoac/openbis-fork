@@ -15,7 +15,9 @@
  */
 package ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.attachment;
 
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.attachment.Attachment;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.EmptyFetchOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.FetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.attachment.AttachmentFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.person.PersonFetchOptions;
 import ch.systemsx.cisd.base.annotation.JsonObject;
@@ -26,7 +28,7 @@ import java.io.Serializable;
  * Class automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
  */
 @JsonObject("dto.fetchoptions.attachment.AttachmentFetchOptions")
-public class AttachmentFetchOptions implements Serializable
+public class AttachmentFetchOptions extends FetchOptions<Attachment> implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
@@ -38,6 +40,9 @@ public class AttachmentFetchOptions implements Serializable
 
     @JsonProperty
     private EmptyFetchOptions content;
+
+    @JsonProperty
+    private AttachmentSortOptions sort;
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     public PersonFetchOptions withRegistrator()
@@ -105,4 +110,19 @@ public class AttachmentFetchOptions implements Serializable
         return content != null;
     }
 
+    @Override
+    public AttachmentSortOptions sortBy()
+    {
+        if (sort == null)
+        {
+            sort = new AttachmentSortOptions();
+        }
+        return sort;
+    }
+
+    @Override
+    public AttachmentSortOptions getSortBy()
+    {
+        return sort;
+    }
 }

@@ -16,15 +16,14 @@
 
 package ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.deletion;
 
-import java.io.Serializable;
-
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.EmptyFetchOptions;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
  * @author pkupczyk
  */
 @JsonObject("dto.fetchoptions.deletion.DeletedObjectFetchOptions")
-public class DeletedObjectFetchOptions implements Serializable
+public class DeletedObjectFetchOptions extends EmptyFetchOptions
 {
 
     private static final long serialVersionUID = 1L;

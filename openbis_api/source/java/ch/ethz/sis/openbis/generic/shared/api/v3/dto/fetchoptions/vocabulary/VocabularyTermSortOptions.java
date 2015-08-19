@@ -14,18 +14,25 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion.material;
+package ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.vocabulary;
 
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion.AbstractObjectDeletionOptions;
-import ch.systemsx.cisd.base.annotation.JsonObject;
+import java.util.Comparator;
+
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.vocabulary.VocabularyTerm;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.SortOptions;
 
 /**
- * @author Jakub Straszewski
+ * @author pkupczyk
  */
-@JsonObject("dto.deletion.material.MaterialDeletionOptions")
-public class MaterialDeletionOptions extends AbstractObjectDeletionOptions
+public class VocabularyTermSortOptions extends SortOptions<VocabularyTerm>
 {
 
     private static final long serialVersionUID = 1L;
+
+    @Override
+    public Comparator<VocabularyTerm> getComparator(String field)
+    {
+        return null;
+    }
 
 }

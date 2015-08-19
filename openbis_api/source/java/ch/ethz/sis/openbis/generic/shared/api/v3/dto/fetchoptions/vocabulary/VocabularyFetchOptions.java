@@ -15,6 +15,8 @@
  */
 package ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.vocabulary;
 
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.vocabulary.Vocabulary;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.FetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.person.PersonFetchOptions;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -24,12 +26,15 @@ import java.io.Serializable;
  * Class automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
  */
 @JsonObject("dto.fetchoptions.vocabulary.VocabularyFetchOptions")
-public class VocabularyFetchOptions implements Serializable
+public class VocabularyFetchOptions extends FetchOptions<Vocabulary> implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
     @JsonProperty
     private PersonFetchOptions registrator;
+
+    @JsonProperty
+    private VocabularySortOptions sort;
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     public PersonFetchOptions withRegistrator()
@@ -53,4 +58,19 @@ public class VocabularyFetchOptions implements Serializable
         return registrator != null;
     }
 
+    @Override
+    public VocabularySortOptions sortBy()
+    {
+        if (sort == null)
+        {
+            sort = new VocabularySortOptions();
+        }
+        return sort;
+    }
+
+    @Override
+    public VocabularySortOptions getSortBy()
+    {
+        return sort;
+    }
 }

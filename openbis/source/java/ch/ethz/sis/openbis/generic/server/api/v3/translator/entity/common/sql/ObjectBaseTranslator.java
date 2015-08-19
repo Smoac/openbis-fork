@@ -25,22 +25,23 @@ import java.util.Map;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.AbstractCachingTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.EmptyFetchOptions;
 
 /**
  * @author pkupczyk
  */
 public abstract class ObjectBaseTranslator<RECORD extends ObjectBaseRecord> extends
-        AbstractCachingTranslator<Long, ObjectHolder<RECORD>, Void>
+        AbstractCachingTranslator<Long, ObjectHolder<RECORD>, EmptyFetchOptions>
 {
 
     @Override
-    protected ObjectHolder<RECORD> createObject(TranslationContext context, Long input, Void fetchOptions)
+    protected ObjectHolder<RECORD> createObject(TranslationContext context, Long input, EmptyFetchOptions fetchOptions)
     {
         return new ObjectHolder<RECORD>();
     }
 
     @Override
-    protected Object getObjectsRelations(TranslationContext context, Collection<Long> materialIds, Void fetchOptions)
+    protected Object getObjectsRelations(TranslationContext context, Collection<Long> materialIds, EmptyFetchOptions fetchOptions)
     {
         List<RECORD> records = loadRecords(new LongOpenHashSet(materialIds));
 
@@ -55,7 +56,8 @@ public abstract class ObjectBaseTranslator<RECORD extends ObjectBaseRecord> exte
 
     @SuppressWarnings("unchecked")
     @Override
-    protected void updateObject(TranslationContext context, Long materialId, ObjectHolder<RECORD> result, Object relations, Void fetchOptions)
+    protected void updateObject(TranslationContext context, Long materialId, ObjectHolder<RECORD> result, Object relations,
+            EmptyFetchOptions fetchOptions)
     {
         Map<Long, RECORD> recordMap = (Map<Long, RECORD>) relations;
         RECORD record = recordMap.get(materialId);

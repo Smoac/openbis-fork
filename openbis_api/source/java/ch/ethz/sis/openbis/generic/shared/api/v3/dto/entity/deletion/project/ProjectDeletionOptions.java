@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion.project;
+package ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.deletion.project;
 
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion.AbstractObjectDeletionOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.deletion.AbstractObjectDeletionOptions;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**

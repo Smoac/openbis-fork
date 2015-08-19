@@ -15,6 +15,7 @@ import java.util.TreeSet;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.FetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.NotFetchedException;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
@@ -291,7 +292,7 @@ public class DtoGenerator
         printPackage("entity." + subPackage);
         printImports();
 
-        printClassHeader(className, "entity." + subPackage, implementedInterfaces);
+        printClassHeader(className, "entity." + subPackage, null, implementedInterfaces);
         startBlock();
         printFields();
 
@@ -355,7 +356,7 @@ public class DtoGenerator
         printPackage("fetchoptions." + subPackage);
         printImportsForFetchOptions();
 
-        printClassHeader(fetchOptionsClass.getSimpleName(), "fetchoptions." + subPackage, null);
+        printClassHeader(fetchOptionsClass.getSimpleName(), "fetchoptions." + subPackage, "FetchOptions<" + className + ">", null);
         startBlock();
 
         printFetchOptionsFields();
@@ -447,6 +448,23 @@ public class DtoGenerator
                 printFetchOptionsAccessors(field);
             }
         }
+
+        print("@Override");
+        print("public " + className + "SortOptions sortBy()");
+        startBlock();
+        print("if (sort == null)");
+        startBlock();
+        print("sort = new " + className + "SortOptions();");
+        endBlock();
+        print("return sort;");
+        endBlock();
+
+        print("");
+        print("@Override");
+        print("public " + className + "SortOptions getSortBy()");
+        startBlock();
+        print("return sort;");
+        endBlock();
     }
 
     private void printFetchOptionsAccessorsJS()
@@ -624,12 +642,19 @@ public class DtoGenerator
         print("");
     }
 
-    private void printClassHeader(String className, String jsonPackage, Collection<String> implementedInterfaces)
+    private void printClassHeader(String className, String jsonPackage, String extendsClass, Collection<String> implementedInterfaces)
     {
         print("/**");
         print(" * Class automatically generated with {@link %s}", this.getClass().getName());
         print(" */");
         print("@JsonObject(\"dto.%s.%s\")", jsonPackage, className);
+
+        String extendsStr = "";
+        if (extendsClass != null)
+        {
+            extendsStr = " extends " + extendsClass;
+        }
+
         StringBuilder interfaces = new StringBuilder();
         if (implementedInterfaces != null)
         {
@@ -639,7 +664,7 @@ public class DtoGenerator
                 interfaces.append(i);
             }
         }
-        print("public class %s implements Serializable%s", className, interfaces.toString());
+        print("public class %s%s implements Serializable%s", className, extendsStr, interfaces.toString());
     }
 
     private void printMethodJavaDoc()
@@ -685,6 +710,10 @@ public class DtoGenerator
                 printFetchOptionField(field);
             }
         }
+
+        print("@JsonProperty");
+        print("private " + className + "SortOptions sort;");
+        print("");
     }
 
     private void printFetchOptionField(DTOField field)
@@ -736,6 +765,8 @@ public class DtoGenerator
         imports.add(JsonObject.class.getName());
         imports.add(JsonProperty.class.getName());
         imports.add(Serializable.class.getName());
+        imports.add(FetchOptions.class.getName());
+        imports.add("ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity." + subPackage + "." + className);
 
         for (DTOField field : fields)
         {

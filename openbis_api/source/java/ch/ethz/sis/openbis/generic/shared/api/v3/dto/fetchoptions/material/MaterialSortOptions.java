@@ -16,48 +16,82 @@
 
 package ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.material;
 
-import java.io.Serializable;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.SortOrder;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material.Material;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.AbstractComparator;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.SortOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.SortOrder;
 
 /**
  * @author pkupczyk
  */
-public class MaterialSortOptions implements Serializable
+public class MaterialSortOptions extends SortOptions<Material>
 {
 
     private static final long serialVersionUID = 1L;
 
-    private SortOrder code;
+    private static final String CODE = "CODE";
 
-    private SortOrder registrationDate;
+    private static final String REGISTRATION_DATE = "REGISTRATION_DATE";
+
+    private static final Map<String, Comparator<Material>> comparators = new HashMap<>();
+
+    static
+    {
+        comparators.put(CODE, new CodeComparator());
+        comparators.put(REGISTRATION_DATE, new RegistrationDateComparator());
+    }
 
     public SortOrder code()
     {
-        if (code == null)
-        {
-            code = new SortOrder();
-        }
-        return code;
+        return getOrCreateSorting(CODE);
     }
 
-    public boolean isCode()
+    public SortOrder getCode()
     {
-        return code != null;
+        return getSorting(CODE);
     }
 
     public SortOrder registrationDate()
     {
-        if (registrationDate == null)
-        {
-            registrationDate = new SortOrder();
-        }
-        return registrationDate;
+        return getOrCreateSorting(REGISTRATION_DATE);
     }
 
-    public boolean isRegistrationDate()
+    public SortOrder getRegistrationDate()
     {
-        return registrationDate != null;
+        return getSorting(REGISTRATION_DATE);
+    }
+
+    private static class CodeComparator extends AbstractComparator<Material, String>
+    {
+
+        @Override
+        protected String getValue(Material o)
+        {
+            return o.getCode();
+        }
+
+    }
+
+    private static class RegistrationDateComparator extends AbstractComparator<Material, Date>
+    {
+
+        @Override
+        protected Date getValue(Material o)
+        {
+            return o.getRegistrationDate();
+        }
+
+    }
+
+    @Override
+    public Comparator<Material> getComparator(String field)
+    {
+        return comparators.get(field);
     }
 
 }

@@ -24,8 +24,8 @@ import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.AbstractCachingTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion.DeletedObject;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion.Deletion;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.deletion.DeletedObject;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.deletion.Deletion;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.deletion.DeletionFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.DataSetPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.deletion.DeletionTechId;
@@ -75,7 +75,7 @@ public class DeletionTranslator extends
     {
         if (fetchOptions.hasDeletedObjects())
         {
-            output.getFetchOptions().fetchDeletedObjects();
+            output.getFetchOptions().withDeletedObjects();
 
             if (input.getDeletedEntities() != null)
             {

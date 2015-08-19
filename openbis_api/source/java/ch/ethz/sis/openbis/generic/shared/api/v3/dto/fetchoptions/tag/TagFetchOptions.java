@@ -15,17 +15,18 @@
  */
 package ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.tag;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.tag.Tag;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.FetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.person.PersonFetchOptions;
 import ch.systemsx.cisd.base.annotation.JsonObject;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import java.io.Serializable;
 
 /**
  * Class automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
  */
 @JsonObject("dto.fetchoptions.tag.TagFetchOptions")
-public class TagFetchOptions extends FetchOptions
+public class TagFetchOptions extends FetchOptions<Tag> implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
@@ -33,21 +34,7 @@ public class TagFetchOptions extends FetchOptions
     private PersonFetchOptions owner;
 
     @JsonProperty
-    private TagSortOptions sortBy;
-
-    public TagSortOptions sortBy()
-    {
-        if (sortBy == null)
-        {
-            sortBy = new TagSortOptions();
-        }
-        return sortBy;
-    }
-
-    public TagSortOptions getSortBy()
-    {
-        return sortBy;
-    }
+    private TagSortOptions sort;
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     public PersonFetchOptions withOwner()
@@ -71,4 +58,19 @@ public class TagFetchOptions extends FetchOptions
         return owner != null;
     }
 
+    @Override
+    public TagSortOptions sortBy()
+    {
+        if (sort == null)
+        {
+            sort = new TagSortOptions();
+        }
+        return sort;
+    }
+
+    @Override
+    public TagSortOptions getSortBy()
+    {
+        return sort;
+    }
 }

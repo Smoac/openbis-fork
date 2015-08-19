@@ -15,16 +15,36 @@
  */
 package ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.experiment;
 
-import java.io.Serializable;
-
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.ExperimentType;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.FetchOptions;
 import ch.systemsx.cisd.base.annotation.JsonObject;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import java.io.Serializable;
 
 /**
  * Class automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
  */
 @JsonObject("dto.fetchoptions.experiment.ExperimentTypeFetchOptions")
-public class ExperimentTypeFetchOptions implements Serializable
+public class ExperimentTypeFetchOptions extends FetchOptions<ExperimentType> implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
+    @JsonProperty
+    private ExperimentTypeSortOptions sort;
+
+    @Override
+    public ExperimentTypeSortOptions sortBy()
+    {
+        if (sort == null)
+        {
+            sort = new ExperimentTypeSortOptions();
+        }
+        return sort;
+    }
+
+    @Override
+    public ExperimentTypeSortOptions getSortBy()
+    {
+        return sort;
+    }
 }

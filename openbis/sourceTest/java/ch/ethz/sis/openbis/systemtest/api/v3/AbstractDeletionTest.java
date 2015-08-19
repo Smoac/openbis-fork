@@ -23,7 +23,7 @@ import java.util.Map;
 
 import junit.framework.Assert;
 
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion.Deletion;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.deletion.Deletion;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.ExperimentCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material.Material;

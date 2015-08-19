@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 ETH Zuerich, Scientific IT Services
+ * Copyright 2015 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,19 +14,25 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion;
+package ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.vocabulary;
 
-import java.io.Serializable;
+import java.util.Comparator;
 
-import ch.systemsx.cisd.base.annotation.JsonObject;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.vocabulary.Vocabulary;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.SortOptions;
 
 /**
  * @author pkupczyk
  */
-@JsonObject("dto.deletion.DeletionType")
-public enum DeletionType implements Serializable
+public class VocabularySortOptions extends SortOptions<Vocabulary>
 {
 
-    PERMANENT, TRASH
+    private static final long serialVersionUID = 1L;
+
+    @Override
+    public Comparator<Vocabulary> getComparator(String field)
+    {
+        return null;
+    }
 
 }

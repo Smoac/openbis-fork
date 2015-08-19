@@ -16,7 +16,7 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.method;
 
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion.project.ProjectDeletionOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.deletion.project.ProjectDeletionOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.IProjectId;
 
 /**

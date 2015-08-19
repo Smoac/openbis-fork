@@ -15,20 +15,23 @@
  */
 package ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.material;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material.Material;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.FetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.history.HistoryEntryFetchOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.material.MaterialFetchOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.material.MaterialTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.person.PersonFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.property.PropertyFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.tag.TagFetchOptions;
 import ch.systemsx.cisd.base.annotation.JsonObject;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import java.io.Serializable;
 
 /**
  * Class automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
  */
 @JsonObject("dto.fetchoptions.material.MaterialFetchOptions")
-public class MaterialFetchOptions extends FetchOptions
+public class MaterialFetchOptions extends FetchOptions<Material> implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
@@ -51,21 +54,7 @@ public class MaterialFetchOptions extends FetchOptions
     private TagFetchOptions tags;
 
     @JsonProperty
-    private MaterialSortOptions sortBy;
-
-    public MaterialSortOptions sortBy()
-    {
-        if (sortBy == null)
-        {
-            sortBy = new MaterialSortOptions();
-        }
-        return sortBy;
-    }
-
-    public MaterialSortOptions getSortBy()
-    {
-        return sortBy;
-    }
+    private MaterialSortOptions sort;
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     public MaterialTypeFetchOptions withType()
@@ -199,4 +188,19 @@ public class MaterialFetchOptions extends FetchOptions
         return tags != null;
     }
 
+    @Override
+    public MaterialSortOptions sortBy()
+    {
+        if (sort == null)
+        {
+            sort = new MaterialSortOptions();
+        }
+        return sort;
+    }
+
+    @Override
+    public MaterialSortOptions getSortBy()
+    {
+        return sort;
+    }
 }

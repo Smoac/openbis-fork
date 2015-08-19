@@ -32,6 +32,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.DataSe
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.ExternalDataFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.FileFormatTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.LocatorTypeFetchOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.deletion.DeletionFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.experiment.ExperimentFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.experiment.ExperimentTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.history.HistoryEntryFetchOptions;
@@ -46,6 +47,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.tag.TagFetchOp
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.vocabulary.VocabularyFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.vocabulary.VocabularyTermFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.DataSetPermId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.deletion.IDeletionId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.entitytype.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentIdentifier;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentPermId;
@@ -288,6 +290,15 @@ public class Generator extends AbstractGenerator
         return gen;
     }
 
+    private static DtoGenerator createDeletion()
+    {
+        DtoGenerator gen = new DtoGenerator("deletion", "Deletion", DeletionFetchOptions.class);
+        gen.addSimpleField(IDeletionId.class, "id");
+        gen.addStringField("reason");
+        gen.addPluralFetchedField("List<DeletedObject>", List.class.getName(), "deletedObjects", "Deleted objects", DeletionFetchOptions.class);
+        return gen;
+    }
+
     private static DtoGenerator createVocabulary()
     {
         DtoGenerator gen = new DtoGenerator("vocabulary", "Vocabulary", VocabularyFetchOptions.class);
@@ -453,6 +464,7 @@ public class Generator extends AbstractGenerator
         list.add(createFileFormatType());
         list.add(createExternalDataGenerator());
         list.add(createHistoryEntryGenerator());
+        list.add(createDeletion());
 
         for (DtoGenerator gen : list)
         {

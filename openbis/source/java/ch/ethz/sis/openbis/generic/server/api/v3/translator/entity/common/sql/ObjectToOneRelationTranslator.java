@@ -26,11 +26,12 @@ import java.util.Map;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.AbstractCachingTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.FetchOptions;
 
 /**
  * @author pkupczyk
  */
-public abstract class ObjectToOneRelationTranslator<RELATED_OBJECT, RELATED_FETCH_OPTIONS> extends
+public abstract class ObjectToOneRelationTranslator<RELATED_OBJECT, RELATED_FETCH_OPTIONS extends FetchOptions<?>> extends
         AbstractCachingTranslator<Long, ObjectHolder<RELATED_OBJECT>, RELATED_FETCH_OPTIONS>
 {
 

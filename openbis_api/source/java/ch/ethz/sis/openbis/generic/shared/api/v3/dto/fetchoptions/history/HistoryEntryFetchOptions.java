@@ -15,6 +15,8 @@
  */
 package ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.history;
 
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.history.HistoryEntry;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.FetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.person.PersonFetchOptions;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -24,12 +26,15 @@ import java.io.Serializable;
  * Class automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
  */
 @JsonObject("dto.fetchoptions.history.HistoryEntryFetchOptions")
-public class HistoryEntryFetchOptions implements Serializable
+public class HistoryEntryFetchOptions extends FetchOptions<HistoryEntry> implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
     @JsonProperty
     private PersonFetchOptions author;
+
+    @JsonProperty
+    private HistoryEntrySortOptions sort;
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     public PersonFetchOptions withAuthor()
@@ -53,4 +58,19 @@ public class HistoryEntryFetchOptions implements Serializable
         return author != null;
     }
 
+    @Override
+    public HistoryEntrySortOptions sortBy()
+    {
+        if (sort == null)
+        {
+            sort = new HistoryEntrySortOptions();
+        }
+        return sort;
+    }
+
+    @Override
+    public HistoryEntrySortOptions getSortBy()
+    {
+        return sort;
+    }
 }

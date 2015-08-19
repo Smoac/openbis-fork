@@ -48,7 +48,7 @@ import java.util.Set;
  * Class automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
  */
 @JsonObject("dto.entity.experiment.Experiment")
-public class Experiment implements Serializable, IModifierHolder, IModificationDateHolder, IAttachmentsHolder, IRegistratorHolder, IPropertiesHolder, IRegistrationDateHolder, ITagsHolder
+public class Experiment implements Serializable, ITagsHolder, IRegistrationDateHolder, IAttachmentsHolder, IPropertiesHolder, IModifierHolder, IModificationDateHolder, IRegistratorHolder
 {
     private static final long serialVersionUID = 1L;
 

@@ -46,7 +46,7 @@ import java.util.Set;
  * Class automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
  */
 @JsonObject("dto.entity.dataset.DataSet")
-public class DataSet implements Serializable, IParentChildrenHolder<DataSet>, IModifierHolder, IModificationDateHolder, IRegistratorHolder, IPropertiesHolder, IRegistrationDateHolder, ITagsHolder
+public class DataSet implements Serializable, ITagsHolder, IRegistrationDateHolder, IPropertiesHolder, IModifierHolder, IParentChildrenHolder<DataSet>, IModificationDateHolder, IRegistratorHolder
 {
     private static final long serialVersionUID = 1L;
 

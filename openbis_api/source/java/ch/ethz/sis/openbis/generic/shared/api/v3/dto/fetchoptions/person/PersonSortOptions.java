@@ -14,33 +14,25 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions;
+package ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.person;
 
-import java.io.Serializable;
+import java.util.Comparator;
+
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.person.Person;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.SortOptions;
 
 /**
  * @author pkupczyk
  */
-public class SortOrder implements Serializable
+public class PersonSortOptions extends SortOptions<Person>
 {
-
-    private boolean asc = true;
 
     private static final long serialVersionUID = 1L;
 
-    public void asc()
+    @Override
+    public Comparator<Person> getComparator(String field)
     {
-        asc = true;
-    }
-
-    public void desc()
-    {
-        asc = false;
-    }
-
-    public boolean isAsc()
-    {
-        return asc;
+        return null;
     }
 
 }

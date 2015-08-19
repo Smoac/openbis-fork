@@ -17,7 +17,6 @@
 package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.material.sql;
 
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -157,47 +156,6 @@ public class MaterialSqlTranslator extends AbstractCachingTranslator<Long, Mater
             result.getFetchOptions().withHistoryUsing(fetchOptions.withHistory());
         }
 
-    }
-
-    @Override
-    protected Comparator<Material> getObjectComparator(TranslationContext context, final MaterialFetchOptions fetchOptions)
-    {
-        if (fetchOptions.getSortBy() == null)
-        {
-            return null;
-        }
-
-        if (fetchOptions.getSortBy().isCode())
-        {
-            return new Comparator<Material>()
-                {
-                    @Override
-                    public int compare(Material o1, Material o2)
-                    {
-                        if (fetchOptions.getSortBy().code().isAsc())
-                        {
-                            return o1.getCode().compareTo(o2.getCode());
-                        } else
-                        {
-                            return -o1.getCode().compareTo(o2.getCode());
-                        }
-                    }
-                };
-        }
-
-        if (fetchOptions.getSortBy().isRegistrationDate())
-        {
-            return new Comparator<Material>()
-                {
-                    @Override
-                    public int compare(Material o1, Material o2)
-                    {
-                        return -o1.getRegistrationDate().compareTo(o2.getRegistrationDate());
-                    }
-                };
-        }
-
-        return null;
     }
 
 }

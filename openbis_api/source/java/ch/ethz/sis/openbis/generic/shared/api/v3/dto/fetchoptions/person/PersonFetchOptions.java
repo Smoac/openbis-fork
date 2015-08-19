@@ -15,6 +15,8 @@
  */
 package ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.person;
 
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.person.Person;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.FetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.person.PersonFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.space.SpaceFetchOptions;
 import ch.systemsx.cisd.base.annotation.JsonObject;
@@ -25,7 +27,7 @@ import java.io.Serializable;
  * Class automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
  */
 @JsonObject("dto.fetchoptions.person.PersonFetchOptions")
-public class PersonFetchOptions implements Serializable
+public class PersonFetchOptions extends FetchOptions<Person> implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
@@ -34,6 +36,9 @@ public class PersonFetchOptions implements Serializable
 
     @JsonProperty
     private PersonFetchOptions registrator;
+
+    @JsonProperty
+    private PersonSortOptions sort;
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     public SpaceFetchOptions withSpace()
@@ -79,4 +84,19 @@ public class PersonFetchOptions implements Serializable
         return registrator != null;
     }
 
+    @Override
+    public PersonSortOptions sortBy()
+    {
+        if (sort == null)
+        {
+            sort = new PersonSortOptions();
+        }
+        return sort;
+    }
+
+    @Override
+    public PersonSortOptions getSortBy()
+    {
+        return sort;
+    }
 }

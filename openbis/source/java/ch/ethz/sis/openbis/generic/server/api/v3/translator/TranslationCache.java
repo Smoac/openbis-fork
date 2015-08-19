@@ -1,6 +1,5 @@
 package ch.ethz.sis.openbis.generic.server.api.v3.translator;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
@@ -25,11 +24,6 @@ public class TranslationCache
      */
     private Map<String, Object> translatedObjects = new HashMap<String, Object>();
 
-    /**
-     * Map storing already translated collections (value) for the given namespace, object ids (key) and fetchOptions
-     */
-    private Map<String, Map<Object, Object>> translatedCollections = new HashMap<String, Map<Object, Object>>();
-
     public boolean hasShouldTranslateObject(String namespace, Long objectId)
     {
         return shouldTranslateObjects.containsKey(getObjectKey(namespace, objectId));
@@ -43,21 +37,6 @@ public class TranslationCache
     public void putShouldTranslateObject(String namespace, Long objectId, boolean shouldTranslate)
     {
         shouldTranslateObjects.put(getObjectKey(namespace, objectId), shouldTranslate);
-    }
-
-    public boolean hasTranslatedCollection(String namespace, Collection<Long> objectIds, Object fetchOptions)
-    {
-        return translatedCollections.containsKey(getObjectsKey(namespace, objectIds, fetchOptions));
-    }
-
-    public Map<Object, Object> getTranslatedCollection(String namespace, Collection<Long> objectIds, Object fetchOptions)
-    {
-        return translatedCollections.get(getObjectsKey(namespace, objectIds, fetchOptions));
-    }
-
-    public void putTranslatedCollection(String namespace, Collection<Long> objectIds, Object fetchOptions, Map<Object, Object> objects)
-    {
-        translatedCollections.put(getObjectsKey(namespace, objectIds, fetchOptions), objects);
     }
 
     public boolean hasTranslatedObject(String namespace, Long objectId)
@@ -92,12 +71,6 @@ public class TranslationCache
     private String getObjectKey(String namespace, Long objectId)
     {
         return namespace + "." + objectId;
-    }
-
-    private String getObjectsKey(String namespace, Collection<Long> objectIds, Object fetchOptions)
-    {
-        // TODO compare fetch options
-        return namespace + "." + objectIds.toString();
     }
 
 }

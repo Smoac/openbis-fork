@@ -17,6 +17,7 @@
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.method;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -26,11 +27,11 @@ import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.material.ISearchMaterialIdExecutor;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.ITranslationContextProvider;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.material.sql.IMaterialSqlTranslator;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material.Material;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.material.MaterialFetchOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.SortAndPage;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.MaterialSearchCriterion;
 
 /**
@@ -46,9 +47,6 @@ public class SearchMaterialSqlMethodExecutor extends AbstractMethodExecutor impl
     @Autowired
     private IMaterialSqlTranslator translator;
 
-    @Autowired
-    private ITranslationContextProvider contextProvider;
-
     @Override
     public List<Material> search(final String sessionToken, final MaterialSearchCriterion criterion, final MaterialFetchOptions fetchOptions)
     {
@@ -57,50 +55,50 @@ public class SearchMaterialSqlMethodExecutor extends AbstractMethodExecutor impl
                 @Override
                 public List<Material> execute(IOperationContext context)
                 {
-                    List<Long> results = search(context, criterion, fetchOptions);
-                    return translate(context, results, fetchOptions);
+                    Collection<Material> results = searchAndTranslate(context, criterion, fetchOptions);
+                    return sortAndPage(context, results, fetchOptions);
                 }
             });
     }
 
     @SuppressWarnings("unchecked")
-    private List<Long> search(IOperationContext context, MaterialSearchCriterion criterion, MaterialFetchOptions fetchOptions)
+    private Collection<Material> searchAndTranslate(IOperationContext context, MaterialSearchCriterion criterion, MaterialFetchOptions fetchOptions)
     {
         if (fetchOptions.getCacheMode() != null)
         {
-            List<Long> ids = (List<Long>) context.getSession().getAttributes().get(getClass().getName() + "_ids");
+            Collection<Material> results = (Collection<Material>) context.getSession().getAttributes().get(getClass().getName() + "_results");
 
-            if (ids == null)
+            if (results == null)
             {
-                ids = searchExecutor.search(context, criterion);
-                context.getSession().getAttributes().put(getClass().getName() + "_ids", ids);
+                results = doSearchAndTranslate(context, criterion, fetchOptions);
+                context.getSession().getAttributes().put(getClass().getName() + "_results", results);
             }
 
-            return ids;
+            return results;
         } else
         {
-            return searchExecutor.search(context, criterion);
+            return doSearchAndTranslate(context, criterion, fetchOptions);
         }
     }
 
-    private List<Material> translate(IOperationContext context, List<Long> peList, MaterialFetchOptions fetchOptions)
+    private Collection<Material> doSearchAndTranslate(IOperationContext context, MaterialSearchCriterion criterion, MaterialFetchOptions fetchOptions)
     {
-        if (peList == null || peList.isEmpty())
+        List<Long> ids = searchExecutor.search(context, criterion);
+        TranslationContext translationContext = new TranslationContext(context.getSession());
+        Map<Long, Material> idToObjectMap = translator.translate(translationContext, ids, fetchOptions);
+        return idToObjectMap.values();
+    }
+
+    private List<Material> sortAndPage(IOperationContext context, Collection<Material> results, MaterialFetchOptions fetchOptions)
+    {
+        if (results == null || results.isEmpty())
         {
             return Collections.emptyList();
         }
 
-        Integer cacheMode = fetchOptions.getCacheMode();
-        cacheMode = cacheMode == null ? 0 : cacheMode;
+        SortAndPage sap = new SortAndPage();
+        Collection<Material> objects = sap.sortAndPage(results, fetchOptions);
 
-        if (cacheMode == 999) // TODO
-        {
-            contextProvider.discardTranslationContext(context.getSession());
-        }
-
-        TranslationContext translationContext = contextProvider.getTranslationContext(context.getSession(), cacheMode > 0);
-
-        Map<Long, Material> peToObjectMap = translator.translate(translationContext, peList, fetchOptions);
-        return new ArrayList<Material>(peToObjectMap.values());
+        return new ArrayList<Material>(objects);
     }
 }

@@ -31,7 +31,7 @@ import java.util.Date;
  * Class automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
  */
 @JsonObject("dto.entity.attachment.Attachment")
-public class Attachment implements Serializable, IRegistratorHolder, IRegistrationDateHolder
+public class Attachment implements Serializable, IRegistrationDateHolder, IRegistratorHolder
 {
     private static final long serialVersionUID = 1L;
 

@@ -21,7 +21,7 @@ import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.IDeleteEntityExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.project.IDeleteProjectExecutor;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion.project.ProjectDeletionOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.deletion.project.ProjectDeletionOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.IProjectId;
 
 /**

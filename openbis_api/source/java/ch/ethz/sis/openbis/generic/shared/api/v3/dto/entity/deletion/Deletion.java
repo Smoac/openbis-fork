@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 ETH Zuerich, Scientific IT Services
+ * Copyright 2014 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,28 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion;
-
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+package ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.deletion;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.deletion.DeletionFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.deletion.IDeletionId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.NotFetchedException;
 import ch.systemsx.cisd.base.annotation.JsonObject;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import java.io.Serializable;
+import java.util.List;
 
 /**
- * @author pkupczyk
+ * Class automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
  */
-@JsonObject("dto.deletion.Deletion")
+@JsonObject("dto.entity.deletion.Deletion")
 public class Deletion implements Serializable
 {
-
     private static final long serialVersionUID = 1L;
 
     @JsonProperty
@@ -47,41 +42,48 @@ public class Deletion implements Serializable
     private String reason;
 
     @JsonProperty
-    private List<DeletedObject> deletedObjects = new ArrayList<DeletedObject>();
+    private List<DeletedObject> deletedObjects;
 
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     @JsonIgnore
     public DeletionFetchOptions getFetchOptions()
     {
         return fetchOptions;
     }
 
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     public void setFetchOptions(DeletionFetchOptions fetchOptions)
     {
         this.fetchOptions = fetchOptions;
     }
 
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     @JsonIgnore
     public IDeletionId getId()
     {
         return id;
     }
 
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     public void setId(IDeletionId id)
     {
         this.id = id;
     }
 
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     @JsonIgnore
     public String getReason()
     {
         return reason;
     }
 
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     public void setReason(String reason)
     {
         this.reason = reason;
     }
 
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     @JsonIgnore
     public List<DeletedObject> getDeletedObjects()
     {
@@ -95,6 +97,7 @@ public class Deletion implements Serializable
         }
     }
 
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     public void setDeletedObjects(List<DeletedObject> deletedObjects)
     {
         this.deletedObjects = deletedObjects;

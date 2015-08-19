@@ -14,28 +14,19 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion;
+package ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.deletion;
 
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.IObjectId;
+import java.io.Serializable;
+
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
  * @author pkupczyk
  */
-@JsonObject("dto.deletion.DeletedObject")
-public class DeletedObject
+@JsonObject("dto.deletion.DeletionType")
+public enum DeletionType implements Serializable
 {
 
-    private IObjectId id;
-
-    public IObjectId getId()
-    {
-        return id;
-    }
-
-    public void setId(IObjectId id)
-    {
-        this.id = id;
-    }
+    PERMANENT, TRASH
 
 }
