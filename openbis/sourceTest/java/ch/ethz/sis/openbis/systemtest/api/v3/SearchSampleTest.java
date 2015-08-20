@@ -35,6 +35,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.SpacePermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.TagCode;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.TagPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SampleSearchCriterion;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SearchResult;
 
 /**
  * @author pkupczyk
@@ -476,8 +477,9 @@ public class SearchSampleTest extends AbstractSampleTest
     {
         String sessionToken = v3api.login(user, PASSWORD);
 
-        List<Sample> samples =
+        SearchResult<Sample> searchResult =
                 v3api.searchSamples(sessionToken, criterion, new SampleFetchOptions());
+        List<Sample> samples = searchResult.getObjects();
 
         assertSampleIdentifiers(samples, expectedIdentifiers);
         v3api.logout(sessionToken);
@@ -487,8 +489,9 @@ public class SearchSampleTest extends AbstractSampleTest
     {
         String sessionToken = v3api.login(user, PASSWORD);
 
-        List<Sample> samples =
+        SearchResult<Sample> searchResult =
                 v3api.searchSamples(sessionToken, criterion, new SampleFetchOptions());
+        List<Sample> samples = searchResult.getObjects();
 
         assertEquals(samples.size(), expectedCount);
         v3api.logout(sessionToken);

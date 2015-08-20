@@ -104,6 +104,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ExperimentSearchCrit
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.MaterialSearchCriterion;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ProjectSearchCriterion;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SampleSearchCriterion;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SearchResult;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SpaceSearchCriterion;
 import ch.systemsx.cisd.openbis.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
@@ -420,7 +421,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     @Override
     @Transactional(readOnly = true)
     @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
-    public List<Space> searchSpaces(String sessionToken, SpaceSearchCriterion searchCriterion, SpaceFetchOptions fetchOptions)
+    public SearchResult<Space> searchSpaces(String sessionToken, SpaceSearchCriterion searchCriterion, SpaceFetchOptions fetchOptions)
     {
         return searchSpaceExecutor.search(sessionToken, searchCriterion, fetchOptions);
     }
@@ -428,7 +429,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     @Override
     @Transactional(readOnly = true)
     @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
-    public List<Project> searchProjects(String sessionToken, ProjectSearchCriterion searchCriterion, ProjectFetchOptions fetchOptions)
+    public SearchResult<Project> searchProjects(String sessionToken, ProjectSearchCriterion searchCriterion, ProjectFetchOptions fetchOptions)
     {
         return searchProjectExecutor.search(sessionToken, searchCriterion, fetchOptions);
     }
@@ -436,7 +437,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     @Override
     @Transactional(readOnly = true)
     @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
-    public List<Experiment> searchExperiments(String sessionToken, ExperimentSearchCriterion searchCriterion,
+    public SearchResult<Experiment> searchExperiments(String sessionToken, ExperimentSearchCriterion searchCriterion,
             ExperimentFetchOptions fetchOptions)
     {
         return searchExperimentExecutor.search(sessionToken, searchCriterion, fetchOptions);
@@ -445,7 +446,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     @Override
     @Transactional(readOnly = true)
     @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
-    public List<Sample> searchSamples(String sessionToken, SampleSearchCriterion searchCriterion, SampleFetchOptions fetchOptions)
+    public SearchResult<Sample> searchSamples(String sessionToken, SampleSearchCriterion searchCriterion, SampleFetchOptions fetchOptions)
     {
         return searchSampleExecutor.search(sessionToken, searchCriterion, fetchOptions);
     }
@@ -453,7 +454,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     @Override
     @Transactional(readOnly = true)
     @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
-    public List<DataSet> searchDataSets(String sessionToken, DataSetSearchCriterion searchCriterion, DataSetFetchOptions fetchOptions)
+    public SearchResult<DataSet> searchDataSets(String sessionToken, DataSetSearchCriterion searchCriterion, DataSetFetchOptions fetchOptions)
     {
         return searchDataSetExecutor.search(sessionToken, searchCriterion, fetchOptions);
     }
@@ -461,7 +462,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     @Override
     @Transactional(readOnly = true)
     @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
-    public List<Material> searchMaterials(String sessionToken, MaterialSearchCriterion searchCriterion, MaterialFetchOptions fetchOptions)
+    public SearchResult<Material> searchMaterials(String sessionToken, MaterialSearchCriterion searchCriterion, MaterialFetchOptions fetchOptions)
     {
         return searchMaterialExecutor.search(sessionToken, searchCriterion, fetchOptions);
     }

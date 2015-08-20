@@ -23,6 +23,7 @@ import org.testng.annotations.Test;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.space.Space;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.space.SpaceFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.SpacePermId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SearchResult;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SpaceSearchCriterion;
 
 /**
@@ -144,8 +145,9 @@ public class SearchSpaceTest extends AbstractTest
     {
         String sessionToken = v3api.login(user, PASSWORD);
 
-        List<Space> spaces =
+        SearchResult<Space> searchResult =
                 v3api.searchSpaces(sessionToken, criterion, new SpaceFetchOptions());
+        List<Space> spaces = searchResult.getObjects();
 
         assertSpaceCodes(spaces, expectedCodes);
         v3api.logout(sessionToken);

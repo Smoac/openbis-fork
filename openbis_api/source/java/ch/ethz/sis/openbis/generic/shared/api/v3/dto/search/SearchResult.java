@@ -24,8 +24,24 @@ import java.util.List;
 public class SearchResult<OBJECT>
 {
 
-    private List<Object> objects;
+    private List<OBJECT> objects;
 
     private int totalCount;
+
+    public SearchResult(List<OBJECT> objects, int totalCount)
+    {
+        this.objects = objects;
+        this.totalCount = totalCount;
+    }
+
+    public List<OBJECT> getObjects()
+    {
+        return objects;
+    }
+
+    public int getTotalCount()
+    {
+        return totalCount;
+    }
 
 }

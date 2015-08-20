@@ -68,6 +68,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ExperimentSearchCrit
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.MaterialSearchCriterion;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ProjectSearchCriterion;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SampleSearchCriterion;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SearchResult;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SpaceSearchCriterion;
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.openbis.common.spring.IInvocationLoggerContext;
@@ -226,42 +227,43 @@ public class ApplicationServerApiLogger extends AbstractServerLogger implements
     }
 
     @Override
-    public List<Space> searchSpaces(String sessionToken, SpaceSearchCriterion searchCriterion, SpaceFetchOptions fetchOptions)
+    public SearchResult<Space> searchSpaces(String sessionToken, SpaceSearchCriterion searchCriterion, SpaceFetchOptions fetchOptions)
     {
         logAccess(sessionToken, "search-for-spaces", "SEARCH_CRITERION:\n%s\nFETCH_OPTIONS:\n%s\n", searchCriterion, fetchOptions);
         return null;
     }
 
     @Override
-    public List<Project> searchProjects(String sessionToken, ProjectSearchCriterion searchCriterion, ProjectFetchOptions fetchOptions)
+    public SearchResult<Project> searchProjects(String sessionToken, ProjectSearchCriterion searchCriterion, ProjectFetchOptions fetchOptions)
     {
         logAccess(sessionToken, "search-for-projects", "SEARCH_CRITERION:\n%s\nFETCH_OPTIONS:\n%s\n", searchCriterion, fetchOptions);
         return null;
     }
 
     @Override
-    public List<Experiment> searchExperiments(String sessionToken, ExperimentSearchCriterion searchCriterion, ExperimentFetchOptions fetchOptions)
+    public SearchResult<Experiment> searchExperiments(String sessionToken, ExperimentSearchCriterion searchCriterion,
+            ExperimentFetchOptions fetchOptions)
     {
         logAccess(sessionToken, "search-for-experiments", "SEARCH_CRITERION:\n%s\nFETCH_OPTIONS:\n%s\n", searchCriterion, fetchOptions);
         return null;
     }
 
     @Override
-    public List<Sample> searchSamples(String sessionToken, SampleSearchCriterion searchCriterion, SampleFetchOptions fetchOptions)
+    public SearchResult<Sample> searchSamples(String sessionToken, SampleSearchCriterion searchCriterion, SampleFetchOptions fetchOptions)
     {
         logAccess(sessionToken, "search-for-samples", "SEARCH_CRITERION:\n%s\nFETCH_OPTIONS:\n%s\n", searchCriterion, fetchOptions);
         return null;
     }
 
     @Override
-    public List<DataSet> searchDataSets(String sessionToken, DataSetSearchCriterion searchCriterion, DataSetFetchOptions fetchOptions)
+    public SearchResult<DataSet> searchDataSets(String sessionToken, DataSetSearchCriterion searchCriterion, DataSetFetchOptions fetchOptions)
     {
         logAccess(sessionToken, "search-for-data-sets", "SEARCH_CRITERION:\n%s\nFETCH_OPTIONS:\n%s\n", searchCriterion, fetchOptions);
         return null;
     }
 
     @Override
-    public List<Material> searchMaterials(String sessionToken, MaterialSearchCriterion searchCriterion, MaterialFetchOptions fetchOptions)
+    public SearchResult<Material> searchMaterials(String sessionToken, MaterialSearchCriterion searchCriterion, MaterialFetchOptions fetchOptions)
     {
         logAccess(sessionToken, "search-for-materials", "SEARCH_CRITERION:\n%s\nFETCH_OPTIONS:\n%s\n", searchCriterion, fetchOptions);
         return null;

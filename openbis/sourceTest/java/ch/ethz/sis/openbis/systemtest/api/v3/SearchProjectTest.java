@@ -26,6 +26,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.ProjectIdentifie
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.ProjectPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.SpacePermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ProjectSearchCriterion;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SearchResult;
 
 /**
  * @author pkupczyk
@@ -154,7 +155,8 @@ public class SearchProjectTest extends AbstractTest
     {
         String sessionToken = v3api.login(user, PASSWORD);
 
-        List<Project> projects = v3api.searchProjects(sessionToken, criterion, new ProjectFetchOptions());
+        SearchResult<Project> searchResult = v3api.searchProjects(sessionToken, criterion, new ProjectFetchOptions());
+        List<Project> projects = searchResult.getObjects();
 
         assertProjectIdentifiers(projects, expectedIdentifiers);
         v3api.logout(sessionToken);

@@ -28,6 +28,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.entitytype.EntityTypePer
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.material.MaterialPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.TagPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.MaterialSearchCriterion;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SearchResult;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
 
 /**
@@ -259,8 +260,9 @@ public class SearchMaterialTest extends AbstractTest
     {
         String sessionToken = v3api.login(user, PASSWORD);
 
-        List<Material> materials =
+        SearchResult<Material> searchResult =
                 v3api.searchMaterials(sessionToken, criterion, new MaterialFetchOptions());
+        List<Material> materials = searchResult.getObjects();
 
         assertMaterialPermIds(materials, expectedPermIds);
         v3api.logout(sessionToken);
@@ -270,8 +272,9 @@ public class SearchMaterialTest extends AbstractTest
     {
         String sessionToken = v3api.login(user, PASSWORD);
 
-        List<Material> materials =
+        SearchResult<Material> searchResult =
                 v3api.searchMaterials(sessionToken, criterion, new MaterialFetchOptions());
+        List<Material> materials = searchResult.getObjects();
 
         assertEquals(materials.size(), expectedCount);
         v3api.logout(sessionToken);

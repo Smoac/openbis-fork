@@ -35,6 +35,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.SpacePermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.TagCode;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.TagPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ExperimentSearchCriterion;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SearchResult;
 
 /**
  * @author pkupczyk
@@ -236,7 +237,7 @@ public class SearchExperimentTest extends AbstractExperimentTest
         criterion.withProperty("COMMENT");
         testSearch(TEST_USER, criterion, "/CISD/NEMO/EXP-TEST-1");
     }
-    
+
     @Test
     public void testSearchWithPropertyThatContains()
     {
@@ -555,8 +556,9 @@ public class SearchExperimentTest extends AbstractExperimentTest
     {
         String sessionToken = v3api.login(user, PASSWORD);
 
-        List<Experiment> experiments =
+        SearchResult<Experiment> searchResult =
                 v3api.searchExperiments(sessionToken, criterion, new ExperimentFetchOptions());
+        List<Experiment> experiments = searchResult.getObjects();
 
         assertExperimentIdentifiers(experiments, expectedIdentifiers);
         v3api.logout(sessionToken);
@@ -566,8 +568,9 @@ public class SearchExperimentTest extends AbstractExperimentTest
     {
         String sessionToken = v3api.login(user, PASSWORD);
 
-        List<Experiment> experiments =
+        SearchResult<Experiment> searchResult =
                 v3api.searchExperiments(sessionToken, criterion, new ExperimentFetchOptions());
+        List<Experiment> experiments = searchResult.getObjects();
 
         assertEquals(experiments.size(), expectedCount);
         v3api.logout(sessionToken);

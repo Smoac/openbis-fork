@@ -16,7 +16,7 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.method;
 
-import java.util.List;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SearchResult;
 
 /**
  * @author pkupczyk
@@ -24,6 +24,6 @@ import java.util.List;
 public interface ISearchMethodExecutor<OBJECT, CRITERION, FETCH_OPTIONS>
 {
 
-    public List<OBJECT> search(String sessionToken, CRITERION searchCriterion, FETCH_OPTIONS fetchOptions);
+    public SearchResult<OBJECT> search(String sessionToken, CRITERION searchCriterion, FETCH_OPTIONS fetchOptions);
 
 }

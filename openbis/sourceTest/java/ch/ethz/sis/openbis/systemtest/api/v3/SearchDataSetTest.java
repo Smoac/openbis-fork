@@ -43,6 +43,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.entitytype.EntityTypePer
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.TagPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.DataSetSearchCriterion;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SampleSearchCriterion;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SearchResult;
 
 /**
  * @author pkupczyk
@@ -408,7 +409,8 @@ public class SearchDataSetTest extends AbstractDataSetTest
     private List<DataSet> searchDataSets(String user, DataSetSearchCriterion criterion, DataSetFetchOptions fetchOptions)
     {
         String sessionToken = v3api.login(user, PASSWORD);
-        List<DataSet> dataSets = v3api.searchDataSets(sessionToken, criterion, fetchOptions);
+        SearchResult<DataSet> searchResult = v3api.searchDataSets(sessionToken, criterion, fetchOptions);
+        List<DataSet> dataSets = searchResult.getObjects();
         v3api.logout(sessionToken);
         return dataSets;
     }
