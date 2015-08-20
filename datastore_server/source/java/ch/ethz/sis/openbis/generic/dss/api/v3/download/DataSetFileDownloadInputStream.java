@@ -19,9 +19,12 @@ package ch.ethz.sis.openbis.generic.dss.api.v3.download;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
+import java.util.ArrayList;
+import java.util.Map;
 
 import ch.ethz.sis.openbis.generic.dss.api.v3.dto.entity.datasetfile.DataSetFile;
+import ch.ethz.sis.openbis.generic.dss.api.v3.dto.id.datasetfile.DataSetFilePermId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.DataSetPermId;
 import ch.systemsx.cisd.openbis.common.io.ConcatenatedContentInputStream;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
 
@@ -31,30 +34,49 @@ import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchical
 public class DataSetFileDownloadInputStream extends ConcatenatedContentInputStream
 {
 
-    public DataSetFileDownloadInputStream(List<IHierarchicalContentNode> contents)
+    private Map<IHierarchicalContentNode, String> contentNodes;
+
+    public DataSetFileDownloadInputStream(Map<IHierarchicalContentNode, String> contentNodes)
     {
-        super(true, contents);
+        super(true, new ArrayList<IHierarchicalContentNode>(contentNodes.keySet()));
+        this.contentNodes = contentNodes;
     }
 
     @Override
     protected InputStream createHeaderSizeStream(IHierarchicalContentNode contentOrNull) throws IOException
     {
-        byte[] bytes = objectToBytes(createDto(contentOrNull));
-        return new ByteArrayInputStream(longToBytes(bytes.length));
+        if (contentOrNull == null)
+        {
+            return new ByteArrayInputStream(longToBytes(0));
+        } else
+        {
+            byte[] bytes = objectToBytes(createDto(contentOrNull));
+            return new ByteArrayInputStream(longToBytes(bytes.length));
+        }
     }
 
     @Override
     protected InputStream createHeaderStream(IHierarchicalContentNode contentOrNull) throws IOException
     {
-        byte[] bytes = objectToBytes(createDto(contentOrNull));
-        return new ByteArrayInputStream(bytes);
+        if (contentOrNull == null)
+        {
+            return createEmptyStream();
+        } else
+        {
+            byte[] bytes = objectToBytes(createDto(contentOrNull));
+            return new ByteArrayInputStream(bytes);
+        }
     }
 
-    private DataSetFile createDto(IHierarchicalContentNode contentOrNull)
+    private DataSetFile createDto(IHierarchicalContentNode content)
     {
+        String dataSetCode = contentNodes.get(content);
+
         DataSetFile dto = new DataSetFile();
-        dto.setPath(contentOrNull.getRelativePath());
-        dto.setDirectory(contentOrNull.isDirectory());
+        dto.setPermId(new DataSetFilePermId(new DataSetPermId(dataSetCode), content.getRelativePath()));
+        dto.setPath(content.getRelativePath());
+        dto.setDirectory(content.isDirectory());
+        dto.setDataSetPermId(new DataSetPermId(dataSetCode));
         return dto;
     }
 

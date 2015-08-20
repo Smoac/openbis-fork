@@ -172,7 +172,7 @@ public class ConcatenatedContentInputStream extends InputStream
 
     // -------------- static helper ---------------
 
-    private static ByteArrayInputStream createEmptyStream()
+    protected static ByteArrayInputStream createEmptyStream()
     {
         return new ByteArrayInputStream(new byte[0]);
     }

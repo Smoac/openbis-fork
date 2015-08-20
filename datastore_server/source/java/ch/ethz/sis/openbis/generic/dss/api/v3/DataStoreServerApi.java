@@ -22,7 +22,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -46,6 +46,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.DataSetPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.DataSetSearchCriterion;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ISearchCriterion;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SearchOperator;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SearchResult;
 import ch.systemsx.cisd.common.filesystem.IFreeSpaceProvider;
 import ch.systemsx.cisd.common.filesystem.SimpleFreeSpaceProvider;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -135,8 +136,11 @@ public class DataStoreServerApi extends AbstractDssServiceRpc<IDataStoreServerAp
         {
             if (iSearchCriterion instanceof DataSetSearchCriterion)
             {
-                List<DataSet> dataSets = as.searchDataSets(sessionToken, (DataSetSearchCriterion) iSearchCriterion, new DataSetFetchOptions());
+                SearchResult<DataSet> searchResult =
+                        as.searchDataSets(sessionToken, (DataSetSearchCriterion) iSearchCriterion, new DataSetFetchOptions());
+                List<DataSet> dataSets = searchResult.getObjects();
                 HashSet<String> codes = new HashSet<String>();
+
                 for (DataSet dataSet : dataSets)
                 {
                     codes.add(dataSet.getCode());
@@ -164,8 +168,10 @@ public class DataStoreServerApi extends AbstractDssServiceRpc<IDataStoreServerAp
                 for (IHierarchicalContentNode node : iterate(content.getRootNode()))
                 {
                     DataSetFile file = new DataSetFile();
-                    file.setPath(node.getFile().getPath());
+                    file.setPermId(new DataSetFilePermId(new DataSetPermId(code), node.getRelativePath()));
+                    file.setPath(node.getRelativePath());
                     file.setDataSetPermId(permIds.get(code));
+                    file.setDirectory(node.isDirectory());
                     result.add(file);
                 }
             }
@@ -175,6 +181,7 @@ public class DataStoreServerApi extends AbstractDssServiceRpc<IDataStoreServerAp
     }
 
     @Transactional(readOnly = true)
+    @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Override
     public InputStream downloadFiles(String sessionToken, List<? extends IDataSetFileId> fileIds,
             DataSetFileDownloadOptions downloadOptions)
@@ -182,7 +189,7 @@ public class DataStoreServerApi extends AbstractDssServiceRpc<IDataStoreServerAp
         getOpenBISService().checkSession(sessionToken);
 
         IHierarchicalContentProvider contentProvider = getHierarchicalContentProvider(sessionToken);
-        List<IHierarchicalContentNode> contentNodes = new LinkedList<IHierarchicalContentNode>();
+        Map<IHierarchicalContentNode, String> contentNodes = new LinkedHashMap<IHierarchicalContentNode, String>();
 
         for (IDataSetFileId fileId : fileIds)
         {
@@ -202,11 +209,11 @@ public class DataStoreServerApi extends AbstractDssServiceRpc<IDataStoreServerAp
                     {
                         for (IHierarchicalContentNode child : iterate(node))
                         {
-                            contentNodes.add(child);
+                            contentNodes.put(child, dataSetCode);
                         }
                     } else
                     {
-                        contentNodes.add(node);
+                        contentNodes.put(node, dataSetCode);
                     }
 
                 } else

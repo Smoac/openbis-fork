@@ -81,11 +81,23 @@ public class DataSetFileDownloadReader
 
         } catch (EOFException e)
         {
+            close();
             return null;
         } catch (IOException e)
         {
             throw new RuntimeException(e);
         } catch (ClassNotFoundException e)
+        {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void close()
+    {
+        try
+        {
+            in.close();
+        } catch (IOException e)
         {
             throw new RuntimeException(e);
         }
@@ -114,6 +126,11 @@ public class DataSetFileDownloadReader
 
     private Object deserializeObject(long objectSize) throws IOException, ClassNotFoundException
     {
+        if (objectSize == 0)
+        {
+            return null;
+        }
+
         byte[] bytes = new byte[(int) objectSize];
 
         for (int i = 0; i < objectSize; i++)
