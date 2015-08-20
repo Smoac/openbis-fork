@@ -154,4 +154,10 @@ public class Tag implements Serializable, IRegistrationDateHolder
         this.owner = owner;
     }
 
+    @Override
+    public String toString()
+    {
+        return "Tag " + code;
+    }
+
 }

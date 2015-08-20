@@ -131,4 +131,10 @@ public class DataSetType implements Serializable, IModificationDateHolder
         this.modificationDate = modificationDate;
     }
 
+    @Override
+    public String toString()
+    {
+        return "DataSetType " + code;
+    }
+
 }

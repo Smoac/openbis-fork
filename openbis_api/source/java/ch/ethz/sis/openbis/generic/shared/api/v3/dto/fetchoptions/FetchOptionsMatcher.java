@@ -26,49 +26,9 @@ import java.util.Set;
 public class FetchOptionsMatcher
 {
 
-    public static FetchOptionsMatchType match(Object fo1, Object fo2)
-    {
-        if (fo1 == fo2)
-        {
-            return FetchOptionsMatchType.ALL_PARTS_AND_ALL_PAGING_AND_SORTING;
-        }
-        if (fo1 == null || fo2 == null)
-        {
-            return null;
-        }
-        if (false == fo1.getClass().equals(fo2.getClass()))
-        {
-            return null;
-        }
-
-        if (arePartsEqual(fo1, fo2) && areSubLevelPagingAndSortingEqual(fo1, fo2))
-        {
-            if (areTopLevelPagingAndSortingEqual(fo1, fo2))
-            {
-                return FetchOptionsMatchType.ALL_PARTS_AND_ALL_PAGING_AND_SORTING;
-            } else
-            {
-                return FetchOptionsMatchType.ALL_PARTS_AND_SUB_PAGING_AND_SORTING;
-            }
-        } else
-        {
-            return null;
-        }
-    }
-
-    private static boolean arePartsEqual(Object o1, Object o2)
+    public static boolean arePartsEqual(Object o1, Object o2)
     {
         return areEqual(o1, o2, new PartsMatcher());
-    }
-
-    private static boolean areTopLevelPagingAndSortingEqual(Object o1, Object o2)
-    {
-        return areEqual(o1, o2, new TopLevelPagingAndSortingMatcher());
-    }
-
-    private static boolean areSubLevelPagingAndSortingEqual(Object o1, Object o2)
-    {
-        return areEqual(o1, o2, new SubLevelPagingAndSortingMatcher());
     }
 
     private static boolean areEqual(Object o1, Object o2, Matcher matcher)
@@ -162,59 +122,6 @@ public class FetchOptionsMatcher
         public boolean match(Object o1, Object o2, boolean has1, boolean has2, Object with1, Object with2)
         {
             return has1 == has2;
-        }
-
-    }
-
-    private static abstract class PagingAndSortingMatcher implements Matcher
-    {
-
-        @Override
-        public boolean match(Object o1, Object o2, boolean has1, boolean has2, Object with1, Object with2)
-        {
-            FetchOptions<?> fo1 = o1 instanceof FetchOptions ? (FetchOptions<?>) o1 : null;
-            FetchOptions<?> fo2 = o2 instanceof FetchOptions ? (FetchOptions<?>) o2 : null;
-
-            if (fo1 == null ^ fo2 == null)
-            {
-                return false;
-            }
-
-            if (fo1 != null && fo2 != null)
-            {
-                // TODO compare sorting
-                return areEqual(fo1.getFrom(), fo2.getFrom()) && areEqual(fo1.getCount(), fo2.getCount());
-            } else
-            {
-                return true;
-            }
-        }
-
-        private boolean areEqual(Object o1, Object o2)
-        {
-            return o1 == null ? o2 == null : o1.equals(o2);
-        }
-
-    }
-
-    private static class TopLevelPagingAndSortingMatcher extends PagingAndSortingMatcher
-    {
-
-        @Override
-        public boolean shouldMatch(int level)
-        {
-            return level == 0;
-        }
-
-    }
-
-    private static class SubLevelPagingAndSortingMatcher extends PagingAndSortingMatcher
-    {
-
-        @Override
-        public boolean shouldMatch(int level)
-        {
-            return level > 0;
         }
 
     }

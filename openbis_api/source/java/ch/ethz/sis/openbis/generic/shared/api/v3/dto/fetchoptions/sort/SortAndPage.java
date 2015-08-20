@@ -22,7 +22,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -42,6 +41,12 @@ public class SortAndPage
     public <T, C extends Collection<T>> C sortAndPage(C objects, FetchOptions fo)
     {
         C newObjects = objects;
+
+        if (objects instanceof AbstractCollectionView)
+        {
+            newObjects = (C) ((AbstractCollectionView) objects).getOriginalCollection();
+        }
+
         newObjects = (C) sort(newObjects, fo);
         newObjects = (C) page(newObjects, fo);
         nest(newObjects, fo);
@@ -101,29 +106,16 @@ public class SortAndPage
 
             if (objects instanceof List)
             {
-                paged = new ArrayList();
+                paged = new ListView((List) objects, fo.getFrom(), fo.getCount());
             } else if (objects instanceof Set)
             {
-                paged = new LinkedHashSet();
+                paged = new SetView(objects, fo.getFrom(), fo.getCount());
+            } else if (objects instanceof Collection)
+            {
+                paged = new ListView((List) objects, fo.getFrom(), fo.getCount());
             } else
             {
                 throw new IllegalArgumentException("Unsupported collection: " + objects.getClass());
-            }
-
-            Integer from = fo.getFrom();
-            Integer count = fo.getCount();
-
-            if (from != null && count != null)
-            {
-                int index = 0;
-                for (Object item : objects)
-                {
-                    if (index >= from && index < from + count)
-                    {
-                        paged.add(item);
-                    }
-                    index++;
-                }
             }
 
             return paged;

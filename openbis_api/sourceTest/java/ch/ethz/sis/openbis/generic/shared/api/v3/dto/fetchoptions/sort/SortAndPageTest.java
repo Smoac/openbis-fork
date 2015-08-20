@@ -1,5 +1,6 @@
 package ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort;
 
+import static org.testng.AssertJUnit.assertEquals;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -8,8 +9,8 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
-import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material.Material;
@@ -22,71 +23,71 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.material.Mater
 public class SortAndPageTest
 {
     @Test
-    public void testSortAndPageTopLevel()
+    public void testTopLevel()
     {
         MaterialFetchOptions fo = new MaterialFetchOptions();
         fo.sortBy().code().desc();
         fo.from(1).count(2);
 
-        Material m1 = new Material();
-        m1.setCode("S1");
-        m1.setFetchOptions(fo);
+        Material material1 = new Material();
+        material1.setCode("M1");
+        material1.setFetchOptions(fo);
 
-        Material m2 = new Material();
-        m2.setCode("S2");
-        m2.setFetchOptions(fo);
+        Material material2 = new Material();
+        material2.setCode("M2");
+        material2.setFetchOptions(fo);
 
-        Material m3 = new Material();
-        m3.setCode("S3");
-        m3.setFetchOptions(fo);
+        Material material3 = new Material();
+        material3.setCode("M3");
+        material3.setFetchOptions(fo);
 
         List<Material> materials = new ArrayList<Material>();
-        materials.add(m1);
-        materials.add(m2);
-        materials.add(m3);
+        materials.add(material1);
+        materials.add(material2);
+        materials.add(material3);
 
         Collection<Material> results = new SortAndPage().sortAndPage(materials, fo);
 
-        assertMaterials(results, Arrays.asList("S2", "S1"));
+        assertEquals(results, list(material2, material1));
     }
 
     @Test
-    public void testSortAndPageSubLevel()
+    public void testSubLevel()
     {
         MaterialFetchOptions fo = new MaterialFetchOptions();
         fo.sortBy().code().desc();
         fo.withTags().from(1).count(1);
 
-        Tag t1 = new Tag();
-        t1.setCode("T1");
-        Tag t2 = new Tag();
-        t2.setCode("T2");
-        Tag t3 = new Tag();
-        t3.setCode("T3");
+        Tag tag1 = new Tag();
+        tag1.setCode("T1");
+        Tag tag2 = new Tag();
+        tag2.setCode("T2");
+        Tag tag3 = new Tag();
+        tag3.setCode("T3");
 
-        Material m1 = new Material();
-        m1.setCode("S1");
-        m1.setTags(new LinkedHashSet<Tag>(Arrays.asList(t1, t2)));
-        m1.setFetchOptions(fo);
+        Material material1 = new Material();
+        material1.setCode("M1");
+        material1.setTags(set(tag1, tag2));
+        material1.setFetchOptions(fo);
 
-        Material m2 = new Material();
-        m2.setCode("S2");
-        m2.setTags(new LinkedHashSet<Tag>(Arrays.asList(t2, t3)));
-        m2.setFetchOptions(fo);
+        Material material2 = new Material();
+        material2.setCode("M2");
+        material2.setTags(set(tag2, tag3));
+        material2.setFetchOptions(fo);
 
         List<Material> materials = new ArrayList<Material>();
-        materials.add(m1);
-        materials.add(m2);
+        materials.add(material1);
+        materials.add(material2);
 
         List<Material> results = new SortAndPage().sortAndPage(materials, fo);
 
-        assertMaterials(results, Arrays.asList("S2", "S1"));
-        assertTags(results.get(0).getTags(), Arrays.asList("T3"));
-        assertTags(results.get(1).getTags(), Arrays.asList("T2"));
+        assertEquals(results, list(material2, material1));
+        assertEquals(results.get(0).getTags(), set(tag3));
+        assertEquals(results.get(1).getTags(), set(tag2));
     }
 
     @Test
-    public void testSortAndPageSubLevelThroughSingleRelation()
+    public void testSubLevelThroughSingleRelation()
     {
         MaterialFetchOptions fo = new MaterialFetchOptions();
         fo.sortBy().code().desc();
@@ -95,11 +96,9 @@ public class SortAndPageTest
         fo.withMaterialProperties().withTags();
 
         Project project1 = new Project();
-        project1.setCode("P1");
         project1.setFetchOptions(fo.withRegistrator().withSpace().withProjects());
 
         Project project2 = new Project();
-        project2.setCode("P2");
         project2.setFetchOptions(fo.withRegistrator().withSpace().withProjects());
 
         Space space1 = new Space();
@@ -107,63 +106,61 @@ public class SortAndPageTest
         space1.setFetchOptions(fo.withRegistrator().withSpace());
 
         Person person1 = new Person();
-        person1.setLastName("Foo");
         person1.setSpace(space1);
         person1.setFetchOptions(fo.withRegistrator());
 
-        Tag t1 = new Tag();
-        t1.setCode("T1");
-        Tag t2 = new Tag();
-        t2.setCode("T2");
-        Tag t3 = new Tag();
-        t3.setCode("T3");
+        Tag tag1 = new Tag();
+        tag1.setCode("T1");
+        Tag tag2 = new Tag();
+        tag2.setCode("T2");
+        Tag tag3 = new Tag();
+        tag3.setCode("T3");
 
-        Material m1 = new Material();
-        m1.setCode("M1");
-        m1.setTags(new LinkedHashSet<Tag>(Arrays.asList(t1, t2)));
-        m1.setRegistrator(person1);
-        m1.setFetchOptions(fo);
+        Material material1 = new Material();
+        material1.setCode("M1");
+        material1.setTags(set(tag1, tag2));
+        material1.setRegistrator(person1);
+        material1.setFetchOptions(fo);
 
-        Material m2 = new Material();
-        m2.setCode("M2");
-        m2.setTags(new LinkedHashSet<Tag>(Arrays.asList(t2, t3)));
-        m2.setRegistrator(person1);
-        m2.setFetchOptions(fo);
+        Material material2 = new Material();
+        material2.setCode("M2");
+        material2.setTags(set(tag2, tag3));
+        material2.setRegistrator(person1);
+        material2.setFetchOptions(fo);
 
-        Material m3 = new Material();
-        m3.setCode("M3");
-        m3.setTags(new LinkedHashSet<Tag>(Arrays.asList(t1, t3)));
-        m3.setFetchOptions(fo);
+        Material material3 = new Material();
+        material3.setCode("M3");
+        material3.setTags(set(tag1, tag3));
+        material3.setFetchOptions(fo);
 
         Map<String, Material> properties1 = new HashMap<String, Material>();
-        properties1.put("PROPERTY_1", m1);
-        properties1.put("PROPERTY_3", m3);
-        m1.setMaterialProperties(properties1);
+        properties1.put("PROPERTY_1", material1);
+        properties1.put("PROPERTY_3", material3);
+        material1.setMaterialProperties(properties1);
 
         Map<String, Material> properties2 = new HashMap<String, Material>();
-        properties2.put("PROPERTY_2", m2);
-        properties2.put("PROPERTY_3", m3);
-        m2.setMaterialProperties(properties2);
+        properties2.put("PROPERTY_2", material2);
+        properties2.put("PROPERTY_3", material3);
+        material2.setMaterialProperties(properties2);
 
         List<Material> materials = new ArrayList<Material>();
-        materials.add(m1);
-        materials.add(m2);
+        materials.add(material1);
+        materials.add(material2);
 
         List<Material> results = new SortAndPage().sortAndPage(materials, fo);
 
-        assertMaterials(results, Arrays.asList("M2", "M1"));
+        assertEquals(results, list(material2, material1));
 
-        Material m1Result = results.get(1);
-        Material m2Result = results.get(0);
+        Material material1Result = results.get(1);
+        Material material2Result = results.get(0);
 
-        assertTags(m1Result.getTags(), Arrays.asList("T2"));
-        assertTags(m1Result.getTags(), Arrays.asList("T2"));
-        assertTags(m2Result.getTags(), Arrays.asList("T3"));
+        assertEquals(material1Result.getTags(), set(tag2));
+        assertEquals(material2Result.getTags(), set(tag3));
 
-        assertProjects(m1Result.getRegistrator().getSpace().getProjects(), Arrays.asList("P2"));
-        assertProjects(m2Result.getRegistrator().getSpace().getProjects(), Arrays.asList("P2"));
+        assertEquals(material1Result.getRegistrator().getSpace().getProjects(), list(project2));
+        assertEquals(material2Result.getRegistrator().getSpace().getProjects(), list(project2));
 
-        assertTags(m2Result.getMaterialProperties().get("PROPERTY_3").getTags(), Arrays.asList("T1", "T3"));
+        assertEquals(material2Result.getMaterialProperties().get("PROPERTY_3").getTags(), set(tag1, tag3));
     }
 
     @Test
@@ -173,67 +170,77 @@ public class SortAndPageTest
         fo.sortBy().code().desc();
         fo.sortBy().registrationDate().asc();
 
-        Material m1 = new Material();
-        m1.setCode("S1");
-        m1.setRegistrationDate(new Date(3));
-        m1.setFetchOptions(fo);
+        Material material1 = new Material();
+        material1.setCode("M1");
+        material1.setRegistrationDate(new Date(3));
+        material1.setFetchOptions(fo);
 
-        Material m2 = new Material();
-        m2.setCode("S1");
-        m2.setRegistrationDate(new Date(2));
-        m2.setFetchOptions(fo);
+        Material material2 = new Material();
+        material2.setCode("M2");
+        material2.setRegistrationDate(new Date(2));
+        material2.setFetchOptions(fo);
 
-        Material m3 = new Material();
-        m3.setCode("S3");
-        m3.setRegistrationDate(new Date(1));
-        m3.setFetchOptions(fo);
+        Material material3 = new Material();
+        material3.setCode("M3");
+        material3.setRegistrationDate(new Date(1));
+        material3.setFetchOptions(fo);
 
         List<Material> materials = new ArrayList<Material>();
-        materials.add(m1);
-        materials.add(m2);
-        materials.add(m3);
+        materials.add(material1);
+        materials.add(material2);
+        materials.add(material3);
 
         List<Material> results = new SortAndPage().sortAndPage(materials, fo);
 
-        Assert.assertEquals(results.get(0), m3);
-        Assert.assertEquals(results.get(1), m2);
-        Assert.assertEquals(results.get(2), m1);
+        assertEquals(results.get(0), material3);
+        assertEquals(results.get(1), material2);
+        assertEquals(results.get(2), material1);
     }
 
-    private void assertMaterials(Collection<Material> results, Collection<String> codes)
+    @Test
+    public void testSamePageMultipleTimes()
     {
-        Collection<String> actualCodes = new ArrayList<String>();
+        Tag tag1 = new Tag();
+        tag1.setCode("T1");
+        Tag tag2 = new Tag();
+        tag2.setCode("T2");
+        Tag tag3 = new Tag();
+        tag3.setCode("T3");
 
-        for (Material result : results)
-        {
-            actualCodes.add(result.getCode());
-        }
+        MaterialFetchOptions fo = new MaterialFetchOptions();
+        fo.from(1).count(1);
+        fo.withTags().from(1).count(1);
 
-        Assert.assertEquals(actualCodes, codes);
+        Material material1 = new Material();
+        material1.setCode("M1");
+        material1.setTags(set(tag1, tag3));
+        material1.setFetchOptions(fo);
+
+        Material material2 = new Material();
+        material2.setCode("M2");
+        material2.setTags(set(tag2, tag3));
+        material2.setFetchOptions(fo);
+
+        List<Material> materials = new ArrayList<Material>();
+        materials.add(material1);
+        materials.add(material2);
+
+        List<Material> results = new SortAndPage().sortAndPage(materials, fo);
+
+        assertEquals(results, list(material2));
+        assertEquals(results.get(0).getTags(), set(tag3));
     }
 
-    private void assertTags(Collection<Tag> results, Collection<String> codes)
+    @SuppressWarnings("unchecked")
+    private <T> List<T> list(T... items)
     {
-        Collection<String> actualCodes = new ArrayList<String>();
-
-        for (Tag result : results)
-        {
-            actualCodes.add(result.getCode());
-        }
-
-        Assert.assertEquals(actualCodes, codes);
+        return Arrays.asList(items);
     }
 
-    private void assertProjects(Collection<Project> results, Collection<String> codes)
+    @SuppressWarnings("unchecked")
+    private <T> Set<T> set(T... items)
     {
-        Collection<String> actualCodes = new ArrayList<String>();
-
-        for (Project result : results)
-        {
-            actualCodes.add(result.getCode());
-        }
-
-        Assert.assertEquals(actualCodes, codes);
+        return new LinkedHashSet<T>(Arrays.asList(items));
     }
 
 }

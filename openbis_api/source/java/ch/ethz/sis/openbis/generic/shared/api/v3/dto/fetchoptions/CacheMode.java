@@ -16,27 +16,12 @@
 
 package ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions;
 
-public enum FetchOptionsMatchType
+/**
+ * @author pkupczyk
+ */
+public enum CacheMode
 {
 
-    ALL_PARTS_AND_ALL_PAGING_AND_SORTING
-    {
-        @Override
-        public boolean isBetterThan(FetchOptionsMatchType matchType)
-        {
-            return matchType == ALL_PARTS_AND_SUB_PAGING_AND_SORTING;
-        }
-
-    },
-    ALL_PARTS_AND_SUB_PAGING_AND_SORTING
-    {
-        @Override
-        public boolean isBetterThan(FetchOptionsMatchType matchType)
-        {
-            return false;
-        }
-    };
-
-    public abstract boolean isBetterThan(FetchOptionsMatchType matchType);
+    NO_CACHE, CACHE, RELOAD_AND_CACHE
 
 }

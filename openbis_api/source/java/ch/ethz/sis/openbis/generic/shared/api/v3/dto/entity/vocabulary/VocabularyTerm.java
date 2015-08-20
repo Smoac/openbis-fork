@@ -213,4 +213,10 @@ public class VocabularyTerm implements Serializable, IRegistrationDateHolder, IM
         this.modificationDate = modificationDate;
     }
 
+    @Override
+    public String toString()
+    {
+        return "VocabularyTerm " + code;
+    }
+
 }

@@ -189,4 +189,10 @@ public class Space implements Serializable, IRegistrationDateHolder, IRegistrato
         this.projects = projects;
     }
 
+    @Override
+    public String toString()
+    {
+        return "Space " + permId;
+    }
+
 }

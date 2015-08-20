@@ -103,4 +103,10 @@ public class HistoryEntry implements Serializable
         this.author = author;
     }
 
+    @Override
+    public String toString()
+    {
+        return "HistoryEntry from: " + validFrom + ", to: " + validTo;
+    }
+
 }

@@ -141,4 +141,10 @@ public class Vocabulary implements Serializable, IRegistrationDateHolder, IModif
         this.modificationDate = modificationDate;
     }
 
+    @Override
+    public String toString()
+    {
+        return "Vocabulary " + code;
+    }
+
 }

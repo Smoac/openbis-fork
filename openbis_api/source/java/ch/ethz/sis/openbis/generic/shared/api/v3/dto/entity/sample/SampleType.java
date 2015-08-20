@@ -194,4 +194,10 @@ public class SampleType implements Serializable, IModificationDateHolder
         this.modificationDate = modificationDate;
     }
 
+    @Override
+    public String toString()
+    {
+        return "SampleType " + code;
+    }
+
 }

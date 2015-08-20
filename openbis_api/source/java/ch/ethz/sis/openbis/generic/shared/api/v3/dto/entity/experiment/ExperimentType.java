@@ -114,4 +114,10 @@ public class ExperimentType implements Serializable, IModificationDateHolder
         this.modificationDate = modificationDate;
     }
 
+    @Override
+    public String toString()
+    {
+        return "ExperimentType " + code;
+    }
+
 }

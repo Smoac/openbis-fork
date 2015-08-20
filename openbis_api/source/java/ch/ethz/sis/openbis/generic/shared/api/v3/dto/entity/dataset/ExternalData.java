@@ -248,4 +248,10 @@ public class ExternalData implements Serializable
         this.speedHint = speedHint;
     }
 
+    @Override
+    public String toString()
+    {
+        return "ExternalData " + location;
+    }
+
 }

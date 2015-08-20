@@ -214,4 +214,10 @@ public class Person implements Serializable, IRegistrationDateHolder, ISpaceHold
         this.registrator = registrator;
     }
 
+    @Override
+    public String toString()
+    {
+        return "Person " + userId;
+    }
+
 }

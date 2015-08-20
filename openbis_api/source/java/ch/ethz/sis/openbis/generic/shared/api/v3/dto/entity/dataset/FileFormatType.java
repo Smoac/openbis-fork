@@ -78,4 +78,10 @@ public class FileFormatType implements Serializable
         this.description = description;
     }
 
+    @Override
+    public String toString()
+    {
+        return "FileFormatType " + code;
+    }
+
 }

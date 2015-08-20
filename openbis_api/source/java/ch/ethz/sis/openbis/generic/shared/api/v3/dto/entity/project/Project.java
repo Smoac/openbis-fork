@@ -324,4 +324,10 @@ public class Project implements Serializable, IRegistrationDateHolder, IAttachme
         this.attachments = attachments;
     }
 
+    @Override
+    public String toString()
+    {
+        return "Project " + permId;
+    }
+
 }

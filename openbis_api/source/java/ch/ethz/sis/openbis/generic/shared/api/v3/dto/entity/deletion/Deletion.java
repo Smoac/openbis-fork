@@ -103,4 +103,10 @@ public class Deletion implements Serializable
         this.deletedObjects = deletedObjects;
     }
 
+    @Override
+    public String toString()
+    {
+        return "Deletion " + id;
+    }
+
 }

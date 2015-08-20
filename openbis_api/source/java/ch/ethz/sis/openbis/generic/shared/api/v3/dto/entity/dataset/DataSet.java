@@ -509,4 +509,10 @@ public class DataSet implements Serializable, ITagsHolder, IRegistrationDateHold
         this.materialProperties = materialProperties;
     }
 
+    @Override
+    public String toString()
+    {
+        return "DataSet " + code;
+    }
+
 }

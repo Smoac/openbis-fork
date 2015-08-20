@@ -78,4 +78,10 @@ public class LocatorType implements Serializable
         this.description = description;
     }
 
+    @Override
+    public String toString()
+    {
+        return "LocatorType " + code;
+    }
+
 }

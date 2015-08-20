@@ -23,6 +23,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.Cache;
+import org.springframework.cache.Cache.ValueWrapper;
+import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
@@ -30,6 +33,9 @@ import ch.ethz.sis.openbis.generic.server.api.v3.executor.material.ISearchMateri
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.material.sql.IMaterialSqlTranslator;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material.Material;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.CacheMode;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.FetchOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.FetchOptionsMatcher;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.material.MaterialFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.SortAndPage;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.MaterialSearchCriterion;
@@ -46,6 +52,9 @@ public class SearchMaterialSqlMethodExecutor extends AbstractMethodExecutor impl
 
     @Autowired
     private IMaterialSqlTranslator translator;
+
+    @Autowired
+    private CacheManager cacheManager;
 
     @Override
     public List<Material> search(final String sessionToken, final MaterialSearchCriterion criterion, final MaterialFetchOptions fetchOptions)
@@ -64,20 +73,37 @@ public class SearchMaterialSqlMethodExecutor extends AbstractMethodExecutor impl
     @SuppressWarnings("unchecked")
     private Collection<Material> searchAndTranslate(IOperationContext context, MaterialSearchCriterion criterion, MaterialFetchOptions fetchOptions)
     {
-        if (fetchOptions.getCacheMode() != null)
+        if (CacheMode.NO_CACHE.equals(fetchOptions.getCacheMode()))
         {
-            Collection<Material> results = (Collection<Material>) context.getSession().getAttributes().get(getClass().getName() + "_results");
+            return doSearchAndTranslate(context, criterion, fetchOptions);
+        } else if (CacheMode.CACHE.equals(fetchOptions.getCacheMode()) || CacheMode.RELOAD_AND_CACHE.equals(fetchOptions.getCacheMode()))
+        {
+            Cache cache = cacheManager.getCache("searchCache");
+            CacheKey key = new CacheKey(context.getSession().getSessionToken(), fetchOptions);
+            Collection<Material> results = null;
+
+            if (CacheMode.RELOAD_AND_CACHE.equals(fetchOptions.getCacheMode()))
+            {
+                cache.evict(key);
+            } else
+            {
+                ValueWrapper wrapper = cache.get(key);
+                if (wrapper != null)
+                {
+                    results = (Collection<Material>) wrapper.get();
+                }
+            }
 
             if (results == null)
             {
                 results = doSearchAndTranslate(context, criterion, fetchOptions);
-                context.getSession().getAttributes().put(getClass().getName() + "_results", results);
+                cache.put(key, results);
             }
 
             return results;
         } else
         {
-            return doSearchAndTranslate(context, criterion, fetchOptions);
+            throw new IllegalArgumentException("Unsupported cache mode: " + fetchOptions.getCacheMode());
         }
     }
 
@@ -100,5 +126,45 @@ public class SearchMaterialSqlMethodExecutor extends AbstractMethodExecutor impl
         Collection<Material> objects = sap.sortAndPage(results, fetchOptions);
 
         return new ArrayList<Material>(objects);
+    }
+
+    private static class CacheKey
+    {
+
+        private String sessionToken;
+
+        private FetchOptions<?> fetchOptions;
+
+        public CacheKey(String sessionToken, FetchOptions<?> fetchOptions)
+        {
+            this.sessionToken = sessionToken;
+            this.fetchOptions = fetchOptions;
+        }
+
+        @Override
+        public int hashCode()
+        {
+            return sessionToken.hashCode() + fetchOptions.getClass().hashCode();
+        }
+
+        @Override
+        public boolean equals(Object obj)
+        {
+            if (this == obj)
+            {
+                return true;
+            }
+            if (obj == null)
+            {
+                return false;
+            }
+            if (getClass() != obj.getClass())
+            {
+                return false;
+            }
+
+            CacheKey other = (CacheKey) obj;
+            return sessionToken.equals(other.sessionToken) && FetchOptionsMatcher.arePartsEqual(fetchOptions, other.fetchOptions);
+        }
     }
 }

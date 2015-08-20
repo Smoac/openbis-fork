@@ -121,6 +121,8 @@ public class Generator extends AbstractGenerator
 
         gen.addStringField("generatedCodePrefix");
         addModificationDate(gen);
+        
+        gen.setToStringMethod("\"SampleType \" + code");
 
         return gen;
     }
@@ -189,6 +191,8 @@ public class Generator extends AbstractGenerator
         addDescription(gen);
         addModificationDate(gen);
 
+        gen.setToStringMethod("\"ExperimentType \" + code");
+        
         // TODO add property definitions
 
         // TODO add validation script
@@ -231,6 +235,8 @@ public class Generator extends AbstractGenerator
         addExperiment(gen);
         addSample(gen);
         addProperties(gen);
+        
+        gen.setToStringMethod("\"DataSet \" + code");
 
         return gen;
     }
@@ -245,6 +251,8 @@ public class Generator extends AbstractGenerator
         addDescription(gen);
         addModificationDate(gen);
 
+        gen.setToStringMethod("\"DataSetType \" + code");
+        
         // TODO add property definitions
 
         // TODO add validation script
@@ -266,6 +274,8 @@ public class Generator extends AbstractGenerator
         gen.addBooleanField("presentInArchive");
         gen.addBooleanField("storageConfirmation");
         gen.addSimpleField(Integer.class, "speedHint");
+        
+        gen.setToStringMethod("\"ExternalData \" + location");
 
         return gen;
     }
@@ -276,6 +286,8 @@ public class Generator extends AbstractGenerator
 
         gen.addStringField("code");
         gen.addStringField("description");
+        
+        gen.setToStringMethod("\"FileFormatType \" + code");
 
         return gen;
     }
@@ -286,6 +298,8 @@ public class Generator extends AbstractGenerator
 
         gen.addStringField("code");
         gen.addStringField("description");
+        
+        gen.setToStringMethod("\"LocatorType \" + code");
 
         return gen;
     }
@@ -296,6 +310,9 @@ public class Generator extends AbstractGenerator
         gen.addSimpleField(IDeletionId.class, "id");
         gen.addStringField("reason");
         gen.addPluralFetchedField("List<DeletedObject>", List.class.getName(), "deletedObjects", "Deleted objects", DeletionFetchOptions.class);
+        
+        gen.setToStringMethod("\"Deletion \" + id");
+        
         return gen;
     }
 
@@ -308,6 +325,8 @@ public class Generator extends AbstractGenerator
         addRegistrationDate(gen);
         addRegistrator(gen);
         addModificationDate(gen);
+        
+        gen.setToStringMethod("\"Vocabulary \" + code");
 
         return gen;
     }
@@ -325,6 +344,8 @@ public class Generator extends AbstractGenerator
         addRegistrationDate(gen);
         addRegistrator(gen);
         addModificationDate(gen);
+        
+        gen.setToStringMethod("\"VocabularyTerm \" + code");
 
         return gen;
     }
@@ -343,6 +364,8 @@ public class Generator extends AbstractGenerator
 
         addSpace(gen);
         addRegistrator(gen);
+        
+        gen.setToStringMethod("\"Person \" + userId");
 
         return gen;
     }
@@ -369,6 +392,8 @@ public class Generator extends AbstractGenerator
 
         gen.addFetchedField(Person.class, "leader", "Leader", PersonFetchOptions.class);
         addAttachments(gen);
+        
+        gen.setToStringMethod("\"Project \" + permId");
 
         return gen;
     }
@@ -386,6 +411,9 @@ public class Generator extends AbstractGenerator
         gen.addClassForImport(Sample.class);
         gen.addPluralFetchedField("List<Project>", List.class.getName(), "projects", "Projects", ProjectFetchOptions.class);
         gen.addClassForImport(Project.class);
+        
+        gen.setToStringMethod("\"Space \" + permId");
+        
         return gen;
     }
 
@@ -400,6 +428,8 @@ public class Generator extends AbstractGenerator
         addRegistrationDate(gen);
 
         gen.addFetchedField(Person.class, "owner", "Owner", PersonFetchOptions.class);
+        
+        gen.setToStringMethod("\"Tag \" + code");
 
         return gen;
     }
@@ -419,6 +449,9 @@ public class Generator extends AbstractGenerator
         addModificationDate(gen);
         addProperties(gen);
         addTags(gen);
+        
+        gen.setToStringMethod("\"Material \" + code");
+        
         return gen;
     }
 
@@ -430,6 +463,9 @@ public class Generator extends AbstractGenerator
         addCode(gen);
         addDescription(gen);
         addModificationDate(gen);
+        
+        gen.setToStringMethod("\"MaterialType \" + code");
+        
         return gen;
     }
 
@@ -439,6 +475,9 @@ public class Generator extends AbstractGenerator
         gen.addSimpleField(Date.class, "validFrom");
         gen.addSimpleField(Date.class, "validTo");
         gen.addFetchedField(Person.class, "author", "Author", PersonFetchOptions.class);
+        
+        gen.setToStringMethod("\"HistoryEntry from: \" + validFrom + \", to: \" + validTo");
+        
         return gen;
     }
 

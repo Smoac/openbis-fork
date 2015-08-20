@@ -269,4 +269,10 @@ public class Material implements Serializable, ITagsHolder, IRegistrationDateHol
         this.tags = tags;
     }
 
+    @Override
+    public String toString()
+    {
+        return "Material " + code;
+    }
+
 }
