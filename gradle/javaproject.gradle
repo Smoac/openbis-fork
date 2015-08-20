@@ -92,13 +92,7 @@ def execute_working_dir(command, arguments, working_dir) {
 ext.svnCommand = 'svn'
 
 def isSvnProject() {
-   def result = exec {
-            executable = svnCommand
-            args = ['--non-interactive', "info"]
-            standardOutput = new ByteArrayOutputStream()
-            ignoreExitValue = true
-        }
-    return result["exitValue"] == 0
+   return new java.io.File(projectDir, ".svn").isDirectory()
 }
 
 def executeSVN(arguments) {
@@ -127,15 +121,6 @@ def findMaximum(lines, key) {
     return lines.findAll({ it.startsWith(key)}).collect({element -> element.split(':')[1].toInteger()}).max()
 }
 
-def findGitSvnVersion(lines) {
-    for (a in lines) {
-        if (a.contains("git-svn-id")) {
-            return a.split("@")[1].split()[0].toInteger()
-        }
-    }
-    return "LOCAL_COMMIT"
-}
-
 def calculateBuildInfo() {
     if (isSvnProject()) {
         def output = executeSVN(['info', '-R', '../' + project.name])
@@ -152,9 +137,9 @@ def calculateBuildInfo() {
             project.ext.versionNumber = 'libraries' == pathElements[-2] ? pathElements[-3] : pathElements[-2]
         }
     } else {
-        def gitlogoutput = execute_working_dir('git', ['log', '-1'], '../' + project.name)
-        project.ext.revisionNumber = findGitSvnVersion(gitlogoutput)
-        project.ext.versionNumber = 'GIT-SNAPSHOT'
+        def gitlogoutput = execute_working_dir('git', ['log', '-1', '--format=%at'], '../' + project.name)
+        project.ext.revisionNumber = Integer.parseInt(gitlogoutput[0])
+        project.ext.versionNumber = 'SNAPSHOT'
     }
 
     for (childProject in project.childProjects.values()) {
