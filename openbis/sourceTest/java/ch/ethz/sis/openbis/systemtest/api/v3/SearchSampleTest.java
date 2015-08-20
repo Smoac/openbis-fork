@@ -17,12 +17,15 @@
 package ch.ethz.sis.openbis.systemtest.api.v3;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotSame;
+import static org.testng.Assert.assertSame;
 
 import java.util.List;
 
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.Sample;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.CacheMode;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sample.SampleFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.entitytype.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentIdentifier;
@@ -473,14 +476,95 @@ public class SearchSampleTest extends AbstractSampleTest
         testSearch(TEST_USER, criterion, "/CISD/CP-TEST-1", "/CISD/CP-TEST-2");
     }
 
+    @Test
+    public void testSearchWithCachingNoCache()
+    {
+        SampleSearchCriterion criterion = new SampleSearchCriterion();
+        criterion.withOrOperator();
+        criterion.withPermId().thatEquals("200902091219327-1025");
+        criterion.withPermId().thatEquals("200902091250077-1026");
+
+        SampleFetchOptions fo = new SampleFetchOptions();
+        fo.cacheMode(CacheMode.NO_CACHE);
+
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        List<Sample> samples1 = search(sessionToken, criterion, fo);
+        List<Sample> samples2 = search(sessionToken, criterion, fo);
+        v3api.logout(sessionToken);
+
+        assertEquals(samples1.get(0).getPermId(), samples2.get(0).getPermId());
+        assertEquals(samples1.get(1).getPermId(), samples2.get(1).getPermId());
+
+        assertNotSame(samples1.get(0), samples2.get(0));
+        assertNotSame(samples1.get(1), samples2.get(1));
+    }
+
+    @Test
+    public void testSearchWithCachingCache()
+    {
+        SampleSearchCriterion criterion = new SampleSearchCriterion();
+        criterion.withOrOperator();
+        criterion.withPermId().thatEquals("200902091219327-1025");
+        criterion.withPermId().thatEquals("200902091250077-1026");
+
+        SampleFetchOptions fo = new SampleFetchOptions();
+        fo.cacheMode(CacheMode.CACHE);
+
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        List<Sample> samples1 = search(sessionToken, criterion, fo);
+        List<Sample> samples2 = search(sessionToken, criterion, fo);
+        v3api.logout(sessionToken);
+
+        assertEquals(samples1.get(0).getPermId(), samples2.get(0).getPermId());
+        assertEquals(samples1.get(1).getPermId(), samples2.get(1).getPermId());
+
+        assertSame(samples1.get(0), samples2.get(0));
+        assertSame(samples1.get(1), samples2.get(1));
+    }
+
+    @Test
+    public void testSearchWithCachingReloadAndCache()
+    {
+        SampleSearchCriterion criterion = new SampleSearchCriterion();
+        criterion.withOrOperator();
+        criterion.withPermId().thatEquals("200902091219327-1025");
+        criterion.withPermId().thatEquals("200902091250077-1026");
+
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        SampleFetchOptions fo = new SampleFetchOptions();
+
+        fo.cacheMode(CacheMode.CACHE);
+        List<Sample> samples1 = search(sessionToken, criterion, fo);
+        List<Sample> samples2 = search(sessionToken, criterion, fo);
+
+        fo.cacheMode(CacheMode.RELOAD_AND_CACHE);
+        List<Sample> samples3 = search(sessionToken, criterion, fo);
+
+        fo.cacheMode(CacheMode.CACHE);
+        List<Sample> samples4 = search(sessionToken, criterion, fo);
+
+        v3api.logout(sessionToken);
+
+        assertEquals(samples1.get(0).getPermId(), samples2.get(0).getPermId());
+        assertEquals(samples1.get(1).getPermId(), samples2.get(1).getPermId());
+        assertSame(samples1.get(0), samples2.get(0));
+        assertSame(samples1.get(1), samples2.get(1));
+
+        assertEquals(samples3.get(0).getPermId(), samples2.get(0).getPermId());
+        assertEquals(samples3.get(1).getPermId(), samples2.get(1).getPermId());
+        assertNotSame(samples3.get(0), samples2.get(0));
+        assertNotSame(samples3.get(1), samples2.get(1));
+
+        assertEquals(samples4.get(0).getPermId(), samples3.get(0).getPermId());
+        assertEquals(samples4.get(1).getPermId(), samples3.get(1).getPermId());
+        assertSame(samples4.get(0), samples3.get(0));
+        assertSame(samples4.get(1), samples3.get(1));
+    }
+
     private void testSearch(String user, SampleSearchCriterion criterion, String... expectedIdentifiers)
     {
         String sessionToken = v3api.login(user, PASSWORD);
-
-        SearchResult<Sample> searchResult =
-                v3api.searchSamples(sessionToken, criterion, new SampleFetchOptions());
-        List<Sample> samples = searchResult.getObjects();
-
+        List<Sample> samples = search(sessionToken, criterion, new SampleFetchOptions());
         assertSampleIdentifiers(samples, expectedIdentifiers);
         v3api.logout(sessionToken);
     }
@@ -488,13 +572,16 @@ public class SearchSampleTest extends AbstractSampleTest
     private void testSearch(String user, SampleSearchCriterion criterion, int expectedCount)
     {
         String sessionToken = v3api.login(user, PASSWORD);
-
-        SearchResult<Sample> searchResult =
-                v3api.searchSamples(sessionToken, criterion, new SampleFetchOptions());
-        List<Sample> samples = searchResult.getObjects();
-
+        List<Sample> samples = search(sessionToken, criterion, new SampleFetchOptions());
         assertEquals(samples.size(), expectedCount);
         v3api.logout(sessionToken);
+    }
+
+    private List<Sample> search(String sessionToken, SampleSearchCriterion criterion, SampleFetchOptions fetchOptions)
+    {
+        SearchResult<Sample> searchResult =
+                v3api.searchSamples(sessionToken, criterion, fetchOptions);
+        return searchResult.getObjects();
     }
 
 }

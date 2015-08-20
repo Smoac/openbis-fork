@@ -24,8 +24,6 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.FetchOptions;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -40,9 +38,6 @@ public abstract class AbstractCachingTranslator<I, O, F extends FetchOptions<?>>
 {
 
     private final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, getClass());
-
-    @Autowired
-    private ApplicationContext applicationContext;
 
     @Override
     protected final O doTranslate(TranslationContext context, I object, F fetchOptions)

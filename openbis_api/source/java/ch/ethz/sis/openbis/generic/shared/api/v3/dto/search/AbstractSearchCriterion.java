@@ -28,4 +28,28 @@ public abstract class AbstractSearchCriterion implements ISearchCriterion
 
     private static final long serialVersionUID = 1L;
 
+    @Override
+    public int hashCode()
+    {
+        return toString().hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (this == obj)
+        {
+            return true;
+        }
+        if (obj == null)
+        {
+            return false;
+        }
+        if (getClass() != obj.getClass())
+        {
+            return false;
+        }
+        return toString().equals(obj.toString());
+    }
+
 }

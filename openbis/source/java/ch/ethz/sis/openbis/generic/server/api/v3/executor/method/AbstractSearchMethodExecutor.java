@@ -55,6 +55,14 @@ public abstract class AbstractSearchMethodExecutor<OBJECT, OBJECT_PE, CRITERION 
     @Override
     public SearchResult<OBJECT> search(final String sessionToken, final CRITERION criterion, final FETCH_OPTIONS fetchOptions)
     {
+        if (criterion == null)
+        {
+            throw new IllegalArgumentException("Criterion cannot be null.");
+        }
+        if (fetchOptions == null)
+        {
+            throw new IllegalArgumentException("Fetch options cannot be null.");
+        }
         return executeInContext(sessionToken, new IMethodAction<SearchResult<OBJECT>>()
             {
                 @Override
@@ -76,7 +84,7 @@ public abstract class AbstractSearchMethodExecutor<OBJECT, OBJECT_PE, CRITERION 
         } else if (CacheMode.CACHE.equals(fetchOptions.getCacheMode()) || CacheMode.RELOAD_AND_CACHE.equals(fetchOptions.getCacheMode()))
         {
             Cache cache = cacheManager.getCache("searchCache");
-            CacheKey key = new CacheKey(context.getSession().getSessionToken(), fetchOptions);
+            CacheKey key = new CacheKey(context.getSession().getSessionToken(), criterion, fetchOptions);
             Collection<OBJECT> results = null;
 
             if (CacheMode.RELOAD_AND_CACHE.equals(fetchOptions.getCacheMode()))
@@ -125,26 +133,30 @@ public abstract class AbstractSearchMethodExecutor<OBJECT, OBJECT_PE, CRITERION 
         return new ArrayList<OBJECT>(objects);
     }
 
-    private static class CacheKey
+    private class CacheKey
     {
 
         private String sessionToken;
 
-        private FetchOptions<?> fetchOptions;
+        private CRITERION criterion;
 
-        public CacheKey(String sessionToken, FetchOptions<?> fetchOptions)
+        private FETCH_OPTIONS fetchOptions;
+
+        public CacheKey(String sessionToken, CRITERION criterion, FETCH_OPTIONS fetchOptions)
         {
             this.sessionToken = sessionToken;
+            this.criterion = criterion;
             this.fetchOptions = fetchOptions;
         }
 
         @Override
         public int hashCode()
         {
-            return sessionToken.hashCode() + fetchOptions.getClass().hashCode();
+            return sessionToken.hashCode() + criterion.getClass().hashCode() + fetchOptions.getClass().hashCode();
         }
 
         @Override
+        @SuppressWarnings("unchecked")
         public boolean equals(Object obj)
         {
             if (this == obj)
@@ -161,7 +173,8 @@ public abstract class AbstractSearchMethodExecutor<OBJECT, OBJECT_PE, CRITERION 
             }
 
             CacheKey other = (CacheKey) obj;
-            return sessionToken.equals(other.sessionToken) && FetchOptionsMatcher.arePartsEqual(fetchOptions, other.fetchOptions);
+            return sessionToken.equals(other.sessionToken) && criterion.equals(other.criterion)
+                    && FetchOptionsMatcher.arePartsEqual(fetchOptions, other.fetchOptions);
         }
     }
 
