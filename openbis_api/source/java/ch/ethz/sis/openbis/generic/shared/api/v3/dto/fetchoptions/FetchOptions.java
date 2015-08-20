@@ -15,7 +15,7 @@ public abstract class FetchOptions<OBJECT> implements Serializable
 
     private Integer from;
 
-    private CacheMode cacheMode;
+    private CacheMode cacheMode = CacheMode.NO_CACHE;
 
     @SuppressWarnings("hiding")
     public FetchOptions<OBJECT> count(Integer count)
