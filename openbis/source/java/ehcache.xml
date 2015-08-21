@@ -15,6 +15,8 @@
 
 	<cache name="searchCache" eternal="false" maxElementsInMemory="100"
 		overflowToDisk="false" diskPersistent="false" timeToIdleSeconds="0"
-		timeToLiveSeconds="300" memoryStoreEvictionPolicy="LRU" />
+		timeToLiveSeconds="300" memoryStoreEvictionPolicy="LRU">
+		<cacheEventListenerFactory class="ch.ethz.sis.openbis.generic.server.api.v3.cache.SearchCacheEventListenerFactory" />
+	</cache>
 
 </ehcache>
