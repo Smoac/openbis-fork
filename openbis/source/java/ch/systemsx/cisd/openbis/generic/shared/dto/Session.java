@@ -16,9 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
-import java.util.HashMap;
 import java.util.LinkedHashSet;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.time.DateFormatUtils;
@@ -62,8 +60,6 @@ public final class Session extends BasicSession implements IAuthSession
     private String baseIndexURL;
 
     private final Set<ISessionCleaner> cleanupListeners = new LinkedHashSet<ISessionCleaner>();
-
-    private Map<String, Object> attributes = new HashMap<String, Object>();
 
     @Deprecated
     public Session()
@@ -182,11 +178,6 @@ public final class Session extends BasicSession implements IAuthSession
     public void removeCleanupListener(ISessionCleaner sessionCleaner)
     {
         cleanupListeners.remove(sessionCleaner);
-    }
-
-    public Map<String, Object> getAttributes()
-    {
-        return attributes;
     }
 
     //

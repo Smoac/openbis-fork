@@ -14,37 +14,23 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.shared.api.v3.dto.search;
+package ch.ethz.sis.openbis.generic.server.api.v3.cache;
 
-import java.io.Serializable;
-import java.util.List;
+import java.util.Properties;
+
+import net.sf.ehcache.event.CacheEventListener;
+import net.sf.ehcache.event.CacheEventListenerFactory;
 
 /**
  * @author pkupczyk
  */
-public class SearchResult<OBJECT> implements Serializable
+public class SearchCacheEventListenerFactory extends CacheEventListenerFactory
 {
 
-    private static final long serialVersionUID = 1L;
-
-    private List<OBJECT> objects;
-
-    private int totalCount;
-
-    public SearchResult(List<OBJECT> objects, int totalCount)
+    @Override
+    public CacheEventListener createCacheEventListener(Properties arg0)
     {
-        this.objects = objects;
-        this.totalCount = totalCount;
-    }
-
-    public List<OBJECT> getObjects()
-    {
-        return objects;
-    }
-
-    public int getTotalCount()
-    {
-        return totalCount;
+        return new SearchCacheEventListener();
     }
 
 }
