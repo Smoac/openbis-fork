@@ -373,5 +373,13 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 				freeFormTableController.init($("#" + containerId));
 			}
 		}
+		
+		this.getDataSetTypeForFileName = function(allDatasetFiles, fileName) {
+			if(fileName.endsWith("fasta")) {
+				return "SEQ_FILE";
+			} else {
+				return null;
+			}
+		}
 }
 });

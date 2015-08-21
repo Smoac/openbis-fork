@@ -177,11 +177,13 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 			var onComplete = function(data) {
 				_this._dataSetFormModel.files.push(data.name);
 				_this._updateFileOptions();
-				var dataSetType = profile.getDataSetTypeForFileName(_this._dataSetFormModel.files, data.name);
-				if(dataSetType != null) {
-					$("#DATASET_TYPE").val(dataSetType);
+				var dataSetTypeCode = profile.getDataSetTypeForFileName(_this._dataSetFormModel.files, data.name);
+				if(dataSetTypeCode != null) {
+					$("#DATASET_TYPE").val(dataSetTypeCode);
 					$("#DATASET_TYPE").prop('disabled', true);
-					_this._repaintMetadata($('#DATASET_TYPE').val())
+					_this._repaintMetadata(
+							_this._dataSetFormController._getDataSetType(dataSetTypeCode)
+					);
 				}
 			}
 			
