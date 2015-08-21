@@ -33,8 +33,9 @@ import javax.imageio.ImageIO;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.testng.AssertJUnit;
-import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.BeforeTest;
 
+import ch.ethz.sis.openbis.generic.shared.api.v3.IApplicationServerApi;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.image.ImageHistogram;
 import ch.systemsx.cisd.common.servlet.SpringRequestContextProvider;
@@ -66,18 +67,19 @@ public abstract class AbstractScreeningSystemTestCase extends SystemTestCase
     private static final class FailureReport
     {
         private File referenceImage;
+
         private StringBuilder failureReport = new StringBuilder();
 
         FailureReport(File referenceImage)
         {
             this.referenceImage = referenceImage;
         }
-        
+
         boolean isFailure()
         {
             return failureReport.length() > 0;
         }
-        
+
         private void addFailureMessage(String failureMessage)
         {
             failureReport.append(failureMessage).append('\n');
@@ -91,14 +93,15 @@ public abstract class AbstractScreeningSystemTestCase extends SystemTestCase
             builder.append(failureReport).append("\\============================\n");
             return builder.toString();
         }
-        
+
     }
-    
+
     private static interface IImageLoader
     {
         public BufferedImage load();
 
     }
+
     /**
      * Helper class to load an image from the image download servlet.
      *
@@ -109,6 +112,7 @@ public abstract class AbstractScreeningSystemTestCase extends SystemTestCase
         private static final class OverlayChannel
         {
             private String dataSetCode;
+
             private String channel;
 
             OverlayChannel(String dataSetCode, String channel)
@@ -117,27 +121,37 @@ public abstract class AbstractScreeningSystemTestCase extends SystemTestCase
                 this.channel = channel;
             }
         }
-        
+
         private final URLMethodWithParameters url;
+
         private final List<String> channels = new ArrayList<String>();
+
         private final List<OverlayChannel> overlayChannels = new ArrayList<OverlayChannel>();
+
         private final Map<String, String> transformationsByChannel = new HashMap<String, String>();
+
         private boolean mergeChannels = true;
+
         private boolean microscopy = false;
+
         private int wellRow = 1;
+
         private int wellColumn = 1;
+
         private int tileRow = 1;
+
         private int tileColumn = 1;
+
         private String mode = "thumbnail160x160";
 
         public ImageLoader(AbstractExternalData dataSet, String sessionToken)
         {
-            url = new URLMethodWithParameters(dataSet.getDataStore().getHostUrl() 
+            url = new URLMethodWithParameters(dataSet.getDataStore().getHostUrl()
                     + "/" + ScreeningConstants.DATASTORE_SCREENING_SERVLET_URL);
             url.addParameter(Utils.SESSION_ID_PARAM, sessionToken);
             url.addParameter(ImageServletUrlParameters.DATASET_CODE_PARAM, dataSet.getCode());
         }
-        
+
         @Override
         public BufferedImage load()
         {
@@ -149,7 +163,7 @@ public abstract class AbstractScreeningSystemTestCase extends SystemTestCase
                 throw CheckedExceptionTunnel.wrapIfNecessary(ex);
             }
         }
-        
+
         private URL createURL()
         {
             if (mergeChannels)
@@ -176,7 +190,7 @@ public abstract class AbstractScreeningSystemTestCase extends SystemTestCase
             url.addParameter(ImageServletUrlParameters.TILE_COL_PARAM, Integer.toString(tileColumn));
             for (Entry<String, String> entry : transformationsByChannel.entrySet())
             {
-                url.addParameter(ImageServletUrlParameters.SINGLE_CHANNEL_TRANSFORMATION_CODE_PARAM + entry.getKey(), 
+                url.addParameter(ImageServletUrlParameters.SINGLE_CHANNEL_TRANSFORMATION_CODE_PARAM + entry.getKey(),
                         entry.getValue());
             }
             url.addParameter("mode", mode);
@@ -188,79 +202,82 @@ public abstract class AbstractScreeningSystemTestCase extends SystemTestCase
                 throw CheckedExceptionTunnel.wrapIfNecessary(ex);
             }
         }
-        
+
         public ImageLoader microscopy()
         {
             microscopy = true;
             return this;
         }
-        
+
         public ImageLoader wellRow(int newWellRow)
         {
             wellRow = newWellRow;
             return this;
         }
-        
+
         public ImageLoader wellColumn(int newWellColumn)
         {
             wellColumn = newWellColumn;
             return this;
         }
-        
+
         public ImageLoader tileRow(int newTileRow)
         {
             tileRow = newTileRow;
             return this;
         }
-        
+
         public ImageLoader tileColumn(int newTileColumn)
         {
             tileColumn = newTileColumn;
             return this;
         }
-        
+
         public ImageLoader mode(String newMode)
         {
             mode = newMode;
             return this;
         }
-        
+
         public ImageLoader channel(String channel)
         {
             mergeChannels = false;
             channels.add(channel);
             return this;
         }
-        
+
         public ImageLoader overlay(String dataSetCode, String channel)
         {
             overlayChannels.add(new OverlayChannel(dataSetCode, channel));
             return this;
         }
-        
+
         public ImageLoader rescaling(String channel, int low, int high)
         {
-            transformationsByChannel.put(channel, 
+            transformationsByChannel.put(channel,
                     ScreeningConstants.USER_DEFINED_RESCALING_CODE + "(" + low + "," + high + ")");
             return this;
         }
     }
-    
+
     /**
-     * Helper class to load and check a reference image (from a file) and and actual image (from image download servlet).
-     * Several image pairs can be tested. An extensive human readable failure report will be created. 
+     * Helper class to load and check a reference image (from a file) and and actual image (from image download servlet). Several image pairs can be
+     * tested. An extensive human readable failure report will be created.
      *
      * @author Franz-Josef Elmer
      */
     protected static final class ImageChecker
     {
         private static final int HISTOGRAM_HEIGHT = 19;
+
         private static final int HISTOGRAM_WIDTH = 151;
+
         private final StringBuilder failureReport = new StringBuilder();
+
         private final File folderForWrongImages;
-        
+
         private boolean assertNoFailuresAlreadyInvoked;
-        
+
         public ImageChecker(File folderForWrongImages)
         {
             if (folderForWrongImages.isFile())
@@ -269,10 +286,9 @@ public abstract class AbstractScreeningSystemTestCase extends SystemTestCase
             }
             this.folderForWrongImages = folderForWrongImages;
         }
-        
+
         /**
-         * Asserts no failures occurred for all invocations of {@link #check(File, IImageLoader)}.
-         * Otherwise an {@link AssertionError} is thrown.
+         * Asserts no failures occurred for all invocations of {@link #check(File, IImageLoader)}. Otherwise an {@link AssertionError} is thrown.
          */
         public void assertNoFailures()
         {
@@ -282,21 +298,20 @@ public abstract class AbstractScreeningSystemTestCase extends SystemTestCase
                 AssertJUnit.assertEquals("", failureReport.toString());
             }
         }
-        
+
         /**
-         * Checks that the specified reference image is equals to the image loaded from the specified file
-         * in the specified data set.
+         * Checks that the specified reference image is equals to the image loaded from the specified file in the specified data set.
          */
-        public void check(File referenceImage, final String sessionToken, final AbstractExternalData dataSet, 
+        public void check(File referenceImage, final String sessionToken, final AbstractExternalData dataSet,
                 final String pathInDataSet)
         {
             check(referenceImage, new IImageLoader()
                 {
-                    
+
                     @Override
                     public BufferedImage load()
                     {
-                        URLMethodWithParameters url = new URLMethodWithParameters(dataSet.getDataStore().getHostUrl() 
+                        URLMethodWithParameters url = new URLMethodWithParameters(dataSet.getDataStore().getHostUrl()
                                 + "/datastore_server/" + dataSet.getCode() + "/" + pathInDataSet);
                         url.addParameter(Utils.SESSION_ID_PARAM, sessionToken);
                         url.addParameter("mode", "simpleHtml");
@@ -310,10 +325,10 @@ public abstract class AbstractScreeningSystemTestCase extends SystemTestCase
                     }
                 });
         }
-        
+
         /**
-         * Checks that the specified reference image is equals to the image loaded by the specified image loader.
-         * A report is created in case of a failure.
+         * Checks that the specified reference image is equals to the image loaded by the specified image loader. A report is created in case of a
+         * failure.
          */
         public void check(File referenceImage, IImageLoader imageLoader)
         {
@@ -363,7 +378,7 @@ public abstract class AbstractScreeningSystemTestCase extends SystemTestCase
                 report.addFailureMessage("Actual image is saved in file " + file.getAbsolutePath() + ".");
             }
         }
-        
+
         private void checkEquals(FailureReport report, File referenceImage, BufferedImage actualImage)
         {
             BufferedImage expectedImage = load(referenceImage);
@@ -409,10 +424,10 @@ public abstract class AbstractScreeningSystemTestCase extends SystemTestCase
                     + "actual histogram of " + actualImage + ":\n" + actualRenderedHistogram);
         }
 
-        private void printComparisonMessage(File referenceImage, 
+        private void printComparisonMessage(File referenceImage,
                 String expectedRenderedHistogram)
         {
-            System.out.println("Histogram of reference image (" + referenceImage 
+            System.out.println("Histogram of reference image (" + referenceImage
                     + ") equals actual histogram:\n" + expectedRenderedHistogram);
         }
 
@@ -425,17 +440,26 @@ public abstract class AbstractScreeningSystemTestCase extends SystemTestCase
             report.addFailureMessage(message + ":\n  Expected: <" + expected + ">\n    Actual: <" + actual + ">");
         }
     }
-    
+
     protected IScreeningClientService screeningClientService;
+
     protected IScreeningServer screeningServer;
+
     protected IScreeningApiServer screeningApiServer;
+
     protected IAnalysisSettingSetter analysisSettingServer;
+
     protected String sessionToken;
+
     protected IScreeningOpenbisServiceFacade screeningFacade;
+
     protected ICommonServer commonServer;
+
     protected IGenericServer genericServer;
 
-    @BeforeMethod
+    protected IApplicationServerApi v3api;
+
+    @BeforeTest
     public void setUpServices()
     {
         commonServer = (ICommonServer) applicationContext
@@ -455,6 +479,10 @@ public abstract class AbstractScreeningSystemTestCase extends SystemTestCase
         screeningFacade =
                 ScreeningOpenbisServiceFacade.tryCreateForTest(sessionToken,
                         TestInstanceHostUtils.getOpenBISUrl(), screeningApiServer);
+
+        v3api = (IApplicationServerApi) applicationContext
+                .getBean(IApplicationServerApi.INTERNAL_SERVICE_NAME);
+
     }
 
     /**
@@ -480,7 +508,7 @@ public abstract class AbstractScreeningSystemTestCase extends SystemTestCase
     {
         return new File(rootDir, "incoming-" + getClass().getSimpleName());
     }
-    
+
     @Override
     protected int dataSetImportWaitDurationInSeconds()
     {
