@@ -33,7 +33,7 @@ import javax.imageio.ImageIO;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.testng.AssertJUnit;
-import org.testng.annotations.BeforeTest;
+import org.testng.annotations.BeforeMethod;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.IApplicationServerApi;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
@@ -459,7 +459,7 @@ public abstract class AbstractScreeningSystemTestCase extends SystemTestCase
 
     protected IApplicationServerApi v3api;
 
-    @BeforeTest
+    @BeforeMethod
     public void setUpServices()
     {
         commonServer = (ICommonServer) applicationContext
