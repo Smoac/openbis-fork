@@ -265,8 +265,12 @@ function StorageView(storageController, storageModel, gridView) {
 									row[y] = col;
 								}
 								
-								label = { displayName : code, data : {} };
-								col.push(label);
+								if(_this._storageModel.sample && element.permId === _this._storageModel.sample.permId) {
+									continue;
+								} else {
+									label = { displayName : code, data : {} };
+									col.push(label);
+								}
 							}
 						}
 					} else {
