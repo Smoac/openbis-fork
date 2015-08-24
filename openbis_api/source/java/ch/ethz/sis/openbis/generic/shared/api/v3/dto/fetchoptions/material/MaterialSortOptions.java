@@ -16,82 +16,15 @@
 
 package ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.material;
 
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material.Material;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.AbstractComparator;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.SortOptions;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.SortOrder;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.EntitySortOptions;
 
 /**
  * @author pkupczyk
  */
-public class MaterialSortOptions extends SortOptions<Material>
+public class MaterialSortOptions extends EntitySortOptions<Material>
 {
 
     private static final long serialVersionUID = 1L;
-
-    private static final String CODE = "CODE";
-
-    private static final String REGISTRATION_DATE = "REGISTRATION_DATE";
-
-    private static final Map<String, Comparator<Material>> comparators = new HashMap<>();
-
-    static
-    {
-        comparators.put(CODE, new CodeComparator());
-        comparators.put(REGISTRATION_DATE, new RegistrationDateComparator());
-    }
-
-    public SortOrder code()
-    {
-        return getOrCreateSorting(CODE);
-    }
-
-    public SortOrder getCode()
-    {
-        return getSorting(CODE);
-    }
-
-    public SortOrder registrationDate()
-    {
-        return getOrCreateSorting(REGISTRATION_DATE);
-    }
-
-    public SortOrder getRegistrationDate()
-    {
-        return getSorting(REGISTRATION_DATE);
-    }
-
-    private static class CodeComparator extends AbstractComparator<Material, String>
-    {
-
-        @Override
-        protected String getValue(Material o)
-        {
-            return o.getCode();
-        }
-
-    }
-
-    private static class RegistrationDateComparator extends AbstractComparator<Material, Date>
-    {
-
-        @Override
-        protected Date getValue(Material o)
-        {
-            return o.getRegistrationDate();
-        }
-
-    }
-
-    @Override
-    public Comparator<Material> getComparator(String field)
-    {
-        return comparators.get(field);
-    }
 
 }

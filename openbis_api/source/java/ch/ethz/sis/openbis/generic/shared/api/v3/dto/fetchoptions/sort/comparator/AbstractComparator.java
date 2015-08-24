@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort;
+package ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.comparator;
 
 import java.util.Comparator;
 

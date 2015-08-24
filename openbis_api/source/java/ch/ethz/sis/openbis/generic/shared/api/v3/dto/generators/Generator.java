@@ -67,7 +67,7 @@ public class Generator extends AbstractGenerator
     {
         DtoGenerator gen = new DtoGenerator("sample", "Sample", SampleFetchOptions.class);
 
-        gen.addSimpleField(SamplePermId.class, "permId");
+        addPermId(gen, SamplePermId.class);
         gen.addSimpleField(SampleIdentifier.class, "identifier");
         addCode(gen);
         addRegistrationDate(gen);
@@ -111,7 +111,7 @@ public class Generator extends AbstractGenerator
 
         DtoGenerator gen = new DtoGenerator("sample", "SampleType", SampleTypeFetchOptions.class);
 
-        gen.addSimpleField(EntityTypePermId.class, "permId");
+        addPermId(gen, EntityTypePermId.class);
         addCode(gen);
         addDescription(gen);
         gen.addBooleanField("listable");
@@ -121,7 +121,7 @@ public class Generator extends AbstractGenerator
 
         gen.addStringField("generatedCodePrefix");
         addModificationDate(gen);
-        
+
         gen.setToStringMethod("\"SampleType \" + code");
 
         return gen;
@@ -153,7 +153,7 @@ public class Generator extends AbstractGenerator
     {
         DtoGenerator gen = new DtoGenerator("experiment", "Experiment", ExperimentFetchOptions.class);
 
-        gen.addSimpleField(ExperimentPermId.class, "permId");
+        addPermId(gen, ExperimentPermId.class);
         gen.addSimpleField(ExperimentIdentifier.class, "identifier");
         addCode(gen);
         addRegistrationDate(gen);
@@ -186,13 +186,13 @@ public class Generator extends AbstractGenerator
     {
         DtoGenerator gen = new DtoGenerator("experiment", "ExperimentType", ExperimentTypeFetchOptions.class);
 
-        gen.addSimpleField(EntityTypePermId.class, "permId");
+        addPermId(gen, EntityTypePermId.class);
         addCode(gen);
         addDescription(gen);
         addModificationDate(gen);
 
         gen.setToStringMethod("\"ExperimentType \" + code");
-        
+
         // TODO add property definitions
 
         // TODO add validation script
@@ -203,7 +203,7 @@ public class Generator extends AbstractGenerator
     {
         DtoGenerator gen = new DtoGenerator("dataset", "DataSet", DataSetFetchOptions.class);
 
-        gen.addSimpleField(DataSetPermId.class, "permId");
+        addPermId(gen, DataSetPermId.class);
 
         addCode(gen);
         gen.addDateField("accessDate");
@@ -235,7 +235,7 @@ public class Generator extends AbstractGenerator
         addExperiment(gen);
         addSample(gen);
         addProperties(gen);
-        
+
         gen.setToStringMethod("\"DataSet \" + code");
 
         return gen;
@@ -245,14 +245,14 @@ public class Generator extends AbstractGenerator
     {
         DtoGenerator gen = new DtoGenerator("dataset", "DataSetType", DataSetTypeFetchOptions.class);
 
-        gen.addSimpleField(EntityTypePermId.class, "permId");
+        addPermId(gen, EntityTypePermId.class);
         gen.addSimpleField(DataSetKind.class, "kind");
         addCode(gen);
         addDescription(gen);
         addModificationDate(gen);
 
         gen.setToStringMethod("\"DataSetType \" + code");
-        
+
         // TODO add property definitions
 
         // TODO add validation script
@@ -274,7 +274,7 @@ public class Generator extends AbstractGenerator
         gen.addBooleanField("presentInArchive");
         gen.addBooleanField("storageConfirmation");
         gen.addSimpleField(Integer.class, "speedHint");
-        
+
         gen.setToStringMethod("\"ExternalData \" + location");
 
         return gen;
@@ -284,9 +284,9 @@ public class Generator extends AbstractGenerator
     {
         DtoGenerator gen = new DtoGenerator("dataset", "FileFormatType", FileFormatTypeFetchOptions.class);
 
-        gen.addStringField("code");
+        addCode(gen);
         gen.addStringField("description");
-        
+
         gen.setToStringMethod("\"FileFormatType \" + code");
 
         return gen;
@@ -296,9 +296,9 @@ public class Generator extends AbstractGenerator
     {
         DtoGenerator gen = new DtoGenerator("dataset", "LocatorType", LocatorTypeFetchOptions.class);
 
-        gen.addStringField("code");
+        addCode(gen);
         gen.addStringField("description");
-        
+
         gen.setToStringMethod("\"LocatorType \" + code");
 
         return gen;
@@ -310,9 +310,9 @@ public class Generator extends AbstractGenerator
         gen.addSimpleField(IDeletionId.class, "id");
         gen.addStringField("reason");
         gen.addPluralFetchedField("List<DeletedObject>", List.class.getName(), "deletedObjects", "Deleted objects", DeletionFetchOptions.class);
-        
+
         gen.setToStringMethod("\"Deletion \" + id");
-        
+
         return gen;
     }
 
@@ -325,7 +325,7 @@ public class Generator extends AbstractGenerator
         addRegistrationDate(gen);
         addRegistrator(gen);
         addModificationDate(gen);
-        
+
         gen.setToStringMethod("\"Vocabulary \" + code");
 
         return gen;
@@ -344,7 +344,7 @@ public class Generator extends AbstractGenerator
         addRegistrationDate(gen);
         addRegistrator(gen);
         addModificationDate(gen);
-        
+
         gen.setToStringMethod("\"VocabularyTerm \" + code");
 
         return gen;
@@ -354,7 +354,7 @@ public class Generator extends AbstractGenerator
     {
         DtoGenerator gen = new DtoGenerator("person", "Person", PersonFetchOptions.class);
 
-        gen.addSimpleField(PersonPermId.class, "permId");
+        addPermId(gen, PersonPermId.class);
         gen.addStringField("userId");
         gen.addStringField("firstName");
         gen.addStringField("lastName");
@@ -364,7 +364,7 @@ public class Generator extends AbstractGenerator
 
         addSpace(gen);
         addRegistrator(gen);
-        
+
         gen.setToStringMethod("\"Person \" + userId");
 
         return gen;
@@ -374,7 +374,7 @@ public class Generator extends AbstractGenerator
     {
         DtoGenerator gen = new DtoGenerator("project", "Project", ProjectFetchOptions.class);
 
-        gen.addSimpleField(ProjectPermId.class, "permId");
+        addPermId(gen, ProjectPermId.class);
         gen.addSimpleField(ProjectIdentifier.class, "identifier");
         addCode(gen);
         addDescription(gen);
@@ -392,7 +392,7 @@ public class Generator extends AbstractGenerator
 
         gen.addFetchedField(Person.class, "leader", "Leader", PersonFetchOptions.class);
         addAttachments(gen);
-        
+
         gen.setToStringMethod("\"Project \" + permId");
 
         return gen;
@@ -402,18 +402,19 @@ public class Generator extends AbstractGenerator
     {
         DtoGenerator gen = new DtoGenerator("space", "Space", SpaceFetchOptions.class);
 
-        gen.addSimpleField(SpacePermId.class, "permId");
+        addPermId(gen, SpacePermId.class);
         addCode(gen);
         addDescription(gen);
         addRegistrationDate(gen);
+        addModificationDate(gen);
         addRegistrator(gen);
         gen.addPluralFetchedField("List<Sample>", List.class.getName(), "samples", "Samples", SampleFetchOptions.class);
         gen.addClassForImport(Sample.class);
         gen.addPluralFetchedField("List<Project>", List.class.getName(), "projects", "Projects", ProjectFetchOptions.class);
         gen.addClassForImport(Project.class);
-        
+
         gen.setToStringMethod("\"Space \" + permId");
-        
+
         return gen;
     }
 
@@ -421,14 +422,14 @@ public class Generator extends AbstractGenerator
     {
         DtoGenerator gen = new DtoGenerator("tag", "Tag", TagFetchOptions.class);
 
-        gen.addSimpleField(TagPermId.class, "permId");
-        gen.addStringField("code");
+        addPermId(gen, TagPermId.class);
+        addCode(gen);
         addDescription(gen);
         gen.addSimpleField(Boolean.class, "private", "isPrivate");
         addRegistrationDate(gen);
 
         gen.addFetchedField(Person.class, "owner", "Owner", PersonFetchOptions.class);
-        
+
         gen.setToStringMethod("\"Tag \" + code");
 
         return gen;
@@ -437,7 +438,7 @@ public class Generator extends AbstractGenerator
     private static DtoGenerator createMaterialGenerator()
     {
         DtoGenerator gen = new DtoGenerator("material", "Material", MaterialFetchOptions.class);
-        gen.addSimpleField(MaterialPermId.class, "permId");
+        addPermId(gen, MaterialPermId.class);
         addCode(gen);
         gen.addFetchedField(MaterialType.class, "type", "Material type", MaterialTypeFetchOptions.class);
 
@@ -449,9 +450,9 @@ public class Generator extends AbstractGenerator
         addModificationDate(gen);
         addProperties(gen);
         addTags(gen);
-        
+
         gen.setToStringMethod("\"Material \" + code");
-        
+
         return gen;
     }
 
@@ -459,13 +460,13 @@ public class Generator extends AbstractGenerator
     {
         DtoGenerator gen = new DtoGenerator("material", "MaterialType", MaterialTypeFetchOptions.class);
 
-        gen.addSimpleField(EntityTypePermId.class, "permId");
+        addPermId(gen, EntityTypePermId.class);
         addCode(gen);
         addDescription(gen);
         addModificationDate(gen);
-        
+
         gen.setToStringMethod("\"MaterialType \" + code");
-        
+
         return gen;
     }
 
@@ -475,9 +476,9 @@ public class Generator extends AbstractGenerator
         gen.addSimpleField(Date.class, "validFrom");
         gen.addSimpleField(Date.class, "validTo");
         gen.addFetchedField(Person.class, "author", "Author", PersonFetchOptions.class);
-        
+
         gen.setToStringMethod("\"HistoryEntry from: \" + validFrom + \", to: \" + validTo");
-        
+
         return gen;
     }
 

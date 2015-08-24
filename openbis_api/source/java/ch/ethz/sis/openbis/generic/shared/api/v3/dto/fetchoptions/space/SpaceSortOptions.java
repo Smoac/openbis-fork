@@ -16,23 +16,15 @@
 
 package ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.space;
 
-import java.util.Comparator;
-
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.space.Space;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.SortOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.EntitySortOptions;
 
 /**
  * @author pkupczyk
  */
-public class SpaceSortOptions extends SortOptions<Space>
+public class SpaceSortOptions extends EntitySortOptions<Space>
 {
 
     private static final long serialVersionUID = 1L;
-
-    @Override
-    public Comparator<Space> getComparator(String field)
-    {
-        return null;
-    }
 
 }

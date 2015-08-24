@@ -16,8 +16,6 @@
 
 package ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.material;
 
-import java.util.Comparator;
-
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material.MaterialType;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.SortOptions;
 
@@ -28,11 +26,5 @@ public class MaterialTypeSortOptions extends SortOptions<MaterialType>
 {
 
     private static final long serialVersionUID = 1L;
-
-    @Override
-    public Comparator<MaterialType> getComparator(String field)
-    {
-        return null;
-    }
 
 }

@@ -15,6 +15,7 @@
  */
 package ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.vocabulary;
 
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.ICodeHolder;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IModificationDateHolder;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IRegistrationDateHolder;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IRegistratorHolder;
@@ -31,7 +32,7 @@ import java.util.Date;
  * Class automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
  */
 @JsonObject("dto.entity.vocabulary.Vocabulary")
-public class Vocabulary implements Serializable, IRegistrationDateHolder, IModificationDateHolder, IRegistratorHolder
+public class Vocabulary implements Serializable, ICodeHolder, IRegistrationDateHolder, IModificationDateHolder, IRegistratorHolder
 {
     private static final long serialVersionUID = 1L;
 
@@ -68,6 +69,7 @@ public class Vocabulary implements Serializable, IRegistrationDateHolder, IModif
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     @JsonIgnore
+    @Override
     public String getCode()
     {
         return code;

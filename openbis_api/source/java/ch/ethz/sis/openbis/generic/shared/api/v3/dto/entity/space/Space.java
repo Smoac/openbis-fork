@@ -15,6 +15,9 @@
  */
 package ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.space;
 
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.ICodeHolder;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IModificationDateHolder;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IPermIdHolder;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IRegistrationDateHolder;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IRegistratorHolder;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.person.Person;
@@ -34,7 +37,7 @@ import java.util.List;
  * Class automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
  */
 @JsonObject("dto.entity.space.Space")
-public class Space implements Serializable, IRegistrationDateHolder, IRegistratorHolder
+public class Space implements Serializable, ICodeHolder, IRegistrationDateHolder, IPermIdHolder, IModificationDateHolder, IRegistratorHolder
 {
     private static final long serialVersionUID = 1L;
 
@@ -52,6 +55,9 @@ public class Space implements Serializable, IRegistrationDateHolder, IRegistrato
 
     @JsonProperty
     private Date registrationDate;
+
+    @JsonProperty
+    private Date modificationDate;
 
     @JsonProperty
     private Person registrator;
@@ -77,6 +83,7 @@ public class Space implements Serializable, IRegistrationDateHolder, IRegistrato
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     @JsonIgnore
+    @Override
     public SpacePermId getPermId()
     {
         return permId;
@@ -90,6 +97,7 @@ public class Space implements Serializable, IRegistrationDateHolder, IRegistrato
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     @JsonIgnore
+    @Override
     public String getCode()
     {
         return code;
@@ -126,6 +134,20 @@ public class Space implements Serializable, IRegistrationDateHolder, IRegistrato
     public void setRegistrationDate(Date registrationDate)
     {
         this.registrationDate = registrationDate;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    @JsonIgnore
+    @Override
+    public Date getModificationDate()
+    {
+        return modificationDate;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public void setModificationDate(Date modificationDate)
+    {
+        this.modificationDate = modificationDate;
     }
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}

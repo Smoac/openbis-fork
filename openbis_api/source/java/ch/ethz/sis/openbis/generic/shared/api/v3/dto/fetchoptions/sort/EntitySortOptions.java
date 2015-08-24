@@ -14,24 +14,26 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.tag;
+package ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort;
 
 import static ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.comparator.CodeComparator.CODE;
+import static ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.comparator.ModificationDateComparator.MODIFICATION_DATE;
 import static ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.comparator.RegistrationDateComparator.REGISTRATION_DATE;
 
 import java.util.Comparator;
 import java.util.Map;
 
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.tag.Tag;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.SortOptions;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.SortOrder;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.ICodeHolder;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IModificationDateHolder;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IRegistrationDateHolder;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.comparator.CodeComparator;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.comparator.ModificationDateComparator;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.comparator.RegistrationDateComparator;
 
 /**
  * @author pkupczyk
  */
-public class TagSortOptions extends SortOptions<Tag>
+public class EntitySortOptions<OBJECT extends ICodeHolder & IRegistrationDateHolder & IModificationDateHolder> extends SortOptions<OBJECT>
 {
 
     private static final long serialVersionUID = 1L;
@@ -56,10 +58,22 @@ public class TagSortOptions extends SortOptions<Tag>
         return getSorting(REGISTRATION_DATE);
     }
 
-    @Override
-    public void addComparators(Map<String, Comparator<Tag>> map)
+    public SortOrder modificationDate()
     {
-        map.put(CODE, new CodeComparator<Tag>());
-        map.put(REGISTRATION_DATE, new RegistrationDateComparator<Tag>());
+        return getOrCreateSorting(MODIFICATION_DATE);
     }
+
+    public SortOrder getModificationDate()
+    {
+        return getSorting(MODIFICATION_DATE);
+    }
+
+    @Override
+    public void addComparators(Map<String, Comparator<OBJECT>> map)
+    {
+        map.put(CODE, new CodeComparator<OBJECT>());
+        map.put(REGISTRATION_DATE, new RegistrationDateComparator<OBJECT>());
+        map.put(MODIFICATION_DATE, new ModificationDateComparator<OBJECT>());
+    }
+
 }

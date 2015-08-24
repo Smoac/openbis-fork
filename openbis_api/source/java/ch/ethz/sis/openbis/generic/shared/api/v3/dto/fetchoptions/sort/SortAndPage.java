@@ -28,6 +28,9 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.FetchOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.view.AbstractCollectionView;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.view.ListView;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.view.SetView;
 
 /**
  * @author pkupczyk

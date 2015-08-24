@@ -19,8 +19,10 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.attachment.Attachmen
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.history.HistoryEntry;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IAttachmentsHolder;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.ICodeHolder;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IModificationDateHolder;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IModifierHolder;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IPermIdHolder;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IRegistrationDateHolder;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IRegistratorHolder;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.ISpaceHolder;
@@ -41,7 +43,7 @@ import java.util.List;
  * Class automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
  */
 @JsonObject("dto.entity.project.Project")
-public class Project implements Serializable, IRegistrationDateHolder, IAttachmentsHolder, ISpaceHolder, IModifierHolder, IModificationDateHolder, IRegistratorHolder
+public class Project implements Serializable, ICodeHolder, IRegistrationDateHolder, IAttachmentsHolder, IPermIdHolder, ISpaceHolder, IModifierHolder, IModificationDateHolder, IRegistratorHolder
 {
     private static final long serialVersionUID = 1L;
 
@@ -102,6 +104,7 @@ public class Project implements Serializable, IRegistrationDateHolder, IAttachme
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     @JsonIgnore
+    @Override
     public ProjectPermId getPermId()
     {
         return permId;
@@ -128,6 +131,7 @@ public class Project implements Serializable, IRegistrationDateHolder, IAttachme
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     @JsonIgnore
+    @Override
     public String getCode()
     {
         return code;

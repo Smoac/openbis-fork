@@ -293,8 +293,13 @@ public abstract class AbstractSearchMethodExecutor<OBJECT, OBJECT_PE, CRITERION 
         @Override
         public void cleanup()
         {
-            operationLog.info("Clean up cached search result on logout.");
-            getCache().evict(key);
+            ValueWrapper wrapper = getCache().get(key);
+
+            if (wrapper != null)
+            {
+                operationLog.info("Clean up cached search result on logout.");
+                getCache().evict(key);
+            }
         }
 
     }

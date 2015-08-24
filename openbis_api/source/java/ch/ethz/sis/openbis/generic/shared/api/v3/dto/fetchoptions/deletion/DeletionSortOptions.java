@@ -16,8 +16,6 @@
 
 package ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.deletion;
 
-import java.util.Comparator;
-
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.deletion.Deletion;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.SortOptions;
 
@@ -28,11 +26,5 @@ public class DeletionSortOptions extends SortOptions<Deletion>
 {
 
     private static final long serialVersionUID = 1L;
-
-    @Override
-    public Comparator<Deletion> getComparator(String field)
-    {
-        return null;
-    }
 
 }

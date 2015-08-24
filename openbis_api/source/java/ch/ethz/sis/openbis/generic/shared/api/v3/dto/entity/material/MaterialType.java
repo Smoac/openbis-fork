@@ -15,7 +15,9 @@
  */
 package ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material;
 
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.ICodeHolder;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IModificationDateHolder;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IPermIdHolder;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.material.MaterialTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.entitytype.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.NotFetchedException;
@@ -29,7 +31,7 @@ import java.util.Date;
  * Class automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
  */
 @JsonObject("dto.entity.material.MaterialType")
-public class MaterialType implements Serializable, IModificationDateHolder
+public class MaterialType implements Serializable, ICodeHolder, IPermIdHolder, IModificationDateHolder
 {
     private static final long serialVersionUID = 1L;
 
@@ -63,6 +65,7 @@ public class MaterialType implements Serializable, IModificationDateHolder
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     @JsonIgnore
+    @Override
     public EntityTypePermId getPermId()
     {
         return permId;
@@ -76,6 +79,7 @@ public class MaterialType implements Serializable, IModificationDateHolder
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     @JsonIgnore
+    @Override
     public String getCode()
     {
         return code;

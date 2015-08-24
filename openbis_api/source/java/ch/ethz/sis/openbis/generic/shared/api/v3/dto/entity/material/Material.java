@@ -16,7 +16,9 @@
 package ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.history.HistoryEntry;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.ICodeHolder;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IModificationDateHolder;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IPermIdHolder;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IPropertiesHolder;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IRegistrationDateHolder;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IRegistratorHolder;
@@ -41,7 +43,7 @@ import java.util.Set;
  * Class automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
  */
 @JsonObject("dto.entity.material.Material")
-public class Material implements Serializable, ITagsHolder, IRegistrationDateHolder, IPropertiesHolder, IModificationDateHolder, IRegistratorHolder
+public class Material implements Serializable, ICodeHolder, ITagsHolder, IRegistrationDateHolder, IPermIdHolder, IPropertiesHolder, IModificationDateHolder, IRegistratorHolder
 {
     private static final long serialVersionUID = 1L;
 
@@ -93,6 +95,7 @@ public class Material implements Serializable, ITagsHolder, IRegistrationDateHol
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     @JsonIgnore
+    @Override
     public MaterialPermId getPermId()
     {
         return permId;
@@ -106,6 +109,7 @@ public class Material implements Serializable, ITagsHolder, IRegistrationDateHol
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     @JsonIgnore
+    @Override
     public String getCode()
     {
         return code;

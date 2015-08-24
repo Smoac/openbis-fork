@@ -20,9 +20,11 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.history.HistoryEntry;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IAttachmentsHolder;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.ICodeHolder;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IModificationDateHolder;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IModifierHolder;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IParentChildrenHolder;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IPermIdHolder;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IPropertiesHolder;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IRegistrationDateHolder;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IRegistratorHolder;
@@ -51,7 +53,7 @@ import java.util.Set;
  * Class automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
  */
 @JsonObject("dto.entity.sample.Sample")
-public class Sample implements Serializable, ITagsHolder, IRegistrationDateHolder, IAttachmentsHolder, IPropertiesHolder, ISpaceHolder, IModifierHolder, IModificationDateHolder, IParentChildrenHolder<Sample>, IRegistratorHolder
+public class Sample implements Serializable, ICodeHolder, ITagsHolder, IRegistrationDateHolder, IAttachmentsHolder, IPermIdHolder, IPropertiesHolder, ISpaceHolder, IModifierHolder, IModificationDateHolder, IParentChildrenHolder<Sample>, IRegistratorHolder
 {
     private static final long serialVersionUID = 1L;
 
@@ -133,6 +135,7 @@ public class Sample implements Serializable, ITagsHolder, IRegistrationDateHolde
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     @JsonIgnore
+    @Override
     public SamplePermId getPermId()
     {
         return permId;
@@ -159,6 +162,7 @@ public class Sample implements Serializable, ITagsHolder, IRegistrationDateHolde
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     @JsonIgnore
+    @Override
     public String getCode()
     {
         return code;

@@ -15,6 +15,7 @@
  */
 package ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.person;
 
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IPermIdHolder;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IRegistrationDateHolder;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IRegistratorHolder;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.ISpaceHolder;
@@ -33,7 +34,7 @@ import java.util.Date;
  * Class automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
  */
 @JsonObject("dto.entity.person.Person")
-public class Person implements Serializable, IRegistrationDateHolder, ISpaceHolder, IRegistratorHolder
+public class Person implements Serializable, IRegistrationDateHolder, IPermIdHolder, ISpaceHolder, IRegistratorHolder
 {
     private static final long serialVersionUID = 1L;
 
@@ -82,6 +83,7 @@ public class Person implements Serializable, IRegistrationDateHolder, ISpaceHold
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     @JsonIgnore
+    @Override
     public PersonPermId getPermId()
     {
         return permId;

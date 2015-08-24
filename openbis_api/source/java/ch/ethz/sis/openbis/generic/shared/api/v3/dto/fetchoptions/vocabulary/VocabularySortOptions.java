@@ -16,8 +16,6 @@
 
 package ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.vocabulary;
 
-import java.util.Comparator;
-
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.vocabulary.Vocabulary;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.SortOptions;
 
@@ -28,11 +26,5 @@ public class VocabularySortOptions extends SortOptions<Vocabulary>
 {
 
     private static final long serialVersionUID = 1L;
-
-    @Override
-    public Comparator<Vocabulary> getComparator(String field)
-    {
-        return null;
-    }
 
 }

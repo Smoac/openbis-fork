@@ -14,17 +14,16 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.project;
+package ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces;
 
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.project.Project;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.EntitySortOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.IObjectId;
 
 /**
  * @author pkupczyk
  */
-public class ProjectSortOptions extends EntitySortOptions<Project>
+public interface IPermIdHolder
 {
 
-    private static final long serialVersionUID = 1L;
+    IObjectId getPermId();
 
 }

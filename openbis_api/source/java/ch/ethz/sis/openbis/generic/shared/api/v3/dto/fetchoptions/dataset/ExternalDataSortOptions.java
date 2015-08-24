@@ -16,8 +16,6 @@
 
 package ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset;
 
-import java.util.Comparator;
-
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.ExternalData;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.SortOptions;
 
@@ -28,11 +26,5 @@ public class ExternalDataSortOptions extends SortOptions<ExternalData>
 {
 
     private static final long serialVersionUID = 1L;
-
-    @Override
-    public Comparator<ExternalData> getComparator(String field)
-    {
-        return null;
-    }
 
 }

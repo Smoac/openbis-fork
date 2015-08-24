@@ -14,17 +14,24 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.project;
+package ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.comparator;
 
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.project.Project;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.EntitySortOptions;
+import java.util.Date;
+
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IRegistrationDateHolder;
 
 /**
  * @author pkupczyk
  */
-public class ProjectSortOptions extends EntitySortOptions<Project>
+public class RegistrationDateComparator<OBJECT extends IRegistrationDateHolder> extends AbstractComparator<OBJECT, Date>
 {
 
-    private static final long serialVersionUID = 1L;
+    public static final String REGISTRATION_DATE = "REGISTRATION_DATE";
+
+    @Override
+    protected Date getValue(IRegistrationDateHolder o)
+    {
+        return o.getRegistrationDate();
+    }
 
 }

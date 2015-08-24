@@ -16,23 +16,15 @@
 
 package ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sample;
 
-import java.util.Comparator;
-
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.Sample;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.SortOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.EntitySortOptions;
 
 /**
  * @author pkupczyk
  */
-public class SampleSortOptions extends SortOptions<Sample>
+public class SampleSortOptions extends EntitySortOptions<Sample>
 {
 
     private static final long serialVersionUID = 1L;
-
-    @Override
-    public Comparator<Sample> getComparator(String field)
-    {
-        return null;
-    }
 
 }

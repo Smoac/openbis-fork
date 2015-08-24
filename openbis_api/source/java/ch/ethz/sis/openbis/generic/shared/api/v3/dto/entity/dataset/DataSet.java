@@ -19,9 +19,11 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSetType;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.ExternalData;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.history.HistoryEntry;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.ICodeHolder;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IModificationDateHolder;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IModifierHolder;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IParentChildrenHolder;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IPermIdHolder;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IPropertiesHolder;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IRegistrationDateHolder;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IRegistratorHolder;
@@ -46,7 +48,7 @@ import java.util.Set;
  * Class automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
  */
 @JsonObject("dto.entity.dataset.DataSet")
-public class DataSet implements Serializable, ITagsHolder, IRegistrationDateHolder, IPropertiesHolder, IModifierHolder, IParentChildrenHolder<DataSet>, IModificationDateHolder, IRegistratorHolder
+public class DataSet implements Serializable, ICodeHolder, ITagsHolder, IRegistrationDateHolder, IPermIdHolder, IPropertiesHolder, IModifierHolder, IParentChildrenHolder<DataSet>, IModificationDateHolder, IRegistratorHolder
 {
     private static final long serialVersionUID = 1L;
 
@@ -131,6 +133,7 @@ public class DataSet implements Serializable, ITagsHolder, IRegistrationDateHold
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     @JsonIgnore
+    @Override
     public DataSetPermId getPermId()
     {
         return permId;
@@ -144,6 +147,7 @@ public class DataSet implements Serializable, ITagsHolder, IRegistrationDateHold
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     @JsonIgnore
+    @Override
     public String getCode()
     {
         return code;

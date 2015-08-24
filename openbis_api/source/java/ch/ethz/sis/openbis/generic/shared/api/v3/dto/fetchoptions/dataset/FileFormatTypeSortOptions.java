@@ -16,8 +16,6 @@
 
 package ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset;
 
-import java.util.Comparator;
-
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.FileFormatType;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.SortOptions;
 
@@ -28,11 +26,5 @@ public class FileFormatTypeSortOptions extends SortOptions<FileFormatType>
 {
 
     private static final long serialVersionUID = 1L;
-
-    @Override
-    public Comparator<FileFormatType> getComparator(String field)
-    {
-        return null;
-    }
 
 }

@@ -16,8 +16,6 @@
 
 package ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset;
 
-import java.util.Comparator;
-
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.LocatorType;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.SortOptions;
 
@@ -28,11 +26,5 @@ public class LocatorTypeSortOptions extends SortOptions<LocatorType>
 {
 
     private static final long serialVersionUID = 1L;
-
-    @Override
-    public Comparator<LocatorType> getComparator(String field)
-    {
-        return null;
-    }
 
 }

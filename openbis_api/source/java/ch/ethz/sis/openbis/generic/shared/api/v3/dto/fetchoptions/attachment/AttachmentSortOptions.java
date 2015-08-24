@@ -16,8 +16,6 @@
 
 package ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.attachment;
 
-import java.util.Comparator;
-
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.attachment.Attachment;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.SortOptions;
 
@@ -28,11 +26,5 @@ public class AttachmentSortOptions extends SortOptions<Attachment>
 {
 
     private static final long serialVersionUID = 1L;
-
-    @Override
-    public Comparator<Attachment> getComparator(String field)
-    {
-        return null;
-    }
 
 }

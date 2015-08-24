@@ -16,8 +16,6 @@
 
 package ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.person;
 
-import java.util.Comparator;
-
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.person.Person;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.SortOptions;
 
@@ -28,11 +26,5 @@ public class PersonSortOptions extends SortOptions<Person>
 {
 
     private static final long serialVersionUID = 1L;
-
-    @Override
-    public Comparator<Person> getComparator(String field)
-    {
-        return null;
-    }
 
 }

@@ -16,8 +16,6 @@
 
 package ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.experiment;
 
-import java.util.Comparator;
-
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.ExperimentType;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.SortOptions;
 
@@ -28,11 +26,5 @@ public class ExperimentTypeSortOptions extends SortOptions<ExperimentType>
 {
 
     private static final long serialVersionUID = 1L;
-
-    @Override
-    public Comparator<ExperimentType> getComparator(String field)
-    {
-        return null;
-    }
 
 }

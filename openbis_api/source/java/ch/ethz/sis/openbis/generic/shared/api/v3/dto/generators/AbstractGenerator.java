@@ -8,8 +8,10 @@ import java.util.Set;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.attachment.Attachment;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IAttachmentsHolder;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.ICodeHolder;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IModificationDateHolder;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IModifierHolder;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IPermIdHolder;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IPropertiesHolder;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IRegistrationDateHolder;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IRegistratorHolder;
@@ -28,6 +30,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.property.Prope
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sample.SampleFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.space.SpaceFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.tag.TagFetchOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.IObjectId;
 
 public class AbstractGenerator
 {
@@ -56,7 +59,12 @@ public class AbstractGenerator
 
     public static void addCode(DtoGenerator gen)
     {
-        gen.addSimpleField(String.class, "code");
+        gen.addSimpleField(String.class, "code").withInterface(ICodeHolder.class);
+    }
+
+    public static void addPermId(DtoGenerator gen, Class<? extends IObjectId> permIdClass)
+    {
+        gen.addSimpleField(permIdClass, "permId").withInterface(IPermIdHolder.class);
     }
 
     public static void addExperiment(DtoGenerator gen)

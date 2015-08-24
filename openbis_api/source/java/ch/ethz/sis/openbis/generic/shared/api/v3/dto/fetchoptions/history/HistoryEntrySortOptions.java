@@ -16,8 +16,6 @@
 
 package ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.history;
 
-import java.util.Comparator;
-
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.history.HistoryEntry;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.SortOptions;
 
@@ -28,11 +26,5 @@ public class HistoryEntrySortOptions extends SortOptions<HistoryEntry>
 {
 
     private static final long serialVersionUID = 1L;
-
-    @Override
-    public Comparator<HistoryEntry> getComparator(String field)
-    {
-        return null;
-    }
 
 }
