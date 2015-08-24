@@ -561,6 +561,249 @@ public class SearchSampleTest extends AbstractSampleTest
         assertSame(samples4.get(1), samples3.get(1));
     }
 
+    @Test
+    public void testSearchWithSortingByCode()
+    {
+        SampleSearchCriterion criterion = new SampleSearchCriterion();
+        criterion.withOrOperator();
+        criterion.withPermId().thatEquals("200902091219327-1025");
+        criterion.withPermId().thatEquals("200902091225616-1027");
+        criterion.withPermId().thatEquals("200902091250077-1026");
+
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        SampleFetchOptions fo = new SampleFetchOptions();
+
+        fo.sortBy().code().asc();
+        List<Sample> samples1 = search(sessionToken, criterion, fo);
+        assertSampleIdentifiersInOrder(samples1, "/CISD/CP-TEST-1", "/CISD/CP-TEST-2", "/CISD/CP-TEST-3");
+
+        fo.sortBy().code().desc();
+        List<Sample> samples2 = search(sessionToken, criterion, fo);
+        assertSampleIdentifiersInOrder(samples2, "/CISD/CP-TEST-3", "/CISD/CP-TEST-2", "/CISD/CP-TEST-1");
+
+        v3api.logout(sessionToken);
+    }
+
+    @Test
+    public void testSearchWithSortingByRegistrationDate()
+    {
+        SampleSearchCriterion criterion = new SampleSearchCriterion();
+        criterion.withOrOperator();
+        criterion.withPermId().thatEquals("200811050924274-995");
+        criterion.withPermId().thatEquals("200811050927630-1004");
+
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        SampleFetchOptions fo = new SampleFetchOptions();
+
+        fo.sortBy().registrationDate().asc();
+        List<Sample> samples1 = search(sessionToken, criterion, fo);
+        assertSampleIdentifiersInOrder(samples1, "/CISD/B1B3:B01", "/CISD/MP1-MIXED:A01");
+
+        fo.sortBy().registrationDate().desc();
+        List<Sample> samples2 = search(sessionToken, criterion, fo);
+        assertSampleIdentifiersInOrder(samples2, "/CISD/MP1-MIXED:A01", "/CISD/B1B3:B01");
+
+        v3api.logout(sessionToken);
+    }
+
+    @Test
+    public void testSearchWithSortingByModificationDate()
+    {
+        SampleSearchCriterion criterion = new SampleSearchCriterion();
+        criterion.withOrOperator();
+        criterion.withPermId().thatEquals("200902091219327-1025");
+        criterion.withPermId().thatEquals("200902091225616-1027");
+
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        SampleFetchOptions fo = new SampleFetchOptions();
+
+        fo.sortBy().modificationDate().asc();
+        List<Sample> samples1 = search(sessionToken, criterion, fo);
+        assertSampleIdentifiersInOrder(samples1, "/CISD/CP-TEST-3", "/CISD/CP-TEST-1");
+
+        fo.sortBy().modificationDate().desc();
+        List<Sample> samples2 = search(sessionToken, criterion, fo);
+        assertSampleIdentifiersInOrder(samples2, "/CISD/CP-TEST-1", "/CISD/CP-TEST-3");
+
+        v3api.logout(sessionToken);
+    }
+
+    @Test
+    public void testSearchWithSortingByMultipleFields()
+    {
+        SampleSearchCriterion criterion = new SampleSearchCriterion();
+        criterion.withOrOperator();
+        criterion.withPermId().thatEquals("200811050919915-9");
+        criterion.withPermId().thatEquals("200811050944030-974");
+        criterion.withPermId().thatEquals("200811050924274-995");
+
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        SampleFetchOptions fo = new SampleFetchOptions();
+
+        fo.sortBy().code().asc();
+        fo.sortBy().registrationDate().asc();
+        List<Sample> samples1 = search(sessionToken, criterion, fo);
+        assertSampleIdentifiersInOrder(samples1, "/CISD/CL1:A01", "/CISD/CL-3V:A01", "/CISD/B1B3:B01");
+
+        fo.sortBy().code().asc();
+        fo.sortBy().registrationDate().desc();
+        List<Sample> samples2 = search(sessionToken, criterion, fo);
+        assertSampleIdentifiersInOrder(samples2, "/CISD/CL-3V:A01", "/CISD/CL1:A01", "/CISD/B1B3:B01");
+
+        v3api.logout(sessionToken);
+    }
+
+    @Test
+    public void testSearchWithSortingTopLevel()
+    {
+        SampleSearchCriterion criterion = new SampleSearchCriterion();
+        criterion.withOrOperator();
+        criterion.withPermId().thatEquals("200902091219327-1025");
+        criterion.withPermId().thatEquals("200902091225616-1027");
+        criterion.withPermId().thatEquals("200902091250077-1026");
+
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        SampleFetchOptions fo = new SampleFetchOptions();
+
+        fo.sortBy().code().asc();
+        List<Sample> samples1 = search(sessionToken, criterion, fo);
+
+        assertSampleIdentifiersInOrder(samples1, "/CISD/CP-TEST-1", "/CISD/CP-TEST-2", "/CISD/CP-TEST-3");
+
+        fo.sortBy().code().desc();
+        List<Sample> samples2 = search(sessionToken, criterion, fo);
+
+        assertSampleIdentifiersInOrder(samples2, "/CISD/CP-TEST-3", "/CISD/CP-TEST-2", "/CISD/CP-TEST-1");
+
+        v3api.logout(sessionToken);
+    }
+
+    @Test
+    public void testSearchWithSortingSubLevel()
+    {
+        SampleSearchCriterion criterion = new SampleSearchCriterion();
+        criterion.withOrOperator();
+        criterion.withPermId().thatEquals("200811050945092-976");
+        criterion.withPermId().thatEquals("200811050927630-1003");
+
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        SampleFetchOptions fo = new SampleFetchOptions();
+        fo.sortBy().code().asc();
+        fo.withChildren().sortBy().code().asc();
+
+        List<Sample> samples1 = search(sessionToken, criterion, fo);
+
+        assertSampleIdentifiersInOrder(samples1, "/CISD/3V-125", "/CISD/MP1-MIXED");
+        assertSampleIdentifiersInOrder(samples1.get(0).getChildren(), "/CISD/3VCP5", "/CISD/3VCP6", "/CISD/3VCP7", "/CISD/3VCP8");
+        assertSampleIdentifiersInOrder(samples1.get(1).getChildren(), "/CISD/DP1-A", "/CISD/DP1-B");
+
+        fo.withChildren().sortBy().code().desc();
+        List<Sample> samples2 = search(sessionToken, criterion, fo);
+
+        assertSampleIdentifiersInOrder(samples2, "/CISD/3V-125", "/CISD/MP1-MIXED");
+        assertSampleIdentifiersInOrder(samples2.get(0).getChildren(), "/CISD/3VCP8", "/CISD/3VCP7", "/CISD/3VCP6", "/CISD/3VCP5");
+        assertSampleIdentifiersInOrder(samples2.get(1).getChildren(), "/CISD/DP1-B", "/CISD/DP1-A");
+
+        v3api.logout(sessionToken);
+    }
+
+    @Test
+    public void testSearchWithPagingTopLevel()
+    {
+        SampleSearchCriterion criterion = new SampleSearchCriterion();
+        criterion.withOrOperator();
+        criterion.withPermId().thatEquals("200902091219327-1025");
+        criterion.withPermId().thatEquals("200902091225616-1027");
+        criterion.withPermId().thatEquals("200902091250077-1026");
+
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        SampleFetchOptions fo = new SampleFetchOptions();
+        fo.sortBy().code().asc();
+
+        fo.from(0).count(1);
+        List<Sample> samples1 = search(sessionToken, criterion, fo);
+        assertSampleIdentifiersInOrder(samples1, "/CISD/CP-TEST-1");
+
+        fo.from(1).count(1);
+        List<Sample> samples2 = search(sessionToken, criterion, fo);
+        assertSampleIdentifiersInOrder(samples2, "/CISD/CP-TEST-2");
+
+        fo.from(2).count(1);
+        List<Sample> samples3 = search(sessionToken, criterion, fo);
+        assertSampleIdentifiersInOrder(samples3, "/CISD/CP-TEST-3");
+
+        v3api.logout(sessionToken);
+    }
+
+    @Test
+    public void testSearchWithPagingSubLevel()
+    {
+        SampleSearchCriterion criterion = new SampleSearchCriterion();
+        criterion.withOrOperator();
+        criterion.withPermId().thatEquals("200811050945092-976");
+        criterion.withPermId().thatEquals("200811050927630-1003");
+
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        SampleFetchOptions fo = new SampleFetchOptions();
+        fo.sortBy().code().asc();
+        fo.withChildren().sortBy().code().asc();
+
+        fo.withChildren().from(0).count(1);
+        List<Sample> samples1 = search(sessionToken, criterion, fo);
+
+        assertSampleIdentifiersInOrder(samples1, "/CISD/3V-125", "/CISD/MP1-MIXED");
+        assertSampleIdentifiersInOrder(samples1.get(0).getChildren(), "/CISD/3VCP5");
+        assertSampleIdentifiersInOrder(samples1.get(1).getChildren(), "/CISD/DP1-A");
+
+        fo.withChildren().from(1).count(1);
+        List<Sample> samples2 = search(sessionToken, criterion, fo);
+
+        assertSampleIdentifiersInOrder(samples2, "/CISD/3V-125", "/CISD/MP1-MIXED");
+        assertSampleIdentifiersInOrder(samples2.get(0).getChildren(), "/CISD/3VCP6");
+        assertSampleIdentifiersInOrder(samples2.get(1).getChildren(), "/CISD/DP1-B");
+
+        v3api.logout(sessionToken);
+    }
+
+    @Test
+    public void testSearchWithPagingTopAndSubLevel()
+    {
+        SampleSearchCriterion criterion = new SampleSearchCriterion();
+        criterion.withOrOperator();
+        criterion.withPermId().thatEquals("200811050945092-976");
+        criterion.withPermId().thatEquals("200811050927630-1003");
+
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        SampleFetchOptions fo = new SampleFetchOptions();
+        fo.sortBy().code().asc();
+        fo.withChildren().sortBy().code().asc();
+
+        fo.from(0).count(1);
+        fo.withChildren().from(0).count(1);
+        List<Sample> samples1 = search(sessionToken, criterion, fo);
+
+        assertSampleIdentifiersInOrder(samples1, "/CISD/3V-125");
+        assertSampleIdentifiersInOrder(samples1.get(0).getChildren(), "/CISD/3VCP5");
+
+        fo.from(1).count(1);
+        fo.withChildren().from(1).count(1);
+        List<Sample> samples2 = search(sessionToken, criterion, fo);
+
+        assertSampleIdentifiersInOrder(samples2, "/CISD/MP1-MIXED");
+        assertSampleIdentifiersInOrder(samples2.get(0).getChildren(), "/CISD/DP1-B");
+
+        v3api.logout(sessionToken);
+    }
+
     private void testSearch(String user, SampleSearchCriterion criterion, String... expectedIdentifiers)
     {
         String sessionToken = v3api.login(user, PASSWORD);

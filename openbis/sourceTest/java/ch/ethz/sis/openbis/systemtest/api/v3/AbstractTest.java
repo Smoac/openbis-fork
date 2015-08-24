@@ -22,11 +22,14 @@ import static org.testng.Assert.fail;
 
 import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -663,6 +666,18 @@ public class AbstractTest extends SystemTestCase
         }
 
         assertCollectionContainsOnly(actualSet, expectedIdentifiers);
+    }
+
+    protected static void assertSampleIdentifiersInOrder(Collection<Sample> samples, String... expectedIdentifiers)
+    {
+        List<String> identifiers = new LinkedList<String>();
+
+        for (Sample sample : samples)
+        {
+            identifiers.add(sample.getIdentifier().getIdentifier());
+        }
+
+        assertEquals(identifiers, Arrays.asList(expectedIdentifiers));
     }
 
     protected static void assertMaterialPermIds(Collection<Material> materials, MaterialPermId... expectedPermIds)

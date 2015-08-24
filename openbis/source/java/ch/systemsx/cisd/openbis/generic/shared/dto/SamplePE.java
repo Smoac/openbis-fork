@@ -632,6 +632,7 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
         final SamplePE that = (SamplePE) obj;
         final EqualsBuilder builder = new EqualsBuilder();
         builder.append(getCode(), that.getCode());
+        builder.append(getContainer(), that.getContainer());
         builder.append(getSpace(), that.getSpace());
         return builder.isEquals();
     }
