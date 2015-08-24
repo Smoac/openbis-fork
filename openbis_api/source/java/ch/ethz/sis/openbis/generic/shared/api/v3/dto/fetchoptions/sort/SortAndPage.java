@@ -109,13 +109,13 @@ public class SortAndPage
 
             if (objects instanceof List)
             {
-                paged = new ListView((List) objects, fo.getFrom(), fo.getCount());
+                paged = new ListView(objects, fo.getFrom(), fo.getCount());
             } else if (objects instanceof Set)
             {
                 paged = new SetView(objects, fo.getFrom(), fo.getCount());
             } else if (objects instanceof Collection)
             {
-                paged = new ListView((List) objects, fo.getFrom(), fo.getCount());
+                paged = new ListView(objects, fo.getFrom(), fo.getCount());
             } else
             {
                 throw new IllegalArgumentException("Unsupported collection: " + objects.getClass());

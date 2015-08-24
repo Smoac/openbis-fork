@@ -30,10 +30,9 @@ public class ListView<T> extends AbstractCollectionView<T> implements List<T>
 
     private static final long serialVersionUID = 1L;
 
-    public ListView(List<T> originalList, Integer from, Integer count)
+    public ListView(Collection<T> originalList, Integer from, Integer count)
     {
         super(originalList, from, count);
-
     }
 
     @Override
