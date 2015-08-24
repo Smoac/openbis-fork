@@ -64,6 +64,8 @@ public class ShareFactory
 
     public static final String EXPERIMENTS_PROP = "experiments";
 
+    public static final String DATA_SET_TYPES_PROP = "data_set_types";
+
     private int speed = Math.abs(Constants.DEFAULT_SPEED_HINT);
 
     private ShufflePriority shufflePriority = ShufflePriority.SPEED;
@@ -76,6 +78,8 @@ public class ShareFactory
     
     private Set<String> experimentIdentifiers = Collections.emptySet();
 
+    private Set<String> dataSetTypes = Collections.emptySet();
+
     Share createShare(final SharesHolder sharesHolder, File shareRoot,
             IFreeSpaceProvider freeSpaceProvider, ISimpleLogger log)
     {
@@ -87,6 +91,7 @@ public class ShareFactory
         share.setUnarchivingScratchShare(unarchivingScratchShare);
         share.setIgnoredForShuffling(ignoredForShuffling);
         share.setExperimentIdentifiers(experimentIdentifiers);
+        share.setDataSetTypes(dataSetTypes);
         return share;
 
     }
@@ -143,6 +148,9 @@ public class ShareFactory
             experimentIdentifiers =
                     new HashSet<String>(Arrays.asList(PropertyParametersUtil.parseItemisedProperty(
                             props.getProperty(EXPERIMENTS_PROP, ""), EXPERIMENTS_PROP)));
+            dataSetTypes =
+                    new HashSet<String>(Arrays.asList(PropertyParametersUtil.parseItemisedProperty(
+                            props.getProperty(DATA_SET_TYPES_PROP, ""), DATA_SET_TYPES_PROP)));
         }
 
     }
