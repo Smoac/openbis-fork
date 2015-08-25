@@ -38,6 +38,10 @@ import xml.etree.ElementTree as etree
 from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto import SearchCriteria
 from ch.systemsx.cisd.common.mail import EMailAddress
 
+# The following module is located in the path defined in the datastore_server.conf
+# Look for: -Dpython.path}
+from gfb_utils import *
+
 RUNPARAMETERS = 'RunParameters.xml'
 ALTERNATIVE_RUNPARAMETERS = 'runParameters.xml'
 RUNINFO = 'RunInfo.xml'
@@ -56,15 +60,6 @@ RUNPARAMETERS_XML = {'FLOWCELL':'Flowcell', 'RTAVERSION':'RTAVersion',
   'CONTROL_SOFTWARE_VERSION': 'ApplicationVersion'}
 
 PERSISTENT_KEY_MAP = "persistent_key_map"
-
-SEQUENCER_DICT = {'HISEQ_4000': 'Illumina HiSeq 4000',
-                  'HISEQ_3000': 'Illumina HiSeq 3000',
-                  'HISEQ_2500': 'Illumina HiSeq 2500',
-                  'HISEQ_2000': 'Illumina HiSeq 2000',
-                  'HISEQ_X': 'Illumina HiSeq X',
-                  'NEXTSEQ_500': 'Illumina NextSeq 500',
-                  'MISEQ': 'Illumina MiSeq',
-                  'UNIDENTIFIED': 'Unidentified'}
 
 
 class parseXmlFile: 
@@ -93,57 +88,8 @@ class parseXmlFile:
         '''
         for e in self.root.getchildren():
             # the '//' means look recursively for all children not only direct ones
-            childList  = self.tree.findall('//' + elementName)
+            childList  = self.tree.findall('.//' + elementName)
             return childList 
-
-
-def get_model(run_id):
-    """
-    Guesses the sequencer model from the run folder name
-
-    Current Naming schema for Illumina run folders, as far as I know,
-    no documentation found on this, Illumina introduced a field called
-    <InstrumentID> on the NextSeq runParameters.xml. That might be an
-    option for the future. Alternatively a combination of the fields
-    <ApplicationName> and <ApplicationVersion>.
-
-    MiSeq: 150130_M01761_0114_000000000-ACUR0
-    NextSeq: 150202_NS500318_0047_AH3KLMBGXX
-    HiSeq 2000: 130919_SN792_0281_BD2CHRACXX
-    HiSeq 2500: 150203_D00535_0052_AC66RWANXX
-    HiSeq 3000: 150724_J00121_0017_AH2VYMBBXX
-    HiSeq 4000: 150210_K00111_0013_AH2372BBXX
-    HiSeq X: 141121_ST-E00107_0356_AH00C3CCXX
-    """
-    date, machine_id, run_number, fc_string = os.path.basename(run_id).split("_")
-
-    if machine_id.startswith("NS"):
-        model = SEQUENCER_DICT['NEXTSEQ_500']
-    elif machine_id.startswith("M"):
-        model = SEQUENCER_DICT['MISEQ']
-    elif machine_id.startswith("D"):
-        model = SEQUENCER_DICT['HISEQ_2500']
-    elif machine_id.startswith("SN"):
-        model = SEQUENCER_DICT['HISEQ_2000']
-    elif machine_id.startswith("J"):
-        model = SEQUENCER_DICT['HISEQ_3000']
-    elif machine_id.startswith("K"):
-        model = SEQUENCER_DICT['HISEQ_4000']
-    elif machine_id.startswith("ST"):
-        model = SEQUENCER_DICT['HISEQ_X']
-    else:
-        model = SEQUENCER_DICT['UNIDENTIFIED']
-    return model
-
-
-def createOpenbisTimeStamp(file):
-  '''
-  Creates a openBIS compatible time stamp of a file time stamp
-  '''
-  mtime = os.path.getmtime(file)
-  lt = localtime(mtime)
-  tz = localtime().tm_hour - gmtime().tm_hour
-  return (strftime("%Y-%m-%d %H:%M:%S GMT" + "%+.2d" % tz + ":00", lt))
 
 
 def registerFlowLane(a_lane, transaction, name, newFlowCell):
@@ -196,7 +142,6 @@ def post_storage(context):
 
 def searchSample(transaction, sampleName):
 
-    # Search for the sample and check if there is already sample with this ID
     search_service = transaction.getSearchService()
     sc = SearchCriteria()
     sc.addMatchClause(SearchCriteria.MatchClause.createAttributeMatch(SearchCriteria.MatchClauseAttribute.CODE, sampleName));
@@ -285,7 +230,7 @@ def process(transaction):
 
     run_date, sequencer_id, running_number, tray_and_fcId = run_id.split("_")
     tray = tray_and_fcId[0]
-    if model is SEQUENCER_DICT['MISEQ']:
+    if model in [Sequencers.MISEQ]:
         fc_id = tray_and_fcId
     else:
         fc_id = tray_and_fcId[1:]
@@ -304,12 +249,12 @@ def process(transaction):
 
     flow_lanes = new_flowcell.getContainedSamples()
     if len(flow_lanes) is 0:
-        if model in SEQUENCER_DICT['NEXTSEQ_500']:
+        if model in [Sequencers.NEXTSEQ_500]:
             max_lanes = 1
         [registerFlowLane(lane, transaction, fc_id, new_flowcell) for lane in range(1,int(max_lanes)+1)]
 
     # NextSeq specific
-    if model in SEQUENCER_DICT['NEXTSEQ_500']:
+    if model in [Sequencers.NEXTSEQ_500]:
         run_mode = sanitizeString(runParameters.getAllchildren('Chemistry')[0].text)
         set_run_mode(transaction, new_flowcell, run_mode)
         recipe_folder = (runParameters.getAllchildren('RecipeFolder'))[0].text
@@ -318,13 +263,13 @@ def process(transaction):
         new_flowcell.setPropertyValue("CONTROL_SOFTWARE_VERSION", runParameters.getAllchildren('ApplicationVersion')[0].text)
 
     # MiSeq specific
-    if model in SEQUENCER_DICT['MISEQ']:
+    if model in [Sequencers.MISEQ]:
         ReagentKitBarcode = (runParameters.getAllchildren('ReagentKitBarcode'))[0].text
         new_flowcell.setPropertyValue("SBS_KIT", ReagentKitBarcode)
         new_flowcell.setPropertyValue("CONTROL_SOFTWARE_VERSION", runParameters.getAllchildren('ApplicationVersion')[0].text)
 
     # HiSeq specific
-    if model in [SEQUENCER_DICT['HISEQ_2500'], SEQUENCER_DICT['HISEQ_3000'], SEQUENCER_DICT['HISEQ_4000'], SEQUENCER_DICT['HISEQ_X']]:
+    if model in HISEQ_LIST:
         run_mode = sanitizeString(runParameters.getXmlElement(RUNPARAMETERS_XML['RUN_MODE']))
         new_flowcell.setPropertyValue("FLOWCELLTYPE", runParameters.getXmlElement(RUNPARAMETERS_XML['FLOWCELL']))
         new_flowcell.setPropertyValue("SBS_KIT", runParameters.getXmlElement(RUNPARAMETERS_XML['SBS']))
@@ -343,7 +288,7 @@ def process(transaction):
     sequencer = runInfo.getAllchildren('Instrument')
     addVocabularyTerm(transaction, "SEQUENCER", sequencer[0].text)
     new_flowcell.setPropertyValue("SEQUENCER", sequencer[0].text)
-    new_flowcell.setPropertyValue("FLOW_CELL_SEQUENCED_ON", createOpenbisTimeStamp(os.path.join(incomingPath, RUNINFO)))
+    new_flowcell.setPropertyValue("FLOW_CELL_SEQUENCED_ON", create_openbis_timestamp(os.path.join(incomingPath, RUNINFO)))
     new_flowcell.setPropertyValue("RUN_NAME_FOLDER", run_id)
 
     readMap = {}
