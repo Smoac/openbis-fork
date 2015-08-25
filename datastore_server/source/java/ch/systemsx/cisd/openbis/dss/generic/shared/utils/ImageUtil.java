@@ -45,6 +45,7 @@ import ar.com.hjg.pngj.ImageInfo;
 import ar.com.hjg.pngj.ImageLine;
 import ar.com.hjg.pngj.PngFilterType;
 import ar.com.hjg.pngj.PngWriter;
+
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.base.io.IRandomAccessFile;
@@ -982,7 +983,13 @@ public class ImageUtil
     private static BufferedImage convertForDisplayIfNecessary(BufferedImage image, Float threshold,
             IImageToPixelsConverter converterOrNull)
     {
-        Channel channel = getRepresentativeChannelIfEffectiveGrayAndMoreThan8Bit(image);
+        return convertForDisplayIfNecessary(image, threshold, null, converterOrNull);
+    }
+    
+    private static BufferedImage convertForDisplayIfNecessary(BufferedImage image, Float threshold,
+            IntensityRescaling.Channel representativeChannelOrNull, IImageToPixelsConverter converterOrNull)
+    {
+        Channel channel = getRepresentativeChannelIfEffectiveGrayAndMoreThan8Bit(image, representativeChannelOrNull);
         if (channel != null)
         {
             Pixels pixels = converterOrNull == null ? new Pixels(image) : converterOrNull.convert(image);
@@ -1016,7 +1023,8 @@ public class ImageUtil
         }
     }
 
-    private static Channel getRepresentativeChannelIfEffectiveGrayAndMoreThan8Bit(BufferedImage image)
+    private static Channel getRepresentativeChannelIfEffectiveGrayAndMoreThan8Bit(BufferedImage image,
+            IntensityRescaling.Channel representativeChannelOrNull)
     {
         if (getMaxNumberOfBitsPerComponent(image) <= 8)
         {
@@ -1027,7 +1035,7 @@ public class ImageUtil
         {
             return colorModel.getNumColorComponents() == 1 ? Channel.RED : null;
         }
-        return getRepresentativeChannelIfEffectiveGray(image);
+        return representativeChannelOrNull != null ? representativeChannelOrNull : getRepresentativeChannelIfEffectiveGray(image);
     }
 
     /**
@@ -1105,6 +1113,13 @@ public class ImageUtil
     public static BufferedImage rescale(BufferedImage image, int maxWidth, int maxHeight,
             boolean enlargeIfNecessary, boolean highQuality8Bit, IImageToPixelsConverter converterOrNull)
     {
+        return rescale(image, maxWidth, maxHeight, enlargeIfNecessary, highQuality8Bit, null, converterOrNull);
+    }
+
+    public static BufferedImage rescale(BufferedImage image, int maxWidth, int maxHeight,
+                boolean enlargeIfNecessary, boolean highQuality8Bit, 
+                IntensityRescaling.Channel representativeChannelOrNull, IImageToPixelsConverter converterOrNull)
+        {
         int width = image.getWidth();
         int height = image.getHeight();
         // the image has already the required size
@@ -1136,7 +1151,7 @@ public class ImageUtil
             // WORKAROUND: non-default interpolations do not work well with 16 bit grayscale images.
             // We have to rescale colors to 8 bit here, otherwise the result will contain only few
             // colors.
-            imageToRescale = convertForDisplayIfNecessary(imageToRescale, 0f, converterOrNull);
+            imageToRescale = convertForDisplayIfNecessary(imageToRescale, 0f, representativeChannelOrNull, converterOrNull);
         }
         graphics2D.drawImage(imageToRescale, 0, 0, thumbnailWidth, thumbnailHeight, null);
         graphics2D.dispose();

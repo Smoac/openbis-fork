@@ -120,7 +120,7 @@ public class MaximumIntensityProjectionGenerationAlgorithm implements IImageGene
             ChannelAndColorComponent channelAndColorComponent = channelsByCode.get(imageFileInfo.getChannelCode());
             String identifier = imageFileInfo.tryGetUniqueStringIdentifier();
             BufferedImage image = loadImage(imageProvider, incomingDirectory, imagePath, identifier, library);
-            image = ImageChannelsUtils.rescaleIfNot8Bit(image, 0f);
+            image = ImageChannelsUtils.rescaleIfNot8Bit(image, 0f, channelAndColorComponent.channel.tryGetChannelColor());
             image = ImageChannelsUtils.extractChannel(image, channelAndColorComponent.colorComponent);
             image = ImageChannelsUtils.transformGrayToColor(image, channelAndColorComponent.channel.tryGetChannelColor());
             maxIntensity = addImage(image);

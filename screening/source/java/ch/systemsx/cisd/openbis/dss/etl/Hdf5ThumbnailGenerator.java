@@ -42,6 +42,7 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.image.IntensityRescaling;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.process.ProcessExecutionHelper;
@@ -58,6 +59,7 @@ import ch.systemsx.cisd.openbis.dss.etl.dto.ImageLibraryInfo;
 import ch.systemsx.cisd.openbis.dss.etl.dto.RelativeImageFile;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.Channel;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.ChannelColorComponent;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.ChannelColorRGB;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.ImageFileInfo;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.ImageStorageConfiguraton;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.ThumbnailsStorageFormat;
@@ -164,6 +166,8 @@ public class Hdf5ThumbnailGenerator implements IHDF5WriterClient
     private final Logger logger;
 
     private final Map<String, ColorComponent> channelColors = new HashMap<String, ColorComponent>();
+    
+    private final Map<String, IntensityRescaling.Channel> representativeChannels = new HashMap<String, IntensityRescaling.Channel>();
 
     private final boolean registerOriginalImageAsThumbnail;
 
@@ -193,6 +197,7 @@ public class Hdf5ThumbnailGenerator implements IHDF5WriterClient
             Map<String, ImageTransformation> transformations =
                     new HashMap<String, ImageTransformation>();
             transformationsForChannels.put(ch.getCode(), transformations);
+            representativeChannels.put(ch.getCode(), getRepresentativeColorChannelOrNull(ch));
             if (ch.getAvailableTransformations() != null)
             {
                 for (ImageTransformation it : ch.getAvailableTransformations())
@@ -201,7 +206,7 @@ public class Hdf5ThumbnailGenerator implements IHDF5WriterClient
                 }
             }
         }
-
+        
         if (imageDataSetStructure.getChannelColorComponents() != null
                 && imageDataSetStructure.getChannelColorComponents().size() > 0)
         {
@@ -212,6 +217,27 @@ public class Hdf5ThumbnailGenerator implements IHDF5WriterClient
                                 .getChannelColorComponents().get(i)));
             }
         }
+    }
+    
+    private IntensityRescaling.Channel getRepresentativeColorChannelOrNull(Channel ch)
+    {
+        ChannelColorRGB channelColor = ch.tryGetChannelColor();
+        if (channelColor == null)
+        {
+            return null;
+        }
+        IntensityRescaling.Channel channel = IntensityRescaling.Channel.RED;
+        int max = channelColor.getR();
+        if (max < channelColor.getG())
+        {
+            channel = IntensityRescaling.Channel.GREEN;
+            max = channelColor.getG();
+        }
+        if (max < channelColor.getB())
+        {
+            channel = IntensityRescaling.Channel.BLUE;
+        }
+        return channel;
     }
 
     /**
@@ -450,7 +476,9 @@ public class Hdf5ThumbnailGenerator implements IHDF5WriterClient
         }
 
         boolean highQuality = thumbnailsStorageFormat.isHighQuality();
-        BufferedImage rescaledImage = ImageUtil.rescale(image, widht, height, false, highQuality, DssScreeningUtils.CONVERTER);
+        IntensityRescaling.Channel representativeChannelOrNull = representativeChannels.get(imageFileInfo.getChannelCode());
+        BufferedImage rescaledImage = ImageUtil.rescale(image, widht, height, false, highQuality, 
+                representativeChannelOrNull, DssScreeningUtils.CONVERTER);
         
         final List<ThumbnailData> thumbnails = new ArrayList<ThumbnailData>();
         for (String channelCode : getChannelsToProcess(imageFileInfo.getChannelCode()))

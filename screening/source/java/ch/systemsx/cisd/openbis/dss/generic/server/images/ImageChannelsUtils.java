@@ -420,15 +420,36 @@ public class ImageChannelsUtils
             Float threshold)
     {
         BufferedImage image = imageReference.getUnchangedImage();
-        image = rescaleIfNot8Bit(image, threshold);
+        ChannelColorRGB channelColor = imageReference.getChannelColor();
+        image = rescaleIfNot8Bit(image, threshold, channelColor);
         image = resize(image, imageReference.getRequestedSize());
         image = extractChannel(image, imageReference.tryGetColorComponent());
         image = transform(image, imageReference, transformationInfo, threshold);
-        image = transformGrayToColor(image, imageReference.getChannelColor());
+        image = transformGrayToColor(image, channelColor);
         return image;
     }
 
-    public static BufferedImage rescaleIfNot8Bit(BufferedImage image, Float threshold)
+    public static BufferedImage rescaleIfNot8Bit(BufferedImage image, Float threshold, ChannelColorRGB channelColorOrNull)
+    {
+        if (channelColorOrNull == null)
+        {
+            return rescaleIfNot8Bit(image, threshold, Channel.values());
+        }
+        Channel channel = Channel.RED;
+        int max = channelColorOrNull.getR();
+        if (max < channelColorOrNull.getG())
+        {
+            max = channelColorOrNull.getG();
+            channel = Channel.GREEN;
+        }
+        if (max < channelColorOrNull.getB())
+        {
+            channel = Channel.BLUE;
+        }
+        return rescaleIfNot8Bit(image, threshold, channel);
+    }
+
+    private static BufferedImage rescaleIfNot8Bit(BufferedImage image, Float threshold, Channel... channels)
     {
         if (ImageUtil.getMaxNumberOfBitsPerComponent(image) <= 8)
         {
@@ -436,8 +457,9 @@ public class ImageChannelsUtils
         }
         Pixels pixels = DssScreeningUtils.createPixels(image);
         float thresholdValue = getThresholdValue(threshold);
-        Levels levels = IntensityRescaling.computeLevels(pixels, thresholdValue, Channel.values());
-        return IntensityRescaling.rescaleIntensityLevelTo8Bits(pixels, levels, Channel.values());
+        Channel[] channelsForComputation = pixels.getPixelData().length == 1 ? new Channel[] {Channel.RED} : channels;
+        Levels levels = IntensityRescaling.computeLevels(pixels, thresholdValue, channelsForComputation);
+        return IntensityRescaling.rescaleIntensityLevelTo8Bits(pixels, levels, channelsForComputation);
     }
 
     private static float getThresholdValue(Float threshold)
@@ -550,7 +572,7 @@ public class ImageChannelsUtils
         {
             BufferedImage image = imageWithReference.getBufferedImage();
             AbsoluteImageReference imageReference = imageWithReference.getReference();
-            image = rescaleIfNot8Bit(image, 0f);
+            image = rescaleIfNot8Bit(image, 0f, imageReference.getChannelColor());
             image = resize(image, imageReference.getRequestedSize());
             image = transformForChannel(image, imageReference, transformationInfo);
             image = transformGrayToColor(image, imageReference.getChannelColor());

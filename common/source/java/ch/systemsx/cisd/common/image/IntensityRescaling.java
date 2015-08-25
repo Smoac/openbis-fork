@@ -433,10 +433,9 @@ public class IntensityRescaling
 
     /**
      * Computes an intensity rescaled image from the given <var>image</var>, using the black point
-     * and white point as defined by <var>levels</var>. 
+     * and white point as defined by <var>levels</var>. Rescaling preserves color hue and saturation.
      */
-    public static BufferedImage rescaleIntensityLevelTo8Bits(Pixels pixels, Levels levels,
-            Channel... channels)
+    public static BufferedImage rescaleIntensityLevelTo8Bits(Pixels pixels, Levels levels, Channel... channels)
     {
         assert channels.length > 0 : "No channels specified.";
         final int width = pixels.getWidth();
@@ -447,21 +446,33 @@ public class IntensityRescaling
         final BufferedImage rescaledImage = new BufferedImage(width, height, type);
         WritableRaster rescaledRaster = rescaledImage.getRaster();
 
-        for (Channel channel : channels)
+        for (int y = 0; y < height; ++y)
         {
-            int band = channel.getBand();
-            if (band >= numberOfColorComponents)
+            int offset = y * width;
+            for (int x = 0; x < width; ++x)
             {
-                break;
-            }
-            for (int y = 0; y < height; ++y)
-            {
-                int offset = y * width;
-                for (int x = 0; x < width; ++x)
+                int intensity = 0;
+                for (Channel channel : channels)
                 {
-                    int originalIntensity = pixelData[band][offset + x];
-                    int rescaledIntensity = rescaleIntensity(originalIntensity, levels);
-                    rescaledRaster.setSample(x, y, band, rescaledIntensity);
+                    int band = channel.getBand();
+                    if (band < numberOfColorComponents)
+                    {
+                        intensity = Math.max(intensity, pixelData[band][offset + x]);
+                    }
+                }
+                if (intensity != 0)
+                {
+                    int rescaledIntensity = rescaleIntensity(intensity, levels);
+                    for (Channel channel : channels)
+                    {
+                        int band = channel.getBand();
+                        if (band < numberOfColorComponents)
+                        {
+                            int bandIntensity = pixelData[band][offset + x];
+                            int rescaledBandIntensity = (bandIntensity * rescaledIntensity + intensity / 2) / intensity;
+                            rescaledRaster.setSample(x, y, band, rescaledBandIntensity);
+                        }
+                    }
                 }
             }
         }

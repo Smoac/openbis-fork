@@ -110,8 +110,8 @@ public class IntensityRescalingTest
         ImageHistogram histogram = ImageHistogram.calculateHistogram(rescaledImage);
         
         assertEquals("[0=12, 255=18]", renderHistogram(histogram.getRedHistogram()));
-        assertEquals("[0=12, 222=12, 255=6]", renderHistogram(histogram.getGreenHistogram()));
-        assertEquals("[0=18, 222=12]", renderHistogram(histogram.getBlueHistogram()));
+        assertEquals("[0=12, 175=12, 200=6]", renderHistogram(histogram.getGreenHistogram()));
+        assertEquals("[0=18, 175=12]", renderHistogram(histogram.getBlueHistogram()));
     }
     
     @Test
@@ -132,8 +132,8 @@ public class IntensityRescalingTest
         ImageHistogram histogram = ImageHistogram.calculateHistogram(rescaledImage);
         
         assertEquals("[0=12, 255=18]", renderHistogram(histogram.getRedHistogram()));
-        assertEquals("[0=12, 173=12, 255=6]", renderHistogram(histogram.getGreenHistogram()));
-        assertEquals("[0=18, 173=12]", renderHistogram(histogram.getBlueHistogram()));
+        assertEquals("[0=12, 153=12, 204=6]", renderHistogram(histogram.getGreenHistogram()));
+        assertEquals("[0=18, 153=12]", renderHistogram(histogram.getBlueHistogram()));
     }
     
     @Test
