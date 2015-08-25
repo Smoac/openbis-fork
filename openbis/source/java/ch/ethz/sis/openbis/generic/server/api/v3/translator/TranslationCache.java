@@ -56,16 +56,28 @@ public class TranslationCache
 
     public boolean isFetchedWithOptions(Object object, Object fetchOptions)
     {
-        return usedFetchOptions.containsKey(object) && usedFetchOptions.get(object).contains(fetchOptions);
+        Set<Object> set = usedFetchOptions.get(object);
+
+        if (set == null)
+        {
+            return false;
+        } else
+        {
+            return set.contains(fetchOptions);
+        }
     }
 
     public void setFetchedWithOptions(Object object, Object fetchOptions)
     {
-        if (false == usedFetchOptions.containsKey(object))
+        Set<Object> set = usedFetchOptions.get(object);
+
+        if (set == null)
         {
-            usedFetchOptions.put(object, new HashSet<Object>());
+            set = new HashSet<Object>();
+            usedFetchOptions.put(object, set);
         }
-        usedFetchOptions.get(object).add(fetchOptions);
+
+        set.add(fetchOptions);
     }
 
     private String getObjectKey(String namespace, Long objectId)

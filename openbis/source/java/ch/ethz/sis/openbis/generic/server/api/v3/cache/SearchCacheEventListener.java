@@ -23,7 +23,6 @@ import net.sf.ehcache.event.CacheEventListener;
 
 import org.apache.log4j.Logger;
 
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.method.AbstractSearchMethodExecutor.CacheEntry;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 
@@ -44,31 +43,31 @@ public class SearchCacheEventListener implements CacheEventListener
     @Override
     public void notifyElementEvicted(Ehcache cache, Element element)
     {
-        logOperation(element, "has been evicted from the cache");
+        logOperation(cache, element, "has been evicted from the cache");
     }
 
     @Override
     public void notifyElementExpired(Ehcache cache, Element element)
     {
-        logOperation(element, "has expired");
+        logOperation(cache, element, "has expired");
     }
 
     @Override
     public void notifyElementPut(Ehcache cache, Element element) throws CacheException
     {
-        logOperation(element, "has been put to the cache");
+        logOperation(cache, element, "has been put to the cache");
     }
 
     @Override
     public void notifyElementRemoved(Ehcache cache, Element element) throws CacheException
     {
-        logOperation(element, "has been removed from the cache");
+        logOperation(cache, element, "has been removed from the cache");
     }
 
     @Override
     public void notifyElementUpdated(Ehcache cache, Element element) throws CacheException
     {
-        logOperation(element, "has been updated");
+        logOperation(cache, element, "has been updated");
     }
 
     @Override
@@ -78,13 +77,39 @@ public class SearchCacheEventListener implements CacheEventListener
     }
 
     @SuppressWarnings("rawtypes")
-    private void logOperation(Element element, String operation)
+    private void logOperation(Ehcache cache, Element element, String operation)
     {
-        CacheEntry entry = (CacheEntry) element.getObjectValue();
+        SearchCacheEntry entry = (SearchCacheEntry) element.getObjectValue();
+
         if (entry != null)
         {
-            operationLog.info("Cache entry " + entry.hashCode() + " that contains search result with "
-                    + (entry.getObjects() != null ? entry.getObjects().size() : 0) + " objects " + operation + ".");
+            if (operationLog.isInfoEnabled())
+            {
+                StringBuilder sb = new StringBuilder();
+                sb.append("Cache entry " + entry.hashCode() + " that contains search result with ");
+
+                int objectsSize = entry.getObjects() != null ? entry.getObjects().size() : 0;
+
+                if (objectsSize == 1)
+                {
+                    sb.append("1 object " + operation + ".");
+                } else
+                {
+                    sb.append(objectsSize + " objects " + operation + ".");
+                }
+
+                int cacheSize = cache.getSize();
+
+                if (cacheSize == 1)
+                {
+                    sb.append(" Cache now contains 1 entry.");
+                } else
+                {
+                    sb.append(" Cache now contains " + cacheSize + " entries.");
+                }
+
+                operationLog.info(sb.toString());
+            }
         }
     }
 

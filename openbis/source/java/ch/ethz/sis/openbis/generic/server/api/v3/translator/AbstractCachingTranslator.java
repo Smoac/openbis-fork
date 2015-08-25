@@ -39,6 +39,8 @@ public abstract class AbstractCachingTranslator<I, O, F extends FetchOptions<?>>
 
     private final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, getClass());
 
+    private final String namespace = getClass().getName();
+
     @Override
     protected final O doTranslate(TranslationContext context, I object, F fetchOptions)
     {
@@ -63,7 +65,7 @@ public abstract class AbstractCachingTranslator<I, O, F extends FetchOptions<?>>
 
         for (I input : inputs)
         {
-            if (cache.hasTranslatedObject(getClass().getName(), getId(input)))
+            if (cache.hasTranslatedObject(namespace, getId(input)))
             {
                 handleAlreadyTranslatedInput(context, input, translated, updated, fetchOptions);
             } else
@@ -91,7 +93,7 @@ public abstract class AbstractCachingTranslator<I, O, F extends FetchOptions<?>>
         Long id = getId(input);
         TranslationCache cache = context.getTranslationCache();
 
-        O output = (O) cache.getTranslatedObject(getClass().getName(), id);
+        O output = (O) cache.getTranslatedObject(namespace, id);
 
         if (output == null)
         {
@@ -134,7 +136,7 @@ public abstract class AbstractCachingTranslator<I, O, F extends FetchOptions<?>>
             operationLog.debug("Created: " + output.getClass() + " with id: " + id);
         }
 
-        cache.putTranslatedObject(getClass().getName(), id, output);
+        cache.putTranslatedObject(namespace, id, output);
         cache.setFetchedWithOptions(output, fetchOptions);
         updated.put(input, output);
         translated.put(input, output);
@@ -169,9 +171,9 @@ public abstract class AbstractCachingTranslator<I, O, F extends FetchOptions<?>>
         {
             Long id = getId(input);
 
-            if (cache.hasShouldTranslateObject(getClass().getName(), id))
+            if (cache.hasShouldTranslateObject(namespace, id))
             {
-                boolean should = cache.getShouldTranslateObject(getClass().getName(), id);
+                boolean should = cache.getShouldTranslateObject(namespace, id);
                 if (should)
                 {
                     toTranslate.add(input);
@@ -199,7 +201,7 @@ public abstract class AbstractCachingTranslator<I, O, F extends FetchOptions<?>>
         for (I input : checked)
         {
             Long id = getId(input);
-            cache.putShouldTranslateObject(getClass().getName(), id, true);
+            cache.putShouldTranslateObject(namespace, id, true);
             if (operationLog.isDebugEnabled())
             {
                 operationLog.debug("Should translate object with id: " + id);
@@ -210,7 +212,7 @@ public abstract class AbstractCachingTranslator<I, O, F extends FetchOptions<?>>
         for (I input : toCheck)
         {
             Long id = getId(input);
-            cache.putShouldTranslateObject(getClass().getName(), id, false);
+            cache.putShouldTranslateObject(namespace, id, false);
             if (operationLog.isDebugEnabled())
             {
                 operationLog.debug("Should NOT translate object with id: " + id);

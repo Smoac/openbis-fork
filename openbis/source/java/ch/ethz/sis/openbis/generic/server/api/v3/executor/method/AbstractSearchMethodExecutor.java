@@ -16,7 +16,6 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.method;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -29,19 +28,20 @@ import org.springframework.cache.Cache;
 import org.springframework.cache.Cache.ValueWrapper;
 import org.springframework.cache.CacheManager;
 
+import ch.ethz.sis.openbis.generic.server.api.v3.cache.SearchCacheCleanupListener;
+import ch.ethz.sis.openbis.generic.server.api.v3.cache.SearchCacheEntry;
+import ch.ethz.sis.openbis.generic.server.api.v3.cache.SearchCacheKey;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.common.ISearchObjectExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.ITranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.CacheMode;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.FetchOptions;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.FetchOptionsMatcher;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.SortAndPage;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.AbstractObjectSearchCriterion;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SearchResult;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 
 /**
  * @author pkupczyk
@@ -91,7 +91,7 @@ public abstract class AbstractSearchMethodExecutor<OBJECT, OBJECT_PE, CRITERION 
             return doSearchAndTranslate(context, criterion, fetchOptions);
         } else if (CacheMode.CACHE.equals(fetchOptions.getCacheMode()) || CacheMode.RELOAD_AND_CACHE.equals(fetchOptions.getCacheMode()))
         {
-            CacheEntry entry = getCacheEntry(context, criterion, fetchOptions);
+            SearchCacheEntry<OBJECT> entry = getCacheEntry(context, criterion, fetchOptions);
             populateCacheEntry(context, criterion, fetchOptions, entry);
             return entry.getObjects();
         } else
@@ -138,11 +138,12 @@ public abstract class AbstractSearchMethodExecutor<OBJECT, OBJECT_PE, CRITERION 
     }
 
     @SuppressWarnings("unchecked")
-    private CacheEntry getCacheEntry(IOperationContext context, CRITERION criterion, FETCH_OPTIONS fetchOptions)
+    private SearchCacheEntry<OBJECT> getCacheEntry(IOperationContext context, CRITERION criterion, FETCH_OPTIONS fetchOptions)
     {
         Cache cache = getCache();
-        CacheKey key = new CacheKey(context.getSession().getSessionToken(), criterion, fetchOptions);
-        CacheEntry entry = null;
+        SearchCacheKey<CRITERION, FETCH_OPTIONS> key =
+                new SearchCacheKey<CRITERION, FETCH_OPTIONS>(context.getSession().getSessionToken(), criterion, fetchOptions);
+        SearchCacheEntry<OBJECT> entry = null;
 
         if (operationLog.isDebugEnabled())
         {
@@ -165,12 +166,12 @@ public abstract class AbstractSearchMethodExecutor<OBJECT, OBJECT_PE, CRITERION 
 
             if (wrapper == null)
             {
-                entry = new CacheEntry();
+                entry = new SearchCacheEntry<OBJECT>();
                 cache.put(key, entry);
-                context.getSession().addCleanupListener(new CacheCleanupListener(key));
+                context.getSession().addCleanupListener(new SearchCacheCleanupListener<CRITERION, FETCH_OPTIONS>(cache, key));
             } else
             {
-                entry = (CacheEntry) wrapper.get();
+                entry = (SearchCacheEntry<OBJECT>) wrapper.get();
             }
 
             if (operationLog.isDebugEnabled())
@@ -182,7 +183,7 @@ public abstract class AbstractSearchMethodExecutor<OBJECT, OBJECT_PE, CRITERION 
         return entry;
     }
 
-    private void populateCacheEntry(IOperationContext context, CRITERION criterion, FETCH_OPTIONS fetchOptions, CacheEntry entry)
+    private void populateCacheEntry(IOperationContext context, CRITERION criterion, FETCH_OPTIONS fetchOptions, SearchCacheEntry<OBJECT> entry)
     {
         if (operationLog.isDebugEnabled())
         {
@@ -199,9 +200,9 @@ public abstract class AbstractSearchMethodExecutor<OBJECT, OBJECT_PE, CRITERION 
             if (entry.getObjects() == null)
             {
                 entry.setObjects(doSearchAndTranslate(context, criterion, fetchOptions));
-
-                operationLog.info("Updated cache entry " + entry.hashCode() + " to contain search result with " + entry.getObjects().size()
-                        + " object(s).");
+                SearchCacheKey<CRITERION, FETCH_OPTIONS> key =
+                        new SearchCacheKey<CRITERION, FETCH_OPTIONS>(context.getSession().getSessionToken(), criterion, fetchOptions);
+                getCache().put(key, entry);
             } else
             {
                 operationLog.info("Found cache entry " + entry.hashCode() + " that contains search result with " + entry.getObjects().size()
@@ -213,95 +214,6 @@ public abstract class AbstractSearchMethodExecutor<OBJECT, OBJECT_PE, CRITERION 
                 operationLog.debug("Released lock on cache entry " + entry.hashCode());
             }
         }
-    }
-
-    public class CacheKey implements Serializable
-    {
-
-        private static final long serialVersionUID = 1L;
-
-        private String sessionToken;
-
-        private CRITERION criterion;
-
-        private FETCH_OPTIONS fetchOptions;
-
-        public CacheKey(String sessionToken, CRITERION criterion, FETCH_OPTIONS fetchOptions)
-        {
-            this.sessionToken = sessionToken;
-            this.criterion = criterion;
-            this.fetchOptions = fetchOptions;
-        }
-
-        @Override
-        public int hashCode()
-        {
-            return sessionToken.hashCode() + criterion.getClass().hashCode() + fetchOptions.getClass().hashCode();
-        }
-
-        @Override
-        @SuppressWarnings("unchecked")
-        public boolean equals(Object obj)
-        {
-            if (this == obj)
-            {
-                return true;
-            }
-            if (obj == null)
-            {
-                return false;
-            }
-            if (getClass() != obj.getClass())
-            {
-                return false;
-            }
-
-            CacheKey other = (CacheKey) obj;
-            return sessionToken.equals(other.sessionToken) && criterion.equals(other.criterion)
-                    && FetchOptionsMatcher.arePartsEqual(fetchOptions, other.fetchOptions);
-        }
-    }
-
-    public class CacheEntry implements Serializable
-    {
-        private static final long serialVersionUID = 1L;
-
-        private Collection<OBJECT> objects;
-
-        public Collection<OBJECT> getObjects()
-        {
-            return objects;
-        }
-
-        public void setObjects(Collection<OBJECT> objects)
-        {
-            this.objects = objects;
-        }
-
-    }
-
-    private class CacheCleanupListener implements Session.ISessionCleaner
-    {
-
-        private CacheKey key;
-
-        public CacheCleanupListener(CacheKey key)
-        {
-            this.key = key;
-        }
-
-        @Override
-        public void cleanup()
-        {
-            ValueWrapper wrapper = getCache().get(key);
-
-            if (wrapper != null)
-            {
-                operationLog.info("Clean up cached search result on logout.");
-                getCache().evict(key);
-            }
-        }
-
     }
 
 }
