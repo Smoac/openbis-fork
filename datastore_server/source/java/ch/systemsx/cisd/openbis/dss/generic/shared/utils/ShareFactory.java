@@ -64,7 +64,7 @@ public class ShareFactory
 
     public static final String EXPERIMENTS_PROP = "experiments";
 
-    public static final String DATA_SET_TYPES_PROP = "data_set_types";
+    public static final String DATA_SET_TYPES_PROP = "data-set-types";
 
     private int speed = Math.abs(Constants.DEFAULT_SPEED_HINT);
 
