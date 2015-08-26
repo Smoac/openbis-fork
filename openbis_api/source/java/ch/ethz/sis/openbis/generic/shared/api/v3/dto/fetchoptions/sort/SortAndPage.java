@@ -22,10 +22,10 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.FetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.view.AbstractCollectionView;
@@ -73,17 +73,17 @@ public class SortAndPage
 
             if (objects instanceof List)
             {
-                sorted = new ArrayList();
-                sorted.addAll(objects);
+                sorted = new ArrayList(objects);
                 Collections.sort((List) sorted, comparator);
             } else if (objects instanceof Set)
             {
-                sorted = new TreeSet(comparator);
-                sorted.addAll(objects);
+                List temp = new ArrayList(objects);
+                Collections.sort(temp, comparator);
+                // if TreeSet was used then the comparator would be also serialized
+                sorted = new LinkedHashSet(temp);
             } else if (objects instanceof Collection)
             {
-                sorted = new ArrayList();
-                sorted.addAll(objects);
+                sorted = new ArrayList(objects);
                 Collections.sort((List) sorted, comparator);
             }
 
