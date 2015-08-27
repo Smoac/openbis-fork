@@ -9,6 +9,9 @@ import java.util.HashMap;
 
 public class DbAccess
 {
+
+    private static final String FASTQ_GZ_SUFFIX = ".fastq.gz";
+
     /**
      * Connecting to the pathifno_DB
      * @return Connection
@@ -53,6 +56,7 @@ public class DbAccess
         ResultSet rs = null;
         try
         {
+            System.out.println("Found data set with permID: " + permId);
             rs = st.executeQuery("select dsf.id, dsf.file_name, dsf.checksum_crc32 from data_sets ds,"
                     + " data_set_files dsf where ds.code='"
                     + permId + "' and ds.id =dsf.dase_id and dsf.is_directory = FALSE;");
@@ -62,7 +66,10 @@ public class DbAccess
                 String fileName = rs.getString("file_name");
                 Integer checksum = rs.getInt("checksum_crc32");
 
-                dataSetResult.put(fileName, checksum);
+                if (fileName.endsWith(FASTQ_GZ_SUFFIX))
+                {
+                    dataSetResult.put(fileName, checksum);
+                }
             }
 
         } catch (SQLException e)

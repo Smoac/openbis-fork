@@ -79,9 +79,13 @@ public class create_metadata
 
     private static final String INDEX1_NOINDEX_VALUE = "NOINDEX";
 
+    private static final String INDEX2_NOINDEX_VALUE = "NOINDEX";
+
     private static final String DATASET_TYPE_CODE_FASTQ_GZ = "FASTQ_GZ";
 
     private static final String INDEX1_PROPERTY_CODE = "BARCODE";
+
+    private static final String INDEX2_PROPERTY_CODE = "INDEX2";
 
     private static final String TSV_FLOWCELL_PROPERTIES = "FLOWCELL PROPERTIES";
 
@@ -155,17 +159,29 @@ public class create_metadata
             List<Sample> sampleList = searchSample(infoService, sessionToken, sampleCode, fetchOptions);
             if (sampleList.size() < 1)
             {
-                System.out.println(sampleCode + " Not found!");
+                System.out.println(sampleCode + " not found!");
             }
 
             SortedMap<String, SortedMap<String, String>> sampleMap = getProperties(sampleList);
             SortedMap<String, SortedMap<String, String>> flowcellMap = null;
             String flowcellCode = "";
 
+            // Should be always a single sample 
             for (Sample sample : sampleList)
             {
                 List<Sample> children = sample.getChildren();
-                String permId = extractDataSets(infoService, sessionToken, children);
+                if (children.size() == 0)
+                {
+                    System.out.println("Skipping..." + sample.getCode() + ". No children found for sample.");
+                    continue;
+                }
+                String permId = extractDataSets(infoService, sessionToken, children, sample);
+
+                if (permId.equals(""))
+                {
+                    System.out.println("Skipping..." + sample.getCode() + ". No Data Set found.");
+                    continue;
+                }
                 HashMap<String, Integer> dbResult = DbAccess.doQuery(connection, permId);
                 for (Sample child : children)
                 {
@@ -222,57 +238,59 @@ public class create_metadata
             SortedMap<String, SortedMap<String, String>> flowcellMap, HashMap<String, Integer> dbResult,
             String outputFolder)
     {
-        assert flowcellMap.size() == 1;
-        SortedMap<String, String> flowcellProperties = flowcellMap.get(flowcellMap.firstKey());
-
-        for (String key : sampleMap.keySet())
+        if (flowcellMap != null && flowcellMap.size() == 1)
         {
-            SortedMap<String, String> currentSample = sampleMap.get(key);
+            SortedMap<String, String> flowcellProperties = flowcellMap.get(flowcellMap.firstKey());
 
-            StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.append(key);
-            stringBuilder.append("_");
-            stringBuilder.append(flowcellProperties.get("RUN_NAME_FOLDER"));
-            stringBuilder.append("_metadata");
-            stringBuilder.append(TSV_ENDING);
-
-            Path path = Paths.get(outputFolder, stringBuilder.toString());
-            File metaDataFile = new File(path.toUri());
-            metaDataFile.getParentFile().mkdirs();
-            try
+            for (String key : sampleMap.keySet())
             {
-                metaDataFile.createNewFile();
-            } catch (IOException e1)
-            {
-                e1.printStackTrace();
-            }
+                SortedMap<String, String> currentSample = sampleMap.get(key);
 
-            try
-            {
-                BufferedWriter fOut = new BufferedWriter(new FileWriter(metaDataFile));
-                for (String propertyKey : currentSample.keySet())
-                {
-                    fOut.write(propertyKey + "\t" + currentSample.get(propertyKey) + "\n");
-                }
-                fOut.write("\n" + TSV_FLOWCELL_PROPERTIES + "\n");
+                StringBuilder stringBuilder = new StringBuilder();
+                stringBuilder.append(key.replace("-", "_"));
+                stringBuilder.append("_");
+                stringBuilder.append(flowcellProperties.get("RUN_NAME_FOLDER"));
+                stringBuilder.append("_metadata");
+                stringBuilder.append(TSV_ENDING);
 
-                for (String flowcellPropertyKey : flowcellProperties.keySet())
+                Path path = Paths.get(outputFolder, stringBuilder.toString());
+                File metaDataFile = new File(path.toUri());
+                metaDataFile.getParentFile().mkdirs();
+                try
                 {
-                    fOut.write(flowcellPropertyKey + "\t" + flowcellProperties.get(flowcellPropertyKey) + "\n");
-                }
-                fOut.write("\n" + TSV_FASTQ_FILES + "\n");
-
-                for (String fileName : dbResult.keySet())
+                    metaDataFile.createNewFile();
+                } catch (IOException e1)
                 {
-                    fOut.write(fileName + "\t" + crc32ToString(dbResult.get(fileName)) + "\n");
+                    e1.printStackTrace();
                 }
 
-                fOut.close();
-                System.out.println("Written " + metaDataFile);
+                try
+                {
+                    BufferedWriter fOut = new BufferedWriter(new FileWriter(metaDataFile));
+                    for (String propertyKey : currentSample.keySet())
+                    {
+                        fOut.write(propertyKey + "\t" + currentSample.get(propertyKey) + "\n");
+                    }
+                    fOut.write("\n" + TSV_FLOWCELL_PROPERTIES + "\n");
 
-            } catch (IOException e)
-            {
-                e.printStackTrace();
+                    for (String flowcellPropertyKey : flowcellProperties.keySet())
+                    {
+                        fOut.write(flowcellPropertyKey + "\t" + flowcellProperties.get(flowcellPropertyKey) + "\n");
+                    }
+                    fOut.write("\n" + TSV_FASTQ_FILES + "\n");
+
+                    for (String fileName : dbResult.keySet())
+                    {
+                        fOut.write(fileName + "\t" + crc32ToString(dbResult.get(fileName)) + "\n");
+                    }
+
+                    fOut.close();
+                    System.out.println("Written " + metaDataFile);
+
+                } catch (IOException e)
+                {
+                    e.printStackTrace();
+                }
             }
         }
     }
@@ -286,16 +304,30 @@ public class create_metadata
         return sampleList;
     }
 
-    private static String extractDataSets(IGeneralInformationService infoService, String sessionToken, List<Sample> children)
+    private static String extractDataSets(IGeneralInformationService infoService, String sessionToken,
+            List<Sample> children, Sample sample)
     {
         List<DataSet> flowLaneDatasets = infoService.listDataSets(sessionToken, children);
         String permId = "";
+        Map<String, String> sampleProperties = sample.getProperties();
+        String sample_index1 = sampleProperties.get(INDEX1_PROPERTY_CODE);
+        if (sample_index1 == null)
+        {
+            sample_index1 = INDEX1_NOINDEX_VALUE;
+        }
+        String sample_index2 = sampleProperties.get(INDEX2_PROPERTY_CODE);
+        if (sample_index2 == null)
+        {
+            sample_index2 = INDEX2_NOINDEX_VALUE;
+        }
 
         for (DataSet ds : flowLaneDatasets)
         {
             HashMap<String, String> dsProperties = ds.getProperties();
-            String barcode = dsProperties.get(INDEX1_PROPERTY_CODE);
-            if (ds.getDataSetTypeCode().equals(DATASET_TYPE_CODE_FASTQ_GZ) && barcode.equals(INDEX1_NOINDEX_VALUE))
+            String index1 = dsProperties.get(INDEX1_PROPERTY_CODE);
+            String index2 = dsProperties.get(INDEX2_PROPERTY_CODE);
+            if (ds.getDataSetTypeCode().equals(DATASET_TYPE_CODE_FASTQ_GZ) &&
+                    index1.equals(sample_index1) && index2.equals(sample_index2))
             {
                 permId = ds.getCode();
                 return permId;
@@ -373,7 +405,7 @@ public class create_metadata
             {
                 String cwd = System.getProperty("user.dir");
                 String[] arrayCwd = cwd.split("@"); // just use a split with a not valid char to convert the String into String []
-                System.out.println("No outout folder specified! Will use: " + cwd);
+                System.out.println("No output folder specified! Will use: " + cwd);
                 commandLineMap.put(CL_PARAMETER_OUTPUT_FOLDER, arrayCwd);
             }
         } catch (ParseException exp)
