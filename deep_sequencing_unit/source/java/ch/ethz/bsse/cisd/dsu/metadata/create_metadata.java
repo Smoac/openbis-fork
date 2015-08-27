@@ -104,10 +104,17 @@ public class create_metadata
     static
     {
         SEQUENCER_NAMING = new HashMap<String, String>();
+        SEQUENCER_NAMING.put("ATTILA", "Illumina Genome Analyzer II");
+        SEQUENCER_NAMING.put("ATTILAX", "Illumina Genome Analyzer IIx");
+        SEQUENCER_NAMING.put("D00404", "Illumina HiSeq 2500");
+        SEQUENCER_NAMING.put("ELLAC", "Illumina Genome Analyzer IIx");
+        SEQUENCER_NAMING.put("M00721", "Illumina MiSeq");
+        SEQUENCER_NAMING.put("SN1043", "Illumina HiSeq 2000");
         SEQUENCER_NAMING.put("D00535", "Illumina HiSeq 2500");
         SEQUENCER_NAMING.put("J00121", "Illumina HiSeq 3000");
         SEQUENCER_NAMING.put("M01761", "Illumina MiSeq");
         SEQUENCER_NAMING.put("NS500318", "Illumina NextSeq 500");
+        SEQUENCER_NAMING.put("SN792", "Illumina HiSeq 2000");
     }
 
     public static void main(String[] args)
@@ -175,29 +182,35 @@ public class create_metadata
                     System.out.println("Skipping..." + sample.getCode() + ". No children found for sample.");
                     continue;
                 }
-                String permId = extractDataSets(infoService, sessionToken, children, sample);
+                HashMap<String, String> permIdMap = extractDataSets(infoService, sessionToken, children, sample);
 
-                if (permId.equals(""))
+                for (String permId : permIdMap.keySet())
                 {
-                    System.out.println("Skipping..." + sample.getCode() + ". No Data Set found.");
-                    continue;
-                }
-                HashMap<String, Integer> dbResult = DbAccess.doQuery(connection, permId);
-                for (Sample child : children)
-                {
-                    if (child.getSampleTypeCode().equals(ILLUMINA_FLOW_LANE))
+                    if (permId.equals(""))
                     {
-                        flowcellCode = child.getCode().split(":")[0];
-                        String flowlaneCode = child.getCode().split(":")[1];
-                        SortedMap<String, String> sampleProps = sampleMap.get(sampleCode);
-                        sampleProps.put(LANE_NUMBER, flowlaneCode);
-                        sampleMap.put(sampleCode, sampleProps);
+                        System.out.println("Skipping..." + sample.getCode() + ". No Data Set found.");
+                        continue;
+                    }
+                    HashMap<String, Integer> dbResult = DbAccess.doQuery(connection, permId);
 
-                        List<Sample> flowcellList = searchSample(infoService, sessionToken, flowcellCode, flowcellFetchOptions);
-                        flowcellMap = getProperties(flowcellList);
+                    for (Sample child : children)
+                    {
+                        String sampleConnectedToDataset = permIdMap.get(permId).split("/")[2];
+                        if (child.getSampleTypeCode().equals(ILLUMINA_FLOW_LANE) &&
+                                child.getCode().equals(sampleConnectedToDataset))
+                        {
+                            flowcellCode = child.getCode().split(":")[0];
+                            String flowlaneCode = child.getCode().split(":")[1];
+                            SortedMap<String, String> sampleProps = sampleMap.get(sampleCode);
+                            sampleProps.put(LANE_NUMBER, flowlaneCode);
+                            sampleMap.put(sampleCode, sampleProps);
+
+                            List<Sample> flowcellList = searchSample(infoService, sessionToken, flowcellCode, flowcellFetchOptions);
+                            flowcellMap = getProperties(flowcellList);
+                            writeTSVFile(sampleMap, flowcellMap, dbResult, outputFolder);
+                        }
                     }
                 }
-                writeTSVFile(sampleMap, flowcellMap, dbResult, outputFolder);
             }
         }
         DbAccess.closeDBConnection(connection);
@@ -304,9 +317,10 @@ public class create_metadata
         return sampleList;
     }
 
-    private static String extractDataSets(IGeneralInformationService infoService, String sessionToken,
+    private static HashMap<String, String> extractDataSets(IGeneralInformationService infoService, String sessionToken,
             List<Sample> children, Sample sample)
     {
+        HashMap<String, String> permIdMap = new HashMap<String, String>();
         List<DataSet> flowLaneDatasets = infoService.listDataSets(sessionToken, children);
         String permId = "";
         Map<String, String> sampleProperties = sample.getProperties();
@@ -330,10 +344,15 @@ public class create_metadata
                     index1.equals(sample_index1) && index2.equals(sample_index2))
             {
                 permId = ds.getCode();
-                return permId;
+                permIdMap.put(permId, ds.getSampleIdentifierOrNull());
             }
         }
-        return permId;
+        if (permIdMap.size() == 0)
+        {
+            System.out.println("No data set found which matched the properties of " + sample.getCode() +
+                    ". Check the Indices of the Samples and the Data Sets.");
+        }
+        return permIdMap;
     }
 
     private static String cleanString(String s)

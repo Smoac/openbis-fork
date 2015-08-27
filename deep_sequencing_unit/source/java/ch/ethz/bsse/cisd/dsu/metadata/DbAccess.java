@@ -71,7 +71,6 @@ public class DbAccess
                     dataSetResult.put(fileName, checksum);
                 }
             }
-
         } catch (SQLException e)
         {
             e.printStackTrace();
