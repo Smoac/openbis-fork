@@ -842,5 +842,11 @@ vocabularyDefinitions = {
                                 ["USER_BENCH-80",  "Bench -80�C"],
                                 ["USER_BENCH-RT",  "Bench RT"],
                                 ["USER_BENCH",  "Bench"]
-                                    ]
+                                    ],
+                         "STORAGE_BOX_SIZE" : [
+                                ["9X9", "9 x 9 box"],
+                                ["5X5", "5 x 5 box"],
+                                ["10X10", "10 x 10 box"],
+                                ["10X12", "10 x 12 box"]
+                            ],
                           }

@@ -268,6 +268,7 @@ class FMPeterBoxAdaptor(FileMakerEntityAdaptor):
                         values["STORAGE_ROW"] = None
                         values["STORAGE_COLUMN"] = None
                         values["STORAGE_BOX_NAME"] = result.getString("box label")
+                        values["STORAGE_BOX_SIZE"] = result.getString("box size")
                         values["STORAGE_USER"] = result.getString("frozen by")
                         values["STORAGE_BOX_POSITION"] = result.getString("position")
                         
@@ -308,7 +309,7 @@ class FMPeterEntityBoxOpenBISDTO(OpenBISDTO):
                 sample.setPropertyValue(propertyCode + "_" + str(boxNum), None)
         
         #Add new boxes
-        boxNum = 1
+        boxNum = 0
         for box in self.values["*BOXESLIST"]:
             boxNum += 1
             for propertyCode, propertyValue in box.iteritems():
@@ -625,19 +626,21 @@ fmConnString = "jdbc:filemaker://fm.ethz.ch/"
 fmUser= "designer"
 fmPass = "seattle"
 
-adaptors = [ AntibodyAdaptor(fmConnString, fmUser, fmPass, "BOXIT_antibodies_Peter"), 
-             AntibodyBoxAdaptor(fmConnString, fmUser, fmPass, "BOXIT_antibody_boxes_Peter"),
-             PlasmidAdaptor(fmConnString, fmUser, fmPass, "BOXIT_plasmids_Peter"),
-             PlasmidBoxAdaptor(fmConnString, fmUser, fmPass, "BOXIT_plasmid_boxes_Peter"),
-             StrainAdaptor(fmConnString, fmUser, fmPass, "BOXIT_strains_Peter"),
-             StrainBoxAdaptor(fmConnString, fmUser, fmPass, "BOXIT_strain_boxes_Peter"),
-             OligoAdaptor(fmConnString, fmUser, fmPass, "BOXIT_oligos_Peter"),
-             OligoBoxAdaptor(fmConnString, fmUser, fmPass, "BOXIT_oligo_boxes_Peter"),
-             CellAdaptor(fmConnString, fmUser, fmPass, "BOXIT_cells_Peter"),
-             CellBoxAdaptor(fmConnString, fmUser, fmPass, "BOXIT_cell_boxes_Peter"),
-             SirnaAdaptor(fmConnString, fmUser, fmPass, "BOXIT_Main_Menu_Peter"),
-             ChemicalAdaptor(fmConnString, fmUser, fmPass, "BOXIT_Main_Menu_Peter"),
-             DocumentsAdaptor(fmConnString, fmUser, fmPass, "BOXIT_documents_Peter")]
+adaptors = [ 
+            AntibodyAdaptor(fmConnString, fmUser, fmPass, "BOXIT_antibodies_Peter"), 
+            AntibodyBoxAdaptor(fmConnString, fmUser, fmPass, "BOXIT_antibody_boxes_Peter"),
+            PlasmidAdaptor(fmConnString, fmUser, fmPass, "BOXIT_plasmids_Peter"),
+            PlasmidBoxAdaptor(fmConnString, fmUser, fmPass, "BOXIT_plasmid_boxes_Peter"),
+            StrainAdaptor(fmConnString, fmUser, fmPass, "BOXIT_strains_Peter"),
+            StrainBoxAdaptor(fmConnString, fmUser, fmPass, "BOXIT_strain_boxes_Peter"),
+            OligoAdaptor(fmConnString, fmUser, fmPass, "BOXIT_oligos_Peter"),
+            OligoBoxAdaptor(fmConnString, fmUser, fmPass, "BOXIT_oligo_boxes_Peter"),
+            CellAdaptor(fmConnString, fmUser, fmPass, "BOXIT_cells_Peter"),
+            CellBoxAdaptor(fmConnString, fmUser, fmPass, "BOXIT_cell_boxes_Peter"),
+            SirnaAdaptor(fmConnString, fmUser, fmPass, "BOXIT_Main_Menu_Peter"),
+            ChemicalAdaptor(fmConnString, fmUser, fmPass, "BOXIT_Main_Menu_Peter"),
+            DocumentsAdaptor(fmConnString, fmUser, fmPass, "BOXIT_documents_Peter")
+             ]
            
             
             
