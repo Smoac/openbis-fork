@@ -95,6 +95,8 @@ public final class Share
 
     private Set<String> experimentIdentifiers;
 
+    private Set<String> dataSetTypes;
+
     public Share(File share, int speed,
             IFreeSpaceProvider freeSpaceProvider)
     {
@@ -122,6 +124,19 @@ public final class Share
     public void setExperimentIdentifiers(Set<String> experimentIdentifiers)
     {
         this.experimentIdentifiers = experimentIdentifiers;
+    }
+
+    /**
+     * Returns the set of data set types or an empty set if undefined
+     */
+    public Set<String> getDataSetTypes()
+    {
+        return dataSetTypes;
+    }
+
+    public void setDataSetTypes(Set<String> dataSetTypes)
+    {
+        this.dataSetTypes = dataSetTypes;
     }
 
     /**

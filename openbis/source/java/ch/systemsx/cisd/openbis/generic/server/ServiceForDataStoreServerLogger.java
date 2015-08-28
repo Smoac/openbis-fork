@@ -481,6 +481,13 @@ public class ServiceForDataStoreServerLogger extends AbstractServerLogger implem
     }
 
     @Override
+    public boolean isDataSetOnTrashCanOrDeleted(String sessionToken, String dataSetCode)
+    {
+        logAccess(Level.DEBUG, sessionToken, "isDataSetOnTrashCanOrDeleted", "DATA_SET_CODE(%s)", dataSetCode);
+        return false;
+    }
+    
+    @Override
     public void updateShareIdAndSize(String sessionToken, String dataSetCode, String shareId,
             long size) throws UserFailureException
     {

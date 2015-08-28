@@ -358,6 +358,12 @@ public interface IEncapsulatedOpenBISService extends IEncapsulatedBasicOpenBISSe
     public void updateShareIdAndSize(String dataSetCode, String shareId, long size)
             throws UserFailureException;
 
+    /**
+     * Checks if the dataset is on the TrasCan or Deleted
+     */
+    @ManagedAuthentication
+    public boolean isDataSetOnTrashCanOrDeleted(String dataSetCode);
+    
     //
     // Archiving
     //

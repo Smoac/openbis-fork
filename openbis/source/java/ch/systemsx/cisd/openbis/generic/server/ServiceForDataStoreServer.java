@@ -1026,6 +1026,25 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
 
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
+    public boolean isDataSetOnTrashCanOrDeleted(String sessionToken,
+            @AuthorizationGuard(guardClass = DataSetCodePredicate.class)
+            String dataSetCode) {
+        //Check if dataset is available for retrieval
+        DataPE dataSet = getDAOFactory().getDataDAO().tryToFindFullDataSetByCode(dataSetCode, false, false);
+        boolean isDataSetAvailable = dataSet != null;
+        //Check if the dataset is on the table, since can't be retrieved is on the trashcan
+        boolean isDataSetOnTrashCan = getDAOFactory().getDataDAO().exists(dataSetCode);
+        //Check if the dataset is finally deleted
+        boolean isDataSetDeleted = getDAOFactory().getEventDAO().tryFind(
+                dataSetCode, 
+                ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType.DATASET,
+                ch.systemsx.cisd.openbis.generic.shared.dto.EventType.DELETION) != null;
+        
+        return !isDataSetAvailable && (isDataSetOnTrashCan || isDataSetDeleted);
+    }
+    
+    @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
     public void updateShareIdAndSize(String sessionToken,
             @AuthorizationGuard(guardClass = DataSetCodePredicate.class)
             String dataSetCode, String shareId, long size) throws UserFailureException
