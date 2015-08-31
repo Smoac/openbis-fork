@@ -11,7 +11,7 @@ import sys, string, xmlrpclib, re, os, getpass, subprocess,  shutil
 
 DOWNLOAD_FOLDER="./tmp/"
 confluenceToken = None
-confluenceServer = xmlrpclib.ServerProxy('https://wiki-bsse.ethz.ch:8443/rpc/xmlrpc')
+confluenceServer = xmlrpclib.ServerProxy('https://wiki-bsse.ethz.ch/rpc/xmlrpc')
 wikiText = ""
 
 
@@ -28,7 +28,6 @@ def logIntoConfluence():
   confluenceToken = confluenceServer.confluence2.login(user, password)
   if confluenceToken is None:
       exit("Could not login page " + spacekey + ":" + pagetitle)
-
 
 def uploadReleaseBinaryToConfluence(filename, pagetitle):
   # ugly, but I don't want to spend more time here
@@ -123,6 +122,8 @@ Usage: {0} <SPRINT-NUMBER>
 Example command: {0} S104
          """.format(sys.argv[0]))
     version=sys.argv[1]
+    # logging in to confluence early, to not perform any long running operations if the login is meant to fail for some reason.
+    logIntoConfluence()
     fetchBinaries(version)
     uploadToConfluenceAndPrintPageText(version)
     print "===================================================================="
