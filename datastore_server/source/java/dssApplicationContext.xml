@@ -95,7 +95,7 @@
         
     <bean id="share-id-manager" class="ch.systemsx.cisd.openbis.dss.generic.server.ShareIdManager">
         <constructor-arg ref="openBIS-service"/>
-        <constructor-arg value="86400"/>
+        <constructor-arg value="${data-set-locking-timeout:84600}"/>
     </bean>
     
     <bean id="data-set-command-executor-provider" class="ch.systemsx.cisd.openbis.dss.generic.server.KeyBasedDataSetCommandExecutorProvider">
