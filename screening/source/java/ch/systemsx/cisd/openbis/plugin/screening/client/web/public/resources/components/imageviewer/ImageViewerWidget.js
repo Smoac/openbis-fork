@@ -1,7 +1,6 @@
-define([ "jquery", "components/common/Logger", "components/common/CallbackManager", "components/imageviewer/AbstractWidget",
-		"components/imageviewer/ImageViewerView", "components/imageviewer/DataSetChooserWidget", "components/imageviewer/ImageParametersWidget",
-		"components/imageviewer/ImageWidget", "components/imageviewer/ImageLoader", "components/imageviewer/ImageData",
-		"components/imageviewer/OpenbisFacade" ], function($, Logger, CallbackManager, AbstractWidget, ImageViewerView, DataSetChooserWidget,
+define([ "jquery", "components/common/Logger", "components/common/CallbackManager", "components/imageviewer/AbstractWidget", "components/imageviewer/ImageViewerView",
+		"components/imageviewer/DataSetChooserWidget", "components/imageviewer/ImageParametersWidget", "components/imageviewer/ImageWidget", "components/imageviewer/ImageLoader",
+		"components/imageviewer/ImageData", "components/imageviewer/OpenbisFacade" ], function($, Logger, CallbackManager, AbstractWidget, ImageViewerView, DataSetChooserWidget,
 		ImageParametersWidget, ImageWidget, ImageLoader, ImageData, OpenbisFacade) {
 
 	//
@@ -17,247 +16,314 @@ define([ "jquery", "components/common/Logger", "components/common/CallbackManage
 			AbstractWidget.prototype.init.call(this, new ImageViewerView(this));
 			this.facade = new OpenbisFacade(openbis);
 			this.dataSetCodes = dataSetCodes;
-		},
-
-		load : function(callback) {
-			if (this.loaded) {
-				callback();
-			} else {
-				var thisViewer = this;
-
-				var manager = new CallbackManager(function() {
-					var correctDataSetCodes = [];
-
-					thisViewer.getDataSetCodes().forEach(function(dataSetCode) {
-						var correct = true;
-
-						if (!thisViewer.getDataStoreUrl(dataSetCode)) {
-							Logger.log("Ignoring data set: " + dataSetCode + " - could not get data store url");
-							correct = false;
-						}
-						if (!thisViewer.getImageInfo(dataSetCode)) {
-							Logger.log("Ignoring data set: " + dataSetCode + " - could not get image info");
-							correct = false;
-						}
-						if (!thisViewer.getImageResolutions(dataSetCode)) {
-							Logger.log("Ignoring data set: " + dataSetCode + " - could not get image resolutions");
-							correct = false;
-						}
-
-						if (correct) {
-							correctDataSetCodes.push(dataSetCode);
-						}
-					});
-
-					thisViewer.dataSetCodes = correctDataSetCodes;
-					thisViewer.loaded = true;
-					callback();
-				});
-
-				this.facade.getDataStoreBaseURLs(thisViewer.dataSetCodes, manager.registerCallback(function(response) {
-					if (response.error) {
-						alert("Could not load data store urls: " + JSON.stringify(response.error));
-					} else {
-						thisViewer.dataSetCodeToDataStoreUrlMap = response.result;
-					}
-				}));
-
-				this.facade.getImageInfo(thisViewer.dataSetCodes, manager.registerCallback(function(response) {
-					if (response.error) {
-						alert("Could not load image info: " + JSON.stringify(response.error));
-					} else {
-						thisViewer.dataSetCodeToImageInfoMap = response.result;
-					}
-				}));
-
-				this.facade.getImageResolutions(thisViewer.dataSetCodes, manager.registerCallback(function(response) {
-					if (response.error) {
-						alert("Could not load image resolution: " + JSON.stringify(response.error));
-					} else {
-						thisViewer.dataSetCodeToImageResolutionsMap = response.result;
-					}
-				}));
-			}
+			this.dataSetCodeToDataStoreUrlMap = {};
+			this.dataSetCodeToImageInfoMap = {};
+			this.dataSetCodeToImageResolutionsMap = {};
+			this.imageViewerMap = {};
 		},
 
 		getSessionToken : function() {
-			return this.facade.getSession();
+			var dfd = $.Deferred();
+			dfd.resolve(this.facade.getSession());
+			return dfd.promise();
 		},
 
 		getImageLoader : function() {
+			var dfd = $.Deferred();
 			if (this.imageLoader == null) {
 				this.imageLoader = new ImageLoader();
 			}
-			return this.imageLoader;
+			dfd.resolve(this.imageLoader);
+			return dfd.promise();
 		},
 
 		getImageInfo : function(dataSetCode) {
-			return this.dataSetCodeToImageInfoMap[dataSetCode];
+			var thisWidget = this;
+			var getter = function(dataSetCode) {
+				return thisWidget.dataSetCodeToImageInfoMap[dataSetCode];
+			};
+			var setter = function(dataSetCode, value) {
+				thisWidget.dataSetCodeToImageInfoMap[dataSetCode] = value;
+			};
+			var loader = function(dataSetCode, callback) {
+				thisWidget.facade.getImageInfo(dataSetCode, callback);
+			};
+			return this.getOrLoadValue(dataSetCode, getter, setter, loader);
 		},
 
 		getImageResolutions : function(dataSetCode) {
-			return this.dataSetCodeToImageResolutionsMap[dataSetCode];
+			var thisWidget = this;
+			var getter = function(dataSetCode) {
+				return thisWidget.dataSetCodeToImageResolutionsMap[dataSetCode];
+			};
+			var setter = function(dataSetCode, value) {
+				thisWidget.dataSetCodeToImageResolutionsMap[dataSetCode] = value;
+			};
+			var loader = function(dataSetCode, callback) {
+				thisWidget.facade.getImageResolutions(dataSetCode, callback);
+			};
+			return this.getOrLoadValue(dataSetCode, getter, setter, loader);
 		},
 
 		getDataStoreUrl : function(dataSetCode) {
-			return this.dataSetCodeToDataStoreUrlMap[dataSetCode];
+			var thisWidget = this;
+			var getter = function(dataSetCode) {
+				return thisWidget.dataSetCodeToDataStoreUrlMap[dataSetCode];
+			};
+			var setter = function(dataSetCode, value) {
+				thisWidget.dataSetCodeToDataStoreUrlMap[dataSetCode] = value;
+			};
+			var loader = function(dataSetCode, callback) {
+				thisWidget.facade.getDataStoreBaseURL(dataSetCode, callback);
+			};
+			return this.getOrLoadValue(dataSetCode, getter, setter, loader);
 		},
 
 		getDataSetCodes : function() {
-			return this.dataSetCodes;
+			var dfd = $.Deferred();
+			dfd.resolve(this.dataSetCodes);
+			return dfd.promise();
 		},
 
 		getSelectedDataSetCode : function() {
-			return this.getDataSetChooserWidget().getSelectedDataSetCode();
+			return this.getDataSetChooserWidget().then(function(widget) {
+				return widget.getSelectedDataSetCode();
+			});
 		},
 
 		setSelectedDataSetCode : function(dataSetCode) {
-			this.getDataSetChooserWidget().setSelectedDataSetCode(dataSetCode);
+			return this.getDataSetChooserWidget().then(function(widget) {
+				widget.setSelectedDataSetCode(dataSetCode);
+			});
+		},
+
+		getSelectedImageParametersWidget : function() {
+			var thisWidget = this;
+			return this.getSelectedDataSetCode().then(function(dataSetCode) {
+				return thisWidget.getImageParametersWidget(dataSetCode);
+			});
 		},
 
 		getSelectedChannel : function() {
-			var viewer = this.getImageParametersWidget(this.getSelectedDataSetCode());
-			return viewer.getChannelChooserWidget().getSelectedChannel();
+			return this.getSelectedImageParametersWidget().then(function(viewer) {
+				return viewer.getChannelChooserWidget().getSelectedChannel()
+			});
 		},
 
 		setSelectedChannel : function(channel) {
-			var viewer = this.getImageParametersWidget(this.getSelectedDataSetCode());
-			return viewer.getChannelChooserWidget().setSelectedChannel(channel);
+			return this.getSelectedImageParametersWidget().then(function(viewer) {
+				viewer.getChannelChooserWidget().setSelectedChannel(channel);
+			});
 		},
 
 		getSelectedMergedChannels : function() {
-			var viewer = this.getImageParametersWidget(this.getSelectedDataSetCode());
-			return viewer.getChannelChooserWidget().getSelectedMergedChannels();
+			return this.getSelectedImageParametersWidget().then(function(viewer) {
+				return viewer.getChannelChooserWidget().getSelectedMergedChannels();
+			});
 		},
 
 		setSelectedMergedChannels : function(channels) {
-			var viewer = this.getImageParametersWidget(this.getSelectedDataSetCode());
-			return viewer.getChannelChooserWidget().setSelectedMergedChannels(channels);
+			return this.getSelectedImageParametersWidget().then(function(viewer) {
+				viewer.getChannelChooserWidget().setSelectedMergedChannels(channels);
+			});
 		},
 
 		getSelectedResolution : function() {
-			var viewer = this.getImageParametersWidget(this.getSelectedDataSetCode());
-			return viewer.getResolutionChooserWidget().getSelectedResolution();
+			return this.getSelectedImageParametersWidget().then(function(viewer) {
+				return viewer.getResolutionChooserWidget().getSelectedResolution();
+			});
 		},
 
 		setSelectedResolution : function(resolution) {
-			var viewer = this.getImageParametersWidget(this.getSelectedDataSetCode());
-			return viewer.getResolutionChooserWidget().setSelectedResolution(resolution);
+			return this.getSelectedImageParametersWidget().then(function(viewer) {
+				viewer.getResolutionChooserWidget().setSelectedResolution(resolution);
+			});
 		},
 
 		getSelectedTransformation : function() {
-			var viewer = this.getImageParametersWidget(this.getSelectedDataSetCode());
-			return viewer.getTransformationChooserWidget().getSelectedTransformation();
+			return this.getSelectedImageParametersWidget().then(function(viewer) {
+				return viewer.getTransformationChooserWidget().getSelectedTransformation();
+			});
 		},
 
 		setSelectedTransformation : function(transformation) {
-			var viewer = this.getImageParametersWidget(this.getSelectedDataSetCode());
-			return viewer.getTransformationChooserWidget().setSelectedTransformation(transformation);
+			return this.getSelectedImageParametersWidget().then(function(viewer) {
+				viewer.getTransformationChooserWidget().setSelectedTransformation(transformation);
+			});
 		},
 
 		getUserDefinedTransformationParameters : function(channel) {
-			var viewer = this.getImageParametersWidget(this.getSelectedDataSetCode());
-			return viewer.getTransformationChooserWidget().getUserDefinedTransformationParameters(channel);
+			return this.getSelectedImageParametersWidget().then(function(viewer) {
+				return viewer.getTransformationChooserWidget().getUserDefinedTransformationParameters(channel);
+			});
 		},
 
 		setUserDefinedTransformationParameters : function(channel, parameters) {
-			var viewer = this.getImageParametersWidget(this.getSelectedDataSetCode());
-			return viewer.getTransformationChooserWidget().setUserDefinedTransformationParameters(channel, parameters);
+			return this.getSelectedImageParametersWidget().then(function(viewer) {
+				viewer.getTransformationChooserWidget().setUserDefinedTransformationParameters(channel, parameters);
+			});
 		},
 
 		getUserDefinedTransformationParametersMap : function() {
-			var viewer = this.getImageParametersWidget(this.getSelectedDataSetCode());
-			return viewer.getTransformationChooserWidget().getUserDefinedTransformationParametersMap();
+			return this.getSelectedImageParametersWidget().then(function(viewer) {
+				return viewer.getTransformationChooserWidget().getUserDefinedTransformationParametersMap();
+			});
 		},
 
 		setUserDefinedTransformationParametersMap : function(parametersMap) {
-			var viewer = this.getImageParametersWidget(this.getSelectedDataSetCode());
-			return viewer.getTransformationChooserWidget().setUserDefinedTransformationParametersMap(parametersMap);
+			return this.getSelectedImageParametersWidget().then(function(viewer) {
+				viewer.getTransformationChooserWidget().setUserDefinedTransformationParametersMap(parametersMap);
+			});
 		},
 
 		getSelectedChannelStackId : function() {
-			var viewer = this.getImageParametersWidget(this.getSelectedDataSetCode());
-			return viewer.getChannelStackChooserWidget().getSelectedChannelStackId();
+			return this.getSelectedImageParametersWidget().then(function(viewer) {
+				return viewer.getChannelStackChooserWidget().getSelectedChannelStackId();
+			});
 		},
 
 		setSelectedChannelStackId : function(channelStackId) {
-			var viewer = this.getImageParametersWidget(this.getSelectedDataSetCode());
-			return viewer.getChannelStackChooserWidget().setSelectedChannelStackId(channelStackId);
+			return this.getSelectedImageParametersWidget().then(function(viewer) {
+				viewer.getChannelStackChooserWidget().setSelectedChannelStackId(channelStackId);
+			});
 		},
 
 		getSelectedImageData : function() {
-			var imageData = new ImageData();
-			imageData.setDataStoreUrl(this.getDataStoreUrl(this.getSelectedDataSetCode()));
-			imageData.setSessionToken(this.getSessionToken());
-			imageData.setDataSetCode(this.getSelectedDataSetCode());
-			imageData.setChannelStackId(this.getSelectedChannelStackId());
+			var thisWidget = this;
+			var dfd = $.Deferred();
 
-			if (this.getSelectedChannel()) {
-				imageData.setChannels([ this.getSelectedChannel() ]);
-			} else {
-				imageData.setChannels(this.getSelectedMergedChannels());
-			}
-			imageData.setResolution(this.getSelectedResolution());
-			imageData.setTransformation(this.getSelectedTransformation());
-			imageData.setUserDefinedTransformationParametersMap(this.getUserDefinedTransformationParametersMap());
-			return imageData;
+			$.when(this.getSelectedDataSetCode()).then(
+					function(selectedDataSetCode) {
+						$.when(thisWidget.getSessionToken(), thisWidget.getSelectedChannelStackId(), thisWidget.getSelectedChannel(), thisWidget.getSelectedMergedChannels(),
+								thisWidget.getSelectedResolution(), thisWidget.getSelectedTransformation(), thisWidget.getUserDefinedTransformationParametersMap(),
+								thisWidget.getDataStoreUrl(selectedDataSetCode)).then(
+								function(sessionToken, selectedChannelStackId, selectedChannel, selectedMergedChannels, selectedResolution, selectedTransformation, userDefinedTransformation,
+										dataStoreUrl) {
+
+									var imageData = new ImageData();
+									imageData.setSessionToken(sessionToken);
+									imageData.setDataSetCode(selectedDataSetCode);
+									imageData.setChannelStackId(selectedChannelStackId);
+
+									if (selectedChannel) {
+										imageData.setChannels([ selectedChannel ]);
+									} else {
+										imageData.setChannels(selectedMergedChannels);
+									}
+									imageData.setResolution(selectedResolution);
+									imageData.setTransformation(selectedTransformation);
+									imageData.setUserDefinedTransformationParametersMap(userDefinedTransformation);
+									imageData.setDataStoreUrl(dataStoreUrl);
+
+									dfd.resolve(imageData);
+
+								});
+					});
+
+			return dfd.promise();
 		},
 
 		getDataSetChooserWidget : function() {
 			var thisWidget = this;
+			var getter = function(parameter) {
+				return thisWidget.dataSetChooserWidget;
+			};
+			var setter = function(parameter, value) {
+				thisWidget.dataSetChooserWidget = value;
+			};
+			var loader = function(dataSetCode, callback) {
+				thisWidget.getDataSetCodes().then(
+						function(dataSetCodes) {
+							var widget = new DataSetChooserWidget(dataSetCodes);
 
-			if (this.dataSetChooserWidget == null) {
-				var widget = new DataSetChooserWidget(this.getDataSetCodes());
+							widget.addChangeListener(function(event) {
+								$.when(thisWidget.getImageParametersWidget(event.getOldValue()), thisWidget.getImageParametersWidget(event.getNewValue()), thisWidget.getImageWidget()).then(
+										function(oldWidget, newWidget, imageWidget) {
+											newWidget.setState(oldWidget.getState());
+											thisWidget.getSelectedImageData().then(function(imageData) {
+												imageWidget.setImageData(imageData);
+												thisWidget.refresh();
+											});
+										});
+							});
 
-				widget.addChangeListener(function(event) {
-					var oldWidget = thisWidget.getImageParametersWidget(event.getOldValue());
-					var newWidget = thisWidget.getImageParametersWidget(event.getNewValue());
-
-					newWidget.setState(oldWidget.getState());
-
-					thisWidget.getImageWidget().setImageData(thisWidget.getSelectedImageData());
-					thisWidget.refresh();
-				});
-
-				this.dataSetChooserWidget = widget;
-			}
-
-			return this.dataSetChooserWidget;
+							callback(widget);
+						});
+			};
+			return this.getOrLoadValue(null, getter, setter, loader);
 		},
 
 		getImageParametersWidget : function(dataSetCode) {
 			var thisWidget = this;
+			var getter = function(dataSetCode) {
+				return thisWidget.imageViewerMap[dataSetCode];
+			};
+			var setter = function(dataSetCode, value) {
+				thisWidget.imageViewerMap[dataSetCode] = value;
+			};
+			var loader = function(dataSetCode, callback) {
+				$.when(thisWidget.getImageInfo(dataSetCode), thisWidget.getImageResolutions(dataSetCode)).then(function(info, resolutions) {
+					var widget = new ImageParametersWidget(info, resolutions);
 
-			if (!this.imageViewerMap) {
-				this.imageViewerMap = {};
-			}
+					widget.getChannelStackChooserWidget().setChannelStackContentLoader(function(channelStack, callback) {
+						$.when(thisWidget.getSelectedImageData(), thisWidget.getImageLoader()).then(function(imageData, imageLoader) {
+							imageData.setChannelStackId(channelStack.id);
+							imageLoader.loadImage(imageData, callback);
+						});
+					});
 
-			if (!this.imageViewerMap[dataSetCode]) {
-				var widget = new ImageParametersWidget(this.getImageInfo(dataSetCode), this.getImageResolutions(dataSetCode));
+					widget.addChangeListener(function() {
+						$.when(thisWidget.getImageWidget(), thisWidget.getSelectedImageData()).then(function(imageWidget, imageData) {
+							imageWidget.setImageData(imageData);
+						});
+					});
 
-				widget.getChannelStackChooserWidget().setChannelStackContentLoader(function(channelStack, callback) {
-					var imageData = thisWidget.getSelectedImageData();
-					imageData.setChannelStackId(channelStack.id);
-					thisWidget.getImageLoader().loadImage(imageData, callback);
+					callback(widget);
 				});
-
-				widget.addChangeListener(function() {
-					thisWidget.getImageWidget().setImageData(thisWidget.getSelectedImageData());
-				});
-
-				this.imageViewerMap[dataSetCode] = widget;
-			}
-
-			return this.imageViewerMap[dataSetCode];
+			};
+			return this.getOrLoadValue(dataSetCode, getter, setter, loader);
 		},
 
 		getImageWidget : function() {
-			if (this.imageWidget == null) {
-				var widget = new ImageWidget(this.getImageLoader())
-				widget.setImageData(this.getSelectedImageData());
-				this.imageWidget = widget;
+			var thisWidget = this;
+			var getter = function(parameter) {
+				return thisWidget.imageWidget;
+			};
+			var setter = function(parameter, value) {
+				thisWidget.imageWidget = value;
+			};
+			var loader = function(parameter, callback) {
+				$.when(thisWidget.getSelectedImageData(), thisWidget.getImageLoader()).then(function(imageData, imageLoader) {
+					var widget = new ImageWidget(imageLoader);
+					widget.setImageData(imageData);
+					callback(widget);
+				});
+			};
+			return this.getOrLoadValue(null, getter, setter, loader);
+		},
+
+		getOrLoadValue : function(parameter, getter, setter, loader) {
+			var thisWidget = this;
+			var dfd = $.Deferred();
+			dfd.isDeferred = true;
+
+			var value = getter(parameter);
+
+			if (value) {
+				if (value.isDeferred) {
+					return value;
+				} else {
+					dfd.resolve(value);
+				}
+			} else {
+				setter(parameter, dfd);
+				loader(parameter, function(value) {
+					setter(parameter, value);
+					dfd.resolve(value);
+				});
 			}
-			return this.imageWidget;
+
+			return dfd.promise();
 		}
 
 	});

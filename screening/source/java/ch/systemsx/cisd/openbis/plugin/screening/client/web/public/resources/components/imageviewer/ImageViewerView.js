@@ -22,12 +22,22 @@ define([ "jquery", "components/imageviewer/AbstractView" ], function($, Abstract
 			var formCell = $("<td>").addClass("formCell").appendTo(row);
 			var formPanel = $("<div>").addClass("formPanel").appendTo(formCell);
 
-			formPanel.append(this.renderDataSetChooserWidget()).append(this.renderImageParametersWidget());
+			var chooserContainer = $("<div>");
+			var parametersContainer = $("<div>").addClass("imageParametersWidgetContainer");
+
+			formPanel.append(chooserContainer);
+			formPanel.append(parametersContainer);
+
+			this.controller.getDataSetChooserWidget().then(function(chooserWidget) {
+				chooserContainer.append(chooserWidget.render());
+			});
 
 			var imageCell = $("<td>").addClass("imageCell").appendTo(row);
 			var imagePanel = $("<div>").addClass("imagePanel").appendTo(imageCell);
 
-			imagePanel.append(this.renderImageWidget());
+			this.controller.getImageWidget().then(function(imageWidget) {
+				imagePanel.append(imageWidget.render());
+			});
 
 			this.refresh();
 
@@ -38,23 +48,16 @@ define([ "jquery", "components/imageviewer/AbstractView" ], function($, Abstract
 			this.refreshImageParametersWidget();
 		},
 
-		renderDataSetChooserWidget : function() {
-			return this.controller.getDataSetChooserWidget().render();
-		},
-
-		renderImageParametersWidget : function() {
-			return $("<div>").addClass("imageParametersWidgetContainer");
-		},
-
-		renderImageWidget : function() {
-			return this.controller.getImageWidget().render();
-		},
-
 		refreshImageParametersWidget : function() {
+			var thisView = this;
 			var container = this.panel.find(".imageParametersWidgetContainer");
-			var widget = this.controller.getImageParametersWidget(this.controller.getSelectedDataSetCode());
-			container.children().detach();
-			container.append(widget.render());
+
+			this.controller.getSelectedDataSetCode().then(function(dataSetCode) {
+				thisView.controller.getImageParametersWidget(dataSetCode).then(function(parametersWidget) {
+					container.children().detach();
+					container.append(parametersWidget.render());
+				});
+			});
 		}
 
 	});

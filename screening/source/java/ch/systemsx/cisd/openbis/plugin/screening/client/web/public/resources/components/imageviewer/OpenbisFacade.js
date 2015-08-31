@@ -17,54 +17,58 @@ define([ "jquery" ], function($) {
 			return this.openbis.getSession();
 		},
 
-		getDataStoreBaseURLs : function(dataSetCodes, action) {
-			this.openbis.getDataStoreBaseURLs(dataSetCodes, function(response) {
-				var dataSetCodeToUrlMap = {};
-
-				if (response.result) {
-					response.result.forEach(function(urlForDataSets) {
-						urlForDataSets.dataSetCodes.forEach(function(dataSetCode) {
-							dataSetCodeToUrlMap[dataSetCode] = urlForDataSets.dataStoreURL;
-						});
-					});
-					response.result = dataSetCodeToUrlMap;
+		getDataStoreBaseURL : function(dataSetCode, action) {
+			this.openbis.getDataStoreBaseURLs([ dataSetCode ], function(response) {
+				if (response.error) {
+					alert(JSON.stringify(response.error));
+				} else {
+					if (response.result && response.result.length > 0) {
+						var urlForDataSets = response.result[0];
+						action(urlForDataSets.dataStoreURL);
+					} else {
+						action(null);
+					}
 				}
-
-				action(response);
 			});
 		},
 
-		getImageInfo : function(dataSetCodes, callback) {
-			this.openbis.getImageInfo(dataSetCodes, callback);
+		getImageInfo : function(dataSetCode, action) {
+			this.openbis.getImageInfo([ dataSetCode ], function(response) {
+				if (response.error) {
+					alert(JSON.stringify(response.error));
+				} else {
+					var infoMap = response.result;
+					if (infoMap) {
+						action(infoMap[dataSetCode]);
+					} else {
+						action(null);
+					}
+				}
+			});
 		},
 
-		getImageResolutions : function(dataSetCodes, callback) {
+		getImageResolutions : function(dataSetCode, action) {
 			var thisFacade = this;
 
-			this.openbis.getDatasetIdentifiers(dataSetCodes, function(response) {
+			this.openbis.getDatasetIdentifiers([ dataSetCode ], function(response) {
 				if (response.error) {
-					callback(response);
+					alert(JSON.stringify(response.error));
 				} else {
 					thisFacade.openbis.listAvailableImageRepresentationFormats(response.result, function(response) {
 						if (response.error) {
-							callback(response);
+							alert(JSON.stringify(response.error));
 						} else {
-							var map = {};
-
-							response.result.forEach(function(result) {
-								var formats = result.imageRepresentationFormats;
+							if (response.result && response.result.length > 0) {
+								var formats = response.result[0].imageRepresentationFormats;
 
 								thisFacade._maybeAddThumbnailRepresentationFormat(formats);
 								thisFacade._removeDuplicatedRepresentationFormats(formats);
 								thisFacade._sortRepresentationFormats(formats);
 
-								map[result.dataset.datasetCode] = formats;
-							});
-
-							callback({
-								"error" : null,
-								"result" : map
-							});
+								action(formats);
+							} else {
+								action(null);
+							}
 						}
 					});
 				}
