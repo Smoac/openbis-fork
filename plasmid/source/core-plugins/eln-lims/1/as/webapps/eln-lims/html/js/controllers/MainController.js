@@ -411,30 +411,9 @@ function MainController(profile) {
 	}
 	
 	this._showDrawingBoard = function() {
-		var mainContainer = $("#mainContainer");
-		mainContainer.empty();
-		
-		var containerWidth = $(document).width() - $("#sideMenu").width() - 20;
-		var containerHeight = $(document).height() - 60;
-		
-		var $drawingboard = $("<div>", { "id" : "scratchboard", "style" : "width: " + containerWidth + "px; height: " + containerHeight + "px; padding: 10px;" });
-		mainContainer.append($drawingboard);
-		
-		//pass options and add custom controls to a board
-		var customBoard = new DrawingBoard.Board('scratchboard', {
-			background: "#ffffff",
-			color: "#000",
-			webStorage: false,
-			size: 30,
-			controls: [
-				{ Size: { type: "dropdown" } },
-				{ Navigation: { back: false, forward: false } },
-				'DrawingMode',
-				'Color',
-				'Download'
-			],
-			webStorage: 'local'
-		});
+		var drawingBoardsController = new DrawingBoardsController(this);
+		drawingBoardsController.init($("#mainContainer"));
+		this.currentView = drawingBoardsController;
 	}
 	
 	this._showUserManager = function() {
