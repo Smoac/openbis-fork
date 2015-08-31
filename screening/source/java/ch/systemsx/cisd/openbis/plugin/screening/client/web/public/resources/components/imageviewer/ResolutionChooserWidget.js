@@ -33,7 +33,11 @@ define([ "jquery", "components/imageviewer/AbstractWidget", "components/imagevie
 
 		setSelectedResolution : function(resolution) {
 			if (resolution != null && $.inArray(resolution, this.getResolutionsCodes()) == -1) {
-				resolution = null;
+				if (this.getResolutionsCodes().length > 0) {
+					resolution = this.getResolutionsCodes()[0];
+				} else {
+					resolution = null;
+				}
 			}
 
 			if (this.selectedResolution != resolution) {
