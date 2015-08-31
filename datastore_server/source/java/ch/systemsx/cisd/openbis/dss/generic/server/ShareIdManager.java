@@ -118,6 +118,16 @@ public class ShareIdManager implements IShareIdManager
     private final Object dataSetCodeToShareIdMapMonitor = new Object();
 
     private Map<String, GuardedShareID> dataSetCodeToShareIdMap;
+    
+    public ShareIdManager(IEncapsulatedOpenBISService service, String lockingTimeOutInSeconds)
+    {
+        this(service, parseAsInt(lockingTimeOutInSeconds, 84600));
+    }
+    
+    private static int parseAsInt(String value, int defaultValue)
+    {
+        return value.startsWith("${") ? defaultValue : Integer.parseInt(value);
+    }
 
     public ShareIdManager(IEncapsulatedOpenBISService service, int lockingTimeOutInSeconds)
     {
