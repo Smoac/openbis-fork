@@ -143,6 +143,23 @@ public class SearchDataSetTest extends AbstractDataSetTest
     }
 
     @Test
+    public void testSearchWithExperiment()
+    {
+        DataSetSearchCriterion criterion = new DataSetSearchCriterion();
+        criterion.withCode().thatStartsWith("20120628092259000");
+        criterion.withExperiment();
+        testSearch(TEST_USER, criterion, "20120628092259000-24", "20120628092259000-25");
+    }
+
+    @Test
+    public void testSearchWithoutExperiment()
+    {
+        DataSetSearchCriterion criterion = new DataSetSearchCriterion();
+        criterion.withoutExperiment();
+        testSearch(TEST_USER, criterion, "20120628092259000-23");
+    }
+
+    @Test
     public void testSearchWithExperimentWithPermIdThatEquals()
     {
         DataSetSearchCriterion criterion = new DataSetSearchCriterion();

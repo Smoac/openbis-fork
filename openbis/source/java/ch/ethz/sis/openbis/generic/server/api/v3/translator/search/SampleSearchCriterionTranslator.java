@@ -18,6 +18,7 @@ package ch.ethz.sis.openbis.generic.server.api.v3.translator.search;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ISearchCriterion;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.NoSampleContainerSearchCriterion;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.NoSampleSearchCriterion;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SampleChildrenSearchCriterion;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SampleContainerSearchCriterion;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SampleParentsSearchCriterion;
@@ -41,15 +42,25 @@ public class SampleSearchCriterionTranslator extends AbstractCompositeSearchCrit
     @Override
     protected boolean doAccepts(ISearchCriterion criterion)
     {
-        return criterion instanceof SampleSearchCriterion || criterion instanceof NoSampleContainerSearchCriterion;
+        return criterion instanceof SampleSearchCriterion || criterion instanceof NoSampleSearchCriterion;
     }
 
     @Override
     protected SearchCriterionTranslationResult doTranslate(SearchTranslationContext context, ISearchCriterion criterion)
     {
-        if (criterion instanceof NoSampleContainerSearchCriterion)
+        if (criterion instanceof NoSampleSearchCriterion)
         {
-            return new SearchCriterionTranslationResult(new DetailedSearchSubCriteria(AssociatedEntityKind.SAMPLE_CONTAINER, null));
+            AssociatedEntityKind entityKind;
+
+            if (criterion instanceof NoSampleContainerSearchCriterion)
+            {
+                entityKind = AssociatedEntityKind.SAMPLE_CONTAINER;
+            } else
+            {
+                entityKind = AssociatedEntityKind.SAMPLE;
+            }
+
+            return new SearchCriterionTranslationResult(new DetailedSearchSubCriteria(entityKind, null));
         } else
         {
             context.pushEntityKind(EntityKind.SAMPLE);

@@ -69,6 +69,7 @@ import ch.systemsx.cisd.common.collection.UnmodifiableSetDecorator;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
+import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.NullBridge;
 import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
@@ -478,7 +479,7 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
     @SuppressWarnings("unused")
     @Transient
     @Field(index = Index.YES, store = Store.YES, name = SearchFieldConstants.SAMPLE_ID)
-    @FieldBridge(impl = org.hibernate.search.bridge.builtin.LongBridge.class)
+    @FieldBridge(impl = NullBridge.class)
     private Long getSampleId()
     {
         Long result = null;
@@ -679,7 +680,7 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
     @SuppressWarnings("unused")
     @Transient
     @Field(index = Index.YES, store = Store.YES, name = SearchFieldConstants.EXPERIMENT_ID)
-    @FieldBridge(impl = org.hibernate.search.bridge.builtin.LongBridge.class)
+    @FieldBridge(impl = NullBridge.class)
     private Long getExperimentId()
     {
         Long result = null;

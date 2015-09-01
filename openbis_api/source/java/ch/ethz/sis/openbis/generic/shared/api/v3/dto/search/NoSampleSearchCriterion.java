@@ -21,8 +21,8 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("dto.search.NoSampleContainerSearchCriterion")
-public class NoSampleContainerSearchCriterion extends NoSampleSearchCriterion
+@JsonObject("dto.search.NoSampleSearchCriterion")
+public class NoSampleSearchCriterion implements ISearchCriterion
 {
 
     private static final long serialVersionUID = 1L;
