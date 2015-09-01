@@ -21,8 +21,8 @@ import java.util.List;
 import org.springframework.dao.DataAccessException;
 
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.HibernateSearchDataProvider;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchAssociationCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IAssociationCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MatchingEntity;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
@@ -35,8 +35,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 public interface IHibernateSearchDAO
 {
     /**
-     * Searches in entities of type <var>searchableEntity</var> for given <var>searchTerm</var>
-     * using all the indexed fields.
+     * Searches in entities of type <var>searchableEntity</var> for given <var>searchTerm</var> using all the indexed fields.
      * 
      * @param searchTerm could be something like "<code>C11 AND System User</code>".
      * @param maxSize Maximum number of entries.
@@ -48,11 +47,11 @@ public interface IHibernateSearchDAO
 
     /** search for entity ids using the specified criteria */
     public List<Long> searchForEntityIds(final String userId, DetailedSearchCriteria criteria,
-            EntityKind entityKind, List<DetailedSearchAssociationCriteria> associationCriterias);
+            EntityKind entityKind, List<IAssociationCriteria> associationCriterias);
 
     /**
-     * Returns the maximum size of a search result set. The standard implementations returns
-     * <code>hibernate.search.maxResults</code> of <code>service.properties</code>.
+     * Returns the maximum size of a search result set. The standard implementations returns <code>hibernate.search.maxResults</code> of
+     * <code>service.properties</code>.
      */
     public int getResultSetSizeLimit();
 

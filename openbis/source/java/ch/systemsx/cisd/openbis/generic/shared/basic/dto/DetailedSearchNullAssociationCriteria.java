@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 ETH Zuerich, CISD
+ * Copyright 2015 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,36 +16,28 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.NullBridge;
+
 /**
- * Describes detailed search assiciation criteria for with specified entity kind.
- * 
- * @author Piotr Buczek
+ * @author pkupczyk
  */
-public class DetailedSearchAssociationCriteria extends AbstractAssociationCriteria
+public class DetailedSearchNullAssociationCriteria extends AbstractAssociationCriteria
 {
-    private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
-    private Collection<Long> ids;
+    private static final long serialVersionUID = 1L;
 
-    public DetailedSearchAssociationCriteria(AssociatedEntityKind entityKind, Collection<Long> ids)
+    public DetailedSearchNullAssociationCriteria(AssociatedEntityKind entityKind)
     {
         super(entityKind);
-        this.ids = ids;
     }
 
     @Override
     public List<String> getSearchPatterns()
     {
-        List<String> patterns = new ArrayList<String>();
-        for (Long id : ids)
-        {
-            patterns.add(id.toString());
-        }
-        return patterns;
+        return Collections.singletonList(NullBridge.NULL);
     }
 
 }

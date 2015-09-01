@@ -23,8 +23,8 @@ import org.springframework.dao.DataAccessException;
 
 import ch.systemsx.cisd.openbis.generic.server.business.bo.materiallister.IMaterialLister;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IHibernateSearchDAO;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchAssociationCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IAssociationCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListMaterialCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 
@@ -45,7 +45,7 @@ public class MaterialSearchManager extends AbstractSearchManager<IMaterialLister
         List<Long> materialIds =
                 searchDAO.searchForEntityIds(userId, criteria,
                         ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind.MATERIAL,
-                        Collections.<DetailedSearchAssociationCriteria> emptyList());
+                        Collections.<IAssociationCriteria> emptyList());
 
         return lister.list(ListMaterialCriteria.createFromMaterialIds(materialIds), true);
     }

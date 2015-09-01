@@ -161,6 +161,24 @@ public class SearchSampleTest extends AbstractSampleTest
     }
 
     @Test
+    public void testSearchWithExperiment()
+    {
+        SampleSearchCriterion criterion = new SampleSearchCriterion();
+        criterion.withCode().thatContains("A01");
+        criterion.withExperiment();
+        testSearch(TEST_USER, criterion, "/CISD/PLATE_WELLSEARCH:WELL-A01");
+    }
+
+    @Test
+    public void testSearchWithoutExperiment()
+    {
+        SampleSearchCriterion criterion = new SampleSearchCriterion();
+        criterion.withCode().thatContains("A01");
+        criterion.withoutExperiment();
+        testSearch(TEST_USER, criterion, "/CISD/CL1:A01", "/CISD/MP2-NO-CL:A01", "/CISD/CL-3V:A01", "/CISD/MP1-MIXED:A01");
+    }
+
+    @Test
     public void testSearchWithExperimentWithIdSetToIdentifier()
     {
         SampleSearchCriterion criterion = new SampleSearchCriterion();
@@ -342,6 +360,24 @@ public class SearchSampleTest extends AbstractSampleTest
         SampleSearchCriterion criterion = new SampleSearchCriterion();
         criterion.withChildren().withCode().thatEquals("3VCP6");
         testSearch(TEST_USER, criterion, "/CISD/3V-125", "/CISD/CL-3V:A02");
+    }
+
+    @Test
+    public void testSearchWithContainer()
+    {
+        SampleSearchCriterion criterion = new SampleSearchCriterion();
+        criterion.withCode().thatContains("WELL");
+        criterion.withContainer();
+        testSearch(TEST_USER, criterion, "/CISD/PLATE_WELLSEARCH:WELL-A01", "/CISD/PLATE_WELLSEARCH:WELL-A02");
+    }
+
+    @Test
+    public void testSearchWithoutContainer()
+    {
+        SampleSearchCriterion criterion = new SampleSearchCriterion();
+        criterion.withCode().thatContains("A1");
+        criterion.withoutContainer();
+        testSearch(TEST_USER, criterion, "/CISD/CP1-A1", "/CISD/CP2-A1", "/CISD/RP2-A1X");
     }
 
     @Test

@@ -38,12 +38,12 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.MetaprojectSearch;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.LuceneQueryBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.AttributeSearchFieldKindProvider;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchAssociationCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriterion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchField;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchFieldKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IAssociationCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IAttributeSearchFieldKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchCriteriaConnection;
 import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
@@ -65,7 +65,7 @@ public class DetailedQueryBuilder
      * @throws UserFailureException when some search patterns are incorrect
      */
     public static Query createQuery(String userId, DetailedSearchCriteria searchCriteria,
-            EntityKind entityKind, List<DetailedSearchAssociationCriteria> associations)
+            EntityKind entityKind, List<IAssociationCriteria> associations)
             throws UserFailureException
     {
         final DetailedQueryBuilder builder = new DetailedQueryBuilder(entityKind);
@@ -86,7 +86,7 @@ public class DetailedQueryBuilder
     }
 
     private Query createQuery(String userId, DetailedSearchCriteria searchCriteria,
-            List<DetailedSearchAssociationCriteria> associations)
+            List<IAssociationCriteria> associations)
     {
         boolean useWildcardSearchMode = searchCriteria.isUseWildcardSearchMode();
         List<DetailedSearchCriterion> criteria = searchCriteria.getCriteria();
@@ -146,25 +146,14 @@ public class DetailedQueryBuilder
                 }
             }
         }
-        for (DetailedSearchAssociationCriteria association : associations)
+        for (IAssociationCriteria association : associations)
         {
             String fieldName = getIndexFieldName(association);
-            List<String> searchPatterns = extractAssociationPatterns(association);
             Query luceneQuery =
-                    LuceneQueryBuilder.parseQuery(fieldName, searchPatterns, searchAnalyzer);
+                    LuceneQueryBuilder.parseQuery(fieldName, association.getSearchPatterns(), searchAnalyzer);
             resultQuery.add(luceneQuery, occureCondition);
         }
         return resultQuery;
-    }
-
-    private List<String> extractAssociationPatterns(DetailedSearchAssociationCriteria association)
-    {
-        List<String> result = new ArrayList<String>();
-        for (Long id : association.getIds())
-        {
-            result.add(id.toString());
-        }
-        return result;
     }
 
     private Occur createOccureCondition(SearchCriteriaConnection connection)
@@ -200,7 +189,7 @@ public class DetailedQueryBuilder
         }
     }
 
-    private String getIndexFieldName(DetailedSearchAssociationCriteria association)
+    private String getIndexFieldName(IAssociationCriteria association)
     {
         return IndexFieldNameHelper.getAssociationIndexField(entityKind,
                 association.getEntityKind());

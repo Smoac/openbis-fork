@@ -18,6 +18,7 @@ package ch.ethz.sis.openbis.generic.server.api.v3.translator.search;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ExperimentSearchCriterion;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ISearchCriterion;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.NoExperimentSearchCriterion;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AssociatedEntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchSubCriteria;
@@ -37,24 +38,29 @@ public class ExperimentSearchCriterionTranslator extends AbstractCompositeSearch
     @Override
     protected boolean doAccepts(ISearchCriterion criterion)
     {
-        return criterion instanceof ExperimentSearchCriterion;
+        return criterion instanceof ExperimentSearchCriterion || criterion instanceof NoExperimentSearchCriterion;
     }
 
     @Override
     protected SearchCriterionTranslationResult doTranslate(SearchTranslationContext context, ISearchCriterion criterion)
     {
-        context.pushEntityKind(EntityKind.EXPERIMENT);
-        SearchCriterionTranslationResult translationResult = super.doTranslate(context, criterion);
-        context.popEntityKind();
-
-        if (context.peekEntityKind() == null)
+        if (criterion instanceof NoExperimentSearchCriterion)
         {
-            return translationResult;
+            return new SearchCriterionTranslationResult(new DetailedSearchSubCriteria(AssociatedEntityKind.EXPERIMENT, null));
         } else
         {
-            return new SearchCriterionTranslationResult(new DetailedSearchSubCriteria(AssociatedEntityKind.EXPERIMENT,
-                    translationResult.getCriteria()));
+            context.pushEntityKind(EntityKind.EXPERIMENT);
+            SearchCriterionTranslationResult translationResult = super.doTranslate(context, criterion);
+            context.popEntityKind();
+
+            if (context.peekEntityKind() == null)
+            {
+                return translationResult;
+            } else
+            {
+                return new SearchCriterionTranslationResult(new DetailedSearchSubCriteria(AssociatedEntityKind.EXPERIMENT,
+                        translationResult.getCriteria()));
+            }
         }
     }
-
 }

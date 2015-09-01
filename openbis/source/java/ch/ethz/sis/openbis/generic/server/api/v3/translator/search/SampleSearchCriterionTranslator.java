@@ -17,6 +17,7 @@
 package ch.ethz.sis.openbis.generic.server.api.v3.translator.search;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ISearchCriterion;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.NoSampleContainerSearchCriterion;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SampleChildrenSearchCriterion;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SampleContainerSearchCriterion;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SampleParentsSearchCriterion;
@@ -40,40 +41,46 @@ public class SampleSearchCriterionTranslator extends AbstractCompositeSearchCrit
     @Override
     protected boolean doAccepts(ISearchCriterion criterion)
     {
-        return criterion instanceof SampleSearchCriterion;
+        return criterion instanceof SampleSearchCriterion || criterion instanceof NoSampleContainerSearchCriterion;
     }
 
     @Override
     protected SearchCriterionTranslationResult doTranslate(SearchTranslationContext context, ISearchCriterion criterion)
     {
-        context.pushEntityKind(EntityKind.SAMPLE);
-        SearchCriterionTranslationResult translationResult = super.doTranslate(context, criterion);
-        context.popEntityKind();
-
-        if (criterion instanceof SampleSearchCriterion && context.peekEntityKind() == null)
+        if (criterion instanceof NoSampleContainerSearchCriterion)
         {
-            return translationResult;
-        }
-
-        AssociatedEntityKind entityKind;
-        if (criterion instanceof SampleParentsSearchCriterion)
-        {
-            entityKind = AssociatedEntityKind.SAMPLE_PARENT;
-        } else if (criterion instanceof SampleChildrenSearchCriterion)
-        {
-            entityKind = AssociatedEntityKind.SAMPLE_CHILD;
-        } else if (criterion instanceof SampleContainerSearchCriterion)
-        {
-            entityKind = AssociatedEntityKind.SAMPLE_CONTAINER;
-        } else if (criterion instanceof SampleSearchCriterion)
-        {
-            entityKind = AssociatedEntityKind.SAMPLE;
+            return new SearchCriterionTranslationResult(new DetailedSearchSubCriteria(AssociatedEntityKind.SAMPLE_CONTAINER, null));
         } else
         {
-            throw new IllegalArgumentException("Unknown criterion: " + criterion);
+            context.pushEntityKind(EntityKind.SAMPLE);
+            SearchCriterionTranslationResult translationResult = super.doTranslate(context, criterion);
+            context.popEntityKind();
+
+            if (criterion instanceof SampleSearchCriterion && context.peekEntityKind() == null)
+            {
+                return translationResult;
+            }
+
+            AssociatedEntityKind entityKind;
+            if (criterion instanceof SampleParentsSearchCriterion)
+            {
+                entityKind = AssociatedEntityKind.SAMPLE_PARENT;
+            } else if (criterion instanceof SampleChildrenSearchCriterion)
+            {
+                entityKind = AssociatedEntityKind.SAMPLE_CHILD;
+            } else if (criterion instanceof SampleContainerSearchCriterion)
+            {
+                entityKind = AssociatedEntityKind.SAMPLE_CONTAINER;
+            } else if (criterion instanceof SampleSearchCriterion)
+            {
+                entityKind = AssociatedEntityKind.SAMPLE;
+            } else
+            {
+                throw new IllegalArgumentException("Unknown criterion: " + criterion);
+            }
+            DetailedSearchSubCriteria subCriteria = new DetailedSearchSubCriteria(entityKind, translationResult.getCriteria());
+            return new SearchCriterionTranslationResult(subCriteria);
         }
-        DetailedSearchSubCriteria subCriteria = new DetailedSearchSubCriteria(entityKind, translationResult.getCriteria());
-        return new SearchCriterionTranslationResult(subCriteria);
     }
 
 }

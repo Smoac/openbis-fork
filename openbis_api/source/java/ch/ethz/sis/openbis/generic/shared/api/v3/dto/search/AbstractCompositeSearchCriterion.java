@@ -45,7 +45,7 @@ public abstract class AbstractCompositeSearchCriterion extends AbstractSearchCri
         this.criteria = criteria;
     }
 
-    protected <T extends AbstractSearchCriterion> T with(T criterion)
+    protected <T extends ISearchCriterion> T with(T criterion)
     {
         criteria.add(criterion);
         return criterion;

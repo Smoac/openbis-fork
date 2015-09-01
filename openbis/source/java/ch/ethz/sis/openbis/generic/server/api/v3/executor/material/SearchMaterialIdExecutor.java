@@ -24,8 +24,8 @@ import org.springframework.stereotype.Component;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.common.AbstractSearchObjectExecutor;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.MaterialSearchCriterion;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchAssociationCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IAssociationCriteria;
 
 /**
  * @author pkupczyk
@@ -40,7 +40,7 @@ public class SearchMaterialIdExecutor extends AbstractSearchObjectExecutor<Mater
     {
         List<Long> materialIds = daoFactory.getHibernateSearchDAO().searchForEntityIds(context.getSession().tryGetPerson().getUserId(), criteria,
                 ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind.MATERIAL,
-                Collections.<DetailedSearchAssociationCriteria> emptyList());
+                Collections.<IAssociationCriteria> emptyList());
         return materialIds;
     }
 

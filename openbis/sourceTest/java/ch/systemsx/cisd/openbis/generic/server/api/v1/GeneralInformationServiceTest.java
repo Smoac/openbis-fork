@@ -58,9 +58,9 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRo
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelatedEntities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchAssociationCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IAssociationCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
@@ -260,14 +260,14 @@ public class GeneralInformationServiceTest extends AbstractServerTestCase
         prepareGetSession();
         final RecordingMatcher<DetailedSearchCriteria> criteriaMatcher = RecordingMatcher.create();
         prepareSearchForSamples(criteriaMatcher, 0);
-        RecordingMatcher<List<DetailedSearchAssociationCriteria>> associatedCriteriaMatcher =
+        RecordingMatcher<List<IAssociationCriteria>> associatedCriteriaMatcher =
                 prepareSearchForAssociatedSamples(criteriaMatcher);
         context.checking(new Expectations()
             {
                 {
                     one(hibernateSearchDAO).searchForEntityIds(with(session.getUserName()),
                             with(criteriaMatcher), with(EntityKind.EXPERIMENT),
-                            with(Collections.<DetailedSearchAssociationCriteria> emptyList()));
+                            with(Collections.<IAssociationCriteria> emptyList()));
                     will(returnValue(Arrays.asList(42L)));
                 }
             });
@@ -361,7 +361,7 @@ public class GeneralInformationServiceTest extends AbstractServerTestCase
         prepareGetSession();
         final RecordingMatcher<DetailedSearchCriteria> criteriaMatcher = RecordingMatcher.create();
         prepareSearchForSamples(criteriaMatcher, 1);
-        final RecordingMatcher<List<DetailedSearchAssociationCriteria>> associatedCriteriaMatcher =
+        final RecordingMatcher<List<IAssociationCriteria>> associatedCriteriaMatcher =
                 prepareSearchForAssociatedSamples(criteriaMatcher);
 
         List<Sample> result =
@@ -382,11 +382,11 @@ public class GeneralInformationServiceTest extends AbstractServerTestCase
         context.assertIsSatisfied();
     }
 
-    private RecordingMatcher<List<DetailedSearchAssociationCriteria>> prepareSearchForAssociatedSamples(
+    private RecordingMatcher<List<IAssociationCriteria>> prepareSearchForAssociatedSamples(
             final RecordingMatcher<DetailedSearchCriteria> criteriaMatcher)
     {
-        final RecordingMatcher<List<DetailedSearchAssociationCriteria>> associatedCriteriaMatcher =
-                RecordingMatcher.<List<DetailedSearchAssociationCriteria>> create();
+        final RecordingMatcher<List<IAssociationCriteria>> associatedCriteriaMatcher =
+                RecordingMatcher.<List<IAssociationCriteria>> create();
         context.checking(new Expectations()
             {
                 {
@@ -413,7 +413,7 @@ public class GeneralInformationServiceTest extends AbstractServerTestCase
                     exactly(numberOfSearches).of(hibernateSearchDAO).searchForEntityIds(
                             with(session.getUserName()), with(criteriaMatcher),
                             with(EntityKind.SAMPLE),
-                            with(Collections.<DetailedSearchAssociationCriteria> emptyList()));
+                            with(Collections.<IAssociationCriteria> emptyList()));
                     will(returnValue(new ArrayList<Long>(Arrays.asList(42L))));
 
                     one(hibernateSearchDAO).getResultSetSizeLimit();

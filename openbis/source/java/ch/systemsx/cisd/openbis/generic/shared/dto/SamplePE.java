@@ -71,6 +71,7 @@ import ch.systemsx.cisd.common.reflection.ModifiedShortPrefixToStringStyle;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentHolderKind;
+import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.NullBridge;
 import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
@@ -399,7 +400,7 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
     @SuppressWarnings("unused")
     @Transient
     @Field(index = Index.YES, store = Store.YES, name = SearchFieldConstants.CONTAINER_ID)
-    @FieldBridge(impl = org.hibernate.search.bridge.builtin.LongBridge.class)
+    @FieldBridge(impl = NullBridge.class)
     private Long getContainerId()
     {
         Long result = null;
@@ -518,7 +519,7 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
     @SuppressWarnings("unused")
     @Transient
     @Field(index = Index.YES, store = Store.YES, name = SearchFieldConstants.EXPERIMENT_ID)
-    @FieldBridge(impl = org.hibernate.search.bridge.builtin.LongBridge.class)
+    @FieldBridge(impl = NullBridge.class)
     private Long getExperimentId()
     {
         Long result = null;

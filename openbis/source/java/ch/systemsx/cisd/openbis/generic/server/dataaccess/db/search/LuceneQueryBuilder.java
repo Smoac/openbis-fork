@@ -31,8 +31,8 @@ import org.apache.lucene.search.Query;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.detailed.DetailedQueryBuilder;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchAssociationCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IAssociationCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DtoConverters;
 
@@ -56,7 +56,7 @@ public class LuceneQueryBuilder
      */
     public static Query createDetailedSearchQuery(String userId,
             DetailedSearchCriteria searchCriteria,
-            List<DetailedSearchAssociationCriteria> associations, EntityKind entityKind)
+            List<IAssociationCriteria> associations, EntityKind entityKind)
     {
         return DetailedQueryBuilder.createQuery(userId, searchCriteria,
                 DtoConverters.convertEntityKind(entityKind), associations);

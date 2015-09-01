@@ -50,6 +50,12 @@ public class SampleSearchCriterion extends AbstractEntitySearchCriterion<ISample
         return with(new ExperimentSearchCriterion());
     }
 
+    public SampleSearchCriterion withoutExperiment()
+    {
+        with(new NoExperimentSearchCriterion());
+        return this;
+    }
+
     public SampleParentsSearchCriterion withParents()
     {
         return with(new SampleParentsSearchCriterion());
@@ -63,6 +69,12 @@ public class SampleSearchCriterion extends AbstractEntitySearchCriterion<ISample
     public SampleContainerSearchCriterion withContainer()
     {
         return with(new SampleContainerSearchCriterion());
+    }
+
+    public SampleSearchCriterion withoutContainer()
+    {
+        with(new NoSampleContainerSearchCriterion());
+        return this;
     }
 
     public SampleSearchCriterion withOrOperator()

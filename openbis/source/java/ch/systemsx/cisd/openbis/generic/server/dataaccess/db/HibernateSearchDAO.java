@@ -65,8 +65,8 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IHibernateSearchDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.HibernateSearchContext;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.LuceneQueryBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchAssociationCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IAssociationCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MatchingEntity;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
@@ -248,7 +248,7 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
     @Override
     public List<Long> searchForEntityIds(final String userId,
             final DetailedSearchCriteria criteria, final EntityKind entityKind,
-            final List<DetailedSearchAssociationCriteria> associations)
+            final List<IAssociationCriteria> associations)
     {
         final List<Long> list =
                 AbstractDAO.cast((List<?>) getHibernateTemplate().executeWithNativeSession(new HibernateCallback()
@@ -277,7 +277,7 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
      */
     private List<Long> searchForEntityIds(String userId, Session session,
             DetailedSearchCriteria searchCriteria, EntityKind entityKind,
-            List<DetailedSearchAssociationCriteria> associations)
+            List<IAssociationCriteria> associations)
     {
         Query query =
                 LuceneQueryBuilder.createDetailedSearchQuery(userId, searchCriteria, associations,

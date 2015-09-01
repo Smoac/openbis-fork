@@ -27,12 +27,12 @@ import org.springframework.dao.DataAccessException;
 
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IHibernateSearchDAO;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchAssociationCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriterion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchField;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchSubCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IAssociationCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleAttributeSearchFieldKind;
@@ -171,8 +171,8 @@ public class SampleSearchManager extends AbstractSearchManager<ISampleLister>
             List<DetailedSearchSubCriteria> subCriterias)
     {
         // for now we connect all sub criteria with logical AND
-        List<DetailedSearchAssociationCriteria> associations =
-                new ArrayList<DetailedSearchAssociationCriteria>();
+        List<IAssociationCriteria> associations =
+                new ArrayList<IAssociationCriteria>();
         for (DetailedSearchSubCriteria subCriteria : subCriterias)
         {
             associations.add(findAssociatedEntities(userId, subCriteria));
