@@ -192,11 +192,21 @@ public class SearchDataSetTest extends AbstractDataSetTest
     }
 
     @Test
-    public void testSearchWithSampleWithAnyPropertyThatContains()
+    public void testSearchWithSample()
     {
         DataSetSearchCriterion criterion = new DataSetSearchCriterion();
-        criterion.withSample().withAnyProperty().thatContains("er");
-        testSearch(TEST_USER, criterion, "20081105092159111-1", "20081105092159333-3", "20110805092359990-17", "20081105092159222-2");
+        criterion.withCode().thatStartsWith("20120628092259000");
+        criterion.withSample();
+        testSearch(TEST_USER, criterion, "20120628092259000-23");
+    }
+
+    @Test
+    public void testSearchWithoutSample()
+    {
+        DataSetSearchCriterion criterion = new DataSetSearchCriterion();
+        criterion.withCode().thatStartsWith("20120628092259000");
+        criterion.withoutSample();
+        testSearch(TEST_USER, criterion, "20120628092259000-24", "20120628092259000-25");
     }
 
     @Test
