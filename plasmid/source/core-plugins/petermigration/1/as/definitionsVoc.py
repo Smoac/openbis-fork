@@ -845,8 +845,10 @@ vocabularyDefinitions = {
                                     ],
                          "STORAGE_BOX_SIZE" : [
                                 ["9X9", "9 x 9 box"],
+                                ["8X8", "8 x 8 box"],
                                 ["5X5", "5 x 5 box"],
                                 ["10X10", "10 x 10 box"],
+                                ["10X5", "10 x 5 box"],
                                 ["10X12", "10 x 12 box"]
                             ],
                           }
