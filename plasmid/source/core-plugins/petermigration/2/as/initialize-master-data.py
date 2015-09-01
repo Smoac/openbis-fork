@@ -69,9 +69,10 @@ def createExperimentTypeWithProperties(experimentTypeCode, description, properti
 
 def addPropertiesToSamples(sampleTypeCodes, properties):
     for sampleTypeCode in sampleTypeCodes:
-        sampleType = samplesCache[sampleTypeCode];
-        if sampleType is None:
-            sampleType = tr.getSampleType(sampleType)
+        if sampleTypeCode in samplesCache:
+            sampleType = samplesCache[sampleTypeCode];
+        else:
+            sampleType = tr.getSampleType(sampleTypeCode)
         addProperties(sampleType, properties);
     
 def addProperties(entity, properties):
@@ -122,7 +123,7 @@ def addBoxSizeProperty(numGroups, sampleType):
         property[0] = property[0] + "_" + str(storageIdx);
         property[1] = property[1] + "_" + str(storageIdx);
         property[5] = property[5] + "_" + str(storageIdx);
-        addPropertiesToSamples([sampleType], storageGroup);
+        addPropertiesToSamples([sampleType], [property]);
 
 #Valid Script Types: DYNAMIC_PROPERTY, MANAGED_PROPERTY, ENTITY_VALIDATION 
 def createScript(path, name, description, scriptType, entityType):
