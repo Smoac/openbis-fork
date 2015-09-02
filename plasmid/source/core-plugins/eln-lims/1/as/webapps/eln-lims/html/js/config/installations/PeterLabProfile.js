@@ -41,26 +41,26 @@ $.extend(PeterLabProfile.prototype, DefaultProfile.prototype, {
 
 */
 			"STORAGE_PROPERTIES": [{
-					"STORAGE_PROPERTY_GROUP" : "Physical Storage 1", //Where the storage will be painted.
-					"STORAGE_GROUP_DISPLAY_NAME" : "Physical Storage 1", //Storage Group Name
+					"STORAGE_PROPERTY_GROUP" : "Physical Storage_1", //Where the storage will be painted.
+					"STORAGE_GROUP_DISPLAY_NAME" : "Physical Storage_1", //Storage Group Name
 					"NAME_PROPERTY" : 		"STORAGE_NAME_1", //Should be a Vocabulary.
 					"ROW_PROPERTY" : 		"STORAGE_ROW_1", //Should be an integer.
 					"COLUMN_PROPERTY" : 	"STORAGE_COLUMN_1",  //Should be an integer.
 					"BOX_PROPERTY" : 		"STORAGE_BOX_NAME_1", //Should be text.
-					"BOX_SIZE_PROPERTY" : 	"STORAGE_BOX_SIZE_1", //Should be Vocabulary.
 					"USER_PROPERTY" : 		"STORAGE_USER_1", //Should be text.
-					"POSITION_PROPERTY" : 	"STORAGE_POSITION_1" //Should be text.
+					"BOX_SIZE_PROPERTY" : 	"STORAGE_BOX_SIZE_1", //Should be Vocabulary.
+					"POSITION_PROPERTY" : 	"STORAGE_BOX_POSITION_1" //Should be text.
 				},
 				{
-					"STORAGE_PROPERTY_GROUP" : "Physical Storage 2", //Where the storage will be painted.
-					"STORAGE_GROUP_DISPLAY_NAME" : "Physical Storage 2", //Storage Group Name
+					"STORAGE_PROPERTY_GROUP" : "Physical Storage_2", //Where the storage will be painted.
+					"STORAGE_GROUP_DISPLAY_NAME" : "Physical Storage_2", //Storage Group Name
 					"NAME_PROPERTY" : 		"STORAGE_NAME_2", //Should be a Vocabulary.
 					"ROW_PROPERTY" : 		"STORAGE_ROW_2", //Should be an integer.
 					"COLUMN_PROPERTY" : 	"STORAGE_COLUMN_2",  //Should be an integer.
 					"BOX_PROPERTY" : 		"STORAGE_BOX_NAME_2", //Should be text.
-					"BOX_SIZE_PROPERTY" : 	"STORAGE_BOX_SIZE_2", //Should be Vocabulary.
 					"USER_PROPERTY" : 		"STORAGE_USER_2", //Should be text.
-					"POSITION_PROPERTY" : 	"STORAGE_POSITION_2" //Should be text.
+					"BOX_SIZE_PROPERTY" : 	"STORAGE_BOX_SIZE_2", //Should be Vocabulary.
+					"POSITION_PROPERTY" : 	"STORAGE_BOX_POSITION_2" //Should be text.
 				},
 
 
