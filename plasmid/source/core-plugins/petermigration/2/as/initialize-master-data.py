@@ -67,19 +67,25 @@ def createExperimentTypeWithProperties(experimentTypeCode, description, properti
     newExperiment.setDescription(description);
     addProperties(newExperiment, properties);
 
+def getSampleType(sampleTypeCode):
+    sampleType = None
+    if sampleTypeCode in samplesCache:
+        sampleType = samplesCache[sampleTypeCode];
+    else:
+        sampleType = tr.getSampleType(sampleTypeCode)
+        samplesCache[sampleTypeCode] = sampleType;
+    return sampleType;
+            
 def addPropertiesToSamples(sampleTypeCodes, properties):
     for sampleTypeCode in sampleTypeCodes:
-        if sampleTypeCode in samplesCache:
-            sampleType = samplesCache[sampleTypeCode];
-        else:
-            sampleType = tr.getSampleType(sampleTypeCode)
+        sampleType = getSampleType(sampleTypeCodes);
         addProperties(sampleType, properties);
     
 def addProperties(entity, properties):
     for property in properties:
-        addProperty(entity, property[0], property[1], property[2], property[3], property[4], property[5], property[6], property[7], property[8]);
+        addProperty(entity, property[0], property[1], property[2], property[3], property[4], property[5], property[6], property[7], property[8], None);
     
-def addProperty(entity, propertyCode, section, propertyLabel, dataType, vocabularyCode, propertyDescription, managedScript, dynamicScript, isMandatory):
+def addProperty(entity, propertyCode, section, propertyLabel, dataType, vocabularyCode, propertyDescription, managedScript, dynamicScript, isMandatory, position):
     property = None;
     
     if propertyCode in propertiesCache:
@@ -90,6 +96,8 @@ def addProperty(entity, propertyCode, section, propertyLabel, dataType, vocabula
     propertyAssignment = tr.assignPropertyType(entity, property);
     propertyAssignment.setSection(section);
     propertyAssignment.setMandatory(isMandatory);
+    if position is not None:
+        propertyAssignment.setPositionInForms(position);
     if managedScript != None:
         propertyAssignment.setManaged(True);
         propertyAssignment.setShownEdit(True);
@@ -117,13 +125,30 @@ def addStorageGroups(numGroups, sampleType):
             property[5] = property[5] + "_" + str(storageIdx);
         addPropertiesToSamples([sampleType], storageGroup);
 
-def addBoxSizeProperty(numGroups, sampleType):
+def findAssignment(entityType, propertyType):
+    for assignment in tr.listPropertyAssignments():
+        if assignment.getEntityKind().equals(entityType.getEntityKind()) and assignment.getEntityTypeCode() == entityType.getCode() and assignment.getPropertyTypeCode() == propertyType.getCode():
+            return assignment;
+    return None;
+    
+def addBoxSizeProperty(numGroups, sampleTypeCode):
+    sampleType = getSampleType(sampleTypeCode)
     for storageIdx in range(1,(numGroups + 1)):
         property = ["STORAGE_BOX_SIZE",     "Physical Storage",        "box size",         DataType.CONTROLLEDVOCABULARY,      "STORAGE_BOX_SIZE",   "Storage Box size",   None, None, False];
         property[0] = property[0] + "_" + str(storageIdx);
         property[1] = property[1] + "_" + str(storageIdx);
         property[5] = property[5] + "_" + str(storageIdx);
-        addPropertiesToSamples([sampleType], [property]);
+        #Resolve Position
+        position = None
+        propertyTypeCode = "STORAGE_USER" + "_" + str(storageIdx);
+        propertyType = tr.getPropertyType(propertyTypeCode);
+        assigments = tr.listPropertyAssignments();
+        assigment = findAssignment(sampleType, propertyType);
+        if storageIdx == 1:
+            position = assigment.getPositionInForms();
+        else:
+            position = assigment.getPositionInForms() + storageIdx - 1;
+        addProperty(sampleType, property[0], property[1], property[2], property[3], property[4], property[5], property[6], property[7], property[8], position);
 
 #Valid Script Types: DYNAMIC_PROPERTY, MANAGED_PROPERTY, ENTITY_VALIDATION 
 def createScript(path, name, description, scriptType, entityType):

@@ -265,8 +265,8 @@ class FMPeterBoxAdaptor(FileMakerEntityAdaptor):
                     if antibodyNumber is not None:
                         values = {}
                         values["STORAGE_NAME"] = result.getString("location")
-                        values["STORAGE_ROW"] = None
-                        values["STORAGE_COLUMN"] = None
+                        values["STORAGE_ROW"] = "1"
+                        values["STORAGE_COLUMN"] = "1"
                         values["STORAGE_BOX_NAME"] = result.getString("box label")
                         values["STORAGE_BOX_SIZE"] = result.getString("box size")
                         values["STORAGE_USER"] = result.getString("frozen by")

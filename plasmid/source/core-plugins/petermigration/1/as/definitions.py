@@ -43,7 +43,7 @@ def getStorageGroupDefinition():
     ["STORAGE_COLUMN",       "Physical Storage",        "Storage Column",   DataType.INTEGER,                    None,                "Storage Column",     None, None, False],
     ["STORAGE_BOX_NAME",     "Physical Storage",        "box label",        DataType.VARCHAR,                    None,                "Storage Box Name",   None, None, False],
     ["STORAGE_BOX_SIZE",     "Physical Storage",        "box size",         DataType.CONTROLLEDVOCABULARY,      "STORAGE_BOX_SIZE",   "Storage Box size",   None, None, False],
-    ["STORAGE_USER",         "Physical Storage",        "frozen by",        DataType.CONTROLLEDVOCABULARY,      "ALL_LAB_MEMBERS",    "Storage User Id",    None, None, False],
+    ["STORAGE_USER",         "Physical Storage",        "frozen by",        DataType.VARCHAR,                    None,                "Storage User Id",    None, None, False],
     ["STORAGE_BOX_POSITION", "Physical Storage",        "position",         DataType.VARCHAR,                    None,                "Storage Box Position",    None, None, False]
 ];
 
