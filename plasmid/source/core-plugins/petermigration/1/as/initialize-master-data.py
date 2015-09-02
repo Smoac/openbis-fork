@@ -116,8 +116,9 @@ def addStorageGroups(numGroups, sampleType):
         storageGroup = definitions.getStorageGroupDefinition();
         for property in storageGroup:
             property[0] = property[0] + "_" + str(storageIdx);
-            property[1] = property[1] + "_" + str(storageIdx);
-            property[5] = property[5] + "_" + str(storageIdx);
+            property[1] = property[1] + " " + str(storageIdx);
+            property[2] = property[2] + " " + str(storageIdx);
+            property[5] = property[5] + " " + str(storageIdx);
         addPropertiesToSamples([sampleType], storageGroup);
 
 #Valid Script Types: DYNAMIC_PROPERTY, MANAGED_PROPERTY, ENTITY_VALIDATION 
