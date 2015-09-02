@@ -145,6 +145,9 @@ public class JsTestCommonSelenium extends SeleniumTest
 
             Assert.assertTrue("JUnit test report is empty", junitReport.length() > 0);
             Assert.assertEquals(0, failedCount);
+        } catch (Throwable t)
+        {
+            throw new AssertionError("Test runner throws exception: " + t, t);
         } finally
         {
             SeleniumTest.driver.switchTo().defaultContent();
