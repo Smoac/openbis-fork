@@ -9,51 +9,24 @@ $.extend(PeterLabProfile.prototype, DefaultProfile.prototype, {
 		
 	
 		//Use this with all known types to create groups, if a type is not specified by default will be added to the OTHERS group.
-		this.inventorySpaces = ["INVENTORY"];
+		this.inventorySpaces = ["MATERIALS", "METHODS"];
 		this.isShowUnavailablePreviewOnSampleTable = true;
 		this.hideCodes = true;
-		
-		this.getSpaceForSampleType = function(type) {
-			if(type === "ANTIBODY") {
-				return "INVENTORY";
-			} else if(type === "PLASMID") {
-				return "INVENTORY";
-			} else if(type === "INHIBITOR") {
-				return "INVENTORY";
-			} else if(type === "CELL_LINE") {
-				return "INVENTORY";
-			} else {
-				return null;
-			}
-		}	
 	
-
-		this.getExperimentIdentifierForSample = function(type, code, properties) {
-			if(type === "ANTIBODY") {
-				return "/INVENTORY/SAMPLES/ANTIBODIES";
-			} else if(type === "PLASMID") {
-				return "/INVENTORY/SAMPLES/PLASMIDS";
-			} else if(type === "INHIBITOR") {
-				return "/INVENTORY/SAMPLES/INHIBITORS";
-			} else if(type === "CELL_LINE") {
-				return "/INVENTORY/SAMPLES/CELL_LINES";
-			} else {
-				return null;
-			}
-		}
 	
 		this.storagesConfiguration = {
 				"isEnabled" : true,
 				/*
 				 * Should be the same across all storages, if not correct behaviour is not guaranteed.
 				*/
+				/*
 				"STORAGE_PROPERTIES": [{
 					"STORAGE_PROPERTY_GROUP" : "Storage", //Where the storage will be painted.
 					"STORAGE_GROUP_DISPLAY_NAME" : "Storage Group 1", //Storage Group Name
-					"NAME_PROPERTY" : "FREEZER_NAME", //Should be a Vocabulary.
-					"ROW_PROPERTY" : "ROW", //Should be an integer.
-					"COLUMN_PROPERTY" : "COLUMN",  //Should be an integer.
-					"BOX_PROPERTY" : "BOX_NUMBER", //Should be text.
+					"NAME_PROPERTY" : "STORAGE_NAME_1", //Should be a Vocabulary.
+					"ROW_PROPERTY" : "STORAGE_ROW", //Should be an integer.
+					"COLUMN_PROPERTY" : "STORAGE_COLUMN",  //Should be an integer.
+					"BOX_PROPERTY" : "STORAGE_BOX_NAME", //Should be text.
 					"USER_PROPERTY" : "USER_PROPERTY" //Should be text.
 				},
 				{
@@ -65,6 +38,35 @@ $.extend(PeterLabProfile.prototype, DefaultProfile.prototype, {
 					"BOX_PROPERTY" : "BOX_NUMBER_2", //Should be text.
 					"USER_PROPERTY" : "USER_PROPERTY_2" //Should be text.
 				}],
+
+*/
+			"STORAGE_PROPERTIES": [{
+					"STORAGE_PROPERTY_GROUP" : "Physical Storage 1", //Where the storage will be painted.
+					"STORAGE_GROUP_DISPLAY_NAME" : "Physical Storage 1", //Storage Group Name
+					"NAME_PROPERTY" : 		"STORAGE_NAME_1", //Should be a Vocabulary.
+					"ROW_PROPERTY" : 		"STORAGE_ROW_1", //Should be an integer.
+					"COLUMN_PROPERTY" : 	"STORAGE_COLUMN_1",  //Should be an integer.
+					"BOX_PROPERTY" : 		"STORAGE_BOX_NAME_1", //Should be text.
+					"BOX_SIZE_PROPERTY" : 	"STORAGE_BOX_SIZE_1", //Should be Vocabulary.
+					"USER_PROPERTY" : 		"STORAGE_USER_1", //Should be text.
+					"POSITION_PROPERTY" : 	"STORAGE_POSITION_1" //Should be text.
+				},
+				{
+					"STORAGE_PROPERTY_GROUP" : "Physical Storage 2", //Where the storage will be painted.
+					"STORAGE_GROUP_DISPLAY_NAME" : "Physical Storage 2", //Storage Group Name
+					"NAME_PROPERTY" : 		"STORAGE_NAME_2", //Should be a Vocabulary.
+					"ROW_PROPERTY" : 		"STORAGE_ROW_2", //Should be an integer.
+					"COLUMN_PROPERTY" : 	"STORAGE_COLUMN_2",  //Should be an integer.
+					"BOX_PROPERTY" : 		"STORAGE_BOX_NAME_2", //Should be text.
+					"BOX_SIZE_PROPERTY" : 	"STORAGE_BOX_SIZE_2", //Should be Vocabulary.
+					"USER_PROPERTY" : 		"STORAGE_USER_2", //Should be text.
+					"POSITION_PROPERTY" : 	"STORAGE_POSITION_2" //Should be text.
+				},
+
+
+				],
+				/*
+
 				/*
 				 * Storages map, can hold configurations for several storages.
 				*/
@@ -198,7 +200,12 @@ $.extend(PeterLabProfile.prototype, DefaultProfile.prototype, {
 									"ROW_NUM" : 4, //Number of rows
 									"COLUMN_NUM" : 4, //Number of columns
 									"BOX_NUM" : 9999 //Boxes on each rack, used for validation, to avoid validation increase the number to 9999 for example
-								},												
+								},
+					"BENCH" : 	{ //Freezer name given by the NAME_PROPERTY
+									"ROW_NUM" : 1, //Number of rows
+									"COLUMN_NUM" : 1, //Number of columns
+									"BOX_NUM" : 999999 //Boxes on each rack, used for validation, to avoid validation increase the number to 9999 for example
+								},																				
 					"USER_BENCH" : { //Freezer name given by the NAME_PROPERTY
 									"ROW_NUM" : 1, //Number of rows
 									"COLUMN_NUM" : 1, //Number of columns
@@ -254,9 +261,70 @@ $.extend(PeterLabProfile.prototype, DefaultProfile.prototype, {
 														"ANNOTATION_PROPERTIES" : []
 													}
 												],
+				},
+
+				"EXPERIMENTAL_STEP" : {
+					"SAMPLE_PARENTS_HINT" : [
+					                             	{
+														"LABEL" : "Antibody",
+														"TYPE": "ANTIBODY",
+														"MIN_COUNT" : 0,
+														"ANNOTATION_PROPERTIES" : [ {"TYPE" : "COMMENTS", "MANDATORY" : false }]
+													},
+					                             	{
+														"LABEL" : "Cell",
+														"TYPE": "CELL",
+														"MIN_COUNT" : 0,
+														"ANNOTATION_PROPERTIES" : [{"TYPE" : "COMMENTS", "MANDATORY" : false }]
+													},
+					                             	{
+														"LABEL" : "Chemical",
+														"TYPE": "CHEMICAL",
+														"MIN_COUNT" : 0,
+														"ANNOTATION_PROPERTIES" : [{"TYPE" : "COMMENTS", "MANDATORY" : false }]
+													},
+					                             	{
+														"LABEL" : "Oligo",
+														"TYPE": "OLIGO",
+														"MIN_COUNT" : 0,
+														"ANNOTATION_PROPERTIES" : [{"TYPE" : "COMMENTS", "MANDATORY" : false }]
+													},
+					                             	{
+														"LABEL" : "Plasmid",
+														"TYPE": "PLASMID",
+														"MIN_COUNT" : 0,
+														"ANNOTATION_PROPERTIES" : [{"TYPE" : "COMMENTS", "MANDATORY" : false }]
+													},
+					                             	{
+														"LABEL" : "siRNA",
+														"TYPE": "SIRNA",
+														"MIN_COUNT" : 0,
+														"ANNOTATION_PROPERTIES" : [{"TYPE" : "COMMENTS", "MANDATORY" : false }]
+													},
+					                             	{
+														"LABEL" : "Yeast strain",
+														"TYPE": "STRAIN",
+														"MIN_COUNT" : 0,
+														"ANNOTATION_PROPERTIES" : [{"TYPE" : "COMMENTS", "MANDATORY" : false }]
+													},
+					                             	{
+														"LABEL" : "Yeast collection",
+														"TYPE": "YEAST_COLLECTION",
+														"MIN_COUNT" : 0,
+														"ANNOTATION_PROPERTIES" : [{"TYPE" : "COMMENTS", "MANDATORY" : false }]
+													}																																
+												],
 				}
+
 		}
 
+		this.sampleFormContentExtra = function(sampleTypeCode, sample, containerId) {
+			if(sampleTypeCode === "EXPERIMENTAL_STEP") {
+				var isEnabled = mainController.currentView._sampleFormModel.mode !== FormMode.VIEW;
+				var freeFormTableController = new FreeFormTableController(sample, isEnabled);
+				freeFormTableController.init($("#" + containerId));
+			}
+		}
 		
 		//The properties you want to appear on the tables, if you don�t specify the list, all of them will appear by default.
 		this.typePropertiesForTable = {};
