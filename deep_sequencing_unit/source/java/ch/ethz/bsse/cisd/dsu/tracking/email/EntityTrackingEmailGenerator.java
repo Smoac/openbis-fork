@@ -132,7 +132,6 @@ public class EntityTrackingEmailGenerator implements IEntityTrackingEmailGenerat
                 if (propertyKey.contains("*"))
                 {
                     String spacePreffix = propertyKey.substring(0, propertyKey.lastIndexOf("*"));
-                    System.out.println(spacePreffix);
                     for (SpaceWithProjectsAndRoleAssignments space : spacesList)
                     {
                         if (space.getCode().startsWith(spacePreffix))
@@ -368,7 +367,7 @@ public class EntityTrackingEmailGenerator implements IEntityTrackingEmailGenerat
 
             HashMap<String, String> parentProperties = propertiesFromParentSample(dataSet, sequencingSamples, Index1, Index2);
 
-            String externalSampleName = parentProperties.get(EXTERNAL_SAMPLE_NAME_PROPERTY_CODE);
+            String externalSampleName = getExternalSampleNamefromDataSet(dataSet);
             String contactPersonName = parentProperties.get(CONTACT_PERSON_NAME_PROPERTY_CODE);
 
             String Index = null;
@@ -443,6 +442,22 @@ public class EntityTrackingEmailGenerator implements IEntityTrackingEmailGenerat
                     {
                         return Index;
                     }
+                }
+            }
+            return null;
+        }
+
+        private static String getExternalSampleNamefromDataSet(AbstractExternalData dataSet)
+        {
+            List<IEntityProperty> properties = dataSet.getProperties();
+
+            String externalSampleName = null;
+            for (IEntityProperty p : properties)
+            {
+                if (p.getPropertyType().getCode().equals(EXTERNAL_SAMPLE_NAME_PROPERTY_CODE))
+                {
+                    externalSampleName = p.getValue();
+                    return externalSampleName;
                 }
             }
             return null;

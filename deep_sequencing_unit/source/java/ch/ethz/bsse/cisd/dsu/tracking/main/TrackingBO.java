@@ -19,9 +19,9 @@ package ch.ethz.bsse.cisd.dsu.tracking.main;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -61,12 +61,6 @@ public class TrackingBO
 
     private static final String TRUE = "true";
 
-    //    private static final String CL_PARAMETER_LANES = "lanes";
-
-    //    private static final String CL_PARAMETER_ALL = "all";
-
-    //    private static final String CL_PARAMETER_CHANGED_LANES = "changed_lanes";
-
     private final ITrackingServer trackingServer;
 
     private final IEntityTrackingEmailGenerator emailGenerator;
@@ -97,11 +91,12 @@ public class TrackingBO
                     commandLineMap.get(TrackingClient.CL_PARAMETER_LANES), session);
         } else if (commandLineMap.containsKey(TrackingClient.CL_PARAMETER_ALL))
         {
-            changedEntities = fetchChangedEntities(prevTrackingState, trackingServer, commandLineMap, session);
+            //            changedEntities = fetchChangedEntities(prevTrackingState, trackingServer, commandLineMap, session);
+            System.out.println("This function is deactivated");
         }
         else if (commandLineMap.containsKey(TrackingClient.CL_PARAMETER_CHANGED_LANES))
         {
-            Set<String> changed_lanes = fetchChangedLanes(prevTrackingState, trackingServer, session);
+            Map<String, String> changed_lanes = fetchChangedLanes(prevTrackingState, trackingServer, session);
             sendEmails = false;
 
         }
@@ -228,7 +223,7 @@ public class TrackingBO
         return gatherTrackedEntities(trackingState, trackingServer, session, dataSets, changedTrackingMap);
     }
 
-    private static Set<String> fetchChangedLanes(TrackingStateDTO trackingState,
+    private static Map<String, String> fetchChangedLanes(TrackingStateDTO trackingState,
             ITrackingServer trackingServer, SessionContextDTO session)
     {
         long maxDataSetId = getMaxDataSetId(trackingState);
@@ -239,25 +234,32 @@ public class TrackingBO
         List<AbstractExternalData> dataSets =
                 trackingServer.listDataSets(session.getSessionToken(), dataSetCriteria);
 
-        Set<String> changedLanesSet = new HashSet<String>();
+        Map<String, String> changedLanesMap = new HashMap<String, String>();
 
         // Loop over all new data sets
         for (AbstractExternalData d : dataSets)
         {
             Long newDataSetID = d.getId();
-            String lanePermId = d.getSample().getPermId();
+            Sample lane = d.getSample();
+            String lanePermId = lane.getPermId();
+            String laneSpace = lane.getSpace().getCode();
             Long maxDatasetIdForSample = getMaxDataSetIdForSample(trackingState, lanePermId);
 
             // Check if the given lanes/samples have data sets which are newer than the last seen one (= maxDatasetIdForSample)
             if (newDataSetID > maxDatasetIdForSample)
             {
                 SampleIdentifier currentLaneId = new SampleIdentifier(d.getSampleCode());
-                changedLanesSet.add(currentLaneId.toString());
+                changedLanesMap.put(currentLaneId.toString().substring(1), laneSpace);
                 LogUtils.info("DataSetID: " + newDataSetID + " of NEW data Sets > MAX DataSet id for this sample: " + maxDatasetIdForSample);
             }
         }
-        LogUtils.info(changedLanesSet.toString());
-        return changedLanesSet;
+        Set<Map.Entry<String, String>> entrySet = changedLanesMap.entrySet();
+        for (Entry<String, String> entry : entrySet)
+        {
+            System.out.println(entry.getKey() + " " + entry.getValue());
+        }
+        LogUtils.info(changedLanesMap.toString());
+        return changedLanesMap;
     }
 
     private static TrackedEntities fetchChangedDataSets(TrackingStateDTO trackingState,
@@ -295,6 +297,7 @@ public class TrackingBO
             {
                 LogUtils.info("DataSetID: " + newDataSetID + " of NEW data Sets > MAX DataSet id for this sample: " + maxDatasetIdForSample);
                 filteredDataSets.add(d);
+                System.out.println("Sending Email for " + newDataSetID + " which is part of " + d.getSampleCode());
                 addDataSetTo(changedTrackingMap, d);
             }
         }
@@ -396,13 +399,13 @@ public class TrackingBO
             TreeMap<String, Long> newTrackingState = new TreeMap<String, Long>();
 
             HashMap<String, ArrayList<Long>> changedTrackingMap = changedEntities.getChangedTrackingMap();
-            System.out.println(changedTrackingMap.toString());
+            //            System.out.println(changedTrackingMap.toString());
 
             for (Map.Entry<String, ArrayList<Long>> entry : changedTrackingMap.entrySet())
             {
                 newTrackingState.put(entry.getKey(), Collections.max(entry.getValue()));
             }
-            System.out.println(newTrackingState.entrySet().toString());
+            //            System.out.println(newTrackingState.entrySet().toString());
 
             for (Map.Entry<String, Long> entry : prevState.getLastSeenDataSetIdMap().entrySet())
             {
