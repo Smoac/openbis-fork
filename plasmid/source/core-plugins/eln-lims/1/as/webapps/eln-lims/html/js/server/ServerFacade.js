@@ -835,9 +835,11 @@ function ServerFacade(openbisServer) {
 			matchClauses.push(
 				{	
 					"@type":"PropertyMatchClause",
-					fieldType : "PROPERTY",			
+					fieldType : "PROPERTY",
+					fieldCode : propertyTypeCodes[i],
 					propertyCode : propertyTypeCodes[i],
-					desiredValue : propertyValues[i]
+					desiredValue : "\"" + propertyValues[i] + "\"",
+					compareMode : "EQUALS"
 				}
 			);
 		}

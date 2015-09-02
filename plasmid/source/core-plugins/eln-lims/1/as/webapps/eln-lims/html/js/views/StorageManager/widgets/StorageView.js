@@ -237,7 +237,7 @@ function StorageView(storageController, storageModel, gridView) {
 			var _this = this;
 			
 			var propertyTypeCodes = [this._storageModel.storagePropertyGroup.boxProperty];
-			var propertyValues = ["'" + this._storageModel.boxName + "'"];
+			var propertyValues = [this._storageModel.boxName];
 			mainController.serverFacade.searchWithProperties(propertyTypeCodes, propertyValues, function(samples) {
 				//Labels
 				var labels = [];

@@ -194,7 +194,7 @@ function StorageController(configOverride) {
 		// Obtain Storage Boxes
 		//
 		var propertyTypeCodes = [_this._storageModel.storagePropertyGroup.nameProperty];
-		var propertyValues = ["'" + selectedStorageCode + "'"];
+		var propertyValues = [selectedStorageCode];
 		
 		mainController.serverFacade.searchWithProperties(propertyTypeCodes, propertyValues,
 				function(samples) {
@@ -339,7 +339,7 @@ function StorageController(configOverride) {
 		// Check user don't selects a position already selected by a sample that is not the binded one
 		// ERROR: You selected a position already used by <SAMPLE_CODE>, please choose another.
 		var propertyTypeCodes = [this._storageModel.storagePropertyGroup.boxProperty, this._storageModel.storagePropertyGroup.positionProperty];
-		var propertyValues = ["'" + this._storageModel.boxName + "'", "'" + this._storageModel.boxPosition + "'"];
+		var propertyValues = [this._storageModel.boxName,this._storageModel.boxPosition];
 		mainController.serverFacade.searchWithProperties(propertyTypeCodes, propertyValues, function(samples) {
 			var sampleCodes = [];
 			var isBinded = false;
@@ -369,7 +369,7 @@ function StorageController(configOverride) {
 		// ERROR: You typed by hand an already exiting box <BOX_CODE>, please click on it to auto fill correct size and available positions.
 		if(this._storageView.isNewBoxName()) {
 			var propertyTypeCodes = [this._storageModel.storagePropertyGroup.boxProperty];
-			var propertyValues = ["'" + this._storageModel.boxName + "'"];
+			var propertyValues = [this._storageModel.boxName];
 			mainController.serverFacade.searchWithProperties(propertyTypeCodes, propertyValues, function(samples) {
 				if(samples.length > 0) { //Box already exists with same name
 					if(samples[0].properties[_this._storageModel.storagePropertyGroup.nameProperty] === _this._storageModel.storageCode) {
