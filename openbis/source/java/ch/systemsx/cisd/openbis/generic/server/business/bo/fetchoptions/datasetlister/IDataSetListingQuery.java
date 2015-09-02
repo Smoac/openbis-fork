@@ -55,8 +55,8 @@ public interface IDataSetListingQuery extends BaseQuery
             + " left outer join samples sa on ds.samp_id = sa.id"
             + " left outer join persons pe on ds.pers_id_registerer = pe.id"
             + " left outer join persons mod on ds.pers_id_modifier = mod.id"
-            + " inner join projects pre on ex.proj_id = pre.id"
-            + " inner join spaces spe on pre.space_id = spe.id"
+            + " left outer join projects pre on ex.proj_id = pre.id"
+            + " left outer join spaces spe on pre.space_id = spe.id"
             + " left outer join spaces sps on sa.space_id = sps.id"
             + " left outer join samples sac on sa.samp_id_part_of = sac.id"
             + " where ds.code = any(?{1})", parameterBindings =

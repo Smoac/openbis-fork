@@ -123,7 +123,13 @@ public class GeneralInformationServiceJsonApiTest extends RemoteApiTestCase
         Map<String, Set<Role>> namedRoleSets =
                 generalInformationService.listNamedRoleSets(sessionToken);
 
-        assertEquals("[ADMIN(space), ADMIN(instance)]", namedRoleSets.get("SPACE_ADMIN").toString());
+        List<String> roles = new ArrayList<String>();
+        for (Role role : namedRoleSets.get("SPACE_ADMIN"))
+        {
+            roles.add(role.toString());
+        }
+        Collections.sort(roles);
+        assertEquals("[ADMIN(instance), ADMIN(space)]", roles.toString());
     }
 
     @Test
@@ -435,7 +441,8 @@ public class GeneralInformationServiceJsonApiTest extends RemoteApiTestCase
         List<Sample> samples = generalInformationService.searchForSamples(sessionToken, sc);
         assertEquals(true, samples.size() > 0);
         List<DataSet> result = generalInformationService.listDataSets(sessionToken, samples);
-        assertEquals(true, result.size() == 0);
+        assertEquals("20120628092259000-23", result.get(0).getCode());
+        assertEquals(1, result.size());
     }
 
     private void checkSpace(String expectedCode, String expectedProjects, String expectedRoles,

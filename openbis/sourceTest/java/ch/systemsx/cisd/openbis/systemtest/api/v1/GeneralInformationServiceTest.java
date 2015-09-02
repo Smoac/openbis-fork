@@ -1209,7 +1209,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
                 generalInformationService.searchForDataSetsOnBehalfOfUser(sessionToken,
                         searchCriteria, "test_space");
         assertCollection(
-                "[20120619092259000-22, 20120628092259000-23, 20120628092259000-24, 20120628092259000-25]",
+                "[20120619092259000-22, 20120628092259000-24, 20120628092259000-25]",
                 onBehalfOfTestSpaceResult, new DataSetToCode());
 
         // executed by test_space
@@ -1220,7 +1220,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
         List<DataSet> testSpaceResult =
                 generalInformationService.searchForDataSets(sessionToken, searchCriteria);
         assertCollection(
-                "[20120619092259000-22, 20120628092259000-23, 20120628092259000-24, 20120628092259000-25]",
+                "[20120619092259000-22, 20120628092259000-24, 20120628092259000-25]",
                 testSpaceResult, new DataSetToCode());
     }
 
@@ -1254,7 +1254,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
         List<DataSet> onBehalfOfTestSpaceResult =
                 generalInformationService.searchForDataSetsOnBehalfOfUser(sessionToken,
                         searchCriteria, "test_space");
-        assertCollection("[20120619092259000-22, 20120628092259000-23]", onBehalfOfTestSpaceResult,
+        assertCollection("[20120619092259000-22, 20120628092259000-24]", onBehalfOfTestSpaceResult,
                 new DataSetToCode());
 
         // executed by test_space
@@ -1264,7 +1264,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
 
         List<DataSet> testSpaceResult =
                 generalInformationService.searchForDataSets(sessionToken, searchCriteria);
-        assertCollection("[20120619092259000-22, 20120628092259000-23]", testSpaceResult,
+        assertCollection("[20120619092259000-22, 20120628092259000-24]", testSpaceResult,
                 new DataSetToCode());
     }
 
