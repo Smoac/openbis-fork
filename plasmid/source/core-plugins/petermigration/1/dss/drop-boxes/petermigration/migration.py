@@ -269,7 +269,7 @@ class FMPeterBoxAdaptor(FileMakerEntityAdaptor):
                         values["STORAGE_COLUMN"] = "1"
                         values["STORAGE_BOX_NAME"] = result.getString("box label")
                         values["STORAGE_BOX_SIZE"] = result.getString("box size")
-                        values["STORAGE_USER"] = result.getString("frozen by")
+                        values["STORAGE_USER"] = result.getString("owner")
                         values["STORAGE_BOX_POSITION"] = result.getString("position")
                         
                         allBoxes = []
@@ -320,13 +320,6 @@ class FMPeterEntityBoxOpenBISDTO(OpenBISDTO):
                         propertyValue = None
                     else:
                         propertyValue = freezerName
-                if propertyCode == "STORAGE_USER":
-                    storageUser = definitionsVoc.getVocabularyTermCodeForVocabularyAndTermLabel("ALL_LAB_MEMBERS", propertyValue)
-                    if storageUser is None:
-                        #print repr("NOT FOUND USER: " + self.values["ANTIBODY_ID_NR"] + " : '" + unicode(propertyValue) + "'")
-                        propertyValue = None
-                    else:
-                        propertyValue = storageUser
                 
                 if propertyValue is not None:
                     propertyValue =  unicode(propertyValue)
