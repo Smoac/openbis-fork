@@ -529,14 +529,18 @@ def initELNMasterData():
 		["XMLCOMMENTS",	"Comments","Comments List",	DataType.XML,	None,	"Several comments can be added by different users", commentsDatasetScriptName, None]
 	]);
 	
-	
+	createDataSetTypeWithProperties("DRAWING_BOARD", "PHYSICAL", "", [
+		["NAME", "General", "Name", DataType.VARCHAR, None,	"Name", None, None],
+		["NOTES", "General information", "Notes", DataType.MULTILINE_VARCHAR, None, "Notes regarding the dataset", None, None],
+		["XMLCOMMENTS",	"Comments","Comments List",	DataType.XML,	None,	"Several comments can be added by different users", commentsDatasetScriptName, None]
+	]);
 	
 	##
 	## Experiment Types
 	##
 	createExperimentTypeWithProperties("MATERIALS", "Folder used to organize samples in the Inventory/MATERIALS", []);
 	createExperimentTypeWithProperties("METHODS", "Folder used to organize samples in the Inventory/METHODS", []);
-	
+	createExperimentTypeWithProperties("BOARDS", "Folder used to organize boards", []);
 	
 	
 	createExperimentTypeWithProperties("DEFAULT_EXPERIMENT", "Default Experiment", [
@@ -832,6 +836,13 @@ def initELNMasterData():
 		["MEMBRANE", 				"Materials", 		"Membrane",					DataType.CONTROLLEDVOCABULARY,	"MEMBRANE",			"Membrane used for western blotting", None, None],
 		["PUBLICATION", 			"Comments", 		"Publication",				DataType.MULTILINE_VARCHAR,		None,				"Publication from where the information was first found OR technical sheet given by the manufacturer", None, None],
 		["NOTES", 					"Comments", 		"Notes",					DataType.MULTILINE_VARCHAR,		None,				"Notes", None, None],
+		["XMLCOMMENTS", 			"Comments",			"Comments List",			DataType.XML,					None,				"Several comments can be added by different users", commentsSampleScriptName, None],
+		["ANNOTATIONS_STATE",		"Comments",			"Annotations State",		DataType.XML,					None,				"Annotations State", annotationsScriptName, None]
+	]);
+	
+	annotationsScriptName = createAnnotationsScriptForType("DRAWING_BOARD");
+	createSampleTypeWithProperties("DRAWING_BOARD", "", [
+		["NAME", 					"General",			"Name",						DataType.MULTILINE_VARCHAR,		None,				"Name", None, None],
 		["XMLCOMMENTS", 			"Comments",			"Comments List",			DataType.XML,					None,				"Several comments can be added by different users", commentsSampleScriptName, None],
 		["ANNOTATIONS_STATE",		"Comments",			"Annotations State",		DataType.XML,					None,				"Annotations State", annotationsScriptName, None]
 	]);
