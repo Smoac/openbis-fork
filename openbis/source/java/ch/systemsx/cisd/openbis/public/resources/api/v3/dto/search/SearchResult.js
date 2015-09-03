@@ -15,6 +15,11 @@ define([ "stjs" ], function(stjs) {
 		prototype.getTotalCount = function() {
 			return this.totalCount;
 		}
-	}, {});
+	}, {
+		objects : {
+			name : "Collection",
+			arguments : [ "Object" ]
+		}
+	});
 	return SearchResult;
 })

@@ -145,8 +145,58 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 			}
 
 			var fCheck = function(facade, samples) {
-				c.assertEqual(samples.length, 3);
-				c.assertObjectsWithValues(samples, "codes", [ "TEST-SAMPLE-1-CONTAINED-1", "TEST-SAMPLE-1-CONTAINED-2", "TEST-SAMPLE-1" ]);
+				c.assertObjectsWithValues(samples, "code", [ "TEST-SAMPLE-1-CONTAINED-1", "TEST-SAMPLE-1-CONTAINED-2", "TEST-SAMPLE-1" ]);
+			}
+
+			testSearch(c, fSearch, fCheck);
+		});
+
+		QUnit.test("searchSamples() withExperiment", function(assert) {
+			var c = new common(assert);
+
+			var fSearch = function(facade) {
+				var criterion = new c.SampleSearchCriterion();
+				criterion.withCode().thatStartsWith("TEST-SAMPLE");
+				criterion.withExperiment();
+				return facade.searchSamples(criterion, c.createSampleFetchOptions());
+			}
+
+			var fCheck = function(facade, samples) {
+				c.assertObjectsWithValues(samples, "code", [ "TEST-SAMPLE-2-CHILD-2", "TEST-SAMPLE-2-CHILD-1", "TEST-SAMPLE-2-PARENT", "TEST-SAMPLE-2" ]);
+			}
+
+			testSearch(c, fSearch, fCheck);
+		});
+
+		QUnit.test("searchSamples() withoutContainer", function(assert) {
+			var c = new common(assert);
+
+			var fSearch = function(facade) {
+				var criterion = new c.SampleSearchCriterion();
+				criterion.withCode().thatStartsWith("TEST-SAMPLE");
+				criterion.withoutContainer();
+				return facade.searchSamples(criterion, c.createSampleFetchOptions());
+			}
+
+			var fCheck = function(facade, samples) {
+				c.assertObjectsWithValues(samples, "code", [ "TEST-SAMPLE-2", "TEST-SAMPLE-1", "TEST-SAMPLE-2-PARENT", "TEST-SAMPLE-2-CHILD-1", "TEST-SAMPLE-2-CHILD-2" ]);
+			}
+
+			testSearch(c, fSearch, fCheck);
+		});
+
+		QUnit.test("searchSamples() withContainer", function(assert) {
+			var c = new common(assert);
+
+			var fSearch = function(facade) {
+				var criterion = new c.SampleSearchCriterion();
+				criterion.withCode().thatStartsWith("TEST-SAMPLE");
+				criterion.withContainer();
+				return facade.searchSamples(criterion, c.createSampleFetchOptions());
+			}
+
+			var fCheck = function(facade, samples) {
+				c.assertObjectsWithValues(samples, "code", [ "TEST-SAMPLE-1-CONTAINED-1", "TEST-SAMPLE-1-CONTAINED-2" ]);
 			}
 
 			testSearch(c, fSearch, fCheck);
