@@ -26,18 +26,23 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.common.collection.IKeyExtractor;
+import ch.systemsx.cisd.common.collection.TableMap;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ControlledVocabularyPropertyType.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.Connections;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.experiment.ExperimentPermIdId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystem;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -61,6 +66,15 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
  */
 public class TranslatorTest extends AssertJUnit
 {
+    private static final IKeyExtractor<String, DataSet> KEY_EXTRACTOR = new IKeyExtractor<String, DataSet>()
+            {
+                @Override
+                public String getKey(DataSet e)
+                {
+                    return e.getCode();
+                }
+            };
+            
     private DataSetBuilder ds1;
 
     private DataSetBuilder ds2;
@@ -76,6 +90,14 @@ public class TranslatorTest extends AssertJUnit
     private Project project;
 
     private ExternalDataManagementSystem edms;
+
+    private ContainerDataSet dsc1;
+
+    private PhysicalDataSet dsp1;
+
+    private PhysicalDataSet dsp2;
+
+    private ContainerDataSet dsc2;
 
     @BeforeMethod
     public void setUp()
@@ -111,6 +133,17 @@ public class TranslatorTest extends AssertJUnit
                 new LinkDataSetBuilder(4).code("lds").type("L1").experiment(experiment)
                         .sample(sample).registrationDate(new Date(123456789L))
                         .modificationDate(new Date(123459999L)).externalCode("EX_CODE").edms(edms);
+        
+        dsp1 = new DataSetBuilder(10).code("ds-p1").type("T2").experiment(experiment).getDataSet();
+        dsp2 = new DataSetBuilder(11).code("ds-p2").type("T2").experiment(experiment).getDataSet();
+        dsc1 = new ContainerDataSetBuilder(12).code("ds-c1").type("T3")
+                        .experiment(experiment).component(dsp1).component(dsp2).getContainerDataSet();
+        dsc2 = new ContainerDataSetBuilder(13).code("ds-c2").type("T3")
+                        .experiment(experiment).component(dsp1).component(dsp2).getContainerDataSet();
+        dsp1.addContainer(dsc1, 0);
+        dsp1.addContainer(dsc2, 1);
+        dsp2.addContainer(dsc1, 0);
+        dsp2.addContainer(dsc2, 1);
     }
 
     @Test
@@ -299,7 +332,7 @@ public class TranslatorTest extends AssertJUnit
     {
         DataSet translated =
                 Translator.translate(dsContainer.getContainerDataSet(),
-                        EnumSet.noneOf(DataSet.Connections.class));
+                        EnumSet.noneOf(DataSet.Connections.class), new HashMap<String, DataSet>());
         assertTrue(translated.isContainerDataSet());
         assertBasicAttributes(ds1.getDataSet(), translated.getContainedDataSets().get(0));
         assertBasicAttributes(ds2.getDataSet(), translated.getContainedDataSets().get(1));
@@ -311,7 +344,7 @@ public class TranslatorTest extends AssertJUnit
     public void testTranslateExternalDataWithNoConnectionsAndRetrievingNoConnections()
     {
         DataSet translated =
-                Translator.translate(ds1.getDataSet(), EnumSet.noneOf(DataSet.Connections.class));
+                Translator.translate(ds1.getDataSet(), EnumSet.noneOf(DataSet.Connections.class), new HashMap<String, DataSet>());
         assertBasicAttributes(ds1.getDataSet(), translated);
         assertChildrenNotRetrieved(translated);
         assertParentsNotRetrieved(translated);
@@ -322,7 +355,7 @@ public class TranslatorTest extends AssertJUnit
     {
         DataSet translated =
                 Translator.translate(ds1.getDataSet(),
-                        EnumSet.of(Connections.CHILDREN, Connections.PARENTS));
+                        EnumSet.of(Connections.CHILDREN, Connections.PARENTS), new HashMap<String, DataSet>());
         assertBasicAttributes(ds1.getDataSet(), translated);
         assertEquals(0, translated.getChildrenCodes().size());
         assertEquals(0, translated.getParentCodes().size());
@@ -333,7 +366,7 @@ public class TranslatorTest extends AssertJUnit
     {
         ds1.child(ds2.getDataSet());
         DataSet translated =
-                Translator.translate(ds1.getDataSet(), EnumSet.noneOf(DataSet.Connections.class));
+                Translator.translate(ds1.getDataSet(), EnumSet.noneOf(DataSet.Connections.class), new HashMap<String, DataSet>());
         assertBasicAttributes(ds1.getDataSet(), translated);
         assertChildrenNotRetrieved(translated);
         assertParentsNotRetrieved(translated);
@@ -344,7 +377,7 @@ public class TranslatorTest extends AssertJUnit
     {
         ds1.child(ds2.getDataSet());
         DataSet translated =
-                Translator.translate(ds1.getDataSet(), EnumSet.of(Connections.CHILDREN));
+                Translator.translate(ds1.getDataSet(), EnumSet.of(Connections.CHILDREN), new HashMap<String, DataSet>());
         assertBasicAttributes(ds1.getDataSet(), translated);
         assertEquals("[ds2]", translated.getChildrenCodes().toString());
         assertParentsNotRetrieved(translated);
@@ -355,7 +388,7 @@ public class TranslatorTest extends AssertJUnit
     {
         ds2.parent(ds1.getDataSet());
         DataSet translated =
-                Translator.translate(ds2.getDataSet(), EnumSet.of(Connections.PARENTS));
+                Translator.translate(ds2.getDataSet(), EnumSet.of(Connections.PARENTS), new HashMap<String, DataSet>());
         assertBasicAttributes(ds2.getDataSet(), translated);
         assertChildrenNotRetrieved(translated);
         assertEquals("[ds1]", translated.getParentCodes().toString());
@@ -368,10 +401,38 @@ public class TranslatorTest extends AssertJUnit
         ds2.child(ds2.getDataSet());
         DataSet translated =
                 Translator.translate(ds2.getDataSet(),
-                        EnumSet.of(Connections.CHILDREN, Connections.PARENTS));
+                        EnumSet.of(Connections.CHILDREN, Connections.PARENTS), new HashMap<String, DataSet>());
         assertBasicAttributes(ds2.getDataSet(), translated);
         assertEquals("[ds2]", translated.getChildrenCodes().toString());
         assertEquals("[ds1]", translated.getParentCodes().toString());
+    }
+    
+    @Test
+    public void testTranslateCyclicGraphOfDataSets()
+    {
+        List<DataSet> translatedDatasets = Translator.translate(Arrays.<AbstractExternalData>asList(dsc1, dsc2), EnumSet.noneOf(Connections.class));
+        
+        DataSet dsc1t = translatedDatasets.get(0);
+        TableMap<String, DataSet> dsc1tc = new TableMap<String, DataSet>(dsc1t.getContainedDataSets(), KEY_EXTRACTOR);
+        assertEquals(2, dsc1tc.keySet().size());
+        DataSet dsp1t = dsc1tc.getOrDie("ds-p1");
+        DataSet dsp2t = dsc1tc.getOrDie("ds-p2");
+        DataSet dsc2t = translatedDatasets.get(1);
+        TableMap<String, DataSet> dsc2tc = new TableMap<String, DataSet>(dsc2t.getContainedDataSets(), KEY_EXTRACTOR);
+        assertEquals(2, dsc2tc.keySet().size());
+        assertSame(dsp1t, dsc2tc.getOrDie("ds-p1"));
+        assertSame(dsp2t, dsc2tc.getOrDie("ds-p2"));
+        TableMap<String, DataSet> dsp1tc = new TableMap<String, DataSet>(dsp1t.getContainerDataSets(), KEY_EXTRACTOR);
+        DataSet dsc1t2 = dsp1tc.getOrDie("ds-c1");
+        DataSet dsc2t2 = dsp1tc.getOrDie("ds-c2");
+        assertEquals(2, dsp1tc.keySet().size());
+        assertEquals(0, dsc1t2.getContainedDataSets().size());
+        assertEquals(0, dsc2t2.getContainedDataSets().size());
+        TableMap<String, DataSet> dsp2tc = new TableMap<String, DataSet>(dsp2t.getContainerDataSets(), KEY_EXTRACTOR);
+        assertSame(dsc1t2, dsp2tc.getOrDie("ds-c1"));
+        assertSame(dsc2t2, dsp2tc.getOrDie("ds-c2"));
+        
+        assertEquals(2, translatedDatasets.size());
     }
 
     @Test
@@ -379,7 +440,7 @@ public class TranslatorTest extends AssertJUnit
     {
         DataSet translated =
                 Translator.translate(dsLink.getLinkDataSet(),
-                        EnumSet.of(Connections.CHILDREN, Connections.PARENTS));
+                        EnumSet.of(Connections.CHILDREN, Connections.PARENTS), new HashMap<String, DataSet>());
 
         assertBasicAttributes(dsLink.getLinkDataSet(), translated);
         assertTrue(translated.isLinkDataSet());

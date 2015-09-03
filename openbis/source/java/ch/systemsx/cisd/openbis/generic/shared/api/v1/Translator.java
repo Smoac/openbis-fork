@@ -481,9 +481,11 @@ public class Translator
             EnumSet<Connections> connectionsToGet)
     {
         ArrayList<DataSet> translated = new ArrayList<DataSet>();
+        Map<String, DataSet> alreadyTranslatedMap = new HashMap<String, DataSet>();
+
         for (AbstractExternalData dataSet : dataSets)
         {
-            translated.add(translate(dataSet, connectionsToGet));
+            translated.add(translate(dataSet, connectionsToGet, alreadyTranslatedMap));
         }
         return translated;
     }
@@ -495,9 +497,9 @@ public class Translator
      *            instance is populated with these connections.
      */
     public static DataSet translate(AbstractExternalData externalDatum,
-            EnumSet<Connections> connectionsToGet)
+            EnumSet<Connections> connectionsToGet, Map<String, DataSet> alreadyTranslatedMap)
     {
-        return translate(externalDatum, connectionsToGet, true);
+        return translate(externalDatum, connectionsToGet, true, alreadyTranslatedMap);
     }
 
     /**
@@ -509,8 +511,16 @@ public class Translator
      *            contained datasets will not be set.
      */
     private static DataSet translate(AbstractExternalData externalDatum,
-            EnumSet<Connections> connectionsToGet, boolean doRecurseIntoContainedDataSets)
+            EnumSet<Connections> connectionsToGet, boolean doRecurseIntoContainedDataSets, Map<String, DataSet> alreadyTranslatedMap)
     {
+        String alreadyTranslatedKey = externalDatum.getCode() + " " + connectionsToGet + " " + doRecurseIntoContainedDataSets;
+        DataSet alreadyTranslated = alreadyTranslatedMap.get(alreadyTranslatedKey);
+
+        if (alreadyTranslated != null)
+        {
+            return alreadyTranslated;
+        }
+
         DataSetInitializer initializer = new DataSetInitializer();
         initializer.setId(externalDatum.getId());
         initializer.setCode(externalDatum.getCode());
@@ -535,7 +545,7 @@ public class Translator
         List<DataSet> translatedContainerDataSets = new ArrayList<DataSet>();
         for (ContainerDataSet containerDataSet : containerDataSets)
         {
-            translatedContainerDataSets.add(translate(containerDataSet, connectionsToGet, false));
+            translatedContainerDataSets.add(translate(containerDataSet, connectionsToGet, false, alreadyTranslatedMap));
         }
         initializer.setContainerDataSets(translatedContainerDataSets);
 
@@ -549,7 +559,7 @@ public class Translator
                     new ArrayList<DataSet>(containerDataSet.getContainedDataSets().size());
             for (AbstractExternalData containedDataSet : containerDataSet.getContainedDataSets())
             {
-                containedDataSets.add(translate(containedDataSet, connectionsToGet, true));
+                containedDataSets.add(translate(containedDataSet, connectionsToGet, true, alreadyTranslatedMap));
             }
             initializer.setContainedDataSets(containedDataSets);
         }
@@ -601,7 +611,9 @@ public class Translator
             }
         }
 
-        return new DataSet(initializer);
+        DataSet newlyTranslated = new DataSet(initializer);
+        alreadyTranslatedMap.put(alreadyTranslatedKey, newlyTranslated);
+        return newlyTranslated;
     }
 
     private static EntityRegistrationDetails translateRegistrationDetails(
