@@ -19,9 +19,12 @@ package ch.ethz.sis.openbis.generic.shared.api.v3.dto.search;
 import java.io.Serializable;
 import java.util.List;
 
+import ch.systemsx.cisd.base.annotation.JsonObject;
+
 /**
  * @author pkupczyk
  */
+@JsonObject("dto.search.SearchResult")
 public class SearchResult<OBJECT> implements Serializable
 {
 

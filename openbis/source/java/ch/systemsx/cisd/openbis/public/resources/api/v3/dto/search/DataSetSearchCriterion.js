@@ -1,8 +1,9 @@
 /**
  * @author pkupczyk
  */
-define([ "stjs", "dto/search/AbstractEntitySearchCriterion", "dto/search/DataSetSearchRelation", "dto/search/ExperimentSearchCriterion", "dto/search/SampleSearchCriterion",
-		"dto/search/SearchOperator" ], function(stjs, AbstractEntitySearchCriterion, DataSetSearchRelation, ExperimentSearchCriterion, SampleSearchCriterion, SearchOperator) {
+define([ "stjs", "dto/search/AbstractEntitySearchCriterion", "dto/search/DataSetSearchRelation", "dto/search/ExperimentSearchCriterion", "dto/search/NoExperimentSearchCriterion",
+		"dto/search/SampleSearchCriterion", "dto/search/NoSampleSearchCriterion", "dto/search/SearchOperator" ], function(stjs, AbstractEntitySearchCriterion, DataSetSearchRelation,
+		ExperimentSearchCriterion, NoExperimentSearchCriterion, SampleSearchCriterion, NoSampleSearchCriterion, SearchOperator) {
 	var DataSetSearchCriterion = function(relation) {
 		AbstractEntitySearchCriterion.call(this);
 		this.relation = relation ? relation : DataSetSearchRelation.DATASET;
@@ -23,8 +24,14 @@ define([ "stjs", "dto/search/AbstractEntitySearchCriterion", "dto/search/DataSet
 		prototype.withExperiment = function() {
 			return this.addCriterion(new ExperimentSearchCriterion());
 		};
+		prototype.withoutExperiment = function() {
+			return this.addCriterion(new NoExperimentSearchCriterion());
+		};
 		prototype.withSample = function() {
 			return this.addCriterion(new SampleSearchCriterion());
+		};
+		prototype.withoutSample = function() {
+			return this.addCriterion(new NoSampleSearchCriterion());
 		};
 		prototype.withOrOperator = function() {
 			return this.withOperator(SearchOperator.OR);

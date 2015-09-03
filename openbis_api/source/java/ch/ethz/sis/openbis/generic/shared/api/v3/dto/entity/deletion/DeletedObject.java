@@ -22,7 +22,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("dto.deletion.DeletedObject")
+@JsonObject("dto.entity.deletion.DeletedObject")
 public class DeletedObject
 {
 

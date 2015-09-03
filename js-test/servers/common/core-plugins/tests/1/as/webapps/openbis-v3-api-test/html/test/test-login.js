@@ -13,8 +13,8 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 					return facade.searchSpaces(criterion, fetchOptions).then(function(spacesForInstanceAdmin) {
 						return facade.loginAs("openbis_test_js", "password", "test_space_admin").then(function() {
 							return facade.searchSpaces(criterion, fetchOptions).then(function(spacesForSpaceAdmin) {
-								c.assertTrue(spacesForInstanceAdmin.length > spacesForSpaceAdmin.length);
-								c.assertObjectsWithValues(spacesForSpaceAdmin, "code", [ "TEST" ]);
+								c.assertTrue(spacesForInstanceAdmin.getTotalCount() > spacesForSpaceAdmin.getTotalCount());
+								c.assertObjectsWithValues(spacesForSpaceAdmin.getObjects(), "code", [ "TEST" ]);
 								c.finish();
 							});
 						});

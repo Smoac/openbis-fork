@@ -2,7 +2,8 @@
  * @author pkupczyk
  */
 define([ "require", "stjs", "dto/search/AbstractEntitySearchCriterion", "dto/search/SampleSearchRelation", "dto/search/SpaceSearchCriterion", "dto/search/ExperimentSearchCriterion",
-		"dto/search/SearchOperator" ], function(require, stjs, AbstractEntitySearchCriterion, SampleSearchRelation, SpaceSearchCriterion, ExperimentSearchCriterion, SearchOperator) {
+		"dto/search/NoExperimentSearchCriterion", "dto/search/NoSampleContainerSearchCriterion", "dto/search/SearchOperator" ], function(require, stjs, AbstractEntitySearchCriterion,
+		SampleSearchRelation, SpaceSearchCriterion, ExperimentSearchCriterion, NoExperimentSearchCriterion, NoSampleContainerSearchCriterion, SearchOperator) {
 
 	var SampleSearchCriterion = function(relation) {
 		AbstractEntitySearchCriterion.call(this);
@@ -18,6 +19,9 @@ define([ "require", "stjs", "dto/search/AbstractEntitySearchCriterion", "dto/sea
 		prototype.withExperiment = function() {
 			return this.addCriterion(new ExperimentSearchCriterion());
 		};
+		prototype.withoutExperiment = function() {
+			return this.addCriterion(new NoExperimentSearchCriterion());
+		};
 		prototype.withParents = function() {
 			return this.addCriterion(new SampleParentsSearchCriterion());
 		};
@@ -26,6 +30,9 @@ define([ "require", "stjs", "dto/search/AbstractEntitySearchCriterion", "dto/sea
 		};
 		prototype.withContainer = function() {
 			return this.addCriterion(new SampleContainerSearchCriterion());
+		};
+		prototype.withoutContainer = function() {
+			return this.addCriterion(new NoSampleContainerSearchCriterion());
 		};
 		prototype.withOrOperator = function() {
 			return this.withOperator(SearchOperator.OR);

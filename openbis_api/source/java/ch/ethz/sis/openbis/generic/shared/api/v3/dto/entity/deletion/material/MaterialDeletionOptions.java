@@ -22,7 +22,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author Jakub Straszewski
  */
-@JsonObject("dto.deletion.material.MaterialDeletionOptions")
+@JsonObject("dto.entity.deletion.material.MaterialDeletionOptions")
 public class MaterialDeletionOptions extends AbstractObjectDeletionOptions
 {
 

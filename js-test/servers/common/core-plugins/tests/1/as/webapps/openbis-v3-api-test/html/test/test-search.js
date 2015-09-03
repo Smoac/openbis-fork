@@ -9,7 +9,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 				c.ok("Login");
 				return fSearch(facade).then(function(results) {
 					c.ok("Got results");
-					fCheck(facade, results);
+					fCheck(facade, results.getObjects());
 					c.finish();
 				});
 			}).fail(function(error) {
@@ -129,6 +129,24 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 						c.assertEqual(child.children.length, 2, "Number of grand children");
 					}
 				}
+			}
+
+			testSearch(c, fSearch, fCheck);
+		});
+
+		QUnit.test("searchSamples() withoutExperiment", function(assert) {
+			var c = new common(assert);
+
+			var fSearch = function(facade) {
+				var criterion = new c.SampleSearchCriterion();
+				criterion.withCode().thatStartsWith("TEST-SAMPLE");
+				criterion.withoutExperiment();
+				return facade.searchSamples(criterion, c.createSampleFetchOptions());
+			}
+
+			var fCheck = function(facade, samples) {
+				c.assertEqual(samples.length, 3);
+				c.assertObjectsWithValues(samples, "codes", [ "TEST-SAMPLE-1-CONTAINED-1", "TEST-SAMPLE-1-CONTAINED-2", "TEST-SAMPLE-1" ]);
 			}
 
 			testSearch(c, fSearch, fCheck);
