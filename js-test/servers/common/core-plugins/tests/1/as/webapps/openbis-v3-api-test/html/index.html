@@ -16,13 +16,6 @@
 
 	require.urlArgs = 'now=' + Date.now();
 
-	require.shim["test/qunit"] = {
-		exports : "QUnit",
-		init : function() {
-			QUnit.config.autoload = false;
-			QUnit.config.autostart = false;
-		}
-	};
 	require.shim["test/qunit-report"] = {
 		deps : [ 'test/qunit' ]
 	};
@@ -31,6 +24,8 @@
 
 <script>
 	require([ 'test/qunit', 'test/qunit-report', 'test/main' ], function(qunit, report, main) {
+		qunit.config.autostart = false;
+		qunit.config.testTimeout = 10000;
 		qunit.jUnitReport = function(report) {
 			$("#qunit-junit-report").text(report.xml);
 			console.log(report.xml);
