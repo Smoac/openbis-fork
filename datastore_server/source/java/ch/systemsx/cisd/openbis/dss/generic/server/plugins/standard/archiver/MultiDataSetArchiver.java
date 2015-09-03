@@ -150,7 +150,7 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
 
     private final Properties cleanerProperties;
 
-    private final ITimeAndWaitingProvider timeProvider;
+    private ITimeAndWaitingProvider timeProvider;
 
     public MultiDataSetArchiver(Properties properties, File storeRoot)
     {
@@ -352,7 +352,7 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
             return;
         }
         MultiDataSetArchivingFinalizer task = new MultiDataSetArchivingFinalizer(cleanerProperties, pauseFile, 
-                pauseFilePollingTime, timeProvider);
+                pauseFilePollingTime, getTimeProvider());
         String userId = archiverContext.getUserId();
         String userEmail = archiverContext.getUserEmail();
         String userSessionToken = archiverContext.getUserSessionToken();
@@ -364,7 +364,7 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
                 operations.getReplicatedArchiveFilePath(containerPath));
         parameterBindings.put(MultiDataSetArchivingFinalizer.FINALIZER_POLLING_TIME_KEY, Long.toString(finalizerPollingTime));
         SimpleDateFormat dateFormat = new SimpleDateFormat(MultiDataSetArchivingFinalizer.TIME_STAMP_FORMAT);
-        parameterBindings.put(MultiDataSetArchivingFinalizer.START_TIME_KEY, dateFormat.format(timeProvider.getTimeInMilliseconds()));
+        parameterBindings.put(MultiDataSetArchivingFinalizer.START_TIME_KEY, dateFormat.format(getTimeProvider().getTimeInMilliseconds()));
         parameterBindings.put(MultiDataSetArchivingFinalizer.FINALIZER_MAX_WAITING_TIME_KEY, Long.toString(finalizerMaxWaitingTime));
         DataSetArchivingStatus status = removeFromDataStore ? DataSetArchivingStatus.ARCHIVED : DataSetArchivingStatus.AVAILABLE;
         parameterBindings.put(MultiDataSetArchivingFinalizer.STATUS_KEY, status.toString());
@@ -702,5 +702,14 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
             cleaner = MultiDataSetArchivingUtils.createCleaner(cleanerProperties);
         }
         return cleaner;
+    }
+    
+    ITimeAndWaitingProvider getTimeProvider()
+    {
+        if (timeProvider == null)
+        {
+            timeProvider = SystemTimeProvider.SYSTEM_TIME_PROVIDER;
+        }
+        return timeProvider;
     }
 }
