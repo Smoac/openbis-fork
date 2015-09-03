@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.etlserver;
 
+import java.io.File;
 import java.util.GregorianCalendar;
 
 import org.apache.commons.lang.time.DateFormatUtils;
@@ -56,7 +57,7 @@ public class DssUniqueFilenameGenerator
     {
         super();
         this.timeProvider = timeProvider;
-        this.threadName = threadName;
+        this.threadName = threadName.replace(File.separator, "_slash_");
         this.name = name;
         this.extensionOrNull = extensionOrNull;
     }
