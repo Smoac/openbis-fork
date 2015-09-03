@@ -136,15 +136,13 @@ public class JsTestCommonSelenium extends SeleniumTest
                 }
             }
 
-            int failedCount = webapp.getFailedCount();
-
             File report =
                     new File("targets/dist/" + this.getClass().getSimpleName() + "/" + method
                             + "/TEST-" + method + ".xml");
             FileUtilities.writeToFile(report, junitReport);
 
             Assert.assertTrue("JUnit test report is empty", junitReport.length() > 0);
-            Assert.assertEquals(0, failedCount);
+            Assert.assertEquals(0, webapp.getFailedCount());
         } catch (Throwable t)
         {
             throw new AssertionError("Test runner throws exception: " + t, t);
