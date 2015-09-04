@@ -245,7 +245,7 @@ public class LogicalImageLoader
     private AbstractExternalData translate(DataPE dataSet)
     {
         HibernateUtils.initialize(dataSet.getProperties());
-        return DataSetTranslator.translate(dataSet, session.getBaseIndexURL(), null,
+        return DataSetTranslator.translate(dataSet, session.getBaseIndexURL(), false, null,
                 managedPropertyEvaluatorFactory);
     }
 }
