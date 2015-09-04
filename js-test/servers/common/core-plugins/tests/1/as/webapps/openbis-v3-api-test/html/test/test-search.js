@@ -234,6 +234,74 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 			testSearch(c, fSearch, fCheck);
 		});
 
+		QUnit.test("searchDataSets() withoutSample", function(assert) {
+			var c = new common(assert);
+
+			var fSearch = function(facade) {
+				var criterion = new c.DataSetSearchCriterion();
+				criterion.withCode().thatContains("-40");
+				criterion.withoutSample();
+				return facade.searchDataSets(criterion, c.createDataSetFetchOptions());
+			}
+
+			var fCheck = function(facade, dataSets) {
+				c.assertObjectsWithValues(dataSets, "code", [ "20130415100158230-407", "20130415100308111-409" ]);
+			}
+
+			testSearch(c, fSearch, fCheck);
+		});
+
+		QUnit.test("searchDataSets() withSample", function(assert) {
+			var c = new common(assert);
+
+			var fSearch = function(facade) {
+				var criterion = new c.DataSetSearchCriterion();
+				criterion.withCode().thatContains("-40");
+				criterion.withSample();
+				return facade.searchDataSets(criterion, c.createDataSetFetchOptions());
+			}
+
+			var fCheck = function(facade, dataSets) {
+				c.assertObjectsWithValues(dataSets, "code", [ "20130415093804724-403", "20130415100238098-408" ]);
+			}
+
+			testSearch(c, fSearch, fCheck);
+		});
+
+		QUnit.test("searchDataSets() withoutExperiment", function(assert) {
+			var c = new common(assert);
+
+			var fSearch = function(facade) {
+				var criterion = new c.DataSetSearchCriterion();
+				criterion.withCode().thatContains("-40");
+				criterion.withoutExperiment();
+				return facade.searchDataSets(criterion, c.createDataSetFetchOptions());
+			}
+
+			var fCheck = function(facade, dataSets) {
+				c.assertObjectsWithValues(dataSets, "code", [ "20130415100238098-408" ]);
+			}
+
+			testSearch(c, fSearch, fCheck);
+		});
+
+		QUnit.test("searchDataSets() withExperiment", function(assert) {
+			var c = new common(assert);
+
+			var fSearch = function(facade) {
+				var criterion = new c.DataSetSearchCriterion();
+				criterion.withCode().thatContains("-40");
+				criterion.withExperiment();
+				return facade.searchDataSets(criterion, c.createDataSetFetchOptions());
+			}
+
+			var fCheck = function(facade, dataSets) {
+				c.assertObjectsWithValues(dataSets, "code", [ "20130415093804724-403", "20130415100158230-407", "20130415100308111-409" ]);
+			}
+
+			testSearch(c, fSearch, fCheck);
+		});
+
 		QUnit.test("searchMaterials()", function(assert) {
 			var c = new common(assert);
 

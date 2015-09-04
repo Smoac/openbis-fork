@@ -706,8 +706,8 @@ test("listDataSetsForSamplesWithConnections() with parents", function() {
 			var connectionsToGet = [ 'PARENTS' ];
 
 			facade.listDataSetsForSamplesWithConnections(samples, connectionsToGet, function(response) {
-				assertObjectsCount(response.result, 1);
-				assertObjectsWithCodes(response.result, [ '20130415093804724-403' ]);
+				assertObjectsCount(response.result, 2);
+				assertObjectsWithCodes(response.result, [ '20130415093804724-403', '20130415100238098-408' ]);
 				assertObjectsWithParentCodes(response.result);
 				assertObjectsWithoutChildrenCodes(response.result);
 				facade.close();
@@ -725,8 +725,8 @@ test("listDataSetsForSamplesWithConnections() with children", function() {
 			var connectionsToGet = [ 'CHILDREN' ];
 
 			facade.listDataSetsForSamplesWithConnections(samples, connectionsToGet, function(response) {
-				assertObjectsCount(response.result, 1);
-				assertObjectsWithCodes(response.result, [ '20130415093804724-403' ]);
+				assertObjectsCount(response.result, 2);
+				assertObjectsWithCodes(response.result, [ '20130415093804724-403', '20130415100238098-408' ]);
 				assertObjectsWithoutParentCodes(response.result);
 				assertObjectsWithChildrenCodes(response.result);
 				facade.close();
@@ -744,8 +744,8 @@ test("listDataSetsForSamplesWithConnections() with parents and children", functi
 			var connectionsToGet = [ 'PARENTS', 'CHILDREN' ];
 
 			facade.listDataSetsForSamplesWithConnections(samples, connectionsToGet, function(response) {
-				assertObjectsCount(response.result, 1);
-				assertObjectsWithCodes(response.result, [ '20130415093804724-403' ]);
+				assertObjectsCount(response.result, 2);
+				assertObjectsWithCodes(response.result, [ '20130415093804724-403', '20130415100238098-408' ]);
 				assertObjectsWithParentCodes(response.result);
 				assertObjectsWithChildrenCodes(response.result);
 				facade.close();
@@ -763,8 +763,8 @@ test("listDataSetsForSamplesWithConnections() without parents and children", fun
 			var connectionsToGet = [];
 
 			facade.listDataSetsForSamplesWithConnections(samples, connectionsToGet, function(response) {
-				assertObjectsCount(response.result, 1);
-				assertObjectsWithCodes(response.result, [ '20130415093804724-403' ]);
+				assertObjectsCount(response.result, 2);
+				assertObjectsWithCodes(response.result, [ '20130415093804724-403', '20130415100238098-408' ]);
 				assertObjectsWithoutParentCodes(response.result);
 				assertObjectsWithoutChildrenCodes(response.result);
 				facade.close();
@@ -783,8 +783,8 @@ test("listDataSetsForSamplesOnBehalfOfUser()", function() {
 			var userId = 'test_space_admin';
 
 			facade.listDataSetsForSamplesOnBehalfOfUser(samples, connectionsToGet, userId, function(response) {
-				assertObjectsCount(response.result, 1);
-				assertObjectsWithCodes(response.result, [ '20130415093804724-403' ]);
+				assertObjectsCount(response.result, 2);
+				assertObjectsWithCodes(response.result, [ '20130415093804724-403', '20130415100238098-408' ]);
 				assertObjectsWithParentCodes(response.result);
 				facade.close();
 			});
@@ -801,7 +801,7 @@ test("listDataSetsForExperiments()", function() {
 			var connectionsToGet = [ 'PARENTS' ];
 
 			facade.listDataSetsForExperiments(experiments, connectionsToGet, function(response) {
-				assertObjectsCount(response.result, 15);
+				assertObjectsCount(response.result, 14);
 				assertObjectsWithParentCodes(response.result);
 				facade.close();
 			});
@@ -819,7 +819,7 @@ test("listDataSetsForExperimentsOnBehalfOfUser()", function() {
 			var userId = 'test_space_admin';
 
 			facade.listDataSetsForExperimentsOnBehalfOfUser(experiments, connectionsToGet, userId, function(response) {
-				assertObjectsCount(response.result, 4);
+				assertObjectsCount(response.result, 3);
 				assertObjectsWithParentCodes(response.result);
 				facade.close();
 			});
