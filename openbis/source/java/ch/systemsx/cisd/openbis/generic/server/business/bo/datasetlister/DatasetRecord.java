@@ -73,4 +73,6 @@ public class DatasetRecord extends CodeRecord
     public Long edms_id;
 
     public String external_code;
+
+    public Boolean is_post_registered;
 }

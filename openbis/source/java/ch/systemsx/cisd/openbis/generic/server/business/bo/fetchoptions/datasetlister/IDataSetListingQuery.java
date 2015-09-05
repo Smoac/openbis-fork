@@ -39,6 +39,7 @@ public interface IDataSetListingQuery extends BaseQuery
             + " ds.*," // This line is here so that we can potentially read access_timestamp field, which might not be present in the database
             + " ds.id as ds_id, ds.code as ds_code, ds.registration_timestamp as ds_registration_timestamp,"
             + " ds.modification_timestamp as ds_modification_timestamp,"
+            + " prdq.id IS NULL as ds_is_post_registered, "
             + " dt.code as dt_code, dt.data_set_kind as dt_data_set_kind,"
             + " ex.code as ex_code, "
             + " ed.storage_confirmation as ed_sc,"
@@ -59,10 +60,13 @@ public interface IDataSetListingQuery extends BaseQuery
             + " left outer join spaces spe on pre.space_id = spe.id"
             + " left outer join spaces sps on sa.space_id = sps.id"
             + " left outer join samples sac on sa.samp_id_part_of = sac.id"
+            + " left outer join post_registration_dataset_queue prdq on ds.id = prdq.ds_id "
             + " where ds.code = any(?{1})", parameterBindings =
     { StringArrayMapper.class })
     public List<DataSetRecord> getDataSetMetaData(String[] dataSetCodes);
 
+    // Below the post registration status is not returned as this seems to be only used to return container
+    // for which post registration status is not applicable
     @Select(sql = "select r.data_id_child as ds_id, cont.id as ctnr_id, cont.code as ctnr_code "
             + "from data as cont join data_set_relationships as r on r.data_id_parent = cont.id "
             + "where r.data_id_child = any(?{1}) and relationship_id = ?{2}",

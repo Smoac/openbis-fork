@@ -117,6 +117,8 @@ public abstract class AbstractExternalData extends
     private boolean storageConfirmation;
 
     private boolean isStub;
+    
+    private boolean isPostRegistered;
 
     private Collection<Metaproject> metaprojects;
 
@@ -472,6 +474,22 @@ public abstract class AbstractExternalData extends
     public boolean isStub()
     {
         return this.isStub;
+    }
+    
+    public boolean isPostRegistered()
+    {
+        if (isContainer()) {
+            throw new UnsupportedOperationException("java.lang.UnsupportedOperationException: Post registration status not applicable for container data sets.");
+        }
+        return isPostRegistered;
+    }
+
+    public void setPostRegistered(boolean isPostRegistered)
+    {
+        if (isContainer()) {
+            throw new UnsupportedOperationException("java.lang.UnsupportedOperationException: Post registration status not applicable for container data sets.");
+        }
+        this.isPostRegistered = isPostRegistered;
     }
 
     public Date getAccessTimestamp()

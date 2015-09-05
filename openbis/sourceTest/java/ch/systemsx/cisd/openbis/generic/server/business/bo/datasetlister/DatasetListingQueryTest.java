@@ -42,6 +42,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.common.EntityListingT
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.entity.ExperimentProjectSpaceCodeRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleListingQuery;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.RelationshipUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.AbstractDAOTest;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
@@ -142,6 +143,60 @@ public class DatasetListingQueryTest extends AbstractDAOTest
         assertEquals(1, counters.getCountOf(experiment1.getId()));
         assertEquals(1, datasets.size());
     }
+
+    @Test
+    public void testQueryForDatasetsForExperimentAndDescendentsReturnsNotNullPostRegistered()
+    {
+        ExperimentPE experiment1 =
+                getExperiment(dbInstance.getCode(), "CISD", "NEMO", "EXP-TEST-1", daoFactory);
+        
+        Long relationshipTypeId = RelationshipUtils.getParentChildRelationshipType(daoFactory.getRelationshipTypeDAO()).getId();
+
+        List<DatasetRecord> datasets = asList(query.getDataSetsForExperimentAndDescendents(experiment1.getId(), relationshipTypeId));
+        
+        for (DatasetRecord record : datasets)
+        {
+            assertTrue(record.is_post_registered != null);
+        }
+    }
+
+    @Test
+    public void testQueryUsingSelectAllReturnsNotNullPostRegistered()
+    {
+        ExperimentPE experiment1 =
+                getExperiment(dbInstance.getCode(), "CISD", "NEMO", "EXP-TEST-1", daoFactory);
+        List<DatasetRecord> datasets = asList(query.getDatasetsForExperiment(experiment1.getId()));
+        Counters<Long> counters = new Counters<Long>();
+        for (DatasetRecord record : datasets)
+        {
+            assertTrue(record.is_post_registered != null);
+        }
+   }
+
+    @Test
+    public void testQueryUsingSelectAllExternalDatasReturnsNotNullPostRegistered()
+    {
+        List<DatasetRecord> datasets = asList(query.getDatasetsByDataStoreId(1));
+        for (DatasetRecord record : datasets)
+        {
+            assertTrue(record.is_post_registered != null);
+        }
+    }    
+
+    @Test
+    public void testQueryUsingSelectAllExternalDatasReturnsCorrectPostRegistered()
+    {
+        List<DatasetRecord> datasets = asList(query.getDatasetsByDataStoreId(1));
+        for (DatasetRecord record : datasets)
+        {
+            if(record.code.equals("COMPONENT_1A")) {
+                assertTrue(record.is_post_registered == false);
+            }
+            else {
+                assertTrue(record.is_post_registered == true);
+            }
+        }
+    }    
 
     @Test
     public void testDatasetsForSample()

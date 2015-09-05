@@ -45,6 +45,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.Connections;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Deletion;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DeletionType;
@@ -965,6 +966,62 @@ public class GeneralInformationServiceTest extends SystemTestCase
                     "Authorization failure: ERROR: \"User 'observer' does not have enough privileges.\".",
                     ex.getMessage());
         }
+    }
+    
+    public void testGetPostregistrationStatusUnsupportedForContainerDataSets()
+    {
+        try
+        {
+            SearchCriteria criteria = new SearchCriteria();
+            criteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, "CONTAINER_1"));
+            List<DataSet> dsList = generalInformationService.searchForDataSets(sessionToken, criteria);
+            dsList.get(0).isPostRegistered();
+            fail("UnsupportedOperationException expected");
+        } catch (UnsupportedOperationException ex)
+        {
+            assertEquals(
+                    "java.lang.UnsupportedOperationException: Post registration status not applicable for container data sets.",
+                    ex.getMessage());
+        }
+    }
+
+    @Test
+    public void testGetPostRegistrationStatusViaDataLister()
+    {
+        SearchCriteria criteria = new SearchCriteria();
+        criteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, "COMPONENT_1A"));
+        List<DataSet> dsList = generalInformationService.searchForDataSets(sessionToken, criteria);
+        assertTrue(dsList.get(0).isPostRegistered() == false);
+        
+        criteria = new SearchCriteria();
+        criteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, "COMPONENT_1B"));
+        dsList = generalInformationService.searchForDataSets(sessionToken, criteria);
+        assertTrue(dsList.get(0).isPostRegistered() == true);        
+    }
+
+    @Test
+    public void testGetPostRegistrationStatusViaDataSetTranslator()
+    {
+        List<DataSet> dataSetsWithMetaData = generalInformationService.getDataSetMetaData(sessionToken, Arrays.asList("COMPONENT_1A"));
+        assertTrue(dataSetsWithMetaData.get(0).isPostRegistered() == false);
+       
+        dataSetsWithMetaData = generalInformationService.getDataSetMetaData(sessionToken, Arrays.asList("COMPONENT_1B"));
+        assertTrue(dataSetsWithMetaData.get(0).isPostRegistered() == true);
+    }
+    
+
+    @Test
+    public void testGetPostRegistrationStatusViaFetchOptionsDataLister()
+    {
+        EnumSet<DataSetFetchOption> fetchOptions = EnumSet.of(DataSetFetchOption.BASIC, DataSetFetchOption.PARENTS, DataSetFetchOption.CHILDREN);
+        
+        List<DataSet> dataSetsWithMetaData =
+                generalInformationService.getDataSetMetaData(sessionToken, Arrays.asList("COMPONENT_1A"), fetchOptions);
+        assertTrue(dataSetsWithMetaData.get(0).isPostRegistered() == false);
+
+        dataSetsWithMetaData =
+                generalInformationService.getDataSetMetaData(sessionToken, Arrays.asList("COMPONENT_1B"), fetchOptions);
+        assertTrue(dataSetsWithMetaData.get(0).isPostRegistered() == true);
     }
 
     @Test

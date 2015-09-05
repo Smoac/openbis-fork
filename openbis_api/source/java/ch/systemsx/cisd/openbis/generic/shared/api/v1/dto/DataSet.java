@@ -105,6 +105,8 @@ public final class DataSet implements Serializable, IIdHolder
 
         private boolean isStub;
 
+        private boolean isPostRegistered;
+
         public Long getId()
         {
             return id;
@@ -304,6 +306,17 @@ public final class DataSet implements Serializable, IIdHolder
         {
             this.isStub = isStub;
         }
+
+        public boolean isPostRegistered()
+        {
+            return this.isPostRegistered;
+        }
+
+        public void setPostRegistered(boolean isPostRegistered)
+        {
+            this.isPostRegistered = isPostRegistered;
+        }
+        
     }
 
     private Long id;
@@ -349,6 +362,8 @@ public final class DataSet implements Serializable, IIdHolder
 
     private boolean isStub;
 
+    private boolean isPostRegistered;
+    
     /**
      * Creates a new instance with the provided initializer
      * 
@@ -393,6 +408,7 @@ public final class DataSet implements Serializable, IIdHolder
             this.externalDataSetLink = initializer.getExternalDataSetLink();
             this.externalDataManagementSystem = initializer.getExternalDataManagementSystem();
             this.storageConfirmed = initializer.isStorageConfirmed();
+            this.isPostRegistered = initializer.isPostRegistered();
         }
     }
 
@@ -789,5 +805,21 @@ public final class DataSet implements Serializable, IIdHolder
     private void setStub(boolean isStub)
     {
         this.isStub = isStub;
+    }
+
+    public boolean isPostRegistered()
+    {
+        if (isContainerDataSet()) {
+            throw new UnsupportedOperationException("java.lang.UnsupportedOperationException: Post registration status not applicable for container data sets.");
+        }
+        return this.isPostRegistered;
+    }
+
+    public void setPostRegistered(boolean isInPostRegistrationQueue)
+    {
+        if (isContainerDataSet()) {
+            throw new UnsupportedOperationException("java.lang.UnsupportedOperationException: Post registration status not applicable for container data sets.");
+        }
+        this.isPostRegistered = isInPostRegistrationQueue;
     }
 }

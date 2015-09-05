@@ -53,10 +53,17 @@ public interface IDatasetListingQuery extends BaseQuery, IPropertyListingQuery
     public static final int FETCH_SIZE = 1000;
 
     public final static String SELECT_ALL =
-            "select data.*, external_data.*, link_data.* from data left outer join external_data on data.id = external_data.data_id left outer join link_data on data.id = link_data.data_id ";
+            "select data.*, external_data.*, link_data.*, "
+            + "prdq.id IS NULL as is_post_registered "
+            + "from data left outer join external_data on data.id = external_data.data_id "
+            + "left outer join link_data on data.id = link_data.data_id "
+            + "left outer join post_registration_dataset_queue prdq on data.id = prdq.ds_id ";
 
     public final static String SELECT_ALL_EXTERNAL_DATAS =
-            "select * from data join external_data on data.id = external_data.data_id ";
+            "select data.*, prdq.id IS NULL as is_post_registered "
+            + "from data "
+            + "join external_data on data.id = external_data.data_id "
+            + "left outer join post_registration_dataset_queue prdq on data.id = prdq.ds_id ";
 
     /**
      * Returns the datasets for the given experiment id.
@@ -79,19 +86,25 @@ public interface IDatasetListingQuery extends BaseQuery, IPropertyListingQuery
     public DataIterator<DatasetRecord> getDatasetsForMetaprojectAndArchivalState(long metaprojectId, boolean isArchived);
 
     @Select(sql = "with recursive connected_data as ( "
-            + "select * from data as d left outer join external_data as ed on d.id = ed.data_id left outer join link_data as ld on d.id = ld.data_id "
-            + "where expe_id = ?{1} "
+            + "select d.*, ed.*, ld.*, prdq.id IS NULL as is_post_registered "
+            + "from data as d "
+            + "left outer join external_data as ed on d.id = ed.data_id "
+            + "left outer join link_data as ld on d.id = ld.data_id "
+            + "left outer join post_registration_dataset_queue prdq on d.id = prdq.ds_id "
+     + "where expe_id = ?{1} "
             + "   or samp_id in (with recursive connected_samples as "
             + "                    (select id from samples where expe_id = ?{1} "
             + "                     union select s.id from connected_samples as cs "
             + "                                       inner join sample_relationships as sr on sr.sample_id_parent = cs.id "
             + "                                       left join samples as s on s.id = sr.sample_id_child) "
             + "                  select * from connected_samples) "
-            + "union select d.*, ed.*, ld.* from connected_data as cd "
+            + "union select d.*, ed.*, ld.*, prdq.id IS NULL as is_post_registered from connected_data as cd "
             + "                       inner join data_set_relationships as dr on dr.data_id_parent = cd.id "
             + "                       left join data as d on d.id = dr.data_id_child "
             + "                       left outer join external_data as ed on d.id = ed.data_id"
-            + "                       left outer join link_data as ld on d.id = ld.data_id where dr.relationship_id = ?{2}) "
+            + "                       left outer join link_data as ld on d.id = ld.data_id "
+            + "left outer join post_registration_dataset_queue prdq on d.id = prdq.ds_id "
+            + "where dr.relationship_id = ?{2}) "
             + "select * from connected_data")
     public DataIterator<DatasetRecord> getDataSetsForExperimentAndDescendents(long experimentId, long relationshipTypeId);
 
@@ -184,12 +197,12 @@ public interface IDatasetListingQuery extends BaseQuery, IPropertyListingQuery
     { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public DataIterator<DatasetRelationRecord> listChildrenDataSetIds(LongSet ids, long relationShipTypeId);
 
-    @Select(sql = SELECT_ALL + " where id in (select data_id_child from data_set_relationships "
+    @Select(sql = SELECT_ALL + " where data.id in (select data_id_child from data_set_relationships "
             + "where data_id_parent = any(?{1}) and relationship_id = ?{2})", parameterBindings =
     { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public DataIterator<DatasetRecord> getChildrenOf(LongSet ids, Long relationshipTypeId);
 
-    @Select(sql = SELECT_ALL + " where id in (select data_id_parent from data_set_relationships "
+    @Select(sql = SELECT_ALL + " where data.id in (select data_id_parent from data_set_relationships "
             + "where data_id_child = any(?{1}) and relationship_id = ?{2})", parameterBindings =
     { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public DataIterator<DatasetRecord> getParentsOf(LongSet ids, Long relationshipTypeId);
