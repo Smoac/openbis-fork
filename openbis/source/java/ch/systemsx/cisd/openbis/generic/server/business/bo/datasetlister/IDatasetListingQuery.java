@@ -60,7 +60,7 @@ public interface IDatasetListingQuery extends BaseQuery, IPropertyListingQuery
             + "left outer join post_registration_dataset_queue prdq on data.id = prdq.ds_id ";
 
     public final static String SELECT_ALL_EXTERNAL_DATAS =
-            "select data.*, prdq.id IS NULL as is_post_registered "
+            "select data.*, external_data.*, prdq.id IS NULL as is_post_registered "
             + "from data "
             + "join external_data on data.id = external_data.data_id "
             + "left outer join post_registration_dataset_queue prdq on data.id = prdq.ds_id ";
