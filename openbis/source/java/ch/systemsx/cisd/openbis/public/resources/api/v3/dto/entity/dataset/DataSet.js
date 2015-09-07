@@ -14,6 +14,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		prototype.accessDate = null;
 		prototype.derived = null;
 		prototype.placeholder = null;
+		prototype.postRegistered = null;
 		prototype.parents = null;
 		prototype.children = null;
 		prototype.containers = null;
@@ -65,6 +66,12 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		};
 		prototype.setPlaceholder = function(placeholder) {
 			this.placeholder = placeholder;
+		};
+		prototype.isPostRegistered = function() {
+			return this.postRegistered;
+		};
+		prototype.setPostRegistered = function(postRegistered) {
+			this.postRegistered = postRegistered;
 		};
 		prototype.getParents = function() {
 			if (this.getFetchOptions().hasParents()) {
