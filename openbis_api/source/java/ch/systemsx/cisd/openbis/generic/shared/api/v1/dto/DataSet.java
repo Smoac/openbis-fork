@@ -105,7 +105,7 @@ public final class DataSet implements Serializable, IIdHolder
 
         private boolean isStub;
 
-        private boolean isPostRegistered;
+        private boolean isPostRegistered = true;
 
         public Long getId()
         {
@@ -809,17 +809,11 @@ public final class DataSet implements Serializable, IIdHolder
 
     public boolean isPostRegistered()
     {
-        if (isContainerDataSet()) {
-            throw new UnsupportedOperationException("java.lang.UnsupportedOperationException: Post registration status not applicable for container data sets.");
-        }
         return this.isPostRegistered;
     }
 
     public void setPostRegistered(boolean isInPostRegistrationQueue)
     {
-        if (isContainerDataSet()) {
-            throw new UnsupportedOperationException("java.lang.UnsupportedOperationException: Post registration status not applicable for container data sets.");
-        }
         this.isPostRegistered = isInPostRegistrationQueue;
     }
 }

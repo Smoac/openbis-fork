@@ -478,17 +478,11 @@ public abstract class AbstractExternalData extends
     
     public boolean isPostRegistered()
     {
-        if (isContainer()) {
-            throw new UnsupportedOperationException("java.lang.UnsupportedOperationException: Post registration status not applicable for container data sets.");
-        }
         return isPostRegistered;
     }
 
     public void setPostRegistered(boolean isPostRegistered)
     {
-        if (isContainer()) {
-            throw new UnsupportedOperationException("java.lang.UnsupportedOperationException: Post registration status not applicable for container data sets.");
-        }
         this.isPostRegistered = isPostRegistered;
     }
 

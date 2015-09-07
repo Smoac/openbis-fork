@@ -968,21 +968,12 @@ public class GeneralInformationServiceTest extends SystemTestCase
         }
     }
     
-    public void testGetPostregistrationStatusUnsupportedForContainerDataSets()
+    public void testGetPostregistrationStatusTrueByDefsultForContainerDataSets()
     {
-        try
-        {
-            SearchCriteria criteria = new SearchCriteria();
-            criteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, "CONTAINER_1"));
-            List<DataSet> dsList = generalInformationService.searchForDataSets(sessionToken, criteria);
-            dsList.get(0).isPostRegistered();
-            fail("UnsupportedOperationException expected");
-        } catch (UnsupportedOperationException ex)
-        {
-            assertEquals(
-                    "java.lang.UnsupportedOperationException: Post registration status not applicable for container data sets.",
-                    ex.getMessage());
-        }
+       SearchCriteria criteria = new SearchCriteria();
+        criteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, "CONTAINER_1"));
+        List<DataSet> dsList = generalInformationService.searchForDataSets(sessionToken, criteria);
+        assertTrue(dsList.get(0).isPostRegistered());
     }
 
     @Test
