@@ -219,6 +219,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 				c.assertEqual(dataSet.getExperiment().getCode(), "TEST-EXPERIMENT-2", "Experiment code");
 				c.assertEqual(dataSet.getSample().getCode(), "TEST-SAMPLE-2", "Sample code");
 				c.assertEqual(dataSet.getProperties()["DESCRIPTION"], "403 description", "Property DESCRIPTION");
+				c.assertEqual(dataSet.isPostRegistered(), true, "post registered");
 
 				var externalData = dataSet.getExternalData();
 				c.assertEqual(externalData.getShareId(), "1", "Share id");

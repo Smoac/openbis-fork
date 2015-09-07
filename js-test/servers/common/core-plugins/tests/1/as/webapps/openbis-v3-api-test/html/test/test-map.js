@@ -97,7 +97,14 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 			}
 
 			var fMap = function(facade, permIds) {
-				return facade.mapDataSets(permIds, new c.DataSetFetchOptions());
+				var result = facade.mapDataSets(permIds, new c.DataSetFetchOptions());
+				result.then(function(map) {
+					permIds.forEach(function(permId) {
+						var entity = map[permId];
+						c.assertEqual(entity.isPostRegistered(), false, "post registered for " + permId);
+					});
+				});
+				return result;
 			}
 
 			testMap(c, fCreate, fMap);
