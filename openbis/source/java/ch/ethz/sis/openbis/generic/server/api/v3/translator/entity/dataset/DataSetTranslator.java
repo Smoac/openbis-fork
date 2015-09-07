@@ -29,6 +29,7 @@ import ch.ethz.sis.openbis.generic.server.api.v3.translator.AbstractCachingTrans
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationResults;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.dataset.sql.DataSetHistoryTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.dataset.sql.DataSetPostRegisteredTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.experiment.IExperimentTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.material.IMaterialPropertyTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.person.IPersonTranslator;
@@ -77,6 +78,9 @@ public class DataSetTranslator extends AbstractCachingTranslator<DataPE, DataSet
 
     @Autowired
     private DataSetHistoryTranslator historyTranslator;
+    
+    @Autowired
+    private DataSetPostRegisteredTranslator dataSetPostRegisteredTranslator;
 
     @Override
     protected boolean shouldTranslate(TranslationContext context, DataPE input, DataSetFetchOptions fetchOptions)
@@ -102,15 +106,15 @@ public class DataSetTranslator extends AbstractCachingTranslator<DataPE, DataSet
     @Override
     protected TranslationResults getObjectsRelations(TranslationContext context, Collection<DataPE> dataSets, DataSetFetchOptions fetchOptions)
     {
+        Set<Long> dataSetIds = new HashSet<Long>();
+        for (DataPE dataSet : dataSets)
+        {
+            dataSetIds.add(dataSet.getId());
+        }
         TranslationResults relations = new TranslationResults();
-
+        relations.put(DataSetPostRegisteredTranslator.class, dataSetPostRegisteredTranslator.translate(context, dataSetIds, null));
         if (fetchOptions.hasHistory())
         {
-            Set<Long> dataSetIds = new HashSet<Long>();
-            for (DataPE dataSet : dataSets)
-            {
-                dataSetIds.add(dataSet.getId());
-            }
             relations.put(DataSetHistoryTranslator.class, historyTranslator.translate(context, dataSetIds, fetchOptions.withHistory()));
         }
 
@@ -122,6 +126,8 @@ public class DataSetTranslator extends AbstractCachingTranslator<DataPE, DataSet
             DataSetFetchOptions fetchOptions)
     {
         TranslationResults relations = (TranslationResults) objectRelations;
+        
+        result.setPostRegistered(relations.get(DataSetPostRegisteredTranslator.class, dataPe.getId()));
 
         if (fetchOptions.hasChildren())
         {

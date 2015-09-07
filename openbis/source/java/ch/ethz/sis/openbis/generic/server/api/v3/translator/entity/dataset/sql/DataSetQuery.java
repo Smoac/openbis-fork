@@ -44,5 +44,8 @@ public interface DataSetQuery extends ObjectQuery
             + "drh.expe_id as experimentId, drh.samp_id as sampleId, drh.data_id as dataSetId "
             + "from data_set_relationships_history drh where drh.valid_until_timestamp is not null and drh.main_data_id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<DataSetRelationshipRecord> getRelationshipsHistory(LongSet dataSetIds);
+    
+    @Select(sql = "select ds_id from post_registration_dataset_queue where ds_id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    public List<Long> getNotPostRegisteredDataSets(LongSet dataSetIds);
 
 }
