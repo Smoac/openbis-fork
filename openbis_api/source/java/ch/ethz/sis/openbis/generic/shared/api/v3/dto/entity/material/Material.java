@@ -43,7 +43,7 @@ import java.util.Set;
  * Class automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
  */
 @JsonObject("dto.entity.material.Material")
-public class Material implements Serializable, ICodeHolder, ITagsHolder, IRegistrationDateHolder, IPermIdHolder, IPropertiesHolder, IModificationDateHolder, IRegistratorHolder
+public class Material implements Serializable, ICodeHolder, IModificationDateHolder, IPermIdHolder, IPropertiesHolder, IRegistrationDateHolder, IRegistratorHolder, ITagsHolder
 {
     private static final long serialVersionUID = 1L;
 

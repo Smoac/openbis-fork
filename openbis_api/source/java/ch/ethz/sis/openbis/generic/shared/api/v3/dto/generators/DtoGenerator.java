@@ -6,7 +6,6 @@ import java.io.PrintStream;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -46,9 +45,9 @@ public class DtoGenerator
     {
         this.subPackage = subPackage;
         this.className = className;
-        this.additionalImports = new HashSet<String>();
+        this.additionalImports = new TreeSet<String>();
         this.fields = new LinkedList<DtoGenerator.DTOField>();
-        this.implementedInterfaces = new HashSet<String>();
+        this.implementedInterfaces = new TreeSet<String>();
 
         addClassForImport(JsonProperty.class);
         addClassForImport(JsonIgnore.class);

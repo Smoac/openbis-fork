@@ -43,7 +43,7 @@ import java.util.List;
  * Class automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
  */
 @JsonObject("dto.entity.project.Project")
-public class Project implements Serializable, ICodeHolder, IRegistrationDateHolder, IAttachmentsHolder, IPermIdHolder, ISpaceHolder, IModifierHolder, IModificationDateHolder, IRegistratorHolder
+public class Project implements Serializable, IAttachmentsHolder, ICodeHolder, IModificationDateHolder, IModifierHolder, IPermIdHolder, IRegistrationDateHolder, IRegistratorHolder, ISpaceHolder
 {
     private static final long serialVersionUID = 1L;
 

@@ -210,6 +210,7 @@ public class Generator extends AbstractGenerator
 
         gen.addBooleanField("derived");
         gen.addBooleanField("placeholder");
+        gen.addBooleanField("postRegistered");
 
         gen.addPluralFetchedField("List<DataSet>", List.class.getName(), "parents", "Parents", DataSetFetchOptions.class)
                 .withInterfaceReflexive(IParentChildrenHolder.class);

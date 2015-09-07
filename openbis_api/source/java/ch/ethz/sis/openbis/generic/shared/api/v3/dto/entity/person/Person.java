@@ -34,7 +34,7 @@ import java.util.Date;
  * Class automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
  */
 @JsonObject("dto.entity.person.Person")
-public class Person implements Serializable, IRegistrationDateHolder, IPermIdHolder, ISpaceHolder, IRegistratorHolder
+public class Person implements Serializable, IPermIdHolder, IRegistrationDateHolder, IRegistratorHolder, ISpaceHolder
 {
     private static final long serialVersionUID = 1L;
 

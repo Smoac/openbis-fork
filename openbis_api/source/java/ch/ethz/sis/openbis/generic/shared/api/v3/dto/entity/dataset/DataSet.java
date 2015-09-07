@@ -48,7 +48,7 @@ import java.util.Set;
  * Class automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
  */
 @JsonObject("dto.entity.dataset.DataSet")
-public class DataSet implements Serializable, ICodeHolder, ITagsHolder, IRegistrationDateHolder, IPermIdHolder, IPropertiesHolder, IModifierHolder, IParentChildrenHolder<DataSet>, IModificationDateHolder, IRegistratorHolder
+public class DataSet implements Serializable, ICodeHolder, IModificationDateHolder, IModifierHolder, IParentChildrenHolder<DataSet>, IPermIdHolder, IPropertiesHolder, IRegistrationDateHolder, IRegistratorHolder, ITagsHolder
 {
     private static final long serialVersionUID = 1L;
 
@@ -69,6 +69,9 @@ public class DataSet implements Serializable, ICodeHolder, ITagsHolder, IRegistr
 
     @JsonProperty
     private Boolean placeholder;
+
+    @JsonProperty
+    private Boolean postRegistered;
 
     @JsonProperty
     private List<DataSet> parents;
@@ -196,6 +199,19 @@ public class DataSet implements Serializable, ICodeHolder, ITagsHolder, IRegistr
     public void setPlaceholder(Boolean placeholder)
     {
         this.placeholder = placeholder;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    @JsonIgnore
+    public Boolean isPostRegistered()
+    {
+        return postRegistered;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public void setPostRegistered(Boolean postRegistered)
+    {
+        this.postRegistered = postRegistered;
     }
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
