@@ -18,10 +18,12 @@ package ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.person;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.person.Person;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.SortOptions;
+import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
  * @author pkupczyk
  */
+@JsonObject("dto.fetchoptions.person.PersonSortOptions")
 public class PersonSortOptions extends SortOptions<Person>
 {
 

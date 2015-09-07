@@ -2,11 +2,12 @@
  * Class automatically generated with
  * {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
  */
-define([ "require", "stjs", 'dto/fetchoptions/person/PersonFetchOptions', 'dto/fetchoptions/space/SpaceFetchOptions', 'dto/fetchoptions/experiment/ExperimentFetchOptions',
-		'dto/fetchoptions/attachment/AttachmentFetchOptions' ], function(require, stjs) {
+define([ "require", "stjs", "dto/fetchoptions/FetchOptions", 'dto/fetchoptions/person/PersonFetchOptions', 'dto/fetchoptions/space/SpaceFetchOptions',
+		'dto/fetchoptions/experiment/ExperimentFetchOptions', 'dto/fetchoptions/attachment/AttachmentFetchOptions', 'dto/fetchoptions/project/ProjectSortOptions' ], function(require, stjs,
+		FetchOptions) {
 	var ProjectFetchOptions = function() {
 	};
-	stjs.extend(ProjectFetchOptions, null, [], function(constructor, prototype) {
+	stjs.extend(ProjectFetchOptions, FetchOptions, [ FetchOptions ], function(constructor, prototype) {
 		prototype['@type'] = 'dto.fetchoptions.project.ProjectFetchOptions';
 		constructor.serialVersionUID = 1;
 		prototype.experiments = null;
@@ -15,6 +16,7 @@ define([ "require", "stjs", 'dto/fetchoptions/person/PersonFetchOptions', 'dto/f
 		prototype.modifier = null;
 		prototype.leader = null;
 		prototype.attachments = null;
+		prototype.sort = null;
 		prototype.withExperiments = function() {
 			if (this.experiments == null) {
 				var ExperimentFetchOptions = require("dto/fetchoptions/experiment/ExperimentFetchOptions");
@@ -93,13 +95,23 @@ define([ "require", "stjs", 'dto/fetchoptions/person/PersonFetchOptions', 'dto/f
 		prototype.hasAttachments = function() {
 			return this.attachments != null;
 		};
+		prototype.sortBy = function() {
+			if (this.sort == null) {
+				var ProjectSortOptions = require("dto/fetchoptions/project/ProjectSortOptions");
+				this.sort = new ProjectSortOptions();
+			}
+		};
+		prototype.getSortBy = function() {
+			return this.sort;
+		};
 	}, {
 		experiments : "ExperimentFetchOptions",
 		space : "SpaceFetchOptions",
 		registrator : "PersonFetchOptions",
 		modifier : "PersonFetchOptions",
 		leader : "PersonFetchOptions",
-		attachments : "AttachmentFetchOptions"
+		attachments : "AttachmentFetchOptions",
+		sort : "ProjectSortOptions"
 	});
 	return ProjectFetchOptions;
 })

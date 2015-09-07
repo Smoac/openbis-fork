@@ -18,10 +18,12 @@ package ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sample;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.Sample;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.EntitySortOptions;
+import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
  * @author pkupczyk
  */
+@JsonObject("dto.fetchoptions.sample.SampleSortOptions")
 public class SampleSortOptions extends EntitySortOptions<Sample>
 {
 

@@ -2,12 +2,13 @@
  * Class automatically generated with
  * {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
  */
-define([ "require", "stjs", 'dto/fetchoptions/experiment/ExperimentTypeFetchOptions', 'dto/fetchoptions/project/ProjectFetchOptions', 'dto/fetchoptions/property/PropertyFetchOptions',
-		'dto/fetchoptions/tag/TagFetchOptions', 'dto/fetchoptions/person/PersonFetchOptions', 'dto/fetchoptions/attachment/AttachmentFetchOptions', 'dto/fetchoptions/dataset/DataSetFetchOptions',
-		'dto/fetchoptions/sample/SampleFetchOptions', 'dto/fetchoptions/history/HistoryEntryFetchOptions', 'dto/fetchoptions/material/MaterialFetchOptions' ], function(require, stjs) {
+define([ "require", "stjs", "dto/fetchoptions/FetchOptions", 'dto/fetchoptions/experiment/ExperimentTypeFetchOptions', 'dto/fetchoptions/project/ProjectFetchOptions',
+		'dto/fetchoptions/property/PropertyFetchOptions', 'dto/fetchoptions/tag/TagFetchOptions', 'dto/fetchoptions/person/PersonFetchOptions', 'dto/fetchoptions/attachment/AttachmentFetchOptions',
+		'dto/fetchoptions/dataset/DataSetFetchOptions', 'dto/fetchoptions/sample/SampleFetchOptions', 'dto/fetchoptions/history/HistoryEntryFetchOptions',
+		'dto/fetchoptions/material/MaterialFetchOptions', 'dto/fetchoptions/experiment/ExperimentSortOptions' ], function(require, stjs, FetchOptions) {
 	var ExperimentFetchOptions = function() {
 	};
-	stjs.extend(ExperimentFetchOptions, null, [], function(constructor, prototype) {
+	stjs.extend(ExperimentFetchOptions, FetchOptions, [ FetchOptions ], function(constructor, prototype) {
 		prototype['@type'] = 'dto.fetchoptions.experiment.ExperimentFetchOptions';
 		constructor.serialVersionUID = 1;
 		prototype.type = null;
@@ -21,6 +22,7 @@ define([ "require", "stjs", 'dto/fetchoptions/experiment/ExperimentTypeFetchOpti
 		prototype.registrator = null;
 		prototype.modifier = null;
 		prototype.attachments = null;
+		prototype.sort = null;
 		prototype.withType = function() {
 			if (this.type == null) {
 				var ExperimentTypeFetchOptions = require("dto/fetchoptions/experiment/ExperimentTypeFetchOptions");
@@ -164,6 +166,15 @@ define([ "require", "stjs", 'dto/fetchoptions/experiment/ExperimentTypeFetchOpti
 		prototype.hasAttachments = function() {
 			return this.attachments != null;
 		};
+		prototype.sortBy = function() {
+			if (this.sort == null) {
+				var ExperimentSortOptions = require("dto/fetchoptions/experiment/ExperimentSortOptions");
+				this.sort = new ExperimentSortOptions();
+			}
+		};
+		prototype.getSortBy = function() {
+			return this.sort;
+		};
 	}, {
 		type : "ExperimentTypeFetchOptions",
 		project : "ProjectFetchOptions",
@@ -175,7 +186,8 @@ define([ "require", "stjs", 'dto/fetchoptions/experiment/ExperimentTypeFetchOpti
 		tags : "TagFetchOptions",
 		registrator : "PersonFetchOptions",
 		modifier : "PersonFetchOptions",
-		attachments : "AttachmentFetchOptions"
+		attachments : "AttachmentFetchOptions",
+		sort : "ExperimentSortOptions"
 	});
 	return ExperimentFetchOptions;
 })

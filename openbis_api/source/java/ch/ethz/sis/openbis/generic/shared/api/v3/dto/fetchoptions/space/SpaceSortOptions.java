@@ -18,10 +18,12 @@ package ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.space;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.space.Space;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.EntitySortOptions;
+import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
  * @author pkupczyk
  */
+@JsonObject("dto.fetchoptions.space.SpaceSortOptions")
 public class SpaceSortOptions extends EntitySortOptions<Space>
 {
 

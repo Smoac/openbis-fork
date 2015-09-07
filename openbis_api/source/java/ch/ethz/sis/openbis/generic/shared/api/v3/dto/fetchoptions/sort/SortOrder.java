@@ -18,9 +18,12 @@ package ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort;
 
 import java.io.Serializable;
 
+import ch.systemsx.cisd.base.annotation.JsonObject;
+
 /**
  * @author pkupczyk
  */
+@JsonObject("dto.fetchoptions.sort.SortOrder")
 public class SortOrder implements Serializable
 {
 

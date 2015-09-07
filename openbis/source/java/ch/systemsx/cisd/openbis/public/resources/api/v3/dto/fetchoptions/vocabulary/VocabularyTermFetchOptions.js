@@ -2,14 +2,16 @@
  * Class automatically generated with
  * {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
  */
-define([ "require", "stjs", "dto/fetchoptions/vocabulary/VocabularyFetchOptions", "dto/fetchoptions/person/PersonFetchOptions" ], function(require, stjs) {
+define([ "require", "stjs", "dto/fetchoptions/FetchOptions", "dto/fetchoptions/vocabulary/VocabularyFetchOptions", "dto/fetchoptions/person/PersonFetchOptions",
+		"dto/fetchoptions/vocabulary/VocabularyTermSortOptions" ], function(require, stjs, FetchOptions) {
 	var VocabularyTermFetchOptions = function() {
 	};
-	stjs.extend(VocabularyTermFetchOptions, null, [], function(constructor, prototype) {
+	stjs.extend(VocabularyTermFetchOptions, FetchOptions, [ FetchOptions ], function(constructor, prototype) {
 		prototype['@type'] = 'dto.fetchoptions.vocabulary.VocabularyTermFetchOptions';
 		constructor.serialVersionUID = 1;
 		prototype.vocabulary = null;
 		prototype.registrator = null;
+		prototype.sort = null;
 		prototype.withVocabulary = function() {
 			if (this.vocabulary == null) {
 				var VocabularyFetchOptions = require("dto/fetchoptions/vocabulary/VocabularyFetchOptions");
@@ -36,9 +38,19 @@ define([ "require", "stjs", "dto/fetchoptions/vocabulary/VocabularyFetchOptions"
 		prototype.hasRegistrator = function() {
 			return this.registrator != null;
 		};
+		prototype.sortBy = function() {
+			if (this.sort == null) {
+				var VocabularyTermSortOptions = require("dto/fetchoptions/vocabulary/VocabularyTermSortOptions");
+				this.sort = new VocabularyTermSortOptions();
+			}
+		};
+		prototype.getSortBy = function() {
+			return this.sort;
+		};
 	}, {
 		vocabulary : "VocabularyFetchOptions",
-		registrator : "PersonFetchOptions"
+		registrator : "PersonFetchOptions",
+		sort : "VocabularyTermSortOptions"
 	});
 	return VocabularyTermFetchOptions;
 })

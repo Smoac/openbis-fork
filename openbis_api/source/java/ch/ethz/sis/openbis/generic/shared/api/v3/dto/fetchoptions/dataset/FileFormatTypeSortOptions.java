@@ -18,10 +18,12 @@ package ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.FileFormatType;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.SortOptions;
+import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
  * @author pkupczyk
  */
+@JsonObject("dto.fetchoptions.dataset.FileFormatTypeSortOptions")
 public class FileFormatTypeSortOptions extends SortOptions<FileFormatType>
 {
 

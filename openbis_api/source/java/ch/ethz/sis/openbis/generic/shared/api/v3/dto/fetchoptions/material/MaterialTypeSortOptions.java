@@ -18,10 +18,12 @@ package ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.material;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material.MaterialType;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.SortOptions;
+import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
  * @author pkupczyk
  */
+@JsonObject("dto.fetchoptions.material.MaterialTypeSortOptions")
 public class MaterialTypeSortOptions extends SortOptions<MaterialType>
 {
 

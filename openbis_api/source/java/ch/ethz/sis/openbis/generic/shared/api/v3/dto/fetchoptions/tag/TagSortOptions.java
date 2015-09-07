@@ -27,10 +27,12 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.SortOptio
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.SortOrder;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.comparator.CodeComparator;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.comparator.RegistrationDateComparator;
+import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
  * @author pkupczyk
  */
+@JsonObject("dto.fetchoptions.tag.TagSortOptions")
 public class TagSortOptions extends SortOptions<Tag>
 {
 

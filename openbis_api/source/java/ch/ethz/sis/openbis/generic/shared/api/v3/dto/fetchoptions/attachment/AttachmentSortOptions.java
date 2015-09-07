@@ -18,10 +18,12 @@ package ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.attachment;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.attachment.Attachment;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.SortOptions;
+import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
  * @author pkupczyk
  */
+@JsonObject("dto.fetchoptions.attachment.AttachmentSortOptions")
 public class AttachmentSortOptions extends SortOptions<Attachment>
 {
 

@@ -23,9 +23,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import ch.systemsx.cisd.base.annotation.JsonObject;
+
 /**
  * @author pkupczyk
  */
+@JsonObject("dto.fetchoptions.sort.SortOptions")
 public abstract class SortOptions<OBJECT> implements Serializable
 {
 

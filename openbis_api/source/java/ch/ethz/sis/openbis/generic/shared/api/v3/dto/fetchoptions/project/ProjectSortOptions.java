@@ -18,10 +18,12 @@ package ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.project;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.project.Project;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.EntitySortOptions;
+import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
  * @author pkupczyk
  */
+@JsonObject("dto.fetchoptions.project.ProjectSortOptions")
 public class ProjectSortOptions extends EntitySortOptions<Project>
 {
 

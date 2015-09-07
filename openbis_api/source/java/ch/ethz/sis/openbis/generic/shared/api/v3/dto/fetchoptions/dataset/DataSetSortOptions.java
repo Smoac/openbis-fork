@@ -18,10 +18,12 @@ package ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.EntitySortOptions;
+import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
  * @author pkupczyk
  */
+@JsonObject("dto.fetchoptions.dataset.DataSetSortOptions")
 public class DataSetSortOptions extends EntitySortOptions<DataSet>
 {
 

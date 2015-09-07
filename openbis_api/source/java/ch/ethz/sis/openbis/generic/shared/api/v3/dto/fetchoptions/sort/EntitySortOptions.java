@@ -29,10 +29,12 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IRegistra
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.comparator.CodeComparator;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.comparator.ModificationDateComparator;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.comparator.RegistrationDateComparator;
+import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
  * @author pkupczyk
  */
+@JsonObject("dto.fetchoptions.sort.EntitySortOptions")
 public class EntitySortOptions<OBJECT extends ICodeHolder & IRegistrationDateHolder & IModificationDateHolder> extends SortOptions<OBJECT>
 {
 

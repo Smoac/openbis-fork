@@ -1,10 +1,10 @@
 /**
  * @author pkupczyk
  */
-define([ "stjs" ], function(stjs) {
+define([ "stjs", "dto/fetchoptions/EmptyFetchOptions" ], function(stjs, EmptyFetchOptions) {
 	var DeletedObjectFetchOptions = function() {
 	};
-	stjs.extend(DeletedObjectFetchOptions, null, [], function(constructor, prototype) {
+	stjs.extend(DeletedObjectFetchOptions, EmptyFetchOptions, [ EmptyFetchOptions ], function(constructor, prototype) {
 		prototype['@type'] = 'dto.fetchoptions.deletion.DeletedObjectFetchOptions';
 		constructor.serialVersionUID = 1;
 	}, {});

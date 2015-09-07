@@ -18,10 +18,12 @@ package ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.LocatorType;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.SortOptions;
+import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
  * @author pkupczyk
  */
+@JsonObject("dto.fetchoptions.dataset.LocatorTypeSortOptions")
 public class LocatorTypeSortOptions extends SortOptions<LocatorType>
 {
 

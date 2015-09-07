@@ -2,12 +2,13 @@
  * Class automatically generated with
  * {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
  */
-define([ "require", "stjs", "dto/fetchoptions/tag/TagFetchOptions", "dto/fetchoptions/dataset/DataSetTypeFetchOptions", "dto/fetchoptions/person/PersonFetchOptions",
+define([ "require", "stjs", "dto/fetchoptions/FetchOptions", "dto/fetchoptions/tag/TagFetchOptions", "dto/fetchoptions/dataset/DataSetTypeFetchOptions", "dto/fetchoptions/person/PersonFetchOptions",
 		"dto/fetchoptions/experiment/ExperimentFetchOptions", "dto/fetchoptions/sample/SampleFetchOptions", "dto/fetchoptions/property/PropertyFetchOptions",
-		"dto/fetchoptions/dataset/ExternalDataFetchOptions", "dto/fetchoptions/history/HistoryEntryFetchOptions", "dto/fetchoptions/material/MaterialFetchOptions" ], function(require, stjs) {
+		"dto/fetchoptions/dataset/ExternalDataFetchOptions", "dto/fetchoptions/history/HistoryEntryFetchOptions", "dto/fetchoptions/material/MaterialFetchOptions",
+		"dto/fetchoptions/dataset/DataSetSortOptions" ], function(require, stjs, FetchOptions) {
 	var DataSetFetchOptions = function() {
 	};
-	stjs.extend(DataSetFetchOptions, null, [], function(constructor, prototype) {
+	stjs.extend(DataSetFetchOptions, FetchOptions, [ FetchOptions ], function(constructor, prototype) {
 		prototype['@type'] = 'dto.fetchoptions.dataset.DataSetFetchOptions';
 		constructor.serialVersionUID = 1;
 		prototype.parents = null;
@@ -24,6 +25,7 @@ define([ "require", "stjs", "dto/fetchoptions/tag/TagFetchOptions", "dto/fetchop
 		prototype.sample = null;
 		prototype.properties = null;
 		prototype.materialProperties = null;
+		prototype.sort = null;
 		prototype.withParents = function() {
 			if (this.parents == null) {
 				this.parents = new DataSetFetchOptions();
@@ -202,6 +204,15 @@ define([ "require", "stjs", "dto/fetchoptions/tag/TagFetchOptions", "dto/fetchop
 		prototype.hasMaterialProperties = function() {
 			return this.materialProperties != null;
 		};
+		prototype.sortBy = function() {
+			if (this.sort == null) {
+				var DataSetSortOptions = require("dto/fetchoptions/dataset/DataSetSortOptions");
+				this.sort = new DataSetSortOptions();
+			}
+		};
+		prototype.getSortBy = function() {
+			return this.sort;
+		};
 	}, {
 		parents : "DataSetFetchOptions",
 		children : "DataSetFetchOptions",
@@ -216,7 +227,8 @@ define([ "require", "stjs", "dto/fetchoptions/tag/TagFetchOptions", "dto/fetchop
 		experiment : "ExperimentFetchOptions",
 		sample : "SampleFetchOptions",
 		properties : "PropertyFetchOptions",
-		materialProperties : "MaterialFetchOptions"
+		materialProperties : "MaterialFetchOptions",
+		sort : "DataSetSortOptions"
 	});
 	return DataSetFetchOptions;
 })

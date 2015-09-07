@@ -18,10 +18,12 @@ package ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.experiment;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.EntitySortOptions;
+import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
  * @author pkupczyk
  */
+@JsonObject("dto.fetchoptions.experiment.ExperimentSortOptions")
 public class ExperimentSortOptions extends EntitySortOptions<Experiment>
 {
 

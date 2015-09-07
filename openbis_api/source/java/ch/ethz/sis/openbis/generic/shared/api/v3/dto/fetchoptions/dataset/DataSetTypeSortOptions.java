@@ -1,6 +1,6 @@
 /*
- * Copyright 2015 ETH Zuerich, CISD
  *
+ * Copyright 2015 ETH Zuerich, CISD
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -18,10 +18,12 @@ package ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSetType;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.SortOptions;
+import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
  * @author pkupczyk
  */
+@JsonObject("dto.fetchoptions.dataset.DataSetTypeSortOptions")
 public class DataSetTypeSortOptions extends SortOptions<DataSetType>
 {
 

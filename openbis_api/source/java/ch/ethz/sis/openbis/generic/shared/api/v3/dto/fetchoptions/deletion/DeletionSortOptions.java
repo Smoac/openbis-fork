@@ -18,10 +18,12 @@ package ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.deletion;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.deletion.Deletion;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.SortOptions;
+import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
  * @author pkupczyk
  */
+@JsonObject("dto.fetchoptions.deletion.DeletionSortOptions")
 public class DeletionSortOptions extends SortOptions<Deletion>
 {
 
