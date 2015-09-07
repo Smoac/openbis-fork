@@ -401,6 +401,7 @@ public class MapDataSetTest extends AbstractDataSetTest
         DataSet dataSet = map.get(permId);
 
         List<DataSet> parents = dataSet.getParents();
+        assertEquals(parents.get(0).isPostRegistered(), Boolean.TRUE);
 
         assertEquals(parents.size(), 3);
 
@@ -552,6 +553,7 @@ public class MapDataSetTest extends AbstractDataSetTest
         DataSet dataSet = map.get(permId);
 
         assertEquals(dataSet.getModifier().getUserId(), "test");
+        assertEquals(dataSet.isPostRegistered(), Boolean.TRUE);
 
         assertTypeNotFetched(dataSet);
         assertExternalDataNotFetched(dataSet);
@@ -687,6 +689,7 @@ public class MapDataSetTest extends AbstractDataSetTest
         assertEquals(map.size(), 1);
         DataSet dataSet = map.get(id);
 
+        assertEquals(dataSet.isPostRegistered(), Boolean.FALSE);
         List<HistoryEntry> history = dataSet.getHistory();
         assertEquals(history, Collections.emptyList());
 

@@ -237,6 +237,7 @@ public class SearchDataSetTest extends AbstractDataSetTest
         assertEqualsDate(dataSets.get(0).getRegistrationDate(), "2009-02-09 12:21:47");
         assertEquals(dataSets.get(0).isDerived(), Boolean.FALSE);
         assertEquals(dataSets.get(0).isPlaceholder(), Boolean.FALSE);
+        assertEquals(dataSets.get(0).isPostRegistered(), Boolean.TRUE);
         assertParentsNotFetched(dataSets.get(0));
         assertChildrenNotFetched(dataSets.get(0));
         assertContainersNotFetched(dataSets.get(0));
