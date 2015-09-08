@@ -28,6 +28,7 @@ define([ "require", "stjs", "dto/fetchoptions/FetchOptions", "dto/fetchoptions/p
 				var TagSortOptions = require("dto/fetchoptions/tag/TagSortOptions");
 				this.sort = new TagSortOptions();
 			}
+			return this.sort;
 		};
 		prototype.getSortBy = function() {
 			return this.sort;

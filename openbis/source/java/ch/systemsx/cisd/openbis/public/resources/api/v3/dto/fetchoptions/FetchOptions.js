@@ -1,32 +1,32 @@
 define([ "stjs", "dto/fetchoptions/CacheMode" ], function(stjs, CacheMode) {
 	var FetchOptions = function() {
-		this.count = null;
-		this.from = null;
-		this.cacheMode = CacheMode.NO_CACHE;
+		this._count = null;
+		this._from = null;
+		this._cacheMode = CacheMode.NO_CACHE;
 	};
 	stjs.extend(FetchOptions, null, [], function(constructor, prototype) {
 		prototype['@type'] = 'dto.fetchoptions.FetchOptions';
 		constructor.serialVersionUID = 1;
 		prototype.count = function(count) {
-			this.count = count;
+			this._count = count;
 			return this;
 		};
 		prototype.getCount = function() {
-			return this.count;
+			return this._count;
 		};
 		prototype.from = function(from) {
-			this.from = from;
+			this._from = from;
 			return this;
 		};
 		prototype.getFrom = function() {
-			return this.from;
+			return this._from;
 		};
 		prototype.cacheMode = function(cacheMode) {
-			this.cacheMode = cacheMode;
+			this._cacheMode = cacheMode;
 			return this;
 		};
 		prototype.getCacheMode = function() {
-			return this.cacheMode;
+			return this._cacheMode;
 		}
 	}, {});
 	return FetchOptions;

@@ -1,5 +1,6 @@
 define([ "require", "stjs", "dto/fetchoptions/sort/SortOptions" ], function(require, stjs, SortOptions) {
 	var MaterialTypeSortOptions = function() {
+		SortOptions.call(this);
 	};
 	stjs.extend(MaterialTypeSortOptions, SortOptions, [ SortOptions ], function(constructor, prototype) {
 		prototype['@type'] = 'dto.fetchoptions.material.MaterialTypeSortOptions';

@@ -33,6 +33,11 @@ public class Sorting implements Serializable
 
     private SortOrder order;
 
+    @SuppressWarnings("unused")
+    private Sorting()
+    {
+    }
+
     public Sorting(String field, SortOrder order)
     {
         this.field = field;

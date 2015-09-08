@@ -29,6 +29,7 @@ define([ "require", "stjs", "dto/fetchoptions/FetchOptions", "dto/fetchoptions/p
 						var VocabularySortOptions = require("dto/fetchoptions/vocabulary/VocabularySortOptions");
 						this.sort = new VocabularySortOptions();
 					}
+					return this.sort;
 				};
 				prototype.getSortBy = function() {
 					return this.sort;

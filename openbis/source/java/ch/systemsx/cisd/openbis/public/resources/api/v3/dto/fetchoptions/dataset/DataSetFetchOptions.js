@@ -209,6 +209,7 @@ define([ "require", "stjs", "dto/fetchoptions/FetchOptions", "dto/fetchoptions/t
 				var DataSetSortOptions = require("dto/fetchoptions/dataset/DataSetSortOptions");
 				this.sort = new DataSetSortOptions();
 			}
+			return this.sort;
 		};
 		prototype.getSortBy = function() {
 			return this.sort;

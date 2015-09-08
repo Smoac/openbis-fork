@@ -1,5 +1,6 @@
 define([ "require", "stjs", "dto/fetchoptions/sort/SortOptions" ], function(require, stjs, SortOptions) {
 	var HistoryEntrySortOptions = function() {
+		SortOptions.call(this);
 	};
 	stjs.extend(HistoryEntrySortOptions, SortOptions, [ SortOptions ], function(constructor, prototype) {
 		prototype['@type'] = 'dto.fetchoptions.history.HistoryEntrySortOptions';

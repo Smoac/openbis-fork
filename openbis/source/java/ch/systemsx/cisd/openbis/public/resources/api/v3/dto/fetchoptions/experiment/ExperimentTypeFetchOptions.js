@@ -14,6 +14,7 @@ define([ "stjs", "dto/fetchoptions/FetchOptions", "dto/fetchoptions/experiment/E
 				var ExperimentTypeSortOptions = require("dto/fetchoptions/experiment/ExperimentTypeSortOptions");
 				this.sort = new ExperimentTypeSortOptions();
 			}
+			return this.sort;
 		};
 		prototype.getSortBy = function() {
 			return this.sort;

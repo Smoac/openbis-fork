@@ -57,6 +57,7 @@ define([ "require", "stjs", "dto/fetchoptions/FetchOptions", "dto/fetchoptions/v
 				var ExternalDataSortOptions = require("dto/fetchoptions/dataset/ExternalDataSortOptions");
 				this.sort = new ExternalDataSortOptions();
 			}
+			return this.sort;
 		};
 		prototype.getSortBy = function() {
 			return this.sort;

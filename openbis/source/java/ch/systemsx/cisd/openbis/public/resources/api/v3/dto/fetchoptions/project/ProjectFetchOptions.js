@@ -100,6 +100,7 @@ define([ "require", "stjs", "dto/fetchoptions/FetchOptions", 'dto/fetchoptions/p
 				var ProjectSortOptions = require("dto/fetchoptions/project/ProjectSortOptions");
 				this.sort = new ProjectSortOptions();
 			}
+			return this.sort;
 		};
 		prototype.getSortBy = function() {
 			return this.sort;

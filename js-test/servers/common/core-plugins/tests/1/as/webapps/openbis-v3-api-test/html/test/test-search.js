@@ -18,6 +18,71 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 			});
 		}
 
+		var testSearchWithPagingAndSortingByAll = function(c, fSearch, fetchOptions) {
+			testSearchWithPagingAndSorting(c, fSearch, fetchOptions, "code").then(function() {
+				testSearchWithPagingAndSorting(c, fSearch, fetchOptions, "registrationDate").then(function() {
+					testSearchWithPagingAndSorting(c, fSearch, fetchOptions, "modificationDate");
+				});
+			});
+		}
+
+		var testSearchWithPagingAndSorting = function(c, fSearch, fetchOptions, fieldName) {
+			c.start();
+
+			fetchOptions.from(null).count(null);
+			fetchOptions.sort = null;
+
+			return c.createFacadeAndLogin().then(function(facade) {
+				c.ok("Login");
+
+				return fSearch(facade).then(function(results) {
+					var objects = results.getObjects();
+
+					c.ok("Sorting by " + fieldName);
+
+					objects.sort(function(o1, o2) {
+						var v1 = o1[fieldName];
+						var v2 = o2[fieldName];
+
+						if (v1 > v2) {
+							return 1;
+						} else if (v1 < v2) {
+							return -1;
+						} else {
+							return 0;
+						}
+					});
+
+					var codes = objects.map(function(object) {
+						return object.code;
+					});
+
+					c.assertTrue(codes.length > 1, "Got at least 2 objects");
+
+					var secondFromStart = codes[1];
+					var secondFromEnd = codes[codes.length - 2];
+
+					fetchOptions.from(1).count(1);
+					fetchOptions.sortBy()[fieldName]();
+
+					return fSearch(facade).then(function(results) {
+						c.ok("Got results ASC");
+						c.assertObjectsWithValues(results.getObjects(), "code", [ secondFromStart ]);
+						fetchOptions.sortBy()[fieldName]().desc();
+
+						return fSearch(facade).then(function(results) {
+							c.ok("Got results DESC");
+							c.assertObjectsWithValues(results.getObjects(), "code", [ secondFromEnd ]);
+							c.finish();
+						});
+					});
+				});
+			}).fail(function(error) {
+				c.fail(error.message);
+				c.finish();
+			});
+		}
+
 		QUnit.test("searchSpaces()", function(assert) {
 			var c = new common(assert);
 
@@ -44,6 +109,21 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 			}
 
 			testSearch(c, fSearch, fCheck);
+		});
+
+		QUnit.test("searchSpaces() with paging and sorting", function(assert) {
+			var c = new common(assert);
+
+			var criterion = new c.SpaceSearchCriterion();
+			criterion.withOrOperator();
+			criterion.withCode().thatEquals("TEST");
+			criterion.withCode().thatEquals("PLATONIC");
+
+			var fo = c.createSpaceFetchOptions();
+
+			testSearchWithPagingAndSortingByAll(c, function(facade) {
+				return facade.searchSpaces(criterion, fo);
+			}, fo);
 		});
 
 		QUnit.test("searchProjects()", function(assert) {
@@ -78,6 +158,21 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 			testSearch(c, fSearch, fCheck);
 		});
 
+		QUnit.test("searchProjects() with paging and sorting", function(assert) {
+			var c = new common(assert);
+
+			var criterion = new c.ProjectSearchCriterion();
+			criterion.withOrOperator();
+			criterion.withCode().thatEquals("TEST-PROJECT");
+			criterion.withCode().thatEquals("SCREENING-EXAMPLES");
+
+			var fo = c.createProjectFetchOptions();
+
+			testSearchWithPagingAndSortingByAll(c, function(facade) {
+				return facade.searchProjects(criterion, fo);
+			}, fo);
+		});
+
 		QUnit.test("searchExperiments()", function(assert) {
 			var c = new common(assert);
 
@@ -97,6 +192,21 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 			}
 
 			testSearch(c, fSearch, fCheck);
+		});
+
+		QUnit.test("searchExperiments() with paging and sorting", function(assert) {
+			var c = new common(assert);
+
+			var criterion = new c.ExperimentSearchCriterion();
+			criterion.withOrOperator();
+			criterion.withCode().thatEquals("EXP-1");
+			criterion.withCode().thatEquals("EXP-2");
+
+			var fo = c.createExperimentFetchOptions();
+
+			testSearchWithPagingAndSortingByAll(c, function(facade) {
+				return facade.searchExperiments(criterion, fo);
+			}, fo);
 		});
 
 		QUnit.test("searchSamples()", function(assert) {
@@ -132,6 +242,21 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 			}
 
 			testSearch(c, fSearch, fCheck);
+		});
+
+		QUnit.test("searchSamples() with paging and sorting", function(assert) {
+			var c = new common(assert);
+
+			var criterion = new c.SampleSearchCriterion();
+			criterion.withOrOperator();
+			criterion.withCode().thatEquals("TEST-SAMPLE-1");
+			criterion.withCode().thatEquals("TEST-SAMPLE-2");
+
+			var fo = c.createSampleFetchOptions();
+
+			testSearchWithPagingAndSortingByAll(c, function(facade) {
+				return facade.searchSamples(criterion, fo);
+			}, fo);
 		});
 
 		QUnit.test("searchSamples() withoutExperiment", function(assert) {
@@ -235,6 +360,21 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 			testSearch(c, fSearch, fCheck);
 		});
 
+		QUnit.test("searchDataSets() with paging and sorting", function(assert) {
+			var c = new common(assert);
+
+			var criterion = new c.DataSetSearchCriterion();
+			criterion.withOrOperator();
+			criterion.withCode().thatEquals("20130412142205843-196");
+			criterion.withCode().thatEquals("20130412142543232-197");
+
+			var fo = c.createDataSetFetchOptions();
+
+			testSearchWithPagingAndSortingByAll(c, function(facade) {
+				return facade.searchDataSets(criterion, fo);
+			}, fo);
+		});
+
 		QUnit.test("searchDataSets() withoutSample", function(assert) {
 			var c = new common(assert);
 
@@ -322,6 +462,21 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 			}
 
 			testSearch(c, fSearch, fCheck);
+		});
+
+		QUnit.test("searchMaterials() with paging and sorting", function(assert) {
+			var c = new common(assert);
+
+			var criterion = new c.MaterialSearchCriterion();
+			criterion.withOrOperator();
+			criterion.withCode().thatEquals("ABC");
+			criterion.withCode().thatEquals("SIRNA-2");
+
+			var fo = c.createMaterialFetchOptions();
+
+			testSearchWithPagingAndSortingByAll(c, function(facade) {
+				return facade.searchMaterials(criterion, fo);
+			}, fo);
 		});
 
 	}

@@ -14,6 +14,7 @@ define([ "stjs", "dto/fetchoptions/FetchOptions", "dto/fetchoptions/dataset/Data
 				var DataSetTypeSortOptions = require("dto/fetchoptions/dataset/DataSetTypeSortOptions");
 				this.sort = new DataSetTypeSortOptions();
 			}
+			return this.sort;
 		};
 		prototype.getSortBy = function() {
 			return this.sort;

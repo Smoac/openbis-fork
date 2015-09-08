@@ -1,5 +1,6 @@
 define([ "require", "stjs", "dto/fetchoptions/sort/SortOptions" ], function(require, stjs, SortOptions) {
 	var TagSortOptions = function() {
+		SortOptions.call(this);
 	};
 	stjs.extend(TagSortOptions, SortOptions, [ SortOptions ], function(constructor, prototype) {
 		prototype['@type'] = 'dto.fetchoptions.tag.TagSortOptions';

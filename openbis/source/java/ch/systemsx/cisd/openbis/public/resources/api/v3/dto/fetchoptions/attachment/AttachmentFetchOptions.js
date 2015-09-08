@@ -56,6 +56,7 @@ define([ "require", "stjs", "dto/fetchoptions/FetchOptions", "dto/fetchoptions/p
 						var AttachmentSortOptions = require("dto/fetchoptions/attachment/AttachmentSortOptions");
 						this.sort = new AttachmentSortOptions();
 					}
+					return this.sort;
 				};
 				prototype.getSortBy = function() {
 					return this.sort;

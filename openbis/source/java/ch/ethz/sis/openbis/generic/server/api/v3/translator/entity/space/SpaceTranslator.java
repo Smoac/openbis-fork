@@ -68,6 +68,7 @@ public class SpaceTranslator extends AbstractCachingTranslator<SpacePE, Space, S
         result.setPermId(new SpacePermId(space.getCode()));
         result.setDescription(space.getDescription());
         result.setRegistrationDate(space.getRegistrationDate());
+        result.setModificationDate(space.getRegistrationDate());
         result.setFetchOptions(new SpaceFetchOptions());
 
         return result;

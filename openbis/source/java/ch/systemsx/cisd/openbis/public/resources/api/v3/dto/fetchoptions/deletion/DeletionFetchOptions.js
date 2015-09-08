@@ -25,6 +25,7 @@ define([ "require", "stjs", "dto/fetchoptions/FetchOptions", "dto/fetchoptions/d
 				var DeletionSortOptions = require("dto/fetchoptions/deletion/DeletionSortOptions");
 				this.sort = new DeletionSortOptions();
 			}
+			return this.sort;
 		};
 		prototype.getSortBy = function() {
 			return this.sort;

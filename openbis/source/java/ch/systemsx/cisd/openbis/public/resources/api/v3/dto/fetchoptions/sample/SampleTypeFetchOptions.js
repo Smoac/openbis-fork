@@ -14,6 +14,7 @@ define([ "stjs", "dto/fetchoptions/FetchOptions", "dto/fetchoptions/sample/Sampl
 				var SampleTypeSortOptions = require("dto/fetchoptions/sample/SampleTypeSortOptions");
 				this.sort = new SampleTypeSortOptions();
 			}
+			return this.sort;
 		};
 		prototype.getSortBy = function() {
 			return this.sort;

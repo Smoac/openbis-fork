@@ -99,6 +99,7 @@ define([ "require", "stjs", "dto/fetchoptions/FetchOptions", "dto/fetchoptions/m
 						var MaterialSortOptions = require("dto/fetchoptions/material/MaterialSortOptions");
 						this.sort = new MaterialSortOptions();
 					}
+					return this.sort;
 				};
 				prototype.getSortBy = function() {
 					return this.sort;

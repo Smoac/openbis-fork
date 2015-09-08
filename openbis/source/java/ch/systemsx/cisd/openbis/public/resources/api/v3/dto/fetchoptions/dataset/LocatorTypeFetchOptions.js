@@ -14,6 +14,7 @@ define([ "stjs", "dto/fetchoptions/FetchOptions", "dto/fetchoptions/dataset/Loca
 				var LocatorTypeSortOptions = require("dto/fetchoptions/dataset/LocatorTypeSortOptions");
 				this.sort = new LocatorTypeSortOptions();
 			}
+			return this.sort;
 		};
 		prototype.getSortBy = function() {
 			return this.sort;

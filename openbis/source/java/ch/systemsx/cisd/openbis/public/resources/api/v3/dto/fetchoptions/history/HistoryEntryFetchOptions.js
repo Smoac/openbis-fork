@@ -28,6 +28,7 @@ define([ "require", "stjs", "dto/fetchoptions/FetchOptions", "dto/fetchoptions/p
 				var HistoryEntrySortOptions = require("dto/fetchoptions/history/HistoryEntrySortOptions");
 				this.sort = new HistoryEntrySortOptions();
 			}
+			return this.sort;
 		};
 		prototype.getSortBy = function() {
 			return this.sort;

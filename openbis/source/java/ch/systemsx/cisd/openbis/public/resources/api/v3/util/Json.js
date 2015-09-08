@@ -110,6 +110,11 @@ define([ "underscore" ], function(_) {
 		for ( var key in jsonObject) {
 			var fieldType = moduleFieldTypeMap[key];
 			var fieldValue = jsonObject[key];
+
+			if (object["_" + key] !== undefined) {
+				key = "_" + key;
+			}
+
 			object[key] = fromJsonObjectWithTypeOrArrayOrMap(fieldType, fieldValue, hashedObjects, modulesMap)
 		}
 		return object;
@@ -136,7 +141,12 @@ define([ "underscore" ], function(_) {
 			}
 			for ( var i in object) {
 				if (_.isFunction(object[i]) === false && i !== "@id") {
-					result[i] = decycleLocal(object[i], references);
+					var value = decycleLocal(object[i], references);
+					if (i.indexOf("_") == 0) {
+						i = i.substring(1);
+					}
+					result[i] = value;
+
 				}
 			}
 			return result;

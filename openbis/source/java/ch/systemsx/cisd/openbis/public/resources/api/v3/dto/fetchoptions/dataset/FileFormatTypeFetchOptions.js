@@ -14,6 +14,7 @@ define([ "stjs", "dto/fetchoptions/FetchOptions", "dto/fetchoptions/dataset/File
 				var FileFormatTypeSortOptions = require("dto/fetchoptions/dataset/FileFormatTypeSortOptions");
 				this.sort = new FileFormatTypeSortOptions();
 			}
+			return this.sort;
 		};
 		prototype.getSortBy = function() {
 			return this.sort;

@@ -171,6 +171,7 @@ define([ "require", "stjs", "dto/fetchoptions/FetchOptions", 'dto/fetchoptions/e
 				var ExperimentSortOptions = require("dto/fetchoptions/experiment/ExperimentSortOptions");
 				this.sort = new ExperimentSortOptions();
 			}
+			return this.sort;
 		};
 		prototype.getSortBy = function() {
 			return this.sort;

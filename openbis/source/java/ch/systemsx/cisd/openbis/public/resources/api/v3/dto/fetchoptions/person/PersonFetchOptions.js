@@ -41,6 +41,7 @@ define([ "require", "stjs", "dto/fetchoptions/FetchOptions", "dto/fetchoptions/s
 				var PersonSortOptions = require("dto/fetchoptions/person/PersonSortOptions");
 				this.sort = new PersonSortOptions();
 			}
+			return this.sort;
 		};
 		prototype.getSortBy = function() {
 			return this.sort;

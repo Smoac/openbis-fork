@@ -14,6 +14,7 @@ define([ "stjs", "dto/fetchoptions/FetchOptions", "dto/fetchoptions/material/Mat
 				var MaterialTypeSortOptions = require("dto/fetchoptions/material/MaterialTypeSortOptions");
 				this.sort = new MaterialTypeSortOptions();
 			}
+			return this.sort;
 		};
 		prototype.getSortBy = function() {
 			return this.sort;

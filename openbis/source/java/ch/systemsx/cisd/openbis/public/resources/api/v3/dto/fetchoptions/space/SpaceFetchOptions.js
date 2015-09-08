@@ -57,6 +57,7 @@ define([ "require", "stjs", "dto/fetchoptions/FetchOptions", "dto/fetchoptions/p
 				var SpaceSortOptions = require("dto/fetchoptions/space/SpaceSortOptions");
 				this.sort = new SpaceSortOptions();
 			}
+			return this.sort;
 		};
 		prototype.getSortBy = function() {
 			return this.sort;
