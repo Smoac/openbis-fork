@@ -1,19 +1,19 @@
 define([ "require", "stjs" ], function(require, stjs) {
 	var SortOrder = function() {
-		this.asc = true;
+		this._asc = true;
 	};
 
 	stjs.extend(SortOrder, null, [], function(constructor, prototype) {
 		prototype['@type'] = 'dto.fetchoptions.sort.SortOrder';
 		constructor.serialVersionUID = 1;
 		prototype.asc = function() {
-			this.asc = true;
+			this._asc = true;
 		};
 		prototype.desc = function() {
-			this.asc = false;
+			this._asc = false;
 		};
 		prototype.isAsc = function() {
-			return this.asc;
+			return this._asc;
 		};
 	}, {});
 	return SortOrder;
