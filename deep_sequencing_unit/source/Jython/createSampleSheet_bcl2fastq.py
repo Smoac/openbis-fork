@@ -1,6 +1,6 @@
 '''
 @copyright:
-Copyright 2012 ETH Zuerich, CISD
+Copyright 2015 ETH Zuerich, SIS
  
 @license:
 Licensed under the Apache License, Version 2.0 (the 'License');
@@ -20,7 +20,7 @@ Manuel Kohler
 
 @description:
 Creates the SampleSheet.csv out of values from openBIS for Demultiplexing 
-used in the Illumina pipeline (configureBclToFastq.pl) 
+used in the Illumina pipeline (bcl2fastq) 
 
 @attention:
 Runs under Jython
@@ -54,6 +54,7 @@ import smtplib
 from ConfigParser import SafeConfigParser
 from optparse import OptionParser
 from datetime import *
+from collections import OrderedDict
 
 from email.MIMEMultipart import MIMEMultipart
 from email.MIMEBase import MIMEBase
@@ -67,6 +68,7 @@ from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto import SearchSubCriteria
 
 lineending = {'win32':'\r\n', 'linux':'\n', 'mac':'\r'}
 COMMA = ','
+CSV = ".csv"
 
 class Sequencers:
     HISEQ_4000, HISEQ_3000, HISEQ_2500, HISEQ_2000, HISEQ_X, NEXTSEQ_500, MISEQ , UNIDENTIFIED= \
@@ -75,45 +77,42 @@ class Sequencers:
 HISEQ_LIST = [Sequencers.HISEQ_2000, Sequencers.HISEQ_2500, Sequencers.HISEQ_3000, Sequencers.HISEQ_4000, Sequencers.HISEQ_X]
 
 
-HISEQ = "HiSeq"
-MISEQ = "MiSeq"
-NEXTSEQ = "NextSeq"
-
 def login(logger, configMap):
-  logger.info('Logging into ' + configMap['openbisServer'])
-  service = OpenbisServiceFacadeFactory.tryCreate(configMap['openbisUserName'],
-                                                  configMap['openbisPassword'],
-                                                  configMap['openbisServer'],
-                                                  configMap['connectionTimeout'])
-  return service
+    logger.info('Logging into ' + configMap['openbisServer'])
+    service = OpenbisServiceFacadeFactory.tryCreate(configMap['openbisUserName'],
+                                                    configMap['openbisPassword'],
+                                                    configMap['openbisServer'],
+                                                    configMap['connectionTimeout'])
+    return service
+
 
 def logout (service, logger):
-  service.logout()
-  logger.info('Logged out')
+    service.logout()
+    logger.info('Logged out')
 
 def setUpLogger(logPath, logLevel=logging.INFO):
-  logFileName = 'createSampleSheet'
-  d = datetime.now()
-  logFileName = logFileName + '_' + d.strftime('%Y-%m-%d_%H_%M_%S') + '.log'
-  logging.basicConfig(filename=logPath + logFileName,
+    logFileName = 'create_sample_sheet_dict'
+    d = datetime.now()
+    logFileName = logFileName + '_' + d.strftime('%Y-%m-%d_%H_%M_%S') + '.log'
+    logging.basicConfig(filename=logPath + logFileName,
                       format='%(asctime)s [%(levelname)s] %(message)s', level=logLevel)
-  logger = logging.getLogger(logFileName)
-  return logger
+    logger = logging.getLogger(logFileName)
+    return logger
 
 def parseOptions(logger):
-  logger.info('Parsing command line parameters')
-  parser = OptionParser(version='%prog 1.0')
-  parser.add_option('-f', '--flowcell',
+    logger.info('Parsing command line parameters')
+    parser = OptionParser(version='%prog 1.0')
+    parser.add_option('-f', '--flowcell',
                   dest='flowcell',
                   help='The flowcell which is used to create the SampleSheet.csv',
                   metavar='<flowcell>')
-  parser.add_option('-m', '--mailist',
+    parser.add_option('-m', '--mailist',
                   dest='maillist',
                   default=False,
                   action='store_true',
                   help='Generated Sample Sheet will be addtionally sent as email to the defined list of recipients',
                   metavar='<maillist>')
-  parser.add_option('-l', '--lineending',
+    parser.add_option('-l', '--lineending',
                   dest='lineending',
                   type='choice',
                   action='store',
@@ -121,192 +120,188 @@ def parseOptions(logger):
                   default='win32',
                   help='Specify end of line separator: win32, linux, mac. Default: win32' ,
                   metavar='<lineending>')
-  parser.add_option('-o', '--outdir',
+    parser.add_option('-o', '--outdir',
                   dest='outdir',
                   default='./',
                   help='Specify the ouput directory. Default: ./' ,
                   metavar='<outdir>')
-  parser.add_option('-s', '--singlelane',
+    parser.add_option('-s', '--singlelane',
                   dest='singlelane',
                   default=False,
                   action='store_true',
                   help='Creates a single Sample Sheet for each lane. Default: False')
-  parser.add_option('-d', '--debug',
+    parser.add_option('-d', '--debug',
                   dest='debug',
                   default=False,
                   action='store_true',
                   help='Verbose debug logging. Default: False')
-  parser.add_option('-v', '--verbose',
+    parser.add_option('-v', '--verbose',
                   dest='verbose',
                   default=False,
                   action='store_true',
                   help='Write Sample Sheet to stout. Default: False')
 
 
-  (options, args) = parser.parse_args()
+    (options, args) = parser.parse_args()
 
-  if options.outdir[-1] <> '/':
-    options.outdir = options.outdir + '/'
+    if options.outdir[-1] <> '/':
+        options.outdir = options.outdir + '/'
 
-  if options.flowcell is None:
-    parser.print_help()
-    exit(-1)
-  return options
+    if options.flowcell is None:
+        parser.print_help()
+        exit(-1)
+    return options
+
 
 def parseConfigurationFile(propertyFile='etc/createSampleSheet.properties'):
-  '''
-  Parses the given config files and returns the values
-  '''
-  config = SafeConfigParser()
-  config.read(propertyFile)
-  config.sections()
-  return config
+    '''
+    Parses the given config files and returns the values
+    '''
+    config = SafeConfigParser()
+    config.read(propertyFile)
+    config.sections()
+    return config
+
 
 def readConfig(logger):
-  GENERAL = 'GENERAL'
-  OPENBIS = 'OPENBIS'
-  ILLUMINA = 'ILLUMINA'
+    GENERAL = 'GENERAL'
+    OPENBIS = 'OPENBIS'
+    ILLUMINA = 'ILLUMINA'
+    
+    logger.info('Reading config file')
+    configMap = {}
+    
+    configParameters = parseConfigurationFile()
+    configMap['facilityName'] = configParameters.get(GENERAL, 'facilityName')
+    configMap['facilityNameShort'] = configParameters.get(GENERAL, 'facilityNameShort')
+    configMap['facilityInstitution'] = configParameters.get(GENERAL, 'facilityInstitution')
+    configMap['mailList'] = configParameters.get(GENERAL, 'mailList')
+    configMap['mailFrom'] = configParameters.get(GENERAL, 'mailFrom')
+    configMap['smptHost'] = configParameters.get(GENERAL, 'smptHost')
+    configMap['SampleSheetFileName'] = configParameters.get(GENERAL, 'SampleSheetFileName')
+    configMap['separator'] = configParameters.get(GENERAL, 'separator')
+    configMap['indexSeparator'] = configParameters.get(GENERAL, 'indexSeparator')
+    
+    configMap['openbisUserName'] = configParameters.get(OPENBIS, 'openbisUserName')
+    configMap['openbisPassword'] = configParameters.get(OPENBIS, 'openbisPassword', raw=True)
+    configMap['openbisServer'] = configParameters.get(OPENBIS, 'openbisServer')
+    configMap['connectionTimeout'] = configParameters.getint(OPENBIS, 'connectionTimeout')
+    configMap['illuminaFlowCellTypeName'] = configParameters.get(OPENBIS, 'illuminaFlowCellTypeName')
+    configMap['index1Name'] = configParameters.get(OPENBIS, 'index1Name')
+    configMap['index2Name'] = configParameters.get(OPENBIS, 'index2Name')
+    configMap['index1Length'] = configParameters.get(OPENBIS, 'index1Length')
+    configMap['index2Length'] = configParameters.get(OPENBIS, 'index2Length')
+    configMap['endType'] = configParameters.get(OPENBIS, 'endType')
+    configMap['cycles'] = configParameters.get(OPENBIS, 'cycles')
+    configMap['controlLane'] = configParameters.get(OPENBIS, 'controlLane')
+    configMap['ncbi'] = configParameters.get(OPENBIS, 'ncbi')
+    configMap['externalSampleName'] = configParameters.get(OPENBIS, 'externalSampleName')
+    configMap['laneCount'] = configParameters.get(OPENBIS, 'laneCount')
+    configMap['kit'] = configParameters.get(OPENBIS, 'kit')
+    
+    configMap['headerSection'] = configParameters.get(ILLUMINA, 'headerSection')
+    configMap['readsSection'] = configParameters.get(ILLUMINA, 'readsSection')
+    configMap['settingsSection'] = configParameters.get(ILLUMINA, 'settingsSection')
+    configMap['dataSectionSingleRead'] = configParameters.get(ILLUMINA, 'dataSectionSingleRead')
+    configMap['dataSectionDualRead'] = configParameters.get(ILLUMINA, 'dataSectionDualRead')
+    configMap['workflow'] = configParameters.get(ILLUMINA, 'workflow')
+    configMap['application'] = configParameters.get(ILLUMINA, 'application')
+    configMap['chemistry'] = configParameters.get(ILLUMINA, 'chemistry')
+    
+    configMap['truSeqAdapter1'] = configParameters.get(ILLUMINA, 'truSeqAdapter1')
+    configMap['truSeqAdapter2'] = configParameters.get(ILLUMINA, 'truSeqAdapter2')
+    configMap['nexteraAdapter'] = configParameters.get(ILLUMINA, 'nexteraAdapter')
+    configMap['iemFileVersion'] = configParameters.get(ILLUMINA, 'iemFileVersion')
+    
+    configMap['configureBclToFastqPath'] = configParameters.get(ILLUMINA, 'configureBclToFastqPath')
+    configMap['failedReads'] = configParameters.get(ILLUMINA, 'failedReads')
+    configMap['clusterCount'] = configParameters.get(ILLUMINA, 'clusterCount')
+    configMap['clusterCountNumber'] = configParameters.get(ILLUMINA, 'clusterCountNumber')
+    configMap['outputDir'] = configParameters.get(ILLUMINA, 'outputDir')
+    configMap['sampleSheetName'] = configParameters.get(ILLUMINA, 'sampleSheetName')
+    configMap['baseMask'] = configParameters.get(ILLUMINA, 'baseMask')
+    
+    return configMap
 
-  logger.info('Reading config file')
-  configMap = {}
-
-  configParameters = parseConfigurationFile()
-  configMap['facilityName'] = configParameters.get(GENERAL, 'facilityName')
-  configMap['facilityNameShort'] = configParameters.get(GENERAL, 'facilityNameShort')
-  configMap['facilityInstitution'] = configParameters.get(GENERAL, 'facilityInstitution')
-  configMap['mailList'] = configParameters.get(GENERAL, 'mailList')
-  configMap['mailFrom'] = configParameters.get(GENERAL, 'mailFrom')
-  configMap['smptHost'] = configParameters.get(GENERAL, 'smptHost')
-  configMap['SampleSheetFileName'] = configParameters.get(GENERAL, 'SampleSheetFileName')
-  configMap['separator'] = configParameters.get(GENERAL, 'separator')
-  configMap['indexSeparator'] = configParameters.get(GENERAL, 'indexSeparator')
-
-  configMap['openbisUserName'] = configParameters.get(OPENBIS, 'openbisUserName')
-  configMap['openbisPassword'] = configParameters.get(OPENBIS, 'openbisPassword', raw=True)
-  configMap['openbisServer'] = configParameters.get(OPENBIS, 'openbisServer')
-  configMap['connectionTimeout'] = configParameters.getint(OPENBIS, 'connectionTimeout')
-  configMap['illuminaFlowCellTypeName'] = configParameters.get(OPENBIS, 'illuminaFlowCellTypeName')
-  configMap['index1Name'] = configParameters.get(OPENBIS, 'index1Name')
-  configMap['index2Name'] = configParameters.get(OPENBIS, 'index2Name')
-  configMap['index1Length'] = configParameters.get(OPENBIS, 'index1Length')
-  configMap['index2Length'] = configParameters.get(OPENBIS, 'index2Length')
-  configMap['endType'] = configParameters.get(OPENBIS, 'endType')
-  configMap['cycles'] = configParameters.get(OPENBIS, 'cycles')
-  configMap['controlLane'] = configParameters.get(OPENBIS, 'controlLane')
-  configMap['ncbi'] = configParameters.get(OPENBIS, 'ncbi')
-  configMap['externalSampleName'] = configParameters.get(OPENBIS, 'externalSampleName')
-  configMap['laneCount'] = configParameters.get(OPENBIS, 'laneCount')
-  configMap['kit'] = configParameters.get(OPENBIS, 'kit')
-
-  configMap['hiSeqNames'] = configParameters.get(ILLUMINA, 'hiSeqNames')
-  configMap['miSeqNames'] = configParameters.get(ILLUMINA, 'miSeqNames')
-  configMap['nextSeqNames'] = configParameters.get(ILLUMINA, 'nextSeqNames')
-  configMap['hiSeqHeader'] = configParameters.get(ILLUMINA, 'hiSeqHeader')
-
-  configMap['miSeqHeaderSection'] = configParameters.get(ILLUMINA, 'miSeqHeaderSection')
-  configMap['miSeqReadsSection'] = configParameters.get(ILLUMINA, 'miSeqReadsSection')
-  configMap['miSeqSettingsSection'] = configParameters.get(ILLUMINA, 'miSeqSettingsSection')
-  configMap['miSeqDataSectionSingleRead'] = configParameters.get(ILLUMINA, 'miSeqDataSectionSingleRead')
-  configMap['miSeqDataSectionDualRead'] = configParameters.get(ILLUMINA, 'miSeqDataSectionDualRead')
-  configMap['miSeqWorkflow'] = configParameters.get(ILLUMINA, 'miSeqWorkflow')
-  configMap['miSeqApplication'] = configParameters.get(ILLUMINA, 'miSeqApplication')
-  configMap['miSeqChemistry'] = configParameters.get(ILLUMINA, 'miSeqChemistry')
-  
-  configMap['nextSeqDataSectionSingleRead'] = configParameters.get(ILLUMINA, 'nextSeqDataSectionSingleRead')
-  configMap['nextSeqDataSectionDualRead'] = configParameters.get(ILLUMINA, 'nextSeqDataSectionDualRead')
-
-  configMap['hiSeqDataSectionSingleRead'] = configParameters.get(ILLUMINA, 'hiSeqDataSectionSingleRead')
-  configMap['hiSeqDataSectionDualRead'] = configParameters.get(ILLUMINA, 'hiSeqDataSectionDualRead')
-
-  configMap['truSeqAdapter1'] = configParameters.get(ILLUMINA, 'truSeqAdapter1')
-  configMap['truSeqAdapter2'] = configParameters.get(ILLUMINA, 'truSeqAdapter2')
-  configMap['nexteraAdapter'] = configParameters.get(ILLUMINA, 'nexteraAdapter')
-  configMap['iemFileVersion'] = configParameters.get(ILLUMINA, 'iemFileVersion')
-
-  configMap['configureBclToFastqPath'] = configParameters.get(ILLUMINA, 'configureBclToFastqPath')
-  configMap['failedReads'] = configParameters.get(ILLUMINA, 'failedReads')
-  configMap['clusterCount'] = configParameters.get(ILLUMINA, 'clusterCount')
-  configMap['clusterCountNumber'] = configParameters.get(ILLUMINA, 'clusterCountNumber')
-  configMap['outputDir'] = configParameters.get(ILLUMINA, 'outputDir')
-  configMap['sampleSheetName'] = configParameters.get(ILLUMINA, 'sampleSheetName')
-  configMap['baseMask'] = configParameters.get(ILLUMINA, 'baseMask')
-
-  return configMap
 
 def getDate():
-  d = datetime.now()
-  return d.strftime('%A, %d of %B %Y')
+    d = datetime.now()
+    return d.strftime('%A, %d of %B %Y')
+
 
 def sanitizeString(myString):
-  return re.sub('[^A-Za-z0-9]+', '_', myString)
+    return re.sub('[^A-Za-z0-9]+', '_', myString)
 
-def getVocabulary(vocabularyCode, service):
-  ''' Returns the vocabulary terms and vocabulary labels of a vocabulary in a dictionary
-      specified by the parameter vocabularyCode
-      '''
-  terms = []
-  vocabularies = service.listVocabularies()
-  vocabularyDict = {}
-  for vocabulary in vocabularies:
-    if (vocabulary.getCode() == vocabularyCode):
-      terms = vocabulary.getTerms()
-  if terms:
-    for term in terms:
-      vocabularyDict[term.getCode()] = term.getLabel() 
-  else:
-    print ('No vocabulary found for ' + vocabularyCode)
-  return vocabularyDict
 
-def sendMail(emails, files, flowCellName, configMap, logger):
-  '''
-  Send out an email to the specified recipients
-  '''
-  COMMASPACE = ', '
-  listofEmails = emails.split()
+def get_vocabulary(vocabulary_code, service):
+    """
+    Returns the vocabulary terms and vocabulary labels of a vocabulary in a dictionary
+    specified by the parameter vocabularyCode
+    """
+    
+    terms = []
+    vocabularies = service.listVocabularies()
+    vocabulary_dict = {}
+    for vocabulary in vocabularies:
+        if vocabulary.getCode() == vocabulary_code:
+            terms = vocabulary.getTerms()
+    if terms:
+        for term in terms:
+            vocabulary_dict[term.getCode()] = term.getLabel()
+    else:
+        print ('No vocabulary found for ' + vocabulary_code)
+    return vocabulary_dict
 
-  msg = MIMEMultipart()
-  msg['From'] = configMap['mailFrom']
-  msg['To'] = COMMASPACE.join(listofEmails)
-  msg['Date'] = formatdate(localtime=True)
-  msg['Subject'] = 'Generated Sample Sheet for flowcell ' + flowCellName
 
-  msg.attach(MIMEText('Sample Sheet for ' + flowCellName + ' attached.'))
-
-  for f in files:
+def send_email(emails, files, flowCellName, configMap, logger):
+    """
+    Send out an email to the specified recipients
+    """
+    COMMASPACE = ', '
+    emails_list = emails.split()
+    
+    msg = MIMEMultipart()
+    msg['From'] = configMap['mailFrom']
+    msg['To'] = COMMASPACE.join(emails_list)
+    msg['Date'] = formatdate(localtime=True)
+    msg['Subject'] = 'Generated Sample Sheet for flowcell ' + flowCellName
+    
+    msg.attach(MIMEText('Sample Sheet for ' + flowCellName + ' attached.'))
+    
+    for f in files:
         part = MIMEBase('application', 'octet-stream')
         part.set_payload(open(f, 'rb').read())
         Encoders.encode_base64(part)
         part.add_header('Content-Disposition', 'attachment; filename="%s"' % os.path.basename(f))
         msg.attach(part)
+    
+    smtp = smtplib.SMTP(configMap['smptHost'])
+    smtp.sendmail(configMap['mailFrom'], emails_list, msg.as_string())
+    smtp.close()
+    logger.info('Sent email to ' + COMMASPACE.join(emails_list))
 
-  smtp = smtplib.SMTP(configMap['smptHost'])
-  smtp.sendmail(configMap['mailFrom'], listofEmails, msg.as_string())
-  smtp.close()
-  logger.info('Sent email to ' + COMMASPACE.join(listofEmails))
 
+def get_flowcell (illuminaFlowCellTypeName, flowCellName, service, logger):
+    """
+    Getting the the matching FlowCell
+    """
+    sc = SearchCriteria();
+    sc.addMatchClause(SearchCriteria.MatchClause.createAttributeMatch(SearchCriteria.MatchClauseAttribute.TYPE, illuminaFlowCellTypeName));
+    sc.addMatchClause(SearchCriteria.MatchClause.createAttributeMatch(SearchCriteria.MatchClauseAttribute.CODE, flowCellName));
+    foundSample = service.searchForSamples(sc)
+    try:
+        assert foundSample.size() == 1
+    except AssertionError:
+        print (str(foundSample.size()) + ' flow cells found which match.')
+        exit(1)
 
-def getFlowCell (illuminaFlowCellTypeName, flowCellName, service, logger):
-  '''
-  Getting the the matching FlowCell
-  '''
-  sc = SearchCriteria();
-  sc.addMatchClause(SearchCriteria.MatchClause.createAttributeMatch(SearchCriteria.MatchClauseAttribute.TYPE, illuminaFlowCellTypeName));
-  sc.addMatchClause(SearchCriteria.MatchClause.createAttributeMatch(SearchCriteria.MatchClauseAttribute.CODE, flowCellName));
-  foundSample = service.searchForSamples(sc)
-  try:
-    assert foundSample.size() == 1
-  except AssertionError:
-    print (str(foundSample.size()) + ' flow cells found which match.')
-    exit(1)
+    logger.info('Found ' + foundSample[0].getCode() + ' in openBIS')
+    # Search for contained samples
+    sampleSc = SearchCriteria()
+    sampleSc.addSubCriteria(SearchSubCriteria.createSampleContainerCriteria(sc))
+    foundContainedSamples = service.searchForSamples(sampleSc)
 
-  logger.info('Found ' + foundSample[0].getCode() + ' in openBIS')
-  # Search for contained samples
-  sampleSc = SearchCriteria()
-  sampleSc.addSubCriteria(SearchSubCriteria.createSampleContainerCriteria(sc))
-  foundContainedSamples = service.searchForSamples(sampleSc)
-
-  return foundSample[0], foundContainedSamples
-
+    return foundSample[0], foundContainedSamples
 
 def get_model(run_id):
     """
@@ -347,112 +342,153 @@ def get_model(run_id):
     return model
 
 
-def getParents(sampleName, service):
-  '''
-  Returns a list of parents of a sample 
-  '''
-  sc = SearchCriteria();
-  sc.addMatchClause(SearchCriteria.MatchClause.createAttributeMatch(SearchCriteria.MatchClauseAttribute.CODE, sampleName));
-  foundSample = service.searchForSamples(sc)
-
-  try:
-    assert foundSample.size() == 1
-  except AssertionError:
-    print (str(foundSample.size()) + ' flow lanes found which match.')
-
-  # set the criteria for getting the parents when providing the child name
-  sampleSc = SearchCriteria()
-  sampleSc.addSubCriteria(SearchSubCriteria.createSampleChildCriteria(sc))
-  foundParentSamples = service.searchForSamples(sampleSc)
-
-  return foundParentSamples
-
-def getContainedSampleProperties(containedSamples, service):
-
-  # TODO: update description and function name
-  '''   
-  Takes a  list of contained samples, retrieves the parents and their properties and returns it
-  as a dictionary. The key is the sample name, the value is a list of the properties
-  
-  Additionally a dictionary with the lane (key) and the number of samples (value) is returned  
-  '''
-  parentDict = {}
-  samplesPerLaneDict = {}
-
-  for lane in containedSamples:
-    parents = getParents (lane.getCode(), service)
-
+def get_parents(sampleName, service):
+    """
+    Returns a list of parents of a sample 
+    """
+    sc = SearchCriteria();
+    sc.addMatchClause(SearchCriteria.MatchClause.createAttributeMatch(SearchCriteria.MatchClauseAttribute.CODE, sampleName));
+    foundSample = service.searchForSamples(sc)
+    
     try:
-      assert parents.size() >= 1
+        assert foundSample.size() == 1
     except AssertionError:
-      print (str(parents.size()) + ' parents found for lane ' + lane.getCode())
-
-    samplesPerLaneDict[lane.getCode()[-1]] = len(parents)
-
-    for parent in parents:
-      parentCode = parent.getCode()
-      parentProperties = parent.getProperties()
-      propertyDict = {}
-      for property in parentProperties:
-        propertyDict[property] = parentProperties.get(property)
-
-      propertyDict['LANE'] = lane.getCode()
-
-      myKey = sanitizeString(parentCode + '_' + lane.getCode())
-      parentDict[myKey] = propertyDict
-
-  return parentDict, samplesPerLaneDict
+        print (str(foundSample.size()) + ' flow lanes found which match.')
+    
+    # set the criteria for getting the parents when providing the child name
+    sampleSc = SearchCriteria()
+    sampleSc.addSubCriteria(SearchSubCriteria.createSampleChildCriteria(sc))
+    foundParentSamples = service.searchForSamples(sampleSc)
+    
+    return foundParentSamples
 
 
-def convertSampleToDict(foundFlowCell):
-  '''
-  converts <type 'ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample'> to a python dict
-  '''
-  flowCellDict = {}
-  fcProperties = foundFlowCell.getProperties()
-  for property in fcProperties:
-    flowCellDict[property] = fcProperties.get(property)
-  flowCellDict['Project'] = foundFlowCell.getExperimentIdentifierOrNull().split('/')[-1]
-  flowCellDict['Name'] = foundFlowCell.getIdentifier().split('/')[-1]
-  return flowCellDict
+def get_contained_sample_properties(contained_samples, service):
+    """
+    Takes a  list of contained samples, retrieves the parents and their properties and returns it
+    as a dictionary. The key is the sample name, the value is a list of the properties
+
+    Additionally a dictionary with the lane (key) and the number of samples (value) is returned
+    """
+    parentDict = {}
+    samplesPerLaneDict = {}
+
+    for lane in contained_samples:
+        parents = get_parents (lane.getCode(), service)
+
+        try:
+            assert parents.size() >= 1
+        except AssertionError:
+            print (str(parents.size()) + ' parents found for lane ' + lane.getCode())
+
+        samplesPerLaneDict[lane.getCode()[-1]] = len(parents)
+
+        for parent in parents:
+            parentCode = parent.getCode()
+            parentProperties = parent.getProperties()
+            propertyDict = {}
+            for property in parentProperties:
+                propertyDict[property] = parentProperties.get(property)
+
+            propertyDict['LANE'] = lane.getCode()
+
+            myKey = sanitizeString(parentCode + '_' + lane.getCode())
+            parentDict[myKey] = propertyDict
+
+    return parentDict, samplesPerLaneDict
+
+
+
+def transform_sample_to_dict(foundFlowCell):
+    """
+    converts <type 'ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample'> to a python dict
+    """
+    flowCellDict = {}
+    fcProperties = foundFlowCell.getProperties()
+    for property in fcProperties:
+        flowCellDict[property] = fcProperties.get(property)
+    flowCellDict['Project'] = foundFlowCell.getExperimentIdentifierOrNull().split('/')[-1]
+    flowCellDict['Name'] = foundFlowCell.getIdentifier().split('/')[-1]
+    return flowCellDict
 
 
 def pickleDemultiplexCommandList(logger, demultiplexCommandList, fileName):
-  import pickle
+    import pickle
 
-  try:
-    with open(fileName, 'w') as pickleDemux:
-      pickle.dump(demultiplexCommandList, pickleDemux)
-    logger.info('Writing file ' + fileName)
-  except IOError, err:
-    logger.error('File error: ' + str(err))
-    print ('File error: ' + str(err))
+    try:
+        with open(fileName, 'w') as pickleDemux:
+            pickle.dump(demultiplexCommandList, pickleDemux)
+        logger.info('Writing file ' + fileName)
+    except IOError, err:
+        logger.error('File error: ' + str(err))
+        print ('File error: ' + str(err))
 
 
-def writeMiSeqSampleSheet(sampleSheetDict, headerList, flowCellName, myoptions, logger, fileName):
-  '''
-  Writes the given dictionary to a csv file. The order does not matter. As the header is not fixed
-  we first need to write the headerList in the file. This is specific to MiSeq
-  '''
-  newline = lineending[myoptions.lineending]
-  try:
-    with open(fileName, 'wb') as sampleSheetFile:
-      for listElement in headerList:
-        if myoptions.verbose:
-          print listElement
-        sampleSheetFile.write(listElement + newline)
-      for sample in sampleSheetDict:
-        if myoptions.verbose:
-          print sampleSheetDict[sample][0]
-        sampleSheetFile.write(sampleSheetDict[sample][0] + newline)
+def write_sample_sheet(sampleSheetDict, headerList, myoptions, logger, fileName):
+    """
+    Writes the given dictionary to a csv file. The order does not matter. As the
+    header is not fixed we first need to write the headerList in the file.
+    """
+    newline = lineending[myoptions.lineending]
+    try:
+        with open(fileName, 'wb') as sampleSheetFile:
+            for header_element in headerList:
+                if myoptions.verbose:
+                    print header_element
+                sampleSheetFile.write(header_element + newline)
+            for sample in sampleSheetDict:
+                if myoptions.verbose:
+                    print sampleSheetDict[sample][0]
+                sampleSheetFile.write(sampleSheetDict[sample][0] + newline)
 
-      logger.info('Writing file ' + fileName)
+            logger.info('Writing file ' + fileName)
 
-  except IOError:
-    logger.error('File error: ' + str(err))
-    print ('File error: ' + str(err))
+    except IOError:
+        logger.error('File error: ' + str(err))
+        print ('File error: ' + str(err))
 
-  return fileName
+    return fileName
+
+
+def write_sample_sheet_single_lane(ordered_sample_sheet_dict, flowCellDict,
+                                         parentDict, configMap, myoptions, logger, csv_file):
+    
+    newline = lineending[myoptions.lineending]
+    
+    header_list = create_header_section (configMap, parentDict, flowCellDict)
+
+    for lane in range(1, int(flowCellDict[configMap['laneCount']]) + 1):
+        csv_file_path = myoptions.outdir + csv_file + "_" + str(lane) + CSV
+        try:
+            with open(csv_file_path, 'wb') as sample_sheet_file:
+                
+                per_lane_dict = [ordered_sample_sheet_dict[key] for key in ordered_sample_sheet_dict.keys() if int(key[0]) == lane]
+                print(str(lane))
+                
+                index1_set = set ()
+                index2_set = set ()
+                
+                for line in per_lane_dict:
+                    split = line[0].split(",")
+                    
+                    if (len(split[6])):
+                        index1_set.add(len(split[6]))
+                    
+                    if len(split[8]) > 0:
+                        index2_set.add(len(split[8]))
+                
+                print(index1_set)
+                print(index2_set)
+                
+                for header_element in header_list:
+                    sample_sheet_file.write(header_element + newline)
+#                 per_lane_dict = [ordered_sample_sheet_dict[key] for key in ordered_sample_sheet_dict.keys() if int(key[0]) == lane]
+                for sample in per_lane_dict:
+                    sample_sheet_file.write(str(sample[0]) + newline)
+        except IOError:
+            logger.error('File error: ' + str(err))
+            print ('File error: ' + str(err))
+
 
 def get_reverse_complement(sequence):
     lookup_table = {'A': 'T', 'T': 'A', 'G': 'C', 'C': 'G'}
@@ -462,99 +498,91 @@ def get_reverse_complement(sequence):
     return reverse_complement
 
 
-def createSampleSheet(model, parentDict, flowCellDict, configMap, index1Vocabulary, index2Vocabulary,
-                            flowCellName, logger, myoptions):
-  '''
-  '''
+def create_header_section (configMap, parentDict, flowCellDict):
+
+    kitsDict = {"CHIP_SEQ_SAMPLE_PREP" : ["",""],
+                "TRUSEQ_RNA_SAMPLEPREPKIT_V2_ILLUMINA" : ["A","TruSeq LT"],
+                "NEXTERA_XT_DNA_SAMPLE_PREPARATION_KIT_ILLUMINA" : ["S", "Nextera XT"],
+                "TRUSEQ_CHIP_SAMPLE_PREP_KIT" : ["A","TruSeq LT"],
+                "MRNA_SEQ_SAMPLE_PREP" : ["",""],
+                "TRUSEQRNA_SAMPLE_PREP_KIT" : ["A","TruSeq LT"],
+                "NEBNEXT_DNA_SAMPLE_PREP_MASTER_MIX_SET1" : ["A","TruSeq LT"],
+                "NEBNEXT_CHIP-SEQ_LIBRARY_PREP_REAGENT_SET" : ["A","TruSeq LT"],
+                "RIBOZERO_SCRIPTSEQ_MRNA-SEQ_KIT" : ["",""],
+                "NEXTERA_DNA_SAMPLE_PREPARATION_KIT_ILLUMINA" : ["N", "Nextera"],
+                "GENOMICDNA_SAMPLE_PREP" : ["",""],
+                "AGILENT_SURESELECTXT_AUTOMATEDLIBRARYPREP" : ["",""],
+                "TRUSEQ_DNA_SAMPLE_PREP_KIT" : ["A","TruSeq LT"],
+                "NEXTERA_DNA_SAMPLE_PREP_KITS" : ["N", "Nextera"],
+                "AGILENT_SURESELECT_ENRICHMENTSYSTEM" : ["",""],
+                "TRUSEQ_DNA_SAMPLE_PREP_KIT_V2" : ["A","TruSeq LT"],
+                "AGILENT_SURESELECT_HUMAN_ALL_EXON_V5_UTRS" : ["",""],
+                "POLYA_SCRIPTSEQ_MRNA-SEQ_KIT" : ["",""],
+                "AGILENT_SURESELECTXT2_MOUSE_ALL_EXON" : ["",""],
+                "PAIRED_END_DNA_SAMPLE_PREP" : ["",""],
+                "NEXTERA_DNA_SAMPLE_PREP_KIT_BUFFER_HMW" : ["N", "Nextera"]
+    }
+    
+    separator = configMap['separator']
+    header_list = []
+  
+    # here we take the first sample to determine the Sample Prep Kit 
+    try:
+        assay = kitsDict [parentDict.itervalues().next()[configMap['kit']]][1]
+    except:
+        print "No Kit set for sample. Will not set the assay value in the sample sheet"
+        assay = ""
+    
+    header_section = configMap['headerSection'].split(separator)
+    header_section.reverse()
+    header_list = [header_section.pop().strip()]
+    header_list.append(header_section.pop().strip() + separator + configMap['iemFileVersion'])
+    header_list.append(header_section.pop().strip() + separator + configMap['facilityInstitution'])
+    header_list.append(header_section.pop().strip() + separator + configMap['facilityName'])
+    header_list.append(header_section.pop().strip() + separator + flowCellDict['Name'])
+    header_list.append(header_section.pop().strip() + separator + datetime.now().strftime('%m/%d/%Y'))
+    header_list.append(header_section.pop().strip() + separator + configMap['workflow'])
+    header_list.append(header_section.pop().strip() + separator + configMap['application'])
+    header_list.append(header_section.pop().strip() + separator + assay) 
+    header_list.append(header_section.pop().strip() + separator + flowCellDict[configMap['endType']] + '_' + flowCellDict[configMap['cycles']])
+    header_list.append(header_section.pop().strip() + separator + configMap['chemistry'])
+    header_list.append('')
+
+    reads_section = configMap['readsSection'].split(separator)
+    reads_section.reverse()
+    header_list.append(reads_section.pop())
+    header_list.append(flowCellDict[configMap['cycles']])
+    if (flowCellDict[configMap['endType']] == 'PAIRED_END'):
+        header_list.append(flowCellDict[configMap['cycles']])
+    header_list.append('')
+
+    settings_section = configMap['settingsSection'].split(separator)
+    settings_section.reverse()
+    header_list.append(settings_section.pop())
+    if ('nextera' in assay.lower()):
+        header_list.append(configMap['nexteraAdapter'])
+    if ('truseq' in assay.lower()):
+        header_list.append(configMap['truSeqAdapter1'])
+        header_list.append(configMap['truSeqAdapter2'])
+    header_list.append('')
+
+    if int(flowCellDict['INDEXREAD2']) > 0:
+        SeqDataSection = configMap['dataSectionDualRead'].split(',')
+    else:
+        SeqDataSection = configMap['dataSectionSingleRead'].split(',')
+
+    SeqDataSection.reverse()
+    header_list.append(SeqDataSection.pop())
+    header_list.append(','.join(SeqDataSection.pop().strip().split()))
+    
+    return header_list
     
 
-  kitsDict = {"CHIP_SEQ_SAMPLE_PREP" : ["",""],
-              "TRUSEQ_RNA_SAMPLEPREPKIT_V2_ILLUMINA" : ["A","TruSeq LT"],
-              "NEXTERA_XT_DNA_SAMPLE_PREPARATION_KIT_ILLUMINA" : ["S", "Nextera XT"],
-              "TRUSEQ_CHIP_SAMPLE_PREP_KIT" : ["A","TruSeq LT"],
-              "MRNA_SEQ_SAMPLE_PREP" : ["",""],
-              "TRUSEQRNA_SAMPLE_PREP_KIT" : ["A","TruSeq LT"],
-              "NEBNEXT_DNA_SAMPLE_PREP_MASTER_MIX_SET1" : ["A","TruSeq LT"],
-              "NEBNEXT_CHIP-SEQ_LIBRARY_PREP_REAGENT_SET" : ["A","TruSeq LT"],
-              "RIBOZERO_SCRIPTSEQ_MRNA-SEQ_KIT" : ["",""],
-              "NEXTERA_DNA_SAMPLE_PREPARATION_KIT_ILLUMINA" : ["N", "Nextera"],
-              "GENOMICDNA_SAMPLE_PREP" : ["",""],
-              "AGILENT_SURESELECTXT_AUTOMATEDLIBRARYPREP" : ["",""],
-              "TRUSEQ_DNA_SAMPLE_PREP_KIT" : ["A","TruSeq LT"],
-              "NEXTERA_DNA_SAMPLE_PREP_KITS" : ["N", "Nextera"],
-              "AGILENT_SURESELECT_ENRICHMENTSYSTEM" : ["",""],
-              "TRUSEQ_DNA_SAMPLE_PREP_KIT_V2" : ["A","TruSeq LT"],
-              "AGILENT_SURESELECT_HUMAN_ALL_EXON_V5_UTRS" : ["",""],
-              "POLYA_SCRIPTSEQ_MRNA-SEQ_KIT" : ["",""],
-              "AGILENT_SURESELECTXT2_MOUSE_ALL_EXON" : ["",""],
-              "PAIRED_END_DNA_SAMPLE_PREP" : ["",""],
-              "NEXTERA_DNA_SAMPLE_PREP_KIT_BUFFER_HMW" : ["N", "Nextera"]
-  }
+
+def create_sample_sheet_dict(model, parentDict, flowCellDict, configMap, index1Vocabulary, index2Vocabulary, flowCellName):
 
   sampleSheetDict = {}
-  headerList = []
-  
-  # here we take the first sample to determine the Sample Prep Kit 
-  try:
-    assay = kitsDict [parentDict.itervalues().next()[configMap['kit']]][1]
-  except:
-    print "No Kit set for sample. Will not set the assay value in the sample sheet"
-    assay = ""
-    pass
-
   separator = configMap['separator']
-
-  miSeqHeaderSection = configMap['miSeqHeaderSection'].split(separator)
-  miSeqHeaderSection.reverse()
-  headerList = [miSeqHeaderSection.pop().strip()]
-  headerList.append(miSeqHeaderSection.pop().strip() + separator + configMap['iemFileVersion'])
-  headerList.append(miSeqHeaderSection.pop().strip() + separator + configMap['facilityInstitution'])
-  headerList.append(miSeqHeaderSection.pop().strip() + separator + configMap['facilityName'])
-  headerList.append(miSeqHeaderSection.pop().strip() + separator + flowCellDict['Name'])
-  headerList.append(miSeqHeaderSection.pop().strip() + separator + datetime.now().strftime('%m/%d/%Y'))
-  headerList.append(miSeqHeaderSection.pop().strip() + separator + configMap['miSeqWorkflow'])
-  headerList.append(miSeqHeaderSection.pop().strip() + separator + configMap['miSeqApplication'])
-  headerList.append(miSeqHeaderSection.pop().strip() + separator + assay) 
-  headerList.append(miSeqHeaderSection.pop().strip() + separator + flowCellDict[configMap['endType']] + '_' + flowCellDict[configMap['cycles']])
-  headerList.append(miSeqHeaderSection.pop().strip() + separator + configMap['miSeqChemistry'])
-  headerList.append('')
-
-  miSeqReadsSection = configMap['miSeqReadsSection'].split(separator)
-  miSeqReadsSection.reverse()
-  headerList.append(miSeqReadsSection.pop())
-  headerList.append(flowCellDict[configMap['cycles']])
-  if (flowCellDict[configMap['endType']] == 'PAIRED_END'):
-    headerList.append(flowCellDict[configMap['cycles']])
-  headerList.append('')
-
-  miSeqSettingsSection = configMap['miSeqSettingsSection'].split(separator)
-  miSeqSettingsSection.reverse()
-  headerList.append(miSeqSettingsSection.pop())
-  if ('nextera' in assay.lower()):
-    headerList.append(configMap['nexteraAdapter'])
-  if ('truseq' in assay.lower()):
-    headerList.append(configMap['truSeqAdapter1'])
-    headerList.append(configMap['truSeqAdapter2'])
-  headerList.append('')
-
-  if int(flowCellDict['INDEXREAD2']) > 0:
-      if model in [Sequencers.NEXTSEQ_500]:
-          SeqDataSection = configMap['nextSeqDataSectionDualRead'].split(',')
-      if model in HISEQ_LIST:
-          SeqDataSection = configMap['hiSeqDataSectionDualRead'].split(',')
-      if model in [Sequencers.MISEQ]: 
-          SeqDataSection = configMap['miSeqDataSectionDualRead'].split(',')
-  else:
-      if model in [Sequencers.NEXTSEQ_500]:
-          SeqDataSection = configMap['nextSeqDataSectionSingleRead'].split(',')
-      if model in HISEQ_LIST:
-          SeqDataSection = configMap['hiSeqDataSectionSingleRead'].split(',')
-      if model in [Sequencers.MISEQ]:
-          SeqDataSection = configMap['miSeqDataSectionSingleRead'].split(',')
-    
-  SeqDataSection.reverse()
-  headerList.append(SeqDataSection.pop())
-  headerList.append(','.join(SeqDataSection.pop().strip().split()))
 
   for key in parentDict.keys():
     lane = parentDict[key]['LANE'][-1:]
@@ -562,7 +590,7 @@ def createSampleSheet(model, parentDict, flowCellDict, configMap, index1Vocabula
     if (configMap['index1Name'] not in parentDict[key]) or (parentDict[key][configMap['index1Name']] == 'NOINDEX'):
       continue
     index1 = parentDict[key][configMap['index1Name']]
-
+    index2=""
     if configMap['index2Name'] in parentDict[key]:
       index2 = parentDict[key][configMap['index2Name']]
       indexNumber = index2Vocabulary[parentDict[key][configMap['index2Name']]].split()[2]
@@ -571,7 +599,7 @@ def createSampleSheet(model, parentDict, flowCellDict, configMap, index1Vocabula
       kit = parentDict[key][configMap['kit']]
       prefix = kitsDict[kit][0]
     except:
-      print "Missing Kit on " + str(key)
+#       print "Missing Kit on " + str(key)
       prefix = ""
 
     len_index1 = int(flowCellDict['INDEXREAD'])
@@ -581,13 +609,11 @@ def createSampleSheet(model, parentDict, flowCellDict, configMap, index1Vocabula
     if model in HISEQ_LIST or model in Sequencers.MISEQ:
         lane_string = lane + separator
 
-    if int(flowCellDict['INDEXREAD2']) > 0:
-      
+    if int(flowCellDict['INDEXREAD2']) > 0 and index2:
       if model in Sequencers.NEXTSEQ_500:
           index2_processed = get_reverse_complement(index2[0:len_index2])
       else:
           index2_processed = index2
-      
       
       sampleSheetDict[lane + '_' + key] = [
                             lane_string
@@ -613,71 +639,55 @@ def createSampleSheet(model, parentDict, flowCellDict, configMap, index1Vocabula
                             + key + separator
                             ]
     
-  myFileName = myoptions.outdir + configMap['SampleSheetFileName'] + '_' + \
-                   flowCellName + '.csv'
+  csv_file_name = configMap['SampleSheetFileName'] + '_' + flowCellName
+  ordered_sample_sheet_dict = OrderedDict(sorted(sampleSheetDict.items(), key=lambda t: t[0]))
 
-  sampleSheetFile = writeMiSeqSampleSheet(sampleSheetDict, headerList, flowCellName,
-                                          myoptions, logger, fileName=myFileName)
-  return sampleSheetFile
+  return ordered_sample_sheet_dict, csv_file_name
 
 '''
 Main script
 '''
 
-# def guessSequencerType(configMap, flowCellDict):
-#     
-#     if flowCellDict['SEQUENCER']:
-#         sequencer_code = flowCellDict['SEQUENCER']
-#     else:
-#         print("No Sequencer code found (FLOWCELL property SEQUENCER)!")
-#         return "Unspecified"
-#         
-#     hiseqList = configMap['hiSeqNames'].split()
-#     miseqList = configMap['miSeqNames'].split()
-#     nextseqList = configMap['nextSeqNames'].split()
-#     
-#     if sequencer_code in hiseqList:
-#         return HISEQ
-#     elif sequencer_code in miseqList:
-#         return MISEQ
-#     elif sequencer_code in nextseqList:
-#         return NEXTSEQ
-#     else:
-#         print("WARNING: Sequencer Code " + sequencer_code + " not found in properties files!")
-
-
 def main ():
 
-  logger = setUpLogger('log/')
-  logger.info('Started Creation of Sample Sheet...')
+    logger = setUpLogger('log/')
+    logger.info('Started Creation of Sample Sheet...')
 
-  myoptions = parseOptions(logger)
+    myoptions = parseOptions(logger)
 
-  if myoptions.debug:
-    logger.setLevel(logging.DEBUG)
+    if myoptions.debug:
+        logger.setLevel(logging.DEBUG)
 
-  flowCellName = myoptions.flowcell
-  configMap = readConfig(logger)
-  service = login(logger, configMap)
+    flowCellName = myoptions.flowcell
+    configMap = readConfig(logger)
+    service = login(logger, configMap)
 
-  foundFlowCell, containedSamples = getFlowCell(configMap['illuminaFlowCellTypeName'], flowCellName,
+    foundFlowCell, containedSamples = get_flowcell(configMap['illuminaFlowCellTypeName'], flowCellName,
                                                 service, logger)
-  parentDict, samplesPerLaneDict = getContainedSampleProperties(containedSamples, service)
-  logger.info('Found ' + str(len(parentDict)) + ' samples on the flow cell ' + flowCellName)
+    parentDict, samplesPerLaneDict = get_contained_sample_properties    (containedSamples, service)
+    logger.info('Found ' + str(len(parentDict)) + ' samples on the flow cell ' + flowCellName)
 
-  flowCellName = foundFlowCell.getCode()
-  flowCellDict = convertSampleToDict(foundFlowCell)
-  model = get_model(flowCellDict['RUN_NAME_FOLDER'])
+    flowCellName = foundFlowCell.getCode()
+    flowCellDict = transform_sample_to_dict(foundFlowCell)
+    model = get_model(flowCellDict['RUN_NAME_FOLDER'])
+    print("Auto-detected: " + model)
 
-  index1Vocabulary = getVocabulary(configMap['index1Name'], service)
-  index2Vocabulary = getVocabulary(configMap['index2Name'], service)
-  SampleSheetFile = createSampleSheet(model, parentDict, flowCellDict, configMap,
-                             index1Vocabulary, index2Vocabulary, flowCellName, logger, myoptions)
+    index1Vocabulary = get_vocabulary(configMap['index1Name'], service)
+    index2Vocabulary = get_vocabulary(configMap['index2Name'], service)
+    ordered_sample_sheet_dict, csv_file_name = create_sample_sheet_dict(model, parentDict,
+                            flowCellDict, configMap, index1Vocabulary, index2Vocabulary, flowCellName)
+    
+    if myoptions.singlelane:
+        write_sample_sheet_single_lane(ordered_sample_sheet_dict, flowCellDict,
+                                          parentDict, configMap, myoptions, logger, csv_file_name)
+    else:
+        header_list = create_header_section (configMap, parentDict, flowCellDict)
+        sampleSheetFile = write_sample_sheet(ordered_sample_sheet_dict, header_list, 
+                                          myoptions, logger, myoptions.outdir + csv_file_name + CSV)
+        if myoptions.maillist:
+            sendMail(configMap['mailList'], [SampleSheetFile], flowCellName, configMap, logger)
 
-  if myoptions.maillist:
-    sendMail(configMap['mailList'], [SampleSheetFile], flowCellName, configMap, logger)
-
-  logout(service, logger)
+    logout(service, logger)
 
 if __name__ == "__main__":
     main()
