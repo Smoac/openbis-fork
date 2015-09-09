@@ -26,7 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.space.SpaceTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.space.ISpaceTranslator;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.space.Space;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.space.SpaceFetchOptions;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
@@ -40,7 +40,7 @@ public class SpaceSqlTranslator implements ISpaceSqlTranslator
 {
 
     @Autowired
-    private SpaceTranslator spaceTranslator;
+    private ISpaceTranslator spaceTranslator;
 
     @Autowired
     private IDAOFactory daoFactory;

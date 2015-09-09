@@ -41,7 +41,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
  * @author pkupczyk
  */
 @Component
-public class SampleExperimentTranslator extends ObjectToOneRelationTranslator<Experiment, ExperimentFetchOptions>
+public class SampleExperimentSqlTranslator extends ObjectToOneRelationTranslator<Experiment, ExperimentFetchOptions> implements
+        ISampleExperimentSqlTranslator
 {
 
     @Autowired

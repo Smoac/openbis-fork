@@ -30,7 +30,7 @@ import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql.Ob
  * @author pkupczyk
  */
 @Component
-public class MaterialTypeBaseTranslator extends ObjectBaseTranslator<MaterialTypeBaseRecord>
+public class MaterialTypeBaseSqlTranslator extends ObjectBaseTranslator<MaterialTypeBaseRecord> implements IMaterialTypeBaseSqlTranslator
 {
 
     @Override

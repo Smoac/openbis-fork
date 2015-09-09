@@ -35,10 +35,10 @@ public class PersonSqlTranslator extends AbstractCachingTranslator<Long, Person,
 {
 
     @Autowired
-    private PersonBaseTranslator baseTranslator;
+    private IPersonBaseSqlTranslator baseTranslator;
 
     @Autowired
-    private PersonSpaceTranslator spaceTranslator;
+    private IPersonSpaceSqlTranslator spaceTranslator;
 
     @Override
     protected Person createObject(TranslationContext context, Long personId, PersonFetchOptions fetchOptions)
@@ -53,11 +53,11 @@ public class PersonSqlTranslator extends AbstractCachingTranslator<Long, Person,
     {
         TranslationResults relations = new TranslationResults();
 
-        relations.put(PersonBaseTranslator.class, baseTranslator.translate(context, personIds, null));
+        relations.put(IPersonBaseSqlTranslator.class, baseTranslator.translate(context, personIds, null));
 
         if (fetchOptions.hasSpace())
         {
-            relations.put(PersonSpaceTranslator.class, spaceTranslator.translate(context, personIds, fetchOptions.withSpace()));
+            relations.put(IPersonSpaceSqlTranslator.class, spaceTranslator.translate(context, personIds, fetchOptions.withSpace()));
         }
 
         return relations;
@@ -68,7 +68,7 @@ public class PersonSqlTranslator extends AbstractCachingTranslator<Long, Person,
             PersonFetchOptions fetchOptions)
     {
         TranslationResults relations = (TranslationResults) objectRelations;
-        PersonBaseRecord baseRecord = relations.get(PersonBaseTranslator.class, personId);
+        PersonBaseRecord baseRecord = relations.get(IPersonBaseSqlTranslator.class, personId);
 
         result.setFirstName(baseRecord.firstName);
         result.setLastName(baseRecord.lastName);
@@ -79,7 +79,7 @@ public class PersonSqlTranslator extends AbstractCachingTranslator<Long, Person,
 
         if (fetchOptions.hasSpace())
         {
-            result.setSpace(relations.get(PersonSpaceTranslator.class, personId));
+            result.setSpace(relations.get(IPersonSpaceSqlTranslator.class, personId));
             result.getFetchOptions().withSpaceUsing(fetchOptions.withSpace());
         }
     }

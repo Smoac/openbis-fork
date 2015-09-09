@@ -42,10 +42,10 @@ public class TagSqlTranslator extends AbstractCachingTranslator<Long, Tag, TagFe
 {
 
     @Autowired
-    private TagBaseTranslator baseTranslator;
+    private ITagBaseSqlTranslator baseTranslator;
 
     @Autowired
-    private TagOwnerTranslator ownerTranslator;
+    private ITagOwnerSqlTranslator ownerTranslator;
 
     @Override
     protected Collection<Long> shouldTranslate(TranslationContext context, Collection<Long> tagIds, TagFetchOptions fetchOptions)
@@ -78,11 +78,11 @@ public class TagSqlTranslator extends AbstractCachingTranslator<Long, Tag, TagFe
     {
         TranslationResults relations = new TranslationResults();
 
-        relations.put(TagBaseTranslator.class, baseTranslator.translate(context, tagIds, null));
+        relations.put(ITagBaseSqlTranslator.class, baseTranslator.translate(context, tagIds, null));
 
         if (fetchOptions.hasOwner())
         {
-            relations.put(TagOwnerTranslator.class, ownerTranslator.translate(context, tagIds, fetchOptions.withOwner()));
+            relations.put(ITagOwnerSqlTranslator.class, ownerTranslator.translate(context, tagIds, fetchOptions.withOwner()));
         }
 
         return relations;
@@ -92,7 +92,7 @@ public class TagSqlTranslator extends AbstractCachingTranslator<Long, Tag, TagFe
     protected void updateObject(TranslationContext context, Long tagId, Tag result, Object objectRelations, TagFetchOptions fetchOptions)
     {
         TranslationResults relations = (TranslationResults) objectRelations;
-        TagBaseRecord baseRecord = relations.get(TagBaseTranslator.class, tagId);
+        TagBaseRecord baseRecord = relations.get(ITagBaseSqlTranslator.class, tagId);
 
         result.setPermId(new TagPermId(baseRecord.owner, baseRecord.name));
         result.setCode(baseRecord.name);
@@ -102,7 +102,7 @@ public class TagSqlTranslator extends AbstractCachingTranslator<Long, Tag, TagFe
 
         if (fetchOptions.hasOwner())
         {
-            result.setOwner(relations.get(TagOwnerTranslator.class, tagId));
+            result.setOwner(relations.get(ITagOwnerSqlTranslator.class, tagId));
             result.getFetchOptions().withOwnerUsing(fetchOptions.withOwner());
         }
     }

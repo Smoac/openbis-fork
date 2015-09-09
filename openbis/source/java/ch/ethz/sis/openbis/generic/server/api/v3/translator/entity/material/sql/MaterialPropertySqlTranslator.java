@@ -33,7 +33,7 @@ import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.property.sql.
  * @author pkupczyk
  */
 @Component
-public class MaterialPropertySqlTranslator extends PropertySqlTranslator
+public class MaterialPropertySqlTranslator extends PropertySqlTranslator implements IMaterialPropertySqlTranslator
 {
 
     @Override

@@ -37,7 +37,7 @@ public class MaterialTypeSqlTranslator extends AbstractCachingTranslator<Long, M
 {
 
     @Autowired
-    private MaterialTypeBaseTranslator baseTranslator;
+    private IMaterialTypeBaseSqlTranslator baseTranslator;
 
     @Override
     protected MaterialType createObject(TranslationContext context, Long typeId, MaterialTypeFetchOptions fetchOptions)
@@ -52,7 +52,7 @@ public class MaterialTypeSqlTranslator extends AbstractCachingTranslator<Long, M
     {
         TranslationResults relations = new TranslationResults();
 
-        relations.put(MaterialTypeBaseTranslator.class, baseTranslator.translate(context, typeIds, null));
+        relations.put(IMaterialTypeBaseSqlTranslator.class, baseTranslator.translate(context, typeIds, null));
 
         return relations;
     }
@@ -62,7 +62,7 @@ public class MaterialTypeSqlTranslator extends AbstractCachingTranslator<Long, M
             MaterialTypeFetchOptions fetchOptions)
     {
         TranslationResults relations = (TranslationResults) objectRelations;
-        MaterialTypeBaseRecord baseRecord = relations.get(MaterialTypeBaseTranslator.class, typeId);
+        MaterialTypeBaseRecord baseRecord = relations.get(IMaterialTypeBaseSqlTranslator.class, typeId);
 
         result.setPermId(new EntityTypePermId(baseRecord.code));
         result.setCode(baseRecord.code);

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.person.sql;
+package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.material.sql;
 
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 
@@ -30,31 +30,32 @@ import org.springframework.stereotype.Component;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql.ObjectRelationRecord;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql.ObjectToOneRelationTranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.space.sql.ISpaceSqlTranslator;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.space.Space;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.space.SpaceFetchOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material.MaterialType;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.material.MaterialTypeFetchOptions;
 
 /**
  * @author pkupczyk
  */
 @Component
-public class PersonSpaceTranslator extends ObjectToOneRelationTranslator<Space, SpaceFetchOptions>
+public class MaterialTypeRelationSqlTranslator extends ObjectToOneRelationTranslator<MaterialType, MaterialTypeFetchOptions> implements
+        IMaterialTypeRelationSqlTranslator
 {
 
     @Autowired
-    private ISpaceSqlTranslator spaceTranslator;
+    private IMaterialTypeSqlTranslator typeTranslator;
 
     @Override
     protected List<ObjectRelationRecord> loadRecords(LongOpenHashSet objectIds)
     {
-        PersonQuery query = QueryTool.getManagedQuery(PersonQuery.class);
-        return query.getSpaces(objectIds);
+        MaterialQuery query = QueryTool.getManagedQuery(MaterialQuery.class);
+        return query.getTypeIds(objectIds);
     }
 
     @Override
-    protected Map<Long, Space> translateRelated(TranslationContext context, Collection<Long> relatedIds, SpaceFetchOptions relatedFetchOptions)
+    protected Map<Long, MaterialType> translateRelated(TranslationContext context, Collection<Long> relatedIds,
+            MaterialTypeFetchOptions relatedFetchOptions)
     {
-        return spaceTranslator.translate(context, relatedIds, relatedFetchOptions);
+        return typeTranslator.translate(context, relatedIds, relatedFetchOptions);
     }
 
 }

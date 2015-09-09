@@ -32,7 +32,7 @@ import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationResults;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.attachment.IAttachmentTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.experiment.IExperimentTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.person.IPersonTranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.project.sql.ProjectHistoryTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.project.sql.IProjectHistorySqlTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.space.ISpaceTranslator;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.attachment.Attachment;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
@@ -64,7 +64,7 @@ public class ProjectTranslator extends AbstractCachingTranslator<ProjectPE, Proj
     private IAttachmentTranslator attachmentTranslator;
 
     @Autowired
-    private ProjectHistoryTranslator historyTranslator;
+    private IProjectHistorySqlTranslator historyTranslator;
 
     @Override
     protected boolean shouldTranslate(TranslationContext context, ProjectPE input, ProjectFetchOptions fetchOptions)
@@ -100,7 +100,7 @@ public class ProjectTranslator extends AbstractCachingTranslator<ProjectPE, Proj
             {
                 projectIds.add(project.getId());
             }
-            relations.put(ProjectHistoryTranslator.class, historyTranslator.translate(context, projectIds, fetchOptions.withHistory()));
+            relations.put(IProjectHistorySqlTranslator.class, historyTranslator.translate(context, projectIds, fetchOptions.withHistory()));
         }
 
         return relations;
@@ -153,7 +153,7 @@ public class ProjectTranslator extends AbstractCachingTranslator<ProjectPE, Proj
 
         if (fetchOptions.hasHistory())
         {
-            result.setHistory(relations.get(ProjectHistoryTranslator.class, project.getId()));
+            result.setHistory(relations.get(IProjectHistorySqlTranslator.class, project.getId()));
             result.getFetchOptions().withHistoryUsing(fetchOptions.withHistory());
         }
 

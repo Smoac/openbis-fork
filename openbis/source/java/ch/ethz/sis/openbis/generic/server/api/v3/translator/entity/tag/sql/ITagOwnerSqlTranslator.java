@@ -16,28 +16,14 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.tag.sql;
 
-import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
-
-import java.util.List;
-
-import net.lemnik.eodsql.QueryTool;
-
-import org.springframework.stereotype.Component;
-
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql.ObjectBaseTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql.IObjectToOneRelationTranslator;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.person.Person;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.person.PersonFetchOptions;
 
 /**
  * @author pkupczyk
  */
-@Component
-public class TagBaseTranslator extends ObjectBaseTranslator<TagBaseRecord>
+public interface ITagOwnerSqlTranslator extends IObjectToOneRelationTranslator<Person, PersonFetchOptions>
 {
-
-    @Override
-    protected List<TagBaseRecord> loadRecords(LongOpenHashSet objectIds)
-    {
-        TagQuery query = QueryTool.getManagedQuery(TagQuery.class);
-        return query.getTags(new LongOpenHashSet(objectIds));
-    }
 
 }

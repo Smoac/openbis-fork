@@ -42,7 +42,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
  * @author pkupczyk
  */
 @Component
-public class SampleParentTranslator extends ObjectToManyRelationTranslator<Sample, SampleFetchOptions>
+public class SampleParentSqlTranslator extends ObjectToManyRelationTranslator<Sample, SampleFetchOptions> implements ISampleParentSqlTranslator
 {
 
     @Autowired

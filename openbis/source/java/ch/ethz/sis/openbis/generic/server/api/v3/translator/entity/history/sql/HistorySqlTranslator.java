@@ -41,6 +41,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.history.Histor
  * @author pkupczyk
  */
 public abstract class HistorySqlTranslator extends AbstractCachingTranslator<Long, ObjectHolder<List<HistoryEntry>>, HistoryEntryFetchOptions>
+        implements IHistorySqlTranslator
 {
 
     @Autowired

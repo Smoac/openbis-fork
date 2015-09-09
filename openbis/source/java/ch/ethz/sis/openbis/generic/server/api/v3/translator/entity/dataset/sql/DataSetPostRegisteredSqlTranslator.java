@@ -31,25 +31,24 @@ import org.springframework.stereotype.Component;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.AbstractCachingTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql.ObjectHolder;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.FetchOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.EmptyFetchOptions;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 @Component
-public class DataSetPostRegisteredTranslator extends AbstractCachingTranslator<Long, ObjectHolder<Boolean>, FetchOptions<?>>
+public class DataSetPostRegisteredSqlTranslator extends AbstractCachingTranslator<Long, ObjectHolder<Boolean>, EmptyFetchOptions> implements
+        IDataSetPostRegisteredSqlTranslator
 {
 
     @Override
-    protected ObjectHolder<Boolean> createObject(TranslationContext context, Long input, FetchOptions<?> fetchOptions)
+    protected ObjectHolder<Boolean> createObject(TranslationContext context, Long input, EmptyFetchOptions fetchOptions)
     {
         return new ObjectHolder<Boolean>();
     }
 
     @Override
-    protected Object getObjectsRelations(TranslationContext context, Collection<Long> dataSetIds, FetchOptions<?> fetchOptions)
+    protected Object getObjectsRelations(TranslationContext context, Collection<Long> dataSetIds, EmptyFetchOptions fetchOptions)
     {
         DataSetQuery query = QueryTool.getManagedQuery(DataSetQuery.class);
         Set<Long> notPostregisteredDataSets = new HashSet<Long>(query.getNotPostRegisteredDataSets(new LongOpenHashSet(dataSetIds)));
@@ -64,7 +63,7 @@ public class DataSetPostRegisteredTranslator extends AbstractCachingTranslator<L
     @Override
     @SuppressWarnings("unchecked")
     protected void updateObject(TranslationContext context, Long dataSetId, ObjectHolder<Boolean> output, Object relations,
-            FetchOptions<?> fetchOptions)
+            EmptyFetchOptions fetchOptions)
     {
         Map<Long, Boolean> entriesMap = (Map<Long, Boolean>) relations;
         output.setObject(entriesMap.get(dataSetId));

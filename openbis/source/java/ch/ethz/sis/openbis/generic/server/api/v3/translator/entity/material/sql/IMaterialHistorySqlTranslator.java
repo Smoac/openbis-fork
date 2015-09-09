@@ -16,28 +16,12 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.material.sql;
 
-import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
-
-import java.util.List;
-
-import net.lemnik.eodsql.QueryTool;
-
-import org.springframework.stereotype.Component;
-
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql.ObjectBaseTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.history.sql.IHistorySqlTranslator;
 
 /**
  * @author pkupczyk
  */
-@Component
-public class MaterialBaseTranslator extends ObjectBaseTranslator<MaterialBaseRecord>
+public interface IMaterialHistorySqlTranslator extends IHistorySqlTranslator
 {
-
-    @Override
-    protected List<MaterialBaseRecord> loadRecords(LongOpenHashSet objectIds)
-    {
-        MaterialQuery query = QueryTool.getManagedQuery(MaterialQuery.class);
-        return query.getMaterials(new LongOpenHashSet(objectIds));
-    }
 
 }

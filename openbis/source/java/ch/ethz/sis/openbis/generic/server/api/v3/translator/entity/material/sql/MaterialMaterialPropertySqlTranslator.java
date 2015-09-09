@@ -39,7 +39,8 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.material.Mater
  * @author pkupczyk
  */
 @Component
-public class MaterialMaterialPropertyTranslator extends AbstractCachingTranslator<Long, ObjectHolder<Map<String, Material>>, MaterialFetchOptions>
+public class MaterialMaterialPropertySqlTranslator extends AbstractCachingTranslator<Long, ObjectHolder<Map<String, Material>>, MaterialFetchOptions>
+        implements IMaterialMaterialPropertySqlTranslator
 {
 
     @Autowired

@@ -40,7 +40,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.SpacePermId;
  * @author pkupczyk
  */
 @Component
-public class ProjectHistoryTranslator extends HistorySqlTranslator
+public class ProjectHistorySqlTranslator extends HistorySqlTranslator implements IProjectHistorySqlTranslator
 {
 
     @Override

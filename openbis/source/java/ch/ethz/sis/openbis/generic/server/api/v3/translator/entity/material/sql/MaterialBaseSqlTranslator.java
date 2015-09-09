@@ -18,35 +18,26 @@ package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.material.sql
 
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 
-import java.util.Collection;
 import java.util.List;
 
 import net.lemnik.eodsql.QueryTool;
 
 import org.springframework.stereotype.Component;
 
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.history.sql.HistoryPropertyRecord;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.history.sql.HistorySqlTranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.history.sql.HistoryRelationshipRecord;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql.ObjectBaseTranslator;
 
 /**
  * @author pkupczyk
  */
 @Component
-public class MaterialHistoryTranslator extends HistorySqlTranslator
+public class MaterialBaseSqlTranslator extends ObjectBaseTranslator<MaterialBaseRecord> implements IMaterialBaseSqlTranslator
 {
 
     @Override
-    protected List<HistoryPropertyRecord> loadPropertyHistory(Collection<Long> entityIds)
+    protected List<MaterialBaseRecord> loadRecords(LongOpenHashSet objectIds)
     {
         MaterialQuery query = QueryTool.getManagedQuery(MaterialQuery.class);
-        return query.getPropertiesHistory(new LongOpenHashSet(entityIds));
-    }
-
-    @Override
-    protected List<HistoryRelationshipRecord> loadRelationshipHistory(Collection<Long> entityIds)
-    {
-        return null;
+        return query.getMaterials(new LongOpenHashSet(objectIds));
     }
 
 }

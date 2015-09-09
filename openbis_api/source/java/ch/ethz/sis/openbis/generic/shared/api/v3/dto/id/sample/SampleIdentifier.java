@@ -18,7 +18,6 @@ package ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.ObjectIdentifier;
 import ch.systemsx.cisd.base.annotation.JsonObject;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
  * Sample identifier.
@@ -37,6 +36,11 @@ public class SampleIdentifier extends ObjectIdentifier implements ISampleId
     public SampleIdentifier(String identifier)
     {
         super(identifier);
+    }
+
+    public SampleIdentifier(String spaceCodeOrNull, String sampleCode)
+    {
+        this(spaceCodeOrNull == null ? "/" + sampleCode : "/" + spaceCodeOrNull + "/" + sampleCode);
     }
 
     //

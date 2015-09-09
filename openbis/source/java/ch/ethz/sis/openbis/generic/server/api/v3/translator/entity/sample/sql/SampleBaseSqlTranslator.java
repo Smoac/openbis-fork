@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.person.sql;
+package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.sample.sql;
 
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 
@@ -30,14 +30,14 @@ import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql.Ob
  * @author pkupczyk
  */
 @Component
-public class PersonBaseTranslator extends ObjectBaseTranslator<PersonBaseRecord>
+public class SampleBaseSqlTranslator extends ObjectBaseTranslator<SampleBaseRecord> implements ISampleBaseSqlTranslator
 {
 
     @Override
-    protected List<PersonBaseRecord> loadRecords(LongOpenHashSet objectIds)
+    protected List<SampleBaseRecord> loadRecords(LongOpenHashSet objectIds)
     {
-        PersonQuery query = QueryTool.getManagedQuery(PersonQuery.class);
-        return query.getPersons(new LongOpenHashSet(objectIds));
+        SampleQuery query = QueryTool.getManagedQuery(SampleQuery.class);
+        return query.getSamples(new LongOpenHashSet(objectIds));
     }
 
 }

@@ -31,7 +31,7 @@ import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationResults;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.attachment.IAttachmentTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.dataset.IDataSetTranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.experiment.sql.ExperimentHistoryTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.experiment.sql.IExperimentHistorySqlTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.material.IMaterialPropertyTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.person.IPersonTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.project.IProjectTranslator;
@@ -88,7 +88,7 @@ public class ExperimentTranslator extends AbstractCachingTranslator<ExperimentPE
     private ITagTranslator tagTranslator;
 
     @Autowired
-    private ExperimentHistoryTranslator historyTranslator;
+    private IExperimentHistorySqlTranslator historyTranslator;
 
     @Override
     protected boolean shouldTranslate(TranslationContext context, ExperimentPE input, ExperimentFetchOptions fetchOptions)
@@ -124,7 +124,7 @@ public class ExperimentTranslator extends AbstractCachingTranslator<ExperimentPE
             {
                 experimentIds.add(experiment.getId());
             }
-            relations.put(ExperimentHistoryTranslator.class, historyTranslator.translate(context, experimentIds, fetchOptions.withHistory()));
+            relations.put(IExperimentHistorySqlTranslator.class, historyTranslator.translate(context, experimentIds, fetchOptions.withHistory()));
         }
 
         return relations;
@@ -202,7 +202,7 @@ public class ExperimentTranslator extends AbstractCachingTranslator<ExperimentPE
 
         if (fetchOptions.hasHistory())
         {
-            result.setHistory(relations.get(ExperimentHistoryTranslator.class, experiment.getId()));
+            result.setHistory(relations.get(IExperimentHistorySqlTranslator.class, experiment.getId()));
             result.getFetchOptions().withHistoryUsing(fetchOptions.withHistory());
         }
     }

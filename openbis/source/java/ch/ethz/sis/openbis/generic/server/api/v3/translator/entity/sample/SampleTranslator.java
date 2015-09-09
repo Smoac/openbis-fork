@@ -18,9 +18,9 @@ import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.dataset.IData
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.material.IMaterialPropertyTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.person.IPersonTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.property.IPropertyTranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.sample.sql.SampleExperimentTranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.sample.sql.SampleHistoryTranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.sample.sql.SampleParentTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.sample.sql.ISampleExperimentSqlTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.sample.sql.ISampleHistorySqlTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.sample.sql.ISampleParentSqlTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.space.ISpaceTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.tag.ITagTranslator;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSet;
@@ -42,10 +42,10 @@ public class SampleTranslator extends AbstractCachingTranslator<SamplePE, Sample
     private ISpaceTranslator spaceTranslator;
 
     @Autowired
-    private SampleExperimentTranslator experimentTranslator;
+    private ISampleExperimentSqlTranslator experimentTranslator;
 
     @Autowired
-    private SampleParentTranslator parentTranslator;
+    private ISampleParentSqlTranslator parentTranslator;
 
     @Autowired
     private IAttachmentTranslator attachmentTranslator;
@@ -69,7 +69,7 @@ public class SampleTranslator extends AbstractCachingTranslator<SamplePE, Sample
     private IDataSetTranslator dataSetTranslator;
 
     @Autowired
-    private SampleHistoryTranslator historyTranslator;
+    private ISampleHistorySqlTranslator historyTranslator;
 
     @Override
     protected boolean shouldTranslate(TranslationContext context, SamplePE input, SampleFetchOptions fetchOptions)
@@ -104,17 +104,17 @@ public class SampleTranslator extends AbstractCachingTranslator<SamplePE, Sample
 
         if (fetchOptions.hasExperiment())
         {
-            relations.put(SampleExperimentTranslator.class, experimentTranslator.translate(context, sampleIds, fetchOptions.withExperiment()));
+            relations.put(ISampleExperimentSqlTranslator.class, experimentTranslator.translate(context, sampleIds, fetchOptions.withExperiment()));
         }
 
         if (fetchOptions.hasParents())
         {
-            relations.put(SampleParentTranslator.class, parentTranslator.translate(context, sampleIds, fetchOptions.withParents()));
+            relations.put(ISampleParentSqlTranslator.class, parentTranslator.translate(context, sampleIds, fetchOptions.withParents()));
         }
 
         if (fetchOptions.hasHistory())
         {
-            relations.put(SampleHistoryTranslator.class, historyTranslator.translate(context, sampleIds, fetchOptions.withHistory()));
+            relations.put(ISampleHistorySqlTranslator.class, historyTranslator.translate(context, sampleIds, fetchOptions.withHistory()));
         }
 
         return relations;
@@ -128,7 +128,7 @@ public class SampleTranslator extends AbstractCachingTranslator<SamplePE, Sample
 
         if (fetchOptions.hasExperiment())
         {
-            result.setExperiment(relations.get(SampleExperimentTranslator.class, samplePe.getId()));
+            result.setExperiment(relations.get(ISampleExperimentSqlTranslator.class, samplePe.getId()));
             result.getFetchOptions().withExperimentUsing(fetchOptions.withExperiment());
         }
 
@@ -152,7 +152,7 @@ public class SampleTranslator extends AbstractCachingTranslator<SamplePE, Sample
 
         if (fetchOptions.hasParents())
         {
-            result.setParents((List<Sample>) relations.get(SampleParentTranslator.class, samplePe.getId()));
+            result.setParents((List<Sample>) relations.get(ISampleParentSqlTranslator.class, samplePe.getId()));
             result.getFetchOptions().withParentsUsing(fetchOptions.withParents());
         }
 
@@ -216,7 +216,7 @@ public class SampleTranslator extends AbstractCachingTranslator<SamplePE, Sample
 
         if (fetchOptions.hasHistory())
         {
-            result.setHistory(relations.get(SampleHistoryTranslator.class, samplePe.getId()));
+            result.setHistory(relations.get(ISampleHistorySqlTranslator.class, samplePe.getId()));
             result.getFetchOptions().withHistoryUsing(fetchOptions.withHistory());
         }
     }

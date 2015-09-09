@@ -28,6 +28,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.property.Prope
  * @author pkupczyk
  */
 public abstract class PropertySqlTranslator extends AbstractCachingTranslator<Long, ObjectHolder<Map<String, String>>, PropertyFetchOptions>
+        implements IPropertySqlTranslator
 {
 
     @Override

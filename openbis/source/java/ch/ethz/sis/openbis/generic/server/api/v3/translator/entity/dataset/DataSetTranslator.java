@@ -28,8 +28,8 @@ import org.springframework.stereotype.Component;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.AbstractCachingTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationResults;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.dataset.sql.DataSetHistoryTranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.dataset.sql.DataSetPostRegisteredTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.dataset.sql.IDataSetHistorySqlTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.dataset.sql.IDataSetPostRegisteredSqlTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.experiment.IExperimentTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.material.IMaterialPropertyTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.person.IPersonTranslator;
@@ -77,10 +77,10 @@ public class DataSetTranslator extends AbstractCachingTranslator<DataPE, DataSet
     private IExternalDataTranslator externalDataTranslator;
 
     @Autowired
-    private DataSetHistoryTranslator historyTranslator;
-    
+    private IDataSetHistorySqlTranslator historyTranslator;
+
     @Autowired
-    private DataSetPostRegisteredTranslator dataSetPostRegisteredTranslator;
+    private IDataSetPostRegisteredSqlTranslator dataSetPostRegisteredTranslator;
 
     @Override
     protected boolean shouldTranslate(TranslationContext context, DataPE input, DataSetFetchOptions fetchOptions)
@@ -112,10 +112,10 @@ public class DataSetTranslator extends AbstractCachingTranslator<DataPE, DataSet
             dataSetIds.add(dataSet.getId());
         }
         TranslationResults relations = new TranslationResults();
-        relations.put(DataSetPostRegisteredTranslator.class, dataSetPostRegisteredTranslator.translate(context, dataSetIds, null));
+        relations.put(IDataSetPostRegisteredSqlTranslator.class, dataSetPostRegisteredTranslator.translate(context, dataSetIds, null));
         if (fetchOptions.hasHistory())
         {
-            relations.put(DataSetHistoryTranslator.class, historyTranslator.translate(context, dataSetIds, fetchOptions.withHistory()));
+            relations.put(IDataSetHistorySqlTranslator.class, historyTranslator.translate(context, dataSetIds, fetchOptions.withHistory()));
         }
 
         return relations;
@@ -126,8 +126,8 @@ public class DataSetTranslator extends AbstractCachingTranslator<DataPE, DataSet
             DataSetFetchOptions fetchOptions)
     {
         TranslationResults relations = (TranslationResults) objectRelations;
-        
-        result.setPostRegistered(relations.get(DataSetPostRegisteredTranslator.class, dataPe.getId()));
+
+        result.setPostRegistered(relations.get(IDataSetPostRegisteredSqlTranslator.class, dataPe.getId()));
 
         if (fetchOptions.hasChildren())
         {
@@ -223,7 +223,7 @@ public class DataSetTranslator extends AbstractCachingTranslator<DataPE, DataSet
 
         if (fetchOptions.hasHistory())
         {
-            result.setHistory(relations.get(DataSetHistoryTranslator.class, dataPe.getId()));
+            result.setHistory(relations.get(IDataSetHistorySqlTranslator.class, dataPe.getId()));
             result.getFetchOptions().withHistoryUsing(fetchOptions.withHistory());
         }
     }

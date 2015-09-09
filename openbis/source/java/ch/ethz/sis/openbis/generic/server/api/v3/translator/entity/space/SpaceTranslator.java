@@ -24,9 +24,9 @@ import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.AbstractCachingTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.person.PersonTranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.project.ProjectTranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.sample.SampleTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.person.IPersonTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.project.IProjectTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.sample.ISampleTranslator;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.project.Project;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.Sample;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.space.Space;
@@ -45,13 +45,13 @@ public class SpaceTranslator extends AbstractCachingTranslator<SpacePE, Space, S
 {
 
     @Autowired
-    private PersonTranslator personTranslator;
+    private IPersonTranslator personTranslator;
 
     @Autowired
-    private ProjectTranslator projectTranslator;
+    private IProjectTranslator projectTranslator;
 
     @Autowired
-    private SampleTranslator sampleTranslator;
+    private ISampleTranslator sampleTranslator;
 
     @Override
     protected boolean shouldTranslate(TranslationContext context, SpacePE input, SpaceFetchOptions fetchOptions)

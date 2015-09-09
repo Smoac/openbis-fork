@@ -33,6 +33,11 @@ import ch.systemsx.cisd.common.db.mapper.LongSetMapper;
 public interface SampleQuery extends ObjectQuery
 {
 
+    @Select(sql = "select s.id, s.code, s.perm_id as permId, sp.code as spaceCode, s.registration_timestamp as registrationDate, s.modification_timestamp as modificationDate "
+            + "from samples s left outer join spaces sp on s.space_id = sp.id "
+            + "where s.id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    public List<SampleBaseRecord> getSamples(LongSet sampleIds);
+
     @Select(sql = "select sph.samp_id as entityId, sph.pers_id_author as authorId, pt.code as propertyCode, sph.value as propertyValue, sph.material as materialPropertyValue, sph.vocabulary_term as vocabularyPropertyValue, sph.valid_from_timestamp as validFrom, sph.valid_until_timestamp as validTo "
             + "from sample_properties_history sph "
             + "left join sample_type_property_types stpt on sph.stpt_id = stpt.id "

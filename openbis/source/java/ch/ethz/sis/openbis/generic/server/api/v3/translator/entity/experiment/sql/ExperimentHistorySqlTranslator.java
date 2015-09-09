@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.dataset.sql;
+package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.experiment.sql;
 
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 
@@ -24,43 +24,37 @@ import java.util.Map;
 
 import net.lemnik.eodsql.QueryTool;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.history.sql.HistoryPropertyRecord;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.history.sql.HistorySqlTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.history.sql.HistoryRelationshipRecord;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.history.DataSetRelationType;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.history.ExperimentRelationType;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.history.RelationHistoryEntry;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.person.Person;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.history.HistoryEntryFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.DataSetPermId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentPermId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.ProjectPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SamplePermId;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.shared.dto.RelationType;
 
 /**
  * @author pkupczyk
  */
 @Component
-public class DataSetHistoryTranslator extends HistorySqlTranslator
+public class ExperimentHistorySqlTranslator extends HistorySqlTranslator implements IExperimentHistorySqlTranslator
 {
-
-    @Autowired
-    private IDAOFactory daoFactory;
 
     @Override
     protected List<HistoryPropertyRecord> loadPropertyHistory(Collection<Long> entityIds)
     {
-        DataSetQuery query = QueryTool.getManagedQuery(DataSetQuery.class);
+        ExperimentQuery query = QueryTool.getManagedQuery(ExperimentQuery.class);
         return query.getPropertiesHistory(new LongOpenHashSet(entityIds));
     }
 
     @Override
     protected List<? extends HistoryRelationshipRecord> loadRelationshipHistory(Collection<Long> entityIds)
     {
-        DataSetQuery query = QueryTool.getManagedQuery(DataSetQuery.class);
+        ExperimentQuery query = QueryTool.getManagedQuery(ExperimentQuery.class);
         return query.getRelationshipsHistory(new LongOpenHashSet(entityIds));
     }
 
@@ -70,39 +64,20 @@ public class DataSetHistoryTranslator extends HistorySqlTranslator
     {
         RelationHistoryEntry entry = super.createRelationshipEntry(record, authorMap, fetchOptions);
 
-        DataSetRelationshipRecord dataSetRecord = (DataSetRelationshipRecord) record;
+        ExperimentRelationshipRecord experimentRecord = (ExperimentRelationshipRecord) record;
 
-        if (dataSetRecord.experimentId != null)
+        if (experimentRecord.projectId != null)
         {
-            entry.setRelationType(DataSetRelationType.EXPERIMENT);
-            entry.setRelatedObjectId(new ExperimentPermId(dataSetRecord.relatedObjectId));
-        } else if (dataSetRecord.sampleId != null)
+            entry.setRelationType(ExperimentRelationType.PROJECT);
+            entry.setRelatedObjectId(new ProjectPermId(experimentRecord.relatedObjectId));
+        } else if (experimentRecord.sampleId != null)
         {
-            entry.setRelationType(DataSetRelationType.SAMPLE);
-            entry.setRelatedObjectId(new SamplePermId(dataSetRecord.relatedObjectId));
-        } else if (dataSetRecord.dataSetId != null)
+            entry.setRelationType(ExperimentRelationType.SAMPLE);
+            entry.setRelatedObjectId(new SamplePermId(experimentRecord.relatedObjectId));
+        } else if (experimentRecord.dataSetId != null)
         {
-            RelationType relationType = RelationType.valueOf(dataSetRecord.relationType);
-
-            switch (relationType)
-            {
-                case PARENT:
-                    entry.setRelationType(DataSetRelationType.CHILD);
-                    break;
-                case CHILD:
-                    entry.setRelationType(DataSetRelationType.PARENT);
-                    break;
-                case CONTAINER:
-                    entry.setRelationType(DataSetRelationType.CONTAINED);
-                    break;
-                case CONTAINED:
-                case COMPONENT:
-                    entry.setRelationType(DataSetRelationType.CONTAINER);
-                    break;
-                default:
-                    throw new IllegalArgumentException("Unsupported relation type: " + relationType);
-            }
-            entry.setRelatedObjectId(new DataSetPermId(dataSetRecord.relatedObjectId));
+            entry.setRelationType(ExperimentRelationType.DATA_SET);
+            entry.setRelatedObjectId(new DataSetPermId(experimentRecord.relatedObjectId));
         }
 
         return entry;

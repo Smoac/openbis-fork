@@ -38,7 +38,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.person.PersonF
  * @author pkupczyk
  */
 @Component
-public class TagOwnerTranslator extends ObjectToOneRelationTranslator<Person, PersonFetchOptions>
+public class TagOwnerSqlTranslator extends ObjectToOneRelationTranslator<Person, PersonFetchOptions> implements ITagOwnerSqlTranslator
 {
 
     @Autowired
