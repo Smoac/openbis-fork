@@ -16,8 +16,12 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.attachment.sql;
 
+import java.util.List;
+
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.ITranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.attachment.Attachment;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IAttachmentsHolder;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.attachment.AttachmentFetchOptions;
 
 /**
@@ -25,5 +29,6 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.attachment.Att
  */
 public interface IAttachmentSqlTranslator extends ITranslator<Long, Attachment, AttachmentFetchOptions>
 {
-
+    public List<Attachment> translate(TranslationContext translationContext, IAttachmentsHolder attachmentsHolder,
+            AttachmentFetchOptions attachmentFetchOptions);
 }
