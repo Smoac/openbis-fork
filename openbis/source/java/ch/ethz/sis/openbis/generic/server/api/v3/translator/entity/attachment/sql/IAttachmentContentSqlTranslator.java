@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ETH Zuerich, CISD
+ * Copyright 2015 ETH Zuerich, SIS
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,15 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.attachment.sql;
 
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.ITranslator;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.attachment.Attachment;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.attachment.AttachmentFetchOptions;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql.IObjectToOneRelationTranslator;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.EmptyFetchOptions;
 
 /**
- * @author pkupczyk
+ * 
+ *
+ * @author Franz-Josef Elmer
  */
-public interface IAttachmentSqlTranslator extends ITranslator<Long, Attachment, AttachmentFetchOptions>
+public interface IAttachmentContentSqlTranslator extends IObjectToOneRelationTranslator<byte[], EmptyFetchOptions>
 {
+
 }

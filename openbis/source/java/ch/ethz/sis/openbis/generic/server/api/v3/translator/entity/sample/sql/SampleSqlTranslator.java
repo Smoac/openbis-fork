@@ -17,6 +17,7 @@
 package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.sample.sql;
 
 import java.util.Collection;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -24,6 +25,7 @@ import org.springframework.stereotype.Component;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.AbstractCachingTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationResults;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.attachment.Attachment;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.Sample;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sample.SampleFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SampleIdentifier;
@@ -38,6 +40,9 @@ public class SampleSqlTranslator extends AbstractCachingTranslator<Long, Sample,
 
     @Autowired
     private ISampleBaseSqlTranslator baseTranslator;
+    
+    @Autowired
+    private ISampleAttachmentSqlTranslator attachmentTranslator;
 
     @Override
     protected Sample createObject(TranslationContext context, Long sampleId, SampleFetchOptions fetchOptions)
@@ -53,6 +58,11 @@ public class SampleSqlTranslator extends AbstractCachingTranslator<Long, Sample,
         TranslationResults relations = new TranslationResults();
 
         relations.put(ISampleBaseSqlTranslator.class, baseTranslator.translate(context, sampleIds, null));
+        
+        if (fetchOptions.hasAttachments())
+        {
+            relations.put(ISampleAttachmentSqlTranslator.class, attachmentTranslator.translate(context, sampleIds, fetchOptions.withAttachments()));
+        }
 
         return relations;
     }
@@ -68,6 +78,12 @@ public class SampleSqlTranslator extends AbstractCachingTranslator<Long, Sample,
         result.setIdentifier(new SampleIdentifier(baseRecord.spaceCode, baseRecord.code));
         result.setModificationDate(baseRecord.modificationDate);
         result.setRegistrationDate(baseRecord.registrationDate);
+        if (fetchOptions.hasAttachments())
+        {
+            result.setAttachments((List<Attachment>) relations.get(ISampleAttachmentSqlTranslator.class, sampleId));
+            result.getFetchOptions().withAttachmentsUsing(fetchOptions.withAttachments());
+        }
+
     }
 
 }
