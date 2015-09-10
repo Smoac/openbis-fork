@@ -28,7 +28,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.log4j.Logger;
 
@@ -639,14 +638,12 @@ public class Hdf5ThumbnailGenerator implements IHDF5WriterClient
             };
     }
 
-    private static AtomicInteger incrementalThumbnailGenerationSessionId = new AtomicInteger();
-
     @Override
     public void runWithSimpleWriter(IHDF5ContainerWriter writer)
     {
         final String thumbnailsName = " (" + thumbnailsStorageFormat.getThumbnailsFileName() + ")";
 
-        final String sessionId = "THUMBNAIL_GENERATION_" + incrementalThumbnailGenerationSessionId.incrementAndGet();
+        String sessionId = ImageUtil.getThreadLocalSessionId();
 
         List<ImageFileInfo> images = imageDataSetStructure.getImages();
         Collection<FailureRecord<ImageFileInfo>> errors =
@@ -655,7 +652,6 @@ public class Hdf5ThumbnailGenerator implements IHDF5WriterClient
                         thumbnailsStorageFormat.getAllowedMachineLoadDuringGeneration(), 100,
                         "Thumbnails generation" + thumbnailsName, MAX_RETRY_OF_FAILED_GENERATION,
                         true);
-        ImageUtil.closeSession(sessionId);
 
         if (errors.size() > 0)
         {
@@ -664,5 +660,4 @@ public class Hdf5ThumbnailGenerator implements IHDF5WriterClient
                             + ", the whole thumbnails generation process fails.", errors.size()));
         }
     }
-    
 }

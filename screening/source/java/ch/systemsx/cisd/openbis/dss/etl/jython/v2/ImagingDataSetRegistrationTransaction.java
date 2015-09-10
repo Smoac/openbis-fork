@@ -72,6 +72,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IDataSetImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
@@ -117,6 +118,15 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
         this.imageContainerDatasetFactory = factory.imageContainerDatasetFactory;
         this.originalDirName = originalDirName;
         imageCache = new ImageCache();
+
+        ImageUtil.setThreadLocalSessionId(Thread.currentThread().getName());
+    }
+
+    @Override
+    public void close()
+    {
+        ImageUtil.closeSession(Thread.currentThread().getName());
+        ImageUtil.setThreadLocalSessionId(null);
     }
 
     public JythonPlateDatasetFactory getFactory()
