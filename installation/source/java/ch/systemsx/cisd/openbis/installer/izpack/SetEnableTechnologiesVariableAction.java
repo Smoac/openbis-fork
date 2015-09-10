@@ -91,6 +91,7 @@ public class SetEnableTechnologiesVariableAction implements PanelAction
     {
         Set<String> allTechnologies = new HashSet<String>();
         CommaSeparatedListBuilder builder = new CommaSeparatedListBuilder();
+        builder.append("dropbox-monitor");
         for (String technology : GlobalInstallationContext.TECHNOLOGIES)
         {
             String lowerCasedTechnology = technology.toLowerCase();
