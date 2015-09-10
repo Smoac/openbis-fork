@@ -154,7 +154,7 @@ public interface IDataSetImmutable extends IMetaprojectContent
     public boolean isNoFileDataSet();
 
     /**
-     * @return true if, for this dataset, post registration has finished.
+     * @return true if, for this dataset, post registration has been finished.
      */
     public boolean isPostRegistered();
 
