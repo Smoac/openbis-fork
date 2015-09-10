@@ -475,7 +475,7 @@ public class ImageUtil
 
     }
 
-    private static class ReaderAndFileHandler
+    static class ReaderAndFileHandler
     {
         private IImageReader imageReader;
 
@@ -518,9 +518,12 @@ public class ImageUtil
         protected void finalize() throws Throwable
         {
         }
-    }
 
-    private static final ThreadLocal<ReaderAndFileHandler> readerStore = new ThreadLocal<ReaderAndFileHandler>();
+        void setImageReader(IImageReader imageReader)
+        {
+            this.imageReader = imageReader;
+        }
+    }
 
     private static final Map<String, ImageLoader> imageLoaders = new HashMap<String, ImageLoader>();
 
@@ -559,9 +562,9 @@ public class ImageUtil
             {
 
                 @Override
-                public BufferedImage read(IImageReader imageReader, IRandomAccessFile handle, ImageID imageID, IReadParams params)
+                public BufferedImage read(IImageReader imageReader, IRandomAccessFile handle, ImageID imageID, IReadParams p)
                 {
-                    return imageReader.readImage(handle, imageID, params);
+                    return imageReader.readImage(handle, imageID, p);
                 }
 
                 @Override
@@ -576,10 +579,6 @@ public class ImageUtil
 
     private static ThreadLocal<String> sessionIdThreadLocal = new ThreadLocal<>();
 
-    private static List<Map<String, ReaderAndFileHandler>> allThreadLocalMaps = new ArrayList<Map<String, ReaderAndFileHandler>>();
-
-    private static ThreadLocal<Map<String, ReaderAndFileHandler>> rememberedReadersThreadLocal = new ThreadLocal<Map<String, ReaderAndFileHandler>>();
-
     /**
      * Set unique session id. This thread will reuse image readers between invocation with the same session id.
      */
@@ -589,23 +588,54 @@ public class ImageUtil
     }
 
     /**
+     * Gets the unique session id.
+     */
+    public static String getThreadLocalSessionId()
+    {
+        return sessionIdThreadLocal.get();
+    }
+
+    /**
      * Closes all readers created in scope of a single session.
      */
     public static void closeSession(String sessionId)
     {
-        operationLog.info("closing session " + sessionId);
-
-        for (Map<String, ReaderAndFileHandler> map : allThreadLocalMaps)
-        {
-            if (map.containsKey(sessionId))
-            {
-                ReaderAndFileHandler reader = map.get(sessionId);
-                operationLog.info("Closing reader for session " + sessionId);
-                reader.close();
-                map.remove(sessionId);
-            }
-        }
+        globalReaderPool.releaseSession(sessionId);
     }
+
+    private static ImageUtilReaderPool<ReaderAndFileHandler> globalReaderPool = new ImageUtilReaderPool<ReaderAndFileHandler>(
+            new ImageUtilReaderPool.ReaderUtil<ReaderAndFileHandler>()
+                {
+
+                    @Override
+                    public ReaderAndFileHandler create(String imageLibraryNameOrNull, String imageLibraryReaderNameOrNull)
+                    {
+                        IImageReader imageReader = ImageReaderFactory.tryGetReader(imageLibraryNameOrNull,
+                                imageLibraryReaderNameOrNull);
+                        if (imageReader == null)
+                        {
+                            return null;
+                        }
+                        ReaderAndFileHandler reader = new ReaderAndFileHandler(imageLibraryNameOrNull,
+                                imageLibraryReaderNameOrNull);
+                        reader.setImageReader(imageReader);
+                        return reader;
+                    }
+
+                    @Override
+                    public boolean isSameLibraryAndReader(ReaderAndFileHandler reader, String imageLibraryNameOrNull,
+                            String imageLibraryReaderNameOrNull)
+                    {
+                        return reader.imageLibraryName.equals(imageLibraryNameOrNull)
+                                && reader.imageLibraryReaderName.equals(imageLibraryReaderNameOrNull);
+                    }
+
+                    @Override
+                    public void close(ReaderAndFileHandler reader)
+                    {
+                        reader.close();
+                    }
+                });
 
     private static <T> T loadUnchangedData(IHierarchicalContentNode contentNode, String imageIdOrNull, String imageLibraryNameOrNull,
             String imageLibraryReaderNameOrNull, IReadParams params, IReadingOperation<T> operation)
@@ -616,74 +646,31 @@ public class ImageUtil
 
         String sessionId = sessionIdThreadLocal.get();
 
-        Map<String, ReaderAndFileHandler> rememberedReaders = getThreadLocalReadersMap();
+        ReaderAndFileHandler reader = globalReaderPool.get(sessionId, imageLibraryNameOrNull, imageLibraryReaderNameOrNull);
 
-        // Check if there is a thread local reader for current session ID, and if it is the right one
-        ReaderAndFileHandler reader = null;
-        if (sessionId != null)
-        {
-            reader = rememberedReaders.get(sessionId);
-            if (reader != null && isSameReader(reader, imageLibraryNameOrNull, imageLibraryReaderNameOrNull) == false)
-            {
-                reader.close();
-                reader = null;
-                rememberedReaders.remove(sessionId);
-                operationLog.debug("discarding stored reader for session " + sessionId);
-            }
-            if (reader != null)
-            {
-                operationLog.debug("Reusing reader for session " + sessionId);
-            }
-        }
-
-        // create reader / refer to guessing library if cannot create proper reader
         if (reader == null)
         {
-            IImageReader imageReader = ImageReaderFactory.tryGetReader(imageLibraryNameOrNull,
-                    imageLibraryReaderNameOrNull);
-            if (imageReader == null)
+            return loadUnchangedDataGuessingLibrary(contentNode, operation, imageID);
+        }
+
+        try
+        {
+            // The actual operation execution
+            reader.setFileHandler(contentNode);
+            T result = operation.read(reader.imageReader, reader.handle, imageID, params);
+            return result;
+        } finally
+        {
+            // persist the user in a thread local variable if there is specified process ID
+            if (sessionId != null)
             {
-                return loadUnchangedDataGuessingLibrary(contentNode, operation, imageID);
+                globalReaderPool.put(sessionId, reader);
             }
-            reader = new ReaderAndFileHandler(imageLibraryNameOrNull,
-                    imageLibraryReaderNameOrNull);
-            reader.imageReader = imageReader;
+            else
+            {
+                reader.close();
+            }
         }
-
-        // The actual operation execution
-        reader.setFileHandler(contentNode);
-        T result = operation.read(reader.imageReader, reader.handle, imageID, params);
-
-        // persist the user in a thread local variable if there is specified process ID
-        if (sessionId != null)
-        {
-            rememberedReaders.put(sessionId, reader);
-        }
-        else
-        {
-            reader.close();
-        }
-
-        return result;
-
-    }
-
-    private static Map<String, ReaderAndFileHandler> getThreadLocalReadersMap()
-    {
-        Map<String, ReaderAndFileHandler> rememberedReaders = rememberedReadersThreadLocal.get();
-        if (rememberedReaders == null)
-        {
-            rememberedReaders = new HashMap<String, ImageUtil.ReaderAndFileHandler>();
-            allThreadLocalMaps.add(rememberedReaders);
-            rememberedReadersThreadLocal.set(rememberedReaders);
-        }
-        return rememberedReaders;
-    }
-
-    protected static boolean isSameReader(ReaderAndFileHandler reader, String imageLibraryNameOrNull, String imageLibraryReaderNameOrNull)
-    {
-        return reader.imageLibraryName.equals(imageLibraryNameOrNull)
-                && reader.imageLibraryReaderName.equals(imageLibraryReaderNameOrNull);
     }
 
     /**
@@ -985,7 +972,7 @@ public class ImageUtil
     {
         return convertForDisplayIfNecessary(image, threshold, null, converterOrNull);
     }
-    
+
     private static BufferedImage convertForDisplayIfNecessary(BufferedImage image, Float threshold,
             IntensityRescaling.Channel representativeChannelOrNull, IImageToPixelsConverter converterOrNull)
     {
@@ -1117,9 +1104,9 @@ public class ImageUtil
     }
 
     public static BufferedImage rescale(BufferedImage image, int maxWidth, int maxHeight,
-                boolean enlargeIfNecessary, boolean highQuality8Bit, 
-                IntensityRescaling.Channel representativeChannelOrNull, IImageToPixelsConverter converterOrNull)
-        {
+            boolean enlargeIfNecessary, boolean highQuality8Bit,
+            IntensityRescaling.Channel representativeChannelOrNull, IImageToPixelsConverter converterOrNull)
+    {
         int width = image.getWidth();
         int height = image.getHeight();
         // the image has already the required size
