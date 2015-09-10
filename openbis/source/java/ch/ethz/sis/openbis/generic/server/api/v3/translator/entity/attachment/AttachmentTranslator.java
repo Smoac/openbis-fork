@@ -45,6 +45,7 @@ public class AttachmentTranslator extends AbstractCachingTranslator<AttachmentPE
         String baseIndexURL = context.getSession().getBaseIndexURL();
         result.setPermlink(createPermlink(attachment, baseIndexURL, false));
         result.setLatestVersionPermlink(createPermlink(attachment, baseIndexURL, true));
+        result.setFetchOptions(new AttachmentFetchOptions());
 
         return result;
     }
@@ -81,6 +82,7 @@ public class AttachmentTranslator extends AbstractCachingTranslator<AttachmentPE
         if (fetchOptions.hasContent())
         {
             result.setContent(attachment.getAttachmentContent().getValue());
+            result.getFetchOptions().withContent();
         }
     }
 
@@ -104,7 +106,7 @@ public class AttachmentTranslator extends AbstractCachingTranslator<AttachmentPE
 
         Attachment attachment = translate(translationContext, group.get(0), fetchOptions);
 
-        if (fetchOptions.hasPreviousVersion() && group.size() > 0)
+        if (fetchOptions.hasPreviousVersion() && group.size() > 1)
         {
             Attachment previousVersion = translate(translationContext, group.subList(1, group.size()), fetchOptions.withPreviousVersion());
             attachment.setPreviousVersion(previousVersion);

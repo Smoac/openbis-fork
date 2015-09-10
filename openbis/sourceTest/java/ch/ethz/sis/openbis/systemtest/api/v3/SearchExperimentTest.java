@@ -24,6 +24,7 @@ import java.util.TimeZone;
 
 import org.testng.annotations.Test;
 
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.attachment.Attachment;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.experiment.ExperimentFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.entitytype.EntityTypePermId;
@@ -42,6 +43,36 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SearchResult;
  */
 public class SearchExperimentTest extends AbstractExperimentTest
 {
+    @Test
+    public void testSearchWithAttachments()
+    {
+        ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
+        criterion.withPermId().thatEquals("200811050951882-1028");
+        ExperimentFetchOptions fo = new ExperimentFetchOptions();
+        fo.withAttachments().withPreviousVersion().withContent();
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        
+        List<Experiment> experiments = searchExperiments(sessionToken, criterion, fo);
+        v3api.logout(sessionToken);
+        
+        Experiment experiment = experiments.get(0);
+        assertEquals(experiment.getCode(), "EXP1");
+        assertEquals(experiment.getFetchOptions().hasAttachments(), true);
+        List<Attachment> attachments = experiment.getAttachments();
+        Attachment attachment = attachments.get(0);
+        assertEquals(attachment.getVersion(), new Integer(4));
+        assertEquals(attachment.getFileName(), "exampleExperiments.txt");
+        assertEquals(attachment.getFetchOptions().hasContent(), false);
+        assertEquals(attachment.getFetchOptions().hasPreviousVersion(), true);
+        Attachment previousVersion = attachment.getPreviousVersion();
+        assertEquals(previousVersion.getVersion(), new Integer(3));
+        assertEquals(previousVersion.getFileName(), "exampleExperiments.txt");
+        assertEquals(previousVersion.getFetchOptions().hasContent(), true);
+        assertEquals(previousVersion.getContent().length, 227);
+        assertEquals(attachments.size(), 1);
+        assertEquals(experiments.size(), 1);
+    }
+
 
     @Test
     public void testSearchWithIdSetToIdentifier()
@@ -555,25 +586,26 @@ public class SearchExperimentTest extends AbstractExperimentTest
     private void testSearch(String user, ExperimentSearchCriterion criterion, String... expectedIdentifiers)
     {
         String sessionToken = v3api.login(user, PASSWORD);
-
-        SearchResult<Experiment> searchResult =
-                v3api.searchExperiments(sessionToken, criterion, new ExperimentFetchOptions());
-        List<Experiment> experiments = searchResult.getObjects();
+        List<Experiment> experiments = searchExperiments(sessionToken, criterion, new ExperimentFetchOptions());
 
         assertExperimentIdentifiers(experiments, expectedIdentifiers);
-        v3api.logout(sessionToken);
     }
 
     private void testSearch(String user, ExperimentSearchCriterion criterion, int expectedCount)
     {
         String sessionToken = v3api.login(user, PASSWORD);
-
-        SearchResult<Experiment> searchResult =
-                v3api.searchExperiments(sessionToken, criterion, new ExperimentFetchOptions());
-        List<Experiment> experiments = searchResult.getObjects();
+        List<Experiment> experiments = searchExperiments(sessionToken, criterion, new ExperimentFetchOptions());
 
         assertEquals(experiments.size(), expectedCount);
+    }
+
+
+    private List<Experiment> searchExperiments(String sessionToken, ExperimentSearchCriterion criterion, 
+            ExperimentFetchOptions fetchOptions)
+    {
+        SearchResult<Experiment> searchResult = v3api.searchExperiments(sessionToken, criterion, fetchOptions);
         v3api.logout(sessionToken);
+        return searchResult.getObjects();
     }
 
 }
