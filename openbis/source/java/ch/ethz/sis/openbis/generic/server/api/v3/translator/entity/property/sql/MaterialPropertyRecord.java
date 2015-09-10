@@ -14,14 +14,18 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.material.sql;
-
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.property.sql.IMaterialPropertySqlTranslator;
+package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.property.sql;
 
 /**
  * @author pkupczyk
  */
-public interface IMaterialMaterialPropertySqlTranslator extends IMaterialPropertySqlTranslator
+public class MaterialPropertyRecord
 {
+
+    public Long entityId;
+
+    public String propertyCode;
+
+    public Long propertyValue;
 
 }

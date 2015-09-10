@@ -19,7 +19,6 @@ package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.sample.sql;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -31,46 +30,32 @@ import org.springframework.stereotype.Component;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql.ObjectRelationRecord;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql.ObjectToOneRelationTranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.experiment.IExperimentTranslator;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.experiment.ExperimentFetchOptions;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleType;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sample.SampleTypeFetchOptions;
 
 /**
  * @author pkupczyk
  */
 @Component
-public class SampleExperimentSqlTranslator extends ObjectToOneRelationTranslator<Experiment, ExperimentFetchOptions> implements
-        ISampleExperimentSqlTranslator
+public class SampleTypeRelationSqlTranslator extends ObjectToOneRelationTranslator<SampleType, SampleTypeFetchOptions> implements
+        ISampleTypeRelationSqlTranslator
 {
 
     @Autowired
-    private IDAOFactory daoFactory;
-
-    @Autowired
-    private IExperimentTranslator experimentTranslator;
+    private ISampleTypeSqlTranslator typeTranslator;
 
     @Override
     protected List<ObjectRelationRecord> loadRecords(LongOpenHashSet objectIds)
     {
         SampleQuery query = QueryTool.getManagedQuery(SampleQuery.class);
-        return query.getExperimentIds(new LongOpenHashSet(objectIds));
+        return query.getTypeIds(objectIds);
     }
 
     @Override
-    protected Map<Long, Experiment> translateRelated(TranslationContext context, Collection<Long> relatedIds,
-            ExperimentFetchOptions relatedFetchOptions)
+    protected Map<Long, SampleType> translateRelated(TranslationContext context, Collection<Long> relatedIds,
+            SampleTypeFetchOptions relatedFetchOptions)
     {
-        List<ExperimentPE> related = daoFactory.getExperimentDAO().listByIDs(relatedIds);
-        Map<ExperimentPE, Experiment> translated = experimentTranslator.translate(context, related, relatedFetchOptions);
-        Map<Long, Experiment> result = new HashMap<Long, Experiment>();
-
-        for (Map.Entry<ExperimentPE, Experiment> entry : translated.entrySet())
-        {
-            result.put(entry.getKey().getId(), entry.getValue());
-        }
-        return result;
+        return typeTranslator.translate(context, relatedIds, relatedFetchOptions);
     }
 
 }

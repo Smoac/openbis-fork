@@ -38,9 +38,16 @@ public class SampleIdentifier extends ObjectIdentifier implements ISampleId
         super(identifier);
     }
 
-    public SampleIdentifier(String spaceCodeOrNull, String sampleCode)
+    public SampleIdentifier(String spaceCodeOrNull, String containerCodeOrNull, String sampleCode)
     {
-        this(spaceCodeOrNull == null ? "/" + sampleCode : "/" + spaceCodeOrNull + "/" + sampleCode);
+        this(createIdentifier(spaceCodeOrNull, containerCodeOrNull, sampleCode));
+    }
+
+    private static String createIdentifier(String spaceCodeOrNull, String containerCodeOrNull, String sampleCode)
+    {
+        String spaceCode = spaceCodeOrNull != null ? "/" + spaceCodeOrNull : "";
+        String containerCode = containerCodeOrNull != null ? containerCodeOrNull + ":" : "";
+        return spaceCode + "/" + containerCode + sampleCode;
     }
 
     //

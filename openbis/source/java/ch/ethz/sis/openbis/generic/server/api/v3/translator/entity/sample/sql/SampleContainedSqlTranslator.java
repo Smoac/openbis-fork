@@ -38,7 +38,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sample.SampleF
  * @author pkupczyk
  */
 @Component
-public class SampleParentSqlTranslator extends ObjectToManyRelationTranslator<Sample, SampleFetchOptions> implements ISampleParentSqlTranslator
+public class SampleContainedSqlTranslator extends ObjectToManyRelationTranslator<Sample, SampleFetchOptions> implements ISampleContainedSqlTranslator
 {
 
     @Autowired
@@ -48,7 +48,7 @@ public class SampleParentSqlTranslator extends ObjectToManyRelationTranslator<Sa
     protected List<ObjectRelationRecord> loadRecords(LongOpenHashSet objectIds)
     {
         SampleQuery query = QueryTool.getManagedQuery(SampleQuery.class);
-        return query.getParentIds(new LongOpenHashSet(objectIds));
+        return query.getContainedIds(new LongOpenHashSet(objectIds));
     }
 
     @Override

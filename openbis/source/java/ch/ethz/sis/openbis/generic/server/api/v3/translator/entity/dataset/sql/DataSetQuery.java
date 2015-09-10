@@ -23,6 +23,7 @@ import java.util.List;
 import net.lemnik.eodsql.Select;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql.ObjectQuery;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql.ObjectRelationRecord;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.history.sql.HistoryPropertyRecord;
 import ch.systemsx.cisd.common.db.mapper.LongSetMapper;
 
@@ -44,8 +45,11 @@ public interface DataSetQuery extends ObjectQuery
             + "drh.expe_id as experimentId, drh.samp_id as sampleId, drh.data_id as dataSetId "
             + "from data_set_relationships_history drh where drh.valid_until_timestamp is not null and drh.main_data_id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<DataSetRelationshipRecord> getRelationshipsHistory(LongSet dataSetIds);
-    
+
     @Select(sql = "select ds_id from post_registration_dataset_queue where ds_id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<Long> getNotPostRegisteredDataSets(LongSet dataSetIds);
+
+    @Select(sql = "select d.id as objectId, d.samp_id as relatedId from data d where d.id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    public List<ObjectRelationRecord> getSampleIds(LongSet dataSetIds);
 
 }

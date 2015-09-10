@@ -30,11 +30,11 @@ import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationResults;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.dataset.sql.IDataSetHistorySqlTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.dataset.sql.IDataSetPostRegisteredSqlTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.dataset.sql.IDataSetSampleSqlTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.experiment.IExperimentTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.material.IMaterialPropertyTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.person.IPersonTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.property.IPropertyTranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.sample.ISampleTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.tag.ITagTranslator;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.tag.Tag;
@@ -56,7 +56,7 @@ public class DataSetTranslator extends AbstractCachingTranslator<DataPE, DataSet
     private IExperimentTranslator experimentTranslator;
 
     @Autowired
-    private ISampleTranslator sampleTranslator;
+    private IDataSetSampleSqlTranslator sampleTranslator;
 
     @Autowired
     private IPropertyTranslator propertyTranslator;
@@ -111,8 +111,16 @@ public class DataSetTranslator extends AbstractCachingTranslator<DataPE, DataSet
         {
             dataSetIds.add(dataSet.getId());
         }
+
         TranslationResults relations = new TranslationResults();
+
         relations.put(IDataSetPostRegisteredSqlTranslator.class, dataSetPostRegisteredTranslator.translate(context, dataSetIds, null));
+
+        if (fetchOptions.hasSample())
+        {
+            relations.put(IDataSetSampleSqlTranslator.class, sampleTranslator.translate(context, dataSetIds, fetchOptions.withSample()));
+        }
+
         if (fetchOptions.hasHistory())
         {
             relations.put(IDataSetHistorySqlTranslator.class, historyTranslator.translate(context, dataSetIds, fetchOptions.withHistory()));
@@ -168,10 +176,7 @@ public class DataSetTranslator extends AbstractCachingTranslator<DataPE, DataSet
 
         if (fetchOptions.hasSample())
         {
-            if (dataPe.tryGetSample() != null)
-            {
-                result.setSample(sampleTranslator.translate(context, dataPe.tryGetSample(), fetchOptions.withSample()));
-            }
+            result.setSample(relations.get(IDataSetSampleSqlTranslator.class, dataPe.getId()));
             result.getFetchOptions().withSampleUsing(fetchOptions.withSample());
         }
 

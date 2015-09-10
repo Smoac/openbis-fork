@@ -16,12 +16,18 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.method;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.common.IMapObjectByIdExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.sample.IMapSampleByIdExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.ITranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.sample.ISampleTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.sample.sql.ISampleSqlTranslator;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.Sample;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sample.SampleFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.ISampleId;
@@ -30,8 +36,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 /**
  * @author pkupczyk
  */
-// @Component
-public class MapSampleMethodExecutor extends AbstractMapMethodExecutor<ISampleId, SamplePE, Sample, SampleFetchOptions> implements
+@Component
+public class MapSampleSqlMethodExecutor extends AbstractMapMethodExecutor<ISampleId, Long, Sample, SampleFetchOptions> implements
         IMapSampleMethodExecutor
 {
 
@@ -39,16 +45,32 @@ public class MapSampleMethodExecutor extends AbstractMapMethodExecutor<ISampleId
     private IMapSampleByIdExecutor mapExecutor;
 
     @Autowired
-    private ISampleTranslator translator;
+    private ISampleSqlTranslator translator;
 
     @Override
-    protected IMapObjectByIdExecutor<ISampleId, SamplePE> getMapExecutor()
+    protected IMapObjectByIdExecutor<ISampleId, Long> getMapExecutor()
     {
-        return mapExecutor;
+        // TODO replace with ISampleId -> Long mapExecutor once there is one
+        return new IMapObjectByIdExecutor<ISampleId, Long>()
+            {
+                @Override
+                public Map<ISampleId, Long> map(IOperationContext context, Collection<? extends ISampleId> ids)
+                {
+                    Map<ISampleId, SamplePE> peMap = mapExecutor.map(context, ids);
+                    Map<ISampleId, Long> idMap = new LinkedHashMap<ISampleId, Long>();
+
+                    for (Map.Entry<ISampleId, SamplePE> peEntry : peMap.entrySet())
+                    {
+                        idMap.put(peEntry.getKey(), peEntry.getValue().getId());
+                    }
+
+                    return idMap;
+                }
+            };
     }
 
     @Override
-    protected ITranslator<SamplePE, Sample, SampleFetchOptions> getTranslator()
+    protected ITranslator<Long, Sample, SampleFetchOptions> getTranslator()
     {
         return translator;
     }

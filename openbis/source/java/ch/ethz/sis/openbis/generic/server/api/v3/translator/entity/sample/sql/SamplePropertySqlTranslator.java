@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.material.sql;
+package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.sample.sql;
 
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 
@@ -32,13 +32,13 @@ import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.property.sql.
  * @author pkupczyk
  */
 @Component
-public class MaterialPropertySqlTranslator extends PropertySqlTranslator implements IMaterialPropertySqlTranslator
+public class SamplePropertySqlTranslator extends PropertySqlTranslator implements ISamplePropertySqlTranslator
 {
 
     @Override
     protected List<PropertyRecord> loadProperties(Collection<Long> entityIds)
     {
-        MaterialQuery query = QueryTool.getManagedQuery(MaterialQuery.class);
+        SampleQuery query = QueryTool.getManagedQuery(SampleQuery.class);
         return query.getProperties(new LongOpenHashSet(entityIds));
     }
 

@@ -18,8 +18,8 @@ package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.sample.sql;
 
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -31,37 +31,37 @@ import org.springframework.stereotype.Component;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql.ObjectRelationRecord;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql.ObjectToManyRelationTranslator;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.Sample;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sample.SampleFetchOptions;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.tag.sql.ITagSqlTranslator;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.tag.Tag;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.tag.TagFetchOptions;
 
 /**
  * @author pkupczyk
  */
 @Component
-public class SampleParentSqlTranslator extends ObjectToManyRelationTranslator<Sample, SampleFetchOptions> implements ISampleParentSqlTranslator
+public class SampleTagSqlTranslator extends ObjectToManyRelationTranslator<Tag, TagFetchOptions> implements ISampleTagSqlTranslator
 {
 
     @Autowired
-    private ISampleSqlTranslator sampleTranslator;
+    private ITagSqlTranslator tagTranslator;
 
     @Override
     protected List<ObjectRelationRecord> loadRecords(LongOpenHashSet objectIds)
     {
         SampleQuery query = QueryTool.getManagedQuery(SampleQuery.class);
-        return query.getParentIds(new LongOpenHashSet(objectIds));
+        return query.getTagIds(objectIds);
     }
 
     @Override
-    protected Map<Long, Sample> translateRelated(TranslationContext context, Collection<Long> relatedIds,
-            SampleFetchOptions relatedFetchOptions)
+    protected Map<Long, Tag> translateRelated(TranslationContext context, Collection<Long> relatedIds, TagFetchOptions relatedFetchOptions)
     {
-        return sampleTranslator.translate(context, relatedIds, relatedFetchOptions);
+        return tagTranslator.translate(context, relatedIds, relatedFetchOptions);
     }
 
     @Override
-    protected Collection<Sample> createCollection()
+    protected Collection<Tag> createCollection()
     {
-        return new ArrayList<Sample>();
+        return new LinkedHashSet<Tag>();
     }
 
 }

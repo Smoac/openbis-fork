@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.sample.sql;
+package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.dataset.sql;
 
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -30,7 +29,8 @@ import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql.ObjectRelationRecord;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql.ObjectToManyRelationTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql.ObjectToOneRelationTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.sample.sql.ISampleSqlTranslator;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.Sample;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sample.SampleFetchOptions;
 
@@ -38,7 +38,8 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sample.SampleF
  * @author pkupczyk
  */
 @Component
-public class SampleParentSqlTranslator extends ObjectToManyRelationTranslator<Sample, SampleFetchOptions> implements ISampleParentSqlTranslator
+public class DataSetSampleSqlTranslator extends ObjectToOneRelationTranslator<Sample, SampleFetchOptions> implements
+        IDataSetSampleSqlTranslator
 {
 
     @Autowired
@@ -47,8 +48,8 @@ public class SampleParentSqlTranslator extends ObjectToManyRelationTranslator<Sa
     @Override
     protected List<ObjectRelationRecord> loadRecords(LongOpenHashSet objectIds)
     {
-        SampleQuery query = QueryTool.getManagedQuery(SampleQuery.class);
-        return query.getParentIds(new LongOpenHashSet(objectIds));
+        DataSetQuery query = QueryTool.getManagedQuery(DataSetQuery.class);
+        return query.getSampleIds(new LongOpenHashSet(objectIds));
     }
 
     @Override
@@ -56,12 +57,6 @@ public class SampleParentSqlTranslator extends ObjectToManyRelationTranslator<Sa
             SampleFetchOptions relatedFetchOptions)
     {
         return sampleTranslator.translate(context, relatedIds, relatedFetchOptions);
-    }
-
-    @Override
-    protected Collection<Sample> createCollection()
-    {
-        return new ArrayList<Sample>();
     }
 
 }

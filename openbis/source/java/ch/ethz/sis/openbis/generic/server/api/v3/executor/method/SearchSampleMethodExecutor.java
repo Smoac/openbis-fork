@@ -17,7 +17,6 @@
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.method;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.common.ISearchObjectExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.sample.ISearchSampleExecutor;
@@ -31,7 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 /**
  * @author pkupczyk
  */
-@Component
+// @Component
 public class SearchSampleMethodExecutor extends
         AbstractSearchMethodExecutor<Sample, SamplePE, SampleSearchCriterion, SampleFetchOptions>
         implements ISearchSampleMethodExecutor

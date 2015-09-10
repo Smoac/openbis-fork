@@ -14,14 +14,19 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.material.sql;
+package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.property.sql;
 
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.property.sql.IMaterialPropertySqlTranslator;
+import java.util.Map;
+
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.ITranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql.ObjectHolder;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material.Material;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.material.MaterialFetchOptions;
 
 /**
  * @author pkupczyk
  */
-public interface IMaterialMaterialPropertySqlTranslator extends IMaterialPropertySqlTranslator
+public interface IMaterialPropertySqlTranslator extends ITranslator<Long, ObjectHolder<Map<String, Material>>, MaterialFetchOptions>
 {
 
 }

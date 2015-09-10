@@ -50,7 +50,10 @@ public abstract class ObjectToManyRelationTranslator<RELATED_OBJECT, RELATED_FET
         Collection<Long> relatedIds = new HashSet<Long>();
         for (ObjectRelationRecord record : records)
         {
-            relatedIds.add(record.relatedId);
+            if (record.relatedId != null)
+            {
+                relatedIds.add(record.relatedId);
+            }
         }
 
         Map<Long, RELATED_OBJECT> relatedIdToRelated = translateRelated(context, relatedIds, relatedFetchOptions);

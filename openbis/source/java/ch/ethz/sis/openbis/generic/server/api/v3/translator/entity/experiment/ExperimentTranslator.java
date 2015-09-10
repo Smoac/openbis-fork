@@ -32,11 +32,11 @@ import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationResults;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.attachment.IAttachmentTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.dataset.IDataSetTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.experiment.sql.IExperimentHistorySqlTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.experiment.sql.IExperimentSampleSqlTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.material.IMaterialPropertyTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.person.IPersonTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.project.IProjectTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.property.IPropertyTranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.sample.ISampleTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.tag.ITagTranslator;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.attachment.Attachment;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSet;
@@ -50,7 +50,6 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.validator.Experimen
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
 /**
  * @author pkupczyk
@@ -67,7 +66,7 @@ public class ExperimentTranslator extends AbstractCachingTranslator<ExperimentPE
     private IProjectTranslator projectTranslator;
 
     @Autowired
-    private ISampleTranslator sampleTranslator;
+    private IExperimentSampleSqlTranslator sampleTranslator;
 
     @Autowired
     private IPersonTranslator personTranslator;
@@ -117,13 +116,19 @@ public class ExperimentTranslator extends AbstractCachingTranslator<ExperimentPE
     {
         TranslationResults relations = new TranslationResults();
 
+        Set<Long> experimentIds = new HashSet<Long>();
+        for (ExperimentPE experiment : experiments)
+        {
+            experimentIds.add(experiment.getId());
+        }
+
+        if (fetchOptions.hasSamples())
+        {
+            relations.put(IExperimentSampleSqlTranslator.class, sampleTranslator.translate(context, experimentIds, fetchOptions.withSamples()));
+        }
+
         if (fetchOptions.hasHistory())
         {
-            Set<Long> experimentIds = new HashSet<Long>();
-            for (ExperimentPE experiment : experiments)
-            {
-                experimentIds.add(experiment.getId());
-            }
             relations.put(IExperimentHistorySqlTranslator.class, historyTranslator.translate(context, experimentIds, fetchOptions.withHistory()));
         }
 
@@ -162,8 +167,7 @@ public class ExperimentTranslator extends AbstractCachingTranslator<ExperimentPE
 
         if (fetchOptions.hasSamples())
         {
-            Map<SamplePE, Sample> samples = sampleTranslator.translate(context, experiment.getSamples(), fetchOptions.withSamples());
-            result.setSamples(new ArrayList<Sample>(samples.values()));
+            result.setSamples((List<Sample>) relations.get(IExperimentSampleSqlTranslator.class, experiment.getId()));
             result.getFetchOptions().withSamplesUsing(fetchOptions.withSamples());
         }
 

@@ -17,16 +17,21 @@
 package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.space;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.AbstractCachingTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationResults;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.person.IPersonTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.project.IProjectTranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.sample.ISampleTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.space.sql.ISpaceSampleSqlTranslator;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.project.Project;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.Sample;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.space.Space;
@@ -34,7 +39,6 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.space.SpaceFet
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.SpacePermId;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SimpleSpaceValidator;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
@@ -51,7 +55,7 @@ public class SpaceTranslator extends AbstractCachingTranslator<SpacePE, Space, S
     private IProjectTranslator projectTranslator;
 
     @Autowired
-    private ISampleTranslator sampleTranslator;
+    private ISpaceSampleSqlTranslator sampleTranslator;
 
     @Override
     protected boolean shouldTranslate(TranslationContext context, SpacePE input, SpaceFetchOptions fetchOptions)
@@ -75,8 +79,29 @@ public class SpaceTranslator extends AbstractCachingTranslator<SpacePE, Space, S
     }
 
     @Override
-    protected void updateObject(TranslationContext context, SpacePE space, Space result, Object relations, SpaceFetchOptions fetchOptions)
+    protected TranslationResults getObjectsRelations(TranslationContext context, Collection<SpacePE> spaces, SpaceFetchOptions fetchOptions)
     {
+        TranslationResults relations = new TranslationResults();
+
+        Set<Long> spaceIds = new HashSet<Long>();
+        for (SpacePE space : spaces)
+        {
+            spaceIds.add(space.getId());
+        }
+
+        if (fetchOptions.hasSamples())
+        {
+            relations.put(ISpaceSampleSqlTranslator.class, sampleTranslator.translate(context, spaceIds, fetchOptions.withSamples()));
+        }
+
+        return relations;
+    }
+
+    @Override
+    protected void updateObject(TranslationContext context, SpacePE space, Space result, Object objectRelations, SpaceFetchOptions fetchOptions)
+    {
+        TranslationResults relations = (TranslationResults) objectRelations;
+
         if (fetchOptions.hasRegistrator())
         {
             result.setRegistrator(personTranslator.translate(context, space.getRegistrator(), fetchOptions.withRegistrator()));
@@ -92,8 +117,7 @@ public class SpaceTranslator extends AbstractCachingTranslator<SpacePE, Space, S
 
         if (fetchOptions.hasSamples())
         {
-            Map<SamplePE, Sample> samples = sampleTranslator.translate(context, space.getSamples(), fetchOptions.withSamples());
-            result.setSamples(new ArrayList<Sample>(samples.values()));
+            result.setSamples((List<Sample>) relations.get(ISpaceSampleSqlTranslator.class, space.getId()));
             result.getFetchOptions().withSamplesUsing(fetchOptions.withSamples());
         }
     }

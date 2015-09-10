@@ -17,6 +17,8 @@
 package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.property.sql;
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.AbstractCachingTranslator;
@@ -40,7 +42,36 @@ public abstract class PropertySqlTranslator extends AbstractCachingTranslator<Lo
     @Override
     protected Object getObjectsRelations(TranslationContext context, Collection<Long> objectIds, PropertyFetchOptions fetchOptions)
     {
-        return loadProperties(objectIds);
+        List<PropertyRecord> records = loadProperties(objectIds);
+        Map<Long, Map<String, String>> properties = new HashMap<Long, Map<String, String>>();
+
+        for (PropertyRecord record : records)
+        {
+            Map<String, String> objectProperties = properties.get(record.entityId);
+
+            if (objectProperties == null)
+            {
+                objectProperties = new HashMap<String, String>();
+                properties.put(record.entityId, objectProperties);
+            }
+
+            if (record.propertyValue != null)
+            {
+                objectProperties.put(record.propertyCode, record.propertyValue);
+            } else if (record.materialPropertyValueCode != null)
+            {
+                objectProperties.put(record.propertyCode, record.materialPropertyValueCode + " (" + record.materialPropertyValueTypeCode
+                        + ")");
+            } else if (record.vocabularyPropertyValue != null)
+            {
+                objectProperties.put(record.propertyCode, record.vocabularyPropertyValue);
+            } else
+            {
+                throw new IllegalArgumentException("Unsupported property kind");
+            }
+        }
+
+        return properties;
     }
 
     @SuppressWarnings("unchecked")
@@ -49,9 +80,16 @@ public abstract class PropertySqlTranslator extends AbstractCachingTranslator<Lo
             PropertyFetchOptions fetchOptions)
     {
         Map<Long, Map<String, String>> properties = (Map<Long, Map<String, String>>) relations;
-        result.setObject(properties.get(objectId));
+        Map<String, String> objectProperties = properties.get(objectId);
+
+        if (objectProperties == null)
+        {
+            objectProperties = new HashMap<String, String>();
+        }
+
+        result.setObject(objectProperties);
     }
 
-    protected abstract Map<Long, Map<String, String>> loadProperties(Collection<Long> entityIds);
+    protected abstract List<PropertyRecord> loadProperties(Collection<Long> entityIds);
 
 }

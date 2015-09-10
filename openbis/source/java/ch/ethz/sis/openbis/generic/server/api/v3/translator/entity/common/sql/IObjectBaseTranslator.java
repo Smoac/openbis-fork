@@ -22,7 +22,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.EmptyFetchOpti
 /**
  * @author pkupczyk
  */
-public interface IObjectBaseTranslator<RECORD> extends ITranslator<Long, ObjectHolder<RECORD>, EmptyFetchOptions>
+public interface IObjectBaseTranslator<RECORD extends ObjectBaseRecord> extends ITranslator<Long, ObjectHolder<RECORD>, EmptyFetchOptions>
 {
 
 }

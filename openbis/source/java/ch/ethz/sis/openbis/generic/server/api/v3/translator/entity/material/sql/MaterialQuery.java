@@ -26,6 +26,8 @@ import net.lemnik.eodsql.Select;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql.ObjectQuery;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql.ObjectRelationRecord;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.history.sql.HistoryPropertyRecord;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.property.sql.MaterialPropertyRecord;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.property.sql.PropertyRecord;
 import ch.systemsx.cisd.common.db.mapper.LongSetMapper;
 
 /**
@@ -45,29 +47,31 @@ public interface MaterialQuery extends ObjectQuery
     @Select(sql = "select mt.id, mt.code, mt.description, mt.modification_timestamp as modificationDate from material_types mt where mt.id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<MaterialTypeBaseRecord> getTypes(LongSet materialTypeIds);
 
-    @Select(sql = "select mp.mate_id as materialId, pt.code as propertyCode, mp.value as propertyValue, m.code as materialPropertyValueCode, mt.code as materialPropertyValueTypeCode, cvt.code as vocabularyPropertyValue "
-            + "from material_properties mp "
-            + "left outer join materials m on mp.mate_prop_id = m.id "
-            + "left outer join controlled_vocabulary_terms cvt on mp.cvte_id = cvt.id "
+    // PropertyQueryGenerator was used to generate this query
+    @Select(sql = "select p.mate_id as entityId, pt.code as propertyCode, p.value as propertyValue, m.code as materialPropertyValueCode, mt.code as materialPropertyValueTypeCode, cvt.code as vocabularyPropertyValue "
+            + "from material_properties p "
+            + "left outer join materials m on p.mate_prop_id = m.id "
+            + "left outer join controlled_vocabulary_terms cvt on p.cvte_id = cvt.id "
             + "left join material_types mt on m.maty_id = mt.id "
-            + "left join material_type_property_types mtpt on mp.mtpt_id = mtpt.id "
-            + "left join property_types pt on mtpt.prty_id = pt.id "
-            + "where mp.mate_id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
-    public List<MaterialPropertyRecord> getProperties(LongSet materialIds);
+            + "left join material_type_property_types etpt on p.mtpt_id = etpt.id "
+            + "left join property_types pt on etpt.prty_id = pt.id "
+            + "where p.mate_id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    public List<PropertyRecord> getProperties(LongSet materialIds);
 
-    @Select(sql = "select mph.mate_id as entityId, mph.pers_id_author as authorId, pt.code as propertyCode, mph.value as propertyValue, mph.material as materialPropertyValue, mph.vocabulary_term as vocabularyPropertyValue, mph.valid_from_timestamp as validFrom, mph.valid_until_timestamp as validTo "
-            + "from material_properties_history mph "
-            + "left join material_type_property_types mtpt on mph.mtpt_id = mtpt.id "
-            + "left join property_types pt on mtpt.prty_id = pt.id "
-            + "where mph.mate_id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    // PropertyQueryGenerator was used to generate this query
+    @Select(sql = "select ph.mate_id as entityId, ph.pers_id_author as authorId, pt.code as propertyCode, ph.value as propertyValue, ph.material as materialPropertyValue, ph.vocabulary_term as vocabularyPropertyValue, ph.valid_from_timestamp as validFrom, ph.valid_until_timestamp as validTo "
+            + "from material_properties_history ph "
+            + "left join material_type_property_types etpt on ph.mtpt_id = etpt.id left join property_types pt on etpt.prty_id = pt.id "
+            + "where ph.mate_id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<HistoryPropertyRecord> getPropertiesHistory(LongSet materialIds);
 
-    @Select(sql = "select mp.mate_id as materialId, pt.code as propertyCode, mp.mate_prop_id as propertyValue "
-            + "from material_properties mp "
-            + "left join material_type_property_types mtpt on mp.mtpt_id = mtpt.id "
-            + "left join property_types pt on mtpt.prty_id = pt.id "
-            + "where mp.mate_prop_id is not null and mp.mate_id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
-    public List<MaterialMaterialPropertyRecord> getMaterialProperties(LongOpenHashSet materialIds);
+    // PropertyQueryGenerator was used to generate this query
+    @Select(sql = "select p.mate_id as entityId, pt.code as propertyCode, p.mate_prop_id as propertyValue "
+            + "from material_properties p "
+            + "left join material_type_property_types etpt on p.mtpt_id = etpt.id "
+            + "left join property_types pt on etpt.prty_id = pt.id "
+            + "where p.mate_prop_id is not null and p.mate_id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    public List<MaterialPropertyRecord> getMaterialProperties(LongOpenHashSet materialIds);
 
     @Select(sql = "select m.id as objectId, m.pers_id_registerer as relatedId from materials m where m.id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<ObjectRelationRecord> getRegistratorIds(LongSet materialIds);

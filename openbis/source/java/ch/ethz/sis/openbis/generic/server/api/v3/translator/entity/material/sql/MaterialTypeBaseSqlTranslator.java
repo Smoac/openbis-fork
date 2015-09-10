@@ -37,6 +37,6 @@ public class MaterialTypeBaseSqlTranslator extends ObjectBaseTranslator<Material
     protected List<MaterialTypeBaseRecord> loadRecords(LongOpenHashSet objectIds)
     {
         MaterialQuery query = QueryTool.getManagedQuery(MaterialQuery.class);
-        return query.getTypes(new LongOpenHashSet(objectIds));
+        return query.getTypes(objectIds);
     }
 }

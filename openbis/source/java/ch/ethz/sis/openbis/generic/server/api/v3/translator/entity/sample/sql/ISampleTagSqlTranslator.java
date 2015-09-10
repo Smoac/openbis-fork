@@ -14,14 +14,16 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.material.sql;
+package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.sample.sql;
 
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.property.sql.IMaterialPropertySqlTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql.IObjectToManyRelationTranslator;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.tag.Tag;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.tag.TagFetchOptions;
 
 /**
  * @author pkupczyk
  */
-public interface IMaterialMaterialPropertySqlTranslator extends IMaterialPropertySqlTranslator
+public interface ISampleTagSqlTranslator extends IObjectToManyRelationTranslator<Tag, TagFetchOptions>
 {
 
 }

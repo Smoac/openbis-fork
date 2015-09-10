@@ -23,6 +23,7 @@ import java.util.List;
 import net.lemnik.eodsql.Select;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql.ObjectQuery;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql.ObjectRelationRecord;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.history.sql.HistoryPropertyRecord;
 import ch.systemsx.cisd.common.db.mapper.LongSetMapper;
 
@@ -44,5 +45,8 @@ public interface ExperimentQuery extends ObjectQuery
             + "erh.proj_id as projectId, erh.samp_id as sampleId, erh.data_id as dataSetId "
             + "from experiment_relationships_history erh where erh.valid_until_timestamp is not null and erh.main_expe_id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<ExperimentRelationshipRecord> getRelationshipsHistory(LongSet experimentIds);
+
+    @Select(sql = "select s.expe_id as objectId, s.id as relatedId from samples s where s.expe_id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    public List<ObjectRelationRecord> getSampleIds(LongSet experimentIds);
 
 }

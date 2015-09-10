@@ -30,6 +30,8 @@ public class SampleBaseRecord extends ObjectBaseRecord
 
     public String spaceCode;
 
+    public String containerCode;
+
     public String permId;
 
     public Date registrationDate;

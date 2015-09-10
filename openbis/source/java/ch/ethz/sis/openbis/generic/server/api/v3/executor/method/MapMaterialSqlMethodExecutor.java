@@ -16,12 +16,18 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.method;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.common.IMapObjectByIdExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.material.IMapMaterialByIdExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.ITranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.material.IMaterialTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.material.sql.IMaterialSqlTranslator;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material.Material;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.material.MaterialFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.material.IMaterialId;
@@ -30,8 +36,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 /**
  * @author pkupczyk
  */
-// @Component
-public class MapMaterialMethodExecutor extends AbstractMapMethodExecutor<IMaterialId, MaterialPE, Material, MaterialFetchOptions> implements
+@Component
+public class MapMaterialSqlMethodExecutor extends AbstractMapMethodExecutor<IMaterialId, Long, Material, MaterialFetchOptions> implements
         IMapMaterialMethodExecutor
 {
 
@@ -39,16 +45,32 @@ public class MapMaterialMethodExecutor extends AbstractMapMethodExecutor<IMateri
     private IMapMaterialByIdExecutor mapExecutor;
 
     @Autowired
-    private IMaterialTranslator translator;
+    private IMaterialSqlTranslator translator;
 
     @Override
-    protected IMapObjectByIdExecutor<IMaterialId, MaterialPE> getMapExecutor()
+    protected IMapObjectByIdExecutor<IMaterialId, Long> getMapExecutor()
     {
-        return mapExecutor;
+        // TODO replace with IMaterialId -> Long mapExecutor once there is one
+        return new IMapObjectByIdExecutor<IMaterialId, Long>()
+            {
+                @Override
+                public Map<IMaterialId, Long> map(IOperationContext context, Collection<? extends IMaterialId> ids)
+                {
+                    Map<IMaterialId, MaterialPE> peMap = mapExecutor.map(context, ids);
+                    Map<IMaterialId, Long> idMap = new LinkedHashMap<IMaterialId, Long>();
+
+                    for (Map.Entry<IMaterialId, MaterialPE> peEntry : peMap.entrySet())
+                    {
+                        idMap.put(peEntry.getKey(), peEntry.getValue().getId());
+                    }
+
+                    return idMap;
+                }
+            };
     }
 
     @Override
-    protected ITranslator<MaterialPE, Material, MaterialFetchOptions> getTranslator()
+    protected ITranslator<Long, Material, MaterialFetchOptions> getTranslator()
     {
         return translator;
     }

@@ -14,18 +14,16 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.material.sql;
+package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.sample.sql;
+
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql.IObjectToOneRelationTranslator;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.Sample;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sample.SampleFetchOptions;
 
 /**
  * @author pkupczyk
  */
-public class MaterialMaterialPropertyRecord
+public interface ISampleContainerSqlTranslator extends IObjectToOneRelationTranslator<Sample, SampleFetchOptions>
 {
-
-    public Long materialId;
-
-    public String propertyCode;
-
-    public Long propertyValue;
 
 }
