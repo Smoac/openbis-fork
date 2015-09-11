@@ -90,8 +90,6 @@ public class SampleSqlTranslator extends AbstractCachingTranslator<Long, Sample,
     @Autowired
     private ISampleRegistratorSqlTranslator registratorTranslator;
 
-    // TODO container, contained
-
     @Autowired
     private ISampleModifierSqlTranslator modifierTranslator;
 

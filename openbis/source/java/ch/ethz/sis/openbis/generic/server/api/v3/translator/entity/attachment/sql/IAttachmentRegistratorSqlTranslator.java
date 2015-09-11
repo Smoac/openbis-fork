@@ -16,16 +16,12 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.attachment.sql;
 
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql.IObjectToOneRelationTranslator;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.person.Person;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.person.PersonFetchOptions;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.person.sql.IObjectToPersonSqlTranslator;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
-public interface IAttachmentRegistratorSqlTranslator extends IObjectToOneRelationTranslator<Person, PersonFetchOptions>
+public interface IAttachmentRegistratorSqlTranslator extends IObjectToPersonSqlTranslator
 {
 
 }

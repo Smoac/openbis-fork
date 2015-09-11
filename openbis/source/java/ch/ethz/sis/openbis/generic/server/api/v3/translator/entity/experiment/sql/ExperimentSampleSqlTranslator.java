@@ -18,52 +18,28 @@ package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.experiment.s
 
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 import net.lemnik.eodsql.QueryTool;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql.ObjectRelationRecord;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql.ObjectToManyRelationTranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.sample.sql.ISampleSqlTranslator;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.Sample;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sample.SampleFetchOptions;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.sample.sql.ObjectToSamplesSqlTranslator;
 
 /**
  * @author pkupczyk
  */
 @Component
-public class ExperimentSampleSqlTranslator extends ObjectToManyRelationTranslator<Sample, SampleFetchOptions> implements
+public class ExperimentSampleSqlTranslator extends ObjectToSamplesSqlTranslator implements
         IExperimentSampleSqlTranslator
 {
-
-    @Autowired
-    private ISampleSqlTranslator sampleTranslator;
 
     @Override
     protected List<ObjectRelationRecord> loadRecords(LongOpenHashSet objectIds)
     {
         ExperimentQuery query = QueryTool.getManagedQuery(ExperimentQuery.class);
         return query.getSampleIds(new LongOpenHashSet(objectIds));
-    }
-
-    @Override
-    protected Map<Long, Sample> translateRelated(TranslationContext context, Collection<Long> relatedIds,
-            SampleFetchOptions relatedFetchOptions)
-    {
-        return sampleTranslator.translate(context, relatedIds, relatedFetchOptions);
-    }
-
-    @Override
-    protected Collection<Sample> createCollection()
-    {
-        return new ArrayList<Sample>();
     }
 
 }

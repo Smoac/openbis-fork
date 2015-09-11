@@ -18,50 +18,26 @@ package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.sample.sql;
 
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 import net.lemnik.eodsql.QueryTool;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql.ObjectRelationRecord;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql.ObjectToManyRelationTranslator;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.Sample;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sample.SampleFetchOptions;
 
 /**
  * @author pkupczyk
  */
 @Component
-public class SampleContainedSqlTranslator extends ObjectToManyRelationTranslator<Sample, SampleFetchOptions> implements ISampleContainedSqlTranslator
+public class SampleContainedSqlTranslator extends ObjectToSamplesSqlTranslator implements ISampleContainedSqlTranslator
 {
-
-    @Autowired
-    private ISampleSqlTranslator sampleTranslator;
 
     @Override
     protected List<ObjectRelationRecord> loadRecords(LongOpenHashSet objectIds)
     {
         SampleQuery query = QueryTool.getManagedQuery(SampleQuery.class);
         return query.getContainedIds(new LongOpenHashSet(objectIds));
-    }
-
-    @Override
-    protected Map<Long, Sample> translateRelated(TranslationContext context, Collection<Long> relatedIds,
-            SampleFetchOptions relatedFetchOptions)
-    {
-        return sampleTranslator.translate(context, relatedIds, relatedFetchOptions);
-    }
-
-    @Override
-    protected Collection<Sample> createCollection()
-    {
-        return new ArrayList<Sample>();
     }
 
 }

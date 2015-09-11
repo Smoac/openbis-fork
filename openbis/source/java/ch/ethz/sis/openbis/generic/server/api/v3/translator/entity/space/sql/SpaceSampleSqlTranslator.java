@@ -18,52 +18,28 @@ package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.space.sql;
 
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 import net.lemnik.eodsql.QueryTool;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql.ObjectRelationRecord;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql.ObjectToManyRelationTranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.sample.sql.ISampleSqlTranslator;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.Sample;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sample.SampleFetchOptions;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.sample.sql.ObjectToSamplesSqlTranslator;
 
 /**
  * @author pkupczyk
  */
 @Component
-public class SpaceSampleSqlTranslator extends ObjectToManyRelationTranslator<Sample, SampleFetchOptions> implements
+public class SpaceSampleSqlTranslator extends ObjectToSamplesSqlTranslator implements
         ISpaceSampleSqlTranslator
 {
-
-    @Autowired
-    private ISampleSqlTranslator sampleTranslator;
 
     @Override
     protected List<ObjectRelationRecord> loadRecords(LongOpenHashSet objectIds)
     {
         SpaceQuery query = QueryTool.getManagedQuery(SpaceQuery.class);
         return query.getSampleIds(new LongOpenHashSet(objectIds));
-    }
-
-    @Override
-    protected Map<Long, Sample> translateRelated(TranslationContext context, Collection<Long> relatedIds,
-            SampleFetchOptions relatedFetchOptions)
-    {
-        return sampleTranslator.translate(context, relatedIds, relatedFetchOptions);
-    }
-
-    @Override
-    protected Collection<Sample> createCollection()
-    {
-        return new ArrayList<Sample>();
     }
 
 }

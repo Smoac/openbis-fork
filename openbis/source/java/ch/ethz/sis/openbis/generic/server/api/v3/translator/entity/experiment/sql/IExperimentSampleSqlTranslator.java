@@ -16,14 +16,12 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.experiment.sql;
 
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql.IObjectToManyRelationTranslator;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.Sample;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sample.SampleFetchOptions;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.sample.sql.IObjectToSamplesSqlTranslator;
 
 /**
  * @author pkupczyk
  */
-public interface IExperimentSampleSqlTranslator extends IObjectToManyRelationTranslator<Sample, SampleFetchOptions>
+public interface IExperimentSampleSqlTranslator extends IObjectToSamplesSqlTranslator
 {
 
 }

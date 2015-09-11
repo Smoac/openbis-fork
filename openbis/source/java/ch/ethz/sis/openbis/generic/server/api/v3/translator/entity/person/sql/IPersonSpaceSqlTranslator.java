@@ -16,14 +16,12 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.person.sql;
 
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql.IObjectToOneRelationTranslator;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.space.Space;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.space.SpaceFetchOptions;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.space.sql.IObjectToSpaceSqlTranslator;
 
 /**
  * @author pkupczyk
  */
-public interface IPersonSpaceSqlTranslator extends IObjectToOneRelationTranslator<Space, SpaceFetchOptions>
+public interface IPersonSpaceSqlTranslator extends IObjectToSpaceSqlTranslator
 {
 
 }

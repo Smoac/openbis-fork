@@ -18,50 +18,27 @@ package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.material.sql
 
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 
-import java.util.Collection;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 
 import net.lemnik.eodsql.QueryTool;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql.ObjectRelationRecord;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql.ObjectToManyRelationTranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.tag.sql.ITagSqlTranslator;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.tag.Tag;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.tag.TagFetchOptions;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.tag.sql.ObjectToTagsSqlTranslator;
 
 /**
  * @author pkupczyk
  */
 @Component
-public class MaterialTagSqlTranslator extends ObjectToManyRelationTranslator<Tag, TagFetchOptions> implements IMaterialTagSqlTranslator
+public class MaterialTagSqlTranslator extends ObjectToTagsSqlTranslator implements IMaterialTagSqlTranslator
 {
-
-    @Autowired
-    private ITagSqlTranslator tagTranslator;
 
     @Override
     protected List<ObjectRelationRecord> loadRecords(LongOpenHashSet objectIds)
     {
         MaterialQuery query = QueryTool.getManagedQuery(MaterialQuery.class);
         return query.getTagIds(objectIds);
-    }
-
-    @Override
-    protected Map<Long, Tag> translateRelated(TranslationContext context, Collection<Long> relatedIds, TagFetchOptions relatedFetchOptions)
-    {
-        return tagTranslator.translate(context, relatedIds, relatedFetchOptions);
-    }
-
-    @Override
-    protected Collection<Tag> createCollection()
-    {
-        return new LinkedHashSet<Tag>();
     }
 
 }

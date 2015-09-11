@@ -16,14 +16,12 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.sample.sql;
 
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql.IObjectToManyRelationTranslator;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.tag.Tag;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.tag.TagFetchOptions;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.tag.sql.IObjectToTagsSqlTranslator;
 
 /**
  * @author pkupczyk
  */
-public interface ISampleTagSqlTranslator extends IObjectToManyRelationTranslator<Tag, TagFetchOptions>
+public interface ISampleTagSqlTranslator extends IObjectToTagsSqlTranslator
 {
 
 }

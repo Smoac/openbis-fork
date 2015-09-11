@@ -18,44 +18,28 @@ package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.sample.sql;
 
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 
-import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 import net.lemnik.eodsql.QueryTool;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql.ObjectRelationRecord;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql.ObjectToOneRelationTranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.space.sql.ISpaceSqlTranslator;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.space.Space;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.space.SpaceFetchOptions;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.space.sql.ObjectToSpaceSqlTranslator;
 
 /**
  * @author pkupczyk
  */
 @Component
-public class SampleSpaceSqlTranslator extends ObjectToOneRelationTranslator<Space, SpaceFetchOptions> implements
+public class SampleSpaceSqlTranslator extends ObjectToSpaceSqlTranslator implements
         ISampleSpaceSqlTranslator
 {
-
-    @Autowired
-    private ISpaceSqlTranslator spaceTranslator;
 
     @Override
     protected List<ObjectRelationRecord> loadRecords(LongOpenHashSet objectIds)
     {
         SampleQuery query = QueryTool.getManagedQuery(SampleQuery.class);
         return query.getSpaceIds(objectIds);
-    }
-
-    @Override
-    protected Map<Long, Space> translateRelated(TranslationContext context, Collection<Long> relatedIds, SpaceFetchOptions relatedFetchOptions)
-    {
-        return spaceTranslator.translate(context, relatedIds, relatedFetchOptions);
     }
 
 }

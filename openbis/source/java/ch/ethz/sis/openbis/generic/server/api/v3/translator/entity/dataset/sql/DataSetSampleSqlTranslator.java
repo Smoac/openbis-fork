@@ -18,45 +18,28 @@ package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.dataset.sql;
 
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 
-import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 import net.lemnik.eodsql.QueryTool;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql.ObjectRelationRecord;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql.ObjectToOneRelationTranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.sample.sql.ISampleSqlTranslator;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.Sample;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sample.SampleFetchOptions;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.sample.sql.ObjectToSampleSqlTranslator;
 
 /**
  * @author pkupczyk
  */
 @Component
-public class DataSetSampleSqlTranslator extends ObjectToOneRelationTranslator<Sample, SampleFetchOptions> implements
+public class DataSetSampleSqlTranslator extends ObjectToSampleSqlTranslator implements
         IDataSetSampleSqlTranslator
 {
-
-    @Autowired
-    private ISampleSqlTranslator sampleTranslator;
 
     @Override
     protected List<ObjectRelationRecord> loadRecords(LongOpenHashSet objectIds)
     {
         DataSetQuery query = QueryTool.getManagedQuery(DataSetQuery.class);
         return query.getSampleIds(new LongOpenHashSet(objectIds));
-    }
-
-    @Override
-    protected Map<Long, Sample> translateRelated(TranslationContext context, Collection<Long> relatedIds,
-            SampleFetchOptions relatedFetchOptions)
-    {
-        return sampleTranslator.translate(context, relatedIds, relatedFetchOptions);
     }
 
 }
