@@ -17,54 +17,112 @@
 package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.space.sql;
 
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.AbstractCachingTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.space.ISpaceTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationResults;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.project.Project;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.Sample;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.space.Space;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.space.SpaceFetchOptions;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.SpacePermId;
 
 /**
  * @author pkupczyk
  */
 @Component
-public class SpaceSqlTranslator implements ISpaceSqlTranslator
+public class SpaceSqlTranslator extends AbstractCachingTranslator<Long, Space, SpaceFetchOptions> implements ISpaceSqlTranslator
 {
 
     @Autowired
-    private ISpaceTranslator spaceTranslator;
+    private ISpaceAuthorizationSqlValidator authorizationValidator;
 
     @Autowired
-    private IDAOFactory daoFactory;
+    private ISpaceRegistratorSqlTranslator registratorTranslator;
+
+    @Autowired
+    private ISpaceProjectSqlTranslator projectTranslator;
+
+    @Autowired
+    private ISpaceSampleSqlTranslator sampleTranslator;
+
+    @Autowired
+    private ISpaceBaseSqlTranslator baseTranslator;
 
     @Override
-    public Space translate(TranslationContext context, Long spaceId, SpaceFetchOptions fetchOptions)
+    protected Collection<Long> shouldTranslate(TranslationContext context, Collection<Long> spaceIds, SpaceFetchOptions fetchOptions)
     {
-        return translate(context, Collections.singletonList(spaceId), fetchOptions).get(spaceId);
+        return authorizationValidator.validate(context.getSession().tryGetPerson(), spaceIds);
     }
 
     @Override
-    public Map<Long, Space> translate(TranslationContext context, Collection<Long> spaceIds, SpaceFetchOptions fetchOptions)
+    protected Space createObject(TranslationContext context, Long spaceId, SpaceFetchOptions fetchOptions)
     {
-        List<SpacePE> spaces = daoFactory.getSpaceDAO().listByIDs(spaceIds);
+        Space space = new Space();
+        space.setFetchOptions(new SpaceFetchOptions());
+        return space;
+    }
 
-        Map<SpacePE, Space> spacePeToSpace = spaceTranslator.translate(context, spaces, fetchOptions);
-        Map<Long, Space> spaceIdToSpace = new HashMap<Long, Space>();
+    @Override
+    protected Object getObjectsRelations(TranslationContext context, Collection<Long> spaceIds, SpaceFetchOptions fetchOptions)
+    {
+        TranslationResults relations = new TranslationResults();
 
-        for (SpacePE space : spaces)
+        relations.put(ISpaceBaseSqlTranslator.class, baseTranslator.translate(context, spaceIds, null));
+
+        if (fetchOptions.hasProjects())
         {
-            spaceIdToSpace.put(space.getId(), spacePeToSpace.get(space));
+            relations.put(ISpaceProjectSqlTranslator.class, projectTranslator.translate(context, spaceIds, fetchOptions.withProjects()));
         }
 
-        return spaceIdToSpace;
+        if (fetchOptions.hasSamples())
+        {
+            relations.put(ISpaceSampleSqlTranslator.class, sampleTranslator.translate(context, spaceIds, fetchOptions.withSamples()));
+        }
+
+        if (fetchOptions.hasRegistrator())
+        {
+            relations.put(ISpaceRegistratorSqlTranslator.class, registratorTranslator.translate(context, spaceIds, fetchOptions.withRegistrator()));
+        }
+
+        return relations;
+    }
+
+    @Override
+    protected void updateObject(TranslationContext context, Long spaceId, Space result, Object objectRelations, SpaceFetchOptions fetchOptions)
+    {
+        TranslationResults relations = (TranslationResults) objectRelations;
+        SpaceBaseRecord baseRecord = relations.get(ISpaceBaseSqlTranslator.class, spaceId);
+
+        result.setCode(baseRecord.code);
+        result.setPermId(new SpacePermId(baseRecord.code));
+        result.setDescription(baseRecord.description);
+        // TODO: add modification date to spaces table
+        result.setModificationDate(baseRecord.registrationDate);
+        result.setRegistrationDate(baseRecord.registrationDate);
+
+        if (fetchOptions.hasProjects())
+        {
+            result.setProjects((List<Project>) relations.get(ISpaceProjectSqlTranslator.class, spaceId));
+            result.getFetchOptions().withProjectsUsing(fetchOptions.withProjects());
+        }
+
+        if (fetchOptions.hasSamples())
+        {
+            result.setSamples((List<Sample>) relations.get(ISpaceSampleSqlTranslator.class, spaceId));
+            result.getFetchOptions().withSamplesUsing(fetchOptions.withSamples());
+        }
+
+        if (fetchOptions.hasRegistrator())
+        {
+            result.setRegistrator(relations.get(ISpaceRegistratorSqlTranslator.class, spaceId));
+            result.getFetchOptions().withRegistratorUsing(fetchOptions.withRegistrator());
+        }
+
     }
 
 }

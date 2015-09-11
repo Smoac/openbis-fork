@@ -16,12 +16,17 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.method;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import java.util.ArrayList;
+import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.common.ISearchObjectExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.space.ISearchSpaceExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.ITranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.space.ISpaceTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.space.sql.ISpaceSqlTranslator;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.space.Space;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.space.SpaceFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SpaceSearchCriterion;
@@ -30,8 +35,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 /**
  * @author pkupczyk
  */
-// @Component
-public class SearchSpaceMethodExecutor extends AbstractSearchMethodExecutor<Space, SpacePE, SpaceSearchCriterion, SpaceFetchOptions> implements
+@Component
+public class SearchSpaceSqlMethodExecutor extends AbstractSearchMethodExecutor<Space, Long, SpaceSearchCriterion, SpaceFetchOptions> implements
         ISearchSpaceMethodExecutor
 {
 
@@ -39,16 +44,31 @@ public class SearchSpaceMethodExecutor extends AbstractSearchMethodExecutor<Spac
     private ISearchSpaceExecutor searchExecutor;
 
     @Autowired
-    private ISpaceTranslator translator;
+    private ISpaceSqlTranslator translator;
 
     @Override
-    protected ISearchObjectExecutor<SpaceSearchCriterion, SpacePE> getSearchExecutor()
+    protected ISearchObjectExecutor<SpaceSearchCriterion, Long> getSearchExecutor()
     {
-        return searchExecutor;
+        return new ISearchObjectExecutor<SpaceSearchCriterion, Long>()
+            {
+                @Override
+                public List<Long> search(IOperationContext context, SpaceSearchCriterion criterion)
+                {
+                    List<SpacePE> spaces = searchExecutor.search(context, criterion);
+                    List<Long> ids = new ArrayList<Long>();
+
+                    for (SpacePE space : spaces)
+                    {
+                        ids.add(space.getId());
+                    }
+
+                    return ids;
+                }
+            };
     }
 
     @Override
-    protected ITranslator<SpacePE, Space, SpaceFetchOptions> getTranslator()
+    protected ITranslator<Long, Space, SpaceFetchOptions> getTranslator()
     {
         return translator;
     }
