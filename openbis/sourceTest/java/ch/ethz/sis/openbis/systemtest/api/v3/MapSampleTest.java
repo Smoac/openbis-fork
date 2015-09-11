@@ -303,7 +303,7 @@ public class MapSampleTest extends AbstractSampleTest
     }
 
     @Test
-    public void testMapWithModifier()
+    public void testMapWithRegistratorAndModifier()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -610,7 +610,6 @@ public class MapSampleTest extends AbstractSampleTest
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
 
-        // fetch parents and their properties
         fetchOptions.withChildren();
 
         Map<ISampleId, Sample> map =
@@ -663,12 +662,11 @@ public class MapSampleTest extends AbstractSampleTest
     }
 
     @Test
-    public void testMapWithContainer()
+    public void testMapWithContainedAndContainer()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
 
-        // fetch parents and their properties
         fetchOptions.withContained().withContainer();
         fetchOptions.withProperties();
 
