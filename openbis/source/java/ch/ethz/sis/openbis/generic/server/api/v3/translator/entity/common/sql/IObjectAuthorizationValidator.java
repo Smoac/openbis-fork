@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ETH Zuerich, SIS
+ * Copyright 2015 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,18 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.sample.sql;
+package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql;
 
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql.IObjectToManyRelationTranslator;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.attachment.Attachment;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.attachment.AttachmentFetchOptions;
+import java.util.Collection;
+
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 
 /**
- * @author Franz-Josef Elmer
+ * @author pkupczyk
  */
-public interface ISampleAttachmentSqlTranslator extends IObjectToManyRelationTranslator<Attachment, AttachmentFetchOptions>
+public interface IObjectAuthorizationValidator
 {
+
+    public Collection<Long> validate(PersonPE person, Collection<Long> objectIds);
 
 }

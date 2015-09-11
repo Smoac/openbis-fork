@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ETH Zuerich, SIS
+ * Copyright 2015 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +16,18 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.sample.sql;
 
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql.IObjectToManyRelationTranslator;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.attachment.Attachment;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.attachment.AttachmentFetchOptions;
-
 /**
- * @author Franz-Josef Elmer
+ * @author pkupczyk
  */
-public interface ISampleAttachmentSqlTranslator extends IObjectToManyRelationTranslator<Attachment, AttachmentFetchOptions>
+public class SampleAuthorizationRecord
 {
+
+    public Long id;
+
+    public String code;
+
+    public String spaceCode;
+
+    public String containedCode;
 
 }

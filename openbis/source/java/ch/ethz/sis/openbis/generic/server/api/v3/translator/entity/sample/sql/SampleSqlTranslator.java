@@ -33,10 +33,6 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.tag.Tag;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sample.SampleFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SampleIdentifier;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SamplePermId;
-import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SampleByIdentiferValidator;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
 /**
  * @author pkupczyk
@@ -44,6 +40,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 @Component
 public class SampleSqlTranslator extends AbstractCachingTranslator<Long, Sample, SampleFetchOptions> implements ISampleSqlTranslator
 {
+
+    @Autowired
+    private ISampleAuthorizationSqlValidator authorizationValidator;
 
     @Autowired
     private ISampleBaseSqlTranslator baseTranslator;
@@ -93,16 +92,10 @@ public class SampleSqlTranslator extends AbstractCachingTranslator<Long, Sample,
     @Autowired
     private ISampleModifierSqlTranslator modifierTranslator;
 
-    @Autowired
-    // TODO remove it
-    private IDAOFactory daoFactory;
-
     @Override
-    protected boolean shouldTranslate(TranslationContext context, Long sampleId, SampleFetchOptions fetchOptions)
+    protected Collection<Long> shouldTranslate(TranslationContext context, Collection<Long> sampleIds, SampleFetchOptions fetchOptions)
     {
-        // TODO replace with SQL impl
-        SamplePE sample = daoFactory.getSampleDAO().getByTechId(new TechId(sampleId));
-        return new SampleByIdentiferValidator().doValidation(context.getSession().tryGetPerson(), sample);
+        return authorizationValidator.validate(context.getSession().tryGetPerson(), sampleIds);
     }
 
     @Override
