@@ -33,13 +33,13 @@ import ch.systemsx.cisd.cina.shared.constants.CinaConstants;
 import ch.systemsx.cisd.etlserver.IDataSetHandlerRpc;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypeWithVocabularyTerms;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
@@ -74,7 +74,7 @@ public abstract class CinaBundleRegistrationTest extends AbstractFileSystemTestC
 
     private static final String GRID_SAMPLE_CODE = "GRID-CODE";
 
-    protected static final String GRID_SAMPLE_IDENTIFIER = "/"+ SPACE_CODE + "/"
+    protected static final String GRID_SAMPLE_IDENTIFIER = "/" + SPACE_CODE + "/"
             + GRID_SAMPLE_CODE;
 
     private static final String COLLECTION_SAMPLE_CODE = "REPLICA54";
@@ -221,7 +221,6 @@ public abstract class CinaBundleRegistrationTest extends AbstractFileSystemTestC
         Space space = new Space();
         space.setCode(SPACE_CODE);
         DatabaseInstance dbInstance = new DatabaseInstance();
-        space.setInstance(dbInstance);
         project.setSpace(space);
         exp.setProject(project);
         sample.setId((long) 1);

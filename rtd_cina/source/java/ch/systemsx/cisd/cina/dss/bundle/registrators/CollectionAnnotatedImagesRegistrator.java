@@ -28,8 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
- * Registers annotated image data sets. The annotated image data sets refer to files that are
- * already in the store.
+ * Registers annotated image data sets. The annotated image data sets refer to files that are already in the store.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
@@ -45,8 +44,7 @@ public class CollectionAnnotatedImagesRegistrator extends BundleDataSetHelper
      * Constructor.
      * 
      * @param globalState The registration state
-     * @param imageMetadataExtractor An image metadata extractor referring to a file that is already
-     *            in the store
+     * @param imageMetadataExtractor An image metadata extractor referring to a file that is already in the store
      * @param replicaSample The owning sample of the data set
      * @param replicaSampleId The owning sample id
      * @param bundleMetadataDataSetInformation
@@ -82,8 +80,6 @@ public class CollectionAnnotatedImagesRegistrator extends BundleDataSetHelper
         CinaImageDataSetInformation metadataDataSetInfo = new CinaImageDataSetInformation();
         metadataDataSetInfo.setSampleCode(replicaSampleId.getSampleCode());
         metadataDataSetInfo.setSpaceCode(replicaSampleId.getSpaceLevel().getSpaceCode());
-        metadataDataSetInfo.setInstanceCode(replicaSampleId.getSpaceLevel()
-                .getDatabaseInstanceCode());
         metadataDataSetInfo.setDataSetType(globalState.getImageDataSetType().getDataSetType());
         List<String> parentDataSetCodes =
                 Collections.singletonList(bundleMetadataDataSetInformation.getDataSetCode());

@@ -30,11 +30,10 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
- * Creates/Updates a grid preparation sample. Spawns registrators for each of the replicas in the
- * bundle. Creates a data set that references the child data sets created by the replicas.
+ * Creates/Updates a grid preparation sample. Spawns registrators for each of the replicas in the bundle. Creates a data set that references the child
+ * data sets created by the replicas.
  * <p>
- * The GridPreparationRegistrator is the public interface to bundle registration. All other
- * registrators are internal to the package.
+ * The GridPreparationRegistrator is the public interface to bundle registration. All other registrators are internal to the package.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
@@ -62,21 +61,21 @@ public class GridPreparationRegistrator extends BundleDataSetHelper
     }
 
     /**
-     * Create the grid preparation sample (if necessary). Register the bundle data set, run the
-     * registration code on each replica, make the registered data sets children of the bundle data
-     * set.
+     * Create the grid preparation sample (if necessary). Register the bundle data set, run the registration code on each replica, make the registered
+     * data sets children of the bundle data set.
      */
     public void register()
     {
         retrieveOrCreateGridPrepSample();
-        
+
         // Register the bundle metadata data set
         DataSetInformation metadataDataSetInfo = createDataSetInformation();
-        File metadataFile = new File(new File(dataSet, BundleStructureConstants.BUNDLE_METADATA_FOLDER_NAME),  BundleStructureConstants.BUNDLE_METADATA_FILE_NAME);
-        
+        File metadataFile =
+                new File(new File(dataSet, BundleStructureConstants.BUNDLE_METADATA_FOLDER_NAME), BundleStructureConstants.BUNDLE_METADATA_FILE_NAME);
+
         List<DataSetInformation> registeredBundleMetadataDataSets =
                 registerDataSet(metadataFile, metadataDataSetInfo);
-        
+
         DataSetInformation registeredBundleMetadataDataSet =
                 registeredBundleMetadataDataSets.get(0);
 
@@ -100,7 +99,7 @@ public class GridPreparationRegistrator extends BundleDataSetHelper
         assert sampleCode.length() > 0;
 
         SpaceIdentifier spaceId =
-                new SpaceIdentifier(expId.getDatabaseInstanceCode(), expId.getSpaceCode());
+                new SpaceIdentifier(expId.getSpaceCode());
         gridPrepSampleId = new SampleIdentifier(spaceId, sampleCode);
         gridPrepSample = getOpenbisService().tryGetSampleWithExperiment(gridPrepSampleId);
 
@@ -125,8 +124,6 @@ public class GridPreparationRegistrator extends BundleDataSetHelper
         DataSetInformation metadataDataSetInfo = new DataSetInformation();
         metadataDataSetInfo.setSampleCode(gridPrepSampleId.getSampleCode());
         metadataDataSetInfo.setSpaceCode(gridPrepSampleId.getSpaceLevel().getSpaceCode());
-        metadataDataSetInfo.setInstanceCode(gridPrepSampleId.getSpaceLevel()
-                .getDatabaseInstanceCode());
         metadataDataSetInfo.setDataSetType(globalState.getMetadataDataSetType().getDataSetType());
         return metadataDataSetInfo;
     }

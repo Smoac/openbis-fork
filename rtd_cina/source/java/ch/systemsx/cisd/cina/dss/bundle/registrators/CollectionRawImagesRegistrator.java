@@ -66,8 +66,6 @@ public class CollectionRawImagesRegistrator extends BundleDataSetHelper
         DataSetInformation imagesDataSetInfo = new DataSetInformation();
         imagesDataSetInfo.setSampleCode(replicaSampleId.getSampleCode());
         imagesDataSetInfo.setSpaceCode(replicaSampleId.getSpaceLevel().getSpaceCode());
-        imagesDataSetInfo
-                .setInstanceCode(replicaSampleId.getSpaceLevel().getDatabaseInstanceCode());
         imagesDataSetInfo.setDataSetType(globalState.getRawImagesDataSetType().getDataSetType());
         return imagesDataSetInfo;
     }

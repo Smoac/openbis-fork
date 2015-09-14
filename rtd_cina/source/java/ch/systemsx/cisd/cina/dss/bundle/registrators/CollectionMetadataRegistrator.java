@@ -23,8 +23,8 @@ import java.util.List;
 
 import ch.systemsx.cisd.cina.shared.metadata.CollectionMetadataExtractor;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
@@ -89,8 +89,6 @@ public class CollectionMetadataRegistrator extends BundleDataSetHelper
         DataSetInformation metadataDataSetInfo = new DataSetInformation();
         metadataDataSetInfo.setSampleCode(replicaSampleId.getSampleCode());
         metadataDataSetInfo.setSpaceCode(replicaSampleId.getSpaceLevel().getSpaceCode());
-        metadataDataSetInfo.setInstanceCode(replicaSampleId.getSpaceLevel()
-                .getDatabaseInstanceCode());
         metadataDataSetInfo.setDataSetType(globalState.getMetadataDataSetType().getDataSetType());
         List<String> parentDataSetCodes =
                 Collections.singletonList(bundleMetadataDataSetInformation.getDataSetCode());

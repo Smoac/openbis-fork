@@ -22,8 +22,8 @@ import java.util.List;
 
 import ch.systemsx.cisd.cina.shared.constants.BundleStructureConstants;
 import ch.systemsx.cisd.cina.shared.constants.CinaConstants;
-import ch.systemsx.cisd.cina.shared.metadata.ImageMetadataExtractor;
 import ch.systemsx.cisd.cina.shared.metadata.CollectionMetadataExtractor;
+import ch.systemsx.cisd.cina.shared.metadata.ImageMetadataExtractor;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
@@ -81,9 +81,8 @@ public class CollectionRegistrator extends BundleDataSetHelper
     }
 
     /**
-     * Create the replica sample (if necessary). Register the original images (if the replica sample
-     * did not exist), register the metadata dataset, and update the sample metadata, register the
-     * annotated images.
+     * Create the replica sample (if necessary). Register the original images (if the replica sample did not exist), register the metadata dataset,
+     * and update the sample metadata, register the annotated images.
      * 
      * @return DataSetInformation objects for each of the data sets registered
      */
@@ -146,8 +145,6 @@ public class CollectionRegistrator extends BundleDataSetHelper
         {
             ExperimentIdentifier experimentId =
                     new ExperimentIdentifier(collectionSample.getExperiment());
-            experimentId.setDatabaseInstanceCode(collectionSample.getExperiment().getProject()
-                    .getSpace().getInstance().getCode());
             // Sample does exist, update the metadata
             SampleUpdatesDTO sampleUpdate =
                     new SampleUpdatesDTO(TechId.create(collectionSample), properties, experimentId,
