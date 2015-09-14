@@ -56,7 +56,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
  * @author Franz-Josef Elmer
  */
 @Friend(toClasses =
-    { DataSetCopier.class, AbstractDropboxProcessingPlugin.class })
+{ DataSetCopier.class, AbstractDropboxProcessingPlugin.class })
 public class DataSetCopierTest extends AbstractFileSystemTestCase
 {
     private static final String RSYNC_EXECUTABLE = "rsync-executable";
@@ -185,7 +185,6 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
         description.setDataSetCode(dataSetCode);
         description.setDatasetTypeCode("MY_DATA");
         description.setDataSetLocation(location);
-        description.setDatabaseInstanceCode("i");
         description.setSpaceCode("g");
         description.setProjectCode("p");
         description.setExperimentCode("e");

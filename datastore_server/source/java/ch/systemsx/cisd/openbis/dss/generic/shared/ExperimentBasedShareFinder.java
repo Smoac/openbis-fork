@@ -25,11 +25,11 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 
 /**
- * Share finder for shares associated to certain experiments as specified in the property
- * {@link ShareFactory#EXPERIMENTS_PROP} of {@link ShareFactory#SHARE_PROPS_FILE} file.
+ * Share finder for shares associated to certain experiments as specified in the property {@link ShareFactory#EXPERIMENTS_PROP} of
+ * {@link ShareFactory#SHARE_PROPS_FILE} file.
  * <p>
- * Returns the first share which has enough space and where the experiment identifier of the data
- * set to be shuffled matches on of the experiments associated with the share.
+ * Returns the first share which has enough space and where the experiment identifier of the data set to be shuffled matches on of the experiments
+ * associated with the share.
  * 
  * @author Franz-Josef Elmer
  */
@@ -45,7 +45,7 @@ public class ExperimentBasedShareFinder implements IShareFinder
         if (dataSet.getExperimentCode() != null)
         {
             String experimentIdentifier =
-                    new ExperimentIdentifier(null, dataSet.getSpaceCode(), dataSet.getProjectCode(),
+                    new ExperimentIdentifier(dataSet.getSpaceCode(), dataSet.getProjectCode(),
                             dataSet.getExperimentCode()).toString();
             for (Share share : shares)
             {

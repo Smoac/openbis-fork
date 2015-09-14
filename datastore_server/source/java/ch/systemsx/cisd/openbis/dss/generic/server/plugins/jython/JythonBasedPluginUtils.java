@@ -33,8 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 public class JythonBasedPluginUtils
 {
     /**
-     * @return an instance of {@link IDataSet} based on given {@link DatasetDescription} and
-     *         {@link IHierarchicalContent}
+     * @return an instance of {@link IDataSet} based on given {@link DatasetDescription} and {@link IHierarchicalContent}
      */
     static IDataSet createDataSet(final DatasetDescription description,
             final IHierarchicalContent content)
@@ -98,12 +97,6 @@ public class JythonBasedPluginUtils
                 }
 
                 @Override
-                public String getInstanceCode()
-                {
-                    return description.getInstanceCode();
-                }
-
-                @Override
                 public String getExperimentTypeCode()
                 {
                     return description.getExperimentTypeCode();
@@ -125,12 +118,6 @@ public class JythonBasedPluginUtils
                 public String getDataSetTypeCode()
                 {
                     return description.getDataSetTypeCode();
-                }
-
-                @Override
-                public String getDatabaseInstanceCode()
-                {
-                    return description.getDatabaseInstanceCode();
                 }
 
                 @Override

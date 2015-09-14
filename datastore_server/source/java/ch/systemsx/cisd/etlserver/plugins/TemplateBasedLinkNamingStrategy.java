@@ -45,7 +45,6 @@ public class TemplateBasedLinkNamingStrategy implements IHierarchicalStorageLink
 
     private final String linkTemplate;
 
-    
     public TemplateBasedLinkNamingStrategy(String template)
     {
         if (template == null)
@@ -187,20 +186,8 @@ public class TemplateBasedLinkNamingStrategy implements IHierarchicalStorageLink
             {
                 return data.getSpaceCode();
             }
-        },
-
-        instance
-        {
-
-            @Override
-            String extractValueFromData(SimpleDataSetInformationDTO data)
-            {
-                return data.getDatabaseInstanceCode();
-            }
-
         };
 
-        
         abstract String extractValueFromData(SimpleDataSetInformationDTO data);
 
         private static String getPathElement(String pathElement)

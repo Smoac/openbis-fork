@@ -28,15 +28,14 @@ import ch.systemsx.cisd.openbis.common.types.BooleanOrUnknown;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.SpeedUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ToStringUtil;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExtractableData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
@@ -192,16 +191,6 @@ public class DataSetInformation implements Serializable
         this.dataSetType = dataSetType;
     }
 
-    public final String getInstanceCode()
-    {
-        return instanceCode;
-    }
-
-    public final void setInstanceCode(final String instanceCode)
-    {
-        this.instanceCode = instanceCode;
-    }
-
     public final String getInstanceUUID()
     {
         return instanceUUID;
@@ -281,7 +270,6 @@ public class DataSetInformation implements Serializable
         if (spaceLevel != null)
         {
             setSpaceCode(spaceLevel.getSpaceCode());
-            setInstanceCode(spaceLevel.getDatabaseInstanceCode());
         }
     }
 

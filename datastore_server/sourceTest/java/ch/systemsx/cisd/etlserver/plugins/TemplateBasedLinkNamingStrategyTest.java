@@ -32,10 +32,10 @@ public class TemplateBasedLinkNamingStrategyTest extends AbstractFileSystemTestC
 {
 
     public static final String LONG_LINK_TEMPLATE =
-            "Instance_${instance}/Space_${space}/Project_${project}/Experiment_${experiment}/DataSetType_${dataSetType}/Sample_${sample}/Dataset_${dataSet}";
+            "/Space_${space}/Project_${project}/Experiment_${experiment}/DataSetType_${dataSetType}/Sample_${sample}/Dataset_${dataSet}";
 
     private static final String DATASET_PATH_LONG =
-            "Instance_DB-I/Space_GROUP-G/Project_PROJECT-P/Experiment_EXP-E/DataSetType_TYPE-T/Sample_SAMPLE-S/Dataset_DATASET-D";
+            "/Space_GROUP-G/Project_PROJECT-P/Experiment_EXP-E/DataSetType_TYPE-T/Sample_SAMPLE-S/Dataset_DATASET-D";
 
     private static final String DATASET_PATH_DEFAULT =
             "GROUP-G/PROJECT-P/EXP-E/TYPE-T+SAMPLE-S+DATASET-D";
@@ -54,8 +54,6 @@ public class TemplateBasedLinkNamingStrategyTest extends AbstractFileSystemTestC
 
     private static final String DATASET = "DATASET-D";
 
-    private static final String DATABASE_INSTANCE = "DB-I";
-
     @Test
     public void testCreateDataSetPath() throws Exception
     {
@@ -68,13 +66,12 @@ public class TemplateBasedLinkNamingStrategyTest extends AbstractFileSystemTestC
     {
         SimpleDataSetInformationDTO dsInfo = createDataSetInfo();
         return new TemplateBasedLinkNamingStrategy(template)
-                        .createHierarchicalPath(dsInfo);
+                .createHierarchicalPath(dsInfo);
     }
 
     private SimpleDataSetInformationDTO createDataSetInfo()
     {
         SimpleDataSetInformationDTO dsInfo = new SimpleDataSetInformationDTO();
-        dsInfo.setDatabaseInstanceCode(DATABASE_INSTANCE);
         dsInfo.setDataSetCode(DATASET);
         dsInfo.setDataSetLocation(LOCATION);
         dsInfo.setDataSetType(TYPE);

@@ -24,7 +24,6 @@ import java.util.Set;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.ISample;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IExperimentImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISampleImmutable;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleBatchUpdateDetails;
@@ -45,9 +44,7 @@ public class Sample extends SampleImmutable implements ISample
     private final SampleBatchUpdateDetails updateDetails;
 
     /**
-     * This code is derived from
-     * {@link ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.SampleBuilder}, which is in
-     * a test source folder.
+     * This code is derived from {@link ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.SampleBuilder}, which is in a test source folder.
      */
     private static ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample buildSampleWithIdentifier(
             String identifier)
@@ -66,9 +63,6 @@ public class Sample extends SampleImmutable implements ISample
             Space space = new Space();
             SpaceIdentifier spaceLevel = sampleIdentifier.getSpaceLevel();
             space.setCode(spaceLevel.getSpaceCode());
-            DatabaseInstance databaseInstance = new DatabaseInstance();
-            databaseInstance.setCode(spaceLevel.getDatabaseInstanceCode());
-            space.setInstance(databaseInstance);
             sample.setSpace(space);
         }
         return sample;

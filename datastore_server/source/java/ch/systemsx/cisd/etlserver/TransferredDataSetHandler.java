@@ -243,7 +243,6 @@ public final class TransferredDataSetHandler extends AbstractTopLevelDataSetRegi
             DataSetInformation dataSetInformation,
             DataSetRegistrationAlgorithm.IDataSetInApplicationServerRegistrator registrator)
     {
-        dataSetInformation.setInstanceCode(getHomeDatabaseInstance().getCode());
         dataSetInformation.setInstanceUUID(getHomeDatabaseInstance().getUuid());
         final DataSetRegistrationHelper registrationHelper =
                 createRegistrationHelper(dataSet, dataSetInformation, registrator);
@@ -380,8 +379,7 @@ public final class TransferredDataSetHandler extends AbstractTopLevelDataSetRegi
     /**
      * From given <var>isFinishedPath</var> gets the incoming data set path and checks it.
      * 
-     * @return <code>null</code> if a problem has happened. Otherwise a useful and usable incoming
-     *         data set path is returned.
+     * @return <code>null</code> if a problem has happened. Otherwise a useful and usable incoming data set path is returned.
      */
     private final File getIncomingDataSetPathFromMarker(final File isFinishedPath)
     {

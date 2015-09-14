@@ -86,9 +86,9 @@ import ch.systemsx.cisd.openbis.util.LogRecordingUtils;
  * @author Franz-Josef Elmer
  */
 @Friend(toClasses =
-    { TransferredDataSetHandler.class, DataSetRegistrationHelper.class,
-            IdentifiedDataStrategy.class, PluginTaskInfoProvider.class,
-            DssPropertyParametersUtil.class })
+{ TransferredDataSetHandler.class, DataSetRegistrationHelper.class,
+        IdentifiedDataStrategy.class, PluginTaskInfoProvider.class,
+        DssPropertyParametersUtil.class })
 public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestCase
 {
 
@@ -320,7 +320,6 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
         homeDatabaseInstance = new DatabaseInstance();
         homeDatabaseInstance.setCode("my-instance");
         homeDatabaseInstance.setUuid("1111-2222");
-        dataSetInformation.setInstanceCode(homeDatabaseInstance.getCode());
         dataSetInformation.setInstanceUUID(homeDatabaseInstance.getUuid());
         dataSetInformation.setExperimentIdentifier(experimentIdentifier);
         dataSetInformation.setSampleCode(SAMPLE_CODE);

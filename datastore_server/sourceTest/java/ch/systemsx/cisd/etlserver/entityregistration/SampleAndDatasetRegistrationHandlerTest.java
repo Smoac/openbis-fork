@@ -57,7 +57,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
@@ -588,8 +587,7 @@ public class SampleAndDatasetRegistrationHandlerTest extends AbstractFileSystemT
                     for (int i = 1; i < 4; ++i)
                     {
                         ExperimentIdentifier experimentId =
-                                new ExperimentIdentifier(DatabaseInstanceIdentifier.HOME,
-                                        SPACE_CODE, "MYPROJ", "EXP" + i);
+                                new ExperimentIdentifier(SPACE_CODE, "MYPROJ", "EXP" + i);
                         allowing(openbisService).tryGetExperiment(experimentId);
                         Experiment exp = new Experiment();
                         exp.setIdentifier(experimentId.toString());
@@ -635,7 +633,7 @@ public class SampleAndDatasetRegistrationHandlerTest extends AbstractFileSystemT
     private void setupUpdateSampleExistsExpectations(final String sampleCode, final boolean exists)
     {
         final SpaceIdentifier spaceId =
-                new SpaceIdentifier(DatabaseInstanceIdentifier.HOME, SPACE_CODE);
+                new SpaceIdentifier(SPACE_CODE);
         // Decide if the samples exist
         context.checking(new Expectations()
             {

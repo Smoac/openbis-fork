@@ -63,7 +63,6 @@ public class IdentifiedDataStrategyTest extends AbstractFileSystemTestCase
         experimentIdentifier.setSpaceCode(EXAMPLE_GROUP_CODE);
         dataSetInfo.setExperimentIdentifier(experimentIdentifier);
         dataSetInfo.setSampleCode("S");
-        dataSetInfo.setInstanceCode("my-instance");
         dataSetInfo.setInstanceUUID("1111-2222");
         dataSetInfo.setDataSetCode(DATA_SET_CODE);
         dataSetInfo.setShareId(SHARE_ID);

@@ -57,7 +57,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
  * @author Tomasz Pylak
  */
 @Friend(toClasses =
-    { PluginTaskInfoProvider.class, PluginTaskFactory.class })
+{ PluginTaskInfoProvider.class, PluginTaskFactory.class })
 public class PluginTaskParametersTest extends AbstractFileSystemTestCase
 {
     private static final File STORE_ROOT = new File("../datastore_server/resource/test-data/"
@@ -241,7 +241,6 @@ public class PluginTaskParametersTest extends AbstractFileSystemTestCase
         description.setSpaceCode("groupCode");
         description.setProjectCode("projCode");
         description.setExperimentCode("expCode");
-        description.setDatabaseInstanceCode("instance");
         return Arrays.asList(description);
     }
 
@@ -255,7 +254,7 @@ public class PluginTaskParametersTest extends AbstractFileSystemTestCase
         setPluginProperty(props, pluginId, PluginTaskFactory.CLASS_PROPERTY_NAME,
                 pluginClass.getName());
         String[] pluginParams = new String[]
-            { "param1 = X", "param2 = Y" };
+        { "param1 = X", "param2 = Y" };
         File paramsFile = createPluginPropertiesFile(pluginParams);
         setPluginProperty(props, pluginId,
                 PluginTaskFactory.PARAMS_FILE_PATH_PROPERTY_NAME, paramsFile.getPath());

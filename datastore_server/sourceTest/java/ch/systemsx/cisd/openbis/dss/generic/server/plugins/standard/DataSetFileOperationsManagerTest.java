@@ -207,7 +207,6 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
         description.setDataSetCode(dataSetCode);
         description.setDatasetTypeCode("MY_DATA");
         description.setDataSetLocation(location);
-        description.setDatabaseInstanceCode("i");
         description.setSpaceCode("g");
         description.setProjectCode("p");
         description.setExperimentCode("e");

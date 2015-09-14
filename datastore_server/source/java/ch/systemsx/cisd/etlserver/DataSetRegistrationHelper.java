@@ -161,7 +161,6 @@ public abstract class DataSetRegistrationHelper implements
             dataSetInfo =
                     getDataSetInfoExtractor().getDataSetInformation(incomingDataSetPath,
                             getOpenBisService());
-            dataSetInfo.setInstanceCode(getHomeDatabaseInstance().getCode());
             dataSetInfo.setInstanceUUID(getHomeDatabaseInstance().getUuid());
             if (getOperationLog().isDebugEnabled())
             {

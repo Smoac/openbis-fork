@@ -70,8 +70,7 @@ abstract public class AbstractDropboxProcessingPlugin extends AbstractDatastoreP
     private final boolean sendingDetailedEMail;
 
     /**
-     * Note that this class is not a valid processing plugin as it does not provide the appropriate
-     * constructor.
+     * Note that this class is not a valid processing plugin as it does not provide the appropriate constructor.
      */
     public AbstractDropboxProcessingPlugin(Properties properties, File storeRoot,
             IPostRegistrationDatasetHandler dropboxHandler)
@@ -210,7 +209,7 @@ abstract public class AbstractDropboxProcessingPlugin extends AbstractDatastoreP
         if (dataset.getExperimentCode() != null)
         {
             ExperimentIdentifier expIdent =
-                    new ExperimentIdentifier(null, dataset.getSpaceCode(), dataset.getProjectCode(),
+                    new ExperimentIdentifier(dataset.getSpaceCode(), dataset.getProjectCode(),
                             dataset.getExperimentCode());
             datasetInfo.setExperimentIdentifier(expIdent);
         }

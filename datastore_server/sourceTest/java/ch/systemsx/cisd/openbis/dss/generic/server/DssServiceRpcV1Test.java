@@ -92,7 +92,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.IQueryApiServer;
 
@@ -106,7 +105,7 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
 
     private static final String NEW_DATA_SET_EXP = "E1";
 
-    private static final String NEW_DATA_SET_OWNER_ID = "TEST:/TEST-SPACE/S1";
+    private static final String NEW_DATA_SET_OWNER_ID = "/TEST-SPACE/S1";
 
     private static final String NEW_DATA_SET_PROJECT = "TEST-PROJECT";
 
@@ -135,7 +134,7 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
     private IDataSetValidator validator;
 
     private IFreeSpaceProvider freeSpaceProvider;
-    
+
     private IShareIdManager shareIdManager;
 
     private IPluginTaskInfoProvider infoProvider;

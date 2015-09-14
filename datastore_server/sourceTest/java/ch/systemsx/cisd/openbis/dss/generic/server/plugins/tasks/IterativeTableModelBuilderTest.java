@@ -96,7 +96,7 @@ public class IterativeTableModelBuilderTest
     private String[] asTab(String arg1, String arg2)
     {
         return new String[]
-            { arg1, arg2 };
+        { arg1, arg2 };
     }
 
     private DatasetDescription createDatasetDescription()
@@ -108,7 +108,6 @@ public class IterativeTableModelBuilderTest
         description.setSpaceCode("groupCode");
         description.setProjectCode("projCode");
         description.setExperimentCode("expCode");
-        description.setDatabaseInstanceCode("instance");
         return description;
     }
 

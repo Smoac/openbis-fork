@@ -87,8 +87,7 @@ public abstract class AbstractDataSetRegistrationDetailsFactory<T extends DataSe
     }
 
     /**
-     * The field userProvidedDataSetInformationOrNull is non-null. Apply the values to the
-     * dataSetInfo. Subclasses may override.
+     * The field userProvidedDataSetInformationOrNull is non-null. Apply the values to the dataSetInfo. Subclasses may override.
      */
     protected void applyUserProvidedValues(T dataSetInfo)
     {
@@ -97,7 +96,6 @@ public abstract class AbstractDataSetRegistrationDetailsFactory<T extends DataSe
         {
             dataSetInfo.setSampleCode(sampleId.getSampleCode());
             dataSetInfo.setSpaceCode(sampleId.getSpaceLevel().getSpaceCode());
-            dataSetInfo.setInstanceCode(sampleId.getSpaceLevel().getDatabaseInstanceCode());
         }
 
         if (null != userProvidedDataSetInformationOrNull.tryToGetSample())
@@ -146,7 +144,6 @@ public abstract class AbstractDataSetRegistrationDetailsFactory<T extends DataSe
 
     protected final void setDatabaseInstance(DataSetInformation dataSetInfo)
     {
-        dataSetInfo.setInstanceCode(registratorState.getHomeDatabaseInstance().getCode());
         dataSetInfo.setInstanceUUID(registratorState.getHomeDatabaseInstance().getUuid());
     }
 

@@ -24,7 +24,6 @@ import java.util.Set;
 import ch.systemsx.cisd.etlserver.registrator.api.v2.ISample;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IExperimentImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.ISampleImmutable;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleBatchUpdateDetails;
@@ -64,9 +63,6 @@ public class Sample extends SampleImmutable implements ISample
             Space space = new Space();
             SpaceIdentifier spaceLevel = sampleIdentifier.getSpaceLevel();
             space.setCode(spaceLevel.getSpaceCode());
-            DatabaseInstance databaseInstance = new DatabaseInstance();
-            databaseInstance.setCode(spaceLevel.getDatabaseInstanceCode());
-            space.setInstance(databaseInstance);
             sample.setSpace(space);
         }
         return sample;

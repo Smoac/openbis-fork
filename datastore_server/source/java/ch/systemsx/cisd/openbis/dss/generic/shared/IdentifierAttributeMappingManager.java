@@ -274,7 +274,7 @@ public class IdentifierAttributeMappingManager
         {
             return null;
         }
-        String identifier = new ExperimentIdentifier(null, spaceCode, projectCode, experimentCode).toString();
+        String identifier = new ExperimentIdentifier(spaceCode, projectCode, experimentCode).toString();
         return getAttributesMap().get(identifier);
     }
 
@@ -284,7 +284,7 @@ public class IdentifierAttributeMappingManager
         {
             return null;
         }
-        String identifier = new ProjectIdentifier(null, spaceCode, projectCode).toString();
+        String identifier = new ProjectIdentifier(spaceCode, projectCode).toString();
         return getAttributesMap().get(identifier);
     }
 

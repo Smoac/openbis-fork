@@ -41,8 +41,8 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO.DataSetOwner;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
@@ -135,8 +135,7 @@ class PutDataSetTopLevelDataSetHandler
     }
 
     /**
-     * Run the put command; does *not* close the input stream &mdash; clients of the executor are
-     * expected to close the input stream when appropriate.
+     * Run the put command; does *not* close the input stream &mdash; clients of the executor are expected to close the input stream when appropriate.
      * 
      * @throws IOException
      */
@@ -194,7 +193,6 @@ class PutDataSetTopLevelDataSetHandler
 
                     dataSetInfo.setSampleCode(sampleId.getSampleCode());
                     dataSetInfo.setSpaceCode(sampleId.getSpaceLevel().getSpaceCode());
-                    dataSetInfo.setInstanceCode(sampleId.getSpaceLevel().getDatabaseInstanceCode());
                     break;
                 case DATA_SET:
                     String dataSetCode = tryGetDataSetCode();
@@ -312,8 +310,7 @@ class PutDataSetTopLevelDataSetHandler
                 case EXPERIMENT:
                     ExperimentIdentifier experimentId = tryExperimentIdentifier();
                     spaceId =
-                            new SpaceIdentifier(experimentId.getDatabaseInstanceCode(),
-                                    experimentId.getSpaceCode());
+                            new SpaceIdentifier(experimentId.getSpaceCode());
                     break;
                 case SAMPLE:
                     SampleIdentifier sampleId = trySampleIdentifier();
@@ -331,8 +328,7 @@ class PutDataSetTopLevelDataSetHandler
                                     ExperimentIdentifierFactory.parse(parentDataSet.getExperiment()
                                             .getIdentifier());
                             spaceId =
-                                    new SpaceIdentifier(experimentId.getDatabaseInstanceCode(),
-                                            experimentId.getSpaceCode());
+                                    new SpaceIdentifier(experimentId.getSpaceCode());
                         }
                         if (parentDataSet.getSample() != null)
                         {

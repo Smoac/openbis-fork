@@ -32,8 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFa
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
- * Predicate for checking that the new data set can be registered (i.e., user has access to the
- * space for the new data set).
+ * Predicate for checking that the new data set can be registered (i.e., user has access to the space for the new data set).
  * <p>
  * <i>This is an internal class. Do not use it as a user of the API.</i>
  * 
@@ -62,8 +61,7 @@ public class NewDataSetPredicate implements
                 ExperimentIdentifier experimentId =
                         new ExperimentIdentifierFactory(ownerIdentifier).createIdentifier();
                 spaceId =
-                        new SpaceIdentifier(experimentId.getDatabaseInstanceCode(),
-                                experimentId.getSpaceCode());
+                        new SpaceIdentifier(experimentId.getSpaceCode());
                 return DssSessionAuthorizationHolder.getAuthorizer().checkSpaceWriteable(
                         sessionToken, spaceId);
             case SAMPLE:

@@ -248,7 +248,7 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
     }
 
     @Test(expectedExceptions =
-        { IllegalArgumentException.class })
+    { IllegalArgumentException.class })
     public void testCommitContainerDataSetWithFiles()
     {
         setUpOpenBisExpectations(true);
@@ -726,7 +726,6 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
         public DataSetInformation createDataSetInformation()
         {
             DataSetInformation dataSetInfo = new DataSetInformation();
-            dataSetInfo.setInstanceCode(getRegistratorState().getHomeDatabaseInstance().getCode());
             dataSetInfo.setInstanceUUID(getRegistratorState().getHomeDatabaseInstance().getUuid());
 
             return dataSetInfo;

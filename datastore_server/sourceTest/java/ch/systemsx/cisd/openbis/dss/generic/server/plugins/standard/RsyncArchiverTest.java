@@ -151,7 +151,7 @@ public class RsyncArchiverTest extends AbstractArchiverTestCase
         properties.setProperty(SHARE_FINDER_KEY + ".p1", "property 1");
         archiverTaskContext.setUnarchivingPreparation(unarchivingPreparation);
         final DatasetDescription ds1 =
-                new DatasetDescriptionBuilder("ds1").databaseInstance("db").experiment("exp1")
+                new DatasetDescriptionBuilder("ds1").experiment("exp1")
                         .location("loc1").project("p1").sample("s1").space("space").size(11l)
                         .type("my-type").getDatasetDescription();
         context.checking(new Expectations()
@@ -191,7 +191,6 @@ public class RsyncArchiverTest extends AbstractArchiverTestCase
         assertEquals("{class=" + ShareFinder.class.getName() + "\np1=property 1}",
                 ShareFinder.properties.toString());
         assertEquals("ds1", ShareFinder.recordedDataSet.getDataSetCode());
-        assertEquals("db", ShareFinder.recordedDataSet.getDatabaseInstanceCode());
         assertEquals("loc1", ShareFinder.recordedDataSet.getDataSetLocation());
         assertEquals(null, ShareFinder.recordedDataSet.getDataSetShareId());
         assertEquals("my-type", ShareFinder.recordedDataSet.getDataSetType());
@@ -212,7 +211,7 @@ public class RsyncArchiverTest extends AbstractArchiverTestCase
         properties.setProperty(SHARE_FINDER_KEY + ".alwaysReturnNull", "true");
         archiverTaskContext.setUnarchivingPreparation(unarchivingPreparation);
         final DatasetDescription ds1 =
-                new DatasetDescriptionBuilder("ds1").databaseInstance("db").experiment("exp1")
+                new DatasetDescriptionBuilder("ds1").experiment("exp1")
                         .location("loc1").project("p1").sample("s1").space("space")
                         .type("my-type").getDatasetDescription();
         context.checking(new Expectations()

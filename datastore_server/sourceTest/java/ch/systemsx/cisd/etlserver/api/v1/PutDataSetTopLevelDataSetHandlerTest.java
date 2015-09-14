@@ -163,8 +163,7 @@ public class PutDataSetTopLevelDataSetHandlerTest extends AbstractFileSystemTest
 
                     one(service).checkSpaceAccess(
                             SESSION_TOKEN,
-                            new SpaceIdentifier(experimentIdentifier.getDatabaseInstanceCode(),
-                                    experimentIdentifier.getSpaceCode()));
+                            new SpaceIdentifier(experimentIdentifier.getSpaceCode()));
                 }
             });
         RecordingMatcher<DataSetInformation> dataSetInfoMatcher =
@@ -238,7 +237,6 @@ public class PutDataSetTopLevelDataSetHandlerTest extends AbstractFileSystemTest
         assertEquals(null, dataSetInfoMatcher.recordedObject().getDataSetType());
         assertEquals(0, dataSetInfoMatcher.recordedObject().getDataSetProperties().size());
         assertEquals(null, dataSetInfoMatcher.recordedObject().getExperimentIdentifier());
-        assertEquals(null, dataSetInfoMatcher.recordedObject().getInstanceCode());
         assertEquals("S", dataSetInfoMatcher.recordedObject().getSpaceCode());
         assertEquals("S1", dataSetInfoMatcher.recordedObject().getSampleCode());
         assertEquals(TEST_USER_NAME, dataSetInfoMatcher.recordedObject().getUploadingUserIdOrNull());

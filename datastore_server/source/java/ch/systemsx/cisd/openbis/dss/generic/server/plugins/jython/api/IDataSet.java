@@ -40,8 +40,6 @@ public interface IDataSet
 
     String getDataSetLocation();
 
-    String getInstanceCode();
-
     int getSpeedHint();
 
     String getMainDataSetPattern();
@@ -51,8 +49,6 @@ public interface IDataSet
     String getSpaceCode();
 
     String getProjectCode();
-
-    String getDatabaseInstanceCode();
 
     String getExperimentCode();
 

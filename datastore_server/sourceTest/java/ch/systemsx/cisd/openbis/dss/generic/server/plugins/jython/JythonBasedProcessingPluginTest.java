@@ -103,7 +103,7 @@ public class JythonBasedProcessingPluginTest extends AbstractFileSystemTestCase
                 {
                     exactly(2).of(processingPluginScriptRunner).process(with(iDataSetMatcher));
                     will(returnValue(Status.OK));
-                    
+
                     one(processingPluginScriptRunner).releaseResources();
                 }
             });
@@ -131,7 +131,7 @@ public class JythonBasedProcessingPluginTest extends AbstractFileSystemTestCase
                 {
                     one(processingPluginScriptRunner).process(with(iDataSetMatcher));
                     will(throwException(new EvaluatorException("blabla")));
-                    
+
                     one(processingPluginScriptRunner).releaseResources();
                 }
             });
@@ -172,7 +172,6 @@ public class JythonBasedProcessingPluginTest extends AbstractFileSystemTestCase
     private static DatasetDescription createDatasetDescription(int nr)
     {
         DatasetDescription result = new DatasetDescription();
-        result.setDatabaseInstanceCode("databaseInstanceCode" + nr);
         result.setDataSetCode("code" + nr);
         result.setDataSetLocation("dataSetLocation" + nr);
         result.setDataSetSize(new Long(nr));
@@ -195,7 +194,6 @@ public class JythonBasedProcessingPluginTest extends AbstractFileSystemTestCase
             IDataSet dataSet)
     {
         assertSame(expectedContent, dataSet.getContent());
-        assertEquals("databaseInstanceCode" + expectedNr, dataSet.getDatabaseInstanceCode());
         assertEquals("code" + expectedNr, dataSet.getDataSetCode());
         assertEquals("dataSetLocation" + expectedNr, dataSet.getDataSetLocation());
         assertEquals(new Long(expectedNr), dataSet.getDataSetSize());

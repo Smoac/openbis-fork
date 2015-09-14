@@ -109,7 +109,7 @@ public class JythonBasedReportingPluginTest extends AbstractFileSystemTestCase
                             with(any(ISimpleTableModelBuilderAdaptor.class)));
                     one(scriptRunnerFactory).getScriptPath();
                     will(returnValue("script.py"));
-                    
+
                     one(reportingPluginScriptRunner).releaseResources();
                 }
             });
@@ -139,7 +139,7 @@ public class JythonBasedReportingPluginTest extends AbstractFileSystemTestCase
                     will(throwException(new EvaluatorException("blabla")));
                     one(scriptRunnerFactory).getScriptPath();
                     will(returnValue("/path/to/script"));
-                    
+
                     one(reportingPluginScriptRunner).releaseResources();
                 }
             });
@@ -182,7 +182,6 @@ public class JythonBasedReportingPluginTest extends AbstractFileSystemTestCase
     private static DatasetDescription createDatasetDescription(int nr)
     {
         DatasetDescription result = new DatasetDescription();
-        result.setDatabaseInstanceCode("databaseInstanceCode" + nr);
         result.setDataSetCode("code" + nr);
         result.setDataSetLocation("dataSetLocation" + nr);
         result.setDataSetSize(new Long(nr));
@@ -205,7 +204,6 @@ public class JythonBasedReportingPluginTest extends AbstractFileSystemTestCase
             IDataSet dataSet)
     {
         assertSame(expectedContent, dataSet.getContent());
-        assertEquals("databaseInstanceCode" + expectedNr, dataSet.getDatabaseInstanceCode());
         assertEquals("code" + expectedNr, dataSet.getDataSetCode());
         assertEquals("dataSetLocation" + expectedNr, dataSet.getDataSetLocation());
         assertEquals(new Long(expectedNr), dataSet.getDataSetSize());

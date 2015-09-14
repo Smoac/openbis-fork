@@ -38,7 +38,7 @@ public class AbstractFileTableReportingPluginTest extends AssertJUnit
     public void testCreateTransposedTableModel() throws Exception
     {
         String[][] lines =
-            {
+        {
                 { "A", "B", "C", "D", "E" },
                 { "A1", "B1", "C1", "D1", "E1" },
                 { "A2", "B2", "C2", "D2", "E2" }, };
@@ -105,7 +105,6 @@ public class AbstractFileTableReportingPluginTest extends AssertJUnit
         description.setSpaceCode("Spa");
         description.setProjectCode("Pro");
         description.setExperimentCode("Exp");
-        description.setDatabaseInstanceCode("Ins");
         return description;
     }
 }

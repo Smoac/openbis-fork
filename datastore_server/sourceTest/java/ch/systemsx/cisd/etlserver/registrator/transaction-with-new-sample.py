@@ -7,7 +7,7 @@ experiment = transaction.createNewExperiment('/SPACE/PROJECT/EXP', 'EXP_TYPE')
 experiment.setPropertyValue('propCode', 'propValue')
 experiment.setExperimentType('experiment_type')
 
-sample = transaction.createNewSample('db:/PROJECT/SAMPLE', 'SAMP_TYPE')
+sample = transaction.createNewSample('/PROJECT/SAMPLE', 'SAMP_TYPE')
 sample.setSampleType('sample_type')
 sample.setPropertyValue('samplePropCode', 'samplePropValue')
 sample.setExperiment(experiment)

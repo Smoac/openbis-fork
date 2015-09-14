@@ -115,7 +115,7 @@ public class DataSetCopierForUsersTest extends AbstractFileSystemTestCase
         properties.setProperty("rsync-executable", rsyncExecutableDummy.getPath());
         DatasetDescriptionBuilder dsb =
                 new DatasetDescriptionBuilder("ds1").type("MY-DATA").location(DS_LOCATION)
-                        .sample("s").space("g").project("p").experiment("e").databaseInstance("i");
+                        .sample("s").space("g").project("p").experiment("e");
         ds = dsb.getDatasetDescription();
         ds.setExperimentIdentifier("/g/p/e");
         ds.setExperimentTypeCode("MY_EXPERIMENT");
