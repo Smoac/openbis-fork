@@ -40,9 +40,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.util.SimpleTableModelBuilder;
 
 /**
- * Reporting plugin which shows numbers of the Summary.xml file generated from the Illumina
- * Sequencer. The structure of the Summary file has changed from Casava 1.6 to 1.7 so some XML
- * elements are not available in the old files.
+ * Reporting plugin which shows numbers of the Summary.xml file generated from the Illumina Sequencer. The structure of the Summary file has changed
+ * from Casava 1.6 to 1.7 so some XML elements are not available in the old files.
  * 
  * @author Manuel Kohler
  */
@@ -67,13 +66,13 @@ public class IlluminaSummaryReportingPlugin extends AbstractTableModelReportingP
     private static final String BASECALL_DIR = "Basecall";
 
     private static final String[] PROPERTIES =
-        { "GENOME_ANALYZER", "END_TYPE", "ILLUMINA_PIPELINE_VERSION",
-                "CYCLES_REQUESTED_BY_CUSTOMER" };
+    { "GENOME_ANALYZER", "END_TYPE", "ILLUMINA_PIPELINE_VERSION",
+            "CYCLES_REQUESTED_BY_CUSTOMER" };
 
     private static final String[] COLUMNS =
-        { "Sample Code", "Clusters", "Clusters (PF)", "Yield (Mbases)", "Density Ratio",
-                "PhiX: Clusters", "PhiX: ClustersPF", "PhiX: Yield (Mbases)", "PhiX: % Align (PF)",
-                "Software", "Eland finished" };
+    { "Sample Code", "Clusters", "Clusters (PF)", "Yield (Mbases)", "Density Ratio",
+            "PhiX: Clusters", "PhiX: ClustersPF", "PhiX: Yield (Mbases)", "PhiX: % Align (PF)",
+            "Software", "Eland finished" };
 
     public IlluminaSummaryReportingPlugin(Properties properties, File storeRoot)
     {
@@ -267,10 +266,8 @@ public class IlluminaSummaryReportingPlugin extends AbstractTableModelReportingP
     {
         String spaceCode = dataset.getSpaceCode();
         String sampleCode = dataset.getSampleCode();
-        String databaseInstanceCode = dataset.getDatabaseInstanceCode();
         SampleIdentifier sampleIdentifier =
-                new SampleIdentifier(new SpaceIdentifier(databaseInstanceCode, spaceCode),
-                        sampleCode);
+                new SampleIdentifier(new SpaceIdentifier(spaceCode), sampleCode);
         Sample sampleOrNull =
                 ServiceProvider.getOpenBISService().tryGetSampleWithExperiment(sampleIdentifier);
         if (sampleOrNull == null)
@@ -285,9 +282,8 @@ public class IlluminaSummaryReportingPlugin extends AbstractTableModelReportingP
     /**
      * Loader of Illumina summary XML file.
      * <p>
-     * NOTE: This is not thread safe as it holds {@link JaxbXmlParser} singleton. As long as it is
-     * used only by {@link IlluminaSummaryReportingPlugin} it will work correctly because we only
-     * use a singleton of each reporting plugin.
+     * NOTE: This is not thread safe as it holds {@link JaxbXmlParser} singleton. As long as it is used only by {@link IlluminaSummaryReportingPlugin}
+     * it will work correctly because we only use a singleton of each reporting plugin.
      * 
      * @author Piotr Buczek
      */
