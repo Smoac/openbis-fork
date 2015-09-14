@@ -77,7 +77,7 @@ public class AttachmentSqlTranslator extends AbstractCachingTranslator<Long, Att
     protected Object getObjectsRelations(TranslationContext context, Collection<Long> attachmentIds, AttachmentFetchOptions fetchOptions)
     {
         Map<Long, ObjectHolder<AttachmentBaseRecord>> records = baseTranslator.translate(context, attachmentIds, null);
-        List<List<AttachmentBaseRecord>> groupedRecords = groupByFileNameAndSortByVersion(records.values());
+        List<List<AttachmentBaseRecord>> groupedRecords = groupAndSortByVersion(records.values());
         AttachmentsBuildingHelper buildingHelper = new AttachmentsBuildingHelper();
         for (List<AttachmentBaseRecord> recordsSortecByVersion : groupedRecords)
         {
@@ -87,17 +87,18 @@ public class AttachmentSqlTranslator extends AbstractCachingTranslator<Long, Att
         return buildingHelper;
     }
     
-    private List<List<AttachmentBaseRecord>> groupByFileNameAndSortByVersion(Collection<ObjectHolder<AttachmentBaseRecord>> records)
+    private List<List<AttachmentBaseRecord>> groupAndSortByVersion(Collection<ObjectHolder<AttachmentBaseRecord>> records)
     {
         Map<String, List<AttachmentBaseRecord>> mapByFileName = new HashMap<>();
         for (ObjectHolder<AttachmentBaseRecord> recordHolder : records)
         {
             AttachmentBaseRecord record = recordHolder.getObject();
-            List<AttachmentBaseRecord> list = mapByFileName.get(record.fileName);
+            String key = createKey(record);
+            List<AttachmentBaseRecord> list = mapByFileName.get(key);
             if (list == null)
             {
                 list = new ArrayList<>();
-                mapByFileName.put(record.fileName, list);
+                mapByFileName.put(key, list);
             }
             list.add(record);
         }
@@ -107,6 +108,16 @@ public class AttachmentSqlTranslator extends AbstractCachingTranslator<Long, Att
             Collections.sort(list, VERSION_COMPARATOR);
         }
         return new ArrayList<>(lists);
+    }
+    
+    private String createKey(AttachmentBaseRecord record)
+    {
+        StringBuilder builder = new StringBuilder();
+        builder.append("p:").append(record.projectCode).append(record.spaceCode);
+        builder.append("s:").append(record.samplePermId);
+        builder.append("e:").append(record.experimentPermId);
+        builder.append("f:").append(record.fileName);
+        return builder.toString();
     }
 
     @Override
