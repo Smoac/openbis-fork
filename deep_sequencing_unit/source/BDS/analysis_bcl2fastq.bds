@@ -57,11 +57,22 @@ if (!latestFolder.exists()) {
     sys exit 1  
 }
 
+string fcName
 runFolderName := latestFolder.baseName() 
 print("Runfolder: $runFolderName\n")
 
 splits := runFolderName.split("_")
-string fcName = splits[3]
+
+if (splits[3].startsWith("000")) {
+    fcName = splits[3]
+}
+else {
+    fcName = splits[3].substr(1)
+}
+
+print("Flowcell: $fcName\n")
+string model = get_model(splits[1])
+print("Model: $model\n")
 bool {} taskList
 
 # -----------------------------------------------------------------------------
@@ -105,7 +116,7 @@ if (analysisStarted.canRead() && (!taskList{"debugRun"})) {
 if ( runCompleted.canRead() ) {
     print ("Run is complete, found: $runCompleted\n" )
     analysisStarted.write("Started: " + getDate())
-    startAnalysis("$fcName")
+    startAnalysis("$fcName", "$model")
 }
 
 # --------------------------------------------------------------------------
@@ -154,28 +165,71 @@ string [] getLaneNumbers (string searchFolder, string fileRegex) {
         string lane
 
         splittedName := aFile.split("_")
-        debug("$splittedName\n")
 
-        for (string split : splittedName) {
-            if (split.startsWith("L00")) {
-                lane = split.substr(3,4)
-            }
-            # Assuming that Illumina leaves out the Lane 
-            # information when there is only one lane
-            else {
-                lane = "1"
-            }
-            if (!listOfLanes.has(lane) && !lane.isEmpty()) {
-                listOfLanes.add(lane)
-            }
-        }        
+        if (splittedName[2].startsWith("L00")) {
+            lane = splittedName[2].substr(3,4)
+        }
+        # Assuming that Illumina leaves out the Lane 
+        # information when there using the option "--no-lane-splitting"
+        # with bcl2fastq          
+        else {
+            lane = "1"
+        }
+        if (!listOfLanes.has(lane) && !lane.isEmpty()) {
+            listOfLanes.add(lane)
+        }
     }
     return listOfLanes
 }
 
+
+string get_model(string machineId) {
+    """
+    Guesses the sequencer model from the run folder name
+
+    Current Naming schema for Illumina run folders, as far as I know,
+    no documentation found on this, Illumina introduced a field called
+    <InstrumentID> on the NextSeq runParameters.xml. That might be an
+    option for the future. Alternatively a combination of the fields
+    <ApplicationName> and <ApplicationVersion>.
+
+    MiSeq: 150130_M01761_0114_000000000-ACUR0
+    NextSeq: 150202_NS500318_0047_AH3KLMBGXX
+    HiSeq 2000: 130919_SN792_0281_BD2CHRACXX
+    HiSeq 2500: 150203_D00535_0052_AC66RWANXX
+    HiSeq 3000: 150724_J00121_0017_AH2VYMBBXX
+    HiSeq 4000: 150210_K00111_0013_AH2372BBXX
+    HiSeq X: 141121_ST-E00107_0356_AH00C3CCXX
+    """
+
+    if (machineId.startsWith("NS")) model = "NEXTSEQ_500"
+    else if (machineId.startsWith("M")) model = "MISEQ"
+    else if (machineId.startsWith("D")) model = "HISEQ_2500"
+    else if (machineId.startsWith("SN")) model = "HISEQ_2000"
+    else if (machineId.startsWith("J")) model = "HISEQ_3000"
+    else if (machineId.startsWith("K")) model = "HISEQ_4000"
+    else if (machineId.startsWith("ST")) model = "HISEQ_X"
+    else model = "UNIDENTIFIED"
+    
+    return model
+}
+
+void rsyncRunFolder (string[] rsyncParameters, string source, string targetFolder, string markerFile) {
+    targetFolder.mkdir()
+    source.trim()
+    joinedParameters := rsyncParameters.join()
+    print("rsync $joinedParameters $source $targetFolder\n")
+
+    string taskId = task /usr/bin/rsync $joinedParameters $source $targetFolder
+    wait taskId
+    if (!markerFile.isEmpty()) {
+            task touch "$markerFile"
+    }
+}
+
 # --------------------------------------------------------------------------
 
-void startAnalysis (string fcName) {
+void startAnalysis (string fcName, string model) {
   
     # Main function   
     
@@ -194,20 +248,16 @@ void startAnalysis (string fcName) {
 
     # Start Demultiplexing
     if (taskList{"runTriggerBcl2fastq"}) {
-        triggerBcl2fastq(   )
+        triggerBcl2fastq(model)
     }
-
+    # html demultiplexing overview
     if (taskList{"runDemultiplexStats"}) {
         triggerDemultiplexStats()
     }
     
-    # Rsync the demultiplexed files
-    if (taskList{"runRsyncOnDemux"}) {
-        rsyncOnDemux()
-    }
-
     # Rsync Flow Cell Raw Data
     if (taskList{"runRsyncFlowcell"}) {
+        sys mkdir "$flowCellData/$runFolderName"
         rsyncRunFolder (["-a", \
                     "--exclude='*.cif'", \
                     "--exclude='*.FWHMMap'", \
@@ -217,18 +267,14 @@ void startAnalysis (string fcName) {
                     "--exclude='fastqc'", \
                     "--exclude='*_pos.txt'"], \
                     "$latestFolder", \
-                    "$flowCellData", \
+                    "$flowCellData/$runFolderName", \
                     "$flowCellData/$marker$runFolderName")
-    }
-
-    if (taskList{"runRsyncDemux"}) {
-        rsyncDemux()
     }
 
     if (taskList{"runCreateFastqc"}) {
         createFastqc ()
     }
-    
+   
     # run in parallel
     par {
         if (taskList{"runBarcodeDistribution"}) {
@@ -240,10 +286,23 @@ void startAnalysis (string fcName) {
     }
     wait
 
+    # Rsync the demultiplexed files
+    if (taskList{"runRsyncOnDemux"}) {
+        rsyncOnDemux()
+        sleep(600)
+    }
+
+    # Sync Statistic for Flowcell and Lane statistic
+    if (taskList{"runRsyncDemux"}) {
+        rsyncDemux()
+    }
+
+
     if (!taskList{"debugRun"}) {
         analysisFinished.write("Finished: " + getDate())
         send_mail ("Sequencer $sequencer: Analysis finished", "Analysis for flow cell $fcName is finished.")
-    }    
+    }
+
 }
 
 /* --------------------------------------------------------------------------*/
@@ -262,34 +321,36 @@ string triggerSampleSheetCreation() {
 } 
 
 
-void triggerBcl2fastq () {
+void triggerBcl2fastq (string model) {
     
     sampleSheetName := "SampleSheet_" + "$fcName" + ".csv"
-
     bcl2fastqBinary := "/usr/local/bin/bcl2fastq"
+    string laneSplitting
 
+    # just appending the option
+    if (model == "NEXTSEQ_500") bcl2fastqBinary += " --no-lane-splitting "
+    
     task ( cpus := 16 ) {
-        sys /usr/bin/nohup $bcl2fastqBinary \
-        --no-lane-splitting \
-        --with-failed-reads \
-        --ignore-missing-bcls \
-        --ignore-missing-controls \
-        --ignore-missing-positions \
-        --ignore-missing-filter \
-        --runfolder-dir $latestFolder \
-        --input-dir $latestFolder/Data/Intensities/BaseCalls \
-        --output-dir $latestFolder/$demultiplexedFolder \
-        --min-log-level DEBUG \
-        --sample-sheet $latestFolder/$sampleSheetName \
-        > $latestFolder/nohup_$runFolderName.txt 2>> $latestFolder/nohup_$runFolderName.txt
-    }
+         sys /usr/bin/nohup $bcl2fastqBinary \
+         --with-failed-reads \
+         --ignore-missing-bcls \
+         --ignore-missing-controls \
+         --ignore-missing-positions \
+         --ignore-missing-filter \
+         --runfolder-dir $latestFolder \
+         --input-dir $latestFolder/Data/Intensities/BaseCalls \
+         --output-dir $latestFolder/$demultiplexedFolder \
+         --min-log-level DEBUG \
+         --sample-sheet $latestFolder/$sampleSheetName \
+         > $latestFolder/nohup_$runFolderName.txt 2>> $latestFolder/nohup_$runFolderName.txt
+     }
     wait    
 }
 
 void rsyncOnDemux () {
 
     searchFolder := "$latestFolder/$demultiplexedFolder"
-    listOfLanes := getLaneNumbers(searchFolder, "*R1_001*")
+    listOfLanes := getLaneNumbers(searchFolder, "*R1_001*.fastq.gz")
     debug(listOfLanes)
 
     string [] filesPerLane
@@ -325,19 +386,6 @@ void rsyncOnDemux () {
                             "$unalignedData", \
                             "$unalignedData/$marker$sampleFolder")
         } 
-}
-
-void rsyncRunFolder (string[] rsyncParameters, string source, string targetFolder, string markerFile) {
-    targetFolder.mkdir()
-    source.trim()
-    joinedParameters := rsyncParameters.join()
-    print("rsync $joinedParameters $source $targetFolder\n")
-
-    string taskId = task /usr/bin/rsync $joinedParameters $source $targetFolder
-    wait taskId
-    if (!markerFile.isEmpty()) {
-            task touch "$markerFile"
-    }
 }
 
 void triggerDemultiplexStats () {
