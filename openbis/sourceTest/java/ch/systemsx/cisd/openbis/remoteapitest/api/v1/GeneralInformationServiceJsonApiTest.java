@@ -876,8 +876,8 @@ public class GeneralInformationServiceJsonApiTest extends RemoteApiTestCase
         {
             assertEquals("exampleExperiments.txt", a.getFileName());
             assertEquals(version, a.getVersion());
-            assertEquals("", a.getTitle());
-            assertEquals("", a.getDescription());
+            assertEquals(version == 4 ? "Latest version" : "", a.getTitle());
+            assertEquals(version == 3 ? "Second latest version" : "", a.getDescription());
             assertTrue(a.getRegistrationDetails().getRegistrationDate().getTime() > 0);
             assertEquals("test", a.getRegistrationDetails().getUserId());
             assertEquals("franz-josef.elmer@systemsx.ch", a.getRegistrationDetails().getUserEmail());
@@ -905,7 +905,7 @@ public class GeneralInformationServiceJsonApiTest extends RemoteApiTestCase
         final Attachment a = attachments.get(0);
         assertEquals("exampleExperiments.txt", a.getFileName());
         assertEquals(4, a.getVersion());
-        assertEquals("", a.getTitle());
+        assertEquals("Latest version", a.getTitle());
         assertEquals("", a.getDescription());
         final Date date =
                 new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS Z")
