@@ -330,7 +330,7 @@ public class OpenbisServiceFacadeTest extends SystemTestCase
     private NewDataSetDTO createNewDataSetDTO(File exampleDataSet) throws IOException
     {
         DataSetOwner dataSetOwner =
-                new DataSetOwner(DataSetOwnerType.SAMPLE, "CISD:/CISD/CP-TEST-1");
+                new DataSetOwner(DataSetOwnerType.SAMPLE, "/CISD/CP-TEST-1");
         exampleDataSet.mkdirs();
         FileUtilities.writeToFile(new File(exampleDataSet, "data.log"), "hello world");
         FileUtilities.writeToFile(new File(exampleDataSet, "data-set.properties"),
