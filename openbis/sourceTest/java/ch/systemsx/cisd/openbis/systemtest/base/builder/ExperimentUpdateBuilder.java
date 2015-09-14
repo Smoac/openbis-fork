@@ -41,7 +41,7 @@ public class ExperimentUpdateBuilder extends UpdateBuilder<ExperimentUpdatesDTO>
         updates = new ExperimentUpdatesDTO();
         Experiment experiment =
                 commonServer.getExperimentInfo(sessionToken,
-                        new ExperimentIdentifier("CISD", exp.getProject().getSpace().getCode(), exp
+                        new ExperimentIdentifier(exp.getProject().getSpace().getCode(), exp
                                 .getProject().getCode(), exp.getCode()));
 
         updates.setExperimentId(new TechId(experiment));
@@ -49,13 +49,13 @@ public class ExperimentUpdateBuilder extends UpdateBuilder<ExperimentUpdatesDTO>
         updates.setProperties(experiment.getProperties());
         updates.setAttachments(new ArrayList<NewAttachment>());
         updates.setNewSamples(new ArrayList<NewSamplesWithTypes>());
-        updates.setProjectIdentifier(new ProjectIdentifier("CISD", experiment.getProject()
+        updates.setProjectIdentifier(new ProjectIdentifier(experiment.getProject()
                 .getSpace().getCode(), experiment.getProject().getCode()));
     }
 
     public ExperimentUpdateBuilder toProject(Project project)
     {
-        updates.setProjectIdentifier(new ProjectIdentifier("CISD", project.getSpace().getCode(),
+        updates.setProjectIdentifier(new ProjectIdentifier(project.getSpace().getCode(),
                 project.getCode()));
         return this;
     }

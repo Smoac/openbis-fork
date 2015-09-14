@@ -229,7 +229,7 @@ public class ETLServiceTest extends AbstractServerTestCase
                                     .size(4711L)
                                     .store(new DataStoreBuilder(DSS_CODE).getStore())
                                     .experiment(
-                                            new ExperimentBuilder().identifier("DB:/G1/P/EXP1")
+                                            new ExperimentBuilder().identifier("/G1/P/EXP1")
                                                     .getExperiment());
                     will(returnValue(Arrays.asList(ds1.getDataSet())));
                     allowing(daoFactory).getPersistencyResources();
@@ -250,7 +250,6 @@ public class ETLServiceTest extends AbstractServerTestCase
         assertEquals("EXP1", dataSets.get(0).getExperimentCode());
         assertEquals("P", dataSets.get(0).getProjectCode());
         assertEquals("G1", dataSets.get(0).getSpaceCode());
-        assertEquals("DB", dataSets.get(0).getDatabaseInstanceCode());
         assertEquals(1, dataSets.size());
         context.assertIsSatisfied();
     }

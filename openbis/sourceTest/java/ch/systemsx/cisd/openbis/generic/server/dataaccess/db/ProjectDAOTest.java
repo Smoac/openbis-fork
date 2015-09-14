@@ -62,7 +62,7 @@ public class ProjectDAOTest extends AbstractDAOTest
     public static final String NEMO = "NEMO";
 
     public static final String DEFAULT = "DEFAULT";
-    
+
     public static final String PROJECT_TO_DELETE = "PROJECT-TO-DELETE";
 
     static final String[] PRELOADED_PROJECTS =
@@ -173,7 +173,7 @@ public class ProjectDAOTest extends AbstractDAOTest
         assertEquals(noe.getCode(), NOE);
 
         List<ProjectPE> found = daoFactory.getProjectDAO().tryFindProjects(
-                Arrays.asList(IdentifierHelper.createProjectIdentifier(noe), new ProjectIdentifier(NONEXISTENT, NONEXISTENT, NONEXISTENT)));
+                Arrays.asList(IdentifierHelper.createProjectIdentifier(noe), new ProjectIdentifier(NONEXISTENT, NONEXISTENT)));
 
         assertEquals(1, found.size());
         assertEquals(noe.getCode(), found.get(0).getCode());

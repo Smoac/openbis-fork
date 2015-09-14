@@ -208,7 +208,7 @@ public final class DataSetTableTest extends AbstractBOTest
     {
         final TechId experimentId = CommonTestUtils.TECH_ID;
         final ExperimentIdentifier identifier =
-                new ExperimentIdentifier(new ProjectIdentifier("db", "group", "project"), "exp");
+                new ExperimentIdentifier(new ProjectIdentifier("group", "project"), "exp");
         final ExperimentPE experimentPE = CommonTestUtils.createExperiment(identifier);
         experimentPE.setId(experimentId.getId());
 

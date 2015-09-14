@@ -122,8 +122,7 @@ public class SampleOwnerIdentifierPredicateTest extends AuthorizationTestCase
         PersonPE person = createPerson();
         List<RoleWithIdentifier> roles = createRoles(false);
         SampleOwnerIdentifier identifier =
-                new SampleOwnerIdentifier(new SpaceIdentifier(ANOTHER_INSTANCE_CODE,
-                        ANOTHER_SPACE_CODE));
+                new SampleOwnerIdentifier(new SpaceIdentifier(ANOTHER_SPACE_CODE));
         prepareProvider(createSpaces());
         predicate.init(provider);
 

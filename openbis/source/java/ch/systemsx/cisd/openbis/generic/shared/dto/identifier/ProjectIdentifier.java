@@ -34,26 +34,21 @@ public class ProjectIdentifier extends SpaceIdentifier
 
     private String projectCode;
 
-    public ProjectIdentifier(final String instanceCode, final String spaceCode,
+    public ProjectIdentifier(final String spaceCode,
             final String projectCode)
     {
-        super(instanceCode, spaceCode);
+        super(spaceCode);
         setProjectCode(projectCode);
-    }
-
-    public ProjectIdentifier(final String spaceCode, final String projectCode)
-    {
-        this(DatabaseInstanceIdentifier.HOME, spaceCode, projectCode);
     }
 
     public ProjectIdentifier(SpaceIdentifier spaceIdentifier, String projectCode)
     {
-        this(spaceIdentifier.getDatabaseInstanceCode(), spaceIdentifier.getSpaceCode(), projectCode);
+        this(spaceIdentifier.getSpaceCode(), projectCode);
     }
 
     public ProjectIdentifier(BasicProjectIdentifier identifier)
     {
-        this(identifier.getInstanceCode(), identifier.getSpaceCode(), identifier.getProjectCode());
+        this(identifier.getSpaceCode(), identifier.getProjectCode());
     }
 
     public String getProjectCode()

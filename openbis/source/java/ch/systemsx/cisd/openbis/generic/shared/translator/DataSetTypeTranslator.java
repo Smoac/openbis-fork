@@ -49,7 +49,6 @@ public class DataSetTypeTranslator
         final DataSetType result = new DataSetType();
         result.setCode(entityTypeOrNull.getCode());
         result.setDescription(entityTypeOrNull.getDescription());
-        result.setDatabaseInstance(DatabaseInstanceTranslator.translate());
 
         result.setDataSetTypePropertyTypes(EntityType
                 .sortedInternally(DataSetTypePropertyTypeTranslator.translate(

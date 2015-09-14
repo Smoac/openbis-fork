@@ -326,10 +326,9 @@ final class SampleListingWorker extends AbstractLister
     private void loadGroups()
     {
         // all groups are needed for parent samples identifiers
-        final Space[] spaces = referencedEntityDAO.getAllSpaces(databaseInstanceId);
+        final Space[] spaces = referencedEntityDAO.getAllSpaces();
         for (Space space : spaces)
         {
-            space.setInstance(databaseInstance);
             spaceMap.put(space.getId(), space);
         }
     }

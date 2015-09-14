@@ -30,7 +30,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.PermlinkUtilities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
@@ -109,11 +108,6 @@ public class DataSetTranslator
                 if (space != null)
                 {
                     description.setSpaceCode(space.getCode());
-                    DatabaseInstance instance = space.getInstance();
-                    if (instance != null)
-                    {
-                        description.setDatabaseInstanceCode(instance.getCode());
-                    }
                 }
             }
             ExperimentType experimentType = experiment.getExperimentType();
@@ -269,8 +263,9 @@ public class DataSetTranslator
                 EntityKind.DATA_SET, externalData.getIdentifier()));
         setProperties(dataPE, externalData, managedPropertyEvaluatorFactory);
         externalData.setExperiment(translatedExperiment);
-        
-        if(dataPE.isContainer() == false) {
+
+        if (dataPE.isContainer() == false)
+        {
             externalData.setPostRegistered(dataPE.getPostRegistration().size() == 0);
         }
 

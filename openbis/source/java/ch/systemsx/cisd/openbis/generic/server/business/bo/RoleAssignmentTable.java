@@ -35,7 +35,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 
@@ -54,8 +53,8 @@ public final class RoleAssignmentTable extends AbstractBusinessObject implements
     private TableMap<String, AuthorizationGroupPE> authorizationGroupsByCode;
 
     public RoleAssignmentTable(final IDAOFactory daoFactory, final Session session,
-            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, 
-            DataSetTypeWithoutExperimentChecker dataSetTypeChecker, 
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory,
+            DataSetTypeWithoutExperimentChecker dataSetTypeChecker,
             IRelationshipService relationshipService)
     {
         super(daoFactory, session, managedPropertyEvaluatorFactory, dataSetTypeChecker, relationshipService);
@@ -107,13 +106,10 @@ public final class RoleAssignmentTable extends AbstractBusinessObject implements
             roleAssignments = new ArrayList<RoleAssignmentPE>();
         }
         final RoleAssignmentPE roleAssignment = new RoleAssignmentPE();
-        final DatabaseInstanceIdentifier databaseInstanceIdentifier =
-                newRoleAssignment.getDatabaseInstanceIdentifier();
-        if (databaseInstanceIdentifier != null)
+
+        final SpaceIdentifier groupIdentifier = newRoleAssignment.getSpaceIdentifier();
+        if (groupIdentifier != null)
         {
-        } else
-        {
-            final SpaceIdentifier groupIdentifier = newRoleAssignment.getSpaceIdentifier();
             final SpacePE group =
                     SpaceIdentifierHelper
                             .tryGetSpace(groupIdentifier, session.tryGetPerson(), this);
@@ -124,6 +120,7 @@ public final class RoleAssignmentTable extends AbstractBusinessObject implements
             }
             roleAssignment.setSpace(group);
         }
+
         roleAssignment.setRegistrator(findPerson());
         roleAssignment.setRole(newRoleAssignment.getRole());
         if (Grantee.GranteeType.PERSON.equals(newRoleAssignment.getGrantee().getType()))

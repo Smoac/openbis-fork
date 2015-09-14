@@ -287,8 +287,8 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
             logAccess(
                     sessionToken,
                     "list_samples",
-                    "TYPE(%s) OWNERS(instance=%s) CONTAINER(%s) PARENT(%s) CHILD(%s) EXPERIMENT(%s)",
-                    criteria.getSampleType(), criteria.getSampleType().getDatabaseInstance(),
+                    "TYPE(%s) CONTAINER(%s) PARENT(%s) CHILD(%s) EXPERIMENT(%s)",
+                    criteria.getSampleType(),
                     criteria.getContainerSampleIds(), criteria.getParentSampleId(),
                     criteria.getChildSampleId(), criteria.getExperimentId());
         } else
@@ -325,8 +325,8 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
             logAccess(
                     sessionToken,
                     "list_samples",
-                    "TYPE(%s) OWNERS(instance=%s) CONTAINER(%s) PARENT(%s) CHILD(%s) EXPERIMENT(%s)",
-                    criteria.getSampleType(), criteria.getSampleType().getDatabaseInstance(),
+                    "TYPE(%s) CONTAINER(%s) PARENT(%s) CHILD(%s) EXPERIMENT(%s)",
+                    criteria.getSampleType(),
                     criteria.getContainerSampleIds(), criteria.getParentSampleId(),
                     criteria.getChildSampleId(), criteria.getExperimentId());
         } else
@@ -698,7 +698,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     }
 
     @Override
-    public List<SearchDomainSearchResultWithFullEntity> searchOnSearchDomain(String sessionToken, 
+    public List<SearchDomainSearchResultWithFullEntity> searchOnSearchDomain(String sessionToken,
             String preferredSearchDomainOrNull, String searchString, Map<String, String> optionalParametersOrNull)
     {
         logAccess(sessionToken, "search_on_search_domain", "preferred_search_domain(%s) seerch_string(%s)",

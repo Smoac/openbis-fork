@@ -40,16 +40,6 @@ public class ExperimentRecord
 
     public String et_description;
 
-    public Long d_id;
-
-    public String d_code;
-
-    public Boolean d_is_original_source;
-
-    public Date d_registration_timestamp;
-
-    public String d_uuid;
-
     public Long s_id;
 
     public String s_code;

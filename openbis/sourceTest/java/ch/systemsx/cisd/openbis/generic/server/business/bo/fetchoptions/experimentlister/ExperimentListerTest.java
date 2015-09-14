@@ -85,7 +85,7 @@ public class ExperimentListerTest extends AbstractDAOTest
     public void testListExperimentsForExistingExperimentIdentifierShouldReturnExperiment()
     {
         List<ExperimentIdentifier> identifiers =
-                Collections.singletonList(new ExperimentIdentifier("CISD", "CISD", "NEMO", "EXP1"));
+                Collections.singletonList(new ExperimentIdentifier("CISD", "NEMO", "EXP1"));
 
         List<Experiment> result = lister.listExperiments(identifiers, new ExperimentFetchOptions());
 
@@ -96,8 +96,8 @@ public class ExperimentListerTest extends AbstractDAOTest
     public void testListExperimentsForExistingExperimentIdentifiersShouldReturnExperiments()
     {
         List<ExperimentIdentifier> identifiers = new ArrayList<ExperimentIdentifier>();
-        identifiers.add(new ExperimentIdentifier(null, "CISD", "NEMO", "EXP-TEST-1"));
-        identifiers.add(new ExperimentIdentifier(null, "CISD", "NOE", "EXP-TEST-2"));
+        identifiers.add(new ExperimentIdentifier("CISD", "NEMO", "EXP-TEST-1"));
+        identifiers.add(new ExperimentIdentifier("CISD", "NOE", "EXP-TEST-2"));
 
         List<Experiment> result = lister.listExperiments(identifiers, new ExperimentFetchOptions());
 
@@ -108,8 +108,8 @@ public class ExperimentListerTest extends AbstractDAOTest
     public void testListExperimentsForExistingAndNotExistingExperimentIdentifiersShouldReturnExistingExperiments()
     {
         List<ExperimentIdentifier> identifiers = new ArrayList<ExperimentIdentifier>();
-        identifiers.add(new ExperimentIdentifier(null, "CISD", "NEMO", "EXP-TEST-1"));
-        identifiers.add(new ExperimentIdentifier(null, "CISD", "NOE", "EXP-TEST-10"));
+        identifiers.add(new ExperimentIdentifier("CISD", "NEMO", "EXP-TEST-1"));
+        identifiers.add(new ExperimentIdentifier("CISD", "NOE", "EXP-TEST-10"));
 
         List<Experiment> result = lister.listExperiments(identifiers, new ExperimentFetchOptions());
 
@@ -131,14 +131,14 @@ public class ExperimentListerTest extends AbstractDAOTest
     public void testListExperimentsForProjectsForExistingProjectShouldReturnProjectExperiments()
     {
         List<ProjectIdentifier> projectIdentifiers =
-                Collections.singletonList(new ProjectIdentifier("CISD", "CISD", "NEMO"));
+                Collections.singletonList(new ProjectIdentifier("CISD", "NEMO"));
 
         List<ExperimentIdentifier> experimentIdentifiers = new ArrayList<ExperimentIdentifier>();
-        experimentIdentifiers.add(new ExperimentIdentifier("CISD", "CISD", "NEMO", "EXP1"));
-        experimentIdentifiers.add(new ExperimentIdentifier("CISD", "CISD", "NEMO", "EXP10"));
-        experimentIdentifiers.add(new ExperimentIdentifier("CISD", "CISD", "NEMO", "EXP11"));
-        experimentIdentifiers.add(new ExperimentIdentifier("CISD", "CISD", "NEMO", "EXP-TEST-1"));
-        experimentIdentifiers.add(new ExperimentIdentifier("CISD", "CISD", "NEMO", "EXP-TEST-2"));
+        experimentIdentifiers.add(new ExperimentIdentifier("CISD", "NEMO", "EXP1"));
+        experimentIdentifiers.add(new ExperimentIdentifier("CISD", "NEMO", "EXP10"));
+        experimentIdentifiers.add(new ExperimentIdentifier("CISD", "NEMO", "EXP11"));
+        experimentIdentifiers.add(new ExperimentIdentifier("CISD", "NEMO", "EXP-TEST-1"));
+        experimentIdentifiers.add(new ExperimentIdentifier("CISD", "NEMO", "EXP-TEST-2"));
 
         List<Experiment> result =
                 lister.listExperimentsForProjects(projectIdentifiers, new ExperimentFetchOptions());
@@ -150,16 +150,16 @@ public class ExperimentListerTest extends AbstractDAOTest
     public void testListExperimentsForProjectsForExistingProjectsShouldReturnProjectsExperiments()
     {
         List<ProjectIdentifier> projectIdentifiers = new ArrayList<ProjectIdentifier>();
-        projectIdentifiers.add(new ProjectIdentifier("CISD", "CISD", "NEMO"));
-        projectIdentifiers.add(new ProjectIdentifier("CISD", "CISD", "NOE"));
+        projectIdentifiers.add(new ProjectIdentifier("CISD", "NEMO"));
+        projectIdentifiers.add(new ProjectIdentifier("CISD", "NOE"));
 
         List<ExperimentIdentifier> experimentIdentifiers = new ArrayList<ExperimentIdentifier>();
-        experimentIdentifiers.add(new ExperimentIdentifier("CISD", "CISD", "NEMO", "EXP1"));
-        experimentIdentifiers.add(new ExperimentIdentifier("CISD", "CISD", "NEMO", "EXP10"));
-        experimentIdentifiers.add(new ExperimentIdentifier("CISD", "CISD", "NEMO", "EXP11"));
-        experimentIdentifiers.add(new ExperimentIdentifier("CISD", "CISD", "NEMO", "EXP-TEST-1"));
-        experimentIdentifiers.add(new ExperimentIdentifier("CISD", "CISD", "NEMO", "EXP-TEST-2"));
-        experimentIdentifiers.add(new ExperimentIdentifier("CISD", "CISD", "NOE", "EXP-TEST-2"));
+        experimentIdentifiers.add(new ExperimentIdentifier("CISD", "NEMO", "EXP1"));
+        experimentIdentifiers.add(new ExperimentIdentifier("CISD", "NEMO", "EXP10"));
+        experimentIdentifiers.add(new ExperimentIdentifier("CISD", "NEMO", "EXP11"));
+        experimentIdentifiers.add(new ExperimentIdentifier("CISD", "NEMO", "EXP-TEST-1"));
+        experimentIdentifiers.add(new ExperimentIdentifier("CISD", "NEMO", "EXP-TEST-2"));
+        experimentIdentifiers.add(new ExperimentIdentifier("CISD", "NOE", "EXP-TEST-2"));
 
         List<Experiment> result =
                 lister.listExperimentsForProjects(projectIdentifiers, new ExperimentFetchOptions());
@@ -171,11 +171,11 @@ public class ExperimentListerTest extends AbstractDAOTest
     public void testListExperimentsForProjectsForExistingAndNotExistingProjectIdentifiersShouldReturnExistingProjectsExperiments()
     {
         List<ProjectIdentifier> projectIdentifiers = new ArrayList<ProjectIdentifier>();
-        projectIdentifiers.add(new ProjectIdentifier("CISD", "CISD", "NOE"));
-        projectIdentifiers.add(new ProjectIdentifier("CISD", "CISD", "UNKNOWN-PROJECT"));
+        projectIdentifiers.add(new ProjectIdentifier("CISD", "NOE"));
+        projectIdentifiers.add(new ProjectIdentifier("CISD", "UNKNOWN-PROJECT"));
 
         List<ExperimentIdentifier> experimentIdentifiers =
-                Collections.singletonList(new ExperimentIdentifier("CISD", "CISD", "NOE",
+                Collections.singletonList(new ExperimentIdentifier("CISD", "NOE",
                         "EXP-TEST-2"));
 
         List<Experiment> result =

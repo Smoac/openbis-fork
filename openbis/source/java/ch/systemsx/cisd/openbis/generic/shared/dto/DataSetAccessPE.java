@@ -46,12 +46,12 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 public class DataSetAccessPE
 {
     static final String QUERY_PART1 = "select d.code,coalesce(es.code,ss.code) as spaceCode from ";
-    
+
     static final String QUERY_PART2 = " d left join samples_all s on d.samp_id=s.id "
             + "left join spaces ss on s.space_id=ss.id "
             + "left join experiments_all e on d.expe_id=e.id left join projects p on e.proj_id=p.id "
             + "left join spaces es on p.space_id=es.id where ";
-    
+
     private String spaceCode;
 
     public final static String DATASET_ACCESS_QUERY_NAME = "dataset_access";
@@ -66,8 +66,7 @@ public class DataSetAccessPE
      * A factory method that should only be used for testing.
      */
     public static DataSetAccessPE createDataSetAccessPEForTest(String dataSetId,
-            String dataSetCode, String groupCode, String databaseInstanceUuid,
-            String databaseInstanceCode)
+            String dataSetCode, String groupCode)
     {
         DataSetAccessPE newMe = new DataSetAccessPE();
         newMe.setSpaceCode(groupCode);

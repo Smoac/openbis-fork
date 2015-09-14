@@ -22,7 +22,6 @@ import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
@@ -78,9 +77,6 @@ public class SampleBuilder
             Space space = new Space();
             SpaceIdentifier spaceLevel = sampleIdentifier.getSpaceLevel();
             space.setCode(spaceLevel.getSpaceCode());
-            DatabaseInstance databaseInstance = new DatabaseInstance();
-            databaseInstance.setCode(spaceLevel.getDatabaseInstanceCode());
-            space.setInstance(databaseInstance);
             sample.setSpace(space);
         }
         return this;

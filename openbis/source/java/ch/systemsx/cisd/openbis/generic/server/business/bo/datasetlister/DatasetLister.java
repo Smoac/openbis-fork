@@ -1284,7 +1284,6 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
     {
         DataSetType result = new DataSetType();
         setCode(result, record);
-        result.setDatabaseInstance(databaseInstance);
         result.setDataSetKind(DataSetKind.valueOf(record.data_set_kind));
         return result;
     }

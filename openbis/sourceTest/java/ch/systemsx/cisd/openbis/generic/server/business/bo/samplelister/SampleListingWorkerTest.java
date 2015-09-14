@@ -62,7 +62,7 @@ public class SampleListingWorkerTest extends AbstractDAOTest
     private final long CHILD_WITH_2_PARENTS_ID = 987L;
 
     private final Long[] CHILDREN_IDS =
-        { 986L, CHILD_WITH_2_PARENTS_ID, 988L, 989L };
+    { 986L, CHILD_WITH_2_PARENTS_ID, 988L, 989L };
 
     private SampleListerDAO sampleListerDAO;
 
@@ -235,7 +235,6 @@ public class SampleListingWorkerTest extends AbstractDAOTest
     private void checkSpace(Sample s)
     {
         assertNotNull("ID:" + s.getId(), s.getSpace());
-        assertNotNull("ID:" + s.getId(), s.getSpace().getInstance());
         assertEquals("ID:" + s.getId(), SPACE_CODE, s.getSpace().getCode());
     }
 

@@ -22,13 +22,11 @@ import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.openbis.generic.server.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectUpdatesDTO;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
- * An <code>IPredicate</code> implementation based on {@link ProjectUpdatesDTO}. Checks that: 1) the
- * user has rights to update the project 2) if project is moved to a different space the user has
- * access to this space.
+ * An <code>IPredicate</code> implementation based on {@link ProjectUpdatesDTO}. Checks that: 1) the user has rights to update the project 2) if
+ * project is moved to a different space the user has access to this space.
  * 
  * @author Tomasz Pylak
  */
@@ -71,7 +69,7 @@ public class ProjectUpdatesPredicate extends AbstractProjectPredicate<ProjectUpd
         if (newSpaceCode != null)
         {
             SpaceIdentifier newSpaceIdentifier =
-                    new SpaceIdentifier(DatabaseInstanceIdentifier.HOME, newSpaceCode);
+                    new SpaceIdentifier(newSpaceCode);
             status = spacePredicate.doEvaluation(person, allowedRoles, newSpaceIdentifier);
         }
         return status;

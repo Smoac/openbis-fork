@@ -118,7 +118,6 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
     {
         final SampleType sampleType = new SampleType();
         sampleType.setCode(code);
-        sampleType.setDatabaseInstance(createDatabaseInstance(dbCode));
         return sampleType;
     }
 

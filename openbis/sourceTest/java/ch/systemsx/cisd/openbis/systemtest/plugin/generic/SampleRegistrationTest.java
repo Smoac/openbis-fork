@@ -65,13 +65,13 @@ public class SampleRegistrationTest extends GenericSystemTestCase
         sampleType.setCode(CELL_PLATE);
         sample.setSampleType(sampleType);
         sample.setProperties(new IEntityProperty[]
-            { property("COMMENT", "test samplé") });
+        { property("COMMENT", "test samplé") });
         // tested:
         // - ignore case
         // - support for both code and identifiers (with and without db instance)
         // - dealing with the same parent stated more than once
         String[] parents = new String[]
-            { "c1", "C2", "/CISD/C3", "CISD:/CISD/C3" };
+        { "c1", "C2", "/CISD/C3" };
         sample.setParentsOrNull(parents);
         genericClientService.registerSample("session", sample);
 
@@ -98,7 +98,7 @@ public class SampleRegistrationTest extends GenericSystemTestCase
         sample.setIdentifier(identifier);
         final String parent = CISD + "C1";
         sample.setParentsOrNull(new String[]
-            { parent });
+        { parent });
         final SampleType sampleType = new SampleType();
         sampleType.setCode(DILUTION_PLATE);
         sample.setSampleType(sampleType);

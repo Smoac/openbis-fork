@@ -41,13 +41,13 @@ public class SimpleDataSetInformationDTO implements Serializable, IDatasetLocati
     private String dataSetShareId;
 
     private String dataSetLocation;
-    
+
     private DataSetArchivingStatus status;
 
     private boolean isPresentInArchive;
 
     private Date registrationTimestamp;
-    
+
     private Date modificationTimestamp;
 
     private Date accessTimestamp;
@@ -65,8 +65,6 @@ public class SimpleDataSetInformationDTO implements Serializable, IDatasetLocati
     private String experimentCode;
 
     private String projectCode;
-
-    private String databaseInstanceCode;
 
     private String dataStoreUrl;
 
@@ -236,16 +234,6 @@ public class SimpleDataSetInformationDTO implements Serializable, IDatasetLocati
     public void setProjectCode(String projectCode)
     {
         this.projectCode = projectCode;
-    }
-
-    public String getDatabaseInstanceCode()
-    {
-        return databaseInstanceCode;
-    }
-
-    public void setDatabaseInstanceCode(String dbInstanceCode)
-    {
-        this.databaseInstanceCode = dbInstanceCode;
     }
 
     @Override

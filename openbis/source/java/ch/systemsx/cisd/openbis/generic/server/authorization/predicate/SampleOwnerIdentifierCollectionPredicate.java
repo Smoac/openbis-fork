@@ -23,7 +23,6 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.IAuthorizationDataP
 import ch.systemsx.cisd.openbis.generic.server.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.ShouldFlattenCollections;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
 
 /**
@@ -76,7 +75,7 @@ public final class SampleOwnerIdentifierCollectionPredicate extends
             if (value.isDatabaseInstanceLevel())
             {
                 Status result =
-                        databaseInstanceIdentifierPredicate.doEvaluation(person, allowedRoles, new DatabaseInstanceIdentifier(""));
+                        databaseInstanceIdentifierPredicate.doEvaluation(person, allowedRoles, null);
                 if (Status.OK != result)
                 {
                     return result;

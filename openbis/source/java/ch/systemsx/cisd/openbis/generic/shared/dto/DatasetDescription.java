@@ -237,16 +237,6 @@ public class DatasetDescription implements Serializable, IDatasetLocation
         this.projectCode = projectCode;
     }
 
-    public String getDatabaseInstanceCode()
-    {
-        return instanceCode;
-    }
-
-    public void setDatabaseInstanceCode(String instanceCode)
-    {
-        this.instanceCode = instanceCode;
-    }
-
     public String getExperimentCode()
     {
         return experimentCode;

@@ -83,7 +83,6 @@ public class ExperimentBuilder extends Builder<Experiment>
         String experimentTypeCode = "ET" + number++;
         ExperimentType experimentType = new ExperimentType();
         experimentType.setCode(experimentTypeCode);
-        experimentType.setDatabaseInstance(this.project.getSpace().getInstance());
         experimentType.setDescription("description");
         experimentType.setExperimentTypePropertyTypes(new ArrayList<ExperimentTypePropertyType>());
 
@@ -108,7 +107,7 @@ public class ExperimentBuilder extends Builder<Experiment>
     private Experiment getExperiment(String experimentId)
     {
         String[] codes = experimentId.split("/");
-        return commonServer.getExperimentInfo(sessionToken, new ExperimentIdentifier("CISD",
+        return commonServer.getExperimentInfo(sessionToken, new ExperimentIdentifier(
                 codes[1], codes[2], codes[3]));
     }
 

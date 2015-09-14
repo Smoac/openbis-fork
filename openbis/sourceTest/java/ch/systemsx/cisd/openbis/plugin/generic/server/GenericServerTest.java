@@ -758,7 +758,7 @@ public final class GenericServerTest extends AbstractServerTestCase
     {
         final TechId experimentId = CommonTestUtils.TECH_ID;
         final ProjectIdentifier newProjectIdentifier =
-                new ProjectIdentifier(DATABASE_1, GROUP_1, PROJECT_1);
+                new ProjectIdentifier(GROUP_1, PROJECT_1);
         final ExperimentUpdatesDTO updates = new ExperimentUpdatesDTO();
         updates.setExperimentId(experimentId);
         updates.setProjectIdentifier(newProjectIdentifier);

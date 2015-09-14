@@ -24,9 +24,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
- * A DTO which describes the samples search criteria: the value of a chosen property. We look for
- * samples in a specified space. If the experiment identifier is specified, the search is restricted
- * to samples in that experiment.
+ * A DTO which describes the samples search criteria: the value of a chosen property. We look for samples in a specified space. If the experiment
+ * identifier is specified, the search is restricted to samples in that experiment.
  * 
  * @author Tomasz Pylak
  */
@@ -71,7 +70,7 @@ public class ListSamplesByPropertyCriteria implements Serializable
 
     public SpaceIdentifier getSpaceIdentifier()
     {
-        return new SpaceIdentifier((String) null, spaceCode);
+        return new SpaceIdentifier(spaceCode);
     }
 
     public LocalExperimentIdentifier tryGetLocalExperimentIdentifier()

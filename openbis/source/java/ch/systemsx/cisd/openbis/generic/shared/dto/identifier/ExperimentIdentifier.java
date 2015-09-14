@@ -35,34 +35,34 @@ public final class ExperimentIdentifier extends ProjectIdentifier
     final static String CODE_SEPARATOR = "/";
 
     private String experimentCode;
-    
+
     public ExperimentIdentifier(Experiment experiment)
     {
-        this(null, experiment.getProject().getSpace().getCode(), experiment.getProject().getCode(),
+        this(experiment.getProject().getSpace().getCode(), experiment.getProject().getCode(),
                 experiment.getCode());
     }
 
     public ExperimentIdentifier()
     {
-        this(null, null, null, null);
+        this(null, null, null);
     }
 
     public ExperimentIdentifier(final ProjectIdentifier projectIdentifier,
             final String experimentCode)
     {
-        this(projectIdentifier.getDatabaseInstanceCode(), projectIdentifier.getSpaceCode(),
+        this(projectIdentifier.getSpaceCode(),
                 projectIdentifier.getProjectCode(), experimentCode);
     }
 
     public ExperimentIdentifier(final String projectCode, final String experimentCode)
     {
-        this(DatabaseInstanceIdentifier.HOME, getHomeSpaceCode(), projectCode, experimentCode);
+        this(getHomeSpaceCode(), projectCode, experimentCode);
     }
 
-    public ExperimentIdentifier(final String databaseInstanceCode, final String groupCode,
+    public ExperimentIdentifier(final String groupCode,
             final String projectCode, final String experimentCode)
     {
-        super(databaseInstanceCode, groupCode, projectCode);
+        super(groupCode, projectCode);
         setExperimentCode(experimentCode);
     }
 
@@ -111,7 +111,6 @@ public final class ExperimentIdentifier extends ProjectIdentifier
         }
         final ExperimentIdentifier that = (ExperimentIdentifier) obj;
         final EqualsBuilder builder = new EqualsBuilder();
-        builder.append(getDatabaseInstanceCode(), that.getDatabaseInstanceCode());
         builder.append(getSpaceCode(), that.getSpaceCode());
         builder.append(getProjectCode(), that.getProjectCode());
         builder.append(getExperimentCode(), that.getExperimentCode());
@@ -122,7 +121,6 @@ public final class ExperimentIdentifier extends ProjectIdentifier
     public final int hashCode()
     {
         final HashCodeBuilder builder = new HashCodeBuilder();
-        builder.append(getDatabaseInstanceCode());
         builder.append(getSpaceCode());
         builder.append(getProjectCode());
         builder.append(getExperimentCode());

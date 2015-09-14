@@ -104,13 +104,6 @@ public class SampleBuilder extends Builder<Sample>
         sampleType.setCode("ST" + number++);
         sampleType.setContainerHierarchyDepth(0);
 
-        if (this.experiment != null)
-        {
-            sampleType.setDatabaseInstance(this.experiment.getProject().getSpace().getInstance());
-        } else if (this.space != null)
-        {
-            sampleType.setDatabaseInstance(this.space.getInstance());
-        }
         sampleType.setDescription("description");
         sampleType.setGeneratedCodePrefix("prefix");
         sampleType.setListable(true);

@@ -34,7 +34,7 @@ public class BasicEntityDescriptionPredicateTest extends AuthorizationTestCase
     public void testSuccessfulEvaluationForExperiment()
     {
         BasicEntityDescription entityDescription = new BasicEntityDescription(EntityKind.EXPERIMENT,
-                INSTANCE_CODE + ":/" + SPACE_CODE + "/P/E1");
+                "/" + SPACE_CODE + "/P/E1");
         BasicEntityDescriptionPredicate predicate = new BasicEntityDescriptionPredicate();
         prepareProvider(createSpaces());
         predicate.init(provider);
@@ -49,7 +49,7 @@ public class BasicEntityDescriptionPredicateTest extends AuthorizationTestCase
     public void testFailedEvaluationForExperiment()
     {
         BasicEntityDescription entityDescription = new BasicEntityDescription(EntityKind.EXPERIMENT,
-                INSTANCE_CODE + ":/" + ANOTHER_SPACE_CODE + "/P/E1");
+                "/" + ANOTHER_SPACE_CODE + "/P/E1");
         BasicEntityDescriptionPredicate predicate = new BasicEntityDescriptionPredicate();
         prepareProvider(createSpaces());
         predicate.init(provider);
@@ -64,7 +64,7 @@ public class BasicEntityDescriptionPredicateTest extends AuthorizationTestCase
     public void testSuccessfulEvaluationForSample()
     {
         BasicEntityDescription entityDescription = new BasicEntityDescription(EntityKind.SAMPLE,
-                INSTANCE_CODE + ":/" + SPACE_CODE + "/S1");
+                "/" + SPACE_CODE + "/S1");
         BasicEntityDescriptionPredicate predicate = new BasicEntityDescriptionPredicate();
         prepareProvider(createSpaces());
         predicate.init(provider);
@@ -79,7 +79,7 @@ public class BasicEntityDescriptionPredicateTest extends AuthorizationTestCase
     public void testFailedEvaluationForSample()
     {
         BasicEntityDescription entityDescription = new BasicEntityDescription(EntityKind.SAMPLE,
-                INSTANCE_CODE + ":/" + ANOTHER_SPACE_CODE + "/S1");
+                "/" + ANOTHER_SPACE_CODE + "/S1");
         BasicEntityDescriptionPredicate predicate = new BasicEntityDescriptionPredicate();
         prepareProvider(createSpaces());
         predicate.init(provider);
@@ -94,8 +94,7 @@ public class BasicEntityDescriptionPredicateTest extends AuthorizationTestCase
     public void testSuccessfulEvaluationForDataSet()
     {
         final DataSetAccessPE accessData =
-                DataSetAccessPE.createDataSetAccessPEForTest("1", "D1", SPACE_CODE, "global_"
-                        + INSTANCE_CODE, INSTANCE_CODE);
+                DataSetAccessPE.createDataSetAccessPEForTest("1", "D1", SPACE_CODE);
         context.checking(new Expectations()
             {
                 {
@@ -119,8 +118,7 @@ public class BasicEntityDescriptionPredicateTest extends AuthorizationTestCase
     public void testFailedEvaluationForDataSet()
     {
         final DataSetAccessPE accessData =
-                DataSetAccessPE.createDataSetAccessPEForTest("1", "D1", ANOTHER_SPACE_CODE, "global_"
-                        + INSTANCE_CODE, INSTANCE_CODE);
+                DataSetAccessPE.createDataSetAccessPEForTest("1", "D1", ANOTHER_SPACE_CODE);
         context.checking(new Expectations()
             {
                 {

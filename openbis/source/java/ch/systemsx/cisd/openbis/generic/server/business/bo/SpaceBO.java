@@ -34,7 +34,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.EventType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
@@ -50,8 +49,8 @@ public final class SpaceBO extends AbstractBusinessObject implements ISpaceBO
     private SpacePE space;
 
     public SpaceBO(final IDAOFactory daoFactory, final Session session,
-            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, 
-            DataSetTypeWithoutExperimentChecker dataSetTypeChecker, 
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory,
+            DataSetTypeWithoutExperimentChecker dataSetTypeChecker,
             IRelationshipService relationshipService)
     {
         super(daoFactory, session, managedPropertyEvaluatorFactory, dataSetTypeChecker, relationshipService);
@@ -100,7 +99,7 @@ public final class SpaceBO extends AbstractBusinessObject implements ISpaceBO
         assert groupCode != null : "Unspecified space code.";
         space = new SpacePE();
         final SpaceIdentifier groupIdentifier =
-                new SpaceIdentifier(DatabaseInstanceIdentifier.HOME, groupCode);
+                new SpaceIdentifier(groupCode);
         space.setCode(groupIdentifier.getSpaceCode());
         space.setDescription(descriptionOrNull);
         space.setRegistrator(findPerson());

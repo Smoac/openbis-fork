@@ -60,7 +60,7 @@ public final class RoleWithIdentifierTest extends AuthorizationTestCase
         list.add(createSpaceRole(RoleCode.ADMIN, new SpaceIdentifier("CISD")));
         list.add(createSpaceRole(RoleCode.USER, new SpaceIdentifier("3V")));
         list.add(createSpaceRole(RoleCode.ADMIN, new SpaceIdentifier("IMSB")));
-        list.add(createInstanceRole(RoleCode.ETL_SERVER, INSTANCE_IDENTIFIER));
+        list.add(createInstanceRole(RoleCode.ETL_SERVER));
         DefaultAccessController.retainMatchingRoleWithIdentifiers(list, singleton);
         assertEquals(2, list.size());
     }

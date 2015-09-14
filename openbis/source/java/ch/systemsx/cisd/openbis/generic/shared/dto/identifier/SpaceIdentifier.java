@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto.identifier;
 
+import java.io.Serializable;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
@@ -29,27 +31,26 @@ import ch.systemsx.cisd.openbis.generic.shared.util.SpaceCodeHelper;
  * 
  * @author Izabela Adamczyk
  */
-public class SpaceIdentifier extends DatabaseInstanceIdentifier implements
-        Comparable<SpaceIdentifier>
+public class SpaceIdentifier implements
+        Comparable<SpaceIdentifier>, Serializable
 {
     private static final long serialVersionUID = IServer.VERSION;
+
+    public final static class Constants
+    {
+        public static final char IDENTIFIER_SEPARATOR = '/';
+    }
 
     private String spaceCodeOrNull;
 
     public static SpaceIdentifier createHome()
     {
-        return new SpaceIdentifier(getHomeSpaceCode(), DatabaseInstanceIdentifier.HOME);
+        return new SpaceIdentifier(getHomeSpaceCode());
     }
 
     /** space in the home database */
     public SpaceIdentifier(final String spaceCode)
     {
-        this(DatabaseInstanceIdentifier.HOME, spaceCode);
-    }
-
-    public SpaceIdentifier(final String databaseInstanceCode, final String spaceCode)
-    {
-        super(databaseInstanceCode);
         setSpaceCode(spaceCode);
     }
 
@@ -80,7 +81,6 @@ public class SpaceIdentifier extends DatabaseInstanceIdentifier implements
         }
         final SpaceIdentifier that = (SpaceIdentifier) obj;
         final EqualsBuilder builder = new EqualsBuilder();
-        builder.append(getDatabaseInstanceCode(), that.getDatabaseInstanceCode());
         builder.append(getSpaceCode(), that.getSpaceCode());
         return builder.isEquals();
     }
@@ -89,7 +89,6 @@ public class SpaceIdentifier extends DatabaseInstanceIdentifier implements
     public int hashCode()
     {
         final HashCodeBuilder builder = new HashCodeBuilder();
-        builder.append(getDatabaseInstanceCode());
         builder.append(getSpaceCode());
         return builder.toHashCode();
     }
@@ -97,14 +96,7 @@ public class SpaceIdentifier extends DatabaseInstanceIdentifier implements
     @Override
     public String toString()
     {
-        if (getDatabaseInstanceCode() == null)
-        {
-            return Constants.IDENTIFIER_SEPARATOR + spaceCodeOrNull;
-        } else
-        {
-            return super.toString() + Constants.DATABASE_INSTANCE_SEPARATOR
-                    + Constants.IDENTIFIER_SEPARATOR + spaceCodeOrNull;
-        }
+        return Constants.IDENTIFIER_SEPARATOR + spaceCodeOrNull;
     }
 
     protected static String getHomeSpaceCode()
@@ -131,13 +123,6 @@ public class SpaceIdentifier extends DatabaseInstanceIdentifier implements
     @Override
     public final int compareTo(final SpaceIdentifier other)
     {
-        final int dbCompare = super.compareTo(other);
-        if (dbCompare == 0)
-        {
-            return StringUtilities.compareNullable(getSpaceCode(), other.getSpaceCode());
-        } else
-        {
-            return dbCompare;
-        }
+        return StringUtilities.compareNullable(getSpaceCode(), other.getSpaceCode());
     }
 }

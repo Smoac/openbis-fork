@@ -43,7 +43,7 @@ public final class SampleIdentifierTest
     public final void testToStringGroupLevelHomeBd()
     {
         final SampleIdentifier sampleIdentifier =
-                new SampleIdentifier(new SpaceIdentifier(DatabaseInstanceIdentifier.HOME, "GR"),
+                new SampleIdentifier(new SpaceIdentifier("GR"),
                         "SAMP");
         assertEquals(sampleIdentifier.toString(), "/GR/SAMP");
     }
@@ -52,8 +52,8 @@ public final class SampleIdentifierTest
     public final void testToStringGroupLevel()
     {
         final SampleIdentifier sampleIdentifier =
-                new SampleIdentifier(new SpaceIdentifier("DB", "GR"), "SAMP");
-        assertEquals(sampleIdentifier.toString(), "DB:/GR/SAMP");
+                new SampleIdentifier(new SpaceIdentifier("GR"), "SAMP");
+        assertEquals(sampleIdentifier.toString(), "/GR/SAMP");
     }
 
     @Test
@@ -87,8 +87,8 @@ public final class SampleIdentifierTest
     @Test
     public void testEquals()
     {
-        SampleIdentifier id1 = new SampleIdentifierFactory("DB:/SPACE/SAMP").createIdentifier();
-        SampleIdentifier id2 = new SampleIdentifierFactory("DB:/SPACE/SAMP").createIdentifier();
+        SampleIdentifier id1 = new SampleIdentifierFactory("/SPACE/SAMP").createIdentifier();
+        SampleIdentifier id2 = new SampleIdentifierFactory("/SPACE/SAMP").createIdentifier();
         assertEquals(id1, id2);
     }
 

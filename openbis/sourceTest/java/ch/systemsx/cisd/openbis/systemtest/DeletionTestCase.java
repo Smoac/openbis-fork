@@ -233,6 +233,7 @@ public class DeletionTestCase extends SystemTestCase
 
     @Autowired
     SessionFactory sessionFactory;
+
     @Test
     public void testDeleteExperimentWithContainerDataSetWhichHasADataSetFromAnotherExperiment()
     {
@@ -408,7 +409,7 @@ public class DeletionTestCase extends SystemTestCase
     private void createExperiment(String code)
     {
         ExperimentIdentifier expIdentifier =
-                new ExperimentIdentifier(null, "CISD", "DEFAULT", code);
+                new ExperimentIdentifier("CISD", "DEFAULT", code);
         NewExperiment experiment = new NewExperiment(expIdentifier.toString(), "COMPOUND_HCS");
         final GenericEntityProperty property = createDescriptionProperty();
         experiment.setProperties(new IEntityProperty[]

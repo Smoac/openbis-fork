@@ -53,7 +53,6 @@ public class RoleAssignmentProviderTest extends AbstractProviderTest
         r2.setPerson(person);
         Space space = new Space();
         space.setCode("s1");
-        space.setInstance(instance);
         r2.setSpace(space);
         context.checking(new Expectations()
             {

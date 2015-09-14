@@ -351,8 +351,7 @@ public class CommonTestUtils
         exp.setId(42L);
         exp.setExperimentType(expType);
         exp.setCode(ei.getExperimentCode());
-        exp.setProject(createProject(new ProjectIdentifier(ei.getDatabaseInstanceCode(), ei
-                .getSpaceCode(), ei.getProjectCode())));
+        exp.setProject(createProject(new ProjectIdentifier(ei.getSpaceCode(), ei.getProjectCode())));
         exp.setModificationDate(new Date(4711L));
         return exp;
     }

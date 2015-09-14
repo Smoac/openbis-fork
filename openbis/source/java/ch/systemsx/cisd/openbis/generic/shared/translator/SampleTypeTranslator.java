@@ -58,7 +58,6 @@ public class SampleTypeTranslator
                 .sortedInternally(SampleTypePropertyTypeTranslator.translate(
                         sampleTypePE.getSampleTypePropertyTypes(), result, cacheOrNull)));
 
-        result.setDatabaseInstance(DatabaseInstanceTranslator.translate());
         result.setModificationDate(sampleTypePE.getModificationDate());
         result.setValidationScript(ScriptTranslator.translate(sampleTypePE.getValidationScript()));
         return result;

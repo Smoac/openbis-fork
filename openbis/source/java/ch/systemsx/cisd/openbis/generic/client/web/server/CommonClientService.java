@@ -77,6 +77,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableModelReferenc
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.InvalidSessionException;
 import ch.systemsx.cisd.openbis.generic.client.web.server.calculator.ITableDataProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.server.queue.ConsumerQueue;
+import ch.systemsx.cisd.openbis.generic.client.web.server.queue.ConsumerTask;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.AbstractExternalDataProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.AbstractMaterialProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.AttachmentVersionsProvider;
@@ -215,15 +217,12 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.id.metaproject.Metaproj
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.id.sample.SampleTechIdId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectUpdatesDTO;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.parser.BisTabFileLoader;
-import ch.systemsx.cisd.openbis.generic.client.web.server.queue.ConsumerQueue;
-import ch.systemsx.cisd.openbis.generic.client.web.server.queue.ConsumerTask;
 
 /**
  * The {@link ICommonClientService} implementation.
@@ -235,7 +234,7 @@ public final class CommonClientService extends AbstractClientService implements
 {
     @Resource(name = "registration-queue")
     private ConsumerQueue asyncRegistrationQueue;
-    
+
     private final ICommonServer commonServer;
 
     public CommonClientService(final ICommonServer commonServer,
@@ -387,7 +386,7 @@ public final class CommonClientService extends AbstractClientService implements
     {
         final String sessionToken = getSessionToken();
         final SpaceIdentifier groupIdentifier =
-                new SpaceIdentifier(DatabaseInstanceIdentifier.HOME, group);
+                new SpaceIdentifier(group);
         commonServer.registerSpaceRole(sessionToken, role.getRoleCode(), groupIdentifier, grantee);
     }
 
@@ -404,7 +403,7 @@ public final class CommonClientService extends AbstractClientService implements
     {
         final String sessionToken = getSessionToken();
         final SpaceIdentifier groupIdentifier =
-                new SpaceIdentifier(DatabaseInstanceIdentifier.HOME, group);
+                new SpaceIdentifier(group);
         commonServer.deleteSpaceRole(sessionToken, role.getRoleCode(), groupIdentifier, grantee);
     }
 
@@ -2718,12 +2717,13 @@ public final class CommonClientService extends AbstractClientService implements
     }
 
     @Override
-    public List<BatchRegistrationResult> performCustomImport(final String sessionKey, final String customImportCode, final boolean async, final String userEmail)
+    public List<BatchRegistrationResult> performCustomImport(final String sessionKey, final String customImportCode, final boolean async,
+            final String userEmail)
     {
         HttpSession httpSession = getHttpSession();
         UploadedFilesBean uploadedFiles = null;
         ConsumerTask asyncCustomImportTask = null;
-        
+
         try
         {
             uploadedFiles = (UploadedFilesBean) httpSession.getAttribute(sessionKey);
@@ -2733,23 +2733,30 @@ public final class CommonClientService extends AbstractClientService implements
 
             if (async)
             {
-                asyncCustomImportTask = new ConsumerTask(uploadedFiles) {
-                    @Override
-                    public String getName() { return "Custom import"; }
-                    
-                    @Override
-                    public String getUserEmail() { return userEmail; }
-                    
-                    @Override
-                    public void doActionOrThrowException(Writer writer)
+                asyncCustomImportTask = new ConsumerTask(uploadedFiles)
                     {
-                      //Some stuff is repeated on the async executor, this is expected
-                       CustomImportFile customImportFileAsync = getCustomImportFile(this.getFilesForTask());
-                      //Execute task
-                      commonServer.performCustomImport(getSessionToken(), customImportCode, customImportFileAsync);
-                    }
-                };
-                
+                        @Override
+                        public String getName()
+                        {
+                            return "Custom import";
+                        }
+
+                        @Override
+                        public String getUserEmail()
+                        {
+                            return userEmail;
+                        }
+
+                        @Override
+                        public void doActionOrThrowException(Writer writer)
+                        {
+                            // Some stuff is repeated on the async executor, this is expected
+                            CustomImportFile customImportFileAsync = getCustomImportFile(this.getFilesForTask());
+                            // Execute task
+                            commonServer.performCustomImport(getSessionToken(), customImportCode, customImportFileAsync);
+                        }
+                    };
+
                 return AsyncBatchRegistrationResult.singletonList(customImportFile.getFileName());
             } else
             {
@@ -2769,9 +2776,11 @@ public final class CommonClientService extends AbstractClientService implements
                             + " (More details can be found in the server logs.)");
         } finally
         {
-            if (async && (asyncCustomImportTask != null)) {
+            if (async && (asyncCustomImportTask != null))
+            {
                 asyncRegistrationQueue.addTaskAsLast(asyncCustomImportTask);
-            } else {
+            } else
+            {
                 cleanUploadedFiles(sessionKey, httpSession, uploadedFiles);
             }
         }
@@ -2924,23 +2933,26 @@ public final class CommonClientService extends AbstractClientService implements
         List<AbstractExternalData> list = commonServer.listSampleExternalData(sessionToken, sampleId, showOnlyDirectlyConnected);
         return Code.extractCodes(list);
     }
-    
-    private SampleChildrenInfo getSampleChildInfo(TechId sampleId, boolean showOnlyDirectlyConnected, boolean fillChildList) {
+
+    private SampleChildrenInfo getSampleChildInfo(TechId sampleId, boolean showOnlyDirectlyConnected, boolean fillChildList)
+    {
         final int MAX_INFO_SIZE = 10;
 
         final String sessionToken = getSessionToken();
         final ListSampleCriteria sampleCriteria = ListSampleCriteria.createForParent(sampleId);
-        List<Sample> results= commonServer.listSamples(sessionToken, sampleCriteria);
+        List<Sample> results = commonServer.listSamples(sessionToken, sampleCriteria);
 
         SampleChildrenInfo childrenInfo = new SampleChildrenInfo(sampleId.toString());
         int count = 0;
-        //get the derived samples
-        if(fillChildList) {
+        // get the derived samples
+        if (fillChildList)
+        {
             for (Sample child : results)
             {
                 // after showing MAX_INFO_SIZE children/datasets we say
                 // how many more is not shown
-                if(count++ == MAX_INFO_SIZE) {
+                if (count++ == MAX_INFO_SIZE)
+                {
                     break;
                 }
                 childrenInfo.addDerivedSample(child.getIdentifier());
@@ -2948,36 +2960,40 @@ public final class CommonClientService extends AbstractClientService implements
         }
         childrenInfo.setChildCount(results.size());
 
-        //get the data sets
+        // get the data sets
         List<AbstractExternalData> dataSetList = commonServer.listSampleExternalData(sessionToken, sampleId, showOnlyDirectlyConnected);
         List<String> dataSetCodes = Code.extractCodes(dataSetList);
         count = 0;
-        if(fillChildList) {
+        if (fillChildList)
+        {
             for (String str : dataSetCodes)
             {
-                if(count++ == MAX_INFO_SIZE) {
+                if (count++ == MAX_INFO_SIZE)
+                {
                     break;
                 }
                 childrenInfo.addDataSet(str);
             }
         }
-        childrenInfo.setDataSetCount(dataSetCodes.size());  
+        childrenInfo.setDataSetCount(dataSetCodes.size());
         return childrenInfo;
     }
 
     @Override
-     public List<SampleChildrenInfo> getSampleChildrenInfo(List<TechId> sampleIds, boolean showOnlyDirectlyConnected)
+    public List<SampleChildrenInfo> getSampleChildrenInfo(List<TechId> sampleIds, boolean showOnlyDirectlyConnected)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         List<SampleChildrenInfo> list = new ArrayList<SampleChildrenInfo>();
         // if we need info for just one sample send back the
         // MAX_INFO_SIZE number of children and data sets
-        if(sampleIds.size() == 1) {
+        if (sampleIds.size() == 1)
+        {
             TechId sampleId = sampleIds.get(0);
             list.add(getSampleChildInfo(sampleId, showOnlyDirectlyConnected, true));
         }
-        else {
-            //if we need info for multiple samples, send back the
+        else
+        {
+            // if we need info for multiple samples, send back the
             // children and data set count for the first MAX_INFO_SIZE
             for (TechId sampleId : sampleIds)
             {

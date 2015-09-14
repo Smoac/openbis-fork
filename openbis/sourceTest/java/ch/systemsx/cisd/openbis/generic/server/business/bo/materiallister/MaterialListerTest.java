@@ -31,7 +31,6 @@ import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.entity.SecondaryEntityDAO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.entity.SecondaryEntityListingQueryTest;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.AbstractDAOTest;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListMaterialCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
@@ -40,13 +39,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
  * @author Piotr Buczek
  */
 @Friend(toClasses =
-    { MaterialRecord.class })
+{ MaterialRecord.class })
 @Test(groups =
-    { "db", "material" })
+{ "db", "material" })
 public class MaterialListerTest extends AbstractDAOTest
 {
-    private DatabaseInstance databaseInstance;
-
     private IMaterialLister lister;
 
     private static final long BACTERIUM_MATERIAL_TYPE = 6L;
@@ -58,7 +55,6 @@ public class MaterialListerTest extends AbstractDAOTest
                 MaterialListingQueryTest.createMaterialListerDAO(daoFactory);
         SecondaryEntityDAO secondaryEntityDAO =
                 SecondaryEntityListingQueryTest.createSecondaryEntityDAO(daoFactory);
-        databaseInstance = materialListerDAO.getDatabaseInstance();
         lister = MaterialLister.create(materialListerDAO, secondaryEntityDAO, "url", null);
     }
 
@@ -92,7 +88,7 @@ public class MaterialListerTest extends AbstractDAOTest
     {
         MaterialType materialType = createMaterialType();
         Collection<Long> materialIds = Arrays.asList(new Long[]
-            { 22L, 34L });
+        { 22L, 34L });
         boolean withProperties = true;
         List<Material> materials =
                 lister.list(ListMaterialCriteria.createFromMaterialIds(materialIds), withProperties);
@@ -110,7 +106,6 @@ public class MaterialListerTest extends AbstractDAOTest
             assertNotNull(material.getRegistrator());
             assertNotNull(material.getRegistrationDate());
             assertNotNull(material.getModificationDate());
-            assertEquals(databaseInstance, material.getDatabaseInstance());
             assertEquals(expectedType.getCode(), material.getMaterialType().getCode());
             assertEquals(emptyProperties, material.getProperties().isEmpty());
         }
@@ -121,7 +116,6 @@ public class MaterialListerTest extends AbstractDAOTest
         final MaterialType materialType = new MaterialType();
         materialType.setId(BACTERIUM_MATERIAL_TYPE);
         materialType.setCode("BACTERIUM");
-        materialType.setDatabaseInstance(databaseInstance);
         return materialType;
     }
 

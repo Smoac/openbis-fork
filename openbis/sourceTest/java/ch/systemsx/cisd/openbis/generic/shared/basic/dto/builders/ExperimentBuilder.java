@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
@@ -79,9 +78,6 @@ public class ExperimentBuilder
         project.setCode(experimentIdentifier.getProjectCode());
         Space space = new Space();
         space.setCode(experimentIdentifier.getSpaceCode());
-        DatabaseInstance instance = new DatabaseInstance();
-        instance.setCode(experimentIdentifier.getDatabaseInstanceCode());
-        space.setInstance(instance);
         project.setSpace(space);
         experiment.setProject(project);
         experiment.setIdentifier(identifier);

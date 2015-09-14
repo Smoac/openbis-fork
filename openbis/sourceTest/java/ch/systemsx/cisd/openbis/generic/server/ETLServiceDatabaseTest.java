@@ -94,7 +94,7 @@ public class ETLServiceDatabaseTest extends AbstractDAOTest
     public void testListExperimentsWithBasicFetchOptions()
     {
         List<ExperimentIdentifier> identifiers =
-                Collections.singletonList(new ExperimentIdentifier("CISD", "CISD", "NEMO", "EXP1"));
+                Collections.singletonList(new ExperimentIdentifier("CISD", "NEMO", "EXP1"));
 
         List<Experiment> result =
                 service.listExperiments(sessionToken, identifiers, new ExperimentFetchOptions());
@@ -107,7 +107,7 @@ public class ETLServiceDatabaseTest extends AbstractDAOTest
     public void testListExperimentsWithAllFetchOptions()
     {
         List<ExperimentIdentifier> identifiers =
-                Collections.singletonList(new ExperimentIdentifier("CISD", "CISD", "NEMO", "EXP1"));
+                Collections.singletonList(new ExperimentIdentifier("CISD", "NEMO", "EXP1"));
 
         List<Experiment> result =
                 service.listExperiments(sessionToken, identifiers, new ExperimentFetchOptions(
@@ -121,7 +121,7 @@ public class ETLServiceDatabaseTest extends AbstractDAOTest
     public void testListExperimentsForProjectsWithBasicFetchOptions()
     {
         List<ProjectIdentifier> identifiers =
-                Collections.singletonList(new ProjectIdentifier("CISD", "CISD", "NOE"));
+                Collections.singletonList(new ProjectIdentifier("CISD", "NOE"));
 
         List<Experiment> result =
                 service.listExperimentsForProjects(sessionToken, identifiers,
@@ -135,7 +135,7 @@ public class ETLServiceDatabaseTest extends AbstractDAOTest
     public void testListExperimentsForProjectsWithAllFetchOptions()
     {
         List<ProjectIdentifier> identifiers =
-                Collections.singletonList(new ProjectIdentifier("CISD", "CISD", "NOE"));
+                Collections.singletonList(new ProjectIdentifier("CISD", "NOE"));
 
         List<Experiment> result =
                 service.listExperimentsForProjects(sessionToken, identifiers,

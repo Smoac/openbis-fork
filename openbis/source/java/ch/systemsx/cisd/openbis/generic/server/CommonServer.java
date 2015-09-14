@@ -209,7 +209,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermWithStats;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
@@ -451,9 +450,6 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         final Session session = getSession(sessionToken);
 
         final NewRoleAssignment newRoleAssignment = new NewRoleAssignment();
-        newRoleAssignment.setDatabaseInstanceIdentifier(new DatabaseInstanceIdentifier(
-                DatabaseInstanceIdentifier.HOME));
-
         registerRole(roleCode, grantee, session, newRoleAssignment);
     }
 

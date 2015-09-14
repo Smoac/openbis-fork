@@ -23,8 +23,7 @@ import java.util.Collection;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 
 /**
- * Criteria for listing <i>samples</i>. This class offers 3 kinds of filters, but only one can be
- * used at the same time:
+ * Criteria for listing <i>samples</i>. This class offers 3 kinds of filters, but only one can be used at the same time:
  * <ol>
  * <li>samples of particular type in a specified space and/or shared
  * <li>samples belonging to a container sample

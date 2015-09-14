@@ -24,7 +24,7 @@ import org.apache.commons.lang.StringUtils;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier.Constants;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier.Constants;
 
 /**
  * Parses the given text in the constructor to extract the database instance, the group and the sample code.
@@ -186,20 +186,11 @@ public final class SampleIdentifierFactory extends AbstractIdentifierFactory
                 // case: shortcut to home space, originalText is e.g. "//CP1"
                 return getDefaultSpaceIdentifier(defaultSpace);
             }
-            DatabaseInstanceIdentifier homeDb = DatabaseInstanceIdentifier.createHome();
-            return continueParsingSampleOwner(tokens, originalText, homeDb);
+            return continueParsingSampleOwner(tokens, originalText);
         } else
         // identifier does not start with a slash
         {
-            String dbCode = tryAsDatabaseIdentifier(firstToken);
-            if (dbCode != null)
-            {
-                DatabaseInstanceIdentifier dbIdent = new DatabaseInstanceIdentifier(dbCode);
-                return continueParsingSampleOwner(tokens, originalText, dbIdent);
-            } else
-            {
-                throw createSlashMissingExcp(originalText);
-            }
+            throw createSlashMissingExcp(originalText);
         }
     }
 
@@ -217,7 +208,7 @@ public final class SampleIdentifierFactory extends AbstractIdentifierFactory
 
     // tries to parse owner space if there is any
     private static SampleOwnerIdentifier continueParsingSampleOwner(String[] tokens,
-            String originalText, DatabaseInstanceIdentifier dbIdent)
+            String originalText)
     {
         if (tokens.length == 1)
         {
@@ -235,8 +226,7 @@ public final class SampleIdentifierFactory extends AbstractIdentifierFactory
 
     public static String getOwnerSchema()
     {
-        return "[" + "[" + getDatabaseInstanceIdentifierSchema()
-                + Constants.DATABASE_INSTANCE_SEPARATOR + "][" + Constants.IDENTIFIER_SEPARATOR
+        return "[" + Constants.IDENTIFIER_SEPARATOR
                 + "<space-code>]" + Constants.IDENTIFIER_SEPARATOR + "]";
     }
 }

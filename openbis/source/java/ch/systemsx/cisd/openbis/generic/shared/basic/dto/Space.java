@@ -33,8 +33,6 @@ public final class Space extends CodeWithRegistration<Space> implements IIdHolde
 
     private String description;
 
-    private DatabaseInstance instance;
-
     private String identifier;
 
     private Date modificationDate;
@@ -48,16 +46,6 @@ public final class Space extends CodeWithRegistration<Space> implements IIdHolde
     public final void setDescription(final String description)
     {
         this.description = description;
-    }
-
-    public DatabaseInstance getInstance()
-    {
-        return instance;
-    }
-
-    public void setInstance(final DatabaseInstance instance)
-    {
-        this.instance = instance;
     }
 
     public String getIdentifier()
@@ -102,13 +90,7 @@ public final class Space extends CodeWithRegistration<Space> implements IIdHolde
     @Override
     public String toString()
     {
-        if (getInstance() != null)
-        {
-            return getInstance().getCode() + "/" + getCode();
-        } else
-        {
-            return "/" + getCode();
-        }
+        return "/" + getCode();
     }
 
     @Override

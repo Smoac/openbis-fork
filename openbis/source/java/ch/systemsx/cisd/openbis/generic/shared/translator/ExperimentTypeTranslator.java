@@ -42,7 +42,6 @@ public class ExperimentTypeTranslator
                 .sortedInternally(ExperimentTypePropertyTypeTranslator.translate(
                         experimentTypePE.getExperimentTypePropertyTypes(), result, cachedOrNull)));
 
-        result.setDatabaseInstance(DatabaseInstanceTranslator.translate());
         result.setModificationDate(experimentTypePE.getModificationDate());
         result.setValidationScript(ScriptTranslator.translate(experimentTypePE
                 .getValidationScript()));

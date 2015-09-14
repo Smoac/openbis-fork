@@ -450,8 +450,7 @@ public class GenericClientService extends AbstractClientService implements IGene
                     parseSamples(
                             experiment.getSampleType(),
                             samplesSessionKey,
-                            new SpaceIdentifier(identifier.getDatabaseInstanceCode(), identifier
-                                    .getSpaceCode()).toString(), experiment.isGenerateCodes(),
+                            new SpaceIdentifier(identifier.getSpaceCode()).toString(), experiment.isGenerateCodes(),
                             false, null, BatchOperationKind.REGISTRATION);
             experiment.setNewSamples(result.getSamples());
             experiment.setSamples(result.getCodes());
@@ -1022,8 +1021,7 @@ public class GenericClientService extends AbstractClientService implements IGene
                     parseSamples(
                             updates.getSampleType(),
                             updates.getSamplesSessionKey(),
-                            new SpaceIdentifier(newProject.getDatabaseInstanceCode(), newProject
-                                    .getSpaceCode()).toString(), updates.isGenerateCodes(), false,
+                            new SpaceIdentifier(newProject.getSpaceCode()).toString(), updates.isGenerateCodes(), false,
                             null, BatchOperationKind.REGISTRATION);
             updates.setNewSamples(info.getSamples());
             updates.setSampleCodes(info.getCodes());

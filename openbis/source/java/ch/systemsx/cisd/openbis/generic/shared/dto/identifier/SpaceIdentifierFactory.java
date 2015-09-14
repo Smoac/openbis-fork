@@ -19,8 +19,7 @@ package ch.systemsx.cisd.openbis.generic.shared.dto.identifier;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
- * Parses the given text in the constructor to extract the database instance and data space. The
- * expected format is the following:
+ * Parses the given text in the constructor to extract the database instance and data space. The expected format is the following:
  * 
  * <pre>
  * [&lt;database-instance-code&gt;:]/&lt;space-code&gt;
@@ -52,13 +51,9 @@ public final class SpaceIdentifierFactory extends AbstractIdentifierFactory
     public static SpaceIdentifier parseIdentifier(final TokenLexer lexer)
     {
         final String firstToken = lexer.peek();
-        final String dbCodeOrNull = tryAsDatabaseIdentifier(firstToken);
-        if (dbCodeOrNull == null)
+        if (firstToken.length() > 0)
         {
-            if (firstToken.length() > 0)
-            {
-                throw createSlashMissingExcp(lexer.getOriginalText());
-            }
+            throw createSlashMissingExcp(lexer.getOriginalText());
         }
         lexer.next();
 
@@ -70,13 +65,11 @@ public final class SpaceIdentifierFactory extends AbstractIdentifierFactory
         {
             assertValidCode(groupCodeOrNull);
         }
-        return new SpaceIdentifier(dbCodeOrNull, groupCodeOrNull);
+        return new SpaceIdentifier(groupCodeOrNull);
     }
 
     public static String getSchema()
     {
-        return "[" + getDatabaseInstanceIdentifierSchema()
-                + DatabaseInstanceIdentifier.Constants.DATABASE_INSTANCE_SEPARATOR + "]"
-                + DatabaseInstanceIdentifier.Constants.IDENTIFIER_SEPARATOR + "<space-code>";
+        return SpaceIdentifier.Constants.IDENTIFIER_SEPARATOR + "<space-code>";
     }
 }

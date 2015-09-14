@@ -57,14 +57,6 @@ public final class IdentifierHelper
     }
 
     /**
-     * Creates a {@link DatabaseInstanceIdentifier} from given <var>groupPE</var>.
-     */
-    public final static DatabaseInstanceIdentifier createDatabaseInstanceIdentifier()
-    {
-        return DatabaseInstanceIdentifier.createHome();
-    }
-
-    /**
      * Creates a {@link SampleIdentifier} from given <var>samplePE</var>.
      */
     public final static SampleIdentifier createSampleIdentifier(final SamplePE samplePE)
@@ -114,9 +106,7 @@ public final class IdentifierHelper
         return createSampleIdentifier(group, sampleCode);
     }
 
-    public final static SampleIdentifier createSampleIdentifier(
-            final DatabaseInstanceIdentifier databaseInstanceIdentifier,
-            SpaceIdentifier spaceIdentifier, String sampleCode, String sampleContainerCode)
+    public final static SampleIdentifier createSampleIdentifier(SpaceIdentifier spaceIdentifier, String sampleCode, String sampleContainerCode)
     {
         String fullSampleCode = convertCode(sampleCode, sampleContainerCode);
 
@@ -151,9 +141,6 @@ public final class IdentifierHelper
         final Space space = sample.getSpace();
         if (space != null)
         {
-            DatabaseInstanceIdentifier instanceIdentifier =
-                    space.getInstance().isHomeDatabase() ? DatabaseInstanceIdentifier.HOME_INSTANCE
-                            : new DatabaseInstanceIdentifier(space.getInstance().getCode());
             SpaceIdentifier groupIdentifier =
                     new SpaceIdentifier(space.getCode());
             return new SampleIdentifier(groupIdentifier, sample.getCode());
@@ -252,14 +239,7 @@ public final class IdentifierHelper
     {
         assert projectIdentifier != null : "Unspecified project identifier";
 
-        if (projectIdentifier.isHomeDatabase())
-        {
-            return new ProjectIdentifier(projectIdentifier.getSpaceCode(), projectIdentifier.getProjectCode());
-        } else
-        {
-            return new ProjectIdentifier(projectIdentifier.getDatabaseInstanceCode(), projectIdentifier.getSpaceCode(),
-                    projectIdentifier.getProjectCode());
-        }
+        return new ProjectIdentifier(projectIdentifier.getSpaceCode(), projectIdentifier.getProjectCode());
     }
 
     /**

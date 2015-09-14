@@ -38,18 +38,18 @@ public final class ProjectIdentifierTest extends EqualsHashCodeTestCase<ProjectI
     @Override
     protected final ProjectIdentifier createInstance() throws Exception
     {
-        return new ProjectIdentifier("DB1", "G", "P1");
+        return new ProjectIdentifier("G", "P1");
     }
 
     @Override
     protected final ProjectIdentifier createNotEqualInstance() throws Exception
     {
-        return new ProjectIdentifier("DB1", "G", "p2");
+        return new ProjectIdentifier("G", "p2");
     }
 
     @Test
     public final void testEqualsIgnoreCase()
     {
-        assertEquals(new ProjectIdentifier("DB1", "G", "P"), new ProjectIdentifier("DB1", "G", "p"));
+        assertEquals(new ProjectIdentifier("G", "P"), new ProjectIdentifier("G", "p"));
     }
 }

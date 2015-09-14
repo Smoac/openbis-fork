@@ -97,8 +97,7 @@ public class SessionBuilder extends Builder<String>
         for (Pair<RoleCode, Space> role : spaceRoles)
         {
             commonServer.registerSpaceRole(sessionToken, role.first, new SpaceIdentifier(
-                    role.second.getInstance().getCode(), role.second.getCode()), Grantee
-                    .createPerson(this.userName));
+                    role.second.getCode()), Grantee.createPerson(this.userName));
         }
 
         for (RoleCode role : instanceRoles)

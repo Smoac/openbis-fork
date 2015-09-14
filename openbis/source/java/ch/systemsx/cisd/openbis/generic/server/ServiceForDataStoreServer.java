@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.server;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -33,10 +32,6 @@ import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.hibernate.SQLQuery;
-import org.springframework.transaction.annotation.Transactional;
-
-import com.google.common.collect.Sets;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.authentication.DefaultSessionManager;
@@ -202,7 +197,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.EntityCollectionForCreationOr
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityOperationsLogEntryPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
@@ -1036,26 +1030,27 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
         final IDataBO dataBO = businessObjectFactory.createDataBO(session);
         dataBO.addPropertiesToDataSet(dataSetCode, properties);
     }
-    
+
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
     public boolean isDataSetOnTrashCanOrDeleted(String sessionToken,
             @AuthorizationGuard(guardClass = DataSetCodePredicate.class)
-            String dataSetCode) {
-        //Check if dataset is available for retrieval
+            String dataSetCode)
+    {
+        // Check if dataset is available for retrieval
         DataPE dataSet = getDAOFactory().getDataDAO().tryToFindFullDataSetByCode(dataSetCode, false, false);
         boolean isDataSetAvailable = dataSet != null;
-        //Check if the dataset is on the table, since can't be retrieved is on the trashcan
+        // Check if the dataset is on the table, since can't be retrieved is on the trashcan
         boolean isDataSetOnTrashCan = getDAOFactory().getDataDAO().exists(dataSetCode);
-        //Check if the dataset is finally deleted
+        // Check if the dataset is finally deleted
         boolean isDataSetDeleted = getDAOFactory().getEventDAO().tryFind(
-                dataSetCode, 
+                dataSetCode,
                 ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType.DATASET,
                 ch.systemsx.cisd.openbis.generic.shared.dto.EventType.DELETION) != null;
-        
+
         return !isDataSetAvailable && (isDataSetOnTrashCan || isDataSetDeleted);
     }
-    
+
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
     public void updateShareIdAndSize(String sessionToken,
@@ -1064,25 +1059,28 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
     {
         final Session session = getSession(sessionToken);
         IDataDAO dataSetDAO = getDAOFactory().getDataDAO();
-        
+
         DataPE dataSet = dataSetDAO.tryToFindFullDataSetByCode(dataSetCode, false, false);
-        if (dataSet == null) //Dataset is not available for retrieval
+        if (dataSet == null) // Dataset is not available for retrieval
         {
-            //Check if the dataset is on the table, since can't be retrieved is on the trashcan
+            // Check if the dataset is on the table, since can't be retrieved is on the trashcan
             boolean isDataSetOnTrashCan = getDAOFactory().getDataDAO().exists(dataSetCode);
-            //Check if the dataset is finally deleted
+            // Check if the dataset is finally deleted
             boolean isDataSetDeleted = getDAOFactory().getEventDAO().tryFind(
-                    dataSetCode, 
+                    dataSetCode,
                     ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType.DATASET,
                     ch.systemsx.cisd.openbis.generic.shared.dto.EventType.DELETION) != null;
-            
-            if(isDataSetOnTrashCan) {
+
+            if (isDataSetOnTrashCan)
+            {
                 operationLog.info("The data set has been moved to the trashcan and the share will not be updated: " + dataSetCode);
                 return;
-            } else if(isDataSetDeleted) {
+            } else if (isDataSetDeleted)
+            {
                 operationLog.info("The data set has been deleted and the share will not be updated: " + dataSetCode);
                 return;
-            } else {
+            } else
+            {
                 throw new UserFailureException("Unknown data set, that has not been deleted, check for storage errors: " + dataSetCode);
             }
         }
@@ -1608,8 +1606,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
         Session session = getSession(sessionToken);
         ISpaceBO spaceBO = businessObjectFactory.createSpaceBO(session);
         SpaceIdentifier identifier =
-                new SpaceIdentifier(spaceIdentifier.getDatabaseInstanceCode(),
-                        spaceIdentifier.getSpaceCode());
+                new SpaceIdentifier(spaceIdentifier.getSpaceCode());
         try
         {
             spaceBO.load(identifier);

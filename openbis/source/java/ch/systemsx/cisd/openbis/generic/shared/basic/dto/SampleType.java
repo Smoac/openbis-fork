@@ -197,12 +197,10 @@ public final class SampleType extends EntityType implements Serializable
     //
 
     /**
-     * Creates an artificial Sample Type that stores information merged from given sample types. It
-     * will be listable, have {@link EntityType#ALL_TYPES_CODE} code and hierarchy depth equal to
-     * max of hierarchy depths from specified types.
+     * Creates an artificial Sample Type that stores information merged from given sample types. It will be listable, have
+     * {@link EntityType#ALL_TYPES_CODE} code and hierarchy depth equal to max of hierarchy depths from specified types.
      * 
-     * @param withDetails if 'true' property types will also be merged, and database instance will
-     *            be set
+     * @param withDetails if 'true' property types will also be merged, and database instance will be set
      */
     public static final SampleType createAllSampleType(Collection<SampleType> sampleTypes,
             boolean withDetails)
@@ -247,14 +245,6 @@ public final class SampleType extends EntityType implements Serializable
         for (SampleType sampleType : sampleTypes)
         {
             allPropertyTypes.addAll(sampleType.getAssignedPropertyTypes());
-            DatabaseInstance instance = sampleType.getDatabaseInstance();
-            if (allSampleType.getDatabaseInstance() != null)
-            {
-                assert allSampleType.getDatabaseInstance().equals(instance) : "sample types from more than one database instance are not supported";
-            } else
-            {
-                allSampleType.setDatabaseInstance(instance);
-            }
         }
         allSampleType.setSampleTypePropertyTypes(new ArrayList<SampleTypePropertyType>(
                 allPropertyTypes));

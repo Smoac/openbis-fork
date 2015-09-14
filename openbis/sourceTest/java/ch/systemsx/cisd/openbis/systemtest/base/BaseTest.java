@@ -57,7 +57,6 @@ import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletionType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
@@ -70,7 +69,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
@@ -197,7 +195,7 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
         dataStore.setSessionToken("");
         dataStoreDAO.createOrUpdateDataStore(dataStore);
     }
-    
+
     @AfterTransaction
     public void cleanDatabase()
     {
@@ -209,7 +207,7 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
         List<ExperimentPE> allExperiments = daoFactory.getExperimentDAO().listAllEntities();
         commonServer.deleteExperiments(systemSessionToken, TechId.createList(allExperiments), "test", deletionType);
     }
-    
+
     @AfterSuite(groups = "system-cleandb")
     public void testingThis()
     {
@@ -220,7 +218,7 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
     public void loginAsSystem()
     {
         systemSessionToken = commonServer.tryToAuthenticateAsSystem().getSessionToken();
-        entityGraphManager = new EntityGraphManager(etlService, commonServer, daoFactory.getSessionFactory(), 
+        entityGraphManager = new EntityGraphManager(etlService, commonServer, daoFactory.getSessionFactory(),
                 systemSessionToken);
     }
 
@@ -535,7 +533,7 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
     {
         entityGraphManager.assertDeleted(experimentNodes);
     }
-    
+
     protected void assertModified(SampleNode... sampleNodes)
     {
         entityGraphManager.assertModified(sampleNodes);
@@ -545,7 +543,7 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
     {
         entityGraphManager.assertDeleted(sampleNodes);
     }
-    
+
     protected void assertModified(DataSetNode... dataSetNodes)
     {
         entityGraphManager.assertModified(dataSetNodes);
@@ -555,7 +553,7 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
     {
         entityGraphManager.assertDeleted(dataSetNodes);
     }
-    
+
     protected void assertUnmodified(EntityGraphGenerator g)
     {
         entityGraphManager.assertUnmodified(g);
@@ -565,13 +563,13 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
     {
         entityGraphManager.assertUndeleted(g);
     }
-    
+
     protected void assertUnmodifiedAndUndeleted(EntityGraphGenerator g)
     {
         assertUnmodified(g);
         assertUndeleted(g);
     }
-    
+
     protected String getIdentifierOfDefaultProject()
     {
         return defaultProject.getIdentifier();
@@ -595,11 +593,6 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
     public static SpaceIdentifier id(Space space)
     {
         return new SpaceIdentifier(space.getCode());
-    }
-
-    public static DatabaseInstanceIdentifier id(DatabaseInstance dbin)
-    {
-        return new DatabaseInstanceIdentifier(dbin.getCode());
     }
 
     public static SampleIdentifier id(Sample sample)

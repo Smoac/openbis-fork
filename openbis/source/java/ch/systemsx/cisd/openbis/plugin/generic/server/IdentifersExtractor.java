@@ -50,7 +50,6 @@ class IdentifersExtractor
             // TODO 2011-08-31, Tomasz Pylak: container is ignored, what does it break?
             newSampleIdentifier =
                     new SampleIdentifier(new SpaceIdentifier(
-                            experimentIdentifierOrNull.getDatabaseInstanceCode(),
                             experimentIdentifierOrNull.getSpaceCode()),
                             oldSampleIdentifier.getSampleCode());
         } else

@@ -19,8 +19,7 @@ package ch.systemsx.cisd.openbis.generic.shared.dto.identifier;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
- * Parses the given text in the constructor to extract the database instance, the space and the
- * project code.
+ * Parses the given text in the constructor to extract the database instance, the space and the project code.
  * 
  * <pre>
  * [[&lt;database-instance-code&gt;:]/&lt;group-code&gt;/]&lt;project-code&gt;
@@ -73,7 +72,7 @@ public final class ProjectIdentifierFactory extends AbstractIdentifierFactory
     private static SpaceIdentifier parseSpace(final TokenLexer lexer, final String defaultSpace)
     {
         final String firstToken = lexer.peek();
-        if (tryAsDatabaseIdentifier(firstToken) == null && firstToken.length() > 0)
+        if (firstToken.length() > 0)
         {
             if (defaultSpace == null)
             {
@@ -91,14 +90,13 @@ public final class ProjectIdentifierFactory extends AbstractIdentifierFactory
     private static ProjectIdentifier create(final SpaceIdentifier spaceIdentifier,
             final String projectCode)
     {
-        return new ProjectIdentifier(spaceIdentifier.getDatabaseInstanceCode(),
-                spaceIdentifier.getSpaceCode(), projectCode);
+        return new ProjectIdentifier(spaceIdentifier.getSpaceCode(), projectCode);
     }
 
     public static String getSchema()
     {
         return "[" + SpaceIdentifierFactory.getSchema()
-                + DatabaseInstanceIdentifier.Constants.IDENTIFIER_SEPARATOR + "]"
+                + SpaceIdentifier.Constants.IDENTIFIER_SEPARATOR + "]"
                 + "<project-code>";
     }
 }

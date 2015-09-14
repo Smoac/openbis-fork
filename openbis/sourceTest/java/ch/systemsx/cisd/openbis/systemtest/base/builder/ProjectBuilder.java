@@ -57,7 +57,7 @@ public class ProjectBuilder extends Builder<Project>
     public Project create()
     {
         ProjectIdentifier projectId =
-                new ProjectIdentifier(space.getInstance().getCode(), space.getCode(), this.code);
+                new ProjectIdentifier(space.getCode(), this.code);
         commonServer.registerProject(sessionToken, projectId, "description", "system",
                 new ArrayList<NewAttachment>());
 

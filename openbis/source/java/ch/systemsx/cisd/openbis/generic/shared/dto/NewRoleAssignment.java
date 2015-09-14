@@ -23,7 +23,6 @@ import ch.systemsx.cisd.common.reflection.AbstractHashable;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
@@ -39,8 +38,6 @@ public final class NewRoleAssignment extends AbstractHashable implements Seriali
     private static final long serialVersionUID = IServer.VERSION;
 
     public static final NewRoleAssignment[] EMPTY_ARRAY = new NewRoleAssignment[0];
-
-    private DatabaseInstanceIdentifier databaseInstanceIdentifier;
 
     private SpaceIdentifier spaceIdentifier;
 
@@ -61,18 +58,6 @@ public final class NewRoleAssignment extends AbstractHashable implements Seriali
             throw new IllegalArgumentException("Cannot assign DISABLED role to anyone");
         }
         this.role = role;
-    }
-
-    public final DatabaseInstanceIdentifier getDatabaseInstanceIdentifier()
-    {
-        return databaseInstanceIdentifier;
-    }
-
-    @BeanProperty(label = "instance")
-    public final void setDatabaseInstanceIdentifier(
-            final DatabaseInstanceIdentifier databaseInstanceIdentifier)
-    {
-        this.databaseInstanceIdentifier = databaseInstanceIdentifier;
     }
 
     public final SpaceIdentifier getSpaceIdentifier()
@@ -106,10 +91,7 @@ public final class NewRoleAssignment extends AbstractHashable implements Seriali
     {
         final StringBuilder builder = new StringBuilder();
         builder.append(grantee).append("=").append(role).append("@");
-        if (getSpaceIdentifier() == null)
-        {
-            builder.append(getDatabaseInstanceIdentifier());
-        } else
+        if (getSpaceIdentifier() != null)
         {
             builder.append(getSpaceIdentifier());
         }

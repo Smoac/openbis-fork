@@ -25,13 +25,9 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationTestCase;
 import ch.systemsx.cisd.openbis.generic.server.authorization.RoleWithIdentifier;
-import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ArrayPredicate;
-import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.IPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class ArrayPredicateTest extends AuthorizationTestCase
@@ -58,20 +54,20 @@ public class ArrayPredicateTest extends AuthorizationTestCase
     {
         ArrayPredicate<String> arrayPredicate = new ArrayPredicate<String>(predicate);
         arrayPredicate.init(provider);
-        
-        Status status = arrayPredicate.evaluate(createPerson(), createRoles(true), new String[0]);
-        
+
+        Status status = arrayPredicate.evaluate(createPerson(), createRoles(false), new String[0]);
+
         assertEquals(false, status.isError());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testWithTwoElements()
     {
         ArrayPredicate<String> arrayPredicate = new ArrayPredicate<String>(predicate);
         arrayPredicate.init(provider);
         final PersonPE person = createPerson();
-        final List<RoleWithIdentifier> roles = createRoles(true);
+        final List<RoleWithIdentifier> roles = createRoles(false);
         context.checking(new Expectations()
             {
                 {
@@ -82,20 +78,20 @@ public class ArrayPredicateTest extends AuthorizationTestCase
                     will(returnValue(Status.OK));
                 }
             });
-        
-        Status status = arrayPredicate.evaluate(person, roles, new String[] {"a", "b"});
-        
+
+        Status status = arrayPredicate.evaluate(person, roles, new String[] { "a", "b" });
+
         assertEquals(false, status.isError());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testWithTwoElementsOneFailing()
     {
         ArrayPredicate<String> arrayPredicate = new ArrayPredicate<String>(predicate);
         arrayPredicate.init(provider);
         final PersonPE person = createPerson();
-        final List<RoleWithIdentifier> roles = createRoles(true);
+        final List<RoleWithIdentifier> roles = createRoles(false);
         context.checking(new Expectations()
             {
                 {
@@ -106,9 +102,9 @@ public class ArrayPredicateTest extends AuthorizationTestCase
                     will(returnValue(Status.createError()));
                 }
             });
-        
-        Status status = arrayPredicate.evaluate(person, roles, new String[] {"a", "b"});
-        
+
+        Status status = arrayPredicate.evaluate(person, roles, new String[] { "a", "b" });
+
         assertEquals(true, status.isError());
         context.assertIsSatisfied();
     }

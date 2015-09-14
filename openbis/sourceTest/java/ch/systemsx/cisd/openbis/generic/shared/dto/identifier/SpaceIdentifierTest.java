@@ -38,18 +38,18 @@ public class SpaceIdentifierTest extends EqualsHashCodeTestCase<SpaceIdentifier>
     @Override
     protected final SpaceIdentifier createInstance() throws Exception
     {
-        return new SpaceIdentifier("DB1", "G");
+        return new SpaceIdentifier("G");
     }
 
     @Override
     protected final SpaceIdentifier createNotEqualInstance() throws Exception
     {
-        return new SpaceIdentifier((String) null, "G");
+        return new SpaceIdentifier("G1");
     }
 
     @Test
     public final void testEqualsIgnoreCase()
     {
-        assertEquals(new SpaceIdentifier("DB2", "G"), new SpaceIdentifier("DB2", "g"));
+        assertEquals(new SpaceIdentifier("G"), new SpaceIdentifier("g"));
     }
 }

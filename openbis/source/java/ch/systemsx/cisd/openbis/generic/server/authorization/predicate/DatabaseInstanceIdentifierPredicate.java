@@ -22,7 +22,6 @@ import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.openbis.generic.server.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleLevel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 
 /**
  * An <code>IPredicate</code> implementation for {@link DatabaseInstanceIdentifier}.
@@ -30,7 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceId
  * @author Christian Ribeaud
  */
 public final class DatabaseInstanceIdentifierPredicate extends
-        AbstractDatabaseInstancePredicate<DatabaseInstanceIdentifier>
+        AbstractDatabaseInstancePredicate<Void>
 {
     // Everyone can read from the database instance level, but only users with appropriate role can
     // write. This flag tells if only the read-only access is required to database instance objects.
@@ -70,8 +69,7 @@ public final class DatabaseInstanceIdentifierPredicate extends
 
     @Override
     protected final Status doEvaluation(final PersonPE person,
-            final List<RoleWithIdentifier> allowedRoles,
-            final DatabaseInstanceIdentifier databaseInstanceIdentifier)
+            final List<RoleWithIdentifier> allowedRoles, Void v)
     {
         assert initialized : "Predicate has not been initialized";
         final boolean matching = isMatching(allowedRoles, isReadAccess);

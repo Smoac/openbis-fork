@@ -38,19 +38,19 @@ public final class ExperimentIdentifierTest extends EqualsHashCodeTestCase<Exper
     @Override
     protected final ExperimentIdentifier createInstance() throws Exception
     {
-        return new ExperimentIdentifier("DB1", "G", "P1", "E1");
+        return new ExperimentIdentifier("G", "P1", "E1");
     }
 
     @Override
     protected final ExperimentIdentifier createNotEqualInstance() throws Exception
     {
-        return new ExperimentIdentifier("DB1", "G", "p1", "e2");
+        return new ExperimentIdentifier("G", "p1", "e2");
     }
 
     @Test
     public final void testEqualsIgnoreCase()
     {
-        assertEquals(new ExperimentIdentifier("DB1", "G", "P", "E"), new ExperimentIdentifier(
-                "DB1", "G", "p", "e"));
+        assertEquals(new ExperimentIdentifier("G", "P", "E"), new ExperimentIdentifier(
+                "G", "p", "e"));
     }
 }

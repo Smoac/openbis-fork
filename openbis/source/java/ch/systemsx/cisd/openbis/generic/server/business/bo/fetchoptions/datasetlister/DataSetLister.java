@@ -218,7 +218,7 @@ public class DataSetLister implements IDataSetLister
         ExperimentIdentifier experimentIdentifier = null;
         if (dataSet.ex_code != null)
         {
-            experimentIdentifier = new ExperimentIdentifier(null, dataSet.spe_code, dataSet.pre_code, dataSet.ex_code);
+            experimentIdentifier = new ExperimentIdentifier(dataSet.spe_code, dataSet.pre_code, dataSet.ex_code);
         }
 
         DataSetInitializer initializer = new DataSetInitializer();
@@ -233,7 +233,8 @@ public class DataSetLister implements IDataSetLister
                                                                                  // is considered
                                                                                  // confirmed
         initializer.setStub(false);
-        if(initializer.isContainerDataSet() == false) {
+        if (initializer.isContainerDataSet() == false)
+        {
             initializer.setPostRegistered(dataSet.ds_is_post_registered);
         }
         initializer.setLinkDataSet(DataSetKind.LINK.name().equals(dataSet.dt_data_set_kind));
@@ -277,8 +278,7 @@ public class DataSetLister implements IDataSetLister
             }
 
             SampleIdentifier sampleIdentifier =
-                    IdentifierHelper.createSampleIdentifier(null,
-                            sampleSpaceIdentifier, dataSet.sa_code, dataSet.sac_code);
+                    IdentifierHelper.createSampleIdentifier(sampleSpaceIdentifier, dataSet.sa_code, dataSet.sac_code);
 
             initializer.setSampleIdentifierOrNull(sampleIdentifier.toString());
         }

@@ -88,7 +88,7 @@ public class SampleUpdatesCollectionPredicateTest extends AuthorizationTestCase
                 {
                     one(provider).getSampleCollectionAccessData(TechId.createList(42L, 43L, 44L));
                     SampleAccessPE sample = new SampleAccessPE();
-                    sample.setOwnerCode(ANOTHER_INSTANCE_CODE);
+                    sample.setOwnerCode("CISD");
                     sample.setOwnerType(SampleOwnerType.DATABASE_INSTANCE);
                     will(returnValue(new HashSet<SampleAccessPE>(Arrays.asList(sample))));
                 }

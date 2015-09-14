@@ -26,6 +26,7 @@ import java.util.Set;
 
 import net.lemnik.eodsql.DataIterator;
 import net.lemnik.eodsql.QueryTool;
+
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.PermlinkUtilities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
@@ -177,7 +178,7 @@ public class ExperimentLister implements IExperimentLister
     private Experiment createExperiment(ExperimentRecord record)
     {
         ExperimentIdentifier experimentIdentifier =
-                new ExperimentIdentifier(null, record.s_code, record.pr_code, record.e_code);
+                new ExperimentIdentifier(record.s_code, record.pr_code, record.e_code);
 
         Experiment experiment = new Experiment();
         experiment.setFetchOptions(new ExperimentFetchOptions());
@@ -346,8 +347,7 @@ public class ExperimentLister implements IExperimentLister
             {
                 ExperimentRecord record = iterator.next();
                 ExperimentIdentifier identifier =
-                        new ExperimentIdentifier(record.d_code, record.s_code, record.pr_code,
-                                record.e_code);
+                        new ExperimentIdentifier(record.s_code, record.pr_code, record.e_code);
                 if (!contains(identifier))
                 {
                     iterator.remove();

@@ -78,9 +78,9 @@ public class EntityOperationTest extends SystemTestCase
 
     private static final String INSTANCE_ADMIN = PREFIX + "I_A";
 
-    private static final SpaceIdentifier SPACE_A = new SpaceIdentifier("CISD", "CISD");
+    private static final SpaceIdentifier SPACE_A = new SpaceIdentifier("CISD");
 
-    private static final SpaceIdentifier SPACE_B = new SpaceIdentifier("CISD", "TESTGROUP");
+    private static final SpaceIdentifier SPACE_B = new SpaceIdentifier("TESTGROUP");
 
     @BeforeClass
     public void createTestUsers()
@@ -107,7 +107,7 @@ public class EntityOperationTest extends SystemTestCase
         assertEquals(1, result.getSpacesCreatedCount());
 
         Space space = etlService.tryGetSpace(sessionToken, new SpaceIdentifier("TEST_SPACE"));
-        assertEquals("CISD/TEST_SPACE", space.toString());
+        assertEquals("/TEST_SPACE", space.toString());
     }
 
     @Test

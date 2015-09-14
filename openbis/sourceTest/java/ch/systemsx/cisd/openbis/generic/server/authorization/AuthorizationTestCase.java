@@ -42,7 +42,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleAccessPE.SampleOwnerTyp
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
@@ -51,18 +50,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 @Friend(toClasses = RoleWithIdentifier.class)
 public class AuthorizationTestCase extends AssertJUnit
 {
-    protected static final String INSTANCE_CODE = "DB1";
-
-    /** Identifier with code {@link #INSTANCE_CODE}. */
-    protected static final DatabaseInstanceIdentifier INSTANCE_IDENTIFIER =
-            new DatabaseInstanceIdentifier(INSTANCE_CODE);
-
-    protected static final String ANOTHER_INSTANCE_CODE = "DB2";
-
-    /** Identifier with code {@link #ANOTHER_INSTANCE_CODE}. */
-    protected static final DatabaseInstanceIdentifier ANOTHER_INSTANCE_IDENTIFIER =
-            new DatabaseInstanceIdentifier(ANOTHER_INSTANCE_CODE);
-
     protected static final String SPACE_CODE = "G1";
 
     protected static final String ANOTHER_SPACE_CODE = "G2";
@@ -84,8 +71,7 @@ public class AuthorizationTestCase extends AssertJUnit
     /**
      * Creates a role with level {@link RoleLevel#INSTANCE} with specified role code for specified database instance.
      */
-    protected RoleWithIdentifier createInstanceRole(RoleCode roleCode,
-            DatabaseInstanceIdentifier instanceIdentifier)
+    protected RoleWithIdentifier createInstanceRole(RoleCode roleCode)
     {
         return new RoleWithIdentifier(RoleLevel.INSTANCE, roleCode, null);
     }
@@ -138,7 +124,6 @@ public class AuthorizationTestCase extends AssertJUnit
      */
     protected SpacePE createSpace(SpaceIdentifier identifier)
     {
-        final String databaseInstanceCode = identifier.getDatabaseInstanceCode();
         return createSpace(identifier.getSpaceCode());
     }
 
@@ -265,27 +250,13 @@ public class AuthorizationTestCase extends AssertJUnit
     }
 
     /**
-     * Creates a list of roles which contains an instance admin role for database instance {@link AuthorizationTestCase#ANOTHER_INSTANCE_CODE}.
-     */
-    protected List<RoleWithIdentifier> createAnotherInstanceAdminRole()
-    {
-        final List<RoleWithIdentifier> list = new ArrayList<RoleWithIdentifier>();
-        final RoleWithIdentifier databaseInstanceRole =
-                createInstanceRole(RoleCode.ADMIN, new DatabaseInstanceIdentifier(
-                        ANOTHER_INSTANCE_CODE));
-        list.add(databaseInstanceRole);
-        return list;
-    }
-
-    /**
      * Creates a list of roles which contains a space admin role for space {@link AuthorizationTestCase#ANOTHER_SPACE_CODE}.
      */
     protected List<RoleWithIdentifier> createAnotherSpaceAdminRole()
     {
         final List<RoleWithIdentifier> list = new ArrayList<RoleWithIdentifier>();
         final RoleWithIdentifier spaceRole =
-                createSpaceRole(RoleCode.USER, new SpaceIdentifier(ANOTHER_INSTANCE_CODE,
-                        ANOTHER_SPACE_CODE));
+                createSpaceRole(RoleCode.USER, new SpaceIdentifier(ANOTHER_SPACE_CODE));
         list.add(spaceRole);
         return list;
     }
@@ -299,13 +270,11 @@ public class AuthorizationTestCase extends AssertJUnit
     {
         final List<RoleWithIdentifier> list = new ArrayList<RoleWithIdentifier>();
         final RoleWithIdentifier spaceRole =
-                createSpaceRole(RoleCode.USER, new SpaceIdentifier(INSTANCE_CODE, SPACE_CODE));
+                createSpaceRole(RoleCode.USER, new SpaceIdentifier(SPACE_CODE));
         list.add(spaceRole);
         if (withInstanceRole)
         {
-            final RoleWithIdentifier databaseInstanceRole =
-                    createInstanceRole(RoleCode.ADMIN, new DatabaseInstanceIdentifier(
-                            ANOTHER_INSTANCE_CODE));
+            final RoleWithIdentifier databaseInstanceRole = createInstanceRole(RoleCode.ADMIN);
             list.add(databaseInstanceRole);
         }
         return list;

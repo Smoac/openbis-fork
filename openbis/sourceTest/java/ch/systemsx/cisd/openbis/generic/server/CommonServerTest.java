@@ -109,7 +109,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.builders.ExperimentTypePEBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.builders.ScriptPEBuilder;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
@@ -414,7 +413,6 @@ public final class CommonServerTest extends AbstractServerTestCase
     public void testListGroups()
     {
         final PersonPE person = createPersonWithRoleAssignmentsFromPrincipal(PRINCIPAL);
-        final DatabaseInstanceIdentifier identifier = DatabaseInstanceIdentifier.createHome();
         final SpacePE g1 = CommonTestUtils.createSpace("g1");
         final SpacePE g2 = CommonTestUtils.createSpace("g2");
         final Session mySession = createSession(CommonTestUtils.USER_ID);

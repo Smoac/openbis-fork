@@ -20,67 +20,61 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
  * Builder for instances of {@link DatasetDescription}.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class DatasetDescriptionBuilder
 {
     private final DatasetDescription datasetDescription;
-    
+
     public DatasetDescriptionBuilder(String code)
     {
         datasetDescription = new DatasetDescription();
         datasetDescription.setDataSetCode(code);
     }
-    
+
     public DatasetDescriptionBuilder type(String dataSetTypeCode)
     {
         datasetDescription.setDatasetTypeCode(dataSetTypeCode);
         return this;
     }
-    
+
     public DatasetDescriptionBuilder location(String location)
     {
         datasetDescription.setDataSetLocation(location);
         return this;
     }
-    
+
     public DatasetDescriptionBuilder size(long size)
     {
         datasetDescription.setDataSetSize(size);
         return this;
     }
-    
+
     public DatasetDescriptionBuilder sample(String sampleCode)
     {
         datasetDescription.setSampleCode(sampleCode);
         return this;
     }
-    
-    public DatasetDescriptionBuilder databaseInstance(String databaseInstanceCode)
-    {
-        datasetDescription.setDatabaseInstanceCode(databaseInstanceCode);
-        return this;
-    }
-    
+
     public DatasetDescriptionBuilder space(String spaceCode)
     {
         datasetDescription.setSpaceCode(spaceCode);
         return this;
     }
-    
+
     public DatasetDescriptionBuilder project(String projectCode)
     {
         datasetDescription.setProjectCode(projectCode);
         return this;
     }
-    
+
     public DatasetDescriptionBuilder experiment(String experimentCode)
     {
         datasetDescription.setExperimentCode(experimentCode);
         return this;
     }
-    
+
     public DatasetDescription getDatasetDescription()
     {
         return datasetDescription;

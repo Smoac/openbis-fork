@@ -22,8 +22,8 @@ import java.util.List;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
- * Parses the given text in the constructor to extract the database instance, group, project and
- * experiment code. The expected format is the following:
+ * Parses the given text in the constructor to extract the database instance, group, project and experiment code. The expected format is the
+ * following:
  * 
  * <pre>
  * [[&lt;database-instance-code&gt;:]/&lt;group-code&gt;/]&lt;project-code&gt;/&lt;experiment-code&gt;
@@ -83,7 +83,7 @@ public final class ExperimentIdentifierFactory extends AbstractIdentifierFactory
     public static String getSchema()
     {
         return ProjectIdentifierFactory.getSchema()
-                + DatabaseInstanceIdentifier.Constants.IDENTIFIER_SEPARATOR + "<experiment-code>";
+                + SpaceIdentifier.Constants.IDENTIFIER_SEPARATOR + "<experiment-code>";
     }
 
 }

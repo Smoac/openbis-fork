@@ -56,7 +56,7 @@ public class ExperimentProviderTest extends AbstractProviderTest
         final ExperimentBuilder e1 =
                 new ExperimentBuilder()
                         .code("E1")
-                        .identifier("DB:/A/B/E1")
+                        .identifier("/A/B/E1")
                         .date(new Date(1000123456))
                         .modificationDate(new Date(1000124456))
                         .markDeleted()
@@ -100,7 +100,7 @@ public class ExperimentProviderTest extends AbstractProviderTest
         List<TableModelRowWithObject<Experiment>> rows = tableModel.getRows();
         assertSame(e1.getExperiment(), rows.get(0).getObjectOrNull());
         assertEquals(
-                "[E1, 1, DB:/A/B/E1, A, B, Einstein, Albert, , Mon Jan 12 14:48:43 CET 1970, "
+                "[E1, 1, /A/B/E1, A, B, Einstein, Albert, , Mon Jan 12 14:48:43 CET 1970, "
                         + "Mon Jan 12 14:48:44 CET 1970, yes, 123-45, , , 42, ]", rows.get(0)
                         .getValues().toString());
         context.assertIsSatisfied();

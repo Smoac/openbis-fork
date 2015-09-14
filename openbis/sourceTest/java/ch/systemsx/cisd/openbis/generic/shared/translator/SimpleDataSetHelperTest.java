@@ -22,16 +22,15 @@ import java.util.List;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
@@ -92,9 +91,6 @@ public class SimpleDataSetHelperTest extends AssertJUnit
         project.setCode("MY-PROJECT");
         Space space = new Space();
         space.setCode("MY-SPACE");
-        DatabaseInstance databaseInstance = new DatabaseInstance();
-        databaseInstance.setCode("MY-DB");
-        space.setInstance(databaseInstance);
         project.setSpace(space);
         experiment.setProject(project);
         dataSet.setExperiment(experiment);
@@ -120,7 +116,6 @@ public class SimpleDataSetHelperTest extends AssertJUnit
         assertEquals("MY-EXPERIMENT", dataSet.getExperimentCode());
         assertEquals("MY-PROJECT", dataSet.getProjectCode());
         assertEquals("MY-SPACE", dataSet.getSpaceCode());
-        assertEquals("MY-DB", dataSet.getDatabaseInstanceCode());
         assertEquals("MY-SAMPLE", dataSet.getSampleCode());
         assertEquals(new Long(137), dataSet.getDataSetSize());
         assertEquals(42, dataSet.getSpeedHint());

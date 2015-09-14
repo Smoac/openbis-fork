@@ -20,7 +20,7 @@ import java.io.Serializable;
 
 import ch.systemsx.cisd.common.reflection.AbstractHashable;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier.Constants;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier.Constants;
 
 /**
  * Identifies an owner of a sample: space or database instance.

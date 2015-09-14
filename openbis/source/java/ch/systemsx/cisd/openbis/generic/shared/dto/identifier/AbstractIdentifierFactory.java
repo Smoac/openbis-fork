@@ -23,7 +23,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.reflection.ModifiedShortPrefixToStringStyle;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier.Constants;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier.Constants;
 
 /**
  * A general parser to get the database instance code and the group code out of the given string. The expected format is the following:
@@ -177,19 +177,6 @@ public abstract class AbstractIdentifierFactory
                 .fromTemplate(ILLEGAL_IDENTIFIER_TEMPLATE, text, TOO_MANY_TOKENS);
     }
 
-    protected static String tryAsDatabaseIdentifier(String text)
-    {
-        if (text.endsWith("" + Constants.DATABASE_INSTANCE_SEPARATOR))
-        {
-            String dbCode = text.substring(0, text.length() - 1);
-            assertValidCode(dbCode);
-            return dbCode;
-        } else
-        {
-            return null;
-        }
-    }
-
     protected static UserFailureException createSlashMissingExcp(String text)
     {
         return UserFailureException
@@ -213,10 +200,5 @@ public abstract class AbstractIdentifierFactory
     {
         return ToStringBuilder.reflectionToString(this,
                 ModifiedShortPrefixToStringStyle.MODIFIED_SHORT_PREFIX_STYLE);
-    }
-
-    protected static String getDatabaseInstanceIdentifierSchema()
-    {
-        return "<database-instance-code>";
     }
 }

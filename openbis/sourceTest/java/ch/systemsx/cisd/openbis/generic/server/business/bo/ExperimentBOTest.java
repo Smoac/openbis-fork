@@ -79,8 +79,6 @@ public final class ExperimentBOTest extends AbstractBOTest
 
     private static final String PROJECT_UNEXISTENT = "PROJECT-UNEXISTENT";
 
-    private static final String DB = "DB";
-
     private static final String GROUP = "GROUP";
 
     private static final String PROJECT = "PROJECT";
@@ -223,13 +221,12 @@ public final class ExperimentBOTest extends AbstractBOTest
         final String expTypeCode = EXP_TYPE_CODE;
         final String projectCode = PROJECT;
         final String groupCode = GROUP;
-        final String dbCode = DB;
 
         final NewExperiment newExperiment = new NewExperiment();
-        newExperiment.setIdentifier(createIdentifier(dbCode, groupCode, projectCode, expCode));
+        newExperiment.setIdentifier(createIdentifier(groupCode, projectCode, expCode));
         newExperiment.setExperimentTypeCode(expTypeCode);
 
-        final ProjectPE project = createProject(dbCode, groupCode, projectCode);
+        final ProjectPE project = createProject(groupCode, projectCode);
         final ExperimentTypePE type = createExperimentType(expTypeCode);
         final ExperimentPE experiment = createExperiment(project, expCode, type);
         TimeIntervalChecker timeIntervalChecker = new TimeIntervalChecker();
@@ -277,10 +274,9 @@ public final class ExperimentBOTest extends AbstractBOTest
         final String expTypeCode = EXP_TYPE_UNEXISTENT;
         final String projectCode = PROJECT;
         final String groupCode = GROUP;
-        final String dbCode = DB;
 
         final NewExperiment newExperiment = new NewExperiment();
-        newExperiment.setIdentifier(createIdentifier(dbCode, groupCode, projectCode, expCode));
+        newExperiment.setIdentifier(createIdentifier(groupCode, projectCode, expCode));
         newExperiment.setExperimentTypeCode(expTypeCode);
 
         prepareAnyDaoCreation();
@@ -313,10 +309,9 @@ public final class ExperimentBOTest extends AbstractBOTest
         final String expTypeCode = EXP_TYPE_CODE;
         final String projectCode = PROJECT_UNEXISTENT;
         final String groupCode = GROUP;
-        final String dbCode = DB;
 
         final NewExperiment newExperiment = new NewExperiment();
-        newExperiment.setIdentifier(createIdentifier(dbCode, groupCode, projectCode, expCode));
+        newExperiment.setIdentifier(createIdentifier(groupCode, projectCode, expCode));
         newExperiment.setExperimentTypeCode(expTypeCode);
 
         final ExperimentTypePE type = createExperimentType(expTypeCode);
@@ -349,7 +344,7 @@ public final class ExperimentBOTest extends AbstractBOTest
             exceptionThrown = true;
             assertTrue(e.getMessage().indexOf(
                     String.format(ExperimentBO.ERR_PROJECT_NOT_FOUND,
-                            createIdentifier(dbCode, groupCode, projectCode, expCode))) > -1);
+                            createIdentifier(groupCode, projectCode, expCode))) > -1);
         }
         assertTrue(exceptionThrown);
 
@@ -363,13 +358,12 @@ public final class ExperimentBOTest extends AbstractBOTest
         final String expTypeCode = EXP_TYPE_CODE;
         final String projectCode = PROJECT;
         final String groupCode = GROUP;
-        final String dbCode = DB;
 
         final NewExperiment newExperiment = new NewExperiment();
-        newExperiment.setIdentifier(createIdentifier(dbCode, groupCode, projectCode, expCode));
+        newExperiment.setIdentifier(createIdentifier(groupCode, projectCode, expCode));
         newExperiment.setExperimentTypeCode(expTypeCode);
 
-        final ProjectPE project = createProject(dbCode, groupCode, projectCode);
+        final ProjectPE project = createProject(groupCode, projectCode);
         final ExperimentTypePE type = createExperimentType(expTypeCode);
         final ExperimentPE experiment = createExperiment(project, expCode, type);
 
@@ -701,8 +695,7 @@ public final class ExperimentBOTest extends AbstractBOTest
         exp.setSamples(Arrays.asList(assignedSample));
         // prepareLoadExperimentByIdentifier(identifier, exp);
         final ProjectIdentifier newProjectIdentifier =
-                new ProjectIdentifier(identifier.getDatabaseInstanceCode(), "anotherSpace",
-                        "anotherProject");
+                new ProjectIdentifier("anotherSpace", "anotherProject");
         final ProjectPE newProject = CommonTestUtils.createProject(newProjectIdentifier);
         ExperimentUpdatesDTO updates = new ExperimentUpdatesDTO();
         updates.setExperimentId(new TechId(exp));
@@ -988,10 +981,10 @@ public final class ExperimentBOTest extends AbstractBOTest
         return s;
     }
 
-    private static String createIdentifier(final String dbCode, final String groupCode,
+    private static String createIdentifier(final String groupCode,
             final String projectCode, final String expCode)
     {
-        return dbCode + ":/" + groupCode + "/" + projectCode + "/" + expCode;
+        return "/" + groupCode + "/" + projectCode + "/" + expCode;
     }
 
     private static ExperimentPE createExperiment(ProjectPE project, final String expCode,
@@ -1004,7 +997,7 @@ public final class ExperimentBOTest extends AbstractBOTest
         return experiment;
     }
 
-    private static ProjectPE createProject(final String dbCode, final String groupCode,
+    private static ProjectPE createProject(final String groupCode,
             final String projectCode)
     {
         ProjectPE project = new ProjectPE();

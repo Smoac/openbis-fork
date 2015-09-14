@@ -80,7 +80,7 @@ public class NewSamplePredicateTest extends AuthorizationTestCase
         NewSamplePredicate predicate = new NewSamplePredicate();
         SampleType sampleType = new SampleType();
         SampleIdentifier sampleIdentifier =
-                new SampleIdentifier(new SpaceIdentifier(INSTANCE_CODE, SPACE_CODE), "s1");
+                new SampleIdentifier(new SpaceIdentifier(SPACE_CODE), "s1");
         NewSample sample =
                 NewSample.createWithParent(sampleIdentifier.toString(), sampleType, "container",
                         "parent");
@@ -98,7 +98,7 @@ public class NewSamplePredicateTest extends AuthorizationTestCase
     {
         NewSamplePredicate predicate = new NewSamplePredicate();
         SampleType sampleType = new SampleType();
-        SpaceIdentifier groupIdentifier = new SpaceIdentifier(INSTANCE_CODE, ANOTHER_SPACE_CODE);
+        SpaceIdentifier groupIdentifier = new SpaceIdentifier(ANOTHER_SPACE_CODE);
         SampleIdentifier sampleIdentifier = new SampleIdentifier(groupIdentifier, "s1");
         NewSample sample =
                 NewSample.createWithParent(sampleIdentifier.toString(), sampleType, "container",

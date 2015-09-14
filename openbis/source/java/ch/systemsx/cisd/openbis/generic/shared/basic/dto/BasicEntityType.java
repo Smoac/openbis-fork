@@ -29,8 +29,6 @@ public class BasicEntityType extends AbstractType
 
     public static final BasicEntityType UNSPECIFIED = null;
 
-    private DatabaseInstance databaseInstance;
-
     private Date modificationDate;
 
     private Script validationScript;
@@ -42,16 +40,6 @@ public class BasicEntityType extends AbstractType
     public BasicEntityType(String code)
     {
         setCode(code);
-    }
-
-    public final DatabaseInstance getDatabaseInstance()
-    {
-        return databaseInstance;
-    }
-
-    public final void setDatabaseInstance(final DatabaseInstance databaseInstance)
-    {
-        this.databaseInstance = databaseInstance;
     }
 
     public Date getModificationDate()
@@ -85,23 +73,18 @@ public class BasicEntityType extends AbstractType
         {
             return false;
         }
-        if (false == obj.getClass().equals(this.getClass())) {
+        if (false == obj.getClass().equals(this.getClass()))
+        {
             return false;
         }
         final BasicEntityType that = (BasicEntityType) obj;
-        return getCode().equals(that.getCode())
-                && (databaseInstance == null || databaseInstance.equals(that.databaseInstance));
+        return getCode().equals(that.getCode());
     }
 
     @Override
     public final int hashCode()
     {
-        int hashCode = getCode().hashCode();
-        if (databaseInstance != null && databaseInstance.getCode() != null)
-        {
-            hashCode ^= databaseInstance.getCode().hashCode();
-        }
-        return hashCode;
+        return getCode().hashCode();
     }
 
 }

@@ -95,13 +95,12 @@ public class SecondaryEntityDAO
     {
         final Space space = new Space();
         space.setCode(record.spc_code);
-        space.setInstance(databaseInstance);
 
         final Experiment experiment = new Experiment();
         experiment.setId(experimentId);
         experiment.setCode(record.e_code);
         experiment.setPermId(record.e_permid);
-        experiment.setIdentifier(new ExperimentIdentifier(null, space.getCode(), record.p_code,
+        experiment.setIdentifier(new ExperimentIdentifier(space.getCode(), record.p_code,
                 record.e_code).toString());
         experiment.setDeletion(createDeletion(record.del_id));
         final Project project = new Project();
@@ -145,7 +144,7 @@ public class SecondaryEntityDAO
         return id;
     }
 
-    public Space[] getAllSpaces(long databaseInstanceId)
+    public Space[] getAllSpaces()
     {
         return query.getAllSpaces();
     }
@@ -224,7 +223,6 @@ public class SecondaryEntityDAO
         {
             Space space = new Space();
             space.setCode(codeOrNull);
-            space.setInstance(databaseInstance);
             return space;
         }
     }
@@ -244,7 +242,6 @@ public class SecondaryEntityDAO
     {
         SampleType sampleType = new SampleType();
         sampleType.setCode(code);
-        sampleType.setDatabaseInstance(databaseInstance);
         return sampleType;
     }
 }

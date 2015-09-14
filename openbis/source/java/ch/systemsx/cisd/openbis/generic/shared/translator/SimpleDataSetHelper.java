@@ -75,8 +75,6 @@ public class SimpleDataSetHelper
         Experiment experiment = data.getExperiment();
         if (experiment != null)
         {
-            result.setDatabaseInstanceCode(experiment.getProject().getSpace().getInstance()
-                    .getCode());
             result.setExperimentCode(experiment.getCode());
             result.setProjectCode(experiment.getProject().getCode());
         }
@@ -99,7 +97,6 @@ public class SimpleDataSetHelper
     public static SimpleDataSetInformationDTO translate(DatasetDescription datasetDescription)
     {
         SimpleDataSetInformationDTO result = new SimpleDataSetInformationDTO();
-        result.setDatabaseInstanceCode(datasetDescription.getDatabaseInstanceCode());
         result.setDataSetCode(datasetDescription.getDataSetCode());
         result.setRegistrationTimestamp(datasetDescription.getRegistrationTimestamp());
         result.setSpeedHint(datasetDescription.getSpeedHint());

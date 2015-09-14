@@ -50,7 +50,7 @@ public final class RoleAssignmentTableTest extends AbstractBOTest
         final String databaseInstanceCode = "DB2";
         final String groupCode = "cisd";
         final SpaceIdentifier groupIdentifier =
-                new SpaceIdentifier(databaseInstanceCode, groupCode);
+                new SpaceIdentifier(groupCode);
         newRoleAssignment.setSpaceIdentifier(groupIdentifier);
         newRoleAssignment.setRole(RoleCode.OBSERVER);
         final String userId = "test";

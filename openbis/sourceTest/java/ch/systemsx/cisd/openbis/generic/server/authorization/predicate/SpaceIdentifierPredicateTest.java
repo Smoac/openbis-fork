@@ -59,7 +59,7 @@ public final class SpaceIdentifierPredicateTest extends AuthorizationTestCase
         prepareProvider(Collections.<SpacePE> emptyList());
         predicate.init(provider);
         assertTrue(predicate.doEvaluation(createPerson(), createRoles(false), new SpaceIdentifier(
-                INSTANCE_CODE, SPACE_CODE)).isError());
+                SPACE_CODE)).isError());
         context.assertIsSatisfied();
     }
 
@@ -71,7 +71,7 @@ public final class SpaceIdentifierPredicateTest extends AuthorizationTestCase
         predicate.init(provider);
         final Status evaluation =
                 predicate.doEvaluation(createPerson(), createRoles(false), new SpaceIdentifier(
-                        INSTANCE_CODE, SPACE_CODE));
+                        SPACE_CODE));
         assertEquals(Status.OK, evaluation);
         context.assertIsSatisfied();
     }
@@ -85,7 +85,7 @@ public final class SpaceIdentifierPredicateTest extends AuthorizationTestCase
         final PersonPE person = createPerson();
         final SpacePE homeGroup = createSpace();
         person.setHomeSpace(homeGroup);
-        final SpaceIdentifier groupIdentifier = new SpaceIdentifier(INSTANCE_CODE, null);
+        final SpaceIdentifier groupIdentifier = new SpaceIdentifier(null);
         final Status evaluation =
                 predicate.doEvaluation(person, createRoles(false), groupIdentifier);
         assertEquals(Status.OK, evaluation);
@@ -100,7 +100,7 @@ public final class SpaceIdentifierPredicateTest extends AuthorizationTestCase
         predicate.init(provider);
         final Status evaluation =
                 predicate.doEvaluation(createPerson(), createRoles(false), new SpaceIdentifier(
-                        ANOTHER_INSTANCE_CODE, ANOTHER_SPACE_CODE));
+                        ANOTHER_SPACE_CODE));
         assertEquals(StatusFlag.ERROR, evaluation.getFlag());
         assertEquals("User 'megapixel' does not have enough privileges.", evaluation
                 .tryGetErrorMessage());

@@ -75,7 +75,7 @@ public class AbstractTechIdCollectionPredicateTest extends AuthorizationTestCase
         predicate.init(provider);
 
         Status result =
-                predicate.evaluate(createPerson(), createAnotherInstanceAdminRole(), techIds);
+                predicate.evaluate(createPerson(), createRoles(true), techIds);
 
         assertTrue(result.toString(), result.isOK());
         context.assertIsSatisfied();
