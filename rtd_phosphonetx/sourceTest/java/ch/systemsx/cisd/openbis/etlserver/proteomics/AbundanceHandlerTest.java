@@ -50,12 +50,11 @@ public class AbundanceHandlerTest extends AssertJUnit
 {
     private static final String SPACE_CODE = "G1";
 
-    private static final SpaceIdentifier SPACE_IDENTIFIER = new SpaceIdentifier((String) null,
-            SPACE_CODE);
+    private static final SpaceIdentifier SPACE_IDENTIFIER = new SpaceIdentifier(SPACE_CODE);
 
     private static final String EXPERIMENT_CODE = "E1";
 
-    private static final SpaceIdentifier SPACE_IDENTIFIER_MS = new SpaceIdentifier((String) null,
+    private static final SpaceIdentifier SPACE_IDENTIFIER_MS = new SpaceIdentifier(
             CommonConstants.MS_DATA_SPACE);
 
     private static final String PARAMETER_VALUE = "1234.5";
@@ -151,7 +150,7 @@ public class AbundanceHandlerTest extends AssertJUnit
 
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testAddTwoAbundanceValuesForASampleIdentifiedByCodeAndSpace()
     {

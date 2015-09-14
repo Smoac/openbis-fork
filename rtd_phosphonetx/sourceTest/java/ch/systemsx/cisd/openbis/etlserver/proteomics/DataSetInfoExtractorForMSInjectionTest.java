@@ -54,23 +54,22 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.etlserver.IDataSetInfoExtractor;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypeWithVocabularyTerms;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
@@ -89,13 +88,13 @@ public class DataSetInfoExtractorForMSInjectionTest extends AbstractFileSystemTe
     private static final String SAMPLE_CODE = "U09-1242";
 
     private static final String SAMPLE_IDENTIFIER =
-            DatabaseInstanceIdentifier.Constants.IDENTIFIER_SEPARATOR + CommonConstants.MS_DATA_SPACE
-                    + DatabaseInstanceIdentifier.Constants.IDENTIFIER_SEPARATOR + SAMPLE_CODE;
+            SpaceIdentifier.Constants.IDENTIFIER_SEPARATOR + CommonConstants.MS_DATA_SPACE
+                    + SpaceIdentifier.Constants.IDENTIFIER_SEPARATOR + SAMPLE_CODE;
 
     private static final String EXPERIMENT_IDENTIFIER =
-            DatabaseInstanceIdentifier.Constants.IDENTIFIER_SEPARATOR + CommonConstants.MS_DATA_SPACE
-                    + DatabaseInstanceIdentifier.Constants.IDENTIFIER_SEPARATOR + PROJECT_CODE
-                    + DatabaseInstanceIdentifier.Constants.IDENTIFIER_SEPARATOR + EXPERIMENT_CODE;
+            SpaceIdentifier.Constants.IDENTIFIER_SEPARATOR + CommonConstants.MS_DATA_SPACE
+                    + SpaceIdentifier.Constants.IDENTIFIER_SEPARATOR + PROJECT_CODE
+                    + SpaceIdentifier.Constants.IDENTIFIER_SEPARATOR + EXPERIMENT_CODE;
 
     private static final long EXPERIMENT_ID = 42;
 
@@ -310,7 +309,7 @@ public class DataSetInfoExtractorForMSInjectionTest extends AbstractFileSystemTe
 
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testRegisterRawDataAndLinkToBiologicalSampe()
     {
@@ -339,9 +338,9 @@ public class DataSetInfoExtractorForMSInjectionTest extends AbstractFileSystemTe
                     will(returnValue(new Sample()));
                 }
             });
-        
+
         DataSetInformation info = extractor.getDataSetInformation(dataSet, service);
-        
+
         assertEquals(CommonConstants.MS_DATA_SPACE, info.getSpaceCode());
         assertEquals(SAMPLE_CODE, info.getSampleCode());
         assertEquals(EXPERIMENT_IDENTIFIER, info.getExperimentIdentifier().toString());
@@ -349,7 +348,7 @@ public class DataSetInfoExtractorForMSInjectionTest extends AbstractFileSystemTe
         assertEquals(1, dProps.size());
         assertEquals("CENTROID", dProps.get(0).getPropertyCode());
         assertEquals("true", dProps.get(0).getValue());
-        
+
         context.assertIsSatisfied();
     }
 
@@ -384,7 +383,7 @@ public class DataSetInfoExtractorForMSInjectionTest extends AbstractFileSystemTe
 
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testRegisterSupersedingRawDataWhichUpdatesSampleParent()
     {
@@ -402,7 +401,7 @@ public class DataSetInfoExtractorForMSInjectionTest extends AbstractFileSystemTe
         dataSetProperties.setProperty("BLABLA", "blub");
         save(dataSetProperties, DATA_SET_PROPERTIES_FILE);
         prepareGetExperimentAndGetSampleType(false, createPropertyType(SAMPLE_PROPERTY, true));
-        prepareUpdateSample("Isaac", new String[] {"bio-sample"});
+        prepareUpdateSample("Isaac", new String[] { "bio-sample" });
         prepareGetDataSetType("RAW_DATA", createDataSetPropertyType("CENTROID", false));
         context.checking(new Expectations()
             {
@@ -412,9 +411,9 @@ public class DataSetInfoExtractorForMSInjectionTest extends AbstractFileSystemTe
                     will(returnValue(new Sample()));
                 }
             });
-        
+
         DataSetInformation info = extractor.getDataSetInformation(dataSet, service);
-        
+
         assertEquals(CommonConstants.MS_DATA_SPACE, info.getSpaceCode());
         assertEquals(SAMPLE_CODE, info.getSampleCode());
         assertEquals(EXPERIMENT_IDENTIFIER, info.getExperimentIdentifier().toString());
@@ -422,7 +421,7 @@ public class DataSetInfoExtractorForMSInjectionTest extends AbstractFileSystemTe
         assertEquals(1, dProps.size());
         assertEquals("CENTROID", dProps.get(0).getPropertyCode());
         assertEquals("true", dProps.get(0).getValue());
-        
+
         context.assertIsSatisfied();
     }
 
@@ -512,7 +511,7 @@ public class DataSetInfoExtractorForMSInjectionTest extends AbstractFileSystemTe
             {
                 {
                     ExperimentIdentifier identifier =
-                            new ExperimentIdentifier(null, CommonConstants.MS_DATA_SPACE, PROJECT_CODE,
+                            new ExperimentIdentifier(CommonConstants.MS_DATA_SPACE, PROJECT_CODE,
                                     EXPERIMENT_CODE);
                     one(service).tryGetExperiment(identifier);
                     Experiment experiment = new Experiment();

@@ -79,8 +79,7 @@ class AbundanceHandler extends AbstractSampleHandler
         NewSample searchSample = new NewSample();
         searchSample.setSampleType(sampleType);
         SpaceIdentifier spaceIdentifier =
-                new SpaceIdentifier(experimentIdentifier.getDatabaseInstanceCode(),
-                        experimentIdentifier.getSpaceCode());
+                new SpaceIdentifier(experimentIdentifier.getSpaceCode());
         SampleIdentifier identifier =
                 new SampleIdentifier(spaceIdentifier, parameterName + "_"
                         + experimentIdentifier.getExperimentCode());

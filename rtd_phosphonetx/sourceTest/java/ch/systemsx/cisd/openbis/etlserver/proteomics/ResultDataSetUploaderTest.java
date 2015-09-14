@@ -56,7 +56,6 @@ import ch.systemsx.cisd.openbis.etlserver.proteomics.dto.ProteinSummary;
 import ch.systemsx.cisd.openbis.etlserver.proteomics.dto.ProteinSummaryDataFilter;
 import ch.systemsx.cisd.openbis.etlserver.proteomics.dto.ProteinSummaryHeader;
 import ch.systemsx.cisd.openbis.etlserver.proteomics.dto.Sequence;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
@@ -109,7 +108,7 @@ public class ResultDataSetUploaderTest extends AssertJUnit
     private static final String REFERENCE_DATABASE = "/here/and/there/" + NAME_AND_VERSION;
 
     private static final String EXPERIMENT_CODE = "E1";
-    
+
     private static final long EXPERIMENT_ID = 11l;
 
     private static final String EXPERIMENT_PERM_ID = "e1234";
@@ -121,7 +120,7 @@ public class ResultDataSetUploaderTest extends AssertJUnit
     private static final String SPACE_CODE = "S1";
 
     private static final String PROJECT_CODE = "P1";
-    
+
     private Mockery context;
 
     private Connection connection;
@@ -223,7 +222,7 @@ public class ResultDataSetUploaderTest extends AssertJUnit
         uploader.upload(createDataSetInfo(), summary);
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testProteinGroupWithTwoProteins()
     {
@@ -240,10 +239,10 @@ public class ResultDataSetUploaderTest extends AssertJUnit
         prepareForCreatingIdentifiedProtein(a2, false, true);
         Protein p2 = createProtein(probability, a2);
         p2.setPeptides(Collections.<Peptide> emptyList());
-        
+
         ProteinSummary summary = createProteinSummary();
         summary.getProteinGroups().add(createProteinGroup(p1, p2));
-        
+
         uploader.upload(createDataSetInfo(), summary);
         context.assertIsSatisfied();
     }
@@ -305,7 +304,7 @@ public class ResultDataSetUploaderTest extends AssertJUnit
         p1.setName(PROTEIN_NAME1);
         p1.getParameters().add(createAbundance(CELL_LYSATE1, 2.5));
         p1.getParameters().add(new Parameter());
-        final SpaceIdentifier groupIdentifier = new SpaceIdentifier((String) null, CommonConstants.MS_DATA_SPACE);
+        final SpaceIdentifier groupIdentifier = new SpaceIdentifier(CommonConstants.MS_DATA_SPACE);
         final SampleIdentifier sampleIdentifier =
                 new SampleIdentifier(groupIdentifier, CELL_LYSATE1);
         final ListSamplesByPropertyCriteria criteria =
@@ -423,7 +422,7 @@ public class ResultDataSetUploaderTest extends AssertJUnit
 
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testProteinWithPeptideWithModificationParameter()
     {
@@ -432,7 +431,7 @@ public class ResultDataSetUploaderTest extends AssertJUnit
         prepareForCreatingProtein(probability);
         ProteinAnnotation a1 = createAnnotation(UNIPROT_ID1, PROTEIN_NAME1, SEQUENCE1);
         prepareForCreatingIdentifiedProtein(a1, false, true);
-        
+
         ProteinSummary summary = createProteinSummary();
         Protein p1 = createProtein(probability, a1);
         final Peptide peptide = new Peptide();
@@ -457,13 +456,13 @@ public class ResultDataSetUploaderTest extends AssertJUnit
 
                     one(dao).createModification(MOD_PEPTIDE_ID, 2, 9.5);
                     will(returnValue(157L));
-                    
+
                     one(dao).createModificationFraction(157L, CELL_LYSATE_ID1, 0.125);
                 }
             });
-        
+
         uploader.upload(createDataSetInfo(), summary);
-        
+
         context.assertIsSatisfied();
     }
 
@@ -530,7 +529,7 @@ public class ResultDataSetUploaderTest extends AssertJUnit
             {
                 {
                     one(service).tryGetSampleWithExperiment(
-                            new SampleIdentifier(new SpaceIdentifier((String) null,
+                            new SampleIdentifier(new SpaceIdentifier(
                                     CommonConstants.MS_DATA_SPACE), CELL_LYSATE1));
                     ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample sample =
                             new ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample();
@@ -655,7 +654,7 @@ public class ResultDataSetUploaderTest extends AssertJUnit
     private DataSetInformation createDataSetInfo()
     {
         DataSetInformation info = new DataSetInformation();
-        info.setExperimentIdentifier(new ExperimentIdentifier(DB_INSTANCE, SPACE_CODE, PROJECT_CODE, EXPERIMENT_CODE));
+        info.setExperimentIdentifier(new ExperimentIdentifier(SPACE_CODE, PROJECT_CODE, EXPERIMENT_CODE));
         info.setDataSetCode(DATA_SET_CODE);
         ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample sample =
                 new ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample();
@@ -665,9 +664,6 @@ public class ResultDataSetUploaderTest extends AssertJUnit
         experiment.setPermId(EXPERIMENT_PERM_ID);
         sample.setExperiment(experiment);
         Space space = new Space();
-        DatabaseInstance databaseInstance = new DatabaseInstance();
-        databaseInstance.setCode(DB_INSTANCE);
-        space.setInstance(databaseInstance);
         space.setCode(SPACE_CODE);
         sample.setSpace(space);
         info.setSample(sample);
@@ -685,7 +681,7 @@ public class ResultDataSetUploaderTest extends AssertJUnit
         ProteinSummaryDataFilter m2 = createFilter(1.0, 0.0);
         proteinProphetDetails.setDataFilters(Arrays.asList(m1, m2));
         programDetails.setSummary(new Object[]
-            { proteinProphetDetails });
+        { proteinProphetDetails });
         proteinSummaryHeader.setProgramDetails(programDetails);
         proteinSummary.setSummaryHeader(proteinSummaryHeader);
         proteinSummary.setProteinGroups(new ArrayList<ProteinGroup>());

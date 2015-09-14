@@ -35,9 +35,9 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
@@ -52,9 +52,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFa
 import ch.systemsx.cisd.openbis.plugin.proteomics.shared.basic.CommonConstants;
 
 /**
- * Data set info extractor for MS injection data sets. Information is extracted from a properties
- * file (ms-injection.properties) which is expected t be a part of the data set. As a side effect a
- * corresponding sample of type MS_INJECTION is created with the properties of this file.
+ * Data set info extractor for MS injection data sets. Information is extracted from a properties file (ms-injection.properties) which is expected t
+ * be a part of the data set. As a side effect a corresponding sample of type MS_INJECTION is created with the properties of this file.
  * 
  * @author Franz-Josef Elmer
  */
@@ -62,7 +61,7 @@ public class DataSetInfoExtractorForMSInjection extends AbstractDataSetInfoExtra
 {
     private final static Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             DataSetInfoExtractorForMSInjection.class);
-    
+
     static final String MS_INJECTION_PROPERTIES_FILE = "ms-injection.properties";
 
     static final String DATA_SET_PROPERTIES_FILE = "data-set.properties";
@@ -72,7 +71,7 @@ public class DataSetInfoExtractorForMSInjection extends AbstractDataSetInfoExtra
     static final String EXPERIMENT_CODE_KEY = "EXPERIMENT_CODE";
 
     static final String SAMPLE_CODE_KEY = "SAMPLE_CODE";
-    
+
     static final String BIOLOGICAL_SAMPLE_IDENTIFIER_KEY = "BIOLOGICAL_SAMPLE_IDENTIFIER";
 
     static final String USER_KEY = "USER";
@@ -172,7 +171,7 @@ public class DataSetInfoExtractorForMSInjection extends AbstractDataSetInfoExtra
             service.updateSample(new SampleUpdatesDTO(sampleID, propertiesList,
                     experimentIdentifier, emptySet, version, sampleIdentifier, null,
                     biologicalSampleIdentifier == null ? null : new String[]
-                        { biologicalSampleIdentifier }));
+                    { biologicalSampleIdentifier }));
             return sample.getId();
         }
     }
@@ -233,6 +232,6 @@ public class DataSetInfoExtractorForMSInjection extends AbstractDataSetInfoExtra
                 PropertyUtils.getMandatoryProperty(msInjectionProperties, PROJECT_CODE_KEY);
         String experimentCode =
                 PropertyUtils.getMandatoryProperty(msInjectionProperties, EXPERIMENT_CODE_KEY);
-        return new ExperimentIdentifier(null, CommonConstants.MS_DATA_SPACE, projectCode, experimentCode);
+        return new ExperimentIdentifier(CommonConstants.MS_DATA_SPACE, projectCode, experimentCode);
     }
 }

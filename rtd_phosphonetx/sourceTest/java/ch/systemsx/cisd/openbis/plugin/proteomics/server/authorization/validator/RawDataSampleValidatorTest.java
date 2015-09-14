@@ -22,18 +22,16 @@ import java.util.LinkedHashSet;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
-import ch.systemsx.cisd.openbis.plugin.proteomics.server.authorization.validator.RawDataSampleValidator;
 import ch.systemsx.cisd.openbis.plugin.proteomics.shared.dto.MsInjectionSample;
 
 /**
@@ -67,12 +65,11 @@ public class RawDataSampleValidatorTest extends AssertJUnit
             {
                 Space space = new Space();
                 space.setCode(spaceLevel.getSpaceCode());
-                space.setInstance(createDatabaseInstance(spaceLevel.getDatabaseInstanceCode()));
                 parent.setSpace(space);
             }
             sample.setGeneratedFrom(parent);
         }
-        return new MsInjectionSample(sample, Arrays.<AbstractExternalData>asList());
+        return new MsInjectionSample(sample, Arrays.<AbstractExternalData> asList());
     }
 
     private static DatabaseInstance createDatabaseInstance(String code)

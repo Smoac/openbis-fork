@@ -26,39 +26,38 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.plugin.proteomics.shared.IProteomicsDataServiceInternal;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 @Test(groups = { "slow", "systemtest" })
-public class ServerAuthorizationTest extends AbstractProteomicsSystemTestCase 
+public class ServerAuthorizationTest extends AbstractProteomicsSystemTestCase
 {
     private static final String USER_A = "USER_A";
+
     private static final String USER_INSTANCE_OBSERVER = "USER_B";
 
-    private static final SpaceIdentifier SPACE_A = new SpaceIdentifier("CISD", "CISD");
-    
+    private static final SpaceIdentifier SPACE_A = new SpaceIdentifier("CISD");
+
     @BeforeClass
     public void createTestUsers()
     {
         assignSpaceRole(registerPerson(USER_A), RoleCode.ETL_SERVER, SPACE_A);
         assignInstanceRole(registerPerson(USER_INSTANCE_OBSERVER), RoleCode.OBSERVER);
     }
-    
+
     @Test(expectedExceptions = AuthorizationFailureException.class)
     public void testForServerSetSessionUserFailedBecauseOfAuthorization()
     {
         String sessionToken = authenticateAs(USER_A);
         getServer().setSessionUser(sessionToken, "abc");
     }
-    
+
     @Test(expectedExceptions = AuthorizationFailureException.class)
     public void testListProteinSummariesByExperimentFailedBecauseOfAuthorization()
     {
         String sessionToken = authenticateAs(USER_A);
         getServer().listProteinSummariesByExperiment(sessionToken, new TechId(42));
     }
-    
+
     @Test(expectedExceptions = AuthorizationFailureException.class)
     public void testForDataServiceInternalSetSessionUserFailedBecauseOfAuthorization()
     {
@@ -66,7 +65,7 @@ public class ServerAuthorizationTest extends AbstractProteomicsSystemTestCase
         String sessionToken = dataServiceInternal.tryAuthenticate(USER_A, "abc").getSessionToken();
         dataServiceInternal.setSessionUser(sessionToken, "abc");
     }
-    
+
     @Test(expectedExceptions = AuthorizationFailureException.class)
     public void testForDataServiceInternalListExperimentsFailedBecauseOfAuthorization()
     {
@@ -74,7 +73,7 @@ public class ServerAuthorizationTest extends AbstractProteomicsSystemTestCase
         String sessionToken = dataServiceInternal.tryAuthenticate(USER_A, "abc").getSessionToken();
         dataServiceInternal.listExperiments(sessionToken, "MS_SEARCH");
     }
-    
+
     @Test
     public void testForDataServiceListExperimentsFailedBecauseOfAuthorization()
     {

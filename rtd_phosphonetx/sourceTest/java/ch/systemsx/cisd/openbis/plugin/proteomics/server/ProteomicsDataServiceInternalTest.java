@@ -42,7 +42,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -328,10 +327,6 @@ public class ProteomicsDataServiceInternalTest extends AbstractServerTestCase
             parent.setId(id * 100);
             Space space = new Space();
             space.setCode("Space-" + id % 2);
-            DatabaseInstance instance = new DatabaseInstance();
-            instance.setCode("db");
-            instance.setUuid("UUID-db");
-            space.setInstance(instance);
             parent.setSpace(space);
             Experiment parentExperiment = new Experiment();
             parentExperiment.setId(id * 20);
