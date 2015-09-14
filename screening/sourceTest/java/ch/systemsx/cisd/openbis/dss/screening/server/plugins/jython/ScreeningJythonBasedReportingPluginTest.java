@@ -28,15 +28,14 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
-import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
+import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython.IPluginScriptRunnerFactory;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython.IReportingPluginScriptRunner;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython.api.IDataSet;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
-import ch.systemsx.cisd.openbis.dss.screening.server.plugins.jython.ScreeningJythonBasedReportingPlugin;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.ISimpleTableModelBuilderAdaptor;
 
@@ -108,7 +107,7 @@ public class ScreeningJythonBasedReportingPluginTest extends AbstractFileSystemT
                 {
                     one(reportingPluginScriptRunner).describe(with(iDataSetsMatcher),
                             with(any(ISimpleTableModelBuilderAdaptor.class)));
-                    
+
                     one(reportingPluginScriptRunner).releaseResources();
                 }
             });
@@ -129,7 +128,7 @@ public class ScreeningJythonBasedReportingPluginTest extends AbstractFileSystemT
                 {
                     one(scriptRunnerFactory).getScriptPath();
                     will(returnValue("script.py"));
-                    
+
                     one(scriptRunnerFactory).createReportingPluginRunner(processingContext);
                     will(returnValue(reportingPluginScriptRunner));
 
@@ -149,7 +148,6 @@ public class ScreeningJythonBasedReportingPluginTest extends AbstractFileSystemT
     private static DatasetDescription createDatasetDescription(int nr)
     {
         DatasetDescription result = new DatasetDescription();
-        result.setDatabaseInstanceCode("databaseInstanceCode" + nr);
         result.setDataSetCode("code" + nr);
         result.setDataSetLocation("dataSetLocation" + nr);
         result.setDataSetSize(new Long(nr));
@@ -172,7 +170,6 @@ public class ScreeningJythonBasedReportingPluginTest extends AbstractFileSystemT
             IDataSet dataSet)
     {
         assertSame(expectedContent, dataSet.getContent());
-        assertEquals("databaseInstanceCode" + expectedNr, dataSet.getDatabaseInstanceCode());
         assertEquals("code" + expectedNr, dataSet.getDataSetCode());
         assertEquals("dataSetLocation" + expectedNr, dataSet.getDataSetLocation());
         assertEquals(new Long(expectedNr), dataSet.getDataSetSize());

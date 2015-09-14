@@ -56,7 +56,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
@@ -494,7 +493,7 @@ public class ScreeningApiImpl
         if (spaceCodeOrNull != null)
         {
             SpaceIdentifier space =
-                    new SpaceIdentifier(DatabaseInstanceIdentifier.HOME, spaceCodeOrNull);
+                    new SpaceIdentifier(spaceCodeOrNull);
             owner = new SampleOwnerIdentifier(space);
         } else
         {

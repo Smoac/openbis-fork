@@ -86,9 +86,9 @@ public class FeatureVectorLoaderTest extends AssertJUnit
     public void testNoFiltering()
     {
         long[] dataSetIDs = new long[]
-            { 1, 2, 3 };
+        { 1, 2, 3 };
         String[][] featureCodesPerDataset = new String[][]
-            {
+        {
                 { "<A>a", "<B>b" },
                 { "<B>beta", "c" },
                 { "<B>b" } };
@@ -101,12 +101,12 @@ public class FeatureVectorLoaderTest extends AssertJUnit
         List<FeatureTableRow> rows = builder.createFeatureTableRows();
 
         assertEquals("[<A> a, <B> b, <B> beta, <C> c]", codesAndLabels.toString());
-        assertFeatureTableRow(DATA_SET_CODE1, "A1", "db:/s/S1", "1.5, 11.5, NaN, NaN", rows.get(0));
-        assertFeatureTableRow(DATA_SET_CODE1, "A2", "db:/s/S1", "0.5, 10.5, NaN, NaN", rows.get(1));
-        assertFeatureTableRow(DATA_SET_CODE2, "A1", "db:/s/S2", "NaN, NaN, 2.5, 12.5", rows.get(2));
-        assertFeatureTableRow(DATA_SET_CODE2, "A2", "db:/s/S2", "NaN, NaN, 1.5, 11.5", rows.get(3));
-        assertFeatureTableRow(DATA_SET_CODE3, "A1", "db:/s/S3", "NaN, 3.5, NaN, NaN", rows.get(4));
-        assertFeatureTableRow(DATA_SET_CODE3, "A2", "db:/s/S3", "NaN, 2.5, NaN, NaN", rows.get(5));
+        assertFeatureTableRow(DATA_SET_CODE1, "A1", "/s/S1", "1.5, 11.5, NaN, NaN", rows.get(0));
+        assertFeatureTableRow(DATA_SET_CODE1, "A2", "/s/S1", "0.5, 10.5, NaN, NaN", rows.get(1));
+        assertFeatureTableRow(DATA_SET_CODE2, "A1", "/s/S2", "NaN, NaN, 2.5, 12.5", rows.get(2));
+        assertFeatureTableRow(DATA_SET_CODE2, "A2", "/s/S2", "NaN, NaN, 1.5, 11.5", rows.get(3));
+        assertFeatureTableRow(DATA_SET_CODE3, "A1", "/s/S3", "NaN, 3.5, NaN, NaN", rows.get(4));
+        assertFeatureTableRow(DATA_SET_CODE3, "A2", "/s/S3", "NaN, 2.5, NaN, NaN", rows.get(5));
         assertEquals(6, rows.size());
         context.assertIsSatisfied();
     }
@@ -115,9 +115,9 @@ public class FeatureVectorLoaderTest extends AssertJUnit
     public void testFiltering()
     {
         long[] dataSetIDs = new long[]
-            { 1, 2, 3 };
+        { 1, 2, 3 };
         String[][] featureCodesPerDataset = new String[][]
-            {
+        {
                 { "<A>a", "b" },
                 { "<B>beta", "c" },
                 { "b" } };
@@ -130,12 +130,12 @@ public class FeatureVectorLoaderTest extends AssertJUnit
         List<FeatureTableRow> rows = builder.createFeatureTableRows();
 
         assertEquals("[<B> b, <B> beta]", codesAndLabels.toString());
-        assertFeatureTableRow(DATA_SET_CODE1, "A1", "db:/s/S1", "11.5, NaN", rows.get(0));
-        assertFeatureTableRow(DATA_SET_CODE1, "A2", "db:/s/S1", "10.5, NaN", rows.get(1));
-        assertFeatureTableRow(DATA_SET_CODE2, "A1", "db:/s/S2", "NaN, 2.5", rows.get(2));
-        assertFeatureTableRow(DATA_SET_CODE2, "A2", "db:/s/S2", "NaN, 1.5", rows.get(3));
-        assertFeatureTableRow(DATA_SET_CODE3, "A1", "db:/s/S3", "3.5, NaN", rows.get(4));
-        assertFeatureTableRow(DATA_SET_CODE3, "A2", "db:/s/S3", "2.5, NaN", rows.get(5));
+        assertFeatureTableRow(DATA_SET_CODE1, "A1", "/s/S1", "11.5, NaN", rows.get(0));
+        assertFeatureTableRow(DATA_SET_CODE1, "A2", "/s/S1", "10.5, NaN", rows.get(1));
+        assertFeatureTableRow(DATA_SET_CODE2, "A1", "/s/S2", "NaN, 2.5", rows.get(2));
+        assertFeatureTableRow(DATA_SET_CODE2, "A2", "/s/S2", "NaN, 1.5", rows.get(3));
+        assertFeatureTableRow(DATA_SET_CODE3, "A1", "/s/S3", "3.5, NaN", rows.get(4));
+        assertFeatureTableRow(DATA_SET_CODE3, "A2", "/s/S3", "2.5, NaN", rows.get(5));
         assertEquals(6, rows.size());
         context.assertIsSatisfied();
     }
@@ -312,7 +312,7 @@ public class FeatureVectorLoaderTest extends AssertJUnit
 
     private SampleIdentifier createSpaceIdentifier(long datasetId)
     {
-        return new SampleIdentifier(new SpaceIdentifier("db", "s"), "S" + datasetId);
+        return new SampleIdentifier(new SpaceIdentifier("s"), "S" + datasetId);
     }
 
     private void assertFeatureTableRow(String expectedDataSetCode, String expectedWell,

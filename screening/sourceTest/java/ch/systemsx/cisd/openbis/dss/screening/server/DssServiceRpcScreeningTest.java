@@ -287,9 +287,9 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
         prepareListDatasets("ds1", DATASET_CODE2);
 
         long[] dataSetIDs = new long[]
-            { 1, 2 };
+        { 1, 2 };
         String[][] featureCodesPerDataset = new String[][]
-            {
+        {
                 { "f1", "f2" },
                 { "f2", "f3" } };
         prepareListAnalysisDatasets(dataSetIDs);
@@ -312,20 +312,20 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
         prepareListDatasets("ds1", DATASET_CODE2);
 
         long[] dataSetIDs = new long[]
-            { 1, 2 };
+        { 1, 2 };
         FeatureInformation[][] featureCodesPerDataset =
                 new FeatureInformation[][]
-                    {
-                                {
-                                        new FeatureInformation("f1", "Feature 1",
-                                                "The first feature."),
-                                        new FeatureInformation("f2", "Feature 2",
-                                                "The second feature.") },
-                                {
-                                        new FeatureInformation("f2", "Feature 2",
-                                                "The second feature."),
-                                        new FeatureInformation("f3", "Feature 3",
-                                                "The third feature.") } };
+                {
+                        {
+                                new FeatureInformation("f1", "Feature 1",
+                                        "The first feature."),
+                                new FeatureInformation("f2", "Feature 2",
+                                        "The second feature.") },
+                        {
+                                new FeatureInformation("f2", "Feature 2",
+                                        "The second feature."),
+                                new FeatureInformation("f3", "Feature 3",
+                                        "The third feature.") } };
         prepareListAnalysisDatasets(dataSetIDs);
         prepareGetFeatureDefinitions(dataSetIDs, featureCodesPerDataset);
 
@@ -346,7 +346,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
     public void testLoadFeatures()
     {
         prepareFeatureVectorContainedDatasets(new long[]
-            { 1, 2 });
+        { 1, 2 });
 
         prepareAssetDataSetsAreAccessible();
         prepareLockDataSet("ds1", DATASET_CODE2);
@@ -357,15 +357,15 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
         prepareListContainers(true, 1, 2);
 
         String[][] featureCodesPerDataset = new String[][]
-            {
+        {
                 { "F1", "F2" } };
         prepareLoadFeatures(new long[]
-            { 1 }, featureCodesPerDataset);
+        { 1 }, featureCodesPerDataset);
         featureCodesPerDataset = new String[][]
-            {
+        {
                 { "F2" } };
         prepareLoadFeatures(new long[]
-            { 2 }, featureCodesPerDataset);
+        { 2 }, featureCodesPerDataset);
 
         List<FeatureVectorDataset> dataSets =
                 screeningService.loadFeatures(SESSION_TOKEN, Arrays.asList(r1, r2),
@@ -514,9 +514,9 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
             {
                 {
                     allowing(dao).listImageDatasetsByPermId(new String[]
-                        { DATASET_CODE, DATASET_CODE2 });
+                    { DATASET_CODE, DATASET_CODE2 });
                     allowing(dao).listImageDatasetsByPermId(new String[]
-                            { DATASET_CODE2, DATASET_CODE });
+                    { DATASET_CODE2, DATASET_CODE });
                     ImgImageDatasetDTO ds1 =
                             new ImgImageDatasetDTO(DATASET_CODE, null, null, null, false, null,
                                     null);
@@ -573,7 +573,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
             {
                 {
                     one(dao).listImageDatasetsByPermId(new String[]
-                        { DATASET_CODE });
+                    { DATASET_CODE });
                     ImgImageDatasetDTO ds1 =
                             new ImgImageDatasetDTO(DATASET_CODE, null, null, null, false, null,
                                     null);
@@ -891,7 +891,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
                             PlateFeatureValues matrixValues =
                                     new PlateFeatureValues(NativeTaggedArray
                                             .toByteArray(new MDFloatArray(new float[][]
-                                                {
+                                            {
                                                     { 3.5f * dataSetId + offset },
                                                     { 1.25f * dataSetId + offset } })));
                             ImgFeatureValuesDTO value =
@@ -933,7 +933,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
                     {
                         one(service).listSampleIdentifiers(Arrays.asList(sampleIdentifiers));
                         Map<String, SampleIdentifier> map = new HashMap<String, SampleIdentifier>();
-                        map.put("12-34", new SampleIdentifier(new SpaceIdentifier("1", "S"), "P1"));
+                        map.put("12-34", new SampleIdentifier(new SpaceIdentifier("S"), "P1"));
                         will(returnValue(map));
                     }
                     one(dao).listContainersByIds(containerIds);

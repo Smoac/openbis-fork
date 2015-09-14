@@ -24,9 +24,9 @@ import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.authorization.IAuthorizationDataProvider;
 import ch.systemsx.cisd.openbis.generic.server.authorization.RoleWithIdentifier;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.AbstractTechIdPredicate.ExperimentTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.IPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SpaceIdentifierPredicate;
-import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.AbstractTechIdPredicate.ExperimentTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
@@ -78,7 +78,7 @@ public final class ExperimentSearchCriteriaPredicate implements
                 } else if (project != null)
                 {
                     SpaceIdentifier space =
-                            new SpaceIdentifier(project.getInstanceCode(), project.getSpaceCode());
+                            new SpaceIdentifier(project.getSpaceCode());
                     return spacePredicate.evaluate(person, allowedRoles, space);
                 }
             } catch (DataAccessException ex)

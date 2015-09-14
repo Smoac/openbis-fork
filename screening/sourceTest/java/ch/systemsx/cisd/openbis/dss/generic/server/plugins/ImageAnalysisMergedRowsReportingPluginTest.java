@@ -90,13 +90,13 @@ public class ImageAnalysisMergedRowsReportingPluginTest extends AssertJUnit
         final ImgContainerDTO p1 = new ImgContainerDTO("p1", 3, 2, 0);
         p1.setId(101);
         final SampleIdentifier p1Identifier =
-                new SampleIdentifier(new SpaceIdentifier("1", "S"), "P1");
+                new SampleIdentifier(new SpaceIdentifier("S"), "P1");
         final DatasetDescription ds2 = new DatasetDescription();
         ds2.setDataSetCode("ds2");
         final ImgContainerDTO p2 = new ImgContainerDTO("p2", 2, 1, 0);
         p2.setId(102);
         final SampleIdentifier p2Identifier =
-                new SampleIdentifier(new SpaceIdentifier("1", "S"), "P2");
+                new SampleIdentifier(new SpaceIdentifier("S"), "P2");
         final ImgFeatureDefDTO ds1f1 = new ImgFeatureDefDTO("f1", "F1", "", 1);
         ds1f1.setId(1);
         final ImgFeatureDefDTO ds1f2 = new ImgFeatureDefDTO("f2", "F2", "", 1);
@@ -153,14 +153,14 @@ public class ImageAnalysisMergedRowsReportingPluginTest extends AssertJUnit
         assertEquals("[Data Set Code, Plate Identifier, Row, Column, f1, f2, f3]",
                 headers.toString());
         List<TableModelRow> rows = tableModel.getRows();
-        String prefix = "[ds1, 1:/S/P1, ";
+        String prefix = "[ds1, /S/P1, ";
         assertEquals(prefix + "A, 1, 12.0, -3.5, ]", rows.get(0).getValues().toString());
         assertEquals(prefix + "A, 2, 2.5, 12.5, ]", rows.get(1).getValues().toString());
         assertEquals(prefix + "B, 1, 24.0, -2.0, ]", rows.get(2).getValues().toString());
         assertEquals(prefix + "B, 2, 3.25, 1.0, ]", rows.get(3).getValues().toString());
         assertEquals(prefix + "C, 1, -1.5, 5.0, ]", rows.get(4).getValues().toString());
         assertEquals(prefix + "C, 2, 42.0, 4.25, ]", rows.get(5).getValues().toString());
-        prefix = "[ds2, 1:/S/P2, ";
+        prefix = "[ds2, /S/P2, ";
         assertEquals(prefix + "A, 1, , 23.0, -9.0]", rows.get(6).getValues().toString());
         assertEquals(prefix + "B, 1, , 5.75, 44.125]", rows.get(7).getValues().toString());
         assertEquals(8, rows.size());

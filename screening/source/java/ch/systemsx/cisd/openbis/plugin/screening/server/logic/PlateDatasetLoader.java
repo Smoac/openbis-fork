@@ -14,10 +14,10 @@ import org.apache.commons.lang.StringUtils;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister.IDatasetLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
@@ -25,7 +25,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
@@ -138,8 +137,7 @@ class PlateDatasetLoader
     }
 
     /**
-     * Filter the list of samples, which were selected by code, to those that exactly match the
-     * identifiers in the plates
+     * Filter the list of samples, which were selected by code, to those that exactly match the identifiers in the plates
      */
     private void filterSamplesByPlateIdentifiers()
     {
@@ -279,7 +277,7 @@ class PlateDatasetLoader
         if (sample == null)
         {
             DataSetType dataSetType = dataset.getDataSetType();
-            throw new IllegalStateException("dataset not connected to a sample: " + dataset.getCode() 
+            throw new IllegalStateException("dataset not connected to a sample: " + dataset.getCode()
                     + (dataSetType == null ? "" : " [" + dataSetType.getCode() + "]"));
         }
         // The dataset's reference to the sample is not complete, get the one from the map
@@ -353,7 +351,7 @@ class PlateDatasetLoader
         if (StringUtils.isNotBlank(spaceCode))
         {
             final SpaceIdentifier space =
-                    new SpaceIdentifier(DatabaseInstanceIdentifier.HOME, spaceCode);
+                    new SpaceIdentifier(spaceCode);
             owner = new SampleOwnerIdentifier(space);
         } else
         {
@@ -367,7 +365,7 @@ class PlateDatasetLoader
                     throw new UserFailureException("No space given and user has no home space.");
                 }
                 final SpaceIdentifier space =
-                        new SpaceIdentifier(DatabaseInstanceIdentifier.HOME, homeSpaceCodeOrNull);
+                        new SpaceIdentifier(homeSpaceCodeOrNull);
                 owner = new SampleOwnerIdentifier(space);
             }
         }
@@ -381,7 +379,7 @@ class PlateDatasetLoader
         String spaceCode = (null == spaceOrNull) ? null : spaceOrNull.getCode();
         if (spaceCode != null)
         {
-            SpaceIdentifier space = new SpaceIdentifier(DatabaseInstanceIdentifier.HOME, spaceCode);
+            SpaceIdentifier space = new SpaceIdentifier(spaceCode);
             owner = new SampleOwnerIdentifier(space);
         } else
         {
