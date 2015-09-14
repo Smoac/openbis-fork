@@ -19,13 +19,12 @@ package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver;
 import java.io.File;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
@@ -122,12 +121,16 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
 
     public static final String MAXIMUM_CONTAINER_SIZE_IN_BYTES = "maximum-container-size-in-bytes";
 
+    public static final String MAXIMUM_UNARCHIVING_CAPACITY_IN_MEGABYTES = "maximum-unarchiving-capacity-in-megabytes";
+    
     public static final Long DEFAULT_MAXIMUM_CONTAINER_SIZE_IN_BYTES = 80 * FileUtils.ONE_GB;
     
     public static final long DEFAULT_FINALIZER_POLLING_TIME = DateUtils.MILLIS_PER_MINUTE;
     
     public static final long DEFAULT_FINALIZER_MAX_WAITING_TIME = DateUtils.MILLIS_PER_DAY;
-    
+
+    public static final Long DEFAULT_UNARCHIVING_CAPACITY_IN_MEGABYTES = 1000 * FileUtils.ONE_GB;
+
     public static final String DELAY_UNARCHIVING = "delay-unarchiving";
     
     public static final String CLEANER_PROPS = "cleaner";
@@ -141,6 +144,8 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
     private final long minimumContainerSize;
     
     private final long maximumContainerSize;
+
+    private final long maximumUnarchivingCapacityInMB;
 
     private final boolean delayUnarchiving;
     
@@ -165,6 +170,7 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
         delayUnarchiving = PropertyUtils.getBoolean(properties, DELAY_UNARCHIVING, false);
         this.minimumContainerSize = PropertyUtils.getLong(properties, MINIMUM_CONTAINER_SIZE_IN_BYTES, DEFAULT_MINIMUM_CONTAINER_SIZE_IN_BYTES);
         this.maximumContainerSize = PropertyUtils.getLong(properties, MAXIMUM_CONTAINER_SIZE_IN_BYTES, DEFAULT_MAXIMUM_CONTAINER_SIZE_IN_BYTES);
+        this.maximumUnarchivingCapacityInMB = PropertyUtils.getLong(properties, MAXIMUM_UNARCHIVING_CAPACITY_IN_MEGABYTES, DEFAULT_UNARCHIVING_CAPACITY_IN_MEGABYTES);
         this.fileOperationsFactory = new FileOperationsManagerFactory(properties, timeProvider, freeSpaceProviderOrNull);
         finalizerPollingTime = DateTimeUtils.getDurationInMillis(properties, 
                 MultiDataSetArchivingFinalizer.FINALIZER_POLLING_TIME_KEY, DEFAULT_FINALIZER_POLLING_TIME);
@@ -416,8 +422,8 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
     @Override
     public List<String> getDataSetCodesForUnarchiving(List<String> dataSetCodes)
     {
-        assertAllDataSetsInTheSameContainer(dataSetCodes);
-        return getCodesOfAllDataSetsInContainer(dataSetCodes);
+        Set<Long> containerIds = assertUnarchivingCapacityNotExceeded(dataSetCodes);
+        return getCodesOfAllDataSetsInContainer(containerIds);
     }
 
     @Override
@@ -520,14 +526,16 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
     protected DatasetProcessingStatuses doUnarchive(List<DatasetDescription> dataSets, ArchiverTaskContext context)
     {
         List<String> dataSetCodes = translateToDataSetCodes(dataSets);
-        long containerId = assertAllDataSetsInTheSameContainer(dataSetCodes);
+        Set<Long> containerIds = assertUnarchivingCapacityNotExceeded(dataSetCodes);
         assertNoAvailableDatasets(dataSetCodes);
         
         context.getUnarchivingPreparation().prepareForUnarchiving(dataSets);
 
-        MultiDataSetArchiverContainerDTO container = getReadonlyQuery().getContainerForId(containerId);
-
-        getFileOperations().restoreDataSetsFromContainerInFinalDestination(container.getPath(), dataSets);
+        for (Long containerId : containerIds)
+        {
+            MultiDataSetArchiverContainerDTO container = getReadonlyQuery().getContainerForId(containerId);
+            getFileOperations().restoreDataSetsFromContainerInFinalDestination(container.getPath(), dataSets);
+        }
 
         for (String dataSetCode : dataSetCodes)
         {
@@ -551,17 +559,16 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
         }
     }
 
-    private List<String> getCodesOfAllDataSetsInContainer(List<String> dataSetCodes)
+    private List<String> getCodesOfAllDataSetsInContainer(Set<Long> containerIds)
     {
-
-        MultiDataSetArchiverDataSetDTO dataset = getReadonlyQuery().getDataSetForCode(dataSetCodes.get(0));
-        Long containerId = dataset.getContainerId();
-        List<MultiDataSetArchiverDataSetDTO> dbDataSets = getReadonlyQuery().listDataSetsForContainerId(containerId);
-
         List<String> enhancedDataSetCodes = new LinkedList<String>();
-        for (MultiDataSetArchiverDataSetDTO dbDataSet : dbDataSets)
+        for (Long containerId : containerIds)
         {
-            enhancedDataSetCodes.add(dbDataSet.getCode());
+            List<MultiDataSetArchiverDataSetDTO> datasetsInContainer = getReadonlyQuery().listDataSetsForContainerId(containerId);
+            for (MultiDataSetArchiverDataSetDTO dataSet : datasetsInContainer)
+            {
+                enhancedDataSetCodes.add(dataSet.getCode());
+            }
         }
         return enhancedDataSetCodes;
     }
@@ -594,14 +601,12 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
         return result;
     }
 
-    /**
-     * @return ID of container that groups all listed data sets
-     * @throws exception if not all data sets are in the same container
-     */
-    private long assertAllDataSetsInTheSameContainer(List<String> dataSetCodes)
+    private Set<Long> assertUnarchivingCapacityNotExceeded(List<String> dataSetCodes)
     {
-        Map<Long, List<String>> containers = new LinkedHashMap<Long, List<String>>();
-        long containerId = -1;
+        long totalSizeOfUnarchivingRequested = getReadonlyQuery().getTotalNoOfBytesInContainersWithUnarchivingRequested();
+        Set<Long> containers = new LinkedHashSet<Long>();
+
+        long totalSumInBytes = totalSizeOfUnarchivingRequested;
         for (String code : dataSetCodes)
         {
             MultiDataSetArchiverDataSetDTO dataSet = getReadonlyQuery().getDataSetForCode(code);
@@ -610,22 +615,22 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
                 throw new UserFailureException("Dataset " + code
                         + " was selected for unarchiving, but is not present in the archive");
             }
-            List<String> list = containers.get(dataSet.getContainerId());
-            if (list == null)
+            totalSumInBytes += dataSet.getSizeInBytes();
+            
+            if (totalSumInBytes > maximumUnarchivingCapacityInMB * FileUtils.ONE_MB)
             {
-                list = new ArrayList<String>();
-                containers.put(dataSet.getContainerId(), list);
+                
+                String message = String.format("Total size of selected data sets (%.2f MB)"
+                        + " and those already scheduled for unarchiving (%.2f MB) exceeds capacity."
+                        + " Please narrow down your selection or try again later.",
+                        ((double)(totalSumInBytes - totalSizeOfUnarchivingRequested) / FileUtils.ONE_MB), 
+                        ((double)totalSizeOfUnarchivingRequested / FileUtils.ONE_MB));
+                throw new UserFailureException(message);
             }
-            list.add(dataSet.getCode());
-            containerId = dataSet.getContainerId();
+            containers.add(dataSet.getContainerId());
         }
-        if (containers.size() > 1)
-        {
-            throw new UserFailureException("Datasets selected for unarchiving do not all belong to one container, "
-                    + "but to " + containers.size() + " different containers: " + containers);
-        }
-        return containerId;
-    }
+        return containers;
+   }
 
     @Override
     protected DatasetProcessingStatuses doDeleteFromArchive(List<? extends IDatasetLocation> datasets)

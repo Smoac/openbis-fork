@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver;
 
 import static ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.MultiDataSetArchiver.MAXIMUM_CONTAINER_SIZE_IN_BYTES;
 import static ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.MultiDataSetArchiver.MINIMUM_CONTAINER_SIZE_IN_BYTES;
+import static ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.MultiDataSetArchiver.MAXIMUM_UNARCHIVING_CAPACITY_IN_MEGABYTES;
 import static ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.MultiDataSetFileOperationsManager.FINAL_DESTINATION_KEY;
 import static ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.MultiDataSetFileOperationsManager.HDF5_FILES_IN_DATA_SET;
 import static ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.MultiDataSetFileOperationsManager.REPLICATED_DESTINATION_KEY;
@@ -342,6 +343,12 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
             builder.append("\ncommitted: ").append(committed);
             builder.append(", rolledBack: ").append(rolledBack);
             return builder.toString();
+        }
+
+        @Override
+        public long getTotalNoOfBytesInContainersWithUnarchivingRequested()
+        {
+            return 2*FileUtils.ONE_MB;
         }
 
     }
@@ -1143,11 +1150,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
         properties.setProperty(MINIMUM_CONTAINER_SIZE_IN_BYTES, "15");
         MultiDataSetArchiver archiver = createArchiver(null);
 
-        ProcessingStatus status = archiver.unarchive(Arrays.asList(ds1, ds2), archiverContext);
-
-        assertEquals("[ERROR: \"Unarchiving failed: Datasets selected for unarchiving do not all "
-                + "belong to one container, but to 2 different containers: {0=[ds1], 1=[ds2]}\"]",
-                status.getErrorStatuses().toString());
+        archiver.unarchive(Arrays.asList(ds1, ds2), archiverContext);
         assertEquals("[]", cleaner.toString());
         context.assertIsSatisfied();
     }
@@ -1182,14 +1185,37 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
         transaction.commit();
         MultiDataSetArchiver archiver = createArchiver(null);
 
+        List<String> dsList = archiver.getDataSetCodesForUnarchiving(Arrays.asList(ds1.getDataSetCode(), ds2.getDataSetCode()));
+        assertEquals("[ds1, ds2]", dsList.toString());
+        assertEquals("[]", cleaner.toString());
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testUnarchivingAboveCapacityFails()
+    {
+        properties.setProperty(MAXIMUM_UNARCHIVING_CAPACITY_IN_MEGABYTES, "4");
+        MultiDataSetArchiverContainerDTO c1 = transaction.createContainer("c1");
+        MultiDataSetArchiverContainerDTO c2 = transaction.createContainer("c2");
+        ds1.setDataSetSize(1*FileUtils.ONE_MB);
+        ds2.setDataSetSize(2*FileUtils.ONE_MB);
+        transaction.insertDataset(ds1, c1);
+        transaction.insertDataset(ds2, c2);
+        transaction.commit();
+        MultiDataSetArchiver archiver = createArchiver(null);
         try
         {
             archiver.getDataSetCodesForUnarchiving(Arrays.asList(ds1.getDataSetCode(), ds2.getDataSetCode()));
             fail("UserFailureException expected");
         } catch (UserFailureException ex)
         {
-            assertEquals("Datasets selected for unarchiving do not all belong to one container, "
-                    + "but to 2 different containers: {0=[ds1], 1=[ds2]}", ex.getMessage());
+            String message = String.format("Total size of selected data sets (%.2f MB)"
+                    + " and those already scheduled for unarchiving (%.2f MB) exceeds capacity."
+                    + " Please narrow down your selection or try again later.",
+                    ((double)(ds1.getDataSetSize() + ds2.getDataSetSize()) / FileUtils.ONE_MB), 
+                    ((double)transaction.getTotalNoOfBytesInContainersWithUnarchivingRequested() / FileUtils.ONE_MB));
+
+            assertEquals(message, ex.getMessage());
         }
         assertEquals("[]", cleaner.toString());
         context.assertIsSatisfied();

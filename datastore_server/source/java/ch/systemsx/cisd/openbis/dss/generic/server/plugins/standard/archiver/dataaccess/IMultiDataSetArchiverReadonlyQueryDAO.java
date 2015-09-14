@@ -56,5 +56,9 @@ public interface IMultiDataSetArchiverReadonlyQueryDAO extends BaseQuery
 
     @Select(sql = SELECT_DATA_SET + "WHERE ctnr_id = ?{1}")
     public List<MultiDataSetArchiverDataSetDTO> listDataSetsForContainerId(long containerId);
-    
+
+    @Select(sql = "SELECT SUM(size_in_bytes) FROM data_sets, containers "
+                + "WHERE data_sets.ctnr_id = containers.id"
+                + " AND unarchiving_requested = 't'")
+    public long getTotalNoOfBytesInContainersWithUnarchivingRequested();
 }

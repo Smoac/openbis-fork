@@ -267,7 +267,7 @@ public class ExperimentDataSetArchivingMenu extends TextToolItem
             final String source = computeOnSelected ? "selected" : "provided";
             if (result.getScheduled() == 0)
             {
-                MessageBox.info(actionName, actionName + " coulndn't be performed on " + source
+                MessageBox.info(actionName, actionName + " couldn't be performed on " + source
                         + " data set(s).", null);
             } else
             {
