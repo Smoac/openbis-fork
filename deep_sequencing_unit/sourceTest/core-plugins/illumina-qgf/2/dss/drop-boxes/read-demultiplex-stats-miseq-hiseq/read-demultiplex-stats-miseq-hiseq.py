@@ -14,7 +14,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 
-@author: Fabian Gemperle
+@author: Manuel Kohler
 
 @note: print statements go to ~/openbis/servers/datastore_server/log/startup_log.txt
 
@@ -255,16 +255,21 @@ def process(transaction):
 
   def update_datatsets(transaction, samplestatisticslist, codeSampleFlowLane, codeSampleFlowCell):
     # Prepare links between XML and openBIS w.r.t to indexes in DataSet (openBIS):
-    print(codeSampleFlowLane)
+
+    nprocessedDataSets = 0
+
     index1list, index2list = getIndexesOfDataSetsOfSample(codeSampleFlowLane)
-    print(index1list)
+#     print(index1list)
     
     propertiesCode, propertiesCodeValue = getInfoSampleProperties(codeSampleFlowCell)
     index1length = int(propertiesCodeValue[CODE_INDEX1LENGTH])
     index2length = int(propertiesCodeValue[CODE_INDEX2LENGTH])
+   
+   
+    pre_filtered_list = [sample for sample in samplestatisticslist if sample.Lane == int(codeSampleFlowLane[-1])]
+    print("Number of samples: " + str(len(pre_filtered_list)) + " for lane " + codeSampleFlowLane[-1])
     
-    nprocessedDataSets = 0
-    for s in samplestatisticslist:
+    for s in pre_filtered_list:
         print "\nContent in XML file:\n", s
     
         # Prepare link between XML and openBIS w.r.t to indexes in Barcode (XML):
@@ -358,4 +363,5 @@ def process(transaction):
 
   print "\n", nprocessedDataSets, " openBIS-DataSets were processed." 
   print len(samplestatisticslist), " XML-Projects/-Samples/-Barcodes were processed."
+  print(samplestatisticslist)
   print("PROCESS DONE "+time.ctime())

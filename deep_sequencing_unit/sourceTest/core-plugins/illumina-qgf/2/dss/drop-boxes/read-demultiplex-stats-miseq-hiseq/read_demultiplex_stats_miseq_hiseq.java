@@ -510,9 +510,9 @@ public final class read_demultiplex_stats_miseq_hiseq
 
         public double Percentage_PfYield_RawYield = Double.NaN;
 
-        public double Percentage_PfYieldQ30_PfYield = Double.NaN;
+        public double Percentage_PfYieldQ30_PfYield = 0.0;
 
-        public double Fraction_PfQualityScoreSum_PfYield = Double.NaN;
+        public double Fraction_PfQualityScoreSum_PfYield = 0.0;
 
         public double Percentage_PfClusterCount_RawClusterCount = Double.NaN;
 
@@ -632,7 +632,7 @@ public final class read_demultiplex_stats_miseq_hiseq
             double z = x / y;
             if (z == Double.POSITIVE_INFINITY || z == Double.NEGATIVE_INFINITY || Double.isNaN(z))
             {
-                z = Double.NaN;
+                z = 0.0;
             } else
             {
                 z = 100 * z;
@@ -645,7 +645,7 @@ public final class read_demultiplex_stats_miseq_hiseq
             double z = x / y;
             if (z == Double.POSITIVE_INFINITY || z == Double.NEGATIVE_INFINITY || Double.isNaN(z))
             {
-                z = Double.NaN;
+                z = 0.0;
             }
             return z;
         }
