@@ -127,6 +127,7 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
     {
         ImageUtil.closeSession(Thread.currentThread().getName());
         ImageUtil.setThreadLocalSessionId(null);
+        super.close();
     }
 
     public JythonPlateDatasetFactory getFactory()

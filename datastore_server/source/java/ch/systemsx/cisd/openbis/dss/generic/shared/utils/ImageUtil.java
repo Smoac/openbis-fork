@@ -475,7 +475,7 @@ public class ImageUtil
 
     }
 
-    static class ReaderAndFileHandler
+    private static class ReaderAndFileHandler
     {
         private IImageReader imageReader;
 
@@ -512,11 +512,6 @@ public class ImageUtil
         {
             closeQuietly(handle);
             imageReader.close();
-        }
-
-        @Override
-        protected void finalize() throws Throwable
-        {
         }
 
         void setImageReader(IImageReader imageReader)
