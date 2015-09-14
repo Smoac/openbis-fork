@@ -26,6 +26,7 @@ import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.attachment.Attachment;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.attachment.AttachmentFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.experiment.ExperimentFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.entitytype.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentIdentifier;
@@ -49,7 +50,9 @@ public class SearchExperimentTest extends AbstractExperimentTest
         ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
         criterion.withPermId().thatEquals("200811050951882-1028");
         ExperimentFetchOptions fo = new ExperimentFetchOptions();
-        fo.withAttachments().withPreviousVersion().withContent();
+        AttachmentFetchOptions previousVersionAttachmentOptions = fo.withAttachments().withPreviousVersion();
+        previousVersionAttachmentOptions.withContent();
+        previousVersionAttachmentOptions.withRegistrator();
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         
         List<Experiment> experiments = searchExperiments(sessionToken, criterion, fo);
@@ -62,12 +65,21 @@ public class SearchExperimentTest extends AbstractExperimentTest
         Attachment attachment = attachments.get(0);
         assertEquals(attachment.getVersion(), new Integer(4));
         assertEquals(attachment.getFileName(), "exampleExperiments.txt");
+        assertEquals(attachment.getTitle(), "Latest version");
+        assertEquals(attachment.getDescription(), null);
         assertEquals(attachment.getFetchOptions().hasContent(), false);
+        assertEquals(attachment.getFetchOptions().hasRegistrator(), false);
         assertEquals(attachment.getFetchOptions().hasPreviousVersion(), true);
         Attachment previousVersion = attachment.getPreviousVersion();
         assertEquals(previousVersion.getVersion(), new Integer(3));
         assertEquals(previousVersion.getFileName(), "exampleExperiments.txt");
+        assertEquals(previousVersion.getTitle(), null);
+        assertEquals(previousVersion.getDescription(), "Second latest version");
+        assertEquals(previousVersion.getFetchOptions().hasRegistrator(), true);
+        assertEquals(previousVersion.getRegistrator().toString(), "Person test");
+        assertEquals(previousVersion.getRegistrationDate().toString(), "2008-12-10 13:49:20.23603");
         assertEquals(previousVersion.getFetchOptions().hasContent(), true);
+        assertEquals(previousVersion.getFetchOptions().hasPreviousVersion(), false);
         assertEquals(previousVersion.getContent().length, 227);
         assertEquals(attachments.size(), 1);
         assertEquals(experiments.size(), 1);

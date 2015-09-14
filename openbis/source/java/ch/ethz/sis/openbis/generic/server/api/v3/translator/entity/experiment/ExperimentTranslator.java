@@ -17,6 +17,7 @@
 package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.experiment;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -29,8 +30,9 @@ import org.springframework.stereotype.Component;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.AbstractCachingTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationResults;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.attachment.IAttachmentTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql.ObjectHolder;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.dataset.IDataSetTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.experiment.sql.IExperimentAttachmentSqlTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.experiment.sql.IExperimentHistorySqlTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.experiment.sql.IExperimentSampleSqlTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.material.IMaterialPropertyTranslator;
@@ -72,7 +74,7 @@ public class ExperimentTranslator extends AbstractCachingTranslator<ExperimentPE
     private IPersonTranslator personTranslator;
 
     @Autowired
-    private IAttachmentTranslator attachmentTranslator;
+    private IExperimentAttachmentSqlTranslator attachmentTranslator;
 
     @Autowired
     private IPropertyTranslator propertyTranslator;
@@ -199,8 +201,9 @@ public class ExperimentTranslator extends AbstractCachingTranslator<ExperimentPE
 
         if (fetchOptions.hasAttachments())
         {
-            List<Attachment> attachments = attachmentTranslator.translate(context, experiment, fetchOptions.withAttachments());
-            result.setAttachments(attachments);
+            Map<Long, ObjectHolder<Collection<Attachment>>> map = attachmentTranslator.translate(context, 
+                    Arrays.asList(experiment.getId()), fetchOptions.withAttachments());
+            result.setAttachments(new ArrayList<Attachment>(map.get(experiment.getId()).getObject()));
             result.getFetchOptions().withAttachmentsUsing(fetchOptions.withAttachments());
         }
 

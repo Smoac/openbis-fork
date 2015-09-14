@@ -41,7 +41,7 @@ public interface AttachmentQuery extends ObjectQuery
             parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<ObjectRelationRecord> getSampleAttachments(LongSet sampleIds);
     
-    @Select(sql = "select samp_id as objectId, id as relatedId from attachments where expe_id = any(?{1})", 
+    @Select(sql = "select expe_id as objectId, id as relatedId from attachments where expe_id = any(?{1})", 
             parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<ObjectRelationRecord> getExperimentAttachments(LongSet experimentIds);
     

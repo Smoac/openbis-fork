@@ -189,10 +189,8 @@ public class AttachmentSqlTranslator extends AbstractCachingTranslator<Long, Att
             Set<Entry<Long, Long>> entrySet = nextVersionIdByAttachmentId.entrySet();
             for (Entry<Long, Long> entry : entrySet)
             {
-                Long previousVersionId = entry.getKey();
-                Long id = entry.getValue();
-                Attachment version = attachments.get(id);
-                Attachment previousVersion = attachments.get(previousVersionId);
+                Attachment version = attachments.get(entry.getValue());
+                Attachment previousVersion = attachments.get(entry.getKey());
                 if (version != null && previousVersion != null)
                 {
                     version.setPreviousVersion(previousVersion);
@@ -214,7 +212,7 @@ public class AttachmentSqlTranslator extends AbstractCachingTranslator<Long, Att
                 {
                     nextVersionIdByAttachmentId.put(attachmentId, nextVersionId);
                 }
-                fetchOptionsByAttachmentId.put(attachmentId, fetchOptions);
+                fetchOptionsByAttachmentId.put(attachmentId, currentFetchOptions);
                 if (currentFetchOptions.hasRegistrator())
                 {
                     addRequestForRegistrator(attachmentId, currentFetchOptions.withRegistrator());
