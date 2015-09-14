@@ -16,12 +16,17 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.method;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import java.util.ArrayList;
+import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.common.ISearchObjectExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.project.ISearchProjectExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.ITranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.project.IProjectTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.project.sql.IProjectSqlTranslator;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.project.Project;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.project.ProjectFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ProjectSearchCriterion;
@@ -30,8 +35,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 /**
  * @author pkupczyk
  */
-// @Component
-public class SearchProjectMethodExecutor extends AbstractSearchMethodExecutor<Project, ProjectPE, ProjectSearchCriterion, ProjectFetchOptions>
+@Component
+public class SearchProjectSqlMethodExecutor extends AbstractSearchMethodExecutor<Project, Long, ProjectSearchCriterion, ProjectFetchOptions>
         implements ISearchProjectMethodExecutor
 {
 
@@ -39,16 +44,31 @@ public class SearchProjectMethodExecutor extends AbstractSearchMethodExecutor<Pr
     private ISearchProjectExecutor searchExecutor;
 
     @Autowired
-    private IProjectTranslator translator;
+    private IProjectSqlTranslator translator;
 
     @Override
-    protected ISearchObjectExecutor<ProjectSearchCriterion, ProjectPE> getSearchExecutor()
+    protected ISearchObjectExecutor<ProjectSearchCriterion, Long> getSearchExecutor()
     {
-        return searchExecutor;
+        return new ISearchObjectExecutor<ProjectSearchCriterion, Long>()
+            {
+                @Override
+                public List<Long> search(IOperationContext context, ProjectSearchCriterion criterion)
+                {
+                    List<ProjectPE> projects = searchExecutor.search(context, criterion);
+                    List<Long> ids = new ArrayList<Long>();
+
+                    for (ProjectPE project : projects)
+                    {
+                        ids.add(project.getId());
+                    }
+
+                    return ids;
+                }
+            };
     }
 
     @Override
-    protected ITranslator<ProjectPE, Project, ProjectFetchOptions> getTranslator()
+    protected ITranslator<Long, Project, ProjectFetchOptions> getTranslator()
     {
         return translator;
     }

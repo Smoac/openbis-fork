@@ -23,6 +23,7 @@ import java.util.List;
 import net.lemnik.eodsql.Select;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql.ObjectQuery;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql.ObjectRelationRecord;
 import ch.systemsx.cisd.common.db.mapper.LongSetMapper;
 
 /**
@@ -30,6 +31,31 @@ import ch.systemsx.cisd.common.db.mapper.LongSetMapper;
  */
 public interface ProjectQuery extends ObjectQuery
 {
+
+    @Select(sql = "select p.id, p.code, sp.code as spaceCode "
+            + "from projects p join spaces sp on p.space_id = sp.id "
+            + "where p.id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    public List<ProjectAuthorizationRecord> getAuthorizations(LongSet longSet);
+
+    @Select(sql = "select p.id, p.code, p.perm_id as permId, sp.code as spaceCode, p.description, p.registration_timestamp as registrationDate, p.modification_timestamp as modificationDate "
+            + "from projects p left outer join spaces sp on p.space_id = sp.id "
+            + "where p.id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    public List<ProjectBaseRecord> getProjects(LongSet projectIds);
+
+    @Select(sql = "select p.id as objectId, p.space_id as relatedId from projects p where p.id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    public List<ObjectRelationRecord> getSpaceIds(LongSet projectIds);
+
+    @Select(sql = "select e.proj_id as objectId, e.id as relatedId from experiments e where e.proj_id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    public List<ObjectRelationRecord> getExperimentIds(LongSet projectIds);
+
+    @Select(sql = "select p.id as objectId, p.pers_id_registerer as relatedId from projects p where p.id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    public List<ObjectRelationRecord> getRegistratorIds(LongSet projectIds);
+
+    @Select(sql = "select p.id as objectId, p.pers_id_modifier as relatedId from projects p where p.id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    public List<ObjectRelationRecord> getModifierIds(LongSet projectIds);
+
+    @Select(sql = "select p.id as objectId, p.pers_id_leader as relatedId from projects p where p.id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    public List<ObjectRelationRecord> getLeaderIds(LongSet projectIds);
 
     @Select(sql = "select prh.main_proj_id as entityId, prh.pers_id_author as authorId, prh.relation_type as relationType, "
             + "prh.entity_perm_id as relatedObjectId, prh.valid_from_timestamp as validFrom, prh.valid_until_timestamp as validTo, "

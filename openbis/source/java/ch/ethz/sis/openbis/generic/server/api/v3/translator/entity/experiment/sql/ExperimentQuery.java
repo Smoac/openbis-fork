@@ -33,6 +33,12 @@ import ch.systemsx.cisd.common.db.mapper.LongSetMapper;
 public interface ExperimentQuery extends ObjectQuery
 {
 
+    @Select(sql = "select e.id, e.code, e.perm_id as permId, p.code as projectCode, sp.code as spaceCode, e.registration_timestamp as registrationDate, e.modification_timestamp as modificationDate "
+            + "from experiments e join projects p on e.proj_id = p.id "
+            + "join spaces sp on p.space_id = sp.id "
+            + "where e.id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    public List<ExperimentBaseRecord> getExperiments(LongSet experimentIds);
+
     @Select(sql = "select eph.expe_id as entityId, eph.pers_id_author as authorId, pt.code as propertyCode, eph.value as propertyValue, eph.material as materialPropertyValue, eph.vocabulary_term as vocabularyPropertyValue, eph.valid_from_timestamp as validFrom, eph.valid_until_timestamp as validTo "
             + "from experiment_properties_history eph "
             + "left join experiment_type_property_types etpt on eph.etpt_id = etpt.id "

@@ -38,6 +38,11 @@ public class ProjectIdentifier extends ObjectIdentifier implements IProjectId
         super(identifier);
     }
 
+    public ProjectIdentifier(String spaceCode, String projectCode)
+    {
+        this("/" + spaceCode + "/" + projectCode);
+    }
+
     //
     // JSON-RPC
     //

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ETH Zuerich, SIS
+ * Copyright 2015 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,28 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.sample.sql;
+package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.experiment.sql;
 
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.attachment.sql.IEntityAttachmentSqlTranslator;
+import java.util.Date;
+
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql.ObjectBaseRecord;
 
 /**
- * @author Franz-Josef Elmer
+ * @author pkupczyk
  */
-public interface ISampleAttachmentSqlTranslator extends IEntityAttachmentSqlTranslator
+public class ExperimentBaseRecord extends ObjectBaseRecord
 {
+
+    public String permId;
+
+    public String code;
+
+    public String projectCode;
+
+    public String spaceCode;
+
+    public Date registrationDate;
+
+    public Date modificationDate;
 
 }

@@ -38,6 +38,11 @@ public class ExperimentIdentifier extends ObjectIdentifier implements IExperimen
         super(identifier);
     }
 
+    public ExperimentIdentifier(String spaceCode, String projectCode, String experimentCode)
+    {
+        this("/" + spaceCode + "/" + projectCode + "/" + experimentCode);
+    }
+
     //
     // JSON-RPC
     //

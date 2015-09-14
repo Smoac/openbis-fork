@@ -201,7 +201,7 @@ public class ExperimentTranslator extends AbstractCachingTranslator<ExperimentPE
 
         if (fetchOptions.hasAttachments())
         {
-            Map<Long, ObjectHolder<Collection<Attachment>>> map = attachmentTranslator.translate(context, 
+            Map<Long, ObjectHolder<Collection<Attachment>>> map = attachmentTranslator.translate(context,
                     Arrays.asList(experiment.getId()), fetchOptions.withAttachments());
             result.setAttachments(new ArrayList<Attachment>(map.get(experiment.getId()).getObject()));
             result.getFetchOptions().withAttachmentsUsing(fetchOptions.withAttachments());

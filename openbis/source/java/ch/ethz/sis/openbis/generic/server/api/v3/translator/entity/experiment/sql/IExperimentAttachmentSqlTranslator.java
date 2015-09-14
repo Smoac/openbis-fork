@@ -16,14 +16,12 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.experiment.sql;
 
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql.IObjectToManyRelationTranslator;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.attachment.Attachment;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.attachment.AttachmentFetchOptions;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.attachment.sql.IEntityAttachmentSqlTranslator;
 
 /**
  * @author Franz-Josef Elmer
  */
-public interface IExperimentAttachmentSqlTranslator extends IObjectToManyRelationTranslator<Attachment, AttachmentFetchOptions>
+public interface IExperimentAttachmentSqlTranslator extends IEntityAttachmentSqlTranslator
 {
 
 }

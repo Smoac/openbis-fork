@@ -16,6 +16,7 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.experiment.sql;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -24,7 +25,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql.ObjectToOneRelationTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql.ObjectToManyRelationTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.experiment.IExperimentTranslator;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.experiment.ExperimentFetchOptions;
@@ -34,8 +35,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 /**
  * @author pkupczyk
  */
-public abstract class ObjectToExperimentSqlTranslator extends ObjectToOneRelationTranslator<Experiment, ExperimentFetchOptions> implements
-        IObjectToExperimentSqlTranslator
+public abstract class ObjectToExperimentsSqlTranslator extends ObjectToManyRelationTranslator<Experiment, ExperimentFetchOptions> implements
+        IObjectToExperimentsSqlTranslator
 {
 
     @Autowired
@@ -58,6 +59,12 @@ public abstract class ObjectToExperimentSqlTranslator extends ObjectToOneRelatio
             result.put(entry.getKey().getId(), entry.getValue());
         }
         return result;
+    }
+
+    @Override
+    protected Collection<Experiment> createCollection()
+    {
+        return new ArrayList<Experiment>();
     }
 
 }
