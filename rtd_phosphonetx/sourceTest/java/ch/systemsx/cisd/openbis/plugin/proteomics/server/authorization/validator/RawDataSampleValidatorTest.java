@@ -23,7 +23,6 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
@@ -41,11 +40,11 @@ public class RawDataSampleValidatorTest extends AssertJUnit
 {
     private static final MsInjectionSample NO_PARENT = create("no-parent", null);
 
-    private static final MsInjectionSample WITH_INSTANCE_PARENT = create("with-instance-parent", "t:/parent");
+    private static final MsInjectionSample WITH_INSTANCE_PARENT = create("with-instance-parent", "/parent");
 
-    private static final MsInjectionSample WITH_PARENT_IN_G1 = create("with-parent-in-g1", "t:/g1/parent");
+    private static final MsInjectionSample WITH_PARENT_IN_G1 = create("with-parent-in-g1", "/g1/parent");
 
-    private static final MsInjectionSample WITH_PARENT_IN_G2 = create("with-parent-in-g2", "t:/g2/parent");
+    private static final MsInjectionSample WITH_PARENT_IN_G2 = create("with-parent-in-g2", "/g2/parent");
 
     private RawDataSampleValidator validator = new RawDataSampleValidator();
 
@@ -72,14 +71,6 @@ public class RawDataSampleValidatorTest extends AssertJUnit
         return new MsInjectionSample(sample, Arrays.<AbstractExternalData> asList());
     }
 
-    private static DatabaseInstance createDatabaseInstance(String code)
-    {
-        DatabaseInstance databaseInstance = new DatabaseInstance();
-        databaseInstance.setCode(code);
-        databaseInstance.setUuid(code);
-        return databaseInstance;
-    }
-
     @Test
     public void testUserWithNoRights()
     {
@@ -94,7 +85,7 @@ public class RawDataSampleValidatorTest extends AssertJUnit
     @Test
     public void testUserWithRightsForGroupG1()
     {
-        PersonPE person = createPersonWithRoles(createRole("G1", "T"));
+        PersonPE person = createPersonWithRoles(createRole("G1"));
 
         assertEquals(false, validator.isValid(person, NO_PARENT));
         assertEquals(true, validator.isValid(person, WITH_INSTANCE_PARENT));
@@ -105,7 +96,7 @@ public class RawDataSampleValidatorTest extends AssertJUnit
     @Test
     public void testUserWithRightsForGroupG1AndG2()
     {
-        PersonPE person = createPersonWithRoles(createRole("G1", "T"), createRole("G2", "T"));
+        PersonPE person = createPersonWithRoles(createRole("G1"), createRole("G2"));
 
         assertEquals(false, validator.isValid(person, NO_PARENT));
         assertEquals(true, validator.isValid(person, WITH_INSTANCE_PARENT));
@@ -116,7 +107,7 @@ public class RawDataSampleValidatorTest extends AssertJUnit
     @Test
     public void testUserWithRightsForForInstanceT()
     {
-        PersonPE person = createPersonWithRoles(createRole(null, "T"));
+        PersonPE person = createPersonWithRoles(createRole(null));
 
         assertEquals(false, validator.isValid(person, NO_PARENT));
         assertEquals(true, validator.isValid(person, WITH_INSTANCE_PARENT));
@@ -131,12 +122,10 @@ public class RawDataSampleValidatorTest extends AssertJUnit
         return person;
     }
 
-    private RoleAssignmentPE createRole(String groupCodeOrNull, String dataBaseInstanceUUID)
+    private RoleAssignmentPE createRole(String groupCodeOrNull)
     {
         RoleAssignmentPE role = new RoleAssignmentPE();
-        if (groupCodeOrNull == null)
-        {
-        } else
+        if (groupCodeOrNull != null)
         {
             SpacePE group = new SpacePE();
             group.setCode(groupCodeOrNull);
