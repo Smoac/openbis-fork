@@ -141,8 +141,7 @@ public class MLArchiverTask extends AbstractArchiverProcessingPlugin
         Sample sample;
         // NOTE: we assume that it is not a shared sample
         SampleIdentifier sampleIdentifier =
-                new SampleIdentifier(new SpaceIdentifier(dataset.getDatabaseInstanceCode(), dataset
-                        .getSpaceCode()), dataset.getSampleCode());
+                new SampleIdentifier(new SpaceIdentifier(dataset.getSpaceCode()), dataset.getSampleCode());
         sample = ServiceProvider.getOpenBISService().tryGetSampleWithExperiment(sampleIdentifier);
         return sample;
     }
@@ -154,7 +153,7 @@ public class MLArchiverTask extends AbstractArchiverProcessingPlugin
             return sample.getExperiment();
         }
         ExperimentIdentifier experimentIdentifier =
-                new ExperimentIdentifier(dataset.getDatabaseInstanceCode(), dataset.getSpaceCode(),
+                new ExperimentIdentifier(dataset.getSpaceCode(),
                         dataset.getProjectCode(), dataset.getExperimentCode());
         Experiment experiment =
                 ServiceProvider.getOpenBISService().tryGetExperiment(experimentIdentifier);
@@ -223,7 +222,7 @@ public class MLArchiverTask extends AbstractArchiverProcessingPlugin
         // data is always present, since there is no archive
         return BooleanStatus.createTrue();
     }
-    
+
     @Override
     protected void removeFromDataStore(List<DatasetDescription> datasets,
             ArchiverTaskContext context)

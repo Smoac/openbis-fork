@@ -40,18 +40,16 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 class DatasetMappingResolver
 {
     /**
-     * The property type code for property which is supposed to have a unique value for all samples
-     * in one experiment. It let's to identify the sample which should be attached to a dataset.
+     * The property type code for property which is supposed to have a unique value for all samples in one experiment. It let's to identify the sample
+     * which should be attached to a dataset.
      * <p>
-     * If property type code is not specified, only the sample code can be used to identify the
-     * sample.
+     * If property type code is not specified, only the sample code can be used to identify the sample.
      * </p>
      */
     private final static String UNIQUE_SAMPLE_NAME_PROPERTY = "unique-sample-name-property-code";
 
     /**
-     * The property type code for property which is supposed to have a unique value for all
-     * experiments in one project.
+     * The property type code for property which is supposed to have a unique value for all experiments in one project.
      */
     private final static String UNIQUE_EXPERIMENT_NAME_PROPERTY =
             "unique-experiment-name-property-code";
@@ -292,8 +290,7 @@ class DatasetMappingResolver
     }
 
     /**
-     * NOTE: we do not support experiment names if the dataset has to be connected to the experiment
-     * directly.
+     * NOTE: we do not support experiment names if the dataset has to be connected to the experiment directly.
      */
     public static ExperimentIdentifier tryFigureExperimentIdentifier(
             DataSetMappingInformation mapping)
@@ -302,7 +299,7 @@ class DatasetMappingResolver
         String experimentCode = mapping.getExperimentName();
         if (project != null && experimentCode != null)
         {
-            return new ExperimentIdentifier(null, mapping.getSpaceOrGroupCode(), project,
+            return new ExperimentIdentifier(mapping.getSpaceOrGroupCode(), project,
                     experimentCode);
         } else
         {
@@ -376,8 +373,7 @@ class DatasetMappingResolver
     private SampleIdentifier createSampleIdentifier(String sampleCode,
             DataSetMappingInformation mapping)
     {
-        return new SampleIdentifier(new SpaceIdentifier((String) null, mapping
-                .getSpaceOrGroupCode()), sampleCode);
+        return new SampleIdentifier(new SpaceIdentifier(mapping.getSpaceOrGroupCode()), sampleCode);
     }
 
     private boolean isExperimentColumnCorrect(DataSetMappingInformation mapping, LogUtils log)
