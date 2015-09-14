@@ -25,46 +25,29 @@ limitations under the License.
        - read_demultiplex_stats$Statistics.class
  */
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 //##########################################################
 
 public final class read_demultiplex_stats
 {
 
-    public static ArrayList<Statistics> importXmlAndCalculateStatistics(String XMLFile) throws Exception {
+    public List<Statistics> importXMLdata_and_calculateStatistics(String XMLfile)
+    {
 
-        ArrayList<Statistics> stats = executeImportXmlAndCalculateStatistics(XMLFile);
-        HashMap<Integer, ArrayList<Statistics>> groupedList = groupByLane(stats);
-
-        for (Statistics s : stats)
-            s.adaptStatisticsWithRespectToAllSamples(stats, groupedList);
-        return stats;
-    }
-
-    /**
-     *
-     * Streams through a given XML file, parses the data and writes it into a Statistics object
-     *
-     * @param XMLfile: ConversionStats.xml
-     * @return a ArrayList of <Statistics>
-     */
-    private static  ArrayList<Statistics> executeImportXmlAndCalculateStatistics(String XMLfile) throws Exception {
-        ArrayList<Statistics> sampleStatisticsList = new ArrayList<>();
+        ArrayList<Statistics> samplestatisticslist = new ArrayList<Statistics>();
 
         /*Parse corresponding XML file, put all values into a memory structure, calculate statistics overall samples.
-          Output: sampleStatisticsList (list of Sample-Statistics-Objects)
+          Output: samplestatisticslist (list of Sample-Statistics-Objects)
           Input:  XMLfile having structure of file ConversionStats.xml (Example of 1.10.2014):
                   <?xml version="1.0" encoding="utf-8"?>                             => Assumptions about XML structure:
                   <Stats>                                                            => Element is singlechild
@@ -103,77 +86,70 @@ public final class read_demultiplex_stats
                               </Tile>
                               <Tile number="11102">
                               [...]
-
-                      </Project>
-                      <Lane number="2">
-                        <TopUnknownBarcodes>
-                          <Barcode count="150988002" sequence="NNNNNNN"/>
-                          <Barcode count="167095" sequence="CCCCCCC"/>
-                          <Barcode count="57859" sequence="CCCGTCC"/>
-                          <Barcode count="49993" sequence="CCGATGT"/>
-                          <Barcode count="42981" sequence="GTCCCGC"/>
-                          <Barcode count="40446" sequence="TAAAATT"/>
-                          <Barcode count="39962" sequence="CCAGATC"/>
-                          <Barcode count="34688" sequence="GATGTAT"/>
-                          <Barcode count="32013" sequence="AAAAAGT"/>
-                          <Barcode count="30501" sequence="AGATCAT"/>
-                        </TopUnknownBarcodes>
-                      </Lane>
-                      [...]
         */
 
-//        Map<Integer, Map<String, Integer>> barcodesPerLane = null;
+        try
+        {
 
-        try {
-            String errorMessage;
-            int event;
-            int skip;
-            String flowcellName = "";
-            String projectName = "";
-            String sampleName = "";
-            String barcodeName = "";
-            int laneNumber = 0;
-            int tileNumber;
-            Sample currentSample = null;
-            Statistics statistics;
-            SampleItem rawItem;
-            SampleItem pfItem;
-            Map<String, Integer> barcodesMap = new HashMap<>();
-            Map<Integer, Map<String, Integer>> barcodesPerLane = new HashMap<>();
+            // temporary variables (frequently changing during XML-read-in):
+            String errormessage = "";
+            int event = 0;
+            int skip = 0;
+            String curflowcellname = "";
+            String curprojectname = "";
+            String cursamplename = "";
+            String curbarcodename = "";
+            double curlanenumber = Double.NaN; // obvious double, but could be turned into int
+            double curtilenumber = Double.NaN; // obvious double, but could be turned into int
+            Sample cursample = null;
+            Statistics curstatistics = null;
+            SampleItem currawitem = null;
+            SampleItem curpfitem = null;
 
-                    InputStream xmlFile = new FileInputStream(XMLfile);
-            XMLInputFactory xmlFactory = XMLInputFactory.newInstance();
-            XMLStreamReader xmlParser = xmlFactory.createXMLStreamReader(xmlFile);
+            InputStream xmlfile = new FileInputStream(XMLfile);
+            XMLInputFactory xmlfactory = XMLInputFactory.newInstance();
+            XMLStreamReader xmlparser = xmlfactory.createXMLStreamReader(xmlfile);
 
             // Start-Tag "Stats":
-            event = xmlParser.nextTag(); // Assumption: just white space or comments are aside explicit start-tag
-            if (event != XMLStreamConstants.START_ELEMENT || !xmlParser.getLocalName().equals("Stats")) {
-                errorMessage =
-                        "STRANGE ERROR IN METHOD importXmlAndCalculateStatistics WHEN READING IN XMLFILE. => CHECK CODE AND XMLFILE-STRUCTURE! Got " + event;
-                throw new Exception(errorMessage);
+            event = xmlparser.nextTag(); // Assumption: just white space or comments are aside explicit start-tag
+            if (event != XMLStreamConstants.START_ELEMENT || !xmlparser.getLocalName().equals("Stats"))
+            {
+                errormessage =
+                        "STRANGE ERROR IN METHOD importXMLdata_and_calculateStatistics WHEN READING IN XMLFILE. => CHECK CODE AND XMLFILE-STRUCTURE! Got " + event;
+                throw new Exception(errormessage);
             }
+            //System.out.println("\nStart-Element with tag " + xmlparser.getLocalName() + " with " + xmlparser.getAttributeCount() + " attributes with first attribute: " + xmlparser.getAttributeLocalName(0) +" = " + xmlparser.getAttributeValue(0));
 
             // Loop over potential Tags "Flowcell":
-            event = xmlParser.nextTag(); // Assumption: just white spaces or comments are aside start- or end-tag
+            event = xmlparser.nextTag(); // Assumption: just white spaces or comments are aside start- or end-tag
             //            List<Statistics> samplestatistics = new ArrayList<Statistics>();
             boolean doimport = true;
-            while (doimport) {
+            while (doimport)
+            {
                 // concerning tag Flowcell:
-                if (event == XMLStreamConstants.START_ELEMENT && xmlParser.getLocalName().equals("Flowcell")) {
-                    flowcellName = xmlParser.getAttributeValue(0);
-                    event = xmlParser.nextTag();
-                } else if (event == XMLStreamConstants.END_ELEMENT && xmlParser.getLocalName().equals("Flowcell")) {
-                    flowcellName = "";
-                    event = xmlParser.nextTag();
+                if (event == XMLStreamConstants.START_ELEMENT && xmlparser.getLocalName().equals("Flowcell"))
+                {
+                    //System.out.println("\nStart-Element with tag " + xmlparser.getLocalName() + " with " + xmlparser.getAttributeCount() + " attributes with first attribute: " + xmlparser.getAttributeLocalName(0) +" = " + xmlparser.getAttributeValue(0));
+                    curflowcellname = xmlparser.getAttributeValue(0); // Assumption: Flowcell-attribute flowcell-id is just string
+                    event = xmlparser.nextTag();
+                } else if (event == XMLStreamConstants.END_ELEMENT && xmlparser.getLocalName().equals("Flowcell"))
+                {
+                    curflowcellname = "";
+                    event = xmlparser.nextTag();
 
                     // concerning tag Project:
-                } else if (event == XMLStreamConstants.START_ELEMENT && xmlParser.getLocalName().equals("Project")) {
-                    if (xmlParser.getAttributeValue(0).equals("all")) {
-                        //skip the current XML element and all of its following subelements:
+                } else if (event == XMLStreamConstants.START_ELEMENT && xmlparser.getLocalName().equals("Project"))
+                {
+                    //System.out.println("\nStart-Element with tag " + xmlparser.getLocalName() + " with " + xmlparser.getAttributeCount() + " attributes with first attribute: " + xmlparser.getAttributeLocalName(0) +" = " + xmlparser.getAttributeValue(0));
+                    if (xmlparser.getAttributeValue(0).equals("all"))
+                    {
+                        // skip the current XML element and all of its following subelements:
                         skip = 1;
-                        while (skip > 0) {
-                            event = xmlParser.next();
-                            switch (event) {
+                        while (skip > 0)
+                        {
+                            event = xmlparser.next();
+                            switch (event)
+                            {
                                 case XMLStreamConstants.END_ELEMENT:
                                     skip -= 1;
                                     break;
@@ -185,239 +161,217 @@ public final class read_demultiplex_stats
                                     break;
                             }
                         }
-                    } else {
-                    projectName = xmlParser.getAttributeValue(0);
-
+                    } else
+                    {
+                        curprojectname = xmlparser.getAttributeValue(0); // Assumption: Project-attribute name is just string
                     }
-                    event = xmlParser.nextTag();
-                } else if (event == XMLStreamConstants.END_ELEMENT && xmlParser.getLocalName().equals("Project")) {
-                    projectName = "";
-                    event = xmlParser.nextTag();
+                    event = xmlparser.nextTag();
+                } else if (event == XMLStreamConstants.END_ELEMENT && xmlparser.getLocalName().equals("Project"))
+                {
+                    curprojectname = "";
+                    event = xmlparser.nextTag();
 
                     // concerning tag Sample:
-                } else if (event == XMLStreamConstants.START_ELEMENT && xmlParser.getLocalName().equals("Sample")) {
-                    if (xmlParser.getAttributeValue(0).equals("all")) {
+                } else if (event == XMLStreamConstants.START_ELEMENT && xmlparser.getLocalName().equals("Sample"))
+                {
+                    //System.out.println("\nStart-Element with tag " + xmlparser.getLocalName() + " with " + xmlparser.getAttributeCount() + " attributes with first attribute: " + xmlparser.getAttributeLocalName(0) +" = " + xmlparser.getAttributeValue(0));
+                    if (xmlparser.getAttributeValue(0).equals("all"))
+                    {
                         // skip the current XML element and all of its following subelements:
                         skip = 1;
-                        while (skip > 0) {
-                            event = xmlParser.next();
-                            switch (event) {
+                        while (skip > 0)
+                        {
+                            event = xmlparser.next();
+                            switch (event)
+                            {
                                 case XMLStreamConstants.END_ELEMENT:
                                     skip -= 1;
-                                    break;
+                                    break; // break-command after each case is necessary in switch-statement
                                 case XMLStreamConstants.START_ELEMENT:
                                     skip += 1;
-                                    break;
+                                    break; // break-command after each case is necessary in switch-statement
                                 default:
                                     skip += 0; // text elements, spaces, ...
-                                    break;
+                                    break; // break-command after each case is necessary in switch-statement
                             }
                         }
-                    } else {
-                        sampleName = xmlParser.getAttributeValue(0);
+                    } else
+                    {
+                        cursamplename = xmlparser.getAttributeValue(0); // Assumption: Sample-attribute name is just string
                     }
-                    event = xmlParser.nextTag();
-                } else if (event == XMLStreamConstants.END_ELEMENT && xmlParser.getLocalName().equals("Sample")) {
-                    sampleName = "";
-                    event = xmlParser.nextTag();
+                    event = xmlparser.nextTag();
+                } else if (event == XMLStreamConstants.END_ELEMENT && xmlparser.getLocalName().equals("Sample"))
+                {
+                    cursamplename = "";
+                    event = xmlparser.nextTag();
 
                     // concerning tag Barcode (which is as well the start/end of Project-/Sample-Entry):
-                } else if (event == XMLStreamConstants.START_ELEMENT && xmlParser.getLocalName().equals("Barcode")) {
-                    if (xmlParser.getAttributeValue(0).equals("all")) {
+                } else if (event == XMLStreamConstants.START_ELEMENT && xmlparser.getLocalName().equals("Barcode"))
+                {
+                    //System.out.println("\nStart-Element with tag " + xmlparser.getLocalName() + " with " + xmlparser.getAttributeCount() + " attributes with first attribute: " + xmlparser.getAttributeLocalName(0) +" = " + xmlparser.getAttributeValue(0));
+                    if (xmlparser.getAttributeValue(0).equals("all"))
+                    {
                         // skip the current XML element and all of its following subelements:
                         skip = 1;
-                        while (skip > 0) {
-                            event = xmlParser.next();
-                            switch (event) {
+                        while (skip > 0)
+                        {
+                            event = xmlparser.next();
+                            switch (event)
+                            {
                                 case XMLStreamConstants.END_ELEMENT:
                                     skip -= 1;
-                                    break;
+                                    break; // break-command after each case is necessary in switch-statement
                                 case XMLStreamConstants.START_ELEMENT:
                                     skip += 1;
-                                    break;
+                                    break; // break-command after each case is necessary in switch-statement
                                 default:
                                     skip += 0; // text elements, spaces, ...
-                                    break;
+                                    break; // break-command after each case is necessary in switch-statement
                             }
                         }
-                    } else {
-                        barcodeName = xmlParser.getAttributeValue(0);
+                    } else
+                    {
+                        curbarcodename = xmlparser.getAttributeValue(0); // Assumption: Barcode-attribute name is just string
+                        cursample = new Sample();
+                        cursample.Flowcell = curflowcellname;
+                        cursample.Project = curprojectname;
+                        cursample.Sample = cursamplename;
+                        cursample.Barcode = curbarcodename;
                     }
-                    event = xmlParser.nextTag();
-                } else if (event == XMLStreamConstants.END_ELEMENT && xmlParser.getLocalName().equals("Barcode")) {
-                    barcodeName = "";
-                    event = xmlParser.nextTag();
-
+                    event = xmlparser.nextTag();
+                } else if (event == XMLStreamConstants.END_ELEMENT && xmlparser.getLocalName().equals("Barcode"))
+                {
+                    // Statistics 1st step: calculate individual statistics per sample:
+                    curstatistics = new Statistics(cursample);
+                    samplestatisticslist.add(curstatistics);
+                    cursample = null;
+                    curstatistics = null;
+                    curbarcodename = "";
+                    event = xmlparser.nextTag();
 
                     // concerning Lane:
-                } else if (event == XMLStreamConstants.START_ELEMENT && xmlParser.getLocalName().equals("Lane")) {
-//                    System.out.println("\nStart-Element with tag " + xmlparser.getLocalName() + " with " + xmlparser.getAttributeCount() + " attributes with first attribute: " + xmlparser.getAttributeLocalName(0) +" = " + xmlparser.getAttributeValue(0));
-                    laneNumber = Integer.parseInt(xmlParser.getAttributeValue(0));
-
-                    // Now we have everything we need, we put it into a Sample
-                    currentSample = new Sample();
-
-                    if (sampleName.startsWith("Undetermined")) {
-                        currentSample.Sample = sampleName + "_" + flowcellName + "_" + laneNumber;
-                    } else {
-                        currentSample.Sample = sampleName;
-                    }
-
-                    currentSample.Flowcell = flowcellName;
-                    currentSample.Lane = laneNumber;
-                    currentSample.Project = projectName;
-                    currentSample.Barcode = barcodeName;
-                    event = xmlParser.nextTag();
-//                    System.out.println(currentSample.Sample);
-
-
-                } else if (event == XMLStreamConstants.END_ELEMENT && xmlParser.getLocalName().equals("Lane")) {
-                    // Statistics 1st step: calculate individual statistics per sample:
-                    statistics = new Statistics(currentSample);
-                    if (!currentSample.Project.equals("")) {
-                        sampleStatisticsList.add(statistics);
-                    }
-                    currentSample = null;
-                    statistics = null;
-
-//                    laneNumber = Double.NaN;
-                    event = xmlParser.nextTag();
+                } else if (event == XMLStreamConstants.START_ELEMENT && xmlparser.getLocalName().equals("Lane"))
+                {
+                    //System.out.println("\nStart-Element with tag " + xmlparser.getLocalName() + " with " + xmlparser.getAttributeCount() + " attributes with first attribute: " + xmlparser.getAttributeLocalName(0) +" = " + xmlparser.getAttributeValue(0));
+                    curlanenumber = Double.parseDouble(xmlparser.getAttributeValue(0)); // Assumption:Lane-attribute number is always numeric
+                    event = xmlparser.nextTag();
+                } else if (event == XMLStreamConstants.END_ELEMENT && xmlparser.getLocalName().equals("Lane"))
+                {
+                    curlanenumber = Double.NaN;
+                    event = xmlparser.nextTag();
 
                     // concerning Tile with all its sub-elements:
-                } else if (event == XMLStreamConstants.START_ELEMENT && xmlParser.getLocalName().equals("Tile")) {
-                    tileNumber = Integer.parseInt(xmlParser.getAttributeValue(0));
+                } else if (event == XMLStreamConstants.START_ELEMENT && xmlparser.getLocalName().equals("Tile"))
+                {
+                    //System.out.println("\nStart-Element with tag " + xmlparser.getLocalName() + " with " + xmlparser.getAttributeCount() + " attributes with first attribute: " + xmlparser.getAttributeLocalName(0) +" = " + xmlparser.getAttributeValue(0));
+                    curtilenumber = Double.parseDouble(xmlparser.getAttributeValue(0)); // Assumption: Tile-attribute number is always numeric
                     // concerning Raw with Assumption: Raw-element is singlechild:
-                    xmlParser.nextTag();
-                    rawItem = new SampleItem();
-                    rawItem.Type = "Raw";
-                    rawItem.Lane = laneNumber;
-                    rawItem.Tile = tileNumber;
-                    xmlParser.nextTag();
-                    rawItem.ClusterCount = Integer.parseInt(xmlParser.getElementText()); // Assumption: ClusterCount-element is numeric singlechild
-                    //System.out.println("\nValue: ClusterCount=" + rawItem.ClusterCount);
-                    xmlParser.nextTag();
-                    while (event == XMLStreamConstants.START_ELEMENT && xmlParser.getLocalName().equals("Read")) {
-                        //System.out.println("\nStart-Element with tag " + xmlparser.getLocalName() + " with " + xmlparser.getAttributeCount() + " attributes with first attribute: " + xmlparser.getAttributeLocalName(0) +" = " + xmlparser.getAttributeValue(0));
-                        xmlParser.nextTag();
-                        rawItem.YieldList.add(Double.parseDouble(xmlParser.getElementText()));
-                        xmlParser.nextTag();
-                        rawItem.YieldQ30List.add(Double.parseDouble(xmlParser.getElementText()));
-                        xmlParser.nextTag();
-                        rawItem.QualityScoreSumList.add(Double.parseDouble(xmlParser.getElementText()));
-                        xmlParser.nextTag();
-                        xmlParser.nextTag();
-                        //System.out.println("Values in Read: Yield=" + rawItem.YieldList.get(rawItem.YieldList.size()-1) + ", YieldQ30=" + rawItem.YieldQ30List.get(rawItem.YieldQ30List.size()-1) + ", QualityScoreSum=" + rawItem.QualityScoreSumList.get(rawItem.QualityScoreSumList.size()-1));
-                    }
-                    //System.out.println("\nRaw-SampleItem  " + rawItem);
-                    currentSample.RawList.add(rawItem);
-
-
-                    rawItem = null;
-                    // concerning Pf with Assumption that entire Pf-element is structured same as Raw:
-                    xmlParser.nextTag();
+                    xmlparser.nextTag();
                     //System.out.println("\nStart-Element with tag " + xmlparser.getLocalName());
-                    pfItem = new SampleItem();
-                    pfItem.Type = "Pf";
-                    pfItem.Lane = laneNumber;
-                    pfItem.Tile = tileNumber;
-                    xmlParser.nextTag();
-                    pfItem.ClusterCount = Integer.parseInt(xmlParser.getElementText());
-                    //System.out.println("\nValue: ClusterCount=" + pfItem.ClusterCount);
-                    xmlParser.nextTag();
-                    while (event == XMLStreamConstants.START_ELEMENT && xmlParser.getLocalName().equals("Read")) {
+                    currawitem = new SampleItem();
+                    currawitem.Type = "Raw";
+                    currawitem.Lane = curlanenumber;
+                    currawitem.Tile = curtilenumber;
+                    xmlparser.nextTag();
+                    currawitem.ClusterCount = Double.parseDouble(xmlparser.getElementText()); // Assumption: ClusterCount-element is numeric singlechild
+                    //System.out.println("\nValue: ClusterCount=" + currawitem.ClusterCount);
+                    xmlparser.nextTag();
+                    while (event == XMLStreamConstants.START_ELEMENT && xmlparser.getLocalName().equals("Read"))
+                    { // Assumption: at least or more than 1 Read-element
+                      //System.out.println("\nStart-Element with tag " + xmlparser.getLocalName() + " with " + xmlparser.getAttributeCount() + " attributes with first attribute: " + xmlparser.getAttributeLocalName(0) +" = " + xmlparser.getAttributeValue(0));
+                        xmlparser.nextTag();
+                        currawitem.YieldList.add(Double.parseDouble(xmlparser.getElementText())); // Assumption: Yield-element is numeric singlechild
+                        xmlparser.nextTag();
+                        currawitem.YieldQ30List.add(Double.parseDouble(xmlparser.getElementText())); // Assumption: YieldQ30List-element is numeric singlechild
+                        xmlparser.nextTag();
+                        currawitem.QualityScoreSumList.add(Double.parseDouble(xmlparser.getElementText())); // Assumption: QualityScoreSumList-element is numeric singlechild
+                        xmlparser.nextTag();
+                        xmlparser.nextTag();
+                        //System.out.println("Values in Read: Yield=" + currawitem.YieldList.get(currawitem.YieldList.size()-1) + ", YieldQ30=" + currawitem.YieldQ30List.get(currawitem.YieldQ30List.size()-1) + ", QualityScoreSum=" + currawitem.QualityScoreSumList.get(currawitem.QualityScoreSumList.size()-1));
+                    }
+                    //System.out.println("\nRaw-SampleItem  " + currawitem);
+                    cursample.RawList.add(currawitem);
+                    currawitem = null;
+                    // concerning Pf with Assumption that entire Pf-element is structured same as Raw:
+                    xmlparser.nextTag();
+                    //System.out.println("\nStart-Element with tag " + xmlparser.getLocalName());
+                    curpfitem = new SampleItem();
+                    curpfitem.Type = "Pf";
+                    curpfitem.Lane = curlanenumber;
+                    curpfitem.Tile = curtilenumber;
+                    xmlparser.nextTag();
+                    curpfitem.ClusterCount = Double.parseDouble(xmlparser.getElementText());
+                    //System.out.println("\nValue: ClusterCount=" + curpfitem.ClusterCount);
+                    xmlparser.nextTag();
+                    while (event == XMLStreamConstants.START_ELEMENT && xmlparser.getLocalName().equals("Read"))
+                    {
                         //System.out.println("\nStart-Element with tag " + xmlparser.getLocalName() + " with " + xmlparser.getAttributeCount() + " attributes with first attribute: " + xmlparser.getAttributeLocalName(0) +" = " + xmlparser.getAttributeValue(0));
-                        xmlParser.nextTag();
-                        pfItem.YieldList.add(Double.parseDouble(xmlParser.getElementText()));
-                        xmlParser.nextTag();
-                        pfItem.YieldQ30List.add(Double.parseDouble(xmlParser.getElementText()));
-                        xmlParser.nextTag();
-                        pfItem.QualityScoreSumList.add(Double.parseDouble(xmlParser.getElementText()));
-                        xmlParser.nextTag();
-                        xmlParser.nextTag();
-                        //System.out.println("Values in Read: Yield=" + pfItem.YieldList.get(pfItem.YieldList.size()-1) + ", YieldQ30=" + pfItem.YieldQ30List.get(pfItem.YieldQ30List.size()-1) + ", QualityScoreSum=" + pfItem.QualityScoreSumList.get(pfItem.QualityScoreSumList.size()-1));
+                        xmlparser.nextTag();
+                        curpfitem.YieldList.add(Double.parseDouble(xmlparser.getElementText()));
+                        xmlparser.nextTag();
+                        curpfitem.YieldQ30List.add(Double.parseDouble(xmlparser.getElementText()));
+                        xmlparser.nextTag();
+                        curpfitem.QualityScoreSumList.add(Double.parseDouble(xmlparser.getElementText()));
+                        xmlparser.nextTag();
+                        xmlparser.nextTag();
+                        //System.out.println("Values in Read: Yield=" + curpfitem.YieldList.get(curpfitem.YieldList.size()-1) + ", YieldQ30=" + curpfitem.YieldQ30List.get(curpfitem.YieldQ30List.size()-1) + ", QualityScoreSum=" + curpfitem.QualityScoreSumList.get(curpfitem.QualityScoreSumList.size()-1));
                     }
-                    //System.out.println("\nPf-SampleItem  " + pfItem);
-                    currentSample.PfList.add(pfItem);
-                    pfItem = null;
+                    //System.out.println("\nPf-SampleItem  " + curpfitem);
+                    cursample.PfList.add(curpfitem);
+                    curpfitem = null;
                     // attain end of current Tile and afterwards continue in next Tile/Lane/Barcode/Sample/Project:
-                    event = xmlParser.nextTag();
-                } else if (event == XMLStreamConstants.END_ELEMENT && xmlParser.getLocalName().equals("Tile")) {
-                    tileNumber = 0;
-                    event = xmlParser.nextTag();
-
-
-                } else if (event == XMLStreamConstants.START_ELEMENT && xmlParser.getLocalName().equals("TopUnknownBarcodes")) {
-
-                    event = xmlParser.nextTag();
-                    while (event == XMLStreamConstants.START_ELEMENT && xmlParser.getLocalName().equals("Barcode")) {
-                        Integer numberOfBarcodes = Integer.valueOf((xmlParser.getAttributeValue(0)));
-                        String barcode = xmlParser.getAttributeValue(1);
-                        barcodesMap.put(barcode, numberOfBarcodes);
-                        xmlParser.nextTag();
-                        event = xmlParser.nextTag();
-                    }
-
-                } else if (event == XMLStreamConstants.END_ELEMENT && xmlParser.getLocalName().equals("TopUnknownBarcodes")) {
-
-                    barcodesPerLane.put(laneNumber, barcodesMap);
-                    event = xmlParser.nextTag();
+                    event = xmlparser.nextTag();
+                } else if (event == XMLStreamConstants.END_ELEMENT && xmlparser.getLocalName().equals("Tile"))
+                {
+                    curtilenumber = Double.NaN;
+                    event = xmlparser.nextTag();
 
                     //  concerning finish of reading in XML or hit upon error due XML content:
-                } else if (event == XMLStreamConstants.END_ELEMENT && xmlParser.getLocalName().equals("Stats")) {
+                } else if (event == XMLStreamConstants.END_ELEMENT && xmlparser.getLocalName().equals("Stats"))
+                {
                     // this final part of while loop is just for analyzing potential errors, but
                     // could be removed and changed in:  while xmlparser.getLocalName() != 'Stats'
                     doimport = false;
-                } else {
+                } else
+                {
                     doimport = false;
                     System.out.println("Warning: Different XML structure than expectet. Got event: " + event);
                 }
             }
-            xmlParser.close();
+            xmlparser.close();
 
-        } catch (FileNotFoundException | XMLStreamException | IllegalArgumentException e) {
+        } catch (FileNotFoundException | XMLStreamException e)
+        {
             System.out.println("OCCURRED EXCEPTION " + e.toString());
             e.printStackTrace();
+        } catch (IllegalArgumentException e)
+        {
+            System.out.println("OCCURRED EXCEPTION " + e.toString());
+            e.printStackTrace();
+        } catch (Exception e)
+        { // catch any other exception
+            System.out.println("OCCURRED EXCEPTION " + e.toString());
+            e.printStackTrace();
+        } finally
+        { // anyway adapt statistics and return output (It would be empty list due to constructor of this object)
+          // Statistics 2nd step: adapt single sample's statistics including entire list of samples
+            for (Statistics s : samplestatisticslist)
+                s.adaptStatisticsWithRespectToAllSamples(samplestatisticslist);
         }
-        return sampleStatisticsList;
+        return samplestatisticslist;
+
     }
 
-    public static HashMap<Integer, LaneStatistics> calculateTotalLaneStatistics(ArrayList<Statistics> samplestatisticslist)
+    public LaneStatistics calculateTotalLaneStatistics(ArrayList<Statistics> samplestatisticslist)
     {
-        HashMap<Integer, LaneStatistics> listOfLaneStatistics= new HashMap<Integer, LaneStatistics>();
-
-        HashMap<Integer, ArrayList<Statistics>> groupedList = groupByLane(samplestatisticslist);
-
-        for (Integer key : groupedList.keySet()) {
-
-            LaneStatistics laneStats = new LaneStatistics(groupedList.get(key));
-            laneStats.calculateOverallStats(key);
-            listOfLaneStatistics.put(key, laneStats);
-        }
-        return listOfLaneStatistics;
+        LaneStatistics laneStats = new LaneStatistics(samplestatisticslist);
+        laneStats.calculateOverallStats();
+        return laneStats;
     }
-
-
-    private static HashMap<Integer, ArrayList<Statistics>> groupByLane(ArrayList<Statistics> samplestatisticslist) {
-        // Group ArrayList by Lane
-        HashMap<Integer, ArrayList<Statistics>> groupedList = new HashMap <Integer, ArrayList<Statistics>>();
-        for (Statistics s : samplestatisticslist) {
-
-            if (groupedList.containsKey(s.Lane)) {
-                groupedList.get(s.Lane).add(s);
-            }
-            else {
-                ArrayList <Statistics> newEntry = new ArrayList<Statistics>();
-                newEntry.add(s);
-                groupedList.put(s.Lane, newEntry);
-            }
-        }
-        return groupedList;
-    }
-
 
     // ##########################################################
 
-    private static class SampleItem
+    public class SampleItem
     {
         /*
          * Object of an item in sample including - the corresponding type Raw or Pf - the index of corresponding Lane, Tile - measured value of
@@ -426,19 +380,20 @@ public final class read_demultiplex_stats
 
         public String Type = "";
 
-        public Integer Lane = 0;
+        // Define unknown numerical value. Type double could be exchanged with int, but double is necessary to initialize NaN-value.
+        public double Lane = Double.NaN;
 
-        public Integer Tile = 0;
+        public double Tile = Double.NaN;
 
-        public Integer ClusterCount = 0;
+        public double ClusterCount = Double.NaN;
 
         // Define unknown ArrayList of numerical values with changeable List size. Type Double(object) instead of double(primitive) is necessary in
         // Lists.
-        public List<Double> YieldList = new ArrayList<>();
+        public List<Double> YieldList = new ArrayList<Double>();
 
-        public List<Double> YieldQ30List = new ArrayList<>();
+        public List<Double> YieldQ30List = new ArrayList<Double>();
 
-        public List<Double> QualityScoreSumList = new ArrayList<>();
+        public List<Double> QualityScoreSumList = new ArrayList<Double>();
 
         public String toString()
         {
@@ -451,15 +406,13 @@ public final class read_demultiplex_stats
 
     // ##########################################################
 
-    public static class Sample
+    public class Sample
     {
         /*
          * Object of an entire sample including - the name of Flowcell, Project, Sample, Barcode - the list of Raw and Pf SampleItem-Objects
          */
 
         public String Flowcell = "";
-        
-        public Integer Lane = 0;
 
         public String Project = "";
 
@@ -468,13 +421,13 @@ public final class read_demultiplex_stats
         public String Barcode = "";
 
         // Define unknown ArrayList of SampleItems:
-        public List<SampleItem> RawList = new ArrayList<>();
+        public List<SampleItem> RawList = new ArrayList<SampleItem>();
 
-        public List<SampleItem> PfList = new ArrayList<>();
+        public List<SampleItem> PfList = new ArrayList<SampleItem>();
 
         public String toString()
         {
-            return "Flowcell: " + this.Flowcell + ", Lane: " + this.Lane + ", Project: " + this.Project + ", Sample: " + this.Sample + ", Barcode: " + this.Barcode
+            return "Flowcell: " + this.Flowcell + ", Project: " + this.Project + ", Sample: " + this.Sample + ", Barcode: " + this.Barcode
                     + ", RawList: " + this.RawList + ", PfList: " + this.PfList;
         }
 
@@ -482,15 +435,15 @@ public final class read_demultiplex_stats
 
     // ##########################################################
 
-    public static class Statistics extends Sample
+    public class Statistics extends Sample
     {
         /*
          * Object of Statistics within one single sample inherited from Sample-Object
          */
 
-        public Integer Sum_RawClusterCount = 0;
+        public double Sum_RawClusterCount = Double.NaN; // obvious double, but could be turned into int
 
-        public Integer Sum_PfClusterCount = 0;
+        public double Sum_PfClusterCount = Double.NaN; // obvious double, but could be turned into int
 
         public double Sum_RawYield = Double.NaN;
 
@@ -526,7 +479,6 @@ public final class read_demultiplex_stats
 
             super();
             Flowcell = sample.Flowcell;
-            Lane = sample.Lane;
             Project = sample.Project;
             Sample = sample.Sample;
             Barcode = sample.Barcode;
@@ -587,17 +539,17 @@ public final class read_demultiplex_stats
 
         public String toString()
         {
-            return "Flowcell: " + this.Flowcell + ", Lane: "+ this.Lane + ", Project: " + this.Project + ", Sample: " + this.Sample + ", Barcode: " + this.Barcode
+            return "Flowcell: " + this.Flowcell + ", Project: " + this.Project + ", Sample: " + this.Sample + ", Barcode: " + this.Barcode
                     + ", Raw Clusters: " + (long) this.Sum_RawClusterCount + ", Mbases Raw Yield: " + this.Mega_RawYield
                     + ", % Raw Clusters overall: " + this.Percentage_RawClusterCount_AllRawClusterCounts
                     + ", Pf Clusters: " + (long) this.Sum_PfClusterCount + ", Mbases Pf Yield: " + this.Mega_PfYield
                     + ", % PfYield/RawYield: " + this.Percentage_PfYield_RawYield
                     + ", % PfYieldQ30/PfYield: " + this.Percentage_PfYieldQ30_PfYield
                     + ", Mean Pf Quality Score: " + this.Fraction_PfQualityScoreSum_PfYield
-                    + ", % Passes Filtering: " + this.Percentage_PfClusterCount_RawClusterCount + "\n";
+                    + ", % Passes Filtering: " + this.Percentage_PfClusterCount_RawClusterCount;
         }
 
-        public void adaptStatisticsWithRespectToAllSamples(ArrayList<Statistics> statisticslist, HashMap<Integer, ArrayList<Statistics>>  groupedList)
+        public void adaptStatisticsWithRespectToAllSamples(List<Statistics> statisticslist)
         {
             /*
              * This Statistics-Object (corresponding to one sample) is adapted by employing a list of Statistics-Objects corresponding to all samples
@@ -607,25 +559,34 @@ public final class read_demultiplex_stats
             { // here it additionally should be checked, if calling object is included ...
                 Percentage_RawClusterCount_AllRawClusterCounts = Double.NaN;
                 String errormessage =
-                        "INPUT ARGUMENT statisticslist MUST BE LIST OF Statistics OBJECTS INCLUDING THE CALLING OBJECT" +
-                                " IN METHOD adaptStatisticsWithRespectToAllSamples!";
+                        "INPUT ARGUMENT statisticslist MUST BE LIST OF Statistics OBJECTS INCLUDING THE CALLING OBJECT IN METHOD adaptStatisticsWithRespectToAllSamples!";
+                // System.out.println(errormessage);
                 throw new IllegalArgumentException(errormessage); // Exception reasonable since otherwise wrong results.
             } else
             {
-                for (Integer key : groupedList.keySet()) {
-                    double sumAllRawClusterCounts = 0;
-                    ArrayList<Statistics> groupList = groupedList.get(key);
-                    for (Statistics element : groupList) {
-                        sumAllRawClusterCounts += element.Sum_RawClusterCount;
-                    }
-                    for (Statistics element : groupList) {
-                        element.Percentage_RawClusterCount_AllRawClusterCounts =
-                                calculate_Percentage(element.Sum_RawClusterCount, sumAllRawClusterCounts);
-                    }
-                }
+                double sum_allrawclustercounts = 0;
+                for (Statistics s : statisticslist)
+                    sum_allrawclustercounts += s.Sum_RawClusterCount;
+                Percentage_RawClusterCount_AllRawClusterCounts = calculate_Percentage(Sum_RawClusterCount, sum_allrawclustercounts);
             }
         }
 
+        public double calculate_MegaUnit(double x)
+        {
+            double z;
+            if (x == Double.POSITIVE_INFINITY || x == Double.NEGATIVE_INFINITY || Double.isNaN(x))
+            {
+                z = Double.NaN;
+                String errormessage =
+                        "INPUT ARGUMENT WAS UNREASONABLE IN METHOD calculate_MegaUnit!  x = " + x + "  (Values were in Sample " + Sample + ")";
+                // System.out.println(errormessage);
+                // throw new IllegalArgumentException(errormessage);
+            } else
+            {
+                z = x / 1000000;
+            }
+            return z;
+        }
 
         public double calculate_Percentage(double x, double y)
         {
@@ -633,6 +594,11 @@ public final class read_demultiplex_stats
             if (z == Double.POSITIVE_INFINITY || z == Double.NEGATIVE_INFINITY || Double.isNaN(z))
             {
                 z = Double.NaN;
+                String errormessage =
+                        "INPUT ARGUMENT WAS UNREASONABLE IN METHOD calculate_Percentage!  x = " + x + ",  y = " + y + "  (Values were in Sample "
+                                + Sample + ")";
+                // System.out.println(errormessage);
+                // throw new IllegalArgumentException(errormessage);
             } else
             {
                 z = 100 * z;
@@ -646,23 +612,47 @@ public final class read_demultiplex_stats
             if (z == Double.POSITIVE_INFINITY || z == Double.NEGATIVE_INFINITY || Double.isNaN(z))
             {
                 z = Double.NaN;
+                String errormessage =
+                        "INPUT ARGUMENT WAS UNREASONABLE IN METHOD calculate_Fraction!  x = " + x + ",  y = " + y + "  (Values were in Sample "
+                                + Sample + ")";
+                // System.out.println(errormessage);
+                // throw new IllegalArgumentException(errormessage);
             }
             return z;
         }
+
+        public double roundspecific(double x, int places)
+        {
+            double z;
+            if (places < 0 || places > 13 || x == Double.POSITIVE_INFINITY || x == Double.NEGATIVE_INFINITY || Double.isNaN(x))
+            {
+                z = Double.NaN;
+                String errormessage =
+                        "INPUT ARGUMENT WAS UNREASONABLE IN METHOD roundspecific!  x = " + x + ",  places = " + places + "  (Values were in Sample "
+                                + Sample + ")";
+                // System.out.println(errormessage);
+                // throw new IllegalArgumentException(errormessage);
+            } else
+            {
+                double factor = Math.pow(10, places);
+                z = Math.round(x * factor);
+                z = z / factor;
+            }
+            return z;
+        }
+
     }
 
-    public static class LaneStatistics
+    public class LaneStatistics
     {
         /*
          * Total Lane Statistics
          */
         public ArrayList<Statistics> statisticsList;
 
-        public Integer Lane = 0;
-
         public double Sum_RawClusterCount = 0.0;
 
-        public Integer Sum_PfClusterCount = 0;
+        public double Sum_PfClusterCount = 0.0;
 
         public double Sum_RawYield = 0.0;
 
@@ -693,12 +683,18 @@ public final class read_demultiplex_stats
             this.statisticsList = statisticsList;
         }
 
-        public void calculateOverallStats(Integer key)
+        public void calculateOverallStats()
         {
+
             int sampleNumber = statisticsList.size();
-            for (Statistics s : statisticsList) {
-                if (!s.Barcode.equals("") || s.Barcode.equals("unknown")) {
+
+            for (Statistics s : statisticsList)
+            {
+                if (!s.Barcode.equals("unknown"))
+                {
+                    System.out.println("BARCODE " + s.Barcode);
                     this.Clusters_PfWithoutNoindex += s.Sum_PfClusterCount;
+                    System.out.println(s.Sum_PfClusterCount);
                 }
 
                 this.Sum_RawClusterCount += s.Sum_RawClusterCount;
@@ -710,14 +706,10 @@ public final class read_demultiplex_stats
                 this.Sum_RawQualityScoreSum += s.Sum_RawQualityScoreSum;
                 this.Sum_PfQualityScoreSum += s.Sum_PfQualityScoreSum;
                 this.Percentage_PfYield_RawYield += s.Percentage_PfYield_RawYield;
-                if (!Double.isNaN(s.Percentage_PfYieldQ30_PfYield)) {
-                    this.Percentage_PfYieldQ30_PfYield += s.Percentage_PfYieldQ30_PfYield;
-                }
+                this.Percentage_PfYieldQ30_PfYield += s.Percentage_PfYieldQ30_PfYield;
                 this.Percentage_PfClusterCount_RawClusterCount += s.Percentage_PfClusterCount_RawClusterCount;
                 this.Fraction_PfQualityScoreSum_PfYield += s.Fraction_PfQualityScoreSum_PfYield;
             }
-
-            this.Lane = key;
             this.Sum_RawQualityScoreSum = this.Sum_RawQualityScoreSum / sampleNumber;
             this.Sum_PfQualityScoreSum = this.Sum_PfQualityScoreSum / sampleNumber;
             this.Percentage_PfYield_RawYield = this.Percentage_PfYield_RawYield / sampleNumber;
@@ -728,9 +720,8 @@ public final class read_demultiplex_stats
 
         public String toString()
         {
-            return "Lane " + this.Lane + " Sum_RawClusterCount " + this.Sum_RawClusterCount + " Sum_PfClusterCount " + this.Sum_PfClusterCount +
-                    " Percentage_PfYieldQ30_PfYield " + this.Percentage_PfYieldQ30_PfYield +
-                    " Percentage_PfClusterCount_RawClusterCount " + this.Percentage_PfClusterCount_RawClusterCount;
+            return "Sum_RawClusterCount " + this.Sum_RawClusterCount + " Sum_PfClusterCount" + this.Sum_PfClusterCount +
+                    " Percentage_PfYieldQ30_PfYield " + this.Percentage_PfYieldQ30_PfYield;
         }
     }
 }
