@@ -56,7 +56,7 @@ public abstract class ObjectToManyRelationTranslator<RELATED_OBJECT, RELATED_FET
             }
         }
 
-        Map<Long, RELATED_OBJECT> relatedIdToRelated = translateRelated(context, relatedIds, relatedFetchOptions);
+        Map<Long, RELATED_OBJECT> relatedIdToRelated = filterRelatedObjects(translateRelated(context, relatedIds, relatedFetchOptions));
         Map<Long, Collection<RELATED_OBJECT>> objectIdToRelatedMap = new HashMap<Long, Collection<RELATED_OBJECT>>();
 
         for (ObjectRelationRecord record : records)
@@ -85,6 +85,11 @@ public abstract class ObjectToManyRelationTranslator<RELATED_OBJECT, RELATED_FET
         }
 
         return objectIdToRelatedMap;
+    }
+    
+    protected Map<Long, RELATED_OBJECT> filterRelatedObjects(Map<Long, RELATED_OBJECT> relatedObjects)
+    {
+        return relatedObjects;
     }
 
     @SuppressWarnings("unchecked")

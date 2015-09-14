@@ -16,16 +16,27 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.attachment.sql;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.AbstractCachingTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationResults;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql.ObjectHolder;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.attachment.Attachment;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.person.Person;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.attachment.AttachmentFetchOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.person.PersonFetchOptions;
 import ch.systemsx.cisd.openbis.generic.shared.basic.PermlinkUtilities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentHolderKind;
 
@@ -36,6 +47,15 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentHolderKind;
 public class AttachmentSqlTranslator extends AbstractCachingTranslator<Long, Attachment, AttachmentFetchOptions>
         implements IAttachmentSqlTranslator
 {
+    private static Comparator<AttachmentBaseRecord> VERSION_COMPARATOR = new Comparator<AttachmentBaseRecord>()
+            {
+                @Override
+                public int compare(AttachmentBaseRecord r1, AttachmentBaseRecord r2)
+                {
+                    return r2.version - r1.version;
+                }
+            };
+            
     @Autowired 
     private IAttachmentBaseSqlTranslator baseTranslator;
     
@@ -44,7 +64,7 @@ public class AttachmentSqlTranslator extends AbstractCachingTranslator<Long, Att
     
     @Autowired
     private IAttachmentContentSqlTranslator contentTranslator;
-
+    
     @Override
     protected Attachment createObject(TranslationContext context, Long input, AttachmentFetchOptions fetchOptions)
     {
@@ -56,26 +76,49 @@ public class AttachmentSqlTranslator extends AbstractCachingTranslator<Long, Att
     @Override
     protected Object getObjectsRelations(TranslationContext context, Collection<Long> attachmentIds, AttachmentFetchOptions fetchOptions)
     {
-        TranslationResults relations = new TranslationResults();
-        relations.put(IAttachmentBaseSqlTranslator.class, baseTranslator.translate(context, attachmentIds, null));
-        if (fetchOptions.hasRegistrator())
+        Map<Long, ObjectHolder<AttachmentBaseRecord>> records = baseTranslator.translate(context, attachmentIds, null);
+        List<List<AttachmentBaseRecord>> groupedRecords = groupByFileNameAndSortByVersion(records.values());
+        AttachmentsBuildingHelper buildingHelper = new AttachmentsBuildingHelper();
+        for (List<AttachmentBaseRecord> recordsSortecByVersion : groupedRecords)
         {
-            relations.put(IAttachmentRegistratorSqlTranslator.class, 
-                    registratorTranslator.translate(context, attachmentIds, fetchOptions.withRegistrator()));
+            buildingHelper.handleAttachmentsOfDifferentVersions(recordsSortecByVersion, fetchOptions);
         }
-        if (fetchOptions.hasContent())
+        buildingHelper.translateRelatedObjects(context);
+        return buildingHelper;
+    }
+    
+    private List<List<AttachmentBaseRecord>> groupByFileNameAndSortByVersion(Collection<ObjectHolder<AttachmentBaseRecord>> records)
+    {
+        Map<String, List<AttachmentBaseRecord>> mapByFileName = new HashMap<>();
+        for (ObjectHolder<AttachmentBaseRecord> recordHolder : records)
         {
-            relations.put(IAttachmentContentSqlTranslator.class, contentTranslator.translate(context, attachmentIds, null));
+            AttachmentBaseRecord record = recordHolder.getObject();
+            List<AttachmentBaseRecord> list = mapByFileName.get(record.fileName);
+            if (list == null)
+            {
+                list = new ArrayList<>();
+                mapByFileName.put(record.fileName, list);
+            }
+            list.add(record);
         }
-        return relations;
+        Collection<List<AttachmentBaseRecord>> lists = mapByFileName.values();
+        for (List<AttachmentBaseRecord> list : lists)
+        {
+            Collections.sort(list, VERSION_COMPARATOR);
+        }
+        return new ArrayList<>(lists);
     }
 
     @Override
     protected void updateObject(TranslationContext context, Long attachmentId, Attachment result, 
             Object objectRelations, AttachmentFetchOptions fetchOptions)
     {
-        TranslationResults relations = (TranslationResults) objectRelations;
-        AttachmentBaseRecord baseRecord = relations.get(IAttachmentBaseSqlTranslator.class, attachmentId);
+        AttachmentsBuildingHelper buildingHelper = (AttachmentsBuildingHelper) objectRelations;
+        AttachmentBaseRecord baseRecord = buildingHelper.getBaseRecord(attachmentId);
+        if (baseRecord == null)
+        {
+            return;
+        }
         result.setFileName(baseRecord.fileName);
         result.setTitle(baseRecord.title);
         result.setDescription(baseRecord.description);
@@ -84,17 +127,7 @@ public class AttachmentSqlTranslator extends AbstractCachingTranslator<Long, Att
         String baseIndexURL = context.getSession().getBaseIndexURL();
         result.setPermlink(createPermlink(baseRecord, baseIndexURL, false));
         result.setLatestVersionPermlink(createPermlink(baseRecord, baseIndexURL, true));
-
-        if (fetchOptions.hasRegistrator())
-        {
-            result.setRegistrator(relations.get(IAttachmentRegistratorSqlTranslator.class, attachmentId));
-            result.getFetchOptions().withRegistratorUsing(fetchOptions.withRegistrator());
-        }
-        if (fetchOptions.hasContent())
-        {
-            result.setContent(relations.get(IAttachmentContentSqlTranslator.class, attachmentId));
-            result.getFetchOptions().withContent();
-        }
+        buildingHelper.addRegistratorAndContent(result, attachmentId);
     }
     
     private String createPermlink(AttachmentBaseRecord baseRecord, String baseIndexURL,
@@ -115,4 +148,113 @@ public class AttachmentSqlTranslator extends AbstractCachingTranslator<Long, Att
         return PermlinkUtilities.createAttachmentPermlinkURL(baseIndexURL, fileName, version, 
                 AttachmentHolderKind.EXPERIMENT, baseRecord.experimentPermId);
     }
+    
+    private final class AttachmentsBuildingHelper
+    {
+        private Map<Long, AttachmentBaseRecord> records = new HashMap<>();
+        private Map<PersonFetchOptions, List<Long>> attachmentsWithRegistrator = new HashMap<>();
+        private Set<Long> attachmentsWithContent = new HashSet<>();
+        private Map<Long, AttachmentFetchOptions> fetchOptionsByAttachmentId = new HashMap<>();
+        private Map<Long, ObjectHolder<Person>> registratorsByAttachmentId = new HashMap<>();
+        private Map<Long, ObjectHolder<byte[]>> contentsByAttachmentId;
+        private Map<Long, Long> nextVersionIdByAttachmentId = new HashMap<>();
+        private Map<Long, Attachment> attachments = new HashMap<>();
+        
+        AttachmentBaseRecord getBaseRecord(Long attachmentId)
+        {
+            return records.get(attachmentId);
+        }
+        
+        private <T> T getObject(Map<Long, ObjectHolder<T>> objectsById, Long attachmentId)
+        {
+            ObjectHolder<T> objectHolder = objectsById.get(attachmentId);
+            return objectHolder == null ? null : objectHolder.getObject();
+        }
+        
+        void addRegistratorAndContent(Attachment attachment, Long attachmentId)
+        {
+            attachments.put(attachmentId, attachment);
+            AttachmentFetchOptions fetchOptions = fetchOptionsByAttachmentId.get(attachmentId);
+            attachment.setFetchOptions(fetchOptions);
+            if (fetchOptions.hasRegistrator())
+            {
+                attachment.setRegistrator(getObject(registratorsByAttachmentId, attachmentId));
+                attachment.getFetchOptions().withRegistratorUsing(fetchOptions.withRegistrator());
+            }
+            if (fetchOptions.hasContent())
+            {
+                attachment.setContent(getObject(contentsByAttachmentId, attachmentId));
+                attachment.getFetchOptions().withContent();
+            }
+            Set<Entry<Long, Long>> entrySet = nextVersionIdByAttachmentId.entrySet();
+            for (Entry<Long, Long> entry : entrySet)
+            {
+                Long previousVersionId = entry.getKey();
+                Long id = entry.getValue();
+                Attachment version = attachments.get(id);
+                Attachment previousVersion = attachments.get(previousVersionId);
+                if (version != null && previousVersion != null)
+                {
+                    version.setPreviousVersion(previousVersion);
+                    version.getFetchOptions().withPreviousVersion();
+                }
+            }
+        }
+
+        void handleAttachmentsOfDifferentVersions(List<AttachmentBaseRecord> recordsSortedByVersion, 
+                AttachmentFetchOptions fetchOptions)
+        {
+            AttachmentFetchOptions currentFetchOptions = fetchOptions;
+            Long nextVersionId = null;
+            for (AttachmentBaseRecord record : recordsSortedByVersion)
+            {
+                Long attachmentId = record.id;
+                records.put(attachmentId, record);
+                if (nextVersionId != null)
+                {
+                    nextVersionIdByAttachmentId.put(attachmentId, nextVersionId);
+                }
+                fetchOptionsByAttachmentId.put(attachmentId, fetchOptions);
+                if (currentFetchOptions.hasRegistrator())
+                {
+                    addRequestForRegistrator(attachmentId, currentFetchOptions.withRegistrator());
+                }
+                if (currentFetchOptions.hasContent())
+                {
+                    attachmentsWithContent.add(attachmentId);
+                }
+                if (currentFetchOptions.hasPreviousVersion() == false)
+                {
+                    break;
+                }
+                currentFetchOptions = currentFetchOptions.withPreviousVersion();
+                nextVersionId = attachmentId;
+            }
+        }
+        
+        void translateRelatedObjects(TranslationContext context)
+        {
+            Set<Entry<PersonFetchOptions, List<Long>>> entrySet = attachmentsWithRegistrator.entrySet();
+            for (Entry<PersonFetchOptions, List<Long>> entry : entrySet)
+            {
+                PersonFetchOptions fetchOptions = entry.getKey();
+                List<Long> attachmentIds = entry.getValue();
+                registratorsByAttachmentId.putAll(registratorTranslator.translate(context, attachmentIds, fetchOptions));
+            }
+            contentsByAttachmentId = contentTranslator.translate(context, attachmentsWithContent, null);
+        }
+        
+        private void addRequestForRegistrator(Long attachmentId, PersonFetchOptions fetchOptions)
+        {
+            List<Long> list = attachmentsWithRegistrator.get(fetchOptions);
+            if (list == null)
+            {
+                list = new ArrayList<>();
+                attachmentsWithRegistrator.put(fetchOptions, list);
+            }
+            list.add(attachmentId);
+        }
+        
+    }
+    
 }

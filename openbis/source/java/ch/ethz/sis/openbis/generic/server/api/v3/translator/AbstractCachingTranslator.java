@@ -18,7 +18,6 @@ package ch.ethz.sis.openbis.generic.server.api.v3.translator;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -58,7 +57,7 @@ public abstract class AbstractCachingTranslator<I, O, F extends FetchOptions<?>>
     protected final Map<I, O> doTranslate(TranslationContext context, Collection<I> allInputs, F fetchOptions)
     {
         Map<I, O> translated = new LinkedHashMap<I, O>();
-        Map<I, O> updated = new HashMap<I, O>();
+        Map<I, O> updated = new LinkedHashMap<I, O>();
         TranslationCache cache = context.getTranslationCache();
 
         Collection<I> inputs = doShouldTranslate(context, allInputs, fetchOptions);

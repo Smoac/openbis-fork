@@ -18,23 +18,13 @@ package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.sample.sql;
 
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import net.lemnik.eodsql.QueryTool;
-
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.attachment.sql.AttachmentQuery;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.attachment.sql.IAttachmentSqlTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.attachment.sql.EntityAttachmentSqlTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql.ObjectRelationRecord;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql.ObjectToManyRelationTranslator;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.attachment.Attachment;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.attachment.AttachmentFetchOptions;
 
 /**
  * 
@@ -42,30 +32,13 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.attachment.Att
  * @author Franz-Josef Elmer
  */
 @Component
-public class SampleAttachmentSqlTranslator extends ObjectToManyRelationTranslator<Attachment, AttachmentFetchOptions> 
-        implements ISampleAttachmentSqlTranslator
+public class SampleAttachmentSqlTranslator extends EntityAttachmentSqlTranslator implements ISampleAttachmentSqlTranslator
 {
-    @Autowired
-    private IAttachmentSqlTranslator attachmentTranslator;
 
     @Override
-    protected List<ObjectRelationRecord> loadRecords(LongOpenHashSet objectIds)
+    protected List<ObjectRelationRecord> loadRecords(LongOpenHashSet sampleIds, AttachmentQuery query)
     {
-        AttachmentQuery query = QueryTool.getManagedQuery(AttachmentQuery.class);
-        return query.getSampleAttachments(objectIds);
-    }
-
-    @Override
-    protected Map<Long, Attachment> translateRelated(TranslationContext context, Collection<Long> relatedIds,
-            AttachmentFetchOptions relatedFetchOptions)
-    {
-        return attachmentTranslator.translate(context, relatedIds, relatedFetchOptions);
-    }
-
-    @Override
-    protected Collection<Attachment> createCollection()
-    {
-        return new ArrayList<Attachment>();
+        return query.getSampleAttachments(sampleIds);
     }
 
 }
