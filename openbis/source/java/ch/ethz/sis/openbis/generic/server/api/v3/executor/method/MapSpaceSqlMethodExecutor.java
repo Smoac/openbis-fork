@@ -16,22 +16,16 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.method;
 
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.common.IMapObjectByIdExecutor;
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.space.IMapSpaceByIdExecutor;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.space.IMapSpaceTechIdByIdExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.ITranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.space.sql.ISpaceSqlTranslator;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.space.Space;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.space.SpaceFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.ISpaceId;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
  * @author pkupczyk
@@ -41,7 +35,7 @@ public class MapSpaceSqlMethodExecutor extends AbstractMapMethodExecutor<ISpaceI
 {
 
     @Autowired
-    private IMapSpaceByIdExecutor mapExecutor;
+    private IMapSpaceTechIdByIdExecutor mapExecutor;
 
     @Autowired
     private ISpaceSqlTranslator translator;
@@ -49,23 +43,7 @@ public class MapSpaceSqlMethodExecutor extends AbstractMapMethodExecutor<ISpaceI
     @Override
     protected IMapObjectByIdExecutor<ISpaceId, Long> getMapExecutor()
     {
-        // TODO replace with ISpaceId -> Long mapExecutor once there is one
-        return new IMapObjectByIdExecutor<ISpaceId, Long>()
-            {
-                @Override
-                public Map<ISpaceId, Long> map(IOperationContext context, Collection<? extends ISpaceId> ids)
-                {
-                    Map<ISpaceId, SpacePE> peMap = mapExecutor.map(context, ids);
-                    Map<ISpaceId, Long> idMap = new LinkedHashMap<ISpaceId, Long>();
-
-                    for (Map.Entry<ISpaceId, SpacePE> peEntry : peMap.entrySet())
-                    {
-                        idMap.put(peEntry.getKey(), peEntry.getValue().getId());
-                    }
-
-                    return idMap;
-                }
-            };
+        return mapExecutor;
     }
 
     @Override

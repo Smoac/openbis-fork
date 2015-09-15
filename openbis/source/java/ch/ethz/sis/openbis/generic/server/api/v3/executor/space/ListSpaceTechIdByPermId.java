@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.api.v3.executor.sample;
+package ch.ethz.sis.openbis.generic.server.api.v3.executor.space;
 
 import java.util.List;
 
@@ -22,31 +22,31 @@ import net.lemnik.eodsql.QueryTool;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.common.TechIdStringIdentifierRecord;
 import ch.ethz.sis.openbis.generic.server.api.v3.helper.common.AbstractListTechIdByPermId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SamplePermId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.SpacePermId;
 
 /**
  * 
  *
  * @author Franz-Josef Elmer
  */
-public class ListSampleTechIdByPermId extends AbstractListTechIdByPermId<SamplePermId>
+public class ListSpaceTechIdByPermId extends AbstractListTechIdByPermId<SpacePermId>
 {
     @Override
-    public Class<SamplePermId> getIdClass()
+    public Class<SpacePermId> getIdClass()
     {
-        return SamplePermId.class;
+        return SpacePermId.class;
     }
 
     @Override
     protected List<TechIdStringIdentifierRecord> queryTechIds(String[] permIds)
     {
-        SampleQuery query = QueryTool.getManagedQuery(SampleQuery.class);
-        return query.listSampleTechIdsByPermIds(permIds);
+        SpaceQuery query = QueryTool.getManagedQuery(SpaceQuery.class);
+        return query.listSpaceTechIdsByPermIds(permIds);
     }
 
     @Override
-    protected SamplePermId createPermId(String permIdAsString)
+    protected SpacePermId createPermId(String permIdAsString)
     {
-        return new SamplePermId(permIdAsString);
+        return new SpacePermId(permIdAsString);
     }
 }

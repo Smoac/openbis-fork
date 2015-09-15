@@ -16,7 +16,6 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.sample;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -26,7 +25,7 @@ import java.util.Map.Entry;
 import net.lemnik.eodsql.QueryTool;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.common.TechIdStringIdentifierRecord;
-import ch.ethz.sis.openbis.generic.server.api.v3.helper.common.IListObjectById;
+import ch.ethz.sis.openbis.generic.server.api.v3.helper.common.AbstractListTechIdById;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
@@ -36,9 +35,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFa
  *
  * @author Franz-Josef Elmer
  */
-public class ListSampleTechIdByIdentifier implements IListObjectById<SampleIdentifier, Long>
+public class ListSampleTechIdByIdentifier extends AbstractListTechIdById<SampleIdentifier>
 {
-    private Map<Long, SampleIdentifier> identifiersByTechIds = new HashMap<Long, SampleIdentifier>();
     private String homeSpaceCodeOrNull; 
     
     public ListSampleTechIdByIdentifier(String homeSpaceCodeOrNull)
@@ -53,13 +51,7 @@ public class ListSampleTechIdByIdentifier implements IListObjectById<SampleIdent
     }
 
     @Override
-    public SampleIdentifier createId(Long techId)
-    {
-        return identifiersByTechIds.get(techId);
-    }
-    
-    @Override
-    public List<Long> listByIds(List<SampleIdentifier> ids)
+    protected Map<Long, SampleIdentifier> createIdsByTechIdsMap(List<SampleIdentifier> ids)
     {
         Map<Key, Map<String, SampleIdentifier>> groupedIdentifiers = new HashMap<>();
         for (SampleIdentifier sampleIdentifier : ids)
@@ -92,6 +84,8 @@ public class ListSampleTechIdByIdentifier implements IListObjectById<SampleIdent
             }
             identifiersByCode.put(sampleSubCode, sampleIdentifier);
         }
+        
+        Map<Long, SampleIdentifier> result = new HashMap<>();
         SampleQuery query = QueryTool.getManagedQuery(SampleQuery.class);
         for (Entry<Key, Map<String, SampleIdentifier>> entry : groupedIdentifiers.entrySet())
         {
@@ -101,10 +95,10 @@ public class ListSampleTechIdByIdentifier implements IListObjectById<SampleIdent
             for (TechIdStringIdentifierRecord record : records)
             {
                 String sampleCode = record.identifier;
-                identifiersByTechIds.put(record.id, identifiersByCode.get(sampleCode));
+                result.put(record.id, identifiersByCode.get(sampleCode));
             }
         }
-        return new ArrayList<>(identifiersByTechIds.keySet());
+        return result;
     }
     
     private List<TechIdStringIdentifierRecord> list(SampleQuery query, Key key, Collection<String> codes)
