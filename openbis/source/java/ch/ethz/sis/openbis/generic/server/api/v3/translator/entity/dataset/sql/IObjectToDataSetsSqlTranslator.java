@@ -14,14 +14,16 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.experiment.sql;
+package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.dataset.sql;
 
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql.IObjectAuthorizationValidator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql.IObjectToManyRelationTranslator;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSet;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.DataSetFetchOptions;
 
 /**
  * @author pkupczyk
  */
-public interface IExperimentAuthorizationSqlValidator extends IObjectAuthorizationValidator
+public interface IObjectToDataSetsSqlTranslator extends IObjectToManyRelationTranslator<DataSet, DataSetFetchOptions>
 {
 
 }

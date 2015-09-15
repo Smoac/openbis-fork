@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.sample.sql;
+package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.experiment.sql;
 
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 
@@ -31,13 +31,13 @@ import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.dataset.sql.O
  * @author pkupczyk
  */
 @Component
-public class SampleDataSetSqlTranslator extends ObjectToDataSetsSqlTranslator implements ISampleDataSetSqlTranslator
+public class ExperimentDataSetSqlTranslator extends ObjectToDataSetsSqlTranslator implements IExperimentDataSetSqlTranslator
 {
 
     @Override
     protected List<ObjectRelationRecord> loadRecords(LongOpenHashSet objectIds)
     {
-        SampleQuery query = QueryTool.getManagedQuery(SampleQuery.class);
+        ExperimentQuery query = QueryTool.getManagedQuery(ExperimentQuery.class);
         return query.getDataSetIds(objectIds);
     }
 

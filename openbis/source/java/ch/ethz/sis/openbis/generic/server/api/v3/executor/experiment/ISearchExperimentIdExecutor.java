@@ -14,14 +14,15 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.experiment.sql;
+package ch.ethz.sis.openbis.generic.server.api.v3.executor.experiment;
 
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql.IObjectAuthorizationValidator;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.common.ISearchObjectExecutor;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ExperimentSearchCriterion;
 
 /**
  * @author pkupczyk
  */
-public interface IExperimentAuthorizationSqlValidator extends IObjectAuthorizationValidator
+public interface ISearchExperimentIdExecutor extends ISearchObjectExecutor<ExperimentSearchCriterion, Long>
 {
 
 }

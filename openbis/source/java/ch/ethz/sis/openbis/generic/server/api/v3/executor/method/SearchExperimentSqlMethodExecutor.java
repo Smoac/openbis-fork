@@ -17,38 +17,39 @@
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.method;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.common.IMapObjectByIdExecutor;
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.experiment.IMapExperimentByIdExecutor;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.common.ISearchObjectExecutor;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.experiment.ISearchExperimentIdExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.ITranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.experiment.IExperimentTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.experiment.sql.IExperimentSqlTranslator;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.experiment.ExperimentFetchOptions;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.IExperimentId;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ExperimentSearchCriterion;
 
 /**
  * @author pkupczyk
  */
-// @Component
-public class MapExperimentMethodExecutor extends AbstractMapMethodExecutor<IExperimentId, ExperimentPE, Experiment, ExperimentFetchOptions> implements
-        IMapExperimentMethodExecutor
+@Component
+public class SearchExperimentSqlMethodExecutor extends
+        AbstractSearchMethodExecutor<Experiment, Long, ExperimentSearchCriterion, ExperimentFetchOptions> implements
+        ISearchExperimentMethodExecutor
 {
 
     @Autowired
-    private IMapExperimentByIdExecutor mapExecutor;
+    private ISearchExperimentIdExecutor searchExecutor;
 
     @Autowired
-    private IExperimentTranslator translator;
+    private IExperimentSqlTranslator translator;
 
     @Override
-    protected IMapObjectByIdExecutor<IExperimentId, ExperimentPE> getMapExecutor()
+    protected ISearchObjectExecutor<ExperimentSearchCriterion, Long> getSearchExecutor()
     {
-        return mapExecutor;
+        return searchExecutor;
     }
 
     @Override
-    protected ITranslator<ExperimentPE, Experiment, ExperimentFetchOptions> getTranslator()
+    protected ITranslator<Long, Experiment, ExperimentFetchOptions> getTranslator()
     {
         return translator;
     }

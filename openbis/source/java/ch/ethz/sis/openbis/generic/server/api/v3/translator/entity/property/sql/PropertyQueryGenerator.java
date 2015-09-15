@@ -24,10 +24,33 @@ public class PropertyQueryGenerator
 
     public static void main(String[] args)
     {
+        createExperimentPropertyQuery();
+        createExperimentPropertyHistoryQuery();
         createSamplePropertyQuery();
         createSamplePropertyHistoryQuery();
         createMaterialPropertyQuery();
         createMaterialPropertyHistoryQuery();
+    }
+
+    private static void createExperimentPropertyQuery()
+    {
+        PropertyQueryParams params = new PropertyQueryParams();
+        params.propertyTable = "experiment_properties";
+        params.propertyTableEntityIdColumn = "expe_id";
+        params.propertyTableEntityTypePropertyTypeIdColumn = "etpt_id";
+        params.entityTypePropertyTypeTable = "experiment_type_property_types";
+        System.out.println("Experiment property: \n" + createPropertyQuery(params));
+        System.out.println("Experiment material property: \n" + createMaterialPropertyQuery(params));
+    }
+
+    private static void createExperimentPropertyHistoryQuery()
+    {
+        PropertyHistoryQueryParams params = new PropertyHistoryQueryParams();
+        params.propertyHistoryTable = "experiment_properties_history";
+        params.propertyHistoryTableEntityIdColumn = "expe_id";
+        params.propertyHistoryTableEntityTypePropertyTypeIdColumn = "etpt_id";
+        params.entityTypePropertyTypeTable = "experiment_type_property_types";
+        System.out.println("Experiment property history: \n" + createPropertyHistoryQuery(params));
     }
 
     private static void createSamplePropertyQuery()

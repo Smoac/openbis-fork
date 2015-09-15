@@ -16,12 +16,18 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.experiment.sql;
 
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql.IObjectAuthorizationValidator;
-
 /**
  * @author pkupczyk
  */
-public interface IExperimentAuthorizationSqlValidator extends IObjectAuthorizationValidator
+public class ExperimentAuthorizationRecord
 {
+
+    public Long id;
+
+    public String code;
+
+    public String projectCode;
+
+    public String spaceCode;
 
 }

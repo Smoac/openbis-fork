@@ -16,12 +16,20 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.experiment.sql;
 
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql.IObjectAuthorizationValidator;
+import java.util.Date;
+
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql.ObjectBaseRecord;
 
 /**
  * @author pkupczyk
  */
-public interface IExperimentAuthorizationSqlValidator extends IObjectAuthorizationValidator
+public class ExperimentTypeBaseRecord extends ObjectBaseRecord
 {
+
+    public String code;
+
+    public String description;
+
+    public Date modificationDate;
 
 }

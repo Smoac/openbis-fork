@@ -40,7 +40,6 @@ public class SampleMaterialPropertySqlTranslator extends MaterialPropertySqlTran
     {
         SampleQuery query = QueryTool.getManagedQuery(SampleQuery.class);
         return query.getMaterialProperties(new LongOpenHashSet(objectIds));
-
     }
 
 }

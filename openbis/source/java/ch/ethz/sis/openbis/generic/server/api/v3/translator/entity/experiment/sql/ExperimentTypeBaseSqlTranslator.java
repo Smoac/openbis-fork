@@ -14,31 +14,30 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.sample.sql;
+package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.experiment.sql;
 
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 
 import java.util.List;
 
-import net.lemnik.eodsql.QueryTool;
-
 import org.springframework.stereotype.Component;
 
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql.ObjectRelationRecord;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.dataset.sql.ObjectToDataSetsSqlTranslator;
+import net.lemnik.eodsql.QueryTool;
+
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql.ObjectBaseTranslator;
 
 /**
  * @author pkupczyk
  */
 @Component
-public class SampleDataSetSqlTranslator extends ObjectToDataSetsSqlTranslator implements ISampleDataSetSqlTranslator
+public class ExperimentTypeBaseSqlTranslator extends ObjectBaseTranslator<ExperimentTypeBaseRecord> implements IExperimentTypeBaseSqlTranslator
 {
 
     @Override
-    protected List<ObjectRelationRecord> loadRecords(LongOpenHashSet objectIds)
+    protected List<ExperimentTypeBaseRecord> loadRecords(LongOpenHashSet objectIds)
     {
-        SampleQuery query = QueryTool.getManagedQuery(SampleQuery.class);
-        return query.getDataSetIds(objectIds);
+        ExperimentQuery query = QueryTool.getManagedQuery(ExperimentQuery.class);
+        return query.getTypes(objectIds);
     }
 
 }

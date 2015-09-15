@@ -16,12 +16,18 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.method;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.common.IMapObjectByIdExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.experiment.IMapExperimentByIdExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.ITranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.experiment.IExperimentTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.experiment.sql.IExperimentSqlTranslator;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.experiment.ExperimentFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.IExperimentId;
@@ -30,25 +36,41 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 /**
  * @author pkupczyk
  */
-// @Component
-public class MapExperimentMethodExecutor extends AbstractMapMethodExecutor<IExperimentId, ExperimentPE, Experiment, ExperimentFetchOptions> implements
-        IMapExperimentMethodExecutor
+@Component
+public class MapExperimentSqlMethodExecutor extends AbstractMapMethodExecutor<IExperimentId, Long, Experiment, ExperimentFetchOptions>
+        implements IMapExperimentMethodExecutor
 {
 
     @Autowired
     private IMapExperimentByIdExecutor mapExecutor;
 
     @Autowired
-    private IExperimentTranslator translator;
+    private IExperimentSqlTranslator translator;
 
     @Override
-    protected IMapObjectByIdExecutor<IExperimentId, ExperimentPE> getMapExecutor()
+    protected IMapObjectByIdExecutor<IExperimentId, Long> getMapExecutor()
     {
-        return mapExecutor;
+        // TODO replace with IExperimentId -> Long mapExecutor once there is one
+        return new IMapObjectByIdExecutor<IExperimentId, Long>()
+            {
+                @Override
+                public Map<IExperimentId, Long> map(IOperationContext context, Collection<? extends IExperimentId> ids)
+                {
+                    Map<IExperimentId, ExperimentPE> peMap = mapExecutor.map(context, ids);
+                    Map<IExperimentId, Long> idMap = new LinkedHashMap<IExperimentId, Long>();
+
+                    for (Map.Entry<IExperimentId, ExperimentPE> peEntry : peMap.entrySet())
+                    {
+                        idMap.put(peEntry.getKey(), peEntry.getValue().getId());
+                    }
+
+                    return idMap;
+                }
+            };
     }
 
     @Override
-    protected ITranslator<ExperimentPE, Experiment, ExperimentFetchOptions> getTranslator()
+    protected ITranslator<Long, Experiment, ExperimentFetchOptions> getTranslator()
     {
         return translator;
     }
