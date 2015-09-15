@@ -64,32 +64,33 @@ public interface ExperimentQuery extends ObjectQuery
     public List<ObjectRelationRecord> getDataSetIds(LongSet experimentIds);
 
     // PropertyQueryGenerator was used to generate this query
-    @Select(sql = "select p.expe_id as entityId, pt.code as propertyCode, p.value as propertyValue, m.code as materialPropertyValueCode, mt.code as materialPropertyValueTypeCode, cvt.code as vocabularyPropertyValue "
+    @Select(sql = "select p.expe_id as objectId, pt.code as propertyCode, p.value as propertyValue, m.code as materialPropertyValueCode, mt.code as materialPropertyValueTypeCode, cvt.code as vocabularyPropertyValue "
             + "from experiment_properties p "
-            + "left outer join materials m on p.mate_prop_id = m.id "
-            + "left outer join controlled_vocabulary_terms cvt on p.cvte_id = cvt.id "
+            + "left join materials m on p.mate_prop_id = m.id "
+            + "left join controlled_vocabulary_terms cvt on p.cvte_id = cvt.id "
             + "left join material_types mt on m.maty_id = mt.id "
-            + "left join experiment_type_property_types etpt on p.etpt_id = etpt.id "
-            + "left join property_types pt on etpt.prty_id = pt.id "
+            + "join experiment_type_property_types etpt on p.etpt_id = etpt.id "
+            + "join property_types pt on etpt.prty_id = pt.id "
             + "where p.expe_id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<PropertyRecord> getProperties(LongSet experimentIds);
 
     // PropertyQueryGenerator was used to generate this query
-    @Select(sql = "select p.expe_id as entityId, pt.code as propertyCode, p.mate_prop_id as propertyValue "
+    @Select(sql = "select p.expe_id as objectId, pt.code as propertyCode, p.mate_prop_id as propertyValue "
             + "from experiment_properties p "
-            + "left join experiment_type_property_types etpt on p.etpt_id = etpt.id "
-            + "left join property_types pt on etpt.prty_id = pt.id "
+            + "join experiment_type_property_types etpt on p.etpt_id = etpt.id "
+            + "join property_types pt on etpt.prty_id = pt.id "
             + "where p.mate_prop_id is not null and p.expe_id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<MaterialPropertyRecord> getMaterialProperties(LongSet experimentIds);
 
     // PropertyQueryGenerator was used to generate this query
-    @Select(sql = "select ph.expe_id as entityId, ph.pers_id_author as authorId, pt.code as propertyCode, ph.value as propertyValue, ph.material as materialPropertyValue, ph.vocabulary_term as vocabularyPropertyValue, ph.valid_from_timestamp as validFrom, ph.valid_until_timestamp as validTo "
+    @Select(sql = "select ph.expe_id as objectId, ph.pers_id_author as authorId, pt.code as propertyCode, ph.value as propertyValue, ph.material as materialPropertyValue, ph.vocabulary_term as vocabularyPropertyValue, ph.valid_from_timestamp as validFrom, ph.valid_until_timestamp as validTo "
             + "from experiment_properties_history ph "
-            + "left join experiment_type_property_types etpt on ph.etpt_id = etpt.id left join property_types pt on etpt.prty_id = pt.id "
+            + "join experiment_type_property_types etpt on ph.etpt_id = etpt.id "
+            + "join property_types pt on etpt.prty_id = pt.id "
             + "where ph.expe_id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<HistoryPropertyRecord> getPropertiesHistory(LongSet experimentIds);
 
-    @Select(sql = "select erh.main_expe_id as entityId, erh.pers_id_author as authorId, erh.relation_type as relationType, "
+    @Select(sql = "select erh.main_expe_id as objectId, erh.pers_id_author as authorId, erh.relation_type as relationType, "
             + "erh.entity_perm_id as relatedObjectId, erh.valid_from_timestamp as validFrom, erh.valid_until_timestamp as validTo, "
             + "erh.proj_id as projectId, erh.samp_id as sampleId, erh.data_id as dataSetId "
             + "from experiment_relationships_history erh where erh.valid_until_timestamp is not null and erh.main_expe_id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)

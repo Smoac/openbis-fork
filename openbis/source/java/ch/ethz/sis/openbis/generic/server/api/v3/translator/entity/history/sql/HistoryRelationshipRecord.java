@@ -26,7 +26,7 @@ import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql.Ob
 public class HistoryRelationshipRecord extends ObjectBaseRecord
 {
 
-    public Long entityId;
+    public Long objectId;
 
     public Long authorId;
 

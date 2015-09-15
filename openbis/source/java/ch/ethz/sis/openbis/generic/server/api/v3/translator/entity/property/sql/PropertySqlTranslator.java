@@ -47,12 +47,12 @@ public abstract class PropertySqlTranslator extends AbstractCachingTranslator<Lo
 
         for (PropertyRecord record : records)
         {
-            Map<String, String> objectProperties = properties.get(record.entityId);
+            Map<String, String> objectProperties = properties.get(record.objectId);
 
             if (objectProperties == null)
             {
                 objectProperties = new HashMap<String, String>();
-                properties.put(record.entityId, objectProperties);
+                properties.put(record.objectId, objectProperties);
             }
 
             if (record.propertyValue != null)

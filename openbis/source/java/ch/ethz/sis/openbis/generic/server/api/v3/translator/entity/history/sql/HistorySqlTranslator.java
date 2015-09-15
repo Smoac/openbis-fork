@@ -128,12 +128,12 @@ public abstract class HistorySqlTranslator extends AbstractCachingTranslator<Lon
     {
         for (HistoryPropertyRecord record : records)
         {
-            List<HistoryEntry> entries = entriesMap.get(record.entityId);
+            List<HistoryEntry> entries = entriesMap.get(record.objectId);
 
             if (entries == null)
             {
                 entries = new LinkedList<HistoryEntry>();
-                entriesMap.put(record.entityId, entries);
+                entriesMap.put(record.objectId, entries);
             }
 
             entries.add(createPropertyEntry(record, authorMap, fetchOptions));
@@ -176,12 +176,12 @@ public abstract class HistorySqlTranslator extends AbstractCachingTranslator<Lon
     {
         for (HistoryRelationshipRecord record : records)
         {
-            List<HistoryEntry> entries = entriesMap.get(record.entityId);
+            List<HistoryEntry> entries = entriesMap.get(record.objectId);
 
             if (entries == null)
             {
                 entries = new LinkedList<HistoryEntry>();
-                entriesMap.put(record.entityId, entries);
+                entriesMap.put(record.objectId, entries);
             }
 
             entries.add(createRelationshipEntry(record, authorMap, fetchOptions));

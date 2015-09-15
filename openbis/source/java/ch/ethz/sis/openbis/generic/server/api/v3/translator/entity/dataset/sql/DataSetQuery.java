@@ -33,14 +33,14 @@ import ch.systemsx.cisd.common.db.mapper.LongSetMapper;
 public interface DataSetQuery extends ObjectQuery
 {
 
-    @Select(sql = "select dph.ds_id as entityId, dph.pers_id_author as authorId, pt.code as propertyCode, dph.value as propertyValue, dph.material as materialPropertyValue, dph.vocabulary_term as vocabularyPropertyValue, dph.valid_from_timestamp as validFrom, dph.valid_until_timestamp as validTo "
+    @Select(sql = "select dph.ds_id as objectId, dph.pers_id_author as authorId, pt.code as propertyCode, dph.value as propertyValue, dph.material as materialPropertyValue, dph.vocabulary_term as vocabularyPropertyValue, dph.valid_from_timestamp as validFrom, dph.valid_until_timestamp as validTo "
             + "from data_set_properties_history dph "
             + "left join data_set_type_property_types dtpt on dph.dstpt_id = dtpt.id "
             + "left join property_types pt on dtpt.prty_id = pt.id "
             + "where dph.ds_id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<HistoryPropertyRecord> getPropertiesHistory(LongSet dataSetIds);
 
-    @Select(sql = "select drh.main_data_id as entityId, drh.pers_id_author as authorId, drh.relation_type as relationType, "
+    @Select(sql = "select drh.main_data_id as objectId, drh.pers_id_author as authorId, drh.relation_type as relationType, "
             + "drh.entity_perm_id as relatedObjectId, drh.valid_from_timestamp as validFrom, drh.valid_until_timestamp as validTo, "
             + "drh.expe_id as experimentId, drh.samp_id as sampleId, drh.data_id as dataSetId "
             + "from data_set_relationships_history drh where drh.valid_until_timestamp is not null and drh.main_data_id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)

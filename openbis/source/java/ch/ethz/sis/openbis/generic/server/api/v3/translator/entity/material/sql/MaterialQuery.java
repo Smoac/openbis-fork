@@ -48,30 +48,31 @@ public interface MaterialQuery extends ObjectQuery
     public List<MaterialTypeBaseRecord> getTypes(LongSet materialTypeIds);
 
     // PropertyQueryGenerator was used to generate this query
-    @Select(sql = "select p.mate_id as entityId, pt.code as propertyCode, p.value as propertyValue, m.code as materialPropertyValueCode, mt.code as materialPropertyValueTypeCode, cvt.code as vocabularyPropertyValue "
+    @Select(sql = "select p.mate_id as objectId, pt.code as propertyCode, p.value as propertyValue, m.code as materialPropertyValueCode, mt.code as materialPropertyValueTypeCode, cvt.code as vocabularyPropertyValue "
             + "from material_properties p "
-            + "left outer join materials m on p.mate_prop_id = m.id "
-            + "left outer join controlled_vocabulary_terms cvt on p.cvte_id = cvt.id "
+            + "left join materials m on p.mate_prop_id = m.id "
+            + "left join controlled_vocabulary_terms cvt on p.cvte_id = cvt.id "
             + "left join material_types mt on m.maty_id = mt.id "
-            + "left join material_type_property_types etpt on p.mtpt_id = etpt.id "
-            + "left join property_types pt on etpt.prty_id = pt.id "
+            + "join material_type_property_types etpt on p.mtpt_id = etpt.id "
+            + "join property_types pt on etpt.prty_id = pt.id "
             + "where p.mate_id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<PropertyRecord> getProperties(LongSet materialIds);
 
     // PropertyQueryGenerator was used to generate this query
-    @Select(sql = "select ph.mate_id as entityId, ph.pers_id_author as authorId, pt.code as propertyCode, ph.value as propertyValue, ph.material as materialPropertyValue, ph.vocabulary_term as vocabularyPropertyValue, ph.valid_from_timestamp as validFrom, ph.valid_until_timestamp as validTo "
-            + "from material_properties_history ph "
-            + "left join material_type_property_types etpt on ph.mtpt_id = etpt.id left join property_types pt on etpt.prty_id = pt.id "
-            + "where ph.mate_id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
-    public List<HistoryPropertyRecord> getPropertiesHistory(LongSet materialIds);
-
-    // PropertyQueryGenerator was used to generate this query
-    @Select(sql = "select p.mate_id as entityId, pt.code as propertyCode, p.mate_prop_id as propertyValue "
+    @Select(sql = "select p.mate_id as objectId, pt.code as propertyCode, p.mate_prop_id as propertyValue "
             + "from material_properties p "
-            + "left join material_type_property_types etpt on p.mtpt_id = etpt.id "
-            + "left join property_types pt on etpt.prty_id = pt.id "
+            + "join material_type_property_types etpt on p.mtpt_id = etpt.id "
+            + "join property_types pt on etpt.prty_id = pt.id "
             + "where p.mate_prop_id is not null and p.mate_id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<MaterialPropertyRecord> getMaterialProperties(LongOpenHashSet materialIds);
+
+    // PropertyQueryGenerator was used to generate this query
+    @Select(sql = "select ph.mate_id as objectId, ph.pers_id_author as authorId, pt.code as propertyCode, ph.value as propertyValue, ph.material as materialPropertyValue, ph.vocabulary_term as vocabularyPropertyValue, ph.valid_from_timestamp as validFrom, ph.valid_until_timestamp as validTo "
+            + "from material_properties_history ph "
+            + "join material_type_property_types etpt on ph.mtpt_id = etpt.id "
+            + "join property_types pt on etpt.prty_id = pt.id "
+            + "where ph.mate_id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    public List<HistoryPropertyRecord> getPropertiesHistory(LongSet materialIds);
 
     @Select(sql = "select m.id as objectId, m.pers_id_registerer as relatedId from materials m where m.id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<ObjectRelationRecord> getRegistratorIds(LongSet materialIds);

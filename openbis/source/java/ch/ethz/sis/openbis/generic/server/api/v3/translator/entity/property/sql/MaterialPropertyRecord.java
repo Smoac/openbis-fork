@@ -22,7 +22,7 @@ package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.property.sql
 public class MaterialPropertyRecord
 {
 
-    public Long entityId;
+    public Long objectId;
 
     public String propertyCode;
 

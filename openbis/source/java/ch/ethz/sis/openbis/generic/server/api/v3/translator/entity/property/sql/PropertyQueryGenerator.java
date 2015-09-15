@@ -107,12 +107,12 @@ public class PropertyQueryGenerator
         sb.append("cvt.code as vocabularyPropertyValue \n");
         sb.append("from ");
         sb.append(params.propertyTable + " p \n");
-        sb.append("left outer join materials m on p.mate_prop_id = m.id \n");
-        sb.append("left outer join controlled_vocabulary_terms cvt on p.cvte_id = cvt.id \n");
+        sb.append("left join materials m on p.mate_prop_id = m.id \n");
+        sb.append("left join controlled_vocabulary_terms cvt on p.cvte_id = cvt.id \n");
         sb.append("left join material_types mt on m.maty_id = mt.id \n");
-        sb.append("left join " + params.entityTypePropertyTypeTable + " etpt on p." + params.propertyTableEntityTypePropertyTypeIdColumn
+        sb.append("join " + params.entityTypePropertyTypeTable + " etpt on p." + params.propertyTableEntityTypePropertyTypeIdColumn
                 + " = etpt.id \n");
-        sb.append("left join property_types pt on etpt.prty_id = pt.id \n");
+        sb.append("join property_types pt on etpt.prty_id = pt.id \n");
         sb.append("where p." + params.propertyTableEntityIdColumn + " = any(?{1})\n");
         return sb.toString();
     }
@@ -126,9 +126,9 @@ public class PropertyQueryGenerator
         sb.append("p.mate_prop_id as propertyValue \n");
         sb.append("from ");
         sb.append(params.propertyTable + " p \n");
-        sb.append("left join " + params.entityTypePropertyTypeTable + " etpt on p." + params.propertyTableEntityTypePropertyTypeIdColumn
+        sb.append("join " + params.entityTypePropertyTypeTable + " etpt on p." + params.propertyTableEntityTypePropertyTypeIdColumn
                 + " = etpt.id \n");
-        sb.append("left join property_types pt on etpt.prty_id = pt.id \n");
+        sb.append("join property_types pt on etpt.prty_id = pt.id \n");
         sb.append("where p.mate_prop_id is not null and p." + params.propertyTableEntityIdColumn + " = any(?{1})\n");
         return sb.toString();
     }
@@ -147,9 +147,9 @@ public class PropertyQueryGenerator
         sb.append("ph.valid_until_timestamp as validTo \n");
         sb.append("from ");
         sb.append(params.propertyHistoryTable + " ph \n");
-        sb.append("left join " + params.entityTypePropertyTypeTable + " etpt on ph." + params.propertyHistoryTableEntityTypePropertyTypeIdColumn
-                + " = etpt.id ");
-        sb.append("left join property_types pt on etpt.prty_id = pt.id \n");
+        sb.append("join " + params.entityTypePropertyTypeTable + " etpt on ph." + params.propertyHistoryTableEntityTypePropertyTypeIdColumn
+                + " = etpt.id \n");
+        sb.append("join property_types pt on etpt.prty_id = pt.id \n");
         sb.append("where ph." + params.propertyHistoryTableEntityIdColumn + " = any(?{1})\n");
         return sb.toString();
     }

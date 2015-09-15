@@ -64,11 +64,11 @@ public abstract class MaterialPropertySqlTranslator extends
 
         for (MaterialPropertyRecord record : records)
         {
-            Map<String, Material> properties = materialProperties.get(record.entityId);
+            Map<String, Material> properties = materialProperties.get(record.objectId);
             if (properties == null)
             {
                 properties = new HashMap<String, Material>();
-                materialProperties.put(record.entityId, properties);
+                materialProperties.put(record.objectId, properties);
             }
             properties.put(record.propertyCode, materials.get(record.propertyValue));
         }

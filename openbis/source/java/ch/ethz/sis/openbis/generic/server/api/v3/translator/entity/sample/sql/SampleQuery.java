@@ -36,14 +36,14 @@ public interface SampleQuery extends ObjectQuery
 {
 
     @Select(sql = "select s.id, s.code, sp.code as spaceCode, sc.code as containerCode "
-            + "from samples s left outer join spaces sp on s.space_id = sp.id "
-            + "left outer join samples sc on s.samp_id_part_of = sc.id "
+            + "from samples s left join spaces sp on s.space_id = sp.id "
+            + "left join samples sc on s.samp_id_part_of = sc.id "
             + "where s.id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<SampleAuthorizationRecord> getAuthorizations(LongSet sampleIds);
 
     @Select(sql = "select s.id, s.code, s.perm_id as permId, sp.code as spaceCode, sc.code as containerCode, s.registration_timestamp as registrationDate, s.modification_timestamp as modificationDate "
-            + "from samples s left outer join spaces sp on s.space_id = sp.id "
-            + "left outer join samples sc on s.samp_id_part_of = sc.id "
+            + "from samples s left join spaces sp on s.space_id = sp.id "
+            + "left join samples sc on s.samp_id_part_of = sc.id "
             + "where s.id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<SampleBaseRecord> getSamples(LongSet sampleIds);
 
@@ -56,32 +56,33 @@ public interface SampleQuery extends ObjectQuery
     public List<SampleTypeBaseRecord> getTypes(LongSet sampleTypeIds);
 
     // PropertyQueryGenerator was used to generate this query
-    @Select(sql = "select p.samp_id as entityId, pt.code as propertyCode, p.value as propertyValue, m.code as materialPropertyValueCode, mt.code as materialPropertyValueTypeCode, cvt.code as vocabularyPropertyValue "
+    @Select(sql = "select p.samp_id as objectId, pt.code as propertyCode, p.value as propertyValue, m.code as materialPropertyValueCode, mt.code as materialPropertyValueTypeCode, cvt.code as vocabularyPropertyValue "
             + "from sample_properties p "
-            + "left outer join materials m on p.mate_prop_id = m.id "
-            + "left outer join controlled_vocabulary_terms cvt on p.cvte_id = cvt.id "
+            + "left join materials m on p.mate_prop_id = m.id "
+            + "left join controlled_vocabulary_terms cvt on p.cvte_id = cvt.id "
             + "left join material_types mt on m.maty_id = mt.id "
-            + "left join sample_type_property_types etpt on p.stpt_id = etpt.id "
-            + "left join property_types pt on etpt.prty_id = pt.id "
+            + "join sample_type_property_types etpt on p.stpt_id = etpt.id "
+            + "join property_types pt on etpt.prty_id = pt.id "
             + "where p.samp_id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<PropertyRecord> getProperties(LongSet sampleIds);
 
     // PropertyQueryGenerator was used to generate this query
-    @Select(sql = "select ph.samp_id as entityId, ph.pers_id_author as authorId, pt.code as propertyCode, ph.value as propertyValue, ph.material as materialPropertyValue, ph.vocabulary_term as vocabularyPropertyValue, ph.valid_from_timestamp as validFrom, ph.valid_until_timestamp as validTo "
-            + "from sample_properties_history ph "
-            + "left join sample_type_property_types etpt on ph.stpt_id = etpt.id left join property_types pt on etpt.prty_id = pt.id "
-            + "where ph.samp_id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
-    public List<HistoryPropertyRecord> getPropertiesHistory(LongSet sampleIds);
-
-    // PropertyQueryGenerator was used to generate this query
-    @Select(sql = "select p.samp_id as entityId, pt.code as propertyCode, p.mate_prop_id as propertyValue "
+    @Select(sql = "select p.samp_id as objectId, pt.code as propertyCode, p.mate_prop_id as propertyValue "
             + "from sample_properties p "
-            + "left join sample_type_property_types etpt on p.stpt_id = etpt.id "
-            + "left join property_types pt on etpt.prty_id = pt.id "
+            + "join sample_type_property_types etpt on p.stpt_id = etpt.id "
+            + "join property_types pt on etpt.prty_id = pt.id "
             + "where p.mate_prop_id is not null and p.samp_id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<MaterialPropertyRecord> getMaterialProperties(LongSet sampleIds);
 
-    @Select(sql = "select srh.main_samp_id as entityId, srh.pers_id_author as authorId, srh.relation_type as relationType, "
+    // PropertyQueryGenerator was used to generate this query
+    @Select(sql = "select ph.samp_id as objectId, ph.pers_id_author as authorId, pt.code as propertyCode, ph.value as propertyValue, ph.material as materialPropertyValue, ph.vocabulary_term as vocabularyPropertyValue, ph.valid_from_timestamp as validFrom, ph.valid_until_timestamp as validTo "
+            + "from sample_properties_history ph "
+            + "join sample_type_property_types etpt on ph.stpt_id = etpt.id "
+            + "join property_types pt on etpt.prty_id = pt.id "
+            + "where ph.samp_id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    public List<HistoryPropertyRecord> getPropertiesHistory(LongSet sampleIds);
+
+    @Select(sql = "select srh.main_samp_id as objectId, srh.pers_id_author as authorId, srh.relation_type as relationType, "
             + "srh.entity_perm_id as relatedObjectId, srh.valid_from_timestamp as validFrom, srh.valid_until_timestamp as validTo, "
             + "srh.space_id as spaceId, srh.expe_id as experimentId, srh.samp_id as sampleId, srh.data_id as dataSetId "
             + "from sample_relationships_history srh where srh.valid_until_timestamp is not null and srh.main_samp_id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
