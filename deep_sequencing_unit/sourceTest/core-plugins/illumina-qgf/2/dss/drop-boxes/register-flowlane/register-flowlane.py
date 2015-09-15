@@ -26,9 +26,11 @@ Manuel Kohler
 import os
 import shutil
 import re
+import sys
 import subprocess
 from collections import OrderedDict
 from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto import SearchCriteria
+from java.lang import System;
 # The following module is located in the path defined in the datastore_server.conf
 # Look for: -Dpython.path}
 from gfb_utils import *
@@ -49,8 +51,8 @@ NCBI_ORGANISM_TAXONOMY='NCBI_ORGANISM_TAXONOMY'
 PHIX_TAXONOMY_ID='10847'
 DEFAULT_INDEX='NoIndex'
 CRC32_PATH='lib/crc32'
-CRC32_PATH='lib/a.out'
-
+if System.getProperty('os.name')  == 'Mac OS X':
+    CRC32_PATH='lib/a.out'
 
 def checkOnFileSize(file):
     return os.stat(file).st_size == 0
@@ -129,13 +131,15 @@ def extraCopySciCore (sample_space, filePath, destinationFolder=""):
     Handles the extra copies of the data for transfer with datamover for SCICORE
     '''
     
-    dropBoxFolder = '/Users/kohleman/tmp/scicore'
-    #dropBoxFolder = '/links/shared/dsu/dss/customers/biozentrum_scicore/drop-box'
+    dropBoxFolder = '/links/shared/dsu/dss/customers/biozentrum_scicore/drop-box'
+    if System.getProperty('os.name')  == 'Mac OS X':
+        dropBoxFolder = '/Users/kohleman/tmp/scicore'
     
     # if a sample is part of this space list then it will be transferred to sciCore
-    SPACE_LIST = ["UNI_BASEL_SALZBURGER", "BIOCENTER_HANDSCHIN", "BIOCENTER_ZAVOLAN",
-                  "BIOCENTER_KELLER", "BIOCENTER_SILANDER", "ETHZ_NEUROSTEMX",
-                  "UNI_BASEL_UTZINGER", "UNI_BASEL_GAGNEUX", "BIOZENTRUM_SPANG",
+    SPACE_LIST = ["DUW_SALZBURGER", "BIOZENTRUM_HANDSCHIN", "BIOZENTRUM_ZAVOLAN",
+                  "BIOZENTRUM_KELLER", "BIOZENTRUM_NIMWEGEN", "BSSE_DBM_BIOZENTRUM_NEUROSTEMX",
+                  "UNI_BASEL_STPH_UTZINGER", "UNI_BASEL_STPH_GAGNEUX",
+                  "BIOZENTRUM_PAPASSOTIROPOULOS_BEERENWINKEL", "BIOZENTRUM_SPANG",
                   "BIOZENTRUM_JENAL"]
     
     basename = os.path.basename(filePath)
@@ -144,10 +148,10 @@ def extraCopySciCore (sample_space, filePath, destinationFolder=""):
         dirname = os.path.join(dropBoxFolder, destinationFolder)
         if not os.path.exists(dirname):
             os.mkdir(dirname)
-        print("COPYING " + filePath + " TO " + dirname)
+        print("COPYING " + filePath + " TO SCICORE FOLDER " + dirname)
         shutil.copy(filePath, dirname)
     else:
-        print(sample_space + " not in SPACE_LIST. Sample will not be copied to BC2.")
+        print(sample_space + " not in SPACE_LIST. Sample will not be copied to BC2.\n")
 
 
 def get_sample_properties (transaction, sample): 
@@ -202,6 +206,8 @@ def renameFiles (fastq_files, undetermined, flow_cell_id):
 def put_files_to_dataset (transaction, dataSet, fastq_files, folder_name, flow_cell_id, sample_space, undetermined):
 
     for file in fastq_files:
+        print("SAMPLE_SPACE")
+        print(sample_space)
         extraCopySciCore (sample_space, file, folder_name)
         transaction.moveFile(file, dataSet, folder_name)
 
@@ -217,11 +223,11 @@ def split_incoming_folder_name (name):
         flowLane = split[-1]
         undetermined = False
 
-    # expected Undetermined_H0W8YBGXX
-    elif (len(split) == 2):
+    # expected Undetermined_H0W8YBGX_1
+    elif (len(split) == 3):
         sample_code = ''
-        flowCellId = split[-1]
-        flowLane = '1'
+        flowCellId = split[-2]
+        flowLane = split[-1]
         undetermined = True
         
     # MiSeq BSSE_QGF_36097_000000000_AH4PH_1
@@ -282,6 +288,7 @@ def process_regular_samples(transaction, name, sample_code, flowLane, fastq_file
 def process_undetermined(transaction, undetermined, name, flowCellId, flowLane, fastq_files, first_fastq_file, search_service, fcMetaDataDict, parents, dataSet):
     sample_space = ""
     newFastqFiles = []
+    sample_space_list = []
     lane_parents = searchParents(search_service, parents)
     print "Found " + str(lane_parents.size()) + " parents"
     newFastqFiles = renameFiles(fastq_files, undetermined, flowCellId)
@@ -291,6 +298,7 @@ def process_undetermined(transaction, undetermined, name, flowCellId, flowLane, 
         sample_code = parent_sample.getCode()
         experiment = parent_sample.getExperiment()
         sample_space = parent.getSpace()
+        sample_space_list.append(sample_space)
 
         # Special Sample Types without index (e.g. ILLUMINA_SEQUENCING_NEUROSTEMX_SINGLECELL) are caught here.
         # as those samples do not have a NCBI ORGANISM TAXONOMY
@@ -310,7 +318,10 @@ def process_undetermined(transaction, undetermined, name, flowCellId, flowLane, 
             print sample_code + ": Create parent meta data file"
             meta_data_file_path = transaction.createNewFile(dataSet, name, 'PARENT_' + sample_code + '_' + flowCellId + METADATA_FILE_SUFFIX)
             writeMetadataFile(transaction, name, meta_data_file_path, sequencing_sample_properties_dict, fcMetaDataDict, experiment, sample_space, [], flowLane)
-    
+   
+    sample_space_set = set(sample_space_list)
+    sample_space_set.remove("PHIX")
+    sample_space = sample_space_set.pop()
     return newFastqFiles, sample_space
 
 def process(transaction):
