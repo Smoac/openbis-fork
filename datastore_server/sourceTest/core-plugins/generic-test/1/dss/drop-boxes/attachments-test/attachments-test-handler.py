@@ -68,8 +68,8 @@ def testExperimentWithAttachments(transaction):
     assertAttachmentCount(attachments, 4)
     assertAttachment(attachments[0], "exampleExperiments.txt", None, None, 1)
     assertAttachment(attachments[1], "exampleExperiments.txt", None, None, 2)
-    assertAttachment(attachments[2], "exampleExperiments.txt", None, None, 3)
-    assertAttachment(attachments[3], "exampleExperiments.txt", None, None, 4)
+    assertAttachment(attachments[2], "exampleExperiments.txt", None, "Second latest version", 3)
+    assertAttachment(attachments[3], "exampleExperiments.txt", "Latest version", None, 4)
     
     content = transaction.getAttachmentContent(experiment, "exampleExperiments.txt", 2);
     assertAttachmentContentContains(content, "koko");
