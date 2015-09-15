@@ -16,22 +16,16 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.method;
 
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.common.IMapObjectByIdExecutor;
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.project.IMapProjectByIdExecutor;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.project.IMapProjectTechIdByIdExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.ITranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.project.sql.IProjectSqlTranslator;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.project.Project;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.project.ProjectFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.IProjectId;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 
 /**
  * @author pkupczyk
@@ -42,7 +36,7 @@ public class MapProjectSqlMethodExecutor extends AbstractMapMethodExecutor<IProj
 {
 
     @Autowired
-    private IMapProjectByIdExecutor mapExecutor;
+    private IMapProjectTechIdByIdExecutor mapExecutor;
 
     @Autowired
     private IProjectSqlTranslator translator;
@@ -50,23 +44,7 @@ public class MapProjectSqlMethodExecutor extends AbstractMapMethodExecutor<IProj
     @Override
     protected IMapObjectByIdExecutor<IProjectId, Long> getMapExecutor()
     {
-        // TODO replace with IProjectId -> Long mapExecutor once there is one
-        return new IMapObjectByIdExecutor<IProjectId, Long>()
-            {
-                @Override
-                public Map<IProjectId, Long> map(IOperationContext context, Collection<? extends IProjectId> ids)
-                {
-                    Map<IProjectId, ProjectPE> peMap = mapExecutor.map(context, ids);
-                    Map<IProjectId, Long> idMap = new LinkedHashMap<IProjectId, Long>();
-
-                    for (Map.Entry<IProjectId, ProjectPE> peEntry : peMap.entrySet())
-                    {
-                        idMap.put(peEntry.getKey(), peEntry.getValue().getId());
-                    }
-
-                    return idMap;
-                }
-            };
+        return mapExecutor;
     }
 
     @Override
