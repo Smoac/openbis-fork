@@ -32,7 +32,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.ISpaceId;
  * @author Franz-Josef Elmer
  */
 @Component
-public class MapSapceTechIdByIdExecutor extends AbstractMapObjectByIdExecutor<ISpaceId, Long> implements IMapSpaceTechIdByIdExecutor
+public class MapSpaceTechIdByIdExecutor extends AbstractMapObjectByIdExecutor<ISpaceId, Long> implements IMapSpaceTechIdByIdExecutor
 {
 
     @Override
