@@ -102,19 +102,25 @@ public class MapSampleTest extends AbstractSampleTest
         SampleIdentifier identifier1 = new SampleIdentifier("/CISD/CP-TEST-1");
         SampleIdentifier identifier2 = new SampleIdentifier("/TEST-SPACE/CP-TEST-4");
         SampleIdentifier identifier3 = new SampleIdentifier("/CISD/3VCP8");
+        SampleIdentifier identifier4 = new SampleIdentifier("/MP");
+        SampleIdentifier identifier5 = new SampleIdentifier("/MP:A03");
+        SampleIdentifier identifier6 = new SampleIdentifier("/CISD/CL1:A03");
 
-        Map<ISampleId, Sample> map = v3api.mapSamples(sessionToken, Arrays.asList(identifier1, identifier2, identifier3), new SampleFetchOptions());
+        List<SampleIdentifier> identifiers = Arrays.asList(identifier1, identifier2, identifier3, identifier4, 
+                identifier5, identifier6);
+        Map<ISampleId, Sample> map = v3api.mapSamples(sessionToken, identifiers, new SampleFetchOptions());
 
-        assertEquals(3, map.size());
+        assertEquals(map.size(), identifiers.size());
 
         Iterator<Sample> iter = map.values().iterator();
-        assertEquals(iter.next().getIdentifier(), identifier1);
-        assertEquals(iter.next().getIdentifier(), identifier2);
-        assertEquals(iter.next().getIdentifier(), identifier3);
-
-        assertEquals(map.get(identifier1).getIdentifier(), identifier1);
-        assertEquals(map.get(identifier2).getIdentifier(), identifier2);
-        assertEquals(map.get(identifier3).getIdentifier(), identifier3);
+        for (SampleIdentifier identifier : identifiers)
+        {
+            assertEquals(iter.next().getIdentifier(), identifier);
+        }
+        for (SampleIdentifier identifier : identifiers)
+        {
+            assertEquals(map.get(identifier).getIdentifier(), identifier);
+        }
 
         v3api.logout(sessionToken);
     }
