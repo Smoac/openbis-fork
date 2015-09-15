@@ -38,7 +38,13 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFa
  */
 public class ListSampleTechIdByIdentifier implements IListObjectById<SampleIdentifier, Long>
 {
-    private Map<Long, SampleIdentifier> identifiersByTechIds = new HashMap<Long, SampleIdentifier>(); 
+    private Map<Long, SampleIdentifier> identifiersByTechIds = new HashMap<Long, SampleIdentifier>();
+    private String homeSpaceCodeOrNull; 
+    
+    public ListSampleTechIdByIdentifier(String homeSpaceCodeOrNull)
+    {
+        this.homeSpaceCodeOrNull = homeSpaceCodeOrNull;
+    }
 
     @Override
     public Class<SampleIdentifier> getIdClass()
@@ -63,7 +69,17 @@ public class ListSampleTechIdByIdentifier implements IListObjectById<SampleIdent
             String spaceCode = null;
             if (sampleIdentifier2.isSpaceLevel())
             {
-                spaceCode = CodeConverter.tryToDatabase(sampleIdentifier2.getSpaceLevel().getSpaceCode());
+                if (sampleIdentifier2.isInsideHomeSpace())
+                {
+                    if (homeSpaceCodeOrNull == null)
+                    {
+                        continue;
+                    }
+                    spaceCode = homeSpaceCodeOrNull;
+                } else
+                {
+                    spaceCode = CodeConverter.tryToDatabase(sampleIdentifier2.getSpaceLevel().getSpaceCode());
+                }
             }
             String sampleSubCode = CodeConverter.tryToDatabase(sampleIdentifier2.getSampleSubCode());
             String containerCode = CodeConverter.tryToDatabase(sampleIdentifier2.tryGetContainerCode());

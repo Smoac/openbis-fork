@@ -25,6 +25,7 @@ import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.common.AbstractMapObjectByIdExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.helper.common.IListObjectById;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.ISampleId;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
  * 
@@ -41,7 +42,8 @@ public class MapSampleTechIdByIdExecutor extends AbstractMapObjectByIdExecutor<I
         List<IListObjectById<? extends ISampleId, Long>> listers =
                 new LinkedList<IListObjectById<? extends ISampleId, Long>>();
         listers.add(new ListSampleTechIdByPermId());
-        listers.add(new ListSampleTechIdByIdentifier());
+        SpacePE homeSpace = context.getSession().tryGetHomeGroup();
+        listers.add(new ListSampleTechIdByIdentifier(homeSpace == null ? null : homeSpace.getCode()));
         return listers;
     }
 

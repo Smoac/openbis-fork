@@ -63,6 +63,8 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SampleIdentifier;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SamplePermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.SpacePermId;
 import ch.systemsx.cisd.common.test.AssertionUtil;
+import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 
 /**
  * @author pkupczyk
@@ -103,11 +105,12 @@ public class MapSampleTest extends AbstractSampleTest
         SampleIdentifier identifier2 = new SampleIdentifier("/TEST-SPACE/CP-TEST-4");
         SampleIdentifier identifier3 = new SampleIdentifier("/CISD/3VCP8");
         SampleIdentifier identifier4 = new SampleIdentifier("/MP");
-        SampleIdentifier identifier5 = new SampleIdentifier("/MP:A03");
-        SampleIdentifier identifier6 = new SampleIdentifier("/CISD/CL1:A03");
+        SampleIdentifier identifier5 = new SampleIdentifier("/MP:a03");
+        SampleIdentifier identifier6 = new SampleIdentifier("/cisd/cl1:A03");
+        SampleIdentifier identifier7 = new SampleIdentifier("//CL1:A01");
 
         List<SampleIdentifier> identifiers = Arrays.asList(identifier1, identifier2, identifier3, identifier4, 
-                identifier5, identifier6);
+                identifier5, identifier6, identifier7);
         Map<ISampleId, Sample> map = v3api.mapSamples(sessionToken, identifiers, new SampleFetchOptions());
 
         assertEquals(map.size(), identifiers.size());
@@ -115,14 +118,34 @@ public class MapSampleTest extends AbstractSampleTest
         Iterator<Sample> iter = map.values().iterator();
         for (SampleIdentifier identifier : identifiers)
         {
-            assertEquals(iter.next().getIdentifier(), identifier);
+            assertEquals(iter.next().getIdentifier(), normalize(identifier));
         }
         for (SampleIdentifier identifier : identifiers)
         {
-            assertEquals(map.get(identifier).getIdentifier(), identifier);
+            assertEquals(map.get(identifier).getIdentifier(), normalize(identifier));
         }
 
         v3api.logout(sessionToken);
+    }
+    
+    private SampleIdentifier normalize(SampleIdentifier identifier)
+    {
+        ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier identifier2 = SampleIdentifierFactory.parse(identifier.getIdentifier());
+        String spaceCode = null;
+        if (identifier2.isSpaceLevel())
+        {
+            if (identifier2.isInsideHomeSpace())
+            {
+                spaceCode = "CISD";
+            } else
+            {
+                spaceCode = CodeConverter.tryToDatabase(identifier2.getSpaceLevel().getSpaceCode());
+            }
+        }
+        String sampleSubCode = CodeConverter.tryToDatabase(identifier2.getSampleSubCode());
+        String containerCode = CodeConverter.tryToDatabase(identifier2.tryGetContainerCode());
+        return new SampleIdentifier(spaceCode, containerCode, sampleSubCode);
+
     }
 
     @Test
