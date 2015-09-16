@@ -603,10 +603,33 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
 
     private Set<Long> assertUnarchivingCapacityNotExceeded(List<String> dataSetCodes)
     {
-        long totalSizeOfUnarchivingRequested = getReadonlyQuery().getTotalNoOfBytesInContainersWithUnarchivingRequested();
-        Set<Long> containers = new LinkedHashSet<Long>();
+        Set<Long> containers = getContainers(dataSetCodes);
 
+        long totalSizeOfUnarchivingRequested = getReadonlyQuery().getTotalNoOfBytesInContainersWithUnarchivingRequested();
         long totalSumInBytes = totalSizeOfUnarchivingRequested;
+        for (Long containerId : containers)
+        {
+            List<MultiDataSetArchiverDataSetDTO> dataSets = getReadonlyQuery().listDataSetsForContainerId(containerId);
+            for (MultiDataSetArchiverDataSetDTO dataSet : dataSets)
+            {
+                totalSumInBytes += dataSet.getSizeInBytes();
+            }
+        }
+        if (totalSumInBytes > maximumUnarchivingCapacityInMB * FileUtils.ONE_MB)
+        {
+            String message = String.format("Total size of selected data sets (%.2f MB)"
+                    + " and those already scheduled for unarchiving (%.2f MB) exceeds capacity."
+                    + " Please narrow down your selection or try again later.",
+                    ((double)(totalSumInBytes - totalSizeOfUnarchivingRequested) / FileUtils.ONE_MB), 
+                    ((double)totalSizeOfUnarchivingRequested / FileUtils.ONE_MB));
+            throw new UserFailureException(message);
+        }
+        return containers;
+   }
+
+    private Set<Long> getContainers(List<String> dataSetCodes)
+    {
+        Set<Long> containers = new LinkedHashSet<Long>();
         for (String code : dataSetCodes)
         {
             MultiDataSetArchiverDataSetDTO dataSet = getReadonlyQuery().getDataSetForCode(code);
@@ -615,22 +638,10 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
                 throw new UserFailureException("Dataset " + code
                         + " was selected for unarchiving, but is not present in the archive");
             }
-            totalSumInBytes += dataSet.getSizeInBytes();
-            
-            if (totalSumInBytes > maximumUnarchivingCapacityInMB * FileUtils.ONE_MB)
-            {
-                
-                String message = String.format("Total size of selected data sets (%.2f MB)"
-                        + " and those already scheduled for unarchiving (%.2f MB) exceeds capacity."
-                        + " Please narrow down your selection or try again later.",
-                        ((double)(totalSumInBytes - totalSizeOfUnarchivingRequested) / FileUtils.ONE_MB), 
-                        ((double)totalSizeOfUnarchivingRequested / FileUtils.ONE_MB));
-                throw new UserFailureException(message);
-            }
             containers.add(dataSet.getContainerId());
         }
         return containers;
-   }
+    }
 
     @Override
     protected DatasetProcessingStatuses doDeleteFromArchive(List<? extends IDatasetLocation> datasets)
