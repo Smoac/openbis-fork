@@ -19,6 +19,8 @@
   var webAppContext = new openbisWebAppContext();
   dsu.server.useSession(webAppContext.getSessionId());
 
+  globalWidthBar = 80
+
   var div = d3.select("body").append("div")
     .attr("class", "tooltip")
     .style("opacity", 0);
@@ -31,6 +33,13 @@
       return 1;
     return 0;
   }
+
+  if (typeof String.prototype.startsWith != 'function') {
+  // see below for better implementation!
+  String.prototype.startsWith = function (str){
+    return this.indexOf(str) === 0;
+  };
+}
 
 
 	/*
@@ -85,9 +94,15 @@ function loadData () {
   dataSetMap = {};
   parentToDataSets = {};
   realValueMap = {};
-	  
+  bclVersion = "";
+
+  d3.select("body")
+    .append("text")
+    .attr("id", "generating")
+    .text("Generating graphics...")
+
   dsu.retrieveSampleParents(webAppContext.getEntityPermId(), function(parentResponse){
-	 // console.log("Got parents: " + parentResponse.result.length);
+	 //console.log("Got parents: " + parentResponse.result.length);
 	 var parentPermIds = [];
 	 
 	 parentResponse.result.forEach(function(parent){
@@ -116,7 +131,7 @@ function loadData () {
 
                               // console.log("DATA Set:")
                               // console.log(index1)
-                              console.log(index2)
+                              //console.log(index2)
 
                               parents.forEach(function(parent){
                                  var parentIndex1 = parent.properties['BARCODE'];
@@ -168,7 +183,7 @@ function loadData () {
                           	});
                           realValueMap[key] = [cumSumYieldMbases, cumSumPfReadsSum]
 						});
-                        console.log(realValueMap)
+                        //console.log(realValueMap)
 
 
 						statisticsArray = [];
@@ -204,10 +219,10 @@ function loadData () {
 	      							for (var j = 0; j < targetedArray.length; j++) {
 	        							if (targetedArray[j]['externalSampleName'] == dataSetProperties.result[i].properties.EXTERNAL_SAMPLE_NAME){
 
-	        								console.log(targetedArray[j]['externalSampleName'])
+	        								//console.log(targetedArray[j]['externalSampleName'])
 
-	        								console.log(realValueMap)
-	        								console.log(targetedArray[j])
+	        								//console.log(realValueMap)
+	        								//console.log(targetedArray[j])
 	          								statisticsArray.push({
 					                            'qgfName' : targetedArray[j]['parentSampleCode'],
    					                            'externalSampleName' : dataSetProperties.result[i].properties.EXTERNAL_SAMPLE_NAME,
@@ -257,36 +272,47 @@ function loadData () {
 							    statisticsArray.sort(naturalSort);
 							    var sums = calculateSum(statisticsArray, true)
 							    var sumsWithNOINDEX = calculateSum(statisticsArray, false)
+								d3.select("#generating").remove();
+                                                            
+                                dsu.retrieveSampleWithProperties(webAppContext.getEntityPermId(), function(laneResponse){
+                                	bclVersion = laneResponse.result[0].properties.BCL_VERSION
+                                	if (bclVersion.startsWith("bcl2fastq v2")) {
+                                		clusters = "Clusters";
+                                	}
+                                	else {
+                                		clusters = "Reads";
+                                	}
 
-							    if (! isNaN(statisticsArray[0].percFilteringPass)) {
-							    	plotLaneTable(sumsWithNOINDEX, false)
-							    	//placeholder();
-								// TODO: removed for now, as there is a bug 
-							    	//plotLaneTable(sums, true)
-							    	placeholder();
-							    	plotTable (statisticsArray);
-							    	downloadButton ("tableStats");
-							    	placeholder();
-							    	plotPercFilteringPass (statisticsArray);
-							    	downloadButton ("filteredChart");
-							    	plotReadsSum (statisticsArray, sums);
-							    	downloadButton ("unfilteredReads");
-							    	plotPFReads (statisticsArray, sums);
-							    	downloadButton ("PFReads");
-							    	plotPercRawClustersPerLane (statisticsArray);
-							    	downloadButton ("percRawClusters");
+								    if (! isNaN(statisticsArray[0].percFilteringPass)) {
+								    	plotLaneTable(sumsWithNOINDEX, false)
+										// TODO: removed for now, as there is a bug 
+								    	// placeholder();									
+								    	// plotLaneTable(sums, true)
+								    	placeholder();
+								    	plotTable (statisticsArray, clusters);
+								    	downloadButton ("tableStats");
+								    	placeholder();
+								    	plotPercFilteringPass (statisticsArray);
+								    	downloadButton ("filteredChart");
+								    	plotReadsSum (statisticsArray, sums, clusters);
+								    	downloadButton ("unfilteredReads");
+								    	plotPFReads (statisticsArray, sums, clusters);
+								    	downloadButton ("PFReads");
+								    	plotPercRawClustersPerLane (statisticsArray);
+								    	downloadButton ("percRawClusters");
 
-							    	$("#save_as" + "tableStats").click(function() { submit_download_form("html", "tableStats"); });
-							    	$("#save_as" + "filteredChart").click(function() { submit_download_form("svg", "filteredChart"); });
-							    	$("#save_as" + "unfilteredReads").click(function() { submit_download_form("svg", "unfilteredReads"); });
-							    	$("#save_as" + "PFReads").click(function() { submit_download_form("svg", "PFReads"); });
-							    	$("#save_as" + "percRawClusters").click(function() { submit_download_form("svg", "percRawClusters"); });
-							    }
+								    	$("#save_as" + "tableStats").click(function() { submit_download_form("html", "tableStats"); });
+								    	$("#save_as" + "filteredChart").click(function() { submit_download_form("svg", "filteredChart"); });
+								    	$("#save_as" + "unfilteredReads").click(function() { submit_download_form("svg", "unfilteredReads"); });
+								    	$("#save_as" + "PFReads").click(function() { submit_download_form("svg", "PFReads"); });
+								    	$("#save_as" + "percRawClusters").click(function() { submit_download_form("svg", "percRawClusters"); });
+							    	}
 
-							    else {
-							    	d3.select("body").append("text").text("No data available!") 
-							    }
-        		} // function getParentProperties (sampleProperties) {
+							    	else {
+							    		d3.select("body").append("text").text("No data available!") 
+							    	}
+							    }); //retrieveSampleWithProperties
+        		} // function getParentProperties (sampleProperties)
         	} // function getProperties(dataSetProperties) 
  		});
 	 });
@@ -320,11 +346,19 @@ function plotLaneTable (sums, withNOINDEX) {
     .attr("class", "tableStats")
     ;
 
-  header = {"Average Passed Filtering (PF)":1, "Sum Raw Reads":1, "Sum PF Reads":1, "Sum Raw Bases":1, "Sum PF Bases":1, "Average Raw Clusters in % per Index":1, "Average PF Phred Score":1, "Average > 30 Phred Score":1}
+  headerplotLaneTable = {};
+  headerplotLaneTable ["Average Passed Filtering (PF)"] = 1
+  headerplotLaneTable ["Sum Raw " + clusters] = 1
+  headerplotLaneTable ["Sum PF " + clusters] = 1
+  headerplotLaneTable ["Sum Raw Bases"] = 1
+  headerplotLaneTable ["Sum PF Bases"] = 1
+  headerplotLaneTable ["Average Raw " + clusters + " in % per Index"] = 1
+  headerplotLaneTable ["Average PF Phred Score"] = 1
+  headerplotLaneTable ["Average > 30 Phred Score"] = 1
 
   // create the table header
   var thead = laneTableStats.selectAll("th")
-              .data(d3.keys(header))
+              .data(d3.keys(headerplotLaneTable))
               .enter().append("th")
               .text(function(d){return d})
               ;
@@ -343,7 +377,7 @@ function plotLaneTable (sums, withNOINDEX) {
     ;
 }
 
-function plotTable (statisticsArray) {
+function plotTable (statisticsArray, clusters) {
   
   /*
   d3.select("body").append("text")
@@ -357,25 +391,25 @@ function plotTable (statisticsArray) {
     .attr("class", "tableStats")
     ;
 
-  var header={ "QGF Name" : "Internal Name of QGF",
-  	           "External Name": "Name given by the customer",
-               "Index1": "First Index",
-               "Index2": "Second Index", 
-               "Passed Filtering(PF) in %": "Reads which passed the Illumina Filter",
-               "Raw Reads": "Number of all Reads",
-               "PF Reads": "Number of Reads which passed the Illumina Filter",
-               "Raw Bases": "Number of all Bases",
-               "PF Bases": "Number of all Bases which passed the Illumina Filter",
-               "% in Lane": "Percentage of this Index within the Lane",
-               "Mean Phred Score": "Mean Phred Score (0-40)",
-               "> 30 Phred Score in %": "How many Bases are above the Phred Score 30(0.001)?",
-               "Real yield" : "Real yield of samples over multiple lanes", 
-               "Real Read" : "Real Read count in millions of samples over multiple lanes", 
-               "Targeted yield" : "Targeted yield in Gigabases",
-               "Targeted Read": "Targeted Read Count in million (PF)"
-  }
+  header = {};
 
-
+  header["Sample ID"] = "Unique Genomics Facility Identifier of sample"
+  header["Sample Name"] = "Sample name given by customer"
+  header["Index1"] = "First Index"
+  header["Index2"] = "Second Index"
+  header["% PF " + clusters] = "High quality reads passing Illumina filtering criteria"
+  header["Raw " + clusters] = "Number of all " + clusters
+  header["PF " + clusters] = "Number of " + clusters + " which passed the Illumina Filter"
+  header["Raw Bases"] = "Number of all Bases"
+  header["PF Bases"] = "Number of all Bases which passed the Illumina Filter"
+  header["% in Lane"] = "Percentage of this Index within the Lane"
+  header["Mean Phred Score"] = "Mean Phred Score (0-40)"
+  header["% of >= Q30 Bases (PF)"] = ""
+  header["Total Yield"] = "Total yield (bases) over all lanes the sample was sequenced"
+  header["Total " + clusters + " #"] = "Total " + clusters + " count over all lanes the sample was sequenced"
+  header["Targeted Yield"] = "Targeted yield inheader"
+  header["Targeted " + clusters + " #"] = "Targeted " + clusters + " Count in million (PF)"
+  
   // create the table header
   var thead = tableStats.selectAll("th")
               //.data(d3.keys(statisticsArray[0])) // got replaced with more readable names
@@ -389,8 +423,8 @@ function plotTable (statisticsArray) {
                     .style("opacity", .9);
                  div.style("width", "140px")
                  div.html(d)
-                .style("left", (d3.event.pageX) + "px")
-                .style("top", (d3.event.pageY - 42) + "px");
+                .style("left", (d3.event.pageX - 70) +"px")
+                .style("top", (d3.event.pageY + 42) + "px");
               })
              .on("mouseout", function(d) {
                  div.transition()
@@ -462,12 +496,12 @@ function plotPercFilteringPass (statisticsArray) {
   else if (statisticsArray.length > 10) {var svgWidth = 5000;}
   else {var svgWidth = 3000;}
 
-  svgWidth = statisticsArray.length * 60
+  svgWidth = statisticsArray.length * globalWidthBar
   if (svgWidth < 200) {svgWidth = 400;}
 
 
   var barPadding = 1;
-  var valuePadding = 0.01;
+  var valuePadding = 0.02;
   var agenda = [100,90,80,70,60,50,40,30,20,10,0]
   var agendaWidth = 100
   var AgendaWidthOffset = 30
@@ -584,7 +618,7 @@ function plotPercFilteringPass (statisticsArray) {
      .text(function(d) { return d.percFilteringPass + " %"; })
      //.attr("x", function(d, i) { return i * 1/(1+valuePadding)*(svgWidth / statisticsArray.length) + ((svgWidth /statisticsArray.length ) /2) -15; })
      //.attr("x", function(d, i) { return i * 1/(1+0.007)*(svgWidth / statisticsArray.length) + ((svgWidth /statisticsArray.length ) /2) ; })
-     .attr ("x", function (d) {return x(d.externalSampleName+d.index1) +10;})
+     .attr ("x", function (d) {return x(d.externalSampleName+d.index1) + 15;})
      .attr("y", function(d) {
                    if (d.percFilteringPass < 40) { return svgHeight - d.percFilteringPass - margin.top - margin.bottom; }
                    return (svgHeight - d.percFilteringPass  - margin.bottom) ;
@@ -596,9 +630,9 @@ function plotPercFilteringPass (statisticsArray) {
 }
 
 
-function plotReadsSum (statisticsArray, sums){
+function plotReadsSum (statisticsArray, sums, clusters){
 
-  svgWidth = statisticsArray.length *60 
+  svgWidth = statisticsArray.length * globalWidthBar
   if (svgWidth < 200) {svgWidth = 300;}
 
   var formatThousands = d3.format(",");
@@ -627,7 +661,7 @@ function plotReadsSum (statisticsArray, sums){
   rawReadsSum = sums[0].rawReadsSum
 
   svgReadsSum.append('text')
-                  .text("Number of raw Reads: " +  formatThousands(rawReadsSum))
+                  .text("Number of raw " + clusters + ": " +  formatThousands(rawReadsSum))
                   .attr("transform", "translate(" + (svgWidth/2) + "," + (svgHeight - 200) + ")")
                   .attr("font-family", "sans-serif")
                   .attr("font-size", "14px")
@@ -698,9 +732,9 @@ function plotReadsSum (statisticsArray, sums){
 
 
 
-function plotPFReads (statisticsArray, sums){
+function plotPFReads (statisticsArray, sums, clusters){
 
-  svgWidth = statisticsArray.length * 60
+  svgWidth = statisticsArray.length * globalWidthBar
   if (svgWidth < 200) {svgWidth = 300;}
 
   var formatThousands = d3.format(",");
@@ -729,7 +763,7 @@ function plotPFReads (statisticsArray, sums){
   pfReadsSum = sums[0].pfReadsSum
 
   svgPFReads.append('text')
-                  .text("Number of PF Reads: " +  formatThousands(pfReadsSum))
+                  .text("Number of PF " + clusters + ": " +  formatThousands(pfReadsSum))
                   .attr("transform", "translate(" + (svgWidth/2) + "," + (svgHeight - 200) + ")")
                   .attr("font-family", "sans-serif")
                   .attr("font-size", "14px")
