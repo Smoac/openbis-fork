@@ -11,6 +11,7 @@
     <script type="text/javascript" src="/openbis/resources/js/FileSaver.js"></script>
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="style.css" />
+
   </head>
   <body>
   <div id="container" class="container">
@@ -49,6 +50,13 @@
     return Number(myFloat).toFixed(2); 
   }
 
+  if (typeof String.prototype.startsWith != 'function') {
+    // see below for better implementation!
+    String.prototype.startsWith = function (str){
+      return this.indexOf(str) === 0;
+    };
+  }
+
 
   /* -------------------------------------------------------------------*/
 
@@ -66,15 +74,31 @@ function loadData () {
       sampleCodes.push(webAppContext.getEntityIdentifier() + ":" + i);
     }
 
+    var clusters = ""
+    // just take the first lane to read out the BCL version
+    dsu.retrieveSampleWithPropertiesCode(sampleCodes[0], function(laneResponse) {
+      // console.log(laneResponse)
+      bclVersion = laneResponse.result[0].properties.BCL_VERSION
+      if (bclVersion !== undefined) {
+        if (bclVersion.startsWith("bcl2fastq v2")) {
+          clusters = "Clusters";
+        }
+        else {
+          clusters = "Reads";
+        }
+      }
+      else { clusters = "Reads"};
+    });
+
     var deferrer = new openbisActionDeferrer(function(){
       sumArray.sort(compare);
       sumArrayNOINDEX.sort(compare);
-      plotLaneTable (sumArrayNOINDEX, true);
+      plotLaneTable (sumArrayNOINDEX, true, clusters);
       placeholder()
-      plotLaneTable (sumArray, false);
+      plotLaneTable (sumArray, false, clusters);
       downloadButton ("tableStats");
       $("#save_as" + "tableStats").click(function() { submit_download_form("html", "tableStats"); });
-    }, sampleCodes);
+    }, sampleCodes, clusters);
 
     sampleCodes.forEach(function(sampleCode){
       dsu.retrieveDataSetsForSample(sampleCode, function(response){
@@ -109,25 +133,39 @@ function loadData () {
   });
 };
  
-function plotLaneTable (sumArray, withNOINDEX) {
+function plotLaneTable (sumArray, withNOINDEX, clusters) {
 
- d3.select("body").append("text")
-    .text("Summary Table")
-    .attr("class", "h3");
+ //d3.select("body").append("text")
+ //   .text("Summary Table")
+ //   .attr("class", "h3");
 
   d3.select("body").append("text")
-    .text(function (){if (withNOINDEX) {return " with NOINDEX";} return " without NOINDEX";})
-    .attr("class", "h6");
+    .text(function (){if (withNOINDEX) {return " All " + clusters;} return " Without Undetermined " + clusters;})
+    .attr("class", "h3");
+ 
+  d3.select("body")
+              .append("p")
+              ;
 
   var laneTableStats = d3.select("body")
     .append("table")
     .attr("id", "tableStats")
     .attr("class", "tableStats")
     ;
-  header = {"Lane":1, "# of Samples":1, "Average Passed Filtering (PF)":1, "Sum Raw Reads":1, "Sum PF Reads":1, "Sum Raw Bases":1,
-            "Sum PF Bases":1, "Average Raw Clusters in % per Index":1, "Average PF Phred Score":1, "Average > 30 Phred Score":1 }
 
-  // create the table header
+  header = {}
+  header["Lane"] = 1
+  header["# of Samples"] = 1
+  header["AVG Passed Filtering (PF)"] = 1
+  header["Sum Raw " + clusters] = 1
+  header["Sum PF " + clusters] = 1
+  header["Sum Raw Bases"] = 1
+  header["Sum PF Bases"] = 1
+  header["AVG Raw Clusters in % per Index"] = 1
+  header["AVG PF Phred Score"] = 1
+  header["AVG > 30 Phred Score"] = 1
+
+ // create the table header
   var thead = laneTableStats.selectAll("th")
               .data(d3.keys(header))
               .enter().append("th")
@@ -135,8 +173,8 @@ function plotLaneTable (sumArray, withNOINDEX) {
               ;
 
   // create rows
-  console.log("Sumarray")
-  console.log(sumArray)
+  // console.log("Sumarray")
+  // console.log(sumArray)
   //sumArray.splice(1,3)
 
 
@@ -174,8 +212,8 @@ function placeholder() {
 var space = d3.select("body")
               .append("svg")
               .attr("id", "placeholder")
-              .attr("width", 1500)
-              .attr("height", 50)
+              .attr("width", 0)
+              .attr("height", 100)
               ;
 }
 

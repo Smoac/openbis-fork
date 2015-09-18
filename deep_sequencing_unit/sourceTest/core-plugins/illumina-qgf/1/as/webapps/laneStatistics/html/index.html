@@ -276,13 +276,15 @@ function loadData () {
                                                             
                                 dsu.retrieveSampleWithProperties(webAppContext.getEntityPermId(), function(laneResponse){
                                 	bclVersion = laneResponse.result[0].properties.BCL_VERSION
-                                	if (bclVersion.startsWith("bcl2fastq v2")) {
-                                		clusters = "Clusters";
-                                	}
-                                	else {
-                                		clusters = "Reads";
-                                	}
-
+                                        if (bclVersion !== undefined) {
+					  if (bclVersion.startsWith("bcl2fastq v2")) {
+						  clusters = "Clusters";
+					  }
+					  else {
+						  clusters = "Reads";
+					  }
+                                        }
+                                        else {clusters = "Reads"};
 								    if (! isNaN(statisticsArray[0].percFilteringPass)) {
 								    	plotLaneTable(sumsWithNOINDEX, false)
 										// TODO: removed for now, as there is a bug 
