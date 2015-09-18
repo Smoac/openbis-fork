@@ -44,7 +44,6 @@ $.extend(DefaultProfile.prototype, {
 				"experimentTypeCodes" : []
 		}		
 		this.propertyReplacingCode = "NAME";
-		this.softLinks = false;
 		
 		this.sampleTypeDefinitionsExtension = {
 		}

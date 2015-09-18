@@ -461,92 +461,9 @@ function ServerFacade(openbisServer) {
 		this.openbisServer.getMaterialByCodes(materialIdentifierObjects, callback);
 	}
 	
-	this.getInitializedSamples = function(result) {
-		
-		//
-		// Fill Map that uses as key the sample @id and value the sample object 
-		//
-		var samplesById = {};
-		
-		function storeSamplesById(originalSample)
-		{
-			var stack = [originalSample];
-			
-			var referredSample = null;
-			while (referredSample = stack.pop()) {
-				if (isNaN(referredSample)) {
-					samplesById[referredSample["@id"]] = referredSample;
-					if (referredSample.parents) {
-						for(var i = 0, len = referredSample.parents.length; i < len; ++i) {
-							stack.push(referredSample.parents[i]);
-						}
-					}
-					if (referredSample.children) {
-						for(var i = 0, len = referredSample.children.length; i < len; ++i) {
-							stack.push(referredSample.children[i]);
-						}
-					}
-				}					
-			}
-		}
-		
-		for(var i = 0; i < result.length; i++) {
-			var sampleOrId = result[i];
-			storeSamplesById(sampleOrId);
-		}
-		
-		//
-		// Fix Result List
-		//
-		var visitedSamples = {};
-		function fixSamples(result)
-		{
-			for(var i = 0; i < result.length; i++)
-			{
-				var sampleOrId = result[i];
-				
-				if (isNaN(sampleOrId))
-				{
-					sampleOrId = samplesById[sampleOrId["@id"]];
-				} else
-				{
-					sampleOrId = samplesById[sampleOrId]; 
-				}
-				result[i] = sampleOrId;
-				if(visitedSamples[sampleOrId.permId]) {
-					continue;
-				} else {
-					visitedSamples[sampleOrId.permId] = true;
-				}
-				
-				//Fill Parents
-				if(sampleOrId.parents) {
-					for(var j = 0; j < sampleOrId.parents.length; j++) {
-						var parentOrId = sampleOrId.parents[j];
-						if(!isNaN(parentOrId)) { //If is an Id get the reference
-							sampleOrId.parents[j] = samplesById[parentOrId];
-						}
-					}
-					fixSamples(sampleOrId.parents);
-				}
-				
-				//Fill Children
-				if(sampleOrId.children) {
-					for(var j = 0; j < sampleOrId.children.length; j++) {
-						var childOrId = sampleOrId.children[j];
-						if(!isNaN(childOrId)) { //If is an Id get the reference
-							sampleOrId.children[j] = samplesById[childOrId];
-						}
-					}
-					fixSamples(sampleOrId.children);
-				}
-			}
-		}
-		
-		fixSamples(result);
-		
-		return result;
-	}
+	//
+	// Search DataSet
+	//
 	
 	this.searchDataSetWithUniqueId = function(dataSetPermId, callbackFunction) {
 		var dataSetMatchClauses = [{
@@ -606,40 +523,9 @@ function ServerFacade(openbisServer) {
 		this.openbisServer.searchForDataSets(dataSetCriteria, callbackFunction)
 	}
 	
-	this.searchContained = function(permId, callbackFunction) {
-		var matchClauses = [];
-		
-		var subCriteria = {
-				"@type" : "SearchSubCriteria",
-				"targetEntityKind" : "SAMPLE_CONTAINER",
-				"criteria" : {
-					matchClauses : [{
-							"@type":"AttributeMatchClause",
-							fieldType : "ATTRIBUTE",			
-							attribute : "PERM_ID",
-							desiredValue : permId
-						}],
-					operator : "MATCH_ALL_CLAUSES"
-			}
-		}
-		
-		var sampleCriteria = 
-		{
-			matchClauses : matchClauses,
-			subCriterias : [ subCriteria ],
-			operator : "MATCH_ALL_CLAUSES"
-		};
-		
-		var localReference = this;
-		this.openbisServer.searchForSamplesWithFetchOptions(sampleCriteria, ["PROPERTIES", "PARENTS", "CHILDREN"], function(data) {
-			callbackFunction(localReference.getInitializedSamples(data.result));
-		});
-	}
-	
-	this.searchWithIdentifier = function(sampleIdentifier, callbackFunction)
-	{	
-		this.searchWithIdentifiers([sampleIdentifier], callbackFunction);
-	}
+	//
+	// Search Samples
+	//
 	
 	this.searchWithIdentifiers = function(sampleIdentifiers, callbackFunction)
 	{
@@ -919,6 +805,127 @@ function ServerFacade(openbisServer) {
 		return sampleCriteria;
 	}
 	
+	// Used for Plates
+	this.searchContained = function(permId, callbackFunction) {
+		var matchClauses = [];
+		
+		var subCriteria = {
+				"@type" : "SearchSubCriteria",
+				"targetEntityKind" : "SAMPLE_CONTAINER",
+				"criteria" : {
+					matchClauses : [{
+							"@type":"AttributeMatchClause",
+							fieldType : "ATTRIBUTE",			
+							attribute : "PERM_ID",
+							desiredValue : permId
+						}],
+					operator : "MATCH_ALL_CLAUSES"
+			}
+		}
+		
+		var sampleCriteria = 
+		{
+			matchClauses : matchClauses,
+			subCriterias : [ subCriteria ],
+			operator : "MATCH_ALL_CLAUSES"
+		};
+		
+		var localReference = this;
+		this.openbisServer.searchForSamplesWithFetchOptions(sampleCriteria, ["PROPERTIES", "PARENTS", "CHILDREN"], function(data) {
+			callbackFunction(localReference.getInitializedSamples(data.result));
+		});
+	}
+	
+	this.getInitializedSamples = function(result) {
+		
+		//
+		// Fill Map that uses as key the sample @id and value the sample object 
+		//
+		var samplesById = {};
+		
+		function storeSamplesById(originalSample)
+		{
+			var stack = [originalSample];
+			
+			var referredSample = null;
+			while (referredSample = stack.pop()) {
+				if (isNaN(referredSample)) {
+					samplesById[referredSample["@id"]] = referredSample;
+					if (referredSample.parents) {
+						for(var i = 0, len = referredSample.parents.length; i < len; ++i) {
+							stack.push(referredSample.parents[i]);
+						}
+					}
+					if (referredSample.children) {
+						for(var i = 0, len = referredSample.children.length; i < len; ++i) {
+							stack.push(referredSample.children[i]);
+						}
+					}
+				}					
+			}
+		}
+		
+		for(var i = 0; i < result.length; i++) {
+			var sampleOrId = result[i];
+			storeSamplesById(sampleOrId);
+		}
+		
+		//
+		// Fix Result List
+		//
+		var visitedSamples = {};
+		function fixSamples(result)
+		{
+			for(var i = 0; i < result.length; i++)
+			{
+				var sampleOrId = result[i];
+				
+				if (isNaN(sampleOrId))
+				{
+					sampleOrId = samplesById[sampleOrId["@id"]];
+				} else
+				{
+					sampleOrId = samplesById[sampleOrId]; 
+				}
+				result[i] = sampleOrId;
+				if(visitedSamples[sampleOrId.permId]) {
+					continue;
+				} else {
+					visitedSamples[sampleOrId.permId] = true;
+				}
+				
+				//Fill Parents
+				if(sampleOrId.parents) {
+					for(var j = 0; j < sampleOrId.parents.length; j++) {
+						var parentOrId = sampleOrId.parents[j];
+						if(!isNaN(parentOrId)) { //If is an Id get the reference
+							sampleOrId.parents[j] = samplesById[parentOrId];
+						}
+					}
+					fixSamples(sampleOrId.parents);
+				}
+				
+				//Fill Children
+				if(sampleOrId.children) {
+					for(var j = 0; j < sampleOrId.children.length; j++) {
+						var childOrId = sampleOrId.children[j];
+						if(!isNaN(childOrId)) { //If is an Id get the reference
+							sampleOrId.children[j] = samplesById[childOrId];
+						}
+					}
+					fixSamples(sampleOrId.children);
+				}
+			}
+		}
+		
+		fixSamples(result);
+		
+		return result;
+	}
+	
+	//
+	// Free Search
+	//
 	this.searchWithText = function(freeText, callbackFunction)
 	{
 		var _this = this;
@@ -948,6 +955,9 @@ function ServerFacade(openbisServer) {
 		}
 	}
 	
+	//
+	// Search Domains
+	//
 	this.listSearchDomains = function(callbackFunction) {
 		if(this.openbisServer.listAvailableSearchDomains) {
 			this.openbisServer.listAvailableSearchDomains(callbackFunction);

@@ -344,14 +344,6 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 			this._sampleFormModel.sampleLinksChildren.repaint();
 		}
 		
-		if(profile.softLinks) {
-			if(currentOrphanLinksIdentifiers.length !== 0) {
-				mainController.serverFacade.searchWithIdentifiers(currentOrphanLinksIdentifiers, showLinksWidgetAction);
-			} else {
-				showLinksWidgetAction([]);
-			}
-		}
-		
 		if(this._sampleFormModel.mode !== FormMode.CREATE) {
 			//Preview image
 			this._reloadPreviewImage();
