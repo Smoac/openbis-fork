@@ -23,7 +23,7 @@ function DilutionTableView(dilutionTableController, dilutionTableModel) {
 		$container.append("Loading data for Dilution Widget.");
 		var _this = this;
 		//Load all proteins
-		mainController.serverFacade.searchWithTypeAndLinks("PROTEIN", null, function(data) {
+		mainController.serverFacade.searchWithType("PROTEIN", null, true, function(data) {
 			_this._dilutionTableModel.allProteins = data;
 			
 			//First repaint after all initializations

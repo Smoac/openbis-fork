@@ -64,27 +64,12 @@ function SampleFormController(mainController, mode, sample) {
 		return this._storageControllers[this._storageControllers.length-1];
 	}
 	
-//	this.addStorageController = function(storagePropertyGroupName) {
-//		var storageController = new StorageController({
-//			title : null,
-//			storagePropertyGroupSelector : "off",
-//			storageSelector : "on",
-//			userSelector : "off",
-//			boxSelector: "on",
-//			boxSizeSelector: "on",
-//			rackSelector: "on",
-//			contentsSelector: "off",
-//			positionSelector: "on"
-//		});
-//		storageController.getModel().storagePropertyGroup = profile.getStoragePropertyGroup(storagePropertyGroupName);
-//		this._storageControllers.push(storageController);
-//	}
-	
 	this.getNextCopyCode = function(callback) {
 		var _this = this;
 		mainController.serverFacade.searchWithType(
 				this._sampleFormModel.sample.sampleTypeCode,
 				this._sampleFormModel.sample.code + "_*",
+				false,
 				function(results) {
 					callback(_this._sampleFormModel.sample.code + "_" + (results.length + 1));
 				});
@@ -317,7 +302,7 @@ function SampleFormController(mainController, mode, sample) {
 					
 					var searchUntilFound = null;
 					    searchUntilFound = function() {
-						mainController.serverFacade.searchWithType(_this._sampleFormModel.sample.sampleTypeCode, sampleCodeToOpen, function(data) {
+						mainController.serverFacade.searchWithType(_this._sampleFormModel.sample.sampleTypeCode, sampleCodeToOpen, false, function(data) {
 							if(data && data.length === 1) {
 								mainController.changeView('showViewSamplePageFromPermId',data[0].permId);
 							} else { //Recursive call

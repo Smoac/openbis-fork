@@ -137,7 +137,7 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 		var $sampleTypesSelector = FormUtil.getSampleTypeDropdown(null, false);
 		$sampleTypesSelector.change(function() {
 			var sampleTypeToShow = $(this).val();
-			mainController.serverFacade.searchWithType(sampleTypeToShow, null, function(samples) {
+			mainController.serverFacade.searchWithType(sampleTypeToShow, null, false, function(samples) {
 				_this._sampleTableModel.allSamples = samples;
 				_this._sampleTableController._reloadTableWithSampleType(sampleTypeToShow);
 			});

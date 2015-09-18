@@ -598,7 +598,7 @@ function ServerFacade(openbisServer) {
 		});
 	}
 	
-	this.searchWithTypeAndLinks = function(sampleType, sampleCode, callbackFunction)
+	this.searchWithType = function(sampleType, sampleCode, includeAncestorsAndDescendants, callbackFunction)
 	{	
 		var matchClauses = [ {"@type":"AttributeMatchClause",
 					fieldType : "ATTRIBUTE",			
@@ -624,46 +624,20 @@ function ServerFacade(openbisServer) {
 			operator : "MATCH_ALL_CLAUSES"
 		};
 		
+		var options = ["PROPERTIES"];
+		if(includeAncestorsAndDescendants) {
+			options.push("ANCESTORS");
+			options.push("DESCENDANTS");
+		}
+		
 		var localReference = this;
-		this.openbisServer.searchForSamplesWithFetchOptions(sampleCriteria, ["PROPERTIES", "ANCESTORS", "DESCENDANTS"], function(data) {
+		this.openbisServer.searchForSamplesWithFetchOptions(sampleCriteria, options, function(data) {
 			callbackFunction(localReference.getInitializedSamples(data.result));
 		});
 	}
 	
 	this.getSamplesForDataSets = function(dataSetCodes, callback) {
 		this.openbisServer.getDataSetMetaDataWithFetchOptions(dataSetCodes, [ 'SAMPLE' ], callback);
-	}
-	
-	this.searchWithType = function(sampleType, sampleCode, callbackFunction)
-	{	
-		var matchClauses = [ {"@type":"AttributeMatchClause",
-					fieldType : "ATTRIBUTE",			
-					attribute : "TYPE",
-					desiredValue : sampleType
-				}
-		]
-		
-		if(sampleCode){
-		  matchClauses.push(
-			  		{
-				  	"@type":"AttributeMatchClause",
-					fieldType : "ATTRIBUTE",			
-					attribute : "CODE",
-					desiredValue : sampleCode 
-				}		
-		  );
-		}
-		
-		var sampleCriteria = 
-		{
-			matchClauses : matchClauses,
-			operator : "MATCH_ALL_CLAUSES"
-		};
-		
-		var localReference = this;
-		this.openbisServer.searchForSamplesWithFetchOptions(sampleCriteria, ["PROPERTIES"], function(data) {
-			callbackFunction(localReference.getInitializedSamples(data.result));
-		});
 	}
 	
 	this.searchWithExperiment = function(experimentIdentifier, callbackFunction)

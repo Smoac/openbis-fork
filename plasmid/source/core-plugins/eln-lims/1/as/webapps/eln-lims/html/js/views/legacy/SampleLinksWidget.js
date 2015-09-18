@@ -227,7 +227,7 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 					
 					if(sampleType !== null) {
 						
-						mainController.serverFacade.searchWithType(sampleTypeCode, null, function(samples) {
+						mainController.serverFacade.searchWithType(sampleTypeCode, null, false, function(samples) {
 							//Clear last state
 							if(_this._lastUsedId) {
 								$('#'+_this._lastUsedId + "-table").empty();
