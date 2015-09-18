@@ -69,6 +69,17 @@ function ServerFacade(openbisServer) {
 		this.openbisServer.logout(callbackFunction);
 	}
 	
+	this.initServices = function(username, password, callbackFunction) {
+		var defaultDataSetCode = profile.getDefaultDataStoreCode();
+		mainController.serverFacade.createReportFromAggregationService(defaultDataSetCode, {
+			"method" : "initServices",
+			"username" : username,
+			"password" : password
+		}, function(result) {
+			callbackFunction();
+		});
+	}
+	
 	//
 	// User Related Functions
 	//
@@ -77,8 +88,7 @@ function ServerFacade(openbisServer) {
 	};
 	
 	this.registerUserPassword = function(userId, userPass, callbackFunction) {
-		this.createReportFromAggregationService(
-			profile.getDefaultDataStoreCode(),
+		this.createReportFromAggregationService(profile.getDefaultDataStoreCode(),
 			{
 				"method" : "registerUserPassword",
 				"userId" : userId,

@@ -222,9 +222,13 @@
 	
 		$('#login-form').submit(function() {
 			Util.blockUI();
+			var username = $('#username').val();
+			var password = $('#password').val();
+			
 			mainController.serverFacade.login(
-					$.trim($('#username').val()), $.trim($('#password').val()), 
-					function(data) { mainController.enterApp(data) });
+					$.trim($('#username').val()), 
+					$.trim($('#password').val()), 
+					function(data) { mainController.enterApp(data, username, password) });
 		});
 		
 		mainController.serverFacade.ifRestoredSessionActive(function(data) { mainController.enterApp(data) });

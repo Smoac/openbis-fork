@@ -55,7 +55,7 @@ function MainController(profile) {
 	// Validates and enters the app
 	//
 	
-	this.enterApp = function(data) {
+	this.enterApp = function(data, username, password) {
 		var localReference = this;
 		//
 		// Check Credentials
@@ -97,47 +97,57 @@ function MainController(profile) {
 				//Load datastores for automatic DSS configuration, the first one will be used
 				localReference.serverFacade.listDataStores(function(dataStores) {
 						localReference.profile.allDataStores = dataStores.result;
-				
-						//Load display settings
-						localReference.serverFacade.getUserDisplaySettings( function(response) {
-							if(response.result) {
-								localReference.profile.displaySettings = response.result;
-							}
-							
-							//Load Experiment Types
-							localReference.serverFacade.listExperimentTypes(function(experiments) {
-								localReference.profile.allExperimentTypes = experiments.result;
+						
+						var nextInit = function() {
+							//Load display settings
+							localReference.serverFacade.getUserDisplaySettings( function(response) {
+								if(response.result) {
+									localReference.profile.displaySettings = response.result;
+								}
 								
-								
-								//Init profile
-								localReference.profile.init(function() {
-									//Start App
+								//Load Experiment Types
+								localReference.serverFacade.listExperimentTypes(function(experiments) {
+									localReference.profile.allExperimentTypes = experiments.result;
 									
-									localReference.sideMenu = new SideMenuWidgetController(localReference);
-									localReference.sideMenu.init($("#sideMenu"), function() {
-										//Page reload using the URL info
-										var queryString = Util.queryString();
-										var menuUniqueId = queryString.menuUniqueId;
-										var viewName = queryString.viewName;
-										var viewData = queryString.viewData;
-										var hideMenu = queryString.hideMenu;
+									
+									//Init profile
+									localReference.profile.init(function() {
+										//Start App
 										
-										if(viewName && viewData) {
-											localReference.sideMenu.moveToNodeId(menuUniqueId);
-											localReference.changeView(viewName, viewData);
+										localReference.sideMenu = new SideMenuWidgetController(localReference);
+										localReference.sideMenu.init($("#sideMenu"), function() {
+											//Page reload using the URL info
+											var queryString = Util.queryString();
+											var menuUniqueId = queryString.menuUniqueId;
+											var viewName = queryString.viewName;
+											var viewData = queryString.viewData;
+											var hideMenu = queryString.hideMenu;
 											
-											if(hideMenu === "true") {
-												localReference.sideMenu.hideSideMenu();
+											if(viewName && viewData) {
+												localReference.sideMenu.moveToNodeId(menuUniqueId);
+												localReference.changeView(viewName, viewData);
+												
+												if(hideMenu === "true") {
+													localReference.sideMenu.hideSideMenu();
+												}
+											} else {
+												localReference.changeView("showBlancPage", null);
 											}
-										} else {
-											localReference.changeView("showBlancPage", null);
-										}
-										Util.unblockUI();
+											Util.unblockUI();
+										});
 									});
+									
 								});
-								
 							});
-						});
+						}
+						
+						if(username && password) {
+							localReference.serverFacade.initServices(username, password, nextInit);
+						} else {
+							nextInit();
+						}
+						
+
 				});
 			}
 		);
