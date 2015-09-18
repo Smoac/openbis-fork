@@ -93,7 +93,7 @@ public class SampleSqlTranslator extends AbstractCachingTranslator<Long, Sample,
     private ISampleModifierSqlTranslator modifierTranslator;
 
     @Override
-    protected Collection<Long> shouldTranslate(TranslationContext context, Collection<Long> sampleIds, SampleFetchOptions fetchOptions)
+    protected Set<Long> shouldTranslate(TranslationContext context, Collection<Long> sampleIds, SampleFetchOptions fetchOptions)
     {
         return authorizationValidator.validate(context.getSession().tryGetPerson(), sampleIds);
     }

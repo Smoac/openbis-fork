@@ -19,8 +19,9 @@ package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.project.sql;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 
 import java.util.Collection;
-import java.util.LinkedList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import net.lemnik.eodsql.QueryTool;
 
@@ -39,12 +40,12 @@ public class ProjectAuthorizationSqlValidator implements IProjectAuthorizationSq
 {
 
     @Override
-    public Collection<Long> validate(PersonPE person, Collection<Long> projectIds)
+    public Set<Long> validate(PersonPE person, Collection<Long> projectIds)
     {
         ProjectQuery query = QueryTool.getManagedQuery(ProjectQuery.class);
         List<ProjectAuthorizationRecord> records = query.getAuthorizations(new LongOpenHashSet(projectIds));
         ProjectByIdentiferValidator validator = new ProjectByIdentiferValidator();
-        List<Long> result = new LinkedList<Long>();
+        Set<Long> result = new HashSet<Long>();
 
         for (ProjectAuthorizationRecord record : records)
         {

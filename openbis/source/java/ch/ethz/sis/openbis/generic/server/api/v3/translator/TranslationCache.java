@@ -2,87 +2,96 @@ package ch.ethz.sis.openbis.generic.server.api.v3.translator;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Set;
 
 public class TranslationCache
 {
 
-    /**
-     * Map storing information whether an object with the given namespace and object id (key) should be translated (value)
-     */
-    private Map<String, Boolean> shouldTranslateObjects = new HashMap<String, Boolean>();
+    private Map<String, CacheEntry> entries = new HashMap<String, CacheEntry>();
 
-    /**
-     * Map storing information if the given fetch options (value) has already been used for the given object (key)
-     */
-    private Map<Object, Set<Object>> usedFetchOptions = new IdentityHashMap<Object, Set<Object>>();
-
-    /**
-     * Map storing already translated object (value) for the given namespace and object id (key)
-     */
-    private Map<String, Object> translatedObjects = new HashMap<String, Object>();
-
-    public boolean hasShouldTranslateObject(String namespace, Long objectId)
+    public CacheEntry getEntry(String identifier)
     {
-        return shouldTranslateObjects.containsKey(getObjectKey(namespace, objectId));
-    }
+        CacheEntry cacheEntry = entries.get(identifier);
 
-    public boolean getShouldTranslateObject(String namespace, Long objectId)
-    {
-        return shouldTranslateObjects.get(getObjectKey(namespace, objectId));
-    }
-
-    public void putShouldTranslateObject(String namespace, Long objectId, boolean shouldTranslate)
-    {
-        shouldTranslateObjects.put(getObjectKey(namespace, objectId), shouldTranslate);
-    }
-
-    public boolean hasTranslatedObject(String namespace, Long objectId)
-    {
-        return translatedObjects.containsKey(getObjectKey(namespace, objectId));
-    }
-
-    public Object getTranslatedObject(String namespace, Long objectId)
-    {
-        return translatedObjects.get(getObjectKey(namespace, objectId));
-    }
-
-    public void putTranslatedObject(String namespace, Long objectId, Object object)
-    {
-        translatedObjects.put(getObjectKey(namespace, objectId), object);
-    }
-
-    public boolean isFetchedWithOptions(Object object, Object fetchOptions)
-    {
-        Set<Object> set = usedFetchOptions.get(object);
-
-        if (set == null)
+        if (cacheEntry == null)
         {
-            return false;
-        } else
-        {
-            return set.contains(fetchOptions);
-        }
-    }
-
-    public void setFetchedWithOptions(Object object, Object fetchOptions)
-    {
-        Set<Object> set = usedFetchOptions.get(object);
-
-        if (set == null)
-        {
-            set = new HashSet<Object>();
-            usedFetchOptions.put(object, set);
+            cacheEntry = new CacheEntry();
+            entries.put(identifier, cacheEntry);
         }
 
-        set.add(fetchOptions);
+        return cacheEntry;
     }
 
-    private String getObjectKey(String namespace, Long objectId)
+    public static class CacheEntry
     {
-        return namespace + "." + objectId;
+
+        private boolean shouldTranslateSet;
+
+        private Boolean shouldTranslate;
+
+        private boolean translatedObjectSet;
+
+        private Object translatedObject;
+
+        private Set<Object> usedFetchOptions;
+
+        private CacheEntry()
+        {
+        }
+
+        public boolean isShouldTranslateSet()
+        {
+            return shouldTranslateSet;
+        }
+
+        public Boolean getShouldTranslate()
+        {
+            return shouldTranslate;
+        }
+
+        public void setShouldTranslate(boolean shouldTranslate)
+        {
+            this.shouldTranslate = shouldTranslate;
+            this.shouldTranslateSet = true;
+        }
+
+        public boolean isTranslatedObjectSet()
+        {
+            return translatedObjectSet;
+        }
+
+        public Object getTranslatedObject()
+        {
+            return translatedObject;
+        }
+
+        public void setTranslatedObject(Object translatedObject)
+        {
+            this.translatedObject = translatedObject;
+            this.translatedObjectSet = true;
+        }
+
+        public boolean isTranslatedWithFetchOptions(Object fetchOptions)
+        {
+            if (usedFetchOptions == null)
+            {
+                return false;
+            } else
+            {
+                return usedFetchOptions.contains(fetchOptions);
+            }
+        }
+
+        public void addTranslatedWithFetchOptions(Object fetchOptions)
+        {
+            if (usedFetchOptions == null)
+            {
+                usedFetchOptions = new HashSet<Object>();
+            }
+            usedFetchOptions.add(fetchOptions);
+        }
+
     }
 
 }

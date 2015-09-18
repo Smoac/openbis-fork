@@ -21,9 +21,11 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationCache.CacheEntry;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.FetchOptions;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -64,7 +66,9 @@ public abstract class AbstractCachingTranslator<I, O, F extends FetchOptions<?>>
 
         for (I input : inputs)
         {
-            if (cache.hasTranslatedObject(namespace, getId(input)))
+            CacheEntry cacheEntry = cache.getEntry(getObjectCacheKey(input));
+
+            if (cacheEntry.isTranslatedObjectSet())
             {
                 handleAlreadyTranslatedInput(context, input, translated, updated, fetchOptions);
             } else
@@ -89,35 +93,34 @@ public abstract class AbstractCachingTranslator<I, O, F extends FetchOptions<?>>
     @SuppressWarnings("unchecked")
     private final void handleAlreadyTranslatedInput(TranslationContext context, I input, Map<I, O> translated, Map<I, O> updated, F fetchOptions)
     {
-        Long id = getId(input);
         TranslationCache cache = context.getTranslationCache();
-
-        O output = (O) cache.getTranslatedObject(namespace, id);
+        CacheEntry cacheEntry = cache.getEntry(getObjectCacheKey(input));
+        O output = (O) cacheEntry.getTranslatedObject();
 
         if (output == null)
         {
             if (operationLog.isDebugEnabled())
             {
-                operationLog.debug("Found that object was already rejected from translation: " + id);
+                operationLog.debug("Found that object was already rejected from translation: " + getObjectId(input));
             }
         } else
         {
             if (operationLog.isDebugEnabled())
             {
-                operationLog.debug("Found in cache: " + output.getClass() + " with id: " + id);
+                operationLog.debug("Found in cache: " + output.getClass() + " with id: " + getObjectId(input));
             }
 
-            if (cache.isFetchedWithOptions(output, fetchOptions))
+            if (cacheEntry.isTranslatedWithFetchOptions(fetchOptions))
             {
                 translated.put(input, output);
             } else
             {
                 if (operationLog.isDebugEnabled())
                 {
-                    operationLog.debug("Updating from cache: " + output.getClass() + " with id: " + id);
+                    operationLog.debug("Updating from cache: " + output.getClass() + " with id: " + getObjectId(input));
                 }
 
-                cache.setFetchedWithOptions(output, fetchOptions);
+                cacheEntry.addTranslatedWithFetchOptions(fetchOptions);
                 updated.put(input, output);
                 translated.put(input, output);
             }
@@ -126,27 +129,28 @@ public abstract class AbstractCachingTranslator<I, O, F extends FetchOptions<?>>
 
     private void handleNewInput(TranslationContext context, I input, Map<I, O> translated, Map<I, O> updated, F fetchOptions)
     {
-        Long id = getId(input);
         O output = createObject(context, input, fetchOptions);
-        TranslationCache cache = context.getTranslationCache();
 
         if (operationLog.isDebugEnabled())
         {
-            operationLog.debug("Created: " + output.getClass() + " with id: " + id);
+            operationLog.debug("Created: " + output.getClass() + " with id: " + getObjectId(input));
         }
 
-        cache.putTranslatedObject(namespace, id, output);
-        cache.setFetchedWithOptions(output, fetchOptions);
+        TranslationCache cache = context.getTranslationCache();
+        CacheEntry cacheEntry = cache.getEntry(getObjectCacheKey(input));
+        cacheEntry.setTranslatedObject(output);
+        cacheEntry.addTranslatedWithFetchOptions(fetchOptions);
+
         updated.put(input, output);
         translated.put(input, output);
 
         if (operationLog.isDebugEnabled())
         {
-            operationLog.debug("Updating created: " + output.getClass() + " with id: " + id);
+            operationLog.debug("Updating created: " + output.getClass() + " with id: " + getObjectId(input));
         }
     }
 
-    private Long getId(I input)
+    private Long getObjectId(I input)
     {
         if (input instanceof IIdHolder)
         {
@@ -160,6 +164,11 @@ public abstract class AbstractCachingTranslator<I, O, F extends FetchOptions<?>>
         }
     }
 
+    private String getObjectCacheKey(I input)
+    {
+        return namespace + getObjectId(input);
+    }
+
     private final Collection<I> doShouldTranslate(TranslationContext context, Collection<I> inputs, F fetchOptions)
     {
         TranslationCache cache = context.getTranslationCache();
@@ -168,11 +177,12 @@ public abstract class AbstractCachingTranslator<I, O, F extends FetchOptions<?>>
 
         for (I input : inputs)
         {
-            Long id = getId(input);
+            CacheEntry cacheEntry = cache.getEntry(getObjectCacheKey(input));
 
-            if (cache.hasShouldTranslateObject(namespace, id))
+            if (cacheEntry.isShouldTranslateSet())
             {
-                boolean should = cache.getShouldTranslateObject(namespace, id);
+                boolean should = cacheEntry.getShouldTranslate();
+
                 if (should)
                 {
                     toTranslate.add(input);
@@ -180,6 +190,8 @@ public abstract class AbstractCachingTranslator<I, O, F extends FetchOptions<?>>
 
                 if (operationLog.isDebugEnabled())
                 {
+                    Long id = getObjectId(input);
+
                     if (should)
                     {
                         operationLog.debug("Found in cache that object with id: " + id + " should be translated");
@@ -199,22 +211,25 @@ public abstract class AbstractCachingTranslator<I, O, F extends FetchOptions<?>>
 
         for (I input : checked)
         {
-            Long id = getId(input);
-            cache.putShouldTranslateObject(namespace, id, true);
+            CacheEntry cacheEntry = cache.getEntry(getObjectCacheKey(input));
+            cacheEntry.setShouldTranslate(true);
+
             if (operationLog.isDebugEnabled())
             {
-                operationLog.debug("Should translate object with id: " + id);
+                operationLog.debug("Should translate object with id: " + getObjectId(input));
             }
         }
 
         toCheck.removeAll(checked);
+
         for (I input : toCheck)
         {
-            Long id = getId(input);
-            cache.putShouldTranslateObject(namespace, id, false);
+            CacheEntry cacheEntry = cache.getEntry(getObjectCacheKey(input));
+            cacheEntry.setShouldTranslate(false);
+
             if (operationLog.isDebugEnabled())
             {
-                operationLog.debug("Should NOT translate object with id: " + id);
+                operationLog.debug("Should NOT translate object with id: " + getObjectId(input));
             }
         }
 
@@ -225,9 +240,9 @@ public abstract class AbstractCachingTranslator<I, O, F extends FetchOptions<?>>
      * Override this method if you want to conditionally skip translation (e.g. when the input object is not visible for a user the translation is
      * performed for)
      */
-    protected Collection<I> shouldTranslate(TranslationContext context, Collection<I> inputs, F fetchOptions)
+    protected Set<I> shouldTranslate(TranslationContext context, Collection<I> inputs, F fetchOptions)
     {
-        Collection<I> result = new LinkedHashSet<I>();
+        Set<I> result = new LinkedHashSet<I>();
 
         for (I input : inputs)
         {

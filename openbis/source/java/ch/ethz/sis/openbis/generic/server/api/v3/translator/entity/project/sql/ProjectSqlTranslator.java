@@ -18,6 +18,7 @@ package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.project.sql;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -67,7 +68,7 @@ public class ProjectSqlTranslator extends AbstractCachingTranslator<Long, Projec
     private IProjectHistorySqlTranslator historyTranslator;
 
     @Override
-    protected Collection<Long> shouldTranslate(TranslationContext context, Collection<Long> projectIds, ProjectFetchOptions fetchOptions)
+    protected Set<Long> shouldTranslate(TranslationContext context, Collection<Long> projectIds, ProjectFetchOptions fetchOptions)
     {
         return authorizationValidator.validate(context.getSession().tryGetPerson(), projectIds);
     }

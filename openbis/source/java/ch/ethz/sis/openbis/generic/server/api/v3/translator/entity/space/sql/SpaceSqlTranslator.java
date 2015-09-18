@@ -18,6 +18,7 @@ package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.space.sql;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -54,7 +55,7 @@ public class SpaceSqlTranslator extends AbstractCachingTranslator<Long, Space, S
     private ISpaceBaseSqlTranslator baseTranslator;
 
     @Override
-    protected Collection<Long> shouldTranslate(TranslationContext context, Collection<Long> spaceIds, SpaceFetchOptions fetchOptions)
+    protected Set<Long> shouldTranslate(TranslationContext context, Collection<Long> spaceIds, SpaceFetchOptions fetchOptions)
     {
         return authorizationValidator.validate(context.getSession().tryGetPerson(), spaceIds);
     }

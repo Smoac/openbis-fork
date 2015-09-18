@@ -82,7 +82,7 @@ public class ExperimentSqlTranslator extends AbstractCachingTranslator<Long, Exp
     private IExperimentHistorySqlTranslator historyTranslator;
 
     @Override
-    protected Collection<Long> shouldTranslate(TranslationContext context, Collection<Long> experimentIds, ExperimentFetchOptions fetchOptions)
+    protected Set<Long> shouldTranslate(TranslationContext context, Collection<Long> experimentIds, ExperimentFetchOptions fetchOptions)
     {
         return authorizationValidator.validate(context.getSession().tryGetPerson(), experimentIds);
     }

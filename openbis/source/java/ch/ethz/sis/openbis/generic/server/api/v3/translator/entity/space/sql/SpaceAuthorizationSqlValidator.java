@@ -19,8 +19,9 @@ package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.space.sql;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 
 import java.util.Collection;
-import java.util.LinkedList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import net.lemnik.eodsql.QueryTool;
 
@@ -38,12 +39,12 @@ public class SpaceAuthorizationSqlValidator implements ISpaceAuthorizationSqlVal
 {
 
     @Override
-    public Collection<Long> validate(PersonPE person, Collection<Long> spaceIds)
+    public Set<Long> validate(PersonPE person, Collection<Long> spaceIds)
     {
         SpaceQuery query = QueryTool.getManagedQuery(SpaceQuery.class);
         List<SpaceAuthorizationRecord> records = query.getAuthorizations(new LongOpenHashSet(spaceIds));
         SimpleSpaceValidator validator = new SimpleSpaceValidator();
-        List<Long> result = new LinkedList<Long>();
+        Set<Long> result = new HashSet<Long>();
 
         for (SpaceAuthorizationRecord record : records)
         {

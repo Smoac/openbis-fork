@@ -17,6 +17,7 @@
 package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql;
 
 import java.util.Collection;
+import java.util.Set;
 
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 
@@ -26,6 +27,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 public interface IObjectAuthorizationValidator
 {
 
-    public Collection<Long> validate(PersonPE person, Collection<Long> objectIds);
+    public Set<Long> validate(PersonPE person, Collection<Long> objectIds);
 
 }

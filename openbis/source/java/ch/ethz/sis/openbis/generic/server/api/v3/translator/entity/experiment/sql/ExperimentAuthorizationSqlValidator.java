@@ -19,12 +19,13 @@ package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.experiment.s
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 
 import java.util.Collection;
-import java.util.LinkedList;
+import java.util.HashSet;
 import java.util.List;
-
-import org.springframework.stereotype.Component;
+import java.util.Set;
 
 import net.lemnik.eodsql.QueryTool;
+
+import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ExperimentByIdentiferValidator;
@@ -39,12 +40,12 @@ public class ExperimentAuthorizationSqlValidator implements IExperimentAuthoriza
 {
 
     @Override
-    public Collection<Long> validate(PersonPE person, Collection<Long> experimentIds)
+    public Set<Long> validate(PersonPE person, Collection<Long> experimentIds)
     {
         ExperimentQuery query = QueryTool.getManagedQuery(ExperimentQuery.class);
         List<ExperimentAuthorizationRecord> records = query.getAuthorizations(new LongOpenHashSet(experimentIds));
         ExperimentByIdentiferValidator validator = new ExperimentByIdentiferValidator();
-        List<Long> result = new LinkedList<Long>();
+        Set<Long> result = new HashSet<Long>();
 
         for (ExperimentAuthorizationRecord record : records)
         {

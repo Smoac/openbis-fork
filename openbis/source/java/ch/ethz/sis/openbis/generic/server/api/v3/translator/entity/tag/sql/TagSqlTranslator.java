@@ -19,8 +19,9 @@ package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.tag.sql;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 
 import java.util.Collection;
-import java.util.LinkedList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import net.lemnik.eodsql.QueryTool;
 
@@ -48,11 +49,11 @@ public class TagSqlTranslator extends AbstractCachingTranslator<Long, Tag, TagFe
     private ITagOwnerSqlTranslator ownerTranslator;
 
     @Override
-    protected Collection<Long> shouldTranslate(TranslationContext context, Collection<Long> tagIds, TagFetchOptions fetchOptions)
+    protected Set<Long> shouldTranslate(TranslationContext context, Collection<Long> tagIds, TagFetchOptions fetchOptions)
     {
         TagQuery query = QueryTool.getManagedQuery(TagQuery.class);
         List<TagAuthorizationRecord> records = query.getAuthorizations(new LongOpenHashSet(tagIds));
-        Collection<Long> result = new LinkedList<Long>();
+        Set<Long> result = new HashSet<Long>();
 
         for (TagAuthorizationRecord record : records)
         {

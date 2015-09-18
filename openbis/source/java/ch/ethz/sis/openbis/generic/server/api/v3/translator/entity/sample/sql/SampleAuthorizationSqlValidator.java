@@ -19,12 +19,13 @@ package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.sample.sql;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 
 import java.util.Collection;
-import java.util.LinkedList;
+import java.util.HashSet;
 import java.util.List;
-
-import org.springframework.stereotype.Component;
+import java.util.Set;
 
 import net.lemnik.eodsql.QueryTool;
+
+import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SampleByIdentiferValidator;
@@ -39,12 +40,12 @@ public class SampleAuthorizationSqlValidator implements ISampleAuthorizationSqlV
 {
 
     @Override
-    public Collection<Long> validate(PersonPE person, Collection<Long> sampleIds)
+    public Set<Long> validate(PersonPE person, Collection<Long> sampleIds)
     {
         SampleQuery query = QueryTool.getManagedQuery(SampleQuery.class);
         List<SampleAuthorizationRecord> records = query.getAuthorizations(new LongOpenHashSet(sampleIds));
         SampleByIdentiferValidator validator = new SampleByIdentiferValidator();
-        List<Long> result = new LinkedList<Long>();
+        Set<Long> result = new HashSet<Long>();
 
         for (SampleAuthorizationRecord record : records)
         {

@@ -16,16 +16,20 @@
 
 package ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort;
 
+import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import org.springframework.beans.BeanUtils;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.FetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.view.AbstractCollectionView;
@@ -40,6 +44,8 @@ public class SortAndPage
 {
 
     private Set processed = new HashSet();
+
+    private MethodsCache methodsCache = new MethodsCache();
 
     public <T, C extends Collection<T>> C sortAndPage(C objects, FetchOptions fo)
     {
@@ -135,58 +141,58 @@ public class SortAndPage
             return;
         }
 
-        try
+        FetchOptionsMethods foMethods = methodsCache.getFetchOptionsMethods(fo);
+
+        for (Object object : objects)
         {
-            for (Object object : objects)
+            if (processed.contains(object))
             {
-                if (processed.contains(object))
-                {
-                    continue;
-                } else
-                {
-                    processed.add(object);
-                }
+                continue;
+            } else
+            {
+                processed.add(object);
+            }
 
-                // TODO find the methods only once for given class instead of doing it for each object
-                for (Method method : fo.getClass().getMethods())
+            ObjectMethods objectMethods = methodsCache.getObjectMethods(object);
+
+            for (String fieldName : foMethods.getFieldNames())
+            {
+                try
                 {
-                    if (method.getName().startsWith("has") && false == method.getName().equals("hashCode"))
+                    Method hasMethod = foMethods.getHasMethod(fieldName);
+                    boolean has = (Boolean) hasMethod.invoke(fo);
+
+                    if (has)
                     {
-                        String field = method.getName().substring(3);
-                        boolean has = (Boolean) method.invoke(fo);
+                        Method withMethod = foMethods.getWithMethod(fieldName);
+                        FetchOptions subFo = (FetchOptions) withMethod.invoke(fo);
 
-                        if (has)
+                        Method getMethod = objectMethods.getGetMethod(fieldName);
+                        Method setMethod = objectMethods.getSetMethod(fieldName);
+
+                        Object value = getMethod.invoke(object);
+
+                        if (value != null)
                         {
-                            Method withMethod = fo.getClass().getMethod("with" + field);
-                            FetchOptions subFo = (FetchOptions) withMethod.invoke(fo);
-
-                            Method getMethod = object.getClass().getMethod("get" + field);
-                            Method setMethod = object.getClass().getMethod("set" + field, getMethod.getReturnType());
-
-                            Object value = getMethod.invoke(object);
-
-                            if (value != null)
+                            if (value instanceof Collection)
                             {
-                                if (value instanceof Collection)
-                                {
-                                    Collection newValue = sortAndPage((Collection) value, subFo);
-                                    setMethod.invoke(object, newValue);
-                                } else if (value instanceof Map)
-                                {
-                                    sortAndPage(((Map) value).values(), subFo);
-                                } else
-                                {
-                                    Collection newValue = sortAndPage(Collections.singleton(value), subFo);
-                                    setMethod.invoke(object, newValue.iterator().next());
-                                }
+                                Collection newValue = sortAndPage((Collection) value, subFo);
+                                setMethod.invoke(object, newValue);
+                            } else if (value instanceof Map)
+                            {
+                                sortAndPage(((Map) value).values(), subFo);
+                            } else
+                            {
+                                Collection newValue = sortAndPage(Collections.singleton(value), subFo);
+                                setMethod.invoke(object, newValue.iterator().next());
                             }
                         }
                     }
+                } catch (Exception e)
+                {
+                    throw new RuntimeException("Sorting and paging failed for object: + " + object + " and fieldName: " + fieldName, e);
                 }
             }
-        } catch (Exception e)
-        {
-            throw new RuntimeException(e);
         }
     }
 
@@ -243,6 +249,120 @@ public class SortAndPage
             }
         }
         return null;
+    }
+
+    private class MethodsCache
+    {
+
+        private Map<Class, Object> cache = new HashMap<Class, Object>();
+
+        public FetchOptionsMethods getFetchOptionsMethods(Object fo)
+        {
+            FetchOptionsMethods methods = (FetchOptionsMethods) cache.get(fo.getClass());
+
+            if (methods == null)
+            {
+                methods = new FetchOptionsMethods(fo.getClass());
+                cache.put(fo.getClass(), methods);
+            }
+
+            return methods;
+        }
+
+        public ObjectMethods getObjectMethods(Object object)
+        {
+            ObjectMethods methods = (ObjectMethods) cache.get(object.getClass());
+
+            if (methods == null)
+            {
+                methods = new ObjectMethods(object.getClass());
+                cache.put(object.getClass(), methods);
+            }
+
+            return methods;
+        }
+
+    }
+
+    private class FetchOptionsMethods
+    {
+
+        private Collection<String> fieldNames = new HashSet<String>();
+
+        private Map<String, Method> hasMethods = new HashMap<String, Method>();
+
+        private Map<String, Method> withMethods = new HashMap<String, Method>();
+
+        public FetchOptionsMethods(Class clazz)
+        {
+            try
+            {
+                for (Method method : clazz.getMethods())
+                {
+                    if (method.getName().startsWith("has") && false == method.getName().equals("hashCode"))
+                    {
+                        String fieldName = method.getName().substring(3);
+
+                        hasMethods.put(fieldName, method);
+
+                        Method withMethod = clazz.getMethod("with" + fieldName);
+                        withMethods.put(fieldName, withMethod);
+
+                        fieldNames.add(fieldName);
+                    }
+                }
+            } catch (Exception e)
+            {
+                throw new RuntimeException("Finding methods for fetch options class: " + clazz.getName() + " failed.", e);
+            }
+        }
+
+        public Collection<String> getFieldNames()
+        {
+            return fieldNames;
+        }
+
+        public Method getHasMethod(String fieldName)
+        {
+            return hasMethods.get(fieldName);
+        }
+
+        public Method getWithMethod(String fieldName)
+        {
+            return withMethods.get(fieldName);
+        }
+
+    }
+
+    private class ObjectMethods
+    {
+
+        private Map<String, Method> getMethods = new HashMap<String, Method>();
+
+        private Map<String, Method> setMethods = new HashMap<String, Method>();
+
+        public ObjectMethods(Class clazz)
+        {
+            PropertyDescriptor[] descriptors = BeanUtils.getPropertyDescriptors(clazz);
+
+            for (PropertyDescriptor descriptor : descriptors)
+            {
+                String fieldName = descriptor.getName().substring(0, 1).toUpperCase() + descriptor.getName().substring(1);
+                getMethods.put(fieldName, descriptor.getReadMethod());
+                setMethods.put(fieldName, descriptor.getWriteMethod());
+            }
+        }
+
+        public Method getGetMethod(String fieldName)
+        {
+            return getMethods.get(fieldName);
+        }
+
+        public Method getSetMethod(String fieldName)
+        {
+            return setMethods.get(fieldName);
+        }
+
     }
 
 }
