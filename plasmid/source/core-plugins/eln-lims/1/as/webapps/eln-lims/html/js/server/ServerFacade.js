@@ -636,10 +636,6 @@ function ServerFacade(openbisServer) {
 		});
 	}
 	
-	this.getSamplesForDataSets = function(dataSetCodes, callback) {
-		this.openbisServer.getDataSetMetaDataWithFetchOptions(dataSetCodes, [ 'SAMPLE' ], callback);
-	}
-	
 	this.searchWithExperiment = function(experimentIdentifier, callbackFunction)
 	{	
 		var matchClauses = [ {"@type":"AttributeMatchClause",
@@ -779,37 +775,6 @@ function ServerFacade(openbisServer) {
 		return sampleCriteria;
 	}
 	
-	// Used for Plates
-	this.searchContained = function(permId, callbackFunction) {
-		var matchClauses = [];
-		
-		var subCriteria = {
-				"@type" : "SearchSubCriteria",
-				"targetEntityKind" : "SAMPLE_CONTAINER",
-				"criteria" : {
-					matchClauses : [{
-							"@type":"AttributeMatchClause",
-							fieldType : "ATTRIBUTE",			
-							attribute : "PERM_ID",
-							desiredValue : permId
-						}],
-					operator : "MATCH_ALL_CLAUSES"
-			}
-		}
-		
-		var sampleCriteria = 
-		{
-			matchClauses : matchClauses,
-			subCriterias : [ subCriteria ],
-			operator : "MATCH_ALL_CLAUSES"
-		};
-		
-		var localReference = this;
-		this.openbisServer.searchForSamplesWithFetchOptions(sampleCriteria, ["PROPERTIES", "PARENTS", "CHILDREN"], function(data) {
-			callbackFunction(localReference.getInitializedSamples(data.result));
-		});
-	}
-	
 	this.getInitializedSamples = function(result) {
 		
 		//
@@ -895,6 +860,46 @@ function ServerFacade(openbisServer) {
 		fixSamples(result);
 		
 		return result;
+	}
+	
+	//
+	// Sample Search Very Specific cases
+	//
+	
+	// Used for Plates
+	this.searchContained = function(permId, callbackFunction) {
+		var matchClauses = [];
+		
+		var subCriteria = {
+				"@type" : "SearchSubCriteria",
+				"targetEntityKind" : "SAMPLE_CONTAINER",
+				"criteria" : {
+					matchClauses : [{
+							"@type":"AttributeMatchClause",
+							fieldType : "ATTRIBUTE",			
+							attribute : "PERM_ID",
+							desiredValue : permId
+						}],
+					operator : "MATCH_ALL_CLAUSES"
+			}
+		}
+		
+		var sampleCriteria = 
+		{
+			matchClauses : matchClauses,
+			subCriterias : [ subCriteria ],
+			operator : "MATCH_ALL_CLAUSES"
+		};
+		
+		var localReference = this;
+		this.openbisServer.searchForSamplesWithFetchOptions(sampleCriteria, ["PROPERTIES", "PARENTS", "CHILDREN"], function(data) {
+			callbackFunction(localReference.getInitializedSamples(data.result));
+		});
+	}
+	
+	// Used for blast search datasets
+	this.getSamplesForDataSets = function(dataSetCodes, callback) {
+		this.openbisServer.getDataSetMetaDataWithFetchOptions(dataSetCodes, [ 'SAMPLE' ], callback);
 	}
 	
 	//
