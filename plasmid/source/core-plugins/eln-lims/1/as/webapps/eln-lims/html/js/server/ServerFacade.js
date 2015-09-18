@@ -526,6 +526,90 @@ function ServerFacade(openbisServer) {
 	//
 	// Search Samples
 	//
+	this.searchSamples = function(fechOptions, callbackFunction)
+	{	
+		var samplePermId = fechOptions["samplePermId"];
+		var sampleCode = fechOptions["sampleCode"];
+		var sampleTypeCode = fechOptions["sampleTypeCode"];
+		var withProperties = fechOptions["withProperties"];
+		var withAncestors = fechOptions["withAncestors"];
+		var withDescendants = fechOptions["withDescendants"];
+		
+		var matchClauses = [];
+		
+		if(samplePermId) {
+			matchClauses.push({
+				"@type":"AttributeMatchClause",
+				fieldType : "ATTRIBUTE",			
+				attribute : "PERM_ID",
+				desiredValue : samplePermId 
+			});
+		}
+		
+		if(sampleCode) {
+			matchClauses.push({
+			  	"@type":"AttributeMatchClause",
+				fieldType : "ATTRIBUTE",			
+				attribute : "CODE",
+				desiredValue : sampleCode 
+			});
+		}
+		
+		if(sampleTypeCode) {
+			matchClauses.push({
+				"@type":"AttributeMatchClause",
+				fieldType : "ATTRIBUTE",			
+				attribute : "TYPE",
+				desiredValue : sampleTypeCode
+			});
+		}
+		
+		var sampleCriteria = 
+		{
+			matchClauses : matchClauses,
+			operator : "MATCH_ALL_CLAUSES"
+		};
+		
+		var options = [];
+		
+		if(withProperties) {
+			options.push("PROPERTIES");
+		}
+		
+		if(withAncestors) {
+			options.push("ANCESTORS");
+		}
+		
+		if(withDescendants) {
+			options.push("DESCENDANTS");
+		}
+		
+		var localReference = this;
+		this.openbisServer.searchForSamplesWithFetchOptions(sampleCriteria, options, function(data) {
+			callbackFunction(localReference.getInitializedSamples(data.result));
+		});
+	}
+	
+	this.searchWithUniqueId = function(samplePermId, callbackFunction)
+	{	
+		this.searchSamples({
+			"samplePermId" : samplePermId,
+			"withProperties" : true,
+			"withAncestors" : true,
+			"withDescendants" : true
+		}, callbackFunction);
+	}
+	
+	this.searchWithType = function(sampleType, sampleCode, includeAncestorsAndDescendants, callbackFunction)
+	{
+		this.searchSamples({
+			"withProperties" : true,
+			"sampleTypeCode" : sampleType,
+			"sampleCode" : sampleCode,
+			"withAncestors" : includeAncestorsAndDescendants,
+			"withDescendants" : includeAncestorsAndDescendants
+		}, callbackFunction);
+	}
 	
 	this.searchWithIdentifiers = function(sampleIdentifiers, callbackFunction)
 	{
@@ -572,68 +656,6 @@ function ServerFacade(openbisServer) {
 		}
 		
 		searchNext();
-	}
-	
-	
-	this.searchWithUniqueId = function(samplePermId, callbackFunction)
-	{	
-		var matchClauses = [
-				{
-					"@type":"AttributeMatchClause",
-					fieldType : "ATTRIBUTE",			
-					attribute : "PERM_ID",
-					desiredValue : samplePermId 
-				}		
-		]
-		
-		var sampleCriteria = 
-		{
-			matchClauses : matchClauses,
-			operator : "MATCH_ALL_CLAUSES"
-		};
-		
-		var localReference = this;
-		this.openbisServer.searchForSamplesWithFetchOptions(sampleCriteria, ["PROPERTIES", "ANCESTORS", "DESCENDANTS"], function(data) {
-			callbackFunction(localReference.getInitializedSamples(data.result));
-		});
-	}
-	
-	this.searchWithType = function(sampleType, sampleCode, includeAncestorsAndDescendants, callbackFunction)
-	{	
-		var matchClauses = [ {"@type":"AttributeMatchClause",
-					fieldType : "ATTRIBUTE",			
-					attribute : "TYPE",
-					desiredValue : sampleType
-				}
-		]
-		
-		if(sampleCode){
-		  matchClauses.push(
-			  		{
-				  	"@type":"AttributeMatchClause",
-					fieldType : "ATTRIBUTE",			
-					attribute : "CODE",
-					desiredValue : sampleCode 
-				}		
-		  );
-		}
-		
-		var sampleCriteria = 
-		{
-			matchClauses : matchClauses,
-			operator : "MATCH_ALL_CLAUSES"
-		};
-		
-		var options = ["PROPERTIES"];
-		if(includeAncestorsAndDescendants) {
-			options.push("ANCESTORS");
-			options.push("DESCENDANTS");
-		}
-		
-		var localReference = this;
-		this.openbisServer.searchForSamplesWithFetchOptions(sampleCriteria, options, function(data) {
-			callbackFunction(localReference.getInitializedSamples(data.result));
-		});
 	}
 	
 	this.searchWithExperiment = function(experimentIdentifier, callbackFunction)
@@ -717,62 +739,6 @@ function ServerFacade(openbisServer) {
 		this.openbisServer.searchForSamplesWithFetchOptions(sampleCriteria, lookFor, function(data) {
 			callbackFunction(data.result);
 		});
-	}
-	
-	this._getCriteriaWithDate = function(freeText, isRegistrationDate, isModificationDate) {
-		//Find dates on string and delete them to use them differently on the search
-		var regEx = /\d{4}-\d{2}-\d{2}/g;
-		var match = freeText.match(regEx);
-		freeText = freeText.replace(regEx, "");
-		if(!isRegistrationDate && !isModificationDate && match && match.length > 0) {
-			for(var mIdx = 0; mIdx < match.length; mIdx++) {
-				freeText += " " + match[mIdx].replace(/-/g, "");
-			}
-		}
-		
-		//Build Search
-		var sampleCriteria = {
-			matchClauses: [],
-			operator: "MATCH_ALL_CLAUSES"
-		};
-		
-		if(freeText) {
-			sampleCriteria.matchClauses.push({
-				"@type": "AnyFieldMatchClause",
-				fieldType: "ANY_FIELD",
-				desiredValue: "*" + freeText.trim() + "*"
-			});
-		}
-		
-		if(match && match.length > 0) {
-			for(var mIdx = 0; mIdx < match.length; mIdx++) {
-				if(isRegistrationDate) {
-					sampleCriteria.matchClauses.push({
-						"@type":"TimeAttributeMatchClause",
-						fieldType : "ATTRIBUTE",
-						fieldCode : "REGISTRATION_DATE",
-						desiredValue : match[mIdx],
-						compareMode : "EQUALS",
-						timeZone : "+1",
-						attribute : "REGISTRATION_DATE"
-					});
-				}
-				
-				if(isModificationDate) {
-					sampleCriteria.matchClauses.push({
-						"@type":"TimeAttributeMatchClause",
-						fieldType : "ATTRIBUTE",
-						fieldCode : "MODIFICATION_DATE",
-						desiredValue : match[mIdx],
-						compareMode : "EQUALS",
-						timeZone : "+1",
-						attribute : "MODIFICATION_DATE"
-					});
-				}
-			}
-		}
-		
-		return sampleCriteria;
 	}
 	
 	this.getInitializedSamples = function(result) {
@@ -934,6 +900,61 @@ function ServerFacade(openbisServer) {
 		}
 	}
 	
+	this._getCriteriaWithDate = function(freeText, isRegistrationDate, isModificationDate) {
+		//Find dates on string and delete them to use them differently on the search
+		var regEx = /\d{4}-\d{2}-\d{2}/g;
+		var match = freeText.match(regEx);
+		freeText = freeText.replace(regEx, "");
+		if(!isRegistrationDate && !isModificationDate && match && match.length > 0) {
+			for(var mIdx = 0; mIdx < match.length; mIdx++) {
+				freeText += " " + match[mIdx].replace(/-/g, "");
+			}
+		}
+		
+		//Build Search
+		var sampleCriteria = {
+			matchClauses: [],
+			operator: "MATCH_ALL_CLAUSES"
+		};
+		
+		if(freeText) {
+			sampleCriteria.matchClauses.push({
+				"@type": "AnyFieldMatchClause",
+				fieldType: "ANY_FIELD",
+				desiredValue: "*" + freeText.trim() + "*"
+			});
+		}
+		
+		if(match && match.length > 0) {
+			for(var mIdx = 0; mIdx < match.length; mIdx++) {
+				if(isRegistrationDate) {
+					sampleCriteria.matchClauses.push({
+						"@type":"TimeAttributeMatchClause",
+						fieldType : "ATTRIBUTE",
+						fieldCode : "REGISTRATION_DATE",
+						desiredValue : match[mIdx],
+						compareMode : "EQUALS",
+						timeZone : "+1",
+						attribute : "REGISTRATION_DATE"
+					});
+				}
+				
+				if(isModificationDate) {
+					sampleCriteria.matchClauses.push({
+						"@type":"TimeAttributeMatchClause",
+						fieldType : "ATTRIBUTE",
+						fieldCode : "MODIFICATION_DATE",
+						desiredValue : match[mIdx],
+						compareMode : "EQUALS",
+						timeZone : "+1",
+						attribute : "MODIFICATION_DATE"
+					});
+				}
+			}
+		}
+		
+		return sampleCriteria;
+	}
 	//
 	// Search Domains
 	//
