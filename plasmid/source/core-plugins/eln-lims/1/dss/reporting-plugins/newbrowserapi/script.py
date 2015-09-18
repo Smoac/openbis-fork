@@ -466,8 +466,11 @@ def insertUpdateExperiment(tr, parameters, tableBuilder):
 def searchSamples(tr, parameters, tableBuilder):
 	username = parameters.get("username");
 	password = ELNStore.get(username);
+	openBISURL = parameters.get("openBISURL");
 	
-	v3 = HttpInvokerUtils.createServiceStub(IApplicationServerApi.class, parameters.get("openBISURL") + IApplicationServerApi.SERVICE_URL, 30 * 1000);
-	v3.login(username, password);
-	SearchResult<Sample> result = v3.searchSamples(sessionToken, criteria, fetchoptions);
+	v3 = HttpInvokerUtils.createServiceStub(IApplicationServerApi.class, openBISURL + IApplicationServerApi.SERVICE_URL, 30 * 1000);
+	sessionToken = v3.login(username, password);
+	v3.logout(sessionToken);
+	
+# 	SearchResult<Sample> result = v3.searchSamples(sessionToken, criteria, fetchoptions);
 	return True
