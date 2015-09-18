@@ -529,12 +529,16 @@ function ServerFacade(openbisServer) {
 	this.searchSamples = function(fechOptions, callbackFunction)
 	{	
 		var samplePermId = fechOptions["samplePermId"];
+		var sampleIdentifier = fechOptions["sampleIdentifier"];
 		var sampleCode = fechOptions["sampleCode"];
 		var sampleTypeCode = fechOptions["sampleTypeCode"];
+		var properyKeyValueList = fechOptions["properyKeyValueList"];
+		var sampleExperimentIdentifier = fechOptions["sampleExperimentIdentifier"];
 		var withProperties = fechOptions["withProperties"];
+		var withParents = fechOptions["withParents"];
 		var withAncestors = fechOptions["withAncestors"];
 		var withDescendants = fechOptions["withDescendants"];
-		
+			
 		var matchClauses = [];
 		
 		if(samplePermId) {
@@ -543,6 +547,22 @@ function ServerFacade(openbisServer) {
 				fieldType : "ATTRIBUTE",			
 				attribute : "PERM_ID",
 				desiredValue : samplePermId 
+			});
+		}
+		
+		if(sampleIdentifier) {
+			matchClauses.push({
+				"@type":"AttributeMatchClause",
+				fieldType : "ATTRIBUTE",			
+				attribute : "SPACE",
+				desiredValue : sampleIdentifier.split("/")[1] 
+			});
+			
+			matchClauses.push({
+				"@type":"AttributeMatchClause",
+				fieldType : "ATTRIBUTE",			
+				attribute : "CODE",
+				desiredValue : sampleIdentifier.split("/")[2] 
 			});
 		}
 		
@@ -564,9 +584,55 @@ function ServerFacade(openbisServer) {
 			});
 		}
 		
-		var sampleCriteria = 
-		{
+		if(properyKeyValueList) {
+			for(var kvIdx = 0; kvIdx < properyKeyValueList.length; kvIdx++) {
+				var properyKeyValue = properyKeyValueList[kvIdx];
+				for(properyTypeCode in properyKeyValue) {
+					matchClauses.push(
+							{	
+								"@type":"PropertyMatchClause",
+								fieldType : "PROPERTY",
+								fieldCode : properyTypeCode,
+								propertyCode : properyTypeCode,
+								desiredValue : "\"" + properyKeyValue[properyTypeCode] + "\"",
+								compareMode : "EQUALS"
+							}
+						);
+				}
+			}
+		}
+		
+		var subCriterias = [];
+		if(sampleExperimentIdentifier) {
+			var sampleExperimentIdentifierParts = sampleExperimentIdentifier.split("/");
+			subCriterias.push({
+					"@type" : "SearchSubCriteria",
+					"targetEntityKind" : "EXPERIMENT",	
+					"criteria" : {
+						matchClauses : [{
+								"@type":"AttributeMatchClause",
+								fieldType : "ATTRIBUTE",			
+								attribute : "SPACE",
+								desiredValue : sampleExperimentIdentifierParts[1]
+							},{
+								"@type":"AttributeMatchClause",
+								fieldType : "ATTRIBUTE",			
+								attribute : "PROJECT",
+								desiredValue : sampleExperimentIdentifierParts[2]
+							}, {
+								"@type":"AttributeMatchClause",
+								fieldType : "ATTRIBUTE",			
+								attribute : "CODE",
+								desiredValue : sampleExperimentIdentifierParts[3]
+							}],
+						operator : "MATCH_ALL_CLAUSES"
+				}
+			});
+		}
+		
+		var sampleCriteria = {
 			matchClauses : matchClauses,
+			subCriterias : subCriterias,
 			operator : "MATCH_ALL_CLAUSES"
 		};
 		
@@ -582,6 +648,10 @@ function ServerFacade(openbisServer) {
 		
 		if(withDescendants) {
 			options.push("DESCENDANTS");
+		}
+		
+		if(withParents) {
+			options.push("PARENTS");
 		}
 		
 		var localReference = this;
@@ -603,11 +673,40 @@ function ServerFacade(openbisServer) {
 	this.searchWithType = function(sampleType, sampleCode, includeAncestorsAndDescendants, callbackFunction)
 	{
 		this.searchSamples({
-			"withProperties" : true,
 			"sampleTypeCode" : sampleType,
 			"sampleCode" : sampleCode,
+			"withProperties" : true,
 			"withAncestors" : includeAncestorsAndDescendants,
 			"withDescendants" : includeAncestorsAndDescendants
+		}, callbackFunction);
+	}
+	
+	this.searchWithExperiment = function(experimentIdentifier, callbackFunction)
+	{	
+		this.searchSamples({
+			"sampleExperimentIdentifier" : experimentIdentifier,
+			"withProperties" : true,
+			"withParents" : true
+		}, callbackFunction);
+	}
+	
+	this.searchWithProperties = function(propertyTypeCodes, propertyValues, callbackFunction, isComplete)
+	{	
+		var properyKeyValueList = [];
+	
+		for(var i = 0; i < propertyTypeCodes.length ;i++) {
+			var propertyTypeCode = propertyTypeCodes[i];
+			var propertyTypeValue = propertyValues[i];
+			properyKeyValueList.push({
+				propertyTypeCode : "\"" + propertyTypeValue + "\""
+			});
+		}
+		
+		this.searchSamples({
+			"withProperties" : true,
+			"withAncestors" : isComplete,
+			"withDescendants" : isComplete,
+			"properyKeyValueList" : properyKeyValueList
 		}, callbackFunction);
 	}
 	
@@ -616,7 +715,6 @@ function ServerFacade(openbisServer) {
 		var _this = this;
 		var searchResults = [];
 		var searchForIdentifiers = jQuery.extend(true, [], sampleIdentifiers);
-		var searchFunction = null;
 		
 		var searchNext = function() {
 			if(searchForIdentifiers.length === 0) {
@@ -628,117 +726,20 @@ function ServerFacade(openbisServer) {
 		}
 		
 		var searchFunction = function(sampleIdentifier) {
-			var matchClauses = [{
-					"@type":"AttributeMatchClause",
-					fieldType : "ATTRIBUTE",			
-					attribute : "SPACE",
-					desiredValue : sampleIdentifier.split("/")[1] 
-			}, {
-					"@type":"AttributeMatchClause",
-					fieldType : "ATTRIBUTE",			
-					attribute : "CODE",
-					desiredValue : sampleIdentifier.split("/")[2] 
-			}];
-			
-			var sampleCriteria = {
-					matchClauses : matchClauses,
-					operator : "MATCH_ALL_CLAUSES"
-			}
-			
-			_this.openbisServer.searchForSamplesWithFetchOptions(sampleCriteria, ["PROPERTIES", "ANCESTORS", "DESCENDANTS"], function(data) {
-				var partialResults = _this.getInitializedSamples(data.result);
-				partialResults.forEach(function(partialResult) {
-					searchResults.push(partialResult);
+			_this.searchSamples({
+				"withProperties" : true,
+				"withAncestors" : true,
+				"withDescendants" : true,
+				"sampleIdentifier" : sampleIdentifier
+			}, function(samples) {
+				samples.forEach(function(sample) {
+					searchResults.push(sample);
 				});
-				
 				searchNext();
 			});
 		}
 		
 		searchNext();
-	}
-	
-	this.searchWithExperiment = function(experimentIdentifier, callbackFunction)
-	{	
-		var matchClauses = [ {"@type":"AttributeMatchClause",
-					fieldType : "ATTRIBUTE",			
-					attribute : "TYPE",
-					desiredValue : "*"
-				}
-		]
-		
-		var identifierParts = experimentIdentifier.split("/");
-		var experimentSubCriteria = {
-				"@type" : "SearchSubCriteria",
-				"targetEntityKind" : "EXPERIMENT",	
-				"criteria" : {
-					matchClauses : [{
-							"@type":"AttributeMatchClause",
-							fieldType : "ATTRIBUTE",			
-							attribute : "SPACE",
-							desiredValue : identifierParts[1]
-						},{
-							"@type":"AttributeMatchClause",
-							fieldType : "ATTRIBUTE",			
-							attribute : "PROJECT",
-							desiredValue : identifierParts[2]
-						}, {
-							"@type":"AttributeMatchClause",
-							fieldType : "ATTRIBUTE",			
-							attribute : "CODE",
-							desiredValue : identifierParts[3]
-						}],
-					operator : "MATCH_ALL_CLAUSES"
-			}
-		}
-		
-		var sampleCriteria = 
-		{
-			matchClauses : matchClauses,
-			subCriterias : [ experimentSubCriteria ],
-			operator : "MATCH_ALL_CLAUSES"
-		};
-		
-		var localReference = this;
-		this.openbisServer.searchForSamplesWithFetchOptions(sampleCriteria, ["PROPERTIES", "PARENTS"], function(data) {
-			callbackFunction(localReference.getInitializedSamples(data.result));
-		});
-	}
-	
-	this.searchWithProperties = function(propertyTypeCodes, propertyValues, callbackFunction, isComplete)
-	{	
-		var matchClauses = [];
-		
-		for(var i = 0; i < propertyTypeCodes.length ;i++) {
-			matchClauses.push(
-				{	
-					"@type":"PropertyMatchClause",
-					fieldType : "PROPERTY",
-					fieldCode : propertyTypeCodes[i],
-					propertyCode : propertyTypeCodes[i],
-					desiredValue : "\"" + propertyValues[i] + "\"",
-					compareMode : "EQUALS"
-				}
-			);
-		}
-		
-		var sampleCriteria = 
-		{
-			matchClauses : matchClauses,
-			operator : "MATCH_ALL_CLAUSES"
-		};
-		
-		var localReference = this;
-		
-		var lookFor = ["PROPERTIES"];
-		if(isComplete) {
-			lookFor.append("ANCESTORS");
-			lookFor.append("DESCENDANTS");
-		}
-		
-		this.openbisServer.searchForSamplesWithFetchOptions(sampleCriteria, lookFor, function(data) {
-			callbackFunction(data.result);
-		});
 	}
 	
 	this.getInitializedSamples = function(result) {
