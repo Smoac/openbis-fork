@@ -74,7 +74,8 @@ function ServerFacade(openbisServer) {
 		mainController.serverFacade.createReportFromAggregationService(defaultDataSetCode, {
 			"method" : "initServices",
 			"username" : username,
-			"password" : password
+			"password" : password,
+			"openBISURL" : mainController.serverFacade.openbisServer._internal.openbisUrl
 		}, function(result) {
 			callbackFunction();
 		});

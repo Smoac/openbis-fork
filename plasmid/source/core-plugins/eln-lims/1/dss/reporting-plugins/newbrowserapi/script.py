@@ -16,6 +16,8 @@
 
 # IDataSetRegistrationTransactionV2 Class
 from ch.systemsx.cisd.openbis.dss.client.api.v1 import DssComponentFactory
+from ch.ethz.sis.openbis.generic.shared.api.v3 import IApplicationServerApi
+from ch.systemsx.cisd.common.spring import HttpInvokerUtils;
 from org.apache.commons.io import IOUtils
 from java.io import File
 from java.io import FileOutputStream
@@ -25,6 +27,7 @@ from ch.systemsx.cisd.common.exceptions import UserFailureException
 from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto import SearchCriteria
 from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria import MatchClause, SearchOperator, MatchClauseAttribute
 from ch.ethz.ssdm.eln import PlasmapperConnector
+from ch.ethz.ssdm.eln import ELNStore
 import time
 import subprocess
 import os.path
@@ -65,6 +68,9 @@ def process(tr, parameters, tableBuilder):
 	
 	if method == "init":
 		isOk = init(tr, parameters, tableBuilder);
+	if method == "initServices":
+		ELNStore.put(parameters.get("username"), parameters.get("password"));
+		isOk = True;
 	if method == "registerUserPassword":
 		isOk = registerUserPassword(tr, parameters, tableBuilder);
 	
@@ -456,3 +462,12 @@ def insertUpdateExperiment(tr, parameters, tableBuilder):
 		experiment.setPropertyValue(key,propertyValue);
 	
 	return True;
+
+def searchSamples(tr, parameters, tableBuilder):
+	username = parameters.get("username");
+	password = ELNStore.get(username);
+	
+	v3 = HttpInvokerUtils.createServiceStub(IApplicationServerApi.class, parameters.get("openBISURL") + IApplicationServerApi.SERVICE_URL, 30 * 1000);
+	v3.login(username, password);
+	SearchResult<Sample> result = v3.searchSamples(sessionToken, criteria, fetchoptions);
+	return True
