@@ -44,15 +44,14 @@ Operator Name or ID of the operator
 SampleProject  The project the sample belongs to
 '''
 
-from __future__ import with_statement
 import os
 import logging
 import re
 import sys
 import string
 import smtplib
+import argparse
 from ConfigParser import SafeConfigParser
-from optparse import OptionParser
 from datetime import *
 from collections import OrderedDict
 
@@ -104,55 +103,55 @@ def setUpLogger(logPath, logLevel=logging.INFO):
 
 def parseOptions(logger):
     logger.info('Parsing command line parameters')
-    parser = OptionParser(version='%prog 1.0')
-    parser.add_option('-f', '--flowcell',
+    parser = argparse.ArgumentParser(version='%prog 1.0', description='Process some integers.')
+    parser.add_argument('-f', '--flowcell',
                   dest='flowcell',
                   help='The flowcell which is used to create the SampleSheet.csv',
                   metavar='<flowcell>')
-    parser.add_option('-m', '--mailist',
+    parser.add_argument('-m', '--mailist',
                   dest='maillist',
                   default=False,
                   action='store_true',
-                  help='Generated Sample Sheet will be addtionally sent as email to the defined list of recipients',
-                  metavar='<maillist>')
-    parser.add_option('-l', '--lineending',
+                  help='Generated Sample Sheet will be addtionally sent as email to the defined list of recipients')
+    parser.add_argument('-l', '--lineending',
                   dest='lineending',
-                  type='choice',
                   action='store',
                   choices=['win32', 'linux', 'mac'],
                   default='win32',
                   help='Specify end of line separator: win32, linux, mac. Default: win32' ,
                   metavar='<lineending>')
-    parser.add_option('-o', '--outdir',
+    parser.add_argument('-o', '--outdir',
                   dest='outdir',
                   default='./',
                   help='Specify the ouput directory. Default: ./' ,
                   metavar='<outdir>')
-    parser.add_option('-s', '--singlelane',
+    parser.add_argument('-s', '--singlelane',
                   dest='singlelane',
                   default=False,
                   action='store_true',
                   help='Creates a single Sample Sheet for each lane. Default: False')
-    parser.add_option('-d', '--debug',
+    parser.add_argument('-d', '--debug',
                   dest='debug',
                   default=False,
                   action='store_true',
                   help='Verbose debug logging. Default: False')
-    parser.add_option('-v', '--verbose',
+    parser.add_argument('--verbose',
                   dest='verbose',
                   default=False,
                   action='store_true',
                   help='Write Sample Sheet to stout. Default: False')
 
-    (options, args) = parser.parse_args()
+    args = parser.parse_args()
+    
+    print(type(args))
 
-    if options.outdir[-1] <> '/':
-        options.outdir = options.outdir + '/'
+    if args.outdir[-1] <> '/':
+        args.outdir = args.outdir + '/'
 
-    if options.flowcell is None:
+    if args.flowcell is None:
         parser.print_help()
         exit(-1)
-    return options
+    return args
 
 
 def parseConfigurationFile(propertyFile='etc/createSampleSheet.properties'):
@@ -684,10 +683,10 @@ def main ():
         logger.setLevel(logging.DEBUG)
 
     flowCellName = myoptions.flowcell
-    configMap = readConfig(logger)
-    service = login(logger, configMap)
+    config_dict = readConfig(logger)
+    service = login(logger, config_dict)
 
-    foundFlowCell, containedSamples = get_flowcell(configMap['illuminaFlowCellTypeName'], flowCellName,
+    foundFlowCell, containedSamples = get_flowcell(config_dict['illuminaFlowCellTypeName'], flowCellName,
                                                 service, logger)
     parentDict, samplesPerLaneDict = get_contained_sample_properties(containedSamples, service)
     logger.info('Found ' + str(len(parentDict)) + ' samples on the flow cell ' + flowCellName)
@@ -698,20 +697,20 @@ def main ():
     print("Auto-detected: " + model)
     logger.info("Auto-detected: " + model)
 
-    index1Vocabulary = get_vocabulary(configMap['index1Name'], service)
-    index2Vocabulary = get_vocabulary(configMap['index2Name'], service)
+    index1Vocabulary = get_vocabulary(config_dict['index1Name'], service)
+    index2Vocabulary = get_vocabulary(config_dict['index2Name'], service)
     ordered_sample_sheet_dict, csv_file_name = create_sample_sheet_dict(model, parentDict,
-                            flowCellDict, configMap, index1Vocabulary, index2Vocabulary, flowCellName, logger)
+                            flowCellDict, config_dict, index1Vocabulary, index2Vocabulary, flowCellName, logger)
     
     if myoptions.singlelane:
         write_sample_sheet_single_lane(ordered_sample_sheet_dict, flowCellDict,
-                                          parentDict, configMap, myoptions, logger, csv_file_name)
+                                          parentDict, config_dict, myoptions, logger, csv_file_name)
     else:
-        header_list = create_header_section (configMap, parentDict, flowCellDict)
+        header_list = create_header_section (config_dict, parentDict, flowCellDict)
         sampleSheetFile = write_sample_sheet(ordered_sample_sheet_dict, header_list, 
                                           myoptions, logger, myoptions.outdir + csv_file_name + CSV)
         if myoptions.maillist:
-            sendMail(configMap['mailList'], [SampleSheetFile], flowCellName, configMap, logger)
+            sendMail(config_dict['mailList'], [sampleSheetFile], flowCellName, config_dict, logger)
 
     logout(service, logger)
 
