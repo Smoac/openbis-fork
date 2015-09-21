@@ -16,7 +16,16 @@
 
 # IDataSetRegistrationTransactionV2 Class
 from ch.systemsx.cisd.openbis.dss.client.api.v1 import DssComponentFactory
+from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto import SearchCriteria
+from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria import MatchClause, SearchOperator, MatchClauseAttribute
+
 from ch.ethz.sis.openbis.generic.shared.api.v3 import IApplicationServerApi
+from ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sample import SampleFetchOptions;
+from ch.ethz.sis.openbis.generic.shared.api.v3.dto.search import SampleSearchCriterion;
+from ch.ethz.sis.openbis.generic.shared.api.v3.dto.search import SearchResult;
+from ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample import SampleIdentifier;
+from ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment import ExperimentIdentifier;
+
 from ch.systemsx.cisd.common.spring import HttpInvokerUtils;
 from org.apache.commons.io import IOUtils
 from java.io import File
@@ -24,14 +33,13 @@ from java.io import FileOutputStream
 from java.lang import System
 from net.lingala.zip4j.core import ZipFile
 from ch.systemsx.cisd.common.exceptions import UserFailureException
-from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto import SearchCriteria
-from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria import MatchClause, SearchOperator, MatchClauseAttribute
+
 from ch.ethz.ssdm.eln import PlasmapperConnector
 from ch.ethz.ssdm.eln import ELNStore
 import time
 import subprocess
 import os.path
-from ch.systemsx.cisd.common.ssl import SslCertificateHelper;
+#from ch.systemsx.cisd.common.ssl import SslCertificateHelper;
 
 #Plasmapper server used
 PLASMAPPER_BASE_URL = "http://wishart.biology.ualberta.ca"
@@ -69,7 +77,9 @@ def process(tr, parameters, tableBuilder):
 	if method == "init":
 		isOk = init(tr, parameters, tableBuilder);
 	if method == "initServices":
-		ELNStore.put(parameters.get("username"), parameters.get("password"));
+		isOk = initServices(tr, parameters, tableBuilder);
+	if method == "searchSamples":
+		results = searchSamples(tr, parameters, tableBuilder, sessionId);
 		isOk = True;
 	if method == "registerUserPassword":
 		isOk = registerUserPassword(tr, parameters, tableBuilder);
@@ -463,14 +473,85 @@ def insertUpdateExperiment(tr, parameters, tableBuilder):
 	
 	return True;
 
-def searchSamples(tr, parameters, tableBuilder):
-	username = parameters.get("username");
+def initServices(tr, parameters, tableBuilder):
+	ELNStore.put(parameters.get("username"), parameters.get("password"));
+	return True
+
+def searchSamples(tr, parameters, tableBuilder, sessionId):
+	username = sessionId;
 	password = ELNStore.get(username);
 	openBISURL = parameters.get("openBISURL");
-	
-	v3 = HttpInvokerUtils.createServiceStub(IApplicationServerApi.class, openBISURL + IApplicationServerApi.SERVICE_URL, 30 * 1000);
+	print "----------> Find User Password " + password
+	v3 = HttpInvokerUtils.createServiceStub(IApplicationServerApi, openBISURL + IApplicationServerApi.SERVICE_URL, 30 * 1000);
+	print "----------> Create V3 Service Stub " + str(v3)
 	sessionToken = v3.login(username, password);
-	v3.logout(sessionToken);
+	print "----------> Login Token " + sessionToken
 	
-# 	SearchResult<Sample> result = v3.searchSamples(sessionToken, criteria, fetchoptions);
-	return True
+	###############
+	###############
+	###############
+	
+	# Attributes
+	fechOptions = parameters;
+	samplePermId = fechOptions.get("samplePermId");
+	sampleIdentifier = fechOptions.get("sampleIdentifier");
+	sampleCode = fechOptions.get("sampleCode");
+	sampleTypeCode = fechOptions.get("sampleTypeCode");
+	
+	# Properties
+	properyKeyValueList = fechOptions.get("properyKeyValueList");
+	
+	# Sub Queries
+	sampleExperimentIdentifier = fechOptions.get("sampleExperimentIdentifier");
+	sampleContainerPermId = fechOptions.get("sampleContainerPermId");
+	
+	# Hierarchy Options
+	withProperties = fechOptions.get("withProperties");
+	withParents = fechOptions.get("withParents");
+	withChildren = fechOptions.get("withChildren");
+	withAncestors = fechOptions.get("withAncestors");
+	withDescendants = fechOptions.get("withDescendants");
+
+	#Search Setup
+	criterion = SampleSearchCriterion();
+	criterion.withAndOperator();
+	fetchOptions = SampleFetchOptions();
+	
+	#Attributes
+	if samplePermId is not None:
+		criterion.withPermId().thatEquals(samplePermId);
+	if sampleIdentifier is not None:
+		criterion.withId().thatEquals(SampleIdentifier(sampleIdentifier));
+	if sampleCode is not None:
+		criterion.withCode().thatEquals(sampleCode);
+	if sampleTypeCode is not None:
+		criterion.withType().withCode().thatEquals(sampleTypeCode);
+	
+	#Properties
+	if properyKeyValueList is not None:
+		for propertyTypeCode in properyKeyValueList.keySet():
+			propertyValue = properyKeyValueList.get(propertyTypeCode);
+			criterion.withProperty(propertyTypeCode).thatEquals(propertyValue);
+	
+	#Sub queries
+	if sampleExperimentIdentifier is not None:
+		criterion.withExperiment().withId().thatEquals(ExperimentIdentifier(sampleExperimentIdentifier));
+	if sampleContainerPermId is not None:
+		criterion.withContainer().withPermId().thatEquals(sampleContainerPermId);
+
+	#Hierarchy Fetch Options
+	if withProperties:
+		fetchOptions.withProperties();
+	if withParents or withAncestors:
+		fetchOptions.withParents();
+	if withChildren or withDescendants:
+		fetchOptions.withChildren();
+	
+	###############
+	###############
+	###############
+	
+	result = v3.searchSamples(sessionToken, criterion, fetchOptions);
+	print "----------> Number of Results " + str(result.getTotalCount());
+	v3.logout(sessionToken);
+	return result;

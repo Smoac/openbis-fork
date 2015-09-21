@@ -555,7 +555,7 @@ function ServerFacade(openbisServer) {
 		
 		//Sub Queries
 		var sampleExperimentIdentifier = fechOptions["sampleExperimentIdentifier"];
-		var sampleContainer = fechOptions["sampleContainer"];
+		var sampleContainerPermId = fechOptions["sampleContainerPermId"];
 		
 		//Hierarchy Options
 		var withProperties = fechOptions["withProperties"];
@@ -563,7 +563,14 @@ function ServerFacade(openbisServer) {
 		var withChildren = fechOptions["withChildren"];
 		var withAncestors = fechOptions["withAncestors"];
 		var withDescendants = fechOptions["withDescendants"];
-			
+		
+		var localReference = this;
+//		fechOptions["method"] = "searchSamples";
+//		fechOptions["openBISURL"] = this.openbisServer._internal.openbisUrl;
+//		this.createReportFromAggregationService(profile.getDefaultDataStoreCode(), fechOptions, function(result) {
+//			var somethingToBreak = "NOW!";
+//		});
+		
 		var matchClauses = [];
 		
 		if(samplePermId) {
@@ -655,7 +662,7 @@ function ServerFacade(openbisServer) {
 			});
 		}
 		
-		if(sampleContainer) {
+		if(sampleContainerPermId) {
 			subCriterias.push({
 				"@type" : "SearchSubCriteria",
 				"targetEntityKind" : "SAMPLE_CONTAINER",
@@ -664,7 +671,7 @@ function ServerFacade(openbisServer) {
 							"@type":"AttributeMatchClause",
 							fieldType : "ATTRIBUTE",			
 							attribute : "PERM_ID",
-							desiredValue : sampleContainer
+							desiredValue : sampleContainerPermId
 						}],
 					operator : "MATCH_ALL_CLAUSES"
 				}
@@ -789,7 +796,7 @@ function ServerFacade(openbisServer) {
 	
 	this.searchContained = function(permId, callbackFunction) {
 		this.searchSamples({
-			"sampleContainer" : permId,
+			"sampleContainerPermId" : permId,
 			"withProperties" : true,
 			"withParents" : true,
 			"withChildren" : true
