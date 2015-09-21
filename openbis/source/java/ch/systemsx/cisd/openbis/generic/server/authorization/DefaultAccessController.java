@@ -19,8 +19,10 @@ package ch.systemsx.cisd.openbis.generic.server.authorization;
 import java.io.File;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -32,11 +34,11 @@ import org.apache.log4j.Logger;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.Status;
-import ch.systemsx.cisd.common.exceptions.StatusFlag;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.reflection.MethodUtils;
+import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
@@ -171,31 +173,68 @@ public final class DefaultAccessController implements IAccessController
                 return Status.createError(msg);
             }
             final List<RoleWithIdentifier> userRoles = getUserRoles(person);
-            retainMatchingRoleWithIdentifiers(userRoles, methodRoles);
-
-            if (userRoles.size() == 0)
-            {
-                final String msg =
-                        String.format(MATCHING_ROLE_NOT_FOUND_TEMPLATE, methodRoles,
-                                session.getUserName());
-                return Status.createError(msg);
-            }
+            Status status = Status.OK;
             if (arguments.length > 0)
             {
                 for (final Argument<?> argument : arguments)
                 {
-                    final Status status = predicateExecutor.evaluate(person, userRoles, argument);
-                    if (status.getFlag().equals(StatusFlag.OK) == false)
+                    Set<RoleWithHierarchy> argumentRoles = methodRoles;
+                    AuthorizationGuard predicateCandidate = argument.getPredicateCandidate();
+                    if (predicateCandidate != null && predicateCandidate.rolesAllowed().length > 0)
                     {
-                        return status;
+                        RoleWithHierarchy[] rolesAllowed = predicateCandidate.rolesAllowed();
+                        argumentRoles = new HashSet<RoleWithHierarchy>();
+                        for (RoleWithHierarchy role : rolesAllowed)
+                        {
+                            argumentRoles.addAll(role.getRoles());
+                        }
+                    }
+                    List<RoleWithIdentifier> relevantRoles = getRelevantRoles(userRoles, argumentRoles);
+                    status = checkNotEmpty(relevantRoles, argumentRoles, session);
+                    if (status.isOK())
+                    {
+                        status = predicateExecutor.evaluate(person, relevantRoles, argument);
+                        if (status.isError())
+                        {
+                            break;
+                        }
                     }
                 }
+            } else
+            {
+                List<RoleWithIdentifier> relevantRoles = getRelevantRoles(userRoles, methodRoles);
+                status = checkNotEmpty(relevantRoles, methodRoles, session);
             }
-            return Status.OK;
+            return status;
         } finally
         {
             logTimeTaken(stopWatch, method);
         }
+    }
+    
+    private Status checkNotEmpty(List<RoleWithIdentifier> relevantRoles, Set<RoleWithHierarchy> argumentRoles, 
+            IAuthSession session)
+    {
+        if (relevantRoles.isEmpty() == false)
+        {
+            return Status.OK;
+        }
+        final String msg = String.format(MATCHING_ROLE_NOT_FOUND_TEMPLATE, argumentRoles, session.getUserName());
+        return Status.createError(msg);
+    }
+    
+    private List<RoleWithIdentifier> getRelevantRoles(
+            final List<RoleWithIdentifier> userRoles, final Set<RoleWithHierarchy> methodOrParameterRoles)
+    {
+        List<RoleWithIdentifier> result = new ArrayList<>();
+        for (RoleWithIdentifier roleWithIdentifier : userRoles)
+        {
+            if (methodOrParameterRoles.contains(roleWithIdentifier.getRole()))
+            {
+                result.add(roleWithIdentifier);
+            }
+        }
+        return result;
     }
 
     /**

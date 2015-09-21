@@ -23,6 +23,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.IPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 
 /**
  * An annotation for marking method parameters that should be evaluated.
@@ -38,4 +39,14 @@ public @interface AuthorizationGuard
      * Class responsible for evaluating the method parameter.
      */
     Class<? extends IPredicate<?>> guardClass();
+    
+    /**
+     * List of roles replacing corresponding list of @RolesAllowed annotation.
+     */
+    RoleWithHierarchy[] rolesAllowed() default {};
+    
+    /**
+     * Name of the guard. Needed for the capabilities file to override allowed roles list.
+     */
+    String name() default "";
 }
