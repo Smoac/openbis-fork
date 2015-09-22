@@ -139,7 +139,8 @@ public interface IRelationshipService
     @Capability("ADD_PARENT_TO_SAMPLE")
     public void addParentToSample(IAuthSession session,
             @AuthorizationGuard(name = "SAMPLE", guardClass = SamplePEPredicate.class)
-            SamplePE sample, @AuthorizationGuard(name = "PARENT", guardClass = SamplePEPredicate.class)
+            SamplePE sample, @AuthorizationGuard(name = "PARENT", guardClass = SamplePEPredicate.class,
+                    rolesAllowed = { RoleWithHierarchy.SPACE_ETL_SERVER, RoleWithHierarchy.SPACE_USER })
             SamplePE parent);
 
     @Transactional(propagation = Propagation.MANDATORY)
@@ -148,7 +149,8 @@ public interface IRelationshipService
     @Capability("REMOVE_PARENT_FROM_SAMPLE")
     public void removeParentFromSample(IAuthSession session,
             @AuthorizationGuard(name = "SAMPLE", guardClass = SamplePEPredicate.class)
-            SamplePE sample, @AuthorizationGuard(name = "PARENT", guardClass = SamplePEPredicate.class)
+            SamplePE sample, @AuthorizationGuard(name = "PARENT", guardClass = SamplePEPredicate.class,
+                    rolesAllowed = { RoleWithHierarchy.SPACE_ETL_SERVER, RoleWithHierarchy.SPACE_USER })
             SamplePE parent);
 
     @Transactional(propagation = Propagation.MANDATORY)
