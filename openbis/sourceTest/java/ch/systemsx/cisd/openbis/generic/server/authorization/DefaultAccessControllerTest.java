@@ -24,11 +24,19 @@ import static org.testng.AssertJUnit.assertTrue;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
+import org.jmock.Expectations;
+import org.jmock.Mockery;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
@@ -36,13 +44,23 @@ import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.StatusFlag;
 import ch.systemsx.cisd.common.logging.LogInitializer;
+import ch.systemsx.cisd.common.reflection.AnnotationUtils;
+import ch.systemsx.cisd.common.reflection.AnnotationUtils.Parameter;
+import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.Capability;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAllowed;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.IPredicate;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IProjectDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PermId;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.builders.SpacePEBuilder;
 
 /**
  * Test cases for corresponding {@link DefaultAccessController} class.
@@ -53,6 +71,14 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 public final class DefaultAccessControllerTest
 {
     private DefaultAccessController accessController;
+
+    private Mockery context;
+
+    private IDAOFactory daoFactory;
+
+    private IProjectDAO projectDAO;
+
+    private ProjectPE project;
 
     @BeforeTest
     void init()
@@ -69,18 +95,45 @@ public final class DefaultAccessControllerTest
         {
             ex.printStackTrace();
         }
-        accessController = new DefaultAccessController(null);
+    }
+
+    @BeforeMethod
+    public void setUp()
+    {
+        context = new Mockery();
+        daoFactory = context.mock(IDAOFactory.class);
+        projectDAO = context.mock(IProjectDAO.class);
+        project = new ProjectPE();
+        project.setCode("TEST");
+        project.setSpace(new SpacePEBuilder().code("TEST").getSpace());
+        accessController = new DefaultAccessController(daoFactory);
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(daoFactory).getProjectDAO();
+                    will(returnValue(projectDAO));
+                    
+                    allowing(projectDAO).tryGetByPermID("42");
+                    will(returnValue(project));
+                }
+            });
+    }
+
+    @AfterMethod
+    public void tearDown()
+    {
+        context.assertIsSatisfied();
     }
 
     private final static Set<RoleAssignmentPE> createRoleAssignments()
     {
-        final Set<RoleAssignmentPE> roleAssignments = new HashSet<RoleAssignmentPE>();
+        final Set<RoleAssignmentPE> roleAssignments = new LinkedHashSet<RoleAssignmentPE>();
 
         final RoleAssignmentPE groupRole = new RoleAssignmentPE();
 
-        final SpacePE groupPE = new SpacePE();
-        groupPE.setCode("CISD");
-        groupRole.setSpace(groupPE);
+        final SpacePE space = new SpacePE();
+        space.setCode("CISD");
+        groupRole.setSpace(space);
         groupRole.setRole(RoleCode.USER);
         roleAssignments.add(groupRole);
 
@@ -196,6 +249,88 @@ public final class DefaultAccessControllerTest
         assertNull(authorized.tryGetErrorMessage());
     }
 
+    @Test
+    public void testIsAuthorizedWithUngardedArgument() throws Exception
+    {
+        final IAuthSession session = AuthorizationTestUtil.createSession();
+        session.tryGetPerson().setRoleAssignments(createRoleAssignments());
+        final Method method = MyInterface.class.getMethod("myMethodWithUngardedArgument", String.class, String.class);
+        assertNotNull(method);
+        Argument<?>[] arguments = createArguments(method);
+
+        final Status authorized = accessController.isAuthorized(session, method, arguments);
+
+        assertEquals("OK", authorized.toString());
+        assertEquals(null, project.getDescription());
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testIsAuthorizedWithGardedArgument() throws Exception
+    {
+        final IAuthSession session = AuthorizationTestUtil.createSession();
+        session.tryGetPerson().setRoleAssignments(createRoleAssignments());
+        final Method method = MyInterface.class.getMethod("myMethodWithGardedArgument", 
+                String.class, String.class, String.class);
+        assertNotNull(method);
+        Argument<?>[] arguments = createArguments(method);
+
+        final Status authorized = accessController.isAuthorized(session, method, arguments);
+
+        assertEquals("OK", authorized.toString());
+        assertEquals("person: john_doe, roles: [INSTANCE_OBSERVER, SPACE_USER], value: arg0\n"
+                + "person: john_doe, roles: [INSTANCE_OBSERVER, SPACE_USER], value: arg1", project.getDescription());
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testIsNotAuthorizedWithGardedArgument() throws Exception
+    {
+        final IAuthSession session = AuthorizationTestUtil.createSession();
+        session.tryGetPerson().setRoleAssignments(createRoleAssignments());
+        final Method method = MyInterface.class.getMethod("myMethodWithGardedArgument", 
+                String.class, String.class, String.class);
+        assertNotNull(method);
+        Argument<?>[] arguments = createArguments(method);
+        project.setId(1L);
+        
+        final Status authorized = accessController.isAuthorized(session, method, arguments);
+        
+        assertEquals("ERROR", authorized.toString());
+        assertEquals("person: john_doe, roles: [INSTANCE_OBSERVER, SPACE_USER], value: arg0", project.getDescription());
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testIsNotAuthorizedWithGardedArgumentWithDifferentRoles() throws Exception
+    {
+        final IAuthSession session = AuthorizationTestUtil.createSession();
+        session.tryGetPerson().setRoleAssignments(createRoleAssignments());
+        final Method method = MyInterface.class.getMethod("myMethodWithGardedArgumentWithDifferentRoles",
+                String.class, String.class);
+        assertNotNull(method);
+        Argument<?>[] arguments = createArguments(method);
+
+        final Status authorized = accessController.isAuthorized(session, method, arguments);
+
+        assertEquals("ERROR: \"None of method roles '[SPACE_ETL_SERVER, INSTANCE_ETL_SERVER, INSTANCE_ADMIN]' "
+                + "could be found in roles of user 'John Doe'.\"", authorized.toString());
+        assertEquals(null, project.getDescription());
+        context.assertIsSatisfied();
+    }
+
+    private Argument<?>[] createArguments(final Method method)
+    {
+        List<Argument<?>> arguments = new ArrayList<>();
+        List<Parameter<AuthorizationGuard>> parameters = AnnotationUtils.getAnnotatedParameters(method, AuthorizationGuard.class);
+        for (int i = 0; i < parameters.size(); i++)
+        {
+            Parameter<AuthorizationGuard> parameter = parameters.get(i);
+            arguments.add(new Argument<>(String.class, "arg" + i, parameter.getAnnotation()));
+        }
+        return arguments.toArray(new Argument[0]);
+    }
+
     //
     // Helper classes
     //
@@ -220,5 +355,52 @@ public final class DefaultAccessControllerTest
         @RolesAllowed(
         { RoleWithHierarchy.SPACE_ETL_SERVER, RoleWithHierarchy.SPACE_OBSERVER })
         public void myMethodWithTwoRoles();
+
+        @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+        public void myMethodWithUngardedArgument(String sessionToken, String argument1);
+
+        @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+        public void myMethodWithGardedArgument(String sessionToken,  
+                @AuthorizationGuard(guardClass = MockPredicate.class) String argument1,
+                @AuthorizationGuard(guardClass = MockPredicate.class) String argument2);
+
+        @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+        public void myMethodWithGardedArgumentWithDifferentRoles(String sessionToken,
+                @AuthorizationGuard(guardClass = MockPredicate.class,
+                        rolesAllowed = { RoleWithHierarchy.SPACE_ETL_SERVER })
+                String argument1);
+    }
+
+    /**
+     * A mock predicate which uses a ProjectPE instance for communication.
+     */
+    public static class MockPredicate implements IPredicate<String>
+    {
+        private ProjectPE project;
+
+        @Override
+        public Status evaluate(PersonPE person, List<RoleWithIdentifier> allowedRoles, String valueOrNull)
+        {
+            List<RoleWithHierarchy> roles = new ArrayList<>();
+            for (RoleWithIdentifier roleWithIdentifier : allowedRoles)
+            {
+                roles.add(roleWithIdentifier.getRole());
+            }
+            Collections.sort(roles);
+            
+            String description = "person: " + person.getUserId() + ", roles: " + roles + ", value: " + valueOrNull;
+            if (project.getDescription() != null)
+            {
+                description = project.getDescription() + "\n" + description;
+            }
+            project.setDescription(description);
+            return project.getId() == null ? Status.OK : Status.createError();
+        }
+
+        @Override
+        public void init(IAuthorizationDataProvider provider)
+        {
+            project = provider.tryGetProjectByPermId(new PermId("42"));
+        }
     }
 }
