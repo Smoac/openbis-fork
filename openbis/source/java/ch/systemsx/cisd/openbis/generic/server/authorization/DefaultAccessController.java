@@ -19,10 +19,8 @@ package ch.systemsx.cisd.openbis.generic.server.authorization;
 import java.io.File;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -159,17 +157,13 @@ public final class DefaultAccessController implements IAccessController
             final Set<RoleWithHierarchy> methodRoles = getMethodRoles(method);
             if (methodRoles.size() == 0)
             {
-                final String msg =
-                        String.format(METHOD_ROLES_NOT_FOUND_TEMPLATE,
-                                MethodUtils.describeMethod(method));
+                String msg = String.format(METHOD_ROLES_NOT_FOUND_TEMPLATE, MethodUtils.describeMethod(method));
                 return Status.createError(msg);
             }
             PersonPE person = session.tryGetPerson();
             if (person == null || person.getAllPersonRoles().size() == 0)
             {
-                final String msg =
-                        String.format(USER_ROLE_ASSIGNMENTS_NOT_FOUND_TEMPLATE,
-                                session.getUserName());
+                String msg = String.format(USER_ROLE_ASSIGNMENTS_NOT_FOUND_TEMPLATE, session.getUserName());
                 return Status.createError(msg);
             }
             final List<RoleWithIdentifier> userRoles = getUserRoles(person);
@@ -178,17 +172,7 @@ public final class DefaultAccessController implements IAccessController
             {
                 for (final Argument<?> argument : arguments)
                 {
-                    Set<RoleWithHierarchy> argumentRoles = methodRoles;
-                    AuthorizationGuard predicateCandidate = argument.getPredicateCandidate();
-                    if (predicateCandidate != null && predicateCandidate.rolesAllowed().length > 0)
-                    {
-                        RoleWithHierarchy[] rolesAllowed = predicateCandidate.rolesAllowed();
-                        argumentRoles = new HashSet<RoleWithHierarchy>();
-                        for (RoleWithHierarchy role : rolesAllowed)
-                        {
-                            argumentRoles.addAll(role.getRoles());
-                        }
-                    }
+                    Set<RoleWithHierarchy> argumentRoles = getArgumentRoles(methodRoles, argument);
                     List<RoleWithIdentifier> relevantRoles = getRelevantRoles(userRoles, argumentRoles);
                     status = checkNotEmpty(relevantRoles, argumentRoles, session);
                     if (status.isOK())
@@ -202,14 +186,29 @@ public final class DefaultAccessController implements IAccessController
                 }
             } else
             {
-                List<RoleWithIdentifier> relevantRoles = getRelevantRoles(userRoles, methodRoles);
-                status = checkNotEmpty(relevantRoles, methodRoles, session);
+                status = checkNotEmpty(getRelevantRoles(userRoles, methodRoles), methodRoles, session);
             }
             return status;
         } finally
         {
             logTimeTaken(stopWatch, method);
         }
+    }
+
+    private Set<RoleWithHierarchy> getArgumentRoles(final Set<RoleWithHierarchy> methodRoles, final Argument<?> argument)
+    {
+        Set<RoleWithHierarchy> argumentRoles = methodRoles;
+        AuthorizationGuard predicateCandidate = argument.getPredicateCandidate();
+        if (predicateCandidate != null && predicateCandidate.rolesAllowed().length > 0)
+        {
+            RoleWithHierarchy[] rolesAllowed = predicateCandidate.rolesAllowed();
+            argumentRoles = new LinkedHashSet<RoleWithHierarchy>();
+            for (RoleWithHierarchy role : rolesAllowed)
+            {
+                argumentRoles.addAll(role.getRoles());
+            }
+        }
+        return argumentRoles;
     }
     
     private Status checkNotEmpty(List<RoleWithIdentifier> relevantRoles, Set<RoleWithHierarchy> argumentRoles, 
