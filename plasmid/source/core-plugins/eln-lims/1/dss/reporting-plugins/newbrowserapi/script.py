@@ -25,6 +25,7 @@ from ch.ethz.sis.openbis.generic.shared.api.v3.dto.search import SampleSearchCri
 from ch.ethz.sis.openbis.generic.shared.api.v3.dto.search import SearchResult;
 from ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample import SampleIdentifier;
 from ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment import ExperimentIdentifier;
+from ch.systemsx.cisd.openbis.generic.shared.api.v3.json import GenericObjectMapper;
 
 from ch.systemsx.cisd.common.spring import HttpInvokerUtils;
 from org.apache.commons.io import IOUtils
@@ -64,7 +65,7 @@ def process(tr, parameters, tableBuilder):
 	method = parameters.get("method");
 	
 	isOk = False;
-	
+	result = None;
 	# Obtain the user using the dropbox
 	sessionToken = parameters.get("sessionToken"); #String
 	sessionId = sessionToken.split("-")[0]; #String
@@ -79,7 +80,7 @@ def process(tr, parameters, tableBuilder):
 	if method == "initServices":
 		isOk = initServices(tr, parameters, tableBuilder);
 	if method == "searchSamples":
-		results = searchSamples(tr, parameters, tableBuilder, sessionId);
+		result = searchSamples(tr, parameters, tableBuilder, sessionId);
 		isOk = True;
 	if method == "registerUserPassword":
 		isOk = registerUserPassword(tr, parameters, tableBuilder);
@@ -109,9 +110,11 @@ def process(tr, parameters, tableBuilder):
 	if isOk:
 		tableBuilder.addHeader("STATUS");
 		tableBuilder.addHeader("MESSAGE");
+		tableBuilder.addHeader("RESULT");
 		row = tableBuilder.addRow();
 		row.setCell("STATUS","OK");
 		row.setCell("MESSAGE", "Operation Successful");
+		row.setCell("RESULT", result);
 	else :
 		tableBuilder.addHeader("STATUS");
 		tableBuilder.addHeader("MESSAGE");
@@ -488,7 +491,7 @@ def searchSamples(tr, parameters, tableBuilder, sessionId):
 	print "----------> Login Token " + sessionToken
 	
 	###############
-	###############
+	############### V3 Search
 	###############
 	
 	# Attributes
@@ -542,10 +545,14 @@ def searchSamples(tr, parameters, tableBuilder, sessionId):
 	#Hierarchy Fetch Options
 	if withProperties:
 		fetchOptions.withProperties();
-	if withParents or withAncestors:
+	if withParents:
 		fetchOptions.withParents();
-	if withChildren or withDescendants:
+	if withChildren:
 		fetchOptions.withChildren();
+	if withAncestors:
+		fetchOptions.withParents(fetchOptions);
+	if withDescendants:
+		fetchOptions.withChildren(fetchOptions);
 	
 	###############
 	###############
@@ -554,4 +561,11 @@ def searchSamples(tr, parameters, tableBuilder, sessionId):
 	result = v3.searchSamples(sessionToken, criterion, fetchOptions);
 	print "----------> Number of Results " + str(result.getTotalCount());
 	v3.logout(sessionToken);
-	return result;
+	
+	###
+	### Json Conversion
+	###
+	objectMapper = GenericObjectMapper();
+	resultAsString = objectMapper.writeValueAsString(result);
+	print "----------> Json length: " + str(len(resultAsString));
+	return resultAsString;
