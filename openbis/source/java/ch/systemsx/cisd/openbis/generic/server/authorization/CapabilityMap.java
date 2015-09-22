@@ -87,53 +87,106 @@ class CapabilityMap
             {
                 continue;
             }
-            final String[] splitted = StringUtils.split(trimmed, " \t:");
-            if (splitted.length != 2)
+            String[] terms = StringUtils.split(trimmed, ';');
+            String firstTerm = terms[0].trim();
+            
+            final String[] firstTermSplitted = StringUtils.split(firstTerm, " \t:", 2);
+            if (firstTermSplitted.length != 2)
             {
-                operationLog.warn(String.format("Ignoring mal-formed line '%s' in %s.", trimmed,
-                        filePath));
+                logWarning(line, filePath, null);
                 continue;
             }
-            final String capabilityName = splitted[0];
-            final String roleNames = splitted[1];
-            final String[] roleNameArray = StringUtils.split(roleNames, ",");
-            for (String roleName : roleNameArray)
+            final String capabilityName = firstTermSplitted[0].toUpperCase();
+            if (firstTermSplitted[1].contains("="))
             {
-                try
-                {
-                    final RoleWithHierarchy role = RoleWithHierarchy.valueOf(roleName);
-                    Collection<RoleWithHierarchy> roles = capMap.get(capabilityName);
-                    if (roles == null)
-                    {
-                        roles = new HashSet<RoleWithHierarchy>();
-                        capMap.put(capabilityName, roles);
-                    }
-                    roles.add(role);
-
-                    if (operationLog.isDebugEnabled())
-                    {
-                        operationLog.debug(String
-                                .format("Add to map: '%s' -> %s", capabilityName, role));
-                    }
-                } catch (IllegalArgumentException ex)
-                {
-                    operationLog.warn(String.format(
-                            "Ignoring mal-formed line '%s' in %s [role '%s' doesn't exist].",
-                            trimmed,
-                            filePath, roleName));
-                }
+                addRolesForParameter(capabilityName, firstTermSplitted[1], trimmed, filePath);
+            } else
+            {
+                final String roleNames = firstTermSplitted[1];
+                addRoles(capabilityName, roleNames, trimmed, filePath);
+            }
+            for (int i = 1; i < terms.length; i++)
+            {
+                addRolesForParameter(capabilityName, terms[i].trim(), trimmed, filePath);
             }
         }
     }
+    
+    private void addRolesForParameter(String capabilityName, String parameterTerm, String line, String filePath)
+    {
+        int indexOfEqual = parameterTerm.indexOf('=');
+        if (indexOfEqual < 0)
+        {
+            logWarning(line, filePath, "missing '='");
+            return;
+        }
+        String parameterName = parameterTerm.substring(0, indexOfEqual).trim().toUpperCase();
+        if (StringUtils.isBlank(parameterName))
+        {
+            logWarning(line, filePath, "parameter name not specified");
+            return;
+        }
+        String roleNames = parameterTerm.substring(indexOfEqual + 1).trim();
+        addRoles(capabilityName + ":" + parameterName, roleNames, line, filePath);
+    }
+    
+    private void addRoles(String capabilityName, String roleNames, String line, String filePath)
+    {
+        final String[] roleNameArray = StringUtils.split(roleNames, ",");
+        for (String roleName : roleNameArray)
+        {
+            roleName = roleName.trim().toUpperCase();
+            try
+            {
+                final RoleWithHierarchy role = RoleWithHierarchy.valueOf(roleName);
+                Collection<RoleWithHierarchy> roles = capMap.get(capabilityName);
+                if (roles == null)
+                {
+                    roles = new HashSet<RoleWithHierarchy>();
+                    capMap.put(capabilityName, roles);
+                }
+                roles.add(role);
 
-    Collection<RoleWithHierarchy> tryGetRoles(Method m)
+                if (operationLog.isDebugEnabled())
+                {
+                    operationLog.debug(String
+                            .format("Add to map: '%s' -> %s", capabilityName, role));
+                }
+            } catch (IllegalArgumentException ex)
+            {
+                logWarning(line, filePath, "role '" + roleName + "' doesn't exist");
+            }
+        }
+    }
+    
+    private void logWarning(String line, String filePath, String messageOrNull)
+    {
+        String msg = String.format(
+                "Ignoring mal-formed line '%s' in %s",
+                line, filePath);
+        if (messageOrNull == null)
+        {
+            msg += ".";
+        } else
+        {
+            msg += " [" + messageOrNull + "].";
+        }
+        operationLog.warn(msg);
+
+    }
+
+    Collection<RoleWithHierarchy> tryGetRoles(Method m, String argumentNameOrNull)
     {
         final Capability cap = m.getAnnotation(Capability.class);
         if (cap == null)
         {
             return null;
         }
-        final String capabilityName = cap.value().toUpperCase();
+        String capabilityName = cap.value().toUpperCase();
+        if (StringUtils.isNotBlank(argumentNameOrNull))
+        {
+            capabilityName += ":" + argumentNameOrNull.toUpperCase();
+        }
         final Collection<RoleWithHierarchy> rolesOrNull = capMap.get(capabilityName);
         if (operationLog.isDebugEnabled())
         {

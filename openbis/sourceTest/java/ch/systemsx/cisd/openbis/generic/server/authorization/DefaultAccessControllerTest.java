@@ -90,7 +90,7 @@ public final class DefaultAccessControllerTest
         try
         {
             FileUtils.writeLines(capFile,
-                    Arrays.asList("# Test overriding annotation", "MY_CAP: SPACE_OBSERVER"));
+                    Arrays.asList("# Test overriding annotation", "MY_CAP: SPACE_OBSERVER; ARG1 = SPACE_USER"));
         } catch (IOException ex)
         {
             ex.printStackTrace();
@@ -318,6 +318,23 @@ public final class DefaultAccessControllerTest
         assertEquals(null, project.getDescription());
         context.assertIsSatisfied();
     }
+    
+    @Test
+    public void testIsAuthorizedWithGardedArgumentWithRolesOverridden() throws Exception
+    {
+        final IAuthSession session = AuthorizationTestUtil.createSession();
+        session.tryGetPerson().setRoleAssignments(createRoleAssignments());
+        final Method method = MyInterface.class.getMethod("myMethodWithGardedArgumentWithRolesOverridden",
+                String.class, String.class);
+        assertNotNull(method);
+        Argument<?>[] arguments = createArguments(method);
+        
+        final Status authorized = accessController.isAuthorized(session, method, arguments);
+        
+        assertEquals("OK", authorized.toString());
+        assertEquals("person: john_doe, roles: [SPACE_USER], value: arg0", project.getDescription());
+        context.assertIsSatisfied();
+    }
 
     private Argument<?>[] createArguments(final Method method)
     {
@@ -367,6 +384,13 @@ public final class DefaultAccessControllerTest
         @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
         public void myMethodWithGardedArgumentWithDifferentRoles(String sessionToken,
                 @AuthorizationGuard(guardClass = MockPredicate.class,
+                        rolesAllowed = { RoleWithHierarchy.SPACE_ETL_SERVER })
+                String argument1);
+        
+        @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+        @Capability("MY_CAP")
+        public void myMethodWithGardedArgumentWithRolesOverridden(String sessionToken,
+                @AuthorizationGuard(name = "ARG1", guardClass = MockPredicate.class,
                         rolesAllowed = { RoleWithHierarchy.SPACE_ETL_SERVER })
                 String argument1);
     }

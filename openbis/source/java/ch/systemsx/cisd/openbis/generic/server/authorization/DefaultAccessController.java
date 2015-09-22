@@ -19,7 +19,9 @@ package ch.systemsx.cisd.openbis.generic.server.authorization;
 import java.io.File;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -73,6 +75,8 @@ public final class DefaultAccessController implements IAccessController
     private final Map<Method, Set<RoleWithHierarchy>> methodRolesCache =
             new HashMap<Method, Set<RoleWithHierarchy>>();
 
+    private final Map<Method, Map<String, Set<RoleWithHierarchy>>> argumentRolesCache = new HashMap<>();
+    
     private final CapabilityMap capabilities = new CapabilityMap(new File("etc/capabilities"));
 
     private PredicateExecutor predicateExecutor;
@@ -111,38 +115,6 @@ public final class DefaultAccessController implements IAccessController
         }
     }
 
-    private Set<RoleWithHierarchy> getMethodRoles(final Method method)
-    {
-        synchronized (methodRolesCache)
-        {
-            Set<RoleWithHierarchy> roles = methodRolesCache.get(method);
-            if (roles == null)
-            {
-                roles = new LinkedHashSet<RoleWithHierarchy>();
-                final Collection<RoleWithHierarchy> rootRoles = capabilities.tryGetRoles(method);
-                if (rootRoles != null)
-                {
-                    for (RoleWithHierarchy role : rootRoles)
-                    {
-                        roles.addAll(role.getRoles());
-                    }
-                } else
-                {
-                    final RolesAllowed rolesAllowed = method.getAnnotation(RolesAllowed.class);
-                    if (rolesAllowed != null)
-                    {
-                        for (RoleWithHierarchy role : rolesAllowed.value())
-                        {
-                            roles.addAll(role.getRoles());
-                        }
-                    }
-                }
-                methodRolesCache.put(method, roles);
-            }
-            return roles;
-        }
-    }
-
     @Override
     public final Status isAuthorized(final IAuthSession session, final Method method,
             final Argument<?>[] arguments) throws UserFailureException
@@ -172,7 +144,7 @@ public final class DefaultAccessController implements IAccessController
             {
                 for (final Argument<?> argument : arguments)
                 {
-                    Set<RoleWithHierarchy> argumentRoles = getArgumentRoles(methodRoles, argument);
+                    Set<RoleWithHierarchy> argumentRoles = getArgumentRoles(method, argument, methodRoles);
                     List<RoleWithIdentifier> relevantRoles = getRelevantRoles(userRoles, argumentRoles);
                     status = checkNotEmpty(relevantRoles, argumentRoles, session);
                     if (status.isOK())
@@ -195,21 +167,90 @@ public final class DefaultAccessController implements IAccessController
         }
     }
 
-    private Set<RoleWithHierarchy> getArgumentRoles(final Set<RoleWithHierarchy> methodRoles, final Argument<?> argument)
+    private Set<RoleWithHierarchy> getMethodRoles(final Method method)
     {
-        Set<RoleWithHierarchy> argumentRoles = methodRoles;
-        AuthorizationGuard predicateCandidate = argument.getPredicateCandidate();
-        if (predicateCandidate != null && predicateCandidate.rolesAllowed().length > 0)
+        synchronized (methodRolesCache)
         {
-            RoleWithHierarchy[] rolesAllowed = predicateCandidate.rolesAllowed();
-            argumentRoles = new LinkedHashSet<RoleWithHierarchy>();
-            for (RoleWithHierarchy role : rolesAllowed)
+            Set<RoleWithHierarchy> roles = methodRolesCache.get(method);
+            if (roles == null)
             {
-                argumentRoles.addAll(role.getRoles());
+                roles = new LinkedHashSet<RoleWithHierarchy>();
+                for (RoleWithHierarchy role : getRootRoles(method))
+                {
+                    roles.addAll(role.getRoles());
+                }
+                methodRolesCache.put(method, roles);
+            }
+            return roles;
+        }
+    }
+
+    private Collection<RoleWithHierarchy> getRootRoles(final Method method)
+    {
+        Collection<RoleWithHierarchy> rootRoles = capabilities.tryGetRoles(method, null);
+        if (rootRoles == null)
+        {
+            final RolesAllowed rolesAllowed = method.getAnnotation(RolesAllowed.class);
+            if (rolesAllowed != null)
+            {
+                rootRoles = Arrays.asList(rolesAllowed.value());
+            } else
+            {
+                rootRoles = Collections.emptyList();
             }
         }
-        return argumentRoles;
+        return rootRoles;
     }
+
+    private Set<RoleWithHierarchy> getArgumentRoles(Method method, Argument<?> argument, 
+            Set<RoleWithHierarchy> defaultRoles)
+    {
+        synchronized (argumentRolesCache)
+        {
+            AuthorizationGuard predicateCandidate = argument.getPredicateCandidate();
+            if (predicateCandidate == null)
+            {
+                return defaultRoles;
+            }
+            String name = predicateCandidate.name();
+            Map<String, Set<RoleWithHierarchy>> map = argumentRolesCache.get(method);
+            if (map == null)
+            {
+                map = new HashMap<>();
+                argumentRolesCache.put(method, map);
+            }
+            Set<RoleWithHierarchy> roles = map.get(name);
+            if (roles == null)
+            {
+                roles = new LinkedHashSet<>();
+                for (RoleWithHierarchy role : getRootRoles(method, predicateCandidate, defaultRoles))
+                {
+                    roles.addAll(role.getRoles());
+                }
+                map.put(name, Collections.unmodifiableSet(roles));
+            }
+            return roles;
+        }
+    }
+    
+    private Collection<RoleWithHierarchy> getRootRoles(Method method, AuthorizationGuard predicateCandidate, 
+            Set<RoleWithHierarchy> defaultRoles)
+    {
+        Collection<RoleWithHierarchy> roles = capabilities.tryGetRoles(method, predicateCandidate.name());
+        if (roles == null)
+        {
+            RoleWithHierarchy[] rolesAllowed = predicateCandidate.rolesAllowed();
+            if (rolesAllowed.length == 0)
+            {
+                roles = defaultRoles;
+            } else
+            {
+                roles = Arrays.asList(rolesAllowed);
+            }
+        }
+        return roles;
+    }
+
     
     private Status checkNotEmpty(List<RoleWithIdentifier> relevantRoles, Set<RoleWithHierarchy> argumentRoles, 
             IAuthSession session)
