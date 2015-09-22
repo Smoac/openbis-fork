@@ -564,11 +564,17 @@ function ServerFacade(openbisServer) {
 		var withAncestors = fechOptions["withAncestors"];
 		var withDescendants = fechOptions["withDescendants"];
 		
-		var localReference = this;
+//		var localReference = this;
 //		fechOptions["method"] = "searchSamples";
 //		fechOptions["openBISURL"] = this.openbisServer._internal.openbisUrl;
 //		this.createReportFromAggregationService(profile.getDefaultDataStoreCode(), fechOptions, function(result) {
-//			var somethingToBreak = "NOW!";
+//			if(result && result.result && result.result.rows[0][0].value === "OK") {
+//				var json = result.result.rows[0][2].value;
+//				var jsonParsed = JSON.parse(json);
+//				var samples = JSON.parse(json).objects;
+//			} else {
+//				alert("V3 Dropbox Search Failed.");
+//			}
 //		});
 		
 		var matchClauses = [];
