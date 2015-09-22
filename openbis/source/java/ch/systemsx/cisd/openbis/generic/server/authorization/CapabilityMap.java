@@ -132,19 +132,18 @@ class CapabilityMap
     
     private void addRoles(String capabilityName, String roleNames, String line, String filePath)
     {
-        final String[] roleNameArray = StringUtils.split(roleNames, ",");
-        for (String roleName : roleNameArray)
+        Collection<RoleWithHierarchy> roles = capMap.get(capabilityName);
+        if (roles == null)
+        {
+            roles = new HashSet<RoleWithHierarchy>();
+            capMap.put(capabilityName, roles);
+        }
+        for (String roleName : StringUtils.split(roleNames, ","))
         {
             roleName = roleName.trim().toUpperCase();
             try
             {
                 final RoleWithHierarchy role = RoleWithHierarchy.valueOf(roleName);
-                Collection<RoleWithHierarchy> roles = capMap.get(capabilityName);
-                if (roles == null)
-                {
-                    roles = new HashSet<RoleWithHierarchy>();
-                    capMap.put(capabilityName, roles);
-                }
                 roles.add(role);
 
                 if (operationLog.isDebugEnabled())

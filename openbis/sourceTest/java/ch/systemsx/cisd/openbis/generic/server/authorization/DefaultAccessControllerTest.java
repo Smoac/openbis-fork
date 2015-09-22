@@ -90,7 +90,9 @@ public final class DefaultAccessControllerTest
         try
         {
             FileUtils.writeLines(capFile,
-                    Arrays.asList("# Test overriding annotation", "MY_CAP: SPACE_OBSERVER; ARG1 = SPACE_USER"));
+                    Arrays.asList("# Test overriding annotation", 
+                            "MY_CAP: SPACE_OBSERVER; ARG1 = SPACE_USER",
+                            "my_cap2: arg1 = space_user"));
         } catch (IOException ex)
         {
             ex.printStackTrace();
@@ -336,6 +338,23 @@ public final class DefaultAccessControllerTest
         context.assertIsSatisfied();
     }
 
+    @Test
+    public void testIsAuthorizedWithGardedArgumentWithRolesOverridden2() throws Exception
+    {
+        final IAuthSession session = AuthorizationTestUtil.createSession();
+        session.tryGetPerson().setRoleAssignments(createRoleAssignments());
+        final Method method = MyInterface.class.getMethod("myMethodWithGardedArgumentWithRolesOverridden2",
+                String.class, String.class);
+        assertNotNull(method);
+        Argument<?>[] arguments = createArguments(method);
+        
+        final Status authorized = accessController.isAuthorized(session, method, arguments);
+        
+        assertEquals("OK", authorized.toString());
+        assertEquals("person: john_doe, roles: [SPACE_USER], value: arg0", project.getDescription());
+        context.assertIsSatisfied();
+    }
+    
     private Argument<?>[] createArguments(final Method method)
     {
         List<Argument<?>> arguments = new ArrayList<>();
@@ -393,6 +412,13 @@ public final class DefaultAccessControllerTest
                 @AuthorizationGuard(name = "ARG1", guardClass = MockPredicate.class,
                         rolesAllowed = { RoleWithHierarchy.SPACE_ETL_SERVER })
                 String argument1);
+        
+        @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+        @Capability("MY_CAP2")
+        public void myMethodWithGardedArgumentWithRolesOverridden2(String sessionToken,
+                @AuthorizationGuard(name = "ARG1", guardClass = MockPredicate.class,
+                rolesAllowed = { RoleWithHierarchy.SPACE_ETL_SERVER })
+        String argument1);
     }
 
     /**
