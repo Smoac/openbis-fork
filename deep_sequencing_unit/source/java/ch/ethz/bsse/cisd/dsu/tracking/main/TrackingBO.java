@@ -37,6 +37,7 @@ import ch.systemsx.cisd.common.mail.EMailAddress;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.openbis.generic.shared.ITrackingServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingSampleCriteria;
@@ -249,13 +250,26 @@ public class TrackingBO
             if (newDataSetID > maxDatasetIdForSample)
             {
                 SampleIdentifier currentLaneId = new SampleIdentifier(d.getSampleCode());
-                changedLanesMap.put(currentLaneId.toString().substring(1), laneSpace);
+                Sample flowcell = lane.getContainer();
+                String runNameFolder = "";
+                List<IEntityProperty> flowcellProperties = flowcell.getProperties();
+                for (IEntityProperty property : flowcellProperties)
+                {
+                    if (property.getPropertyType().getCode().equals("RUN_NAME_FOLDER"))
+                    {
+                        runNameFolder = property.getValue();
+                        break;
+                    }
+                }
+                String laneString = currentLaneId.toString().substring(currentLaneId.toString().length() - 1);
+                changedLanesMap.put(runNameFolder + ":" + laneString, laneSpace);
                 LogUtils.info("DataSetID: " + newDataSetID + " of NEW data Sets > MAX DataSet id for this sample: " + maxDatasetIdForSample);
             }
         }
         Set<Map.Entry<String, String>> entrySet = changedLanesMap.entrySet();
         for (Entry<String, String> entry : entrySet)
         {
+            // needed for the integration of the openBIS webapp
             System.out.println(entry.getKey() + " " + entry.getValue());
         }
         LogUtils.info(changedLanesMap.toString());
