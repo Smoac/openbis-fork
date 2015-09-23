@@ -571,9 +571,15 @@ function ServerFacade(openbisServer) {
 //			if(result && result.result && result.result.rows[0][0].value === "OK") {
 //				var json = result.result.rows[0][2].value;
 //				var jsonParsed = JSON.parse(json);
-//				var samples = JSON.parse(json).objects;
+//				require(["util/Json"], function(Json){
+//					Json.fromJson(jsonParsed).done(function(data) {
+//						var samples = data.objects;
+//					}).fail(function() {
+//						alert("V3 dropbox search failed to be parsed.");
+//					});
+//				});
 //			} else {
-//				alert("V3 Dropbox Search Failed.");
+//				alert("V3 dropbox search failed to execute.");
 //			}
 //		});
 		
