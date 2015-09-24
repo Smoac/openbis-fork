@@ -543,12 +543,45 @@ function ServerFacade(openbisServer) {
 	// Search Samples
 	//
 	this.searchSamples = function(fechOptions, callbackFunction)
+	{
+		this.searchSamplesV1(fechOptions, callbackFunction);
+	}
+	
+	this.searchSamplesV3DSS = function(fechOptions, callbackFunction)
+	{
+		var localReference = this;
+		fechOptions["method"] = "searchSamples";
+		fechOptions["openBISURL"] = this.openbisServer._internal.openbisUrl;
+		this.createReportFromAggregationService(profile.getDefaultDataStoreCode(), fechOptions, function(result) {
+			if(result && result.result && result.result.rows[0][0].value === "OK") {
+				var json = result.result.rows[0][2].value;
+				var jsonParsed = JSON.parse(json);
+				require(["util/Json"], function(Json){
+					Json.fromJson(jsonParsed).done(function(data) {
+						var samples = data.objects;
+						callbackFunction(samples);
+					}).fail(function() {
+						alert("V3 dropbox search failed to be parsed.");
+					});
+				});
+			} else {
+				alert("V3 dropbox search failed to execute.");
+			}
+		});
+	}
+	
+	this.searchSamplesV1 = function(fechOptions, callbackFunction)
 	{	
+		//Text Search
+		var anyFieldContains = fechOptions["anyFieldContains"];
+		
 		//Attributes
 		var samplePermId = fechOptions["samplePermId"];
 		var sampleIdentifier = fechOptions["sampleIdentifier"];
 		var sampleCode = fechOptions["sampleCode"];
 		var sampleTypeCode = fechOptions["sampleTypeCode"];
+		var registrationDate = fechOptions["registrationDate"];
+		var modificationDate = fechOptions["modificationDate"];
 		
 		//Properties
 		var properyKeyValueList = fechOptions["properyKeyValueList"];
@@ -564,28 +597,18 @@ function ServerFacade(openbisServer) {
 		var withAncestors = fechOptions["withAncestors"];
 		var withDescendants = fechOptions["withDescendants"];
 		
-//		var localReference = this;
-//		fechOptions["method"] = "searchSamples";
-//		fechOptions["openBISURL"] = this.openbisServer._internal.openbisUrl;
-//		this.createReportFromAggregationService(profile.getDefaultDataStoreCode(), fechOptions, function(result) {
-//			if(result && result.result && result.result.rows[0][0].value === "OK") {
-//				var json = result.result.rows[0][2].value;
-//				var jsonParsed = JSON.parse(json);
-//				require(["util/Json"], function(Json){
-//					Json.fromJson(jsonParsed).done(function(data) {
-//						var samples = data.objects;
-//						callbackFunction(samples);
-//					}).fail(function() {
-//						alert("V3 dropbox search failed to be parsed.");
-//					});
-//				});
-//			} else {
-//				alert("V3 dropbox search failed to execute.");
-//			}
-//		});
-		
 		var matchClauses = [];
 		
+		// Free Text
+		if(anyFieldContains) {
+			matchClauses.push({
+				"@type": "AnyFieldMatchClause",
+				fieldType: "ANY_FIELD",
+				desiredValue: "*" + anyFieldContains.trim() + "*"
+			});
+		}
+		
+		// Attributes
 		if(samplePermId) {
 			matchClauses.push({
 				"@type":"AttributeMatchClause",
@@ -629,6 +652,31 @@ function ServerFacade(openbisServer) {
 			});
 		}
 		
+		if(registrationDate) {
+			matchClauses.push({
+				"@type":"TimeAttributeMatchClause",
+				fieldType : "ATTRIBUTE",
+				fieldCode : "REGISTRATION_DATE",
+				desiredValue : registrationDate,
+				compareMode : "EQUALS",
+				timeZone : "+1",
+				attribute : "REGISTRATION_DATE"
+			});
+		}
+		
+		if(modificationDate) {
+			matchClauses.push({
+				"@type":"TimeAttributeMatchClause",
+				fieldType : "ATTRIBUTE",
+				fieldCode : "MODIFICATION_DATE",
+				desiredValue : modificationDate,
+				compareMode : "EQUALS",
+				timeZone : "+1",
+				attribute : "MODIFICATION_DATE"
+			});
+		}
+		
+		//Properties
 		if(properyKeyValueList) {
 			for(var kvIdx = 0; kvIdx < properyKeyValueList.length; kvIdx++) {
 				var properyKeyValue = properyKeyValueList[kvIdx];
@@ -647,6 +695,7 @@ function ServerFacade(openbisServer) {
 			}
 		}
 		
+		//Sub Queries
 		var subCriterias = [];
 		if(sampleExperimentIdentifier) {
 			var sampleExperimentIdentifierParts = sampleExperimentIdentifier.split("/");
@@ -697,6 +746,7 @@ function ServerFacade(openbisServer) {
 			operator : "MATCH_ALL_CLAUSES"
 		};
 		
+		//Hierarchy Options
 		var options = [];
 		
 		if(withProperties) {
@@ -906,15 +956,6 @@ function ServerFacade(openbisServer) {
 	//
 	// Free Text Search
 	//
-//	this.searchWithText = function(freeText, callbackFunction)
-//	{
-//		this.searchSamples({
-//			"anyField" : freeText,
-//			"withProperties" : true,
-//			"withOrOperator" : true
-//		}, callbackFunction);
-//	}
-	
 	this.searchWithText = function(freeText, callbackFunction)
 	{
 		var _this = this;
@@ -922,14 +963,11 @@ function ServerFacade(openbisServer) {
 		var match = freeText.match(regEx);
 		
 		if(match && match.length === 1) { //Search With Date Mode, we merge results with dates found on registration and modification fields what is slow for large number of entities
-			this.openbisServer.searchForSamplesWithFetchOptions(this._getCriteriaWithDate(freeText, true, false), ["PROPERTIES"], function(data1) {
-				_this.openbisServer.searchForSamplesWithFetchOptions(_this._getCriteriaWithDate(freeText, false, true), ["PROPERTIES"], function(data2) {
-					_this.openbisServer.searchForSamplesWithFetchOptions(_this._getCriteriaWithDate(freeText, false, false), ["PROPERTIES"], function(data3) {
-						var results1 = _this.getInitializedSamples(data1.result);
-						var results2 = _this.getInitializedSamples(data2.result);
-						var results3 = _this.getInitializedSamples(data3.result);
-						var resultsF = results1.concat(results2).concat(results3).uniqueOBISEntity();
-						callbackFunction(resultsF);
+			this.searchSamples(this._getCriteriaWithDate(freeText, true, false), function(samples1) {
+				_this.searchSamples(_this._getCriteriaWithDate(freeText, false, true), function(samples2) {
+					_this.searchSamples(_this._getCriteriaWithDate(freeText, false, false), function(samples3) {
+						var results = samples1.concat(samples2).concat(samples3).uniqueOBISEntity();
+						callbackFunction(results);
 					});
 				});
 			});
@@ -937,8 +975,8 @@ function ServerFacade(openbisServer) {
 			Util.showError("Search only supports one date at a time!");
 			callbackFunction([]);
 		} else { //Normal Search
-			this.openbisServer.searchForSamplesWithFetchOptions(this._getCriteriaWithDate(freeText, false, false), ["PROPERTIES"], function(data) {
-				callbackFunction(_this.getInitializedSamples(data.result));
+			this.searchSamples(this._getCriteriaWithDate(freeText, false, false), function(samples) {
+				callbackFunction(samples);
 			});
 			callbackFunction([]);
 		}
@@ -957,42 +995,21 @@ function ServerFacade(openbisServer) {
 		
 		//Build Search
 		var sampleCriteria = {
-			matchClauses: [],
-			operator: "MATCH_ALL_CLAUSES"
+			"withProperties" : true
 		};
 		
 		if(freeText) {
-			sampleCriteria.matchClauses.push({
-				"@type": "AnyFieldMatchClause",
-				fieldType: "ANY_FIELD",
-				desiredValue: "*" + freeText.trim() + "*"
-			});
+			sampleCriteria["anyFieldContains"] = freeText;
 		}
 		
 		if(match && match.length > 0) {
 			for(var mIdx = 0; mIdx < match.length; mIdx++) {
 				if(isRegistrationDate) {
-					sampleCriteria.matchClauses.push({
-						"@type":"TimeAttributeMatchClause",
-						fieldType : "ATTRIBUTE",
-						fieldCode : "REGISTRATION_DATE",
-						desiredValue : match[mIdx],
-						compareMode : "EQUALS",
-						timeZone : "+1",
-						attribute : "REGISTRATION_DATE"
-					});
+					sampleCriteria["registrationDate"] = match[mIdx];
 				}
 				
 				if(isModificationDate) {
-					sampleCriteria.matchClauses.push({
-						"@type":"TimeAttributeMatchClause",
-						fieldType : "ATTRIBUTE",
-						fieldCode : "MODIFICATION_DATE",
-						desiredValue : match[mIdx],
-						compareMode : "EQUALS",
-						timeZone : "+1",
-						attribute : "MODIFICATION_DATE"
-					});
+					sampleCriteria["modificationDate"] = match[mIdx];
 				}
 			}
 		}

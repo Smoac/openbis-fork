@@ -496,14 +496,16 @@ def searchSamples(tr, parameters, tableBuilder, sessionId):
 	fechOptions = parameters;
 	
 	# FreeText
-	anyField = fechOptions.get("anyField");
+	anyFieldContains = fechOptions.get("anyFieldContains");
 	
 	# Attributes
 	samplePermId = fechOptions.get("samplePermId");
 	sampleIdentifier = fechOptions.get("sampleIdentifier");
 	sampleCode = fechOptions.get("sampleCode");
 	sampleTypeCode = fechOptions.get("sampleTypeCode");
-	
+	registrationDate = fechOptions.get("registrationDate");
+	modificationDate = fechOptions.get("modificationDate");
+		
 	# Properties
 	properyKeyValueList = fechOptions.get("properyKeyValueList");
 	
@@ -520,18 +522,12 @@ def searchSamples(tr, parameters, tableBuilder, sessionId):
 
 	#Search Setup
 	criterion = SampleSearchCriterion();
+	criterion.withAndOperator();
 	fetchOptions = SampleFetchOptions();
 	
-	#Operator
-	withOrOperator = fechOptions.get("withOrOperator");
-	if withOrOperator:
-		criterion.withOrOperator();
-	else:
-		criterion.withAndOperator();
-	
 	#Free Text
-	if anyField is not None:
-		criterion.withAnyField().thatContains(anyField);
+	if anyFieldContains is not None:
+		criterion.withAnyField().thatContains(anyFieldContains);
 	
 	#Attributes
 	if samplePermId is not None:
@@ -542,6 +538,10 @@ def searchSamples(tr, parameters, tableBuilder, sessionId):
 		criterion.withCode().thatEquals(sampleCode);
 	if sampleTypeCode is not None:
 		criterion.withType().withCode().thatEquals(sampleTypeCode);
+	if registrationDate is not None:
+		criterion.withRegistrationDate().thatEquals(registrationDate); #TO-DO Convert to Java date from weird JS format
+	if modificationDate is not None:
+		criterion.withModificationDate().thatEquals(modificationDate); #TO-DO Convert to Java date from weird JS format
 	
 	#Properties
 	if properyKeyValueList is not None:
