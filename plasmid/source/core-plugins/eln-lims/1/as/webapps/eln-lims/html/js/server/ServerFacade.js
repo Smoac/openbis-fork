@@ -574,6 +574,7 @@ function ServerFacade(openbisServer) {
 //				require(["util/Json"], function(Json){
 //					Json.fromJson(jsonParsed).done(function(data) {
 //						var samples = data.objects;
+//						callbackFunction(samples);
 //					}).fail(function() {
 //						alert("V3 dropbox search failed to be parsed.");
 //					});
@@ -905,6 +906,15 @@ function ServerFacade(openbisServer) {
 	//
 	// Free Text Search
 	//
+//	this.searchWithText = function(freeText, callbackFunction)
+//	{
+//		this.searchSamples({
+//			"anyField" : freeText,
+//			"withProperties" : true,
+//			"withOrOperator" : true
+//		}, callbackFunction);
+//	}
+	
 	this.searchWithText = function(freeText, callbackFunction)
 	{
 		var _this = this;
@@ -989,6 +999,7 @@ function ServerFacade(openbisServer) {
 		
 		return sampleCriteria;
 	}
+	
 	//
 	// Search Domains
 	//

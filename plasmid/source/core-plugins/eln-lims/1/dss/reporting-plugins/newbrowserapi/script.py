@@ -493,9 +493,12 @@ def searchSamples(tr, parameters, tableBuilder, sessionId):
 	###############
 	############### V3 Search
 	###############
+	fechOptions = parameters;
+	
+	# FreeText
+	anyField = fechOptions.get("anyField");
 	
 	# Attributes
-	fechOptions = parameters;
 	samplePermId = fechOptions.get("samplePermId");
 	sampleIdentifier = fechOptions.get("sampleIdentifier");
 	sampleCode = fechOptions.get("sampleCode");
@@ -517,8 +520,18 @@ def searchSamples(tr, parameters, tableBuilder, sessionId):
 
 	#Search Setup
 	criterion = SampleSearchCriterion();
-	criterion.withAndOperator();
 	fetchOptions = SampleFetchOptions();
+	
+	#Operator
+	withOrOperator = fechOptions.get("withOrOperator");
+	if withOrOperator:
+		criterion.withOrOperator();
+	else:
+		criterion.withAndOperator();
+	
+	#Free Text
+	if anyField is not None:
+		criterion.withAnyField().thatContains(anyField);
 	
 	#Attributes
 	if samplePermId is not None:
@@ -553,6 +566,12 @@ def searchSamples(tr, parameters, tableBuilder, sessionId):
 		fetchOptions.withParents(fetchOptions);
 	if withDescendants:
 		fetchOptions.withChildren(fetchOptions);
+	
+	#Standard Fetch Options, always use
+	fetchOptions.withType();
+	fetchOptions.withSpace();
+	fetchOptions.withRegistrator();
+	fetchOptions.withModifier();
 	
 	###############
 	###############
