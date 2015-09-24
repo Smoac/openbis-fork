@@ -542,6 +542,15 @@ function ServerFacade(openbisServer) {
 	//
 	// Search Samples
 	//
+	this.pojoIdGenerator = 0;
+	this.getPOJOId = function() {
+		if(this.pojoIdGenerator === 2147483647) {
+			this.pojoIdGenerator = 0;
+		}
+		this.pojoIdGenerator++;
+		return this.pojoIdGenerator;
+	}
+	
 	this.getV3SamplesAsV1 = function(v3Samples) {
 		var v1Samples = [];
 		for(var sIdx = 0; sIdx < v3Samples.length; sIdx++) {
@@ -557,7 +566,7 @@ function ServerFacade(openbisServer) {
 		
 		var v1Sample = {};
 		v1Sample["@type"] = "Sample";
-		v1Sample["@id"] = CONST_UNSUPPORTED_NUMBER;
+		v1Sample["@id"] = this.getPOJOId();
 		v1Sample["spaceCode"] = v3Sample.space.code;
 		v1Sample["permId"] = v3Sample.permId.permId;
 		v1Sample["code"] = v3Sample.code;
@@ -568,7 +577,7 @@ function ServerFacade(openbisServer) {
 		
 		v1Sample["registrationDetails"] = {};
 		v1Sample["registrationDetails"]["@type"] = "EntityRegistrationDetails";
-		v1Sample["registrationDetails"]["@id"] = CONST_UNSUPPORTED_NUMBER;
+		v1Sample["registrationDetails"]["@id"] = this.getPOJOId();
 		v1Sample["registrationDetails"]["userFirstName"] = v3Sample.registrator.firstName;
 		v1Sample["registrationDetails"]["userLastName"] = v3Sample.registrator.lastName;
 		v1Sample["registrationDetails"]["userEmail"] = v3Sample.registrator.email;
