@@ -8,7 +8,7 @@ import java.util.List;
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.dss.api.v3.dto.entity.datasetfile.DataSetFile;
-import ch.ethz.sis.openbis.generic.dss.api.v3.dto.search.DataSetFileSearchCriterion;
+import ch.ethz.sis.openbis.generic.dss.api.v3.dto.search.DataSetFileSearchCriteria;
 
 public class SearchFileTest extends AbstractFileTest
 {
@@ -16,7 +16,7 @@ public class SearchFileTest extends AbstractFileTest
     @Test
     public void allFilesOfGivenDatasetsAreReturned() throws Exception
     {
-        DataSetFileSearchCriterion sc = new DataSetFileSearchCriterion();
+        DataSetFileSearchCriteria sc = new DataSetFileSearchCriteria();
         sc.withDataSet().withPermId().thatEquals(dataSetCode);
 
         List<DataSetFile> searchFiles = dss.searchFiles(sessionToken, sc);

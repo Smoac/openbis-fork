@@ -38,13 +38,13 @@ import ch.ethz.sis.openbis.generic.dss.api.v3.dto.download.DataSetFileDownloadOp
 import ch.ethz.sis.openbis.generic.dss.api.v3.dto.entity.datasetfile.DataSetFile;
 import ch.ethz.sis.openbis.generic.dss.api.v3.dto.id.datasetfile.DataSetFilePermId;
 import ch.ethz.sis.openbis.generic.dss.api.v3.dto.id.datasetfile.IDataSetFileId;
-import ch.ethz.sis.openbis.generic.dss.api.v3.dto.search.DataSetFileSearchCriterion;
+import ch.ethz.sis.openbis.generic.dss.api.v3.dto.search.DataSetFileSearchCriteria;
 import ch.ethz.sis.openbis.generic.shared.api.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.DataSetFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.DataSetPermId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.DataSetSearchCriterion;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ISearchCriterion;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.DataSetSearchCriteria;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ISearchCriteria;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SearchOperator;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SearchResult;
 import ch.systemsx.cisd.common.filesystem.IFreeSpaceProvider;
@@ -122,22 +122,22 @@ public class DataStoreServerApi extends AbstractDssServiceRpc<IDataStoreServerAp
     @Transactional(readOnly = true)
     @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Override
-    public List<DataSetFile> searchFiles(String sessionToken, DataSetFileSearchCriterion searchCriterion)
+    public List<DataSetFile> searchFiles(String sessionToken, DataSetFileSearchCriteria searchCriteria)
     {
         getOpenBISService().checkSession(sessionToken);
 
         List<DataSetFile> result = new ArrayList<>();
-        Collection<ISearchCriterion> criteria = searchCriterion.getCriteria();
+        Collection<ISearchCriteria> criteria = searchCriteria.getCriteria();
 
         Set<String> resultDataSets = null;
         Map<String, DataSetPermId> permIds = new HashMap<>();
 
-        for (ISearchCriterion iSearchCriterion : criteria)
+        for (ISearchCriteria iSearchCriterion : criteria)
         {
-            if (iSearchCriterion instanceof DataSetSearchCriterion)
+            if (iSearchCriterion instanceof DataSetSearchCriteria)
             {
                 SearchResult<DataSet> searchResult =
-                        as.searchDataSets(sessionToken, (DataSetSearchCriterion) iSearchCriterion, new DataSetFetchOptions());
+                        as.searchDataSets(sessionToken, (DataSetSearchCriteria) iSearchCriterion, new DataSetFetchOptions());
                 List<DataSet> dataSets = searchResult.getObjects();
                 HashSet<String> codes = new HashSet<String>();
 
@@ -150,7 +150,7 @@ public class DataStoreServerApi extends AbstractDssServiceRpc<IDataStoreServerAp
                 if (resultDataSets == null)
                 {
                     resultDataSets = codes;
-                } else if (searchCriterion.getOperator().equals(SearchOperator.OR)) // is an or
+                } else if (searchCriteria.getOperator().equals(SearchOperator.OR)) // is an or
                 {
                     resultDataSets.addAll(codes);
                 } else

@@ -6,7 +6,7 @@ import java.util.List;
 import ch.ethz.sis.openbis.generic.dss.api.v3.dto.download.DataSetFileDownloadOptions;
 import ch.ethz.sis.openbis.generic.dss.api.v3.dto.entity.datasetfile.DataSetFile;
 import ch.ethz.sis.openbis.generic.dss.api.v3.dto.id.datasetfile.IDataSetFileId;
-import ch.ethz.sis.openbis.generic.dss.api.v3.dto.search.DataSetFileSearchCriterion;
+import ch.ethz.sis.openbis.generic.dss.api.v3.dto.search.DataSetFileSearchCriteria;
 import ch.systemsx.cisd.openbis.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerLogger;
 
@@ -31,9 +31,9 @@ public class DataStoreServerApiLogger extends AbstractServerLogger implements
     }
 
     @Override
-    public List<DataSetFile> searchFiles(String sessionToken, DataSetFileSearchCriterion searchCriterion)
+    public List<DataSetFile> searchFiles(String sessionToken, DataSetFileSearchCriteria searchCriteria)
     {
-        logAccess(sessionToken, "search-files", "SEARCH_CRITERION:\n%s\n", searchCriterion);
+        logAccess(sessionToken, "search-files", "SEARCH_CRITERION:\n%s\n", searchCriteria);
         return null;
     }
 
