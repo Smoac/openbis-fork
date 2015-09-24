@@ -18,12 +18,12 @@ package ch.ethz.sis.openbis.generic.server.api.v3.executor.method;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.project.Project;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.project.ProjectFetchOptions;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ProjectSearchCriterion;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ProjectSearchCriteria;
 
 /**
  * @author pkupczyk
  */
-public interface ISearchProjectMethodExecutor extends ISearchMethodExecutor<Project, ProjectSearchCriterion, ProjectFetchOptions>
+public interface ISearchProjectMethodExecutor extends ISearchMethodExecutor<Project, ProjectSearchCriteria, ProjectFetchOptions>
 {
 
 }

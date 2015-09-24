@@ -27,16 +27,16 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 /**
  * @author pkupczyk
  */
-public class SearchCacheCleanupListener<CRITERION, FETCH_OPTIONS> implements Session.ISessionCleaner
+public class SearchCacheCleanupListener<CRITERIA, FETCH_OPTIONS> implements Session.ISessionCleaner
 {
 
     private final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, getClass());
 
     private Cache cache;
 
-    private SearchCacheKey<CRITERION, FETCH_OPTIONS> key;
+    private SearchCacheKey<CRITERIA, FETCH_OPTIONS> key;
 
-    public SearchCacheCleanupListener(Cache cache, SearchCacheKey<CRITERION, FETCH_OPTIONS> key)
+    public SearchCacheCleanupListener(Cache cache, SearchCacheKey<CRITERIA, FETCH_OPTIONS> key)
     {
         this.cache = cache;
         this.key = key;

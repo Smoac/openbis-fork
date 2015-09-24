@@ -18,13 +18,13 @@ package ch.ethz.sis.openbis.generic.server.api.v3.executor.method;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.experiment.ExperimentFetchOptions;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ExperimentSearchCriterion;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ExperimentSearchCriteria;
 
 /**
  * @author pkupczyk
  */
 public interface ISearchExperimentMethodExecutor extends
-        ISearchMethodExecutor<Experiment, ExperimentSearchCriterion, ExperimentFetchOptions>
+        ISearchMethodExecutor<Experiment, ExperimentSearchCriteria, ExperimentFetchOptions>
 {
 
 }

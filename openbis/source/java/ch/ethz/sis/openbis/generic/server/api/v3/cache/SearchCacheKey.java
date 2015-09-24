@@ -23,21 +23,21 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.FetchOptionsMa
 /**
  * @author pkupczyk
  */
-public class SearchCacheKey<CRITERION, FETCH_OPTIONS> implements Serializable
+public class SearchCacheKey<CRITERIA, FETCH_OPTIONS> implements Serializable
 {
 
     private static final long serialVersionUID = 1L;
 
     private String sessionToken;
 
-    private CRITERION criterion;
+    private CRITERIA criterion;
 
     private FETCH_OPTIONS fetchOptions;
 
-    public SearchCacheKey(String sessionToken, CRITERION criterion, FETCH_OPTIONS fetchOptions)
+    public SearchCacheKey(String sessionToken, CRITERIA criteria, FETCH_OPTIONS fetchOptions)
     {
         this.sessionToken = sessionToken;
-        this.criterion = criterion;
+        this.criterion = criteria;
         this.fetchOptions = fetchOptions;
     }
 

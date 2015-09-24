@@ -18,13 +18,13 @@ package ch.ethz.sis.openbis.generic.server.api.v3.executor.method;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material.Material;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.material.MaterialFetchOptions;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.MaterialSearchCriterion;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.MaterialSearchCriteria;
 
 /**
  * @author pkupczyk
  */
 public interface ISearchMaterialMethodExecutor extends
-        ISearchMethodExecutor<Material, MaterialSearchCriterion, MaterialFetchOptions>
+        ISearchMethodExecutor<Material, MaterialSearchCriteria, MaterialFetchOptions>
 {
 
 }

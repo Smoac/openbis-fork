@@ -87,9 +87,9 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 			var c = new common(assert);
 
 			var fSearch = function(facade) {
-				var criterion = new c.SpaceSearchCriterion();
-				criterion.withCode().thatEquals("TEST");
-				return facade.searchSpaces(criterion, c.createSpaceFetchOptions());
+				var criteria = new c.SpaceSearchCriteria();
+				criteria.withCode().thatEquals("TEST");
+				return facade.searchSpaces(criteria, c.createSpaceFetchOptions());
 			}
 
 			var fCheck = function(facade, spaces) {
@@ -114,15 +114,15 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 		QUnit.test("searchSpaces() with paging and sorting", function(assert) {
 			var c = new common(assert);
 
-			var criterion = new c.SpaceSearchCriterion();
-			criterion.withOrOperator();
-			criterion.withCode().thatEquals("TEST");
-			criterion.withCode().thatEquals("PLATONIC");
+			var criteria = new c.SpaceSearchCriteria();
+			criteria.withOrOperator();
+			criteria.withCode().thatEquals("TEST");
+			criteria.withCode().thatEquals("PLATONIC");
 
 			var fo = c.createSpaceFetchOptions();
 
 			testSearchWithPagingAndSortingByAll(c, function(facade) {
-				return facade.searchSpaces(criterion, fo);
+				return facade.searchSpaces(criteria, fo);
 			}, fo);
 		});
 
@@ -130,10 +130,10 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 			var c = new common(assert);
 
 			var fSearch = function(facade) {
-				var criterion = new c.ProjectSearchCriterion();
-				criterion.withSpace().withCode().thatEquals("PLATONIC");
-				criterion.withCode().thatEquals("SCREENING-EXAMPLES");
-				return facade.searchProjects(criterion, c.createProjectFetchOptions());
+				var criteria = new c.ProjectSearchCriteria();
+				criteria.withSpace().withCode().thatEquals("PLATONIC");
+				criteria.withCode().thatEquals("SCREENING-EXAMPLES");
+				return facade.searchProjects(criteria, c.createProjectFetchOptions());
 			}
 
 			var fCheck = function(facade, projects) {
@@ -161,15 +161,15 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 		QUnit.test("searchProjects() with paging and sorting", function(assert) {
 			var c = new common(assert);
 
-			var criterion = new c.ProjectSearchCriterion();
-			criterion.withOrOperator();
-			criterion.withCode().thatEquals("TEST-PROJECT");
-			criterion.withCode().thatEquals("SCREENING-EXAMPLES");
+			var criteria = new c.ProjectSearchCriteria();
+			criteria.withOrOperator();
+			criteria.withCode().thatEquals("TEST-PROJECT");
+			criteria.withCode().thatEquals("SCREENING-EXAMPLES");
 
 			var fo = c.createProjectFetchOptions();
 
 			testSearchWithPagingAndSortingByAll(c, function(facade) {
-				return facade.searchProjects(criterion, fo);
+				return facade.searchProjects(criteria, fo);
 			}, fo);
 		});
 
@@ -177,9 +177,9 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 			var c = new common(assert);
 
 			var fSearch = function(facade) {
-				var criterion = new c.ExperimentSearchCriterion();
-				criterion.withPermId().thatEquals("20130412105232616-2");
-				return facade.searchExperiments(criterion, c.createExperimentFetchOptions());
+				var criteria = new c.ExperimentSearchCriteria();
+				criteria.withPermId().thatEquals("20130412105232616-2");
+				return facade.searchExperiments(criteria, c.createExperimentFetchOptions());
 			}
 
 			var fCheck = function(facade, experiments) {
@@ -197,15 +197,15 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 		QUnit.test("searchExperiments() with paging and sorting", function(assert) {
 			var c = new common(assert);
 
-			var criterion = new c.ExperimentSearchCriterion();
-			criterion.withOrOperator();
-			criterion.withCode().thatEquals("EXP-1");
-			criterion.withCode().thatEquals("EXP-2");
+			var criteria = new c.ExperimentSearchCriteria();
+			criteria.withOrOperator();
+			criteria.withCode().thatEquals("EXP-1");
+			criteria.withCode().thatEquals("EXP-2");
 
 			var fo = c.createExperimentFetchOptions();
 
 			testSearchWithPagingAndSortingByAll(c, function(facade) {
-				return facade.searchExperiments(criterion, fo);
+				return facade.searchExperiments(criteria, fo);
 			}, fo);
 		});
 
@@ -213,9 +213,9 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 			var c = new common(assert);
 
 			var fSearch = function(facade) {
-				var criterion = new c.SampleSearchCriterion();
-				criterion.withPermId().thatEquals("20130415095748527-404");
-				return facade.searchSamples(criterion, c.createSampleFetchOptions());
+				var criteria = new c.SampleSearchCriteria();
+				criteria.withPermId().thatEquals("20130415095748527-404");
+				return facade.searchSamples(criteria, c.createSampleFetchOptions());
 			}
 
 			var fCheck = function(facade, samples) {
@@ -247,15 +247,15 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 		QUnit.test("searchSamples() with paging and sorting", function(assert) {
 			var c = new common(assert);
 
-			var criterion = new c.SampleSearchCriterion();
-			criterion.withOrOperator();
-			criterion.withCode().thatEquals("TEST-SAMPLE-1");
-			criterion.withCode().thatEquals("TEST-SAMPLE-2");
+			var criteria = new c.SampleSearchCriteria();
+			criteria.withOrOperator();
+			criteria.withCode().thatEquals("TEST-SAMPLE-1");
+			criteria.withCode().thatEquals("TEST-SAMPLE-2");
 
 			var fo = c.createSampleFetchOptions();
 
 			testSearchWithPagingAndSortingByAll(c, function(facade) {
-				return facade.searchSamples(criterion, fo);
+				return facade.searchSamples(criteria, fo);
 			}, fo);
 		});
 
@@ -263,10 +263,10 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 			var c = new common(assert);
 
 			var fSearch = function(facade) {
-				var criterion = new c.SampleSearchCriterion();
-				criterion.withCode().thatStartsWith("TEST-SAMPLE");
-				criterion.withoutExperiment();
-				return facade.searchSamples(criterion, c.createSampleFetchOptions());
+				var criteria = new c.SampleSearchCriteria();
+				criteria.withCode().thatStartsWith("TEST-SAMPLE");
+				criteria.withoutExperiment();
+				return facade.searchSamples(criteria, c.createSampleFetchOptions());
 			}
 
 			var fCheck = function(facade, samples) {
@@ -280,10 +280,10 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 			var c = new common(assert);
 
 			var fSearch = function(facade) {
-				var criterion = new c.SampleSearchCriterion();
-				criterion.withCode().thatStartsWith("TEST-SAMPLE");
-				criterion.withExperiment();
-				return facade.searchSamples(criterion, c.createSampleFetchOptions());
+				var criteria = new c.SampleSearchCriteria();
+				criteria.withCode().thatStartsWith("TEST-SAMPLE");
+				criteria.withExperiment();
+				return facade.searchSamples(criteria, c.createSampleFetchOptions());
 			}
 
 			var fCheck = function(facade, samples) {
@@ -297,10 +297,10 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 			var c = new common(assert);
 
 			var fSearch = function(facade) {
-				var criterion = new c.SampleSearchCriterion();
-				criterion.withCode().thatStartsWith("TEST-SAMPLE");
-				criterion.withoutContainer();
-				return facade.searchSamples(criterion, c.createSampleFetchOptions());
+				var criteria = new c.SampleSearchCriteria();
+				criteria.withCode().thatStartsWith("TEST-SAMPLE");
+				criteria.withoutContainer();
+				return facade.searchSamples(criteria, c.createSampleFetchOptions());
 			}
 
 			var fCheck = function(facade, samples) {
@@ -314,10 +314,10 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 			var c = new common(assert);
 
 			var fSearch = function(facade) {
-				var criterion = new c.SampleSearchCriterion();
-				criterion.withCode().thatStartsWith("TEST-SAMPLE");
-				criterion.withContainer();
-				return facade.searchSamples(criterion, c.createSampleFetchOptions());
+				var criteria = new c.SampleSearchCriteria();
+				criteria.withCode().thatStartsWith("TEST-SAMPLE");
+				criteria.withContainer();
+				return facade.searchSamples(criteria, c.createSampleFetchOptions());
 			}
 
 			var fCheck = function(facade, samples) {
@@ -331,9 +331,9 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 			var c = new common(assert);
 
 			var fSearch = function(facade) {
-				var criterion = new c.DataSetSearchCriterion();
-				criterion.withPermId().thatEquals("20130415093804724-403");
-				return facade.searchDataSets(criterion, c.createDataSetFetchOptions());
+				var criteria = new c.DataSetSearchCriteria();
+				criteria.withPermId().thatEquals("20130415093804724-403");
+				return facade.searchDataSets(criteria, c.createDataSetFetchOptions());
 			}
 
 			var fCheck = function(facade, dataSets) {
@@ -363,15 +363,15 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 		QUnit.test("searchDataSets() with paging and sorting", function(assert) {
 			var c = new common(assert);
 
-			var criterion = new c.DataSetSearchCriterion();
-			criterion.withOrOperator();
-			criterion.withCode().thatEquals("20130412142205843-196");
-			criterion.withCode().thatEquals("20130412142543232-197");
+			var criteria = new c.DataSetSearchCriteria();
+			criteria.withOrOperator();
+			criteria.withCode().thatEquals("20130412142205843-196");
+			criteria.withCode().thatEquals("20130412142543232-197");
 
 			var fo = c.createDataSetFetchOptions();
 
 			testSearchWithPagingAndSortingByAll(c, function(facade) {
-				return facade.searchDataSets(criterion, fo);
+				return facade.searchDataSets(criteria, fo);
 			}, fo);
 		});
 
@@ -379,10 +379,10 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 			var c = new common(assert);
 
 			var fSearch = function(facade) {
-				var criterion = new c.DataSetSearchCriterion();
-				criterion.withCode().thatContains("-40");
-				criterion.withoutSample();
-				return facade.searchDataSets(criterion, c.createDataSetFetchOptions());
+				var criteria = new c.DataSetSearchCriteria();
+				criteria.withCode().thatContains("-40");
+				criteria.withoutSample();
+				return facade.searchDataSets(criteria, c.createDataSetFetchOptions());
 			}
 
 			var fCheck = function(facade, dataSets) {
@@ -396,10 +396,10 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 			var c = new common(assert);
 
 			var fSearch = function(facade) {
-				var criterion = new c.DataSetSearchCriterion();
-				criterion.withCode().thatContains("-40");
-				criterion.withSample();
-				return facade.searchDataSets(criterion, c.createDataSetFetchOptions());
+				var criteria = new c.DataSetSearchCriteria();
+				criteria.withCode().thatContains("-40");
+				criteria.withSample();
+				return facade.searchDataSets(criteria, c.createDataSetFetchOptions());
 			}
 
 			var fCheck = function(facade, dataSets) {
@@ -413,10 +413,10 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 			var c = new common(assert);
 
 			var fSearch = function(facade) {
-				var criterion = new c.DataSetSearchCriterion();
-				criterion.withCode().thatContains("-40");
-				criterion.withoutExperiment();
-				return facade.searchDataSets(criterion, c.createDataSetFetchOptions());
+				var criteria = new c.DataSetSearchCriteria();
+				criteria.withCode().thatContains("-40");
+				criteria.withoutExperiment();
+				return facade.searchDataSets(criteria, c.createDataSetFetchOptions());
 			}
 
 			var fCheck = function(facade, dataSets) {
@@ -430,10 +430,10 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 			var c = new common(assert);
 
 			var fSearch = function(facade) {
-				var criterion = new c.DataSetSearchCriterion();
-				criterion.withCode().thatContains("-40");
-				criterion.withExperiment();
-				return facade.searchDataSets(criterion, c.createDataSetFetchOptions());
+				var criteria = new c.DataSetSearchCriteria();
+				criteria.withCode().thatContains("-40");
+				criteria.withExperiment();
+				return facade.searchDataSets(criteria, c.createDataSetFetchOptions());
 			}
 
 			var fCheck = function(facade, dataSets) {
@@ -447,9 +447,9 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 			var c = new common(assert);
 
 			var fSearch = function(facade) {
-				var criterion = new c.MaterialSearchCriterion();
-				criterion.withCode().thatEquals("H2O");
-				return facade.searchMaterials(criterion, c.createMaterialFetchOptions());
+				var criteria = new c.MaterialSearchCriteria();
+				criteria.withCode().thatEquals("H2O");
+				return facade.searchMaterials(criteria, c.createMaterialFetchOptions());
 			}
 
 			var fCheck = function(facade, materials) {
@@ -467,15 +467,15 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 		QUnit.test("searchMaterials() with paging and sorting", function(assert) {
 			var c = new common(assert);
 
-			var criterion = new c.MaterialSearchCriterion();
-			criterion.withOrOperator();
-			criterion.withCode().thatEquals("ABC");
-			criterion.withCode().thatEquals("SIRNA-2");
+			var criteria = new c.MaterialSearchCriteria();
+			criteria.withOrOperator();
+			criteria.withCode().thatEquals("ABC");
+			criteria.withCode().thatEquals("SIRNA-2");
 
 			var fo = c.createMaterialFetchOptions();
 
 			testSearchWithPagingAndSortingByAll(c, function(facade) {
-				return facade.searchMaterials(criterion, fo);
+				return facade.searchMaterials(criteria, fo);
 			}, fo);
 		});
 

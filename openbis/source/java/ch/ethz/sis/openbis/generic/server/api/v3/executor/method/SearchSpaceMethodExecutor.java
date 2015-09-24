@@ -24,14 +24,14 @@ import ch.ethz.sis.openbis.generic.server.api.v3.translator.ITranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.space.ISpaceTranslator;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.space.Space;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.space.SpaceFetchOptions;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SpaceSearchCriterion;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SpaceSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
  * @author pkupczyk
  */
 // @Component
-public class SearchSpaceMethodExecutor extends AbstractSearchMethodExecutor<Space, SpacePE, SpaceSearchCriterion, SpaceFetchOptions> implements
+public class SearchSpaceMethodExecutor extends AbstractSearchMethodExecutor<Space, SpacePE, SpaceSearchCriteria, SpaceFetchOptions> implements
         ISearchSpaceMethodExecutor
 {
 
@@ -42,7 +42,7 @@ public class SearchSpaceMethodExecutor extends AbstractSearchMethodExecutor<Spac
     private ISpaceTranslator translator;
 
     @Override
-    protected ISearchObjectExecutor<SpaceSearchCriterion, SpacePE> getSearchExecutor()
+    protected ISearchObjectExecutor<SpaceSearchCriteria, SpacePE> getSearchExecutor()
     {
         return searchExecutor;
     }

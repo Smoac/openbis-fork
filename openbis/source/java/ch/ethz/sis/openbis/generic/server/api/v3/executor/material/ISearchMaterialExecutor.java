@@ -17,13 +17,13 @@
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.material;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.common.ISearchObjectExecutor;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.MaterialSearchCriterion;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.MaterialSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 
 /**
  * @author pkupczyk
  */
-public interface ISearchMaterialExecutor extends ISearchObjectExecutor<MaterialSearchCriterion, MaterialPE>
+public interface ISearchMaterialExecutor extends ISearchObjectExecutor<MaterialSearchCriteria, MaterialPE>
 {
 
 }

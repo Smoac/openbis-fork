@@ -29,14 +29,14 @@ import ch.ethz.sis.openbis.generic.server.api.v3.translator.ITranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.space.sql.ISpaceSqlTranslator;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.space.Space;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.space.SpaceFetchOptions;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SpaceSearchCriterion;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SpaceSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
  * @author pkupczyk
  */
 @Component
-public class SearchSpaceSqlMethodExecutor extends AbstractSearchMethodExecutor<Space, Long, SpaceSearchCriterion, SpaceFetchOptions> implements
+public class SearchSpaceSqlMethodExecutor extends AbstractSearchMethodExecutor<Space, Long, SpaceSearchCriteria, SpaceFetchOptions> implements
         ISearchSpaceMethodExecutor
 {
 
@@ -47,14 +47,14 @@ public class SearchSpaceSqlMethodExecutor extends AbstractSearchMethodExecutor<S
     private ISpaceSqlTranslator translator;
 
     @Override
-    protected ISearchObjectExecutor<SpaceSearchCriterion, Long> getSearchExecutor()
+    protected ISearchObjectExecutor<SpaceSearchCriteria, Long> getSearchExecutor()
     {
-        return new ISearchObjectExecutor<SpaceSearchCriterion, Long>()
+        return new ISearchObjectExecutor<SpaceSearchCriteria, Long>()
             {
                 @Override
-                public List<Long> search(IOperationContext context, SpaceSearchCriterion criterion)
+                public List<Long> search(IOperationContext context, SpaceSearchCriteria criteria)
                 {
-                    List<SpacePE> spaces = searchExecutor.search(context, criterion);
+                    List<SpacePE> spaces = searchExecutor.search(context, criteria);
                     List<Long> ids = new ArrayList<Long>();
 
                     for (SpacePE space : spaces)

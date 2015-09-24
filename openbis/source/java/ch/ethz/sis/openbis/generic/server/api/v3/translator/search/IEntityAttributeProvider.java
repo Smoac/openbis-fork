@@ -16,7 +16,7 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.translator.search;
 
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ISearchCriterion;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ISearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IAttributeSearchFieldKind;
 
 /**
@@ -25,6 +25,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IAttributeSearchFieldKi
 public interface IEntityAttributeProvider
 {
 
-    public IAttributeSearchFieldKind getAttribute(ISearchCriterion criterion);
+    public IAttributeSearchFieldKind getAttribute(ISearchCriteria criteria);
 
 }

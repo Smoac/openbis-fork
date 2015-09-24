@@ -16,11 +16,11 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.translator.search;
 
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.CodeSearchCriterion;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ISearchCriterion;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ModificationDateSearchCriterion;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.PermIdSearchCriterion;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.RegistrationDateSearchCriterion;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.CodeSearchCriteria;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ISearchCriteria;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ModificationDateSearchCriteria;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.PermIdSearchCriteria;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.RegistrationDateSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetAttributeSearchFieldKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IAttributeSearchFieldKind;
 
@@ -31,27 +31,27 @@ public class DataSetAttributeProvider extends AbstractEntityAttributeProvider
 {
 
     @Override
-    public IAttributeSearchFieldKind getAttribute(ISearchCriterion criterion)
+    public IAttributeSearchFieldKind getAttribute(ISearchCriteria criteria)
     {
-        if (criterion instanceof CodeSearchCriterion)
+        if (criteria instanceof CodeSearchCriteria)
         {
             return DataSetAttributeSearchFieldKind.CODE;
-        } else if (criterion instanceof PermIdSearchCriterion)
+        } else if (criteria instanceof PermIdSearchCriteria)
         {
             return DataSetAttributeSearchFieldKind.CODE;
-        } else if (criterion instanceof RegistrationDateSearchCriterion)
+        } else if (criteria instanceof RegistrationDateSearchCriteria)
         {
-            RegistrationDateSearchCriterion dateCriterion = (RegistrationDateSearchCriterion) criterion;
-            return getDateAttribute(dateCriterion.getFieldValue(), DataSetAttributeSearchFieldKind.REGISTRATION_DATE,
+            RegistrationDateSearchCriteria dateCriteria = (RegistrationDateSearchCriteria) criteria;
+            return getDateAttribute(dateCriteria.getFieldValue(), DataSetAttributeSearchFieldKind.REGISTRATION_DATE,
                     DataSetAttributeSearchFieldKind.REGISTRATION_DATE_UNTIL, DataSetAttributeSearchFieldKind.REGISTRATION_DATE_FROM);
-        } else if (criterion instanceof ModificationDateSearchCriterion)
+        } else if (criteria instanceof ModificationDateSearchCriteria)
         {
-            ModificationDateSearchCriterion dateCriterion = (ModificationDateSearchCriterion) criterion;
-            return getDateAttribute(dateCriterion.getFieldValue(), DataSetAttributeSearchFieldKind.MODIFICATION_DATE,
+            ModificationDateSearchCriteria dateCriteria = (ModificationDateSearchCriteria) criteria;
+            return getDateAttribute(dateCriteria.getFieldValue(), DataSetAttributeSearchFieldKind.MODIFICATION_DATE,
                     DataSetAttributeSearchFieldKind.MODIFICATION_DATE_UNTIL, DataSetAttributeSearchFieldKind.MODIFICATION_DATE_FROM);
         } else
         {
-            throw new IllegalArgumentException("Unknown attribute criterion: " + criterion);
+            throw new IllegalArgumentException("Unknown attribute criteria: " + criteria);
         }
     }
 

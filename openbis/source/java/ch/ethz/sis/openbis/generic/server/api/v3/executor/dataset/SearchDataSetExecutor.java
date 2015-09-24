@@ -23,7 +23,7 @@ import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.common.AbstractSearchObjectExecutor;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.DataSetSearchCriterion;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.DataSetSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.server.business.search.DataSetSearchManager;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
@@ -32,7 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
  * @author Jakub Straszewski
  */
 @Component
-public class SearchDataSetExecutor extends AbstractSearchObjectExecutor<DataSetSearchCriterion, DataPE> implements
+public class SearchDataSetExecutor extends AbstractSearchObjectExecutor<DataSetSearchCriteria, DataPE> implements
         ISearchDataSetExecutor
 {
 

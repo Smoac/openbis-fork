@@ -17,13 +17,13 @@
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.dataset;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.common.ISearchObjectExecutor;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.DataSetSearchCriterion;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.DataSetSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 
 /**
  * @author Jakub Straszewski
  */
-public interface ISearchDataSetExecutor extends ISearchObjectExecutor<DataSetSearchCriterion, DataPE>
+public interface ISearchDataSetExecutor extends ISearchObjectExecutor<DataSetSearchCriteria, DataPE>
 {
 
 }

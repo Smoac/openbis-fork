@@ -25,7 +25,7 @@ import ch.ethz.sis.openbis.generic.server.api.v3.translator.ITranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.dataset.IDataSetTranslator;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.DataSetFetchOptions;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.DataSetSearchCriterion;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.DataSetSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 
 /**
@@ -33,7 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
  */
 @Component
 public class SearchDataSetMethodExecutor extends
-        AbstractSearchMethodExecutor<DataSet, DataPE, DataSetSearchCriterion, DataSetFetchOptions>
+        AbstractSearchMethodExecutor<DataSet, DataPE, DataSetSearchCriteria, DataSetFetchOptions>
         implements ISearchDataSetMethodExecutor
 {
 
@@ -44,7 +44,7 @@ public class SearchDataSetMethodExecutor extends
     private IDataSetTranslator translator;
 
     @Override
-    protected ISearchObjectExecutor<DataSetSearchCriterion, DataPE> getSearchExecutor()
+    protected ISearchObjectExecutor<DataSetSearchCriteria, DataPE> getSearchExecutor()
     {
         return searchExecutor;
     }

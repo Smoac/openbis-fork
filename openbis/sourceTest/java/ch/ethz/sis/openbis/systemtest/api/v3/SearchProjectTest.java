@@ -25,7 +25,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.project.Projec
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.ProjectIdentifier;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.ProjectPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.SpacePermId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ProjectSearchCriterion;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ProjectSearchCriteria;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SearchResult;
 
 /**
@@ -37,125 +37,125 @@ public class SearchProjectTest extends AbstractTest
     @Test
     public void testSearchWithIdSetToPermId()
     {
-        ProjectSearchCriterion criterion = new ProjectSearchCriterion();
-        criterion.withId().thatEquals(new ProjectPermId("20120814110011738-105"));
-        testSearch(TEST_USER, criterion, "/TEST-SPACE/TEST-PROJECT");
+        ProjectSearchCriteria criteria = new ProjectSearchCriteria();
+        criteria.withId().thatEquals(new ProjectPermId("20120814110011738-105"));
+        testSearch(TEST_USER, criteria, "/TEST-SPACE/TEST-PROJECT");
     }
 
     @Test
     public void testSearchWithIdSetToIdentifier()
     {
-        ProjectSearchCriterion criterion = new ProjectSearchCriterion();
-        criterion.withId().thatEquals(new ProjectIdentifier("/TEST-SPACE/TEST-PROJECT"));
-        testSearch(TEST_USER, criterion, "/TEST-SPACE/TEST-PROJECT");
+        ProjectSearchCriteria criteria = new ProjectSearchCriteria();
+        criteria.withId().thatEquals(new ProjectIdentifier("/TEST-SPACE/TEST-PROJECT"));
+        testSearch(TEST_USER, criteria, "/TEST-SPACE/TEST-PROJECT");
     }
 
     @Test
     public void testSearchWithIdSetToNonexistentPermId()
     {
-        ProjectSearchCriterion criterion = new ProjectSearchCriterion();
-        criterion.withId().thatEquals(new ProjectPermId("IDONTEXIST"));
-        testSearch(TEST_USER, criterion);
+        ProjectSearchCriteria criteria = new ProjectSearchCriteria();
+        criteria.withId().thatEquals(new ProjectPermId("IDONTEXIST"));
+        testSearch(TEST_USER, criteria);
     }
 
     @Test
     public void testSearchWithIdSetToNonexistentIdentifier()
     {
-        ProjectSearchCriterion criterion = new ProjectSearchCriterion();
-        criterion.withId().thatEquals(new ProjectIdentifier("/IDONT/EXIST"));
-        testSearch(TEST_USER, criterion);
+        ProjectSearchCriteria criteria = new ProjectSearchCriteria();
+        criteria.withId().thatEquals(new ProjectIdentifier("/IDONT/EXIST"));
+        testSearch(TEST_USER, criteria);
     }
 
     @Test
     public void testSearchWithPermIdThatEquals()
     {
-        ProjectSearchCriterion criterion = new ProjectSearchCriterion();
-        criterion.withPermId().thatEquals("20120814110011738-105");
-        testSearch(TEST_USER, criterion, "/TEST-SPACE/TEST-PROJECT");
+        ProjectSearchCriteria criteria = new ProjectSearchCriteria();
+        criteria.withPermId().thatEquals("20120814110011738-105");
+        testSearch(TEST_USER, criteria, "/TEST-SPACE/TEST-PROJECT");
     }
 
     @Test
     public void testSearchWithCodeThatEquals()
     {
-        ProjectSearchCriterion criterion = new ProjectSearchCriterion();
-        criterion.withCode().thatEquals("test-PROJECT");
-        testSearch(TEST_USER, criterion, "/TEST-SPACE/TEST-PROJECT");
+        ProjectSearchCriteria criteria = new ProjectSearchCriteria();
+        criteria.withCode().thatEquals("test-PROJECT");
+        testSearch(TEST_USER, criteria, "/TEST-SPACE/TEST-PROJECT");
     }
 
     @Test
     public void testSearchWithCodeThatContains()
     {
-        ProjectSearchCriterion criterion = new ProjectSearchCriterion();
-        criterion.withCode().thatContains("pRoJ");
-        testSearch(TEST_USER, criterion, "/TESTGROUP/TESTPROJ", "/TEST-SPACE/TEST-PROJECT", "/TEST-SPACE/PROJECT-TO-DELETE");
+        ProjectSearchCriteria criteria = new ProjectSearchCriteria();
+        criteria.withCode().thatContains("pRoJ");
+        testSearch(TEST_USER, criteria, "/TESTGROUP/TESTPROJ", "/TEST-SPACE/TEST-PROJECT", "/TEST-SPACE/PROJECT-TO-DELETE");
     }
 
     @Test
     public void testSearchWithCodeThatStartsWith()
     {
-        ProjectSearchCriterion criterion = new ProjectSearchCriterion();
-        criterion.withCode().thatStartsWith("n");
-        testSearch(TEST_USER, criterion, "/CISD/NEMO", "/CISD/NOE", "/TEST-SPACE/NOE");
+        ProjectSearchCriteria criteria = new ProjectSearchCriteria();
+        criteria.withCode().thatStartsWith("n");
+        testSearch(TEST_USER, criteria, "/CISD/NEMO", "/CISD/NOE", "/TEST-SPACE/NOE");
     }
 
     @Test
     public void testSearchWithCodeThatEndsWith()
     {
-        ProjectSearchCriterion criterion = new ProjectSearchCriterion();
-        criterion.withCode().thatEndsWith("t");
-        testSearch(TEST_USER, criterion, "/CISD/DEFAULT", "/TEST-SPACE/TEST-PROJECT");
+        ProjectSearchCriteria criteria = new ProjectSearchCriteria();
+        criteria.withCode().thatEndsWith("t");
+        testSearch(TEST_USER, criteria, "/CISD/DEFAULT", "/TEST-SPACE/TEST-PROJECT");
     }
 
     @Test
     public void testSearchWithSpaceWithIdThatEquals()
     {
-        ProjectSearchCriterion criterion = new ProjectSearchCriterion();
-        criterion.withSpace().withId().thatEquals(new SpacePermId("CISD"));
-        testSearch(TEST_USER, criterion, "/CISD/DEFAULT", "/CISD/NEMO", "/CISD/NOE");
+        ProjectSearchCriteria criteria = new ProjectSearchCriteria();
+        criteria.withSpace().withId().thatEquals(new SpacePermId("CISD"));
+        testSearch(TEST_USER, criteria, "/CISD/DEFAULT", "/CISD/NEMO", "/CISD/NOE");
     }
 
     @Test
     public void testSearchWithSpaceWithCodeThatStartsWith()
     {
-        ProjectSearchCriterion criterion = new ProjectSearchCriterion();
-        criterion.withSpace().withCode().thatStartsWith("TEST");
-        testSearch(TEST_USER, criterion, "/TESTGROUP/TESTPROJ", "/TEST-SPACE/TEST-PROJECT", "/TEST-SPACE/NOE", "/TEST-SPACE/PROJECT-TO-DELETE");
+        ProjectSearchCriteria criteria = new ProjectSearchCriteria();
+        criteria.withSpace().withCode().thatStartsWith("TEST");
+        testSearch(TEST_USER, criteria, "/TESTGROUP/TESTPROJ", "/TEST-SPACE/TEST-PROJECT", "/TEST-SPACE/NOE", "/TEST-SPACE/PROJECT-TO-DELETE");
     }
 
     @Test
     public void testSearchWithAndOperator()
     {
-        ProjectSearchCriterion criterion = new ProjectSearchCriterion();
-        criterion.withAndOperator();
-        criterion.withCode().thatContains("TEST");
-        criterion.withCode().thatContains("PROJECT");
-        testSearch(TEST_USER, criterion, "/TEST-SPACE/TEST-PROJECT");
+        ProjectSearchCriteria criteria = new ProjectSearchCriteria();
+        criteria.withAndOperator();
+        criteria.withCode().thatContains("TEST");
+        criteria.withCode().thatContains("PROJECT");
+        testSearch(TEST_USER, criteria, "/TEST-SPACE/TEST-PROJECT");
     }
 
     @Test
     public void testSearchWithOrOperator()
     {
-        ProjectSearchCriterion criterion = new ProjectSearchCriterion();
-        criterion.withOrOperator();
-        criterion.withPermId().thatEquals("20120814110011738-101");
-        criterion.withPermId().thatEquals("20120814110011738-105");
-        testSearch(TEST_USER, criterion, "/CISD/DEFAULT", "/TEST-SPACE/TEST-PROJECT");
+        ProjectSearchCriteria criteria = new ProjectSearchCriteria();
+        criteria.withOrOperator();
+        criteria.withPermId().thatEquals("20120814110011738-101");
+        criteria.withPermId().thatEquals("20120814110011738-105");
+        testSearch(TEST_USER, criteria, "/CISD/DEFAULT", "/TEST-SPACE/TEST-PROJECT");
     }
 
     @Test
     public void testSearchWithProjectUnauthorized()
     {
-        ProjectSearchCriterion criterion = new ProjectSearchCriterion();
-        criterion.withId().thatEquals(new ProjectIdentifier("/CISD/DEFAULT"));
-        testSearch(TEST_USER, criterion, "/CISD/DEFAULT");
-        testSearch(TEST_SPACE_USER, criterion);
+        ProjectSearchCriteria criteria = new ProjectSearchCriteria();
+        criteria.withId().thatEquals(new ProjectIdentifier("/CISD/DEFAULT"));
+        testSearch(TEST_USER, criteria, "/CISD/DEFAULT");
+        testSearch(TEST_SPACE_USER, criteria);
     }
 
-    private void testSearch(String user, ProjectSearchCriterion criterion, String... expectedIdentifiers)
+    private void testSearch(String user, ProjectSearchCriteria criteria, String... expectedIdentifiers)
     {
         String sessionToken = v3api.login(user, PASSWORD);
 
-        SearchResult<Project> searchResult = v3api.searchProjects(sessionToken, criterion, new ProjectFetchOptions());
+        SearchResult<Project> searchResult = v3api.searchProjects(sessionToken, criteria, new ProjectFetchOptions());
         List<Project> projects = searchResult.getObjects();
 
         assertProjectIdentifiers(projects, expectedIdentifiers);

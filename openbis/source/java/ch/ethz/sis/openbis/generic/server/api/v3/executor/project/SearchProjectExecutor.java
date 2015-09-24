@@ -29,12 +29,12 @@ import ch.ethz.sis.openbis.generic.server.api.v3.executor.common.AbstractSearchO
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.space.ISearchSpaceExecutor;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.ProjectIdentifier;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.ProjectPermId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.CodeSearchCriterion;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ISearchCriterion;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.IdSearchCriterion;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.PermIdSearchCriterion;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ProjectSearchCriterion;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SpaceSearchCriterion;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.CodeSearchCriteria;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ISearchCriteria;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.IdSearchCriteria;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.PermIdSearchCriteria;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ProjectSearchCriteria;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SpaceSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
@@ -42,7 +42,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
  * @author pkupczyk
  */
 @Component
-public class SearchProjectExecutor extends AbstractSearchObjectManuallyExecutor<ProjectSearchCriterion, ProjectPE> implements ISearchProjectExecutor
+public class SearchProjectExecutor extends AbstractSearchObjectManuallyExecutor<ProjectSearchCriteria, ProjectPE> implements ISearchProjectExecutor
 {
 
     @Autowired
@@ -55,23 +55,23 @@ public class SearchProjectExecutor extends AbstractSearchObjectManuallyExecutor<
     }
 
     @Override
-    protected Matcher getMatcher(ISearchCriterion criterion)
+    protected Matcher getMatcher(ISearchCriteria criteria)
     {
-        if (criterion instanceof IdSearchCriterion<?>)
+        if (criteria instanceof IdSearchCriteria<?>)
         {
             return new IdMatcher();
-        } else if (criterion instanceof CodeSearchCriterion)
+        } else if (criteria instanceof CodeSearchCriteria)
         {
             return new CodeMatcher();
-        } else if (criterion instanceof PermIdSearchCriterion)
+        } else if (criteria instanceof PermIdSearchCriteria)
         {
             return new PermIdMatcher();
-        } else if (criterion instanceof SpaceSearchCriterion)
+        } else if (criteria instanceof SpaceSearchCriteria)
         {
             return new SpaceMatcher();
         } else
         {
-            throw new IllegalArgumentException("Unknown search criterion: " + criterion.getClass());
+            throw new IllegalArgumentException("Unknown search criteria: " + criteria.getClass());
         }
     }
 
@@ -79,9 +79,9 @@ public class SearchProjectExecutor extends AbstractSearchObjectManuallyExecutor<
     {
 
         @Override
-        protected boolean isMatching(IOperationContext context, ProjectPE object, ISearchCriterion criterion)
+        protected boolean isMatching(IOperationContext context, ProjectPE object, ISearchCriteria criteria)
         {
-            Object id = ((IdSearchCriterion<?>) criterion).getId();
+            Object id = ((IdSearchCriteria<?>) criteria).getId();
 
             if (id == null)
             {
@@ -94,7 +94,7 @@ public class SearchProjectExecutor extends AbstractSearchObjectManuallyExecutor<
                 return object.getIdentifier().equals(((ProjectIdentifier) id).getIdentifier());
             } else
             {
-                throw new IllegalArgumentException("Unknown id: " + criterion.getClass());
+                throw new IllegalArgumentException("Unknown id: " + criteria.getClass());
             }
         }
 
@@ -126,9 +126,9 @@ public class SearchProjectExecutor extends AbstractSearchObjectManuallyExecutor<
     {
 
         @Override
-        public List<ProjectPE> getMatching(IOperationContext context, List<ProjectPE> objects, ISearchCriterion criterion)
+        public List<ProjectPE> getMatching(IOperationContext context, List<ProjectPE> objects, ISearchCriteria criteria)
         {
-            List<SpacePE> spaceList = searchSpaceExecutor.search(context, (SpaceSearchCriterion) criterion);
+            List<SpacePE> spaceList = searchSpaceExecutor.search(context, (SpaceSearchCriteria) criteria);
             Set<SpacePE> spaceSet = new HashSet<SpacePE>(spaceList);
 
             List<ProjectPE> matches = new ArrayList<ProjectPE>();

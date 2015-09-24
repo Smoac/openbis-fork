@@ -18,13 +18,13 @@ package ch.ethz.sis.openbis.generic.server.api.v3.executor.method;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.DataSetFetchOptions;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.DataSetSearchCriterion;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.DataSetSearchCriteria;
 
 /**
  * @author pkupczyk
  */
 public interface ISearchDataSetMethodExecutor extends
-        ISearchMethodExecutor<DataSet, DataSetSearchCriterion, DataSetFetchOptions>
+        ISearchMethodExecutor<DataSet, DataSetSearchCriteria, DataSetFetchOptions>
 {
 
 }

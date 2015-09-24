@@ -7,12 +7,12 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 			c.start();
 
 			$.when(c.createFacade()).then(function(facade) {
-				var criterion = new c.SpaceSearchCriterion();
+				var criteria = new c.SpaceSearchCriteria();
 				var fetchOptions = new c.SpaceFetchOptions();
 				return facade.login("openbis_test_js", "password").then(function() {
-					return facade.searchSpaces(criterion, fetchOptions).then(function(spacesForInstanceAdmin) {
+					return facade.searchSpaces(criteria, fetchOptions).then(function(spacesForInstanceAdmin) {
 						return facade.loginAs("openbis_test_js", "password", "test_space_admin").then(function() {
-							return facade.searchSpaces(criterion, fetchOptions).then(function(spacesForSpaceAdmin) {
+							return facade.searchSpaces(criteria, fetchOptions).then(function(spacesForSpaceAdmin) {
 								c.assertTrue(spacesForInstanceAdmin.getTotalCount() > spacesForSpaceAdmin.getTotalCount());
 								c.assertObjectsWithValues(spacesForSpaceAdmin.getObjects(), "code", [ "TEST" ]);
 								c.finish();

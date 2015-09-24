@@ -18,12 +18,12 @@ package ch.ethz.sis.openbis.generic.server.api.v3.executor.method;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.space.Space;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.space.SpaceFetchOptions;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SpaceSearchCriterion;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SpaceSearchCriteria;
 
 /**
  * @author pkupczyk
  */
-public interface ISearchSpaceMethodExecutor extends ISearchMethodExecutor<Space, SpaceSearchCriterion, SpaceFetchOptions>
+public interface ISearchSpaceMethodExecutor extends ISearchMethodExecutor<Space, SpaceSearchCriteria, SpaceFetchOptions>
 {
 
 }

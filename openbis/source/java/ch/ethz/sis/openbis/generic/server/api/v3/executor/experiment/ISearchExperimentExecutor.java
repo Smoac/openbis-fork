@@ -17,13 +17,13 @@
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.experiment;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.common.ISearchObjectExecutor;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ExperimentSearchCriterion;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ExperimentSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 
 /**
  * @author pkupczyk
  */
-public interface ISearchExperimentExecutor extends ISearchObjectExecutor<ExperimentSearchCriterion, ExperimentPE>
+public interface ISearchExperimentExecutor extends ISearchObjectExecutor<ExperimentSearchCriteria, ExperimentPE>
 {
 
 }

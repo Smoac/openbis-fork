@@ -38,7 +38,7 @@ import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.CacheMode;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.FetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.SortAndPage;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.AbstractObjectSearchCriterion;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.AbstractObjectSearchCriteria;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SearchResult;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -46,8 +46,8 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 /**
  * @author pkupczyk
  */
-public abstract class AbstractSearchMethodExecutor<OBJECT, OBJECT_PE, CRITERION extends AbstractObjectSearchCriterion<?>, FETCH_OPTIONS extends FetchOptions<OBJECT>>
-        extends AbstractMethodExecutor implements ISearchMethodExecutor<OBJECT, CRITERION, FETCH_OPTIONS>
+public abstract class AbstractSearchMethodExecutor<OBJECT, OBJECT_PE, CRITERIA extends AbstractObjectSearchCriteria<?>, FETCH_OPTIONS extends FetchOptions<OBJECT>>
+        extends AbstractMethodExecutor implements ISearchMethodExecutor<OBJECT, CRITERIA, FETCH_OPTIONS>
 {
 
     private final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, getClass());
@@ -55,16 +55,16 @@ public abstract class AbstractSearchMethodExecutor<OBJECT, OBJECT_PE, CRITERION 
     @Autowired
     private CacheManager cacheManager;
 
-    protected abstract ISearchObjectExecutor<CRITERION, OBJECT_PE> getSearchExecutor();
+    protected abstract ISearchObjectExecutor<CRITERIA, OBJECT_PE> getSearchExecutor();
 
     protected abstract ITranslator<OBJECT_PE, OBJECT, FETCH_OPTIONS> getTranslator();
 
     @Override
-    public SearchResult<OBJECT> search(final String sessionToken, final CRITERION criterion, final FETCH_OPTIONS fetchOptions)
+    public SearchResult<OBJECT> search(final String sessionToken, final CRITERIA criteria, final FETCH_OPTIONS fetchOptions)
     {
-        if (criterion == null)
+        if (criteria == null)
         {
-            throw new IllegalArgumentException("Criterion cannot be null.");
+            throw new IllegalArgumentException("Criteria cannot be null.");
         }
         if (fetchOptions == null)
         {
@@ -75,24 +75,24 @@ public abstract class AbstractSearchMethodExecutor<OBJECT, OBJECT_PE, CRITERION 
                 @Override
                 public SearchResult<OBJECT> execute(IOperationContext context)
                 {
-                    Collection<OBJECT> allResults = searchAndTranslate(context, criterion, fetchOptions);
+                    Collection<OBJECT> allResults = searchAndTranslate(context, criteria, fetchOptions);
                     List<OBJECT> sortedAndPaged = sortAndPage(context, allResults, fetchOptions);
                     return new SearchResult<OBJECT>(sortedAndPaged, allResults.size());
                 }
             });
     }
 
-    private Collection<OBJECT> searchAndTranslate(IOperationContext context, CRITERION criterion, FETCH_OPTIONS fetchOptions)
+    private Collection<OBJECT> searchAndTranslate(IOperationContext context, CRITERIA criteria, FETCH_OPTIONS fetchOptions)
     {
         operationLog.info("Cache mode: " + fetchOptions.getCacheMode());
 
         if (CacheMode.NO_CACHE.equals(fetchOptions.getCacheMode()))
         {
-            return doSearchAndTranslate(context, criterion, fetchOptions);
+            return doSearchAndTranslate(context, criteria, fetchOptions);
         } else if (CacheMode.CACHE.equals(fetchOptions.getCacheMode()) || CacheMode.RELOAD_AND_CACHE.equals(fetchOptions.getCacheMode()))
         {
-            SearchCacheEntry<OBJECT> entry = getCacheEntry(context, criterion, fetchOptions);
-            populateCacheEntry(context, criterion, fetchOptions, entry);
+            SearchCacheEntry<OBJECT> entry = getCacheEntry(context, criteria, fetchOptions);
+            populateCacheEntry(context, criteria, fetchOptions, entry);
             return entry.getObjects();
         } else
         {
@@ -100,11 +100,11 @@ public abstract class AbstractSearchMethodExecutor<OBJECT, OBJECT_PE, CRITERION 
         }
     }
 
-    private Collection<OBJECT> doSearchAndTranslate(IOperationContext context, CRITERION criterion, FETCH_OPTIONS fetchOptions)
+    private Collection<OBJECT> doSearchAndTranslate(IOperationContext context, CRITERIA criteria, FETCH_OPTIONS fetchOptions)
     {
         operationLog.info("Searching...");
 
-        List<OBJECT_PE> ids = getSearchExecutor().search(context, criterion);
+        List<OBJECT_PE> ids = getSearchExecutor().search(context, criteria);
 
         operationLog.info("Found " + ids.size() + " object id(s).");
 
@@ -138,11 +138,11 @@ public abstract class AbstractSearchMethodExecutor<OBJECT, OBJECT_PE, CRITERION 
     }
 
     @SuppressWarnings("unchecked")
-    private SearchCacheEntry<OBJECT> getCacheEntry(IOperationContext context, CRITERION criterion, FETCH_OPTIONS fetchOptions)
+    private SearchCacheEntry<OBJECT> getCacheEntry(IOperationContext context, CRITERIA criteria, FETCH_OPTIONS fetchOptions)
     {
         Cache cache = getCache();
-        SearchCacheKey<CRITERION, FETCH_OPTIONS> key =
-                new SearchCacheKey<CRITERION, FETCH_OPTIONS>(context.getSession().getSessionToken(), criterion, fetchOptions);
+        SearchCacheKey<CRITERIA, FETCH_OPTIONS> key =
+                new SearchCacheKey<CRITERIA, FETCH_OPTIONS>(context.getSession().getSessionToken(), criteria, fetchOptions);
         SearchCacheEntry<OBJECT> entry = null;
 
         if (operationLog.isDebugEnabled())
@@ -168,7 +168,7 @@ public abstract class AbstractSearchMethodExecutor<OBJECT, OBJECT_PE, CRITERION 
             {
                 entry = new SearchCacheEntry<OBJECT>();
                 cache.put(key, entry);
-                context.getSession().addCleanupListener(new SearchCacheCleanupListener<CRITERION, FETCH_OPTIONS>(cache, key));
+                context.getSession().addCleanupListener(new SearchCacheCleanupListener<CRITERIA, FETCH_OPTIONS>(cache, key));
             } else
             {
                 entry = (SearchCacheEntry<OBJECT>) wrapper.get();
@@ -183,7 +183,7 @@ public abstract class AbstractSearchMethodExecutor<OBJECT, OBJECT_PE, CRITERION 
         return entry;
     }
 
-    private void populateCacheEntry(IOperationContext context, CRITERION criterion, FETCH_OPTIONS fetchOptions, SearchCacheEntry<OBJECT> entry)
+    private void populateCacheEntry(IOperationContext context, CRITERIA criteria, FETCH_OPTIONS fetchOptions, SearchCacheEntry<OBJECT> entry)
     {
         if (operationLog.isDebugEnabled())
         {
@@ -199,9 +199,9 @@ public abstract class AbstractSearchMethodExecutor<OBJECT, OBJECT_PE, CRITERION 
 
             if (entry.getObjects() == null)
             {
-                entry.setObjects(doSearchAndTranslate(context, criterion, fetchOptions));
-                SearchCacheKey<CRITERION, FETCH_OPTIONS> key =
-                        new SearchCacheKey<CRITERION, FETCH_OPTIONS>(context.getSession().getSessionToken(), criterion, fetchOptions);
+                entry.setObjects(doSearchAndTranslate(context, criteria, fetchOptions));
+                SearchCacheKey<CRITERIA, FETCH_OPTIONS> key =
+                        new SearchCacheKey<CRITERIA, FETCH_OPTIONS>(context.getSession().getSessionToken(), criteria, fetchOptions);
                 getCache().put(key, entry);
             } else
             {

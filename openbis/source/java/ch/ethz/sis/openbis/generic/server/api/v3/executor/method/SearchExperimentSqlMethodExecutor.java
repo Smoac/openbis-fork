@@ -25,14 +25,14 @@ import ch.ethz.sis.openbis.generic.server.api.v3.translator.ITranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.experiment.sql.IExperimentSqlTranslator;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.experiment.ExperimentFetchOptions;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ExperimentSearchCriterion;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ExperimentSearchCriteria;
 
 /**
  * @author pkupczyk
  */
 @Component
 public class SearchExperimentSqlMethodExecutor extends
-        AbstractSearchMethodExecutor<Experiment, Long, ExperimentSearchCriterion, ExperimentFetchOptions> implements
+        AbstractSearchMethodExecutor<Experiment, Long, ExperimentSearchCriteria, ExperimentFetchOptions> implements
         ISearchExperimentMethodExecutor
 {
 
@@ -43,7 +43,7 @@ public class SearchExperimentSqlMethodExecutor extends
     private IExperimentSqlTranslator translator;
 
     @Override
-    protected ISearchObjectExecutor<ExperimentSearchCriterion, Long> getSearchExecutor()
+    protected ISearchObjectExecutor<ExperimentSearchCriteria, Long> getSearchExecutor()
     {
         return searchExecutor;
     }

@@ -24,7 +24,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.space.Space;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.space.SpaceFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.SpacePermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SearchResult;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SpaceSearchCriterion;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SpaceSearchCriteria;
 
 /**
  * @author pkupczyk
@@ -35,118 +35,118 @@ public class SearchSpaceTest extends AbstractTest
     @Test
     public void testSearchWithIdSetToPermId()
     {
-        SpaceSearchCriterion criterion = new SpaceSearchCriterion();
-        criterion.withId().thatEquals(new SpacePermId("CISD"));
-        testSearch(TEST_USER, criterion, "CISD");
+        SpaceSearchCriteria criteria = new SpaceSearchCriteria();
+        criteria.withId().thatEquals(new SpacePermId("CISD"));
+        testSearch(TEST_USER, criteria, "CISD");
     }
 
     @Test
     public void testSearchWithIdSetToNonexistentPermId()
     {
-        SpaceSearchCriterion criterion = new SpaceSearchCriterion();
-        criterion.withId().thatEquals(new SpacePermId("IDONTEXIST"));
-        testSearch(TEST_USER, criterion);
+        SpaceSearchCriteria criteria = new SpaceSearchCriteria();
+        criteria.withId().thatEquals(new SpacePermId("IDONTEXIST"));
+        testSearch(TEST_USER, criteria);
     }
 
     @Test
     public void testSearchWithPermIdThatEquals()
     {
-        SpaceSearchCriterion criterion = new SpaceSearchCriterion();
-        criterion.withPermId().thatEquals("TEST-SPACE");
-        testSearch(TEST_USER, criterion, "TEST-SPACE");
+        SpaceSearchCriteria criteria = new SpaceSearchCriteria();
+        criteria.withPermId().thatEquals("TEST-SPACE");
+        testSearch(TEST_USER, criteria, "TEST-SPACE");
     }
 
     @Test
     public void testSearchWithPermIdThatContains()
     {
-        SpaceSearchCriterion criterion = new SpaceSearchCriterion();
-        criterion.withPermId().thatContains("ST-SPA");
-        testSearch(TEST_USER, criterion, "TEST-SPACE");
+        SpaceSearchCriteria criteria = new SpaceSearchCriteria();
+        criteria.withPermId().thatContains("ST-SPA");
+        testSearch(TEST_USER, criteria, "TEST-SPACE");
     }
 
     @Test
     public void testSearchWithPermIdThatStartsWith()
     {
-        SpaceSearchCriterion criterion = new SpaceSearchCriterion();
-        criterion.withPermId().thatStartsWith("C");
-        testSearch(TEST_USER, criterion, "CISD");
+        SpaceSearchCriteria criteria = new SpaceSearchCriteria();
+        criteria.withPermId().thatStartsWith("C");
+        testSearch(TEST_USER, criteria, "CISD");
     }
 
     @Test
     public void testSearchWithPermIdThatEndsWith()
     {
-        SpaceSearchCriterion criterion = new SpaceSearchCriterion();
-        criterion.withPermId().thatEndsWith("E");
-        testSearch(TEST_USER, criterion, "TEST-SPACE");
+        SpaceSearchCriteria criteria = new SpaceSearchCriteria();
+        criteria.withPermId().thatEndsWith("E");
+        testSearch(TEST_USER, criteria, "TEST-SPACE");
     }
 
     @Test
     public void testSearchWithCodeThatEquals()
     {
-        SpaceSearchCriterion criterion = new SpaceSearchCriterion();
-        criterion.withCode().thatEquals("test-SPACE");
-        testSearch(TEST_USER, criterion, "TEST-SPACE");
+        SpaceSearchCriteria criteria = new SpaceSearchCriteria();
+        criteria.withCode().thatEquals("test-SPACE");
+        testSearch(TEST_USER, criteria, "TEST-SPACE");
     }
 
     @Test
     public void testSearchWithCodeThatContains()
     {
-        SpaceSearchCriterion criterion = new SpaceSearchCriterion();
-        criterion.withCode().thatContains("ST-sPa");
-        testSearch(TEST_USER, criterion, "TEST-SPACE");
+        SpaceSearchCriteria criteria = new SpaceSearchCriteria();
+        criteria.withCode().thatContains("ST-sPa");
+        testSearch(TEST_USER, criteria, "TEST-SPACE");
     }
 
     @Test
     public void testSearchWithCodeThatStartsWith()
     {
-        SpaceSearchCriterion criterion = new SpaceSearchCriterion();
-        criterion.withCode().thatStartsWith("c");
-        testSearch(TEST_USER, criterion, "CISD");
+        SpaceSearchCriteria criteria = new SpaceSearchCriteria();
+        criteria.withCode().thatStartsWith("c");
+        testSearch(TEST_USER, criteria, "CISD");
     }
 
     @Test
     public void testSearchWithCodeThatEndsWith()
     {
-        SpaceSearchCriterion criterion = new SpaceSearchCriterion();
-        criterion.withCode().thatEndsWith("e");
-        testSearch(TEST_USER, criterion, "TEST-SPACE");
+        SpaceSearchCriteria criteria = new SpaceSearchCriteria();
+        criteria.withCode().thatEndsWith("e");
+        testSearch(TEST_USER, criteria, "TEST-SPACE");
     }
 
     @Test
     public void testSearchWithAndOperator()
     {
-        SpaceSearchCriterion criterion = new SpaceSearchCriterion();
-        criterion.withAndOperator();
-        criterion.withCode().thatContains("TEST");
-        criterion.withCode().thatContains("SPACE");
-        testSearch(TEST_USER, criterion, "TEST-SPACE");
+        SpaceSearchCriteria criteria = new SpaceSearchCriteria();
+        criteria.withAndOperator();
+        criteria.withCode().thatContains("TEST");
+        criteria.withCode().thatContains("SPACE");
+        testSearch(TEST_USER, criteria, "TEST-SPACE");
     }
 
     @Test
     public void testSearchWithOrOperator()
     {
-        SpaceSearchCriterion criterion = new SpaceSearchCriterion();
-        criterion.withOrOperator();
-        criterion.withPermId().thatEquals("CISD");
-        criterion.withPermId().thatEquals("TEST-SPACE");
-        testSearch(TEST_USER, criterion, "CISD", "TEST-SPACE");
+        SpaceSearchCriteria criteria = new SpaceSearchCriteria();
+        criteria.withOrOperator();
+        criteria.withPermId().thatEquals("CISD");
+        criteria.withPermId().thatEquals("TEST-SPACE");
+        testSearch(TEST_USER, criteria, "CISD", "TEST-SPACE");
     }
 
     @Test
     public void testSearchWithSpaceUnauthorized()
     {
-        SpaceSearchCriterion criterion = new SpaceSearchCriterion();
-        criterion.withPermId().thatEquals("CISD");
-        testSearch(TEST_USER, criterion, "CISD");
-        testSearch(TEST_SPACE_USER, criterion);
+        SpaceSearchCriteria criteria = new SpaceSearchCriteria();
+        criteria.withPermId().thatEquals("CISD");
+        testSearch(TEST_USER, criteria, "CISD");
+        testSearch(TEST_SPACE_USER, criteria);
     }
 
-    private void testSearch(String user, SpaceSearchCriterion criterion, String... expectedCodes)
+    private void testSearch(String user, SpaceSearchCriteria criteria, String... expectedCodes)
     {
         String sessionToken = v3api.login(user, PASSWORD);
 
         SearchResult<Space> searchResult =
-                v3api.searchSpaces(sessionToken, criterion, new SpaceFetchOptions());
+                v3api.searchSpaces(sessionToken, criteria, new SpaceFetchOptions());
         List<Space> spaces = searchResult.getObjects();
 
         assertSpaceCodes(spaces, expectedCodes);

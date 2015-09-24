@@ -24,14 +24,14 @@ import ch.ethz.sis.openbis.generic.server.api.v3.translator.ITranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.project.IProjectTranslator;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.project.Project;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.project.ProjectFetchOptions;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ProjectSearchCriterion;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ProjectSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 
 /**
  * @author pkupczyk
  */
 // @Component
-public class SearchProjectMethodExecutor extends AbstractSearchMethodExecutor<Project, ProjectPE, ProjectSearchCriterion, ProjectFetchOptions>
+public class SearchProjectMethodExecutor extends AbstractSearchMethodExecutor<Project, ProjectPE, ProjectSearchCriteria, ProjectFetchOptions>
         implements ISearchProjectMethodExecutor
 {
 
@@ -42,7 +42,7 @@ public class SearchProjectMethodExecutor extends AbstractSearchMethodExecutor<Pr
     private IProjectTranslator translator;
 
     @Override
-    protected ISearchObjectExecutor<ProjectSearchCriterion, ProjectPE> getSearchExecutor()
+    protected ISearchObjectExecutor<ProjectSearchCriteria, ProjectPE> getSearchExecutor()
     {
         return searchExecutor;
     }

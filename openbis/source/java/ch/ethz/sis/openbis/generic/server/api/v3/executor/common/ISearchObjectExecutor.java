@@ -19,14 +19,14 @@ package ch.ethz.sis.openbis.generic.server.api.v3.executor.common;
 import java.util.List;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.AbstractObjectSearchCriterion;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.AbstractObjectSearchCriteria;
 
 /**
  * @author pkupczyk
  */
-public interface ISearchObjectExecutor<CRITERION extends AbstractObjectSearchCriterion<?>, OBJECT>
+public interface ISearchObjectExecutor<CRITERIA extends AbstractObjectSearchCriteria<?>, OBJECT>
 {
 
-    public List<OBJECT> search(IOperationContext context, CRITERION criterion);
+    public List<OBJECT> search(IOperationContext context, CRITERIA criteria);
 
 }

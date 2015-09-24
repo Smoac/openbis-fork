@@ -23,7 +23,7 @@ import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.common.AbstractSearchObjectExecutor;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SampleSearchCriterion;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SampleSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.server.business.search.SampleSearchManager;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -32,7 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
  * @author pkupczyk
  */
 @Component
-public class SearchSampleExecutor extends AbstractSearchObjectExecutor<SampleSearchCriterion, SamplePE> implements ISearchSampleExecutor
+public class SearchSampleExecutor extends AbstractSearchObjectExecutor<SampleSearchCriteria, SamplePE> implements ISearchSampleExecutor
 {
 
     @Override

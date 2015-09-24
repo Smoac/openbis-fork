@@ -17,13 +17,13 @@
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.sample;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.common.ISearchObjectExecutor;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SampleSearchCriterion;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SampleSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
 /**
  * @author pkupczyk
  */
-public interface ISearchSampleExecutor extends ISearchObjectExecutor<SampleSearchCriterion, SamplePE>
+public interface ISearchSampleExecutor extends ISearchObjectExecutor<SampleSearchCriteria, SamplePE>
 {
 
 }

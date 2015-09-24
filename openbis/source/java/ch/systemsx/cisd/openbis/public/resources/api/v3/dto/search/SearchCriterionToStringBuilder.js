@@ -1,11 +1,11 @@
 /**
  * @author pkupczyk
  */
-define([ "stjs", "dto/search/AbstractCompositeSearchCriterion" ], function(stjs, AbstractCompositeSearchCriterion) {
-	var SearchCriterionToStringBuilder = function() {
+define([ "stjs", "dto/search/AbstractCompositeSearchCriteria" ], function(stjs, AbstractCompositeSearchCriteria) {
+	var SearchCriteriaToStringBuilder = function() {
 	};
-	stjs.extend(SearchCriterionToStringBuilder, null, [], function(constructor, prototype) {
-		prototype['@type'] = 'dto.search.SearchCriterionToStringBuilder';
+	stjs.extend(SearchCriteriaToStringBuilder, null, [], function(constructor, prototype) {
+		prototype['@type'] = 'dto.search.SearchCriteriaToStringBuilder';
 		prototype.name = null;
 		prototype.operator = null;
 		prototype.criteria = null;
@@ -35,7 +35,7 @@ define([ "stjs", "dto/search/AbstractCompositeSearchCriterion" ], function(stjs,
 				sb.append(indentation + "with operator '" + this.operator + "'\n");
 			}
 			for ( var criterion in this.criteria) {
-				if (stjs.isInstanceOf(criterion.constructor, AbstractCompositeSearchCriterion)) {
+				if (stjs.isInstanceOf(criterion.constructor, AbstractCompositeSearchCriteria)) {
 					var compositeCriterion = criterion;
 					sb.append(compositeCriterion.toString(indentation));
 				} else {
@@ -51,8 +51,8 @@ define([ "stjs", "dto/search/AbstractCompositeSearchCriterion" ], function(stjs,
 		},
 		criteria : {
 			name : "Collection",
-			arguments : [ "ISearchCriterion" ]
+			arguments : [ "ISearchCriteria" ]
 		}
 	});
-	return SearchCriterionToStringBuilder;
+	return SearchCriteriaToStringBuilder;
 })

@@ -37,7 +37,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SamplePermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.SpacePermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.TagCode;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.TagPermId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SampleSearchCriterion;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SampleSearchCriteria;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SearchResult;
 
 /**
@@ -49,483 +49,483 @@ public class SearchSampleTest extends AbstractSampleTest
     @Test
     public void testSearchWithIdSetToIdentifier()
     {
-        SampleSearchCriterion criterion = new SampleSearchCriterion();
-        criterion.withId().thatEquals(new SampleIdentifier("/CISD/CP-TEST-1"));
-        testSearch(TEST_USER, criterion, "/CISD/CP-TEST-1");
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withId().thatEquals(new SampleIdentifier("/CISD/CP-TEST-1"));
+        testSearch(TEST_USER, criteria, "/CISD/CP-TEST-1");
     }
 
     @Test
     public void testSearchWithIdSetToPermId()
     {
-        SampleSearchCriterion criterion = new SampleSearchCriterion();
-        criterion.withId().thatEquals(new SamplePermId("200902091219327-1025"));
-        testSearch(TEST_USER, criterion, "/CISD/CP-TEST-1");
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withId().thatEquals(new SamplePermId("200902091219327-1025"));
+        testSearch(TEST_USER, criteria, "/CISD/CP-TEST-1");
     }
 
     @Test
     public void testSearchWithMultipleIds()
     {
-        SampleSearchCriterion criterion = new SampleSearchCriterion();
-        criterion.withOrOperator();
-        criterion.withId().thatEquals(new SampleIdentifier("/CISD/CP-TEST-1"));
-        criterion.withId().thatEquals(new SamplePermId("200902091250077-1026"));
-        testSearch(TEST_USER, criterion, "/CISD/CP-TEST-1", "/CISD/CP-TEST-2");
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withOrOperator();
+        criteria.withId().thatEquals(new SampleIdentifier("/CISD/CP-TEST-1"));
+        criteria.withId().thatEquals(new SamplePermId("200902091250077-1026"));
+        testSearch(TEST_USER, criteria, "/CISD/CP-TEST-1", "/CISD/CP-TEST-2");
     }
 
     @Test
     public void testSearchWithPermId()
     {
-        SampleSearchCriterion criterion = new SampleSearchCriterion();
-        criterion.withPermId().thatEquals("200902091219327-1025");
-        testSearch(TEST_USER, criterion, "/CISD/CP-TEST-1");
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withPermId().thatEquals("200902091219327-1025");
+        testSearch(TEST_USER, criteria, "/CISD/CP-TEST-1");
     }
 
     @Test
     public void testSearchWithCode()
     {
-        SampleSearchCriterion criterion = new SampleSearchCriterion();
-        criterion.withCode().thatEquals("RP1-A2X");
-        testSearch(TEST_USER, criterion, "/CISD/RP1-A2X");
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withCode().thatEquals("RP1-A2X");
+        testSearch(TEST_USER, criteria, "/CISD/RP1-A2X");
     }
 
     @Test
     public void testSearchWithSpaceWithIdSetToPermId()
     {
-        SampleSearchCriterion criterion = new SampleSearchCriterion();
-        criterion.withSpace().withId().thatEquals(new SpacePermId("TEST-SPACE"));
-        testSearch(TEST_USER, criterion, 8);
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withSpace().withId().thatEquals(new SpacePermId("TEST-SPACE"));
+        testSearch(TEST_USER, criteria, 8);
     }
 
     @Test
     public void testSearchWithSpaceWithCode()
     {
-        SampleSearchCriterion criterion = new SampleSearchCriterion();
-        criterion.withSpace().withCode().thatEquals("TEST-SPACE");
-        testSearch(TEST_USER, criterion, 8);
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withSpace().withCode().thatEquals("TEST-SPACE");
+        testSearch(TEST_USER, criteria, 8);
     }
 
     @Test
     public void testSearchWithSpaceWithPermId()
     {
-        SampleSearchCriterion criterion = new SampleSearchCriterion();
-        criterion.withSpace().withPermId().thatEquals("TEST-SPACE");
-        testSearch(TEST_USER, criterion, 8);
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withSpace().withPermId().thatEquals("TEST-SPACE");
+        testSearch(TEST_USER, criteria, 8);
 
-        criterion = new SampleSearchCriterion();
-        criterion.withSpace().withPermId().thatEquals("/TEST-SPACE");
-        testSearch(TEST_USER, criterion, 8);
+        criteria = new SampleSearchCriteria();
+        criteria.withSpace().withPermId().thatEquals("/TEST-SPACE");
+        testSearch(TEST_USER, criteria, 8);
     }
 
     @Test
     public void testSearchWithSpaceUnauthorized()
     {
-        SampleSearchCriterion criterion = new SampleSearchCriterion();
-        criterion.withPermId().thatEquals("200902091219327-1025");
-        testSearch(TEST_USER, criterion, 1);
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withPermId().thatEquals("200902091219327-1025");
+        testSearch(TEST_USER, criteria, 1);
 
-        criterion = new SampleSearchCriterion();
-        criterion.withPermId().thatEquals("200902091219327-1025");
-        testSearch(TEST_SPACE_USER, criterion, 0);
+        criteria = new SampleSearchCriteria();
+        criteria.withPermId().thatEquals("200902091219327-1025");
+        testSearch(TEST_SPACE_USER, criteria, 0);
     }
 
     @Test
     public void testSearchWithCodeInContainer()
     {
-        SampleSearchCriterion criterion = new SampleSearchCriterion();
-        criterion.withCode().thatEquals("PLATE_WELLSEARCH:WELL-A01");
-        testSearch(TEST_USER, criterion, "/CISD/PLATE_WELLSEARCH:WELL-A01");
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withCode().thatEquals("PLATE_WELLSEARCH:WELL-A01");
+        testSearch(TEST_USER, criteria, "/CISD/PLATE_WELLSEARCH:WELL-A01");
     }
 
     @Test
     public void testSearchWithTypeIdSetToPermId()
     {
-        SampleSearchCriterion criterion = new SampleSearchCriterion();
-        criterion.withType().withId().thatEquals(new EntityTypePermId("REINFECT_PLATE"));
-        testSearch(TEST_USER, criterion, "/CISD/RP1-A2X", "/CISD/RP1-B1X", "/CISD/RP2-A1X");
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withType().withId().thatEquals(new EntityTypePermId("REINFECT_PLATE"));
+        testSearch(TEST_USER, criteria, "/CISD/RP1-A2X", "/CISD/RP1-B1X", "/CISD/RP2-A1X");
     }
 
     @Test
     public void testSearchWithTypeWithCode()
     {
-        SampleSearchCriterion criterion = new SampleSearchCriterion();
-        criterion.withType().withCode().thatEquals("REINFECT_PLATE");
-        testSearch(TEST_USER, criterion, "/CISD/RP1-A2X", "/CISD/RP1-B1X", "/CISD/RP2-A1X");
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withType().withCode().thatEquals("REINFECT_PLATE");
+        testSearch(TEST_USER, criteria, "/CISD/RP1-A2X", "/CISD/RP1-B1X", "/CISD/RP2-A1X");
     }
 
     @Test
     public void testSearchWithTypeWithPermId()
     {
-        SampleSearchCriterion criterion = new SampleSearchCriterion();
-        criterion.withType().withPermId().thatEquals("REINFECT_PLATE");
-        testSearch(TEST_USER, criterion, "/CISD/RP1-A2X", "/CISD/RP1-B1X", "/CISD/RP2-A1X");
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withType().withPermId().thatEquals("REINFECT_PLATE");
+        testSearch(TEST_USER, criteria, "/CISD/RP1-A2X", "/CISD/RP1-B1X", "/CISD/RP2-A1X");
     }
 
     @Test
     public void testSearchWithExperiment()
     {
-        SampleSearchCriterion criterion = new SampleSearchCriterion();
-        criterion.withCode().thatContains("A01");
-        criterion.withExperiment();
-        testSearch(TEST_USER, criterion, "/CISD/PLATE_WELLSEARCH:WELL-A01");
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withCode().thatContains("A01");
+        criteria.withExperiment();
+        testSearch(TEST_USER, criteria, "/CISD/PLATE_WELLSEARCH:WELL-A01");
     }
 
     @Test
     public void testSearchWithoutExperiment()
     {
-        SampleSearchCriterion criterion = new SampleSearchCriterion();
-        criterion.withCode().thatContains("A01");
-        criterion.withoutExperiment();
-        testSearch(TEST_USER, criterion, "/CISD/CL1:A01", "/CISD/MP2-NO-CL:A01", "/CISD/CL-3V:A01", "/CISD/MP1-MIXED:A01");
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withCode().thatContains("A01");
+        criteria.withoutExperiment();
+        testSearch(TEST_USER, criteria, "/CISD/CL1:A01", "/CISD/MP2-NO-CL:A01", "/CISD/CL-3V:A01", "/CISD/MP1-MIXED:A01");
     }
 
     @Test
     public void testSearchWithExperimentWithIdSetToIdentifier()
     {
-        SampleSearchCriterion criterion = new SampleSearchCriterion();
-        criterion.withExperiment().withId().thatEquals(new ExperimentIdentifier("/CISD/NEMO/EXP10"));
-        testSearch(TEST_USER, criterion, "/CISD/3VCP5");
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withExperiment().withId().thatEquals(new ExperimentIdentifier("/CISD/NEMO/EXP10"));
+        testSearch(TEST_USER, criteria, "/CISD/3VCP5");
     }
 
     @Test
     public void testSearchWithExperimentWithIdSetToPermId()
     {
-        SampleSearchCriterion criterion = new SampleSearchCriterion();
-        criterion.withExperiment().withId().thatEquals(new ExperimentPermId("200811050952663-1029"));
-        testSearch(TEST_USER, criterion, "/CISD/3VCP5");
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withExperiment().withId().thatEquals(new ExperimentPermId("200811050952663-1029"));
+        testSearch(TEST_USER, criteria, "/CISD/3VCP5");
     }
 
     @Test
     public void testSearchWithExperimentWithPermId()
     {
-        SampleSearchCriterion criterion = new SampleSearchCriterion();
-        criterion.withExperiment().withPermId().thatEquals("200811050952663-1029");
-        testSearch(TEST_USER, criterion, "/CISD/3VCP5");
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withExperiment().withPermId().thatEquals("200811050952663-1029");
+        testSearch(TEST_USER, criteria, "/CISD/3VCP5");
     }
 
     @Test
     public void testSearchWithExperimentWithCode()
     {
-        SampleSearchCriterion criterion = new SampleSearchCriterion();
-        criterion.withExperiment().withCode().thatEquals("EXP-TEST-1");
-        testSearch(TEST_USER, criterion, "/CISD/CP-TEST-1", "/CISD/DYNA-TEST-1");
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withExperiment().withCode().thatEquals("EXP-TEST-1");
+        testSearch(TEST_USER, criteria, "/CISD/CP-TEST-1", "/CISD/DYNA-TEST-1");
     }
 
     @Test
     public void testSearchWithExperimentWithTypeIdSetToPermId()
     {
-        SampleSearchCriterion criterion = new SampleSearchCriterion();
-        criterion.withExperiment().withType().withId().thatEquals(new EntityTypePermId("COMPOUND_HCS"));
-        testSearch(TEST_USER, criterion, "/CISD/CP-TEST-1", "/CISD/CP-TEST-2", "/CISD/DYNA-TEST-1");
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withExperiment().withType().withId().thatEquals(new EntityTypePermId("COMPOUND_HCS"));
+        testSearch(TEST_USER, criteria, "/CISD/CP-TEST-1", "/CISD/CP-TEST-2", "/CISD/DYNA-TEST-1");
     }
 
     @Test
     public void testSearchWithExperimentWithTypeWithCode()
     {
-        SampleSearchCriterion criterion = new SampleSearchCriterion();
-        criterion.withExperiment().withType().withCode().thatEquals("COMPOUND_HCS");
-        testSearch(TEST_USER, criterion, "/CISD/CP-TEST-1", "/CISD/CP-TEST-2", "/CISD/DYNA-TEST-1");
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withExperiment().withType().withCode().thatEquals("COMPOUND_HCS");
+        testSearch(TEST_USER, criteria, "/CISD/CP-TEST-1", "/CISD/CP-TEST-2", "/CISD/DYNA-TEST-1");
     }
 
     @Test
     public void testSearchWithExperimentWithTypeWithPermId()
     {
-        SampleSearchCriterion criterion = new SampleSearchCriterion();
-        criterion.withExperiment().withType().withPermId().thatEquals("COMPOUND_HCS");
-        testSearch(TEST_USER, criterion, "/CISD/CP-TEST-1", "/CISD/CP-TEST-2", "/CISD/DYNA-TEST-1");
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withExperiment().withType().withPermId().thatEquals("COMPOUND_HCS");
+        testSearch(TEST_USER, criteria, "/CISD/CP-TEST-1", "/CISD/CP-TEST-2", "/CISD/DYNA-TEST-1");
     }
 
     @Test
     public void testSearchWithExperimentWithProjectWithIdSetToIdentifier()
     {
-        SampleSearchCriterion criterion = new SampleSearchCriterion();
-        criterion.withExperiment().withProject().withId().thatEquals(new ProjectIdentifier("/TEST-SPACE/NOE"));
-        testSearch(TEST_USER, criterion, "/TEST-SPACE/CP-TEST-4");
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withExperiment().withProject().withId().thatEquals(new ProjectIdentifier("/TEST-SPACE/NOE"));
+        testSearch(TEST_USER, criteria, "/TEST-SPACE/CP-TEST-4");
     }
 
     @Test
     public void testSearchWithExperimentWithProjectWithIdSetToPermId()
     {
-        SampleSearchCriterion criterion = new SampleSearchCriterion();
-        criterion.withExperiment().withProject().withId().thatEquals(new ProjectPermId("20120814110011738-106"));
-        testSearch(TEST_USER, criterion, "/TEST-SPACE/CP-TEST-4");
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withExperiment().withProject().withId().thatEquals(new ProjectPermId("20120814110011738-106"));
+        testSearch(TEST_USER, criteria, "/TEST-SPACE/CP-TEST-4");
     }
 
     @Test
     public void testSearchWithExperimentWithProjectWithCode()
     {
-        SampleSearchCriterion criterion = new SampleSearchCriterion();
-        criterion.withExperiment().withProject().withCode().thatEquals("NOE");
-        testSearch(TEST_USER, criterion, "/CISD/CP-TEST-2", "/TEST-SPACE/CP-TEST-4");
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withExperiment().withProject().withCode().thatEquals("NOE");
+        testSearch(TEST_USER, criteria, "/CISD/CP-TEST-2", "/TEST-SPACE/CP-TEST-4");
     }
 
     @Test
     public void testSearchWithExperimentWithProjectWithPermId()
     {
-        SampleSearchCriterion criterion = new SampleSearchCriterion();
-        criterion.withExperiment().withProject().withId().thatEquals(new ProjectPermId("20120814110011738-106"));
-        testSearch(TEST_USER, criterion, "/TEST-SPACE/CP-TEST-4");
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withExperiment().withProject().withId().thatEquals(new ProjectPermId("20120814110011738-106"));
+        testSearch(TEST_USER, criteria, "/TEST-SPACE/CP-TEST-4");
     }
 
     @Test
     public void testSearchWithExperimentWithProjectWithSpaceWithIdSetToPermId()
     {
-        SampleSearchCriterion criterion = new SampleSearchCriterion();
-        criterion.withExperiment().withProject().withSpace().withId().thatEquals(new SpacePermId("TEST-SPACE"));
-        testSearch(TEST_USER, criterion, 8);
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withExperiment().withProject().withSpace().withId().thatEquals(new SpacePermId("TEST-SPACE"));
+        testSearch(TEST_USER, criteria, 8);
 
-        criterion = new SampleSearchCriterion();
-        criterion.withExperiment().withProject().withSpace().withId().thatEquals(new SpacePermId("/TEST-SPACE"));
-        testSearch(TEST_USER, criterion, 8);
+        criteria = new SampleSearchCriteria();
+        criteria.withExperiment().withProject().withSpace().withId().thatEquals(new SpacePermId("/TEST-SPACE"));
+        testSearch(TEST_USER, criteria, 8);
     }
 
     @Test
     public void testSearchWithExperimentWithProjectWithSpaceWithCode()
     {
-        SampleSearchCriterion criterion = new SampleSearchCriterion();
-        criterion.withExperiment().withProject().withSpace().withCode().thatEquals("TEST-SPACE");
-        testSearch(TEST_USER, criterion, 8);
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withExperiment().withProject().withSpace().withCode().thatEquals("TEST-SPACE");
+        testSearch(TEST_USER, criteria, 8);
     }
 
     @Test
     public void testSearchWithExperimentWithProjectWithSpaceWithPermId()
     {
-        SampleSearchCriterion criterion = new SampleSearchCriterion();
-        criterion.withExperiment().withProject().withSpace().withPermId().thatEquals("TEST-SPACE");
-        testSearch(TEST_USER, criterion, 8);
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withExperiment().withProject().withSpace().withPermId().thatEquals("TEST-SPACE");
+        testSearch(TEST_USER, criteria, 8);
 
-        criterion = new SampleSearchCriterion();
-        criterion.withExperiment().withProject().withSpace().withPermId().thatEquals("/TEST-SPACE");
-        testSearch(TEST_USER, criterion, 8);
+        criteria = new SampleSearchCriteria();
+        criteria.withExperiment().withProject().withSpace().withPermId().thatEquals("/TEST-SPACE");
+        testSearch(TEST_USER, criteria, 8);
     }
 
     @Test
     public void testSearchWithParentWithIdSetToIdentifier()
     {
-        SampleSearchCriterion criterion = new SampleSearchCriterion();
-        criterion.withParents().withId().thatEquals(new SampleIdentifier("/CISD/MP002-1"));
-        testSearch(TEST_USER, criterion, "/CISD/3V-125", "/CISD/3V-126");
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withParents().withId().thatEquals(new SampleIdentifier("/CISD/MP002-1"));
+        testSearch(TEST_USER, criteria, "/CISD/3V-125", "/CISD/3V-126");
     }
 
     @Test
     public void testSearchWithParentWithIdSetToPermId()
     {
-        SampleSearchCriterion criterion = new SampleSearchCriterion();
-        criterion.withParents().withId().thatEquals(new SamplePermId("200811050917877-331"));
-        testSearch(TEST_USER, criterion, "/CISD/3V-125", "/CISD/3V-126");
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withParents().withId().thatEquals(new SamplePermId("200811050917877-331"));
+        testSearch(TEST_USER, criteria, "/CISD/3V-125", "/CISD/3V-126");
     }
 
     @Test
     public void testSearchWithParentWithPermId()
     {
-        SampleSearchCriterion criterion = new SampleSearchCriterion();
-        criterion.withParents().withPermId().thatEquals("200811050917877-331");
-        testSearch(TEST_USER, criterion, "/CISD/3V-125", "/CISD/3V-126");
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withParents().withPermId().thatEquals("200811050917877-331");
+        testSearch(TEST_USER, criteria, "/CISD/3V-125", "/CISD/3V-126");
     }
 
     @Test
     public void testSearchWithParentWithCode()
     {
-        SampleSearchCriterion criterion = new SampleSearchCriterion();
-        criterion.withParents().withCode().thatEquals("MP002-1");
-        testSearch(TEST_USER, criterion, "/CISD/3V-125", "/CISD/3V-126");
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withParents().withCode().thatEquals("MP002-1");
+        testSearch(TEST_USER, criteria, "/CISD/3V-125", "/CISD/3V-126");
     }
 
     @Test
     public void testSearchWithChildrenWithIdSetToIdentifier()
     {
-        SampleSearchCriterion criterion = new SampleSearchCriterion();
-        criterion.withChildren().withId().thatEquals(new SampleIdentifier("/CISD/3VCP6"));
-        testSearch(TEST_USER, criterion, "/CISD/3V-125", "/CISD/CL-3V:A02");
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withChildren().withId().thatEquals(new SampleIdentifier("/CISD/3VCP6"));
+        testSearch(TEST_USER, criteria, "/CISD/3V-125", "/CISD/CL-3V:A02");
     }
 
     @Test
     public void testSearchWithChildrenWithIdSetToPermId()
     {
-        SampleSearchCriterion criterion = new SampleSearchCriterion();
-        criterion.withChildren().withId().thatEquals(new SamplePermId("200811050946559-980"));
-        testSearch(TEST_USER, criterion, "/CISD/3V-125", "/CISD/CL-3V:A02");
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withChildren().withId().thatEquals(new SamplePermId("200811050946559-980"));
+        testSearch(TEST_USER, criteria, "/CISD/3V-125", "/CISD/CL-3V:A02");
     }
 
     @Test
     public void testSearchWithChildrenWithPermId()
     {
-        SampleSearchCriterion criterion = new SampleSearchCriterion();
-        criterion.withChildren().withPermId().thatEquals("200811050946559-980");
-        testSearch(TEST_USER, criterion, "/CISD/3V-125", "/CISD/CL-3V:A02");
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withChildren().withPermId().thatEquals("200811050946559-980");
+        testSearch(TEST_USER, criteria, "/CISD/3V-125", "/CISD/CL-3V:A02");
     }
 
     @Test
     public void testSearchWithChildrenWithCode()
     {
-        SampleSearchCriterion criterion = new SampleSearchCriterion();
-        criterion.withChildren().withCode().thatEquals("3VCP6");
-        testSearch(TEST_USER, criterion, "/CISD/3V-125", "/CISD/CL-3V:A02");
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withChildren().withCode().thatEquals("3VCP6");
+        testSearch(TEST_USER, criteria, "/CISD/3V-125", "/CISD/CL-3V:A02");
     }
 
     @Test
     public void testSearchWithContainer()
     {
-        SampleSearchCriterion criterion = new SampleSearchCriterion();
-        criterion.withCode().thatContains("WELL");
-        criterion.withContainer();
-        testSearch(TEST_USER, criterion, "/CISD/PLATE_WELLSEARCH:WELL-A01", "/CISD/PLATE_WELLSEARCH:WELL-A02");
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withCode().thatContains("WELL");
+        criteria.withContainer();
+        testSearch(TEST_USER, criteria, "/CISD/PLATE_WELLSEARCH:WELL-A01", "/CISD/PLATE_WELLSEARCH:WELL-A02");
     }
 
     @Test
     public void testSearchWithoutContainer()
     {
-        SampleSearchCriterion criterion = new SampleSearchCriterion();
-        criterion.withCode().thatContains("A1");
-        criterion.withoutContainer();
-        testSearch(TEST_USER, criterion, "/CISD/CP1-A1", "/CISD/CP2-A1", "/CISD/RP2-A1X");
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withCode().thatContains("A1");
+        criteria.withoutContainer();
+        testSearch(TEST_USER, criteria, "/CISD/CP1-A1", "/CISD/CP2-A1", "/CISD/RP2-A1X");
     }
 
     @Test
     public void testSearchWithContainerWithIdSetToPermId()
     {
-        SampleSearchCriterion criterion = new SampleSearchCriterion();
-        criterion.withContainer().withId().thatEquals(new SamplePermId("200811050924274-994"));
-        testSearch(TEST_USER, criterion, "/CISD/B1B3:B01", "/CISD/B1B3:B03");
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withContainer().withId().thatEquals(new SamplePermId("200811050924274-994"));
+        testSearch(TEST_USER, criteria, "/CISD/B1B3:B01", "/CISD/B1B3:B03");
     }
 
     @Test
     public void testSearchWithContainerWithIdSetToIdentifier()
     {
-        SampleSearchCriterion criterion = new SampleSearchCriterion();
-        criterion.withContainer().withId().thatEquals(new SampleIdentifier("/CISD/B1B3"));
-        testSearch(TEST_USER, criterion, "/CISD/B1B3:B01", "/CISD/B1B3:B03");
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withContainer().withId().thatEquals(new SampleIdentifier("/CISD/B1B3"));
+        testSearch(TEST_USER, criteria, "/CISD/B1B3:B01", "/CISD/B1B3:B03");
     }
 
     @Test
     public void testSearchWithContainerWithPermId()
     {
-        SampleSearchCriterion criterion = new SampleSearchCriterion();
-        criterion.withContainer().withPermId().thatEquals("200811050924274-994");
-        testSearch(TEST_USER, criterion, "/CISD/B1B3:B01", "/CISD/B1B3:B03");
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withContainer().withPermId().thatEquals("200811050924274-994");
+        testSearch(TEST_USER, criteria, "/CISD/B1B3:B01", "/CISD/B1B3:B03");
     }
 
     @Test
     public void testSearchWithContainerWithCode()
     {
-        SampleSearchCriterion criterion = new SampleSearchCriterion();
-        criterion.withContainer().withCode().thatEquals("B1B3");
-        testSearch(TEST_USER, criterion, "/CISD/B1B3:B01", "/CISD/B1B3:B03");
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withContainer().withCode().thatEquals("B1B3");
+        testSearch(TEST_USER, criteria, "/CISD/B1B3:B01", "/CISD/B1B3:B03");
     }
 
     @Test
     public void testSearchWithTagWithIdSetToPermId()
     {
-        SampleSearchCriterion criterion = new SampleSearchCriterion();
-        criterion.withTag().withId().thatEquals(new TagPermId("/test/TEST_METAPROJECTS"));
-        testSearch(TEST_USER, criterion, "/TEST-SPACE/EV-TEST");
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withTag().withId().thatEquals(new TagPermId("/test/TEST_METAPROJECTS"));
+        testSearch(TEST_USER, criteria, "/TEST-SPACE/EV-TEST");
     }
 
     @Test
     public void testSearchWithTagWithIdSetToCodeId()
     {
-        SampleSearchCriterion criterion = new SampleSearchCriterion();
-        criterion.withTag().withId().thatEquals(new TagCode("TEST_METAPROJECTS"));
-        testSearch(TEST_USER, criterion, "/TEST-SPACE/EV-TEST");
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withTag().withId().thatEquals(new TagCode("TEST_METAPROJECTS"));
+        testSearch(TEST_USER, criteria, "/TEST-SPACE/EV-TEST");
     }
 
     @Test
     public void testSearchWithTagWithCode()
     {
-        SampleSearchCriterion criterion = new SampleSearchCriterion();
-        criterion.withTag().withCode().thatEquals("TEST_METAPROJECTS");
-        testSearch(TEST_USER, criterion, "/TEST-SPACE/EV-TEST");
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withTag().withCode().thatEquals("TEST_METAPROJECTS");
+        testSearch(TEST_USER, criteria, "/TEST-SPACE/EV-TEST");
     }
 
     @Test
     public void testSearchWithTagWithPermId()
     {
-        SampleSearchCriterion criterion = new SampleSearchCriterion();
-        criterion.withTag().withPermId().thatEquals("/test/TEST_METAPROJECTS");
-        testSearch(TEST_USER, criterion, "/TEST-SPACE/EV-TEST");
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withTag().withPermId().thatEquals("/test/TEST_METAPROJECTS");
+        testSearch(TEST_USER, criteria, "/TEST-SPACE/EV-TEST");
     }
 
     @Test
     public void testSearchWithTagWithPermIdUnauthorized()
     {
-        final SampleSearchCriterion criterion = new SampleSearchCriterion();
-        criterion.withTag().withCode().thatEquals("/test/TEST_METAPROJECTS");
-        testSearch(TEST_SPACE_USER, criterion, 0);
+        final SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withTag().withCode().thatEquals("/test/TEST_METAPROJECTS");
+        testSearch(TEST_SPACE_USER, criteria, 0);
     }
 
     @Test
     public void testSearchWithRegistrationDateThatEquals()
     {
-        SampleSearchCriterion criterion = new SampleSearchCriterion();
-        criterion.withRegistrationDate().thatEquals("2009-02-09");
-        testSearch(TEST_USER, criterion, 15);
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withRegistrationDate().thatEquals("2009-02-09");
+        testSearch(TEST_USER, criteria, 15);
     }
 
     @Test
     public void testSearchWithModificationDateThatEquals()
     {
-        SampleSearchCriterion criterion = new SampleSearchCriterion();
-        criterion.withModificationDate().thatEquals("2009-08-18");
-        testSearch(TEST_USER, criterion, 14);
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withModificationDate().thatEquals("2009-08-18");
+        testSearch(TEST_USER, criteria, 14);
     }
 
     @Test
     public void testSearchWithAnyFieldMatchingProperty()
     {
-        SampleSearchCriterion criterion = new SampleSearchCriterion();
-        criterion.withAnyField().thatEquals("\"very advanced stuff\"");
-        testSearch(TEST_USER, criterion, "/CISD/CP-TEST-1");
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withAnyField().thatEquals("\"very advanced stuff\"");
+        testSearch(TEST_USER, criteria, "/CISD/CP-TEST-1");
     }
 
     @Test
     public void testSearchWithAnyFieldMatchingAttribute()
     {
-        SampleSearchCriterion criterion = new SampleSearchCriterion();
-        criterion.withAnyField().thatEquals("\"CP-TEST-2\"");
-        testSearch(TEST_USER, criterion, "/CISD/CP-TEST-2");
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withAnyField().thatEquals("\"CP-TEST-2\"");
+        testSearch(TEST_USER, criteria, "/CISD/CP-TEST-2");
     }
 
     @Test
     public void testSearchWithAnyProperty()
     {
-        SampleSearchCriterion criterion = new SampleSearchCriterion();
-        criterion.withAnyProperty().thatEquals("\"very advanced\"");
-        testSearch(TEST_USER, criterion, "/CISD/CP-TEST-1");
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withAnyProperty().thatEquals("\"very advanced\"");
+        testSearch(TEST_USER, criteria, "/CISD/CP-TEST-1");
     }
 
     @Test
     public void testSearchWithAndOperator()
     {
-        SampleSearchCriterion criterion = new SampleSearchCriterion();
-        criterion.withAndOperator();
-        criterion.withCode().thatStartsWith("CP");
-        criterion.withCode().thatEndsWith("-1");
-        testSearch(TEST_USER, criterion, "/CISD/CP-TEST-1");
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withAndOperator();
+        criteria.withCode().thatStartsWith("CP");
+        criteria.withCode().thatEndsWith("-1");
+        testSearch(TEST_USER, criteria, "/CISD/CP-TEST-1");
     }
 
     @Test
     public void testSearchWithOrOperator()
     {
-        SampleSearchCriterion criterion = new SampleSearchCriterion();
-        criterion.withOrOperator();
-        criterion.withPermId().thatEquals("200902091219327-1025");
-        criterion.withPermId().thatEquals("200902091250077-1026");
-        testSearch(TEST_USER, criterion, "/CISD/CP-TEST-1", "/CISD/CP-TEST-2");
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withOrOperator();
+        criteria.withPermId().thatEquals("200902091219327-1025");
+        criteria.withPermId().thatEquals("200902091250077-1026");
+        testSearch(TEST_USER, criteria, "/CISD/CP-TEST-1", "/CISD/CP-TEST-2");
     }
 
     @Test
     public void testSearchWithCachingNoCache()
     {
-        SampleSearchCriterion criterion = new SampleSearchCriterion();
-        criterion.withOrOperator();
-        criterion.withPermId().thatEquals("200902091219327-1025");
-        criterion.withPermId().thatEquals("200902091250077-1026");
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withOrOperator();
+        criteria.withPermId().thatEquals("200902091219327-1025");
+        criteria.withPermId().thatEquals("200902091250077-1026");
 
         SampleFetchOptions fo = new SampleFetchOptions();
         fo.cacheMode(CacheMode.NO_CACHE);
 
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
-        List<Sample> samples1 = search(sessionToken, criterion, fo);
-        List<Sample> samples2 = search(sessionToken, criterion, fo);
+        List<Sample> samples1 = search(sessionToken, criteria, fo);
+        List<Sample> samples2 = search(sessionToken, criteria, fo);
         v3api.logout(sessionToken);
 
         assertEquals(samples1.get(0).getPermId(), samples2.get(0).getPermId());
@@ -538,17 +538,17 @@ public class SearchSampleTest extends AbstractSampleTest
     @Test
     public void testSearchWithCachingCache()
     {
-        SampleSearchCriterion criterion = new SampleSearchCriterion();
-        criterion.withOrOperator();
-        criterion.withPermId().thatEquals("200902091219327-1025");
-        criterion.withPermId().thatEquals("200902091250077-1026");
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withOrOperator();
+        criteria.withPermId().thatEquals("200902091219327-1025");
+        criteria.withPermId().thatEquals("200902091250077-1026");
 
         SampleFetchOptions fo = new SampleFetchOptions();
         fo.cacheMode(CacheMode.CACHE);
 
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
-        List<Sample> samples1 = search(sessionToken, criterion, fo);
-        List<Sample> samples2 = search(sessionToken, criterion, fo);
+        List<Sample> samples1 = search(sessionToken, criteria, fo);
+        List<Sample> samples2 = search(sessionToken, criteria, fo);
         v3api.logout(sessionToken);
 
         assertEquals(samples1.get(0).getPermId(), samples2.get(0).getPermId());
@@ -561,23 +561,23 @@ public class SearchSampleTest extends AbstractSampleTest
     @Test
     public void testSearchWithCachingReloadAndCache()
     {
-        SampleSearchCriterion criterion = new SampleSearchCriterion();
-        criterion.withOrOperator();
-        criterion.withPermId().thatEquals("200902091219327-1025");
-        criterion.withPermId().thatEquals("200902091250077-1026");
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withOrOperator();
+        criteria.withPermId().thatEquals("200902091219327-1025");
+        criteria.withPermId().thatEquals("200902091250077-1026");
 
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         SampleFetchOptions fo = new SampleFetchOptions();
 
         fo.cacheMode(CacheMode.CACHE);
-        List<Sample> samples1 = search(sessionToken, criterion, fo);
-        List<Sample> samples2 = search(sessionToken, criterion, fo);
+        List<Sample> samples1 = search(sessionToken, criteria, fo);
+        List<Sample> samples2 = search(sessionToken, criteria, fo);
 
         fo.cacheMode(CacheMode.RELOAD_AND_CACHE);
-        List<Sample> samples3 = search(sessionToken, criterion, fo);
+        List<Sample> samples3 = search(sessionToken, criteria, fo);
 
         fo.cacheMode(CacheMode.CACHE);
-        List<Sample> samples4 = search(sessionToken, criterion, fo);
+        List<Sample> samples4 = search(sessionToken, criteria, fo);
 
         v3api.logout(sessionToken);
 
@@ -600,22 +600,22 @@ public class SearchSampleTest extends AbstractSampleTest
     @Test
     public void testSearchWithSortingByCode()
     {
-        SampleSearchCriterion criterion = new SampleSearchCriterion();
-        criterion.withOrOperator();
-        criterion.withPermId().thatEquals("200902091219327-1025");
-        criterion.withPermId().thatEquals("200902091225616-1027");
-        criterion.withPermId().thatEquals("200902091250077-1026");
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withOrOperator();
+        criteria.withPermId().thatEquals("200902091219327-1025");
+        criteria.withPermId().thatEquals("200902091225616-1027");
+        criteria.withPermId().thatEquals("200902091250077-1026");
 
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         SampleFetchOptions fo = new SampleFetchOptions();
 
         fo.sortBy().code().asc();
-        List<Sample> samples1 = search(sessionToken, criterion, fo);
+        List<Sample> samples1 = search(sessionToken, criteria, fo);
         assertSampleIdentifiersInOrder(samples1, "/CISD/CP-TEST-1", "/CISD/CP-TEST-2", "/CISD/CP-TEST-3");
 
         fo.sortBy().code().desc();
-        List<Sample> samples2 = search(sessionToken, criterion, fo);
+        List<Sample> samples2 = search(sessionToken, criteria, fo);
         assertSampleIdentifiersInOrder(samples2, "/CISD/CP-TEST-3", "/CISD/CP-TEST-2", "/CISD/CP-TEST-1");
 
         v3api.logout(sessionToken);
@@ -624,21 +624,21 @@ public class SearchSampleTest extends AbstractSampleTest
     @Test
     public void testSearchWithSortingByRegistrationDate()
     {
-        SampleSearchCriterion criterion = new SampleSearchCriterion();
-        criterion.withOrOperator();
-        criterion.withPermId().thatEquals("200811050924274-995");
-        criterion.withPermId().thatEquals("200811050927630-1004");
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withOrOperator();
+        criteria.withPermId().thatEquals("200811050924274-995");
+        criteria.withPermId().thatEquals("200811050927630-1004");
 
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         SampleFetchOptions fo = new SampleFetchOptions();
 
         fo.sortBy().registrationDate().asc();
-        List<Sample> samples1 = search(sessionToken, criterion, fo);
+        List<Sample> samples1 = search(sessionToken, criteria, fo);
         assertSampleIdentifiersInOrder(samples1, "/CISD/B1B3:B01", "/CISD/MP1-MIXED:A01");
 
         fo.sortBy().registrationDate().desc();
-        List<Sample> samples2 = search(sessionToken, criterion, fo);
+        List<Sample> samples2 = search(sessionToken, criteria, fo);
         assertSampleIdentifiersInOrder(samples2, "/CISD/MP1-MIXED:A01", "/CISD/B1B3:B01");
 
         v3api.logout(sessionToken);
@@ -647,21 +647,21 @@ public class SearchSampleTest extends AbstractSampleTest
     @Test
     public void testSearchWithSortingByModificationDate()
     {
-        SampleSearchCriterion criterion = new SampleSearchCriterion();
-        criterion.withOrOperator();
-        criterion.withPermId().thatEquals("200902091219327-1025");
-        criterion.withPermId().thatEquals("200902091225616-1027");
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withOrOperator();
+        criteria.withPermId().thatEquals("200902091219327-1025");
+        criteria.withPermId().thatEquals("200902091225616-1027");
 
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         SampleFetchOptions fo = new SampleFetchOptions();
 
         fo.sortBy().modificationDate().asc();
-        List<Sample> samples1 = search(sessionToken, criterion, fo);
+        List<Sample> samples1 = search(sessionToken, criteria, fo);
         assertSampleIdentifiersInOrder(samples1, "/CISD/CP-TEST-3", "/CISD/CP-TEST-1");
 
         fo.sortBy().modificationDate().desc();
-        List<Sample> samples2 = search(sessionToken, criterion, fo);
+        List<Sample> samples2 = search(sessionToken, criteria, fo);
         assertSampleIdentifiersInOrder(samples2, "/CISD/CP-TEST-1", "/CISD/CP-TEST-3");
 
         v3api.logout(sessionToken);
@@ -670,11 +670,11 @@ public class SearchSampleTest extends AbstractSampleTest
     @Test
     public void testSearchWithSortingByMultipleFields()
     {
-        SampleSearchCriterion criterion = new SampleSearchCriterion();
-        criterion.withOrOperator();
-        criterion.withPermId().thatEquals("200811050919915-9");
-        criterion.withPermId().thatEquals("200811050944030-974");
-        criterion.withPermId().thatEquals("200811050924274-995");
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withOrOperator();
+        criteria.withPermId().thatEquals("200811050919915-9");
+        criteria.withPermId().thatEquals("200811050944030-974");
+        criteria.withPermId().thatEquals("200811050924274-995");
 
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -682,12 +682,12 @@ public class SearchSampleTest extends AbstractSampleTest
 
         fo.sortBy().code().asc();
         fo.sortBy().registrationDate().asc();
-        List<Sample> samples1 = search(sessionToken, criterion, fo);
+        List<Sample> samples1 = search(sessionToken, criteria, fo);
         assertSampleIdentifiersInOrder(samples1, "/CISD/CL1:A01", "/CISD/CL-3V:A01", "/CISD/B1B3:B01");
 
         fo.sortBy().code().asc();
         fo.sortBy().registrationDate().desc();
-        List<Sample> samples2 = search(sessionToken, criterion, fo);
+        List<Sample> samples2 = search(sessionToken, criteria, fo);
         assertSampleIdentifiersInOrder(samples2, "/CISD/CL-3V:A01", "/CISD/CL1:A01", "/CISD/B1B3:B01");
 
         v3api.logout(sessionToken);
@@ -696,23 +696,23 @@ public class SearchSampleTest extends AbstractSampleTest
     @Test
     public void testSearchWithSortingTopLevel()
     {
-        SampleSearchCriterion criterion = new SampleSearchCriterion();
-        criterion.withOrOperator();
-        criterion.withPermId().thatEquals("200902091219327-1025");
-        criterion.withPermId().thatEquals("200902091225616-1027");
-        criterion.withPermId().thatEquals("200902091250077-1026");
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withOrOperator();
+        criteria.withPermId().thatEquals("200902091219327-1025");
+        criteria.withPermId().thatEquals("200902091225616-1027");
+        criteria.withPermId().thatEquals("200902091250077-1026");
 
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         SampleFetchOptions fo = new SampleFetchOptions();
 
         fo.sortBy().code().asc();
-        List<Sample> samples1 = search(sessionToken, criterion, fo);
+        List<Sample> samples1 = search(sessionToken, criteria, fo);
 
         assertSampleIdentifiersInOrder(samples1, "/CISD/CP-TEST-1", "/CISD/CP-TEST-2", "/CISD/CP-TEST-3");
 
         fo.sortBy().code().desc();
-        List<Sample> samples2 = search(sessionToken, criterion, fo);
+        List<Sample> samples2 = search(sessionToken, criteria, fo);
 
         assertSampleIdentifiersInOrder(samples2, "/CISD/CP-TEST-3", "/CISD/CP-TEST-2", "/CISD/CP-TEST-1");
 
@@ -722,10 +722,10 @@ public class SearchSampleTest extends AbstractSampleTest
     @Test
     public void testSearchWithSortingSubLevel()
     {
-        SampleSearchCriterion criterion = new SampleSearchCriterion();
-        criterion.withOrOperator();
-        criterion.withPermId().thatEquals("200811050945092-976");
-        criterion.withPermId().thatEquals("200811050927630-1003");
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withOrOperator();
+        criteria.withPermId().thatEquals("200811050945092-976");
+        criteria.withPermId().thatEquals("200811050927630-1003");
 
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -733,14 +733,14 @@ public class SearchSampleTest extends AbstractSampleTest
         fo.sortBy().code().asc();
         fo.withChildren().sortBy().code().asc();
 
-        List<Sample> samples1 = search(sessionToken, criterion, fo);
+        List<Sample> samples1 = search(sessionToken, criteria, fo);
 
         assertSampleIdentifiersInOrder(samples1, "/CISD/3V-125", "/CISD/MP1-MIXED");
         assertSampleIdentifiersInOrder(samples1.get(0).getChildren(), "/CISD/3VCP5", "/CISD/3VCP6", "/CISD/3VCP7", "/CISD/3VCP8");
         assertSampleIdentifiersInOrder(samples1.get(1).getChildren(), "/CISD/DP1-A", "/CISD/DP1-B");
 
         fo.withChildren().sortBy().code().desc();
-        List<Sample> samples2 = search(sessionToken, criterion, fo);
+        List<Sample> samples2 = search(sessionToken, criteria, fo);
 
         assertSampleIdentifiersInOrder(samples2, "/CISD/3V-125", "/CISD/MP1-MIXED");
         assertSampleIdentifiersInOrder(samples2.get(0).getChildren(), "/CISD/3VCP8", "/CISD/3VCP7", "/CISD/3VCP6", "/CISD/3VCP5");
@@ -752,11 +752,11 @@ public class SearchSampleTest extends AbstractSampleTest
     @Test
     public void testSearchWithPagingTopLevel()
     {
-        SampleSearchCriterion criterion = new SampleSearchCriterion();
-        criterion.withOrOperator();
-        criterion.withPermId().thatEquals("200902091219327-1025");
-        criterion.withPermId().thatEquals("200902091225616-1027");
-        criterion.withPermId().thatEquals("200902091250077-1026");
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withOrOperator();
+        criteria.withPermId().thatEquals("200902091219327-1025");
+        criteria.withPermId().thatEquals("200902091225616-1027");
+        criteria.withPermId().thatEquals("200902091250077-1026");
 
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -764,15 +764,15 @@ public class SearchSampleTest extends AbstractSampleTest
         fo.sortBy().code().asc();
 
         fo.from(0).count(1);
-        List<Sample> samples1 = search(sessionToken, criterion, fo);
+        List<Sample> samples1 = search(sessionToken, criteria, fo);
         assertSampleIdentifiersInOrder(samples1, "/CISD/CP-TEST-1");
 
         fo.from(1).count(1);
-        List<Sample> samples2 = search(sessionToken, criterion, fo);
+        List<Sample> samples2 = search(sessionToken, criteria, fo);
         assertSampleIdentifiersInOrder(samples2, "/CISD/CP-TEST-2");
 
         fo.from(2).count(1);
-        List<Sample> samples3 = search(sessionToken, criterion, fo);
+        List<Sample> samples3 = search(sessionToken, criteria, fo);
         assertSampleIdentifiersInOrder(samples3, "/CISD/CP-TEST-3");
 
         v3api.logout(sessionToken);
@@ -781,10 +781,10 @@ public class SearchSampleTest extends AbstractSampleTest
     @Test
     public void testSearchWithPagingSubLevel()
     {
-        SampleSearchCriterion criterion = new SampleSearchCriterion();
-        criterion.withOrOperator();
-        criterion.withPermId().thatEquals("200811050945092-976");
-        criterion.withPermId().thatEquals("200811050927630-1003");
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withOrOperator();
+        criteria.withPermId().thatEquals("200811050945092-976");
+        criteria.withPermId().thatEquals("200811050927630-1003");
 
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -793,14 +793,14 @@ public class SearchSampleTest extends AbstractSampleTest
         fo.withChildren().sortBy().code().asc();
 
         fo.withChildren().from(0).count(1);
-        List<Sample> samples1 = search(sessionToken, criterion, fo);
+        List<Sample> samples1 = search(sessionToken, criteria, fo);
 
         assertSampleIdentifiersInOrder(samples1, "/CISD/3V-125", "/CISD/MP1-MIXED");
         assertSampleIdentifiersInOrder(samples1.get(0).getChildren(), "/CISD/3VCP5");
         assertSampleIdentifiersInOrder(samples1.get(1).getChildren(), "/CISD/DP1-A");
 
         fo.withChildren().from(1).count(1);
-        List<Sample> samples2 = search(sessionToken, criterion, fo);
+        List<Sample> samples2 = search(sessionToken, criteria, fo);
 
         assertSampleIdentifiersInOrder(samples2, "/CISD/3V-125", "/CISD/MP1-MIXED");
         assertSampleIdentifiersInOrder(samples2.get(0).getChildren(), "/CISD/3VCP6");
@@ -812,10 +812,10 @@ public class SearchSampleTest extends AbstractSampleTest
     @Test
     public void testSearchWithPagingTopAndSubLevel()
     {
-        SampleSearchCriterion criterion = new SampleSearchCriterion();
-        criterion.withOrOperator();
-        criterion.withPermId().thatEquals("200811050945092-976");
-        criterion.withPermId().thatEquals("200811050927630-1003");
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withOrOperator();
+        criteria.withPermId().thatEquals("200811050945092-976");
+        criteria.withPermId().thatEquals("200811050927630-1003");
 
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -825,14 +825,14 @@ public class SearchSampleTest extends AbstractSampleTest
 
         fo.from(0).count(1);
         fo.withChildren().from(0).count(1);
-        List<Sample> samples1 = search(sessionToken, criterion, fo);
+        List<Sample> samples1 = search(sessionToken, criteria, fo);
 
         assertSampleIdentifiersInOrder(samples1, "/CISD/3V-125");
         assertSampleIdentifiersInOrder(samples1.get(0).getChildren(), "/CISD/3VCP5");
 
         fo.from(1).count(1);
         fo.withChildren().from(1).count(1);
-        List<Sample> samples2 = search(sessionToken, criterion, fo);
+        List<Sample> samples2 = search(sessionToken, criteria, fo);
 
         assertSampleIdentifiersInOrder(samples2, "/CISD/MP1-MIXED");
         assertSampleIdentifiersInOrder(samples2.get(0).getChildren(), "/CISD/DP1-B");
@@ -840,26 +840,26 @@ public class SearchSampleTest extends AbstractSampleTest
         v3api.logout(sessionToken);
     }
 
-    private void testSearch(String user, SampleSearchCriterion criterion, String... expectedIdentifiers)
+    private void testSearch(String user, SampleSearchCriteria criteria, String... expectedIdentifiers)
     {
         String sessionToken = v3api.login(user, PASSWORD);
-        List<Sample> samples = search(sessionToken, criterion, new SampleFetchOptions());
+        List<Sample> samples = search(sessionToken, criteria, new SampleFetchOptions());
         assertSampleIdentifiers(samples, expectedIdentifiers);
         v3api.logout(sessionToken);
     }
 
-    private void testSearch(String user, SampleSearchCriterion criterion, int expectedCount)
+    private void testSearch(String user, SampleSearchCriteria criteria, int expectedCount)
     {
         String sessionToken = v3api.login(user, PASSWORD);
-        List<Sample> samples = search(sessionToken, criterion, new SampleFetchOptions());
+        List<Sample> samples = search(sessionToken, criteria, new SampleFetchOptions());
         assertEquals(samples.size(), expectedCount);
         v3api.logout(sessionToken);
     }
 
-    private List<Sample> search(String sessionToken, SampleSearchCriterion criterion, SampleFetchOptions fetchOptions)
+    private List<Sample> search(String sessionToken, SampleSearchCriteria criteria, SampleFetchOptions fetchOptions)
     {
         SearchResult<Sample> searchResult =
-                v3api.searchSamples(sessionToken, criterion, fetchOptions);
+                v3api.searchSamples(sessionToken, criteria, fetchOptions);
         return searchResult.getObjects();
     }
 

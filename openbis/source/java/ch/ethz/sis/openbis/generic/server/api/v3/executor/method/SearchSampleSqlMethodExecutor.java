@@ -25,13 +25,13 @@ import ch.ethz.sis.openbis.generic.server.api.v3.translator.ITranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.sample.sql.ISampleSqlTranslator;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.Sample;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sample.SampleFetchOptions;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SampleSearchCriterion;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SampleSearchCriteria;
 
 /**
  * @author pkupczyk
  */
 @Component
-public class SearchSampleSqlMethodExecutor extends AbstractSearchMethodExecutor<Sample, Long, SampleSearchCriterion, SampleFetchOptions>
+public class SearchSampleSqlMethodExecutor extends AbstractSearchMethodExecutor<Sample, Long, SampleSearchCriteria, SampleFetchOptions>
         implements ISearchSampleMethodExecutor
 {
 
@@ -42,7 +42,7 @@ public class SearchSampleSqlMethodExecutor extends AbstractSearchMethodExecutor<
     private ISampleSqlTranslator translator;
 
     @Override
-    protected ISearchObjectExecutor<SampleSearchCriterion, Long> getSearchExecutor()
+    protected ISearchObjectExecutor<SampleSearchCriteria, Long> getSearchExecutor()
     {
         return searchExecutor;
     }

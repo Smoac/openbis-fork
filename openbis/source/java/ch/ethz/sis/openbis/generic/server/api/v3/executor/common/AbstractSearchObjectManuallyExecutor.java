@@ -26,23 +26,23 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.AbstractObjectSearchCriterion;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.AbstractObjectSearchCriteria;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.AbstractStringValue;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.AnyStringValue;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ISearchCriterion;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ISearchCriteria;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SearchOperator;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.StringContainsValue;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.StringEndsWithValue;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.StringEqualToValue;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.StringFieldSearchCriterion;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.StringFieldSearchCriteria;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.StringStartsWithValue;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 
 /**
  * @author pkupczyk
  */
-public abstract class AbstractSearchObjectManuallyExecutor<CRITERION extends AbstractObjectSearchCriterion<?>, OBJECT> implements
-        ISearchObjectExecutor<CRITERION, OBJECT>
+public abstract class AbstractSearchObjectManuallyExecutor<CRITERIA extends AbstractObjectSearchCriteria<?>, OBJECT> implements
+        ISearchObjectExecutor<CRITERIA, OBJECT>
 {
 
     @Autowired
@@ -50,37 +50,37 @@ public abstract class AbstractSearchObjectManuallyExecutor<CRITERION extends Abs
 
     protected abstract List<OBJECT> listAll();
 
-    protected abstract Matcher getMatcher(ISearchCriterion criterion);
+    protected abstract Matcher getMatcher(ISearchCriteria criteria);
 
     @Override
-    public List<OBJECT> search(IOperationContext context, CRITERION criterion)
+    public List<OBJECT> search(IOperationContext context, CRITERIA criteria)
     {
         if (context == null)
         {
             throw new IllegalArgumentException("Context cannot be null");
         }
-        if (criterion == null)
+        if (criteria == null)
         {
             throw new IllegalArgumentException("Criterion cannot be null");
         }
 
-        return getMatching(context, listAll(), criterion);
+        return getMatching(context, listAll(), criteria);
     }
 
-    private List<OBJECT> getMatching(IOperationContext context, List<OBJECT> objects, CRITERION criterion)
+    private List<OBJECT> getMatching(IOperationContext context, List<OBJECT> objects, CRITERIA criteria)
     {
-        if (criterion.getCriteria() == null || criterion.getCriteria().isEmpty())
+        if (criteria.getCriteria() == null || criteria.getCriteria().isEmpty())
         {
             return objects;
         } else
         {
             List<List<OBJECT>> partialMatches = new LinkedList<List<OBJECT>>();
 
-            for (ISearchCriterion subCriterion : criterion.getCriteria())
+            for (ISearchCriteria subCriteria : criteria.getCriteria())
             {
-                Matcher matcher = getMatcher(subCriterion);
+                Matcher matcher = getMatcher(subCriteria);
 
-                List<OBJECT> partialMatch = matcher.getMatching(context, objects, subCriterion);
+                List<OBJECT> partialMatch = matcher.getMatching(context, objects, subCriteria);
                 if (partialMatch == null)
                 {
                     partialMatch = Collections.emptyList();
@@ -88,7 +88,7 @@ public abstract class AbstractSearchObjectManuallyExecutor<CRITERION extends Abs
                 partialMatches.add(partialMatch);
             }
 
-            if (SearchOperator.AND.equals(criterion.getOperator()))
+            if (SearchOperator.AND.equals(criteria.getOperator()))
             {
                 Set<OBJECT> matches = new HashSet<OBJECT>(partialMatches.get(0));
                 for (List<OBJECT> partialMatch : partialMatches)
@@ -96,7 +96,7 @@ public abstract class AbstractSearchObjectManuallyExecutor<CRITERION extends Abs
                     matches.retainAll(partialMatch);
                 }
                 return new ArrayList<OBJECT>(matches);
-            } else if (SearchOperator.OR.equals(criterion.getOperator()))
+            } else if (SearchOperator.OR.equals(criteria.getOperator()))
             {
                 Set<OBJECT> matches = new HashSet<OBJECT>();
                 for (List<OBJECT> partialMatch : partialMatches)
@@ -106,7 +106,7 @@ public abstract class AbstractSearchObjectManuallyExecutor<CRITERION extends Abs
                 return new ArrayList<OBJECT>(matches);
             } else
             {
-                throw new IllegalArgumentException("Unknown search operator: " + criterion.getOperator());
+                throw new IllegalArgumentException("Unknown search operator: " + criteria.getOperator());
             }
         }
     }
@@ -114,7 +114,7 @@ public abstract class AbstractSearchObjectManuallyExecutor<CRITERION extends Abs
     protected abstract class Matcher
     {
 
-        public abstract List<OBJECT> getMatching(IOperationContext context, List<OBJECT> objects, ISearchCriterion criterion);
+        public abstract List<OBJECT> getMatching(IOperationContext context, List<OBJECT> objects, ISearchCriteria criteria);
 
     }
 
@@ -122,13 +122,13 @@ public abstract class AbstractSearchObjectManuallyExecutor<CRITERION extends Abs
     {
 
         @Override
-        public List<OBJECT> getMatching(IOperationContext context, List<OBJECT> objects, ISearchCriterion criterion)
+        public List<OBJECT> getMatching(IOperationContext context, List<OBJECT> objects, ISearchCriteria criteria)
         {
             List<OBJECT> matches = new ArrayList<OBJECT>();
 
             for (OBJECT object : objects)
             {
-                if (isMatching(context, object, criterion))
+                if (isMatching(context, object, criteria))
                 {
                     matches.add(object);
                 }
@@ -137,7 +137,7 @@ public abstract class AbstractSearchObjectManuallyExecutor<CRITERION extends Abs
             return matches;
         }
 
-        protected abstract boolean isMatching(IOperationContext context, OBJECT object, ISearchCriterion criterion);
+        protected abstract boolean isMatching(IOperationContext context, OBJECT object, ISearchCriteria criteria);
 
     }
 
@@ -145,9 +145,9 @@ public abstract class AbstractSearchObjectManuallyExecutor<CRITERION extends Abs
     {
 
         @Override
-        protected boolean isMatching(IOperationContext context, OBJECT object, ISearchCriterion criterion)
+        protected boolean isMatching(IOperationContext context, OBJECT object, ISearchCriteria criteria)
         {
-            AbstractStringValue fieldValue = ((StringFieldSearchCriterion) criterion).getFieldValue();
+            AbstractStringValue fieldValue = ((StringFieldSearchCriteria) criteria).getFieldValue();
 
             if (fieldValue == null || fieldValue.getValue() == null || fieldValue instanceof AnyStringValue)
             {
@@ -180,7 +180,7 @@ public abstract class AbstractSearchObjectManuallyExecutor<CRITERION extends Abs
                 return actualValue.endsWith(searchedValue);
             } else
             {
-                throw new IllegalArgumentException("Unknown string value: " + criterion.getClass());
+                throw new IllegalArgumentException("Unknown string value: " + criteria.getClass());
             }
         }
 

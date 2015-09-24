@@ -36,7 +36,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.ProjectPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.SpacePermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.TagCode;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.TagPermId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ExperimentSearchCriterion;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ExperimentSearchCriteria;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SearchResult;
 
 /**
@@ -47,15 +47,15 @@ public class SearchExperimentTest extends AbstractExperimentTest
     @Test
     public void testSearchWithAttachments()
     {
-        ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
-        criterion.withPermId().thatEquals("200811050951882-1028");
+        ExperimentSearchCriteria criteria = new ExperimentSearchCriteria();
+        criteria.withPermId().thatEquals("200811050951882-1028");
         ExperimentFetchOptions fo = new ExperimentFetchOptions();
         AttachmentFetchOptions previousVersionAttachmentOptions = fo.withAttachments().withPreviousVersion();
         previousVersionAttachmentOptions.withContent();
         previousVersionAttachmentOptions.withRegistrator();
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         
-        List<Experiment> experiments = searchExperiments(sessionToken, criterion, fo);
+        List<Experiment> experiments = searchExperiments(sessionToken, criteria, fo);
         v3api.logout(sessionToken);
         
         Experiment experiment = experiments.get(0);
@@ -89,89 +89,89 @@ public class SearchExperimentTest extends AbstractExperimentTest
     @Test
     public void testSearchWithIdSetToIdentifier()
     {
-        ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
-        criterion.withId().thatEquals(new ExperimentIdentifier("/CISD/NEMO/EXP1"));
-        testSearch(TEST_USER, criterion, "/CISD/NEMO/EXP1");
+        ExperimentSearchCriteria criteria = new ExperimentSearchCriteria();
+        criteria.withId().thatEquals(new ExperimentIdentifier("/CISD/NEMO/EXP1"));
+        testSearch(TEST_USER, criteria, "/CISD/NEMO/EXP1");
     }
 
     @Test
     public void testSearchWithIdSetToPermId()
     {
-        ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
-        criterion.withId().thatEquals(new ExperimentPermId("200811050951882-1028"));
-        testSearch(TEST_USER, criterion, "/CISD/NEMO/EXP1");
+        ExperimentSearchCriteria criteria = new ExperimentSearchCriteria();
+        criteria.withId().thatEquals(new ExperimentPermId("200811050951882-1028"));
+        testSearch(TEST_USER, criteria, "/CISD/NEMO/EXP1");
     }
 
     @Test
     public void testSearchWithPermId()
     {
-        ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
-        criterion.withPermId().thatEquals("200811050951882-1028");
-        testSearch(TEST_USER, criterion, "/CISD/NEMO/EXP1");
+        ExperimentSearchCriteria criteria = new ExperimentSearchCriteria();
+        criteria.withPermId().thatEquals("200811050951882-1028");
+        testSearch(TEST_USER, criteria, "/CISD/NEMO/EXP1");
     }
 
     @Test
     public void testSearchWithCode()
     {
-        ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
-        criterion.withCode().thatStartsWith("EXP1");
-        testSearch(TEST_USER, criterion, "/CISD/NEMO/EXP1", "/CISD/NEMO/EXP10", "/CISD/NEMO/EXP11");
+        ExperimentSearchCriteria criteria = new ExperimentSearchCriteria();
+        criteria.withCode().thatStartsWith("EXP1");
+        testSearch(TEST_USER, criteria, "/CISD/NEMO/EXP1", "/CISD/NEMO/EXP10", "/CISD/NEMO/EXP11");
     }
 
     @Test
     public void testSearchWithTypeWithIdSetToPermId()
     {
-        ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
-        criterion.withType().withId().thatEquals(new EntityTypePermId("COMPOUND_HCS"));
-        testSearch(TEST_USER, criterion, "/CISD/NEMO/EXP-TEST-1", "/CISD/NOE/EXP-TEST-2");
+        ExperimentSearchCriteria criteria = new ExperimentSearchCriteria();
+        criteria.withType().withId().thatEquals(new EntityTypePermId("COMPOUND_HCS"));
+        testSearch(TEST_USER, criteria, "/CISD/NEMO/EXP-TEST-1", "/CISD/NOE/EXP-TEST-2");
     }
 
     @Test
     public void testSearchWithTypeWithCode()
     {
-        ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
-        criterion.withType().withCode().thatEquals("COMPOUND_HCS");
-        testSearch(TEST_USER, criterion, "/CISD/NEMO/EXP-TEST-1", "/CISD/NOE/EXP-TEST-2");
+        ExperimentSearchCriteria criteria = new ExperimentSearchCriteria();
+        criteria.withType().withCode().thatEquals("COMPOUND_HCS");
+        testSearch(TEST_USER, criteria, "/CISD/NEMO/EXP-TEST-1", "/CISD/NOE/EXP-TEST-2");
     }
 
     @Test
     public void testSearchWithTypeWithPermId()
     {
-        ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
-        criterion.withType().withPermId().thatEquals("COMPOUND_HCS");
-        testSearch(TEST_USER, criterion, "/CISD/NEMO/EXP-TEST-1", "/CISD/NOE/EXP-TEST-2");
+        ExperimentSearchCriteria criteria = new ExperimentSearchCriteria();
+        criteria.withType().withPermId().thatEquals("COMPOUND_HCS");
+        testSearch(TEST_USER, criteria, "/CISD/NEMO/EXP-TEST-1", "/CISD/NOE/EXP-TEST-2");
     }
 
     @Test
     public void testSearchWithProjectWithIdSetToIdentifier()
     {
-        ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
-        criterion.withProject().withId().thatEquals(new ProjectIdentifier("/TEST-SPACE/NOE"));
-        testSearch(TEST_USER, criterion, "/TEST-SPACE/NOE/EXP-TEST-2", "/TEST-SPACE/NOE/EXPERIMENT-TO-DELETE");
+        ExperimentSearchCriteria criteria = new ExperimentSearchCriteria();
+        criteria.withProject().withId().thatEquals(new ProjectIdentifier("/TEST-SPACE/NOE"));
+        testSearch(TEST_USER, criteria, "/TEST-SPACE/NOE/EXP-TEST-2", "/TEST-SPACE/NOE/EXPERIMENT-TO-DELETE");
     }
 
     @Test
     public void testSearchWithProjectWithIdSetToPermId()
     {
-        ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
-        criterion.withProject().withId().thatEquals(new ProjectPermId("20120814110011738-106"));
-        testSearch(TEST_USER, criterion, "/TEST-SPACE/NOE/EXP-TEST-2", "/TEST-SPACE/NOE/EXPERIMENT-TO-DELETE");
+        ExperimentSearchCriteria criteria = new ExperimentSearchCriteria();
+        criteria.withProject().withId().thatEquals(new ProjectPermId("20120814110011738-106"));
+        testSearch(TEST_USER, criteria, "/TEST-SPACE/NOE/EXP-TEST-2", "/TEST-SPACE/NOE/EXPERIMENT-TO-DELETE");
     }
 
     @Test
     public void testSearchWithProjectWithPermId()
     {
-        ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
-        criterion.withProject().withPermId().thatEquals("20120814110011738-106");
-        testSearch(TEST_USER, criterion, "/TEST-SPACE/NOE/EXP-TEST-2", "/TEST-SPACE/NOE/EXPERIMENT-TO-DELETE");
+        ExperimentSearchCriteria criteria = new ExperimentSearchCriteria();
+        criteria.withProject().withPermId().thatEquals("20120814110011738-106");
+        testSearch(TEST_USER, criteria, "/TEST-SPACE/NOE/EXP-TEST-2", "/TEST-SPACE/NOE/EXPERIMENT-TO-DELETE");
     }
 
     @Test
     public void testSearchWithProjectWithCode()
     {
-        ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
-        criterion.withProject().withCode().thatEquals("NOE");
-        testSearch(TEST_USER, criterion, "/CISD/NOE/EXP-TEST-2", "/TEST-SPACE/NOE/EXP-TEST-2", "/TEST-SPACE/NOE/EXPERIMENT-TO-DELETE");
+        ExperimentSearchCriteria criteria = new ExperimentSearchCriteria();
+        criteria.withProject().withCode().thatEquals("NOE");
+        testSearch(TEST_USER, criteria, "/CISD/NOE/EXP-TEST-2", "/TEST-SPACE/NOE/EXP-TEST-2", "/TEST-SPACE/NOE/EXPERIMENT-TO-DELETE");
     }
 
     @Test
@@ -180,21 +180,21 @@ public class SearchExperimentTest extends AbstractExperimentTest
         String[] expected = new String[] { "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST", "/TEST-SPACE/NOE/EXP-TEST-2",
                 "/TEST-SPACE/NOE/EXPERIMENT-TO-DELETE" };
 
-        ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
-        criterion.withProject().withSpace().withId().thatEquals(new SpacePermId("TEST-SPACE"));
-        testSearch(TEST_USER, criterion, expected);
+        ExperimentSearchCriteria criteria = new ExperimentSearchCriteria();
+        criteria.withProject().withSpace().withId().thatEquals(new SpacePermId("TEST-SPACE"));
+        testSearch(TEST_USER, criteria, expected);
 
-        criterion = new ExperimentSearchCriterion();
-        criterion.withProject().withSpace().withId().thatEquals(new SpacePermId("/TEST-SPACE"));
-        testSearch(TEST_USER, criterion, expected);
+        criteria = new ExperimentSearchCriteria();
+        criteria.withProject().withSpace().withId().thatEquals(new SpacePermId("/TEST-SPACE"));
+        testSearch(TEST_USER, criteria, expected);
     }
 
     @Test
     public void testSearchWithProjectWithSpaceWithCode()
     {
-        ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
-        criterion.withProject().withSpace().withCode().thatEquals("TEST-SPACE");
-        testSearch(TEST_USER, criterion, "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST", "/TEST-SPACE/NOE/EXP-TEST-2",
+        ExperimentSearchCriteria criteria = new ExperimentSearchCriteria();
+        criteria.withProject().withSpace().withCode().thatEquals("TEST-SPACE");
+        testSearch(TEST_USER, criteria, "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST", "/TEST-SPACE/NOE/EXP-TEST-2",
                 "/TEST-SPACE/NOE/EXPERIMENT-TO-DELETE");
     }
 
@@ -204,117 +204,117 @@ public class SearchExperimentTest extends AbstractExperimentTest
         String[] expected = new String[] { "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST", "/TEST-SPACE/NOE/EXP-TEST-2",
                 "/TEST-SPACE/NOE/EXPERIMENT-TO-DELETE" };
 
-        ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
-        criterion.withProject().withSpace().withPermId().thatEquals("TEST-SPACE");
-        testSearch(TEST_USER, criterion, expected);
+        ExperimentSearchCriteria criteria = new ExperimentSearchCriteria();
+        criteria.withProject().withSpace().withPermId().thatEquals("TEST-SPACE");
+        testSearch(TEST_USER, criteria, expected);
 
-        criterion = new ExperimentSearchCriterion();
-        criterion.withProject().withSpace().withPermId().thatEquals("/TEST-SPACE");
-        testSearch(TEST_USER, criterion, expected);
+        criteria = new ExperimentSearchCriteria();
+        criteria.withProject().withSpace().withPermId().thatEquals("/TEST-SPACE");
+        testSearch(TEST_USER, criteria, expected);
     }
 
     @Test
     public void testSearchWithPropertyThatEquals()
     {
-        ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
-        criterion.withProperty("DESCRIPTION").thatEquals("desc1");
-        testSearch(TEST_USER, criterion, "/CISD/NEMO/EXP-TEST-1");
+        ExperimentSearchCriteria criteria = new ExperimentSearchCriteria();
+        criteria.withProperty("DESCRIPTION").thatEquals("desc1");
+        testSearch(TEST_USER, criteria, "/CISD/NEMO/EXP-TEST-1");
 
-        criterion = new ExperimentSearchCriterion();
-        criterion.withProperty("DESCRIPTION").thatEquals("desc");
-        testSearch(TEST_USER, criterion, 0);
+        criteria = new ExperimentSearchCriteria();
+        criteria.withProperty("DESCRIPTION").thatEquals("desc");
+        testSearch(TEST_USER, criteria, 0);
 
-        criterion = new ExperimentSearchCriterion();
-        criterion.withProperty("DESCRIPTION").thatEquals("esc");
-        testSearch(TEST_USER, criterion, 0);
+        criteria = new ExperimentSearchCriteria();
+        criteria.withProperty("DESCRIPTION").thatEquals("esc");
+        testSearch(TEST_USER, criteria, 0);
 
-        criterion = new ExperimentSearchCriterion();
-        criterion.withProperty("DESCRIPTION").thatEquals("esc1");
-        testSearch(TEST_USER, criterion, 0);
+        criteria = new ExperimentSearchCriteria();
+        criteria.withProperty("DESCRIPTION").thatEquals("esc1");
+        testSearch(TEST_USER, criteria, 0);
     }
 
     @Test
     public void testSearchWithPropertyThatStartsWith()
     {
-        ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
-        criterion.withProperty("DESCRIPTION").thatStartsWith("desc1");
-        testSearch(TEST_USER, criterion, "/CISD/NEMO/EXP-TEST-1");
+        ExperimentSearchCriteria criteria = new ExperimentSearchCriteria();
+        criteria.withProperty("DESCRIPTION").thatStartsWith("desc1");
+        testSearch(TEST_USER, criteria, "/CISD/NEMO/EXP-TEST-1");
 
-        criterion = new ExperimentSearchCriterion();
-        criterion.withProperty("DESCRIPTION").thatStartsWith("desc");
-        testSearch(TEST_USER, criterion, "/CISD/NEMO/EXP-TEST-1", "/CISD/NOE/EXP-TEST-2");
+        criteria = new ExperimentSearchCriteria();
+        criteria.withProperty("DESCRIPTION").thatStartsWith("desc");
+        testSearch(TEST_USER, criteria, "/CISD/NEMO/EXP-TEST-1", "/CISD/NOE/EXP-TEST-2");
 
-        criterion = new ExperimentSearchCriterion();
-        criterion.withProperty("DESCRIPTION").thatStartsWith("esc");
-        testSearch(TEST_USER, criterion, 0);
+        criteria = new ExperimentSearchCriteria();
+        criteria.withProperty("DESCRIPTION").thatStartsWith("esc");
+        testSearch(TEST_USER, criteria, 0);
 
-        criterion = new ExperimentSearchCriterion();
-        criterion.withProperty("DESCRIPTION").thatStartsWith("esc1");
-        testSearch(TEST_USER, criterion, 0);
+        criteria = new ExperimentSearchCriteria();
+        criteria.withProperty("DESCRIPTION").thatStartsWith("esc1");
+        testSearch(TEST_USER, criteria, 0);
     }
 
     @Test
     public void testSearchWithPropertyThatEndsWith()
     {
-        ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
-        criterion.withProperty("DESCRIPTION").thatEndsWith("desc1");
-        testSearch(TEST_USER, criterion, "/CISD/NEMO/EXP-TEST-1");
+        ExperimentSearchCriteria criteria = new ExperimentSearchCriteria();
+        criteria.withProperty("DESCRIPTION").thatEndsWith("desc1");
+        testSearch(TEST_USER, criteria, "/CISD/NEMO/EXP-TEST-1");
 
-        criterion = new ExperimentSearchCriterion();
-        criterion.withProperty("DESCRIPTION").thatEndsWith("desc");
-        testSearch(TEST_USER, criterion, 0);
+        criteria = new ExperimentSearchCriteria();
+        criteria.withProperty("DESCRIPTION").thatEndsWith("desc");
+        testSearch(TEST_USER, criteria, 0);
 
-        criterion = new ExperimentSearchCriterion();
-        criterion.withProperty("DESCRIPTION").thatEndsWith("esc");
-        testSearch(TEST_USER, criterion, 0);
+        criteria = new ExperimentSearchCriteria();
+        criteria.withProperty("DESCRIPTION").thatEndsWith("esc");
+        testSearch(TEST_USER, criteria, 0);
 
-        criterion = new ExperimentSearchCriterion();
-        criterion.withProperty("DESCRIPTION").thatEndsWith("esc1");
-        testSearch(TEST_USER, criterion, "/CISD/NEMO/EXP-TEST-1");
+        criteria = new ExperimentSearchCriteria();
+        criteria.withProperty("DESCRIPTION").thatEndsWith("esc1");
+        testSearch(TEST_USER, criteria, "/CISD/NEMO/EXP-TEST-1");
     }
 
     @Test
     public void testSearchWithProperty()
     {
-        ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
-        criterion.withProperty("COMMENT");
-        testSearch(TEST_USER, criterion, "/CISD/NEMO/EXP-TEST-1");
+        ExperimentSearchCriteria criteria = new ExperimentSearchCriteria();
+        criteria.withProperty("COMMENT");
+        testSearch(TEST_USER, criteria, "/CISD/NEMO/EXP-TEST-1");
     }
 
     @Test
     public void testSearchWithPropertyThatContains()
     {
-        ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
-        criterion.withProperty("DESCRIPTION").thatContains("desc1");
-        testSearch(TEST_USER, criterion, "/CISD/NEMO/EXP-TEST-1");
+        ExperimentSearchCriteria criteria = new ExperimentSearchCriteria();
+        criteria.withProperty("DESCRIPTION").thatContains("desc1");
+        testSearch(TEST_USER, criteria, "/CISD/NEMO/EXP-TEST-1");
 
-        criterion = new ExperimentSearchCriterion();
-        criterion.withProperty("DESCRIPTION").thatContains("desc");
-        testSearch(TEST_USER, criterion, "/CISD/NEMO/EXP-TEST-1", "/CISD/NOE/EXP-TEST-2");
+        criteria = new ExperimentSearchCriteria();
+        criteria.withProperty("DESCRIPTION").thatContains("desc");
+        testSearch(TEST_USER, criteria, "/CISD/NEMO/EXP-TEST-1", "/CISD/NOE/EXP-TEST-2");
 
-        criterion = new ExperimentSearchCriterion();
-        criterion.withProperty("DESCRIPTION").thatContains("esc");
-        testSearch(TEST_USER, criterion, "/CISD/NEMO/EXP-TEST-1", "/CISD/NOE/EXP-TEST-2");
+        criteria = new ExperimentSearchCriteria();
+        criteria.withProperty("DESCRIPTION").thatContains("esc");
+        testSearch(TEST_USER, criteria, "/CISD/NEMO/EXP-TEST-1", "/CISD/NOE/EXP-TEST-2");
 
-        criterion = new ExperimentSearchCriterion();
-        criterion.withProperty("DESCRIPTION").thatContains("esc1");
-        testSearch(TEST_USER, criterion, "/CISD/NEMO/EXP-TEST-1");
+        criteria = new ExperimentSearchCriteria();
+        criteria.withProperty("DESCRIPTION").thatContains("esc1");
+        testSearch(TEST_USER, criteria, "/CISD/NEMO/EXP-TEST-1");
     }
 
     @Test
     public void testSearchWithDatePropertyThatEqualsWithString()
     {
-        ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
-        criterion.withDateProperty("PURCHASE_DATE").withTimeZone(0).thatEquals("2009-02-08");
-        testSearch(TEST_USER, criterion, 0);
+        ExperimentSearchCriteria criteria = new ExperimentSearchCriteria();
+        criteria.withDateProperty("PURCHASE_DATE").withTimeZone(0).thatEquals("2009-02-08");
+        testSearch(TEST_USER, criteria, 0);
 
-        criterion = new ExperimentSearchCriterion();
-        criterion.withDateProperty("PURCHASE_DATE").withTimeZone(0).thatEquals("2009-02-09");
-        testSearch(TEST_USER, criterion, "/CISD/NEMO/EXP-TEST-2", "/TEST-SPACE/NOE/EXP-TEST-2");
+        criteria = new ExperimentSearchCriteria();
+        criteria.withDateProperty("PURCHASE_DATE").withTimeZone(0).thatEquals("2009-02-09");
+        testSearch(TEST_USER, criteria, "/CISD/NEMO/EXP-TEST-2", "/TEST-SPACE/NOE/EXP-TEST-2");
 
-        criterion = new ExperimentSearchCriterion();
-        criterion.withDateProperty("PURCHASE_DATE").withTimeZone(2).thatEquals("2009-02-10");
-        testSearch(TEST_USER, criterion, "/TEST-SPACE/NOE/EXP-TEST-2");
+        criteria = new ExperimentSearchCriteria();
+        criteria.withDateProperty("PURCHASE_DATE").withTimeZone(2).thatEquals("2009-02-10");
+        testSearch(TEST_USER, criteria, "/TEST-SPACE/NOE/EXP-TEST-2");
     }
 
     @Test
@@ -323,45 +323,45 @@ public class SearchExperimentTest extends AbstractExperimentTest
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm");
         format.setTimeZone(TimeZone.getTimeZone("GMT"));
 
-        ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
-        criterion.withDateProperty("PURCHASE_DATE").thatEquals(format.parse("2009-02-08 23:59"));
-        testSearch(TEST_USER, criterion, 0);
+        ExperimentSearchCriteria criteria = new ExperimentSearchCriteria();
+        criteria.withDateProperty("PURCHASE_DATE").thatEquals(format.parse("2009-02-08 23:59"));
+        testSearch(TEST_USER, criteria, 0);
 
-        criterion = new ExperimentSearchCriterion();
-        criterion.withDateProperty("PURCHASE_DATE").thatEquals(format.parse("2009-02-09 00:00"));
-        testSearch(TEST_USER, criterion, "/CISD/NEMO/EXP-TEST-2", "/TEST-SPACE/NOE/EXP-TEST-2");
+        criteria = new ExperimentSearchCriteria();
+        criteria.withDateProperty("PURCHASE_DATE").thatEquals(format.parse("2009-02-09 00:00"));
+        testSearch(TEST_USER, criteria, "/CISD/NEMO/EXP-TEST-2", "/TEST-SPACE/NOE/EXP-TEST-2");
 
-        criterion = new ExperimentSearchCriterion();
-        criterion.withDateProperty("PURCHASE_DATE").thatEquals(format.parse("2009-02-09 23:59"));
-        testSearch(TEST_USER, criterion, "/CISD/NEMO/EXP-TEST-2", "/TEST-SPACE/NOE/EXP-TEST-2");
+        criteria = new ExperimentSearchCriteria();
+        criteria.withDateProperty("PURCHASE_DATE").thatEquals(format.parse("2009-02-09 23:59"));
+        testSearch(TEST_USER, criteria, "/CISD/NEMO/EXP-TEST-2", "/TEST-SPACE/NOE/EXP-TEST-2");
 
-        criterion = new ExperimentSearchCriterion();
-        criterion.withDateProperty("PURCHASE_DATE").thatEquals(format.parse("2009-02-10 00:00"));
-        testSearch(TEST_USER, criterion, 0);
+        criteria = new ExperimentSearchCriteria();
+        criteria.withDateProperty("PURCHASE_DATE").thatEquals(format.parse("2009-02-10 00:00"));
+        testSearch(TEST_USER, criteria, 0);
     }
 
     @Test
     public void testSearchWithDatePropertyThatIsEarlierThanOrEqualToWithString()
     {
-        ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
-        criterion.withDateProperty("PURCHASE_DATE").withTimeZone(0).thatIsEarlierThanOrEqualTo("2009-02-08");
-        testSearch(TEST_USER, criterion, 0);
+        ExperimentSearchCriteria criteria = new ExperimentSearchCriteria();
+        criteria.withDateProperty("PURCHASE_DATE").withTimeZone(0).thatIsEarlierThanOrEqualTo("2009-02-08");
+        testSearch(TEST_USER, criteria, 0);
 
-        criterion = new ExperimentSearchCriterion();
-        criterion.withDateProperty("PURCHASE_DATE").withTimeZone(1).thatIsEarlierThanOrEqualTo("2009-02-09 09:00");
-        testSearch(TEST_USER, criterion, 0);
+        criteria = new ExperimentSearchCriteria();
+        criteria.withDateProperty("PURCHASE_DATE").withTimeZone(1).thatIsEarlierThanOrEqualTo("2009-02-09 09:00");
+        testSearch(TEST_USER, criteria, 0);
 
-        criterion = new ExperimentSearchCriterion();
-        criterion.withDateProperty("PURCHASE_DATE").withTimeZone(0).thatIsEarlierThanOrEqualTo("2009-02-09 09:00");
-        testSearch(TEST_USER, criterion, "/CISD/NEMO/EXP-TEST-2");
+        criteria = new ExperimentSearchCriteria();
+        criteria.withDateProperty("PURCHASE_DATE").withTimeZone(0).thatIsEarlierThanOrEqualTo("2009-02-09 09:00");
+        testSearch(TEST_USER, criteria, "/CISD/NEMO/EXP-TEST-2");
 
-        criterion = new ExperimentSearchCriterion();
-        criterion.withDateProperty("PURCHASE_DATE").withTimeZone(0).thatIsEarlierThanOrEqualTo("2009-02-09");
-        testSearch(TEST_USER, criterion, "/CISD/NEMO/EXP-TEST-2", "/TEST-SPACE/NOE/EXP-TEST-2");
+        criteria = new ExperimentSearchCriteria();
+        criteria.withDateProperty("PURCHASE_DATE").withTimeZone(0).thatIsEarlierThanOrEqualTo("2009-02-09");
+        testSearch(TEST_USER, criteria, "/CISD/NEMO/EXP-TEST-2", "/TEST-SPACE/NOE/EXP-TEST-2");
 
-        criterion = new ExperimentSearchCriterion();
-        criterion.withDateProperty("PURCHASE_DATE").withTimeZone(2).thatIsEarlierThanOrEqualTo("2009-02-09");
-        testSearch(TEST_USER, criterion, "/CISD/NEMO/EXP-TEST-2");
+        criteria = new ExperimentSearchCriteria();
+        criteria.withDateProperty("PURCHASE_DATE").withTimeZone(2).thatIsEarlierThanOrEqualTo("2009-02-09");
+        testSearch(TEST_USER, criteria, "/CISD/NEMO/EXP-TEST-2");
     }
 
     @Test
@@ -370,33 +370,33 @@ public class SearchExperimentTest extends AbstractExperimentTest
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm");
         format.setTimeZone(TimeZone.getTimeZone("GMT"));
 
-        ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
-        criterion.withDateProperty("PURCHASE_DATE").thatIsEarlierThanOrEqualTo(format.parse("2009-02-09 08:59"));
-        testSearch(TEST_USER, criterion, 0);
+        ExperimentSearchCriteria criteria = new ExperimentSearchCriteria();
+        criteria.withDateProperty("PURCHASE_DATE").thatIsEarlierThanOrEqualTo(format.parse("2009-02-09 08:59"));
+        testSearch(TEST_USER, criteria, 0);
 
-        criterion = new ExperimentSearchCriterion();
-        criterion.withDateProperty("PURCHASE_DATE").thatIsEarlierThanOrEqualTo(format.parse("2009-02-09 09:00"));
-        testSearch(TEST_USER, criterion, "/CISD/NEMO/EXP-TEST-2");
+        criteria = new ExperimentSearchCriteria();
+        criteria.withDateProperty("PURCHASE_DATE").thatIsEarlierThanOrEqualTo(format.parse("2009-02-09 09:00"));
+        testSearch(TEST_USER, criteria, "/CISD/NEMO/EXP-TEST-2");
 
-        criterion = new ExperimentSearchCriterion();
-        criterion.withDateProperty("PURCHASE_DATE").thatIsEarlierThanOrEqualTo(format.parse("2009-02-09 23:00"));
-        testSearch(TEST_USER, criterion, "/CISD/NEMO/EXP-TEST-2", "/TEST-SPACE/NOE/EXP-TEST-2");
+        criteria = new ExperimentSearchCriteria();
+        criteria.withDateProperty("PURCHASE_DATE").thatIsEarlierThanOrEqualTo(format.parse("2009-02-09 23:00"));
+        testSearch(TEST_USER, criteria, "/CISD/NEMO/EXP-TEST-2", "/TEST-SPACE/NOE/EXP-TEST-2");
     }
 
     @Test
     public void testSearchWithDatePropertyThatIsLaterThanOrEqualToWithString()
     {
-        ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
-        criterion.withDateProperty("PURCHASE_DATE").withTimeZone(0).thatIsLaterThanOrEqualTo("2009-02-10");
-        testSearch(TEST_USER, criterion, 0);
+        ExperimentSearchCriteria criteria = new ExperimentSearchCriteria();
+        criteria.withDateProperty("PURCHASE_DATE").withTimeZone(0).thatIsLaterThanOrEqualTo("2009-02-10");
+        testSearch(TEST_USER, criteria, 0);
 
-        criterion = new ExperimentSearchCriterion();
-        criterion.withDateProperty("PURCHASE_DATE").withTimeZone(0).thatIsLaterThanOrEqualTo("2009-02-09");
-        testSearch(TEST_USER, criterion, "/CISD/NEMO/EXP-TEST-2", "/TEST-SPACE/NOE/EXP-TEST-2");
+        criteria = new ExperimentSearchCriteria();
+        criteria.withDateProperty("PURCHASE_DATE").withTimeZone(0).thatIsLaterThanOrEqualTo("2009-02-09");
+        testSearch(TEST_USER, criteria, "/CISD/NEMO/EXP-TEST-2", "/TEST-SPACE/NOE/EXP-TEST-2");
 
-        criterion = new ExperimentSearchCriterion();
-        criterion.withDateProperty("PURCHASE_DATE").withTimeZone(0).thatIsLaterThanOrEqualTo("2009-02-08");
-        testSearch(TEST_USER, criterion, "/CISD/NEMO/EXP-TEST-2", "/TEST-SPACE/NOE/EXP-TEST-2");
+        criteria = new ExperimentSearchCriteria();
+        criteria.withDateProperty("PURCHASE_DATE").withTimeZone(0).thatIsLaterThanOrEqualTo("2009-02-08");
+        testSearch(TEST_USER, criteria, "/CISD/NEMO/EXP-TEST-2", "/TEST-SPACE/NOE/EXP-TEST-2");
     }
 
     @Test
@@ -405,217 +405,217 @@ public class SearchExperimentTest extends AbstractExperimentTest
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm");
         format.setTimeZone(TimeZone.getTimeZone("GMT+1:00"));
 
-        ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
-        criterion.withDateProperty("PURCHASE_DATE").thatIsLaterThanOrEqualTo(format.parse("2009-02-10 00:01"));
-        testSearch(TEST_USER, criterion, 0);
+        ExperimentSearchCriteria criteria = new ExperimentSearchCriteria();
+        criteria.withDateProperty("PURCHASE_DATE").thatIsLaterThanOrEqualTo(format.parse("2009-02-10 00:01"));
+        testSearch(TEST_USER, criteria, 0);
 
-        criterion = new ExperimentSearchCriterion();
-        criterion.withDateProperty("PURCHASE_DATE").thatIsLaterThanOrEqualTo(format.parse("2009-02-10 00:00"));
-        testSearch(TEST_USER, criterion, "/TEST-SPACE/NOE/EXP-TEST-2");
+        criteria = new ExperimentSearchCriteria();
+        criteria.withDateProperty("PURCHASE_DATE").thatIsLaterThanOrEqualTo(format.parse("2009-02-10 00:00"));
+        testSearch(TEST_USER, criteria, "/TEST-SPACE/NOE/EXP-TEST-2");
 
-        criterion = new ExperimentSearchCriterion();
-        criterion.withDateProperty("PURCHASE_DATE").thatIsLaterThanOrEqualTo(format.parse("2009-02-09 10:00"));
-        testSearch(TEST_USER, criterion, "/CISD/NEMO/EXP-TEST-2", "/TEST-SPACE/NOE/EXP-TEST-2");
+        criteria = new ExperimentSearchCriteria();
+        criteria.withDateProperty("PURCHASE_DATE").thatIsLaterThanOrEqualTo(format.parse("2009-02-09 10:00"));
+        testSearch(TEST_USER, criteria, "/CISD/NEMO/EXP-TEST-2", "/TEST-SPACE/NOE/EXP-TEST-2");
     }
 
     @Test
     public void testSearchWithAnyPropertyThatEquals()
     {
-        ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
-        criterion.withAnyProperty().thatEquals("FEMALE");
-        testSearch(TEST_USER, criterion, "/CISD/NEMO/EXP-TEST-2");
+        ExperimentSearchCriteria criteria = new ExperimentSearchCriteria();
+        criteria.withAnyProperty().thatEquals("FEMALE");
+        testSearch(TEST_USER, criteria, "/CISD/NEMO/EXP-TEST-2");
 
-        criterion = new ExperimentSearchCriterion();
-        criterion.withAnyProperty().thatEquals("FEMAL");
-        testSearch(TEST_USER, criterion, 0);
+        criteria = new ExperimentSearchCriteria();
+        criteria.withAnyProperty().thatEquals("FEMAL");
+        testSearch(TEST_USER, criteria, 0);
     }
 
     @Test
     public void testSearchWithAnyPropertyThatEqualsWithWildcards()
     {
-        ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
-        criterion.withAnyProperty().thatEquals("*EMAL*");
-        testSearch(TEST_USER, criterion, "/CISD/NEMO/EXP-TEST-2");
+        ExperimentSearchCriteria criteria = new ExperimentSearchCriteria();
+        criteria.withAnyProperty().thatEquals("*EMAL*");
+        testSearch(TEST_USER, criteria, "/CISD/NEMO/EXP-TEST-2");
     }
 
     @Test
     public void testSearchWithAnyPropertyThatStartsWith()
     {
-        ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
-        criterion.withAnyProperty().thatStartsWith("FEMAL");
-        testSearch(TEST_USER, criterion, "/CISD/NEMO/EXP-TEST-2");
+        ExperimentSearchCriteria criteria = new ExperimentSearchCriteria();
+        criteria.withAnyProperty().thatStartsWith("FEMAL");
+        testSearch(TEST_USER, criteria, "/CISD/NEMO/EXP-TEST-2");
 
-        criterion = new ExperimentSearchCriterion();
-        criterion.withAnyProperty().thatStartsWith("EMAL");
-        testSearch(TEST_USER, criterion, 0);
+        criteria = new ExperimentSearchCriteria();
+        criteria.withAnyProperty().thatStartsWith("EMAL");
+        testSearch(TEST_USER, criteria, 0);
     }
 
     @Test
     public void testSearchWithAnyPropertyThatEndsWith()
     {
-        ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
-        criterion.withAnyProperty().thatEndsWith("EMALE");
-        testSearch(TEST_USER, criterion, "/CISD/NEMO/EXP-TEST-2");
+        ExperimentSearchCriteria criteria = new ExperimentSearchCriteria();
+        criteria.withAnyProperty().thatEndsWith("EMALE");
+        testSearch(TEST_USER, criteria, "/CISD/NEMO/EXP-TEST-2");
 
-        criterion = new ExperimentSearchCriterion();
-        criterion.withAnyProperty().thatEndsWith("EMAL");
-        testSearch(TEST_USER, criterion, 0);
+        criteria = new ExperimentSearchCriteria();
+        criteria.withAnyProperty().thatEndsWith("EMAL");
+        testSearch(TEST_USER, criteria, 0);
     }
 
     @Test
     public void testSearchWithAnyPropertyThatContains()
     {
-        ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
-        criterion.withAnyProperty().thatContains("EMAL");
-        testSearch(TEST_USER, criterion, "/CISD/NEMO/EXP-TEST-2");
+        ExperimentSearchCriteria criteria = new ExperimentSearchCriteria();
+        criteria.withAnyProperty().thatContains("EMAL");
+        testSearch(TEST_USER, criteria, "/CISD/NEMO/EXP-TEST-2");
 
-        criterion = new ExperimentSearchCriterion();
-        criterion.withAnyProperty().thatContains("FMAL");
-        testSearch(TEST_USER, criterion, 0);
+        criteria = new ExperimentSearchCriteria();
+        criteria.withAnyProperty().thatContains("FMAL");
+        testSearch(TEST_USER, criteria, 0);
     }
 
     @Test
     public void testSearchWithAnyFieldMatchingProperty()
     {
-        ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
-        criterion.withAnyField().thatEquals("FEMALE");
-        testSearch(TEST_USER, criterion, "/CISD/NEMO/EXP-TEST-2");
+        ExperimentSearchCriteria criteria = new ExperimentSearchCriteria();
+        criteria.withAnyField().thatEquals("FEMALE");
+        testSearch(TEST_USER, criteria, "/CISD/NEMO/EXP-TEST-2");
     }
 
     @Test
     public void testSearchWithAnyFieldMatchingAttribute()
     {
-        ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
-        criterion.withAnyField().thatEquals("EXP-TEST-2");
-        testSearch(TEST_USER, criterion, "/CISD/NEMO/EXP-TEST-2", "/CISD/NOE/EXP-TEST-2", "/TEST-SPACE/NOE/EXP-TEST-2");
+        ExperimentSearchCriteria criteria = new ExperimentSearchCriteria();
+        criteria.withAnyField().thatEquals("EXP-TEST-2");
+        testSearch(TEST_USER, criteria, "/CISD/NEMO/EXP-TEST-2", "/CISD/NOE/EXP-TEST-2", "/TEST-SPACE/NOE/EXP-TEST-2");
     }
 
     @Test
     public void testSearchWithTagWithIdSetToPermId()
     {
-        ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
-        criterion.withTag().withId().thatEquals(new TagPermId("/test/TEST_METAPROJECTS"));
-        testSearch(TEST_USER, criterion, "/CISD/NEMO/EXP11", "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST");
+        ExperimentSearchCriteria criteria = new ExperimentSearchCriteria();
+        criteria.withTag().withId().thatEquals(new TagPermId("/test/TEST_METAPROJECTS"));
+        testSearch(TEST_USER, criteria, "/CISD/NEMO/EXP11", "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST");
     }
 
     @Test
     public void testSearchWithTagWithIdSetToCodeId()
     {
-        ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
-        criterion.withTag().withId().thatEquals(new TagCode("TEST_METAPROJECTS"));
-        testSearch(TEST_USER, criterion, "/CISD/NEMO/EXP11", "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST");
+        ExperimentSearchCriteria criteria = new ExperimentSearchCriteria();
+        criteria.withTag().withId().thatEquals(new TagCode("TEST_METAPROJECTS"));
+        testSearch(TEST_USER, criteria, "/CISD/NEMO/EXP11", "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST");
     }
 
     @Test
     public void testSearchWithTagWithCode()
     {
-        ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
-        criterion.withTag().withCode().thatEquals("TEST_METAPROJECTS");
-        testSearch(TEST_USER, criterion, "/CISD/NEMO/EXP11", "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST");
+        ExperimentSearchCriteria criteria = new ExperimentSearchCriteria();
+        criteria.withTag().withCode().thatEquals("TEST_METAPROJECTS");
+        testSearch(TEST_USER, criteria, "/CISD/NEMO/EXP11", "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST");
     }
 
     @Test
     public void testSearchWithTagWithPermId()
     {
-        ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
-        criterion.withTag().withPermId().thatEquals("/test/TEST_METAPROJECTS");
-        testSearch(TEST_USER, criterion, "/CISD/NEMO/EXP11", "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST");
+        ExperimentSearchCriteria criteria = new ExperimentSearchCriteria();
+        criteria.withTag().withPermId().thatEquals("/test/TEST_METAPROJECTS");
+        testSearch(TEST_USER, criteria, "/CISD/NEMO/EXP11", "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST");
     }
 
     @Test
     public void testSearchWithTagWithPermIdUnauthorized()
     {
-        ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
-        criterion.withTag().withPermId().thatEquals("/test/TEST_METAPROJECTS");
-        testSearch(TEST_SPACE_USER, criterion, 0);
+        ExperimentSearchCriteria criteria = new ExperimentSearchCriteria();
+        criteria.withTag().withPermId().thatEquals("/test/TEST_METAPROJECTS");
+        testSearch(TEST_SPACE_USER, criteria, 0);
     }
 
     @Test
     public void testSearchWithRegistrationDateThatEquals()
     {
-        ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
-        criterion.withRegistrationDate().thatEquals("2009-02-09");
-        testSearch(TEST_USER, criterion, "/CISD/NEMO/EXP-TEST-1", "/CISD/NEMO/EXP-TEST-2", "/CISD/NOE/EXP-TEST-2", "/TEST-SPACE/NOE/EXP-TEST-2",
+        ExperimentSearchCriteria criteria = new ExperimentSearchCriteria();
+        criteria.withRegistrationDate().thatEquals("2009-02-09");
+        testSearch(TEST_USER, criteria, "/CISD/NEMO/EXP-TEST-1", "/CISD/NEMO/EXP-TEST-2", "/CISD/NOE/EXP-TEST-2", "/TEST-SPACE/NOE/EXP-TEST-2",
                 "/TEST-SPACE/NOE/EXPERIMENT-TO-DELETE");
     }
 
     @Test
     public void testSearchWithRegistrationDateThatIsLaterThan()
     {
-        ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
-        criterion.withRegistrationDate().thatIsLaterThanOrEqualTo("2009-02-09");
-        testSearch(TEST_USER, criterion, 5);
+        ExperimentSearchCriteria criteria = new ExperimentSearchCriteria();
+        criteria.withRegistrationDate().thatIsLaterThanOrEqualTo("2009-02-09");
+        testSearch(TEST_USER, criteria, 5);
     }
 
     @Test
     public void testSearchWithRegistrationDateThatIsEarlierThan()
     {
-        ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
-        criterion.withRegistrationDate().thatIsEarlierThanOrEqualTo("2008-11-05");
-        testSearch(TEST_USER, criterion, 7);
+        ExperimentSearchCriteria criteria = new ExperimentSearchCriteria();
+        criteria.withRegistrationDate().thatIsEarlierThanOrEqualTo("2008-11-05");
+        testSearch(TEST_USER, criteria, 7);
     }
 
     @Test
     public void testSearchWithModificationDateThatEquals()
     {
-        ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
-        criterion.withModificationDate().thatEquals("2009-03-18");
-        testSearch(TEST_USER, criterion, 12);
+        ExperimentSearchCriteria criteria = new ExperimentSearchCriteria();
+        criteria.withModificationDate().thatEquals("2009-03-18");
+        testSearch(TEST_USER, criteria, 12);
     }
 
     @Test
     public void testSearchWithAndOperator()
     {
-        ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
-        criterion.withAndOperator();
-        criterion.withCode().thatContains("TEST");
-        criterion.withCode().thatContains("SPACE");
-        testSearch(TEST_USER, criterion, "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST");
+        ExperimentSearchCriteria criteria = new ExperimentSearchCriteria();
+        criteria.withAndOperator();
+        criteria.withCode().thatContains("TEST");
+        criteria.withCode().thatContains("SPACE");
+        testSearch(TEST_USER, criteria, "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST");
     }
 
     @Test
     public void testSearchWithOrOperator()
     {
-        ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
-        criterion.withOrOperator();
-        criterion.withPermId().thatEquals("200811050952663-1029");
-        criterion.withPermId().thatEquals("200811050952663-1030");
-        testSearch(TEST_USER, criterion, "/CISD/NEMO/EXP10", "/CISD/NEMO/EXP11");
+        ExperimentSearchCriteria criteria = new ExperimentSearchCriteria();
+        criteria.withOrOperator();
+        criteria.withPermId().thatEquals("200811050952663-1029");
+        criteria.withPermId().thatEquals("200811050952663-1030");
+        testSearch(TEST_USER, criteria, "/CISD/NEMO/EXP10", "/CISD/NEMO/EXP11");
     }
 
     @Test
     public void testSearchWithSpaceUnauthorized()
     {
-        ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
-        criterion.withPermId().thatEquals("200811050951882-1028");
-        testSearch(TEST_USER, criterion, 1);
+        ExperimentSearchCriteria criteria = new ExperimentSearchCriteria();
+        criteria.withPermId().thatEquals("200811050951882-1028");
+        testSearch(TEST_USER, criteria, 1);
 
-        criterion = new ExperimentSearchCriterion();
-        criterion.withPermId().thatEquals("200811050951882-1028");
-        testSearch(TEST_SPACE_USER, criterion, 0);
+        criteria = new ExperimentSearchCriteria();
+        criteria.withPermId().thatEquals("200811050951882-1028");
+        testSearch(TEST_SPACE_USER, criteria, 0);
     }
 
-    private void testSearch(String user, ExperimentSearchCriterion criterion, String... expectedIdentifiers)
+    private void testSearch(String user, ExperimentSearchCriteria criteria, String... expectedIdentifiers)
     {
         String sessionToken = v3api.login(user, PASSWORD);
-        List<Experiment> experiments = searchExperiments(sessionToken, criterion, new ExperimentFetchOptions());
+        List<Experiment> experiments = searchExperiments(sessionToken, criteria, new ExperimentFetchOptions());
 
         assertExperimentIdentifiers(experiments, expectedIdentifiers);
     }
 
-    private void testSearch(String user, ExperimentSearchCriterion criterion, int expectedCount)
+    private void testSearch(String user, ExperimentSearchCriteria criteria, int expectedCount)
     {
         String sessionToken = v3api.login(user, PASSWORD);
-        List<Experiment> experiments = searchExperiments(sessionToken, criterion, new ExperimentFetchOptions());
+        List<Experiment> experiments = searchExperiments(sessionToken, criteria, new ExperimentFetchOptions());
 
         assertEquals(experiments.size(), expectedCount);
     }
 
 
-    private List<Experiment> searchExperiments(String sessionToken, ExperimentSearchCriterion criterion, 
+    private List<Experiment> searchExperiments(String sessionToken, ExperimentSearchCriteria criteria, 
             ExperimentFetchOptions fetchOptions)
     {
-        SearchResult<Experiment> searchResult = v3api.searchExperiments(sessionToken, criterion, fetchOptions);
+        SearchResult<Experiment> searchResult = v3api.searchExperiments(sessionToken, criteria, fetchOptions);
         v3api.logout(sessionToken);
         return searchResult.getObjects();
     }

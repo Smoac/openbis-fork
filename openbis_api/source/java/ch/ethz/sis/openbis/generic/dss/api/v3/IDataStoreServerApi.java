@@ -22,7 +22,7 @@ import java.util.List;
 import ch.ethz.sis.openbis.generic.dss.api.v3.dto.download.DataSetFileDownloadOptions;
 import ch.ethz.sis.openbis.generic.dss.api.v3.dto.entity.datasetfile.DataSetFile;
 import ch.ethz.sis.openbis.generic.dss.api.v3.dto.id.datasetfile.IDataSetFileId;
-import ch.ethz.sis.openbis.generic.dss.api.v3.dto.search.DataSetFileSearchCriterion;
+import ch.ethz.sis.openbis.generic.dss.api.v3.dto.search.DataSetFileSearchCriteria;
 import ch.systemsx.cisd.common.api.IRpcService;
 
 /**
@@ -47,7 +47,7 @@ public interface IDataStoreServerApi extends IRpcService
 
     public static final String JSON_SERVICE_URL = SERVICE_URL + ".json";
 
-    public List<DataSetFile> searchFiles(String sessionToken, DataSetFileSearchCriterion searchCriterion);
+    public List<DataSetFile> searchFiles(String sessionToken, DataSetFileSearchCriteria searchCriteria);
 
     public InputStream downloadFiles(String sessionToken, List<? extends IDataSetFileId> fileIds,
             DataSetFileDownloadOptions downloadOptions);

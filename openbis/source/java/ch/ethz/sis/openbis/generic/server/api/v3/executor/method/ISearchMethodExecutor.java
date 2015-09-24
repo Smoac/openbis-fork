@@ -21,9 +21,9 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SearchResult;
 /**
  * @author pkupczyk
  */
-public interface ISearchMethodExecutor<OBJECT, CRITERION, FETCH_OPTIONS>
+public interface ISearchMethodExecutor<OBJECT, CRITERIA, FETCH_OPTIONS>
 {
 
-    public SearchResult<OBJECT> search(String sessionToken, CRITERION searchCriterion, FETCH_OPTIONS fetchOptions);
+    public SearchResult<OBJECT> search(String sessionToken, CRITERIA searchCriteria, FETCH_OPTIONS fetchOptions);
 
 }

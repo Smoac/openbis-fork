@@ -17,13 +17,13 @@
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.project;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.common.ISearchObjectExecutor;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ProjectSearchCriterion;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ProjectSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 
 /**
  * @author pkupczyk
  */
-public interface ISearchProjectExecutor extends ISearchObjectExecutor<ProjectSearchCriterion, ProjectPE>
+public interface ISearchProjectExecutor extends ISearchObjectExecutor<ProjectSearchCriteria, ProjectPE>
 {
 
 }

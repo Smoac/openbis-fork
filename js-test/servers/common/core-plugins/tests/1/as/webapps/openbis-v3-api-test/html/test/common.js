@@ -4,14 +4,14 @@ define([ 'jquery', 'openbis', 'dto/entity/space/SpaceCreation', 'dto/entity/proj
 		'dto/entity/deletion/space/SpaceDeletionOptions', 'dto/entity/deletion/project/ProjectDeletionOptions', 'dto/entity/deletion/experiment/ExperimentDeletionOptions', 'dto/entity/deletion/sample/SampleDeletionOptions',
 		'dto/entity/deletion/dataset/DataSetDeletionOptions', 'dto/entity/deletion/material/MaterialDeletionOptions', 'dto/id/entitytype/EntityTypePermId', 'dto/id/space/SpacePermId',
 		'dto/id/project/ProjectPermId', 'dto/id/project/ProjectIdentifier', 'dto/id/experiment/ExperimentPermId', 'dto/id/experiment/ExperimentIdentifier', 'dto/id/sample/SamplePermId',
-		'dto/id/dataset/DataSetPermId', 'dto/id/dataset/FileFormatTypePermId', 'dto/id/material/MaterialPermId', 'dto/id/tag/TagCode', 'dto/search/SpaceSearchCriterion',
-		'dto/search/ProjectSearchCriterion', 'dto/search/ExperimentSearchCriterion', 'dto/search/SampleSearchCriterion', 'dto/search/DataSetSearchCriterion', 'dto/search/MaterialSearchCriterion',
+		'dto/id/dataset/DataSetPermId', 'dto/id/dataset/FileFormatTypePermId', 'dto/id/material/MaterialPermId', 'dto/id/tag/TagCode', 'dto/search/SpaceSearchCriteria',
+		'dto/search/ProjectSearchCriteria', 'dto/search/ExperimentSearchCriteria', 'dto/search/SampleSearchCriteria', 'dto/search/DataSetSearchCriteria', 'dto/search/MaterialSearchCriteria',
 		'dto/fetchoptions/space/SpaceFetchOptions', 'dto/fetchoptions/project/ProjectFetchOptions', 'dto/fetchoptions/experiment/ExperimentFetchOptions', 'dto/fetchoptions/sample/SampleFetchOptions',
 		'dto/fetchoptions/dataset/DataSetFetchOptions', 'dto/fetchoptions/material/MaterialFetchOptions', 'dto/fetchoptions/deletion/DeletionFetchOptions' ], function($, openbis, SpaceCreation,
 		ProjectCreation, ExperimentCreation, SampleCreation, MaterialCreation, AttachmentCreation, SpaceUpdate, ProjectUpdate, ExperimentUpdate, SampleUpdate, DataSetUpdate, ExternalDataUpdate,
 		MaterialUpdate, SpaceDeletionOptions, ProjectDeletionOptions, ExperimentDeletionOptions, SampleDeletionOptions, DataSetDeletionOptions, MaterialDeletionOptions, EntityTypePermId, SpacePermId,
-		ProjectPermId, ProjectIdentifier, ExperimentPermId, ExperimentIdentifier, SamplePermId, DataSetPermId, FileFormatTypePermId, MaterialPermId, TagCode, SpaceSearchCriterion,
-		ProjectSearchCriterion, ExperimentSearchCriterion, SampleSearchCriterion, DataSetSearchCriterion, MaterialSearchCriterion, SpaceFetchOptions, ProjectFetchOptions, ExperimentFetchOptions,
+		ProjectPermId, ProjectIdentifier, ExperimentPermId, ExperimentIdentifier, SamplePermId, DataSetPermId, FileFormatTypePermId, MaterialPermId, TagCode, SpaceSearchCriteria,
+		ProjectSearchCriteria, ExperimentSearchCriteria, SampleSearchCriteria, DataSetSearchCriteria, MaterialSearchCriteria, SpaceFetchOptions, ProjectFetchOptions, ExperimentFetchOptions,
 		SampleFetchOptions, DataSetFetchOptions, MaterialFetchOptions, DeletionFetchOptions) {
 
 	/*
@@ -61,12 +61,12 @@ define([ 'jquery', 'openbis', 'dto/entity/space/SpaceCreation', 'dto/entity/proj
 		this.FileFormatTypePermId = FileFormatTypePermId;
 		this.MaterialPermId = MaterialPermId;
 		this.TagCode = TagCode;
-		this.SpaceSearchCriterion = SpaceSearchCriterion;
-		this.ProjectSearchCriterion = ProjectSearchCriterion;
-		this.ExperimentSearchCriterion = ExperimentSearchCriterion;
-		this.SampleSearchCriterion = SampleSearchCriterion;
-		this.DataSetSearchCriterion = DataSetSearchCriterion;
-		this.MaterialSearchCriterion = MaterialSearchCriterion;
+		this.SpaceSearchCriteria = SpaceSearchCriteria;
+		this.ProjectSearchCriteria = ProjectSearchCriteria;
+		this.ExperimentSearchCriteria = ExperimentSearchCriteria;
+		this.SampleSearchCriteria = SampleSearchCriteria;
+		this.DataSetSearchCriteria = DataSetSearchCriteria;
+		this.MaterialSearchCriteria = MaterialSearchCriteria;
 		this.SpaceFetchOptions = SpaceFetchOptions;
 		this.ProjectFetchOptions = ProjectFetchOptions;
 		this.ExperimentFetchOptions = ExperimentFetchOptions;

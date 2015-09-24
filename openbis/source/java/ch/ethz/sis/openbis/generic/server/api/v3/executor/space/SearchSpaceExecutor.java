@@ -23,18 +23,18 @@ import org.springframework.stereotype.Component;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.common.AbstractSearchObjectManuallyExecutor;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.SpacePermId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.CodeSearchCriterion;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ISearchCriterion;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.IdSearchCriterion;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.PermIdSearchCriterion;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SpaceSearchCriterion;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.CodeSearchCriteria;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ISearchCriteria;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.IdSearchCriteria;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.PermIdSearchCriteria;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SpaceSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
  * @author pkupczyk
  */
 @Component
-public class SearchSpaceExecutor extends AbstractSearchObjectManuallyExecutor<SpaceSearchCriterion, SpacePE> implements ISearchSpaceExecutor
+public class SearchSpaceExecutor extends AbstractSearchObjectManuallyExecutor<SpaceSearchCriteria, SpacePE> implements ISearchSpaceExecutor
 {
 
     @Override
@@ -44,17 +44,17 @@ public class SearchSpaceExecutor extends AbstractSearchObjectManuallyExecutor<Sp
     }
 
     @Override
-    protected Matcher getMatcher(ISearchCriterion criterion)
+    protected Matcher getMatcher(ISearchCriteria criteria)
     {
-        if (criterion instanceof IdSearchCriterion<?>)
+        if (criteria instanceof IdSearchCriteria<?>)
         {
             return new IdMatcher();
-        } else if (criterion instanceof PermIdSearchCriterion || criterion instanceof CodeSearchCriterion)
+        } else if (criteria instanceof PermIdSearchCriteria || criteria instanceof CodeSearchCriteria)
         {
             return new CodeMatcher();
         } else
         {
-            throw new IllegalArgumentException("Unknown search criterion: " + criterion.getClass());
+            throw new IllegalArgumentException("Unknown search criteria: " + criteria.getClass());
         }
     }
 
@@ -62,9 +62,9 @@ public class SearchSpaceExecutor extends AbstractSearchObjectManuallyExecutor<Sp
     {
 
         @Override
-        protected boolean isMatching(IOperationContext context, SpacePE object, ISearchCriterion criterion)
+        protected boolean isMatching(IOperationContext context, SpacePE object, ISearchCriteria criteria)
         {
-            Object id = ((IdSearchCriterion<?>) criterion).getId();
+            Object id = ((IdSearchCriteria<?>) criteria).getId();
 
             if (id == null)
             {

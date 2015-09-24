@@ -24,7 +24,7 @@ import ch.ethz.sis.openbis.generic.server.api.v3.translator.ITranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.material.IMaterialTranslator;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material.Material;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.material.MaterialFetchOptions;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.MaterialSearchCriterion;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.MaterialSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 
 /**
@@ -32,7 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
  */
 // @Component
 public class SearchMaterialMethodExecutor extends
-        AbstractSearchMethodExecutor<Material, MaterialPE, MaterialSearchCriterion, MaterialFetchOptions>
+        AbstractSearchMethodExecutor<Material, MaterialPE, MaterialSearchCriteria, MaterialFetchOptions>
         implements ISearchMaterialMethodExecutor
 {
 
@@ -43,7 +43,7 @@ public class SearchMaterialMethodExecutor extends
     private IMaterialTranslator translator;
 
     @Override
-    protected ISearchObjectExecutor<MaterialSearchCriterion, MaterialPE> getSearchExecutor()
+    protected ISearchObjectExecutor<MaterialSearchCriteria, MaterialPE> getSearchExecutor()
     {
         return searchExecutor;
     }

@@ -18,12 +18,12 @@ package ch.ethz.sis.openbis.generic.server.api.v3.executor.method;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.Sample;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sample.SampleFetchOptions;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SampleSearchCriterion;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SampleSearchCriteria;
 
 /**
  * @author pkupczyk
  */
-public interface ISearchSampleMethodExecutor extends ISearchMethodExecutor<Sample, SampleSearchCriterion, SampleFetchOptions>
+public interface ISearchSampleMethodExecutor extends ISearchMethodExecutor<Sample, SampleSearchCriteria, SampleFetchOptions>
 {
 
 }

@@ -29,14 +29,14 @@ import ch.ethz.sis.openbis.generic.server.api.v3.translator.ITranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.project.sql.IProjectSqlTranslator;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.project.Project;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.project.ProjectFetchOptions;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ProjectSearchCriterion;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ProjectSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 
 /**
  * @author pkupczyk
  */
 @Component
-public class SearchProjectSqlMethodExecutor extends AbstractSearchMethodExecutor<Project, Long, ProjectSearchCriterion, ProjectFetchOptions>
+public class SearchProjectSqlMethodExecutor extends AbstractSearchMethodExecutor<Project, Long, ProjectSearchCriteria, ProjectFetchOptions>
         implements ISearchProjectMethodExecutor
 {
 
@@ -47,14 +47,14 @@ public class SearchProjectSqlMethodExecutor extends AbstractSearchMethodExecutor
     private IProjectSqlTranslator translator;
 
     @Override
-    protected ISearchObjectExecutor<ProjectSearchCriterion, Long> getSearchExecutor()
+    protected ISearchObjectExecutor<ProjectSearchCriteria, Long> getSearchExecutor()
     {
-        return new ISearchObjectExecutor<ProjectSearchCriterion, Long>()
+        return new ISearchObjectExecutor<ProjectSearchCriteria, Long>()
             {
                 @Override
-                public List<Long> search(IOperationContext context, ProjectSearchCriterion criterion)
+                public List<Long> search(IOperationContext context, ProjectSearchCriteria criteria)
                 {
-                    List<ProjectPE> projects = searchExecutor.search(context, criterion);
+                    List<ProjectPE> projects = searchExecutor.search(context, criteria);
                     List<Long> ids = new ArrayList<Long>();
 
                     for (ProjectPE project : projects)

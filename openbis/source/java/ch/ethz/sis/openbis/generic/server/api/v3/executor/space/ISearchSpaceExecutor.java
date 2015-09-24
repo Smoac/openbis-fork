@@ -17,13 +17,13 @@
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.space;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.common.ISearchObjectExecutor;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SpaceSearchCriterion;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SpaceSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
  * @author pkupczyk
  */
-public interface ISearchSpaceExecutor extends ISearchObjectExecutor<SpaceSearchCriterion, SpacePE>
+public interface ISearchSpaceExecutor extends ISearchObjectExecutor<SpaceSearchCriteria, SpacePE>
 {
 
 }

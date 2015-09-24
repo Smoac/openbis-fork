@@ -26,12 +26,12 @@ import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialAttribut
 import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialAttributeSearchFieldKind.REGISTRATION_DATE_FROM;
 import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialAttributeSearchFieldKind.REGISTRATION_DATE_UNTIL;
 
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.CodeSearchCriterion;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ISearchCriterion;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ModificationDateSearchCriterion;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.PermIdSearchCriterion;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.RegistrationDateSearchCriterion;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.TechIdSearchCriterion;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.CodeSearchCriteria;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ISearchCriteria;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ModificationDateSearchCriteria;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.PermIdSearchCriteria;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.RegistrationDateSearchCriteria;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.TechIdSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IAttributeSearchFieldKind;
 
 /**
@@ -41,28 +41,28 @@ public class MaterialAttributeProvider extends AbstractEntityAttributeProvider
 {
 
     @Override
-    public IAttributeSearchFieldKind getAttribute(ISearchCriterion criterion)
+    public IAttributeSearchFieldKind getAttribute(ISearchCriteria criteria)
     {
-        if (criterion instanceof TechIdSearchCriterion)
+        if (criteria instanceof TechIdSearchCriteria)
         {
             return ID;
-        } else if (criterion instanceof CodeSearchCriterion)
+        } else if (criteria instanceof CodeSearchCriteria)
         {
             return CODE;
-        } else if (criterion instanceof PermIdSearchCriterion)
+        } else if (criteria instanceof PermIdSearchCriteria)
         {
             return PERM_ID;
-        } else if (criterion instanceof RegistrationDateSearchCriterion)
+        } else if (criteria instanceof RegistrationDateSearchCriteria)
         {
-            RegistrationDateSearchCriterion dateCriterion = (RegistrationDateSearchCriterion) criterion;
-            return getDateAttribute(dateCriterion.getFieldValue(), REGISTRATION_DATE, REGISTRATION_DATE_UNTIL, REGISTRATION_DATE_FROM);
-        } else if (criterion instanceof ModificationDateSearchCriterion)
+            RegistrationDateSearchCriteria dateCriteria = (RegistrationDateSearchCriteria) criteria;
+            return getDateAttribute(dateCriteria.getFieldValue(), REGISTRATION_DATE, REGISTRATION_DATE_UNTIL, REGISTRATION_DATE_FROM);
+        } else if (criteria instanceof ModificationDateSearchCriteria)
         {
-            ModificationDateSearchCriterion dateCriterion = (ModificationDateSearchCriterion) criterion;
-            return getDateAttribute(dateCriterion.getFieldValue(), MODIFICATION_DATE, MODIFICATION_DATE_UNTIL, MODIFICATION_DATE_FROM);
+            ModificationDateSearchCriteria dateCriteria = (ModificationDateSearchCriteria) criteria;
+            return getDateAttribute(dateCriteria.getFieldValue(), MODIFICATION_DATE, MODIFICATION_DATE_UNTIL, MODIFICATION_DATE_FROM);
         } else
         {
-            throw new IllegalArgumentException("Unknown attribute criterion: " + criterion);
+            throw new IllegalArgumentException("Unknown attribute criteria: " + criteria);
         }
     }
 
