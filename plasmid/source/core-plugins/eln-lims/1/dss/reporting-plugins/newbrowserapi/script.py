@@ -563,13 +563,14 @@ def searchSamples(tr, parameters, tableBuilder, sessionId):
 	if withChildren:
 		fetchOptions.withChildren();
 	if withAncestors:
-		fetchOptions.withParents(fetchOptions);
+		fetchOptions.withParentsUsing(fetchOptions);
 	if withDescendants:
-		fetchOptions.withChildren(fetchOptions);
+		fetchOptions.withChildrenUsing(fetchOptions);
 	
 	#Standard Fetch Options, always use
 	fetchOptions.withType();
 	fetchOptions.withSpace();
+	fetchOptions.withExperiment();
 	fetchOptions.withRegistrator();
 	fetchOptions.withModifier();
 	

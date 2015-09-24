@@ -542,9 +542,65 @@ function ServerFacade(openbisServer) {
 	//
 	// Search Samples
 	//
+	this.getV3SamplesAsV1 = function(v3Samples) {
+		var v1Samples = [];
+		for(var sIdx = 0; sIdx < v3Samples.length; sIdx++) {
+			v1Samples.push(this.getV3SampleAsV1(v3Samples[sIdx]));
+		}
+		return v1Samples;
+	}
+	
+	this.getV3SampleAsV1 = function(v3Sample) {
+		var CONST_UNSUPPORTED_NUMBER = -1;
+		var CONST_UNSUPPORTED_OBJ = null;
+		var CONST_UNSUPPORTED_BOOL = false;
+		
+		var v1Sample = {};
+		v1Sample["@type"] = "Sample";
+		v1Sample["@id"] = CONST_UNSUPPORTED_NUMBER;
+		v1Sample["spaceCode"] = v3Sample.space.code;
+		v1Sample["permId"] = v3Sample.permId.permId;
+		v1Sample["code"] = v3Sample.code;
+		v1Sample["identifier"] = v3Sample.identifier.identifier;
+		v1Sample["experimentIdentifierOrNull"] = v3Sample.experiment.identifier.identifier;
+		v1Sample["sampleTypeCode"] = v3Sample.type.code;
+		v1Sample["properties"] = v3Sample.properties;
+		
+		v1Sample["registrationDetails"] = {};
+		v1Sample["registrationDetails"]["@type"] = "EntityRegistrationDetails";
+		v1Sample["registrationDetails"]["@id"] = CONST_UNSUPPORTED_NUMBER;
+		v1Sample["registrationDetails"]["userFirstName"] = v3Sample.registrator.firstName;
+		v1Sample["registrationDetails"]["userLastName"] = v3Sample.registrator.lastName;
+		v1Sample["registrationDetails"]["userEmail"] = v3Sample.registrator.email;
+		v1Sample["registrationDetails"]["userId"] = v3Sample.registrator.userId;
+		v1Sample["registrationDetails"]["modifierFirstName"]  = v3Sample.modifier.firstName;
+		v1Sample["registrationDetails"]["modifierLastName"] = v3Sample.modifier.lastName;
+		v1Sample["registrationDetails"]["modifierEmail"] = v3Sample.modifier.email;
+		v1Sample["registrationDetails"]["modifierUserId"] = v3Sample.modifier.userId;
+		v1Sample["registrationDetails"]["registrationDate"] = v3Sample.registrator.registrationDate;
+		v1Sample["registrationDetails"]["modificationDate"] = v3Sample.modifier.registrationDate;
+		v1Sample["registrationDetails"]["accessTimestamp"] = CONST_UNSUPPORTED_OBJ;
+		
+		v1Sample["parents"] = null;
+		if(v3Sample.parents) {
+			v1Sample["parents"] = this.getV3SamplesAsV1(v3Sample.parents);
+		}
+		v1Sample["children"] = null;
+		if(v3Sample.children) {
+			v1Sample["children"] = this.getV3SamplesAsV1(v3Sample.children);
+		} 
+		
+		v1Sample["stub"] = CONST_UNSUPPORTED_BOOL;
+		v1Sample["metaprojects"] = CONST_UNSUPPORTED_OBJ;
+		v1Sample["sampleTypeId"] = CONST_UNSUPPORTED_NUMBER;
+		v1Sample["id"] = CONST_UNSUPPORTED_NUMBER;
+		
+		return v1Sample;
+	}
+	
 	this.searchSamples = function(fechOptions, callbackFunction)
 	{
-		this.searchSamplesV1(fechOptions, callbackFunction);
+		this.searchSamplesV3DSS(fechOptions, callbackFunction);
 	}
 	
 	this.searchSamplesV3DSS = function(fechOptions, callbackFunction)
@@ -558,8 +614,9 @@ function ServerFacade(openbisServer) {
 				var jsonParsed = JSON.parse(json);
 				require(["util/Json"], function(Json){
 					Json.fromJson(jsonParsed).done(function(data) {
-						var samples = data.objects;
-						callbackFunction(samples);
+						var v3Samples = data.objects;
+						var samplesAsV1 = localReference.getV3SamplesAsV1(v3Samples);
+						callbackFunction(samplesAsV1);
 					}).fail(function() {
 						alert("V3 dropbox search failed to be parsed.");
 					});
