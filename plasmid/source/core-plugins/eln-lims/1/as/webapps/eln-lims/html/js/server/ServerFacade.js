@@ -71,11 +71,11 @@ function ServerFacade(openbisServer) {
 	
 	this.initServices = function(username, password, callbackFunction) {
 		var defaultDataSetCode = profile.getDefaultDataStoreCode();
-		mainController.serverFacade.createReportFromAggregationService(defaultDataSetCode, {
+		this.createReportFromAggregationService(defaultDataSetCode, {
 			"method" : "initServices",
 			"username" : username,
 			"password" : password,
-			"openBISURL" : mainController.serverFacade.openbisServer._internal.openbisUrl
+			"openBISURL" : this.openbisServer._internal.openbisUrl
 		}, function(result) {
 			callbackFunction();
 		});
@@ -199,7 +199,11 @@ function ServerFacade(openbisServer) {
 	}
 	
 	this.listExperiments = function(projects, callbackFunction) {
-		this.openbisServer.listExperiments(projects, null, callbackFunction);
+		if(projects && projects.length > 0) {
+			this.openbisServer.listExperiments(projects, null, callbackFunction);
+		} else {
+			callbackFunction({});
+		}
 	}
 	
 	this.getProjectFromIdentifier = function(identifier, callbackFunction) {
@@ -338,7 +342,21 @@ function ServerFacade(openbisServer) {
 	// Data Set Related Functions
 	//
 	this.listDataSetsForSample = function(sampleToSend, trueOrFalse, callbackFunction) {
-		this.openbisServer.listDataSetsForSample(sampleToSend, trueOrFalse, callbackFunction);
+		var _this = this;
+		var listDataSetsForV1Sample = function(v1Sample) {
+			var cleanSample = $.extend({}, v1Sample);
+			delete cleanSample.parents;
+			delete cleanSample.children;
+			_this.openbisServer.listDataSetsForSample(v1Sample, trueOrFalse, callbackFunction);
+		}
+		
+		if(sampleToSend.id !== -1) { //Is V1 Sample
+			listDataSetsForV1Sample(sampleToSend);
+		} else { //Ask for a V1 Sample
+			this.searchWithUniqueIdV1(sampleToSend.permId, function(sampleList) {
+				listDataSetsForV1Sample(sampleList[0]);
+			});
+		}
 	}
 
 	this.listFilesForDataSet = function(datasetCode, pathInDataset, trueOrFalse, callbackFunction) {
@@ -607,11 +625,6 @@ function ServerFacade(openbisServer) {
 		return v1Sample;
 	}
 	
-	this.searchSamples = function(fechOptions, callbackFunction)
-	{
-		this.searchSamplesV3DSS(fechOptions, callbackFunction);
-	}
-	
 	this.searchSamplesV3DSS = function(fechOptions, callbackFunction)
 	{
 		var localReference = this;
@@ -841,9 +854,28 @@ function ServerFacade(openbisServer) {
 		});
 	}
 	
+	this.searchSamples = function(fechOptions, callbackFunction)
+	{
+		if(profile.useV3OnDropbox) {
+			this.searchSamplesV3DSS(fechOptions, callbackFunction);
+		} else {
+			this.searchSamplesV1(fechOptions, callbackFunction);
+		}
+	}
+	
 	this.searchWithUniqueId = function(samplePermId, callbackFunction)
 	{	
 		this.searchSamples({
+			"samplePermId" : samplePermId,
+			"withProperties" : true,
+			"withAncestors" : true,
+			"withDescendants" : true
+		}, callbackFunction);
+	}
+	
+	this.searchWithUniqueIdV1 = function(samplePermId, callbackFunction)
+	{	
+		this.searchSamplesV1({
 			"samplePermId" : samplePermId,
 			"withProperties" : true,
 			"withAncestors" : true,

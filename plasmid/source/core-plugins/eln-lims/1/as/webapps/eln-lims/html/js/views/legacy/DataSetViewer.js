@@ -142,15 +142,11 @@ function DataSetViewer(containerId, profile, sample, serverFacade, datastoreDown
 		//
 		// Loading the datasets
 		//
-		var cleanSample = $.extend({}, this.sample);
-		delete cleanSample.parents;
-		delete cleanSample.children; 
-		
 		if(datasets) {
 			this._init(datasets);
 		} else {
 			var localReference = this;
-			this.serverFacade.listDataSetsForSample(cleanSample, true, function(datasets) {
+			this.serverFacade.listDataSetsForSample(this.sample, true, function(datasets) {
 				localReference._init(datasets.result);
 			});
 		}

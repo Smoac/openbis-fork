@@ -22,13 +22,9 @@ function SampleFormController(mainController, mode, sample) {
 	
 	this.init = function($container) {
 		// Loading datasets
-		var cleanSample = $.extend({}, this._sampleFormModel.sample);
-		delete cleanSample.parents;
-		delete cleanSample.children; 
-		
 		var _this = this;
 		if(mode !== FormMode.CREATE) {
-			mainController.serverFacade.listDataSetsForSample(cleanSample, true, function(datasets) {
+			mainController.serverFacade.listDataSetsForSample(this._sampleFormModel.sample, true, function(datasets) {
 				_this._sampleFormModel.datasets = datasets.result;
 				
 				//Load view
