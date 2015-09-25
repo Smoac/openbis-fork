@@ -56,7 +56,7 @@ public class SampleAuthorizationSqlValidator implements ISampleAuthorizationSqlV
                     @Override
                     public String getIdentifier()
                     {
-                        return new SampleIdentifier(theRecord.spaceCode, theRecord.containedCode, theRecord.code).getIdentifier();
+                        return new SampleIdentifier(theRecord.spaceCode, theRecord.containerCode, theRecord.code).getIdentifier();
                     }
                 }))
             {

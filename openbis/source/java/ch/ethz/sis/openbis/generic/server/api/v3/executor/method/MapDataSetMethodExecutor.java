@@ -17,7 +17,6 @@
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.method;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.common.IMapObjectByIdExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.dataset.IMapDataSetByIdExecutor;
@@ -31,8 +30,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 /**
  * @author pkupczyk
  */
-@Component
-public class MapDataSetMethodExecutor extends AbstractMapMethodExecutor<IDataSetId, DataPE, DataSet, DataSetFetchOptions> implements IMapDataSetMethodExecutor
+// @Component
+public class MapDataSetMethodExecutor extends AbstractMapMethodExecutor<IDataSetId, DataPE, DataSet, DataSetFetchOptions> implements
+        IMapDataSetMethodExecutor
 {
 
     @Autowired

@@ -26,4 +26,6 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 public class ServerTimeZone implements ITimeZone
 {
 
+    private static final long serialVersionUID = 1L;
+
 }

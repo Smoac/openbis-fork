@@ -25,6 +25,8 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 public class NormalDateFormat implements IDateFormat
 {
 
+    private static final long serialVersionUID = 1L;
+
     @Override
     public String getFormat()
     {

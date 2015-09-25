@@ -17,7 +17,6 @@
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.method;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.common.ISearchObjectExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.dataset.ISearchDataSetExecutor;
@@ -31,7 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 /**
  * @author pkupczyk
  */
-@Component
+// @Component
 public class SearchDataSetMethodExecutor extends
         AbstractSearchMethodExecutor<DataSet, DataPE, DataSetSearchCriteria, DataSetFetchOptions>
         implements ISearchDataSetMethodExecutor

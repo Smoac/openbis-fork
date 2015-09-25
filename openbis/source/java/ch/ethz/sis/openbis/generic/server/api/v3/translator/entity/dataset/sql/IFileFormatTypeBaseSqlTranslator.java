@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 ETH Zuerich, CISD
+ * Copyright 2015 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.shared.api.v3.dto.search;
+package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.dataset.sql;
 
-import ch.systemsx.cisd.base.annotation.JsonObject;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql.IObjectBaseTranslator;
 
 /**
  * @author pkupczyk
  */
-@JsonObject("dto.search.AbstractTimeZoneValue")
-public class AbstractTimeZoneValue
+public interface IFileFormatTypeBaseSqlTranslator extends IObjectBaseTranslator<FileFormatTypeBaseRecord>
 {
 
 }

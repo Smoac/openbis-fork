@@ -25,12 +25,14 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 public class LongDateFormat implements IDateFormat
 {
 
+    private static final long serialVersionUID = 1L;
+
     @Override
     public String getFormat()
     {
         return "y-M-d HH:mm:ss";
     }
-    
+
     @Override
     public String toString()
     {

@@ -31,7 +31,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.EmptyFetchOpti
  * @author pkupczyk
  */
 public abstract class ObjectBaseTranslator<RECORD extends ObjectBaseRecord> extends
-        AbstractCachingTranslator<Long, ObjectHolder<RECORD>, EmptyFetchOptions>
+        AbstractCachingTranslator<Long, ObjectHolder<RECORD>, EmptyFetchOptions> implements IObjectBaseTranslator<RECORD>
 {
 
     @Override

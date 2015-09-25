@@ -16,13 +16,15 @@
 
 package ch.ethz.sis.openbis.generic.shared.api.v3.dto.search;
 
+import java.io.Serializable;
+
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
  * @author pkupczyk
  */
 @JsonObject("dto.search.IDateFormat")
-public interface IDateFormat
+public interface IDateFormat extends Serializable
 {
 
     public String getFormat();

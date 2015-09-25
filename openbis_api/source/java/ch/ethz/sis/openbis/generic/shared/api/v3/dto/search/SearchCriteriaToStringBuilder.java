@@ -71,15 +71,15 @@ public class SearchCriteriaToStringBuilder
             sb.append(indentation + "with operator '" + operator + "'\n");
         }
 
-        for (ISearchCriteria criteria : criteria)
+        for (ISearchCriteria aCriteria : criteria)
         {
-            if (criteria instanceof AbstractCompositeSearchCriteria)
+            if (aCriteria instanceof AbstractCompositeSearchCriteria)
             {
-                AbstractCompositeSearchCriteria compositeCriteria = (AbstractCompositeSearchCriteria) criteria;
+                AbstractCompositeSearchCriteria compositeCriteria = (AbstractCompositeSearchCriteria) aCriteria;
                 sb.append(compositeCriteria.toString(indentation));
             } else
             {
-                sb.append(indentation + criteria.toString() + "\n");
+                sb.append(indentation + aCriteria.toString() + "\n");
             }
         }
         return sb.toString();

@@ -18,19 +18,15 @@ package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.dataset.sql;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql.ObjectToManyRelationTranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.dataset.IDataSetTranslator;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.DataSetFetchOptions;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 
 /**
  * @author pkupczyk
@@ -43,20 +39,12 @@ public abstract class ObjectToDataSetsSqlTranslator extends ObjectToManyRelation
     private IDAOFactory daoFactory;
 
     @Autowired
-    private IDataSetTranslator dataSetTranslator;
+    private IDataSetSqlTranslator dataSetTranslator;
 
     @Override
     protected Map<Long, DataSet> translateRelated(TranslationContext context, Collection<Long> relatedIds, DataSetFetchOptions relatedFetchOptions)
     {
-        List<DataPE> related = daoFactory.getDataDAO().listByIDs(relatedIds);
-        Map<DataPE, DataSet> translated = dataSetTranslator.translate(context, related, relatedFetchOptions);
-        Map<Long, DataSet> result = new HashMap<Long, DataSet>();
-
-        for (Map.Entry<DataPE, DataSet> entry : translated.entrySet())
-        {
-            result.put(entry.getKey().getId(), entry.getValue());
-        }
-        return result;
+        return dataSetTranslator.translate(context, relatedIds, relatedFetchOptions);
     }
 
     @Override

@@ -28,6 +28,8 @@ public class PropertyQueryGenerator
         createExperimentPropertyHistoryQuery();
         createSamplePropertyQuery();
         createSamplePropertyHistoryQuery();
+        createDataSetPropertyQuery();
+        createDataSetPropertyHistoryQuery();
         createMaterialPropertyQuery();
         createMaterialPropertyHistoryQuery();
     }
@@ -74,6 +76,27 @@ public class PropertyQueryGenerator
         System.out.println("Sample property history: \n" + createPropertyHistoryQuery(params));
     }
 
+    private static void createDataSetPropertyQuery()
+    {
+        PropertyQueryParams params = new PropertyQueryParams();
+        params.propertyTable = "data_set_properties";
+        params.propertyTableEntityIdColumn = "ds_id";
+        params.propertyTableEntityTypePropertyTypeIdColumn = "dstpt_id";
+        params.entityTypePropertyTypeTable = "data_set_type_property_types";
+        System.out.println("DataSet property: \n" + createPropertyQuery(params));
+        System.out.println("DataSet material property: \n" + createMaterialPropertyQuery(params));
+    }
+
+    private static void createDataSetPropertyHistoryQuery()
+    {
+        PropertyHistoryQueryParams params = new PropertyHistoryQueryParams();
+        params.propertyHistoryTable = "data_set_properties_history";
+        params.propertyHistoryTableEntityIdColumn = "ds_id";
+        params.propertyHistoryTableEntityTypePropertyTypeIdColumn = "dstpt_id";
+        params.entityTypePropertyTypeTable = "data_set_type_property_types";
+        System.out.println("DataSet property history: \n" + createPropertyHistoryQuery(params));
+    }
+
     private static void createMaterialPropertyQuery()
     {
         PropertyQueryParams params = new PropertyQueryParams();
@@ -99,7 +122,7 @@ public class PropertyQueryGenerator
     {
         StringBuilder sb = new StringBuilder();
         sb.append("select ");
-        sb.append("p." + params.propertyTableEntityIdColumn + " as entityId, ");
+        sb.append("p." + params.propertyTableEntityIdColumn + " as objectId, ");
         sb.append("pt.code as propertyCode, ");
         sb.append("p.value as propertyValue, ");
         sb.append("m.code as materialPropertyValueCode, ");
@@ -121,7 +144,7 @@ public class PropertyQueryGenerator
     {
         StringBuilder sb = new StringBuilder();
         sb.append("select ");
-        sb.append("p." + params.propertyTableEntityIdColumn + " as entityId, ");
+        sb.append("p." + params.propertyTableEntityIdColumn + " as objectId, ");
         sb.append("pt.code as propertyCode, ");
         sb.append("p.mate_prop_id as propertyValue \n");
         sb.append("from ");
@@ -137,7 +160,7 @@ public class PropertyQueryGenerator
     {
         StringBuilder sb = new StringBuilder();
         sb.append("select ");
-        sb.append("ph." + params.propertyHistoryTableEntityIdColumn + " as entityId, ");
+        sb.append("ph." + params.propertyHistoryTableEntityIdColumn + " as objectId, ");
         sb.append("ph.pers_id_author as authorId, ");
         sb.append("pt.code as propertyCode, ");
         sb.append("ph.value as propertyValue, ");

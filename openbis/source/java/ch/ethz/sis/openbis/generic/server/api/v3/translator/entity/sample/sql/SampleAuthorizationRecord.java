@@ -28,6 +28,6 @@ public class SampleAuthorizationRecord
 
     public String spaceCode;
 
-    public String containedCode;
+    public String containerCode;
 
 }

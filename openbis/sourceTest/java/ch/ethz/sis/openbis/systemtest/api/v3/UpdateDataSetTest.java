@@ -512,7 +512,6 @@ public class UpdateDataSetTest extends AbstractSampleTest
             }, "Circular dependency found: 20081105092259000-8");
     }
 
-    @SuppressWarnings("unchecked")
     @Test
     public void testUpdateWithComponentAddRemove()
     {
@@ -538,7 +537,6 @@ public class UpdateDataSetTest extends AbstractSampleTest
         AssertionUtil.assertCollectionContainsOnly(dataSetCodes(result.getContained()), "COMPONENT_1B", "COMPONENT_2A");
     }
 
-    @SuppressWarnings("unchecked")
     @Test
     public void testUpdateWithContainerAddRemove()
     {
@@ -596,7 +594,6 @@ public class UpdateDataSetTest extends AbstractSampleTest
             }, containerId);
     }
 
-    @SuppressWarnings("unchecked")
     @Test
     public void testUpdateWithTagsWithSetAddRemove()
     {
