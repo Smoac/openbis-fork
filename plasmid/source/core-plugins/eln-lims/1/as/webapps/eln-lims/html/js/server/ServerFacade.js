@@ -560,14 +560,6 @@ function ServerFacade(openbisServer) {
 	//
 	// Search Samples
 	//
-	this.pojoIdGenerator = 0;
-	this.getPOJOId = function() {
-		if(this.pojoIdGenerator === 2147483647) {
-			this.pojoIdGenerator = 0;
-		}
-		this.pojoIdGenerator++;
-		return this.pojoIdGenerator;
-	}
 	
 	this.getV3SamplesAsV1 = function(v3Samples) {
 		var v1Samples = [];
@@ -584,28 +576,28 @@ function ServerFacade(openbisServer) {
 		
 		var v1Sample = {};
 		v1Sample["@type"] = "Sample";
-		v1Sample["@id"] = this.getPOJOId();
+		v1Sample["@id"] = CONST_UNSUPPORTED_NUMBER;
 		v1Sample["spaceCode"] = v3Sample.space.code;
 		v1Sample["permId"] = v3Sample.permId.permId;
 		v1Sample["code"] = v3Sample.code;
 		v1Sample["identifier"] = v3Sample.identifier.identifier;
-		v1Sample["experimentIdentifierOrNull"] = v3Sample.experiment.identifier.identifier;
+		v1Sample["experimentIdentifierOrNull"] = (v3Sample.experiment)?v3Sample.experiment.identifier.identifier:null;
 		v1Sample["sampleTypeCode"] = v3Sample.type.code;
 		v1Sample["properties"] = v3Sample.properties;
 		
 		v1Sample["registrationDetails"] = {};
 		v1Sample["registrationDetails"]["@type"] = "EntityRegistrationDetails";
-		v1Sample["registrationDetails"]["@id"] = this.getPOJOId();
+		v1Sample["registrationDetails"]["@id"] = CONST_UNSUPPORTED_NUMBER;
 		v1Sample["registrationDetails"]["userFirstName"] = v3Sample.registrator.firstName;
 		v1Sample["registrationDetails"]["userLastName"] = v3Sample.registrator.lastName;
 		v1Sample["registrationDetails"]["userEmail"] = v3Sample.registrator.email;
 		v1Sample["registrationDetails"]["userId"] = v3Sample.registrator.userId;
-		v1Sample["registrationDetails"]["modifierFirstName"]  = v3Sample.modifier.firstName;
-		v1Sample["registrationDetails"]["modifierLastName"] = v3Sample.modifier.lastName;
-		v1Sample["registrationDetails"]["modifierEmail"] = v3Sample.modifier.email;
-		v1Sample["registrationDetails"]["modifierUserId"] = v3Sample.modifier.userId;
+		v1Sample["registrationDetails"]["modifierFirstName"]  = (v3Sample.modifier)?v3Sample.modifier.firstName:null;
+		v1Sample["registrationDetails"]["modifierLastName"] = (v3Sample.modifier)?v3Sample.modifier.lastName:null;
+		v1Sample["registrationDetails"]["modifierEmail"] = (v3Sample.modifier)?v3Sample.modifier.email:null;
+		v1Sample["registrationDetails"]["modifierUserId"] = (v3Sample.modifier)?v3Sample.modifier.userId:null;
 		v1Sample["registrationDetails"]["registrationDate"] = v3Sample.registrator.registrationDate;
-		v1Sample["registrationDetails"]["modificationDate"] = v3Sample.modifier.registrationDate;
+		v1Sample["registrationDetails"]["modificationDate"] = (v3Sample.modifier)?v3Sample.modifier.registrationDate:null;
 		v1Sample["registrationDetails"]["accessTimestamp"] = CONST_UNSUPPORTED_OBJ;
 		
 		v1Sample["parents"] = null;
