@@ -856,7 +856,7 @@ function ServerFacade(openbisServer) {
 	
 	this.searchSamples = function(fechOptions, callbackFunction)
 	{
-		if(profile.useV3OnDropbox) {
+		if(profile.searchSamplesUsingV3OnDropbox) {
 			this.searchSamplesV3DSS(fechOptions, callbackFunction);
 		} else {
 			this.searchSamplesV1(fechOptions, callbackFunction);

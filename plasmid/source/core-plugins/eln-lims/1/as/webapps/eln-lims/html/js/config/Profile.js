@@ -33,7 +33,7 @@ $.extend(DefaultProfile.prototype, {
 		
 		this.searchDomains = [ { "@id" : -1, "@type" : "GobalSearch", label : "Global", name : "global"}];
 		this.inventorySpaces = ["MATERIALS", "METHODS"];
-		this.useV3OnDropbox = false;
+		this.searchSamplesUsingV3OnDropbox = false;
 		this.isInventorySpace = function(spaceCode) {
 			return ($.inArray(spaceCode, this.inventorySpaces) !== -1);
 		}
