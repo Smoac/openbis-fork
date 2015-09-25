@@ -26,6 +26,8 @@ from ch.ethz.sis.openbis.generic.shared.api.v3.dto.search import SearchResult;
 from ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample import SampleIdentifier;
 from ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment import ExperimentIdentifier;
 from ch.systemsx.cisd.openbis.generic.shared.api.v3.json import GenericObjectMapper;
+from java.util import Date;
+from java.text import SimpleDateFormat;
 
 from ch.systemsx.cisd.common.spring import HttpInvokerUtils;
 from org.apache.commons.io import IOUtils
@@ -539,9 +541,13 @@ def searchSamples(tr, parameters, tableBuilder, sessionId):
 	if sampleTypeCode is not None:
 		criterion.withType().withCode().thatEquals(sampleTypeCode);
 	if registrationDate is not None:
-		criterion.withRegistrationDate().thatEquals(registrationDate); #TO-DO Convert to Java date from weird JS format
+		formatter = SimpleDateFormat("yyyy-MM-dd");
+		registrationDateObject = formatter.parse(registrationDate);
+		criterion.withRegistrationDate().thatEquals(registrationDateObject);
 	if modificationDate is not None:
-		criterion.withModificationDate().thatEquals(modificationDate); #TO-DO Convert to Java date from weird JS format
+		formatter = SimpleDateFormat("yyyy-MM-dd");
+		modificationDateObject = formatter.parse(modificationDate);
+		criterion.withModificationDate().thatEquals(modificationDateObject);
 	
 	#Properties
 	if properyKeyValueList is not None:
