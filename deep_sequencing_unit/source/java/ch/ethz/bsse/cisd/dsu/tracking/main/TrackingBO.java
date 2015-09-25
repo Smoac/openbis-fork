@@ -262,7 +262,7 @@ public class TrackingBO
                     }
                 }
                 String laneString = currentLaneId.toString().substring(currentLaneId.toString().length() - 1);
-                changedLanesMap.put(runNameFolder + ":" + laneString, laneSpace);
+                changedLanesMap.put(runNameFolder + ":" + laneString, laneSpace + " " + lane.getCode());
                 LogUtils.info("DataSetID: " + newDataSetID + " of NEW data Sets > MAX DataSet id for this sample: " + maxDatasetIdForSample);
             }
         }
