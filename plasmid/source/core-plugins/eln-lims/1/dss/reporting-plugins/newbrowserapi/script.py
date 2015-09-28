@@ -103,7 +103,8 @@ def process(tr, parameters, tableBuilder):
 		isOk = insertUpdateSample(tr, parameters, tableBuilder);
 	if method == "updateSample":
 		isOk = insertUpdateSample(tr, parameters, tableBuilder);
-	
+	if method == "moveSample":
+		isOk = moveSample(tr, parameters, tableBuilder);
 	if method == "insertDataSet":
 		isOk = insertDataSet(tr, parameters, tableBuilder);
 	if method == "updateDataSet":
@@ -455,6 +456,16 @@ def insertUpdateSample(tr, parameters, tableBuilder):
 	#Return from the call
 	return True;
 	
+def moveSample(tr, parameters, tableBuilder):
+	sampleIdentifier = parameters.get("sampleIdentifier"); #String
+	experimentIdentifier = parameters.get("experimentIdentifier"); #String
+	
+	sample = getSampleByIdentifierForUpdate(tr, sampleIdentifier); #Retrieve Sample
+	experiment = tr.getExperiment(experimentIdentifier); #Retrieve Experiment
+	
+	sample.setExperiment(experiment);
+	return True
+
 def insertUpdateExperiment(tr, parameters, tableBuilder):
 	
 	#Mandatory parameters
