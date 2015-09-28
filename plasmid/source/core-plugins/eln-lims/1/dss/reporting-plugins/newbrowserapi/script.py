@@ -21,7 +21,7 @@ from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria import Ma
 
 from ch.ethz.sis.openbis.generic.shared.api.v3 import IApplicationServerApi
 from ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sample import SampleFetchOptions;
-from ch.ethz.sis.openbis.generic.shared.api.v3.dto.search import SampleSearchCriterion;
+from ch.ethz.sis.openbis.generic.shared.api.v3.dto.search import SampleSearchCriteria;
 from ch.ethz.sis.openbis.generic.shared.api.v3.dto.search import SearchResult;
 from ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample import SampleIdentifier;
 from ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment import ExperimentIdentifier;
@@ -523,7 +523,7 @@ def searchSamples(tr, parameters, tableBuilder, sessionId):
 	withDescendants = fechOptions.get("withDescendants");
 
 	#Search Setup
-	criterion = SampleSearchCriterion();
+	criterion = SampleSearchCriteria();
 	criterion.withAndOperator();
 	fetchOptions = SampleFetchOptions();
 	

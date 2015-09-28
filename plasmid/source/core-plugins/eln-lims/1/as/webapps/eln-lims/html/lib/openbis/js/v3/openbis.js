@@ -302,68 +302,68 @@ define([ 'jquery', 'util/Json' ], function($, stjsUtil) {
 			});
 		}
 
-		this.searchSpaces = function(criterion, fetchOptions) {
+		this.searchSpaces = function(criteria, fetchOptions) {
 			var thisFacade = this;
 			return thisFacade._private.ajaxRequest({
 				url : openbisUrl,
 				data : {
 					"method" : "searchSpaces",
-					"params" : [ thisFacade._private.sessionToken, criterion, fetchOptions ]
+					"params" : [ thisFacade._private.sessionToken, criteria, fetchOptions ]
 				}
 			});
 		}
 
-		this.searchProjects = function(criterion, fetchOptions) {
+		this.searchProjects = function(criteria, fetchOptions) {
 			var thisFacade = this;
 			return thisFacade._private.ajaxRequest({
 				url : openbisUrl,
 				data : {
 					"method" : "searchProjects",
-					"params" : [ thisFacade._private.sessionToken, criterion, fetchOptions ]
+					"params" : [ thisFacade._private.sessionToken, criteria, fetchOptions ]
 				}
 			});
 		}
 
-		this.searchExperiments = function(criterion, fetchOptions) {
+		this.searchExperiments = function(criteria, fetchOptions) {
 			var thisFacade = this;
 			return thisFacade._private.ajaxRequest({
 				url : openbisUrl,
 				data : {
 					"method" : "searchExperiments",
-					"params" : [ thisFacade._private.sessionToken, criterion, fetchOptions ]
+					"params" : [ thisFacade._private.sessionToken, criteria, fetchOptions ]
 				}
 			})
 		}
 
-		this.searchSamples = function(criterion, fetchOptions) {
+		this.searchSamples = function(criteria, fetchOptions) {
 			var thisFacade = this;
 			return thisFacade._private.ajaxRequest({
 				url : openbisUrl,
 				data : {
 					"method" : "searchSamples",
-					"params" : [ thisFacade._private.sessionToken, criterion, fetchOptions ]
+					"params" : [ thisFacade._private.sessionToken, criteria, fetchOptions ]
 				}
 			});
 		}
 
-		this.searchDataSets = function(criterion, fetchOptions) {
+		this.searchDataSets = function(criteria, fetchOptions) {
 			var thisFacade = this;
 			return thisFacade._private.ajaxRequest({
 				url : openbisUrl,
 				data : {
 					"method" : "searchDataSets",
-					"params" : [ thisFacade._private.sessionToken, criterion, fetchOptions ]
+					"params" : [ thisFacade._private.sessionToken, criteria, fetchOptions ]
 				}
 			});
 		}
 
-		this.searchMaterials = function(criterion, fetchOptions) {
+		this.searchMaterials = function(criteria, fetchOptions) {
 			var thisFacade = this;
 			return thisFacade._private.ajaxRequest({
 				url : openbisUrl,
 				data : {
 					"method" : "searchMaterials",
-					"params" : [ thisFacade._private.sessionToken, criterion, fetchOptions ]
+					"params" : [ thisFacade._private.sessionToken, criteria, fetchOptions ]
 				}
 			});
 		}
