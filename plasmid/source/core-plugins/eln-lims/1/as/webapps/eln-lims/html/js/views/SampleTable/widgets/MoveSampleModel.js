@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 
-function MoveSampleModel(samplePermId, actionFunction) {
+function MoveSampleModel(samplePermId) {
 	this.samplePermId = samplePermId;
 	this.sample = null;
-	this.actionFunction = actionFunction;
+	this.isNewExperiment = null;
+	this.experimentIdentifier = null;
+	this.experimentType = null;
 }

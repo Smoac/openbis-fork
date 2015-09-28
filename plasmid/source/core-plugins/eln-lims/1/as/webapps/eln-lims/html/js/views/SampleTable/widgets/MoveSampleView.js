@@ -34,8 +34,10 @@ function MoveSampleView(moveSampleController, moveSampleModel) {
 		$window.append(FormUtil.getFieldForComponentWithLabel(FormUtil.getOptionsRadioButtons("oldOrNewExp",true, ["Existing Experiment", "New Experiment"], function(event) {
 			var value = $(event.target).val();
 			if(value === "Existing Experiment") {
+				_this._moveSampleModel.isNewExperiment = false;
 				_this.repaintExistingExperiment();
 			} else {
+				_this._moveSampleModel.isNewExperiment = true;
 				_this.repaintNewExperiment();
 			}
 		}), ""));
@@ -44,6 +46,10 @@ function MoveSampleView(moveSampleController, moveSampleModel) {
 		this.repaintExistingExperiment();
 		
 		var $btnAccept = $('<input>', { 'type': 'submit', 'class' : 'btn btn-primary', 'value' : 'Accept' });
+		$btnAccept.click(function() {
+			_this._moveSampleController.move();
+		});
+		
 		var $btnCancel = $('<a>', { 'class' : 'btn btn-default' }).append('Cancel');
 		$btnCancel.click(function() {
 			Util.unblockUI();
@@ -69,12 +75,18 @@ function MoveSampleView(moveSampleController, moveSampleModel) {
 	}
 	
 	this.repaintExistingExperiment = function() {
+		var _this = this;
 		$experimentSection.empty();
 		var $expProjDropdown = $("<div>");
 		$experimentSection.append(FormUtil.getFieldForComponentWithLabel($expProjDropdown, "Future Experiment"));
 		FormUtil.getProjectAndExperimentsDropdown(false, true, function($dropdown) {
+			$dropdown.change(function(event){
+				var value = $(event.target).val();
+				_this._moveSampleModel.experimentIdentifier = value;
+			});
 			$expProjDropdown.append($dropdown);
 		});
+		
 	}
 	
 }

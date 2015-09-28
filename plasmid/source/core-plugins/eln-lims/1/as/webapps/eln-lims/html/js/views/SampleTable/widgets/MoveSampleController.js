@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-function MoveSampleController(samplePermId, actionFunction) {
-	this._moveSampleModel = new MoveSampleModel(samplePermId, actionFunction);
+function MoveSampleController(samplePermId) {
+	this._moveSampleModel = new MoveSampleModel(samplePermId);
 	this._moveSampleView = new MoveSampleView(this, this._moveSampleModel);
 	
 	this.init = function() {
@@ -24,5 +24,9 @@ function MoveSampleController(samplePermId, actionFunction) {
 			_this._moveSampleModel.sample = data[0];
 			_this._moveSampleView.repaint();
 		});
+	}
+	
+	this.move = function() {
+		var breakMePlease = 0;
 	}
 }
