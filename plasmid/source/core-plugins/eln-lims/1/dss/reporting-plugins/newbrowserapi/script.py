@@ -459,9 +459,13 @@ def insertUpdateSample(tr, parameters, tableBuilder):
 def moveSample(tr, parameters, tableBuilder):
 	sampleIdentifier = parameters.get("sampleIdentifier"); #String
 	experimentIdentifier = parameters.get("experimentIdentifier"); #String
+	experimentType = parameters.get("experimentType"); #String
 	
 	sample = getSampleByIdentifierForUpdate(tr, sampleIdentifier); #Retrieve Sample
 	experiment = tr.getExperiment(experimentIdentifier); #Retrieve Experiment
+	
+	if experiment is None:
+		experiment = tr.createNewExperiment(experimentIdentifier, experimentType);
 	
 	sample.setExperiment(experiment);
 	return True

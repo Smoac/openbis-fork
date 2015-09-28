@@ -35,7 +35,8 @@ function MoveSampleController(samplePermId) {
 		
 		mainController.serverFacade.moveSample(
 				this._moveSampleModel.sample.identifier,
-				this._moveSampleModel.experimentIdentifier, function(isOK) {
+				this._moveSampleModel.experimentIdentifier,
+				this._moveSampleModel.experimentType, function(isOK) {
 					if(isOK) {
 						Util.showSuccess("Sample " + _this._moveSampleModel.sample.identifier + " moved to " + _this._moveSampleModel.experimentIdentifier, function() { Util.unblockUI(); });
 					} else {

@@ -413,12 +413,13 @@ function ServerFacade(openbisServer) {
 	//
 	// Sample Others functions
 	//
-	this.moveSample = function(sampleIdentifier, experimentIdentifier, callbackFunction) {
+	this.moveSample = function(sampleIdentifier, experimentIdentifier, experimentType, callbackFunction) {
 		this.createReportFromAggregationService(profile.getDefaultDataStoreCode(),
 				{
 					"method" : "moveSample",
 					"sampleIdentifier" : sampleIdentifier,
-					"experimentIdentifier" : experimentIdentifier
+					"experimentIdentifier" : experimentIdentifier,
+					"experimentType" : experimentType
 				},
 				function(data){
 					if(data.result.rows[0][0].value == "OK") {
