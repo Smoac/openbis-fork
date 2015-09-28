@@ -158,7 +158,7 @@ var SampleDataGridUtil = new function() {
 			sortable : true
 		});
 		
-		columns.push(mainController.createOperationsColumn());
+		columns.push(this.createOperationsColumn());
 		
 		//Fill data model
 		var getDataList = function(callback) {
@@ -198,5 +198,59 @@ var SampleDataGridUtil = new function() {
 		var configKey = "SAMPLE_TABLE_"+ sampleType.code;
 		var dataGridController = new DataGridController(null, columns, getDataList, rowClick, false, configKey);
 		return dataGridController;
+	}
+	
+	this.createOperationsColumn = function() {
+		return {
+			label : "Operations",
+			property : 'operations',
+			isExportable: false,
+			sortable : false,
+			render : function(data) {
+				//Dropdown Setup
+				var $dropDownMenu = $("<span>", { class : 'dropdown' });
+				var $caret = $("<a>", { 'href' : '#', 'data-toggle' : 'dropdown', class : 'dropdown-toggle btn btn-default'}).append("Operations ").append($("<b>", { class : 'caret' }));
+				var $list = $("<ul>", { class : 'dropdown-menu', 'role' : 'menu', 'aria-labelledby' :'sampleTableDropdown' });
+				$dropDownMenu.append($caret);
+				$dropDownMenu.append($list);
+				
+				var clickFunction = function($dropDown) {
+					return function(event) {
+						event.stopPropagation();
+						event.preventDefault();
+						$caret.dropdown('toggle');
+					};
+				}
+				$dropDownMenu.dropdown();
+				$dropDownMenu.click(clickFunction($dropDownMenu));
+				
+				var $openHierarchy = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'Open Hierarchy'}).append("Open Hierarchy"));
+				$openHierarchy.click(function(e) {
+					mainController.changeView('showSampleHierarchyPage', data.permId);
+				});
+				$list.append($openHierarchy);
+				
+				var $openHierarchy = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'Open Hierarchy Table'}).append("Open Hierarchy Table"));
+				$openHierarchy.click(function(e) {
+					mainController.changeView('showSampleHierarchyTablePage', data.permId);
+				});
+				$list.append($openHierarchy);
+				
+				var $openHierarchy = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'Move'}).append("Move"));
+				$openHierarchy.click(function(e) {
+					var moveSampleController = new MoveSampleController(data.permId)
+					moveSampleController.init();
+				});
+				$list.append($openHierarchy);
+				
+				return $dropDownMenu;
+			},
+			filter : function(data, filter) {
+				return false;
+			},
+			sort : function(data1, data2, asc) {
+				return 0;
+			}
+		}
 	}
 }
