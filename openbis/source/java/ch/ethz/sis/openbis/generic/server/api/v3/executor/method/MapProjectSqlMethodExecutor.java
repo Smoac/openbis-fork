@@ -22,7 +22,7 @@ import org.springframework.stereotype.Component;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.common.IMapObjectByIdExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.project.IMapProjectTechIdByIdExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.ITranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.project.sql.IProjectSqlTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.project.IProjectTranslator;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.project.Project;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.project.ProjectFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.IProjectId;
@@ -39,7 +39,7 @@ public class MapProjectSqlMethodExecutor extends AbstractMapMethodExecutor<IProj
     private IMapProjectTechIdByIdExecutor mapExecutor;
 
     @Autowired
-    private IProjectSqlTranslator translator;
+    private IProjectTranslator translator;
 
     @Override
     protected IMapObjectByIdExecutor<IProjectId, Long> getMapExecutor()

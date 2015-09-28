@@ -21,7 +21,7 @@ import java.util.List;
 import net.lemnik.eodsql.Select;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.common.TechIdStringIdentifierRecord;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql.ObjectQuery;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.ObjectQuery;
 import ch.systemsx.cisd.common.db.mapper.StringArrayMapper;
 
 /**

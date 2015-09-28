@@ -22,7 +22,7 @@ import org.springframework.stereotype.Component;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.common.IMapObjectByIdExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.dataset.IMapDataSetTechIdByIdExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.ITranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.dataset.sql.IDataSetSqlTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.dataset.IDataSetTranslator;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.DataSetFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.IDataSetId;
@@ -39,7 +39,7 @@ public class MapDataSetSqlMethodExecutor extends AbstractMapMethodExecutor<IData
     private IMapDataSetTechIdByIdExecutor mapExecutor;
 
     @Autowired
-    private IDataSetSqlTranslator translator;
+    private IDataSetTranslator translator;
 
     @Override
     protected IMapObjectByIdExecutor<IDataSetId, Long> getMapExecutor()

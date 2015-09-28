@@ -22,7 +22,7 @@ import org.springframework.stereotype.Component;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.common.ISearchObjectExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.experiment.ISearchExperimentIdExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.ITranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.experiment.sql.IExperimentSqlTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.experiment.IExperimentTranslator;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.experiment.ExperimentFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ExperimentSearchCriteria;
@@ -40,7 +40,7 @@ public class SearchExperimentSqlMethodExecutor extends
     private ISearchExperimentIdExecutor searchExecutor;
 
     @Autowired
-    private IExperimentSqlTranslator translator;
+    private IExperimentTranslator translator;
 
     @Override
     protected ISearchObjectExecutor<ExperimentSearchCriteria, Long> getSearchExecutor()

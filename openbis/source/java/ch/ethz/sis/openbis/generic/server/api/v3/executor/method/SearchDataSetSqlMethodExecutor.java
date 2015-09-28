@@ -22,7 +22,7 @@ import org.springframework.stereotype.Component;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.common.ISearchObjectExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.dataset.ISearchDataSetIdExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.ITranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.dataset.sql.IDataSetSqlTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.dataset.IDataSetTranslator;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.DataSetFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.DataSetSearchCriteria;
@@ -40,7 +40,7 @@ public class SearchDataSetSqlMethodExecutor extends
     private ISearchDataSetIdExecutor searchExecutor;
 
     @Autowired
-    private IDataSetSqlTranslator translator;
+    private IDataSetTranslator translator;
 
     @Override
     protected ISearchObjectExecutor<DataSetSearchCriteria, Long> getSearchExecutor()

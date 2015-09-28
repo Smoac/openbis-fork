@@ -22,7 +22,7 @@ import org.springframework.stereotype.Component;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.common.IMapObjectByIdExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.sample.IMapSampleTechIdByIdExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.ITranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.sample.sql.ISampleSqlTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.sample.ISampleTranslator;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.Sample;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sample.SampleFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.ISampleId;
@@ -39,7 +39,7 @@ public class MapSampleSqlMethodExecutor extends AbstractMapMethodExecutor<ISampl
     private IMapSampleTechIdByIdExecutor mapExecutor;
 
     @Autowired
-    private ISampleSqlTranslator translator;
+    private ISampleTranslator translator;
 
     @Override
     protected IMapObjectByIdExecutor<ISampleId, Long> getMapExecutor()

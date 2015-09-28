@@ -27,7 +27,7 @@ import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.common.IMapObjectByIdExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.experiment.IMapExperimentByIdExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.ITranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.experiment.sql.IExperimentSqlTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.experiment.IExperimentTranslator;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.experiment.ExperimentFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.IExperimentId;
@@ -45,7 +45,7 @@ public class MapExperimentSqlMethodExecutor extends AbstractMapMethodExecutor<IE
     private IMapExperimentByIdExecutor mapExecutor;
 
     @Autowired
-    private IExperimentSqlTranslator translator;
+    private IExperimentTranslator translator;
 
     @Override
     protected IMapObjectByIdExecutor<IExperimentId, Long> getMapExecutor()

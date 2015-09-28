@@ -26,7 +26,7 @@ import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.common.ISearchObjectExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.project.ISearchProjectExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.ITranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.project.sql.IProjectSqlTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.project.IProjectTranslator;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.project.Project;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.project.ProjectFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ProjectSearchCriteria;
@@ -44,7 +44,7 @@ public class SearchProjectSqlMethodExecutor extends AbstractSearchMethodExecutor
     private ISearchProjectExecutor searchExecutor;
 
     @Autowired
-    private IProjectSqlTranslator translator;
+    private IProjectTranslator translator;
 
     @Override
     protected ISearchObjectExecutor<ProjectSearchCriteria, Long> getSearchExecutor()

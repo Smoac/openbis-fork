@@ -26,7 +26,7 @@ import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.common.ISearchObjectExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.space.ISearchSpaceExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.ITranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.space.sql.ISpaceSqlTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.space.ISpaceTranslator;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.space.Space;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.space.SpaceFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SpaceSearchCriteria;
@@ -44,7 +44,7 @@ public class SearchSpaceSqlMethodExecutor extends AbstractSearchMethodExecutor<S
     private ISearchSpaceExecutor searchExecutor;
 
     @Autowired
-    private ISpaceSqlTranslator translator;
+    private ISpaceTranslator translator;
 
     @Override
     protected ISearchObjectExecutor<SpaceSearchCriteria, Long> getSearchExecutor()

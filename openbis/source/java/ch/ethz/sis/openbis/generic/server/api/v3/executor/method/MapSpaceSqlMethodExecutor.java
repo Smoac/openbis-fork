@@ -22,7 +22,7 @@ import org.springframework.stereotype.Component;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.common.IMapObjectByIdExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.space.IMapSpaceTechIdByIdExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.ITranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.space.sql.ISpaceSqlTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.space.ISpaceTranslator;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.space.Space;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.space.SpaceFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.ISpaceId;
@@ -38,7 +38,7 @@ public class MapSpaceSqlMethodExecutor extends AbstractMapMethodExecutor<ISpaceI
     private IMapSpaceTechIdByIdExecutor mapExecutor;
 
     @Autowired
-    private ISpaceSqlTranslator translator;
+    private ISpaceTranslator translator;
 
     @Override
     protected IMapObjectByIdExecutor<ISpaceId, Long> getMapExecutor()

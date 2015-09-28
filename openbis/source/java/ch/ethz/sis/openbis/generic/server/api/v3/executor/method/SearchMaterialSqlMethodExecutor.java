@@ -22,7 +22,7 @@ import org.springframework.stereotype.Component;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.common.ISearchObjectExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.material.ISearchMaterialIdExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.ITranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.material.sql.IMaterialSqlTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.material.IMaterialTranslator;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material.Material;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.material.MaterialFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.MaterialSearchCriteria;
@@ -39,7 +39,7 @@ public class SearchMaterialSqlMethodExecutor extends AbstractSearchMethodExecuto
     private ISearchMaterialIdExecutor searchExecutor;
 
     @Autowired
-    private IMaterialSqlTranslator translator;
+    private IMaterialTranslator translator;
 
     @Override
     protected ISearchObjectExecutor<MaterialSearchCriteria, Long> getSearchExecutor()
