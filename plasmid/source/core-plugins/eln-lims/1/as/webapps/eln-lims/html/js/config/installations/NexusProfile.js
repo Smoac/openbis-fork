@@ -8,7 +8,6 @@ $.extend(NexusProfile.prototype, StandardProfile.prototype, {
 		DefaultProfile.prototype.init.call(this, serverFacade);
 		
 		this.inventorySpaces = ["LIBRARIES"];
-		this.createDefaultNotebookAndInventory = false;
 		this.searchSamplesUsingV3OnDropbox = true;
 		this.storagesConfiguration = {
 			"isEnabled" : true,

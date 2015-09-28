@@ -136,13 +136,7 @@ function MainController(profile) {
 										});
 									};
 									
-									if(profile.createDefaultNotebookAndInventory) {
-										localReference.profile.init(startAppFunc);
-									} else {
-										startAppFunc();
-									}
-									
-									
+									localReference.profile.init(startAppFunc);
 								});
 							});
 						}
