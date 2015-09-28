@@ -26,7 +26,9 @@ function MoveSampleView(moveSampleController, moveSampleModel) {
 			_this._moveSampleModel.actionFunction(_this._moveSampleModel.sample);
 		});
 		
-		$window.append($('<legend>').append("Move " + _this._moveSampleModel.sample.identifier));
+		$window.append($('<legend>').append("Move Sample"));
+		$window.append(FormUtil.getFieldForLabelWithText("Sample Type: ", this._moveSampleModel.sample.sampleTypeCode));
+		$window.append(FormUtil.getFieldForLabelWithText("Current Experiment: ", this._moveSampleModel.sample.experimentIdentifierOrNull));
 		
 		var $btnAccept = $('<input>', { 'type': 'submit', 'class' : 'btn btn-primary', 'value' : 'Accept' });
 		var $btnCancel = $('<a>', { 'class' : 'btn btn-default' }).append('Cancel');
