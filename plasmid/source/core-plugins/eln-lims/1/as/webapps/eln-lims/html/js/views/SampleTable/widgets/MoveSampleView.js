@@ -17,6 +17,7 @@
 function MoveSampleView(moveSampleController, moveSampleModel) {
 	this._moveSampleController = moveSampleController;
 	this._moveSampleModel = moveSampleModel;
+	var $experimentSection = $("<div>");
 	
 	this.repaint = function() {
 		var _this = this;
@@ -27,14 +28,20 @@ function MoveSampleView(moveSampleController, moveSampleModel) {
 		});
 		
 		$window.append($('<legend>').append("Move Sample"));
-		$window.append(FormUtil.getFieldForLabelWithText("Type: ", this._moveSampleModel.sample.sampleTypeCode));
-		$window.append(FormUtil.getFieldForLabelWithText("Identifier: ", this._moveSampleModel.sample.identifier));
-		$window.append(FormUtil.getFieldForLabelWithText("Current Experiment: ", this._moveSampleModel.sample.experimentIdentifierOrNull));
-		var $expProjDropdown = $("<div>");
-		$window.append(FormUtil.getFieldForComponentWithLabel($expProjDropdown, "New Experiment/Project: "));
-		FormUtil.getProjectAndExperimentsDropdown(true, true, function($dropdown) {
-			$expProjDropdown.append($dropdown);
-		});
+		$window.append(FormUtil.getFieldForLabelWithText("Type", this._moveSampleModel.sample.sampleTypeCode));
+		$window.append(FormUtil.getFieldForLabelWithText("Identifier", this._moveSampleModel.sample.identifier));
+		$window.append(FormUtil.getFieldForLabelWithText("Current Experiment", this._moveSampleModel.sample.experimentIdentifierOrNull));
+		$window.append(FormUtil.getFieldForComponentWithLabel(FormUtil.getOptionsRadioButtons("oldOrNewExp",true, ["Existing Experiment", "New Experiment"], function(event) {
+			var value = $(event.target).val();
+			if(value === "Existing Experiment") {
+				_this.repaintExistingExperiment();
+			} else {
+				_this.repaintNewExperiment();
+			}
+		}), ""));
+		
+		$window.append($experimentSection);
+		this.repaintExistingExperiment();
 		
 		var $btnAccept = $('<input>', { 'type': 'submit', 'class' : 'btn btn-primary', 'value' : 'Accept' });
 		var $btnCancel = $('<a>', { 'class' : 'btn btn-default' }).append('Cancel');
@@ -54,6 +61,20 @@ function MoveSampleView(moveSampleController, moveSampleModel) {
 		};
 		
 		Util.blockUI($window, css);
+	}
+	
+	this.repaintNewExperiment = function() {
+		$experimentSection.empty();
+		$experimentSection.append("Not Supported Yet");
+	}
+	
+	this.repaintExistingExperiment = function() {
+		$experimentSection.empty();
+		var $expProjDropdown = $("<div>");
+		$experimentSection.append(FormUtil.getFieldForComponentWithLabel($expProjDropdown, "Future Experiment"));
+		FormUtil.getProjectAndExperimentsDropdown(false, true, function($dropdown) {
+			$expProjDropdown.append($dropdown);
+		});
 	}
 	
 }

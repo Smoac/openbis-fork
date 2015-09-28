@@ -302,6 +302,24 @@ var FormUtil = new function() {
 		return $component;
 	}
 	
+	this.getOptionsRadioButtons = function(name, isFirstSelected, values, changeAction) {
+		var $component = $("<div>");
+		for(var vIdx = 0; vIdx < values.length; vIdx++) {
+			if(vIdx !== 0) {
+				$component.append(" ");
+			}
+			var $radio = $("<input>", { type: "radio", name: name, value: values[vIdx]});
+			
+			if(isFirstSelected && (vIdx === 0)) {
+				$radio.attr("checked", "");
+			}
+			$radio.change(changeAction);
+			$component.append($radio);
+			$component.append(" " + values[vIdx]);
+		}
+		return $component;
+	}
+	
 	this.getProjectAndExperimentsDropdown = function(withProjects, withExperiments, callbackForComponent) {
 		mainController.serverFacade.listSpacesWithProjectsAndRoleAssignments(null, function(dataWithSpacesAndProjects) {
 			var spaces = dataWithSpacesAndProjects.result;
@@ -343,13 +361,13 @@ var FormUtil = new function() {
             			var project = projectsToUse[pIdx];
             			var projectIdentifier = "/" + project.spaceCode + "/" + project.code;
             			if(withProjects) {
-            				$component.append($("<option>").attr('value', projectIdentifier).text(projectIdentifier + " (Project)"));
+            				$component.append($("<option>").attr('value', projectIdentifier).text(projectIdentifier));
             			}
             			if(project.experiments) {
             				for(var eIdx = 0; eIdx < project.experiments.length; eIdx++) {
                     			var experiment = project.experiments[eIdx];
                     			if(withExperiments) {
-                    				$component.append($("<option>").attr('value',experiment.identifier).text(experiment.identifier + " (Experiment)"));
+                    				$component.append($("<option>").attr('value',experiment.identifier).text(experiment.identifier));
                     			}
                 			}
             			}
