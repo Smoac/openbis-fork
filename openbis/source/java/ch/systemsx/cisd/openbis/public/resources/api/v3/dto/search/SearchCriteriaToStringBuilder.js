@@ -36,8 +36,8 @@ define([ "stjs", "dto/search/AbstractCompositeSearchCriteria" ], function(stjs, 
 			}
 			for ( var criterion in this.criteria) {
 				if (stjs.isInstanceOf(criterion.constructor, AbstractCompositeSearchCriteria)) {
-					var compositeCriterion = criterion;
-					sb.append(compositeCriterion.toString(indentation));
+					var compositeCriteria = criterion;
+					sb.append(compositeCriteria.toString(indentation));
 				} else {
 					sb.append(indentation + criterion.toString() + "\n");
 				}
