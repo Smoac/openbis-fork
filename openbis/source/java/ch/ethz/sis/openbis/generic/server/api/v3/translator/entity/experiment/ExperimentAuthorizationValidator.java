@@ -36,7 +36,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
  * @author pkupczyk
  */
 @Component
-public class ExperimentAuthorizationValidator implements IExperimentAuthorizationSqlValidator
+public class ExperimentAuthorizationValidator implements IExperimentAuthorizationValidator
 {
 
     @Override

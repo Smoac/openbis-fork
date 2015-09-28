@@ -35,7 +35,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
  * @author pkupczyk
  */
 @Component
-public class SpaceAuthorizationValidator implements ISpaceAuthorizationSqlValidator
+public class SpaceAuthorizationValidator implements ISpaceAuthorizationValidator
 {
 
     @Override
