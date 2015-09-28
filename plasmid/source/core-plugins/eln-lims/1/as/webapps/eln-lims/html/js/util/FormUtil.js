@@ -302,6 +302,66 @@ var FormUtil = new function() {
 		return $component;
 	}
 	
+	this.getProjectAndExperimentsDropdown = function(withProjects, withExperiments, callbackForComponent) {
+		mainController.serverFacade.listSpacesWithProjectsAndRoleAssignments(null, function(dataWithSpacesAndProjects) {
+			var spaces = dataWithSpacesAndProjects.result;
+            var projectsToUse = [];
+            for (var i = 0; i < spaces.length; i++) {
+            	var space = spaces[i];
+            	for (var j = 0; j < space.projects.length; j++) {
+                    var project = space.projects[j];
+                    delete project["@id"];
+                    delete project["@type"];
+                    projectsToUse.push(project);
+                }
+            }
+            
+            mainController.serverFacade.listExperiments(projectsToUse, function(experiments) {
+            	if(experiments.result) {
+            		
+            		for (var k = 0; k < experiments.result.length; k++) {
+                		var experiment = experiments.result[k];
+                		
+                		for(var pIdx = 0; pIdx < projectsToUse.length; pIdx++) {
+                    		var project = projectsToUse[pIdx];
+                    		var projectIdentifier = "/" + project.spaceCode + "/" + project.code;
+                    		if(experiment.identifier.startsWith(projectIdentifier)) {
+                    			if(!project.experiments) {
+                    				project.experiments = [];
+                    			}
+                    			project.experiments.push(experiment);
+                    		}
+                    	}
+                	}
+                	//
+            		//
+            		var $component = $("<select>", { class : 'form-control'});
+            		$component.attr('required', '');
+            		
+            		$component.append($("<option>").attr('value', '').attr('selected', '').attr('disabled', '').text(''));
+            		for(var pIdx = 0; pIdx < projectsToUse.length; pIdx++) {
+            			var project = projectsToUse[pIdx];
+            			var projectIdentifier = "/" + project.spaceCode + "/" + project.code;
+            			if(withProjects) {
+            				$component.append($("<option>").attr('value', projectIdentifier).text(projectIdentifier + " (Project)"));
+            			}
+            			if(project.experiments) {
+            				for(var eIdx = 0; eIdx < project.experiments.length; eIdx++) {
+                    			var experiment = project.experiments[eIdx];
+                    			if(withExperiments) {
+                    				$component.append($("<option>").attr('value',experiment.identifier).text(experiment.identifier + " (Experiment)"));
+                    			}
+                			}
+            			}
+            		}
+            		//
+            		//
+            		callbackForComponent($component);
+            	}
+            });
+		});
+	}
+	
 	this.getDeleteButton = function(deleteFunction, includeReason, warningText) {
 		var $deleteBtn = $("<a>", { 'class' : 'btn btn-default ' });
 		$deleteBtn.append($("<span>", { 'class' : 'glyphicon glyphicon-trash', 'style' : 'width:16px; height:16px;'}));

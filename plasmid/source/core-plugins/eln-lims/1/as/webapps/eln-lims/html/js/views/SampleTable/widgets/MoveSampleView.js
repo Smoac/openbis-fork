@@ -27,8 +27,14 @@ function MoveSampleView(moveSampleController, moveSampleModel) {
 		});
 		
 		$window.append($('<legend>').append("Move Sample"));
-		$window.append(FormUtil.getFieldForLabelWithText("Sample Type: ", this._moveSampleModel.sample.sampleTypeCode));
+		$window.append(FormUtil.getFieldForLabelWithText("Type: ", this._moveSampleModel.sample.sampleTypeCode));
+		$window.append(FormUtil.getFieldForLabelWithText("Identifier: ", this._moveSampleModel.sample.identifier));
 		$window.append(FormUtil.getFieldForLabelWithText("Current Experiment: ", this._moveSampleModel.sample.experimentIdentifierOrNull));
+		var $expProjDropdown = $("<div>");
+		$window.append(FormUtil.getFieldForComponentWithLabel($expProjDropdown, "New Experiment/Project: "));
+		FormUtil.getProjectAndExperimentsDropdown(true, true, function($dropdown) {
+			$expProjDropdown.append($dropdown);
+		});
 		
 		var $btnAccept = $('<input>', { 'type': 'submit', 'class' : 'btn btn-primary', 'value' : 'Accept' });
 		var $btnCancel = $('<a>', { 'class' : 'btn btn-default' }).append('Cancel');

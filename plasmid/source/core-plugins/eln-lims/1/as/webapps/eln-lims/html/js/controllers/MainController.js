@@ -288,7 +288,7 @@ function MainController(profile) {
 				window.scrollTo(0,0);
 				break;
 			case "showSamplesPage":
-				document.title = arg + " List";
+				document.title = "Sample Browser";
 				this._showSamplesPage(arg);
 				window.scrollTo(0,0);
 				break;
