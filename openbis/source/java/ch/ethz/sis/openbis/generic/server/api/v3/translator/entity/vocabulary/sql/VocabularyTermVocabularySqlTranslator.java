@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.dataset.sql;
+package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.vocabulary.sql;
 
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 
@@ -30,33 +30,32 @@ import org.springframework.stereotype.Component;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql.ObjectRelationRecord;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql.ObjectToOneRelationTranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.vocabulary.sql.IVocabularyTermSqlTranslator;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.vocabulary.VocabularyTerm;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.vocabulary.VocabularyTermFetchOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.vocabulary.Vocabulary;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.vocabulary.VocabularyFetchOptions;
 
 /**
  * @author pkupczyk
  */
 @Component
-public class ExternalDataStorageFormatSqlTranslator extends ObjectToOneRelationTranslator<VocabularyTerm, VocabularyTermFetchOptions> implements
-        IExternalDataStorageFormatSqlTranslator
+public class VocabularyTermVocabularySqlTranslator extends ObjectToOneRelationTranslator<Vocabulary, VocabularyFetchOptions> implements
+        IVocabularyTermVocabularySqlTranslator
 {
 
     @Autowired
-    private IVocabularyTermSqlTranslator vocabularyTermTranslator;
+    private IVocabularySqlTranslator vocabularyTranslator;
 
     @Override
     protected List<ObjectRelationRecord> loadRecords(LongOpenHashSet objectIds)
     {
-        DataSetQuery query = QueryTool.getManagedQuery(DataSetQuery.class);
-        return query.getStorageFormatIds(objectIds);
+        VocabularyQuery query = QueryTool.getManagedQuery(VocabularyQuery.class);
+        return query.getTermVocabularyIds(objectIds);
     }
 
     @Override
-    protected Map<Long, VocabularyTerm> translateRelated(TranslationContext context, Collection<Long> relatedIds,
-            VocabularyTermFetchOptions relatedFetchOptions)
+    protected Map<Long, Vocabulary> translateRelated(TranslationContext context, Collection<Long> relatedIds,
+            VocabularyFetchOptions relatedFetchOptions)
     {
-        return vocabularyTermTranslator.translate(context, relatedIds, relatedFetchOptions);
+        return vocabularyTranslator.translate(context, relatedIds, relatedFetchOptions);
     }
 
 }
