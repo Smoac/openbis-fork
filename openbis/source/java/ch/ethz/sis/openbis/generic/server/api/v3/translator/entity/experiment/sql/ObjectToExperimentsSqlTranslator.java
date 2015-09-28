@@ -18,19 +18,15 @@ package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.experiment.s
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.sql.ObjectToManyRelationTranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.experiment.IExperimentTranslator;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.experiment.ExperimentFetchOptions;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 
 /**
  * @author pkupczyk
@@ -43,22 +39,13 @@ public abstract class ObjectToExperimentsSqlTranslator extends ObjectToManyRelat
     private IDAOFactory daoFactory;
 
     @Autowired
-    private IExperimentTranslator experimentTranslator;
+    private IExperimentSqlTranslator experimentTranslator;
 
     @Override
     protected Map<Long, Experiment> translateRelated(TranslationContext context, Collection<Long> relatedIds,
             ExperimentFetchOptions relatedFetchOptions)
     {
-        // TODO call IExperimentSqlTranslator when ready
-        List<ExperimentPE> related = daoFactory.getExperimentDAO().listByIDs(relatedIds);
-        Map<ExperimentPE, Experiment> translated = experimentTranslator.translate(context, related, relatedFetchOptions);
-        Map<Long, Experiment> result = new HashMap<Long, Experiment>();
-
-        for (Map.Entry<ExperimentPE, Experiment> entry : translated.entrySet())
-        {
-            result.put(entry.getKey().getId(), entry.getValue());
-        }
-        return result;
+        return experimentTranslator.translate(context, relatedIds, relatedFetchOptions);
     }
 
     @Override
