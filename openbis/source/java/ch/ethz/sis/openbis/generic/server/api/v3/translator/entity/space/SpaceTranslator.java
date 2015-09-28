@@ -40,7 +40,7 @@ public class SpaceTranslator extends AbstractCachingTranslator<Long, Space, Spac
 {
 
     @Autowired
-    private ISpaceAuthorizationSqlValidator authorizationValidator;
+    private ISpaceAuthorizationValidator authorizationValidator;
 
     @Autowired
     private ISpaceRegistratorTranslator registratorTranslator;

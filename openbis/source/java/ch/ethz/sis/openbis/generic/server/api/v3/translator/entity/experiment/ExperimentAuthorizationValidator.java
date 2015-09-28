@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.sample;
+package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.experiment;
 
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 
@@ -27,8 +27,8 @@ import net.lemnik.eodsql.QueryTool;
 
 import org.springframework.stereotype.Component;
 
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SampleIdentifier;
-import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SampleByIdentiferValidator;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ExperimentByIdentiferValidator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 
@@ -36,27 +36,27 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
  * @author pkupczyk
  */
 @Component
-public class SampleAuthorizationSqlValidator implements ISampleAuthorizationSqlValidator
+public class ExperimentAuthorizationValidator implements IExperimentAuthorizationSqlValidator
 {
 
     @Override
-    public Set<Long> validate(PersonPE person, Collection<Long> sampleIds)
+    public Set<Long> validate(PersonPE person, Collection<Long> experimentIds)
     {
-        SampleQuery query = QueryTool.getManagedQuery(SampleQuery.class);
-        List<SampleAuthorizationRecord> records = query.getAuthorizations(new LongOpenHashSet(sampleIds));
-        SampleByIdentiferValidator validator = new SampleByIdentiferValidator();
+        ExperimentQuery query = QueryTool.getManagedQuery(ExperimentQuery.class);
+        List<ExperimentAuthorizationRecord> records = query.getAuthorizations(new LongOpenHashSet(experimentIds));
+        ExperimentByIdentiferValidator validator = new ExperimentByIdentiferValidator();
         Set<Long> result = new HashSet<Long>();
 
-        for (SampleAuthorizationRecord record : records)
+        for (ExperimentAuthorizationRecord record : records)
         {
-            final SampleAuthorizationRecord theRecord = record;
+            final ExperimentAuthorizationRecord theRecord = record;
 
             if (validator.doValidation(person, new IIdentifierHolder()
                 {
                     @Override
                     public String getIdentifier()
                     {
-                        return new SampleIdentifier(theRecord.spaceCode, theRecord.containerCode, theRecord.code).getIdentifier();
+                        return new ExperimentIdentifier(theRecord.spaceCode, theRecord.projectCode, theRecord.code).getIdentifier();
                     }
                 }))
             {

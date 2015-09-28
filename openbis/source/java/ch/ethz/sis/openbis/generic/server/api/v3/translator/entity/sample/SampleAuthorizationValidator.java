@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.space;
+package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.sample;
 
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 
@@ -27,35 +27,36 @@ import net.lemnik.eodsql.QueryTool;
 
 import org.springframework.stereotype.Component;
 
-import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SimpleSpaceValidator;
-import ch.systemsx.cisd.openbis.generic.shared.basic.ICodeHolder;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SampleIdentifier;
+import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SampleByIdentiferValidator;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 
 /**
  * @author pkupczyk
  */
 @Component
-public class SpaceAuthorizationSqlValidator implements ISpaceAuthorizationSqlValidator
+public class SampleAuthorizationValidator implements ISampleAuthorizationSqlValidator
 {
 
     @Override
-    public Set<Long> validate(PersonPE person, Collection<Long> spaceIds)
+    public Set<Long> validate(PersonPE person, Collection<Long> sampleIds)
     {
-        SpaceQuery query = QueryTool.getManagedQuery(SpaceQuery.class);
-        List<SpaceAuthorizationRecord> records = query.getAuthorizations(new LongOpenHashSet(spaceIds));
-        SimpleSpaceValidator validator = new SimpleSpaceValidator();
+        SampleQuery query = QueryTool.getManagedQuery(SampleQuery.class);
+        List<SampleAuthorizationRecord> records = query.getAuthorizations(new LongOpenHashSet(sampleIds));
+        SampleByIdentiferValidator validator = new SampleByIdentiferValidator();
         Set<Long> result = new HashSet<Long>();
 
-        for (SpaceAuthorizationRecord record : records)
+        for (SampleAuthorizationRecord record : records)
         {
-            final SpaceAuthorizationRecord theRecord = record;
+            final SampleAuthorizationRecord theRecord = record;
 
-            if (validator.doValidation(person, new ICodeHolder()
+            if (validator.doValidation(person, new IIdentifierHolder()
                 {
                     @Override
-                    public String getCode()
+                    public String getIdentifier()
                     {
-                        return theRecord.code;
+                        return new SampleIdentifier(theRecord.spaceCode, theRecord.containerCode, theRecord.code).getIdentifier();
                     }
                 }))
             {

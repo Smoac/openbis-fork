@@ -39,7 +39,7 @@ public class DataSetTranslator extends AbstractCachingTranslator<Long, DataSet, 
 {
 
     @Autowired
-    private IDataSetAuthorizationSqlValidator authorizationValidator;
+    private IDataSetAuthorizationValidator authorizationValidator;
 
     @Autowired
     private IDataSetBaseTranslator baseTranslator;

@@ -41,7 +41,7 @@ public class ProjectTranslator extends AbstractCachingTranslator<Long, Project, 
 {
 
     @Autowired
-    private IProjectAuthorizationSqlValidator authorizationValidator;
+    private IProjectAuthorizationValidator authorizationValidator;
 
     @Autowired
     private IProjectBaseTranslator baseTranslator;

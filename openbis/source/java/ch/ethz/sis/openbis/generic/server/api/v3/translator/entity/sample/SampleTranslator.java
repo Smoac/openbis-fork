@@ -42,7 +42,7 @@ public class SampleTranslator extends AbstractCachingTranslator<Long, Sample, Sa
 {
 
     @Autowired
-    private ISampleAuthorizationSqlValidator authorizationValidator;
+    private ISampleAuthorizationValidator authorizationValidator;
 
     @Autowired
     private ISampleBaseTranslator baseTranslator;

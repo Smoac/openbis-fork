@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.space;
+package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.project;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.IObjectAuthorizationValidator;
 
 /**
  * @author pkupczyk
  */
-public interface ISpaceAuthorizationSqlValidator extends IObjectAuthorizationValidator
+public interface IProjectAuthorizationValidator extends IObjectAuthorizationValidator
 {
 
 }

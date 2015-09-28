@@ -37,7 +37,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
  * @author pkupczyk
  */
 @Component
-public class DataSetAuthorizationSqlValidator implements IDataSetAuthorizationSqlValidator
+public class DataSetAuthorizationValidator implements IDataSetAuthorizationSqlValidator
 {
 
     @Override

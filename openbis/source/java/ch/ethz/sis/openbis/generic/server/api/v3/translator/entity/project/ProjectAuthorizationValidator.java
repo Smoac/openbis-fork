@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.experiment;
+package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.project;
 
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 
@@ -27,8 +27,8 @@ import net.lemnik.eodsql.QueryTool;
 
 import org.springframework.stereotype.Component;
 
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentIdentifier;
-import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ExperimentByIdentiferValidator;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.ProjectIdentifier;
+import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ProjectByIdentiferValidator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 
@@ -36,27 +36,27 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
  * @author pkupczyk
  */
 @Component
-public class ExperimentAuthorizationSqlValidator implements IExperimentAuthorizationSqlValidator
+public class ProjectAuthorizationValidator implements IProjectAuthorizationSqlValidator
 {
 
     @Override
-    public Set<Long> validate(PersonPE person, Collection<Long> experimentIds)
+    public Set<Long> validate(PersonPE person, Collection<Long> projectIds)
     {
-        ExperimentQuery query = QueryTool.getManagedQuery(ExperimentQuery.class);
-        List<ExperimentAuthorizationRecord> records = query.getAuthorizations(new LongOpenHashSet(experimentIds));
-        ExperimentByIdentiferValidator validator = new ExperimentByIdentiferValidator();
+        ProjectQuery query = QueryTool.getManagedQuery(ProjectQuery.class);
+        List<ProjectAuthorizationRecord> records = query.getAuthorizations(new LongOpenHashSet(projectIds));
+        ProjectByIdentiferValidator validator = new ProjectByIdentiferValidator();
         Set<Long> result = new HashSet<Long>();
 
-        for (ExperimentAuthorizationRecord record : records)
+        for (ProjectAuthorizationRecord record : records)
         {
-            final ExperimentAuthorizationRecord theRecord = record;
+            final ProjectAuthorizationRecord theRecord = record;
 
             if (validator.doValidation(person, new IIdentifierHolder()
                 {
                     @Override
                     public String getIdentifier()
                     {
-                        return new ExperimentIdentifier(theRecord.spaceCode, theRecord.projectCode, theRecord.code).getIdentifier();
+                        return new ProjectIdentifier(theRecord.spaceCode, theRecord.code).getIdentifier();
                     }
                 }))
             {
@@ -66,5 +66,4 @@ public class ExperimentAuthorizationSqlValidator implements IExperimentAuthoriza
 
         return result;
     }
-
 }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.project;
+package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.space;
 
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 
@@ -27,36 +27,35 @@ import net.lemnik.eodsql.QueryTool;
 
 import org.springframework.stereotype.Component;
 
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.ProjectIdentifier;
-import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ProjectByIdentiferValidator;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
+import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SimpleSpaceValidator;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ICodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 
 /**
  * @author pkupczyk
  */
 @Component
-public class ProjectAuthorizationSqlValidator implements IProjectAuthorizationSqlValidator
+public class SpaceAuthorizationValidator implements ISpaceAuthorizationSqlValidator
 {
 
     @Override
-    public Set<Long> validate(PersonPE person, Collection<Long> projectIds)
+    public Set<Long> validate(PersonPE person, Collection<Long> spaceIds)
     {
-        ProjectQuery query = QueryTool.getManagedQuery(ProjectQuery.class);
-        List<ProjectAuthorizationRecord> records = query.getAuthorizations(new LongOpenHashSet(projectIds));
-        ProjectByIdentiferValidator validator = new ProjectByIdentiferValidator();
+        SpaceQuery query = QueryTool.getManagedQuery(SpaceQuery.class);
+        List<SpaceAuthorizationRecord> records = query.getAuthorizations(new LongOpenHashSet(spaceIds));
+        SimpleSpaceValidator validator = new SimpleSpaceValidator();
         Set<Long> result = new HashSet<Long>();
 
-        for (ProjectAuthorizationRecord record : records)
+        for (SpaceAuthorizationRecord record : records)
         {
-            final ProjectAuthorizationRecord theRecord = record;
+            final SpaceAuthorizationRecord theRecord = record;
 
-            if (validator.doValidation(person, new IIdentifierHolder()
+            if (validator.doValidation(person, new ICodeHolder()
                 {
                     @Override
-                    public String getIdentifier()
+                    public String getCode()
                     {
-                        return new ProjectIdentifier(theRecord.spaceCode, theRecord.code).getIdentifier();
+                        return theRecord.code;
                     }
                 }))
             {
@@ -66,4 +65,5 @@ public class ProjectAuthorizationSqlValidator implements IProjectAuthorizationSq
 
         return result;
     }
+
 }

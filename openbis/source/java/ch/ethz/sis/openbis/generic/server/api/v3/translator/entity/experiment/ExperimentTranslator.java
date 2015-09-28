@@ -43,7 +43,7 @@ public class ExperimentTranslator extends AbstractCachingTranslator<Long, Experi
 {
 
     @Autowired
-    private IExperimentAuthorizationSqlValidator authorizationValidator;
+    private IExperimentAuthorizationValidator authorizationValidator;
 
     @Autowired
     private IExperimentBaseTranslator baseTranslator;
