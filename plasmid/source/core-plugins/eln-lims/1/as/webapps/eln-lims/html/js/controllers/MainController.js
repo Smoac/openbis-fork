@@ -111,9 +111,8 @@ function MainController(profile) {
 									
 									
 									//Init profile
-									localReference.profile.init(function() {
+									var startAppFunc = function() {
 										//Start App
-										
 										localReference.sideMenu = new SideMenuWidgetController(localReference);
 										localReference.sideMenu.init($("#sideMenu"), function() {
 											//Page reload using the URL info
@@ -135,7 +134,14 @@ function MainController(profile) {
 											}
 											Util.unblockUI();
 										});
-									});
+									};
+									
+									if(profile.createDefaultNotebookAndInventory) {
+										localReference.profile.init(startAppFunc);
+									} else {
+										startAppFunc();
+									}
+									
 									
 								});
 							});
