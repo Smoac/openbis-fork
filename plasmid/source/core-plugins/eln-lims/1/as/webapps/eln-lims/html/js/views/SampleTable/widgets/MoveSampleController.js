@@ -27,6 +27,20 @@ function MoveSampleController(samplePermId) {
 	}
 	
 	this.move = function() {
-		var breakMePlease = 0;
+		var _this = this;
+		if(!this._moveSampleModel.sample.identifier) {
+			Util.showError("Dear user, please choose the experiment first, try harder!", function() {});
+			return;
+		}
+		
+		mainController.serverFacade.moveSample(
+				this._moveSampleModel.sample.identifier,
+				this._moveSampleModel.experimentIdentifier, function(isOK) {
+					if(isOK) {
+						Util.showSuccess("Sample " + _this._moveSampleModel.sample.identifier + " moved to " + _this._moveSampleModel.experimentIdentifier, function() { Util.unblockUI(); });
+					} else {
+						Util.showError("Sample " + _this._moveSampleModel.sample.identifier + " failed " + _this._moveSampleModel.experimentIdentifier, function() {});
+					}
+				});
 	}
 }

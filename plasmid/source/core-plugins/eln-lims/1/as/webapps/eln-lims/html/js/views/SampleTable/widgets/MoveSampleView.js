@@ -24,7 +24,7 @@ function MoveSampleView(moveSampleController, moveSampleModel) {
 		var $window = $('<form>', { 'class' : 'form-horizontal', 'action' : 'javascript:void(0);' });
 		$window.submit(function() {
 			Util.unblockUI();
-			_this._moveSampleModel.actionFunction(_this._moveSampleModel.sample);
+			_this._moveSampleController.move();
 		});
 		
 		$window.append($('<legend>').append("Move Sample"));
@@ -45,11 +45,7 @@ function MoveSampleView(moveSampleController, moveSampleModel) {
 		$window.append($experimentSection);
 		this.repaintExistingExperiment();
 		
-		var $btnAccept = $('<input>', { 'type': 'submit', 'class' : 'btn btn-primary', 'value' : 'Accept' });
-		$btnAccept.click(function() {
-			_this._moveSampleController.move();
-		});
-		
+		var $btnAccept = $('<input>', { 'type': 'submit', 'class' : 'btn btn-primary', 'value' : 'Accept' });		
 		var $btnCancel = $('<a>', { 'class' : 'btn btn-default' }).append('Cancel');
 		$btnCancel.click(function() {
 			Util.unblockUI();

@@ -377,7 +377,7 @@ function ServerFacade(openbisServer) {
 	this.updateSamples = function(sampleTypeCode, fileKeyAtHTTPSession, somethingOrNull, callbackFunction) {
 		this.openbisServer.updateSamples(sampleTypeCode, fileKeyAtHTTPSession, somethingOrNull, callbackFunction);
 	}
-
+	
 	this.fileUpload = function(file, callbackFunction) {
 		//Building Form Data Object for Multipart File Upload
 		var formData = new FormData();
@@ -410,6 +410,24 @@ function ServerFacade(openbisServer) {
 		return GET;
 	}
 
+	//
+	// Sample Others functions
+	//
+	this.moveSample = function(sampleIdentifier, experimentIdentifier, callbackFunction) {
+		this.createReportFromAggregationService(profile.getDefaultDataStoreCode(),
+				{
+					"method" : "moveSample",
+					"sampleIdentifier" : sampleIdentifier,
+					"experimentIdentifier" : experimentIdentifier
+				},
+				function(data){
+					if(data.result.rows[0][0].value == "OK") {
+						callbackFunction(true);
+					} else {
+						callbackFunction(false);
+					}
+				});
+	}
 	//
 	// Data Set Import Related Functions
 	//
