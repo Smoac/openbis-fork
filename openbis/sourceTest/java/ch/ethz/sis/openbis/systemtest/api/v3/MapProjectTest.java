@@ -19,6 +19,7 @@ package ch.ethz.sis.openbis.systemtest.api.v3;
 import static org.testng.Assert.assertEquals;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -27,10 +28,17 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.ExperimentCreation;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.ExperimentUpdate;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.history.HistoryEntry;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.history.ProjectRelationType;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.history.RelationHistoryEntry;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.project.Project;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.project.ProjectCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.project.ProjectUpdate;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.project.ProjectFetchOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.entitytype.EntityTypePermId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.IProjectId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.ProjectIdentifier;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.ProjectPermId;
@@ -166,6 +174,13 @@ public class MapProjectTest extends AbstractTest
 
         Project project = map.get(identifier);
 
+        assertEquals(project.getPermId(), new ProjectPermId("20120814110011738-103"));
+        assertEquals(project.getIdentifier(), identifier);
+        assertEquals(project.getCode(), "NEMO");
+        assertEquals(project.getDescription(), "nemo description");
+        assertEqualsDate(project.getRegistrationDate(), "2008-11-05 09:21:43");
+        assertEqualsDate(project.getModificationDate(), "2009-04-03 15:56:37");
+
         assertExperimentsNotFetched(project);
         assertSpaceNotFetched(project);
         assertRegistratorNotFetched(project);
@@ -283,28 +298,115 @@ public class MapProjectTest extends AbstractTest
 
         ProjectIdentifier projectId = new ProjectIdentifier("/TEST-SPACE/TEST-PROJECT");
         ProjectFetchOptions fetchOptions = new ProjectFetchOptions();
-        fetchOptions.withModifier();
+        fetchOptions.withLeader();
 
         Map<IProjectId, Project> map = v3api.mapProjects(sessionToken, Arrays.asList(projectId), fetchOptions);
         Project project = map.get(projectId);
 
-        Assert.assertEquals(project.getModifier().getUserId(), TEST_USER);
-
-        ProjectUpdate update = new ProjectUpdate();
-        update.setProjectId(projectId);
-
-        v3api.updateProjects(sessionToken, Arrays.asList(update));
-
-        map = v3api.mapProjects(sessionToken, Arrays.asList(projectId), fetchOptions);
-        project = map.get(projectId);
-
-        Assert.assertEquals(project.getModifier().getUserId(), TEST_SPACE_USER);
+        assertEquals(project.getLeader().getUserId(), SYSTEM_USER);
 
         assertExperimentsNotFetched(project);
         assertSpaceNotFetched(project);
         assertRegistratorNotFetched(project);
-        assertLeaderNotFetched(project);
+        assertModifierNotFetched(project);
         assertAttachmentsNotFetched(project);
+    }
+
+    @Test
+    public void testMapWithHistoryEmpty()
+    {
+        ProjectCreation creation = new ProjectCreation();
+        creation.setCode("PROJECT_WITH_EMPTY_HISTORY");
+        creation.setSpaceId(new SpacePermId("CISD"));
+
+        List<HistoryEntry> history = testMapWithHistory(creation, null);
+
+        assertEquals(history, Collections.emptyList());
+    }
+
+    @Test
+    public void testMapWithHistorySpace()
+    {
+        ProjectCreation creation = new ProjectCreation();
+        creation.setCode("PROJECT_WITH_SPACE_HISTORY");
+        creation.setSpaceId(new SpacePermId("CISD"));
+
+        ProjectUpdate update = new ProjectUpdate();
+        update.setSpaceId(new SpacePermId("TEST-SPACE"));
+
+        List<HistoryEntry> history = testMapWithHistory(creation, update);
+
+        assertEquals(history.size(), 1);
+
+        RelationHistoryEntry entry = (RelationHistoryEntry) history.get(0);
+        assertEquals(entry.getRelationType(), ProjectRelationType.SPACE);
+        assertEquals(entry.getRelatedObjectId(), new SpacePermId("CISD"));
+    }
+
+    @Test
+    public void testMapWithHistoryExperiment()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        ProjectCreation projectCreation = new ProjectCreation();
+        projectCreation.setCode("PROJECT_WITH_EXPERIMENT_HISTORY");
+        projectCreation.setSpaceId(new SpacePermId("CISD"));
+
+        List<ProjectPermId> projectPermIds = v3api.createProjects(sessionToken, Arrays.asList(projectCreation));
+
+        ExperimentCreation experimentCreation = new ExperimentCreation();
+        experimentCreation.setTypeId(new EntityTypePermId("SIRNA_HCS"));
+        experimentCreation.setCode("EXPERIMENT_WITH_PROJECT_HISTORY");
+        experimentCreation.setProperty("DESCRIPTION", "description");
+        experimentCreation.setProjectId(projectPermIds.get(0));
+
+        List<ExperimentPermId> experimentPermIds = v3api.createExperiments(sessionToken, Arrays.asList(experimentCreation));
+
+        ExperimentUpdate experimentUpdate = new ExperimentUpdate();
+        experimentUpdate.setExperimentId(experimentPermIds.get(0));
+        experimentUpdate.setProjectId(new ProjectIdentifier("/CISD/NEMO"));
+
+        v3api.updateExperiments(sessionToken, Arrays.asList(experimentUpdate));
+
+        ProjectFetchOptions fetchOptions = new ProjectFetchOptions();
+        fetchOptions.withHistory();
+
+        Map<IProjectId, Project> map = v3api.mapProjects(sessionToken, projectPermIds, fetchOptions);
+        assertEquals(map.size(), 1);
+
+        Project project = map.get(projectPermIds.get(0));
+
+        List<HistoryEntry> history = project.getHistory();
+        assertEquals(history.size(), 1);
+
+        RelationHistoryEntry entry = (RelationHistoryEntry) history.get(0);
+        assertEquals(entry.getRelationType(), ProjectRelationType.EXPERIMENT);
+        assertEquals(entry.getRelatedObjectId(), experimentPermIds.get(0));
+    }
+
+    private List<HistoryEntry> testMapWithHistory(ProjectCreation creation, ProjectUpdate update)
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        List<ProjectPermId> permIds = v3api.createProjects(sessionToken, Arrays.asList(creation));
+
+        if (update != null)
+        {
+            update.setProjectId(permIds.get(0));
+            v3api.updateProjects(sessionToken, Arrays.asList(update));
+        }
+
+        ProjectFetchOptions fetchOptions = new ProjectFetchOptions();
+        fetchOptions.withHistory();
+
+        Map<IProjectId, Project> map = v3api.mapProjects(sessionToken, permIds, fetchOptions);
+
+        assertEquals(map.size(), 1);
+        Project project = map.get(permIds.get(0));
+
+        v3api.logout(sessionToken);
+
+        return project.getHistory();
     }
 
 }

@@ -79,6 +79,8 @@ import ch.systemsx.cisd.openbis.util.LogRecordingUtils;
 public class AbstractTest extends SystemTestCase
 {
 
+    protected static final String SYSTEM_USER = "system";
+    
     protected static final String NOT_EXISTING_USER = "notexistinguser";
 
     protected static final String TEST_SPACE_USER = "test_space";
