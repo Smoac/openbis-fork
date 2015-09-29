@@ -45,6 +45,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.MockFreeSpaceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.Constants;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 import ch.systemsx.cisd.openbis.util.LogRecordingUtils;
 
@@ -59,6 +60,8 @@ public class EagerShufflingTaskTest extends AbstractFileSystemTestCase
     private static final String DATA_STORE_SERVER_CODE = "DSS";
 
     private static final String DATA_SET_CODE1 = "ds-1";
+    
+    private static final String DATA_SET_CODE2 = "ds-2";
 
     private BufferedAppender logRecorder;
 
@@ -239,6 +242,27 @@ public class EagerShufflingTaskTest extends AbstractFileSystemTestCase
         assertEquals("[1, 2, 3, 4, 2, 2]", freeSpaceProvider.getShares().toString());
         context.assertIsSatisfied();
     }
+    
+    @Test
+    public void testShufflingOfArchivedDataSet()
+    {
+        prepareConfigProvider();
+        Properties properties = createDefaultProperties();
+        properties.setProperty(EagerShufflingTask.FREE_SPACE_LIMIT_KEY, "1");
+        properties.setProperty(EagerShufflingTask.VERIFY_CHECKSUM_KEY, "false");
+        EagerShufflingTask task = createTask(properties);
+        freeSpaceProvider.setFreeSpaceValues(200, 1234, 10, 0, 1234, 900);
+        prepareListDataSets();
+        RecordingMatcher<String> infoMessageMatcher = prepareLogging(LogLevel.WARN);
+        
+        IPostRegistrationTaskExecutor executor = task.createExecutor(DATA_SET_CODE2, false);
+        executor.createCleanupTask();
+        executor.execute();
+        
+        assertEquals("Data set ds-2 couldn't been shuffled because its archiving status is ARCHIVE_PENDING",
+                infoMessageMatcher.recordedObject());
+        context.assertIsSatisfied();
+    }
 
     @Test
     public void testStopOnNoShareFound()
@@ -291,7 +315,10 @@ public class EagerShufflingTaskTest extends AbstractFileSystemTestCase
             {
                 {
                     one(service).listPhysicalDataSets();
-                    will(returnValue(Arrays.asList(dataSet("1", DATA_SET_CODE1))));
+                    SimpleDataSetInformationDTO ds1 = dataSet("1", DATA_SET_CODE1);
+                    SimpleDataSetInformationDTO ds2 = dataSet("2", DATA_SET_CODE2);
+                    ds2.setStatus(DataSetArchivingStatus.ARCHIVE_PENDING);
+                    will(returnValue(Arrays.asList(ds1, ds2)));
                     one(logger).log(
                             with(LogLevel.INFO),
                             with(Matchers.startsWith("Obtained the list of all "
@@ -334,6 +361,7 @@ public class EagerShufflingTaskTest extends AbstractFileSystemTestCase
         dataSet.setDataSetLocation(SHARDING + dataSetCode);
         dataSet.setDataSetSize(47 * FileUtils.ONE_KB);
         dataSet.setSpeedHint(Constants.DEFAULT_SPEED_HINT);
+        dataSet.setStatus(DataSetArchivingStatus.AVAILABLE);
         return dataSet;
     }
 
