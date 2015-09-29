@@ -99,6 +99,8 @@ public class MapMaterialTest extends AbstractDataSetTest
         assertEquals(virus.getProperties().get("DESCRIPTION"), "test virus 2");
         assertEquals(bacteria.getProperties().get("DESCRIPTION"), "test bacterium 1");
 
+        assertEquals(virus.getRegistrator().getUserId(), TEST_USER);
+
         v3api.logout(sessionToken);
     }
 
@@ -124,6 +126,7 @@ public class MapMaterialTest extends AbstractDataSetTest
 
         assertEquals(selfChildId, childFromProperties.getPermId());
         assertEquals(true, child == childFromProperties);
+        assertEquals(childFromProperties.getProperties().get("DESCRIPTION"), "Material wich is attached material");
     }
 
     @Test
