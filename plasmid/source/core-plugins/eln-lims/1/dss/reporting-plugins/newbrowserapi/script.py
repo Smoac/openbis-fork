@@ -501,11 +501,8 @@ def searchSamples(tr, parameters, tableBuilder, sessionId):
 	username = sessionId;
 	password = ELNStore.get(username);
 	openBISURL = parameters.get("openBISURL");
-	print "----------> Find User Password " + password
 	v3 = HttpInvokerUtils.createServiceStub(IApplicationServerApi, openBISURL + IApplicationServerApi.SERVICE_URL, 30 * 1000);
-	print "----------> Create V3 Service Stub " + str(v3)
 	sessionToken = v3.login(username, password);
-	print "----------> Login Token " + sessionToken
 	
 	###############
 	############### V3 Search
@@ -616,7 +613,6 @@ def searchSamples(tr, parameters, tableBuilder, sessionId):
 	###############
 	
 	result = v3.searchSamples(sessionToken, criterion, fetchOptions);
-	print "----------> Number of Results " + str(result.getTotalCount());
 	v3.logout(sessionToken);
 	
 	###
@@ -624,5 +620,4 @@ def searchSamples(tr, parameters, tableBuilder, sessionId):
 	###
 	objectMapper = GenericObjectMapper();
 	resultAsString = objectMapper.writeValueAsString(result);
-	print "----------> Json length: " + str(len(resultAsString));
 	return resultAsString;
