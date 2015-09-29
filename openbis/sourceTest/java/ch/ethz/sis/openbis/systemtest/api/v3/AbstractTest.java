@@ -21,6 +21,7 @@ import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.fail;
 
 import java.lang.reflect.Method;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Collection;
@@ -80,7 +81,7 @@ public class AbstractTest extends SystemTestCase
 {
 
     protected static final String SYSTEM_USER = "system";
-    
+
     protected static final String NOT_EXISTING_USER = "notexistinguser";
 
     protected static final String TEST_SPACE_USER = "test_space";
@@ -632,6 +633,12 @@ public class AbstractTest extends SystemTestCase
     protected void assertEqualsDate(Date actualDate, String expectedDate)
     {
         assertEquals(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(actualDate), expectedDate);
+    }
+
+    protected void assertToday(Date actualDate)
+    {
+        DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        assertEquals(format.format(actualDate), format.format(new Date()));
     }
 
     protected static void assertSpaceCodes(Collection<Space> spaces, String... expectedCodes)

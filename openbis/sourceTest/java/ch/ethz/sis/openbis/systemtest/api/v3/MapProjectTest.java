@@ -27,6 +27,8 @@ import java.util.Map;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.attachment.Attachment;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.attachment.AttachmentCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.ExperimentCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.ExperimentUpdate;
@@ -310,6 +312,82 @@ public class MapProjectTest extends AbstractTest
         assertRegistratorNotFetched(project);
         assertModifierNotFetched(project);
         assertAttachmentsNotFetched(project);
+    }
+
+    @Test
+    public void testMapWithAttachment()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        AttachmentCreation attachmentCreation1 = new AttachmentCreation();
+        attachmentCreation1.setFileName("test.txt");
+        attachmentCreation1.setDescription("test description 1");
+        attachmentCreation1.setTitle("test title 1");
+        attachmentCreation1.setContent("test content 1".getBytes());
+
+        ProjectCreation projectCreation = new ProjectCreation();
+        projectCreation.setCode("PROJECT_WITH_ATTACHMENT");
+        projectCreation.setSpaceId(new SpacePermId("CISD"));
+        projectCreation.setAttachments(Arrays.asList(attachmentCreation1));
+
+        List<ProjectPermId> projectPermIds = v3api.createProjects(sessionToken, Arrays.asList(projectCreation));
+
+        AttachmentCreation attachmentCreation2 = new AttachmentCreation();
+        attachmentCreation2.setFileName("test.txt");
+        attachmentCreation2.setDescription("test description 2");
+        attachmentCreation2.setTitle("test title 2");
+        attachmentCreation2.setContent("test content 2".getBytes());
+
+        ProjectUpdate projectUpdate = new ProjectUpdate();
+        projectUpdate.setProjectId(projectPermIds.get(0));
+        projectUpdate.getAttachments().add(attachmentCreation2);
+
+        v3api.updateProjects(sessionToken, Arrays.asList(projectUpdate));
+
+        ProjectFetchOptions fetchOptions = new ProjectFetchOptions();
+        fetchOptions.withAttachments().withContent();
+        fetchOptions.withAttachments().withRegistrator();
+        fetchOptions.withAttachments().withPreviousVersion().withContent();
+
+        Map<IProjectId, Project> map = v3api.mapProjects(sessionToken, projectPermIds, fetchOptions);
+
+        assertEquals(1, map.size());
+        Project project = map.get(projectPermIds.get(0));
+
+        List<Attachment> attachments = project.getAttachments();
+        assertEquals(attachments.size(), 1);
+
+        Attachment attachment = attachments.get(0);
+        assertEquals(attachment.getFileName(), attachmentCreation2.getFileName());
+        assertEquals(attachment.getDescription(), attachmentCreation2.getDescription());
+        assertEquals(attachment.getTitle(), attachmentCreation2.getTitle());
+        assertEquals(attachment.getContent(), attachmentCreation2.getContent());
+        assertEquals(attachment.getVersion(), Integer.valueOf(2));
+        assertEquals(attachment.getRegistrator().getUserId(), TEST_USER);
+        assertToday(attachment.getRegistrationDate());
+        assertEquals(attachment.getLatestVersionPermlink(),
+                "http://localhost/openbis/index.html?viewMode=SIMPLE#action=DOWNLOAD_ATTACHMENT&file=test.txt&entity=PROJECT&code=PROJECT_WITH_ATTACHMENT&space=CISD");
+        assertEquals(
+                attachment.getPermlink(),
+                "http://localhost/openbis/index.html?viewMode=SIMPLE#action=DOWNLOAD_ATTACHMENT&file=test.txt&version=2&entity=PROJECT&code=PROJECT_WITH_ATTACHMENT&space=CISD");
+
+        Attachment attachmentPrevious = attachment.getPreviousVersion();
+        assertEquals(attachmentPrevious.getFileName(), attachmentCreation1.getFileName());
+        assertEquals(attachmentPrevious.getDescription(), attachmentCreation1.getDescription());
+        assertEquals(attachmentPrevious.getTitle(), attachmentCreation1.getTitle());
+        assertEquals(attachmentPrevious.getContent(), attachmentCreation1.getContent());
+        assertEquals(attachmentPrevious.getVersion(), Integer.valueOf(1));
+        assertToday(attachmentPrevious.getRegistrationDate());
+        assertEquals(attachmentPrevious.getLatestVersionPermlink(),
+                "http://localhost/openbis/index.html?viewMode=SIMPLE#action=DOWNLOAD_ATTACHMENT&file=test.txt&entity=PROJECT&code=PROJECT_WITH_ATTACHMENT&space=CISD");
+        assertEquals(
+                attachmentPrevious.getPermlink(),
+                "http://localhost/openbis/index.html?viewMode=SIMPLE#action=DOWNLOAD_ATTACHMENT&file=test.txt&version=1&entity=PROJECT&code=PROJECT_WITH_ATTACHMENT&space=CISD");
+
+        assertRegistratorNotFetched(attachmentPrevious);
+        assertPreviousAttachmentNotFetched(attachmentPrevious);
+
+        v3api.logout(sessionToken);
     }
 
     @Test
