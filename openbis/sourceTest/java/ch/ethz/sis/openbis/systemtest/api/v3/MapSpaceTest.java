@@ -145,6 +145,12 @@ public class MapSpaceTest extends AbstractTest
 
         Space space = map.get(permId);
 
+        assertEquals(space.getPermId(), permId);
+        assertEquals(space.getCode(), "TEST-SPACE");
+        assertEquals(space.getDescription(), "myDescription");
+        assertEqualsDate(space.getRegistrationDate(), "2008-11-05 09:18:11");
+        assertEqualsDate(space.getModificationDate(), "2008-11-05 09:18:11");
+
         assertProjectsNotFetched(space);
         assertSamplesNotFetched(space);
         assertRegistratorNotFetched(space);
