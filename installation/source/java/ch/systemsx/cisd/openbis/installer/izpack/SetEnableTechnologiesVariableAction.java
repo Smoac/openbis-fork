@@ -38,6 +38,8 @@ import ch.systemsx.cisd.common.shared.basic.string.CommaSeparatedListBuilder;
  */
 public class SetEnableTechnologiesVariableAction implements PanelAction
 {
+    private static final String DROPBOX_MONITOR_MODULE = "dropbox-monitor";
+
     static final String ENABLED_TECHNOLOGIES_VARNAME = "ENABLED_TECHNOLOGIES";
 
     private final SetTechnologyCheckBoxesAction technologyCheckBoxesAction = new SetTechnologyCheckBoxesAction();
@@ -91,6 +93,8 @@ public class SetEnableTechnologiesVariableAction implements PanelAction
     {
         Set<String> allTechnologies = new HashSet<String>();
         CommaSeparatedListBuilder builder = new CommaSeparatedListBuilder();
+        builder.append(DROPBOX_MONITOR_MODULE);
+        allTechnologies.add(DROPBOX_MONITOR_MODULE);
         for (String technology : GlobalInstallationContext.TECHNOLOGIES)
         {
             String lowerCasedTechnology = technology.toLowerCase();

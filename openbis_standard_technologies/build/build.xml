@@ -37,6 +37,11 @@
 		<antcall target="datastore_server.add-dss-dist-libs"/>
 		<build-info revision="revision.number" version="version.number" clean="clean.flag" />
 		<antcall target="make-dss-jar"/>
+		<!-- generic -->
+		<antcall target="openbis.copy-core-plugins">
+      <param name="project-path" value="../openbis_standard_technologies/" />
+      <param name="plugin-kind" value="**" />
+		</antcall>
 		
 		<!-- illumina ngs -->
 		<antcall target="deep_sequencing_unit.make-dss-plugin-jar"/>
