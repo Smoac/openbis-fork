@@ -69,18 +69,6 @@ function ServerFacade(openbisServer) {
 		this.openbisServer.logout(callbackFunction);
 	}
 	
-	this.initServices = function(username, password, callbackFunction) {
-		var defaultDataSetCode = profile.getDefaultDataStoreCode();
-		this.createReportFromAggregationService(defaultDataSetCode, {
-			"method" : "initServices",
-			"username" : username,
-			"password" : password,
-			"openBISURL" : this.openbisServer._internal.openbisUrl
-		}, function(result) {
-			callbackFunction();
-		});
-	}
-	
 	//
 	// User Related Functions
 	//

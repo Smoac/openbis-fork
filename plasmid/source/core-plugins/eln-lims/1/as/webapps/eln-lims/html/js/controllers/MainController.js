@@ -146,13 +146,7 @@ function MainController(profile) {
 							});
 						}
 						
-						if(username && password) {
-							localReference.serverFacade.initServices(username, password, nextInit);
-						} else {
-							nextInit();
-						}
-						
-
+						nextInit();
 				});
 			}
 		);

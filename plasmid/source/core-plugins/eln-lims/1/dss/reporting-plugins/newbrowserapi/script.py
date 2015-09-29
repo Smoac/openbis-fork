@@ -38,7 +38,6 @@ from net.lingala.zip4j.core import ZipFile
 from ch.systemsx.cisd.common.exceptions import UserFailureException
 
 from ch.ethz.ssdm.eln import PlasmapperConnector
-from ch.ethz.ssdm.eln import ELNStore
 import time
 import subprocess
 import os.path
@@ -79,8 +78,6 @@ def process(tr, parameters, tableBuilder):
 	
 	if method == "init":
 		isOk = init(tr, parameters, tableBuilder);
-	if method == "initServices":
-		isOk = initServices(tr, parameters, tableBuilder);
 	if method == "searchSamples":
 		result = searchSamples(tr, parameters, tableBuilder, sessionId);
 		isOk = True;
@@ -493,16 +490,9 @@ def insertUpdateExperiment(tr, parameters, tableBuilder):
 	
 	return True;
 
-def initServices(tr, parameters, tableBuilder):
-	ELNStore.put(parameters.get("username"), parameters.get("password"));
-	return True
-
 def searchSamples(tr, parameters, tableBuilder, sessionId):
-	username = sessionId;
-	password = ELNStore.get(username);
 	openBISURL = parameters.get("openBISURL");
 	v3 = HttpInvokerUtils.createServiceStub(IApplicationServerApi, openBISURL + IApplicationServerApi.SERVICE_URL, 30 * 1000);
-	sessionToken = v3.login(username, password);
 	
 	###############
 	############### V3 Search
@@ -611,9 +601,7 @@ def searchSamples(tr, parameters, tableBuilder, sessionId):
 	###############
 	###############
 	###############
-	
-	result = v3.searchSamples(sessionToken, criterion, fetchOptions);
-	v3.logout(sessionToken);
+	result = v3.searchSamples(parameters.get("sessionToken"), criterion, fetchOptions);
 	
 	###
 	### Json Conversion
