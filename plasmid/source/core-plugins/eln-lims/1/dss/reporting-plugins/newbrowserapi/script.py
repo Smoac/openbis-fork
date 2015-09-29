@@ -579,14 +579,30 @@ def searchSamples(tr, parameters, tableBuilder, sessionId):
 	#Hierarchy Fetch Options
 	if withProperties:
 		fetchOptions.withProperties();
-	if withParents:
+	if withParents:	
 		fetchOptions.withParents();
 	if withChildren:
 		fetchOptions.withChildren();
 	if withAncestors:
-		fetchOptions.withParentsUsing(fetchOptions);
+		fetchOptionsAncestors = SampleFetchOptions();
+		fetchOptionsAncestors.withProperties();
+		fetchOptionsAncestors.withType();
+		fetchOptionsAncestors.withSpace();
+		fetchOptionsAncestors.withExperiment();
+		fetchOptionsAncestors.withRegistrator();
+		fetchOptionsAncestors.withModifier();
+		fetchOptionsAncestors.withParentsUsing(fetchOptionsAncestors);
+		fetchOptions.withParentsUsing(fetchOptionsAncestors);
 	if withDescendants:
-		fetchOptions.withChildrenUsing(fetchOptions);
+		fetchOptionsDescendants = SampleFetchOptions();
+		fetchOptionsDescendants.withProperties();
+		fetchOptionsDescendants.withType();
+		fetchOptionsDescendants.withSpace();
+		fetchOptionsDescendants.withExperiment();
+		fetchOptionsDescendants.withRegistrator();
+		fetchOptionsDescendants.withModifier();
+		fetchOptionsDescendants.withChildrenUsing(fetchOptionsDescendants);
+		fetchOptions.withChildrenUsing(fetchOptionsDescendants);
 	
 	#Standard Fetch Options, always use
 	fetchOptions.withType();

@@ -347,7 +347,7 @@ function ServerFacade(openbisServer) {
 			var cleanSample = $.extend({}, v1Sample);
 			delete cleanSample.parents;
 			delete cleanSample.children;
-			_this.openbisServer.listDataSetsForSample(v1Sample, trueOrFalse, callbackFunction);
+			_this.openbisServer.listDataSetsForSample(cleanSample, trueOrFalse, callbackFunction);
 		}
 		
 		if(sampleToSend.id !== -1) { //Is V1 Sample
