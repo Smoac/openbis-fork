@@ -243,7 +243,7 @@ var FormUtil = new function() {
 			$component.attr('required', '');
 		}
 		
-		$component.append($("<option>").attr('value', '').attr('selected', '').text(''));
+		$component.append($("<option>").attr('value', '').attr('selected', '').text('Select an experiment type'));
 		for(var i = 0; i < experimentTypes.length; i++) {
 			var experimentType = experimentTypes[i];
 			if(profile.isExperimentTypeHidden(experimentType.code)) {
@@ -320,7 +320,7 @@ var FormUtil = new function() {
 		return $component;
 	}
 	
-	this.getProjectAndExperimentsDropdown = function(withProjects, withExperiments, callbackForComponent) {
+	this.getProjectAndExperimentsDropdown = function(withProjects, withExperiments, isRequired, callbackForComponent) {
 		mainController.serverFacade.listSpacesWithProjectsAndRoleAssignments(null, function(dataWithSpacesAndProjects) {
 			var spaces = dataWithSpacesAndProjects.result;
             var projectsToUse = [];
@@ -354,9 +354,18 @@ var FormUtil = new function() {
                 	//
             		//
             		var $component = $("<select>", { class : 'form-control'});
-            		$component.attr('required', '');
-            		
-            		$component.append($("<option>").attr('value', '').attr('selected', '').attr('disabled', '').text(''));
+            		if(isRequired) {
+            			$component.attr('required', '');
+            		}
+            		var placeHolder = "";
+            		if(withProjects && withExperiments) {
+            			placeHolder = "Select a project or experiment";
+            		} else if(withProjects) {
+            			placeHolder = "Select a project";
+            		} else if(withExperiments) {
+            			placeHolder = "Select an experiment";
+            		}
+            		$component.append($("<option>").attr('value', '').attr('selected', '').attr('disabled', '').text(placeHolder));
             		for(var pIdx = 0; pIdx < projectsToUse.length; pIdx++) {
             			var project = projectsToUse[pIdx];
             			var projectIdentifier = "/" + project.spaceCode + "/" + project.code;

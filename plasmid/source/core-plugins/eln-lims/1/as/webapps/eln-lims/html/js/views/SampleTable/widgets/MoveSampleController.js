@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-function MoveSampleController(samplePermId) {
-	this._moveSampleModel = new MoveSampleModel(samplePermId);
+function MoveSampleController(samplePermId, successAction) {
+	this._moveSampleModel = new MoveSampleModel(samplePermId, successAction);
 	this._moveSampleView = new MoveSampleView(this, this._moveSampleModel);
 	
 	this.init = function() {
@@ -38,7 +38,7 @@ function MoveSampleController(samplePermId) {
 				this._moveSampleModel.experimentIdentifier,
 				this._moveSampleModel.experimentType, function(isOK) {
 					if(isOK) {
-						Util.showSuccess("Sample " + _this._moveSampleModel.sample.identifier + " moved to " + _this._moveSampleModel.experimentIdentifier, function() { Util.unblockUI(); });
+						Util.showSuccess("Sample " + _this._moveSampleModel.sample.identifier + " moved to " + _this._moveSampleModel.experimentIdentifier, function() { Util.unblockUI(); if(_this._moveSampleModel.successAction) { _this._moveSampleModel.successAction(); } });
 					} else {
 						Util.showError("Sample " + _this._moveSampleModel.sample.identifier + " failed " + _this._moveSampleModel.experimentIdentifier, function() {});
 					}

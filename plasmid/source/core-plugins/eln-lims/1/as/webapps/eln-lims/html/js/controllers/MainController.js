@@ -50,7 +50,12 @@ function MainController(profile) {
 	
 	//Others
 	this.currentView = null;
-	
+	//Refresh Functionality
+	this.lastViewChange = null;
+	this.lastArg = null;
+	this.refreshView = function() {
+		this.changeView(this.lastViewChange, this.lastArg);
+	}
 	//
 	// Validates and enters the app
 	//
@@ -395,6 +400,11 @@ function MainController(profile) {
 		var menuUniqueId = this.sideMenu.getCurrentNodeId();
 		var url = Util.getURLFor(menuUniqueId, newViewChange, arg);
 		history.pushState(null, "", url); //History Push State
+		//
+		// Refresh Functionality
+		//
+		this.lastViewChange = newViewChange;
+		this.lastArg = arg;
 	}
 	
 	//

@@ -238,7 +238,9 @@ var SampleDataGridUtil = new function() {
 				
 				var $openHierarchy = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'Move'}).append("Move"));
 				$openHierarchy.click(function(e) {
-					var moveSampleController = new MoveSampleController(data.permId)
+					var moveSampleController = new MoveSampleController(data.permId, function() {
+						mainController.refreshView();
+					});
 					moveSampleController.init();
 				});
 				$list.append($openHierarchy);

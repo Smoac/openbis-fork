@@ -66,23 +66,51 @@ function MoveSampleView(moveSampleController, moveSampleModel) {
 	}
 	
 	this.repaintNewExperiment = function() {
+		var _this = this;
 		$experimentSection.empty();
-		$experimentSection.append("Not Supported Yet");
+		FormUtil.getProjectAndExperimentsDropdown(true, false, true, function($dropdown) {
+			//Fields
+			var $expTypeField = FormUtil.getExperimentTypeDropdown(null, true);
+			var $expNameField = FormUtil._getInputField('text', null, 'Future Experiment Name', null, true);
+			
+			//Events
+			var newExpEvent = function(event){
+				var valueProject = $dropdown.val();
+				var valueExperiment = $expNameField.val();
+				_this._moveSampleModel.experimentIdentifier = valueProject + "/" + valueExperiment;
+			};
+			var newTypeEVent = function(event) {
+				var value = $(event.target).val();
+				_this._moveSampleModel.experimentType = value;
+			};
+			
+			//Attach Events
+			$dropdown.change(newExpEvent);
+			$expNameField.keyup(newExpEvent);
+			$expTypeField.change(newTypeEVent);
+			
+			//Attach Fields
+			$experimentSection.append(FormUtil.getFieldForComponentWithLabel($dropdown, "Future Project"))
+							.append(FormUtil.getFieldForComponentWithLabel($expTypeField, "Future Experiment Type"))
+							.append(FormUtil.getFieldForComponentWithLabel($expNameField, "Future Experiment Name"));
+		});
+		
+		
+		
 	}
 	
 	this.repaintExistingExperiment = function() {
 		var _this = this;
 		$experimentSection.empty();
-		var $expProjDropdown = $("<div>");
-		$experimentSection.append(FormUtil.getFieldForComponentWithLabel($expProjDropdown, "Future Experiment"));
-		FormUtil.getProjectAndExperimentsDropdown(false, true, function($dropdown) {
+		FormUtil.getProjectAndExperimentsDropdown(false, true, true, function($dropdown) {
+			//Events
 			$dropdown.change(function(event){
 				var value = $(event.target).val();
 				_this._moveSampleModel.experimentIdentifier = value;
 			});
-			$expProjDropdown.append($dropdown);
+			//Attach Fields
+			$experimentSection.append(FormUtil.getFieldForComponentWithLabel($dropdown, "Future Experiment"));
 		});
-		
 	}
 	
 }
