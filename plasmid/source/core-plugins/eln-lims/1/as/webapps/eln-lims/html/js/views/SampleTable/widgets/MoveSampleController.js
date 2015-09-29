@@ -28,8 +28,18 @@ function MoveSampleController(samplePermId, successAction) {
 	
 	this.move = function() {
 		var _this = this;
-		if(!this._moveSampleModel.sample.identifier) {
-			Util.showError("Dear user, please choose the experiment first, try harder!", function() {});
+		if(!this._moveSampleModel.isNewExperiment && !this._moveSampleModel.experimentIdentifier) {
+			Util.showError("Please choose an experiment.", function() {});
+			return;
+		}
+		
+		if(this._moveSampleModel.isNewExperiment && !this._moveSampleModel.experimentIdentifier) {
+			Util.showError("Please choose the project and experiment name.", function() {});
+			return;
+		}
+		
+		if(this._moveSampleModel.isNewExperiment && !this._moveSampleModel.experimentType) {
+			Util.showError("Please choose the experiment type.", function() {});
 			return;
 		}
 		
