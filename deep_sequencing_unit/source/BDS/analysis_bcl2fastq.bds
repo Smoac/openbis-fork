@@ -24,6 +24,7 @@ bool runBowtie
 bool debugRun
 string sequencer
 string latestFolder
+string [] laneList
 
 runBase := "/links/shared/dsu/runs/$sequencer"
 
@@ -82,16 +83,32 @@ bool {} taskList
 
 if (reRun) {
     removeOutputFiles()
-    taskList = {"runReadRTATimestamp" => true, \
-                "runSampleSheetCreation" => true, \
-                "runTriggerBcl2fastq" => true, \
-                "runDemultiplexStats" => true, \
-                "runRsyncDemultiplexedFiles" => true, \
-                "runRsyncFlowcell" => true, \
-                "runCreateFastqc" => true, \
-                "runBowtie" => true, \
-                "runBarcodeDistribution" => true, \
-                "runRsyncLaneStatictics" => true}
+    if (laneList.isEmpty()) {
+            taskList = {"runReadRTATimestamp" => true, \
+                    "runSampleSheetCreation" => true, \
+                    "runTriggerBcl2fastq" => true, \
+                    "runDemultiplexStats" => true, \
+                    "runRsyncDemultiplexedFiles" => true, \
+                    "runRsyncFlowcell" => true, \
+                    "runCreateFastqc" => true, \
+                    "runBowtie" => true, \
+                    "runBarcodeDistribution" => true, \
+                    "runRsyncLaneStatictics" => true,\
+                    "debugRun" => debugRun}
+    }
+    else {
+        taskList = {"runReadRTATimestamp" => false, \
+                    "runSampleSheetCreation" => true, \
+                    "runTriggerBcl2fastq" => true, \
+                    "runDemultiplexStats" => true, \
+                    "runRsyncDemultiplexedFiles" => true, \
+                    "runRsyncFlowcell" => true, \
+                    "runCreateFastqc" => true, \
+                    "runBarcodeDistribution" => true, \
+                    "runBowtie" => false, \
+                    "runRsyncLaneStatictics" => true, \
+                    "debugRun" => true}
+    }
 }
 else {
     taskList = {"runReadRTATimestamp" => runReadRTATimestamp, \
@@ -148,12 +165,21 @@ string getLatestFolder (string runBase) {
 void removeOutputFiles() {
 
     print "Removing files...\n"
-       
-    string taskId task ( canFail := true, cpus := 1 ){ 
-        sys rm "$analysisStarted" "$analysisFinished"
-        sys rm -rf "$latestFolder/$demultiplexedFolder"
+
+    for (int i=1; i < 9; i++) {
+        oldDemuxFolder := "$latestFolder/$demultiplexedFolder" + "_" + "$i"
+        print("Removing $oldDemuxFolder\n")
+        string demuxTaskID task ( canFail := true, cpus := 1 ){ 
+            sys rm -rf "$oldDemuxFolder"
+        }
+        wait demuxTaskID
     }
-    wait taskId
+
+    string markerTaskId task ( canFail := true, cpus := 1 ){ 
+        sys rm -f "$analysisStarted"
+        sys rm -f "$analysisFinished"
+    }
+    wait markerTaskId
 }
 
 string cleanString (string toClean) {
@@ -192,6 +218,9 @@ int extractLaneNumberfromRunInfo () {
     
     string laneCount = sys grep LaneCount "$latestFolder/RunInfo.xml" | awk '{ print $2 }' | tr -dc [:digit:]
     laneCountInt := laneCount.parseInt() 
+    if (model == "NEXTSEQ_500") {
+        laneCountInt = 1
+    }
     return laneCountInt
 }
 
@@ -240,6 +269,29 @@ void rsyncRunFolder (string[] rsyncParameters, string source, string targetFolde
     }
 }
 
+int[] buildLaneList(string [] laneList) {
+    """
+    Builds a list of lanes which need to be processed. Could be all lanes or a subset which is
+    given by a parameter.
+    """
+    
+    int [] laneListInt
+    if (laneList.isEmpty()) {
+        int [] laneList
+        int laneCount = extractLaneNumberfromRunInfo()
+        for (int i=1; i < laneCount + 1; i++) {
+            laneListInt.add(i)
+        }
+    }
+    else {
+        for (string lane : laneList) {
+            laneListInt.add(lane.parseInt())
+        }
+    }
+    return laneListInt
+}
+
+
 # --------------------------------------------------------------------------
 
 void startAnalysis (string fcName, string model) {
@@ -247,7 +299,9 @@ void startAnalysis (string fcName, string model) {
     # Main function
 
     int laneCount = extractLaneNumberfromRunInfo()
+    int [] laneListInt
 
+    laneListInt = buildLaneList(laneList)
     
     # Read RTA timestamp
     if (taskList{"runReadRTATimestamp"}) {
@@ -262,13 +316,14 @@ void startAnalysis (string fcName, string model) {
         sampleSheetName := triggerSampleSheetCreation()
     }
 
-    # Start Demultiplexing
+    # Start Demultiplexing for lanes
     if (taskList{"runTriggerBcl2fastq"}) {
-        triggerBcl2fastq(model)
+        triggerBcl2fastq(model, laneListInt)
     }
+    
     # html demultiplexing overview
     if (taskList{"runDemultiplexStats"}) {
-        triggerDemultiplexStats(laneCount)
+        triggerDemultiplexStats(laneListInt)
     }
     
     # Rsync Flow Cell Raw Data
@@ -288,13 +343,13 @@ void startAnalysis (string fcName, string model) {
     }
 
     if (taskList{"runCreateFastqc"}) {
-        createFastqc (laneCount)
+        createFastqc (laneListInt)
     }
    
     # run in parallel
     par {
         if (taskList{"runBarcodeDistribution"}) {
-            barcodeDistribution (laneCount)
+            barcodeDistribution (laneListInt)
         }
         if (taskList{"runBowtie"}) {
             bowtie ()
@@ -304,13 +359,13 @@ void startAnalysis (string fcName, string model) {
 
     # Rsync the demultiplexed files
     if (taskList{"runRsyncDemultiplexedFiles"}) {
-        rsyncDemultiplexedFiles(laneCount)
-        sleep(1000)
+        rsyncDemultiplexedFiles(laneListInt)
+        sleep(1500)
     }
 
     # Sync Statistic for Flowcell and Lane statistic
     if (taskList{"runRsyncLaneStatictics"}) {
-        rsyncLaneStatictics(laneCount)
+        rsyncLaneStatictics(laneListInt)
     }
 
 
@@ -338,22 +393,20 @@ string triggerSampleSheetCreation() {
 } 
 
 
-void triggerBcl2fastq (string model) {
+void triggerBcl2fastq (string model, int [] laneList) {
     
     bcl2fastqBinary := "/usr/local/bin/bcl2fastq"
     string laneSplitting
 
-    int laneCount = extractLaneNumberfromRunInfo()
-
     if (model == "NEXTSEQ_500") {
         # just appending the option
         bcl2fastqBinary += " --no-lane-splitting "
-        laneCount = 1
     }
-    for( int i=1 ; i < laneCount + 1; i++ ) {
-        sampleSheetName := "SampleSheet_" + "$fcName" + "_" + "$i" + ".csv"
-        outDir := "$latestFolder/$demultiplexedFolder" + "_" + "$i"
-        nohupFile := "$latestFolder/" + "nohup_" + "$runFolderName" + "_" + "$i" + ".txt"
+
+    for(int lane : laneList) {
+        sampleSheetName := "SampleSheet_" + "$fcName" + "_" + "$lane" + ".csv"
+        outDir := "$latestFolder/$demultiplexedFolder" + "_" + "$lane"
+        nohupFile := "$latestFolder/" + "nohup_" + "$runFolderName" + "_" + "$lane" + ".txt"
 
         task ( cpus := 16 ) {
              sys /usr/bin/nohup $bcl2fastqBinary \
@@ -374,31 +427,31 @@ void triggerBcl2fastq (string model) {
 }
 
 
-void triggerDemultiplexStats (int laneCount) {
+void triggerDemultiplexStats (int [] laneCount) {
 
-    for( int i=1 ; i < laneCount + 1; i++ ) {
+    for(int lane : laneCount) {
     
         rsyncRunFolder (["-a"], \
-                         "$latestFolder/$demultiplexedFolder" + "_" + "$i" + "/Reports", \
-                         "$reportsData/$runFolderName"+ "_" + "$i", \
+                         "$latestFolder/$demultiplexedFolder" + "_" + "$lane" + "/Reports", \
+                         "$reportsData/$runFolderName"+ "_" + "$lane", \
                          "")
 
         rsyncRunFolder (["-a"], \
-                         "$latestFolder/$demultiplexedFolder" + "_" + "$i" + "/Stats", \
-                         "$reportsData/$runFolderName"+ "_" + "$i", \
-                         "$reportsData/$marker$runFolderName"+ "_" + "$i")
+                         "$latestFolder/$demultiplexedFolder" + "_" + "$lane" + "/Stats", \
+                         "$reportsData/$runFolderName"+ "_" + "$lane", \
+                         "$reportsData/$marker$runFolderName"+ "_" + "$lane")
     }
 }
 
 
-void createFastqc (int laneCount) {
+void createFastqc (int [] laneCount) {
 
     fastqcBinary := "/links/application/dsu/Python-scripts/fastqc_plots_improved.py"
     fastqcOutputFolder := "fastqc"
 
-    for( int i=1 ; i < laneCount + 1; i++ ) {
+    for(int intLane : laneCount) {
 
-        inputFolder := "$latestFolder/$demultiplexedFolder" + "_" + "$i"
+        inputFolder := "$latestFolder/$demultiplexedFolder" + "_" + "$intLane"
         outPutFolder := "$inputFolder/$fastqcOutputFolder"
 
         task python3.4 $fastqcBinary \
@@ -408,46 +461,32 @@ void createFastqc (int laneCount) {
             --debug
         wait
 
+        filesPerLane := outPutFolder.dir("*$intLane*.html")
+        print("$filesPerLane")
+        folderName := cleanString("$fcName") + "_" + "$intLane"
 
-        listOfLanes := getLaneNumbers("$outPutFolder", "*R1_001*")
-        print("$listOfLanes\n")
-        string laneString
+        newFastqcFolder := "$outPutFolder/$folderName"
+        newFastqcFolder.mkdir()
 
-        # TODO distinguish between single lane and more lanes
-        if (listOfLanes.size() > 1) {
-            laneString = "L00"
-        }
-        else{
-            laneString = ""
+        for (string fastqcHtmlfile : filesPerLane) {
+            sys mv "$outPutFolder/$fastqcHtmlfile" "$newFastqcFolder"
         }
 
-        for (string lane : listOfLanes) {
-            filesPerLane := outPutFolder.dir("*$laneString$lane*.html")
-            print("$filesPerLane")
-            folderName := cleanString("$fcName") + "_" + "$lane"
+        rsyncRunFolder (["-a"], \
+                      "$newFastqcFolder", \
+                      "$fastqcData", \
+                      "$fastqcData/$marker$folderName")
 
-            newFastqcFolder := "$outPutFolder/$folderName"
-            newFastqcFolder.mkdir()
-
-            for (string fastqcHtmlfile : filesPerLane) {
-                sys mv "$outPutFolder/$fastqcHtmlfile" "$newFastqcFolder"
-            }
-
-            rsyncRunFolder (["-a"], \
-                          "$newFastqcFolder", \
-                          "$fastqcData", \
-                          "$fastqcData/$marker$folderName")
-        }
     }
 }
 
-void barcodeDistribution (int laneCount) {
+void barcodeDistribution (int [] laneCount) {
 
     barcodeDistBinary := "/links/application/dsu/barcodeDistribution/source/barcodeDistribution.py"
 
-    for( int i=1 ; i < laneCount + 1; i++ ) {
+    for(int intLane : laneCount) {
 
-        searchFolder := "$latestFolder/$demultiplexedFolder" + "_" + "$i"
+        searchFolder := "$latestFolder/$demultiplexedFolder" + "_" + "$intLane"
         
         listOfLanes := getLaneNumbers("$searchFolder", "*R1_001*.gz")
         print("$listOfLanes\n")
@@ -481,11 +520,11 @@ void barcodeDistribution (int laneCount) {
 }
 
 
-void rsyncDemultiplexedFiles (int laneCount) {
+void rsyncDemultiplexedFiles (int [] laneCount) {
 
-    for( int i=1 ; i < laneCount + 1; i++ ) {
+    for(int intLane : laneCount) {
 
-        searchFolder := "$latestFolder/$demultiplexedFolder" + "_" + "$i"
+        searchFolder := "$latestFolder/$demultiplexedFolder" + "_" + "$intLane"
         
         listOfLanes := getLaneNumbers(searchFolder, "*R1_001*.fastq.gz")
         debug(listOfLanes)
@@ -529,12 +568,13 @@ void rsyncDemultiplexedFiles (int laneCount) {
 }
 
 
-void rsyncLaneStatictics (int laneCount) {
+void rsyncLaneStatictics (int [] laneCount) {
 
-    for( int i=1 ; i < laneCount + 1; i++ ) {
+    print("Starting rsyncLaneStatictics with lanes $laneCount\n")
+    for(int intLane : laneCount) {
 
         conversionStatsFile := "ConversionStats.xml"
-        demuxFile := "$latestFolder/$demultiplexedFolder" + "_" + "$i" + "/Stats/$conversionStatsFile"
+        demuxFile := "$latestFolder/$demultiplexedFolder" + "_" + "$intLane" + "/Stats/$conversionStatsFile"
         if (!demuxFile.canRead()) {
             printErr("Cannot read $demuxFile")
         }
@@ -550,9 +590,10 @@ void rsyncLaneStatictics (int laneCount) {
                 demuxData = "$dss/v2_read-demultiplex-stats-miseq-hiseq"
         }
 
-        outputDir:= "$demuxData/$runFolderName" + "_" + "$i"
-        markerFile := "$demuxData/$marker" + "$runFolderName" + "_" + "$i"
+        outputDir:= "$demuxData/$runFolderName" + "_" + "$intLane"
+        markerFile := "$demuxData/$marker" + "$runFolderName" + "_" + "$intLane"
 
+        print("$demuxFile")
         rsyncRunFolder (["-a"], \
                          "$demuxFile", \
                          "$outputDir", \
