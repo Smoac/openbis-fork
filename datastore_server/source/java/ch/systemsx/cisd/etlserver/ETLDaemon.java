@@ -123,6 +123,13 @@ public final class ETLDaemon
     @Private
     static IExitHandler exitHandler = SystemExit.SYSTEM_EXIT;
 
+    private static ThreadParameters[] threads;
+
+    public static ThreadParameters[] getThreadParameters()
+    {
+        return threads;
+    }
+
     private static void printInitialLogMessage(final Parameters parameters)
     {
         operationLog.info("Data Store Server is starting up.");
@@ -241,7 +248,7 @@ public final class ETLDaemon
 
     private static void startupServer(final Parameters parameters)
     {
-        final ThreadParameters[] threads = parameters.getThreads();
+        threads = parameters.getThreads();
         IEncapsulatedOpenBISService openBISService = ServiceProvider.getOpenBISService();
         final Properties properties = parameters.getProperties();
         final boolean notifySuccessfulRegistration = getNotifySuccessfulRegistration(properties);
