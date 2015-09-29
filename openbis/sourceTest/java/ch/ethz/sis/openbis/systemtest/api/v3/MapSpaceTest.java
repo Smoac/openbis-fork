@@ -17,6 +17,7 @@
 package ch.ethz.sis.openbis.systemtest.api.v3;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
 
 import java.util.Arrays;
 import java.util.Iterator;
@@ -196,7 +197,8 @@ public class MapSpaceTest extends AbstractTest
         SpacePermId permId = new SpacePermId("TEST-SPACE");
 
         SpaceFetchOptions fetchOptions = new SpaceFetchOptions();
-        fetchOptions.withRegistrator();
+        fetchOptions.withRegistrator().withSpace();
+        fetchOptions.withRegistrator().withRegistrator();
 
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         Map<ISpaceId, Space> map = v3api.mapSpaces(sessionToken, Arrays.asList(permId), fetchOptions);
@@ -205,6 +207,14 @@ public class MapSpaceTest extends AbstractTest
         Person registrator = space.getRegistrator();
 
         assertEquals(registrator.getUserId(), "test");
+        assertNotNull(registrator.getFirstName());
+        assertNotNull(registrator.getLastName());
+        assertEquals(registrator.getEmail(), "franz-josef.elmer@systemsx.ch");
+        assertEqualsDate(registrator.getRegistrationDate(), "2008-11-05 09:18:10");
+        assertEquals(registrator.isActive(), Boolean.TRUE);
+        assertEquals(registrator.getSpace().getCode(), "CISD");
+        assertEquals(registrator.getRegistrator().getUserId(), "system");
+
         assertProjectsNotFetched(space);
         assertSamplesNotFetched(space);
     }

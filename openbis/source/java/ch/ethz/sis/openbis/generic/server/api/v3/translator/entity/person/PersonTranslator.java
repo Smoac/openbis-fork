@@ -40,6 +40,9 @@ public class PersonTranslator extends AbstractCachingTranslator<Long, Person, Pe
     @Autowired
     private IPersonSpaceTranslator spaceTranslator;
 
+    @Autowired
+    private IPersonRegistratorTranslator registratorTranslator;
+
     @Override
     protected Person createObject(TranslationContext context, Long personId, PersonFetchOptions fetchOptions)
     {
@@ -58,6 +61,11 @@ public class PersonTranslator extends AbstractCachingTranslator<Long, Person, Pe
         if (fetchOptions.hasSpace())
         {
             relations.put(IPersonSpaceTranslator.class, spaceTranslator.translate(context, personIds, fetchOptions.withSpace()));
+        }
+
+        if (fetchOptions.hasRegistrator())
+        {
+            relations.put(IPersonRegistratorTranslator.class, registratorTranslator.translate(context, personIds, fetchOptions.withRegistrator()));
         }
 
         return relations;
@@ -81,6 +89,12 @@ public class PersonTranslator extends AbstractCachingTranslator<Long, Person, Pe
         {
             result.setSpace(relations.get(IPersonSpaceTranslator.class, personId));
             result.getFetchOptions().withSpaceUsing(fetchOptions.withSpace());
+        }
+
+        if (fetchOptions.hasRegistrator())
+        {
+            result.setRegistrator(relations.get(IPersonRegistratorTranslator.class, personId));
+            result.getFetchOptions().withRegistratorUsing(fetchOptions.withRegistrator());
         }
     }
 }

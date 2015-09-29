@@ -37,6 +37,9 @@ public interface PersonQuery extends ObjectQuery
     public List<PersonBaseRecord> getPersons(LongSet personIds);
 
     @Select(sql = "select id as objectId, space_id as relatedId from persons where id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
-    public List<ObjectRelationRecord> getSpaces(LongSet personIds);
+    public List<ObjectRelationRecord> getSpaceIds(LongSet personIds);
+
+    @Select(sql = "select id as objectId, pers_id_registerer as relatedId from persons where id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    public List<ObjectRelationRecord> getRegistratorIds(LongSet personIds);
 
 }

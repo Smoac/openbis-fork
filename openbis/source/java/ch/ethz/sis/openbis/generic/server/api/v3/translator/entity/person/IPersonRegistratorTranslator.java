@@ -16,29 +16,10 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.person;
 
-import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
-
-import java.util.List;
-
-import net.lemnik.eodsql.QueryTool;
-
-import org.springframework.stereotype.Component;
-
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.ObjectRelationRecord;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.space.ObjectToSpaceTranslator;
-
 /**
  * @author pkupczyk
  */
-@Component
-public class PersonSpaceTranslator extends ObjectToSpaceTranslator implements IPersonSpaceTranslator
+public interface IPersonRegistratorTranslator extends IObjectToPersonTranslator
 {
-
-    @Override
-    protected List<ObjectRelationRecord> loadRecords(LongOpenHashSet objectIds)
-    {
-        PersonQuery query = QueryTool.getManagedQuery(PersonQuery.class);
-        return query.getSpaceIds(objectIds);
-    }
 
 }
