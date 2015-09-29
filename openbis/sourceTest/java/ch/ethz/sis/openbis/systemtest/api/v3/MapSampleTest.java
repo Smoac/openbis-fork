@@ -1095,6 +1095,8 @@ public class MapSampleTest extends AbstractSampleTest
         assertTrue(entry.getValidFrom().before(end));
         assertTrue(entry.getValidTo().after(entry.getValidFrom()));
         assertTrue(entry.getValidTo().before(end));
+
+        assertHistoryNotFetched(entry);
     }
 
     @Test
