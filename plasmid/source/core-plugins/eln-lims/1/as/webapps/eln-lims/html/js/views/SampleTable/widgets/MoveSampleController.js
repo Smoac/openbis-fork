@@ -48,7 +48,17 @@ function MoveSampleController(samplePermId, successAction) {
 				this._moveSampleModel.experimentIdentifier,
 				this._moveSampleModel.experimentType, function(isOK) {
 					if(isOK) {
-						Util.showSuccess("Sample " + _this._moveSampleModel.sample.identifier + " moved to " + _this._moveSampleModel.experimentIdentifier, function() { Util.unblockUI(); if(_this._moveSampleModel.successAction) { _this._moveSampleModel.successAction(); } });
+						Util.showSuccess("Sample " + _this._moveSampleModel.sample.identifier + " moved to " + _this._moveSampleModel.experimentIdentifier, function() { 
+							Util.unblockUI(); 
+							if(_this._moveSampleModel.successAction) { 
+								//Delete Sample from current experiment menu
+								mainController.sideMenu.deleteUniqueIdAndMoveToParent(_this._moveSampleModel.sample.identifier, true);
+								//Refresh Experiment where sample was moved
+								mainController.sideMenu.refreshSubExperiment(_this._moveSampleModel.experimentIdentifier);
+								
+								_this._moveSampleModel.successAction();
+							} 
+						});
 					} else {
 						Util.showError("Sample " + _this._moveSampleModel.sample.identifier + " failed " + _this._moveSampleModel.experimentIdentifier, function() {});
 					}
