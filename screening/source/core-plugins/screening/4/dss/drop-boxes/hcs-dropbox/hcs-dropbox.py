@@ -10,7 +10,7 @@ PROJECT_ID = "/%(SPACE_CODE)s/%(PROJECT_CODE)s" % vars()
 EXPERIMENT_CODE = "DEMO-EXP-HCS"
 EXPERIMENT_ID = "/%(SPACE_CODE)s/%(PROJECT_CODE)s/%(EXPERIMENT_CODE)s" % vars()
 
-PLATE_CODE = "PLATE1"
+PLATE_CODE = "PLATE"
 PLATE_ID = "/%(SPACE_CODE)s/%(PLATE_CODE)s" % vars()
 PLATE_GEOMETRY_PROPERTY_CODE = "$PLATE_GEOMETRY"
 PLATE_GEOMETRY = "384_WELLS_16X24"
@@ -20,6 +20,7 @@ def create_space_if_needed(transaction):
     space = transaction.getSpace(SPACE_CODE)
     if None == space:
         space = transaction.createNewSpace(SPACE_CODE, None)
+        transaction.getLogger().info('Creating new space: ' + SPACE_CODE)
         space.setDescription("A demo space")
 
 def create_project_if_needed(transaction):
@@ -27,6 +28,7 @@ def create_project_if_needed(transaction):
     if None == project:
         create_space_if_needed(transaction)
         project = transaction.createNewProject(PROJECT_ID)
+        transaction.getLogger().info('Creating new project: ' + PROJECT_ID)
         project.setDescription("A demo project")
         
 def create_experiment_if_needed(transaction):
@@ -34,7 +36,7 @@ def create_experiment_if_needed(transaction):
     exp = transaction.getExperiment(EXPERIMENT_ID)
     if None == exp:
         create_project_if_needed(transaction)
-        print 'Creating new experiment : ' + EXPERIMENT_ID
+        transaction.getLogger().info('Creating new experiment: ' + EXPERIMENT_ID)
         exp = transaction.createNewExperiment(EXPERIMENT_ID, 'SIRNA_HCS')
         
     return exp
@@ -47,6 +49,7 @@ def create_plate_if_needed(transaction):
     if None == samp:
         exp = create_experiment_if_needed(transaction)
         samp = transaction.createNewSample(PLATE_ID, 'PLATE')
+        transaction.getLogger().info('Creating new plate: ' + PLATE_ID)
         samp.setPropertyValue(PLATE_GEOMETRY_PROPERTY_CODE, PLATE_GEOMETRY)
         samp.setExperiment(exp)
         
