@@ -51,6 +51,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.Share;
 import ch.systemsx.cisd.openbis.generic.shared.Constants;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 
 /**
@@ -276,6 +277,7 @@ public class SimpleShufflingTest extends AbstractFileSystemTestCase
         dataSet.setDataSetLocation(STORE_PATH + code);
         dataSet.setDataSetSize(size);
         dataSet.setDataStoreCode(DSS_CODE);
+        dataSet.setStatus(DataSetArchivingStatus.AVAILABLE);
         dataSet.setSpeedHint(Constants.DEFAULT_SPEED_HINT);
         return dataSet;
     }
