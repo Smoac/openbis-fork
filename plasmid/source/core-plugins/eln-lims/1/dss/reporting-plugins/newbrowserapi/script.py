@@ -567,9 +567,23 @@ def searchSamples(tr, parameters, tableBuilder, sessionId):
 	if withProperties:
 		fetchOptions.withProperties();
 	if withParents:	
-		fetchOptions.withParents();
+		fetchOptionsParents = SampleFetchOptions();
+		fetchOptionsParents.withProperties();
+		fetchOptionsParents.withType();
+		fetchOptionsParents.withSpace();
+		fetchOptionsParents.withExperiment();
+		fetchOptionsParents.withRegistrator();
+		fetchOptionsParents.withModifier();
+		fetchOptions.withParentsUsing(fetchOptionsParents);
 	if withChildren:
-		fetchOptions.withChildren();
+		fetchOptionsChildren = SampleFetchOptions();
+		fetchOptionsChildren.withProperties();
+		fetchOptionsChildren.withType();
+		fetchOptionsChildren.withSpace();
+		fetchOptionsChildren.withExperiment();
+		fetchOptionsChildren.withRegistrator();
+		fetchOptionsChildren.withModifier();
+		fetchOptions.withChildrenUsing(fetchOptionsChildren);
 	if withAncestors:
 		fetchOptionsAncestors = SampleFetchOptions();
 		fetchOptionsAncestors.withProperties();
