@@ -53,6 +53,19 @@ function MoveSampleController(samplePermId, successAction) {
 							if(_this._moveSampleModel.successAction) { 
 								//Delete Sample from current experiment menu
 								mainController.sideMenu.deleteUniqueIdAndMoveToParent(_this._moveSampleModel.sample.identifier, true);
+								
+								//Add Experiment to the menu if new
+								if(_this._moveSampleModel.isNewExperiment) {
+									var experimentIdentifier = _this._moveSampleModel.experimentIdentifier;
+									var experimentIdentifierParts = experimentIdentifier.split("/");
+									var isInventory = profile.isInventorySpace(experimentIdentifierParts[1]);
+									mainController.sideMenu.refreshExperiment({ 
+										identifier: _this._moveSampleModel.experimentIdentifier, 
+										code: experimentIdentifierParts[3], 
+										properties : {}
+									}, isInventory);
+								}
+								
 								//Refresh Experiment where sample was moved
 								mainController.sideMenu.refreshSubExperiment(_this._moveSampleModel.experimentIdentifier);
 								
