@@ -275,6 +275,7 @@ function ServerFacade(openbisServer) {
 		this.searchWithType(
 				sampleType.code,
 				prefix+"*",
+				false,
 				function(results) {
 					if(results.length == 0){
 						nextcode = prefix + "1";
