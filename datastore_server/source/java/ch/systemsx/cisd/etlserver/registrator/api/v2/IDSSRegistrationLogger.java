@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.etlserver.registrator.api.v2;
 
-import org.apache.log4j.Logger;
 
 /**
  * Logging interface exposed through a dropbox api.
@@ -25,15 +24,15 @@ import org.apache.log4j.Logger;
  */
 public interface IDSSRegistrationLogger
 {
-    public void info(Logger logger, String message);
+    public void info(String message);
 
-    public void warn(Logger logger, String message);
+    public void warn(String message);
 
-    public void error(Logger logger, String message);
+    public void error(String message);
 
-    public void info(Logger logger, String message, Throwable ex);
+    public void info(String message, Throwable ex);
 
-    public void warn(Logger logger, String message, Throwable ex);
+    public void warn(String message, Throwable ex);
 
-    public void error(Logger logger, String message, Throwable ex);
+    public void error(String message, Throwable ex);
 }

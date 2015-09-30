@@ -41,6 +41,9 @@ public class DssRegistrationLogger implements IDSSRegistrationLogger
     private static final Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY,
             DssRegistrationLogger.class);
 
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            DssRegistrationLogger.class);
+
     private File file;
 
     private final DssRegistrationLogDirectoryHelper helper;
@@ -102,7 +105,7 @@ public class DssRegistrationLogger implements IDSSRegistrationLogger
     }
 
     private static FastDateFormat simpleNoISODateFormat = FastDateFormat.getInstance("yyyy-MM-dd HH:mm:ss");
-    
+
     /**
      * Logs a message.
      */
@@ -116,46 +119,76 @@ public class DssRegistrationLogger implements IDSSRegistrationLogger
         FileUtilities.appendToFile(file, logMessage.toString(), false);
     }
 
-    @Override
     public void info(Logger logger, String message)
     {
         logger.info(message);
         log(message);
     }
 
-    @Override
     public void warn(Logger logger, String message)
     {
         logger.warn(message);
         log(message);
     }
 
-    @Override
     public void error(Logger logger, String message)
     {
         logger.error(message);
         log(message);
     }
 
-    @Override
     public void info(Logger logger, String message, Throwable ex)
     {
         logger.info(message, ex);
         log(ex, message);
     }
 
-    @Override
     public void warn(Logger logger, String message, Throwable ex)
     {
         logger.warn(message, ex);
         log(ex, message);
     }
 
-    @Override
     public void error(Logger logger, String message, Throwable ex)
     {
         logger.error(message, ex);
         log(ex, message);
+    }
+
+    @Override
+    public void info(String message)
+    {
+        info(operationLog, message);
+    }
+
+    @Override
+    public void warn(String message)
+    {
+        warn(operationLog, message);
+    }
+
+    @Override
+    public void error(String message)
+    {
+        error(operationLog, message);
+    }
+
+    @Override
+    public void info(String message, Throwable ex)
+    {
+        info(operationLog, message, ex);
+    }
+
+    @Override
+    public void warn(String message, Throwable ex)
+    {
+        warn(operationLog, message, ex);
+    }
+
+    @Override
+    public void error(String message, Throwable ex)
+    {
+        error(operationLog, message, ex);
     }
 
     /**
