@@ -29,9 +29,11 @@ import org.testng.annotations.Test;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.history.HistoryEntry;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.history.PropertyHistoryEntry;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material.Material;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material.MaterialType;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material.MaterialUpdate;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.tag.Tag;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.material.MaterialFetchOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.entitytype.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.material.IMaterialId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.material.MaterialPermId;
 import ch.systemsx.cisd.common.test.AssertionUtil;
@@ -74,7 +76,28 @@ public class MapMaterialTest extends AbstractDataSetTest
     }
 
     @Test
-    public void testMapByPermIdWithProperties()
+    public void testMapWithFetchOptionsEmpty()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        MaterialPermId virusId = new MaterialPermId("VIRUS2", "VIRUS");
+        MaterialFetchOptions fetchOptions = new MaterialFetchOptions();
+
+        Map<IMaterialId, Material> map = v3api.mapMaterials(sessionToken, Arrays.asList(virusId), fetchOptions);
+
+        assertEquals(map.size(), 1);
+        Material virus = map.get(virusId);
+
+        assertEquals(virus.getCode(), "VIRUS2");
+        assertEquals(virus.getPermId(), virusId);
+        assertEqualsDate(virus.getModificationDate(), "2009-03-18 10:50:19");
+        assertEqualsDate(virus.getRegistrationDate(), "2008-11-05 09:18:25");
+
+        v3api.logout(sessionToken);
+    }
+
+    @Test
+    public void testMapWithProperties()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -139,8 +162,29 @@ public class MapMaterialTest extends AbstractDataSetTest
 
         MaterialPermId selfId = new MaterialPermId("SRM_1A", "SELF_REF");
         Map<IMaterialId, Material> map = v3api.mapMaterials(sessionToken, Arrays.asList(selfId), fetchOptions);
+
         Material item = map.get(selfId);
-        assertEquals(item.getType().getCode(), "SELF_REF");
+        MaterialType type = item.getType();
+
+        assertEquals(type.getCode(), "SELF_REF");
+        assertEquals(type.getPermId(), new EntityTypePermId("SELF_REF"));
+        assertEquals(type.getDescription(), "Self Referencing Material");
+        assertEqualsDate(type.getModificationDate(), "2012-03-13 15:34:44");
+    }
+
+    @Test
+    public void testMapWithRegistrator()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        MaterialFetchOptions fetchOptions = new MaterialFetchOptions();
+        fetchOptions.withRegistrator();
+
+        MaterialPermId selfId = new MaterialPermId("SRM_1A", "SELF_REF");
+        Map<IMaterialId, Material> map = v3api.mapMaterials(sessionToken, Arrays.asList(selfId), fetchOptions);
+        Material item = map.get(selfId);
+
+        assertEquals(item.getRegistrator().getUserId(), TEST_USER);
     }
 
     @Test
