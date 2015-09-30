@@ -471,4 +471,8 @@ public interface IDataSetRegistrationTransactionV2
      */
     List<IAttachmentImmutable> listAttachments(ISampleImmutable sample);
 
+    /**
+     * Returns the logger object that logs messages to openbis operation log and data store server registration logs.
+     */
+    IDSSRegistrationLogger getLogger();
 }

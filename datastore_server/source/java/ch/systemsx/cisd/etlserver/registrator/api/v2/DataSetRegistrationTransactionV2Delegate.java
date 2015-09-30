@@ -407,4 +407,9 @@ public class DataSetRegistrationTransactionV2Delegate implements IDataSetRegistr
         return transaction.createNewLink(dst, dstInDataset, linkName, linkTarget);
     }
 
+    @Override
+    public IDSSRegistrationLogger getLogger()
+    {
+        return transaction.getLogger();
+    }
 }

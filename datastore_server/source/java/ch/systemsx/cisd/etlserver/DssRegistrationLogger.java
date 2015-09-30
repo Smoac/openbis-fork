@@ -29,17 +29,18 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
 import ch.systemsx.cisd.common.utilities.SystemTimeProvider;
+import ch.systemsx.cisd.etlserver.registrator.api.v2.IDSSRegistrationLogger;
 
 /**
  * Interface for logging into the dss registration log.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-public class DssRegistrationLogger
+public class DssRegistrationLogger implements IDSSRegistrationLogger
 {
     private static final Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY,
             DssRegistrationLogger.class);
-    
+
     private File file;
 
     private final DssRegistrationLogDirectoryHelper helper;
@@ -115,36 +116,42 @@ public class DssRegistrationLogger
         FileUtilities.appendToFile(file, logMessage.toString(), false);
     }
 
+    @Override
     public void info(Logger logger, String message)
     {
         logger.info(message);
         log(message);
     }
 
+    @Override
     public void warn(Logger logger, String message)
     {
         logger.warn(message);
         log(message);
     }
 
+    @Override
     public void error(Logger logger, String message)
     {
         logger.error(message);
         log(message);
     }
 
+    @Override
     public void info(Logger logger, String message, Throwable ex)
     {
         logger.info(message, ex);
         log(ex, message);
     }
 
+    @Override
     public void warn(Logger logger, String message, Throwable ex)
     {
         logger.warn(message, ex);
         log(ex, message);
     }
 
+    @Override
     public void error(Logger logger, String message, Throwable ex)
     {
         logger.error(message, ex);
