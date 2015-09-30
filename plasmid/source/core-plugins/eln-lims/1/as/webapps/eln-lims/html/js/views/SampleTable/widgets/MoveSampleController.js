@@ -46,7 +46,7 @@ function MoveSampleController(samplePermId, successAction) {
 		mainController.serverFacade.moveSample(
 				this._moveSampleModel.sample.identifier,
 				this._moveSampleModel.experimentIdentifier,
-				this._moveSampleModel.experimentType, function(isOK) {
+				this._moveSampleModel.experimentType, function(isOK, errorMessage) {
 					if(isOK) {
 						Util.showSuccess("Sample " + _this._moveSampleModel.sample.identifier + " moved to " + _this._moveSampleModel.experimentIdentifier, function() { 
 							Util.unblockUI(); 
@@ -60,7 +60,9 @@ function MoveSampleController(samplePermId, successAction) {
 							} 
 						});
 					} else {
-						Util.showError("Sample " + _this._moveSampleModel.sample.identifier + " failed " + _this._moveSampleModel.experimentIdentifier, function() {});
+						Util.showError("Sample " + _this._moveSampleModel.sample.identifier + " failed to move to " + _this._moveSampleModel.experimentIdentifier + " with error: " + errorMessage, function() {
+							Util.unblockUI();
+						});
 					}
 				});
 	}

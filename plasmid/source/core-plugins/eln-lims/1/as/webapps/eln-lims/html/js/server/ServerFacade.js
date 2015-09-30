@@ -413,7 +413,7 @@ function ServerFacade(openbisServer) {
 					if(data.result.rows[0][0].value == "OK") {
 						callbackFunction(true);
 					} else {
-						callbackFunction(false);
+						callbackFunction(false, data.result.rows[0][1].value);
 					}
 				});
 	}
