@@ -553,9 +553,10 @@ def searchSamples(tr, parameters, tableBuilder, sessionId):
 	
 	#Properties
 	if properyKeyValueList is not None:
-		for propertyTypeCode in properyKeyValueList.keySet():
-			propertyValue = properyKeyValueList.get(propertyTypeCode);
-			criterion.withProperty(propertyTypeCode).thatEquals(propertyValue);
+		for keyValuePair in properyKeyValueList:
+			for propertyTypeCode in keyValuePair.keySet():
+				propertyValue = keyValuePair.get(propertyTypeCode);
+				criterion.withProperty(propertyTypeCode).thatEquals(propertyValue);
 	
 	#Sub queries
 	if sampleExperimentIdentifier is not None:
