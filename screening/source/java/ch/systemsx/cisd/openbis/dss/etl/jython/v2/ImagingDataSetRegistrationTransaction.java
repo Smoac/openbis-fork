@@ -80,12 +80,10 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchSubCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 
 /**
- * Imaging-specific transaction. Handles image datasets in a special way, other datasets are
- * registered using a standard procedure.
+ * Imaging-specific transaction. Handles image datasets in a special way, other datasets are registered using a standard procedure.
  * <p>
- * Note that this transaction is not parametrized by a concrete {@link DataSetInformation} subclass.
- * It has to deal with {@link ImageDataSetInformation}, {@link FeatureVectorDataSetInformation} and
- * {@link DataSetInformation} at the same time.
+ * Note that this transaction is not parametrized by a concrete {@link DataSetInformation} subclass. It has to deal with
+ * {@link ImageDataSetInformation}, {@link FeatureVectorDataSetInformation} and {@link DataSetInformation} at the same time.
  */
 @SuppressWarnings("rawtypes")
 public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTransaction
@@ -143,7 +141,7 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
                         incomingFolderWithImages, imageDatasetFactory, imageCache);
         return createNewImageDataSet(details);
     }
-    
+
     @SuppressWarnings("unchecked")
     public IImageDataSet createNewImageDataSetFromDataSet(SimpleImageDataConfig imageDataSet, IImageDataSet dataSet)
     {
@@ -160,7 +158,7 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
         originalDataSet.getRegistrationDetails().getDataSetInformation().addSecondaryDataSetInformation(secondaryDataSet);
         return createImageDataSet(details, originalDataSet);
     }
-    
+
     public IDataSet createNewOverviewImageDataSet(SimpleImageDataConfig imageDataSet,
             File incomingFolderWithImages)
     {
@@ -302,12 +300,10 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
     }
 
     /**
-     * Creates container dataset which contains dataset with original images (created on the fly).
-     * If thumbnails are required they are generated and moved to a thumbnail dataset which becomes
-     * a part of the container as well.
+     * Creates container dataset which contains dataset with original images (created on the fly). If thumbnails are required they are generated and
+     * moved to a thumbnail dataset which becomes a part of the container as well.
      * <p>
-     * The original images dataset is special - it contains description of what should be saved in
-     * imaging database by the storage processor.
+     * The original images dataset is special - it contains description of what should be saved in imaging database by the storage processor.
      * 
      * @return container dataset.
      */
@@ -361,8 +357,8 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
         }
 
         containedDataSetCodes.add(mainDataset.getDataSetCode());
-        
-        createRepresentativeThumbnailByImageGenerationAlgorithm(imageDataSetInformation, containedDataSetCodes, 
+
+        createRepresentativeThumbnailByImageGenerationAlgorithm(imageDataSetInformation, containedDataSetCodes,
                 thumbnailDatasets);
 
         for (IDataSet thumbnailDataset : thumbnailDatasets)
@@ -376,7 +372,7 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
         containerDataset.setThumbnailDatasets(thumbnailDatasets);
         String containerDataSetCode = containerDataset.getDataSetCode();
         imageDataSetInformation.setContainerDatasetPermId(containerDataSetCode);
-        
+
         return containerDataset;
     }
 
@@ -389,7 +385,8 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
             return;
         }
         List<BufferedImage> images = algorithm.generateImages(imageDataSetInformation, imageCache);
-        if (images.size() > 0) {
+        if (images.size() > 0)
+        {
             IDataSet representative = createNewDataSet(algorithm.getDataSetTypeCode());
             for (int i = 0; i < images.size(); i++)
             {
@@ -398,10 +395,10 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
                 File f = new File(imageFile);
                 try
                 {
-                   ImageIO.write(imageData, "png", f);
+                    ImageIO.write(imageData, "png", f);
                 } catch (IOException e)
                 {
-                    throw new EnvironmentFailureException("Can not save representative thumbnail to file '" 
+                    throw new EnvironmentFailureException("Can not save representative thumbnail to file '"
                             + f + "': " + e, e);
                 }
             }
@@ -781,7 +778,7 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
     }
 
     @SuppressWarnings(
-        { "cast", "unchecked" })
+    { "cast", "unchecked" })
     @Override
     public IDataSet createNewDataSet(DataSetRegistrationDetails registrationDetails)
     {
@@ -802,8 +799,8 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
     }
 
     /**
-     * If we are dealing with the image dataset container then the move operation is delegated to
-     * the original dataset. Otherwise a default implementation is used.
+     * If we are dealing with the image dataset container then the move operation is delegated to the original dataset. Otherwise a default
+     * implementation is used.
      */
     @Override
     public String moveFile(String src, IDataSet dst)
@@ -812,8 +809,8 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
     }
 
     /**
-     * If we are dealing with the image dataset container then the move operation is delegated to
-     * the original dataset. Otherwise a default implementation is used.
+     * If we are dealing with the image dataset container then the move operation is delegated to the original dataset. Otherwise a default
+     * implementation is used.
      */
     @Override
     public String moveFile(String src, IDataSet dst, String dstInDataset)

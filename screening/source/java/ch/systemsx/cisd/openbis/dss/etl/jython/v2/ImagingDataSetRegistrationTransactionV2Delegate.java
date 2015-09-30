@@ -24,6 +24,7 @@ import net.lemnik.eodsql.DynamicTransactionQuery;
 
 import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationContext;
+import ch.systemsx.cisd.etlserver.registrator.api.v2.IDSSRegistrationLogger;
 import ch.systemsx.cisd.etlserver.registrator.api.v2.IDataSet;
 import ch.systemsx.cisd.etlserver.registrator.api.v2.IDataSetUpdatable;
 import ch.systemsx.cisd.etlserver.registrator.api.v2.IExperiment;
@@ -69,7 +70,7 @@ public class ImagingDataSetRegistrationTransactionV2Delegate implements
     private final ImagingDataSetRegistrationTransaction transaction;
 
     @Override
-    public IImageDataSet createNewImageDataSetFromDataSet(SimpleImageDataConfig imageDataSet,IImageDataSet dataSet)
+    public IImageDataSet createNewImageDataSetFromDataSet(SimpleImageDataConfig imageDataSet, IImageDataSet dataSet)
     {
         return transaction.createNewImageDataSetFromDataSet(imageDataSet, dataSet);
     }
@@ -472,6 +473,12 @@ public class ImagingDataSetRegistrationTransactionV2Delegate implements
     public String createNewLink(IDataSet dst, String dstInDataset, String linkName, String linkTarget)
     {
         return transaction.createNewLink(dst, dstInDataset, linkName, linkTarget);
+    }
+
+    @Override
+    public IDSSRegistrationLogger getLogger()
+    {
+        return transaction.getLogger();
     }
 
 }
