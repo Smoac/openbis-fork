@@ -17,6 +17,8 @@
 package ch.ethz.sis.openbis.systemtest.api.v3;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertTrue;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -27,17 +29,27 @@ import java.util.Set;
 
 import org.testng.annotations.Test;
 
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.ArchivingStatus;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.Complete;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSetKind;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSetUpdate;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.ExternalData;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.FileFormatType;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.LocatorType;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.history.DataSetRelationType;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.history.HistoryEntry;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.history.PropertyHistoryEntry;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.history.RelationHistoryEntry;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material.Material;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.tag.Tag;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.vocabulary.Vocabulary;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.vocabulary.VocabularyTerm;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.DataSetFetchOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.ExternalDataFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.tag.TagFetchOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.vocabulary.VocabularyFetchOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.vocabulary.VocabularyTermFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.DataSetPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.IDataSetId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentIdentifier;
@@ -163,6 +175,9 @@ public class MapDataSetTest extends AbstractDataSetTest
         assertEqualsDate(dataSet.getAccessDate(), "2011-04-01 09:56:25");
         assertEqualsDate(dataSet.getModificationDate(), "2009-03-23 15:34:44");
         assertEqualsDate(dataSet.getRegistrationDate(), "2009-02-09 12:20:21");
+        assertEquals(dataSet.isDerived(), Boolean.FALSE);
+        assertEquals(dataSet.isPlaceholder(), Boolean.FALSE);
+        assertEquals(dataSet.isPostRegistered(), Boolean.TRUE);
 
         assertTypeNotFetched(dataSet);
         assertExternalDataNotFetched(dataSet);
@@ -202,6 +217,7 @@ public class MapDataSetTest extends AbstractDataSetTest
         assertEquals(dataSet.getType().getPermId().getPermId(), "HCS_IMAGE");
         assertEquals(dataSet.getType().getDescription(), "High Content Screening Image");
         assertEquals(dataSet.getType().getKind(), DataSetKind.PHYSICAL);
+        assertEqualsDate(dataSet.getType().getModificationDate(), "2009-03-23 15:34:44");
 
         assertExternalDataNotFetched(dataSet);
         assertExperimentNotFetched(dataSet);
@@ -221,6 +237,7 @@ public class MapDataSetTest extends AbstractDataSetTest
         assertEquals(dataSet2.getType().getPermId().getPermId(), "CONTAINER_TYPE");
         assertEquals(dataSet2.getType().getDescription(), "A container (virtual) data set type");
         assertEquals(dataSet2.getType().getKind(), DataSetKind.CONTAINER);
+        assertEqualsDate(dataSet2.getType().getModificationDate(), "2011-05-09 12:24:44");
 
         assertExternalDataNotFetched(dataSet2);
         assertExperimentNotFetched(dataSet2);
@@ -498,27 +515,63 @@ public class MapDataSetTest extends AbstractDataSetTest
     }
 
     @Test
-    public void testMapWithExternalData()
+    public void testMapWithExternalDataForPhysicalDataSet()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         DataSetPermId permId = new DataSetPermId("20081105092159111-1");
-
         DataSetFetchOptions fetchOptions = new DataSetFetchOptions();
-        fetchOptions.withExternalData();
 
-        Map<IDataSetId, DataSet> map =
-                v3api.mapDataSets(sessionToken, Arrays.asList(permId),
-                        fetchOptions);
+        ExternalDataFetchOptions externalDataFetchOptions = fetchOptions.withExternalData();
+        externalDataFetchOptions.withFileFormatType();
+        externalDataFetchOptions.withLocatorType();
 
-        assertEquals(1, map.size());
+        VocabularyTermFetchOptions storageFormatTermFetchOptions = externalDataFetchOptions.withStorageFormat();
+        storageFormatTermFetchOptions.withRegistrator();
 
-        DataSet dataSet = map.get(permId);
+        VocabularyFetchOptions storageFormatVocabularyFetchOptions = storageFormatTermFetchOptions.withVocabulary();
+        storageFormatVocabularyFetchOptions.withRegistrator();
 
-        assertEquals(dataSet.getExternalData().getLocation(), "a/1");
-        assertEquals(dataSet.getExternalData().getShareId(), "42");
-        assertEquals(dataSet.getExternalData().getSize(), Long.valueOf(4711));
-        assertEquals(dataSet.getExternalData().getSpeedHint(), Integer.valueOf(42));
+        Map<IDataSetId, DataSet> dataSets = v3api.mapDataSets(sessionToken, Arrays.asList(permId), fetchOptions);
+
+        assertEquals(dataSets.size(), 1);
+        DataSet dataSet = dataSets.get(permId);
+
+        assertEquals(dataSet.getCode(), "20081105092159111-1");
+
+        ExternalData externalData = dataSet.getExternalData();
+        assertEquals(externalData.getShareId(), "42");
+        assertEquals(externalData.getLocation(), "a/1");
+        assertEquals(externalData.getSize(), Long.valueOf(4711));
+        assertEquals(externalData.getComplete(), Complete.UNKNOWN);
+        assertEquals(externalData.getStatus(), ArchivingStatus.AVAILABLE);
+        assertFalse(externalData.isPresentInArchive());
+        assertFalse(externalData.isStorageConfirmation());
+
+        FileFormatType fileFormatType = externalData.getFileFormatType();
+        assertEquals(fileFormatType.getCode(), "TIFF");
+        assertEquals(fileFormatType.getDescription(), "TIFF File");
+
+        LocatorType locatorType = externalData.getLocatorType();
+        assertEquals(locatorType.getCode(), "RELATIVE_LOCATION");
+        assertEquals(locatorType.getDescription(), "Relative Location");
+
+        VocabularyTerm storageFormatTerm = externalData.getStorageFormat();
+        assertEquals(storageFormatTerm.getCode(), "PROPRIETARY");
+        assertEquals(storageFormatTerm.getLabel(), "proprietary label");
+        assertEquals(storageFormatTerm.getDescription(), "proprietary description");
+        assertEquals(storageFormatTerm.getOrdinal(), Long.valueOf(1));
+        assertTrue(storageFormatTerm.isOfficial());
+        assertEquals(storageFormatTerm.getRegistrator().getUserId(), "system");
+        assertEqualsDate(storageFormatTerm.getRegistrationDate(), "2008-11-05 09:18:00");
+        assertEqualsDate(storageFormatTerm.getModificationDate(), "2008-11-05 09:18:00");
+
+        Vocabulary storageFormatVocabulary = storageFormatTerm.getVocabulary();
+        assertEquals(storageFormatVocabulary.getCode(), "$STORAGE_FORMAT");
+        assertEquals(storageFormatVocabulary.getDescription(), "The on-disk storage format of a data set");
+        assertEquals(storageFormatVocabulary.getRegistrator().getUserId(), "system");
+        assertEqualsDate(storageFormatVocabulary.getRegistrationDate(), "2008-11-05 09:18:00");
+        assertEqualsDate(storageFormatVocabulary.getModificationDate(), "2009-03-23 15:34:44");
 
         assertTypeNotFetched(dataSet);
         assertExperimentNotFetched(dataSet);
@@ -531,7 +584,24 @@ public class MapDataSetTest extends AbstractDataSetTest
         assertModifierNotFetched(dataSet);
         assertRegistratorNotFetched(dataSet);
         assertTagsNotFetched(dataSet);
-        v3api.logout(sessionToken);
+    }
+
+    @Test
+    public void testMapWithExternalDataForContainerDataSet()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        DataSetPermId permId = new DataSetPermId("ROOT_CONTAINER");
+        DataSetFetchOptions fetchOptions = new DataSetFetchOptions();
+        fetchOptions.withExternalData();
+
+        Map<IDataSetId, DataSet> dataSets = v3api.mapDataSets(sessionToken, Arrays.asList(permId), fetchOptions);
+
+        assertEquals(dataSets.size(), 1);
+        DataSet dataSet = dataSets.get(permId);
+
+        assertEquals(dataSet.getCode(), "ROOT_CONTAINER");
+        assertEquals(dataSet.getExternalData(), null);
     }
 
     @Test
