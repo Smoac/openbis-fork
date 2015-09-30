@@ -909,10 +909,11 @@ function ServerFacade(openbisServer) {
 	
 		for(var i = 0; i < propertyTypeCodes.length ;i++) {
 			var propertyTypeCode = propertyTypeCodes[i];
-			var propertyTypeValue = propertyValues[i];
-			properyKeyValueList.push({
-				propertyTypeCode : "\"" + propertyTypeValue + "\""
-			});
+			var propertyTypeValue = "\"" + propertyValues[i] + "\"";
+			var newMap = {};
+				newMap[propertyTypeCode] = propertyTypeValue;
+				
+			properyKeyValueList.push(newMap);
 		}
 		
 		this.searchSamples({
