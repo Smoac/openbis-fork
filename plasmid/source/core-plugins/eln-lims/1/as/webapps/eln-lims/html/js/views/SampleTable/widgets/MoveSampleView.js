@@ -75,6 +75,7 @@ function MoveSampleView(moveSampleController, moveSampleModel) {
 			
 			//Events
 			var newExpEvent = function(event){
+				$expNameField.val($expNameField.val().toUpperCase());
 				var valueProject = $dropdown.val();
 				var valueExperiment = $expNameField.val();
 				_this._moveSampleModel.experimentIdentifier = valueProject + "/" + valueExperiment;
