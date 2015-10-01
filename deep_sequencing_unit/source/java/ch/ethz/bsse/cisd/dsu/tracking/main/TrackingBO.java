@@ -94,14 +94,12 @@ public class TrackingBO
         {
             //            changedEntities = fetchChangedEntities(prevTrackingState, trackingServer, commandLineMap, session);
             System.out.println("This function is deactivated");
-        }
-        else if (commandLineMap.containsKey(TrackingClient.CL_PARAMETER_CHANGED_LANES))
+        } else if (commandLineMap.containsKey(TrackingClient.CL_PARAMETER_CHANGED_LANES))
         {
             Map<String, String> changed_lanes = fetchChangedLanes(prevTrackingState, trackingServer, session);
             sendEmails = false;
 
-        }
-        else
+        } else
         {
             LogUtils.debug("Should never be reached.");
         }
@@ -261,7 +259,7 @@ public class TrackingBO
                         break;
                     }
                 }
-                String laneString = currentLaneId.toString().substring(currentLaneId.toString().length() - 1);
+                String laneString = currentLaneId.toString().split(":")[1];
                 changedLanesMap.put(runNameFolder + ":" + laneString, laneSpace + " " + lane.getCode());
                 LogUtils.info("DataSetID: " + newDataSetID + " of NEW data Sets > MAX DataSet id for this sample: " + maxDatasetIdForSample);
             }
@@ -339,8 +337,7 @@ public class TrackingBO
         if (maxDatasetIdForSample != null)
         {
             return maxDatasetIdForSample;
-        }
-        else
+        } else
             return maxDataSetId;
     }
 
