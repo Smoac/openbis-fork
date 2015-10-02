@@ -374,9 +374,9 @@ function SideMenuWidgetController(mainController) {
                         _this._sideMenuWidgetModel.menuStructure.newMenuIfSelected.children.push(
                                 new SideMenuWidgetComponent(false, true, "UTILITIES", "UTILITIES", _this._sideMenuWidgetModel.menuStructure, null, null, null, "")
                                 );
-                        _this._sideMenuWidgetModel.menuStructure.newMenuIfSelected.children.push(
-                                new SideMenuWidgetComponent(true, false, "DRAWING BOARD", "DRAWING_BOARD", _this._sideMenuWidgetModel.menuStructure, null, "showDrawingBoard", null, "")
-                                );
+//                        _this._sideMenuWidgetModel.menuStructure.newMenuIfSelected.children.push(
+//                                new SideMenuWidgetComponent(true, false, "DRAWING BOARD", "DRAWING_BOARD", _this._sideMenuWidgetModel.menuStructure, null, "showDrawingBoard", null, "")
+//                                );
                         _this._sideMenuWidgetModel.menuStructure.newMenuIfSelected.children.push(
                                 new SideMenuWidgetComponent(true, false, "SAMPLE BROWSER", "SAMPLE_BROWSER", _this._sideMenuWidgetModel.menuStructure, null, "showSamplesPage", null, "")
                                 );
