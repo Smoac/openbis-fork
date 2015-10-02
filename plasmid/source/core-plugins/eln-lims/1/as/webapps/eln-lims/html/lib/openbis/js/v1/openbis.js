@@ -1747,7 +1747,7 @@ openbis.prototype.createSessionWorkspaceUploaderForDataStore = function(uploader
 	this._internal.getDataStoreUrlForDataStoreCode(dataStoreCodeOrNull, function(dataStoreUrl){
 		// figure out what is the location of the openbis.js script and assume that uploader resources are served by the same server
 		var openbisScriptLocation = $('script[src*=openbis\\.js]').attr('src');
-		var uploaderDirectoryLocation = jsFileLocation = openbisScriptLocation.replace(/js\/openbis\.js/g, 'uploader');
+		var uploaderDirectoryLocation = jsFileLocation = openbisScriptLocation.replace(/js\/v1\/openbis\.js/g, 'uploader');
 		
 		$('head').append('<link rel="stylesheet" media="screen" type="text/css" href="' + uploaderDirectoryLocation + '/css/src/upload.css" />');
 		$('head').append('<script charset="utf-8" type="text/javascript" src="' + uploaderDirectoryLocation + '/js/src/upload.js" />');
