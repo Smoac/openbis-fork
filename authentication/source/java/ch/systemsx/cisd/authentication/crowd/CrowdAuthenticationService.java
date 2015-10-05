@@ -21,17 +21,20 @@ import java.io.StringReader;
 import java.text.MessageFormat;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
+import org.eclipse.jetty.client.HttpClient;
+import org.eclipse.jetty.client.api.ContentResponse;
+import org.eclipse.jetty.client.api.Request;
+import org.eclipse.jetty.client.util.StringContentProvider;
+import org.eclipse.jetty.http.HttpMethod;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
@@ -146,27 +149,31 @@ public class CrowdAuthenticationService implements IAuthenticationService
                 @Override
                 public String execute(final String serviceUrl, final String message)
                 {
+                    HttpClient client = null;
                     try
                     {
-                        final HttpClient client = new HttpClient();
-                        final PostMethod post = new PostMethod(serviceUrl);
-                        post.getParams().setSoTimeout(timeoutMillis);
-                        final StringRequestEntity entity =
-                                new StringRequestEntity(message, "application/soap+xml", "utf-8");
-                        post.setRequestEntity(entity);
-                        String response = null;
-                        try
-                        {
-                            client.executeMethod(post);
-                            response = post.getResponseBodyAsString();
-                        } finally
-                        {
-                            post.releaseConnection();
-                        }
-                        return response;
+                        client = new HttpClient();
+                        client.start();
+                        Request request = client.newRequest(serviceUrl).method(HttpMethod.POST);
+                        request.timeout(timeoutMillis, TimeUnit.MILLISECONDS);
+                        request.content(new StringContentProvider(message), "application/soap+xml");
+                        ContentResponse response = request.send();
+                        return response.getContentAsString();
                     } catch (final Exception ex)
                     {
                         throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+                    } finally
+                    {
+                        if (client != null)
+                        {
+                            try
+                            {
+                                client.stop();
+                            } catch (Exception ex)
+                            {
+                                throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+                            }
+                        }
                     }
                 }
 
