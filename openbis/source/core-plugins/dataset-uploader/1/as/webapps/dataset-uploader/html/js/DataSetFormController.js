@@ -15,24 +15,24 @@
  */
 
 function DataSetFormController() {
-	this._container = null;
-	this._sampleOrExperiment = null;
-	this._dataSetFormModel = null;
-	this._dataSetFormView = null;
+	var container = null;
+	var sampleOrExperimentCopy = null;
+	var dataSetFormModel = null;
+	var dataSetFormView = null;
 	
 	this.init = function($container, sampleOrExperiment) {
-		this._container = $container;
-		this._sampleOrExperiment = sampleOrExperiment;
-		this._dataSetFormModel = new DataSetFormModel(sampleOrExperiment);
-		this._dataSetFormView = new DataSetFormView(this, this._dataSetFormModel);
+		container = $container;
+		sampleOrExperimentCopy = $.extend({}, sampleOrExperiment);
+		dataSetFormModel = new DataSetFormModel(sampleOrExperimentCopy);
+		dataSetFormView = new DataSetFormView(this, dataSetFormModel);
 		
 		var _this = this;
 		openBIS.listDataStores(function(datastoresData) {
-			_this._dataSetFormModel.dataStores = datastoresData.result;
+			dataSetFormModel.dataStores = datastoresData.result;
 			openBIS.listDataSetTypes(
 					function(datasetsData) {
-						_this._dataSetFormModel.dataSetTypes = datasetsData.result;
-						_this._dataSetFormView.repaint($container);
+						dataSetFormModel.dataSetTypes = datasetsData.result;
+						dataSetFormView.repaint($container);
 					}
 			);
 		});
@@ -44,7 +44,7 @@ function DataSetFormController() {
 	this.submit = function() {
 		Util.blockUI();
 		var _this = this;
-		var metadata = this._dataSetFormModel.dataSet.properties;
+		var metadata = dataSetFormModel.dataSet.properties;
 			
 		var isZipDirectoryUpload = $("#isZipDirectoryUpload"+":checked").val() === "on";
 		
@@ -63,7 +63,7 @@ function DataSetFormController() {
 				"method" : method,
 				//Identification Info
 				"dataSetType" : dataSetTypeCode,
-				"filenames" : _this._dataSetFormModel.files,
+				"filenames" : dataSetFormModel.files,
 				"folderName" : folderName,
 				"isZipDirectoryUpload" : isZipDirectoryUpload,
 				//Metadata
@@ -73,15 +73,15 @@ function DataSetFormController() {
 				"openBISURL" : openBIS._internal.openbisUrl
 		};
 		
-		var sampleOrExperimentIdentifier = this._dataSetFormModel.sampleOrExperiment.identifier;
+		var sampleOrExperimentIdentifier = dataSetFormModel.sampleOrExperiment.identifier;
 		if(sampleOrExperimentIdentifier.split("/").length === 3) {
 			parameters["sampleIdentifier"] = sampleOrExperimentIdentifier;
 		} else if(sampleOrExperimentIdentifier.split("/").length === 4) {
 			parameters["experimentIdentifier"] = sampleOrExperimentIdentifier;
 		}
 			
-		if(this._dataSetFormModel.dataStores.length > 0) {
-			openBIS.createReportFromAggregationService(this._dataSetFormModel.dataStores[0].code, "dataset-uploader-api", parameters, function(response) {
+		if(dataSetFormModel.dataStores.length > 0) {
+			openBIS.createReportFromAggregationService(dataSetFormModel.dataStores[0].code, "dataset-uploader-api", parameters, function(response) {
 				if(response.error) { //Error Case 1
 					Util.showError(response.error.message, function() {Util.unblockUI();});
 				} else if (response.result.columns[1].title === "Error") { //Error Case 2
@@ -101,7 +101,7 @@ function DataSetFormController() {
 				} else if (response.result.columns[0].title === "STATUS" && response.result.rows[0][0].value === "OK") { //Success Case
 					Util.showSuccess("DataSet Created.", function() {
 						Util.unblockUI();
-						_this.init(_this._container, _this._sampleOrExperiment);
+						_this.init(container, sampleOrExperimentCopy);
 					});
 					
 				} else { //This should never happen
