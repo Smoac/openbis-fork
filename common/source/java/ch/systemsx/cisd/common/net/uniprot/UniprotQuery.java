@@ -19,6 +19,7 @@ package ch.systemsx.cisd.common.net.uniprot;
 import static ch.systemsx.cisd.common.net.uniprot.UniprotColumn.ID;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -26,12 +27,15 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpStatus;
-import org.apache.commons.httpclient.methods.GetMethod;
-import org.apache.commons.httpclient.params.HttpMethodParams;
+import org.apache.commons.compress.utils.IOUtils;
+import org.eclipse.jetty.client.HttpClient;
+import org.eclipse.jetty.client.api.Request;
+import org.eclipse.jetty.client.api.Response;
+import org.eclipse.jetty.client.util.InputStreamResponseListener;
+import org.eclipse.jetty.http.HttpMethod;
+import org.eclipse.jetty.http.HttpStatus;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
@@ -48,8 +52,6 @@ import ch.systemsx.cisd.common.parser.TabFileLoader;
  */
 public final class UniprotQuery
 {
-    private static final int RETRY_COUNT = 3;
-
     private static final String BASE_URL = "http://www.uniprot.org/uniprot/";
 
     private static final String QUERY_INIT_STR = "query=";
@@ -78,8 +80,8 @@ public final class UniprotQuery
     private final String columnsSpecification;
 
     /**
-     * Construct a Uniprot query, adding the given database <var>columns</var>. Note that
-     * {@link UniprotColumn#ID} will always be added to the set of columns.
+     * Construct a Uniprot query, adding the given database <var>columns</var>. Note that {@link UniprotColumn#ID} will always be added to the set of
+     * columns.
      */
     public UniprotQuery(UniprotColumn... columns)
     {
@@ -87,8 +89,8 @@ public final class UniprotQuery
     }
 
     /**
-     * Construct a Uniprot query, adding the given database <var>columns</var>. Note that
-     * {@link UniprotColumn#ID} will always be added to the set of columns.
+     * Construct a Uniprot query, adding the given database <var>columns</var>. Note that {@link UniprotColumn#ID} will always be added to the set of
+     * columns.
      */
     public UniprotQuery(Set<UniprotColumn> columns)
     {
@@ -158,17 +160,29 @@ public final class UniprotQuery
     private Iterable<UniprotEntry> runQuery(final String queryURL) throws IOExceptionUnchecked
     {
         final HttpClient client = new HttpClient();
-        final GetMethod method = new GetMethod(queryURL);
-        method.getParams().setParameter(HttpMethodParams.RETRY_HANDLER,
-                new DefaultHttpMethodRetryHandler(RETRY_COUNT, false));
         try
         {
-            final int statusCode = client.executeMethod(method);
+            client.start();
+        } catch (Exception e)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(e);
+        }
 
-            if (statusCode != HttpStatus.SC_OK)
+        final InputStreamResponseListener listener = new InputStreamResponseListener();
+
+        Request request = client.newRequest(queryURL).method(HttpMethod.GET);
+
+        final InputStream stream = listener.getInputStream();
+
+        try
+        {
+            request.send(listener);
+            Response response = listener.get(5, TimeUnit.SECONDS);
+
+            if (response.getStatus() != HttpStatus.Code.OK.getCode())
             {
                 throw new IOExceptionUnchecked(new IOException("GET failed: "
-                        + method.getStatusLine()));
+                        + response.getStatus() + ": " + response.getReason()));
             }
 
             final TabFileLoader<UniprotEntry> parser =
@@ -199,8 +213,7 @@ public final class UniprotQuery
                                 {
                                     Map<String, String> defauts = Collections.emptyMap();
 
-                                    final Iterator<UniprotEntry> delegate = parser.iterate(
-                                            method.getResponseBodyAsStream(), defauts);
+                                    final Iterator<UniprotEntry> delegate = parser.iterate(stream, defauts);
 
                                     @Override
                                     public boolean hasNext()
@@ -208,7 +221,7 @@ public final class UniprotQuery
                                         final boolean hasNext = delegate.hasNext();
                                         if (hasNext == false)
                                         {
-                                            method.releaseConnection();
+                                            IOUtils.closeQuietly(stream);
                                         }
                                         return hasNext;
                                     }
@@ -221,7 +234,7 @@ public final class UniprotQuery
                                             return delegate.next();
                                         } catch (RuntimeException ex)
                                         {
-                                            method.releaseConnection();
+                                            IOUtils.closeQuietly(stream);
                                             throw ex;
                                         }
                                     }
@@ -229,20 +242,20 @@ public final class UniprotQuery
                                     @Override
                                     public void remove()
                                     {
-                                        method.releaseConnection();
+                                        IOUtils.closeQuietly(stream);
                                         throw new UnsupportedOperationException();
                                     }
                                 };
-                        } catch (IOException ex)
+                        } catch (Exception ex)
                         {
-                            method.releaseConnection();
+                            IOUtils.closeQuietly(stream);
                             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
                         }
                     }
                 };
-        } catch (IOException ex)
+        } catch (Exception ex)
         {
-            method.releaseConnection();
+            IOUtils.closeQuietly(stream);
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
         }
     }
@@ -261,9 +274,8 @@ public final class UniprotQuery
     /**
      * Runs a query against Uniprot with the given <var>queryExpression</var>.
      * 
-     * @param queryExpression The query expression to use for the query. See <a
-     *            href="http://www.uniprot.org/help/text-search">Uniprot Online Help</a> for details
-     *            on the query language.
+     * @param queryExpression The query expression to use for the query. See <a href="http://www.uniprot.org/help/text-search">Uniprot Online Help</a>
+     *            for details on the query language.
      */
     public Iterable<UniprotEntry> query(String queryExpression) throws IOExceptionUnchecked
     {
@@ -274,12 +286,10 @@ public final class UniprotQuery
     /**
      * Runs a query against Uniprot with the given <var>queryExpression</var>.
      * 
-     * @param queryExpression The query expression to use for the query. See <a
-     *            href="http://www.uniprot.org/help/text-search">Uniprot Online Help</a> for details
-     *            on the query language.
+     * @param queryExpression The query expression to use for the query. See <a href="http://www.uniprot.org/help/text-search">Uniprot Online Help</a>
+     *            for details on the query language.
      * @param limit The maximum number of result entries to return.
-     * @param offset The offset, that is the first result entry to return when counting starts with
-     *            0.
+     * @param offset The offset, that is the first result entry to return when counting starts with 0.
      */
     public Iterable<UniprotEntry> query(String queryExpression, int limit, int offset)
             throws IOExceptionUnchecked
