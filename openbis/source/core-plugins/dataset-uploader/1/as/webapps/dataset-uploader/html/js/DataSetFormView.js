@@ -162,8 +162,6 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 							})))
 			);
 			
-			
-			
 			$wrapper.append($fileFieldSetIsDirectory);
 			
 			$("#isZipDirectoryUpload").change(function() {
@@ -212,23 +210,11 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 			var propertyGroupPropertiesOnForm = 0;
 			for(var j = 0; j < propertyTypeGroup.propertyTypes.length; j++) {
 				var propertyType = propertyTypeGroup.propertyTypes[j];
-				var value = "";
-				var isSystemProperty = false;
-				var $controlGroup = $('<div>', {class : 'form-group'});
-				var requiredStar = (propertyType.mandatory)?"&nbsp;(*)":"";				
-				var $controlLabel = $('<label>', {'class' : "control-label " + FormUtil.labelColumnClass}).html(propertyType.label + requiredStar + ":");
-				var $controls = $('<div>', {class : FormUtil.controlColumnClass});
-				
-				$controlGroup.append($controlLabel);
-				$controlGroup.append($controls);
-				
-				var $component = FormUtil.getFieldForPropertyType(propertyType);
-				
 				//Update model
-				var changeEvent = function(propertyType, isSystemProperty) {
+				var changeEvent = function(propertyType) {
 					return function() {
 						var propertyTypeCode = null;
-						if(isSystemProperty) {
+						if(propertyType.code.charAt(0) === '$') { //isSystemProperty
 							propertyTypeCode = propertyType.code.substr(1);
 						} else {
 							propertyTypeCode = propertyType.code;
@@ -246,18 +232,16 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 					}
 				}
 				
+				var $component = FormUtil.getFieldForPropertyType(propertyType);
+				
 				//Avoid modifications in properties managed by scripts
 				if(propertyType.managed || propertyType.dinamic) {
 					$component.prop('disabled', true);
 				}
 				
-				$component.change(changeEvent(propertyType, isSystemProperty));
+				$component.change(changeEvent(propertyType));
 				$component.val(""); //HACK-FIX: Not all browsers show the placeholder in Bootstrap 3 if you don't set an empty value.
-				
-				$controls.append($component);
-				
-				$fieldset.append($controlGroup);
-				
+				$fieldset.append(FormUtil.getFieldForComponentWithLabel($component, propertyType.label));
 				propertyGroupPropertiesOnForm++;
 			}
 			
