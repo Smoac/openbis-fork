@@ -28,17 +28,22 @@ import org.apache.http.config.RegistryBuilder;
 import org.apache.http.conn.socket.ConnectionSocketFactory;
 import org.apache.http.conn.socket.PlainConnectionSocketFactory;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
-import org.apache.http.conn.ssl.SSLContextBuilder;
 import org.apache.http.conn.ssl.SSLContexts;
 import org.apache.http.impl.NoConnectionReuseStrategy;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
+import org.eclipse.jetty.client.HttpClient;
+import org.eclipse.jetty.util.ssl.SslContextFactory;
+import org.eclipse.jetty.util.thread.QueuedThreadPool;
+import org.eclipse.jetty.util.thread.ScheduledExecutorScheduler;
 import org.springframework.remoting.httpinvoker.HttpComponentsHttpInvokerRequestExecutor;
 import org.springframework.remoting.httpinvoker.HttpInvokerProxyFactoryBean;
 
 import com.marathon.util.spring.StreamSupportingHttpInvokerProxyFactoryBean;
 import com.marathon.util.spring.StreamSupportingHttpInvokerRequestExecutor;
+
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 
 /**
  * Utility methods for HTTP Invocations. <br>
@@ -49,16 +54,15 @@ import com.marathon.util.spring.StreamSupportingHttpInvokerRequestExecutor;
  */
 public class HttpInvokerUtils
 {
+
+    public static IRemoteSpringBeanProvider provider;
+
     private static SSLConnectionSocketFactory sf = initializeSSLConnectionFactory();
 
     private static SSLConnectionSocketFactory initializeSSLConnectionFactory()
     {
-        SSLContextBuilder builder = new SSLContextBuilder();
         try
         {
-            // These lines make it possible to run webstart apps from locally installed openbis with self-signed certificate
-            // builder.loadTrustMaterial(null, new TrustSelfSignedStrategy());
-            // return new SSLConnectionSocketFactory(builder.build(), SSLConnectionSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
             return new SSLConnectionSocketFactory(SSLContexts.createDefault(), SSLConnectionSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
         } catch (Exception e)
         {
@@ -75,6 +79,44 @@ public class HttpInvokerUtils
      */
     public static <T> T createServiceStub(final Class<T> serviceInterface, final String serviceURL,
             final long serverTimeoutInMillis)
+    {
+        if (checkAndInitializeJettyProvider())
+        {
+            return provider.create(serviceInterface, serviceURL, serverTimeoutInMillis);
+        }
+        return createApacheServiceStub(serviceInterface, serviceURL, serverTimeoutInMillis);
+    }
+
+    public static <T> T createStreamSupportingServiceStub(final Class<T> serviceInterface,
+            final String serviceURL, final long serverTimeoutInMillis)
+    {
+        if (checkAndInitializeJettyProvider())
+        {
+            return provider.create(serviceInterface, serviceURL, serverTimeoutInMillis);
+        }
+        return createStreamSupportingApacheServiceStub(serviceInterface, serviceURL, serverTimeoutInMillis);
+    }
+
+    private static boolean checkAndInitializeJettyProvider()
+    {
+        try
+        {
+            Class.forName("org.eclipse.jetty.client.HttpClient", false, HttpInvokerUtils.class.getClassLoader());
+            synchronized (HttpInvokerUtils.class)
+            {
+                if (provider == null)
+                {
+                    initializeJettyProvider();
+                }
+            }
+            return true;
+        } catch (ClassNotFoundException e)
+        {
+            return false;
+        }
+    }
+
+    private static <T> T createApacheServiceStub(final Class<T> serviceInterface, final String serviceURL, final long serverTimeoutInMillis)
     {
         final HttpInvokerProxyFactoryBean httpInvokerProxy = new HttpInvokerProxyFactoryBean();
 
@@ -112,8 +154,8 @@ public class HttpInvokerUtils
         return getCastedService(httpInvokerProxy);
     }
 
-    public static <T> T createStreamSupportingServiceStub(final Class<T> serviceInterface,
-            final String serviceURL, final long serverTimeoutInMillis)
+    private static <T> T createStreamSupportingApacheServiceStub(final Class<T> serviceInterface, final String serviceURL,
+            final long serverTimeoutInMillis)
     {
         final HttpInvokerProxyFactoryBean httpInvokerProxy = new StreamSupportingHttpInvokerProxyFactoryBean();
         httpInvokerProxy.setBeanClassLoader(serviceInterface.getClassLoader());
@@ -150,8 +192,49 @@ public class HttpInvokerUtils
         return getCastedService(httpInvokerProxy);
     }
 
+    private static void initializeJettyProvider()
+    {
+        SslContextFactory sslContextFactory = new SslContextFactory();
+        sslContextFactory.setEndpointIdentificationAlgorithm(null); // disable hostname verification
+
+        String trustStorePath = System.getProperties().getProperty("javax.net.ssl.trustStore");
+        if (trustStorePath != null)
+        {
+            sslContextFactory.setTrustStorePath(trustStorePath);
+        }
+        HttpClient client = new HttpClient(sslContextFactory)
+            {
+                @Override
+                protected void doStart() throws Exception
+                {
+                    if (getExecutor() == null)
+                    {
+                        QueuedThreadPool threadPool = new QueuedThreadPool();
+                        threadPool.setName("openBIS-jetty");
+                        threadPool.setDaemon(true);
+                        setExecutor(threadPool);
+                    }
+                    if (getScheduler() == null)
+                    {
+                        ScheduledExecutorScheduler scheduler = new ScheduledExecutorScheduler("openBIS-jetty-scheduler", true);
+                        setScheduler(scheduler);
+                    }
+                    super.doStart();
+                }
+            };
+
+        try
+        {
+            client.start();
+        } catch (Exception e)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(e);
+        }
+        provider = new JettyRemoteSpringBeanProvider(client);
+    }
+
     @SuppressWarnings("unchecked")
-    private final static <T> T getCastedService(final HttpInvokerProxyFactoryBean httpInvokerProxy)
+    public final static <T> T getCastedService(final HttpInvokerProxyFactoryBean httpInvokerProxy)
     {
         return (T) httpInvokerProxy.getObject();
     }
@@ -183,5 +266,4 @@ public class HttpInvokerUtils
     private HttpInvokerUtils()
     {
     }
-
 }

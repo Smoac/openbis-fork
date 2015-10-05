@@ -36,8 +36,13 @@ dependencies {
 	
 	providedCompile 'google:gwt-user:2.4'
 					
-	providedRuntime	"eclipse:jetty-util:${jettyVersion}.v20150310",
-					"eclipse:jetty-deploy:${jettyVersion}.v20150310"
+	providedRuntime "eclipse:jetty-deploy:${jettyVersion}.v20150310@jar",
+                    "eclipse:jetty-xml:${jettyVersion}.v20150310@jar",
+                    "eclipse:jetty-webapp:${jettyVersion}.v20150310@jar",
+                    "eclipse:jetty-servlet:${jettyVersion}.v20150310@jar",
+                    "eclipse:jetty-security:${jettyVersion}.v20150310@jar",
+                    "eclipse:jetty-server:${jettyVersion}.v20150310@jar",
+                    "eclipse:jetty-continuation:${jettyVersion}.v20150310@jar"
 		
 	gwt 'reveregroup:gwt-image-loader:1.1.4',
                 'google:gwt-dev:+'

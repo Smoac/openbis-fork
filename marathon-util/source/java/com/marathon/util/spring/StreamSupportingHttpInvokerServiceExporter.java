@@ -16,31 +16,27 @@
 
 package com.marathon.util.spring;
 
-import java.io.InputStream;
-import java.io.IOException;
-import java.io.OutputStream;
 import java.io.BufferedOutputStream;
-import java.io.ObjectOutputStream;
-import java.io.FilterOutputStream;
 import java.io.FilterInputStream;
+import java.io.FilterOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter;
 import org.springframework.remoting.support.RemoteInvocation;
 import org.springframework.remoting.support.RemoteInvocationResult;
 
-import ch.systemsx.cisd.common.logging.LogCategory;
-import ch.systemsx.cisd.common.logging.LogFactory;
-
 /**
- * Extends <code>HttpInvokerServiceExporter</code> to allow <code>InputStream</code> parameters to
- * remote service methods and <code>InputStream</code> return values from remote service methods.
- * See the documentation for <code>StreamSupportingHttpInvokerProxyFactoryBean</code> for important
- * restrictions and usage information. Also see <code>HttpInvokerServiceExporter</code> for general
- * usage of the exporter facility.
+ * Extends <code>HttpInvokerServiceExporter</code> to allow <code>InputStream</code> parameters to remote service methods and <code>InputStream</code>
+ * return values from remote service methods. See the documentation for <code>StreamSupportingHttpInvokerProxyFactoryBean</code> for important
+ * restrictions and usage information. Also see <code>HttpInvokerServiceExporter</code> for general usage of the exporter facility.
  * 
  * @author Andy DePue
  * @since 1.2.3
@@ -49,9 +45,8 @@ import ch.systemsx.cisd.common.logging.LogFactory;
  */
 public class StreamSupportingHttpInvokerServiceExporter extends HttpInvokerServiceExporter
 {
-    private static final Logger log =
-            LogFactory.getLogger(LogCategory.OPERATION,
-                    StreamSupportingHttpInvokerServiceExporter.class);
+    private static final Log log =
+            LogFactory.getLog(StreamSupportingHttpInvokerServiceExporter.class);
 
     private boolean emptyInputStreamParameterBeforeReturn = false;
 
@@ -64,11 +59,10 @@ public class StreamSupportingHttpInvokerServiceExporter extends HttpInvokerServi
             final InputStream is) throws IOException, ClassNotFoundException
     {
         final RemoteInvocation ret =
-                super
-                        .readRemoteInvocation(
-                                request,
-                                new StreamSupportingHttpInvokerRequestExecutor.CloseShieldedInputStream(
-                                        is));
+                super.readRemoteInvocation(
+                        request,
+                        new StreamSupportingHttpInvokerRequestExecutor.CloseShieldedInputStream(
+                                is));
         boolean closeIs = true;
         if (ret instanceof StreamSupportingRemoteInvocation)
         {
@@ -89,7 +83,7 @@ public class StreamSupportingHttpInvokerServiceExporter extends HttpInvokerServi
     @Override
     protected void writeRemoteInvocationResult(final HttpServletRequest request,
             final HttpServletResponse response, final RemoteInvocationResult result)
-            throws IOException
+                    throws IOException
     {
         if (hasStreamResult(result))
         {
@@ -186,7 +180,8 @@ public class StreamSupportingHttpInvokerServiceExporter extends HttpInvokerServi
                 {
                     log.warn(
                             "Error while attempting to close InputStream parameter for RemoteInvocation '"
-                                    + invocation + "'", e);
+                                    + invocation + "'",
+                            e);
                 }
             }
         }
@@ -199,8 +194,7 @@ public class StreamSupportingHttpInvokerServiceExporter extends HttpInvokerServi
     /**
      * See {@link #setEmptyInputStreamParameterBeforeReturn(boolean)}.
      * 
-     * @return <code>true</code> if any InputStream parameter should be "emptied" before sending the
-     *         response to the client.
+     * @return <code>true</code> if any InputStream parameter should be "emptied" before sending the response to the client.
      * @see #setEmptyInputStreamParameterBeforeReturn(boolean)
      */
     public boolean getEmptyInputStreamParameterBeforeReturn()
@@ -209,14 +203,12 @@ public class StreamSupportingHttpInvokerServiceExporter extends HttpInvokerServi
     }
 
     /**
-     * Determines if this servlet should "empty" any InputStream parameter to a service method
-     * before returning to the client. This is provided as a workaround for some servlet containers
-     * in order to ensure that if an exception is thrown or the service method returns before the
-     * InputStream parameter is read that the client will not block trying to send the remaining
-     * InputStream to the server. This means that in the face of an exception or early return from a
-     * method that the client will still finish uploading all of its data before it becomes aware of
-     * the situation, taking up unnecessary time and bandwidth. Because of this, a better solution
-     * should be found to this problem in the future. This property defaults to <code>false</code>.
+     * Determines if this servlet should "empty" any InputStream parameter to a service method before returning to the client. This is provided as a
+     * workaround for some servlet containers in order to ensure that if an exception is thrown or the service method returns before the InputStream
+     * parameter is read that the client will not block trying to send the remaining InputStream to the server. This means that in the face of an
+     * exception or early return from a method that the client will still finish uploading all of its data before it becomes aware of the situation,
+     * taking up unnecessary time and bandwidth. Because of this, a better solution should be found to this problem in the future. This property
+     * defaults to <code>false</code>.
      * 
      * @param emptyInputStreamParameterBeforeReturn
      * @see #getEmptyInputStreamParameterBeforeReturn()
@@ -303,10 +295,9 @@ public class StreamSupportingHttpInvokerServiceExporter extends HttpInvokerServi
     }
 
     /**
-     * Tracks if an InputStream parameter is closed by a service method, if any input method threw
-     * an exception during operation, and if the service method read the InputStream to the
-     * end-of-stream. Also provides the ability to optionally read an InputStream to end-of-stream
-     * if the service method did not.
+     * Tracks if an InputStream parameter is closed by a service method, if any input method threw an exception during operation, and if the service
+     * method read the InputStream to the end-of-stream. Also provides the ability to optionally read an InputStream to end-of-stream if the service
+     * method did not.
      */
     public static class ParameterInputStream extends FilterInputStream
     {

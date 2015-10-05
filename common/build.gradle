@@ -22,7 +22,8 @@ dependencies {
 			'cisd:cisd-base:+',
 			'rinn:restrictions:+',
 			'apache:commons-compress:+',
-            'apache:httpclient:+'			
+            'apache:httpclient:+',
+            'eclipse:jetty-client:+'
 					
 	testCompile 'fjelmer:classycle:+',
 				'hamcrest:hamcrest-integration:+',
