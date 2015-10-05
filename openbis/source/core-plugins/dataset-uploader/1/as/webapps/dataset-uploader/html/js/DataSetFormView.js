@@ -67,13 +67,11 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 		);
 		$dataSetTypeFieldSet.append($dataSetTypeDropDown);
 		
-		
-		var ownerName = "Sample";
 		var owner = this._dataSetFormModel.sample.identifier;
 		if(this._dataSetFormModel.sample.experimentIdentifierOrNull) {
 			owner = this._dataSetFormModel.sample.experimentIdentifierOrNull + "/" + this._dataSetFormModel.sample.code;
 		}
-		$dataSetTypeFieldSet.append(FormUtil.getFieldForLabelWithText(ownerName, owner));
+		$dataSetTypeFieldSet.append(FormUtil.getFieldForTextWithLabel(owner, "Sample"));
 		
 		//
 		// Registration and modification info
@@ -157,8 +155,15 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 			.append($('<div>', { class : "form-group"})
 						.append($('<label>', {class : 'control-label '+ FormUtil.labelColumnClass}).text('Uncompress before import:'))
 						.append($('<div>', {class: FormUtil.controlColumnClass})
-							.append(FormUtil._getBooleanField('isZipDirectoryUpload', 'Uncompress before import:')))
+							.append(FormUtil.getFieldForPropertyType({
+								dataType : "BOOLEAN",
+								code : 'isZipDirectoryUpload',
+								description : 'Uncompress before import:'
+							})))
 			);
+			
+			
+			
 			$wrapper.append($fileFieldSetIsDirectory);
 			
 			$("#isZipDirectoryUpload").change(function() {

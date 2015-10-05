@@ -72,7 +72,7 @@ var FormUtil = new function() {
 		return $fieldset;
 	}
 	
-	this.getFieldForLabelWithText = function(label, text, id, postComponent, cssForText) {
+	this.getFieldForTextWithLabel = function(text, label) {
 		var $fieldset = $('<div>');
 		
 		var $controlGroup = $('<div>', {class : 'form-group'});
@@ -86,19 +86,10 @@ var FormUtil = new function() {
 		
 		$controlGroup.append($controlLabel);
 		$controlGroup.append($controls);
-		if(postComponent) {
-			$controlGroup.append(postComponent);
-		}
 		$fieldset.append($controlGroup);
 		
 		var $component = $("<p>", {'class' : 'form-control-static', 'style' : 'border:none; box-shadow:none; background:transparent; word-wrap: break-word; white-space: pre-line;'});
-		if(cssForText) {
-			$component.css(cssForText);
-		}
 		$component.text(text);
-		if(id) {
-			$component.attr('id', id);
-		}
 		$controls.append($component);
 		
 		return $fieldset;
@@ -107,40 +98,29 @@ var FormUtil = new function() {
 	//
 	// Get Field from property
 	//
-	this.getVocabularyLabelForTermCode = function(propertyType, termCode) {
-		var vocabulary = propertyType.vocabulary;
-		if(vocabulary) {
-			for(var tIdx = 0; tIdx < vocabulary.terms.length; tIdx++) {
-				if(vocabulary.terms[tIdx].code === termCode) {
-					return vocabulary.terms[tIdx].label;
-				}
-			}
-		}
-		return termCode;
-	}
 	
 	this.getFieldForPropertyType = function(propertyType) {
 		var $component = null;
 		if (propertyType.dataType === "BOOLEAN") {
-			$component = this._getBooleanField(propertyType.code, propertyType.description);
+			$component = getBooleanField(propertyType.code, propertyType.description);
 		} else if (propertyType.dataType === "CONTROLLEDVOCABULARY") {
-			$component = this._getDropDownFieldForVocabulary(propertyType.code, propertyType.vocabulary.terms, propertyType.description, propertyType.mandatory);
+			$component = getDropDownFieldForVocabulary(propertyType.code, propertyType.vocabulary.terms, propertyType.description, propertyType.mandatory);
 		} else if (propertyType.dataType === "HYPERLINK") {
-			$component = this._getInputField("url", propertyType.code, propertyType.description, null, propertyType.mandatory);
+			$component = getInputField("url", propertyType.code, propertyType.description, null, propertyType.mandatory);
 		} else if (propertyType.dataType === "INTEGER") {
-			$component = this._getInputField("number", propertyType.code, propertyType.description, '1', propertyType.mandatory);
+			$component = getInputField("number", propertyType.code, propertyType.description, '1', propertyType.mandatory);
 		} else if (propertyType.dataType === "MATERIAL") {
-			$component = this._getInputField("text", propertyType.code, propertyType.description, null, propertyType.mandatory);
+			$component = getInputField("text", propertyType.code, propertyType.description, null, propertyType.mandatory);
 		} else if (propertyType.dataType === "MULTILINE_VARCHAR") {
-			$component = this._getTextBox(propertyType.code, propertyType.description, propertyType.mandatory);
+			$component = getTextBox(propertyType.code, propertyType.description, propertyType.mandatory);
 		} else if (propertyType.dataType === "REAL") {
-			$component = this._getInputField("number", propertyType.code, propertyType.description, 'any', propertyType.mandatory);
+			$component = getInputField("number", propertyType.code, propertyType.description, 'any', propertyType.mandatory);
 		} else if (propertyType.dataType === "TIMESTAMP") {
-			$component = this._getDatePickerField(propertyType.code, propertyType.description, propertyType.mandatory);
+			$component = getDatePickerField(propertyType.code, propertyType.description, propertyType.mandatory);
 		} else if (propertyType.dataType === "VARCHAR") {
-			$component = this._getInputField("text", propertyType.code, propertyType.description, null, propertyType.mandatory);
+			$component = getInputField("text", propertyType.code, propertyType.description, null, propertyType.mandatory);
 		} else if (propertyType.dataType === "XML") {
-			$component = this._getTextBox(propertyType.code, propertyType.description, propertyType.mandatory);
+			$component = getTextBox(propertyType.code, propertyType.description, propertyType.mandatory);
 		}
 		
 		return $component;
@@ -149,11 +129,11 @@ var FormUtil = new function() {
 	//
 	// Form Fields
 	//
-	this._getBooleanField = function(id, alt) {
+	var getBooleanField = function(id, alt) {
 		return $('<div>', {'class' : 'checkbox'}).append($('<input>', {'type' : 'checkbox', 'id' : id, 'alt' : alt, 'placeholder' : alt }));
 	}
 	
-	this._getDropDownFieldForVocabulary = function(code, terms, alt, isRequired) {
+	var getDropDownFieldForVocabulary = function(code, terms, alt, isRequired) {
 		var $component = $("<select>", {'placeholder' : alt, 'class' : 'form-control'});
 		$component.attr('id', code);
 		
@@ -169,7 +149,7 @@ var FormUtil = new function() {
 		return $component;
 	}
 	
-	this._getInputField = function(type, id, alt, step, isRequired) {
+	var getInputField = function(type, id, alt, step, isRequired) {
 		var $component = $('<input>', {'type' : type, 'id' : id, 'alt' : alt, 'placeholder' : alt, 'class' : 'form-control'});
 		if (isRequired) {
 			$component.attr('required', '');
@@ -180,7 +160,7 @@ var FormUtil = new function() {
 		return $component;
 	}
 	
-	this._getTextBox = function(id, alt, isRequired) {
+	var getTextBox = function(id, alt, isRequired) {
 		var $component = $('<textarea>', {'id' : id, 'alt' : alt, 'style' : 'height: 80px; width: 450px;', 'placeholder' : alt, 'class' : 'form-control'});
 		if (isRequired) {
 			$component.attr('required', '');
@@ -188,7 +168,7 @@ var FormUtil = new function() {
 		return $component;
 	}
 	
-	this._getDatePickerField = function(id, alt, isRequired) {
+	var getDatePickerField = function(id, alt, isRequired) {
 		var $component = $('<div>', {'class' : 'form-group', 'style' : 'margin-left: 0px;', 'placeholder' : alt });
 		var $subComponent = $('<div>', {'class' : 'input-group date', 'id' : 'datetimepicker_' + id });
 		var $input = $('<input>', {'class' : 'form-control', 'type' : 'text', 'id' : id, 'data-format' : 'yyyy-MM-dd HH:mm:ss'});
