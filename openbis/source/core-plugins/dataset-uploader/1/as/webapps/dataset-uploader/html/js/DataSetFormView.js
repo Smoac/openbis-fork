@@ -15,8 +15,8 @@
  */
 
 function DataSetFormView(dataSetFormController, dataSetFormModel) {
-	this._dataSetFormController = dataSetFormController;
-	this._dataSetFormModel = dataSetFormModel;
+	var dataSetFormController = dataSetFormController;
+	var dataSetFormModel = dataSetFormModel;
 	
 	this.repaint = function($container) {
 		var _this = this;
@@ -26,36 +26,21 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 		var $wrapper = $('<form>', { class : 'form-horizontal ', 'id' : 'mainDataSetForm', 'role' : 'form'});
 		$wrapper.submit(function(event) {
 			event.preventDefault();
-			_this._dataSetFormController.submit(); 
+			dataSetFormController.submit(); 
 		});
 		
-		//
 		// Title
-		//
-		var $title = $('<div>');
-		
-		var titleText = 'Create DataSet';
-		$title.append($("<h2>").append(titleText));
-		
-		$wrapper.append($title);
-		
-		//
-		// Toolbar
-		//
-		var $toolbar = $('<div>');
-		$wrapper.append($toolbar);
-		
-		$wrapper.append("<br>");
+		$wrapper.append($("<h1>").text('Create DataSet'));
 		
 		//Drop Down DataSetType Field Set
 		var $dataSetTypeFieldSet = $('<div>');
 		$dataSetTypeFieldSet.append($('<legend>').text('Identification Info'));
 		$wrapper.append($dataSetTypeFieldSet);
 		
-		var $dataSetTypeSelector = FormUtil.getDataSetsDropDown('DATASET_TYPE', this._dataSetFormModel.dataSetTypes);
+		var $dataSetTypeSelector = FormUtil.getDataSetsDropDown('DATASET_TYPE', dataSetFormModel.dataSetTypes);
 		$dataSetTypeSelector.change(function() { 
-			_this._repaintMetadata(
-					_this._dataSetFormModel.getDataSetType($('#DATASET_TYPE').val())
+			repaintMetadata(
+					dataSetFormModel.getDataSetType($('#DATASET_TYPE').val())
 			);
 		});
 		
@@ -66,7 +51,7 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 		);
 		$dataSetTypeFieldSet.append($dataSetTypeDropDown);
 		
-		var owner = this._dataSetFormModel.sampleOrExperiment.identifier;
+		var owner = dataSetFormModel.sampleOrExperiment.identifier;
 		var ownerLabel = (owner.split("/").length === 3)?"Sample":"Experiment";
 		$dataSetTypeFieldSet.append(FormUtil.getFieldForTextWithLabel(owner, ownerLabel));
 		
@@ -89,8 +74,7 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 		//Submit Button
 		var $submitButton = $('<fieldset>')
 		.append($('<div>', { class : "form-group"}))
-		.append($('<div>', {class: FormUtil.controlColumnClass})
-					.append($('<input>', { class : 'btn btn-primary', 'type' : 'submit', 'value' : titleText})));
+		.append($('<div>', {class: FormUtil.controlColumnClass}).append($('<input>', { class : 'btn btn-primary', 'type' : 'submit', 'value' : "Create DataSet"})));
 		$wrapper.append($submitButton);
 		
 		//Attach to main form
@@ -98,18 +82,18 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 		
 		//Initialize file chooser
 		var onComplete = function(data) {
-			_this._dataSetFormModel.files.push(data.name);
-			_this._updateFileOptions();
+			dataSetFormModel.files.push(data.name);
+			updateFileOptions();
 		}
 		
 		var onDelete = function(data) {
-			for(var i=0; _this._dataSetFormModel.files.length; i++) {
-				if(_this._dataSetFormModel.files[i] === data.name) {
-					_this._dataSetFormModel.files.splice(i, 1);
+			for(var i=0; dataSetFormModel.files.length; i++) {
+				if(dataSetFormModel.files[i] === data.name) {
+					dataSetFormModel.files.splice(i, 1);
 					break;
 				}
 			}
-			_this._updateFileOptions();
+			updateFileOptions();
 		}
 		
 		openBIS.createSessionWorkspaceUploader($("#APIUploader"), onComplete, {
@@ -119,19 +103,19 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 		});
 	}
 	
-	this._updateFileOptions = function() {
+	var updateFileOptions = function() {
 		var _this = this;
 		$wrapper = $("#fileOptionsContainer"); //Clean existing
 		$wrapper.empty();
 		
-		if( this._dataSetFormModel.files.length > 1
+		if( dataSetFormModel.files.length > 1
 			||
-			this._dataSetFormModel.files.length === 1 && this._dataSetFormModel.files[0].indexOf('zip', this._dataSetFormModel.files[0].length - 3) !== -1) {
+			dataSetFormModel.files.length === 1 && dataSetFormModel.files[0].indexOf('zip', dataSetFormModel.files[0].length - 3) !== -1) {
 			var $legend = $('<div>').append($('<legend>').text('Files Options'));
 			$wrapper.append($legend);
 		}
 		
-		if(this._dataSetFormModel.files.length > 1) {
+		if(dataSetFormModel.files.length > 1) {
 			var $textField = FormUtil._getInputField('text', 'folderName', 'Folder Name', null, true);
 			var $folderName = $('<div>')
 			.append($('<div>', { class : "form-group"})
@@ -142,8 +126,8 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 			$wrapper.append($folderName);
 		}
 		
-		if(this._dataSetFormModel.files.length === 1 && 
-			this._dataSetFormModel.files[0].indexOf('zip', this._dataSetFormModel.files[0].length - 3) !== -1) {
+		if(dataSetFormModel.files.length === 1 && 
+			dataSetFormModel.files[0].indexOf('zip', dataSetFormModel.files[0].length - 3) !== -1) {
 			var $fileFieldSetIsDirectory = $('<div>')
 			.append($('<div>', { class : "form-group"})
 						.append($('<label>', {class : 'control-label '+ FormUtil.labelColumnClass}).text('Uncompress before import:'))
@@ -167,7 +151,7 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 								.append($textField))
 					);
 					$("#fileOptionsContainer").append($folderName);
-					$("#folderName").val(_this._dataSetFormModel.files[0].substring(0, _this._dataSetFormModel.files[0].indexOf(".")));
+					$("#folderName").val(dataSetFormModel.files[0].substring(0, dataSetFormModel.files[0].indexOf(".")));
 				} else {
 					$( "#folderNameContainer" ).remove();
 				}
@@ -175,7 +159,7 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 		}
 	}
 	
-	this._repaintMetadata = function(dataSetType) {
+	var repaintMetadata = function(dataSetType) {
 		var _this = this;
 		$("#metadataContainer").empty();
 		var $wrapper = $("<div>");
@@ -209,12 +193,12 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 						}
 						var field = $(this);
 						if(propertyType.dataType === "BOOLEAN") {
-							_this._dataSetFormModel.dataSet.properties[propertyTypeCode] = field.children()[0].checked;
+							dataSetFormModel.dataSet.properties[propertyTypeCode] = field.children()[0].checked;
 						} else if (propertyType.dataType === "TIMESTAMP") {
 							var timeValue = $($(field.children()[0]).children()[0]).val();
-							_this._dataSetFormModel.dataSet.properties[propertyTypeCode] = timeValue;
+							dataSetFormModel.dataSet.properties[propertyTypeCode] = timeValue;
 						} else {
-							_this._dataSetFormModel.dataSet.properties[propertyTypeCode] = Util.getEmptyIfNull(field.val());
+							dataSetFormModel.dataSet.properties[propertyTypeCode] = Util.getEmptyIfNull(field.val());
 						}
 					}
 				}
