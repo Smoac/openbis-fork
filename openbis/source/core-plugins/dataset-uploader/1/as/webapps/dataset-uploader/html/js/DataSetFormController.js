@@ -38,28 +38,12 @@ function DataSetFormController() {
 		});
 	}
 	
-	this._getDataSetType = function(typeCode) {
-		for(var i = 0; i < this._dataSetFormModel.dataSetTypes.length; i++) {
-			if(this._dataSetFormModel.dataSetTypes[i].code === typeCode) {
-				return this._dataSetFormModel.dataSetTypes[i];
-			}
-		}
-		return null;
-	}
-	
 	//
 	// Form Submit
 	//
-	this.submitDataSet = function() {
-		//
-		// Check upload is finish
-		//
+	this.submit = function() {
 		Util.blockUI();
 		var _this = this;
-		
-		//
-		// Metadata Submit and Creation (Step 2)
-		//
 		var metadata = this._dataSetFormModel.dataSet.properties;
 			
 		var isZipDirectoryUpload = $("#isZipDirectoryUpload"+":checked").val() === "on";

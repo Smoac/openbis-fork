@@ -26,7 +26,7 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 		var $wrapper = $('<form>', { class : 'form-horizontal ', 'id' : 'mainDataSetForm', 'role' : 'form'});
 		$wrapper.submit(function(event) {
 			event.preventDefault();
-			_this._dataSetFormController.submitDataSet(); 
+			_this._dataSetFormController.submit(); 
 		});
 		
 		//
@@ -55,9 +55,8 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 		var $dataSetTypeSelector = FormUtil.getDataSetsDropDown('DATASET_TYPE', this._dataSetFormModel.dataSetTypes);
 		$dataSetTypeSelector.change(function() { 
 			_this._repaintMetadata(
-					_this._dataSetFormController._getDataSetType($('#DATASET_TYPE').val())
+					_this._dataSetFormModel.getDataSetType($('#DATASET_TYPE').val())
 			);
-			_this.isFormDirty = true;
 		});
 		
 		var $dataSetTypeDropDown = $('<div>', { class : 'form-group'});
@@ -134,10 +133,6 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 		
 		if(this._dataSetFormModel.files.length > 1) {
 			var $textField = FormUtil._getInputField('text', 'folderName', 'Folder Name', null, true);
-			$textField.change(function(event) {
-				_this.isFormDirty = true;
-			});
-			
 			var $folderName = $('<div>')
 			.append($('<div>', { class : "form-group"})
 					.append($('<label>', {class : 'control-label '+ FormUtil.labelColumnClass}).html('Folder Name&nbsp;(*):'))
@@ -163,13 +158,8 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 			$wrapper.append($fileFieldSetIsDirectory);
 			
 			$("#isZipDirectoryUpload").change(function() {
-				_this.isFormDirty = true;
 				if($("#isZipDirectoryUpload"+":checked").val() === "on") {
 					var $textField = FormUtil._getInputField('text', 'folderName', 'Folder Name', null, true);
-					$textField.change(function(event) {
-						_this.isFormDirty = true;
-					});
-					
 					var $folderName = $('<div>', { "id" : "folderNameContainer"})
 					.append($('<div>', { class : "form-group"})
 							.append($('<label>', {class : 'control-label '+ FormUtil.labelColumnClass}).html('Folder Name&nbsp;(*):'))
@@ -217,7 +207,6 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 						} else {
 							propertyTypeCode = propertyType.code;
 						}
-						_this._dataSetFormModel.isFormDirty = true;
 						var field = $(this);
 						if(propertyType.dataType === "BOOLEAN") {
 							_this._dataSetFormModel.dataSet.properties[propertyTypeCode] = field.children()[0].checked;

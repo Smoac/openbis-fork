@@ -15,12 +15,18 @@
  */
 
 function DataSetFormModel(sampleOrExperiment) {
-	this.isFormDirty = false;
-	
 	this.sampleOrExperiment = sampleOrExperiment;
 	this.dataSet = { properties : {} };
-	
 	this.dataStores = [];
 	this.dataSetTypes = null;
 	this.files = [];
+	
+	this.getDataSetType = function(typeCode) {
+		for(var i = 0; i < this.dataSetTypes.length; i++) {
+			if(this.dataSetTypes[i].code === typeCode) {
+				return this.dataSetTypes[i];
+			}
+		}
+		return null;
+	}
 }
