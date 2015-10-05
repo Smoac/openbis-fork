@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.util.DataSetRegistrationCache;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SourceType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedProperty;
@@ -31,7 +32,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.NewContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 
 /**
  * @author Franz-Josef Elmer
@@ -68,6 +68,10 @@ public interface IDataBO extends IEntityBusinessObject
      * After invocation of this method {@link IExperimentBO#save()} should be invoked to store the new external data item in the Data Access Layer.
      */
     public void define(NewExternalData data, ExperimentPE experiment, SourceType sourceType);
+
+    public void setCache(DataSetRegistrationCache cache);
+
+    public DataSetRegistrationCache getCache();
 
     /**
      * Changes given data set. Currently allowed changes: properties, sample, parents, components.

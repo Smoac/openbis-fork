@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -614,8 +615,7 @@ public class DataBOTest extends AbstractBOTest
                     fileFormatTypePE.setCode(FILE_FORMAT_TYPE.getCode());
                     will(returnValue(fileFormatTypePE));
 
-                    one(propertiesConverter).checkMandatoryProperties(
-                            Collections.<DataSetPropertyPE> emptySet(), dataSet.getDataSetType());
+                    expectMandatoryPropertiesCheck(this, dataSet.getDataSetType());
 
                     allowing(dataDAO).validateAndSaveUpdatedEntity(dataSet);
                 }
@@ -1114,7 +1114,7 @@ public class DataBOTest extends AbstractBOTest
     private void expectMandatoryPropertiesCheck(Expectations exp, final DataSetTypePE type)
     {
         exp.one(propertiesConverter).checkMandatoryProperties(
-                exp.with(Expectations.any(Collection.class)), exp.with(type));
+                exp.with(Expectations.any(Collection.class)), exp.with(type), exp.with(Expectations.any(HashMap.class)));
     }
 
     private DataSetTypePE createDataSetType()

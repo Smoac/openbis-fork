@@ -31,6 +31,7 @@ import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.server.business.IServiceConversationClientManagerLocal;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.util.DataSetRegistrationCache;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.DataSetTypeWithoutExperimentChecker;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
@@ -61,6 +62,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataManagementSystemP
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.LinkDataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.LocatorTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewLinkDataSet;
@@ -295,7 +297,12 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
         {
             for (String parentCode : parentDataSetCodes)
             {
-                final DataPE parent = getOrCreateData(parentCode, experiment, sample);
+                DataPE parent = this.getCache().getParentDataSets().get(parentCode);
+                if (parent == null)
+                {
+                    parent = getOrCreateData(parentCode, experiment, sample);
+                    this.getCache().getParentDataSets().put(parentCode, parent);
+                }
                 parentsToAdd.add(parent);
             }
         }
@@ -344,18 +351,43 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
         externalData.setSpeedHint(newData.getSpeedHint());
         externalData.setStorageFormatVocabularyTerm(tryToFindStorageFormatTerm(newData
                 .getStorageFormat()));
-        externalData.setLocatorType(getLocatorTypeDAO().tryToFindLocatorTypeByCode(
-                locatorType.getCode()));
+        externalData.setLocatorType(tryToFindLocatorTypeByCode(locatorType));
+
         PersonPE registrator = tryToGetRegistrator(newData);
         externalData.setRegistrator(registrator);
         RelationshipUtils.updateModificationDateAndModifier(externalData, registrator);
-        dataStore = getDataStoreDAO().tryToFindDataStoreByCode(newData.getDataStoreCode());
+        dataStore = tryToFindDataStoreByCode(newData.getDataStoreCode());
         externalData.setDataStore(dataStore);
         defineDataSetProperties(externalData,
                 convertToDataSetProperties(newData.getDataSetProperties()));
         externalData.setDerived(sourceType == SourceType.DERIVED);
 
         data = externalData;
+    }
+
+    private DataStorePE tryToFindDataStoreByCode(String dataStoreCode)
+    {
+        DataStorePE dataStorePe = this.getCache().getDataStores().get(dataStoreCode);
+
+        if (dataStorePe == null)
+        {
+            dataStorePe = getDataStoreDAO().tryToFindDataStoreByCode(dataStoreCode);
+            this.getCache().getDataStores().put(dataStoreCode, dataStorePe);
+        }
+        return dataStorePe;
+    }
+
+    private LocatorTypePE tryToFindLocatorTypeByCode(final LocatorType locatorType)
+    {
+        LocatorTypePE locatorTypePe = this.getCache().getLocatorTypes().get(locatorType.getCode());
+        if (locatorTypePe == null)
+        {
+            locatorTypePe = getLocatorTypeDAO().tryToFindLocatorTypeByCode(
+                    locatorType.getCode());
+            this.getCache().getLocatorTypes().put(locatorType.getCode(), locatorTypePe);
+
+        }
+        return locatorTypePe;
     }
 
     private void define(NewContainerDataSet newData, SourceType sourceType)
@@ -374,7 +406,7 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
         PersonPE registrator = tryToGetRegistrator(newData);
         dataPE.setRegistrator(registrator);
         RelationshipUtils.updateModificationDateAndModifier(dataPE, registrator);
-        dataStore = getDataStoreDAO().tryToFindDataStoreByCode(newData.getDataStoreCode());
+        dataStore = tryToFindDataStoreByCode(newData.getDataStoreCode());
         dataPE.setDataStore(dataStore);
         defineDataSetProperties(dataPE, convertToDataSetProperties(newData.getDataSetProperties()));
         dataPE.setDerived(sourceType == SourceType.DERIVED);
@@ -404,7 +436,7 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
         dataPE.setCode(newData.getCode());
         dataPE.setDataSetType(getDataSetType(dataSetType, DataSetKind.LINK));
         dataPE.setRegistrator(tryToGetRegistrator(newData));
-        dataStore = getDataStoreDAO().tryToFindDataStoreByCode(newData.getDataStoreCode());
+        dataStore = tryToFindDataStoreByCode(newData.getDataStoreCode());
         dataPE.setDataStore(dataStore);
         defineDataSetProperties(dataPE, convertToDataSetProperties(newData.getDataSetProperties()));
         dataPE.setDerived(sourceType == SourceType.DERIVED);
@@ -438,8 +470,14 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
     private VocabularyTermPE tryToFindStorageFormatTerm(StorageFormat storageFormat)
     {
         IVocabularyDAO vocabularyDAO = getVocabularyDAO();
-        VocabularyPE vocabulary =
-                vocabularyDAO.tryFindVocabularyByCode(StorageFormat.VOCABULARY_CODE);
+
+        VocabularyPE vocabulary = this.getCache().getStorageFormatVocabulary();
+
+        if (vocabulary == null)
+        {
+            vocabulary = vocabularyDAO.tryFindVocabularyByCode(StorageFormat.VOCABULARY_CODE);
+            this.getCache().setStorageFormatVocabulary(vocabulary);
+        }
         Set<VocabularyTermPE> terms = vocabulary.getTerms();
         for (VocabularyTermPE term : terms)
         {
@@ -455,8 +493,15 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
             DataSetKind expectedDataSetKind)
     {
         final String dataSetTypeCode = dataSetType.getCode();
-        final DataSetTypePE dataSetTypeOrNull =
-                getDataSetTypeDAO().tryToFindDataSetTypeByCode(dataSetTypeCode);
+
+        DataSetTypePE dataSetTypeOrNull = this.getCache().getDataSetTypes().get(dataSetTypeCode);
+
+        if (dataSetTypeOrNull == null)
+        {
+            dataSetTypeOrNull = getDataSetTypeDAO().tryToFindDataSetTypeByCode(dataSetTypeCode);
+            this.getCache().getDataSetTypes().put(dataSetTypeCode, dataSetTypeOrNull);
+        }
+
         if (dataSetTypeOrNull == null)
         {
             throw UserFailureException.fromTemplate("There is no data set type with code '%s'",
@@ -477,8 +522,15 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
     private final FileFormatTypePE getFileFomatType(final FileFormatType fileFormatType)
     {
         final String fileFormatTypeCode = fileFormatType.getCode();
-        final FileFormatTypePE fileFormatTypeOrNull =
-                getFileFormatTypeDAO().tryToFindFileFormatTypeByCode(fileFormatTypeCode);
+
+        FileFormatTypePE fileFormatTypeOrNull = this.getCache().getFileFormatTypes().get(fileFormatTypeCode);
+
+        if (fileFormatTypeOrNull == null)
+        {
+            fileFormatTypeOrNull =
+                    getFileFormatTypeDAO().tryToFindFileFormatTypeByCode(fileFormatTypeCode);
+            this.getCache().getFileFormatTypes().put(fileFormatTypeCode, fileFormatTypeOrNull);
+        }
         if (fileFormatTypeOrNull == null)
         {
             throw UserFailureException.fromTemplate("There is no file format type with code '%s'",
@@ -547,7 +599,7 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
             dataDAO.updateDataSet(data, findPerson());
         }
         entityPropertiesConverter.checkMandatoryProperties(data.getProperties(),
-                data.getDataSetType());
+                data.getDataSetType(), this.getCache().getEntityTypePropertyTypes());
     }
 
     @Override
@@ -556,7 +608,7 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
         loadByCode(dataSetCode);
         updatePropertiesPreservingExisting(properties);
         entityPropertiesConverter.checkMandatoryProperties(data.getProperties(),
-                data.getDataSetType());
+                data.getDataSetType(), this.getCache().getEntityTypePropertyTypes());
         validateAndSave();
     }
 
@@ -604,9 +656,9 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
     }
 
     @Override
-    public void assignDataSetToSampleAndExperiment(DataPE data, SamplePE sample, ExperimentPE experiment)
+    public void assignDataSetToSampleAndExperiment(DataPE dataSet, SamplePE sample, ExperimentPE experiment)
     {
-        super.assignDataSetToSampleAndExperiment(data, sample, experiment);
+        super.assignDataSetToSampleAndExperiment(dataSet, sample, experiment);
     }
 
     @Override
@@ -635,7 +687,7 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
         updateProperties(data.getEntityType(), updates.getProperties(), extractPropertiesCodes(updates.getProperties()), data, data);
 
         entityPropertiesConverter.checkMandatoryProperties(data.getProperties(),
-                data.getDataSetType());
+                data.getDataSetType(), this.getCache().getEntityTypePropertyTypes());
 
         data.setModificationDate(new Date(data.getModificationDate().getTime() + 1));
         validateAndSave();
@@ -837,5 +889,23 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
             return externalData.isStorageConfirmation();
         }
         return true;
+    }
+
+    private DataSetRegistrationCache cache;
+
+    @Override
+    public void setCache(DataSetRegistrationCache cache)
+    {
+        this.cache = cache;
+    }
+
+    @Override
+    public DataSetRegistrationCache getCache()
+    {
+        if (this.cache == null)
+        {
+            this.cache = new DataSetRegistrationCache();
+        }
+        return this.cache;
     }
 }

@@ -98,6 +98,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister.IDatase
 import ch.systemsx.cisd.openbis.generic.server.business.bo.fetchoptions.experimentlister.ExperimentLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.materiallister.IMaterialLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.util.DataSetRegistrationCache;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataSetTypeDAO;
@@ -912,9 +913,10 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
             registerExperiment(session, experiment);
         }
 
+        DataSetRegistrationCache cache = new DataSetRegistrationCache();
         for (NewExternalData dataSet : collection.getNewDataSets())
         {
-            registerDataSetInternal(session, dataSet);
+            registerDataSetInternal(session, dataSet, cache);
         }
     }
 
@@ -1002,7 +1004,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
         assert sampleIdentifier != null : "Unspecified sample identifier.";
 
         final Session session = getSession(sessionToken);
-        registerDataSetInternal(session, sampleIdentifier, externalData);
+        registerDataSetInternal(session, sampleIdentifier, externalData, new DataSetRegistrationCache());
     }
 
     @Override
@@ -1016,7 +1018,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
         assert experimentIdentifier != null : "Unspecified experiment identifier.";
 
         final Session session = getSession(sessionToken);
-        registerDataSetInternal(session, experimentIdentifier, externalData);
+        registerDataSetInternal(session, experimentIdentifier, externalData, null);
     }
 
     @Override
@@ -1538,7 +1540,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
         SamplePE samplePE = registerSampleInternal(session, newSample, userIdOrNull);
 
         // Register the data set
-        registerDataSetInternal(getSession(sessionToken), samplePE, externalData);
+        registerDataSetInternal(getSession(sessionToken), samplePE, externalData, new DataSetRegistrationCache());
         Sample result =
                 SampleTranslator.translate(samplePE, session.getBaseIndexURL(), null,
                         managedPropertyEvaluatorFactory);
@@ -1558,7 +1560,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
 
         // Register the data set
         final SamplePE samplePE = sampleBO.getSample();
-        registerDataSetInternal(getSession(sessionToken), samplePE, externalData);
+        registerDataSetInternal(getSession(sessionToken), samplePE, externalData, new DataSetRegistrationCache());
 
         Collection<MetaprojectPE> metaprojectPEs =
                 getDAOFactory().getMetaprojectDAO().listMetaprojectsForEntity(
@@ -2411,11 +2413,13 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
             total += dependencyLevel.size();
         }
         int index = 0;
+
+        DataSetRegistrationCache cache = new DataSetRegistrationCache();
         for (List<NewExternalData> dependencyLevel : orderedRegistrations)
         {
             for (NewExternalData dataSet : dependencyLevel)
             {
-                registerDataSetInternal(session, dataSet);
+                registerDataSetInternal(session, dataSet, cache);
                 progress.update("createDataSets", total, ++index);
             }
         }
@@ -2469,16 +2473,16 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
         }
     }
 
-    private void registerDataSetInternal(final Session session, NewExternalData dataSet)
+    private IDataBO registerDataSetInternal(final Session session, NewExternalData dataSet, DataSetRegistrationCache cache)
     {
         SampleIdentifier sampleIdentifier = dataSet.getSampleIdentifierOrNull();
         if (sampleIdentifier != null)
         {
-            registerDataSetInternal(session, sampleIdentifier, dataSet);
+            return registerDataSetInternal(session, sampleIdentifier, dataSet, cache);
         } else
         {
             ExperimentIdentifier experimentIdentifier = dataSet.getExperimentIdentifierOrNull();
-            registerDataSetInternal(session, experimentIdentifier, dataSet);
+            return registerDataSetInternal(session, experimentIdentifier, dataSet, cache);
         }
     }
 
@@ -2544,19 +2548,30 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
     }
 
     private IDataBO registerDataSetInternal(final Session session,
-            SampleIdentifier sampleIdentifier, NewExternalData externalData)
+            SampleIdentifier sampleIdentifier, NewExternalData externalData, DataSetRegistrationCache cache)
     {
-        final ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
-        sampleBO.loadBySampleIdentifier(sampleIdentifier);
-        return registerDataSetInternal(session, sampleBO.getSample(), externalData);
+        SamplePE sample = cache.getSamples().get(sampleIdentifier);
+
+        if (sample == null)
+        {
+            final ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
+            sampleBO.loadBySampleIdentifier(sampleIdentifier);
+            sample = sampleBO.getSample();
+            cache.getSamples().put(sampleIdentifier, sample);
+        }
+
+        return registerDataSetInternal(session, sample, externalData, cache);
     }
 
     private IDataBO registerDataSetInternal(final Session session, SamplePE sample,
-            NewExternalData externalData)
+            NewExternalData externalData, DataSetRegistrationCache cache)
     {
-        final IDataBO dataBO = businessObjectFactory.createDataBO(session);
+        final IDataBO dataBO = cache.getDataBO() != null ? cache.getDataBO() : businessObjectFactory.createDataBO(session);
+        cache.setDataBO(dataBO);
+
         SourceType sourceType =
                 externalData.isMeasured() ? SourceType.MEASUREMENT : SourceType.DERIVED;
+        dataBO.setCache(cache);
         dataBO.define(externalData, sample, sourceType);
         dataBO.save();
 
@@ -2573,9 +2588,14 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
     }
 
     private IDataBO registerDataSetInternal(final Session session,
-            ExperimentIdentifier experimentIdentifier, NewExternalData externalData)
+            ExperimentIdentifier experimentIdentifier, NewExternalData externalData, DataSetRegistrationCache cache)
     {
-        ExperimentPE experiment = tryLoadExperimentByIdentifier(session, experimentIdentifier);
+        if (false == cache.getExperiments().containsKey(experimentIdentifier))
+        {
+            cache.getExperiments().put(experimentIdentifier, tryLoadExperimentByIdentifier(session, experimentIdentifier));
+        }
+        ExperimentPE experiment = cache.getExperiments().get(experimentIdentifier);
+
         if (experiment == null)
         {
             throw new UserFailureException("Unknown experiment '" + experimentIdentifier + "'.");
@@ -2585,9 +2605,12 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
             throw new UserFailureException("Data set can not be registered because experiment '"
                     + experiment.getIdentifier() + "' is in trash.");
         }
-        final IDataBO externalDataBO = businessObjectFactory.createDataBO(session);
+        final IDataBO externalDataBO = cache.getDataBO() != null ? cache.getDataBO() : businessObjectFactory.createDataBO(session);
+        cache.setDataBO(externalDataBO);
+
         SourceType sourceType =
                 externalData.isMeasured() ? SourceType.MEASUREMENT : SourceType.DERIVED;
+        externalDataBO.setCache(cache);
         externalDataBO.define(externalData, experiment, sourceType);
         externalDataBO.save();
 

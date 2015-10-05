@@ -30,6 +30,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.hamcrest.BaseMatcher;
+import org.hamcrest.Description;
 import org.jmock.Expectations;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -42,6 +44,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.IDataStoreServiceFactory
 import ch.systemsx.cisd.openbis.generic.server.business.IServiceConversationClientManagerLocal;
 import ch.systemsx.cisd.openbis.generic.server.business.IServiceConversationServerManagerLocal;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.util.DataSetRegistrationCache;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataStoreDataSourceManager;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.PersistencyResources;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
@@ -175,6 +178,8 @@ public class ETLServiceTest extends AbstractServerTestCase
 
     private ISessionManager<Session> sessionManagerForEntityOperations;
 
+    private DataSetRegistrationCache dataSetRegistrationCache;
+
     private IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory;
 
     private PersonPE sessionPerson;
@@ -200,6 +205,8 @@ public class ETLServiceTest extends AbstractServerTestCase
         sessionPerson = new PersonPE();
         session.setPerson(sessionPerson);
         managedPropertyEvaluatorFactory = new ManagedPropertyEvaluatorFactory(null, new TestJythonEvaluatorPool());
+
+        prepareDataSetRegistrationCache();
     }
 
     @Test
@@ -470,6 +477,31 @@ public class ETLServiceTest extends AbstractServerTestCase
 
                     one(dataStoreService).getVersion(DSS_SESSION_TOKEN);
                     will(returnValue(version));
+                }
+            });
+    }
+
+    private void prepareDataSetRegistrationCache()
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(dataBO).setCache(with(new BaseMatcher<DataSetRegistrationCache>()
+                        {
+                            @Override
+                            public boolean matches(Object arg0)
+                            {
+                                dataSetRegistrationCache = (DataSetRegistrationCache) arg0;
+                                return true;
+                            }
+
+                            @Override
+                            public void describeTo(Description arg0)
+                            {
+                            }
+                        }));
+                    allowing(dataBO).getCache();
+                    will(returnValue(dataSetRegistrationCache));
                 }
             });
     }
