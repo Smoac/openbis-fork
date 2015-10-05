@@ -92,13 +92,11 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 		$wrapper.append(filesViewer);
 		
 		//Submit Button
-		if(this._dataSetFormModel.mode !== FormMode.VIEW) {
-			var $submitButton = $('<fieldset>')
-			.append($('<div>', { class : "form-group"}))
-			.append($('<div>', {class: FormUtil.controlColumnClass})
-						.append($('<input>', { class : 'btn btn-primary', 'type' : 'submit', 'value' : titleText})));
-			$wrapper.append($submitButton);
-		}
+		var $submitButton = $('<fieldset>')
+		.append($('<div>', { class : "form-group"}))
+		.append($('<div>', {class: FormUtil.controlColumnClass})
+					.append($('<input>', { class : 'btn btn-primary', 'type' : 'submit', 'value' : titleText})));
+		$wrapper.append($submitButton);
 		
 		//Attach to main form
 		$container.append($('<div>', { class : 'row'}).append($('<div>', { class : FormUtil.formColumClass}).append($wrapper)));
@@ -154,38 +152,35 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 		}
 		
 		if(this._dataSetFormModel.files.length === 1 && 
-				this._dataSetFormModel.files[0].indexOf('zip', this._dataSetFormModel.files[0].length - 3) !== -1) {
-			var isZipDirectoryUpload = profile.isZipDirectoryUpload($('#DATASET_TYPE').val());
-			if(isZipDirectoryUpload === null) {
-				var $fileFieldSetIsDirectory = $('<div>')
-				.append($('<div>', { class : "form-group"})
-							.append($('<label>', {class : 'control-label '+ FormUtil.labelColumnClass}).text('Uncompress before import:'))
+			this._dataSetFormModel.files[0].indexOf('zip', this._dataSetFormModel.files[0].length - 3) !== -1) {
+			var $fileFieldSetIsDirectory = $('<div>')
+			.append($('<div>', { class : "form-group"})
+						.append($('<label>', {class : 'control-label '+ FormUtil.labelColumnClass}).text('Uncompress before import:'))
+						.append($('<div>', {class: FormUtil.controlColumnClass})
+							.append(FormUtil._getBooleanField('isZipDirectoryUpload', 'Uncompress before import:')))
+			);
+			$wrapper.append($fileFieldSetIsDirectory);
+			
+			$("#isZipDirectoryUpload").change(function() {
+				_this.isFormDirty = true;
+				if($("#isZipDirectoryUpload"+":checked").val() === "on") {
+					var $textField = FormUtil._getInputField('text', 'folderName', 'Folder Name', null, true);
+					$textField.change(function(event) {
+						_this.isFormDirty = true;
+					});
+					
+					var $folderName = $('<div>', { "id" : "folderNameContainer"})
+					.append($('<div>', { class : "form-group"})
+							.append($('<label>', {class : 'control-label '+ FormUtil.labelColumnClass}).html('Folder Name&nbsp;(*):'))
 							.append($('<div>', {class: FormUtil.controlColumnClass})
-								.append(FormUtil._getBooleanField('isZipDirectoryUpload', 'Uncompress before import:')))
-				);
-				$wrapper.append($fileFieldSetIsDirectory);
-				
-				$("#isZipDirectoryUpload").change(function() {
-					_this.isFormDirty = true;
-					if($("#isZipDirectoryUpload"+":checked").val() === "on") {
-						var $textField = FormUtil._getInputField('text', 'folderName', 'Folder Name', null, true);
-						$textField.change(function(event) {
-							_this.isFormDirty = true;
-						});
-						
-						var $folderName = $('<div>', { "id" : "folderNameContainer"})
-						.append($('<div>', { class : "form-group"})
-								.append($('<label>', {class : 'control-label '+ FormUtil.labelColumnClass}).html('Folder Name&nbsp;(*):'))
-								.append($('<div>', {class: FormUtil.controlColumnClass})
-									.append($textField))
-						);
-						$("#fileOptionsContainer").append($folderName);
-						$("#folderName").val(_this._dataSetFormModel.files[0].substring(0, _this._dataSetFormModel.files[0].indexOf(".")));
-					} else {
-						$( "#folderNameContainer" ).remove();
-					}
-				})
-			}
+								.append($textField))
+					);
+					$("#fileOptionsContainer").append($folderName);
+					$("#folderName").val(_this._dataSetFormModel.files[0].substring(0, _this._dataSetFormModel.files[0].indexOf(".")));
+				} else {
+					$( "#folderNameContainer" ).remove();
+				}
+			})
 		}
 	}
 	
@@ -252,19 +247,7 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 				}
 				
 				$component.change(changeEvent(propertyType, isSystemProperty));
-				
-				//Update values if is into edit mode
-				if(this._dataSetFormModel.mode === FormMode.EDIT) {
-					if(propertyType.dataType === "BOOLEAN") {
-						$($component.children()[0]).prop('checked', value === "true");
-					} else if(propertyType.dataType === "TIMESTAMP") {
-						$($($component.children()[0]).children()[0]).val(value);
-					} else {
-						$component.val(value);
-					}
-				} else {
-					$component.val(""); //HACK-FIX: Not all browsers show the placeholder in Bootstrap 3 if you don't set an empty value.
-				}
+				$component.val(""); //HACK-FIX: Not all browsers show the placeholder in Bootstrap 3 if you don't set an empty value.
 				
 				$controls.append($component);
 				
