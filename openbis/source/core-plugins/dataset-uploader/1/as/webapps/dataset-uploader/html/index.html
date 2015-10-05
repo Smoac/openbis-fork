@@ -61,14 +61,12 @@
 			}
 		});
 		
-		openBIS.login("admin","aa", function(data) { 
-			if(data.result == null){ //Print Error
-				alert('The given username or password is not correct.');
-			} else { //Start Form
-				var datasetFormController = new DataSetFormController({ identifier : "/DEFAULT/DEFAULT"});
-				datasetFormController.init($("#dataset-uploader-form"));
-			}
-		});
+		// create a context object to access the context information
+        var context = new openbisWebAppContext();
+        openBIS.useSession(context.getSessionId());
+        
+        var datasetFormController = new DataSetFormController();
+		datasetFormController.init($("#dataset-uploader-form"), { identifier : context.getEntityIdentifier() });
 	});
 	</script>
 </head>

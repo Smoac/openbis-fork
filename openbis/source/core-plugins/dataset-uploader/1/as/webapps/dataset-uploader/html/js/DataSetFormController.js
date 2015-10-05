@@ -14,11 +14,18 @@
  * limitations under the License.
  */
 
-function DataSetFormController(sample) {
-	this._dataSetFormModel = new DataSetFormModel(sample);
-	this._dataSetFormView = new DataSetFormView(this, this._dataSetFormModel);
+function DataSetFormController() {
+	this._container = null;
+	this._sample = null;
+	this._dataSetFormModel = null;
+	this._dataSetFormView = null;
 	
-	this.init = function($container) {
+	this.init = function($container, sample) {
+		this._container = $container;
+		this._sample = sample;
+		this._dataSetFormModel = new DataSetFormModel(sample);
+		this._dataSetFormView = new DataSetFormView(this, this._dataSetFormModel);
+		
 		var _this = this;
 		openBIS.listDataStores(function(datastoresData) {
 			_this._dataSetFormModel.dataStores = datastoresData.result;
@@ -115,6 +122,7 @@ function DataSetFormController(sample) {
 				} else if (response.result.columns[0].title === "STATUS" && response.result.rows[0][0].value === "OK") { //Success Case
 					Util.showSuccess("DataSet Created.", function() {
 						Util.unblockUI();
+						_this.init(_this._container, _this._sample);
 					});
 					
 				} else { //This should never happen

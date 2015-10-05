@@ -143,27 +143,8 @@ def insertDataSet(tr, parameters, tableBuilder):
 		tr.moveFile(temFile.getAbsolutePath(), dataSet);
 	else: #CASE - 3: One file only
 		temFile = File(tempDir + "/" + folderName + "/" + fileNames.get(0));
-		if 	temFile.getName().endswith(".fasta") and dataSetType == "SEQ_FILE" and PLASMAPPER_BASE_URL != None:
-			futureSVG = File(tempDir + "/" + folderName + "/generated/" + temFile.getName().replace(".fasta", ".svg"));
-			futureHTML = File(tempDir + "/" + folderName + "/generated/" + temFile.getName().replace(".fasta", ".html"));
-			print "SVG: " + futureSVG.getAbsolutePath();
-			print "SVG: " + str(futureSVG.exists());
-			#File(tempDir + "/" + folderName + "/generated/").mkdirs();
-			print "BEFORE PLASMAPPER";
-			try:
-				PlasmapperConnector.downloadPlasmidMap(
-					PLASMAPPER_BASE_URL,
-					tempDir + "/" + folderName + "/" + temFile.getName(),
-					tempDir + "/" + folderName + "/generated/" + temFile.getName().replace(".fasta", ".svg"),
-					tempDir + "/" + folderName + "/generated/" + temFile.getName().replace(".fasta", ".html")
-				);
-			except:
-				raise UserFailureException("Plasmapper service unavailable, try to upload your dataset later."); 
-			print "AFTER PLASMAPPER";
-			print "SVG: " + str(futureSVG.exists());
-			tr.moveFile(temFile.getParentFile().getAbsolutePath(), dataSet);
-		else:
-			tr.moveFile(temFile.getAbsolutePath(), dataSet);
+		tr.moveFile(temFile.getAbsolutePath(), dataSet);
+	
 	#Clean Files from workspace
 	for fileName in fileNames:
 		dss_component.deleteSessionWorkspaceFile(fileName);
