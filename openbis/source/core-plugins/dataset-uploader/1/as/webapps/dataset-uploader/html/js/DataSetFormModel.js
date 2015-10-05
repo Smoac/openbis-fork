@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-function DataSetFormModel(sample) {
+function DataSetFormModel(sampleOrExperiment) {
 	this.isFormDirty = false;
 	
-	this.sample = sample;
+	this.sampleOrExperiment = sampleOrExperiment;
 	this.dataSet = { properties : {} };
 	
 	this.dataStores = [];

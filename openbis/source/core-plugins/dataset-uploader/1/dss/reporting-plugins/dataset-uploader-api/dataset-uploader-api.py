@@ -92,6 +92,7 @@ def getThreadProperties(transaction):
 def insertDataSet(tr, parameters, tableBuilder):
 	#Mandatory parameters
 	sampleIdentifier = parameters.get("sampleIdentifier"); #String
+	experimentIdentifier = parameters.get("experimentIdentifier"); #String
 	dataSetType = parameters.get("dataSetType"); #String
 	folderName = parameters.get("folderName"); #String
 	fileNames = parameters.get("filenames"); #List<String>
@@ -99,10 +100,14 @@ def insertDataSet(tr, parameters, tableBuilder):
 	metadata = parameters.get("metadata"); #java.util.LinkedHashMap<String, String> where the key is the name
 		
 	#Create Dataset
-	dataSetSample = getSampleByIdentifierForUpdate(tr, sampleIdentifier);
 	dataSet = tr.createNewDataSet(dataSetType);
-	dataSet.setSample(dataSetSample);
-	
+	if sampleIdentifier is not None:
+		dataSetSample = getSampleByIdentifierForUpdate(tr, sampleIdentifier);
+		dataSet.setSample(dataSetSample);
+	elif experimentIdentifier is not None:
+		dataSetExperiment = tr.getExperimentForUpdate(experimentIdentifier);
+		dataSet.setExperiment(dataSetExperiment);
+		
 	#Assign Data Set properties
 	for key in metadata.keySet():
 		propertyValue = unicode(metadata[key]);

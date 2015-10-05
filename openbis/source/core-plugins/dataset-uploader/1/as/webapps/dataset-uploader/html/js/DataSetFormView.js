@@ -67,10 +67,7 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 		);
 		$dataSetTypeFieldSet.append($dataSetTypeDropDown);
 		
-		var owner = this._dataSetFormModel.sample.identifier;
-		if(this._dataSetFormModel.sample.experimentIdentifierOrNull) {
-			owner = this._dataSetFormModel.sample.experimentIdentifierOrNull + "/" + this._dataSetFormModel.sample.code;
-		}
+		var owner = this._dataSetFormModel.sampleOrExperiment.identifier;
 		$dataSetTypeFieldSet.append(FormUtil.getFieldForTextWithLabel(owner, "Sample"));
 		
 		//

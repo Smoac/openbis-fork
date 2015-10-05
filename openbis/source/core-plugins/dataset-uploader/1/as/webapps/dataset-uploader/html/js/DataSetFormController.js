@@ -16,14 +16,14 @@
 
 function DataSetFormController() {
 	this._container = null;
-	this._sample = null;
+	this._sampleOrExperiment = null;
 	this._dataSetFormModel = null;
 	this._dataSetFormView = null;
 	
-	this.init = function($container, sample) {
+	this.init = function($container, sampleOrExperiment) {
 		this._container = $container;
-		this._sample = sample;
-		this._dataSetFormModel = new DataSetFormModel(sample);
+		this._sampleOrExperiment = sampleOrExperiment;
+		this._dataSetFormModel = new DataSetFormModel(sampleOrExperiment);
 		this._dataSetFormView = new DataSetFormView(this, this._dataSetFormModel);
 		
 		var _this = this;
@@ -36,17 +36,6 @@ function DataSetFormController() {
 					}
 			);
 		});
-	}
-	
-	this._addCommentsWidget = function($container) {
-		var commentsController = new CommentsController(this._dataSetFormModel.dataSet, this._dataSetFormModel.mode, this._dataSetFormModel);
-		if(this._dataSetFormModel.mode !== FormMode.VIEW || 
-			this._dataSetFormModel.mode === FormMode.VIEW && !commentsController.isEmpty()) {
-			commentsController.init($container);
-			return true;
-		} else {
-			return false;
-		}
 	}
 	
 	this._getDataSetType = function(typeCode) {
@@ -81,15 +70,14 @@ function DataSetFormController() {
 		}
 		
 		var method = "insertDataSet";
-		var sampleIdentifier = this._dataSetFormModel.sample.identifier;
 		var dataSetTypeCode = $('#DATASET_TYPE').val();
+		
 		
 		var parameters = {
 				//API Method
 				"sessionToken" : openBIS.getSession(),
 				"method" : method,
 				//Identification Info
-				"sampleIdentifier" : sampleIdentifier, //Use for creation
 				"dataSetType" : dataSetTypeCode,
 				"filenames" : _this._dataSetFormModel.files,
 				"folderName" : folderName,
@@ -100,6 +88,13 @@ function DataSetFormController() {
 				"sessionID" : openBIS.getSession(),
 				"openBISURL" : openBIS._internal.openbisUrl
 		};
+		
+		var sampleOrExperimentIdentifier = this._dataSetFormModel.sampleOrExperiment.identifier;
+		if(sampleOrExperimentIdentifier.split("/").length === 3) {
+			parameters["sampleIdentifier"] = sampleOrExperimentIdentifier;
+		} else if(sampleOrExperimentIdentifier.split("/").length === 4) {
+			parameters["experimentIdentifier"] = sampleOrExperimentIdentifier;
+		}
 			
 		if(this._dataSetFormModel.dataStores.length > 0) {
 			openBIS.createReportFromAggregationService(this._dataSetFormModel.dataStores[0].code, "dataset-uploader-api", parameters, function(response) {
@@ -122,7 +117,7 @@ function DataSetFormController() {
 				} else if (response.result.columns[0].title === "STATUS" && response.result.rows[0][0].value === "OK") { //Success Case
 					Util.showSuccess("DataSet Created.", function() {
 						Util.unblockUI();
-						_this.init(_this._container, _this._sample);
+						_this.init(_this._container, _this._sampleOrExperiment);
 					});
 					
 				} else { //This should never happen
