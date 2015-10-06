@@ -30,7 +30,6 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.compress.utils.IOUtils;
-import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.Request;
 import org.eclipse.jetty.client.api.Response;
 import org.eclipse.jetty.client.util.InputStreamResponseListener;
@@ -39,6 +38,7 @@ import org.eclipse.jetty.http.HttpStatus;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
+import ch.systemsx.cisd.common.http.JettyHttpClientFactory;
 import ch.systemsx.cisd.common.parser.IParserObjectFactory;
 import ch.systemsx.cisd.common.parser.IParserObjectFactoryFactory;
 import ch.systemsx.cisd.common.parser.IPropertyMapper;
@@ -159,18 +159,9 @@ public final class UniprotQuery
 
     private Iterable<UniprotEntry> runQuery(final String queryURL) throws IOExceptionUnchecked
     {
-        final HttpClient client = new HttpClient();
-        try
-        {
-            client.start();
-        } catch (Exception e)
-        {
-            throw CheckedExceptionTunnel.wrapIfNecessary(e);
-        }
-
         final InputStreamResponseListener listener = new InputStreamResponseListener();
 
-        Request request = client.newRequest(queryURL).method(HttpMethod.GET);
+        Request request = JettyHttpClientFactory.getHttpClient().newRequest(queryURL).method(HttpMethod.GET);
 
         final InputStream stream = listener.getInputStream();
 

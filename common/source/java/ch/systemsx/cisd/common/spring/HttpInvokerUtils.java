@@ -33,17 +33,13 @@ import org.apache.http.impl.NoConnectionReuseStrategy;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
-import org.eclipse.jetty.client.HttpClient;
-import org.eclipse.jetty.util.ssl.SslContextFactory;
-import org.eclipse.jetty.util.thread.QueuedThreadPool;
-import org.eclipse.jetty.util.thread.ScheduledExecutorScheduler;
 import org.springframework.remoting.httpinvoker.HttpComponentsHttpInvokerRequestExecutor;
 import org.springframework.remoting.httpinvoker.HttpInvokerProxyFactoryBean;
 
 import com.marathon.util.spring.StreamSupportingHttpInvokerProxyFactoryBean;
 import com.marathon.util.spring.StreamSupportingHttpInvokerRequestExecutor;
 
-import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.common.http.JettyHttpClientFactory;
 
 /**
  * Utility methods for HTTP Invocations. <br>
@@ -106,7 +102,7 @@ public class HttpInvokerUtils
             {
                 if (provider == null)
                 {
-                    initializeJettyProvider();
+                    provider = new JettyRemoteSpringBeanProvider(JettyHttpClientFactory.getHttpClient());
                 }
             }
             return true;
@@ -190,48 +186,6 @@ public class HttpInvokerUtils
         }
         httpInvokerProxy.afterPropertiesSet();
         return getCastedService(httpInvokerProxy);
-    }
-
-    private static void initializeJettyProvider()
-    {
-        SslContextFactory sslContextFactory = new SslContextFactory();
-        sslContextFactory.setEndpointIdentificationAlgorithm(null); // disable hostname verification
-
-        String trustStorePath = System.getProperties().getProperty("javax.net.ssl.trustStore");
-        if (trustStorePath != null)
-        {
-            sslContextFactory.setKeyStorePath(trustStorePath);
-            sslContextFactory.setTrustStorePath(trustStorePath);
-        }
-        HttpClient client = new HttpClient(sslContextFactory)
-            {
-                @Override
-                protected void doStart() throws Exception
-                {
-                    if (getExecutor() == null)
-                    {
-                        QueuedThreadPool threadPool = new QueuedThreadPool();
-                        threadPool.setName("openBIS-jetty");
-                        threadPool.setDaemon(true);
-                        setExecutor(threadPool);
-                    }
-                    if (getScheduler() == null)
-                    {
-                        ScheduledExecutorScheduler scheduler = new ScheduledExecutorScheduler("openBIS-jetty-scheduler", true);
-                        setScheduler(scheduler);
-                    }
-                    super.doStart();
-                }
-            };
-
-        try
-        {
-            client.start();
-        } catch (Exception e)
-        {
-            throw CheckedExceptionTunnel.wrapIfNecessary(e);
-        }
-        provider = new JettyRemoteSpringBeanProvider(client);
     }
 
     @SuppressWarnings("unchecked")

@@ -30,7 +30,6 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
-import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.ContentResponse;
 import org.eclipse.jetty.client.api.Request;
 import org.eclipse.jetty.client.util.StringContentProvider;
@@ -46,6 +45,7 @@ import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.http.JettyHttpClientFactory;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 
@@ -149,12 +149,9 @@ public class CrowdAuthenticationService implements IAuthenticationService
                 @Override
                 public String execute(final String serviceUrl, final String message)
                 {
-                    HttpClient client = null;
                     try
                     {
-                        client = new HttpClient();
-                        client.start();
-                        Request request = client.newRequest(serviceUrl).method(HttpMethod.POST);
+                        Request request = JettyHttpClientFactory.getHttpClient().newRequest(serviceUrl).method(HttpMethod.POST);
                         request.timeout(timeoutMillis, TimeUnit.MILLISECONDS);
                         request.content(new StringContentProvider(message), "application/soap+xml");
                         ContentResponse response = request.send();
@@ -162,18 +159,6 @@ public class CrowdAuthenticationService implements IAuthenticationService
                     } catch (final Exception ex)
                     {
                         throw CheckedExceptionTunnel.wrapIfNecessary(ex);
-                    } finally
-                    {
-                        if (client != null)
-                        {
-                            try
-                            {
-                                client.stop();
-                            } catch (Exception ex)
-                            {
-                                throw CheckedExceptionTunnel.wrapIfNecessary(ex);
-                            }
-                        }
                     }
                 }
 
