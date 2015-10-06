@@ -24,10 +24,8 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.Cache;
-import org.springframework.cache.Cache.ValueWrapper;
-import org.springframework.cache.CacheManager;
 
+import ch.ethz.sis.openbis.generic.server.api.v3.cache.ISearchCache;
 import ch.ethz.sis.openbis.generic.server.api.v3.cache.SearchCacheCleanupListener;
 import ch.ethz.sis.openbis.generic.server.api.v3.cache.SearchCacheEntry;
 import ch.ethz.sis.openbis.generic.server.api.v3.cache.SearchCacheKey;
@@ -53,7 +51,7 @@ public abstract class AbstractSearchMethodExecutor<OBJECT, OBJECT_PE, CRITERIA e
     private final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, getClass());
 
     @Autowired
-    private CacheManager cacheManager;
+    private ISearchCache<CRITERIA, FETCH_OPTIONS, OBJECT> cache;
 
     protected abstract ISearchObjectExecutor<CRITERIA, OBJECT_PE> getSearchExecutor();
 
@@ -132,15 +130,8 @@ public abstract class AbstractSearchMethodExecutor<OBJECT, OBJECT_PE, CRITERIA e
         return new ArrayList<OBJECT>(objects);
     }
 
-    private Cache getCache()
-    {
-        return cacheManager.getCache("searchCache");
-    }
-
-    @SuppressWarnings("unchecked")
     private SearchCacheEntry<OBJECT> getCacheEntry(IOperationContext context, CRITERIA criteria, FETCH_OPTIONS fetchOptions)
     {
-        Cache cache = getCache();
         SearchCacheKey<CRITERIA, FETCH_OPTIONS> key =
                 new SearchCacheKey<CRITERIA, FETCH_OPTIONS>(context.getSession().getSessionToken(), criteria, fetchOptions);
         SearchCacheEntry<OBJECT> entry = null;
@@ -159,19 +150,16 @@ public abstract class AbstractSearchMethodExecutor<OBJECT, OBJECT_PE, CRITERIA e
 
             if (CacheMode.RELOAD_AND_CACHE.equals(fetchOptions.getCacheMode()))
             {
-                cache.evict(key);
+                cache.remove(key);
             }
 
-            ValueWrapper wrapper = cache.get(key);
+            entry = cache.get(key);
 
-            if (wrapper == null)
+            if (entry == null)
             {
                 entry = new SearchCacheEntry<OBJECT>();
                 cache.put(key, entry);
                 context.getSession().addCleanupListener(new SearchCacheCleanupListener<CRITERIA, FETCH_OPTIONS>(cache, key));
-            } else
-            {
-                entry = (SearchCacheEntry<OBJECT>) wrapper.get();
             }
 
             if (operationLog.isDebugEnabled())
@@ -202,7 +190,7 @@ public abstract class AbstractSearchMethodExecutor<OBJECT, OBJECT_PE, CRITERIA e
                 entry.setObjects(doSearchAndTranslate(context, criteria, fetchOptions));
                 SearchCacheKey<CRITERIA, FETCH_OPTIONS> key =
                         new SearchCacheKey<CRITERIA, FETCH_OPTIONS>(context.getSession().getSessionToken(), criteria, fetchOptions);
-                getCache().put(key, entry);
+                cache.put(key, entry);
             } else
             {
                 operationLog.info("Found cache entry " + entry.hashCode() + " that contains search result with " + entry.getObjects().size()

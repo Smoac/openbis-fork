@@ -13,11 +13,4 @@
 		overflowToDisk="false" diskPersistent="false"
 		memoryStoreEvictionPolicy="LFU" />
 
-	<cache name="searchCache" eternal="false" maxBytesLocalHeap="256m"
-		overflowToDisk="false" diskPersistent="false" timeToIdleSeconds="3600"
-		timeToLiveSeconds="0" memoryStoreEvictionPolicy="LRU">
-		<cacheEventListenerFactory class="ch.ethz.sis.openbis.generic.server.api.v3.cache.SearchCacheEventListenerFactory" />
-		<sizeOfPolicy maxDepth="10000000" maxDepthExceededBehavior="continue"/>
-	</cache>
-
 </ehcache>

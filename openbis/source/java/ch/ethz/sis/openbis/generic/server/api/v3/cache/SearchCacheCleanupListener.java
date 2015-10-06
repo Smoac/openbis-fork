@@ -17,8 +17,6 @@
 package ch.ethz.sis.openbis.generic.server.api.v3.cache;
 
 import org.apache.log4j.Logger;
-import org.springframework.cache.Cache;
-import org.springframework.cache.Cache.ValueWrapper;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -32,11 +30,11 @@ public class SearchCacheCleanupListener<CRITERIA, FETCH_OPTIONS> implements Sess
 
     private final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, getClass());
 
-    private Cache cache;
+    private ISearchCache<CRITERIA, FETCH_OPTIONS, ?> cache;
 
     private SearchCacheKey<CRITERIA, FETCH_OPTIONS> key;
 
-    public SearchCacheCleanupListener(Cache cache, SearchCacheKey<CRITERIA, FETCH_OPTIONS> key)
+    public SearchCacheCleanupListener(ISearchCache<CRITERIA, FETCH_OPTIONS, ?> cache, SearchCacheKey<CRITERIA, FETCH_OPTIONS> key)
     {
         this.cache = cache;
         this.key = key;
@@ -45,12 +43,12 @@ public class SearchCacheCleanupListener<CRITERIA, FETCH_OPTIONS> implements Sess
     @Override
     public void cleanup()
     {
-        ValueWrapper wrapper = cache.get(key);
+        SearchCacheEntry<?> entry = cache.get(key);
 
-        if (wrapper != null)
+        if (entry != null)
         {
             operationLog.info("Clean up cached search result on logout.");
-            cache.evict(key);
+            cache.remove(key);
         }
     }
 
