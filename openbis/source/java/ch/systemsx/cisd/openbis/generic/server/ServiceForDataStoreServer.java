@@ -1018,7 +1018,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
         assert experimentIdentifier != null : "Unspecified experiment identifier.";
 
         final Session session = getSession(sessionToken);
-        registerDataSetInternal(session, experimentIdentifier, externalData, null);
+        registerDataSetInternal(session, experimentIdentifier, externalData, new DataSetRegistrationCache());
     }
 
     @Override
