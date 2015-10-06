@@ -476,9 +476,15 @@ public class ImagingDataSetRegistrationTransactionV2Delegate implements
     }
 
     @Override
+    public String getOpenBisServiceSessionToken()
+    {
+        return transaction.getOpenBisServiceSessionToken();
+    }
+
+    @Override
     public IDSSRegistrationLogger getLogger()
     {
         return transaction.getLogger();
     }
-
+    
 }
