@@ -195,4 +195,9 @@ public interface IEncapsulatedBasicOpenBISService
     @ManagedAuthentication
     public Map<IObjectId, List<Metaproject>> listMetaprojectsForEntities(Collection<? extends IObjectId> entityIds);
 
+    /**
+     * Returns the session token used by the service.
+     */
+    @ManagedAuthentication
+    public String getSessionToken();
 }

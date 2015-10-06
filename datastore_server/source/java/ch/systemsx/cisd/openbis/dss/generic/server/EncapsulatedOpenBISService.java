@@ -290,7 +290,11 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     //
     // IEncapsulatedOpenBISService
     //
-
+    @Override
+    public String getSessionToken() {
+        return session.getSessionToken();
+    }
+    
     @Override
     public Experiment tryGetExperiment(ExperimentIdentifier experimentIdentifier)
     {

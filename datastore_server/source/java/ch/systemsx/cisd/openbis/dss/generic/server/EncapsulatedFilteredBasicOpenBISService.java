@@ -272,4 +272,10 @@ public class EncapsulatedFilteredBasicOpenBISService implements IEncapsulatedBas
         return AuthorizationHelper.filterToVisible(encapsulatedService, userName, data,
                 externalDataCodeMapper, AuthorizationHelper.EntityKind.DATA_SET);
     }
+
+    @Override
+    public String getSessionToken()
+    {
+        return systemSessionToken;
+    }
 }
