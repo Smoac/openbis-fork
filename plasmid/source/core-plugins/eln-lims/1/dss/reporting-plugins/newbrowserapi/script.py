@@ -644,19 +644,19 @@ def searchSamples(tr, parameters, tableBuilder, sessionId):
 	return resultAsString;
 
 def searchSamplesCustom(tr, parameters, tableBuilder, v3, criterion, fetchOptions):
-	print "IS CUSTOM: "
-	#For a fast search, we are only interested on the permIds, that the user can retrieve
-	basicFetchOptions = SampleFetchOptions();
-	userResult = v3.searchSamples(parameters.get("sessionToken"), criterion, basicFetchOptions);
-	print "INITIAL RESULTS: " + str(userResult.getTotalCount())
-	#New we complete those permIds with all information available for them using a search by the ETL server
-	userPermIds = [];
-	for userSample in userResult.getObjects():
-		userPermIds.append(SamplePermId(userSample.getPermId().getPermId()));
-	
-	systemResultAsMap = v3.mapSamples(tr.getOpenBisServiceSessionToken(), userPermIds, fetchOptions);
-	systemResult = ArrayList(systemResultAsMap.values());
-	systemSearchResult = SearchResult(systemResult, systemResult.size())
-	print "FINAL RESULTS: " + str(systemSearchResult.getTotalCount())
+	samplePermId = parameters.get("samplePermId");
+	sampleContainerPermId = parameters.get("sampleContainerPermId");
+	if (samplePermId is not None) or (sampleContainerPermId is not None): #The user knows he wants that, even if is not directly accessible
+		return v3.searchSamples(tr.getOpenBisServiceSessionToken(), criterion, fetchOptions);
+	else:
+		#For a fast search, we are only interested on the permIds, that the user can retrieve
+		basicFetchOptions = SampleFetchOptions();
+		userResult = v3.searchSamples(parameters.get("sessionToken"), criterion, basicFetchOptions);
+		#New we complete those permIds with all information available for them using a search by the ETL server
+		userPermIds = [];
+		for userSample in userResult.getObjects():
+			userPermIds.append(SamplePermId(userSample.getPermId().getPermId()));
+		systemResultAsMap = v3.mapSamples(tr.getOpenBisServiceSessionToken(), userPermIds, fetchOptions);
+		systemResult = ArrayList(systemResultAsMap.values());
+		systemSearchResult = SearchResult(systemResult, systemResult.size());
 	return systemSearchResult
-	
