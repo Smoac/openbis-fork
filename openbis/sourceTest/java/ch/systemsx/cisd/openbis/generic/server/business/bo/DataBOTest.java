@@ -509,6 +509,13 @@ public class DataBOTest extends AbstractBOTest
         final DataPE data = new DataPE();
         data.setCode(COMPONENT_CODE);
         data.setExperiment(createExperiment("EXP1", "S2"));
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(dataDAO).tryToFindDataSetByCode(COMPONENT_CODE);
+                    will(returnValue(data));
+                }
+            });
 
         IDataBO dataBO = createDataBO();
         NewContainerDataSet newData = createContainerDataSetWithComponents(COMPONENT_CODE);
@@ -518,9 +525,6 @@ public class DataBOTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
-                    one(dataDAO).tryToFindDataSetByCode(COMPONENT_CODE);
-                    will(returnValue(data));
-
                     one(relationshipService).assignDataSetToContainer(with(EXAMPLE_SESSION), with(data), with(conatinerMatcher));
                 }
             });
@@ -532,9 +536,6 @@ public class DataBOTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
-                    one(dataDAO).tryToFindDataSetByCode(COMPONENT_CODE);
-                    will(returnValue(data));
-
                     one(relationshipService).assignDataSetToContainer(with(EXAMPLE_SESSION), with(data), with(conatinerMatcher2));
                 }
             });

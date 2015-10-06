@@ -55,11 +55,11 @@ public class DataSetRegistrationCache
 
     private Map<EntityTypePE, List<EntityTypePropertyTypePE>> entityTypePropertyTypes = new HashMap<>();
 
-    private Map<String, DataPE> parentDataSets = new HashMap<>();
+    private Map<String, DataPE> dataSets = new HashMap<>();
 
-    public Map<String, DataPE> getParentDataSets()
+    public Map<String, DataPE> getDataSets()
     {
-        return parentDataSets;
+        return dataSets;
     }
 
     public Map<EntityTypePE, List<EntityTypePropertyTypePE>> getEntityTypePropertyTypes()

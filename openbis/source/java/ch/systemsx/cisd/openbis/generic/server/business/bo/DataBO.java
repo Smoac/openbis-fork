@@ -120,7 +120,7 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
         if (dataSetId instanceof DataSetCodeId)
         {
             DataSetCodeId codeId = (DataSetCodeId) dataSetId;
-            return getDataDAO().tryToFindDataSetByCode(codeId.getCode());
+            return tryToFindDataSetByCode(codeId.getCode());
         } else if (dataSetId instanceof DataSetTechIdId)
         {
             DataSetTechIdId techIdId = (DataSetTechIdId) dataSetId;
@@ -297,11 +297,11 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
         {
             for (String parentCode : parentDataSetCodes)
             {
-                DataPE parent = this.getCache().getParentDataSets().get(parentCode);
+                DataPE parent = this.getCache().getDataSets().get(parentCode);
                 if (parent == null)
                 {
                     parent = getOrCreateData(parentCode, experiment, sample);
-                    this.getCache().getParentDataSets().put(parentCode, parent);
+                    this.getCache().getDataSets().put(parentCode, parent);
                 }
                 parentsToAdd.add(parent);
             }
@@ -544,7 +544,7 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
         assert dataSetCode != null : "Unspecified parent data set code.";
 
         final IDataDAO dataDAO = getDataDAO();
-        DataPE result = dataDAO.tryToFindDataSetByCode(dataSetCode);
+        DataPE result = tryToFindDataSetByCode(dataSetCode);
         if (result == null)
         {
             result = new DataPE();
@@ -560,6 +560,17 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
         return result;
     }
 
+    private DataPE tryToFindDataSetByCode(final String dataSetCode)
+    {
+        DataPE dataSet = this.getCache().getDataSets().get(dataSetCode);
+        if (dataSet == null)
+        {
+            dataSet = getDataDAO().tryToFindDataSetByCode(dataSetCode);
+            this.getCache().getDataSets().put(dataSetCode, dataSet);
+        }
+        return dataSet;
+    }
+
     @Override
     public void save() throws UserFailureException
     {
@@ -567,7 +578,7 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
 
         IDataDAO dataDAO = getDataDAO();
         String dataCode = data.getCode();
-        DataPE placeholder = dataDAO.tryToFindDataSetByCode(dataCode);
+        DataPE placeholder = tryToFindDataSetByCode(dataCode);
         if (placeholder == null)
         {
             dataDAO.createDataSet(data, findPerson());
