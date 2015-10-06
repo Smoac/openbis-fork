@@ -24,8 +24,11 @@ from ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sample import Sa
 from ch.ethz.sis.openbis.generic.shared.api.v3.dto.search import SampleSearchCriteria;
 from ch.ethz.sis.openbis.generic.shared.api.v3.dto.search import SearchResult;
 from ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample import SampleIdentifier;
+from ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample import SamplePermId
 from ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment import ExperimentIdentifier;
 from ch.systemsx.cisd.openbis.generic.shared.api.v3.json import GenericObjectMapper;
+
+from java.util import ArrayList
 from java.util import Date;
 from java.text import SimpleDateFormat;
 
@@ -616,7 +619,22 @@ def searchSamples(tr, parameters, tableBuilder, sessionId):
 	###############
 	###############
 	###############
-	result = v3.searchSamples(parameters.get("sessionToken"), criterion, fetchOptions);
+	
+	
+	##
+	## Custom (Interceptor to modify standard results)
+	##
+	result = None;
+	
+	isCustom = parameters.get("custom"); #Boolean
+	if isCustom:
+		result = searchSamplesCustom(tr, parameters, tableBuilder, v3, criterion, fetchOptions);
+	else:
+		result = v3.searchSamples(parameters.get("sessionToken"), criterion, fetchOptions);
+	
+	##
+	##
+	##
 	
 	###
 	### Json Conversion
@@ -624,3 +642,21 @@ def searchSamples(tr, parameters, tableBuilder, sessionId):
 	objectMapper = GenericObjectMapper();
 	resultAsString = objectMapper.writeValueAsString(result);
 	return resultAsString;
+
+def searchSamplesCustom(tr, parameters, tableBuilder, v3, criterion, fetchOptions):
+	print "IS CUSTOM: "
+	#For a fast search, we are only interested on the permIds, that the user can retrieve
+	basicFetchOptions = SampleFetchOptions();
+	userResult = v3.searchSamples(parameters.get("sessionToken"), criterion, basicFetchOptions);
+	print "INITIAL RESULTS: " + str(userResult.getTotalCount())
+	#New we complete those permIds with all information available for them using a search by the ETL server
+	userPermIds = [];
+	for userSample in userResult.getObjects():
+		userPermIds.append(SamplePermId(userSample.getPermId().getPermId()));
+	
+	systemResultAsMap = v3.mapSamples(tr.getOpenBisServiceSessionToken(), userPermIds, fetchOptions);
+	systemResult = ArrayList(systemResultAsMap.values());
+	systemSearchResult = SearchResult(systemResult, systemResult.size())
+	print "FINAL RESULTS: " + str(systemSearchResult.getTotalCount())
+	return systemSearchResult
+	

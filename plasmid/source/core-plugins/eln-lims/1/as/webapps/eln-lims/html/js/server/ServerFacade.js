@@ -629,6 +629,7 @@ function ServerFacade(openbisServer) {
 	{
 		var localReference = this;
 		fechOptions["method"] = "searchSamples";
+		fechOptions["custom"] = profile.searchSamplesUsingV3OnDropboxRunCustom;
 		fechOptions["openBISURL"] = this.openbisServer._internal.openbisUrl;
 		this.createReportFromAggregationService(profile.getDefaultDataStoreCode(), fechOptions, function(result) {
 			if(result && result.result && result.result.rows[0][0].value === "OK") {

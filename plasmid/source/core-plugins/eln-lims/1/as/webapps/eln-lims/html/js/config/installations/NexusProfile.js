@@ -9,6 +9,8 @@ $.extend(NexusProfile.prototype, StandardProfile.prototype, {
 		
 		this.inventorySpaces = ["LIBRARIES"];
 		this.searchSamplesUsingV3OnDropbox = true;
+		this.searchSamplesUsingV3OnDropboxRunCustom = true;
+		
 		this.storagesConfiguration = {
 			"isEnabled" : true,
 			/*
