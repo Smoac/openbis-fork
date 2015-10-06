@@ -200,6 +200,7 @@ public class HttpInvokerUtils
         String trustStorePath = System.getProperties().getProperty("javax.net.ssl.trustStore");
         if (trustStorePath != null)
         {
+            sslContextFactory.setKeyStorePath(trustStorePath);
             sslContextFactory.setTrustStorePath(trustStorePath);
         }
         HttpClient client = new HttpClient(sslContextFactory)
