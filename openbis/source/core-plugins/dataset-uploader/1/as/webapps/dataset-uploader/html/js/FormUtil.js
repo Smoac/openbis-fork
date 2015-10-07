@@ -15,7 +15,7 @@ var FormUtil = new function() {
 	// Standard Form Fields
 	//
 	
-	this.getDataSetsDropDown = function(code, dataSetTypes) {
+	this.getPhysicalDataSetsDropDown = function(code, dataSetTypes) {
 		var $component = $("<select>", { class : 'form-control ' });
 		$component.attr('id', code);
 		
@@ -24,16 +24,18 @@ var FormUtil = new function() {
 		$component.append($("<option>").attr('value', '').attr('selected', '').text(''));
 		
 		for(var i = 0; i < dataSetTypes.length; i++) {
-			var displayName = dataSetTypes[i].code;
-			if(dataSetTypes[i].description) {
-				var length = dataSetTypes[i].description.length > 40;
-				if(dataSetTypes[i].description.length > 40) {
-					displayName = dataSetTypes[i].description.substring(1,36) + " ...";
-				} else {
-					displayName = dataSetTypes[i].description;
+			if(dataSetTypes[i].dataSetKind === "PHYSICAL") {
+				var displayName = dataSetTypes[i].code;
+				if(dataSetTypes[i].description) {
+					var length = dataSetTypes[i].description.length > 40;
+					if(dataSetTypes[i].description.length > 40) {
+						displayName = dataSetTypes[i].description.substring(1,36) + " ...";
+					} else {
+						displayName = dataSetTypes[i].description;
+					}
 				}
+				$component.append($("<option>").attr('value',dataSetTypes[i].code).text(displayName));
 			}
-			$component.append($("<option>").attr('value',dataSetTypes[i].code).text(displayName));
 		}
 		
 		return $component;
