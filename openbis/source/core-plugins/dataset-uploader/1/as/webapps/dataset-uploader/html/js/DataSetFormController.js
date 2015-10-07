@@ -42,6 +42,21 @@ function DataSetFormController() {
 	// Form Submit
 	//
 	this.submit = function() {
+		//
+		// Check upload is finish
+		//
+		if(Uploader.uploadsInProgress()) {
+			Util.blockUI();
+			Util.showError("Please wait the upload to finish.", function() { Util.unblockUI(); });
+			return;
+		}
+		
+		if(dataSetFormModel.files.length === 0) {
+			Util.blockUI();
+			Util.showError("You should upload at least one file.", function() { Util.unblockUI(); });
+			return;
+		}
+		
 		Util.blockUI();
 		var _this = this;
 		var metadata = dataSetFormModel.dataSet.properties;
