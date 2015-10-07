@@ -41,6 +41,8 @@ import ch.systemsx.cisd.common.collection.CollectionUtils;
 import ch.systemsx.cisd.common.collection.SimpleComparator;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.exceptions.ExceptionWithStatus;
+import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.FileOperations;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
@@ -584,7 +586,11 @@ public class SegmentedStoreUtils
         logger.log(LogLevel.INFO, String.format("Start moving directory '%s' to new share '%s'",
                 file.getPath(), share.getPath()));
         final RsyncCopier copier = new RsyncCopier(OSUtilities.findExecutable(RSYNC_EXEC));
-        copier.copyContent(file, share);
+        Status status = copier.copyContent(file, share);
+        if (status.isError())
+        {
+            throw new ExceptionWithStatus(status);
+        }
         logger.log(LogLevel.INFO, String.format(
                 "Finished moving directory '%s' to new share '%s' in %.2f s", file.getPath(),
                 share.getPath(), (System.currentTimeMillis() - start) / 1000.0));
