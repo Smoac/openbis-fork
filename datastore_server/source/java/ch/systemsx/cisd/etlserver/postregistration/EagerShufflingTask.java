@@ -203,6 +203,12 @@ public class EagerShufflingTask extends AbstractPostRegistrationTaskForPhysicalD
                     SegmentedStoreUtils.getSharesWithDataSets(storeRoot, dataStoreCode, FilterOptions.AVAILABLE_FOR_SHUFFLING,
                             incomingShares, freeSpaceProvider, service, logger);
             dataSet = findDataSet(shares, dataSetCode);
+            if (dataSet.getStatus().isAvailable() == false)
+            {
+                logger.log(LogLevel.WARN, "Data set " + dataSetCode + " couldn't been shuffled because "
+                        + "its archiving status is " + dataSet.getStatus());
+                return new NoCleanupTask();
+            }
             shareWithMostFreeOrNull = finder.tryToFindShare(dataSet, shares);
             if (shareWithMostFreeOrNull == null)
             {

@@ -46,6 +46,7 @@ import ch.systemsx.cisd.etlserver.registrator.IEntityOperationService;
 import ch.systemsx.cisd.etlserver.registrator.IncomingFileDeletedBeforeRegistrationException;
 import ch.systemsx.cisd.etlserver.registrator.api.impl.RollbackStack;
 import ch.systemsx.cisd.etlserver.registrator.api.impl.SecondaryTransactionFailure;
+import ch.systemsx.cisd.etlserver.registrator.api.v2.IDSSRegistrationLogger;
 import ch.systemsx.cisd.etlserver.registrator.api.v2.IDataSet;
 import ch.systemsx.cisd.etlserver.registrator.api.v2.IDataSetRegistrationTransactionV2;
 import ch.systemsx.cisd.etlserver.registrator.api.v2.IDataSetUpdatable;
@@ -237,6 +238,12 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
                         this.registrationService.getRegistratorContext().getGlobalState(), userSessionToken);
         DssRegistrationLogger dssRegistrationLog = this.registrationService.getDssRegistrationLog();
         dssRegistrationLog.info(operationLog, "Start registration");
+    }
+
+    @Override
+    public IDSSRegistrationLogger getLogger()
+    {
+        return this.registrationService.getDssRegistrationLog();
     }
 
     @Override
