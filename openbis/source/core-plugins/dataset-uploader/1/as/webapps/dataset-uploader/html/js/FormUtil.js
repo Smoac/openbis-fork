@@ -156,7 +156,7 @@ var FormUtil = new function() {
 		if (isRequired) {
 			$component.attr('required', '');
 		}
-		if (isRequired) {
+		if (step) {
 			$component.attr('step', step);
 		}
 		return $component;
