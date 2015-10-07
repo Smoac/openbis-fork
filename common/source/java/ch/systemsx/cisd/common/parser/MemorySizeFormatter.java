@@ -122,7 +122,7 @@ public class MemorySizeFormatter
 
             if (Math.abs(value - Math.round(value)) < 0.1)
             {
-                return String.format("%d", (long) value) + formatUnit;
+                return String.format("%d", Math.round(value)) + formatUnit;
             } else
             {
                 return String.format("%.1f", value) + formatUnit;

@@ -60,7 +60,25 @@ public class MemorySizeFormatterTest
     @Test
     public void testFormatKilobytesUpperBound()
     {
-        testFormat(FileUtils.ONE_MB - 1, "1023k");
+        testFormat(FileUtils.ONE_MB - 1, "1024k");
+    }
+
+    @Test
+    public void testFormatKilobytesWithFractionShown()
+    {
+        testFormat((long) (FileUtils.ONE_KB * 1023.5), "1023.5k");
+    }
+
+    @Test
+    public void testFormatKilobytesWithFractionRoundedUp()
+    {
+        testFormat((long) (FileUtils.ONE_KB * 1023.95), "1024k");
+    }
+
+    @Test
+    public void testFormatKilobytesWithFractionRoundedDown()
+    {
+        testFormat((long) (FileUtils.ONE_KB * 1024.05), "1m");
     }
 
     @Test
@@ -72,7 +90,25 @@ public class MemorySizeFormatterTest
     @Test
     public void testFormatMegabytesUpperBound()
     {
-        testFormat(FileUtils.ONE_GB - 1, "1023m");
+        testFormat(FileUtils.ONE_GB - 1, "1024m");
+    }
+
+    @Test
+    public void testFormatMegabytesWithFractionShown()
+    {
+        testFormat((long) (FileUtils.ONE_MB * 1023.5), "1023.5m");
+    }
+
+    @Test
+    public void testFormatMegabytesWithFractionRoundedUp()
+    {
+        testFormat((long) (FileUtils.ONE_MB * 1023.95), "1024m");
+    }
+
+    @Test
+    public void testFormatMegabytesWithFractionRoundedDown()
+    {
+        testFormat((long) (FileUtils.ONE_MB * 1024.05), "1g");
     }
 
     @Test
@@ -84,7 +120,25 @@ public class MemorySizeFormatterTest
     @Test
     public void testFormatGigabytesUpperBound()
     {
-        testFormat(FileUtils.ONE_GB * FileUtils.ONE_KB - 1, "1023g");
+        testFormat(FileUtils.ONE_GB * FileUtils.ONE_KB - 1, "1024g");
+    }
+
+    @Test
+    public void testFormatGigabytesWithFractionShown()
+    {
+        testFormat((long) (FileUtils.ONE_GB * 1023.5), "1023.5g");
+    }
+
+    @Test
+    public void testFormatGigabytesWithFractionRoundedUp()
+    {
+        testFormat((long) (FileUtils.ONE_GB * 1023.95), "1024g");
+    }
+
+    @Test
+    public void testFormatGigabytesWithFractionRoundedDown()
+    {
+        testFormat((long) (FileUtils.ONE_GB * 1024.05), "1t");
     }
 
     @Test
@@ -97,6 +151,24 @@ public class MemorySizeFormatterTest
     public void testFormatTerabytesNoUpperBound()
     {
         testFormat(FileUtils.ONE_GB * FileUtils.ONE_KB * FileUtils.ONE_KB * 2, "2048t");
+    }
+
+    @Test
+    public void testFormatTerabytesWithFractionShown()
+    {
+        testFormat((long) (FileUtils.ONE_GB * FileUtils.ONE_KB * 1023.5), "1023.5t");
+    }
+
+    @Test
+    public void testFormatTerabytesWithFractionRoundedUp()
+    {
+        testFormat((long) (FileUtils.ONE_GB * FileUtils.ONE_KB * 1023.95), "1024t");
+    }
+
+    @Test
+    public void testFormatTerabytesWithFractionRoundedDown()
+    {
+        testFormat((long) (FileUtils.ONE_GB * FileUtils.ONE_KB * 1024.05), "1024t");
     }
 
     @Test(expectedExceptions = { IllegalArgumentException.class })
