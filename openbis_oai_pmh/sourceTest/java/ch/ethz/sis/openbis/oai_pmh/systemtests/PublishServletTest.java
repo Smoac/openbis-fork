@@ -125,7 +125,7 @@ public class PublishServletTest extends OAIPMHSystemTest
     public void testListRecords() throws IOException, SAXException
     {
 
-        GetResponse response = callServlet(REVIEWER_USER_ID, REVIEWER_USER_PASSWORD, "?verb=ListRecords&metadataPrefix=oai_dc");
+        GetResponse response = callServlet(REVIEWER_USER_ID, REVIEWER_USER_PASSWORD, "verb=ListRecords&metadataPrefix=oai_dc");
 
         Document document = HttpTest.parseResponse(response);
         String responseDate = HttpTest.evaluateToString(document, "/OAI-PMH/responseDate");
