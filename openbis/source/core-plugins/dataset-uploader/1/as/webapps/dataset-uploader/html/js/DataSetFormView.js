@@ -192,14 +192,15 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 							propertyTypeCode = propertyType.code;
 						}
 						var field = $(this);
+						var value = null;
 						if(propertyType.dataType === "BOOLEAN") {
-							dataSetFormModel.dataSet.properties[propertyTypeCode] = field.children()[0].checked;
+							value = field.children()[0].checked;
 						} else if (propertyType.dataType === "TIMESTAMP") {
-							var timeValue = $($(field.children()[0]).children()[0]).val();
-							dataSetFormModel.dataSet.properties[propertyTypeCode] = timeValue;
+							value = $($(field.children()[0]).children()[0]).val();
 						} else {
-							dataSetFormModel.dataSet.properties[propertyTypeCode] = Util.getEmptyIfNull(field.val());
+							value = Util.getEmptyIfNull(field.val());
 						}
+						dataSetFormModel.dataSet.properties[propertyTypeCode] = value;
 					}
 				}
 				

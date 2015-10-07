@@ -96,8 +96,11 @@ function DataSetFormController() {
 						startIndex = 0;
 						endIndex = stacktrace.length;
 					}
-					var errorMessage = stacktrace.substring(startIndex, endIndex).trim();
-					Util.showError(errorMessage, function() {Util.unblockUI();});
+					var errorMessage = "Please retry, if the problem persists contact your admin: " + stacktrace.substring(startIndex, endIndex).trim();
+					Util.showError(errorMessage, function() {
+						Util.unblockUI();
+						_this.init(container, sampleOrExperimentCopy);
+					});
 				} else if (response.result.columns[0].title === "STATUS" && response.result.rows[0][0].value === "OK") { //Success Case
 					Util.showSuccess("DataSet Created.", function() {
 						Util.unblockUI();
@@ -105,7 +108,10 @@ function DataSetFormController() {
 					});
 					
 				} else { //This should never happen
-					Util.showError("Unknown Error.", function() {Util.unblockUI();});
+					Util.showError("Please retry, if the problem persists contact your admin: Unknown Error.", function() {
+						Util.unblockUI();
+						_this.init(container, sampleOrExperimentCopy);
+					});
 				}
 			});
 		} else {

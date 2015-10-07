@@ -173,4 +173,14 @@ var Util = new function() {
 				  onCompleted : function(){ }
 		});
 	}
+	
+	this.getEmptyIfNull = function(toCheck) {
+		if(	toCheck === undefined ||
+			toCheck === null ||
+			toCheck === "�(undefined)") {
+			return "";
+		} else {
+			return toCheck;
+		}
+	}
 }

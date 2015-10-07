@@ -113,7 +113,6 @@ def insertDataSet(tr, parameters, tableBuilder):
 		propertyValue = unicode(metadata[key]);
 		if propertyValue == "":
 			propertyValue = None;
-		
 		dataSet.setPropertyValue(key,propertyValue);
 	
 	#Move All Files using a tmp directory close to the datastore
