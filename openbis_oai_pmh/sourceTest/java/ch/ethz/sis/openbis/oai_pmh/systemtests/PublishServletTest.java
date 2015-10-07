@@ -26,7 +26,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.io.FileUtils;
 import org.custommonkey.xmlunit.Diff;
 import org.custommonkey.xmlunit.XMLUnit;
@@ -41,6 +40,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experimen
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.entitytype.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.ProjectIdentifier;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.common.http.GetResponse;
 import ch.systemsx.cisd.common.http.HttpTest;
 import ch.systemsx.cisd.common.utilities.TestResources;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
@@ -96,7 +96,7 @@ public class PublishServletTest extends OAIPMHSystemTest
     @Test
     public void testListIdentifiers() throws IOException, SAXException
     {
-        GetMethod response = callServlet(REVIEWER_USER_ID, REVIEWER_USER_PASSWORD, "verb=ListIdentifiers&metadataPrefix=oai_dc");
+        GetResponse response = callServlet(REVIEWER_USER_ID, REVIEWER_USER_PASSWORD, "verb=ListIdentifiers&metadataPrefix=oai_dc");
 
         Document document = HttpTest.parseResponse(response);
         String responseDate = HttpTest.evaluateToString(document, "/OAI-PMH/responseDate");
@@ -118,14 +118,14 @@ public class PublishServletTest extends OAIPMHSystemTest
         templateValues.put("RECORDS", records);
 
         String expectedResponse = getFilledTemplate("testListIdentifiers.xml", templateValues);
-        assertResponse(response.getResponseBodyAsString(), expectedResponse);
+        assertResponse(response.getContent(), expectedResponse);
     }
 
     @Test
     public void testListRecords() throws IOException, SAXException
     {
 
-        GetMethod response = callServlet(REVIEWER_USER_ID, REVIEWER_USER_PASSWORD, "?verb=ListRecords&metadataPrefix=oai_dc");
+        GetResponse response = callServlet(REVIEWER_USER_ID, REVIEWER_USER_PASSWORD, "?verb=ListRecords&metadataPrefix=oai_dc");
 
         Document document = HttpTest.parseResponse(response);
         String responseDate = HttpTest.evaluateToString(document, "/OAI-PMH/responseDate");
@@ -149,7 +149,7 @@ public class PublishServletTest extends OAIPMHSystemTest
         templateValues.put("RECORDS", records);
 
         String expectedResponse = getFilledTemplate("testListRecords.xml", templateValues);
-        assertResponse(response.getResponseBodyAsString(), expectedResponse);
+        assertResponse(response.getContent(), expectedResponse);
     }
 
     @Test
@@ -157,7 +157,7 @@ public class PublishServletTest extends OAIPMHSystemTest
     {
         String identifier = publicationsMap.keySet().iterator().next();
 
-        GetMethod response =
+        GetResponse response =
                 callServlet(REVIEWER_USER_ID, REVIEWER_USER_PASSWORD, "verb=GetRecord&metadataPrefix=oai_dc&identifier=" + identifier);
 
         Document document = HttpTest.parseResponse(response);
@@ -173,7 +173,7 @@ public class PublishServletTest extends OAIPMHSystemTest
         templateValues.put("REGISTRATION_DATE", DATE_WITH_TIME_FORMAT.format(experiment.getRegistrationDetails().getRegistrationDate()));
 
         String expectedResponse = getFilledTemplate("testGetRecord.xml", templateValues);
-        assertResponse(response.getResponseBodyAsString(), expectedResponse);
+        assertResponse(response.getContent(), expectedResponse);
     }
 
     private String getFilledTemplate(String templateFileName, Map<String, Object> values)

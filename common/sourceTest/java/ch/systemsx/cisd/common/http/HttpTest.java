@@ -30,10 +30,12 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpException;
-import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.log4j.Logger;
+import org.eclipse.jetty.client.HttpClient;
+import org.eclipse.jetty.client.api.ContentResponse;
+import org.eclipse.jetty.client.api.Request;
+import org.eclipse.jetty.util.thread.QueuedThreadPool;
+import org.eclipse.jetty.util.thread.ScheduledExecutorScheduler;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
@@ -54,43 +56,79 @@ public class HttpTest
 
     private static XPath xPath;
 
-    public static GetMethod sendRequest(String user, String password, String url)
+    private static HttpClient client;
+
+    private static void createClient()
+    {
+        if (client == null)
+        {
+            client = new HttpClient()
+                {
+                    @Override
+                    protected void doStart() throws Exception
+                    {
+                        if (getExecutor() == null)
+                        {
+                            QueuedThreadPool threadPool = new QueuedThreadPool();
+                            threadPool.setName("openBIS-jetty");
+                            threadPool.setDaemon(true);
+                            setExecutor(threadPool);
+                        }
+                        if (getScheduler() == null)
+                        {
+                            ScheduledExecutorScheduler scheduler = new ScheduledExecutorScheduler("openBIS-jetty-scheduler", true);
+                            setScheduler(scheduler);
+                        }
+                        super.doStart();
+                    }
+                };
+            try
+            {
+                client.start();
+            } catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public static GetResponse sendRequest(String user, String password, String url)
     {
         String authorizationHeader = "Basic " + new String(Base64.encodeBase64(new String(user + ":" + password).getBytes()));
         return sendRequest(authorizationHeader, url);
     }
 
-    public static GetMethod sendRequest(String authorizationHeader, String url)
+    public static GetResponse sendRequest(String authorizationHeader, String url)
     {
         try
         {
             operationLog.info("Sending HTTP request: " + url);
 
-            HttpClient httpClient = new HttpClient();
-            GetMethod method = new GetMethod(url);
+            createClient();
+
+            Request req = client.newRequest(url);
+
             if (authorizationHeader != null)
             {
-                method.setRequestHeader("Authorization", authorizationHeader);
+                req = req.header("Authorization", authorizationHeader);
             }
-            httpClient.executeMethod(method);
 
-            operationLog.info("Received HTTP response: " + method.getResponseBodyAsString());
+            ContentResponse response = req.send();
 
-            return method;
-        } catch (HttpException ex)
-        {
-            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
-        } catch (IOException ex)
+            operationLog.info("Received HTTP response: " + response.getContentAsString());
+
+            return new GetResponse(response.getStatus(), response.getContentAsString());
+        } catch (Exception ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
         }
     }
 
-    public static Document parseResponse(GetMethod method)
+    public static Document parseResponse(GetResponse method)
     {
         try
         {
-            String body = method.getResponseBodyAsString();
+            String body = method.getContent();
             return getXmlBuilder().parse(new ByteArrayInputStream(body.getBytes()));
         } catch (IOException ex)
         {

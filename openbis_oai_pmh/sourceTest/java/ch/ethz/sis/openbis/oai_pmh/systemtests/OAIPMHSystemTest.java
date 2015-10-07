@@ -21,7 +21,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.lang.StringUtils;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -31,6 +30,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.IApplicationServerApi;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.common.http.GetResponse;
 import ch.systemsx.cisd.common.http.HttpTest;
 import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 import ch.systemsx.cisd.openbis.datastoreserver.systemtests.GenericSystemTest;
@@ -258,7 +258,7 @@ public abstract class OAIPMHSystemTest extends GenericSystemTest
         }
     }
 
-    protected GetMethod callServlet(String userId, String userPassword, String query)
+    protected GetResponse callServlet(String userId, String userPassword, String query)
     {
         return HttpTest.sendRequest(userId, userPassword, PUBLISH_SERVLET_URL + "?" + query);
     }
