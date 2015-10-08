@@ -8,12 +8,14 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.ContentResponse;
 import org.eclipse.jetty.client.api.Request;
 import org.eclipse.jetty.client.util.BytesContentProvider;
+import org.eclipse.jetty.client.util.FutureResponseListener;
 import org.eclipse.jetty.client.util.InputStreamContentProvider;
 import org.eclipse.jetty.client.util.InputStreamResponseListener;
 import org.springframework.remoting.httpinvoker.AbstractHttpInvokerRequestExecutor;
@@ -27,6 +29,7 @@ import com.marathon.util.spring.StreamSupportingRemoteInvocationResult;
 
 public class JettyHttpInvokerRequestExecutor extends AbstractHttpInvokerRequestExecutor
 {
+    private static final long RESPONSE_BUFFER_SIZE = 100 * FileUtils.ONE_MB;
 
     private static final Log log =
             LogFactory.getLog(JettyHttpInvokerRequestExecutor.class);
@@ -41,14 +44,17 @@ public class JettyHttpInvokerRequestExecutor extends AbstractHttpInvokerRequestE
         this.serverTimeoutInMillis = serverTimeoutInMillis;
     }
 
-    protected RemoteInvocationResult doExecuteBasicRequest(HttpInvokerClientConfiguration config, ByteArrayOutputStream baos) throws Exception
+    protected RemoteInvocationResult doExecuteBasicRequest(HttpInvokerClientConfiguration config, 
+            ByteArrayOutputStream baos) throws Exception
     {
-
         Request request =
                 client.POST(config.getServiceUrl()).content(new BytesContentProvider(baos.toByteArray()))
                         .timeout(serverTimeoutInMillis, TimeUnit.MILLISECONDS);
 
-        ContentResponse response = request.send();
+        FutureResponseListener listener = new FutureResponseListener(request, (int) RESPONSE_BUFFER_SIZE);
+        request.send(listener);
+
+        ContentResponse response = listener.get();
         return readRemoteInvocationResult(new ByteArrayInputStream(response.getContent()), config.getCodebaseUrl());
     }
 
