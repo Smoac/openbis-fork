@@ -692,7 +692,7 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
         FileUtilities.writeToFile(new File(share1, "share.properties"),
                 ShareFactory.WITHDRAW_SHARE_PROP + " = true");
 
-        String share = SegmentedStoreUtils.findIncomingShare(incomingFolder, store, log);
+        String share = SegmentedStoreUtils.findIncomingShare(incomingFolder, store, null, log);
 
         assertEquals("1", share);
         assertEquals(
@@ -712,7 +712,7 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
         FileUtilities.writeToFile(new File(share1, "share.properties"),
                 ShareFactory.IGNORED_FOR_SHUFFLING_PROP + " = true");
 
-        String share = SegmentedStoreUtils.findIncomingShare(incomingFolder, store, log);
+        String share = SegmentedStoreUtils.findIncomingShare(incomingFolder, store, null, log);
 
         assertEquals("1", share);
         assertEquals("", log.toString());

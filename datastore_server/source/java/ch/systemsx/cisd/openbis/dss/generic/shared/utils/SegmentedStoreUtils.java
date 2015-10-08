@@ -82,7 +82,7 @@ public class SegmentedStoreUtils
 
     private static final String RSYNC_EXEC = "rsync";
 
-    private static final Pattern SHARE_ID_PATTERN = Pattern.compile("[0-9]+");
+    public static final Pattern SHARE_ID_PATTERN = Pattern.compile("[0-9]+");
 
     public static final Long MINIMUM_FREE_SCRATCH_SPACE = FileUtils.ONE_GB;
 
@@ -154,9 +154,17 @@ public class SegmentedStoreUtils
      */
     public static File[] getShares(File storeRootDir)
     {
+        return getShares(storeRootDir, FILTER_ON_SHARES);
+    }
+    
+    /**
+     * Lists all folders in specified store root directory which match pattern given by filter.
+     */
+    public static File[] getShares(File storeRootDir, FileFilter filter)
+    {
         File[] files =
                 FileOperations.getMonitoredInstanceForCurrentThread().listFiles(storeRootDir,
-                        FILTER_ON_SHARES);
+                       filter);
         if (files == null)
         {
             throw new ConfigurationFailureException(
@@ -170,7 +178,7 @@ public class SegmentedStoreUtils
      * Returns first the id of the first incoming share folder of specified store root which allows to move a file from specified incoming folder to
      * the incoming share.
      */
-    public static String findIncomingShare(File incomingFolder, File storeRoot, ISimpleLogger logger)
+    public static String findIncomingShare(File incomingFolder, File storeRoot, Integer preferredShareIdOrNull, ISimpleLogger logger)
     {
         final IFileOperations fileOp = FileOperations.getMonitoredInstanceForCurrentThread();
         if (fileOp.isDirectory(incomingFolder) == false)
@@ -193,12 +201,37 @@ public class SegmentedStoreUtils
                     "Couldn't create a test file in the following incoming folder: "
                             + incomingFolder, ex);
         }
-        File matchingShare = findShare(testFile, storeRoot, logger);
+        File matchingShare = findShare(testFile, storeRoot, preferredShareIdOrNull, logger);
         return matchingShare.getName();
     }
 
-    private static File findShare(File testFile, File storeRoot, ISimpleLogger logger)
+    private static File findShare(File testFile, File storeRoot, final Integer preferredShareIdOrNull, ISimpleLogger logger)
     {
+        if( preferredShareIdOrNull != null) 
+        {
+            File[] shares = getShares(storeRoot, new FileFilter()
+            {
+                @Override
+                public boolean accept(File pathname)
+                {
+                    if (FileOperations.getMonitoredInstanceForCurrentThread().isDirectory(pathname) == false)
+                    {
+                        return false;
+                    }
+                    String name = pathname.getName();
+                    Pattern p = Pattern.compile("\\b" + String.valueOf(preferredShareIdOrNull + "\\b"));
+                    return p.matcher(name).matches();
+                }
+            });
+
+            if(shares.length == 0)
+            {
+                throw new ConfigurationFailureException("Preferred share: " +
+                        preferredShareIdOrNull + " could not be found for the following incoming folder: "  + testFile.getParentFile().getAbsolutePath());
+            }
+            return shares[0];
+        }
+
         for (File share : getShares(storeRoot))
         {
             File destination = new File(share, testFile.getName());

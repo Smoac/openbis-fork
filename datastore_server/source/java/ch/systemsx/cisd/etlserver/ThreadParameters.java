@@ -31,6 +31,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationPreStagingBehavior;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.SegmentedStoreUtils;
 
 /**
  * <i>ETL</i> thread specific parameters.
@@ -96,6 +97,8 @@ public final class ThreadParameters
 
     public static final String DATASET_REGISTRATION_PRE_STAGING_BEHAVIOR =
             "dataset-registration-prestaging-behavior";
+    @Private
+    public static final String PREFERRED_SHARE_ID = "preferred-share-id";
 
     /*
      * The properties that control the process of retrying registration by jython dropboxes
@@ -166,6 +169,8 @@ public final class ThreadParameters
     private final int minimumRecoveryPeriod;
 
     private final DataSetRegistrationPreStagingBehavior dataSetRegistrationPreStagingBehavior;
+    
+    private final Integer preferredShareId;
 
     /**
      * @param threadProperties parameters for one processing thread together with general
@@ -207,7 +212,8 @@ public final class ThreadParameters
                         "false"));
         this.dataSetRegistrationPreStagingBehavior =
                 getOriginalnputDataSetBehaviour(threadProperties);
-
+        this.preferredShareId = tryGetPreferredShareId(threadProperties);
+ 
         boolean developmentMode =
                 PropertyUtils.getBoolean(threadProperties, RECOVERY_DEVELOPMENT_MODE, false);
         if (developmentMode)
@@ -267,6 +273,11 @@ public final class ThreadParameters
                     + " setting for a dropbox is invalid. Incorrect value " + property);
         }
         return retVal;
+    }
+
+    public Integer getPreferredShareId()
+    {
+        return preferredShareId;
     }
 
     // true if marker file should be used, false if autodetection should be used, exceprion when the
@@ -362,6 +373,21 @@ public final class ThreadParameters
             }
         }
         return paths;
+    }
+    
+    @Private
+    static final Integer tryGetPreferredShareId(final Properties properties)
+    {
+       String shareId =  PropertyUtils.getProperty(properties, PREFERRED_SHARE_ID);
+       if(StringUtils.isBlank(shareId)) 
+       {
+           return null;
+       }
+       if(SegmentedStoreUtils.SHARE_ID_PATTERN.matcher(shareId).matches() == false)
+       {
+           throw new ConfigurationFailureException("Invalid preferred share Id:" + shareId);
+       }
+       return Integer.parseInt(shareId);
     }
 
     private static String nullIfEmpty(String value)
