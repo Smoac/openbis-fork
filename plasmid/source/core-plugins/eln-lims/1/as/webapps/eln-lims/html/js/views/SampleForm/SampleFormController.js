@@ -25,7 +25,9 @@ function SampleFormController(mainController, mode, sample) {
 		var _this = this;
 		if(mode !== FormMode.CREATE) {
 			mainController.serverFacade.listDataSetsForSample(this._sampleFormModel.sample, true, function(datasets) {
-				_this._sampleFormModel.datasets = datasets.result;
+				if(!datasets.error) {
+					_this._sampleFormModel.datasets = datasets.result;
+				}
 				
 				//Load view
 				_this._sampleFormView.repaint($container);

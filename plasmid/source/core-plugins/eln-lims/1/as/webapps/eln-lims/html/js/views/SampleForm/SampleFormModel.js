@@ -17,6 +17,7 @@
 function SampleFormModel(mode, sample) {
 	this.mode = mode;
 	this.sample = sample;
+	this.datasets = [];
 	
 	this.isFormDirty = false;
 	this.isFormLoaded = false;
