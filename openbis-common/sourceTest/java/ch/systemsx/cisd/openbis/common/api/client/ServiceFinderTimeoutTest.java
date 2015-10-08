@@ -20,7 +20,7 @@ import java.io.InputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
-import java.util.concurrent.TimeoutException;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.springframework.remoting.RemoteAccessException;
@@ -69,7 +69,7 @@ public class ServiceFinderTimeoutTest extends AssertJUnit
             fail("Timeout exception expected");
         } catch (RemoteAccessException rae)
         {
-            assertEquals(TimeoutException.class, rae.getCause().getClass());
+            assertEquals(ExecutionException.class, rae.getCause().getClass());
         }
     }
 
