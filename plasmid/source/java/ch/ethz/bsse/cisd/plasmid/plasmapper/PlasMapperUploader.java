@@ -18,23 +18,22 @@ package ch.ethz.bsse.cisd.plasmid.plasmapper;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.List;
 import java.util.Properties;
 
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpStatus;
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.methods.multipart.FilePart;
-import org.apache.commons.httpclient.methods.multipart.MultipartRequestEntity;
-import org.apache.commons.httpclient.methods.multipart.Part;
-import org.apache.commons.httpclient.methods.multipart.StringPart;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.eclipse.jetty.client.HttpClient;
+import org.eclipse.jetty.client.api.ContentProvider;
+import org.eclipse.jetty.client.api.ContentResponse;
+import org.eclipse.jetty.client.api.Request;
+import org.eclipse.jetty.client.util.StringContentProvider;
+import org.eclipse.jetty.http.HttpStatus;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.http.JettyHttpClientFactory;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 
@@ -46,7 +45,11 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 public class PlasMapperUploader
 {
 
-    private final static String DEFAULT_PLASMAPPER_URL = "http://localhost:8082/PlasMapper";
+    private static final String CRLF = "\r\n";
+
+    private static final String BOUNDARY = "MMMMM___MP_BOUNDARY___MMMMM";
+
+    private final static String DEFAULT_PLASMAPPER_URL = "http://wishart.biology.ualberta.ca/PlasMapper";
 
     private static Properties createDefaultProperties()
     {
@@ -133,7 +136,7 @@ public class PlasMapperUploader
     {
         final Properties p = createDefaultProperties();
         final PlasMapperUploader uploader = new PlasMapperUploader(DEFAULT_PLASMAPPER_URL, p);
-        final File seqFile = new File("resource/example/FRP_1/PRS316.gb");
+        final File seqFile = new File("source/core-plugins/eln-lims/1/dss/reporting-plugins/newbrowserapi/lib/plasmapper-source/FRP1955.fasta");
         for (PlasMapperService service : PlasMapperService.values())
         {
             String response = uploader.upload(seqFile, service);
@@ -167,59 +170,42 @@ public class PlasMapperUploader
     // Synchronization is needed because PlasMapper servlet is not thread safe (see LMS-2086)
     public synchronized String upload(File seqFile, PlasMapperService service)
     {
-        final PostMethod post = new PostMethod(baseUrl + service.getServletPath());
+        String url = baseUrl + service.getServletPath();
         try
         {
-            Part filePart = new FilePart(FILE_PART_NAME, seqFile);
-            Part[] parts = createParts(filePart, properties);
-            post.setRequestEntity(new MultipartRequestEntity(parts, post.getParams()));
-            HttpClient client = new HttpClient();
-            int statusCode = client.executeMethod(post);
-            if (statusCode != HttpStatus.SC_OK)
+            HttpClient httpClient = JettyHttpClientFactory.getHttpClient();
+            Request request = httpClient.newRequest(url).method("POST");
+            for (Enumeration<?> enumeration = properties.propertyNames(); enumeration.hasMoreElements();)
             {
-                notificationLog.error(String.format("Multipart POST failed: "
-                        + post.getStatusLine()));
+                final String key = (String) enumeration.nextElement();
+                String[] values = properties.getProperty(key).split(LIST_SEPARATOR);
+                for (String value : values)
+                {
+                    request.param(key, StringUtils.trim(value));
+                }
+            }
+            String fileContent = FileUtilities.loadToString(seqFile);
+            ContentProvider content = new StringContentProvider("--" + BOUNDARY + CRLF
+                    + "Content-Disposition: form-data; name=\"" + FILE_PART_NAME + "\"; filename=\"" 
+                    + seqFile.getName() + "\"" + CRLF
+                    + "Content-Type: application/octet-stream" + CRLF + CRLF
+                    + fileContent + CRLF + "--" + BOUNDARY + "--" + CRLF);
+            request.content(content, "multipart/form-data; boundary=" + BOUNDARY);
+            ContentResponse contentResponse = request.send();
+            String responseAsString = contentResponse.getContentAsString();
+            int status = contentResponse.getStatus();
+            if (status != HttpStatus.Code.OK.getCode())
+            {
+                notificationLog.error("Multipart POST failed: " + status + " " + responseAsString);
                 throw new IOExceptionUnchecked(new IOException("Multipart POST failed: "
-                        + post.getStatusLine()));
+                        + status));
             }
-            String response = post.getResponseBodyAsString();
-            if (response.endsWith("\n"))
-            {
-                response = response.substring(0, response.lastIndexOf("\n"));
-            }
-            operationLog.info(String.format("Response of %s service: '%s'", service, response));
-            return response;
+            operationLog.info(String.format("Response of %s service: '%s'", service, responseAsString));
+            return responseAsString;
         } catch (final Exception ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
-        } finally
-        {
-            post.releaseConnection();
         }
-    }
-
-    /**
-     * Creates parts of multipart request containing all given properties and <code>filePart</code>.
-     */
-    @SuppressWarnings("unchecked")
-    private static Part[] createParts(Part filePart, Properties properties)
-    {
-        assert filePart != null : "Unspecified filePart";
-        assert properties != null : "Unspecified properties";
-
-        final List<Part> parts = new ArrayList<Part>();
-        parts.add(filePart);
-        for (final Enumeration<String> enumeration =
-                (Enumeration<String>) properties.propertyNames(); enumeration.hasMoreElements(); /**/)
-        {
-            final String key = enumeration.nextElement();
-            String[] values = properties.getProperty(key).split(LIST_SEPARATOR);
-            for (String value : values)
-            {
-                parts.add(new StringPart(key, StringUtils.trim(value)));
-            }
-        }
-        return parts.toArray(new Part[0]);
     }
 
 }
