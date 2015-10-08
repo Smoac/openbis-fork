@@ -10,7 +10,6 @@ dependencies {
 			'apache:log4j:+',
 			'javax:activation:+',
 			'javax:mail:+',
-			'apache:commons-httpclient:+',
 			'apache:poi:+',
 			'twmacinta:fast-md5:+',
 			'google:gwt-servlet:+',
