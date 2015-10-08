@@ -180,6 +180,17 @@ public class SegmentedStoreUtils
      */
     public static String findIncomingShare(File incomingFolder, File storeRoot, Integer preferredShareIdOrNull, ISimpleLogger logger)
     {
+        File testFile = createTestFileInIncomingFolder(incomingFolder, storeRoot);
+        File matchingShare = findShare(testFile, storeRoot, preferredShareIdOrNull, logger);
+        return matchingShare.getName();
+    }
+
+    /**
+     * Creates a test file in the incoming folder
+     * Called repeatedly to create a fresh test file until a suitable share is found
+     */
+     private static File createTestFileInIncomingFolder(File incomingFolder, File storeRoot)
+    {
         final IFileOperations fileOp = FileOperations.getMonitoredInstanceForCurrentThread();
         if (fileOp.isDirectory(incomingFolder) == false)
         {
@@ -201,8 +212,7 @@ public class SegmentedStoreUtils
                     "Couldn't create a test file in the following incoming folder: "
                             + incomingFolder, ex);
         }
-        File matchingShare = findShare(testFile, storeRoot, preferredShareIdOrNull, logger);
-        return matchingShare.getName();
+        return testFile;
     }
 
     private static File findShare(File testFile, File storeRoot, final Integer preferredShareIdOrNull, ISimpleLogger logger)
@@ -224,18 +234,35 @@ public class SegmentedStoreUtils
                 }
             });
 
-            if(shares.length == 0)
+            if(shares.length != 1)
             {
                 throw new ConfigurationFailureException("Preferred share: " +
                         preferredShareIdOrNull + " could not be found for the following incoming folder: "  + testFile.getParentFile().getAbsolutePath());
             }
+            
+            File share = shares[0];
+            
+            Share shareObject =
+                    new ShareFactory().createShare(share, DUMMY_FREE_SPACE_PROVIDER, logger);
+            if (shareObject.isWithdrawShare())
+            {
+                throw new ConfigurationFailureException("Incoming folder [" + testFile.getParent()
+                        + "] can not be assigned to share " + shareObject.getShareId()
+                        + " because its property " + ShareFactory.WITHDRAW_SHARE_PROP
+                        + " is set to true.");
+            }
+            logger.log(LogLevel.INFO, "Incoming folder [" + testFile.getParent()
+                    + "] is assigned to preferred share " + shares[0].getName() +".");
             return shares[0];
         }
 
+        File incomingFolder = new File(testFile.getParentFile().getAbsolutePath());
         for (File share : getShares(storeRoot))
         {
             File destination = new File(share, testFile.getName());
-            if (testFile.renameTo(destination))
+            
+            File newTestFile = createTestFileInIncomingFolder(incomingFolder, storeRoot);
+            if (newTestFile.renameTo(destination))
             {
                 destination.delete();
                 Share shareObject =
@@ -247,7 +274,9 @@ public class SegmentedStoreUtils
                             + " because its property " + ShareFactory.WITHDRAW_SHARE_PROP
                             + " is set to true.");
                 }
-                return share;
+                else {
+                    return share;
+                }
             }
         }
         testFile.delete();

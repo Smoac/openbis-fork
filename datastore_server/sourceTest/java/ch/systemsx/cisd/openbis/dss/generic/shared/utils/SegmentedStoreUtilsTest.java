@@ -38,6 +38,7 @@ import org.testng.annotations.Test;
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.concurrent.MessageChannel;
+import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.HostAwareFile;
@@ -691,15 +692,30 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
         share1.mkdirs();
         FileUtilities.writeToFile(new File(share1, "share.properties"),
                 ShareFactory.WITHDRAW_SHARE_PROP + " = true");
+        File share2 = new File(store, "2");
+        share2.mkdirs();
 
-        String share = SegmentedStoreUtils.findIncomingShare(incomingFolder, store, null, log);
+         String share =  SegmentedStoreUtils.findIncomingShare(incomingFolder, store, null, log);
+         assertEquals("2", share);
+    }
 
-        assertEquals("1", share);
-        assertEquals(
-                "WARN: Incoming folder [targets/unit-test-wd/"
-                        + SegmentedStoreUtilsTest.class.getName()
-                        + "/incoming] can not be assigned to share 1 because its property "
-                        + "withdraw-share is set to true.\n", log.toString());
+    @Test
+    public void testFindIncomingShareFailsWhenWithWithdrawn()
+    {
+        File incomingFolder = new File(workingDirectory, "incoming");
+        incomingFolder.mkdirs();
+        File share1 = new File(store, "1");
+        share1.mkdirs();
+        FileUtilities.writeToFile(new File(share1, "share.properties"),
+                ShareFactory.WITHDRAW_SHARE_PROP + " = true");
+
+        try {
+            SegmentedStoreUtils.findIncomingShare(incomingFolder, store, null, log);
+            fail("ConfigurationFailureException expected");
+        }
+        catch(ConfigurationFailureException ex) {
+            assertTrue(ex.getMessage().startsWith("No share could be found for"));
+        }
     }
 
     @Test
@@ -753,6 +769,55 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
         assertEquals("1", shares.get(0).getShareId());
         assertEquals("2", shares.get(1).getShareId());
         assertEquals(2, shares.size());
+    }
+    
+    
+    @Test
+    public void testPreferredShareCannotbeAssignedIfWithdrawn()
+    {
+        File incomingFolder = new File(workingDirectory, "incoming");
+        incomingFolder.mkdirs();
+        File share1 = new File(store, "1");
+        share1.mkdirs();
+
+        Integer preferredShareId = 2;
+        File share2 = new File(store, String.valueOf(preferredShareId));
+        share2.mkdirs();
+        FileUtilities.writeToFile(new File(share2, "share.properties"),
+                ShareFactory.WITHDRAW_SHARE_PROP + " = true");
+
+        try
+        {
+            SegmentedStoreUtils.findIncomingShare(incomingFolder, store, preferredShareId, log);
+            fail("ConfigurationFailureException expected");
+        }
+        catch(ConfigurationFailureException ex) {
+            assertEquals("Incoming folder [targets/unit-test-wd/"
+                        + SegmentedStoreUtilsTest.class.getName()
+                        + "/incoming] can not be assigned to share " + String.valueOf(preferredShareId) + " because its property "
+                        + "withdraw-share is set to true.", ex.getMessage());
+        }
+    }
+    
+    @Test
+    public void testPreferredShareAssignment()
+    {
+        File incomingFolder = new File(workingDirectory, "incoming");
+        incomingFolder.mkdirs();
+        File share1 = new File(store, "1");
+        share1.mkdirs();
+
+        Integer preferredShareId = 2;
+        File share2 = new File(store, String.valueOf(preferredShareId));
+        share2.mkdirs();
+
+        String assignedShare = SegmentedStoreUtils.findIncomingShare(incomingFolder, store, preferredShareId, log);
+
+        assertEquals(String.valueOf(preferredShareId), assignedShare);
+        assertEquals(
+                "INFO: Incoming folder [targets/unit-test-wd/"
+                        + SegmentedStoreUtilsTest.class.getName()
+                        + "/incoming] is assigned to preferred share " + String.valueOf(preferredShareId) + ".\n", log.toString());
     }
 
     private File dataSetFile(String shareId, boolean empty)
