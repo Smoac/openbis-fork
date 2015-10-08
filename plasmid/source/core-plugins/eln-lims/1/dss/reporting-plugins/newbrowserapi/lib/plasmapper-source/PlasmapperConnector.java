@@ -3,17 +3,17 @@ package ch.ethz.ssdm.eln;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpStatus;
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.methods.multipart.FilePart;
-import org.apache.commons.httpclient.methods.multipart.MultipartRequestEntity;
-import org.apache.commons.httpclient.methods.multipart.Part;
-import org.apache.commons.httpclient.methods.multipart.StringPart;
 import org.apache.commons.io.FileUtils;
+import org.eclipse.jetty.client.HttpClient;
+import org.eclipse.jetty.client.api.ContentProvider;
+import org.eclipse.jetty.client.api.ContentResponse;
+import org.eclipse.jetty.client.api.Request;
+import org.eclipse.jetty.client.util.StringContentProvider;
+import org.eclipse.jetty.http.HttpStatus;
+
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.http.JettyHttpClientFactory;
 
 public class PlasmapperConnector
 {
@@ -42,25 +42,21 @@ public class PlasmapperConnector
             final String fastaInputFilePath,
             final String svgOutputFilePath,
             final String htmlOutputFilePath) {
-        
-//        System.out.println("Asking service " + serverURL + VECTOR_MAP_URL + " to generate the SVG file from " + fastaInputFile);
-        
-        PostMethod method = new PostMethod(serverURL + VECTOR_MAP_URL);
+        HttpClient client = JettyHttpClientFactory.getHttpClient();
+        Request requestEntity = client.newRequest(serverURL + VECTOR_MAP_URL).method("POST");
         
         try {
-            Part[] parts = getPlasmidFormOptions(fastaInputFilePath);
+            setPlasmidFormOptions(requestEntity, fastaInputFilePath);
+            ContentResponse contentResponse = requestEntity.send();
             
-            MultipartRequestEntity requestEntity = new MultipartRequestEntity(parts, method.getParams());
-            method.setRequestEntity(requestEntity);
-            HttpClient client = new HttpClient();
-            int statusCode = client.executeMethod(method);
-
-            if (statusCode != HttpStatus.SC_OK)
+            int statusCode = contentResponse.getStatus();
+            
+            if (statusCode != HttpStatus.Code.OK.getCode())
             {
-                throw new RuntimeException("Status Code was " + statusCode + " instead of " + HttpStatus.SC_OK);
+                throw new RuntimeException("Status Code was " + statusCode + " instead of " + HttpStatus.Code.OK.getCode());
             }
             
-            String svgFileURLPath = method.getResponseBodyAsString();
+            String svgFileURLPath = contentResponse.getContentAsString();
             if (svgFileURLPath == null || !svgFileURLPath.contains("PlasMapper")) {
                 throw new RuntimeException("PlasMapper service failed returning incorrect path to file: " + svgFileURLPath);
             } else if (svgFileURLPath.endsWith("\r\n"))
@@ -71,10 +67,6 @@ public class PlasmapperConnector
                 svgFileURLPath = svgFileURLPath.substring(0, svgFileURLPath.lastIndexOf("\n"));
             }
 //            System.out.println("Downloading SVG file: " + serverURL + "/" + svgFileURLPath + " to " + svgOutputFile);
-            
-            if(svgFileURLPath.startsWith("/")) {
-                svgFileURLPath = svgFileURLPath.substring(1, svgFileURLPath.length());
-            }
             URL svgFileURL = new URL(serverURL + "/" + svgFileURLPath);
             
             File svgOutputFile = new File(svgOutputFilePath);
@@ -95,58 +87,67 @@ public class PlasmapperConnector
         } catch(Exception ex) {
             throw new RuntimeException(ex);
         } finally {
-            method.releaseConnection();
+            
         }
     }
     
     
-    private static Part[] getPlasmidFormOptions(final String fastaInputFile) throws FileNotFoundException
+    private static void setPlasmidFormOptions(final Request requestEntity, final String fastaInputFile) throws FileNotFoundException
     {
-        File fasta = new File(fastaInputFile);
-        List<Part> parts = new ArrayList<Part>();
-        parts.add(new FilePart("fastaFile", fasta));
-        parts.add(new StringPart("vendor", "Amersham%20Pharmacia"));
-        parts.add(new StringPart("showOption", "1"));
-        parts.add(new StringPart("showOption", "2"));
-        parts.add(new StringPart("showOption", "3"));
-        parts.add(new StringPart("showOption", "4"));
-        parts.add(new StringPart("showOption", "5"));
-        parts.add(new StringPart("showOption", "6"));
-        parts.add(new StringPart("showOption", "7"));
-        parts.add(new StringPart("showOption", "8"));
-        parts.add(new StringPart("showOption", "9"));
-        parts.add(new StringPart("restriction", "1"));
-        parts.add(new StringPart("orfLen", "200"));
-        parts.add(new StringPart("strand", "1"));
-        parts.add(new StringPart("strand", "2"));
-        parts.add(new StringPart("dir1", "1"));
-        parts.add(new StringPart("dir2", "1"));
-        parts.add(new StringPart("dir3", "1"));
-        parts.add(new StringPart("dir4", "1"));
-        parts.add(new StringPart("dir5", "1"));
-        parts.add(new StringPart("dir6", "1"));
-        parts.add(new StringPart("category1", "origin_of_replication"));
-        parts.add(new StringPart("category2", "origin_of_replication"));
-        parts.add(new StringPart("category3", "origin_of_replication"));
-        parts.add(new StringPart("category4", "origin_of_replication"));
-        parts.add(new StringPart("category5", "origin_of_replication"));
-        parts.add(new StringPart("category6", "origin_of_replication"));
-        parts.add(new StringPart("scheme", "0"));
-        parts.add(new StringPart("shading", "0"));
-        parts.add(new StringPart("labColor", "0"));
-        parts.add(new StringPart("labelBox", "1"));
-        parts.add(new StringPart("labels", "0"));
-        parts.add(new StringPart("innerLabels", "0"));
-        parts.add(new StringPart("legend", "0"));
-        parts.add(new StringPart("arrow", "0"));
-        parts.add(new StringPart("tickMark", "0"));
-        parts.add(new StringPart("mapTitle", ""));
-        parts.add(new StringPart("comment", "Created using PlasMapper"));
-        parts.add(new StringPart("imageFormat", "SVG"));
-        parts.add(new StringPart("imageSize", "1000 x 1000"));
-        parts.add(new StringPart("backbone", "medium"));
-        parts.add(new StringPart("arc", "medium"));
-        parts.add(new StringPart("biomoby", "true"));
-        return parts.toArray(new Part[0]);
+        requestEntity.param("vendor", "Amersham%20Pharmacia");
+        requestEntity.param("showOption", "1");
+        requestEntity.param("showOption", "2");
+        requestEntity.param("showOption", "3");
+        requestEntity.param("showOption", "4");
+        requestEntity.param("showOption", "5");
+        requestEntity.param("showOption", "6");
+        requestEntity.param("showOption", "7");
+        requestEntity.param("showOption", "8");
+        requestEntity.param("showOption", "9");
+        requestEntity.param("restriction", "1");
+        requestEntity.param("orfLen", "200");
+        requestEntity.param("strand", "1");
+        requestEntity.param("strand", "2");
+        requestEntity.param("dir1", "1");
+        requestEntity.param("dir2", "1");
+        requestEntity.param("dir3", "1");
+        requestEntity.param("dir4", "1");
+        requestEntity.param("dir5", "1");
+        requestEntity.param("dir6", "1");
+        requestEntity.param("category1", "origin_of_replication");
+        requestEntity.param("category2", "origin_of_replication");
+        requestEntity.param("category3", "origin_of_replication");
+        requestEntity.param("category4", "origin_of_replication");
+        requestEntity.param("category5", "origin_of_replication");
+        requestEntity.param("category6", "origin_of_replication");
+        requestEntity.param("scheme", "0");
+        requestEntity.param("shading", "0");
+        requestEntity.param("labColor", "0");
+        requestEntity.param("labelBox", "1");
+        requestEntity.param("labels", "0");
+        requestEntity.param("innerLabels", "0");
+        requestEntity.param("legend", "0");
+        requestEntity.param("arrow", "0");
+        requestEntity.param("tickMark", "0");
+        requestEntity.param("mapTitle", "");
+        requestEntity.param("comment", "Created using PlasMapper");
+        requestEntity.param("imageFormat", "SVG");
+        requestEntity.param("imageSize", "1000 x 1000");
+        requestEntity.param("backbone", "medium");
+        requestEntity.param("arc", "medium");
+        requestEntity.param("biomoby", "true");
+        
+        final String CRLF = "\r\n";
+        final String BOUNDARY = "MMMMM___MP_BOUNDARY___MMMMM";
+        final String FILE_PART_NAME = "fastaFile";
+        
+        File fastaFile = new File(fastaInputFile);
+        String fileContent = FileUtilities.loadToString(fastaFile);
+        ContentProvider content = new StringContentProvider("--" + BOUNDARY + CRLF
+                + "Content-Disposition: form-data; name=\"" + FILE_PART_NAME + "\"; filename=\"" 
+                + fastaFile.getName() + "\"" + CRLF
+                + "Content-Type: application/octet-stream" + CRLF + CRLF
+                + fileContent + CRLF + "--" + BOUNDARY + "--" + CRLF);
+        requestEntity.content(content, "multipart/form-data; boundary=" + BOUNDARY);
     }
 }
