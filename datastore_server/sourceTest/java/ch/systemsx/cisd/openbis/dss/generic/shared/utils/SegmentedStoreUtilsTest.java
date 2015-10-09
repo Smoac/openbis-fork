@@ -700,7 +700,7 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
     }
 
     @Test
-    public void testFindIncomingShareFailsWhenWithWithdrawn()
+    public void testFindIncomingShareFailsWhenWithdrawn()
     {
         File incomingFolder = new File(workingDirectory, "incoming");
         incomingFolder.mkdirs();
@@ -714,7 +714,9 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
             fail("ConfigurationFailureException expected");
         }
         catch(ConfigurationFailureException ex) {
-            assertTrue(ex.getMessage().startsWith("No share could be found for"));
+            assertEquals("No share could be found for the following incoming folder: targets/unit-test-wd/"
+                        + SegmentedStoreUtilsTest.class.getName()
+                        + "/incoming", ex.getMessage());
         }
     }
 

@@ -180,8 +180,7 @@ public class SegmentedStoreUtils
      */
     public static String findIncomingShare(File incomingFolder, File storeRoot, Integer preferredShareIdOrNull, ISimpleLogger logger)
     {
-        File testFile = createTestFileInIncomingFolder(incomingFolder, storeRoot);
-        File matchingShare = findShare(testFile, storeRoot, preferredShareIdOrNull, logger);
+        File matchingShare = findShare(incomingFolder, storeRoot, preferredShareIdOrNull, logger);
         return matchingShare.getName();
     }
 
@@ -215,7 +214,7 @@ public class SegmentedStoreUtils
         return testFile;
     }
 
-    private static File findShare(File testFile, File storeRoot, final Integer preferredShareIdOrNull, ISimpleLogger logger)
+    private static File findShare(File incomingFolder, File storeRoot, final Integer preferredShareIdOrNull, ISimpleLogger logger)
     {
         if( preferredShareIdOrNull != null) 
         {
@@ -237,7 +236,7 @@ public class SegmentedStoreUtils
             if(shares.length != 1)
             {
                 throw new ConfigurationFailureException("Preferred share: " +
-                        preferredShareIdOrNull + " could not be found for the following incoming folder: "  + testFile.getParentFile().getAbsolutePath());
+                        preferredShareIdOrNull + " could not be found for the following incoming folder: "  + incomingFolder.getAbsolutePath());
             }
             
             File share = shares[0];
@@ -246,30 +245,29 @@ public class SegmentedStoreUtils
                     new ShareFactory().createShare(share, DUMMY_FREE_SPACE_PROVIDER, logger);
             if (shareObject.isWithdrawShare())
             {
-                throw new ConfigurationFailureException("Incoming folder [" + testFile.getParent()
+                throw new ConfigurationFailureException("Incoming folder [" + incomingFolder.getPath()
                         + "] can not be assigned to share " + shareObject.getShareId()
                         + " because its property " + ShareFactory.WITHDRAW_SHARE_PROP
                         + " is set to true.");
             }
-            logger.log(LogLevel.INFO, "Incoming folder [" + testFile.getParent()
+            logger.log(LogLevel.INFO, "Incoming folder [" + incomingFolder.getPath()
                     + "] is assigned to preferred share " + shares[0].getName() +".");
             return shares[0];
         }
 
-        File incomingFolder = new File(testFile.getParentFile().getAbsolutePath());
         for (File share : getShares(storeRoot))
         {
-            File destination = new File(share, testFile.getName());
             
-            File newTestFile = createTestFileInIncomingFolder(incomingFolder, storeRoot);
-            if (newTestFile.renameTo(destination))
+            File testFile = createTestFileInIncomingFolder(incomingFolder, storeRoot);
+            File destination = new File(share, testFile.getName());
+            if (testFile.renameTo(destination))
             {
                 destination.delete();
                 Share shareObject =
                         new ShareFactory().createShare(share, DUMMY_FREE_SPACE_PROVIDER, logger);
                 if (shareObject.isWithdrawShare())
                 {
-                    logger.log(LogLevel.WARN, "Incoming folder [" + testFile.getParent()
+                    logger.log(LogLevel.WARN, "Incoming folder [" + incomingFolder.getName()
                             + "] can not be assigned to share " + shareObject.getShareId()
                             + " because its property " + ShareFactory.WITHDRAW_SHARE_PROP
                             + " is set to true.");
@@ -278,11 +276,13 @@ public class SegmentedStoreUtils
                     return share;
                 }
             }
+            else {
+                testFile.delete();
+            }
         }
-        testFile.delete();
         throw new ConfigurationFailureException(
                 "No share could be found for the following incoming folder: "
-                        + testFile.getParentFile().getAbsolutePath());
+                        + incomingFolder.getPath());
     }
 
     /**
