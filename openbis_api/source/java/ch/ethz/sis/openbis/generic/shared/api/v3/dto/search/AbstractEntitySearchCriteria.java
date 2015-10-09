@@ -58,6 +58,11 @@ public class AbstractEntitySearchCriteria<ID extends IObjectId> extends Abstract
         return with(new TagSearchCriteria());
     }
 
+    public NumberPropertySearchCriteria withNumberProperty(String propertyName)
+    {
+        return with(new NumberPropertySearchCriteria(propertyName));
+    }
+    
     public StringPropertySearchCriteria withProperty(String propertyName)
     {
         return with(new StringPropertySearchCriteria(propertyName));

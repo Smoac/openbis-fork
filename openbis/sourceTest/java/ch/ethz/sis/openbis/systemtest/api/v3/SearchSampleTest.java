@@ -840,6 +840,47 @@ public class SearchSampleTest extends AbstractSampleTest
         v3api.logout(sessionToken);
     }
 
+    
+    @Test
+    public void testSearchNumeric()
+    {
+        //SIZE: 4711 CODE: 3VCP7
+        //SIZE: 123 CODE: CP-TEST-1
+        //SIZE: 321  CODE: CP-TEST-2
+        //SIZE: 666  CODE: CP-TEST-3
+        
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        SampleFetchOptions sortByCodeFO = new SampleFetchOptions();
+        sortByCodeFO.sortBy().code().asc();
+        
+        //Less
+        SampleSearchCriteria criteriaL = new SampleSearchCriteria();
+        criteriaL.withNumberProperty("SIZE").thatIsLessTo(321);
+        List<Sample> samplesL = search(sessionToken, criteriaL, sortByCodeFO);
+        assertSampleIdentifiersInOrder(samplesL, "/CISD/CP-TEST-1");
+        
+        //Less or Equals
+        SampleSearchCriteria criteriaLOE = new SampleSearchCriteria();
+        criteriaLOE.withNumberProperty("SIZE").thatIsLessOrEqualTo(321);
+        List<Sample> samplesLOE = search(sessionToken, criteriaLOE, sortByCodeFO);
+        assertSampleIdentifiersInOrder(samplesLOE, "/CISD/CP-TEST-1", "/CISD/CP-TEST-2");
+        
+        //Greater or Equals
+        SampleSearchCriteria criteriaGOE = new SampleSearchCriteria();
+        criteriaGOE.withNumberProperty("SIZE").thatIsGreaterOrEqualTo(321);
+        List<Sample> samplesGOE = search(sessionToken, criteriaGOE, sortByCodeFO);
+        assertSampleIdentifiersInOrder(samplesGOE, "/CISD/3VCP7", "/CISD/CP-TEST-2", "/CISD/CP-TEST-3");
+        
+        //Greater
+        SampleSearchCriteria criteriaG = new SampleSearchCriteria();
+        criteriaG.withNumberProperty("SIZE").thatIsGreaterTo(321);
+        List<Sample> samplesG = search(sessionToken, criteriaG, sortByCodeFO);
+        assertSampleIdentifiersInOrder(samplesG, "/CISD/3VCP7", "/CISD/CP-TEST-3");
+        
+        v3api.logout(sessionToken);
+    }
+
+    
     private void testSearch(String user, SampleSearchCriteria criteria, String... expectedIdentifiers)
     {
         String sessionToken = v3api.login(user, PASSWORD);
@@ -855,12 +896,12 @@ public class SearchSampleTest extends AbstractSampleTest
         assertEquals(samples.size(), expectedCount);
         v3api.logout(sessionToken);
     }
-
+    
     private List<Sample> search(String sessionToken, SampleSearchCriteria criteria, SampleFetchOptions fetchOptions)
     {
         SearchResult<Sample> searchResult =
                 v3api.searchSamples(sessionToken, criteria, fetchOptions);
         return searchResult.getObjects();
     }
-
+    
 }

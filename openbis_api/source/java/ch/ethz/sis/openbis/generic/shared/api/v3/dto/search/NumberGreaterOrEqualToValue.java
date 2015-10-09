@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 ETH Zuerich, CISD
+ * Copyright 2014 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,9 +14,28 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
+package ch.ethz.sis.openbis.generic.shared.api.v3.dto.search;
 
-public enum CompareType
+import ch.systemsx.cisd.base.annotation.JsonObject;
+
+/**
+ * @author juanf
+ */
+@JsonObject("dto.search.NumberGreaterOrEqualToValue")
+public class NumberGreaterOrEqualToValue extends AbstractNumberValue
 {
-    LESS_THAN, LESS_THAN_OR_EQUAL, EQUALS, MORE_THAN_OR_EQUAL, MORE_THAN
+
+    private static final long serialVersionUID = 1L;
+
+    public NumberGreaterOrEqualToValue(Number number)
+    {
+        super(number);
+    }
+
+    @Override
+    public String toString()
+    {
+        return "greater or equal to '" + getValue() + "'";
+    }
+
 }

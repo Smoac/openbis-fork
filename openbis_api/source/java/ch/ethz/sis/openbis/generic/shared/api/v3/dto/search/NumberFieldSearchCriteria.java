@@ -33,5 +33,24 @@ public class NumberFieldSearchCriteria extends AbstractFieldSearchCriteria<Abstr
     {
         setFieldValue(new NumberEqualToValue(number));
     }
+    
+    public void thatIsLessTo(Number number)
+    {
+        setFieldValue(new NumberLessToValue(number));
+    }
+    
+    public void thatIsLessOrEqualTo(Number number)
+    {
+        setFieldValue(new NumberLessOrEqualToValue(number));
+    }
 
+    public void thatIsGreaterTo(Number number)
+    {
+        setFieldValue(new NumberGreaterToValue(number));
+    }
+    
+    public void thatIsGreaterOrEqualTo(Number number)
+    {
+        setFieldValue(new NumberGreaterOrEqualToValue(number));
+    }
 }

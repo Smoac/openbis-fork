@@ -119,9 +119,24 @@ public class DetailedQueryBuilder
                         fieldAnalyzer = new IgnoreCaseAnalyzer();
                     } else
                     {
-                        fieldPattern =
-                                LuceneQueryBuilder.adaptQuery(criterion.getValue(),
-                                        useWildcardSearchMode);
+                        switch(criterion.getType()) {
+                            case LESS_THAN:
+                                fieldPattern = "{*" + " TO " + criterion.getValue() + "}";
+                                break;
+                            case LESS_THAN_OR_EQUAL:
+                                fieldPattern = "[*" + " TO " + criterion.getValue() + "]";
+                                break;
+                            case EQUALS:
+                                fieldPattern = LuceneQueryBuilder.adaptQuery(criterion.getValue(), useWildcardSearchMode);
+                                break;
+                            case MORE_THAN_OR_EQUAL:
+                                fieldPattern = "[" + criterion.getValue() + " TO " + "*]";
+                                break;
+                            case MORE_THAN:
+                                fieldPattern = "{" + criterion.getValue() + " TO " + "*}";
+                                break;
+                        }
+                        
                         fieldAnalyzer = searchAnalyzer;
                     }
 
