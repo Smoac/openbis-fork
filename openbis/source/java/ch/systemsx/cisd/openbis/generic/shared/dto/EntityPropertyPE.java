@@ -45,6 +45,7 @@ import ch.systemsx.cisd.common.reflection.ClassUtils;
 import ch.systemsx.cisd.common.reflection.ModifiedShortPrefixToStringStyle;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriterion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
@@ -101,7 +102,7 @@ public abstract class EntityPropertyPE extends HibernateAbstractRegistrationHold
     private PersonPE author;
 
     private Date modificationDate;
-
+    
     /**
      * This bridge allows to save in the search index not only the value of property, but also the corresponding property code.
      */
@@ -116,8 +117,11 @@ public abstract class EntityPropertyPE extends HibernateAbstractRegistrationHold
         }
 
         @Override
-        public void set(String name, Object/* EntityPropertyPE */value,
-                Document/* Lucene document */document, LuceneOptions luceneOptions)
+        public void set(
+                String name, 
+                Object/* EntityPropertyPE */value,
+                Document/* Lucene document */document, 
+                LuceneOptions luceneOptions)
         {
             EntityPropertyPE entityProperty = (EntityPropertyPE) value;
 
@@ -136,11 +140,12 @@ public abstract class EntityPropertyPE extends HibernateAbstractRegistrationHold
                 {
                     // leave the original value
                 }
+            } else if(DataTypeCode.INTEGER.equals(entityProperty.getEntityTypePropertyType().getPropertyType().getType().getCode()) ||
+                    DataTypeCode.REAL.equals(entityProperty.getEntityTypePropertyType().getPropertyType().getType().getCode())) {
+                fieldValue = DetailedSearchCriterion.getNumberForLucene(fieldValue);
             }
 
-            Field field =
-                    new Field(fieldFullName, fieldValue, luceneOptions.getStore(),
-                            luceneOptions.getIndex());
+            Field field = new Field(fieldFullName, fieldValue, luceneOptions.getStore(), luceneOptions.getIndex());
             field.setBoost(luceneOptions.getBoost());
             document.add(field);
         }

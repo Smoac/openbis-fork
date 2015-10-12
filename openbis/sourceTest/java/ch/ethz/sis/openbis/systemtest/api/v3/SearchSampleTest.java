@@ -841,6 +841,16 @@ public class SearchSampleTest extends AbstractSampleTest
     }
 
     
+    private String getCodePropertyPairs(List<Sample> samples, String propertyCode) {
+        StringBuilder builder = new StringBuilder();
+        
+        for(Sample sample : samples) {
+            builder.append(sample.getCode() + ":" + sample.getProperties().get(propertyCode) + " ");
+        }
+        
+        return builder.toString();
+    }
+    
     @Test
     public void testSearchNumeric()
     {
@@ -852,12 +862,14 @@ public class SearchSampleTest extends AbstractSampleTest
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         SampleFetchOptions sortByCodeFO = new SampleFetchOptions();
         sortByCodeFO.sortBy().code().asc();
+        sortByCodeFO.withProperties();
         
         //Less
         SampleSearchCriteria criteriaL = new SampleSearchCriteria();
-        criteriaL.withNumberProperty("SIZE").thatIsLessTo(321);
+        criteriaL.withNumberProperty("SIZE").thatIsLessTo(666);
         List<Sample> samplesL = search(sessionToken, criteriaL, sortByCodeFO);
-        assertSampleIdentifiersInOrder(samplesL, "/CISD/CP-TEST-1");
+        System.out.println(getCodePropertyPairs(samplesL, "SIZE"));
+        assertSampleIdentifiersInOrder(samplesL, "/CISD/CP-TEST-1", "/CISD/CP-TEST-2");
         
         //Less or Equals
         SampleSearchCriteria criteriaLOE = new SampleSearchCriteria();
