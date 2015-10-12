@@ -1,0 +1,2 @@
+1	DMS_1	Test EDMS	http://example.edms.pl/code=${code}	f
+2	DMS_2	Test External openBIS instance	http://www.openbis.ch/perm_id=${code}	t

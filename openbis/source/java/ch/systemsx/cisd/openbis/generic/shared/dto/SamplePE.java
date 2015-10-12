@@ -109,6 +109,8 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
 
     private SamplePE container;
 
+    private ProjectPE project;
+
     private ExperimentPE experiment;
 
     private String permId;
@@ -480,6 +482,18 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
             }
         }
         return children;
+    }
+
+    public void setProject(ProjectPE project)
+    {
+        this.project = project;
+    }
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = ColumnNames.PROJECT_COLUMN, updatable = true)
+    public ProjectPE getProject()
+    {
+        return project;
     }
 
     public void setExperiment(final ExperimentPE experiment)
