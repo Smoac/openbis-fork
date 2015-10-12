@@ -54,29 +54,27 @@ public class NumberFieldSearchCriteriaTranslator extends AbstractFieldSearchCrit
         if (valueObject instanceof NumberLessToValue)
         {
             NumberLessToValue lessToValue = (NumberLessToValue) valueObject;
-            return new SearchCriteriaTranslationResult(new DetailedSearchCriterion(getDetailedSearchField(context, numberCriteria), CompareType.LESS_THAN, lessToValue.getValue().toString(), null));
+            return new SearchCriteriaTranslationResult(new DetailedSearchCriterion(getDetailedSearchField(context, numberCriteria), CompareType.LESS_THAN, lessToValue.getValue()));
         } else if (valueObject instanceof NumberLessOrEqualToValue)
         {
             NumberLessOrEqualToValue lessOrEqualToValue = (NumberLessOrEqualToValue) valueObject;
-            return new SearchCriteriaTranslationResult(new DetailedSearchCriterion(getDetailedSearchField(context, numberCriteria), CompareType.LESS_THAN_OR_EQUAL, lessOrEqualToValue.getValue().toString(), null));
+            return new SearchCriteriaTranslationResult(new DetailedSearchCriterion(getDetailedSearchField(context, numberCriteria), CompareType.LESS_THAN_OR_EQUAL, lessOrEqualToValue.getValue()));
         } else if (valueObject instanceof NumberEqualToValue)
         {
             NumberEqualToValue equalToValue = (NumberEqualToValue) valueObject;
-            return new SearchCriteriaTranslationResult(new DetailedSearchCriterion(getDetailedSearchField(context, numberCriteria), equalToValue.getValue()
-                    .toString()));
+            return new SearchCriteriaTranslationResult(new DetailedSearchCriterion(getDetailedSearchField(context, numberCriteria), CompareType.EQUALS, equalToValue.getValue()));
         } else if (valueObject instanceof NumberGreaterOrEqualToValue)
         {
             NumberGreaterOrEqualToValue greaterOrEqualToValue = (NumberGreaterOrEqualToValue) valueObject;
-            return new SearchCriteriaTranslationResult(new DetailedSearchCriterion(getDetailedSearchField(context, numberCriteria), CompareType.MORE_THAN_OR_EQUAL, greaterOrEqualToValue.getValue().toString(), null));
+            return new SearchCriteriaTranslationResult(new DetailedSearchCriterion(getDetailedSearchField(context, numberCriteria), CompareType.MORE_THAN_OR_EQUAL, greaterOrEqualToValue.getValue()));
         } else if (valueObject instanceof NumberGreaterToValue)
         {
             NumberGreaterToValue greaterToValue = (NumberGreaterToValue) valueObject;
-            return new SearchCriteriaTranslationResult(new DetailedSearchCriterion(getDetailedSearchField(context, numberCriteria), CompareType.MORE_THAN, greaterToValue.getValue().toString(), null));
+            return new SearchCriteriaTranslationResult(new DetailedSearchCriterion(getDetailedSearchField(context, numberCriteria), CompareType.MORE_THAN, greaterToValue.getValue()));
         } else
         {
             throw new IllegalArgumentException("Unknown number field value: " + valueObject);
         }
-
     }
 
 }
