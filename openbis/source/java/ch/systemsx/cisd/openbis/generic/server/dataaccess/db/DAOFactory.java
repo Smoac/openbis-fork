@@ -16,11 +16,24 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
+import javax.annotation.Resource;
+
+import org.apache.log4j.Logger;
 import org.hibernate.SessionFactory;
+import org.springframework.beans.factory.InitializingBean;
 
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.properties.PropertyUtils;
+import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
 import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
 import ch.systemsx.cisd.openbis.common.spring.SpringEoDSQLExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAttachmentDAO;
@@ -48,6 +61,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IVocabularyDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IVocabularyTermDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.HibernateSearchContext;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IFullTextIndexUpdateScheduler;
+import ch.systemsx.cisd.openbis.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
@@ -55,12 +69,17 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
  * 
  * @author Franz-Josef Elmer
  */
-public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFactory
+public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFactory, InitializingBean
 {
+    private static Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, DAOFactory.class);
+
     static
     {
         SpringEoDSQLExceptionTranslator.activate();
     }
+
+    @Resource(name = ExposablePropertyPlaceholderConfigurer.PROPERTY_CONFIGURER_BEAN_NAME)
+    private ExposablePropertyPlaceholderConfigurer configurer;
 
     private final IDynamicPropertyEvaluationScheduler dynamicPropertyEvaluationScheduler;
 
@@ -114,6 +133,8 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
 
     private final IExternalDataManagementSystemDAO externalDataManagementSystemDAO;
 
+    private DatabaseConfigurationContext context;
+
     public DAOFactory(final DatabaseConfigurationContext context,
             final SessionFactory sessionFactory, HibernateSearchContext hibernateSearchContext,
             final IFullTextIndexUpdateScheduler fullTextIndexUpdateScheduler,
@@ -121,6 +142,7 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
     {
         super(context, sessionFactory, fullTextIndexUpdateScheduler,
                 dynamicPropertyEvaluationScheduler);
+        this.context = context;
         this.dynamicPropertyEvaluationScheduler = dynamicPropertyEvaluationScheduler;
         this.fullTextIndexUpdateScheduler = fullTextIndexUpdateScheduler;
         sampleTypeDAO = new SampleTypeDAO(sessionFactory);
@@ -307,6 +329,45 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
     public IExternalDataManagementSystemDAO getExternalDataManagementSystemDAO()
     {
         return externalDataManagementSystemDAO;
+    }
+
+    @Override
+    public void afterPropertiesSet() throws Exception
+    {
+        Properties serviceProperties = configurer.getResolvedProps();
+        boolean projectSamplesEnabled = PropertyUtils.getBoolean(serviceProperties, Constants.PROJECT_SAMPLES_ENABLED_KEY, false);
+        Connection connection = null;
+        try
+        {
+            connection = context.getAdminDataSource().getConnection();
+            Statement statement = connection.createStatement();
+            if (projectSamplesEnabled)
+            {
+                statement.executeUpdate("DROP TRIGGER IF EXISTS disable_project_level_samples ON samples_all");
+            } else
+            {
+                ResultSet result = statement.executeQuery("SELECT tgname FROM pg_trigger WHERE tgname='disable_project_level_samples'");
+                boolean triggerExists = result.next();
+                if (triggerExists == false)
+                {
+                    operationLog.warn("It is not possible to disable project samples feature. The system still considers "
+                            + Constants.PROJECT_SAMPLES_ENABLED_KEY + "=true.");
+                }
+            }
+            statement.close();
+        } finally
+        {
+            if (connection != null)
+            {
+                try
+                {
+                    connection.close();
+                } catch (Exception e)
+                {
+                    throw CheckedExceptionTunnel.wrapIfNecessary(e);
+                }
+            }
+        }
     }
 
 }
