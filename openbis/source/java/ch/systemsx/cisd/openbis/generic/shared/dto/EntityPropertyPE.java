@@ -142,7 +142,7 @@ public abstract class EntityPropertyPE extends HibernateAbstractRegistrationHold
                 }
             } else if(DataTypeCode.INTEGER.equals(entityProperty.getEntityTypePropertyType().getPropertyType().getType().getCode()) ||
                     DataTypeCode.REAL.equals(entityProperty.getEntityTypePropertyType().getPropertyType().getType().getCode())) {
-                fieldValue = SortableNumberBridge.getNumberForLucene(fieldValue);
+                fieldValue = new SortableNumberBridge().objectToString(fieldValue);
             }
 
             Field field = new Field(fieldFullName, fieldValue, luceneOptions.getStore(), luceneOptions.getIndex());

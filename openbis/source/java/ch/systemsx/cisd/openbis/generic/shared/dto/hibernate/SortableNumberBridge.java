@@ -22,21 +22,21 @@ public class SortableNumberBridge implements TwoWayFieldBridge {
     
     @Override
     public String objectToString(Object object) {
-        return getNumberForLucene((Number) object);
+        String value = null;
+        if(object instanceof String) {
+            value = getNumberForLucene((String) object);
+        } else if(object instanceof Number) {
+            value = getNumberForLucene((Number) object);
+        } else {
+            value = object.toString();
+        }
+        return value;
     }
     
     @Override
     public Object get(String name, Document document)
     {
-        return getObjectFromString(document.getField(name).stringValue());
-    }
-    
-    //
-    // Util Methods
-    //
-    private static int LUCENE_INTEGER_PADDING = 19; //On the UI a integer field can't have more than 18 characters, a long can have 19 taking out the minus sign
-    
-    public static Object getObjectFromString(String number) {
+        String number = document.getField(name).stringValue();
         try {
             return Long.parseLong(number);
         } catch(Exception ex) {
@@ -48,7 +48,12 @@ public class SortableNumberBridge implements TwoWayFieldBridge {
         }
     }
     
-    public static String getNumberForLucene(String number) {
+    //
+    // Util Methods
+    //
+    private static int LUCENE_INTEGER_PADDING = 19; //On the UI a integer field can't have more than 18 characters, a long can have 19 taking out the minus sign
+    
+    private static String getNumberForLucene(String number) {
         try {
             return getNumberForLucene(Long.parseLong(number));
         } catch(Exception ex) {
@@ -60,7 +65,7 @@ public class SortableNumberBridge implements TwoWayFieldBridge {
         }
     }
     
-    public static String getNumberForLucene(Number number) {
+    private static String getNumberForLucene(Number number) {
         if(number instanceof Integer || number instanceof Long) {
             return getIntegerAsStringForLucene(number);
         } if(number instanceof Float || number instanceof Double) {
@@ -74,6 +79,7 @@ public class SortableNumberBridge implements TwoWayFieldBridge {
         String rawInteger = number.toString();
         
         StringBuilder paddedInteger = new StringBuilder();
+        
 //        if(rawInteger.startsWith("-")) {
 //            rawInteger = rawInteger.substring(1, rawInteger.length());
 //            paddedInteger.append('-');

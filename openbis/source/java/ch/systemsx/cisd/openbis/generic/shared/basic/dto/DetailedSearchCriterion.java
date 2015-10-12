@@ -58,7 +58,7 @@ public class DetailedSearchCriterion implements Serializable
     public DetailedSearchCriterion(DetailedSearchField field, CompareType type, Number value)
     {
         this.field = field;
-        this.value = SortableNumberBridge.getNumberForLucene(value);
+        this.value = new SortableNumberBridge().objectToString(value);
         this.type = type;
     }
     
