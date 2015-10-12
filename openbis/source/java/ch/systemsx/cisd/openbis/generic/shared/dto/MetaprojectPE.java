@@ -47,6 +47,7 @@ import org.hibernate.annotations.GenerationTime;
 import org.hibernate.search.annotations.Analyzer;
 import org.hibernate.search.annotations.DocumentId;
 import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.FieldBridge;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Store;
 
@@ -54,6 +55,7 @@ import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
+import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SortableNumberBridge;
 import ch.systemsx.cisd.openbis.generic.shared.search.IgnoreCaseAnalyzer;
 import ch.systemsx.cisd.openbis.generic.shared.util.EqualsHashUtils;
 
@@ -85,6 +87,7 @@ public class MetaprojectPE implements Serializable, IIdHolder
     @Id
     @SequenceGenerator(name = SequenceNames.METAPROJECTS_SEQUENCE, sequenceName = SequenceNames.METAPROJECTS_SEQUENCE, allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.METAPROJECTS_SEQUENCE)
+    @FieldBridge(impl = SortableNumberBridge.class)
     @DocumentId(name = SearchFieldConstants.ID)
     public Long getId()
     {

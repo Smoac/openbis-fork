@@ -32,10 +32,12 @@ import javax.validation.constraints.NotNull;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.hibernate.search.annotations.DocumentId;
+import org.hibernate.search.annotations.FieldBridge;
 
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
+import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SortableNumberBridge;
 import ch.systemsx.cisd.openbis.generic.shared.util.EqualsHashUtils;
 
 /**
@@ -71,6 +73,7 @@ public class MetaprojectAssignmentPE implements Serializable, IIdHolder
     @Id
     @SequenceGenerator(name = SequenceNames.METAPROJECT_ASSIGNMENTS_SEQUENCE, sequenceName = SequenceNames.METAPROJECT_ASSIGNMENTS_SEQUENCE, allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.METAPROJECT_ASSIGNMENTS_SEQUENCE)
+    @FieldBridge(impl = SortableNumberBridge.class)
     @DocumentId(name = SearchFieldConstants.ID)
     public Long getId()
     {
