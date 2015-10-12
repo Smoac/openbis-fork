@@ -117,7 +117,7 @@ public class DetailedQueryBuilder
                                 LuceneQueryBuilder.adaptQuery(fieldUserQuery,
                                         useWildcardSearchMode, false);
                         fieldAnalyzer = new IgnoreCaseAnalyzer();
-                    } else
+                    } else if(criterion.getType() != null)
                     {
                         switch(criterion.getType()) {
                             case LESS_THAN:
@@ -137,6 +137,9 @@ public class DetailedQueryBuilder
                                 break;
                         }
                         
+                        fieldAnalyzer = searchAnalyzer;
+                    } else {
+                        fieldPattern = LuceneQueryBuilder.adaptQuery(criterion.getValue(), useWildcardSearchMode);
                         fieldAnalyzer = searchAnalyzer;
                     }
 
