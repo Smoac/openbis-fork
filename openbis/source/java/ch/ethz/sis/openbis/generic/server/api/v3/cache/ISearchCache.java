@@ -22,10 +22,19 @@ package ch.ethz.sis.openbis.generic.server.api.v3.cache;
 public interface ISearchCache<CRITERIA, FETCH_OPTIONS, OBJECT>
 {
 
+    /**
+     * WARNING: The implementation of this method might be not thread-safe
+     */
     public void put(SearchCacheKey<CRITERIA, FETCH_OPTIONS> key, SearchCacheEntry<OBJECT> entry);
 
+    /**
+     * WARNING: The implementation of this method might be not thread-safe
+     */
     public SearchCacheEntry<OBJECT> get(SearchCacheKey<CRITERIA, FETCH_OPTIONS> key);
 
+    /**
+     * WARNING: The implementation of this method might be not thread-safe
+     */
     public void remove(SearchCacheKey<CRITERIA, FETCH_OPTIONS> key);
 
 }

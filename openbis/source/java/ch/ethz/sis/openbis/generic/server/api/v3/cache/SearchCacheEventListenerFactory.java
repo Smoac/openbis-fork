@@ -27,10 +27,17 @@ import net.sf.ehcache.event.CacheEventListenerFactory;
 public class SearchCacheEventListenerFactory extends CacheEventListenerFactory
 {
 
+    private static SearchCacheEventListener listener = new SearchCacheEventListener();
+
     @Override
     public CacheEventListener createCacheEventListener(Properties arg0)
     {
-        return new SearchCacheEventListener();
+        return listener;
+    }
+
+    public static SearchCacheEventListener getListener()
+    {
+        return listener;
     }
 
 }

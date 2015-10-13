@@ -51,7 +51,7 @@ public abstract class AbstractSearchMethodExecutor<OBJECT, OBJECT_PE, CRITERIA e
     private final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, getClass());
 
     @Autowired
-    private ISearchCache<CRITERIA, FETCH_OPTIONS, OBJECT> cache;
+    protected ISearchCache<CRITERIA, FETCH_OPTIONS, OBJECT> cache;
 
     protected abstract ISearchObjectExecutor<CRITERIA, OBJECT_PE> getSearchExecutor();
 
@@ -190,6 +190,7 @@ public abstract class AbstractSearchMethodExecutor<OBJECT, OBJECT_PE, CRITERIA e
                 entry.setObjects(doSearchAndTranslate(context, criteria, fetchOptions));
                 SearchCacheKey<CRITERIA, FETCH_OPTIONS> key =
                         new SearchCacheKey<CRITERIA, FETCH_OPTIONS>(context.getSession().getSessionToken(), criteria, fetchOptions);
+                // put the entry to the cache again to trigger the size recalculation
                 cache.put(key, entry);
             } else
             {

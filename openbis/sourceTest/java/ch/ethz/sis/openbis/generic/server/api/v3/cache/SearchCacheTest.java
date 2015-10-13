@@ -16,6 +16,9 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.cache;
 
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.fail;
+
 import java.io.ByteArrayInputStream;
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -25,6 +28,7 @@ import net.sf.ehcache.CacheManager;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Level;
+import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -59,8 +63,7 @@ public class SearchCacheTest
     @Test
     public void testCreateCacheWithoutSizeSpecified()
     {
-        SearchCache cache = createCache(FileUtils.ONE_GB, null);
-        cache.get(null);
+        createCache(FileUtils.ONE_GB, null);
 
         AssertionUtil
                 .assertContainsLines(
@@ -73,8 +76,7 @@ public class SearchCacheTest
     @Test
     public void testCreateCacheWithAbsoluteSizeSpecified()
     {
-        SearchCache cache = createCache(FileUtils.ONE_GB, "128m");
-        cache.get(null);
+        createCache(FileUtils.ONE_GB, "128m");
 
         AssertionUtil
                 .assertContainsLines(
@@ -85,8 +87,7 @@ public class SearchCacheTest
     @Test
     public void testCreateCacheWithRelativeSizeSpecified()
     {
-        SearchCache cache = createCache(FileUtils.ONE_GB, "10%");
-        cache.get(null);
+        createCache(FileUtils.ONE_GB, "10%");
 
         AssertionUtil
                 .assertContainsLines(
@@ -97,26 +98,21 @@ public class SearchCacheTest
     @Test
     public void testCreateCacheWithIncorrectSizeSpecified()
     {
-        SearchCache cache = createCache(FileUtils.ONE_GB, "xyz");
-        cache.get(null);
-
-        AssertionUtil
-                .assertContainsLines(
-                        "WARN  OPERATION.SearchCache - Cache size was set to 'xyz' in 'ch.ethz.sis.openbis.v3.searchcache.size' system property."
-                                + " This value is incorrect. Please set the property to an absolute value like '512m' or '1g'."
-                                + " You can also use a value like '25%' to set the cache size relative to the memory available to the JVM.",
-                        logRecorder.getLogContent());
-
-        AssertionUtil
-                .assertContainsLines(
-                        "INFO  OPERATION.SearchCache - Cache size has been set to its default value."
-                                + " The default value is 25% (256m) of the memory available to the JVM (1g)."
-                                + " If you would like to change this value, then please set 'ch.ethz.sis.openbis.v3.searchcache.size' system property in openbis.conf file."
-                        , logRecorder.getLogContent());
+        try
+        {
+            createCache(FileUtils.ONE_GB, "xyz");
+            fail();
+        } catch (IllegalArgumentException e)
+        {
+            assertEquals(e.getMessage(),
+                    "Cache size was set to 'xyz' in 'ch.ethz.sis.openbis.v3.searchcache.size' system property."
+                            + " This value is incorrect. Please set the property to an absolute value like '512m' or '1g'."
+                            + " You can also use a value like '25%' to set the cache size relative to the memory available to the JVM.");
+        }
     }
 
     @Test
-    public void testPutItemsToCacheWithEvicting()
+    public void testPutDifferentKeysWithEntriesThatEventuallyDoNotFitInTheCache()
     {
         SearchCache cache = createCache(FileUtils.ONE_GB, "3k");
 
@@ -154,12 +150,59 @@ public class SearchCacheTest
                 logRecorder.getLogContent());
     }
 
+    @Test
+    public void testPutExistingKeyWithNewEntryThatDoesNotFitInTheCache()
+    {
+        SearchCache cache = createCache(FileUtils.ONE_GB, "1k");
+
+        SearchCacheKey key = createCacheKey("session1");
+        SearchCacheEntry entry = new SearchCacheEntry();
+
+        logRecorder.resetLogContent();
+        cache.put(key, entry);
+
+        AssertionUtil.assertMatches(
+                "(?s).*Cache entry ([0-9]+) that contains search result with 0 objects has been put to the cache. Cache now contains 1 entry..*",
+                logRecorder.getLogContent());
+
+        logRecorder.resetLogContent();
+
+        entry = new SearchCacheEntry();
+        entry.setObjects(Arrays.asList(new byte[(int) (2 * FileUtils.ONE_KB)]));
+        cache.put(key, entry);
+
+        Assert.assertNull(cache.get(key));
+    }
+
+    @Test
+    public void testPutExistingKeyWithUpdatedEntryThatDoesNotFitInTheCache()
+    {
+        SearchCache cache = createCache(FileUtils.ONE_GB, "1k");
+
+        SearchCacheKey key = createCacheKey("session1");
+        SearchCacheEntry entry = new SearchCacheEntry();
+
+        logRecorder.resetLogContent();
+        cache.put(key, entry);
+
+        AssertionUtil.assertMatches(
+                "(?s).*Cache entry ([0-9]+) that contains search result with 0 objects has been put to the cache. Cache now contains 1 entry..*",
+                logRecorder.getLogContent());
+
+        logRecorder.resetLogContent();
+
+        entry.setObjects(Arrays.asList(new byte[(int) (2 * FileUtils.ONE_KB)]));
+        cache.put(key, entry);
+
+        Assert.assertNull(cache.get(key));
+    }
+
     private SearchCache createCache(final long memorySize, final String cacheSize)
     {
         String managerConfig = "<ehcache name='" + UUID.randomUUID() + "'></ehcache>";
         final CacheManager manager = new CacheManager(new ByteArrayInputStream(managerConfig.getBytes()));
 
-        return new SearchCache()
+        SearchCache cache = new SearchCache()
             {
                 @Override
                 protected long getMemorySize()
@@ -185,6 +228,8 @@ public class SearchCacheTest
                     return manager;
                 }
             };
+        cache.initCache();
+        return cache;
     }
 
     private SearchCacheKey createCacheKey(String sessionToken)

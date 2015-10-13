@@ -47,15 +47,25 @@ public class AbstractMethodExecutor
         try
         {
             T result = action.execute(context);
-            daoFactory.getSessionFactory().getCurrentSession().flush();
+            flushCurrentSession();
             return result;
         } catch (Throwable t)
         {
             throw ExceptionUtils.create(context, t);
         } finally
         {
-            daoFactory.getSessionFactory().getCurrentSession().clear();
+            clearCurrentSession();
         }
+    }
+
+    protected void clearCurrentSession()
+    {
+        daoFactory.getSessionFactory().getCurrentSession().clear();
+    }
+
+    protected void flushCurrentSession()
+    {
+        daoFactory.getSessionFactory().getCurrentSession().flush();
     }
 
     protected Session getSession(String sessionToken)

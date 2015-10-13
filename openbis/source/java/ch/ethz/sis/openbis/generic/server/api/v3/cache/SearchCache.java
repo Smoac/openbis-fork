@@ -16,6 +16,8 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.cache;
 
+import javax.annotation.PostConstruct;
+
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
@@ -68,10 +70,24 @@ public class SearchCache<CRITERIA, FETCH_OPTIONS, OBJECT> implements ISearchCach
         }
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void put(SearchCacheKey<CRITERIA, FETCH_OPTIONS> key, SearchCacheEntry<OBJECT> entry)
     {
-        getCache().put(new Element(key, entry));
+        Element element = getCache().get(key);
+
+        if (element == null)
+        {
+            getCache().put(new Element(key, entry));
+        } else
+        {
+            // do not call put() when updating an existing entry as the eviction won't work properly
+            SearchCacheEntry<OBJECT> existingEntry = (SearchCacheEntry<OBJECT>) element.getObjectValue();
+            existingEntry.setObjects(entry.getObjects());
+            // manually log update message because the cache does not log anything during recalculateSize() call
+            SearchCacheEventListenerFactory.getListener().notifyElementUpdated(getCache(), element);
+            getCache().recalculateSize(key);
+        }
     }
 
     @Override
@@ -80,13 +96,14 @@ public class SearchCache<CRITERIA, FETCH_OPTIONS, OBJECT> implements ISearchCach
         getCache().remove(key);
     }
 
-    private synchronized Cache getCache()
+    @PostConstruct
+    Cache initCache()
     {
         Cache cache = getCacheManager().getCache(CACHE_NAME);
 
         if (cache == null)
         {
-            operationLog.info("Creating the cache");
+            operationLog.info("Creating the cache.");
 
             CacheConfiguration config = new CacheConfiguration();
             config.setName(CACHE_NAME);
@@ -102,9 +119,17 @@ public class SearchCache<CRITERIA, FETCH_OPTIONS, OBJECT> implements ISearchCach
 
             cache = new Cache(config);
             getCacheManager().addCache(cache);
+        } else
+        {
+            operationLog.info("The cache already exists. It must have been configured in ehcache.xml file.");
         }
 
         return cache;
+    }
+
+    private Cache getCache()
+    {
+        return getCacheManager().getCache(CACHE_NAME);
     }
 
     private long getCacheSize()
@@ -133,10 +158,9 @@ public class SearchCache<CRITERIA, FETCH_OPTIONS, OBJECT> implements ISearchCach
                     return cacheSize;
                 } catch (IllegalArgumentException e2)
                 {
-                    operationLog.warn("Cache size was set to '" + propertyValue + "' in '" + CACHE_SIZE_PROPERTY_NAME
+                    throw new IllegalArgumentException("Cache size was set to '" + propertyValue + "' in '" + CACHE_SIZE_PROPERTY_NAME
                             + "' system property. This value is incorrect. Please set the property to an absolute value like '512m' or '1g'."
                             + " You can also use a value like '25%' to set the cache size relative to the memory available to the JVM.");
-                    return getCacheDefaultSize();
                 }
             }
         }
