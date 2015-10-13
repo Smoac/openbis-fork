@@ -34,6 +34,10 @@ public class DAOFactoryTest extends AbstractDAOTest
         ((InitializingBean) daoFactory).afterPropertiesSet();
         assertEquals("", logRecorder.getLogContent());
 
+        configurer.getResolvedProps().setProperty(Constants.PROJECT_SAMPLES_ENABLED_KEY, "true");
+        ((InitializingBean) daoFactory).afterPropertiesSet();
+        assertEquals("", logRecorder.getLogContent());
+
         logRecorder.resetLogContent();
         configurer.getResolvedProps().setProperty(Constants.PROJECT_SAMPLES_ENABLED_KEY, "false");
         ((InitializingBean) daoFactory).afterPropertiesSet();

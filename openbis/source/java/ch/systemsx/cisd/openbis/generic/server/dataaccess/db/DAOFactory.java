@@ -339,7 +339,7 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
         Connection connection = null;
         try
         {
-            connection = context.getAdminDataSource().getConnection();
+            connection = context.getDataSource().getConnection();
             Statement statement = connection.createStatement();
             if (projectSamplesEnabled)
             {
