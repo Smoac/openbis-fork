@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 import java.io.Serializable;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.utils.SortableNumberBridgeUtils;
 import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SortableNumberBridge;
 
 /**
@@ -58,7 +59,7 @@ public class DetailedSearchCriterion implements Serializable
     public DetailedSearchCriterion(DetailedSearchField field, CompareType type, Number value)
     {
         this.field = field;
-        this.value = new SortableNumberBridge().objectToString(value);
+        this.value = SortableNumberBridgeUtils.getNumberForLucene((Number) value);
         this.type = type;
     }
     
