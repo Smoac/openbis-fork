@@ -82,23 +82,24 @@ public abstract class AbstractSearchMethodExecutor<OBJECT, OBJECT_PE, CRITERIA e
 
     private Collection<OBJECT> searchAndTranslate(IOperationContext context, CRITERIA criteria, FETCH_OPTIONS fetchOptions)
     {
-        operationLog.info("Cache mode: " + fetchOptions.getCacheMode());
+        CacheMode cacheMode = fetchOptions.getCacheMode();
+        operationLog.info("Cache mode: " + cacheMode);
 
-        if (CacheMode.NO_CACHE.equals(fetchOptions.getCacheMode()))
+        if (CacheMode.NO_CACHE.equals(cacheMode))
         {
             return doSearchAndTranslate(context, criteria, fetchOptions);
-        } else if (CacheMode.CACHE.equals(fetchOptions.getCacheMode()) || CacheMode.RELOAD_AND_CACHE.equals(fetchOptions.getCacheMode()))
+        } else if (CacheMode.CACHE.equals(cacheMode) || CacheMode.RELOAD_AND_CACHE.equals(cacheMode))
         {
             SearchCacheEntry<OBJECT> entry = getCacheEntry(context, criteria, fetchOptions);
             populateCacheEntry(context, criteria, fetchOptions, entry);
             return entry.getObjects();
         } else
         {
-            throw new IllegalArgumentException("Unsupported cache mode: " + fetchOptions.getCacheMode());
+            throw new IllegalArgumentException("Unsupported cache mode: " + cacheMode);
         }
     }
 
-    private Collection<OBJECT> doSearchAndTranslate(IOperationContext context, CRITERIA criteria, FETCH_OPTIONS fetchOptions)
+    protected Collection<OBJECT> doSearchAndTranslate(IOperationContext context, CRITERIA criteria, FETCH_OPTIONS fetchOptions)
     {
         operationLog.info("Searching...");
 
