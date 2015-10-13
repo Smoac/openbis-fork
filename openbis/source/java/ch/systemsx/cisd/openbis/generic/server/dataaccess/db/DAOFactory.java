@@ -343,6 +343,7 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
             Statement statement = connection.createStatement();
             if (projectSamplesEnabled)
             {
+                operationLog.info("Enable project samples by dropping the trigger 'disable_project_level_samples'.");
                 statement.executeUpdate("DROP TRIGGER IF EXISTS disable_project_level_samples ON samples_all");
             } else
             {
