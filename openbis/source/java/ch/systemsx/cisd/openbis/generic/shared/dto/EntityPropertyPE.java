@@ -128,7 +128,8 @@ public abstract class EntityPropertyPE extends HibernateAbstractRegistrationHold
             String fieldValue = entityProperty.tryGetUntypedValue();
             String fieldPrefix = name;
             String fieldFullName = fieldPrefix + getPropertyFieldName(entityProperty);
-
+            Field.Index indexingStrategy = luceneOptions.getIndex();
+            
             if (DataTypeCode.TIMESTAMP.equals(entityProperty.getEntityTypePropertyType().getPropertyType().getType().getCode()))
             {
                 try
@@ -143,9 +144,10 @@ public abstract class EntityPropertyPE extends HibernateAbstractRegistrationHold
             } else if(DataTypeCode.INTEGER.equals(entityProperty.getEntityTypePropertyType().getPropertyType().getType().getCode()) ||
                     DataTypeCode.REAL.equals(entityProperty.getEntityTypePropertyType().getPropertyType().getType().getCode())) {
                 fieldValue = new SortableNumberBridge().objectToString(fieldValue);
+                indexingStrategy = Field.Index.NOT_ANALYZED_NO_NORMS;
             }
-
-            Field field = new Field(fieldFullName, fieldValue, luceneOptions.getStore(), luceneOptions.getIndex());
+            
+            Field field = new Field(fieldFullName, fieldValue, luceneOptions.getStore(), indexingStrategy);
             field.setBoost(luceneOptions.getBoost());
             document.add(field);
         }

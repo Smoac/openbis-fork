@@ -34,12 +34,12 @@ public class SortableNumberBridgeUtils
         
         StringBuilder paddedInteger = new StringBuilder();
         
-//        if(rawInteger.startsWith("-")) {
-//            rawInteger = rawInteger.substring(1, rawInteger.length());
-//            paddedInteger.append('-');
-//        } else {
-//            paddedInteger.append('+');
-//        }
+        if(rawInteger.startsWith("-")) {
+            rawInteger = rawInteger.substring(1, rawInteger.length());
+            paddedInteger.append('-');
+        } else {
+            paddedInteger.append('+');
+        }
         
         if (rawInteger.length() > LUCENE_INTEGER_PADDING) {
             throw new IllegalArgumentException( "Try to pad on a number too big" );
