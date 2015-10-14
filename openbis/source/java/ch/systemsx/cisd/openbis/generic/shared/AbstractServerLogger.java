@@ -194,7 +194,12 @@ public abstract class AbstractServerLogger implements IServer
                 parameters[i] = LogMessagePrefixGenerator.UNDEFINED;
             } else
             {
-                parameters[i] = "'" + parameter + "'";
+                Object unquotedParameter = parameter;
+                if (parameter instanceof Collection)
+                {
+                    unquotedParameter = CollectionUtils.abbreviate((Collection<?>) unquotedParameter, 20);
+                } 
+                parameters[i] = "'" + unquotedParameter + "'";
             }
         }
 
