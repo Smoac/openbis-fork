@@ -130,7 +130,7 @@ public class SearchCache<CRITERIA, FETCH_OPTIONS, OBJECT> implements ISearchCach
         return getCacheManager().getCache(CACHE_NAME);
     }
 
-    private long getCacheSize()
+    protected long getCacheSize()
     {
         String propertyValue = getSystemProperty(CACHE_SIZE_PROPERTY_NAME);
 
@@ -164,7 +164,7 @@ public class SearchCache<CRITERIA, FETCH_OPTIONS, OBJECT> implements ISearchCach
         }
     }
 
-    private long getCacheDefaultSize()
+    protected long getCacheDefaultSize()
     {
         long memorySize = getMemorySize();
         long cacheSize = memorySize / 4;

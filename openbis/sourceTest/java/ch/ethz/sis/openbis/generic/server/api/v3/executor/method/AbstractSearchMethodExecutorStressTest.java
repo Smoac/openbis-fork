@@ -27,6 +27,7 @@ import java.util.UUID;
 
 import net.sf.ehcache.CacheManager;
 
+import org.apache.commons.io.FileUtils;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -55,6 +56,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 /**
  * @author pkupczyk
  */
+@SuppressWarnings({ "unchecked", "rawtypes" })
 public class AbstractSearchMethodExecutorStressTest
 {
 
@@ -64,105 +66,145 @@ public class AbstractSearchMethodExecutorStressTest
         LogInitializer.init();
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
     @Test
-    public void testMultipleThreads() throws InterruptedException
+    public void testConcurrencyWithoutEvicting() throws InterruptedException
     {
-        int SESSION_COUNT = 5;
-        int THREAD_COUNT = 5;
-        int KEY_VERSION_COUNT = 20;
-        int RUN_COUNT = 5;
-
-        for (int r = 0; r < RUN_COUNT; r++)
+        for (int run = 0; run < 5; run++)
         {
-            final TestSearchMethodExecutor executor = new TestSearchMethodExecutor();
+            TestSearchMethodExecutor executor = testConcurrency(0);
 
-            final List<String> sessionTokens = new ArrayList<String>();
-            for (int s = 0; s < SESSION_COUNT; s++)
-            {
-                Session session = new Session("user" + s, "token" + s, new Principal(), "", 1);
-                sessionTokens.add(session.getSessionToken());
-                executor.addSession(session.getSessionToken(), session);
-            }
-
-            final List<SearchCacheKey> keys = new ArrayList<SearchCacheKey>();
-            for (String sessionToken : sessionTokens)
-            {
-                for (int k = 0; k < KEY_VERSION_COUNT; k++)
-                {
-                    SpaceSearchCriteria spaceSearchCriteria = new SpaceSearchCriteria();
-                    spaceSearchCriteria.withCode().thatEquals(String.valueOf(k));
-                    keys.add(new SearchCacheKey(sessionToken, spaceSearchCriteria, new SpaceFetchOptions().cacheMode(CacheMode.CACHE)));
-
-                    ProjectSearchCriteria projectSearchCriteria = new ProjectSearchCriteria();
-                    projectSearchCriteria.withCode().thatEquals(String.valueOf(k));
-                    keys.add(new SearchCacheKey(sessionToken, projectSearchCriteria, new ProjectFetchOptions().cacheMode(CacheMode.CACHE)));
-
-                    ExperimentSearchCriteria experimentSearchCriteria = new ExperimentSearchCriteria();
-                    experimentSearchCriteria.withCode().thatEquals(String.valueOf(k));
-                    keys.add(new SearchCacheKey(sessionToken, experimentSearchCriteria, new ExperimentFetchOptions().cacheMode(CacheMode.CACHE)));
-
-                    SampleSearchCriteria sampleSearchCriteria = new SampleSearchCriteria();
-                    sampleSearchCriteria.withCode().thatEquals(String.valueOf(k));
-                    keys.add(new SearchCacheKey(sessionToken, sampleSearchCriteria, new SampleFetchOptions().cacheMode(CacheMode.CACHE)));
-                }
-            }
-
-            List<Thread> threads = new ArrayList<Thread>();
-
-            for (int t = 0; t < THREAD_COUNT; t++)
-            {
-                threads.add(new Thread(new Runnable()
-                    {
-                        @Override
-                        public void run()
-                        {
-                            for (int i = 0; i < keys.size() * 2; i++)
-                            {
-                                SearchCacheKey key = keys.get((int) (Math.random() * keys.size()));
-                                SearchResult searchResult = executor.search(key.getSessionToken(), key.getCriteria(), key.getFetchOptions());
-                                Assert.assertEquals(searchResult.getObjects().get(0), key);
-                            }
-
-                        }
-                    }));
-            }
-
-            for (Thread thread : threads)
-            {
-                thread.start();
-            }
-
-            for (Thread thread : threads)
-            {
-                thread.join();
-            }
-
-            StringBuilder error = new StringBuilder();
             for (Map.Entry<SearchCacheKey, Integer> entry : executor.getSearchCounts().entrySet())
             {
                 if (entry.getValue() != 1)
                 {
-                    error.append("Run " + r + " : " + entry.getValue() + " searches were executed instead of 1 for the key " + entry.getKey()
-                            + "\n");
+                    executor.addError("Run " + run + " : " + entry.getValue() + " searches were executed instead of 1 for the key " + entry.getKey());
                 }
             }
 
-            if (error.length() > 0)
+            if (executor.getErrors().size() > 0)
             {
-                Assert.fail(error.toString());
+                Assert.fail(String.join("\n", executor.getErrors()));
             }
         }
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    private class TestSearchMethodExecutor extends AbstractSearchMethodExecutor
+    @Test
+    public void testConcurrencyWithEvicting() throws InterruptedException
+    {
+        for (int run = 0; run < 5; run++)
+        {
+            TestSearchMethodExecutor executor = testConcurrency(10 * FileUtils.ONE_KB);
+
+            if (executor.getErrors().size() > 0)
+            {
+                Assert.fail(String.join("\n", executor.getErrors()));
+            }
+        }
+    }
+
+    private TestSearchMethodExecutor testConcurrency(long cacheSize) throws InterruptedException
+    {
+        int SESSION_COUNT = 5;
+        int THREAD_COUNT = 5;
+        int KEY_VERSION_COUNT = 20;
+
+        final TestSearchMethodExecutor executor = new TestSearchMethodExecutor(cacheSize);
+
+        final List<String> sessionTokens = new ArrayList<String>();
+        for (int s = 0; s < SESSION_COUNT; s++)
+        {
+            Session session = new Session("user" + s, "token" + s, new Principal(), "", 1);
+            sessionTokens.add(session.getSessionToken());
+            executor.addSession(session.getSessionToken(), session);
+        }
+
+        final List<SearchCacheKey> keys = new ArrayList<SearchCacheKey>();
+        for (String sessionToken : sessionTokens)
+        {
+            for (int k = 0; k < KEY_VERSION_COUNT; k++)
+            {
+                SpaceSearchCriteria spaceSearchCriteria = new SpaceSearchCriteria();
+                spaceSearchCriteria.withCode().thatEquals(String.valueOf(k));
+                SearchCacheKey spaceKey =
+                        new SearchCacheKey(sessionToken, spaceSearchCriteria, new SpaceFetchOptions().cacheMode(CacheMode.CACHE));
+                keys.add(spaceKey);
+                executor.setSearchResult(spaceKey, new RandomSizeArray(cacheSize));
+
+                ProjectSearchCriteria projectSearchCriteria = new ProjectSearchCriteria();
+                projectSearchCriteria.withCode().thatEquals(String.valueOf(k));
+                SearchCacheKey projectKey =
+                        new SearchCacheKey(sessionToken, projectSearchCriteria, new ProjectFetchOptions().cacheMode(CacheMode.CACHE));
+                keys.add(projectKey);
+                executor.setSearchResult(projectKey, new RandomSizeArray(cacheSize));
+
+                ExperimentSearchCriteria experimentSearchCriteria = new ExperimentSearchCriteria();
+                experimentSearchCriteria.withCode().thatEquals(String.valueOf(k));
+                SearchCacheKey experimentKey =
+                        new SearchCacheKey(sessionToken, experimentSearchCriteria, new ExperimentFetchOptions().cacheMode(CacheMode.CACHE));
+                keys.add(experimentKey);
+                executor.setSearchResult(experimentKey, new RandomSizeArray(cacheSize));
+
+                SampleSearchCriteria sampleSearchCriteria = new SampleSearchCriteria();
+                sampleSearchCriteria.withCode().thatEquals(String.valueOf(k));
+                SearchCacheKey sampleKey =
+                        new SearchCacheKey(sessionToken, sampleSearchCriteria, new SampleFetchOptions().cacheMode(CacheMode.CACHE));
+                keys.add(sampleKey);
+                executor.setSearchResult(sampleKey, new RandomSizeArray(cacheSize));
+            }
+        }
+
+        List<Thread> threads = new ArrayList<Thread>();
+
+        for (int t = 0; t < THREAD_COUNT; t++)
+        {
+            threads.add(new Thread(new Runnable()
+                {
+                    @Override
+                    public void run()
+                    {
+                        for (int i = 0; i < keys.size() * 2; i++)
+                        {
+                            SearchCacheKey key = keys.get((int) (Math.random() * keys.size()));
+                            SearchResult searchResult = executor.search(key.getSessionToken(), key.getCriteria(), key.getFetchOptions());
+
+                            Object actualResult = searchResult.getObjects().get(0);
+                            Object expectedResult = executor.getSearchResult(key);
+
+                            if (false == actualResult.equals(expectedResult))
+                            {
+                                executor.addError("Actual search result: " + actualResult + " but expected: " + expectedResult + " for key: "
+                                        + key);
+                            }
+                        }
+
+                    }
+                }));
+        }
+
+        for (Thread thread : threads)
+        {
+            thread.start();
+        }
+
+        for (Thread thread : threads)
+        {
+            thread.join();
+        }
+
+        return executor;
+    }
+
+    private static class TestSearchMethodExecutor extends AbstractSearchMethodExecutor
     {
         private Map<String, Session> sessions = new HashMap<>();
 
         private Map<SearchCacheKey, Integer> searchCounts = new HashMap<>();
 
-        public TestSearchMethodExecutor()
+        private Map<SearchCacheKey, Object> searchResults = new HashMap<>();
+
+        private List<String> errors = Collections.synchronizedList(new ArrayList<String>());
+
+        public TestSearchMethodExecutor(final long cacheSize)
         {
             String managerConfig = "<ehcache name='" + UUID.randomUUID() + "'></ehcache>";
             final CacheManager manager = new CacheManager(new ByteArrayInputStream(managerConfig.getBytes()));
@@ -174,7 +216,20 @@ public class AbstractSearchMethodExecutorStressTest
                     {
                         return manager;
                     }
+
+                    @Override
+                    protected long getCacheSize()
+                    {
+                        if (cacheSize > 0)
+                        {
+                            return cacheSize;
+                        } else
+                        {
+                            return super.getCacheSize();
+                        }
+                    }
                 };
+
             theCache.initCache();
             this.cache = theCache;
         }
@@ -200,12 +255,22 @@ public class AbstractSearchMethodExecutorStressTest
                 throw new RuntimeException(e);
             }
 
-            return Collections.singleton(key);
+            return Collections.singleton(searchResults.get(key));
         }
 
         public Map<SearchCacheKey, Integer> getSearchCounts()
         {
             return searchCounts;
+        }
+
+        public void setSearchResult(SearchCacheKey key, Object result)
+        {
+            searchResults.put(key, result);
+        }
+
+        public Object getSearchResult(SearchCacheKey key)
+        {
+            return searchResults.get(key);
         }
 
         void addSession(String sessionToken, Session session)
@@ -217,6 +282,16 @@ public class AbstractSearchMethodExecutorStressTest
         protected Session getSession(String sessionToken)
         {
             return sessions.get(sessionToken);
+        }
+
+        public void addError(String error)
+        {
+            errors.add(error);
+        }
+
+        public List<String> getErrors()
+        {
+            return errors;
         }
 
         @Override
@@ -241,6 +316,37 @@ public class AbstractSearchMethodExecutorStressTest
         protected void flushCurrentSession()
         {
             // nothing needed here in this test
+        }
+
+    }
+
+    private static class RandomSizeArray
+    {
+
+        private byte[] array;
+
+        public RandomSizeArray(long maxSize)
+        {
+            array = new byte[(int) (Math.random() * maxSize)];
+        }
+
+        @Override
+        public int hashCode()
+        {
+            return array.length;
+        }
+
+        @Override
+        public boolean equals(Object obj)
+        {
+            if (this == obj)
+                return true;
+            if (obj == null)
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            RandomSizeArray other = (RandomSizeArray) obj;
+            return array.length == other.array.length;
         }
 
     }
