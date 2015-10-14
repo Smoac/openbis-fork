@@ -28,6 +28,7 @@ import java.util.UUID;
 import net.sf.ehcache.CacheManager;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -83,7 +84,7 @@ public class AbstractSearchMethodExecutorStressTest
 
             if (executor.getErrors().size() > 0)
             {
-                Assert.fail(String.join("\n", executor.getErrors()));
+                Assert.fail(StringUtils.join(executor.getErrors(), "\n"));
             }
         }
     }
@@ -97,7 +98,7 @@ public class AbstractSearchMethodExecutorStressTest
 
             if (executor.getErrors().size() > 0)
             {
-                Assert.fail(String.join("\n", executor.getErrors()));
+                Assert.fail(StringUtils.join(executor.getErrors(), "\n"));
             }
         }
     }
