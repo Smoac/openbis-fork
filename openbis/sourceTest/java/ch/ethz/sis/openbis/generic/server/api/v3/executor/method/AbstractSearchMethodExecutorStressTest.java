@@ -25,8 +25,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import net.sf.ehcache.CacheManager;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.testng.Assert;
@@ -53,6 +51,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SpaceSearchCriteria;
 import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import net.sf.ehcache.CacheManager;
 
 /**
  * @author pkupczyk
@@ -165,7 +164,7 @@ public class AbstractSearchMethodExecutorStressTest
                     {
                         for (int i = 0; i < keys.size() * 2; i++)
                         {
-                            SearchCacheKey key = keys.get((int) (Math.random() * keys.size()));
+                            SearchCacheKey<AbstractObjectSearchCriteria, FetchOptions> key = keys.get((int) (Math.random() * keys.size()));
                             SearchResult searchResult = executor.search(key.getSessionToken(), key.getCriteria(), key.getFetchOptions());
 
                             Object actualResult = searchResult.getObjects().get(0);
