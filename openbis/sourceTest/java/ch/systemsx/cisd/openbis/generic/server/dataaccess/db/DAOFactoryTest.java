@@ -13,6 +13,7 @@ import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
 import ch.systemsx.cisd.openbis.generic.shared.Constants;
 
+@Test(groups = "db")
 public class DAOFactoryTest extends AbstractDAOTest
 {
     @Resource(name = ExposablePropertyPlaceholderConfigurer.PROPERTY_CONFIGURER_BEAN_NAME)
@@ -21,7 +22,7 @@ public class DAOFactoryTest extends AbstractDAOTest
     private BufferedAppender logRecorder;
 
     @BeforeMethod
-    public void setUp()
+    public void setUpLogRecorder()
     {
         logRecorder = new BufferedAppender(null, Level.INFO, ".*\\." + DAOFactory.class.getSimpleName());
     }
@@ -30,18 +31,14 @@ public class DAOFactoryTest extends AbstractDAOTest
     public void testEnableAndDisableProjectSamples() throws Exception
     {
         configurer.getResolvedProps().setProperty(Constants.PROJECT_SAMPLES_ENABLED_KEY, "true");
-        configurer.getResolvedProps().setProperty(Constants.PROJECT_SAMPLES_ENABLED_KEY, "true");
         ((InitializingBean) daoFactory).afterPropertiesSet();
-        assertEquals("", logRecorder.getLogContent());
-
-        configurer.getResolvedProps().setProperty(Constants.PROJECT_SAMPLES_ENABLED_KEY, "true");
-        ((InitializingBean) daoFactory).afterPropertiesSet();
-        assertEquals("", logRecorder.getLogContent());
+        assertEquals("Enable project samples by dropping the trigger 'disable_project_level_samples'.", 
+                logRecorder.getLogContent());
 
         logRecorder.resetLogContent();
-        configurer.getResolvedProps().setProperty(Constants.PROJECT_SAMPLES_ENABLED_KEY, "false");
+        configurer.getResolvedProps().setProperty(Constants.PROJECT_SAMPLES_ENABLED_KEY, "true");
         ((InitializingBean) daoFactory).afterPropertiesSet();
-        assertEquals("It is not possible to disable project samples feature. The system still considers project-samples-enabled=true.",
+        assertEquals("Enable project samples by dropping the trigger 'disable_project_level_samples'.", 
                 logRecorder.getLogContent());
 
         logRecorder.resetLogContent();
@@ -51,9 +48,16 @@ public class DAOFactoryTest extends AbstractDAOTest
                 logRecorder.getLogContent());
 
         logRecorder.resetLogContent();
+        configurer.getResolvedProps().setProperty(Constants.PROJECT_SAMPLES_ENABLED_KEY, "false");
+        ((InitializingBean) daoFactory).afterPropertiesSet();
+        assertEquals("It is not possible to disable project samples feature. The system still considers project-samples-enabled=true.",
+                logRecorder.getLogContent());
+
+        logRecorder.resetLogContent();
         configurer.getResolvedProps().setProperty(Constants.PROJECT_SAMPLES_ENABLED_KEY, "true");
         ((InitializingBean) daoFactory).afterPropertiesSet();
-        assertEquals("", logRecorder.getLogContent());
+        assertEquals("Enable project samples by dropping the trigger 'disable_project_level_samples'.", 
+                logRecorder.getLogContent());
     }
 
 }
