@@ -27,7 +27,7 @@ public class DAOFactoryTest extends AbstractDAOTest
         logRecorder = new BufferedAppender(null, Level.INFO, ".*\\." + DAOFactory.class.getSimpleName());
     }
 
-//    @Test
+    @Test(priority = -1)
     public void testEnableAndDisableProjectSamples() throws Exception
     {
         configurer.getResolvedProps().setProperty(Constants.PROJECT_SAMPLES_ENABLED_KEY, "true");
