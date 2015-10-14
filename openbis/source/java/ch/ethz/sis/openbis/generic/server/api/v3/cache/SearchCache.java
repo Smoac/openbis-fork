@@ -97,7 +97,7 @@ public class SearchCache<CRITERIA, FETCH_OPTIONS, OBJECT> implements ISearchCach
     }
 
     @PostConstruct
-    Cache initCache()
+    public void initCache()
     {
         Cache cache = getCacheManager().getCache(CACHE_NAME);
 
@@ -123,8 +123,6 @@ public class SearchCache<CRITERIA, FETCH_OPTIONS, OBJECT> implements ISearchCach
         {
             operationLog.info("The cache already exists. It must have been configured in ehcache.xml file.");
         }
-
-        return cache;
     }
 
     private Cache getCache()

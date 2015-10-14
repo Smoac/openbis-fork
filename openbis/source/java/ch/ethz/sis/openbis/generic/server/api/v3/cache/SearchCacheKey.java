@@ -30,21 +30,36 @@ public class SearchCacheKey<CRITERIA, FETCH_OPTIONS> implements Serializable
 
     private String sessionToken;
 
-    private CRITERIA criterion;
+    private CRITERIA criteria;
 
     private FETCH_OPTIONS fetchOptions;
 
     public SearchCacheKey(String sessionToken, CRITERIA criteria, FETCH_OPTIONS fetchOptions)
     {
         this.sessionToken = sessionToken;
-        this.criterion = criteria;
+        this.criteria = criteria;
         this.fetchOptions = fetchOptions;
+    }
+
+    public String getSessionToken()
+    {
+        return sessionToken;
+    }
+
+    public CRITERIA getCriteria()
+    {
+        return criteria;
+    }
+
+    public FETCH_OPTIONS getFetchOptions()
+    {
+        return fetchOptions;
     }
 
     @Override
     public int hashCode()
     {
-        return sessionToken.hashCode() + criterion.getClass().hashCode() + fetchOptions.getClass().hashCode();
+        return sessionToken.hashCode() + criteria.getClass().hashCode() + fetchOptions.getClass().hashCode();
     }
 
     @Override
@@ -64,7 +79,7 @@ public class SearchCacheKey<CRITERIA, FETCH_OPTIONS> implements Serializable
         }
 
         SearchCacheKey<?, ?> other = (SearchCacheKey<?, ?>) obj;
-        return sessionToken.equals(other.sessionToken) && criterion.equals(other.criterion)
+        return sessionToken.equals(other.sessionToken) && criteria.equals(other.criteria)
                 && FetchOptionsMatcher.arePartsEqual(fetchOptions, other.fetchOptions);
     }
 }
