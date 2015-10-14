@@ -692,34 +692,16 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
         share1.mkdirs();
         FileUtilities.writeToFile(new File(share1, "share.properties"),
                 ShareFactory.WITHDRAW_SHARE_PROP + " = true");
-        File share2 = new File(store, "2");
-        share2.mkdirs();
 
-         String share =  SegmentedStoreUtils.findIncomingShare(incomingFolder, store, null, log);
-         assertEquals("2", share);
-    }
+        String share = SegmentedStoreUtils.findIncomingShare(incomingFolder, store, null, log);
 
-    @Test
-    public void testFindIncomingShareFailsWhenWithdrawn()
-    {
-        File incomingFolder = new File(workingDirectory, "incoming");
-        incomingFolder.mkdirs();
-        File share1 = new File(store, "1");
-        share1.mkdirs();
-        FileUtilities.writeToFile(new File(share1, "share.properties"),
-                ShareFactory.WITHDRAW_SHARE_PROP + " = true");
-
-        try {
-            SegmentedStoreUtils.findIncomingShare(incomingFolder, store, null, log);
-            fail("ConfigurationFailureException expected");
-        }
-        catch(ConfigurationFailureException ex) {
-            assertEquals("No share could be found for the following incoming folder: targets/unit-test-wd/"
+        assertEquals("1", share);
+        assertEquals(
+                "WARN: Incoming folder [targets/unit-test-wd/"
                         + SegmentedStoreUtilsTest.class.getName()
-                        + "/incoming", ex.getMessage());
-        }
+                        + "/incoming] can not be assigned to share 1 because its property "
+                        + "withdraw-share is set to true.\n", log.toString());
     }
-
     @Test
     public void testFindIncomingShareToBeIgnoredInShuffling()
     {

@@ -267,14 +267,12 @@ public class SegmentedStoreUtils
                         new ShareFactory().createShare(share, DUMMY_FREE_SPACE_PROVIDER, logger);
                 if (shareObject.isWithdrawShare())
                 {
-                    logger.log(LogLevel.WARN, "Incoming folder [" + incomingFolder.getName()
+                    logger.log(LogLevel.WARN, "Incoming folder [" + incomingFolder.getPath()
                             + "] can not be assigned to share " + shareObject.getShareId()
                             + " because its property " + ShareFactory.WITHDRAW_SHARE_PROP
                             + " is set to true.");
                 }
-                else {
-                    return share;
-                }
+                return share;
             }
             else {
                 testFile.delete();
