@@ -36,9 +36,9 @@ public class SortableNumberBridgeUtils
         
         if(rawInteger.startsWith("-")) {
             rawInteger = rawInteger.substring(1, rawInteger.length());
-            paddedInteger.append('-');
+//            paddedInteger.append('-');
         } else {
-            paddedInteger.append('+');
+//            paddedInteger.append('+');
         }
         
         if (rawInteger.length() > LUCENE_INTEGER_PADDING) {
