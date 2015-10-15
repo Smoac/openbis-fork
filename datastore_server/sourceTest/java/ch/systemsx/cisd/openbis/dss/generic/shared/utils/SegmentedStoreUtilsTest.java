@@ -757,51 +757,51 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
     
     
     @Test
-    public void testPreferredShareCannotbeAssignedIfWithdrawn()
+    public void testIncomingShareCannotbeAssignedIfWithdrawn()
     {
         File incomingFolder = new File(workingDirectory, "incoming");
         incomingFolder.mkdirs();
         File share1 = new File(store, "1");
         share1.mkdirs();
 
-        Integer preferredShareId = 2;
-        File share2 = new File(store, String.valueOf(preferredShareId));
+        Integer incomingShareId = 2;
+        File share2 = new File(store, String.valueOf(incomingShareId));
         share2.mkdirs();
         FileUtilities.writeToFile(new File(share2, "share.properties"),
                 ShareFactory.WITHDRAW_SHARE_PROP + " = true");
 
         try
         {
-            SegmentedStoreUtils.findIncomingShare(incomingFolder, store, preferredShareId, log);
+            SegmentedStoreUtils.findIncomingShare(incomingFolder, store, incomingShareId, log);
             fail("ConfigurationFailureException expected");
         }
         catch(ConfigurationFailureException ex) {
             assertEquals("Incoming folder [targets/unit-test-wd/"
                         + SegmentedStoreUtilsTest.class.getName()
-                        + "/incoming] can not be assigned to share " + String.valueOf(preferredShareId) + " because its property "
+                        + "/incoming] can not be assigned to share " + String.valueOf(incomingShareId) + " because its property "
                         + "withdraw-share is set to true.", ex.getMessage());
         }
     }
     
     @Test
-    public void testPreferredShareAssignment()
+    public void testIncomingShareAssignment()
     {
         File incomingFolder = new File(workingDirectory, "incoming");
         incomingFolder.mkdirs();
         File share1 = new File(store, "1");
         share1.mkdirs();
 
-        Integer preferredShareId = 2;
-        File share2 = new File(store, String.valueOf(preferredShareId));
+        Integer incomingShareId = 2;
+        File share2 = new File(store, String.valueOf(incomingShareId));
         share2.mkdirs();
 
-        String assignedShare = SegmentedStoreUtils.findIncomingShare(incomingFolder, store, preferredShareId, log);
+        String assignedShare = SegmentedStoreUtils.findIncomingShare(incomingFolder, store, incomingShareId, log);
 
-        assertEquals(String.valueOf(preferredShareId), assignedShare);
+        assertEquals(String.valueOf(incomingShareId), assignedShare);
         assertEquals(
                 "INFO: Incoming folder [targets/unit-test-wd/"
                         + SegmentedStoreUtilsTest.class.getName()
-                        + "/incoming] is assigned to preferred share " + String.valueOf(preferredShareId) + ".\n", log.toString());
+                        + "/incoming] is assigned to incoming share " + String.valueOf(incomingShareId) + ".\n", log.toString());
     }
 
     private File dataSetFile(String shareId, boolean empty)

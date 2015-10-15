@@ -178,9 +178,9 @@ public class SegmentedStoreUtils
      * Returns first the id of the first incoming share folder of specified store root which allows to move a file from specified incoming folder to
      * the incoming share.
      */
-    public static String findIncomingShare(File incomingFolder, File storeRoot, Integer preferredShareIdOrNull, ISimpleLogger logger)
+    public static String findIncomingShare(File incomingFolder, File storeRoot, Integer incomingShareIdOrNull, ISimpleLogger logger)
     {
-        File matchingShare = findShare(incomingFolder, storeRoot, preferredShareIdOrNull, logger);
+        File matchingShare = findShare(incomingFolder, storeRoot, incomingShareIdOrNull, logger);
         return matchingShare.getName();
     }
 
@@ -214,9 +214,9 @@ public class SegmentedStoreUtils
         return testFile;
     }
 
-    private static File findShare(File incomingFolder, File storeRoot, final Integer preferredShareIdOrNull, ISimpleLogger logger)
+    private static File findShare(File incomingFolder, File storeRoot, final Integer incomingShareIdOrNull, ISimpleLogger logger)
     {
-        if( preferredShareIdOrNull != null) 
+        if( incomingShareIdOrNull != null) 
         {
             File[] shares = getShares(storeRoot, new FileFilter()
             {
@@ -228,15 +228,15 @@ public class SegmentedStoreUtils
                         return false;
                     }
                     String name = pathname.getName();
-                    Pattern p = Pattern.compile("\\b" + String.valueOf(preferredShareIdOrNull + "\\b"));
+                    Pattern p = Pattern.compile("\\b" + String.valueOf(incomingShareIdOrNull + "\\b"));
                     return p.matcher(name).matches();
                 }
             });
 
             if(shares.length != 1)
             {
-                throw new ConfigurationFailureException("Preferred share: " +
-                        preferredShareIdOrNull + " could not be found for the following incoming folder: "  + incomingFolder.getAbsolutePath());
+                throw new ConfigurationFailureException("Incoming share: " +
+                        incomingShareIdOrNull + " could not be found for the following incoming folder: "  + incomingFolder.getAbsolutePath());
             }
             
             File share = shares[0];
@@ -251,7 +251,7 @@ public class SegmentedStoreUtils
                         + " is set to true.");
             }
             logger.log(LogLevel.INFO, "Incoming folder [" + incomingFolder.getPath()
-                    + "] is assigned to preferred share " + shares[0].getName() +".");
+                    + "] is assigned to incoming share " + shares[0].getName() + ".");
             return shares[0];
         }
 
