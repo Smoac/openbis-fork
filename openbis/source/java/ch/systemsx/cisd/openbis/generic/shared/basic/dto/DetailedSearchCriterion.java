@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 import java.io.Serializable;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.utils.SortableNumberBridgeUtils;
-import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SortableNumberBridge;
 
 /**
  * @author Izabela Adamczyk
