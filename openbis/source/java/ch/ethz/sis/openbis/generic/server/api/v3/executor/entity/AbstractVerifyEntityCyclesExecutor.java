@@ -17,8 +17,8 @@
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.entity;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -51,7 +51,7 @@ public abstract class AbstractVerifyEntityCyclesExecutor<ENTITY_PE> implements I
 
     private Map<Long, Collection<Long>> getGraph(IOperationContext context, Collection<ENTITY_PE> entities)
     {
-        Map<Long, Collection<Long>> relationsMap = new HashMap<Long, Collection<Long>>();
+        Map<Long, Collection<Long>> relationsMap = new LinkedHashMap<Long, Collection<Long>>();
         Set<Long> currentLevelIds = new HashSet<Long>();
         Set<Long> visitedIds = new HashSet<Long>();
 
