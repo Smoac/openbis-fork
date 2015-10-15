@@ -3,14 +3,32 @@
 
 	<diskStore path="java.io.tmpdir" />
 
-	<!-- // The default cache configuration for (see warnings in the server 
-		startup log): // * ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPropertyPE 
-		// * ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPropertyPE // 
-		* ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE.materialProperties 
-		// * ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE.experimentProperties 
-		// and: // * org.hibernate.cache.UpdateTimestampsCache // * org.hibernate.cache.StandardQueryCache -->
+	<!-- 
+	// The default cache configuration for (see warnings in the server startup log): 
+	// * ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPropertyPE 
+	// * ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPropertyPE 
+	// * ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE.materialProperties 
+	// * ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE.experimentProperties 
+	// and: 
+	// * org.hibernate.cache.UpdateTimestampsCache
+	// * org.hibernate.cache.StandardQueryCache 
+	-->
 	<defaultCache maxElementsInMemory="1000000" eternal="true"
 		overflowToDisk="false" diskPersistent="false"
 		memoryStoreEvictionPolicy="LFU" />
+
+	<!-- 
+	
+	V3 Search Cache advanced configuration. 
+	Please uncomment it only if you want to fine-tune the search cache configuration. 
+	If you want to change the cache size only, please leave this commented out and set the size in openbis.conf file instead.
+
+	<cache name="searchCache" eternal="false" maxBytesLocalHeap="512m"
+		overflowToDisk="false" diskPersistent="false" timeToIdleSeconds="3600"
+		timeToLiveSeconds="0" memoryStoreEvictionPolicy="LRU">
+		<cacheEventListenerFactory class="ch.ethz.sis.openbis.generic.server.api.v3.cache.SearchCacheEventListenerFactory" />
+		<sizeOfPolicy maxDepth="10000000" maxDepthExceededBehavior="continue"/>
+	</cache>
+	-->
 
 </ehcache>
