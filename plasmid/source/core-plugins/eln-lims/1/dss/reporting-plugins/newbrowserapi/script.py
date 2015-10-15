@@ -690,8 +690,9 @@ def getDescendantsTreePermIdsStringSet(samples):
 		descendantsQueue = [sample];
 		while len(descendantsQueue) > 0:
 			queueSample = descendantsQueue.pop();
-			descendantsPermIds.add(queueSample.getPermId().getPermId());
-			if queueSample.getFetchOptions().hasChildren():
-				for child in queueSample.getChildren():
-					descendantsQueue.append(child);
+			if queueSample.getPermId().getPermId() not in descendantsPermIds:
+				descendantsPermIds.add(queueSample.getPermId().getPermId());
+				if queueSample.getFetchOptions().hasChildren():
+					for child in queueSample.getChildren():
+						descendantsQueue.append(child);
 	return descendantsPermIds;
