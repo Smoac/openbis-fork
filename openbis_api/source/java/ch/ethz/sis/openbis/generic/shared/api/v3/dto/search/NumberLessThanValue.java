@@ -21,13 +21,13 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author juanf
  */
-@JsonObject("dto.search.NumberLessToValue")
-public class NumberLessToValue extends AbstractNumberValue
+@JsonObject("dto.search.NumberLessThanValue")
+public class NumberLessThanValue extends AbstractNumberValue
 {
 
     private static final long serialVersionUID = 1L;
 
-    public NumberLessToValue(Number number)
+    public NumberLessThanValue(Number number)
     {
         super(number);
     }

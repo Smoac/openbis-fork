@@ -21,13 +21,13 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author juanf
  */
-@JsonObject("dto.search.NumberGreaterOrEqualToValue")
-public class NumberGreaterOrEqualToValue extends AbstractNumberValue
+@JsonObject("dto.search.NumberGreaterThanValue")
+public class NumberGreaterThanValue extends AbstractNumberValue
 {
 
     private static final long serialVersionUID = 1L;
 
-    public NumberGreaterOrEqualToValue(Number number)
+    public NumberGreaterThanValue(Number number)
     {
         super(number);
     }
@@ -35,7 +35,7 @@ public class NumberGreaterOrEqualToValue extends AbstractNumberValue
     @Override
     public String toString()
     {
-        return "greater or equal to '" + getValue() + "'";
+        return "greater to '" + getValue() + "'";
     }
 
 }
