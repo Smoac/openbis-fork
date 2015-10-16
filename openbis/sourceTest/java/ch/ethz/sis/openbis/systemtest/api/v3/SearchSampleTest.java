@@ -843,7 +843,7 @@ public class SearchSampleTest extends AbstractSampleTest
     
     private String getCodePropertyPairs(List<Sample> samples, String propertyCode) {
         StringBuilder builder = new StringBuilder();
-        
+        builder.append("SEARCH TEST RESULT: ");
         for(Sample sample : samples) {
             builder.append(sample.getCode() + ":" + sample.getProperties().get(propertyCode) + " ");
         }
@@ -864,11 +864,16 @@ public class SearchSampleTest extends AbstractSampleTest
         sortByCodeFO.sortBy().code().asc();
         sortByCodeFO.withProperties();
         
+        //Equals
+        SampleSearchCriteria criteriaE = new SampleSearchCriteria();
+        criteriaE.withNumberProperty("SIZE").thatEquals(666);
+        List<Sample> samplesE = search(sessionToken, criteriaE, sortByCodeFO);
+        assertSampleIdentifiersInOrder(samplesE, "/CISD/CP-TEST-3");
+        
         //Less
         SampleSearchCriteria criteriaL = new SampleSearchCriteria();
         criteriaL.withNumberProperty("SIZE").thatIsLessTo(666);
         List<Sample> samplesL = search(sessionToken, criteriaL, sortByCodeFO);
-        System.out.println(getCodePropertyPairs(samplesL, "SIZE"));
         assertSampleIdentifiersInOrder(samplesL, "/CISD/CP-TEST-1", "/CISD/CP-TEST-2");
         
         //Less or Equals
