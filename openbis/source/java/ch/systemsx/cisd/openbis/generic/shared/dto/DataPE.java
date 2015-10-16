@@ -71,7 +71,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.NullBridge;
 import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
-import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SortableNumberBridge;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
@@ -628,7 +627,6 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
     @Id
     @SequenceGenerator(name = SequenceNames.DATA_SEQUENCE, sequenceName = SequenceNames.DATA_SEQUENCE, allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.DATA_SEQUENCE)
-    @FieldBridge(impl = SortableNumberBridge.class)
     @DocumentId(name = SearchFieldConstants.ID)
     public Long getId()
     {

@@ -31,6 +31,8 @@ import org.apache.lucene.search.Query;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.detailed.DetailedQueryBuilder;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.detailed.NumberRangeCalculator;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CompareType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IAssociationCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
@@ -189,7 +191,7 @@ public class LuceneQueryBuilder
     }
 
     // creates a query where any field matches the given pattern
-    public static Query parseQuery(final List<String> fieldNames,
+    public static Query parseQuery(final CompareType type, final List<String> fieldNames,
             final List<String> searchPatterns, List<Analyzer> analyzers)
             throws UserFailureException
     {
@@ -200,8 +202,12 @@ public class LuceneQueryBuilder
             String fieldName = fieldNames.get(i);
             String searchPattern = searchPatterns.get(i);
             Analyzer analyzer = analyzers.get(i);
-
-            Query query = parseQuery(fieldName, searchPattern, analyzer);
+            Query query = null;
+            if(!fieldName.equals("id") && type != null && (NumberRangeCalculator.isInteger(searchPattern) || NumberRangeCalculator.isReal(searchPattern))) {
+                query = NumberRangeCalculator.getRangeQuery(type, fieldName, searchPattern);
+            } else {
+                query = parseQuery(fieldName, searchPattern, analyzer);
+            }
             resultQuery.add(query, Occur.SHOULD);
         }
         return resultQuery;

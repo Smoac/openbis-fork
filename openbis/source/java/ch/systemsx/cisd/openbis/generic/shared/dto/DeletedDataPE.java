@@ -40,7 +40,6 @@ import org.hibernate.search.annotations.FieldBridge;
 import ch.systemsx.cisd.common.reflection.ModifiedShortPrefixToStringStyle;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
-import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SortableNumberBridge;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.util.EqualsHashUtils;
 
@@ -70,7 +69,6 @@ public class DeletedDataPE extends AbstractDeletedEntityPE
     @Id
     @SequenceGenerator(name = SequenceNames.DATA_SEQUENCE, sequenceName = SequenceNames.DATA_SEQUENCE, allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.DATA_SEQUENCE)
-    @FieldBridge(impl = SortableNumberBridge.class)
     @DocumentId(name = SearchFieldConstants.ID)
     public Long getId()
     {

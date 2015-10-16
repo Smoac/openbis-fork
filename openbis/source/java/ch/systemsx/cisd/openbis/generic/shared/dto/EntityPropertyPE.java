@@ -31,7 +31,9 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.lucene.document.Document;
+import org.apache.lucene.document.DoubleField;
 import org.apache.lucene.document.Field;
+import org.apache.lucene.document.LongField;
 import org.hibernate.search.annotations.ClassBridge;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.IndexedEmbedded;
@@ -47,7 +49,6 @@ import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
-import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SortableNumberBridge;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.util.EqualsHashUtils;
 import ch.systemsx.cisd.openbis.generic.shared.util.SimplePropertyValidator.SupportedDatePattern;
@@ -129,6 +130,8 @@ public abstract class EntityPropertyPE extends HibernateAbstractRegistrationHold
             String fieldPrefix = name;
             String fieldFullName = fieldPrefix + getPropertyFieldName(entityProperty);
             Field.Index indexingStrategy = luceneOptions.getIndex();
+            Field field = null;
+            
             
             if (DataTypeCode.TIMESTAMP.equals(entityProperty.getEntityTypePropertyType().getPropertyType().getType().getCode()))
             {
@@ -141,13 +144,28 @@ public abstract class EntityPropertyPE extends HibernateAbstractRegistrationHold
                 {
                     // leave the original value
                 }
-            } else if(DataTypeCode.INTEGER.equals(entityProperty.getEntityTypePropertyType().getPropertyType().getType().getCode()) ||
-                    DataTypeCode.REAL.equals(entityProperty.getEntityTypePropertyType().getPropertyType().getType().getCode())) {
-                fieldValue = new SortableNumberBridge().objectToString(fieldValue);
-                indexingStrategy = Field.Index.NOT_ANALYZED_NO_NORMS;
+               field = new Field(fieldFullName, fieldValue, luceneOptions.getStore(), indexingStrategy);
+            }
+            else if(DataTypeCode.INTEGER.equals(entityProperty.getEntityTypePropertyType().getPropertyType().getType().getCode())) {
+                try
+                {
+                    field = new LongField(fieldFullName, Long.parseLong(fieldValue), luceneOptions.getStore());
+                } catch (Exception e)
+                {
+                    // leave the original value
+                }
+            } else if(DataTypeCode.REAL.equals(entityProperty.getEntityTypePropertyType().getPropertyType().getType().getCode())) {
+                try
+                {
+                    field = new DoubleField(fieldFullName, Double.parseDouble(fieldValue), luceneOptions.getStore());
+                } catch (Exception e)
+                {
+                    // leave the original value
+                }
+            } else {
+                field = new Field(fieldFullName, fieldValue, luceneOptions.getStore(), indexingStrategy);
             }
             
-            Field field = new Field(fieldFullName, fieldValue, luceneOptions.getStore(), indexingStrategy);
             field.setBoost(luceneOptions.getBoost());
             document.add(field);
         }

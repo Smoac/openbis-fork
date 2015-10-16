@@ -1,4 +1,5 @@
 /*
+
  * Copyright 2009 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,8 +18,6 @@
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 import java.io.Serializable;
-
-import ch.systemsx.cisd.openbis.generic.shared.basic.utils.SortableNumberBridgeUtils;
 
 /**
  * @author Izabela Adamczyk
@@ -58,7 +57,7 @@ public class DetailedSearchCriterion implements Serializable
     public DetailedSearchCriterion(DetailedSearchField field, CompareType type, Number value)
     {
         this.field = field;
-        this.value = SortableNumberBridgeUtils.getNumberForLucene((Number) value);
+        this.value = value.toString();
         this.type = type;
     }
     

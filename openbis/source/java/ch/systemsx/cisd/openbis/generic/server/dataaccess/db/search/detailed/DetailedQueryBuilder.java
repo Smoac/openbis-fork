@@ -84,7 +84,7 @@ public class DetailedQueryBuilder
     {
         this.entityKind = entityKind;
     }
-
+    
     private Query createQuery(String userId, DetailedSearchCriteria searchCriteria,
             List<IAssociationCriteria> associations)
     {
@@ -117,27 +117,6 @@ public class DetailedQueryBuilder
                                 LuceneQueryBuilder.adaptQuery(fieldUserQuery,
                                         useWildcardSearchMode, false);
                         fieldAnalyzer = new IgnoreCaseAnalyzer();
-                    } else if(criterion.getType() != null)
-                    {
-                        switch(criterion.getType()) {
-                            case LESS_THAN:
-                                fieldPattern = "{*" + " TO " + criterion.getValue() + "}";
-                                break;
-                            case LESS_THAN_OR_EQUAL:
-                                fieldPattern = "[*" + " TO " + criterion.getValue() + "]";
-                                break;
-                            case EQUALS:
-                                fieldPattern = LuceneQueryBuilder.adaptQuery(criterion.getValue(), useWildcardSearchMode);
-                                break;
-                            case MORE_THAN_OR_EQUAL:
-                                fieldPattern = "[" + criterion.getValue() + " TO " + "*]";
-                                break;
-                            case MORE_THAN:
-                                fieldPattern = "{" + criterion.getValue() + " TO " + "*}";
-                                break;
-                        }
-                        
-                        fieldAnalyzer = searchAnalyzer;
                     } else {
                         fieldPattern = LuceneQueryBuilder.adaptQuery(criterion.getValue(), useWildcardSearchMode);
                         fieldAnalyzer = searchAnalyzer;
@@ -147,8 +126,7 @@ public class DetailedQueryBuilder
                     fieldAnalyzers.add(fieldAnalyzer);
                 }
 
-                Query luceneQuery =
-                        LuceneQueryBuilder.parseQuery(fieldNames, fieldPatterns, fieldAnalyzers);
+                Query luceneQuery = LuceneQueryBuilder.parseQuery(criterion.getType(), fieldNames, fieldPatterns, fieldAnalyzers);
                 resultQuery.add(luceneQuery, occureCondition);
             } else
             {
