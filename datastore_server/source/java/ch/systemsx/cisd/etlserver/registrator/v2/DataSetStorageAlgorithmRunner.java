@@ -23,6 +23,8 @@ import java.util.List;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
 
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
 import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -628,8 +630,7 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
                 case IN_PROGRESS:
                     operationLog
                             .debug("The registration is in progress. Will wait until it's done.");
-
-                    waitTheRetryPeriod();
+                    interruptOrWaitTheRetryPeriod(problem);
                     break;
 
                 case NO_OPERATION:
@@ -646,7 +647,7 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
                                 + " time. Will continue retrying after "
                                 + registrationRetryPauseInSec + " seconds");
                     }
-                    waitTheRetryPeriod();
+                    interruptOrWaitTheRetryPeriod(problem);
                     break;
 
                 case OPERATION_SUCCEEDED:
@@ -658,6 +659,17 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
             }
 
         }
+    }
+
+    private void interruptOrWaitTheRetryPeriod(Throwable throwable)
+    {
+        
+        Throwable rootCause = ExceptionUtils.getRootCause(throwable);
+        if (rootCause instanceof InterruptedException || rootCause instanceof InterruptedExceptionUnchecked)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(throwable);
+        }
+        waitTheRetryPeriod();
     }
 
     /**

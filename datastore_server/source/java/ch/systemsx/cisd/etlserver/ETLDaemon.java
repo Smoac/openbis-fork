@@ -280,8 +280,9 @@ public final class ETLDaemon
         for (final ThreadParameters threadParameters : threads)
         {
             File incomingDataDirectory = threadParameters.getIncomingDataDirectory();
+            Integer incomingShareIdOrNull = threadParameters.getIncomingShareId();
             String shareId =
-                    SegmentedStoreUtils.findIncomingShare(incomingDataDirectory, storeRootDir,
+                    SegmentedStoreUtils.findIncomingShare(incomingDataDirectory, storeRootDir, incomingShareIdOrNull, 
                             new Log4jSimpleLogger(operationLog));
             incomingShares.add(shareId);
         }
@@ -487,7 +488,8 @@ public final class ETLDaemon
     private static String getShareId(final ThreadParameters threadParams, final File storeRoot)
     {
         File incomingDirectory = threadParams.getIncomingDataDirectory();
-        return SegmentedStoreUtils.findIncomingShare(incomingDirectory, storeRoot,
+        Integer incomingShareIdOrNull = threadParams.getIncomingShareId();
+        return SegmentedStoreUtils.findIncomingShare(incomingDirectory, storeRoot, incomingShareIdOrNull,
                 new Log4jSimpleLogger(operationLog));
     }
 

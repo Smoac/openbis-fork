@@ -82,7 +82,7 @@ public class SegmentedStoreUtils
 
     private static final String RSYNC_EXEC = "rsync";
 
-    private static final Pattern SHARE_ID_PATTERN = Pattern.compile("[0-9]+");
+    public static final Pattern SHARE_ID_PATTERN = Pattern.compile("[0-9]+");
 
     public static final Long MINIMUM_FREE_SCRATCH_SPACE = FileUtils.ONE_GB;
 
@@ -154,9 +154,17 @@ public class SegmentedStoreUtils
      */
     public static File[] getShares(File storeRootDir)
     {
+        return getShares(storeRootDir, FILTER_ON_SHARES);
+    }
+    
+    /**
+     * Lists all folders in specified store root directory which match pattern given by filter.
+     */
+    public static File[] getShares(File storeRootDir, FileFilter filter)
+    {
         File[] files =
                 FileOperations.getMonitoredInstanceForCurrentThread().listFiles(storeRootDir,
-                        FILTER_ON_SHARES);
+                       filter);
         if (files == null)
         {
             throw new ConfigurationFailureException(
@@ -170,7 +178,17 @@ public class SegmentedStoreUtils
      * Returns first the id of the first incoming share folder of specified store root which allows to move a file from specified incoming folder to
      * the incoming share.
      */
-    public static String findIncomingShare(File incomingFolder, File storeRoot, ISimpleLogger logger)
+    public static String findIncomingShare(File incomingFolder, File storeRoot, Integer incomingShareIdOrNull, ISimpleLogger logger)
+    {
+        File matchingShare = findShare(incomingFolder, storeRoot, incomingShareIdOrNull, logger);
+        return matchingShare.getName();
+    }
+
+    /**
+     * Creates a test file in the incoming folder
+     * Called repeatedly to create a fresh test file until a suitable share is found
+     */
+     private static File createTestFileInIncomingFolder(File incomingFolder, File storeRoot)
     {
         final IFileOperations fileOp = FileOperations.getMonitoredInstanceForCurrentThread();
         if (fileOp.isDirectory(incomingFolder) == false)
@@ -193,14 +211,54 @@ public class SegmentedStoreUtils
                     "Couldn't create a test file in the following incoming folder: "
                             + incomingFolder, ex);
         }
-        File matchingShare = findShare(testFile, storeRoot, logger);
-        return matchingShare.getName();
+        return testFile;
     }
 
-    private static File findShare(File testFile, File storeRoot, ISimpleLogger logger)
+    private static File findShare(File incomingFolder, File storeRoot, final Integer incomingShareIdOrNull, ISimpleLogger logger)
     {
+        if( incomingShareIdOrNull != null) 
+        {
+            File[] shares = getShares(storeRoot, new FileFilter()
+            {
+                @Override
+                public boolean accept(File pathname)
+                {
+                    if (FileOperations.getMonitoredInstanceForCurrentThread().isDirectory(pathname) == false)
+                    {
+                        return false;
+                    }
+                    String name = pathname.getName();
+                    Pattern p = Pattern.compile("\\b" + String.valueOf(incomingShareIdOrNull + "\\b"));
+                    return p.matcher(name).matches();
+                }
+            });
+
+            if(shares.length != 1)
+            {
+                throw new ConfigurationFailureException("Incoming share: " +
+                        incomingShareIdOrNull + " could not be found for the following incoming folder: "  + incomingFolder.getAbsolutePath());
+            }
+            
+            File share = shares[0];
+            
+            Share shareObject =
+                    new ShareFactory().createShare(share, DUMMY_FREE_SPACE_PROVIDER, logger);
+            if (shareObject.isWithdrawShare())
+            {
+                throw new ConfigurationFailureException("Incoming folder [" + incomingFolder.getPath()
+                        + "] can not be assigned to share " + shareObject.getShareId()
+                        + " because its property " + ShareFactory.WITHDRAW_SHARE_PROP
+                        + " is set to true.");
+            }
+            logger.log(LogLevel.INFO, "Incoming folder [" + incomingFolder.getPath()
+                    + "] is assigned to incoming share " + shares[0].getName() + ".");
+            return shares[0];
+        }
+
         for (File share : getShares(storeRoot))
         {
+            
+            File testFile = createTestFileInIncomingFolder(incomingFolder, storeRoot);
             File destination = new File(share, testFile.getName());
             if (testFile.renameTo(destination))
             {
@@ -209,18 +267,20 @@ public class SegmentedStoreUtils
                         new ShareFactory().createShare(share, DUMMY_FREE_SPACE_PROVIDER, logger);
                 if (shareObject.isWithdrawShare())
                 {
-                    logger.log(LogLevel.WARN, "Incoming folder [" + testFile.getParent()
+                    logger.log(LogLevel.WARN, "Incoming folder [" + incomingFolder.getPath()
                             + "] can not be assigned to share " + shareObject.getShareId()
                             + " because its property " + ShareFactory.WITHDRAW_SHARE_PROP
                             + " is set to true.");
                 }
                 return share;
             }
+            else {
+                testFile.delete();
+            }
         }
-        testFile.delete();
         throw new ConfigurationFailureException(
                 "No share could be found for the following incoming folder: "
-                        + testFile.getParentFile().getAbsolutePath());
+                        + incomingFolder.getPath());
     }
 
     /**
