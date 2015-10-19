@@ -263,6 +263,10 @@ public class DataSetTranslator
                 EntityKind.DATA_SET, externalData.getIdentifier()));
         setProperties(dataPE, externalData, managedPropertyEvaluatorFactory);
         externalData.setExperiment(translatedExperiment);
+        
+        if(dataPE.isContainer() == false) {
+            externalData.setPostRegistered(dataPE.getPostRegistration().size() == 0);
+        }
 
         if (metaprojects != null)
         {

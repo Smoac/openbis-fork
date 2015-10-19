@@ -374,4 +374,10 @@ public class DataSet<T extends DataSetInformation> extends AbstractDataSetImmuta
     {
         return isContainerDataSet() || isLinkDataSet();
     }
+
+    @Override
+    public boolean isPostRegistered()
+    {
+        return false;
+    }
 }

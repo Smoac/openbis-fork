@@ -143,6 +143,58 @@ public class DatasetListingQueryTest extends AbstractDAOTest
     }
 
     @Test
+    public void testQueryForDatasetsForExperimentAndDescendentsReturnsNotNullPostRegistered()
+    {
+        ExperimentPE experiment1 =
+                getExperiment(dbInstance.getCode(), "CISD", "NEMO", "EXP-TEST-1", daoFactory);
+
+        List<DatasetRecord> datasets = asList(query.getDataSetsForExperimentAndDescendents(experiment1.getId()));
+        
+        for (DatasetRecord record : datasets)
+        {
+            assertTrue(record.is_post_registered != null);
+        }
+    }
+
+    @Test
+    public void testQueryUsingSelectAllReturnsNotNullPostRegistered()
+    {
+        ExperimentPE experiment1 =
+                getExperiment(dbInstance.getCode(), "CISD", "NEMO", "EXP-TEST-1", daoFactory);
+        List<DatasetRecord> datasets = asList(query.getDatasetsForExperiment(experiment1.getId()));
+        Counters<Long> counters = new Counters<Long>();
+        for (DatasetRecord record : datasets)
+        {
+            assertTrue(record.is_post_registered != null);
+        }
+   }
+
+    @Test
+    public void testQueryUsingSelectAllExternalDatasReturnsNotNullPostRegistered()
+    {
+        List<DatasetRecord> datasets = asList(query.getDatasetsByDataStoreId(1));
+        for (DatasetRecord record : datasets)
+        {
+            assertTrue(record.is_post_registered != null);
+        }
+    }    
+
+    @Test
+    public void testQueryUsingSelectAllExternalDatasReturnsCorrectPostRegistered()
+    {
+        List<DatasetRecord> datasets = asList(query.getDatasetsByDataStoreId(1));
+        for (DatasetRecord record : datasets)
+        {
+            if(record.code.equals("COMPONENT_1A")) {
+                assertTrue(record.is_post_registered == false);
+            }
+            else {
+                assertTrue(record.is_post_registered == true);
+            }
+        }
+    }    
+
+    @Test
     public void testDatasetsForSample()
     {
         SamplePE sample = getSample("CISD", "CP-TEST-1", dbInstanceId, daoFactory);

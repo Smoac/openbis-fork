@@ -251,4 +251,10 @@ public class DataSetImmutable extends AbstractDataSetImmutable
         return true;
     }
 
+    @Override
+    public boolean isPostRegistered()
+    {
+        return dataSet.isPostRegistered();
+    }
+
 }

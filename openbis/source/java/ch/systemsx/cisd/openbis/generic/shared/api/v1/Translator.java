@@ -501,6 +501,9 @@ public class Translator
         }
         initializer.setStorageConfirmed(externalDatum.isStorageConfirmation());
         initializer.setStub(externalDatum.isStub());
+        if(externalDatum.isContainer() == false) {
+            initializer.setPostRegistered(externalDatum.isPostRegistered());
+        }
 
         List<IEntityProperty> properties = externalDatum.getProperties();
         for (IEntityProperty prop : properties)

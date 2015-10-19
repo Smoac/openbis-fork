@@ -187,6 +187,9 @@ public class DataSetLister implements IDataSetLister
                                                                                  // is considered
                                                                                  // confirmed
         initializer.setStub(false);
+        if(initializer.isContainerDataSet() == false) {
+            initializer.setPostRegistered(dataSet.ds_is_post_registered);
+        }
         initializer.setLinkDataSet(DataSetKind.LINK.name().equals(dataSet.dt_data_set_kind));
         if (initializer.isLinkDataSet())
         {

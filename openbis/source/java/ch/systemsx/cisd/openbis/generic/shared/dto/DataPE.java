@@ -127,6 +127,8 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
     private Set<MetaprojectAssignmentPE> metaprojectAssignments =
             new HashSet<MetaprojectAssignmentPE>();
 
+    private Set<PostRegistrationPE> postRegistration =
+            new HashSet<PostRegistrationPE>();  
     /**
      * Deletion information.
      * <p>
@@ -940,6 +942,18 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
             Set<MetaprojectAssignmentPE> metaprojectAssignments)
     {
         this.metaprojectAssignments = metaprojectAssignments;
+    }
+
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "dataSet")
+    @Fetch(FetchMode.SUBSELECT)
+    public Set<PostRegistrationPE> getPostRegistration()
+    {
+        return this.postRegistration;
+    }
+
+    public void setPostRegistration(final Set<PostRegistrationPE> postRegistration)
+    {
+        this.postRegistration = postRegistration;
     }
 
 }

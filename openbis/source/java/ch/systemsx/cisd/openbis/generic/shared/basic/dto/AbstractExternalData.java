@@ -88,6 +88,8 @@ public abstract class AbstractExternalData extends
     private boolean storageConfirmation;
 
     private boolean isStub;
+    
+    private boolean isPostRegistered;
 
     private Collection<Metaproject> metaprojects;
 
@@ -428,6 +430,16 @@ public abstract class AbstractExternalData extends
     public boolean isStub()
     {
         return this.isStub;
+    }
+    
+    public boolean isPostRegistered()
+    {
+        return isPostRegistered;
+    }
+
+    public void setPostRegistered(boolean isPostRegistered)
+    {
+        this.isPostRegistered = isPostRegistered;
     }
 
     private static final class DataSetComponentsComparator implements

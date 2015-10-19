@@ -36,6 +36,7 @@ public interface IDataSetListingQuery extends BaseQuery
             + " ds.*," // This line is here so that we can potentially read access_timestamp field, which might not be present in the database
             + " ds.id as ds_id, ds.code as ds_code, ds.registration_timestamp as ds_registration_timestamp,"
             + " ds.modification_timestamp as ds_modification_timestamp,"
+            + " prdq.id IS NULL as ds_is_post_registered, "
             + " dt.code as dt_code, dt.data_set_kind as dt_data_set_kind,"
             + " ctnr.id as ctnr_id, ctnr.code as ctnr_code,"
             + " ex.code as ex_code, "
@@ -60,6 +61,7 @@ public interface IDataSetListingQuery extends BaseQuery
             + " inner join database_instances die on spe.dbin_id = die.id"
             + " left outer join spaces sps on sa.space_id = sps.id"
             + " left outer join samples sac on sa.samp_id_part_of = sac.id"
+            + " left outer join post_registration_dataset_queue prdq on ds.id = prdq.ds_id "
             + " where ds.code = any(?{1})", parameterBindings =
         { StringArrayMapper.class })
     public List<DataSetRecord> getDataSetMetaData(String[] dataSetCodes);

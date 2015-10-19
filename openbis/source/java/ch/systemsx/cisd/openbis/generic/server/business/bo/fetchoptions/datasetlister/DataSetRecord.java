@@ -32,6 +32,8 @@ public class DataSetRecord
 
     public Date ds_modification_timestamp;
 
+    public Boolean ds_is_post_registered;
+
     public Date access_timestamp;
 
     public Long ctnr_id;
