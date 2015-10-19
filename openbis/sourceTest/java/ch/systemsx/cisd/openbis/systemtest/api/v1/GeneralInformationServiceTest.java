@@ -968,7 +968,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
         }
     }
     
-    public void testGetPostregistrationStatusTrueByDefsultForContainerDataSets()
+    public void testGetPostregistrationStatusTrueByDefaultForContainerDataSets()
     {
        SearchCriteria criteria = new SearchCriteria();
         criteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, "CONTAINER_1"));
