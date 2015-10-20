@@ -131,6 +131,8 @@ task compileGwt (dependsOn: classes, type: JavaExec) {
 		]
 	
 	maxHeapSize = '1024m'
+	
+	systemProperty "javax.xml.parsers.SAXParserFactory", "org.apache.xerces.jaxp.SAXParserFactoryImpl"
 }
 
 
