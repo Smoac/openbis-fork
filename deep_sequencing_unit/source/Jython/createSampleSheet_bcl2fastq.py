@@ -127,7 +127,7 @@ def parseOptions(logger):
                   metavar='<outdir>')
     parser.add_argument('-s', '--singlelane',
                   dest='singlelane',
-                  default=False,
+                  default=True,
                   action='store_true',
                   help='Creates a single Sample Sheet for each lane. Default: False')
     parser.add_argument('-d', '--debug',
@@ -371,7 +371,32 @@ def get_parents(sampleName, service):
     return foundParentSamples
 
 
-def get_contained_sample_properties(contained_samples, service):
+def get_lane_sample_properties(lane, service, config_dict):
+    parentDict = {}
+    parents = get_parents (lane.getCode(), service)
+
+    try:
+        assert parents.size() >= 1
+    except AssertionError:
+        pass
+
+    for parent in parents:
+        parentCode = parent.getCode()
+        parentProperties = parent.getProperties()
+        propertyDict = {}
+        for property in parentProperties:
+            propertyDict[property] = parentProperties.get(property)
+
+        propertyDict['LANE'] = lane.getCode()
+        
+        myKey = sanitize_string(parentCode + '_' + lane.getCode())
+        parentDict[myKey] = propertyDict
+        
+    return parentDict
+
+
+
+def get_contained_sample_properties(contained_samples, service, config_dict):
     """
     Takes a  list of contained samples, retrieves the parents and their properties and returns it
     as a dictionary. The key is the sample name, the value is a list of the properties
@@ -380,6 +405,7 @@ def get_contained_sample_properties(contained_samples, service):
     """
     parentDict = {}
     samplesPerLaneDict = {}
+    barcodesPerLaneDict = {}
 
     for lane in contained_samples:
         parents = get_parents (lane.getCode(), service)
@@ -400,12 +426,20 @@ def get_contained_sample_properties(contained_samples, service):
                 propertyDict[property] = parentProperties.get(property)
 
             propertyDict['LANE'] = lane.getCode()
+            
+            try:
+                plain_lane = lane.getCode().split(':')[-1]
+                if barcodesPerLaneDict.has_key(plain_lane):
+                    barcodesPerLaneDict[plain_lane].append(propertyDict[config_dict['index1Name']])
+                else:
+                    barcodesPerLaneDict[plain_lane] = [propertyDict[config_dict['index1Name']]]
+            except:
+                pass
 
             myKey = sanitize_string(parentCode + '_' + lane.getCode())
             parentDict[myKey] = propertyDict
 
-    return parentDict, samplesPerLaneDict
-
+    return parentDict, samplesPerLaneDict, barcodesPerLaneDict
 
 
 def transform_sample_to_dict(foundFlowCell):
@@ -612,70 +646,77 @@ def verify_index_length (parentDict, flowCellDict, config_dict, logger):
     return index_length_dict
 
 
-def create_sample_sheet_dict(model, parentDict, index_length_dict, flowCellDict, config_dict, index1Vocabulary,
-                              index2Vocabulary, flowCellName, logger):
+def create_sample_sheet_dict(service, barcodesPerLaneDict, containedSamples, samplesPerLaneDict, model, parentDict, index_length_dict, flowCellDict,
+                             config_dict, index1Vocabulary, index2Vocabulary, flowCellName, logger):
 
     sampleSheetDict = {}
     separator = config_dict['separator']
-
-    for key in parentDict.keys():
-        lane = parentDict[key]['LANE'][-1:]
-        # If no index then just skip this  sample
-        if (config_dict['index1Name'] not in parentDict[key]) or (parentDict[key][config_dict['index1Name']] == 'NOINDEX'):
-            continue
-        index1 = parentDict[key][config_dict['index1Name']]
-        index2=""
-        if config_dict['index2Name'] in parentDict[key]:
-            index2 = parentDict[key][config_dict['index2Name']]
-            indexNumber = index2Vocabulary[parentDict[key][config_dict['index2Name']]].split()[2]
     
+    for lane in containedSamples: 
+        lane_sample_properties = get_lane_sample_properties(lane, service, config_dict)
+        lane_int = lane.getCode().split(':')[-1]
+        single_index_set = False
+
         try:
-            kit = parentDict[key][config_dict['kit']]
-            prefix = kitsDict[kit][0]
+            print(barcodesPerLaneDict[lane_int])
         except:
-    #       print "Missing Kit on " + str(key)
-            prefix = ""
+            print("No index found for lane " + str(lane_int) + ". Using the first sample which is not phix.")
+            for key in lane_sample_properties.keys():
+                if lane_sample_properties[key][u'NCBI_ORGANISM_TAXONOMY'] != u'10847' and not single_index_set: 
+                    index1 = ""
+                    lane_string =""
+                    if model in HISEQ_LIST or model in Sequencers.MISEQ:
+                        lane_string = lane_int + separator
 
-        len_index1 = index_length_dict[int(lane)][0]
-        len_index2 = index_length_dict[int(lane)][1]
+                    line = separator.join([lane_string, key, key + '_' + sanitize_string(lane_sample_properties[key][config_dict['externalSampleName']]),"", "", "", "", key])
+                    sampleSheetDict[lane_int + '_' + key] = [line]
+                    single_index_set = True
 
-        lane_string =""
-        if model in HISEQ_LIST or model in Sequencers.MISEQ:
-            lane_string = lane + separator
+
+        for key in lane_sample_properties.keys():
+            
+            # If no index or 'NOINDEX' assigned then just skip this  sample
+            if ((config_dict['index1Name'] not in lane_sample_properties[key] or lane_sample_properties[key][config_dict['index1Name']] == 'NOINDEX')):
+                continue
+            
+            index1 = lane_sample_properties[key][config_dict['index1Name']]
+            index2=""
+            if config_dict['index2Name'] in lane_sample_properties[key]:
+                index2 = lane_sample_properties[key][config_dict['index2Name']]
+                indexNumber = index2Vocabulary[lane_sample_properties[key][config_dict['index2Name']]].split()[2]
+        
+            try:
+                kit = lane_sample_properties[key][config_dict['kit']]
+                prefix = kitsDict[kit][0]
+            except:
+                prefix = ""
     
-        if int(flowCellDict['INDEXREAD2']) > 0 and len_index2 > 0:
-            if model in Sequencers.NEXTSEQ_500:
-                index2_processed = get_reverse_complement(index2[0:len_index2])
+            len_index1 = index_length_dict[int(lane_int)][0]
+            len_index2 = index_length_dict[int(lane_int)][1]
+    
+            lane_string =""
+            if model in HISEQ_LIST or model in Sequencers.MISEQ:
+                lane_string = lane_int + separator
+            
+            if int(flowCellDict['INDEXREAD2']) > 0 and len_index2 > 0:
+                if model in Sequencers.NEXTSEQ_500:
+                    index2_processed = get_reverse_complement(index2[0:len_index2])
+                else:
+                    index2_processed = index2
+              
+                line = separator.join([lane_string + key,
+                                    key + '_' + sanitize_string(lane_sample_properties[key][config_dict['externalSampleName']]) + '_' + index1[0:len_index1] + '_' + index2[0:len_index2],
+                                    "", "", index1Vocabulary[index1].split()[1], index1[0:len_index1], prefix + indexNumber, index2_processed, key, ""])
+                sampleSheetDict[lane_int + '_' + key] = [line]
+
             else:
-                index2_processed = index2
-          
-            sampleSheetDict[lane + '_' + key] = [
-                                lane_string
-                                + key + separator
-                                + key + '_' + sanitize_string(parentDict[key][config_dict['externalSampleName']]) + '_' + index1[0:len_index1] + '_' + index2[0:len_index2] + separator
-                                + separator
-                                + separator
-                                + index1Vocabulary[index1].split()[1] + separator
-                                + index1[0:len_index1] + separator
-                                + prefix + indexNumber + separator
-                                + index2_processed + separator
-                                + key + separator
-                                ]
-        else:
-            sampleSheetDict[lane + '_' + key] = [
-                                  lane_string
-                                + key + separator
-                                + key + '_' + sanitize_string(parentDict[key][config_dict['externalSampleName']]) + '_' + index1[0:len_index1] + separator
-                                + separator
-                                + separator
-                                + index1Vocabulary[index1].split()[1] + separator
-                                + index1[0:len_index1] + separator
-                                + key + separator
-                                ]
+                line = separator.join([lane_string + key, key + '_' + sanitize_string(lane_sample_properties[key][config_dict['externalSampleName']]) + '_' + index1[0:len_index1],
+                                       "", "", index1Vocabulary[index1].split()[1], index1[0:len_index1], key, ""])
+                sampleSheetDict[lane_int + '_' + key] = [line]
     
     csv_file_name = config_dict['SampleSheetFileName'] + '_' + flowCellName
     ordered_sample_sheet_dict = OrderedDict(sorted(sampleSheetDict.items(), key=lambda t: t[0]))
-
+    
     return ordered_sample_sheet_dict, csv_file_name
 
 '''
@@ -698,7 +739,7 @@ def main ():
 
     foundFlowCell, containedSamples = get_flowcell(config_dict['illuminaFlowCellTypeName'], flowCellName,
                                                 service, logger)
-    parentDict, samplesPerLaneDict = get_contained_sample_properties(containedSamples, service)
+    parentDict, samplesPerLaneDict, barcodesPerLaneDict = get_contained_sample_properties(containedSamples, service, config_dict)
     flowCellName = foundFlowCell.getCode()
     flowCellDict = transform_sample_to_dict(foundFlowCell)
     model = get_model(flowCellDict['RUN_NAME_FOLDER'])
@@ -708,18 +749,13 @@ def main ():
     index1Vocabulary = get_vocabulary(config_dict['index1Name'], service)
     index2Vocabulary = get_vocabulary(config_dict['index2Name'], service)
     index_length_dict = verify_index_length(parentDict, flowCellDict, config_dict, logger)
-    ordered_sample_sheet_dict, csv_file_name = create_sample_sheet_dict(model, parentDict, index_length_dict,
-                            flowCellDict, config_dict, index1Vocabulary, index2Vocabulary, flowCellName, logger)
+    ordered_sample_sheet_dict, csv_file_name = create_sample_sheet_dict(service, barcodesPerLaneDict, containedSamples,
+                                                                        samplesPerLaneDict, model, parentDict, index_length_dict,
+                                                                        flowCellDict, config_dict, index1Vocabulary, index2Vocabulary,
+                                                                        flowCellName, logger)
     
-    if myoptions.singlelane:
-        write_sample_sheet_single_lane(model, ordered_sample_sheet_dict, flowCellDict, index_length_dict,
+    write_sample_sheet_single_lane(model, ordered_sample_sheet_dict, flowCellDict, index_length_dict,
                                           parentDict, config_dict, myoptions, logger, csv_file_name)
-    else:
-        header_list = create_header_section (model, config_dict, parentDict, flowCellDict, index_length_dict, samplesPerLaneDict.keys()[0])
-        sampleSheetFile = write_sample_sheet(ordered_sample_sheet_dict, header_list, 
-                                          myoptions, logger, myoptions.outdir + csv_file_name + CSV)
-        if myoptions.maillist:
-            sendMail(config_dict['mailList'], [sampleSheetFile], flowCellName, config_dict, logger)
 
     logout(service, logger)
 

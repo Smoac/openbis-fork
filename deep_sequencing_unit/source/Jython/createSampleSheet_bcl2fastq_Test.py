@@ -44,7 +44,10 @@ class test_get_reverse_complement(unittest.TestCase):
  
  
 class create_sample_sheet_C7GMNANXX(unittest.TestCase):
- 
+    """
+    HiSeq 2500, PAIRED_END, Dual Index
+    
+    """
  
     def setUp(self):
         self.myCode = 'C7GMNANXX'
@@ -70,8 +73,8 @@ class create_sample_sheet_C7GMNANXX(unittest.TestCase):
         self.flowcell, self.containedSamples = get_flowcell('ILLUMINA_FLOW_CELL',
                                             self.myCode, self.service, self.logger)
         self.flowCellDict = transform_sample_to_dict(self.flowcell)
-        self.parentDict, self.samplesPerLaneDict = get_contained_sample_properties(
-                                                    self.containedSamples, self.service)
+        self.parentDict, self.samplesPerLaneDict, self.barcodesPerLaneDict = get_contained_sample_properties(
+                                                    self.containedSamples, self.service, self.config_dict)
         self.flowCellName = self.flowcell.getCode()
         self.index1Vocabulary = get_vocabulary(self.config_dict['index1Name'], self.service)
         self.index2Vocabulary = get_vocabulary(self.config_dict['index2Name'], self.service)
@@ -106,8 +109,9 @@ class create_sample_sheet_C7GMNANXX(unittest.TestCase):
          
         self.model = get_model(self.flowCellDict['RUN_NAME_FOLDER'])
  
-        self.ordered_sample_sheet_dict, self.csv_file_name = create_sample_sheet_dict(self.model, self.parentDict, self.index_length_dict,
-                            self.flowCellDict, self.config_dict, self.index1Vocabulary, self.index2Vocabulary, self.flowCellName, self.logger)
+        self.ordered_sample_sheet_dict, self.csv_file_name = create_sample_sheet_dict(self.service, self.barcodesPerLaneDict, self.containedSamples, self.samplesPerLaneDict, self.model, self.parentDict,
+                                                                                      self.index_length_dict, self.flowCellDict, self.config_dict, self.index1Vocabulary,
+                                                                                      self.index2Vocabulary, self.flowCellName, self.logger)
          
         self.ordered_sample_sheet_dict['5_BSSE_QGF_32303_C7GMNANXX_5'] = \
         [u'5,BSSE_QGF_32303_C7GMNANXX_5,BSSE_QGF_32303_C7GMNANXX_5_TR_EG_1_GGCTAC,,,SureSelectXT,GGCTAC,BSSE_QGF_32303_C7GMNANXX_5,']
@@ -140,8 +144,9 @@ class create_sample_sheet_C7GMNANXX(unittest.TestCase):
     def test_write_sample_sheet_single_lane(self):
         self.model = get_model(self.flowCellDict['RUN_NAME_FOLDER'])
  
-        self.ordered_sample_sheet_dict, self.csv_file_name = create_sample_sheet_dict(self.model, self.parentDict, self.index_length_dict,
-                            self.flowCellDict, self.config_dict, self.index1Vocabulary, self.index2Vocabulary, self.flowCellName, self.logger)
+        self.ordered_sample_sheet_dict, self.csv_file_name = create_sample_sheet_dict(self.service, self.barcodesPerLaneDict, self.containedSamples, self.samplesPerLaneDict, self.model, self.parentDict,
+                                                                                      self.index_length_dict, self.flowCellDict, self.config_dict, self.index1Vocabulary,
+                                                                                      self.index2Vocabulary, self.flowCellName, self.logger)
          
         write_sample_sheet_single_lane(self.model, self.ordered_sample_sheet_dict, self.flowCellDict, self.index_length_dict,
                                           self.parentDict, self.config_dict, self.options, self.logger, self.csv_file_name)
@@ -156,6 +161,10 @@ class create_sample_sheet_C7GMNANXX(unittest.TestCase):
  
  
 class create_sample_sheet_C7P5KANXX(unittest.TestCase):
+    """
+    HiSeq 2500, SINGLE_READ, Dual Index 
+    
+    """
  
  
     def setUp(self):
@@ -182,8 +191,8 @@ class create_sample_sheet_C7P5KANXX(unittest.TestCase):
         self.flowcell, self.containedSamples = get_flowcell('ILLUMINA_FLOW_CELL',
                                             self.myCode, self.service, self.logger)
         self.flowCellDict = transform_sample_to_dict(self.flowcell)
-        self.parentDict, self.samplesPerLaneDict = get_contained_sample_properties(
-                                                    self.containedSamples, self.service)
+        self.parentDict, self.samplesPerLaneDict, self.barcodesPerLaneDict = get_contained_sample_properties(
+                                                    self.containedSamples, self.service, self.config_dict)
         self.flowCellName = self.flowcell.getCode()
         self.index1Vocabulary = get_vocabulary(self.config_dict['index1Name'], self.service)
         self.index2Vocabulary = get_vocabulary(self.config_dict['index2Name'], self.service)
@@ -212,8 +221,9 @@ class create_sample_sheet_C7P5KANXX(unittest.TestCase):
           
         self.model = get_model(self.flowCellDict['RUN_NAME_FOLDER'])
   
-        self.ordered_sample_sheet_dict, self.csv_file_name = create_sample_sheet_dict(self.model, self.parentDict, self.index_length_dict,
-                            self.flowCellDict, self.config_dict, self.index1Vocabulary, self.index2Vocabulary, self.flowCellName, self.logger)
+        self.ordered_sample_sheet_dict, self.csv_file_name = create_sample_sheet_dict(self.service, self.barcodesPerLaneDict, self.containedSamples, self.samplesPerLaneDict, self.model, self.parentDict,
+                                                                                      self.index_length_dict, self.flowCellDict, self.config_dict, self.index1Vocabulary,
+                                                                                      self.index2Vocabulary, self.flowCellName, self.logger)
          
         self.assertDictEqual(self.ordered_sample_sheet_dict,
              {u'8_BSSE_QGF_36781_C7P5KANXX_8': [u'8,BSSE_QGF_36781_C7P5KANXX_8,BSSE_QGF_36781_C7P5KANXX_8_Ribomethseq_mousecerebellum_comparison_CTTGTAA_NOINDEX,,,A012,CTTGTAA,(NoIndex),NOINDEX,BSSE_QGF_36781_C7P5KANXX_8,'],
@@ -229,7 +239,7 @@ class create_sample_sheet_C7P5KANXX(unittest.TestCase):
         self.create_header_section = create_header_section(self.model, self.config_dict, self.parentDict, self.flowCellDict, self.index_length_dict, 5)
         self.assertListEqual(self.create_header_section, ['[Header]', 'IEMFileVersion,4', 'Investigator Name,ETHZ_D-BSSE',
                                                           'Project Name,Genomics Facility Basel', u'Experiment Name,C7P5KANXX',
-                                                          'Date,09/29/2015', 'Workflow,GenerateFASTQ', 'Application,FASTQ Only',
+                                                          'Date,'+ self.date, 'Workflow,GenerateFASTQ', 'Application,FASTQ Only',
                                                           'Assay,', u'Description,SINGLE_READ_51', 'Chemistry,Default', '',
                                                           '[Reads]', u'51', '', '[Settings]', '', '[Data]',
                                                           'Lane,Sample_ID,Sample_Name,Sample_Plate,Sample_Well,I7_Index_ID,index,I5_Index_ID,index2,Sample_Project,Description'])
@@ -237,8 +247,9 @@ class create_sample_sheet_C7P5KANXX(unittest.TestCase):
     def test_write_sample_sheet_single_lane(self):
         self.model = get_model(self.flowCellDict['RUN_NAME_FOLDER'])
   
-        self.ordered_sample_sheet_dict, self.csv_file_name = create_sample_sheet_dict(self.model, self.parentDict, self.index_length_dict,
-                            self.flowCellDict, self.config_dict, self.index1Vocabulary, self.index2Vocabulary, self.flowCellName, self.logger)
+        self.ordered_sample_sheet_dict, self.csv_file_name = create_sample_sheet_dict(self.service, self.barcodesPerLaneDict, self.containedSamples, self.samplesPerLaneDict, self.model, self.parentDict,
+                                                                                      self.index_length_dict, self.flowCellDict, self.config_dict, self.index1Vocabulary,
+                                                                                      self.index2Vocabulary, self.flowCellName, self.logger)
          
         write_sample_sheet_single_lane(self.model, self.ordered_sample_sheet_dict, self.flowCellDict, self.index_length_dict,
                                           self.parentDict, self.config_dict, self.options, self.logger, self.csv_file_name)
@@ -250,7 +261,7 @@ class create_sample_sheet_C7P5KANXX(unittest.TestCase):
 
 class create_sample_sheet_HJWC3BGXX(unittest.TestCase):
     """
-    NextSeq
+    NextSeq, SINGLE_READ, Single index
     """
      
      
@@ -278,8 +289,8 @@ class create_sample_sheet_HJWC3BGXX(unittest.TestCase):
         self.flowcell, self.containedSamples = get_flowcell('ILLUMINA_FLOW_CELL',
                                             self.myCode, self.service, self.logger)
         self.flowCellDict = transform_sample_to_dict(self.flowcell)
-        self.parentDict, self.samplesPerLaneDict = get_contained_sample_properties(
-                                                    self.containedSamples, self.service)
+        self.parentDict, self.samplesPerLaneDict, self.barcodesPerLaneDict = get_contained_sample_properties(
+                                                    self.containedSamples, self.service, self.config_dict)
         self.flowCellName = self.flowcell.getCode()
         self.index1Vocabulary = get_vocabulary(self.config_dict['index1Name'], self.service)
         self.index2Vocabulary = get_vocabulary(self.config_dict['index2Name'], self.service)
@@ -308,8 +319,9 @@ class create_sample_sheet_HJWC3BGXX(unittest.TestCase):
            
         self.model = get_model(self.flowCellDict['RUN_NAME_FOLDER'])
    
-        self.ordered_sample_sheet_dict, self.csv_file_name = create_sample_sheet_dict(self.model, self.parentDict, self.index_length_dict,
-                            self.flowCellDict, self.config_dict, self.index1Vocabulary, self.index2Vocabulary, self.flowCellName, self.logger)
+        self.ordered_sample_sheet_dict, self.csv_file_name = create_sample_sheet_dict(self.service, self.barcodesPerLaneDict, self.containedSamples, self.samplesPerLaneDict, self.model, self.parentDict,
+                                                                                      self.index_length_dict, self.flowCellDict, self.config_dict, self.index1Vocabulary,
+                                                                                      self.index2Vocabulary, self.flowCellName, self.logger)
           
         self.assertDictEqual(self.ordered_sample_sheet_dict,
                             {u'1_BSSE_QGF_37098_HJWC3BGXX_1': [u'BSSE_QGF_37098_HJWC3BGXX_1,BSSE_QGF_37098_HJWC3BGXX_1_TB_358_PQR_2_0_GTTTCG,,,A021,GTTTCG,BSSE_QGF_37098_HJWC3BGXX_1,'],
@@ -342,8 +354,9 @@ class create_sample_sheet_HJWC3BGXX(unittest.TestCase):
     def test_write_sample_sheet_single_lane(self):
         self.model = get_model(self.flowCellDict['RUN_NAME_FOLDER'])
    
-        self.ordered_sample_sheet_dict, self.csv_file_name = create_sample_sheet_dict(self.model, self.parentDict, self.index_length_dict,
-                            self.flowCellDict, self.config_dict, self.index1Vocabulary, self.index2Vocabulary, self.flowCellName, self.logger)
+        self.ordered_sample_sheet_dict, self.csv_file_name = create_sample_sheet_dict(self.service, self.barcodesPerLaneDict, self.containedSamples, self.samplesPerLaneDict, self.model, self.parentDict,
+                                                                                      self.index_length_dict, self.flowCellDict, self.config_dict, self.index1Vocabulary,
+                                                                                      self.index2Vocabulary, self.flowCellName, self.logger)
           
         write_sample_sheet_single_lane(self.model, self.ordered_sample_sheet_dict, self.flowCellDict, self.index_length_dict,
                                           self.parentDict, self.config_dict, self.options, self.logger, self.csv_file_name)
@@ -355,7 +368,7 @@ class create_sample_sheet_HJWC3BGXX(unittest.TestCase):
 
 class create_sample_sheet_000000000_AH5W3(unittest.TestCase):
     """
-    MiSeq
+    MiSeq, PAIRED_END, Single Index
     """
     
     
@@ -383,8 +396,8 @@ class create_sample_sheet_000000000_AH5W3(unittest.TestCase):
         self.flowcell, self.containedSamples = get_flowcell('ILLUMINA_FLOW_CELL',
                                             self.myCode, self.service, self.logger)
         self.flowCellDict = transform_sample_to_dict(self.flowcell)
-        self.parentDict, self.samplesPerLaneDict = get_contained_sample_properties(
-                                                    self.containedSamples, self.service)
+        self.parentDict, self.samplesPerLaneDict, self.barcodesPerLaneDict = get_contained_sample_properties(
+                                                    self.containedSamples, self.service, self.config_dict)
         self.flowCellName = self.flowcell.getCode()
         self.index1Vocabulary = get_vocabulary(self.config_dict['index1Name'], self.service)
         self.index2Vocabulary = get_vocabulary(self.config_dict['index2Name'], self.service)
@@ -413,9 +426,11 @@ class create_sample_sheet_000000000_AH5W3(unittest.TestCase):
            
         self.model = get_model(self.flowCellDict['RUN_NAME_FOLDER'])
    
-        self.ordered_sample_sheet_dict, self.csv_file_name = create_sample_sheet_dict(self.model, self.parentDict, self.index_length_dict,
-                            self.flowCellDict, self.config_dict, self.index1Vocabulary, self.index2Vocabulary, self.flowCellName, self.logger)
+        self.ordered_sample_sheet_dict, self.csv_file_name = create_sample_sheet_dict(self.service, self.barcodesPerLaneDict, self.containedSamples, self.samplesPerLaneDict, self.model, self.parentDict,
+                                                                                      self.index_length_dict, self.flowCellDict, self.config_dict, self.index1Vocabulary,
+                                                                                      self.index2Vocabulary, self.flowCellName, self.logger)
           
+        
         self.assertDictEqual(self.ordered_sample_sheet_dict,
                 {u'1_BSSE_QGF_36763_000000000_AH5W3_1': [u'1,BSSE_QGF_36763_000000000_AH5W3_1,BSSE_QGF_36763_000000000_AH5W3_1_H7_PRE_Idx_15_ATGTCA,,,A015,ATGTCA,BSSE_QGF_36763_000000000_AH5W3_1,'],
                  u'1_BSSE_QGF_36765_000000000_AH5W3_1': [u'1,BSSE_QGF_36765_000000000_AH5W3_1,BSSE_QGF_36765_000000000_AH5W3_1_H8_NBC_Idx_16_CCGTCC,,,A016,CCGTCC,BSSE_QGF_36765_000000000_AH5W3_1,'],
@@ -440,12 +455,107 @@ class create_sample_sheet_000000000_AH5W3(unittest.TestCase):
     def test_write_sample_sheet_single_lane(self):
         self.model = get_model(self.flowCellDict['RUN_NAME_FOLDER'])
 
-        self.ordered_sample_sheet_dict, self.csv_file_name = create_sample_sheet_dict(self.model, self.parentDict, self.index_length_dict,
-                            self.flowCellDict, self.config_dict, self.index1Vocabulary, self.index2Vocabulary, self.flowCellName, self.logger)
+        self.ordered_sample_sheet_dict, self.csv_file_name = create_sample_sheet_dict(self.service, self.barcodesPerLaneDict, self.containedSamples, self.samplesPerLaneDict, self.model, self.parentDict,
+                                                                                      self.index_length_dict, self.flowCellDict, self.config_dict, self.index1Vocabulary,
+                                                                                      self.index2Vocabulary, self.flowCellName, self.logger)
 
         write_sample_sheet_single_lane(self.model, self.ordered_sample_sheet_dict, self.flowCellDict, self.index_length_dict,
                                           self.parentDict, self.config_dict, self.options, self.logger, self.csv_file_name)
     
+    def tearDown(self):
+        self.service.logout()
+        self.logger.info('Logged out')
+
+
+
+class create_sample_sheet_H32NFBCXX(unittest.TestCase):
+    """
+    HiSeq 2500 Rapid Run with no indices
+    """
+    
+    
+    def setUp(self):
+        self.myCode = 'H32NFBCXX'
+        self.logger = setUpLogger('log/')
+        self.config_dict = readConfig(self.logger)
+        
+        import argparse
+        import shlex
+        parser = argparse.ArgumentParser()
+        
+        parser.add_argument('--flowcell')
+        parser.add_argument('--lineending')
+        parser.add_argument('--outdir')
+        
+        cmd_string = ['--flowcell', self.myCode, '--lineending', 'win32', '--outdir', '../../targets/playground']
+        self.options = parser.parse_args(cmd_string)
+
+        self.service = OpenbisServiceFacadeFactory.tryCreate(self.config_dict['openbisUserName'],
+                                                      self.config_dict['openbisPassword'],
+                                                      self.config_dict['openbisServer'],
+                                                      self.config_dict['connectionTimeout'])
+        
+        self.flowcell, self.containedSamples = get_flowcell('ILLUMINA_FLOW_CELL',
+                                            self.myCode, self.service, self.logger)
+        self.flowCellDict = transform_sample_to_dict(self.flowcell)
+        self.parentDict, self.samplesPerLaneDict, self.barcodesPerLaneDict = get_contained_sample_properties(
+                                                    self.containedSamples, self.service, self.config_dict)
+        self.flowCellName = self.flowcell.getCode()
+        self.index1Vocabulary = get_vocabulary(self.config_dict['index1Name'], self.service)
+        self.index2Vocabulary = get_vocabulary(self.config_dict['index2Name'], self.service)
+        self.index_length_dict = verify_index_length(self.parentDict, self.flowCellDict, self.config_dict, self.logger)
+
+
+    def test_get_flowCell (self):
+        self.assertEqual(self.flowcell.getCode(), self.myCode)
+        self.assertEqual(self.containedSamples.size(), 2)
+        
+        fcProp = self.flowcell.getProperties()
+        self.assertEqual(fcProp['SEQUENCER'], u'D00535')
+        self.assertEqual(self.flowCellDict['ILLUMINA_PIPELINE_VERSION'], '1.18.64')
+    
+    
+    def test_get_contained_sample_properties(self):
+        self.assertNotIn(self.parentDict['BSSE_QGF_29352_H32NFBCXX_1'],['BARCODE'])
+#         self.assertEqual(self.parentDict['BSSE_QGF_29352_H32NFBCXX_1']['NCBI_ORGANISM_TAXONOMY'], '32644')
+#         self.assertEqual(self.samplesPerLaneDict['1'], 2)
+   
+    def test_verify_index_length(self):
+        self.assertDictEqual(self.index_length_dict,{1: [7, 0], 2:[7, 0]})
+  
+  
+    def test_create_sample_sheet_dict(self):
+            
+        self.model = get_model(self.flowCellDict['RUN_NAME_FOLDER'])
+    
+        self.ordered_sample_sheet_dict, self.csv_file_name = create_sample_sheet_dict(self.service, self.barcodesPerLaneDict, self.containedSamples, self.samplesPerLaneDict, self.model, self.parentDict,
+                                                                                      self.index_length_dict, self.flowCellDict, self.config_dict, self.index1Vocabulary,
+                                                                                      self.index2Vocabulary, self.flowCellName, self.logger)
+           
+        self.assertDictEqual(self.ordered_sample_sheet_dict,
+                {u'1_BSSE_QGF_29352_H32NFBCXX_1': [u'1,,BSSE_QGF_29352_H32NFBCXX_1,BSSE_QGF_29352_H32NFBCXX_1_Lib_Amph_4,,,,,BSSE_QGF_29352_H32NFBCXX_1'],
+                 u'2_BSSE_QGF_29352_H32NFBCXX_2': [u'2,,BSSE_QGF_29352_H32NFBCXX_2,BSSE_QGF_29352_H32NFBCXX_2_Lib_Amph_4,,,,,BSSE_QGF_29352_H32NFBCXX_2']})
+ 
+    def test_create_header_section(self):
+        self.model = get_model(self.flowCellDict['RUN_NAME_FOLDER'])
+        lane = 1
+        self.date = getTodayDate()
+        self.create_header_section = create_header_section(self.model, self.config_dict, self.parentDict, self.flowCellDict, self.index_length_dict, lane)
+        self.assertListEqual(self.create_header_section, ['[Header]', 'IEMFileVersion,4', 'Investigator Name,ETHZ_D-BSSE', 'Project Name,Genomics Facility Basel',
+                                                          u'Experiment Name,H32NFBCXX', 'Date,' + self.date, 'Workflow,GenerateFASTQ', 'Application,FASTQ Only',
+                                                          'Assay,', u'Description,SINGLE_READ_201', 'Chemistry,Default', '', '[Reads]', u'201', '', '[Settings]', '',
+                                                          '[Data]', 'Lane,Sample_ID,Sample_Name,Sample_Plate,Sample_Well,I7_Index_ID,index,Sample_Project,Description'])
+            
+    def test_write_sample_sheet_single_lane(self):
+        self.model = get_model(self.flowCellDict['RUN_NAME_FOLDER'])
+ 
+        self.ordered_sample_sheet_dict, self.csv_file_name = create_sample_sheet_dict(self.service, self.barcodesPerLaneDict, self.containedSamples, self.samplesPerLaneDict, self.model, self.parentDict,
+                                                                                      self.index_length_dict, self.flowCellDict, self.config_dict, self.index1Vocabulary,
+                                                                                      self.index2Vocabulary, self.flowCellName, self.logger)
+ 
+        write_sample_sheet_single_lane(self.model, self.ordered_sample_sheet_dict, self.flowCellDict, self.index_length_dict,
+                                          self.parentDict, self.config_dict, self.options, self.logger, self.csv_file_name)
+     
     def tearDown(self):
         self.service.logout()
         self.logger.info('Logged out')
