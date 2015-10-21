@@ -35,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.detailed.Num
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CompareType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IAssociationCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DtoConverters;
 
@@ -203,7 +204,7 @@ public class LuceneQueryBuilder
             String searchPattern = searchPatterns.get(i);
             Analyzer analyzer = analyzers.get(i);
             Query query = null;
-            if(!fieldName.equals("id") && type != null && (NumberRangeCalculator.isInteger(searchPattern) || NumberRangeCalculator.isReal(searchPattern))) {
+            if(!fieldName.equals(SearchFieldConstants.ID) && type != null && (NumberRangeCalculator.isInteger(searchPattern) || NumberRangeCalculator.isReal(searchPattern))) {
                 query = NumberRangeCalculator.getRangeQuery(type, fieldName, searchPattern);
             } else {
                 query = parseQuery(fieldName, searchPattern, analyzer);
