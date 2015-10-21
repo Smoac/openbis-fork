@@ -83,7 +83,7 @@ public class MonitoredIOStreamCopier
             if (maxQueueSize < 1)
             {
                 throw new ConfigurationFailureException("Maximum queue size " 
-                        + maxQueueSize + " should be larger than buffer size " + bufferSize + ".");
+                        + maxQueueSizeInBytes + " should be larger than buffer size " + bufferSize + ".");
             }
             queue = new LinkedBlockingQueue<WritingItem>((int) maxQueueSize);
         }
