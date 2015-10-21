@@ -114,18 +114,23 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
     public DocValuesType getFieldType(String fieldName)
     {
         //Initialize field types
-        if(fieldTypes.containsKey(fieldName) == false) {
+        if(fieldTypes.size() == 0) { //Only initialize the first time
             for(SearchableEntity searchableEntity:SearchableEntity.values()) {
-                final FullTextSession fullTextSession = Search.getFullTextSession(this.currentSession());
-                MyIndexReaderProvider indexProvider = new MyIndexReaderProvider(fullTextSession, searchableEntity);
-                IndexReader indexReader = indexProvider.getReader();
-                for (AtomicReaderContext rc : indexReader.leaves()) { 
-                    AtomicReader ar = rc.reader(); 
-                    FieldInfos fis = ar.getFieldInfos();
-                    for(Iterator<FieldInfo> iter = fis.iterator(); iter.hasNext(); ) {
-                        FieldInfo fi = iter.next();
-                        fieldTypes.put(fi.name, fi.getDocValuesType());
+                MyIndexReaderProvider indexProvider = null;
+                try {
+                    final FullTextSession fullTextSession = Search.getFullTextSession(this.currentSession());
+                    indexProvider = new MyIndexReaderProvider(fullTextSession, searchableEntity);
+                    IndexReader indexReader = indexProvider.getReader();
+                    for (AtomicReaderContext rc : indexReader.leaves()) { 
+                        AtomicReader ar = rc.reader(); 
+                        FieldInfos fis = ar.getFieldInfos();
+                        for(Iterator<FieldInfo> iter = fis.iterator(); iter.hasNext(); ) {
+                            FieldInfo fi = iter.next();
+                            fieldTypes.put(fi.name, fi.getDocValuesType());
+                        }
                     }
+                } finally {
+                    indexProvider.close();
                 }
             }
         }
