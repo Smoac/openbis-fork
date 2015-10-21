@@ -57,7 +57,7 @@ experimentDefinition = [
 #
 antibodyDefinition = [
     ["BY",                           "General",                "By",                        DataType.VARCHAR,                    None,  "", None, None, False],
-    ["NOTES",                           "General",                "Notes",                        DataType.VARCHAR,                    None,  "", None, None, False],
+    ["NOTES",                           "General",                "Notes",                        DataType.MULTILINE_VARCHAR,                    None,  "", None, None, False],
     ["RECEIVE_DATE",                          "General",                  "ReceiveDate",                           DataType.TIMESTAMP,                      None, "", None, None, False],
     ["REF_NUM",                          "General",                  "RefNum",                           DataType.VARCHAR,                      None, "", None, None, False],
     ["REQUEST_DATE",                          "General",                  "RequestDate",                           DataType.TIMESTAMP,                      None, "", None, None, False],
@@ -84,7 +84,7 @@ antibodyDefinition = [
 
 strainDefinition = [
     ["BASE_STRAIN",                             "General",                  "base strain",                             DataType.VARCHAR,       None,  "", None, None, False],
-    ["COMMENTS",                             "General",                  "comments",                             DataType.VARCHAR,       None,  "", None, None, False],
+    ["COMMENTS",                             "General",                  "comments",                             DataType.MULTILINE_VARCHAR,       None,  "", None, None, False],
     ["DATE_ENTERED",                             "General",                  "date entered",                             DataType.TIMESTAMP,       None,  "", None, None, False],    
     ["DERIVED_FROM",                             "General",                  "derived from",                             DataType.VARCHAR,       None,  "", None, None, False],    
     ["FROZEN_STOCK",                             "General",                  "frozen stock",                             DataType.VARCHAR,       None,  "", None, None, False],    
@@ -110,7 +110,6 @@ oligoDefinition = [
     ["MMEXTCOEFF",                          "General",                  "mMExtCoeff",                           DataType.REAL,                      None, "", None, None, False],
     ["MOLWEIGHT",                          "General",                  "MolWeight",                           DataType.REAL,                      None, "", None, None, False],
     ["OD",                          "General",                  "OD",                           DataType.REAL,                      None, "", None, None, False],
-    ["PICTURES",                          "General",                  "Pictures",                           DataType.VARCHAR,                      None, "", None, None, False],
     ["PMOL_UL",                          "General",                  "pMol_ul",                           DataType.REAL,                      None, "", None, None, False],
     ["RECEIVE_DATE",                          "General",                  "ReceiveDate",                           DataType.TIMESTAMP,                      None, "", None, None, False],
     ["REF_NUM",                          "General",                  "RefNum",                           DataType.VARCHAR,                      None, "", None, None, False],
@@ -119,17 +118,14 @@ oligoDefinition = [
     ["SEQUENCE",                          "General",                  "Sequence",                           DataType.VARCHAR,                      None, "", None, None, False],
     ["STANDARD_TM",                          "General",                  "StandardTm",                           DataType.REAL,                      None, "", None, None, False],
     ["SYS_NAME",                          "General",                  "SysName",                           DataType.REAL,                      None, "", None, None, False],
-    ["TEXT_SEQUENCE",                          "General",                  "TextSequence",                           DataType.VARCHAR,                      None, "", None, None, False],
     ["TONUC",                          "General",                  "toNuc",                           DataType.INTEGER,                      None, "", None, None, False],
     ["TYPE",                          "General",                  "Type",                           DataType.CONTROLLEDVOCABULARY,                      "OLIGO_TYPE", "", None, None, False],
     ["NAME",                          "General",                  "UC Number",                           DataType.VARCHAR,                      None, "", None, None, False],
     ["UG_UL",                          "General",                  "ug_ul",                           DataType.REAL,                      None, "", None, None, False],
     ["VOLUME",                          "General",                  "Volume",                           DataType.REAL,                      None, "", None, None, False],
-    ["STATUS_RECORDS",                          "General",                  "StatusRecords",                           DataType.INTEGER,                      None, "", None, None, False],
-    ["CLICK_COUNTER",                          "General",                  "click counter",                           DataType.INTEGER,                      None, "", None, None, False],    
     ["CATEGORY",                          "General",                  "category",                           DataType.CONTROLLEDVOCABULARY,                      "OLIGO_CATEGORY", "", None, None, False],
     ["REORDERED",                          "General",                  "Reordered",                           DataType.VARCHAR,                      None, "", None, None, False],
-    ["NOTES",                          "Comments",                  "Notes",                           DataType.VARCHAR,                      None, "", None, None, False],
+    ["NOTES",                          "Comments",                  "Notes",                           DataType.MULTILINE_VARCHAR,                      None, "", None, None, False],
     ["ANNOTATIONS_STATE",                "Comments",                "Annotations State",                    DataType.XML,                    None,                                "Annotations State", annotationsScriptName, None, False]
 ];
 
@@ -144,7 +140,7 @@ plasmidDefinition = [
     ["5MOD",                        "General",                  "5' Modif.",                         DataType.VARCHAR,      None,  "", None, None, False],
     ["BACTERIAL_STRAIN",                        "General",                  "Bacterial strain",                         DataType.CONTROLLEDVOCABULARY,      "PLASMID_BACTERIAL_STRAIN",  "", None, None, False],
     ["BY",                        "General",                  "By",                         DataType.VARCHAR,      None,  "", None, None, False],
-    ["COMMENT",                        "General",                  "Comment",                         DataType.VARCHAR,      None,  "", None, None, False],
+    ["COMMENT",                        "General",                  "Comment",                         DataType.MULTILINE_VARCHAR,      None,  "", None, None, False],
     ["CONCENTRATION",                        "General",                  "Concentration",                         DataType.REAL,      None,  "", None, None, False],    
     ["DNA_PREPARED_ON",                        "General",                  "DNA prepared on",                         DataType.VARCHAR,      None,  "", None, None, False],
     ["DRUG_RES",                        "General",                  "Drug res.",                         DataType.CONTROLLEDVOCABULARY,      "PLASMID_DRUG_RES",  "", None, None, False],    
@@ -182,7 +178,7 @@ chemicalDefinition = [
     ["STOCK_CONCENTRATION",          "General",                 "Stock concentration",              DataType.VARCHAR,                   None,  "", None, None, False],
     ["USED_BY",                      "General",                 "used by",                          DataType.VARCHAR,                   None,  "", None, None, False],
     ["LOCATION",                     "Storage",                 "Location",                         DataType.VARCHAR,                   None,  "", None, None, False],       
-    ["COMMENTS",                     "Comments",                "Comments",                         DataType.VARCHAR,                   None,  "", None, None, False],
+    ["COMMENTS",                     "Comments",                "Comments",                         DataType.MULTILINE_VARCHAR,                   None,  "", None, None, False],
     ["ANNOTATIONS_STATE",                "Comments",                "Annotations State",                    DataType.XML,                    None,                                "Annotations State", annotationsScriptName, None, False]
 ];
 
@@ -190,7 +186,7 @@ RestrictionEnzymeDefinition = [
     ["NAME",                            "General",                  "Name",                             DataType.VARCHAR,                   None,  "", None, None, False],
     ["BLOCK",                           "Storage",                  "Block",                            DataType.VARCHAR,                   None,  "", None, None, False],
     ["POSITION",                        "Storage",                  "Position",                         DataType.VARCHAR,                   None,  "", None, None, False],
-    ["COMMENT",                         "Comments",                  "Comment",                          DataType.VARCHAR,                   None,  "", None, None, False],
+    ["COMMENT",                         "Comments",                  "Comment",                          DataType.MULTILINE_VARCHAR,                   None,  "", None, None, False],
     ["ANNOTATIONS_STATE",                "Comments",                "Annotations State",                    DataType.XML,                    None,                                "Annotations State", annotationsScriptName, None, False]  
 ];
 
