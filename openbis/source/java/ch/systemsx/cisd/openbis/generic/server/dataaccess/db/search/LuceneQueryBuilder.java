@@ -35,7 +35,6 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.detailed.Num
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CompareType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IAssociationCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DtoConverters;
 
@@ -193,7 +192,7 @@ public class LuceneQueryBuilder
 
     // creates a query where any field matches the given pattern
     public static Query parseQuery(final CompareType type, final List<String> fieldNames,
-            final List<String> searchPatterns, List<Analyzer> analyzers)
+            final List<String> searchPatterns, List<Analyzer> analyzers, List<Boolean> fieldIsNumeric)
             throws UserFailureException
     {
         BooleanQuery resultQuery = new BooleanQuery();
@@ -201,10 +200,12 @@ public class LuceneQueryBuilder
         for (int i = 0; i < fieldNames.size(); i++)
         {
             String fieldName = fieldNames.get(i);
+            boolean isNumeric = fieldIsNumeric.get(i);
             String searchPattern = searchPatterns.get(i);
             Analyzer analyzer = analyzers.get(i);
+            
             Query query = null;
-            if(!fieldName.equals(SearchFieldConstants.ID) && type != null && (NumberRangeCalculator.isInteger(searchPattern) || NumberRangeCalculator.isReal(searchPattern))) {
+            if(isNumeric && (NumberRangeCalculator.isInteger(searchPattern) || NumberRangeCalculator.isReal(searchPattern))) {
                 query = NumberRangeCalculator.getRangeQuery(type, fieldName, searchPattern);
             } else {
                 query = parseQuery(fieldName, searchPattern, analyzer);

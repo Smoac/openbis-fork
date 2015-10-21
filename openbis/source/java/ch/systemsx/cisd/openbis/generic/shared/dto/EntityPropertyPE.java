@@ -34,6 +34,8 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.document.DoubleField;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.LongField;
+import org.apache.lucene.document.SortedNumericDocValuesField;
+import org.apache.lucene.util.NumericUtils;
 import org.hibernate.search.annotations.ClassBridge;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.IndexedEmbedded;
@@ -131,7 +133,7 @@ public abstract class EntityPropertyPE extends HibernateAbstractRegistrationHold
             String fieldFullName = fieldPrefix + getPropertyFieldName(entityProperty);
             Field.Index indexingStrategy = luceneOptions.getIndex();
             Field field = null;
-            
+            SortedNumericDocValuesField fieldIsdocTypeSortedNumeric = null;
             
             if (DataTypeCode.TIMESTAMP.equals(entityProperty.getEntityTypePropertyType().getPropertyType().getType().getCode()))
             {
@@ -149,7 +151,8 @@ public abstract class EntityPropertyPE extends HibernateAbstractRegistrationHold
             else if(DataTypeCode.INTEGER.equals(entityProperty.getEntityTypePropertyType().getPropertyType().getType().getCode())) {
                 try
                 {
-                    field = new LongField(fieldFullName, Long.parseLong(fieldValue), luceneOptions.getStore());
+                    field = new LongField(fieldFullName, Long.parseLong(fieldValue), luceneOptions.getStore()); //Needed to make range queries work
+                    fieldIsdocTypeSortedNumeric = new SortedNumericDocValuesField(fieldFullName, Long.parseLong(fieldValue)); //Needed to identify the field as number, if not type is not stored
                 } catch (Exception e)
                 {
                     // leave the original value
@@ -157,7 +160,8 @@ public abstract class EntityPropertyPE extends HibernateAbstractRegistrationHold
             } else if(DataTypeCode.REAL.equals(entityProperty.getEntityTypePropertyType().getPropertyType().getType().getCode())) {
                 try
                 {
-                    field = new DoubleField(fieldFullName, Double.parseDouble(fieldValue), luceneOptions.getStore());
+                    field = new DoubleField(fieldFullName, Double.parseDouble(fieldValue), luceneOptions.getStore()); //Needed to make range queries work
+                    fieldIsdocTypeSortedNumeric = new SortedNumericDocValuesField(fieldFullName, NumericUtils.doubleToSortableLong(Double.parseDouble(fieldValue))); //Needed to identify the field as number, if not type is not stored
                 } catch (Exception e)
                 {
                     // leave the original value
@@ -168,6 +172,9 @@ public abstract class EntityPropertyPE extends HibernateAbstractRegistrationHold
             
             field.setBoost(luceneOptions.getBoost());
             document.add(field);
+            if(fieldIsdocTypeSortedNumeric != null) {
+                document.add(fieldIsdocTypeSortedNumeric);
+            }
         }
 
         private String getPropertyFieldName(EntityPropertyPE entityProperty)

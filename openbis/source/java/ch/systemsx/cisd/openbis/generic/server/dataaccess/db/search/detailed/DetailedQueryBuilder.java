@@ -24,6 +24,7 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.index.FieldInfo.DocValuesType;
 import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
@@ -35,6 +36,7 @@ import ch.systemsx.cisd.common.exceptions.InternalErr;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.MetaprojectSearch;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.LuceneQueryBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.AttributeSearchFieldKindProvider;
@@ -101,6 +103,7 @@ public class DetailedQueryBuilder
             if (criterion.getTimeZone() == null)
             {
                 List<String> fieldPatterns = new ArrayList<String>(fieldNames.size());
+                List<Boolean> fieldIsNumeric = new ArrayList<Boolean>(fieldNames.size());
                 List<Analyzer> fieldAnalyzers = new ArrayList<Analyzer>(fieldNames.size());
 
                 for (String fieldName : fieldNames)
@@ -124,9 +127,10 @@ public class DetailedQueryBuilder
 
                     fieldPatterns.add(fieldPattern);
                     fieldAnalyzers.add(fieldAnalyzer);
+                    fieldIsNumeric.add(isNumeric(fieldName));
                 }
 
-                Query luceneQuery = LuceneQueryBuilder.parseQuery(criterion.getType(), fieldNames, fieldPatterns, fieldAnalyzers);
+                Query luceneQuery = LuceneQueryBuilder.parseQuery(criterion.getType(), fieldNames, fieldPatterns, fieldAnalyzers, fieldIsNumeric);
                 resultQuery.add(luceneQuery, occureCondition);
             } else
             {
@@ -145,13 +149,17 @@ public class DetailedQueryBuilder
         for (IAssociationCriteria association : associations)
         {
             String fieldName = getIndexFieldName(association);
-            Query luceneQuery =
-                    LuceneQueryBuilder.parseQuery(fieldName, association.getSearchPatterns(), searchAnalyzer);
+            Query luceneQuery = LuceneQueryBuilder.parseQuery(fieldName, association.getSearchPatterns(), searchAnalyzer);
             resultQuery.add(luceneQuery, occureCondition);
         }
         return resultQuery;
     }
 
+    public boolean isNumeric(String fieldName) {
+        DocValuesType docType = CommonServiceProvider.getDAOFactory().getHibernateSearchDAO().getFieldType(fieldName);
+       return docType == DocValuesType.SORTED_NUMERIC;
+    }
+    
     private Occur createOccureCondition(SearchCriteriaConnection connection)
     {
         switch (connection)

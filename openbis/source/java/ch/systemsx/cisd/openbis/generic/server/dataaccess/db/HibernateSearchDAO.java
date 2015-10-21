@@ -18,7 +18,9 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -29,6 +31,10 @@ import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.AtomicReaderContext;
+import org.apache.lucene.index.FieldInfo.DocValuesType;
+import org.apache.lucene.index.AtomicReader;
+import org.apache.lucene.index.FieldInfo;
+import org.apache.lucene.index.FieldInfos;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexReaderContext;
 import org.apache.lucene.index.IndexableField;
@@ -94,7 +100,8 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
             HibernateSearchDAO.class);
 
     private final HibernateSearchContext hibernateSearchContext;
-
+    private final Map<String, DocValuesType> fieldTypes = new HashMap<String, DocValuesType>();
+    
     HibernateSearchDAO(final SessionFactory sessionFactory,
             HibernateSearchContext hibernateSearchContext)
     {
@@ -102,7 +109,30 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
         this.hibernateSearchContext = hibernateSearchContext;
         setSessionFactory(sessionFactory);
     }
-
+    
+    @Override
+    public DocValuesType getFieldType(String fieldName)
+    {
+        //Initialize field types
+        if(fieldTypes.containsKey(fieldName) == false) {
+            for(SearchableEntity searchableEntity:SearchableEntity.values()) {
+                final FullTextSession fullTextSession = Search.getFullTextSession(this.currentSession());
+                MyIndexReaderProvider indexProvider = new MyIndexReaderProvider(fullTextSession, searchableEntity);
+                IndexReader indexReader = indexProvider.getReader();
+                for (AtomicReaderContext rc : indexReader.leaves()) { 
+                    AtomicReader ar = rc.reader(); 
+                    FieldInfos fis = ar.getFieldInfos();
+                    for(Iterator<FieldInfo> iter = fis.iterator(); iter.hasNext(); ) {
+                        FieldInfo fi = iter.next();
+                        fieldTypes.put(fi.name, fi.getDocValuesType());
+                    }
+                }
+            }
+        }
+        DocValuesType found = fieldTypes.get(fieldName);
+        return found;
+    }
+    
     //
     // IHibernateSearchDAO
     //

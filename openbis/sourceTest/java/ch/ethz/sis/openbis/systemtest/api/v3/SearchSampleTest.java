@@ -864,6 +864,12 @@ public class SearchSampleTest extends AbstractSampleTest
         sortByCodeFO.sortBy().code().asc();
         sortByCodeFO.withProperties();
         
+        //Equals As Text
+        SampleSearchCriteria criteriaETxt = new SampleSearchCriteria();
+        criteriaETxt.withProperty("SIZE").thatEquals("666");
+        List<Sample> samplesETxt = search(sessionToken, criteriaETxt, sortByCodeFO);
+        assertSampleIdentifiersInOrder(samplesETxt, "/CISD/CP-TEST-3");
+        
         //Equals
         SampleSearchCriteria criteriaE = new SampleSearchCriteria();
         criteriaE.withNumberProperty("SIZE").thatEquals(666);
