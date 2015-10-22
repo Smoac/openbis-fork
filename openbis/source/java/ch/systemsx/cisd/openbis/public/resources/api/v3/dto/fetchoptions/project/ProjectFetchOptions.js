@@ -2,7 +2,7 @@
  * Class automatically generated with
  * {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
  */
-define([ "require", "stjs", "dto/fetchoptions/FetchOptions", 'dto/fetchoptions/person/PersonFetchOptions', 'dto/fetchoptions/space/SpaceFetchOptions',
+define([ "require", "stjs", "dto/fetchoptions/FetchOptions", 'dto/fetchoptions/person/PersonFetchOptions', 'dto/fetchoptions/space/SpaceFetchOptions', 'dto/fetchoptions/sample/SampleFetchOptions',
 		'dto/fetchoptions/experiment/ExperimentFetchOptions', 'dto/fetchoptions/attachment/AttachmentFetchOptions', 'dto/fetchoptions/project/ProjectSortOptions' ], function(require, stjs,
 		FetchOptions) {
 	var ProjectFetchOptions = function() {
@@ -11,6 +11,7 @@ define([ "require", "stjs", "dto/fetchoptions/FetchOptions", 'dto/fetchoptions/p
 		prototype['@type'] = 'dto.fetchoptions.project.ProjectFetchOptions';
 		constructor.serialVersionUID = 1;
 		prototype.experiments = null;
+		prototype.samples = null;
 		prototype.space = null;
 		prototype.registrator = null;
 		prototype.modifier = null;
@@ -29,6 +30,19 @@ define([ "require", "stjs", "dto/fetchoptions/FetchOptions", 'dto/fetchoptions/p
 		};
 		prototype.hasExperiments = function() {
 			return this.experiments != null;
+		};
+		prototype.withSamples = function() {
+			if (this.samples == null) {
+				var SampleFetchOptions = require("dto/fetchoptions/experiment/SampleFetchOptions");
+				this.samples = new SampleFetchOptions();
+			}
+			return this.samples;
+		};
+		prototype.withSamplesUsing = function(fetchOptions) {
+			return this.samples = fetchOptions;
+		};
+		prototype.hasSamples = function() {
+			return this.samples != null;
 		};
 		prototype.withSpace = function() {
 			if (this.space == null) {

@@ -6,6 +6,7 @@ define([ "stjs", "dto/entity/FieldUpdateValue", "dto/entity/IdListUpdateValue", 
 	var SampleUpdate = function() {
 		this.properties = {};
 		this.experimentId = new FieldUpdateValue();
+		this.projectId = new FieldUpdateValue();
 		this.spaceId = new FieldUpdateValue();
 		this.tagIds = new IdListUpdateValue();
 		this.containerId = new FieldUpdateValue();
@@ -24,6 +25,12 @@ define([ "stjs", "dto/entity/FieldUpdateValue", "dto/entity/IdListUpdateValue", 
 		};
 		prototype.setSampleId = function(sampleId) {
 			this.sampleId = sampleId;
+		};
+		prototype.getProjectId = function() {
+			return this.projectId;
+		};
+		prototype.setProjectId = function(projectId) {
+			this.projectId.setValue(projectId);
 		};
 		prototype.getExperimentId = function() {
 			return this.experimentId;
@@ -84,6 +91,10 @@ define([ "stjs", "dto/entity/FieldUpdateValue", "dto/entity/IdListUpdateValue", 
 		experimentId : {
 			name : "FieldUpdateValue",
 			arguments : [ "IExperimentId" ]
+		},
+		projectId : {
+			name : "FieldUpdateValue",
+			arguments : [ "IProjectId" ]
 		},
 		spaceId : {
 			name : "FieldUpdateValue",

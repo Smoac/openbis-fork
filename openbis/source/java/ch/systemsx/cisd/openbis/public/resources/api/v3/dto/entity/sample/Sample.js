@@ -15,6 +15,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		prototype.registrationDate = null;
 		prototype.modificationDate = null;
 		prototype.type = null;
+		prototype.project = null;
 		prototype.space = null;
 		prototype.experiment = null;
 		prototype.properties = null;
@@ -74,6 +75,16 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		};
 		prototype.setType = function(type) {
 			this.type = type;
+		};
+		prototype.getProject = function() {
+			if (this.getFetchOptions().hasProject()) {
+				return this.project;
+			} else {
+				throw new exceptions.NotFetchedException("Project has not been fetched.");
+			}
+		};
+		prototype.setProject = function(project) {
+			this.project = project;
 		};
 		prototype.getSpace = function() {
 			if (this.getFetchOptions().hasSpace()) {
@@ -225,6 +236,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		registrationDate : "Date",
 		modificationDate : "Date",
 		type : "SampleType",
+		project : "Project",
 		space : "Space",
 		experiment : "Experiment",
 		properties : {

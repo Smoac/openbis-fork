@@ -1,7 +1,8 @@
 /**
  * @author pkupczyk
  */
-define([ "require", "stjs", "dto/search/AbstractEntitySearchCriteria", "dto/search/SampleSearchRelation", "dto/search/SpaceSearchCriteria", "dto/search/ExperimentSearchCriteria",
+define([ "require", "stjs", "dto/search/AbstractEntitySearchCriteria", "dto/search/SampleSearchRelation", "dto/search/SpaceSearchCriteria", 
+		"dto/search/ProjectSearchCriteria", "dto/search/NoProjectSearchCriteria", "dto/search/ExperimentSearchCriteria",
 		"dto/search/NoExperimentSearchCriteria", "dto/search/NoSampleContainerSearchCriteria", "dto/search/SearchOperator" ], function(require, stjs, AbstractEntitySearchCriteria,
 		SampleSearchRelation, SpaceSearchCriteria, ExperimentSearchCriteria, NoExperimentSearchCriteria, NoSampleContainerSearchCriteria, SearchOperator) {
 
@@ -15,6 +16,12 @@ define([ "require", "stjs", "dto/search/AbstractEntitySearchCriteria", "dto/sear
 		prototype.relation = null;
 		prototype.withSpace = function() {
 			return this.addCriteria(new SpaceSearchCriteria());
+		};
+		prototype.withProject = function() {
+			return this.addCriteria(new ProjectSearchCriteria());
+		};
+		prototype.withoutProject = function() {
+			return this.addCriteria(new NoProjectSearchCriteria());
 		};
 		prototype.withExperiment = function() {
 			return this.addCriteria(new ExperimentSearchCriteria());
