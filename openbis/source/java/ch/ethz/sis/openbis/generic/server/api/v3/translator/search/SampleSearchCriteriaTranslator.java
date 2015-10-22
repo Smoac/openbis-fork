@@ -17,6 +17,7 @@
 package ch.ethz.sis.openbis.generic.server.api.v3.translator.search;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ISearchCriteria;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.NoProjectSearchCriteria;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.NoSampleContainerSearchCriteria;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.NoSampleSearchCriteria;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SampleChildrenSearchCriteria;
@@ -42,13 +43,18 @@ public class SampleSearchCriteriaTranslator extends AbstractCompositeSearchCrite
     @Override
     protected boolean doAccepts(ISearchCriteria criteria)
     {
-        return criteria instanceof SampleSearchCriteria || criteria instanceof NoSampleSearchCriteria;
+        return criteria instanceof SampleSearchCriteria || criteria instanceof NoSampleSearchCriteria 
+                || criteria instanceof NoProjectSearchCriteria;
     }
 
     @Override
     protected SearchCriteriaTranslationResult doTranslate(SearchTranslationContext context, ISearchCriteria criteria)
     {
-        if (criteria instanceof NoSampleSearchCriteria)
+        if (criteria instanceof NoProjectSearchCriteria)
+        {
+            // TODO implementation missing
+            throw new IllegalArgumentException("NoProjectSearchCriteria no yet supported");
+        }else if (criteria instanceof NoSampleSearchCriteria)
         {
             AssociatedEntityKind entityKind;
 
