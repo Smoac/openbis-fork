@@ -21,6 +21,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.attachment.Att
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.experiment.ExperimentFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.history.HistoryEntryFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.person.PersonFetchOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sample.SampleFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.space.SpaceFetchOptions;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -36,6 +37,9 @@ public class ProjectFetchOptions extends FetchOptions<Project> implements Serial
 
     @JsonProperty
     private ExperimentFetchOptions experiments;
+
+    @JsonProperty
+    private SampleFetchOptions samples;
 
     @JsonProperty
     private HistoryEntryFetchOptions history;
@@ -78,6 +82,28 @@ public class ProjectFetchOptions extends FetchOptions<Project> implements Serial
     public boolean hasExperiments()
     {
         return experiments != null;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public SampleFetchOptions withSamples()
+    {
+        if (samples == null)
+        {
+            samples = new SampleFetchOptions();
+        }
+        return samples;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public SampleFetchOptions withSamplesUsing(SampleFetchOptions fetchOptions)
+    {
+        return samples = fetchOptions;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public boolean hasSamples()
+    {
+        return samples != null;
     }
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}

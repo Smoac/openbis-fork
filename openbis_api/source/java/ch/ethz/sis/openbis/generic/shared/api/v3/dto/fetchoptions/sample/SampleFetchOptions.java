@@ -23,6 +23,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.experiment.Exp
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.history.HistoryEntryFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.material.MaterialFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.person.PersonFetchOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.project.ProjectFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.property.PropertyFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sample.SampleFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sample.SampleTypeFetchOptions;
@@ -42,6 +43,9 @@ public class SampleFetchOptions extends FetchOptions<Sample> implements Serializ
 
     @JsonProperty
     private SampleTypeFetchOptions type;
+
+    @JsonProperty
+    private ProjectFetchOptions project;
 
     @JsonProperty
     private SpaceFetchOptions space;
@@ -108,6 +112,28 @@ public class SampleFetchOptions extends FetchOptions<Sample> implements Serializ
     public boolean hasType()
     {
         return type != null;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public ProjectFetchOptions withProject()
+    {
+        if (project == null)
+        {
+            project = new ProjectFetchOptions();
+        }
+        return project;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public ProjectFetchOptions withProjectUsing(ProjectFetchOptions fetchOptions)
+    {
+        return project = fetchOptions;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public boolean hasProject()
+    {
+        return project != null;
     }
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}

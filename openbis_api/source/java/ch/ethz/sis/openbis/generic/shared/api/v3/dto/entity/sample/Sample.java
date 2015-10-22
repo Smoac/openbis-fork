@@ -32,6 +32,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.ISpaceHol
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.ITagsHolder;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material.Material;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.person.Person;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.project.Project;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.Sample;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleType;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.space.Space;
@@ -77,6 +78,9 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, IM
 
     @JsonProperty
     private SampleType type;
+
+    @JsonProperty
+    private Project project;
 
     @JsonProperty
     private Space space;
@@ -220,6 +224,26 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, IM
     public void setType(SampleType type)
     {
         this.type = type;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    @JsonIgnore
+    public Project getProject()
+    {
+        if (getFetchOptions().hasProject())
+        {
+            return project;
+        }
+        else
+        {
+            throw new NotFetchedException("Project has not been fetched.");
+        }
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public void setProject(Project project)
+    {
+        this.project = project;
     }
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}

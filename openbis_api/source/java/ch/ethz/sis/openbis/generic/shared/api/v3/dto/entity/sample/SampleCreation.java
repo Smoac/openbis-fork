@@ -25,6 +25,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.attachment.Attachmen
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.CreationId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.entitytype.IEntityTypeId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.IExperimentId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.IProjectId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.ISampleId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.ISpaceId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.ITagId;
@@ -41,6 +42,8 @@ public class SampleCreation implements Serializable
     private IEntityTypeId typeId;
 
     private IExperimentId experimentId;
+
+    private IProjectId projectId;
 
     private ISpaceId spaceId;
 
@@ -80,6 +83,16 @@ public class SampleCreation implements Serializable
     public void setExperimentId(IExperimentId experimentId)
     {
         this.experimentId = experimentId;
+    }
+
+    public IProjectId getProjectId()
+    {
+        return projectId;
+    }
+
+    public void setProjectId(IProjectId projectId)
+    {
+        this.projectId = projectId;
     }
 
     public ISpaceId getSpaceId()

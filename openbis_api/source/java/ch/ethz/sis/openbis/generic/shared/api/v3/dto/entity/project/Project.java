@@ -27,6 +27,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IRegistra
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IRegistratorHolder;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.ISpaceHolder;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.person.Person;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.Sample;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.space.Space;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.project.ProjectFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.ProjectIdentifier;
@@ -70,6 +71,9 @@ public class Project implements Serializable, IAttachmentsHolder, ICodeHolder, I
 
     @JsonProperty
     private List<Experiment> experiments;
+
+    @JsonProperty
+    private List<Sample> samples;
 
     @JsonProperty
     private List<HistoryEntry> history;
@@ -194,7 +198,7 @@ public class Project implements Serializable, IAttachmentsHolder, ICodeHolder, I
         }
         else
         {
-            throw new NotFetchedException("Expreiments have not been fetched.");
+            throw new NotFetchedException("Experiments have not been fetched.");
         }
     }
 
@@ -202,6 +206,26 @@ public class Project implements Serializable, IAttachmentsHolder, ICodeHolder, I
     public void setExperiments(List<Experiment> experiments)
     {
         this.experiments = experiments;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    @JsonIgnore
+    public List<Sample> getSamples()
+    {
+        if (getFetchOptions().hasSamples())
+        {
+            return samples;
+        }
+        else
+        {
+            throw new NotFetchedException("Samples have not been fetched.");
+        }
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public void setSamples(List<Sample> samples)
+    {
+        this.samples = samples;
     }
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}

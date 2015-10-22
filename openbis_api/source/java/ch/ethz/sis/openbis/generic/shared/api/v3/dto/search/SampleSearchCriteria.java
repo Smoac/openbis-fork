@@ -45,6 +45,17 @@ public class SampleSearchCriteria extends AbstractEntitySearchCriteria<ISampleId
         return with(new SpaceSearchCriteria());
     }
 
+    public ProjectSearchCriteria withProject()
+    {
+        return with(new ProjectSearchCriteria());
+    }
+
+    public SampleSearchCriteria withoutProject()
+    {
+        with(new NoProjectSearchCriteria());
+        return this;
+    }
+    
     public ExperimentSearchCriteria withExperiment()
     {
         return with(new ExperimentSearchCriteria());
