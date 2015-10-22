@@ -27,6 +27,11 @@ public class NumberLessOrEqualThanValue extends AbstractNumberValue
 
     private static final long serialVersionUID = 1L;
 
+    public NumberLessOrEqualThanValue()
+    {
+        super(null);
+    }
+    
     public NumberLessOrEqualThanValue(Number number)
     {
         super(number);
@@ -35,7 +40,7 @@ public class NumberLessOrEqualThanValue extends AbstractNumberValue
     @Override
     public String toString()
     {
-        return "less or equal to '" + getValue() + "'";
+        return "less or equal than '" + getValue() + "'";
     }
 
 }

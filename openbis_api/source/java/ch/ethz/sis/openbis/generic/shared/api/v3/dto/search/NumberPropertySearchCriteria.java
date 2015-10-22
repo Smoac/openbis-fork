@@ -26,10 +26,16 @@ public class NumberPropertySearchCriteria extends NumberFieldSearchCriteria
 {
 
     private static final long serialVersionUID = 1L;
-
+    
+    NumberPropertySearchCriteria()
+    {
+        super(null, SearchFieldType.PROPERTY);
+    }
+    
     NumberPropertySearchCriteria(String fieldName)
     {
         super(fieldName, SearchFieldType.PROPERTY);
     }
-
+    
+    
 }

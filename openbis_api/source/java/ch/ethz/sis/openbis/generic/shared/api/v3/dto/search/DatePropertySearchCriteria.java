@@ -26,7 +26,12 @@ public class DatePropertySearchCriteria extends DateFieldSearchCriteria
 {
 
     private static final long serialVersionUID = 1L;
-
+    
+    DatePropertySearchCriteria()
+    {
+        super(null, SearchFieldType.PROPERTY);
+    }
+    
     DatePropertySearchCriteria(String fieldName)
     {
         super(fieldName, SearchFieldType.PROPERTY);

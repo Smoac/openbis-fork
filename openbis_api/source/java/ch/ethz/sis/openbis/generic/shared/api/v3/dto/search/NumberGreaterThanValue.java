@@ -26,7 +26,12 @@ public class NumberGreaterThanValue extends AbstractNumberValue
 {
 
     private static final long serialVersionUID = 1L;
-
+    
+    public NumberGreaterThanValue()
+    {
+        super(null);
+    }
+    
     public NumberGreaterThanValue(Number number)
     {
         super(number);
@@ -35,7 +40,7 @@ public class NumberGreaterThanValue extends AbstractNumberValue
     @Override
     public String toString()
     {
-        return "greater to '" + getValue() + "'";
+        return "greater than '" + getValue() + "'";
     }
 
 }

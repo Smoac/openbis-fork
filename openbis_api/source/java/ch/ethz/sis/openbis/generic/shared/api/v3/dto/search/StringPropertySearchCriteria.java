@@ -26,7 +26,12 @@ public class StringPropertySearchCriteria extends StringFieldSearchCriteria
 {
 
     private static final long serialVersionUID = 1L;
-
+    
+    StringPropertySearchCriteria()
+    {
+        super(null, SearchFieldType.PROPERTY);
+    }
+    
     StringPropertySearchCriteria(String fieldName)
     {
         super(fieldName, SearchFieldType.PROPERTY);

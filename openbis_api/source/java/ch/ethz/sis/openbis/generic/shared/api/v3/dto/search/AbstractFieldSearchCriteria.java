@@ -41,6 +41,11 @@ public abstract class AbstractFieldSearchCriteria<T> extends AbstractSearchCrite
         return fieldName;
     }
 
+    public void setFieldName(String name)
+    {
+        this.fieldName = name;
+    }
+
     public SearchFieldType getFieldType()
     {
         return fieldType;
