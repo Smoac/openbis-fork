@@ -19,9 +19,11 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.index.FieldInfo.DocValuesType;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.BooleanClause.Occur;
@@ -58,10 +60,10 @@ public class LuceneQueryBuilder
      */
     public static Query createDetailedSearchQuery(String userId,
             DetailedSearchCriteria searchCriteria,
-            List<IAssociationCriteria> associations, EntityKind entityKind)
+            List<IAssociationCriteria> associations, EntityKind entityKind, Map<String, DocValuesType> fieldTypes)
     {
         return DetailedQueryBuilder.createQuery(userId, searchCriteria,
-                DtoConverters.convertEntityKind(entityKind), associations);
+                DtoConverters.convertEntityKind(entityKind), associations, fieldTypes);
     }
 
     private static final char FIELD_SEPARATOR = ':';

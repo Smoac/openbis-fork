@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -36,7 +37,6 @@ import ch.systemsx.cisd.common.exceptions.InternalErr;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.MetaprojectSearch;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.LuceneQueryBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.AttributeSearchFieldKindProvider;
@@ -67,11 +67,11 @@ public class DetailedQueryBuilder
      * @throws UserFailureException when some search patterns are incorrect
      */
     public static Query createQuery(String userId, DetailedSearchCriteria searchCriteria,
-            EntityKind entityKind, List<IAssociationCriteria> associations)
+            EntityKind entityKind, List<IAssociationCriteria> associations, Map<String, DocValuesType> fieldTypes)
             throws UserFailureException
     {
         final DetailedQueryBuilder builder = new DetailedQueryBuilder(entityKind);
-        final Query resultQuery = builder.createQuery(userId, searchCriteria, associations);
+        final Query resultQuery = builder.createQuery(userId, searchCriteria, associations, fieldTypes);
         operationLog.debug("Lucene detailed query: " + resultQuery.toString());
         return resultQuery;
     }
@@ -88,7 +88,7 @@ public class DetailedQueryBuilder
     }
     
     private Query createQuery(String userId, DetailedSearchCriteria searchCriteria,
-            List<IAssociationCriteria> associations)
+            List<IAssociationCriteria> associations, Map<String, DocValuesType> fieldTypes)
     {
         boolean useWildcardSearchMode = searchCriteria.isUseWildcardSearchMode();
         List<DetailedSearchCriterion> criteria = searchCriteria.getCriteria();
@@ -127,7 +127,7 @@ public class DetailedQueryBuilder
 
                     fieldPatterns.add(fieldPattern);
                     fieldAnalyzers.add(fieldAnalyzer);
-                    fieldIsNumeric.add(isNumeric(fieldName));
+                    fieldIsNumeric.add(fieldTypes.get(fieldName) == DocValuesType.SORTED_NUMERIC);
                 }
 
                 Query luceneQuery = LuceneQueryBuilder.parseQuery(criterion.getType(), fieldNames, fieldPatterns, fieldAnalyzers, fieldIsNumeric);
@@ -153,11 +153,6 @@ public class DetailedQueryBuilder
             resultQuery.add(luceneQuery, occureCondition);
         }
         return resultQuery;
-    }
-
-    public boolean isNumeric(String fieldName) {
-        DocValuesType docType = CommonServiceProvider.getDAOFactory().getHibernateSearchDAO().getFieldType(fieldName);
-       return docType == DocValuesType.SORTED_NUMERIC;
     }
     
     private Occur createOccureCondition(SearchCriteriaConnection connection)

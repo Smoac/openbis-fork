@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -98,8 +99,7 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
             HibernateSearchDAO.class);
 
     private final HibernateSearchContext hibernateSearchContext;
-
-    private final Map<String, DocValuesType> fieldTypes = new HashMap<String, DocValuesType>();
+    private Map<String, DocValuesType> fieldTypes;
 
     HibernateSearchDAO(final SessionFactory sessionFactory,
             HibernateSearchContext hibernateSearchContext)
@@ -109,38 +109,38 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
         setSessionFactory(sessionFactory);
     }
 
-    @Override
-    public DocValuesType getFieldType(String fieldName)
+    public Map<String, DocValuesType> getFieldTypes()
     {
-        // Initialize field types
-        if (fieldTypes.size() == 0)
-        { // Only initialize the first time
-            for (SearchableEntity searchableEntity : SearchableEntity.values())
-            {
-                MyIndexReaderProvider indexProvider = null;
-                try
+        //Initialize field types
+        if(fieldTypes == null) {
+            synchronized(this) {
+                fieldTypes = Collections.synchronizedMap(new HashMap<String, DocValuesType>());
+                for(SearchableEntity searchableEntity:SearchableEntity.values())
                 {
-                    final FullTextSession fullTextSession = Search.getFullTextSession(this.currentSession());
-                    indexProvider = new MyIndexReaderProvider(fullTextSession, searchableEntity);
-                    IndexReader indexReader = indexProvider.getReader();
-                    for (AtomicReaderContext rc : indexReader.leaves())
+                    MyIndexReaderProvider indexProvider = null;
+                    try
                     {
-                        AtomicReader ar = rc.reader();
-                        FieldInfos fis = ar.getFieldInfos();
-                        for (Iterator<FieldInfo> iter = fis.iterator(); iter.hasNext();)
+                        final FullTextSession fullTextSession = Search.getFullTextSession(this.currentSession());
+                        indexProvider = new MyIndexReaderProvider(fullTextSession, searchableEntity);
+                        IndexReader indexReader = indexProvider.getReader();
+                        for (AtomicReaderContext rc : indexReader.leaves())
                         {
-                            FieldInfo fi = iter.next();
-                            fieldTypes.put(fi.name, fi.getDocValuesType());
+                            AtomicReader ar = rc.reader();
+                            FieldInfos fis = ar.getFieldInfos();
+                            for (Iterator<FieldInfo> iter = fis.iterator(); iter.hasNext();)
+                            {
+                                FieldInfo fi = iter.next();
+                                fieldTypes.put(fi.name, fi.getDocValuesType());
+                            }
                         }
+                    } finally
+                    {
+                        indexProvider.close();
                     }
-                } finally
-                {
-                    indexProvider.close();
                 }
             }
         }
-        DocValuesType found = fieldTypes.get(fieldName);
-        return found;
+        return fieldTypes;
     }
 
     //
@@ -324,7 +324,7 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
     {
         Query query =
                 LuceneQueryBuilder.createDetailedSearchQuery(userId, searchCriteria, associations,
-                        entityKind);
+                        entityKind, getFieldTypes());
         final FullTextSession fullTextSession = Search.getFullTextSession(session);
         final FullTextQuery hibernateQuery =
                 fullTextSession.createFullTextQuery(query, entityKind.getEntityClass());

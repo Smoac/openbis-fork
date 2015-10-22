@@ -55,9 +55,4 @@ public interface IHibernateSearchDAO
      * <code>service.properties</code>.
      */
     public int getResultSetSizeLimit();
-    
-    /**
-     * Returns the field type, can be used to build searches depending on field type
-     */
-    public DocValuesType getFieldType(String fieldName);
 }
