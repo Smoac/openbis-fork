@@ -668,7 +668,7 @@ def create_sample_sheet_dict(service, barcodesPerLaneDict, containedSamples, sam
                     if model in HISEQ_LIST or model in Sequencers.MISEQ:
                         lane_string = lane_int + separator
 
-                    line = separator.join([lane_string, key, key + '_' + sanitize_string(lane_sample_properties[key][config_dict['externalSampleName']]),"", "", "", "", key])
+                    line = separator.join([lane_string + key, key + '_' + sanitize_string(lane_sample_properties[key][config_dict['externalSampleName']]),"", "", "", "", key, ""])
                     sampleSheetDict[lane_int + '_' + key] = [line]
                     single_index_set = True
 
