@@ -28,12 +28,11 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.document.Document;
-import org.apache.lucene.index.AtomicReaderContext;
-import org.apache.lucene.index.FieldInfo.DocValuesType;
 import org.apache.lucene.index.AtomicReader;
+import org.apache.lucene.index.AtomicReaderContext;
 import org.apache.lucene.index.FieldInfo;
+import org.apache.lucene.index.FieldInfo.DocValuesType;
 import org.apache.lucene.index.FieldInfos;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexReaderContext;
@@ -44,7 +43,6 @@ import org.apache.lucene.search.highlight.Highlighter;
 import org.apache.lucene.search.highlight.InvalidTokenOffsetsException;
 import org.apache.lucene.search.highlight.QueryScorer;
 import org.apache.lucene.search.highlight.TokenGroup;
-import org.apache.lucene.search.highlight.TokenSources;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -100,8 +98,9 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
             HibernateSearchDAO.class);
 
     private final HibernateSearchContext hibernateSearchContext;
+
     private final Map<String, DocValuesType> fieldTypes = new HashMap<String, DocValuesType>();
-    
+
     HibernateSearchDAO(final SessionFactory sessionFactory,
             HibernateSearchContext hibernateSearchContext)
     {
@@ -109,27 +108,33 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
         this.hibernateSearchContext = hibernateSearchContext;
         setSessionFactory(sessionFactory);
     }
-    
+
     @Override
     public DocValuesType getFieldType(String fieldName)
     {
-        //Initialize field types
-        if(fieldTypes.size() == 0) { //Only initialize the first time
-            for(SearchableEntity searchableEntity:SearchableEntity.values()) {
+        // Initialize field types
+        if (fieldTypes.size() == 0)
+        { // Only initialize the first time
+            for (SearchableEntity searchableEntity : SearchableEntity.values())
+            {
                 MyIndexReaderProvider indexProvider = null;
-                try {
+                try
+                {
                     final FullTextSession fullTextSession = Search.getFullTextSession(this.currentSession());
                     indexProvider = new MyIndexReaderProvider(fullTextSession, searchableEntity);
                     IndexReader indexReader = indexProvider.getReader();
-                    for (AtomicReaderContext rc : indexReader.leaves()) { 
-                        AtomicReader ar = rc.reader(); 
+                    for (AtomicReaderContext rc : indexReader.leaves())
+                    {
+                        AtomicReader ar = rc.reader();
                         FieldInfos fis = ar.getFieldInfos();
-                        for(Iterator<FieldInfo> iter = fis.iterator(); iter.hasNext(); ) {
+                        for (Iterator<FieldInfo> iter = fis.iterator(); iter.hasNext();)
+                        {
                             FieldInfo fi = iter.next();
                             fieldTypes.put(fi.name, fi.getDocValuesType());
                         }
                     }
-                } finally {
+                } finally
+                {
                     indexProvider.close();
                 }
             }
@@ -137,7 +142,7 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
         DocValuesType found = fieldTypes.get(fieldName);
         return found;
     }
-    
+
     //
     // IHibernateSearchDAO
     //
@@ -160,6 +165,7 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
         assert StringUtils.isBlank(searchTerm) == false : "Unspecified search term.";
         assert dataProvider != null : "Unspecified data provider";
 
+        @SuppressWarnings({ "unchecked", "rawtypes" })
         final List<MatchingEntity> list =
                 AbstractDAO.cast((List<?>) getHibernateTemplate().executeWithNativeSession(new HibernateCallback()
                     {
@@ -202,7 +208,8 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
                         searchTermInField(userId, fullTextSession, fieldName, userQuery,
                                 searchableEntity, analyzer, indexProvider.getReader(),
                                 dataProvider, useWildcardSearchMode, result.size()
-                                        + alreadyFoundEntities, maxSize);
+                                        + alreadyFoundEntities,
+                                maxSize);
                 result.addAll(hits);
             }
             return result;
@@ -259,7 +266,7 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
 
         MyHighlighter highlighter = new MyHighlighter(query, indexReader, chosenAnalyzer);
         hibernateQuery.setResultTransformer(new MatchingEntityResultTransformer(searchableEntity,
-                fieldName, highlighter, dataProvider));
+                fieldName, highlighter, dataProvider, analyzer));
         List<?> list = hibernateQuery.list();
         final List<MatchingEntity> result = AbstractDAO.cast(list);
         return filterNulls(result);
@@ -285,6 +292,7 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
             final DetailedSearchCriteria criteria, final EntityKind entityKind,
             final List<IAssociationCriteria> associations)
     {
+        @SuppressWarnings({ "unchecked", "rawtypes" })
         final List<Long> list =
                 AbstractDAO.cast((List<?>) getHibernateTemplate().executeWithNativeSession(new HibernateCallback()
                     {
@@ -359,14 +367,17 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
 
         private static final long serialVersionUID = 1L;
 
+        private Analyzer analyzer;
+
         public MatchingEntityResultTransformer(final SearchableEntity searchableEntity,
                 final String fieldName, final MyHighlighter highlighter,
-                final HibernateSearchDataProvider dataProvider)
+                final HibernateSearchDataProvider dataProvider, Analyzer analyzer)
         {
             this.searchableEntity = searchableEntity;
             this.fieldName = fieldName;
             this.highlighter = highlighter;
             this.dataProvider = dataProvider;
+            this.analyzer = analyzer;
         }
 
         @Override
@@ -379,24 +390,30 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
         @Override
         public Object transformTuple(Object[] tuple, String[] aliases)
         {
-            final int documentId = (Integer) tuple[0];
             final Document doc = (Document) tuple[1];
 
             String matchingText = null;
             try
             {
-                String content = doc.get(fieldName);
-                if (content != null)
+                for (IndexableField field : doc.getFields(fieldName))
                 {
-                    // NOTE: this may be imprecise if there are multiple fields with the
-                    // same code. The first value will be taken.
-                    matchingText = highlighter.getBestFragment(content, fieldName, documentId);
-                } else
+                    String content = field.stringValue();
+                    if (content != null && content.length() > 0)
+                    {
+                        String match = highlighter.getRawHighlighter().getBestFragment(field.tokenStream(analyzer, null), content);
+                        if (match != null && match.length() > 0)
+                        {
+                            matchingText = match;
+                            break;
+                        }
+                    }
+                }
 
+                if (matchingText == null)
                 {
-                    // in some cases (e.g. attachments) we do not store content in the index
                     matchingText = "[content]";
                 }
+
             } catch (IOException ex)
             {
                 logSearchHighlightingError(ex);
@@ -507,17 +524,12 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
 
     private static final class MyHighlighter
     {
-        private final IndexReader indexReader;
-
-        private final Analyzer analyzer;
 
         private final Highlighter highlighter;
 
         public MyHighlighter(Query query, IndexReader indexReader, Analyzer analyzer)
         {
             this.highlighter = createHighlighter(query);
-            this.indexReader = indexReader;
-            this.analyzer = analyzer;
         }
 
         private static Highlighter createHighlighter(Query query)
@@ -540,13 +552,9 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
                 };
         }
 
-        public String getBestFragment(String fieldContent, String fieldName, int documentId)
-                throws IOException, InvalidTokenOffsetsException
-
+        public Highlighter getRawHighlighter()
         {
-            TokenStream tokenStream =
-                    TokenSources.getAnyTokenStream(indexReader, documentId, fieldName, analyzer);
-            return highlighter.getBestFragment(tokenStream, fieldContent);
+            return highlighter;
         }
     }
 

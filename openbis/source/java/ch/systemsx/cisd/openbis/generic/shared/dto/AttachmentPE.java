@@ -16,9 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.Reader;
 import java.io.Serializable;
 
 import javax.persistence.CascadeType;
@@ -37,8 +34,6 @@ import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -60,24 +55,18 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
 import ch.systemsx.cisd.openbis.generic.shared.util.EqualsHashUtils;
 
-import com.sun.org.apache.xerces.internal.impl.io.UTF8Reader;
-
 /**
  * Contains information about an attachment together with its content.
  * 
  * @author Bernd Rinn
  */
 @Entity
-@Table(name = TableNames.ATTACHMENTS_TABLE, uniqueConstraints =
-{
-        @UniqueConstraint(columnNames =
-        { ColumnNames.EXPERIMENT_COLUMN, ColumnNames.FILE_NAME_COLUMN,
+@Table(name = TableNames.ATTACHMENTS_TABLE, uniqueConstraints = {
+        @UniqueConstraint(columnNames = { ColumnNames.EXPERIMENT_COLUMN, ColumnNames.FILE_NAME_COLUMN,
                 ColumnNames.VERSION_COLUMN }),
-        @UniqueConstraint(columnNames =
-        { ColumnNames.SAMPLE_COLUMN, ColumnNames.FILE_NAME_COLUMN,
+        @UniqueConstraint(columnNames = { ColumnNames.SAMPLE_COLUMN, ColumnNames.FILE_NAME_COLUMN,
                 ColumnNames.VERSION_COLUMN }),
-        @UniqueConstraint(columnNames =
-        { ColumnNames.PROJECT_COLUMN, ColumnNames.FILE_NAME_COLUMN,
+        @UniqueConstraint(columnNames = { ColumnNames.PROJECT_COLUMN, ColumnNames.FILE_NAME_COLUMN,
                 ColumnNames.VERSION_COLUMN }) })
 @ClassBridge(impl = AttachmentPE.AttachmentSearchBridge.class, index = Index.YES, store = Store.NO)
 public class AttachmentPE extends HibernateAbstractRegistrationHolder implements Serializable,
@@ -113,37 +102,28 @@ public class AttachmentPE extends HibernateAbstractRegistrationHolder implements
      */
     public static class AttachmentSearchBridge implements FieldBridge
     {
-        /**
-         * The user can force indexing of the attachment by putting this prefix into attachment description.
-         */
-        private static final String SEARCHABLE_ATTACHMENT_MARKER = "[searchable]";
-
         @Override
-        public void set(String name, Object/* AttachmentPE */value,
-                Document/* Lucene document */document, LuceneOptions luceneOptions)
+        public void set(String name, Object/* AttachmentPE */ value,
+                Document/* Lucene document */ document, LuceneOptions luceneOptions)
         {
             AttachmentPE attachment = (AttachmentPE) value;
             String attachmentName = attachment.getFileName();
-            if (isSearchable(attachment))
-            {
-                // TODO 2009-07-28, Tomasz Pylak: switch on indexing attachments
-                // indexFileContent(document, luceneOptions, attachment, attachmentName);
-            }
-            // index the file name, description and title.
-            // Make the field code unique, so that we can recognize which field has matched the
-            // query later on
-            String attachmentNameFieldName =
-                    name + "'" + attachmentName + "' " + SearchFieldConstants.FILE_NAME;
+
+            String attachmentNameFieldName = name + SearchFieldConstants.FILE_NAME;
+            String attachmentTitleFieldName = name + SearchFieldConstants.FILE_TITLE;
+            String attachmentDescriptionFieldName = name + SearchFieldConstants.FILE_DESCRIPTION;
+
             document.add(createField(attachmentNameFieldName, attachmentName, luceneOptions));
+            if (attachment.getTitle() != null && attachment.getTitle().length() > 0)
+            {
+                document.add(createField(attachmentTitleFieldName, attachment.getTitle() + " (" + attachmentName + ")", luceneOptions));
+            }
+            if (attachment.getDescription() != null && attachment.getDescription().length() > 0)
+            {
 
-            String attachmentTitleFieldName =
-                    name + "'" + attachmentName + "' " + SearchFieldConstants.FILE_TITLE;
-            document.add(createField(attachmentTitleFieldName, attachment.getTitle(), luceneOptions));
-
-            String attachmentDescriptionFieldName =
-                    name + "'" + attachmentName + "' " + SearchFieldConstants.FILE_DESCRIPTION;
-            document.add(createField(attachmentDescriptionFieldName, attachment.getDescription(),
-                    luceneOptions));
+                document.add(createField(attachmentDescriptionFieldName, attachment.getDescription() + " (" + attachmentName + ")",
+                        luceneOptions));
+            }
         }
 
         private static Field createField(String name, String value, LuceneOptions luceneOptions)
@@ -152,61 +132,6 @@ public class AttachmentPE extends HibernateAbstractRegistrationHolder implements
                     luceneOptions.getIndex());
         }
 
-        private static boolean isSearchable(AttachmentPE attachment)
-        {
-            String fileExt = FilenameUtils.getExtension(attachment.getFileName()).toLowerCase();
-            if (fileExt.equals("txt") || fileExt.equals("pdf"))
-            {
-                return true;
-            }
-            String desc = attachment.getDescription();
-            if (StringUtils.isNotBlank(desc) && desc.startsWith(SEARCHABLE_ATTACHMENT_MARKER))
-            {
-                return true;
-            }
-            return false;
-        }
-
-        @SuppressWarnings("unused")
-        private void indexFileContent(Document document, LuceneOptions luceneOptions,
-                AttachmentPE attachment, String attachmentName)
-        {
-            byte[] byteContent = attachment.getAttachmentContent().getValue();
-            Reader reader = createAttachmentReader(byteContent);
-            indexFileContent(document, luceneOptions, attachment, attachmentName, reader);
-        }
-
-        private static Reader createAttachmentReader(byte[] byteContent)
-        {
-            // By default the UTF8 reader throws exception when the file content is binary.
-            // In this case we just stop reading the file.
-            return new UTF8Reader(new ByteArrayInputStream(byteContent))
-                {
-                    @Override
-                    public int read(char cbuf[], int off, int len) throws IOException
-                    {
-                        try
-                        {
-                            return super.read(cbuf, off, len);
-                        } catch (Exception e)
-                        {
-                            return -1;
-                        }
-                    }
-                };
-        }
-
-        private void indexFileContent(Document document, LuceneOptions luceneOptions,
-                AttachmentPE attachment, String attachmentName, Reader contentReader)
-        {
-            String fieldName =
-                    SearchFieldConstants.PREFIX_ATTACHMENT + "'" + attachmentName + "', ver. "
-                            + attachment.getVersion();
-
-            Field field = new Field(fieldName, contentReader);
-            field.setBoost(luceneOptions.getBoost());
-            document.add(field);
-        }
     }
 
     /**
