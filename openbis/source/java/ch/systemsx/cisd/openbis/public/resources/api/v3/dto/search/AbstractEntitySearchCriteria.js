@@ -4,9 +4,9 @@
 define([ "stjs", "dto/search/AbstractObjectSearchCriteria", "dto/search/SearchOperator", "dto/search/CodeSearchCriteria", "dto/search/EntityTypeSearchCriteria",
 		"dto/search/PermIdSearchCriteria", "dto/search/RegistrationDateSearchCriteria", "dto/search/ModificationDateSearchCriteria", "dto/search/TagSearchCriteria",
 		"dto/search/StringPropertySearchCriteria", "dto/search/DatePropertySearchCriteria", "dto/search/AnyPropertySearchCriteria", "dto/search/AnyFieldSearchCriteria",
-		"dto/search/AbstractCompositeSearchCriteria" ], function(stjs, AbstractObjectSearchCriteria, SearchOperator, CodeSearchCriteria, EntityTypeSearchCriteria, PermIdSearchCriteria,
+		"dto/search/AbstractCompositeSearchCriteria", "dto/search/NumberPropertySearchCriteria" ], function(stjs, AbstractObjectSearchCriteria, SearchOperator, CodeSearchCriteria, EntityTypeSearchCriteria, PermIdSearchCriteria,
 		RegistrationDateSearchCriteria, ModificationDateSearchCriteria, TagSearchCriteria, StringPropertySearchCriteria, DatePropertySearchCriteria, AnyPropertySearchCriteria,
-		AnyFieldSearchCriteria, AbstractCompositeSearchCriteria) {
+		AnyFieldSearchCriteria, AbstractCompositeSearchCriteria, NumberPropertySearchCriteria) {
 	var AbstractEntitySearchCriteria = function() {
 		AbstractObjectSearchCriteria.call(this);
 	};
@@ -35,6 +35,9 @@ define([ "stjs", "dto/search/AbstractObjectSearchCriteria", "dto/search/SearchOp
 		};
 		prototype.withModificationDate = function() {
 			return this.addCriteria(new ModificationDateSearchCriteria());
+		};
+		prototype.withNumberProperty = function(propertyName) {
+			return this.addCriteria(new NumberPropertySearchCriteria(propertyName));
 		};
 		prototype.withTag = function() {
 			return this.addCriteria(new TagSearchCriteria());
