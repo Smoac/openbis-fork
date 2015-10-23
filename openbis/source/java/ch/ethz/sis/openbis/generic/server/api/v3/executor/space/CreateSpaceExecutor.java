@@ -17,6 +17,7 @@
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.space;
 
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -62,13 +63,20 @@ public class CreateSpaceExecutor extends AbstractCreateEntityExecutor<SpaceCreat
     private IDAOFactory daoFactory;
 
     @Override
-    protected SpacePE create(IOperationContext context, SpaceCreation creation)
+    protected List<SpacePE> createEntities(IOperationContext context, Collection<SpaceCreation> creations)
     {
-        SpacePE space = new SpacePE();
-        space.setCode(creation.getCode());
-        space.setDescription(creation.getDescription());
-        space.setRegistrator(context.getSession().tryGetPerson());
-        return space;
+        List<SpacePE> spaces = new LinkedList<SpacePE>();
+
+        for (SpaceCreation creation : creations)
+        {
+            SpacePE space = new SpacePE();
+            space.setCode(creation.getCode());
+            space.setDescription(creation.getDescription());
+            space.setRegistrator(context.getSession().tryGetPerson());
+            spaces.add(space);
+        }
+
+        return spaces;
     }
 
     @Override

@@ -207,12 +207,9 @@ public class Generator extends AbstractGenerator
         addPermId(gen, DataSetPermId.class);
 
         addCode(gen);
-        gen.addDateField("accessDate");
-
-        gen.addBooleanField("derived");
-        gen.addBooleanField("placeholder");
+        gen.addBooleanField("measured");
         gen.addBooleanField("postRegistered");
-
+        
         gen.addPluralFetchedField("List<DataSet>", List.class.getName(), "parents", "Parents", DataSetFetchOptions.class)
                 .withInterfaceReflexive(IParentChildrenHolder.class);
         gen.addPluralFetchedField("List<DataSet>", List.class.getName(), "children", "Children", DataSetFetchOptions.class)
@@ -233,7 +230,8 @@ public class Generator extends AbstractGenerator
         addModifier(gen);
         addRegistrationDate(gen);
         addRegistrator(gen);
-
+        gen.addDateField("accessDate");
+        
         addExperiment(gen);
         addSample(gen);
         addProperties(gen);

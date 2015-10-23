@@ -18,35 +18,30 @@ package ch.ethz.sis.openbis.generic.server.api.v3.executor.sample;
 
 import java.util.Collection;
 
-import javax.annotation.Resource;
-
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.AbstractSetEntityToManyRelationExecutor;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.ISampleId;
-import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
-import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
 /**
  * @author pkupczyk
  */
 @Component
-public class SetSampleContainedExecutor extends AbstractSetSampleRelatedSamplesExecutor implements ISetSampleContainedExecutor
+public class SetSampleContainedExecutor extends AbstractSetEntityToManyRelationExecutor<SampleCreation, SamplePE, ISampleId> implements
+        ISetSampleContainedExecutor
 {
 
-    @Resource(name = ComponentNames.RELATIONSHIP_SERVICE)
-    private IRelationshipService relationshipService;
-
     @Override
-    protected Collection<? extends ISampleId> getRelatedSamplesIds(IOperationContext context, SampleCreation creation)
+    protected Collection<? extends ISampleId> getRelatedIds(IOperationContext context, SampleCreation creation)
     {
         return creation.getContainedIds();
     }
 
     @Override
-    protected void setRelatedSamples(IOperationContext context, SamplePE container, Collection<SamplePE> contained)
+    protected void setRelated(IOperationContext context, SamplePE container, Collection<SamplePE> contained)
     {
         context.pushContextDescription("set contained for sample " + container.getCode());
 

@@ -18,6 +18,7 @@ package ch.ethz.sis.openbis.generic.server.api.v3.executor.sample;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -84,15 +85,22 @@ public class CreateSampleExecutor extends AbstractCreateEntityExecutor<SampleCre
     private IVerifySampleExecutor verifySampleExecutor;
 
     @Override
-    protected SamplePE create(IOperationContext context, SampleCreation creation)
+    protected List<SamplePE> createEntities(IOperationContext context, Collection<SampleCreation> creations)
     {
-        SamplePE sample = new SamplePE();
-        sample.setCode(creation.getCode());
-        String createdPermId = daoFactory.getPermIdDAO().createPermId();
-        sample.setPermId(createdPermId);
-        sample.setRegistrator(context.getSession().tryGetPerson());
-        RelationshipUtils.updateModificationDateAndModifier(sample, context.getSession().tryGetPerson());
-        return sample;
+        List<SamplePE> samples = new LinkedList<SamplePE>();
+
+        for (SampleCreation creation : creations)
+        {
+            SamplePE sample = new SamplePE();
+            sample.setCode(creation.getCode());
+            String createdPermId = daoFactory.getPermIdDAO().createPermId();
+            sample.setPermId(createdPermId);
+            sample.setRegistrator(context.getSession().tryGetPerson());
+            RelationshipUtils.updateModificationDateAndModifier(sample, context.getSession().tryGetPerson());
+            samples.add(sample);
+        }
+
+        return samples;
     }
 
     @Override

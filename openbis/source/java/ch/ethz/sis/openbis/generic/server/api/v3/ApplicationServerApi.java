@@ -24,6 +24,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.method.IConfirmDeletionMethodExecutor;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.method.ICreateDataSetMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.method.ICreateExperimentMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.method.ICreateMaterialMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.method.ICreateProjectMethodExecutor;
@@ -57,6 +58,7 @@ import ch.ethz.sis.openbis.generic.server.api.v3.executor.method.IUpdateSampleMe
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.method.IUpdateSpaceMethodExecutor;
 import ch.ethz.sis.openbis.generic.shared.api.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSet;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSetCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSetUpdate;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.deletion.Deletion;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.deletion.dataset.DataSetDeletionOptions;
@@ -87,6 +89,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.material.Mater
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.project.ProjectFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sample.SampleFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.space.SpaceFetchOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.DataSetPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.IDataSetId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.deletion.IDeletionId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentPermId;
@@ -140,6 +143,9 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
 
     @Autowired
     private ICreateSampleMethodExecutor createSampleExecutor;
+
+    @Autowired
+    private ICreateDataSetMethodExecutor createDataSetExecutor;
 
     @Autowired
     private ICreateMaterialMethodExecutor createMaterialExecutor;
@@ -296,6 +302,16 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
             List<SampleCreation> creations)
     {
         return createSampleExecutor.create(sessionToken, creations);
+    }
+
+    @Override
+    @Transactional
+    @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
+    @Capability("CREATE_DATASET")
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.DATA_SET)
+    public List<DataSetPermId> createDataSets(String sessionToken, List<DataSetCreation> creations)
+    {
+        return createDataSetExecutor.create(sessionToken, creations);
     }
 
     @Override

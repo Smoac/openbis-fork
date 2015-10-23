@@ -23,7 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.AbstractSetEntityRelationExecutor;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.AbstractSetEntityToOneRelationExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.person.IMapPersonByIdExecutor;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.project.ProjectCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.person.IPersonId;
@@ -34,7 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
  * @author pkupczyk
  */
 @Component
-public class SetProjectLeaderExecutor extends AbstractSetEntityRelationExecutor<ProjectCreation, ProjectPE, IPersonId, PersonPE> implements
+public class SetProjectLeaderExecutor extends AbstractSetEntityToOneRelationExecutor<ProjectCreation, ProjectPE, IPersonId, PersonPE> implements
         ISetProjectLeaderExecutor
 {
 

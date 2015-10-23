@@ -38,7 +38,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
 /**
  * @author pkupczyk
  */
-public abstract class AbstractUpdateEntityListUpdateValueRelationExecutor<ENTITY_UPDATE, ENTITY_PE, RELATED_ID, RELATED_PE> implements
+public abstract class AbstractUpdateEntityToManyRelationExecutor<ENTITY_UPDATE, ENTITY_PE, RELATED_ID, RELATED_PE> implements
         IUpdateEntityRelationsWithCacheExecutor<ENTITY_UPDATE, ENTITY_PE, RELATED_ID, RELATED_PE>
 {
 

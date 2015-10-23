@@ -18,6 +18,7 @@ package ch.ethz.sis.openbis.generic.server.api.v3.executor.experiment;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -79,15 +80,22 @@ public class CreateExperimentExecutor extends AbstractCreateEntityExecutor<Exper
     private IVerifyExperimentExecutor verifyExperimentExecutor;
 
     @Override
-    protected ExperimentPE create(IOperationContext context, ExperimentCreation creation)
+    protected List<ExperimentPE> createEntities(IOperationContext context, Collection<ExperimentCreation> creations)
     {
-        ExperimentPE experiment = new ExperimentPE();
-        experiment.setCode(creation.getCode());
-        String createdPermId = daoFactory.getPermIdDAO().createPermId();
-        experiment.setPermId(createdPermId);
-        experiment.setRegistrator(context.getSession().tryGetPerson());
-        RelationshipUtils.updateModificationDateAndModifier(experiment, context.getSession().tryGetPerson());
-        return experiment;
+        List<ExperimentPE> experiments = new LinkedList<ExperimentPE>();
+
+        for (ExperimentCreation creation : creations)
+        {
+            ExperimentPE experiment = new ExperimentPE();
+            experiment.setCode(creation.getCode());
+            String createdPermId = daoFactory.getPermIdDAO().createPermId();
+            experiment.setPermId(createdPermId);
+            experiment.setRegistrator(context.getSession().tryGetPerson());
+            RelationshipUtils.updateModificationDateAndModifier(experiment, context.getSession().tryGetPerson());
+            experiments.add(experiment);
+        }
+
+        return experiments;
     }
 
     @Override

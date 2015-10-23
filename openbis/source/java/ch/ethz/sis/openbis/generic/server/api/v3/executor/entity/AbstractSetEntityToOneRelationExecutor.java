@@ -20,11 +20,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.project.IMapProjectByIdExecutor;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.IObjectId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.ObjectNotFoundException;
 
@@ -32,12 +30,9 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.ObjectNotFoundExcept
  * @author pkupczyk
  */
 @Component
-public abstract class AbstractSetEntityRelationExecutor<ENTITY_CREATION, ENTITY_PE, RELATED_ID, RELATED_PE> implements
+public abstract class AbstractSetEntityToOneRelationExecutor<ENTITY_CREATION, ENTITY_PE, RELATED_ID, RELATED_PE> implements
         ISetEntityRelationsExecutor<ENTITY_CREATION, ENTITY_PE>
 {
-
-    @Autowired
-    private IMapProjectByIdExecutor mapProjectByIdExecutor;
 
     @Override
     public void set(IOperationContext context, Map<ENTITY_CREATION, ENTITY_PE> entitiesMap)

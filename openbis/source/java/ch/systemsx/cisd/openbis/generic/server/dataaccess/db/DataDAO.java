@@ -742,21 +742,39 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
     @Override
     public void createDataSet(DataPE dataset, PersonPE modifier)
     {
+        createOrUpdateDataSets(Collections.singletonList(dataset), modifier);
+    }
+
+    @Override
+    public void createOrUpdateDataSets(final List<DataPE> dataSets, final PersonPE modifier) throws DataAccessException
+    {
+        assert dataSets != null && dataSets.size() > 0 : "Unspecified or empty dataSets.";
+
+        for (final DataPE dataPE : dataSets)
+        {
+            internalCreateOrUpdateDataSet(dataPE, modifier);
+        }
+
+        if (operationLog.isInfoEnabled())
+        {
+            operationLog.info(String.format("ADD: %d dataSets.", dataSets.size()));
+        }
+
+        getHibernateTemplate().flush();
+        scheduleDynamicPropertiesEvaluation(dataSets);
+    }
+
+    private void internalCreateOrUpdateDataSet(DataPE dataset, PersonPE modifier)
+    {
         assert dataset != null : "Unspecified data set.";
 
         dataset.setCode(CodeConverter.tryToDatabase(dataset.getCode()));
         dataset.setModifier(modifier);
         dataset.setRegistrator(modifier);
-        if (false == dataset.isPlaceholder())
-        {
-            validatePE(dataset);
-        }
+        validatePE(dataset);
 
-        final HibernateTemplate template = getHibernateTemplate();
         lockRelatedEntities(dataset);
-        template.save(dataset);
-        template.flush();
-        scheduleDynamicPropertiesEvaluation(Collections.singletonList(dataset));
+        getHibernateTemplate().saveOrUpdate(dataset);
 
         if (operationLog.isInfoEnabled())
         {

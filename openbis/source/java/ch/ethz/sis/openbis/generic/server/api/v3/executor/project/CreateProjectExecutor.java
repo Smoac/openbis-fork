@@ -18,6 +18,7 @@ package ch.ethz.sis.openbis.generic.server.api.v3.executor.project;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -64,16 +65,23 @@ public class CreateProjectExecutor extends AbstractCreateEntityExecutor<ProjectC
     private ICreateAttachmentExecutor createAttachmentExecutor;
 
     @Override
-    protected ProjectPE create(IOperationContext context, ProjectCreation creation)
+    protected List<ProjectPE> createEntities(IOperationContext context, Collection<ProjectCreation> creations)
     {
-        ProjectPE project = new ProjectPE();
-        project.setCode(creation.getCode());
-        String createdPermId = daoFactory.getPermIdDAO().createPermId();
-        project.setPermId(createdPermId);
-        project.setDescription(creation.getDescription());
-        project.setRegistrator(context.getSession().tryGetPerson());
-        RelationshipUtils.updateModificationDateAndModifier(project, context.getSession().tryGetPerson());
-        return project;
+        List<ProjectPE> projects = new LinkedList<ProjectPE>();
+
+        for (ProjectCreation creation : creations)
+        {
+            ProjectPE project = new ProjectPE();
+            project.setCode(creation.getCode());
+            String createdPermId = daoFactory.getPermIdDAO().createPermId();
+            project.setPermId(createdPermId);
+            project.setDescription(creation.getDescription());
+            project.setRegistrator(context.getSession().tryGetPerson());
+            RelationshipUtils.updateModificationDateAndModifier(project, context.getSession().tryGetPerson());
+            projects.add(project);
+        }
+
+        return projects;
     }
 
     @Override

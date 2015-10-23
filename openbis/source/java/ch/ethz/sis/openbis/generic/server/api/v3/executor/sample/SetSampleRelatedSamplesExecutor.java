@@ -16,23 +16,17 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.sample;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.AbstractSetEntityMultipleRelationsExecutor;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleCreation;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.CreationId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.ISampleId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.ObjectNotFoundException;
 import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SampleByIdentiferValidator;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -41,7 +35,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
  * @author pkupczyk
  */
 @Component
-public class SetSampleRelatedSamplesExecutor implements ISetSampleRelatedSamplesExecutor
+public class SetSampleRelatedSamplesExecutor extends AbstractSetEntityMultipleRelationsExecutor<SampleCreation, SamplePE, ISampleId> implements
+        ISetSampleRelatedSamplesExecutor
 {
 
     @Autowired
@@ -59,110 +54,37 @@ public class SetSampleRelatedSamplesExecutor implements ISetSampleRelatedSamples
     @Autowired
     private ISetSampleChildrenExecutor setSampleChildrenExecutor;
 
-    @SuppressWarnings("unused")
-    private SetSampleRelatedSamplesExecutor()
+    @Override
+    protected void addRelatedIds(Set<ISampleId> relatedIds, SampleCreation creation)
     {
-    }
-
-    public SetSampleRelatedSamplesExecutor(IMapSampleByIdExecutor mapSampleByIdExecutor,
-            ISetSampleContainerExecutor setSampleContainerExecutor, ISetSampleContainedExecutor setSampleContainedExecutor,
-            ISetSampleParentsExecutor setSampleParentsExecutor, ISetSampleChildrenExecutor setSampleChildrenExecutor)
-    {
-        this.mapSampleByIdExecutor = mapSampleByIdExecutor;
-        this.setSampleContainerExecutor = setSampleContainerExecutor;
-        this.setSampleContainedExecutor = setSampleContainedExecutor;
-        this.setSampleParentsExecutor = setSampleParentsExecutor;
-        this.setSampleChildrenExecutor = setSampleChildrenExecutor;
+        addRelatedIds(relatedIds, creation.getContainerId());
+        addRelatedIds(relatedIds, creation.getContainedIds());
+        addRelatedIds(relatedIds, creation.getParentIds());
+        addRelatedIds(relatedIds, creation.getChildIds());
     }
 
     @Override
-    public void set(IOperationContext context, Map<SampleCreation, SamplePE> creationsMap)
+    protected Map<ISampleId, SamplePE> map(IOperationContext context, List<ISampleId> relatedIds)
     {
-        Map<ISampleId, SamplePE> relatedSamplesMap = getRelatedSamplesMap(context, creationsMap);
-
-        setSampleContainerExecutor.set(context, creationsMap, relatedSamplesMap);
-        setSampleContainedExecutor.set(context, creationsMap, relatedSamplesMap);
-        setSampleParentsExecutor.set(context, creationsMap, relatedSamplesMap);
-        setSampleChildrenExecutor.set(context, creationsMap, relatedSamplesMap);
+        return mapSampleByIdExecutor.map(context, relatedIds);
     }
 
-    private Map<ISampleId, SamplePE> getRelatedSamplesMap(IOperationContext context, Map<SampleCreation, SamplePE> createdSamples)
+    @Override
+    protected void check(IOperationContext context, ISampleId relatedId, SamplePE related)
     {
-        context.pushContextDescription("load related samples");
-
-        Collection<ISampleId> relatedSamplesIds = getRelatedSamplesIds(createdSamples.keySet());
-        HashMap<ISampleId, SamplePE> relatedSamplesMap = new HashMap<ISampleId, SamplePE>();
-
-        for (Entry<SampleCreation, SamplePE> entry : createdSamples.entrySet())
+        if (false == new SampleByIdentiferValidator().doValidation(context.getSession().tryGetPerson(), related))
         {
-            SampleCreation sampleCreation = entry.getKey();
-            SamplePE sample = entry.getValue();
-
-            if (sampleCreation.getCreationId() != null)
-            {
-                relatedSamplesMap.put(sampleCreation.getCreationId(), sample);
-            }
+            throw new UnauthorizedObjectAccessException(relatedId);
         }
-
-        List<ISampleId> samplesToLoadIds = new LinkedList<ISampleId>();
-
-        for (ISampleId relatedSampleId : relatedSamplesIds)
-        {
-            if (relatedSampleId instanceof CreationId)
-            {
-                if (false == relatedSamplesMap.containsKey(relatedSampleId))
-                {
-                    throw new ObjectNotFoundException(relatedSampleId);
-                }
-            }
-            else
-            {
-                samplesToLoadIds.add(relatedSampleId);
-            }
-        }
-        Map<ISampleId, SamplePE> loadedSamplesMap = mapSampleByIdExecutor.map(context, samplesToLoadIds);
-        relatedSamplesMap.putAll(loadedSamplesMap);
-
-        for (ISampleId relatedSampleId : relatedSamplesIds)
-        {
-            SamplePE relatedSample = relatedSamplesMap.get(relatedSampleId);
-            if (relatedSample == null)
-            {
-                throw new ObjectNotFoundException(relatedSampleId);
-            }
-            if (false == new SampleByIdentiferValidator().doValidation(context.getSession().tryGetPerson(), relatedSample))
-            {
-                throw new UnauthorizedObjectAccessException(relatedSampleId);
-            }
-        }
-
-        context.popContextDescription();
-
-        return relatedSamplesMap;
     }
 
-    private Set<ISampleId> getRelatedSamplesIds(Collection<SampleCreation> sampleCreations)
+    @Override
+    protected void set(IOperationContext context, Map<SampleCreation, SamplePE> creationsMap, Map<ISampleId, SamplePE> relatedMap)
     {
-        Set<ISampleId> relatedSamples = new HashSet<ISampleId>();
-        for (SampleCreation sampleCreation : sampleCreations)
-        {
-            if (sampleCreation.getContainerId() != null)
-            {
-                relatedSamples.add(sampleCreation.getContainerId());
-            }
-            if (sampleCreation.getContainedIds() != null)
-            {
-                relatedSamples.addAll(sampleCreation.getContainedIds());
-            }
-            if (sampleCreation.getChildIds() != null)
-            {
-                relatedSamples.addAll(sampleCreation.getChildIds());
-            }
-            if (sampleCreation.getParentIds() != null)
-            {
-                relatedSamples.addAll(sampleCreation.getParentIds());
-            }
-        }
-        return relatedSamples;
+        setSampleContainerExecutor.set(context, creationsMap, relatedMap);
+        setSampleContainedExecutor.set(context, creationsMap, relatedMap);
+        setSampleParentsExecutor.set(context, creationsMap, relatedMap);
+        setSampleChildrenExecutor.set(context, creationsMap, relatedMap);
     }
+
 }

@@ -23,7 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.AbstractSetEntityRelationExecutor;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.AbstractSetEntityToOneRelationExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.IMapEntityTypeByIdExecutor;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.ExperimentCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.entitytype.IEntityTypeId;
@@ -37,7 +37,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
  * @author pkupczyk
  */
 @Component
-public class SetExperimentTypeExecutor extends AbstractSetEntityRelationExecutor<ExperimentCreation, ExperimentPE, IEntityTypeId, EntityTypePE>
+public class SetExperimentTypeExecutor extends AbstractSetEntityToOneRelationExecutor<ExperimentCreation, ExperimentPE, IEntityTypeId, EntityTypePE>
         implements ISetExperimentTypeExecutor
 {
 

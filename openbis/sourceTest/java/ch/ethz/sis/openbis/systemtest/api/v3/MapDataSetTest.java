@@ -175,8 +175,7 @@ public class MapDataSetTest extends AbstractDataSetTest
         assertEqualsDate(dataSet.getAccessDate(), "2011-04-01 09:56:25");
         assertEqualsDate(dataSet.getModificationDate(), "2009-03-23 15:34:44");
         assertEqualsDate(dataSet.getRegistrationDate(), "2009-02-09 12:20:21");
-        assertEquals(dataSet.isDerived(), Boolean.FALSE);
-        assertEquals(dataSet.isPlaceholder(), Boolean.FALSE);
+        assertEquals(dataSet.isMeasured(), Boolean.TRUE);
         assertEquals(dataSet.isPostRegistered(), Boolean.TRUE);
 
         assertTypeNotFetched(dataSet);

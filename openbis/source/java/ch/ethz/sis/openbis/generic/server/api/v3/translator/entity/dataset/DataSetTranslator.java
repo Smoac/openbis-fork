@@ -195,8 +195,7 @@ public class DataSetTranslator extends AbstractCachingTranslator<Long, DataSet, 
 
         result.setPermId(new DataSetPermId(baseRecord.code));
         result.setCode(baseRecord.code);
-        result.setDerived(baseRecord.isDerived);
-        result.setPlaceholder(baseRecord.isPlaceholder);
+        result.setMeasured(baseRecord.isDerived == false);
         result.setAccessDate(baseRecord.accessDate);
         result.setModificationDate(baseRecord.modificationDate);
         result.setRegistrationDate(baseRecord.registrationDate);

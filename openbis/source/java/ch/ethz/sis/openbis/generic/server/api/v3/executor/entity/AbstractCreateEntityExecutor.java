@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -83,8 +84,16 @@ public abstract class AbstractCreateEntityExecutor<CREATION, PE, PERM_ID> implem
         for (CREATION creation : creationsBatch)
         {
             checkData(context, creation);
+        }
 
-            PE entity = create(context, creation);
+        List<PE> entities = createEntities(context, creationsBatch);
+        Iterator<CREATION> iterCreations = creationsBatch.iterator();
+        Iterator<PE> iterEntities = entities.iterator();
+
+        while (iterCreations.hasNext() && iterEntities.hasNext())
+        {
+            CREATION creation = iterCreations.next();
+            PE entity = iterEntities.next();
             entitiesAll.put(creation, entity);
             batchMap.put(creation, entity);
         }
@@ -134,11 +143,11 @@ public abstract class AbstractCreateEntityExecutor<CREATION, PE, PERM_ID> implem
         }
     }
 
-    protected abstract PE create(IOperationContext context, CREATION creation);
+    protected abstract void checkData(IOperationContext context, CREATION creation);
+
+    protected abstract List<PE> createEntities(IOperationContext context, Collection<CREATION> creations);
 
     protected abstract PERM_ID createPermId(IOperationContext context, PE entity);
-
-    protected abstract void checkData(IOperationContext context, CREATION creation);
 
     protected abstract void checkAccess(IOperationContext context, PE entity);
 

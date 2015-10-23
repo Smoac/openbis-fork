@@ -21,7 +21,7 @@ import java.util.Collection;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.AbstractUpdateEntityListUpdateValueRelationExecutor;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.AbstractUpdateEntityToManyRelationExecutor;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.IdListUpdateValue;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSetUpdate;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.IDataSetId;
@@ -33,7 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
  * @author pkupczyk
  */
 @Component
-public class UpdateDataSetContainedExecutor extends AbstractUpdateEntityListUpdateValueRelationExecutor<DataSetUpdate, DataPE, IDataSetId, DataPE>
+public class UpdateDataSetContainedExecutor extends AbstractUpdateEntityToManyRelationExecutor<DataSetUpdate, DataPE, IDataSetId, DataPE>
         implements IUpdateDataSetContainedExecutor
 {
 

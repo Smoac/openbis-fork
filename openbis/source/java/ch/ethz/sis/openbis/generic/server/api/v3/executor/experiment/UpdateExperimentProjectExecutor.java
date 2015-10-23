@@ -23,7 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.AbstractUpdateEntityFieldUpdateValueRelationExecutor;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.AbstractUpdateEntityToOneRelationExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.project.IMapProjectByIdExecutor;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.FieldUpdateValue;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.ExperimentUpdate;
@@ -39,7 +39,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
  * @author pkupczyk
  */
 @Component
-public class UpdateExperimentProjectExecutor extends AbstractUpdateEntityFieldUpdateValueRelationExecutor<ExperimentUpdate, ExperimentPE, IProjectId, ProjectPE>
+public class UpdateExperimentProjectExecutor extends AbstractUpdateEntityToOneRelationExecutor<ExperimentUpdate, ExperimentPE, IProjectId, ProjectPE>
         implements IUpdateExperimentProjectExecutor
 {
 

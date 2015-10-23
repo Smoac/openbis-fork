@@ -23,7 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.AbstractUpdateEntityFieldUpdateValueRelationExecutor;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.AbstractUpdateEntityToOneRelationExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.space.IMapSpaceByIdExecutor;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.FieldUpdateValue;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleUpdate;
@@ -38,7 +38,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
  * @author pkupczyk
  */
 @Component
-public class UpdateSampleSpaceExecutor extends AbstractUpdateEntityFieldUpdateValueRelationExecutor<SampleUpdate, SamplePE, ISpaceId, SpacePE> implements
+public class UpdateSampleSpaceExecutor extends AbstractUpdateEntityToOneRelationExecutor<SampleUpdate, SamplePE, ISpaceId, SpacePE> implements
         IUpdateSampleSpaceExecutor
 {
 

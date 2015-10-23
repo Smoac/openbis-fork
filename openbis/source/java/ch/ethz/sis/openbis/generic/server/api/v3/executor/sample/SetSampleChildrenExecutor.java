@@ -20,35 +20,30 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.annotation.Resource;
-
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.AbstractSetEntityToManyRelationExecutor;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.ISampleId;
-import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
-import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
 /**
  * @author pkupczyk
  */
 @Component
-public class SetSampleChildrenExecutor extends AbstractSetSampleRelatedSamplesExecutor implements ISetSampleChildrenExecutor
+public class SetSampleChildrenExecutor extends AbstractSetEntityToManyRelationExecutor<SampleCreation, SamplePE, ISampleId> implements
+        ISetSampleChildrenExecutor
 {
 
-    @Resource(name = ComponentNames.RELATIONSHIP_SERVICE)
-    private IRelationshipService relationshipService;
-
     @Override
-    protected Collection<? extends ISampleId> getRelatedSamplesIds(IOperationContext context, SampleCreation creation)
+    protected Collection<? extends ISampleId> getRelatedIds(IOperationContext context, SampleCreation creation)
     {
         return creation.getChildIds();
     }
 
     @Override
-    protected void setRelatedSamples(IOperationContext context, SamplePE parent, Collection<SamplePE> children)
+    protected void setRelated(IOperationContext context, SamplePE parent, Collection<SamplePE> children)
     {
         Set<SamplePE> existingChildren = new HashSet<SamplePE>(parent.getChildren());
 

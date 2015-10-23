@@ -23,7 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.AbstractUpdateEntityFieldUpdateValueRelationExecutor;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.AbstractUpdateEntityToOneRelationExecutor;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.FieldUpdateValue;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSetUpdate;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.FileFormatTypePermId;
@@ -38,7 +38,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
  */
 @Component
 public class UpdateDataSetFileFormatTypeExecutor extends
-        AbstractUpdateEntityFieldUpdateValueRelationExecutor<DataSetUpdate, DataPE, IFileFormatTypeId, FileFormatTypePE> implements
+        AbstractUpdateEntityToOneRelationExecutor<DataSetUpdate, DataPE, IFileFormatTypeId, FileFormatTypePE> implements
         IUpdateDataSetFileFormatTypeExecutor
 {
 

@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSet;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSetCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSetUpdate;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.deletion.Deletion;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.deletion.dataset.DataSetDeletionOptions;
@@ -50,6 +51,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.material.Mater
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.project.ProjectFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sample.SampleFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.space.SpaceFetchOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.DataSetPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.IDataSetId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.deletion.IDeletionId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentPermId;
@@ -106,6 +108,8 @@ public interface IApplicationServerApi extends IRpcService
     public List<ExperimentPermId> createExperiments(String sessionToken, List<ExperimentCreation> newExperiments);
 
     public List<SamplePermId> createSamples(String sessionToken, List<SampleCreation> newSamples);
+
+    public List<DataSetPermId> createDataSets(String sessionToken, List<DataSetCreation> newDataSets);
 
     public List<MaterialPermId> createMaterials(String sessionToken, List<MaterialCreation> newMaterials);
 

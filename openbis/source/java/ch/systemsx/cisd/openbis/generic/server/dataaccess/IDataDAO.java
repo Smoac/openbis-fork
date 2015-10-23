@@ -133,6 +133,11 @@ public interface IDataDAO extends IGenericDAO<DataPE>
     public void createDataSet(DataPE dataset, PersonPE modifier);
 
     /**
+     * Persists the specified data sets.
+     */
+    public void createOrUpdateDataSets(List<DataPE> dataSets, PersonPE modifier);
+
+    /**
      * Updates the specified data set.
      */
     public void updateDataSet(DataPE dataset, PersonPE modifier);

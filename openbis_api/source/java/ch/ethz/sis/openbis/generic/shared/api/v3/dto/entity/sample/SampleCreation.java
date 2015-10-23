@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.attachment.AttachmentCreation;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.ICreationIdHolder;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.CreationId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.entitytype.IEntityTypeId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.IExperimentId;
@@ -35,7 +36,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
  * @author pkupczyk
  */
 @JsonObject("dto.entity.sample.SampleCreation")
-public class SampleCreation implements Serializable
+public class SampleCreation implements Serializable, ICreationIdHolder
 {
     private static final long serialVersionUID = 1L;
 
@@ -186,6 +187,7 @@ public class SampleCreation implements Serializable
         return properties;
     }
 
+    @Override
     public CreationId getCreationId()
     {
         return creationId;

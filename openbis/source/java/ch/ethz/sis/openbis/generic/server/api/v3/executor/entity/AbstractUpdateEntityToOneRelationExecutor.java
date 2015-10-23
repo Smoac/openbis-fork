@@ -32,7 +32,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObject
 /**
  * @author pkupczyk
  */
-public abstract class AbstractUpdateEntityFieldUpdateValueRelationExecutor<ENTITY_UPDATE, ENTITY_PE, RELATED_ID, RELATED_PE> implements
+public abstract class AbstractUpdateEntityToOneRelationExecutor<ENTITY_UPDATE, ENTITY_PE, RELATED_ID, RELATED_PE> implements
         IUpdateEntityRelationsExecutor<ENTITY_UPDATE, ENTITY_PE>,
         IUpdateEntityRelationsWithCacheExecutor<ENTITY_UPDATE, ENTITY_PE, RELATED_ID, RELATED_PE>
 {

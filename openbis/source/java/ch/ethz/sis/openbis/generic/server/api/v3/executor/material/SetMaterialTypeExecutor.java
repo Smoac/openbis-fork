@@ -23,7 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.AbstractSetEntityRelationExecutor;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.AbstractSetEntityToOneRelationExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.IMapEntityTypeByIdExecutor;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material.MaterialCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.entitytype.IEntityTypeId;
@@ -37,7 +37,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
  * @author Jakub Straszewski
  */
 @Component
-public class SetMaterialTypeExecutor extends AbstractSetEntityRelationExecutor<MaterialCreation, MaterialPE, IEntityTypeId, EntityTypePE> implements
+public class SetMaterialTypeExecutor extends AbstractSetEntityToOneRelationExecutor<MaterialCreation, MaterialPE, IEntityTypeId, EntityTypePE> implements
         ISetMaterialTypeExecutor
 {
 

@@ -21,6 +21,7 @@ import java.util.Map;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSet;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSetCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSetUpdate;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.deletion.Deletion;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.deletion.dataset.DataSetDeletionOptions;
@@ -51,6 +52,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.material.Mater
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.project.ProjectFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sample.SampleFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.space.SpaceFetchOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.DataSetPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.IDataSetId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.deletion.IDeletionId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentPermId;
@@ -114,85 +116,92 @@ public class ApplicationServerApiLogger extends AbstractServerLogger implements
     @Override
     public List<SpacePermId> createSpaces(String sessionToken, List<SpaceCreation> newSpaces)
     {
-        logAccess(sessionToken, "create-spaces", "NEW_SPACES(%s)", newSpaces);
+        logAccess(sessionToken, "create-spaces", "NEW_SPACES(%s)", abbreviate(newSpaces));
         return null;
     }
 
     @Override
     public List<ProjectPermId> createProjects(String sessionToken, List<ProjectCreation> newProjects)
     {
-        logAccess(sessionToken, "create-projects", "NEW_PROJECTS(%s)", newProjects);
+        logAccess(sessionToken, "create-projects", "NEW_PROJECTS(%s)", abbreviate(newProjects));
         return null;
     }
 
     @Override
     public List<MaterialPermId> createMaterials(String sessionToken, List<MaterialCreation> newMaterials)
     {
-        logAccess(sessionToken, "create-materials", "NEW_MATERIALS(%s)", newMaterials);
+        logAccess(sessionToken, "create-materials", "NEW_MATERIALS(%s)", abbreviate(newMaterials));
         return null;
     }
 
     @Override
     public List<ExperimentPermId> createExperiments(String sessionToken, List<ExperimentCreation> newExperiments)
     {
-        logAccess(sessionToken, "create-experiments", "NEW_EXPERIMENTS(%s)", newExperiments);
+        logAccess(sessionToken, "create-experiments", "NEW_EXPERIMENTS(%s)", abbreviate(newExperiments));
         return null;
     }
 
     @Override
     public List<SamplePermId> createSamples(String sessionToken, List<SampleCreation> newSamples)
     {
-        logAccess(sessionToken, "create-samples", "NEW_SAMPLES(%s)", newSamples);
+        logAccess(sessionToken, "create-samples", "NEW_SAMPLES(%s)", abbreviate(newSamples));
+        return null;
+    }
+
+    @Override
+    public List<DataSetPermId> createDataSets(String sessionToken, List<DataSetCreation> newDataSets)
+    {
+        logAccess(sessionToken, "create-data-sets", "NEW_DATA_SETS(%s)", abbreviate(newDataSets));
         return null;
     }
 
     @Override
     public void updateSpaces(String sessionToken, List<SpaceUpdate> spaceUpdates)
     {
-        logAccess(sessionToken, "update-spaces", "SPACE_UPDATES(%s)", spaceUpdates);
+        logAccess(sessionToken, "update-spaces", "SPACE_UPDATES(%s)", abbreviate(spaceUpdates));
     }
 
     @Override
     public void updateProjects(String sessionToken, List<ProjectUpdate> projectUpdates)
     {
-        logAccess(sessionToken, "update-projects", "PROJECT_UPDATES(%s)", projectUpdates);
+        logAccess(sessionToken, "update-projects", "PROJECT_UPDATES(%s)", abbreviate(projectUpdates));
     }
 
     @Override
     public void updateExperiments(String sessionToken, List<ExperimentUpdate> experimentUpdates)
     {
-        logAccess(sessionToken, "update-experiments", "EXPERIMENT_UPDATES(%s)", experimentUpdates);
+        logAccess(sessionToken, "update-experiments", "EXPERIMENT_UPDATES(%s)", abbreviate(experimentUpdates));
     }
 
     @Override
     public void updateSamples(String sessionToken, List<SampleUpdate> sampleUpdates)
     {
-        logAccess(sessionToken, "update-samples", "SAMPLE_UPDATES(%s)", sampleUpdates);
+        logAccess(sessionToken, "update-samples", "SAMPLE_UPDATES(%s)", abbreviate(sampleUpdates));
     }
 
     @Override
     public void updateDataSets(String sessionToken, List<DataSetUpdate> dataSetUpdates)
     {
-        logAccess(sessionToken, "update-data-sets", "DATA_SET_UPDATES(%s)", dataSetUpdates);
+        logAccess(sessionToken, "update-data-sets", "DATA_SET_UPDATES(%s)", abbreviate(dataSetUpdates));
     }
 
     @Override
     public void updateMaterials(String sessionToken, List<MaterialUpdate> materialUpdates)
     {
-        logAccess(sessionToken, "update-materials", "MATERIAL_UPDATES(%s)", materialUpdates);
+        logAccess(sessionToken, "update-materials", "MATERIAL_UPDATES(%s)", abbreviate(materialUpdates));
     }
 
     @Override
     public Map<ISpaceId, Space> mapSpaces(String sessionToken, List<? extends ISpaceId> spaceIds, SpaceFetchOptions fetchOptions)
     {
-        logAccess(sessionToken, "map-spaces", "SPACE_IDS(%s) FETCH_OPTIONS(%s)", spaceIds, fetchOptions);
+        logAccess(sessionToken, "map-spaces", "SPACE_IDS(%s) FETCH_OPTIONS(%s)", abbreviate(spaceIds), fetchOptions);
         return null;
     }
 
     @Override
     public Map<IProjectId, Project> mapProjects(String sessionToken, List<? extends IProjectId> projectIds, ProjectFetchOptions fetchOptions)
     {
-        logAccess(sessionToken, "map-projects", "PROJECT_IDS(%s) FETCH_OPTIONS(%s)", projectIds, fetchOptions);
+        logAccess(sessionToken, "map-projects", "PROJECT_IDS(%s) FETCH_OPTIONS(%s)", abbreviate(projectIds), fetchOptions);
         return null;
     }
 
@@ -200,7 +209,7 @@ public class ApplicationServerApiLogger extends AbstractServerLogger implements
     public Map<IExperimentId, Experiment> mapExperiments(String sessionToken, List<? extends IExperimentId> experimentIds,
             ExperimentFetchOptions fetchOptions)
     {
-        logAccess(sessionToken, "map-experiments", "EXPERIMENT_IDS(%s) FETCH_OPTIONS(%s)", experimentIds, fetchOptions);
+        logAccess(sessionToken, "map-experiments", "EXPERIMENT_IDS(%s) FETCH_OPTIONS(%s)", abbreviate(experimentIds), fetchOptions);
         return null;
     }
 
@@ -208,21 +217,21 @@ public class ApplicationServerApiLogger extends AbstractServerLogger implements
     public Map<ISampleId, Sample> mapSamples(String sessionToken,
             List<? extends ISampleId> sampleIds, SampleFetchOptions fetchOptions)
     {
-        logAccess(sessionToken, "map-samples", "SAMPLE_IDS(%s) FETCH_OPTIONS(%s)", sampleIds, fetchOptions);
+        logAccess(sessionToken, "map-samples", "SAMPLE_IDS(%s) FETCH_OPTIONS(%s)", abbreviate(sampleIds), fetchOptions);
         return null;
     }
 
     @Override
     public Map<IMaterialId, Material> mapMaterials(String sessionToken, List<? extends IMaterialId> materialIds, MaterialFetchOptions fetchOptions)
     {
-        logAccess(sessionToken, "map-materials", "MATERIAL_IDS(%s) FETCH_OPTIONS(%s)", materialIds, fetchOptions);
+        logAccess(sessionToken, "map-materials", "MATERIAL_IDS(%s) FETCH_OPTIONS(%s)", abbreviate(materialIds), fetchOptions);
         return null;
     }
 
     @Override
     public Map<IDataSetId, DataSet> mapDataSets(String sessionToken, List<? extends IDataSetId> dataSetIds, DataSetFetchOptions fetchOptions)
     {
-        logAccess(sessionToken, "map-data-sets", "DATA_SET_IDS(%s) FETCH_OPTIONS(%s)", dataSetIds, fetchOptions);
+        logAccess(sessionToken, "map-data-sets", "DATA_SET_IDS(%s) FETCH_OPTIONS(%s)", abbreviate(dataSetIds), fetchOptions);
         return null;
     }
 
@@ -272,34 +281,40 @@ public class ApplicationServerApiLogger extends AbstractServerLogger implements
     @Override
     public void deleteSpaces(String sessionToken, List<? extends ISpaceId> spaceIds, SpaceDeletionOptions deletionOptions)
     {
-        logAccess(sessionToken, "delete-spaces", "SPACE_IDS(%s) DELETION_OPTIONS(%s)", spaceIds, deletionOptions);
+        logAccess(sessionToken, "delete-spaces", "SPACE_IDS(%s) DELETION_OPTIONS(%s)", abbreviate(spaceIds), deletionOptions);
     }
 
     @Override
     public void deleteProjects(String sessionToken, List<? extends IProjectId> projectIds, ProjectDeletionOptions deletionOptions)
     {
-        logAccess(sessionToken, "delete-projects", "PROJECT_IDS(%s) DELETION_OPTIONS(%s)", projectIds, deletionOptions);
+        logAccess(sessionToken, "delete-projects", "PROJECT_IDS(%s) DELETION_OPTIONS(%s)", abbreviate(projectIds), deletionOptions);
     }
 
     @Override
     public IDeletionId deleteExperiments(String sessionToken, List<? extends IExperimentId> experimentIds, ExperimentDeletionOptions deletionOptions)
     {
-        logAccess(sessionToken, "delete-experiments", "EXPERIMENT_IDS(%s) DELETION_OPTIONS(%s)", experimentIds, deletionOptions);
+        logAccess(sessionToken, "delete-experiments", "EXPERIMENT_IDS(%s) DELETION_OPTIONS(%s)", abbreviate(experimentIds), deletionOptions);
         return null;
     }
 
     @Override
     public IDeletionId deleteSamples(String sessionToken, List<? extends ISampleId> sampleIds, SampleDeletionOptions deletionOptions)
     {
-        logAccess(sessionToken, "delete-samples", "SAMPLE_IDS(%s) DELETION_OPTIONS(%s)", sampleIds, deletionOptions);
+        logAccess(sessionToken, "delete-samples", "SAMPLE_IDS(%s) DELETION_OPTIONS(%s)", abbreviate(sampleIds), deletionOptions);
         return null;
     }
 
     @Override
     public IDeletionId deleteDataSets(String sessionToken, List<? extends IDataSetId> dataSetIds, DataSetDeletionOptions deletionOptions)
     {
-        logAccess(sessionToken, "delete-data-sets", "DATA_SET_IDS(%s) DELETION_OPTIONS(%s)", dataSetIds, deletionOptions);
+        logAccess(sessionToken, "delete-data-sets", "DATA_SET_IDS(%s) DELETION_OPTIONS(%s)", abbreviate(dataSetIds), deletionOptions);
         return null;
+    }
+
+    @Override
+    public void deleteMaterials(String sessionToken, List<? extends IMaterialId> materialIds, MaterialDeletionOptions deletionOptions)
+    {
+        logAccess(sessionToken, "delete-materials", "MATERIAL_IDS(%s) DELETION_OPTIONS(%s)", abbreviate(materialIds), deletionOptions);
     }
 
     @Override
@@ -312,19 +327,13 @@ public class ApplicationServerApiLogger extends AbstractServerLogger implements
     @Override
     public void revertDeletions(String sessionToken, List<? extends IDeletionId> deletionIds)
     {
-        logAccess(sessionToken, "revert-deletions", "DELETION_IDS(%s)", deletionIds);
+        logAccess(sessionToken, "revert-deletions", "DELETION_IDS(%s)", abbreviate(deletionIds));
     }
 
     @Override
     public void confirmDeletions(String sessionToken, List<? extends IDeletionId> deletionIds)
     {
-        logAccess(sessionToken, "confirm-deletions", "DELETION_IDS(%s)", deletionIds);
-    }
-
-    @Override
-    public void deleteMaterials(String sessionToken, List<? extends IMaterialId> materialIds, MaterialDeletionOptions deletionOptions)
-    {
-        logAccess(sessionToken, "delete-materials", "MATERIAL_IDS(%s) DELETION_OPTIONS(%s)", materialIds, deletionOptions);
+        logAccess(sessionToken, "confirm-deletions", "DELETION_IDS(%s)", abbreviate(deletionIds));
     }
 
 }

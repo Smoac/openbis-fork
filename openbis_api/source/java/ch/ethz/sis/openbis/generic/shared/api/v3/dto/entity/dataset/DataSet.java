@@ -62,13 +62,7 @@ public class DataSet implements Serializable, ICodeHolder, IModificationDateHold
     private String code;
 
     @JsonProperty
-    private Date accessDate;
-
-    @JsonProperty
-    private Boolean derived;
-
-    @JsonProperty
-    private Boolean placeholder;
+    private Boolean measured;
 
     @JsonProperty
     private Boolean postRegistered;
@@ -108,6 +102,9 @@ public class DataSet implements Serializable, ICodeHolder, IModificationDateHold
 
     @JsonProperty
     private Person registrator;
+
+    @JsonProperty
+    private Date accessDate;
 
     @JsonProperty
     private Experiment experiment;
@@ -164,41 +161,15 @@ public class DataSet implements Serializable, ICodeHolder, IModificationDateHold
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     @JsonIgnore
-    public Date getAccessDate()
+    public Boolean isMeasured()
     {
-        return accessDate;
+        return measured;
     }
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
-    public void setAccessDate(Date accessDate)
+    public void setMeasured(Boolean measured)
     {
-        this.accessDate = accessDate;
-    }
-
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
-    @JsonIgnore
-    public Boolean isDerived()
-    {
-        return derived;
-    }
-
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
-    public void setDerived(Boolean derived)
-    {
-        this.derived = derived;
-    }
-
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
-    @JsonIgnore
-    public Boolean isPlaceholder()
-    {
-        return placeholder;
-    }
-
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
-    public void setPlaceholder(Boolean placeholder)
-    {
-        this.placeholder = placeholder;
+        this.measured = measured;
     }
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
@@ -445,6 +416,19 @@ public class DataSet implements Serializable, ICodeHolder, IModificationDateHold
     public void setRegistrator(Person registrator)
     {
         this.registrator = registrator;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    @JsonIgnore
+    public Date getAccessDate()
+    {
+        return accessDate;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public void setAccessDate(Date accessDate)
+    {
+        this.accessDate = accessDate;
     }
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}

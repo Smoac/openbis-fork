@@ -18,6 +18,7 @@ package ch.ethz.sis.openbis.generic.server.api.v3.executor.material;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -73,12 +74,17 @@ public class CreateMaterialExecutor extends AbstractCreateEntityExecutor<Materia
     private IVerifyMaterialExecutor verifyMaterialExecutor;
 
     @Override
-    protected MaterialPE create(IOperationContext context, MaterialCreation creation)
+    protected List<MaterialPE> createEntities(IOperationContext context, Collection<MaterialCreation> creations)
     {
-        MaterialPE material = new MaterialPE();
-        material.setCode(creation.getCode());
-        material.setRegistrator(context.getSession().tryGetPerson());
-        return material;
+        List<MaterialPE> materials = new LinkedList<MaterialPE>();
+        for (MaterialCreation creation : creations)
+        {
+            MaterialPE material = new MaterialPE();
+            material.setCode(creation.getCode());
+            material.setRegistrator(context.getSession().tryGetPerson());
+            materials.add(material);
+        }
+        return materials;
     }
 
     @Override
