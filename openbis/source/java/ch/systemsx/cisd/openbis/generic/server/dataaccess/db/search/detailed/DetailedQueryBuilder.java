@@ -98,7 +98,7 @@ public class DetailedQueryBuilder
         BooleanQuery resultQuery = new BooleanQuery();
         for (DetailedSearchCriterion criterion : criteria)
         {
-            List<String> fieldNames = getIndexFieldNames(criterion.getField());
+            List<String> fieldNames = getIndexFieldNames(criterion.getField(), entityKind);
 
             if (criterion.getTimeZone() == null)
             {
@@ -167,24 +167,33 @@ public class DetailedQueryBuilder
                 throw InternalErr.error("unknown enum " + connection);
         }
     }
-
-    private List<String> getIndexFieldNames(DetailedSearchField searchField)
+    
+    public static List<String> getIndexFieldNames(List<DetailedSearchCriterion> criteria, EntityKind entityKind) {
+        List<String> fieldNames = new ArrayList<String>();
+        for (DetailedSearchCriterion criterion : criteria)
+        {
+            fieldNames.addAll(getIndexFieldNames(criterion.getField(), entityKind));
+        }
+        return fieldNames;
+    }
+    
+    private static List<String> getIndexFieldNames(DetailedSearchField searchField, EntityKind entityKind)
     {
         DetailedSearchFieldKind fieldKind = searchField.getKind();
         switch (fieldKind)
         {
             case ANY_PROPERTY:
-                return getPropertyIndexFields(searchField);
+                return getPropertyIndexFields(searchField, entityKind);
             case ANY_FIELD:
                 List<String> fields = new ArrayList<String>();
-                fields.addAll(getPropertyIndexFields(searchField));
-                fields.addAll(getAllAttributeIndexFieldNames());
+                fields.addAll(getPropertyIndexFields(searchField, entityKind));
+                fields.addAll(getAllAttributeIndexFieldNames(entityKind));
                 return fields;
             case REGISTRATOR:
                 return Arrays.asList(SearchFieldConstants.PREFIX_REGISTRATOR
                         + SearchFieldConstants.PERSON_USER_ID);
             default:
-                return Arrays.asList(getSimpleFieldIndexName(searchField));
+                return Arrays.asList(getSimpleFieldIndexName(searchField, entityKind));
         }
     }
 
@@ -197,15 +206,15 @@ public class DetailedQueryBuilder
     private final static EnumSet<DetailedSearchFieldKind> simpleFieldKinds = EnumSet.of(
             DetailedSearchFieldKind.ATTRIBUTE, DetailedSearchFieldKind.PROPERTY);
 
-    private String getSimpleFieldIndexName(DetailedSearchField searchField)
+    private static String getSimpleFieldIndexName(DetailedSearchField searchField, EntityKind entityKind)
     {
         assert simpleFieldKinds.contains(searchField.getKind()) : "simple field kind required";
-        String indexFieldName = tryGetIndexFieldName(searchField);
+        String indexFieldName = tryGetIndexFieldName(searchField, entityKind);
         assert indexFieldName != null;
         return indexFieldName;
     }
 
-    private List<String> getAllAttributeIndexFieldNames()
+    private static List<String> getAllAttributeIndexFieldNames(EntityKind entityKind)
     {
         List<String> indexFieldNames = new ArrayList<String>();
         IAttributeSearchFieldKind[] attributeFieldKinds = getAllAttributeFieldKinds(entityKind);
@@ -213,7 +222,7 @@ public class DetailedQueryBuilder
         {
             DetailedSearchField attributeField =
                     DetailedSearchField.createAttributeField(attributeFieldKind);
-            indexFieldNames.add(getSimpleFieldIndexName(attributeField));
+            indexFieldNames.add(getSimpleFieldIndexName(attributeField, entityKind));
         }
         return indexFieldNames;
     }
@@ -223,13 +232,13 @@ public class DetailedQueryBuilder
         return AttributeSearchFieldKindProvider.getAllAttributeFieldKinds(entityKind);
     }
 
-    private List<String> getPropertyIndexFields(DetailedSearchField searchField)
+    private static List<String> getPropertyIndexFields(DetailedSearchField searchField, EntityKind entityKind)
     {
         assert searchField.getKind() != DetailedSearchFieldKind.ATTRIBUTE : "attribute field kind not allowed";
-        return getPropertyIndexFieldNames(searchField.getAllEntityPropertyCodesOrNull());
+        return getPropertyIndexFieldNames(searchField.getAllEntityPropertyCodesOrNull(), entityKind);
     }
 
-    private List<String> getPropertyIndexFieldNames(List<String> allPropertyCodes)
+    private static List<String> getPropertyIndexFieldNames(List<String> allPropertyCodes, EntityKind entityKind)
     {
         List<String> indexFieldNames = new ArrayList<String>();
         assert allPropertyCodes != null;
@@ -237,7 +246,7 @@ public class DetailedQueryBuilder
         {
             final DetailedSearchField searchField =
                     DetailedSearchField.createPropertyField(propertyCode);
-            final String indexFieldName = tryGetIndexFieldName(searchField);
+            final String indexFieldName = tryGetIndexFieldName(searchField, entityKind);
             assert indexFieldName != null;
             indexFieldNames.add(indexFieldName);
         }
@@ -245,7 +254,7 @@ public class DetailedQueryBuilder
     }
 
     // returns the field name in the index for the specified query field
-    private String tryGetIndexFieldName(DetailedSearchField searchField)
+    private static String tryGetIndexFieldName(DetailedSearchField searchField, EntityKind entityKind)
     {
         DetailedSearchFieldKind fieldKind = searchField.getKind();
         switch (fieldKind)

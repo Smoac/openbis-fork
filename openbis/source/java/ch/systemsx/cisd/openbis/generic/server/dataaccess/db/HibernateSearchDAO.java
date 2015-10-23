@@ -69,6 +69,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IHibernateSearchDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.HibernateSearchContext;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.LuceneQueryBuilder;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.detailed.DetailedQueryBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IAssociationCriteria;
@@ -99,7 +100,7 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
             HibernateSearchDAO.class);
 
     private final HibernateSearchContext hibernateSearchContext;
-    private Map<String, DocValuesType> fieldTypes;
+    private Map<String, DocValuesType> fieldTypesCache;
 
     HibernateSearchDAO(final SessionFactory sessionFactory,
             HibernateSearchContext hibernateSearchContext)
@@ -108,13 +109,23 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
         this.hibernateSearchContext = hibernateSearchContext;
         setSessionFactory(sessionFactory);
     }
-
-    public Map<String, DocValuesType> getFieldTypes()
+    
+    private boolean containsKeys(Map<String, DocValuesType> map, List<String> keys) {
+        for(String key:keys) {
+            if(map == null || map.containsKey(key) == false) {
+                return false;
+            }
+        }
+        return true;
+    }
+    
+    private Map<String, DocValuesType> getFieldTypes(List<String> fields)
     {
         //Initialize field types
-        if(fieldTypes == null) {
+        if(fieldTypesCache == null || containsKeys(fieldTypesCache, fields) == false)
+        {
             synchronized(this) {
-                fieldTypes = Collections.synchronizedMap(new HashMap<String, DocValuesType>());
+                fieldTypesCache = Collections.synchronizedMap(new HashMap<String, DocValuesType>());
                 for(SearchableEntity searchableEntity:SearchableEntity.values())
                 {
                     MyIndexReaderProvider indexProvider = null;
@@ -130,7 +141,7 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
                             for (Iterator<FieldInfo> iter = fis.iterator(); iter.hasNext();)
                             {
                                 FieldInfo fi = iter.next();
-                                fieldTypes.put(fi.name, fi.getDocValuesType());
+                                fieldTypesCache.put(fi.name, fi.getDocValuesType());
                             }
                         }
                     } finally
@@ -140,7 +151,7 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
                 }
             }
         }
-        return fieldTypes;
+        return fieldTypesCache;
     }
 
     //
@@ -322,9 +333,9 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
             DetailedSearchCriteria searchCriteria, EntityKind entityKind,
             List<IAssociationCriteria> associations)
     {
-        Query query =
-                LuceneQueryBuilder.createDetailedSearchQuery(userId, searchCriteria, associations,
-                        entityKind, getFieldTypes());
+        List<String> fieldNames = DetailedQueryBuilder.getIndexFieldNames(searchCriteria.getCriteria(), DtoConverters.convertEntityKind(entityKind));
+        
+        Query query = LuceneQueryBuilder.createDetailedSearchQuery(userId, searchCriteria, associations, entityKind, getFieldTypes(fieldNames));
         final FullTextSession fullTextSession = Search.getFullTextSession(session);
         final FullTextQuery hibernateQuery =
                 fullTextSession.createFullTextQuery(query, entityKind.getEntityClass());
