@@ -487,9 +487,14 @@ def initELNMasterData():
 											["4X4", "4 x 4 box", None],
 											["20X40", "20 x 40 box", None]
 										]);
-										
+	
+	createVocabularyWithTerms("COLOR_ENCODED_ANNOTATIONS", "Colors used to annotate wells visually", [
+											["DEFAULT", "Default", "grey : Used when no code is selected or obviously when this is selected."],
+											["FAULTY", "Faulty", "red : Used to implicate that something is not right"]
+										]);
+	
 	createVocabularyWithTerms("ELN_TYPES_METADATA", "The presence of this vocabulary indicates the ELN Plugin that the ELN master data script was executed.", [
-											["TYPES_VERSION", "Types Version S207", None]
+											["TYPES_VERSION", "Types Version S216", None]
 										]);
 	##
 	## Property Types for annotations

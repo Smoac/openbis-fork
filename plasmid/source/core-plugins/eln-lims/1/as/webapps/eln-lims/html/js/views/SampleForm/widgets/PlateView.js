@@ -19,6 +19,19 @@ function PlateView(plateController, plateModel) {
 	
 	this.getPlaceHolder = function() {
 		var container = $("<div>", { "id" : this._plateModel.getPlaceHolderId() });
+		var gridTable = this.getGridTable(false);
+		container.append(gridTable);
+		return container[0].outerHTML
+	}
+	
+	this.repaint = function($container) {
+		var _this = this;
+		$container.empty();
+		var gridTable = this.getGridTable(true);
+		$container.append(gridTable);
+	}
+	
+	this.getGridTable = function(withWells) {
 		var gridTable = $("<table>", { "class" : "table table-bordered gridTable", "style" : "table-layout: fixed;" });
 		
 		for(var i = 0; i <= this._plateModel.numRows; i++) {
@@ -33,49 +46,51 @@ function PlateView(plateController, plateModel) {
 					$cell = $("<th>").append(this._plateModel.getAlphabetLabel(i-1));
 				} else {
 					$cell = $("<td>").append("&nbsp;");
+					
+					if(withWells) {
+						var well = this._plateModel.getWell(i-1,j);
+						if(well) {
+							$cell.addClass('well');
+							var selectedColorEncodedAnnotation = well.properties["COLOR_ENCODED_ANNOTATION"];
+							var colorEncodedWellAnnotationsSelector = this.getWellGroups(well.permId, selectedColorEncodedAnnotation);
+							
+							var tooltip = PrintUtil.getTable(well, false, null, 'inspectorWhiteFont',
+															'colorEncodedWellAnnotations-holder-' + well.permId,
+															colorEncodedWellAnnotationsSelector);
+							$cell.tooltipster({
+								content: $(tooltip),
+								interactive: true
+							});
+						}
+					}
 				}
 				
 				$cell.css('width', Math.floor(80/this._plateModel.numColumns+1) +'%');
 				$row.append($cell);
 			}
 			gridTable.append($row);
-		}
-		container.append(gridTable);
-		return container[0].outerHTML
+		}	
+		return gridTable;
 	}
-	this.repaint = function($container) {
-		var _this = this;
-		$container.empty();
-		var gridTable = $("<table>", { "class" : "table table-bordered gridTable", "style" : "table-layout: fixed;" });
-		
-		for(var i = 0; i <= this._plateModel.numRows; i++) {
-			var $row = $("<tr>");
-			for(var j = 0; j <= this._plateModel.numColumns; j++) {
-				var $cell = null;
-				if(i === 0 && j === 0) { //Empty cell at the top left
-					$cell = $("<th>");
-				} else if (i === 0 && j !== 0){ //header with column numbers
-					$cell = $("<th>").append(j);
-				} else if (j === 0){ //header with row letter
-					$cell = $("<th>").append(this._plateModel.getAlphabetLabel(i-1));
-				} else {
-					var well = this._plateModel.getWell(i-1,j);
-					$cell = $("<td>").append("&nbsp;");
-					if(well) {
-						$cell.addClass('well');
-						var tooltip = PrintUtil.getTable(well, false, null, 'inspectorWhiteFont');
-						$cell.tooltipster({
-							content: $(tooltip),
-							interactive: true
-						});
-					}
-				}
-				$cell.css('width', Math.floor(80/this._plateModel.numColumns+1) +'%');
-				$row.append($cell);
+	
+	this.getWellGroups = function(wellSamplePermId, selectedAnnotation) {
+		var $component = $("<select>", {"id" : 'colorEncodedWellAnnotations-' + wellSamplePermId, class : 'form-control'});
+		var $defaultOption = $("<option>").attr('value', '').attr('disabled', '').text('Select an annotation');
+		if(!selectedAnnotation) {
+			$defaultOption.attr('selected', '');
+		}
+		$component.append($defaultOption);
+			
+		var colorEncodedAnnotations = profile.getVocabularyByCode("COLOR_ENCODED_ANNOTATIONS");
+		for(var cIdx = 0; cIdx < colorEncodedAnnotations.terms.length; cIdx++) {
+			var $option = $("<option>").attr('value', colorEncodedAnnotations.terms[cIdx].code).text(colorEncodedAnnotations.terms[cIdx].label);
+			if(selectedAnnotation === colorEncodedAnnotations.terms[cIdx].code) {
+				$option.attr('selected', '');
 			}
-			gridTable.append($row);
+			$component.append($option);
 		}
 		
-		$container.append(gridTable);
+		var $componentWithLabel = $("<span>").append("Color Encoded Annotation: ").append($component);
+		return $componentWithLabel;
 	}
 }
