@@ -533,8 +533,8 @@ class create_sample_sheet_H32NFBCXX(unittest.TestCase):
                                                                                       self.index2Vocabulary, self.flowCellName, self.logger)
            
         self.assertDictEqual(self.ordered_sample_sheet_dict,
-                {u'1_BSSE_QGF_29352_H32NFBCXX_1': [u'1,,BSSE_QGF_29352_H32NFBCXX_1,BSSE_QGF_29352_H32NFBCXX_1_Lib_Amph_4,,,,,BSSE_QGF_29352_H32NFBCXX_1'],
-                 u'2_BSSE_QGF_29352_H32NFBCXX_2': [u'2,,BSSE_QGF_29352_H32NFBCXX_2,BSSE_QGF_29352_H32NFBCXX_2_Lib_Amph_4,,,,,BSSE_QGF_29352_H32NFBCXX_2']})
+                {u'1_BSSE_QGF_29352_H32NFBCXX_1': [u'1,BSSE_QGF_29352_H32NFBCXX_1,BSSE_QGF_29352_H32NFBCXX_1_Lib_Amph_4,,,,,BSSE_QGF_29352_H32NFBCXX_1,'],
+                 u'2_BSSE_QGF_29352_H32NFBCXX_2': [u'2,BSSE_QGF_29352_H32NFBCXX_2,BSSE_QGF_29352_H32NFBCXX_2_Lib_Amph_4,,,,,BSSE_QGF_29352_H32NFBCXX_2,']})
  
     def test_create_header_section(self):
         self.model = get_model(self.flowCellDict['RUN_NAME_FOLDER'])
