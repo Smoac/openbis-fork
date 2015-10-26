@@ -21,6 +21,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.fail;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -78,15 +79,36 @@ public class RegisterDataSetTest extends BaseTest
     }
     
     @Test
+    public void testRegisterContainerWithNonExistingDataSetForAnExperimentFails() throws Exception
+    {
+        try
+        {
+            create(aDataSet().asContainer().withComponents("DS-101")
+                    .inExperiment(experiment));
+            fail("UserFailureExcpetion expected");
+        } catch (UserFailureException ex)
+        {
+            assertEquals("Unknown data set code 'DS-101'", ex.getMessage());
+        }
+    }
+
+    @Test
     public void testRegisterContainerDataSetForAnExperiment() throws Exception
     {
-        AbstractExternalData dataSet = create(aDataSet().asContainer().withComponents("DS-101", "DS-102")
+        AbstractExternalData component1 = create(aDataSet().withType("UNKNOWN").inExperiment(experiment));
+        AbstractExternalData component2 = create(aDataSet().withType("UNKNOWN").inExperiment(experiment));
+        List<String> componentDSCodes = new ArrayList<String>();
+        componentDSCodes.add(component1.getCode());
+        componentDSCodes.add(component2.getCode());
+        
+        AbstractExternalData dataSet = create(aDataSet().asContainer().withComponents(component1.getCode(), component2.getCode())
                 .inExperiment(experiment));
         
         assertThat(dataSet, is(inExperiment(experiment)));
         List<AbstractExternalData> components = dataSet.tryGetAsContainerDataSet().getContainedDataSets();
         List<String> codes = Code.extractCodes(components);
-        assertEquals("[DS-101, DS-102]", codes.toString());
+
+        assertEquals(componentDSCodes.toString(), codes.toString());
         assertEquals("UNKNOWN", components.get(0).getDataSetType().getCode());
         assertThat(components.get(0), is(inExperiment(experiment)));
         assertThat(components.get(1), is(inExperiment(experiment)));
@@ -103,6 +125,24 @@ public class RegisterDataSetTest extends BaseTest
     }
     
     @Test
+    public void testRegisterDataSetAsContainerForADeletedDataSetFails() throws Exception
+    {
+        AbstractExternalData componentDataSet = create(aDataSet().asContainer().inExperiment(experiment));
+        assertThat(componentDataSet, is(inExperiment(experiment)));
+
+        commonServer.deleteDataSets(systemSessionToken, Arrays.asList(componentDataSet.getCode()),
+                "t", DeletionType.TRASH, true);
+
+        try { 
+            create(aDataSet().asContainer().withComponents(componentDataSet.getCode()).inExperiment(experiment));
+            fail("UserFailureExcpetion expected");
+        } catch (UserFailureException ex)
+        {
+            assertEquals("Unknown data set code '" + componentDataSet.getCode() + "'", ex.getMessage());
+        }
+    }
+
+    @Test
     public void testRegisterDataSetForASampleWithExperiment() throws Exception
     {
         AbstractExternalData dataSet = create(aDataSet().inSample(sampleWithExperiment));
@@ -114,14 +154,20 @@ public class RegisterDataSetTest extends BaseTest
     @Test
     public void testRegisterContainerDataSetForASampleWithExperiment() throws Exception
     {
-        AbstractExternalData dataSet = create(aDataSet().asContainer().withComponents("DS-101", "DS-102")
+        AbstractExternalData component1 = create(aDataSet().withType("UNKNOWN").inSample(sampleWithExperiment));
+        AbstractExternalData component2 = create(aDataSet().withType("UNKNOWN").inSample(sampleWithExperiment));
+        List<String> componentDSCodes = new ArrayList<String>();
+        componentDSCodes.add(component1.getCode());
+        componentDSCodes.add(component2.getCode());
+
+        AbstractExternalData dataSet = create(aDataSet().asContainer().withComponents(component1.getCode(), component2.getCode())
                 .inSample(sampleWithExperiment));
         
         assertThat(dataSet, is(inSample(sampleWithExperiment)));
         assertThat(dataSet, is(inExperiment(experiment)));
         List<AbstractExternalData> components = dataSet.tryGetAsContainerDataSet().getContainedDataSets();
         List<String> codes = Code.extractCodes(components);
-        assertEquals("[DS-101, DS-102]", codes.toString());
+        assertEquals(componentDSCodes.toString(), codes.toString());
         assertEquals("UNKNOWN", components.get(0).getDataSetType().getCode());
         assertThat(components.get(0), is(inSample(sampleWithExperiment)));
         assertThat(components.get(0), is(inExperiment(experiment)));
@@ -159,14 +205,20 @@ public class RegisterDataSetTest extends BaseTest
     @Test
     public void testRegisterContainerDataSetAndItsComponentsForASampleWithoutExperiment() throws Exception
     {
-        AbstractExternalData dataSet = create(aDataSet().withType("NEXP-TYPE")
-                .asContainer().withComponents("DS-101", "DS-102").inSample(spaceSampleWithoutExperiment));
+        AbstractExternalData component1 = create(aDataSet().withType("NEXP-TYPE").inSample(spaceSampleWithoutExperiment));
+        AbstractExternalData component2 = create(aDataSet().withType("NEXP-TYPE").inSample(spaceSampleWithoutExperiment));
+        List<String> componentDSCodes = new ArrayList<String>();
+        componentDSCodes.add(component1.getCode());
+        componentDSCodes.add(component2.getCode());
+
+        AbstractExternalData dataSet = create(aDataSet().withType("NEXP-CONTAINER-TYPE")
+                .asContainer().withComponents(component1.getCode(), component2.getCode()).inSample(spaceSampleWithoutExperiment));
 
         assertThat(dataSet, is(inSample(spaceSampleWithoutExperiment)));
         List<AbstractExternalData> components = dataSet.tryGetAsContainerDataSet().getContainedDataSets();
         List<String> codes = Code.extractCodes(components);
-        assertEquals("[DS-101, DS-102]", codes.toString());
-        assertEquals("UNKNOWN", components.get(0).getDataSetType().getCode());
+        assertEquals(componentDSCodes.toString(), codes.toString());
+        assertEquals("NEXP-TYPE", components.get(0).getDataSetType().getCode());
         assertThat(components.get(0), is(inSample(spaceSampleWithoutExperiment)));
         assertThat(components.get(1), is(inSample(spaceSampleWithoutExperiment)));
         assertThat(components.size(), equalTo(2));
