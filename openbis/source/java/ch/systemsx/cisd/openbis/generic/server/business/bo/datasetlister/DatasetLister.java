@@ -1077,10 +1077,7 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
             ids.add(record.id);
             DataSetType dsType = dataSetTypes.get(record.dsty_id);
             AbstractExternalData dataSetOrNull = null;
-            if (record.is_placeholder)
-            {
-                // placeholder data sets are filtered out
-            } else if (dsType.getDataSetKind() == DataSetKind.CONTAINER)
+            if (dsType.getDataSetKind() == DataSetKind.CONTAINER)
             {
                 dataSetOrNull = convertToContainerDataSet(record);
             } else if (dsType.getDataSetKind() == DataSetKind.LINK)

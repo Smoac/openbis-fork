@@ -21,7 +21,6 @@ import it.unimi.dsi.fastutil.longs.LongSet;
 import java.util.List;
 
 import net.lemnik.eodsql.Select;
-
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.ObjectQuery;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.ObjectRelationRecord;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.history.HistoryPropertyRecord;
@@ -47,7 +46,7 @@ public interface DataSetQuery extends ObjectQuery
             + "where d.id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<DataSetAuthorizationRecord> getAuthorizations(LongSet dataSetIds);
 
-    @Select(sql = "select d.id, d.code, d.is_derived as isDerived, d.is_placeholder as isPlaceholder, d.access_timestamp as accessDate, d.modification_timestamp as modificationDate, d.registration_timestamp as registrationDate "
+    @Select(sql = "select d.id, d.code, d.is_derived as isDerived, d.access_timestamp as accessDate, d.modification_timestamp as modificationDate, d.registration_timestamp as registrationDate "
             + "from data d where d.id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<DataSetBaseRecord> getDataSets(LongSet dataSetIds);
 

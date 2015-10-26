@@ -98,8 +98,6 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
 
     private String code;
 
-    private boolean placeholder;
-
     private boolean isDerived;
 
     private PersonPE registrator;
@@ -417,25 +415,7 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
         return isDerived == false;
     }
 
-    /**
-     * Returns <code>true</code> if this data set is a placeholder for a data set yet to arrive.
-     */
-    @Column(name = ColumnNames.IS_PLACEHOLDER_COLUMN)
-    public boolean isPlaceholder()
-    {
-        return placeholder;
-    }
-
-    /**
-     * Set to <code>true</code> if this data set is a placeholder for a data set yet to arrive.
-     */
-    public void setPlaceholder(final boolean placeholder)
-    {
-        this.placeholder = placeholder;
-    }
-
     // bidirectional connection SamplePE-DataPE
-
     public void setSampleAcquiredFrom(final SamplePE sample)
     {
         setDerived(false);
@@ -804,7 +784,7 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
      */
     public boolean isExternalData()
     {
-        return isPlaceholder() == false && isContainer() == false && isLinkData() == false;
+        return isContainer() == false && isLinkData() == false;
     }
 
     @Transient

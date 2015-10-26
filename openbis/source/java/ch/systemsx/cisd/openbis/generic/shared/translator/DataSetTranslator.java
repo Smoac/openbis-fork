@@ -37,7 +37,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PlaceholderDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -418,10 +417,6 @@ public class DataSetTranslator
         } else if (dataPE.isLinkData())
         {
             result = new LinkDataSet();
-        } else
-        {
-            assert dataPE.isPlaceholder() == true;
-            result = new PlaceholderDataSet();
         }
         result.setId(HibernateUtils.getId(dataPE));
         result.setCode(dataPE.getCode());

@@ -13,7 +13,6 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		prototype.code = null;
 		prototype.accessDate = null;
 		prototype.derived = null;
-		prototype.placeholder = null;
 		prototype.postRegistered = null;
 		prototype.parents = null;
 		prototype.children = null;
@@ -60,12 +59,6 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		};
 		prototype.setDerived = function(derived) {
 			this.derived = derived;
-		};
-		prototype.isPlaceholder = function() {
-			return this.placeholder;
-		};
-		prototype.setPlaceholder = function(placeholder) {
-			this.placeholder = placeholder;
 		};
 		prototype.isPostRegistered = function() {
 			return this.postRegistered;

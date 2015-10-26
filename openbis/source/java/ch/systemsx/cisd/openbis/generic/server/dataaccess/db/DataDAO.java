@@ -78,7 +78,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.TableNames;
-import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
  * Implementation of {@link IDataDAO} for databases.
@@ -798,39 +797,6 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
         final HibernateTemplate hibernateTemplate = getHibernateTemplate();
         data.setCode(CodeConverter.tryToDatabase(data.getCode()));
         data.setModifier(modifier);
-        Long id = HibernateUtils.getId(data);
-        final DataPE loaded = (DataPE) hibernateTemplate.load(ENTITY_CLASS, id);
-        // This just means that we do not have any entry in 'EXTERNAL_DATA' table for this id. It
-        // might happen when we work with placeholder data.
-        if (loaded.isPlaceholder() && data instanceof ExternalDataPE)
-        {
-            ExternalDataPE externalData = (ExternalDataPE) data;
-            String shareId = externalData.getShareId();
-            String location = externalData.getLocation();
-            Long size = externalData.getSize();
-            Long locatorTypeID = externalData.getLocatorType().getId();
-            Long fileFormatTypeID = externalData.getFileFormatType().getId();
-            char complete = externalData.getComplete().name().charAt(0);
-            Long storageFormatTermID = externalData.getStorageFormatVocabularyTerm().getId();
-            if (size == null)
-            {
-                executeUpdate(
-                        "insert into "
-                                + TableNames.EXTERNAL_DATA_TABLE
-                                + " (data_id, share_id, location, loty_id, ffty_id, is_complete, cvte_id_stor_fmt) "
-                                + "values (?, ?, ?, ?, ?, ?, ?)", id, shareId, location,
-                        locatorTypeID, fileFormatTypeID, complete, storageFormatTermID);
-            } else
-            {
-                executeUpdate(
-                        "insert into "
-                                + TableNames.EXTERNAL_DATA_TABLE
-                                + " (data_id, share_id, location, size, loty_id, ffty_id, is_complete, cvte_id_stor_fmt) "
-                                + "values (?, ?, ?, ?, ?, ?, ?, ?)", id, shareId, location, size,
-                        locatorTypeID, fileFormatTypeID, complete, storageFormatTermID);
-            }
-            hibernateTemplate.evict(loaded);
-        }
         lockRelatedEntities(data);
         hibernateTemplate.update(data);
         hibernateTemplate.flush();

@@ -81,7 +81,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.types.DataSetTypeCode;
 
 /**
  * @author Franz-Josef Elmer
@@ -325,7 +324,7 @@ public class DataBOTest extends AbstractBOTest
     }
 
     @Test
-    public void testDefineWithNonExistingParentDataSet()
+    public void testDefineWithNonExistingParentDataSetFails()
     {
         final DataSetTypePE dataSetType = createDataSetType(DataSetKind.PHYSICAL);
         final FileFormatTypePE fileFormatType = new FileFormatTypePE();
@@ -343,37 +342,28 @@ public class DataBOTest extends AbstractBOTest
         parentData.setCode(PARENT_CODE);
         parentData.setDataSetType(dataSetTypeUnknown);
         parentData.setExperiment(createExperiment("EXP1"));
-        parentData.setPlaceholder(true);
         context.checking(new Expectations()
             {
                 {
                     one(dataDAO).tryToFindDataSetByCode(PARENT_CODE);
                     will(returnValue(null));
-
-                    one(dataSetTypeDAO).tryToFindDataSetTypeByCode("UNKNOWN");
-                    will(returnValue(dataSetTypeUnknown));
-
-                    one(dataDAO).createDataSet(parentData, EXAMPLE_PERSON);
-
-                    one(relationshipService).addParentToDataSet(with(any(IAuthSession.class)),
-                            with(any(DataPE.class)), with(any(DataPE.class)));
-
                 }
             });
 
         IDataBO dataBO = createDataBO();
-        dataBO.define(createDataSet(PARENT_CODE), experiment, SourceType.MEASUREMENT);
-        DataPE data = dataBO.getData();
-
-        assertSame(experiment, data.getExperiment());
-        assertEquals(null, data.tryGetSample());
-        assertSame(true, data.isMeasured());
-        assertSame(dataStore, data.getDataStore());
+        try
+        {
+            dataBO.define(createDataSet(PARENT_CODE), experiment, SourceType.MEASUREMENT);
+            fail("UserFailureException expected");
+        } catch (UserFailureException e)
+        {
+            assertEquals("Unknown data set code '" + PARENT_CODE + "'", e.getMessage());
+        }
         context.assertIsSatisfied();
     }
 
     @Test
-    public void testDefineWithNonExistingParentDataSetAndNonExistingExperiment()
+    public void testDefineWithNonExistingParentDataSetAndNonExistingExperimentFails()
     {
         final DataSetTypePE dataSetType = createDataSetType();
         final FileFormatTypePE fileFormatType = new FileFormatTypePE();
@@ -391,27 +381,23 @@ public class DataBOTest extends AbstractBOTest
         parentData.setDataSetType(dataSetTypeUnknown);
         ExperimentPE experiment = createExperiment("EXP1");
         parentData.setExperiment(experiment);
-        parentData.setPlaceholder(true);
         context.checking(new Expectations()
             {
                 {
                     one(dataDAO).tryToFindDataSetByCode(PARENT_CODE);
                     will(returnValue(null));
-
-                    one(dataSetTypeDAO).tryToFindDataSetTypeByCode(
-                            DataSetTypeCode.UNKNOWN.getCode());
-                    will(returnValue(dataSetTypeUnknown));
-
-                    one(dataDAO).createDataSet(parentData, EXAMPLE_PERSON);
-
-                    one(relationshipService).addParentToDataSet(with(any(IAuthSession.class)),
-                            with(any(DataPE.class)), with(any(DataPE.class)));
-
                 }
             });
 
         IDataBO dataBO = createDataBO();
-        dataBO.define(createDataSet(PARENT_CODE), experiment, SourceType.MEASUREMENT);
+        try
+        {
+            dataBO.define(createDataSet(PARENT_CODE), experiment, SourceType.MEASUREMENT);
+            fail("UserFailureException expected");
+        } catch (UserFailureException e)
+        {
+            assertEquals("Unknown data set code '" + PARENT_CODE + "'", e.getMessage());
+        }
         DataPE data = dataBO.getData();
 
         assertSame(null, data.tryGetSample());
@@ -456,7 +442,7 @@ public class DataBOTest extends AbstractBOTest
     }
 
     @Test
-    public void testDefineContainerWithNonExistingComponent()
+    public void testDefineContainerWithNonExistingComponentFails()
     {
         final DataSetTypePE dataSetType = createDataSetType(DataSetKind.CONTAINER);
         final ExperimentPE experiment = createExperiment("EXP1");
@@ -467,34 +453,31 @@ public class DataBOTest extends AbstractBOTest
         component.setCode(COMPONENT_CODE);
         component.setDataSetType(dataSetTypeUnknown);
         component.setExperiment(experiment);
-        component.setPlaceholder(true);
-        final RecordingMatcher<DataPE> containerMatcher = new RecordingMatcher<DataPE>();
         context.checking(new Expectations()
             {
                 {
                     one(dataDAO).tryToFindDataSetByCode(COMPONENT_CODE);
                     will(returnValue(null));
-
-                    one(dataSetTypeDAO).tryToFindDataSetTypeByCode("UNKNOWN");
-                    will(returnValue(dataSetTypeUnknown));
-
-                    one(dataDAO).createDataSet(component, EXAMPLE_PERSON);
-
-                    one(relationshipService).assignDataSetToContainer(with(EXAMPLE_SESSION), with(component), with(containerMatcher));
                 }
             });
 
         IDataBO dataBO = createDataBO();
         NewContainerDataSet newData = createContainerDataSetWithComponents(COMPONENT_CODE);
         dataBO.define(newData, experiment, SourceType.MEASUREMENT);
-        dataBO.setContainedDataSets(experiment, null, newData);
-        DataPE data = dataBO.getData();
-
-        assertSame(experiment, data.getExperiment());
-        assertEquals(null, data.tryGetSample());
-        assertSame(true, data.isMeasured());
-        assertSame(dataStore, data.getDataStore());
-        assertSame(data, containerMatcher.recordedObject());
+        try
+        {
+            dataBO.setContainedDataSets(experiment, null, newData);
+            fail("UserFailureException expected");
+        } catch (UserFailureException e)
+        {
+            assertEquals("Unknown data set code '" + COMPONENT_CODE + "'", e.getMessage());
+        }
+         DataPE data = dataBO.getData();
+        
+         assertSame(experiment, data.getExperiment());
+         assertEquals(null, data.tryGetSample());
+         assertSame(true, data.isMeasured());
+         assertSame(dataStore, data.getDataStore());
         context.assertIsSatisfied();
     }
 
@@ -1004,9 +987,6 @@ public class DataBOTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
-                    one(dataDAO).tryToFindDataSetByCode(DATA_SET_CODE);
-                    will(returnValue(null));
-
                     one(dataDAO).createDataSet(with(new DataMatcher()), with(EXAMPLE_PERSON));
 
                     expectMandatoryPropertiesCheck(this, dataSetType);
@@ -1016,51 +996,6 @@ public class DataBOTest extends AbstractBOTest
         IDataBO dataBO = createDataBO();
         dataBO.define(createDataSet(null), sample, SourceType.DERIVED);
         dataBO.save();
-
-        context.assertIsSatisfied();
-    }
-
-    @Test
-    public void testUpdatePlaceholderDataSet()
-    {
-        final DataSetTypePE dataSetType = createDataSetType();
-        final FileFormatTypePE fileFormatType = new FileFormatTypePE();
-        final VocabularyPE vocabulary = new VocabularyPE();
-        vocabulary.addTerm(new VocabularyTermPE());
-        VocabularyTermPE vocabularyTerm = new VocabularyTermPE();
-        vocabularyTerm.setCode(StorageFormat.PROPRIETARY.toString());
-        vocabulary.addTerm(vocabularyTerm);
-        final LocatorTypePE locatorType = new LocatorTypePE();
-        SamplePE sample = new SamplePE();
-        sample.setExperiment(new ExperimentPE());
-        final DataStorePE dataStore = new DataStorePE();
-        prepareDefineExternalData(dataSetType, fileFormatType, vocabulary, locatorType, dataStore);
-        context.checking(new Expectations()
-            {
-                {
-                    one(dataDAO).tryToFindDataSetByCode(DATA_SET_CODE);
-                    DataPE data = new DataPE();
-                    data.setId(4711L);
-                    data.setPlaceholder(true);
-                    will(returnValue(data));
-
-                    one(dataDAO).updateDataSet(with(new DataMatcher()), with(EXAMPLE_PERSON));
-
-                    expectMandatoryPropertiesCheck(this, dataSetType);
-                }
-
-            });
-
-        IDataBO dataBO = createDataBO();
-        dataBO.define(createDataSet(null), sample, SourceType.DERIVED);
-        dataBO.save();
-
-        DataPE data = dataBO.getData();
-        assertSame(dataStore, data.getDataStore());
-        assertEquals(false, data.isPlaceholder());
-        assertEquals(4711, data.getId().longValue());
-        assertSame(sample, data.tryGetSample());
-        assertSame(true, data.isDerived());
 
         context.assertIsSatisfied();
     }
@@ -1083,16 +1018,11 @@ public class DataBOTest extends AbstractBOTest
 
         final DataPE data = new ExternalDataPE();
         data.setId(4711L);
-        data.setPlaceholder(true);
 
         context.checking(new Expectations()
             {
                 {
-                    one(dataDAO).tryToFindDataSetByCode(DATA_SET_CODE);
-
-                    will(returnValue(data));
-
-                    one(dataDAO).updateDataSet(with(new DataMatcher()), with(EXAMPLE_PERSON));
+                    one(dataDAO).createDataSet(with(new DataMatcher()), with(EXAMPLE_PERSON));
 
                     expectMandatoryPropertiesCheck(this, dataSetType);
                 }

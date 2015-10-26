@@ -250,32 +250,32 @@ public interface IDatasetListingQuery extends BaseQuery, IPropertyListingQuery
     public DataIterator<DatasetRecord> getDatasets(String[] datasetCodes);
 
     @Select(sql = SELECT_ALL_EXTERNAL_DATAS
-            + " where data.dast_id = ?{1} and is_placeholder = false", fetchSize = FETCH_SIZE)
+            + " where data.dast_id = ?{1}", fetchSize = FETCH_SIZE)
     public DataIterator<DatasetRecord> getDatasetsByDataStoreId(long dataStoreId);
 
     @Select(sql = SELECT_ALL_EXTERNAL_DATAS
-            + " where data.dast_id = ?{1} and is_placeholder = false"
+            + " where data.dast_id = ?{1}"
             + " order by registration_timestamp limit ?{2}", fetchSize = FETCH_SIZE)
     public List<DatasetRecord> getDatasetsByDataStoreId(long dataStoreId, int limit);
 
     @Select(sql = SELECT_ALL_EXTERNAL_DATAS
-            + " where data.dast_id = ?{1} and is_placeholder = false and registration_timestamp > ?{2}"
+            + " where data.dast_id = ?{1} and registration_timestamp > ?{2}"
             + " order by registration_timestamp limit ?{3}", fetchSize = FETCH_SIZE)
     public List<DatasetRecord> getDatasetsByDataStoreId(long dataStoreId, Date youngerThan,
             int limit);
 
     @Select(sql = SELECT_ALL_EXTERNAL_DATAS
-            + " where data.dast_id = ?{1} and is_placeholder = false and registration_timestamp = ?{2}"
+            + " where data.dast_id = ?{1} and registration_timestamp = ?{2}"
             + " order by registration_timestamp", fetchSize = FETCH_SIZE)
     public List<DatasetRecord> getDatasetsByDataStoreId(long dataStoreId, Date at);
 
     @Select(sql = SELECT_ALL_EXTERNAL_DATAS
-            + " where data.dast_id = ?{1} and is_placeholder = false and size is null"
+            + " where data.dast_id = ?{1} and size is null"
             + " order by data.code limit ?{2}", fetchSize = FETCH_SIZE)
     public List<DatasetRecord> getDatasetsByDataStoreIdWithUnknownSize(long dataStoreID, int limit);
 
     @Select(sql = SELECT_ALL_EXTERNAL_DATAS
-            + " where data.dast_id = ?{1} and is_placeholder = false and size is null and data.code > ?{3}"
+            + " where data.dast_id = ?{1} and size is null and data.code > ?{3}"
             + " order by data.code limit ?{2}", fetchSize = FETCH_SIZE)
     public List<DatasetRecord> getDatasetsByDataStoreIdWithUnknownSize(long dataStoreID, int limit, String dataSetCodeLowerLimit);
 

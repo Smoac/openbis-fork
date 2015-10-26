@@ -55,7 +55,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.LinkDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.LocatorTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RelationshipTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
@@ -114,27 +113,17 @@ public final class DataDAOTest extends AbstractDAOTest
 
     private final String COMPONENT_CODE = "20110509092359990-11";
 
-    private final String VIRTUAL_DATA_SET_TYPE_CODE = "CONTAINER_TYPE";
-
     private final String LINK_DATA_SET_TYPE_CODE = "LINK_TYPE";
 
     @Test
     public final void testListSampleDataSets()
     {
-        testCreateVirtualDataSetWithSample();
         testCreateDataSetWithSample();
         final IDataDAO dataDAO = daoFactory.getDataDAO();
         List<DataPE> list = dataDAO.listDataSets(pickASample());
 
-        assertEquals(2, list.size());
-        // virtual
-        DataPE dataSet1 = list.get(0);
-        assertEquals("MP", dataSet1.tryGetSample().getCode());
-        assertEquals(true, dataSet1.isContainer());
-        assertNull(dataSet1.tryAsExternalData());
-        assertEquals(DataPE.class, dataSet1.getClass());
-        // non-virtual
-        DataPE dataSet2 = list.get(1);
+        assertEquals(1, list.size());
+        DataPE dataSet2 = list.get(0);
         assertEquals("MP", dataSet2.tryGetSample().getCode());
         assertEquals(false, dataSet2.isContainer());
         assertEquals(dataSet2, dataSet2.tryAsExternalData());
@@ -153,19 +142,6 @@ public final class DataDAOTest extends AbstractDAOTest
         assertEquals("CISD", spaces.get(0).getCode());
         assertEquals("TEST-SPACE", spaces.get(1).getCode());
         assertEquals(2, spaces.size());
-    }
-
-    @Test
-    public void testCreateVirtualDataSetWithSample()
-    {
-        IDataDAO dataDAO = daoFactory.getDataDAO();
-        String dataSetCode = daoFactory.getPermIdDAO().createPermId();
-        SamplePE sample = pickASample();
-        DataPE data = createVirtualDataSet(dataSetCode, sample);
-        dataDAO.createDataSet(data, getTestPerson());
-
-        DataPE dataSet = dataDAO.tryToFindDataSetByCode(dataSetCode);
-        assertDataEqual(data, dataSet);
     }
 
     @Test
@@ -188,24 +164,13 @@ public final class DataDAOTest extends AbstractDAOTest
     }
 
     @Test
-    public void testCreateVirtualDataSetWithNoSample()
-    {
-        IDataDAO dataDAO = daoFactory.getDataDAO();
-        String dataSetCode = daoFactory.getPermIdDAO().createPermId();
-        DataPE data = createVirtualDataSet(dataSetCode, null);
-        dataDAO.createDataSet(data, getTestPerson());
-
-        DataPE dataSet = dataDAO.tryToFindDataSetByCode(dataSetCode);
-
-        assertDataEqual(data, dataSet);
-    }
-
-    @Test
     public void testFindFullDataSets()
     {
+        // virtual (placeholder) data sets no longer exist
+        // hence tested with external data
         IDataDAO dataDAO = daoFactory.getDataDAO();
         String dataSetCode = daoFactory.getPermIdDAO().createPermId();
-        DataPE data = createVirtualDataSet(dataSetCode, null);
+        DataPE data = createExternalData(dataSetCode, null);
         dataDAO.createDataSet(data, getTestPerson());
 
         DataPE dataSet = dataDAO.tryToFindFullDataSetByCode(dataSetCode, true, true);
@@ -223,43 +188,6 @@ public final class DataDAOTest extends AbstractDAOTest
         DataPE dataSet = dataDAO.tryToFindFullDataSetByCode(dataSetCode, true, true);
 
         assertDataEqual(linkData, dataSet);
-    }
-
-    @Test
-    public void testCreateVirtualDataSetWithComponents()
-    {
-        IDataDAO dataDAO = daoFactory.getDataDAO();
-        String vDataSetCode = daoFactory.getPermIdDAO().createPermId();
-        DataPE virtualData = createVirtualDataSet(vDataSetCode, null);
-        String c1DataSetCode = daoFactory.getPermIdDAO().createPermId();
-        String c2DataSetCode = daoFactory.getPermIdDAO().createPermId();
-        SamplePE sample = pickASample();
-        DataPE component1 = createExternalData(c1DataSetCode, sample);
-        RelationshipTypePE relationshipType = RelationshipUtils.getContainerComponentRelationshipType(daoFactory.getRelationshipTypeDAO());
-        PersonPE person = getTestPerson();
-        DataSetRelationshipPE relationship1 = new DataSetRelationshipPE(virtualData, component1, relationshipType, 11, person);
-        component1.addParentRelationship(relationship1);
-        virtualData.addChildRelationship(relationship1);
-        DataPE component2 = createExternalData(c2DataSetCode, sample);
-        DataSetRelationshipPE relationship2 = new DataSetRelationshipPE(virtualData, component2, relationshipType, 12, person);
-        component2.addParentRelationship(relationship2);
-        virtualData.addChildRelationship(relationship2);
-        dataDAO.createDataSet(virtualData, person);
-
-        DataPE vDataSet = dataDAO.tryToFindDataSetByCode(vDataSetCode);
-        assertDataEqual(virtualData, vDataSet);
-        List<DataSetRelationshipPE> childRelationships = new ArrayList<DataSetRelationshipPE>(vDataSet.getChildRelationships());
-        Collections.sort(childRelationships, RELATIONSHIP_COMPARATOR);
-        assertEquals(11, childRelationships.get(0).getOrdinal().intValue());
-        assertDataEqual(virtualData, childRelationships.get(0).getParentDataSet());
-        assertDataEqual(component1, childRelationships.get(0).getChildDataSet());
-        assertEquals(12, childRelationships.get(1).getOrdinal().intValue());
-        assertDataEqual(virtualData, childRelationships.get(1).getParentDataSet());
-        assertDataEqual(component2, childRelationships.get(1).getChildDataSet());
-        assertEquals(2, childRelationships.size());
-
-        DataPE vDataSetFull = dataDAO.tryToFindFullDataSetByCode(vDataSetCode, true, false);
-        assertDataEqual(virtualData, vDataSetFull);
     }
 
     @Test
@@ -294,30 +222,9 @@ public final class DataDAOTest extends AbstractDAOTest
         externalData.setLocation("abcd");
         externalData.setComplete(BooleanOrUnknown.U);
         externalData.setStorageFormatVocabularyTerm(pickAStorageFormatVocabularyTerm());
-        externalData.setPlaceholder(true);
         externalData.setDataStore(pickADataStore());
         externalData.setModificationDate(new Date());
         return externalData;
-    }
-
-    private DataPE createVirtualDataSet(String dataSetCode, SamplePE sampleOrNull)
-    {
-        DataPE data = new DataPE();
-
-        data.setCode(dataSetCode);
-        data.setDataSetType(getDataSetType(VIRTUAL_DATA_SET_TYPE_CODE));
-        data.setExperiment(pickAnExperiment());
-        if (sampleOrNull != null)
-        {
-            data.setSampleAcquiredFrom(sampleOrNull);
-        } else
-        {
-            data.setDerived(true);
-        }
-        data.setPlaceholder(true);
-        data.setDataStore(pickADataStore());
-        data.setModificationDate(new Date());
-        return data;
     }
 
     private LinkDataPE createLinkDataSet(String dataSetCode, String externalDataSetCode,
@@ -329,7 +236,6 @@ public final class DataDAOTest extends AbstractDAOTest
         data.setDataSetType(getDataSetType(LINK_DATA_SET_TYPE_CODE));
         data.setExperiment(pickAnExperiment());
         data.setSampleAcquiredFrom(sample);
-        data.setPlaceholder(false);
         data.setDataStore(pickADataStore());
         data.setExternalCode(externalDataSetCode);
         data.setExternalDataManagementSystem(pickAnExternalDataManagementSystem());
@@ -342,7 +248,6 @@ public final class DataDAOTest extends AbstractDAOTest
         assertEquals(expectedDataSet.getCode(), dataSet.getCode());
         assertEquals(expectedDataSet.getDataSetType(), dataSet.getDataSetType());
         assertEquals(expectedDataSet.getExperiment(), dataSet.getExperiment());
-        assertEquals(expectedDataSet.isPlaceholder(), dataSet.isPlaceholder());
         assertEquals(expectedDataSet.isMeasured(), dataSet.isMeasured());
         assertEquals(expectedDataSet.tryGetSample(), dataSet.tryGetSample());
         assertEquals(expectedDataSet.isContainer(), dataSet.isContainer());
@@ -387,7 +292,6 @@ public final class DataDAOTest extends AbstractDAOTest
         data.setDataSetType(getDataSetType(DataSetTypeCode.UNKNOWN));
         data.setExperiment(pickAnExperiment());
         data.setSampleAcquiredFrom(pickASample());
-        data.setPlaceholder(true);
         data.setDataStore(pickADataStore());
         data.setModificationDate(new Date());
         dataDAO.createDataSet(data, getTestPerson());
@@ -407,7 +311,6 @@ public final class DataDAOTest extends AbstractDAOTest
         externalData.setSize(size);
         externalData.setComplete(BooleanOrUnknown.U);
         externalData.setStorageFormatVocabularyTerm(pickAStorageFormatVocabularyTerm());
-        externalData.setPlaceholder(true);
         externalData.setStatus(DataSetArchivingStatus.AVAILABLE);
         final Date modificationTimestamp = data.getModificationDate();
         externalData.setModificationDate(modificationTimestamp);
@@ -424,7 +327,6 @@ public final class DataDAOTest extends AbstractDAOTest
         assertEquals(externalData.getSize(), dataSet.getSize());
         assertEquals(externalData.getComplete(), dataSet.getComplete());
         assertEquals(externalData.getStorageFormat(), dataSet.getStorageFormat());
-        assertEquals(externalData.isPlaceholder(), dataSet.isPlaceholder());
         assertEquals(externalData.isMeasured(), dataSet.isMeasured());
         assertEquals(dataSetJustCreated.getVersion() + 1, dataSet.getVersion());
         assertFalse(externalData.isContainer());

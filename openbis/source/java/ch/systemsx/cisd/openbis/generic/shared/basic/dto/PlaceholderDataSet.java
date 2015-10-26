@@ -17,8 +17,8 @@
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 /**
- * Placeholder data sets are an abstraction pointing to a non-yet existing data set which is about
- * to be created.
+ * Placeholder data sets are an abstraction pointing to a non-yet existing data set which is about to be created. As of S216, place holder data sets
+ * are removed from openbis but this is used on the Data store server and can stay.
  * 
  * @author Kaloyan Enimanev
  */

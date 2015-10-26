@@ -30,8 +30,6 @@ public class DataSetBaseRecord extends ObjectBaseRecord
 
     public Boolean isDerived;
 
-    public Boolean isPlaceholder;
-
     public Date accessDate;
 
     public Date modificationDate;

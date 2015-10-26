@@ -74,7 +74,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.types.DataSetTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 import ch.systemsx.cisd.openbis.generic.shared.util.RelationshipUtils;
@@ -300,7 +299,7 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
                 DataPE parent = this.getCache().getDataSets().get(parentCode);
                 if (parent == null)
                 {
-                    parent = getOrCreateData(parentCode, experiment, sample);
+                    parent = getData(parentCode, experiment, sample);
                     this.getCache().getDataSets().put(parentCode, parent);
                 }
                 parentsToAdd.add(parent);
@@ -318,7 +317,7 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
         {
             for (String containedCode : containedDataSetCodes)
             {
-                final DataPE contained = getOrCreateData(containedCode, experimentOrNull, sampleOrNull);
+                final DataPE contained = getData(containedCode, experimentOrNull, sampleOrNull);
                 relationshipService.assignDataSetToContainer(session, contained, data);
             }
         }
@@ -539,23 +538,14 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
         return fileFormatTypeOrNull;
     }
 
-    private final DataPE getOrCreateData(final String dataSetCode, ExperimentPE experiment, SamplePE sample)
+    private final DataPE getData(final String dataSetCode, ExperimentPE experiment, SamplePE sample)
     {
         assert dataSetCode != null : "Unspecified parent data set code.";
 
-        final IDataDAO dataDAO = getDataDAO();
         DataPE result = tryToFindDataSetByCode(dataSetCode);
         if (result == null)
         {
-            result = new DataPE();
-            result.setDataStore(dataStore);
-            result.setCode(dataSetCode);
-            String code = DataSetTypeCode.UNKNOWN.getCode();
-            result.setDataSetType(getDataSetTypeDAO().tryToFindDataSetTypeByCode(code));
-            RelationshipUtils.setExperimentForDataSet(result, experiment, session);
-            RelationshipUtils.setSampleForDataSet(result, sample, session);
-            result.setPlaceholder(true);
-            dataDAO.createDataSet(result, findPerson());
+            throw UserFailureException.fromTemplate("Unknown data set code '%s'", dataSetCode);
         }
         return result;
     }
@@ -577,38 +567,7 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
         assert data != null : "Undefined external data.";
 
         IDataDAO dataDAO = getDataDAO();
-        String dataCode = data.getCode();
-        DataPE placeholder = tryToFindDataSetByCode(dataCode);
-        if (placeholder == null)
-        {
-            dataDAO.createDataSet(data, findPerson());
-        } else
-        {
-            if (placeholder.isPlaceholder() == false)
-            {
-                throw new UserFailureException("Already existing data set for code '" + dataCode
-                        + "' can not be updated by data set " + placeholder);
-            }
-            // NOTE: If new data set is created and there was no placeholder
-            // cycles will not be created because only connections to parents are added
-            // and we assume that there were no cycles before. On the other hand placeholders
-            // have at least one child so cycles need to be checked when they are updated.
-            validateParentsRelationshipGraph(data, data.getParents());
-
-            if (data.isContainer())
-            {
-                Collection<String> componentCodes = Code.extractCodes(data.getContainedDataSets());
-                validateContainerRelationshipGraph(componentCodes);
-            }
-
-            data.setPlaceholder(false);
-            data.setId(HibernateUtils.getId(placeholder));
-            data.setRegistrationDate(new Date());
-            data.setAccessDate(new Date());
-            RelationshipUtils.updateModificationDateAndModifier(data, findPerson());
-
-            dataDAO.updateDataSet(data, findPerson());
-        }
+        dataDAO.createDataSet(data, findPerson());
         entityPropertiesConverter.checkMandatoryProperties(data.getProperties(),
                 data.getDataSetType(), this.getCache().getEntityTypePropertyTypes());
     }
