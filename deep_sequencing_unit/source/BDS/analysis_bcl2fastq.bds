@@ -360,7 +360,7 @@ void startAnalysis (string fcName, string model) {
     # Rsync the demultiplexed files
     if (taskList{"runRsyncDemultiplexedFiles"}) {
         rsyncDemultiplexedFiles(laneListInt)
-        sleep(1500)
+        sleep(3000)
     }
 
     # Sync Statistic for Flowcell and Lane statistic
@@ -428,6 +428,14 @@ void triggerBcl2fastq (string model, int [] laneList) {
 
 
 void triggerDemultiplexStats (int [] laneCount) {
+
+    binary := "/home/sbsuser/munge_demultiplex_files_bcl2fastq/source/mungeDemultiplexStats_bcl2fastq.py"
+    task python3.4 $binary \
+        -p "$latestFolder" \
+        -o "$reportsData/$runFolderName"
+    wait
+    sleep(5)
+    task touch "$reportsData/$marker$runFolderName"
 
     for(int lane : laneCount) {
     
