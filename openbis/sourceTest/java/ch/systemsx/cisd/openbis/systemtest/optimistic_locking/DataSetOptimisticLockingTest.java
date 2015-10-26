@@ -559,7 +559,7 @@ public class DataSetOptimisticLockingTest extends OptimisticLockingTestCase
     {
         Experiment experiment = toolBox.createAndLoadExperiment(1);
         NewContainerDataSet containerDataSet1 = toolBox.containerDataSet("DS-1", experiment);
-        NewDataSet containedDataSet = toolBox.dataSet("DS-3", experiment);
+        AbstractExternalData containedDataSet = toolBox.createAndLoadDataSet(toolBox.dataSet("DS-3", experiment));
         containerDataSet1.setContainedDataSetCodes(Arrays.asList(containedDataSet.getCode()));
         toolBox.createAndLoadDataSet(containerDataSet1);
         NewContainerDataSet containerDataSet2 = toolBox.containerDataSet("DS-2", experiment);
@@ -573,6 +573,7 @@ public class DataSetOptimisticLockingTest extends OptimisticLockingTestCase
         dataSetBatchUpdates.setProperties(Arrays.<IEntityProperty> asList());
         dataSetBatchUpdates.setExperimentIdentifierOrNull(new ExperimentIdentifier(experiment));
         dataSetBatchUpdates.setModifiedContainerDatasetCodeOrNull(containerDataSet2.getCode());
+        dataSetBatchUpdates.setFileFormatTypeCode("XML");
         DataSetBatchUpdateDetails updateDetails = new DataSetBatchUpdateDetails();
         updateDetails.setContainerUpdateRequested(true);
         dataSetBatchUpdates.setDetails(updateDetails);
@@ -604,7 +605,7 @@ public class DataSetOptimisticLockingTest extends OptimisticLockingTestCase
     {
         Experiment experiment = toolBox.createAndLoadExperiment(1);
         NewContainerDataSet containerDataSet1 = toolBox.containerDataSet("DS-1", experiment);
-        NewDataSet containedDataSet = toolBox.dataSet("DS-3", experiment);
+        AbstractExternalData containedDataSet = toolBox.createAndLoadDataSet(toolBox.dataSet("DS-3", experiment));
         containerDataSet1.setContainedDataSetCodes(Arrays.asList(containedDataSet.getCode()));
         toolBox.createAndLoadDataSet(containerDataSet1);
         NewContainerDataSet containerDataSet2 = toolBox.containerDataSet("DS-2", experiment);
@@ -616,6 +617,7 @@ public class DataSetOptimisticLockingTest extends OptimisticLockingTestCase
         dataSetBatchUpdates.setDatasetCode(dataSet.getCode());
         dataSetBatchUpdates.setDatasetId(new TechId(dataSet));
         dataSetBatchUpdates.setProperties(Arrays.<IEntityProperty> asList());
+        dataSetBatchUpdates.setFileFormatTypeCode("XML");
         dataSetBatchUpdates.setModifiedContainerDatasetCodeOrNull(containerDataSet2.getCode());
         DataSetBatchUpdateDetails updateDetails = new DataSetBatchUpdateDetails();
         updateDetails.setContainerUpdateRequested(true);
@@ -650,7 +652,7 @@ public class DataSetOptimisticLockingTest extends OptimisticLockingTestCase
     {
         Experiment experiment = toolBox.createAndLoadExperiment(1);
         NewContainerDataSet containerDataSet = toolBox.containerDataSet("DS-CONT", experiment);
-        NewDataSet dataSet1 = toolBox.dataSet("DS-1", experiment);
+        AbstractExternalData dataSet1 = toolBox.createAndLoadDataSet(toolBox.dataSet("DS-1", experiment));
         containerDataSet.setContainedDataSetCodes(Arrays.asList(dataSet1.getCode()));
         ContainerDataSet loadedContainerDataSet =
                 (ContainerDataSet) toolBox.createAndLoadDataSet(containerDataSet);
@@ -695,7 +697,7 @@ public class DataSetOptimisticLockingTest extends OptimisticLockingTestCase
     {
         Experiment experiment = toolBox.createAndLoadExperiment(1);
         NewContainerDataSet containerDataSet = toolBox.containerDataSet("DS-CONT", experiment);
-        NewDataSet dataSet1 = toolBox.dataSet("DS-1", experiment);
+        AbstractExternalData dataSet1 = toolBox.createAndLoadDataSet(toolBox.dataSet("DS-1", experiment));
         containerDataSet.setContainedDataSetCodes(Arrays.asList(dataSet1.getCode()));
         ContainerDataSet loadedContainerDataSet =
                 (ContainerDataSet) toolBox.createAndLoadDataSet(containerDataSet);
