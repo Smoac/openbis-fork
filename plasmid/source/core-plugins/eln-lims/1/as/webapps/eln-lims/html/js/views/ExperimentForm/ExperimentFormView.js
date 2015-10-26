@@ -249,10 +249,10 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 				var $controlGroup =  null;
 				
 				var value = this._experimentFormModel.experiment.properties[propertyType.code];
-				var isSystemProperty = false;
 				if(!value && propertyType.code.charAt(0) === '$') {
 					value = this._experimentFormModel.experiment.properties[propertyType.code.substr(1)];
-					isSystemProperty = true;
+					this._experimentFormModel.experiment.properties[propertyType.code] = value;
+					delete this._experimentFormModel.experiment.properties[propertyType.code.substr(1)];
 				}
 				
 				if(this._experimentFormModel.mode === FormMode.VIEW) { //Show values without input boxes if the form is in view mode
@@ -279,14 +279,10 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 						$component.val(""); //HACK-FIX: Not all browsers show the placeholder in Bootstrap 3 if you don't set an empty value.
 					}
 						
-					var changeEvent = function(propertyType, isSystemProperty) {
+					var changeEvent = function(propertyType) {
 						return function() {
 							var propertyTypeCode = null;
-							if(isSystemProperty) {
-								propertyTypeCode = propertyType.code.substr(1);
-							} else {
-								propertyTypeCode = propertyType.code;
-							}
+							propertyTypeCode = propertyType.code;
 							_this._experimentFormModel.isFormDirty = true;
 							var field = $(this);
 							if(propertyType.dataType === "BOOLEAN") {
@@ -305,7 +301,7 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 						$component.prop('disabled', true);
 					}
 					
-					$component.change(changeEvent(propertyType, isSystemProperty));
+					$component.change(changeEvent(propertyType));
 					$controlGroup = FormUtil.getFieldForComponentWithLabel($component, propertyType.label);
 				}
 				

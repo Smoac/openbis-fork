@@ -310,12 +310,12 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 					}
 				} else {
 					var value = "";
-					var isSystemProperty = false;
 					if(this._dataSetFormModel.mode !== FormMode.CREATE) {
 						value = this._dataSetFormModel.dataSet.properties[propertyType.code];
 						if(!value && propertyType.code.charAt(0) === '$') {
 							value = this._dataSetFormModel.dataSet.properties[propertyType.code.substr(1)];
-							isSystemProperty = true;
+							this._dataSetFormModel.dataSet.properties[propertyType.code] = value;
+							delete this._dataSetFormModel.dataSet.properties[propertyType.code.substr(1)];
 						}
 					}
 					
@@ -341,14 +341,10 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 						var $component = FormUtil.getFieldForPropertyType(propertyType);
 						
 						//Update model
-						var changeEvent = function(propertyType, isSystemProperty) {
+						var changeEvent = function(propertyType) {
 							return function() {
 								var propertyTypeCode = null;
-								if(isSystemProperty) {
-									propertyTypeCode = propertyType.code.substr(1);
-								} else {
-									propertyTypeCode = propertyType.code;
-								}
+								propertyTypeCode = propertyType.code;
 								_this._dataSetFormModel.isFormDirty = true;
 								var field = $(this);
 								if(propertyType.dataType === "BOOLEAN") {
@@ -367,7 +363,7 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 							$component.prop('disabled', true);
 						}
 						
-						$component.change(changeEvent(propertyType, isSystemProperty));
+						$component.change(changeEvent(propertyType));
 						
 						//Update values if is into edit mode
 						if(this._dataSetFormModel.mode === FormMode.EDIT) {
