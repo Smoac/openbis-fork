@@ -4,7 +4,8 @@
 define([ "require", "stjs", "dto/search/AbstractEntitySearchCriteria", "dto/search/SampleSearchRelation", "dto/search/SpaceSearchCriteria", 
 		"dto/search/ProjectSearchCriteria", "dto/search/NoProjectSearchCriteria", "dto/search/ExperimentSearchCriteria",
 		"dto/search/NoExperimentSearchCriteria", "dto/search/NoSampleContainerSearchCriteria", "dto/search/SearchOperator" ], function(require, stjs, AbstractEntitySearchCriteria,
-		SampleSearchRelation, SpaceSearchCriteria, ExperimentSearchCriteria, NoExperimentSearchCriteria, NoSampleContainerSearchCriteria, SearchOperator) {
+		SampleSearchRelation, SpaceSearchCriteria, ProjectSearchCriteria, NoProjectSearchCriteria, ExperimentSearchCriteria, 
+		NoExperimentSearchCriteria, NoSampleContainerSearchCriteria, SearchOperator) {
 
 	var SampleSearchCriteria = function(relation) {
 		AbstractEntitySearchCriteria.call(this);
