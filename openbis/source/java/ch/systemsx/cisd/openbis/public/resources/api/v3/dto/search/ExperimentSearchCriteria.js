@@ -1,8 +1,8 @@
 /**
  * @author pkupczyk
  */
-define([ "stjs", "dto/search/AbstractEntitySearchCriteria", "dto/search/SearchOperator" ], 
-		function(stjs, AbstractEntitySearchCriteria, SearchOperator) {
+define([ "require", "stjs", "dto/search/AbstractEntitySearchCriteria", "dto/search/SearchOperator" ], 
+		function(require, stjs, AbstractEntitySearchCriteria, SearchOperator) {
 	var ExperimentSearchCriteria = function() {
 		AbstractEntitySearchCriteria.call(this);
 	};

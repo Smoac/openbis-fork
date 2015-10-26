@@ -1,8 +1,8 @@
 /**
  * @author pkupczyk
  */
-define([ "stjs", "dto/search/AbstractEntitySearchCriteria", "dto/search/DataSetSearchRelation", "dto/search/SearchOperator"], 
-		function(stjs, AbstractEntitySearchCriteria, DataSetSearchRelation, SearchOperator) {
+define([ "require", "stjs", "dto/search/AbstractEntitySearchCriteria", "dto/search/DataSetSearchRelation", "dto/search/SearchOperator"], 
+		function(require, stjs, AbstractEntitySearchCriteria, DataSetSearchRelation, SearchOperator) {
 	var DataSetSearchCriteria = function(relation) {
 		AbstractEntitySearchCriteria.call(this);
 		this.relation = relation ? relation : DataSetSearchRelation.DATASET;

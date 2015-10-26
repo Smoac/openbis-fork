@@ -1,5 +1,5 @@
-define([ "stjs", "util/Exceptions", "dto/search/AbstractFieldSearchCriteria", "dto/search/ServerTimeZone"], 
-		function(stjs, exceptions, AbstractFieldSearchCriteria, ServerTimeZone) {
+define([ "require", "stjs", "util/Exceptions", "dto/search/AbstractFieldSearchCriteria", "dto/search/ServerTimeZone"], 
+		function(require, stjs, exceptions, AbstractFieldSearchCriteria, ServerTimeZone) {
 	var DateFieldSearchCriteria = function(fieldName, fieldType) {
 		AbstractFieldSearchCriteria.call(this, fieldName, fieldType);
 		this.timeZone = new ServerTimeZone();

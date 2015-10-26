@@ -1,8 +1,8 @@
 /**
  * @author pkupczyk
  */
-define([ "stjs", "dto/search/AbstractObjectSearchCriteria"], 
-		function(stjs, AbstractObjectSearchCriteria) {
+define([ "require", "stjs", "dto/search/AbstractObjectSearchCriteria"], 
+		function(require, stjs, AbstractObjectSearchCriteria) {
 	var ProjectSearchCriteria = function() {
 		AbstractObjectSearchCriteria.call(this);
 	};
