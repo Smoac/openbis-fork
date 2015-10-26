@@ -10,9 +10,9 @@ by
 
 options.suites('source/java/tests-dev.xml') 
 
-Then start up everything by executing in 'js-test'
+Then start up everything by executing in 'gradle'
 
-./gradlew test
+./gradlew js-test:clean js-test:test
 
 This will start up openBIS AS and two DSSs. Also the Web browser will open (URL: http://localhost:20000/openbis/)
 and user admin will be automatically logged in.
