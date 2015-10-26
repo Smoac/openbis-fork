@@ -423,7 +423,7 @@ public class Translator
             EntityRegistrationDetails registrationDetails =
                     translateRegistrationDetails(privateTerm);
             terms.add(new ControlledVocabularyPropertyType.VocabularyTerm(privateTerm.getCode(),
-                    privateTerm.getCodeOrLabel(), privateTerm.getOrdinal(), privateTerm
+                    privateTerm.getCodeOrLabel(), privateTerm.getDescription(), privateTerm.getOrdinal(), privateTerm
                             .isOfficial(), registrationDetails));
         }
 
@@ -438,7 +438,7 @@ public class Translator
         {
             EntityRegistrationDetails registrationDetails =
                     translateRegistrationDetails(privateTerm);
-            terms.add(new VocabularyTerm(privateTerm.getCode(), privateTerm.getCodeOrLabel(),
+            terms.add(new VocabularyTerm(privateTerm.getCode(), privateTerm.getCodeOrLabel(), privateTerm.getDescription(),
                     privateTerm.getOrdinal(), privateTerm.isOfficial(), registrationDetails));
         }
 

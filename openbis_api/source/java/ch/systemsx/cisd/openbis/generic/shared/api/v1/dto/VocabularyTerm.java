@@ -44,17 +44,20 @@ public class VocabularyTerm implements Serializable
 
     private String label;
 
+    private String description;
+    
     private Long ordinal;
 
     private Boolean isOfficial;
 
     private EntityRegistrationDetails registrationDetails;
 
-    public VocabularyTerm(String code, String label, Long ordinal, Boolean isOfficial,
+    public VocabularyTerm(String code, String label, String description, Long ordinal, Boolean isOfficial,
             EntityRegistrationDetails registrationDetails)
     {
         this.code = code;
         this.label = label;
+        this.description = description;
         this.ordinal = ordinal;
         this.isOfficial = isOfficial == null ? Boolean.TRUE : isOfficial;
         this.registrationDetails = registrationDetails;
@@ -70,6 +73,10 @@ public class VocabularyTerm implements Serializable
         return label;
     }
 
+    public String getDescription() {
+        return description;
+    }
+    
     @JsonIgnore
     public Long getOrdinal()
     {

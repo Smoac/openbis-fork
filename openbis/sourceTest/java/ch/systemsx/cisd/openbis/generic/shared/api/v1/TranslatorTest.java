@@ -179,7 +179,7 @@ public class TranslatorTest extends AssertJUnit
         HashMap<Vocabulary, List<VocabularyTerm>> vocabTerms =
                 new HashMap<Vocabulary, List<VocabularyTerm>>();
         vocabTerms.put(levelProperty.getVocabulary(),
-                Arrays.asList(new VocabularyTerm("HIGH", "High", 1L, true, null)));
+                Arrays.asList(new VocabularyTerm("HIGH", "High", "High Description", 1L, true, null)));
 
         ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType translatedDataSetType =
                 Translator.translate(dataSetType, vocabTerms);

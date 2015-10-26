@@ -39,10 +39,10 @@ public class ControlledVocabularyPropertyType extends PropertyType
     {
         private static final long serialVersionUID = 1L;
 
-        public VocabularyTerm(String code, String label, Long ordinal, Boolean isOfficial,
+        public VocabularyTerm(String code, String label, String description, Long ordinal, Boolean isOfficial,
                 EntityRegistrationDetails registrationDetails)
         {
-            super(code, label, ordinal, isOfficial, registrationDetails);
+            super(code, label, description, ordinal, isOfficial, registrationDetails);
         }
 
         //
