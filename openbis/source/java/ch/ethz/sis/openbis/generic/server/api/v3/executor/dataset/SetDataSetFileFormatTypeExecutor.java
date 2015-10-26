@@ -24,55 +24,52 @@ import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.AbstractSetEntityToOneRelationExecutor;
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.vocabulary.IMapVocabularyTermByIdExecutor;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSetCreation;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.vocabulary.IVocabularyTermId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.vocabulary.VocabularyPermId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.IFileFormatTypeId;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
-import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
 
 /**
  * @author pkupczyk
  */
 @Component
-public class SetDataSetStorageFormatExecutor extends
-        AbstractSetEntityToOneRelationExecutor<DataSetCreation, DataPE, IVocabularyTermId, VocabularyTermPE>
-        implements ISetDataSetStorageFormatExecutor
+public class SetDataSetFileFormatTypeExecutor extends
+        AbstractSetEntityToOneRelationExecutor<DataSetCreation, DataPE, IFileFormatTypeId, FileFormatTypePE>
+        implements ISetDataSetFileFormatTypeExecutor
 {
 
     @Autowired
-    private IMapVocabularyTermByIdExecutor mapVocabularyTermByIdExecutor;
+    private IMapFileFormatTypeByIdExecutor mapFileFormatTypeByIdExecutor;
 
     @Override
-    protected IVocabularyTermId getRelatedId(DataSetCreation creation)
+    protected IFileFormatTypeId getRelatedId(DataSetCreation creation)
     {
-        return creation.getExternalData() != null ? creation.getExternalData().getStorageFormatId() : null;
+        return creation.getExternalData() != null ? creation.getExternalData().getFileFormatTypeId() : null;
     }
 
     @Override
-    protected Map<IVocabularyTermId, VocabularyTermPE> map(IOperationContext context, List<IVocabularyTermId> relatedIds)
+    protected Map<IFileFormatTypeId, FileFormatTypePE> map(IOperationContext context, List<IFileFormatTypeId> relatedIds)
     {
-        return mapVocabularyTermByIdExecutor.map(context, new VocabularyPermId(StorageFormat.VOCABULARY_CODE), relatedIds);
+        return mapFileFormatTypeByIdExecutor.map(context, relatedIds);
     }
 
     @Override
-    protected void check(IOperationContext context, DataPE entity, IVocabularyTermId relatedId, VocabularyTermPE related)
+    protected void check(IOperationContext context, DataPE entity, IFileFormatTypeId relatedId, FileFormatTypePE related)
     {
         if (entity instanceof ExternalDataPE && relatedId == null)
         {
-            throw new UserFailureException("Storage format id cannot be null for a physical data set.");
+            throw new UserFailureException("File format type id cannot be null for a physical data set.");
         }
     }
 
     @Override
-    protected void set(IOperationContext context, DataPE entity, VocabularyTermPE related)
+    protected void set(IOperationContext context, DataPE entity, FileFormatTypePE related)
     {
         if (entity instanceof ExternalDataPE)
         {
-            ((ExternalDataPE) entity).setStorageFormatVocabularyTerm(related);
+            ((ExternalDataPE) entity).setFileFormatType(related);
         }
     }
 

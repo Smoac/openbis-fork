@@ -16,7 +16,6 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.material;
 
-import java.util.LinkedList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,23 +39,10 @@ public class MapMaterialByIdExecutor extends AbstractMapObjectByIdExecutor<IMate
 
     private IMaterialDAO materialDAO;
 
-    @SuppressWarnings("unused")
-    private MapMaterialByIdExecutor()
-    {
-    }
-
-    public MapMaterialByIdExecutor(IMaterialDAO materialDAO)
-    {
-        this.materialDAO = materialDAO;
-    }
-
     @Override
-    protected List<IListObjectById<? extends IMaterialId, MaterialPE>> createListers(IOperationContext context)
+    protected void addListers(IOperationContext context, List<IListObjectById<? extends IMaterialId, MaterialPE>> listers)
     {
-        List<IListObjectById<? extends IMaterialId, MaterialPE>> listers =
-                new LinkedList<IListObjectById<? extends IMaterialId, MaterialPE>>();
         listers.add(new ListMaterialsByPermId(materialDAO));
-        return listers;
     }
 
     @Autowired

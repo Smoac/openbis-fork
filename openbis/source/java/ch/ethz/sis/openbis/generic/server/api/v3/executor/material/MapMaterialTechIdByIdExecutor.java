@@ -16,7 +16,6 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.material;
 
-import java.util.LinkedList;
 import java.util.List;
 
 import org.springframework.stereotype.Component;
@@ -27,8 +26,6 @@ import ch.ethz.sis.openbis.generic.server.api.v3.helper.common.IListObjectById;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.material.IMaterialId;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 @Component
@@ -36,12 +33,9 @@ public class MapMaterialTechIdByIdExecutor extends AbstractMapObjectByIdExecutor
 {
 
     @Override
-    protected List<IListObjectById<? extends IMaterialId, Long>> createListers(IOperationContext context)
+    protected void addListers(IOperationContext context, List<IListObjectById<? extends IMaterialId, Long>> listers)
     {
-        List<IListObjectById<? extends IMaterialId, Long>> listers =
-                new LinkedList<IListObjectById<? extends IMaterialId, Long>>();
         listers.add(new ListMaterialsTechIdByPermId());
-        return listers;
     }
 
 }

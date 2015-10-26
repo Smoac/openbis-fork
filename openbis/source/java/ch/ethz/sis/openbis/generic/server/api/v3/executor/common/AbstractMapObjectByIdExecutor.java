@@ -16,6 +16,7 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.common;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -43,9 +44,12 @@ public abstract class AbstractMapObjectByIdExecutor<ID extends IObjectId, OBJECT
         {
             return Collections.emptyMap();
         }
-        return new MapObjectById<ID, OBJECT>().map(createListers(context), ids);
+
+        List<IListObjectById<? extends ID, OBJECT>> listers = new ArrayList<IListObjectById<? extends ID, OBJECT>>();
+        addListers(context, listers);
+        return new MapObjectById<ID, OBJECT>().map(listers, ids);
     }
 
-    protected abstract List<IListObjectById<? extends ID, OBJECT>> createListers(IOperationContext context);
+    protected abstract void addListers(IOperationContext context, List<IListObjectById<? extends ID, OBJECT>> listers);
 
 }

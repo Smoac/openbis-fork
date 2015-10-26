@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.api.v3.executor.deletion;
+package ch.ethz.sis.openbis.generic.server.api.v3.executor.externaldms;
 
 import java.util.List;
 
@@ -24,31 +24,32 @@ import org.springframework.stereotype.Component;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.common.AbstractMapObjectByIdExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.helper.common.IListObjectById;
-import ch.ethz.sis.openbis.generic.server.api.v3.helper.deletion.ListDeletionByTechId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.deletion.IDeletionId;
+import ch.ethz.sis.openbis.generic.server.api.v3.helper.externaldms.ListExternalDmsByPermId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.externaldms.IExternalDmsId;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDeletionDAO;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataManagementSystemDAO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataManagementSystemPE;
 
 /**
  * @author pkupczyk
  */
 @Component
-public class MapDeletionByIdExecutor extends AbstractMapObjectByIdExecutor<IDeletionId, DeletionPE> implements IMapDeletionByIdExecutor
+public class MapExternalDmsByIdExecutor extends AbstractMapObjectByIdExecutor<IExternalDmsId, ExternalDataManagementSystemPE> implements
+        IMapExternalDmsByIdExecutor
 {
 
-    private IDeletionDAO deletionDAO;
+    private IExternalDataManagementSystemDAO externalDmsDAO;
 
     @Override
-    protected void addListers(IOperationContext context, List<IListObjectById<? extends IDeletionId, DeletionPE>> listers)
+    protected void addListers(IOperationContext context, List<IListObjectById<? extends IExternalDmsId, ExternalDataManagementSystemPE>> listers)
     {
-        listers.add(new ListDeletionByTechId(deletionDAO));
+        listers.add(new ListExternalDmsByPermId(externalDmsDAO));
     }
 
     @Autowired
     private void setDAOFactory(IDAOFactory daoFactory)
     {
-        deletionDAO = daoFactory.getDeletionDAO();
+        externalDmsDAO = daoFactory.getExternalDataManagementSystemDAO();
     }
 
 }

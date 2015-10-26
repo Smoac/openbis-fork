@@ -16,7 +16,6 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.sample;
 
-import java.util.LinkedList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,25 +43,11 @@ public class MapSampleByIdExecutor extends AbstractMapObjectByIdExecutor<ISample
 
     private ISampleDAO sampleDAO;
 
-    @SuppressWarnings("unused")
-    private MapSampleByIdExecutor()
-    {
-    }
-
-    public MapSampleByIdExecutor(ISpaceDAO spaceDAO, ISampleDAO sampleDAO)
-    {
-        this.spaceDAO = spaceDAO;
-        this.sampleDAO = sampleDAO;
-    }
-
     @Override
-    protected List<IListObjectById<? extends ISampleId, SamplePE>> createListers(IOperationContext context)
+    protected void addListers(IOperationContext context, List<IListObjectById<? extends ISampleId, SamplePE>> listers)
     {
-        List<IListObjectById<? extends ISampleId, SamplePE>> listers =
-                new LinkedList<IListObjectById<? extends ISampleId, SamplePE>>();
         listers.add(new ListSampleByPermId(sampleDAO));
         listers.add(new ListSampleByIdentifier(spaceDAO, sampleDAO, context.getSession().tryGetHomeGroup()));
-        return listers;
     }
 
     @Autowired

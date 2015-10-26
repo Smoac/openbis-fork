@@ -16,7 +16,6 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.dataset;
 
-import java.util.LinkedList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,23 +39,10 @@ public class MapDataSetByIdExecutor extends AbstractMapObjectByIdExecutor<IDataS
 
     private IDataDAO dataDAO;
 
-    @SuppressWarnings("unused")
-    private MapDataSetByIdExecutor()
-    {
-    }
-
-    public MapDataSetByIdExecutor(IDataDAO dataDAO)
-    {
-        this.dataDAO = dataDAO;
-    }
-
     @Override
-    protected List<IListObjectById<? extends IDataSetId, DataPE>> createListers(IOperationContext context)
+    protected void addListers(IOperationContext context, List<IListObjectById<? extends IDataSetId, DataPE>> listers)
     {
-        List<IListObjectById<? extends IDataSetId, DataPE>> listers =
-                new LinkedList<IListObjectById<? extends IDataSetId, DataPE>>();
         listers.add(new ListDataSetByPermId(dataDAO));
-        return listers;
     }
 
     @Autowired

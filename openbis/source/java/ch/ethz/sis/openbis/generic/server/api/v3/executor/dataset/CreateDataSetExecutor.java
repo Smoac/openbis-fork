@@ -74,13 +74,16 @@ public class CreateDataSetExecutor extends AbstractCreateEntityExecutor<DataSetC
     private ISetDataSetStorageFormatExecutor setDataSetStorageFormatExecutor;
 
     @Autowired
+    private ISetDataSetFileFormatTypeExecutor setDataSetFileFormatTypeExecutor;
+
+    @Autowired
     private ISetDataSetLocatorTypeExecutor setDataSetLocatorTypeExecutor;
 
     @Autowired
     private ISetDataSetDataStoreExecutor setDataSetDataStoreExecutor;
 
     @Autowired
-    private ISetDataSetExternalSystemExecutor setDataSetExternalSystemExecutor;
+    private ISetDataSetExternalDmsExecutor setDataSetExternalDmsExecutor;
 
     @Autowired
     private ISetDataSetExperimentExecutor setDataSetExperimentExecutor;
@@ -204,10 +207,7 @@ public class CreateDataSetExecutor extends AbstractCreateEntityExecutor<DataSetC
     private LinkDataPE createLinkDataSet(DataSetCreation creation)
     {
         LinkDataPE dataSet = new LinkDataPE();
-
-        // TODO
-        // dataSet.setExternalCode(newData.getExternalCode());
-
+        dataSet.setExternalCode(creation.getExternalCode());
         return dataSet;
     }
 
@@ -236,9 +236,10 @@ public class CreateDataSetExecutor extends AbstractCreateEntityExecutor<DataSetC
     protected void updateBatch(IOperationContext context, Map<DataSetCreation, DataPE> entitiesMap)
     {
         setDataSetStorageFormatExecutor.set(context, entitiesMap);
+        setDataSetFileFormatTypeExecutor.set(context, entitiesMap);
         setDataSetLocatorTypeExecutor.set(context, entitiesMap);
         setDataSetDataStoreExecutor.set(context, entitiesMap);
-        setDataSetExternalSystemExecutor.set(context, entitiesMap);
+        setDataSetExternalDmsExecutor.set(context, entitiesMap);
         setDataSetExperimentExecutor.set(context, entitiesMap);
         setDataSetSampleExecutor.set(context, entitiesMap);
 

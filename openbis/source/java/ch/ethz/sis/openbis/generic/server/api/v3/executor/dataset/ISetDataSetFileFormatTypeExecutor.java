@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 ETH Zuerich, Scientific IT Services
+ * Copyright 2015 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,26 +16,18 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.dataset;
 
-import java.util.List;
-
-import org.springframework.stereotype.Component;
+import java.util.Map;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.common.AbstractMapObjectByIdExecutor;
-import ch.ethz.sis.openbis.generic.server.api.v3.helper.common.IListObjectById;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.IDataSetId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSetCreation;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 
 /**
  * @author pkupczyk
  */
-@Component
-public class MapDataSetTechIdByIdExecutor extends AbstractMapObjectByIdExecutor<IDataSetId, Long> implements IMapDataSetTechIdByIdExecutor
+public interface ISetDataSetFileFormatTypeExecutor
 {
 
-    @Override
-    protected void addListers(IOperationContext context, List<IListObjectById<? extends IDataSetId, Long>> listers)
-    {
-        listers.add(new ListDataSetTechIdByPermId());
-    }
+    void set(IOperationContext context, Map<DataSetCreation, DataPE> entitiesMap);
 
 }

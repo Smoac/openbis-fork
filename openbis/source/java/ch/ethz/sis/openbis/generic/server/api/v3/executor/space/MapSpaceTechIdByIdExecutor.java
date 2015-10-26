@@ -16,7 +16,6 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.space;
 
-import java.util.LinkedList;
 import java.util.List;
 
 import org.springframework.stereotype.Component;
@@ -27,8 +26,6 @@ import ch.ethz.sis.openbis.generic.server.api.v3.helper.common.IListObjectById;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.ISpaceId;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 @Component
@@ -36,12 +33,9 @@ public class MapSpaceTechIdByIdExecutor extends AbstractMapObjectByIdExecutor<IS
 {
 
     @Override
-    protected List<IListObjectById<? extends ISpaceId, Long>> createListers(IOperationContext context)
+    protected void addListers(IOperationContext context, List<IListObjectById<? extends ISpaceId, Long>> listers)
     {
-        List<IListObjectById<? extends ISpaceId, Long>> listers =
-                new LinkedList<IListObjectById<? extends ISpaceId, Long>>();
         listers.add(new ListSpaceTechIdByPermId());
-        return listers;
     }
 
 }

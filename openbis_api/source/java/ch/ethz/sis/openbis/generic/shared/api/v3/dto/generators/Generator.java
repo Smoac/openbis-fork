@@ -32,9 +32,11 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.DataSe
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.ExternalDataFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.FileFormatTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.LocatorTypeFetchOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.datastore.DataStoreFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.deletion.DeletionFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.experiment.ExperimentFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.experiment.ExperimentTypeFetchOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.externaldms.ExternalDmsFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.history.HistoryEntryFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.material.MaterialFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.material.MaterialTypeFetchOptions;
@@ -205,21 +207,26 @@ public class Generator extends AbstractGenerator
         DtoGenerator gen = new DtoGenerator("dataset", "DataSet", DataSetFetchOptions.class);
 
         addPermId(gen, DataSetPermId.class);
-
         addCode(gen);
+        gen.addStringField("externalCode");
+        gen.addFetchedField(DataSetType.class, "type", "Data Set type", DataSetTypeFetchOptions.class);
         gen.addBooleanField("measured");
         gen.addBooleanField("postRegistered");
+        gen.addFetchedField(ExternalData.class, "externalData", "External data", ExternalDataFetchOptions.class);
         
+        addExperiment(gen);
+        addSample(gen);
+        gen.addFetchedField(DataSetType.class, "dataStore", "Data store", DataStoreFetchOptions.class);
+        gen.addFetchedField(DataSetType.class, "externalDms", "External data management system", ExternalDmsFetchOptions.class);
+        addProperties(gen);
+
         gen.addPluralFetchedField("List<DataSet>", List.class.getName(), "parents", "Parents", DataSetFetchOptions.class)
                 .withInterfaceReflexive(IParentChildrenHolder.class);
         gen.addPluralFetchedField("List<DataSet>", List.class.getName(), "children", "Children", DataSetFetchOptions.class)
                 .withInterfaceReflexive(IParentChildrenHolder.class);
         gen.addPluralFetchedField("List<DataSet>", List.class.getName(), "containers", "Container data sets", DataSetFetchOptions.class);
         gen.addPluralFetchedField("List<DataSet>", List.class.getName(), "contained", "Contained data sets", DataSetFetchOptions.class);
-        gen.addFetchedField(ExternalData.class, "externalData", "External data", ExternalDataFetchOptions.class);
         addTags(gen);
-
-        gen.addFetchedField(DataSetType.class, "type", "Data Set type", DataSetTypeFetchOptions.class);
 
         gen.addPluralFetchedField("List<HistoryEntry>", List.class.getName(), "history", "History", HistoryEntryFetchOptions.class);
         gen.addClassForImport(HistoryEntry.class);
@@ -231,10 +238,6 @@ public class Generator extends AbstractGenerator
         addRegistrationDate(gen);
         addRegistrator(gen);
         gen.addDateField("accessDate");
-        
-        addExperiment(gen);
-        addSample(gen);
-        addProperties(gen);
 
         gen.setToStringMethod("\"DataSet \" + code");
 
@@ -484,6 +487,29 @@ public class Generator extends AbstractGenerator
         return gen;
     }
 
+    private static DtoGenerator createDataStoreGenerator()
+    {
+        DtoGenerator gen = new DtoGenerator("datastore", "DataStore", DataStoreFetchOptions.class);
+        addCode(gen);
+
+        gen.setToStringMethod("\"DataStore code: \" + code");
+
+        return gen;
+    }
+
+    private static DtoGenerator createExternalDmsGenerator()
+    {
+        DtoGenerator gen = new DtoGenerator("externaldms", "ExternalDms", ExternalDmsFetchOptions.class);
+        addCode(gen);
+        gen.addStringField("label");
+        gen.addStringField("urlTemplate");
+        gen.addBooleanField("openbis");
+
+        gen.setToStringMethod("\"ExternalDms code: \" + code");
+
+        return gen;
+    }
+
     public static void main(String[] args) throws FileNotFoundException
     {
         List<DtoGenerator> list = new LinkedList<DtoGenerator>();
@@ -507,6 +533,8 @@ public class Generator extends AbstractGenerator
         list.add(createExternalDataGenerator());
         list.add(createHistoryEntryGenerator());
         list.add(createDeletion());
+        list.add(createDataStoreGenerator());
+        list.add(createExternalDmsGenerator());
 
         for (DtoGenerator gen : list)
         {

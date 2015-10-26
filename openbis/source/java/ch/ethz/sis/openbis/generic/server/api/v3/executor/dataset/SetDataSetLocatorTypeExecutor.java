@@ -16,26 +16,61 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.dataset;
 
+import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.AbstractSetEntityToOneRelationExecutor;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSetCreation;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.ILocatorTypeId;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.LocatorTypePE;
 
 /**
  * @author pkupczyk
  */
 @Component
-public class SetDataSetLocatorTypeExecutor implements ISetDataSetLocatorTypeExecutor
+public class SetDataSetLocatorTypeExecutor extends
+        AbstractSetEntityToOneRelationExecutor<DataSetCreation, DataPE, ILocatorTypeId, LocatorTypePE>
+        implements ISetDataSetLocatorTypeExecutor
 {
 
-    @Override
-    public void set(IOperationContext context, Map<DataSetCreation, DataPE> entitiesMap)
-    {
-        // TODO Auto-generated method stub
+    @Autowired
+    private IMapLocatorTypeByIdExecutor mapLocatorTypeByIdExecutor;
 
+    @Override
+    protected ILocatorTypeId getRelatedId(DataSetCreation creation)
+    {
+        return creation.getExternalData() != null ? creation.getExternalData().getLocatorTypeId() : null;
+    }
+
+    @Override
+    protected Map<ILocatorTypeId, LocatorTypePE> map(IOperationContext context, List<ILocatorTypeId> relatedIds)
+    {
+        return mapLocatorTypeByIdExecutor.map(context, relatedIds);
+    }
+
+    @Override
+    protected void check(IOperationContext context, DataPE entity, ILocatorTypeId relatedId, LocatorTypePE related)
+    {
+        if (entity instanceof ExternalDataPE && relatedId == null)
+        {
+            throw new UserFailureException("Locator type id cannot be null for a physical data set.");
+        }
+    }
+
+    @Override
+    protected void set(IOperationContext context, DataPE entity, LocatorTypePE related)
+    {
+        if (entity instanceof ExternalDataPE)
+        {
+            ((ExternalDataPE) entity).setLocatorType(related);
+        }
     }
 
 }

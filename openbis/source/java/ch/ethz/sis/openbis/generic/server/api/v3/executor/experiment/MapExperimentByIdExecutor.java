@@ -16,7 +16,6 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.experiment;
 
-import java.util.LinkedList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,13 +55,10 @@ public class MapExperimentByIdExecutor extends AbstractMapObjectByIdExecutor<IEx
     }
 
     @Override
-    protected List<IListObjectById<? extends IExperimentId, ExperimentPE>> createListers(IOperationContext context)
+    protected void addListers(IOperationContext context, List<IListObjectById<? extends IExperimentId, ExperimentPE>> listers)
     {
-        List<IListObjectById<? extends IExperimentId, ExperimentPE>> listers =
-                new LinkedList<IListObjectById<? extends IExperimentId, ExperimentPE>>();
         listers.add(new ListExperimentByPermId(experimentDAO));
         listers.add(new ListExperimentByIdentifier(projectDAO, experimentDAO));
-        return listers;
     }
 
     @Autowired

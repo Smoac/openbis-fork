@@ -16,7 +16,6 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.sample;
 
-import java.util.LinkedList;
 import java.util.List;
 
 import org.springframework.stereotype.Component;
@@ -28,8 +27,6 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.ISampleId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 @Component
@@ -37,14 +34,11 @@ public class MapSampleTechIdByIdExecutor extends AbstractMapObjectByIdExecutor<I
 {
 
     @Override
-    protected List<IListObjectById<? extends ISampleId, Long>> createListers(IOperationContext context)
+    protected void addListers(IOperationContext context, List<IListObjectById<? extends ISampleId, Long>> listers)
     {
-        List<IListObjectById<? extends ISampleId, Long>> listers =
-                new LinkedList<IListObjectById<? extends ISampleId, Long>>();
         listers.add(new ListSampleTechIdByPermId());
         SpacePE homeSpace = context.getSession().tryGetHomeGroup();
         listers.add(new ListSampleTechIdByIdentifier(homeSpace == null ? null : homeSpace.getCode()));
-        return listers;
     }
 
 }

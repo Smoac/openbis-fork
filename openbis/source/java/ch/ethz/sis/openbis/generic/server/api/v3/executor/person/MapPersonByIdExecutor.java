@@ -16,7 +16,6 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.person;
 
-import java.util.LinkedList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,23 +39,10 @@ public class MapPersonByIdExecutor extends AbstractMapObjectByIdExecutor<IPerson
 
     private IPersonDAO personDAO;
 
-    @SuppressWarnings("unused")
-    private MapPersonByIdExecutor()
-    {
-    }
-
-    public MapPersonByIdExecutor(IPersonDAO personDAO)
-    {
-        this.personDAO = personDAO;
-    }
-
     @Override
-    protected List<IListObjectById<? extends IPersonId, PersonPE>> createListers(IOperationContext context)
+    protected void addListers(IOperationContext context, List<IListObjectById<? extends IPersonId, PersonPE>> listers)
     {
-        List<IListObjectById<? extends IPersonId, PersonPE>> listers =
-                new LinkedList<IListObjectById<? extends IPersonId, PersonPE>>();
         listers.add(new ListPersonByPermId(personDAO));
-        return listers;
     }
 
     @Autowired

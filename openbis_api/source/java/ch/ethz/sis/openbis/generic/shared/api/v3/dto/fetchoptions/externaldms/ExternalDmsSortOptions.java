@@ -14,27 +14,19 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.api.v3.executor.dataset;
+package ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.externaldms;
 
-import java.util.Map;
-
-import org.springframework.stereotype.Component;
-
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSetCreation;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.externaldms.ExternalDms;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.SortOptions;
+import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
  * @author pkupczyk
  */
-@Component
-public class SetDataSetExternalSystemExecutor implements ISetDataSetExternalSystemExecutor
+@JsonObject("dto.fetchoptions.externaldms.ExternalDmsSortOptions")
+public class ExternalDmsSortOptions extends SortOptions<ExternalDms>
 {
 
-    @Override
-    public void set(IOperationContext context, Map<DataSetCreation, DataPE> entitiesMap)
-    {
-        // TODO Auto-generated method stub
-    }
+    private static final long serialVersionUID = 1L;
 
 }

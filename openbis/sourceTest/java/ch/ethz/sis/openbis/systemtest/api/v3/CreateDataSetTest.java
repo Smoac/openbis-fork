@@ -29,9 +29,13 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSetCreat
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.ExternalDataCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.DataSetFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.DataSetPermId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.FileFormatTypePermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.IDataSetId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.LocatorTypePermId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.datastore.DataStorePermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.entitytype.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentIdentifier;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.vocabulary.VocabularyTermCode;
 
 /**
  * @author pkupczyk
@@ -39,18 +43,22 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentIde
 public class CreateDataSetTest extends AbstractDataSetTest
 {
 
-    @Test(enabled = false)
-    public void testCreate()
+    @Test
+    public void testCreatePhysicalData()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         ExternalDataCreation externalCreation = new ExternalDataCreation();
-        externalCreation.setLocation("/a/b/c");
+        externalCreation.setLocation("a/b/c");
+        externalCreation.setFileFormatTypeId(new FileFormatTypePermId("TIFF"));
+        externalCreation.setLocatorTypeId(new LocatorTypePermId("RELATIVE_LOCATION"));
+        externalCreation.setStorageFormatId(new VocabularyTermCode("PROPRIETARY"));
 
         DataSetCreation creation = new DataSetCreation();
         creation.setCode("TEST_DATASET");
         creation.setTypeId(new EntityTypePermId("UNKNOWN"));
         creation.setExperimentId(new ExperimentIdentifier("/CISD/NEMO/EXP1"));
+        creation.setDataStoreId(new DataStorePermId("STANDARD"));
         creation.setExternalData(externalCreation);
 
         List<DataSetPermId> ids = v3api.createDataSets(sessionToken, Arrays.asList(creation));
@@ -58,6 +66,10 @@ public class CreateDataSetTest extends AbstractDataSetTest
         DataSetFetchOptions fetchOptions = new DataSetFetchOptions();
         fetchOptions.withType();
         fetchOptions.withExperiment();
+        fetchOptions.withDataStore();
+        fetchOptions.withExternalData().withFileFormatType();
+        fetchOptions.withExternalData().withLocatorType();
+        fetchOptions.withExternalData().withStorageFormat();
 
         Map<IDataSetId, DataSet> map = v3api.mapDataSets(sessionToken, ids, fetchOptions);
 
@@ -65,6 +77,12 @@ public class CreateDataSetTest extends AbstractDataSetTest
         assertEquals(dataSet.getCode(), "TEST_DATASET");
         assertEquals(dataSet.getType().getCode(), "UNKNOWN");
         assertEquals(dataSet.getExperiment().getPermId().getPermId(), "200811050951882-1028");
+        // TODO add to translator
+        // assertEquals(dataSet.getDataStore(), "STANDARD");
+        assertEquals(dataSet.getExternalData().getLocation(), "a/b/c");
+        assertEquals(dataSet.getExternalData().getFileFormatType().getCode(), "TIFF");
+        assertEquals(dataSet.getExternalData().getLocatorType().getCode(), "RELATIVE_LOCATION");
+        assertEquals(dataSet.getExternalData().getStorageFormat().getCode(), "PROPRIETARY");
     }
 
 }

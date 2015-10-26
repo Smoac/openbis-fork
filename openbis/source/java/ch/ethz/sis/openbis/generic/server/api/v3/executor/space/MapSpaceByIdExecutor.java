@@ -16,7 +16,6 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.space;
 
-import java.util.LinkedList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,23 +39,10 @@ public class MapSpaceByIdExecutor extends AbstractMapObjectByIdExecutor<ISpaceId
 
     private ISpaceDAO spaceDAO;
 
-    @SuppressWarnings("unused")
-    private MapSpaceByIdExecutor()
-    {
-    }
-
-    public MapSpaceByIdExecutor(ISpaceDAO spaceDAO)
-    {
-        this.spaceDAO = spaceDAO;
-    }
-
     @Override
-    protected List<IListObjectById<? extends ISpaceId, SpacePE>> createListers(IOperationContext context)
+    protected void addListers(IOperationContext context, List<IListObjectById<? extends ISpaceId, SpacePE>> listers)
     {
-        List<IListObjectById<? extends ISpaceId, SpacePE>> listers =
-                new LinkedList<IListObjectById<? extends ISpaceId, SpacePE>>();
         listers.add(new ListSpaceByPermId(spaceDAO));
-        return listers;
     }
 
     @Autowired

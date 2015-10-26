@@ -16,7 +16,6 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.dataset;
 
-import java.util.LinkedList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,12 +41,9 @@ public class MapFileFormatTypeByIdExecutor extends AbstractMapObjectByIdExecutor
     private IFileFormatTypeDAO typeDAO;
 
     @Override
-    protected List<IListObjectById<? extends IFileFormatTypeId, FileFormatTypePE>> createListers(IOperationContext context)
+    protected void addListers(IOperationContext context, List<IListObjectById<? extends IFileFormatTypeId, FileFormatTypePE>> listers)
     {
-        List<IListObjectById<? extends IFileFormatTypeId, FileFormatTypePE>> listers =
-                new LinkedList<IListObjectById<? extends IFileFormatTypeId, FileFormatTypePE>>();
         listers.add(new ListFileFormatTypeByPermId(typeDAO));
-        return listers;
     }
 
     @Autowired

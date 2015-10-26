@@ -16,7 +16,6 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.project;
 
-import java.util.LinkedList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,13 +51,10 @@ public class MapProjectByIdExecutor extends AbstractMapObjectByIdExecutor<IProje
     }
 
     @Override
-    protected List<IListObjectById<? extends IProjectId, ProjectPE>> createListers(IOperationContext context)
+    protected void addListers(IOperationContext context, List<IListObjectById<? extends IProjectId, ProjectPE>> listers)
     {
-        List<IListObjectById<? extends IProjectId, ProjectPE>> listers =
-                new LinkedList<IListObjectById<? extends IProjectId, ProjectPE>>();
         listers.add(new ListProjectByIdentifier(projectDAO));
         listers.add(new ListProjectByPermId(projectDAO));
-        return listers;
     }
 
     @Autowired

@@ -16,7 +16,6 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.project;
 
-import java.util.LinkedList;
 import java.util.List;
 
 import org.springframework.stereotype.Component;
@@ -27,8 +26,6 @@ import ch.ethz.sis.openbis.generic.server.api.v3.helper.common.IListObjectById;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.IProjectId;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 @Component
@@ -36,13 +33,10 @@ public class MapProjectTechIdByIdExecutor extends AbstractMapObjectByIdExecutor<
 {
 
     @Override
-    protected List<IListObjectById<? extends IProjectId, Long>> createListers(IOperationContext context)
+    protected void addListers(IOperationContext context, List<IListObjectById<? extends IProjectId, Long>> listers)
     {
-        List<IListObjectById<? extends IProjectId, Long>> listers =
-                new LinkedList<IListObjectById<? extends IProjectId, Long>>();
         listers.add(new ListProjectTechIdByIdentifier());
         listers.add(new ListProjectTechIdByPermId());
-        return listers;
     }
 
 }

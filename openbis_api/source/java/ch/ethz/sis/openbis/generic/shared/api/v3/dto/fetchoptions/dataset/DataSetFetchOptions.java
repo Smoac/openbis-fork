@@ -20,7 +20,9 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.FetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.DataSetFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.DataSetTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.ExternalDataFetchOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.datastore.DataStoreFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.experiment.ExperimentFetchOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.externaldms.ExternalDmsFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.history.HistoryEntryFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.material.MaterialFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.person.PersonFetchOptions;
@@ -40,6 +42,30 @@ public class DataSetFetchOptions extends FetchOptions<DataSet> implements Serial
     private static final long serialVersionUID = 1L;
 
     @JsonProperty
+    private DataSetTypeFetchOptions type;
+
+    @JsonProperty
+    private ExternalDataFetchOptions externalData;
+
+    @JsonProperty
+    private ExperimentFetchOptions experiment;
+
+    @JsonProperty
+    private SampleFetchOptions sample;
+
+    @JsonProperty
+    private DataStoreFetchOptions dataStore;
+
+    @JsonProperty
+    private ExternalDmsFetchOptions externalDms;
+
+    @JsonProperty
+    private PropertyFetchOptions properties;
+
+    @JsonProperty
+    private MaterialFetchOptions materialProperties;
+
+    @JsonProperty
     private DataSetFetchOptions parents;
 
     @JsonProperty
@@ -52,13 +78,7 @@ public class DataSetFetchOptions extends FetchOptions<DataSet> implements Serial
     private DataSetFetchOptions contained;
 
     @JsonProperty
-    private ExternalDataFetchOptions externalData;
-
-    @JsonProperty
     private TagFetchOptions tags;
-
-    @JsonProperty
-    private DataSetTypeFetchOptions type;
 
     @JsonProperty
     private HistoryEntryFetchOptions history;
@@ -70,19 +90,183 @@ public class DataSetFetchOptions extends FetchOptions<DataSet> implements Serial
     private PersonFetchOptions registrator;
 
     @JsonProperty
-    private ExperimentFetchOptions experiment;
-
-    @JsonProperty
-    private SampleFetchOptions sample;
-
-    @JsonProperty
-    private PropertyFetchOptions properties;
-
-    @JsonProperty
-    private MaterialFetchOptions materialProperties;
-
-    @JsonProperty
     private DataSetSortOptions sort;
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public DataSetTypeFetchOptions withType()
+    {
+        if (type == null)
+        {
+            type = new DataSetTypeFetchOptions();
+        }
+        return type;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public DataSetTypeFetchOptions withTypeUsing(DataSetTypeFetchOptions fetchOptions)
+    {
+        return type = fetchOptions;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public boolean hasType()
+    {
+        return type != null;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public ExternalDataFetchOptions withExternalData()
+    {
+        if (externalData == null)
+        {
+            externalData = new ExternalDataFetchOptions();
+        }
+        return externalData;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public ExternalDataFetchOptions withExternalDataUsing(ExternalDataFetchOptions fetchOptions)
+    {
+        return externalData = fetchOptions;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public boolean hasExternalData()
+    {
+        return externalData != null;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public ExperimentFetchOptions withExperiment()
+    {
+        if (experiment == null)
+        {
+            experiment = new ExperimentFetchOptions();
+        }
+        return experiment;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public ExperimentFetchOptions withExperimentUsing(ExperimentFetchOptions fetchOptions)
+    {
+        return experiment = fetchOptions;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public boolean hasExperiment()
+    {
+        return experiment != null;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public SampleFetchOptions withSample()
+    {
+        if (sample == null)
+        {
+            sample = new SampleFetchOptions();
+        }
+        return sample;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public SampleFetchOptions withSampleUsing(SampleFetchOptions fetchOptions)
+    {
+        return sample = fetchOptions;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public boolean hasSample()
+    {
+        return sample != null;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public DataStoreFetchOptions withDataStore()
+    {
+        if (dataStore == null)
+        {
+            dataStore = new DataStoreFetchOptions();
+        }
+        return dataStore;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public DataStoreFetchOptions withDataStoreUsing(DataStoreFetchOptions fetchOptions)
+    {
+        return dataStore = fetchOptions;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public boolean hasDataStore()
+    {
+        return dataStore != null;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public ExternalDmsFetchOptions withExternalDms()
+    {
+        if (externalDms == null)
+        {
+            externalDms = new ExternalDmsFetchOptions();
+        }
+        return externalDms;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public ExternalDmsFetchOptions withExternalDmsUsing(ExternalDmsFetchOptions fetchOptions)
+    {
+        return externalDms = fetchOptions;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public boolean hasExternalDms()
+    {
+        return externalDms != null;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public PropertyFetchOptions withProperties()
+    {
+        if (properties == null)
+        {
+            properties = new PropertyFetchOptions();
+        }
+        return properties;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public PropertyFetchOptions withPropertiesUsing(PropertyFetchOptions fetchOptions)
+    {
+        return properties = fetchOptions;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public boolean hasProperties()
+    {
+        return properties != null;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public MaterialFetchOptions withMaterialProperties()
+    {
+        if (materialProperties == null)
+        {
+            materialProperties = new MaterialFetchOptions();
+        }
+        return materialProperties;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public MaterialFetchOptions withMaterialPropertiesUsing(MaterialFetchOptions fetchOptions)
+    {
+        return materialProperties = fetchOptions;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public boolean hasMaterialProperties()
+    {
+        return materialProperties != null;
+    }
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     public DataSetFetchOptions withParents()
@@ -173,28 +357,6 @@ public class DataSetFetchOptions extends FetchOptions<DataSet> implements Serial
     }
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
-    public ExternalDataFetchOptions withExternalData()
-    {
-        if (externalData == null)
-        {
-            externalData = new ExternalDataFetchOptions();
-        }
-        return externalData;
-    }
-
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
-    public ExternalDataFetchOptions withExternalDataUsing(ExternalDataFetchOptions fetchOptions)
-    {
-        return externalData = fetchOptions;
-    }
-
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
-    public boolean hasExternalData()
-    {
-        return externalData != null;
-    }
-
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     public TagFetchOptions withTags()
     {
         if (tags == null)
@@ -214,28 +376,6 @@ public class DataSetFetchOptions extends FetchOptions<DataSet> implements Serial
     public boolean hasTags()
     {
         return tags != null;
-    }
-
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
-    public DataSetTypeFetchOptions withType()
-    {
-        if (type == null)
-        {
-            type = new DataSetTypeFetchOptions();
-        }
-        return type;
-    }
-
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
-    public DataSetTypeFetchOptions withTypeUsing(DataSetTypeFetchOptions fetchOptions)
-    {
-        return type = fetchOptions;
-    }
-
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
-    public boolean hasType()
-    {
-        return type != null;
     }
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
@@ -302,94 +442,6 @@ public class DataSetFetchOptions extends FetchOptions<DataSet> implements Serial
     public boolean hasRegistrator()
     {
         return registrator != null;
-    }
-
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
-    public ExperimentFetchOptions withExperiment()
-    {
-        if (experiment == null)
-        {
-            experiment = new ExperimentFetchOptions();
-        }
-        return experiment;
-    }
-
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
-    public ExperimentFetchOptions withExperimentUsing(ExperimentFetchOptions fetchOptions)
-    {
-        return experiment = fetchOptions;
-    }
-
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
-    public boolean hasExperiment()
-    {
-        return experiment != null;
-    }
-
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
-    public SampleFetchOptions withSample()
-    {
-        if (sample == null)
-        {
-            sample = new SampleFetchOptions();
-        }
-        return sample;
-    }
-
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
-    public SampleFetchOptions withSampleUsing(SampleFetchOptions fetchOptions)
-    {
-        return sample = fetchOptions;
-    }
-
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
-    public boolean hasSample()
-    {
-        return sample != null;
-    }
-
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
-    public PropertyFetchOptions withProperties()
-    {
-        if (properties == null)
-        {
-            properties = new PropertyFetchOptions();
-        }
-        return properties;
-    }
-
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
-    public PropertyFetchOptions withPropertiesUsing(PropertyFetchOptions fetchOptions)
-    {
-        return properties = fetchOptions;
-    }
-
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
-    public boolean hasProperties()
-    {
-        return properties != null;
-    }
-
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
-    public MaterialFetchOptions withMaterialProperties()
-    {
-        if (materialProperties == null)
-        {
-            materialProperties = new MaterialFetchOptions();
-        }
-        return materialProperties;
-    }
-
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
-    public MaterialFetchOptions withMaterialPropertiesUsing(MaterialFetchOptions fetchOptions)
-    {
-        return materialProperties = fetchOptions;
-    }
-
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
-    public boolean hasMaterialProperties()
-    {
-        return materialProperties != null;
     }
 
     @Override

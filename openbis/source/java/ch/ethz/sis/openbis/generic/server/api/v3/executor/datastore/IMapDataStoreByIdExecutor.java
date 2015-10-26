@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ETH Zuerich, CISD
+ * Copyright 2014 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,20 +14,16 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.api.v3.executor.dataset;
+package ch.ethz.sis.openbis.generic.server.api.v3.executor.datastore;
 
-import java.util.Map;
-
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSetCreation;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.common.IMapObjectByIdExecutor;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.datastore.IDataStoreId;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 
 /**
  * @author pkupczyk
  */
-public interface ISetDataSetExternalSystemExecutor
+public interface IMapDataStoreByIdExecutor extends IMapObjectByIdExecutor<IDataStoreId, DataStorePE>
 {
-
-    void set(IOperationContext context, Map<DataSetCreation, DataPE> entitiesMap);
 
 }
