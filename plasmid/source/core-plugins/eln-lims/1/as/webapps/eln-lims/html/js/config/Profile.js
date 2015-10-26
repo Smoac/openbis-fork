@@ -349,7 +349,19 @@ $.extend(DefaultProfile.prototype, {
 			}
 			return null;
 		}
-	
+		
+		this.getVocabularyTermByCodes = function(vocabularyCode, termCode) {
+			var vocabulary = this.getVocabularyByCode(vocabularyCode);
+			if(vocabulary) {
+				for(var idx = 0; idx < vocabulary.terms.length; idx++) {
+					if(vocabulary.terms[idx].code === termCode) {
+						return vocabulary.terms[idx];
+					}
+				}
+			}
+			return null;
+		}
+		
 		this.getExperimentTypeForExperimentTypeCode = function(typeCode) {
 			for(var i = 0; i < this.allExperimentTypes.length; i++) {
 				if(this.allExperimentTypes[i].code === typeCode) {

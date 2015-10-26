@@ -275,7 +275,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		if(this._sampleFormModel.sample.sampleTypeCode === "PLATE") {
 			var plateContainer = $("<div>", { 'id' : 'sample-form-plate-view' });
 			$formColumn.append($("<legend>").append("Plate"));
-			var plateController = new PlateController(this._sampleFormModel.sample);
+			var plateController = new PlateController(this._sampleFormModel.sample, this._sampleFormModel.mode !== FormMode.EDIT);
 			plateController.init(plateContainer);
 			$formColumn.append(plateContainer);
 		}

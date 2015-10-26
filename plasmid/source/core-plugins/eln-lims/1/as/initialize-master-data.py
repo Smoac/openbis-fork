@@ -489,7 +489,7 @@ def initELNMasterData():
 										]);
 	
 	createVocabularyWithTerms("COLOR_ENCODED_ANNOTATIONS", "Colors used to annotate wells visually", [
-											["DEFAULT", "Default", "grey : Used when no code is selected or obviously when this is selected."],
+											["DEFAULT", "Default", "#ddd : Used when no code is selected or obviously when this is selected."],
 											["FAULTY", "Faulty", "red : Used to implicate that something is not right"]
 										]);
 	
@@ -505,6 +505,7 @@ def initELNMasterData():
 	createProperty("PLASMID_ANNOTATION", DataType.VARCHAR, "Plasmid annotation", "", None);
 	createProperty("PLASMID_RELATIONSHIP", DataType.CONTROLLEDVOCABULARY, "Plasmid relationship", "", "PLASMID_RELATIONSHIP");
 	createProperty("CONTAINED", DataType.VARCHAR, "Contained", "", None);
+	createProperty("COLOR_ENCODED_ANNOTATION", DataType.CONTROLLEDVOCABULARY, "Color Annotation for plate wells", "", "COLOR_ENCODED_ANNOTATIONS");
 	
 	##
 	## DataSet Types

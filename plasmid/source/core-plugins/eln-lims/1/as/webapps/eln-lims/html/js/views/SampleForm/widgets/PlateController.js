@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-function PlateController(sample) {
-	this._plateModel = new PlateModel(sample);
+function PlateController(sample, isDisabled) {
+	this._plateModel = new PlateModel(sample, isDisabled);
 	this._plateView = new PlateView(this, this._plateModel);
 	
 	this.getPlaceHolderId = function() {

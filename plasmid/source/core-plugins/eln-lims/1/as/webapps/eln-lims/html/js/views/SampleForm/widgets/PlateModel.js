@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-function PlateModel(sample) {
+function PlateModel(sample, isDisabled) {
 	this.sample = sample;
+	this.isDisabled = isDisabled;
 	
 	var getRowsAndColsFromPlateSample = function(sample) {
 		try {

@@ -51,12 +51,14 @@ function PlateView(plateController, plateModel) {
 						var well = this._plateModel.getWell(i-1,j);
 						if(well) {
 							$cell.addClass('well');
+							$cell.attr("id", "well-" + well.permId);
 							var selectedColorEncodedAnnotation = well.properties["COLOR_ENCODED_ANNOTATION"];
-							var colorEncodedWellAnnotationsSelector = this.getWellGroups(well.permId, selectedColorEncodedAnnotation);
+							var colorEncodedWellAnnotationsSelector = this.getWellGroups(well, selectedColorEncodedAnnotation);
 							
 							var tooltip = PrintUtil.getTable(well, false, null, 'inspectorWhiteFont',
 															'colorEncodedWellAnnotations-holder-' + well.permId,
 															colorEncodedWellAnnotationsSelector);
+							
 							$cell.tooltipster({
 								content: $(tooltip),
 								interactive: true
@@ -73,8 +75,12 @@ function PlateView(plateController, plateModel) {
 		return gridTable;
 	}
 	
-	this.getWellGroups = function(wellSamplePermId, selectedAnnotation) {
-		var $component = $("<select>", {"id" : 'colorEncodedWellAnnotations-' + wellSamplePermId, class : 'form-control'});
+	this.getWellGroups = function(well, selectedAnnotation) {
+		var $component = $("<select>", { "id" : 'colorEncodedWellAnnotations-' + well.permId, class : 'form-control', 'permId' : well.permId });
+		if(this._plateModel.isDisabled) {
+			$component.attr('disabled', '');
+		}
+		
 		var $defaultOption = $("<option>").attr('value', '').attr('disabled', '').text('Select an annotation');
 		if(!selectedAnnotation) {
 			$defaultOption.attr('selected', '');
@@ -90,6 +96,14 @@ function PlateView(plateController, plateModel) {
 			$component.append($option);
 		}
 		
+		$component.change(function(event) {
+			var $componentChange = $(this);
+			var value = $componentChange.val();
+			var permId = $componentChange.attr("permId");
+			var valueInfo = profile.getVocabularyTermByCodes("COLOR_ENCODED_ANNOTATIONS", value);
+			var color = valueInfo.description.split(":")[0].trim();
+			$("#well-"+permId).css( { "background-color" : color } );
+		});
 		var $componentWithLabel = $("<span>").append("Color Encoded Annotation: ").append($component);
 		return $componentWithLabel;
 	}
