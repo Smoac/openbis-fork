@@ -81,6 +81,11 @@ public class JsTestCommonSelenium extends SeleniumTest
     @BeforeTest
     public void before()
     {
+        doBefore();
+    }
+
+    protected void doBefore()
+    {
         useGui();
 
         login(ADMIN_USER, ADMIN_PASSWORD);
@@ -88,6 +93,11 @@ public class JsTestCommonSelenium extends SeleniumTest
 
     @AfterTest
     public void after()
+    {
+        doAfter();
+    }
+
+    protected void doAfter()
     {
         logout();
     }

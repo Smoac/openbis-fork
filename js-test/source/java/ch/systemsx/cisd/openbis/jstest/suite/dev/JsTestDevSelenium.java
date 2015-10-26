@@ -37,4 +37,14 @@ public class JsTestDevSelenium extends JsTestCommonSelenium
         }
     }
 
+    @Override
+    protected void doBefore()
+    {
+    }
+
+    @Override
+    protected void doAfter()
+    {
+    }
+
 }

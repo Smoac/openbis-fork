@@ -14,8 +14,11 @@ Then start up everything by executing in 'gradle'
 
 ./gradlew js-test:clean js-test:test
 
-This will start up openBIS AS and two DSSs. Also the Web browser will open (URL: http://localhost:20000/openbis/)
-and user admin will be automatically logged in.
+This will start up openBIS AS and two DSSs. 
+
+When the console output is no longer busy Firefox should be started.
+Enter the following URL: http://localhost:20000/openbis/
+You should be able to log in as user 'admin' with any password.
 
 Next choose a test suite in menu 'Utilities'. A tab will be opened which shows all tests.
 
