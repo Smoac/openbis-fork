@@ -17,10 +17,14 @@
 function PlateModel(sample, isDisabled) {
 	this.sample = sample;
 	this.isDisabled = isDisabled;
+	this.changesToDo = [];
 	
 	var getRowsAndColsFromPlateSample = function(sample) {
 		try {
 			var geometryProperty = sample.properties["PLATE_GEOMETRY"];
+			if(!geometryProperty) {
+				geometryProperty = sample.properties["$PLATE_GEOMETRY"];
+			}
 			var dimension = geometryProperty.substring(geometryProperty.lastIndexOf("_") + 1);
 			var rowsAndCols = dimension.split("X");
 			rowsAndCols[0] = parseInt(rowsAndCols[0]);

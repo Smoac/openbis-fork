@@ -375,6 +375,7 @@ def insertUpdateSample(tr, parameters, tableBuilder):
 	sampleCode = parameters.get("sampleCode"); #String
 	sampleType = parameters.get("sampleType"); #String
 	sampleProperties = parameters.get("sampleProperties"); #java.util.LinkedHashMap<String, String> where the key is the name
+	changesToDo = parameters.get("changesToDo");
 	
 	#Optional parameters
 	sampleParents = parameters.get("sampleParents"); #List<String> Identifiers are in SPACE/CODE format
@@ -452,7 +453,16 @@ def insertUpdateSample(tr, parameters, tableBuilder):
 				childParents = child.getParentSampleIdentifiers();
 				childParents.remove(sampleIdentifier);
 				child.setParentSampleIdentifiers(childParents);
-
+	
+	#Changes to do
+	for change in changesToDo:
+		sampleWithChanges = getSampleByIdentifierForUpdate(tr, change["identifier"]); #Retrieve Sample
+		for key in change["properties"].keySet():
+				propertyValue = unicode(change["properties"][key]);
+				if propertyValue == "":
+					propertyValue = None;
+				sampleWithChanges.setPropertyValue(key,propertyValue);
+		
 	#Return from the call
 	return True;
 	

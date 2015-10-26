@@ -325,7 +325,7 @@ function SampleHierarchy(serverFacade, containerId, profile, sample) {
 					var extraCustomId = null;
 					var extraContent = null;
 					if(sample.sampleTypeCode === "PLATE") {
-						var plateController = new PlateController(sample);
+						var plateController = new PlateController(sample, true);
 						
 						//Delete old view for redraws - Corner Case
 						var oldPlaceHolderFound = $("#" + plateController.getPlaceHolderId());

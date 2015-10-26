@@ -278,6 +278,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 			var plateController = new PlateController(this._sampleFormModel.sample, this._sampleFormModel.mode !== FormMode.EDIT);
 			plateController.init(plateContainer);
 			$formColumn.append(plateContainer);
+			this._sampleFormController._plateController = plateController;
 		}
 		
 		//
@@ -396,6 +397,10 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 				var isSystemProperty = false;
 				if(!value && propertyType.code.charAt(0) === '$') {
 					value = this._sampleFormModel.sample.properties[propertyType.code.substr(1)];
+					//
+					this._sampleFormModel.sample.properties[propertyType.code] = value;
+					delete this._sampleFormModel.sample.properties[propertyType.code.substr(1)];
+					//
 					isSystemProperty = true;
 				}
 				
@@ -426,11 +431,11 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 					var changeEvent = function(propertyType, isSystemProperty) {
 						return function() {
 							var propertyTypeCode = null;
-							if(isSystemProperty) {
-								propertyTypeCode = propertyType.code.substr(1);
-							} else {
+//							if(isSystemProperty) {
+//								propertyTypeCode = propertyType.code.substr(1);
+//							} else {
 								propertyTypeCode = propertyType.code;
-							}
+//							}
 							_this._sampleFormModel.isFormDirty = true;
 							var field = $(this);
 							if(propertyType.dataType === "BOOLEAN") {

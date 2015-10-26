@@ -50,9 +50,13 @@ function PlateView(plateController, plateModel) {
 					if(withWells) {
 						var well = this._plateModel.getWell(i-1,j);
 						if(well) {
+							
 							$cell.addClass('well');
 							$cell.attr("id", "well-" + well.permId);
 							var selectedColorEncodedAnnotation = well.properties["COLOR_ENCODED_ANNOTATION"];
+							if(selectedColorEncodedAnnotation) {
+								$cell.css( { "background-color" : this._getColorForCode(selectedColorEncodedAnnotation) } );
+							}
 							var colorEncodedWellAnnotationsSelector = this.getWellGroups(well, selectedColorEncodedAnnotation);
 							
 							var tooltip = PrintUtil.getTable(well, false, null, 'inspectorWhiteFont',
@@ -75,8 +79,14 @@ function PlateView(plateController, plateModel) {
 		return gridTable;
 	}
 	
+	this._getColorForCode = function(code) {
+		var valueInfo = profile.getVocabularyTermByCodes("COLOR_ENCODED_ANNOTATIONS", code);
+		var color = valueInfo.description.split(":")[0].trim();
+		return color;
+	}
+	
 	this.getWellGroups = function(well, selectedAnnotation) {
-		var $component = $("<select>", { "id" : 'colorEncodedWellAnnotations-' + well.permId, class : 'form-control', 'permId' : well.permId });
+		var $component = $("<select>", { "id" : 'colorEncodedWellAnnotations-' + well.permId, class : 'form-control', 'permId' : well.permId, "identifier" : well.identifier });
 		if(this._plateModel.isDisabled) {
 			$component.attr('disabled', '');
 		}
@@ -96,13 +106,14 @@ function PlateView(plateController, plateModel) {
 			$component.append($option);
 		}
 		
+		var _this = this;
 		$component.change(function(event) {
 			var $componentChange = $(this);
 			var value = $componentChange.val();
 			var permId = $componentChange.attr("permId");
-			var valueInfo = profile.getVocabularyTermByCodes("COLOR_ENCODED_ANNOTATIONS", value);
-			var color = valueInfo.description.split(":")[0].trim();
-			$("#well-"+permId).css( { "background-color" : color } );
+			var identifier = $componentChange.attr("identifier");
+			$("#well-"+permId).css( { "background-color" : _this._getColorForCode(value) } );
+			_this._plateModel.changesToDo.push({ "permId" : permId, "identifier" : identifier, "properties" : {"COLOR_ENCODED_ANNOTATION" : value } });
 		});
 		var $componentWithLabel = $("<span>").append("Color Encoded Annotation: ").append($component);
 		return $componentWithLabel;

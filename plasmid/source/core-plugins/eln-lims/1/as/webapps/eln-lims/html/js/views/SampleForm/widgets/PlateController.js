@@ -107,6 +107,9 @@ function PlateController(sample, isDisabled) {
 				});
 			});
 		}
-		
+	}
+	
+	this.getChangesToDo = function() {
+		return this._plateModel.changesToDo;
 	}
 }

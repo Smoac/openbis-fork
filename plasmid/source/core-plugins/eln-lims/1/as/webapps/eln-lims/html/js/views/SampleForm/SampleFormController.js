@@ -19,6 +19,7 @@ function SampleFormController(mainController, mode, sample) {
 	this._sampleFormModel = new SampleFormModel(mode, sample);
 	this._sampleFormView = new SampleFormView(this, this._sampleFormModel);
 //	this._storageControllers = [];
+	this._plateController = null;
 	
 	this.init = function($container) {
 		// Loading datasets
@@ -147,6 +148,7 @@ function SampleFormController(mainController, mode, sample) {
 		var sampleExperiment = null;
 		var sampleCode = this._sampleFormModel.sample.code;
 		var properties = this._sampleFormModel.sample.properties;
+		
 		var experimentIdentifier = this._sampleFormModel.sample.experimentIdentifierOrNull;
 		
 		if(experimentIdentifier) { //If there is a experiment detected, the sample should be attached to the experiment completely.
@@ -179,6 +181,12 @@ function SampleFormController(mainController, mode, sample) {
 			method = "updateSample";
 		}
 		
+		var changesToDo = [];
+		
+		if(this._plateController) {
+			changesToDo = this._plateController.getChangesToDo();
+		}
+		
 		var parameters = {
 				//API Method
 				"method" : method,
@@ -195,7 +203,9 @@ function SampleFormController(mainController, mode, sample) {
 				//Children links
 				"sampleChildren": sampleChildrenFinal,
 				"sampleChildrenNew": samplesToCreate,
-				"sampleChildrenRemoved": sampleChildrenRemovedFinal
+				"sampleChildrenRemoved": sampleChildrenRemovedFinal,
+				//Other Samples
+				"changesToDo" : changesToDo
 		};
 		
 		//
@@ -312,7 +322,6 @@ function SampleFormController(mainController, mode, sample) {
 					searchUntilFound(); //First call
 				}
 			}
-			
 			Util.showSuccess(sampleTypeDisplayName + " " + message, callbackOk);
 			_this._sampleFormModel.isFormDirty = false;
 		} else { //This should never happen
