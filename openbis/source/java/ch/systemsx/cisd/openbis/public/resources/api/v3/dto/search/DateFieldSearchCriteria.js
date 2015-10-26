@@ -1,8 +1,5 @@
-define([ "stjs", "util/Exceptions", "util/DateFormat", "dto/search/AbstractFieldSearchCriteria", "dto/search/ServerTimeZone", "dto/search/DateObjectEqualToValue", "dto/search/DateEqualToValue",
-		"dto/search/DateObjectLaterThanOrEqualToValue", "dto/search/DateLaterThanOrEqualToValue", "dto/search/DateObjectEarlierThanOrEqualToValue", "dto/search/DateEarlierThanOrEqualToValue",
-		"dto/search/TimeZone", "dto/search/AbstractDateValue", "dto/search/ShortDateFormat", "dto/search/NormalDateFormat", "dto/search/LongDateFormat" ], function(stjs, exceptions, DateFormat,
-		AbstractFieldSearchCriteria, ServerTimeZone, DateObjectEqualToValue, DateEqualToValue, DateObjectLaterThanOrEqualToValue, DateLaterThanOrEqualToValue, DateObjectEarlierThanOrEqualToValue,
-		DateEarlierThanOrEqualToValue, TimeZone, AbstractDateValue, ShortDateFormat, NormalDateFormat, LongDateFormat) {
+define([ "stjs", "util/Exceptions", "dto/search/AbstractFieldSearchCriteria", "dto/search/ServerTimeZone"], 
+		function(stjs, exceptions, AbstractFieldSearchCriteria, ServerTimeZone) {
 	var DateFieldSearchCriteria = function(fieldName, fieldType) {
 		AbstractFieldSearchCriteria.call(this, fieldName, fieldType);
 		this.timeZone = new ServerTimeZone();
@@ -11,6 +8,9 @@ define([ "stjs", "util/Exceptions", "util/DateFormat", "dto/search/AbstractField
 	stjs.extend(DateFieldSearchCriteria, AbstractFieldSearchCriteria, [ AbstractFieldSearchCriteria ], function(constructor, prototype) {
 		prototype['@type'] = 'dto.search.DateFieldSearchCriteria';
 		constructor.serialVersionUID = 1;
+		var ShortDateFormat = require("dto/search/ShortDateFormat");
+		var NormalDateFormat = require("dto/search/NormalDateFormat");
+		var LongDateFormat = require("dto/search/LongDateFormat");
 		constructor.DATE_FORMATS = [ new ShortDateFormat(), new NormalDateFormat(), new LongDateFormat() ];
 		var value = function(DateValueClass, DateObjectValueClass, date) {
 			if (date instanceof Date) {
@@ -19,12 +19,18 @@ define([ "stjs", "util/Exceptions", "util/DateFormat", "dto/search/AbstractField
 			return new DateValueClass(date);
 		}
 		prototype.thatEquals = function(date) {
+			var DateEqualToValue = require("dto/search/DateEqualToValue");
+			var DateObjectEqualToValue = require("dto/search/DateObjectEqualToValue");
 			this.setFieldValue(value(DateEqualToValue, DateObjectEqualToValue, date));
 		};
 		prototype.thatIsLaterThanOrEqualTo = function(date) {
+			var DateLaterThanOrEqualToValue = require("dto/search/DateLaterThanOrEqualToValue", );
+			var DateObjectLaterThanOrEqualToValue = require("dto/search/DateObjectLaterThanOrEqualToValue");
 			this.setFieldValue(value(DateLaterThanOrEqualToValue, DateObjectLaterThanOrEqualToValue, date));
 		};
 		prototype.thatIsEarlierThanOrEqualTo = function(date) {
+			var DateEarlierThanOrEqualToValue = require("dto/search/DateEarlierThanOrEqualToValue");
+			var DateObjectEarlierThanOrEqualToValue = require("dto/search/DateObjectEarlierThanOrEqualToValue");
 			this.setFieldValue(value(DateEarlierThanOrEqualToValue, DateObjectEarlierThanOrEqualToValue, date));
 		};
 		prototype.withServerTimeZone = function() {
@@ -32,6 +38,7 @@ define([ "stjs", "util/Exceptions", "util/DateFormat", "dto/search/AbstractField
 			return this;
 		};
 		prototype.withTimeZone = function(hourOffset) {
+			var TimeZone = require("dto/search/TimeZone");
 			this.timeZone = new TimeZone(hourOffset);
 			return this;
 		};
@@ -46,11 +53,13 @@ define([ "stjs", "util/Exceptions", "util/DateFormat", "dto/search/AbstractField
 			AbstractFieldSearchCriteria.prototype.setFieldValue.call(this, value);
 		};
 		constructor.checkValueFormat = function(value) {
+			var AbstractDateValue = require("dto/search/AbstractDateValue");
 			if (stjs.isInstanceOf(value.constructor, AbstractDateValue)) {
 				var formats = DateFieldSearchCriteria.DATE_FORMATS;
 				for ( var i in formats) {
 					var dateFormat = formats[i];
 					try {
+						var DateFormat = require("util/DateFormat");
 						var dateFormat = new DateFormat(dateFormat.getFormat());
 						dateFormat.setLenient(false);
 						dateFormat.parse(value.getValue());

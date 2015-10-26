@@ -1,8 +1,8 @@
 /**
  * @author pkupczyk
  */
-define([ "stjs", "dto/search/AbstractObjectSearchCriteria", "dto/search/CodeSearchCriteria", "dto/search/PermIdSearchCriteria" ], function(stjs, AbstractObjectSearchCriteria,
-		CodeSearchCriteria, PermIdSearchCriteria) {
+define([ "stjs", "dto/search/AbstractObjectSearchCriteria"], 
+		function(stjs, AbstractObjectSearchCriteria) {
 	var EntityTypeSearchCriteria = function() {
 		AbstractObjectSearchCriteria.call(this);
 	};
@@ -10,12 +10,15 @@ define([ "stjs", "dto/search/AbstractObjectSearchCriteria", "dto/search/CodeSear
 		prototype['@type'] = 'dto.search.EntityTypeSearchCriteria';
 		constructor.serialVersionUID = 1;
 		prototype.withCode = function() {
+			var CodeSearchCriteria = require("dto/search/CodeSearchCriteria");
 			return this.addCriteria(new CodeSearchCriteria());
 		};
 		prototype.withPermId = function() {
+			var PermIdSearchCriteria = require("dto/search/PermIdSearchCriteria");
 			return this.addCriteria(new PermIdSearchCriteria());
 		};
 		prototype.createBuilder = function() {
+			var AbstractCompositeSearchCriteria = require("dto/search/AbstractCompositeSearchCriteria");
 			var builder = AbstractCompositeSearchCriteria.prototype.createBuilder.call(this);
 			builder.setName("TYPE");
 			return builder;
