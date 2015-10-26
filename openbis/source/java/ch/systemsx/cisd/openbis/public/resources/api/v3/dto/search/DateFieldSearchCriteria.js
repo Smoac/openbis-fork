@@ -1,4 +1,9 @@
-define([ "require", "stjs", "util/Exceptions", "dto/search/AbstractFieldSearchCriteria", "dto/search/ServerTimeZone"], 
+define([ "require", "stjs", "util/Exceptions", "dto/search/AbstractFieldSearchCriteria", "dto/search/ServerTimeZone",
+         "dto/search/ShortDateFormat", "dto/search/NormalDateFormat", "dto/search/LongDateFormat",
+         "dto/search/DateEqualToValue", "dto/search/DateObjectEqualToValue",
+         "dto/search/DateLaterThanOrEqualToValue", "dto/search/DateObjectLaterThanOrEqualToValue",
+         "dto/search/DateEarlierThanOrEqualToValue", "dto/search/DateObjectEarlierThanOrEqualToValue",
+         "dto/search/TimeZone", "dto/search/AbstractDateValue", "util/DateFormat"], 
 		function(require, stjs, exceptions, AbstractFieldSearchCriteria, ServerTimeZone) {
 	var DateFieldSearchCriteria = function(fieldName, fieldType) {
 		AbstractFieldSearchCriteria.call(this, fieldName, fieldType);
@@ -24,7 +29,7 @@ define([ "require", "stjs", "util/Exceptions", "dto/search/AbstractFieldSearchCr
 			this.setFieldValue(value(DateEqualToValue, DateObjectEqualToValue, date));
 		};
 		prototype.thatIsLaterThanOrEqualTo = function(date) {
-			var DateLaterThanOrEqualToValue = require("dto/search/DateLaterThanOrEqualToValue", );
+			var DateLaterThanOrEqualToValue = require("dto/search/DateLaterThanOrEqualToValue");
 			var DateObjectLaterThanOrEqualToValue = require("dto/search/DateObjectLaterThanOrEqualToValue");
 			this.setFieldValue(value(DateLaterThanOrEqualToValue, DateObjectLaterThanOrEqualToValue, date));
 		};

@@ -1,7 +1,10 @@
 /**
  * @author pkupczyk
  */
-define([ "require", "stjs", "dto/search/AbstractEntitySearchCriteria", "dto/search/SampleSearchRelation", "dto/search/SearchOperator" ], 
+define([ "require", "stjs", "dto/search/AbstractEntitySearchCriteria", "dto/search/SampleSearchRelation", "dto/search/SearchOperator",
+         "dto/search/SpaceSearchCriteria", "dto/search/ProjectSearchCriteria", "dto/search/NoProjectSearchCriteria",
+         "dto/search/ExperimentSearchCriteria", "dto/search/NoExperimentSearchCriteria",
+         "dto/search/NoSampleContainerSearchCriteria"], 
 		function(require, stjs, AbstractEntitySearchCriteria, SampleSearchRelation, SearchOperator) {
 
 	var SampleSearchCriteria = function(relation) {
@@ -30,7 +33,7 @@ define([ "require", "stjs", "dto/search/AbstractEntitySearchCriteria", "dto/sear
 		};
 		prototype.withoutExperiment = function() {
 			var NoExperimentSearchCriteria = require("dto/search/NoExperimentSearchCriteria");
-			return this.addCriteria(new NoExperimentSearchCriteria();
+			return this.addCriteria(new NoExperimentSearchCriteria());
 		};
 		prototype.withParents = function() {
 			return this.addCriteria(new SampleParentsSearchCriteria());

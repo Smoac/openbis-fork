@@ -1,7 +1,9 @@
 /**
  * @author pkupczyk
  */
-define([ "require", "stjs", "dto/search/AbstractObjectSearchCriteria"], 
+define([ "require", "stjs", "dto/search/AbstractObjectSearchCriteria",
+         "dto/search/CodeSearchCriteria", "dto/search/PermIdSearchCriteria", "dto/search/SpaceSearchCriteria",
+         "dto/search/AbstractCompositeSearchCriteria"], 
 		function(require, stjs, AbstractObjectSearchCriteria) {
 	var ProjectSearchCriteria = function() {
 		AbstractObjectSearchCriteria.call(this);

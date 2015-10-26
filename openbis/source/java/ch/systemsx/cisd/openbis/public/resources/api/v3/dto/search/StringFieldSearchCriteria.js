@@ -1,4 +1,6 @@
-define([ "require", "stjs", "dto/search/AbstractFieldSearchCriteria"], 
+define([ "require", "stjs", "dto/search/AbstractFieldSearchCriteria",
+         "dto/search/StringEqualToValue", "dto/search/StringStartsWithValue", "dto/search/StringEndsWithValue",
+         "dto/search/StringContainsValue", "dto/search/AnyStringValue"], 
 		function(require, stjs, AbstractFieldSearchCriteria) {
 	var StringFieldSearchCriteria = function(fieldName, fieldType) {
 		AbstractFieldSearchCriteria.call(this, fieldName, fieldType);

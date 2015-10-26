@@ -1,7 +1,12 @@
 /**
  * @author pkupczyk
  */
-define([ "require", "stjs", "dto/search/AbstractObjectSearchCriteria", "dto/search/SearchOperator"],
+define([ "require", "stjs", "dto/search/AbstractObjectSearchCriteria", "dto/search/SearchOperator",
+         "dto/search/CodeSearchCriteria", "dto/search/EntityTypeSearchCriteria", "dto/search/PermIdSearchCriteria",
+         "dto/search/RegistrationDateSearchCriteria", "dto/search/ModificationDateSearchCriteria",
+         "dto/search/NumberPropertySearchCriteria", "dto/search/TagSearchCriteria", "dto/search/StringPropertySearchCriteria",
+         "dto/search/DatePropertySearchCriteria", "dto/search/AnyPropertySearchCriteria", "dto/search/AnyFieldSearchCriteria",
+         "dto/search/AbstractCompositeSearchCriteria"],
 		function(require, stjs, AbstractObjectSearchCriteria, SearchOperator) {
 	var AbstractEntitySearchCriteria = function() {
 		AbstractObjectSearchCriteria.call(this);

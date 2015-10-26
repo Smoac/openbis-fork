@@ -1,7 +1,8 @@
 /**
  * @author pkupczyk
  */
-define([ "require", "stjs", "dto/search/AbstractObjectSearchCriteria"], 
+define([ "require", "stjs", "dto/search/AbstractObjectSearchCriteria",
+         "dto/search/CodeSearchCriteria", "dto/search/PermIdSearchCriteria", "dto/search/AbstractCompositeSearchCriteria"], 
 		function(require, stjs, AbstractObjectSearchCriteria) {
 	var EntityTypeSearchCriteria = function() {
 		AbstractObjectSearchCriteria.call(this);

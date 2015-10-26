@@ -1,4 +1,6 @@
-define([ "require", "stjs", "dto/search/AbstractFieldSearchCriteria"], 
+define([ "require", "stjs", "dto/search/AbstractFieldSearchCriteria",
+         "dto/search/NumberEqualToValue", "dto/search/NumberLessThanValue", "dto/search/NumberLessOrEqualThanValue",
+         "dto/search/NumberGreaterThanValue", "dto/search/NumberGreaterOrEqualThanValue"], 
 		function(require, stjs, AbstractFieldSearchCriteria) {
 	var NumberFieldSearchCriteria = function(fieldName, fieldType) {
 		AbstractFieldSearchCriteria.call(this, fieldName, fieldType);
