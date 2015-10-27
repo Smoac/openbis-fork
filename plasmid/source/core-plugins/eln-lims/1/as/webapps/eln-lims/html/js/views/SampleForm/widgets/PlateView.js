@@ -54,9 +54,11 @@ function PlateView(plateController, plateModel) {
 							$cell.addClass('well');
 							$cell.attr("id", "well-" + well.permId);
 							var selectedColorEncodedAnnotation = well.properties["COLOR_ENCODED_ANNOTATION"];
-							if(selectedColorEncodedAnnotation) {
+							
+							if(selectedColorEncodedAnnotation && selectedColorEncodedAnnotation !== "DEFAULT") {
 								$cell.css( { "background-color" : this._getColorForCode(selectedColorEncodedAnnotation) } );
 							}
+							
 							var colorEncodedWellAnnotationsSelector = this.getWellGroups(well, selectedColorEncodedAnnotation);
 							
 							var tooltip = PrintUtil.getTable(well, false, null, 'inspectorWhiteFont',
@@ -81,8 +83,10 @@ function PlateView(plateController, plateModel) {
 	
 	this._getColorForCode = function(code) {
 		var valueInfo = profile.getVocabularyTermByCodes("COLOR_ENCODED_ANNOTATIONS", code);
-		var color = valueInfo.description.split(":")[0].trim();
-		return color;
+		if(valueInfo) {
+			return valueInfo.description.split(":")[0].trim();
+		}
+		return null;
 	}
 	
 	this.getWellGroups = function(well, selectedAnnotation) {
@@ -112,7 +116,13 @@ function PlateView(plateController, plateModel) {
 			var value = $componentChange.val();
 			var permId = $componentChange.attr("permId");
 			var identifier = $componentChange.attr("identifier");
-			$("#well-"+permId).css( { "background-color" : _this._getColorForCode(value) } );
+			if(value === "DEFAULT") {
+				$("#well-"+permId).css( { "background-color" : "" } );
+			} else {
+				$("#well-"+permId).css( { "background-color" : _this._getColorForCode(value) } );
+			}
+			
+			
 			_this._plateModel.changesToDo.push({ "permId" : permId, "identifier" : identifier, "properties" : {"COLOR_ENCODED_ANNOTATION" : value } });
 		});
 		var $componentWithLabel = $("<span>").append("Color Encoded Annotation: ").append($component);

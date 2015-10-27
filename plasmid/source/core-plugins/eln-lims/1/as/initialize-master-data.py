@@ -489,7 +489,7 @@ def initELNMasterData():
 										]);
 	
 	createVocabularyWithTerms("COLOR_ENCODED_ANNOTATIONS", "Colors used to annotate wells visually", [
-											["DEFAULT", "Default", "#ddd : Used when no code is selected or obviously when this is selected."],
+											["DEFAULT", "Default", "Used when no code is selected."],
 											["FAULTY", "Faulty", "red : Used to implicate that something is not right"]
 										]);
 	
