@@ -121,9 +121,10 @@ function PlateView(plateController, plateModel) {
 			} else {
 				$("#well-"+permId).css( { "background-color" : _this._getColorForCode(value) } );
 			}
-			
-			
 			_this._plateModel.changesToDo.push({ "permId" : permId, "identifier" : identifier, "properties" : {"COLOR_ENCODED_ANNOTATION" : value } });
+			if(mainController.currentView.setDirty) {
+				mainController.currentView.setDirty();
+			}
 		});
 		var $componentWithLabel = $("<span>").append("Color Encoded Annotation: ").append($component);
 		return $componentWithLabel;

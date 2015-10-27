@@ -44,6 +44,10 @@ function SampleFormController(mainController, mode, sample) {
 		return this._sampleFormModel.isFormDirty;
 	}
 	
+	this.setDirty = function() {
+		this._sampleFormModel.isFormDirty = true;
+	}
+	
 	this.isLoaded = function() {
 		return this._sampleFormModel.isFormLoaded;
 	}
