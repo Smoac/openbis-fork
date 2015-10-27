@@ -17,6 +17,7 @@ package ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSetType;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.ExternalData;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.datastore.DataStore;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.history.HistoryEntry;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.ICodeHolder;
@@ -83,7 +84,7 @@ public class DataSet implements Serializable, ICodeHolder, IModificationDateHold
     private Sample sample;
 
     @JsonProperty
-    private DataSetType dataStore;
+    private DataStore dataStore;
 
     @JsonProperty
     private DataSetType externalDms;
@@ -289,7 +290,7 @@ public class DataSet implements Serializable, ICodeHolder, IModificationDateHold
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     @JsonIgnore
-    public DataSetType getDataStore()
+    public DataStore getDataStore()
     {
         if (getFetchOptions().hasDataStore())
         {
@@ -302,7 +303,7 @@ public class DataSet implements Serializable, ICodeHolder, IModificationDateHold
     }
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
-    public void setDataStore(DataSetType dataStore)
+    public void setDataStore(DataStore dataStore)
     {
         this.dataStore = dataStore;
     }

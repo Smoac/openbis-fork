@@ -57,6 +57,9 @@ public class DataSetTranslator extends AbstractCachingTranslator<Long, DataSet, 
     private IDataSetExternalDataTranslator externalDataTranslator;
 
     @Autowired
+    private IDataSetDataStoreTranslator dataStoreTranslator;
+
+    @Autowired
     private IDataSetSampleTranslator sampleTranslator;
 
     @Autowired
@@ -131,6 +134,11 @@ public class DataSetTranslator extends AbstractCachingTranslator<Long, DataSet, 
         {
             relations.put(IDataSetExternalDataTranslator.class,
                     externalDataTranslator.translate(context, dataSetIds, fetchOptions.withExternalData()));
+        }
+
+        if (fetchOptions.hasDataStore())
+        {
+            relations.put(IDataSetDataStoreTranslator.class, dataStoreTranslator.translate(context, dataSetIds, fetchOptions.withDataStore()));
         }
 
         if (fetchOptions.hasSample())
@@ -223,6 +231,12 @@ public class DataSetTranslator extends AbstractCachingTranslator<Long, DataSet, 
         {
             result.setExternalData(relations.get(IDataSetExternalDataTranslator.class, dataSetId));
             result.getFetchOptions().withExternalDataUsing(fetchOptions.withExternalData());
+        }
+
+        if (fetchOptions.hasDataStore())
+        {
+            result.setDataStore(relations.get(IDataSetDataStoreTranslator.class, dataSetId));
+            result.getFetchOptions().withDataStoreUsing(fetchOptions.withDataStore());
         }
 
         if (fetchOptions.hasSample())

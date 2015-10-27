@@ -17,6 +17,7 @@
 package ch.ethz.sis.openbis.systemtest.api.v3;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNull;
 
 import java.util.Arrays;
 import java.util.List;
@@ -55,7 +56,7 @@ public class CreateDataSetTest extends AbstractDataSetTest
         externalCreation.setStorageFormatId(new VocabularyTermCode("PROPRIETARY"));
 
         DataSetCreation creation = new DataSetCreation();
-        creation.setCode("TEST_DATASET");
+        creation.setCode("TEST_PHYSICAL_DATASET");
         creation.setTypeId(new EntityTypePermId("UNKNOWN"));
         creation.setExperimentId(new ExperimentIdentifier("/CISD/NEMO/EXP1"));
         creation.setDataStoreId(new DataStorePermId("STANDARD"));
@@ -74,15 +75,47 @@ public class CreateDataSetTest extends AbstractDataSetTest
         Map<IDataSetId, DataSet> map = v3api.mapDataSets(sessionToken, ids, fetchOptions);
 
         DataSet dataSet = map.get(ids.get(0));
-        assertEquals(dataSet.getCode(), "TEST_DATASET");
+        assertEquals(dataSet.getCode(), "TEST_PHYSICAL_DATASET");
         assertEquals(dataSet.getType().getCode(), "UNKNOWN");
         assertEquals(dataSet.getExperiment().getPermId().getPermId(), "200811050951882-1028");
-        // TODO add to translator
-        // assertEquals(dataSet.getDataStore(), "STANDARD");
+        assertEquals(dataSet.getDataStore().getCode(), "STANDARD");
         assertEquals(dataSet.getExternalData().getLocation(), "a/b/c");
         assertEquals(dataSet.getExternalData().getFileFormatType().getCode(), "TIFF");
         assertEquals(dataSet.getExternalData().getLocatorType().getCode(), "RELATIVE_LOCATION");
         assertEquals(dataSet.getExternalData().getStorageFormat().getCode(), "PROPRIETARY");
+    }
+
+    @Test
+    public void testCreateContainerData()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        DataSetCreation creation = new DataSetCreation();
+        creation.setCode("TEST_CONTAINER_DATASET");
+        creation.setTypeId(new EntityTypePermId("CONTAINER_TYPE"));
+        creation.setExperimentId(new ExperimentIdentifier("/CISD/NEMO/EXP1"));
+        creation.setDataStoreId(new DataStorePermId("STANDARD"));
+        creation.setContainedIds(Arrays.asList(new DataSetPermId("20081105092159188-3")));
+
+        List<DataSetPermId> ids = v3api.createDataSets(sessionToken, Arrays.asList(creation));
+
+        DataSetFetchOptions fetchOptions = new DataSetFetchOptions();
+        fetchOptions.withType();
+        fetchOptions.withExperiment();
+        fetchOptions.withDataStore();
+        fetchOptions.withExternalData();
+        fetchOptions.withContained();
+
+        Map<IDataSetId, DataSet> map = v3api.mapDataSets(sessionToken, ids, fetchOptions);
+
+        DataSet dataSet = map.get(ids.get(0));
+        assertEquals(dataSet.getCode(), "TEST_CONTAINER_DATASET");
+        assertEquals(dataSet.getType().getCode(), "CONTAINER_TYPE");
+        assertEquals(dataSet.getExperiment().getPermId().getPermId(), "200811050951882-1028");
+        assertEquals(dataSet.getDataStore().getCode(), "STANDARD");
+        assertNull(dataSet.getExternalData());
+        assertEquals(dataSet.getContained().size(), 1);
+        assertEquals(dataSet.getContained().iterator().next().getCode(), "20081105092159188-3");
     }
 
 }

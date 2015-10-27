@@ -21,6 +21,7 @@ import it.unimi.dsi.fastutil.longs.LongSet;
 import java.util.List;
 
 import net.lemnik.eodsql.Select;
+
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.ObjectQuery;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.ObjectRelationRecord;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.history.HistoryPropertyRecord;
@@ -120,6 +121,9 @@ public interface DataSetQuery extends ObjectQuery
 
     @Select(sql = "select d.id as objectId, d.expe_id as relatedId from data d where d.id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<ObjectRelationRecord> getExperimentIds(LongSet dataSetIds);
+
+    @Select(sql = "select d.id as objectId, d.dast_id as relatedId from data d where d.id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    public List<ObjectRelationRecord> getDataStoreIds(LongSet dataSetIds);
 
     @Select(sql = "select dr.data_id_child as objectId, dr.data_id_parent as relatedId from "
             + "data_set_relationships dr, relationship_types rt "

@@ -16,18 +16,21 @@
 package ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.datastore;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.ICodeHolder;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IModificationDateHolder;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IRegistrationDateHolder;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.datastore.DataStoreFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.NotFetchedException;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.Serializable;
+import java.util.Date;
 
 /**
  * Class automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
  */
 @JsonObject("dto.entity.datastore.DataStore")
-public class DataStore implements Serializable, ICodeHolder
+public class DataStore implements Serializable, ICodeHolder, IModificationDateHolder, IRegistrationDateHolder
 {
     private static final long serialVersionUID = 1L;
 
@@ -36,6 +39,18 @@ public class DataStore implements Serializable, ICodeHolder
 
     @JsonProperty
     private String code;
+
+    @JsonProperty
+    private String downloadUrl;
+
+    @JsonProperty
+    private String remoteUrl;
+
+    @JsonProperty
+    private Date registrationDate;
+
+    @JsonProperty
+    private Date modificationDate;
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     @JsonIgnore
@@ -62,6 +77,60 @@ public class DataStore implements Serializable, ICodeHolder
     public void setCode(String code)
     {
         this.code = code;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    @JsonIgnore
+    public String getDownloadUrl()
+    {
+        return downloadUrl;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public void setDownloadUrl(String downloadUrl)
+    {
+        this.downloadUrl = downloadUrl;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    @JsonIgnore
+    public String getRemoteUrl()
+    {
+        return remoteUrl;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public void setRemoteUrl(String remoteUrl)
+    {
+        this.remoteUrl = remoteUrl;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    @JsonIgnore
+    @Override
+    public Date getRegistrationDate()
+    {
+        return registrationDate;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public void setRegistrationDate(Date registrationDate)
+    {
+        this.registrationDate = registrationDate;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    @JsonIgnore
+    @Override
+    public Date getModificationDate()
+    {
+        return modificationDate;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public void setModificationDate(Date modificationDate)
+    {
+        this.modificationDate = modificationDate;
     }
 
     @Override

@@ -14,6 +14,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSetType;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.ExternalData;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.FileFormatType;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.LocatorType;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.datastore.DataStore;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.ExperimentType;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.history.HistoryEntry;
@@ -213,10 +214,10 @@ public class Generator extends AbstractGenerator
         gen.addBooleanField("measured");
         gen.addBooleanField("postRegistered");
         gen.addFetchedField(ExternalData.class, "externalData", "External data", ExternalDataFetchOptions.class);
-        
+
         addExperiment(gen);
         addSample(gen);
-        gen.addFetchedField(DataSetType.class, "dataStore", "Data store", DataStoreFetchOptions.class);
+        gen.addFetchedField(DataStore.class, "dataStore", "Data store", DataStoreFetchOptions.class);
         gen.addFetchedField(DataSetType.class, "externalDms", "External data management system", ExternalDmsFetchOptions.class);
         addProperties(gen);
 
@@ -491,6 +492,10 @@ public class Generator extends AbstractGenerator
     {
         DtoGenerator gen = new DtoGenerator("datastore", "DataStore", DataStoreFetchOptions.class);
         addCode(gen);
+        gen.addStringField("downloadUrl");
+        gen.addStringField("remoteUrl");
+        addRegistrationDate(gen);
+        addModificationDate(gen);
 
         gen.setToStringMethod("\"DataStore code: \" + code");
 
