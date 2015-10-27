@@ -286,7 +286,7 @@ public final class DataDAOTest extends AbstractDAOTest
     private void checkUpdateExternalData(Long size)
     {
         IDataDAO dataDAO = daoFactory.getDataDAO();
-        DataPE data = new DataPE();
+        ExternalDataPE data = new ExternalDataPE();
         String dataSetCode = daoFactory.getPermIdDAO().createPermId();
         data.setCode(dataSetCode);
         data.setDataSetType(getDataSetType(DataSetTypeCode.UNKNOWN));
@@ -294,29 +294,24 @@ public final class DataDAOTest extends AbstractDAOTest
         data.setSampleAcquiredFrom(pickASample());
         data.setDataStore(pickADataStore());
         data.setModificationDate(new Date());
-        dataDAO.createDataSet(data, getTestPerson());
-
-        ExternalDataPE externalData = new ExternalDataPE();
-        DataPE dataSetJustCreated = dataDAO.tryToFindDataSetByCode(dataSetCode);
-        externalData.setId(dataSetJustCreated.getId());
-        externalData.setCode(dataSetCode);
-        externalData.setDataSetType(getDataSetType(DataSetTypeCode.UNKNOWN));
-        externalData.setDataStore(pickADataStore());
-        externalData.setExperiment(pickAnExperiment());
-        externalData.setSampleAcquiredFrom(pickASample());
-        externalData.setFileFormatType(pickAFileFormatType());
-        externalData.setLocatorType(pickALocatorType());
-        externalData.setLocation("abcd");
-        externalData.setShareId("share-42");
+        data.setFileFormatType(pickAFileFormatType());
+        data.setLocatorType(pickALocatorType());
+        data.setLocation("abcd");
+        data.setShareId("share-42");
+        data.setSize(size);
+        data.setComplete(BooleanOrUnknown.U);
+        data.setStorageFormatVocabularyTerm(pickAStorageFormatVocabularyTerm());
+        data.setStatus(DataSetArchivingStatus.AVAILABLE);
+        dataDAO.createDataSet(data, getSystemPerson());
+        
+        ExternalDataPE externalData = dataDAO.tryToFindDataSetByCode(dataSetCode).tryAsExternalData();
+        int version = externalData.getVersion();
+        externalData.setShareId("share-43");
         externalData.setSize(size);
-        externalData.setComplete(BooleanOrUnknown.U);
-        externalData.setStorageFormatVocabularyTerm(pickAStorageFormatVocabularyTerm());
-        externalData.setStatus(DataSetArchivingStatus.AVAILABLE);
-        final Date modificationTimestamp = data.getModificationDate();
-        externalData.setModificationDate(modificationTimestamp);
+        
         dataDAO.updateDataSet(externalData, getTestPerson());
-
-        ExternalDataPE dataSet = (ExternalDataPE) dataDAO.tryToFindDataSetByCode(dataSetCode);
+        
+        ExternalDataPE dataSet = dataDAO.tryToFindDataSetByCode(dataSetCode).tryAsExternalData();
         assertEquals(externalData.getCode(), dataSet.getCode());
         assertEquals(externalData.getDataSetType(), dataSet.getDataSetType());
         assertEquals(externalData.getExperiment(), dataSet.getExperiment());
@@ -328,7 +323,9 @@ public final class DataDAOTest extends AbstractDAOTest
         assertEquals(externalData.getComplete(), dataSet.getComplete());
         assertEquals(externalData.getStorageFormat(), dataSet.getStorageFormat());
         assertEquals(externalData.isMeasured(), dataSet.isMeasured());
-        assertEquals(dataSetJustCreated.getVersion() + 1, dataSet.getVersion());
+        assertEquals(externalData.getRegistrationDate(), dataSet.getRegistrationDate());
+        assertEquals(getTestPerson(), dataSet.getModifier());
+        assertEquals(version + 1, dataSet.getVersion());
         assertFalse(externalData.isContainer());
     }
 
