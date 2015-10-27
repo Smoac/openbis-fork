@@ -1,6 +1,6 @@
 define([ "require", "stjs", "dto/search/AbstractFieldSearchCriteria",
-         "dto/search/NumberEqualToValue", "dto/search/NumberLessThanValue", "dto/search/NumberLessOrEqualThanValue",
-         "dto/search/NumberGreaterThanValue", "dto/search/NumberGreaterOrEqualThanValue"], 
+         "dto/search/NumberEqualToValue", "dto/search/NumberLessThanValue", "dto/search/NumberLessThanOrEqualToValue",
+         "dto/search/NumberGreaterThanValue", "dto/search/NumberGreaterThanOrEqualToValue"], 
 		function(require, stjs, AbstractFieldSearchCriteria) {
 	var NumberFieldSearchCriteria = function(fieldName, fieldType) {
 		AbstractFieldSearchCriteria.call(this, fieldName, fieldType);
@@ -16,17 +16,17 @@ define([ "require", "stjs", "dto/search/AbstractFieldSearchCriteria",
 			var NumberLessThanValue = require("dto/search/NumberLessThanValue");
 			this.setFieldValue(new NumberLessThanValue(number));
 		};
-		prototype.thatIsLessOrEqualThan = function(number) {
-			var NumberLessOrEqualThanValue = require("dto/search/NumberLessOrEqualThanValue");
-			this.setFieldValue(new NumberLessOrEqualThanValue(number));
+		prototype.thatIsLessThanOrEqualTo = function(number) {
+			var NumberLessThanOrEqualToValue = require("dto/search/NumberLessThanOrEqualToValue");
+			this.setFieldValue(new NumberLessThanOrEqualToValue(number));
 		};
 		prototype.thatIsGreaterThan = function(number) {
 			var NumberGreaterThanValue = require("dto/search/NumberGreaterThanValue");
 			this.setFieldValue(new NumberGreaterThanValue(number));
 		};
-		prototype.thatIsGreaterOrEqualThan = function(number) {
-			var NumberGreaterOrEqualThanValue = require("dto/search/NumberGreaterOrEqualThanValue");
-			this.setFieldValue(new NumberGreaterOrEqualThanValue(number));
+		prototype.thatIsGreaterThanOrEqualTo = function(number) {
+			var NumberGreaterThanOrEqualToValue = require("dto/search/NumberGreaterThanOrEqualToValue");
+			this.setFieldValue(new NumberGreaterThanOrEqualToValue(number));
 		};
 	}, {
 		fieldType : {

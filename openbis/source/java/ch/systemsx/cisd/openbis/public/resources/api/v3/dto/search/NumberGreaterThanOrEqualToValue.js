@@ -6,10 +6,10 @@ define([ "stjs", "dto/search/AbstractNumberValue" ], function(stjs, AbstractNumb
 		AbstractNumberValue.call(this, number);
 	};
 	stjs.extend(NumberGreaterOrEqualThanValue, AbstractNumberValue, [ AbstractNumberValue ], function(constructor, prototype) {
-		prototype['@type'] = 'dto.search.NumberGreaterOrEqualThanValue';
+		prototype['@type'] = 'dto.search.NumberGreaterThanOrEqualToValue';
 		constructor.serialVersionUID = 1;
 		prototype.toString = function() {
-			return "greater or equal than '" + this.getValue() + "'";
+			return "greater or equal to '" + this.getValue() + "'";
 		};
 	}, {});
 	return NumberGreaterOrEqualThanValue;

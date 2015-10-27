@@ -21,18 +21,18 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author juanf
  */
-@JsonObject("dto.search.NumberLessOrEqualThanValue")
-public class NumberLessOrEqualThanValue extends AbstractNumberValue
+@JsonObject("dto.search.NumberGreaterThanOrEqualToValue")
+public class NumberGreaterThanOrEqualToValue extends AbstractNumberValue
 {
 
     private static final long serialVersionUID = 1L;
 
-    public NumberLessOrEqualThanValue()
+    public NumberGreaterThanOrEqualToValue()
     {
         super(null);
     }
     
-    public NumberLessOrEqualThanValue(Number number)
+    public NumberGreaterThanOrEqualToValue(Number number)
     {
         super(number);
     }
@@ -40,7 +40,7 @@ public class NumberLessOrEqualThanValue extends AbstractNumberValue
     @Override
     public String toString()
     {
-        return "less or equal than '" + getValue() + "'";
+        return "greater or equal to '" + getValue() + "'";
     }
 
 }

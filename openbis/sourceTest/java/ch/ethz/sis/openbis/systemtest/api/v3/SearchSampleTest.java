@@ -884,13 +884,13 @@ public class SearchSampleTest extends AbstractSampleTest
         
         //Less or Equals
         SampleSearchCriteria criteriaLOE = new SampleSearchCriteria();
-        criteriaLOE.withNumberProperty("SIZE").thatIsLessOrEqualThan(321);
+        criteriaLOE.withNumberProperty("SIZE").thatIsLessThanOrEqualTo(321);
         List<Sample> samplesLOE = search(sessionToken, criteriaLOE, sortByCodeFO);
         assertSampleIdentifiersInOrder(samplesLOE, "/CISD/CP-TEST-1", "/CISD/CP-TEST-2");
         
         //Greater or Equals
         SampleSearchCriteria criteriaGOE = new SampleSearchCriteria();
-        criteriaGOE.withNumberProperty("SIZE").thatIsGreaterOrEqualThan(321);
+        criteriaGOE.withNumberProperty("SIZE").thatIsGreaterThanOrEqualTo(321);
         List<Sample> samplesGOE = search(sessionToken, criteriaGOE, sortByCodeFO);
         assertSampleIdentifiersInOrder(samplesGOE, "/CISD/3VCP7", "/CISD/CP-TEST-2", "/CISD/CP-TEST-3");
         

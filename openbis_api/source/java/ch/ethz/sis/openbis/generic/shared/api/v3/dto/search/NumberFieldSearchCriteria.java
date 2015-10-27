@@ -39,9 +39,9 @@ public class NumberFieldSearchCriteria extends AbstractFieldSearchCriteria<Abstr
         setFieldValue(new NumberLessThanValue(number));
     }
     
-    public void thatIsLessOrEqualThan(Number number)
+    public void thatIsLessThanOrEqualTo(Number number)
     {
-        setFieldValue(new NumberLessOrEqualThanValue(number));
+        setFieldValue(new NumberLessThanOrEqualToValue(number));
     }
 
     public void thatIsGreaterThan(Number number)
@@ -49,8 +49,8 @@ public class NumberFieldSearchCriteria extends AbstractFieldSearchCriteria<Abstr
         setFieldValue(new NumberGreaterThanValue(number));
     }
     
-    public void thatIsGreaterOrEqualThan(Number number)
+    public void thatIsGreaterThanOrEqualTo(Number number)
     {
-        setFieldValue(new NumberGreaterOrEqualThanValue(number));
+        setFieldValue(new NumberGreaterThanOrEqualToValue(number));
     }
 }
