@@ -18,7 +18,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		prototype.children = null;
 		prototype.containers = null;
 		prototype.contained = null;
-		prototype.externalData = null;
+		prototype.physicalData = null;
 		prototype.tags = null;
 		prototype.type = null;
 		prototype.history = null;
@@ -106,15 +106,15 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		prototype.setContained = function(contained) {
 			this.contained = contained;
 		};
-		prototype.getExternalData = function() {
-			if (this.getFetchOptions().hasExternalData()) {
-				return this.externalData;
+		prototype.getPhysicalData = function() {
+			if (this.getFetchOptions().hasPhysicalData()) {
+				return this.physicalData;
 			} else {
-				throw new exceptions.NotFetchedException("External data has not been fetched.");
+				throw new exceptions.NotFetchedException("Physical data has not been fetched.");
 			}
 		};
-		prototype.setExternalData = function(externalData) {
-			this.externalData = externalData;
+		prototype.setPhysicalData = function(physicalData) {
+			this.physicalData = physicalData;
 		};
 		prototype.getTags = function() {
 			if (this.getFetchOptions().hasTags()) {
@@ -238,7 +238,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 			name : "List",
 			arguments : [ "DataSet" ]
 		},
-		externalData : "ExternalData",
+		physicalData : "PhysicalData",
 		tags : {
 			name : "Set",
 			arguments : [ "Tag" ]

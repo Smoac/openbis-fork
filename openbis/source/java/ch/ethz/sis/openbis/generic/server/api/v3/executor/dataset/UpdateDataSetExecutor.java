@@ -60,7 +60,10 @@ public class UpdateDataSetExecutor extends AbstractUpdateEntityExecutor<DataSetU
     private IUpdateDataSetSampleExecutor updateDataSetSampleExecutor;
 
     @Autowired
-    private IUpdateDataSetFileFormatTypeExecutor updateDataSetFileFormatTypeExecutor;
+    private IUpdateDataSetPhysicalDataExecutor updateDataSetPhysicalDataExecutor;
+
+    @Autowired
+    private IUpdateDataSetLinkedDataExecutor updateDataSetLinkedDataExecutor;
 
     @Autowired
     private IUpdateDataSetRelatedDataSetsExecutor updateDataSetRelatedDataSetsExecutor;
@@ -107,9 +110,10 @@ public class UpdateDataSetExecutor extends AbstractUpdateEntityExecutor<DataSetU
     @Override
     protected void updateBatch(IOperationContext context, Map<DataSetUpdate, DataPE> entitiesMap)
     {
+        updateDataSetPhysicalDataExecutor.update(context, entitiesMap);
+        updateDataSetLinkedDataExecutor.update(context, entitiesMap);
         updateDataSetExperimentExecutor.update(context, entitiesMap);
         updateDataSetSampleExecutor.update(context, entitiesMap);
-        updateDataSetFileFormatTypeExecutor.update(context, entitiesMap);
 
         Map<IEntityPropertiesHolder, Map<String, String>> propertyMap = new HashMap<IEntityPropertiesHolder, Map<String, String>>();
         for (Map.Entry<DataSetUpdate, DataPE> entry : entitiesMap.entrySet())

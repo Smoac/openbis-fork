@@ -51,7 +51,10 @@ public class DataSetUpdate implements Serializable
     private FieldUpdateValue<ISampleId> sampleId = new FieldUpdateValue<ISampleId>();
 
     @JsonProperty
-    private FieldUpdateValue<ExternalDataUpdate> externalData = new FieldUpdateValue<ExternalDataUpdate>();
+    private FieldUpdateValue<PhysicalDataUpdate> physicalData = new FieldUpdateValue<PhysicalDataUpdate>();
+
+    @JsonProperty
+    private FieldUpdateValue<LinkedDataUpdate> linkedData = new FieldUpdateValue<LinkedDataUpdate>();
 
     @JsonProperty
     private IdListUpdateValue<ITagId> tagIds = new IdListUpdateValue<ITagId>();
@@ -108,15 +111,26 @@ public class DataSetUpdate implements Serializable
     }
 
     @JsonIgnore
-    public FieldUpdateValue<ExternalDataUpdate> getExternalData()
+    public FieldUpdateValue<PhysicalDataUpdate> getPhysicalData()
     {
-        return externalData;
+        return physicalData;
     }
 
     @JsonIgnore
-    public void setExternalData(ExternalDataUpdate externalData)
+    public void setPhysicalData(PhysicalDataUpdate physicalData)
     {
-        this.externalData.setValue(externalData);
+        this.physicalData.setValue(physicalData);
+    }
+
+    public FieldUpdateValue<LinkedDataUpdate> getLinkedData()
+    {
+        return linkedData;
+    }
+
+    @JsonIgnore
+    public void setLinkedData(LinkedDataUpdate linkedData)
+    {
+        this.linkedData.setValue(linkedData);
     }
 
     @JsonIgnore

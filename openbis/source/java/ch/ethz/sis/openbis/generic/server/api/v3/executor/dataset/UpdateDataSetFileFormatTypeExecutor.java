@@ -66,9 +66,9 @@ public class UpdateDataSetFileFormatTypeExecutor extends
     @Override
     protected FieldUpdateValue<IFileFormatTypeId> getRelatedUpdate(DataSetUpdate update)
     {
-        if (update.getExternalData() != null && update.getExternalData().getValue() != null)
+        if (update.getPhysicalData() != null && update.getPhysicalData().getValue() != null)
         {
-            return update.getExternalData().getValue().getFileFormatTypeId();
+            return update.getPhysicalData().getValue().getFileFormatTypeId();
         } else
         {
             return null;
@@ -86,7 +86,7 @@ public class UpdateDataSetFileFormatTypeExecutor extends
     {
         if (entity instanceof ExternalDataPE && relatedId == null)
         {
-            throw new UserFailureException("Data set file format type cannot be null");
+            throw new UserFailureException("File format type cannot be null for a physical data set.");
         }
     }
 

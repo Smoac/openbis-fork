@@ -32,7 +32,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.ListUpdateValue.List
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.ListUpdateValue.ListUpdateActionRemove;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSetUpdate;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.ExternalDataUpdate;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.PhysicalDataUpdate;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.tag.Tag;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.DataSetFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.DataSetPermId;
@@ -331,18 +331,18 @@ public class UpdateDataSetTest extends AbstractSampleTest
 
         DataSetUpdate update = new DataSetUpdate();
         update.setDataSetId(dataSetId);
-        ExternalDataUpdate edupt = new ExternalDataUpdate();
-        edupt.setFileFormatTypeId(new FileFormatTypePermId("PLKPROPRIETARY"));
-        update.setExternalData(edupt);
+        PhysicalDataUpdate pdupt = new PhysicalDataUpdate();
+        pdupt.setFileFormatTypeId(new FileFormatTypePermId("PLKPROPRIETARY"));
+        update.setPhysicalData(pdupt);
 
         v3api.updateDataSets(sessionToken, Collections.singletonList(update));
 
         DataSetFetchOptions fe = new DataSetFetchOptions();
         fe.withProperties();
-        fe.withExternalData().withFileFormatType();
+        fe.withPhysicalData().withFileFormatType();
         DataSet result = v3api.mapDataSets(sessionToken, Collections.singletonList(dataSetId), fe).get(dataSetId);
 
-        assertEquals(result.getExternalData().getFileFormatType().getCode(), "PLKPROPRIETARY");
+        assertEquals(result.getPhysicalData().getFileFormatType().getCode(), "PLKPROPRIETARY");
     }
 
     @Test

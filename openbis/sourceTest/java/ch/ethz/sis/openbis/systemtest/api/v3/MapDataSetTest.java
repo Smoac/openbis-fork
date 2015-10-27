@@ -34,9 +34,9 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.Complete;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSetKind;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSetUpdate;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.ExternalData;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.FileFormatType;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.LocatorType;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.PhysicalData;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.history.DataSetRelationType;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.history.HistoryEntry;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.history.PropertyHistoryEntry;
@@ -46,7 +46,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.tag.Tag;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.vocabulary.Vocabulary;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.vocabulary.VocabularyTerm;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.DataSetFetchOptions;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.ExternalDataFetchOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.PhysicalDataFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.tag.TagFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.vocabulary.VocabularyFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.vocabulary.VocabularyTermFetchOptions;
@@ -179,7 +179,7 @@ public class MapDataSetTest extends AbstractDataSetTest
         assertEquals(dataSet.isPostRegistered(), Boolean.TRUE);
 
         assertTypeNotFetched(dataSet);
-        assertExternalDataNotFetched(dataSet);
+        assertPhysicalDataNotFetched(dataSet);
         assertExperimentNotFetched(dataSet);
         assertSampleNotFetched(dataSet);
         assertPropertiesNotFetched(dataSet);
@@ -218,7 +218,7 @@ public class MapDataSetTest extends AbstractDataSetTest
         assertEquals(dataSet.getType().getKind(), DataSetKind.PHYSICAL);
         assertEqualsDate(dataSet.getType().getModificationDate(), "2009-03-23 15:34:44");
 
-        assertExternalDataNotFetched(dataSet);
+        assertPhysicalDataNotFetched(dataSet);
         assertExperimentNotFetched(dataSet);
         assertSampleNotFetched(dataSet);
         assertPropertiesNotFetched(dataSet);
@@ -238,7 +238,7 @@ public class MapDataSetTest extends AbstractDataSetTest
         assertEquals(dataSet2.getType().getKind(), DataSetKind.CONTAINER);
         assertEqualsDate(dataSet2.getType().getModificationDate(), "2011-05-09 12:24:44");
 
-        assertExternalDataNotFetched(dataSet2);
+        assertPhysicalDataNotFetched(dataSet2);
         assertExperimentNotFetched(dataSet2);
         assertSampleNotFetched(dataSet2);
         assertPropertiesNotFetched(dataSet2);
@@ -274,7 +274,7 @@ public class MapDataSetTest extends AbstractDataSetTest
         assertEquals(dataSet.getExperiment().getIdentifier().getIdentifier(), "/CISD/NEMO/EXP-TEST-1");
 
         assertTypeNotFetched(dataSet);
-        assertExternalDataNotFetched(dataSet);
+        assertPhysicalDataNotFetched(dataSet);
         assertSampleNotFetched(dataSet);
         assertPropertiesNotFetched(dataSet);
         assertParentsNotFetched(dataSet);
@@ -308,7 +308,7 @@ public class MapDataSetTest extends AbstractDataSetTest
         assertEquals(dataSet.getSample().getIdentifier().getIdentifier(), "/CISD/CP-TEST-1");
 
         assertTypeNotFetched(dataSet);
-        assertExternalDataNotFetched(dataSet);
+        assertPhysicalDataNotFetched(dataSet);
         assertExperimentNotFetched(dataSet);
         assertPropertiesNotFetched(dataSet);
         assertParentsNotFetched(dataSet);
@@ -346,7 +346,7 @@ public class MapDataSetTest extends AbstractDataSetTest
         assertEquals(properties.get("ANY_MATERIAL"), "1000_C (SIRNA)");
 
         assertTypeNotFetched(dataSet);
-        assertExternalDataNotFetched(dataSet);
+        assertPhysicalDataNotFetched(dataSet);
         assertExperimentNotFetched(dataSet);
         assertSampleNotFetched(dataSet);
         assertParentsNotFetched(dataSet);
@@ -385,7 +385,7 @@ public class MapDataSetTest extends AbstractDataSetTest
         assertEquals(child.getCode(), "20081105092259000-9");
 
         assertTypeNotFetched(dataSet);
-        assertExternalDataNotFetched(dataSet);
+        assertPhysicalDataNotFetched(dataSet);
         assertExperimentNotFetched(dataSet);
         assertSampleNotFetched(dataSet);
         assertPropertiesNotFetched(dataSet);
@@ -424,7 +424,7 @@ public class MapDataSetTest extends AbstractDataSetTest
         assertIdentifiers(parents, "20081105092159111-1", "20081105092159222-2", "20081105092159333-3");
 
         assertTypeNotFetched(dataSet);
-        assertExternalDataNotFetched(dataSet);
+        assertPhysicalDataNotFetched(dataSet);
         assertExperimentNotFetched(dataSet);
         assertSampleNotFetched(dataSet);
         assertPropertiesNotFetched(dataSet);
@@ -462,7 +462,7 @@ public class MapDataSetTest extends AbstractDataSetTest
         assertIdentifiers(contained, "20110509092359990-11", "20110509092359990-12");
 
         assertTypeNotFetched(dataSet);
-        assertExternalDataNotFetched(dataSet);
+        assertPhysicalDataNotFetched(dataSet);
         assertExperimentNotFetched(dataSet);
         assertSampleNotFetched(dataSet);
         assertPropertiesNotFetched(dataSet);
@@ -500,7 +500,7 @@ public class MapDataSetTest extends AbstractDataSetTest
         assertIdentifiers(containers, "20110509092359990-10");
 
         assertTypeNotFetched(dataSet);
-        assertExternalDataNotFetched(dataSet);
+        assertPhysicalDataNotFetched(dataSet);
         assertExperimentNotFetched(dataSet);
         assertSampleNotFetched(dataSet);
         assertPropertiesNotFetched(dataSet);
@@ -521,11 +521,11 @@ public class MapDataSetTest extends AbstractDataSetTest
         DataSetPermId permId = new DataSetPermId("20081105092159111-1");
         DataSetFetchOptions fetchOptions = new DataSetFetchOptions();
 
-        ExternalDataFetchOptions externalDataFetchOptions = fetchOptions.withExternalData();
-        externalDataFetchOptions.withFileFormatType();
-        externalDataFetchOptions.withLocatorType();
+        PhysicalDataFetchOptions physicalDataFetchOptions = fetchOptions.withPhysicalData();
+        physicalDataFetchOptions.withFileFormatType();
+        physicalDataFetchOptions.withLocatorType();
 
-        VocabularyTermFetchOptions storageFormatTermFetchOptions = externalDataFetchOptions.withStorageFormat();
+        VocabularyTermFetchOptions storageFormatTermFetchOptions = physicalDataFetchOptions.withStorageFormat();
         storageFormatTermFetchOptions.withRegistrator();
 
         VocabularyFetchOptions storageFormatVocabularyFetchOptions = storageFormatTermFetchOptions.withVocabulary();
@@ -538,24 +538,24 @@ public class MapDataSetTest extends AbstractDataSetTest
 
         assertEquals(dataSet.getCode(), "20081105092159111-1");
 
-        ExternalData externalData = dataSet.getExternalData();
-        assertEquals(externalData.getShareId(), "42");
-        assertEquals(externalData.getLocation(), "a/1");
-        assertEquals(externalData.getSize(), Long.valueOf(4711));
-        assertEquals(externalData.getComplete(), Complete.UNKNOWN);
-        assertEquals(externalData.getStatus(), ArchivingStatus.AVAILABLE);
-        assertFalse(externalData.isPresentInArchive());
-        assertFalse(externalData.isStorageConfirmation());
+        PhysicalData physicalData = dataSet.getPhysicalData();
+        assertEquals(physicalData.getShareId(), "42");
+        assertEquals(physicalData.getLocation(), "a/1");
+        assertEquals(physicalData.getSize(), Long.valueOf(4711));
+        assertEquals(physicalData.getComplete(), Complete.UNKNOWN);
+        assertEquals(physicalData.getStatus(), ArchivingStatus.AVAILABLE);
+        assertFalse(physicalData.isPresentInArchive());
+        assertFalse(physicalData.isStorageConfirmation());
 
-        FileFormatType fileFormatType = externalData.getFileFormatType();
+        FileFormatType fileFormatType = physicalData.getFileFormatType();
         assertEquals(fileFormatType.getCode(), "TIFF");
         assertEquals(fileFormatType.getDescription(), "TIFF File");
 
-        LocatorType locatorType = externalData.getLocatorType();
+        LocatorType locatorType = physicalData.getLocatorType();
         assertEquals(locatorType.getCode(), "RELATIVE_LOCATION");
         assertEquals(locatorType.getDescription(), "Relative Location");
 
-        VocabularyTerm storageFormatTerm = externalData.getStorageFormat();
+        VocabularyTerm storageFormatTerm = physicalData.getStorageFormat();
         assertEquals(storageFormatTerm.getCode(), "PROPRIETARY");
         assertEquals(storageFormatTerm.getLabel(), "proprietary label");
         assertEquals(storageFormatTerm.getDescription(), "proprietary description");
@@ -592,7 +592,7 @@ public class MapDataSetTest extends AbstractDataSetTest
 
         DataSetPermId permId = new DataSetPermId("ROOT_CONTAINER");
         DataSetFetchOptions fetchOptions = new DataSetFetchOptions();
-        fetchOptions.withExternalData();
+        fetchOptions.withPhysicalData();
 
         Map<IDataSetId, DataSet> dataSets = v3api.mapDataSets(sessionToken, Arrays.asList(permId), fetchOptions);
 
@@ -600,7 +600,7 @@ public class MapDataSetTest extends AbstractDataSetTest
         DataSet dataSet = dataSets.get(permId);
 
         assertEquals(dataSet.getCode(), "ROOT_CONTAINER");
-        assertEquals(dataSet.getExternalData(), null);
+        assertEquals(dataSet.getPhysicalData(), null);
     }
 
     @Test
@@ -625,7 +625,7 @@ public class MapDataSetTest extends AbstractDataSetTest
         assertEquals(dataSet.isPostRegistered(), Boolean.TRUE);
 
         assertTypeNotFetched(dataSet);
-        assertExternalDataNotFetched(dataSet);
+        assertPhysicalDataNotFetched(dataSet);
         assertExperimentNotFetched(dataSet);
         assertSampleNotFetched(dataSet);
         assertPropertiesNotFetched(dataSet);
@@ -659,7 +659,7 @@ public class MapDataSetTest extends AbstractDataSetTest
         assertEquals(dataSet.getRegistrator().getUserId(), "test");
 
         assertTypeNotFetched(dataSet);
-        assertExternalDataNotFetched(dataSet);
+        assertPhysicalDataNotFetched(dataSet);
         assertExperimentNotFetched(dataSet);
         assertSampleNotFetched(dataSet);
         assertPropertiesNotFetched(dataSet);
@@ -698,7 +698,7 @@ public class MapDataSetTest extends AbstractDataSetTest
         assertEquals(tag.getPermId().getPermId(), "/" + TEST_USER + "/TEST_METAPROJECTS");
 
         assertTypeNotFetched(dataSet);
-        assertExternalDataNotFetched(dataSet);
+        assertPhysicalDataNotFetched(dataSet);
         assertExperimentNotFetched(dataSet);
         assertSampleNotFetched(dataSet);
         assertPropertiesNotFetched(dataSet);

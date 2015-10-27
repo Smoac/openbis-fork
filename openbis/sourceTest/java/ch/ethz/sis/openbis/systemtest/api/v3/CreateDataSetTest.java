@@ -27,7 +27,7 @@ import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSetCreation;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.ExternalDataCreation;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.PhysicalDataCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.DataSetFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.DataSetPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.FileFormatTypePermId;
@@ -49,18 +49,18 @@ public class CreateDataSetTest extends AbstractDataSetTest
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-        ExternalDataCreation externalCreation = new ExternalDataCreation();
-        externalCreation.setLocation("a/b/c");
-        externalCreation.setFileFormatTypeId(new FileFormatTypePermId("TIFF"));
-        externalCreation.setLocatorTypeId(new LocatorTypePermId("RELATIVE_LOCATION"));
-        externalCreation.setStorageFormatId(new VocabularyTermCode("PROPRIETARY"));
+        PhysicalDataCreation physicalCreation = new PhysicalDataCreation();
+        physicalCreation.setLocation("a/b/c");
+        physicalCreation.setFileFormatTypeId(new FileFormatTypePermId("TIFF"));
+        physicalCreation.setLocatorTypeId(new LocatorTypePermId("RELATIVE_LOCATION"));
+        physicalCreation.setStorageFormatId(new VocabularyTermCode("PROPRIETARY"));
 
         DataSetCreation creation = new DataSetCreation();
         creation.setCode("TEST_PHYSICAL_DATASET");
         creation.setTypeId(new EntityTypePermId("UNKNOWN"));
         creation.setExperimentId(new ExperimentIdentifier("/CISD/NEMO/EXP1"));
         creation.setDataStoreId(new DataStorePermId("STANDARD"));
-        creation.setExternalData(externalCreation);
+        creation.setPhysicalData(physicalCreation);
 
         List<DataSetPermId> ids = v3api.createDataSets(sessionToken, Arrays.asList(creation));
 
@@ -68,9 +68,9 @@ public class CreateDataSetTest extends AbstractDataSetTest
         fetchOptions.withType();
         fetchOptions.withExperiment();
         fetchOptions.withDataStore();
-        fetchOptions.withExternalData().withFileFormatType();
-        fetchOptions.withExternalData().withLocatorType();
-        fetchOptions.withExternalData().withStorageFormat();
+        fetchOptions.withPhysicalData().withFileFormatType();
+        fetchOptions.withPhysicalData().withLocatorType();
+        fetchOptions.withPhysicalData().withStorageFormat();
 
         Map<IDataSetId, DataSet> map = v3api.mapDataSets(sessionToken, ids, fetchOptions);
 
@@ -79,10 +79,10 @@ public class CreateDataSetTest extends AbstractDataSetTest
         assertEquals(dataSet.getType().getCode(), "UNKNOWN");
         assertEquals(dataSet.getExperiment().getPermId().getPermId(), "200811050951882-1028");
         assertEquals(dataSet.getDataStore().getCode(), "STANDARD");
-        assertEquals(dataSet.getExternalData().getLocation(), "a/b/c");
-        assertEquals(dataSet.getExternalData().getFileFormatType().getCode(), "TIFF");
-        assertEquals(dataSet.getExternalData().getLocatorType().getCode(), "RELATIVE_LOCATION");
-        assertEquals(dataSet.getExternalData().getStorageFormat().getCode(), "PROPRIETARY");
+        assertEquals(dataSet.getPhysicalData().getLocation(), "a/b/c");
+        assertEquals(dataSet.getPhysicalData().getFileFormatType().getCode(), "TIFF");
+        assertEquals(dataSet.getPhysicalData().getLocatorType().getCode(), "RELATIVE_LOCATION");
+        assertEquals(dataSet.getPhysicalData().getStorageFormat().getCode(), "PROPRIETARY");
     }
 
     @Test
@@ -103,7 +103,7 @@ public class CreateDataSetTest extends AbstractDataSetTest
         fetchOptions.withType();
         fetchOptions.withExperiment();
         fetchOptions.withDataStore();
-        fetchOptions.withExternalData();
+        fetchOptions.withPhysicalData();
         fetchOptions.withContained();
 
         Map<IDataSetId, DataSet> map = v3api.mapDataSets(sessionToken, ids, fetchOptions);
@@ -113,7 +113,7 @@ public class CreateDataSetTest extends AbstractDataSetTest
         assertEquals(dataSet.getType().getCode(), "CONTAINER_TYPE");
         assertEquals(dataSet.getExperiment().getPermId().getPermId(), "200811050951882-1028");
         assertEquals(dataSet.getDataStore().getCode(), "STANDARD");
-        assertNull(dataSet.getExternalData());
+        assertNull(dataSet.getPhysicalData());
         assertEquals(dataSet.getContained().size(), 1);
         assertEquals(dataSet.getContained().iterator().next().getCode(), "20081105092159188-3");
     }

@@ -262,14 +262,14 @@ public class AbstractTest extends SystemTestCase
             });
     }
 
-    protected void assertExternalDataNotFetched(final DataSet dataSet)
+    protected void assertPhysicalDataNotFetched(final DataSet dataSet)
     {
         assertNotFetched(new IDelegatedAction()
             {
                 @Override
                 public void execute()
                 {
-                    dataSet.getExternalData();
+                    dataSet.getPhysicalData();
                 }
             });
     }

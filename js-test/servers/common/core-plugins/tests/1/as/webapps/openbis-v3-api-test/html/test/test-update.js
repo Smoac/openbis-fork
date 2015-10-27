@@ -304,13 +304,13 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 			}
 
 			var fUpdate = function(facade, permId) {
-				var externalUpdate = new c.ExternalDataUpdate();
-				externalUpdate.setFileFormatTypeId(new c.FileFormatTypePermId("TIFF"));
+				var physicalUpdate = new c.PhysicalDataUpdate();
+				physicalUpdate.setFileFormatTypeId(new c.FileFormatTypePermId("TIFF"));
 
 				var update = new c.DataSetUpdate();
 				update.setDataSetId(permId);
 				update.setProperty("NOTES", "new 409 description");
-				update.setExternalData(externalUpdate);
+				update.setPhysicalData(physicalUpdate);
 
 				return facade.updateDataSets([ update ]);
 			}
@@ -318,7 +318,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 			var fCheck = function(dataSet) {
 				c.assertEqual(dataSet.getCode(), code, "Code");
 				c.assertEqual(dataSet.getProperties()["NOTES"], "new 409 description", "Property NOTES");
-				c.assertEqual(dataSet.getExternalData().getFileFormatType().getCode(), "TIFF", "File format type");
+				c.assertEqual(dataSet.getPhysicalData().getFileFormatType().getCode(), "TIFF", "File format type");
 			}
 
 			testUpdate(c, fCreate, fUpdate, c.findDataSet, fCheck);

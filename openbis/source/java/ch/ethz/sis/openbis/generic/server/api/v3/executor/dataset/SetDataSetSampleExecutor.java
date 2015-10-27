@@ -16,13 +16,22 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.dataset;
 
+import java.util.Properties;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
+
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.AbstractSetEntitySampleRelationExecutor;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSetCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.ISampleId;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.util.DataSetTypeWithoutExperimentChecker;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.util.RelationshipUtils;
 
@@ -34,6 +43,17 @@ public class SetDataSetSampleExecutor extends AbstractSetEntitySampleRelationExe
         ISetDataSetSampleExecutor
 {
 
+    @Resource(name = ExposablePropertyPlaceholderConfigurer.PROPERTY_CONFIGURER_BEAN_NAME)
+    protected ExposablePropertyPlaceholderConfigurer configurer;
+
+    private DataSetTypeWithoutExperimentChecker dataSetTypeChecker;
+
+    @PostConstruct
+    public void init() throws Exception
+    {
+        dataSetTypeChecker = new DataSetTypeWithoutExperimentChecker(configurer == null ? new Properties() : configurer.getResolvedProps());
+    }
+
     @Override
     protected ISampleId getRelatedId(DataSetCreation creation)
     {
@@ -43,7 +63,41 @@ public class SetDataSetSampleExecutor extends AbstractSetEntitySampleRelationExe
     @Override
     protected void set(IOperationContext context, DataPE entity, SamplePE related)
     {
-        RelationshipUtils.setSampleForDataSet(entity, related, context.getSession());
+        if (related != null)
+        {
+            assertAllowedSampleForDataSet(entity, related);
+            RelationshipUtils.setSampleForDataSet(entity, related, context.getSession());
+            RelationshipUtils.setExperimentForDataSet(entity, related.getExperiment(), context.getSession());
+        }
+    }
+
+    private void assertAllowedSampleForDataSet(DataPE dataSet, SamplePE sample)
+    {
+        ExperimentPE experiment = sample.getExperiment();
+
+        if (experiment == null)
+        {
+            if (dataSetTypeChecker.isDataSetTypeWithoutExperiment(dataSet.getDataSetType().getCode()))
+            {
+                if (sample.getSpace() == null)
+                {
+                    throw new UserFailureException("Data set can not be registered because sample '"
+                            + sample.getSampleIdentifier() + "' is a shared sample.");
+                } else if (sample.getDeletion() != null)
+                {
+                    throw new UserFailureException("Data set can not be registered because sample '"
+                            + sample.getSampleIdentifier() + "' is in trash.");
+                }
+            } else
+            {
+                throw new UserFailureException("Data set can not be registered because no experiment "
+                        + "found for sample '" + sample.getSampleIdentifier() + "'.");
+            }
+        } else if (experiment.getDeletion() != null)
+        {
+            throw new UserFailureException("Data set can not be registered because experiment '"
+                    + experiment.getIdentifier() + "' is in trash.");
+        }
     }
 
 }

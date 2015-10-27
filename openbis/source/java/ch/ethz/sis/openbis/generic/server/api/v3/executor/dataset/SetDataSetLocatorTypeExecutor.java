@@ -46,7 +46,7 @@ public class SetDataSetLocatorTypeExecutor extends
     @Override
     protected ILocatorTypeId getRelatedId(DataSetCreation creation)
     {
-        return creation.getExternalData() != null ? creation.getExternalData().getLocatorTypeId() : null;
+        return creation.getPhysicalData() != null ? creation.getPhysicalData().getLocatorTypeId() : null;
     }
 
     @Override

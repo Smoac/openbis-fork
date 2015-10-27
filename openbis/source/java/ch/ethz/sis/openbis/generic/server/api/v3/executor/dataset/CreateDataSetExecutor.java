@@ -33,17 +33,14 @@ import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.AbstractCreateE
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.IMapEntityTypeByIdExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.property.IUpdateEntityPropertyExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.tag.IAddTagToEntityExecutor;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.Complete;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSetCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSetKind;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.ExternalDataCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.DataSetPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.entitytype.IEntityTypeId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.ITagId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.ObjectNotFoundException;
 import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.common.types.BooleanOrUnknown;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.DataSetPEByExperimentOrSampleIdentifierValidator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
@@ -71,19 +68,13 @@ public class CreateDataSetExecutor extends AbstractCreateEntityExecutor<DataSetC
     private IMapEntityTypeByIdExecutor mapEntityTypeByIdExecutor;
 
     @Autowired
-    private ISetDataSetStorageFormatExecutor setDataSetStorageFormatExecutor;
+    private ISetDataSetPhysicalDataExecutor setDataSetPhysicalDataExecutor;
 
     @Autowired
-    private ISetDataSetFileFormatTypeExecutor setDataSetFileFormatTypeExecutor;
-
-    @Autowired
-    private ISetDataSetLocatorTypeExecutor setDataSetLocatorTypeExecutor;
+    private ISetDataSetLinkedDataExecutor setDataSetLinkedDataExecutor;
 
     @Autowired
     private ISetDataSetDataStoreExecutor setDataSetDataStoreExecutor;
-
-    @Autowired
-    private ISetDataSetExternalDmsExecutor setDataSetExternalDmsExecutor;
 
     @Autowired
     private ISetDataSetExperimentExecutor setDataSetExperimentExecutor;
@@ -143,13 +134,13 @@ public class CreateDataSetExecutor extends AbstractCreateEntityExecutor<DataSetC
 
             if (DataSetKind.PHYSICAL.equals(kind))
             {
-                dataSet = createPhysicalDataSet(context, creation);
+                dataSet = new ExternalDataPE();
             } else if (DataSetKind.CONTAINER.equals(kind))
             {
-                dataSet = createContainerDataSet(context, creation);
+                dataSet = new DataPE();
             } else if (DataSetKind.LINK.equals(kind))
             {
-                dataSet = createLinkDataSet(creation);
+                dataSet = new LinkDataPE();
             } else
             {
                 throw new IllegalArgumentException("Unsupported data set kind: " + kind);
@@ -165,50 +156,6 @@ public class CreateDataSetExecutor extends AbstractCreateEntityExecutor<DataSetC
         }
 
         return dataSets;
-    }
-
-    private ExternalDataPE createPhysicalDataSet(IOperationContext context, DataSetCreation creation)
-    {
-        ExternalDataCreation externalCreation = creation.getExternalData();
-
-        if (externalCreation == null)
-        {
-            throw new IllegalArgumentException("External data cannot be null for a physical data set.");
-        }
-
-        ExternalDataPE dataSet = new ExternalDataPE();
-        dataSet.setShareId(externalCreation.getShareId());
-        dataSet.setLocation(externalCreation.getLocation());
-        dataSet.setSize(externalCreation.getSize());
-        if (externalCreation.getSpeedHint() != null)
-        {
-            dataSet.setSpeedHint(externalCreation.getSpeedHint());
-        }
-
-        BooleanOrUnknown complete = BooleanOrUnknown.U;
-        if (Complete.YES.equals(externalCreation.getComplete()))
-        {
-            complete = BooleanOrUnknown.T;
-        } else if (Complete.NO.equals(externalCreation.getComplete()))
-        {
-            complete = BooleanOrUnknown.F;
-        }
-        dataSet.setComplete(complete);
-
-        return dataSet;
-    }
-
-    private DataPE createContainerDataSet(IOperationContext context, DataSetCreation creation)
-    {
-        DataPE dataSet = new DataPE();
-        return dataSet;
-    }
-
-    private LinkDataPE createLinkDataSet(DataSetCreation creation)
-    {
-        LinkDataPE dataSet = new LinkDataPE();
-        dataSet.setExternalCode(creation.getExternalCode());
-        return dataSet;
     }
 
     @Override
@@ -235,11 +182,9 @@ public class CreateDataSetExecutor extends AbstractCreateEntityExecutor<DataSetC
     @Override
     protected void updateBatch(IOperationContext context, Map<DataSetCreation, DataPE> entitiesMap)
     {
-        setDataSetStorageFormatExecutor.set(context, entitiesMap);
-        setDataSetFileFormatTypeExecutor.set(context, entitiesMap);
-        setDataSetLocatorTypeExecutor.set(context, entitiesMap);
+        setDataSetPhysicalDataExecutor.set(context, entitiesMap);
+        setDataSetLinkedDataExecutor.set(context, entitiesMap);
         setDataSetDataStoreExecutor.set(context, entitiesMap);
-        setDataSetExternalDmsExecutor.set(context, entitiesMap);
         setDataSetExperimentExecutor.set(context, entitiesMap);
         setDataSetSampleExecutor.set(context, entitiesMap);
 

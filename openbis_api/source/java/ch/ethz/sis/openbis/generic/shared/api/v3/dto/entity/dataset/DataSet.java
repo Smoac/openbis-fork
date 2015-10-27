@@ -16,7 +16,8 @@
 package ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSetType;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.ExternalData;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.LinkedData;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.PhysicalData;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.datastore.DataStore;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.history.HistoryEntry;
@@ -63,10 +64,10 @@ public class DataSet implements Serializable, ICodeHolder, IModificationDateHold
     private String code;
 
     @JsonProperty
-    private String externalCode;
+    private DataSetType type;
 
     @JsonProperty
-    private DataSetType type;
+    private DataStore dataStore;
 
     @JsonProperty
     private Boolean measured;
@@ -75,19 +76,16 @@ public class DataSet implements Serializable, ICodeHolder, IModificationDateHold
     private Boolean postRegistered;
 
     @JsonProperty
-    private ExternalData externalData;
+    private PhysicalData physicalData;
+
+    @JsonProperty
+    private LinkedData linkedData;
 
     @JsonProperty
     private Experiment experiment;
 
     @JsonProperty
     private Sample sample;
-
-    @JsonProperty
-    private DataStore dataStore;
-
-    @JsonProperty
-    private DataSetType externalDms;
 
     @JsonProperty
     private Map<String, String> properties;
@@ -171,19 +169,6 @@ public class DataSet implements Serializable, ICodeHolder, IModificationDateHold
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     @JsonIgnore
-    public String getExternalCode()
-    {
-        return externalCode;
-    }
-
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
-    public void setExternalCode(String externalCode)
-    {
-        this.externalCode = externalCode;
-    }
-
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
-    @JsonIgnore
     public DataSetType getType()
     {
         if (getFetchOptions().hasType())
@@ -200,6 +185,26 @@ public class DataSet implements Serializable, ICodeHolder, IModificationDateHold
     public void setType(DataSetType type)
     {
         this.type = type;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    @JsonIgnore
+    public DataStore getDataStore()
+    {
+        if (getFetchOptions().hasDataStore())
+        {
+            return dataStore;
+        }
+        else
+        {
+            throw new NotFetchedException("Data store has not been fetched.");
+        }
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public void setDataStore(DataStore dataStore)
+    {
+        this.dataStore = dataStore;
     }
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
@@ -230,22 +235,42 @@ public class DataSet implements Serializable, ICodeHolder, IModificationDateHold
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     @JsonIgnore
-    public ExternalData getExternalData()
+    public PhysicalData getPhysicalData()
     {
-        if (getFetchOptions().hasExternalData())
+        if (getFetchOptions().hasPhysicalData())
         {
-            return externalData;
+            return physicalData;
         }
         else
         {
-            throw new NotFetchedException("External data has not been fetched.");
+            throw new NotFetchedException("Physical data has not been fetched.");
         }
     }
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
-    public void setExternalData(ExternalData externalData)
+    public void setPhysicalData(PhysicalData physicalData)
     {
-        this.externalData = externalData;
+        this.physicalData = physicalData;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    @JsonIgnore
+    public LinkedData getLinkedData()
+    {
+        if (getFetchOptions().hasLinkedData())
+        {
+            return linkedData;
+        }
+        else
+        {
+            throw new NotFetchedException("Linked data has not been fetched.");
+        }
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public void setLinkedData(LinkedData linkedData)
+    {
+        this.linkedData = linkedData;
     }
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
@@ -286,46 +311,6 @@ public class DataSet implements Serializable, ICodeHolder, IModificationDateHold
     public void setSample(Sample sample)
     {
         this.sample = sample;
-    }
-
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
-    @JsonIgnore
-    public DataStore getDataStore()
-    {
-        if (getFetchOptions().hasDataStore())
-        {
-            return dataStore;
-        }
-        else
-        {
-            throw new NotFetchedException("Data store has not been fetched.");
-        }
-    }
-
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
-    public void setDataStore(DataStore dataStore)
-    {
-        this.dataStore = dataStore;
-    }
-
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
-    @JsonIgnore
-    public DataSetType getExternalDms()
-    {
-        if (getFetchOptions().hasExternalDms())
-        {
-            return externalDms;
-        }
-        else
-        {
-            throw new NotFetchedException("External data management system has not been fetched.");
-        }
-    }
-
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
-    public void setExternalDms(DataSetType externalDms)
-    {
-        this.externalDms = externalDms;
     }
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}

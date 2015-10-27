@@ -346,12 +346,12 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 				c.assertEqual(dataSet.getProperties()["DESCRIPTION"], "403 description", "Property DESCRIPTION");
 				c.assertEqual(dataSet.isPostRegistered(), true, "post registered");
 
-				var externalData = dataSet.getExternalData();
-				c.assertEqual(externalData.getShareId(), "1", "Share id");
-				c.assertEqual(externalData.getLocation(), "1FD3FF61-1576-4908-AE3D-296E60B4CE06/06/e5/ad/20130415093804724-403", "Location");
-				c.assertEqual(externalData.getStatus(), "AVAILABLE", "Status");
-				c.assertEqual(externalData.getFileFormatType().getCode(), "PROPRIETARY", "File format type");
-				c.assertEqual(externalData.getLocatorType().getCode(), "RELATIVE_LOCATION", "Locator type");
+				var physicalData = dataSet.getPhysicalData();
+				c.assertEqual(physicalData.getShareId(), "1", "Share id");
+				c.assertEqual(physicalData.getLocation(), "1FD3FF61-1576-4908-AE3D-296E60B4CE06/06/e5/ad/20130415093804724-403", "Location");
+				c.assertEqual(physicalData.getStatus(), "AVAILABLE", "Status");
+				c.assertEqual(physicalData.getFileFormatType().getCode(), "PROPRIETARY", "File format type");
+				c.assertEqual(physicalData.getLocatorType().getCode(), "RELATIVE_LOCATION", "Locator type");
 
 				c.assertObjectsWithValues(dataSet.getParents(), "code", [ "20130415100158230-407" ]);
 				c.assertObjectsWithValues(dataSet.getChildren(), "code", [ "20130415100238098-408", "20130415100308111-409" ]);

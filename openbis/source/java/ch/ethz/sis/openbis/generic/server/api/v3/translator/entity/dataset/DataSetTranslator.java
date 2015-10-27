@@ -54,7 +54,10 @@ public class DataSetTranslator extends AbstractCachingTranslator<Long, DataSet, 
     private IDataSetMaterialPropertyTranslator materialPropertyTranslator;
 
     @Autowired
-    private IDataSetExternalDataTranslator externalDataTranslator;
+    private IDataSetPhysicalDataTranslator physicalDataTranslator;
+
+    @Autowired
+    private IDataSetLinkedDataTranslator linkedDataTranslator;
 
     @Autowired
     private IDataSetDataStoreTranslator dataStoreTranslator;
@@ -130,10 +133,16 @@ public class DataSetTranslator extends AbstractCachingTranslator<Long, DataSet, 
                     materialPropertyTranslator.translate(context, dataSetIds, fetchOptions.withMaterialProperties()));
         }
 
-        if (fetchOptions.hasExternalData())
+        if (fetchOptions.hasPhysicalData())
         {
-            relations.put(IDataSetExternalDataTranslator.class,
-                    externalDataTranslator.translate(context, dataSetIds, fetchOptions.withExternalData()));
+            relations.put(IDataSetPhysicalDataTranslator.class,
+                    physicalDataTranslator.translate(context, dataSetIds, fetchOptions.withPhysicalData()));
+        }
+
+        if (fetchOptions.hasLinkedData())
+        {
+            relations.put(IDataSetLinkedDataTranslator.class,
+                    linkedDataTranslator.translate(context, dataSetIds, fetchOptions.withLinkedData()));
         }
 
         if (fetchOptions.hasDataStore())
@@ -227,10 +236,16 @@ public class DataSetTranslator extends AbstractCachingTranslator<Long, DataSet, 
             result.getFetchOptions().withMaterialPropertiesUsing(fetchOptions.withMaterialProperties());
         }
 
-        if (fetchOptions.hasExternalData())
+        if (fetchOptions.hasPhysicalData())
         {
-            result.setExternalData(relations.get(IDataSetExternalDataTranslator.class, dataSetId));
-            result.getFetchOptions().withExternalDataUsing(fetchOptions.withExternalData());
+            result.setPhysicalData(relations.get(IDataSetPhysicalDataTranslator.class, dataSetId));
+            result.getFetchOptions().withPhysicalDataUsing(fetchOptions.withPhysicalData());
+        }
+
+        if (fetchOptions.hasLinkedData())
+        {
+            result.setLinkedData(relations.get(IDataSetLinkedDataTranslator.class, dataSetId));
+            result.getFetchOptions().withLinkedDataUsing(fetchOptions.withLinkedData());
         }
 
         if (fetchOptions.hasDataStore())

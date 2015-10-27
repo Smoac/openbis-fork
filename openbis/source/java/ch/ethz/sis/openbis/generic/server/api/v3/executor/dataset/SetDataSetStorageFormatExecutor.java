@@ -49,7 +49,7 @@ public class SetDataSetStorageFormatExecutor extends
     @Override
     protected IVocabularyTermId getRelatedId(DataSetCreation creation)
     {
-        return creation.getExternalData() != null ? creation.getExternalData().getStorageFormatId() : null;
+        return creation.getPhysicalData() != null ? creation.getPhysicalData().getStorageFormatId() : null;
     }
 
     @Override

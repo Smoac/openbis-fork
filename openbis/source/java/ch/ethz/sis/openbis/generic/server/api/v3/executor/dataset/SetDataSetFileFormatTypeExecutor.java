@@ -46,7 +46,7 @@ public class SetDataSetFileFormatTypeExecutor extends
     @Override
     protected IFileFormatTypeId getRelatedId(DataSetCreation creation)
     {
-        return creation.getExternalData() != null ? creation.getExternalData().getFileFormatTypeId() : null;
+        return creation.getPhysicalData() != null ? creation.getPhysicalData().getFileFormatTypeId() : null;
     }
 
     @Override

@@ -47,7 +47,7 @@ public class SetDataSetExternalDmsExecutor extends
     @Override
     protected IExternalDmsId getRelatedId(DataSetCreation creation)
     {
-        return creation.getExternalDmsId();
+        return creation.getLinkedData() != null ? creation.getLinkedData().getExternalDmsId() : null;
     }
 
     @Override
@@ -61,7 +61,7 @@ public class SetDataSetExternalDmsExecutor extends
     {
         if (entity instanceof LinkDataPE && relatedId == null)
         {
-            throw new UserFailureException("External data management system id cannot be null for a linked data set.");
+            throw new UserFailureException("External data management system id cannot be null for a link data set.");
         }
     }
 

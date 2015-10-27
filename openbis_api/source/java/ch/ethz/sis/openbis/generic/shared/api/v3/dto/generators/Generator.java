@@ -11,12 +11,14 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.Complete;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSetKind;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSetType;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.ExternalData;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.FileFormatType;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.LinkedData;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.LocatorType;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.PhysicalData;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.datastore.DataStore;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.ExperimentType;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.externaldms.ExternalDms;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.history.HistoryEntry;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IParentChildrenHolder;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material.MaterialType;
@@ -30,9 +32,10 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.EmptyFetchOpti
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.attachment.AttachmentFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.DataSetFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.DataSetTypeFetchOptions;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.ExternalDataFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.FileFormatTypeFetchOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.LinkedDataFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.LocatorTypeFetchOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.PhysicalDataFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.datastore.DataStoreFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.deletion.DeletionFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.experiment.ExperimentFetchOptions;
@@ -209,16 +212,15 @@ public class Generator extends AbstractGenerator
 
         addPermId(gen, DataSetPermId.class);
         addCode(gen);
-        gen.addStringField("externalCode");
         gen.addFetchedField(DataSetType.class, "type", "Data Set type", DataSetTypeFetchOptions.class);
+        gen.addFetchedField(DataStore.class, "dataStore", "Data store", DataStoreFetchOptions.class);
         gen.addBooleanField("measured");
         gen.addBooleanField("postRegistered");
-        gen.addFetchedField(ExternalData.class, "externalData", "External data", ExternalDataFetchOptions.class);
+        gen.addFetchedField(PhysicalData.class, "physicalData", "Physical data", PhysicalDataFetchOptions.class);
+        gen.addFetchedField(LinkedData.class, "linkedData", "Linked data", LinkedDataFetchOptions.class);
 
         addExperiment(gen);
         addSample(gen);
-        gen.addFetchedField(DataStore.class, "dataStore", "Data store", DataStoreFetchOptions.class);
-        gen.addFetchedField(DataSetType.class, "externalDms", "External data management system", ExternalDmsFetchOptions.class);
         addProperties(gen);
 
         gen.addPluralFetchedField("List<DataSet>", List.class.getName(), "parents", "Parents", DataSetFetchOptions.class)
@@ -263,9 +265,9 @@ public class Generator extends AbstractGenerator
         return gen;
     }
 
-    private static DtoGenerator createExternalDataGenerator()
+    private static DtoGenerator createPhysicalDataGenerator()
     {
-        DtoGenerator gen = new DtoGenerator("dataset", "ExternalData", ExternalDataFetchOptions.class);
+        DtoGenerator gen = new DtoGenerator("dataset", "PhysicalData", PhysicalDataFetchOptions.class);
 
         gen.addStringField("shareId");
         gen.addStringField("location");
@@ -279,7 +281,19 @@ public class Generator extends AbstractGenerator
         gen.addBooleanField("storageConfirmation");
         gen.addSimpleField(Integer.class, "speedHint");
 
-        gen.setToStringMethod("\"ExternalData \" + location");
+        gen.setToStringMethod("\"PhysicalData \" + location");
+
+        return gen;
+    }
+
+    private static DtoGenerator createLinkedDataGenerator()
+    {
+        DtoGenerator gen = new DtoGenerator("dataset", "LinkedData", LinkedDataFetchOptions.class);
+
+        gen.addStringField("externalCode");
+        gen.addFetchedField(ExternalDms.class, "externalDms", "External data management system", ExternalDmsFetchOptions.class);
+
+        gen.setToStringMethod("\"LinkedData \" + externalCode");
 
         return gen;
     }
@@ -535,7 +549,8 @@ public class Generator extends AbstractGenerator
         list.add(createVocabulary());
         list.add(createLocatorType());
         list.add(createFileFormatType());
-        list.add(createExternalDataGenerator());
+        list.add(createPhysicalDataGenerator());
+        list.add(createLinkedDataGenerator());
         list.add(createHistoryEntryGenerator());
         list.add(createDeletion());
         list.add(createDataStoreGenerator());

@@ -52,11 +52,20 @@ public interface DataSetQuery extends ObjectQuery
     public List<DataSetBaseRecord> getDataSets(LongSet dataSetIds);
 
     @Select(sql = "select ed.data_id as objectId, ed.data_id as relatedId from external_data ed where ed.data_id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
-    public List<ObjectRelationRecord> getExternalDataIds(LongSet dataSetIds);
+    public List<ObjectRelationRecord> getPhysicalDataIds(LongSet dataSetIds);
 
     @Select(sql = "select ed.data_id as id, ed.share_id as shareId, ed.location, ed.size, ed.status, ed.is_complete as isComplete, ed.present_in_archive as isPresentInArchive, ed.storage_confirmation as isStorageConfirmed, ed.speed_hint as speedHint "
             + "from external_data ed where ed.data_id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
-    public List<ExternalDataBaseRecord> getExternalDatas(LongSet dataSetIds);
+    public List<PhysicalDataBaseRecord> getPhysicalDatas(LongSet dataSetIds);
+
+    @Select(sql = "select ld.data_id as objectId, ld.data_id as relatedId from link_data ld where ld.data_id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    public List<ObjectRelationRecord> getLinkedDataIds(LongSet dataSetIds);
+
+    @Select(sql = "select ld.data_id as id, ld.external_code as externalCode from link_data ld where ld.data_id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    public List<LinkedDataBaseRecord> getLinkedDatas(LongSet dataSetIds);
+
+    @Select(sql = "select ld.data_id as objectId, ld.edms_id as relatedId from link_data ld where ld.data_id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    public List<ObjectRelationRecord> getExternalDmsIds(LongSet dataSetIds);
 
     @Select(sql = "select ed.data_id as objectId, ed.ffty_id as relatedId from external_data ed where ed.data_id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<ObjectRelationRecord> getFileFormatTypeIds(LongSet dataSetIds);

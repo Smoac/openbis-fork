@@ -1,6 +1,6 @@
 define([ 'jquery', 'openbis', 'dto/entity/space/SpaceCreation', 'dto/entity/project/ProjectCreation', 'dto/entity/experiment/ExperimentCreation', 'dto/entity/sample/SampleCreation',
 		'dto/entity/material/MaterialCreation', 'dto/entity/attachment/AttachmentCreation', 'dto/entity/space/SpaceUpdate', 'dto/entity/project/ProjectUpdate',
-		'dto/entity/experiment/ExperimentUpdate', 'dto/entity/sample/SampleUpdate', 'dto/entity/dataset/DataSetUpdate', 'dto/entity/dataset/ExternalDataUpdate', 'dto/entity/material/MaterialUpdate',
+		'dto/entity/experiment/ExperimentUpdate', 'dto/entity/sample/SampleUpdate', 'dto/entity/dataset/DataSetUpdate', 'dto/entity/dataset/PhysicalDataUpdate', 'dto/entity/material/MaterialUpdate',
 		'dto/entity/deletion/space/SpaceDeletionOptions', 'dto/entity/deletion/project/ProjectDeletionOptions', 'dto/entity/deletion/experiment/ExperimentDeletionOptions', 'dto/entity/deletion/sample/SampleDeletionOptions',
 		'dto/entity/deletion/dataset/DataSetDeletionOptions', 'dto/entity/deletion/material/MaterialDeletionOptions', 'dto/id/entitytype/EntityTypePermId', 'dto/id/space/SpacePermId',
 		'dto/id/project/ProjectPermId', 'dto/id/project/ProjectIdentifier', 'dto/id/experiment/ExperimentPermId', 'dto/id/experiment/ExperimentIdentifier', 'dto/id/sample/SamplePermId',
@@ -8,7 +8,7 @@ define([ 'jquery', 'openbis', 'dto/entity/space/SpaceCreation', 'dto/entity/proj
 		'dto/search/ProjectSearchCriteria', 'dto/search/ExperimentSearchCriteria', 'dto/search/SampleSearchCriteria', 'dto/search/DataSetSearchCriteria', 'dto/search/MaterialSearchCriteria',
 		'dto/fetchoptions/space/SpaceFetchOptions', 'dto/fetchoptions/project/ProjectFetchOptions', 'dto/fetchoptions/experiment/ExperimentFetchOptions', 'dto/fetchoptions/sample/SampleFetchOptions',
 		'dto/fetchoptions/dataset/DataSetFetchOptions', 'dto/fetchoptions/material/MaterialFetchOptions', 'dto/fetchoptions/deletion/DeletionFetchOptions' ], function($, openbis, SpaceCreation,
-		ProjectCreation, ExperimentCreation, SampleCreation, MaterialCreation, AttachmentCreation, SpaceUpdate, ProjectUpdate, ExperimentUpdate, SampleUpdate, DataSetUpdate, ExternalDataUpdate,
+		ProjectCreation, ExperimentCreation, SampleCreation, MaterialCreation, AttachmentCreation, SpaceUpdate, ProjectUpdate, ExperimentUpdate, SampleUpdate, DataSetUpdate, PhysicalDataUpdate,
 		MaterialUpdate, SpaceDeletionOptions, ProjectDeletionOptions, ExperimentDeletionOptions, SampleDeletionOptions, DataSetDeletionOptions, MaterialDeletionOptions, EntityTypePermId, SpacePermId,
 		ProjectPermId, ProjectIdentifier, ExperimentPermId, ExperimentIdentifier, SamplePermId, DataSetPermId, FileFormatTypePermId, MaterialPermId, TagCode, SpaceSearchCriteria,
 		ProjectSearchCriteria, ExperimentSearchCriteria, SampleSearchCriteria, DataSetSearchCriteria, MaterialSearchCriteria, SpaceFetchOptions, ProjectFetchOptions, ExperimentFetchOptions,
@@ -42,7 +42,7 @@ define([ 'jquery', 'openbis', 'dto/entity/space/SpaceCreation', 'dto/entity/proj
 		this.ExperimentUpdate = ExperimentUpdate;
 		this.SampleUpdate = SampleUpdate;
 		this.DataSetUpdate = DataSetUpdate;
-		this.ExternalDataUpdate = ExternalDataUpdate;
+		this.PhysicalDataUpdate = PhysicalDataUpdate;
 		this.MaterialUpdate = MaterialUpdate;
 		this.SpaceDeletionOptions = SpaceDeletionOptions;
 		this.ProjectDeletionOptions = ProjectDeletionOptions;
@@ -335,8 +335,8 @@ define([ 'jquery', 'openbis', 'dto/entity/space/SpaceCreation', 'dto/entity/proj
 			fo.withChildren();
 			fo.withContainers();
 			fo.withContained();
-			fo.withExternalData().withFileFormatType();
-			fo.withExternalData().withLocatorType();
+			fo.withPhysicalData().withFileFormatType();
+			fo.withPhysicalData().withLocatorType();
 			fo.withHistory();
 			fo.withTags();
 			fo.withRegistrator();

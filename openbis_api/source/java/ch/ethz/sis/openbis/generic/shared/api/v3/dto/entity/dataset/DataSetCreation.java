@@ -27,7 +27,6 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.IDataSetId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.datastore.IDataStoreId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.entitytype.IEntityTypeId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.IExperimentId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.externaldms.IExternalDmsId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.ISampleId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.ITagId;
 import ch.systemsx.cisd.base.annotation.JsonObject;
@@ -48,15 +47,13 @@ public class DataSetCreation implements Serializable, ICreationIdHolder
 
     private IDataStoreId dataStoreId;
 
-    private IExternalDmsId externalDmsId;
-
     private String code;
-
-    private String externalCode;
 
     private boolean measured;
 
-    private ExternalDataCreation externalData;
+    private PhysicalDataCreation physicalData;
+
+    private LinkedDataCreation linkedData;
 
     private List<? extends ITagId> tagIds;
 
@@ -112,16 +109,6 @@ public class DataSetCreation implements Serializable, ICreationIdHolder
         this.dataStoreId = dataStoreId;
     }
 
-    public IExternalDmsId getExternalDmsId()
-    {
-        return externalDmsId;
-    }
-
-    public void setExternalDmsId(IExternalDmsId externalDmsId)
-    {
-        this.externalDmsId = externalDmsId;
-    }
-
     public String getCode()
     {
         return code;
@@ -130,16 +117,6 @@ public class DataSetCreation implements Serializable, ICreationIdHolder
     public void setCode(String code)
     {
         this.code = code;
-    }
-
-    public String getExternalCode()
-    {
-        return externalCode;
-    }
-
-    public void setExternalCode(String externalCode)
-    {
-        this.externalCode = externalCode;
     }
 
     public boolean isMeasured()
@@ -152,14 +129,24 @@ public class DataSetCreation implements Serializable, ICreationIdHolder
         this.measured = measured;
     }
 
-    public ExternalDataCreation getExternalData()
+    public PhysicalDataCreation getPhysicalData()
     {
-        return externalData;
+        return physicalData;
     }
 
-    public void setExternalData(ExternalDataCreation externalData)
+    public void setPhysicalData(PhysicalDataCreation physicalData)
     {
-        this.externalData = externalData;
+        this.physicalData = physicalData;
+    }
+
+    public LinkedDataCreation getLinkedData()
+    {
+        return linkedData;
+    }
+
+    public void setLinkedData(LinkedDataCreation linkedData)
+    {
+        this.linkedData = linkedData;
     }
 
     public List<? extends ITagId> getTagIds()
