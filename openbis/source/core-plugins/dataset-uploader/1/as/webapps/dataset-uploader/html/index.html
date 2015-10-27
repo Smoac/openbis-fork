@@ -67,7 +67,7 @@
         
         var isSharedSample = context.getEntityIdentifier().split("/").length === 2;
         if(context.getEntityKind() === "SAMPLE" && isSharedSample) { //Is sample
-        	$("#dataset-uploader-form").append("This sample don't belongs to a space and can't hold datasets.");
+        	$("#dataset-uploader-form").append("This sample does not belong to a space and therefore cannot hold datasets.");
         } else { //Is experiment
         	var datasetFormController = new DataSetFormController();
         	datasetFormController.init($("#dataset-uploader-form"), { identifier : context.getEntityIdentifier() });
