@@ -1,4 +1,5 @@
 #!/usr/bin/python
+import os
 import os.path
 
 import settings
@@ -25,17 +26,18 @@ class TestCase(systemtest.testcase.TestCase):
         for name in os.listdir(self.getExpectedErrorLogsFolder(openbisController.testName)):
             if name.endswith('.txt'):
                 self.dropInvalidData(openbisController, name[0:-4])
+        os.mkdir("%s/%s/1/abc" % (openbisController.installPath, openbisController.storeDirectory()))
         self.dropInvalidData(openbisController, 'ignore-no-index', expectingEmptyData=True)
         self.dropInvalidData(openbisController, 'ignore-empty-dir', expectingEmptyData=True)
-        openbisController.assertNumberOfDataSets(2, openbisController.getDataSets())
-        self.dropDataSucessfully(openbisController, 'any-file-upload', 4, 6)
-        self.dropDataSucessfully(openbisController, 'different-sample-mapping', 3, 9)
-        self.dropDataSucessfully(openbisController, 'real-data-small', 4, 13)
-        self.dropDataSucessfully(openbisController, 'sample-code-with-experiment', 1, 14)
-        self.dropDataSucessfully(openbisController, 'upload-mzxml-to-db', 1, 15)
-        self.dropDataSucessfully(openbisController, 'TEST&TEST_PROJECT&EXP_TEST.20090925182754736-36.eicML', 1, 16, 'incoming-eicml')
-        self.dropDataSucessfully(openbisController, 'TEST&TEST_PROJECT&EXP_TEST.20090925182754736-36.fiaML', 1, 17, 'incoming-fiaml')
-        self.dropDataSucessfully(openbisController, 'TEST&TEST_PROJECT&EXP_TEST.anyText123', 1, 18, 'incoming-quantml')
+        openbisController.assertNumberOfDataSets(3, openbisController.getDataSets())
+        self.dropDataSucessfully(openbisController, 'any-file-upload', 4, 7)
+        self.dropDataSucessfully(openbisController, 'different-sample-mapping', 3, 10)
+        self.dropDataSucessfully(openbisController, 'real-data-small', 4, 14)
+        self.dropDataSucessfully(openbisController, 'sample-code-with-experiment', 1, 15)
+        self.dropDataSucessfully(openbisController, 'upload-mzxml-to-db', 1, 16)
+        self.dropDataSucessfully(openbisController, 'TEST&TEST_PROJECT&EXP_TEST.20090925182754736-36.eicML', 1, 17, 'incoming-eicml')
+        self.dropDataSucessfully(openbisController, 'TEST&TEST_PROJECT&EXP_TEST.20090925182754736-36.fiaML', 1, 18, 'incoming-fiaml')
+        self.dropDataSucessfully(openbisController, 'TEST&TEST_PROJECT&EXP_TEST.anyText123', 1, 19, 'incoming-quantml')
         self.assertNumberOfFiles(openbisController, 'eicml', 6)
         self.assertNumberOfFiles(openbisController, 'fiaml', 2)
         self.assertNumberOfRowsInMetabolDev(openbisController, 'eic_ms_runs', 2)

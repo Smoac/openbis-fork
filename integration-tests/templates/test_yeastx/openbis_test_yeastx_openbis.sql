@@ -683,7 +683,7 @@ CREATE SEQUENCE data_id_seq
 -- Name: data_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('data_id_seq', 1, true);
+SELECT pg_catalog.setval('data_id_seq', 2, true);
 
 
 --
@@ -1819,6 +1819,7 @@ COPY controlled_vocabulary_terms (id, code, registration_timestamp, covo_id, per
 --
 
 COPY data (id, code, dsty_id, data_producer_code, production_timestamp, registration_timestamp, is_placeholder, is_valid, modification_timestamp, expe_id, dast_id, is_derived, samp_id) FROM stdin;
+1	20090925182754736-36	1	\N	\N	2009-02-10 15:40:42.184979+01	f	t	2009-02-10 15:40:42.184979+01	2	1	f	\N
 \.
 
 
@@ -1894,7 +1895,7 @@ COPY data_store_services (id, key, label, kind, data_store_id) FROM stdin;
 --
 
 COPY data_stores (id, dbin_id, code, download_url, registration_timestamp, remote_url, session_token, modification_timestamp) FROM stdin;
-1	1	STANDARD		2009-02-10 15:40:42.184979+01			2009-09-24 08:48:34.488603+02
+1	1	DSS1		2009-02-10 15:40:42.184979+01			2009-09-24 08:48:34.488603+02
 \.
 
 
@@ -2004,6 +2005,7 @@ COPY experiments (id, code, exty_id, mate_id_study_object, pers_id_registerer, r
 --
 
 COPY external_data (data_id, location, ffty_id, loty_id, cvte_id_stor_fmt, is_complete, cvte_id_store) FROM stdin;
+1	abc	1	1	4	T	\N
 \.
 
 
