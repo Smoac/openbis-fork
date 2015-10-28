@@ -250,7 +250,11 @@ function ServerFacade(openbisServer) {
 			operator : "MATCH_ALL_CLAUSES"
 		};
 		
-		this.openbisServer.searchForSamples(sampleCriteria, callbackFunction)
+		if(experiments.length === 0) {
+			callbackFunction({});
+		} else {
+			this.openbisServer.searchForSamples(sampleCriteria, callbackFunction);
+		}
 	}
 	
 	this.listPropertyTypes = function(callbackFunction) {
