@@ -474,10 +474,12 @@ var FormUtil = new function() {
 		}
 		$fieldset.append($controlGroup);
 		
-		var $component = $("<p>", {'class' : 'form-control-static', 'style' : 'border:none; box-shadow:none; background:transparent; word-wrap: break-word; white-space: pre-line;'});
+		var $component = $("<p>", {'class' : 'form-control-static', 'style' : 'border:none; box-shadow:none; background:transparent; word-wrap: break-word; white-space: pre-wrap;'});
 		if(cssForText) {
 			$component.css(cssForText);
 		}
+		
+		text = text.replace(/(?:\r\n|\r|\n)/g, '\n'); //Normalise carriage returns
 		$component.text(text);
 		if(id) {
 			$component.attr('id', id);
