@@ -46,20 +46,22 @@ function PlateView(plateController, plateModel) {
 					$cell = $("<th>").append(this._plateModel.getAlphabetLabel(i-1));
 				} else {
 					$cell = $("<td>").append("&nbsp;");
-					
+					$cell.addClass('well');
 					if(withWells) {
 						var well = this._plateModel.getWell(i-1,j);
 						if(well) {
+							//Color Annotations only enabled for wells with a type having COLOR_ENCODED_ANNOTATION property
+							var isAnWell = jQuery.inArray("COLOR_ENCODED_ANNOTATION", profile.getAllPropertiCodesForTypeCode(well.sampleTypeCode) ) !== -1;
+							var colorEncodedWellAnnotationsSelector = "";
 							
-							$cell.addClass('well');
-							$cell.attr("id", "well-" + well.permId);
-							var selectedColorEncodedAnnotation = well.properties["COLOR_ENCODED_ANNOTATION"];
-							
-							if(selectedColorEncodedAnnotation && selectedColorEncodedAnnotation !== "DEFAULT") {
-								$cell.css( { "background-color" : this._getColorForCode(selectedColorEncodedAnnotation) } );
+							if(isAnWell) {
+								$cell.attr("id", "well-" + well.permId);
+								var selectedColorEncodedAnnotation = well.properties["COLOR_ENCODED_ANNOTATION"];
+								if(selectedColorEncodedAnnotation && selectedColorEncodedAnnotation !== "DEFAULT") {
+									$cell.css( { "background-color" : this._getColorForCode(selectedColorEncodedAnnotation) } );
+								}
+								colorEncodedWellAnnotationsSelector = this.getWellGroups(well, selectedColorEncodedAnnotation);
 							}
-							
-							var colorEncodedWellAnnotationsSelector = this.getWellGroups(well, selectedColorEncodedAnnotation);
 							
 							var tooltip = PrintUtil.getTable(well, false, null, 'inspectorWhiteFont',
 															'colorEncodedWellAnnotations-holder-' + well.permId,
