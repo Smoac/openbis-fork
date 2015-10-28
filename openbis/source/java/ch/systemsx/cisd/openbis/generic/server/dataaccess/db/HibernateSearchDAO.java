@@ -29,6 +29,7 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.AtomicReader;
 import org.apache.lucene.index.AtomicReaderContext;
@@ -100,6 +101,7 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
             HibernateSearchDAO.class);
 
     private final HibernateSearchContext hibernateSearchContext;
+
     private Map<String, DocValuesType> fieldTypesCache;
 
     HibernateSearchDAO(final SessionFactory sessionFactory,
@@ -109,24 +111,28 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
         this.hibernateSearchContext = hibernateSearchContext;
         setSessionFactory(sessionFactory);
     }
-    
-    private boolean containsKeys(Map<String, DocValuesType> map, List<String> keys) {
-        for(String key:keys) {
-            if(map == null || map.containsKey(key) == false) {
+
+    private boolean containsKeys(Map<String, DocValuesType> map, List<String> keys)
+    {
+        for (String key : keys)
+        {
+            if (map == null || map.containsKey(key) == false)
+            {
                 return false;
             }
         }
         return true;
     }
-    
+
     private Map<String, DocValuesType> getFieldTypes(List<String> fields)
     {
-        //Initialize field types
-        if(fieldTypesCache == null || containsKeys(fieldTypesCache, fields) == false)
+        // Initialize field types
+        if (fieldTypesCache == null || containsKeys(fieldTypesCache, fields) == false)
         {
-            synchronized(this) {
+            synchronized (this)
+            {
                 fieldTypesCache = Collections.synchronizedMap(new HashMap<String, DocValuesType>());
-                for(SearchableEntity searchableEntity:SearchableEntity.values())
+                for (SearchableEntity searchableEntity : SearchableEntity.values())
                 {
                     MyIndexReaderProvider indexProvider = null;
                     try
@@ -215,6 +221,10 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
             String[] fields = indexProvider.getIndexedFields();
             for (String fieldName : fields)
             {
+                if (fieldName.equals("_hibernate_class"))
+                {
+                    continue;
+                }
                 List<MatchingEntity> hits =
                         searchTermInField(userId, fullTextSession, fieldName, userQuery,
                                 searchableEntity, analyzer, indexProvider.getReader(),
@@ -334,7 +344,7 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
             List<IAssociationCriteria> associations)
     {
         List<String> fieldNames = DetailedQueryBuilder.getIndexFieldNames(searchCriteria.getCriteria(), DtoConverters.convertEntityKind(entityKind));
-        
+
         Query query = LuceneQueryBuilder.createDetailedSearchQuery(userId, searchCriteria, associations, entityKind, getFieldTypes(fieldNames));
         final FullTextSession fullTextSession = Search.getFullTextSession(session);
         final FullTextQuery hibernateQuery =
@@ -409,9 +419,10 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
                 for (IndexableField field : doc.getFields(fieldName))
                 {
                     String content = field.stringValue();
-                    if (content != null && content.length() > 0)
+                    TokenStream tokenStream = field.tokenStream(analyzer, null);
+                    if (content != null && content.length() > 0 && tokenStream != null)
                     {
-                        String match = highlighter.getRawHighlighter().getBestFragment(field.tokenStream(analyzer, null), content);
+                        String match = highlighter.getRawHighlighter().getBestFragment(tokenStream, content);
                         if (match != null && match.length() > 0)
                         {
                             matchingText = match;
