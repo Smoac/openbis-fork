@@ -295,7 +295,8 @@ function StorageView(storageController, storageModel, gridView) {
 						}
 						
 						if(isMultiple && !isSelectedOrDeleted) {
-							boxPosition = boxPosition.replace(newPosition + " ", "");
+							boxPosition = boxPosition.replace(newPosition, '');
+							boxPosition = boxPosition.replace(/  +/g, ' ');
 						} else {
 							boxPosition += newPosition + " ";
 						}
