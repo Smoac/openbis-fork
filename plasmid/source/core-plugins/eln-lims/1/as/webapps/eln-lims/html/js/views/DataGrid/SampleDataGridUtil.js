@@ -18,7 +18,7 @@ var SampleDataGridUtil = new function() {
 				return link;
 			},
 			filter : function(data, filter) {
-				return data.identifier.indexOf(filter) !== -1;
+				return data.identifier.toLowerCase().indexOf(filter) !== -1;
 			},
 			sort : function(data1, data2, asc) {
 				var value1 = data1.identifier;
@@ -114,7 +114,7 @@ var SampleDataGridUtil = new function() {
 							},
 							filter : function(data, filter) {
 								var value = FormUtil.getVocabularyLabelForTermCode(propertyType, data[propertyType.code]);
-								return value && value.indexOf(filter) !== -1;
+								return value && value.toLowerCase().indexOf(filter) !== -1;
 							},
 							sort : function(data1, data2, asc) {
 								var value1 = FormUtil.getVocabularyLabelForTermCode(propertyType, data1[propertyType.code]);
