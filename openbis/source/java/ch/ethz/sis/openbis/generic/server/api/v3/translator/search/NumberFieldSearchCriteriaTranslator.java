@@ -20,9 +20,9 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.AbstractNumberValue;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ISearchCriteria;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.NumberEqualToValue;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.NumberFieldSearchCriteria;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.NumberGreaterOrEqualThanValue;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.NumberGreaterThanOrEqualToValue;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.NumberGreaterThanValue;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.NumberLessOrEqualThanValue;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.NumberLessThanOrEqualToValue;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.NumberLessThanValue;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CompareType;
@@ -55,17 +55,17 @@ public class NumberFieldSearchCriteriaTranslator extends AbstractFieldSearchCrit
         {
             NumberLessThanValue lessToValue = (NumberLessThanValue) valueObject;
             return new SearchCriteriaTranslationResult(new DetailedSearchCriterion(getDetailedSearchField(context, numberCriteria), CompareType.LESS_THAN, lessToValue.getValue()));
-        } else if (valueObject instanceof NumberLessOrEqualThanValue)
+        } else if (valueObject instanceof NumberLessThanOrEqualToValue)
         {
-            NumberLessOrEqualThanValue lessOrEqualToValue = (NumberLessOrEqualThanValue) valueObject;
+            NumberLessThanOrEqualToValue lessOrEqualToValue = (NumberLessThanOrEqualToValue) valueObject;
             return new SearchCriteriaTranslationResult(new DetailedSearchCriterion(getDetailedSearchField(context, numberCriteria), CompareType.LESS_THAN_OR_EQUAL, lessOrEqualToValue.getValue()));
         } else if (valueObject instanceof NumberEqualToValue)
         {
             NumberEqualToValue equalToValue = (NumberEqualToValue) valueObject;
             return new SearchCriteriaTranslationResult(new DetailedSearchCriterion(getDetailedSearchField(context, numberCriteria), CompareType.EQUALS, equalToValue.getValue()));
-        } else if (valueObject instanceof NumberGreaterOrEqualThanValue)
+        } else if (valueObject instanceof NumberGreaterThanOrEqualToValue)
         {
-            NumberGreaterOrEqualThanValue greaterOrEqualToValue = (NumberGreaterOrEqualThanValue) valueObject;
+            NumberGreaterThanOrEqualToValue greaterOrEqualToValue = (NumberGreaterThanOrEqualToValue) valueObject;
             return new SearchCriteriaTranslationResult(new DetailedSearchCriterion(getDetailedSearchField(context, numberCriteria), CompareType.MORE_THAN_OR_EQUAL, greaterOrEqualToValue.getValue()));
         } else if (valueObject instanceof NumberGreaterThanValue)
         {
