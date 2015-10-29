@@ -87,6 +87,10 @@ public class UpdateSampleExecutor extends AbstractUpdateEntityExecutor<SampleUpd
         {
             throw new UserFailureException("Sample id cannot be null.");
         }
+        if (update.getProjectId() != null)
+        {
+            throw new UserFailureException("Currently the project can not be set for sample " + update.getSampleId());
+        }
     }
 
     @Override

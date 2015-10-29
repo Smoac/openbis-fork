@@ -91,6 +91,10 @@ public class CreateSampleExecutor extends AbstractCreateEntityExecutor<SampleCre
 
         for (SampleCreation creation : creations)
         {
+            if (creation.getProjectId() != null)
+            {
+                throw new UserFailureException("Currently it isn't possible to create a sample for project " + creation.getProjectId());
+            }
             SamplePE sample = new SamplePE();
             sample.setCode(creation.getCode());
             String createdPermId = daoFactory.getPermIdDAO().createPermId();
