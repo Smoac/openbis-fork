@@ -479,7 +479,10 @@ var FormUtil = new function() {
 			$component.css(cssForText);
 		}
 		
-		text = text.replace(/(?:\r\n|\r|\n)/g, '\n'); //Normalise carriage returns
+		if(text) {
+			text = text.replace(/(?:\r\n|\r|\n)/g, '\n'); //Normalise carriage returns
+		}
+		
 		$component.text(text);
 		if(id) {
 			$component.attr('id', id);
