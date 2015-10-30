@@ -32,6 +32,7 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermRangeQuery;
 import org.hibernate.search.annotations.Resolution;
 import org.hibernate.search.bridge.builtin.StringEncodingDateBridge;
+import org.hibernate.search.util.impl.PassThroughAnalyzer;
 
 import ch.systemsx.cisd.common.exceptions.InternalErr;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -49,6 +50,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IAssociationCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IAttributeSearchFieldKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchCriteriaConnection;
 import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
+import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SortableNumberBridgeUtils;
 import ch.systemsx.cisd.openbis.generic.shared.search.IgnoreCaseAnalyzer;
 
 /**
@@ -103,14 +105,13 @@ public class DetailedQueryBuilder
             if (criterion.getTimeZone() == null)
             {
                 List<String> fieldPatterns = new ArrayList<String>(fieldNames.size());
-                List<Boolean> fieldIsNumeric = new ArrayList<Boolean>(fieldNames.size());
                 List<Analyzer> fieldAnalyzers = new ArrayList<Analyzer>(fieldNames.size());
 
                 for (String fieldName : fieldNames)
                 {
                     String fieldPattern = null;
                     Analyzer fieldAnalyzer = null;
-
+                    boolean isNumeric = fieldTypes.get(fieldName) == DocValuesType.SORTED_NUMERIC;
                     if (MetaprojectSearch.isMetaprojectField(fieldName))
                     {
                         String fieldUserQuery =
@@ -120,6 +121,28 @@ public class DetailedQueryBuilder
                                 LuceneQueryBuilder.adaptQuery(fieldUserQuery,
                                         useWildcardSearchMode, false);
                         fieldAnalyzer = new IgnoreCaseAnalyzer();
+                    } else if(isNumeric)
+                    {
+                        String parsedNumberValue = SortableNumberBridgeUtils.getNumberForLucene(criterion.getValue());
+                        switch(criterion.getType()) {
+                            case LESS_THAN:
+                                fieldPattern = "{* TO " + parsedNumberValue + "}";
+                                break;
+                            case LESS_THAN_OR_EQUAL:
+                                fieldPattern = "[* TO " + parsedNumberValue + "]";
+                                break;
+                            case EQUALS:
+                                fieldPattern = "[" + parsedNumberValue + " TO " + parsedNumberValue + "]";
+                                break;
+                            case MORE_THAN_OR_EQUAL:
+                                fieldPattern = "[" + parsedNumberValue + " TO *]";
+                                break;
+                            case MORE_THAN:
+                                fieldPattern = "{" + parsedNumberValue + " TO *}";
+                                break;
+                        }
+                        
+                        fieldAnalyzer = PassThroughAnalyzer.INSTANCE;
                     } else {
                         fieldPattern = LuceneQueryBuilder.adaptQuery(criterion.getValue(), useWildcardSearchMode);
                         fieldAnalyzer = searchAnalyzer;
@@ -127,10 +150,9 @@ public class DetailedQueryBuilder
 
                     fieldPatterns.add(fieldPattern);
                     fieldAnalyzers.add(fieldAnalyzer);
-                    fieldIsNumeric.add(fieldTypes.get(fieldName) == DocValuesType.SORTED_NUMERIC);
                 }
 
-                Query luceneQuery = LuceneQueryBuilder.parseQuery(criterion.getType(), fieldNames, fieldPatterns, fieldAnalyzers, fieldIsNumeric);
+                Query luceneQuery = LuceneQueryBuilder.parseQuery(criterion.getType(), fieldNames, fieldPatterns, fieldAnalyzers);
                 resultQuery.add(luceneQuery, occureCondition);
             } else
             {

@@ -43,6 +43,7 @@ import org.hibernate.search.annotations.Resolution;
 import org.hibernate.search.annotations.Store;
 import org.hibernate.search.bridge.FieldBridge;
 import org.hibernate.search.bridge.LuceneOptions;
+import org.hibernate.search.bridge.builtin.NumericFieldBridge;
 import org.hibernate.search.bridge.builtin.StringEncodingDateBridge;
 
 import ch.systemsx.cisd.common.reflection.ClassUtils;
@@ -51,6 +52,7 @@ import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
+import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SortableNumberBridgeUtils;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.util.EqualsHashUtils;
 import ch.systemsx.cisd.openbis.generic.shared.util.SimplePropertyValidator.SupportedDatePattern;
@@ -134,7 +136,6 @@ public abstract class EntityPropertyPE extends HibernateAbstractRegistrationHold
             Field.Index indexingStrategy = luceneOptions.getIndex();
             Field field = null;
             SortedNumericDocValuesField fieldIsdocTypeSortedNumeric = null;
-            
             if (DataTypeCode.TIMESTAMP.equals(entityProperty.getEntityTypePropertyType().getPropertyType().getType().getCode()))
             {
                 try
@@ -151,7 +152,8 @@ public abstract class EntityPropertyPE extends HibernateAbstractRegistrationHold
             else if(DataTypeCode.INTEGER.equals(entityProperty.getEntityTypePropertyType().getPropertyType().getType().getCode())) {
                 try
                 {
-                    field = new LongField(fieldFullName, Long.parseLong(fieldValue), luceneOptions.getStore()); //Needed to make range queries work
+                    String numericTextValue = SortableNumberBridgeUtils.getNumberForLucene(fieldValue);
+                    field = new Field(fieldFullName, numericTextValue, luceneOptions.getStore(), Field.Index.NOT_ANALYZED_NO_NORMS);
                     fieldIsdocTypeSortedNumeric = new SortedNumericDocValuesField(fieldFullName, Long.parseLong(fieldValue)); //Needed to identify the field as number, if not type is not stored
                 } catch (Exception e)
                 {
@@ -160,7 +162,8 @@ public abstract class EntityPropertyPE extends HibernateAbstractRegistrationHold
             } else if(DataTypeCode.REAL.equals(entityProperty.getEntityTypePropertyType().getPropertyType().getType().getCode())) {
                 try
                 {
-                    field = new DoubleField(fieldFullName, Double.parseDouble(fieldValue), luceneOptions.getStore()); //Needed to make range queries work
+                    String numericTextValue = SortableNumberBridgeUtils.getNumberForLucene(fieldValue);
+                    field = new Field(fieldFullName, numericTextValue, luceneOptions.getStore(), Field.Index.NOT_ANALYZED_NO_NORMS);
                     fieldIsdocTypeSortedNumeric = new SortedNumericDocValuesField(fieldFullName, NumericUtils.doubleToSortableLong(Double.parseDouble(fieldValue))); //Needed to identify the field as number, if not type is not stored
                 } catch (Exception e)
                 {

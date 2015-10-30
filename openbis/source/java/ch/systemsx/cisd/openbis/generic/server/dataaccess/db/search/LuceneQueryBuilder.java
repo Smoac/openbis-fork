@@ -33,7 +33,6 @@ import org.apache.lucene.search.Query;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.detailed.DetailedQueryBuilder;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.detailed.NumberRangeCalculator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CompareType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IAssociationCriteria;
@@ -194,7 +193,7 @@ public class LuceneQueryBuilder
 
     // creates a query where any field matches the given pattern
     public static Query parseQuery(final CompareType type, final List<String> fieldNames,
-            final List<String> searchPatterns, List<Analyzer> analyzers, List<Boolean> fieldIsNumeric)
+            final List<String> searchPatterns, List<Analyzer> analyzers)
             throws UserFailureException
     {
         BooleanQuery resultQuery = new BooleanQuery();
@@ -202,16 +201,10 @@ public class LuceneQueryBuilder
         for (int i = 0; i < fieldNames.size(); i++)
         {
             String fieldName = fieldNames.get(i);
-            boolean isNumeric = fieldIsNumeric.get(i);
             String searchPattern = searchPatterns.get(i);
             Analyzer analyzer = analyzers.get(i);
             
-            Query query = null;
-            if(isNumeric && (NumberRangeCalculator.isInteger(searchPattern) || NumberRangeCalculator.isReal(searchPattern))) {
-                query = NumberRangeCalculator.getRangeQuery(type, fieldName, searchPattern);
-            } else {
-                query = parseQuery(fieldName, searchPattern, analyzer);
-            }
+            Query query = parseQuery(fieldName, searchPattern, analyzer);
             resultQuery.add(query, Occur.SHOULD);
         }
         return resultQuery;
@@ -235,6 +228,7 @@ public class LuceneQueryBuilder
     {
         parser.setAllowLeadingWildcard(true);
         BooleanQuery.setMaxClauseCount(Integer.MAX_VALUE);
+        
         try
         {
             return parser.parse(wholeQuery);
