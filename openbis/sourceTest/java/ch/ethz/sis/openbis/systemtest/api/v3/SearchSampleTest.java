@@ -864,7 +864,25 @@ public class SearchSampleTest extends AbstractSampleTest
         sortByCodeFO.sortBy().code().asc();
         sortByCodeFO.withProperties();
         
-        //Equals As Text
+        //Greater or Equals - Giving integer as real
+        SampleSearchCriteria criteriaGOE = new SampleSearchCriteria();
+        criteriaGOE.withNumberProperty("SIZE").thatIsGreaterThanOrEqualTo(321.0);
+        List<Sample> samplesGOE = search(sessionToken, criteriaGOE, sortByCodeFO);
+        assertSampleIdentifiersInOrder(samplesGOE, "/CISD/3VCP7", "/CISD/CP-TEST-2", "/CISD/CP-TEST-3");
+        
+        //Greater - Giving integer as real
+        SampleSearchCriteria criteriaG = new SampleSearchCriteria();
+        criteriaG.withNumberProperty("SIZE").thatIsGreaterThan(321.0);
+        List<Sample> samplesG = search(sessionToken, criteriaG, sortByCodeFO);
+        assertSampleIdentifiersInOrder(samplesG, "/CISD/3VCP7", "/CISD/CP-TEST-3");
+        
+        //Equals As Text - Real
+        SampleSearchCriteria criteriaETxt2 = new SampleSearchCriteria();
+        criteriaETxt2.withProperty("SIZE").thatEquals("666.0");
+        List<Sample> samplesETxt2 = search(sessionToken, criteriaETxt2, sortByCodeFO);
+        assertSampleIdentifiersInOrder(samplesETxt2, "/CISD/CP-TEST-3");
+        
+        //Equals As Text - Integer
         SampleSearchCriteria criteriaETxt = new SampleSearchCriteria();
         criteriaETxt.withProperty("SIZE").thatEquals("666");
         List<Sample> samplesETxt = search(sessionToken, criteriaETxt, sortByCodeFO);
@@ -887,18 +905,6 @@ public class SearchSampleTest extends AbstractSampleTest
         criteriaLOE.withNumberProperty("SIZE").thatIsLessThanOrEqualTo(321);
         List<Sample> samplesLOE = search(sessionToken, criteriaLOE, sortByCodeFO);
         assertSampleIdentifiersInOrder(samplesLOE, "/CISD/CP-TEST-1", "/CISD/CP-TEST-2");
-        
-        //Greater or Equals
-        SampleSearchCriteria criteriaGOE = new SampleSearchCriteria();
-        criteriaGOE.withNumberProperty("SIZE").thatIsGreaterThanOrEqualTo(321);
-        List<Sample> samplesGOE = search(sessionToken, criteriaGOE, sortByCodeFO);
-        assertSampleIdentifiersInOrder(samplesGOE, "/CISD/3VCP7", "/CISD/CP-TEST-2", "/CISD/CP-TEST-3");
-        
-        //Greater
-        SampleSearchCriteria criteriaG = new SampleSearchCriteria();
-        criteriaG.withNumberProperty("SIZE").thatIsGreaterThan(321);
-        List<Sample> samplesG = search(sessionToken, criteriaG, sortByCodeFO);
-        assertSampleIdentifiersInOrder(samplesG, "/CISD/3VCP7", "/CISD/CP-TEST-3");
         
         v3api.logout(sessionToken);
     }
