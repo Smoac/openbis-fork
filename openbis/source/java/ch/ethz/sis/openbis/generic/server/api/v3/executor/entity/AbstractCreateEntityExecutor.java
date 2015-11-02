@@ -105,13 +105,13 @@ public abstract class AbstractCreateEntityExecutor<CREATION, PE, PERM_ID> implem
             checkAccess(context, entity);
         }
 
+        save(context, new ArrayList<PE>(batchMap.values()), false);
+
         for (PE entity : entitiesAll.values())
         {
             PERM_ID permId = createPermId(context, entity);
             permIdsAll.add(permId);
         }
-
-        save(context, new ArrayList<PE>(batchMap.values()), false);
 
         daoFactory.setBatchUpdateMode(false);
     }

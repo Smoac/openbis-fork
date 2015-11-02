@@ -105,6 +105,10 @@ public class CreateDataSetExecutor extends AbstractCreateEntityExecutor<DataSetC
         {
             throw new UserFailureException("Type id cannot be null.");
         }
+        if (creation.getExperimentId() == null && creation.getSampleId() == null)
+        {
+            throw new UserFailureException("Experiment id and sample id cannot be both null.");
+        }
     }
 
     @Override

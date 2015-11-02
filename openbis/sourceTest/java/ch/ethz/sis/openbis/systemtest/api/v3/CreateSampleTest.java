@@ -941,22 +941,22 @@ public class CreateSampleTest extends AbstractSampleTest
 
     private SampleCreation sampleCreation(String code)
     {
-        SampleCreation sampleParent = new SampleCreation();
-        sampleParent.setCode(code);
-        sampleParent.setTypeId(new EntityTypePermId("CELL_PLATE"));
-        sampleParent.setSpaceId(new SpacePermId("CISD"));
-        sampleParent.setCreationId(new CreationId("creation " + code));
-        return sampleParent;
+        SampleCreation creation = new SampleCreation();
+        creation.setCode(code);
+        creation.setTypeId(new EntityTypePermId("CELL_PLATE"));
+        creation.setSpaceId(new SpacePermId("CISD"));
+        creation.setCreationId(new CreationId("creation " + code));
+        return creation;
     }
 
     private SampleCreation sampleCreation(String spaceCode, String code)
     {
-        SampleCreation sampleParent = new SampleCreation();
-        sampleParent.setCode(code);
-        sampleParent.setTypeId(new EntityTypePermId("CELL_PLATE"));
-        sampleParent.setSpaceId(new SpacePermId(spaceCode));
-        sampleParent.setCreationId(new CreationId("creation " + code));
-        return sampleParent;
+        SampleCreation creation = new SampleCreation();
+        creation.setCode(code);
+        creation.setTypeId(new EntityTypePermId("CELL_PLATE"));
+        creation.setSpaceId(new SpacePermId(spaceCode));
+        creation.setCreationId(new CreationId("creation " + code));
+        return creation;
     }
 
     private SamplePermId createCisdSample(String code)

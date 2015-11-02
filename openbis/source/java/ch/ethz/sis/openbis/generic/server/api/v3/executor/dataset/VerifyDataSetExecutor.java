@@ -33,6 +33,9 @@ public class VerifyDataSetExecutor implements IVerifyDataSetExecutor
 {
 
     @Autowired
+    private IVerifyDataSetSampleAndExperimentExecutor verifyDataSetSampleAndExperimentExecutor;
+
+    @Autowired
     private IVerifyEntityPropertyExecutor verifyEntityPropertyExecutor;
 
     @Autowired
@@ -44,6 +47,7 @@ public class VerifyDataSetExecutor implements IVerifyDataSetExecutor
     @Override
     public void verify(IOperationContext context, Collection<DataPE> dataSets)
     {
+        verifyDataSetSampleAndExperimentExecutor.verify(context, dataSets);
         verifyEntityPropertyExecutor.verify(context, dataSets);
         verifyDataSetContainersExecutor.verify(context, dataSets);
         verifyDataSetParentsExecutor.verify(context, dataSets);
