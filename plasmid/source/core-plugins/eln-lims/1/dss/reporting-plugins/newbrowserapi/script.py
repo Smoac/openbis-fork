@@ -455,13 +455,14 @@ def insertUpdateSample(tr, parameters, tableBuilder):
 				child.setParentSampleIdentifiers(childParents);
 	
 	#Changes to do
-	for change in changesToDo:
-		sampleWithChanges = getSampleByIdentifierForUpdate(tr, change["identifier"]); #Retrieve Sample
-		for key in change["properties"].keySet():
-				propertyValue = unicode(change["properties"][key]);
-				if propertyValue == "":
-					propertyValue = None;
-				sampleWithChanges.setPropertyValue(key,propertyValue);
+	if changesToDo is not None:
+		for change in changesToDo:
+			sampleWithChanges = getSampleByIdentifierForUpdate(tr, change["identifier"]); #Retrieve Sample
+			for key in change["properties"].keySet():
+					propertyValue = unicode(change["properties"][key]);
+					if propertyValue == "":
+						propertyValue = None;
+					sampleWithChanges.setPropertyValue(key,propertyValue);
 		
 	#Return from the call
 	return True;
