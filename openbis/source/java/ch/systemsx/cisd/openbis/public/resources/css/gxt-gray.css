@@ -273,6 +273,11 @@ ul.x-tab-strip-bottom{
 	background-image:url(../images/gray/tabs/tab-close.gif);
 }
 
+li.x-tab-strip-closable.x-component,
+li.x-tab-with-icon.x-component {
+	border: 1px solid rgb(208, 208, 208);
+	border-bottom: none;
+}
 .x-tab-panel-body {
     border-color:#d0d0d0;
     background:#fff;
