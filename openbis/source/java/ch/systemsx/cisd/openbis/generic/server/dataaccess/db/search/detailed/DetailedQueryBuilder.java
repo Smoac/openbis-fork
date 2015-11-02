@@ -121,7 +121,7 @@ public class DetailedQueryBuilder
                                 LuceneQueryBuilder.adaptQuery(fieldUserQuery,
                                         useWildcardSearchMode, false);
                         fieldAnalyzer = new IgnoreCaseAnalyzer();
-                    } else if(isNumeric)
+                    } else if(isNumeric && criterion.getType() != null)
                     {
                         String parsedNumberValue = SortableNumberBridgeUtils.getNumberForLucene(criterion.getValue());
                         switch(criterion.getType()) {
