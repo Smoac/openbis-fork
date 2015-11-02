@@ -384,7 +384,7 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
         {
             return;
         }
-        List<BufferedImage> images = algorithm.generateImages(imageDataSetInformation, imageCache);
+        List<BufferedImage> images = algorithm.generateImages(imageDataSetInformation, thumbnailDatasets, imageCache);
         if (images.size() > 0)
         {
             IDataSet representative = createNewDataSet(algorithm.getDataSetTypeCode());

@@ -11,7 +11,13 @@ import java.util.List;
 import java.util.Map;
 
 import ch.rinn.restrictions.Private;
+import ch.systemsx.cisd.etlserver.registrator.api.v2.IDataSet;
+import ch.systemsx.cisd.etlserver.registrator.api.v2.impl.DataSet;
 import ch.systemsx.cisd.openbis.common.io.FileBasedContentNode;
+import ch.systemsx.cisd.openbis.common.io.hierarchical_content.DefaultFileBasedHierarchicalContentFactory;
+import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
+import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
+import ch.systemsx.cisd.openbis.dss.etl.Hdf5ThumbnailGenerator;
 import ch.systemsx.cisd.openbis.dss.etl.IImageProvider;
 import ch.systemsx.cisd.openbis.dss.etl.dto.ImageLibraryInfo;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.Channel;
@@ -19,6 +25,7 @@ import ch.systemsx.cisd.openbis.dss.etl.dto.api.ChannelColorComponent;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.IImageGenerationAlgorithm;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.ImageFileInfo;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.ImageChannelsUtils;
+import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ColorComponent;
 
@@ -56,6 +63,8 @@ public class MaximumIntensityProjectionGenerationAlgorithm implements IImageGene
     private int width;
 
     private int height;
+    
+    private boolean useThumbnails;
 
     /**
      * Creates an instance for the specified data set type. The generated image will have the same size as
@@ -94,6 +103,15 @@ public class MaximumIntensityProjectionGenerationAlgorithm implements IImageGene
         this.height = height;
         this.filename = filename;
     }
+    
+    /**
+     * Uses thumbnails (if present) instead of original images.
+     */
+    public MaximumIntensityProjectionGenerationAlgorithm useThumbnails()
+    {
+        useThumbnails = true;
+        return this;
+    }
 
     @Override
     public String getDataSetTypeCode()
@@ -102,13 +120,15 @@ public class MaximumIntensityProjectionGenerationAlgorithm implements IImageGene
     }
     
     @Override
-    public List<BufferedImage> generateImages(ImageDataSetInformation information, IImageProvider imageProvider)
+    public List<BufferedImage> generateImages(ImageDataSetInformation information, 
+            List<IDataSet> thumbnailDatasets, IImageProvider imageProvider)
     {
         ImageDataSetStructure structure = information.getImageDataSetStructure();
         ImageLibraryInfo library = structure.getImageStorageConfiguraton().tryGetImageLibrary();
         List<ImageFileInfo> images = structure.getImages();
         Map<String, ChannelAndColorComponent> channelsByCode = getChannelsByCode(structure);
         File incomingDirectory = information.getIncomingDirectory();
+        File thumbnailDataSet = tryFindMatchingThumbnailDataSet(information, thumbnailDatasets);
         int maxIntensity = 0;
         for (ImageFileInfo imageFileInfo : images)
         {
@@ -116,10 +136,10 @@ public class MaximumIntensityProjectionGenerationAlgorithm implements IImageGene
             {
                 continue;
             }
-            String imagePath = imageFileInfo.getImageRelativePath();
-            ChannelAndColorComponent channelAndColorComponent = channelsByCode.get(imageFileInfo.getChannelCode());
-            String identifier = imageFileInfo.tryGetUniqueStringIdentifier();
-            BufferedImage image = loadImage(imageProvider, incomingDirectory, imagePath, identifier, library);
+            String channelCode = imageFileInfo.getChannelCode();
+            ChannelAndColorComponent channelAndColorComponent = channelsByCode.get(channelCode);
+            BufferedImage image = loadImage(imageProvider, library, images, incomingDirectory, 
+                    thumbnailDataSet, imageFileInfo, channelCode);
             image = ImageChannelsUtils.rescaleIfNot8Bit(image, 0f, channelAndColorComponent.channel.tryGetChannelColor());
             image = ImageChannelsUtils.extractChannel(image, channelAndColorComponent.colorComponent);
             image = ImageChannelsUtils.transformGrayToColor(image, channelAndColorComponent.channel.tryGetChannelColor());
@@ -148,6 +168,68 @@ public class MaximumIntensityProjectionGenerationAlgorithm implements IImageGene
 
             return Collections.singletonList(result);
         }
+    }
+
+    private BufferedImage loadImage(IImageProvider imageProvider, ImageLibraryInfo library, 
+            List<ImageFileInfo> images, File incomingDirectory,
+            File thumbnailDataSet, ImageFileInfo imageFileInfo, String channelCode)
+    {
+        String imagePath = imageFileInfo.getImageRelativePath();
+        String identifier = imageFileInfo.tryGetUniqueStringIdentifier();
+        BufferedImage image = null;
+        if (thumbnailDataSet != null && useThumbnails)
+        {
+            IHierarchicalContent content = new DefaultFileBasedHierarchicalContentFactory()
+                    .asHierarchicalContent(thumbnailDataSet, null);
+            String thumbnailPath = Hdf5ThumbnailGenerator.createThumbnailPath(imageFileInfo, channelCode);
+            IHierarchicalContentNode rootNode = content.getRootNode();
+            String containerPath = rootNode.getChildNodes().get(0).getRelativePath();
+            IHierarchicalContentNode node = content.tryGetNode(containerPath + "/" + thumbnailPath + ".png");
+            if (node != null)
+            {
+                image = imageProvider.getImage(node, images.get(0).tryGetUniqueStringIdentifier(), null);
+            }
+        }
+        if (image == null)
+        {
+            image = loadImage(imageProvider, incomingDirectory, imagePath, identifier, library);
+        }
+        return image;
+    }
+
+    private File tryFindMatchingThumbnailDataSet(ImageDataSetInformation information, List<IDataSet> thumbnailDatasets)
+    {
+        ThumbnailsInfo thumbnailsInfos = information.getThumbnailsInfos();
+        if (thumbnailsInfos != null)
+        {
+            for (String permId : thumbnailsInfos.getThumbnailPhysicalDatasetsPermIds())
+            {
+                Size dimension = thumbnailsInfos.tryGetDimension(permId);
+                if (dimension != null && (dimension.getWidth() == width || dimension.getHeight() == height))
+                {
+                    IDataSet thumbnailDataSet = tryFindDataSetByPermId(thumbnailDatasets, permId);
+                    if (thumbnailDataSet instanceof DataSet)
+                    {
+                        return ((DataSet<?>) thumbnailDataSet).getDataSetStagingFolder();
+                    }
+                }
+            }
+        }
+        return null;
+    }
+    
+    
+    
+    private IDataSet tryFindDataSetByPermId(List<IDataSet> dataSets, String permId)
+    {
+        for (IDataSet dataSet : dataSets)
+        {
+            if (dataSet.getDataSetCode().equals(permId))
+            {
+                return dataSet;
+            }
+        }
+        return null;
     }
 
     @Private BufferedImage loadImage(IImageProvider imageProvider, File incomingDirectory, String imagePath, 

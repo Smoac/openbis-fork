@@ -300,7 +300,7 @@ public class Hdf5ThumbnailGenerator implements IHDF5WriterClient
         return Status.OK;
     }
 
-    private String createThumbnailPath(ImageFileInfo plateImage, String channelCode)
+    public static String createThumbnailPath(ImageFileInfo plateImage, String channelCode)
     {
         StringBuilder newImagePath = new StringBuilder();
         if (plateImage.hasWellLocation())
