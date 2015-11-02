@@ -143,29 +143,8 @@
 
 
 /* qtips */
-.x-tip .x-tip-top {
-	background-image:url(../images/gray/qtip/tip-sprite.gif);
-}
-.x-tip .x-tip-top-left {
-	background-image:url(../images/gray/qtip/tip-sprite.gif);
-}
-.x-tip .x-tip-top-right {
-	background-image:url(../images/gray/qtip/tip-sprite.gif);
-}
-.x-tip .x-tip-ft {
-	background-image:url(../images/gray/qtip/tip-sprite.gif);
-}
-.x-tip .x-tip-ft-left {
-	background-image:url(../images/gray/qtip/tip-sprite.gif);
-}
-.x-tip .x-tip-ft-right {
-	background-image:url(../images/gray/qtip/tip-sprite.gif);
-}
-.x-tip .x-tip-bd-left {
-	background-image:url(../images/gray/qtip/tip-sprite.gif);
-}
-.x-tip .x-tip-bd-right {
-	background-image:url(../images/gray/qtip/tip-sprite.gif);
+.x-tip .x-tip-tc, .x-tip .x-tip-tl, .x-tip .x-tip-tr, .x-tip .x-tip-bc, .x-tip .x-tip-bl, .x-tip .x-tip-br, .x-tip .x-tip-ml, .x-tip .x-tip-mr {
+	background-image: url(../images/gray/qtip/tip-sprite.gif);
 }
 
 /* Toolbars */
