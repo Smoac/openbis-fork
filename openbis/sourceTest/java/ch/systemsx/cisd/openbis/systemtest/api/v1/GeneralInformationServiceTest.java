@@ -967,10 +967,10 @@ public class GeneralInformationServiceTest extends SystemTestCase
                     ex.getMessage());
         }
     }
-    
+
     public void testGetPostregistrationStatusTrueByDefaultForContainerDataSets()
     {
-       SearchCriteria criteria = new SearchCriteria();
+        SearchCriteria criteria = new SearchCriteria();
         criteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, "CONTAINER_1"));
         List<DataSet> dsList = generalInformationService.searchForDataSets(sessionToken, criteria);
         assertTrue(dsList.get(0).isPostRegistered());
@@ -983,11 +983,11 @@ public class GeneralInformationServiceTest extends SystemTestCase
         criteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, "COMPONENT_1A"));
         List<DataSet> dsList = generalInformationService.searchForDataSets(sessionToken, criteria);
         assertTrue(dsList.get(0).isPostRegistered() == false);
-        
+
         criteria = new SearchCriteria();
         criteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, "COMPONENT_1B"));
         dsList = generalInformationService.searchForDataSets(sessionToken, criteria);
-        assertTrue(dsList.get(0).isPostRegistered() == true);        
+        assertTrue(dsList.get(0).isPostRegistered() == true);
     }
 
     @Test
@@ -995,17 +995,16 @@ public class GeneralInformationServiceTest extends SystemTestCase
     {
         List<DataSet> dataSetsWithMetaData = generalInformationService.getDataSetMetaData(sessionToken, Arrays.asList("COMPONENT_1A"));
         assertTrue(dataSetsWithMetaData.get(0).isPostRegistered() == false);
-       
+
         dataSetsWithMetaData = generalInformationService.getDataSetMetaData(sessionToken, Arrays.asList("COMPONENT_1B"));
         assertTrue(dataSetsWithMetaData.get(0).isPostRegistered() == true);
     }
-    
 
     @Test
     public void testGetPostRegistrationStatusViaFetchOptionsDataLister()
     {
         EnumSet<DataSetFetchOption> fetchOptions = EnumSet.of(DataSetFetchOption.BASIC, DataSetFetchOption.PARENTS, DataSetFetchOption.CHILDREN);
-        
+
         List<DataSet> dataSetsWithMetaData =
                 generalInformationService.getDataSetMetaData(sessionToken, Arrays.asList("COMPONENT_1A"), fetchOptions);
         assertTrue(dataSetsWithMetaData.get(0).isPostRegistered() == false);
@@ -1631,9 +1630,11 @@ public class GeneralInformationServiceTest extends SystemTestCase
         assertEquals("[]", types.get(2).getPropertyTypeGroups().toString());
         assertEquals("LINK_TYPE", types.get(3).getCode());
         assertEquals("[]", types.get(0).getPropertyTypeGroups().toString());
-        assertEquals("UNKNOWN", types.get(4).getCode());
+        assertEquals("REQUIRES_EXPERIMENT", types.get(4).getCode());
         assertEquals("[]", types.get(4).getPropertyTypeGroups().toString());
-        assertEquals(8, types.size());
+        assertEquals("UNKNOWN", types.get(5).getCode());
+        assertEquals("[]", types.get(5).getPropertyTypeGroups().toString());
+        assertEquals(9, types.size());
     }
 
     @Test
