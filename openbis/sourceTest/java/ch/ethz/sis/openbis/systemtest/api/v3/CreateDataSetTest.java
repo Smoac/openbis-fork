@@ -43,7 +43,10 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.entitytype.EntityTypePer
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.entitytype.IEntityTypeId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentIdentifier;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentPermId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.IExperimentId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.person.PersonPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.ProjectIdentifier;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.ISampleId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SampleIdentifier;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SamplePermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.SpacePermId;
@@ -401,6 +404,27 @@ public class CreateDataSetTest extends AbstractDataSetTest
     }
 
     @Test
+    public void testCreateWithExperimentUnauthorized()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        final IExperimentId experimentId = new ExperimentIdentifier("/CISD/NEMO/EXP1");
+        final DataSetCreation creation = dataSetCreation();
+        creation.setExperimentId(experimentId);
+        creation.setSampleId(null);
+        creation.setRegistratorId(new PersonPermId(TEST_SPACE_USER));
+
+        assertUnauthorizedObjectAccessException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.createDataSets(sessionToken, Arrays.asList(creation));
+                }
+            }, new DataSetPermId(creation.getCode()));
+    }
+
+    @Test
     public void testCreateWithSampleInTrash()
     {
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);
@@ -422,6 +446,27 @@ public class CreateDataSetTest extends AbstractDataSetTest
                     v3api.createDataSets(sessionToken, Arrays.asList(creation));
                 }
             }, sampleIds.get(0));
+    }
+
+    @Test
+    public void testCreateWithSampleUnauthorized()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        final ISampleId sampleId = new SampleIdentifier("/CISD/CP-TEST-1");
+        final DataSetCreation creation = dataSetCreation();
+        creation.setExperimentId(null);
+        creation.setSampleId(sampleId);
+        creation.setRegistratorId(new PersonPermId(TEST_SPACE_USER));
+
+        assertUnauthorizedObjectAccessException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.createDataSets(sessionToken, Arrays.asList(creation));
+                }
+            }, new DataSetPermId(creation.getCode()));
     }
 
     @Test
@@ -552,11 +597,6 @@ public class CreateDataSetTest extends AbstractDataSetTest
         creation.setTypeId(new EntityTypePermId("CELL_PLATE"));
         creation.setSpaceId(new SpacePermId("CISD"));
         return creation;
-    }
-
-    public static void main(String[] args)
-    {
-        System.out.println("REQUIRES_EXPERIMENT".matches("(?!REQUIRES\\_EXPERIMENT).*"));
     }
 
 }

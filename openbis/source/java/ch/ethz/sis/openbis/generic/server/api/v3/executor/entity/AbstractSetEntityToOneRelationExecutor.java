@@ -60,6 +60,7 @@ public abstract class AbstractSetEntityToOneRelationExecutor<ENTITY_CREATION, EN
             if (relatedId == null)
             {
                 check(context, entity, null, null);
+                set(context, entity, null);
             } else
             {
                 RELATED_PE related = relatedMap.get(relatedId);
