@@ -147,6 +147,10 @@
 	background-image: url(../images/gray/qtip/tip-sprite.gif);
 }
 
+.x-tip-anchor {
+    background-image:url(../images/gray/qtip/tip-anchor-sprite.gif);
+}
+
 /* Toolbars */
 
 .x-toolbar{
