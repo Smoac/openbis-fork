@@ -80,6 +80,10 @@
     border:1px solid #d0d0d0;
 }
 
+.x-grid-panel.x-treegrid.x-component.x-border {
+	border-top: none;
+}
+
 /* Buttons */
 
 .x-btn-left{
