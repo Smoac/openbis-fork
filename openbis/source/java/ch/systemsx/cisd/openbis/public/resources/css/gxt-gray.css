@@ -278,10 +278,16 @@ ul.x-tab-strip-bottom{
 }
 
 li.x-tab-strip-closable.x-component,
-li.x-tab-with-icon.x-component {
+li.x-tab-with-icon.x-component,
+li.x-component {
 	border: 1px solid rgb(208, 208, 208);
 	border-bottom: none;
 }
+
+.x-tab-panel-header {
+	padding-bottom: 0px;
+}
+
 .x-tab-panel-body {
     border-color:#d0d0d0;
     background:#fff;
@@ -671,4 +677,10 @@ td.x-grid3-hd-over .x-grid3-hd-inner,td.sort-desc .x-grid3-hd-inner,td.sort-asc 
 /* Delete Radios/Experiment */
 .gray-delete-radios {
 	margin-left: 10px;
+}
+
+.x-tab-panel-header.x-unselectable {
+	border-top: none;
+	border-left: none;
+	border-right: none;
 }
