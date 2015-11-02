@@ -3,7 +3,6 @@
     <groups>
       <run>
         <exclude name="abstract" />
-        <exclude name="project-samples" />
         <exclude name="broken" />
         <exclude name="scalability"/>
         <exclude name="system-cleandb"/>
