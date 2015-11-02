@@ -28,7 +28,9 @@ import org.springframework.stereotype.Component;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.AbstractUpdateEntityExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.tag.IUpdateTagForEntityExecutor;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.FieldUpdateValue;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleUpdate;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.IProjectId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.ISampleId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -87,7 +89,8 @@ public class UpdateSampleExecutor extends AbstractUpdateEntityExecutor<SampleUpd
         {
             throw new UserFailureException("Sample id cannot be null.");
         }
-        if (update.getProjectId() != null)
+        FieldUpdateValue<IProjectId> projectId = update.getProjectId();
+        if (projectId != null && projectId.getValue() != null)
         {
             throw new UserFailureException("Currently the project can not be set for sample " + update.getSampleId());
         }
