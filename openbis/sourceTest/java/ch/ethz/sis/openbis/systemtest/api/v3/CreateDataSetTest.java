@@ -20,6 +20,7 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNull;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -35,6 +36,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.deletion.sample.Samp
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.ExperimentCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.DataSetFetchOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.CreationId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.DataSetPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.FileFormatTypePermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.IDataSetId;
@@ -571,6 +573,246 @@ public class CreateDataSetTest extends AbstractDataSetTest
     }
 
     @Test
+    public void testCreateWithContainers()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        DataSetCreation creation = dataSetCreation();
+        creation.setContainerIds(Collections.singletonList(new DataSetPermId("20081105092159111-1")));
+
+        DataSetFetchOptions fo = new DataSetFetchOptions();
+        fo.withContainers();
+
+        DataSet dataSet = createDataSet(sessionToken, creation, fo);
+
+        assertEquals(dataSet.getCode(), creation.getCode().toUpperCase());
+        assertDataSetCodes(dataSet.getContainers(), "20081105092159111-1");
+    }
+
+    @Test
+    public void testCreateWithContainersCircularDependency()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        final DataSetCreation creation1 = dataSetCreation();
+        final DataSetCreation creation2 = dataSetCreation();
+        final DataSetCreation creation3 = dataSetCreation();
+
+        creation2.setContainerIds(Collections.singletonList(creation1.getCreationId()));
+        creation3.setContainerIds(Collections.singletonList(creation2.getCreationId()));
+        creation1.setContainerIds(Collections.singletonList(creation3.getCreationId()));
+
+        assertUserFailureException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.createDataSets(sessionToken, Arrays.asList(creation1, creation2, creation3));
+                }
+            }, "Circular dependency found");
+    }
+
+    @Test
+    public void testCreateWithContainersUnauthorized()
+    {
+        final String sessionToken = v3api.loginAs(TEST_USER, PASSWORD, TEST_SPACE_USER);
+
+        final IDataSetId containerId = new DataSetPermId("20081105092159111-1");
+        final DataSetCreation creation = dataSetCreation();
+        creation.setExperimentId(new ExperimentIdentifier("/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST"));
+        creation.setContainerIds(Collections.singletonList(containerId));
+
+        assertUnauthorizedObjectAccessException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    createDataSet(sessionToken, creation, new DataSetFetchOptions());
+                }
+            }, containerId);
+    }
+
+    @Test
+    public void testCreateWithContained()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        DataSetCreation creation = dataSetCreation();
+        creation.setContainedIds(Collections.singletonList(new DataSetPermId("20081105092159111-1")));
+
+        DataSetFetchOptions fo = new DataSetFetchOptions();
+        fo.withContained();
+
+        DataSet dataSet = createDataSet(sessionToken, creation, fo);
+
+        assertEquals(dataSet.getCode(), creation.getCode().toUpperCase());
+        assertDataSetCodes(dataSet.getContained(), "20081105092159111-1");
+    }
+
+    @Test
+    public void testCreateWithContainedCircularDependency()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        final DataSetCreation creation1 = dataSetCreation();
+        final DataSetCreation creation2 = dataSetCreation();
+        final DataSetCreation creation3 = dataSetCreation();
+
+        creation2.setContainedIds(Collections.singletonList(creation1.getCreationId()));
+        creation3.setContainedIds(Collections.singletonList(creation2.getCreationId()));
+        creation1.setContainedIds(Collections.singletonList(creation3.getCreationId()));
+
+        assertUserFailureException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.createDataSets(sessionToken, Arrays.asList(creation1, creation2, creation3));
+                }
+            }, "Circular dependency found");
+    }
+
+    @Test
+    public void testCreateWithContainedUnauthorized()
+    {
+        final String sessionToken = v3api.loginAs(TEST_USER, PASSWORD, TEST_SPACE_USER);
+
+        final IDataSetId containedId = new DataSetPermId("20081105092159111-1");
+        final DataSetCreation creation = dataSetCreation();
+        creation.setExperimentId(new ExperimentIdentifier("/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST"));
+        creation.setContainedIds(Collections.singletonList(containedId));
+
+        assertUnauthorizedObjectAccessException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    createDataSet(sessionToken, creation, new DataSetFetchOptions());
+                }
+            }, containedId);
+    }
+
+    @Test
+    public void testCreateWithParents()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        DataSetCreation creation = dataSetCreation();
+        creation.setParentIds(Collections.singletonList(new DataSetPermId("20081105092159111-1")));
+
+        DataSetFetchOptions fo = new DataSetFetchOptions();
+        fo.withParents();
+
+        DataSet dataSet = createDataSet(sessionToken, creation, fo);
+
+        assertEquals(dataSet.getCode(), creation.getCode().toUpperCase());
+        assertDataSetCodes(dataSet.getParents(), "20081105092159111-1");
+    }
+
+    @Test
+    public void testCreateWithParentsCircularDependency()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        final DataSetCreation creation1 = dataSetCreation();
+        final DataSetCreation creation2 = dataSetCreation();
+        final DataSetCreation creation3 = dataSetCreation();
+
+        creation2.setParentIds(Collections.singletonList(creation1.getCreationId()));
+        creation3.setParentIds(Collections.singletonList(creation2.getCreationId()));
+        creation1.setParentIds(Collections.singletonList(creation3.getCreationId()));
+
+        assertUserFailureException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.createDataSets(sessionToken, Arrays.asList(creation1, creation2, creation3));
+                }
+            }, "Circular dependency found");
+    }
+
+    @Test
+    public void testCreateWithParentsUnauthorized()
+    {
+        final String sessionToken = v3api.loginAs(TEST_USER, PASSWORD, TEST_SPACE_USER);
+
+        final IDataSetId parentId = new DataSetPermId("20081105092159111-1");
+        final DataSetCreation creation = dataSetCreation();
+        creation.setExperimentId(new ExperimentIdentifier("/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST"));
+        creation.setParentIds(Collections.singletonList(parentId));
+
+        assertUnauthorizedObjectAccessException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    createDataSet(sessionToken, creation, new DataSetFetchOptions());
+                }
+            }, parentId);
+    }
+
+    @Test
+    public void testCreateWithChildren()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        DataSetCreation creation = dataSetCreation();
+        creation.setChildIds(Collections.singletonList(new DataSetPermId("20081105092159111-1")));
+
+        DataSetFetchOptions fo = new DataSetFetchOptions();
+        fo.withChildren();
+
+        DataSet dataSet = createDataSet(sessionToken, creation, fo);
+
+        assertEquals(dataSet.getCode(), creation.getCode().toUpperCase());
+        assertDataSetCodes(dataSet.getChildren(), "20081105092159111-1");
+    }
+
+    @Test
+    public void testCreateWithChildrenCircularDependency()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        final DataSetCreation creation1 = dataSetCreation();
+        final DataSetCreation creation2 = dataSetCreation();
+        final DataSetCreation creation3 = dataSetCreation();
+
+        creation2.setChildIds(Collections.singletonList(creation1.getCreationId()));
+        creation3.setChildIds(Collections.singletonList(creation2.getCreationId()));
+        creation1.setChildIds(Collections.singletonList(creation3.getCreationId()));
+
+        assertUserFailureException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.createDataSets(sessionToken, Arrays.asList(creation1, creation2, creation3));
+                }
+            }, "Circular dependency found");
+    }
+
+    @Test
+    public void testCreateWithChildrenUnauthorized()
+    {
+        final String sessionToken = v3api.loginAs(TEST_USER, PASSWORD, TEST_SPACE_USER);
+
+        final IDataSetId childId = new DataSetPermId("20081105092159111-1");
+        final DataSetCreation creation = dataSetCreation();
+        creation.setExperimentId(new ExperimentIdentifier("/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST"));
+        creation.setChildIds(Collections.singletonList(childId));
+
+        assertUnauthorizedObjectAccessException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    createDataSet(sessionToken, creation, new DataSetFetchOptions());
+                }
+            }, childId);
+    }
+
+    @Test
     public void testCreateWithUserNonEtlServer()
     {
         final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
@@ -626,7 +868,7 @@ public class CreateDataSetTest extends AbstractDataSetTest
     }
 
     @Test
-    public void testCreatePhysicalData()
+    public void testCreatePhysicalDataSetWithPhysicalDataNotNull()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -665,7 +907,28 @@ public class CreateDataSetTest extends AbstractDataSetTest
     }
 
     @Test
-    public void testCreateContainerData()
+    public void testCreatePhysicalDataSetWithPhysicalDataNull()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        final DataSetCreation creation = new DataSetCreation();
+        creation.setCode("TEST_PHYSICAL_DATASET");
+        creation.setTypeId(new EntityTypePermId("UNKNOWN"));
+        creation.setExperimentId(new ExperimentIdentifier("/CISD/NEMO/EXP1"));
+        creation.setDataStoreId(new DataStorePermId("STANDARD"));
+
+        assertUserFailureException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    createDataSet(sessionToken, creation, new DataSetFetchOptions());
+                }
+            }, "Physical data cannot be null for a physical data set.");
+    }
+
+    @Test
+    public void testCreateContainerDataSet()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -696,7 +959,7 @@ public class CreateDataSetTest extends AbstractDataSetTest
     }
 
     @Test
-    public void testCreateLinkData()
+    public void testCreateLinkDataSetWithLinkedDataNotNull()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -728,20 +991,44 @@ public class CreateDataSetTest extends AbstractDataSetTest
         assertNull(dataSet.getPhysicalData());
     }
 
+    @Test
+    public void testCreateLinkDataSetWithLinkedDataNull()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        final DataSetCreation creation = new DataSetCreation();
+        creation.setCode("TEST_LINK_DATASET");
+        creation.setTypeId(new EntityTypePermId("LINK_TYPE"));
+        creation.setExperimentId(new ExperimentIdentifier("/CISD/NEMO/EXP1"));
+        creation.setDataStoreId(new DataStorePermId("STANDARD"));
+
+        assertUserFailureException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    createDataSet(sessionToken, creation, new DataSetFetchOptions());
+                }
+            }, "Linked data cannot be null for a link data set.");
+    }
+
     private DataSetCreation dataSetCreation()
     {
+        String code = UUID.randomUUID().toString();
+
         PhysicalDataCreation physicalCreation = new PhysicalDataCreation();
-        physicalCreation.setLocation("a/b/c");
+        physicalCreation.setLocation("test/location/" + code);
         physicalCreation.setFileFormatTypeId(new FileFormatTypePermId("TIFF"));
         physicalCreation.setLocatorTypeId(new LocatorTypePermId("RELATIVE_LOCATION"));
         physicalCreation.setStorageFormatId(new VocabularyTermCode("PROPRIETARY"));
 
         DataSetCreation creation = new DataSetCreation();
-        creation.setCode(UUID.randomUUID().toString());
+        creation.setCode(code);
         creation.setTypeId(new EntityTypePermId("UNKNOWN"));
         creation.setExperimentId(new ExperimentIdentifier("/CISD/NEMO/EXP1"));
         creation.setDataStoreId(new DataStorePermId("STANDARD"));
         creation.setPhysicalData(physicalCreation);
+        creation.setCreationId(new CreationId(code));
 
         return creation;
     }

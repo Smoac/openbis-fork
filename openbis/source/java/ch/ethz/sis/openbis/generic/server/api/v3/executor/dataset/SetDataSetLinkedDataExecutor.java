@@ -24,6 +24,7 @@ import org.springframework.stereotype.Component;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSetCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.LinkedDataCreation;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.LinkDataPE;
 
@@ -60,7 +61,7 @@ public class SetDataSetLinkedDataExecutor implements ISetDataSetLinkedDataExecut
 
         if (linkedCreation == null)
         {
-            throw new IllegalArgumentException("Linked data cannot be null for a link data set.");
+            throw new UserFailureException("Linked data cannot be null for a link data set.");
         }
 
         dataSet.setExternalCode(linkedCreation.getExternalCode());

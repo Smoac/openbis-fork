@@ -688,6 +688,17 @@ public class AbstractTest extends SystemTestCase
         assertCollectionContainsOnly(actualSet, expectedIdentifiers);
     }
 
+    protected static void assertDataSetCodes(Collection<DataSet> dataSets, String... expectedCodes)
+    {
+        Set<String> actualSet = new HashSet<String>();
+        for (DataSet dataSet : dataSets)
+        {
+            actualSet.add(dataSet.getCode());
+        }
+
+        assertCollectionContainsOnly(actualSet, expectedCodes);
+    }
+
     protected static void assertSampleIdentifier(Sample sample, String expectedIdentifier)
     {
         assertEquals(sample.getIdentifier().getIdentifier(), expectedIdentifier);

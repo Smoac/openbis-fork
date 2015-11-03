@@ -25,6 +25,7 @@ import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.Complete;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSetCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.PhysicalDataCreation;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.common.types.BooleanOrUnknown;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
@@ -70,7 +71,7 @@ public class SetDataSetPhysicalDataExecutor implements ISetDataSetPhysicalDataEx
 
         if (physicalCreation == null)
         {
-            throw new IllegalArgumentException("Physical data cannot be null for a physical data set.");
+            throw new UserFailureException("Physical data cannot be null for a physical data set.");
         }
 
         dataSet.setShareId(physicalCreation.getShareId());
