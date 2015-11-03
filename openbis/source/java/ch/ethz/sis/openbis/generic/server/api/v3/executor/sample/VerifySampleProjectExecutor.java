@@ -44,17 +44,15 @@ public class VerifySampleProjectExecutor implements IVerifySampleProjectExecutor
             if (project != null && sample.getSpace() == null)
             {
                 throw new UserFailureException("Shared samples cannot be attached to projects. Sample: "
-                        + sample.getIdentifier() + ", Project:  " + project.getIdentifier());
+                        + sample.getIdentifier() + ", Project: " + project.getIdentifier());
             }
             if (project != null && project.getSpace().equals(sample.getSpace()) == false)
             {
                 throw new UserFailureException("Sample space must be the same as project space. Sample: "
-                        + sample.getIdentifier() + ", Project:  " + project.getIdentifier());
+                        + sample.getIdentifier() + ", Project: " + project.getIdentifier());
             }
             context.popContextDescription();
         }
-        // TODO Auto-generated method stub
-
     }
 
 }

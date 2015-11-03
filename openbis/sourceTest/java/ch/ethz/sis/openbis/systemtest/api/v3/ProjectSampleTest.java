@@ -181,7 +181,6 @@ public class ProjectSampleTest extends AbstractTest
         assertNotOlder(projects.values().iterator().next().getModificationDate(), now);
     }
     
-
     @Test
     public void testCreateWithProjectAndSpaceInconsistent()
     {
@@ -222,7 +221,7 @@ public class ProjectSampleTest extends AbstractTest
                 }
             }, "Shared samples cannot be attached to projects. "
                     + "Sample: /SAMPLE_WITH_INCONSISTENT_PROJECT_AND_NOSPACE, "
-                    + "Project:  /CISD/NEMO "
+                    + "Project: /CISD/NEMO "
                     + "(Context: [verify project for sample SAMPLE_WITH_INCONSISTENT_PROJECT_AND_NOSPACE])");
     }
     
@@ -251,6 +250,53 @@ public class ProjectSampleTest extends AbstractTest
                 + "Experiment: /CISD/NEMO/EXP1 "
                 + "(Context: [verify experiment for sample SAMPLE_WITH_INCONSISTENT_PROJECT_AND_EXPERIMENT])");
     }
+    
+    @Test
+    public void testAssignSpaceSampleToProjectInDifferentSpace()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        
+        final SampleUpdate sampleUpdate = new SampleUpdate();
+        SampleIdentifier sampleId = new SampleIdentifier("/CISD/C1");
+        sampleUpdate.setSampleId(sampleId);
+        ProjectIdentifier projectId = new ProjectIdentifier("/TEST-SPACE/NOE");
+        sampleUpdate.setProjectId(projectId);
 
+        assertUserFailureException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
+            {
+                v3api.updateSamples(sessionToken, Collections.singletonList(sampleUpdate));
+            }
+        }, "Sample space must be the same as project space. "
+                + "Sample: /CISD/C1, "
+                + "Project: /TEST-SPACE/NOE "
+                + "(Context: [verify project for sample C1])");
+    }
+    
+    @Test
+    public void testAssignSharedSampleToProject()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        
+        final SampleUpdate sampleUpdate = new SampleUpdate();
+        SampleIdentifier sampleId = new SampleIdentifier("/MP");
+        sampleUpdate.setSampleId(sampleId);
+        ProjectIdentifier projectId = new ProjectIdentifier("/TEST-SPACE/NOE");
+        sampleUpdate.setProjectId(projectId);
+        
+        assertUserFailureException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
+            {
+                v3api.updateSamples(sessionToken, Collections.singletonList(sampleUpdate));
+            }
+        }, "Shared samples cannot be attached to projects. "
+                + "Sample: /MP, "
+                + "Project: /TEST-SPACE/NOE "
+                + "(Context: [verify project for sample MP])");
+    }
 
 }
