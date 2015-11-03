@@ -483,7 +483,10 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 			var $textField = FormUtil._getInputField('text', null, "Code", null, true);
 			$textField.keyup(function(event){
 				var textField = $(this);
+				var caretPosition = this.selectionStart;
 				textField.val(textField.val().toUpperCase());
+				this.selectionStart = caretPosition;
+				this.selectionEnd = caretPosition;
 				_this._sampleFormModel.sample.code = textField.val();
 				_this._sampleFormModel.isFormDirty = true;
 			});

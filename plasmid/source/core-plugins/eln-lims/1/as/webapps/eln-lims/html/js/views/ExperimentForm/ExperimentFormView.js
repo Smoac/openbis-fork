@@ -172,7 +172,10 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 		} else if(this._experimentFormModel.mode === FormMode.CREATE) {
 			var $codeField = FormUtil._getInputField("text", null, "code", null, true);
 			$codeField.keyup(function() {
+				var caretPosition = this.selectionStart;
 				$(this).val($(this).val().toUpperCase());
+				this.selectionStart = caretPosition;
+				this.selectionEnd = caretPosition;
 				_this._experimentFormModel.experiment.code = $(this).val();
 				
 				//Full Identifier

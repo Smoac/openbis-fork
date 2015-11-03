@@ -92,7 +92,10 @@ function ProjectFormView(projectFormController, projectFormModel) {
 			var $textField = FormUtil._getInputField('text', null, "Project Code", null, true);
 			$textField.keyup(function(event){
 				var textField = $(this);
+				var caretPosition = this.selectionStart;
 				textField.val(textField.val().toUpperCase());
+				this.selectionStart = caretPosition;
+				this.selectionEnd = caretPosition;
 				_this._projectFormModel.project.code = textField.val();
 				_this._projectFormModel.isFormDirty = true;
 			});
