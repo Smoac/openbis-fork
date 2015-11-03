@@ -65,6 +65,9 @@ public class CreateSampleExecutor extends AbstractCreateEntityExecutor<SampleCre
 
     @Autowired
     private ISetSampleSpaceExecutor setSampleSpaceExecutor;
+    
+    @Autowired
+    private ISetSampleProjectExecutor setSampleProjectExecutor;
 
     @Autowired
     private ISetSampleExperimentExecutor setSampleExperimentExecutor;
@@ -91,10 +94,6 @@ public class CreateSampleExecutor extends AbstractCreateEntityExecutor<SampleCre
 
         for (SampleCreation creation : creations)
         {
-            if (creation.getProjectId() != null)
-            {
-                throw new UserFailureException("Currently it isn't possible to create a sample for project " + creation.getProjectId());
-            }
             SamplePE sample = new SamplePE();
             sample.setCode(creation.getCode());
             String createdPermId = daoFactory.getPermIdDAO().createPermId();
@@ -142,6 +141,7 @@ public class CreateSampleExecutor extends AbstractCreateEntityExecutor<SampleCre
     protected void updateBatch(IOperationContext context, Map<SampleCreation, SamplePE> entitiesMap)
     {
         setSampleSpaceExecutor.set(context, entitiesMap);
+        setSampleProjectExecutor.set(context, entitiesMap);
         setSampleExperimentExecutor.set(context, entitiesMap);
         setSampleTypeExecutor.set(context, entitiesMap);
 

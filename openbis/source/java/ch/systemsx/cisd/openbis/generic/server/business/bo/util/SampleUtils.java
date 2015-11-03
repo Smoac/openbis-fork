@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo.util;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
@@ -39,6 +40,17 @@ public class SampleUtils
         }
     }
 
+    public static void setSamplesProject(ExperimentPE experiment, ProjectPE project)
+    {
+        for (SamplePE sample : experiment.getSamples())
+        {
+            if (sample.getProject() != null)
+            {
+                sample.setProject(project);
+            }
+        }
+    }
+    
     public static UserFailureException createWrongSampleException(DataPE data, SamplePE sample,
             String reason)
     {

@@ -36,34 +36,23 @@ public class VerifySampleExecutor implements IVerifySampleExecutor
     private IVerifyEntityPropertyExecutor verifyEntityPropertyExecutor;
 
     @Autowired
-    private IVerifySampleExperimentExecutor verifySampleExperimentExecutor;
+    private IVerifySampleProjectExecutor verifySampleProjectExecutor;
 
+    @Autowired
+    private IVerifySampleExperimentExecutor verifySampleExperimentExecutor;
+    
     @Autowired
     private IVerifySampleContainerExecutor verifySampleContainerExecutor;
 
     @Autowired
     private IVerifySampleParentsExecutor verifySampleParentsExecutor;
 
-    @SuppressWarnings("unused")
-    private VerifySampleExecutor()
-    {
-    }
-
-    public VerifySampleExecutor(IVerifyEntityPropertyExecutor verifyEntityPropertyExecutor,
-            IVerifySampleExperimentExecutor verifySampleExperimentExecutor, IVerifySampleContainerExecutor verifySampleContainerExecutor,
-            IVerifySampleParentsExecutor verifySampleParentsExecutor)
-    {
-        this.verifyEntityPropertyExecutor = verifyEntityPropertyExecutor;
-        this.verifySampleExperimentExecutor = verifySampleExperimentExecutor;
-        this.verifySampleContainerExecutor = verifySampleContainerExecutor;
-        this.verifySampleParentsExecutor = verifySampleParentsExecutor;
-    }
-
     @Override
     public void verify(IOperationContext context, Collection<SamplePE> samples)
     {
         verifyEntityPropertyExecutor.verify(context, samples);
         verifySampleExperimentExecutor.verify(context, samples);
+        verifySampleProjectExecutor.verify(context, samples);
         verifySampleContainerExecutor.verify(context, samples);
         verifySampleParentsExecutor.verify(context, samples);
     }

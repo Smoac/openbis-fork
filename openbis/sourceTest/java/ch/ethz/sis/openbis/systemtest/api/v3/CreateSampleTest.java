@@ -235,6 +235,29 @@ public class CreateSampleTest extends AbstractSampleTest
     }
 
     @Test
+    public void testCreateWithExperiment()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        final SampleCreation creation = new SampleCreation();
+        creation.setCode("SAMPLE_WITH_EXPERIMENT");
+        creation.setTypeId(new EntityTypePermId("CELL_PLATE"));
+        creation.setSpaceId(new SpacePermId("CISD"));
+        creation.setExperimentId(new ExperimentIdentifier("/CISD/NEMO/EXP1"));
+
+        List<SamplePermId> permIds = v3api.createSamples(sessionToken, Collections.singletonList(creation));
+        
+        SampleFetchOptions fetchOptions = new SampleFetchOptions();
+        fetchOptions.withSpace();
+        fetchOptions.withExperiment();
+        Map<ISampleId, Sample> map = v3api.mapSamples(sessionToken, permIds, fetchOptions);
+        Sample sample = map.get(permIds.get(0));
+        assertEquals(sample.getCode(), "SAMPLE_WITH_EXPERIMENT");
+        assertEquals(sample.getSpace().getCode(), "CISD");
+        assertEquals(sample.getExperiment().getCode(), "EXP1");
+    }
+
+    @Test
     public void testCreateWithSpaceNullAsAdminUser()
     {
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);

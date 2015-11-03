@@ -54,6 +54,9 @@ public class SampleTranslator extends AbstractCachingTranslator<Long, Sample, Sa
     private ISampleSpaceTranslator spaceTranslator;
 
     @Autowired
+    private ISampleProjectTranslator projectTranslator;
+    
+    @Autowired
     private ISamplePropertyTranslator propertyTranslator;
 
     @Autowired
@@ -121,6 +124,11 @@ public class SampleTranslator extends AbstractCachingTranslator<Long, Sample, Sa
         if (fetchOptions.hasSpace())
         {
             relations.put(ISampleSpaceTranslator.class, spaceTranslator.translate(context, sampleIds, fetchOptions.withSpace()));
+        }
+        
+        if (fetchOptions.hasProject())
+        {
+            relations.put(ISampleProjectTranslator.class, projectTranslator.translate(context, sampleIds, fetchOptions.withProject()));
         }
 
         if (fetchOptions.hasProperties())
@@ -216,6 +224,12 @@ public class SampleTranslator extends AbstractCachingTranslator<Long, Sample, Sa
             result.getFetchOptions().withSpaceUsing(fetchOptions.withSpace());
         }
 
+        if (fetchOptions.hasProject())
+        {
+            result.setProject(relations.get(ISampleProjectTranslator.class, sampleId));
+            result.getFetchOptions().withProjectUsing(fetchOptions.withProject());
+        }
+        
         if (fetchOptions.hasProperties())
         {
             result.setProperties(relations.get(ISamplePropertyTranslator.class, sampleId));

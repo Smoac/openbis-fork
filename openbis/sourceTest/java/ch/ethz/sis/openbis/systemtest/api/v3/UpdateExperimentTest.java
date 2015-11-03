@@ -37,6 +37,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.experiment.Exp
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sample.SampleFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.attachment.AttachmentFileName;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.entitytype.EntityTypePermId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentIdentifier;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.IExperimentId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.IProjectId;
@@ -122,6 +123,39 @@ public class UpdateExperimentTest extends AbstractExperimentTest
 
         Experiment experiment = experiments.get(0);
         assertEquals(experiment.getIdentifier().getIdentifier(), "/CISD/NOE/TEST_EXPERIMENT");
+    }
+    
+    @Test(groups = "project-samples")
+    public void testMovingExperimentWithProjectSamplesToADifferentProject()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        SampleCreation sampleCreation = new SampleCreation();
+        sampleCreation.setCode("PROJECT-SAMPLE-IN-EXPERIMENT");
+        ExperimentIdentifier experimentId = new ExperimentIdentifier("CISD", "NEMO", "EXP1");
+        sampleCreation.setExperimentId(experimentId);
+        sampleCreation.setSpaceId(new SpacePermId("CISD"));
+        sampleCreation.setProjectId(new ProjectIdentifier("/CISD/NEMO"));
+        sampleCreation.setTypeId(new EntityTypePermId("CELL_PLATE"));
+        v3api.createSamples(sessionToken, Arrays.asList(sampleCreation));
+        ExperimentUpdate experimentUpdate = new ExperimentUpdate();
+        experimentUpdate.setExperimentId(experimentId);
+        ProjectIdentifier projectId = new ProjectIdentifier("/CISD/NOE");
+        experimentUpdate.setProjectId(projectId);
+        
+        v3api.updateExperiments(sessionToken, Arrays.asList(experimentUpdate));
+        
+        ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
+        fetchOptions.withProject();
+        fetchOptions.withSamples().withProject();
+        Map<IExperimentId, Experiment> map = v3api.mapExperiments(sessionToken, 
+                Arrays.asList(new ExperimentIdentifier("CISD", "NOE", "EXP1")), fetchOptions);
+        List<Experiment> experiments = new ArrayList<Experiment>(map.values());
+        List<Sample> samples = experiments.get(0).getSamples();
+        assertEquals(experiments.get(0).getProject().getCode(), "NOE");
+        assertEquals(samples.get(0).getProject().getCode(), "NOE");
+        AssertionUtil.assertCollectionSize(samples, 1);
+        AssertionUtil.assertCollectionSize(experiments, 1);
     }
 
     @Test

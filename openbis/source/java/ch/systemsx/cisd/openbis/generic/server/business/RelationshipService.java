@@ -75,11 +75,22 @@ public class RelationshipService implements IRelationshipService, ApplicationCon
             ProjectPE project)
     {
         SampleUtils.setSamplesSpace(experiment, project.getSpace());
+        SampleUtils.setSamplesProject(experiment, project);
         ProjectPE previousProject = experiment.getProject();
         RelationshipUtils.updateModificationDateAndModifier(previousProject, session);
         experiment.setProject(project);
         RelationshipUtils.updateModificationDateAndModifier(project, session);
         RelationshipUtils.updateModificationDateAndModifier(experiment, session);
+    }
+
+    @Override
+    public void assignSampleToProject(IAuthSession session, SamplePE sample, ProjectPE project)
+    {
+        ProjectPE previousProject = sample.getProject();
+        RelationshipUtils.updateModificationDateAndModifier(previousProject, session);
+        sample.setProject(project);
+        RelationshipUtils.updateModificationDateAndModifier(project, session);
+        RelationshipUtils.updateModificationDateAndModifier(sample, session);
     }
 
     @Override
@@ -123,6 +134,18 @@ public class RelationshipService implements IRelationshipService, ApplicationCon
             experiment.removeSample(sample);
             RelationshipUtils.updateModificationDateAndModifier(sample, session);
             RelationshipUtils.updateModificationDateAndModifier(experiment, session);
+        }
+    }
+
+    @Override
+    public void unassignSampleFromProject(IAuthSession session, SamplePE sample)
+    {
+        ProjectPE project = sample.getProject();
+        if (project != null)
+        {
+            sample.setProject(null);
+            RelationshipUtils.updateModificationDateAndModifier(sample, session);
+            RelationshipUtils.updateModificationDateAndModifier(project, session);
         }
     }
 

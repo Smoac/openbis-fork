@@ -122,4 +122,6 @@ public interface SampleQuery extends ObjectQuery
     @Select(sql = "select s.id as objectId, s.space_id as relatedId from samples s where s.id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<ObjectRelationRecord> getSpaceIds(LongSet sampleIds);
 
+    @Select(sql = "select s.id as objectId, s.proj_id as relatedId from samples s where s.id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    public List<ObjectRelationRecord> getProjectIds(LongSet sampleIds);
 }

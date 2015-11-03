@@ -89,6 +89,13 @@ public class VerifySampleExperimentExecutor implements IVerifySampleExperimentEx
                 throw new UserFailureException("Sample space must be the same as experiment space. "
                         + "Sample: " + sample.getIdentifier() + ", Experiment: " + experiment.getIdentifier());
             }
+            if (experiment != null && sample.getProject() != null 
+                    && experiment.getProject().equals(sample.getProject()) == false)
+            {
+                throw new UserFailureException("Sample project must be the same as experiment project. "
+                        + "Sample: " + sample.getIdentifier() + ", Project: " + sample.getProject().getIdentifier() 
+                        + ", Experiment: " + experiment.getIdentifier());
+            }
 
             context.popContextDescription();
         }
