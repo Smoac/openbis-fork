@@ -89,7 +89,10 @@ task copyTestData(type: Copy, dependsOn: testClasses) {
     into "${project.buildDir}/classes/test/ch/systemsx/cisd/openbis/generic/shared/basic"
     include "*.properties"
 }
+testProjectSamplesEnabled.dependsOn(copyTestData)
+testProjectSamplesEnabled.dependsOn(cleanDbSuiteProjectSamplesEnabled)
 test.dependsOn(copyTestData)
 test.dependsOn(cleanDbSuite)
+test.dependsOn(testProjectSamplesEnabled)
 
 apply from: 'gwtdev.gradle'
