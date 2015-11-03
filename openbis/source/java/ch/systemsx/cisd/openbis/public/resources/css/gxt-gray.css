@@ -684,3 +684,12 @@ td.x-grid3-hd-over .x-grid3-hd-inner,td.sort-desc .x-grid3-hd-inner,td.sort-asc 
 	border-left: none;
 	border-right: none;
 }
+
+div.x-tab-panel-body.x-tab-panel-body-top {
+	border: none;
+}
+
+.x-small-editor.x-panel-header.x-component.x-unselectable {
+	border-top: none;
+	border-bottom: none;
+}
