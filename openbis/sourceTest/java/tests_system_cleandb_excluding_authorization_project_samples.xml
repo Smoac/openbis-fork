@@ -4,7 +4,6 @@
       <run>
         <include name="system-cleandb"/>
         <exclude name="authorization"/>
-        <exclude name="project-samples"/>
         <exclude name="broken"/>
       </run>
     </groups>
