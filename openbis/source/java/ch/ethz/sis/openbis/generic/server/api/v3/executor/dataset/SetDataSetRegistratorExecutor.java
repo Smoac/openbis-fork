@@ -61,13 +61,18 @@ public class SetDataSetRegistratorExecutor extends AbstractSetEntityToOneRelatio
     @Override
     protected void set(IOperationContext context, DataPE entity, PersonPE related)
     {
+        PersonPE person = null;
+
         if (related == null)
         {
-            entity.setRegistrator(context.getSession().tryGetPerson());
+            person = context.getSession().tryGetPerson();
         } else
         {
-            entity.setRegistrator(related);
+            person = related;
         }
+
+        entity.setRegistrator(person);
+        entity.setModifier(person);
     }
 
 }

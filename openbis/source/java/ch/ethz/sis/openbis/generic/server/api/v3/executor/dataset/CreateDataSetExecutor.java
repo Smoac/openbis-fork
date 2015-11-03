@@ -191,8 +191,8 @@ public class CreateDataSetExecutor extends AbstractCreateEntityExecutor<DataSetC
         setDataSetPhysicalDataExecutor.set(context, entitiesMap);
         setDataSetLinkedDataExecutor.set(context, entitiesMap);
         setDataSetDataStoreExecutor.set(context, entitiesMap);
-        setDataSetExperimentExecutor.set(context, entitiesMap);
         setDataSetSampleExecutor.set(context, entitiesMap);
+        setDataSetExperimentExecutor.set(context, entitiesMap);
         setDataSetRegistratorExecutor.set(context, entitiesMap);
 
         Map<IEntityPropertiesHolder, Map<String, String>> propertyMap = new HashMap<IEntityPropertiesHolder, Map<String, String>>();
@@ -228,7 +228,7 @@ public class CreateDataSetExecutor extends AbstractCreateEntityExecutor<DataSetC
     @Override
     protected void save(IOperationContext context, List<DataPE> entities, boolean clearCache)
     {
-        daoFactory.getDataDAO().createOrUpdateDataSets(entities, context.getSession().tryGetPerson());
+        daoFactory.getDataDAO().createDataSets(entities);
     }
 
     @Override

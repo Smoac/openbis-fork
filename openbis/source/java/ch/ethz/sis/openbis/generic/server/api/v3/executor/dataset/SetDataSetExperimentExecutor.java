@@ -37,13 +37,7 @@ public class SetDataSetExperimentExecutor extends AbstractSetEntityExperimentRel
     @Override
     protected IExperimentId getRelatedId(DataSetCreation creation)
     {
-        if (creation.getSampleId() == null)
-        {
-            return creation.getExperimentId();
-        } else
-        {
-            return null;
-        }
+        return creation.getExperimentId();
     }
 
     @Override
