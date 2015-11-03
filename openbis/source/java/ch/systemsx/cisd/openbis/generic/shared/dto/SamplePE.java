@@ -491,6 +491,7 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = ColumnNames.PROJECT_COLUMN, updatable = true)
+    @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_PROJECT)
     public ProjectPE getProject()
     {
         return project;
