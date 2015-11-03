@@ -59,16 +59,38 @@ var Util = new function() {
 			$.blockUI({ message: '<h1><img src="./img/busy.gif" /> Just a moment...</h1>', css: css });
 		}
 		
+		//Enable/Disable scroll when the mouse goes in/out
+		$('.blockUI.blockMsg.blockPage').hover(function() {
+				if(this.scrollHeight > this.clientHeight) { //Inside, if has scroll, enable when hovering in
+					BlockScrollUtil.enable_scroll();
+				}
+			}, function() {
+				BlockScrollUtil.disable_scroll(); //Always disable when hovering out
+			}
+		);
+		
+		//Enable/Disable scroll when components change
+		$('.blockUI.blockMsg.blockPage').bind("DOMSubtreeModified",function() {
+			if(this.scrollHeight > this.clientHeight) { //Inside, if has scroll, enable
+				BlockScrollUtil.enable_scroll();
+			} else { //If doesn't disable
+				BlockScrollUtil.disable_scroll(); 
+			}
+		});
 	}
 	
 	//
 	// Methods to allow user input
 	//
 	this.unblockUI = function(callback) {
-		BlockScrollUtil.enable_scroll();
 		$('#navbar').unblock();
 		$.unblockUI({ 
-			onUnblock: callback 
+			onUnblock: function() {
+				window.setTimeout(function() { //Enable after all possible enable/disable events happen
+					BlockScrollUtil.enable_scroll();
+					callback();
+				}, 150);
+			}
 		});
 	}
 	
