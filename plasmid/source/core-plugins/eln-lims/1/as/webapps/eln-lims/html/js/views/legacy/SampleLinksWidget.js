@@ -246,8 +246,16 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 							}
 							$("#" + id).css({"border-radius" : "10px", "padding" : "10px", "background-color" : "#EEEEEE" });
 							
+							var $tableContainer = $("#" + tableId);
+							var $gridContainer = $("<div>").css({ "padding" : "2px" });
 							var dataGrid = SampleDataGridUtil.getSampleDataGrid(sampleTypeCode, samples, rowClick);
-							dataGrid.init($("#" + tableId));
+								dataGrid.init($gridContainer);
+							var $closeBtn = FormUtil.getButtonWithText("Cancel").css({"float" : "right"});
+								$closeBtn.click(function() {
+									$('#'+_this._lastUsedId + "-table").empty();
+									$("#"+_this._lastUsedId).css({"background-color" : "#FFFFFF" });
+								});
+							$($tableContainer).append($gridContainer).append($closeBtn);
 							
 							//Store new state
 							_this._lastUsedId = id;
