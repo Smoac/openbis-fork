@@ -27,7 +27,6 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.IDataSetId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.datastore.IDataStoreId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.entitytype.IEntityTypeId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.IExperimentId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.person.IPersonId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.ISampleId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.ITagId;
 import ch.systemsx.cisd.base.annotation.JsonObject;
@@ -67,8 +66,6 @@ public class DataSetCreation implements Serializable, ICreationIdHolder
     private List<? extends IDataSetId> parentIds;
 
     private List<? extends IDataSetId> childIds;
-
-    private IPersonId registratorId;
 
     private CreationId creationId;
 
@@ -211,16 +208,6 @@ public class DataSetCreation implements Serializable, ICreationIdHolder
     public Map<String, String> getProperties()
     {
         return properties;
-    }
-
-    public IPersonId getRegistratorId()
-    {
-        return registratorId;
-    }
-
-    public void setRegistratorId(IPersonId registratorId)
-    {
-        this.registratorId = registratorId;
     }
 
     @Override

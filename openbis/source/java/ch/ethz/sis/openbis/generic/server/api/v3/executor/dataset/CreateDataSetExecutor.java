@@ -86,9 +86,6 @@ public class CreateDataSetExecutor extends AbstractCreateEntityExecutor<DataSetC
     private ISetDataSetRelatedDataSetsExecutor setDataSetRelatedDataSetsExecutor;
 
     @Autowired
-    private ISetDataSetRegistratorExecutor setDataSetRegistratorExecutor;
-
-    @Autowired
     private IUpdateEntityPropertyExecutor updateEntityPropertyExecutor;
 
     @Autowired
@@ -156,6 +153,7 @@ public class CreateDataSetExecutor extends AbstractCreateEntityExecutor<DataSetC
             dataSet.setCode(creation.getCode());
             dataSet.setDataSetType(type);
             dataSet.setDerived(false == creation.isMeasured());
+            dataSet.setRegistrator(context.getSession().tryGetPerson());
             RelationshipUtils.updateModificationDateAndModifier(dataSet, context.getSession().tryGetPerson());
 
             dataSets.add(dataSet);
@@ -193,7 +191,6 @@ public class CreateDataSetExecutor extends AbstractCreateEntityExecutor<DataSetC
         setDataSetDataStoreExecutor.set(context, entitiesMap);
         setDataSetSampleExecutor.set(context, entitiesMap);
         setDataSetExperimentExecutor.set(context, entitiesMap);
-        setDataSetRegistratorExecutor.set(context, entitiesMap);
 
         Map<IEntityPropertiesHolder, Map<String, String>> propertyMap = new HashMap<IEntityPropertiesHolder, Map<String, String>>();
         for (Map.Entry<DataSetCreation, DataPE> entry : entitiesMap.entrySet())
@@ -228,7 +225,7 @@ public class CreateDataSetExecutor extends AbstractCreateEntityExecutor<DataSetC
     @Override
     protected void save(IOperationContext context, List<DataPE> entities, boolean clearCache)
     {
-        daoFactory.getDataDAO().createDataSets(entities);
+        daoFactory.getDataDAO().createDataSets(entities, context.getSession().tryGetPerson());
     }
 
     @Override

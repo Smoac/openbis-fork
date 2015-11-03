@@ -16,6 +16,8 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.method;
 
+import java.util.Set;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -23,6 +25,10 @@ import ch.ethz.sis.openbis.generic.server.api.v3.executor.dataset.ICreateDataSet
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.ICreateEntityExecutor;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSetCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.DataSetPermId;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
+import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 
 /**
  * @author pkupczyk
@@ -34,6 +40,26 @@ public class CreateDataSetMethodExecutor extends AbstractCreateMethodExecutor<Da
 
     @Autowired
     private ICreateDataSetExecutor createExecutor;
+
+    @Override
+    protected void checkSession(Session session)
+    {
+        // We are checking the creator of the session here instead of the actual user. The creator of the session has to always be ETL_SERVER. The
+        // actual user does not have to be ETL_SERVER. This will happen when data store executes the registration on behalf of a different user for
+        // the user to become the registrator.
+
+        Set<RoleAssignmentPE> roles = session.tryGetCreatorPerson().getAllPersonRoles();
+
+        for (RoleAssignmentPE role : roles)
+        {
+            if (RoleCode.ETL_SERVER.equals(role.getRole()))
+            {
+                return;
+            }
+        }
+
+        throw new UserFailureException("Data set creation can be only executed by a user with " + RoleCode.ETL_SERVER + " role.");
+    }
 
     @Override
     protected ICreateEntityExecutor<DataSetCreation, DataSetPermId> getCreateExecutor()

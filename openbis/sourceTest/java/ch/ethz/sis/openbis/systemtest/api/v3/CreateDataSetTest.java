@@ -40,18 +40,19 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.FileFormatTypePe
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.IDataSetId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.LocatorTypePermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.datastore.DataStorePermId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.datastore.IDataStoreId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.entitytype.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.entitytype.IEntityTypeId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentIdentifier;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.IExperimentId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.externaldms.ExternalDmsPermId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.person.PersonPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.ProjectIdentifier;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.ISampleId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SampleIdentifier;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SamplePermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.SpacePermId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.TagCode;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.vocabulary.VocabularyTermCode;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
 
@@ -207,6 +208,103 @@ public class CreateDataSetTest extends AbstractDataSetTest
     }
 
     @Test
+    public void testCreateWithDataStoreNull()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        final DataSetCreation creation = dataSetCreation();
+        creation.setDataStoreId(null);
+
+        assertUserFailureException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.createDataSets(sessionToken, Arrays.asList(creation));
+                }
+            }, "Data store id cannot be null.");
+    }
+
+    @Test
+    public void testCreateWithDataStoreNonexistent()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        final IDataStoreId dataStoreId = new DataStorePermId("IDONTEXIST");
+        final DataSetCreation creation = dataSetCreation();
+        creation.setDataStoreId(dataStoreId);
+
+        assertObjectNotFoundException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.createDataSets(sessionToken, Arrays.asList(creation));
+                }
+            }, dataStoreId);
+    }
+
+    @Test
+    public void testCreateWithMeasuredTrue()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        final DataSetCreation creation = dataSetCreation();
+        creation.setMeasured(true);
+
+        DataSet dataSet = createDataSet(sessionToken, creation, new DataSetFetchOptions());
+        assertEquals(dataSet.getCode(), creation.getCode().toUpperCase());
+        assertEquals(dataSet.isMeasured(), Boolean.TRUE);
+    }
+
+    @Test
+    public void testCreateWithMeasuredFalse()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        final DataSetCreation creation = dataSetCreation();
+        creation.setMeasured(false);
+
+        DataSet dataSet = createDataSet(sessionToken, creation, new DataSetFetchOptions());
+        assertEquals(dataSet.getCode(), creation.getCode().toUpperCase());
+        assertEquals(dataSet.isMeasured(), Boolean.FALSE);
+    }
+
+    @Test
+    public void testCreateWithTagsExisting()
+    {
+        final String sessionToken = v3api.loginAs(TEST_USER, PASSWORD, TEST_SPACE_USER);
+
+        final DataSetCreation creation = dataSetCreation();
+        creation.setExperimentId(new ExperimentIdentifier("/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST"));
+        creation.setTagIds(Arrays.asList(new TagCode("TEST_METAPROJECTS")));
+
+        DataSetFetchOptions fo = new DataSetFetchOptions();
+        fo.withTags();
+
+        DataSet dataSet = createDataSet(sessionToken, creation, fo);
+        assertEquals(dataSet.getCode(), creation.getCode().toUpperCase());
+        assertTags(dataSet.getTags(), "/test_space/TEST_METAPROJECTS");
+    }
+
+    @Test
+    public void testCreateWithTagsNonexistent()
+    {
+        final String sessionToken = v3api.loginAs(TEST_USER, PASSWORD, TEST_SPACE_USER);
+
+        final DataSetCreation creation = dataSetCreation();
+        creation.setExperimentId(new ExperimentIdentifier("/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST"));
+        creation.setTagIds(Arrays.asList(new TagCode("IDONTEXIST")));
+
+        DataSetFetchOptions fo = new DataSetFetchOptions();
+        fo.withTags();
+
+        DataSet dataSet = createDataSet(sessionToken, creation, fo);
+        assertEquals(dataSet.getCode(), creation.getCode().toUpperCase());
+        assertTags(dataSet.getTags(), "/test_space/IDONTEXIST");
+    }
+
+    @Test
     public void testCreateWithExperimentNullAndSampleNull()
     {
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);
@@ -238,10 +336,7 @@ public class CreateDataSetTest extends AbstractDataSetTest
         fo.withExperiment();
         fo.withSample();
 
-        List<DataSetPermId> permIds = v3api.createDataSets(sessionToken, Arrays.asList(creation));
-        Map<IDataSetId, DataSet> dataSets = v3api.mapDataSets(sessionToken, permIds, fo);
-        DataSet dataSet = dataSets.values().iterator().next();
-
+        DataSet dataSet = createDataSet(sessionToken, creation, fo);
         assertEquals(dataSet.getCode(), creation.getCode().toUpperCase());
         assertEquals(dataSet.getExperiment().getIdentifier().getIdentifier(), "/CISD/NEMO/EXP1");
         assertEquals(dataSet.getSample(), null);
@@ -260,10 +355,7 @@ public class CreateDataSetTest extends AbstractDataSetTest
         fo.withExperiment();
         fo.withSample();
 
-        List<DataSetPermId> permIds = v3api.createDataSets(sessionToken, Arrays.asList(creation));
-        Map<IDataSetId, DataSet> dataSets = v3api.mapDataSets(sessionToken, permIds, fo);
-        DataSet dataSet = dataSets.values().iterator().next();
-
+        DataSet dataSet = createDataSet(sessionToken, creation, fo);
         assertEquals(dataSet.getCode(), creation.getCode().toUpperCase());
         assertEquals(dataSet.getExperiment().getIdentifier().getIdentifier(), "/CISD/NEMO/EXP-TEST-1");
         assertEquals(dataSet.getSample().getIdentifier().getIdentifier(), "/CISD/CP-TEST-1");
@@ -283,10 +375,7 @@ public class CreateDataSetTest extends AbstractDataSetTest
         fo.withExperiment();
         fo.withSample();
 
-        List<DataSetPermId> permIds = v3api.createDataSets(sessionToken, Arrays.asList(creation));
-        Map<IDataSetId, DataSet> dataSets = v3api.mapDataSets(sessionToken, permIds, fo);
-        DataSet dataSet = dataSets.values().iterator().next();
-
+        DataSet dataSet = createDataSet(sessionToken, creation, fo);
         assertEquals(dataSet.getCode(), creation.getCode().toUpperCase());
         assertEquals(dataSet.getExperiment(), null);
         assertEquals(dataSet.getSample().getIdentifier().getIdentifier(), "/CISD/3V-125");
@@ -347,10 +436,7 @@ public class CreateDataSetTest extends AbstractDataSetTest
         fo.withExperiment();
         fo.withSample();
 
-        List<DataSetPermId> permIds = v3api.createDataSets(sessionToken, Arrays.asList(creation));
-        Map<IDataSetId, DataSet> dataSets = v3api.mapDataSets(sessionToken, permIds, fo);
-        DataSet dataSet = dataSets.values().iterator().next();
-
+        DataSet dataSet = createDataSet(sessionToken, creation, fo);
         assertEquals(dataSet.getCode(), creation.getCode().toUpperCase());
         assertEquals(dataSet.getExperiment().getIdentifier().getIdentifier(), "/CISD/NEMO/EXP-TEST-1");
         assertEquals(dataSet.getSample().getIdentifier().getIdentifier(), "/CISD/CP-TEST-1");
@@ -404,13 +490,12 @@ public class CreateDataSetTest extends AbstractDataSetTest
     @Test
     public void testCreateWithExperimentUnauthorized()
     {
-        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        final String sessionToken = v3api.loginAs(TEST_USER, PASSWORD, TEST_SPACE_USER);
 
         final IExperimentId experimentId = new ExperimentIdentifier("/CISD/NEMO/EXP1");
         final DataSetCreation creation = dataSetCreation();
         creation.setExperimentId(experimentId);
         creation.setSampleId(null);
-        creation.setRegistratorId(new PersonPermId(TEST_SPACE_USER));
 
         assertUnauthorizedObjectAccessException(new IDelegatedAction()
             {
@@ -419,7 +504,7 @@ public class CreateDataSetTest extends AbstractDataSetTest
                 {
                     v3api.createDataSets(sessionToken, Arrays.asList(creation));
                 }
-            }, new DataSetPermId(creation.getCode()));
+            }, experimentId);
     }
 
     @Test
@@ -449,13 +534,12 @@ public class CreateDataSetTest extends AbstractDataSetTest
     @Test
     public void testCreateWithSampleUnauthorized()
     {
-        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        final String sessionToken = v3api.loginAs(TEST_USER, PASSWORD, TEST_SPACE_USER);
 
         final ISampleId sampleId = new SampleIdentifier("/CISD/CP-TEST-1");
         final DataSetCreation creation = dataSetCreation();
         creation.setExperimentId(null);
         creation.setSampleId(sampleId);
-        creation.setRegistratorId(new PersonPermId(TEST_SPACE_USER));
 
         assertUnauthorizedObjectAccessException(new IDelegatedAction()
             {
@@ -464,7 +548,7 @@ public class CreateDataSetTest extends AbstractDataSetTest
                 {
                     v3api.createDataSets(sessionToken, Arrays.asList(creation));
                 }
-            }, new DataSetPermId(creation.getCode()));
+            }, sampleId);
     }
 
     @Test
@@ -487,12 +571,26 @@ public class CreateDataSetTest extends AbstractDataSetTest
     }
 
     @Test
-    public void testCreateWithRegistratorNull()
+    public void testCreateWithUserNonEtlServer()
+    {
+        final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
+
+        assertUserFailureException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    createDataSet(sessionToken, dataSetCreation(), new DataSetFetchOptions());
+                }
+            }, "Data set creation can be only executed by a user with ETL_SERVER role.");
+    }
+
+    @Test
+    public void testCreateWithUserEtlServer()
     {
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         final DataSetCreation creation = dataSetCreation();
-        creation.setTypeId(new EntityTypePermId("UNKNOWN"));
         creation.setExperimentId(new ExperimentIdentifier("/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST"));
 
         DataSetFetchOptions fo = new DataSetFetchOptions();
@@ -500,10 +598,7 @@ public class CreateDataSetTest extends AbstractDataSetTest
         fo.withSample();
         fo.withRegistrator();
 
-        List<DataSetPermId> permIds = v3api.createDataSets(sessionToken, Arrays.asList(creation));
-        Map<IDataSetId, DataSet> dataSets = v3api.mapDataSets(sessionToken, permIds, fo);
-        DataSet dataSet = dataSets.values().iterator().next();
-
+        DataSet dataSet = createDataSet(sessionToken, creation, fo);
         assertEquals(dataSet.getCode(), creation.getCode().toUpperCase());
         assertEquals(dataSet.getExperiment().getIdentifier().getIdentifier(), "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST");
         assertEquals(dataSet.getSample(), null);
@@ -511,24 +606,19 @@ public class CreateDataSetTest extends AbstractDataSetTest
     }
 
     @Test
-    public void testCreateWithRegistratorNotNull()
+    public void testCreateWithUserEtlServerOnBehalfOtherUser()
     {
-        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        final String sessionToken = v3api.loginAs(TEST_USER, PASSWORD, TEST_SPACE_USER);
 
         final DataSetCreation creation = dataSetCreation();
-        creation.setTypeId(new EntityTypePermId("UNKNOWN"));
         creation.setExperimentId(new ExperimentIdentifier("/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST"));
-        creation.setRegistratorId(new PersonPermId(TEST_SPACE_USER));
 
         DataSetFetchOptions fo = new DataSetFetchOptions();
         fo.withExperiment();
         fo.withSample();
         fo.withRegistrator();
 
-        List<DataSetPermId> permIds = v3api.createDataSets(sessionToken, Arrays.asList(creation));
-        Map<IDataSetId, DataSet> dataSets = v3api.mapDataSets(sessionToken, permIds, fo);
-        DataSet dataSet = dataSets.values().iterator().next();
-
+        DataSet dataSet = createDataSet(sessionToken, creation, fo);
         assertEquals(dataSet.getCode(), creation.getCode().toUpperCase());
         assertEquals(dataSet.getExperiment().getIdentifier().getIdentifier(), "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST");
         assertEquals(dataSet.getSample(), null);
@@ -553,8 +643,6 @@ public class CreateDataSetTest extends AbstractDataSetTest
         creation.setDataStoreId(new DataStorePermId("STANDARD"));
         creation.setPhysicalData(physicalCreation);
 
-        List<DataSetPermId> ids = v3api.createDataSets(sessionToken, Arrays.asList(creation));
-
         DataSetFetchOptions fetchOptions = new DataSetFetchOptions();
         fetchOptions.withType();
         fetchOptions.withExperiment();
@@ -564,9 +652,7 @@ public class CreateDataSetTest extends AbstractDataSetTest
         fetchOptions.withPhysicalData().withStorageFormat();
         fetchOptions.withLinkedData();
 
-        Map<IDataSetId, DataSet> map = v3api.mapDataSets(sessionToken, ids, fetchOptions);
-
-        DataSet dataSet = map.get(ids.get(0));
+        DataSet dataSet = createDataSet(sessionToken, creation, fetchOptions);
         assertEquals(dataSet.getCode(), "TEST_PHYSICAL_DATASET");
         assertEquals(dataSet.getType().getCode(), "UNKNOWN");
         assertEquals(dataSet.getExperiment().getPermId().getPermId(), "200811050951882-1028");
@@ -590,8 +676,6 @@ public class CreateDataSetTest extends AbstractDataSetTest
         creation.setDataStoreId(new DataStorePermId("STANDARD"));
         creation.setContainedIds(Arrays.asList(new DataSetPermId("20081105092159188-3")));
 
-        List<DataSetPermId> ids = v3api.createDataSets(sessionToken, Arrays.asList(creation));
-
         DataSetFetchOptions fetchOptions = new DataSetFetchOptions();
         fetchOptions.withType();
         fetchOptions.withExperiment();
@@ -600,9 +684,7 @@ public class CreateDataSetTest extends AbstractDataSetTest
         fetchOptions.withLinkedData();
         fetchOptions.withContained();
 
-        Map<IDataSetId, DataSet> map = v3api.mapDataSets(sessionToken, ids, fetchOptions);
-
-        DataSet dataSet = map.get(ids.get(0));
+        DataSet dataSet = createDataSet(sessionToken, creation, fetchOptions);
         assertEquals(dataSet.getCode(), "TEST_CONTAINER_DATASET");
         assertEquals(dataSet.getType().getCode(), "CONTAINER_TYPE");
         assertEquals(dataSet.getExperiment().getPermId().getPermId(), "200811050951882-1028");
@@ -629,8 +711,6 @@ public class CreateDataSetTest extends AbstractDataSetTest
         creation.setDataStoreId(new DataStorePermId("STANDARD"));
         creation.setLinkedData(linkedCreation);
 
-        List<DataSetPermId> ids = v3api.createDataSets(sessionToken, Arrays.asList(creation));
-
         DataSetFetchOptions fetchOptions = new DataSetFetchOptions();
         fetchOptions.withType();
         fetchOptions.withExperiment();
@@ -638,9 +718,7 @@ public class CreateDataSetTest extends AbstractDataSetTest
         fetchOptions.withPhysicalData();
         fetchOptions.withLinkedData().withExternalDms();
 
-        Map<IDataSetId, DataSet> map = v3api.mapDataSets(sessionToken, ids, fetchOptions);
-
-        DataSet dataSet = map.get(ids.get(0));
+        DataSet dataSet = createDataSet(sessionToken, creation, fetchOptions);
         assertEquals(dataSet.getCode(), "TEST_LINK_DATASET");
         assertEquals(dataSet.getType().getCode(), "LINK_TYPE");
         assertEquals(dataSet.getExperiment().getPermId().getPermId(), "200811050951882-1028");
@@ -685,6 +763,13 @@ public class CreateDataSetTest extends AbstractDataSetTest
         creation.setTypeId(new EntityTypePermId("CELL_PLATE"));
         creation.setSpaceId(new SpacePermId("CISD"));
         return creation;
+    }
+
+    private DataSet createDataSet(String sessionToken, DataSetCreation creation, DataSetFetchOptions fo)
+    {
+        List<DataSetPermId> permIds = v3api.createDataSets(sessionToken, Arrays.asList(creation));
+        Map<IDataSetId, DataSet> dataSets = v3api.mapDataSets(sessionToken, permIds, fo);
+        return dataSets.values().iterator().next();
     }
 
 }

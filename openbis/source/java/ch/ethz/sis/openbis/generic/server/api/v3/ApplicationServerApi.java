@@ -306,7 +306,6 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
 
     @Override
     @Transactional
-    @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
     @Capability("CREATE_DATASET")
     @DatabaseCreateOrDeleteModification(value = ObjectKind.DATA_SET)
     public List<DataSetPermId> createDataSets(String sessionToken, List<DataSetCreation> creations)

@@ -741,19 +741,17 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
     @Override
     public void createDataSet(DataPE dataset, PersonPE modifier)
     {
-        dataset.setModifier(modifier);
-        dataset.setRegistrator(modifier);
-        createDataSets(Collections.singletonList(dataset));
+        createDataSets(Collections.singletonList(dataset), modifier);
     }
 
     @Override
-    public void createDataSets(final List<DataPE> dataSets) throws DataAccessException
+    public void createDataSets(final List<DataPE> dataSets, PersonPE modifier) throws DataAccessException
     {
         assert dataSets != null && dataSets.size() > 0 : "Unspecified or empty dataSets.";
 
         for (final DataPE dataPE : dataSets)
         {
-            internalCreateOrUpdateDataSet(dataPE);
+            internalCreateOrUpdateDataSet(dataPE, modifier);
         }
 
         if (operationLog.isInfoEnabled())
@@ -765,11 +763,13 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
         scheduleDynamicPropertiesEvaluation(dataSets);
     }
 
-    private void internalCreateOrUpdateDataSet(DataPE dataset)
+    private void internalCreateOrUpdateDataSet(DataPE dataset, PersonPE modifier)
     {
         assert dataset != null : "Unspecified data set.";
 
         dataset.setCode(CodeConverter.tryToDatabase(dataset.getCode()));
+        dataset.setModifier(modifier);
+        dataset.setRegistrator(modifier);
         validatePE(dataset);
 
         lockRelatedEntities(dataset);

@@ -46,6 +46,7 @@ public class AbstractMethodExecutor
 
         try
         {
+            checkSession(session);
             T result = action.execute(context);
             flushCurrentSession();
             return result;
@@ -71,6 +72,10 @@ public class AbstractMethodExecutor
     protected Session getSession(String sessionToken)
     {
         return sessionManager.getSession(sessionToken);
+    }
+
+    protected void checkSession(Session session)
+    {
     }
 
     public interface IMethodAction<T>
