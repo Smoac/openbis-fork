@@ -27,6 +27,7 @@ import java.util.UUID;
 
 import org.testng.annotations.Test;
 
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.Complete;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSetCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.LinkedDataCreation;
@@ -37,11 +38,17 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experimen
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.DataSetFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.CreationId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.BdsDirectoryStorageFormatPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.DataSetPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.FileFormatTypePermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.IDataSetId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.IFileFormatTypeId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.ILocatorTypeId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.IStorageFormatId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.LocatorTypePermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.ProprietaryStorageFormatPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.RelativeLocationLocatorTypePermId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.StorageFormatPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.datastore.DataStorePermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.datastore.IDataStoreId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.entitytype.EntityTypePermId;
@@ -1086,6 +1093,230 @@ public class CreateDataSetTest extends AbstractDataSetTest
                     createDataSet(sessionToken, creation, new DataSetFetchOptions());
                 }
             }, "Physical data set size cannot be < 0.");
+    }
+
+    @Test
+    public void testCreatePhysicalDataSetWithStorageFormatNull()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        final DataSetCreation creation = physicalDataSetCreation();
+        creation.getPhysicalData().setStorageFormatId(null);
+
+        assertUserFailureException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    createDataSet(sessionToken, creation, new DataSetFetchOptions());
+                }
+            }, "Storage format id cannot be null for a physical data set.");
+    }
+
+    @Test
+    public void testCreatePhysicalDataSetWithStorageFormatNotNull()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        DataSetCreation creation = physicalDataSetCreation();
+        creation.getPhysicalData().setStorageFormatId(new BdsDirectoryStorageFormatPermId());
+
+        DataSetFetchOptions fo = new DataSetFetchOptions();
+        fo.withPhysicalData().withStorageFormat();
+
+        DataSet dataSet = createDataSet(sessionToken, creation, fo);
+
+        assertEquals(dataSet.getPhysicalData().getStorageFormat().getCode(), "BDS_DIRECTORY");
+    }
+
+    @Test
+    public void testCreatePhysicalDataSetWithStorageFormatNonexistent()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        final IStorageFormatId storageFormatId = new StorageFormatPermId("IDONTEXIST");
+        final DataSetCreation creation = physicalDataSetCreation();
+        creation.getPhysicalData().setStorageFormatId(storageFormatId);
+
+        assertObjectNotFoundException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    createDataSet(sessionToken, creation, new DataSetFetchOptions());
+                }
+            }, storageFormatId);
+    }
+
+    @Test
+    public void testCreatePhysicalDataSetWithFileFormatTypeNull()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        final DataSetCreation creation = physicalDataSetCreation();
+        creation.getPhysicalData().setFileFormatTypeId(null);
+
+        assertUserFailureException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    createDataSet(sessionToken, creation, new DataSetFetchOptions());
+                }
+            }, "File format type id cannot be null for a physical data set.");
+    }
+
+    @Test
+    public void testCreatePhysicalDataSetWithFileFormatTypeNotNull()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        final DataSetCreation creation = physicalDataSetCreation();
+        creation.getPhysicalData().setFileFormatTypeId(new FileFormatTypePermId("XML"));
+
+        DataSetFetchOptions fo = new DataSetFetchOptions();
+        fo.withPhysicalData().withFileFormatType();
+
+        DataSet dataSet = createDataSet(sessionToken, creation, fo);
+
+        assertEquals(dataSet.getPhysicalData().getFileFormatType().getCode(), "XML");
+    }
+
+    @Test
+    public void testCreatePhysicalDataSetWithFileFormatTypeNonexistent()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        final IFileFormatTypeId formatId = new FileFormatTypePermId("IDONTEXIST");
+        final DataSetCreation creation = physicalDataSetCreation();
+        creation.getPhysicalData().setFileFormatTypeId(formatId);
+
+        assertObjectNotFoundException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    createDataSet(sessionToken, creation, new DataSetFetchOptions());
+                }
+            }, formatId);
+    }
+
+    @Test
+    public void testCreatePhysicalDataSetWithLocatorTypeNull()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        final DataSetCreation creation = physicalDataSetCreation();
+        creation.getPhysicalData().setLocatorTypeId(null);
+
+        DataSetFetchOptions fo = new DataSetFetchOptions();
+        fo.withPhysicalData().withLocatorType();
+
+        DataSet dataSet = createDataSet(sessionToken, creation, fo);
+
+        // got default value
+        assertEquals(dataSet.getPhysicalData().getLocatorType().getCode(), "RELATIVE_LOCATION");
+    }
+
+    @Test
+    public void testCreatePhysicalDataSetWithLocatorTypeNotNull()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        final DataSetCreation creation = physicalDataSetCreation();
+        creation.getPhysicalData().setLocatorTypeId(new RelativeLocationLocatorTypePermId());
+
+        DataSetFetchOptions fo = new DataSetFetchOptions();
+        fo.withPhysicalData().withLocatorType();
+
+        DataSet dataSet = createDataSet(sessionToken, creation, fo);
+
+        assertEquals(dataSet.getPhysicalData().getLocatorType().getCode(), "RELATIVE_LOCATION");
+    }
+
+    @Test
+    public void testCreatePhysicalDataSetWithLocatorTypeNonexistent()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        final ILocatorTypeId locatorTypeId = new LocatorTypePermId("IDONTEXIST");
+        final DataSetCreation creation = physicalDataSetCreation();
+        creation.getPhysicalData().setLocatorTypeId(locatorTypeId);
+
+        assertObjectNotFoundException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    createDataSet(sessionToken, creation, new DataSetFetchOptions());
+                }
+            }, locatorTypeId);
+    }
+
+    @Test
+    public void testCreatePhysicalDataSetWithCompleteNull()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        final DataSetCreation creation = physicalDataSetCreation();
+        creation.getPhysicalData().setComplete(null);
+
+        DataSetFetchOptions fo = new DataSetFetchOptions();
+        fo.withPhysicalData();
+
+        DataSet dataSet = createDataSet(sessionToken, creation, fo);
+
+        // got default value
+        assertEquals(dataSet.getPhysicalData().getComplete(), Complete.UNKNOWN);
+    }
+
+    @Test
+    public void testCreatePhysicalDataSetWithCompleteNotNull()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        final DataSetCreation creation = physicalDataSetCreation();
+        creation.getPhysicalData().setComplete(Complete.YES);
+
+        DataSetFetchOptions fo = new DataSetFetchOptions();
+        fo.withPhysicalData();
+
+        DataSet dataSet = createDataSet(sessionToken, creation, fo);
+
+        assertEquals(dataSet.getPhysicalData().getComplete(), Complete.YES);
+    }
+
+    @Test
+    public void testCreatePhysicalDataSetWithSpeedHintNull()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        final DataSetCreation creation = physicalDataSetCreation();
+        creation.getPhysicalData().setSpeedHint(null);
+
+        DataSetFetchOptions fo = new DataSetFetchOptions();
+        fo.withPhysicalData();
+
+        DataSet dataSet = createDataSet(sessionToken, creation, fo);
+
+        // got default value
+        assertEquals(dataSet.getPhysicalData().getSpeedHint(), Integer.valueOf(-50));
+    }
+
+    @Test
+    public void testCreatePhysicalDataSetWithSpeedHintNotNull()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        final DataSetCreation creation = physicalDataSetCreation();
+        creation.getPhysicalData().setSpeedHint(123);
+
+        DataSetFetchOptions fo = new DataSetFetchOptions();
+        fo.withPhysicalData();
+
+        DataSet dataSet = createDataSet(sessionToken, creation, fo);
+
+        assertEquals(dataSet.getPhysicalData().getSpeedHint(), Integer.valueOf(123));
     }
 
     @Test

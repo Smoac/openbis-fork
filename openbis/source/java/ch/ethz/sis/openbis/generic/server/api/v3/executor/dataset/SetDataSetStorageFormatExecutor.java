@@ -24,17 +24,11 @@ import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.AbstractSetEntityToOneRelationExecutor;
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.vocabulary.IMapVocabularyTermByIdExecutor;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSetCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.IStorageFormatId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.StorageFormatPermId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.vocabulary.IVocabularyTermId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.vocabulary.VocabularyPermId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.vocabulary.VocabularyTermCode;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
 
 /**
@@ -42,43 +36,27 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
  */
 @Component
 public class SetDataSetStorageFormatExecutor extends
-        AbstractSetEntityToOneRelationExecutor<DataSetCreation, DataPE, IVocabularyTermId, VocabularyTermPE>
+        AbstractSetEntityToOneRelationExecutor<DataSetCreation, DataPE, IStorageFormatId, VocabularyTermPE>
         implements ISetDataSetStorageFormatExecutor
 {
 
     @Autowired
-    private IMapVocabularyTermByIdExecutor mapVocabularyTermByIdExecutor;
+    private IMapStorageFormatByIdExecutor mapStorageFormatByIdExecutor;
 
     @Override
-    protected IVocabularyTermId getRelatedId(DataSetCreation creation)
+    protected IStorageFormatId getRelatedId(DataSetCreation creation)
     {
-        if (creation.getPhysicalData() != null)
-        {
-            IStorageFormatId storageFormatId = creation.getPhysicalData().getStorageFormatId();
-
-            if (storageFormatId != null)
-            {
-                if (storageFormatId instanceof StorageFormatPermId)
-                {
-                    return new VocabularyTermCode(((StorageFormatPermId) storageFormatId).getPermId());
-                } else
-                {
-                    throw new UserFailureException("Unsupported storage format: " + storageFormatId.getClass().getName());
-                }
-            }
-        }
-
-        return null;
+        return creation.getPhysicalData() != null ? creation.getPhysicalData().getStorageFormatId() : null;
     }
 
     @Override
-    protected Map<IVocabularyTermId, VocabularyTermPE> map(IOperationContext context, List<IVocabularyTermId> relatedIds)
+    protected Map<IStorageFormatId, VocabularyTermPE> map(IOperationContext context, List<IStorageFormatId> relatedIds)
     {
-        return mapVocabularyTermByIdExecutor.map(context, new VocabularyPermId(StorageFormat.VOCABULARY_CODE), relatedIds);
+        return mapStorageFormatByIdExecutor.map(context, relatedIds);
     }
 
     @Override
-    protected void check(IOperationContext context, DataPE entity, IVocabularyTermId relatedId, VocabularyTermPE related)
+    protected void check(IOperationContext context, DataPE entity, IStorageFormatId relatedId, VocabularyTermPE related)
     {
         if (entity instanceof ExternalDataPE && relatedId == null)
         {
