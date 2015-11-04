@@ -207,11 +207,12 @@ clean.dependsOn deleteSymLinks
 
 test {
     useTestNG()
-    options.suites('sourceTest/java/tests.xml')
+    options.suites('sourceTest/java/tests.xml')    
 
-....systemProperty "ant.project.name", project.name
+    systemProperty "ant.project.name", project.name
 
-    allJvmArgs '-Xmx2048m', '-XX:MaxPermSize=256m', '-Duser.timezone=Europe/Zurich'
+    maxHeapSize = "2048m"
+    jvmArgs '-XX:MaxPermSize=256m', '-Duser.timezone=Europe/Zurich'
     
     testLogging.showStandardStreams = true
     ignoreFailures = true
