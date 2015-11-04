@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 ETH Zuerich, Scientific IT Services
+ * Copyright 2013 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,20 +14,18 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.api.v3.helper.common;
+package ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset;
 
-import java.util.List;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.IObjectId;
+import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
+ * Holds information that uniquely identifies a storage format in openBIS.
+ * 
  * @author pkupczyk
  */
-public interface IListObjectById<ID, OBJECT>
+@JsonObject("dto.id.dataset.IStorageFormatId")
+public interface IStorageFormatId extends IObjectId
 {
-
-    public boolean acceptsIdClass(Class<ID> idClass);
-
-    public ID createId(OBJECT entity);
-
-    public List<OBJECT> listByIds(List<ID> ids);
 
 }

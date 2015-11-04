@@ -40,7 +40,8 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.CreationId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.DataSetPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.FileFormatTypePermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.IDataSetId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.LocatorTypePermId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.ProprietaryStorageFormatPermId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.RelativeLocationLocatorTypePermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.datastore.DataStorePermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.datastore.IDataStoreId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.entitytype.EntityTypePermId;
@@ -49,13 +50,13 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentIde
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.IExperimentId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.externaldms.ExternalDmsPermId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.externaldms.IExternalDmsId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.ProjectIdentifier;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.ISampleId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SampleIdentifier;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SamplePermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.SpacePermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.TagCode;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.vocabulary.VocabularyTermCode;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
 
 /**
@@ -68,7 +69,7 @@ public class CreateDataSetTest extends AbstractDataSetTest
     public void testCreateWithCodeNull()
     {
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);
-        final DataSetCreation dataSet = dataSetCreation();
+        final DataSetCreation dataSet = physicalDataSetCreation();
         dataSet.setCode(null);
 
         assertUserFailureException(new IDelegatedAction()
@@ -86,7 +87,7 @@ public class CreateDataSetTest extends AbstractDataSetTest
     {
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-        final DataSetCreation dataSet = dataSetCreation();
+        final DataSetCreation dataSet = physicalDataSetCreation();
         dataSet.setCode("DATA_SET_WITH_EXISTING_CODE");
         v3api.createDataSets(sessionToken, Arrays.asList(dataSet));
 
@@ -104,7 +105,7 @@ public class CreateDataSetTest extends AbstractDataSetTest
     public void testCreateWithCodeIncorrect()
     {
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);
-        final DataSetCreation dataSet = dataSetCreation();
+        final DataSetCreation dataSet = physicalDataSetCreation();
         dataSet.setCode("?!*");
 
         assertUserFailureException(new IDelegatedAction()
@@ -122,7 +123,7 @@ public class CreateDataSetTest extends AbstractDataSetTest
     {
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-        final DataSetCreation dataSet = dataSetCreation();
+        final DataSetCreation dataSet = physicalDataSetCreation();
         dataSet.setTypeId(null);
 
         assertUserFailureException(new IDelegatedAction()
@@ -141,7 +142,7 @@ public class CreateDataSetTest extends AbstractDataSetTest
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         final IEntityTypeId typeId = new EntityTypePermId("IDONTEXIST");
-        final DataSetCreation dataSet = dataSetCreation();
+        final DataSetCreation dataSet = physicalDataSetCreation();
         dataSet.setTypeId(typeId);
 
         assertObjectNotFoundException(new IDelegatedAction()
@@ -159,7 +160,7 @@ public class CreateDataSetTest extends AbstractDataSetTest
     {
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-        final DataSetCreation creation = dataSetCreation();
+        final DataSetCreation creation = physicalDataSetCreation();
         creation.setProperty("NONEXISTENT_PROPERTY_CODE", "any value");
 
         assertUserFailureException(new IDelegatedAction()
@@ -177,7 +178,7 @@ public class CreateDataSetTest extends AbstractDataSetTest
     {
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-        final DataSetCreation creation = dataSetCreation();
+        final DataSetCreation creation = physicalDataSetCreation();
         creation.setTypeId(new EntityTypePermId("HCS_IMAGE"));
         creation.setProperty("GENDER", "NON_EXISTENT_GENDER");
 
@@ -196,7 +197,7 @@ public class CreateDataSetTest extends AbstractDataSetTest
     {
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-        final DataSetCreation creation = dataSetCreation();
+        final DataSetCreation creation = physicalDataSetCreation();
         creation.setTypeId(new EntityTypePermId("HCS_IMAGE"));
 
         assertUserFailureException(new IDelegatedAction()
@@ -214,7 +215,7 @@ public class CreateDataSetTest extends AbstractDataSetTest
     {
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-        final DataSetCreation creation = dataSetCreation();
+        final DataSetCreation creation = physicalDataSetCreation();
         creation.setDataStoreId(null);
 
         assertUserFailureException(new IDelegatedAction()
@@ -233,7 +234,7 @@ public class CreateDataSetTest extends AbstractDataSetTest
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         final IDataStoreId dataStoreId = new DataStorePermId("IDONTEXIST");
-        final DataSetCreation creation = dataSetCreation();
+        final DataSetCreation creation = physicalDataSetCreation();
         creation.setDataStoreId(dataStoreId);
 
         assertObjectNotFoundException(new IDelegatedAction()
@@ -251,7 +252,7 @@ public class CreateDataSetTest extends AbstractDataSetTest
     {
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-        final DataSetCreation creation = dataSetCreation();
+        final DataSetCreation creation = physicalDataSetCreation();
         creation.setMeasured(true);
 
         DataSet dataSet = createDataSet(sessionToken, creation, new DataSetFetchOptions());
@@ -264,7 +265,7 @@ public class CreateDataSetTest extends AbstractDataSetTest
     {
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-        final DataSetCreation creation = dataSetCreation();
+        final DataSetCreation creation = physicalDataSetCreation();
         creation.setMeasured(false);
 
         DataSet dataSet = createDataSet(sessionToken, creation, new DataSetFetchOptions());
@@ -277,7 +278,7 @@ public class CreateDataSetTest extends AbstractDataSetTest
     {
         final String sessionToken = v3api.loginAs(TEST_USER, PASSWORD, TEST_SPACE_USER);
 
-        final DataSetCreation creation = dataSetCreation();
+        final DataSetCreation creation = physicalDataSetCreation();
         creation.setExperimentId(new ExperimentIdentifier("/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST"));
         creation.setTagIds(Arrays.asList(new TagCode("TEST_METAPROJECTS")));
 
@@ -294,7 +295,7 @@ public class CreateDataSetTest extends AbstractDataSetTest
     {
         final String sessionToken = v3api.loginAs(TEST_USER, PASSWORD, TEST_SPACE_USER);
 
-        final DataSetCreation creation = dataSetCreation();
+        final DataSetCreation creation = physicalDataSetCreation();
         creation.setExperimentId(new ExperimentIdentifier("/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST"));
         creation.setTagIds(Arrays.asList(new TagCode("IDONTEXIST")));
 
@@ -311,7 +312,7 @@ public class CreateDataSetTest extends AbstractDataSetTest
     {
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-        final DataSetCreation creation = dataSetCreation();
+        final DataSetCreation creation = physicalDataSetCreation();
         creation.setExperimentId(null);
         creation.setSampleId(null);
 
@@ -330,7 +331,7 @@ public class CreateDataSetTest extends AbstractDataSetTest
     {
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-        final DataSetCreation creation = dataSetCreation();
+        final DataSetCreation creation = physicalDataSetCreation();
         creation.setExperimentId(new ExperimentIdentifier("/CISD/NEMO/EXP1"));
         creation.setSampleId(null);
 
@@ -349,7 +350,7 @@ public class CreateDataSetTest extends AbstractDataSetTest
     {
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-        final DataSetCreation creation = dataSetCreation();
+        final DataSetCreation creation = physicalDataSetCreation();
         creation.setExperimentId(null);
         creation.setSampleId(new SampleIdentifier("/CISD/CP-TEST-1"));
 
@@ -368,7 +369,7 @@ public class CreateDataSetTest extends AbstractDataSetTest
     {
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-        final DataSetCreation creation = dataSetCreation();
+        final DataSetCreation creation = physicalDataSetCreation();
         creation.setTypeId(new EntityTypePermId("UNKNOWN"));
         creation.setExperimentId(null);
         creation.setSampleId(new SampleIdentifier("/CISD/3V-125"));
@@ -388,7 +389,7 @@ public class CreateDataSetTest extends AbstractDataSetTest
     {
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-        final DataSetCreation creation = dataSetCreation();
+        final DataSetCreation creation = physicalDataSetCreation();
         creation.setTypeId(new EntityTypePermId("REQUIRES_EXPERIMENT"));
         creation.setExperimentId(null);
         creation.setSampleId(new SampleIdentifier("/CISD/3V-125"));
@@ -408,7 +409,7 @@ public class CreateDataSetTest extends AbstractDataSetTest
     {
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-        final DataSetCreation creation = dataSetCreation();
+        final DataSetCreation creation = physicalDataSetCreation();
         creation.setTypeId(new EntityTypePermId("UNKNOWN"));
         creation.setExperimentId(new ExperimentIdentifier("/CISD/NEMO/EXP-TEST-1"));
         creation.setSampleId(new SampleIdentifier("/CISD/3V-125"));
@@ -429,7 +430,7 @@ public class CreateDataSetTest extends AbstractDataSetTest
     {
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-        final DataSetCreation creation = dataSetCreation();
+        final DataSetCreation creation = physicalDataSetCreation();
         creation.setTypeId(new EntityTypePermId("UNKNOWN"));
         creation.setExperimentId(new ExperimentIdentifier("/CISD/NEMO/EXP-TEST-1"));
         creation.setSampleId(new SampleIdentifier("/CISD/CP-TEST-1"));
@@ -449,7 +450,7 @@ public class CreateDataSetTest extends AbstractDataSetTest
     {
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-        final DataSetCreation creation = dataSetCreation();
+        final DataSetCreation creation = physicalDataSetCreation();
         creation.setTypeId(new EntityTypePermId("UNKNOWN"));
         creation.setExperimentId(new ExperimentIdentifier("/CISD/DEFAULT/EXP-REUSE"));
         creation.setSampleId(new SampleIdentifier("/CISD/CP-TEST-1"));
@@ -475,7 +476,7 @@ public class CreateDataSetTest extends AbstractDataSetTest
         deletion.setReason("testing");
         v3api.deleteExperiments(sessionToken, experimentIds, deletion);
 
-        final DataSetCreation creation = dataSetCreation();
+        final DataSetCreation creation = physicalDataSetCreation();
         creation.setExperimentId(experimentIds.get(0));
         creation.setSampleId(null);
 
@@ -495,7 +496,7 @@ public class CreateDataSetTest extends AbstractDataSetTest
         final String sessionToken = v3api.loginAs(TEST_USER, PASSWORD, TEST_SPACE_USER);
 
         final IExperimentId experimentId = new ExperimentIdentifier("/CISD/NEMO/EXP1");
-        final DataSetCreation creation = dataSetCreation();
+        final DataSetCreation creation = physicalDataSetCreation();
         creation.setExperimentId(experimentId);
         creation.setSampleId(null);
 
@@ -519,7 +520,7 @@ public class CreateDataSetTest extends AbstractDataSetTest
         deletion.setReason("testing");
         v3api.deleteSamples(sessionToken, sampleIds, deletion);
 
-        final DataSetCreation creation = dataSetCreation();
+        final DataSetCreation creation = physicalDataSetCreation();
         creation.setExperimentId(null);
         creation.setSampleId(sampleIds.get(0));
 
@@ -539,7 +540,7 @@ public class CreateDataSetTest extends AbstractDataSetTest
         final String sessionToken = v3api.loginAs(TEST_USER, PASSWORD, TEST_SPACE_USER);
 
         final ISampleId sampleId = new SampleIdentifier("/CISD/CP-TEST-1");
-        final DataSetCreation creation = dataSetCreation();
+        final DataSetCreation creation = physicalDataSetCreation();
         creation.setExperimentId(null);
         creation.setSampleId(sampleId);
 
@@ -558,7 +559,7 @@ public class CreateDataSetTest extends AbstractDataSetTest
     {
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-        final DataSetCreation creation = dataSetCreation();
+        final DataSetCreation creation = physicalDataSetCreation();
         creation.setExperimentId(null);
         creation.setSampleId(new SamplePermId("200811050947161-652"));
 
@@ -577,7 +578,7 @@ public class CreateDataSetTest extends AbstractDataSetTest
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-        DataSetCreation creation = dataSetCreation();
+        DataSetCreation creation = physicalDataSetCreation();
         creation.setContainerIds(Collections.singletonList(new DataSetPermId("20081105092159111-1")));
 
         DataSetFetchOptions fo = new DataSetFetchOptions();
@@ -594,9 +595,9 @@ public class CreateDataSetTest extends AbstractDataSetTest
     {
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-        final DataSetCreation creation1 = dataSetCreation();
-        final DataSetCreation creation2 = dataSetCreation();
-        final DataSetCreation creation3 = dataSetCreation();
+        final DataSetCreation creation1 = physicalDataSetCreation();
+        final DataSetCreation creation2 = physicalDataSetCreation();
+        final DataSetCreation creation3 = physicalDataSetCreation();
 
         creation2.setContainerIds(Collections.singletonList(creation1.getCreationId()));
         creation3.setContainerIds(Collections.singletonList(creation2.getCreationId()));
@@ -618,7 +619,7 @@ public class CreateDataSetTest extends AbstractDataSetTest
         final String sessionToken = v3api.loginAs(TEST_USER, PASSWORD, TEST_SPACE_USER);
 
         final IDataSetId containerId = new DataSetPermId("20081105092159111-1");
-        final DataSetCreation creation = dataSetCreation();
+        final DataSetCreation creation = physicalDataSetCreation();
         creation.setExperimentId(new ExperimentIdentifier("/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST"));
         creation.setContainerIds(Collections.singletonList(containerId));
 
@@ -637,7 +638,7 @@ public class CreateDataSetTest extends AbstractDataSetTest
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-        DataSetCreation creation = dataSetCreation();
+        DataSetCreation creation = physicalDataSetCreation();
         creation.setContainedIds(Collections.singletonList(new DataSetPermId("20081105092159111-1")));
 
         DataSetFetchOptions fo = new DataSetFetchOptions();
@@ -654,9 +655,9 @@ public class CreateDataSetTest extends AbstractDataSetTest
     {
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-        final DataSetCreation creation1 = dataSetCreation();
-        final DataSetCreation creation2 = dataSetCreation();
-        final DataSetCreation creation3 = dataSetCreation();
+        final DataSetCreation creation1 = physicalDataSetCreation();
+        final DataSetCreation creation2 = physicalDataSetCreation();
+        final DataSetCreation creation3 = physicalDataSetCreation();
 
         creation2.setContainedIds(Collections.singletonList(creation1.getCreationId()));
         creation3.setContainedIds(Collections.singletonList(creation2.getCreationId()));
@@ -678,7 +679,7 @@ public class CreateDataSetTest extends AbstractDataSetTest
         final String sessionToken = v3api.loginAs(TEST_USER, PASSWORD, TEST_SPACE_USER);
 
         final IDataSetId containedId = new DataSetPermId("20081105092159111-1");
-        final DataSetCreation creation = dataSetCreation();
+        final DataSetCreation creation = physicalDataSetCreation();
         creation.setExperimentId(new ExperimentIdentifier("/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST"));
         creation.setContainedIds(Collections.singletonList(containedId));
 
@@ -697,7 +698,7 @@ public class CreateDataSetTest extends AbstractDataSetTest
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-        DataSetCreation creation = dataSetCreation();
+        DataSetCreation creation = physicalDataSetCreation();
         creation.setParentIds(Collections.singletonList(new DataSetPermId("20081105092159111-1")));
 
         DataSetFetchOptions fo = new DataSetFetchOptions();
@@ -714,9 +715,9 @@ public class CreateDataSetTest extends AbstractDataSetTest
     {
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-        final DataSetCreation creation1 = dataSetCreation();
-        final DataSetCreation creation2 = dataSetCreation();
-        final DataSetCreation creation3 = dataSetCreation();
+        final DataSetCreation creation1 = physicalDataSetCreation();
+        final DataSetCreation creation2 = physicalDataSetCreation();
+        final DataSetCreation creation3 = physicalDataSetCreation();
 
         creation2.setParentIds(Collections.singletonList(creation1.getCreationId()));
         creation3.setParentIds(Collections.singletonList(creation2.getCreationId()));
@@ -738,7 +739,7 @@ public class CreateDataSetTest extends AbstractDataSetTest
         final String sessionToken = v3api.loginAs(TEST_USER, PASSWORD, TEST_SPACE_USER);
 
         final IDataSetId parentId = new DataSetPermId("20081105092159111-1");
-        final DataSetCreation creation = dataSetCreation();
+        final DataSetCreation creation = physicalDataSetCreation();
         creation.setExperimentId(new ExperimentIdentifier("/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST"));
         creation.setParentIds(Collections.singletonList(parentId));
 
@@ -757,7 +758,7 @@ public class CreateDataSetTest extends AbstractDataSetTest
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-        DataSetCreation creation = dataSetCreation();
+        DataSetCreation creation = physicalDataSetCreation();
         creation.setChildIds(Collections.singletonList(new DataSetPermId("20081105092159111-1")));
 
         DataSetFetchOptions fo = new DataSetFetchOptions();
@@ -774,9 +775,9 @@ public class CreateDataSetTest extends AbstractDataSetTest
     {
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-        final DataSetCreation creation1 = dataSetCreation();
-        final DataSetCreation creation2 = dataSetCreation();
-        final DataSetCreation creation3 = dataSetCreation();
+        final DataSetCreation creation1 = physicalDataSetCreation();
+        final DataSetCreation creation2 = physicalDataSetCreation();
+        final DataSetCreation creation3 = physicalDataSetCreation();
 
         creation2.setChildIds(Collections.singletonList(creation1.getCreationId()));
         creation3.setChildIds(Collections.singletonList(creation2.getCreationId()));
@@ -798,7 +799,7 @@ public class CreateDataSetTest extends AbstractDataSetTest
         final String sessionToken = v3api.loginAs(TEST_USER, PASSWORD, TEST_SPACE_USER);
 
         final IDataSetId childId = new DataSetPermId("20081105092159111-1");
-        final DataSetCreation creation = dataSetCreation();
+        final DataSetCreation creation = physicalDataSetCreation();
         creation.setExperimentId(new ExperimentIdentifier("/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST"));
         creation.setChildIds(Collections.singletonList(childId));
 
@@ -822,7 +823,7 @@ public class CreateDataSetTest extends AbstractDataSetTest
                 @Override
                 public void execute()
                 {
-                    createDataSet(sessionToken, dataSetCreation(), new DataSetFetchOptions());
+                    createDataSet(sessionToken, physicalDataSetCreation(), new DataSetFetchOptions());
                 }
             }, "Data set creation can be only executed by a user with ETL_SERVER role.");
     }
@@ -832,7 +833,7 @@ public class CreateDataSetTest extends AbstractDataSetTest
     {
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-        final DataSetCreation creation = dataSetCreation();
+        final DataSetCreation creation = physicalDataSetCreation();
         creation.setExperimentId(new ExperimentIdentifier("/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST"));
 
         DataSetFetchOptions fo = new DataSetFetchOptions();
@@ -852,7 +853,7 @@ public class CreateDataSetTest extends AbstractDataSetTest
     {
         final String sessionToken = v3api.loginAs(TEST_USER, PASSWORD, TEST_SPACE_USER);
 
-        final DataSetCreation creation = dataSetCreation();
+        final DataSetCreation creation = physicalDataSetCreation();
         creation.setExperimentId(new ExperimentIdentifier("/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST"));
 
         DataSetFetchOptions fo = new DataSetFetchOptions();
@@ -875,8 +876,8 @@ public class CreateDataSetTest extends AbstractDataSetTest
         PhysicalDataCreation physicalCreation = new PhysicalDataCreation();
         physicalCreation.setLocation("a/b/c");
         physicalCreation.setFileFormatTypeId(new FileFormatTypePermId("TIFF"));
-        physicalCreation.setLocatorTypeId(new LocatorTypePermId("RELATIVE_LOCATION"));
-        physicalCreation.setStorageFormatId(new VocabularyTermCode("PROPRIETARY"));
+        physicalCreation.setLocatorTypeId(new RelativeLocationLocatorTypePermId());
+        physicalCreation.setStorageFormatId(new ProprietaryStorageFormatPermId());
 
         DataSetCreation creation = new DataSetCreation();
         creation.setCode("TEST_PHYSICAL_DATASET");
@@ -911,11 +912,8 @@ public class CreateDataSetTest extends AbstractDataSetTest
     {
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-        final DataSetCreation creation = new DataSetCreation();
-        creation.setCode("TEST_PHYSICAL_DATASET");
-        creation.setTypeId(new EntityTypePermId("UNKNOWN"));
-        creation.setExperimentId(new ExperimentIdentifier("/CISD/NEMO/EXP1"));
-        creation.setDataStoreId(new DataStorePermId("STANDARD"));
+        final DataSetCreation creation = physicalDataSetCreation();
+        creation.setPhysicalData(null);
 
         assertUserFailureException(new IDelegatedAction()
             {
@@ -925,6 +923,169 @@ public class CreateDataSetTest extends AbstractDataSetTest
                     createDataSet(sessionToken, creation, new DataSetFetchOptions());
                 }
             }, "Physical data cannot be null for a physical data set.");
+    }
+
+    @Test
+    public void testCreatePhysicalDataSetWithShareIdNull()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        DataSetCreation creation = physicalDataSetCreation();
+        creation.getPhysicalData().setShareId(null);
+
+        DataSetFetchOptions fo = new DataSetFetchOptions();
+        fo.withPhysicalData();
+
+        DataSet dataSet = createDataSet(sessionToken, creation, fo);
+
+        assertEquals(dataSet.getPhysicalData().getShareId(), null);
+    }
+
+    @Test
+    public void testCreatePhysicalDataSetWithShareIdNotNull()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        DataSetCreation creation = physicalDataSetCreation();
+        creation.getPhysicalData().setShareId("SOME_SHARE");
+
+        DataSetFetchOptions fo = new DataSetFetchOptions();
+        fo.withPhysicalData();
+
+        DataSet dataSet = createDataSet(sessionToken, creation, fo);
+
+        assertEquals(dataSet.getPhysicalData().getShareId(), "SOME_SHARE");
+    }
+
+    @Test
+    public void testCreatePhysicalDataSetWithLocationNull()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        final DataSetCreation creation = physicalDataSetCreation();
+        creation.getPhysicalData().setLocation(null);
+
+        assertUserFailureException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    createDataSet(sessionToken, creation, new DataSetFetchOptions());
+                }
+            }, "Location can not be null.");
+    }
+
+    @Test
+    public void testCreatePhysicalDataSetWithLocationAbsolute()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        final DataSetCreation creation = physicalDataSetCreation();
+        creation.getPhysicalData().setLocation("/cannot_be_absolute_path/sorry");
+
+        assertUserFailureException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    createDataSet(sessionToken, creation, new DataSetFetchOptions());
+                }
+            }, "Location is not relative");
+    }
+
+    @Test
+    public void testCreatePhysicalDataSetWithLocationRelative()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        DataSetCreation creation = physicalDataSetCreation();
+        creation.getPhysicalData().setLocation("relative_path_should_be/fine");
+
+        DataSetFetchOptions fo = new DataSetFetchOptions();
+        fo.withPhysicalData();
+
+        DataSet dataSet = createDataSet(sessionToken, creation, fo);
+
+        assertEquals(dataSet.getPhysicalData().getLocation(), creation.getPhysicalData().getLocation());
+    }
+
+    @Test
+    public void testCreatePhysicalDataSetWithLocationExisting()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        final String location = "duplicated_location/should_fail";
+
+        final DataSetCreation creation1 = physicalDataSetCreation();
+        creation1.getPhysicalData().setLocation(location);
+
+        final DataSetCreation creation2 = physicalDataSetCreation();
+        creation2.getPhysicalData().setLocation(location);
+
+        final DataSetFetchOptions fo = new DataSetFetchOptions();
+        fo.withPhysicalData();
+
+        DataSet dataSet1 = createDataSet(sessionToken, creation1, fo);
+        assertEquals(dataSet1.getPhysicalData().getLocation(), creation1.getPhysicalData().getLocation());
+
+        assertUserFailureException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    createDataSet(sessionToken, creation2, fo);
+                }
+            }, "DataSet already exists in the database and needs to be unique.");
+    }
+
+    @Test
+    public void testCreatePhysicalDataSetWithSizeNull()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        DataSetCreation creation = physicalDataSetCreation();
+        creation.getPhysicalData().setSize(null);
+
+        DataSetFetchOptions fo = new DataSetFetchOptions();
+        fo.withPhysicalData();
+
+        DataSet dataSet = createDataSet(sessionToken, creation, fo);
+
+        assertEquals(dataSet.getPhysicalData().getSize(), null);
+    }
+
+    @Test
+    public void testCreatePhysicalDataSetWithSizeNotNull()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        DataSetCreation creation = physicalDataSetCreation();
+        creation.getPhysicalData().setSize(12345L);
+
+        DataSetFetchOptions fo = new DataSetFetchOptions();
+        fo.withPhysicalData();
+
+        DataSet dataSet = createDataSet(sessionToken, creation, fo);
+
+        assertEquals(dataSet.getPhysicalData().getSize(), Long.valueOf(12345));
+    }
+
+    @Test
+    public void testCreatePhysicalDataSetWithSizeNegative()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        final DataSetCreation creation = physicalDataSetCreation();
+        creation.getPhysicalData().setSize(-12345L);
+
+        assertUserFailureException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    createDataSet(sessionToken, creation, new DataSetFetchOptions());
+                }
+            }, "Physical data set size cannot be < 0.");
     }
 
     @Test
@@ -996,11 +1157,8 @@ public class CreateDataSetTest extends AbstractDataSetTest
     {
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-        final DataSetCreation creation = new DataSetCreation();
-        creation.setCode("TEST_LINK_DATASET");
-        creation.setTypeId(new EntityTypePermId("LINK_TYPE"));
-        creation.setExperimentId(new ExperimentIdentifier("/CISD/NEMO/EXP1"));
-        creation.setDataStoreId(new DataStorePermId("STANDARD"));
+        final DataSetCreation creation = linkDataSetCreation();
+        creation.setLinkedData(null);
 
         assertUserFailureException(new IDelegatedAction()
             {
@@ -1012,15 +1170,70 @@ public class CreateDataSetTest extends AbstractDataSetTest
             }, "Linked data cannot be null for a link data set.");
     }
 
-    private DataSetCreation dataSetCreation()
+    @Test
+    public void testCreateLinkDataSetWithExternalCodeNull()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        final DataSetCreation creation = linkDataSetCreation();
+        creation.getLinkedData().setExternalCode(null);
+
+        assertUserFailureException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    createDataSet(sessionToken, creation, new DataSetFetchOptions());
+                }
+            }, "External code can not be null.");
+    }
+
+    @Test
+    public void testCreateLinkDataSetWithExternalDmsNonexistent()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        final IExternalDmsId externalDmsId = new ExternalDmsPermId("IDONTEXIST");
+        final DataSetCreation creation = linkDataSetCreation();
+        creation.getLinkedData().setExternalDmsId(externalDmsId);
+
+        assertObjectNotFoundException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    createDataSet(sessionToken, creation, new DataSetFetchOptions());
+                }
+            }, externalDmsId);
+    }
+
+    @Test
+    public void testCreateLinkDataSetWithExternalDmsNull()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        final DataSetCreation creation = linkDataSetCreation();
+        creation.getLinkedData().setExternalDmsId(null);
+
+        assertUserFailureException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    createDataSet(sessionToken, creation, new DataSetFetchOptions());
+                }
+            }, "External data management system id cannot be null for a link data set.");
+    }
+
+    private DataSetCreation physicalDataSetCreation()
     {
         String code = UUID.randomUUID().toString();
 
         PhysicalDataCreation physicalCreation = new PhysicalDataCreation();
         physicalCreation.setLocation("test/location/" + code);
         physicalCreation.setFileFormatTypeId(new FileFormatTypePermId("TIFF"));
-        physicalCreation.setLocatorTypeId(new LocatorTypePermId("RELATIVE_LOCATION"));
-        physicalCreation.setStorageFormatId(new VocabularyTermCode("PROPRIETARY"));
+        physicalCreation.setLocatorTypeId(new RelativeLocationLocatorTypePermId());
+        physicalCreation.setStorageFormatId(new ProprietaryStorageFormatPermId());
 
         DataSetCreation creation = new DataSetCreation();
         creation.setCode(code);
@@ -1028,6 +1241,25 @@ public class CreateDataSetTest extends AbstractDataSetTest
         creation.setExperimentId(new ExperimentIdentifier("/CISD/NEMO/EXP1"));
         creation.setDataStoreId(new DataStorePermId("STANDARD"));
         creation.setPhysicalData(physicalCreation);
+        creation.setCreationId(new CreationId(code));
+
+        return creation;
+    }
+
+    private DataSetCreation linkDataSetCreation()
+    {
+        String code = UUID.randomUUID().toString();
+
+        LinkedDataCreation linkedCreation = new LinkedDataCreation();
+        linkedCreation.setExternalCode("TEST_EXTERNAL_CODE");
+        linkedCreation.setExternalDmsId(new ExternalDmsPermId("DMS_1"));
+
+        DataSetCreation creation = new DataSetCreation();
+        creation.setCode(code);
+        creation.setTypeId(new EntityTypePermId("LINK_TYPE"));
+        creation.setExperimentId(new ExperimentIdentifier("/CISD/NEMO/EXP1"));
+        creation.setDataStoreId(new DataStorePermId("STANDARD"));
+        creation.setLinkedData(linkedCreation);
         creation.setCreationId(new CreationId(code));
 
         return creation;

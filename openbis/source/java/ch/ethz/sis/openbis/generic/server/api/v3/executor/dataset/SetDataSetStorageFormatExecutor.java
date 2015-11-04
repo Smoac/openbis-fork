@@ -26,8 +26,11 @@ import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.AbstractSetEntityToOneRelationExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.vocabulary.IMapVocabularyTermByIdExecutor;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSetCreation;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.IStorageFormatId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.StorageFormatPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.vocabulary.IVocabularyTermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.vocabulary.VocabularyPermId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.vocabulary.VocabularyTermCode;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
@@ -49,7 +52,23 @@ public class SetDataSetStorageFormatExecutor extends
     @Override
     protected IVocabularyTermId getRelatedId(DataSetCreation creation)
     {
-        return creation.getPhysicalData() != null ? creation.getPhysicalData().getStorageFormatId() : null;
+        if (creation.getPhysicalData() != null)
+        {
+            IStorageFormatId storageFormatId = creation.getPhysicalData().getStorageFormatId();
+
+            if (storageFormatId != null)
+            {
+                if (storageFormatId instanceof StorageFormatPermId)
+                {
+                    return new VocabularyTermCode(((StorageFormatPermId) storageFormatId).getPermId());
+                } else
+                {
+                    throw new UserFailureException("Unsupported storage format: " + storageFormatId.getClass().getName());
+                }
+            }
+        }
+
+        return null;
     }
 
     @Override

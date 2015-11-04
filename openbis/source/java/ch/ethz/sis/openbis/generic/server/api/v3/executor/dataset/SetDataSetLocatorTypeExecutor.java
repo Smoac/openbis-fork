@@ -26,6 +26,7 @@ import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.AbstractSetEntityToOneRelationExecutor;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSetCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.ILocatorTypeId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.RelativeLocationLocatorTypePermId;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
@@ -46,7 +47,14 @@ public class SetDataSetLocatorTypeExecutor extends
     @Override
     protected ILocatorTypeId getRelatedId(DataSetCreation creation)
     {
-        return creation.getPhysicalData() != null ? creation.getPhysicalData().getLocatorTypeId() : null;
+        if (creation.getPhysicalData() != null)
+        {
+            return creation.getPhysicalData().getLocatorTypeId() != null ? creation.getPhysicalData().getLocatorTypeId()
+                    : new RelativeLocationLocatorTypePermId();
+        } else
+        {
+            return null;
+        }
     }
 
     @Override

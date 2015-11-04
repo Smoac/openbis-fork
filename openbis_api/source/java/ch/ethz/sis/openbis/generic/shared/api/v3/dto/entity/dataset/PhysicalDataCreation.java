@@ -22,7 +22,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.IFileFormatTypeId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.ILocatorTypeId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.vocabulary.IVocabularyTermId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.IStorageFormatId;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
@@ -43,7 +43,7 @@ public class PhysicalDataCreation implements Serializable
     private Long size;
 
     @JsonProperty
-    private IVocabularyTermId storageFormatId;
+    private IStorageFormatId storageFormatId;
 
     @JsonProperty
     private IFileFormatTypeId fileFormatTypeId;
@@ -87,12 +87,12 @@ public class PhysicalDataCreation implements Serializable
         this.size = size;
     }
 
-    public IVocabularyTermId getStorageFormatId()
+    public IStorageFormatId getStorageFormatId()
     {
         return storageFormatId;
     }
 
-    public void setStorageFormatId(IVocabularyTermId storageFormatId)
+    public void setStorageFormatId(IStorageFormatId storageFormatId)
     {
         this.storageFormatId = storageFormatId;
     }

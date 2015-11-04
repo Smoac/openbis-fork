@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 ETH Zuerich, Scientific IT Services
+ * Copyright 2015 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,18 +16,18 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.helper.common;
 
-import java.util.List;
-
 /**
  * @author pkupczyk
  */
-public interface IListObjectById<ID, OBJECT>
+public abstract class AbstractListObjectById<ID, OBJECT> implements IListObjectById<ID, OBJECT>
 {
 
-    public boolean acceptsIdClass(Class<ID> idClass);
+    @Override
+    public boolean acceptsIdClass(Class<ID> idClass)
+    {
+        return getIdClass().isAssignableFrom(idClass);
+    }
 
-    public ID createId(OBJECT entity);
-
-    public List<OBJECT> listByIds(List<ID> ids);
+    protected abstract Class<ID> getIdClass();
 
 }

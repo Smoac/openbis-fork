@@ -20,20 +20,20 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.ObjectPermId;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
- * Locator type perm id.
+ * Storage format perm id.
  * 
  * @author pkupczyk
  */
-@JsonObject("dto.id.dataset.LocatorTypeTypePermId")
-public class LocatorTypePermId extends ObjectPermId implements ILocatorTypeId
+@JsonObject("dto.id.dataset.StorageFormatPermId")
+public class StorageFormatPermId extends ObjectPermId implements IStorageFormatId
 {
 
     private static final long serialVersionUID = 1L;
 
     /**
-     * @param permId Locator type perm id, e.g. "RELATIVE_LOCATION".
+     * @param permId Storage format perm id, e.g. "PROPRIETARY".
      */
-    public LocatorTypePermId(String permId)
+    public StorageFormatPermId(String permId)
     {
         super(permId);
     }
@@ -43,7 +43,7 @@ public class LocatorTypePermId extends ObjectPermId implements ILocatorTypeId
     //
 
     @SuppressWarnings("unused")
-    private LocatorTypePermId()
+    private StorageFormatPermId()
     {
         super();
     }
@@ -59,11 +59,11 @@ public class LocatorTypePermId extends ObjectPermId implements ILocatorTypeId
         {
             return false;
         }
-        if (false == (obj instanceof LocatorTypePermId))
+        if (false == (obj instanceof StorageFormatPermId))
         {
             return false;
         }
-        LocatorTypePermId other = (LocatorTypePermId) obj;
+        StorageFormatPermId other = (StorageFormatPermId) obj;
         if (getPermId() == null)
         {
             if (other.getPermId() != null)

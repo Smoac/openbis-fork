@@ -19,7 +19,7 @@ package ch.ethz.sis.openbis.generic.server.api.v3.helper.experiment;
 import java.util.LinkedList;
 import java.util.List;
 
-import ch.ethz.sis.openbis.generic.server.api.v3.helper.common.IListObjectById;
+import ch.ethz.sis.openbis.generic.server.api.v3.helper.common.AbstractListObjectById;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentPermId;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
@@ -27,7 +27,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 /**
  * @author pkupczyk
  */
-public class ListExperimentByPermId implements IListObjectById<ExperimentPermId, ExperimentPE>
+public class ListExperimentByPermId extends AbstractListObjectById<ExperimentPermId, ExperimentPE>
 {
 
     private IExperimentDAO experimentDAO;

@@ -19,7 +19,7 @@ package ch.ethz.sis.openbis.generic.server.api.v3.helper.datastore;
 import java.util.LinkedList;
 import java.util.List;
 
-import ch.ethz.sis.openbis.generic.server.api.v3.helper.common.IListObjectById;
+import ch.ethz.sis.openbis.generic.server.api.v3.helper.common.AbstractListObjectById;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.datastore.DataStorePermId;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataStoreDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
@@ -27,7 +27,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 /**
  * @author pkupczyk
  */
-public class ListDataStoreByPermId implements IListObjectById<DataStorePermId, DataStorePE>
+public class ListDataStoreByPermId extends AbstractListObjectById<DataStorePermId, DataStorePE>
 {
 
     private IDataStoreDAO dataStoreDAO;

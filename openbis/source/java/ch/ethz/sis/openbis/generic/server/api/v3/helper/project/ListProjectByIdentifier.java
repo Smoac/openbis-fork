@@ -19,7 +19,7 @@ package ch.ethz.sis.openbis.generic.server.api.v3.helper.project;
 import java.util.LinkedList;
 import java.util.List;
 
-import ch.ethz.sis.openbis.generic.server.api.v3.helper.common.IListObjectById;
+import ch.ethz.sis.openbis.generic.server.api.v3.helper.common.AbstractListObjectById;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IProjectDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
@@ -28,7 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifierF
 /**
  * @author pkupczyk
  */
-public class ListProjectByIdentifier implements IListObjectById<ProjectIdentifier, ProjectPE>
+public class ListProjectByIdentifier extends AbstractListObjectById<ProjectIdentifier, ProjectPE>
 {
 
     private IProjectDAO projectDAO;

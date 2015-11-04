@@ -76,7 +76,13 @@ public class SetDataSetPhysicalDataExecutor implements ISetDataSetPhysicalDataEx
 
         dataSet.setShareId(physicalCreation.getShareId());
         dataSet.setLocation(physicalCreation.getLocation());
+
+        if (physicalCreation.getSize() != null && physicalCreation.getSize() < 0)
+        {
+            throw new UserFailureException("Physical data set size cannot be < 0.");
+        }
         dataSet.setSize(physicalCreation.getSize());
+
         if (physicalCreation.getSpeedHint() != null)
         {
             dataSet.setSpeedHint(physicalCreation.getSpeedHint());

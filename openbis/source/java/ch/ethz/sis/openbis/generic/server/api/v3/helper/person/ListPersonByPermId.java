@@ -19,7 +19,7 @@ package ch.ethz.sis.openbis.generic.server.api.v3.helper.person;
 import java.util.LinkedList;
 import java.util.List;
 
-import ch.ethz.sis.openbis.generic.server.api.v3.helper.common.IListObjectById;
+import ch.ethz.sis.openbis.generic.server.api.v3.helper.common.AbstractListObjectById;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.person.PersonPermId;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
@@ -27,7 +27,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 /**
  * @author pkupczyk
  */
-public class ListPersonByPermId implements IListObjectById<PersonPermId, PersonPE>
+public class ListPersonByPermId extends AbstractListObjectById<PersonPermId, PersonPE>
 {
 
     private IPersonDAO personDAO;

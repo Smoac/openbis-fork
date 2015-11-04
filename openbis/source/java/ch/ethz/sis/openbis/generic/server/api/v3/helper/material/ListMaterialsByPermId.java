@@ -20,7 +20,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import ch.ethz.sis.openbis.generic.server.api.v3.helper.common.IListObjectById;
+import ch.ethz.sis.openbis.generic.server.api.v3.helper.common.AbstractListObjectById;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.material.MaterialPermId;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IMaterialDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
@@ -29,7 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 /**
  * @author pkupczyk
  */
-public class ListMaterialsByPermId implements IListObjectById<MaterialPermId, MaterialPE>
+public class ListMaterialsByPermId extends AbstractListObjectById<MaterialPermId, MaterialPE>
 {
 
     private IMaterialDAO materialDAO;

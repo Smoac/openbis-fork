@@ -20,7 +20,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import ch.ethz.sis.openbis.generic.server.api.v3.helper.common.IListObjectById;
+import ch.ethz.sis.openbis.generic.server.api.v3.helper.common.AbstractListObjectById;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.DataSetPermId;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
@@ -28,7 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 /**
  * @author pkupczyk
  */
-public class ListDataSetByPermId implements IListObjectById<DataSetPermId, DataPE>
+public class ListDataSetByPermId extends AbstractListObjectById<DataSetPermId, DataPE>
 {
 
     private IDataDAO dataDAO;

@@ -26,7 +26,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import ch.ethz.sis.openbis.generic.server.api.v3.helper.common.IListObjectById;
+import ch.ethz.sis.openbis.generic.server.api.v3.helper.common.AbstractListObjectById;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISpaceDAO;
@@ -39,7 +39,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
  * @author Franz-Josef Elmer
  */
 // TODO: neds unit tests
-public class ListSampleByIdentifier implements IListObjectById<SampleIdentifier, SamplePE>
+public class ListSampleByIdentifier extends AbstractListObjectById<SampleIdentifier, SamplePE>
 {
 
     private ISpaceDAO spaceDAO;

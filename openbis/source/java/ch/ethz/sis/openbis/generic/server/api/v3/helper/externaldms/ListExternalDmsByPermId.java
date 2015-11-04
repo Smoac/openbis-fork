@@ -19,7 +19,7 @@ package ch.ethz.sis.openbis.generic.server.api.v3.helper.externaldms;
 import java.util.LinkedList;
 import java.util.List;
 
-import ch.ethz.sis.openbis.generic.server.api.v3.helper.common.IListObjectById;
+import ch.ethz.sis.openbis.generic.server.api.v3.helper.common.AbstractListObjectById;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.externaldms.ExternalDmsPermId;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataManagementSystemDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataManagementSystemPE;
@@ -27,7 +27,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataManagementSystemP
 /**
  * @author pkupczyk
  */
-public class ListExternalDmsByPermId implements IListObjectById<ExternalDmsPermId, ExternalDataManagementSystemPE>
+public class ListExternalDmsByPermId extends AbstractListObjectById<ExternalDmsPermId, ExternalDataManagementSystemPE>
 {
 
     private IExternalDataManagementSystemDAO externalDmsDAO;

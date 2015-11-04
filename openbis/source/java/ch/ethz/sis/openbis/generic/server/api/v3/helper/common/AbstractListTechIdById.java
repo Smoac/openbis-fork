@@ -22,14 +22,12 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
-public abstract class AbstractListTechIdById<ID> implements IListObjectById<ID, Long>
+public abstract class AbstractListTechIdById<ID> extends AbstractListObjectById<ID, Long>
 {
     private Map<Long, ID> idsByTechIds = new HashMap<Long, ID>();
-    
+
     @Override
     public ID createId(Long techId)
     {
@@ -42,7 +40,7 @@ public abstract class AbstractListTechIdById<ID> implements IListObjectById<ID, 
         idsByTechIds = createIdsByTechIdsMap(ids);
         return new ArrayList<>(idsByTechIds.keySet());
     }
-    
+
     protected abstract Map<Long, ID> createIdsByTechIdsMap(List<ID> ids);
 
 }

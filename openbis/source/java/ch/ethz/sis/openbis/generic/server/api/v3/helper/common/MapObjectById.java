@@ -84,7 +84,7 @@ public class MapObjectById<ID, OBJECT>
     {
         for (IListObjectById lister : listers)
         {
-            if (lister.getIdClass().equals(idClass))
+            if (lister.acceptsIdClass(idClass))
             {
                 return lister;
             }

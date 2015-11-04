@@ -306,6 +306,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
 
     @Override
     @Transactional
+    // @RolesAllowed intentionally omitted. Authorization is done in CreateDataSetMethodExecutor.
     @Capability("CREATE_DATASET")
     @DatabaseCreateOrDeleteModification(value = ObjectKind.DATA_SET)
     public List<DataSetPermId> createDataSets(String sessionToken, List<DataSetCreation> creations)
