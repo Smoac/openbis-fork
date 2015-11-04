@@ -15,6 +15,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.FileFormatTy
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.LinkedData;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.LocatorType;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.PhysicalData;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.StorageFormat;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.datastore.DataStore;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.ExperimentType;
@@ -27,7 +28,6 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.project.Project;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.Sample;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleType;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.vocabulary.Vocabulary;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.vocabulary.VocabularyTerm;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.EmptyFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.attachment.AttachmentFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.DataSetFetchOptions;
@@ -36,6 +36,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.FileFo
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.LinkedDataFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.LocatorTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.PhysicalDataFetchOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.StorageFormatFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.datastore.DataStoreFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.deletion.DeletionFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.experiment.ExperimentFetchOptions;
@@ -272,7 +273,7 @@ public class Generator extends AbstractGenerator
         gen.addStringField("shareId");
         gen.addStringField("location");
         gen.addSimpleField(Long.class, "size");
-        gen.addFetchedField(VocabularyTerm.class, "storageFormat", "Storage format vocabulary term", VocabularyTermFetchOptions.class);
+        gen.addFetchedField(StorageFormat.class, "storageFormat", "Storage format", StorageFormatFetchOptions.class);
         gen.addFetchedField(FileFormatType.class, "fileFormatType", "File Format Type", FileFormatTypeFetchOptions.class);
         gen.addFetchedField(LocatorType.class, "locatorType", "Locator Type", LocatorTypeFetchOptions.class);
         gen.addSimpleField(Complete.class, "complete");
@@ -306,6 +307,18 @@ public class Generator extends AbstractGenerator
         gen.addStringField("description");
 
         gen.setToStringMethod("\"FileFormatType \" + code");
+
+        return gen;
+    }
+
+    private static DtoGenerator createStorageFormat()
+    {
+        DtoGenerator gen = new DtoGenerator("dataset", "StorageFormat", StorageFormatFetchOptions.class);
+
+        addCode(gen);
+        gen.addStringField("description");
+
+        gen.setToStringMethod("\"StorageFormat \" + code");
 
         return gen;
     }
@@ -549,6 +562,7 @@ public class Generator extends AbstractGenerator
         list.add(createVocabulary());
         list.add(createLocatorType());
         list.add(createFileFormatType());
+        list.add(createStorageFormat());
         list.add(createPhysicalDataGenerator());
         list.add(createLinkedDataGenerator());
         list.add(createHistoryEntryGenerator());

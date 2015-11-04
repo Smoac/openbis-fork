@@ -337,6 +337,7 @@ define([ 'jquery', 'openbis', 'dto/entity/space/SpaceCreation', 'dto/entity/proj
 			fo.withContained();
 			fo.withPhysicalData().withFileFormatType();
 			fo.withPhysicalData().withLocatorType();
+			fo.withPhysicalData().withStorageFormat();
 			fo.withHistory();
 			fo.withTags();
 			fo.withRegistrator();

@@ -107,7 +107,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		};
 	}, {
 		fetchOptions : "PhysicalDataFetchOptions",
-		storageFormat : "VocabularyTerm",
+		storageFormat : "StorageFormat",
 		fileFormatType : "FileFormatType",
 		locatorType : "LocatorType",
 		complete : "Complete",

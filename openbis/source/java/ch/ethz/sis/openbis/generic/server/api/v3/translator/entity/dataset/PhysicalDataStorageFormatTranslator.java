@@ -19,6 +19,7 @@ package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.dataset;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -31,14 +32,16 @@ import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.ObjectRelationRecord;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.ObjectToOneRelationTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.vocabulary.IVocabularyTermTranslator;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.StorageFormat;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.vocabulary.VocabularyTerm;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.StorageFormatFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.vocabulary.VocabularyTermFetchOptions;
 
 /**
  * @author pkupczyk
  */
 @Component
-public class PhysicalDataStorageFormatTranslator extends ObjectToOneRelationTranslator<VocabularyTerm, VocabularyTermFetchOptions> implements
+public class PhysicalDataStorageFormatTranslator extends ObjectToOneRelationTranslator<StorageFormat, StorageFormatFetchOptions> implements
         IPhysicalDataStorageFormatTranslator
 {
 
@@ -53,10 +56,28 @@ public class PhysicalDataStorageFormatTranslator extends ObjectToOneRelationTran
     }
 
     @Override
-    protected Map<Long, VocabularyTerm> translateRelated(TranslationContext context, Collection<Long> relatedIds,
-            VocabularyTermFetchOptions relatedFetchOptions)
+    protected Map<Long, StorageFormat> translateRelated(TranslationContext context, Collection<Long> relatedIds,
+            StorageFormatFetchOptions relatedFetchOptions)
     {
-        return vocabularyTermTranslator.translate(context, relatedIds, relatedFetchOptions);
-    }
+        Map<Long, VocabularyTerm> termMap = vocabularyTermTranslator.translate(context, relatedIds, new VocabularyTermFetchOptions());
+        Map<Long, StorageFormat> formatMap = new HashMap<Long, StorageFormat>();
 
+        for (Map.Entry<Long, VocabularyTerm> termEntry : termMap.entrySet())
+        {
+            Long id = termEntry.getKey();
+            VocabularyTerm term = termEntry.getValue();
+            StorageFormat format = null;
+
+            if (term != null)
+            {
+                format = new StorageFormat();
+                format.setCode(term.getCode());
+                format.setDescription(term.getDescription());
+            }
+
+            formatMap.put(id, format);
+        }
+
+        return formatMap;
+    }
 }

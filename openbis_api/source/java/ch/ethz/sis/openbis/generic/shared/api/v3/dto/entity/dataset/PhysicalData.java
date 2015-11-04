@@ -19,7 +19,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.ArchivingSta
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.Complete;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.FileFormatType;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.LocatorType;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.vocabulary.VocabularyTerm;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.StorageFormat;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.PhysicalDataFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.NotFetchedException;
 import ch.systemsx.cisd.base.annotation.JsonObject;
@@ -48,7 +48,7 @@ public class PhysicalData implements Serializable
     private Long size;
 
     @JsonProperty
-    private VocabularyTerm storageFormat;
+    private StorageFormat storageFormat;
 
     @JsonProperty
     private FileFormatType fileFormatType;
@@ -125,7 +125,7 @@ public class PhysicalData implements Serializable
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     @JsonIgnore
-    public VocabularyTerm getStorageFormat()
+    public StorageFormat getStorageFormat()
     {
         if (getFetchOptions().hasStorageFormat())
         {
@@ -133,12 +133,12 @@ public class PhysicalData implements Serializable
         }
         else
         {
-            throw new NotFetchedException("Storage format vocabulary term has not been fetched.");
+            throw new NotFetchedException("Storage format has not been fetched.");
         }
     }
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
-    public void setStorageFormat(VocabularyTerm storageFormat)
+    public void setStorageFormat(StorageFormat storageFormat)
     {
         this.storageFormat = storageFormat;
     }

@@ -18,7 +18,6 @@ package ch.ethz.sis.openbis.systemtest.api.v3;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
-import static org.testng.Assert.assertTrue;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -37,19 +36,16 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSetUpdat
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.FileFormatType;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.LocatorType;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.PhysicalData;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.StorageFormat;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.history.DataSetRelationType;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.history.HistoryEntry;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.history.PropertyHistoryEntry;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.history.RelationHistoryEntry;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material.Material;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.tag.Tag;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.vocabulary.Vocabulary;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.vocabulary.VocabularyTerm;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.DataSetFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.PhysicalDataFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.tag.TagFetchOptions;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.vocabulary.VocabularyFetchOptions;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.vocabulary.VocabularyTermFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.DataSetPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.IDataSetId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentIdentifier;
@@ -524,12 +520,7 @@ public class MapDataSetTest extends AbstractDataSetTest
         PhysicalDataFetchOptions physicalDataFetchOptions = fetchOptions.withPhysicalData();
         physicalDataFetchOptions.withFileFormatType();
         physicalDataFetchOptions.withLocatorType();
-
-        VocabularyTermFetchOptions storageFormatTermFetchOptions = physicalDataFetchOptions.withStorageFormat();
-        storageFormatTermFetchOptions.withRegistrator();
-
-        VocabularyFetchOptions storageFormatVocabularyFetchOptions = storageFormatTermFetchOptions.withVocabulary();
-        storageFormatVocabularyFetchOptions.withRegistrator();
+        physicalDataFetchOptions.withStorageFormat();
 
         Map<IDataSetId, DataSet> dataSets = v3api.mapDataSets(sessionToken, Arrays.asList(permId), fetchOptions);
 
@@ -555,22 +546,9 @@ public class MapDataSetTest extends AbstractDataSetTest
         assertEquals(locatorType.getCode(), "RELATIVE_LOCATION");
         assertEquals(locatorType.getDescription(), "Relative Location");
 
-        VocabularyTerm storageFormatTerm = physicalData.getStorageFormat();
+        StorageFormat storageFormatTerm = physicalData.getStorageFormat();
         assertEquals(storageFormatTerm.getCode(), "PROPRIETARY");
-        assertEquals(storageFormatTerm.getLabel(), "proprietary label");
         assertEquals(storageFormatTerm.getDescription(), "proprietary description");
-        assertEquals(storageFormatTerm.getOrdinal(), Long.valueOf(1));
-        assertTrue(storageFormatTerm.isOfficial());
-        assertEquals(storageFormatTerm.getRegistrator().getUserId(), "system");
-        assertEqualsDate(storageFormatTerm.getRegistrationDate(), "2008-11-05 09:18:00");
-        assertEqualsDate(storageFormatTerm.getModificationDate(), "2008-11-05 09:18:00");
-
-        Vocabulary storageFormatVocabulary = storageFormatTerm.getVocabulary();
-        assertEquals(storageFormatVocabulary.getCode(), "$STORAGE_FORMAT");
-        assertEquals(storageFormatVocabulary.getDescription(), "The on-disk storage format of a data set");
-        assertEquals(storageFormatVocabulary.getRegistrator().getUserId(), "system");
-        assertEqualsDate(storageFormatVocabulary.getRegistrationDate(), "2008-11-05 09:18:00");
-        assertEqualsDate(storageFormatVocabulary.getModificationDate(), "2009-03-23 15:34:44");
 
         assertTypeNotFetched(dataSet);
         assertExperimentNotFetched(dataSet);

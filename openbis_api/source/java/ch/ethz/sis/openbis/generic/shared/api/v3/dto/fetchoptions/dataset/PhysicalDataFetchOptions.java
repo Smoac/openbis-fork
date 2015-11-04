@@ -19,7 +19,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.PhysicalData
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.FetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.FileFormatTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.LocatorTypeFetchOptions;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.vocabulary.VocabularyTermFetchOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.StorageFormatFetchOptions;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.Serializable;
@@ -33,7 +33,7 @@ public class PhysicalDataFetchOptions extends FetchOptions<PhysicalData> impleme
     private static final long serialVersionUID = 1L;
 
     @JsonProperty
-    private VocabularyTermFetchOptions storageFormat;
+    private StorageFormatFetchOptions storageFormat;
 
     @JsonProperty
     private FileFormatTypeFetchOptions fileFormatType;
@@ -45,17 +45,17 @@ public class PhysicalDataFetchOptions extends FetchOptions<PhysicalData> impleme
     private PhysicalDataSortOptions sort;
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
-    public VocabularyTermFetchOptions withStorageFormat()
+    public StorageFormatFetchOptions withStorageFormat()
     {
         if (storageFormat == null)
         {
-            storageFormat = new VocabularyTermFetchOptions();
+            storageFormat = new StorageFormatFetchOptions();
         }
         return storageFormat;
     }
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
-    public VocabularyTermFetchOptions withStorageFormatUsing(VocabularyTermFetchOptions fetchOptions)
+    public StorageFormatFetchOptions withStorageFormatUsing(StorageFormatFetchOptions fetchOptions)
     {
         return storageFormat = fetchOptions;
     }

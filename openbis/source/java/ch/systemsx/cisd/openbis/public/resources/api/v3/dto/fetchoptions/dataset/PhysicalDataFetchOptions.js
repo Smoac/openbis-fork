@@ -2,7 +2,7 @@
  * Class automatically generated with
  * {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
  */
-define([ "require", "stjs", "dto/fetchoptions/FetchOptions", "dto/fetchoptions/vocabulary/VocabularyTermFetchOptions", "dto/fetchoptions/dataset/FileFormatTypeFetchOptions",
+define([ "require", "stjs", "dto/fetchoptions/FetchOptions", "dto/fetchoptions/dataset/StorageFormatFetchOptions", "dto/fetchoptions/dataset/FileFormatTypeFetchOptions",
 		"dto/fetchoptions/dataset/LocatorTypeFetchOptions", "dto/fetchoptions/dataset/PhysicalDataSortOptions" ], function(require, stjs, FetchOptions) {
 	var PhysicalDataFetchOptions = function() {
 	};
@@ -15,8 +15,8 @@ define([ "require", "stjs", "dto/fetchoptions/FetchOptions", "dto/fetchoptions/v
 		prototype.sort = null;
 		prototype.withStorageFormat = function() {
 			if (this.storageFormat == null) {
-				var VocabularyTermFetchOptions = require("dto/fetchoptions/vocabulary/VocabularyTermFetchOptions");
-				this.storageFormat = new VocabularyTermFetchOptions();
+				var StorageFormatFetchOptions = require("dto/fetchoptions/dataset/StorageFormatFetchOptions");
+				this.storageFormat = new StorageFormatFetchOptions();
 			}
 			return this.storageFormat;
 		};
@@ -63,7 +63,7 @@ define([ "require", "stjs", "dto/fetchoptions/FetchOptions", "dto/fetchoptions/v
 			return this.sort;
 		};
 	}, {
-		storageFormat : "VocabularyTermFetchOptions",
+		storageFormat : "StorageFormatFetchOptions",
 		fileFormatType : "FileFormatTypeFetchOptions",
 		locatorType : "LocatorTypeFetchOptions",
 		sort : "PhysicalDataSortOptions"

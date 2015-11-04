@@ -14,16 +14,19 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.dataset;
+package ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset;
 
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.IObjectToOneRelationTranslator;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.StorageFormat;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.StorageFormatFetchOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.SortOptions;
+import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
  * @author pkupczyk
  */
-public interface IPhysicalDataStorageFormatTranslator extends IObjectToOneRelationTranslator<StorageFormat, StorageFormatFetchOptions>
+@JsonObject("dto.fetchoptions.dataset.StorageFormatSortOptions")
+public class StorageFormatSortOptions extends SortOptions<StorageFormat>
 {
+
+    private static final long serialVersionUID = 1L;
 
 }
