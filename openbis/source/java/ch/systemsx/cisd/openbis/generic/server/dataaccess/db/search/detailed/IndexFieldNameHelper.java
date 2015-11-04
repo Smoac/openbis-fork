@@ -49,7 +49,14 @@ class IndexFieldNameHelper
                     return SearchFieldConstants.EXPERIMENT_ID;
                 }
                 throw createAssociationNotHandledException(entityKind, associationKind);
-
+                
+            case PROJECT:
+                if (entityKind == EntityKind.SAMPLE)
+                {
+                    return SearchFieldConstants.PROJECT_ID;
+                }
+                throw createAssociationNotHandledException(entityKind, associationKind);
+                
             case SAMPLE:
                 if (entityKind == EntityKind.DATA_SET)
                 {
@@ -214,6 +221,13 @@ class IndexFieldNameHelper
                 return SearchFieldConstants.PERM_ID;
             case SPACE:
                 return SearchFieldConstants.PREFIX_SPACE + CODE;
+            case PROJECT:
+                return SearchFieldConstants.PREFIX_PROJECT + CODE;
+            case PROJECT_PERM_ID:
+                return SearchFieldConstants.PREFIX_PROJECT + PERM_ID;
+            case PROJECT_SPACE:
+                return SearchFieldConstants.PREFIX_PROJECT + SearchFieldConstants.PREFIX_SPACE
+                        + CODE;
             case METAPROJECT:
                 return SearchFieldConstants.PREFIX_METAPROJECT + SearchFieldConstants.IDENTIFIER;
             case REGISTRATION_DATE:

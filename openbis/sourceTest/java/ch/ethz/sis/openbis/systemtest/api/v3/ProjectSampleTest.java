@@ -24,7 +24,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.project.Project;
@@ -41,6 +40,8 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.ISampleId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SampleIdentifier;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SamplePermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.SpacePermId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SampleSearchCriteria;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SearchResult;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
 
 /**
@@ -276,6 +277,32 @@ public class ProjectSampleTest extends AbstractTest
     }
     
     @Test
+    public void testAssignSampleOfAnExperimentToProjectDifferentToTheExperimentProject()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        
+        final SampleUpdate sampleUpdate = new SampleUpdate();
+        SampleIdentifier sampleId = new SampleIdentifier("/CISD/3VCP5");
+        sampleUpdate.setSampleId(sampleId);
+        ProjectIdentifier projectId = new ProjectIdentifier("/CISD/NOE");
+        sampleUpdate.setProjectId(projectId);
+        
+        assertUserFailureException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
+            {
+                v3api.updateSamples(sessionToken, Collections.singletonList(sampleUpdate));
+            }
+        }, "Sample project must be the same as experiment project. "
+                + "Sample: /CISD/3VCP5, "
+                + "Project: /CISD/NOE, "
+                + "Experiment: /CISD/NEMO/EXP10 "
+                + "(Context: [verify experiment for sample 3VCP5])");
+        
+    }
+    
+    @Test
     public void testAssignSharedSampleToProject()
     {
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);
@@ -297,6 +324,38 @@ public class ProjectSampleTest extends AbstractTest
                 + "Sample: /MP, "
                 + "Project: /TEST-SPACE/NOE "
                 + "(Context: [verify project for sample MP])");
+    }
+    
+    @Test
+    public void testSearchForSamplesWithProjects()
+    {
+        SampleSearchCriteria searchCriteria = new SampleSearchCriteria();
+        searchCriteria.withProject().withSpace().withCode().thatEquals("CISD");
+        SampleFetchOptions fetchOptions = new SampleFetchOptions();
+        fetchOptions.withProject();
+        
+        SearchResult<Sample> result = v3api.searchSamples(systemSessionToken, searchCriteria, fetchOptions);
+        
+        assertEquals(result.getObjects().get(0).getIdentifier().getIdentifier(), "/CISD/3VCP5");
+        assertEquals(result.getObjects().get(0).getProject().getIdentifier().getIdentifier(), "/CISD/NEMO");
+        assertEquals(result.getTotalCount(), 1);
+    }
+    
+    @Test
+    public void testSearchForSamplesWithoutProjects()
+    {
+        SampleSearchCriteria searchCriteria = new SampleSearchCriteria();
+        searchCriteria.withCode().thatStartsWith("3VCP");
+        searchCriteria.withExperiment();
+        searchCriteria.withoutProject();
+        SampleFetchOptions fetchOptions = new SampleFetchOptions();
+        fetchOptions.withProject();
+        
+        SearchResult<Sample> result = v3api.searchSamples(systemSessionToken, searchCriteria, fetchOptions);
+        
+        assertEquals(result.getObjects().get(0).getIdentifier().getIdentifier(), "/CISD/3VCP6");
+        assertEquals(result.getObjects().get(0).getProject(), null);
+        assertEquals(result.getTotalCount(), 1);
     }
 
 }

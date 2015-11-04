@@ -66,6 +66,8 @@ public final class SearchFieldConstants
 
     public static final String EXPERIMENT_ID = PREFIX_EXPERIMENT + ID;
 
+    public static final String PROJECT_ID = PREFIX_PROJECT + ID;
+    
     public static final String SAMPLE_ID = PREFIX_SAMPLE + ID;
 
     public static final String CONTAINER_ID = PREFIX_CONTAINER + ID;

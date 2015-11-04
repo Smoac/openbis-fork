@@ -545,6 +545,22 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
         }
         return result;
     }
+    
+    // used only by Hibernate Search
+    @SuppressWarnings("unused")
+    @Transient
+    @Field(index = Index.YES, store = Store.YES, name = SearchFieldConstants.PROJECT_ID)
+    @FieldBridge(impl = NullBridge.class)
+    private Long getProjectId()
+    {
+        Long result = null;
+        if (getProject() != null)
+        {
+            result = HibernateUtils.getId(getProject());
+            assert result != null;
+        }
+        return result;
+    }
 
     //
     // IIdAndCodeHolder

@@ -16,6 +16,8 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.translator.search;
 
+import java.util.EnumSet;
+
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.CodeSearchCriteria;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ISearchCriteria;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.PermIdSearchCriteria;
@@ -46,10 +48,10 @@ public class ProjectSearchCriteriaTranslator extends AbstractFieldFromCompositeS
     @Override
     protected SearchCriteriaTranslationResult doTranslate(SearchTranslationContext context, ISearchCriteria criteria)
     {
-        if (false == EntityKind.EXPERIMENT.equals(context.peekEntityKind()))
+        if (EnumSet.of(EntityKind.EXPERIMENT,  EntityKind.SAMPLE).contains(context.peekEntityKind()) == false)
         {
-            throw new IllegalArgumentException("Project criteria can be used only in experiment criteria, but was used in: "
-                    + context.peekEntityKind() + " context.");
+            throw new IllegalArgumentException("Project criteria can be used only in experiment or sample criteria, "
+                    + "but was used in: " + context.peekEntityKind() + " context.");
         }
 
         return super.doTranslate(context, criteria);

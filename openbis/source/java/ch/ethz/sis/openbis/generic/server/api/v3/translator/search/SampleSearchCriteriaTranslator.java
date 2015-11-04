@@ -52,8 +52,7 @@ public class SampleSearchCriteriaTranslator extends AbstractCompositeSearchCrite
     {
         if (criteria instanceof NoProjectSearchCriteria)
         {
-            // TODO implementation missing
-            throw new IllegalArgumentException("NoProjectSearchCriteria no yet supported");
+            return new SearchCriteriaTranslationResult(new DetailedSearchSubCriteria(AssociatedEntityKind.PROJECT, null));
         }else if (criteria instanceof NoSampleSearchCriteria)
         {
             AssociatedEntityKind entityKind;
