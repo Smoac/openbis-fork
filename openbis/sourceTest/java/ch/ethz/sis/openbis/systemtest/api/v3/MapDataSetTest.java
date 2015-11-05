@@ -34,6 +34,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSetKind;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSetUpdate;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.FileFormatType;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.LinkedData;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.LocatorType;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.PhysicalData;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.StorageFormat;
@@ -44,6 +45,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.history.RelationHist
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material.Material;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.tag.Tag;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.DataSetFetchOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.LinkedDataFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.PhysicalDataFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.tag.TagFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.DataSetPermId;
@@ -564,7 +566,7 @@ public class MapDataSetTest extends AbstractDataSetTest
     }
 
     @Test
-    public void testMapWithPhysicalDataForContainerDataSet()
+    public void testMapWithPhysicalDataForNonPhysicalDataSet()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -579,6 +581,62 @@ public class MapDataSetTest extends AbstractDataSetTest
 
         assertEquals(dataSet.getCode(), "ROOT_CONTAINER");
         assertEquals(dataSet.getPhysicalData(), null);
+    }
+
+    @Test
+    public void testMapWithLinkedDataForLinkDataSet()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        DataSetPermId permId = new DataSetPermId("20120628092259000-23");
+        DataSetFetchOptions fetchOptions = new DataSetFetchOptions();
+
+        LinkedDataFetchOptions linkedDataFetchOptions = fetchOptions.withLinkedData();
+        linkedDataFetchOptions.withExternalDms();
+
+        Map<IDataSetId, DataSet> dataSets = v3api.mapDataSets(sessionToken, Arrays.asList(permId), fetchOptions);
+
+        assertEquals(dataSets.size(), 1);
+        DataSet dataSet = dataSets.get(permId);
+
+        assertEquals(dataSet.getCode(), "20120628092259000-23");
+
+        LinkedData linkedData = dataSet.getLinkedData();
+        assertEquals(linkedData.getExternalCode(), "CODE1");
+        assertEquals(linkedData.getExternalDms().getCode(), "DMS_1");
+        assertEquals(linkedData.getExternalDms().getLabel(), "Test EDMS");
+        assertEquals(linkedData.getExternalDms().getUrlTemplate(), "http://example.edms.pl/code=${code}");
+        assertEquals(linkedData.getExternalDms().isOpenbis(), Boolean.FALSE);
+
+        assertTypeNotFetched(dataSet);
+        assertExperimentNotFetched(dataSet);
+        assertSampleNotFetched(dataSet);
+        assertPropertiesNotFetched(dataSet);
+        assertParentsNotFetched(dataSet);
+        assertChildrenNotFetched(dataSet);
+        assertContainedNotFetched(dataSet);
+        assertContainersNotFetched(dataSet);
+        assertModifierNotFetched(dataSet);
+        assertRegistratorNotFetched(dataSet);
+        assertTagsNotFetched(dataSet);
+    }
+
+    @Test
+    public void testMapWithLinkedDataForNonLinkDataSet()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        DataSetPermId permId = new DataSetPermId("ROOT_CONTAINER");
+        DataSetFetchOptions fetchOptions = new DataSetFetchOptions();
+        fetchOptions.withLinkedData();
+
+        Map<IDataSetId, DataSet> dataSets = v3api.mapDataSets(sessionToken, Arrays.asList(permId), fetchOptions);
+
+        assertEquals(dataSets.size(), 1);
+        DataSet dataSet = dataSets.get(permId);
+
+        assertEquals(dataSet.getCode(), "ROOT_CONTAINER");
+        assertEquals(dataSet.getLinkedData(), null);
     }
 
     @Test
