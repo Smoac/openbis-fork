@@ -26,8 +26,10 @@ import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.index.FieldInfo.DocValuesType;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
+import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.search.BooleanQuery;
+import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.search.MultiTermQuery;
 import org.apache.lucene.search.Query;
 
@@ -193,11 +195,12 @@ public class LuceneQueryBuilder
 
     // creates a query where any field matches the given pattern
     public static Query parseQuery(final CompareType type, final List<String> fieldNames,
-            final List<String> searchPatterns, List<Analyzer> analyzers)
+            final List<String> searchPatterns, List<Analyzer> analyzers, List<Occur> occurs)
             throws UserFailureException
     {
         BooleanQuery resultQuery = new BooleanQuery();
 
+        boolean mustNotOcuured = false;
         for (int i = 0; i < fieldNames.size(); i++)
         {
             String fieldName = fieldNames.get(i);
@@ -205,7 +208,16 @@ public class LuceneQueryBuilder
             Analyzer analyzer = analyzers.get(i);
             
             Query query = parseQuery(fieldName, searchPattern, analyzer);
-            resultQuery.add(query, Occur.SHOULD);
+            Occur occur = occurs.get(i);
+            if (Occur.MUST_NOT.equals(occur))
+            {
+                mustNotOcuured = true;
+            }
+            resultQuery.add(query, occur);
+        }
+        if (mustNotOcuured)
+        {
+            resultQuery.add(new BooleanClause(new MatchAllDocsQuery(), Occur.SHOULD));
         }
         return resultQuery;
     }

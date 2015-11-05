@@ -36,6 +36,8 @@ public class DetailedSearchCriterion implements Serializable
     private String value;
 
     private String timezone;
+    
+    private boolean negated;
 
     public DetailedSearchCriterion()
     {
@@ -99,10 +101,25 @@ public class DetailedSearchCriterion implements Serializable
         return this.timezone;
     }
 
+    public boolean isNegated()
+    {
+        return negated;
+    }
+
+    public DetailedSearchCriterion negate()
+    {
+        this.negated = true;
+        return this;
+    }
+
     @Override
     public String toString()
     {
         StringBuilder sb = new StringBuilder();
+        if (negated)
+        {
+            sb.append("not ");
+        }
         sb.append(getField());
         sb.append(": ");
         sb.append(getValue());

@@ -16,8 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.detailed;
 
-import static ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants.ID;
 import static ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants.CODE;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants.ID;
 import static ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants.PERM_ID;
 
 import ch.systemsx.cisd.common.exceptions.InternalErr;
@@ -47,13 +47,6 @@ class IndexFieldNameHelper
                 if (entityKind == EntityKind.SAMPLE || entityKind == EntityKind.DATA_SET)
                 {
                     return SearchFieldConstants.EXPERIMENT_ID;
-                }
-                throw createAssociationNotHandledException(entityKind, associationKind);
-                
-            case PROJECT:
-                if (entityKind == EntityKind.SAMPLE)
-                {
-                    return SearchFieldConstants.PROJECT_ID;
                 }
                 throw createAssociationNotHandledException(entityKind, associationKind);
                 
@@ -117,8 +110,14 @@ class IndexFieldNameHelper
                 return getMaterialAttributeIndexField(MaterialAttributeSearchFieldKind
                         .valueOf(attributeCode));
             case SAMPLE:
-                return getSampleAttributeIndexField(SampleAttributeSearchFieldKind
-                        .valueOf(attributeCode));
+                for (SampleAttributeSearchFieldKind searchFieldKind : SampleAttributeSearchFieldKind.values())
+                {
+                    if (searchFieldKind.name().equals(attributeCode))
+                    {
+                        return getSampleAttributeIndexField(searchFieldKind);
+                    }
+                }
+                return attributeCode;
         }
         return null; // cannot happen
     }
@@ -226,8 +225,7 @@ class IndexFieldNameHelper
             case PROJECT_PERM_ID:
                 return SearchFieldConstants.PREFIX_PROJECT + PERM_ID;
             case PROJECT_SPACE:
-                return SearchFieldConstants.PREFIX_PROJECT + SearchFieldConstants.PREFIX_SPACE
-                        + CODE;
+                return SearchFieldConstants.PREFIX_PROJECT + SearchFieldConstants.PREFIX_SPACE + CODE;
             case METAPROJECT:
                 return SearchFieldConstants.PREFIX_METAPROJECT + SearchFieldConstants.IDENTIFIER;
             case REGISTRATION_DATE:

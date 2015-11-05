@@ -102,10 +102,12 @@ public class DetailedQueryBuilder
         {
             List<String> fieldNames = getIndexFieldNames(criterion.getField(), entityKind);
 
+            String value = criterion.getValue();
             if (criterion.getTimeZone() == null)
             {
                 List<String> fieldPatterns = new ArrayList<String>(fieldNames.size());
                 List<Analyzer> fieldAnalyzers = new ArrayList<Analyzer>(fieldNames.size());
+                List<Occur> fieldOccur = new ArrayList<Occur>(fieldNames.size());
 
                 for (String fieldName : fieldNames)
                 {
@@ -115,50 +117,32 @@ public class DetailedQueryBuilder
                     if (MetaprojectSearch.isMetaprojectField(fieldName))
                     {
                         String fieldUserQuery =
-                                MetaprojectSearch.getMetaprojectUserQuery(criterion.getValue(),
-                                        userId);
-                        fieldPattern =
-                                LuceneQueryBuilder.adaptQuery(fieldUserQuery,
-                                        useWildcardSearchMode, false);
+                                MetaprojectSearch.getMetaprojectUserQuery(value, userId);
+                        fieldPattern = LuceneQueryBuilder.adaptQuery(fieldUserQuery,
+                                useWildcardSearchMode, false);
                         fieldAnalyzer = new IgnoreCaseAnalyzer();
                     } else if(isNumeric && criterion.getType() != null)
                     {
-                        String parsedNumberValue = SortableNumberBridgeUtils.getNumberForLucene(criterion.getValue());
-                        switch(criterion.getType()) {
-                            case LESS_THAN:
-                                fieldPattern = "{* TO " + parsedNumberValue + "}";
-                                break;
-                            case LESS_THAN_OR_EQUAL:
-                                fieldPattern = "[* TO " + parsedNumberValue + "]";
-                                break;
-                            case EQUALS:
-                                fieldPattern = "[" + parsedNumberValue + " TO " + parsedNumberValue + "]";
-                                break;
-                            case MORE_THAN_OR_EQUAL:
-                                fieldPattern = "[" + parsedNumberValue + " TO *]";
-                                break;
-                            case MORE_THAN:
-                                fieldPattern = "{" + parsedNumberValue + " TO *}";
-                                break;
-                        }
-                        
+                        fieldPattern = getRangeNumberQuery(criterion, fieldPattern);
                         fieldAnalyzer = PassThroughAnalyzer.INSTANCE;
                     } else {
-                        fieldPattern = LuceneQueryBuilder.adaptQuery(criterion.getValue(), useWildcardSearchMode);
+                        fieldPattern = LuceneQueryBuilder.adaptQuery(value, useWildcardSearchMode);
                         fieldAnalyzer = searchAnalyzer;
                     }
 
                     fieldPatterns.add(fieldPattern);
                     fieldAnalyzers.add(fieldAnalyzer);
+                    fieldOccur.add(criterion.isNegated() ? Occur.MUST_NOT : Occur.SHOULD);
                 }
 
-                Query luceneQuery = LuceneQueryBuilder.parseQuery(criterion.getType(), fieldNames, fieldPatterns, fieldAnalyzers);
+                Query luceneQuery = LuceneQueryBuilder.parseQuery(criterion.getType(), fieldNames, 
+                        fieldPatterns, fieldAnalyzers, fieldOccur);
                 resultQuery.add(luceneQuery, occureCondition);
             } else
             {
-                if (false == StringUtils.isEmpty(criterion.getValue()))
+                if (false == StringUtils.isEmpty(value))
                 {
-                    DateRangeCalculator rangeCalculator = new DateRangeCalculator(criterion.getValue(), criterion.getTimeZone(), criterion.getType());
+                    DateRangeCalculator rangeCalculator = new DateRangeCalculator(value, criterion.getTimeZone(), criterion.getType());
                     String fieldName = fieldNames.get(0);
                     StringEncodingDateBridge bridge = new StringEncodingDateBridge(Resolution.SECOND);
                     TermRangeQuery q =
@@ -175,6 +159,24 @@ public class DetailedQueryBuilder
             resultQuery.add(luceneQuery, occureCondition);
         }
         return resultQuery;
+    }
+
+    private String getRangeNumberQuery(DetailedSearchCriterion criterion, String fieldPattern)
+    {
+        String parsedNumberValue = SortableNumberBridgeUtils.getNumberForLucene(criterion.getValue());
+        switch(criterion.getType()) {
+            case LESS_THAN:
+                return "{* TO " + parsedNumberValue + "}";
+            case LESS_THAN_OR_EQUAL:
+                return "[* TO " + parsedNumberValue + "]";
+            case EQUALS:
+                return "[" + parsedNumberValue + " TO " + parsedNumberValue + "]";
+            case MORE_THAN_OR_EQUAL:
+                return "[" + parsedNumberValue + " TO *]";
+            case MORE_THAN:
+                return "{" + parsedNumberValue + " TO *}";
+        }
+        return fieldPattern;
     }
     
     private Occur createOccureCondition(SearchCriteriaConnection connection)

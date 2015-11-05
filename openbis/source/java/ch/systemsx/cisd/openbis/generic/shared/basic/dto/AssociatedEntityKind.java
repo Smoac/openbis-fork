@@ -35,8 +35,6 @@ public enum AssociatedEntityKind implements Serializable
     EXPERIMENT("Experiment", EntityKind.EXPERIMENT, EnumSet.of(EntityKind.SAMPLE,
             EntityKind.DATA_SET)),
             
-    PROJECT("Project", EntityKind.PROJECT, EnumSet.of(EntityKind.SAMPLE)),
-
     DATA_SET("Data Set", EntityKind.DATA_SET, EnumSet.noneOf(EntityKind.class)),
 
     DATA_SET_PARENT("Parent", EntityKind.DATA_SET, EnumSet.of(EntityKind.DATA_SET)),

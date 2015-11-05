@@ -16,6 +16,8 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.translator.search;
 
+import java.util.EnumSet;
+
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ISearchCriteria;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SpaceSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
@@ -29,6 +31,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleAttributeSearchFi
  */
 public class SpaceSearchCriteriaTranslator extends AbstractFieldFromCompositeSearchCriteriaTranslator
 {
+
+    private static final EnumSet<EntityKind> ENTITY_KINDS_WITH_SPACE 
+            = EnumSet.of(EntityKind.EXPERIMENT,  EntityKind.SAMPLE);
 
     public SpaceSearchCriteriaTranslator(IDAOFactory daoFactory, IEntityAttributeProviderFactory entityAttributeProviderFactory)
     {
@@ -44,10 +49,10 @@ public class SpaceSearchCriteriaTranslator extends AbstractFieldFromCompositeSea
     @Override
     protected SearchCriteriaTranslationResult doTranslate(SearchTranslationContext context, ISearchCriteria criteria)
     {
-        if (false == EntityKind.EXPERIMENT.equals(context.peekEntityKind()) && false == EntityKind.SAMPLE.equals(context.peekEntityKind()))
+        if (ENTITY_KINDS_WITH_SPACE.contains(context.peekEntityKind()) == false)
         {
-            throw new IllegalArgumentException("Space criteria can be used only in experiment and sample criteria, but was used in: "
-                    + context.peekEntityKind() + " context.");
+            throw new IllegalArgumentException("Space criteria can be used only in experiment and sample criteria, "
+                    + "but was used in: " + context.peekEntityKind() + " context.");
         }
         return super.doTranslate(context, criteria);
     }

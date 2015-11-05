@@ -327,10 +327,56 @@ public class ProjectSampleTest extends AbstractTest
     }
     
     @Test
-    public void testSearchForSamplesWithProjects()
+    public void testSearchForSamplesWithProject()
+    {
+        SampleSearchCriteria searchCriteria = new SampleSearchCriteria();
+        searchCriteria.withProject();
+        SampleFetchOptions fetchOptions = new SampleFetchOptions();
+        fetchOptions.withProject();
+        
+        SearchResult<Sample> result = v3api.searchSamples(systemSessionToken, searchCriteria, fetchOptions);
+        
+        assertEquals(result.getObjects().get(0).getIdentifier().getIdentifier(), "/CISD/3VCP5");
+        assertEquals(result.getObjects().get(0).getProject().getIdentifier().getIdentifier(), "/CISD/NEMO");
+        assertEquals(result.getTotalCount(), 1);
+    }
+    
+    @Test
+    public void testSearchForSamplesWithCodeAndWithProject()
+    {
+        SampleSearchCriteria searchCriteria = new SampleSearchCriteria();
+        searchCriteria.withCode().thatStartsWith("3V");
+        searchCriteria.withProject();
+        SampleFetchOptions fetchOptions = new SampleFetchOptions();
+        fetchOptions.withProject();
+        
+        SearchResult<Sample> result = v3api.searchSamples(systemSessionToken, searchCriteria, fetchOptions);
+        
+        assertEquals(result.getObjects().get(0).getIdentifier().getIdentifier(), "/CISD/3VCP5");
+        assertEquals(result.getObjects().get(0).getProject().getIdentifier().getIdentifier(), "/CISD/NEMO");
+        assertEquals(result.getTotalCount(), 1);
+    }
+    
+    @Test
+    public void testSearchForSamplesWithProjectWithSpaceWithCode()
     {
         SampleSearchCriteria searchCriteria = new SampleSearchCriteria();
         searchCriteria.withProject().withSpace().withCode().thatEquals("CISD");
+        SampleFetchOptions fetchOptions = new SampleFetchOptions();
+        fetchOptions.withProject();
+        
+        SearchResult<Sample> result = v3api.searchSamples(systemSessionToken, searchCriteria, fetchOptions);
+        
+        assertEquals(result.getObjects().get(0).getIdentifier().getIdentifier(), "/CISD/3VCP5");
+        assertEquals(result.getObjects().get(0).getProject().getIdentifier().getIdentifier(), "/CISD/NEMO");
+        assertEquals(result.getTotalCount(), 1);
+    }
+    
+    @Test
+    public void testSearchForSamplesWithProjectWithPermId()
+    {
+        SampleSearchCriteria searchCriteria = new SampleSearchCriteria();
+        searchCriteria.withProject().withPermId().thatContains("1738");
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
         fetchOptions.withProject();
         
