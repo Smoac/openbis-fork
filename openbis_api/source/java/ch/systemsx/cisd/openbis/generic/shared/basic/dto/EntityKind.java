@@ -26,7 +26,7 @@ import java.io.Serializable;
  */
 public enum EntityKind implements Serializable
 {
-    MATERIAL("Material"), EXPERIMENT("Experiment"), SAMPLE("Sample"), DATA_SET("Data Set");
+    MATERIAL("Material"), EXPERIMENT("Experiment"), SAMPLE("Sample"), DATA_SET("Data Set"), PROJECT("Project");
 
     private final String description;
 
