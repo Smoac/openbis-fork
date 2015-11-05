@@ -510,7 +510,7 @@ public class MapDataSetTest extends AbstractDataSetTest
     }
 
     @Test
-    public void testMapWithExternalDataForPhysicalDataSet()
+    public void testMapWithPhysicalDataForPhysicalDataSet()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -564,7 +564,7 @@ public class MapDataSetTest extends AbstractDataSetTest
     }
 
     @Test
-    public void testMapWithExternalDataForContainerDataSet()
+    public void testMapWithPhysicalDataForContainerDataSet()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 

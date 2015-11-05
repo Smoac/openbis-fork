@@ -24,6 +24,7 @@ import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.AbstractSetEntityToManyRelationExecutor;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSetCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.IDataSetId;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 
 /**
@@ -47,6 +48,11 @@ public class SetDataSetContainerExecutor extends AbstractSetEntityToManyRelation
 
         for (DataPE container : containers)
         {
+            if (false == container.isContainer())
+            {
+                throw new UserFailureException("Data set " + container.getCode()
+                        + " is not of a container type therefore cannot be set as a container of data set " + contained.getCode() + ".");
+            }
             relationshipService.assignDataSetToContainer(context.getSession(), contained, container);
         }
 

@@ -581,12 +581,32 @@ public class CreateDataSetTest extends AbstractDataSetTest
     }
 
     @Test
-    public void testCreateWithContainers()
+    public void testCreateWithContainersThatAreNonContainerDataSets()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        final DataSetCreation creation = physicalDataSetCreation();
+        creation.setContainerIds(Collections.singletonList(new DataSetPermId("20081105092159111-1")));
+
+        assertUserFailureException(new IDelegatedAction()
+            {
+
+                @Override
+                public void execute()
+                {
+                    v3api.createDataSets(sessionToken, Arrays.asList(creation));
+                }
+            }, "Data set 20081105092159111-1 is not of a container type therefore cannot be set as a container of data set "
+                + creation.getCode().toUpperCase() + ".");
+    }
+
+    @Test
+    public void testCreateWithContainersThatAreContainerDataSets()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         DataSetCreation creation = physicalDataSetCreation();
-        creation.setContainerIds(Collections.singletonList(new DataSetPermId("20081105092159111-1")));
+        creation.setContainerIds(Collections.singletonList(new DataSetPermId("20110509092359990-10")));
 
         DataSetFetchOptions fo = new DataSetFetchOptions();
         fo.withContainers();
@@ -594,7 +614,7 @@ public class CreateDataSetTest extends AbstractDataSetTest
         DataSet dataSet = createDataSet(sessionToken, creation, fo);
 
         assertEquals(dataSet.getCode(), creation.getCode().toUpperCase());
-        assertDataSetCodes(dataSet.getContainers(), "20081105092159111-1");
+        assertDataSetCodes(dataSet.getContainers(), "20110509092359990-10");
     }
 
     @Test
@@ -602,9 +622,9 @@ public class CreateDataSetTest extends AbstractDataSetTest
     {
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-        final DataSetCreation creation1 = physicalDataSetCreation();
-        final DataSetCreation creation2 = physicalDataSetCreation();
-        final DataSetCreation creation3 = physicalDataSetCreation();
+        final DataSetCreation creation1 = containerDataSetCreation();
+        final DataSetCreation creation2 = containerDataSetCreation();
+        final DataSetCreation creation3 = containerDataSetCreation();
 
         creation2.setContainerIds(Collections.singletonList(creation1.getCreationId()));
         creation3.setContainerIds(Collections.singletonList(creation2.getCreationId()));
@@ -625,7 +645,7 @@ public class CreateDataSetTest extends AbstractDataSetTest
     {
         final String sessionToken = v3api.loginAs(TEST_USER, PASSWORD, TEST_SPACE_USER);
 
-        final IDataSetId containerId = new DataSetPermId("20081105092159111-1");
+        final IDataSetId containerId = new DataSetPermId("20110509092359990-10");
         final DataSetCreation creation = physicalDataSetCreation();
         creation.setExperimentId(new ExperimentIdentifier("/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST"));
         creation.setContainerIds(Collections.singletonList(containerId));
@@ -641,11 +661,11 @@ public class CreateDataSetTest extends AbstractDataSetTest
     }
 
     @Test
-    public void testCreateWithContained()
+    public void testCreateWithContainedForContainerDataSet()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-        DataSetCreation creation = physicalDataSetCreation();
+        DataSetCreation creation = containerDataSetCreation();
         creation.setContainedIds(Collections.singletonList(new DataSetPermId("20081105092159111-1")));
 
         DataSetFetchOptions fo = new DataSetFetchOptions();
@@ -658,13 +678,31 @@ public class CreateDataSetTest extends AbstractDataSetTest
     }
 
     @Test
+    public void testCreateWithContainedForNonContainerDataSet()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        final DataSetCreation creation = physicalDataSetCreation();
+        creation.setContainedIds(Collections.singletonList(new DataSetPermId("20081105092159111-1")));
+
+        assertUserFailureException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    createDataSet(sessionToken, creation, new DataSetFetchOptions());
+                }
+            }, "Data set " + creation.getCode().toUpperCase() + " is not of a container type therefore cannot have contained data sets.");
+    }
+
+    @Test
     public void testCreateWithContainedCircularDependency()
     {
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-        final DataSetCreation creation1 = physicalDataSetCreation();
-        final DataSetCreation creation2 = physicalDataSetCreation();
-        final DataSetCreation creation3 = physicalDataSetCreation();
+        final DataSetCreation creation1 = containerDataSetCreation();
+        final DataSetCreation creation2 = containerDataSetCreation();
+        final DataSetCreation creation3 = containerDataSetCreation();
 
         creation2.setContainedIds(Collections.singletonList(creation1.getCreationId()));
         creation3.setContainedIds(Collections.singletonList(creation2.getCreationId()));
@@ -686,7 +724,7 @@ public class CreateDataSetTest extends AbstractDataSetTest
         final String sessionToken = v3api.loginAs(TEST_USER, PASSWORD, TEST_SPACE_USER);
 
         final IDataSetId containedId = new DataSetPermId("20081105092159111-1");
-        final DataSetCreation creation = physicalDataSetCreation();
+        final DataSetCreation creation = containerDataSetCreation();
         creation.setExperimentId(new ExperimentIdentifier("/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST"));
         creation.setContainedIds(Collections.singletonList(containedId));
 
@@ -1474,6 +1512,19 @@ public class CreateDataSetTest extends AbstractDataSetTest
         creation.setPhysicalData(physicalCreation);
         creation.setCreationId(new CreationId(code));
 
+        return creation;
+    }
+
+    private DataSetCreation containerDataSetCreation()
+    {
+        String code = UUID.randomUUID().toString();
+
+        DataSetCreation creation = new DataSetCreation();
+        creation.setCode(code);
+        creation.setTypeId(new EntityTypePermId("CONTAINER_TYPE"));
+        creation.setExperimentId(new ExperimentIdentifier("/CISD/NEMO/EXP1"));
+        creation.setDataStoreId(new DataStorePermId("STANDARD"));
+        creation.setCreationId(new CreationId(code));
         return creation;
     }
 
