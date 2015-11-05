@@ -102,8 +102,8 @@ var common = {
   deleting: "Deleting",
   delete_permanently_progress_message: "Deleting {0}(s)...",
   delete_progress_message: "Moving {0}(s) to trash ...",
-  cannot_modify_deleted_entity_title: "Can't modify deleted {0}",
-  cannot_modify_deleted_entity_msg: "{0} '{1}' has been moved to trash and therefore can't be modified.",
+  cannot_modify_deleted_entity_title: "Cannot modify deleted {0}",
+  cannot_modify_deleted_entity_msg: "{0} '{1}' has been moved to trash and therefore cannot be modified.",
   deletion_browser: "Trash",
   button_revert_deletion: "Revert",
   button_empty_trash: "Empty Trash",
@@ -117,11 +117,11 @@ var common = {
   revert_deletions_confirmation_msg: "Are you sure you want to revert {0} selected deletion(s)?",
   permanent_deletions_confirmation_title: "Confirm Permanent Deletion",
   permanent_deletions_progress: "Deleting permanently...",
-  permanent_deletions_confirmation_msg: "Are you sure you want to <b>permanently</b> delete all entities that were moved to trash in selected {0} deletion(s)?</br></br>You can't undo this action.",
+  permanent_deletions_confirmation_msg: "Are you sure you want to <b>permanently</b> delete all entities that were moved to trash in selected {0} deletion(s)?</br></br>You cannot undo this action.",
   use_trash_browser: "Use trash browser (click on the trash button in top menu) to delete entities permanently.",
   trash_button_tooltip: "Displays browser of deletions, allows to revert them or confirm (delete permanently).",
   empty_trash_confirmation_title: "Confirm Empty Trash",
-  empty_trash_confirmation_msg: "Are you sure you want to <b>permanently</b> delete all entities that were moved to trash?</br></br>You can't undo this action.",
+  empty_trash_confirmation_msg: "Are you sure you want to <b>permanently</b> delete all entities that were moved to trash?</br></br>You cannot undo this action.",
   empty_trash_progress: "Emptying trash...",
 	 
   //
@@ -662,7 +662,7 @@ var common = {
   
   // Active Users Dialog
   active_users_email_sent_confirmation: "E-mail sent. You should get a copy of the e-mail in your mailbox.",
-  active_users_dialog: "Number of active users ({0}) will be send to {1}.",
+  active_users_dialog: "Number of active users ({0}) will be sent to {1}.",
   
   //
   // Role View
@@ -717,7 +717,7 @@ var common = {
  vocabulary_terms_validation_message: "Term '{0}' already exists.", 
  delete_vocabulary_terms_button: "Delete",
  delete_vocabulary_terms_invalid_title: "Invalid Deletion",
- delete_vocabulary_terms_invalid_message: "Can not delete all terms. A vocabulary should have at least one term.",
+ delete_vocabulary_terms_invalid_message: "Cannot delete all terms. A vocabulary should have at least one term.",
  delete_vocabulary_terms_confirmation_title: "Deletion of Vocabulary Terms",
  delete_vocabulary_terms_confirmation_message_no_replacements_singular: "Do you want to delete the selected term?",
  delete_vocabulary_terms_confirmation_message_no_replacements: "Do you want to delete the {0} selected terms?",
@@ -841,8 +841,8 @@ var common = {
  //
  
  processing_info_title: "Processing",
- processing_info_msg: "'{0}' has been scheduled successfully. Email will be send to you when it is finished.",
- dataset_not_available_msg: "Data Set {0} is {1}. You can not perform any operation using its data.",
+ processing_info_msg: "'{0}' has been scheduled successfully. Email will be sent to you when it is finished.",
+ dataset_not_available_msg: "Data Set {0} is {1}. You cannot perform any operation using its data.",
  linked_data_set: "Linked Data Set",
  linked_data_set_info: "This is a linked data set.",
  linked_data_set_link: "Link: ",
@@ -899,7 +899,7 @@ incorrect_experiment_syntax: "Incorrect experiment specification. Please provide
   VISIBLE_COLUMNS_LIMITED_TITLE: "Number of visible columns was limited",
   VISIBLE_COLUMNS_LIMITED_MSG: "Only {0} out of {1} requested columns are displayed. You might want to change table settings.",
   VISIBLE_COLUMNS_LIMIT_REACHED_MSG: "Limit of {0} visible columns has been reached.",
-  VISIBLE_COLUMNS_LIMIT_EXCEEDED_MSG: "Limit of {0} visible columns can't be exceeded.",
+  VISIBLE_COLUMNS_LIMIT_EXCEEDED_MSG: "Limit of {0} visible columns cannot be exceeded.",
   
   message_no_external_upload_service: "External upload service (CIFEX) has not been configured. Ask the administrator for more details.",
  
