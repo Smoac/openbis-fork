@@ -26,6 +26,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.IdListUpdateValue;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSetUpdate;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.IDataSetId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.UnauthorizedObjectAccessException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.DataSetPEByExperimentOrSampleIdentifierValidator;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 
@@ -50,11 +51,16 @@ public class UpdateDataSetContainedExecutor extends AbstractUpdateEntityToManyRe
     }
 
     @Override
-    protected void check(IOperationContext context, IDataSetId relatedId, DataPE related)
+    protected void check(IOperationContext context, DataPE entity, IDataSetId relatedId, DataPE related)
     {
         if (false == new DataSetPEByExperimentOrSampleIdentifierValidator().doValidation(context.getSession().tryGetPerson(), related))
         {
             throw new UnauthorizedObjectAccessException(relatedId);
+        }
+        if (false == entity.isContainer())
+        {
+            throw new UserFailureException("Data set " + entity.getCode()
+                    + " is not of a container type therefore cannot have contained data sets.");
         }
     }
 

@@ -27,9 +27,6 @@ import java.util.Map;
 
 import org.testng.annotations.Test;
 
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.ListUpdateValue.ListUpdateAction;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.ListUpdateValue.ListUpdateActionAdd;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.ListUpdateValue.ListUpdateActionRemove;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSetUpdate;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.PhysicalDataUpdate;
@@ -42,7 +39,6 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentIde
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.IExperimentId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SamplePermId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.ITagId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.TagCode;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -399,10 +395,7 @@ public class UpdateDataSetTest extends AbstractSampleTest
 
         DataSetUpdate update = new DataSetUpdate();
         update.setDataSetId(dataSetId);
-        ListUpdateAction<IDataSetId> addAction = new ListUpdateActionAdd<IDataSetId>();
-        addAction.setItems(Collections.singletonList(new DataSetPermId("20081105092259000-20")));
-
-        update.setParentActions(Collections.singletonList(addAction));
+        update.getParentIds().add(new DataSetPermId("20081105092259000-20"));
 
         v3api.updateDataSets(sessionToken, Collections.singletonList(update));
 
@@ -423,9 +416,7 @@ public class UpdateDataSetTest extends AbstractSampleTest
 
         DataSetUpdate update = new DataSetUpdate();
         update.setDataSetId(originalChild);
-        ListUpdateAction<IDataSetId> removeAction = new ListUpdateActionRemove<IDataSetId>();
-        removeAction.setItems(Collections.singletonList(originalParent));
-        update.setParentActions(Collections.singletonList(removeAction));
+        update.getParentIds().remove(originalParent);
 
         assertRemovingParent(originalChild, originalParent, update);
     }
@@ -460,9 +451,7 @@ public class UpdateDataSetTest extends AbstractSampleTest
 
         DataSetUpdate update = new DataSetUpdate();
         update.setDataSetId(originalParent);
-        ListUpdateAction<IDataSetId> removeAction = new ListUpdateActionRemove<IDataSetId>();
-        removeAction.setItems(Collections.singletonList(originalChild));
-        update.setChildActions(Collections.singletonList(removeAction));
+        update.getChildIds().remove(originalChild);
 
         assertRemovingParent(originalChild, originalParent, update);
     }
@@ -494,8 +483,8 @@ public class UpdateDataSetTest extends AbstractSampleTest
     {
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-        DataSetPermId dataSetId = new DataSetPermId("20081105092259000-8");
-        final DataSetPermId componentId = new DataSetPermId("20081105092259000-9");
+        DataSetPermId dataSetId = new DataSetPermId("CONTAINER_1");
+        final DataSetPermId componentId = new DataSetPermId("CONTAINER_2");
 
         final DataSetUpdate update = new DataSetUpdate();
         update.setDataSetId(dataSetId);
@@ -509,7 +498,7 @@ public class UpdateDataSetTest extends AbstractSampleTest
                 {
                     v3api.updateDataSets(sessionToken, Collections.singletonList(update));
                 }
-            }, "Circular dependency found: 20081105092259000-8");
+            }, "Circular dependency found: CONTAINER_1");
     }
 
     @Test
@@ -521,12 +510,8 @@ public class UpdateDataSetTest extends AbstractSampleTest
 
         DataSetUpdate update = new DataSetUpdate();
         update.setDataSetId(dataSetId);
-        ListUpdateActionAdd<IDataSetId> addAction = new ListUpdateActionAdd<IDataSetId>();
-        ListUpdateAction<IDataSetId> removeAction = new ListUpdateActionRemove<IDataSetId>();
-        addAction.setItems(Collections.singletonList(new DataSetPermId("COMPONENT_2A")));
-        removeAction.setItems(Collections.singletonList(new DataSetPermId("COMPONENT_1A")));
-
-        update.setContainedActions(Arrays.asList(addAction, removeAction));
+        update.getContainedIds().add(new DataSetPermId("COMPONENT_2A"));
+        update.getContainedIds().remove(new DataSetPermId("COMPONENT_1A"));
 
         v3api.updateDataSets(sessionToken, Collections.singletonList(update));
 
@@ -535,6 +520,25 @@ public class UpdateDataSetTest extends AbstractSampleTest
         DataSet result = v3api.mapDataSets(sessionToken, Collections.singletonList(dataSetId), fe).get(dataSetId);
 
         AssertionUtil.assertCollectionContainsOnly(dataSetCodes(result.getContained()), "COMPONENT_1B", "COMPONENT_2A");
+    }
+
+    @Test
+    public void testUpdateWithComponentWithNonContainerDataSet()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        final DataSetUpdate update = new DataSetUpdate();
+        update.setDataSetId(new DataSetPermId("COMPONENT_1A"));
+        update.getContainedIds().add(new DataSetPermId("COMPONENT_2A"));
+
+        assertUserFailureException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.updateDataSets(sessionToken, Collections.singletonList(update));
+                }
+            }, "Data set COMPONENT_1A is not of a container type therefore cannot have contained data sets.");
     }
 
     @Test
@@ -550,12 +554,8 @@ public class UpdateDataSetTest extends AbstractSampleTest
 
         DataSetUpdate update = new DataSetUpdate();
         update.setDataSetId(dataSetId);
-        ListUpdateActionAdd<IDataSetId> addAction = new ListUpdateActionAdd<IDataSetId>();
-        ListUpdateAction<IDataSetId> removeAction = new ListUpdateActionRemove<IDataSetId>();
-        addAction.setItems(Arrays.asList(cont2, cont3a));
-        removeAction.setItems(Collections.singletonList(cont1));
-
-        update.setContainerActions(Arrays.asList(addAction, removeAction));
+        update.getContainerIds().add(cont2, cont3a);
+        update.getContainerIds().remove(cont1);
 
         v3api.updateDataSets(sessionToken, Collections.singletonList(update));
 
@@ -570,6 +570,28 @@ public class UpdateDataSetTest extends AbstractSampleTest
         AssertionUtil.assertCollectionDoesntContain(dataSetCodes(map.get(cont1).getContained()), dataSetId.getPermId());
         AssertionUtil.assertCollectionContains(dataSetCodes(map.get(cont2).getContained()), dataSetId.getPermId());
         AssertionUtil.assertCollectionContains(dataSetCodes(map.get(cont3a).getContained()), dataSetId.getPermId());
+    }
+
+    @Test
+    public void testUpdateWithContainerAddNotContainerDataSet()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        DataSetPermId dataSetId = new DataSetPermId("CONTAINER_1");
+        DataSetPermId containerId = new DataSetPermId("COMPONENT_2A");
+
+        final DataSetUpdate update = new DataSetUpdate();
+        update.setDataSetId(dataSetId);
+        update.getContainerIds().add(containerId);
+
+        assertUserFailureException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.updateDataSets(sessionToken, Collections.singletonList(update));
+                }
+            }, "Data set COMPONENT_2A is not of a container type therefore cannot be set as a container of data set CONTAINER_1.");
     }
 
     @Test
@@ -610,9 +632,8 @@ public class UpdateDataSetTest extends AbstractSampleTest
         // add tag1
         DataSetUpdate firstUpdate = new DataSetUpdate();
         firstUpdate.setDataSetId(dataSet);
-        ListUpdateAction<ITagId> addAction = new ListUpdateActionAdd<ITagId>();
-        addAction.setItems(Arrays.asList(newTag1));
-        firstUpdate.setTagActions(Arrays.asList(addAction));
+        firstUpdate.getTagIds().add(newTag1);
+
         v3api.updateDataSets(sessionToken, Arrays.asList(firstUpdate));
 
         Map<IDataSetId, DataSet> result = v3api.mapDataSets(sessionToken, Arrays.asList(dataSet), fe);
@@ -621,11 +642,9 @@ public class UpdateDataSetTest extends AbstractSampleTest
         // remove test_metaprojects and add a new tag2
         DataSetUpdate secondUpdate = new DataSetUpdate();
         secondUpdate.setDataSetId(dataSet);
-        addAction = new ListUpdateActionAdd<ITagId>();
-        ListUpdateAction<ITagId> removeAction = new ListUpdateActionRemove<ITagId>();
-        addAction.setItems(Arrays.asList(newTag2));
-        removeAction.setItems(Arrays.asList(existingTag));
-        secondUpdate.setTagActions(Arrays.asList(addAction, removeAction));
+        secondUpdate.getTagIds().remove(existingTag);
+        secondUpdate.getTagIds().add(newTag2);
+
         v3api.updateDataSets(sessionToken, Arrays.asList(secondUpdate));
 
         result = v3api.mapDataSets(sessionToken, Arrays.asList(dataSet), fe);

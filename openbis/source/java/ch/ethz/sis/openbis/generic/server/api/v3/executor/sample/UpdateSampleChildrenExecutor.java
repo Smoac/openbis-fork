@@ -50,7 +50,7 @@ public class UpdateSampleChildrenExecutor extends AbstractUpdateEntityToManyRela
     }
 
     @Override
-    protected void check(IOperationContext context, ISampleId relatedId, SamplePE related)
+    protected void check(IOperationContext context, SamplePE entity, ISampleId relatedId, SamplePE related)
     {
         if (false == new SampleByIdentiferValidator().doValidation(context.getSession().tryGetPerson(), related))
         {

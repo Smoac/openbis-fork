@@ -50,7 +50,7 @@ public class UpdateDataSetParentsExecutor extends AbstractUpdateEntityToManyRela
     }
 
     @Override
-    protected void check(IOperationContext context, IDataSetId relatedId, DataPE related)
+    protected void check(IOperationContext context, DataPE entity, IDataSetId relatedId, DataPE related)
     {
         if (false == new DataSetPEByExperimentOrSampleIdentifierValidator().doValidation(context.getSession().tryGetPerson(), related))
         {

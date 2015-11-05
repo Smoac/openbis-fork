@@ -69,7 +69,7 @@ public abstract class AbstractUpdateEntityToManyRelationExecutor<ENTITY_UPDATE, 
                             {
                                 throw new ObjectNotFoundException((IObjectId) relatedId);
                             }
-                            check(context, relatedId, related);
+                            check(context, entity, relatedId, related);
                             relatedCollection.add(related);
                         }
                         if (action instanceof ListUpdateActionSet<?>)
@@ -88,7 +88,7 @@ public abstract class AbstractUpdateEntityToManyRelationExecutor<ENTITY_UPDATE, 
                             {
                                 relatedCollection.add(related);
                             }
-                            check(context, relatedId, related);
+                            check(context, entity, relatedId, related);
                         }
                         remove(context, entity, relatedCollection);
                     }
@@ -150,7 +150,7 @@ public abstract class AbstractUpdateEntityToManyRelationExecutor<ENTITY_UPDATE, 
 
     protected abstract IdListUpdateValue<? extends RELATED_ID> getRelatedUpdate(IOperationContext context, ENTITY_UPDATE update);
 
-    protected abstract void check(IOperationContext context, RELATED_ID relatedId, RELATED_PE related);
+    protected abstract void check(IOperationContext context, ENTITY_PE entity, RELATED_ID relatedId, RELATED_PE related);
 
     protected abstract void add(IOperationContext context, ENTITY_PE entity, RELATED_PE related);
 

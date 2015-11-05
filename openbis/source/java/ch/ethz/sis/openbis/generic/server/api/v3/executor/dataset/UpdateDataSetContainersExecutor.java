@@ -26,6 +26,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.IdListUpdateValue;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSetUpdate;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.IDataSetId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.UnauthorizedObjectAccessException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.DataSetPEByExperimentOrSampleIdentifierValidator;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 
@@ -50,7 +51,7 @@ public class UpdateDataSetContainersExecutor extends AbstractUpdateEntityToManyR
     }
 
     @Override
-    protected void check(IOperationContext context, IDataSetId relatedId, DataPE related)
+    protected void check(IOperationContext context, DataPE entity, IDataSetId relatedId, DataPE related)
     {
         if (false == new DataSetPEByExperimentOrSampleIdentifierValidator().doValidation(context.getSession().tryGetPerson(), related))
         {
@@ -61,6 +62,11 @@ public class UpdateDataSetContainersExecutor extends AbstractUpdateEntityToManyR
     @Override
     protected void add(IOperationContext context, DataPE entity, DataPE related)
     {
+        if (false == related.isContainer())
+        {
+            throw new UserFailureException("Data set " + related.getCode()
+                    + " is not of a container type therefore cannot be set as a container of data set " + entity.getCode() + ".");
+        }
         relationshipService.assignDataSetToContainer(context.getSession(), entity, related);
     }
 
