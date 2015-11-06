@@ -689,7 +689,12 @@ div.x-tab-panel-body.x-tab-panel-body-top {
 	border: none;
 }
 
+div.x-panel-body.x-panel-body-noheader {
+	border: none;
+}
+
 .x-small-editor.x-panel-header.x-component.x-unselectable {
 	border-top: none;
 	border-bottom: none;
 }
+
