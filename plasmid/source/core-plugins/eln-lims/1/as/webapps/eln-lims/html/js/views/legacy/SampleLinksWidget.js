@@ -250,12 +250,15 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 							var $gridContainer = $("<div>").css({ "padding" : "2px" });
 							var dataGrid = SampleDataGridUtil.getSampleDataGrid(sampleTypeCode, samples, rowClick);
 								dataGrid.init($gridContainer);
-							var $closeBtn = FormUtil.getButtonWithText("Cancel").css({"float" : "right"});
+							var $closeBtn = FormUtil.getButtonWithIcon("glyphicon-remove");
 								$closeBtn.click(function() {
 									$('#'+_this._lastUsedId + "-table").empty();
 									$("#"+_this._lastUsedId).css({"background-color" : "#FFFFFF" });
 								});
-							$($tableContainer).append($gridContainer).append($closeBtn);
+							var $closeBtnContainer = $("<div>");
+								$closeBtnContainer.css({"text-align" : "right", "padding-right" : "2px"});
+								$closeBtnContainer.append($closeBtn);
+							$($tableContainer).append($closeBtnContainer).append($gridContainer);
 							
 							//Store new state
 							_this._lastUsedId = id;

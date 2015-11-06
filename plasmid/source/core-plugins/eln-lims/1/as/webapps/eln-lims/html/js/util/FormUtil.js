@@ -413,6 +413,12 @@ var FormUtil = new function() {
 		return $pinBtn;
 	}
 	
+	this.getButtonWithIcon = function(iconClass, clickEvent) {
+		var $pinBtn = $("<a>", { 'class' : 'btn btn-default' }).append($("<span>", { 'class' : 'glyphicon ' + iconClass }));
+		$pinBtn.click(clickEvent);
+		return $pinBtn;
+	}
+	
 	this.getHierarchyButton = function(permId) {
 		var $hierarchyButton = $("<a>", { 'class' : 'btn btn-default'} )
 									.append($('<img>', { 'src' : './img/hierarchy-icon.png', 'style' : 'width:16px; height:17px;' }));
