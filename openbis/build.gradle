@@ -90,7 +90,7 @@ task copyTestData(type: Copy, dependsOn: testClasses) {
     include "*.properties"
 }
 testProjectSamplesEnabled.dependsOn(copyTestData)
-testProjectSamplesEnabled.dependsOn(cleanDbSuiteProjectSamplesEnabled)
+cleanDbSuiteProjectSamplesEnabled.dependsOn(testProjectSamplesEnabled)
 test.dependsOn(copyTestData)
 test.dependsOn(cleanDbSuite)
 //test.dependsOn(testProjectSamplesEnabled)
