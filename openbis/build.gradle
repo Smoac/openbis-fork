@@ -77,6 +77,7 @@ task cleanDbSuiteProjectSamplesEnabled(type: Test) {
 task testProjectSamplesEnabled(type: Test) {
     useTestNG()
     systemProperty "project-samples-enabled", 'true'
+    systemProperty "ch.ethz.sis.openbis.v3.searchcache.size", '10m'
     options.suites('sourceTest/java/tests_project_samples.xml')
     reports.html.destination = file("${project.buildDir}/reports/tests-project-samples")
 }
