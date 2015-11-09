@@ -37,6 +37,7 @@ public class FullSampleIdentifierTest
         assertSampId("/SPACE1/S2:A02");
         assertSampId("/SPACE1/PROJECT1/S1");
         assertSampId("/SPACE1/PROJECT1/S1:A02");
+        
     }
     
     @Test
@@ -47,6 +48,16 @@ public class FullSampleIdentifierTest
         assertInvalidSampId("Sample identifier has to start with a '/': A/BC", "A/BC");
         assertInvalidSampId("Sample identifier can not contain more than three '/': /A/B/C/D", "/A/B/C/D");
         assertInvalidSampId("Sample code can not contain more than one ':': /A/B:C:D", "/A/B:C:D");
+        
+        assertInvalidSampId("Sample identifier don't contain any codes: ///", "///");
+        assertInvalidSampId("Sample identifier don't contain any codes: //", "//");
+        assertInvalidSampId("Sample identifier don't contain any codes: /", "/");
+        
+        assertInvalidSampId("Code field containing other characters than letters, numbers, '_', '-' and '.': S1&*", "/S1&*");
+        assertInvalidSampId("Code field containing other characters than letters, numbers, '_', '-' and '.': SPA&CE1", "/SPA&CE1/S2");
+        assertInvalidSampId("Code field containing other characters than letters, numbers, '_', '-' and '.': S^2", "/SPACE1/S^2:A02");
+        assertInvalidSampId("Code field containing other characters than letters, numbers, '_', '-' and '.': PRO<>JECT1", "/SPACE1/PRO<>JECT1/S1");
+        assertInvalidSampId("Code field containing other characters than letters, numbers, '_', '-' and '.': A0(2", "/SPACE1/PROJECT1/S1:A0(2");
     }
     
     private void assertInvalidSampId(String expectedErrorMsg, String identifier)
