@@ -44,26 +44,30 @@ public class SetDataSetLinkedDataExecutor implements ISetDataSetLinkedDataExecut
         for (Map.Entry<DataSetCreation, DataPE> entry : entitiesMap.entrySet())
         {
             DataSetCreation creation = entry.getKey();
+            LinkedDataCreation linkedCreation = creation.getLinkedData();
             DataPE entity = entry.getValue();
 
             if (entity instanceof LinkDataPE)
             {
-                set(context, creation, (LinkDataPE) entity);
+                if (linkedCreation == null)
+                {
+                    throw new UserFailureException("Linked data cannot be null for a link data set.");
+                }
+                set(context, linkedCreation, (LinkDataPE) entity);
+            } else
+            {
+                if (linkedCreation != null)
+                {
+                    throw new UserFailureException("Linked data cannot be set for a non-link data set.");
+                }
             }
         }
 
         setDataSetExternalDmsExecutor.set(context, entitiesMap);
     }
 
-    private void set(IOperationContext context, DataSetCreation creation, LinkDataPE dataSet)
+    private void set(IOperationContext context, LinkedDataCreation linkedCreation, LinkDataPE dataSet)
     {
-        LinkedDataCreation linkedCreation = creation.getLinkedData();
-
-        if (linkedCreation == null)
-        {
-            throw new UserFailureException("Linked data cannot be null for a link data set.");
-        }
-
         dataSet.setExternalCode(linkedCreation.getExternalCode());
     }
 

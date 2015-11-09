@@ -52,11 +52,22 @@ public class SetDataSetPhysicalDataExecutor implements ISetDataSetPhysicalDataEx
         for (Map.Entry<DataSetCreation, DataPE> entry : entitiesMap.entrySet())
         {
             DataSetCreation creation = entry.getKey();
+            PhysicalDataCreation physicalCreation = creation.getPhysicalData();
             DataPE entity = entry.getValue();
 
             if (entity instanceof ExternalDataPE)
             {
-                set(context, creation, (ExternalDataPE) entity);
+                if (physicalCreation == null)
+                {
+                    throw new UserFailureException("Physical data cannot be null for a physical data set.");
+                }
+                set(context, physicalCreation, (ExternalDataPE) entity);
+            } else
+            {
+                if (physicalCreation != null)
+                {
+                    throw new UserFailureException("Physical data cannot be set for a non-physical data set.");
+                }
             }
         }
 
@@ -65,15 +76,8 @@ public class SetDataSetPhysicalDataExecutor implements ISetDataSetPhysicalDataEx
         setDataSetLocatorTypeExecutor.set(context, entitiesMap);
     }
 
-    private void set(IOperationContext context, DataSetCreation creation, ExternalDataPE dataSet)
+    private void set(IOperationContext context, PhysicalDataCreation physicalCreation, ExternalDataPE dataSet)
     {
-        PhysicalDataCreation physicalCreation = creation.getPhysicalData();
-
-        if (physicalCreation == null)
-        {
-            throw new UserFailureException("Physical data cannot be null for a physical data set.");
-        }
-
         dataSet.setShareId(physicalCreation.getShareId());
         dataSet.setLocation(physicalCreation.getLocation());
 

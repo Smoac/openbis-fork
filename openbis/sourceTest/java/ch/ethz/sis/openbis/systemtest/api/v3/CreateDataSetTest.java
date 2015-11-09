@@ -953,6 +953,24 @@ public class CreateDataSetTest extends AbstractDataSetTest
     }
 
     @Test
+    public void testCreatePhysicalDataSetWithPhysicalDataNotNullAndLinkedDataNotNull()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        final DataSetCreation creation = physicalDataSetCreation();
+        creation.setLinkedData(new LinkedDataCreation());
+
+        assertUserFailureException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    createDataSet(sessionToken, creation, new DataSetFetchOptions());
+                }
+            }, "Linked data cannot be set for a non-link data set.");
+    }
+
+    @Test
     public void testCreatePhysicalDataSetWithPhysicalDataNull()
     {
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);
@@ -1389,6 +1407,42 @@ public class CreateDataSetTest extends AbstractDataSetTest
     }
 
     @Test
+    public void testCreateContainerDataSetWithPhysicalDataNotNull()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        final DataSetCreation creation = containerDataSetCreation();
+        creation.setPhysicalData(new PhysicalDataCreation());
+
+        assertUserFailureException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    createDataSet(sessionToken, creation, new DataSetFetchOptions());
+                }
+            }, "Physical data cannot be set for a non-physical data set.");
+    }
+
+    @Test
+    public void testCreateContainerDataSetWithLinkedDataNotNull()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        final DataSetCreation creation = containerDataSetCreation();
+        creation.setLinkedData(new LinkedDataCreation());
+
+        assertUserFailureException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    createDataSet(sessionToken, creation, new DataSetFetchOptions());
+                }
+            }, "Linked data cannot be set for a non-link data set.");
+    }
+
+    @Test
     public void testCreateLinkDataSetWithLinkedDataNotNull()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
@@ -1419,6 +1473,24 @@ public class CreateDataSetTest extends AbstractDataSetTest
         assertEquals(dataSet.getLinkedData().getExternalCode(), "TEST_EXTERNAL_CODE");
         assertEquals(dataSet.getLinkedData().getExternalDms().getCode(), "DMS_1");
         assertNull(dataSet.getPhysicalData());
+    }
+
+    @Test
+    public void testCreateLinkDataSetWithLinkedDataNotNullAndPhyscialDataNotNull()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        final DataSetCreation creation = linkDataSetCreation();
+        creation.setPhysicalData(new PhysicalDataCreation());
+
+        assertUserFailureException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    createDataSet(sessionToken, creation, new DataSetFetchOptions());
+                }
+            }, "Physical data cannot be set for a non-physical data set.");
     }
 
     @Test
