@@ -76,6 +76,7 @@ public class JMXMemoryMonitor
     {
         this.logIntervalMillis = logIntervallMillis;
         this.memoryHighwaterMarkPercent = memoryHighWatermarkPercent;
+        machineLog.info("Maximum heap size: " + Runtime.getRuntime().maxMemory());
     }
 
     private int percentageUsed(MemoryUsage usage)
