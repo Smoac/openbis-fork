@@ -40,14 +40,31 @@ public class SampleIdentifier extends ObjectIdentifier implements ISampleId
 
     public SampleIdentifier(String spaceCodeOrNull, String containerCodeOrNull, String sampleCode)
     {
-        this(createIdentifier(spaceCodeOrNull, containerCodeOrNull, sampleCode));
+        this(spaceCodeOrNull, null, containerCodeOrNull, sampleCode);
     }
 
-    private static String createIdentifier(String spaceCodeOrNull, String containerCodeOrNull, String sampleCode)
+    public SampleIdentifier(String spaceCodeOrNull, String projectCodeOrNull, String containerCodeOrNull, String sampleCode)
     {
-        String spaceCode = spaceCodeOrNull != null ? "/" + spaceCodeOrNull : "";
-        String containerCode = containerCodeOrNull != null ? containerCodeOrNull + ":" : "";
-        return spaceCode + "/" + containerCode + sampleCode;
+        this(createIdentifier(spaceCodeOrNull, projectCodeOrNull, containerCodeOrNull, sampleCode));
+    }
+    
+    private static String createIdentifier(String spaceCodeOrNull, String projectCodeOrNull, 
+            String containerCodeOrNull, String sampleCode)
+    {
+        StringBuilder builder = new StringBuilder("/");
+        if (spaceCodeOrNull != null)
+        {
+            builder.append(spaceCodeOrNull).append("/");
+        }
+        if (projectCodeOrNull != null)
+        {
+            builder.append(projectCodeOrNull).append("/");
+        }
+        if (containerCodeOrNull != null)
+        {
+            builder.append(containerCodeOrNull).append(":");
+        }
+        return builder.append(sampleCode).toString();
     }
 
     //

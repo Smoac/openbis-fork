@@ -49,11 +49,11 @@ public class ListSampleTechIdByIdentifier extends AbstractListTechIdById<SampleI
     {
         return SampleIdentifier.class;
     }
-
+    
     @Override
     protected Map<Long, SampleIdentifier> createIdsByTechIdsMap(List<SampleIdentifier> ids)
     {
-        Map<Key, Map<String, SampleIdentifier>> groupedIdentifiers = new HashMap<>();
+        Map<SampleIdentifierParts, Map<String, SampleIdentifier>> groupedIdentifiers = new HashMap<>();
         for (SampleIdentifier sampleIdentifier : ids)
         {
             ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier sampleIdentifier2 
@@ -75,7 +75,7 @@ public class ListSampleTechIdByIdentifier extends AbstractListTechIdById<SampleI
             }
             String sampleSubCode = CodeConverter.tryToDatabase(sampleIdentifier2.getSampleSubCode());
             String containerCode = CodeConverter.tryToDatabase(sampleIdentifier2.tryGetContainerCode());
-            Key key = new Key(spaceCode, containerCode);
+            SampleIdentifierParts key = new SampleIdentifierParts(spaceCode, null, containerCode);
             Map<String, SampleIdentifier> identifiersByCode = groupedIdentifiers.get(key);
             if (identifiersByCode == null)
             {
@@ -87,9 +87,9 @@ public class ListSampleTechIdByIdentifier extends AbstractListTechIdById<SampleI
         
         Map<Long, SampleIdentifier> result = new HashMap<>();
         SampleQuery query = QueryTool.getManagedQuery(SampleQuery.class);
-        for (Entry<Key, Map<String, SampleIdentifier>> entry : groupedIdentifiers.entrySet())
+        for (Entry<SampleIdentifierParts, Map<String, SampleIdentifier>> entry : groupedIdentifiers.entrySet())
         {
-            Key key = entry.getKey();
+            SampleIdentifierParts key = entry.getKey();
             Map<String, SampleIdentifier> identifiersByCode = entry.getValue();
             List<TechIdStringIdentifierRecord> records = list(query, key, identifiersByCode.keySet());
             for (TechIdStringIdentifierRecord record : records)
@@ -101,11 +101,11 @@ public class ListSampleTechIdByIdentifier extends AbstractListTechIdById<SampleI
         return result;
     }
     
-    private List<TechIdStringIdentifierRecord> list(SampleQuery query, Key key, Collection<String> codes)
+    private List<TechIdStringIdentifierRecord> list(SampleQuery query, SampleIdentifierParts key, Collection<String> codes)
     {
         String[] codesArray = codes.toArray(new String[codes.size()]);
-        String spaceCode = key.spaceCodeOrNull;
-        String containerCode = key.containerCodeOrNull;
+        String spaceCode = key.getSpaceCodeOrNull();
+        String containerCode = key.getContainerCodeOrNull();
         if (spaceCode == null)
         {
             if (containerCode == null)
@@ -119,50 +119,6 @@ public class ListSampleTechIdByIdentifier extends AbstractListTechIdById<SampleI
             return query.listSpaceSampleTechIdsByCodes(spaceCode, codesArray);
         }
         return query.listSpaceSampleTechIdsByContainerCodeAndCodes(spaceCode, containerCode, codesArray);
-    }
-
-    private static final class Key
-    {
-        private String spaceCodeOrNull;
-        private String containerCodeOrNull;
-
-        Key(String spaceCodeOrNull, String containerCodeOrNull)
-        {
-            this.spaceCodeOrNull = spaceCodeOrNull;
-            this.containerCodeOrNull = containerCodeOrNull;
-        }
-
-        @Override
-        public boolean equals(Object obj)
-        {
-            if (obj == this)
-            {
-                return true;
-            }
-            if (obj instanceof Key == false)
-            {
-                return false;
-            }
-            Key key = (Key) obj;
-            return isEqual(spaceCodeOrNull, key.spaceCodeOrNull) 
-                    && isEqual(containerCodeOrNull, key.containerCodeOrNull);
-        }
-        
-        private boolean isEqual(String str1, String str2)
-        {
-            return str1 == null ? str1 == str2 : str1.equals(str2);
-        }
-        
-        @Override
-        public int hashCode()
-        {
-            return 37 * calcHashCode(spaceCodeOrNull) + calcHashCode(containerCodeOrNull);
-        }
-        
-        private int calcHashCode(String str)
-        {
-            return str == null ? 0 : str.hashCode();
-        }
     }
 
 }

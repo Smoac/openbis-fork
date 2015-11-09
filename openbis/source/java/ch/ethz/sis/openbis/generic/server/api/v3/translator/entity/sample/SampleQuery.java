@@ -41,8 +41,11 @@ public interface SampleQuery extends ObjectQuery
             + "where s.id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<SampleAuthorizationRecord> getAuthorizations(LongSet sampleIds);
 
-    @Select(sql = "select s.id, s.code, s.perm_id as permId, sp.code as spaceCode, sc.code as containerCode, s.registration_timestamp as registrationDate, s.modification_timestamp as modificationDate "
+    @Select(sql = "select s.id, s.code, s.perm_id as permId, sp.code as spaceCode, p.code as projectCode, "
+            + "sc.code as containerCode, s.registration_timestamp as registrationDate, "
+            + "s.modification_timestamp as modificationDate "
             + "from samples s left join spaces sp on s.space_id = sp.id "
+            + "left join projects p on s.proj_id = p.id "
             + "left join samples sc on s.samp_id_part_of = sc.id "
             + "where s.id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<SampleBaseRecord> getSamples(LongSet sampleIds);

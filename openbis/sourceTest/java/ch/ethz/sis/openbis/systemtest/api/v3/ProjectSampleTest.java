@@ -367,7 +367,7 @@ public class ProjectSampleTest extends AbstractTest
         
         SearchResult<Sample> result = v3api.searchSamples(systemSessionToken, searchCriteria, fetchOptions);
         
-        assertEquals(result.getObjects().get(0).getIdentifier().getIdentifier(), "/CISD/3VCP5");
+        assertEquals(result.getObjects().get(0).getIdentifier().getIdentifier(), "/CISD/NEMO/3VCP5");
         assertEquals(result.getObjects().get(0).getProject().getIdentifier().getIdentifier(), "/CISD/NEMO");
         assertEquals(result.getTotalCount(), 1);
     }
@@ -383,7 +383,7 @@ public class ProjectSampleTest extends AbstractTest
         
         SearchResult<Sample> result = v3api.searchSamples(systemSessionToken, searchCriteria, fetchOptions);
         
-        assertEquals(result.getObjects().get(0).getIdentifier().getIdentifier(), "/CISD/3VCP5");
+        assertEquals(result.getObjects().get(0).getIdentifier().getIdentifier(), "/CISD/NEMO/3VCP5");
         assertEquals(result.getObjects().get(0).getProject().getIdentifier().getIdentifier(), "/CISD/NEMO");
         assertEquals(result.getTotalCount(), 1);
     }
@@ -398,7 +398,7 @@ public class ProjectSampleTest extends AbstractTest
         
         SearchResult<Sample> result = v3api.searchSamples(systemSessionToken, searchCriteria, fetchOptions);
         
-        assertEquals(result.getObjects().get(0).getIdentifier().getIdentifier(), "/CISD/3VCP5");
+        assertEquals(result.getObjects().get(0).getIdentifier().getIdentifier(), "/CISD/NEMO/3VCP5");
         assertEquals(result.getObjects().get(0).getProject().getIdentifier().getIdentifier(), "/CISD/NEMO");
         assertEquals(result.getTotalCount(), 1);
     }
@@ -413,7 +413,7 @@ public class ProjectSampleTest extends AbstractTest
         
         SearchResult<Sample> result = v3api.searchSamples(systemSessionToken, searchCriteria, fetchOptions);
         
-        assertEquals(result.getObjects().get(0).getIdentifier().getIdentifier(), "/CISD/3VCP5");
+        assertEquals(result.getObjects().get(0).getIdentifier().getIdentifier(), "/CISD/NEMO/3VCP5");
         assertEquals(result.getObjects().get(0).getProject().getIdentifier().getIdentifier(), "/CISD/NEMO");
         assertEquals(result.getTotalCount(), 1);
     }

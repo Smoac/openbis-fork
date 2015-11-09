@@ -208,7 +208,8 @@ public class SampleTranslator extends AbstractCachingTranslator<Long, Sample, Sa
 
         result.setPermId(new SamplePermId(baseRecord.permId));
         result.setCode(baseRecord.code);
-        result.setIdentifier(new SampleIdentifier(baseRecord.spaceCode, baseRecord.containerCode, baseRecord.code));
+        result.setIdentifier(new SampleIdentifier(baseRecord.spaceCode, baseRecord.projectCode, 
+                baseRecord.containerCode, baseRecord.code));
         result.setModificationDate(baseRecord.modificationDate);
         result.setRegistrationDate(baseRecord.registrationDate);
 
