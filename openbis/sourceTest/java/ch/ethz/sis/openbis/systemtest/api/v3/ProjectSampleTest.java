@@ -72,6 +72,37 @@ public class ProjectSampleTest extends AbstractTest
     }
     
     @Test
+    public void testCreateThreeSamplesWithSameCodeInDifferentProjectOfSameSpace()
+    {
+        SampleCreation s1 = new SampleCreation();
+        s1.setCode("S1");
+        s1.setTypeId(new EntityTypePermId("CELL_PLATE"));
+        s1.setSpaceId(new SpacePermId("CISD"));
+        ProjectIdentifier projectId1 = new ProjectIdentifier("/CISD/NEMO");
+        s1.setProjectId(projectId1);
+        SampleCreation s2 = new SampleCreation();
+        s2.setCode("S1");
+        s2.setTypeId(new EntityTypePermId("CELL_PLATE"));
+        s2.setSpaceId(new SpacePermId("CISD"));
+        ProjectIdentifier projectId2 = new ProjectIdentifier("/CISD/NOE");
+        s2.setProjectId(projectId2);
+        SampleCreation s3 = new SampleCreation();
+        s3.setCode("S1");
+        s3.setTypeId(new EntityTypePermId("CELL_PLATE"));
+        s3.setSpaceId(new SpacePermId("CISD"));
+        
+        List<SamplePermId> ids = v3api.createSamples(systemSessionToken, Arrays.asList(s1, s2, s3));
+        
+        SampleFetchOptions fetchOptions = new SampleFetchOptions();
+        fetchOptions.withProject();
+        Map<ISampleId, Sample> samples = v3api.mapSamples(systemSessionToken, ids, fetchOptions);
+        assertEquals(samples.get(ids.get(0)).getProject().getIdentifier().toString(), "/CISD/NEMO");
+        assertEquals(samples.get(ids.get(1)).getProject().getIdentifier().toString(), "/CISD/NOE");
+        assertEquals(samples.get(ids.get(2)).getProject(), null);
+        
+    }
+    
+    @Test
     public void testAssignSpaceSampleToAProject()
     {
         SampleUpdate sampleUpdate = new SampleUpdate();
