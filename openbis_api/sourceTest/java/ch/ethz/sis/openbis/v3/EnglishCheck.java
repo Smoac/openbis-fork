@@ -21,11 +21,16 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.TreeSet;
 
+import org.apache.commons.lang.StringUtils;
 import org.reflections.ReflectionUtils;
 import org.reflections.Reflections;
 import org.reflections.scanners.ResourcesScanner;
@@ -41,6 +46,8 @@ import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
 
+import ch.systemsx.cisd.common.shared.basic.string.IgnoreCaseComparator;
+
 /**
  * @author pkupczyk
  */
@@ -52,14 +59,13 @@ public class EnglishCheck
             "ch.ethz.sis.openbis.generic.shared.api.v3"
     };
 
-    @Test(enabled = false)
+    @Test
     public void test() throws Exception
     {
         Report report = new Report();
-        report.setPrintCorrect(true);
-        report.setPrintIncorrect(true);
-        printClasses(report, getPublicClasses());
-        Assert.assertTrue(report.isCorrect(), report.getContent());
+        checkClasses(report, getPublicClasses());
+        System.out.println(new ReportFormat().showCorrect().showIncorrect().format(report));
+        Assert.assertEquals(new ReportFormat().showIncorrect().showOnlyWords().format(report), "");
     }
 
     private Collection<Class<?>> getPublicClasses()
@@ -94,7 +100,15 @@ public class EnglishCheck
                 }
             });
         Collection<String> uniqueClassNames = new TreeSet<String>(nonInnerClassNames);
-        return ImmutableSet.copyOf(ReflectionUtils.forNames(uniqueClassNames));
+        Collection<Class<?>> uniqueClasses = ImmutableSet.copyOf(ReflectionUtils.forNames(uniqueClassNames));
+
+        for (Class<?> uniqueClass : uniqueClasses)
+        {
+            System.out.println("Found V3 public class:\t" + uniqueClass.getName());
+        }
+        System.out.println();
+
+        return uniqueClasses;
     }
 
     private Collection<Field> getPublicFields(Class<?> clazz)
@@ -124,141 +138,209 @@ public class EnglishCheck
         return methods;
     }
 
-    private boolean isClassCorrect(Class<?> clazz)
+    private void checkClasses(Report report, Collection<Class<?>> classes)
     {
-        return EnglishDictionary.getInstance().contains(clazz.getSimpleName());
-    }
-
-    private boolean isFieldCorrect(Field field)
-    {
-        return EnglishDictionary.getInstance().contains(field.getName());
-    }
-
-    private boolean isMethodCorrect(Method method)
-    {
-        return EnglishDictionary.getInstance().contains(method.getName());
-    }
-
-    private void printClasses(Report report, Collection<Class<?>> classes)
-    {
-        Collection<Class<?>> sortedClasses = new TreeSet<Class<?>>(new Comparator<Class<?>>()
-            {
-                @Override
-                public int compare(Class<?> c1, Class<?> c2)
-                {
-                    return c1.getSimpleName().compareToIgnoreCase(c2.getSimpleName());
-                }
-            });
-        sortedClasses.addAll(classes);
-
-        for (Class<?> clazz : sortedClasses)
+        for (Class<?> clazz : classes)
         {
-            report.println(clazz.getSimpleName(), isClassCorrect(clazz));
-            report.increaseIndentation();
-            printFields(report, getPublicFields(clazz));
-            printMethods(report, getPublicMethods(clazz));
-            report.decreaseIndentation();
+            report.add(new ClassEntry(clazz));
+            checkFields(report, getPublicFields(clazz));
+            checkMethods(report, getPublicMethods(clazz));
         }
     }
 
-    private void printFields(Report report, Collection<Field> fields)
+    private void checkFields(Report report, Collection<Field> fields)
     {
-        Collection<Field> sortedFields = new TreeSet<Field>(new Comparator<Field>()
-            {
-                @Override
-                public int compare(Field f1, Field f2)
-                {
-                    return f1.getName().compareToIgnoreCase(f2.getName());
-                }
-            });
-        sortedFields.addAll(fields);
-
-        for (Field field : sortedFields)
+        for (Field field : fields)
         {
-            report.println(field.getDeclaringClass().getSimpleName() + "  " + field.getName(), isFieldCorrect(field));
+            report.add(new FieldEntry(field));
         }
     }
 
-    private void printMethods(Report report, Collection<Method> methods)
+    private void checkMethods(Report report, Collection<Method> methods)
     {
-        Collection<Method> sortedMethods = new TreeSet<Method>(new Comparator<Method>()
-            {
-                @Override
-                public int compare(Method m1, Method m2)
-                {
-                    return m1.getName().compareToIgnoreCase(m2.getName());
-                }
-            });
-        sortedMethods.addAll(methods);
-
-        for (Method method : sortedMethods)
+        for (Method method : methods)
         {
-            report.println(method.getDeclaringClass().getSimpleName() + "  " + method.getName(), isMethodCorrect(method));
+            report.add(new MethodEntry(method));
         }
     }
 
-    private class Report
+    static class Report
     {
 
-        private static final String INDENTATION = "   ";
+        private List<Entry> entries = new LinkedList<Entry>();
 
-        private StringBuilder content = new StringBuilder();
-
-        private String indentation = "";
-
-        private boolean printCorrect;
-
-        private boolean printIncorrect;
-
-        private boolean allCorrect = true;
-
-        public void println(String s, boolean correct)
+        public void add(Entry entry)
         {
-            allCorrect = allCorrect && correct;
+            entries.add(entry);
+        }
 
-            if ((correct && printCorrect) || (false == correct && printIncorrect))
+        public List<Entry> getEntries()
+        {
+            return entries;
+        }
+
+    }
+
+    static abstract class Entry
+    {
+
+        public abstract String getWord();
+
+        public abstract String getContext();
+
+    }
+
+    static class ClassEntry extends Entry
+    {
+
+        private Class<?> clazz;
+
+        public ClassEntry(Class<?> clazz)
+        {
+            this.clazz = clazz;
+        }
+
+        @Override
+        public String getWord()
+        {
+            return clazz.getSimpleName();
+        }
+
+        @Override
+        public String getContext()
+        {
+            return clazz.getSimpleName();
+        }
+
+    }
+
+    static class FieldEntry extends Entry
+    {
+
+        private Field field;
+
+        public FieldEntry(Field field)
+        {
+            this.field = field;
+        }
+
+        @Override
+        public String getWord()
+        {
+            return field.getName();
+        }
+
+        @Override
+        public String getContext()
+        {
+            return field.getDeclaringClass().getSimpleName();
+        }
+
+    }
+
+    static class MethodEntry extends Entry
+    {
+
+        private Method method;
+
+        public MethodEntry(Method method)
+        {
+            this.method = method;
+        }
+
+        @Override
+        public String getWord()
+        {
+            return method.getName();
+        }
+
+        @Override
+        public String getContext()
+        {
+            return method.getDeclaringClass().getSimpleName();
+        }
+
+    }
+
+    static class ReportFormat
+    {
+
+        private boolean showCorrect;
+
+        private boolean showIncorrect;
+
+        private boolean showOnlyWords;
+
+        public ReportFormat showCorrect()
+        {
+            this.showCorrect = true;
+            return this;
+        }
+
+        public ReportFormat showIncorrect()
+        {
+            this.showIncorrect = true;
+            return this;
+        }
+
+        public ReportFormat showOnlyWords()
+        {
+            this.showOnlyWords = true;
+            return this;
+        }
+
+        public String format(Report report)
+        {
+            Map<String, Set<String>> contextsMap = new HashMap<String, Set<String>>();
+
+            for (Entry entry : report.getEntries())
             {
-                if (indentation != null)
+                Set<String> contexts = contextsMap.get(entry.getWord());
+
+                if (contexts == null)
                 {
-                    content.append(indentation);
+                    contexts = new TreeSet<String>();
+                    contextsMap.put(entry.getWord(), contexts);
                 }
-                content.append(s + " " + (correct ? " OK" : " WRONG") + "\n");
+
+                contexts.add(entry.getContext());
             }
-        }
 
-        public void setPrintCorrect(boolean printCorrect)
-        {
-            this.printCorrect = printCorrect;
-        }
+            List<String> sortedWords = new ArrayList<String>(contextsMap.keySet());
+            Collections.sort(sortedWords, new IgnoreCaseComparator());
 
-        public void setPrintIncorrect(boolean printIncorrect)
-        {
-            this.printIncorrect = printIncorrect;
-        }
+            String longestWord = Collections.max(sortedWords, new Comparator<String>()
+                {
+                    @Override
+                    public int compare(String o1, String o2)
+                    {
+                        return Integer.valueOf(o1.length()).compareTo(Integer.valueOf(o2.length()));
+                    }
+                });
 
-        public void increaseIndentation()
-        {
-            indentation += INDENTATION;
-        }
+            StringBuilder content = new StringBuilder();
 
-        public void decreaseIndentation()
-        {
-            if (indentation.length() - INDENTATION.length() >= 0)
+            for (String word : sortedWords)
             {
-                indentation = indentation.substring(0, indentation.length() - INDENTATION.length());
+                Set<String> contexts = contextsMap.get(word);
+                boolean correct = EnglishDictionary.getInstance().contains(word);
+
+                if ((correct && showCorrect) || (false == correct && showIncorrect))
+                {
+                    if (showOnlyWords)
+                    {
+                        content.append(word);
+                    } else
+                    {
+                        content.append(StringUtils.rightPad(word, longestWord.length()) + "\t" + (correct ? "OK" : "WRONG") + " " + contexts);
+                    }
+
+                    content.append("\n");
+                }
             }
-        }
 
-        public boolean isCorrect()
-        {
-            return allCorrect;
-        }
-
-        public String getContent()
-        {
             return content.toString();
         }
-
     }
 
 }
