@@ -8,5 +8,7 @@ dependencies {
 			'fasterxml:jackson-annotations:+'
 			
 	testCompile project(path: ':common', configuration: 'tests'),
-			'fjelmer:classycle:+'
+			'fjelmer:classycle:+',
+			'reflections:reflections:+'
+			
 } 
