@@ -338,9 +338,7 @@ public class ProjectSampleTest extends AbstractTest
         
         assertEquals(result.getObjects().get(0).getIdentifier().getIdentifier(), "/CISD/3VCP5");
         assertEquals(result.getObjects().get(0).getProject().getIdentifier().getIdentifier(), "/CISD/NEMO");
-        assertEquals(result.getObjects().get(1).getIdentifier().getIdentifier(), "/TEST-SPACE/FV-TEST");
-        assertEquals(result.getObjects().get(1).getProject().getIdentifier().getIdentifier(), "/TEST-SPACE/TEST-PROJECT");
-        assertEquals(result.getTotalCount(), 2);
+        assertEquals(result.getTotalCount(), 1);
     }
     
     @Test
