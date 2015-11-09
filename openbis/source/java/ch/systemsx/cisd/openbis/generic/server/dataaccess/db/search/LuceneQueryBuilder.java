@@ -200,7 +200,8 @@ public class LuceneQueryBuilder
     {
         BooleanQuery resultQuery = new BooleanQuery();
 
-        boolean mustNotOcuured = false;
+        boolean mustNotOccured = false;
+        boolean shouldOccured = false;
         for (int i = 0; i < fieldNames.size(); i++)
         {
             String fieldName = fieldNames.get(i);
@@ -211,11 +212,14 @@ public class LuceneQueryBuilder
             Occur occur = occurs.get(i);
             if (Occur.MUST_NOT.equals(occur))
             {
-                mustNotOcuured = true;
+                mustNotOccured = true;
+            } else if (Occur.SHOULD.equals(occur))
+            {
+                shouldOccured = true;
             }
             resultQuery.add(query, occur);
         }
-        if (mustNotOcuured)
+        if (mustNotOccured && shouldOccured == false)
         {
             resultQuery.add(new BooleanClause(new MatchAllDocsQuery(), Occur.SHOULD));
         }

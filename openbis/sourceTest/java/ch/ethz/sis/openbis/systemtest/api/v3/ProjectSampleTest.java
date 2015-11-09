@@ -327,7 +327,7 @@ public class ProjectSampleTest extends AbstractTest
     }
     
     @Test
-    public void testSearchForSamplesWithProject()
+    public void testSearchForSamplesWithProject() throws InterruptedException
     {
         SampleSearchCriteria searchCriteria = new SampleSearchCriteria();
         searchCriteria.withProject();
@@ -338,7 +338,9 @@ public class ProjectSampleTest extends AbstractTest
         
         assertEquals(result.getObjects().get(0).getIdentifier().getIdentifier(), "/CISD/3VCP5");
         assertEquals(result.getObjects().get(0).getProject().getIdentifier().getIdentifier(), "/CISD/NEMO");
-        assertEquals(result.getTotalCount(), 1);
+        assertEquals(result.getObjects().get(1).getIdentifier().getIdentifier(), "/TEST-SPACE/FV-TEST");
+        assertEquals(result.getObjects().get(1).getProject().getIdentifier().getIdentifier(), "/TEST-SPACE/TEST-PROJECT");
+        assertEquals(result.getTotalCount(), 2);
     }
     
     @Test
@@ -376,7 +378,7 @@ public class ProjectSampleTest extends AbstractTest
     public void testSearchForSamplesWithProjectWithPermId()
     {
         SampleSearchCriteria searchCriteria = new SampleSearchCriteria();
-        searchCriteria.withProject().withPermId().thatContains("1738");
+        searchCriteria.withProject().withPermId().thatContains("1738-103");
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
         fetchOptions.withProject();
         
