@@ -895,3 +895,8 @@ withTypeUsing
 withVocabulary
 withVocabularyUsing
 YES
+addAdditionalMethod
+EntityWithPropertiesSortOptions
+getMaterialProperty
+getProperty
+property
