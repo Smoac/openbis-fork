@@ -17,14 +17,14 @@
 package ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSet;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.EntitySortOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.EntityWithPropertiesSortOptions;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
  * @author pkupczyk
  */
 @JsonObject("dto.fetchoptions.dataset.DataSetSortOptions")
-public class DataSetSortOptions extends EntitySortOptions<DataSet>
+public class DataSetSortOptions extends EntityWithPropertiesSortOptions<DataSet>
 {
 
     private static final long serialVersionUID = 1L;

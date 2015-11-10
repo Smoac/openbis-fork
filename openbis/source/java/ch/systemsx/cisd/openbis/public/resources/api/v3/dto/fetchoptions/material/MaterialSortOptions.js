@@ -1,8 +1,8 @@
-define([ "require", "stjs", "dto/fetchoptions/sort/EntitySortOptions" ], function(require, stjs, EntitySortOptions) {
+define([ "require", "stjs", "dto/fetchoptions/sort/EntityWithPropertiesSortOptions" ], function(require, stjs, EntityWithPropertiesSortOptions) {
 	var MaterialSortOptions = function() {
-		EntitySortOptions.call(this);
+		EntityWithPropertiesSortOptions.call(this);
 	};
-	stjs.extend(MaterialSortOptions, EntitySortOptions, [ EntitySortOptions ], function(constructor, prototype) {
+	stjs.extend(MaterialSortOptions, EntityWithPropertiesSortOptions, [ EntityWithPropertiesSortOptions ], function(constructor, prototype) {
 		prototype['@type'] = 'dto.fetchoptions.material.MaterialSortOptions';
 		constructor.serialVersionUID = 1;
 	}, {});

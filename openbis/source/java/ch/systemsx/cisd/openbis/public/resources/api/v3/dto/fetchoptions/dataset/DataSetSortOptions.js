@@ -1,8 +1,8 @@
-define([ "require", "stjs", "dto/fetchoptions/sort/EntitySortOptions" ], function(require, stjs, EntitySortOptions) {
+define([ "require", "stjs", "dto/fetchoptions/sort/EntityWithPropertiesSortOptions" ], function(require, stjs, EntityWithPropertiesSortOptions) {
 	var DataSetSortOptions = function() {
-		EntitySortOptions.call(this);
+		EntityWithPropertiesSortOptions.call(this);
 	};
-	stjs.extend(DataSetSortOptions, EntitySortOptions, [ EntitySortOptions ], function(constructor, prototype) {
+	stjs.extend(DataSetSortOptions, EntityWithPropertiesSortOptions, [ EntityWithPropertiesSortOptions ], function(constructor, prototype) {
 		prototype['@type'] = 'dto.fetchoptions.dataset.DataSetSortOptions';
 		constructor.serialVersionUID = 1;
 	}, {});

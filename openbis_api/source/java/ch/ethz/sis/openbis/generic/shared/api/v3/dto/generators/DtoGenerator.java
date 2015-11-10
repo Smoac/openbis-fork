@@ -33,6 +33,8 @@ public class DtoGenerator
 
     private Set<String> additionalImports;
 
+    private List<String> additionalMethods;
+
     private PrintStream outputStream = System.out;
 
     private Class<?> fetchOptionsClass;
@@ -46,6 +48,7 @@ public class DtoGenerator
         this.subPackage = subPackage;
         this.className = className;
         this.additionalImports = new TreeSet<String>();
+        this.additionalMethods = new LinkedList<String>();
         this.fields = new LinkedList<DtoGenerator.DTOField>();
         this.implementedInterfaces = new TreeSet<String>();
 
@@ -206,6 +209,11 @@ public class DtoGenerator
         return field;
     }
 
+    public void addAdditionalMethod(String method)
+    {
+        additionalMethods.add(method);
+    }
+
     public void addClassForImport(Class<?> c)
     {
         additionalImports.add(c.getName());
@@ -296,6 +304,7 @@ public class DtoGenerator
         printFields();
 
         printAccessors();
+        printAdditionalMethods();
 
         printToString();
 
@@ -800,4 +809,14 @@ public class DtoGenerator
             print("");
         }
     }
+
+    private void printAdditionalMethods()
+    {
+        for (String additionalMethod : additionalMethods)
+        {
+            print(additionalMethod);
+            print("");
+        }
+    }
+
 }

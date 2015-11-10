@@ -25,7 +25,13 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material.Material;
  */
 public interface IPropertiesHolder
 {
+
     Map<String, String> getProperties();
 
+    String getProperty(String propertyName);
+
     Map<String, Material> getMaterialProperties();
+
+    Material getMaterialProperty(String propertyName);
+
 }

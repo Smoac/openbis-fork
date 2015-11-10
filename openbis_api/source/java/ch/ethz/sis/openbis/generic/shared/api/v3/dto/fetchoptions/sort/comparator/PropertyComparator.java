@@ -16,14 +16,12 @@
 
 package ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.comparator;
 
-import java.util.Map;
-
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IPropertiesHolder;
 
 /**
  * @author pkupczyk
  */
-public class PropertyComparator<OBJECT> extends AbstractStringComparator<OBJECT>
+public class PropertyComparator<OBJECT extends IPropertiesHolder> extends AbstractStringComparator<OBJECT>
 {
 
     public static final String PROPERTY = "PROPERTY";
@@ -38,14 +36,6 @@ public class PropertyComparator<OBJECT> extends AbstractStringComparator<OBJECT>
     @Override
     protected String getValue(OBJECT o)
     {
-        if (o instanceof IPropertiesHolder)
-        {
-            Map<String, String> properties = ((IPropertiesHolder) o).getProperties();
-            return properties != null ? properties.get(propertyName) : null;
-        } else
-        {
-            throw new IllegalArgumentException("Object " + o + " does not implement " + IPropertiesHolder.class
-                    + " interface therefore cannot be sorted by a property value.");
-        }
+        return o.getProperty(propertyName);
     }
 }

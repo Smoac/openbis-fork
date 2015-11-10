@@ -17,14 +17,14 @@
 package ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.material;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material.Material;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.EntitySortOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.EntityWithPropertiesSortOptions;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
  * @author pkupczyk
  */
 @JsonObject("dto.fetchoptions.material.MaterialSortOptions")
-public class MaterialSortOptions extends EntitySortOptions<Material>
+public class MaterialSortOptions extends EntityWithPropertiesSortOptions<Material>
 {
 
     private static final long serialVersionUID = 1L;

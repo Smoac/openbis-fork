@@ -536,6 +536,18 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, IM
     }
 
     @Override
+    public String getProperty(String propertyName)
+    {
+        return getProperties() != null ? getProperties().get(propertyName) : null;
+    }
+
+    @Override
+    public Material getMaterialProperty(String propertyName)
+    {
+        return getMaterialProperties() != null ? getMaterialProperties().get(propertyName) : null;
+    }
+
+    @Override
     public String toString()
     {
         return "Sample " + permId;

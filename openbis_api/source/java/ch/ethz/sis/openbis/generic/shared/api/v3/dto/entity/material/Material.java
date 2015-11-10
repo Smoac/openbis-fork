@@ -274,6 +274,18 @@ public class Material implements Serializable, ICodeHolder, IModificationDateHol
     }
 
     @Override
+    public String getProperty(String propertyName)
+    {
+        return getProperties() != null ? getProperties().get(propertyName) : null;
+    }
+
+    @Override
+    public Material getMaterialProperty(String propertyName)
+    {
+        return getMaterialProperties() != null ? getMaterialProperties().get(propertyName) : null;
+    }
+
+    @Override
     public String toString()
     {
         return "Material " + code;

@@ -100,6 +100,18 @@ public class AbstractGenerator
                 MaterialFetchOptions.class).withInterface(IPropertiesHolder.class);
         gen.addClassForImport(Map.class);
         gen.addClassForImport(Material.class);
+
+        gen.addAdditionalMethod("@Override\n"
+                + "    public String getProperty(String propertyName)\n"
+                + "    {\n"
+                + "        return getProperties() != null ? getProperties().get(propertyName) : null;\n"
+                + "    }");
+
+        gen.addAdditionalMethod("@Override\n"
+                + "    public Material getMaterialProperty(String propertyName)\n"
+                + "    {\n"
+                + "        return getMaterialProperties() != null ? getMaterialProperties().get(propertyName) : null;\n"
+                + "    }");
     }
 
     public static void addAttachments(DtoGenerator gen)
@@ -114,4 +126,5 @@ public class AbstractGenerator
     {
         gen.addSimpleField(String.class, "description");
     }
+
 }

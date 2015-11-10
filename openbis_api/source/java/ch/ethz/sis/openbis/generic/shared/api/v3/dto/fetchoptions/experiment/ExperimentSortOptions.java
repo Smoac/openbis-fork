@@ -17,14 +17,14 @@
 package ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.experiment;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.EntitySortOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.EntityWithPropertiesSortOptions;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
  * @author pkupczyk
  */
 @JsonObject("dto.fetchoptions.experiment.ExperimentSortOptions")
-public class ExperimentSortOptions extends EntitySortOptions<Experiment>
+public class ExperimentSortOptions extends EntityWithPropertiesSortOptions<Experiment>
 {
 
     private static final long serialVersionUID = 1L;
