@@ -16,21 +16,25 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.orm.hibernate4.HibernateTemplate;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.DynamicPropertyEvaluationOperation;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAttachmentDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.PersistencyResources;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IndexUpdateOperation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentHolderPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropertiesHolder;
 
 /**
  * Implementation of {@link IAttachmentDAO} for data bases.
@@ -45,12 +49,15 @@ final class AttachmentDAO extends AbstractGenericEntityDAO<AttachmentPE> impleme
 
     private final static String TABLE_NAME = ATTACHMENT_CLASS.getSimpleName();
 
+    private final PersistencyResources persistencyResources;
+
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             AttachmentDAO.class);
 
-    AttachmentDAO(final SessionFactory sessionFactory)
+    AttachmentDAO(final PersistencyResources persistencyResources)
     {
-        super(sessionFactory, ATTACHMENT_CLASS);
+        super(persistencyResources.getSessionFactory(), ATTACHMENT_CLASS);
+        this.persistencyResources = persistencyResources;
     }
 
     private final static String createFindLastVersionQuery(AttachmentHolderPE owner)
@@ -81,6 +88,9 @@ final class AttachmentDAO extends AbstractGenericEntityDAO<AttachmentPE> impleme
     {
         AttachmentHolderPE result = internalCreateAttachment(attachment, ownerParam);
         getHibernateTemplate().flush();
+        
+        scheduleDynamicPropertiesEvaluation(ownerParam);
+
         return result;
     }
 
@@ -236,6 +246,8 @@ final class AttachmentDAO extends AbstractGenericEntityDAO<AttachmentPE> impleme
 
         hibernateTemplate.flush();
 
+        scheduleRemoveFromFullTextIndex(owner);
+
         if (operationLog.isInfoEnabled())
         {
             operationLog.debug(String.format(
@@ -246,4 +258,25 @@ final class AttachmentDAO extends AbstractGenericEntityDAO<AttachmentPE> impleme
         return deletedRows;
     }
 
+    private void scheduleDynamicPropertiesEvaluation(final AttachmentHolderPE owner)
+    {
+        // updates the index if the attachment owner is a Sample or an Experiment
+        if (IEntityInformationWithPropertiesHolder.class.isAssignableFrom(owner.getClass()))
+        {
+            IEntityInformationWithPropertiesHolder entity = (IEntityInformationWithPropertiesHolder) owner;
+            persistencyResources.getDynamicPropertyEvaluationScheduler()
+                    .scheduleUpdate(DynamicPropertyEvaluationOperation.evaluate(entity.getClass(), Arrays.asList(entity.getId())));
+        }
+    }
+
+    protected void scheduleRemoveFromFullTextIndex(final AttachmentHolderPE owner)
+    {
+        // removes the index if the attachment owner is a Sample or an Experiment
+        if (IEntityInformationWithPropertiesHolder.class.isAssignableFrom(owner.getClass()))
+        {
+            IEntityInformationWithPropertiesHolder entity = (IEntityInformationWithPropertiesHolder) owner;
+            persistencyResources.getIndexUpdateScheduler()
+                    .scheduleUpdate(IndexUpdateOperation.remove(entity.getClass(), Arrays.asList(entity.getId())));
+        }
+    }
 }

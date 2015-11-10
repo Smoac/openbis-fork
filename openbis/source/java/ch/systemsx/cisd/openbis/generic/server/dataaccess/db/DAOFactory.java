@@ -150,7 +150,7 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
         propertyTypeDAO = new PropertyTypeDAO(sessionFactory);
         vocabularyDAO = new VocabularyDAO(sessionFactory);
         vocabularyTermDAO = new VocabularyTermDAO(sessionFactory);
-        attachmentDAO = new AttachmentDAO(sessionFactory);
+        attachmentDAO = new AttachmentDAO(getPersistencyResources());
         dataSetTypeDAO = new DataSetTypeDAO(sessionFactory);
         fileFormatTypeDAO = new FileFormatTypeDAO(sessionFactory);
         locatorTypeDAO = new LocatorTypeDAO(sessionFactory);
