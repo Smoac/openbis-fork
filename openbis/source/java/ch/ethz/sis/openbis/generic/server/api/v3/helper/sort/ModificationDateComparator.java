@@ -14,22 +14,22 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.comparator;
+package ch.ethz.sis.openbis.generic.server.api.v3.helper.sort;
 
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.ICodeHolder;
+import java.util.Date;
+
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IModificationDateHolder;
 
 /**
  * @author pkupczyk
  */
-public class CodeComparator<OBJECT extends ICodeHolder> extends AbstractStringComparator<OBJECT>
+public class ModificationDateComparator<OBJECT extends IModificationDateHolder> extends AbstractComparator<OBJECT, Date>
 {
 
-    public static final String CODE = "CODE";
-
     @Override
-    protected String getValue(ICodeHolder o)
+    protected Date getValue(IModificationDateHolder o)
     {
-        return o.getCode();
+        return o.getModificationDate();
     }
 
 }

@@ -14,34 +14,40 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort;
+package ch.ethz.sis.openbis.generic.server.api.v3.helper.sort;
+
+import java.util.Comparator;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.ICodeHolder;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IModificationDateHolder;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IPropertiesHolder;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IRegistrationDateHolder;
-import ch.systemsx.cisd.base.annotation.JsonObject;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.EntityWithPropertiesSortOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.SortOptions;
 
 /**
  * @author pkupczyk
  */
-@JsonObject("dto.fetchoptions.sort.EntityWithPropertiesSortOptions")
-public class EntityWithPropertiesSortOptions<OBJECT extends ICodeHolder & IRegistrationDateHolder & IModificationDateHolder & IPropertiesHolder>
-        extends EntitySortOptions<OBJECT>
+public class EntityWithPropertiesComparatorFactory<OBJECT extends ICodeHolder & IRegistrationDateHolder & IModificationDateHolder & IPropertiesHolder>
+        extends EntityComparatorFactory<OBJECT>
 {
 
-    private static final long serialVersionUID = 1L;
-
-    public static final String PROPERTY = "PROPERTY";
-
-    public SortOrder property(String propertyName)
+    @Override
+    public boolean accepts(SortOptions<?> sortOptions)
     {
-        return getOrCreateSorting(PROPERTY + propertyName);
+        return sortOptions instanceof EntityWithPropertiesSortOptions;
     }
 
-    public SortOrder getProperty(String propertyName)
+    @Override
+    public Comparator<OBJECT> getComparator(String field)
     {
-        return getSorting(PROPERTY + propertyName);
+        if (field.startsWith(EntityWithPropertiesSortOptions.PROPERTY))
+        {
+            return new PropertyComparator<OBJECT>(field.substring(EntityWithPropertiesSortOptions.PROPERTY.length()));
+        } else
+        {
+            return super.getComparator(field);
+        }
     }
 
 }

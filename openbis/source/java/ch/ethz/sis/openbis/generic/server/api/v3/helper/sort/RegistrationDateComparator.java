@@ -14,22 +14,22 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.comparator;
+package ch.ethz.sis.openbis.generic.server.api.v3.helper.sort;
 
-import ch.systemsx.cisd.common.collection.AlphanumComparator;
+import java.util.Date;
+
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IRegistrationDateHolder;
 
 /**
  * @author pkupczyk
  */
-public abstract class AbstractStringComparator<OBJECT> extends AbstractComparator<OBJECT, String>
+public class RegistrationDateComparator<OBJECT extends IRegistrationDateHolder> extends AbstractComparator<OBJECT, Date>
 {
 
-    private AlphanumComparator alphanumComparator = new AlphanumComparator();
-
     @Override
-    protected int doCompare(String value1, String value2)
+    protected Date getValue(IRegistrationDateHolder o)
     {
-        return alphanumComparator.compare(value1, value2);
+        return o.getRegistrationDate();
     }
 
 }

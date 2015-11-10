@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort;
+package ch.ethz.sis.openbis.generic.server.api.v3.helper.sort;
 
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
@@ -32,6 +32,8 @@ import java.util.Set;
 import org.springframework.beans.BeanUtils;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.FetchOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.SortOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.Sorting;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.view.AbstractCollectionView;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.view.ListView;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.view.SetView;
@@ -218,7 +220,8 @@ public class SortAndPage
                 {
                     if (sorting.getField() != null)
                     {
-                        Comparator aComparator = sortBy.getComparator(sorting.getField());
+                        Comparator aComparator = ComparatorFactory.getInstance(sortBy).getComparator(sorting.getField());
+
                         if (aComparator == null)
                         {
                             throw new IllegalArgumentException("Comparator for field " + sorting.getField() + " not found");

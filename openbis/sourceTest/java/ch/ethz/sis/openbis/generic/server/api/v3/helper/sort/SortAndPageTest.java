@@ -1,6 +1,7 @@
-package ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort;
+package ch.ethz.sis.openbis.generic.server.api.v3.helper.sort;
 
 import static org.testng.AssertJUnit.assertEquals;
+
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,6 +14,7 @@ import java.util.Set;
 
 import org.testng.annotations.Test;
 
+import ch.ethz.sis.openbis.generic.server.api.v3.helper.sort.SortAndPage;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material.Material;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.person.Person;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.project.Project;

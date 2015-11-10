@@ -16,18 +16,9 @@
 
 package ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort;
 
-import static ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.comparator.CodeComparator.CODE;
-import static ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.comparator.ModificationDateComparator.MODIFICATION_DATE;
-import static ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.comparator.RegistrationDateComparator.REGISTRATION_DATE;
-
-import java.util.Comparator;
-
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.ICodeHolder;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IModificationDateHolder;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IRegistrationDateHolder;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.comparator.CodeComparator;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.comparator.ModificationDateComparator;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.comparator.RegistrationDateComparator;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
@@ -38,6 +29,12 @@ public class EntitySortOptions<OBJECT extends ICodeHolder & IRegistrationDateHol
 {
 
     private static final long serialVersionUID = 1L;
+
+    public static final String CODE = "CODE";
+
+    public static final String MODIFICATION_DATE = "MODIFICATION_DATE";
+
+    public static final String REGISTRATION_DATE = "REGISTRATION_DATE";
 
     public SortOrder code()
     {
@@ -69,21 +66,4 @@ public class EntitySortOptions<OBJECT extends ICodeHolder & IRegistrationDateHol
         return getSorting(MODIFICATION_DATE);
     }
 
-    @Override
-    public Comparator<OBJECT> getComparator(String field)
-    {
-        if (CODE.equals(field))
-        {
-            return new CodeComparator<OBJECT>();
-        } else if (REGISTRATION_DATE.equals(field))
-        {
-            return new RegistrationDateComparator<OBJECT>();
-        } else if (MODIFICATION_DATE.equals(field))
-        {
-            return new ModificationDateComparator<OBJECT>();
-        } else
-        {
-            return null;
-        }
-    }
 }

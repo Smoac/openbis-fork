@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.comparator;
+package ch.ethz.sis.openbis.generic.server.api.v3.helper.sort;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IPropertiesHolder;
 
@@ -23,8 +23,6 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IProperti
  */
 public class PropertyComparator<OBJECT extends IPropertiesHolder> extends AbstractStringComparator<OBJECT>
 {
-
-    public static final String PROPERTY = "PROPERTY";
 
     private String propertyName;
 

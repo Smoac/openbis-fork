@@ -16,16 +16,9 @@
 
 package ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.tag;
 
-import static ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.comparator.CodeComparator.CODE;
-import static ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.comparator.RegistrationDateComparator.REGISTRATION_DATE;
-
-import java.util.Comparator;
-
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.tag.Tag;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.SortOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.SortOrder;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.comparator.CodeComparator;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.comparator.RegistrationDateComparator;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
@@ -36,6 +29,10 @@ public class TagSortOptions extends SortOptions<Tag>
 {
 
     private static final long serialVersionUID = 1L;
+
+    public static final String CODE = "CODE";
+
+    public static final String REGISTRATION_DATE = "REGISTRATION_DATE";
 
     public SortOrder code()
     {
@@ -57,18 +54,4 @@ public class TagSortOptions extends SortOptions<Tag>
         return getSorting(REGISTRATION_DATE);
     }
 
-    @Override
-    public Comparator<Tag> getComparator(String field)
-    {
-        if (CODE.equals(field))
-        {
-            return new CodeComparator<Tag>();
-        } else if (REGISTRATION_DATE.equals(field))
-        {
-            return new RegistrationDateComparator<Tag>();
-        } else
-        {
-            return null;
-        }
-    }
 }

@@ -17,7 +17,6 @@
 package ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort;
 
 import java.io.Serializable;
-import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -33,11 +32,6 @@ public abstract class SortOptions<OBJECT> implements Serializable
     private static final long serialVersionUID = 1L;
 
     private List<Sorting> sortings = new LinkedList<>();
-
-    public Comparator<OBJECT> getComparator(String field)
-    {
-        return null;
-    }
 
     protected SortOrder getOrCreateSorting(String field)
     {
