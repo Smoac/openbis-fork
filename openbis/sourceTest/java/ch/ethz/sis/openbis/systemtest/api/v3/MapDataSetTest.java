@@ -860,7 +860,7 @@ public class MapDataSetTest extends AbstractDataSetTest
 
         DataSetUpdate update = new DataSetUpdate();
         update.setDataSetId(id);
-        update.setSampleId(new SampleIdentifier("/CISD/NEMO/3VCP5"));
+        update.setSampleId(new SampleIdentifier("/CISD/3VCP5"));
 
         DataSetUpdate update2 = new DataSetUpdate();
         update2.setDataSetId(id);
