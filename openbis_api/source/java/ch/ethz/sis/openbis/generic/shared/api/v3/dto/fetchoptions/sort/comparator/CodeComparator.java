@@ -21,7 +21,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.ICodeHold
 /**
  * @author pkupczyk
  */
-public class CodeComparator<OBJECT extends ICodeHolder> extends AbstractComparator<OBJECT, String>
+public class CodeComparator<OBJECT extends ICodeHolder> extends AbstractStringComparator<OBJECT>
 {
 
     public static final String CODE = "CODE";

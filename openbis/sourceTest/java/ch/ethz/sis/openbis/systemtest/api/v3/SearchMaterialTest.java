@@ -237,6 +237,41 @@ public class SearchMaterialTest extends AbstractTest
     }
 
     @Test
+    public void testSearchWithSortingByPropertyWithFloatValues()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        MaterialSearchCriteria criteria = new MaterialSearchCriteria();
+        criteria.withOrOperator();
+        criteria.withId().thatEquals(new MaterialPermId("GFP", "CONTROL"));
+        criteria.withId().thatEquals(new MaterialPermId("SCRAM", "CONTROL"));
+        criteria.withId().thatEquals(new MaterialPermId("XXXXX-ALL", "CONTROL"));
+        criteria.withId().thatEquals(new MaterialPermId("X-NO-DESC", "CONTROL"));
+        criteria.withId().thatEquals(new MaterialPermId("X-NO-SIZE", "CONTROL"));
+
+        MaterialFetchOptions fo = new MaterialFetchOptions();
+        fo.withProperties();
+
+        fo.sortBy().property("VOLUME").asc();
+        List<Material> materials1 = v3api.searchMaterials(sessionToken, criteria, fo).getObjects();
+
+        assertEquals(materials1.get(0).getProperties().get("VOLUME"), "2.2");
+        assertEquals(materials1.get(1).getProperties().get("VOLUME"), "3.0");
+        assertEquals(materials1.get(2).getProperties().get("VOLUME"), "22.22");
+        assertEquals(materials1.get(3).getProperties().get("VOLUME"), "99.99");
+        assertEquals(materials1.get(4).getProperties().get("VOLUME"), "123");
+
+        fo.sortBy().property("VOLUME").desc();
+        List<Material> materials2 = v3api.searchMaterials(sessionToken, criteria, fo).getObjects();
+
+        assertEquals(materials2.get(0).getProperties().get("VOLUME"), "123");
+        assertEquals(materials2.get(1).getProperties().get("VOLUME"), "99.99");
+        assertEquals(materials2.get(2).getProperties().get("VOLUME"), "22.22");
+        assertEquals(materials2.get(3).getProperties().get("VOLUME"), "3.0");
+        assertEquals(materials2.get(4).getProperties().get("VOLUME"), "2.2");
+    }
+
+    @Test
     public void testSearchWithAndOperator()
     {
         MaterialSearchCriteria criteria = new MaterialSearchCriteria();

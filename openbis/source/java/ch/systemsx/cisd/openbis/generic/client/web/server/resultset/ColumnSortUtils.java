@@ -20,6 +20,7 @@ import java.util.Comparator;
 
 import org.apache.commons.collections.ComparatorUtils;
 
+import ch.systemsx.cisd.common.collection.AlphanumComparator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SortInfo.SortDir;

@@ -622,6 +622,67 @@ public class SearchSampleTest extends AbstractSampleTest
     }
 
     @Test
+    public void testSearchWithSortingByPropertyWithTextValues()
+    {
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withOrOperator();
+        criteria.withPermId().thatEquals("200902091219327-1025");
+        criteria.withPermId().thatEquals("200902091225616-1027");
+        criteria.withPermId().thatEquals("200902091250077-1026");
+
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        SampleFetchOptions fo = new SampleFetchOptions();
+        fo.withProperties();
+
+        fo.sortBy().property("COMMENT").asc();
+        List<Sample> samples1 = search(sessionToken, criteria, fo);
+        assertEquals(samples1.get(0).getProperties().get("COMMENT"), "extremely simple stuff");
+        assertEquals(samples1.get(1).getProperties().get("COMMENT"), "stuff like others");
+        assertEquals(samples1.get(2).getProperties().get("COMMENT"), "very advanced stuff");
+
+        fo.sortBy().property("COMMENT").desc();
+        List<Sample> samples2 = search(sessionToken, criteria, fo);
+        assertEquals(samples2.get(0).getProperties().get("COMMENT"), "very advanced stuff");
+        assertEquals(samples2.get(1).getProperties().get("COMMENT"), "stuff like others");
+        assertEquals(samples2.get(2).getProperties().get("COMMENT"), "extremely simple stuff");
+
+        v3api.logout(sessionToken);
+    }
+
+    @Test
+    public void testSearchWithSortingByPropertyWithIntegerValues()
+    {
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withOrOperator();
+        criteria.withPermId().thatEquals("200902091219327-1025");
+        criteria.withPermId().thatEquals("200902091225616-1027");
+        criteria.withPermId().thatEquals("200902091250077-1026");
+        criteria.withPermId().thatEquals("200811050946559-981");
+
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        SampleFetchOptions fo = new SampleFetchOptions();
+        fo.withProperties();
+
+        fo.sortBy().property("SIZE").asc();
+        List<Sample> samples1 = search(sessionToken, criteria, fo);
+        assertEquals(samples1.get(0).getProperties().get("SIZE"), "123");
+        assertEquals(samples1.get(1).getProperties().get("SIZE"), "321");
+        assertEquals(samples1.get(2).getProperties().get("SIZE"), "666");
+        assertEquals(samples1.get(3).getProperties().get("SIZE"), "4711");
+
+        fo.sortBy().property("SIZE").desc();
+        List<Sample> samples2 = search(sessionToken, criteria, fo);
+        assertEquals(samples2.get(0).getProperties().get("SIZE"), "4711");
+        assertEquals(samples2.get(1).getProperties().get("SIZE"), "666");
+        assertEquals(samples2.get(2).getProperties().get("SIZE"), "321");
+        assertEquals(samples2.get(3).getProperties().get("SIZE"), "123");
+
+        v3api.logout(sessionToken);
+    }
+
+    @Test
     public void testSearchWithSortingByRegistrationDate()
     {
         SampleSearchCriteria criteria = new SampleSearchCriteria();
@@ -840,76 +901,64 @@ public class SearchSampleTest extends AbstractSampleTest
         v3api.logout(sessionToken);
     }
 
-    
-    private String getCodePropertyPairs(List<Sample> samples, String propertyCode) {
-        StringBuilder builder = new StringBuilder();
-        builder.append("SEARCH TEST RESULT: ");
-        for(Sample sample : samples) {
-            builder.append(sample.getCode() + ":" + sample.getProperties().get(propertyCode) + " ");
-        }
-        
-        return builder.toString();
-    }
-    
     @Test
     public void testSearchNumeric()
     {
-        //SIZE: 4711 CODE: 3VCP7
-        //SIZE: 123 CODE: CP-TEST-1
-        //SIZE: 321  CODE: CP-TEST-2
-        //SIZE: 666  CODE: CP-TEST-3
-        
+        // SIZE: 4711 CODE: 3VCP7
+        // SIZE: 123 CODE: CP-TEST-1
+        // SIZE: 321 CODE: CP-TEST-2
+        // SIZE: 666 CODE: CP-TEST-3
+
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         SampleFetchOptions sortByCodeFO = new SampleFetchOptions();
         sortByCodeFO.sortBy().code().asc();
         sortByCodeFO.withProperties();
-        
-        //Greater or Equals - Giving integer as real
+
+        // Greater or Equals - Giving integer as real
         SampleSearchCriteria criteriaGOE = new SampleSearchCriteria();
         criteriaGOE.withNumberProperty("SIZE").thatIsGreaterThanOrEqualTo(321.0);
         List<Sample> samplesGOE = search(sessionToken, criteriaGOE, sortByCodeFO);
         assertSampleIdentifiersInOrder(samplesGOE, "/CISD/3VCP7", "/CISD/CP-TEST-2", "/CISD/CP-TEST-3");
-        
-        //Greater - Giving integer as real
+
+        // Greater - Giving integer as real
         SampleSearchCriteria criteriaG = new SampleSearchCriteria();
         criteriaG.withNumberProperty("SIZE").thatIsGreaterThan(321.0);
         List<Sample> samplesG = search(sessionToken, criteriaG, sortByCodeFO);
         assertSampleIdentifiersInOrder(samplesG, "/CISD/3VCP7", "/CISD/CP-TEST-3");
-        
-        //Equals As Text - Real
+
+        // Equals As Text - Real
         SampleSearchCriteria criteriaETxt2 = new SampleSearchCriteria();
         criteriaETxt2.withProperty("SIZE").thatEquals("666.0");
         List<Sample> samplesETxt2 = search(sessionToken, criteriaETxt2, sortByCodeFO);
         assertSampleIdentifiersInOrder(samplesETxt2, "/CISD/CP-TEST-3");
-        
-        //Equals As Text - Integer
+
+        // Equals As Text - Integer
         SampleSearchCriteria criteriaETxt = new SampleSearchCriteria();
         criteriaETxt.withProperty("SIZE").thatEquals("666");
         List<Sample> samplesETxt = search(sessionToken, criteriaETxt, sortByCodeFO);
         assertSampleIdentifiersInOrder(samplesETxt, "/CISD/CP-TEST-3");
-        
-        //Equals
+
+        // Equals
         SampleSearchCriteria criteriaE = new SampleSearchCriteria();
         criteriaE.withNumberProperty("SIZE").thatEquals(666);
         List<Sample> samplesE = search(sessionToken, criteriaE, sortByCodeFO);
         assertSampleIdentifiersInOrder(samplesE, "/CISD/CP-TEST-3");
-        
-        //Less
+
+        // Less
         SampleSearchCriteria criteriaL = new SampleSearchCriteria();
         criteriaL.withNumberProperty("SIZE").thatIsLessThan(666);
         List<Sample> samplesL = search(sessionToken, criteriaL, sortByCodeFO);
         assertSampleIdentifiersInOrder(samplesL, "/CISD/CP-TEST-1", "/CISD/CP-TEST-2");
-        
-        //Less or Equals
+
+        // Less or Equals
         SampleSearchCriteria criteriaLOE = new SampleSearchCriteria();
         criteriaLOE.withNumberProperty("SIZE").thatIsLessThanOrEqualTo(321);
         List<Sample> samplesLOE = search(sessionToken, criteriaLOE, sortByCodeFO);
         assertSampleIdentifiersInOrder(samplesLOE, "/CISD/CP-TEST-1", "/CISD/CP-TEST-2");
-        
+
         v3api.logout(sessionToken);
     }
 
-    
     private void testSearch(String user, SampleSearchCriteria criteria, String... expectedIdentifiers)
     {
         String sessionToken = v3api.login(user, PASSWORD);
@@ -925,12 +974,12 @@ public class SearchSampleTest extends AbstractSampleTest
         assertEquals(samples.size(), expectedCount);
         v3api.logout(sessionToken);
     }
-    
+
     private List<Sample> search(String sessionToken, SampleSearchCriteria criteria, SampleFetchOptions fetchOptions)
     {
         SearchResult<Sample> searchResult =
                 v3api.searchSamples(sessionToken, criteria, fetchOptions);
         return searchResult.getObjects();
     }
-    
+
 }

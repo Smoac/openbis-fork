@@ -14,13 +14,15 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.server.resultset;
+package ch.systemsx.cisd.common.collection;
 
 import java.util.Arrays;
 
 import org.testng.AssertJUnit;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+
+import ch.systemsx.cisd.common.collection.AlphanumComparator;
 
 /**
  * @author Piotr Buczek

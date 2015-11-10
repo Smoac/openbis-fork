@@ -16,40 +16,20 @@
 
 package ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.comparator;
 
-import java.util.Comparator;
+import ch.systemsx.cisd.common.collection.AlphanumComparator;
 
 /**
  * @author pkupczyk
  */
-public abstract class AbstractComparator<OBJECT, VALUE extends Comparable<VALUE>> implements Comparator<OBJECT>
+public abstract class AbstractStringComparator<OBJECT> extends AbstractComparator<OBJECT, String>
 {
 
+    private AlphanumComparator alphanumComparator = new AlphanumComparator();
+
     @Override
-    public int compare(OBJECT o1, OBJECT o2)
+    protected int doCompare(String value1, String value2)
     {
-        VALUE value1 = getValue(o1);
-        VALUE value2 = getValue(o2);
-
-        if (value1 != null && value2 != null)
-        {
-            return doCompare(value1, value2);
-        } else if (value1 != null)
-        {
-            return 1;
-        } else if (value2 != null)
-        {
-            return -1;
-        } else
-        {
-            return 0;
-        }
+        return alphanumComparator.compare(value1, value2);
     }
-
-    protected int doCompare(VALUE value1, VALUE value2)
-    {
-        return value1.compareTo(value2);
-    }
-
-    protected abstract VALUE getValue(OBJECT o);
 
 }

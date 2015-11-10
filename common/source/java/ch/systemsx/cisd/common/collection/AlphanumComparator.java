@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.server.resultset;
+package ch.systemsx.cisd.common.collection;
 
 /*
  * The Alphanum Algorithm is an improved sorting algorithm for strings

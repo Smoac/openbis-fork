@@ -6,7 +6,8 @@ define([ "require", "stjs", "dto/fetchoptions/sort/SortOptions" ], function(requ
 	var fields = {
 		CODE : "CODE",
 		REGISTRATION_DATE : "REGISTRATION_DATE",
-		MODIFICATION_DATE : "MODIFICATION_DATE"
+		MODIFICATION_DATE : "MODIFICATION_DATE",
+		PROPERTY : "PROPERTY"
 	};
 
 	stjs.extend(EntitySortOptions, SortOptions, [ SortOptions ], function(constructor, prototype) {
@@ -18,6 +19,14 @@ define([ "require", "stjs", "dto/fetchoptions/sort/SortOptions" ], function(requ
 		prototype.getCode = function() {
 			return this.getSorting(fields.CODE);
 		};
+
+		prototype.property = function(propertyName) {
+			return this.getOrCreateSorting(fields.PROPERTY + propertyName);
+		};
+		prototype.getProperty = function(propertyName) {
+			return this.getSorting(fields.PROPERTY + propertyName);
+		};
+
 		prototype.registrationDate = function() {
 			return this.getOrCreateSorting(fields.REGISTRATION_DATE);
 		};

@@ -216,15 +216,18 @@ public class SortAndPage
                 int index = 0;
                 for (Sorting sorting : sortings)
                 {
-                    Comparator aComparator = sortBy.getComparator(sorting.getField());
-                    if (aComparator == null)
+                    if (sorting.getField() != null)
                     {
-                        throw new IllegalArgumentException("Comparator for field " + sorting.getField() + " not found");
-                    }
+                        Comparator aComparator = sortBy.getComparator(sorting.getField());
+                        if (aComparator == null)
+                        {
+                            throw new IllegalArgumentException("Comparator for field " + sorting.getField() + " not found");
+                        }
 
-                    comparators[index] = aComparator;
-                    directions[index] = sorting.getOrder().isAsc() ? 1 : -1;
-                    index++;
+                        comparators[index] = aComparator;
+                        directions[index] = sorting.getOrder().isAsc() ? 1 : -1;
+                        index++;
+                    }
                 }
 
                 return new Comparator()

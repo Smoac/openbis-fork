@@ -198,6 +198,10 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		prototype.setSample = function(sample) {
 			this.sample = sample;
 		};
+		prototype.getProperty = function(propertyName) {
+			var properties = this.getProperties();
+			return properties ? properties[propertyName] : null;
+		};
 		prototype.getProperties = function() {
 			if (this.getFetchOptions().hasProperties()) {
 				return this.properties;

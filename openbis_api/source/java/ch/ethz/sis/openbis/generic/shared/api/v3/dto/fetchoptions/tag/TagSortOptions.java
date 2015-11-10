@@ -20,7 +20,6 @@ import static ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.co
 import static ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.comparator.RegistrationDateComparator.REGISTRATION_DATE;
 
 import java.util.Comparator;
-import java.util.Map;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.tag.Tag;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.SortOptions;
@@ -59,9 +58,17 @@ public class TagSortOptions extends SortOptions<Tag>
     }
 
     @Override
-    public void addComparators(Map<String, Comparator<Tag>> map)
+    public Comparator<Tag> getComparator(String field)
     {
-        map.put(CODE, new CodeComparator<Tag>());
-        map.put(REGISTRATION_DATE, new RegistrationDateComparator<Tag>());
+        if (CODE.equals(field))
+        {
+            return new CodeComparator<Tag>();
+        } else if (REGISTRATION_DATE.equals(field))
+        {
+            return new RegistrationDateComparator<Tag>();
+        } else
+        {
+            return null;
+        }
     }
 }

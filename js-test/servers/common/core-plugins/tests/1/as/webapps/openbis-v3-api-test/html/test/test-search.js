@@ -1,4 +1,4 @@
-define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, openbis, common) {
+define([ 'jquery', 'underscore', 'openbis', 'test/common', 'test/naturalsort' ], function($, _, openbis, common, naturalsort) {
 	return function() {
 		QUnit.module("Search tests");
 
@@ -26,7 +26,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 			});
 		}
 
-		var testSearchWithPagingAndSorting = function(c, fSearch, fetchOptions, fieldName) {
+		var testSearchWithPagingAndSorting = function(c, fSearch, fetchOptions, fieldName, fieldParameters) {
 			c.start();
 
 			fetchOptions.from(null).count(null);
@@ -40,17 +40,12 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 
 					c.ok("Sorting by " + fieldName);
 
-					objects.sort(function(o1, o2) {
-						var v1 = o1[fieldName];
-						var v2 = o2[fieldName];
+					var fieldGetterName = "get" + fieldName.substr(0, 1).toUpperCase() + fieldName.substr(1);
 
-						if (v1 > v2) {
-							return 1;
-						} else if (v1 < v2) {
-							return -1;
-						} else {
-							return 0;
-						}
+					objects.sort(function(o1, o2) {
+						var v1 = o1[fieldGetterName](fieldParameters);
+						var v2 = o2[fieldGetterName](fieldParameters);
+						return naturalsort(v1, v2);
 					});
 
 					var codes = objects.map(function(object) {
@@ -63,12 +58,12 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 					var secondFromEnd = codes[codes.length - 2];
 
 					fetchOptions.from(1).count(1);
-					fetchOptions.sortBy()[fieldName]();
+					fetchOptions.sortBy()[fieldName](fieldParameters);
 
 					return fSearch(facade).then(function(results) {
 						c.ok("Got results ASC");
 						c.assertObjectsWithValues(results.getObjects(), "code", [ secondFromStart ]);
-						fetchOptions.sortBy()[fieldName]().desc();
+						fetchOptions.sortBy()[fieldName](fieldParameters).desc();
 
 						return fSearch(facade).then(function(results) {
 							c.ok("Got results DESC");
@@ -373,6 +368,22 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 			testSearchWithPagingAndSortingByAll(c, function(facade) {
 				return facade.searchDataSets(criteria, fo);
 			}, fo);
+		});
+
+		QUnit.test("searchDataSets() with sorting by property", function(assert) {
+			var c = new common(assert);
+
+			var criteria = new c.DataSetSearchCriteria();
+			criteria.withOrOperator();
+			criteria.withPermId().thatEquals("20130412142543232-197");
+			criteria.withPermId().thatEquals("20130412142205843-196");
+			criteria.withPermId().thatEquals("20130412142942295-198");
+
+			var fo = c.createDataSetFetchOptions();
+
+			testSearchWithPagingAndSorting(c, function(facade) {
+				return facade.searchDataSets(criteria, fo);
+			}, fo, "property", "RESOLUTION");
 		});
 
 		QUnit.test("searchDataSets() withoutSample", function(assert) {

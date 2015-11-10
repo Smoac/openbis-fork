@@ -13,11 +13,15 @@
 	require.paths["test"] = testPath;
 	require.paths["test/qunit"] = testPath + "/lib/qunit/js/qunit";
 	require.paths["test/qunit-report"] = testPath + "/lib/qunit/js/qunit-reporter-junit";
+	require.paths["test/naturalsort"] = testPath + "/lib/naturalsort/js/naturalSort";
 
 	require.urlArgs = 'now=' + Date.now();
 
 	require.shim["test/qunit-report"] = {
 		deps : [ 'test/qunit' ]
+	};
+	require.shim["test/naturalsort"] = {
+		exports : "naturalSort"
 	};
 </script>
 <script src="/openbis/resources/api/v3/require.js"></script>

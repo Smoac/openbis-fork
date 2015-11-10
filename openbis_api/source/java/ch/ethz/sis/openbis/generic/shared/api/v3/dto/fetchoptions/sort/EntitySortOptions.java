@@ -18,16 +18,17 @@ package ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort;
 
 import static ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.comparator.CodeComparator.CODE;
 import static ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.comparator.ModificationDateComparator.MODIFICATION_DATE;
+import static ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.comparator.PropertyComparator.PROPERTY;
 import static ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.comparator.RegistrationDateComparator.REGISTRATION_DATE;
 
 import java.util.Comparator;
-import java.util.Map;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.ICodeHolder;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IModificationDateHolder;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IRegistrationDateHolder;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.comparator.CodeComparator;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.comparator.ModificationDateComparator;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.comparator.PropertyComparator;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.comparator.RegistrationDateComparator;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
@@ -48,6 +49,16 @@ public class EntitySortOptions<OBJECT extends ICodeHolder & IRegistrationDateHol
     public SortOrder getCode()
     {
         return getSorting(CODE);
+    }
+
+    public SortOrder property(String propertyName)
+    {
+        return getOrCreateSorting(PROPERTY + propertyName);
+    }
+
+    public SortOrder getProperty(String propertyName)
+    {
+        return getSorting(PROPERTY + propertyName);
     }
 
     public SortOrder registrationDate()
@@ -71,11 +82,23 @@ public class EntitySortOptions<OBJECT extends ICodeHolder & IRegistrationDateHol
     }
 
     @Override
-    public void addComparators(Map<String, Comparator<OBJECT>> map)
+    public Comparator<OBJECT> getComparator(String field)
     {
-        map.put(CODE, new CodeComparator<OBJECT>());
-        map.put(REGISTRATION_DATE, new RegistrationDateComparator<OBJECT>());
-        map.put(MODIFICATION_DATE, new ModificationDateComparator<OBJECT>());
+        if (CODE.equals(field))
+        {
+            return new CodeComparator<OBJECT>();
+        } else if (REGISTRATION_DATE.equals(field))
+        {
+            return new RegistrationDateComparator<OBJECT>();
+        } else if (MODIFICATION_DATE.equals(field))
+        {
+            return new ModificationDateComparator<OBJECT>();
+        } else if (field.startsWith(PROPERTY))
+        {
+            return new PropertyComparator<OBJECT>(field.substring(PROPERTY.length()));
+        } else
+        {
+            return null;
+        }
     }
-
 }

@@ -79,6 +79,10 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		prototype.setModificationDate = function(modificationDate) {
 			this.modificationDate = modificationDate;
 		};
+		prototype.getProperty = function(propertyName) {
+			var properties = this.getProperties();
+			return properties ? properties[propertyName] : null;
+		};		
 		prototype.getProperties = function() {
 			if (this.getFetchOptions().hasProperties()) {
 				return this.properties;

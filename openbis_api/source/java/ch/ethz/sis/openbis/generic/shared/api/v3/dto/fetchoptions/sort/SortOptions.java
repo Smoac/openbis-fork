@@ -18,10 +18,8 @@ package ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort;
 
 import java.io.Serializable;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
@@ -34,24 +32,11 @@ public abstract class SortOptions<OBJECT> implements Serializable
 
     private static final long serialVersionUID = 1L;
 
-    private transient Map<String, Comparator<OBJECT>> comparators;
-
     private List<Sorting> sortings = new LinkedList<>();
 
-    protected void addComparators(Map<String, Comparator<OBJECT>> map)
+    public Comparator<OBJECT> getComparator(String field)
     {
-    }
-
-    public final Comparator<OBJECT> getComparator(String field)
-    {
-        if (comparators == null)
-        {
-            Map<String, Comparator<OBJECT>> map = new HashMap<String, Comparator<OBJECT>>();
-            addComparators(map);
-            comparators = map;
-        }
-
-        return comparators.get(field);
+        return null;
     }
 
     protected SortOrder getOrCreateSorting(String field)
