@@ -819,7 +819,7 @@ public class MapSampleTest extends AbstractSampleTest
         assertEquals(samples.size(), 3);
 
         Sample sample1 = samples.get(0);
-        assertEquals(sample1.getIdentifier().toString(), "/CISD/3VCP5");
+        assertEquals(sample1.getIdentifier().toString(), "/CISD/NEMO/3VCP5");
         assertEquals(sample1.getExperiment().getIdentifier().toString(), "/CISD/NEMO/EXP10");
 
         Sample sample2 = samples.get(1);
@@ -877,7 +877,7 @@ public class MapSampleTest extends AbstractSampleTest
         assertEquals(samples.size(), 1);
 
         Sample sample = samples.get(0);
-        assertEquals(sample.getIdentifier().toString(), "/CISD/3VCP5");
+        assertEquals(sample.getIdentifier().toString(), "/CISD/NEMO/3VCP5");
 
         SampleType type = sample.getType();
         assertEquals(type.getCode(), "CELL_PLATE");

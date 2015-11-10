@@ -182,24 +182,24 @@ public class SearchSampleTest extends AbstractSampleTest
     public void testSearchWithExperimentWithIdSetToIdentifier()
     {
         SampleSearchCriteria criteria = new SampleSearchCriteria();
-        criteria.withExperiment().withId().thatEquals(new ExperimentIdentifier("/CISD/NEMO/EXP10"));
-        testSearch(TEST_USER, criteria, "/CISD/3VCP5");
+        criteria.withExperiment().withId().thatEquals(new ExperimentIdentifier("/CISD/NEMO/EXP11"));
+        testSearch(TEST_USER, criteria, "/CISD/3VCP6");
     }
 
     @Test
     public void testSearchWithExperimentWithIdSetToPermId()
     {
         SampleSearchCriteria criteria = new SampleSearchCriteria();
-        criteria.withExperiment().withId().thatEquals(new ExperimentPermId("200811050952663-1029"));
-        testSearch(TEST_USER, criteria, "/CISD/3VCP5");
+        criteria.withExperiment().withId().thatEquals(new ExperimentPermId("200811050952663-1030"));
+        testSearch(TEST_USER, criteria, "/CISD/3VCP6");
     }
 
     @Test
     public void testSearchWithExperimentWithPermId()
     {
         SampleSearchCriteria criteria = new SampleSearchCriteria();
-        criteria.withExperiment().withPermId().thatEquals("200811050952663-1029");
-        testSearch(TEST_USER, criteria, "/CISD/3VCP5");
+        criteria.withExperiment().withPermId().thatEquals("200811050952663-1030");
+        testSearch(TEST_USER, criteria, "/CISD/3VCP6");
     }
 
     @Test
@@ -736,14 +736,14 @@ public class SearchSampleTest extends AbstractSampleTest
         List<Sample> samples1 = search(sessionToken, criteria, fo);
 
         assertSampleIdentifiersInOrder(samples1, "/CISD/3V-125", "/CISD/MP1-MIXED");
-        assertSampleIdentifiersInOrder(samples1.get(0).getChildren(), "/CISD/3VCP5", "/CISD/3VCP6", "/CISD/3VCP7", "/CISD/3VCP8");
+        assertSampleIdentifiersInOrder(samples1.get(0).getChildren(), "/CISD/NEMO/3VCP5", "/CISD/3VCP6", "/CISD/3VCP7", "/CISD/3VCP8");
         assertSampleIdentifiersInOrder(samples1.get(1).getChildren(), "/CISD/DP1-A", "/CISD/DP1-B");
 
         fo.withChildren().sortBy().code().desc();
         List<Sample> samples2 = search(sessionToken, criteria, fo);
 
         assertSampleIdentifiersInOrder(samples2, "/CISD/3V-125", "/CISD/MP1-MIXED");
-        assertSampleIdentifiersInOrder(samples2.get(0).getChildren(), "/CISD/3VCP8", "/CISD/3VCP7", "/CISD/3VCP6", "/CISD/3VCP5");
+        assertSampleIdentifiersInOrder(samples2.get(0).getChildren(), "/CISD/3VCP8", "/CISD/3VCP7", "/CISD/3VCP6", "/CISD/NEMO/3VCP5");
         assertSampleIdentifiersInOrder(samples2.get(1).getChildren(), "/CISD/DP1-B", "/CISD/DP1-A");
 
         v3api.logout(sessionToken);
@@ -796,7 +796,7 @@ public class SearchSampleTest extends AbstractSampleTest
         List<Sample> samples1 = search(sessionToken, criteria, fo);
 
         assertSampleIdentifiersInOrder(samples1, "/CISD/3V-125", "/CISD/MP1-MIXED");
-        assertSampleIdentifiersInOrder(samples1.get(0).getChildren(), "/CISD/3VCP5");
+        assertSampleIdentifiersInOrder(samples1.get(0).getChildren(), "/CISD/NEMO/3VCP5");
         assertSampleIdentifiersInOrder(samples1.get(1).getChildren(), "/CISD/DP1-A");
 
         fo.withChildren().from(1).count(1);
@@ -828,7 +828,7 @@ public class SearchSampleTest extends AbstractSampleTest
         List<Sample> samples1 = search(sessionToken, criteria, fo);
 
         assertSampleIdentifiersInOrder(samples1, "/CISD/3V-125");
-        assertSampleIdentifiersInOrder(samples1.get(0).getChildren(), "/CISD/3VCP5");
+        assertSampleIdentifiersInOrder(samples1.get(0).getChildren(), "/CISD/NEMO/3VCP5");
 
         fo.from(1).count(1);
         fo.withChildren().from(1).count(1);
