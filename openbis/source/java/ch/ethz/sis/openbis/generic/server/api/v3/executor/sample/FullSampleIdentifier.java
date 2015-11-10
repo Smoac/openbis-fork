@@ -37,7 +37,58 @@ class FullSampleIdentifier
     
     FullSampleIdentifier(String sampleIdentifier)
     {
-        //Parts Validation
+        String[] parts = extractParts(sampleIdentifier);
+        String spaceCode = null;
+        String projectCode = null;
+        String containerCode = null;
+        String plainSampleCode = null;
+        String code = null;
+        if (parts.length == 2)
+        {
+            code = parts[1];
+        } else if (parts.length == 3)
+        {
+            spaceCode = parts[1];
+            code = parts[2];
+        } else
+        {
+            spaceCode = parts[1];
+            projectCode = parts[2];
+            code = parts[3];
+        }
+        
+        String[] splittedCode = splitCode(code, sampleIdentifier);
+        if (splittedCode.length == 2)
+        {
+            containerCode = splittedCode[0];
+            plainSampleCode = splittedCode[1];
+        } else {
+            plainSampleCode = splittedCode[0];
+        }
+        
+        //Code format validation
+        verifyCodePattern(spaceCode);
+        verifyCodePattern(projectCode);
+        verifyCodePattern(containerCode);
+        verifyCodePattern(plainSampleCode);
+            
+        sampleCode = plainSampleCode;
+        sampleIdentifierParts = new SampleIdentifierParts(spaceCode, projectCode, containerCode);
+        
+    }
+
+    private String[] splitCode(String code, String sampleIdentifier)
+    {
+        String[] splittedCode = code.split(":");
+        if (splittedCode.length > 2)
+        {
+            throw new IllegalArgumentException("Sample code can not contain more than one ':': " + sampleIdentifier);
+        }
+        return splittedCode;
+    }
+
+    private String[] extractParts(String sampleIdentifier)
+    {
         if (StringUtils.isBlank(sampleIdentifier))
         {
             throw new IllegalArgumentException("Unspecified sample identifier.");
@@ -56,53 +107,7 @@ class FullSampleIdentifier
         {
             throw new IllegalArgumentException("Sample identifier can not contain more than three '/': " + sampleIdentifier);
         }
-        
-        //Parts Parsing
-        String spaceCode = null;
-        String projectCode = null;
-        String containerCode = null;
-        String plainSampleCode = null;
-
-        String code = null;
-        if (parts.length == 2)
-        {
-            code = parts[1];
-        } if (parts.length == 3)
-        {
-            spaceCode = parts[1];
-            code = parts[2];
-        } else if (parts.length == 4)
-        {
-            spaceCode = parts[1];
-            projectCode = parts[2];
-            code = parts[3];
-        }
-        
-        //Container:Contained validation
-        String[] splittedCode = code.split(":");
-        if (splittedCode.length > 2)
-        {
-            throw new IllegalArgumentException("Sample code can not contain more than one ':': " + sampleIdentifier);
-        }
-        
-        //Container:Contained parsing
-        if (splittedCode.length == 2)
-        {
-            containerCode = splittedCode[0];
-            plainSampleCode = splittedCode[1];
-        } else {
-            plainSampleCode = splittedCode[0];
-        }
-        
-        //Code format validation
-        verifyCodePattern(spaceCode);
-        verifyCodePattern(projectCode);
-        verifyCodePattern(containerCode);
-        verifyCodePattern(plainSampleCode);
-            
-        sampleCode = plainSampleCode;
-        sampleIdentifierParts = new SampleIdentifierParts(spaceCode, projectCode, containerCode);
-        
+        return parts;
     }
 
     private void verifyCodePattern(String code) {
