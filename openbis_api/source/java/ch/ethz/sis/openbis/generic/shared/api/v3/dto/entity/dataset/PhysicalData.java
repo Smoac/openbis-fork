@@ -28,7 +28,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.Serializable;
 
 /**
- * Class automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+ * Class automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
  */
 @JsonObject("dto.entity.dataset.PhysicalData")
 public class PhysicalData implements Serializable
@@ -71,59 +71,59 @@ public class PhysicalData implements Serializable
     @JsonProperty
     private Integer speedHint;
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
     @JsonIgnore
     public PhysicalDataFetchOptions getFetchOptions()
     {
         return fetchOptions;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
     public void setFetchOptions(PhysicalDataFetchOptions fetchOptions)
     {
         this.fetchOptions = fetchOptions;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
     @JsonIgnore
     public String getShareId()
     {
         return shareId;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
     public void setShareId(String shareId)
     {
         this.shareId = shareId;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
     @JsonIgnore
     public String getLocation()
     {
         return location;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
     public void setLocation(String location)
     {
         this.location = location;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
     @JsonIgnore
     public Long getSize()
     {
         return size;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
     public void setSize(Long size)
     {
         this.size = size;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
     @JsonIgnore
     public StorageFormat getStorageFormat()
     {
@@ -137,13 +137,13 @@ public class PhysicalData implements Serializable
         }
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
     public void setStorageFormat(StorageFormat storageFormat)
     {
         this.storageFormat = storageFormat;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
     @JsonIgnore
     public FileFormatType getFileFormatType()
     {
@@ -157,13 +157,13 @@ public class PhysicalData implements Serializable
         }
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
     public void setFileFormatType(FileFormatType fileFormatType)
     {
         this.fileFormatType = fileFormatType;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
     @JsonIgnore
     public LocatorType getLocatorType()
     {
@@ -177,72 +177,72 @@ public class PhysicalData implements Serializable
         }
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
     public void setLocatorType(LocatorType locatorType)
     {
         this.locatorType = locatorType;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
     @JsonIgnore
     public Complete getComplete()
     {
         return complete;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
     public void setComplete(Complete complete)
     {
         this.complete = complete;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
     @JsonIgnore
     public ArchivingStatus getStatus()
     {
         return status;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
     public void setStatus(ArchivingStatus status)
     {
         this.status = status;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
     @JsonIgnore
     public Boolean isPresentInArchive()
     {
         return presentInArchive;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
     public void setPresentInArchive(Boolean presentInArchive)
     {
         this.presentInArchive = presentInArchive;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
     @JsonIgnore
     public Boolean isStorageConfirmation()
     {
         return storageConfirmation;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
     public void setStorageConfirmation(Boolean storageConfirmation)
     {
         this.storageConfirmation = storageConfirmation;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
     @JsonIgnore
     public Integer getSpeedHint()
     {
         return speedHint;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
     public void setSpeedHint(Integer speedHint)
     {
         this.speedHint = speedHint;

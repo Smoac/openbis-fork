@@ -34,7 +34,7 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * Class automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+ * Class automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
  */
 @JsonObject("dto.entity.space.Space")
 public class Space implements Serializable, ICodeHolder, IModificationDateHolder, IPermIdHolder, IRegistrationDateHolder, IRegistratorHolder
@@ -68,20 +68,20 @@ public class Space implements Serializable, ICodeHolder, IModificationDateHolder
     @JsonProperty
     private List<Project> projects;
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
     @JsonIgnore
     public SpaceFetchOptions getFetchOptions()
     {
         return fetchOptions;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
     public void setFetchOptions(SpaceFetchOptions fetchOptions)
     {
         this.fetchOptions = fetchOptions;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
     @JsonIgnore
     @Override
     public SpacePermId getPermId()
@@ -89,13 +89,13 @@ public class Space implements Serializable, ICodeHolder, IModificationDateHolder
         return permId;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
     public void setPermId(SpacePermId permId)
     {
         this.permId = permId;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
     @JsonIgnore
     @Override
     public String getCode()
@@ -103,26 +103,26 @@ public class Space implements Serializable, ICodeHolder, IModificationDateHolder
         return code;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
     public void setCode(String code)
     {
         this.code = code;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
     @JsonIgnore
     public String getDescription()
     {
         return description;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
     public void setDescription(String description)
     {
         this.description = description;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
     @JsonIgnore
     @Override
     public Date getRegistrationDate()
@@ -130,13 +130,13 @@ public class Space implements Serializable, ICodeHolder, IModificationDateHolder
         return registrationDate;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
     public void setRegistrationDate(Date registrationDate)
     {
         this.registrationDate = registrationDate;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
     @JsonIgnore
     @Override
     public Date getModificationDate()
@@ -144,13 +144,13 @@ public class Space implements Serializable, ICodeHolder, IModificationDateHolder
         return modificationDate;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
     public void setModificationDate(Date modificationDate)
     {
         this.modificationDate = modificationDate;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
     @JsonIgnore
     @Override
     public Person getRegistrator()
@@ -165,13 +165,13 @@ public class Space implements Serializable, ICodeHolder, IModificationDateHolder
         }
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
     public void setRegistrator(Person registrator)
     {
         this.registrator = registrator;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
     @JsonIgnore
     public List<Sample> getSamples()
     {
@@ -185,13 +185,13 @@ public class Space implements Serializable, ICodeHolder, IModificationDateHolder
         }
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
     public void setSamples(List<Sample> samples)
     {
         this.samples = samples;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
     @JsonIgnore
     public List<Project> getProjects()
     {
@@ -205,7 +205,7 @@ public class Space implements Serializable, ICodeHolder, IModificationDateHolder
         }
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
     public void setProjects(List<Project> projects)
     {
         this.projects = projects;

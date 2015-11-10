@@ -28,7 +28,7 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
- * Class automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+ * Class automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
  */
 @JsonObject("dto.entity.material.MaterialType")
 public class MaterialType implements Serializable, ICodeHolder, IModificationDateHolder, IPermIdHolder
@@ -50,20 +50,20 @@ public class MaterialType implements Serializable, ICodeHolder, IModificationDat
     @JsonProperty
     private Date modificationDate;
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
     @JsonIgnore
     public MaterialTypeFetchOptions getFetchOptions()
     {
         return fetchOptions;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
     public void setFetchOptions(MaterialTypeFetchOptions fetchOptions)
     {
         this.fetchOptions = fetchOptions;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
     @JsonIgnore
     @Override
     public EntityTypePermId getPermId()
@@ -71,13 +71,13 @@ public class MaterialType implements Serializable, ICodeHolder, IModificationDat
         return permId;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
     public void setPermId(EntityTypePermId permId)
     {
         this.permId = permId;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
     @JsonIgnore
     @Override
     public String getCode()
@@ -85,26 +85,26 @@ public class MaterialType implements Serializable, ICodeHolder, IModificationDat
         return code;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
     public void setCode(String code)
     {
         this.code = code;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
     @JsonIgnore
     public String getDescription()
     {
         return description;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
     public void setDescription(String description)
     {
         this.description = description;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
     @JsonIgnore
     @Override
     public Date getModificationDate()
@@ -112,7 +112,7 @@ public class MaterialType implements Serializable, ICodeHolder, IModificationDat
         return modificationDate;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
     public void setModificationDate(Date modificationDate)
     {
         this.modificationDate = modificationDate;

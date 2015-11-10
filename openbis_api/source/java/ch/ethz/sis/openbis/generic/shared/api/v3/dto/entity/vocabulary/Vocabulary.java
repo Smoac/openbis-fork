@@ -29,7 +29,7 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
- * Class automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+ * Class automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
  */
 @JsonObject("dto.entity.vocabulary.Vocabulary")
 public class Vocabulary implements Serializable, ICodeHolder, IModificationDateHolder, IRegistrationDateHolder, IRegistratorHolder
@@ -54,20 +54,20 @@ public class Vocabulary implements Serializable, ICodeHolder, IModificationDateH
     @JsonProperty
     private Date modificationDate;
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
     @JsonIgnore
     public VocabularyFetchOptions getFetchOptions()
     {
         return fetchOptions;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
     public void setFetchOptions(VocabularyFetchOptions fetchOptions)
     {
         this.fetchOptions = fetchOptions;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
     @JsonIgnore
     @Override
     public String getCode()
@@ -75,26 +75,26 @@ public class Vocabulary implements Serializable, ICodeHolder, IModificationDateH
         return code;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
     public void setCode(String code)
     {
         this.code = code;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
     @JsonIgnore
     public String getDescription()
     {
         return description;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
     public void setDescription(String description)
     {
         this.description = description;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
     @JsonIgnore
     @Override
     public Date getRegistrationDate()
@@ -102,13 +102,13 @@ public class Vocabulary implements Serializable, ICodeHolder, IModificationDateH
         return registrationDate;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
     public void setRegistrationDate(Date registrationDate)
     {
         this.registrationDate = registrationDate;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
     @JsonIgnore
     @Override
     public Person getRegistrator()
@@ -123,13 +123,13 @@ public class Vocabulary implements Serializable, ICodeHolder, IModificationDateH
         }
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
     public void setRegistrator(Person registrator)
     {
         this.registrator = registrator;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
     @JsonIgnore
     @Override
     public Date getModificationDate()
@@ -137,7 +137,7 @@ public class Vocabulary implements Serializable, ICodeHolder, IModificationDateH
         return modificationDate;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
     public void setModificationDate(Date modificationDate)
     {
         this.modificationDate = modificationDate;

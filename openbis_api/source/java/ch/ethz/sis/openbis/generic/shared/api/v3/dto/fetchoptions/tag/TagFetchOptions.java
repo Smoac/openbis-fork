@@ -23,7 +23,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.Serializable;
 
 /**
- * Class automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+ * Class automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
  */
 @JsonObject("dto.fetchoptions.tag.TagFetchOptions")
 public class TagFetchOptions extends FetchOptions<Tag> implements Serializable
@@ -36,7 +36,7 @@ public class TagFetchOptions extends FetchOptions<Tag> implements Serializable
     @JsonProperty
     private TagSortOptions sort;
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
     public PersonFetchOptions withOwner()
     {
         if (owner == null)
@@ -46,13 +46,13 @@ public class TagFetchOptions extends FetchOptions<Tag> implements Serializable
         return owner;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
     public PersonFetchOptions withOwnerUsing(PersonFetchOptions fetchOptions)
     {
         return owner = fetchOptions;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
     public boolean hasOwner()
     {
         return owner != null;

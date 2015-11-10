@@ -23,7 +23,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.Serializable;
 
 /**
- * Class automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+ * Class automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
  */
 @JsonObject("dto.fetchoptions.deletion.DeletionFetchOptions")
 public class DeletionFetchOptions extends FetchOptions<Deletion> implements Serializable
@@ -36,7 +36,7 @@ public class DeletionFetchOptions extends FetchOptions<Deletion> implements Seri
     @JsonProperty
     private DeletionSortOptions sort;
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
     public DeletionFetchOptions withDeletedObjects()
     {
         if (deletedObjects == null)
@@ -46,13 +46,13 @@ public class DeletionFetchOptions extends FetchOptions<Deletion> implements Seri
         return deletedObjects;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
     public DeletionFetchOptions withDeletedObjectsUsing(DeletionFetchOptions fetchOptions)
     {
         return deletedObjects = fetchOptions;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
     public boolean hasDeletedObjects()
     {
         return deletedObjects != null;

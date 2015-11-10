@@ -1,4 +1,4 @@
-package ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators;
+package ch.ethz.sis.openbis.generic.server.api.v3.helper.generators;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -11,8 +11,8 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.ArrayList;
 
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.uglify.UglifyJS;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.uglify.UglifyOptions;
+import ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.uglify.UglifyJS;
+import ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.uglify.UglifyOptions;
 
 public class UltimateJSEntityGenerator
 {

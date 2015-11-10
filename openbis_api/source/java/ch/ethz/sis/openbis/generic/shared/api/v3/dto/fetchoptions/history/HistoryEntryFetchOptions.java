@@ -23,7 +23,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.Serializable;
 
 /**
- * Class automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+ * Class automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
  */
 @JsonObject("dto.fetchoptions.history.HistoryEntryFetchOptions")
 public class HistoryEntryFetchOptions extends FetchOptions<HistoryEntry> implements Serializable
@@ -36,7 +36,7 @@ public class HistoryEntryFetchOptions extends FetchOptions<HistoryEntry> impleme
     @JsonProperty
     private HistoryEntrySortOptions sort;
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
     public PersonFetchOptions withAuthor()
     {
         if (author == null)
@@ -46,13 +46,13 @@ public class HistoryEntryFetchOptions extends FetchOptions<HistoryEntry> impleme
         return author;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
     public PersonFetchOptions withAuthorUsing(PersonFetchOptions fetchOptions)
     {
         return author = fetchOptions;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
     public boolean hasAuthor()
     {
         return author != null;

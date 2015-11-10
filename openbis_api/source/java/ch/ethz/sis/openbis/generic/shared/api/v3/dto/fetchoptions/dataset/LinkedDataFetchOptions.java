@@ -23,7 +23,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.Serializable;
 
 /**
- * Class automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+ * Class automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
  */
 @JsonObject("dto.fetchoptions.dataset.LinkedDataFetchOptions")
 public class LinkedDataFetchOptions extends FetchOptions<LinkedData> implements Serializable
@@ -36,7 +36,7 @@ public class LinkedDataFetchOptions extends FetchOptions<LinkedData> implements 
     @JsonProperty
     private LinkedDataSortOptions sort;
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
     public ExternalDmsFetchOptions withExternalDms()
     {
         if (externalDms == null)
@@ -46,13 +46,13 @@ public class LinkedDataFetchOptions extends FetchOptions<LinkedData> implements 
         return externalDms;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
     public ExternalDmsFetchOptions withExternalDmsUsing(ExternalDmsFetchOptions fetchOptions)
     {
         return externalDms = fetchOptions;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
     public boolean hasExternalDms()
     {
         return externalDms != null;

@@ -1,4 +1,4 @@
-package ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators;
+package ch.ethz.sis.openbis.generic.server.api.v3.helper.generators;
 
 import java.io.FileNotFoundException;
 import java.util.Date;
