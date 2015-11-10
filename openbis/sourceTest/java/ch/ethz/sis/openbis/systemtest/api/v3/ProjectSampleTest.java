@@ -31,6 +31,8 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.transaction.TransactionConfiguration;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
@@ -67,7 +69,7 @@ import ch.systemsx.cisd.openbis.systemtest.base.BaseTest;
  * @author Franz-Josef Elmer
  */
 @TransactionConfiguration(transactionManager = "transaction-manager", defaultRollback = false)
-//@Test(groups = "project-samples")
+@Test(groups = "project-samples")
 public class ProjectSampleTest extends BaseTest
 {
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, ProjectSampleTest.class);
@@ -107,6 +109,7 @@ public class ProjectSampleTest extends BaseTest
         project2inSpace1 = projects.get(1);
         project1InSpace2 = createProjects(systemSessionToken, space2, "PROJECT1").get(0);
         project2InSpace2 = createProjects(systemSessionToken, space2, "PROJECT2").get(0);
+        
         experimentInProject1InSpace1 = createExperiments(systemSessionToken, project1inSpace1, "EXP1").get(0);
         List<SamplePermId> sharedSamples = createSamples(systemSessionToken, null, null, "SHARED1", "SHARED2");
         sharedSample1 = sharedSamples.get(0);
@@ -126,23 +129,6 @@ public class ProjectSampleTest extends BaseTest
         System.err.println("do not clean database");
     }
     
-
-//    @Override
-//    protected void springTestContextBeforeTestMethod(Method testMethod) throws Exception
-//    {
-//        System.err.println("BEFORE TEST "+testMethod.getName());
-//        super.springTestContextBeforeTestMethod(testMethod);
-//    }
-//
-    @Override
-    @AfterMethod(alwaysRun = true)
-    @Test(enabled = false)
-    protected void springTestContextAfterTestMethod(Method testMethod) throws Exception
-    {
-        System.err.println("AFTER TEST "+testMethod.getName());
-        super.springTestContextAfterTestMethod(testMethod);
-    }
-
     private List<SpacePermId> createSpaces(String sessionToken, String...spaceCodes)
     {
         List<SpaceCreation> newSpaces = new ArrayList<SpaceCreation>();
@@ -216,7 +202,6 @@ public class ProjectSampleTest extends BaseTest
         assertEquals(sample.getIdentifier().getIdentifier(), "/SPACE1/PROJECT1/" + sampleCode);
         assertEquals(sample.getProject().getIdentifier().getIdentifier(), "/SPACE1/PROJECT1");
     }
-    
     @Test
     public void testCreateThreeSamplesWithSameCodeInDifferentProjectOfSameSpace()
     {
@@ -346,6 +331,7 @@ public class ProjectSampleTest extends BaseTest
     }
     
     @Test
+    @Transactional(propagation = Propagation.NEVER)
     public void testCreateWithProjectAndSpaceInconsistent()
     {
         final SampleCreation creation = new SampleCreation();
@@ -368,6 +354,7 @@ public class ProjectSampleTest extends BaseTest
     }
 
     @Test
+    @Transactional(propagation = Propagation.NEVER)
     public void testCreateWithProjectAndNoSpaceInconsistent()
     {
         final SampleCreation creation = new SampleCreation();
@@ -389,6 +376,7 @@ public class ProjectSampleTest extends BaseTest
     }
 
     @Test
+    @Transactional(propagation = Propagation.NEVER)
     public void testCreateWithProjectAndExperimentInconsistent()
     {
         final SampleCreation creation = new SampleCreation();
@@ -413,6 +401,7 @@ public class ProjectSampleTest extends BaseTest
     }
     
     @Test
+    @Transactional(propagation = Propagation.NEVER)
     public void testAssignSpaceSampleToProjectInDifferentSpace()
     {
         final SampleUpdate sampleUpdate = new SampleUpdate();
