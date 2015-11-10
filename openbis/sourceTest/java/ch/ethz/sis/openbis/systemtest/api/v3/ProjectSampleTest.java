@@ -29,6 +29,7 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.transaction.AfterTransaction;
 import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -62,7 +63,6 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.util.UpdateUtils;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.systemtest.base.BaseTest;
 
 /**
@@ -74,6 +74,8 @@ import ch.systemsx.cisd.openbis.systemtest.base.BaseTest;
 @Test(groups = "project-samples")
 public class ProjectSampleTest extends BaseTest
 {
+    private static final String[] SEARCH_METHODS 
+        = {"testSearchForSamplesWithProject", "testSearchForSamplesWithCodeAndWithProject"};
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, ProjectSampleTest.class);
     private static final EntityTypePermId ENTITY_TYPE_UNKNOWN = new EntityTypePermId("UNKNOWN");
     private static final String TEST_USER = "test";
@@ -101,9 +103,8 @@ public class ProjectSampleTest extends BaseTest
     private SamplePermId sample2InSpace1;
     
     @BeforeClass
-    public void createSpacesAndProject()
+    public void createData()
     {
-        System.err.println("create spaces");
         List<SpacePermId> spaces = createSpaces(systemSessionToken, "SPACE1", "SPACE2");
         space1 = spaces.get(0);
         space2 = spaces.get(1);
@@ -112,13 +113,6 @@ public class ProjectSampleTest extends BaseTest
         project2inSpace1 = projects.get(1);
         project1InSpace2 = createProjects(systemSessionToken, space2, "PROJECT1").get(0);
         project2InSpace2 = createProjects(systemSessionToken, space2, "PROJECT2").get(0);
-    }
-    
-    @BeforeMethod
-    @Test(enabled = false)
-    public void createTestEntities()
-    {
-        System.err.println("create testentities");
         experimentInProject1InSpace1 = createExperiments(systemSessionToken, project1inSpace1, "EXP1").get(0);
         List<SamplePermId> sharedSamples = createSamples(systemSessionToken, null, null, null, "SHARED1", "SHARED2");
         sharedSample1 = sharedSamples.get(0);
@@ -127,18 +121,18 @@ public class ProjectSampleTest extends BaseTest
         sample1InSpace1 = spaceSamples.get(0);
         sample2InSpace1 = spaceSamples.get(1);
         createSamples(systemSessionToken, space1, project1inSpace1, null, "SAMPLE3", "SAMPLE4");
+        createSamples(systemSessionToken, space2, project2InSpace2, null, "SAMPLE5", "SAMPLE6");
         waitAtLeastASecond(); // to allow checks on modification time stamps 
         UpdateUtils.waitUntilIndexUpdaterIsIdle(applicationContext, operationLog);
-        System.err.println("Test data created");
     }
     
     @Override
+    @AfterTransaction
     @Test(enabled = false)
     public void cleanDatabase()
     {
-        super.cleanDatabase();
     }
-    
+
     private List<SpacePermId> createSpaces(String sessionToken, String...spaceCodes)
     {
         List<SpaceCreation> newSpaces = new ArrayList<SpaceCreation>();
@@ -479,9 +473,10 @@ public class ProjectSampleTest extends BaseTest
                 + "(Context: [verify project for sample SHARED1])");
     }
     
-    @Test
+    @Test(priority = -1)
     public void testSearchForSamplesWithProject() throws InterruptedException
     {
+        
         SampleSearchCriteria searchCriteria = new SampleSearchCriteria();
         searchCriteria.withProject();
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
@@ -493,10 +488,14 @@ public class ProjectSampleTest extends BaseTest
         assertEquals(result.getObjects().get(0).getProject().getIdentifier().getIdentifier(), "/SPACE1/PROJECT1");
         assertEquals(result.getObjects().get(1).getIdentifier().getIdentifier(), "/SPACE1/PROJECT1/SAMPLE4");
         assertEquals(result.getObjects().get(1).getProject().getIdentifier().getIdentifier(), "/SPACE1/PROJECT1");
-        assertEquals(result.getTotalCount(), 2);
+        assertEquals(result.getObjects().get(2).getIdentifier().getIdentifier(), "/SPACE2/PROJECT2/SAMPLE5");
+        assertEquals(result.getObjects().get(2).getProject().getIdentifier().getIdentifier(), "/SPACE2/PROJECT2");
+        assertEquals(result.getObjects().get(3).getIdentifier().getIdentifier(), "/SPACE2/PROJECT2/SAMPLE6");
+        assertEquals(result.getObjects().get(3).getProject().getIdentifier().getIdentifier(), "/SPACE2/PROJECT2");
+        assertEquals(result.getTotalCount(), 4);
     }
     
-    @Test
+    @Test(priority = -1)
     public void testSearchForSamplesWithCodeAndWithProject()
     {
         SampleSearchCriteria searchCriteria = new SampleSearchCriteria();
@@ -512,54 +511,58 @@ public class ProjectSampleTest extends BaseTest
         assertEquals(result.getTotalCount(), 1);
     }
     
-    /*
-    @Test
+    @Test(priority = -1)
     public void testSearchForSamplesWithProjectWithSpaceWithCode()
     {
         SampleSearchCriteria searchCriteria = new SampleSearchCriteria();
-        searchCriteria.withProject().withSpace().withCode().thatEquals("CISD");
+        searchCriteria.withProject().withSpace().withCode().thatEquals("SPACE1");
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
         fetchOptions.withProject();
         
         SearchResult<Sample> result = v3api.searchSamples(systemSessionToken, searchCriteria, fetchOptions);
         
-        assertEquals(result.getObjects().get(0).getIdentifier().getIdentifier(), "/CISD/NEMO/3VCP5");
-        assertEquals(result.getObjects().get(0).getProject().getIdentifier().getIdentifier(), "/CISD/NEMO");
-        assertEquals(result.getTotalCount(), 1);
+        assertEquals(result.getObjects().get(0).getIdentifier().getIdentifier(), "/SPACE1/PROJECT1/SAMPLE3");
+        assertEquals(result.getObjects().get(0).getProject().getIdentifier().getIdentifier(), "/SPACE1/PROJECT1");
+        assertEquals(result.getObjects().get(1).getIdentifier().getIdentifier(), "/SPACE1/PROJECT1/SAMPLE4");
+        assertEquals(result.getObjects().get(1).getProject().getIdentifier().getIdentifier(), "/SPACE1/PROJECT1");
+        assertEquals(result.getTotalCount(), 2);
     }
     
-    @Test
+    @Test(priority = -1)
     public void testSearchForSamplesWithProjectWithPermId()
     {
         SampleSearchCriteria searchCriteria = new SampleSearchCriteria();
-        searchCriteria.withProject().withPermId().thatContains("1738-103");
+        searchCriteria.withProject().withPermId().thatEquals(project2InSpace2.getPermId());
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
         fetchOptions.withProject();
         
         SearchResult<Sample> result = v3api.searchSamples(systemSessionToken, searchCriteria, fetchOptions);
         
-        assertEquals(result.getObjects().get(0).getIdentifier().getIdentifier(), "/CISD/NEMO/3VCP5");
-        assertEquals(result.getObjects().get(0).getProject().getIdentifier().getIdentifier(), "/CISD/NEMO");
-        assertEquals(result.getTotalCount(), 1);
+        assertEquals(result.getObjects().get(0).getIdentifier().getIdentifier(), "/SPACE2/PROJECT2/SAMPLE5");
+        assertEquals(result.getObjects().get(0).getProject().getIdentifier().getIdentifier(), "/SPACE2/PROJECT2");
+        assertEquals(result.getObjects().get(1).getIdentifier().getIdentifier(), "/SPACE2/PROJECT2/SAMPLE6");
+        assertEquals(result.getObjects().get(1).getProject().getIdentifier().getIdentifier(), "/SPACE2/PROJECT2");
+        assertEquals(result.getTotalCount(), 2);
     }
     
-    @Test
+    @Test(priority = -1)
     public void testSearchForSamplesWithoutProjects()
     {
         SampleSearchCriteria searchCriteria = new SampleSearchCriteria();
-        searchCriteria.withCode().thatStartsWith("3VCP");
-        searchCriteria.withExperiment();
+        searchCriteria.withCode().thatStartsWith("SAMP");
         searchCriteria.withoutProject();
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
         fetchOptions.withProject();
         
         SearchResult<Sample> result = v3api.searchSamples(systemSessionToken, searchCriteria, fetchOptions);
         
-        assertEquals(result.getObjects().get(0).getIdentifier().getIdentifier(), "/CISD/3VCP6");
+        assertEquals(result.getObjects().get(0).getIdentifier().getIdentifier(), "/SPACE1/SAMPLE1");
         assertEquals(result.getObjects().get(0).getProject(), null);
-        assertEquals(result.getTotalCount(), 1);
+        assertEquals(result.getObjects().get(1).getIdentifier().getIdentifier(), "/SPACE1/SAMPLE2");
+        assertEquals(result.getObjects().get(1).getProject(), null);
+        assertEquals(result.getTotalCount(), 2);
     }
-*/
+
     private void assertUserFailureException(IDelegatedAction action, String expectedExceptionMessage)
     {
         try
