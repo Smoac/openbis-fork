@@ -19,6 +19,7 @@ package ch.ethz.sis.openbis.systemtest.api.v3;
 import static junit.framework.Assert.fail;
 import static org.testng.Assert.assertEquals;
 
+import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,6 +31,7 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.transaction.TransactionConfiguration;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -65,7 +67,7 @@ import ch.systemsx.cisd.openbis.systemtest.base.BaseTest;
  * @author Franz-Josef Elmer
  */
 @TransactionConfiguration(transactionManager = "transaction-manager", defaultRollback = false)
-@Test(groups = "project-samples")
+//@Test(groups = "project-samples")
 public class ProjectSampleTest extends BaseTest
 {
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, ProjectSampleTest.class);
@@ -105,12 +107,6 @@ public class ProjectSampleTest extends BaseTest
         project2inSpace1 = projects.get(1);
         project1InSpace2 = createProjects(systemSessionToken, space2, "PROJECT1").get(0);
         project2InSpace2 = createProjects(systemSessionToken, space2, "PROJECT2").get(0);
-    }
-    
-    @BeforeMethod
-    @Test(enabled = false)
-    public void createSomeEntities()
-    {
         experimentInProject1InSpace1 = createExperiments(systemSessionToken, project1inSpace1, "EXP1").get(0);
         List<SamplePermId> sharedSamples = createSamples(systemSessionToken, null, null, "SHARED1", "SHARED2");
         sharedSample1 = sharedSamples.get(0);
@@ -121,6 +117,30 @@ public class ProjectSampleTest extends BaseTest
         waitAtLeastASecond(); // to allow checks on modification time stamps 
         UpdateUtils.waitUntilIndexUpdaterIsIdle(applicationContext, operationLog);
         System.err.println("Test data created");
+    }
+    
+    @Override
+    @Test(enabled = false)
+    public void cleanDatabase()
+    {
+        System.err.println("do not clean database");
+    }
+    
+
+//    @Override
+//    protected void springTestContextBeforeTestMethod(Method testMethod) throws Exception
+//    {
+//        System.err.println("BEFORE TEST "+testMethod.getName());
+//        super.springTestContextBeforeTestMethod(testMethod);
+//    }
+//
+    @Override
+    @AfterMethod(alwaysRun = true)
+    @Test(enabled = false)
+    protected void springTestContextAfterTestMethod(Method testMethod) throws Exception
+    {
+        System.err.println("AFTER TEST "+testMethod.getName());
+        super.springTestContextAfterTestMethod(testMethod);
     }
 
     private List<SpacePermId> createSpaces(String sessionToken, String...spaceCodes)
@@ -367,14 +387,14 @@ public class ProjectSampleTest extends BaseTest
                 + "Project: /SPACE1/PROJECT1 "
                 + "(Context: [verify project for sample SAMPLE_WITH_INCONSISTENT_PROJECT_AND_NOSPACE])");
     }
-    
+
     @Test
     public void testCreateWithProjectAndExperimentInconsistent()
     {
         final SampleCreation creation = new SampleCreation();
         creation.setCode("SAMPLE_WITH_INCONSISTENT_PROJECT_AND_EXPERIMENT");
         creation.setTypeId(ENTITY_TYPE_UNKNOWN);
-        creation.setSpaceId(space2);
+        creation.setSpaceId(space1);
         creation.setProjectId(project2inSpace1);
         creation.setExperimentId(experimentInProject1InSpace1);
         
@@ -386,8 +406,8 @@ public class ProjectSampleTest extends BaseTest
                 v3api.createSamples(systemSessionToken, Collections.singletonList(creation));
             }
         }, "Sample project must be the same as experiment project. "
-                + "Sample: /SPACE2/SAMPLE_WITH_INCONSISTENT_PROJECT_AND_EXPERIMENT, "
-                + "Project: /SPACE2/PROJECT1, "
+                + "Sample: /SPACE1/SAMPLE_WITH_INCONSISTENT_PROJECT_AND_EXPERIMENT, "
+                + "Project: /SPACE1/PROJECT2, "
                 + "Experiment: /SPACE1/PROJECT1/EXP1 "
                 + "(Context: [verify experiment for sample SAMPLE_WITH_INCONSISTENT_PROJECT_AND_EXPERIMENT])");
     }
