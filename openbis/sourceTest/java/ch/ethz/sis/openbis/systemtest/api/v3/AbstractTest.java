@@ -630,15 +630,6 @@ public class AbstractTest extends SystemTestCase
         }
     }
 
-    protected void assertNotOlder(Date actualDate, Date referenceDate)
-    {
-        SimpleDateFormat format = createTimestampFormat();
-        String renderedReferenceDate = format.format(referenceDate.getTime());
-        String renderedActualDate = format.format(actualDate);
-        assertEquals(renderedReferenceDate.compareTo(renderedActualDate) <= 0, true,
-                renderedActualDate + " > " + renderedReferenceDate);
-    }
-
     protected void assertEqualsDate(Date actualDate, String expectedDate)
     {
         assertEquals(createTimestampFormat().format(actualDate), expectedDate);

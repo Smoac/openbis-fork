@@ -16,51 +16,176 @@
 
 package ch.ethz.sis.openbis.systemtest.api.v3;
 
+import static junit.framework.Assert.fail;
 import static org.testng.Assert.assertEquals;
 
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.transaction.TransactionConfiguration;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.ethz.sis.openbis.generic.shared.api.v3.IApplicationServerApi;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.ExperimentCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.project.Project;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.project.ProjectCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.Sample;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleUpdate;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.space.SpaceCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.project.ProjectFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sample.SampleFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.entitytype.EntityTypePermId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentIdentifier;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.IProjectId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.ProjectIdentifier;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.ProjectPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.ISampleId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SampleIdentifier;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SamplePermId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.ISpaceId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.SpacePermId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SampleSearchCriteria;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SearchResult;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.util.UpdateUtils;
+import ch.systemsx.cisd.openbis.systemtest.base.BaseTest;
 
 /**
  * 
  *
  * @author Franz-Josef Elmer
  */
+@TransactionConfiguration(transactionManager = "transaction-manager", defaultRollback = false)
 @Test(groups = "project-samples")
-public class ProjectSampleTest extends AbstractTest
+public class ProjectSampleTest extends BaseTest
 {
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, ProjectSampleTest.class);
+    private static final EntityTypePermId ENTITY_TYPE_UNKNOWN = new EntityTypePermId("UNKNOWN");
+    private static final String TEST_USER = "test";
+    private static final String PASSWORD = "password";
+
+    private static final String SYSTEM_USER = "system";
+    private static final String NOT_EXISTING_USER = "notexistinguser";
+    private static final String TEST_SPACE_USER = "test_space";
+    private static final String TEST_POWER_USER_CISD = "test_role";
+    private static final String TEST_GROUP_OBSERVER = "observer";
+    
+    @Autowired
+    protected IApplicationServerApi v3api;
+    
+    private SpacePermId space1;
+    private SpacePermId space2;
+    private ProjectPermId project1inSpace1;
+    private ProjectPermId project2inSpace1;
+    private ProjectPermId project1InSpace2;
+    private ProjectPermId project2InSpace2;
+    private ExperimentPermId experimentInProject1InSpace1;
+    private SamplePermId sharedSample1;
+    private SamplePermId sharedSample2;
+    private SamplePermId sample1InSpace1;
+    private SamplePermId sample2InSpace1;
+    
+    @BeforeClass
+    public void createMasterData()
+    {
+        List<SpacePermId> spaces = createSpaces(systemSessionToken, "SPACE1", "SPACE2");
+        space1 = spaces.get(0);
+        space2 = spaces.get(1);
+        List<ProjectPermId> projects = createProjects(systemSessionToken, space1, "PROJECT1", "PROJECT2");
+        project1inSpace1 = projects.get(0);
+        project2inSpace1 = projects.get(1);
+        project1InSpace2 = createProjects(systemSessionToken, space2, "PROJECT1").get(0);
+        project2InSpace2 = createProjects(systemSessionToken, space2, "PROJECT2").get(0);
+    }
+    
+    @BeforeMethod
+    @Test(enabled = false)
+    public void createSomeEntities()
+    {
+        experimentInProject1InSpace1 = createExperiments(systemSessionToken, project1inSpace1, "EXP1").get(0);
+        List<SamplePermId> sharedSamples = createSamples(systemSessionToken, null, null, "SHARED1", "SHARED2");
+        sharedSample1 = sharedSamples.get(0);
+        sharedSample2 = sharedSamples.get(1);
+        List<SamplePermId> spaceSamples = createSamples(systemSessionToken, space1, null, "SAMPLE1", "SAMPLE2");
+        sample1InSpace1 = spaceSamples.get(0);
+        sample2InSpace1 = spaceSamples.get(1);
+        waitAtLeastASecond(); // to allow checks on modification time stamps 
+        UpdateUtils.waitUntilIndexUpdaterIsIdle(applicationContext, operationLog);
+        System.err.println("Test data created");
+    }
+
+    private List<SpacePermId> createSpaces(String sessionToken, String...spaceCodes)
+    {
+        List<SpaceCreation> newSpaces = new ArrayList<SpaceCreation>();
+        for (String spaceCode : spaceCodes)
+        {
+            SpaceCreation space = new SpaceCreation();
+            space.setCode(spaceCode);
+            newSpaces.add(space);
+        }
+        return v3api.createSpaces(sessionToken, newSpaces);
+    }
+    
+    private List<ProjectPermId> createProjects(String sessionToken, ISpaceId spaceId, String...projectCodes)
+    {
+        List<ProjectCreation> newProjects = new ArrayList<ProjectCreation>();
+        for (String projectCode : projectCodes)
+        {
+            ProjectCreation project = new ProjectCreation();
+            project.setSpaceId(spaceId);
+            project.setCode(projectCode);
+            newProjects.add(project);
+        }
+        return v3api.createProjects(sessionToken, newProjects);
+    }
+    
+    private List<ExperimentPermId> createExperiments(String sessionToken, IProjectId projectId, String...experimentCodes)
+    {
+        List<ExperimentCreation> newExperiments = new ArrayList<ExperimentCreation>();
+        for (String code : experimentCodes)
+        {
+            ExperimentCreation experiment = new ExperimentCreation();
+            experiment.setTypeId(ENTITY_TYPE_UNKNOWN);
+            experiment.setProjectId(projectId);
+            experiment.setCode(code);
+            newExperiments.add(experiment);
+        }
+        return v3api.createExperiments(sessionToken, newExperiments);
+    }
+    
+    private List<SamplePermId> createSamples(String sessionToken, ISpaceId spaceOrNull, IProjectId projectOrNull, String...codes)
+    {
+        List<SampleCreation> newSamples = new ArrayList<SampleCreation>();
+        for (String code : codes)
+        {
+            SampleCreation sample = new SampleCreation();
+            sample.setTypeId(ENTITY_TYPE_UNKNOWN);
+            sample.setSpaceId(spaceOrNull);
+            sample.setProjectId(projectOrNull);
+            sample.setCode(code);
+            newSamples.add(sample);
+        }
+        return v3api.createSamples(sessionToken, newSamples);
+    }
+    
     @Test
     public void testCreateSampleAndMapSamples()
     {
+        String sampleCode = createUniqueCode();
         SampleCreation sampleCreation = new SampleCreation();
-        sampleCreation.setCode("PROJECT-SAMPLE");
-        sampleCreation.setTypeId(new EntityTypePermId("CELL_PLATE"));
-        sampleCreation.setSpaceId(new SpacePermId("CISD"));
-        ProjectIdentifier projectId = new ProjectIdentifier("/CISD/NEMO");
-        sampleCreation.setProjectId(projectId);
+        sampleCreation.setCode(sampleCode);
+        sampleCreation.setTypeId(ENTITY_TYPE_UNKNOWN);
+        sampleCreation.setSpaceId(space1);
+        sampleCreation.setProjectId(project1inSpace1);
         
         List<SamplePermId> ids = v3api.createSamples(systemSessionToken, Arrays.asList(sampleCreation));
         
@@ -68,48 +193,47 @@ public class ProjectSampleTest extends AbstractTest
         fetchOptions.withProject();
         Map<ISampleId, Sample> samples = v3api.mapSamples(systemSessionToken, ids, fetchOptions);
         Sample sample = samples.get(ids.get(0));
-        assertProjectIdentifiers(Arrays.asList(sample.getProject()), projectId.getIdentifier());
+        assertEquals(sample.getIdentifier().getIdentifier(), "/SPACE1/PROJECT1/" + sampleCode);
+        assertEquals(sample.getProject().getIdentifier().getIdentifier(), "/SPACE1/PROJECT1");
     }
     
     @Test
     public void testCreateThreeSamplesWithSameCodeInDifferentProjectOfSameSpace()
     {
+        String sampleCode = createUniqueCode();
         SampleCreation s1 = new SampleCreation();
-        s1.setCode("S1");
-        s1.setTypeId(new EntityTypePermId("CELL_PLATE"));
-        s1.setSpaceId(new SpacePermId("CISD"));
-        ProjectIdentifier projectId1 = new ProjectIdentifier("/CISD/NEMO");
-        s1.setProjectId(projectId1);
+        s1.setCode(sampleCode);
+        s1.setTypeId(ENTITY_TYPE_UNKNOWN);
+        s1.setSpaceId(space1);
+        s1.setProjectId(project1inSpace1);
         SampleCreation s2 = new SampleCreation();
-        s2.setCode("S1");
-        s2.setTypeId(new EntityTypePermId("CELL_PLATE"));
-        s2.setSpaceId(new SpacePermId("CISD"));
-        ProjectIdentifier projectId2 = new ProjectIdentifier("/CISD/NOE");
-        s2.setProjectId(projectId2);
+        s2.setCode(sampleCode);
+        s2.setTypeId(ENTITY_TYPE_UNKNOWN);
+        s2.setSpaceId(space1);
+        s2.setProjectId(project2inSpace1);
         SampleCreation s3 = new SampleCreation();
-        s3.setCode("S1");
-        s3.setTypeId(new EntityTypePermId("CELL_PLATE"));
-        s3.setSpaceId(new SpacePermId("CISD"));
+        s3.setCode(sampleCode);
+        s3.setTypeId(ENTITY_TYPE_UNKNOWN);
+        s3.setSpaceId(space1);
         
         List<SamplePermId> ids = v3api.createSamples(systemSessionToken, Arrays.asList(s1, s2, s3));
         
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
         fetchOptions.withProject();
         Map<ISampleId, Sample> samples = v3api.mapSamples(systemSessionToken, ids, fetchOptions);
-        assertEquals(samples.get(ids.get(0)).getProject().getIdentifier().toString(), "/CISD/NEMO");
-        assertEquals(samples.get(ids.get(1)).getProject().getIdentifier().toString(), "/CISD/NOE");
+        assertEquals(samples.get(ids.get(0)).getProject().getIdentifier().toString(), "/SPACE1/PROJECT1");
+        assertEquals(samples.get(ids.get(1)).getProject().getIdentifier().toString(), "/SPACE1/PROJECT2");
         assertEquals(samples.get(ids.get(2)).getProject(), null);
-        
     }
-    
+
     @Test
     public void testAssignSpaceSampleToAProject()
     {
+        String sampleCode = createUniqueCode();
+        SamplePermId spaceSample = createSamples(systemSessionToken, space1, null, sampleCode).get(0);
         SampleUpdate sampleUpdate = new SampleUpdate();
-        SampleIdentifier sampleId = new SampleIdentifier("/CISD/C1");
-        sampleUpdate.setSampleId(sampleId);
-        ProjectIdentifier projectId = new ProjectIdentifier("/CISD/NEMO");
-        sampleUpdate.setProjectId(projectId);
+        sampleUpdate.setSampleId(spaceSample);
+        sampleUpdate.setProjectId(project1inSpace1);
         Date now = new Date();
         
         v3api.updateSamples(systemSessionToken, Arrays.asList(sampleUpdate));
@@ -117,25 +241,23 @@ public class ProjectSampleTest extends AbstractTest
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
         fetchOptions.withSpace();
         fetchOptions.withProject();
-        Map<ISampleId, Sample> samples = v3api.mapSamples(systemSessionToken, Arrays.asList(sampleId), fetchOptions);
-        Sample sample = samples.get(sampleId);
+        Map<ISampleId, Sample> samples = v3api.mapSamples(systemSessionToken, Arrays.asList(spaceSample), fetchOptions);
+        Sample sample = samples.get(spaceSample);
         assertNotOlder(sample.getModificationDate(), now);
-        assertSpaceCodes(Arrays.asList(sample.getSpace()), "CISD");
+        assertEquals(sample.getIdentifier().getIdentifier(), "/SPACE1/PROJECT1/" + sampleCode);
         Project project = sample.getProject();
-        assertProjectIdentifiers(Arrays.asList(project), projectId.getIdentifier());
+        assertEquals(project.getIdentifier().getIdentifier(), "/SPACE1/PROJECT1");
         assertNotOlder(project.getModificationDate(), now);
     }
     
     @Test
     public void testAssignProjectSampleToADifferentProjectInTheSameSpace()
     {
+        String sampleCode = createUniqueCode();
+        SamplePermId spaceSample = createSamples(systemSessionToken, space1, project1inSpace1, sampleCode).get(0);
         SampleUpdate sampleUpdate = new SampleUpdate();
-        SampleIdentifier sampleId = new SampleIdentifier("/CISD/C1");
-        sampleUpdate.setSampleId(sampleId);
-        sampleUpdate.setProjectId(new ProjectIdentifier("/CISD/NEMO"));
-        v3api.updateSamples(systemSessionToken, Arrays.asList(sampleUpdate));
-        ProjectIdentifier projectId = new ProjectIdentifier("/CISD/NOE");
-        sampleUpdate.setProjectId(projectId);
+        sampleUpdate.setSampleId(spaceSample);
+        sampleUpdate.setProjectId(project2inSpace1);
         Date now = new Date();
         
         v3api.updateSamples(systemSessionToken, Arrays.asList(sampleUpdate));
@@ -143,28 +265,24 @@ public class ProjectSampleTest extends AbstractTest
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
         fetchOptions.withSpace();
         fetchOptions.withProject();
-        Map<ISampleId, Sample> samples = v3api.mapSamples(systemSessionToken, Arrays.asList(sampleId), fetchOptions);
-        Sample sample = samples.get(sampleId);
+        Map<ISampleId, Sample> samples = v3api.mapSamples(systemSessionToken, Arrays.asList(spaceSample), fetchOptions);
+        Sample sample = samples.get(spaceSample);
         assertNotOlder(sample.getModificationDate(), now);
-        assertSpaceCodes(Arrays.asList(sample.getSpace()), "CISD");
+        assertEquals(sample.getIdentifier().getIdentifier(), "/SPACE1/PROJECT2/" + sampleCode);
         Project project = sample.getProject();
-        assertProjectIdentifiers(Arrays.asList(project), projectId.getIdentifier());
+        assertEquals(project.getIdentifier().getIdentifier(), "/SPACE1/PROJECT2");
         assertNotOlder(project.getModificationDate(), now);
-        Map<IProjectId, Project> projects = v3api.mapProjects(systemSessionToken, Arrays.asList(projectId), 
-                new ProjectFetchOptions());
-        assertNotOlder(projects.values().iterator().next().getModificationDate(), now);
     }
     
     @Test
-    public void testAssignProjectSampleToADifferentProjectInADifferentSpace()
+    public void testAssignProjectSampleToAProjectInADifferentSpace()
     {
+        String sampleCode = createUniqueCode();
+        SamplePermId spaceSample = createSamples(systemSessionToken, space1, project1inSpace1, sampleCode).get(0);
         SampleUpdate sampleUpdate = new SampleUpdate();
-        SampleIdentifier sampleId = new SampleIdentifier("/CISD/C1");
-        sampleUpdate.setSampleId(sampleId);
-        sampleUpdate.setProjectId(new ProjectIdentifier("/CISD/NEMO"));
-        v3api.updateSamples(systemSessionToken, Arrays.asList(sampleUpdate));
-        sampleUpdate.setSpaceId(new SpacePermId("TEST-SPACE"));
-        sampleUpdate.setProjectId(new ProjectIdentifier("/TEST-SPACE/NOE"));
+        sampleUpdate.setSampleId(spaceSample);
+        sampleUpdate.setSpaceId(space2);
+        sampleUpdate.setProjectId(project1InSpace2);
         Date now = new Date();
         
         v3api.updateSamples(systemSessionToken, Arrays.asList(sampleUpdate));
@@ -172,27 +290,22 @@ public class ProjectSampleTest extends AbstractTest
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
         fetchOptions.withSpace();
         fetchOptions.withProject();
-        Map<ISampleId, Sample> samples = v3api.mapSamples(systemSessionToken, 
-                Arrays.asList(new SampleIdentifier("/TEST-SPACE/C1")), fetchOptions);
-        Sample sample = samples.values().iterator().next();
+        Map<ISampleId, Sample> samples = v3api.mapSamples(systemSessionToken, Arrays.asList(spaceSample), fetchOptions);
+        Sample sample = samples.get(spaceSample);
         assertNotOlder(sample.getModificationDate(), now);
-        assertSpaceCodes(Arrays.asList(sample.getSpace()), "TEST-SPACE");
+        assertEquals(sample.getIdentifier().getIdentifier(), "/SPACE2/PROJECT1/" + sampleCode);
         Project project = sample.getProject();
-        assertProjectIdentifiers(Arrays.asList(project), new ProjectIdentifier("/TEST-SPACE/NOE").getIdentifier());
+        assertEquals(project.getIdentifier().getIdentifier(), "/SPACE2/PROJECT1");
         assertNotOlder(project.getModificationDate(), now);
-        Map<IProjectId, Project> projects = v3api.mapProjects(systemSessionToken, 
-                Arrays.asList(new ProjectIdentifier("/CISD/NEMO")), new ProjectFetchOptions());
-        assertNotOlder(projects.values().iterator().next().getModificationDate(), now);
     }
     
     @Test
     public void testUnassignProjectSampleFromProject()
     {
+        String sampleCode = createUniqueCode();
+        SamplePermId spaceSample = createSamples(systemSessionToken, space1, project1inSpace1, sampleCode).get(0);
         SampleUpdate sampleUpdate = new SampleUpdate();
-        SampleIdentifier sampleId = new SampleIdentifier("/CISD/C1");
-        sampleUpdate.setSampleId(sampleId);
-        sampleUpdate.setProjectId(new ProjectIdentifier("/CISD/NEMO"));
-        v3api.updateSamples(systemSessionToken, Arrays.asList(sampleUpdate));
+        sampleUpdate.setSampleId(spaceSample);
         sampleUpdate.setProjectId(null);
         Date now = new Date();
         
@@ -201,112 +314,105 @@ public class ProjectSampleTest extends AbstractTest
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
         fetchOptions.withSpace();
         fetchOptions.withProject();
-        Map<ISampleId, Sample> samples = v3api.mapSamples(systemSessionToken, 
-                Arrays.asList(new SampleIdentifier("/CISD/C1")), fetchOptions);
-        Sample sample = samples.values().iterator().next();
+        Map<ISampleId, Sample> samples = v3api.mapSamples(systemSessionToken, Arrays.asList(spaceSample), fetchOptions);
+        Sample sample = samples.get(spaceSample);
         assertNotOlder(sample.getModificationDate(), now);
-        assertSpaceCodes(Arrays.asList(sample.getSpace()), "CISD");
+        assertEquals(sample.getIdentifier().getIdentifier(), "/SPACE1/" + sampleCode);
         Project project = sample.getProject();
         assertEquals(project, null);
         Map<IProjectId, Project> projects = v3api.mapProjects(systemSessionToken, 
-                Arrays.asList(new ProjectIdentifier("/CISD/NEMO")), new ProjectFetchOptions());
+                Arrays.asList(project1inSpace1), new ProjectFetchOptions());
         assertNotOlder(projects.values().iterator().next().getModificationDate(), now);
     }
     
     @Test
     public void testCreateWithProjectAndSpaceInconsistent()
     {
-        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
-
         final SampleCreation creation = new SampleCreation();
         creation.setCode("SAMPLE_WITH_INCONSISTENT_PROJECT_AND_SPACE");
-        creation.setTypeId(new EntityTypePermId("CELL_PLATE"));
-        creation.setSpaceId(new SpacePermId("TEST-SPACE"));
-        creation.setProjectId(new ProjectIdentifier("/CISD/NEMO"));
+        creation.setTypeId(ENTITY_TYPE_UNKNOWN);
+        creation.setSpaceId(space1);
+        creation.setProjectId(project1InSpace2);
 
         assertUserFailureException(new IDelegatedAction()
             {
                 @Override
                 public void execute()
                 {
-                    v3api.createSamples(sessionToken, Collections.singletonList(creation));
+                    v3api.createSamples(systemSessionToken, Collections.singletonList(creation));
                 }
-            }, "Sample space must be the same as project space");
+            }, "Sample space must be the same as project space. "
+                + "Sample: /SPACE1/SAMPLE_WITH_INCONSISTENT_PROJECT_AND_SPACE, "
+                + "Project: /SPACE2/PROJECT1 "
+                + "(Context: [verify project for sample SAMPLE_WITH_INCONSISTENT_PROJECT_AND_SPACE])");
     }
-    
+
     @Test
     public void testCreateWithProjectAndNoSpaceInconsistent()
     {
-        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
-
         final SampleCreation creation = new SampleCreation();
         creation.setCode("SAMPLE_WITH_INCONSISTENT_PROJECT_AND_NOSPACE");
-        creation.setTypeId(new EntityTypePermId("CELL_PLATE"));
-        creation.setProjectId(new ProjectIdentifier("/CISD/NEMO"));
+        creation.setTypeId(ENTITY_TYPE_UNKNOWN);
+        creation.setProjectId(project1inSpace1);
 
         assertUserFailureException(new IDelegatedAction()
             {
                 @Override
                 public void execute()
                 {
-                    v3api.createSamples(sessionToken, Collections.singletonList(creation));
+                    v3api.createSamples(systemSessionToken, Collections.singletonList(creation));
                 }
             }, "Shared samples cannot be attached to projects. "
-                    + "Sample: /SAMPLE_WITH_INCONSISTENT_PROJECT_AND_NOSPACE, "
-                    + "Project: /CISD/NEMO "
-                    + "(Context: [verify project for sample SAMPLE_WITH_INCONSISTENT_PROJECT_AND_NOSPACE])");
+                + "Sample: /SAMPLE_WITH_INCONSISTENT_PROJECT_AND_NOSPACE, "
+                + "Project: /SPACE1/PROJECT1 "
+                + "(Context: [verify project for sample SAMPLE_WITH_INCONSISTENT_PROJECT_AND_NOSPACE])");
     }
     
     @Test
     public void testCreateWithProjectAndExperimentInconsistent()
     {
-        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
-        
         final SampleCreation creation = new SampleCreation();
         creation.setCode("SAMPLE_WITH_INCONSISTENT_PROJECT_AND_EXPERIMENT");
-        creation.setTypeId(new EntityTypePermId("CELL_PLATE"));
-        creation.setSpaceId(new SpacePermId("CISD"));
-        creation.setProjectId(new ProjectIdentifier("/CISD/NOE"));
-        creation.setExperimentId(new ExperimentIdentifier("/CISD/NEMO/EXP1"));
+        creation.setTypeId(ENTITY_TYPE_UNKNOWN);
+        creation.setSpaceId(space2);
+        creation.setProjectId(project2inSpace1);
+        creation.setExperimentId(experimentInProject1InSpace1);
         
         assertUserFailureException(new IDelegatedAction()
         {
             @Override
             public void execute()
             {
-                v3api.createSamples(sessionToken, Collections.singletonList(creation));
+                v3api.createSamples(systemSessionToken, Collections.singletonList(creation));
             }
         }, "Sample project must be the same as experiment project. "
-                + "Sample: /CISD/SAMPLE_WITH_INCONSISTENT_PROJECT_AND_EXPERIMENT, "
-                + "Project: /CISD/NOE, "
-                + "Experiment: /CISD/NEMO/EXP1 "
+                + "Sample: /SPACE2/SAMPLE_WITH_INCONSISTENT_PROJECT_AND_EXPERIMENT, "
+                + "Project: /SPACE2/PROJECT1, "
+                + "Experiment: /SPACE1/PROJECT1/EXP1 "
                 + "(Context: [verify experiment for sample SAMPLE_WITH_INCONSISTENT_PROJECT_AND_EXPERIMENT])");
     }
     
     @Test
     public void testAssignSpaceSampleToProjectInDifferentSpace()
     {
-        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
-        
         final SampleUpdate sampleUpdate = new SampleUpdate();
-        SampleIdentifier sampleId = new SampleIdentifier("/CISD/C1");
-        sampleUpdate.setSampleId(sampleId);
-        ProjectIdentifier projectId = new ProjectIdentifier("/TEST-SPACE/NOE");
-        sampleUpdate.setProjectId(projectId);
+        sampleUpdate.setSampleId(sample1InSpace1);
+        sampleUpdate.setProjectId(project2InSpace2);
 
         assertUserFailureException(new IDelegatedAction()
         {
             @Override
             public void execute()
             {
-                v3api.updateSamples(sessionToken, Collections.singletonList(sampleUpdate));
+                v3api.updateSamples(systemSessionToken, Collections.singletonList(sampleUpdate));
             }
         }, "Sample space must be the same as project space. "
-                + "Sample: /CISD/C1, "
-                + "Project: /TEST-SPACE/NOE "
-                + "(Context: [verify project for sample C1])");
+                + "Sample: /SPACE1/SAMPLE1, "
+                + "Project: /SPACE2/PROJECT2 "
+                + "(Context: [verify project for sample SAMPLE1])");
     }
     
+    /*
     @Test
     public void testAssignSampleOfAnExperimentToProjectDifferentToTheExperimentProject()
     {
@@ -434,5 +540,41 @@ public class ProjectSampleTest extends AbstractTest
         assertEquals(result.getObjects().get(0).getProject(), null);
         assertEquals(result.getTotalCount(), 1);
     }
+*/
+    private void assertUserFailureException(IDelegatedAction action, String expectedExceptionMessage)
+    {
+        try
+        {
+            action.execute();
+            fail("UserFailureException expected");
+        } catch (UserFailureException ex)
+        {
+            assertEquals(ex.getMessage(), expectedExceptionMessage);
+        }
+    }
 
+    private void assertNotOlder(Date actualDate, Date referenceDate)
+    {
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String renderedReferenceDate = format.format(referenceDate.getTime());
+        String renderedActualDate = format.format(actualDate);
+        assertEquals(renderedReferenceDate.compareTo(renderedActualDate) <= 0, true,
+                renderedActualDate + " > " + renderedReferenceDate);
+    }
+
+    private String createUniqueCode()
+    {
+        return "S-" + System.currentTimeMillis();
+    }
+    
+    private void waitAtLeastASecond()
+    {
+        try
+        {
+            Thread.sleep(1100);
+        } catch (InterruptedException ex)
+        {
+            // silently ignored
+        }
+    }
 }
