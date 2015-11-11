@@ -63,14 +63,14 @@ sourceSets {
 
 task cleanDbSuite(type: Test) {
     useTestNG()
-    options.suites('sourceTest/java/tests_system_cleandb_excluding_authorization_project_samples.xml')
+    options.suites('sourceTest/java/tests_system_cleandb_excluding_authorization.xml')
     reports.html.destination = file("${project.buildDir}/reports/tests-cleandb")
 }
 
 task cleanDbSuiteProjectSamplesEnabled(type: Test) {
     useTestNG()
     systemProperty "project-samples-enabled", 'true'
-    options.suites('sourceTest/java/tests_system_cleandb_excluding_authorization.xml')
+    options.suites('sourceTest/java/tests_system_cleandb_excluding_authorization_project_samples.xml')
     reports.html.destination = file("${project.buildDir}/reports/tests-cleandb-project-samples")
 }
 
