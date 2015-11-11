@@ -19,11 +19,14 @@ package ch.systemsx.cisd.common.monitoring;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;
 import java.lang.management.MemoryUsage;
+import java.lang.management.RuntimeMXBean;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import org.apache.log4j.Logger;
 
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 
@@ -76,7 +79,22 @@ public class JMXMemoryMonitor
     {
         this.logIntervalMillis = logIntervallMillis;
         this.memoryHighwaterMarkPercent = memoryHighWatermarkPercent;
-        machineLog.info("Maximum heap size: " + Runtime.getRuntime().maxMemory());
+        machineLog.info("Maximum heap size: " + FileUtilities.byteCountToDisplaySize(Runtime.getRuntime().maxMemory()));
+        logMaxPermSize();
+    }
+
+    private void logMaxPermSize()
+    {
+        RuntimeMXBean memMXBean = ManagementFactory.getRuntimeMXBean();
+        String prefix = "-XX:MaxPermSize=";
+        List<String> jvmArgs = memMXBean.getInputArguments();
+        for (final String jvmArg : jvmArgs) 
+        {
+            if (jvmArg.startsWith(prefix)) 
+            {
+                machineLog.info("MaxPermSize: " + jvmArg.substring(prefix.length()));
+            }
+        }
     }
 
     private int percentageUsed(MemoryUsage usage)
