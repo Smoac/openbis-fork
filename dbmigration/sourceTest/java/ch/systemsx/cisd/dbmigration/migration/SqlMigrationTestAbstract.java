@@ -19,6 +19,10 @@ package ch.systemsx.cisd.dbmigration.migration;
 import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Scanner;
 
 import org.apache.commons.io.FileUtils;
 import org.testng.AssertJUnit;
@@ -26,13 +30,12 @@ import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeTest;
 
-import cz.startnet.utils.pgdiff.PgDiff;
-import cz.startnet.utils.pgdiff.PgDiffArguments;
-
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.dbmigration.DBMigrationEngine;
 import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
 import ch.systemsx.cisd.dbmigration.postgresql.DumpPreparator;
+import cz.startnet.utils.pgdiff.PgDiff;
+import cz.startnet.utils.pgdiff.PgDiffArguments;
 
 /**
  * Test cases for database migration.
@@ -172,13 +175,84 @@ public abstract class SqlMigrationTestAbstract
         arguments.setNewDumpFile(expectedSchemaFile.getAbsolutePath());
         arguments.setIgnoreFunctionWhitespace(true);
         arguments.setIgnoreStartWith(true);
+        arguments.setOutputIgnoredStatements(true);
         PgDiff.createDiff(new PrintWriter(writer), arguments);
 
-        String delta = writer.toString();
-        delta = delta == null ? "" : delta;
+        String diff = writer.toString();
+        if (diff == null)
+        {
+            diff = "";
+        }
+        String delta = diff.substring(0, diff.indexOf("/* Original")).trim();
 
         AssertJUnit.assertEquals("The migrated schema is not identical to the scratch one. "
                 + "Consider attaching following script to the migration file.", "", delta);
+
+        List<String> originalDb = new ArrayList<String>();
+        List<String> newDb = new ArrayList<String>();
+
+        Scanner scanner = new Scanner(diff);
+        List<String> current = originalDb;
+        while (scanner.hasNextLine())
+        {
+            String line = scanner.nextLine();
+            if (line.contains("New database ignored statements"))
+            {
+                current = newDb;
+            }
+            if (line.length() == 0 ||
+                    line.startsWith("/*") ||
+                    line.startsWith("*/") ||
+                    line.startsWith("GRANT") ||
+                    line.startsWith("REVOKE"))
+            {
+                continue;
+            } else
+            {
+                current.add(line);
+            }
+        }
+        scanner.close();
+
+        Iterator<String> origIter = originalDb.iterator();
+        Iterator<String> newIter = newDb.iterator();
+
+        while (true)
+        {
+            if (!origIter.hasNext() && !newIter.hasNext())
+            {
+                break;
+            }
+            if (!origIter.hasNext())
+            {
+                String additional = contentOf(newIter);
+                AssertJUnit.fail("Only in from-scratch schema: " + additional);
+            }
+
+            if (!newIter.hasNext())
+            {
+                String additional = contentOf(origIter);
+                AssertJUnit.fail("Only in migrated schema: " + additional);
+            }
+            String origValue = origIter.next();
+            String newValue = newIter.next();
+            if (!origValue.equals(newValue))
+            {
+                System.out.println(diff);
+                AssertJUnit.fail("There's a difference between the migrated schema and the from-scratch schema\nmigrated: " + origValue
+                        + "\nfrom-scratch: " + newValue);
+            }
+        }
+    }
+
+    private String contentOf(Iterator<String> newIter)
+    {
+        String s = "";
+        while (newIter.hasNext())
+        {
+            s += newIter.next() + "\n";
+        }
+        return s;
     }
 
 }
