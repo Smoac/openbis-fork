@@ -19,8 +19,10 @@ package ch.systemsx.cisd.etlserver.path;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 
 import net.lemnik.eodsql.QueryTool;
 
@@ -183,14 +185,16 @@ public class PathInfoDatabaseFeedingTask implements IMaintenanceTask, IPostRegis
         List<SimpleDataSetInformationDTO> dataSets;
         int chunkCount = 0;
         operationLog.info("Start feeding.");
+        Set<String> processedDataSets = new HashSet<String>(); 
         do
         {
-            dataSets = getNextChunk();
+            dataSets = filteredDataSets(getNextChunk(), processedDataSets);
             operationLog.info("Feeding " + ++chunkCount + ". chunk. " + dataSets.size() + " data sets.");
             Date maxRegistrationTimestamp = null;
             for (SimpleDataSetInformationDTO dataSet : dataSets)
             {
                 feedPathInfoDatabase(dataSet);
+                processedDataSets.add(dataSet.getDataSetCode());
                 Date registrationTimestamp = dataSet.getRegistrationTimestamp();
                 if (maxRegistrationTimestamp == null || maxRegistrationTimestamp.getTime() < registrationTimestamp.getTime())
                 {
@@ -206,6 +210,19 @@ public class PathInfoDatabaseFeedingTask implements IMaintenanceTask, IPostRegis
             }
         } while (dataSets.size() >= chunkSize && stopCondition.fulfilled() == false);
         operationLog.info("Feeding finished.");
+    }
+    
+    private List<SimpleDataSetInformationDTO> filteredDataSets(List<SimpleDataSetInformationDTO> dataSets, Set<String> processedDataSets)
+    {
+        List<SimpleDataSetInformationDTO> result = new ArrayList<SimpleDataSetInformationDTO>();
+        for (SimpleDataSetInformationDTO dataSet : dataSets)
+        {
+            if (processedDataSets.contains(dataSet.getDataSetCode()) == false)
+            {
+                result.add(dataSet);
+            }
+        }
+        return result;
     }
 
     private List<SimpleDataSetInformationDTO> getNextChunk()
@@ -264,11 +281,37 @@ public class PathInfoDatabaseFeedingTask implements IMaintenanceTask, IPostRegis
     private List<SimpleDataSetInformationDTO> listDataSets()
     {
         Date timestamp = dao.getRegistrationTimestampOfLastFeedingEvent();
+        return listDataSets(timestamp, chunkSize);
+    }
+
+    private List<SimpleDataSetInformationDTO> listDataSets(Date timestamp, int actualChunkSize)
+    {
+        List<SimpleDataSetInformationDTO> result;
         if (timestamp == null)
         {
-            return service.listOldestPhysicalDataSets(chunkSize);
+            result = service.listOldestPhysicalDataSets(actualChunkSize);
         }
-        return service.listOldestPhysicalDataSets(timestamp, chunkSize);
+        else
+        {
+            result = service.listOldestPhysicalDataSets(timestamp, actualChunkSize);
+        }
+        if (result.size() < actualChunkSize || allRegistrationTimeStampsTheSame(result) == false)
+        {
+            return result;
+        }
+        operationLog.warn("There are at least " + actualChunkSize 
+                + " data sets with same registration time stamp. Twice the chunk size will be tried.");
+        return listDataSets(timestamp, 2 * actualChunkSize);
+    }
+    
+    private boolean allRegistrationTimeStampsTheSame(List<SimpleDataSetInformationDTO> dataSets)
+    {
+        Set<Date> registrationTimeStamps = new HashSet<Date>();
+        for (SimpleDataSetInformationDTO dataSet : dataSets)
+        {
+            registrationTimeStamps.add(dataSet.getRegistrationTimestamp());
+        }
+        return registrationTimeStamps.size() == 1;
     }
 
     @Override

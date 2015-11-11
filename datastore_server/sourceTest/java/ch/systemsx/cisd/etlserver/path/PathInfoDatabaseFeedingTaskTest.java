@@ -302,6 +302,91 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
     }
     
     @Test
+    public void testToSmallChunkSizeBecauseAllRegistrationTimeStampAreTheSame()
+    {
+        final SimpleDataSetInformationDTO ds1 = dataSet("ds1", 1000);
+        final SimpleDataSetInformationDTO ds2 = dataSet("ds2", 1000);
+        final SimpleDataSetInformationDTO ds3 = dataSet("ds3", 1000);
+        
+        final Sequence chunkReadingSequence = context.sequence("chunkReadingSequence");
+        context.checking(new Expectations()
+            {
+                {
+                    one(dao).getRegistrationTimestampOfLastFeedingEvent();
+                    will(returnValue(null));
+                    inSequence(chunkReadingSequence);
+
+                    one(service).listOldestPhysicalDataSets(2);
+                    will(returnValue(Arrays.asList(ds1, ds2)));
+                    inSequence(chunkReadingSequence);
+
+                    one(service).listOldestPhysicalDataSets(4);
+                    will(returnValue(Arrays.asList(ds1, ds2, ds3)));
+                    inSequence(chunkReadingSequence);
+
+                    one(dao).getRegistrationTimestampOfLastFeedingEvent();
+                    Date timeStamp = new Date(1000);
+                    will(returnValue(timeStamp));
+                    inSequence(chunkReadingSequence);
+
+                    one(service).listOldestPhysicalDataSets(timeStamp, 2);
+                    will(returnValue(Arrays.asList(ds1, ds2)));
+                    inSequence(chunkReadingSequence);
+
+                    one(service).listOldestPhysicalDataSets(timeStamp, 4);
+                    will(returnValue(Arrays.asList(ds1, ds2, ds3)));
+                    inSequence(chunkReadingSequence);
+
+                }
+            });
+        prepareHappyCase(ds1, ds2, ds3);
+        prepareCreateLastFeedingEvent(ds3.getRegistrationTimestamp());
+        
+        createTask(2, 0, 0).execute();
+    }
+    
+    @Test
+    public void testToSmallChunkSizeBecauseOfSameRegistrationTimeStamp()
+    {
+        final SimpleDataSetInformationDTO ds1 = dataSet("ds1", 1000);
+        final SimpleDataSetInformationDTO ds2 = dataSet("ds2", 1000);
+        final SimpleDataSetInformationDTO ds3 = dataSet("ds3", 1000);
+        final SimpleDataSetInformationDTO ds4 = dataSet("ds4", 2000);
+        
+        final Sequence chunkReadingSequence = context.sequence("chunkReadingSequence");
+        context.checking(new Expectations()
+            {
+                {
+                    one(dao).getRegistrationTimestampOfLastFeedingEvent();
+                    will(returnValue(null));
+                    inSequence(chunkReadingSequence);
+
+                    one(service).listOldestPhysicalDataSets(2);
+                    will(returnValue(Arrays.asList(ds1, ds2)));
+                    inSequence(chunkReadingSequence);
+
+                    one(service).listOldestPhysicalDataSets(4);
+                    will(returnValue(Arrays.asList(ds1, ds2, ds3, ds4)));
+                    inSequence(chunkReadingSequence);
+
+                    one(dao).getRegistrationTimestampOfLastFeedingEvent();
+                    Date timeStamp = new Date(2000);
+                    will(returnValue(timeStamp));
+                    inSequence(chunkReadingSequence);
+
+                    one(service).listOldestPhysicalDataSets(timeStamp, 2);
+                    will(returnValue(Arrays.asList()));
+                    inSequence(chunkReadingSequence);
+
+                }
+            });
+        prepareHappyCase(ds1, ds2, ds3, ds4);
+        prepareCreateLastFeedingEvent(ds4.getRegistrationTimestamp());
+
+        createTask(2, 0, 0).execute();
+    }
+    
+    @Test
     public void testPostRegistrationHappyCase()
     {
         final PhysicalDataSet dataSet =
@@ -481,10 +566,15 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
 
     private SimpleDataSetInformationDTO dataSet(long timeStamp)
     {
+        return dataSet("DS-" + timeStamp, timeStamp);
+    }
+
+    private SimpleDataSetInformationDTO dataSet(String dataSetCode, long timeStamp)
+    {
         SimpleDataSetInformationDTO dataSet = new SimpleDataSetInformationDTO();
-        dataSet.setDataSetCode("DS-" + timeStamp);
+        dataSet.setDataSetCode(dataSetCode);
         dataSet.setRegistrationTimestamp(new Date(timeStamp));
-        dataSet.setDataSetLocation("abc" + timeStamp);
+        dataSet.setDataSetLocation("abc " + dataSetCode);
         dataSet.setStorageConfirmed(true);
         return dataSet;
     }
