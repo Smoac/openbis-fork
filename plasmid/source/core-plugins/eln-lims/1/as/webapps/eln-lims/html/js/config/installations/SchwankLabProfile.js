@@ -1,9 +1,9 @@
 
-function PeterLabProfile(serverFacade) {
+function SchwankLabProfile(serverFacade) {
 	this.init(serverFacade);
 }
 
-$.extend(PeterLabProfile.prototype, StandardProfile.prototype, {
+$.extend(SchwankLabProfile.prototype, StandardProfile.prototype, {
 	init: function(serverFacade){
 		DefaultProfile.prototype.init.call(this, serverFacade);
 		
@@ -135,6 +135,206 @@ $.extend(PeterLabProfile.prototype, StandardProfile.prototype, {
 		
 		/* New Sample definition tests*/
 		this.sampleTypeDefinitionsExtension = {
+				"MEDIA" : {
+					"SAMPLE_PARENTS_HINT" : [
+					                             	{
+														"LABEL" : "Chemical",
+														"TYPE": "CHEMICAL",
+														"MIN_COUNT" : 0,
+														"ANNOTATION_PROPERTIES" : [{"TYPE" : "QUANTITY", "MANDATORY" : false }, {"TYPE" : "COMMENTS", "MANDATORY" : false }]
+													},
+					                             	{
+														"LABEL" : "Solution/Buffer",
+														"TYPE": "SOLUTION_BUFFER",
+														"MIN_COUNT" : 0,
+														"ANNOTATION_PROPERTIES" : [{"TYPE" : "QUANTITY", "MANDATORY" : false }, {"TYPE" : "COMMENTS", "MANDATORY" : false }]
+													},
+					                             	{
+														"LABEL" : "Media",
+														"TYPE": "MEDIA",
+														"MIN_COUNT" : 0,
+														"ANNOTATION_PROPERTIES" : [{"TYPE" : "QUANTITY", "MANDATORY" : false }, {"TYPE" : "COMMENTS", "MANDATORY" : false }]
+													}																								
+												],
+				},
+
+				"SOLUTION_BUFFER" : {
+					"SAMPLE_PARENTS_HINT" : [
+					                             	{
+														"LABEL" : "Chemical",
+														"TYPE": "CHEMICAL",
+														"MIN_COUNT" : 0,
+														"ANNOTATION_PROPERTIES" : [{"TYPE" : "QUANTITY", "MANDATORY" : false }, {"TYPE" : "COMMENTS", "MANDATORY" : false }]
+													},
+					                             	{
+														"LABEL" : "Solution/Buffer",
+														"TYPE": "SOLUTION_BUFFER",
+														"MIN_COUNT" : 0,
+														"ANNOTATION_PROPERTIES" : [{"TYPE" : "QUANTITY", "MANDATORY" : false }, {"TYPE" : "COMMENTS", "MANDATORY" : false }]
+													},
+					                             	{
+														"LABEL" : "Media",
+														"TYPE": "MEDIA",
+														"MIN_COUNT" : 0,
+														"ANNOTATION_PROPERTIES" : [{"TYPE" : "QUANTITY", "MANDATORY" : false }, {"TYPE" : "COMMENTS", "MANDATORY" : false }]
+													}																								
+												],
+				},
+
+				"GENERAL_PROTOCOL" : {
+					"SAMPLE_PARENTS_HINT" : [
+					                             	{
+														"LABEL" : "Chemical",
+														"TYPE": "CHEMICAL",
+														"MIN_COUNT" : 0,
+														"ANNOTATION_PROPERTIES" : [{"TYPE" : "QUANTITY", "MANDATORY" : false }, {"TYPE" : "COMMENTS", "MANDATORY" : false }]
+													},
+					                             	{
+														"LABEL" : "Solution/Buffer",
+														"TYPE": "SOLUTION_BUFFER",
+														"MIN_COUNT" : 0,
+														"ANNOTATION_PROPERTIES" : [{"TYPE" : "QUANTITY", "MANDATORY" : false }, {"TYPE" : "COMMENTS", "MANDATORY" : false }]
+													},
+					                             	{
+														"LABEL" : "Media",
+														"TYPE": "MEDIA",
+														"MIN_COUNT" : 0,
+														"ANNOTATION_PROPERTIES" : [{"TYPE" : "QUANTITY", "MANDATORY" : false }, {"TYPE" : "COMMENTS", "MANDATORY" : false }]
+													},
+					                             	{
+														"LABEL" : "Enzyme",
+														"TYPE": "ENZYME",
+														"MIN_COUNT" : 0,
+														"ANNOTATION_PROPERTIES" : [{"TYPE" : "QUANTITY", "MANDATORY" : false }, {"TYPE" : "COMMENTS", "MANDATORY" : false }]
+													},
+					                             	{
+														"LABEL" : "General protocol",
+														"TYPE": "GENERAL_PROTOCOL",
+														"MIN_COUNT" : 0,
+														"ANNOTATION_PROPERTIES" : [{"TYPE" : "COMMENTS", "MANDATORY" : false }]
+													}																												
+												],
+				},
+
+				"PCR_PROTOCOL" : {
+					"SAMPLE_PARENTS_HINT" : [
+					                             	{
+														"LABEL" : "Chemical",
+														"TYPE": "CHEMICAL",
+														"MIN_COUNT" : 0,
+														"ANNOTATION_PROPERTIES" : [{"TYPE" : "QUANTITY", "MANDATORY" : false }, {"TYPE" : "COMMENTS", "MANDATORY" : false }]
+													},
+					                             	{
+														"LABEL" : "Solution/Buffer",
+														"TYPE": "SOLUTION_BUFFER",
+														"MIN_COUNT" : 0,
+														"ANNOTATION_PROPERTIES" : [{"TYPE" : "QUANTITY", "MANDATORY" : false }, {"TYPE" : "COMMENTS", "MANDATORY" : false }]
+													},
+					                             	{
+														"LABEL" : "Enzyme",
+														"TYPE": "ENZYME",
+														"MIN_COUNT" : 0,
+														"ANNOTATION_PROPERTIES" : [{"TYPE" : "QUANTITY", "MANDATORY" : false }, {"TYPE" : "COMMENTS", "MANDATORY" : false }]
+													},																								
+												],
+				},
+
+				"WESTERN_BLOTTING_PROTOCOL" : {
+					"SAMPLE_PARENTS_HINT" : [
+					                             	{
+														"LABEL" : "Chemical",
+														"TYPE": "CHEMICAL",
+														"MIN_COUNT" : 0,
+														"ANNOTATION_PROPERTIES" : [{"TYPE" : "QUANTITY", "MANDATORY" : false }, {"TYPE" : "COMMENTS", "MANDATORY" : false }]
+													},
+					                             	{
+														"LABEL" : "Solution/Buffer",
+														"TYPE": "SOLUTION_BUFFER",
+														"MIN_COUNT" : 0,
+														"ANNOTATION_PROPERTIES" : [{"TYPE" : "QUANTITY", "MANDATORY" : false }, {"TYPE" : "COMMENTS", "MANDATORY" : false }]
+													},
+					                             	{
+														"LABEL" : "Antibody",
+														"TYPE": "ANTIBODY",
+														"MIN_COUNT" : 0,
+														"ANNOTATION_PROPERTIES" : [{"TYPE" : "QUANTITY", "MANDATORY" : false }, {"TYPE" : "COMMENTS", "MANDATORY" : false }]
+													},																								
+												],
+				},
+
+
+				"PLASMID" : {
+					"SAMPLE_PARENTS_HINT" : [
+					                             	{
+														"LABEL" : "Plasmid",
+														"TYPE": "PLASMID",
+														"MIN_COUNT" : 0,
+														"ANNOTATION_PROPERTIES" : [{"TYPE" : "COMMENTS", "MANDATORY" : false }]
+													}																		
+												],
+				},
+
+				"BACTERIA" : {
+					"SAMPLE_PARENTS_HINT" : [
+					                             	{
+														"LABEL" : "Bacteria parents",
+														"TYPE": "BACTERIA",
+														"MIN_COUNT" : 0,
+														"ANNOTATION_PROPERTIES" : [{"TYPE" : "COMMENTS", "MANDATORY" : false }]
+													},
+					                             	{
+														"LABEL" : "Plasmid",
+														"TYPE": "PLASMID",
+														"MIN_COUNT" : 0,
+														"ANNOTATION_PROPERTIES" : [{"TYPE" : "PLASMID_RELATIONSHIP", "MANDATORY" : false },{"TYPE" : "PLASMID_ANNOTATION", "MANDATORY" : false },{"TYPE" : "COMMENTS", "MANDATORY" : false }]
+													}																				
+												],
+				},
+
+				"YEAST" : {
+					"SAMPLE_PARENTS_HINT" : [
+					                             	{
+														"LABEL" : "Yeast parents",
+														"TYPE": "YEAST",
+														"MIN_COUNT" : 0,
+														"ANNOTATION_PROPERTIES" : [{"TYPE" : "COMMENTS", "MANDATORY" : false }]
+													},
+					                             	{
+														"LABEL" : "Plasmid",
+														"TYPE": "PLASMID",
+														"MIN_COUNT" : 0,
+														"ANNOTATION_PROPERTIES" : [{"TYPE" : "PLASMID_RELATIONSHIP", "MANDATORY" : false },{"TYPE" : "PLASMID_ANNOTATION", "MANDATORY" : false },{"TYPE" : "COMMENTS", "MANDATORY" : false }]
+													}																					
+												],
+					"SAMPLE_LINKS_HINT" : [
+												{
+														"LABEL" : "Plasmid",
+														"TYPE": "PLASMID",
+														"MIN_COUNT" : 0,
+														"ANNOTATION_PROPERTIES" : [{"TYPE" : "PLASMID_RELATIONSHIP", "MANDATORY" : false },{"TYPE" : "PLASMID_ANNOTATION", "MANDATORY" : false },{"TYPE" : "COMMENTS", "MANDATORY" : false },{"TYPE" : "CONTAINED", "MANDATORY" : false }]
+												}
+										]
+				},
+
+				"FLY" : {
+					"SAMPLE_PARENTS_HINT" : [
+					                             	{
+														"LABEL" : "Fly parents",
+														"TYPE": "FLY",
+														"MIN_COUNT" : 0,
+														"ANNOTATION_PROPERTIES" : [{"TYPE" : "COMMENTS", "MANDATORY" : false }]
+													},
+					                             	{
+														"LABEL" : "Plasmid",
+														"TYPE": "PLASMID",
+														"MIN_COUNT" : 0,
+														"ANNOTATION_PROPERTIES" : [{"TYPE" : "PLASMID_RELATIONSHIP", "MANDATORY" : false },{"TYPE" : "PLASMID_ANNOTATION", "MANDATORY" : false },{"TYPE" : "COMMENTS", "MANDATORY" : false }]
+													}																					
+												],
+				},
+
+
+
 				"CELL_LINE" : {
 					"SAMPLE_PARENTS_HINT" : [
 					                             	{
