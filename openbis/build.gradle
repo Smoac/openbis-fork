@@ -63,21 +63,38 @@ sourceSets {
 
 task cleanDbSuite(type: Test) {
     useTestNG()
+    systemProperty "ant.project.name", project.name
+    maxHeapSize = "4096m"
+    jvmArgs '-XX:MaxPermSize=1024m', '-Duser.timezone=Europe/Zurich'
+    testLogging.showStandardStreams = true
+    ignoreFailures = true
+    
     options.suites('sourceTest/java/tests_system_cleandb_excluding_authorization.xml')
     reports.html.destination = file("${project.buildDir}/reports/tests-cleandb")
 }
 
 task cleanDbSuiteProjectSamplesEnabled(type: Test) {
     useTestNG()
+    systemProperty "ant.project.name", project.name
+    maxHeapSize = "4096m"
+    jvmArgs '-XX:MaxPermSize=1024m', '-Duser.timezone=Europe/Zurich'
+    testLogging.showStandardStreams = true
+    ignoreFailures = true
     systemProperty "project-samples-enabled", 'true'
+    
     options.suites('sourceTest/java/tests_system_cleandb_excluding_authorization_project_samples.xml')
     reports.html.destination = file("${project.buildDir}/reports/tests-cleandb-project-samples")
 }
 
 task testProjectSamplesEnabled(type: Test) {
     useTestNG()
+    systemProperty "ant.project.name", project.name
+    maxHeapSize = "4096m"
+    jvmArgs '-XX:MaxPermSize=1024m', '-Duser.timezone=Europe/Zurich'
+    testLogging.showStandardStreams = true
+    ignoreFailures = true
     systemProperty "project-samples-enabled", 'true'
-    systemProperty "ch.ethz.sis.openbis.v3.searchcache.size", '10m'
+    
     options.suites('sourceTest/java/tests_project_samples.xml')
     reports.html.destination = file("${project.buildDir}/reports/tests-project-samples")
 }
