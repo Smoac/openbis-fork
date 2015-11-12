@@ -23,6 +23,7 @@ import java.util.StringTokenizer;
 import org.apache.commons.lang.StringUtils;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SampleIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
 
 /**
  * Helper class which parses a sample identifier string.
@@ -80,8 +81,9 @@ public class FullSampleIdentifier
         verifyCodePattern(containerCode, "Container sample code");
         verifyCodePattern(plainSampleCode, containerCode == null ? "Sample code" : "Sample subcode");
             
-        sampleCode = plainSampleCode;
-        sampleIdentifierParts = new SampleIdentifierParts(spaceCode, projectCode, containerCode);
+        sampleCode = CodeConverter.tryToDatabase(plainSampleCode);
+        sampleIdentifierParts = new SampleIdentifierParts(CodeConverter.tryToDatabase(spaceCode), 
+                CodeConverter.tryToDatabase(projectCode), CodeConverter.tryToDatabase(containerCode));
         
     }
 
