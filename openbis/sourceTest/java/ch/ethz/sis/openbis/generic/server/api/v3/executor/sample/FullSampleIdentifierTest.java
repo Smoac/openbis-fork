@@ -33,11 +33,15 @@ public class FullSampleIdentifierTest
     public void testHappyCases()
     {
         assertSampId("/S1");
+        assertSampId("/C1:S1");
         assertSampId("/SPACE1/S2");
         assertSampId("/SPACE1/S2:A02");
         assertSampId("/SPACE1/PROJECT1/S1");
         assertSampId("/SPACE1/PROJECT1/S1:A02");
-        
+        assertSampIdWithHomeSpace("/HS/S1", "//S1", "HS");
+        assertSampIdWithHomeSpace("/HS/C1:S1", "//C1:S1", "HS");
+        assertSampIdWithHomeSpace("/HS/PROJECT1/S1", "//PROJECT1/S1", "HS");
+        assertSampIdWithHomeSpace("/HS/PROJECT1/C1:S1", "//PROJECT1/C1:S1", "HS");
     }
     
     @Test
@@ -53,18 +57,30 @@ public class FullSampleIdentifierTest
         assertInvalidSampId("Sample identifier don't contain any codes: //", "//");
         assertInvalidSampId("Sample identifier don't contain any codes: /", "/");
         
-        assertInvalidSampId("Code field containing other characters than letters, numbers, '_', '-' and '.': S1&*", "/S1&*");
-        assertInvalidSampId("Code field containing other characters than letters, numbers, '_', '-' and '.': SPA&CE1", "/SPA&CE1/S2");
-        assertInvalidSampId("Code field containing other characters than letters, numbers, '_', '-' and '.': S^2", "/SPACE1/S^2:A02");
-        assertInvalidSampId("Code field containing other characters than letters, numbers, '_', '-' and '.': PRO<>JECT1", "/SPACE1/PRO<>JECT1/S1");
-        assertInvalidSampId("Code field containing other characters than letters, numbers, '_', '-' and '.': A0(2", "/SPACE1/PROJECT1/S1:A0(2");
+        assertInvalidSampId("Space code can not be an empty string.", "//S1");
+        assertInvalidSampId("Project code can not be an empty string.", "/S//S1");
+        assertInvalidSampId("Sample code starts or ends with ':': /S/:S1", "/S/:S1");
+        assertInvalidSampId("Sample code starts or ends with ':': /S/C1:", "/S/C1:");
+        assertInvalidSampId("Sample code can not contain more than one ':': /S/C1:S1:", "/S/C1:S1:");
+        
+        String prefix = " containing other characters than letters, numbers, '_', '-' and '.': ";
+        assertInvalidSampId("Sample code" + prefix + "S1&*", "/S1&*");
+        assertInvalidSampId("Space code" + prefix + "SPA&CE1", "/SPA&CE1/S2");
+        assertInvalidSampId("Container sample code" + prefix + "S^2", "/SPACE1/S^2:A02");
+        assertInvalidSampId("Project code" + prefix + "PRO<>JECT1", "/SPACE1/PRO<>JECT1/S1");
+        assertInvalidSampId("Sample subcode" + prefix + "A0(2", "/SPACE1/PROJECT1/S1:A0(2");
     }
     
     private void assertInvalidSampId(String expectedErrorMsg, String identifier)
     {
+        assertInvalidSampId(expectedErrorMsg, identifier, null);
+    }
+    
+    private void assertInvalidSampId(String expectedErrorMsg, String identifier, String homeSpaceOrNull)
+    {
         try
         {
-            new FullSampleIdentifier(identifier);
+            new FullSampleIdentifier(identifier, homeSpaceOrNull);
             fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException ex)
         {
@@ -74,7 +90,12 @@ public class FullSampleIdentifierTest
     
     private void assertSampId(String identifier)
     {
-        assertEquals(new FullSampleIdentifier(identifier).toString(), identifier);
+        assertEquals(new FullSampleIdentifier(identifier, null).toString(), identifier);
+    }
+    
+    private void assertSampIdWithHomeSpace(String expectedIdentifier, String identifier, String homeSpace)
+    {
+        assertEquals(new FullSampleIdentifier(identifier, homeSpace).toString(), expectedIdentifier);
     }
 
 }

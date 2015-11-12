@@ -48,14 +48,29 @@ public interface SampleQuery extends ObjectQuery
             String[] codes);
     
     @Select(sql = "select s.id, s.code as identifier from samples s join spaces sp on s.space_id = sp.id "
-            + "where sp.code = ?{1} and samp_id_part_of is null and s.code = any(?{2})", parameterBindings =
-            { TypeMapper.class, StringArrayMapper.class }, fetchSize = FETCH_SIZE)
+            + "where sp.code = ?{1} and proj_id is null and samp_id_part_of is null and s.code = any(?{2})", 
+            parameterBindings = { TypeMapper.class, StringArrayMapper.class }, fetchSize = FETCH_SIZE)
     public List<TechIdStringIdentifierRecord> listSpaceSampleTechIdsByCodes(String spaceCode, String[] codes);
     
     @Select(sql = "select s.id, s.code as identifier from samples s join spaces sp on s.space_id = sp.id "
             + "join samples cs on s.samp_id_part_of = cs.id "
-            + "where sp.code = ?{1}  and cs.code = ?{2} and s.code = any(?{3})", parameterBindings =
+            + "where sp.code = ?{1} and proj_id is null and cs.code = ?{2} and s.code = any(?{3})", parameterBindings =
         { TypeMapper.class, TypeMapper.class, StringArrayMapper.class }, fetchSize = FETCH_SIZE)
     public List<TechIdStringIdentifierRecord> listSpaceSampleTechIdsByContainerCodeAndCodes(String spaceCode, 
             String containerCode, String[] codes);
+    
+    @Select(sql = "select s.id, s.code as identifier from samples s join spaces sp on s.space_id = sp.id "
+            + "join projects p on s.proj_id = p.id "
+            + "where sp.code = ?{1} and samp_id_part_of is null and p.code = ?{2} and s.code = any(?{3})", parameterBindings =
+        { TypeMapper.class, TypeMapper.class, StringArrayMapper.class }, fetchSize = FETCH_SIZE)
+    public List<TechIdStringIdentifierRecord> listProjectSampleTechIdsByCodes(String spaceCode, 
+            String projectCode, String[] codes);
+    
+    @Select(sql = "select s.id, s.code as identifier from samples s join spaces sp on s.space_id = sp.id "
+            + "join projects p on s.proj_id = p.id "
+            + "join samples cs on s.samp_id_part_of = cs.id "
+            + "where sp.code = ?{1} and p.code = ?{2} and cs.code = ?{3} and s.code = any(?{4})", parameterBindings =
+        { TypeMapper.class, TypeMapper.class, TypeMapper.class, StringArrayMapper.class }, fetchSize = FETCH_SIZE)
+    public List<TechIdStringIdentifierRecord> listProjectSampleTechIdsByContainerCodeAndCodes(String spaceCode, 
+            String projectCode, String containerCode, String[] codes);
 }

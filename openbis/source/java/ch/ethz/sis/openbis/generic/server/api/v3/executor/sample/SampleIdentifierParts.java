@@ -16,7 +16,7 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.sample;
 
-final class SampleIdentifierParts
+public final class SampleIdentifierParts
 {
     private String spaceCodeOrNull;
     private String projectCodeOrNull;
@@ -73,13 +73,6 @@ final class SampleIdentifierParts
                 + calcHashCode(containerCodeOrNull);
     }
     
-    @Override
-    public String toString()
-    {
-        // TODO Auto-generated method stub
-        return super.toString();
-    }
-
     private int calcHashCode(String str)
     {
         return str == null ? 0 : str.hashCode();

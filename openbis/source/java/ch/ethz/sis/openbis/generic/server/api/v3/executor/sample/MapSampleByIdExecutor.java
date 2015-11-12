@@ -29,8 +29,8 @@ import ch.ethz.sis.openbis.generic.server.api.v3.helper.sample.ListSampleByPermI
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.ISampleId;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISpaceDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
  * @author pkupczyk
@@ -38,22 +38,19 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 @Component
 public class MapSampleByIdExecutor extends AbstractMapObjectByIdExecutor<ISampleId, SamplePE> implements IMapSampleByIdExecutor
 {
-
-    private ISpaceDAO spaceDAO;
-
     private ISampleDAO sampleDAO;
 
     @Override
     protected void addListers(IOperationContext context, List<IListObjectById<? extends ISampleId, SamplePE>> listers)
     {
         listers.add(new ListSampleByPermId(sampleDAO));
-        listers.add(new ListSampleByIdentifier(spaceDAO, sampleDAO, context.getSession().tryGetHomeGroup()));
+        SpacePE space = context.getSession().tryGetHomeGroup();
+        listers.add(new ListSampleByIdentifier(sampleDAO, space));
     }
 
     @Autowired
     private void setDAOFactory(IDAOFactory daoFactory)
     {
-        spaceDAO = daoFactory.getSpaceDAO();
         sampleDAO = daoFactory.getSampleDAO();
     }
 

@@ -16,6 +16,10 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.sample;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.StringTokenizer;
+
 import org.apache.commons.lang.StringUtils;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SampleIdentifier;
@@ -26,7 +30,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SampleIdentifier;
  * 
  * @author Franz-Josef Elmer
  */
-class FullSampleIdentifier
+public class FullSampleIdentifier
 {
     private static final String CODE_CHAR_PATTERN = "a-zA-Z0-9_\\-\\.";
     private static final String CODE_CHARS = "[" + CODE_CHAR_PATTERN + "]+";
@@ -35,7 +39,7 @@ class FullSampleIdentifier
     private SampleIdentifierParts sampleIdentifierParts;
     private String sampleCode;
     
-    FullSampleIdentifier(String sampleIdentifier)
+    public FullSampleIdentifier(String sampleIdentifier, String homeSpaceCodeOrNull)
     {
         String[] parts = extractParts(sampleIdentifier);
         String spaceCode = null;
@@ -56,35 +60,58 @@ class FullSampleIdentifier
             projectCode = parts[2];
             code = parts[3];
         }
-        
-        String[] splittedCode = splitCode(code, sampleIdentifier);
-        if (splittedCode.length == 2)
+        if (spaceCode != null && spaceCode.isEmpty() && homeSpaceCodeOrNull != null)
         {
-            containerCode = splittedCode[0];
-            plainSampleCode = splittedCode[1];
+            spaceCode = homeSpaceCodeOrNull;
+        }
+        
+        List<String> splittedCode = splitCode(code, sampleIdentifier);
+        if (splittedCode.size() == 2)
+        {
+            containerCode = splittedCode.get(0);
+            plainSampleCode = splittedCode.get(1);
         } else {
-            plainSampleCode = splittedCode[0];
+            plainSampleCode = splittedCode.get(0);
         }
         
         //Code format validation
-        verifyCodePattern(spaceCode);
-        verifyCodePattern(projectCode);
-        verifyCodePattern(containerCode);
-        verifyCodePattern(plainSampleCode);
+        verifyCodePattern(spaceCode, "Space code");
+        verifyCodePattern(projectCode, "Project code");
+        verifyCodePattern(containerCode, "Container sample code");
+        verifyCodePattern(plainSampleCode, containerCode == null ? "Sample code" : "Sample subcode");
             
         sampleCode = plainSampleCode;
         sampleIdentifierParts = new SampleIdentifierParts(spaceCode, projectCode, containerCode);
         
     }
 
-    private String[] splitCode(String code, String sampleIdentifier)
+    private List<String> splitCode(String code, String sampleIdentifier)
     {
-        String[] splittedCode = code.split(":");
-        if (splittedCode.length > 2)
+        String delim = ":";
+        StringTokenizer tokenizer = new StringTokenizer(code, delim, true);
+        int numberOfDelims = 0;
+        List<String> tokens = new ArrayList<>(); 
+        while (tokenizer.hasMoreTokens())
         {
-            throw new IllegalArgumentException("Sample code can not contain more than one ':': " + sampleIdentifier);
+            String token = tokenizer.nextToken();
+            if (delim.equals(token))
+            {
+                numberOfDelims++;
+            } else
+            {
+                tokens.add(token);
+            }
         }
-        return splittedCode;
+        if (numberOfDelims > 1)
+        {
+            throw new IllegalArgumentException("Sample code can not contain more than one '" + delim + "': " 
+                    + sampleIdentifier);
+        }
+        if (numberOfDelims != tokens.size() - 1)
+        {
+            throw new IllegalArgumentException("Sample code starts or ends with '" + delim + "': " + sampleIdentifier);
+        }
+        return tokens;
     }
 
     private String[] extractParts(String sampleIdentifier)
@@ -110,19 +137,29 @@ class FullSampleIdentifier
         return parts;
     }
 
-    private void verifyCodePattern(String code) {
-        if(code != null && code.matches(CODE_PATTERN) == false) {
-            throw new IllegalArgumentException("Code field containing other characters than letters, numbers, '_', '-' and '.': " + code);
+    private void verifyCodePattern(String code, String partName)
+    {
+        if (code == null)
+        {
+            return;
         }
-    }
+        if (code.length() == 0)
+        {
+            throw new IllegalArgumentException(partName + " can not be an empty string.");
+        }
+        if (code.matches(CODE_PATTERN) == false)
+        {
+            throw new IllegalArgumentException(partName + " containing other characters than letters, numbers, "
+                    + "'_', '-' and '.': " + code);
+        }
+    }    
     
-    
-    SampleIdentifierParts getParts()
+    public SampleIdentifierParts getParts()
     {
         return sampleIdentifierParts;
     }
 
-    String getSampleCode()
+    public String getSampleCode()
     {
         return sampleCode;
     }

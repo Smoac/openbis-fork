@@ -27,8 +27,6 @@ import net.lemnik.eodsql.QueryTool;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.common.TechIdStringIdentifierRecord;
 import ch.ethz.sis.openbis.generic.server.api.v3.helper.common.AbstractListTechIdById;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SampleIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 
 /**
  * 
@@ -53,37 +51,7 @@ public class ListSampleTechIdByIdentifier extends AbstractListTechIdById<SampleI
     @Override
     protected Map<Long, SampleIdentifier> createIdsByTechIdsMap(List<SampleIdentifier> ids)
     {
-        Map<SampleIdentifierParts, Map<String, SampleIdentifier>> groupedIdentifiers = new HashMap<>();
-        for (SampleIdentifier sampleIdentifier : ids)
-        {
-            ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier sampleIdentifier2 
-                = SampleIdentifierFactory.parse(sampleIdentifier.getIdentifier());
-            String spaceCode = null;
-            if (sampleIdentifier2.isSpaceLevel())
-            {
-                if (sampleIdentifier2.isInsideHomeSpace())
-                {
-                    if (homeSpaceCodeOrNull == null)
-                    {
-                        continue;
-                    }
-                    spaceCode = homeSpaceCodeOrNull;
-                } else
-                {
-                    spaceCode = CodeConverter.tryToDatabase(sampleIdentifier2.getSpaceLevel().getSpaceCode());
-                }
-            }
-            String sampleSubCode = CodeConverter.tryToDatabase(sampleIdentifier2.getSampleSubCode());
-            String containerCode = CodeConverter.tryToDatabase(sampleIdentifier2.tryGetContainerCode());
-            SampleIdentifierParts key = new SampleIdentifierParts(spaceCode, null, containerCode);
-            Map<String, SampleIdentifier> identifiersByCode = groupedIdentifiers.get(key);
-            if (identifiersByCode == null)
-            {
-                identifiersByCode = new HashMap<>();
-                groupedIdentifiers.put(key, identifiersByCode);
-            }
-            identifiersByCode.put(sampleSubCode, sampleIdentifier);
-        }
+        Map<SampleIdentifierParts, Map<String, SampleIdentifier>> groupedIdentifiers = groupIdentifiers(ids);
         
         Map<Long, SampleIdentifier> result = new HashMap<>();
         SampleQuery query = QueryTool.getManagedQuery(SampleQuery.class);
@@ -100,11 +68,32 @@ public class ListSampleTechIdByIdentifier extends AbstractListTechIdById<SampleI
         }
         return result;
     }
-    
+
+    private Map<SampleIdentifierParts, Map<String, SampleIdentifier>> groupIdentifiers(List<SampleIdentifier> ids)
+    {
+        Map<SampleIdentifierParts, Map<String, SampleIdentifier>> groupedIdentifiers = new HashMap<>();
+        for (SampleIdentifier sampleIdentifier : ids)
+        {
+            FullSampleIdentifier fullSampleIdentifier = new FullSampleIdentifier(sampleIdentifier.getIdentifier(), 
+                    homeSpaceCodeOrNull);
+            
+            SampleIdentifierParts key = fullSampleIdentifier.getParts();
+            Map<String, SampleIdentifier> identifiersByCode = groupedIdentifiers.get(key);
+            if (identifiersByCode == null)
+            {
+                identifiersByCode = new HashMap<>();
+                groupedIdentifiers.put(key, identifiersByCode);
+            }
+            identifiersByCode.put(fullSampleIdentifier.getSampleCode(), sampleIdentifier);
+        }
+        return groupedIdentifiers;
+    }
+
     private List<TechIdStringIdentifierRecord> list(SampleQuery query, SampleIdentifierParts key, Collection<String> codes)
     {
         String[] codesArray = codes.toArray(new String[codes.size()]);
         String spaceCode = key.getSpaceCodeOrNull();
+        String projectCode = key.getProjectCodeOrNull();
         String containerCode = key.getContainerCodeOrNull();
         if (spaceCode == null)
         {
@@ -114,11 +103,19 @@ public class ListSampleTechIdByIdentifier extends AbstractListTechIdById<SampleI
             }
             return query.listSharedSampleTechIdsByContainerCodeAndCodes(containerCode, codesArray);
         }
+        if (projectCode == null)
+        {
+            if (containerCode == null)
+            {
+                return query.listSpaceSampleTechIdsByCodes(spaceCode, codesArray);
+            }
+            return query.listSpaceSampleTechIdsByContainerCodeAndCodes(spaceCode, containerCode, codesArray);
+        }
         if (containerCode == null)
         {
-            return query.listSpaceSampleTechIdsByCodes(spaceCode, codesArray);
+            return query.listProjectSampleTechIdsByCodes(spaceCode, projectCode, codesArray);
         }
-        return query.listSpaceSampleTechIdsByContainerCodeAndCodes(spaceCode, containerCode, codesArray);
+        return query.listProjectSampleTechIdsByContainerCodeAndCodes(spaceCode, projectCode, containerCode, codesArray);
     }
 
 }
