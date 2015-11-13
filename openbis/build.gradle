@@ -41,7 +41,7 @@ dependencies {
 
 	testRuntime project(path: ':common', configuration: 'tests'),
 				project(path: ':dbmigration', configuration: 'tests'), 
-				'apache:commons-fileupload:1.2.1'
+				'apache:commons-fileupload:+'
 
 	testRuntimeFirst 'javax:servlet-api:+'
 	
