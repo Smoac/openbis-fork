@@ -31,14 +31,17 @@ function StorageManagerView(storageManagerModel, storageFromView, storageToView)
 			"onsubmit" : ""
 		});
 		
-		var $storageFromContainer = $("<div>", {"id" : "storageFromContainer", "class" : "row"});
-		$containerColumn.append($storageFromContainer);
+		var $twoColumnsContainer = $("<div>", {"id" : "storageFromContainer", "class" : "row"});
+		
+		var $storageFromContainer = $("<div>", {"id" : "storageFromContainer", "class" : "col-md-6"});
+		$twoColumnsContainer.append($storageFromContainer);
 		this._storageFromView.repaint($storageFromContainer);
 		
-		var $storageToContainer = $("<div>", {"id" : "storageToContainer", "class" : "row"});
-		$containerColumn.append($storageToContainer);
+		var $storageToContainer = $("<div>", {"id" : "storageToContainer", "class" : "col-md-6"});
+		$twoColumnsContainer.append($storageToContainer);
 		this._storageToView.repaint($storageToContainer);
 		
+		$containerColumn.append($twoColumnsContainer);
 		$containerColumn.append(this._moveBtn);
 		
 		$container.append($containerColumn);

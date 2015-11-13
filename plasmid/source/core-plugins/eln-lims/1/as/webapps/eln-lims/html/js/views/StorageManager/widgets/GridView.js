@@ -40,6 +40,8 @@ function GridView(gridModel) {
 		
 		for(var j = 0; j < this._gridModel.numColumns; j++) {
 			var $numberCell = $("<th>").append(j+1);
+			$numberCell.css('width', Math.floor(80/(this._gridModel.numColumns+1)) +'%');
+//			$numberCell.css('padding', '0px');
 			$headerRow.append($numberCell);
 		}
 		
@@ -52,6 +54,8 @@ function GridView(gridModel) {
 				rowLabel = Util.getLetterForNumber(rowLabel);
 			}
 			var $numberCell = $("<th>").append(rowLabel);
+			$numberCell.css('width', Math.floor(80/(this._gridModel.numColumns+1)) +'%');
+			$numberCell.css('padding', '0px');
 			$newRow.append($numberCell);
 			
 			for(var j = 0; j < this._gridModel.numColumns; j++) {
@@ -69,7 +73,8 @@ function GridView(gridModel) {
 				}
 				
 				this._addLabels($newColumn, i + 1, j + 1);
-				$newColumn.css('width', Math.floor(80/this._gridModel.numColumns+1) +'%');
+				$newColumn.css('width', Math.floor(80/(this._gridModel.numColumns+1)) +'%');
+				$newColumn.css('padding', '0px');
 				$newRow.append($newColumn);
 			}
 			gridTable.append($newRow);
