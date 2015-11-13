@@ -88,7 +88,9 @@ var Util = new function() {
 			onUnblock: function() {
 				window.setTimeout(function() { //Enable after all possible enable/disable events happen
 					BlockScrollUtil.enable_scroll();
-					callback();
+					if(callback) {
+						callback();
+					}
 				}, 150);
 			}
 		});
