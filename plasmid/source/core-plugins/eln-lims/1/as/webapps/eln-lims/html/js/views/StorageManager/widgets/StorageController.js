@@ -315,7 +315,8 @@ function StorageController(configOverride) {
 	}
 	
 	this._isValidState = function(callback) {
-		if(!this._storageModel.row && 
+		if( !this._storageModel.storageCode &&
+			!this._storageModel.row && 
 			!this._storageModel.column && 
 			!this._storageModel.boxName && 
 			!this._storageModel.boxSize && 
