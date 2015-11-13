@@ -294,12 +294,15 @@ function StorageView(storageController, storageModel, gridView) {
 							boxPosition = "";
 						}
 						
+						//Add delete position, takes in count some non standard inputs that can be done in batch registration/update
 						if(isMultiple && !isSelectedOrDeleted) {
 							boxPosition = boxPosition.replace(newPosition, '');
-							boxPosition = boxPosition.replace(/  +/g, ' ');
 						} else {
-							boxPosition += newPosition + " ";
+							boxPosition += " " + newPosition;
 						}
+						boxPosition = boxPosition.replace(/  +/g, ' ');
+						boxPosition = boxPosition.trim();
+						//
 						
 						//Binded sample
 						if(_this._storageModel.sample) {

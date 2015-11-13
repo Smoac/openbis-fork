@@ -289,17 +289,19 @@ function StorageController(configOverride) {
 	// Validation
 	//
 	this.isValid = function(callback) {
+		var storageConfig = profile.getStorageConfiguation(this._storageModel.storageCode);
+		var validationLevel = (storageConfig)?storageConfig.validationLevel:ValidationLevel.BOX_POSITION;
 		var _this = this;
-		this._isValidState(function(error0) {
+		this._isValidState(validationLevel, function(error0) {
 			if(error0) {
 				Util.showError(error0, function() {}, true);
 				callback(false);
-			} else {
+			} else if(validationLevel >= ValidationLevel.BOX){
 				_this._isUserTypingExistingBox(function(error1) {
 					if(error1) {
 						Util.showError(error1, function() {}, true);
 						callback(false);
-					} else {
+					} else if(validationLevel >= ValidationLevel.BOX_POSITION){
 						_this._isPositionAlreadyUsed(function(error2) {
 							if(error2) {
 								Util.showError(error2, function() {}, true);
@@ -308,13 +310,18 @@ function StorageController(configOverride) {
 								callback(true);
 							}
 						});
+					} else {
+						callback(true);
 					}
 				});
+			} else {
+				callback(true);
 			}
 		});
 	}
 	
-	this._isValidState = function(callback) {
+	this._isValidState = function(validationLevel, callback) {
+		
 		if( !this._storageModel.storageCode &&
 			!this._storageModel.row && 
 			!this._storageModel.column && 
@@ -322,13 +329,13 @@ function StorageController(configOverride) {
 			!this._storageModel.boxSize && 
 			!this._storageModel.boxPosition) { //Dirty delete case
 			callback(null);
-		} else if(!this._storageModel.row || !this._storageModel.column) {
+		} else if((!this._storageModel.row || !this._storageModel.column) && validationLevel >= ValidationLevel.RACK) {
 			callback("Select a rack please.");
-		} else if(!this._storageModel.boxName) {
+		} else if(!this._storageModel.boxName && validationLevel >= ValidationLevel.BOX) {
 			callback("Select a box please.");
-		} else if(!this._storageModel.boxSize) {
+		} else if(!this._storageModel.boxSize && validationLevel >= ValidationLevel.BOX) {
 			callback("Select a box size please.");
-		} else if(!this._storageModel.boxPosition) {
+		} else if(!this._storageModel.boxPosition && validationLevel >= ValidationLevel.BOX_POSITION) {
 			callback("Select a box position please.");
 		} else {
 			callback(null);

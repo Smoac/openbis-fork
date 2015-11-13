@@ -14,6 +14,12 @@
  * limitations under the License.
  */
 
+//When non present it defaults to BOX_POSITION
+var ValidationLevel = {
+	RACK : 0,
+	BOX : 1,
+	BOX_POSITION : 2
+}
 /**
  * Creates an instance of DefaultProfile.
  *
@@ -161,9 +167,14 @@ $.extend(DefaultProfile.prototype, {
 			}
 			
 			var configObj = {
+					validationLevel : configurationMap["VALIDATION_LEVEL"],
 					rowNum : configurationMap["ROW_NUM"],
 					colNum : configurationMap["COLUMN_NUM"],
 					boxNum : configurationMap["BOX_NUM"]
+			}
+			
+			if(configObj.validationLevel === null || configObj.validationLevel === undefined) {
+				configObj.validationLevel = ValidationLevel.BOX_POSITION;
 			}
 			
 			return configObj;

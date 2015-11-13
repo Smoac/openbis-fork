@@ -10,14 +10,13 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 		
 		this.hideCodes = true;
 		
-		
 		this.storagesConfiguration = {
 				"isEnabled" : true,
 				"storageSpaceLowWarning" : 0.8, //Storage goes over 80%
 				"boxSpaceLowWarning" : 0.8, //Box goes over 80%
 				/*
 				 * Should be the same across all storages, if not correct behaviour is not guaranteed.
-				*/
+				 */
 				"STORAGE_PROPERTIES": [{
 					"STORAGE_PROPERTY_GROUP" : "Physical Storage", //Where the storage will be painted.
 					"STORAGE_GROUP_DISPLAY_NAME" : "Physical Storage", //Storage Group Name
@@ -31,14 +30,16 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 				}],
 				/*
 				 * Storages map, can hold configurations for several storages.
-				*/
+				 */
 				"STORAGE_CONFIGS": {
 					"BENCH" : { //Freezer name given by the NAME_PROPERTY
+						"VALIDATION_LEVEL" : ValidationLevel.BOX_POSITION, //When non present it defaults to BOX_POSITION
 						"ROW_NUM" : 1, //Number of rows
 						"COLUMN_NUM" : 1, //Number of columns
 						"BOX_NUM" : 1 //Boxes on each rack, used for validation, to avoid validation increase the number to 9999 for example
 					},
 					"DEFAULT_STORAGE" : { //Freezer name given by the NAME_PROPERTY
+						"VALIDATION_LEVEL" : ValidationLevel.BOX_POSITION, //When non present it defaults to BOX_POSITION
 						"ROW_NUM" : 1, //Number of rows
 						"COLUMN_NUM" : 1, //Number of columns
 						"BOX_NUM" : 9999 //Boxes on each rack, used for validation, to avoid validation increase the number to 9999 for example
