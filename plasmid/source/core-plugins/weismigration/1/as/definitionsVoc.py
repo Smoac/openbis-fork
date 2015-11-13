@@ -246,5 +246,13 @@ vocabularyDefinitions = {
                                              ["BENCH-80",  "Bench -80�C"],
                                              ["BENCH-RT",  "Bench RT"],
                                              ["BENCH",  "Bench"]
-                                        ]
+                                        ],
+                                 "MAT" : [
+                                             ["ALPHA",  "a"],
+                                             ["A",  "A"],
+                                             ["A_ALPHA",  "a/A"],
+                                             ["A_A",  "A/A"],
+                                             ["ALPHA_ALPHA",  "a/a"]
+                                        ]                         
+                         
                           }

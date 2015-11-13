@@ -20,6 +20,15 @@ gcScriptName= "GC"
 atScriptName= "AT"
 lengthScriptName= "SEQUENCE_LENGTH"
 annotationsScriptName="ANNOTATIONS"
+antibodyrefnumScriptName="ANTIBODY_REFNUM"
+chemicalrefnumScriptName="CHEMICAL_REFNUM"
+oligonameScriptName="OLIGO_NAME"
+oligorefnumScriptName="OLIGO_REFNUM"
+plasmidnameScriptName="PLASMID_NAME"
+plasmidrefnumScriptName="PLASMID_REFNUM"
+strainnameScriptName="STRAIN_NAME"
+strainglycerolScriptName="STRAIN_GLYCEROL_STOCK_NUM"
+
 
 #
 # Storage 
@@ -56,77 +65,81 @@ experimentDefinition = [
 #Sample Types
 #
 antibodyDefinition = [
-    ["BY",                           "General",                "By",                        DataType.VARCHAR,                    None,  "", None, None, False],
-    ["NOTES",                           "General",                "Notes",                        DataType.MULTILINE_VARCHAR,                    None,  "", None, None, False],
-    ["RECEIVE_DATE",                          "General",                  "ReceiveDate",                           DataType.TIMESTAMP,                      None, "", None, None, False],
-    ["REF_NUM",                          "General",                  "RefNum",                           DataType.VARCHAR,                      None, "", None, None, False],
-    ["REQUEST_DATE",                          "General",                  "RequestDate",                           DataType.TIMESTAMP,                      None, "", None, None, False],
-    ["TYPE",                          "General",                  "Type",                           DataType.VARCHAR,                      None, "", None, None, False],
-    ["ANTIGEN",                          "General",                  "Antigen",                           DataType.VARCHAR,                      None, "", None, None, False],   
+    ["REF_NUM",                          "General",                  "RefNum",                           DataType.VARCHAR,                      None, "", antibodyrefnumScriptName, None, False],
     ["NAME",                          "General",                  "Name",                           DataType.VARCHAR,                      None, "", None, None, False],       
-    ["STORAGE_LOCATION",                          "General",                  "StorageLocation",                           DataType.VARCHAR,                      None, "", None, None, False],       
+    ["ANTIGEN",                          "General",                  "Antigen",                           DataType.VARCHAR,                      None, "", None, None, False],   
     ["MONO_POLY",                          "General",                  "MonoPoly",                           DataType.VARCHAR,                      None, "", None, None, False],       
     ["SPECIES",                          "General",                  "Species",                           DataType.VARCHAR,                      None, "", None, None, False],       
-    ["VENDOR",                          "General",                  "Vendor",                           DataType.VARCHAR,                      None, "", None, None, False],       
-    ["WBDIL",                          "General",                  "WBDil",                           DataType.VARCHAR,                      None, "", None, None, False],       
-    ["IFDIL",                          "General",                  "IFDil",                           DataType.VARCHAR,                      None, "", None, None, False],       
+    ["TYPE",                          "General",                  "Type",                           DataType.VARCHAR,                      None, "", None, None, False],
     ["FORM",                          "General",                  "Form",                           DataType.VARCHAR,                      None, "", None, None, False],       
     ["PRIMARY",                          "General",                  "Primary",                           DataType.VARCHAR,                      None, "", None, None, False],       
     ["SECONDARY",                          "General",                  "Secondary",                           DataType.VARCHAR,                      None, "", None, None, False],       
     ["COUPLED",                          "General",                  "Coupled",                           DataType.VARCHAR,                      None, "", None, None, False],       
-    ["BOX",                          "General",                  "Box",                           DataType.VARCHAR,                      None, "", None, None, False],       
-    ["EMPTY",                          "General",                  "emtpy?",                           DataType.VARCHAR,                      None, "", None, None, False],       
-    ["CATALOG_NUM",                  "General",                 "Catalog#",                        DataType.VARCHAR,                   None,  "", None, None, False],
-    ["ANNOTATIONS_STATE",                "Comments",                "Annotations State",                    DataType.XML,                    None, "Annotations State", annotationsScriptName, None, False]    
+    ["VENDOR",                          "General",                  "Vendor",                           DataType.VARCHAR,                      None, "", None, None, False],       
+    ["CATALOG_NUM",                  "General",                 "Catalog#",                        DataType.VARCHAR,                   None,  "", None, None, False],    
+    ["BY",                           "General",                "By",                        DataType.VARCHAR,                    None,  "", None, None, False],
+    ["REQUEST_DATE",                          "General",                  "RequestDate",                           DataType.TIMESTAMP,                      None, "", None, None, False],
+    ["RECEIVE_DATE",                          "General",                  "ReceiveDate",                           DataType.TIMESTAMP,                      None, "", None, None, False],
+    ["ANNOTATIONS_STATE",                "Comments",                "Annotations State",                    DataType.XML,                    None, "Annotations State", annotationsScriptName, None, False]        
+    ["NOTES",                           "Comments",                "Notes",                        DataType.MULTILINE_VARCHAR,                    None,  "", None, None, False],
+    ["WBDIL",                          "Comments",                  "WBDil",                           DataType.VARCHAR,                      None, "", None, None, False],       
+    ["IFDIL",                          "Comments",                  "IFDil",                           DataType.VARCHAR,                      None, "", None, None, False],          
+    ["STORAGE_LOCATION",                          "Storage",                  "StorageLocation",                           DataType.VARCHAR,                      None, "", None, None, False],           
+    ["BOX",                          "Storage",                  "Box",                           DataType.VARCHAR,                      None, "", None, None, False],       
+    ["EMPTY",                          "Storage",                  "emtpy?",                           DataType.VARCHAR,                      None, "", None, None, False],       
     
 ];
 
 
 strainDefinition = [
-    ["BASE_STRAIN",                             "General",                  "base strain",                             DataType.VARCHAR,       None,  "", None, None, False],
-    ["COMMENTS",                             "General",                  "comments",                             DataType.MULTILINE_VARCHAR,       None,  "", None, None, False],
-    ["DATE_ENTERED",                             "General",                  "date entered",                             DataType.TIMESTAMP,       None,  "", None, None, False],    
-    ["DERIVED_FROM",                             "General",                  "derived from",                             DataType.VARCHAR,       None,  "", None, None, False],    
-    ["FROZEN_STOCK",                             "General",                  "frozen stock",                             DataType.VARCHAR,       None,  "", None, None, False],    
-    ["GENOTYPE_CONFIRMATION",                             "General",                  "genotype confirmation",                             DataType.VARCHAR,       None,  "", None, None, False],    
-    ["GLYCEROL_STOCK_NUMBER",                             "General",                  "glycerol stock number",                             DataType.INTEGER,       None,  "", None, None, False],    
     ["NAME",                             "General",                  "KWY number",                             DataType.VARCHAR,       None,  "", None, None, False],      
-    ["MAT",                             "General",                  "MAT",                             DataType.VARCHAR,       None,  "", None, None, False],    
-    ["REMOVED",                             "General",                  "removed",                             DataType.VARCHAR,       None,  "", None, None, False],    
+    ["NAME_STRAIN",                             "General",                  "Strain name",                             DataType.VARCHAR,       None,  "", strainnameScriptName, None, False],          
+    ["BASE_STRAIN",                             "General",                  "base strain",                             DataType.VARCHAR,       None,  "", None, None, False],
+    ["DERIVED_FROM",                             "General",                  "derived from",                             DataType.VARCHAR,       None,  "", None, None, False],       
+    ["COMMENTS",                             "General",                  "comments",                             DataType.MULTILINE_VARCHAR,       None,  "", None, None, False],
+    ["GENOTYPE_CONFIRMATION",                             "General",                  "genotype confirmation",                             DataType.MULTILINE_VARCHAR,       None,  "", None, None, False],    
     ["WHO_ENTERED",                             "General",                  "who entered",                             DataType.VARCHAR,       None,  "", None, None, False],    
+    ["REMOVED",                             "General",                  "removed",                             DataType.VARCHAR,       None,  "", None, None, False],    
+    ["FROZEN_STOCK",                             "General",                  "frozen stock",                             DataType.VARCHAR,       None,  "", None, None, False],    
+    ["DATE_ENTERED",                             "General",                  "date entered",                             DataType.TIMESTAMP,       None,  "", None, None, False],    
+    ["GLYCEROL_STOCK_NUMBER",                             "General",                  "Glycerol stock number",                             DataType.INTEGER,       None,  "", strainglycerolScriptName, None, False],    
     ["ANNOTATIONS_STATE",                "Comments",                "Annotations State",                    DataType.XML,                    None,                                "Annotations State", annotationsScriptName, None, False]    
+    ["MAT",                             "Genotype",                  "MAT",                             DataType.CONTROLLEDVOCABULARY,       "MAT",  "", None, None, False],    
+    
 ];
 
 oligoDefinition = [
-    ["AT",                          "General",                  "AT%",                           DataType.INTEGER,                      None, "", atScriptName, None, False],
-    ["BY",                          "General",                  "By",                           DataType.VARCHAR,                      None, "", None, None, False],
-    ["FROM_NUC",                          "General",                  "fromNuc",                           DataType.INTEGER,                      None, "", None, None, False],
-    ["GC",                          "General",                  "GC%",                           DataType.INTEGER,                      None, "", gcScriptName, None, False],
-    ["GROUP",                          "General",                  "Group",                           DataType.VARCHAR,                      None, "", None, None, False],
-    ["LABELS",                          "General",                  "Labels",                           DataType.VARCHAR,                      None, "", None, None, False],
-    ["LENGTH",                          "General",                  "Length",                           DataType.INTEGER,                      None, "", lengthScriptName, None, False],
-    ["LIST",                          "General",                  "List",                           DataType.VARCHAR,                      None, "", None, None, False],
-    ["LOCATION",                          "General",                  "Location",                           DataType.VARCHAR,                      None, "", None, None, False],
-    ["MMEXTCOEFF",                          "General",                  "mMExtCoeff",                           DataType.REAL,                      None, "", None, None, False],
-    ["MOLWEIGHT",                          "General",                  "MolWeight",                           DataType.REAL,                      None, "", None, None, False],
-    ["OD",                          "General",                  "OD",                           DataType.REAL,                      None, "", None, None, False],
-    ["PMOL_UL",                          "General",                  "pMol_ul",                           DataType.REAL,                      None, "", None, None, False],
-    ["RECEIVE_DATE",                          "General",                  "ReceiveDate",                           DataType.TIMESTAMP,                      None, "", None, None, False],
-    ["REF_NUM",                          "General",                  "RefNum",                           DataType.VARCHAR,                      None, "", None, None, False],
-    ["REQUEST_DATE",                          "General",                  "RequestDate",                           DataType.TIMESTAMP,                      None, "", None, None, False],
-    ["SENSE",                          "General",                  "Sense",                           DataType.VARCHAR,                      None, "", None, None, False],
+    ["REF_NUM",                          "General",                  "RefNum",                           DataType.VARCHAR,                      None, "", oligorefnumScriptName, None, False],    
     ["SEQUENCE",                          "General",                  "Sequence",                           DataType.VARCHAR,                      None, "", None, None, False],
-    ["STANDARD_TM",                          "General",                  "StandardTm",                           DataType.REAL,                      None, "", None, None, False],
-    ["SYS_NAME",                          "General",                  "SysName",                           DataType.REAL,                      None, "", None, None, False],
-    ["TONUC",                          "General",                  "toNuc",                           DataType.INTEGER,                      None, "", None, None, False],
-    ["TYPE",                          "General",                  "Type",                           DataType.CONTROLLEDVOCABULARY,                      "OLIGO_TYPE", "", None, None, False],
-    ["NAME",                          "General",                  "UC Number",                           DataType.VARCHAR,                      None, "", None, None, False],
-    ["UG_UL",                          "General",                  "ug_ul",                           DataType.REAL,                      None, "", None, None, False],
-    ["VOLUME",                          "General",                  "Volume",                           DataType.REAL,                      None, "", None, None, False],
+    ["LENGTH",                          "General",                  "Length",                           DataType.INTEGER,                      None, "", lengthScriptName, None, False],
+    ["GROUP",                          "General",                  "Group",                           DataType.VARCHAR,                      None, "", None, None, False],
+    ["SENSE",                          "General",                  "Sense",                           DataType.VARCHAR,                      None, "", None, None, False],
     ["CATEGORY",                          "General",                  "category",                           DataType.CONTROLLEDVOCABULARY,                      "OLIGO_CATEGORY", "", None, None, False],
-    ["REORDERED",                          "General",                  "Reordered",                           DataType.VARCHAR,                      None, "", None, None, False],
     ["NOTES",                          "Comments",                  "Notes",                           DataType.MULTILINE_VARCHAR,                      None, "", None, None, False],
+    ["REORDERED",                          "General",                  "Reordered",                           DataType.VARCHAR,                      None, "", None, None, False],
+    ["LABELS",                          "General",                  "Labels",                           DataType.VARCHAR,                      None, "", None, None, False],
     ["ANNOTATIONS_STATE",                "Comments",                "Annotations State",                    DataType.XML,                    None,                                "Annotations State", annotationsScriptName, None, False]
+    ["XMLCOMMENTS",                     "Comments",                "Comments List",                        DataType.XML,                    None, "Several comments can be added by different users", commentsScriptName, None, False],
+    ["NAME",                          "Storage",                  "UC Number",                           DataType.VARCHAR,                      None, "", None, None, False],
+    ["OLIGO_NAME",                          "Information",                  "Oligo name",                           DataType.VARCHAR,                      None, "", oligonameScriptName, None, False],    
+    ["SYS_NAME",                          "Information",                  "SysName",                           DataType.REAL,                      None, "", None, None, False],
+    ["TYPE",                          "Information",                  "Type",                           DataType.CONTROLLEDVOCABULARY,                      "OLIGO_TYPE", "", None, None, False],
+    ["STANDARD_TM",                          "Information",                  "StandardTm",                           DataType.REAL,                      None, "", None, None, False],
+    ["AT",                          "Information",                  "AT%",                           DataType.INTEGER,                      None, "", atScriptName, None, False],
+    ["GC",                          "Information",                  "GC%",                           DataType.INTEGER,                      None, "", gcScriptName, None, False],
+    ["MMEXTCOEFF",                          "Information",                  "mMExtCoeff",                           DataType.REAL,                      None, "", None, None, False],
+    ["MOLWEIGHT",                          "Information",                  "MolWeight",                           DataType.REAL,                      None, "", None, None, False],
+    ["OD",                          "Information",                  "OD",                           DataType.REAL,                      None, "", None, None, False],
+    ["REQUEST_DATE",                          "Information",                  "RequestDate",                           DataType.TIMESTAMP,                      None, "", None, None, False],
+    ["RECEIVE_DATE",                          "Information",                  "ReceiveDate",                           DataType.TIMESTAMP,                      None, "", None, None, False],
+    ["FROM_NUC",                          "Information",                  "fromNuc",                           DataType.INTEGER,                      None, "", None, None, False],
+    ["TONUC",                          "Information",                  "toNuc",                           DataType.INTEGER,                      None, "", None, None, False],
+    ["LIST",                          "Information",                  "List",                           DataType.VARCHAR,                      None, "", None, None, False],
+    ["LOCATION",                          "Information",                  "Location",                           DataType.VARCHAR,                      None, "", None, None, False],
+    ["PMOL_UL",                          "Information",                  "pMol_ul",                           DataType.REAL,                      None, "", None, None, False],
+    ["UG_UL",                          "Information",                  "ug_ul",                           DataType.REAL,                      None, "", None, None, False],
+    ["VOLUME",                          "Information",                  "Volume",                           DataType.REAL,                      None, "", None, None, False],
+    ["BY",                          "General",                  "By",                           DataType.VARCHAR,                      None, "", None, None, False],
 ];
 
 plasmidDefinition = [
@@ -154,8 +167,9 @@ plasmidDefinition = [
     ["PCR_3_OLIGO",                        "General",                  "PCR 3' oligo",                         DataType.VARCHAR,      None,  "", None, None, False],    
     ["PCR_5_OLIGO",                        "General",                  "PCR 5' oligo",                         DataType.VARCHAR,      None,  "", None, None, False],            
     ["NAME",                        "General",                  "pKW Number",                         DataType.VARCHAR,      None,  "", None, None, False],    
+    ["PL_NAME",                        "General",                  "pKW Number Calculated",                         DataType.VARCHAR,      None,  "", plasmidnameScriptName, None, False],    
     ["PLASMID_NAME",                        "General",                  "Plasmid name",                         DataType.VARCHAR,      None,  "", None, None, False],    
-    ["REF_NUM",                        "General",                  "Ref. N.",                         DataType.INTEGER,      None,  "", None, None, False],    
+    ["REF_NUM",                        "General",                  "Ref. N.",                         DataType.INTEGER,      None,  "", plasmidrefnumScriptName, None, False],    
     ["REFERENCE",                        "General",                  "Reference",                         DataType.VARCHAR,      None,  "", None, None, False],    
     ["SELECTION_MARKER",                        "General",                  "Selection marker",                         DataType.CONTROLLEDVOCABULARY,      "PLASMID_SELECTION_MAKER",  "", None, None, False],    
     ["SIZE",                        "General",                  "Size",                         DataType.REAL,      None,  "", None, None, False],    
@@ -167,7 +181,7 @@ plasmidDefinition = [
 
 chemicalDefinition = [
     ["NAME",                         "General",                 "Chemical",                         DataType.VARCHAR,                   None,  "", None, None, False],
-    ["ID",                           "General",                 "#",                         DataType.VARCHAR,                   None,  "", None, None, False],    
+    ["ID",                           "General",                 "#",                         DataType.VARCHAR,                   None,  "", chemicalrefnumScriptName, None, False],    
     ["COMPANY",                      "General",                 "Company",                          DataType.CONTROLLEDVOCABULARY,      "COMPANY",  "", None, None, False],
     ["DISSOLVED_IN",                 "General",                 "dissolved in",                     DataType.VARCHAR,                   None,  "", None, None, False],
     ["USED_FOR",                     "General",                 "Used for",                         DataType.VARCHAR,                   None,  "", None, None, False],

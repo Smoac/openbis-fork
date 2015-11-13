@@ -182,6 +182,57 @@ lengthScriptName = createScript(PATH_TO_MANAGE_PROPERTIES_SCRIPTS + "length.py",
                                   "SAMPLE");
 
 
+antibodyrefnumScriptName = createScript(PATH_TO_MANAGE_PROPERTIES_SCRIPTS + "antibody_refnum.py",
+                                  definitions.antibodyrefnumScriptName,
+                                  "Antibody ref num from code",
+                                  "DYNAMIC_PROPERTY",
+                                  "SAMPLE");
+
+chemicalrefnumScriptName = createScript(PATH_TO_MANAGE_PROPERTIES_SCRIPTS + "chemical_refnum.py",
+                                  definitions.chemicalrefnumScriptName,
+                                  "Chemical ref num from code",
+                                  "DYNAMIC_PROPERTY",
+                                  "SAMPLE");
+
+oligonameScriptName = createScript(PATH_TO_MANAGE_PROPERTIES_SCRIPTS + "oligo_name.py",
+                                  definitions.oligonameScriptName,
+                                  "Oligo name from code",
+                                  "DYNAMIC_PROPERTY",
+                                  "SAMPLE");
+
+oligorefnumScriptName = createScript(PATH_TO_MANAGE_PROPERTIES_SCRIPTS + "oligo_refnum.py",
+                                  definitions.oligorefnumScriptName,
+                                  "Oligo ref num from code",
+                                  "DYNAMIC_PROPERTY",
+                                  "SAMPLE");
+
+plasmidnameScriptName = createScript(PATH_TO_MANAGE_PROPERTIES_SCRIPTS + "plasmid_name.py",
+                                  definitions.plasmidnameScriptName,
+                                  "Plasmid name from code",
+                                  "DYNAMIC_PROPERTY",
+                                  "SAMPLE");
+
+plasmidrefnumScriptName = createScript(PATH_TO_MANAGE_PROPERTIES_SCRIPTS + "plasmid_refnum.py",
+                                  definitions.plasmidrefnumScriptName,
+                                  "Plasmid ref num from code",
+                                  "DYNAMIC_PROPERTY",
+                                  "SAMPLE");
+
+strainnameScriptName = createScript(PATH_TO_MANAGE_PROPERTIES_SCRIPTS + "strain_name.py",
+                                  definitions.strainnameScriptName,
+                                  "Strain name from code",
+                                  "DYNAMIC_PROPERTY",
+                                  "SAMPLE");
+
+strainglycerolScriptName = createScript(PATH_TO_MANAGE_PROPERTIES_SCRIPTS + "strain_glycerol_stock_number.py",
+                                  definitions.strainglycerolScriptName,
+                                  "Strain glycerol stock number from code",
+                                  "DYNAMIC_PROPERTY",
+                                  "SAMPLE");
+
+
+
+
 
 ##
 ## Vocabulary Types
