@@ -60,6 +60,20 @@ function GridView(gridModel) {
 			
 			for(var j = 0; j < this._gridModel.numColumns; j++) {
 				var $newColumn = $("<td>");
+				if(this._gridModel.isDragable) {
+					$newColumn.on({
+					    dragover: function(e) {
+					        e.preventDefault();
+					    },
+					    drop: function(event) {
+					    	event.preventDefault();
+					        var elementId = event.originalEvent.dataTransfer.getData("text");
+					        var $targetDrop = $(event.target);
+					        var $elementToDrop = $("#" + elementId);
+					        $targetDrop.append($elementToDrop);
+					    }
+					});
+				}
 				
 				var clickEvent = function(i, j) {
 					return function(event) {
@@ -89,7 +103,15 @@ function GridView(gridModel) {
 		if(labels) {
 			for(var i = 0; i < labels.length; i++) {
 				if(!usedLabels[labels[i].displayName]) {
-					var labelContainer = $("<div>", { class: "storageBox" }).append(labels[i].displayName);
+					var labelContainer = $("<div>", { class: "storageBox", id : Util.guid() }).append(labels[i].displayName);
+					if(this._gridModel.isDragable) {
+						labelContainer.attr('draggable', 'true');
+						labelContainer.on({
+						    dragstart: function(event) {
+						    	event.originalEvent.dataTransfer.setData('Text', this.id);
+						    }
+						});
+					}
 					usedLabels[labels[i].displayName] = true
 					var clickEvent = function(posX, posY, label, data) {
 						return function(event) {

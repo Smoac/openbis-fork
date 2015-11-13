@@ -154,8 +154,10 @@ function StorageView(storageController, storageModel, gridView) {
 			});
 		}
 		
-		if(this._storageModel.config.positionSelector === "on" && this._storageModel.sample) {
+		if(this._storageModel.config.positionSelector === "on") {
 			$container.append(FormUtil.getFieldForComponentWithLabel(this._positionContainer, "Box Position"));
+		}
+		if(this._storageModel.config.positionSelector === "on" && this._storageModel.sample) {
 			this.showPosField(this._storageModel.sample.properties[this._storageModel.storagePropertyGroup.boxSizeProperty], false);
 		}
 		
@@ -232,7 +234,7 @@ function StorageView(storageController, storageModel, gridView) {
 	}
 	
 	this.showPosField = function(boxSizeCode, isNew) {
-		if(this._storageModel.config.positionSelector === "on" && this._storageModel.sample) {
+		if(this._storageModel.config.positionSelector === "on") {
 			//Pointer to himself
 			var _this = this;
 			

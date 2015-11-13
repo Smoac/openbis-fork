@@ -39,8 +39,8 @@ function StorageManagerController(mainController) {
 		boxSelector: "on",
 		boxSizeSelector: "off",
 		rackSelector: "off",
-		contentsSelector: "on",
-		positionSelector: "off"
+		contentsSelector: "off",
+		positionSelector: "on"
 	});
 	
 	this._storageToController = new StorageController({
@@ -52,7 +52,7 @@ function StorageManagerController(mainController) {
 		boxSizeSelector: "on",
 		rackSelector: "on",
 		contentsSelector: "off",
-		positionSelector: "off"
+		positionSelector: "on"
 	});
 	
 	

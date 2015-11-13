@@ -14,12 +14,17 @@
  * limitations under the License.
  */
 
-function GridModel(isSelectMultiple) {
+function GridModel(isSelectMultiple, isDragable) {
 	this.isDisabled = false;
 	this.isSelectMultiple = false;
 	if(isSelectMultiple) {
 		this.isSelectMultiple = true;
 	}
+	this.isDragable = false;
+	if(isDragable) {
+		this.isDragable = true;
+	}
+	
 	this.numRows = null;
 	this.numColumns = null;
 	this.labels = null;
