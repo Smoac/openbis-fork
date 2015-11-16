@@ -28,7 +28,6 @@ function StorageModel(configOverride) {
 				rackSelector: "on",
 				rackPositionMultiple: "off",
 				rackBoxDragAndDropEnabled: "off",
-				contentsSelector: "off",
 				positionSelector: "off",
 				boxPositionMultiple: "off",
 				positionDragAndDropEnabled: "off"
@@ -47,7 +46,6 @@ function StorageModel(configOverride) {
 	this.column = null; //Selected Column
 	this.boxName = null; //Selected Box
 	this.boxSize = null; //Selected Box Size
-	this.boxContents = null; //Selected Box contents (samples)
 	this.boxPosition = null;
 	
 	this.cleanSample = function(setUser) {
@@ -70,7 +68,6 @@ function StorageModel(configOverride) {
 		this.column = column; //Selected Column
 		this.boxName = boxName; //Selected Box
 		this.boxSize = boxSize; //Selected Box
-		this.boxContents = boxContents; //Selected Box contents (samples)
 		this.boxPosition = boxPosition;
 	}
 }

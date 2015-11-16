@@ -201,7 +201,6 @@ function StorageListView(storageListController, storageListModel) {
 			rackSelector: "on",
 			rackPositionMultiple: "off",
 			rackBoxDragAndDropEnabled: "off",
-			contentsSelector: "off",
 			positionSelector: "on",
 			boxPositionMultiple: "on",
 			positionDragAndDropEnabled: "off"

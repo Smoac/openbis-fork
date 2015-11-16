@@ -55,12 +55,6 @@ function StorageController(configOverride) {
 			_this._storageView.showBoxName();
 			_this._storageView.showBoxSize();
 			_this._storageView.showPosField(data.size, true);
-			
-			if(_this._storageModel.config.contentsSelector === "on") {
-				var labelData = _this._gridController.getModel().getLabelDataByLabelName(posX, posY, label);
-				_this._storageModel.boxContents = labelData.samples;
-				_this._storageView.refreshBoxContents();
-			}
 		}); 
 	}
 	
@@ -79,14 +73,7 @@ function StorageController(configOverride) {
 			_this._storageView.showBoxField();
 			_this._storageView.showBoxSizeField();
 			_this._storageView.hidePosField();
-			if(_this._storageModel.config.contentsSelector === "on") {
-				_this._storageView.refreshBoxContents();
-			}
 		}); 
-	}
-	
-	this.setBoxContentsSelected = function(selectedSamples) {
-		this._storageModel.boxContents = selectedSamples;
 	}
 
 	this.setUserIdsSelected = function(userIdsSelected) {
@@ -127,7 +114,6 @@ function StorageController(configOverride) {
 		this._storageView.hideBoxField();
 		this._storageView.hideBoxSizeField();
 		this._storageView.hidePosField();
-		this._storageView.refreshBoxContents();
 	}
 	
 	this.setUserIds = function(userIds) {
@@ -159,9 +145,6 @@ function StorageController(configOverride) {
 		this._storageView.hideBoxField();
 		this._storageView.hideBoxSizeField();
 		this._storageView.hidePosField();
-		if(this._storageModel.config.contentsSelector === "on") {
-			this._storageView.refreshBoxContents();
-		}
 	}
 	
 	this.setSelectStorageGroup = function(storageGroupName) {

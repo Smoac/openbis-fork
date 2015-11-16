@@ -26,7 +26,6 @@ function StorageView(storageController, storageModel, gridViewRack, gridViewPosi
 	this._gridContainer = $("<div>");
 	this._boxField = FormUtil._getInputField("text", "", "Box Name", null, false);
 	this._boxSizeDropDown = FormUtil.getDefaultStorageBoxSizesDropDown("", false);
-	this._boxContentsDropDown = $('<select>', { 'id' : 'boxSamplesSelector' , class : 'multiselect' , 'multiple' : 'multiple'});
 	this._positionContainer = $("<div>");
 	
 	this.repaint = function($container) {
@@ -135,26 +134,6 @@ function StorageView(storageController, storageModel, gridViewRack, gridViewPosi
 			}
 		}
 		
-		if(this._storageModel.config.contentsSelector === "on") {
-			//Paint
-			var $controlGroupBoxContents = FormUtil.getFieldForComponentWithLabel(this._boxContentsDropDown, "Box Contents");
-			$container.append($controlGroupBoxContents);
-			this._boxContentsDropDown.multiselect();
-			//Attach Event
-			this._boxContentsDropDown.change(function() {
-				var samplesOfBox = _this._gridViewRack._gridModel.getLabelDataByLabelName(_this._storageModel.row,  _this._storageModel.column, _this._storageModel.boxName);
-				var selectedSamplePermIds = $(this).val();
-				var selectedSamples = [];
-				for(var i = 0; i < samplesOfBox.samples.length; i++) {
-					var sample = samplesOfBox.samples[i];
-					if($.inArray(sample.permId, selectedSamplePermIds) !== -1) {
-						selectedSamples.push(sample);
-					}
-				}
-				_this._storageController.setBoxContentsSelected(selectedSamples);
-			});
-		}
-		
 		if(this._storageModel.config.positionSelector === "on") {
 			$container.append(FormUtil.getFieldForComponentWithLabel(this._positionContainer, "Box Position"));
 		}
@@ -167,7 +146,6 @@ function StorageView(storageController, storageModel, gridViewRack, gridViewPosi
 			this._defaultStoragesDropDown.attr("disabled", "");
 			this._userIdDropdown.attr("disabled", "");
 			this._boxField.attr("disabled", "");
-			this._boxContentsDropDown.attr("disabled", "");
 		}
 	}
 	
@@ -180,17 +158,6 @@ function StorageView(storageController, storageModel, gridViewRack, gridViewPosi
 			}
 		} 
 		this._userIdDropdown.multiselect('rebuild');
-	}
-	
-	this.refreshBoxContents = function() {
-		this._boxContentsDropDown.empty();
-		var contents = this._storageModel.boxContents;
-		if(contents) {
-			for (var i = 0; i < contents.length; i++) {
-				this._boxContentsDropDown.append($('<option>', { 'value' : contents[i].permId , 'selected' : ''}).html(contents[i].code));
-			}
-		} 
-		this._boxContentsDropDown.multiselect('rebuild');
 	}
 	
 	//
@@ -372,6 +339,5 @@ function StorageView(storageController, storageModel, gridViewRack, gridViewPosi
 		this._boxSizeDropDown.attr("disabled", "");
 		this._boxSizeDropDown.show();
 	}
-
-
+	
 }
