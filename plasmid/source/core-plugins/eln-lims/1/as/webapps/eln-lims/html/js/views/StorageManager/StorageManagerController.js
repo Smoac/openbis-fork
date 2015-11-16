@@ -32,13 +32,13 @@ function StorageManagerController(mainController) {
 	
 	//Sub Views Setup
 	this._storageFromController = new StorageController({
-		title : "From Storage",
+		title : "Storage A",
 		storagePropertyGroupSelector : "on",
 		storageSelector : "on",
 		userSelector : "on",
 		boxSelector: "on",
-		boxSizeSelector: "off",
-		rackSelector: "off",
+		boxSizeSelector: "on",
+		rackSelector: "on",
 		rackPositionMultiple: "off",
 		rackBoxDragAndDropEnabled: "on",
 		positionSelector: "on",
@@ -47,7 +47,7 @@ function StorageManagerController(mainController) {
 	});
 	
 	this._storageToController = new StorageController({
-		title : "To Storage",
+		title : "Storage B",
 		storagePropertyGroupSelector : "on",
 		storageSelector : "on",
 		userSelector : "on",
