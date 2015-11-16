@@ -137,7 +137,7 @@
     </bean>
     
     <bean id="data-store-server"
-        class="org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter">
+        class="ch.systemsx.cisd.common.spring.WhiteListHttpInvokerServiceExporter">
         <property name="service" ref="data-store-service"/>
         <property name="serviceInterface" value="ch.systemsx.cisd.openbis.generic.shared.IDataStoreService" />
     </bean>
@@ -156,7 +156,7 @@
     </bean>
     
      <bean id="data-store-rpc-service-generic"
-        class="com.marathon.util.spring.StreamSupportingHttpInvokerServiceExporter">
+        class="ch.systemsx.cisd.common.spring.WhiteListStreamSupportingHttpInvokerExporter">
         <property name="service">
             <bean class="org.springframework.aop.framework.ProxyFactoryBean">
                 <property name="proxyInterfaces">
@@ -178,7 +178,7 @@
     <bean id="rpc-name-server" class="ch.systemsx.cisd.openbis.common.api.server.RpcServiceNameServer" />
     
     <bean id="data-store-rpc-name-server"
-        class="org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter">
+        class="ch.systemsx.cisd.common.spring.WhiteListHttpInvokerServiceExporter">
         <property name="service" ref="rpc-name-server" />
         <property name="serviceInterface" value="ch.systemsx.cisd.common.api.IRpcServiceNameServer" />
     </bean>
@@ -193,7 +193,7 @@
         <property name="applicationServerTimeout" value="${server-timeout-in-minutes}" />
     </bean>
     
-    <bean id="data-store-service-conversation-client-manager-server" class="org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter">
+    <bean id="data-store-service-conversation-client-manager-server" class="ch.systemsx.cisd.common.spring.WhiteListHttpInvokerServiceExporter">
         <property name="service" ref="data-store-service-conversation-client-manager" />
         <property name="serviceInterface" value="ch.systemsx.cisd.openbis.common.conversation.manager.IServiceConversationClientManagerRemote" />
     </bean>
@@ -208,7 +208,7 @@
         <property name="applicationServerTimeout" value="${server-timeout-in-minutes}" />
     </bean>
     
-    <bean id="data-store-service-conversation-server-manager-server" class="org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter">
+    <bean id="data-store-service-conversation-server-manager-server" class="ch.systemsx.cisd.common.spring.WhiteListHttpInvokerServiceExporter">
         <property name="service" ref="data-store-service-conversation-server-manager" />
         <property name="serviceInterface" value="ch.systemsx.cisd.openbis.common.conversation.manager.IServiceConversationServerManagerRemote" />
     </bean>

@@ -14,15 +14,13 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.common.api.server;
+package ch.systemsx.cisd.common.spring;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 
 import org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter;
-
-import ch.systemsx.cisd.common.spring.WhiteListCodebaseAwareObjectInputStream;
 
 /**
  * 

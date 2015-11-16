@@ -29,7 +29,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import ch.systemsx.cisd.common.spring.ServiceExceptionTranslator;
-import ch.systemsx.cisd.openbis.common.api.server.WhiteListHttpInvokerServiceExporter;
+import ch.systemsx.cisd.common.spring.WhiteListHttpInvokerServiceExporter;
 import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
 

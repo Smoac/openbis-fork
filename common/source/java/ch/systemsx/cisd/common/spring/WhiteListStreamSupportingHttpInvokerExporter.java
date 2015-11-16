@@ -14,15 +14,13 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.cifex.server.util;
+package ch.systemsx.cisd.common.spring;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 
 import com.marathon.util.spring.StreamSupportingHttpInvokerServiceExporter;
-
-import ch.systemsx.cisd.common.spring.WhiteListCodebaseAwareObjectInputStream;
 
 
 /**
