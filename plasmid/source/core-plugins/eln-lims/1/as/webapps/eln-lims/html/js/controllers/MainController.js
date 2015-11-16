@@ -657,36 +657,41 @@ function MainController(profile) {
 							var getDataList = function(callback) {
 								var dataList = [];
 								var searchRegexp = new RegExp(value, "i");
-								var matchedText = null;
-								var matchedField = null;
 								
-								//Check Properties
 								for(var i = 0; i < data.length; i++) {
+									var matchedText = null;
+									var matchedField = null;
 									var sample = data[i];
-									for (propertyName in sample.properties) {
-										var propertyValue = sample.properties[propertyName];
-										if (propertyValue && searchRegexp.test(propertyValue)) {
-											var cleanPropertyValue = ""
-											
-											if(propertyValue.indexOf("<root>") != -1) {
-												if(profile.getHTMLTableFromXML) {
-													return profile.getHTMLTableFromXML(propertyValue);
+									
+									//Check Code
+									if(searchRegexp.test(sample.code)) {
+										matchedText = sample.code;
+										matchedField = "CODE";
+									}
+									
+									//Check Type
+									if(!matchedField && searchRegexp.test(sample.sampleTypeCode)) {
+										matchedText = sample.sampleTypeCode;
+										matchedField = "SAMPLE_TYPE";
+									}
+									
+									//Check Properties
+									if(!matchedField) {
+										for (propertyName in sample.properties) {
+											var propertyValue = sample.properties[propertyName];
+											if (propertyValue && searchRegexp.test(propertyValue)) {
+												var cleanPropertyValue = ""
+												
+												if(propertyValue.indexOf("<root>") !== -1 && profile.getHTMLTableFromXML) {
+													cleanPropertyValue = profile.getHTMLTableFromXML(propertyValue);
 												} else {
-													if(propertyValue) {
-														propertyValue = Util.replaceURLWithHTMLLinks(propertyValue);
-													}
-													cleanPropertyValue = propertyValue;
+													cleanPropertyValue = Util.replaceURLWithHTMLLinks(propertyValue);
 												}
-											} else {
-												if(propertyValue) {
-													propertyValue = Util.replaceURLWithHTMLLinks(propertyValue);
-												}
-												cleanPropertyValue = propertyValue;
+												
+												matchedText = cleanPropertyValue;
+												matchedField = propertyName;
+												break;
 											}
-											
-											matchedText = cleanPropertyValue;
-											matchedField = propertyName;
-											break;
 										}
 									}
 									
