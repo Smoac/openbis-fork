@@ -35,6 +35,8 @@
         factory-method="getResolvedProps">
     </bean>
     
+    <bean class="ch.systemsx.cisd.common.spring.CheckSecureHttpInvokerBeanPostProcessor" />
+    
 	<bean id="memory-monitor" class="ch.systemsx.cisd.common.monitoring.JMXMemoryMonitorSpringBean" />
 
     <bean id="data-set-path-infos-provider" class="ch.systemsx.cisd.openbis.dss.generic.server.DatabaseBasedDataSetPathInfoProvider"/>
