@@ -68,9 +68,11 @@ function GridView(gridModel) {
 					    drop: function(event) {
 					    	event.preventDefault();
 					        var elementId = event.originalEvent.dataTransfer.getData("text");
-					        var $targetDrop = $(event.target);
-					        var $elementToDrop = $("#" + elementId);
-					        $targetDrop.append($elementToDrop);
+					        if(event.target.nodeName === "TD") {
+					        	var $targetDrop = $(event.target);
+						        var $elementToDrop = $("#" + elementId);
+						        $targetDrop.append($elementToDrop);
+					        }
 					    }
 					});
 				}

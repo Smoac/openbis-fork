@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-function StorageView(storageController, storageModel, gridView) {
+function StorageView(storageController, storageModel, gridViewRack, gridViewPosition) {
 	this._storageController = storageController;
 	this._storageModel = storageModel;
-	this._gridView = gridView;
+	this._gridViewRack = gridViewRack;
+	this._gridViewPosition = gridViewPosition;
 	
 	this._storageGroupsDropDown = FormUtil.getStoragePropertyGroupsDropdown("", true);
 	this._defaultStoragesDropDown = FormUtil.getDefaultStoragesDropDown("", false);
@@ -141,7 +142,7 @@ function StorageView(storageController, storageModel, gridView) {
 			this._boxContentsDropDown.multiselect();
 			//Attach Event
 			this._boxContentsDropDown.change(function() {
-				var samplesOfBox = _this._gridView._gridModel.getLabelDataByLabelName(_this._storageModel.row,  _this._storageModel.column, _this._storageModel.boxName);
+				var samplesOfBox = _this._gridViewRack._gridModel.getLabelDataByLabelName(_this._storageModel.row,  _this._storageModel.column, _this._storageModel.boxName);
 				var selectedSamplePermIds = $(this).val();
 				var selectedSamples = [];
 				for(var i = 0; i < samplesOfBox.samples.length; i++) {
@@ -204,7 +205,7 @@ function StorageView(storageController, storageModel, gridView) {
 	}
 	
 	this.refreshGrid = function() {
-		this._gridView.repaint(this._gridContainer);
+		this._gridViewRack.repaint(this._gridContainer);
 		
 		if(this._storageModel.sample && 
 				this._storageModel.sample.properties[this._storageModel.storagePropertyGroup.rowProperty] &&

@@ -39,8 +39,12 @@ function StorageManagerController(mainController) {
 		boxSelector: "on",
 		boxSizeSelector: "off",
 		rackSelector: "off",
+		rackPositionMultiple: "off",
+		rackBoxDragAndDropEnabled: "on",
 		contentsSelector: "off",
-		positionSelector: "on"
+		positionSelector: "on",
+		boxPositionMultiple: "off",
+		positionDragAndDropEnabled: "on"
 	});
 	
 	this._storageToController = new StorageController({
@@ -51,8 +55,12 @@ function StorageManagerController(mainController) {
 		boxSelector: "on",
 		boxSizeSelector: "on",
 		rackSelector: "on",
+		rackPositionMultiple: "off",
+		rackBoxDragAndDropEnabled: "on",
 		contentsSelector: "off",
-		positionSelector: "on"
+		positionSelector: "on",
+		boxPositionMultiple: "off",
+		positionDragAndDropEnabled: "on"
 	});
 	
 	

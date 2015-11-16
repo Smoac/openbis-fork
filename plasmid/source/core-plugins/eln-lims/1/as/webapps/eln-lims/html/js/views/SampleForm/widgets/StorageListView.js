@@ -199,8 +199,12 @@ function StorageListView(storageListController, storageListModel) {
 			boxSelector: "on",
 			boxSizeSelector: "on",
 			rackSelector: "on",
+			rackPositionMultiple: "off",
+			rackBoxDragAndDropEnabled: "off",
 			contentsSelector: "off",
-			positionSelector: "on"
+			positionSelector: "on",
+			boxPositionMultiple: "on",
+			positionDragAndDropEnabled: "off"
 		});
 		var storagePropGroup = profile.getStoragePropertyGroup(e.data.groupDisplayName);
 		storageController.getModel().storagePropertyGroup = storagePropGroup;

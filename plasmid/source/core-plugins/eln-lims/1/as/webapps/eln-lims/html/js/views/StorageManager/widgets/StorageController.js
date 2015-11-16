@@ -27,13 +27,16 @@ function StorageController(configOverride) {
 	}
 	//Pointer to himself
 	var _this = this;
-	//Dependent widgets
-	this._gridController = new GridController();
-	this._gridControllerPosition = new GridController(true, true);
 	
 	//This controller M/V
 	this._storageModel = new StorageModel(configOverride);
-	this._storageView = new StorageView(this, this._storageModel, this._gridController.getView());
+	
+	//Dependent widgets
+	
+	this._gridController = new GridController(this._storageModel.config.rackPositionMultiple === "on", this._storageModel.config.rackBoxDragAndDropEnabled === "on");
+	this._gridControllerPosition = new GridController(this._storageModel.config.boxPositionMultiple === "on", this._storageModel.config.positionDragAndDropEnabled === "on");
+	
+	this._storageView = new StorageView(this, this._storageModel, this._gridController.getView(), this._gridControllerPosition.getView());
 	
 	if(this._storageModel.config.boxSelector === "on") {
 		this._gridController.getView().setLabelSelectedEventHandler(function(posX, posY, label, data) {

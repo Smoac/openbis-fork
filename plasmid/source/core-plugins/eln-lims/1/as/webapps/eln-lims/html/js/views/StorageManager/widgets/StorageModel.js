@@ -26,8 +26,12 @@ function StorageModel(configOverride) {
 				boxSelector: "on",
 				boxSizeSelector: "on",
 				rackSelector: "on",
+				rackPositionMultiple: "off",
+				rackBoxDragAndDropEnabled: "off",
 				contentsSelector: "off",
-				positionSelector: "off"
+				positionSelector: "off",
+				boxPositionMultiple: "off",
+				positionDragAndDropEnabled: "off"
 		};
 	}
 	
