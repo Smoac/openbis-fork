@@ -23,10 +23,10 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import ch.systemsx.cisd.openbis.common.api.server.WhiteListHttpInvokerServiceExporter;
 import ch.systemsx.cisd.openbis.generic.shared.ITrackingServer;
 import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
 
@@ -34,7 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
  * @author Piotr Buczek
  */
 @Controller
-public class TrackingServiceServer extends HttpInvokerServiceExporter
+public class TrackingServiceServer extends WhiteListHttpInvokerServiceExporter
 {
     @Resource(name = ResourceNames.TRACKING_SERVER)
     private ITrackingServer server;

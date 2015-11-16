@@ -23,10 +23,10 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import ch.systemsx.cisd.openbis.common.api.server.WhiteListHttpInvokerServiceExporter;
 import ch.systemsx.cisd.openbis.common.conversation.manager.IServiceConversationClientManagerRemote;
 import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
 
@@ -35,7 +35,7 @@ import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
  */
 
 @Controller
-public class ServiceConversationClientManagerServer extends HttpInvokerServiceExporter
+public class ServiceConversationClientManagerServer extends WhiteListHttpInvokerServiceExporter
 {
     @Resource(name = ResourceNames.SERVICE_CONVERSATION_CLIENT_MANAGER)
     private IServiceConversationClientManagerRemote clientManager;

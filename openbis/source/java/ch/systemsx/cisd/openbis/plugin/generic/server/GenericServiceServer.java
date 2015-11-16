@@ -23,10 +23,10 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import ch.systemsx.cisd.openbis.common.api.server.WhiteListHttpInvokerServiceExporter;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames;
 
@@ -34,7 +34,7 @@ import ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames;
  * @author Izabela Adamczyk
  */
 @Controller
-public class GenericServiceServer extends HttpInvokerServiceExporter
+public class GenericServiceServer extends WhiteListHttpInvokerServiceExporter
 {
     @Resource(name = ResourceNames.GENERIC_PLUGIN_SERVER)
     private IGenericServer server;

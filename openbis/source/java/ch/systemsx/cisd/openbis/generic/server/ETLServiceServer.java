@@ -25,11 +25,11 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import ch.systemsx.cisd.common.spring.ServiceExceptionTranslator;
+import ch.systemsx.cisd.openbis.common.api.server.WhiteListHttpInvokerServiceExporter;
 import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
 
@@ -38,7 +38,7 @@ import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
  * @author Kaloyan Enimanev
  */
 @Controller
-public class ETLServiceServer extends HttpInvokerServiceExporter
+public class ETLServiceServer extends WhiteListHttpInvokerServiceExporter
 {
     @Resource(name = ResourceNames.ETL_SERVICE)
     private IServiceForDataStoreServer etlService;

@@ -30,7 +30,7 @@ import ch.systemsx.cisd.common.spring.ServiceExceptionTranslator;
  *
  * @author Franz-Josef Elmer
  */
-public abstract class AbstractApiServiceExporter extends HttpInvokerServiceExporter
+public abstract class AbstractApiServiceExporter extends WhiteListHttpInvokerServiceExporter
 {
     @Resource(name = IRpcServiceNameServer.PREFFERED_BEAN_NAME)
     private RpcServiceNameServer nameServer;
