@@ -26,8 +26,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import junit.framework.Assert;
-
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.attachment.Attachment;
@@ -54,6 +52,8 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.TagCode;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.test.AssertionUtil;
+
+import junit.framework.Assert;
 
 /**
  * @author pkupczyk
@@ -581,22 +581,22 @@ public class UpdateSampleTest extends AbstractSampleTest
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         SampleCreation containerCreation = masterPlateCreation("CISD", "TEST_CONTAINER");
-        SampleCreation containedCreation = wellCreation("CISD", "TEST_CONTAINED");
+        SampleCreation componentCreation = wellCreation("CISD", "TEST_COMPONENT");
 
-        List<SamplePermId> ids = v3api.createSamples(sessionToken, Arrays.asList(containerCreation, containedCreation));
+        List<SamplePermId> ids = v3api.createSamples(sessionToken, Arrays.asList(containerCreation, componentCreation));
 
         SamplePermId containerId = ids.get(0);
-        SamplePermId containedId = ids.get(1);
+        SamplePermId componentId = ids.get(1);
 
-        SampleUpdate updateContained = new SampleUpdate();
-        updateContained.setSampleId(containedId);
-        updateContained.setContainerId(containerId);
+        SampleUpdate updateComponent = new SampleUpdate();
+        updateComponent.setSampleId(componentId);
+        updateComponent.setContainerId(containerId);
 
-        v3api.updateSamples(sessionToken, Arrays.asList(updateContained));
+        v3api.updateSamples(sessionToken, Arrays.asList(updateComponent));
 
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
         fetchOptions.withContainer();
-        fetchOptions.withContained();
+        fetchOptions.withComponents();
 
         Map<ISampleId, Sample> map = v3api.mapSamples(sessionToken, ids, fetchOptions);
         List<Sample> samples = new ArrayList<Sample>(map.values());
@@ -604,13 +604,13 @@ public class UpdateSampleTest extends AbstractSampleTest
         AssertionUtil.assertCollectionSize(samples, 2);
 
         Sample container = samples.get(0);
-        Sample contained = samples.get(1);
+        Sample component = samples.get(1);
 
         assertSampleIdentifier(container, "/CISD/TEST_CONTAINER");
-        assertCollectionContainsOnly(container.getContained(), contained);
+        assertCollectionContainsOnly(container.getComponents(), component);
 
-        assertSampleIdentifier(contained, "/CISD/TEST_CONTAINER:TEST_CONTAINED");
-        assertEquals(contained.getContainer(), container);
+        assertSampleIdentifier(component, "/CISD/TEST_CONTAINER:TEST_COMPONENT");
+        assertEquals(component.getContainer(), container);
     }
 
     @Test
@@ -688,54 +688,54 @@ public class UpdateSampleTest extends AbstractSampleTest
                 {
                     v3api.updateSamples(sessionToken, Arrays.asList(update));
                 }
-            }, "The database instance sample '/3V-125:MP' can not be contained in the space sample '/CISD/3V-125");
+            }, "The database instance sample '/3V-125:MP' can not be component in the space sample '/CISD/3V-125");
     }
 
     @Test
-    public void testUpdateWithContainedSetAddRemove()
+    public void testUpdateWithComponentsSetAddRemove()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-        SampleCreation contained1Creation = masterPlateCreation("CISD", "TEST_CONTAINED_1");
-        SampleCreation contained2Creation = masterPlateCreation("CISD", "TEST_CONTAINED_2");
-        SampleCreation contained3Creation = masterPlateCreation("CISD", "TEST_CONTAINED_3");
-        contained1Creation.setCreationId(new CreationId("CONTAINED_1"));
-        contained2Creation.setCreationId(new CreationId("CONTAINED_2"));
-        contained3Creation.setCreationId(new CreationId("CONTAINED_3"));
+        SampleCreation component1Creation = masterPlateCreation("CISD", "TEST_COMPONENT_1");
+        SampleCreation component2Creation = masterPlateCreation("CISD", "TEST_COMPONENT_2");
+        SampleCreation component3Creation = masterPlateCreation("CISD", "TEST_COMPONENT_3");
+        component1Creation.setCreationId(new CreationId("COMPONENT_1"));
+        component2Creation.setCreationId(new CreationId("COMPONENT_2"));
+        component3Creation.setCreationId(new CreationId("COMPONENT_3"));
 
         SampleCreation container1Creation = masterPlateCreation("CISD", "TEST_CONTAINER_1");
         SampleCreation container2Creation = masterPlateCreation("CISD", "TEST_CONTAINER_2");
-        container1Creation.setContainedIds(Arrays.asList(new CreationId("CONTAINED_3")));
-        container2Creation.setContainedIds(Arrays.asList(new CreationId("CONTAINED_1"), new CreationId("CONTAINED_2")));
+        container1Creation.setComponentIds(Arrays.asList(new CreationId("COMPONENT_3")));
+        container2Creation.setComponentIds(Arrays.asList(new CreationId("COMPONENT_1"), new CreationId("COMPONENT_2")));
 
         List<SamplePermId> ids =
                 v3api.createSamples(sessionToken,
-                        Arrays.asList(container1Creation, container2Creation, contained1Creation, contained2Creation, contained3Creation));
+                        Arrays.asList(container1Creation, container2Creation, component1Creation, component2Creation, component3Creation));
 
         SamplePermId container1Id = ids.get(0);
         SamplePermId container2Id = ids.get(1);
-        SamplePermId contained1Id = ids.get(2);
-        SamplePermId contained2Id = ids.get(3);
-        SamplePermId contained3Id = ids.get(4);
+        SamplePermId component1Id = ids.get(2);
+        SamplePermId component2Id = ids.get(3);
+        SamplePermId component3Id = ids.get(4);
 
         SampleUpdate updateContainer1 = new SampleUpdate();
         updateContainer1.setSampleId(container1Id);
-        // change from [contained3] to [contained2]
-        updateContainer1.getContainedIds().set(contained2Id);
+        // change from [component3] to [component2]
+        updateContainer1.getComponentIds().set(component2Id);
 
         SampleUpdate updateContainer2 = new SampleUpdate();
         updateContainer2.setSampleId(container2Id);
-        // change from [contained1, contained2] to [contained1, contained3]
-        updateContainer2.getContainedIds().remove(contained2Id);
-        updateContainer2.getContainedIds().add(contained3Id);
-        // check that adding a contained twice does not break anything
-        updateContainer2.getContainedIds().add(contained1Id);
+        // change from [component1, component2] to [component1, component3]
+        updateContainer2.getComponentIds().remove(component2Id);
+        updateContainer2.getComponentIds().add(component3Id);
+        // check that adding a component twice does not break anything
+        updateContainer2.getComponentIds().add(component1Id);
 
         v3api.updateSamples(sessionToken, Arrays.asList(updateContainer1, updateContainer2));
 
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
         fetchOptions.withContainer();
-        fetchOptions.withContained();
+        fetchOptions.withComponents();
 
         Map<ISampleId, Sample> map = v3api.mapSamples(sessionToken, ids, fetchOptions);
         List<Sample> samples = new ArrayList<Sample>(map.values());
@@ -744,35 +744,35 @@ public class UpdateSampleTest extends AbstractSampleTest
 
         Sample container1 = samples.get(0);
         Sample container2 = samples.get(1);
-        Sample contained1 = samples.get(2);
-        Sample contained2 = samples.get(3);
-        Sample contained3 = samples.get(4);
+        Sample component1 = samples.get(2);
+        Sample component2 = samples.get(3);
+        Sample component3 = samples.get(4);
 
         assertSampleIdentifier(container1, "/CISD/TEST_CONTAINER_1");
-        assertCollectionContainsOnly(container1.getContained(), contained2);
+        assertCollectionContainsOnly(container1.getComponents(), component2);
 
         assertSampleIdentifier(container2, "/CISD/TEST_CONTAINER_2");
-        assertCollectionContainsOnly(container2.getContained(), contained1, contained3);
+        assertCollectionContainsOnly(container2.getComponents(), component1, component3);
 
-        assertSampleIdentifier(contained1, "/CISD/TEST_CONTAINER_2:TEST_CONTAINED_1");
-        assertEquals(contained1.getContainer(), container2);
+        assertSampleIdentifier(component1, "/CISD/TEST_CONTAINER_2:TEST_COMPONENT_1");
+        assertEquals(component1.getContainer(), container2);
 
-        assertSampleIdentifier(contained2, "/CISD/TEST_CONTAINER_1:TEST_CONTAINED_2");
-        assertEquals(contained2.getContainer(), container1);
+        assertSampleIdentifier(component2, "/CISD/TEST_CONTAINER_1:TEST_COMPONENT_2");
+        assertEquals(component2.getContainer(), container1);
 
-        assertSampleIdentifier(contained3, "/CISD/TEST_CONTAINER_2:TEST_CONTAINED_3");
-        assertEquals(contained3.getContainer(), container2);
+        assertSampleIdentifier(component3, "/CISD/TEST_CONTAINER_2:TEST_COMPONENT_3");
+        assertEquals(component3.getContainer(), container2);
     }
 
     @Test
-    public void testUpdateWithContainedUnauthorized()
+    public void testUpdateWithComponentsUnauthorized()
     {
         final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
 
-        final ISampleId containedId = new SamplePermId("200902091219327-1025");
+        final ISampleId componentId = new SamplePermId("200902091219327-1025");
         final SampleUpdate update = new SampleUpdate();
         update.setSampleId(new SamplePermId("200902091250077-1060"));
-        update.getContainedIds().add(containedId);
+        update.getComponentIds().add(componentId);
 
         assertUnauthorizedObjectAccessException(new IDelegatedAction()
             {
@@ -781,18 +781,18 @@ public class UpdateSampleTest extends AbstractSampleTest
                 {
                     v3api.updateSamples(sessionToken, Arrays.asList(update));
                 }
-            }, containedId);
+            }, componentId);
     }
 
     @Test
-    public void testUpdateWithContainedNonexistent()
+    public void testUpdateWithComponentsNonexistent()
     {
         final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
 
-        final ISampleId containedId = new SamplePermId("IDONTEXIST");
+        final ISampleId componentId = new SamplePermId("IDONTEXIST");
         final SampleUpdate update = new SampleUpdate();
         update.setSampleId(new SamplePermId("200902091250077-1060"));
-        update.getContainedIds().add(containedId);
+        update.getComponentIds().add(componentId);
 
         assertObjectNotFoundException(new IDelegatedAction()
             {
@@ -801,17 +801,17 @@ public class UpdateSampleTest extends AbstractSampleTest
                 {
                     v3api.updateSamples(sessionToken, Arrays.asList(update));
                 }
-            }, containedId);
+            }, componentId);
     }
 
     @Test
-    public void testUpdateWithContainedCircularDependency()
+    public void testUpdateWithComponentsCircularDependency()
     {
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         final SampleUpdate update = new SampleUpdate();
         update.setSampleId(new SamplePermId("200811050919915-9"));
-        update.getContainedIds().add(new SamplePermId("200811050919915-8"));
+        update.getComponentIds().add(new SamplePermId("200811050919915-8"));
 
         assertUserFailureException(new IDelegatedAction()
             {
@@ -824,13 +824,13 @@ public class UpdateSampleTest extends AbstractSampleTest
     }
 
     @Test
-    public void testUpdateWithContainedViolatingBusinessRules()
+    public void testUpdateWithComponentsViolatingBusinessRules()
     {
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         final SampleUpdate update = new SampleUpdate();
         update.setSampleId(new SampleIdentifier("/CISD/3V-125"));
-        update.getContainedIds().add(new SampleIdentifier("/MP"));
+        update.getComponentIds().add(new SampleIdentifier("/MP"));
 
         assertUserFailureException(new IDelegatedAction()
             {
@@ -839,7 +839,7 @@ public class UpdateSampleTest extends AbstractSampleTest
                 {
                     v3api.updateSamples(sessionToken, Arrays.asList(update));
                 }
-            }, "Sample '/CISD/3V-125' can not be a space sample because of a contained database instance sample '/3V-125:MP");
+            }, "Sample '/CISD/3V-125' can not be a space sample because of a component database instance sample '/3V-125:MP");
     }
 
     @Test

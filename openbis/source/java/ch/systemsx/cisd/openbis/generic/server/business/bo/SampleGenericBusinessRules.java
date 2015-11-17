@@ -89,7 +89,7 @@ public class SampleGenericBusinessRules
     {
         if (sample == null)
             return;
-        assertValidParentRelation(sample.getContainer(), sample, "contained in");
+        assertValidParentRelation(sample.getContainer(), sample, "component in");
     }
 
     static public void assertValidChildren(SamplePE sample)
@@ -103,7 +103,7 @@ public class SampleGenericBusinessRules
     {
         if (sample == null)
             return;
-        assertValidChildrenRelation(sample.getContained(), sample, "contained");
+        assertValidChildrenRelation(sample.getContained(), sample, "component");
     }
 
     static private void throwUserFailureException(String messageTemplate, SamplePE sample1,

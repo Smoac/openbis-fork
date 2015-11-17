@@ -46,7 +46,7 @@ public class SetDataSetRelatedDataSetsExecutor extends AbstractSetEntityMultiple
     private ISetDataSetContainerExecutor setDataSetContainerExecutor;
 
     @Autowired
-    private ISetDataSetContainedExecutor setDataSetContainedExecutor;
+    private ISetDataSetComponentsExecutor setDataSetComponentsExecutor;
 
     @Autowired
     private ISetDataSetParentsExecutor setDataSetParentsExecutor;
@@ -58,7 +58,7 @@ public class SetDataSetRelatedDataSetsExecutor extends AbstractSetEntityMultiple
     protected void addRelatedIds(Set<IDataSetId> relatedIds, DataSetCreation creation)
     {
         addRelatedIds(relatedIds, creation.getContainerIds());
-        addRelatedIds(relatedIds, creation.getContainedIds());
+        addRelatedIds(relatedIds, creation.getComponentIds());
         addRelatedIds(relatedIds, creation.getParentIds());
         addRelatedIds(relatedIds, creation.getChildIds());
     }
@@ -82,7 +82,7 @@ public class SetDataSetRelatedDataSetsExecutor extends AbstractSetEntityMultiple
     protected void set(IOperationContext context, Map<DataSetCreation, DataPE> creationsMap, Map<IDataSetId, DataPE> relatedMap)
     {
         setDataSetContainerExecutor.set(context, creationsMap, relatedMap);
-        setDataSetContainedExecutor.set(context, creationsMap, relatedMap);
+        setDataSetComponentsExecutor.set(context, creationsMap, relatedMap);
         setDataSetParentsExecutor.set(context, creationsMap, relatedMap);
         setDataSetChildrenExecutor.set(context, creationsMap, relatedMap);
     }

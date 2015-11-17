@@ -298,14 +298,14 @@ public class AbstractTest extends SystemTestCase
             });
     }
 
-    protected void assertContainedNotFetched(final Sample sample)
+    protected void assertComponentsNotFetched(final Sample sample)
     {
         assertNotFetched(new IDelegatedAction()
             {
                 @Override
                 public void execute()
                 {
-                    sample.getContained();
+                    sample.getComponents();
                 }
             });
     }
@@ -346,14 +346,14 @@ public class AbstractTest extends SystemTestCase
             });
     }
 
-    protected void assertContainedNotFetched(final DataSet dataSet)
+    protected void assertComponentsNotFetched(final DataSet dataSet)
     {
         assertNotFetched(new IDelegatedAction()
             {
                 @Override
                 public void execute()
                 {
-                    dataSet.getContained();
+                    dataSet.getComponents();
                 }
             });
     }
@@ -639,7 +639,7 @@ public class AbstractTest extends SystemTestCase
     {
         return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     }
-    
+
     protected void assertToday(Date actualDate)
     {
         DateFormat format = new SimpleDateFormat("yyyy-MM-dd");

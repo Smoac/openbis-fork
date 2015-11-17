@@ -14,7 +14,7 @@ define([ "require", "stjs", "dto/fetchoptions/FetchOptions", "dto/fetchoptions/t
 		prototype.parents = null;
 		prototype.children = null;
 		prototype.containers = null;
-		prototype.contained = null;
+		prototype.components = null;
 		prototype.physicalData = null;
 		prototype.tags = null;
 		prototype.type = null;
@@ -62,17 +62,17 @@ define([ "require", "stjs", "dto/fetchoptions/FetchOptions", "dto/fetchoptions/t
 		prototype.hasContainers = function() {
 			return this.containers != null;
 		};
-		prototype.withContained = function() {
-			if (this.contained == null) {
-				this.contained = new DataSetFetchOptions();
+		prototype.withComponents = function() {
+			if (this.components == null) {
+				this.components = new DataSetFetchOptions();
 			}
-			return this.contained;
+			return this.components;
 		};
-		prototype.withContainedUsing = function(fetchOptions) {
-			return this.contained = fetchOptions;
+		prototype.withComponentsUsing = function(fetchOptions) {
+			return this.components = fetchOptions;
 		};
-		prototype.hasContained = function() {
-			return this.contained != null;
+		prototype.hasComponents = function() {
+			return this.components != null;
 		};
 		prototype.withPhysicalData = function() {
 			if (this.physicalData == null) {
@@ -218,7 +218,7 @@ define([ "require", "stjs", "dto/fetchoptions/FetchOptions", "dto/fetchoptions/t
 		parents : "DataSetFetchOptions",
 		children : "DataSetFetchOptions",
 		containers : "DataSetFetchOptions",
-		contained : "DataSetFetchOptions",
+		components : "DataSetFetchOptions",
 		physicalData : "PhysicalDataFetchOptions",
 		tags : "TagFetchOptions",
 		type : "DataSetTypeFetchOptions",

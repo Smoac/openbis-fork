@@ -37,8 +37,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
  * @author pkupczyk
  */
 @Component
-public class UpdateSampleContainedExecutor extends AbstractUpdateEntityToManyRelationExecutor<SampleUpdate, SamplePE, ISampleId, SamplePE>
-        implements IUpdateSampleContainedExecutor
+public class UpdateSampleComponentsExecutor extends AbstractUpdateEntityToManyRelationExecutor<SampleUpdate, SamplePE, ISampleId, SamplePE>
+        implements IUpdateSampleComponentsExecutor
 {
 
     @Override
@@ -50,7 +50,7 @@ public class UpdateSampleContainedExecutor extends AbstractUpdateEntityToManyRel
     @Override
     protected IdListUpdateValue<? extends ISampleId> getRelatedUpdate(IOperationContext context, SampleUpdate update)
     {
-        return update.getContainedIds();
+        return update.getComponentIds();
     }
 
     @Override
@@ -90,9 +90,9 @@ public class UpdateSampleContainedExecutor extends AbstractUpdateEntityToManyRel
             }
         }
 
-        Set<SamplePE> contained = new HashSet<SamplePE>(entity.getContained());
-        contained.add(related);
-        entity.setContained(new ArrayList<SamplePE>(contained));
+        Set<SamplePE> components = new HashSet<SamplePE>(entity.getContained());
+        components.add(related);
+        entity.setContained(new ArrayList<SamplePE>(components));
 
         service.assignSampleToContainer(context.getSession(), related, entity);
     }
@@ -103,9 +103,9 @@ public class UpdateSampleContainedExecutor extends AbstractUpdateEntityToManyRel
 
         if (previousContainer != null && previousContainer.equals(entity))
         {
-            Set<SamplePE> contained = new HashSet<SamplePE>(entity.getContained());
-            contained.remove(related);
-            entity.setContained(new ArrayList<SamplePE>(contained));
+            Set<SamplePE> components = new HashSet<SamplePE>(entity.getContained());
+            components.remove(related);
+            entity.setContained(new ArrayList<SamplePE>(components));
 
             service.removeSampleFromContainer(context.getSession(), related);
         }

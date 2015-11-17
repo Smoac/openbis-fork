@@ -30,8 +30,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import junit.framework.Assert;
-
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Transformer;
 import org.testng.annotations.Test;
@@ -66,6 +64,8 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.SpacePermId;
 import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
+
+import junit.framework.Assert;
 
 /**
  * @author pkupczyk
@@ -296,7 +296,7 @@ public class MapSampleTest extends AbstractSampleTest
         assertPropertiesNotFetched(sample);
         assertParentsNotFetched(sample);
         assertChildrenNotFetched(sample);
-        assertContainedNotFetched(sample);
+        assertComponentsNotFetched(sample);
         assertContainerNotFetched(sample);
         assertModifierNotFetched(sample);
         assertRegistratorNotFetched(sample);
@@ -311,7 +311,7 @@ public class MapSampleTest extends AbstractSampleTest
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
 
         // fetch parents and their properties
-        fetchOptions.withContained().withContainer().withExperiment();
+        fetchOptions.withComponents().withContainer().withExperiment();
         fetchOptions.withProperties();
 
         Map<ISampleId, Sample> map =
@@ -323,13 +323,13 @@ public class MapSampleTest extends AbstractSampleTest
         Sample sample = samples.get(0);
         assertEquals(sample.getCode(), "PLATE_WELLSEARCH");
 
-        // assert that contained / container is fetched
-        Assert.assertTrue(sample.getContained().get(0).getContainer() == sample);
+        // assert that components / container is fetched
+        Assert.assertTrue(sample.getComponents().get(0).getContainer() == sample);
 
         // assert properties are fetched (original fetch options)
         assertEquals(sample.getProperties().size(), 0);
 
-        // assert that experiment is fetched as well. (fetch options via contained container)
+        // assert that experiment is fetched as well. (fetch options via component's container)
         Experiment experiment = sample.getExperiment();
         assertEquals(experiment.getIdentifier().toString(), "/CISD/DEFAULT/EXP-WELLS");
         v3api.logout(sessionToken);
@@ -369,7 +369,7 @@ public class MapSampleTest extends AbstractSampleTest
         assertPropertiesNotFetched(sample);
         assertParentsNotFetched(sample);
         assertChildrenNotFetched(sample);
-        assertContainedNotFetched(sample);
+        assertComponentsNotFetched(sample);
         assertContainerNotFetched(sample);
 
         assertTagsNotFetched(sample);
@@ -432,7 +432,7 @@ public class MapSampleTest extends AbstractSampleTest
         assertPropertiesNotFetched(sample);
         assertParentsNotFetched(sample);
         assertChildrenNotFetched(sample);
-        assertContainedNotFetched(sample);
+        assertComponentsNotFetched(sample);
         assertContainerNotFetched(sample);
         assertRegistratorNotFetched(sample);
         assertModifierNotFetched(sample);
@@ -695,12 +695,12 @@ public class MapSampleTest extends AbstractSampleTest
     }
 
     @Test
-    public void testMapWithContainedAndContainer()
+    public void testMapWithComponentsAndContainer()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
 
-        fetchOptions.withContained().withContainer();
+        fetchOptions.withComponents().withContainer();
         fetchOptions.withProperties();
 
         Map<ISampleId, Sample> map =
@@ -719,10 +719,10 @@ public class MapSampleTest extends AbstractSampleTest
         assertParentsNotFetched(sample);
         assertChildrenNotFetched(sample);
 
-        List<Sample> contained = sample.getContained();
-        assertEquals(contained.size(), 2);
+        List<Sample> components = sample.getComponents();
+        assertEquals(components.size(), 2);
 
-        for (Sample s : contained)
+        for (Sample s : components)
         {
             assertExperimentNotFetched(s);
             assertPropertiesNotFetched(s);
@@ -767,8 +767,8 @@ public class MapSampleTest extends AbstractSampleTest
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
 
-        // fetch contained, with the container and loop.
-        fetchOptions.withContained().withContainerUsing(fetchOptions);
+        // fetch components, with the container and loop.
+        fetchOptions.withComponents().withContainerUsing(fetchOptions);
         fetchOptions.withProperties();
 
         Map<ISampleId, Sample> map =
@@ -787,12 +787,12 @@ public class MapSampleTest extends AbstractSampleTest
         assertParentsNotFetched(sample);
         assertChildrenNotFetched(sample);
 
-        List<Sample> contained = sample.getContained();
-        assertEquals(contained.size(), 2);
+        List<Sample> components = sample.getComponents();
+        assertEquals(components.size(), 2);
 
-        Assert.assertTrue(sample.getContained().get(0).getContainer() == sample);
+        Assert.assertTrue(sample.getComponents().get(0).getContainer() == sample);
 
-        for (Sample s : contained)
+        for (Sample s : components)
         {
             assertExperimentNotFetched(s);
             assertPropertiesNotFetched(s);
@@ -1233,23 +1233,23 @@ public class MapSampleTest extends AbstractSampleTest
     }
 
     @Test
-    public void testMapWithHistoryContained()
+    public void testMapWithHistoryComponents()
     {
         SampleCreation creation = new SampleCreation();
-        creation.setCode("SAMPLE_WITH_CONTAINED_HISTORY");
+        creation.setCode("SAMPLE_WITH_COMPONENTS_HISTORY");
         creation.setTypeId(new EntityTypePermId("CELL_PLATE"));
         creation.setSpaceId(new SpacePermId("CISD"));
-        creation.setContainedIds(Arrays.asList(new SampleIdentifier("/CISD/CL1")));
+        creation.setComponentIds(Arrays.asList(new SampleIdentifier("/CISD/CL1")));
 
         SampleUpdate update = new SampleUpdate();
-        update.getContainedIds().set();
+        update.getComponentIds().set();
 
         List<HistoryEntry> history = testMapWithHistory(creation, update);
 
         assertEquals(history.size(), 1);
 
         RelationHistoryEntry entry = (RelationHistoryEntry) history.get(0);
-        assertEquals(entry.getRelationType(), SampleRelationType.CONTAINED);
+        assertEquals(entry.getRelationType(), SampleRelationType.COMPONENT);
         assertEquals(entry.getRelatedObjectId(), new SamplePermId("200811050919915-8"));
     }
 

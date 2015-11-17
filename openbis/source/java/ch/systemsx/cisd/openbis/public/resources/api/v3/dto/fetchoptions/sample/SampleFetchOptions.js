@@ -20,7 +20,7 @@ define([ "require", "stjs", "dto/fetchoptions/FetchOptions", 'dto/fetchoptions/s
 		prototype.parents = null;
 		prototype.children = null;
 		prototype.container = null;
-		prototype.contained = null;
+		prototype.components = null;
 		prototype.dataSets = null;
 		prototype.history = null;
 		prototype.tags = null;
@@ -142,17 +142,17 @@ define([ "require", "stjs", "dto/fetchoptions/FetchOptions", 'dto/fetchoptions/s
 		prototype.hasContainer = function() {
 			return this.container != null;
 		};
-		prototype.withContained = function() {
-			if (this.contained == null) {
-				this.contained = new SampleFetchOptions();
+		prototype.withComponents = function() {
+			if (this.components == null) {
+				this.components = new SampleFetchOptions();
 			}
-			return this.contained;
+			return this.components;
 		};
-		prototype.withContainedUsing = function(fetchOptions) {
-			return this.contained = fetchOptions;
+		prototype.withComponentsUsing = function(fetchOptions) {
+			return this.components = fetchOptions;
 		};
-		prototype.hasContained = function() {
-			return this.contained != null;
+		prototype.hasComponents = function() {
+			return this.components != null;
 		};
 		prototype.withDataSets = function() {
 			if (this.dataSets == null) {
@@ -251,7 +251,7 @@ define([ "require", "stjs", "dto/fetchoptions/FetchOptions", 'dto/fetchoptions/s
 		parents : "SampleFetchOptions",
 		children : "SampleFetchOptions",
 		container : "SampleFetchOptions",
-		contained : "SampleFetchOptions",
+		components : "SampleFetchOptions",
 		tags : "TagFetchOptions",
 		registrator : "PersonFetchOptions",
 		modifier : "PersonFetchOptions",

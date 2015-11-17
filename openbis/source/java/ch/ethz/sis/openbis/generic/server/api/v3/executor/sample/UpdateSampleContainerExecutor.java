@@ -77,10 +77,10 @@ public class UpdateSampleContainerExecutor extends AbstractUpdateEntityToOneRela
     {
         if (related == null)
         {
-            UpdateSampleContainedExecutor.remove(relationshipService, context, entity.getContainer(), entity);
+            UpdateSampleComponentsExecutor.remove(relationshipService, context, entity.getContainer(), entity);
         } else
         {
-            UpdateSampleContainedExecutor.add(relationshipService, context, related, entity);
+            UpdateSampleComponentsExecutor.add(relationshipService, context, related, entity);
         }
     }
 

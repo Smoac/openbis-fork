@@ -30,24 +30,24 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
  * @author pkupczyk
  */
 @Component
-public class SetSampleContainedExecutor extends AbstractSetEntityToManyRelationExecutor<SampleCreation, SamplePE, ISampleId> implements
-        ISetSampleContainedExecutor
+public class SetSampleComponentsExecutor extends AbstractSetEntityToManyRelationExecutor<SampleCreation, SamplePE, ISampleId> implements
+        ISetSampleComponentsExecutor
 {
 
     @Override
     protected Collection<? extends ISampleId> getRelatedIds(IOperationContext context, SampleCreation creation)
     {
-        return creation.getContainedIds();
+        return creation.getComponentIds();
     }
 
     @Override
-    protected void setRelated(IOperationContext context, SamplePE container, Collection<SamplePE> contained)
+    protected void setRelated(IOperationContext context, SamplePE container, Collection<SamplePE> components)
     {
-        context.pushContextDescription("set contained for sample " + container.getCode());
+        context.pushContextDescription("set components for sample " + container.getCode());
 
-        for (SamplePE aContained : contained)
+        for (SamplePE component : components)
         {
-            relationshipService.assignSampleToContainer(context.getSession(), aContained, container);
+            relationshipService.assignSampleToContainer(context.getSession(), component, container);
         }
 
         context.popContextDescription();

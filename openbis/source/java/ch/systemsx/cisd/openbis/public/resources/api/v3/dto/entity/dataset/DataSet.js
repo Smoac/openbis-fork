@@ -17,7 +17,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		prototype.parents = null;
 		prototype.children = null;
 		prototype.containers = null;
-		prototype.contained = null;
+		prototype.components = null;
 		prototype.physicalData = null;
 		prototype.tags = null;
 		prototype.type = null;
@@ -96,15 +96,15 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		prototype.setContainers = function(containers) {
 			this.containers = containers;
 		};
-		prototype.getContained = function() {
-			if (this.getFetchOptions().hasContained()) {
-				return this.contained;
+		prototype.getComponents = function() {
+			if (this.getFetchOptions().hasComponents()) {
+				return this.components;
 			} else {
-				throw new exceptions.NotFetchedException("Contained data sets has not been fetched.");
+				throw new exceptions.NotFetchedException("Component data sets has not been fetched.");
 			}
 		};
-		prototype.setContained = function(contained) {
-			this.contained = contained;
+		prototype.setComponents = function(components) {
+			this.components = components;
 		};
 		prototype.getPhysicalData = function() {
 			if (this.getFetchOptions().hasPhysicalData()) {
@@ -238,7 +238,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 			name : "List",
 			arguments : [ "DataSet" ]
 		},
-		contained : {
+		components : {
 			name : "List",
 			arguments : [ "DataSet" ]
 		},

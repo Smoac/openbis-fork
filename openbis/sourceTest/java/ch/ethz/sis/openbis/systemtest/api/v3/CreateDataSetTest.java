@@ -597,7 +597,7 @@ public class CreateDataSetTest extends AbstractDataSetTest
                     v3api.createDataSets(sessionToken, Arrays.asList(creation));
                 }
             }, "Data set 20081105092159111-1 is not of a container type therefore cannot be set as a container of data set "
-                + creation.getCode().toUpperCase() + ".");
+                    + creation.getCode().toUpperCase() + ".");
     }
 
     @Test
@@ -661,29 +661,29 @@ public class CreateDataSetTest extends AbstractDataSetTest
     }
 
     @Test
-    public void testCreateWithContainedForContainerDataSet()
+    public void testCreateWithComponentsForContainerDataSet()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         DataSetCreation creation = containerDataSetCreation();
-        creation.setContainedIds(Collections.singletonList(new DataSetPermId("20081105092159111-1")));
+        creation.setComponentIds(Collections.singletonList(new DataSetPermId("20081105092159111-1")));
 
         DataSetFetchOptions fo = new DataSetFetchOptions();
-        fo.withContained();
+        fo.withComponents();
 
         DataSet dataSet = createDataSet(sessionToken, creation, fo);
 
         assertEquals(dataSet.getCode(), creation.getCode().toUpperCase());
-        assertDataSetCodes(dataSet.getContained(), "20081105092159111-1");
+        assertDataSetCodes(dataSet.getComponents(), "20081105092159111-1");
     }
 
     @Test
-    public void testCreateWithContainedForNonContainerDataSet()
+    public void testCreateWithComponentsForNonContainerDataSet()
     {
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         final DataSetCreation creation = physicalDataSetCreation();
-        creation.setContainedIds(Collections.singletonList(new DataSetPermId("20081105092159111-1")));
+        creation.setComponentIds(Collections.singletonList(new DataSetPermId("20081105092159111-1")));
 
         assertUserFailureException(new IDelegatedAction()
             {
@@ -692,11 +692,11 @@ public class CreateDataSetTest extends AbstractDataSetTest
                 {
                     createDataSet(sessionToken, creation, new DataSetFetchOptions());
                 }
-            }, "Data set " + creation.getCode().toUpperCase() + " is not of a container type therefore cannot have contained data sets.");
+            }, "Data set " + creation.getCode().toUpperCase() + " is not of a container type therefore cannot have component data sets.");
     }
 
     @Test
-    public void testCreateWithContainedCircularDependency()
+    public void testCreateWithComponentsCircularDependency()
     {
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -704,9 +704,9 @@ public class CreateDataSetTest extends AbstractDataSetTest
         final DataSetCreation creation2 = containerDataSetCreation();
         final DataSetCreation creation3 = containerDataSetCreation();
 
-        creation2.setContainedIds(Collections.singletonList(creation1.getCreationId()));
-        creation3.setContainedIds(Collections.singletonList(creation2.getCreationId()));
-        creation1.setContainedIds(Collections.singletonList(creation3.getCreationId()));
+        creation2.setComponentIds(Collections.singletonList(creation1.getCreationId()));
+        creation3.setComponentIds(Collections.singletonList(creation2.getCreationId()));
+        creation1.setComponentIds(Collections.singletonList(creation3.getCreationId()));
 
         assertUserFailureException(new IDelegatedAction()
             {
@@ -719,14 +719,14 @@ public class CreateDataSetTest extends AbstractDataSetTest
     }
 
     @Test
-    public void testCreateWithContainedUnauthorized()
+    public void testCreateWithComponentsUnauthorized()
     {
         final String sessionToken = v3api.loginAs(TEST_USER, PASSWORD, TEST_SPACE_USER);
 
-        final IDataSetId containedId = new DataSetPermId("20081105092159111-1");
+        final IDataSetId componentId = new DataSetPermId("20081105092159111-1");
         final DataSetCreation creation = containerDataSetCreation();
         creation.setExperimentId(new ExperimentIdentifier("/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST"));
-        creation.setContainedIds(Collections.singletonList(containedId));
+        creation.setComponentIds(Collections.singletonList(componentId));
 
         assertUnauthorizedObjectAccessException(new IDelegatedAction()
             {
@@ -735,7 +735,7 @@ public class CreateDataSetTest extends AbstractDataSetTest
                 {
                     createDataSet(sessionToken, creation, new DataSetFetchOptions());
                 }
-            }, containedId);
+            }, componentId);
     }
 
     @Test
@@ -1385,7 +1385,7 @@ public class CreateDataSetTest extends AbstractDataSetTest
         creation.setTypeId(new EntityTypePermId("CONTAINER_TYPE"));
         creation.setExperimentId(new ExperimentIdentifier("/CISD/NEMO/EXP1"));
         creation.setDataStoreId(new DataStorePermId("STANDARD"));
-        creation.setContainedIds(Arrays.asList(new DataSetPermId("20081105092159188-3")));
+        creation.setComponentIds(Arrays.asList(new DataSetPermId("20081105092159188-3")));
 
         DataSetFetchOptions fetchOptions = new DataSetFetchOptions();
         fetchOptions.withType();
@@ -1393,7 +1393,7 @@ public class CreateDataSetTest extends AbstractDataSetTest
         fetchOptions.withDataStore();
         fetchOptions.withPhysicalData();
         fetchOptions.withLinkedData();
-        fetchOptions.withContained();
+        fetchOptions.withComponents();
 
         DataSet dataSet = createDataSet(sessionToken, creation, fetchOptions);
         assertEquals(dataSet.getCode(), "TEST_CONTAINER_DATASET");
@@ -1402,8 +1402,8 @@ public class CreateDataSetTest extends AbstractDataSetTest
         assertEquals(dataSet.getDataStore().getCode(), "STANDARD");
         assertNull(dataSet.getPhysicalData());
         assertNull(dataSet.getLinkedData());
-        assertEquals(dataSet.getContained().size(), 1);
-        assertEquals(dataSet.getContained().iterator().next().getCode(), "20081105092159188-3");
+        assertEquals(dataSet.getComponents().size(), 1);
+        assertEquals(dataSet.getComponents().iterator().next().getCode(), "20081105092159188-3");
     }
 
     @Test

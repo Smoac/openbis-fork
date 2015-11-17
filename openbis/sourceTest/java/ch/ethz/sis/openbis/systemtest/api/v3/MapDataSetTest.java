@@ -183,7 +183,7 @@ public class MapDataSetTest extends AbstractDataSetTest
         assertPropertiesNotFetched(dataSet);
         assertParentsNotFetched(dataSet);
         assertChildrenNotFetched(dataSet);
-        assertContainedNotFetched(dataSet);
+        assertComponentsNotFetched(dataSet);
         assertContainersNotFetched(dataSet);
         assertModifierNotFetched(dataSet);
         assertRegistratorNotFetched(dataSet);
@@ -222,7 +222,7 @@ public class MapDataSetTest extends AbstractDataSetTest
         assertPropertiesNotFetched(dataSet);
         assertParentsNotFetched(dataSet);
         assertChildrenNotFetched(dataSet);
-        assertContainedNotFetched(dataSet);
+        assertComponentsNotFetched(dataSet);
         assertContainersNotFetched(dataSet);
         assertModifierNotFetched(dataSet);
         assertRegistratorNotFetched(dataSet);
@@ -242,7 +242,7 @@ public class MapDataSetTest extends AbstractDataSetTest
         assertPropertiesNotFetched(dataSet2);
         assertParentsNotFetched(dataSet2);
         assertChildrenNotFetched(dataSet2);
-        assertContainedNotFetched(dataSet2);
+        assertComponentsNotFetched(dataSet2);
         assertContainersNotFetched(dataSet2);
         assertModifierNotFetched(dataSet2);
         assertRegistratorNotFetched(dataSet2);
@@ -277,7 +277,7 @@ public class MapDataSetTest extends AbstractDataSetTest
         assertPropertiesNotFetched(dataSet);
         assertParentsNotFetched(dataSet);
         assertChildrenNotFetched(dataSet);
-        assertContainedNotFetched(dataSet);
+        assertComponentsNotFetched(dataSet);
         assertContainersNotFetched(dataSet);
         assertModifierNotFetched(dataSet);
         assertRegistratorNotFetched(dataSet);
@@ -311,7 +311,7 @@ public class MapDataSetTest extends AbstractDataSetTest
         assertPropertiesNotFetched(dataSet);
         assertParentsNotFetched(dataSet);
         assertChildrenNotFetched(dataSet);
-        assertContainedNotFetched(dataSet);
+        assertComponentsNotFetched(dataSet);
         assertContainersNotFetched(dataSet);
         assertModifierNotFetched(dataSet);
         assertRegistratorNotFetched(dataSet);
@@ -349,7 +349,7 @@ public class MapDataSetTest extends AbstractDataSetTest
         assertSampleNotFetched(dataSet);
         assertParentsNotFetched(dataSet);
         assertChildrenNotFetched(dataSet);
-        assertContainedNotFetched(dataSet);
+        assertComponentsNotFetched(dataSet);
         assertContainersNotFetched(dataSet);
         assertModifierNotFetched(dataSet);
         assertRegistratorNotFetched(dataSet);
@@ -388,7 +388,7 @@ public class MapDataSetTest extends AbstractDataSetTest
         assertSampleNotFetched(dataSet);
         assertPropertiesNotFetched(dataSet);
         assertParentsNotFetched(dataSet);
-        assertContainedNotFetched(dataSet);
+        assertComponentsNotFetched(dataSet);
         assertContainersNotFetched(dataSet);
         assertModifierNotFetched(dataSet);
         assertRegistratorNotFetched(dataSet);
@@ -427,7 +427,7 @@ public class MapDataSetTest extends AbstractDataSetTest
         assertSampleNotFetched(dataSet);
         assertPropertiesNotFetched(dataSet);
         assertChildrenNotFetched(dataSet);
-        assertContainedNotFetched(dataSet);
+        assertComponentsNotFetched(dataSet);
         assertContainersNotFetched(dataSet);
         assertModifierNotFetched(dataSet);
         assertRegistratorNotFetched(dataSet);
@@ -436,14 +436,14 @@ public class MapDataSetTest extends AbstractDataSetTest
     }
 
     @Test
-    public void testMapWithContained()
+    public void testMapWithComponents()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         DataSetPermId permId = new DataSetPermId("20110509092359990-10");
 
         DataSetFetchOptions fetchOptions = new DataSetFetchOptions();
-        fetchOptions.withContained();
+        fetchOptions.withComponents();
 
         Map<IDataSetId, DataSet> map =
                 v3api.mapDataSets(sessionToken, Arrays.asList(permId),
@@ -453,11 +453,11 @@ public class MapDataSetTest extends AbstractDataSetTest
 
         DataSet dataSet = map.get(permId);
 
-        List<DataSet> contained = dataSet.getContained();
+        List<DataSet> components = dataSet.getComponents();
 
-        assertEquals(contained.size(), 2);
+        assertEquals(components.size(), 2);
 
-        assertIdentifiers(contained, "20110509092359990-11", "20110509092359990-12");
+        assertIdentifiers(components, "20110509092359990-11", "20110509092359990-12");
 
         assertTypeNotFetched(dataSet);
         assertPhysicalDataNotFetched(dataSet);
@@ -504,7 +504,7 @@ public class MapDataSetTest extends AbstractDataSetTest
         assertPropertiesNotFetched(dataSet);
         assertParentsNotFetched(dataSet);
         assertChildrenNotFetched(dataSet);
-        assertContainedNotFetched(dataSet);
+        assertComponentsNotFetched(dataSet);
         assertModifierNotFetched(dataSet);
         assertRegistratorNotFetched(dataSet);
         assertTagsNotFetched(dataSet);
@@ -558,7 +558,7 @@ public class MapDataSetTest extends AbstractDataSetTest
         assertPropertiesNotFetched(dataSet);
         assertParentsNotFetched(dataSet);
         assertChildrenNotFetched(dataSet);
-        assertContainedNotFetched(dataSet);
+        assertComponentsNotFetched(dataSet);
         assertContainersNotFetched(dataSet);
         assertModifierNotFetched(dataSet);
         assertRegistratorNotFetched(dataSet);
@@ -614,7 +614,7 @@ public class MapDataSetTest extends AbstractDataSetTest
         assertPropertiesNotFetched(dataSet);
         assertParentsNotFetched(dataSet);
         assertChildrenNotFetched(dataSet);
-        assertContainedNotFetched(dataSet);
+        assertComponentsNotFetched(dataSet);
         assertContainersNotFetched(dataSet);
         assertModifierNotFetched(dataSet);
         assertRegistratorNotFetched(dataSet);
@@ -667,7 +667,7 @@ public class MapDataSetTest extends AbstractDataSetTest
         assertPropertiesNotFetched(dataSet);
         assertParentsNotFetched(dataSet);
         assertChildrenNotFetched(dataSet);
-        assertContainedNotFetched(dataSet);
+        assertComponentsNotFetched(dataSet);
         assertContainersNotFetched(dataSet);
         assertRegistratorNotFetched(dataSet);
         assertTagsNotFetched(dataSet);
@@ -701,7 +701,7 @@ public class MapDataSetTest extends AbstractDataSetTest
         assertPropertiesNotFetched(dataSet);
         assertParentsNotFetched(dataSet);
         assertChildrenNotFetched(dataSet);
-        assertContainedNotFetched(dataSet);
+        assertComponentsNotFetched(dataSet);
         assertContainersNotFetched(dataSet);
         assertModifierNotFetched(dataSet);
         assertTagsNotFetched(dataSet);
@@ -740,7 +740,7 @@ public class MapDataSetTest extends AbstractDataSetTest
         assertPropertiesNotFetched(dataSet);
         assertParentsNotFetched(dataSet);
         assertChildrenNotFetched(dataSet);
-        assertContainedNotFetched(dataSet);
+        assertComponentsNotFetched(dataSet);
         assertContainersNotFetched(dataSet);
         assertModifierNotFetched(dataSet);
         assertRegistratorNotFetched(dataSet);
@@ -896,23 +896,23 @@ public class MapDataSetTest extends AbstractDataSetTest
     }
 
     @Test
-    public void testMapWithHistoryContained()
+    public void testMapWithHistoryComponents()
     {
         IDataSetId id = new DataSetPermId("CONTAINER_1");
 
         DataSetUpdate update = new DataSetUpdate();
         update.setDataSetId(id);
-        update.getContainedIds().set(new DataSetPermId("COMPONENT_2A"));
+        update.getComponentIds().set(new DataSetPermId("COMPONENT_2A"));
 
         DataSetUpdate update2 = new DataSetUpdate();
         update2.setDataSetId(id);
-        update2.getContainedIds().set(new DataSetPermId("COMPONENT_1A"));
+        update2.getComponentIds().set(new DataSetPermId("COMPONENT_1A"));
 
         List<HistoryEntry> history = testMapWithHistory(update, update2);
         assertEquals(history.size(), 1);
 
         RelationHistoryEntry entry = (RelationHistoryEntry) history.get(0);
-        assertEquals(entry.getRelationType(), DataSetRelationType.CONTAINED);
+        assertEquals(entry.getRelationType(), DataSetRelationType.COMPONENT);
         assertEquals(entry.getRelatedObjectId(), new DataSetPermId("COMPONENT_2A"));
     }
 

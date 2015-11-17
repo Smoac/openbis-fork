@@ -14,17 +14,12 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.api.v3.executor.dataset;
-
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.IUpdateEntityRelationsWithCacheExecutor;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSetUpdate;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.IDataSetId;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
+package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.sample;
 
 /**
  * @author pkupczyk
  */
-public interface IUpdateDataSetContainedExecutor extends IUpdateEntityRelationsWithCacheExecutor<DataSetUpdate, DataPE, IDataSetId, DataPE>
+public interface ISampleComponentsTranslator extends IObjectToSamplesTranslator
 {
 
 }

@@ -31,32 +31,32 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
  * @author pkupczyk
  */
 @Component
-public class SetDataSetContainedExecutor extends AbstractSetEntityToManyRelationExecutor<DataSetCreation, DataPE, IDataSetId> implements
-        ISetDataSetContainedExecutor
+public class SetDataSetComponentsExecutor extends AbstractSetEntityToManyRelationExecutor<DataSetCreation, DataPE, IDataSetId> implements
+        ISetDataSetComponentsExecutor
 {
 
     @Override
     protected Collection<? extends IDataSetId> getRelatedIds(IOperationContext context, DataSetCreation creation)
     {
-        return creation.getContainedIds();
+        return creation.getComponentIds();
     }
 
     @Override
-    protected void setRelated(IOperationContext context, DataPE container, Collection<DataPE> contained)
+    protected void setRelated(IOperationContext context, DataPE container, Collection<DataPE> components)
     {
-        context.pushContextDescription("set contained for dataset " + container.getCode());
+        context.pushContextDescription("set components for dataset " + container.getCode());
 
-        if (false == contained.isEmpty())
+        if (false == components.isEmpty())
         {
             if (false == container.isContainer())
             {
                 throw new UserFailureException("Data set " + container.getCode()
-                        + " is not of a container type therefore cannot have contained data sets.");
+                        + " is not of a container type therefore cannot have component data sets.");
             }
 
-            for (DataPE aContained : contained)
+            for (DataPE component : components)
             {
-                relationshipService.assignDataSetToContainer(context.getSession(), aContained, container);
+                relationshipService.assignDataSetToContainer(context.getSession(), component, container);
             }
         }
 

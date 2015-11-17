@@ -44,7 +44,7 @@ public class UpdateDataSetRelatedDataSetsExecutor extends AbstractUpdateEntityMu
     private IUpdateDataSetContainersExecutor updateDataSetContainersExecutor;
 
     @Autowired
-    private IUpdateDataSetContainedExecutor updateDataSetContainedExecutor;
+    private IUpdateDataSetComponentsExecutor updateDataSetComponentsExecutor;
 
     @Autowired
     private IUpdateDataSetParentsExecutor updateDataSetParentsExecutor;
@@ -56,7 +56,7 @@ public class UpdateDataSetRelatedDataSetsExecutor extends AbstractUpdateEntityMu
     protected void addRelatedIds(Set<IDataSetId> relatedIds, DataSetUpdate update)
     {
         addRelatedIds(relatedIds, update.getContainerIds());
-        addRelatedIds(relatedIds, update.getContainedIds());
+        addRelatedIds(relatedIds, update.getComponentIds());
         addRelatedIds(relatedIds, update.getParentIds());
         addRelatedIds(relatedIds, update.getChildIds());
     }
@@ -71,7 +71,7 @@ public class UpdateDataSetRelatedDataSetsExecutor extends AbstractUpdateEntityMu
     protected void update(IOperationContext context, Map<DataSetUpdate, DataPE> entitiesMap, Map<IDataSetId, DataPE> relatedMap)
     {
         updateDataSetContainersExecutor.update(context, entitiesMap, relatedMap);
-        updateDataSetContainedExecutor.update(context, entitiesMap, relatedMap);
+        updateDataSetComponentsExecutor.update(context, entitiesMap, relatedMap);
         updateDataSetParentsExecutor.update(context, entitiesMap, relatedMap);
         updateDataSetChildrenExecutor.update(context, entitiesMap, relatedMap);
     }

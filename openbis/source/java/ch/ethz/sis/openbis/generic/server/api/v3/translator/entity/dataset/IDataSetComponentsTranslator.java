@@ -16,28 +16,10 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.dataset;
 
-import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
-
-import java.util.List;
-
-import net.lemnik.eodsql.QueryTool;
-
-import org.springframework.stereotype.Component;
-
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.ObjectRelationRecord;
-
 /**
  * @author pkupczyk
  */
-@Component
-public class DataSetContainedTranslator extends ObjectToDataSetsTranslator implements IDataSetContainedTranslator
+public interface IDataSetComponentsTranslator extends IObjectToDataSetsTranslator
 {
-
-    @Override
-    protected List<ObjectRelationRecord> loadRecords(LongOpenHashSet objectIds)
-    {
-        DataSetQuery query = QueryTool.getManagedQuery(DataSetQuery.class);
-        return query.getContainedIds(new LongOpenHashSet(objectIds));
-    }
 
 }

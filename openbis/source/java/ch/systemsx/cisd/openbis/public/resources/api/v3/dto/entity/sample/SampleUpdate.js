@@ -10,7 +10,7 @@ define([ "stjs", "dto/entity/FieldUpdateValue", "dto/entity/IdListUpdateValue", 
 		this.spaceId = new FieldUpdateValue();
 		this.tagIds = new IdListUpdateValue();
 		this.containerId = new FieldUpdateValue();
-		this.containedIds = new IdListUpdateValue();
+		this.componentIds = new IdListUpdateValue();
 		this.parentIds = new IdListUpdateValue();
 		this.childIds = new IdListUpdateValue();
 		this.attachments = new AttachmentListUpdateValue();
@@ -62,11 +62,11 @@ define([ "stjs", "dto/entity/FieldUpdateValue", "dto/entity/IdListUpdateValue", 
 		prototype.setTagActions = function(actions) {
 			this.tagIds.setActions(actions);
 		};
-		prototype.getContainedIds = function() {
-			return this.containedIds;
+		prototype.getComponentIds = function() {
+			return this.componentIds;
 		};
-		prototype.setContainedActions = function(actions) {
-			this.containedIds.setActions(actions);
+		prototype.setComponentActions = function(actions) {
+			this.componentIds.setActions(actions);
 		};
 		prototype.getParentIds = function() {
 			return this.parentIds;
@@ -112,7 +112,7 @@ define([ "stjs", "dto/entity/FieldUpdateValue", "dto/entity/IdListUpdateValue", 
 			name : "FieldUpdateValue",
 			arguments : [ "ISampleId" ]
 		},
-		containedIds : {
+		componentIds : {
 			name : "IdListUpdateValue",
 			arguments : [ "ISampleId" ]
 		},

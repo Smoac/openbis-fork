@@ -16,19 +16,15 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.sample;
 
-import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import net.lemnik.eodsql.QueryTool;
-
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.history.HistoryPropertyRecord;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.history.HistoryTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.history.HistoryRelationshipRecord;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.history.HistoryTranslator;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.history.RelationHistoryEntry;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.history.SampleRelationType;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.person.Person;
@@ -38,6 +34,9 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentPer
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SamplePermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.SpacePermId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RelationType;
+
+import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
+import net.lemnik.eodsql.QueryTool;
 
 /**
  * @author pkupczyk
@@ -89,7 +88,7 @@ public class SampleHistoryTranslator extends HistoryTranslator implements ISampl
                     entry.setRelationType(SampleRelationType.PARENT);
                     break;
                 case CONTAINER:
-                    entry.setRelationType(SampleRelationType.CONTAINED);
+                    entry.setRelationType(SampleRelationType.COMPONENT);
                     break;
                 case CONTAINED:
                 case COMPONENT:

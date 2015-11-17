@@ -18,8 +18,6 @@ package ch.ethz.sis.openbis.systemtest.api.v3;
 
 import java.util.Collections;
 
-import junit.framework.Assert;
-
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.deletion.sample.SampleDeletionOptions;
@@ -28,6 +26,8 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.deletion.IDeletionId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SamplePermId;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
+
+import junit.framework.Assert;
 
 /**
  * @author pkupczyk
@@ -81,27 +81,27 @@ public class DeleteSampleTest extends AbstractDeletionTest
     }
 
     @Test
-    public void testDeleteSampleWithContainedSamples()
+    public void testDeleteSampleWithComponentsSamples()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         SamplePermId samplePermId = new SamplePermId("200811050919915-8");
-        SamplePermId containedPermId1 = new SamplePermId("200811050919915-9");
-        SamplePermId containedPermId2 = new SamplePermId("200811050919915-10");
+        SamplePermId componentPermId1 = new SamplePermId("200811050919915-9");
+        SamplePermId componentPermId2 = new SamplePermId("200811050919915-10");
 
         SampleDeletionOptions options = new SampleDeletionOptions();
         options.setReason("It is just a test");
 
         assertSampleExists(samplePermId);
-        assertSampleExists(containedPermId1);
-        assertSampleExists(containedPermId2);
+        assertSampleExists(componentPermId1);
+        assertSampleExists(componentPermId2);
 
         IDeletionId deletionId = v3api.deleteSamples(sessionToken, Collections.singletonList(samplePermId), options);
         Assert.assertNotNull(deletionId);
 
         assertSampleDoesNotExist(samplePermId);
-        assertSampleDoesNotExist(containedPermId1);
-        assertSampleDoesNotExist(containedPermId2);
+        assertSampleDoesNotExist(componentPermId1);
+        assertSampleDoesNotExist(componentPermId2);
     }
 
     @Test

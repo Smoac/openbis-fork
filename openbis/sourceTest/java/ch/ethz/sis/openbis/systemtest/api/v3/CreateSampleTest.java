@@ -28,8 +28,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import junit.framework.Assert;
-
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -55,6 +53,8 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.TagPermId;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.test.AssertionUtil;
+
+import junit.framework.Assert;
 
 /**
  * @author pkupczyk
@@ -246,7 +246,7 @@ public class CreateSampleTest extends AbstractSampleTest
         creation.setExperimentId(new ExperimentIdentifier("/CISD/NEMO/EXP1"));
 
         List<SamplePermId> permIds = v3api.createSamples(sessionToken, Collections.singletonList(creation));
-        
+
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
         fetchOptions.withSpace();
         fetchOptions.withExperiment();
@@ -653,7 +653,7 @@ public class CreateSampleTest extends AbstractSampleTest
     }
 
     @Test(dataProvider = "tf-ft-tt")
-    public void testCreateWithContainerContained(boolean setRelationOnChild, boolean setRelationOnParent)
+    public void testCreateWithContainerComponents(boolean setRelationOnChild, boolean setRelationOnParent)
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -676,13 +676,13 @@ public class CreateSampleTest extends AbstractSampleTest
 
         if (setRelationOnParent)
         {
-            sampleParent.setContainedIds(Arrays.asList(sampleChild.getCreationId()));
+            sampleParent.setComponentIds(Arrays.asList(sampleChild.getCreationId()));
         }
 
         List<SamplePermId> sampleIds = v3api.createSamples(sessionToken, Arrays.asList(sampleParent, sampleChild));
 
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
-        fetchOptions.withContained();
+        fetchOptions.withComponents();
         fetchOptions.withContainer();
 
         Map<ISampleId, Sample> map = v3api.mapSamples(sessionToken, sampleIds, fetchOptions);
@@ -691,13 +691,13 @@ public class CreateSampleTest extends AbstractSampleTest
         Sample container = samples.get(0);
         Sample subSample = samples.get(1);
 
-        AssertionUtil.assertCollectionContains(container.getContained(), subSample);
+        AssertionUtil.assertCollectionContains(container.getComponents(), subSample);
         assertEquals(subSample.getContainer(), container);
 
-        AssertionUtil.assertCollectionSize(subSample.getContained(), 0);
+        AssertionUtil.assertCollectionSize(subSample.getComponents(), 0);
 
         assertEquals(container.getContainer(), null);
-        AssertionUtil.assertCollectionSize(container.getContained(), 1);
+        AssertionUtil.assertCollectionSize(container.getComponents(), 1);
     }
 
     @Test
@@ -746,7 +746,7 @@ public class CreateSampleTest extends AbstractSampleTest
         subSample.setSpaceId(new SpacePermId("CISD"));
         subSample.setCreationId(new CreationId("subSample"));
 
-        container1.setContainedIds(Arrays.asList(subSample.getCreationId()));
+        container1.setComponentIds(Arrays.asList(subSample.getCreationId()));
 
         if (setSubSample)
         {
@@ -755,7 +755,7 @@ public class CreateSampleTest extends AbstractSampleTest
 
         if (setOtherContainer)
         {
-            container2.setContainedIds(Arrays.asList(subSample.getCreationId()));
+            container2.setComponentIds(Arrays.asList(subSample.getCreationId()));
         }
 
         try
@@ -821,13 +821,13 @@ public class CreateSampleTest extends AbstractSampleTest
     }
 
     @Test
-    public void testCreateWithContainedUnauthorized()
+    public void testCreateWithComponentsUnauthorized()
     {
         final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
 
-        final ISampleId containedId = createCisdSample("CONTAINED_SAMPLE");
-        final SampleCreation creation = sampleCreation("TEST-SPACE", "HAS_UNAUTHORIZED_CONTAINED");
-        creation.setContainedIds(Collections.singletonList(containedId));
+        final ISampleId componentId = createCisdSample("COMPONENT_SAMPLE");
+        final SampleCreation creation = sampleCreation("TEST-SPACE", "HAS_UNAUTHORIZED_COMPONENT");
+        creation.setComponentIds(Collections.singletonList(componentId));
 
         assertUnauthorizedObjectAccessException(new IDelegatedAction()
             {
@@ -836,17 +836,17 @@ public class CreateSampleTest extends AbstractSampleTest
                 {
                     v3api.createSamples(sessionToken, Collections.singletonList(creation));
                 }
-            }, containedId);
+            }, componentId);
     }
 
     @Test
-    public void testCreateWithContainedNonexistent()
+    public void testCreateWithComponentNonexistent()
     {
         final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
 
-        final ISampleId containedId = new SamplePermId("IDONTEXIST");
-        final SampleCreation creation = sampleCreation("TEST-SPACE", "HAS_NONEXISTENT_CONTAINED");
-        creation.setContainedIds(Collections.singletonList(containedId));
+        final ISampleId componentId = new SamplePermId("IDONTEXIST");
+        final SampleCreation creation = sampleCreation("TEST-SPACE", "HAS_NONEXISTENT_COMPONENT");
+        creation.setComponentIds(Collections.singletonList(componentId));
 
         assertObjectNotFoundException(new IDelegatedAction()
             {
@@ -855,7 +855,7 @@ public class CreateSampleTest extends AbstractSampleTest
                 {
                     v3api.createSamples(sessionToken, Collections.singletonList(creation));
                 }
-            }, containedId);
+            }, componentId);
     }
 
     @Test
@@ -869,9 +869,7 @@ public class CreateSampleTest extends AbstractSampleTest
         samp1.setProperty("COMMENT", "hello");
         samp1.setContainerId(new SampleIdentifier("/CISD/MP002-1"));
         samp1.setTagIds(Arrays.<ITagId> asList(
-                new TagPermId("/test/TEST_METAPROJECTS")
-                , new TagPermId("/test/ANOTHER_TEST_METAPROJECTS")
-                ));
+                new TagPermId("/test/TEST_METAPROJECTS"), new TagPermId("/test/ANOTHER_TEST_METAPROJECTS")));
         AttachmentCreation a = new AttachmentCreation();
 
         byte[] attachmentContent = "attachment".getBytes();

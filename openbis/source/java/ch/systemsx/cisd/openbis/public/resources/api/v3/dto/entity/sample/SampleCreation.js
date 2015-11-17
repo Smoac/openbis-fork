@@ -15,7 +15,7 @@ define([ "stjs" ], function(stjs) {
 		prototype.code = null;
 		prototype.tagIds = null;
 		prototype.containerId = null;
-		prototype.containedIds = null;
+		prototype.componentIds = null;
 		prototype.parentIds = null;
 		prototype.childIds = null;
 		prototype.attachments = null;
@@ -62,11 +62,11 @@ define([ "stjs" ], function(stjs) {
 		prototype.setContainerId = function(containerId) {
 			this.containerId = containerId;
 		};
-		prototype.getContainedIds = function() {
-			return this.containedIds;
+		prototype.getcomponentIds = function() {
+			return this.componentIds;
 		};
-		prototype.setContainedIds = function(containedIds) {
-			this.containedIds = containedIds;
+		prototype.setComponentIds = function(componentIds) {
+			this.componentIds = componentIds;
 		};
 		prototype.getParentIds = function() {
 			return this.parentIds;
@@ -112,7 +112,7 @@ define([ "stjs" ], function(stjs) {
 			arguments : [ null, null ]
 		},
 		containerId : "ISampleId",
-		containedIds : {
+		componentIds : {
 			name : "List",
 			arguments : [ "Object" ]
 		},

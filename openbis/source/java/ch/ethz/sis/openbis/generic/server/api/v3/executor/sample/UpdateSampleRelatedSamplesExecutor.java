@@ -44,7 +44,7 @@ public class UpdateSampleRelatedSamplesExecutor extends AbstractUpdateEntityMult
     private IUpdateSampleContainerExecutor updateSampleContainerExecutor;
 
     @Autowired
-    private IUpdateSampleContainedExecutor updateSampleContainedExecutor;
+    private IUpdateSampleComponentsExecutor updateSampleComponentsExecutor;
 
     @Autowired
     private IUpdateSampleParentsExecutor updateSampleParentsExecutor;
@@ -56,7 +56,7 @@ public class UpdateSampleRelatedSamplesExecutor extends AbstractUpdateEntityMult
     protected void addRelatedIds(Set<ISampleId> relatedIds, SampleUpdate update)
     {
         addRelatedIds(relatedIds, update.getContainerId());
-        addRelatedIds(relatedIds, update.getContainedIds());
+        addRelatedIds(relatedIds, update.getComponentIds());
         addRelatedIds(relatedIds, update.getParentIds());
         addRelatedIds(relatedIds, update.getChildIds());
     }
@@ -71,7 +71,7 @@ public class UpdateSampleRelatedSamplesExecutor extends AbstractUpdateEntityMult
     protected void update(IOperationContext context, Map<SampleUpdate, SamplePE> entitiesMap, Map<ISampleId, SamplePE> relatedMap)
     {
         updateSampleContainerExecutor.update(context, entitiesMap, relatedMap);
-        updateSampleContainedExecutor.update(context, entitiesMap, relatedMap);
+        updateSampleComponentsExecutor.update(context, entitiesMap, relatedMap);
         updateSampleParentsExecutor.update(context, entitiesMap, relatedMap);
         updateSampleChildrenExecutor.update(context, entitiesMap, relatedMap);
     }

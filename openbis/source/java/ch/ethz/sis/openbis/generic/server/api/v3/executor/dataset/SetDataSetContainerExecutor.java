@@ -42,18 +42,18 @@ public class SetDataSetContainerExecutor extends AbstractSetEntityToManyRelation
     }
 
     @Override
-    protected void setRelated(IOperationContext context, DataPE contained, Collection<DataPE> containers)
+    protected void setRelated(IOperationContext context, DataPE component, Collection<DataPE> containers)
     {
-        context.pushContextDescription("set containers for dataset " + contained.getCode());
+        context.pushContextDescription("set containers for dataset " + component.getCode());
 
         for (DataPE container : containers)
         {
             if (false == container.isContainer())
             {
                 throw new UserFailureException("Data set " + container.getCode()
-                        + " is not of a container type therefore cannot be set as a container of data set " + contained.getCode() + ".");
+                        + " is not of a container type therefore cannot be set as a container of data set " + component.getCode() + ".");
             }
-            relationshipService.assignDataSetToContainer(context.getSession(), contained, container);
+            relationshipService.assignDataSetToContainer(context.getSession(), component, container);
         }
 
         context.popContextDescription();

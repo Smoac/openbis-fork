@@ -34,8 +34,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
  * @author pkupczyk
  */
 @Component
-public class UpdateDataSetContainedExecutor extends AbstractUpdateEntityToManyRelationExecutor<DataSetUpdate, DataPE, IDataSetId, DataPE>
-        implements IUpdateDataSetContainedExecutor
+public class UpdateDataSetComponentsExecutor extends AbstractUpdateEntityToManyRelationExecutor<DataSetUpdate, DataPE, IDataSetId, DataPE>
+        implements IUpdateDataSetComponentsExecutor
 {
 
     @Override
@@ -47,7 +47,7 @@ public class UpdateDataSetContainedExecutor extends AbstractUpdateEntityToManyRe
     @Override
     protected IdListUpdateValue<? extends IDataSetId> getRelatedUpdate(IOperationContext context, DataSetUpdate update)
     {
-        return update.getContainedIds();
+        return update.getComponentIds();
     }
 
     @Override
@@ -60,7 +60,7 @@ public class UpdateDataSetContainedExecutor extends AbstractUpdateEntityToManyRe
         if (false == entity.isContainer())
         {
             throw new UserFailureException("Data set " + entity.getCode()
-                    + " is not of a container type therefore cannot have contained data sets.");
+                    + " is not of a container type therefore cannot have component data sets.");
         }
     }
 

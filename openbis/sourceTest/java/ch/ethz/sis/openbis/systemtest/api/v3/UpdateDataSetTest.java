@@ -462,11 +462,11 @@ public class UpdateDataSetTest extends AbstractSampleTest
         final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
 
         DataSetPermId dataSetId = new DataSetPermId("20120619092259000-22");
-        final DataSetPermId containedId = new DataSetPermId("20081105092159111-1");
+        final DataSetPermId componentId = new DataSetPermId("20081105092159111-1");
 
         final DataSetUpdate update = new DataSetUpdate();
         update.setDataSetId(dataSetId);
-        update.getContainedIds().add(containedId);
+        update.getComponentIds().add(componentId);
 
         assertUnauthorizedObjectAccessException(new IDelegatedAction()
             {
@@ -475,7 +475,7 @@ public class UpdateDataSetTest extends AbstractSampleTest
                 {
                     v3api.updateDataSets(sessionToken, Collections.singletonList(update));
                 }
-            }, containedId);
+            }, componentId);
     }
 
     @Test
@@ -488,7 +488,7 @@ public class UpdateDataSetTest extends AbstractSampleTest
 
         final DataSetUpdate update = new DataSetUpdate();
         update.setDataSetId(dataSetId);
-        update.getContainedIds().add(componentId);
+        update.getComponentIds().add(componentId);
         update.getContainerIds().add(componentId);
 
         assertUserFailureException(new IDelegatedAction()
@@ -510,16 +510,16 @@ public class UpdateDataSetTest extends AbstractSampleTest
 
         DataSetUpdate update = new DataSetUpdate();
         update.setDataSetId(dataSetId);
-        update.getContainedIds().add(new DataSetPermId("COMPONENT_2A"));
-        update.getContainedIds().remove(new DataSetPermId("COMPONENT_1A"));
+        update.getComponentIds().add(new DataSetPermId("COMPONENT_2A"));
+        update.getComponentIds().remove(new DataSetPermId("COMPONENT_1A"));
 
         v3api.updateDataSets(sessionToken, Collections.singletonList(update));
 
         DataSetFetchOptions fe = new DataSetFetchOptions();
-        fe.withContained();
+        fe.withComponents();
         DataSet result = v3api.mapDataSets(sessionToken, Collections.singletonList(dataSetId), fe).get(dataSetId);
 
-        AssertionUtil.assertCollectionContainsOnly(dataSetCodes(result.getContained()), "COMPONENT_1B", "COMPONENT_2A");
+        AssertionUtil.assertCollectionContainsOnly(dataSetCodes(result.getComponents()), "COMPONENT_1B", "COMPONENT_2A");
     }
 
     @Test
@@ -529,7 +529,7 @@ public class UpdateDataSetTest extends AbstractSampleTest
 
         final DataSetUpdate update = new DataSetUpdate();
         update.setDataSetId(new DataSetPermId("COMPONENT_1A"));
-        update.getContainedIds().add(new DataSetPermId("COMPONENT_2A"));
+        update.getComponentIds().add(new DataSetPermId("COMPONENT_2A"));
 
         assertUserFailureException(new IDelegatedAction()
             {
@@ -538,7 +538,7 @@ public class UpdateDataSetTest extends AbstractSampleTest
                 {
                     v3api.updateDataSets(sessionToken, Collections.singletonList(update));
                 }
-            }, "Data set COMPONENT_1A is not of a container type therefore cannot have contained data sets.");
+            }, "Data set COMPONENT_1A is not of a container type therefore cannot have component data sets.");
     }
 
     @Test
@@ -561,15 +561,15 @@ public class UpdateDataSetTest extends AbstractSampleTest
 
         DataSetFetchOptions fe = new DataSetFetchOptions();
         fe.withContainers();
-        fe.withContained();
+        fe.withComponents();
         Map<IDataSetId, DataSet> map = v3api.mapDataSets(sessionToken, Arrays.asList(dataSetId, cont2, cont3a, cont1), fe);
 
         DataSet result = map.get(dataSetId);
 
         AssertionUtil.assertCollectionContainsOnly(dataSetCodes(result.getContainers()), cont2.getPermId(), cont3a.getPermId());
-        AssertionUtil.assertCollectionDoesntContain(dataSetCodes(map.get(cont1).getContained()), dataSetId.getPermId());
-        AssertionUtil.assertCollectionContains(dataSetCodes(map.get(cont2).getContained()), dataSetId.getPermId());
-        AssertionUtil.assertCollectionContains(dataSetCodes(map.get(cont3a).getContained()), dataSetId.getPermId());
+        AssertionUtil.assertCollectionDoesntContain(dataSetCodes(map.get(cont1).getComponents()), dataSetId.getPermId());
+        AssertionUtil.assertCollectionContains(dataSetCodes(map.get(cont2).getComponents()), dataSetId.getPermId());
+        AssertionUtil.assertCollectionContains(dataSetCodes(map.get(cont3a).getComponents()), dataSetId.getPermId());
     }
 
     @Test

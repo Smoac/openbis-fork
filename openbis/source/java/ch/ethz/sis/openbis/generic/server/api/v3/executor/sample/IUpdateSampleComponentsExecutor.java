@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ETH Zuerich, CISD
+ * Copyright 2014 ETH Zuerich, Scientific IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,17 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.sample;
+package ch.ethz.sis.openbis.generic.server.api.v3.executor.sample;
+
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.IUpdateEntityRelationsWithCacheExecutor;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleUpdate;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.ISampleId;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
 /**
  * @author pkupczyk
  */
-public interface ISampleContainedTranslator extends IObjectToSamplesTranslator
+public interface IUpdateSampleComponentsExecutor extends IUpdateEntityRelationsWithCacheExecutor<SampleUpdate, SamplePE, ISampleId, SamplePE>
 {
 
 }

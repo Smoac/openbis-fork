@@ -16,28 +16,27 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.sample;
 
-import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
-
 import java.util.List;
-
-import net.lemnik.eodsql.QueryTool;
 
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.ObjectRelationRecord;
 
+import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
+import net.lemnik.eodsql.QueryTool;
+
 /**
  * @author pkupczyk
  */
 @Component
-public class SampleContainedTranslator extends ObjectToSamplesTranslator implements ISampleContainedTranslator
+public class SampleComponentsTranslator extends ObjectToSamplesTranslator implements ISampleComponentsTranslator
 {
 
     @Override
     protected List<ObjectRelationRecord> loadRecords(LongOpenHashSet objectIds)
     {
         SampleQuery query = QueryTool.getManagedQuery(SampleQuery.class);
-        return query.getContainedIds(new LongOpenHashSet(objectIds));
+        return query.getComponentsIds(new LongOpenHashSet(objectIds));
     }
 
 }

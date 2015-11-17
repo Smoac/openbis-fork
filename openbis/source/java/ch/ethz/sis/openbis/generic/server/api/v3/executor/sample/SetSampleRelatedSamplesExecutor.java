@@ -46,7 +46,7 @@ public class SetSampleRelatedSamplesExecutor extends AbstractSetEntityMultipleRe
     private ISetSampleContainerExecutor setSampleContainerExecutor;
 
     @Autowired
-    private ISetSampleContainedExecutor setSampleContainedExecutor;
+    private ISetSampleComponentsExecutor setSampleComponentsExecutor;
 
     @Autowired
     private ISetSampleParentsExecutor setSampleParentsExecutor;
@@ -58,7 +58,7 @@ public class SetSampleRelatedSamplesExecutor extends AbstractSetEntityMultipleRe
     protected void addRelatedIds(Set<ISampleId> relatedIds, SampleCreation creation)
     {
         addRelatedIds(relatedIds, creation.getContainerId());
-        addRelatedIds(relatedIds, creation.getContainedIds());
+        addRelatedIds(relatedIds, creation.getComponentIds());
         addRelatedIds(relatedIds, creation.getParentIds());
         addRelatedIds(relatedIds, creation.getChildIds());
     }
@@ -82,7 +82,7 @@ public class SetSampleRelatedSamplesExecutor extends AbstractSetEntityMultipleRe
     protected void set(IOperationContext context, Map<SampleCreation, SamplePE> creationsMap, Map<ISampleId, SamplePE> relatedMap)
     {
         setSampleContainerExecutor.set(context, creationsMap, relatedMap);
-        setSampleContainedExecutor.set(context, creationsMap, relatedMap);
+        setSampleComponentsExecutor.set(context, creationsMap, relatedMap);
         setSampleParentsExecutor.set(context, creationsMap, relatedMap);
         setSampleChildrenExecutor.set(context, creationsMap, relatedMap);
     }

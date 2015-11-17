@@ -55,7 +55,7 @@ public class SampleTranslator extends AbstractCachingTranslator<Long, Sample, Sa
 
     @Autowired
     private ISampleProjectTranslator projectTranslator;
-    
+
     @Autowired
     private ISamplePropertyTranslator propertyTranslator;
 
@@ -72,7 +72,7 @@ public class SampleTranslator extends AbstractCachingTranslator<Long, Sample, Sa
     private ISampleContainerTranslator containerTranslator;
 
     @Autowired
-    private ISampleContainedTranslator containedTranslator;
+    private ISampleComponentsTranslator componentsTranslator;
 
     @Autowired
     private ISampleChildTranslator childTranslator;
@@ -125,7 +125,7 @@ public class SampleTranslator extends AbstractCachingTranslator<Long, Sample, Sa
         {
             relations.put(ISampleSpaceTranslator.class, spaceTranslator.translate(context, sampleIds, fetchOptions.withSpace()));
         }
-        
+
         if (fetchOptions.hasProject())
         {
             relations.put(ISampleProjectTranslator.class, projectTranslator.translate(context, sampleIds, fetchOptions.withProject()));
@@ -152,9 +152,9 @@ public class SampleTranslator extends AbstractCachingTranslator<Long, Sample, Sa
             relations.put(ISampleContainerTranslator.class, containerTranslator.translate(context, sampleIds, fetchOptions.withContainer()));
         }
 
-        if (fetchOptions.hasContained())
+        if (fetchOptions.hasComponents())
         {
-            relations.put(ISampleContainedTranslator.class, containedTranslator.translate(context, sampleIds, fetchOptions.withContained()));
+            relations.put(ISampleComponentsTranslator.class, componentsTranslator.translate(context, sampleIds, fetchOptions.withComponents()));
         }
 
         if (fetchOptions.hasParents())
@@ -208,7 +208,7 @@ public class SampleTranslator extends AbstractCachingTranslator<Long, Sample, Sa
 
         result.setPermId(new SamplePermId(baseRecord.permId));
         result.setCode(baseRecord.code);
-        result.setIdentifier(new SampleIdentifier(baseRecord.spaceCode, baseRecord.projectCode, 
+        result.setIdentifier(new SampleIdentifier(baseRecord.spaceCode, baseRecord.projectCode,
                 baseRecord.containerCode, baseRecord.code));
         result.setModificationDate(baseRecord.modificationDate);
         result.setRegistrationDate(baseRecord.registrationDate);
@@ -230,7 +230,7 @@ public class SampleTranslator extends AbstractCachingTranslator<Long, Sample, Sa
             result.setProject(relations.get(ISampleProjectTranslator.class, sampleId));
             result.getFetchOptions().withProjectUsing(fetchOptions.withProject());
         }
-        
+
         if (fetchOptions.hasProperties())
         {
             result.setProperties(relations.get(ISamplePropertyTranslator.class, sampleId));
@@ -255,10 +255,10 @@ public class SampleTranslator extends AbstractCachingTranslator<Long, Sample, Sa
             result.getFetchOptions().withContainerUsing(fetchOptions.withContainer());
         }
 
-        if (fetchOptions.hasContained())
+        if (fetchOptions.hasComponents())
         {
-            result.setContained((List<Sample>) relations.get(ISampleContainedTranslator.class, sampleId));
-            result.getFetchOptions().withContainedUsing(fetchOptions.withContained());
+            result.setComponents((List<Sample>) relations.get(ISampleComponentsTranslator.class, sampleId));
+            result.getFetchOptions().withComponentsUsing(fetchOptions.withComponents());
         }
 
         if (fetchOptions.hasParents())

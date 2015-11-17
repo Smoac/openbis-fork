@@ -78,7 +78,7 @@ public class DataSetTranslator extends AbstractCachingTranslator<Long, DataSet, 
     private IDataSetContainerTranslator containerTranslator;
 
     @Autowired
-    private IDataSetContainedTranslator containedTranslator;
+    private IDataSetComponentsTranslator componentsTranslator;
 
     @Autowired
     private IDataSetTagTranslator tagTranslator;
@@ -165,9 +165,9 @@ public class DataSetTranslator extends AbstractCachingTranslator<Long, DataSet, 
             relations.put(IDataSetContainerTranslator.class, containerTranslator.translate(context, dataSetIds, fetchOptions.withContainers()));
         }
 
-        if (fetchOptions.hasContained())
+        if (fetchOptions.hasComponents())
         {
-            relations.put(IDataSetContainedTranslator.class, containedTranslator.translate(context, dataSetIds, fetchOptions.withContained()));
+            relations.put(IDataSetComponentsTranslator.class, componentsTranslator.translate(context, dataSetIds, fetchOptions.withComponents()));
         }
 
         if (fetchOptions.hasParents())
@@ -272,10 +272,10 @@ public class DataSetTranslator extends AbstractCachingTranslator<Long, DataSet, 
             result.getFetchOptions().withContainersUsing(fetchOptions.withContainers());
         }
 
-        if (fetchOptions.hasContained())
+        if (fetchOptions.hasComponents())
         {
-            result.setContained((List<DataSet>) relations.get(IDataSetContainedTranslator.class, dataSetId));
-            result.getFetchOptions().withContainedUsing(fetchOptions.withContained());
+            result.setComponents((List<DataSet>) relations.get(IDataSetComponentsTranslator.class, dataSetId));
+            result.getFetchOptions().withComponentsUsing(fetchOptions.withComponents());
         }
 
         if (fetchOptions.hasParents())
