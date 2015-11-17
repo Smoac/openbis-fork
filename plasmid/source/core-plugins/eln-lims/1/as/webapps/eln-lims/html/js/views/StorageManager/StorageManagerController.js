@@ -44,7 +44,7 @@ function StorageManagerController(mainController) {
 			
 			var isMultiplePosition = data.properties[newStoragePropertyGroup.positionProperty].split(" ").length > 1;
 			if(isMultiplePosition) {
-				var errorMsg = "Multiple position support is not implemented on the manager, please use the sample form for this.";
+				var errorMsg = "Multiple position Samples are not supported by the manager, please use the sample form for this.";
 				Util.showError(errorMsg);
 				throw errorMsg;
 			} else {
