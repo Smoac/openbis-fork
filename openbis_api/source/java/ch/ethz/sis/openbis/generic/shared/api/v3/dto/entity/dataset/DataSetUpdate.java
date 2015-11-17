@@ -66,7 +66,7 @@ public class DataSetUpdate implements Serializable
     private IdListUpdateValue<IDataSetId> containerIds = new IdListUpdateValue<IDataSetId>();
 
     @JsonProperty
-    private IdListUpdateValue<IDataSetId> containedIds = new IdListUpdateValue<IDataSetId>();
+    private IdListUpdateValue<IDataSetId> componentIds = new IdListUpdateValue<IDataSetId>();
 
     @JsonProperty
     private IdListUpdateValue<IDataSetId> parentIds = new IdListUpdateValue<IDataSetId>();
@@ -170,15 +170,15 @@ public class DataSetUpdate implements Serializable
     }
 
     @JsonIgnore
-    public IdListUpdateValue<IDataSetId> getContainedIds()
+    public IdListUpdateValue<IDataSetId> getComponentIds()
     {
-        return containedIds;
+        return componentIds;
     }
 
     @JsonIgnore
-    public void setContainedActions(List<ListUpdateAction<IDataSetId>> actions)
+    public void setComponentActions(List<ListUpdateAction<IDataSetId>> actions)
     {
-        containedIds.setActions(actions);
+        componentIds.setActions(actions);
     }
 
     @JsonIgnore

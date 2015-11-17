@@ -75,7 +75,7 @@ CodeSearchCriteria
 compare
 Complete
 confirmDeletions
-CONTAINED
+COMPONENT
 CONTAINER
 contains
 containsAll
@@ -195,8 +195,8 @@ getChildren
 getCode
 getComparator
 getComplete
-getContained
-getContainedIds
+getComponents
+getComponentIds
 getContainer
 getContainerId
 getContainerIds
@@ -319,7 +319,7 @@ hasActions
 hasAttachments
 hasAuthor
 hasChildren
-hasContained
+hasComponents
 hasContainer
 hasContainers
 hasContent
@@ -584,9 +584,9 @@ setChildIds
 setChildren
 setCode
 setComplete
-setContained
-setContainedActions
-setContainedIds
+setComponents
+setComponentActions
+setComponentIds
 setContainer
 setContainerActions
 setContainerId
@@ -814,8 +814,8 @@ withAuthorUsing
 withChildren
 withChildrenUsing
 withCode
-withContained
-withContainedUsing
+withComponents
+withComponentsUsing
 withContainer
 withContainers
 withContainersUsing

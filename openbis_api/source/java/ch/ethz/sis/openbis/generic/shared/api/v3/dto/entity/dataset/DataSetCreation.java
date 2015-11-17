@@ -61,7 +61,7 @@ public class DataSetCreation implements Serializable, ICreationIdHolder
 
     private List<? extends IDataSetId> containerIds;
 
-    private List<? extends IDataSetId> containedIds;
+    private List<? extends IDataSetId> componentIds;
 
     private List<? extends IDataSetId> parentIds;
 
@@ -169,14 +169,14 @@ public class DataSetCreation implements Serializable, ICreationIdHolder
         this.containerIds = containerIds;
     }
 
-    public List<? extends IDataSetId> getContainedIds()
+    public List<? extends IDataSetId> getComponentIds()
     {
-        return containedIds;
+        return componentIds;
     }
 
-    public void setContainedIds(List<? extends IDataSetId> containedIds)
+    public void setComponentIds(List<? extends IDataSetId> componentIds)
     {
-        this.containedIds = containedIds;
+        this.componentIds = componentIds;
     }
 
     public List<? extends IDataSetId> getParentIds()

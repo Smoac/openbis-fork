@@ -75,7 +75,7 @@ public class DataSetFetchOptions extends FetchOptions<DataSet> implements Serial
     private DataSetFetchOptions containers;
 
     @JsonProperty
-    private DataSetFetchOptions contained;
+    private DataSetFetchOptions components;
 
     @JsonProperty
     private TagFetchOptions tags;
@@ -335,25 +335,25 @@ public class DataSetFetchOptions extends FetchOptions<DataSet> implements Serial
     }
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
-    public DataSetFetchOptions withContained()
+    public DataSetFetchOptions withComponents()
     {
-        if (contained == null)
+        if (components == null)
         {
-            contained = new DataSetFetchOptions();
+            components = new DataSetFetchOptions();
         }
-        return contained;
+        return components;
     }
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
-    public DataSetFetchOptions withContainedUsing(DataSetFetchOptions fetchOptions)
+    public DataSetFetchOptions withComponentsUsing(DataSetFetchOptions fetchOptions)
     {
-        return contained = fetchOptions;
+        return components = fetchOptions;
     }
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
-    public boolean hasContained()
+    public boolean hasComponents()
     {
-        return contained != null;
+        return components != null;
     }
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}

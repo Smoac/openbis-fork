@@ -65,7 +65,7 @@ public class SampleUpdate implements Serializable
     private FieldUpdateValue<ISampleId> containerId = new FieldUpdateValue<ISampleId>();
 
     @JsonProperty
-    private IdListUpdateValue<ISampleId> containedIds = new IdListUpdateValue<ISampleId>();
+    private IdListUpdateValue<ISampleId> componentIds = new IdListUpdateValue<ISampleId>();
 
     @JsonProperty
     private IdListUpdateValue<ISampleId> parentIds = new IdListUpdateValue<ISampleId>();
@@ -161,15 +161,15 @@ public class SampleUpdate implements Serializable
     }
 
     @JsonIgnore
-    public IdListUpdateValue<ISampleId> getContainedIds()
+    public IdListUpdateValue<ISampleId> getComponentIds()
     {
-        return containedIds;
+        return componentIds;
     }
 
     @JsonIgnore
-    public void setContainedActions(List<ListUpdateAction<ISampleId>> actions)
+    public void setComponentActions(List<ListUpdateAction<ISampleId>> actions)
     {
-        containedIds.setActions(actions);
+        componentIds.setActions(actions);
     }
 
     @JsonIgnore

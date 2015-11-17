@@ -103,7 +103,7 @@ public class DataSet implements Serializable, ICodeHolder, IModificationDateHold
     private List<DataSet> containers;
 
     @JsonProperty
-    private List<DataSet> contained;
+    private List<DataSet> components;
 
     @JsonProperty
     private Set<Tag> tags;
@@ -419,22 +419,22 @@ public class DataSet implements Serializable, ICodeHolder, IModificationDateHold
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
     @JsonIgnore
-    public List<DataSet> getContained()
+    public List<DataSet> getComponents()
     {
-        if (getFetchOptions().hasContained())
+        if (getFetchOptions().hasComponents())
         {
-            return contained;
+            return components;
         }
         else
         {
-            throw new NotFetchedException("Contained data sets have not been fetched.");
+            throw new NotFetchedException("Component data sets have not been fetched.");
         }
     }
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
-    public void setContained(List<DataSet> contained)
+    public void setComponents(List<DataSet> components)
     {
-        this.contained = contained;
+        this.components = components;
     }
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}

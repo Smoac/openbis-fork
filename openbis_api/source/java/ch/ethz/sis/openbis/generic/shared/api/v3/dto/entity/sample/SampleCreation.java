@@ -56,7 +56,7 @@ public class SampleCreation implements Serializable, ICreationIdHolder
 
     private ISampleId containerId;
 
-    private List<? extends ISampleId> containedIds;
+    private List<? extends ISampleId> componentIds;
 
     private List<? extends ISampleId> parentIds;
 
@@ -136,14 +136,14 @@ public class SampleCreation implements Serializable, ICreationIdHolder
         this.containerId = containerId;
     }
 
-    public List<? extends ISampleId> getContainedIds()
+    public List<? extends ISampleId> getComponentIds()
     {
-        return containedIds;
+        return componentIds;
     }
 
-    public void setContainedIds(List<? extends ISampleId> containedIds)
+    public void setComponentIds(List<? extends ISampleId> componentIds)
     {
-        this.containedIds = containedIds;
+        this.componentIds = componentIds;
     }
 
     public List<? extends ISampleId> getParentIds()

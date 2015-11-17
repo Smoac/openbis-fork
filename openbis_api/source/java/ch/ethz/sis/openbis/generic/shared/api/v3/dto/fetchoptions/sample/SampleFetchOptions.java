@@ -69,7 +69,7 @@ public class SampleFetchOptions extends FetchOptions<Sample> implements Serializ
     private SampleFetchOptions container;
 
     @JsonProperty
-    private SampleFetchOptions contained;
+    private SampleFetchOptions components;
 
     @JsonProperty
     private DataSetFetchOptions dataSets;
@@ -291,25 +291,25 @@ public class SampleFetchOptions extends FetchOptions<Sample> implements Serializ
     }
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
-    public SampleFetchOptions withContained()
+    public SampleFetchOptions withComponents()
     {
-        if (contained == null)
+        if (components == null)
         {
-            contained = new SampleFetchOptions();
+            components = new SampleFetchOptions();
         }
-        return contained;
+        return components;
     }
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
-    public SampleFetchOptions withContainedUsing(SampleFetchOptions fetchOptions)
+    public SampleFetchOptions withComponentsUsing(SampleFetchOptions fetchOptions)
     {
-        return contained = fetchOptions;
+        return components = fetchOptions;
     }
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
-    public boolean hasContained()
+    public boolean hasComponents()
     {
-        return contained != null;
+        return components != null;
     }
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}

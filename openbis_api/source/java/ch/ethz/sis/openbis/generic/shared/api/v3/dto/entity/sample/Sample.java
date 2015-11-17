@@ -104,7 +104,7 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, IM
     private Sample container;
 
     @JsonProperty
-    private List<Sample> contained;
+    private List<Sample> components;
 
     @JsonProperty
     private List<DataSet> dataSets;
@@ -393,22 +393,22 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, IM
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
     @JsonIgnore
-    public List<Sample> getContained()
+    public List<Sample> getComponents()
     {
-        if (getFetchOptions().hasContained())
+        if (getFetchOptions().hasComponents())
         {
-            return contained;
+            return components;
         }
         else
         {
-            throw new NotFetchedException("Contained samples have not been fetched.");
+            throw new NotFetchedException("Component samples have not been fetched.");
         }
     }
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
-    public void setContained(List<Sample> contained)
+    public void setComponents(List<Sample> components)
     {
-        this.contained = contained;
+        this.components = components;
     }
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
