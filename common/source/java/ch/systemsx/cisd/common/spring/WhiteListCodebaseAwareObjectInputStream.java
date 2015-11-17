@@ -40,13 +40,22 @@ public class WhiteListCodebaseAwareObjectInputStream extends CodebaseAwareObject
     private static final List<Pattern> whiteListPatterns = new LinkedList<>();
 
     static {
+        addToWhiteListPatterns("char");
+        addToWhiteListPatterns("[C");
         addToWhiteListPatterns("byte");
+        addToWhiteListPatterns("[B");
         addToWhiteListPatterns("short");
+        addToWhiteListPatterns("[S");
         addToWhiteListPatterns("int");
+        addToWhiteListPatterns("[I");
         addToWhiteListPatterns("long");
+        addToWhiteListPatterns("[J");
         addToWhiteListPatterns("float");
+        addToWhiteListPatterns("[F");
         addToWhiteListPatterns("double");
+        addToWhiteListPatterns("[D");
         addToWhiteListPatterns("boolean");
+        addToWhiteListPatterns("[Z");
         addToWhiteListPatterns("org\\.springframework\\.remoting\\.support\\.RemoteInvocation");
         addToWhiteListPatterns("com\\.marathon\\.util\\.spring\\.StreamSupportingRemoteInvocation");
         addToWhiteListPatterns("com\\.marathon\\.util\\.spring\\.RemoteInvocationDecorator");
