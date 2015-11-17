@@ -15,7 +15,7 @@
  */
 
 var ChangeLogType = {
-		Sample : 0
+		Sample : "Sample"
 }
 
 function StorageManagerModel() {
