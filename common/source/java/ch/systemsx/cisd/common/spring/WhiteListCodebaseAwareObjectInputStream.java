@@ -41,21 +41,21 @@ public class WhiteListCodebaseAwareObjectInputStream extends CodebaseAwareObject
 
     static {
         addToWhiteListPatterns("char");
-        addToWhiteListPatterns("[C");
+        addToWhiteListPatterns("\\[C");
         addToWhiteListPatterns("byte");
-        addToWhiteListPatterns("[B");
+        addToWhiteListPatterns("\\[B");
         addToWhiteListPatterns("short");
-        addToWhiteListPatterns("[S");
+        addToWhiteListPatterns("\\[S");
         addToWhiteListPatterns("int");
-        addToWhiteListPatterns("[I");
+        addToWhiteListPatterns("\\[I");
         addToWhiteListPatterns("long");
-        addToWhiteListPatterns("[J");
+        addToWhiteListPatterns("\\[J");
         addToWhiteListPatterns("float");
-        addToWhiteListPatterns("[F");
+        addToWhiteListPatterns("\\[F");
         addToWhiteListPatterns("double");
-        addToWhiteListPatterns("[D");
+        addToWhiteListPatterns("\\[D");
         addToWhiteListPatterns("boolean");
-        addToWhiteListPatterns("[Z");
+        addToWhiteListPatterns("\\[Z");
         addToWhiteListPatterns("org\\.springframework\\.remoting\\.support\\.RemoteInvocation");
         addToWhiteListPatterns("com\\.marathon\\.util\\.spring\\.StreamSupportingRemoteInvocation");
         addToWhiteListPatterns("com\\.marathon\\.util\\.spring\\.RemoteInvocationDecorator");
