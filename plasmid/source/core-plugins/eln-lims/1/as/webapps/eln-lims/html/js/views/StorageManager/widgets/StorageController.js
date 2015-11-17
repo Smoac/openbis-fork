@@ -75,7 +75,22 @@ function StorageController(configOverride) {
 			_this._storageView.hidePosField();
 		}); 
 	}
-
+	
+	if(this._storageModel.config.positionDropEventHandler !== null) {
+		this._gridControllerPosition.getView().setPosDropEventHandler(
+			function(posX, posY, data) {
+				_this._storageModel.config.positionDropEventHandler(data.permId,
+							_this._storageModel.storagePropertyGroup,
+							_this._storageModel.storageCode,
+							_this._storageModel.row,
+							_this._storageModel.column,
+							_this._storageModel.boxName,
+							_this._storageModel.boxSize,
+							mainController.serverFacade.openbisServer.getSession().split("-")[0],
+							(Util.getLetterForNumber(posX) + posY));
+		});
+	}
+	
 	this.setUserIdsSelected = function(userIdsSelected) {
 		this._storageModel.userIdsSelected = userIdsSelected;
 		this._gridController.getModel().labelsFilter = function(posX, posY, sortedLabels) {

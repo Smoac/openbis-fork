@@ -238,7 +238,7 @@ function StorageView(storageController, storageModel, gridViewRack, gridViewPosi
 								if(_this._storageModel.sample && element.permId === _this._storageModel.sample.permId) {
 									continue;
 								} else {
-									label = { displayName : code, data : {} };
+									label = { displayName : code, data : element };
 									col.push(label);
 								}
 							}

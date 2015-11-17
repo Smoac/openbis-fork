@@ -202,6 +202,7 @@ function StorageListView(storageListController, storageListModel) {
 			rackPositionMultiple: "off",
 			rackBoxDragAndDropEnabled: "off",
 			positionSelector: "on",
+			positionDropEventHandler: null,
 			boxPositionMultiple: "on",
 			positionDragAndDropEnabled: "off"
 		});

@@ -28,7 +28,37 @@ function StorageManagerController(mainController) {
 	
 	window.alert("Warning: The Storage Manager does not support box positions yet. If entities are moved from one box to another the position will be lost.");
 	
+	//Main View Setup
+	var _this = this;
 	this._mainController = mainController;
+	this._storageManagerModel = new StorageManagerModel();
+	
+	var getPositionDropEventHandler = function(changeLog) {
+		return function(permId,
+						newStoragePropertyGroup,
+						newStorageName,
+						newRow,
+						newColumn,
+						newBoxName,
+						newBoxSize,
+						newUserId,
+						newBoxPosition) {
+			
+			var propertiesValues = {};
+			propertiesValues[newStoragePropertyGroup.nameProperty] = newStorageName;
+			propertiesValues[newStoragePropertyGroup.rowProperty] = newRow;
+			propertiesValues[newStoragePropertyGroup.columnProperty] = newColumn;
+			propertiesValues[newStoragePropertyGroup.boxProperty] = newBoxName;
+			propertiesValues[newStoragePropertyGroup.boxSizeProperty] = newBoxSize;
+			propertiesValues[newStoragePropertyGroup.userProperty] = newUserId;
+			propertiesValues[newStoragePropertyGroup.positionProperty] = newBoxPosition;
+			
+			changeLog.push({
+				permId: permId,
+				properties: propertiesValues
+			});
+		}
+	}
 	
 	//Sub Views Setup
 	this._storageFromController = new StorageController({
@@ -42,6 +72,7 @@ function StorageManagerController(mainController) {
 		rackPositionMultiple: "off",
 		rackBoxDragAndDropEnabled: "on",
 		positionSelector: "on",
+		positionDropEventHandler: getPositionDropEventHandler(this._storageManagerModel.changeLog),
 		boxPositionMultiple: "off",
 		positionDragAndDropEnabled: "on"
 	});
@@ -57,14 +88,13 @@ function StorageManagerController(mainController) {
 		rackPositionMultiple: "off",
 		rackBoxDragAndDropEnabled: "on",
 		positionSelector: "on",
+		positionDropEventHandler: getPositionDropEventHandler(this._storageManagerModel.changeLog),
 		boxPositionMultiple: "off",
 		positionDragAndDropEnabled: "on"
 	});
 	
-	
-	//Main View Setup
-	this._storageManagerModel = new StorageManagerModel();
 	this._storageManagerView = new StorageManagerView(this._storageManagerModel, this._storageFromController.getView(), this._storageToController.getView());
+	
 	
 	var _this = this;
 	this._storageManagerView.getMoveButton().click(function() {

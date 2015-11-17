@@ -19,6 +19,7 @@ function GridView(gridModel) {
 	this._gridTable = null;
 	this._posClickedEventHandler = null;
 	this._labelClickedEventHandler = null;
+	this._posDropEventHandler = null;
 	
 	this.repaint = function($container) {
 		$container.empty();
@@ -61,19 +62,29 @@ function GridView(gridModel) {
 			for(var j = 0; j < this._gridModel.numColumns; j++) {
 				var $newColumn = $("<td>");
 				if(this._gridModel.isDragable) {
+					var dropEventFuncCopyPos = function(x,y) {
+						return function(event) {
+					    	event.preventDefault();
+					        var tagId = event.originalEvent.dataTransfer.getData("tagId");
+					        var objectAsString = event.originalEvent.dataTransfer.getData("object");
+					        if(event.target.nodeName === "TD") {
+					        	if(_this._posDropEventHandler) {
+					        		var object = JSON.parse(objectAsString);
+					        		_this._posDropEventHandler(x, y, object);
+					        	}
+					        	var $targetDrop = $(event.target);
+						        var $elementToDrop = $("#" + tagId);
+						        $targetDrop.append($elementToDrop);
+					        }
+					    };
+					};
+					var dropEventFunc = dropEventFuncCopyPos(i+1, j+1);
+					
 					$newColumn.on({
 					    dragover: function(e) {
 					        e.preventDefault();
 					    },
-					    drop: function(event) {
-					    	event.preventDefault();
-					        var elementId = event.originalEvent.dataTransfer.getData("text");
-					        if(event.target.nodeName === "TD") {
-					        	var $targetDrop = $(event.target);
-						        var $elementToDrop = $("#" + elementId);
-						        $targetDrop.append($elementToDrop);
-					        }
-					    }
+					    drop: dropEventFunc
 					});
 				}
 				
@@ -106,12 +117,19 @@ function GridView(gridModel) {
 			for(var i = 0; i < labels.length; i++) {
 				if(!usedLabels[labels[i].displayName]) {
 					var labelContainer = $("<div>", { class: "storageBox", id : Util.guid() }).append(labels[i].displayName);
+					var dragCopyFunc = function(object) {
+						return function(event) {
+							event.originalEvent.dataTransfer.setData('tagId', this.id);
+							event.originalEvent.dataTransfer.setData('object', JSON.stringify(object.data));
+						};
+					}
+					
+					var dragFunc = dragCopyFunc(labels[i]);
+					
 					if(this._gridModel.isDragable) {
 						labelContainer.attr('draggable', 'true');
 						labelContainer.on({
-						    dragstart: function(event) {
-						    	event.originalEvent.dataTransfer.setData('Text', this.id);
-						    }
+						    dragstart: dragFunc
 						});
 					}
 					usedLabels[labels[i].displayName] = true
@@ -179,5 +197,9 @@ function GridView(gridModel) {
 	
 	this.setLabelSelectedEventHandler = function(labelClickedEventHandler) {
 		this._labelClickedEventHandler = labelClickedEventHandler;
+	}
+	
+	this.setPosDropEventHandler = function(posDropEventHandler) {
+		this._posDropEventHandler = posDropEventHandler;
 	}
 }
