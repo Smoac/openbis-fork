@@ -16,10 +16,14 @@
 
 package ch.systemsx.cisd.common.spring;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.beans.factory.support.BeanDefinitionValidationException;
 import org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter;
+
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 
 /**
  * Post processor checking if there are no insecure instances of HttpInvokerServiceExporter registered as beans
@@ -28,6 +32,9 @@ import org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter;
  */
 public class CheckSecureHttpInvokerBeanPostProcessor implements BeanPostProcessor
 {
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, 
+            WhiteListCodebaseAwareObjectInputStream.class);
+
     public class InsecureHttpInvokerServiceExporterException extends BeanDefinitionValidationException
     {
         private static final long serialVersionUID = 1L;
@@ -52,6 +59,7 @@ public class CheckSecureHttpInvokerBeanPostProcessor implements BeanPostProcesso
         {
             return true;
         }
+        operationLog.info("Secure HTTP invoker service exporter: " + bean);
         return false;
     }
 
