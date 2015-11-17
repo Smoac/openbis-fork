@@ -39,7 +39,7 @@ public class WhiteListCodebaseAwareObjectInputStream extends CodebaseAwareObject
 
     private static final List<Pattern> whiteListPatterns = new LinkedList<>();
 
-    {
+    static {
         addToWhiteListPatterns("byte");
         addToWhiteListPatterns("short");
         addToWhiteListPatterns("int");
