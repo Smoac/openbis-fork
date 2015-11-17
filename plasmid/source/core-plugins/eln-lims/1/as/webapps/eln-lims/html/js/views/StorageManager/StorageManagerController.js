@@ -26,15 +26,13 @@ function StorageManagerController(mainController) {
 		}
 	}
 	
-	window.alert("Warning: The Storage Manager does not support box positions yet. If entities are moved from one box to another the position will be lost.");
-	
 	//Main View Setup
 	var _this = this;
 	this._mainController = mainController;
 	this._storageManagerModel = new StorageManagerModel();
 	
 	var getPositionDropEventHandler = function(changeLog) {
-		return function(permId,
+		return function(data,
 						newStoragePropertyGroup,
 						newStorageName,
 						newRow,
@@ -42,21 +40,28 @@ function StorageManagerController(mainController) {
 						newBoxName,
 						newBoxSize,
 						newUserId,
+						oldBoxPosition,
 						newBoxPosition) {
 			
-			var propertiesValues = {};
-			propertiesValues[newStoragePropertyGroup.nameProperty] = newStorageName;
-			propertiesValues[newStoragePropertyGroup.rowProperty] = newRow;
-			propertiesValues[newStoragePropertyGroup.columnProperty] = newColumn;
-			propertiesValues[newStoragePropertyGroup.boxProperty] = newBoxName;
-			propertiesValues[newStoragePropertyGroup.boxSizeProperty] = newBoxSize;
-			propertiesValues[newStoragePropertyGroup.userProperty] = newUserId;
-			propertiesValues[newStoragePropertyGroup.positionProperty] = newBoxPosition;
-			
-			changeLog.push({
-				permId: permId,
-				properties: propertiesValues
-			});
+			var isMultiplePosition = data.properties[newStoragePropertyGroup.positionProperty].split(" ").length > 1;
+			if(isMultiplePosition) {
+				Util.showError("Multiple position support is not implemented on the manager, please use the sample form for this.");
+			} else {
+				var propertiesValues = {};
+				propertiesValues[newStoragePropertyGroup.nameProperty] = newStorageName;
+				propertiesValues[newStoragePropertyGroup.rowProperty] = newRow;
+				propertiesValues[newStoragePropertyGroup.columnProperty] = newColumn;
+				propertiesValues[newStoragePropertyGroup.boxProperty] = newBoxName;
+				propertiesValues[newStoragePropertyGroup.boxSizeProperty] = newBoxSize;
+				propertiesValues[newStoragePropertyGroup.userProperty] = newUserId;
+				propertiesValues[newStoragePropertyGroup.positionProperty] = newBoxPosition;
+				
+				changeLog.push({
+					type: "Sample",
+					permId: data.permId,
+					properties: propertiesValues
+				});
+			}
 		}
 	}
 	
@@ -70,7 +75,7 @@ function StorageManagerController(mainController) {
 		boxSizeSelector: "on",
 		rackSelector: "on",
 		rackPositionMultiple: "off",
-		rackBoxDragAndDropEnabled: "on",
+		rackBoxDragAndDropEnabled: "off",
 		positionSelector: "on",
 		positionDropEventHandler: getPositionDropEventHandler(this._storageManagerModel.changeLog),
 		boxPositionMultiple: "off",
@@ -86,7 +91,7 @@ function StorageManagerController(mainController) {
 		boxSizeSelector: "on",
 		rackSelector: "on",
 		rackPositionMultiple: "off",
-		rackBoxDragAndDropEnabled: "on",
+		rackBoxDragAndDropEnabled: "off",
 		positionSelector: "on",
 		positionDropEventHandler: getPositionDropEventHandler(this._storageManagerModel.changeLog),
 		boxPositionMultiple: "off",

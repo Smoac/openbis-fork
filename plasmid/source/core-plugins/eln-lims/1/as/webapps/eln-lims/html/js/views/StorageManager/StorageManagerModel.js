@@ -15,17 +15,5 @@
  */
 
 function StorageManagerModel() {
-	this.changeLog = [{
-		permId : "123456789",
-		properties: {
-			"STORAGE_GROUP_DISPLAY_NAME" : "Physical Storage", //Storage Group Name
-			"NAME_PROPERTY" : 		"STORAGE_NAMES", //Should be a Vocabulary.
-			"ROW_PROPERTY" : 		"STORAGE_ROW", //Should be an integer.
-			"COLUMN_PROPERTY" : 	"STORAGE_COLUMN",  //Should be an integer.
-			"BOX_PROPERTY" : 		"STORAGE_BOX_NAME", //Should be text.
-			"BOX_SIZE_PROPERTY" : 	"STORAGE_BOX_SIZE", //Should be Vocabulary.
-			"USER_PROPERTY" : 		"STORAGE_USER", //Should be text.
-			"POSITION_PROPERTY" : 	"STORAGE_POSITION" //Should be text.
-		}
-	}];
+	this.changeLog = [];
 }

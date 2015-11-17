@@ -79,7 +79,7 @@ function StorageController(configOverride) {
 	if(this._storageModel.config.positionDropEventHandler !== null) {
 		this._gridControllerPosition.getView().setPosDropEventHandler(
 			function(posX, posY, data) {
-				_this._storageModel.config.positionDropEventHandler(data.permId,
+				_this._storageModel.config.positionDropEventHandler(data,
 							_this._storageModel.storagePropertyGroup,
 							_this._storageModel.storageCode,
 							_this._storageModel.row,
