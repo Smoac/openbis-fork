@@ -57,9 +57,9 @@ public class CheckSecureHttpInvokerBeanPostProcessor implements BeanPostProcesso
         if (bean instanceof WhiteListHttpInvokerServiceExporter ||
                 bean instanceof WhiteListStreamSupportingHttpInvokerExporter)
         {
+            operationLog.info("Secure HTTP invoker service exporter: " + bean);
             return true;
         }
-        operationLog.info("Secure HTTP invoker service exporter: " + bean);
         return false;
     }
 
