@@ -31,7 +31,7 @@ function StorageManagerController(mainController) {
 	this._mainController = mainController;
 	this._storageManagerModel = new StorageManagerModel();
 	
-	var getPositionDropEventHandler = function(changeLog) {
+	var getPositionDropEventHandler = function() {
 		return function(data,
 						newStoragePropertyGroup,
 						newStorageName,
@@ -40,12 +40,13 @@ function StorageManagerController(mainController) {
 						newBoxName,
 						newBoxSize,
 						newUserId,
-						oldBoxPosition,
 						newBoxPosition) {
 			
 			var isMultiplePosition = data.properties[newStoragePropertyGroup.positionProperty].split(" ").length > 1;
 			if(isMultiplePosition) {
-				Util.showError("Multiple position support is not implemented on the manager, please use the sample form for this.");
+				var errorMsg = "Multiple position support is not implemented on the manager, please use the sample form for this.";
+				Util.showError(errorMsg);
+				throw errorMsg;
 			} else {
 				var propertiesValues = {};
 				propertiesValues[newStoragePropertyGroup.nameProperty] = newStorageName;
@@ -56,10 +57,12 @@ function StorageManagerController(mainController) {
 				propertiesValues[newStoragePropertyGroup.userProperty] = newUserId;
 				propertiesValues[newStoragePropertyGroup.positionProperty] = newBoxPosition;
 				
-				changeLog.push({
-					type: "Sample",
+				_this._updateChangeLog({
+					type: ChangeLogType.Sample,
 					permId: data.permId,
-					properties: propertiesValues
+					data: data,
+					storagePropertyGroup : newStoragePropertyGroup,
+					newProperties: propertiesValues
 				});
 			}
 		}
@@ -77,7 +80,7 @@ function StorageManagerController(mainController) {
 		rackPositionMultiple: "off",
 		rackBoxDragAndDropEnabled: "off",
 		positionSelector: "on",
-		positionDropEventHandler: getPositionDropEventHandler(this._storageManagerModel.changeLog),
+		positionDropEventHandler: getPositionDropEventHandler(),
 		boxPositionMultiple: "off",
 		positionDragAndDropEnabled: "on"
 	});
@@ -101,7 +104,11 @@ function StorageManagerController(mainController) {
 	this._storageManagerView = new StorageManagerView(this._storageManagerModel, this._storageFromController.getView(), this._storageToController.getView());
 	
 	
-	var _this = this;
+	this._updateChangeLog = function(newChange) {
+		_this._storageManagerModel.updateChangeLog(newChange);
+		_this._storageManagerView.updateChangeLogView();
+	}
+	
 	this._storageManagerView.getMoveButton().click(function() {
 		alert("TO-DO Update Logic!");
 	});

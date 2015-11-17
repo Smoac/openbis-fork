@@ -14,6 +14,27 @@
  * limitations under the License.
  */
 
+var ChangeLogType = {
+		Sample : 0
+}
+
 function StorageManagerModel() {
 	this.changeLog = [];
+	this.updateChangeLog = function(newChange) {
+		if(newChange.type === ChangeLogType.Sample) {
+			var idxToDelete = null;
+			for(var cIdx = 0; cIdx < this.changeLog.length; cIdx++) {
+				var item = this.changeLog[cIdx];
+				if(item.data.permId === newChange.data.permId) {
+					idxToDelete = cIdx;
+					break;
+				}
+			}
+			
+			if(idxToDelete !== null) {
+				this.changeLog.splice(idxToDelete, 1);
+			}
+		}
+		this.changeLog.push(newChange);
+	}
 }

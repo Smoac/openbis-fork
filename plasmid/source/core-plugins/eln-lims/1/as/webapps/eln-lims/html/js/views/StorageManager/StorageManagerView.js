@@ -19,6 +19,7 @@ function StorageManagerView(storageManagerModel, storageFromView, storageToView)
 	
 	this._storageFromView = storageFromView;
 	this._storageToView = storageToView;
+	this._changeLogContainer = $("<div>").append("None");
 	this._moveBtn = $("<a>", { "class" : "btn btn-primary"}).append("Move Selected Samples <span class='glyphicon glyphicon-arrow-right'></span>");
 	
 	this.repaint = function($container) {
@@ -41,7 +42,10 @@ function StorageManagerView(storageManagerModel, storageFromView, storageToView)
 		$twoColumnsContainer.append($storageToContainer);
 		this._storageToView.repaint($storageToContainer);
 		
+		
 		$containerColumn.append($twoColumnsContainer);
+		$containerColumn.append($("<div>").append($("<h2>").append("Changes")).append(this._changeLogContainer));
+		$containerColumn.append($("<br>"));
 		$containerColumn.append(this._moveBtn);
 		
 		$container.append($containerColumn);
@@ -49,5 +53,34 @@ function StorageManagerView(storageManagerModel, storageFromView, storageToView)
 	
 	this.getMoveButton = function() {
 		return this._moveBtn;
+	}
+	
+	this.updateChangeLogView = function() {
+		this._changeLogContainer.empty();
+		var changeLog = this._storageManagerModel.changeLog;
+		for(var cIdx = 0; cIdx < changeLog.length; cIdx++) {
+			var item = changeLog[cIdx];
+			this._changeLogContainer.append("<strong>Type:</strong>");
+			this._changeLogContainer.append(" ");
+			this._changeLogContainer.append(item.type);
+			this._changeLogContainer.append(" ");
+			
+			this._changeLogContainer.append("<strong>Identifier:</strong>");
+			this._changeLogContainer.append(" ");
+			this._changeLogContainer.append(item.data.identifier);
+			this._changeLogContainer.append(" ");
+			
+			this._changeLogContainer.append("<strong>New Box:</strong>");
+			this._changeLogContainer.append(" ");
+			this._changeLogContainer.append(item.newProperties[item.storagePropertyGroup.boxProperty]);
+			this._changeLogContainer.append(" ");
+			
+			this._changeLogContainer.append("<strong>New Position:</strong>");
+			this._changeLogContainer.append(" ");
+			this._changeLogContainer.append(item.newProperties[item.storagePropertyGroup.positionProperty]);
+			this._changeLogContainer.append(" ");
+			
+			this._changeLogContainer.append($("<br>"));
+		}
 	}
 }
