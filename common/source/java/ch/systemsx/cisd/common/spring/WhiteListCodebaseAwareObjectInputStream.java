@@ -49,6 +49,7 @@ public class WhiteListCodebaseAwareObjectInputStream extends CodebaseAwareObject
         addToWhiteListPatterns("boolean");
         addToWhiteListPatterns("org\\.springframework\\.remoting\\.support\\.RemoteInvocation");
         addToWhiteListPatterns("com\\.marathon\\.util\\.spring\\.StreamSupportingRemoteInvocation");
+        addToWhiteListPatterns("com\\.marathon\\.util\\.spring\\.RemoteInvocationDecorator");
         addToWhiteListPatterns("java\\..*");
         addToWhiteListPatterns("ch\\.ethz\\.sis\\..*");
         addToWhiteListPatterns("ch\\.systemsx\\.cisd\\..*");
