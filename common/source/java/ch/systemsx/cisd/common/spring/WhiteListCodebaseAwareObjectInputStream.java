@@ -61,6 +61,9 @@ public class WhiteListCodebaseAwareObjectInputStream extends CodebaseAwareObject
         addToWhiteListPatterns("com\\.marathon\\.util\\.spring\\.RemoteInvocationDecorator");
         addToWhiteListPatterns("java\\..*");
         addToWhiteListPatterns("org\\.python\\.core\\.PyList");
+        addToWhiteListPatterns("org\\.python27\\.core\\.PyList");
+        addToWhiteListPatterns("org\\.python\\.core\\.PySequenceList");
+        addToWhiteListPatterns("org\\.python27\\.core\\.PySequenceList");
         addToWhiteListPatterns("ch\\.ethz\\.sis\\..*");
         addToWhiteListPatterns("ch\\.systemsx\\.cisd\\..*");
     }
