@@ -87,6 +87,9 @@ def process(tr, parameters, tableBuilder):
 	if method == "registerUserPassword":
 		isOk = registerUserPassword(tr, parameters, tableBuilder);
 	
+	if method == "batchOperation":
+		isOk = batchOperation(tr, parameters, tableBuilder);
+		
 	if method == "insertProject":
 		isOk = insertUpdateProject(tr, parameters, tableBuilder);
 	if method == "updateProject":
@@ -365,6 +368,12 @@ def getCopySampleChildrenPropertyValue(propCode, propValue, notCopyProperties, d
 		return str(defaultBenchProperties[propCode]);
 	else:
 		return propValue;
+
+def batchOperation(tr, parameters, tableBuilder):
+	for operationParameters in parameters.get("operations"):
+		if operationParameters.get("method") == "updateSample":
+			insertUpdateSample(tr, operationParameters, tableBuilder);
+	return True;
 	
 def insertUpdateSample(tr, parameters, tableBuilder):
 	
@@ -411,12 +420,13 @@ def insertUpdateSample(tr, parameters, tableBuilder):
 		sample.setExperiment(experiment);
 	
 	#Assign sample properties
-	for key in sampleProperties.keySet():
-		propertyValue = unicode(sampleProperties[key]);
-		if propertyValue == "":
-			propertyValue = None;
-		
-		sample.setPropertyValue(key,propertyValue);
+	if sampleProperties != None:
+		for key in sampleProperties.keySet():
+			propertyValue = unicode(sampleProperties[key]);
+			if propertyValue == "":
+				propertyValue = None;
+			
+			sample.setPropertyValue(key,propertyValue);
 		
 	#Add sample parents
 	if sampleParents != None:

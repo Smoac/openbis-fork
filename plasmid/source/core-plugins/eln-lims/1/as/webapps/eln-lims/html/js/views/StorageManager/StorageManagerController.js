@@ -110,7 +110,75 @@ function StorageManagerController(mainController) {
 	}
 	
 	this._storageManagerView.getMoveButton().click(function() {
-		alert("TO-DO Update Logic!");
+		Util.blockUI();
+		
+		var parameters = {
+				"method" : "batchOperation",
+				"operations" : []
+		}
+		
+		for(var lIdx = 0; lIdx < _this._storageManagerModel.changeLog.length; lIdx++) {
+			var item = _this._storageManagerModel.changeLog[lIdx];
+			
+			if(item.type === ChangeLogType.Sample) {
+				var sample = item.data;
+				var sampleSpace = sample.spaceCode;
+				var sampleProject = null;
+				var sampleExperiment = null;
+				var sampleCode = sample.code;
+				
+				var experimentIdentifier = sample.experimentIdentifierOrNull;
+				
+				if(experimentIdentifier) { //If there is a experiment detected, the sample should be attached to the experiment completely.
+					sampleSpace = experimentIdentifier.split("/")[1];
+					sampleProject = experimentIdentifier.split("/")[2];
+					sampleExperiment = experimentIdentifier.split("/")[3];
+				}
+				
+				var operation = {
+						//API Method
+						"method" : "updateSample",
+						//Identification Info
+						"sampleSpace" : sampleSpace,
+						"sampleProject" : sampleProject,
+						"sampleExperiment" : sampleExperiment,
+						"sampleCode" : sampleCode,
+						"sampleType" : sample.sampleTypeCode,
+						//Other Properties
+						"sampleProperties" : item.newProperties,
+						//Parent links
+						"sampleParents": null,
+						//Children links
+						"sampleChildren": null,
+						"sampleChildrenNew": null,
+						"sampleChildrenRemoved": null,
+						//Other Samples
+						"changesToDo" : null
+				}
+				
+				parameters["operations"].push(operation);
+			}
+		}
+		
+		if(profile.getDefaultDataStoreCode()) {
+			mainController.serverFacade.createReportFromAggregationService(profile.getDefaultDataStoreCode(), parameters, function(response) {
+				if(response.error) { //Error Case 1
+					Util.showError(response.error.message, function() {Util.unblockUI();});
+				} else if (response.result.columns[1].title === "Error") { //Error Case 2
+					var stacktrace = response.result.rows[0][1].value;
+					Util.showStacktraceAsError(stacktrace);
+				} else if (response.result.columns[0].title === "STATUS" && response.result.rows[0][0].value === "OK") { //Success Case
+						Util.showSuccess("Entities successfully updated.", function() {
+							mainController.changeView("showStorageManager");
+							Util.unblockUI();
+						});
+				} else { //This should never happen
+					Util.showError("Unknown Error.", function() {Util.unblockUI();});
+				}
+			});
+		} else {
+			Util.showError("No DSS available.", function() {Util.unblockUI();});
+		}
 	});
 	
 	this.init = function($container) {
