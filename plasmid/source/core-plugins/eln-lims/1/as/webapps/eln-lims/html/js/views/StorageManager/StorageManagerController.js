@@ -44,6 +44,13 @@ function StorageManagerController(mainController) {
 						newBoxPosition,
 						newDataHolder) {
 			
+			var isBox = data.samples !== undefined;
+			if(isBox) {
+				var errorMsg = "Boxes can't be put inside other boxes.";
+				Util.showError(errorMsg);
+				throw errorMsg;
+			}
+			
 			var isMultiplePosition = data.properties[newStoragePropertyGroup.positionProperty].split(" ").length > 1;
 			var isNewDataHolderEmpty = $(newDataHolder).children().length === 0;
 			if(isMultiplePosition) {
@@ -76,6 +83,24 @@ function StorageManagerController(mainController) {
 		}
 	}
 	
+	var getBoxDropEventHandler = function() {
+		return function(data,
+						newStoragePropertyGroup,
+						newStorageName,
+						newUserId,
+						oldBoxPosition,
+						newBoxPosition,
+						newDataHolder) {
+			
+			var isBox = data.samples !== undefined;
+			if(!isBox) {
+				var errorMsg = "Samples can't be put inside a rack without a Box.";
+				Util.showError(errorMsg);
+				throw errorMsg;
+			}
+		}
+	}
+	
 	//Sub Views Setup
 	this._storageFromController = new StorageController({
 		title : "Storage A",
@@ -86,7 +111,8 @@ function StorageManagerController(mainController) {
 		boxSizeSelector: "on",
 		rackSelector: "on",
 		rackPositionMultiple: "off",
-		rackBoxDragAndDropEnabled: "off",
+		rackBoxDragAndDropEnabled: "on",
+		rackBoxDropEventHandler : getBoxDropEventHandler(),
 		positionSelector: "on",
 		positionDropEventHandler: getPositionDropEventHandler(),
 		boxPositionMultiple: "off",
@@ -102,9 +128,10 @@ function StorageManagerController(mainController) {
 		boxSizeSelector: "on",
 		rackSelector: "on",
 		rackPositionMultiple: "off",
-		rackBoxDragAndDropEnabled: "off",
+		rackBoxDragAndDropEnabled: "on",
+		rackBoxDropEventHandler : getBoxDropEventHandler(),
 		positionSelector: "on",
-		positionDropEventHandler: getPositionDropEventHandler(this._storageManagerModel.changeLog),
+		positionDropEventHandler: getPositionDropEventHandler(),
 		boxPositionMultiple: "off",
 		positionDragAndDropEnabled: "on"
 	});

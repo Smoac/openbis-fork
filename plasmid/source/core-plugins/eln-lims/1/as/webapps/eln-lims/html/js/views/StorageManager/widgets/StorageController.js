@@ -76,6 +76,19 @@ function StorageController(configOverride) {
 		}); 
 	}
 	
+	if(this._storageModel.config.rackBoxDropEventHandler !== null) {
+		this._gridController.getView().setPosDropEventHandler(
+			function(oldX, oldY, newX, newY, data, newDataHolder) {
+				_this._storageModel.config.rackBoxDropEventHandler(data,
+							_this._storageModel.storagePropertyGroup,
+							_this._storageModel.storageCode,
+							mainController.serverFacade.openbisServer.getSession().split("-")[0],
+							(Util.getLetterForNumber(oldX) + oldY),
+							(Util.getLetterForNumber(newX) + newY),
+							newDataHolder);
+		});
+	}
+	
 	if(this._storageModel.config.positionDropEventHandler !== null) {
 		this._gridControllerPosition.getView().setPosDropEventHandler(
 			function(oldX, oldY, newX, newY, data, newDataHolder) {

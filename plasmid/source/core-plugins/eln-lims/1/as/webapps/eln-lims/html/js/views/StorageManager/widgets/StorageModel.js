@@ -28,6 +28,7 @@ function StorageModel(configOverride) {
 				rackSelector: "on",
 				rackPositionMultiple: "off",
 				rackBoxDragAndDropEnabled: "off",
+				rackBoxDropEventHandler : null,
 				positionSelector: "off",
 				positionDropEventHandler: null,
 				boxPositionMultiple: "off",
