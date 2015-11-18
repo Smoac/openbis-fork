@@ -33,6 +33,7 @@ function StorageManagerController(mainController) {
 	
 	var getPositionDropEventHandler = function() {
 		return function(data,
+						oldStoragePropertyGroup,
 						newStoragePropertyGroup,
 						newStorageName,
 						newRow,
@@ -64,6 +65,8 @@ function StorageManagerController(mainController) {
 				throw errorMsg;
 			} else {
 				var propertiesValues = {};
+				
+				//Set New Storage Group
 				propertiesValues[newStoragePropertyGroup.nameProperty] = newStorageName;
 				propertiesValues[newStoragePropertyGroup.rowProperty] = newRow;
 				propertiesValues[newStoragePropertyGroup.columnProperty] = newColumn;
@@ -71,6 +74,19 @@ function StorageManagerController(mainController) {
 				propertiesValues[newStoragePropertyGroup.boxSizeProperty] = newBoxSize;
 				propertiesValues[newStoragePropertyGroup.userProperty] = newUserId;
 				propertiesValues[newStoragePropertyGroup.positionProperty] = newBoxPosition;
+				
+				//If old Storage group is different, delete it
+				if(newStoragePropertyGroup.groupDisplayName !== oldStoragePropertyGroup.groupDisplayName) {
+					propertiesValues[oldStoragePropertyGroup.nameProperty] = "";
+					propertiesValues[oldStoragePropertyGroup.rowProperty] = "";
+					propertiesValues[oldStoragePropertyGroup.columnProperty] = "";
+					propertiesValues[oldStoragePropertyGroup.boxProperty] = "";
+					propertiesValues[oldStoragePropertyGroup.boxSizeProperty] = "";
+					propertiesValues[oldStoragePropertyGroup.userProperty] = "";
+					propertiesValues[oldStoragePropertyGroup.positionProperty] = "";
+				}
+				
+				
 				
 				_this._updateChangeLog({
 					type: ChangeLogType.Sample,
@@ -85,19 +101,24 @@ function StorageManagerController(mainController) {
 	
 	var getBoxDropEventHandler = function() {
 		return function(data,
+						oldStoragePropertyGroup,
 						newStoragePropertyGroup,
 						newStorageName,
 						newUserId,
-						oldBoxPosition,
-						newBoxPosition,
+						oldRackPosition,
+						newRackPosition,
 						newDataHolder) {
-			
 			var isBox = data.samples !== undefined;
 			if(!isBox) {
 				var errorMsg = "Samples can't be put inside a rack without a Box.";
 				Util.showError(errorMsg);
 				throw errorMsg;
 			}
+			
+			for(var sIdx = 0; sIdx < data.samples.length; sIdx++) {
+
+			}
+			
 		}
 	}
 	
@@ -136,7 +157,7 @@ function StorageManagerController(mainController) {
 		positionDragAndDropEnabled: "on"
 	});
 	
-	this._storageManagerView = new StorageManagerView(this._storageManagerModel, this._storageFromController.getView(), this._storageToController.getView());
+	this._storageManagerView = new StorageManagerView(this, this._storageManagerModel, this._storageFromController.getView(), this._storageToController.getView());
 	
 	
 	this._updateChangeLog = function(newChange) {

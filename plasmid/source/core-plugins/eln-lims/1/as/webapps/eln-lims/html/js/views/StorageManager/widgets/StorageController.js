@@ -78,8 +78,9 @@ function StorageController(configOverride) {
 	
 	if(this._storageModel.config.rackBoxDropEventHandler !== null) {
 		this._gridController.getView().setPosDropEventHandler(
-			function(oldX, oldY, newX, newY, data, newDataHolder) {
+			function(oldX, oldY, newX, newY, data, newDataHolder, extraDragData) {
 				_this._storageModel.config.rackBoxDropEventHandler(data,
+							extraDragData,
 							_this._storageModel.storagePropertyGroup,
 							_this._storageModel.storageCode,
 							mainController.serverFacade.openbisServer.getSession().split("-")[0],
@@ -91,8 +92,9 @@ function StorageController(configOverride) {
 	
 	if(this._storageModel.config.positionDropEventHandler !== null) {
 		this._gridControllerPosition.getView().setPosDropEventHandler(
-			function(oldX, oldY, newX, newY, data, newDataHolder) {
+			function(oldX, oldY, newX, newY, data, newDataHolder, extraDragData) {
 				_this._storageModel.config.positionDropEventHandler(data,
+							extraDragData,
 							_this._storageModel.storagePropertyGroup,
 							_this._storageModel.storageCode,
 							_this._storageModel.row,
@@ -186,6 +188,20 @@ function StorageController(configOverride) {
 		//Set new state
 		this._storageModel.storagePropertyGroup = profile.getStoragePropertyGroup(storageGroupName);
 		this._storageView.refreshGrid();
+		this.updateDragEvents();
+	}
+	
+	this.initFinish = function() {
+		this.updateDragEvents();
+	}
+	
+	this.updateDragEvents = function() {
+		if(this._storageModel.config.rackBoxDropEventHandler !== null) {
+			this._gridController.getView().setExtraDragData(_this._storageModel.storagePropertyGroup);
+		}
+		if(this._storageModel.config.positionDropEventHandler !== null) {
+			this._gridControllerPosition.getView().setExtraDragData(_this._storageModel.storagePropertyGroup);
+		}
 	}
 	
 	this.setSelectStorage = function(selectedStorageCode) {

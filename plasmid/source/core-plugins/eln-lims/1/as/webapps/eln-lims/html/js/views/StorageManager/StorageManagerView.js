@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-function StorageManagerView(storageManagerModel, storageFromView, storageToView) {
+function StorageManagerView(storageManagerController, storageManagerModel, storageFromView, storageToView) {
+	this._storageManagerController = storageManagerController;
 	this._storageManagerModel = storageManagerModel;
 	
 	this._storageFromView = storageFromView;
 	this._storageToView = storageToView;
 	this._changeLogContainer = $("<div>").append("None");
-	this._moveBtn = $("<a>", { "class" : "btn btn-primary"}).append("Move Selected Samples <span class='glyphicon glyphicon-arrow-right'></span>");
+	this._moveBtn = $("<a>", { "class" : "btn btn-primary"}).append("Accept Changes");
 	
 	this.repaint = function($container) {
 		$container.empty();

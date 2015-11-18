@@ -69,10 +69,16 @@ function GridView(gridModel) {
 					    	var origY = event.originalEvent.dataTransfer.getData("origY");
 					        var tagId = event.originalEvent.dataTransfer.getData("tagId");
 					        var objectAsString = event.originalEvent.dataTransfer.getData("object");
+					        var extraDragDataString = event.originalEvent.dataTransfer.getData("extraDragData");
+					        
 					        if(event.target.nodeName === "TD") {
 					        	if(_this._posDropEventHandler) {
 					        		var object = JSON.parse(objectAsString);
-					        		_this._posDropEventHandler(origX,origY, newX, newY, object, event.target);
+					        		var extraDragDataObject = null;
+					        		if(extraDragDataString) {
+					        			extraDragDataObject = JSON.parse(extraDragDataString);
+					        		}
+					        		_this._posDropEventHandler(origX,origY, newX, newY, object, event.target, extraDragDataObject);
 					        	}
 					        	var $targetDrop = $(event.target);
 						        var $elementToDrop = $("#" + tagId);
@@ -125,6 +131,9 @@ function GridView(gridModel) {
 							event.originalEvent.dataTransfer.setData('origY', origY);
 							event.originalEvent.dataTransfer.setData('tagId', this.id);
 							event.originalEvent.dataTransfer.setData('object', JSON.stringify(object.data));
+							if(_this._extraDragData) {
+								event.originalEvent.dataTransfer.setData("extraDragData", JSON.stringify(_this._extraDragData));
+							}
 						};
 					}
 					
@@ -207,5 +216,9 @@ function GridView(gridModel) {
 	
 	this.setPosDropEventHandler = function(posDropEventHandler) {
 		this._posDropEventHandler = posDropEventHandler;
+	}
+	
+	this.setExtraDragData = function(extraDragData) {
+		this._extraDragData = extraDragData;
 	}
 }

@@ -147,6 +147,8 @@ function StorageView(storageController, storageModel, gridViewRack, gridViewPosi
 			this._userIdDropdown.attr("disabled", "");
 			this._boxField.attr("disabled", "");
 		}
+		
+		this._storageController.initFinish();
 	}
 	
 	this.refreshUserIdContents = function() {
