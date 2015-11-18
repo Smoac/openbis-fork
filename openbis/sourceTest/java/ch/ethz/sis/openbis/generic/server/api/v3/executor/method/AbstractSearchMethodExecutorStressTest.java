@@ -27,6 +27,7 @@ import java.util.UUID;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -49,8 +50,11 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SampleSearchCriteria
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SearchResult;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SpaceSearchCriteria;
 import ch.systemsx.cisd.authentication.Principal;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+
 import net.sf.ehcache.CacheManager;
 
 /**
@@ -59,6 +63,7 @@ import net.sf.ehcache.CacheManager;
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class AbstractSearchMethodExecutorStressTest
 {
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, AbstractSearchMethodExecutorStressTest.class);
 
     @BeforeMethod
     public void setUp()
@@ -190,7 +195,14 @@ public class AbstractSearchMethodExecutorStressTest
 
         for (Thread thread : threads)
         {
-            thread.join();
+            try
+            {
+                thread.join();
+            } catch (InterruptedException ex)
+            {
+                operationLog.error("INTERRUPTED EXCEPTION on " + thread.getName());
+            }
+            operationLog.info(thread.getName() + " has been finished");
         }
 
         return executor;
