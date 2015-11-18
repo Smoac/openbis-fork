@@ -70,7 +70,7 @@ function GridView(gridModel) {
 					        if(event.target.nodeName === "TD") {
 					        	if(_this._posDropEventHandler) {
 					        		var object = JSON.parse(objectAsString);
-					        		_this._posDropEventHandler(x, y, object);
+					        		_this._posDropEventHandler(x, y, object, event.target);
 					        	}
 					        	var $targetDrop = $(event.target);
 						        var $elementToDrop = $("#" + tagId);

@@ -40,11 +40,17 @@ function StorageManagerController(mainController) {
 						newBoxName,
 						newBoxSize,
 						newUserId,
-						newBoxPosition) {
+						newBoxPosition,
+						newDataHolder) {
 			
 			var isMultiplePosition = data.properties[newStoragePropertyGroup.positionProperty].split(" ").length > 1;
+			var isNewDataHolderEmpty = $(newDataHolder).children().length === 0;
 			if(isMultiplePosition) {
 				var errorMsg = "Multiple position Samples are not supported by the manager, please use the sample form for this.";
+				Util.showError(errorMsg);
+				throw errorMsg;
+			} else if(!isNewDataHolderEmpty) {
+				var errorMsg = "That position on the box is already used by another Sample.";
 				Util.showError(errorMsg);
 				throw errorMsg;
 			} else {
