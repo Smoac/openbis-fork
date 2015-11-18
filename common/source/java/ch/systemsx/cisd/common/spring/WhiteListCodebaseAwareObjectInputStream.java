@@ -66,6 +66,8 @@ public class WhiteListCodebaseAwareObjectInputStream extends CodebaseAwareObject
         addToWhiteListPatterns("org\\.python27\\.core\\.PySequenceList");
         addToWhiteListPatterns("org\\.python\\.core\\.PySequence");
         addToWhiteListPatterns("org\\.python27\\.core\\.PySequence");
+        addToWhiteListPatterns("org\\.python\\.core\\.PyObject");
+        addToWhiteListPatterns("org\\.python27\\.core\\.PyObject");
         addToWhiteListPatterns("ch\\.ethz\\.sis\\..*");
         addToWhiteListPatterns("ch\\.systemsx\\.cisd\\..*");
     }
