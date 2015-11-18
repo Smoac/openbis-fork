@@ -24,6 +24,8 @@ import java.util.Properties;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.properties.PropertyParametersUtil;
 import ch.systemsx.cisd.common.properties.PropertyParametersUtil.SectionProperties;
+import ch.systemsx.cisd.common.properties.PropertyUtils;
+import ch.systemsx.cisd.common.spring.WhiteListCodebaseAwareObjectInputStream;
 import ch.systemsx.cisd.openbis.dss.generic.server.DataStoreServer;
 import ch.systemsx.cisd.openbis.dss.generic.server.IServletPropertiesManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.Constants;
@@ -42,6 +44,11 @@ public class PluginTaskInfoProvider implements IPluginTaskInfoProvider
 {
     public static final String STOREROOT_DIR_KEY = "storeroot-dir";
 
+    public static final String WHITE_LIST = "allowed-api-parameter-classes";
+    
+    public static final String BLACK_LIST = "disallowed-api-parameter-classes";
+
+
     /** name of archiver properties section */
     @Private
     static final String ARCHIVER_SECTION_NAME = "archiver";
@@ -57,6 +64,18 @@ public class PluginTaskInfoProvider implements IPluginTaskInfoProvider
     private final File storeRoot;
 
     private final File sessionWorkspaceRootDir;
+    
+    static void populateWhiteAndBlackListOfApiParameterClasses(Properties properties)
+    {
+        for (String pattern : PropertyUtils.getList(properties, WHITE_LIST))
+        {
+            WhiteListCodebaseAwareObjectInputStream.addToWhiteListPatterns(pattern);
+        }
+        for (String pattern : PropertyUtils.getList(properties, BLACK_LIST))
+        {
+            WhiteListCodebaseAwareObjectInputStream.addToBlackListPatterns(pattern);
+        }
+    }
 
 
     /** for external injections */

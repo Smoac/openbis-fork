@@ -19,8 +19,10 @@ package ch.systemsx.cisd.common.spring;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectStreamClass;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
@@ -37,7 +39,8 @@ public class WhiteListCodebaseAwareObjectInputStream extends CodebaseAwareObject
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, 
             WhiteListCodebaseAwareObjectInputStream.class);
 
-    private static final List<Pattern> whiteListPatterns = new LinkedList<>();
+    private static final Patterns whiteListPatterns = new Patterns();
+    private static final Patterns blackListPatterns = new Patterns();
 
     static {
         addToWhiteListPatterns("char");
@@ -60,23 +63,25 @@ public class WhiteListCodebaseAwareObjectInputStream extends CodebaseAwareObject
         addToWhiteListPatterns("com\\.marathon\\.util\\.spring\\.StreamSupportingRemoteInvocation");
         addToWhiteListPatterns("com\\.marathon\\.util\\.spring\\.RemoteInvocationDecorator");
         addToWhiteListPatterns("java\\..*");
-        addToWhiteListPatterns("org\\.python\\.core\\.PyList");
-        addToWhiteListPatterns("org\\.python27\\.core\\.PyList");
-        addToWhiteListPatterns("org\\.python\\.core\\.PySequenceList");
-        addToWhiteListPatterns("org\\.python27\\.core\\.PySequenceList");
-        addToWhiteListPatterns("org\\.python\\.core\\.PySequence");
-        addToWhiteListPatterns("org\\.python27\\.core\\.PySequence");
-        addToWhiteListPatterns("org\\.python\\.core\\.PyObject");
-        addToWhiteListPatterns("org\\.python27\\.core\\.PyObject");
+        addToWhiteListPatterns("org\\.python\\.core\\.Py.*");
+        addToWhiteListPatterns("org\\.python27\\.core\\.Py.*");
         addToWhiteListPatterns("ch\\.ethz\\.sis\\..*");
         addToWhiteListPatterns("ch\\.systemsx\\.cisd\\..*");
+        
+        addToBlackListPatterns("org\\.python\\.core\\.PyClass.*");
+        addToBlackListPatterns("org\\.python27\\.core\\.PyClass.*");
     }
 
-    private static void addToWhiteListPatterns(String regex)
+    public static void addToWhiteListPatterns(String regex)
     {
-        whiteListPatterns.add(Pattern.compile(regex));
+        whiteListPatterns.addPattern(regex);
     }
 
+    public static void addToBlackListPatterns(String regex)
+    {
+        blackListPatterns.addPattern(regex);
+    }
+    
     public WhiteListCodebaseAwareObjectInputStream(InputStream in, ClassLoader classLoader, boolean acceptProxyClasses) throws IOException
     {
         super(in, classLoader, acceptProxyClasses);
@@ -97,15 +102,38 @@ public class WhiteListCodebaseAwareObjectInputStream extends CodebaseAwareObject
             assertMatchingClassName(className.substring(2, className.length() - 1));
         } else
         {
-            for (Pattern pattern : whiteListPatterns)
+            if (whiteListPatterns.matches(className) == false || blackListPatterns.matches(className))
             {
-                if (pattern.matcher(className).matches())
+                operationLog.error("Attempt to load class " + className);
+                throw new IllegalArgumentException("Class not allowed to load: " + className);
+            }
+        }
+    }
+    
+    private static final class Patterns
+    {
+        private final Set<String> patternsAsStrings = new HashSet<>();
+        private final List<Pattern> patterns = new LinkedList<>();
+        
+        synchronized void addPattern(String pattern)
+        {
+            if (patternsAsStrings.contains(pattern) == false)
+            {
+                patterns.add(Pattern.compile(pattern));
+                patternsAsStrings.add(pattern);
+            }
+        }
+        
+        synchronized boolean matches(String string)
+        {
+            for (Pattern pattern : patterns)
+            {
+                if (pattern.matcher(string).matches())
                 {
-                    return;
+                    return true;
                 }
             }
-            operationLog.error("Attempt to load class " + className);
-            throw new IllegalArgumentException("Class not allowed to load: " + className);
+            return false;
         }
     }
 }

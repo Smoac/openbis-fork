@@ -60,7 +60,7 @@ public class PluginTaskFactory<T>
     /** Property name which stores a list of dataset type codes. */
     @Private
     public final static String DATASET_CODES_PROPERTY_NAME = "dataset-types";
-
+    
     /** Property name which stores a plugin class name. */
     public final static String CLASS_PROPERTY_NAME = "class";
 
@@ -96,6 +96,7 @@ public class PluginTaskFactory<T>
     {
         this.pluginTaskName = pluginTaskName;
         Properties pluginProperties = sectionProperties.getProperties();
+        PluginTaskInfoProvider.populateWhiteAndBlackListOfApiParameterClasses(pluginProperties);
         String label = PropertyUtils.getMandatoryProperty(pluginProperties, LABEL_PROPERTY_NAME);
         Properties props =
                 ExtendedProperties.getSubset(pluginProperties, SERVLET_PROPERTY_NAME + ".", true);
