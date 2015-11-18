@@ -19,6 +19,8 @@
         </property>
     </bean>
 
+    <bean class="ch.systemsx.cisd.common.spring.CheckSecureHttpInvokerBeanPostProcessor" />
+    
     <bean id="cifex-service-servlet" class="ch.systemsx.cisd.cifex.server.CIFEXServiceServlet" />
 
     <bean id="url-servlet-forwarding-controller" class="ch.systemsx.cisd.cifex.server.UrlServletForwardingController" />
