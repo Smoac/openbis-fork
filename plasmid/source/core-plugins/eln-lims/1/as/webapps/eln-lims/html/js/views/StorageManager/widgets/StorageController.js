@@ -78,7 +78,7 @@ function StorageController(configOverride) {
 	
 	if(this._storageModel.config.positionDropEventHandler !== null) {
 		this._gridControllerPosition.getView().setPosDropEventHandler(
-			function(posX, posY, data, newDataHolder) {
+			function(oldX, oldY, newX, newY, data, newDataHolder) {
 				_this._storageModel.config.positionDropEventHandler(data,
 							_this._storageModel.storagePropertyGroup,
 							_this._storageModel.storageCode,
@@ -87,7 +87,8 @@ function StorageController(configOverride) {
 							_this._storageModel.boxName,
 							_this._storageModel.boxSize,
 							mainController.serverFacade.openbisServer.getSession().split("-")[0],
-							(Util.getLetterForNumber(posX) + posY),
+							(Util.getLetterForNumber(oldX) + oldY),
+							(Util.getLetterForNumber(newX) + newY),
 							newDataHolder);
 		});
 	}

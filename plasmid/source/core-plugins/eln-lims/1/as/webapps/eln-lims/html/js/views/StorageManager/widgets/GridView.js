@@ -62,15 +62,17 @@ function GridView(gridModel) {
 			for(var j = 0; j < this._gridModel.numColumns; j++) {
 				var $newColumn = $("<td>");
 				if(this._gridModel.isDragable) {
-					var dropEventFuncCopyPos = function(x,y) {
+					var dropEventFuncCopyPos = function(newX,newY) {
 						return function(event) {
 					    	event.preventDefault();
+					    	var origX = event.originalEvent.dataTransfer.getData("origX");
+					    	var origY = event.originalEvent.dataTransfer.getData("origY");
 					        var tagId = event.originalEvent.dataTransfer.getData("tagId");
 					        var objectAsString = event.originalEvent.dataTransfer.getData("object");
 					        if(event.target.nodeName === "TD") {
 					        	if(_this._posDropEventHandler) {
 					        		var object = JSON.parse(objectAsString);
-					        		_this._posDropEventHandler(x, y, object, event.target);
+					        		_this._posDropEventHandler(origX,origY, newX, newY, object, event.target);
 					        	}
 					        	var $targetDrop = $(event.target);
 						        var $elementToDrop = $("#" + tagId);
@@ -117,14 +119,18 @@ function GridView(gridModel) {
 			for(var i = 0; i < labels.length; i++) {
 				if(!usedLabels[labels[i].displayName]) {
 					var labelContainer = $("<div>", { class: "storageBox", id : Util.guid() }).append(labels[i].displayName);
-					var dragCopyFunc = function(object) {
+					var dragCopyFunc = function(object, origX, origY) {
 						return function(event) {
+							event.originalEvent.dataTransfer.setData('origX', origX);
+							event.originalEvent.dataTransfer.setData('origY', origY);
 							event.originalEvent.dataTransfer.setData('tagId', this.id);
 							event.originalEvent.dataTransfer.setData('object', JSON.stringify(object.data));
 						};
 					}
 					
-					var dragFunc = dragCopyFunc(labels[i]);
+					//The original position where the label was is stored and not changed between drags
+					//This is used by multiple position samples
+					var dragFunc = dragCopyFunc(labels[i], posX, posY);
 					
 					if(this._gridModel.isDragable) {
 						labelContainer.attr('draggable', 'true');
