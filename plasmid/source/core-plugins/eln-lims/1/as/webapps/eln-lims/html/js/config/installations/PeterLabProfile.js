@@ -274,7 +274,20 @@ $.extend(PeterLabProfile.prototype, StandardProfile.prototype, {
 														"TYPE": "YEAST_COLLECTION",
 														"MIN_COUNT" : 0,
 														"ANNOTATION_PROPERTIES" : [{"TYPE" : "COMMENTS", "MANDATORY" : false }]
-													}																																
+													},
+					                             	{
+														"LABEL" : "Protein complex",
+														"TYPE": "PROTEIN_COMPLEX",
+														"MIN_COUNT" : 0,
+														"ANNOTATION_PROPERTIES" : [{"TYPE" : "COMMENTS", "MANDATORY" : false }]
+													},
+					                             	{
+														"LABEL" : "Experimental step",
+														"TYPE": "EXPERIMENTAL_STEP",
+														"MIN_COUNT" : 0,
+														"ANNOTATION_PROPERTIES" : [{"TYPE" : "COMMENTS", "MANDATORY" : false }]
+													}
+																																													
 												],
 				}
 
