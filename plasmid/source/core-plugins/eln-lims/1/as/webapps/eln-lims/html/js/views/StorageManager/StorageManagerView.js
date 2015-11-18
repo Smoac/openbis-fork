@@ -81,6 +81,18 @@ function StorageManagerView(storageManagerController, storageManagerModel, stora
 			this._changeLogContainer.append(item.newProperties[item.storagePropertyGroup.positionProperty]);
 			this._changeLogContainer.append(" ");
 			
+			this._changeLogContainer.append("<strong>New Storage:</strong>");
+			this._changeLogContainer.append(" ");
+			this._changeLogContainer.append(item.newProperties[item.storagePropertyGroup.nameProperty]);
+			this._changeLogContainer.append(" ");
+			
+			this._changeLogContainer.append("<strong>New Rack:</strong>");
+			this._changeLogContainer.append(" ");
+			this._changeLogContainer.append(item.newProperties[item.storagePropertyGroup.rowProperty]);
+			this._changeLogContainer.append(",");
+			this._changeLogContainer.append(item.newProperties[item.storagePropertyGroup.columnProperty]);
+			this._changeLogContainer.append(" ");
+			
 			this._changeLogContainer.append($("<br>"));
 		}
 	}

@@ -116,9 +116,37 @@ function StorageManagerController(mainController) {
 			}
 			
 			for(var sIdx = 0; sIdx < data.samples.length; sIdx++) {
-
+				var sample = data.samples[sIdx];
+				var propertiesValues = {};
+				//Update box rack position and storage
+				propertiesValues[newStoragePropertyGroup.nameProperty] = newStorageName;
+				var XY = Util.getXYfromLetterNumberCombination(newRackPosition);
+				propertiesValues[newStoragePropertyGroup.rowProperty] = XY[0];
+				propertiesValues[newStoragePropertyGroup.columnProperty] = XY[1];
+				propertiesValues[newStoragePropertyGroup.boxProperty] = sample.properties[oldStoragePropertyGroup.boxProperty];
+				propertiesValues[newStoragePropertyGroup.boxSizeProperty] = sample.properties[oldStoragePropertyGroup.boxSizeProperty];
+				propertiesValues[newStoragePropertyGroup.userProperty] = newUserId;
+				propertiesValues[newStoragePropertyGroup.positionProperty] = sample.properties[oldStoragePropertyGroup.positionProperty];
+				
+				//If old Storage group is different, delete it
+				if(newStoragePropertyGroup.groupDisplayName !== oldStoragePropertyGroup.groupDisplayName) {
+					propertiesValues[oldStoragePropertyGroup.nameProperty] = "";
+					propertiesValues[oldStoragePropertyGroup.rowProperty] = "";
+					propertiesValues[oldStoragePropertyGroup.columnProperty] = "";
+					propertiesValues[oldStoragePropertyGroup.boxProperty] = "";
+					propertiesValues[oldStoragePropertyGroup.boxSizeProperty] = "";
+					propertiesValues[oldStoragePropertyGroup.userProperty] = "";
+					propertiesValues[oldStoragePropertyGroup.positionProperty] = "";
+				}
+				
+				_this._updateChangeLog({
+					type: ChangeLogType.Sample,
+					permId: sample.permId,
+					data: sample,
+					storagePropertyGroup : newStoragePropertyGroup,
+					newProperties: propertiesValues
+				});
 			}
-			
 		}
 	}
 	
