@@ -157,7 +157,7 @@ public class AbstractSearchMethodExecutorStressTest
 
         for (int t = 0; t < THREAD_COUNT; t++)
         {
-            threads.add(new Thread(new Runnable()
+            Thread thread = new Thread(new Runnable()
                 {
                     @Override
                     public void run()
@@ -178,7 +178,9 @@ public class AbstractSearchMethodExecutorStressTest
                         }
 
                     }
-                }));
+                });
+            thread.setName("Stress test thread # " + (t + 1));
+            threads.add(thread);
         }
 
         for (Thread thread : threads)
