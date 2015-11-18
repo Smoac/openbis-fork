@@ -71,7 +71,7 @@ public class AbstractSearchMethodExecutorStressTest
     {
         for (int run = 0; run < 5; run++)
         {
-            TestSearchMethodExecutor executor = testConcurrency(0);
+            StressTestSearchMethodExecutor executor = testConcurrency(0);
 
             for (Map.Entry<SearchCacheKey, Integer> entry : executor.getSearchCounts().entrySet())
             {
@@ -93,7 +93,7 @@ public class AbstractSearchMethodExecutorStressTest
     {
         for (int run = 0; run < 5; run++)
         {
-            TestSearchMethodExecutor executor = testConcurrency(10 * FileUtils.ONE_KB);
+            StressTestSearchMethodExecutor executor = testConcurrency(10 * FileUtils.ONE_KB);
 
             if (executor.getErrors().size() > 0)
             {
@@ -102,13 +102,13 @@ public class AbstractSearchMethodExecutorStressTest
         }
     }
 
-    private TestSearchMethodExecutor testConcurrency(long cacheSize) throws InterruptedException
+    private StressTestSearchMethodExecutor testConcurrency(long cacheSize) throws InterruptedException
     {
         int SESSION_COUNT = 5;
         int THREAD_COUNT = 5;
         int KEY_VERSION_COUNT = 20;
 
-        final TestSearchMethodExecutor executor = new TestSearchMethodExecutor(cacheSize);
+        final StressTestSearchMethodExecutor executor = new StressTestSearchMethodExecutor(cacheSize);
 
         final List<String> sessionTokens = new ArrayList<String>();
         for (int s = 0; s < SESSION_COUNT; s++)
@@ -194,7 +194,7 @@ public class AbstractSearchMethodExecutorStressTest
         return executor;
     }
 
-    private static class TestSearchMethodExecutor extends AbstractSearchMethodExecutor
+    private static class StressTestSearchMethodExecutor extends AbstractSearchMethodExecutor
     {
         private Map<String, Session> sessions = new HashMap<>();
 
@@ -204,7 +204,7 @@ public class AbstractSearchMethodExecutorStressTest
 
         private List<String> errors = Collections.synchronizedList(new ArrayList<String>());
 
-        public TestSearchMethodExecutor(final long cacheSize)
+        public StressTestSearchMethodExecutor(final long cacheSize)
         {
             String managerConfig = "<ehcache name='" + UUID.randomUUID() + "'></ehcache>";
             final CacheManager manager = new CacheManager(new ByteArrayInputStream(managerConfig.getBytes()));
