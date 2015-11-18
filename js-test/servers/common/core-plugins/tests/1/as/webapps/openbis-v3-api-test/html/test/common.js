@@ -313,7 +313,7 @@ define([ 'jquery', 'openbis', 'dto/entity/space/SpaceCreation', 'dto/entity/proj
 			fo.withParents();
 			fo.withChildren();
 			fo.withContainer();
-			fo.withContained();
+			fo.withComponents();
 			fo.withDataSets();
 			fo.withHistory();
 			fo.withTags();
@@ -334,7 +334,7 @@ define([ 'jquery', 'openbis', 'dto/entity/space/SpaceCreation', 'dto/entity/proj
 			fo.withParents();
 			fo.withChildren();
 			fo.withContainers();
-			fo.withContained();
+			fo.withComponents();
 			fo.withPhysicalData().withFileFormatType();
 			fo.withPhysicalData().withLocatorType();
 			fo.withPhysicalData().withStorageFormat();
