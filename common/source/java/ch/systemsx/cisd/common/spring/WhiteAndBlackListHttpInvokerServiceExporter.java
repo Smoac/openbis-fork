@@ -27,12 +27,12 @@ import org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter;
  *
  * @author Franz-Josef Elmer
  */
-public class WhiteListHttpInvokerServiceExporter extends HttpInvokerServiceExporter
+public class WhiteAndBlackListHttpInvokerServiceExporter extends HttpInvokerServiceExporter
 {
     @Override
     protected ObjectInputStream createObjectInputStream(InputStream is) throws IOException
     {
-        return new WhiteListCodebaseAwareObjectInputStream(is, getBeanClassLoader(), isAcceptProxyClasses());
+        return new WhiteAndBlackListCodebaseAwareObjectInputStream(is, getBeanClassLoader(), isAcceptProxyClasses());
     }
 
 }

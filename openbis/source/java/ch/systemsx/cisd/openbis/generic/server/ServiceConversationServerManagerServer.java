@@ -26,7 +26,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import ch.systemsx.cisd.common.spring.WhiteListHttpInvokerServiceExporter;
+import ch.systemsx.cisd.common.spring.WhiteAndBlackListHttpInvokerServiceExporter;
 import ch.systemsx.cisd.openbis.common.conversation.manager.IServiceConversationServerManagerRemote;
 import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
 
@@ -35,7 +35,7 @@ import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
  */
 
 @Controller
-public class ServiceConversationServerManagerServer extends WhiteListHttpInvokerServiceExporter
+public class ServiceConversationServerManagerServer extends WhiteAndBlackListHttpInvokerServiceExporter
 {
     @Resource(name = ResourceNames.SERVICE_CONVERSATION_SERVER_MANAGER)
     private IServiceConversationServerManagerRemote serverManager;

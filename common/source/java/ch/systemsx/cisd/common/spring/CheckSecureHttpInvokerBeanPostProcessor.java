@@ -16,8 +16,13 @@
 
 package ch.systemsx.cisd.common.spring;
 
+import java.util.Properties;
+
+import javax.annotation.Resource;
+
 import org.apache.log4j.Logger;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.beans.factory.support.BeanDefinitionValidationException;
 import org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter;
@@ -30,11 +35,14 @@ import ch.systemsx.cisd.common.logging.LogFactory;
  * 
  * @author Jakub Straszewski
  */
-public class CheckSecureHttpInvokerBeanPostProcessor implements BeanPostProcessor
+public class CheckSecureHttpInvokerBeanPostProcessor implements BeanPostProcessor, InitializingBean
 {
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, 
-            WhiteListCodebaseAwareObjectInputStream.class);
+            CheckSecureHttpInvokerBeanPostProcessor.class);
 
+    @Resource(name = ExposablePropertyPlaceholderConfigurer.PROPERTY_CONFIGURER_BEAN_NAME)
+    private ExposablePropertyPlaceholderConfigurer configurer;
+    
     public class InsecureHttpInvokerServiceExporterException extends BeanDefinitionValidationException
     {
         private static final long serialVersionUID = 1L;
@@ -54,8 +62,8 @@ public class CheckSecureHttpInvokerBeanPostProcessor implements BeanPostProcesso
         {
             return true;
         }
-        if (bean instanceof WhiteListHttpInvokerServiceExporter ||
-                bean instanceof WhiteListStreamSupportingHttpInvokerExporter)
+        if (bean instanceof WhiteAndBlackListHttpInvokerServiceExporter ||
+                bean instanceof WhiteAndBlackListStreamSupportingHttpInvokerExporter)
         {
             operationLog.info("Secure HTTP invoker service exporter: " + bean);
             return true;
@@ -63,6 +71,15 @@ public class CheckSecureHttpInvokerBeanPostProcessor implements BeanPostProcesso
         return false;
     }
 
+    @Override
+    public void afterPropertiesSet() throws Exception
+    {
+        if (configurer == null) {
+            return;
+        }
+        WhiteAndBlackListCodebaseAwareObjectInputStream.populateWhiteAndBlackListOfApiParameterClasses(configurer.getResolvedProps());
+    }
+    
     @Override
     public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException
     {

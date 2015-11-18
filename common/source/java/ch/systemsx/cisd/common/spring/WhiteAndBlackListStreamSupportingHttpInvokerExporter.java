@@ -28,11 +28,11 @@ import com.marathon.util.spring.StreamSupportingHttpInvokerServiceExporter;
  *
  * @author Franz-Josef Elmer
  */
-public class WhiteListStreamSupportingHttpInvokerExporter extends StreamSupportingHttpInvokerServiceExporter
+public class WhiteAndBlackListStreamSupportingHttpInvokerExporter extends StreamSupportingHttpInvokerServiceExporter
 {
     @Override
     protected ObjectInputStream createObjectInputStream(InputStream is) throws IOException
     {
-        return new WhiteListCodebaseAwareObjectInputStream(is, getBeanClassLoader(), isAcceptProxyClasses());
+        return new WhiteAndBlackListCodebaseAwareObjectInputStream(is, getBeanClassLoader(), isAcceptProxyClasses());
     }
 }

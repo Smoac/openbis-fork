@@ -19,10 +19,11 @@ package ch.systemsx.cisd.common.spring;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectStreamClass;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
@@ -30,46 +31,53 @@ import org.springframework.remoting.rmi.CodebaseAwareObjectInputStream;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.properties.PropertyUtils;
 
 /**
  * @author Franz-Josef Elmer
  */
-public class WhiteListCodebaseAwareObjectInputStream extends CodebaseAwareObjectInputStream
+public class WhiteAndBlackListCodebaseAwareObjectInputStream extends CodebaseAwareObjectInputStream
 {
+    public static final String WHITE_LIST = "allowed-api-parameter-classes";
+    
+    public static final String BLACK_LIST = "disallowed-api-parameter-classes";
+
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, 
-            WhiteListCodebaseAwareObjectInputStream.class);
+            WhiteAndBlackListCodebaseAwareObjectInputStream.class);
 
     private static final Patterns whiteListPatterns = new Patterns();
     private static final Patterns blackListPatterns = new Patterns();
 
     static {
-        addToWhiteListPatterns("char");
-        addToWhiteListPatterns("\\[C");
-        addToWhiteListPatterns("byte");
-        addToWhiteListPatterns("\\[B");
-        addToWhiteListPatterns("short");
-        addToWhiteListPatterns("\\[S");
-        addToWhiteListPatterns("int");
-        addToWhiteListPatterns("\\[I");
-        addToWhiteListPatterns("long");
-        addToWhiteListPatterns("\\[J");
-        addToWhiteListPatterns("float");
-        addToWhiteListPatterns("\\[F");
-        addToWhiteListPatterns("double");
-        addToWhiteListPatterns("\\[D");
-        addToWhiteListPatterns("boolean");
-        addToWhiteListPatterns("\\[Z");
-        addToWhiteListPatterns("org\\.springframework\\.remoting\\.support\\.RemoteInvocation");
-        addToWhiteListPatterns("com\\.marathon\\.util\\.spring\\.StreamSupportingRemoteInvocation");
-        addToWhiteListPatterns("com\\.marathon\\.util\\.spring\\.RemoteInvocationDecorator");
-        addToWhiteListPatterns("java\\..*");
-        addToWhiteListPatterns("org\\.python\\.core\\.Py.*");
-        addToWhiteListPatterns("org\\.python27\\.core\\.Py.*");
-        addToWhiteListPatterns("ch\\.ethz\\.sis\\..*");
-        addToWhiteListPatterns("ch\\.systemsx\\.cisd\\..*");
+        whiteListPatterns.addPattern("char");
+        whiteListPatterns.addPattern("\\[C");
+        whiteListPatterns.addPattern("byte");
+        whiteListPatterns.addPattern("\\[B");
+        whiteListPatterns.addPattern("short");
+        whiteListPatterns.addPattern("\\[S");
+        whiteListPatterns.addPattern("int");
+        whiteListPatterns.addPattern("\\[I");
+        whiteListPatterns.addPattern("long");
+        whiteListPatterns.addPattern("\\[J");
+        whiteListPatterns.addPattern("float");
+        whiteListPatterns.addPattern("\\[F");
+        whiteListPatterns.addPattern("double");
+        whiteListPatterns.addPattern("\\[D");
+        whiteListPatterns.addPattern("boolean");
+        whiteListPatterns.addPattern("\\[Z");
+        whiteListPatterns.addPattern("org\\.springframework\\.remoting\\.support\\.RemoteInvocation");
+        whiteListPatterns.addPattern("com\\.marathon\\.util\\.spring\\.StreamSupportingRemoteInvocation");
+        whiteListPatterns.addPattern("com\\.marathon\\.util\\.spring\\.RemoteInvocationDecorator");
+        whiteListPatterns.addPattern("java\\..*");
+        whiteListPatterns.addPattern("org\\.python\\.core\\..*");
+        whiteListPatterns.addPattern("org\\.python27\\.core\\..*");
+        whiteListPatterns.addPattern("ch\\.ethz\\.sis\\..*");
+        whiteListPatterns.addPattern("ch\\.systemsx\\.cisd\\..*");
         
-        addToBlackListPatterns("org\\.python\\.core\\.PyClass.*");
-        addToBlackListPatterns("org\\.python27\\.core\\.PyClass.*");
+        blackListPatterns.addPattern("org\\.apache\\.commons\\.collections\\.functors\\.InvokerTransformer");
+        blackListPatterns.addPattern("org\\.python\\.core\\.PyClass.*");
+        blackListPatterns.addPattern("org\\.python27\\.core\\.PyClass.*");
+        logPatterns();
     }
 
     public static void addToWhiteListPatterns(String regex)
@@ -82,7 +90,32 @@ public class WhiteListCodebaseAwareObjectInputStream extends CodebaseAwareObject
         blackListPatterns.addPattern(regex);
     }
     
-    public WhiteListCodebaseAwareObjectInputStream(InputStream in, ClassLoader classLoader, boolean acceptProxyClasses) throws IOException
+    public static void populateWhiteAndBlackListOfApiParameterClasses(Properties properties)
+    {
+        boolean patternsAdded = false;
+        for (String pattern : PropertyUtils.getList(properties, WHITE_LIST))
+        {
+            patternsAdded = true;
+            addToWhiteListPatterns(pattern);
+        }
+        for (String pattern : PropertyUtils.getList(properties, BLACK_LIST))
+        {
+            patternsAdded = true;
+            addToBlackListPatterns(pattern);
+        }
+        if (patternsAdded)
+        {
+            logPatterns();
+        }
+    }
+
+    public static void logPatterns()
+    {
+        operationLog.info("Allowed API parameter classes: " + whiteListPatterns);
+        operationLog.info("Disallowed API parameter classes: " + blackListPatterns);
+    }
+    
+    public WhiteAndBlackListCodebaseAwareObjectInputStream(InputStream in, ClassLoader classLoader, boolean acceptProxyClasses) throws IOException
     {
         super(in, classLoader, acceptProxyClasses);
     }
@@ -112,7 +145,7 @@ public class WhiteListCodebaseAwareObjectInputStream extends CodebaseAwareObject
     
     private static final class Patterns
     {
-        private final Set<String> patternsAsStrings = new HashSet<>();
+        private final Set<String> patternsAsStrings = new TreeSet<>();
         private final List<Pattern> patterns = new LinkedList<>();
         
         synchronized void addPattern(String pattern)
@@ -134,6 +167,12 @@ public class WhiteListCodebaseAwareObjectInputStream extends CodebaseAwareObject
                 }
             }
             return false;
+        }
+
+        @Override
+        public String toString()
+        {
+            return patternsAsStrings.toString();
         }
     }
 }

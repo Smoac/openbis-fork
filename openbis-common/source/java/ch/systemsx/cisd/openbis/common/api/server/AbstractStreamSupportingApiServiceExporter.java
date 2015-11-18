@@ -24,14 +24,14 @@ import ch.systemsx.cisd.common.api.IRpcService;
 import ch.systemsx.cisd.common.api.IRpcServiceNameServer;
 import ch.systemsx.cisd.common.api.RpcServiceInterfaceVersionDTO;
 import ch.systemsx.cisd.common.spring.ServiceExceptionTranslator;
-import ch.systemsx.cisd.common.spring.WhiteListStreamSupportingHttpInvokerExporter;
+import ch.systemsx.cisd.common.spring.WhiteAndBlackListStreamSupportingHttpInvokerExporter;
 
 /**
  * Abstract super class of all classes make an API available via {@link StreamSupportingHttpInvokerServiceExporter}.
  * 
  * @author Franz-Josef Elmer
  */
-public abstract class AbstractStreamSupportingApiServiceExporter extends WhiteListStreamSupportingHttpInvokerExporter
+public abstract class AbstractStreamSupportingApiServiceExporter extends WhiteAndBlackListStreamSupportingHttpInvokerExporter
 {
     @Resource(name = IRpcServiceNameServer.PREFFERED_BEAN_NAME)
     private RpcServiceNameServer nameServer;

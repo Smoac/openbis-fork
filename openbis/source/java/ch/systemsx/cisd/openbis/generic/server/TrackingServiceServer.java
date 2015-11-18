@@ -26,7 +26,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import ch.systemsx.cisd.common.spring.WhiteListHttpInvokerServiceExporter;
+import ch.systemsx.cisd.common.spring.WhiteAndBlackListHttpInvokerServiceExporter;
 import ch.systemsx.cisd.openbis.generic.shared.ITrackingServer;
 import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
 
@@ -34,7 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
  * @author Piotr Buczek
  */
 @Controller
-public class TrackingServiceServer extends WhiteListHttpInvokerServiceExporter
+public class TrackingServiceServer extends WhiteAndBlackListHttpInvokerServiceExporter
 {
     @Resource(name = ResourceNames.TRACKING_SERVER)
     private ITrackingServer server;

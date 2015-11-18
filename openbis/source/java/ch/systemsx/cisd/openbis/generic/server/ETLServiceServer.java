@@ -29,7 +29,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import ch.systemsx.cisd.common.spring.ServiceExceptionTranslator;
-import ch.systemsx.cisd.common.spring.WhiteListHttpInvokerServiceExporter;
+import ch.systemsx.cisd.common.spring.WhiteAndBlackListHttpInvokerServiceExporter;
 import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
 
@@ -38,7 +38,7 @@ import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
  * @author Kaloyan Enimanev
  */
 @Controller
-public class ETLServiceServer extends WhiteListHttpInvokerServiceExporter
+public class ETLServiceServer extends WhiteAndBlackListHttpInvokerServiceExporter
 {
     @Resource(name = ResourceNames.ETL_SERVICE)
     private IServiceForDataStoreServer etlService;

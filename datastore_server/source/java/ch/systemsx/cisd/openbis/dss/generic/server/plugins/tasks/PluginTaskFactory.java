@@ -39,6 +39,7 @@ import ch.systemsx.cisd.common.properties.PropertyParametersUtil;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.common.properties.PropertyParametersUtil.SectionProperties;
 import ch.systemsx.cisd.common.reflection.ClassUtils;
+import ch.systemsx.cisd.common.spring.WhiteAndBlackListCodebaseAwareObjectInputStream;
 import ch.systemsx.cisd.openbis.dss.generic.server.IServletPropertiesManager;
 import ch.systemsx.cisd.openbis.dss.generic.server.api.v2.sequencedatabases.AbstractSearchDomainService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.ISearchDomainService;
@@ -96,7 +97,7 @@ public class PluginTaskFactory<T>
     {
         this.pluginTaskName = pluginTaskName;
         Properties pluginProperties = sectionProperties.getProperties();
-        PluginTaskInfoProvider.populateWhiteAndBlackListOfApiParameterClasses(pluginProperties);
+        WhiteAndBlackListCodebaseAwareObjectInputStream.populateWhiteAndBlackListOfApiParameterClasses(pluginProperties);
         String label = PropertyUtils.getMandatoryProperty(pluginProperties, LABEL_PROPERTY_NAME);
         Properties props =
                 ExtendedProperties.getSubset(pluginProperties, SERVLET_PROPERTY_NAME + ".", true);
