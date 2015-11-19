@@ -87,6 +87,7 @@ function PlateController(sample, isDisabled) {
 					}
 				}
 				
+				//Get Materials
 				mainController.serverFacade.getMaterialsForIdentifiers(materialIdentifiers, function(materials) {
 					if(materials.result) {
 						for(var i = 0; i < contained.length; i++) {
@@ -103,7 +104,19 @@ function PlateController(sample, isDisabled) {
 					}
 					
 					_this._plateModel.sample.contained = contained;
-					_this._plateView.repaint($container);
+					
+					//Get Feature Vector Datasets
+					mainController.serverFacade.customELNApi({
+						"method" : "listFeatureVectorDatasets",
+						"samplePlatePermId" : _this._plateModel.sample.permId
+					}, function(error, result){
+						_this._plateModel.sample.featureVectorsCache = {};
+						_this._plateModel.sample.featureVectorsCache.featureVectorDatasets = result.data;
+						
+						//Finally paint the view
+						_this._plateView.repaint($container);
+					});
+					
 				});
 			});
 		}

@@ -452,11 +452,35 @@ function ServerFacade(openbisServer) {
 	//
 	// ELN Custom API
  	//
+ 	this.customELNApi = function(parameters, callbackFunction) {
+ 		var dataStoreCode = profile.getDefaultDataStoreCode();
+ 		this.createReportFromAggregationService(dataStoreCode, parameters, function(data) {
+ 			var error = null;
+ 			var result = {};
+ 			if(data.error) { //Error Case 1
+ 				error = data.error.message;
+ 			} else if (data.result.columns[1].title === "Error") { //Error Case 2
+ 				error = data.result.rows[0][1].value;
+ 			} else if (data.result.columns[0].title === "STATUS" && data.result.rows[0][0].value === "OK") { //Success Case
+ 				result.message = data.result.rows[0][1].value;
+ 				result.data = data.result.rows[0][2].value;
+ 				if(result.data) {
+ 					result.data = JSON.parse(result.data);
+ 				}
+ 			} else {
+ 				error = "Unknown Error.";
+ 			}
+ 			callbackFunction(error, result);
+ 		});
+	}
+ 	
  	this.createReportFromAggregationService = function(dataStoreCode, parameters, callbackFunction) {
  		if(!parameters) {
  			parameters = {};
  		}
  		parameters["sessionToken"] = this.openbisServer.getSession();
+ 		parameters["openBISURL"] = this.openbisServer._internal.openbisUrl;
+ 		
 		this.openbisServer.createReportFromAggregationService(dataStoreCode, "newbrowserapi", parameters, callbackFunction);
 	}
 	
