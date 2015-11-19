@@ -79,7 +79,7 @@
         // RPC Service
     -->
 
-    <bean id="rpc-service-exporter" class="ch.systemsx.cisd.common.spring.WhiteListStreamSupportingHttpInvokerExporter">
+    <bean id="rpc-service-exporter" class="ch.systemsx.cisd.common.spring.WhiteAndBlackListStreamSupportingHttpInvokerExporter">
         <property name="service" ref="rpc-service" />
         <property name="serviceInterface" value="ch.systemsx.cisd.cifex.rpc.ICIFEXRPCService" />
     </bean>
