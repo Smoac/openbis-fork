@@ -35,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SampleByI
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ITrashBO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleRelationshipPE;
 import ch.systemsx.cisd.openbis.generic.shared.util.RelationshipUtils;
@@ -72,6 +73,11 @@ public class DeleteSampleExecutor extends AbstractDeleteEntityExecutor<IDeletion
         if (experiment != null)
         {
             RelationshipUtils.updateModificationDateAndModifier(experiment, context.getSession());
+        }
+        ProjectPE project = sample.getProject();
+        if (project != null)
+        {
+            RelationshipUtils.updateModificationDateAndModifier(project, context.getSession());
         }
         SamplePE container = sample.getContainer();
         if (container != null)

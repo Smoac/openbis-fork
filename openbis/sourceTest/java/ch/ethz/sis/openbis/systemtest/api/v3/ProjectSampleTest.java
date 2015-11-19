@@ -37,21 +37,26 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.IApplicationServerApi;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.deletion.sample.SampleDeletionOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.ExperimentCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IModificationDateHolder;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IModifierHolder;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.person.Person;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.project.Project;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.project.ProjectCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.Sample;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleUpdate;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.space.SpaceCreation;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.experiment.ExperimentFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.project.ProjectFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sample.SampleFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.entitytype.EntityTypePermId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentIdentifier;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.IExperimentId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.IProjectId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.ProjectIdentifier;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.ProjectPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.ISampleId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SampleIdentifier;
@@ -129,48 +134,6 @@ public class ProjectSampleTest extends BaseTest
         // super method deletes samples, experiments and data sets from the database
     }
 
-    private List<SpacePermId> createSpaces(String sessionToken, String...spaceCodes)
-    {
-        List<SpaceCreation> newSpaces = new ArrayList<SpaceCreation>();
-        for (String spaceCode : spaceCodes)
-        {
-            SpaceCreation space = new SpaceCreation();
-            space.setCode(spaceCode);
-            newSpaces.add(space);
-        }
-        return v3api.createSpaces(sessionToken, newSpaces);
-    }
-    
-    private List<ProjectPermId> createProjects(String sessionToken, ISpaceId spaceId, String...projectCodes)
-    {
-        List<ProjectCreation> newProjects = new ArrayList<ProjectCreation>();
-        for (String projectCode : projectCodes)
-        {
-            ProjectCreation project = new ProjectCreation();
-            project.setSpaceId(spaceId);
-            project.setCode(projectCode);
-            newProjects.add(project);
-        }
-        return v3api.createProjects(sessionToken, newProjects);
-    }
-    
-    private List<SamplePermId> createSamples(String sessionToken, ISpaceId spaceOrNull, 
-            IProjectId projectOrNull, IExperimentId experimentOrNull, String...codes)
-    {
-        List<SampleCreation> newSamples = new ArrayList<SampleCreation>();
-        for (String code : codes)
-        {
-            SampleCreation sample = new SampleCreation();
-            sample.setTypeId(ENTITY_TYPE_UNKNOWN);
-            sample.setSpaceId(spaceOrNull);
-            sample.setProjectId(projectOrNull);
-            sample.setExperimentId(experimentOrNull);
-            sample.setCode(code);
-            newSamples.add(sample);
-        }
-        return v3api.createSamples(sessionToken, newSamples);
-    }
-    
     @Test
     public void testCreateSampleAndMapSamplesByPermId()
     {
@@ -289,10 +252,12 @@ public class ProjectSampleTest extends BaseTest
     {
         String sampleCode = createUniqueCode("S");
         createSamples(systemSessionToken, space1, null, null, sampleCode);
+        String projectCode = createUniqueCode("P");
+        ProjectPermId project = createProjects(systemSessionToken, space1, projectCode).get(0);
         SampleUpdate sampleUpdate = new SampleUpdate();
         sampleUpdate.setSampleId(new SampleIdentifier("/SPACE1/" + sampleCode));
-        sampleUpdate.setProjectId(project1inSpace1);
-        Date now = new Date();
+        sampleUpdate.setProjectId(project);
+        Date now = sleep();
         
         v3api.updateSamples(adminSessionToken, Arrays.asList(sampleUpdate));
         
@@ -300,25 +265,27 @@ public class ProjectSampleTest extends BaseTest
         fetchOptions.withModifier();
         fetchOptions.withSpace();
         fetchOptions.withProject().withModifier();
-        SampleIdentifier newSampleIdentifier = new SampleIdentifier("/SPACE1/PROJECT1/" + sampleCode);
+        SampleIdentifier newSampleIdentifier = new SampleIdentifier("/SPACE1/" + projectCode + "/" + sampleCode);
         Map<ISampleId, Sample> samples = v3api.mapSamples(systemSessionToken, Arrays.asList(newSampleIdentifier), fetchOptions);
         Sample sample = samples.get(newSampleIdentifier);
         assertModification(sample, sample, now, adminUser);
-        assertEquals(sample.getIdentifier().getIdentifier(), "/SPACE1/PROJECT1/" + sampleCode);
-        Project project = sample.getProject();
-        assertEquals(project.getIdentifier().getIdentifier(), "/SPACE1/PROJECT1");
-        assertModification(project, project, now, adminUser);
+        assertEquals(sample.getIdentifier().getIdentifier(), "/SPACE1/" + projectCode + "/" + sampleCode);
+        Project sampleProject = sample.getProject();
+        assertEquals(sampleProject.getIdentifier().getIdentifier(), "/SPACE1/" + projectCode);
+        assertModification(sampleProject, sampleProject, now, adminUser);
     }
-    
+
     @Test
     public void testAssignHomeSpaceSampleToAProjectInHomeSpace()
     {
         String sampleCode = createUniqueCode("S");
         createSamples(systemSessionToken, HOME_SPACE_ID, null, null, sampleCode);
+        String projectCode = createUniqueCode("P");
+        ProjectPermId project = createProjects(systemSessionToken, HOME_SPACE_ID, projectCode).get(0);
         SampleUpdate sampleUpdate = new SampleUpdate();
         sampleUpdate.setSampleId(new SampleIdentifier("//" + sampleCode));
-        sampleUpdate.setProjectId(project1inHomeSpace);
-        Date now = new Date();
+        sampleUpdate.setProjectId(project);
+        Date now = sleep();
         
         v3api.updateSamples(adminSessionToken, Arrays.asList(sampleUpdate));
         
@@ -326,25 +293,29 @@ public class ProjectSampleTest extends BaseTest
         fetchOptions.withModifier();
         fetchOptions.withSpace();
         fetchOptions.withProject().withModifier();
-        SampleIdentifier newSampleIdentifier = new SampleIdentifier("//PROJECT1/" + sampleCode);
+        SampleIdentifier newSampleIdentifier = new SampleIdentifier("//" + projectCode + "/" + sampleCode);
         Map<ISampleId, Sample> samples = v3api.mapSamples(adminSessionToken, Arrays.asList(newSampleIdentifier), fetchOptions);
         Sample sample = samples.get(newSampleIdentifier);
         assertModification(sample, sample, now, adminUser);
-        assertEquals(sample.getIdentifier().getIdentifier(), "/DEFAULT/PROJECT1/" + sampleCode);
-        Project project = sample.getProject();
-        assertEquals(project.getIdentifier().getIdentifier(), "/DEFAULT/PROJECT1");
-        assertModification(project, project, now, adminUser);
+        assertEquals(sample.getIdentifier().getIdentifier(), "/DEFAULT/" + projectCode + "/" + sampleCode);
+        Project sampleProject = sample.getProject();
+        assertEquals(sampleProject.getIdentifier().getIdentifier(), "/DEFAULT/" + projectCode);
+        assertModification(sampleProject, sampleProject, now, adminUser);
     }
     
     @Test
     public void testAssignProjectSampleToADifferentProjectInTheSameSpace()
     {
+        String projectCode1 = createUniqueCode("P");
+        ProjectPermId project1 = createProjects(systemSessionToken, space1, projectCode1).get(0);
         String sampleCode = createUniqueCode("S");
-        SamplePermId spaceSample = createSamples(systemSessionToken, space1, project1inSpace1, null, sampleCode).get(0);
+        SamplePermId spaceSample = createSamples(systemSessionToken, space1, project1, null, sampleCode).get(0);
+        String projectCode2 = createUniqueCode("P");
+        ProjectPermId project2 = createProjects(systemSessionToken, space1, projectCode2).get(0);
         SampleUpdate sampleUpdate = new SampleUpdate();
-        sampleUpdate.setSampleId(new SampleIdentifier("/SPACE1/PROJECT1/" + sampleCode));
-        sampleUpdate.setProjectId(project2inSpace1);
-        Date now = new Date();
+        sampleUpdate.setSampleId(new SampleIdentifier("/SPACE1/" + projectCode1 + "/" + sampleCode));
+        sampleUpdate.setProjectId(project2);
+        Date now = sleep();
         
         v3api.updateSamples(adminSessionToken, Arrays.asList(sampleUpdate));
         
@@ -355,33 +326,41 @@ public class ProjectSampleTest extends BaseTest
         Map<ISampleId, Sample> samples = v3api.mapSamples(systemSessionToken, Arrays.asList(spaceSample), fetchOptions);
         Sample sample = samples.get(spaceSample);
         assertModification(sample, sample, now, adminUser);
-        assertEquals(sample.getIdentifier().getIdentifier(), "/SPACE1/PROJECT2/" + sampleCode);
-        Project project = sample.getProject();
-        assertEquals(project.getIdentifier().getIdentifier(), "/SPACE1/PROJECT2");
-        assertModification(project, project, now, adminUser);
+        assertEquals(sample.getIdentifier().getIdentifier(), "/SPACE1/" + projectCode2 + "/" + sampleCode);
+        Project sampleProject = sample.getProject();
+        assertEquals(sampleProject.getIdentifier().getIdentifier(), "/SPACE1/" + projectCode2);
+        assertModification(sampleProject, sampleProject, now, adminUser);
+        ProjectFetchOptions projectFetchOptions = new ProjectFetchOptions();
+        projectFetchOptions.withModifier();
+        Map<IProjectId, Project> projects = v3api.mapProjects(systemSessionToken, 
+                Arrays.asList(project1), projectFetchOptions);
+        assertModification(projects.get(project1), projects.get(project1), now, adminUser);
     }
     
     @Test
     public void testAssignProjectSampleWithComponentToAProjectInADifferentSpace()
     {
+        String projectCode = createUniqueCode("P");
+        ProjectPermId project1 = createProjects(systemSessionToken, space1, projectCode).get(0);
         String sampleCode = createUniqueCode("S");
         SampleCreation s1 = new SampleCreation();
         s1.setCode(sampleCode);
         s1.setTypeId(ENTITY_TYPE_UNKNOWN);
         s1.setSpaceId(space1);
-        s1.setProjectId(project1inSpace1);
+        s1.setProjectId(project1);
         SampleCreation s2 = new SampleCreation();
         s2.setCode("A01");
         s2.setTypeId(ENTITY_TYPE_UNKNOWN);
         s2.setSpaceId(space1);
-        s2.setProjectId(project1inSpace1);
-        s2.setContainerId(new SampleIdentifier("/SPACE1/PROJECT1/" + sampleCode));
+        s2.setProjectId(project1);
+        s2.setContainerId(new SampleIdentifier("/SPACE1/" + projectCode + "/" + sampleCode));
         v3api.createSamples(systemSessionToken, Arrays.asList(s1, s2));
+        ProjectPermId project2 = createProjects(systemSessionToken, space2, projectCode).get(0);
         SampleUpdate sampleUpdate = new SampleUpdate();
-        sampleUpdate.setSampleId(new SampleIdentifier("/SPACE1/PROJECT1/" + sampleCode));
+        sampleUpdate.setSampleId(new SampleIdentifier("/SPACE1/" + projectCode + "/" + sampleCode));
         sampleUpdate.setSpaceId(space2);
-        sampleUpdate.setProjectId(project2inSpace2);
-        Date now = new Date();
+        sampleUpdate.setProjectId(project2);
+        Date now = sleep();
         
         v3api.updateSamples(adminSessionToken, Arrays.asList(sampleUpdate));
         
@@ -389,33 +368,36 @@ public class ProjectSampleTest extends BaseTest
         fetchOptions.withModifier();
         fetchOptions.withSpace();
         fetchOptions.withProject().withModifier();
-        SampleIdentifier containerID = new SampleIdentifier("/SPACE2/PROJECT2/" + sampleCode);
-        SampleIdentifier componentID = new SampleIdentifier("/SPACE1/PROJECT1/" + sampleCode + ":A01");
+        SampleIdentifier containerID = new SampleIdentifier("/SPACE2/" + projectCode + "/" + sampleCode);
+        SampleIdentifier componentID = new SampleIdentifier("/SPACE1/" + projectCode + "/" + sampleCode + ":A01");
         Map<ISampleId, Sample> samples = v3api.mapSamples(systemSessionToken, Arrays.asList(containerID, componentID), fetchOptions);
         Sample sample = samples.get(containerID);
         assertModification(sample, sample, now, adminUser);
-        assertEquals(sample.getIdentifier().getIdentifier(), "/SPACE2/PROJECT2/" + sampleCode);
+        assertEquals(sample.getIdentifier().getIdentifier(), "/SPACE2/" + projectCode + "/" + sampleCode);
         Project project = sample.getProject();
-        assertEquals(project.getIdentifier().getIdentifier(), "/SPACE2/PROJECT2");
+        assertEquals(project.getIdentifier().getIdentifier(), "/SPACE2/" + projectCode);
         assertModification(project, project, now, adminUser);
         Sample component = samples.get(componentID);
         assertEquals(component.getModifier().getUserId(), SYSTEM_USER);
-        assertEquals(component.getIdentifier().getIdentifier(), "/SPACE1/PROJECT1/" + sampleCode + ":A01");
+        assertEquals(component.getIdentifier().getIdentifier(), "/SPACE1/" + projectCode + "/" + sampleCode + ":A01");
         Project componentProject = component.getProject();
-        assertEquals(componentProject.getIdentifier().getIdentifier(), "/SPACE1/PROJECT1");
+        assertEquals(componentProject.getIdentifier().getIdentifier(), "/SPACE1/" + projectCode);
         assertModification(componentProject, componentProject, now, adminUser);
     }
     
     @Test
     public void testAssignProjectSampleToAProjectInADifferentSpace()
     {
+        String projectCode = createUniqueCode("P");
+        ProjectPermId project1 = createProjects(systemSessionToken, space1, projectCode).get(0);
         String sampleCode = createUniqueCode("S");
-        SamplePermId spaceSample = createSamples(systemSessionToken, space1, project1inSpace1, null, sampleCode).get(0);
+        SamplePermId spaceSample = createSamples(systemSessionToken, space1, project1, null, sampleCode).get(0);
+        ProjectPermId project2 = createProjects(systemSessionToken, space2, projectCode).get(0);
         SampleUpdate sampleUpdate = new SampleUpdate();
         sampleUpdate.setSampleId(spaceSample);
         sampleUpdate.setSpaceId(space2);
-        sampleUpdate.setProjectId(project1inSpace2);
-        Date now = new Date();
+        sampleUpdate.setProjectId(project2);
+        Date now = sleep();
         
         v3api.updateSamples(adminSessionToken, Arrays.asList(sampleUpdate));
         
@@ -426,21 +408,23 @@ public class ProjectSampleTest extends BaseTest
         Map<ISampleId, Sample> samples = v3api.mapSamples(systemSessionToken, Arrays.asList(spaceSample), fetchOptions);
         Sample sample = samples.get(spaceSample);
         assertModification(sample, sample, now, adminUser);
-        assertEquals(sample.getIdentifier().getIdentifier(), "/SPACE2/PROJECT1/" + sampleCode);
+        assertEquals(sample.getIdentifier().getIdentifier(), "/SPACE2/" + projectCode + "/" + sampleCode);
         Project project = sample.getProject();
-        assertEquals(project.getIdentifier().getIdentifier(), "/SPACE2/PROJECT1");
+        assertEquals(project.getIdentifier().getIdentifier(), "/SPACE2/" + projectCode);
         assertModification(project, project, now, adminUser);
     }
     
     @Test
     public void testUnassignProjectSampleFromProject()
     {
+        String projectCode = createUniqueCode("P");
+        ProjectPermId project = createProjects(systemSessionToken, space1, projectCode).get(0);
         String sampleCode = createUniqueCode("S");
-        SamplePermId spaceSample = createSamples(systemSessionToken, space1, project1inSpace1, null, sampleCode).get(0);
+        SamplePermId projectSample = createSamples(systemSessionToken, space1, project, null, sampleCode).get(0);
         SampleUpdate sampleUpdate = new SampleUpdate();
-        sampleUpdate.setSampleId(spaceSample);
+        sampleUpdate.setSampleId(projectSample);
         sampleUpdate.setProjectId(null);
-        Date now = new Date();
+        Date now = sleep();
         
         v3api.updateSamples(adminSessionToken, Arrays.asList(sampleUpdate));
         
@@ -448,17 +432,299 @@ public class ProjectSampleTest extends BaseTest
         fetchOptions.withModifier();
         fetchOptions.withSpace();
         fetchOptions.withProject().withModifier();
-        Map<ISampleId, Sample> samples = v3api.mapSamples(systemSessionToken, Arrays.asList(spaceSample), fetchOptions);
-        Sample sample = samples.get(spaceSample);
+        Map<ISampleId, Sample> samples = v3api.mapSamples(systemSessionToken, Arrays.asList(projectSample), fetchOptions);
+        Sample sample = samples.get(projectSample);
         assertModification(sample, sample, now, adminUser);
         assertEquals(sample.getIdentifier().getIdentifier(), "/SPACE1/" + sampleCode);
         assertEquals(sample.getProject(), null);
         ProjectFetchOptions projectFetchOptions = new ProjectFetchOptions();
         projectFetchOptions.withModifier();
         Map<IProjectId, Project> projects = v3api.mapProjects(systemSessionToken, 
-                Arrays.asList(project1inSpace1), projectFetchOptions);
-        Project project = projects.values().iterator().next();
-        assertModification(project, project, now, adminUser);
+                Arrays.asList(project), projectFetchOptions);
+        Project previousProject = projects.values().iterator().next();
+        assertModification(previousProject, previousProject, now, adminUser);
+    }
+    
+    @Test
+    public void testUnassignProjectSampleFromProjectAndSpace()
+    {
+        String projectCode = createUniqueCode("P");
+        ProjectPermId project = createProjects(systemSessionToken, space1, projectCode).get(0);
+        String sampleCode = createUniqueCode("S");
+        SamplePermId projectSample = createSamples(systemSessionToken, space1, project, null, sampleCode).get(0);
+        SampleUpdate sampleUpdate = new SampleUpdate();
+        sampleUpdate.setSampleId(projectSample);
+        sampleUpdate.setProjectId(null);
+        sampleUpdate.setSpaceId(null);
+        Date now = sleep();
+        
+        v3api.updateSamples(adminSessionToken, Arrays.asList(sampleUpdate));
+        
+        SampleFetchOptions fetchOptions = new SampleFetchOptions();
+        fetchOptions.withModifier();
+        fetchOptions.withSpace();
+        fetchOptions.withProject().withModifier();
+        Map<ISampleId, Sample> samples = v3api.mapSamples(systemSessionToken, Arrays.asList(projectSample), fetchOptions);
+        Sample sample = samples.get(projectSample);
+        assertModification(sample, sample, now, adminUser);
+        assertEquals(sample.getIdentifier().getIdentifier(), "/" + sampleCode);
+        assertEquals(sample.getProject(), null);
+        ProjectFetchOptions projectFetchOptions = new ProjectFetchOptions();
+        projectFetchOptions.withModifier();
+        Map<IProjectId, Project> projects = v3api.mapProjects(systemSessionToken, 
+                Arrays.asList(project), projectFetchOptions);
+        Project previousProject = projects.values().iterator().next();
+        assertModification(previousProject, previousProject, now, adminUser);
+    }
+    
+    @Test
+    public void testUnassignProjectExperimentSampleFromExperiment()
+    {
+        String projectCode = createUniqueCode("P");
+        ProjectPermId project = createProjects(systemSessionToken, space1, projectCode).get(0);
+        String experimentCode = createUniqueCode("E");
+        ExperimentPermId experiment = createExperiments(systemSessionToken, project, experimentCode).get(0);
+        String sampleCode = createUniqueCode("S");
+        SamplePermId projectSample = createSamples(systemSessionToken, space1, project, experiment, sampleCode).get(0);
+        SampleUpdate sampleUpdate = new SampleUpdate();
+        sampleUpdate.setSampleId(projectSample);
+        sampleUpdate.setExperimentId(null);
+        Date now = sleep();
+        
+        v3api.updateSamples(adminSessionToken, Arrays.asList(sampleUpdate));
+        
+        SampleFetchOptions fetchOptions = new SampleFetchOptions();
+        fetchOptions.withModifier();
+        fetchOptions.withSpace();
+        fetchOptions.withProject().withModifier();
+        Map<ISampleId, Sample> samples = v3api.mapSamples(systemSessionToken, Arrays.asList(projectSample), fetchOptions);
+        Sample sample = samples.get(projectSample);
+        assertModification(sample, sample, now, adminUser);
+        assertEquals(sample.getIdentifier().getIdentifier(), "/SPACE1/" + projectCode + "/" + sampleCode);
+        Project sampleProject = sample.getProject();
+        assertEquals(sampleProject.getIdentifier().getIdentifier(), "/SPACE1/" + projectCode);
+        assertEquals(sampleProject.getModifier().getUserId(), SYSTEM_USER);
+        ExperimentFetchOptions experimentFetchOptions = new ExperimentFetchOptions();
+        experimentFetchOptions.withModifier();
+        Experiment previousExperiment = v3api.mapExperiments(systemSessionToken, Arrays.asList(experiment), 
+                experimentFetchOptions).values().iterator().next();
+        assertModification(previousExperiment, previousExperiment, now, adminUser);
+    }
+    
+    @Test
+    public void testUpdateProjectSample()
+    {
+        String projectCode = createUniqueCode("P");
+        ProjectPermId project = createProjects(systemSessionToken, space1, projectCode).get(0);
+        String sampleCode = createUniqueCode("S");
+        SamplePermId projectSample = createSamples(systemSessionToken, space1, project, null, sampleCode).get(0);
+        SampleUpdate sampleUpdate = new SampleUpdate();
+        sampleUpdate.setSampleId(projectSample);
+        Date now = sleep();
+        
+        v3api.updateSamples(adminSessionToken, Arrays.asList(sampleUpdate));
+        
+        SampleFetchOptions fetchOptions = new SampleFetchOptions();
+        fetchOptions.withModifier();
+        fetchOptions.withSpace();
+        fetchOptions.withProject().withModifier();
+        Map<ISampleId, Sample> samples = v3api.mapSamples(systemSessionToken, Arrays.asList(projectSample), fetchOptions);
+        Sample sample = samples.get(projectSample);
+        assertModification(sample, sample, now, adminUser);
+        assertEquals(sample.getIdentifier().getIdentifier(), "/SPACE1/" + projectCode + "/" + sampleCode);
+        assertEquals(sample.getProject().getIdentifier().getIdentifier(), "/SPACE1/" + projectCode);
+        ProjectFetchOptions projectFetchOptions = new ProjectFetchOptions();
+        projectFetchOptions.withModifier();
+        Map<IProjectId, Project> projects = v3api.mapProjects(systemSessionToken, 
+                Arrays.asList(project), projectFetchOptions);
+        Project sampleProject = projects.values().iterator().next();
+        assertEquals(sampleProject.getModifier().getUserId(), SYSTEM_USER);
+    }
+    
+    @Test
+    public void testAssignSpaceSampleToAnExperimentInTheSameSpace()
+    {
+        String projectCode = createUniqueCode("P");
+        ProjectPermId project = createProjects(systemSessionToken, space1, projectCode).get(0);
+        String sampleCode = createUniqueCode("S");
+        SamplePermId projectSample = createSamples(systemSessionToken, space1, null, null, sampleCode).get(0);
+        String experimentCode = createUniqueCode("E");
+        createExperiments(systemSessionToken, project, experimentCode);
+        SampleUpdate sampleUpdate = new SampleUpdate();
+        sampleUpdate.setSampleId(projectSample);
+        sampleUpdate.setExperimentId(new ExperimentIdentifier("SPACE1", projectCode, experimentCode));
+        Date now = sleep();
+        
+        v3api.updateSamples(adminSessionToken, Arrays.asList(sampleUpdate));
+        
+        SampleFetchOptions fetchOptions = new SampleFetchOptions();
+        fetchOptions.withModifier();
+        fetchOptions.withSpace();
+        fetchOptions.withProject().withModifier();
+        fetchOptions.withExperiment().withModifier();
+        Map<ISampleId, Sample> samples = v3api.mapSamples(systemSessionToken, Arrays.asList(projectSample), fetchOptions);
+        Sample sample = samples.get(projectSample);
+        assertEquals(sample.getIdentifier().getIdentifier(), "/SPACE1/" + sampleCode);
+        assertModification(sample, sample, now, adminUser);
+        assertEquals(sample.getProject(), null);
+        Experiment experiment = sample.getExperiment();
+        assertEquals(experiment.getIdentifier().getIdentifier(), "/SPACE1/" + projectCode + "/" + experimentCode);
+        assertModification(experiment, experiment, now, adminUser);
+    }
+    
+    @Test
+    public void testAssignProjectSampleToAnExperimentInTheSameProject()
+    {
+        String projectCode = createUniqueCode("P");
+        ProjectPermId project = createProjects(systemSessionToken, space1, projectCode).get(0);
+        String sampleCode = createUniqueCode("S");
+        SamplePermId projectSample = createSamples(systemSessionToken, space1, project, null, sampleCode).get(0);
+        String experimentCode = createUniqueCode("E");
+        createExperiments(systemSessionToken, project, experimentCode);
+        SampleUpdate sampleUpdate = new SampleUpdate();
+        sampleUpdate.setSampleId(projectSample);
+        sampleUpdate.setExperimentId(new ExperimentIdentifier("SPACE1", projectCode, experimentCode));
+        Date now = sleep();
+        
+        v3api.updateSamples(adminSessionToken, Arrays.asList(sampleUpdate));
+        
+        SampleFetchOptions fetchOptions = new SampleFetchOptions();
+        fetchOptions.withModifier();
+        fetchOptions.withSpace();
+        fetchOptions.withProject().withModifier();
+        fetchOptions.withExperiment().withModifier();
+        Map<ISampleId, Sample> samples = v3api.mapSamples(systemSessionToken, Arrays.asList(projectSample), fetchOptions);
+        Sample sample = samples.get(projectSample);
+        assertEquals(sample.getIdentifier().getIdentifier(), "/SPACE1/" + projectCode + "/" + sampleCode);
+        assertModification(sample, sample, now, adminUser);
+        assertEquals(sample.getProject().getModifier().getUserId(), SYSTEM_USER);
+        Experiment experiment = sample.getExperiment();
+        assertEquals(experiment.getIdentifier().getIdentifier(), "/SPACE1/" + projectCode + "/" + experimentCode);
+        assertModification(experiment, experiment, now, adminUser);
+    }
+    
+    @Test
+    public void testAssignProjectSampleWithExperimentToAnotherExperimentInTheSameProject()
+    {
+        String projectCode = createUniqueCode("P");
+        ProjectPermId project = createProjects(systemSessionToken, space1, projectCode).get(0);
+        String experimentCode1 = createUniqueCode("E");
+        String experimentCode2 = experimentCode1 + "A";
+        createExperiments(systemSessionToken, project, experimentCode1, experimentCode2);
+        String sampleCode = createUniqueCode("S");
+        SamplePermId projectSample = createSamples(systemSessionToken, space1, project, 
+                new ExperimentIdentifier("SPACE1", projectCode, experimentCode1), sampleCode).get(0);
+        SampleUpdate sampleUpdate = new SampleUpdate();
+        sampleUpdate.setSampleId(projectSample);
+        sampleUpdate.setExperimentId(new ExperimentIdentifier("SPACE1", projectCode, experimentCode2));
+        Date now = sleep();
+        
+        v3api.updateSamples(adminSessionToken, Arrays.asList(sampleUpdate));
+        
+        SampleFetchOptions fetchOptions = new SampleFetchOptions();
+        fetchOptions.withModifier();
+        fetchOptions.withSpace();
+        fetchOptions.withProject().withModifier();
+        fetchOptions.withExperiment().withModifier();
+        Map<ISampleId, Sample> samples = v3api.mapSamples(systemSessionToken, Arrays.asList(projectSample), fetchOptions);
+        Sample sample = samples.get(projectSample);
+        assertEquals(sample.getIdentifier().getIdentifier(), "/SPACE1/" + projectCode + "/" + sampleCode);
+        assertModification(sample, sample, now, adminUser);
+        assertEquals(sample.getProject().getModifier().getUserId(), SYSTEM_USER);
+        Experiment experiment = sample.getExperiment();
+        assertEquals(experiment.getIdentifier().getIdentifier(), "/SPACE1/" + projectCode + "/" + experimentCode2);
+        assertModification(experiment, experiment, now, adminUser);
+        ExperimentFetchOptions experimentFetchOptions = new ExperimentFetchOptions();
+        experimentFetchOptions.withModifier();
+        Experiment previousExperiment = v3api.mapExperiments(systemSessionToken, 
+                Arrays.asList(new ExperimentIdentifier("SPACE1", projectCode, experimentCode1)), 
+                    experimentFetchOptions).values().iterator().next();
+        assertModification(previousExperiment, previousExperiment, now, adminUser);
+    }
+    
+    @Test
+    public void testAssignProjectSampleToAnExperimentInADifferentProjectOfTheSameSpace()
+    {
+        String projectCode1 = createUniqueCode("P");
+        ProjectPermId project1 = createProjects(systemSessionToken, space1, projectCode1).get(0);
+        String sampleCode = createUniqueCode("S");
+        SamplePermId projectSample = createSamples(systemSessionToken, space1, project1, null, sampleCode).get(0);
+        String experimentCode = createUniqueCode("E");
+        String projectCode2 = createUniqueCode("P");
+        ProjectPermId project2 = createProjects(systemSessionToken, space1, projectCode2).get(0);
+        createExperiments(systemSessionToken, project2, experimentCode);
+        SampleUpdate sampleUpdate = new SampleUpdate();
+        sampleUpdate.setSampleId(projectSample);
+        sampleUpdate.setProjectId(new ProjectIdentifier("SPACE1", projectCode2));
+        sampleUpdate.setExperimentId(new ExperimentIdentifier("SPACE1", projectCode2, experimentCode));
+        Date now = sleep();
+        
+        v3api.updateSamples(adminSessionToken, Arrays.asList(sampleUpdate));
+        
+        SampleFetchOptions fetchOptions = new SampleFetchOptions();
+        fetchOptions.withModifier();
+        fetchOptions.withSpace();
+        fetchOptions.withProject().withModifier();
+        fetchOptions.withExperiment().withModifier();
+        Map<ISampleId, Sample> samples = v3api.mapSamples(systemSessionToken, Arrays.asList(projectSample), fetchOptions);
+        Sample sample = samples.get(projectSample);
+        assertEquals(sample.getIdentifier().getIdentifier(), "/SPACE1/" + projectCode2 + "/" + sampleCode);
+        assertModification(sample, sample, now, adminUser);
+        assertModification(sample.getProject(), sample.getProject(), now, adminUser);
+        Experiment experiment = sample.getExperiment();
+        assertEquals(experiment.getIdentifier().getIdentifier(), "/SPACE1/" + projectCode2 + "/" + experimentCode);
+        assertModification(experiment, experiment, now, adminUser);
+    }
+    
+    @Test
+    public void testDeleteProjectSample()
+    {
+        String projectCode = createUniqueCode("P");
+        ProjectPermId project = createProjects(systemSessionToken, space1, projectCode).get(0);
+        String sampleCode = createUniqueCode("S");
+        createSamples(systemSessionToken, space1, project, null, sampleCode);
+        SampleDeletionOptions deletionOptions = new SampleDeletionOptions();
+        deletionOptions.setReason("test");
+        List<SampleIdentifier> sampleIds = Arrays.asList(new SampleIdentifier("/SPACE1/" + projectCode + "/" + sampleCode));
+        Date now = sleep();
+        
+        v3api.deleteSamples(adminSessionToken, sampleIds, deletionOptions);
+        
+        assertEquals(v3api.mapSamples(systemSessionToken, sampleIds, new SampleFetchOptions()).size(), 0);
+        ProjectFetchOptions projectFetchOptions = new ProjectFetchOptions();
+        projectFetchOptions.withModifier();
+        Project sampleProject = v3api.mapProjects(systemSessionToken, Arrays.asList(project), 
+                projectFetchOptions).values().iterator().next();
+        assertModification(sampleProject, sampleProject, now, adminUser);
+    }
+    
+    @Test
+    public void testDeleteProjectExperimentSample()
+    {
+        String projectCode = createUniqueCode("P");
+        ProjectPermId project = createProjects(systemSessionToken, space1, projectCode).get(0);
+        String sampleCode = createUniqueCode("S");
+        String experimentCode = createUniqueCode("E");
+        ExperimentPermId experiment = createExperiments(systemSessionToken, project, experimentCode).get(0);
+        SamplePermId sample = createSamples(systemSessionToken, space1, project, experiment, sampleCode).get(0);
+        SampleDeletionOptions deletionOptions = new SampleDeletionOptions();
+        deletionOptions.setReason("test");
+        List<SamplePermId> sampleIds = Arrays.asList(sample);
+        Date now = sleep();
+        
+        v3api.deleteSamples(adminSessionToken, sampleIds, deletionOptions);
+        
+        assertEquals(v3api.mapSamples(systemSessionToken, sampleIds, new SampleFetchOptions()).size(), 0);
+        ProjectFetchOptions projectFetchOptions = new ProjectFetchOptions();
+        projectFetchOptions.withModifier();
+        Project sampleProject = v3api.mapProjects(systemSessionToken, Arrays.asList(project), 
+                projectFetchOptions).values().iterator().next();
+        assertModification(sampleProject, sampleProject, now, adminUser);
+        ExperimentFetchOptions experimentFetchOptions = new ExperimentFetchOptions();
+        experimentFetchOptions.withModifier();
+        Experiment sampleExperiment = v3api.mapExperiments(systemSessionToken, Arrays.asList(experiment),
+                experimentFetchOptions).values().iterator().next();
+        assertModification(sampleExperiment, sampleExperiment, now, adminUser);
     }
     
     @Test
@@ -516,7 +782,7 @@ public class ProjectSampleTest extends BaseTest
         creation.setSpaceId(space1);
         creation.setProjectId(project2inSpace1);
         String expCode = createUniqueCode("E");
-        creation.setExperimentId(createExperimentInProject1OfSpace1(expCode));
+        creation.setExperimentId(createExperiments(systemSessionToken, project1inSpace1, expCode).get(0));
         
         assertUserFailureException(new IDelegatedAction()
         {
@@ -561,7 +827,7 @@ public class ProjectSampleTest extends BaseTest
     {
         String sampleCode = createUniqueCode("S");
         String expCode = createUniqueCode("E");
-        IExperimentId experiment = createExperimentInProject1OfSpace1(expCode);
+        IExperimentId experiment = createExperiments(systemSessionToken, project1inSpace1, expCode).get(0);
         SamplePermId sample = createSamples(systemSessionToken, space1, null, experiment, sampleCode).get(0);
         final SampleUpdate sampleUpdate = new SampleUpdate();
         sampleUpdate.setSampleId(sample);
@@ -723,13 +989,73 @@ public class ProjectSampleTest extends BaseTest
                 renderedActualDate + " > " + renderedReferenceDate);
     }
     
-    private IExperimentId createExperimentInProject1OfSpace1(String code)
+    private Date sleep()
     {
-        ExperimentCreation experiment = new ExperimentCreation();
-        experiment.setCode(code);
-        experiment.setTypeId(ENTITY_TYPE_UNKNOWN);
-        experiment.setProjectId(project1inSpace1);
-        return v3api.createExperiments(systemSessionToken, Arrays.asList(experiment)).get(0);
+        Date now = new Date();
+        try
+        {
+            Thread.sleep(1100);
+        } catch (InterruptedException ex)
+        {
+            // silently ignored
+        }
+        return now;
+    }
+    
+    private List<SpacePermId> createSpaces(String sessionToken, String...spaceCodes)
+    {
+        List<SpaceCreation> newSpaces = new ArrayList<SpaceCreation>();
+        for (String spaceCode : spaceCodes)
+        {
+            SpaceCreation space = new SpaceCreation();
+            space.setCode(spaceCode);
+            newSpaces.add(space);
+        }
+        return v3api.createSpaces(sessionToken, newSpaces);
+    }
+    
+    private List<ProjectPermId> createProjects(String sessionToken, ISpaceId spaceId, String...projectCodes)
+    {
+        List<ProjectCreation> newProjects = new ArrayList<ProjectCreation>();
+        for (String projectCode : projectCodes)
+        {
+            ProjectCreation project = new ProjectCreation();
+            project.setSpaceId(spaceId);
+            project.setCode(projectCode);
+            newProjects.add(project);
+        }
+        return v3api.createProjects(sessionToken, newProjects);
+    }
+    
+    private List<SamplePermId> createSamples(String sessionToken, ISpaceId spaceOrNull, 
+            IProjectId projectOrNull, IExperimentId experimentOrNull, String...codes)
+    {
+        List<SampleCreation> newSamples = new ArrayList<SampleCreation>();
+        for (String code : codes)
+        {
+            SampleCreation sample = new SampleCreation();
+            sample.setTypeId(ENTITY_TYPE_UNKNOWN);
+            sample.setSpaceId(spaceOrNull);
+            sample.setProjectId(projectOrNull);
+            sample.setExperimentId(experimentOrNull);
+            sample.setCode(code);
+            newSamples.add(sample);
+        }
+        return v3api.createSamples(sessionToken, newSamples);
+    }
+    
+    private List<ExperimentPermId> createExperiments(String sessionToken, IProjectId project, String...codes)
+    {
+        List<ExperimentCreation> newExperiments = new ArrayList<ExperimentCreation>();
+        for (String code : codes)
+        {
+            ExperimentCreation experiment = new ExperimentCreation();
+            experiment.setCode(code);
+            experiment.setTypeId(ENTITY_TYPE_UNKNOWN);
+            experiment.setProjectId(project);
+            newExperiments.add(experiment);
+        }
+        return v3api.createExperiments(sessionToken, newExperiments);
     }
 
     private String createUniqueCode(String prefix)
