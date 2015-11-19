@@ -132,8 +132,7 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
         makeblastdb = blastToolDirectory + "makeblastdb";
         if (process(makeblastdb, "-version") == false)
         {
-            operationLog.error("BLAST isn't installed or property '" + BlastUtils.BLAST_TOOLS_DIRECTORY_PROPERTY 
-                    + "' hasn't been correctly specified.");
+        	BlastUtils.logMissingTools(operationLog);
             makeblastdb = null;
         }
         makembindex = blastToolDirectory + "makembindex";
