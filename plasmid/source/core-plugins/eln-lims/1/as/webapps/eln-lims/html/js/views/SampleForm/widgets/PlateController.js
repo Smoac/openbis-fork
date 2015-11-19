@@ -130,6 +130,20 @@ function PlateController(sample, isDisabled) {
 									} else {
 										_this._plateModel.sample.featureVectorsCache.featureVectorDatasetsFeatures = {};
 										_this._plateModel.sample.featureVectorsCache.featureVectorDatasetsFeatures[featureVectorDatasetCode] = result.data;
+// TO-DO : Delete when you finish painting the dropdowns
+//										var featuresCodesFromFeatureVector = [];
+//										for(code in result.data) {
+//											featuresCodesFromFeatureVector.push(code);
+//										}
+//										
+//										mainController.serverFacade.customELNApi({
+//											"method" : "getFeaturesFromFeatureVector",
+//											"samplePlatePermId" : _this._plateModel.sample.permId,
+//											"featureVectorDatasetPermId" : featureVectorDatasetCode,
+//											"featuresCodesFromFeatureVector" : featuresCodesFromFeatureVector
+//										}, function(error, result){
+//											var breakPlease = "NOW!";
+//										});
 									}
 									//Finally paint the view
 									_this._plateView.repaint($container);

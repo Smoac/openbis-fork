@@ -128,6 +128,9 @@ def process(tr, parameters, tableBuilder):
 	if method == "listAvailableFeatures":
 		result = listAvailableFeatures(tr, parameters, tableBuilder);
 		isOk = True;
+	if method == "getFeaturesFromFeatureVector":
+		result = getFeaturesFromFeatureVector(tr, parameters, tableBuilder);
+		isOk = True;
 
 	if isOk:
 		tableBuilder.addHeader("STATUS");
@@ -189,7 +192,25 @@ def listAvailableFeatures(tr, parameters, tableBuilder):
 		features[featureInformation.getCode()] = featureInformation.getLabel();
 	
 	return getJsonForData(features);
+
+def getFeaturesFromFeatureVector(tr, parameters, tableBuilder):
+	openBISURL = parameters.get("openBISURL");
+	sessionToken = parameters.get("sessionToken");
+	samplePlatePermId = parameters.get("samplePlatePermId");
+	featureVectorDatasetPermId = parameters.get("featureVectorDatasetPermId");
+	featuresCodesFromFeatureVector = parameters.get("featuresCodesFromFeatureVector");
 	
+	featureVectorDataset = None;
+	featureVectorDatasets = listFeatureVectorDatasets(openBISURL, sessionToken, samplePlatePermId);
+	for featureVectorDataset in featureVectorDatasets:
+		if featureVectorDataset.getDatasetCode() == featureVectorDatasetPermId:
+			featureVectorDataset = featureVectorDataset;
+	
+	screeningFinder = ServiceFinder("openbis", IScreeningApiServer.SERVICE_URL);
+	screeningServiceDSS = screeningFinder.createService(IDssServiceRpcScreening, openBISURL);
+	featuresFromFeatureVector = screeningServiceDSS.loadFeatures(sessionToken, [featureVectorDataset], featuresCodesFromFeatureVector);
+	return getJsonForData(featuresFromFeatureVector);
+
 def init(tr, parameters, tableBuilder):
 	inventorySpace = tr.getSpace("DEFAULT_LAB_NOTEBOOK");
 	if inventorySpace == None:
