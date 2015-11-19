@@ -48,6 +48,7 @@ import os.path
 #For Screeening API
 from ch.systemsx.cisd.openbis.common.api.client import ServiceFinder;
 from ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1 import IScreeningApiServer;
+from ch.systemsx.cisd.openbis.dss.screening.shared.api.v1 import IDssServiceRpcScreening;
 from ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto import PlateIdentifier;
 from ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto import FeatureVectorDatasetReference;
 from java.util import Arrays;
@@ -121,10 +122,13 @@ def process(tr, parameters, tableBuilder):
 	if method == "updateDataSet":
 		isOk = updateDataSet(tr, parameters, tableBuilder);
 	
-	if method == "listFeatureVectorDatasets":
-		result = listFeatureVectorDatasets(tr, parameters, tableBuilder);
+	if method == "listFeatureVectorDatasetsPermIds":
+		result = listFeatureVectorDatasetsPermIds(tr, parameters, tableBuilder);
 		isOk = True;
-		
+	if method == "listAvailableFeatures":
+		result = listAvailableFeatures(tr, parameters, tableBuilder);
+		isOk = True;
+
 	if isOk:
 		tableBuilder.addHeader("STATUS");
 		tableBuilder.addHeader("MESSAGE");
@@ -140,24 +144,52 @@ def process(tr, parameters, tableBuilder):
 		row.setCell("STATUS","FAIL");
 		row.setCell("MESSAGE", "Operation Failed");
 
-def listFeatureVectorDatasets(tr, parameters, tableBuilder):
-	openBISURL = parameters.get("openBISURL");
-	sessionToken = parameters.get("sessionToken");
-	samplePlatePermId = parameters.get("samplePlatePermId");
-	
+def listFeatureVectorDatasets(openBISURL, sessionToken, samplePlatePermId):
 	screeningFinder = ServiceFinder("openbis", IScreeningApiServer.SERVICE_URL);
 	screeningServiceAS = screeningFinder.createService(IScreeningApiServer, openBISURL);
 	
 	plateIdentifier = PlateIdentifier.createFromPermId(samplePlatePermId);
 	featureVectorDatasets = screeningServiceAS.listFeatureVectorDatasets(sessionToken, Arrays.asList(plateIdentifier));
+	return featureVectorDatasets;
+
+def getJsonForData(data):
+	objectMapper = GenericObjectMapper();
+	jsonValue = objectMapper.writeValueAsString(data);
+	return jsonValue;
+
+def listFeatureVectorDatasetsPermIds(tr, parameters, tableBuilder):
+	openBISURL = parameters.get("openBISURL");
+	sessionToken = parameters.get("sessionToken");
+	samplePlatePermId = parameters.get("samplePlatePermId");
+
+	featureVectorDatasets = listFeatureVectorDatasets(openBISURL, sessionToken, samplePlatePermId);
 	featureVectorDatasetCodes = [];
 	for featureVectorDataset in featureVectorDatasets:
 		featureVectorDatasetCodes.append(featureVectorDataset.getDatasetCode());
 	
-	objectMapper = GenericObjectMapper();
-	featureVectorDatasetCodesAsString = objectMapper.writeValueAsString(featureVectorDatasetCodes);
-	return featureVectorDatasetCodesAsString;
+	return getJsonForData(featureVectorDatasetCodes);
 
+def listAvailableFeatures(tr, parameters, tableBuilder):
+	openBISURL = parameters.get("openBISURL");
+	sessionToken = parameters.get("sessionToken");
+	samplePlatePermId = parameters.get("samplePlatePermId");
+	featureVectorDatasetPermId = parameters.get("featureVectorDatasetPermId");
+	
+	featureVectorDataset = None;
+	featureVectorDatasets = listFeatureVectorDatasets(openBISURL, sessionToken, samplePlatePermId);
+	for featureVectorDataset in featureVectorDatasets:
+		if featureVectorDataset.getDatasetCode() == featureVectorDatasetPermId:
+			featureVectorDataset = featureVectorDataset;
+	
+	screeningFinder = ServiceFinder("openbis", IScreeningApiServer.SERVICE_URL);
+	screeningServiceDSS = screeningFinder.createService(IDssServiceRpcScreening, openBISURL);
+	featureInformationList = screeningServiceDSS.listAvailableFeatures(sessionToken, [featureVectorDataset]);
+	features = {};
+	for featureInformation in featureInformationList:
+		features[featureInformation.getCode()] = featureInformation.getLabel();
+	
+	return getJsonForData(features);
+	
 def init(tr, parameters, tableBuilder):
 	inventorySpace = tr.getSpace("DEFAULT_LAB_NOTEBOOK");
 	if inventorySpace == None:
