@@ -37,6 +37,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.IApplicationServerApi;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.deletion.experiment.ExperimentDeletionOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.deletion.sample.SampleDeletionOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.ExperimentCreation;
@@ -134,6 +135,119 @@ public class ProjectSampleTest extends BaseTest
     {
         // super method deletes samples, experiments and data sets from the database
     }
+    
+    @Test
+    public void testCreateASharedSampleWithASharedSampleAsComponent()
+    {
+        String sampleCode = createUniqueCode("S");
+        SampleCreation s1 = new SampleCreation();
+        s1.setCode(sampleCode);
+        s1.setTypeId(ENTITY_TYPE_UNKNOWN);
+        SampleCreation s2 = new SampleCreation();
+        s2.setCode("A01");
+        s2.setTypeId(ENTITY_TYPE_UNKNOWN);
+        s2.setContainerId(new SampleIdentifier(null, null, sampleCode));
+        
+        List<SamplePermId> sampleIds = v3api.createSamples(systemSessionToken, Arrays.asList(s1, s2));
+        
+        Map<ISampleId, Sample> samples = v3api.mapSamples(systemSessionToken, sampleIds, new SampleFetchOptions());
+        assertEquals(samples.get(sampleIds.get(0)).getIdentifier().getIdentifier(), "/" + sampleCode);
+        assertEquals(samples.get(sampleIds.get(1)).getIdentifier().getIdentifier(), "/" + sampleCode + ":A01");
+    }
+    
+    @Test
+    public void testCreateASharedSampleWithASpaceSampleAsComponent()
+    {
+        String sampleCode = createUniqueCode("S");
+        SampleCreation s1 = new SampleCreation();
+        s1.setCode(sampleCode);
+        s1.setTypeId(ENTITY_TYPE_UNKNOWN);
+        SampleCreation s2 = new SampleCreation();
+        s2.setCode("A01");
+        s2.setTypeId(ENTITY_TYPE_UNKNOWN);
+        s2.setSpaceId(space1);
+        s2.setContainerId(new SampleIdentifier(null, null, sampleCode));
+        
+        List<SamplePermId> sampleIds = v3api.createSamples(systemSessionToken, Arrays.asList(s1, s2));
+        
+        Map<ISampleId, Sample> samples = v3api.mapSamples(systemSessionToken, sampleIds, new SampleFetchOptions());
+        assertEquals(samples.get(sampleIds.get(0)).getIdentifier().getIdentifier(), "/" + sampleCode);
+        assertEquals(samples.get(sampleIds.get(1)).getIdentifier().getIdentifier(), "/SPACE1/" + sampleCode + ":A01");
+    }
+    
+    @Test
+    public void testCreateASharedSampleWithAProjectSampleAsComponent()
+    {
+        String projectCode = createUniqueCode("P");
+        createProjects(systemSessionToken, space1, projectCode);
+        String sampleCode = createUniqueCode("S");
+        SampleCreation s1 = new SampleCreation();
+        s1.setCode(sampleCode);
+        s1.setTypeId(ENTITY_TYPE_UNKNOWN);
+        SampleCreation s2 = new SampleCreation();
+        s2.setCode("A01");
+        s2.setTypeId(ENTITY_TYPE_UNKNOWN);
+        s2.setSpaceId(space1);
+        s2.setProjectId(new ProjectIdentifier("SPACE1", projectCode));
+        s2.setContainerId(new SampleIdentifier(null, null, sampleCode));
+        
+        List<SamplePermId> sampleIds = v3api.createSamples(systemSessionToken, Arrays.asList(s1, s2));
+        
+        Map<ISampleId, Sample> samples = v3api.mapSamples(systemSessionToken, sampleIds, new SampleFetchOptions());
+        assertEquals(samples.get(sampleIds.get(0)).getIdentifier().getIdentifier(), "/" + sampleCode);
+        assertEquals(samples.get(sampleIds.get(1)).getIdentifier().getIdentifier(), "/SPACE1/" + projectCode + "/" + sampleCode + ":A01");
+    }
+    
+    @Test
+    public void testCreateASharedSampleWithAProjectExperimentSampleAsComponent()
+    {
+        String projectCode = createUniqueCode("P");
+        ProjectPermId project = createProjects(systemSessionToken, space1, projectCode).get(0);
+        String experimentCode = createUniqueCode("E");
+        createExperiments(systemSessionToken, project, experimentCode);
+        String sampleCode = createUniqueCode("S");
+        SampleCreation s1 = new SampleCreation();
+        s1.setCode(sampleCode);
+        s1.setTypeId(ENTITY_TYPE_UNKNOWN);
+        SampleCreation s2 = new SampleCreation();
+        s2.setCode("A01");
+        s2.setTypeId(ENTITY_TYPE_UNKNOWN);
+        s2.setSpaceId(space1);
+        s2.setProjectId(new ProjectIdentifier("SPACE1", projectCode));
+        s2.setExperimentId(new ExperimentIdentifier("SPACE1", projectCode, experimentCode));
+        s2.setContainerId(new SampleIdentifier(null, null, sampleCode));
+        
+        List<SamplePermId> sampleIds = v3api.createSamples(systemSessionToken, Arrays.asList(s1, s2));
+        
+        Map<ISampleId, Sample> samples = v3api.mapSamples(systemSessionToken, sampleIds, new SampleFetchOptions());
+        assertEquals(samples.get(sampleIds.get(0)).getIdentifier().getIdentifier(), "/" + sampleCode);
+        assertEquals(samples.get(sampleIds.get(1)).getIdentifier().getIdentifier(), "/SPACE1/" + projectCode + "/" + sampleCode + ":A01");
+    }
+    
+    @Test
+    public void testCreateASharedSampleWithAnExperimentSampleAsComponent()
+    {
+        String projectCode = createUniqueCode("P");
+        ProjectPermId project = createProjects(systemSessionToken, space1, projectCode).get(0);
+        String experimentCode = createUniqueCode("E");
+        createExperiments(systemSessionToken, project, experimentCode);
+        String sampleCode = createUniqueCode("S");
+        SampleCreation s1 = new SampleCreation();
+        s1.setCode(sampleCode);
+        s1.setTypeId(ENTITY_TYPE_UNKNOWN);
+        SampleCreation s2 = new SampleCreation();
+        s2.setCode("A01");
+        s2.setTypeId(ENTITY_TYPE_UNKNOWN);
+        s2.setSpaceId(space1);
+        s2.setExperimentId(new ExperimentIdentifier("SPACE1", projectCode, experimentCode));
+        s2.setContainerId(new SampleIdentifier(null, null, sampleCode));
+        
+        List<SamplePermId> sampleIds = v3api.createSamples(systemSessionToken, Arrays.asList(s1, s2));
+        
+        Map<ISampleId, Sample> samples = v3api.mapSamples(systemSessionToken, sampleIds, new SampleFetchOptions());
+        assertEquals(samples.get(sampleIds.get(0)).getIdentifier().getIdentifier(), "/" + sampleCode);
+        assertEquals(samples.get(sampleIds.get(1)).getIdentifier().getIdentifier(), "/SPACE1/" + sampleCode + ":A01");
+    }
 
     @Test
     public void testCreateSampleAndMapSamplesByPermId()
@@ -189,7 +303,7 @@ public class ProjectSampleTest extends BaseTest
     }
     
     @Test
-    public void testCreateProjectSampleWithComponent()
+    public void testCreateProjectSampleWithAProjectSampleComponentFromAnotherSpace()
     {
         String sampleCode = createUniqueCode("S");
         SampleCreation s1 = new SampleCreation();
@@ -201,21 +315,21 @@ public class ProjectSampleTest extends BaseTest
         SampleCreation s2 = new SampleCreation();
         s2.setCode("A01");
         s2.setTypeId(ENTITY_TYPE_UNKNOWN);
-        s2.setSpaceId(space1);
-        s2.setProjectId(project1inSpace1);
+        s2.setSpaceId(space2);
+        s2.setProjectId(project1inSpace2);
         s2.setContainerId(s1PermId);
         
-        v3api.createSamples(systemSessionToken, Arrays.asList(s2)).get(0);
+        v3api.createSamples(systemSessionToken, Arrays.asList(s2));
         
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
         fetchOptions.withProject();
         fetchOptions.withContainer();
         List<ISampleId> ids = new ArrayList<>();
         ids.add(new SampleIdentifier("/SPACE1/PROJECT1/" + sampleCode));
-        ids.add(new SampleIdentifier("/SPACE1/PROJECT1/" + sampleCode + ":A01"));
+        ids.add(new SampleIdentifier("/SPACE2/PROJECT1/" + sampleCode + ":A01"));
         Map<ISampleId, Sample> samples = v3api.mapSamples(systemSessionToken, ids, fetchOptions);
         assertEquals(samples.get(ids.get(0)).getProject().getIdentifier().toString(), "/SPACE1/PROJECT1");
-        assertEquals(samples.get(ids.get(1)).getProject().getIdentifier().toString(), "/SPACE1/PROJECT1");
+        assertEquals(samples.get(ids.get(1)).getProject().getIdentifier().toString(), "/SPACE2/PROJECT1");
     }
 
     @Test
@@ -235,7 +349,7 @@ public class ProjectSampleTest extends BaseTest
         s2.setProjectId(project1inHomeSpace);
         s2.setContainerId(s1PermId);
         
-        v3api.createSamples(systemSessionToken, Arrays.asList(s2)).get(0);
+        v3api.createSamples(systemSessionToken, Arrays.asList(s2));
         
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
         fetchOptions.withProject();
@@ -448,7 +562,28 @@ public class ProjectSampleTest extends BaseTest
         Experiment sampleExperiment = v3api.mapExperiments(systemSessionToken, Arrays.asList(experiment), 
                 experimentFetchOptions).values().iterator().next();
         assertModification(sampleExperiment, sampleExperiment, now, adminUser);
-
+    }
+    
+    @Test
+    public void testDeleteExperimentWithProjectSamples()
+    {
+        String projectCode = createUniqueCode("P");
+        createProjects(systemSessionToken, space1, projectCode);
+        String experimentCode = createUniqueCode("E");
+        ProjectIdentifier project = new ProjectIdentifier("SPACE1", projectCode);
+        ExperimentPermId experiment = createExperiments(systemSessionToken, project, experimentCode).get(0);
+        String sampleCode = createUniqueCode("S");
+        SamplePermId sample = createSamples(systemSessionToken, space1, project, experiment, sampleCode).get(0);
+        ExperimentDeletionOptions deletionOptions = new ExperimentDeletionOptions();
+        deletionOptions.setReason("a test");
+        
+        v3api.deleteExperiments(adminSessionToken, Arrays.asList(experiment), deletionOptions);
+        
+        assertEquals(v3api.mapSamples(systemSessionToken, Arrays.asList(sample), new SampleFetchOptions()).size(), 0);
+        ExperimentFetchOptions experimentFetchOptions = new ExperimentFetchOptions();
+        experimentFetchOptions.withModifier();
+        assertEquals(v3api.mapExperiments(systemSessionToken, Arrays.asList(experiment), 
+                experimentFetchOptions).size(), 0);
     }
     
     @Test

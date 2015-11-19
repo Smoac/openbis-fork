@@ -77,7 +77,8 @@ public class RelationshipService implements IRelationshipService, ApplicationCon
         SampleUtils.setSamplesSpace(experiment, project.getSpace());
         for (SamplePE sample : experiment.getSamples())
         {
-            if (EntityHelper.equalEntities(sample.getProject(), project) == false)
+            ProjectPE sampleProject = sample.getProject();
+            if (sampleProject != null && EntityHelper.equalEntities(sampleProject, project) == false)
             {
                 sample.setProject(project);
                 RelationshipUtils.updateModificationDateAndModifier(sample, session);
