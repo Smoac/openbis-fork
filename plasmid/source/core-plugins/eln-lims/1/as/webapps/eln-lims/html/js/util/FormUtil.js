@@ -547,6 +547,10 @@ var FormUtil = new function() {
 		return $('<div>', {'class' : 'checkbox'}).append($('<input>', {'type' : 'checkbox', 'id' : id, 'alt' : alt, 'placeholder' : alt }));
 	}
 	
+	this.getDropDownForTerms = function(id, terms, alt, isRequired) {
+		return this._getDropDownFieldForVocabulary(id, terms, alt, isRequired);
+	}
+	
 	this._getDropDownFieldForVocabulary = function(code, terms, alt, isRequired) {
 		var $component = $("<select>", {'placeholder' : alt, 'class' : 'form-control'});
 		$component.attr('id', code);
@@ -555,7 +559,7 @@ var FormUtil = new function() {
 			$component.attr('required', '');
 		}
 		
-		$component.append($("<option>").attr('value', '').attr('selected', '').text(''));
+		$component.append($("<option>").attr('value', '').attr('selected', '').text(alt));
 		for(var i = 0; i < terms.length; i++) {
 			$component.append($("<option>").attr('value',terms[i].code).text(terms[i].label));
 		}

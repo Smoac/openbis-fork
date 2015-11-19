@@ -27,8 +27,82 @@ function PlateView(plateController, plateModel) {
 	this.repaint = function($container) {
 		var _this = this;
 		$container.empty();
-		var gridTable = this.getGridTable(true);
-		$container.append(gridTable);
+		//Paint Toolbar
+		var $toolbar = $("<div>");
+		if( this._plateModel.sample.featureVectorsCache &&
+			this._plateModel.sample.featureVectorsCache.featureVectorDatasets) {
+			
+			//1. Selected Feature Vector Dataset Features
+			var $featureVectorDatasetFeaturesDropdown = FormUtil.getDropDownForTerms(
+					"featureVectorDatasetFeaturesDropdown-" + this._plateModel.sample.permId,
+					[],
+					"Choose a Feature Vector Dataset first",
+					false
+					);
+			
+			//2. Feature Vector Dataset Dropdow
+			var featureVectorDatasets = this._plateModel.sample.featureVectorsCache.featureVectorDatasets;
+			var featureVectorDatasetsDropdowTerms = [];
+			for(var fvdIdx = 0; fvdIdx < featureVectorDatasets.length; fvdIdx++) {
+				featureVectorDatasetsDropdowTerms.push({
+					code : featureVectorDatasets[fvdIdx],
+					label : featureVectorDatasets[fvdIdx]
+				})
+			}
+			
+			var $featureVectorDatasetsDropdown = FormUtil.getDropDownForTerms(
+												"featureVectorDatasetsDropdow-" + this._plateModel.sample.permId,
+												featureVectorDatasetsDropdowTerms,
+												"Choose a Feature Vector Dataset please",
+												false
+												);
+			
+			$featureVectorDatasetsDropdown.change(function(event) {
+				var featureVectorDatasetCode = $(this).val();
+				if(!featureVectorDatasetCode) {
+					$featureVectorDatasetFeaturesDropdown.empty();
+					$featureVectorDatasetFeaturesDropdown.append($("<option>").attr('value', '').text("Choose a Feature Vector Dataset first"));
+				} else {
+					var featureVectorDatasetFeatures = _this._plateModel.sample.featureVectorsCache.featureVectorDatasetsFeatures[featureVectorDatasetCode];
+					
+					var loadFeatureVectorDatasetFeatures = function() {
+						var featureVectorDatasetFeatures = _this._plateModel.sample.featureVectorsCache.featureVectorDatasetsFeatures[featureVectorDatasetCode];
+						$featureVectorDatasetFeaturesDropdown.empty();
+						$featureVectorDatasetFeaturesDropdown.append($("<option>").attr('value', '').attr('selected', '').text(''));
+						for(featureVectorDatasetFeatureCode in featureVectorDatasetFeatures) {
+							$featureVectorDatasetFeaturesDropdown.append($("<option>").attr('value', featureVectorDatasetFeatureCode).text(featureVectorDatasetFeatures[featureVectorDatasetFeatureCode]));
+						}
+					}
+					
+					if(!featureVectorDatasetFeatures) {
+						mainController.serverFacade.customELNApi({
+							"method" : "listAvailableFeatures",
+							"samplePlatePermId" : _this._plateModel.sample.permId,
+							"featureVectorDatasetPermId" : featureVectorDatasetCode
+						}, function(error, result){
+							if(error) {
+								Util.showError(error);
+							} else {
+								_this._plateModel.sample.featureVectorsCache.featureVectorDatasetsFeatures[featureVectorDatasetCode] = result.data;
+								loadFeatureVectorDatasetFeatures();
+							}
+						});
+					} else {
+						loadFeatureVectorDatasetFeatures();
+					}
+				}
+			});
+			
+			//Build Toolbar
+			$toolbar.append(FormUtil.getFieldForComponentWithLabel($featureVectorDatasetsDropdown, "Feature Vector Datasets"))
+					.append(FormUtil.getFieldForComponentWithLabel($featureVectorDatasetFeaturesDropdown, "Feature Vector Dataset Features"));
+		}
+		
+		
+		
+		//Paint grid
+		var $gridTable = this.getGridTable(true);
+		$container.append($toolbar).append($gridTable);
 	}
 	
 	this.getGridTable = function(withWells) {
