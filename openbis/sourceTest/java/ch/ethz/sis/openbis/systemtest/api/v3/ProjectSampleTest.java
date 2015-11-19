@@ -38,6 +38,9 @@ import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.ExperimentCreation;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IModificationDateHolder;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IModifierHolder;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.person.Person;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.project.Project;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.project.ProjectCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.Sample;
@@ -63,7 +66,9 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.util.UpdateUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.systemtest.base.BaseTest;
+import ch.systemsx.cisd.openbis.systemtest.base.builder.SessionBuilder;
 
 /**
  * 
@@ -74,6 +79,7 @@ import ch.systemsx.cisd.openbis.systemtest.base.BaseTest;
 @Test(groups = "project-samples")
 public class ProjectSampleTest extends BaseTest
 {
+    private static final String SYSTEM_USER = "system";
     private static final SpacePermId HOME_SPACE_ID = new SpacePermId("DEFAULT");
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, ProjectSampleTest.class);
     private static final EntityTypePermId ENTITY_TYPE_UNKNOWN = new EntityTypePermId("UNKNOWN");
@@ -88,6 +94,8 @@ public class ProjectSampleTest extends BaseTest
     private ProjectPermId project1inSpace2;
     private ProjectPermId project2inSpace2;
     private ProjectPermId project1inHomeSpace;
+    private String adminSessionToken;
+    private String adminUser;
     
     @BeforeClass
     public void createData()
@@ -107,7 +115,10 @@ public class ProjectSampleTest extends BaseTest
         createSamples(systemSessionToken, space2, project2inSpace2, null, "SAMPLE5", "SAMPLE6");
         waitAtLeastASecond(); // to allow checks on modification time stamps 
         UpdateUtils.waitUntilIndexUpdaterIsIdle(applicationContext, operationLog);
-        commonServer.changeUserHomeSpace(systemSessionToken, new TechId(1)); // home space = DEFAULT
+        SessionBuilder session = aSession().withInstanceRole(RoleCode.ADMIN);
+        adminUser = session.getUserID();
+        adminSessionToken = create(session);
+        commonServer.changeUserHomeSpace(adminSessionToken, new TechId(1)); // home space = DEFAULT
     }
     
     @Override
@@ -268,7 +279,7 @@ public class ProjectSampleTest extends BaseTest
         List<ISampleId> ids = new ArrayList<>();
         ids.add(new SampleIdentifier("//PROJECT1/" + sampleCode));
         ids.add(new SampleIdentifier("//PROJECT1/" + sampleCode + ":A01"));
-        Map<ISampleId, Sample> samples = v3api.mapSamples(systemSessionToken, ids, fetchOptions);
+        Map<ISampleId, Sample> samples = v3api.mapSamples(adminSessionToken, ids, fetchOptions);
         assertEquals(samples.get(ids.get(0)).getProject().getIdentifier().toString(), "/DEFAULT/PROJECT1");
         assertEquals(samples.get(ids.get(1)).getProject().getIdentifier().toString(), "/DEFAULT/PROJECT1");
     }
@@ -283,19 +294,20 @@ public class ProjectSampleTest extends BaseTest
         sampleUpdate.setProjectId(project1inSpace1);
         Date now = new Date();
         
-        v3api.updateSamples(systemSessionToken, Arrays.asList(sampleUpdate));
+        v3api.updateSamples(adminSessionToken, Arrays.asList(sampleUpdate));
         
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
+        fetchOptions.withModifier();
         fetchOptions.withSpace();
-        fetchOptions.withProject();
+        fetchOptions.withProject().withModifier();
         SampleIdentifier newSampleIdentifier = new SampleIdentifier("/SPACE1/PROJECT1/" + sampleCode);
         Map<ISampleId, Sample> samples = v3api.mapSamples(systemSessionToken, Arrays.asList(newSampleIdentifier), fetchOptions);
         Sample sample = samples.get(newSampleIdentifier);
-        assertNotOlder(sample.getModificationDate(), now);
+        assertModification(sample, sample, now, adminUser);
         assertEquals(sample.getIdentifier().getIdentifier(), "/SPACE1/PROJECT1/" + sampleCode);
         Project project = sample.getProject();
         assertEquals(project.getIdentifier().getIdentifier(), "/SPACE1/PROJECT1");
-        assertNotOlder(project.getModificationDate(), now);
+        assertModification(project, project, now, adminUser);
     }
     
     @Test
@@ -308,19 +320,20 @@ public class ProjectSampleTest extends BaseTest
         sampleUpdate.setProjectId(project1inHomeSpace);
         Date now = new Date();
         
-        v3api.updateSamples(systemSessionToken, Arrays.asList(sampleUpdate));
+        v3api.updateSamples(adminSessionToken, Arrays.asList(sampleUpdate));
         
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
+        fetchOptions.withModifier();
         fetchOptions.withSpace();
-        fetchOptions.withProject();
+        fetchOptions.withProject().withModifier();
         SampleIdentifier newSampleIdentifier = new SampleIdentifier("//PROJECT1/" + sampleCode);
-        Map<ISampleId, Sample> samples = v3api.mapSamples(systemSessionToken, Arrays.asList(newSampleIdentifier), fetchOptions);
+        Map<ISampleId, Sample> samples = v3api.mapSamples(adminSessionToken, Arrays.asList(newSampleIdentifier), fetchOptions);
         Sample sample = samples.get(newSampleIdentifier);
-        assertNotOlder(sample.getModificationDate(), now);
+        assertModification(sample, sample, now, adminUser);
         assertEquals(sample.getIdentifier().getIdentifier(), "/DEFAULT/PROJECT1/" + sampleCode);
         Project project = sample.getProject();
         assertEquals(project.getIdentifier().getIdentifier(), "/DEFAULT/PROJECT1");
-        assertNotOlder(project.getModificationDate(), now);
+        assertModification(project, project, now, adminUser);
     }
     
     @Test
@@ -333,18 +346,19 @@ public class ProjectSampleTest extends BaseTest
         sampleUpdate.setProjectId(project2inSpace1);
         Date now = new Date();
         
-        v3api.updateSamples(systemSessionToken, Arrays.asList(sampleUpdate));
+        v3api.updateSamples(adminSessionToken, Arrays.asList(sampleUpdate));
         
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
+        fetchOptions.withModifier();
         fetchOptions.withSpace();
-        fetchOptions.withProject();
+        fetchOptions.withProject().withModifier();
         Map<ISampleId, Sample> samples = v3api.mapSamples(systemSessionToken, Arrays.asList(spaceSample), fetchOptions);
         Sample sample = samples.get(spaceSample);
-        assertNotOlder(sample.getModificationDate(), now);
+        assertModification(sample, sample, now, adminUser);
         assertEquals(sample.getIdentifier().getIdentifier(), "/SPACE1/PROJECT2/" + sampleCode);
         Project project = sample.getProject();
         assertEquals(project.getIdentifier().getIdentifier(), "/SPACE1/PROJECT2");
-        assertNotOlder(project.getModificationDate(), now);
+        assertModification(project, project, now, adminUser);
     }
     
     @Test
@@ -369,26 +383,27 @@ public class ProjectSampleTest extends BaseTest
         sampleUpdate.setProjectId(project2inSpace2);
         Date now = new Date();
         
-        v3api.updateSamples(systemSessionToken, Arrays.asList(sampleUpdate));
+        v3api.updateSamples(adminSessionToken, Arrays.asList(sampleUpdate));
         
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
+        fetchOptions.withModifier();
         fetchOptions.withSpace();
-        fetchOptions.withProject();
+        fetchOptions.withProject().withModifier();
         SampleIdentifier containerID = new SampleIdentifier("/SPACE2/PROJECT2/" + sampleCode);
         SampleIdentifier componentID = new SampleIdentifier("/SPACE1/PROJECT1/" + sampleCode + ":A01");
         Map<ISampleId, Sample> samples = v3api.mapSamples(systemSessionToken, Arrays.asList(containerID, componentID), fetchOptions);
         Sample sample = samples.get(containerID);
-        assertNotOlder(sample.getModificationDate(), now);
+        assertModification(sample, sample, now, adminUser);
         assertEquals(sample.getIdentifier().getIdentifier(), "/SPACE2/PROJECT2/" + sampleCode);
         Project project = sample.getProject();
         assertEquals(project.getIdentifier().getIdentifier(), "/SPACE2/PROJECT2");
-        assertNotOlder(project.getModificationDate(), now);
+        assertModification(project, project, now, adminUser);
         Sample component = samples.get(componentID);
-        assertNotOlder(component.getModificationDate(), now);
+        assertEquals(component.getModifier().getUserId(), SYSTEM_USER);
         assertEquals(component.getIdentifier().getIdentifier(), "/SPACE1/PROJECT1/" + sampleCode + ":A01");
         Project componentProject = component.getProject();
         assertEquals(componentProject.getIdentifier().getIdentifier(), "/SPACE1/PROJECT1");
-        assertNotOlder(componentProject.getModificationDate(), now);
+        assertModification(componentProject, componentProject, now, adminUser);
     }
     
     @Test
@@ -402,18 +417,19 @@ public class ProjectSampleTest extends BaseTest
         sampleUpdate.setProjectId(project1inSpace2);
         Date now = new Date();
         
-        v3api.updateSamples(systemSessionToken, Arrays.asList(sampleUpdate));
+        v3api.updateSamples(adminSessionToken, Arrays.asList(sampleUpdate));
         
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
+        fetchOptions.withModifier();
         fetchOptions.withSpace();
-        fetchOptions.withProject();
+        fetchOptions.withProject().withModifier();
         Map<ISampleId, Sample> samples = v3api.mapSamples(systemSessionToken, Arrays.asList(spaceSample), fetchOptions);
         Sample sample = samples.get(spaceSample);
-        assertNotOlder(sample.getModificationDate(), now);
+        assertModification(sample, sample, now, adminUser);
         assertEquals(sample.getIdentifier().getIdentifier(), "/SPACE2/PROJECT1/" + sampleCode);
         Project project = sample.getProject();
         assertEquals(project.getIdentifier().getIdentifier(), "/SPACE2/PROJECT1");
-        assertNotOlder(project.getModificationDate(), now);
+        assertModification(project, project, now, adminUser);
     }
     
     @Test
@@ -426,20 +442,23 @@ public class ProjectSampleTest extends BaseTest
         sampleUpdate.setProjectId(null);
         Date now = new Date();
         
-        v3api.updateSamples(systemSessionToken, Arrays.asList(sampleUpdate));
+        v3api.updateSamples(adminSessionToken, Arrays.asList(sampleUpdate));
         
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
+        fetchOptions.withModifier();
         fetchOptions.withSpace();
-        fetchOptions.withProject();
+        fetchOptions.withProject().withModifier();
         Map<ISampleId, Sample> samples = v3api.mapSamples(systemSessionToken, Arrays.asList(spaceSample), fetchOptions);
         Sample sample = samples.get(spaceSample);
-        assertNotOlder(sample.getModificationDate(), now);
+        assertModification(sample, sample, now, adminUser);
         assertEquals(sample.getIdentifier().getIdentifier(), "/SPACE1/" + sampleCode);
-        Project project = sample.getProject();
-        assertEquals(project, null);
+        assertEquals(sample.getProject(), null);
+        ProjectFetchOptions projectFetchOptions = new ProjectFetchOptions();
+        projectFetchOptions.withModifier();
         Map<IProjectId, Project> projects = v3api.mapProjects(systemSessionToken, 
-                Arrays.asList(project1inSpace1), new ProjectFetchOptions());
-        assertNotOlder(projects.values().iterator().next().getModificationDate(), now);
+                Arrays.asList(project1inSpace1), projectFetchOptions);
+        Project project = projects.values().iterator().next();
+        assertModification(project, project, now, adminUser);
     }
     
     @Test
@@ -688,6 +707,13 @@ public class ProjectSampleTest extends BaseTest
         }
     }
 
+    private void assertModification(IModificationDateHolder modificationDateHolder, IModifierHolder modifierHolder, 
+            Date date, String modifier)
+    {
+        assertNotOlder(modificationDateHolder.getModificationDate(), date);
+        assertEquals(modifierHolder.getModifier().getUserId(), modifier);
+    }
+    
     private void assertNotOlder(Date actualDate, Date referenceDate)
     {
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
