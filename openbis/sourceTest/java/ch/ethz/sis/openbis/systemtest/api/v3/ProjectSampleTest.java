@@ -40,6 +40,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.deletion.sample.SampleDeletionOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.ExperimentCreation;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.ExperimentUpdate;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IModificationDateHolder;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IModifierHolder;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.project.Project;
@@ -412,6 +413,42 @@ public class ProjectSampleTest extends BaseTest
         Project project = sample.getProject();
         assertEquals(project.getIdentifier().getIdentifier(), "/SPACE2/" + projectCode);
         assertModification(project, project, now, adminUser);
+    }
+    
+    @Test
+    public void testAssignExperimentWithProjectSamplesToADifferentProject()
+    {
+        String projectCode1 = createUniqueCode("P");
+        String projectCode2 = projectCode1 + "A";
+        createProjects(systemSessionToken, space1, projectCode1, projectCode2);
+        String experimentCode = createUniqueCode("E");
+        ProjectIdentifier project1 = new ProjectIdentifier("SPACE1", projectCode1);
+        ExperimentPermId experiment = createExperiments(systemSessionToken, project1, experimentCode).get(0);
+        String sampleCode = createUniqueCode("S");
+        SamplePermId sample = createSamples(systemSessionToken, space1, project1, experiment, sampleCode).get(0);
+        ExperimentUpdate experimentUpdate = new ExperimentUpdate();
+        experimentUpdate.setExperimentId(experiment);
+        experimentUpdate.setProjectId(new ProjectIdentifier("SPACE1", projectCode2));
+        Date now = sleep();
+        
+        v3api.updateExperiments(adminSessionToken, Arrays.asList(experimentUpdate));
+        
+        SampleFetchOptions fetchOptions = new SampleFetchOptions();
+        fetchOptions.withModifier();
+        fetchOptions.withSpace();
+        fetchOptions.withProject().withModifier();
+        Sample experimentSample = v3api.mapSamples(systemSessionToken, Arrays.asList(sample), fetchOptions).values().iterator().next();
+        assertModification(experimentSample, experimentSample, now, adminUser);
+        assertEquals(experimentSample.getIdentifier().getIdentifier(), "/SPACE1/" + projectCode2 + "/" + sampleCode);
+        Project project = experimentSample.getProject();
+        assertEquals(project.getIdentifier().getIdentifier(), "/SPACE1/" + projectCode2);
+        assertModification(project, project, now, adminUser);
+        ExperimentFetchOptions experimentFetchOptions = new ExperimentFetchOptions();
+        experimentFetchOptions.withModifier();
+        Experiment sampleExperiment = v3api.mapExperiments(systemSessionToken, Arrays.asList(experiment), 
+                experimentFetchOptions).values().iterator().next();
+        assertModification(sampleExperiment, sampleExperiment, now, adminUser);
+
     }
     
     @Test
