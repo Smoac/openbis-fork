@@ -80,12 +80,12 @@ public class WhiteAndBlackListCodebaseAwareObjectInputStream extends CodebaseAwa
         logPatterns();
     }
 
-    public static void addToWhiteListPatterns(String regex)
+    private static void addToWhiteListPatterns(String regex)
     {
         whiteListPatterns.addPattern(regex);
     }
 
-    public static void addToBlackListPatterns(String regex)
+    private static void addToBlackListPatterns(String regex)
     {
         blackListPatterns.addPattern(regex);
     }
