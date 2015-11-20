@@ -16,6 +16,8 @@
 function PlateView(plateController, plateModel) {
 	this._plateController = plateController;
 	this._plateModel = plateModel;
+	this._$featureVectorDatasetFeaturesDropdown = null;
+	this._$featureVectorDatasetsDropdown = null;
 	
 	this.getPlaceHolder = function() {
 		var container = $("<div>", { "id" : this._plateModel.getPlaceHolderId() });
@@ -33,13 +35,32 @@ function PlateView(plateController, plateModel) {
 			this._plateModel.sample.featureVectorsCache.featureVectorDatasets) {
 			
 			//1. Selected Feature Vector Dataset Features
-			var $featureVectorDatasetFeaturesDropdown = FormUtil.getDropDownForTerms(
+			this._$featureVectorDatasetFeaturesDropdown = FormUtil.getDropDownForTerms(
 					"featureVectorDatasetFeaturesDropdown-" + this._plateModel.sample.permId,
 					[],
 					"Choose a Feature Vector Dataset first",
 					false
 					);
-			$featureVectorDatasetFeaturesDropdown.addClass("featureDropdown");
+			this._$featureVectorDatasetFeaturesDropdown.addClass("featureDropdown");
+			this._$featureVectorDatasetFeaturesDropdown.change(function(event) {
+				var selectedFeature = $(this).val();
+				if(selectedFeature) {
+					var featureVectorDatasetCode = _this._$featureVectorDatasetsDropdown.val();
+					var featuresCodesFromFeatureVector = [];
+					for(code in _this._plateModel.sample.featureVectorsCache.featureVectorDatasetsFeatures[featureVectorDatasetCode]) {
+						featuresCodesFromFeatureVector.push(code);
+					}
+					
+					mainController.serverFacade.customELNApi({
+						"method" : "getFeaturesFromFeatureVector",
+						"samplePlatePermId" : _this._plateModel.sample.permId,
+						"featureVectorDatasetPermId" : featureVectorDatasetCode,
+						"featuresCodesFromFeatureVector" : featuresCodesFromFeatureVector
+					}, function(error, result){
+						var breakPlease = "NOW!";
+					});
+				}
+			});
 			
 			//2. Feature Vector Dataset Dropdow
 			var featureVectorDatasets = this._plateModel.sample.featureVectorsCache.featureVectorDatasets;
@@ -51,28 +72,28 @@ function PlateView(plateController, plateModel) {
 				})
 			}
 			
-			var $featureVectorDatasetsDropdown = FormUtil.getDropDownForTerms(
+			this._$featureVectorDatasetsDropdown = FormUtil.getDropDownForTerms(
 												"featureVectorDatasetsDropdow-" + this._plateModel.sample.permId,
 												featureVectorDatasetsDropdowTerms,
 												"Choose a Feature Vector Dataset please",
 												false
 												);
-			$featureVectorDatasetsDropdown.addClass("featureDropdown");
+			this._$featureVectorDatasetsDropdown.addClass("featureDropdown");
 			
-			$featureVectorDatasetsDropdown.change(function(event) {
+			this._$featureVectorDatasetsDropdown.change(function(event) {
 				var featureVectorDatasetCode = $(this).val();
 				if(!featureVectorDatasetCode) {
-					$featureVectorDatasetFeaturesDropdown.empty();
-					$featureVectorDatasetFeaturesDropdown.append($("<option>").attr('value', '').text("Choose a Feature Vector Dataset first"));
+					_this._$featureVectorDatasetFeaturesDropdown.empty();
+					_this._$featureVectorDatasetFeaturesDropdown.append($("<option>").attr('value', '').text("Choose a Feature Vector Dataset first"));
 				} else {
 					var featureVectorDatasetFeatures = _this._plateModel.sample.featureVectorsCache.featureVectorDatasetsFeatures[featureVectorDatasetCode];
 					
 					var loadFeatureVectorDatasetFeatures = function() {
 						var featureVectorDatasetFeatures = _this._plateModel.sample.featureVectorsCache.featureVectorDatasetsFeatures[featureVectorDatasetCode];
-						$featureVectorDatasetFeaturesDropdown.empty();
-						$featureVectorDatasetFeaturesDropdown.append($("<option>").attr('value', '').attr('selected', '').text(''));
+						_this._$featureVectorDatasetFeaturesDropdown.empty();
+						_this._$featureVectorDatasetFeaturesDropdown.append($("<option>").attr('value', '').attr('selected', '').text(''));
 						for(featureVectorDatasetFeatureCode in featureVectorDatasetFeatures) {
-							$featureVectorDatasetFeaturesDropdown.append($("<option>").attr('value', featureVectorDatasetFeatureCode).text(featureVectorDatasetFeatures[featureVectorDatasetFeatureCode]));
+							_this._$featureVectorDatasetFeaturesDropdown.append($("<option>").attr('value', featureVectorDatasetFeatureCode).text(featureVectorDatasetFeatures[featureVectorDatasetFeatureCode]));
 						}
 					}
 					
@@ -96,8 +117,8 @@ function PlateView(plateController, plateModel) {
 			});
 			
 			//Build Toolbar
-			$toolbar.append($featureVectorDatasetsDropdown)
-					.append($featureVectorDatasetFeaturesDropdown);
+			$toolbar.append(this._$featureVectorDatasetsDropdown)
+					.append(this._$featureVectorDatasetFeaturesDropdown);
 		}
 		
 		//Paint grid
