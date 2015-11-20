@@ -18,6 +18,7 @@ function PlateView(plateController, plateModel) {
 	this._plateModel = plateModel;
 	this._$featureVectorDatasetFeaturesDropdown = null;
 	this._$featureVectorDatasetsDropdown = null;
+	this._$gridTable = null;
 	
 	this.getPlaceHolder = function() {
 		var container = $("<div>", { "id" : this._plateModel.getPlaceHolderId() });
@@ -31,7 +32,8 @@ function PlateView(plateController, plateModel) {
 		$container.empty();
 		//Paint Toolbar
 		var $toolbar = $("<div>");
-		if( this._plateModel.sample.featureVectorsCache &&
+		if( this._plateModel.isDisabled &&
+			this._plateModel.sample.featureVectorsCache &&
 			this._plateModel.sample.featureVectorsCache.featureVectorDatasets) {
 			
 			//1. Selected Feature Vector Dataset Features
@@ -122,12 +124,19 @@ function PlateView(plateController, plateModel) {
 		}
 		
 		//Paint grid
-		var $gridTable = this.getGridTable(true);
-		$container.append($toolbar).append($gridTable);
+		this._$gridTable = this.getGridTable(true);
+		$container.append($toolbar).append(this._$gridTable);
+		
+		//Painting colors after populating the table
+		for(var i = 1; i <= this._plateModel.numRows; i++) {
+			for(var j = 1; j <= this._plateModel.numColumns; j++) {
+				this._repaintWellToColorAnnotation(i, j);
+			}
+		}
 	}
 	
 	this.getGridTable = function(withWells) {
-		var gridTable = $("<table>", { "class" : "table table-bordered gridTable", "style" : "table-layout: fixed;" });
+		var $gridTable = $("<table>", { "class" : "table table-bordered gridTable", "style" : "table-layout: fixed;" });
 		
 		for(var i = 0; i <= this._plateModel.numRows; i++) {
 			var $row = $("<tr>");
@@ -145,17 +154,14 @@ function PlateView(plateController, plateModel) {
 					if(withWells) {
 						var well = this._plateModel.getWell(i-1,j);
 						if(well) {
+							$cell.attr("id", "well-" + well.permId);
+							
 							//Color Annotations only enabled for wells with a type having COLOR_ENCODED_ANNOTATION property
-							var isAnWell = jQuery.inArray("COLOR_ENCODED_ANNOTATION", profile.getAllPropertiCodesForTypeCode(well.sampleTypeCode) ) !== -1;
+							var isAnnotableWell = jQuery.inArray("COLOR_ENCODED_ANNOTATION", profile.getAllPropertiCodesForTypeCode(well.sampleTypeCode) ) !== -1;
 							var colorEncodedWellAnnotationsSelector = "";
 							
-							if(isAnWell) {
-								$cell.attr("id", "well-" + well.permId);
-								var selectedColorEncodedAnnotation = well.properties["COLOR_ENCODED_ANNOTATION"];
-								if(selectedColorEncodedAnnotation && selectedColorEncodedAnnotation !== "DEFAULT") {
-									$cell.css( { "background-color" : this._getColorForCode(selectedColorEncodedAnnotation) } );
-								}
-								colorEncodedWellAnnotationsSelector = this.getWellGroups(well, selectedColorEncodedAnnotation);
+							if(isAnnotableWell) {
+								colorEncodedWellAnnotationsSelector = this.getWellGroups(well);
 							}
 							
 							var tooltip = PrintUtil.getTable(well, false, null, 'inspectorWhiteFont',
@@ -173,12 +179,37 @@ function PlateView(plateController, plateModel) {
 				$cell.css('width', Math.floor(80/this._plateModel.numColumns+1) +'%');
 				$row.append($cell);
 			}
-			gridTable.append($row);
+			$gridTable.append($row);
 		}	
-		return gridTable;
+		return $gridTable;
 	}
 	
-	this._getColorForCode = function(code) {
+	this._getCell = function(row, column) {
+		var $grid = this._$gridTable;
+		var $gridRow = $(this._$gridTable.children().children()[row]);
+		var $gridColumn = $($gridRow.children()[column]);
+		return $gridColumn;
+	}
+	
+	this._repaintWellToColor = function(row, column, rgbColor) {
+		var $cell = this._getCell(row, column);
+			$cell.css( { "background-color" : rgbColor });
+	}
+	
+	this._repaintWellToColorAnnotation = function(row, column) {
+		var well = this._plateModel.getWell(row-1,column);
+		if(well) {
+			var isAnnotableWell = jQuery.inArray("COLOR_ENCODED_ANNOTATION", profile.getAllPropertiCodesForTypeCode(well.sampleTypeCode) ) !== -1;
+			if(isAnnotableWell) {
+				var selectedColorEncodedAnnotation = well.properties["COLOR_ENCODED_ANNOTATION"];
+				if(selectedColorEncodedAnnotation && selectedColorEncodedAnnotation !== "DEFAULT") {
+					this._repaintWellToColor(row, column, this._getColorForAnnotationCode(selectedColorEncodedAnnotation));
+				}
+			}
+		}
+	}
+	
+	this._getColorForAnnotationCode = function(code) {
 		var valueInfo = profile.getVocabularyTermByCodes("COLOR_ENCODED_ANNOTATIONS", code);
 		if(valueInfo) {
 			return valueInfo.description.split(":")[0].trim();
@@ -186,7 +217,8 @@ function PlateView(plateController, plateModel) {
 		return null;
 	}
 	
-	this.getWellGroups = function(well, selectedAnnotation) {
+	this.getWellGroups = function(well) {
+		var selectedAnnotation = well.properties["COLOR_ENCODED_ANNOTATION"];
 		var $component = $("<select>", { "id" : 'colorEncodedWellAnnotations-' + well.permId, class : 'form-control', 'permId' : well.permId, "identifier" : well.identifier });
 		if(this._plateModel.isDisabled) {
 			$component.attr('disabled', '');
@@ -216,7 +248,7 @@ function PlateView(plateController, plateModel) {
 			if(value === "DEFAULT") {
 				$("#well-"+permId).css( { "background-color" : "" } );
 			} else {
-				$("#well-"+permId).css( { "background-color" : _this._getColorForCode(value) } );
+				$("#well-"+permId).css( { "background-color" : _this._getColorForAnnotationCode(value) } );
 			}
 			_this._plateModel.changesToDo.push({ "permId" : permId, "identifier" : identifier, "properties" : {"COLOR_ENCODED_ANNOTATION" : value } });
 			if(mainController.currentView.setDirty) {
