@@ -47,26 +47,31 @@ function PlateModel(sample, isDisabled) {
 	
 	this.getWell = function(rowNum, colNum) {
 		//NOTE: We are currently handling two naming conventions ":A01" and ":A1"
-		var wellIdentifier = this.sample.identifier + ":" + this.getAlphabetLabel(rowNum) + ((colNum < 10)?"0":"") + colNum;
-		var wellIdentifier2 = this.sample.identifier + ":" + this.getAlphabetLabel(rowNum) + colNum;
+		var wellIdentifier = this.sample.identifier + ":" + Util.getLetterForNumber(rowNum) + ((colNum < 10)?"0":"") + colNum;
+		var wellIdentifier2 = this.sample.identifier + ":" + Util.getLetterForNumber(rowNum) + colNum;
+		var toReturn = null;
 		for(var wellIdx = 0; wellIdx < this.sample.contained.length; wellIdx++) {
 			if(	this.sample.contained[wellIdx].identifier === wellIdentifier ||
 				this.sample.contained[wellIdx].identifier === wellIdentifier2) {
-				var toReturn = this.sample.contained[wellIdx];
-				return toReturn;
+				toReturn = this.sample.contained[wellIdx];
 			}
 		}
-		return null;
+		
+		if(!toReturn) {
+			toReturn = {};
+			toReturn.isEmpty = true;
+			toReturn.permId = null;
+			toReturn.code = this.sample.code + ":"+ Util.getLetterForNumber(rowNum) + colNum
+			toReturn.sampleTypeCode = null;
+			toReturn.properties = {};
+		}
+		
+		return toReturn;
 	}
 	
 
 	this.getPlaceHolderId = function() {
 		return "PLATE_TEMPLATE_"+this.sample.permId;
-	}
-	
-	this.getAlphabetLabel = function(number) {
-		var alphabet = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'];
-		return alphabet[number];
 	}
 
 }

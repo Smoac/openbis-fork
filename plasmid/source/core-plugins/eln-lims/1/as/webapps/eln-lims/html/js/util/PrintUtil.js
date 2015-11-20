@@ -84,56 +84,59 @@ var PrintUtil = new function() {
 		$newInspector.append($newInspectorTable);
 		
 		//Show Properties following the order given on openBIS
-		var sampleTypePropertiesCode = profile.getAllPropertiCodesForTypeCode(entity.sampleTypeCode);
-		var sampleTypePropertiesDisplayName = profile.getPropertiesDisplayNamesForTypeCode(entity.sampleTypeCode, sampleTypePropertiesCode);
-			
-		for(var i = 0; i < sampleTypePropertiesCode.length; i++) {
-			var propertyCode = sampleTypePropertiesCode[i];
-			var propertyLabel = sampleTypePropertiesDisplayName[i];
-			var propertyContent = null;
-			var propertyType = profile.getPropertyType(propertyCode);
-			if(propertyType.dataType === "CONTROLLEDVOCABULARY") {
-				propertyContent = FormUtil.getVocabularyLabelForTermCode(propertyType, entity.properties[propertyCode]);
-			} else if(propertyType.dataType === "MATERIAL") {
-				var materialValue = entity.properties[propertyCode];
-				if(materialValue) {
-					var materialType = this._getMaterialTypeFromPropertyValue(materialValue);
-					if(materialType === "GENE" && entity.cachedMaterials) { //Specially supported materials from openBIS
-						var gene = this._getMaterialFromCode(entity.cachedMaterials, this._getMaterialCodeFromPropertyValue(materialValue));
-						propertyContent = $("<span>").append(gene.properties["GENE_SYMBOLS"]);
-					} else {
-						propertyContent = $("<span>").append(materialValue);
+		if(entity.sampleTypeCode) {
+			var sampleTypePropertiesCode = profile.getAllPropertiCodesForTypeCode(entity.sampleTypeCode);
+			var sampleTypePropertiesDisplayName = profile.getPropertiesDisplayNamesForTypeCode(entity.sampleTypeCode, sampleTypePropertiesCode);
+				
+			for(var i = 0; i < sampleTypePropertiesCode.length; i++) {
+				var propertyCode = sampleTypePropertiesCode[i];
+				var propertyLabel = sampleTypePropertiesDisplayName[i];
+				var propertyContent = null;
+				var propertyType = profile.getPropertyType(propertyCode);
+				if(propertyType.dataType === "CONTROLLEDVOCABULARY") {
+					propertyContent = FormUtil.getVocabularyLabelForTermCode(propertyType, entity.properties[propertyCode]);
+				} else if(propertyType.dataType === "MATERIAL") {
+					var materialValue = entity.properties[propertyCode];
+					if(materialValue) {
+						var materialType = this._getMaterialTypeFromPropertyValue(materialValue);
+						if(materialType === "GENE" && entity.cachedMaterials) { //Specially supported materials from openBIS
+							var gene = this._getMaterialFromCode(entity.cachedMaterials, this._getMaterialCodeFromPropertyValue(materialValue));
+							propertyContent = $("<span>").append(gene.properties["GENE_SYMBOLS"]);
+						} else {
+							propertyContent = $("<span>").append(materialValue);
+						}
 					}
-				}
-			} else {
-				propertyContent = entity.properties[propertyCode];
-				propertyContent = Util.getEmptyIfNull(propertyContent);
-				propertyContent = Util.replaceURLWithHTMLLinks(propertyContent);
-			}
-			
-			var isSingleColumn = false;
-			if(((propertyContent instanceof String) || (typeof propertyContent === "string"))) {
-				var transformerResult = profile.inspectorContentTransformer(entity, propertyCode, propertyContent);
-				isSingleColumn = transformerResult["isSingleColumn"];
-				propertyContent = transformerResult["content"];
-				propertyContent = propertyContent.replace(/\n/g, "<br />");
-			}
-			
-			if(propertyContent !== "") {
-				if(isSingleColumn) {
-					$newInspectorTable
-					.append($("<tr>")
-								.append($("<td>", { "class" : "property", "colspan" : "2" }).append($("<p>", { "class" : "inspectorLineBreak"}).append(propertyLabel + ":").append("<br>").append(propertyContent)))
-							);
 				} else {
-					$newInspectorTable
-					.append($("<tr>")
-								.append($("<td>", { "class" : "property", "colspan" : "1" }).append($("<p>", { "class" : "inspectorLabel"}).append(propertyLabel + ":")))
-								.append($("<td>", { "class" : "property", "colspan" : "1" }).append($("<p>", { "class" : "inspectorLineBreak"}).append(propertyContent)))
-							);
+					propertyContent = entity.properties[propertyCode];
+					propertyContent = Util.getEmptyIfNull(propertyContent);
+					propertyContent = Util.replaceURLWithHTMLLinks(propertyContent);
+				}
+				
+				var isSingleColumn = false;
+				if(((propertyContent instanceof String) || (typeof propertyContent === "string"))) {
+					var transformerResult = profile.inspectorContentTransformer(entity, propertyCode, propertyContent);
+					isSingleColumn = transformerResult["isSingleColumn"];
+					propertyContent = transformerResult["content"];
+					propertyContent = propertyContent.replace(/\n/g, "<br />");
+				}
+				
+				if(propertyContent !== "") {
+					if(isSingleColumn) {
+						$newInspectorTable
+						.append($("<tr>")
+									.append($("<td>", { "class" : "property", "colspan" : "2" }).append($("<p>", { "class" : "inspectorLineBreak"}).append(propertyLabel + ":").append("<br>").append(propertyContent)))
+								);
+					} else {
+						$newInspectorTable
+						.append($("<tr>")
+									.append($("<td>", { "class" : "property", "colspan" : "1" }).append($("<p>", { "class" : "inspectorLabel"}).append(propertyLabel + ":")))
+									.append($("<td>", { "class" : "property", "colspan" : "1" }).append($("<p>", { "class" : "inspectorLineBreak"}).append(propertyContent)))
+								);
+					}
 				}
 			}
 		}
+		
 		if(entity["@type"] === "Sample") {
 			//Show Parent Codes
 			var allParentCodesAsText = this._getCodesFromSamples(entity.parents);
@@ -157,18 +160,20 @@ var PrintUtil = new function() {
 		}
 		
 		//Show Modification Date
-		$newInspectorTable
-		.append($("<tr>")
-					.append($("<td>", { "class" : "property", "colspan" : "1" }).append($("<p>", { "class" : "inspectorLabel"}).append("Modification Date:")))
-					.append($("<td>", { "class" : "property", "colspan" : "1" }).append($("<p>", { "class" : "inspectorLineBreak"}).append(new Date(entity.registrationDetails["modificationDate"]))))
-				);
-		
-		//Show Creation Date
-		$newInspectorTable
-		.append($("<tr>")
-					.append($("<td>", { "class" : "property", "colspan" : "1" }).append($("<p>", { "class" : "inspectorLabel"}).append("Registration Date:")))
-					.append($("<td>", { "class" : "property", "colspan" : "1" }).append($("<p>", { "class" : "inspectorLineBreak"}).append(new Date(entity.registrationDetails["registrationDate"]))))
-				);
+		if(entity.registrationDetails) {
+			$newInspectorTable
+			.append($("<tr>")
+						.append($("<td>", { "class" : "property", "colspan" : "1" }).append($("<p>", { "class" : "inspectorLabel"}).append("Modification Date:")))
+						.append($("<td>", { "class" : "property", "colspan" : "1" }).append($("<p>", { "class" : "inspectorLineBreak"}).append(new Date(entity.registrationDetails["modificationDate"]))))
+					);
+			
+			//Show Creation Date
+			$newInspectorTable
+			.append($("<tr>")
+						.append($("<td>", { "class" : "property", "colspan" : "1" }).append($("<p>", { "class" : "inspectorLabel"}).append("Registration Date:")))
+						.append($("<td>", { "class" : "property", "colspan" : "1" }).append($("<p>", { "class" : "inspectorLineBreak"}).append(new Date(entity.registrationDetails["registrationDate"]))))
+					);
+		}
 		
 		if(extraCustomId && extraContent) {
 			$newInspector.append($("<div>", { "class" : "inspectorExtra", "id" : extraCustomId}).append(extraContent));

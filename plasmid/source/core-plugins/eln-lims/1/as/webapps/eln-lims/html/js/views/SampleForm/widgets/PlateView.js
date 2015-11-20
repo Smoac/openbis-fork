@@ -153,32 +153,31 @@ function PlateView(plateController, plateModel) {
 				} else if (i === 0 && j !== 0){ //header with column numbers
 					$cell = $("<th>").append(j);
 				} else if (j === 0){ //header with row letter
-					$cell = $("<th>").append(this._plateModel.getAlphabetLabel(i-1));
+					$cell = $("<th>").append(Util.getLetterForNumber(i));
 				} else {
 					$cell = $("<td>").append("&nbsp;");
 					$cell.addClass('well');
 					if(withWells) {
-						var well = this._plateModel.getWell(i-1,j);
-						if(well) {
+						var well = this._plateModel.getWell(i,j);
+						var colorEncodedWellAnnotationsSelector = "";
+						
+						if(!well.isEmpty) {
 							$cell.attr("id", "well-" + well.permId);
-							
 							//Color Annotations only enabled for wells with a type having COLOR_ENCODED_ANNOTATION property
 							var isAnnotableWell = jQuery.inArray("COLOR_ENCODED_ANNOTATION", profile.getAllPropertiCodesForTypeCode(well.sampleTypeCode) ) !== -1;
-							var colorEncodedWellAnnotationsSelector = "";
-							
 							if(isAnnotableWell) {
 								colorEncodedWellAnnotationsSelector = this._getWellColorAnnotationGroups(well);
-							}
-							
-							var tooltip = PrintUtil.getTable(well, false, null, 'inspectorWhiteFont',
-															'colorEncodedWellAnnotations-holder-' + well.permId,
-															colorEncodedWellAnnotationsSelector);
-							
-							$cell.tooltipster({
-								content: $(tooltip),
-								interactive: true
-							});
+							}							
 						}
+						
+						var tooltip = PrintUtil.getTable(well, false, null, 'inspectorWhiteFont',
+								'colorEncodedWellAnnotations-holder-' + well.permId,
+								colorEncodedWellAnnotationsSelector);
+						
+						$cell.tooltipster({
+							content: $(tooltip),
+							interactive: true
+						});
 					}
 				}
 				
@@ -310,8 +309,8 @@ function PlateView(plateController, plateModel) {
 	}
 	
 	this._repaintWellToColorAnnotation = function(row, column) {
-		var well = this._plateModel.getWell(row-1,column);
-		if(well) {
+		var well = this._plateModel.getWell(row,column);
+		if(!well.isEmpty) {
 			var isAnnotableWell = jQuery.inArray("COLOR_ENCODED_ANNOTATION", profile.getAllPropertiCodesForTypeCode(well.sampleTypeCode) ) !== -1;
 			if(isAnnotableWell) {
 				var selectedColorEncodedAnnotation = well.properties["COLOR_ENCODED_ANNOTATION"];
