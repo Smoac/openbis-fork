@@ -458,6 +458,15 @@ table.downloads {
 	cursor : pointer;
 }
 
+#sample-form-plate-view > div > .featureDropdown {
+	max-width: 300px;
+	display: inline;
+}
+
+.featureDropdown {
+	margin: 5px;
+}
+
 /*
  * Storage Widget
  */

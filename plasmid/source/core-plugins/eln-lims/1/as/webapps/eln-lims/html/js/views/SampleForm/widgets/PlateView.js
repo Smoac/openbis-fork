@@ -39,6 +39,7 @@ function PlateView(plateController, plateModel) {
 					"Choose a Feature Vector Dataset first",
 					false
 					);
+			$featureVectorDatasetFeaturesDropdown.addClass("featureDropdown");
 			
 			//2. Feature Vector Dataset Dropdow
 			var featureVectorDatasets = this._plateModel.sample.featureVectorsCache.featureVectorDatasets;
@@ -56,6 +57,7 @@ function PlateView(plateController, plateModel) {
 												"Choose a Feature Vector Dataset please",
 												false
 												);
+			$featureVectorDatasetsDropdown.addClass("featureDropdown");
 			
 			$featureVectorDatasetsDropdown.change(function(event) {
 				var featureVectorDatasetCode = $(this).val();
@@ -94,11 +96,9 @@ function PlateView(plateController, plateModel) {
 			});
 			
 			//Build Toolbar
-			$toolbar.append(FormUtil.getFieldForComponentWithLabel($featureVectorDatasetsDropdown, "Feature Vector Datasets"))
-					.append(FormUtil.getFieldForComponentWithLabel($featureVectorDatasetFeaturesDropdown, "Feature Vector Dataset Features"));
+			$toolbar.append($featureVectorDatasetsDropdown)
+					.append($featureVectorDatasetFeaturesDropdown);
 		}
-		
-		
 		
 		//Paint grid
 		var $gridTable = this.getGridTable(true);
