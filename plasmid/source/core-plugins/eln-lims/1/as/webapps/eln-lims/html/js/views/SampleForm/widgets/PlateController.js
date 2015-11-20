@@ -114,7 +114,6 @@ function PlateController(sample, isDisabled) {
 							Util.showError(error);
 							_this._plateView.repaint($container);
 						} else {
-							_this._plateModel.sample.featureVectorsCache = {};
 							_this._plateModel.sample.featureVectorsCache.featureVectorDatasets = result.data;
 							
 							if(_this._plateModel.sample.featureVectorsCache.featureVectorDatasets &&
@@ -128,7 +127,6 @@ function PlateController(sample, isDisabled) {
 									if(error) {
 										Util.showError(error);
 									} else {
-										_this._plateModel.sample.featureVectorsCache.featureVectorDatasetsFeatures = {};
 										_this._plateModel.sample.featureVectorsCache.featureVectorDatasetsFeatures[featureVectorDatasetCode] = result.data;
 									}
 									//Finally paint the view

@@ -16,6 +16,11 @@
 
 function PlateModel(sample, isDisabled) {
 	this.sample = sample;
+	
+	this.sample.featureVectorsCache = {};
+	this.sample.featureVectorsCache.featureVectorDatasetsFeatures = {};
+	this.sample.featureVectorsCache.featureVectorDatasetsFeaturesData = {};
+	
 	this.isDisabled = isDisabled;
 	this.changesToDo = [];
 	

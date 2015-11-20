@@ -48,19 +48,25 @@ function PlateView(plateController, plateModel) {
 				var selectedFeature = $(this).val();
 				if(selectedFeature) {
 					var featureVectorDatasetCode = _this._$featureVectorDatasetsDropdown.val();
-					var featuresCodesFromFeatureVector = [];
-					for(code in _this._plateModel.sample.featureVectorsCache.featureVectorDatasetsFeatures[featureVectorDatasetCode]) {
-						featuresCodesFromFeatureVector.push(code);
-					}
 					
-					mainController.serverFacade.customELNApi({
-						"method" : "getFeaturesFromFeatureVector",
-						"samplePlatePermId" : _this._plateModel.sample.permId,
-						"featureVectorDatasetPermId" : featureVectorDatasetCode,
-						"featuresCodesFromFeatureVector" : featuresCodesFromFeatureVector
-					}, function(error, result){
-						var breakPlease = "NOW!";
-					});
+					if(_this._plateModel.sample.featureVectorsCache.featureVectorDatasetsFeaturesData[featureVectorDatasetCode]) {
+						_this._repaintGridToFeatureVectorColors(featureVectorDatasetCode, selectedFeature);
+					} else {
+						var featuresCodesFromFeatureVector = [];
+						for(code in _this._plateModel.sample.featureVectorsCache.featureVectorDatasetsFeatures[featureVectorDatasetCode]) {
+							featuresCodesFromFeatureVector.push(code);
+						}
+						
+						mainController.serverFacade.customELNApi({
+							"method" : "getFeaturesFromFeatureVector",
+							"samplePlatePermId" : _this._plateModel.sample.permId,
+							"featureVectorDatasetPermId" : featureVectorDatasetCode,
+							"featuresCodesFromFeatureVector" : featuresCodesFromFeatureVector
+						}, function(error, result){
+							_this._plateModel.sample.featureVectorsCache.featureVectorDatasetsFeaturesData[featureVectorDatasetCode] = result.data[0]
+							_this._repaintGridToFeatureVectorColors(featureVectorDatasetCode, selectedFeature);
+						});
+					}
 				}
 			});
 			
@@ -161,7 +167,7 @@ function PlateView(plateController, plateModel) {
 							var colorEncodedWellAnnotationsSelector = "";
 							
 							if(isAnnotableWell) {
-								colorEncodedWellAnnotationsSelector = this.getWellGroups(well);
+								colorEncodedWellAnnotationsSelector = this._getWellColorAnnotationGroups(well);
 							}
 							
 							var tooltip = PrintUtil.getTable(well, false, null, 'inspectorWhiteFont',
@@ -184,6 +190,9 @@ function PlateView(plateController, plateModel) {
 		return $gridTable;
 	}
 	
+	//
+	// Utility methods to handle table cells
+	//
 	this._getCell = function(row, column) {
 		var $grid = this._$gridTable;
 		var $gridRow = $(this._$gridTable.children().children()[row]);
@@ -196,6 +205,77 @@ function PlateView(plateController, plateModel) {
 			$cell.css( { "background-color" : rgbColor });
 	}
 	
+	//
+	// Utility methods to handle feature vectors
+	//
+	this._repaintGridToFeatureVectorColors = function(featureVectorDatasetCode, featureCode) {
+		//1. Obtain feature Index
+		var featuresData = this._plateModel.sample.featureVectorsCache.featureVectorDatasetsFeaturesData[featureVectorDatasetCode];
+		var featureIndex = null;
+		
+		for(var fIdx = 0; fIdx < featuresData.featureCodes.length; fIdx++) {
+			if(featuresData.featureCodes[fIdx] === featureCode) {
+				featureIndex = fIdx;
+				break;
+			}
+		}
+		
+		//2. Define Color Step
+		var NUM_HEATMAP_COLORS = 10;
+		var minValue = null;
+		var maxValue = null;
+		
+		for(var wellIdx = 0; wellIdx < featuresData.featureVectors.length; wellIdx++) {
+			var wellData = featuresData.featureVectors[wellIdx];
+			if(!wellData.vocabularyFeatureFlags[featureIndex]) { //Don't support vocabularies for now
+				var value = wellData.values[featureIndex];
+				
+				if(!minValue || value < minValue) {
+					minValue = value;
+				}
+				
+				if(!maxValue || value > maxValue) {
+					maxValue = value;
+				}
+			}
+		}
+		
+		var colorStep = (maxValue - minValue) / NUM_HEATMAP_COLORS;
+		
+		//3. Clean Colors
+		for(var i = 1; i <= this._plateModel.numRows; i++) {
+			for(var j = 1; j <= this._plateModel.numColumns; j++) {
+				this._repaintWellToColor(i, j, "#ffffff");
+			}
+		}
+		
+		//4. Paint Colors
+		for(var wellIdx = 0; wellIdx < featuresData.featureVectors.length; wellIdx++) {
+			var wellData = featuresData.featureVectors[wellIdx];
+			var wellRow = wellData.wellPosition.wellRow;
+			var wellColumn = wellData.wellPosition.wellColumn;
+			if(!wellData.vocabularyFeatureFlags[featureIndex]) { //Don't support vocabularies for now
+				if(wellData.values[featureIndex] !== "NaN") {
+					var value = wellData.values[featureIndex];
+					var valueColorStep = Math.round(value / colorStep);
+					var color = this._getColorForStepBetweenWhiteAndBlack(valueColorStep, NUM_HEATMAP_COLORS);
+					this._repaintWellToColor(wellRow, wellColumn, color);
+				}
+			}
+		}
+	}
+	
+	this._getColorForStepBetweenWhiteAndBlack = function(step, numSteps) {
+		var stepSize = Math.round(255/numSteps);
+		var greyValue = Math.round(stepSize * step);
+		var hexValue = greyValue.toString(16);
+		var color = "#" + hexValue + hexValue + hexValue;
+		return color;
+	}
+	
+	//
+	// Utility methods for color annotations
+	//
 	this._repaintWellToColorAnnotation = function(row, column) {
 		var well = this._plateModel.getWell(row-1,column);
 		if(well) {
@@ -217,7 +297,7 @@ function PlateView(plateController, plateModel) {
 		return null;
 	}
 	
-	this.getWellGroups = function(well) {
+	this._getWellColorAnnotationGroups = function(well) {
 		var selectedAnnotation = well.properties["COLOR_ENCODED_ANNOTATION"];
 		var $component = $("<select>", { "id" : 'colorEncodedWellAnnotations-' + well.permId, class : 'form-control', 'permId' : well.permId, "identifier" : well.identifier });
 		if(this._plateModel.isDisabled) {
