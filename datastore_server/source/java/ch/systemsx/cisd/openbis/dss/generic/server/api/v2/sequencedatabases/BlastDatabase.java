@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.dss.generic.server.api.v2.sequencedatabases;
 import java.io.File;
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -29,18 +28,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
-import ch.rinn.restrictions.Private;
-import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.fasta.FastaUtilities;
 import ch.systemsx.cisd.common.fasta.SequenceType;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.common.process.ProcessExecutionHelper;
-import ch.systemsx.cisd.common.process.ProcessResult;
 import ch.systemsx.cisd.etlserver.plugins.BlastDatabaseCreationMaintenanceTask;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.ISearchDomainService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.BlastUtils;
@@ -101,36 +95,26 @@ public class BlastDatabase extends AbstractSearchDomainService
 {
     public static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, BlastDatabase.class);
-    private static final Logger machineLog =
-            LogFactory.getLogger(LogCategory.MACHINE, BlastDatabase.class);
+
     private static final String QUERY_FILE_NAME_TEMPLATE = "query-{0,date,yyyyMMDDHHmmssSSS}-{1}.fasta";
     private static final Pattern STITLE_PATTERN = Pattern.compile("(.*) \\[Data set: (.*), File: (.*)\\]$"); 
     private static final Pattern ENTITY_PROPERTY_TITLE_PATTERN 
             = Pattern.compile("^(MATERIAL|EXPERIMENT|SAMPLE|DATA_SET)\\+(.+)\\+([A-Z0-9_\\-.]+)\\+(\\d+)$");
     
-    private static final String[] BLASTN_OPTIONS = {"task", "evalue", "word_size", "ungapped"};
-    private static final String[] BLASTP_OPTIONS = {"task", "evalue", "word_size"};
-
-    private final File databaseFolder;
-    private final String blastn;
-    private final String blastp;
     private final boolean available;
     private final File queriesFolder;
     
+    private final BlastUtils blaster;
+    
     private AtomicInteger counter = new AtomicInteger();
-
+    
     public BlastDatabase(Properties properties, File storeRoot)
     {
         super(properties, storeRoot);
-        String blastToolDirectory = BlastUtils.getBLASTToolDirectory(properties);
-        blastn = blastToolDirectory + "blastn";
-        blastp = blastToolDirectory + "blastp";
-        available = process(blastn, "-version");
-        if (available == false)
-        {
-            BlastUtils.logMissingTools(operationLog);
-        }
-        databaseFolder = BlastUtils.getBlastDatabaseFolder(properties, storeRoot);
+        
+        blaster = new BlastUtils(properties, storeRoot);
+        available = blaster.available();
+        File databaseFolder = blaster.getBlastDatabaseFolder(properties, storeRoot);
         queriesFolder = new File(databaseFolder, "queries-folder");
         queriesFolder.mkdirs();
     }
@@ -157,8 +141,7 @@ public class BlastDatabase extends AbstractSearchDomainService
         try
         {
             FileUtilities.writeToFile(queryFile, ">query\n" + sequenceSnippet + "\n");
-            List<String> command = createCommand(sequenceType, queryFile, parameters);
-            List<String> output = processAndDeliverOutput(command);
+            List<String> output = blaster.processAndDeliverOutput(sequenceType, queryFile, name, parameters);
             for (String line : output)
             {
                 Row row = new Row(line);
@@ -229,104 +212,6 @@ public class BlastDatabase extends AbstractSearchDomainService
         blastScore.setBitScore(row.bitscore);
         blastScore.setEvalue(row.evalue);
         return blastScore;
-    }
-    
-    private List<String> createCommand(SequenceType sequenceType, File queryFile, Map<String, String> parameters)
-    {
-        List<String> command = new ArrayList<String>();
-        String[] options;
-        String defaultTask;
-        if (sequenceType == SequenceType.NUCL)
-        {
-            command.add(blastn);
-            defaultTask = "blastn";
-            options = BLASTN_OPTIONS;
-        } else
-        {
-            command.add(blastp);
-            defaultTask = "blastp";
-            options = BLASTP_OPTIONS;
-        }
-        command.add("-db");
-        command.add(databaseFolder.getAbsolutePath() + "/all-" + sequenceType.toString().toLowerCase());
-        command.add("-query");
-        command.add(queryFile.getAbsolutePath());
-        command.add("-outfmt");
-        command.add("6 stitle bitscore score evalue sstart send qstart qend mismatch gaps");
-        if (parameters.containsKey("task") == false)
-        {
-            parameters.put("task", defaultTask);
-        }
-        for (String option : options)
-        {
-            String value = tryGetOption(option, sequenceType, parameters);
-            if (value != null)
-            {
-                command.add("-" + option);
-                if (StringUtils.isNotBlank(value))
-                {
-                    command.add(value);
-                }
-            }
-        }
-        return command;
-    }
-    
-    private String tryGetOption(String option, SequenceType sequenceType, Map<String, String> parameters)
-    {
-        String value = parameters.get(option);
-        if (value != null)
-        {
-            return value;
-        }
-        String prefixedOption = (sequenceType == SequenceType.NUCL ? "blastn." : "blastp.") + option;
-        value = parameters.get(prefixedOption); 
-        if (value != null)
-        {
-            return value;
-        }
-        value = parameters.get(name + "." + option);
-        if (value != null)
-        {
-            return value;
-        }
-        return parameters.get(name + "." + prefixedOption);
-    }
-    
-    private boolean process(String... command)
-    {
-        ProcessResult processResult = run(Arrays.asList(command));
-        if (processResult.isOK())
-        {
-            processResult.logAsInfo();
-        } else
-        {
-            processResult.log();
-        }
-        return processResult.isOK();
-    }
-
-    private List<String> processAndDeliverOutput(List<String> command)
-    {
-        ProcessResult processResult = run(command);
-        List<String> output = processResult.getOutput();
-        if (processResult.isOK())
-        {
-            return output;
-        }
-        StringBuilder builder = new StringBuilder("Execution failed: ").append(command);
-        List<String> lines = processResult.isBinaryOutput() ? processResult.getErrorOutput() : output;
-        for (String line : lines)
-        {
-            builder.append("\n").append(line);
-        }
-        processResult.log();
-        throw new EnvironmentFailureException(builder.toString()); 
-    }
-    
-    @Private ProcessResult run(List<String> command)
-    {
-        return ProcessExecutionHelper.run(command, operationLog, machineLog);
     }
     
     private static final class Row

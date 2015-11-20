@@ -54,8 +54,6 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.maintenance.IMaintenanceTask;
-import ch.systemsx.cisd.common.process.ProcessExecutionHelper;
-import ch.systemsx.cisd.common.process.ProcessResult;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.common.string.Template;
 import ch.systemsx.cisd.etlserver.plugins.GenericFastaFileBuilder.EntryType;
@@ -100,8 +98,6 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
 
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, BlastDatabaseCreationMaintenanceTask.class);
-    private static final Logger machineLog =
-            LogFactory.getLogger(LogCategory.MACHINE, BlastDatabaseCreationMaintenanceTask.class);
     
     private File lastSeenDataSetFile;
 
@@ -112,10 +108,13 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
     private String makeblastdb;
     private String makembindex;
     private List<Loader> loaders;
+    
+    protected BlastUtils blaster;
 
     @Override
     public void setUp(String pluginName, Properties properties)
     {
+        blaster = getBlaster(properties);
         dataSetTypePatterns = getDataSetTypePatterns(properties);
         fileTypes = Arrays.asList(properties.getProperty(FILE_TYPES_PROPERTY, DEFAULT_FILE_TYPES).split(" +"));
         operationLog.info("File types: " + fileTypes);
@@ -128,15 +127,19 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
         }
         setUpBlastDatabasesFolder(properties);
         setUpBlastTempFolder(properties);
-        String blastToolDirectory = BlastUtils.getBLASTToolDirectory(properties);
+        String blastToolDirectory = blaster.getBLASTToolDirectory(properties);
         makeblastdb = blastToolDirectory + "makeblastdb";
-        if (process(makeblastdb, "-version") == false)
+        if (false == blaster.available())
         {
-        	BlastUtils.logMissingTools(operationLog);
             makeblastdb = null;
         }
         makembindex = blastToolDirectory + "makembindex";
         
+    }
+
+    protected BlastUtils getBlaster(Properties properties)
+    {
+        return new BlastUtils(properties, getConfigProvider().getStoreRoot());
     }
     
     private List<Pattern> getDataSetTypePatterns(Properties properties)
@@ -187,7 +190,7 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
     
     private void setUpBlastDatabasesFolder(Properties properties)
     {
-        blastDatabasesFolder = BlastUtils.getBlastDatabaseFolder(properties, getConfigProvider().getStoreRoot());
+        blastDatabasesFolder = blaster.getBlastDatabaseFolder(properties, getConfigProvider().getStoreRoot());
         operationLog.info("BLAST databases folder: " + blastDatabasesFolder);
         if (blastDatabasesFolder.exists())
         {
@@ -233,7 +236,7 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
 
     private File getFile(Properties properties, String pathProperty, String defaultPath)
     {
-        return BlastUtils.getFile(properties, pathProperty, defaultPath, getConfigProvider().getStoreRoot());
+        return blaster.getFile(properties, pathProperty, defaultPath, getConfigProvider().getStoreRoot());
     }
 
     @Override
@@ -298,7 +301,7 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
         {
             for (String fileName : fileNames)
             {
-                if (fileName.startsWith(BlastUtilities.createDatabaseName(baseName, sequenceType)))
+                if (fileName.startsWith(BlastUtils.createDatabaseName(baseName, sequenceType)))
                 {
                     return true;
                 }
@@ -395,7 +398,7 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
             String databaseName = FilenameUtils.removeExtension(fastaFile.getName());
             String databaseFile = new File(blastDatabasesFolder, databaseName).getAbsolutePath();
             String dbtype = sequenceType.toString().toLowerCase();
-            boolean success = process(makeblastdb, "-in", fastaFilePath, "-dbtype", dbtype, 
+            boolean success = blaster.process(makeblastdb, "-in", fastaFilePath, "-dbtype", dbtype, 
                     "-title", databaseName, "-out", databaseFile);
             if (success == false)
             {
@@ -406,30 +409,12 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
             File databaseSeqFile = new File(databaseFile + ".nsq");
             if (databaseSeqFile.exists() && databaseSeqFile.length() > 1000000)
             {
-                process(makembindex, "-iformat", "blastdb", "-input", databaseFile, "-old_style_index", "false");
+                blaster.process(makembindex, "-iformat", "blastdb", "-input", databaseFile, "-old_style_index", "false");
             }
             VirtualDatabase virtualDatabase = virtualDatabases.get(sequenceType);
             virtualDatabase.addDatabase(baseName);
         }
         builder.cleanUp();
-    }
-    
-    private boolean process(String... command)
-    {
-        return process(Arrays.asList(command));
-    }
-    
-    boolean process(List<String> command)
-    {
-        ProcessResult processResult = ProcessExecutionHelper.run(command, operationLog, machineLog);
-        if (processResult.isOK())
-        {
-            processResult.logAsInfo();
-        } else
-        {
-            processResult.log();
-        }
-        return processResult.isOK();
     }
     
     private void handle(IHierarchicalContentNode node, FastaFileBuilderForDataSetFiles builder)
@@ -745,7 +730,7 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
         {
             this.databaseFolder = databaseFolder;
             dbtype = sequenceType.toString().toLowerCase();
-            postfix = BlastUtilities.createDatabaseName("", sequenceType);
+            postfix = BlastUtils.createDatabaseName("", sequenceType);
             virtualDatabaseFileType = sequenceType == SequenceType.NUCL ? ".nal" : ".pal";
             databaseFile = new File(databaseFolder, "all-" + dbtype + virtualDatabaseFileType);
             if (databaseFile.isFile())

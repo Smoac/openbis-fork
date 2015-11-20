@@ -30,6 +30,7 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.fasta.FastaUtilities;
 import ch.systemsx.cisd.common.fasta.SequenceType;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.BlastUtils;
 
 /**
  * Helper class to create temporary FASTA files.
@@ -197,7 +198,7 @@ class GenericFastaFileBuilder
 
     private File getFastaFile(SequenceType seqType)
     {
-        return new File(tempFolder, BlastUtilities.createDatabaseName(baseName, seqType) + ".fa");
+        return new File(tempFolder, BlastUtils.createDatabaseName(baseName, seqType) + ".fa");
     }
     
 }
