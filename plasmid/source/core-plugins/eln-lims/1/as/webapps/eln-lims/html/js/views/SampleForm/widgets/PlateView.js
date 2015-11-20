@@ -67,6 +67,8 @@ function PlateView(plateController, plateModel) {
 							_this._repaintGridToFeatureVectorColors(featureVectorDatasetCode, selectedFeature);
 						});
 					}
+				} else {
+					_this._repaintGridToAnnotationsColors();
 				}
 			});
 			
@@ -93,6 +95,7 @@ function PlateView(plateController, plateModel) {
 				if(!featureVectorDatasetCode) {
 					_this._$featureVectorDatasetFeaturesDropdown.empty();
 					_this._$featureVectorDatasetFeaturesDropdown.append($("<option>").attr('value', '').text("Choose a Feature Vector Dataset first"));
+					_this._repaintGridToAnnotationsColors();
 				} else {
 					var featureVectorDatasetFeatures = _this._plateModel.sample.featureVectorsCache.featureVectorDatasetsFeatures[featureVectorDatasetCode];
 					
@@ -133,12 +136,8 @@ function PlateView(plateController, plateModel) {
 		this._$gridTable = this.getGridTable(true);
 		$container.append($toolbar).append(this._$gridTable);
 		
-		//Painting colors after populating the table
-		for(var i = 1; i <= this._plateModel.numRows; i++) {
-			for(var j = 1; j <= this._plateModel.numColumns; j++) {
-				this._repaintWellToColorAnnotation(i, j);
-			}
-		}
+		//Painting default colors after populating the table
+		this._repaintGridToAnnotationsColors();
 	}
 	
 	this.getGridTable = function(withWells) {
@@ -205,6 +204,14 @@ function PlateView(plateController, plateModel) {
 			$cell.css( { "background-color" : rgbColor });
 	}
 	
+	this._cleanGrid = function() {
+		for(var i = 1; i <= this._plateModel.numRows; i++) {
+			for(var j = 1; j <= this._plateModel.numColumns; j++) {
+				this._repaintWellToColor(i, j, "inherit");
+			}
+		}
+	}
+	
 	//
 	// Utility methods to handle feature vectors
 	//
@@ -221,7 +228,6 @@ function PlateView(plateController, plateModel) {
 		}
 		
 		//2. Define Color Step
-		var NUM_HEATMAP_COLORS = 10;
 		var minValue = null;
 		var maxValue = null;
 		
@@ -240,14 +246,10 @@ function PlateView(plateController, plateModel) {
 			}
 		}
 		
-		var colorStep = (maxValue - minValue) / NUM_HEATMAP_COLORS;
+		var colorStep = (maxValue - minValue) / this._plateModel.numHeatmapColors;
 		
 		//3. Clean Colors
-		for(var i = 1; i <= this._plateModel.numRows; i++) {
-			for(var j = 1; j <= this._plateModel.numColumns; j++) {
-				this._repaintWellToColor(i, j, "#ffffff");
-			}
-		}
+		this._cleanGrid();
 		
 		//4. Paint Colors
 		for(var wellIdx = 0; wellIdx < featuresData.featureVectors.length; wellIdx++) {
@@ -258,7 +260,7 @@ function PlateView(plateController, plateModel) {
 				if(wellData.values[featureIndex] !== "NaN") {
 					var value = wellData.values[featureIndex];
 					var valueColorStep = Math.round(value / colorStep);
-					var color = this._getColorForStepBetweenWhiteAndBlack(valueColorStep, NUM_HEATMAP_COLORS);
+					var color = this._getColorForStepBetweenWhiteAndBlack(valueColorStep, this._plateModel.numHeatmapColors);
 					this._repaintWellToColor(wellRow, wellColumn, color);
 				}
 			}
@@ -276,6 +278,15 @@ function PlateView(plateController, plateModel) {
 	//
 	// Utility methods for color annotations
 	//
+	this._repaintGridToAnnotationsColors = function() {
+		this._cleanGrid();
+		for(var i = 1; i <= this._plateModel.numRows; i++) {
+			for(var j = 1; j <= this._plateModel.numColumns; j++) {
+				this._repaintWellToColorAnnotation(i, j);
+			}
+		}
+	}
+	
 	this._repaintWellToColorAnnotation = function(row, column) {
 		var well = this._plateModel.getWell(row-1,column);
 		if(well) {
