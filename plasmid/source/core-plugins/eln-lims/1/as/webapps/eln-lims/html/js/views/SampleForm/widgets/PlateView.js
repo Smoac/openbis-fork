@@ -64,7 +64,21 @@ function PlateView(plateController, plateModel) {
 							"featureVectorDatasetPermId" : featureVectorDatasetCode,
 							"featuresCodesFromFeatureVector" : featuresCodesFromFeatureVector
 						}, function(error, result){
-							_this._plateModel.sample.featureVectorsCache.featureVectorDatasetsFeaturesData[featureVectorDatasetCode] = result.data[0]
+							var receivedData = result.data[0];
+							
+							var dataByPosition = [];
+							for(var wellIdx = 0; wellIdx < receivedData.featureVectors.length; wellIdx++) {
+								var wellData = receivedData.featureVectors[wellIdx];
+								var wellRow = wellData.wellPosition.wellRow;
+								var wellColumn = wellData.wellPosition.wellColumn;
+								if(!dataByPosition[wellRow]) {
+									dataByPosition[wellRow] = [];
+								}
+								dataByPosition[wellRow][wellColumn] = wellData;
+							}
+							receivedData.featureVectors = dataByPosition;
+							
+							_this._plateModel.sample.featureVectorsCache.featureVectorDatasetsFeaturesData[featureVectorDatasetCode] = result.data[0];
 							_this._repaintGridToFeatureVectorColors(featureVectorDatasetCode, selectedFeature);
 						});
 					}
@@ -188,6 +202,7 @@ function PlateView(plateController, plateModel) {
 	this._repaintWellToColor = function(row, column, rgbColor) {
 		var $cell = this._getCell(row, column);
 			$cell.css( { "background-color" : rgbColor });
+		this._setToolTip($cell, row, column);
 	}
 	
 	this._cleanGrid = function() {
@@ -216,22 +231,28 @@ function PlateView(plateController, plateModel) {
 			}							
 		}
 		
+		var featureProperties = this._getSelectedFeatureVectorsProperties(row, column);
+		
 		var tooltip = PrintUtil.getTable(well, false, null, 'inspectorWhiteFont',
 				'colorEncodedWellAnnotations-holder-' + well.permId,
-				colorEncodedWellAnnotationsSelector);
-		var featuresTable = this._getFeatureVectorsTableForSelectedCode(row, column);
+				colorEncodedWellAnnotationsSelector, featureProperties);
+		
+		if($cell.hasClass("tooltipstered")) {
+			$cell.tooltipster('destroy');
+		}
 		
 		$cell.tooltipster({
 			content: $(tooltip),
-			interactive: true
+			interactive: true,
+			position : 'bottom'
 		});
 	}
 	
-	this._getFeatureVectorsTableForSelectedCode = function(row, column) {
+	this._getSelectedFeatureVectorsProperties = function(row, column) {
 		var selectedDatasetCode = null;
 		var features = null;
 		var featuresData = null;
-		var table = $("<table>");
+		var properties = {};
 		if(this._$featureVectorDatasetsDropdown) {
 			selectedDatasetCode = this._$featureVectorDatasetsDropdown.val();
 			features = this._plateModel.sample.featureVectorsCache.featureVectorDatasetsFeatures[selectedDatasetCode];
@@ -241,19 +262,28 @@ function PlateView(plateController, plateModel) {
 		if( selectedDatasetCode && 
 			features && 
 			featuresData) {
-			
-			for(var wellIdx = 0; wellIdx < featuresData.featureVectors.length; wellIdx++) {
-				var wellData = featuresData.featureVectors[wellIdx];
-				var wellRow = wellData.wellPosition.wellRow;
-				var wellColumn = wellData.wellPosition.wellColumn;
+			var wellData = featuresData.featureVectors[row][column];
+			for(var vIdx = 0; vIdx < featuresData.featureCodes.length; vIdx++) {
+				var property = {
+						code : featuresData.featureCodes[vIdx],
+						label : featuresData.featureLabels[vIdx],
+						dataType : null,
+						value : null
+				};
 				
-				if(wellRow === row && wellColumn === column) {
-					var breakHere = "NOW!";
+				if(wellData.vocabularyFeatureFlags[vIdx]) {
+					property.dataType = "CONTROLLEDVOCABULARY";
+					property.value = wellData.vocabularyTerms[vIdx];
+				} else {
+					property.dataType = "REAL";
+					property.value = wellData.values[vIdx];
 				}
+				
+				properties[property.code] = property;
 			}
 		}
 		
-		return table;
+		return properties;
 	}
 	
 	//
@@ -275,17 +305,19 @@ function PlateView(plateController, plateModel) {
 		var minValue = null;
 		var maxValue = null;
 		
-		for(var wellIdx = 0; wellIdx < featuresData.featureVectors.length; wellIdx++) {
-			var wellData = featuresData.featureVectors[wellIdx];
-			if(!wellData.vocabularyFeatureFlags[featureIndex]) { //Don't support vocabularies for now
-				var value = wellData.values[featureIndex];
-				
-				if(!minValue || value < minValue) {
-					minValue = value;
-				}
-				
-				if(!maxValue || value > maxValue) {
-					maxValue = value;
+		for(var rowsIdx = 1; rowsIdx < featuresData.featureVectors.length; rowsIdx++) {
+			for(var colsIdx = 1; colsIdx < featuresData.featureVectors.length; colsIdx++) {
+				var wellData = featuresData.featureVectors[rowsIdx][colsIdx];
+				if(!wellData.vocabularyFeatureFlags[featureIndex]) { //Don't support vocabularies for now
+					var value = wellData.values[featureIndex];
+					
+					if(!minValue || value < minValue) {
+						minValue = value;
+					}
+					
+					if(!maxValue || value > maxValue) {
+						maxValue = value;
+					}
 				}
 			}
 		}
@@ -296,16 +328,16 @@ function PlateView(plateController, plateModel) {
 		this._cleanGrid();
 		
 		//4. Paint Colors
-		for(var wellIdx = 0; wellIdx < featuresData.featureVectors.length; wellIdx++) {
-			var wellData = featuresData.featureVectors[wellIdx];
-			var wellRow = wellData.wellPosition.wellRow;
-			var wellColumn = wellData.wellPosition.wellColumn;
-			if(!wellData.vocabularyFeatureFlags[featureIndex]) { //Don't support vocabularies for now
-				if(wellData.values[featureIndex] !== "NaN") {
-					var value = wellData.values[featureIndex];
-					var valueColorStep = Math.round(value / colorStepSize);
-					var color = this._getColorForStepBetweenWhiteAndBlack(valueColorStep, this._plateModel.numHeatmapColors);
-					this._repaintWellToColor(wellRow, wellColumn, color);
+		for(var rowsIdx = 1; rowsIdx < featuresData.featureVectors.length; rowsIdx++) {
+			for(var colsIdx = 1; colsIdx < featuresData.featureVectors.length; colsIdx++) {
+				var wellData = featuresData.featureVectors[rowsIdx][colsIdx];
+				if(!wellData.vocabularyFeatureFlags[featureIndex]) { //Don't support vocabularies for now
+					if(wellData.values[featureIndex] !== "NaN") {
+						var value = wellData.values[featureIndex];
+						var valueColorStep = Math.round(value / colorStepSize);
+						var color = this._getColorForStepBetweenWhiteAndBlack(valueColorStep, this._plateModel.numHeatmapColors);
+						this._repaintWellToColor(rowsIdx, colsIdx, color);
+					}
 				}
 			}
 		}

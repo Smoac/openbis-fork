@@ -56,7 +56,7 @@ var PrintUtil = new function() {
 		return samplesListOfCodes;
 	}
 	
-	this.getTable = function(entity, isNotTransparent, optionalTitle, customClass, extraCustomId, extraContent) {
+	this.getTable = function(entity, isNotTransparent, optionalTitle, customClass, extraCustomId, extraContent, extraProperties) {
 		var $newInspector = $("<div>");
 		if(isNotTransparent) {
 			$newInspector.css("background-color", "#FBFBFB");
@@ -82,6 +82,21 @@ var PrintUtil = new function() {
 		
 		var $newInspectorTable = $("<table>", { "class" : "properties table table-condensed" });
 		$newInspector.append($newInspectorTable);
+		
+		if(extraProperties) {
+			for(code in extraProperties) {
+				var extraProp = extraProperties[code];
+				var propLabel = extraProp.label;
+				if(propLabel.length > 25) {
+					propLabel = propLabel.substring(0, 23) + "..."; 
+				}
+				$newInspectorTable
+				.append($("<tr>")
+							.append($("<td>", { "class" : "property", "colspan" : "1" }).append($("<p>", { "class" : "inspectorLabel"}).append(propLabel + ":")))
+							.append($("<td>", { "class" : "property", "colspan" : "1" }).append($("<p>", { "class" : "inspectorLineBreak"}).append(extraProp.value)))
+						);
+			}
+		}
 		
 		//Show Properties following the order given on openBIS
 		if(entity.sampleTypeCode) {
