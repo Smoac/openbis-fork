@@ -158,26 +158,7 @@ function PlateView(plateController, plateModel) {
 					$cell = $("<td>").append("&nbsp;");
 					$cell.addClass('well');
 					if(withWells) {
-						var well = this._plateModel.getWell(i,j);
-						var colorEncodedWellAnnotationsSelector = "";
-						
-						if(!well.isEmpty) {
-							$cell.attr("id", "well-" + well.permId);
-							//Color Annotations only enabled for wells with a type having COLOR_ENCODED_ANNOTATION property
-							var isAnnotableWell = jQuery.inArray("COLOR_ENCODED_ANNOTATION", profile.getAllPropertiCodesForTypeCode(well.sampleTypeCode) ) !== -1;
-							if(isAnnotableWell) {
-								colorEncodedWellAnnotationsSelector = this._getWellColorAnnotationGroups(well);
-							}							
-						}
-						
-						var tooltip = PrintUtil.getTable(well, false, null, 'inspectorWhiteFont',
-								'colorEncodedWellAnnotations-holder-' + well.permId,
-								colorEncodedWellAnnotationsSelector);
-						
-						$cell.tooltipster({
-							content: $(tooltip),
-							interactive: true
-						});
+						this._setToolTip($cell, i, j);
 					}
 				}
 				
@@ -213,6 +194,61 @@ function PlateView(plateController, plateModel) {
 				this._repaintWellToColor(i, j, "inherit");
 			}
 		}
+	}
+	
+	//
+	// Utility methods to handle tool tips
+	//
+	this._setToolTip = function($cell, row, column) {
+		var well = this._plateModel.getWell(row, column);
+		var colorEncodedWellAnnotationsSelector = "";
+		
+		if(!well.isEmpty) {
+			//Color Annotations only enabled for wells with a type having COLOR_ENCODED_ANNOTATION property
+			var isAnnotableWell = jQuery.inArray("COLOR_ENCODED_ANNOTATION", profile.getAllPropertiCodesForTypeCode(well.sampleTypeCode) ) !== -1;
+			if(isAnnotableWell) {
+				colorEncodedWellAnnotationsSelector = this._getWellColorAnnotationGroups($cell, well);
+			}							
+		}
+		
+		var tooltip = PrintUtil.getTable(well, false, null, 'inspectorWhiteFont',
+				'colorEncodedWellAnnotations-holder-' + well.permId,
+				colorEncodedWellAnnotationsSelector);
+		var featuresTable = this._getFeatureVectorsTableForSelectedCode(row, column);
+		
+		$cell.tooltipster({
+			content: $(tooltip),
+			interactive: true
+		});
+	}
+	
+	this._getFeatureVectorsTableForSelectedCode = function(row, column) {
+		var selectedDatasetCode = null;
+		var features = null;
+		var featuresData = null;
+		var table = $("<table>");
+		if(this._$featureVectorDatasetsDropdown) {
+			selectedDatasetCode = this._$featureVectorDatasetsDropdown.val();
+			features = this._plateModel.sample.featureVectorsCache.featureVectorDatasetsFeatures[selectedDatasetCode];
+			featuresData = this._plateModel.sample.featureVectorsCache.featureVectorDatasetsFeaturesData[selectedDatasetCode];
+		}
+		
+		if( selectedDatasetCode && 
+			features && 
+			featuresData) {
+			
+			for(var wellIdx = 0; wellIdx < featuresData.featureVectors.length; wellIdx++) {
+				var wellData = featuresData.featureVectors[wellIdx];
+				var wellRow = wellData.wellPosition.wellRow;
+				var wellColumn = wellData.wellPosition.wellColumn;
+				
+				if(wellRow === row && wellColumn === column) {
+					var breakHere = "NOW!";
+				}
+			}
+		}
+		
+		return table;
 	}
 	
 	//
@@ -316,8 +352,12 @@ function PlateView(plateController, plateModel) {
 				var selectedColorEncodedAnnotation = well.properties["COLOR_ENCODED_ANNOTATION"];
 				if(selectedColorEncodedAnnotation && selectedColorEncodedAnnotation !== "DEFAULT") {
 					this._repaintWellToColor(row, column, this._getColorForAnnotationCode(selectedColorEncodedAnnotation));
+				} else {
+					this._repaintWellToColor(row, column, "");
 				}
 			}
+		} else {
+			this._repaintWellToColor(row, column, "#ffffff");
 		}
 	}
 	
@@ -329,7 +369,7 @@ function PlateView(plateController, plateModel) {
 		return null;
 	}
 	
-	this._getWellColorAnnotationGroups = function(well) {
+	this._getWellColorAnnotationGroups = function($cell, well) {
 		var selectedAnnotation = well.properties["COLOR_ENCODED_ANNOTATION"];
 		var $component = $("<select>", { "id" : 'colorEncodedWellAnnotations-' + well.permId, class : 'form-control', 'permId' : well.permId, "identifier" : well.identifier });
 		if(this._plateModel.isDisabled) {
@@ -352,6 +392,7 @@ function PlateView(plateController, plateModel) {
 		}
 		
 		var _this = this;
+		$cell.attr("id", "well-" + well.permId);
 		$component.change(function(event) {
 			var $componentChange = $(this);
 			var value = $componentChange.val();
