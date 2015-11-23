@@ -143,6 +143,8 @@ function PlateView(plateController, plateModel) {
 	
 	this.getGridTable = function(withWells) {
 		var $gridTable = $("<table>", { "class" : "table table-bordered gridTable", "style" : "table-layout: fixed;" });
+		$gridTable.css('background-image', 'url("./img/empty-pattern.png")');
+		$gridTable.css('background-repeat', 'repeat');
 		
 		for(var i = 0; i <= this._plateModel.numRows; i++) {
 			var $row = $("<tr>");
@@ -150,10 +152,13 @@ function PlateView(plateController, plateModel) {
 				var $cell = null;
 				if(i === 0 && j === 0) { //Empty cell at the top left
 					$cell = $("<th>");
+					$cell.css('background-color', '#ffffff');
 				} else if (i === 0 && j !== 0){ //header with column numbers
 					$cell = $("<th>").append(j);
+					$cell.css('background-color', '#ffffff');
 				} else if (j === 0){ //header with row letter
 					$cell = $("<th>").append(Util.getLetterForNumber(i));
+					$cell.css('background-color', '#ffffff');
 				} else {
 					$cell = $("<td>").append("&nbsp;");
 					$cell.addClass('well');
@@ -357,7 +362,7 @@ function PlateView(plateController, plateModel) {
 				}
 			}
 		} else {
-			this._repaintWellToColor(row, column, "#ffffff");
+			this._repaintWellToColor(row, column, "transparent");
 		}
 	}
 	
