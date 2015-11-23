@@ -31,8 +31,7 @@ import com.izforge.izpack.data.PanelAction;
 import ch.systemsx.cisd.common.shared.basic.string.CommaSeparatedListBuilder;
 
 /**
- * Action which sets the variable <code>ENABLED_TECHNOLOGIES_VARNAME</code> or updates
- * service.properties of AS.
+ * Action which sets the variable <code>ENABLED_TECHNOLOGIES_VARNAME</code> or updates service.properties of AS.
  * 
  * @author Franz-Josef Elmer
  */
@@ -40,10 +39,12 @@ public class SetEnableTechnologiesVariableAction implements PanelAction
 {
     private static final String DROPBOX_MONITOR_MODULE = "dropbox-monitor";
 
+    private static final String DATASET_UPLOADER_MODULE = "dataset-uploader";
+
     static final String ENABLED_TECHNOLOGIES_VARNAME = "ENABLED_TECHNOLOGIES";
 
     private final SetTechnologyCheckBoxesAction technologyCheckBoxesAction = new SetTechnologyCheckBoxesAction();
-    
+
     @Override
     public void initialize(PanelActionConfiguration configuration)
     {
@@ -88,13 +89,17 @@ public class SetEnableTechnologiesVariableAction implements PanelAction
         }
         return builder.toString();
     }
-    
+
     private void modifyPropertyEnabledTechnologies(File configFile, AutomatedInstallData data)
     {
         Set<String> allTechnologies = new HashSet<String>();
         CommaSeparatedListBuilder builder = new CommaSeparatedListBuilder();
         builder.append(DROPBOX_MONITOR_MODULE);
         allTechnologies.add(DROPBOX_MONITOR_MODULE);
+
+        builder.append(DATASET_UPLOADER_MODULE);
+        allTechnologies.add(DATASET_UPLOADER_MODULE);
+
         for (String technology : GlobalInstallationContext.TECHNOLOGIES)
         {
             String lowerCasedTechnology = technology.toLowerCase();
@@ -125,5 +130,4 @@ public class SetEnableTechnologiesVariableAction implements PanelAction
         Utils.updateOrAppendProperty(configFile, ENABLED_TECHNOLOGIES_KEY, builder.toString());
     }
 
-    
 }

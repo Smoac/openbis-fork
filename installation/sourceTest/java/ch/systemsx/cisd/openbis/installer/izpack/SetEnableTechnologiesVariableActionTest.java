@@ -36,13 +36,12 @@ import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class SetEnableTechnologiesVariableActionTest extends AbstractFileSystemTestCase
 {
     private File corePluginsFolder;
+
     private File corePluginsProperties;
 
     @Override
@@ -54,14 +53,14 @@ public class SetEnableTechnologiesVariableActionTest extends AbstractFileSystemT
         corePluginsProperties = new File(workingDirectory, Utils.CORE_PLUGINS_PROPERTIES_PATH);
         corePluginsProperties.getParentFile().mkdirs();
     }
-    
+
     @AfterMethod
     public void tearDown()
     {
         FileUtilities.deleteRecursively(corePluginsFolder);
         corePluginsProperties.delete();
     }
-    
+
     @Test
     public void testFirstInstallation()
     {
@@ -85,16 +84,16 @@ public class SetEnableTechnologiesVariableActionTest extends AbstractFileSystemT
 
         assertEquals("", data.getVariable(ENABLED_TECHNOLOGIES_VARNAME));
     }
-    
+
     @Test
     public void testUpdateMissingConfigFile()
     {
         Properties variables = new Properties();
         variables.setProperty(TECHNOLOGY_PROTEOMICS, "false");
         variables.setProperty(TECHNOLOGY_SCREENING, "true");
-        
+
         updateEnabledTechnologyProperties(variables, false);
-        assertEquals("[, enabled-modules = dropbox-monitor, screening]",
+        assertEquals("[, enabled-modules = dropbox-monitor, dataset-uploader, screening]",
                 FileUtilities.loadToStringList(corePluginsProperties).toString());
     }
 
@@ -102,32 +101,32 @@ public class SetEnableTechnologiesVariableActionTest extends AbstractFileSystemT
     public void testUpdateInstallationWithOtherEnabledTechnologiesInAs()
     {
         FileUtilities.writeToFile(corePluginsProperties, "abc = 123\n" + ENABLED_TECHNOLOGIES_KEY
-                + "=dropbox-monitor, proteomics, my-tech");
+                + "=dropbox-monitor, dataset-uploader, proteomics, my-tech");
         Properties variables = new Properties();
         variables.setProperty(TECHNOLOGY_PROTEOMICS, "true");
         variables.setProperty(TECHNOLOGY_SCREENING, "false");
 
         updateEnabledTechnologyProperties(variables, false);
 
-        assertEquals("[abc = 123, " + ENABLED_TECHNOLOGIES_KEY + "=dropbox-monitor, proteomics, my-tech]",
+        assertEquals("[abc = 123, " + ENABLED_TECHNOLOGIES_KEY + "=dropbox-monitor, dataset-uploader, proteomics, my-tech]",
                 FileUtilities.loadToStringList(corePluginsProperties).toString());
     }
-    
+
     @Test
     public void testUpdateUnchangedProperty()
     {
         FileUtilities.writeToFile(corePluginsProperties, "abc = 123\n" + ENABLED_TECHNOLOGIES_KEY
-                + "=dropbox-monitor, proteomics");
+                + "=dropbox-monitor, dataset-uploader, proteomics");
         Properties variables = new Properties();
         variables.setProperty(TECHNOLOGY_PROTEOMICS, "true");
         variables.setProperty(TECHNOLOGY_SCREENING, "false");
-        
+
         updateEnabledTechnologyProperties(variables, false);
-        
-        assertEquals("[abc = 123, " + ENABLED_TECHNOLOGIES_KEY + "=dropbox-monitor, proteomics]", FileUtilities
+
+        assertEquals("[abc = 123, " + ENABLED_TECHNOLOGIES_KEY + "=dropbox-monitor, dataset-uploader, proteomics]", FileUtilities
                 .loadToStringList(corePluginsProperties).toString());
     }
-    
+
     @Test
     public void testUpdateChangeProperty()
     {
@@ -136,13 +135,14 @@ public class SetEnableTechnologiesVariableActionTest extends AbstractFileSystemT
         Properties variables = new Properties();
         variables.setProperty(TECHNOLOGY_PROTEOMICS, "true");
         variables.setProperty(TECHNOLOGY_SCREENING, "true");
-        
+
         updateEnabledTechnologyProperties(variables, false);
-        
-        assertEquals("[abc = 123, " + ENABLED_TECHNOLOGIES_KEY + " = dropbox-monitor, proteomics, screening, answer = 42]", FileUtilities
-                .loadToStringList(corePluginsProperties).toString());
+
+        assertEquals("[abc = 123, " + ENABLED_TECHNOLOGIES_KEY + " = dropbox-monitor, dataset-uploader, proteomics, screening, answer = 42]",
+                FileUtilities
+                        .loadToStringList(corePluginsProperties).toString());
     }
-    
+
     @Test
     public void testUpdateAppendProperty()
     {
@@ -150,10 +150,10 @@ public class SetEnableTechnologiesVariableActionTest extends AbstractFileSystemT
         Properties variables = new Properties();
         variables.setProperty(TECHNOLOGY_PROTEOMICS, "false");
         variables.setProperty(TECHNOLOGY_SCREENING, "true");
-        
+
         updateEnabledTechnologyProperties(variables, false);
-        
-        assertEquals("[abc = 123, " + ENABLED_TECHNOLOGIES_KEY + " = dropbox-monitor, screening]", FileUtilities
+
+        assertEquals("[abc = 123, " + ENABLED_TECHNOLOGIES_KEY + " = dropbox-monitor, dataset-uploader, screening]", FileUtilities
                 .loadToStringList(corePluginsProperties).toString());
     }
 
@@ -168,10 +168,10 @@ public class SetEnableTechnologiesVariableActionTest extends AbstractFileSystemT
 
         updateEnabledTechnologyProperties(variables, false);
 
-        assertEquals("[a = b, " + ENABLED_TECHNOLOGIES_KEY + " = dropbox-monitor, screening, "
+        assertEquals("[a = b, " + ENABLED_TECHNOLOGIES_KEY + " = dropbox-monitor, dataset-uploader, screening, "
                 + "gamma = alpha]", FileUtilities.loadToStringList(corePluginsProperties).toString());
     }
-    
+
     private AutomatedInstallData updateEnabledTechnologyProperties(Properties variables,
             boolean isFirstTimeInstallation)
     {
