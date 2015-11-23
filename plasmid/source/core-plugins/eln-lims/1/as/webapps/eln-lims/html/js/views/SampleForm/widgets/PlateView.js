@@ -329,7 +329,7 @@ function PlateView(plateController, plateModel) {
 	}
 	
 	this._getColorForStepBetweenWhiteAndBlack = function(step, numSteps) {
-		var stepSize = Math.round(255/numSteps);
+		var stepSize = Math.floor(255/numSteps);
 		var revertStep = numSteps - step + 1;
 		var greyValue = Math.round(stepSize * revertStep);
 		var hexValue = greyValue.toString(16);
