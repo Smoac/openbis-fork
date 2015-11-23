@@ -29,6 +29,7 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.tar.Tar;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.MockLogger;
+import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetPathInfo;
 
 /**
@@ -103,7 +104,7 @@ public class TarBasedPathInfoProviderTest extends AbstractFileSystemTestCase
         
         assertPathInfo("data/sub/hello.txt[hello.txt, 10, 3d4448e7]", children.get(0));
         assertPathInfo("data/sub/some.txt[some.txt, 38, 2f7b8cfb]", children.get(1));
-        assertEquals("INFO: Reading statistics for input stream: 59 bytes in 7 chunks took < 1sec.\n"
+        AssertionUtil.assertContains("INFO: Reading statistics for input stream: 59 bytes in 7 chunks took < 1sec.\n"
                 + "INFO: Writing statistics for output stream: 59 bytes in 7 chunks took < 1sec.\n",
                 logger.toString());
         assertEquals(2, children.size());
