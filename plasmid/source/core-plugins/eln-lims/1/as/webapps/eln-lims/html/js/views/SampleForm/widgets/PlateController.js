@@ -116,26 +116,8 @@ function PlateController(sample, isDisabled) {
 						} else {
 							_this._plateModel.sample.featureVectorsCache.featureVectorDatasets = result.data;
 							
-							if(_this._plateModel.sample.featureVectorsCache.featureVectorDatasets &&
-									_this._plateModel.sample.featureVectorsCache.featureVectorDatasets.length > 0) {
-								var featureVectorDatasetCode = _this._plateModel.sample.featureVectorsCache.featureVectorDatasets[0];
-								mainController.serverFacade.customELNApi({
-									"method" : "listAvailableFeatures",
-									"samplePlatePermId" : _this._plateModel.sample.permId,
-									"featureVectorDatasetPermId" : featureVectorDatasetCode
-								}, function(error, result){
-									if(error) {
-										Util.showError(error);
-									} else {
-										_this._plateModel.sample.featureVectorsCache.featureVectorDatasetsFeatures[featureVectorDatasetCode] = result.data;
-									}
-									//Finally paint the view
-									_this._plateView.repaint($container);
-								});
-							} else {
-								//Finally paint the view
-								_this._plateView.repaint($container);
-							}
+							//Finally paint the view
+							_this._plateView.repaint($container);
 						}
 					});
 					

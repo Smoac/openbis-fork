@@ -53,6 +53,7 @@ function PlateView(plateController, plateModel) {
 					if(_this._plateModel.sample.featureVectorsCache.featureVectorDatasetsFeaturesData[featureVectorDatasetCode]) {
 						_this._repaintGridToFeatureVectorColors(featureVectorDatasetCode, selectedFeature);
 					} else {
+						Util.blockUI();
 						var featuresCodesFromFeatureVector = [];
 						for(code in _this._plateModel.sample.featureVectorsCache.featureVectorDatasetsFeatures[featureVectorDatasetCode]) {
 							featuresCodesFromFeatureVector.push(code);
@@ -80,6 +81,7 @@ function PlateView(plateController, plateModel) {
 							
 							_this._plateModel.sample.featureVectorsCache.featureVectorDatasetsFeaturesData[featureVectorDatasetCode] = result.data[0];
 							_this._repaintGridToFeatureVectorColors(featureVectorDatasetCode, selectedFeature);
+							Util.unblockUI();
 						});
 					}
 				} else {
@@ -124,6 +126,7 @@ function PlateView(plateController, plateModel) {
 					}
 					
 					if(!featureVectorDatasetFeatures) {
+						Util.blockUI();
 						mainController.serverFacade.customELNApi({
 							"method" : "listAvailableFeatures",
 							"samplePlatePermId" : _this._plateModel.sample.permId,
@@ -135,6 +138,7 @@ function PlateView(plateController, plateModel) {
 								_this._plateModel.sample.featureVectorsCache.featureVectorDatasetsFeatures[featureVectorDatasetCode] = result.data;
 								loadFeatureVectorDatasetFeatures();
 							}
+							Util.unblockUI();
 						});
 					} else {
 						loadFeatureVectorDatasetFeatures();
