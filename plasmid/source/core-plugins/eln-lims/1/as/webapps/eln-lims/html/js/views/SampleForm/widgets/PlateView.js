@@ -244,7 +244,7 @@ function PlateView(plateController, plateModel) {
 		$cell.tooltipster({
 			content: $(tooltip),
 			interactive: true,
-			position : 'bottom'
+			position : 'right'
 		});
 	}
 	
