@@ -16,6 +16,8 @@
     -->
     <context:annotation-config />
 
+    <bean class="ch.systemsx.cisd.common.spring.CheckSecureHttpInvokerBeanPostProcessor" />
+    
     <context:component-scan base-package="ch.systemsx.cisd.openbis" use-default-filters="false">
         <context:include-filter type="annotation"
             expression="org.springframework.stereotype.Controller" />

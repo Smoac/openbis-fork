@@ -18,6 +18,8 @@
         <property name="ignoreUnresolvablePlaceholders" value="true" />
     </bean>
     
+    <bean class="ch.systemsx.cisd.common.spring.CheckSecureHttpInvokerBeanPostProcessor" />
+    
     <!-- 
         // Screening specific configuration
     -->
@@ -49,7 +51,7 @@
         </constructor-arg>
     </bean>
     
-    <bean id="data-store-rpc-service-screening" class="com.marathon.util.spring.StreamSupportingHttpInvokerServiceExporter">
+    <bean id="data-store-rpc-service-screening" class="ch.systemsx.cisd.common.spring.WhiteAndBlackListStreamSupportingHttpInvokerExporter">
         <property name="service">
           <ref bean="data-store-rpc-service-screening-logic" />
         </property>

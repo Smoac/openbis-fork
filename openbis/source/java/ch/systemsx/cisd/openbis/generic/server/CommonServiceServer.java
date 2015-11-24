@@ -18,10 +18,10 @@ package ch.systemsx.cisd.openbis.generic.server;
 
 import javax.annotation.Resource;
 
-import org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import ch.systemsx.cisd.common.spring.WhiteAndBlackListHttpInvokerServiceExporter;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
 
@@ -29,9 +29,8 @@ import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
  * @author Izabela Adamczyk
  */
 @Controller
-@RequestMapping(
-    { "/rmi-common", "/openbis/rmi-common" })
-public class CommonServiceServer extends HttpInvokerServiceExporter
+@RequestMapping({ "/rmi-common", "/openbis/rmi-common" })
+public class CommonServiceServer extends WhiteAndBlackListHttpInvokerServiceExporter
 {
     @Resource(name = ResourceNames.COMMON_SERVER)
     private ICommonServer common;

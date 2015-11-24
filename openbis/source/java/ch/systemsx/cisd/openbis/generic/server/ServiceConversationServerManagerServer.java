@@ -18,10 +18,10 @@ package ch.systemsx.cisd.openbis.generic.server;
 
 import javax.annotation.Resource;
 
-import org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import ch.systemsx.cisd.common.spring.WhiteAndBlackListHttpInvokerServiceExporter;
 import ch.systemsx.cisd.openbis.common.conversation.manager.IServiceConversationServerManagerRemote;
 import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
 
@@ -30,9 +30,8 @@ import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
  */
 
 @Controller
-@RequestMapping(
-    { IServiceConversationServerManagerRemote.PATH, "/openbis" + IServiceConversationServerManagerRemote.PATH })
-public class ServiceConversationServerManagerServer extends HttpInvokerServiceExporter
+@RequestMapping({ IServiceConversationServerManagerRemote.PATH, "/openbis" + IServiceConversationServerManagerRemote.PATH })
+public class ServiceConversationServerManagerServer extends WhiteAndBlackListHttpInvokerServiceExporter
 {
     @Resource(name = ResourceNames.SERVICE_CONVERSATION_SERVER_MANAGER)
     private IServiceConversationServerManagerRemote serverManager;

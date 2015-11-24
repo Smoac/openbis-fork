@@ -18,10 +18,10 @@ package ch.systemsx.cisd.openbis.plugin.generic.server;
 
 import javax.annotation.Resource;
 
-import org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import ch.systemsx.cisd.common.spring.WhiteAndBlackListHttpInvokerServiceExporter;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames;
 
@@ -29,9 +29,8 @@ import ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames;
  * @author Izabela Adamczyk
  */
 @Controller
-@RequestMapping(
-    { "/rmi-plugin-generic", "/openbis/rmi-plugin-generic" })
-public class GenericServiceServer extends HttpInvokerServiceExporter
+@RequestMapping({ "/rmi-plugin-generic", "/openbis/rmi-plugin-generic" })
+public class GenericServiceServer extends WhiteAndBlackListHttpInvokerServiceExporter
 {
     @Resource(name = ResourceNames.GENERIC_PLUGIN_SERVER)
     private IGenericServer server;

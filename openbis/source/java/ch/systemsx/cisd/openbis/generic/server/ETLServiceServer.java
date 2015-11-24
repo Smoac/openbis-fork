@@ -21,11 +21,11 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
-import org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import ch.systemsx.cisd.common.spring.ServiceExceptionTranslator;
+import ch.systemsx.cisd.common.spring.WhiteAndBlackListHttpInvokerServiceExporter;
 import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
 
@@ -34,9 +34,8 @@ import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
  * @author Kaloyan Enimanev
  */
 @Controller
-@RequestMapping(
-    { "/rmi-etl", "/openbis/rmi-etl" })
-public class ETLServiceServer extends HttpInvokerServiceExporter
+@RequestMapping({ "/rmi-etl", "/openbis/rmi-etl" })
+public class ETLServiceServer extends WhiteAndBlackListHttpInvokerServiceExporter
 {
     @Resource(name = ResourceNames.ETL_SERVICE)
     private IServiceForDataStoreServer etlService;
@@ -46,8 +45,7 @@ public class ETLServiceServer extends HttpInvokerServiceExporter
     {
         setServiceInterface(IServiceForDataStoreServer.class);
         setService(etlService);
-        setInterceptors(new Object[]
-            { createExceptionTranslator() });
+        setInterceptors(new Object[] { createExceptionTranslator() });
         super.afterPropertiesSet();
     }
 

@@ -18,10 +18,10 @@ package ch.systemsx.cisd.openbis.generic.server;
 
 import javax.annotation.Resource;
 
-import org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import ch.systemsx.cisd.common.spring.WhiteAndBlackListHttpInvokerServiceExporter;
 import ch.systemsx.cisd.openbis.generic.shared.ITrackingServer;
 import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
 
@@ -29,9 +29,8 @@ import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
  * @author Piotr Buczek
  */
 @Controller
-@RequestMapping(
-    { "/rmi-tracking", "/openbis/rmi-tracking" })
-public class TrackingServiceServer extends HttpInvokerServiceExporter
+@RequestMapping({ "/rmi-tracking", "/openbis/rmi-tracking" })
+public class TrackingServiceServer extends WhiteAndBlackListHttpInvokerServiceExporter
 {
     @Resource(name = ResourceNames.TRACKING_SERVER)
     private ITrackingServer server;
