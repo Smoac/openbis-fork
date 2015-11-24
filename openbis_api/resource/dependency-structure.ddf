@@ -7,7 +7,8 @@
                ${cisd}.common.api.IRpcService \
                ${cisd}.base.annotation.JsonObject
 
-[v3-api] = ${sis}.openbis.generic.shared.api.v3.*
+[v3-api] = ${sis}.openbis.generic.shared.api.v3.* \
+           ${sis}.openbis.generic.dss.api.v3.*
 
 [older-api] = ${cisd}.openbis.*
 

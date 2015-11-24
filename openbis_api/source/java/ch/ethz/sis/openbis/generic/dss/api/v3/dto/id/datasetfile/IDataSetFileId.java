@@ -20,9 +20,6 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.IObjectId;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
- * @author pkupczyk
- */
-/**
  * Holds information that uniquely identifies a data set file in openBIS.
  * 
  * @author pkupczyk
