@@ -278,7 +278,7 @@ public class AbstractArchiverProcessingPluginTest extends AbstractFileSystemTest
         }
 
         @Override
-        protected void pauseStartingArchiving(long waitingTime)
+        protected void pauseStarting(long waitingTime)
         {
             this.pollingTime = waitingTime;
             File f = new File(pauseFile);
