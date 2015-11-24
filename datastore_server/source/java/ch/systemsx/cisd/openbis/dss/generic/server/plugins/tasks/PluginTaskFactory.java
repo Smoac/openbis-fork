@@ -39,6 +39,7 @@ import ch.systemsx.cisd.common.properties.PropertyParametersUtil;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.common.properties.PropertyParametersUtil.SectionProperties;
 import ch.systemsx.cisd.common.reflection.ClassUtils;
+import ch.systemsx.cisd.common.spring.WhiteAndBlackListCodebaseAwareObjectInputStream;
 import ch.systemsx.cisd.openbis.dss.generic.server.IServletPropertiesManager;
 import ch.systemsx.cisd.openbis.dss.generic.server.api.v2.sequencedatabases.AbstractSearchDomainService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.ISearchDomainService;
@@ -60,7 +61,7 @@ public class PluginTaskFactory<T>
     /** Property name which stores a list of dataset type codes. */
     @Private
     public final static String DATASET_CODES_PROPERTY_NAME = "dataset-types";
-
+    
     /** Property name which stores a plugin class name. */
     public final static String CLASS_PROPERTY_NAME = "class";
 
@@ -96,6 +97,7 @@ public class PluginTaskFactory<T>
     {
         this.pluginTaskName = pluginTaskName;
         Properties pluginProperties = sectionProperties.getProperties();
+        WhiteAndBlackListCodebaseAwareObjectInputStream.populateWhiteAndBlackListOfApiParameterClasses(pluginProperties);
         String label = PropertyUtils.getMandatoryProperty(pluginProperties, LABEL_PROPERTY_NAME);
         Properties props =
                 ExtendedProperties.getSubset(pluginProperties, SERVLET_PROPERTY_NAME + ".", true);

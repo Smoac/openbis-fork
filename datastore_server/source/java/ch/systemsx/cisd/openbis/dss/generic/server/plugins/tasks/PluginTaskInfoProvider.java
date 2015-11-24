@@ -51,13 +51,12 @@ public class PluginTaskInfoProvider implements IPluginTaskInfoProvider
     private final PluginTaskProvider<IProcessingPluginTask> processingPlugins;
 
     private final PluginTaskProvider<ISearchDomainService> sequenceDatabasePlugins;
-    
+
     private final ArchiverPluginFactory archiverTaskFactory;
 
     private final File storeRoot;
 
     private final File sessionWorkspaceRootDir;
-
 
     /** for external injections */
     public static IPluginTaskInfoProvider create()
@@ -90,8 +89,8 @@ public class PluginTaskInfoProvider implements IPluginTaskInfoProvider
         this.processingPlugins =
                 createProcessingPluginsFactories(serviceProperties, servletPropertiesManager,
                         datastoreCode, storeRoot);
-        sequenceDatabasePlugins = createPluginsFactories(serviceProperties, servletPropertiesManager, 
-                datastoreCode, storeRoot, ISearchDomainService.class, "Search domain service", 
+        sequenceDatabasePlugins = createPluginsFactories(serviceProperties, servletPropertiesManager,
+                datastoreCode, storeRoot, ISearchDomainService.class, "Search domain service",
                 Constants.SEARCH_DOMAIN_SERVICE_NAMES);
         this.archiverTaskFactory = createArchiverTaskFactory(serviceProperties, datastoreCode);
     }
@@ -160,7 +159,7 @@ public class PluginTaskInfoProvider implements IPluginTaskInfoProvider
             Properties serviceProperties, IServletPropertiesManager configParameters,
             String datastoreCode, File storeRoot)
     {
-        return createPluginsFactories(serviceProperties, configParameters, datastoreCode, storeRoot, 
+        return createPluginsFactories(serviceProperties, configParameters, datastoreCode, storeRoot,
                 IReportingPluginTask.class, "Reporting plugin", Constants.REPORTING_PLUGIN_NAMES);
     }
 
@@ -172,7 +171,7 @@ public class PluginTaskInfoProvider implements IPluginTaskInfoProvider
         return createPluginsFactories(serviceProperties, configParameters, datastoreCode, storeRoot,
                 IProcessingPluginTask.class, "Processing plugin", Constants.PROCESSING_PLUGIN_NAMES);
     }
-    
+
     private static <T> PluginTaskProvider<T> createPluginsFactories(Properties serviceProperties,
             IServletPropertiesManager configParameters, String datastoreCode, File storeRoot, Class<T> clazz,
             String pluginTaskName, String propertySectionName)
