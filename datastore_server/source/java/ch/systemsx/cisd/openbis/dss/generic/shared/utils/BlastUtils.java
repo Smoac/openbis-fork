@@ -28,7 +28,6 @@ import java.util.Properties;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.SystemUtils;
 import org.apache.log4j.Logger;
-import org.python.google.common.base.Strings;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
@@ -251,7 +250,7 @@ public class BlastUtils
 
     public void logMissingTools(String configuredBlastPath)
     {
-        if (Strings.isNullOrEmpty(configuredBlastPath))
+        if (StringUtils.isBlank(configuredBlastPath))
         {
             operationLog.error("Property '" + BLAST_TOOLS_DIRECTORY_PROPERTY
                     + "' is not specified and BLAST isn't found in default location.");
