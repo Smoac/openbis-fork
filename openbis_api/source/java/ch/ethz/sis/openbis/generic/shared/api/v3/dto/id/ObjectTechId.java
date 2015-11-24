@@ -19,7 +19,6 @@ package ch.ethz.sis.openbis.generic.shared.api.v3.dto.id;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import ch.ethz.sis.openbis.generic.shared.api.v3.util.JsonPropertyUtil;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
@@ -65,13 +64,13 @@ public class ObjectTechId implements IObjectId
     @JsonProperty("id")
     private String getIdAsString()
     {
-        return JsonPropertyUtil.toStringOrNull(techId);
+        return techId == null ? null : techId.toString();
     }
 
     @SuppressWarnings("unused")
     private void setIdAsString(String id)
     {
-        this.techId = JsonPropertyUtil.toLongOrNull(id);
+        this.techId = id == null ? null : Long.valueOf(id);
     }
 
     @Override
