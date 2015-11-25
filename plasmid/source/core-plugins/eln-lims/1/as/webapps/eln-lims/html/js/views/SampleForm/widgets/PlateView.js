@@ -366,6 +366,7 @@ function PlateView(plateController, plateModel) {
 		var $scaleTable = $("<table>", { "class" : "table table-bordered", "style" : "table-layout: fixed;" });
 		for(var i = 1; i <= numSteps; i++) {
 			var $row = $("<tr>")
+				.append($("<td>").append(i))
 				.append($("<td>", { "style" : "background-color:" + this._getColorForStepBetweenWhiteAndBlack(i, numSteps) + ";" }))
 				.append($("<td>").append(colorStepSize*i - shift));
 			$scaleTable.append($row);
