@@ -203,10 +203,12 @@ function PlateView(plateController, plateModel) {
 		return $gridColumn;
 	}
 	
-	this._repaintWellToColor = function(row, column, rgbColor) {
+	this._repaintWellToColor = function(row, column, rgbColor, txt) {
 		var $cell = this._getCell(row, column);
 			$cell.css( { "background-color" : rgbColor });
 		this._setToolTip($cell, row, column);
+		$cell.empty();
+		$cell.append(txt);
 	}
 	
 	this._cleanGrid = function() {
@@ -326,7 +328,14 @@ function PlateView(plateController, plateModel) {
 			}
 		}
 		
-		var colorStepSize = (maxValue - minValue) / this._plateModel.numHeatmapColors;
+		var shift = 0;
+		if(minValue < 0) {
+			shift = Math.abs(minValue);
+		}
+		
+		var range =  maxValue + shift;
+		
+		var colorStepSize = range / this._plateModel.numHeatmapColors;
 		
 		//3. Clean Colors
 		this._cleanGrid();
@@ -337,25 +346,28 @@ function PlateView(plateController, plateModel) {
 				var wellData = featuresData.featureVectors[rowsIdx][colsIdx];
 				if(!wellData.vocabularyFeatureFlags[featureIndex]) { //Don't support vocabularies for now
 					if(wellData.values[featureIndex] !== "NaN") {
-						var value = wellData.values[featureIndex];
-						var valueColorStep = Math.round(value / colorStepSize);
+						var value = wellData.values[featureIndex] + shift;
+						var valueColorStep = Math.ceil(value / colorStepSize);
+						if (valueColorStep === 0) { //Corner case - lower value and negative number
+							valueColorStep = 1;
+						}
 						var color = this._getColorForStepBetweenWhiteAndBlack(valueColorStep, this._plateModel.numHeatmapColors);
-						this._repaintWellToColor(rowsIdx, colsIdx, color);
+						this._repaintWellToColor(rowsIdx, colsIdx, color, valueColorStep);
 					}
 				}
 			}
 		}
 		
 		//5. Paint Scale
-		this._repaintScale(colorStepSize, this._plateModel.numHeatmapColors);
+		this._repaintScale(shift, colorStepSize, this._plateModel.numHeatmapColors);
 	}
 	
-	this._repaintScale = function(colorStepSize, numSteps) {
+	this._repaintScale = function(shift, colorStepSize, numSteps) {
 		var $scaleTable = $("<table>", { "class" : "table table-bordered", "style" : "table-layout: fixed;" });
 		for(var i = 1; i <= numSteps; i++) {
 			var $row = $("<tr>")
 				.append($("<td>", { "style" : "background-color:" + this._getColorForStepBetweenWhiteAndBlack(i, numSteps) + ";" }))
-				.append($("<td>").append(colorStepSize*i));
+				.append($("<td>").append(colorStepSize*i - shift));
 			$scaleTable.append($row);
 		}
 		
