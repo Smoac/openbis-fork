@@ -333,12 +333,14 @@ function PlateView(plateController, plateModel) {
 				if(!wellData.vocabularyFeatureFlags[featureIndex]) { //Don't support vocabularies for now
 					var value = wellData.values[featureIndex];
 					
-					if(!minValue || value < minValue) {
-						minValue = value;
-					}
-					
-					if(!maxValue || value > maxValue) {
-						maxValue = value;
+					if(value !== "NaN") {
+						if(!minValue || value < minValue) {
+							minValue = value;
+						}
+						
+						if(!maxValue || value > maxValue) {
+							maxValue = value;
+						}
 					}
 				}
 			}
@@ -365,6 +367,8 @@ function PlateView(plateController, plateModel) {
 						var value = wellData.values[featureIndex] + shift;
 						var valueColorStep = Math.ceil(value / colorStepSize);
 						if (valueColorStep === 0) { //Corner case - lower value and negative number
+							valueColorStep = 1;
+						} else if(isNaN(valueColorStep) && value === 0) { //Corner case - all numbers are 0
 							valueColorStep = 1;
 						}
 						var color = this._getColorForStepBetweenWhiteAndBlack(valueColorStep, this._plateModel.numHeatmapColors);
