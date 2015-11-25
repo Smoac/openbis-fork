@@ -217,8 +217,11 @@ function PlateView(plateController, plateModel) {
 			$cell.css( { "background-color" : rgbColor });
 		this._setToolTip($cell, row, column);
 		$cell.empty();
-		$cell.append(txt);
+		if(txt) {
+			$cell.append(txt);
+		}
 		
+		//Redundant coding
 		var rgb = this._hexToRgb(rgbColor);
 		var fontColor = (rgb && (rgb.r*0.299 + rgb.g*0.587 + rgb.b*0.114) > 186)?"#000000":"#ffffff";
 		$cell.css({ "color" : fontColor });
