@@ -749,55 +749,58 @@ def searchSamples(tr, parameters, tableBuilder, sessionId):
 
 def searchSamplesCustom(tr, parameters, tableBuilder, v3, criterion, fetchOptions):
 	return [];
-# 	toReturnPermIds = []; #
-# 	#Right Givers: The sample with all his descendants
-# 	#1. Request user search with all right givers
-# 	descendantsFetchOptions = SampleFetchOptions();
-# 	descendantsFetchOptions.withChildrenUsing(descendantsFetchOptions);
-# 	requestedResults = v3.searchSamples(tr.getOpenBisServiceSessionToken(), criterion, descendantsFetchOptions);
-# 	
-# 	if requestedResults.getTotalCount() > 0:
-# 		#Prepare data structures for the rights givers to accelerate the process
-# 		requestedToRigthsGivers = {};
-# 		allRightsGivers = set();
-# 		for requestedResult in requestedResults.getObjects():
-# 			rigthsGivers = getDescendantsTreePermIdsStringSet([requestedResult]);
-# 			allRightsGivers = allRightsGivers | rigthsGivers;
-# 			requestedToRigthsGivers[requestedResult.getPermId().getPermId()] = rigthsGivers;
-# 		
-# 		#2. Search for the visible right givers
-# 		
-# 		visibleRightGivers = v3.mapSamples(parameters.get("sessionToken"), getSamplePermIdsObjFromPermIdStrings(allRightsGivers), SampleFetchOptions());
-# 		visibleRightGiversPermIds = getDescendantsTreePermIdsStringSet(visibleRightGivers.values());
-# 		#3. Intersect what the user wants and is available to see and keep matches
-# 		for requestedResultPermIdString in requestedToRigthsGivers:
-# 			rigthsGiversPermIds = requestedToRigthsGivers[requestedResultPermIdString];
-# 			intersection = rigthsGiversPermIds & visibleRightGiversPermIds;
-# 			if len(intersection) > 0:
-# 				toReturnPermIds.append(SamplePermId(requestedResultPermIdString));
-# 	
-# 	#Now we complete those permIds with all information available for them using a search by the ETL server
-# 	systemResultAsMap = v3.mapSamples(tr.getOpenBisServiceSessionToken(), toReturnPermIds, fetchOptions);
-# 	systemResult = ArrayList(systemResultAsMap.values());
-# 	systemSearchResult = SearchResult(systemResult, systemResult.size());
-# 	
-# 	return systemSearchResult
-# 
-# def getSamplePermIdsObjFromPermIdStrings(samplePermIds):
-# 	values = [];
-# 	for samplePermId in samplePermIds:
-# 		values.append(SamplePermId(samplePermId));
-# 	return values;
-# 	
-# def getDescendantsTreePermIdsStringSet(samples):
-# 	descendantsPermIds = set();
-# 	for sample in samples:
-# 		descendantsQueue = [sample];
-# 		while len(descendantsQueue) > 0:
-# 			queueSample = descendantsQueue.pop();
-# 			if queueSample.getPermId().getPermId() not in descendantsPermIds:
-# 				descendantsPermIds.add(queueSample.getPermId().getPermId());
-# 				if queueSample.getFetchOptions().hasChildren():
-# 					for child in queueSample.getChildren():
-# 						descendantsQueue.append(child);
-# 	return descendantsPermIds;
+	#return searchSamplesNexus(tr, parameters, tableBuilder, v3, criterion, fetchOptions);
+	
+def searchSamplesNexus(tr, parameters, tableBuilder, v3, criterion, fetchOptions):
+	toReturnPermIds = []; #
+	#Right Givers: The sample with all his descendants
+	#1. Request user search with all right givers
+	descendantsFetchOptions = SampleFetchOptions();
+	descendantsFetchOptions.withChildrenUsing(descendantsFetchOptions);
+	requestedResults = v3.searchSamples(tr.getOpenBisServiceSessionToken(), criterion, descendantsFetchOptions);
+ 	
+	if requestedResults.getTotalCount() > 0:
+		#Prepare data structures for the rights givers to accelerate the process
+		requestedToRigthsGivers = {};
+		allRightsGivers = set();
+		for requestedResult in requestedResults.getObjects():
+			rigthsGivers = getDescendantsTreePermIdsStringSet([requestedResult]);
+			allRightsGivers = allRightsGivers | rigthsGivers;
+			requestedToRigthsGivers[requestedResult.getPermId().getPermId()] = rigthsGivers;
+ 		
+		#2. Search for the visible right givers
+ 		
+		visibleRightGivers = v3.mapSamples(parameters.get("sessionToken"), getSamplePermIdsObjFromPermIdStrings(allRightsGivers), SampleFetchOptions());
+		visibleRightGiversPermIds = getDescendantsTreePermIdsStringSet(visibleRightGivers.values());
+		#3. Intersect what the user wants and is available to see and keep matches
+		for requestedResultPermIdString in requestedToRigthsGivers:
+			rigthsGiversPermIds = requestedToRigthsGivers[requestedResultPermIdString];
+			intersection = rigthsGiversPermIds & visibleRightGiversPermIds;
+			if len(intersection) > 0:
+				toReturnPermIds.append(SamplePermId(requestedResultPermIdString));
+ 	
+	#Now we complete those permIds with all information available for them using a search by the ETL server
+	systemResultAsMap = v3.mapSamples(tr.getOpenBisServiceSessionToken(), toReturnPermIds, fetchOptions);
+	systemResult = ArrayList(systemResultAsMap.values());
+	systemSearchResult = SearchResult(systemResult, systemResult.size());
+ 	
+	return systemSearchResult
+ 
+def getSamplePermIdsObjFromPermIdStrings(samplePermIds):
+	values = [];
+	for samplePermId in samplePermIds:
+		values.append(SamplePermId(samplePermId));
+	return values;
+ 	
+def getDescendantsTreePermIdsStringSet(samples):
+	descendantsPermIds = set();
+	for sample in samples:
+		descendantsQueue = [sample];
+		while len(descendantsQueue) > 0:
+			queueSample = descendantsQueue.pop();
+			if queueSample.getPermId().getPermId() not in descendantsPermIds:
+				descendantsPermIds.add(queueSample.getPermId().getPermId());
+				if queueSample.getFetchOptions().hasChildren():
+					for child in queueSample.getChildren():
+						descendantsQueue.append(child);
+	return descendantsPermIds;
