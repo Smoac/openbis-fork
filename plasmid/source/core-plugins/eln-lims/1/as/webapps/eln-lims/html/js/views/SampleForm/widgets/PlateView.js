@@ -203,12 +203,25 @@ function PlateView(plateController, plateModel) {
 		return $gridColumn;
 	}
 	
+	this._hexToRgb = function(hex) {
+	    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+	    return result ? {
+	        r: parseInt(result[1], 16),
+	        g: parseInt(result[2], 16),
+	        b: parseInt(result[3], 16)
+	    } : null;
+	}
+	
 	this._repaintWellToColor = function(row, column, rgbColor, txt) {
 		var $cell = this._getCell(row, column);
 			$cell.css( { "background-color" : rgbColor });
 		this._setToolTip($cell, row, column);
 		$cell.empty();
 		$cell.append(txt);
+		
+		var rgb = this._hexToRgb(rgbColor);
+		var fontColor = (rgb && (rgb.r*0.299 + rgb.g*0.587 + rgb.b*0.114) > 186)?"#000000":"#ffffff";
+		$cell.css({ "color" : fontColor });
 	}
 	
 	this._cleanGrid = function() {
