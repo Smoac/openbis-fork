@@ -748,7 +748,7 @@ def searchSamples(tr, parameters, tableBuilder, sessionId):
 	return resultAsString;
 
 def searchSamplesCustom(tr, parameters, tableBuilder, v3, criterion, fetchOptions):
-	# SEARCH CUSTOM PLACEHOLDER
+	# SEARCH CUSTOM PLACEHOLDER START
 	return [];
 	# SEARCH CUSTOM PLACEHOLDER END
 	
