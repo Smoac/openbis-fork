@@ -8,7 +8,7 @@ define([ "stjs" ], function(stjs) {
 		PARENT : "PARENT",
 		CHILD : "CHILD",
 		CONTAINER : "CONTAINER",
-		CONTAINED : "CONTAINED",
+		COMPONENT : "COMPONENT",
 		DATA_SET : "DATA_SET"
 	};
 })

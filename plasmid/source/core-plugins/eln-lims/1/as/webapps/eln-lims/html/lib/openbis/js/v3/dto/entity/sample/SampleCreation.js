@@ -10,11 +10,12 @@ define([ "stjs" ], function(stjs) {
 		constructor.serialVersionUID = 1;
 		prototype.typeId = null;
 		prototype.experimentId = null;
+		prototype.projectId = null;
 		prototype.spaceId = null;
 		prototype.code = null;
 		prototype.tagIds = null;
 		prototype.containerId = null;
-		prototype.containedIds = null;
+		prototype.componentIds = null;
 		prototype.parentIds = null;
 		prototype.childIds = null;
 		prototype.attachments = null;
@@ -30,6 +31,12 @@ define([ "stjs" ], function(stjs) {
 		};
 		prototype.setExperimentId = function(experimentId) {
 			this.experimentId = experimentId;
+		};
+		prototype.getProjectId = function() {
+			return this.projectId;
+		};
+		prototype.setProjectId = function(projectId) {
+			this.projectId = projectId;
 		};
 		prototype.getSpaceId = function() {
 			return this.spaceId;
@@ -55,11 +62,11 @@ define([ "stjs" ], function(stjs) {
 		prototype.setContainerId = function(containerId) {
 			this.containerId = containerId;
 		};
-		prototype.getContainedIds = function() {
-			return this.containedIds;
+		prototype.getcomponentIds = function() {
+			return this.componentIds;
 		};
-		prototype.setContainedIds = function(containedIds) {
-			this.containedIds = containedIds;
+		prototype.setComponentIds = function(componentIds) {
+			this.componentIds = componentIds;
 		};
 		prototype.getParentIds = function() {
 			return this.parentIds;
@@ -94,6 +101,7 @@ define([ "stjs" ], function(stjs) {
 	}, {
 		typeId : "IEntityTypeId",
 		experimentId : "IExperimentId",
+		projectId : "IProjectId",
 		spaceId : "ISpaceId",
 		tagIds : {
 			name : "List",
@@ -104,7 +112,7 @@ define([ "stjs" ], function(stjs) {
 			arguments : [ null, null ]
 		},
 		containerId : "ISampleId",
-		containedIds : {
+		componentIds : {
 			name : "List",
 			arguments : [ "Object" ]
 		},

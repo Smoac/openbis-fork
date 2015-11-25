@@ -2,7 +2,7 @@
  * Class automatically generated with
  * {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
  */
-define([ "require", "stjs", "dto/fetchoptions/FetchOptions", 'dto/fetchoptions/sample/SampleTypeFetchOptions', 'dto/fetchoptions/space/SpaceFetchOptions',
+define([ "require", "stjs", "dto/fetchoptions/FetchOptions", 'dto/fetchoptions/sample/SampleTypeFetchOptions', 'dto/fetchoptions/space/SpaceFetchOptions', 'dto/fetchoptions/project/ProjectFetchOptions',
 		'dto/fetchoptions/experiment/ExperimentFetchOptions', 'dto/fetchoptions/property/PropertyFetchOptions', 'dto/fetchoptions/tag/TagFetchOptions', 'dto/fetchoptions/person/PersonFetchOptions',
 		'dto/fetchoptions/attachment/AttachmentFetchOptions', 'dto/fetchoptions/material/MaterialFetchOptions', 'dto/fetchoptions/dataset/DataSetFetchOptions',
 		'dto/fetchoptions/history/HistoryEntryFetchOptions', 'dto/fetchoptions/sample/SampleSortOptions' ], function(require, stjs, FetchOptions) {
@@ -12,6 +12,7 @@ define([ "require", "stjs", "dto/fetchoptions/FetchOptions", 'dto/fetchoptions/s
 		prototype['@type'] = 'dto.fetchoptions.sample.SampleFetchOptions';
 		constructor.serialVersionUID = 1;
 		prototype.type = null;
+		prototype.project = null;
 		prototype.space = null;
 		prototype.experiment = null;
 		prototype.properties = null;
@@ -19,7 +20,7 @@ define([ "require", "stjs", "dto/fetchoptions/FetchOptions", 'dto/fetchoptions/s
 		prototype.parents = null;
 		prototype.children = null;
 		prototype.container = null;
-		prototype.contained = null;
+		prototype.components = null;
 		prototype.dataSets = null;
 		prototype.history = null;
 		prototype.tags = null;
@@ -39,6 +40,19 @@ define([ "require", "stjs", "dto/fetchoptions/FetchOptions", 'dto/fetchoptions/s
 		};
 		prototype.hasType = function() {
 			return this.type != null;
+		};
+		prototype.withProject = function() {
+			if (this.project == null) {
+				var ProjectFetchOptions = require("dto/fetchoptions/space/ProjectFetchOptions");
+				this.project = new ProjectFetchOptions();
+			}
+			return this.project;
+		};
+		prototype.withProjectUsing = function(fetchOptions) {
+			return this.project = fetchOptions;
+		};
+		prototype.hasProject = function() {
+			return this.project != null;
 		};
 		prototype.withSpace = function() {
 			if (this.space == null) {
@@ -128,17 +142,17 @@ define([ "require", "stjs", "dto/fetchoptions/FetchOptions", 'dto/fetchoptions/s
 		prototype.hasContainer = function() {
 			return this.container != null;
 		};
-		prototype.withContained = function() {
-			if (this.contained == null) {
-				this.contained = new SampleFetchOptions();
+		prototype.withComponents = function() {
+			if (this.components == null) {
+				this.components = new SampleFetchOptions();
 			}
-			return this.contained;
+			return this.components;
 		};
-		prototype.withContainedUsing = function(fetchOptions) {
-			return this.contained = fetchOptions;
+		prototype.withComponentsUsing = function(fetchOptions) {
+			return this.components = fetchOptions;
 		};
-		prototype.hasContained = function() {
-			return this.contained != null;
+		prototype.hasComponents = function() {
+			return this.components != null;
 		};
 		prototype.withDataSets = function() {
 			if (this.dataSets == null) {
@@ -230,13 +244,14 @@ define([ "require", "stjs", "dto/fetchoptions/FetchOptions", 'dto/fetchoptions/s
 		};
 	}, {
 		type : "SampleTypeFetchOptions",
+		project : "ProjectFetchOptions",
 		space : "SpaceFetchOptions",
 		experiment : "ExperimentFetchOptions",
 		properties : "PropertyFetchOptions",
 		parents : "SampleFetchOptions",
 		children : "SampleFetchOptions",
 		container : "SampleFetchOptions",
-		contained : "SampleFetchOptions",
+		components : "SampleFetchOptions",
 		tags : "TagFetchOptions",
 		registrator : "PersonFetchOptions",
 		modifier : "PersonFetchOptions",

@@ -5,11 +5,11 @@ define([ "stjs", "dto/entity/FieldUpdateValue", "dto/entity/IdListUpdateValue" ]
 	var DataSetUpdate = function() {
 		this.experimentId = new FieldUpdateValue();
 		this.sampleId = new FieldUpdateValue();
-		this.externalData = new FieldUpdateValue();
+		this.physicalData = new FieldUpdateValue();
 		this.properties = {};
 		this.tagIds = new IdListUpdateValue();
 		this.containerIds = new IdListUpdateValue();
-		this.containedIds = new IdListUpdateValue();
+		this.componentIds = new IdListUpdateValue();
 		this.parentIds = new IdListUpdateValue();
 		this.childIds = new IdListUpdateValue();
 	};
@@ -36,11 +36,11 @@ define([ "stjs", "dto/entity/FieldUpdateValue", "dto/entity/IdListUpdateValue" ]
 		prototype.setSampleId = function(sampleId) {
 			this.sampleId.setValue(sampleId);
 		};
-		prototype.getExternalData = function() {
-			return this.externalData;
+		prototype.getPhysicalData = function() {
+			return this.physicalData;
 		};
-		prototype.setExternalData = function(externalData) {
-			this.externalData.setValue(externalData);
+		prototype.setPhysicalData = function(physicalData) {
+			this.physicalData.setValue(physicalData);
 		};
 		prototype.setProperty = function(key, value) {
 			this.properties[key] = value;
@@ -60,11 +60,11 @@ define([ "stjs", "dto/entity/FieldUpdateValue", "dto/entity/IdListUpdateValue" ]
 		prototype.setContainerActions = function(actions) {
 			this.containerIds.setActions(actions);
 		};
-		prototype.getContainedIds = function() {
-			return this.containedIds;
+		prototype.getComponentIds = function() {
+			return this.componentIds;
 		};
-		prototype.setContainedActions = function(actions) {
-			this.containedIds.setActions(actions);
+		prototype.setComponentActions = function(actions) {
+			this.componentIds.setActions(actions);
 		};
 		prototype.getParentIds = function() {
 			return this.parentIds;
@@ -88,9 +88,9 @@ define([ "stjs", "dto/entity/FieldUpdateValue", "dto/entity/IdListUpdateValue" ]
 			name : "FieldUpdateValue",
 			arguments : [ "ISampleId" ]
 		},
-		externalData : {
+		physicalData : {
 			name : "FieldUpdateValue",
-			arguments : [ "ExternalDataUpdate" ]
+			arguments : [ "PhysicalDataUpdate" ]
 		},
 		properties : {
 			name : "Map",
@@ -104,7 +104,7 @@ define([ "stjs", "dto/entity/FieldUpdateValue", "dto/entity/IdListUpdateValue" ]
 			name : "IdListUpdateValue",
 			arguments : [ "IDataSetId" ]
 		},
-		containedIds : {
+		componentIds : {
 			name : "IdListUpdateValue",
 			arguments : [ "IDataSetId" ]
 		},

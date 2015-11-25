@@ -1,9 +1,10 @@
 /**
  * @author pkupczyk
  */
-define([ "stjs", "dto/search/AbstractEntitySearchCriteria", "dto/search/DataSetSearchRelation", "dto/search/ExperimentSearchCriteria", "dto/search/NoExperimentSearchCriteria",
-		"dto/search/SampleSearchCriteria", "dto/search/NoSampleSearchCriteria", "dto/search/SearchOperator" ], function(stjs, AbstractEntitySearchCriteria, DataSetSearchRelation,
-		ExperimentSearchCriteria, NoExperimentSearchCriteria, SampleSearchCriteria, NoSampleSearchCriteria, SearchOperator) {
+define([ "require", "stjs", "dto/search/AbstractEntitySearchCriteria", "dto/search/DataSetSearchRelation", "dto/search/SearchOperator",
+         "dto/search/ExperimentSearchCriteria", "dto/search/NoExperimentSearchCriteria", 
+         "dto/search/SampleSearchCriteria", "dto/search/NoSampleSearchCriteria"], 
+		function(require, stjs, AbstractEntitySearchCriteria, DataSetSearchRelation, SearchOperator) {
 	var DataSetSearchCriteria = function(relation) {
 		AbstractEntitySearchCriteria.call(this);
 		this.relation = relation ? relation : DataSetSearchRelation.DATASET;
@@ -22,15 +23,19 @@ define([ "stjs", "dto/search/AbstractEntitySearchCriteria", "dto/search/DataSetS
 			return this.addCriteria(new DataSetContainerSearchCriteria());
 		};
 		prototype.withExperiment = function() {
+			var ExperimentSearchCriteria = require("dto/search/ExperimentSearchCriteria");
 			return this.addCriteria(new ExperimentSearchCriteria());
 		};
 		prototype.withoutExperiment = function() {
+			var NoExperimentSearchCriteria = require("dto/search/NoExperimentSearchCriteria");
 			return this.addCriteria(new NoExperimentSearchCriteria());
 		};
 		prototype.withSample = function() {
+			var SampleSearchCriteria = require("dto/search/SampleSearchCriteria");
 			return this.addCriteria(new SampleSearchCriteria());
 		};
 		prototype.withoutSample = function() {
+			var NoSampleSearchCriteria = require("dto/search/NoSampleSearchCriteria");
 			return this.addCriteria(new NoSampleSearchCriteria());
 		};
 		prototype.withOrOperator = function() {

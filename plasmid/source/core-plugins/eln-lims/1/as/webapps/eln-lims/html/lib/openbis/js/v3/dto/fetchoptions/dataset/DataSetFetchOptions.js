@@ -4,7 +4,7 @@
  */
 define([ "require", "stjs", "dto/fetchoptions/FetchOptions", "dto/fetchoptions/tag/TagFetchOptions", "dto/fetchoptions/dataset/DataSetTypeFetchOptions", "dto/fetchoptions/person/PersonFetchOptions",
 		"dto/fetchoptions/experiment/ExperimentFetchOptions", "dto/fetchoptions/sample/SampleFetchOptions", "dto/fetchoptions/property/PropertyFetchOptions",
-		"dto/fetchoptions/dataset/ExternalDataFetchOptions", "dto/fetchoptions/history/HistoryEntryFetchOptions", "dto/fetchoptions/material/MaterialFetchOptions",
+		"dto/fetchoptions/dataset/PhysicalDataFetchOptions", "dto/fetchoptions/history/HistoryEntryFetchOptions", "dto/fetchoptions/material/MaterialFetchOptions",
 		"dto/fetchoptions/dataset/DataSetSortOptions" ], function(require, stjs, FetchOptions) {
 	var DataSetFetchOptions = function() {
 	};
@@ -14,8 +14,8 @@ define([ "require", "stjs", "dto/fetchoptions/FetchOptions", "dto/fetchoptions/t
 		prototype.parents = null;
 		prototype.children = null;
 		prototype.containers = null;
-		prototype.contained = null;
-		prototype.externalData = null;
+		prototype.components = null;
+		prototype.physicalData = null;
 		prototype.tags = null;
 		prototype.type = null;
 		prototype.history = null;
@@ -62,30 +62,30 @@ define([ "require", "stjs", "dto/fetchoptions/FetchOptions", "dto/fetchoptions/t
 		prototype.hasContainers = function() {
 			return this.containers != null;
 		};
-		prototype.withContained = function() {
-			if (this.contained == null) {
-				this.contained = new DataSetFetchOptions();
+		prototype.withComponents = function() {
+			if (this.components == null) {
+				this.components = new DataSetFetchOptions();
 			}
-			return this.contained;
+			return this.components;
 		};
-		prototype.withContainedUsing = function(fetchOptions) {
-			return this.contained = fetchOptions;
+		prototype.withComponentsUsing = function(fetchOptions) {
+			return this.components = fetchOptions;
 		};
-		prototype.hasContained = function() {
-			return this.contained != null;
+		prototype.hasComponents = function() {
+			return this.components != null;
 		};
-		prototype.withExternalData = function() {
-			if (this.externalData == null) {
-				var ExternalDataFetchOptions = require("dto/fetchoptions/dataset/ExternalDataFetchOptions");
-				this.externalData = new ExternalDataFetchOptions();
+		prototype.withPhysicalData = function() {
+			if (this.physicalData == null) {
+				var PhysicalDataFetchOptions = require("dto/fetchoptions/dataset/PhysicalDataFetchOptions");
+				this.physicalData = new PhysicalDataFetchOptions();
 			}
-			return this.externalData;
+			return this.physicalData;
 		};
-		prototype.withExternalDataUsing = function(fetchOptions) {
-			return this.externalData = fetchOptions;
+		prototype.withPhysicalDataUsing = function(fetchOptions) {
+			return this.physicalData = fetchOptions;
 		};
-		prototype.hasExternalData = function() {
-			return this.externalData != null;
+		prototype.hasPhysicalData = function() {
+			return this.physicalData != null;
 		};
 		prototype.withTags = function() {
 			if (this.tags == null) {
@@ -218,8 +218,8 @@ define([ "require", "stjs", "dto/fetchoptions/FetchOptions", "dto/fetchoptions/t
 		parents : "DataSetFetchOptions",
 		children : "DataSetFetchOptions",
 		containers : "DataSetFetchOptions",
-		contained : "DataSetFetchOptions",
-		externalData : "ExternalDataFetchOptions",
+		components : "DataSetFetchOptions",
+		physicalData : "PhysicalDataFetchOptions",
 		tags : "TagFetchOptions",
 		type : "DataSetTypeFetchOptions",
 		history : "HistoryEntryFetchOptions",

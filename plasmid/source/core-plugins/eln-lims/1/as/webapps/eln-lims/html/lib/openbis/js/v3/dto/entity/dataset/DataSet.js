@@ -13,13 +13,12 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		prototype.code = null;
 		prototype.accessDate = null;
 		prototype.derived = null;
-		prototype.placeholder = null;
 		prototype.postRegistered = null;
 		prototype.parents = null;
 		prototype.children = null;
 		prototype.containers = null;
-		prototype.contained = null;
-		prototype.externalData = null;
+		prototype.components = null;
+		prototype.physicalData = null;
 		prototype.tags = null;
 		prototype.type = null;
 		prototype.history = null;
@@ -61,12 +60,6 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		prototype.setDerived = function(derived) {
 			this.derived = derived;
 		};
-		prototype.isPlaceholder = function() {
-			return this.placeholder;
-		};
-		prototype.setPlaceholder = function(placeholder) {
-			this.placeholder = placeholder;
-		};
 		prototype.isPostRegistered = function() {
 			return this.postRegistered;
 		};
@@ -103,25 +96,25 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		prototype.setContainers = function(containers) {
 			this.containers = containers;
 		};
-		prototype.getContained = function() {
-			if (this.getFetchOptions().hasContained()) {
-				return this.contained;
+		prototype.getComponents = function() {
+			if (this.getFetchOptions().hasComponents()) {
+				return this.components;
 			} else {
-				throw new exceptions.NotFetchedException("Contained data sets has not been fetched.");
+				throw new exceptions.NotFetchedException("Component data sets has not been fetched.");
 			}
 		};
-		prototype.setContained = function(contained) {
-			this.contained = contained;
+		prototype.setComponents = function(components) {
+			this.components = components;
 		};
-		prototype.getExternalData = function() {
-			if (this.getFetchOptions().hasExternalData()) {
-				return this.externalData;
+		prototype.getPhysicalData = function() {
+			if (this.getFetchOptions().hasPhysicalData()) {
+				return this.physicalData;
 			} else {
-				throw new exceptions.NotFetchedException("External data has not been fetched.");
+				throw new exceptions.NotFetchedException("Physical data has not been fetched.");
 			}
 		};
-		prototype.setExternalData = function(externalData) {
-			this.externalData = externalData;
+		prototype.setPhysicalData = function(physicalData) {
+			this.physicalData = physicalData;
 		};
 		prototype.getTags = function() {
 			if (this.getFetchOptions().hasTags()) {
@@ -205,6 +198,10 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		prototype.setSample = function(sample) {
 			this.sample = sample;
 		};
+		prototype.getProperty = function(propertyName) {
+			var properties = this.getProperties();
+			return properties ? properties[propertyName] : null;
+		};
 		prototype.getProperties = function() {
 			if (this.getFetchOptions().hasProperties()) {
 				return this.properties;
@@ -241,11 +238,11 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 			name : "List",
 			arguments : [ "DataSet" ]
 		},
-		contained : {
+		components : {
 			name : "List",
 			arguments : [ "DataSet" ]
 		},
-		externalData : "ExternalData",
+		physicalData : "PhysicalData",
 		tags : {
 			name : "Set",
 			arguments : [ "Tag" ]

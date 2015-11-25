@@ -13,6 +13,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		prototype.code = null;
 		prototype.description = null;
 		prototype.registrationDate = null;
+		prototype.modificationDate = null;
 		prototype.registrator = null;
 		prototype.samples = null;
 		prototype.projects = null;
@@ -46,6 +47,12 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		};
 		prototype.setRegistrationDate = function(registrationDate) {
 			this.registrationDate = registrationDate;
+		};
+		prototype.getModificationDate = function() {
+			return this.modificationDate;
+		};
+		prototype.setModificationDate = function(modificationDate) {
+			this.modificationDate = modificationDate;
 		};
 		prototype.getRegistrator = function() {
 			if (this.getFetchOptions().hasRegistrator()) {

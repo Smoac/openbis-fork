@@ -1,8 +1,9 @@
 /**
  * @author pkupczyk
  */
-define([ "stjs", "dto/search/AbstractEntitySearchCriteria", "dto/search/ProjectSearchCriteria", "dto/search/SearchOperator" ], function(stjs, AbstractEntitySearchCriteria,
-		ProjectSearchCriteria, SearchOperator) {
+define([ "require", "stjs", "dto/search/AbstractEntitySearchCriteria", "dto/search/SearchOperator",
+         "dto/search/ProjectSearchCriteria"], 
+		function(require, stjs, AbstractEntitySearchCriteria, SearchOperator) {
 	var ExperimentSearchCriteria = function() {
 		AbstractEntitySearchCriteria.call(this);
 	};
@@ -10,6 +11,7 @@ define([ "stjs", "dto/search/AbstractEntitySearchCriteria", "dto/search/ProjectS
 		prototype['@type'] = 'dto.search.ExperimentSearchCriteria';
 		constructor.serialVersionUID = 1;
 		prototype.withProject = function() {
+			var ProjectSearchCriteria = require("dto/search/ProjectSearchCriteria");
 			return this.addCriteria(new ProjectSearchCriteria());
 		};
 		prototype.withOrOperator = function() {
