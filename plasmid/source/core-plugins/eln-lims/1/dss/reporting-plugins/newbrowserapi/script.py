@@ -748,8 +748,9 @@ def searchSamples(tr, parameters, tableBuilder, sessionId):
 	return resultAsString;
 
 def searchSamplesCustom(tr, parameters, tableBuilder, v3, criterion, fetchOptions):
+	# SEARCH CUSTOM PLACEHOLDER
 	return [];
-	#return searchSamplesNexus(tr, parameters, tableBuilder, v3, criterion, fetchOptions);
+	# SEARCH CUSTOM PLACEHOLDER END
 	
 def searchSamplesNexus(tr, parameters, tableBuilder, v3, criterion, fetchOptions):
 	toReturnPermIds = []; #
