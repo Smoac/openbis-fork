@@ -222,7 +222,7 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
     {
         while (pauseFile.exists())
         {
-            operationLog.info("Presents of pause file '" + pauseFile 
+            operationLog.info("Presence of pause file '" + pauseFile
                     + "' prevents starting " + action + " the following data sets: " + dataSetsDescription);
             pauseStarting(pauseFilePollingTime);
         }
