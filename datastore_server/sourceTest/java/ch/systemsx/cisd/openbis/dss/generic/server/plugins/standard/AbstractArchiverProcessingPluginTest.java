@@ -529,9 +529,9 @@ public class AbstractArchiverProcessingPluginTest extends AbstractFileSystemTest
         assertEquals("[]", status.getDatasetsByStatus(Status.createError()).toString());
         assertEquals("INFO  OPERATION.AbstractDatastorePlugin - "
                 + "Archiving of the following datasets has been requested: [Dataset 'ds1']\n"
-                + "INFO  OPERATION.AbstractDatastorePlugin - Presents of pause file '"
-                        + pauseFile.getAbsolutePath()
-                        + "' prevents starting archiving the following data sets: [Dataset 'ds1']",
+                + "INFO  OPERATION.AbstractDatastorePlugin - Presence of pause file '"
+                + pauseFile.getAbsolutePath()
+                + "' prevents starting archiving the following data sets: [Dataset 'ds1']",
                 logRecorder.getLogContent());
         assertEquals(180000, mockArchiver.pollingTime);
         context.assertIsSatisfied();
