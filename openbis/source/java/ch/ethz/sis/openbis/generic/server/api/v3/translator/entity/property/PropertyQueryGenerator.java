@@ -16,6 +16,8 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.property;
 
+import org.apache.commons.lang.StringUtils;
+
 /**
  * @author pkupczyk
  */
@@ -118,12 +120,32 @@ public class PropertyQueryGenerator
         System.out.println("Material property history: \n" + createPropertyHistoryQuery(params));
     }
 
+    public static String javize(String query)
+    {
+
+        StringBuilder sb = new StringBuilder();
+        
+        for (String line : StringUtils.trim(query).split("\\n"))
+        {
+            if (line.isEmpty())
+            {
+                continue;
+            }
+
+            sb.append("+ \"");
+            sb.append(line);
+            sb.append("\"\n");
+        }
+
+        return sb.toString().substring(2);
+    }
+
     public static String createPropertyQuery(PropertyQueryParams params)
     {
         StringBuilder sb = new StringBuilder();
         sb.append("select ");
         sb.append("p." + params.propertyTableEntityIdColumn + " as objectId, ");
-        sb.append("pt.code as propertyCode, ");
+        sb.append("case pt.is_managed_internally when FALSE then pt.code else '$' || pt.code end as propertyCode, ");
         sb.append("p.value as propertyValue, ");
         sb.append("m.code as materialPropertyValueCode, ");
         sb.append("mt.code as materialPropertyValueTypeCode, ");
@@ -137,7 +159,8 @@ public class PropertyQueryGenerator
                 + " = etpt.id \n");
         sb.append("join property_types pt on etpt.prty_id = pt.id \n");
         sb.append("where p." + params.propertyTableEntityIdColumn + " = any(?{1})\n");
-        return sb.toString();
+
+        return javize(sb.toString());
     }
 
     public static String createMaterialPropertyQuery(PropertyQueryParams params)
@@ -145,7 +168,7 @@ public class PropertyQueryGenerator
         StringBuilder sb = new StringBuilder();
         sb.append("select ");
         sb.append("p." + params.propertyTableEntityIdColumn + " as objectId, ");
-        sb.append("pt.code as propertyCode, ");
+        sb.append("case pt.is_managed_internally when FALSE then pt.code else '$' || pt.code end as propertyCode, ");
         sb.append("p.mate_prop_id as propertyValue \n");
         sb.append("from ");
         sb.append(params.propertyTable + " p \n");
@@ -153,7 +176,7 @@ public class PropertyQueryGenerator
                 + " = etpt.id \n");
         sb.append("join property_types pt on etpt.prty_id = pt.id \n");
         sb.append("where p.mate_prop_id is not null and p." + params.propertyTableEntityIdColumn + " = any(?{1})\n");
-        return sb.toString();
+        return javize(sb.toString());
     }
 
     public static String createPropertyHistoryQuery(PropertyHistoryQueryParams params)
@@ -162,7 +185,7 @@ public class PropertyQueryGenerator
         sb.append("select ");
         sb.append("ph." + params.propertyHistoryTableEntityIdColumn + " as objectId, ");
         sb.append("ph.pers_id_author as authorId, ");
-        sb.append("pt.code as propertyCode, ");
+        sb.append("case pt.is_managed_internally when FALSE then pt.code else '$' || pt.code end as propertyCode, ");
         sb.append("ph.value as propertyValue, ");
         sb.append("ph.material as materialPropertyValue, ");
         sb.append("ph.vocabulary_term as vocabularyPropertyValue, ");
@@ -174,7 +197,7 @@ public class PropertyQueryGenerator
                 + " = etpt.id \n");
         sb.append("join property_types pt on etpt.prty_id = pt.id \n");
         sb.append("where ph." + params.propertyHistoryTableEntityIdColumn + " = any(?{1})\n");
-        return sb.toString();
+        return javize(sb.toString());
     }
 
     public static class PropertyQueryParams

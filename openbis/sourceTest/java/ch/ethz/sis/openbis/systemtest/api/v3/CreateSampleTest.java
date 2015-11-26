@@ -28,6 +28,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.python27.google.common.collect.Lists;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -35,6 +36,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.attachment.Attachmen
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.attachment.AttachmentCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.Sample;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleCreation;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleUpdate;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.tag.Tag;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sample.SampleFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.CreationId;
@@ -53,7 +55,12 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.TagPermId;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.test.AssertionUtil;
-
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETPTAssignment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import junit.framework.Assert;
 
 /**
@@ -856,6 +863,52 @@ public class CreateSampleTest extends AbstractSampleTest
                     v3api.createSamples(sessionToken, Collections.singletonList(creation));
                 }
             }, componentId);
+    }
+
+    @Test
+    public void testCreateWithSystemProperty()
+    {
+        String systemPropertyName = "$PLATE_GEOMETRY";
+        String systemPropertyValue = "384_WELLS_16X24";
+
+        String simplePropertyCode = "PLATE_GEOMETRY";
+        String simplePropertValue = "I'm just random";
+
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        PropertyType propertyType = new PropertyType();
+        propertyType.setCode(simplePropertyCode);
+        propertyType.setDescription("Foo");
+        propertyType.setLabel("FOO");
+        propertyType.setDataType(new DataType(DataTypeCode.VARCHAR));        
+        
+        NewETPTAssignment assignment = new NewETPTAssignment();
+        assignment.setPropertyTypeCode(propertyType.getCode());
+        assignment.setEntityTypeCode("MASTER_PLATE");
+        assignment.setEntityKind(EntityKind.SAMPLE);
+        assignment.setOrdinal(1000L);
+        commonServer.registerAndAssignPropertyType(sessionToken, propertyType, assignment);
+
+        
+        SampleCreation samp1 = new SampleCreation();
+        samp1.setCode("SAMPLE_WITH_SYS_PROPERTY");
+        samp1.setTypeId(new EntityTypePermId("MASTER_PLATE"));
+        samp1.setSpaceId(new SpacePermId("CISD"));
+        samp1.setProperty(systemPropertyName, systemPropertyValue);
+        samp1.setProperty(simplePropertyCode, simplePropertValue);
+        
+        List<SamplePermId> sampleIds = v3api.createSamples(sessionToken,
+                Arrays.asList(samp1));
+
+        SampleFetchOptions fetchOptions = new SampleFetchOptions();
+        fetchOptions.withProperties();
+
+        Map<ISampleId, Sample> map = v3api.mapSamples(sessionToken, sampleIds, fetchOptions);
+        List<Sample> samples = new ArrayList<Sample>(map.values());
+        
+        Sample foundSample = samples.get(0);
+        assertEquals(foundSample.getProperty(systemPropertyName), systemPropertyValue);
+        assertEquals(foundSample.getProperty(simplePropertyCode), simplePropertValue);
     }
 
     @Test

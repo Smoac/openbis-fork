@@ -47,6 +47,8 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.ProjectPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.ITagId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.TagPermId;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETPTAssignment;
 
 /**
  * @author pkupczyk
@@ -250,6 +252,42 @@ public class CreateExperimentTest extends AbstractExperimentTest
         assertEquals(tag.getCode(), "TEST_METAPROJECTS");
         assertEquals(tag.getPermId().getPermId(), "/test/TEST_METAPROJECTS");
         assertTrue(tag.getRegistrationDate().getTime() < now.getTime());
+    }
+
+    @Test
+    public void testCreateWithSystemProperty()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        
+        NewETPTAssignment assignment = new NewETPTAssignment();
+        assignment.setPropertyTypeCode("$PLATE_GEOMETRY");
+        assignment.setEntityTypeCode("SIRNA_HCS");
+        assignment.setEntityKind(EntityKind.EXPERIMENT);
+        assignment.setOrdinal(1000L);
+        commonServer.assignPropertyType(sessionToken, assignment);
+
+        final ExperimentCreation creation = new ExperimentCreation();
+        creation.setCode("TEST_EXPERIMENT1");
+        creation.setTypeId(new EntityTypePermId("SIRNA_HCS"));
+        creation.setProjectId(new ProjectIdentifier("/TESTGROUP/TESTPROJ"));
+        creation.setProperty("DESCRIPTION", "a description");
+        creation.setProperty("$PLATE_GEOMETRY", "384_WELLS_16X24");
+
+        ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
+        fetchOptions.withProperties();
+
+        List<ExperimentPermId> permIds = v3api.createExperiments(sessionToken, Arrays.asList(creation));
+        Map<IExperimentId, Experiment> map = v3api.mapExperiments(sessionToken, permIds, fetchOptions);
+        List<Experiment> experiments = new ArrayList<Experiment>(map.values());
+
+        assertEquals(experiments.size(), 1);
+
+        Experiment experiment = experiments.get(0);
+
+        assertEquals(experiment.getIdentifier().getIdentifier(), "/TESTGROUP/TESTPROJ/TEST_EXPERIMENT1");
+        assertEquals(experiment.getProperties().size(), 2);
+
+        assertEquals(experiment.getProperty("$PLATE_GEOMETRY"), "384_WELLS_16X24");
     }
 
     @Test

@@ -38,6 +38,8 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.material.MaterialPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.TagCode;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
 import ch.systemsx.cisd.common.test.AssertionUtil;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETPTAssignment;
 
 /**
  * @author pkupczyk
@@ -66,6 +68,35 @@ public class CreateMaterialTest extends AbstractSampleTest
         material = map.get(new MaterialPermId("1984", "GENE"));
         assertEquals(material.getCode(), "1984");
         assertEquals(material.getPermId().getTypeCode(), "GENE");
+    }
+
+    @Test
+    public void testMaterialCreationWithSystemProperty()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        
+        NewETPTAssignment assignment = new NewETPTAssignment();
+        assignment.setPropertyTypeCode("$PLATE_GEOMETRY");
+        assignment.setEntityTypeCode("GENE");
+        assignment.setEntityKind(EntityKind.MATERIAL);
+        assignment.setOrdinal(1000L);
+        commonServer.assignPropertyType(sessionToken, assignment);
+
+        MaterialCreation m1 = geneCreation("1982");
+        m1.setProperty("$PLATE_GEOMETRY", "384_WELLS_16X24");
+
+        List<MaterialPermId> materialIds = v3api.createMaterials(sessionToken, Arrays.asList(m1));
+
+        MaterialFetchOptions fetchOptions = new MaterialFetchOptions();
+        fetchOptions.withProperties();
+        Map<IMaterialId, Material> map = v3api.mapMaterials(sessionToken, materialIds, fetchOptions);
+        AssertionUtil.assertCollectionSize(map.values(), 1);
+
+        Material material = map.get(new MaterialPermId("1982", "GENE"));
+        assertEquals(material.getCode(), "1982");
+        assertEquals(material.getPermId().getTypeCode(), "GENE");
+        
+        assertEquals(material.getProperty("$PLATE_GEOMETRY"), "384_WELLS_16X24");
     }
 
     @Test
@@ -205,7 +236,6 @@ public class CreateMaterialTest extends AbstractSampleTest
                 }
             }, "Property type with code 'CODE_THAT_DOESNT_EXIST' does not exist");
     }
-
     private MaterialCreation materialCreation(MaterialPermId permId)
     {
         String code = permId.getCode();

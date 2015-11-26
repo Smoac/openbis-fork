@@ -65,6 +65,8 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SamplePermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.SpacePermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.TagCode;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETPTAssignment;
 
 /**
  * @author pkupczyk
@@ -312,6 +314,31 @@ public class CreateDataSetTest extends AbstractDataSetTest
         DataSet dataSet = createDataSet(sessionToken, creation, fo);
         assertEquals(dataSet.getCode(), creation.getCode().toUpperCase());
         assertTags(dataSet.getTags(), "/test_space/IDONTEXIST");
+    }
+
+    @Test
+    public void testCreateWithSystemProperty()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        NewETPTAssignment assignment = new NewETPTAssignment();
+        assignment.setPropertyTypeCode("$PLATE_GEOMETRY");
+        assignment.setEntityTypeCode("UNKNOWN");
+        assignment.setEntityKind(EntityKind.DATA_SET);
+        assignment.setOrdinal(1000L);
+        commonServer.assignPropertyType(sessionToken, assignment);        
+        
+        final DataSetCreation creation = physicalDataSetCreation();
+        creation.setExperimentId(new ExperimentIdentifier("/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST"));
+        creation.setProperty("$PLATE_GEOMETRY", "384_WELLS_16X24");
+        
+
+        DataSetFetchOptions fo = new DataSetFetchOptions();
+        fo.withProperties();
+
+        DataSet dataSet = createDataSet(sessionToken, creation, fo);
+        assertEquals(dataSet.getCode(), creation.getCode().toUpperCase());
+        assertEquals(dataSet.getProperty("$PLATE_GEOMETRY"), "384_WELLS_16X24");
     }
 
     @Test
