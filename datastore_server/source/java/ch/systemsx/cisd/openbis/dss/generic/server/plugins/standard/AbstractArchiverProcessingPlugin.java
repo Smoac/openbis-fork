@@ -195,12 +195,7 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
     {
         String dataSetsDescription = CollectionUtils.abbreviate(datasets, 10);
         operationLog.info("Archiving of the following datasets has been requested: " + dataSetsDescription);
-        while (pauseFile.exists())
-        {
-            operationLog.info("Presents of pause file '" + pauseFile 
-                    + "' prevents starting archiving the following data sets: " + dataSetsDescription);
-            pauseStartingArchiving(pauseFilePollingTime);
-        }
+        pauseStarting(dataSetsDescription, "archiving");
 
         DatasetProcessingStatuses finalstatuses = new DatasetProcessingStatuses();
 
@@ -224,7 +219,17 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
         return finalstatuses.getProcessingStatus();
     }
 
-    protected void pauseStartingArchiving(long waitingTime)
+    private void pauseStarting(String dataSetsDescription, String action)
+    {
+        while (pauseFile.exists())
+        {
+            operationLog.info("Presence of pause file '" + pauseFile
+                    + "' prevents starting " + action + " the following data sets: " + dataSetsDescription);
+            pauseStarting(pauseFilePollingTime);
+        }
+    }
+
+    protected void pauseStarting(long waitingTime)
     {
         ConcurrencyUtilities.sleep(waitingTime);
     }
@@ -402,8 +407,9 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
     @Override
     public ProcessingStatus unarchive(List<DatasetDescription> datasets, ArchiverTaskContext context)
     {
-        operationLog.info("Unarchiving of the following datasets has been requested: "
-                + CollectionUtils.abbreviate(datasets, 10));
+        String dataSetsDescription = CollectionUtils.abbreviate(datasets, 10);
+        operationLog.info("Unarchiving of the following datasets has been requested: " + dataSetsDescription);
+        pauseStarting(dataSetsDescription, "unarchiving");
         if (delayUnarchiving(datasets, context))
         {
             operationLog.info("Unarchiving delayed");
