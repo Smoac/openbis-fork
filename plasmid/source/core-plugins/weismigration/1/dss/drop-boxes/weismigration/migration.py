@@ -107,12 +107,12 @@ def setEntityProperties(tr, definition, entity, properties):
 
 
 
-            # if propertyDefinition is not None and propertyDefinition[3] == DataType.CONTROLLEDVOCABULARY and propertyValue is not None:
-            #     possiblePropertyValue = definitionsVoc.getVocabularyTermCodeForVocabularyAndTermLabel(propertyDefinition[4], propertyValue)
-            #     if possiblePropertyValue is not None:
-            #         propertyValue = possiblePropertyValue.strip(" ")
-            #     else:
-            #         print "MISSING VALUE for: ", propertyDefinition[0], ": VALUE ", propertyValue, "POSS VALUE:",  possiblePropertyValue
+            if propertyDefinition is not None and propertyDefinition[3] == DataType.CONTROLLEDVOCABULARY and propertyValue is not None:
+                possiblePropertyValue = definitionsVoc.getVocabularyTermCodeForVocabularyAndTermLabel(propertyDefinition[4], propertyValue)
+                if possiblePropertyValue is not None:
+                    propertyValue = possiblePropertyValue.strip(" ")
+                else:
+                    print "MISSING VALUE for: ", propertyDefinition[0], ": VALUE ", propertyValue, "POSS VALUE:",  possiblePropertyValue
                 
        
             #         if propertyDefinition[0] =="COMPANY" and propertyValue is not None:   
@@ -156,41 +156,61 @@ def setEntityProperties(tr, definition, entity, properties):
             #                  entity.setPropertyValue("COMPANY", "UNKNOWN")
             #             else:
             #                  entity.setPropertyValue("COMPANY", propertyValue)                            
-                   
-            #         elif propertyDefinition[0] =="BACTERIAL_STRAIN" and propertyValue is not None:   
-            #             print "BAC STRAIN", propertyDefinition[0], propertyValue 
-            #             if propertyValue == "XL10 Gold":
-            #                  entity.setPropertyValue("BACTERIAL_STRAIN", "XL10-GOLD")
-            #             elif propertyValue =="STABL2":
-            #                  entity.setPropertyValue("BACTERIAL_STRAIN", "STBL2")
-            #             elif propertyValue =="E. coli":
-            #                  entity.setPropertyValue("BACTERIAL_STRAIN", "E_COLI")                                 
-            #             elif propertyValue == "?":
-            #                  entity.setPropertyValue("BACTERIAL_STRAIN", "UNKNOWN")
-            #             else:
-            #       #We rely on the Add Hock Terms if is None, since there is no API we create a new one
-            #         #Create new vocabulary term
-            #                 codeToUse = re.sub(r'\W+','_',propertyValue)
-            #                 labelToUse = propertyValue
-            #                 if len(codeToUse) is 0:
-            #                     codeToUse = "None" + str(random.random())
-            #                 if len(codeToUse) > 60:
-            #                     codeToUse = codeToUse[:50]
-            #                 #Uses new vocabulary term
-            #                 newTerm = definitionsVoc.createVocabularyTerm(tr, propertyDefinition[4], codeToUse, labelToUse)
-            #                 propertyValue = newTerm.getCode()
-            #                 print "* WARNING ENTITY [" + entity.getCode() + "]: for Vocabulary [" + propertyDefinition[4] + "], found value not in list: [" + repr(labelToUse) + "]. Created new term with code [" + codeToUse + "]"  
+                    if propertyDefinition[0] =="LAB_MEMBERS" and propertyValue is not None:   
+                        print "LAB_MEMBERS", propertyDefinition[0], propertyValue 
+                        if propertyValue == "A.C. Ström" || propertyValue == "AC. Ström" || propertyValue == "A-C. Strom":
+                             entity.setPropertyValue("AC_STROM",   "A.C. Strom")
+                        elif propertyValue =="anneke":
+                             entity.setPropertyValue("A_HIBBEL",   "A. Hibbel")
+                        elif propertyValue =="B Zeitler" ||  propertyValue =="B.Zeitler":
+                             entity.setPropertyValue("B_ZEITLER",   "B. Zeitler")
+                        elif propertyValue =="Ben Monpetit" || propertyValue == "B.Montpetit":
+                             entity.setPropertyValue("B_MONTPETIT",   "B. Montpetit")                                                      
+                        elif propertyValue =="C.Brune" || propertyValue =="Christiane Brune" :
+                             entity.setPropertyValue("C_BRUNE",   "C. Brune")                      
+                        elif propertyValue =="C.Derrer" || propertyValue =="Carina":
+                             entity.setPropertyValue(v)
+                         elif propertyValue =="Carmen, Elisa" || propertyValue =="E.Dultz" || propertyValue =="Elisa" || propertyValue =="Elisa Dultz":
+                             entity.setPropertyValue("ELISA_DULTZ",   "E. Dultz")                          
+                         elif propertyValue =="anneke":
+                             entity.setPropertyValue("A_HIBBEL",   "A. Hibbel")                          
+                        elif propertyValue =="anneke":
+                             entity.setPropertyValue("A_HIBBEL",   "A. Hibbel")                           
+                                                                      
+                    if propertyDefinition[0] =="BACTERIAL_STRAIN" and propertyValue is not None:   
+                        print "BAC STRAIN", propertyDefinition[0], propertyValue 
+                        if propertyValue == "XL10 Gold":
+                             entity.setPropertyValue("BACTERIAL_STRAIN", "XL10-GOLD")
+                        elif propertyValue =="STABL2":
+                             entity.setPropertyValue("BACTERIAL_STRAIN", "STBL2")
+                        elif propertyValue =="E. coli":
+                             entity.setPropertyValue("BACTERIAL_STRAIN", "E_COLI")                                 
+                        elif propertyValue == "?":
+                             entity.setPropertyValue("BACTERIAL_STRAIN", "UNKNOWN")
+                        else:
+                  #We rely on the Add Hock Terms if is None, since there is no API we create a new one
+                    #Create new vocabulary term
+                            codeToUse = re.sub(r'\W+','_',propertyValue)
+                            labelToUse = propertyValue
+                            if len(codeToUse) is 0:
+                                codeToUse = "None" + str(random.random())
+                            if len(codeToUse) > 60:
+                                codeToUse = codeToUse[:50]
+                            #Uses new vocabulary term
+                            newTerm = definitionsVoc.createVocabularyTerm(tr, propertyDefinition[4], codeToUse, labelToUse)
+                            propertyValue = newTerm.getCode()
+                            print "* WARNING ENTITY [" + entity.getCode() + "]: for Vocabulary [" + propertyDefinition[4] + "], found value not in list: [" + repr(labelToUse) + "]. Created new term with code [" + codeToUse + "]"  
                             
-            #         elif propertyDefinition[0] =="DRUG_RES" and propertyValue is not None:
-            #             print  "DRUG RES is: ", propertyDefinition[0], "=",  propertyValue
-            #             if propertyValue == "CAM ":
-            #                 print "CAM IS:", propertyValue
-            #                 entity.setPropertyValue("DRUG_RES", "CAM")
-            #             else:
-            #                  entity.setPropertyValue("DRUG_RES", propertyValue)      
+                    elif propertyDefinition[0] =="DRUG_RES" and propertyValue is not None:
+                        print  "DRUG RES is: ", propertyDefinition[0], "=",  propertyValue
+                        if propertyValue == "CAM ":
+                            print "CAM IS:", propertyValue
+                            entity.setPropertyValue("DRUG_RES", "CAM")
+                        else:
+                             entity.setPropertyValue("DRUG_RES", propertyValue)      
 
-            # if propertyDefinition is not None: #Sometimes special fields are added for other purposes, these should not be set
-            #     entity.setPropertyValue(propertyCode, propertyValue)
+            if propertyDefinition is not None: #Sometimes special fields are added for other purposes, these should not be set
+                entity.setPropertyValue(propertyCode, propertyValue)
 
 
                                 
@@ -331,7 +351,7 @@ def getSampleForUpdate(sampleIdentifier, sampleType, tr):
              if sampleType == "ANTIBODY":
                  experiment = getExperimentForUpdate("/MATERIALS/REAGENTS/ANTIBODY_COLLECTION", sampleType, tr)
              elif sampleType == "STRAIN":
-                  experiment = getExperimentForUpdate("/MATERIALS/STRAINS/STRAIN_COLLECTION_1", sampleType, tr)              
+                  experiment = getExperimentForUpdate("/MATERIALS/STRAINS/YEAST_STRAINS", sampleType, tr)              
              elif sampleType == "PLASMID":
                   experiment = getExperimentForUpdate("/MATERIALS/PLASMIDS/PLASMID_COLLECTION_1", sampleType, tr)              
              elif sampleType == "CHEMICAL":
@@ -681,6 +701,7 @@ class ChemicalOpenBISDTO(FMOpenBISDTO):
 class EnzymeAdaptor(FileMakerEntityAdaptor):
     def init(self):
         self.selectQuery = "SELECT * FROM \"Restriction_Enzymes\""
+        
         self.definition = definitions.RestrictionEnzymeDefinition
         FileMakerEntityAdaptor.init(self)
     
@@ -692,15 +713,15 @@ class EnzymeOpenBISDTO(FMOpenBISDTO):
             return False
     
     def write(self, tr):
-        for i in range(1,45):
+        for i in range(1,self.countEntryQuery):
             code = "RE" + str(i)
         
        
-            sample = getSampleForUpdate("/MATERIALS/"+code,"RESTRICTION_ENZYME", tr)
-            setEntityProperties(tr, self.definition, sample, self.values);
+        sample = getSampleForUpdate("/MATERIALS/"+code,"RESTRICTION_ENZYME", tr)
+        setEntityProperties(tr, self.definition, sample, self.values);
     
     def getIdentifier(self, tr):
-        for i in range(1,45):
+        for i in range(1,self.countEntryQuery):
             code = "RE" + str(i)
             return code
 
@@ -715,9 +736,9 @@ fmPass = "nucleus"
 
 adaptors = [ 
              #EnzymeAdaptor(fmConnString, fmUser, fmPass, "Weis_Restriction_enzymes"),
-             #ChemicalAdaptor(fmConnString, fmUser, fmPass, "Weis_Chemicals"),
+             ChemicalAdaptor(fmConnString, fmUser, fmPass, "Weis_Chemicals"),
              #AntibodyAdaptor(fmConnString, fmUser, fmPass, "Weis _Antibodies"),
-             OligoAdaptor(fmConnString, fmUser, fmPass, "Weis_Oligos"),
+             #OligoAdaptor(fmConnString, fmUser, fmPass, "Weis_Oligos"),
              #PlasmidAdaptor(fmConnString, fmUser, fmPass, "Weis_Plasmids"),
              #StrainAdaptor(fmConnString, fmUser, fmPass, "Weis_Yeast_Strains_070715_Clone_for_testing2"),
              #StrainMultipleValuesAdaptor(fmConnString, fmUser, fmPass, "Weis_Yeast_Strains_070715_Clone_for_testing2")

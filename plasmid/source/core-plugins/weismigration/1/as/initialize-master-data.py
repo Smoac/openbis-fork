@@ -232,6 +232,7 @@ strainglycerolScriptName = createScript(PATH_TO_MANAGE_PROPERTIES_SCRIPTS + "str
 
 
 
+    
 
 
 ##
@@ -269,3 +270,6 @@ createSampleTypeWithProperties("RESTRICTION_ENZYME", "", definitions.Restriction
 annotationsScriptName = createAnnotationsScriptForType("EXPERIMENTAL_STEP");
 createSampleTypeWithProperties("EXPERIMENTAL_STEP", "", definitions.ExperimentalStepDefinition);
 
+
+    
+    
