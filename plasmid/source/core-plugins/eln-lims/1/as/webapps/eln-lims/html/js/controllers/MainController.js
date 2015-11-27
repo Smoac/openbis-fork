@@ -687,13 +687,13 @@ function MainController(profile) {
 									var regEx = /\d{4}-\d{2}-\d{2}/g;
 									var match = value.match(regEx);
 									if(match && match.length === 1) {
-										var somethingToBreak = 0;
-										if(Util.getFormatedDate(new Date(sample.registrationDetails.registrationDate)).indexOf(match[0]) != -1) {
+										var registrationDateValue = Util.getFormatedDate(new Date(sample.registrationDetails.registrationDate));
+										if(registrationDateValue.indexOf(match[0]) !== -1) {
 											matchedPairs.push({ name : "Registration Date", value : match[0]});
 										}
-										
-										if(Util.getFormatedDate(new Date(sample.registrationDetails.registrationDate)).indexOf(match[0]) != -1) {
-											matchedPairs.push({ mame : "Modification Date", value : match[0]});
+										var modificationDateValue = Util.getFormatedDate(new Date(sample.registrationDetails.modificationDate));
+										if(modificationDateValue.indexOf(match[0]) !== -1) {
+											matchedPairs.push({ name : "Modification Date", value : match[0]});
 										}
 									}
 									

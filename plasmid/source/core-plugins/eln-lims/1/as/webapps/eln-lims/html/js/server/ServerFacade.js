@@ -712,11 +712,13 @@ function ServerFacade(openbisServer) {
 			var words = anyFieldContains.split(" ");
 			for(var sIdx = 0; sIdx < words.length; sIdx++) {
 				var word = words[sIdx];
-				matchClauses.push({
-					"@type": "AnyFieldMatchClause",
-					fieldType: "ANY_FIELD",
-					desiredValue: "*" + word.trim() + "*"
-				});
+				if(word) {
+					matchClauses.push({
+						"@type": "AnyFieldMatchClause",
+						fieldType: "ANY_FIELD",
+						desiredValue: "*" + word.trim() + "*"
+					});
+				}
 			}
 		}
 		
