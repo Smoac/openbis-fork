@@ -664,7 +664,8 @@ function MainController(profile) {
 										if(searchRegexpes[tIdx].test(fieldValue)) {
 											var match = {};
 											match.name = fieldName;
-											match.value = words[tIdx];
+											match.found = words[tIdx];
+											match.value = fieldValue;
 											matchedPairs.push(match);
 										}
 									}
@@ -680,7 +681,7 @@ function MainController(profile) {
 									//Check Properties
 									for (propertyName in sample.properties) {
 										var propertyValue = sample.properties[propertyName];
-										addMatchedPairs(matchedPairs, "Property[" + propertyName + "]", propertyValue); //Check Properties
+										addMatchedPairs(matchedPairs, "Property " + propertyName, propertyValue); //Check Properties
 									}
 									
 									//Check date fields
@@ -702,7 +703,7 @@ function MainController(profile) {
 										if(mIdx < 0) {
 											$container.append($("<br>"));
 										}
-										$container.append($("<p>").append($("<strong>").append(matchedPairs[mIdx].name + ": ")).append(matchedPairs[mIdx].value));
+										$container.append($("<p>").append($("<strong>").append(matchedPairs[mIdx].name + ": ")).append("Found \"" + matchedPairs[mIdx].found + "\" in \"" + matchedPairs[mIdx].value + "\""));
 									}
 									
 									//properties
