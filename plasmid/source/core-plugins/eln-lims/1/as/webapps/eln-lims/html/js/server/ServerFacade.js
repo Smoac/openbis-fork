@@ -709,9 +709,9 @@ function ServerFacade(openbisServer) {
 		
 		// Free Text
 		if(anyFieldContains) {
-			var sentencyWords = anyFieldContains.split(" ");
-			for(var sIdx = 0; sIdx < sentencyWords.length; sIdx++) {
-				var word = sentencyWords[sIdx];
+			var words = anyFieldContains.split(" ");
+			for(var sIdx = 0; sIdx < words.length; sIdx++) {
+				var word = words[sIdx];
 				matchClauses.push({
 					"@type": "AnyFieldMatchClause",
 					fieldType: "ANY_FIELD",

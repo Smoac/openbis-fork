@@ -638,8 +638,8 @@ def searchSamples(tr, parameters, tableBuilder, sessionId):
 	
 	#Free Text
 	if anyFieldContains is not None:
-		sentencyWords = anyFieldContains.split();
-		for word in sentencyWords:
+		words = anyFieldContains.split();
+		for word in words:
 			criterion.withAnyField().thatContains(word);
 	
 	#Attributes
