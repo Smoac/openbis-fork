@@ -638,7 +638,9 @@ def searchSamples(tr, parameters, tableBuilder, sessionId):
 	
 	#Free Text
 	if anyFieldContains is not None:
-		criterion.withAnyField().thatContains(anyFieldContains);
+		sentencyWords = anyFieldContains.split();
+		for word in sentencyWords:
+			criterion.withAnyField().thatContains(word);
 	
 	#Attributes
 	if samplePermId is not None:

@@ -709,11 +709,15 @@ function ServerFacade(openbisServer) {
 		
 		// Free Text
 		if(anyFieldContains) {
-			matchClauses.push({
-				"@type": "AnyFieldMatchClause",
-				fieldType: "ANY_FIELD",
-				desiredValue: "*" + anyFieldContains.trim() + "*"
-			});
+			var sentencyWords = anyFieldContains.split(" ");
+			for(var sIdx = 0; sIdx < sentencyWords.length; sIdx++) {
+				var word = sentencyWords[sIdx];
+				matchClauses.push({
+					"@type": "AnyFieldMatchClause",
+					fieldType: "ANY_FIELD",
+					desiredValue: "*" + word.trim() + "*"
+				});
+			}
 		}
 		
 		// Attributes
