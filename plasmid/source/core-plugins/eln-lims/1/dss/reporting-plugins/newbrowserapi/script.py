@@ -47,10 +47,6 @@ import os.path
 
 #For Screeening API
 from ch.systemsx.cisd.openbis.common.api.client import ServiceFinder;
-from ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1 import IScreeningApiServer;
-from ch.systemsx.cisd.openbis.dss.screening.shared.api.v1 import IDssServiceRpcScreening;
-from ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto import PlateIdentifier;
-from ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto import FeatureVectorDatasetReference;
 from java.util import Arrays;
 
 #from ch.systemsx.cisd.common.ssl import SslCertificateHelper;
@@ -123,12 +119,24 @@ def process(tr, parameters, tableBuilder):
 		isOk = updateDataSet(tr, parameters, tableBuilder);
 	
 	if method == "listFeatureVectorDatasetsPermIds":
+		from ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1 import IScreeningApiServer;
+		from ch.systemsx.cisd.openbis.dss.screening.shared.api.v1 import IDssServiceRpcScreening;
+		from ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto import PlateIdentifier;
+		from ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto import FeatureVectorDatasetReference;
 		result = listFeatureVectorDatasetsPermIds(tr, parameters, tableBuilder);
 		isOk = True;
 	if method == "listAvailableFeatures":
+		from ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1 import IScreeningApiServer;
+		from ch.systemsx.cisd.openbis.dss.screening.shared.api.v1 import IDssServiceRpcScreening;
+		from ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto import PlateIdentifier;
+		from ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto import FeatureVectorDatasetReference;
 		result = listAvailableFeatures(tr, parameters, tableBuilder);
 		isOk = True;
 	if method == "getFeaturesFromFeatureVector":
+		from ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1 import IScreeningApiServer;
+		from ch.systemsx.cisd.openbis.dss.screening.shared.api.v1 import IDssServiceRpcScreening;
+		from ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto import PlateIdentifier;
+		from ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto import FeatureVectorDatasetReference;
 		result = getFeaturesFromFeatureVector(tr, parameters, tableBuilder);
 		isOk = True;
 
