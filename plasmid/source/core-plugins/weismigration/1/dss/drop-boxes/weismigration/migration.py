@@ -156,26 +156,28 @@ def setEntityProperties(tr, definition, entity, properties):
             #                  entity.setPropertyValue("COMPANY", "UNKNOWN")
             #             else:
             #                  entity.setPropertyValue("COMPANY", propertyValue)                            
-                    if propertyDefinition[0] =="LAB_MEMBERS" and propertyValue is not None:   
-                        print "LAB_MEMBERS", propertyDefinition[0], propertyValue 
-                        if propertyValue == "A.C. Ström" || propertyValue == "AC. Ström" || propertyValue == "A-C. Strom":
-                             entity.setPropertyValue("AC_STROM",   "A.C. Strom")
-                        elif propertyValue =="anneke":
-                             entity.setPropertyValue("A_HIBBEL",   "A. Hibbel")
-                        elif propertyValue =="B Zeitler" ||  propertyValue =="B.Zeitler":
-                             entity.setPropertyValue("B_ZEITLER",   "B. Zeitler")
-                        elif propertyValue =="Ben Monpetit" || propertyValue == "B.Montpetit":
-                             entity.setPropertyValue("B_MONTPETIT",   "B. Montpetit")                                                      
-                        elif propertyValue =="C.Brune" || propertyValue =="Christiane Brune" :
-                             entity.setPropertyValue("C_BRUNE",   "C. Brune")                      
-                        elif propertyValue =="C.Derrer" || propertyValue =="Carina":
-                             entity.setPropertyValue(v)
-                         elif propertyValue =="Carmen, Elisa" || propertyValue =="E.Dultz" || propertyValue =="Elisa" || propertyValue =="Elisa Dultz":
-                             entity.setPropertyValue("ELISA_DULTZ",   "E. Dultz")                          
-                         elif propertyValue =="anneke":
-                             entity.setPropertyValue("A_HIBBEL",   "A. Hibbel")                          
-                        elif propertyValue =="anneke":
-                             entity.setPropertyValue("A_HIBBEL",   "A. Hibbel")                           
+                    #===============================================================================
+                    # if propertyDefinition[0] =="LAB_MEMBERS" and propertyValue is not None:   
+                    #     print "LAB_MEMBERS", propertyDefinition[0], propertyValue 
+                    #     if propertyValue == "A.C. Ström" || propertyValue == "AC. Ström" || propertyValue == "A-C. Strom":
+                    #          entity.setPropertyValue("AC_STROM",   "A.C. Strom")
+                    #     elif propertyValue =="anneke":
+                    #          entity.setPropertyValue("A_HIBBEL",   "A. Hibbel")
+                    #     elif propertyValue =="B Zeitler" ||  propertyValue =="B.Zeitler":
+                    #          entity.setPropertyValue("B_ZEITLER",   "B. Zeitler")
+                    #     elif propertyValue =="Ben Monpetit" || propertyValue == "B.Montpetit":
+                    #          entity.setPropertyValue("B_MONTPETIT",   "B. Montpetit")                                                      
+                    #     elif propertyValue =="C.Brune" || propertyValue =="Christiane Brune" :
+                    #          entity.setPropertyValue("C_BRUNE",   "C. Brune")                      
+                    #     elif propertyValue =="C.Derrer" || propertyValue =="Carina":
+                    #          entity.setPropertyValue(v)
+                    #      elif propertyValue =="Carmen, Elisa" || propertyValue =="E.Dultz" || propertyValue =="Elisa" || propertyValue =="Elisa Dultz":
+                    #          entity.setPropertyValue("ELISA_DULTZ",   "E. Dultz")                          
+                    #      elif propertyValue =="anneke":
+                    #          entity.setPropertyValue("A_HIBBEL",   "A. Hibbel")                          
+                    #     elif propertyValue =="anneke":
+                    #          entity.setPropertyValue("A_HIBBEL",   "A. Hibbel")                           
+                    #===============================================================================
                                                                       
                     if propertyDefinition[0] =="BACTERIAL_STRAIN" and propertyValue is not None:   
                         print "BAC STRAIN", propertyDefinition[0], propertyValue 
@@ -323,6 +325,22 @@ class OpenBISDTO:
 experimentCache = {}
 sampleCache = {}
 sampleID2Sample = {}
+globalSequences = {};
+
+def getNextGlobalSequence(id):
+    currentSequence = None;
+    
+    if id in globalSequences:
+        currentSequence = globalSequences[id]; #Get existing sequence
+    else:
+        currentSequence = 0; # Create a new one
+    
+    #Advance and store new step on the sequence
+    currentSequence = currentSequence+1;
+    globalSequences[id] = currentSequence;
+    
+    #Return the new sequence number
+    return str(currentSequence);
 
 def getExperimentForUpdate(experimentIdentifier, experimentType, tr):
     experimentType ="MATERIAL"
@@ -709,21 +727,21 @@ class EnzymeAdaptor(FileMakerEntityAdaptor):
         self.entities.append(EnzymeOpenBISDTO(values, self.definition))
         
 class EnzymeOpenBISDTO(FMOpenBISDTO):
+    
     def isSampleCacheable(self):
             return False
     
     def write(self, tr):
-        for i in range(1,self.countEntryQuery):
-            code = "RE" + str(i)
-        
-       
+        code = self.getIdentifier(tr);
+        print "New Code To Be Written: " + code
         sample = getSampleForUpdate("/MATERIALS/"+code,"RESTRICTION_ENZYME", tr)
         setEntityProperties(tr, self.definition, sample, self.values);
     
     def getIdentifier(self, tr):
-        for i in range(1,self.countEntryQuery):
-            code = "RE" + str(i)
-            return code
+        if "CODE" not in self.values:
+            self.values["CODE"] = "RE" + getNextGlobalSequence("RE");
+            print "New Code Generated: " + self.values["CODE"]
+        return self.values["CODE"];
 
 
         
@@ -736,12 +754,12 @@ fmPass = "nucleus"
 
 adaptors = [ 
              #EnzymeAdaptor(fmConnString, fmUser, fmPass, "Weis_Restriction_enzymes"),
-             ChemicalAdaptor(fmConnString, fmUser, fmPass, "Weis_Chemicals"),
+             #ChemicalAdaptor(fmConnString, fmUser, fmPass, "Weis_Chemicals"),
              #AntibodyAdaptor(fmConnString, fmUser, fmPass, "Weis _Antibodies"),
              #OligoAdaptor(fmConnString, fmUser, fmPass, "Weis_Oligos"),
              #PlasmidAdaptor(fmConnString, fmUser, fmPass, "Weis_Plasmids"),
-             #StrainAdaptor(fmConnString, fmUser, fmPass, "Weis_Yeast_Strains_070715_Clone_for_testing2"),
-             #StrainMultipleValuesAdaptor(fmConnString, fmUser, fmPass, "Weis_Yeast_Strains_070715_Clone_for_testing2")
+             StrainAdaptor(fmConnString, fmUser, fmPass, "Weis_Yeast_Strains_070715_Clone_for_testing2"),
+             StrainMultipleValuesAdaptor(fmConnString, fmUser, fmPass, "Weis_Yeast_Strains_070715_Clone_for_testing2")
              ]
                        
             
