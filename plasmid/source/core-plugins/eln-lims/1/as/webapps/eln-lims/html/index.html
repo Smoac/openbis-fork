@@ -200,7 +200,7 @@
 	var mainController = new MainController(profile);
 	
 	//
-	// Global links handler
+	// Global links handler - This function avoid normal link behaviour for javascript enabled links that will use ajax calls for left clicks, allowing to open them on a new tab with right click.
 	//
 	$(document).click(function(e) {
 		var elementClasses = $(e.target).attr('class');
