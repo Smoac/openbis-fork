@@ -80,7 +80,13 @@ def addPropertiesToSamples(sampleTypeCodes, properties):
     
 def addProperties(entity, properties):
     for property in properties:
-        addProperty(entity, property[0], property[1], property[2], property[3], property[4], property[5], property[6], property[7], property[8]);
+        propertyCode = property[0];
+        if propertyCode.startswith("-"):
+            continue
+        elif propertyCode.startswith("+"):
+            propertyCode = propertyCode[1:];
+        
+        addProperty(entity, propertyCode, property[1], property[2], property[3], property[4], property[5], property[6], property[7], property[8]);
     
 def addProperty(entity, propertyCode, section, propertyLabel, dataType, vocabularyCode, propertyDescription, managedScript, dynamicScript, isMandatory):
     property = None;
@@ -110,15 +116,6 @@ def createProperty(propertyCode, dataType, propertyLabel, propertyDescription, v
     if dataType == DataType.CONTROLLEDVOCABULARY:
         property.setVocabulary(vocabulariesCache[vocabularyCode]);
     return property;
-
-def addRepetition(numGroups, sampleType):
-    for Idx in range(1,(numGroups + 1)):
-        repetition = definitions.getRepetitionDefinition();
-        for property in repetition:
-            property[0] = property[0] + "_" + str(Idx);
-            property[1] = property[1] + "_" + str(Idx);
-            property[5] = property[5] + "_" + str(Idx);
-        addPropertiesToSamples([sampleType], repetition);
 
 #Valid Script Types: DYNAMIC_PROPERTY, MANAGED_PROPERTY, ENTITY_VALIDATION 
 def createScript(path, name, description, scriptType, entityType):
@@ -257,7 +254,7 @@ createSampleTypeWithProperties("ANTIBODY", "", definitions.antibodyDefinition);
 #addStorageGroups(definitions.numberOfStorageGroups, "ANTIBODY");
 annotationsScriptName = createAnnotationsScriptForType("STRAIN");
 createSampleTypeWithProperties("STRAIN", "", definitions.strainDefinition);
-addRepetition(definitions.numberOfRepetitions, "STRAIN");
+# addRepetition(definitions.numberOfRepetitions, "STRAIN");
 annotationsScriptName = createAnnotationsScriptForType("PLASMID");
 createSampleTypeWithProperties("PLASMID", "", definitions.plasmidDefinition);
 # addStorageGroups(definitions.numberOfStorageGroups, "PLASMID");

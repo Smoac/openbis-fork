@@ -3,6 +3,12 @@
 
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.DataType as DataType
 
+##
+## Documentation
+##
+## Properties starting by "+" will be created in openBIS but will not be read from FileMaker.
+## Properties starting by "-" will not be created in openBIS but will be read from FileMaker.
+
 #
 # Helper Methods
 #
@@ -33,20 +39,20 @@ strainglycerolScriptName="STRAIN_GLYCEROL_STOCK_NUM"
 #
 # Storage 
 #
-numberOfRepetitions = 5
-
-def getRepetitionPropertyCodes():
-    propertyCodes = [];
-    for property in getRepetitionDefinition():
-        propertyCodes.append(property[0]);
-    return propertyCodes;
-
-def getRepetitionDefinition():
-    return [
-    ["DISRUPTIONS",         "Genotype",        "disruptions",         DataType.VARCHAR,                     None, "",       None, None, False],
-    ["MARKERS",          "Genotype",        "markers",      DataType.VARCHAR,                    None, "",        None, None, False],
-    ["UNMARKED_MUTATIONS",       "Genotype",        "unmarked mutations",   DataType.VARCHAR,                    None, "",     None, None, False],
-];
+# numberOfRepetitions = 5
+# 
+# def getRepetitionPropertyCodes():
+#     propertyCodes = [];
+#     for property in getRepetitionDefinition():
+#         propertyCodes.append(property[0]);
+#     return propertyCodes;
+# 
+# def getRepetitionDefinition():
+#     return [
+#     ["DISRUPTIONS",         "Genotype",        "disruptions",         DataType.VARCHAR,                     None, "",       None, None, False],
+#     ["MARKERS",          "Genotype",        "markers",      DataType.VARCHAR,                    None, "",        None, None, False],
+#     ["UNMARKED_MUTATIONS",       "Genotype",        "unmarked mutations",   DataType.VARCHAR,                    None, "",     None, None, False],
+# ];
 
 #
 # Experiment Types
@@ -93,20 +99,37 @@ antibodyDefinition = [
 
 strainDefinition = [
     ["NAME",                             "General",                  "KWY number",                             DataType.VARCHAR,       None,  "", None, None, False],      
-    ["NAME_STRAIN",                             "General",                  "Strain name",                             DataType.VARCHAR,       None,  "", strainnameScriptName, None, False],          
+    ["+NAME_STRAIN",                             "General",                  "Strain name",                             DataType.VARCHAR,       None,  "", strainnameScriptName, None, False],          
     ["MAT",                             "General",                  "MAT",                             DataType.CONTROLLEDVOCABULARY,       "MAT",  "", None, None, False],    
-    ["GENOTYPE",                             "General",                  "Genotype",                             DataType.MULTILINE_VARCHAR,       None,  "", None, None, False],    
+    ["+GENOTYPE",                             "General",                  "Genotype",                             DataType.MULTILINE_VARCHAR,       None,  "", None, None, False],    
     ["BASE_STRAIN",                             "General",                  "base strain",                             DataType.MULTILINE_VARCHAR,       None,  "", None, None, False],
-    ["YEAST_BACKGROUND",                             "General",                  "yeast background",                             DataType.CONTROLLEDVOCABULARY,       "YEAST_BACKGROUND",  "", None, None, False],
+    ["+YEAST_BACKGROUND",                             "General",                  "yeast background",                             DataType.CONTROLLEDVOCABULARY,       "YEAST_BACKGROUND",  "", None, None, False],
     ["DERIVED_FROM",                             "General",                  "derived from",                             DataType.VARCHAR,       None,  "", None, None, False],       
     ["COMMENTS",                             "General",                  "comments",                             DataType.MULTILINE_VARCHAR,       None,  "", None, None, False],
     ["GENOTYPE_CONFIRMATION",                             "General",                  "genotype confirmation",                             DataType.MULTILINE_VARCHAR,       None,  "", None, None, False],    
     ["WHO_ENTERED",                             "General",                  "who entered",                             DataType.CONTROLLEDVOCABULARY,       "LAB_MEMBERS",  "", None, None, False],    
     ["REMOVED",                             "General",                  "removed",                             DataType.BOOLEAN,       None,  "", None, None, False],    
-    ["GLYCEROL_STOCK_NUMBER",                             "General",                  "Glycerol stock number",                             DataType.VARCHAR,       None,  "", strainglycerolScriptName, None, False],    
+    ["+GLYCEROL_STOCK_NUMBER",                             "General",                  "Glycerol stock number",                             DataType.VARCHAR,       None,  "", strainglycerolScriptName, None, False],    
     ["DATE_ENTERED",                             "General",                  "date entered",                             DataType.TIMESTAMP,       None,  "", None, None, False],    
-    ["ANNOTATIONS_STATE",                "Comments",                "Annotations State",                    DataType.XML,                    None,                                "Annotations State", annotationsScriptName, None, False],   
-    
+    ["+ANNOTATIONS_STATE",                "Comments",                "Annotations State",                    DataType.XML,                    None,                                "Annotations State", annotationsScriptName, None, False]
+];
+
+strainDefinitionRepetitions = [
+    ["-DISRUPTIONS_1",         "Genotype",        "disruptions[1]",         DataType.VARCHAR,                     None, "",       None, None, False],
+    ["-DISRUPTIONS_2",         "Genotype",        "disruptions[2]",         DataType.VARCHAR,                     None, "",       None, None, False],
+    ["-DISRUPTIONS_3",         "Genotype",        "disruptions[3]",         DataType.VARCHAR,                     None, "",       None, None, False],
+    ["-DISRUPTIONS_4",         "Genotype",        "disruptions[4]",         DataType.VARCHAR,                     None, "",       None, None, False],
+    ["-DISRUPTIONS_5",         "Genotype",        "disruptions[5]",         DataType.VARCHAR,                     None, "",       None, None, False],
+    ["-MARKERS_1",          "Genotype",        "markers[1]",      DataType.VARCHAR,                    None, "",        None, None, False],
+    ["-MARKERS_2",          "Genotype",        "markers[2]",      DataType.VARCHAR,                    None, "",        None, None, False],
+    ["-MARKERS_3",          "Genotype",        "markers[3]",      DataType.VARCHAR,                    None, "",        None, None, False],
+    ["-MARKERS_4",          "Genotype",        "markers[4]",      DataType.VARCHAR,                    None, "",        None, None, False],
+    ["-MARKERS_5",          "Genotype",        "markers[5]",      DataType.VARCHAR,                    None, "",        None, None, False],
+    ["-UNMARKED_MUTATIONS_1",       "Genotype",        "\"unmarked mutations\"[1]",   DataType.VARCHAR,                    None, "",     None, None, False],
+    ["-UNMARKED_MUTATIONS_2",       "Genotype",        "\"unmarked mutations\"[2]",   DataType.VARCHAR,                    None, "",     None, None, False],
+    ["-UNMARKED_MUTATIONS_3",       "Genotype",        "\"unmarked mutations\"[3]",   DataType.VARCHAR,                    None, "",     None, None, False],
+    ["-UNMARKED_MUTATIONS_4",       "Genotype",        "\"unmarked mutations\"[4]",   DataType.VARCHAR,                    None, "",     None, None, False],
+    ["-UNMARKED_MUTATIONS_5",       "Genotype",        "\"unmarked mutations\"[5]",   DataType.VARCHAR,                    None, "",     None, None, False]
 ];
 
 oligoDefinition = [
@@ -159,7 +182,7 @@ plasmidDefinition = [
     ["CONCENTRATION",                        "General",                  "Concentration",                         DataType.REAL,      None,  "", None, None, False],    
     ["DNA_PREPARED_ON",                        "General",                  "DNA prepared on",                         DataType.VARCHAR,      None,  "", None, None, False],
     ["VECTOR_TYPE",                        "General",                  "Vector Type",                         DataType.CONTROLLEDVOCABULARY,      "PLASMID_VECTOR_TYPE",  "", None, None, False],    
-    ["ANNOTATIONS_STATE",                "Comments",                "Annotations State",                    DataType.XML,                    None,                                "Annotations State", annotationsScriptName, None, False]
+    ["ANNOTATIONS_STATE",                "Comments",                "Annotations State",                    DataType.XML,                    None,                                "Annotations State", annotationsScriptName, None, False],
     ["COMMENT",                        "Comments",                  "Comment",                         DataType.MULTILINE_VARCHAR,      None,  "", None, None, False],
     ["PARENT_PLASMID",                        "Cloning Information",                  "Parent plasmid",                         DataType.VARCHAR,      None,  "", None, None, False],        
     ["SIZE_PARENT",                        "Cloning Information",                  "Size parent",                         DataType.REAL,      None,  "", None, None, False],    

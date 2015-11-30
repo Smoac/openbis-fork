@@ -66,6 +66,11 @@ def process(tr):
 ##
 def setEntityProperties(tr, definition, entity, properties):
     for propertyCode, propertyValue in properties.iteritems():
+            if propertyCode.startswith("+"):
+                continue;
+            if propertyCode.startswith("-"):
+                continue
+            
             propertyDefinition = definitions.getPropertyDefinitionByCode(definition, propertyCode)
             if propertyValue is not None:
                 propertyValue =  unicode(propertyValue) 
@@ -281,6 +286,7 @@ class EntityAdaptor:
     entities = None
     entitiesIdx = None
     definition = None
+    definitionRepeats = None
     
     def init(self):
         self.entities = []
@@ -394,7 +400,9 @@ def getSampleForUpdate(sampleIdentifier, sampleType, tr):
 class FileMakerEntityAdaptor(EntityAdaptor):
     connection = None
     selectQuery = None
-    
+    selectQueryRepetitions = None;
+    selectQueryRepetitionsId = None;
+        
     def __init__(self, fileMakerConnString, fileMakerUser, fileMakerPass, db):
         Class.forName("com.filemaker.jdbc.Driver").newInstance()
         self.connection = DriverManager.getConnection(fileMakerConnString+db,fileMakerUser, fileMakerPass)
@@ -402,20 +410,68 @@ class FileMakerEntityAdaptor(EntityAdaptor):
     def init(self):
         EntityAdaptor.init(self)
         
+        # Default Query (All adaptors should have it)
         preparedStatement = self.connection.prepareStatement(self.selectQuery)
         result = preparedStatement.executeQuery()
         
         while result.next():
             values = {}
             for property in self.definition:
-                if property[0]=="ANNOTATIONS_STATE":
+                if property[0].startswith("+"):
+                    pass #Do Nothing
+                elif property[0]=="ANNOTATIONS_STATE":
                     values[property[0]] =""
                 else:
-                    values[property[0]] = result.getString(property[2])
+                    propertyCode = property[0];
+                    if property[0].startswith("+"):
+                        propertyCode = property[0][1:];
+                    if property[0].startswith("-"):
+                        propertyCode = property[0][1:];
+                    
+                    values[propertyCode] = result.getString(property[2])
                     
             self.addEntity(values)
         result.close()
         preparedStatement.close()
+        # Repetitions Query (Optional)
+        
+        #Extra Repeats Logic
+        if self.definitionRepeats is not None:
+            fields = "";
+            fieldsNames = [];
+            isFirst = True;
+            for field in self.definitionRepeats:
+                propertyCode = field[0];
+                if propertyCode.startswith("+"):
+                    continue
+                elif propertyCode.startswith("-"):
+                    propertyCode = propertyCode[1:];
+                
+                if not isFirst:
+                    fields = fields + ", ";
+                
+                fields = fields + field[2];
+                fieldsNames.append(propertyCode);
+                isFirst = False;
+            
+            for entity in self.entities:
+                entityId = entity.values[self.selectQueryRepetitionsId];
+                if entityId is not None:
+                    perEntityQuery = "SELECT " + fields + " FROM " + self.selectQueryRepetitions + "= '" + entityId + "'";
+                    print perEntityQuery
+                    preparedStatement = self.connection.prepareStatement(perEntityQuery)
+                    result = preparedStatement.executeQuery()
+                    
+                    columnCount = result.getMetaData().getColumnCount();
+                    while result.next():    
+                        for cIdx in range(columnCount):
+                            if cIdx is not 0:
+                                columName = result.getMetaData().getColumnName(cIdx);
+                                fieldName = fieldsNames[cIdx];
+                                entity.values[fieldName] = result.getString(cIdx);
+                    result.close()
+                    preparedStatement.close()
+        #
 
 ##
 ## Customer specific logic: different sample types
@@ -435,128 +491,76 @@ class FMOpenBISDTO(OpenBISDTO):
                 print "* ERROR [" + str(code) + "] - Invalid Code found for '" + self.__class__.__name__ + "'"
                 raise Exception('Invalid Code found ' + str(code))
 
-class FMMultipleValuesAdaptor(FileMakerEntityAdaptor):
-    selectMultipleValuesQuery = None
-    entityIdFieldName = None
-    entityCodeFieldName = None
-    
-    def addEntity(self, values):
-        self.entities.append(FMEntityMultipleValuesOpenBISDTO(values, self.definition))
-        
-    def init(self):
-        
-        emptyMultipleValues = 0
-        MultipleValueses = {}
-        EntityAdaptor.init(self)
-        preparedStatement = self.connection.prepareStatement(self.selectMultipleValuesQuery)
-        result = preparedStatement.executeQuery()
-        while result.next():
- 
-            entityId = unicode(result.getString(self.entityIdFieldName))
-            #print "KWY number : " + str(entityId)
-            if entityId is not None:
-                if entityId in sampleID2Sample:
-                    entityNumber = sampleID2Sample[entityId][self.entityCodeFieldName]
-                    #print "entityNumber: ", entityNumber, entityId
-                    if entityNumber is not None:
-                        values = {}
-                        values["DISRUPTIONS"] = result.getString("disruptions")
-                        values["MARKERS"] = result.getString("markers")
-                        values["UNMARKED_MUTATIONS"] = result.getString("unmarked mutations")
-                        
-                        allMultipleValueses = []
-                        if entityNumber in MultipleValueses:
-                            allMultipleValueses = MultipleValueses[entityNumber]
-                        else:
-                            MultipleValueses[entityNumber] = allMultipleValueses
-                        allMultipleValueses.append(values)
-                else:
-                    #The entity is not there. What the *#%$&
-                    emptyMultipleValues += 1
-            else:
-                #The entity is not there. What the *#%$&
-                emptyMultipleValues += 1
-        
-        print "- ERROR ADAPTOR MultipleValueses positions with empty entityId for " + self.__class__.__name__ + ":" + str(emptyMultipleValues)
-        
-        for entiyCode, allMultipleValueses in MultipleValueses.iteritems():
-            self.addEntity({
-                        "*CODE" : entiyCode,
-                        "*MultipleValuesESLIST" : allMultipleValueses
-            })
-        
-        result.close()
-        preparedStatement.close()
 
-class FMEntityMultipleValuesOpenBISDTO(OpenBISDTO):
-    def getIdentifier(self, tr):
-        return self.values["*CODE"]
-    
-    def write(self, tr):
-        sample = getSampleForUpdate("/MATERIALS/"+self.values["*CODE"], None, tr)
-        print "* INFO MultipleValueses size: " + str(len(self.values["*MultipleValuesESLIST"]))
-        #Delete old MultipleValueses
-        for MultipleValuesNum in range(1, definitions.numberOfRepetitions+1):
-            for propertyCode in definitions.getRepetitionPropertyCodes():
-                sample.setPropertyValue(propertyCode + "_" + str(MultipleValuesNum), None)
-         
-        #Add new MultipleValueses
-        MultipleValuesNum = 0
-        for MultipleValues in self.values["*MultipleValuesESLIST"]:
-            MultipleValuesNum += 1
-            for propertyCode, propertyValue in MultipleValues.iteritems():
-                if propertyValue is not None:
-                    propertyValue = unicode(propertyValue)
-                    sample.setPropertyValue(propertyCode + "_" + str(MultipleValuesNum), propertyValue)
- 
-        #1. Setting MAT
-        buildedPropertyValue = ""
-        mat = sample.getPropertyValue("MAT")
-        if mat is not None:
-            if re.search("a", mat):
-                mat = mat.replace("a", u"\u03B1")
-            if re.search("A", mat):
-                mat = mat.replace("A", "a")                
-            buildedPropertyValue = buildedPropertyValue + "MAT " + unicode(mat) + " "
-         
-        #2. Adding unmarked mutations
-        for listItemsMap in self.values["*MultipleValuesESLIST"]:
-            unmarkedMutation = listItemsMap["UNMARKED_MUTATIONS"]
-            if unmarkedMutation is not None:
-                buildedPropertyValue = buildedPropertyValue + unicode(unmarkedMutation + " ");
-         
-        #3. Add pairs of disruptions and markers
-        for listItemsMap in self.values["*MultipleValuesESLIST"]:
-            disruptions = listItemsMap["DISRUPTIONS"]
-            markers = listItemsMap["MARKERS"]
-            #print "disruptions, markers", disruptions, markers
-            if (disruptions is not None and disruptions is not "") or (markers is not None and markers is not ""):
-                if disruptions is None:
-                    disruptions = ""
-                if markers is None:
-                    markers = ""
-                buildedPropertyValue = buildedPropertyValue + unicode(disruptions) + "::" + unicode(markers) + " "
-        print repr("GENOTYPE" + unicode(buildedPropertyValue))
-        sample.setPropertyValue("GENOTYPE", buildedPropertyValue)
-    
-    def isMultipleValuesPressent(self, MultipleValuesSignature, tr):
-        sample = getSampleForUpdate("/MATERIALS/"+self.values["*CODE"], None, tr)
-        if sample is not None:
-            for MultipleValuesNum in range(1, definitions.numberOfRepetitions+1):
-                storedSignature = "";
-                for propertyCode in definitions.getRepetitionPropertyCodes():
-                    propertyValue = sample.getPropertyValue(propertyCode + "_" + str(MultipleValuesNum))
-                  
-                    if propertyValue is not None:
-                        propertyValue = unicode(propertyValue)
-                        storedSignature += propertyValue 
-                if storedSignature == MultipleValuesSignature:
-                    #print "Found MultipleValues " + storedSignature.encode('ascii', 'ignore')
-                    return True
-        return False
-    
-    def isInOpenBIS(self, tr):
-        return False
+# class FMEntityMultipleValuesOpenBISDTO(OpenBISDTO):
+#     def getIdentifier(self, tr):
+#         return self.values["*CODE"]
+#     
+#     def write(self, tr):
+#         sample = getSampleForUpdate("/MATERIALS/"+self.values["*CODE"], None, tr)
+#         print "* INFO MultipleValueses size: " + str(len(self.values["*MultipleValuesESLIST"]))
+#         #Delete old MultipleValueses
+#         for MultipleValuesNum in range(1, definitions.numberOfRepetitions+1):
+#             for propertyCode in definitions.getRepetitionPropertyCodes():
+#                 sample.setPropertyValue(propertyCode + "_" + str(MultipleValuesNum), None)
+#          
+#         #Add new MultipleValueses
+#         MultipleValuesNum = 0
+#         for MultipleValues in self.values["*MultipleValuesESLIST"]:
+#             MultipleValuesNum += 1
+#             for propertyCode, propertyValue in MultipleValues.iteritems():
+#                 if propertyValue is not None:
+#                     propertyValue = unicode(propertyValue)
+#                     sample.setPropertyValue(propertyCode + "_" + str(MultipleValuesNum), propertyValue)
+#  
+#         #1. Setting MAT
+#         buildedPropertyValue = ""
+#         mat = sample.getPropertyValue("MAT")
+#         if mat is not None:
+#             if re.search("a", mat):
+#                 mat = mat.replace("a", u"\u03B1")
+#             if re.search("A", mat):
+#                 mat = mat.replace("A", "a")                
+#             buildedPropertyValue = buildedPropertyValue + "MAT " + unicode(mat) + " "
+#          
+#         #2. Adding unmarked mutations
+#         for listItemsMap in self.values["*MultipleValuesESLIST"]:
+#             unmarkedMutation = listItemsMap["UNMARKED_MUTATIONS"]
+#             if unmarkedMutation is not None:
+#                 buildedPropertyValue = buildedPropertyValue + unicode(unmarkedMutation + " ");
+#          
+#         #3. Add pairs of disruptions and markers
+#         for listItemsMap in self.values["*MultipleValuesESLIST"]:
+#             disruptions = listItemsMap["DISRUPTIONS"]
+#             markers = listItemsMap["MARKERS"]
+#             #print "disruptions, markers", disruptions, markers
+#             if (disruptions is not None and disruptions is not "") or (markers is not None and markers is not ""):
+#                 if disruptions is None:
+#                     disruptions = ""
+#                 if markers is None:
+#                     markers = ""
+#                 buildedPropertyValue = buildedPropertyValue + unicode(disruptions) + "::" + unicode(markers) + " "
+#         print repr("GENOTYPE" + unicode(buildedPropertyValue))
+#         sample.setPropertyValue("GENOTYPE", buildedPropertyValue)
+#     
+#     def isMultipleValuesPressent(self, MultipleValuesSignature, tr):
+#         sample = getSampleForUpdate("/MATERIALS/"+self.values["*CODE"], None, tr)
+#         if sample is not None:
+#             for MultipleValuesNum in range(1, definitions.numberOfRepetitions+1):
+#                 storedSignature = "";
+#                 for propertyCode in definitions.getRepetitionPropertyCodes():
+#                     propertyValue = sample.getPropertyValue(propertyCode + "_" + str(MultipleValuesNum))
+#                   
+#                     if propertyValue is not None:
+#                         propertyValue = unicode(propertyValue)
+#                         storedSignature += propertyValue 
+#                 if storedSignature == MultipleValuesSignature:
+#                     #print "Found MultipleValues " + storedSignature.encode('ascii', 'ignore')
+#                     return True
+#         return False
+#     
+#     def isInOpenBIS(self, tr):
+#         return False
 
 
 ##
@@ -599,10 +603,16 @@ class AntibodyOpenBISDTO(FMOpenBISDTO):
 ## Strains
 ##
 class StrainAdaptor(FileMakerEntityAdaptor):
-    
     def init(self):
-        self.selectQuery = "SELECT * FROM \"Weis Lab Yeast Strains\" "
         self.definition = definitions.strainDefinition
+        self.selectQuery = "SELECT * FROM \"Weis Lab Yeast Strains\"";
+        
+        #Extra Repeats Logic
+        self.definitionRepeats = definitions.strainDefinitionRepetitions
+        self.selectQueryRepetitions = " \"Weis Lab Yeast Strains\" WHERE \"KWY number\" ";
+        self.selectQueryRepetitionsId = "NAME"
+        #
+        
         FileMakerEntityAdaptor.init(self)
     
     def addEntity(self, values):
@@ -610,20 +620,19 @@ class StrainAdaptor(FileMakerEntityAdaptor):
         
 class StrainOpenBISDTO(FMOpenBISDTO):
     def write(self, tr):
+        print str(self.values)
+        #Normal Definitions
         code = self.values["NAME"]
-        if code is not None:
-            sample = getSampleForUpdate("/MATERIALS/"+code,"STRAIN", tr)
-            setEntityProperties(tr, self.definition, sample, self.values)
- 
+        sample = getSampleForUpdate("/MATERIALS/"+code,"STRAIN", tr)
+        setEntityProperties(tr, self.definition, sample, self.values)
+        #Add additional properties, merging the repetition properties
+        # TO-DO Tomorrow
+        #
+        
             
     def getIdentifier(self, tr):
-        code = self.values["NAME"]
-        return code
+        return self.values["NAME"]
 
-class StrainMultipleValuesAdaptor(FMMultipleValuesAdaptor):
-    selectMultipleValuesQuery = "SELECT * FROM \"Weis Lab Yeast Strains\""
-    entityIdFieldName = "KWY number"
-    entityCodeFieldName = "NAME"
 ##
 ## Plasmids
 ##
@@ -758,8 +767,7 @@ adaptors = [
              #AntibodyAdaptor(fmConnString, fmUser, fmPass, "Weis _Antibodies"),
              #OligoAdaptor(fmConnString, fmUser, fmPass, "Weis_Oligos"),
              #PlasmidAdaptor(fmConnString, fmUser, fmPass, "Weis_Plasmids"),
-             StrainAdaptor(fmConnString, fmUser, fmPass, "Weis_Yeast_Strains_070715_Clone_for_testing2"),
-             StrainMultipleValuesAdaptor(fmConnString, fmUser, fmPass, "Weis_Yeast_Strains_070715_Clone_for_testing2")
+             StrainAdaptor(fmConnString, fmUser, fmPass, "Weis_Yeast_Strains")
              ]
                        
             
