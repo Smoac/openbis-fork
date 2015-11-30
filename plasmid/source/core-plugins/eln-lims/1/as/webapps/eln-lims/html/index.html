@@ -204,7 +204,8 @@
 	//
 	$(document).click(function(e) {
 		var elementClasses = $(e.target).attr('class');
-		if(elementClasses && elementClasses.indexOf("browser-compatible-javascript-link") !== -1) {
+		var isLeftClick = e.which === 1;
+		if(isLeftClick && elementClasses && elementClasses.indexOf("browser-compatible-javascript-link") !== -1) {
 			e.preventDefault();
 			e.stopPropagation();
 		}
