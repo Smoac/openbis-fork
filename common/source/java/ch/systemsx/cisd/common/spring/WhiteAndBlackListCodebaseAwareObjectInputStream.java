@@ -73,6 +73,7 @@ public class WhiteAndBlackListCodebaseAwareObjectInputStream extends CodebaseAwa
         whiteListPatterns.addPattern("org\\.python27\\.core\\..*");
         whiteListPatterns.addPattern("ch\\.ethz\\.sis\\..*");
         whiteListPatterns.addPattern("ch\\.systemsx\\.cisd\\..*");
+        whiteListPatterns.addPattern("ch\\.systemsx\\.sybit\\.imageviewer\\..*");
         
         blackListPatterns.addPattern("org\\.apache\\.commons\\.collections\\.functors\\.InvokerTransformer");
         blackListPatterns.addPattern("org\\.python\\.core\\.PyClass.*");
