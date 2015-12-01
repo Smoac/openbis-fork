@@ -168,7 +168,7 @@ $.extend(Grid.prototype, {
 					if(!rowValue) {
 						rowValue = "";
 					} else {
-						rowValue = String(rowValue).replace(/\r?\n|\r/g, " "); 
+						rowValue = String(rowValue).replace(/\r?\n|\r|\t/g, " "); //Remove carriage returns and tabs
 					}
 					rowAsArray.push(rowValue);
 				}
