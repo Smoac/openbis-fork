@@ -326,11 +326,13 @@ function PlateView(plateController, plateModel) {
 		//2. Define Color Step
 		var minValue = null;
 		var maxValue = null;
+		var isVocabulary = false;
 		
 		for(var rowsIdx = 1; rowsIdx < featuresData.featureVectors.length; rowsIdx++) {
 			for(var colsIdx = 1; colsIdx < featuresData.featureVectors.length; colsIdx++) {
 				var wellData = featuresData.featureVectors[rowsIdx][colsIdx];
-				if(!wellData.vocabularyFeatureFlags[featureIndex]) { //Don't support vocabularies for now
+				isVocabulary = wellData.vocabularyFeatureFlags[featureIndex];
+				if(!isVocabulary) { //Don't support vocabularies for now
 					var value = wellData.values[featureIndex];
 					
 					if(value !== "NaN") {
@@ -346,14 +348,19 @@ function PlateView(plateController, plateModel) {
 			}
 		}
 		
-		var shift = 0;
+		var shiftedMaxValue = null;
+		var shiftedMinValue = null;
+		var totalValuesScale = maxValue - minValue;
+		
 		if(minValue < 0) {
-			shift = Math.abs(minValue);
+			shiftedMinValue = Math.abs(minValue);
+		} else {
+			shiftedMinValue = 0;
 		}
 		
-		var range =  maxValue + shift;
+		shiftedMaxValue =  maxValue + shiftedMinValue;
 		
-		var colorStepSize = range / this._plateModel.numHeatmapColors;
+		var colorStepSize = shiftedMaxValue / this._plateModel.numHeatmapColors;
 		
 		//3. Clean Colors
 		this._cleanGrid();
@@ -362,9 +369,9 @@ function PlateView(plateController, plateModel) {
 		for(var rowsIdx = 1; rowsIdx < featuresData.featureVectors.length; rowsIdx++) {
 			for(var colsIdx = 1; colsIdx < featuresData.featureVectors.length; colsIdx++) {
 				var wellData = featuresData.featureVectors[rowsIdx][colsIdx];
-				if(!wellData.vocabularyFeatureFlags[featureIndex]) { //Don't support vocabularies for now
+				if(!isVocabulary) { //Don't support vocabularies for now
 					if(wellData.values[featureIndex] !== "NaN") {
-						var value = wellData.values[featureIndex] + shift;
+						var value = wellData.values[featureIndex] + shiftedMinValue;
 						var valueColorStep = Math.ceil(value / colorStepSize);
 						if (valueColorStep === 0) { //Corner case - lower value and negative number
 							valueColorStep = 1;
@@ -374,12 +381,19 @@ function PlateView(plateController, plateModel) {
 						var color = this._getColorForStepBetweenWhiteAndBlack(valueColorStep, this._plateModel.numHeatmapColors);
 						this._repaintWellToColor(rowsIdx, colsIdx, color, valueColorStep);
 					}
+				} else {
+					var value = wellData.vocabularyTerms[featureIndex];
+					//TO-DO this._repaintWellToColor for Vocabularies
 				}
 			}
 		}
 		
 		//5. Paint Scale
-		this._repaintScale(shift, colorStepSize, this._plateModel.numHeatmapColors);
+		if(totalValuesScale > 0) {
+			this._repaintScale(shiftedMinValue, colorStepSize, this._plateModel.numHeatmapColors);
+		} else {
+			this._$scale.empty();
+		}
 	}
 	
 	this._repaintScale = function(shift, colorStepSize, numSteps) {
