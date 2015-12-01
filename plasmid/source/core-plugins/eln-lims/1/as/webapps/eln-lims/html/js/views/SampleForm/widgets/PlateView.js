@@ -18,6 +18,7 @@ function PlateView(plateController, plateModel) {
 	this._plateModel = plateModel;
 	this._$featureVectorDatasetFeaturesDropdown = null;
 	this._$featureVectorDatasetsDropdown = null;
+	this._$scaleDropdown = null;
 	this._$gridTable = null;
 	this._$scale = $("<span>");
 	
@@ -146,9 +147,29 @@ function PlateView(plateController, plateModel) {
 				}
 			});
 			
+			
+			// 3. Adding scale options
+			var scaleDropdownTerms = [];
+				scaleDropdownTerms.push({ code : "Max/Min", label : "Max/Min" });
+				scaleDropdownTerms.push({ code : "10/90", label : "10/90" });
+			
+			this._$scaleDropdown = FormUtil.getDropDownForTerms(
+												"scaleDropdown-" + this._plateModel.sample.permId,
+												scaleDropdownTerms,
+												"Scaling options",
+												false
+												);
+			this._$scaleDropdown.addClass("featureDropdown");
+			
+			this._$scaleDropdown.change(function(event) {
+			
+			});
+			
+			
 			//Build Toolbar
 			$toolbar.append(this._$featureVectorDatasetsDropdown)
-					.append(this._$featureVectorDatasetFeaturesDropdown);
+					.append(this._$featureVectorDatasetFeaturesDropdown)
+					.append(this._$scaleDropdown);
 		}
 		
 		//Paint grid
