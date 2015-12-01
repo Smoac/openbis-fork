@@ -119,24 +119,12 @@ def process(tr, parameters, tableBuilder):
 		isOk = updateDataSet(tr, parameters, tableBuilder);
 	
 	if method == "listFeatureVectorDatasetsPermIds":
-		from ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1 import IScreeningApiServer;
-		from ch.systemsx.cisd.openbis.dss.screening.shared.api.v1 import IDssServiceRpcScreening;
-		from ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto import PlateIdentifier;
-		from ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto import FeatureVectorDatasetReference;
 		result = listFeatureVectorDatasetsPermIds(tr, parameters, tableBuilder);
 		isOk = True;
 	if method == "listAvailableFeatures":
-		from ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1 import IScreeningApiServer;
-		from ch.systemsx.cisd.openbis.dss.screening.shared.api.v1 import IDssServiceRpcScreening;
-		from ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto import PlateIdentifier;
-		from ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto import FeatureVectorDatasetReference;
 		result = listAvailableFeatures(tr, parameters, tableBuilder);
 		isOk = True;
 	if method == "getFeaturesFromFeatureVector":
-		from ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1 import IScreeningApiServer;
-		from ch.systemsx.cisd.openbis.dss.screening.shared.api.v1 import IDssServiceRpcScreening;
-		from ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto import PlateIdentifier;
-		from ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto import FeatureVectorDatasetReference;
 		result = getFeaturesFromFeatureVector(tr, parameters, tableBuilder);
 		isOk = True;
 
@@ -156,6 +144,11 @@ def process(tr, parameters, tableBuilder):
 		row.setCell("MESSAGE", "Operation Failed");
 
 def listFeatureVectorDatasets(openBISURL, sessionToken, samplePlatePermId):
+	from ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1 import IScreeningApiServer;
+	from ch.systemsx.cisd.openbis.dss.screening.shared.api.v1 import IDssServiceRpcScreening;
+	from ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto import PlateIdentifier;
+	from ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto import FeatureVectorDatasetReference;
+	
 	screeningFinder = ServiceFinder("openbis", IScreeningApiServer.SERVICE_URL);
 	screeningServiceAS = screeningFinder.createService(IScreeningApiServer, openBISURL);
 	
@@ -169,6 +162,11 @@ def getJsonForData(data):
 	return jsonValue;
 
 def listFeatureVectorDatasetsPermIds(tr, parameters, tableBuilder):
+	from ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1 import IScreeningApiServer;
+	from ch.systemsx.cisd.openbis.dss.screening.shared.api.v1 import IDssServiceRpcScreening;
+	from ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto import PlateIdentifier;
+	from ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto import FeatureVectorDatasetReference;
+	
 	openBISURL = parameters.get("openBISURL");
 	sessionToken = parameters.get("sessionToken");
 	samplePlatePermId = parameters.get("samplePlatePermId");
@@ -181,6 +179,11 @@ def listFeatureVectorDatasetsPermIds(tr, parameters, tableBuilder):
 	return getJsonForData(featureVectorDatasetCodes);
 
 def listAvailableFeatures(tr, parameters, tableBuilder):
+	from ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1 import IScreeningApiServer;
+	from ch.systemsx.cisd.openbis.dss.screening.shared.api.v1 import IDssServiceRpcScreening;
+	from ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto import PlateIdentifier;
+	from ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto import FeatureVectorDatasetReference;
+		
 	openBISURL = parameters.get("openBISURL");
 	sessionToken = parameters.get("sessionToken");
 	samplePlatePermId = parameters.get("samplePlatePermId");
@@ -202,6 +205,11 @@ def listAvailableFeatures(tr, parameters, tableBuilder):
 	return getJsonForData(features);
 
 def getFeaturesFromFeatureVector(tr, parameters, tableBuilder):
+	from ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1 import IScreeningApiServer;
+	from ch.systemsx.cisd.openbis.dss.screening.shared.api.v1 import IDssServiceRpcScreening;
+	from ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto import PlateIdentifier;
+	from ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto import FeatureVectorDatasetReference;
+	
 	openBISURL = parameters.get("openBISURL");
 	sessionToken = parameters.get("sessionToken");
 	samplePlatePermId = parameters.get("samplePlatePermId");
