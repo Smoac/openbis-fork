@@ -18,6 +18,12 @@ notMigratedEntities = {
                        "ENTITY_TYPE" : {"ENTITY ID" : {"ERROR" : "TIMES" }}
                       }
 
+def getStringValueOrNone(map, key):
+    if (key in map) and (map[key] is not None) and (map[key] is not ""):
+        return map[key];
+    else:
+        return None;
+
 def addNotMigratedEntity(type, entityID, error):
     if type not in notMigratedEntities:
         notMigratedEntities[type] = {}
@@ -65,13 +71,14 @@ def process(tr):
 ## Help Methods
 ##
 def setEntityProperties(tr, definition, entity, properties):
-    for propertyCode, propertyValue in properties.iteritems():
+    for origPropertyCode, propertyValue in properties.iteritems():
+            propertyCode = origPropertyCode;
             if propertyCode.startswith("+"):
-                continue;
-            if propertyCode.startswith("-"):
+                propertyCode = propertyCode[1:];
+            elif propertyCode.startswith("-"):
                 continue
             
-            propertyDefinition = definitions.getPropertyDefinitionByCode(definition, propertyCode)
+            propertyDefinition = definitions.getPropertyDefinitionByCode(definition, origPropertyCode)
             if propertyValue is not None:
                 propertyValue =  unicode(propertyValue) 
 
@@ -119,71 +126,8 @@ def setEntityProperties(tr, definition, entity, properties):
                 else:
                     print "MISSING VALUE for: ", propertyDefinition[0], ": VALUE ", propertyValue, "POSS VALUE:",  possiblePropertyValue
                 
-       
-            #         if propertyDefinition[0] =="COMPANY" and propertyValue is not None:   
-            #             if propertyValue == "Sgmal-Aldrich":
-            #                 entity.setPropertyValue("COMPANY", "SIGMA-ALDRICH")
-            #             elif propertyValue =="fluka":
-            #                  entity.setPropertyValue("COMPANY", "FLUKA")
-            #             elif propertyValue =="Bio rad":
-            #                  entity.setPropertyValue("COMPANY", "BIO-RAD")
-            #             elif propertyValue =="merk":
-            #                  entity.setPropertyValue("COMPANY", "MERCK")
-            #             elif propertyValue =="JT Baker":
-            #                  entity.setPropertyValue("COMPANY", "JTBAKER")
-            #             elif propertyValue =="Sigma":
-            #                  entity.setPropertyValue("COMPANY", "SIGMA-ALDRICH")
-            #             elif propertyValue =="sigma":
-            #                  entity.setPropertyValue("COMPANY", "SIGMA-ALDRICH")                         
-            #             elif propertyValue =="BioChemica":
-            #                  entity.setPropertyValue("COMPANY", "BIOCHEMICA")
-            #             elif propertyValue =="molecular Probes":
-            #                  entity.setPropertyValue("COMPANY", "MOLECULAR_PROBES")
-            #             elif propertyValue =="SIGMA":
-            #                  entity.setPropertyValue("COMPANY", "SIGMA-ALDRICH")
-            #             elif propertyValue =="Invitrogen\r\r\r":
-            #                  entity.setPropertyValue("COMPANY", "INVITROGEN")
-            #             elif propertyValue =="Sigma Aldrich":
-            #                  entity.setPropertyValue("COMPANY", "SIGMA-ALDRICH")
-            #             elif propertyValue =="pierce":
-            #                  entity.setPropertyValue("COMPANY", "PIERCE")
-            #             elif propertyValue =="Merck":
-            #                  entity.setPropertyValue("COMPANY", "MERCK")
-            #             elif propertyValue =="calbiochem":
-            #                  entity.setPropertyValue("COMPANY", "CALBIOCHEM")
-            #             elif propertyValue =="Biorad":
-            #                  entity.setPropertyValue("COMPANY", "BIO-RAD")
-            #             elif propertyValue =="bd":
-            #                  entity.setPropertyValue("COMPANY", "BD")
-            #             elif propertyValue =="AppliChem":
-            #                  entity.setPropertyValue("COMPANY", "APPLICHEM")
-            #             elif propertyValue =="?":
-            #                  entity.setPropertyValue("COMPANY", "UNKNOWN")
-            #             else:
-            #                  entity.setPropertyValue("COMPANY", propertyValue)                            
-                    #===============================================================================
-                    # if propertyDefinition[0] =="LAB_MEMBERS" and propertyValue is not None:   
-                    #     print "LAB_MEMBERS", propertyDefinition[0], propertyValue 
-                    #     if propertyValue == "A.C. Ström" || propertyValue == "AC. Ström" || propertyValue == "A-C. Strom":
-                    #          entity.setPropertyValue("AC_STROM",   "A.C. Strom")
-                    #     elif propertyValue =="anneke":
-                    #          entity.setPropertyValue("A_HIBBEL",   "A. Hibbel")
-                    #     elif propertyValue =="B Zeitler" ||  propertyValue =="B.Zeitler":
-                    #          entity.setPropertyValue("B_ZEITLER",   "B. Zeitler")
-                    #     elif propertyValue =="Ben Monpetit" || propertyValue == "B.Montpetit":
-                    #          entity.setPropertyValue("B_MONTPETIT",   "B. Montpetit")                                                      
-                    #     elif propertyValue =="C.Brune" || propertyValue =="Christiane Brune" :
-                    #          entity.setPropertyValue("C_BRUNE",   "C. Brune")                      
-                    #     elif propertyValue =="C.Derrer" || propertyValue =="Carina":
-                    #          entity.setPropertyValue(v)
-                    #      elif propertyValue =="Carmen, Elisa" || propertyValue =="E.Dultz" || propertyValue =="Elisa" || propertyValue =="Elisa Dultz":
-                    #          entity.setPropertyValue("ELISA_DULTZ",   "E. Dultz")                          
-                    #      elif propertyValue =="anneke":
-                    #          entity.setPropertyValue("A_HIBBEL",   "A. Hibbel")                          
-                    #     elif propertyValue =="anneke":
-                    #          entity.setPropertyValue("A_HIBBEL",   "A. Hibbel")                           
-                    #===============================================================================
-                                                                      
+      
+ 
                     if propertyDefinition[0] =="BACTERIAL_STRAIN" and propertyValue is not None:   
                         print "BAC STRAIN", propertyDefinition[0], propertyValue 
                         if propertyValue == "XL10 Gold":
@@ -420,7 +364,7 @@ class FileMakerEntityAdaptor(EntityAdaptor):
                 if property[0].startswith("+"):
                     pass #Do Nothing
                 elif property[0]=="ANNOTATIONS_STATE":
-                    values[property[0]] =""
+                    values[property[0]] = unicode("");
                 else:
                     propertyCode = property[0];
                     if property[0].startswith("+"):
@@ -428,7 +372,7 @@ class FileMakerEntityAdaptor(EntityAdaptor):
                     if property[0].startswith("-"):
                         propertyCode = property[0][1:];
                     
-                    values[propertyCode] = result.getString(property[2])
+                    values[propertyCode] = unicode(result.getString(property[2]))
                     
             self.addEntity(values)
         result.close()
@@ -444,8 +388,6 @@ class FileMakerEntityAdaptor(EntityAdaptor):
                 propertyCode = field[0];
                 if propertyCode.startswith("+"):
                     continue
-                elif propertyCode.startswith("-"):
-                    propertyCode = propertyCode[1:];
                 
                 if not isFirst:
                     fields = fields + ", ";
@@ -468,7 +410,7 @@ class FileMakerEntityAdaptor(EntityAdaptor):
                             if cIdx is not 0:
                                 columName = result.getMetaData().getColumnName(cIdx);
                                 fieldName = fieldsNames[cIdx];
-                                entity.values[fieldName] = result.getString(cIdx);
+                                entity.values[fieldName] = unicode(result.getString(cIdx));
                     result.close()
                     preparedStatement.close()
         #
@@ -490,78 +432,6 @@ class FMOpenBISDTO(OpenBISDTO):
             else:
                 print "* ERROR [" + str(code) + "] - Invalid Code found for '" + self.__class__.__name__ + "'"
                 raise Exception('Invalid Code found ' + str(code))
-
-
-# class FMEntityMultipleValuesOpenBISDTO(OpenBISDTO):
-#     def getIdentifier(self, tr):
-#         return self.values["*CODE"]
-#     
-#     def write(self, tr):
-#         sample = getSampleForUpdate("/MATERIALS/"+self.values["*CODE"], None, tr)
-#         print "* INFO MultipleValueses size: " + str(len(self.values["*MultipleValuesESLIST"]))
-#         #Delete old MultipleValueses
-#         for MultipleValuesNum in range(1, definitions.numberOfRepetitions+1):
-#             for propertyCode in definitions.getRepetitionPropertyCodes():
-#                 sample.setPropertyValue(propertyCode + "_" + str(MultipleValuesNum), None)
-#          
-#         #Add new MultipleValueses
-#         MultipleValuesNum = 0
-#         for MultipleValues in self.values["*MultipleValuesESLIST"]:
-#             MultipleValuesNum += 1
-#             for propertyCode, propertyValue in MultipleValues.iteritems():
-#                 if propertyValue is not None:
-#                     propertyValue = unicode(propertyValue)
-#                     sample.setPropertyValue(propertyCode + "_" + str(MultipleValuesNum), propertyValue)
-#  
-#         #1. Setting MAT
-#         buildedPropertyValue = ""
-#         mat = sample.getPropertyValue("MAT")
-#         if mat is not None:
-#             if re.search("a", mat):
-#                 mat = mat.replace("a", u"\u03B1")
-#             if re.search("A", mat):
-#                 mat = mat.replace("A", "a")                
-#             buildedPropertyValue = buildedPropertyValue + "MAT " + unicode(mat) + " "
-#          
-#         #2. Adding unmarked mutations
-#         for listItemsMap in self.values["*MultipleValuesESLIST"]:
-#             unmarkedMutation = listItemsMap["UNMARKED_MUTATIONS"]
-#             if unmarkedMutation is not None:
-#                 buildedPropertyValue = buildedPropertyValue + unicode(unmarkedMutation + " ");
-#          
-#         #3. Add pairs of disruptions and markers
-#         for listItemsMap in self.values["*MultipleValuesESLIST"]:
-#             disruptions = listItemsMap["DISRUPTIONS"]
-#             markers = listItemsMap["MARKERS"]
-#             #print "disruptions, markers", disruptions, markers
-#             if (disruptions is not None and disruptions is not "") or (markers is not None and markers is not ""):
-#                 if disruptions is None:
-#                     disruptions = ""
-#                 if markers is None:
-#                     markers = ""
-#                 buildedPropertyValue = buildedPropertyValue + unicode(disruptions) + "::" + unicode(markers) + " "
-#         print repr("GENOTYPE" + unicode(buildedPropertyValue))
-#         sample.setPropertyValue("GENOTYPE", buildedPropertyValue)
-#     
-#     def isMultipleValuesPressent(self, MultipleValuesSignature, tr):
-#         sample = getSampleForUpdate("/MATERIALS/"+self.values["*CODE"], None, tr)
-#         if sample is not None:
-#             for MultipleValuesNum in range(1, definitions.numberOfRepetitions+1):
-#                 storedSignature = "";
-#                 for propertyCode in definitions.getRepetitionPropertyCodes():
-#                     propertyValue = sample.getPropertyValue(propertyCode + "_" + str(MultipleValuesNum))
-#                   
-#                     if propertyValue is not None:
-#                         propertyValue = unicode(propertyValue)
-#                         storedSignature += propertyValue 
-#                 if storedSignature == MultipleValuesSignature:
-#                     #print "Found MultipleValues " + storedSignature.encode('ascii', 'ignore')
-#                     return True
-#         return False
-#     
-#     def isInOpenBIS(self, tr):
-#         return False
-
 
 ##
 ## Antibodies
@@ -621,14 +491,39 @@ class StrainAdaptor(FileMakerEntityAdaptor):
 class StrainOpenBISDTO(FMOpenBISDTO):
     def write(self, tr):
         print str(self.values)
-        #Normal Definitions
+        #Build special properties programmatically
+        # TO-DO Tomorrow
+        
+        genotype = "";
+        #1. Set the mat if present
+        if getStringValueOrNone(self.values, "MAT") is not None:
+            genotype = "MAT " + self.values["MAT"] + " ";
+        
+        #2. Add unmarked mutations
+        for cIdx in range(1, 6):
+            if getStringValueOrNone(self.values, "-UNMARKED_MUTATIONS_" + str(cIdx)) is not None:
+                genotype = genotype + self.values["-UNMARKED_MUTATIONS_" + str(cIdx)] + " ";
+        
+        #3. Add pairs of disruptions and markers
+        for cIdx in range(1, 6):
+            disruption = getStringValueOrNone(self.values, "-DISRUPTIONS_" + str(cIdx));
+            marker = getStringValueOrNone(self.values, "-MARKERS_" + str(cIdx));
+            
+            if (disruption is not None) or (marker is not None):
+                if (disruption is not None):
+                    genotype = genotype + disruption;
+                genotype = genotype + "::";
+                if (marker is not None):
+                    genotype = genotype + marker;
+                genotype = genotype + " ";
+
+        self.values["+GENOTYPE"] = genotype
+        #
+#         print "GENOTYPE : ", str(self.values["+GENOTYPE"])
+        #Write properties
         code = self.values["NAME"]
         sample = getSampleForUpdate("/MATERIALS/"+code,"STRAIN", tr)
         setEntityProperties(tr, self.definition, sample, self.values)
-        #Add additional properties, merging the repetition properties
-        # TO-DO Tomorrow
-        #
-        
             
     def getIdentifier(self, tr):
         return self.values["NAME"]
