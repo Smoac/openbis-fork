@@ -43,26 +43,33 @@ function PlateView(plateController, plateModel) {
 					"Scaling options",
 					false
 					);
-			this._$scaleDropdown.addClass("featureDropdown");
+			this._$scaleDropdown.addClass("featureToolbarOption");
 			
 			this._$scaleDropdown.change(function(event) {
 			
 			});
 			
 			//Max and Min
+			this._$scaleMax = FormUtil.getTextInputField("scaleMax-" + this._plateModel.sample.permId, "Max Scale Value", false);
+			this._$scaleMax.addClass("featureToolbarOption");
 			
-			
+			this._$scaleMin = FormUtil.getTextInputField("scaleMin-" + this._plateModel.sample.permId, "Min Scale Value", false);
+			this._$scaleMin.addClass("featureToolbarOption");
 			
 			//Build Set
-			this._$scaleDropdownContainer.append(this._$scaleDropdown);
+			this._$scaleDropdownContainer.append(this._$scaleDropdown).append(this._$scaleMax).append(this._$scaleMin);
 		}
 		
 		this._$scaleDropdown.empty();
 		if(isEmpty) {
 			this._$scaleDropdown.append($("<option>").attr('value', '').text("Choose a Feature first"));
+			this._$scaleMax.hide();
+			this._$scaleMin.hide();
 		} else {
 			this._$scaleDropdown.append($("<option>").attr('value', 'Max/Min').text('Max/Min'));
 			this._$scaleDropdown.append($("<option>").attr('value', '10/90').text('10/90'));
+			this._$scaleMax.show();
+			this._$scaleMin.show();
 		}
 	}
 	
@@ -85,7 +92,7 @@ function PlateView(plateController, plateModel) {
 					"Choose a Feature Vector Dataset first",
 					false
 					);
-			this._$featureVectorDatasetFeaturesDropdown.addClass("featureDropdown");
+			this._$featureVectorDatasetFeaturesDropdown.addClass("featureToolbarOption");
 			this._$featureVectorDatasetFeaturesDropdown.change(function(event) {
 				var selectedFeature = $(this).val();
 				if(selectedFeature) {
@@ -151,7 +158,7 @@ function PlateView(plateController, plateModel) {
 												"Choose a Feature Vector Dataset please",
 												false
 												);
-			this._$featureVectorDatasetsDropdown.addClass("featureDropdown");
+			this._$featureVectorDatasetsDropdown.addClass("featureToolbarOption");
 			
 			this._$featureVectorDatasetsDropdown.change(function(event) {
 				var featureVectorDatasetCode = $(this).val();

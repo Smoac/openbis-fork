@@ -567,6 +567,10 @@ var FormUtil = new function() {
 		return $component;
 	}
 	
+	this.getTextInputField = function(id, alt, isRequired) {
+		return this._getInputField('text', id, alt, null, isRequired);
+	}
+	
 	this._getInputField = function(type, id, alt, step, isRequired) {
 		var $component = $('<input>', {'type' : type, 'id' : id, 'alt' : alt, 'placeholder' : alt, 'class' : 'form-control'});
 		if (isRequired) {
