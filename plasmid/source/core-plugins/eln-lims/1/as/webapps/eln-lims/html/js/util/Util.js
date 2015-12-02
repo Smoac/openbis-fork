@@ -442,6 +442,28 @@ var Util = new function() {
 	this.getURLFor = function(menuId, view, argsForView) {
 		return window.location.href.split("?")[0] + "?menuUniqueId=" +  menuId+ "&viewName=" + view + "&viewData=" + argsForView;
 	}
+	
+	//
+	// TSV Export
+	//
+	this.downloadTSV = function(arrayOfRowArrays, fileName) {
+		for(var rIdx = 0; rIdx < arrayOfRowArrays.length; rIdx++) {
+			for(var cIdx = 0; cIdx < arrayOfRowArrays[rIdx].length; cIdx++) {
+				var value = arrayOfRowArrays[rIdx][cIdx];
+				if(!value) {
+					value = "";
+				}
+				value = String(value).replace(/\r?\n|\r|\t/g, " "); //Remove carriage returns and tabs
+				arrayOfRowArrays[rIdx][cIdx] = value;
+			}
+		}
+		
+		var tsv = $.tsv.formatRows(arrayOfRowArrays);
+		var indexOfFirstLine = tsv.indexOf('\n');
+		var tsvWithoutNumbers = tsv.substring(indexOfFirstLine + 1);
+		var blob = new Blob([tsvWithoutNumbers], {type: 'text'});
+		saveAs(blob, fileName);
+	}
 }
 
 

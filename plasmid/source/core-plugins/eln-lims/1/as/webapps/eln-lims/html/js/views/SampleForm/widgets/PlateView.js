@@ -118,7 +118,7 @@ function PlateView(plateController, plateModel) {
 				
 				if(	newMin && 
 					newMin !== _this._plateModel.lastUsedScaleMin && 
-					newMin < _this._plateModel.lastUsedScaleMax) {	
+					newMin < _this._plateModel.lastUsedScaleMax) {
 					
 					var selectedFeatureVector = _this._$featureVectorDatasetsDropdown.val();
 					var selectedFeature = _this._$featureVectorDatasetFeaturesDropdown.val();
@@ -288,17 +288,18 @@ function PlateView(plateController, plateModel) {
 				var selectedFeatureVector = _this._$featureVectorDatasetsDropdown.val();
 				var selectedFeature = _this._$featureVectorDatasetFeaturesDropdown.val();
 				
-				var scale = {
-						min : _this._plateModel.lastUsedScaleMin,
-						max : _this._plateModel.lastUsedScaleMax
+				if(selectedFeatureVector && selectedFeature) {
+					var scale = {
+							min : _this._plateModel.lastUsedScaleMin,
+							max : _this._plateModel.lastUsedScaleMax
+					}
+					
+					var dataToExport = _this._getSelectedWells( selectedFeatureVector, 
+																selectedFeature,
+																scale);
+					
+					Util.downloadTSV("plate-" + _this._plateModel.sample.code + ".tsv");
 				}
-				
-				var dataToExport = _this._getSelectedWells( selectedFeatureVector, 
-															selectedFeature,
-															scale);
-				
-				var breakHere = "";
-				
 			});
 			
 			//Build Toolbar
@@ -545,7 +546,7 @@ function PlateView(plateController, plateModel) {
 		//2. Obtain wells inside of the scale
 		var wellsWithFeatureVectors = [];
 		for(var rowsIdx = 1; rowsIdx < featuresData.featureVectors.length; rowsIdx++) {
-			for(var colsIdx = 1; colsIdx < featuresData[rowsIdx].featureVectors.length; colsIdx++) {
+			for(var colsIdx = 1; colsIdx < featuresData.featureVectors[rowsIdx].length; colsIdx++) {
 				var wellData = featuresData.featureVectors[rowsIdx][colsIdx];
 				if(wellData.values[featureIndex] !== "NaN") {
 					var isOutOfScaleRange = wellData.values[featureIndex] < visibleScale.min || wellData.values[featureIndex] > visibleScale.max;
