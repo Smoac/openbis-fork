@@ -274,7 +274,7 @@ function PlateView(plateController, plateModel) {
 	    } : null;
 	}
 	
-	this._repaintWellToColor = function(row, column, rgbColor, txt) {
+	this._repaintWellToColor = function(row, column, rgbColor, txt, isDisabled) {
 		var $cell = this._getCell(row, column);
 			$cell.css( { "background-color" : rgbColor });
 		this._setToolTip($cell, row, column);
@@ -282,7 +282,11 @@ function PlateView(plateController, plateModel) {
 		if(txt) {
 			$cell.append(txt);
 		}
-		
+		if(isDisabled) {
+			$cell.fadeTo(1000, 0.1);
+		} else {
+			$cell.fadeTo(1000, 1);
+		}
 		//Redundant coding
 		var rgb = this._hexToRgb(rgbColor);
 		var fontColor = (rgb && (rgb.r*0.299 + rgb.g*0.587 + rgb.b*0.114) > 186)?"#000000":"#ffffff";
@@ -431,15 +435,24 @@ function PlateView(plateController, plateModel) {
 	}
 	
 	this._repaintGridToFeatureVectorColors = function(featureVectorDatasetCode, featureCode, scale) {
-		//1. Obtain feature Index
+		//1. Clean grid and scale
+		this._cleanGrid();
+		this._$scale.empty();
+		
+		//2. Obtain feature
 		var featuresData = this._plateModel.sample.featureVectorsCache.featureVectorDatasetsFeaturesData[featureVectorDatasetCode];
 		var featureIndex = this._getFeatureIndex(featureVectorDatasetCode, featureCode);
+		var isVocabulary = this._isFeatureVocabulary(featureVectorDatasetCode, featureCode);
 		
-		//2. Define Color Step
+		if(isVocabulary) { //Don't paint vocabularies
+			return;
+		}
+		
+		//3. Define Color Step
 		if(!scale) {
 			scale = this._getMaxMinScale(featureVectorDatasetCode, featureCode);
 		}
-		var isVocabulary = this._isFeatureVocabulary(featureVectorDatasetCode, featureCode);
+		
 		var minValue = scale.min;
 		var maxValue = scale.max;
 		var shiftedMaxValue = null;
@@ -453,11 +466,7 @@ function PlateView(plateController, plateModel) {
 		}
 		
 		shiftedMaxValue =  maxValue + shiftedMinValue;
-		
 		var colorStepSize = shiftedMaxValue / this._plateModel.numHeatmapColors;
-		
-		//3. Clean Colors
-		this._cleanGrid();
 		
 		//4. Paint Colors
 		for(var rowsIdx = 1; rowsIdx < featuresData.featureVectors.length; rowsIdx++) {
@@ -465,6 +474,7 @@ function PlateView(plateController, plateModel) {
 				var wellData = featuresData.featureVectors[rowsIdx][colsIdx];
 				if(!isVocabulary) { //Don't support vocabularies for now
 					if(wellData.values[featureIndex] !== "NaN") {
+						var isOutOfScaleRange = wellData.values[featureIndex] < minValue || wellData.values[featureIndex] > maxValue;
 						var value = wellData.values[featureIndex] + shiftedMinValue;
 						var valueColorStep = Math.ceil(value / colorStepSize);
 						if (valueColorStep === 0) { //Corner case - lower value and negative number
@@ -473,7 +483,7 @@ function PlateView(plateController, plateModel) {
 							valueColorStep = 1;
 						}
 						var color = this._getColorForStepBetweenWhiteAndBlack(valueColorStep, this._plateModel.numHeatmapColors);
-						this._repaintWellToColor(rowsIdx, colsIdx, color, valueColorStep);
+						this._repaintWellToColor(rowsIdx, colsIdx, color, valueColorStep, isOutOfScaleRange);
 					}
 				} else {
 					var value = wellData.vocabularyTerms[featureIndex];
@@ -486,8 +496,6 @@ function PlateView(plateController, plateModel) {
 		this._setScaleFields(minValue, maxValue);
 		if(totalValuesScale > 0) {
 			this._repaintScale(shiftedMinValue, colorStepSize, this._plateModel.numHeatmapColors);
-		} else {
-			this._$scale.empty();
 		}
 	}
 	
