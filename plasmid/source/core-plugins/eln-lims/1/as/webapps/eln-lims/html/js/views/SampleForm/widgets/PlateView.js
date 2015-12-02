@@ -52,7 +52,7 @@ function PlateView(plateController, plateModel) {
 					"Scaling options",
 					false
 					);
-			this._$scaleDropdown.addClass("featureToolbarOption");
+			this._$scaleDropdown.addClass("featureToolbarOptionSmall");
 			
 			this._$scaleDropdown.change(function(event) {
 				var selectedFeatureVector = _this._$featureVectorDatasetsDropdown.val();
@@ -77,7 +77,7 @@ function PlateView(plateController, plateModel) {
 			
 			//Max and Min
 			this._$scaleMax = FormUtil.getTextInputField("scaleMax-" + this._plateModel.sample.permId, "Max Scale Value", false);
-			this._$scaleMax.addClass("featureToolbarOption");
+			this._$scaleMax.addClass("featureToolbarOptionSmall");
 			this._$scaleMax.change(function() {
 				var newMax = null;
 				try {
@@ -107,7 +107,7 @@ function PlateView(plateController, plateModel) {
 				}
 			});
 			this._$scaleMin = FormUtil.getTextInputField("scaleMin-" + this._plateModel.sample.permId, "Min Scale Value", false);
-			this._$scaleMin.addClass("featureToolbarOption");
+			this._$scaleMin.addClass("featureToolbarOptionSmall");
 			this._$scaleMin.change(function() {
 				var newMin = null;
 				try {

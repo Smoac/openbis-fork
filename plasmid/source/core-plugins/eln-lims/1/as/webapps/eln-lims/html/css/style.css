@@ -458,9 +458,13 @@ table.downloads {
 	cursor : pointer;
 }
 
-#sample-form-plate-view > div > .featureToolbarOption,
-#sample-form-plate-view > div > span > .featureToolbarOption {
+#sample-form-plate-view > div > .featureToolbarOption {
 	max-width: 300px;
+	display: inline;
+}
+
+#sample-form-plate-view > div > span > .featureToolbarOptionSmall {
+	max-width: 170px;
 	display: inline;
 }
 
