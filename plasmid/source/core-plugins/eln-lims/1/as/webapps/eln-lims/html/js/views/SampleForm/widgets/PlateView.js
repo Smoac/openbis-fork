@@ -38,6 +38,8 @@ function PlateView(plateController, plateModel) {
 	}
 	
 	this._repaintScaleDropDown = function(isNew, isEmpty) {
+		var _this = this;
+		
 		if(isNew) {
 			this._$scaleDropdownContainer = $("<span>", { "style" : "inline" });
 			
@@ -51,7 +53,24 @@ function PlateView(plateController, plateModel) {
 			this._$scaleDropdown.addClass("featureToolbarOption");
 			
 			this._$scaleDropdown.change(function(event) {
-			
+				var selectedFeatureVector = _this._$featureVectorDatasetsDropdown.val();
+				var selectedFeature = _this._$featureVectorDatasetFeaturesDropdown.val();
+				var selectedScale = _this._$scaleDropdown.val();
+				var scale = null;
+				
+				if(selectedScale === 'Min/Max') {
+					scale = _this._getMaxMinScale(selectedFeatureVector, selectedFeature);
+				} else if(selectedScale === '10/90') {
+					scale = _this._getMaxMinScale(selectedFeatureVector, selectedFeature);
+					var scale10Percent = Math.abs(scale.max / 10);
+					scale.max = scale.max - scale10Percent;
+					scale.min = scale.min + scale10Percent;
+				}
+				
+				_this._repaintGridToFeatureVectorColors(
+						selectedFeatureVector,
+						selectedFeature,
+						scale);
 			});
 			
 			//Max and Min
@@ -71,7 +90,7 @@ function PlateView(plateController, plateModel) {
 			this._$scaleMax.hide();
 			this._$scaleMin.hide();
 		} else {
-			this._$scaleDropdown.append($("<option>").attr('value', 'Max/Min').text('Max/Min'));
+			this._$scaleDropdown.append($("<option>").attr('value', 'Min/Max').text('Min/Max'));
 			this._$scaleDropdown.append($("<option>").attr('value', '10/90').text('10/90'));
 			this._$scaleMax.show();
 			this._$scaleMin.show();
@@ -283,7 +302,7 @@ function PlateView(plateController, plateModel) {
 			$cell.append(txt);
 		}
 		if(isDisabled) {
-			$cell.fadeTo(1000, 0.1);
+			$cell.fadeTo(1000, 0.3);
 		} else {
 			$cell.fadeTo(1000, 1);
 		}
@@ -434,7 +453,7 @@ function PlateView(plateController, plateModel) {
 		};
 	}
 	
-	this._repaintGridToFeatureVectorColors = function(featureVectorDatasetCode, featureCode, scale) {
+	this._repaintGridToFeatureVectorColors = function(featureVectorDatasetCode, featureCode, visibleScale) {
 		//1. Clean grid and scale
 		this._cleanGrid();
 		this._$scale.empty();
@@ -449,12 +468,12 @@ function PlateView(plateController, plateModel) {
 		}
 		
 		//3. Define Color Step
-		if(!scale) {
-			scale = this._getMaxMinScale(featureVectorDatasetCode, featureCode);
+		var minMaxScale = this._getMaxMinScale(featureVectorDatasetCode, featureCode);
+		if(!visibleScale) {
+			visibleScale = minMaxScale;
 		}
-		
-		var minValue = scale.min;
-		var maxValue = scale.max;
+		var minValue = minMaxScale.min;
+		var maxValue = minMaxScale.max;
 		var shiftedMaxValue = null;
 		var shiftedMinValue = null;
 		var totalValuesScale = maxValue - minValue;
@@ -474,7 +493,7 @@ function PlateView(plateController, plateModel) {
 				var wellData = featuresData.featureVectors[rowsIdx][colsIdx];
 				if(!isVocabulary) { //Don't support vocabularies for now
 					if(wellData.values[featureIndex] !== "NaN") {
-						var isOutOfScaleRange = wellData.values[featureIndex] < minValue || wellData.values[featureIndex] > maxValue;
+						var isOutOfScaleRange = wellData.values[featureIndex] < visibleScale.min || wellData.values[featureIndex] > visibleScale.max;
 						var value = wellData.values[featureIndex] + shiftedMinValue;
 						var valueColorStep = Math.ceil(value / colorStepSize);
 						if (valueColorStep === 0) { //Corner case - lower value and negative number
@@ -493,7 +512,7 @@ function PlateView(plateController, plateModel) {
 		}
 		
 		//5. Paint Scale
-		this._setScaleFields(minValue, maxValue);
+		this._setScaleFields(visibleScale.min, visibleScale.max);
 		if(totalValuesScale > 0) {
 			this._repaintScale(shiftedMinValue, colorStepSize, this._plateModel.numHeatmapColors);
 		}
