@@ -285,6 +285,19 @@ function PlateView(plateController, plateModel) {
 			var $exportHighlighted = FormUtil.getButtonWithText("Export Highlighted");
 			$exportHighlighted.css({"display" : "inline", "vertical-align" : "baseline" });
 			$exportHighlighted.click(function() {
+				var selectedFeatureVector = _this._$featureVectorDatasetsDropdown.val();
+				var selectedFeature = _this._$featureVectorDatasetFeaturesDropdown.val();
+				
+				var scale = {
+						min : _this._plateModel.lastUsedScaleMin,
+						max : _this._plateModel.lastUsedScaleMax
+				}
+				
+				var dataToExport = _this._getSelectedWells( selectedFeatureVector, 
+															selectedFeature,
+															scale);
+				
+				var breakHere = "";
 				
 			});
 			
@@ -519,6 +532,35 @@ function PlateView(plateController, plateModel) {
 		};
 	}
 	
+	this._getSelectedWells = function(featureVectorDatasetCode, featureCode, visibleScale) {
+		//1. Obtain feature
+		var featuresData = this._plateModel.sample.featureVectorsCache.featureVectorDatasetsFeaturesData[featureVectorDatasetCode];
+		var featureIndex = this._getFeatureIndex(featureVectorDatasetCode, featureCode);
+		var isVocabulary = this._isFeatureVocabulary(featureVectorDatasetCode, featureCode);
+		
+		if(isVocabulary) { //Don't paint vocabularies
+			return;
+		}
+		
+		//2. Obtain wells inside of the scale
+		var wellsWithFeatureVectors = [];
+		for(var rowsIdx = 1; rowsIdx < featuresData.featureVectors.length; rowsIdx++) {
+			for(var colsIdx = 1; colsIdx < featuresData[rowsIdx].featureVectors.length; colsIdx++) {
+				var wellData = featuresData.featureVectors[rowsIdx][colsIdx];
+				if(wellData.values[featureIndex] !== "NaN") {
+					var isOutOfScaleRange = wellData.values[featureIndex] < visibleScale.min || wellData.values[featureIndex] > visibleScale.max;
+					if(!isOutOfScaleRange) {
+						wellsWithFeatureVectors.push({
+							sample: this._plateModel.getWell(rowsIdx, colsIdx),
+							featureVectors : wellData
+						});
+					}
+				}
+			}
+		}
+		return wellsWithFeatureVectors;
+	}
+	
 	this._repaintGridToFeatureVectorColors = function(featureVectorDatasetCode, featureCode, visibleScale) {
 		//1. Clean grid and scale
 		this._cleanGrid();
@@ -555,7 +597,7 @@ function PlateView(plateController, plateModel) {
 		
 		//4. Paint Colors
 		for(var rowsIdx = 1; rowsIdx < featuresData.featureVectors.length; rowsIdx++) {
-			for(var colsIdx = 1; colsIdx < featuresData.featureVectors.length; colsIdx++) {
+			for(var colsIdx = 1; colsIdx < featuresData.featureVectors[rowsIdx].length; colsIdx++) {
 				var wellData = featuresData.featureVectors[rowsIdx][colsIdx];
 				if(!isVocabulary) { //Don't support vocabularies for now
 					if(wellData.values[featureIndex] !== "NaN") {
@@ -569,6 +611,8 @@ function PlateView(plateController, plateModel) {
 						}
 						var color = this._getColorForStepBetweenWhiteAndBlack(valueColorStep, this._plateModel.numHeatmapColors);
 						this._repaintWellToColor(rowsIdx, colsIdx, color, valueColorStep, isOutOfScaleRange);
+					} else {
+						this._repaintWellToColor(rowsIdx, colsIdx, "#ffffff", "", true); //Out of scale NaN value
 					}
 				} else {
 					var value = wellData.vocabularyTerms[featureIndex];
