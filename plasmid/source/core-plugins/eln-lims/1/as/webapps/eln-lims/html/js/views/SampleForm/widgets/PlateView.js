@@ -599,24 +599,19 @@ function PlateView(plateController, plateModel) {
 		for(var rowsIdx = 1; rowsIdx < featuresData.featureVectors.length; rowsIdx++) {
 			for(var colsIdx = 1; colsIdx < featuresData.featureVectors[rowsIdx].length; colsIdx++) {
 				var wellData = featuresData.featureVectors[rowsIdx][colsIdx];
-				if(!isVocabulary) { //Don't support vocabularies for now
-					if(wellData.values[featureIndex] !== "NaN") {
-						var isOutOfScaleRange = wellData.values[featureIndex] < visibleScale.min || wellData.values[featureIndex] > visibleScale.max;
-						var value = wellData.values[featureIndex] + shiftedMinValue;
-						var valueColorStep = Math.ceil(value / colorStepSize);
-						if (valueColorStep === 0) { //Corner case - lower value and negative number
-							valueColorStep = 1;
-						} else if(isNaN(valueColorStep) && value === 0) { //Corner case - all numbers are 0
-							valueColorStep = 1;
-						}
-						var color = this._getColorForStepBetweenWhiteAndBlack(valueColorStep, this._plateModel.numHeatmapColors);
-						this._repaintWellToColor(rowsIdx, colsIdx, color, valueColorStep, isOutOfScaleRange);
-					} else {
-						this._repaintWellToColor(rowsIdx, colsIdx, "#ffffff", "", true); //Out of scale NaN value
+				if(wellData.values[featureIndex] !== "NaN") {
+					var isOutOfScaleRange = wellData.values[featureIndex] < visibleScale.min || wellData.values[featureIndex] > visibleScale.max;
+					var value = wellData.values[featureIndex] + shiftedMinValue;
+					var valueColorStep = Math.ceil(value / colorStepSize);
+					if (valueColorStep === 0) { //Corner case - lower value and negative number
+						valueColorStep = 1;
+					} else if(isNaN(valueColorStep) && value === 0) { //Corner case - all numbers are 0
+						valueColorStep = 1;
 					}
+					var color = this._getColorForStepBetweenWhiteAndBlack(valueColorStep, this._plateModel.numHeatmapColors);
+					this._repaintWellToColor(rowsIdx, colsIdx, color, valueColorStep, isOutOfScaleRange);
 				} else {
-					var value = wellData.vocabularyTerms[featureIndex];
-					//TO-DO this._repaintWellToColor for Vocabularies
+					this._repaintWellToColor(rowsIdx, colsIdx, "#ffffff", "", true); //Out of scale NaN value
 				}
 			}
 		}
