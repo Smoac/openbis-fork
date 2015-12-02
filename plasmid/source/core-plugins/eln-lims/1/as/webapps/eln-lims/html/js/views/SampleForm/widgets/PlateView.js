@@ -373,30 +373,44 @@ function PlateView(plateController, plateModel) {
 	//
 	// Utility methods to handle feature vectors
 	//
-	this._repaintGridToFeatureVectorColors = function(featureVectorDatasetCode, featureCode) {
-		//1. Obtain feature Index
+	this._getFeatureIndex = function(featureVectorDatasetCode, featureCode) {
 		var featuresData = this._plateModel.sample.featureVectorsCache.featureVectorDatasetsFeaturesData[featureVectorDatasetCode];
-		var featureIndex = null;
-		
 		for(var fIdx = 0; fIdx < featuresData.featureCodes.length; fIdx++) {
 			if(featuresData.featureCodes[fIdx] === featureCode) {
-				featureIndex = fIdx;
-				break;
+				return fIdx;
 			}
 		}
+	}
+	
+	this._isFeatureVocabulary = function(featureVectorDatasetCode, featureCode) {
+		//1. Obtain feature Index
+		var featuresData = this._plateModel.sample.featureVectorsCache.featureVectorDatasetsFeaturesData[featureVectorDatasetCode];
+		var featureIndex = this._getFeatureIndex(featureVectorDatasetCode, featureCode);
 		
-		//2. Define Color Step
+		//2. Check is Vocabulary
+		for(var rowsIdx = 1; rowsIdx < featuresData.featureVectors.length; rowsIdx++) {
+			for(var colsIdx = 1; colsIdx < featuresData.featureVectors.length; colsIdx++) {
+				var wellData = featuresData.featureVectors[rowsIdx][colsIdx];
+				return wellData.vocabularyFeatureFlags[featureIndex];
+			}
+		}
+	}
+	
+	this._getMaxMinScale = function(featureVectorDatasetCode, featureCode) {
+		//1. Obtain feature Index
+		var featuresData = this._plateModel.sample.featureVectorsCache.featureVectorDatasetsFeaturesData[featureVectorDatasetCode];
+		var featureIndex = this._getFeatureIndex(featureVectorDatasetCode, featureCode);
+		
+		//2. Obtain Max/Min scale
 		var minValue = null;
 		var maxValue = null;
-		var isVocabulary = false;
+		var isVocabulary = this._isFeatureVocabulary(featureVectorDatasetCode, featureCode);
 		
 		for(var rowsIdx = 1; rowsIdx < featuresData.featureVectors.length; rowsIdx++) {
 			for(var colsIdx = 1; colsIdx < featuresData.featureVectors.length; colsIdx++) {
 				var wellData = featuresData.featureVectors[rowsIdx][colsIdx];
-				isVocabulary = wellData.vocabularyFeatureFlags[featureIndex];
-				if(!isVocabulary) { //Don't support vocabularies for now
+				if(!isVocabulary) { //Don't support vocabularies on Max/Min Scale
 					var value = wellData.values[featureIndex];
-					
 					if(value !== "NaN") {
 						if(!minValue || value < minValue) {
 							minValue = value;
@@ -410,6 +424,24 @@ function PlateView(plateController, plateModel) {
 			}
 		}
 		
+		return {
+			max : maxValue,
+			min : minValue
+		};
+	}
+	
+	this._repaintGridToFeatureVectorColors = function(featureVectorDatasetCode, featureCode, scale) {
+		//1. Obtain feature Index
+		var featuresData = this._plateModel.sample.featureVectorsCache.featureVectorDatasetsFeaturesData[featureVectorDatasetCode];
+		var featureIndex = this._getFeatureIndex(featureVectorDatasetCode, featureCode);
+		
+		//2. Define Color Step
+		if(!scale) {
+			scale = this._getMaxMinScale(featureVectorDatasetCode, featureCode);
+		}
+		var isVocabulary = this._isFeatureVocabulary(featureVectorDatasetCode, featureCode);
+		var minValue = scale.min;
+		var maxValue = scale.max;
 		var shiftedMaxValue = null;
 		var shiftedMinValue = null;
 		var totalValuesScale = maxValue - minValue;
@@ -506,6 +538,8 @@ function PlateView(plateController, plateModel) {
 				} else {
 					this._repaintWellToColor(row, column, "");
 				}
+			} else {
+				this._repaintWellToColor(row, column, "");
 			}
 		} else {
 			this._repaintWellToColor(row, column, "transparent");
