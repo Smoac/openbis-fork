@@ -476,7 +476,6 @@ var common = {
   DATA_SET_MENU_TYPES: "Data Set Types",
   DATA_SET_MENU_FILE_FORMATS: "File Types",
   DATA_SET_MENU_UPLOAD: "Data Set Registration (via CIFEX)",
-  DATA_SET_MENU_UPLOAD_CLIENT: "Data Set Registration",
   DATA_SET_MENU_MASS_UPDATE: "Data Set Metadata Update",
   data_set_batch_update: "Data Set Metadata Batch Update",
   

@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.top;
 import com.extjs.gxt.ui.client.event.MenuEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
-import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Window;
 
@@ -78,8 +77,6 @@ public class ImportMenu extends TopMenuItem
                             "resizable=yes,scrollbars=yes,dependent=yes");
                 }
             };
-        submenu.add(new MenuItem(TopMenu.ActionMenuKind.DATA_SET_MENU_UPLOAD_CLIENT
-                .getMenuText(messageProvider), listener));
 
         boolean cifexConfigured =
                 StringUtils.isNotBlank(applicationInfo.getCifexRecipient())
