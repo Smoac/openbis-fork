@@ -143,7 +143,7 @@ function PlateView(plateController, plateModel) {
 		
 		this._$scaleDropdown.empty();
 		if(isEmpty) {
-			this._$scaleDropdown.append($("<option>").attr('value', '').text("Choose a Feature first"));
+			this._$scaleDropdown.append($("<option>").attr('value', '').text("Choose a Feature"));
 			this._$scaleMax.hide();
 			this._$scaleMin.hide();
 		} else {
