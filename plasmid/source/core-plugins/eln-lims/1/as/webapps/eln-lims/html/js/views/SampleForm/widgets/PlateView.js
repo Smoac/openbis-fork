@@ -32,6 +32,11 @@ function PlateView(plateController, plateModel) {
 		return container[0].outerHTML
 	}
 	
+	this._setScaleFields = function(min, max) {
+		this._$scaleMin.val(min);
+		this._$scaleMax.val(max);
+	}
+	
 	this._repaintScaleDropDown = function(isNew, isEmpty) {
 		if(isNew) {
 			this._$scaleDropdownContainer = $("<span>", { "style" : "inline" });
@@ -57,7 +62,7 @@ function PlateView(plateController, plateModel) {
 			this._$scaleMin.addClass("featureToolbarOption");
 			
 			//Build Set
-			this._$scaleDropdownContainer.append(this._$scaleDropdown).append(this._$scaleMax).append(this._$scaleMin);
+			this._$scaleDropdownContainer.append(this._$scaleDropdown).append(this._$scaleMin).append(this._$scaleMax);
 		}
 		
 		this._$scaleDropdown.empty();
@@ -446,6 +451,7 @@ function PlateView(plateController, plateModel) {
 		}
 		
 		//5. Paint Scale
+		this._setScaleFields(minValue, maxValue);
 		if(totalValuesScale > 0) {
 			this._repaintScale(shiftedMinValue, colorStepSize, this._plateModel.numHeatmapColors);
 		} else {
