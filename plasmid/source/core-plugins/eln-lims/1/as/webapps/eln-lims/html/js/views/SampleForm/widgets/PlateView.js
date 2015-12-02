@@ -282,11 +282,20 @@ function PlateView(plateController, plateModel) {
 				}
 			});
 			
+			var $exportHighlighted = FormUtil.getButtonWithText("Export Highlighted");
+			$exportHighlighted.css({"display" : "inline", "vertical-align" : "baseline" });
+			$exportHighlighted.click(function() {
+				
+			});
 			
 			//Build Toolbar
 			$toolbar.append(this._$featureVectorDatasetsDropdown)
+					.append("&nbsp;")
 					.append(this._$featureVectorDatasetFeaturesDropdown)
-					.append(this._$scaleDropdownContainer);
+					.append("&nbsp;")
+					.append(this._$scaleDropdownContainer)
+					.append("&nbsp;")
+					.append($exportHighlighted);
 		}
 		
 		//Paint grid
