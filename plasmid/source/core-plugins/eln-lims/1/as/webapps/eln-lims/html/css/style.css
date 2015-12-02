@@ -458,7 +458,8 @@ table.downloads {
 	cursor : pointer;
 }
 
-#sample-form-plate-view > div > .featureDropdown {
+#sample-form-plate-view > div > .featureDropdown,
+#sample-form-plate-view > div > span > .featureDropdown {
 	max-width: 300px;
 	display: inline;
 }
