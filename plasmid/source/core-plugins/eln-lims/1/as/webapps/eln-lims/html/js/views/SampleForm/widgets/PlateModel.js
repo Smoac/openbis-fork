@@ -18,6 +18,9 @@ function PlateModel(sample, isDisabled) {
 	this.sample = sample;
 	
 	this.numHeatmapColors = 10;
+	this.lastUsedScaleMin = null;
+	this.lastUsedScaleMax = null;
+	
 	this.sample.featureVectorsCache = {};
 	this.sample.featureVectorsCache.featureVectorDatasetsFeatures = {};
 	this.sample.featureVectorsCache.featureVectorDatasetsFeaturesData = {};

@@ -35,6 +35,8 @@ function PlateView(plateController, plateModel) {
 	this._setScaleFields = function(min, max) {
 		this._$scaleMin.val(min);
 		this._$scaleMax.val(max);
+		this._plateModel.lastUsedScaleMin = min;
+		this._plateModel.lastUsedScaleMax = max;
 	}
 	
 	this._repaintScaleDropDown = function(isNew, isEmpty) {
@@ -76,9 +78,64 @@ function PlateView(plateController, plateModel) {
 			//Max and Min
 			this._$scaleMax = FormUtil.getTextInputField("scaleMax-" + this._plateModel.sample.permId, "Max Scale Value", false);
 			this._$scaleMax.addClass("featureToolbarOption");
-			
+			this._$scaleMax.change(function() {
+				var newMax = null;
+				try {
+					newMax = parseFloat(_this._$scaleMax.val());
+				} catch(err) {
+					
+				}
+				
+				if(	newMax && 
+					newMax !== _this._plateModel.lastUsedScaleMax && 
+					newMax > _this._plateModel.lastUsedScaleMin) {	
+					
+					var selectedFeatureVector = _this._$featureVectorDatasetsDropdown.val();
+					var selectedFeature = _this._$featureVectorDatasetFeaturesDropdown.val();
+					
+					var scale = {
+							min : _this._plateModel.lastUsedScaleMin,
+							max : newMax
+					}
+					
+					_this._repaintGridToFeatureVectorColors(
+							selectedFeatureVector,
+							selectedFeature,
+							scale);
+				} else {
+					_this._$scaleMax.val(_this._plateModel.lastUsedScaleMax);
+				}
+			});
 			this._$scaleMin = FormUtil.getTextInputField("scaleMin-" + this._plateModel.sample.permId, "Min Scale Value", false);
 			this._$scaleMin.addClass("featureToolbarOption");
+			this._$scaleMin.change(function() {
+				var newMin = null;
+				try {
+					newMin = parseFloat(_this._$scaleMin.val());
+				} catch(err) {
+					
+				}
+				
+				if(	newMin && 
+					newMin !== _this._plateModel.lastUsedScaleMin && 
+					newMin < _this._plateModel.lastUsedScaleMax) {	
+					
+					var selectedFeatureVector = _this._$featureVectorDatasetsDropdown.val();
+					var selectedFeature = _this._$featureVectorDatasetFeaturesDropdown.val();
+					
+					var scale = {
+							min : newMin,
+							max : _this._plateModel.lastUsedScaleMax
+					}
+					
+					_this._repaintGridToFeatureVectorColors(
+							selectedFeatureVector,
+							selectedFeature,
+							scale);
+				} else {
+					_this._$scaleMin.val(_this._plateModel.lastUsedScaleMin);
+				}
+			});
 			
 			//Build Set
 			this._$scaleDropdownContainer.append(this._$scaleDropdown).append(this._$scaleMin).append(this._$scaleMax);
