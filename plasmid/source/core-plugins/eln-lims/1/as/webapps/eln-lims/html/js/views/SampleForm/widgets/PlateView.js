@@ -19,6 +19,9 @@ function PlateView(plateController, plateModel) {
 	this._$featureVectorDatasetFeaturesDropdown = null;
 	this._$featureVectorDatasetsDropdown = null;
 	this._$scaleDropdown = null;
+	this._$scaleMax = null;
+	this._$scaleMin = null;
+	this._$scaleDropdownContainer = null;
 	this._$gridTable = null;
 	this._$scale = $("<span>");
 	
@@ -27,6 +30,40 @@ function PlateView(plateController, plateModel) {
 		var gridTable = this.getGridTable(false);
 		container.append(gridTable);
 		return container[0].outerHTML
+	}
+	
+	this._repaintScaleDropDown = function(isNew, isEmpty) {
+		if(isNew) {
+			this._$scaleDropdownContainer = $("<span>", { "style" : "inline" });
+			
+			//Scale
+			this._$scaleDropdown = FormUtil.getDropDownForTerms(
+					"scaleDropdown-" + this._plateModel.sample.permId,
+					[],
+					"Scaling options",
+					false
+					);
+			this._$scaleDropdown.addClass("featureDropdown");
+			
+			this._$scaleDropdown.change(function(event) {
+			
+			});
+			
+			//Max and Min
+			
+			
+			
+			//Build Set
+			this._$scaleDropdownContainer.append(this._$scaleDropdown);
+		}
+		
+		this._$scaleDropdown.empty();
+		if(isEmpty) {
+			this._$scaleDropdown.append($("<option>").attr('value', '').text("Choose a Feature first"));
+		} else {
+			this._$scaleDropdown.append($("<option>").attr('value', 'Max/Min').text('Max/Min'));
+			this._$scaleDropdown.append($("<option>").attr('value', '10/90').text('10/90'));
+		}
 	}
 	
 	this.repaint = function($container) {
@@ -38,7 +75,10 @@ function PlateView(plateController, plateModel) {
 			this._plateModel.sample.featureVectorsCache &&
 			this._plateModel.sample.featureVectorsCache.featureVectorDatasets) {
 			
-			//1. Selected Feature Vector Dataset Features
+			//Scale
+			this._repaintScaleDropDown(true, true);
+			
+			//Selected Feature Vector Dataset Features
 			this._$featureVectorDatasetFeaturesDropdown = FormUtil.getDropDownForTerms(
 					"featureVectorDatasetFeaturesDropdown-" + this._plateModel.sample.permId,
 					[],
@@ -49,6 +89,10 @@ function PlateView(plateController, plateModel) {
 			this._$featureVectorDatasetFeaturesDropdown.change(function(event) {
 				var selectedFeature = $(this).val();
 				if(selectedFeature) {
+					//Update Scale Dropdown
+					_this._repaintScaleDropDown(false, false);
+					
+					//Update Feature
 					var featureVectorDatasetCode = _this._$featureVectorDatasetsDropdown.val();
 					
 					if(_this._plateModel.sample.featureVectorsCache.featureVectorDatasetsFeaturesData[featureVectorDatasetCode]) {
@@ -66,8 +110,8 @@ function PlateView(plateController, plateModel) {
 							"featureVectorDatasetPermId" : featureVectorDatasetCode,
 							"featuresCodesFromFeatureVector" : featuresCodesFromFeatureVector
 						}, function(error, result){
+							//Get features data
 							var receivedData = result.data[0];
-							
 							var dataByPosition = [];
 							for(var wellIdx = 0; wellIdx < receivedData.featureVectors.length; wellIdx++) {
 								var wellData = receivedData.featureVectors[wellIdx];
@@ -86,11 +130,12 @@ function PlateView(plateController, plateModel) {
 						});
 					}
 				} else {
+					_this._repaintScaleDropDown(false, true);
 					_this._repaintGridToAnnotationsColors();
 				}
 			});
 			
-			//2. Feature Vector Dataset Dropdow
+			//Feature Vector Dataset Dropdown
 			var featureVectorDatasets = this._plateModel.sample.featureVectorsCache.featureVectorDatasets;
 			var featureVectorDatasetsDropdowTerms = [];
 			for(var fvdIdx = 0; fvdIdx < featureVectorDatasets.length; fvdIdx++) {
@@ -114,6 +159,8 @@ function PlateView(plateController, plateModel) {
 					_this._$featureVectorDatasetFeaturesDropdown.empty();
 					_this._$featureVectorDatasetFeaturesDropdown.append($("<option>").attr('value', '').text("Choose a Feature Vector Dataset first"));
 					_this._repaintGridToAnnotationsColors();
+					
+					_this._repaintScaleDropDown(false, true);
 				} else {
 					var featureVectorDatasetFeatures = _this._plateModel.sample.featureVectorsCache.featureVectorDatasetsFeatures[featureVectorDatasetCode];
 					
@@ -148,28 +195,10 @@ function PlateView(plateController, plateModel) {
 			});
 			
 			
-			// 3. Adding scale options
-			var scaleDropdownTerms = [];
-				scaleDropdownTerms.push({ code : "Max/Min", label : "Max/Min" });
-				scaleDropdownTerms.push({ code : "10/90", label : "10/90" });
-			
-			this._$scaleDropdown = FormUtil.getDropDownForTerms(
-												"scaleDropdown-" + this._plateModel.sample.permId,
-												scaleDropdownTerms,
-												"Scaling options",
-												false
-												);
-			this._$scaleDropdown.addClass("featureDropdown");
-			
-			this._$scaleDropdown.change(function(event) {
-			
-			});
-			
-			
 			//Build Toolbar
 			$toolbar.append(this._$featureVectorDatasetsDropdown)
 					.append(this._$featureVectorDatasetFeaturesDropdown)
-					.append(this._$scaleDropdown);
+					.append(this._$scaleDropdownContainer);
 		}
 		
 		//Paint grid
