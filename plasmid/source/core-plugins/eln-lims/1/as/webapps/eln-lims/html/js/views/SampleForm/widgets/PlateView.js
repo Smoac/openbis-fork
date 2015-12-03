@@ -139,7 +139,12 @@ function PlateView(plateController, plateModel) {
 			});
 			
 			//Build Set
-			this._$scaleDropdownContainer.append(this._$scaleDropdown).append(this._$scaleMin).append(this._$scaleMax);
+			this._$scaleDropdownContainer
+				.append(this._$scaleDropdown)
+				.append("&nbsp;")
+				.append(this._$scaleMin)
+				.append("&nbsp;")
+				.append(this._$scaleMax);
 		}
 		
 		this._$scaleDropdown.empty();
@@ -368,7 +373,8 @@ function PlateView(plateController, plateModel) {
 					.append("&nbsp;")
 					.append(this._$scaleDropdownContainer)
 					.append("&nbsp;")
-					.append(this._$exportHighlighted);
+					.append(this._$exportHighlighted)
+					.append("&nbsp;");
 		}
 		
 		//Paint grid
@@ -432,7 +438,7 @@ function PlateView(plateController, plateModel) {
 	    } : null;
 	}
 	
-	this._repaintWellToColor = function(row, column, rgbColor, txt, isDisabled) {
+	this._repaintWellToColor = function(row, column, rgbColor, txt, isDisabled, isAnimated) {
 		var $cell = this._getCell(row, column);
 			$cell.css( { "background-color" : rgbColor });
 		this._setToolTip($cell, row, column);
@@ -440,11 +446,19 @@ function PlateView(plateController, plateModel) {
 		if(txt) {
 			$cell.append(txt);
 		}
-		if(isDisabled) {
-			$cell.fadeTo(1000, 0.3);
-		} else {
-			$cell.fadeTo(1000, 1);
+		
+		if(isAnimated) {
+			if(isDisabled) {
+//				$cell.css( { "opacity" : 0.3 });
+//				$cell.fadeTo(1000, 0.3);
+				$cell.animate({ "opacity" : 0.3 }, 1000);
+			} else {
+//				$cell.css( { "opacity" : 1 });
+//				$cell.fadeTo(1000, 1);
+				$cell.animate({ "opacity" : 1 }, 1000);
+			}
 		}
+		
 		//Redundant coding
 		var rgb = this._hexToRgb(rgbColor);
 		var fontColor = (rgb && (rgb.r*0.299 + rgb.g*0.587 + rgb.b*0.114) > 186)?"#000000":"#ffffff";
@@ -669,9 +683,9 @@ function PlateView(plateController, plateModel) {
 						valueColorStep = 1;
 					}
 					var color = this._getColorForStepBetweenWhiteAndBlack(valueColorStep, this._plateModel.numHeatmapColors);
-					this._repaintWellToColor(rowsIdx, colsIdx, color, valueColorStep, isOutOfScaleRange);
+					this._repaintWellToColor(rowsIdx, colsIdx, color, valueColorStep, isOutOfScaleRange, true);
 				} else {
-					this._repaintWellToColor(rowsIdx, colsIdx, "#ffffff", "", true); //Out of scale NaN value
+					this._repaintWellToColor(rowsIdx, colsIdx, "#ffffff", "", true, true); //Out of scale NaN value
 				}
 			}
 		}
@@ -728,13 +742,13 @@ function PlateView(plateController, plateModel) {
 				if(selectedColorEncodedAnnotation && selectedColorEncodedAnnotation !== "DEFAULT") {
 					this._repaintWellToColor(row, column, this._getColorForAnnotationCode(selectedColorEncodedAnnotation));
 				} else {
-					this._repaintWellToColor(row, column, "");
+					this._repaintWellToColor(row, column, "", false, true);
 				}
 			} else {
-				this._repaintWellToColor(row, column, "");
+				this._repaintWellToColor(row, column, "", false, true);
 			}
 		} else {
-			this._repaintWellToColor(row, column, "transparent");
+			this._repaintWellToColor(row, column, "transparent", false, true);
 		}
 	}
 	
