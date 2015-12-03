@@ -33,6 +33,13 @@ configurations.create('testRuntimeSecond')
 configurations.create('externalDss')
 
 dependencies {
+
+	compile 'reflections:reflections:+', 
+	'testng:testng:+', 
+	'fasterxml:jackson-core:+',
+	'fasterxml:jackson-annotations:+',
+	'fasterxml:jackson-databind:+'
+
 	testCompile project(path: ':ui-test', configuration: 'tests')
 	
 	testRuntime project(':screening'), project(':rtd_phosphonetx')
