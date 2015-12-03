@@ -21,6 +21,7 @@ function PlateView(plateController, plateModel) {
 	this._$scaleDropdown = null;
 	this._$scaleMax = null;
 	this._$scaleMin = null;
+	this._$exportHighlighted = null;
 	this._$scaleDropdownContainer = null;
 	this._$gridTable = null;
 	this._$scale = $("<span>");
@@ -146,11 +147,17 @@ function PlateView(plateController, plateModel) {
 			this._$scaleDropdown.append($("<option>").attr('value', '').text("Choose a Feature"));
 			this._$scaleMax.hide();
 			this._$scaleMin.hide();
+			if(this._$exportHighlighted) {
+				this._$exportHighlighted.hide();
+			}
 		} else {
 			this._$scaleDropdown.append($("<option>").attr('value', 'Min/Max').text('Min/Max'));
 			this._$scaleDropdown.append($("<option>").attr('value', '10/90').text('10/90'));
 			this._$scaleMax.show();
 			this._$scaleMin.show();
+			if(this._$exportHighlighted) {
+				this._$exportHighlighted.show();
+			}
 		}
 	}
 	
@@ -282,11 +289,13 @@ function PlateView(plateController, plateModel) {
 				}
 			});
 			
-			var $exportHighlighted = FormUtil.getButtonWithText("Export Highlighted");
-			$exportHighlighted.css({"display" : "inline", "vertical-align" : "baseline" });
-			$exportHighlighted.click(function() {
+			this._$exportHighlighted = FormUtil.getButtonWithText("Export Highlighted");
+			this._$exportHighlighted.hide();
+			this._$exportHighlighted.css({ "vertical-align" : "baseline" });
+			this._$exportHighlighted.click(function() {
 				var selectedFeatureVector = _this._$featureVectorDatasetsDropdown.val();
 				var selectedFeature = _this._$featureVectorDatasetFeaturesDropdown.val();
+				var allFeatures = _this._plateModel.sample.featureVectorsCache.featureVectorDatasetsFeaturesData[selectedFeatureVector];
 				
 				if(selectedFeatureVector && selectedFeature) {
 					var scale = {
@@ -298,7 +307,57 @@ function PlateView(plateController, plateModel) {
 																selectedFeature,
 																scale);
 					
-					Util.downloadTSV("plate-" + _this._plateModel.sample.code + ".tsv");
+					var headers = [];
+						
+					var getIdx = function(header) {
+						var idx = $.inArray(header, headers);
+						if(idx === -1) {
+							headers.push(header);
+							idx = $.inArray(header, headers);
+						}
+						return idx;
+					}
+					
+					var rows = [];
+					rows.push(headers);
+					for(var dIdx = 0; dIdx < dataToExport.length; dIdx++) {
+						var item = dataToExport[dIdx];
+						var itemRow = [];
+						
+						var sample = item.sample;
+						if(sample) {
+							itemRow[getIdx("permId")] = sample.permId;
+							itemRow[getIdx("sampleTypeCode")] = sample.sampleTypeCode;
+							itemRow[getIdx("code")] = sample.code;
+							itemRow[getIdx("identifier")] = sample.identifier;
+							itemRow[getIdx("spaceCode")] = sample.spaceCode;
+						}
+						
+						if(sample.properties) {
+							for(key in sample.properties) {
+								itemRow[getIdx(key)] = sample.properties[key];
+							}
+						}
+						var sampleFeatures = item.sampleFeatures;
+						
+						if(sampleFeatures) {
+							if(sampleFeatures.wellPosition) {
+								itemRow[getIdx("wellRow")] = sampleFeatures.wellPosition.wellRow;
+								itemRow[getIdx("wellColumn")] = sampleFeatures.wellPosition.wellColumn;
+							} 
+							
+							for(var fIdx = 0; fIdx < allFeatures.featureCodes.length; fIdx++) {
+								var fCode = allFeatures.featureCodes[fIdx];
+								if(sampleFeatures.vocabularyFeatureFlags[fIdx]) {
+									itemRow[getIdx(fCode)] = sampleFeatures.vocabularyTerms[fIdx];
+								} else {
+									itemRow[getIdx(fCode)] = sampleFeatures.values[fIdx];
+								}
+							}
+						}
+						rows.push(itemRow);
+					}
+					Util.downloadTSV(rows, "plate-" + _this._plateModel.sample.code + ".tsv");
 				}
 			});
 			
@@ -309,7 +368,7 @@ function PlateView(plateController, plateModel) {
 					.append("&nbsp;")
 					.append(this._$scaleDropdownContainer)
 					.append("&nbsp;")
-					.append($exportHighlighted);
+					.append(this._$exportHighlighted);
 		}
 		
 		//Paint grid
@@ -553,7 +612,7 @@ function PlateView(plateController, plateModel) {
 					if(!isOutOfScaleRange) {
 						wellsWithFeatureVectors.push({
 							sample: this._plateModel.getWell(rowsIdx, colsIdx),
-							featureVectors : wellData
+							sampleFeatures : wellData
 						});
 					}
 				}
