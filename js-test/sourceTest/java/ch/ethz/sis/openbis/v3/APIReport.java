@@ -1,3 +1,4 @@
+package ch.ethz.sis.openbis.v3;
 /*
  * Copyright 2015 ETH Zuerich, CISD
  *
@@ -13,8 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
