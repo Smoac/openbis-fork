@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.jstest.server;
 
+import java.io.File;
+import java.io.IOException;
+
 import ch.systemsx.cisd.openbis.test.server.TestDataStoreServer;
 
 /**
@@ -30,7 +33,18 @@ public abstract class JsTestDataStoreServer extends TestDataStoreServer
         String classpath = System.getProperty("selenium.dss-runtime-classpath");
         if (classpath == null || classpath.length() == 0) {
             classpath = System.getProperty("java.class.path");
-        } 
+        }
+        
+        try
+        {
+            File extraClassPath = new File("../../../targets/classes");
+            classpath += ":" + (extraClassPath).getCanonicalPath();
+        } catch (IOException e)
+        {
+            e.printStackTrace();
+            System.err.println("Extra classpath missing, check JsTestDataStoreServer for details.");
+            System.exit(-1);
+        }
         
         return "java -ea -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address="
                     + getDebugPort()

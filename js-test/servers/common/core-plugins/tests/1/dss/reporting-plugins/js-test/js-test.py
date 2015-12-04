@@ -21,17 +21,24 @@ from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto import SearchSubCriteria
 from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria import MatchClause
 from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria import MatchClauseAttribute
 from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria import SearchOperator
+from ch.ethz.sis.openbis.v3 import APIReport
 
 reload(sys)
 sys.setdefaultencoding('UTF8')
 
 def process(tr, parameters, tableBuilder):
-	sample = findSample(tr)
-	dataSet = createDataSet(tr, sample)
-	
-	tableBuilder.addHeader("DATA_SET_CODE")
-	row = tableBuilder.addRow()
-	row.setCell("DATA_SET_CODE", dataSet.getDataSetCode())
+	method = parameters.get("method");
+	if method is None:
+		sample = findSample(tr)
+		dataSet = createDataSet(tr, sample)
+		
+		tableBuilder.addHeader("DATA_SET_CODE")
+		row = tableBuilder.addRow()
+		row.setCell("DATA_SET_CODE", dataSet.getDataSetCode())
+	elif method is "getV3APIReport":
+		tableBuilder.addHeader("RESULT")
+		row = tableBuilder.addRow()
+		row.setCell("RESULT", APIReport.getReport())
 
 def findSample(tr):
 	criteria = SearchCriteria()
