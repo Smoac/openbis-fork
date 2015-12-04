@@ -35,10 +35,17 @@ def process(tr, parameters, tableBuilder):
 		tableBuilder.addHeader("DATA_SET_CODE")
 		row = tableBuilder.addRow()
 		row.setCell("DATA_SET_CODE", dataSet.getDataSetCode())
-	elif method is "getV3APIReport":
+	elif method == "getV3APIReport":
+		tableBuilder.addHeader("STATUS")
 		tableBuilder.addHeader("RESULT")
 		row = tableBuilder.addRow()
-		row.setCell("RESULT", APIReport.getReport())
+		report = APIReport().getReport()
+		if report is None:
+			report = "";
+			row.setCell("STATUS", "FAILED")
+		else:
+			row.setCell("STATUS", "SUCCESS")
+		row.setCell("RESULT", report)
 
 def findSample(tr):
 	criteria = SearchCriteria()

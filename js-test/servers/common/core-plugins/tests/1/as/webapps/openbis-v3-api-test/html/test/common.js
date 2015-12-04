@@ -127,8 +127,15 @@ define([ 'jquery', 'openbis', 'dto/entity/space/SpaceCreation', 'dto/entity/proj
 				});
 			});
 		}.bind(this);
-
+		
 		this.createDataSet = function(facade) {
+			var c = this;
+			return this.getResponseFromJSTestAggregationService(facade, {}, function(response) {
+				return new DataSetPermId(response.result.rows[0][0].value);
+			});
+		}.bind(this);
+		
+		this.getResponseFromJSTestAggregationService = function(facade, params, callback) {
 			var c = this;
 			return $.ajax({
 				"url" : "http://localhost:20001/datastore_server/rmi-dss-api-v1.json",
@@ -137,15 +144,13 @@ define([ 'jquery', 'openbis', 'dto/entity/space/SpaceCreation', 'dto/entity/proj
 				"dataType" : "json",
 				"data" : JSON.stringify({
 					"method" : "createReportFromAggregationService",
-					"params" : [ facade._private.sessionToken, "js-test", {} ],
+					"params" : [ facade._private.sessionToken, "js-test", params ],
 					"id" : "1",
 					"jsonrpc" : "2.0"
 				})
-			}).then(function(response) {
-				return new DataSetPermId(response.result.rows[0][0].value);
-			});
+			}).then(callback);
 		}.bind(this);
-
+		
 		this.createMaterial = function(facade) {
 			var c = this;
 			var creation = new MaterialCreation();
