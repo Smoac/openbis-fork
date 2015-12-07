@@ -5,14 +5,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 	return function() {
 		QUnit.module("JS VS JAVA API");
 		
-//		var packageNameHandlers = {
-//		}
-//		
-//		var jsonObjectAnnotationHandlers = {
-//		
-//		}
-//		
-		var standardHandler = function(testsResults, javaClassReport, jsObject) {
+		var defaultHandler = function(testsResults, javaClassReport, jsObject) {
 			//Check object returned
 			if(!jsObject) {
 				var errorResult = "JS class missing instance: " + javaClassReport.jsonObjAnnotation;
@@ -84,7 +77,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 							
 							var loadedHandler = function(javaClassReport) {
 								return function(jsObject) {
-									standardHandler(testsResults, javaClassReport, jsObject);
+									defaultHandler(testsResults, javaClassReport, jsObject);
 									testsResults.info.push("Java class matching JS: " + javaClassReport.name);
 									doNext();
 								};
@@ -106,21 +99,21 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 			doNext();
 		}
 		
-		var getPrintableReport = function(testsResults) {
-			var printableReport = "Total Tested " + (testsResults.info.length + testsResults.warning.length + testsResults.error.length);
-				printableReport += " - Error: " + testsResults.error.length;
-				printableReport += " - Warning: " + testsResults.warning.length;
-				printableReport += " - Info: " + testsResults.info.length;
+		var getPrintableReport = function(javaReport, testsResults) {
+			var printableReport = "Total Java classes found " + javaReport.entries.length;
+				printableReport += " - Javascript Error Msg: " + testsResults.error.length;
+				printableReport += " - Javascript Warning Msg: " + testsResults.warning.length;
+				printableReport += " - Javascript Info Msg: " + testsResults.info.length;
 				printableReport += "\n";
 				
 				for(var edx = 0; edx < testsResults.error.length; edx++) {
-					printableReport += testsResults.error[edx] + "\n";
+					printableReport += "[ERROR] " + testsResults.error[edx] + "\n";
 				}
 				for(var wdx = 0; wdx < testsResults.warning.length; wdx++) {
-					printableReport += testsResults.warning[wdx] + "\n";
+					printableReport += "[WARNING] " + testsResults.warning[wdx] + "\n";
 				}
 				for(var idx = 0; idx < testsResults.info.length; idx++) {
-					printableReport += testsResults.info[idx] + "\n";
+					printableReport += "[INFO] " + testsResults.info[idx] + "\n";
 				}
 			return printableReport;
 		}
@@ -131,20 +124,20 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 			
 			var getV3APIReport = function(facade) {
 				c.getResponseFromJSTestAggregationService(facade, {"method" : "getV3APIReport"}, function(data) {
-					var report = null;
+					var javaReport = null;
 					
 					if (	!data.error && 
 							data.result.columns[0].title === "STATUS" && 
 							data.result.rows[0][0].value === "SUCCESS") { //Success Case
-		 				report = JSON.parse(data.result.rows[0][1].value);
+						javaReport = JSON.parse(data.result.rows[0][1].value);
 		 			}
 					
-					if(report) {
-						areClassesCorrect(report, function(testsResults) {
+					if(javaReport) {
+						areClassesCorrect(javaReport, function(testsResults) {
 							if(testsResults.error.length > 0) {
-								c.fail(getPrintableReport(testsResults));
+								c.fail(getPrintableReport(javaReport, testsResults));
 							} else {
-								c.ok(getPrintableReport(testsResults));
+								c.ok(getPrintableReport(javaReport, testsResults));
 							}
 							c.finish();
 						});
