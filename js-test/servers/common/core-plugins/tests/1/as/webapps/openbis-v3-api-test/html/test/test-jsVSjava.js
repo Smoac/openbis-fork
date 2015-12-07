@@ -12,62 +12,117 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 //		
 //		}
 //		
-		var standardHandler = function(javaClassReport, jsObject) {
+		var standardHandler = function(testsResults, javaClassReport, jsObject) {
 			//Check object returned
 			if(!jsObject) {
-				console.info("JS class missing instance: " + javaClassReport.jsonObjAnnotation);
+				var errorResult = "JS class missing instance: " + javaClassReport.jsonObjAnnotation;
+				testsResults.error.push(errorResult);
+				console.info(errorResult);
 				return;
 			}
 			
 			//Check prototype available
 			if(!jsObject.prototype) {
-				console.info("JS class missing prototype: " + javaClassReport.jsonObjAnnotation);
+				var errorResult = "JS class missing prototype: " + javaClassReport.jsonObjAnnotation;
+				testsResults.error.push(errorResult);
+				console.info(errorResult);
 				return;
 			}
 			
 			//Java Fields found in Javascript
 			for(var fIdx = 0; fIdx < javaClassReport.fields.length; fIdx++) {
 				if(!jsObject.prototype[javaClassReport.fields[fIdx]]) {
-					console.info("JS class missing field: " + javaClassReport.jsonObjAnnotation + " - " + javaClassReport.fields[fIdx]);
+					var errorResult = "JS class missing field: " + javaClassReport.jsonObjAnnotation + " - " + javaClassReport.fields[fIdx];
+					testsResults.error.push(errorResult);
+					console.info(errorResult);
 				}
 			}
 			
 			//Java Methods found in Javascript
 			for(var fIdx = 0; fIdx < javaClassReport.methods.length; fIdx++) {
 				if(!jsObject.prototype[javaClassReport.methods[fIdx]]) {
-					console.info("JS class missing method: " + javaClassReport.jsonObjAnnotation + " - " + javaClassReport.methods[fIdx]);
+					var errorResult = "JS class missing method: " + javaClassReport.jsonObjAnnotation + " - " + javaClassReport.methods[fIdx];
+					testsResults.error.push(errorResult);
+					console.info(errorResult);
+				}
+			}
+		}
+		
+		var areClassesCorrect = function(report, callback) {
+			var testsToDo = [];
+			var testsResults = {
+					info : [],
+					warning : [],
+					error : []
+			};
+			
+			var doNext = function() {
+				if(testsToDo.length > 0) {
+					var next = testsToDo.shift();
+					next();
+				} else {
+					callback(testsResults);
 				}
 			}
 			
-			var breakHere = "NOW!";
-		}
-		
-		var areClassesCorrect = function(report) {
 			for(var ridx = 0; ridx < report.entries.length; ridx++) {
 				var javaClassReport = report.entries[ridx];
-				var javaClassName = javaClassReport.name;
-				var jsClassName = javaClassReport.jsonObjAnnotation;
-				if(jsClassName) {
-					var failedLoadingErrorHandler = function(javaClassName) {
-						return function() {
-							console.info("Java class with jsonObjectAnnotation missing in Javascript: " + javaClassName);
-						};
-					};
-					
-					var loadedHandler = function(javaClassReport) {
-						return function(jsObject) {
-							standardHandler(javaClassReport, jsObject);
-						};
-					};
-					
-					var requireJsPath = jsClassName.replace(/\./g,'/');
-					require([requireJsPath], loadedHandler(javaClassReport), failedLoadingErrorHandler(javaClassName));
-				} else {
-					console.info("Java class missing jsonObjectAnnotation: " + javaClassName);
+				var testClassFunc = function(javaClassReport) {
+					return function () {
+						var javaClassName = javaClassReport.name;
+						var jsClassName = javaClassReport.jsonObjAnnotation;
+						
+						if(jsClassName) {
+							var failedLoadingErrorHandler = function(javaClassName) {
+								return function() {
+									var errorResult = "Java class with jsonObjectAnnotation missing in Javascript: " + javaClassName;
+									testsResults.error.push(errorResult);
+									console.info(errorResult);
+									doNext();
+								};
+							};
+							
+							var loadedHandler = function(javaClassReport) {
+								return function(jsObject) {
+									standardHandler(testsResults, javaClassReport, jsObject);
+									testsResults.info.push("Java class matching JS: " + javaClassReport.name);
+									doNext();
+								};
+							};
+							
+							var requireJsPath = jsClassName.replace(/\./g,'/');
+							require([requireJsPath], loadedHandler(javaClassReport), failedLoadingErrorHandler(javaClassName));
+						} else {
+							var errorResult = "Java class missing jsonObjectAnnotation: " + javaClassName;
+							testsResults.error.push(errorResult);
+							console.info(errorResult);
+							doNext();
+						}
+					}
 				}
-				
+				testsToDo.push(testClassFunc(javaClassReport));
 			}
-			return true;
+			
+			doNext();
+		}
+		
+		var getPrintableReport = function(testsResults) {
+			var printableReport = "Total Tested " + (testsResults.info.length + testsResults.warning.length + testsResults.error.length);
+				printableReport += " - Error: " + testsResults.error.length;
+				printableReport += " - Warning: " + testsResults.warning.length;
+				printableReport += " - Info: " + testsResults.info.length;
+				printableReport += "\n";
+				
+				for(var edx = 0; edx < testsResults.error.length; edx++) {
+					printableReport += testsResults.error[edx] + "\n";
+				}
+				for(var wdx = 0; wdx < testsResults.warning.length; wdx++) {
+					printableReport += testsResults.warning[wdx] + "\n";
+				}
+				for(var idx = 0; idx < testsResults.info.length; idx++) {
+					printableReport += testsResults.info[idx] + "\n";
+				}
+			return printableReport;
 		}
 		
 		QUnit.test("get Java report from aggregation service", function(assert) {
@@ -85,13 +140,17 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 		 			}
 					
 					if(report) {
-						areClassesCorrect(report);
-						c.ok("Report received");
+						areClassesCorrect(report, function(testsResults) {
+							if(testsResults.error.length > 0) {
+								c.fail(getPrintableReport(testsResults));
+							} else {
+								c.ok(getPrintableReport(testsResults));
+							}
+							c.finish();
+						});
 					} else {
 						c.fail("Report Missing");
 					}
-					
-					c.finish();
 				});
 			}
 			
