@@ -28,6 +28,13 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 			callback();
 		}
 		
+		var notCheckedButWeShould = function(testsResults, javaClassReport, callback) {
+			var warningResult = "Java class ignored, exists in custom file, special case not validated yet: " + javaClassReport.name;
+			testsResults.warning.push(warningResult);
+			console.info(warningResult);
+			callback();
+		}
+		
 		var javaLevelHandlers = {
 				"AbstractCollectionView" : ignoredHandler,
 				"ListView" : ignoredHandler,
@@ -48,7 +55,13 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 				"DataSetFileSearchCriteria" : toBeImplementedHandler,
 				"DataSetFile" : toBeImplementedHandler,
 				"DataSetFilePermId" : toBeImplementedHandler,
-				"IDataSetFileId" : toBeImplementedHandler
+				"IDataSetFileId" : toBeImplementedHandler,
+				"DataSetChildrenSearchCriteria" : notCheckedButWeShould,
+				"DataSetContainerSearchCriteria" : notCheckedButWeShould,
+				"DataSetParentsSearchCriteria" : notCheckedButWeShould,
+				"SampleChildrenSearchCriteria" : notCheckedButWeShould,
+				"SampleContainerSearchCriteria" : notCheckedButWeShould,
+				"SampleParentsSearchCriteria" : notCheckedButWeShould
 		}
 		
 		//
