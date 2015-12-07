@@ -28,7 +28,7 @@ import org.testng.annotations.BeforeSuite;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import ch.ethz.sis.openbis.generic.shared.api.v3.IApplicationServerApi;
+import ch.ethz.sis.openbis.generic.as.api.v3.IApplicationServerApi;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.http.GetResponse;
 import ch.systemsx.cisd.common.http.HttpTest;

@@ -24,8 +24,8 @@ import org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter;
 
 import com.marathon.util.spring.StreamSupportingHttpInvokerServiceExporter;
 
+import ch.ethz.sis.openbis.generic.as.api.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.dss.api.v3.DataStoreServerApiServer;
-import ch.ethz.sis.openbis.generic.shared.api.v3.IApplicationServerApi;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.dss.generic.shared.content.IContentCache;
