@@ -218,9 +218,9 @@ def getFeaturesFromFeatureVector(tr, parameters, tableBuilder):
 	
 	featureVectorDataset = None;
 	featureVectorDatasets = listFeatureVectorDatasets(openBISURL, sessionToken, samplePlatePermId);
-	for featureVectorDataset in featureVectorDatasets:
-		if featureVectorDataset.getDatasetCode() == featureVectorDatasetPermId:
-			featureVectorDataset = featureVectorDataset;
+	for featureVectorDatasetAux in featureVectorDatasets:
+		if featureVectorDatasetAux.getDatasetCode() == featureVectorDatasetPermId:
+			featureVectorDataset = featureVectorDatasetAux;
 	
 	screeningFinder = ServiceFinder("openbis", IScreeningApiServer.SERVICE_URL);
 	screeningServiceDSS = screeningFinder.createService(IDssServiceRpcScreening, openBISURL);
