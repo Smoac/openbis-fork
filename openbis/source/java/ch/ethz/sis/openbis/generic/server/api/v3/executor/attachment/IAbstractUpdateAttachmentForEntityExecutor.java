@@ -16,8 +16,8 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.attachment;
 
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.attachment.update.AttachmentListUpdateValue;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.AttachmentListUpdateValue;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentHolderPE;
 
 /**

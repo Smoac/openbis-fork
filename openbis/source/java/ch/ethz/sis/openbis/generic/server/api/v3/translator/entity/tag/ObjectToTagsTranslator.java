@@ -22,10 +22,10 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.tag.Tag;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.tag.fetchoptions.TagFetchOptions;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.ObjectToManyRelationTranslator;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.tag.Tag;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.tag.TagFetchOptions;
 
 /**
  * @author pkupczyk

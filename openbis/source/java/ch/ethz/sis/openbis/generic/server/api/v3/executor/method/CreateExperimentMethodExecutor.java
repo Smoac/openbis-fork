@@ -19,10 +19,10 @@ package ch.ethz.sis.openbis.generic.server.api.v3.executor.method;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.experiment.create.ExperimentCreation;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.experiment.id.ExperimentPermId;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.ICreateEntityExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.experiment.ICreateExperimentExecutor;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.ExperimentCreation;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentPermId;
 
 /**
  * @author pkupczyk

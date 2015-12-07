@@ -28,7 +28,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import ch.ethz.sis.openbis.generic.shared.api.v3.IApplicationServerApi;
+import ch.ethz.sis.openbis.generic.as.api.v3.IApplicationServerApi;
 import ch.systemsx.cisd.openbis.common.api.server.AbstractApiJsonServiceExporter;
 import ch.systemsx.cisd.openbis.generic.shared.api.v3.json.ObjectMapperResource;
 

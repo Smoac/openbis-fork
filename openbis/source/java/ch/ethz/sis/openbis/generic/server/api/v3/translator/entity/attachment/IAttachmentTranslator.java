@@ -16,9 +16,9 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.attachment;
 
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.attachment.Attachment;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.attachment.fetchoptions.AttachmentFetchOptions;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.ITranslator;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.attachment.Attachment;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.attachment.AttachmentFetchOptions;
 
 /**
  * @author pkupczyk

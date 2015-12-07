@@ -16,8 +16,8 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common;
 
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.fetchoptions.EmptyFetchOptions;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.ITranslator;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.EmptyFetchOptions;
 
 /**
  * @author pkupczyk

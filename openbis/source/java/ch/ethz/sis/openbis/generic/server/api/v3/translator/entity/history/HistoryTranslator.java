@@ -27,15 +27,15 @@ import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.history.HistoryEntry;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.history.PropertyHistoryEntry;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.history.RelationHistoryEntry;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.history.fetchoptions.HistoryEntryFetchOptions;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.person.Person;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.AbstractCachingTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.ObjectHolder;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.person.IPersonTranslator;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.history.HistoryEntry;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.history.PropertyHistoryEntry;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.history.RelationHistoryEntry;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.person.Person;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.history.HistoryEntryFetchOptions;
 
 /**
  * @author pkupczyk

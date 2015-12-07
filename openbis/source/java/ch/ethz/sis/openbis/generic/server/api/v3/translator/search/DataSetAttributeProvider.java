@@ -16,11 +16,11 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.translator.search;
 
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.CodeSearchCriteria;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ISearchCriteria;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ModificationDateSearchCriteria;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.PermIdSearchCriteria;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.RegistrationDateSearchCriteria;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.search.CodeSearchCriteria;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.search.ISearchCriteria;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.search.ModificationDateSearchCriteria;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.search.PermIdSearchCriteria;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.search.RegistrationDateSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetAttributeSearchFieldKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IAttributeSearchFieldKind;
 

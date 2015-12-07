@@ -24,11 +24,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
 
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.project.id.IProjectId;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.project.update.ProjectUpdate;
+import ch.ethz.sis.openbis.generic.as.api.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.AbstractUpdateEntityExecutor;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.project.ProjectUpdate;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.IProjectId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ProjectByIdentiferValidator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;

@@ -19,8 +19,8 @@ package ch.ethz.sis.openbis.generic.server.api.v3.helper.externaldms;
 import java.util.LinkedList;
 import java.util.List;
 
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.externaldms.id.ExternalDmsPermId;
 import ch.ethz.sis.openbis.generic.server.api.v3.helper.common.AbstractListObjectById;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.externaldms.ExternalDmsPermId;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataManagementSystemDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataManagementSystemPE;
 

@@ -20,9 +20,9 @@ package ch.ethz.sis.openbis.generic.server.api.v3.executor.method;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.project.update.ProjectUpdate;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.IUpdateEntityExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.project.IUpdateProjectExecutor;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.project.ProjectUpdate;
 
 /**
  * @author pkupczyk

@@ -16,9 +16,9 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.project;
 
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.project.create.ProjectCreation;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.project.id.ProjectPermId;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.ICreateEntityExecutor;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.project.ProjectCreation;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.ProjectPermId;
 
 /**
  * @author pkupczyk

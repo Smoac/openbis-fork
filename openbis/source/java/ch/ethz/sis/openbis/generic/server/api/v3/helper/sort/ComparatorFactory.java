@@ -20,8 +20,8 @@ import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.fetchoptions.SortOptions;
 import ch.ethz.sis.openbis.generic.server.api.v3.helper.tag.TagComparatorFactory;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.SortOptions;
 
 /**
  * @author pkupczyk

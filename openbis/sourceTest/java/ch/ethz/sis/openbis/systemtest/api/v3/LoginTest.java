@@ -7,10 +7,10 @@ import junit.framework.Assert;
 
 import org.testng.annotations.Test;
 
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.experiment.ExperimentFetchOptions;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentPermId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.IExperimentId;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.experiment.Experiment;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.experiment.fetchoptions.ExperimentFetchOptions;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.experiment.id.ExperimentPermId;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.experiment.id.IExperimentId;
 
 public class LoginTest extends AbstractTest
 {

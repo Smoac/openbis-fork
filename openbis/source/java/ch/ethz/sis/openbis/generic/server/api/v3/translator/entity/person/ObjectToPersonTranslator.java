@@ -21,11 +21,11 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.person.Person;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.person.fetchoptions.PersonFetchOptions;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.IObjectToOneRelationTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.ObjectToOneRelationTranslator;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.person.Person;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.person.PersonFetchOptions;
 
 /**
  * @author pkupczyk

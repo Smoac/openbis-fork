@@ -16,9 +16,9 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.method;
 
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSet;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.DataSetFetchOptions;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.DataSetSearchCriteria;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.dataset.DataSet;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.dataset.fetchoptions.DataSetFetchOptions;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.dataset.search.DataSetSearchCriteria;
 
 /**
  * @author pkupczyk

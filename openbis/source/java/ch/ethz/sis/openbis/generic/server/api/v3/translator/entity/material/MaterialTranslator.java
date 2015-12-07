@@ -22,13 +22,13 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.material.Material;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.material.fetchoptions.MaterialFetchOptions;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.material.id.MaterialPermId;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.tag.Tag;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.AbstractCachingTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationResults;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material.Material;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.tag.Tag;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.material.MaterialFetchOptions;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.material.MaterialPermId;
 
 /**
  * @author pkupczyk

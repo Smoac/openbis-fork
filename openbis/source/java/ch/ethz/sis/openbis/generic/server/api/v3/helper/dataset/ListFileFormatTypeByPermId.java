@@ -19,8 +19,8 @@ package ch.ethz.sis.openbis.generic.server.api.v3.helper.dataset;
 import java.util.ArrayList;
 import java.util.List;
 
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.dataset.id.FileFormatTypePermId;
 import ch.ethz.sis.openbis.generic.server.api.v3.helper.common.AbstractListObjectById;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.FileFormatTypePermId;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IFileFormatTypeDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
 

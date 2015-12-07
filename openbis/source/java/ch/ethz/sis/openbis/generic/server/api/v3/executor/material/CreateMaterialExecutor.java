@@ -29,13 +29,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
 
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.material.create.MaterialCreation;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.material.id.MaterialPermId;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.tag.id.ITagId;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.AbstractCreateEntityExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.property.IUpdateEntityPropertyExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.tag.IAddTagToEntityExecutor;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material.MaterialCreation;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.material.MaterialPermId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.ITagId;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;

@@ -22,14 +22,14 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.space.Space;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.space.fetchoptions.SpaceFetchOptions;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.space.search.SpaceSearchCriteria;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.common.ISearchObjectExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.space.ISearchSpaceExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.ITranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.space.ISpaceTranslator;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.space.Space;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.space.SpaceFetchOptions;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SpaceSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**

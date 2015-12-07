@@ -16,9 +16,9 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.method;
 
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.Sample;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sample.SampleFetchOptions;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.ISampleId;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.sample.Sample;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.sample.fetchoptions.SampleFetchOptions;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.sample.id.ISampleId;
 
 /**
  * @author pkupczyk

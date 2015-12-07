@@ -23,31 +23,31 @@ import java.util.Map;
 
 import junit.framework.Assert;
 
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.deletion.Deletion;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.ExperimentCreation;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material.Material;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.project.Project;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.project.ProjectCreation;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.Sample;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleCreation;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.deletion.DeletionFetchOptions;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.experiment.ExperimentFetchOptions;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.material.MaterialFetchOptions;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.project.ProjectFetchOptions;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sample.SampleFetchOptions;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.DataSetPermId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.deletion.IDeletionId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.entitytype.EntityTypePermId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentPermId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.IExperimentId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.material.IMaterialId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.IProjectId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.ProjectIdentifier;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.ProjectPermId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.ISampleId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SamplePermId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.SpacePermId;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.dataset.id.DataSetPermId;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.deletion.Deletion;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.deletion.fetchoptions.DeletionFetchOptions;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.deletion.id.IDeletionId;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.entitytype.id.EntityTypePermId;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.experiment.Experiment;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.experiment.create.ExperimentCreation;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.experiment.fetchoptions.ExperimentFetchOptions;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.experiment.id.ExperimentPermId;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.experiment.id.IExperimentId;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.material.Material;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.material.fetchoptions.MaterialFetchOptions;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.material.id.IMaterialId;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.project.Project;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.project.create.ProjectCreation;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.project.fetchoptions.ProjectFetchOptions;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.project.id.IProjectId;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.project.id.ProjectIdentifier;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.project.id.ProjectPermId;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.sample.Sample;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.sample.create.SampleCreation;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.sample.fetchoptions.SampleFetchOptions;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.sample.id.ISampleId;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.sample.id.SamplePermId;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.space.id.SpacePermId;
 
 /**
  * @author pkupczyk

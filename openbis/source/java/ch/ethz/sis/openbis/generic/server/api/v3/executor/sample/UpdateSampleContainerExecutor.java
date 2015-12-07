@@ -21,13 +21,13 @@ import java.util.Map;
 
 import org.springframework.stereotype.Component;
 
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.update.FieldUpdateValue;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.sample.id.ISampleId;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.sample.id.SampleIdentifier;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.sample.update.SampleUpdate;
+import ch.ethz.sis.openbis.generic.as.api.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.AbstractUpdateEntityToOneRelationExecutor;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.FieldUpdateValue;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleUpdate;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.ISampleId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SampleIdentifier;
-import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SampleByIdentiferValidator;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 

@@ -16,8 +16,8 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.translator.search;
 
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ISearchCriteria;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.TagSearchCriteria;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.search.ISearchCriteria;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.tag.search.TagSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetAttributeSearchFieldKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchField;

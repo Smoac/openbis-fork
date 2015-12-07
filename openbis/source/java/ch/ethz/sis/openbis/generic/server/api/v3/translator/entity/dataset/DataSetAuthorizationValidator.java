@@ -27,8 +27,8 @@ import net.lemnik.eodsql.QueryTool;
 
 import org.springframework.stereotype.Component;
 
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentIdentifier;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SampleIdentifier;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.experiment.id.ExperimentIdentifier;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.sample.id.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.AbstractDataSetByExperimentOrSampleIdentifierValidator;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.AbstractValidator;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;

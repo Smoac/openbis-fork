@@ -16,9 +16,9 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.datastore;
 
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.datastore.DataStore;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.datastore.fetchoptions.DataStoreFetchOptions;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.ITranslator;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.datastore.DataStore;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.datastore.DataStoreFetchOptions;
 
 /**
  * @author pkupczyk

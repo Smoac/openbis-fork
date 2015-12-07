@@ -16,9 +16,9 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.dataset;
 
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.dataset.LocatorType;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.dataset.fetchoptions.LocatorTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.ITranslator;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.LocatorType;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.LocatorTypeFetchOptions;
 
 /**
  * @author pkupczyk

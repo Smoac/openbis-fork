@@ -22,13 +22,13 @@ import java.util.List;
 
 import org.testng.annotations.Test;
 
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material.Material;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.material.MaterialFetchOptions;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.entitytype.EntityTypePermId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.material.MaterialPermId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.TagPermId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.MaterialSearchCriteria;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SearchResult;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.search.SearchResult;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.entitytype.id.EntityTypePermId;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.material.Material;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.material.fetchoptions.MaterialFetchOptions;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.material.id.MaterialPermId;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.material.search.MaterialSearchCriteria;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.tag.id.TagPermId;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
 
 /**
@@ -255,20 +255,20 @@ public class SearchMaterialTest extends AbstractTest
         fo.sortBy().property("VOLUME").asc();
         List<Material> materials1 = v3api.searchMaterials(sessionToken, criteria, fo).getObjects();
 
-        assertEquals(materials1.get(0).getProperties().get("VOLUME"), "2.2");
-        assertEquals(materials1.get(1).getProperties().get("VOLUME"), "3.0");
-        assertEquals(materials1.get(2).getProperties().get("VOLUME"), "22.22");
-        assertEquals(materials1.get(3).getProperties().get("VOLUME"), "99.99");
-        assertEquals(materials1.get(4).getProperties().get("VOLUME"), "123");
+        assertEquals(materials1.get(0).getProperty("VOLUME"), "2.2");
+        assertEquals(materials1.get(1).getProperty("VOLUME"), "3.0");
+        assertEquals(materials1.get(2).getProperty("VOLUME"), "22.22");
+        assertEquals(materials1.get(3).getProperty("VOLUME"), "99.99");
+        assertEquals(materials1.get(4).getProperty("VOLUME"), "123");
 
         fo.sortBy().property("VOLUME").desc();
         List<Material> materials2 = v3api.searchMaterials(sessionToken, criteria, fo).getObjects();
 
-        assertEquals(materials2.get(0).getProperties().get("VOLUME"), "123");
-        assertEquals(materials2.get(1).getProperties().get("VOLUME"), "99.99");
-        assertEquals(materials2.get(2).getProperties().get("VOLUME"), "22.22");
-        assertEquals(materials2.get(3).getProperties().get("VOLUME"), "3.0");
-        assertEquals(materials2.get(4).getProperties().get("VOLUME"), "2.2");
+        assertEquals(materials2.get(0).getProperty("VOLUME"), "123");
+        assertEquals(materials2.get(1).getProperty("VOLUME"), "99.99");
+        assertEquals(materials2.get(2).getProperty("VOLUME"), "22.22");
+        assertEquals(materials2.get(3).getProperty("VOLUME"), "3.0");
+        assertEquals(materials2.get(4).getProperty("VOLUME"), "2.2");
     }
 
     @Test

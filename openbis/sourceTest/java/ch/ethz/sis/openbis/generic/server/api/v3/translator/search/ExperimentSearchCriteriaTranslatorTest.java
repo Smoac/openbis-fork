@@ -20,7 +20,7 @@ import junit.framework.Assert;
 
 import org.testng.annotations.Test;
 
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ExperimentSearchCriteria;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.experiment.search.ExperimentSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.server.api.v1.SearchCriteriaToDetailedSearchCriteriaTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.CompareMode;

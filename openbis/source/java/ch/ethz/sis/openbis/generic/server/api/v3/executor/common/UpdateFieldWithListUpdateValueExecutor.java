@@ -20,12 +20,12 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.update.IdListUpdateValue;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.update.ListUpdateValue.ListUpdateAction;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.update.ListUpdateValue.ListUpdateActionAdd;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.update.ListUpdateValue.ListUpdateActionRemove;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.update.ListUpdateValue.ListUpdateActionSet;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.IdListUpdateValue;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.ListUpdateValue.ListUpdateAction;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.ListUpdateValue.ListUpdateActionAdd;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.ListUpdateValue.ListUpdateActionRemove;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.ListUpdateValue.ListUpdateActionSet;
 
 /**
  * @author pkupczyk

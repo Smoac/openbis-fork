@@ -26,13 +26,13 @@ import java.util.Map;
 
 import org.testng.annotations.Test;
 
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.person.Person;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.project.Project;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.Sample;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.space.Space;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.space.SpaceFetchOptions;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.ISpaceId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.SpacePermId;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.person.Person;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.project.Project;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.sample.Sample;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.space.Space;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.space.fetchoptions.SpaceFetchOptions;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.space.id.ISpaceId;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.space.id.SpacePermId;
 
 /**
  * @author pkupczyk

@@ -18,10 +18,10 @@ package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.history;
 
 import java.util.List;
 
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.history.HistoryEntry;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.history.fetchoptions.HistoryEntryFetchOptions;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.ITranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.ObjectHolder;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.history.HistoryEntry;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.history.HistoryEntryFetchOptions;
 
 /**
  * @author pkupczyk

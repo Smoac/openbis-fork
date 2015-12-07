@@ -1,8 +1,8 @@
 package ch.ethz.sis.openbis.systemtest.api.v3;
 
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleCreation;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.entitytype.EntityTypePermId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.SpacePermId;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.entitytype.id.EntityTypePermId;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.sample.create.SampleCreation;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.space.id.SpacePermId;
 
 public class AbstractSampleTest extends AbstractTest
 {

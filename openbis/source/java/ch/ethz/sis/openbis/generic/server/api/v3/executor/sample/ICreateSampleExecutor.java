@@ -16,9 +16,9 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.sample;
 
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.sample.create.SampleCreation;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.sample.id.SamplePermId;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.ICreateEntityExecutor;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleCreation;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SamplePermId;
 
 /**
  * @author pkupczyk

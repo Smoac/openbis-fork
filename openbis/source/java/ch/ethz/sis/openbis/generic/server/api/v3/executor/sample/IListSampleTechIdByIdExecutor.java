@@ -18,8 +18,8 @@ package ch.ethz.sis.openbis.generic.server.api.v3.executor.sample;
 
 import java.util.Collection;
 
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.sample.id.ISampleId;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.ISampleId;
 
 /**
  * @author pkupczyk

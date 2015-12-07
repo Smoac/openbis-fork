@@ -21,11 +21,11 @@ import java.util.Arrays;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.testng.annotations.Test;
 
-import ch.ethz.sis.openbis.generic.shared.api.v3.IApplicationServerApi;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSetUpdate;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.DataSetPermId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentIdentifier;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SamplePermId;
+import ch.ethz.sis.openbis.generic.as.api.v3.IApplicationServerApi;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.dataset.id.DataSetPermId;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.dataset.update.DataSetUpdate;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.experiment.id.ExperimentIdentifier;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.sample.id.SamplePermId;
 import ch.systemsx.cisd.openbis.systemtest.AbstractDataSetAssignmentTestCase;
 
 /**

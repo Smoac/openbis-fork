@@ -23,12 +23,12 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.deletion.Deletion;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.deletion.fetchoptions.DeletionFetchOptions;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.deletion.IListDeletionExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.deletion.IDeletionTranslator;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.deletion.Deletion;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.deletion.DeletionFetchOptions;
 
 /**
  * @author pkupczyk

@@ -19,10 +19,10 @@ package ch.ethz.sis.openbis.generic.server.api.v3.translator.search;
 import java.util.ArrayList;
 import java.util.List;
 
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.AbstractCompositeSearchCriteria;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.AbstractEntitySearchCriteria;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ISearchCriteria;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SearchOperator;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.search.AbstractCompositeSearchCriteria;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.search.AbstractEntitySearchCriteria;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.search.ISearchCriteria;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.search.SearchOperator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriterion;

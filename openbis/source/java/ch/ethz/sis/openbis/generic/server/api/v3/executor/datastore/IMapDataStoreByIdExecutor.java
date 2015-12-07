@@ -16,8 +16,8 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.datastore;
 
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.datastore.id.IDataStoreId;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.common.IMapObjectByIdExecutor;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.datastore.IDataStoreId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 
 /**

@@ -22,10 +22,10 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.dataset.DataSet;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.dataset.fetchoptions.DataSetFetchOptions;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.ObjectToManyRelationTranslator;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSet;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.DataSetFetchOptions;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 
 /**

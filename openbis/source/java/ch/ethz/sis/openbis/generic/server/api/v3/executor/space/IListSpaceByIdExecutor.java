@@ -16,8 +16,8 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.space;
 
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.space.id.ISpaceId;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.common.IListObjectByIdExecutor;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.ISpaceId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**

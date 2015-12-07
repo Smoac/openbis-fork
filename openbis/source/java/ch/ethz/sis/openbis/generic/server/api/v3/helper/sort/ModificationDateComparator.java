@@ -18,7 +18,7 @@ package ch.ethz.sis.openbis.generic.server.api.v3.helper.sort;
 
 import java.util.Date;
 
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IModificationDateHolder;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.interfaces.IModificationDateHolder;
 
 /**
  * @author pkupczyk

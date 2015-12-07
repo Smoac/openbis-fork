@@ -25,8 +25,8 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.fetchoptions.FetchOptions;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationCache.CacheEntry;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.FetchOptions;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;

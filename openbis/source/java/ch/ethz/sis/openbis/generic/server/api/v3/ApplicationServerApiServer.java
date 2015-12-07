@@ -26,7 +26,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import ch.ethz.sis.openbis.generic.shared.api.v3.IApplicationServerApi;
+import ch.ethz.sis.openbis.generic.as.api.v3.IApplicationServerApi;
 import ch.systemsx.cisd.openbis.common.api.server.AbstractApiServiceExporter;
 
 /**

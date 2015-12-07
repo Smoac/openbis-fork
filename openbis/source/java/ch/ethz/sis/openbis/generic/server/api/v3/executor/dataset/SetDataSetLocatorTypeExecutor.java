@@ -22,11 +22,11 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.dataset.create.DataSetCreation;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.dataset.id.ILocatorTypeId;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.dataset.id.RelativeLocationLocatorTypePermId;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.AbstractSetEntityToOneRelationExecutor;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSetCreation;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.ILocatorTypeId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.RelativeLocationLocatorTypePermId;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;

@@ -18,12 +18,12 @@ package ch.ethz.sis.openbis.generic.server.api.v3.helper.tag;
 
 import java.util.Comparator;
 
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.fetchoptions.SortOptions;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.tag.Tag;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.tag.fetchoptions.TagSortOptions;
 import ch.ethz.sis.openbis.generic.server.api.v3.helper.sort.CodeComparator;
 import ch.ethz.sis.openbis.generic.server.api.v3.helper.sort.ComparatorFactory;
 import ch.ethz.sis.openbis.generic.server.api.v3.helper.sort.RegistrationDateComparator;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.tag.Tag;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.SortOptions;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.tag.TagSortOptions;
 
 /**
  * @author pkupczyk

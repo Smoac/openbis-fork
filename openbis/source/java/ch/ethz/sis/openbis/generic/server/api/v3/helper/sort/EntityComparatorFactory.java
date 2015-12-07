@@ -18,11 +18,11 @@ package ch.ethz.sis.openbis.generic.server.api.v3.helper.sort;
 
 import java.util.Comparator;
 
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.ICodeHolder;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IModificationDateHolder;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.IRegistrationDateHolder;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.EntitySortOptions;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.SortOptions;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.fetchoptions.EntitySortOptions;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.fetchoptions.SortOptions;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.interfaces.ICodeHolder;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.interfaces.IModificationDateHolder;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.interfaces.IRegistrationDateHolder;
 
 /**
  * @author pkupczyk

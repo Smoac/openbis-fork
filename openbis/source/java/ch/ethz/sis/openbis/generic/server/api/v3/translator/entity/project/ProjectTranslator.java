@@ -23,15 +23,15 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.attachment.Attachment;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.experiment.Experiment;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.project.Project;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.project.fetchoptions.ProjectFetchOptions;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.project.id.ProjectIdentifier;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.project.id.ProjectPermId;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.AbstractCachingTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationResults;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.attachment.Attachment;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.project.Project;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.project.ProjectFetchOptions;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.ProjectIdentifier;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.ProjectPermId;
 
 /**
  * @author pkupczyk

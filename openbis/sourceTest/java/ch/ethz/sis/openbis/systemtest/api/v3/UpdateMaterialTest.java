@@ -26,16 +26,16 @@ import java.util.Set;
 
 import org.testng.annotations.Test;
 
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.ListUpdateValue.ListUpdateAction;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.ListUpdateValue.ListUpdateActionAdd;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material.Material;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material.MaterialUpdate;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.tag.Tag;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.material.MaterialFetchOptions;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.material.IMaterialId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.material.MaterialPermId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.ITagId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.TagCode;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.update.ListUpdateValue.ListUpdateAction;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.update.ListUpdateValue.ListUpdateActionAdd;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.material.Material;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.material.fetchoptions.MaterialFetchOptions;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.material.id.IMaterialId;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.material.id.MaterialPermId;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.material.update.MaterialUpdate;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.tag.Tag;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.tag.id.ITagId;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.tag.id.TagCode;
 import ch.systemsx.cisd.common.test.AssertionUtil;
 
 /**

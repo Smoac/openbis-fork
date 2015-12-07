@@ -21,9 +21,9 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.deletion.id.IDeletionId;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.deletion.IConfirmDeletionExecutor;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.deletion.IDeletionId;
 
 /**
  * @author pkupczyk

@@ -23,13 +23,13 @@ import junit.framework.Assert;
 
 import org.testng.annotations.Test;
 
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.deletion.Deletion;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.deletion.experiment.ExperimentDeletionOptions;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.deletion.DeletionFetchOptions;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.deletion.IDeletionId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentPermId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SamplePermId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.NotFetchedException;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.deletion.Deletion;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.deletion.fetchoptions.DeletionFetchOptions;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.deletion.id.IDeletionId;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.experiment.delete.ExperimentDeletionOptions;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.experiment.id.ExperimentPermId;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.sample.id.SamplePermId;
+import ch.ethz.sis.openbis.generic.as.api.v3.exceptions.NotFetchedException;
 
 /**
  * @author pkupczyk

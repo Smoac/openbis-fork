@@ -16,9 +16,9 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.dataset;
 
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.dataset.FileFormatType;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.dataset.fetchoptions.FileFormatTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.IObjectToOneRelationTranslator;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.FileFormatType;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.FileFormatTypeFetchOptions;
 
 /**
  * @author pkupczyk

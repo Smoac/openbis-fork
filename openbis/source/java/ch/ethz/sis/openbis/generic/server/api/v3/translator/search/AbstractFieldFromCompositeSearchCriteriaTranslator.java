@@ -20,8 +20,8 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.AbstractCompositeSearchCriteria;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ISearchCriteria;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.search.AbstractCompositeSearchCriteria;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.search.ISearchCriteria;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriterion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchField;

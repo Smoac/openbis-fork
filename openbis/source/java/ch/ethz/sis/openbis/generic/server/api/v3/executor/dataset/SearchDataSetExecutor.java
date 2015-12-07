@@ -21,9 +21,9 @@ import java.util.List;
 
 import org.springframework.stereotype.Component;
 
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.dataset.search.DataSetSearchCriteria;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.common.AbstractSearchObjectExecutor;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.DataSetSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.server.business.search.DataSetSearchManager;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;

@@ -24,20 +24,20 @@ import java.util.TimeZone;
 
 import org.testng.annotations.Test;
 
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.attachment.Attachment;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.attachment.AttachmentFetchOptions;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.experiment.ExperimentFetchOptions;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.entitytype.EntityTypePermId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentIdentifier;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentPermId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.ProjectIdentifier;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.ProjectPermId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.SpacePermId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.TagCode;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.TagPermId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ExperimentSearchCriteria;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SearchResult;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.attachment.Attachment;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.attachment.fetchoptions.AttachmentFetchOptions;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.search.SearchResult;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.entitytype.id.EntityTypePermId;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.experiment.Experiment;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.experiment.fetchoptions.ExperimentFetchOptions;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.experiment.id.ExperimentIdentifier;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.experiment.id.ExperimentPermId;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.experiment.search.ExperimentSearchCriteria;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.project.id.ProjectIdentifier;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.project.id.ProjectPermId;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.space.id.SpacePermId;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.tag.id.TagCode;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.tag.id.TagPermId;
 
 /**
  * @author pkupczyk

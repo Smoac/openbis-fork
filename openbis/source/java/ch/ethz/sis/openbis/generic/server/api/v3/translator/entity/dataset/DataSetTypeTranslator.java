@@ -21,13 +21,13 @@ import java.util.Collection;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.dataset.DataSetKind;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.dataset.DataSetType;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.dataset.fetchoptions.DataSetTypeFetchOptions;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.AbstractCachingTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationResults;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSetKind;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSetType;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.DataSetTypeFetchOptions;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.entitytype.EntityTypePermId;
 
 /**
  * @author pkupczyk

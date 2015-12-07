@@ -16,8 +16,8 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.project;
 
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.project.create.ProjectCreation;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.ISetEntityRelationsExecutor;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.project.ProjectCreation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 
 /**

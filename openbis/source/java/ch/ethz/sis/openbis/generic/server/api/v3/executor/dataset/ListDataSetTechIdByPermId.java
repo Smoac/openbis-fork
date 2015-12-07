@@ -20,9 +20,9 @@ import java.util.List;
 
 import net.lemnik.eodsql.QueryTool;
 
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.dataset.id.DataSetPermId;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.common.TechIdStringIdentifierRecord;
 import ch.ethz.sis.openbis.generic.server.api.v3.helper.common.AbstractListTechIdByPermId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.DataSetPermId;
 
 /**
  * @author pkupczyk

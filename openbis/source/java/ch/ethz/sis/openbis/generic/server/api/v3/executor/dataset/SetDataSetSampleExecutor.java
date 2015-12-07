@@ -18,10 +18,10 @@ package ch.ethz.sis.openbis.generic.server.api.v3.executor.dataset;
 
 import org.springframework.stereotype.Component;
 
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.dataset.create.DataSetCreation;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.sample.id.ISampleId;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.AbstractSetEntitySampleRelationExecutor;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSetCreation;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.ISampleId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.util.RelationshipUtils;

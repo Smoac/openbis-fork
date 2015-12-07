@@ -20,11 +20,11 @@ import java.util.List;
 
 import org.testng.annotations.Test;
 
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.space.Space;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.space.SpaceFetchOptions;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.SpacePermId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SearchResult;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SpaceSearchCriteria;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.search.SearchResult;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.space.Space;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.space.fetchoptions.SpaceFetchOptions;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.space.id.SpacePermId;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.space.search.SpaceSearchCriteria;
 
 /**
  * @author pkupczyk

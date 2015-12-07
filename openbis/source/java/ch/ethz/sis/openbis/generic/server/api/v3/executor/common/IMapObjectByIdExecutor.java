@@ -19,8 +19,8 @@ package ch.ethz.sis.openbis.generic.server.api.v3.executor.common;
 import java.util.Collection;
 import java.util.Map;
 
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.id.IObjectId;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.IObjectId;
 
 /**
  * @author pkupczyk

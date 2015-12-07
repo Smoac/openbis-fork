@@ -21,11 +21,11 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.dataset.id.IFileFormatTypeId;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.common.AbstractMapObjectByIdExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.helper.common.IListObjectById;
 import ch.ethz.sis.openbis.generic.server.api.v3.helper.dataset.ListFileFormatTypeByPermId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.IFileFormatTypeId;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IFileFormatTypeDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;

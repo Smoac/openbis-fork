@@ -16,8 +16,8 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.space;
 
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.space.update.SpaceUpdate;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.IUpdateEntityExecutor;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.space.SpaceUpdate;
 
 /**
  * @author pkupczyk

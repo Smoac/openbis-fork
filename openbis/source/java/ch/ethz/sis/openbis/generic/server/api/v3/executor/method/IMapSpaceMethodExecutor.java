@@ -16,9 +16,9 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.method;
 
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.space.Space;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.space.SpaceFetchOptions;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.ISpaceId;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.space.Space;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.space.fetchoptions.SpaceFetchOptions;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.space.id.ISpaceId;
 
 /**
  * @author pkupczyk

@@ -19,13 +19,13 @@ package ch.ethz.sis.openbis.generic.server.api.v3.executor.method;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.dataset.DataSet;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.dataset.fetchoptions.DataSetFetchOptions;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.dataset.id.IDataSetId;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.common.IMapObjectByIdExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.dataset.IMapDataSetTechIdByIdExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.ITranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.dataset.IDataSetTranslator;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSet;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.DataSetFetchOptions;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.IDataSetId;
 
 /**
  * @author pkupczyk

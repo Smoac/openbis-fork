@@ -16,9 +16,9 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.experiment;
 
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.experiment.ExperimentType;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.experiment.fetchoptions.ExperimentTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.ITranslator;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.ExperimentType;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.experiment.ExperimentTypeFetchOptions;
 
 /**
  * @author pkupczyk

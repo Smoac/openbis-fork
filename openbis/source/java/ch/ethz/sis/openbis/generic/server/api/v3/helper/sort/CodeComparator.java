@@ -16,7 +16,7 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.helper.sort;
 
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.ICodeHolder;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.interfaces.ICodeHolder;
 
 /**
  * @author pkupczyk

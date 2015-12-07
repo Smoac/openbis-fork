@@ -23,8 +23,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.IObjectId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.UnsupportedObjectIdException;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.id.IObjectId;
+import ch.ethz.sis.openbis.generic.as.api.v3.exceptions.UnsupportedObjectIdException;
 
 /**
  * @author pkupczyk

@@ -18,8 +18,8 @@ package ch.ethz.sis.openbis.generic.server.api.v3.executor.deletion;
 
 import java.util.List;
 
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.deletion.id.IDeletionId;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.deletion.IDeletionId;
 
 /**
  * @author pkupczyk

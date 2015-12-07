@@ -23,10 +23,10 @@ import java.util.Set;
 
 import org.springframework.stereotype.Component;
 
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.update.FieldUpdateValue;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.update.IdListUpdateValue;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.update.ListUpdateValue.ListUpdateAction;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.FieldUpdateValue;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.IdListUpdateValue;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.ListUpdateValue.ListUpdateAction;
 
 /**
  * @author pkupczyk

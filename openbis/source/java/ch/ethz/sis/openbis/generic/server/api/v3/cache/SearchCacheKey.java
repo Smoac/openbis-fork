@@ -18,8 +18,6 @@ package ch.ethz.sis.openbis.generic.server.api.v3.cache;
 
 import java.io.Serializable;
 
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.FetchOptionsMatcher;
-
 /**
  * @author pkupczyk
  */

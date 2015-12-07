@@ -16,12 +16,12 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.translator.search;
 
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.DateEarlierThanOrEqualToValue;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.DateEqualToValue;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.DateLaterThanOrEqualToValue;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.DateObjectEarlierThanOrEqualToValue;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.DateObjectEqualToValue;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.IDate;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.search.DateEarlierThanOrEqualToValue;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.search.DateEqualToValue;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.search.DateLaterThanOrEqualToValue;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.search.DateObjectEarlierThanOrEqualToValue;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.search.DateObjectEqualToValue;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.search.IDate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IAttributeSearchFieldKind;
 
 /**

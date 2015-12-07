@@ -16,9 +16,9 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.method;
 
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.project.Project;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.project.ProjectFetchOptions;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.IProjectId;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.project.Project;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.project.fetchoptions.ProjectFetchOptions;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.project.id.IProjectId;
 
 /**
  * @author pkupczyk

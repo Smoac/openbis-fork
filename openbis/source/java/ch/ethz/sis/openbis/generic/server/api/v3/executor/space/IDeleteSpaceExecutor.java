@@ -16,9 +16,9 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.space;
 
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.space.delete.SpaceDeletionOptions;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.space.id.ISpaceId;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.IDeleteEntityExecutor;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.deletion.space.SpaceDeletionOptions;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.ISpaceId;
 
 /**
  * @author pkupczyk

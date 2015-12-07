@@ -16,13 +16,13 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.translator.search;
 
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ISearchCriteria;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.NoSampleContainerSearchCriteria;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.NoSampleSearchCriteria;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SampleChildrenSearchCriteria;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SampleContainerSearchCriteria;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SampleParentsSearchCriteria;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SampleSearchCriteria;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.search.ISearchCriteria;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.sample.search.NoSampleContainerSearchCriteria;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.sample.search.NoSampleSearchCriteria;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.sample.search.SampleChildrenSearchCriteria;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.sample.search.SampleContainerSearchCriteria;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.sample.search.SampleParentsSearchCriteria;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.sample.search.SampleSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AssociatedEntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchSubCriteria;

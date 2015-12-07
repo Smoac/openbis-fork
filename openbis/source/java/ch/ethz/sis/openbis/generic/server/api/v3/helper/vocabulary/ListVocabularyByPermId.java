@@ -19,8 +19,8 @@ package ch.ethz.sis.openbis.generic.server.api.v3.helper.vocabulary;
 import java.util.LinkedList;
 import java.util.List;
 
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.vocabulary.id.VocabularyPermId;
 import ch.ethz.sis.openbis.generic.server.api.v3.helper.common.AbstractListObjectById;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.vocabulary.VocabularyPermId;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IVocabularyDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 

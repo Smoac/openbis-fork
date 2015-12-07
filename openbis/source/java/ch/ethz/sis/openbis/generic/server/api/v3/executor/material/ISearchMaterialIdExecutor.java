@@ -16,8 +16,8 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.material;
 
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.material.search.MaterialSearchCriteria;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.common.ISearchObjectExecutor;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.MaterialSearchCriteria;
 
 /**
  * @author pkupczyk

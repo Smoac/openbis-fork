@@ -16,9 +16,9 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.vocabulary;
 
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.vocabulary.Vocabulary;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.vocabulary.fetchoptions.VocabularyFetchOptions;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.IObjectToOneRelationTranslator;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.vocabulary.Vocabulary;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.vocabulary.VocabularyFetchOptions;
 
 /**
  * @author pkupczyk

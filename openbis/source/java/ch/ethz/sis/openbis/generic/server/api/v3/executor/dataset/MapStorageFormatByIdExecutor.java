@@ -23,13 +23,13 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.dataset.id.IStorageFormatId;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.dataset.id.StorageFormatPermId;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.vocabulary.id.IVocabularyTermId;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.vocabulary.id.VocabularyPermId;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.vocabulary.id.VocabularyTermCode;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.vocabulary.IMapVocabularyTermByIdExecutor;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.IStorageFormatId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.StorageFormatPermId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.vocabulary.IVocabularyTermId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.vocabulary.VocabularyPermId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.vocabulary.VocabularyTermCode;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;

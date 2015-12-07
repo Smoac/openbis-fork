@@ -19,11 +19,11 @@ package ch.ethz.sis.openbis.generic.server.api.v3.executor.method;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.dataset.delete.DataSetDeletionOptions;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.dataset.id.IDataSetId;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.deletion.id.IDeletionId;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.dataset.IDeleteDataSetExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.IDeleteEntityExecutor;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.deletion.dataset.DataSetDeletionOptions;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.IDataSetId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.deletion.IDeletionId;
 
 /**
  * @author pkupczyk

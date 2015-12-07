@@ -19,9 +19,9 @@ package ch.ethz.sis.openbis.generic.server.api.v3.executor.vocabulary;
 import java.util.Collection;
 import java.util.Map;
 
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.vocabulary.id.IVocabularyId;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.vocabulary.id.IVocabularyTermId;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.vocabulary.IVocabularyId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.vocabulary.IVocabularyTermId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
 
 /**

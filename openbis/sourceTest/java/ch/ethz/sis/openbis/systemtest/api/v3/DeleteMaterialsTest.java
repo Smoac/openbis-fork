@@ -20,8 +20,8 @@ import java.util.Collections;
 
 import org.testng.annotations.Test;
 
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.deletion.material.MaterialDeletionOptions;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.material.MaterialPermId;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.material.delete.MaterialDeletionOptions;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.material.id.MaterialPermId;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
 
 /**

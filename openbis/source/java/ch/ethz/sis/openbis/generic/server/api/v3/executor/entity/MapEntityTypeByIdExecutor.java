@@ -24,11 +24,11 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.entitytype.id.IEntityTypeId;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.helper.common.IListObjectById;
 import ch.ethz.sis.openbis.generic.server.api.v3.helper.common.MapObjectById;
 import ch.ethz.sis.openbis.generic.server.api.v3.helper.entity.ListEntityTypeByPermId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.entitytype.IEntityTypeId;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;

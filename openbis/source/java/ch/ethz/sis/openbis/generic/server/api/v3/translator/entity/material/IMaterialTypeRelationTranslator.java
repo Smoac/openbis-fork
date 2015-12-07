@@ -16,9 +16,9 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.material;
 
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.material.MaterialType;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.material.fetchoptions.MaterialTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.IObjectToOneRelationTranslator;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material.MaterialType;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.material.MaterialTypeFetchOptions;
 
 /**
  * @author pkupczyk

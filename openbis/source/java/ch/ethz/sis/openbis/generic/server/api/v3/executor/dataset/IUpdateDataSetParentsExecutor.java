@@ -16,9 +16,9 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.dataset;
 
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.dataset.id.IDataSetId;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.dataset.update.DataSetUpdate;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.IUpdateEntityRelationsWithCacheExecutor;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSetUpdate;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.IDataSetId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 
 /**

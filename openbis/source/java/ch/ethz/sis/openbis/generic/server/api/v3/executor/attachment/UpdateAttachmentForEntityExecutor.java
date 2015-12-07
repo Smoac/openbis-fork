@@ -25,15 +25,15 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.attachment.create.AttachmentCreation;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.attachment.id.AttachmentFileName;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.attachment.id.IAttachmentId;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.attachment.update.AttachmentListUpdateValue;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.update.ListUpdateValue.ListUpdateAction;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.update.ListUpdateValue.ListUpdateActionAdd;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.update.ListUpdateValue.ListUpdateActionRemove;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.update.ListUpdateValue.ListUpdateActionSet;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.AttachmentListUpdateValue;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.ListUpdateValue.ListUpdateAction;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.ListUpdateValue.ListUpdateActionAdd;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.ListUpdateValue.ListUpdateActionRemove;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.ListUpdateValue.ListUpdateActionSet;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.attachment.AttachmentCreation;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.attachment.AttachmentFileName;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.attachment.IAttachmentId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentHolderPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 

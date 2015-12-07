@@ -16,8 +16,8 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.method;
 
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material.MaterialCreation;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.material.MaterialPermId;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.material.create.MaterialCreation;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.material.id.MaterialPermId;
 
 /**
  * @author pkupczyk

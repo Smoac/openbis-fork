@@ -16,9 +16,9 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.dataset;
 
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.dataset.LinkedData;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.dataset.fetchoptions.LinkedDataFetchOptions;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.common.IObjectToOneRelationTranslator;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.LinkedData;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.LinkedDataFetchOptions;
 
 /**
  * @author pkupczyk

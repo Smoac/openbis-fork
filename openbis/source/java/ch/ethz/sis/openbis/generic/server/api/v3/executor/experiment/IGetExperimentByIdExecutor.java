@@ -16,8 +16,8 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.experiment;
 
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.experiment.id.IExperimentId;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.IExperimentId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 
 /**

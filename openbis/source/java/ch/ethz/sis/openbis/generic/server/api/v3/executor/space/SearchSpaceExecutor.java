@@ -20,14 +20,14 @@ import java.util.List;
 
 import org.springframework.stereotype.Component;
 
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.search.CodeSearchCriteria;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.search.ISearchCriteria;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.search.IdSearchCriteria;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.search.PermIdSearchCriteria;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.space.id.SpacePermId;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.space.search.SpaceSearchCriteria;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.common.AbstractSearchObjectManuallyExecutor;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.SpacePermId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.CodeSearchCriteria;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ISearchCriteria;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.IdSearchCriteria;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.PermIdSearchCriteria;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SpaceSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**

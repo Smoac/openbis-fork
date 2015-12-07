@@ -22,14 +22,14 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.project.Project;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.project.fetchoptions.ProjectFetchOptions;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.project.search.ProjectSearchCriteria;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.common.ISearchObjectExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.project.ISearchProjectExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.ITranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.project.IProjectTranslator;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.project.Project;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.project.ProjectFetchOptions;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ProjectSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 
 /**

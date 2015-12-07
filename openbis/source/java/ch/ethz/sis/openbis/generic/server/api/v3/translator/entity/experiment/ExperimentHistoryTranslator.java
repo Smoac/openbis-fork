@@ -26,16 +26,16 @@ import net.lemnik.eodsql.QueryTool;
 
 import org.springframework.stereotype.Component;
 
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.dataset.id.DataSetPermId;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.experiment.history.ExperimentRelationType;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.history.RelationHistoryEntry;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.history.fetchoptions.HistoryEntryFetchOptions;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.person.Person;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.project.id.ProjectPermId;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.sample.id.SamplePermId;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.history.HistoryPropertyRecord;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.history.HistoryTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.history.HistoryRelationshipRecord;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.history.ExperimentRelationType;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.history.RelationHistoryEntry;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.person.Person;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.history.HistoryEntryFetchOptions;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.DataSetPermId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.ProjectPermId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SamplePermId;
 
 /**
  * @author pkupczyk

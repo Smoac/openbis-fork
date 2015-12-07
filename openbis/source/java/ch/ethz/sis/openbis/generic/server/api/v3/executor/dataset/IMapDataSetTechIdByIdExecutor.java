@@ -16,8 +16,8 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.dataset;
 
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.dataset.id.IDataSetId;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.common.IMapObjectByIdExecutor;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.IDataSetId;
 
 /**
  * @author pkupczyk

@@ -24,21 +24,21 @@ import java.util.List;
 
 import org.testng.annotations.Test;
 
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.Sample;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.CacheMode;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sample.SampleFetchOptions;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.entitytype.EntityTypePermId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentIdentifier;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentPermId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.ProjectIdentifier;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.ProjectPermId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SampleIdentifier;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SamplePermId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.SpacePermId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.TagCode;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.TagPermId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SampleSearchCriteria;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SearchResult;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.fetchoptions.CacheMode;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.search.SearchResult;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.entitytype.id.EntityTypePermId;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.experiment.id.ExperimentIdentifier;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.experiment.id.ExperimentPermId;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.project.id.ProjectIdentifier;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.project.id.ProjectPermId;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.sample.Sample;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.sample.fetchoptions.SampleFetchOptions;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.sample.id.SampleIdentifier;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.sample.id.SamplePermId;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.sample.search.SampleSearchCriteria;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.space.id.SpacePermId;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.tag.id.TagCode;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.tag.id.TagPermId;
 
 /**
  * @author pkupczyk
@@ -637,15 +637,15 @@ public class SearchSampleTest extends AbstractSampleTest
 
         fo.sortBy().property("COMMENT").asc();
         List<Sample> samples1 = search(sessionToken, criteria, fo);
-        assertEquals(samples1.get(0).getProperties().get("COMMENT"), "extremely simple stuff");
-        assertEquals(samples1.get(1).getProperties().get("COMMENT"), "stuff like others");
-        assertEquals(samples1.get(2).getProperties().get("COMMENT"), "very advanced stuff");
+        assertEquals(samples1.get(0).getProperty("COMMENT"), "extremely simple stuff");
+        assertEquals(samples1.get(1).getProperty("COMMENT"), "stuff like others");
+        assertEquals(samples1.get(2).getProperty("COMMENT"), "very advanced stuff");
 
         fo.sortBy().property("COMMENT").desc();
         List<Sample> samples2 = search(sessionToken, criteria, fo);
-        assertEquals(samples2.get(0).getProperties().get("COMMENT"), "very advanced stuff");
-        assertEquals(samples2.get(1).getProperties().get("COMMENT"), "stuff like others");
-        assertEquals(samples2.get(2).getProperties().get("COMMENT"), "extremely simple stuff");
+        assertEquals(samples2.get(0).getProperty("COMMENT"), "very advanced stuff");
+        assertEquals(samples2.get(1).getProperty("COMMENT"), "stuff like others");
+        assertEquals(samples2.get(2).getProperty("COMMENT"), "extremely simple stuff");
 
         v3api.logout(sessionToken);
     }
@@ -667,17 +667,17 @@ public class SearchSampleTest extends AbstractSampleTest
 
         fo.sortBy().property("SIZE").asc();
         List<Sample> samples1 = search(sessionToken, criteria, fo);
-        assertEquals(samples1.get(0).getProperties().get("SIZE"), "123");
-        assertEquals(samples1.get(1).getProperties().get("SIZE"), "321");
-        assertEquals(samples1.get(2).getProperties().get("SIZE"), "666");
-        assertEquals(samples1.get(3).getProperties().get("SIZE"), "4711");
+        assertEquals(samples1.get(0).getProperty("SIZE"), "123");
+        assertEquals(samples1.get(1).getProperty("SIZE"), "321");
+        assertEquals(samples1.get(2).getProperty("SIZE"), "666");
+        assertEquals(samples1.get(3).getProperty("SIZE"), "4711");
 
         fo.sortBy().property("SIZE").desc();
         List<Sample> samples2 = search(sessionToken, criteria, fo);
-        assertEquals(samples2.get(0).getProperties().get("SIZE"), "4711");
-        assertEquals(samples2.get(1).getProperties().get("SIZE"), "666");
-        assertEquals(samples2.get(2).getProperties().get("SIZE"), "321");
-        assertEquals(samples2.get(3).getProperties().get("SIZE"), "123");
+        assertEquals(samples2.get(0).getProperty("SIZE"), "4711");
+        assertEquals(samples2.get(1).getProperty("SIZE"), "666");
+        assertEquals(samples2.get(2).getProperty("SIZE"), "321");
+        assertEquals(samples2.get(3).getProperty("SIZE"), "123");
 
         v3api.logout(sessionToken);
     }

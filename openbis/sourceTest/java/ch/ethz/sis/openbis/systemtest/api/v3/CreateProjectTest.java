@@ -25,17 +25,17 @@ import java.util.Map;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.attachment.Attachment;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.attachment.AttachmentCreation;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.project.Project;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.project.ProjectCreation;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.project.ProjectFetchOptions;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.person.IPersonId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.person.PersonPermId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.IProjectId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.ProjectPermId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.ISpaceId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.SpacePermId;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.attachment.Attachment;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.attachment.create.AttachmentCreation;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.person.id.IPersonId;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.person.id.PersonPermId;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.project.Project;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.project.create.ProjectCreation;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.project.fetchoptions.ProjectFetchOptions;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.project.id.IProjectId;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.project.id.ProjectPermId;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.space.id.ISpaceId;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.space.id.SpacePermId;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
 
 /**

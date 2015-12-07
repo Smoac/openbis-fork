@@ -16,8 +16,8 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.deletion;
 
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.deletion.id.IDeletionId;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.common.IMapObjectByIdExecutor;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.deletion.IDeletionId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
 
 /**

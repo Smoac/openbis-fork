@@ -16,8 +16,8 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.sample;
 
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.sample.update.SampleUpdate;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.IUpdateEntityRelationsExecutor;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleUpdate;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
 /**

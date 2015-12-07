@@ -16,14 +16,14 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.translator.search;
 
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.AbstractNumberValue;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ISearchCriteria;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.NumberEqualToValue;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.NumberFieldSearchCriteria;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.NumberGreaterThanOrEqualToValue;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.NumberGreaterThanValue;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.NumberLessThanOrEqualToValue;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.NumberLessThanValue;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.search.AbstractNumberValue;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.search.ISearchCriteria;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.search.NumberEqualToValue;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.search.NumberFieldSearchCriteria;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.search.NumberGreaterThanOrEqualToValue;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.search.NumberGreaterThanValue;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.search.NumberLessThanOrEqualToValue;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.search.NumberLessThanValue;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CompareType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriterion;

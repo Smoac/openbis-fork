@@ -18,8 +18,8 @@ package ch.ethz.sis.openbis.generic.server.api.v3.executor.attachment;
 
 import java.util.Collection;
 
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.attachment.id.IAttachmentId;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.attachment.IAttachmentId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentHolderPE;
 
 /**

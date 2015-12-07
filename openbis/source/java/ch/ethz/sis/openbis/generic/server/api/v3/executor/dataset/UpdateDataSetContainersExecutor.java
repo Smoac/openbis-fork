@@ -20,12 +20,12 @@ import java.util.Collection;
 
 import org.springframework.stereotype.Component;
 
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.update.IdListUpdateValue;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.dataset.id.IDataSetId;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.dataset.update.DataSetUpdate;
+import ch.ethz.sis.openbis.generic.as.api.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.AbstractUpdateEntityToManyRelationExecutor;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.IdListUpdateValue;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSetUpdate;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.IDataSetId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.DataSetPEByExperimentOrSampleIdentifierValidator;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;

@@ -16,10 +16,10 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.sample;
 
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.deletion.id.IDeletionId;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.sample.delete.SampleDeletionOptions;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.sample.id.ISampleId;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.IDeleteEntityExecutor;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.deletion.sample.SampleDeletionOptions;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.deletion.IDeletionId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.ISampleId;
 
 /**
  * @author pkupczyk

@@ -23,8 +23,8 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.deletion.AbstractObjectDeletionOptions;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.deletion.AbstractObjectDeletionOptions;
 import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;

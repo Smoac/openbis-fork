@@ -21,8 +21,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.id.ObjectPermId;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.common.TechIdStringIdentifierRecord;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.ObjectPermId;
 
 /**
  * 

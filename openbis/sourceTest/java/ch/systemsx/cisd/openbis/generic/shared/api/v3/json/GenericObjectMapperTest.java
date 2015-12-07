@@ -22,7 +22,7 @@ import org.testng.annotations.Test;
 
 import com.fasterxml.jackson.databind.JsonMappingException;
 
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SamplePermId;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.sample.id.SamplePermId;
 import ch.systemsx.cisd.openbis.generic.shared.api.common.json.AbstractGenericObjectMapperTest;
 
 /**

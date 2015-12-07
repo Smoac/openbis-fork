@@ -25,6 +25,10 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.fetchoptions.CacheMode;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.fetchoptions.FetchOptions;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.search.AbstractObjectSearchCriteria;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.search.SearchResult;
 import ch.ethz.sis.openbis.generic.server.api.v3.cache.ISearchCache;
 import ch.ethz.sis.openbis.generic.server.api.v3.cache.SearchCacheCleanupListener;
 import ch.ethz.sis.openbis.generic.server.api.v3.cache.SearchCacheEntry;
@@ -34,10 +38,6 @@ import ch.ethz.sis.openbis.generic.server.api.v3.executor.common.ISearchObjectEx
 import ch.ethz.sis.openbis.generic.server.api.v3.helper.sort.SortAndPage;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.ITranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.CacheMode;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.FetchOptions;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.AbstractObjectSearchCriteria;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SearchResult;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 

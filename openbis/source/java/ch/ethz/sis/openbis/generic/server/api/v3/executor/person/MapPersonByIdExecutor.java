@@ -21,11 +21,11 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.person.id.IPersonId;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.common.AbstractMapObjectByIdExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.helper.common.IListObjectById;
 import ch.ethz.sis.openbis.generic.server.api.v3.helper.person.ListPersonByPermId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.person.IPersonId;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;

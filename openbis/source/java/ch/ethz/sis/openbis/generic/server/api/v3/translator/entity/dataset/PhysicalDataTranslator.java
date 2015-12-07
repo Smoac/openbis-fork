@@ -21,13 +21,13 @@ import java.util.Collection;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.dataset.ArchivingStatus;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.dataset.Complete;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.dataset.PhysicalData;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.dataset.fetchoptions.PhysicalDataFetchOptions;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.AbstractCachingTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationResults;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.ArchivingStatus;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.Complete;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.PhysicalData;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.PhysicalDataFetchOptions;
 
 /**
  * @author pkupczyk

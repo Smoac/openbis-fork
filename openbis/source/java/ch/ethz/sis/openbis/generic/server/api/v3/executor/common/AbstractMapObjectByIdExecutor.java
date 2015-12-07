@@ -22,10 +22,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.id.IObjectId;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.helper.common.IListObjectById;
 import ch.ethz.sis.openbis.generic.server.api.v3.helper.common.MapObjectById;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.IObjectId;
 
 /**
  * @author pkupczyk

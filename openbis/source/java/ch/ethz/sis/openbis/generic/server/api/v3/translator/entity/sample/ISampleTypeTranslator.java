@@ -16,9 +16,9 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.sample;
 
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.sample.SampleType;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.sample.fetchoptions.SampleTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.ITranslator;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleType;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sample.SampleTypeFetchOptions;
 
 /**
  * @author pkupczyk

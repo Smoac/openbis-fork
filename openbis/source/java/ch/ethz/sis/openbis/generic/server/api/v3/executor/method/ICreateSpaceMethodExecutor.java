@@ -16,8 +16,8 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.method;
 
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.space.SpaceCreation;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.SpacePermId;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.space.create.SpaceCreation;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.space.id.SpacePermId;
 
 /**
  * @author pkupczyk

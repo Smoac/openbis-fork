@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared;
 
-import ch.ethz.sis.openbis.generic.shared.api.v3.IApplicationServerApi;
+import ch.ethz.sis.openbis.generic.as.api.v3.IApplicationServerApi;
 import ch.systemsx.cisd.openbis.common.api.client.IServicePinger;
 
 /**

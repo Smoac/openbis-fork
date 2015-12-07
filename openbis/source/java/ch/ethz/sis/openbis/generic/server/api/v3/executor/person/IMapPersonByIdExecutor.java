@@ -16,8 +16,8 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.person;
 
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.person.id.IPersonId;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.common.IMapObjectByIdExecutor;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.person.IPersonId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 
 /**

@@ -26,12 +26,12 @@ import junit.framework.Assert;
 import org.jmock.Expectations;
 import org.testng.annotations.Test;
 
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.tag.id.ITagId;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.tag.id.TagCode;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.tag.id.TagPermId;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.AbstractExecutorTest;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.tag.MapTagByIdExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.tag.IGetTagCodeExecutor;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.ITagId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.TagCode;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.TagPermId;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IMetaprojectDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;

@@ -16,7 +16,7 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.method;
 
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SearchResult;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.search.SearchResult;
 
 /**
  * @author pkupczyk

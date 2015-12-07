@@ -6,7 +6,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSet;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.dataset.DataSet;
 import ch.systemsx.cisd.common.collection.SimpleComparator;
 
 public class AbstractDataSetTest extends AbstractTest

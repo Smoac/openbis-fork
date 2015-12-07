@@ -31,12 +31,12 @@ import java.util.Set;
 
 import org.springframework.beans.BeanUtils;
 
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.FetchOptions;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.SortOptions;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.Sorting;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.view.AbstractCollectionView;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.view.ListView;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sort.view.SetView;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.fetchoptions.FetchOptions;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.fetchoptions.SortOptions;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.fetchoptions.Sorting;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.fetchoptions.view.AbstractCollectionView;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.fetchoptions.view.ListView;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.fetchoptions.view.SetView;
 
 /**
  * @author pkupczyk

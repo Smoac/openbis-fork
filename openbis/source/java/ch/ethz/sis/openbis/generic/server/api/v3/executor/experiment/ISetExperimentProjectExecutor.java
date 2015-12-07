@@ -16,8 +16,8 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.experiment;
 
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.experiment.create.ExperimentCreation;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.ISetEntityRelationsExecutor;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.ExperimentCreation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 
 /**

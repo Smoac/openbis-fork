@@ -14,14 +14,14 @@ import java.util.TreeSet;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.FetchOptions;
-import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.NotFetchedException;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.fetchoptions.FetchOptions;
+import ch.ethz.sis.openbis.generic.as.api.v3.exceptions.NotFetchedException;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 @SuppressWarnings("hiding")
 public class DtoGenerator
 {
-    private static final String PACKAGE_PREFIX = "ch.ethz.sis.openbis.generic.shared.api.v3.dto";
+    private static final String PACKAGE_PREFIX = "ch.ethz.sis.openbis.generic.as.api.v3.dto";
 
     private int indent = 0;
 
@@ -259,7 +259,7 @@ public class DtoGenerator
 
     public void generateDTO() throws FileNotFoundException
     {
-        generateDTO("../openbis_api/source/java/ch/ethz/sis/openbis/generic/shared/api/v3/dto/entity/" + subPackage + "/" + className + ".java");
+        generateDTO("../openbis_api/source/java/ch/ethz/sis/openbis/generic/as/api/v3/dto/" + subPackage + "/" + className + ".java");
     }
 
     public void generateDTOJS() throws FileNotFoundException
@@ -296,10 +296,10 @@ public class DtoGenerator
         setOutputStream(os);
 
         printHeaders();
-        printPackage("entity." + subPackage);
+        printPackage(subPackage);
         printImports();
 
-        printClassHeader(className, "entity." + subPackage, null, implementedInterfaces);
+        printClassHeader(className, subPackage, null, implementedInterfaces);
         startBlock();
         printFields();
 
@@ -323,7 +323,7 @@ public class DtoGenerator
 
     public void generateFetchOptions() throws FileNotFoundException
     {
-        generateFetchOptions("../openbis_api/source/java/ch/ethz/sis/openbis/generic/shared/api/v3/dto/fetchoptions/" + subPackage + "/" + className
+        generateFetchOptions("../openbis_api/source/java/ch/ethz/sis/openbis/generic/as/api/v3/dto/" + subPackage + "/fetchoptions/" + className
                 + "FetchOptions.java");
     }
 
@@ -361,10 +361,10 @@ public class DtoGenerator
     {
         setOutputStream(os);
         printHeaders();
-        printPackage("fetchoptions." + subPackage);
+        printPackage(subPackage + ".fetchoptions");
         printImportsForFetchOptions();
 
-        printClassHeader(fetchOptionsClass.getSimpleName(), "fetchoptions." + subPackage, "FetchOptions<" + className + ">", null);
+        printClassHeader(fetchOptionsClass.getSimpleName(), subPackage + ".fetchoptions", "FetchOptions<" + className + ">", null);
         startBlock();
 
         printFetchOptionsFields();
@@ -774,7 +774,7 @@ public class DtoGenerator
         imports.add(JsonProperty.class.getName());
         imports.add(Serializable.class.getName());
         imports.add(FetchOptions.class.getName());
-        imports.add("ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity." + subPackage + "." + className);
+        imports.add("ch.ethz.sis.openbis.generic.as.api.v3.dto." + subPackage + "." + className);
 
         for (DTOField field : fields)
         {

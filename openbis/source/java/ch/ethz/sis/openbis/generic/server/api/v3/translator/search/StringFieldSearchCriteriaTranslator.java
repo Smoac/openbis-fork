@@ -16,14 +16,14 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.translator.search;
 
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.AbstractStringValue;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.AnyStringValue;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ISearchCriteria;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.StringContainsValue;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.StringEndsWithValue;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.StringEqualToValue;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.StringFieldSearchCriteria;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.StringStartsWithValue;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.search.AbstractStringValue;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.search.AnyStringValue;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.search.ISearchCriteria;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.search.StringContainsValue;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.search.StringEndsWithValue;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.search.StringEqualToValue;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.search.StringFieldSearchCriteria;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.search.StringStartsWithValue;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriterion;
 

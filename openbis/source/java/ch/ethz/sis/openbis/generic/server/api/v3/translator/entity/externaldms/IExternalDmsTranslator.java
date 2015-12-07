@@ -16,9 +16,9 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.externaldms;
 
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.externaldms.ExternalDms;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.externaldms.fetchoptions.ExternalDmsFetchOptions;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.ITranslator;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.externaldms.ExternalDms;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.externaldms.ExternalDmsFetchOptions;
 
 /**
  * @author pkupczyk

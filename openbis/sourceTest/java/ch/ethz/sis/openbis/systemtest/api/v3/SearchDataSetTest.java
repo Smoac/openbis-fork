@@ -22,14 +22,14 @@ import java.util.List;
 
 import org.testng.annotations.Test;
 
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSet;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.DataSetFetchOptions;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.DataSetPermId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.entitytype.EntityTypePermId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.TagPermId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.DataSetSearchCriteria;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SampleSearchCriteria;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SearchResult;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.search.SearchResult;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.dataset.DataSet;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.dataset.fetchoptions.DataSetFetchOptions;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.dataset.id.DataSetPermId;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.dataset.search.DataSetSearchCriteria;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.entitytype.id.EntityTypePermId;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.sample.search.SampleSearchCriteria;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.tag.id.TagPermId;
 
 /**
  * @author pkupczyk

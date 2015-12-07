@@ -20,10 +20,10 @@ import java.util.List;
 
 import org.springframework.stereotype.Component;
 
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.project.id.IProjectId;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.common.AbstractMapObjectByIdExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.helper.common.IListObjectById;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.IProjectId;
 
 /**
  * @author Franz-Josef Elmer

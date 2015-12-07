@@ -27,11 +27,11 @@ import java.util.Set;
 
 import org.springframework.stereotype.Component;
 
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.id.CreationId;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.id.IObjectId;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.interfaces.ICreationIdHolder;
+import ch.ethz.sis.openbis.generic.as.api.v3.exceptions.ObjectNotFoundException;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.interfaces.ICreationIdHolder;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.CreationId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.IObjectId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.ObjectNotFoundException;
 
 /**
  * @author pkupczyk

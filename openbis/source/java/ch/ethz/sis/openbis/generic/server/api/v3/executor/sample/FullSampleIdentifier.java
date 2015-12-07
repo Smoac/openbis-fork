@@ -22,7 +22,7 @@ import java.util.StringTokenizer;
 
 import org.apache.commons.lang.StringUtils;
 
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SampleIdentifier;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.sample.id.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
 
 /**
