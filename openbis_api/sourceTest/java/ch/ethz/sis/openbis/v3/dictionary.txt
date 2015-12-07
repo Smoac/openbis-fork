@@ -560,8 +560,8 @@ searchDataSets
 searchExperiments
 SearchFieldType
 searchFiles
-SearchForExperimentsOperation
-SearchForExperimentsOperationResult
+SearchExperimentsOperation
+SearchExperimentsOperationResult
 searchMaterials
 SearchOperator
 searchProjects
