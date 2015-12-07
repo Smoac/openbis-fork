@@ -12,9 +12,35 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 //		
 //		}
 //		
-//		var standardHandler = function(javaDef, jsDef) {
-//			
-//		}
+		var standardHandler = function(javaClassReport, jsObject) {
+			//Check object returned
+			if(!jsObject) {
+				console.info("JS class missing instance: " + javaClassReport.jsonObjAnnotation);
+				return;
+			}
+			
+			//Check prototype available
+			if(!jsObject.prototype) {
+				console.info("JS class missing prototype: " + javaClassReport.jsonObjAnnotation);
+				return;
+			}
+			
+			//Java Fields found in Javascript
+			for(var fIdx = 0; fIdx < javaClassReport.fields.length; fIdx++) {
+				if(!jsObject.prototype[javaClassReport.fields[fIdx]]) {
+					console.info("JS class missing field: " + javaClassReport.jsonObjAnnotation + " - " + javaClassReport.fields[fIdx]);
+				}
+			}
+			
+			//Java Methods found in Javascript
+			for(var fIdx = 0; fIdx < javaClassReport.methods.length; fIdx++) {
+				if(!jsObject.prototype[javaClassReport.methods[fIdx]]) {
+					console.info("JS class missing method: " + javaClassReport.jsonObjAnnotation + " - " + javaClassReport.methods[fIdx]);
+				}
+			}
+			
+			var breakHere = "NOW!";
+		}
 		
 		var areClassesCorrect = function(report) {
 			for(var ridx = 0; ridx < report.entries.length; ridx++) {
@@ -22,15 +48,20 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 				var javaClassName = javaClassReport.name;
 				var jsClassName = javaClassReport.jsonObjAnnotation;
 				if(jsClassName) {
-					var errorHandler = function(javaClassName) {
+					var failedLoadingErrorHandler = function(javaClassName) {
 						return function() {
 							console.info("Java class with jsonObjectAnnotation missing in Javascript: " + javaClassName);
 						};
 					};
+					
+					var loadedHandler = function(javaClassReport) {
+						return function(jsObject) {
+							standardHandler(javaClassReport, jsObject);
+						};
+					};
+					
 					var requireJsPath = jsClassName.replace(/\./g,'/');
-					require([requireJsPath], function(myclass){
-						var test = "break";
-					}, errorHandler(javaClassName));
+					require([requireJsPath], loadedHandler(javaClassReport), failedLoadingErrorHandler(javaClassName));
 				} else {
 					console.info("Java class missing jsonObjectAnnotation: " + javaClassName);
 				}
