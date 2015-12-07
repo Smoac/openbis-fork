@@ -49,7 +49,7 @@ public class APIReport
 
     private static final String[] PUBLIC_PACKAGES = {
             "ch.ethz.sis.openbis.generic.dss.api.v3",
-            "ch.ethz.sis.openbis.generic.shared.api.v3"
+            "ch.ethz.sis.openbis.generic.as.api.v3"
     };
 
     @Test
