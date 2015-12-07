@@ -15,7 +15,9 @@ package ch.ethz.sis.openbis.v3;
  * limitations under the License.
  */
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -109,6 +111,29 @@ public class APIReport
         return uniqueClasses;
     }
 
+    private String getJSONObjectAnnotation(Class<?> clazz)
+    {
+        Annotation[] annotations = clazz.getAnnotations();
+        for(Annotation annotation:annotations) {
+            Class<? extends Annotation> type = annotation.annotationType();
+            String name = type.getName();
+            if(name.equals("ch.systemsx.cisd.base.annotation.JsonObject")) {
+                
+                for (Method method : type.getDeclaredMethods()) {
+                    try
+                    {
+                        Object value = method.invoke(annotation, (Object[]) null);
+                        return (String) value;
+                    } catch (Exception e)
+                    {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+        return null;
+    }
+    
     private Collection<Field> getPublicFields(Class<?> clazz)
     {
         Collection<Field> fields = new ArrayList<Field>();
@@ -141,6 +166,7 @@ public class APIReport
         for (Class<?> clazz : classes)
         {
             Entry entry = new Entry(clazz.getName());
+            entry.setJsonObjAnnotation(getJSONObjectAnnotation(clazz));
             addFields(entry, getPublicFields(clazz));
             addMethods(entry, getPublicMethods(clazz));
             report.add(entry);
@@ -183,7 +209,9 @@ public class APIReport
     static class Entry
     {
         private String Name;
-
+        
+        private String jsonObjAnnotation;
+        
         private List<String> fields = new ArrayList<String>();
 
         private List<String> methods = new ArrayList<String>();
@@ -197,6 +225,17 @@ public class APIReport
         public String getName()
         {
             return this.Name;
+        }
+
+        
+        public String getJsonObjAnnotation()
+        {
+            return this.jsonObjAnnotation;
+        }
+
+        public void setJsonObjAnnotation(String jsonObjAnnotation)
+        {
+            this.jsonObjAnnotation = jsonObjAnnotation;
         }
 
         public List<String> getFields()
