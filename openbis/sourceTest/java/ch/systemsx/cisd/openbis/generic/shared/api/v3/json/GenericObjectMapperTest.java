@@ -46,7 +46,7 @@ public class GenericObjectMapperTest extends AbstractGenericObjectMapperTest
     public void testObjectWithNameThatExistsOnlyInV3IsDeserializedAsV3() throws Exception
     {
         SamplePermId permId = deserialize("objectWithNameThatExistsOnlyInV3.json");
-        Assert.assertEquals("ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SamplePermId", permId.getClass().getName());
+        Assert.assertEquals("ch.ethz.sis.openbis.generic.as.api.v3.dto.sample.id.SamplePermId", permId.getClass().getName());
         Assert.assertEquals("TEST_PERM_ID", permId.getPermId());
     }
 
