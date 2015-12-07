@@ -5,6 +5,55 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 	return function() {
 		QUnit.module("JS VS JAVA API");
 		
+		//
+		// Java Level Handlers to mainly ignore classes
+		//
+		var getSimpleClassName = function(fullyQualifiedClassName) {
+			var idx = fullyQualifiedClassName.lastIndexOf("."); 
+			return fullyQualifiedClassName.substring(idx+1, fullyQualifiedClassName.length);
+		};
+		
+		
+		var toBeImplementedHandler = function(testsResults, javaClassReport, callback) {
+			var warningResult = "Java class not implemented in JS: " + javaClassReport.name;
+			testsResults.warning.push(warningResult);
+			console.info(warningResult);
+			callback();
+		}
+		
+		var ignoredHandler = function(testsResults, javaClassReport, callback) {
+			var warningResult = "Java class ignored: " + javaClassReport.name;
+			testsResults.warning.push(warningResult);
+			console.info(warningResult);
+			callback();
+		}
+		
+		var javaLevelHandlers = {
+				"AbstractCollectionView" : ignoredHandler,
+				"ListView" : ignoredHandler,
+				"SetView" : ignoredHandler,
+				"NotFetchedException" : ignoredHandler,
+				"ObjectNotFoundException" : ignoredHandler,
+				"UnauthorizedObjectAccessException" : ignoredHandler,
+				"UnsupportedObjectIdException" : ignoredHandler,
+				"IApplicationServerApi" : ignoredHandler,
+				"DataSetFileDownloadInputStream" : ignoredHandler,
+				"IDataStoreServerApi" : ignoredHandler,
+				"DataSetCreation" : ignoredHandler,
+				"LinkedDataCreation" : ignoredHandler,
+				"PhysicalDataCreation" : ignoredHandler,
+				"DataSetFileDownload" : toBeImplementedHandler,
+				"DataSetFileDownloadOptions" : toBeImplementedHandler,
+				"DataSetFileDownloadReader" : toBeImplementedHandler,
+				"DataSetFileSearchCriteria" : toBeImplementedHandler,
+				"DataSetFile" : toBeImplementedHandler,
+				"DataSetFilePermId" : toBeImplementedHandler,
+				"IDataSetFileId" : toBeImplementedHandler
+		}
+		
+		//
+		// JS Level Handlers for deep verification
+		//
 		var defaultHandler = function(testsResults, javaClassReport, jsObject) {
 			//Check object returned
 			if(!jsObject) {
@@ -41,6 +90,9 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 			}
 		}
 		
+		//
+		// Main Reporting Logic
+		//
 		var areClassesCorrect = function(report, callback) {
 			var testsToDo = [];
 			var testsResults = {
@@ -63,33 +115,39 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 				var testClassFunc = function(javaClassReport) {
 					return function () {
 						var javaClassName = javaClassReport.name;
-						var jsClassName = javaClassReport.jsonObjAnnotation;
+						var javaSimpleClassName = getSimpleClassName(javaClassName);
+						var javaLevelHandler = javaLevelHandlers[javaSimpleClassName];
 						
-						if(jsClassName) {
-							var failedLoadingErrorHandler = function(javaClassName) {
-								return function() {
-									var errorResult = "Java class with jsonObjectAnnotation missing in Javascript: " + javaClassName;
-									testsResults.error.push(errorResult);
-									console.info(errorResult);
-									doNext();
-								};
-							};
-							
-							var loadedHandler = function(javaClassReport) {
-								return function(jsObject) {
-									defaultHandler(testsResults, javaClassReport, jsObject);
-									testsResults.info.push("Java class matching JS: " + javaClassReport.name);
-									doNext();
-								};
-							};
-							
-							var requireJsPath = jsClassName.replace(/\./g,'/');
-							require([requireJsPath], loadedHandler(javaClassReport), failedLoadingErrorHandler(javaClassName));
+						if(javaLevelHandler) {
+							javaLevelHandler(testsResults, javaClassReport, doNext);
 						} else {
-							var errorResult = "Java class missing jsonObjectAnnotation: " + javaClassName;
-							testsResults.error.push(errorResult);
-							console.info(errorResult);
-							doNext();
+							var jsClassName = javaClassReport.jsonObjAnnotation;
+							if(jsClassName) {
+								var failedLoadingErrorHandler = function(javaClassName) {
+									return function() {
+										var errorResult = "Java class with jsonObjectAnnotation missing in Javascript: " + javaClassName;
+										testsResults.error.push(errorResult);
+										console.info(errorResult);
+										doNext();
+									};
+								};
+								
+								var loadedHandler = function(javaClassReport) {
+									return function(jsObject) {
+										defaultHandler(testsResults, javaClassReport, jsObject);
+										testsResults.info.push("Java class matching JS: " + javaClassReport.name);
+										doNext();
+									};
+								};
+								
+								var requireJsPath = jsClassName.replace(/\./g,'/');
+								require([requireJsPath], loadedHandler(javaClassReport), failedLoadingErrorHandler(javaClassName));
+							} else {
+								var errorResult = "Java class missing jsonObjectAnnotation: " + javaClassName;
+								testsResults.error.push(errorResult);
+								console.info(errorResult);
+								doNext();
+							}
 						}
 					}
 				}
