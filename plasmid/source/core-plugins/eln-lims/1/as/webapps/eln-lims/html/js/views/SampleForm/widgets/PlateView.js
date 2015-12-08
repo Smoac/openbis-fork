@@ -29,9 +29,10 @@ function PlateView(plateController, plateModel) {
 	this._$scale = $("<span>");
 	
 	this.getPlaceHolder = function() {
-		var container = $("<div>", { "id" : this._plateModel.getPlaceHolderId() });
-		var gridTable = this.getGridTable(false);
-		container.append(gridTable);
+		var minHeight = 29 * this._plateModel.numRows + 284;
+		var container = $("<div>", { "id" : this._plateModel.getPlaceHolderId(), "style" : "min-height: " + minHeight + "px;" });
+//		var gridTable = this.getGridTable(false);
+//		container.append(gridTable);
 		return container[0].outerHTML
 	}
 	

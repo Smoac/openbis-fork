@@ -67,8 +67,7 @@ function PlateController(sample, isDisabled) {
 	
 	this.init = function($container) {
 		var _this = this;
-		$container.empty();
-		$container.append("Loading Wells ...");
+		$container.prepend("Loading Wells ...");
 		if(this._plateModel.sample.contained) {
 			this._plateView.repaint($container);
 		} else {
