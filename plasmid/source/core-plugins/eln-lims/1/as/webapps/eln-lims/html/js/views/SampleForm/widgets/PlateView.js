@@ -473,7 +473,10 @@ function PlateView(plateController, plateModel) {
 		//Clean colors
 		for(var i = 1; i <= this._plateModel.numRows; i++) {
 			for(var j = 1; j <= this._plateModel.numColumns; j++) {
-				this._repaintWellToColor(i, j, "inherit");
+				//this._repaintWellToColor(i, j, "inherit");
+				var $cell = this._gridTableCells[i][j];
+				$cell.css({ "background-color" : "inherit", "opacity" : 1 });
+				
 			}
 		}
 	}
