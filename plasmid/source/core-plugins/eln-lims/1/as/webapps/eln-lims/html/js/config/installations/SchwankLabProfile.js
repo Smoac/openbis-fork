@@ -109,9 +109,9 @@ $.extend(SchwankLabProfile.prototype, StandardProfile.prototype, {
 									"BOX_NUM" : 16 //Boxes on each rack, used for validation, to avoid validation increase the number to 9999 for example
 								},								
 					"LIQUID_NITROGEN_1" : { //Freezer name given by the NAME_PROPERTY
-									"ROW_NUM" : 1, //Number of rows
-									"COLUMN_NUM" : 1, //Number of columns
-									"BOX_NUM" : 9999 //Boxes on each rack, used for validation, to avoid validation increase the number to 9999 for example
+									"ROW_NUM" : 6, //Number of rows
+									"COLUMN_NUM" : 10, //Number of columns
+									"BOX_NUM" : 1 //Boxes on each rack, used for validation, to avoid validation increase the number to 9999 for example
 								},				
 					"CHEMICAL_CABINET" : { //Freezer name given by the NAME_PROPERTY
 									"ROW_NUM" : 6, //Number of rows
