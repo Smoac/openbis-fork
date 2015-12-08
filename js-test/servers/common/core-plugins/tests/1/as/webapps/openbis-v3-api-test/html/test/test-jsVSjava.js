@@ -28,13 +28,6 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 			callback();
 		}
 		
-		var notCheckedButWeShould = function(testsResults, javaClassReport, callback) {
-			var warningResult = "Java class ignored, exists in custom file, special case not validated yet: " + javaClassReport.name;
-			testsResults.warning.push(warningResult);
-			console.info(warningResult);
-			callback();
-		}
-		
 		var javaLevelHandlers = {
 				"AbstractCollectionView" : ignoredHandler,
 				"ListView" : ignoredHandler,
@@ -55,13 +48,19 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 				"DataSetFileSearchCriteria" : toBeImplementedHandler,
 				"DataSetFile" : toBeImplementedHandler,
 				"DataSetFilePermId" : toBeImplementedHandler,
-				"IDataSetFileId" : toBeImplementedHandler,
-				"DataSetChildrenSearchCriteria" : notCheckedButWeShould,
-				"DataSetContainerSearchCriteria" : notCheckedButWeShould,
-				"DataSetParentsSearchCriteria" : notCheckedButWeShould,
-				"SampleChildrenSearchCriteria" : notCheckedButWeShould,
-				"SampleContainerSearchCriteria" : notCheckedButWeShould,
-				"SampleParentsSearchCriteria" : notCheckedButWeShould
+				"IDataSetFileId" : toBeImplementedHandler
+		}
+		
+		//
+		// JS Classes contained into other classes
+		//
+		var circularDependencies = {
+				"SampleChildrenSearchCriteria" : 	{ containerClass : "dto.sample.search.SampleSearchCriteria",  	method : "withChildren" },
+				"SampleContainerSearchCriteria" : 	{ containerClass : "dto.sample.search.SampleSearchCriteria",  	method : "withContainer" },
+				"SampleParentsSearchCriteria" : 	{ containerClass : "dto.sample.search.SampleSearchCriteria",  	method : "withParents" },
+				"DataSetChildrenSearchCriteria" : 	{ containerClass : "dto.dataset.search.DataSetSearchCriteria",  method : "withChildren" },
+				"DataSetContainerSearchCriteria" : 	{ containerClass : "dto.dataset.search.DataSetSearchCriteria",  method : "withContainer" },
+				"DataSetParentsSearchCriteria" : 	{ containerClass : "dto.dataset.search.DataSetSearchCriteria",  method : "withParents" },
 		}
 		
 		//
@@ -77,16 +76,25 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 			}
 			
 			//Check prototype available
-			if(!jsObject.prototype) {
+			if(!jsObject.prototype && !jsObject.__proto__) {
 				var errorResult = "JS class missing prototype: " + javaClassReport.jsonObjAnnotation;
 				testsResults.error.push(errorResult);
 				console.info(errorResult);
 				return;
 			}
 			
+			var jsPrototype = null;
+			if(jsObject.__proto__) {
+				jsPrototype = jsObject.__proto__;
+			}
+			
+			if(jsObject.prototype) {
+				jsPrototype = jsObject.prototype;
+			}
+			
 			//Java Fields found in Javascript
 			for(var fIdx = 0; fIdx < javaClassReport.fields.length; fIdx++) {
-				if(!jsObject.prototype[javaClassReport.fields[fIdx]]) {
+				if(!jsPrototype[javaClassReport.fields[fIdx]]) {
 					var errorResult = "JS class missing field: " + javaClassReport.jsonObjAnnotation + " - " + javaClassReport.fields[fIdx];
 					testsResults.error.push(errorResult);
 					console.info(errorResult);
@@ -95,7 +103,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 			
 			//Java Methods found in Javascript
 			for(var fIdx = 0; fIdx < javaClassReport.methods.length; fIdx++) {
-				if(!jsObject.prototype[javaClassReport.methods[fIdx]]) {
+				if(!jsPrototype[javaClassReport.methods[fIdx]]) {
 					var errorResult = "JS class missing method: " + javaClassReport.jsonObjAnnotation + " - " + javaClassReport.methods[fIdx];
 					testsResults.error.push(errorResult);
 					console.info(errorResult);
@@ -130,11 +138,18 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 						var javaClassName = javaClassReport.name;
 						var javaSimpleClassName = getSimpleClassName(javaClassName);
 						var javaLevelHandler = javaLevelHandlers[javaSimpleClassName];
+						var circularDependencyConfig = circularDependencies[javaSimpleClassName];
 						
 						if(javaLevelHandler) {
 							javaLevelHandler(testsResults, javaClassReport, doNext);
 						} else {
-							var jsClassName = javaClassReport.jsonObjAnnotation;
+							var jsClassName = null;
+							if(circularDependencyConfig) {
+								jsClassName = circularDependencyConfig.containerClass;
+							} else {
+								jsClassName = javaClassReport.jsonObjAnnotation;
+							}
+							
 							if(jsClassName) {
 								var failedLoadingErrorHandler = function(javaClassName) {
 									return function() {
@@ -145,13 +160,25 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 									};
 								};
 								
-								var loadedHandler = function(javaClassReport) {
-									return function(jsObject) {
-										defaultHandler(testsResults, javaClassReport, jsObject);
-										testsResults.info.push("Java class matching JS: " + javaClassReport.name);
-										doNext();
+								var loadedHandler = null;
+								
+								loadedHandler = function(circularDependencyConfig) {
+									return function(javaClassReport) {
+										return function(jsObject) {
+											if(circularDependencyConfig) {
+												var instanceJSObject = new jsObject();
+												var containedJsObject = instanceJSObject[circularDependencyConfig.method]();
+												jsObject = containedJsObject;
+											}
+											
+											defaultHandler(testsResults, javaClassReport, jsObject);
+											testsResults.info.push("Java class matching JS: " + javaClassReport.name);
+											doNext();
+										};
 									};
-								};
+								}
+								
+								loadedHandler = loadedHandler(circularDependencyConfig);
 								
 								var requireJsPath = jsClassName.replace(/\./g,'/');
 								require([requireJsPath], loadedHandler(javaClassReport), failedLoadingErrorHandler(javaClassName));
