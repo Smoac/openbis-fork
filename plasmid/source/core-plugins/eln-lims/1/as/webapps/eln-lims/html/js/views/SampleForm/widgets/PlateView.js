@@ -47,7 +47,7 @@ function PlateView(plateController, plateModel) {
 		var _this = this;
 		
 		if(isNew) {
-			this._$scaleDropdownContainer = $("<span>", { "style" : "inline" });
+			this._$scaleDropdownContainer = $("<span>", { "style" : "display:inline;" });
 			
 			//Scale
 			this._$scaleDropdown = FormUtil.getDropDownForTerms(
@@ -375,7 +375,7 @@ function PlateView(plateController, plateModel) {
 					.append("&nbsp;")
 					.append(this._$scaleDropdownContainer)
 					.append("&nbsp;")
-					.append(this._$exportHighlighted)
+					.append($("<span>", { "style" : "display:inline;"}).append(this._$exportHighlighted))
 					.append("&nbsp;");
 		}
 		
