@@ -80,12 +80,18 @@ function DataSetViewer(containerId, profile, sample, serverFacade, datastoreDown
 		//
 		var $container = $("#"+this.containerId);
 		$container.empty();
+		$container.css({ 
+			"padding" : "10px",
+			"border-color" : "#e7e7e7",
+			"border-style" : "solid",
+			"border-width" : "1px"
+		});
 		
 		var $containerTitle = $("<div>", {"id" : this.containerIdTitle });
 		$container.append($containerTitle);
 		$container.append($("<div>", {"id" : this.containerIdContent }));
 		
-		$containerTitle.append($("<legend>").html("Files"));
+		$containerTitle.append($("<h2>").html("Files"));
 		$containerTitle.append($("<p>")
 							.append($("<span>", { class: "glyphicon glyphicon-info-sign" }))
 							.append(" Loading datasets."));
@@ -113,7 +119,7 @@ function DataSetViewer(containerId, profile, sample, serverFacade, datastoreDown
 					});
 				}
 				
-				$containerTitle.append($("<legend>").append("Files ").append($uploadButton));
+				$containerTitle.append($("<h2>").append("Files ").append($uploadButton));
 				
 				//Switch
 				$containerTitle.append(localReference._getSwitch());				
@@ -154,7 +160,7 @@ function DataSetViewer(containerId, profile, sample, serverFacade, datastoreDown
 	
 	this._getSwitch = function() {
 		var _this = this;
-		var $switch = $("<div>", {"class" : "switch-toggle well", "style" : "width:33%; margin-left: auto; margin-right: auto; min-height: 38px !important;"});
+		var $switch = $("<div>", {"class" : "switch-toggle well", "style" : "width:80%; margin-left: auto; margin-right: auto; min-height: 38px !important;"});
 		$switch.change(function(event) {
 			var mode = $('input[name=dataSetVieweMode]:checked').val();
 			switch(mode) {
@@ -321,11 +327,11 @@ function DataSetViewer(containerId, profile, sample, serverFacade, datastoreDown
 		$dataSetsTable.append(
 			$("<thead>").append(
 				$("<tr>")
-					.append($("<th>").html("DataSet Code"))
-					.append($("<th>").html("DataSet Type"))
-					.append($("<th>").html("File Name"))
-					.append($("<th>").html("File Size (Mbyte)"))
-					.append($("<th>").html("Preview"))
+//					.append($("<th>").html("Code"))
+					.append($("<th>", { "style" : "width: 35%;"}).html("Type"))
+					.append($("<th>").html("Name"))
+					.append($("<th>", { "style" : "width: 15%;"}).html("Size (MB)"))
+//					.append($("<th>").html("Preview"))
 			)
 		);
 		
@@ -347,7 +353,7 @@ function DataSetViewer(containerId, profile, sample, serverFacade, datastoreDown
 				var href = Util.getURLFor(mainController.sideMenu.getCurrentNodeId(), "showViewDataSetPageFromPermId", datasetCode);
 				var $datasetLink = $("<a>", {"class" : "browser-compatible-javascript-link", "href" : href }).append(dataset.code);
 				var $tableRow = $("<tr>")
-									.append($("<td>").html($datasetLink))
+//									.append($("<td>").html($datasetLink))
 									.append($("<td>").html(dataset.dataSetTypeCode));
 				
 				var downloadUrl = datastoreDownloadURL + '/' + dataset.code + "/" + encodeURIComponent(datasetFiles[i].pathInDataSet) + "?sessionID=" + this.serverFacade.getSession();
@@ -372,20 +378,20 @@ function DataSetViewer(containerId, profile, sample, serverFacade, datastoreDown
 					$tableRow.append($("<td>").html(sizeInMbThreeDecimals));
 				}
 				 
-				if(this._isPreviewable(datasetFiles[i])) {
-					$tableRow.append($("<td>").append(
-												$("<a>")
-													.attr("href", downloadUrl)
-													.attr("target", "_blank")
-													.append($("<span>").attr("class", "glyphicon glyphicon-search"))
-													.click(function(event) {
-														event.stopPropagation();
-													})
-											)
-									);
-				} else {
-					$tableRow.append($("<td>"));
-				}
+//				if(this._isPreviewable(datasetFiles[i])) {
+//					$tableRow.append($("<td>").append(
+//												$("<a>")
+//													.attr("href", downloadUrl)
+//													.attr("target", "_blank")
+//													.append($("<span>").attr("class", "glyphicon glyphicon-search"))
+//													.click(function(event) {
+//														event.stopPropagation();
+//													})
+//											)
+//									);
+//				} else {
+//					$tableRow.append($("<td>"));
+//				}
 				
 				//Open DataSet
 				if(this.enableOpenDataset) {

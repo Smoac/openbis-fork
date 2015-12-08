@@ -25,9 +25,12 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		var _this = this;
 		$container.empty();
 		
-		var $form = $("<div>", { "class" : "row"});
+		var $form = $("<span>", { "class" : "row col-md-8"});
+		
+		var $rightPanel = $("<span>", { "class" : "row col-md-4", "style" : "margin-left:20px; margin-top:20px;"});
+		
 		var $formColumn = $("<form>", { 
-			"class" : FormUtil.formColumClass + " form-horizontal", 
+			"class" : "form-horizontal", 
 			'role' : "form",
 			'action' : 'javascript:void(0);',
 			'onsubmit' : 'mainController.currentView.createUpdateCopySample();'
@@ -318,13 +321,12 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		//
 		
 		var $dataSetViewerContainer = $("<div>", { 'id' : 'dataSetViewerContainer', 'style' : 'margin-top:10px;'});
-		$formColumn.append($dataSetViewerContainer);
+		$rightPanel.append($dataSetViewerContainer);
 		
 		//
 		// INIT
 		//
-		$container.append($form);
-		
+		$container.append($form).append($rightPanel);
 		//
 		// Extra content
 		//
