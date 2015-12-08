@@ -445,7 +445,7 @@ function PlateView(plateController, plateModel) {
 	    } : null;
 	}
 	
-	this._repaintWellToColor = function(row, column, rgbColor, txt, isDisabled, isAnimated) {
+	this._repaintWellToColor = function(row, column, rgbColor, txt, isDisabled) {
 		var $cell = this._gridTableCells[row][column];
 		this._setToolTip($cell, row, column);
 		$cell.empty();
@@ -455,7 +455,7 @@ function PlateView(plateController, plateModel) {
 		
 		//Opacity
 		var opacity = 1;
-		if(isAnimated && isDisabled) {
+		if(isDisabled) {
 			opacity = 0.3;
 		}
 		
@@ -688,9 +688,9 @@ function PlateView(plateController, plateModel) {
 						valueColorStep = 1;
 					}
 					var color = this._getColorForStepBetweenWhiteAndBlack(valueColorStep, this._plateModel.numHeatmapColors);
-					this._repaintWellToColor(rowsIdx, colsIdx, color, valueColorStep, isOutOfScaleRange, true);
+					this._repaintWellToColor(rowsIdx, colsIdx, color, valueColorStep, isOutOfScaleRange);
 				} else {
-					this._repaintWellToColor(rowsIdx, colsIdx, "#ffffff", "", true, true); //Out of scale NaN value
+					this._repaintWellToColor(rowsIdx, colsIdx, "#ffffff", "", true); //Out of scale NaN value
 				}
 			}
 		}
@@ -747,13 +747,13 @@ function PlateView(plateController, plateModel) {
 				if(selectedColorEncodedAnnotation && selectedColorEncodedAnnotation !== "DEFAULT") {
 					this._repaintWellToColor(row, column, this._getColorForAnnotationCode(selectedColorEncodedAnnotation));
 				} else {
-					this._repaintWellToColor(row, column, "", false, true);
+					this._repaintWellToColor(row, column, "", false);
 				}
 			} else {
-				this._repaintWellToColor(row, column, "", false, true);
+				this._repaintWellToColor(row, column, "", false);
 			}
 		} else {
-			this._repaintWellToColor(row, column, "transparent", false, true);
+			this._repaintWellToColor(row, column, "transparent", false);
 		}
 	}
 	
