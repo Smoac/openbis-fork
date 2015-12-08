@@ -174,8 +174,7 @@ function PlateView(plateController, plateModel) {
 		//Paint Toolbar
 		var $toolbar = $("<div>");
 		if( this._plateModel.isDisabled &&
-			this._plateModel.sample.featureVectorsCache &&
-			this._plateModel.sample.featureVectorsCache.featureVectorDatasets) {
+			this._plateModel.sample.featureVectorsCache.featureVectorDatasets.length > 0) {
 			
 			//Scale
 			this._repaintScaleDropDown(true, true);
