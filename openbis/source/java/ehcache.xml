@@ -26,7 +26,21 @@
 	<cache name="searchCache" eternal="false" maxBytesLocalHeap="512m"
 		overflowToDisk="false" diskPersistent="false" timeToIdleSeconds="3600"
 		timeToLiveSeconds="0" memoryStoreEvictionPolicy="LRU">
-		<cacheEventListenerFactory class="ch.ethz.sis.openbis.generic.server.api.v3.cache.SearchCacheEventListenerFactory" />
+		<cacheEventListenerFactory class="ch.systemsx.cisd.openbis.generic.server.util.RuntimeCacheEventListenerFactory" />
+		<sizeOfPolicy maxDepth="10000000" maxDepthExceededBehavior="continue"/>
+	</cache>
+	-->
+
+	<!-- 
+	
+	TableData cache for GWT presentation layer. 
+	Please uncomment it only if you want to fine-tune the search cache configuration. 
+	If you want to change the cache size only, please leave this commented out and set the size in openbis.conf file instead.
+
+	<cache name="tableDataCache" eternal="false" maxBytesLocalHeap="512m"
+		overflowToDisk="false" diskPersistent="false" timeToIdleSeconds="3600"
+		timeToLiveSeconds="0" memoryStoreEvictionPolicy="LRU">
+		<cacheEventListenerFactory class="ch.systemsx.cisd.openbis.generic.server.util.RuntimeCacheEventListenerFactory" />
 		<sizeOfPolicy maxDepth="10000000" maxDepthExceededBehavior="continue"/>
 	</cache>
 	-->

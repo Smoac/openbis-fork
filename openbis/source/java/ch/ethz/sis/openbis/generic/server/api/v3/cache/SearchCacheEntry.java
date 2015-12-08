@@ -38,4 +38,11 @@ public class SearchCacheEntry<OBJECT> implements Serializable
         this.objects = objects;
     }
 
+    @Override
+    public String toString()
+    {
+        int objectsSize = objects != null ? objects.size() : 0;
+        return objectsSize == 1 ? "1 object" : objectsSize + " objects";
+    }
+
 }

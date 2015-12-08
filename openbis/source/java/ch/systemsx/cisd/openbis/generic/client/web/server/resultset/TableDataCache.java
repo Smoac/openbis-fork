@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ETH Zuerich, CISD
+ * Copyright 2015 ETH Zuerich, SIS
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.api.v3.cache;
+package ch.systemsx.cisd.openbis.generic.client.web.server.resultset;
 
 import javax.annotation.PostConstruct;
 
@@ -26,47 +26,45 @@ import org.springframework.stereotype.Component;
 import ch.systemsx.cisd.openbis.generic.server.util.RuntimeCache;
 
 /**
- * @author pkupczyk
+ * 
+ *
+ * @author Franz-Josef Elmer
  */
 @Component
-public class SearchCache<CRITERIA, FETCH_OPTIONS, OBJECT> implements ISearchCache<CRITERIA, FETCH_OPTIONS, OBJECT>
+public class TableDataCache<K, T>
 {
 
-    public static final String CACHE_NAME = "searchCache";
+    public static final String CACHE_NAME = "tableDataCache";
 
-    public static final String CACHE_SIZE_PROPERTY_NAME = "ch.ethz.sis.openbis.v3.searchcache.size";
+    public static final String CACHE_SIZE_PROPERTY_NAME = "ch.ethz.sis.openbis.generic.client.web.tabledatacache.size";
 
     @Autowired
     private CacheManager cacheManager;
     
-    private RuntimeCache<SearchCacheKey<CRITERIA, FETCH_OPTIONS>, SearchCacheEntry<OBJECT>> runtimeCache;
+    private RuntimeCache<K, T> runtimeCache;
     
-    public SearchCache()
+    public TableDataCache()
     {
     }
     
-    public SearchCache(RuntimeCache<SearchCacheKey<CRITERIA, FETCH_OPTIONS>, SearchCacheEntry<OBJECT>> runtimeCache)
+    public TableDataCache(CacheManager cacheManager)
     {
-        this.runtimeCache = runtimeCache;
+        this.cacheManager = cacheManager;
     }
-
-
-    @Override
-    public SearchCacheEntry<OBJECT> get(SearchCacheKey<CRITERIA, FETCH_OPTIONS> key)
+    
+    public T getTableData(K key)
     {
         return runtimeCache.get(key);
     }
 
-    @Override
-    public void put(SearchCacheKey<CRITERIA, FETCH_OPTIONS> key, SearchCacheEntry<OBJECT> entry)
+    public void putTableData(K key, T table)
     {
-        runtimeCache.put(key, entry);
+        runtimeCache.put(key, table);
     }
-
-    @Override
-    public void remove(SearchCacheKey<CRITERIA, FETCH_OPTIONS> key)
+    
+    public boolean removeTableData(K key)
     {
-        runtimeCache.remove(key);
+        return runtimeCache.remove(key);
     }
 
     @PostConstruct

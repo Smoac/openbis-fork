@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.api.v3.cache;
+package ch.systemsx.cisd.openbis.generic.server.util;
 
 import java.util.Properties;
 
@@ -24,10 +24,10 @@ import net.sf.ehcache.event.CacheEventListenerFactory;
 /**
  * @author pkupczyk
  */
-public class SearchCacheEventListenerFactory extends CacheEventListenerFactory
+public class RuntimeCacheEventListenerFactory extends CacheEventListenerFactory
 {
 
-    private static SearchCacheEventListener listener = new SearchCacheEventListener();
+    private static RuntimeCacheEventListener listener = new RuntimeCacheEventListener();
 
     @Override
     public CacheEventListener createCacheEventListener(Properties arg0)
@@ -35,7 +35,7 @@ public class SearchCacheEventListenerFactory extends CacheEventListenerFactory
         return listener;
     }
 
-    public static SearchCacheEventListener getListener()
+    public static RuntimeCacheEventListener getListener()
     {
         return listener;
     }

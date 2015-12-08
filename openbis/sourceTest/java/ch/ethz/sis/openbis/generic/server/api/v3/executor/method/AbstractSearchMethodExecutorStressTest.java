@@ -17,6 +17,7 @@
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.method;
 
 import java.io.ByteArrayInputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -53,6 +54,7 @@ import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
+import ch.systemsx.cisd.openbis.generic.server.util.RuntimeCache;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 
 import net.sf.ehcache.CacheManager;
@@ -223,26 +225,22 @@ public class AbstractSearchMethodExecutorStressTest
             String managerConfig = "<ehcache name='" + UUID.randomUUID() + "'></ehcache>";
             final CacheManager manager = new CacheManager(new ByteArrayInputStream(managerConfig.getBytes()));
 
-            SearchCache theCache = new SearchCache()
-                {
-                    @Override
-                    protected CacheManager getCacheManager()
-                    {
-                        return manager;
-                    }
-
-                    @Override
-                    protected long getCacheSize()
-                    {
-                        if (cacheSize > 0)
+            SearchCache theCache = new SearchCache(
+                    new RuntimeCache<Serializable, Serializable>(manager, SearchCache.CACHE_NAME,
+                            SearchCache.CACHE_SIZE_PROPERTY_NAME)
                         {
-                            return cacheSize;
-                        } else
-                        {
-                            return super.getCacheSize();
-                        }
-                    }
-                };
+                            @Override
+                            protected long getCacheSize()
+                            {
+                                if (cacheSize > 0)
+                                {
+                                    return cacheSize;
+                                } else
+                                {
+                                    return super.getCacheSize();
+                                }
+                            }
+                        });
 
             theCache.initCache();
             this.cache = theCache;

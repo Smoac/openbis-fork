@@ -16,12 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server;
 
+import java.io.ByteArrayInputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
+import java.util.UUID;
 
 import org.jmock.Expectations;
 import org.testng.annotations.BeforeMethod;
@@ -46,6 +48,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.ICustomColum
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IOriginalDataProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IResultSetKeyGenerator;
+import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.TableDataCache;
 import ch.systemsx.cisd.openbis.generic.server.SessionConstants;
 import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
@@ -106,6 +109,8 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
 
     private ICommonServer commonServer;
 
+    private TableDataCache<String, Object> tableDataCache;
+
     private final static ListSampleDisplayCriteria createListCriteria()
     {
         final ListSampleCriteria criteria = new ListSampleCriteria();
@@ -164,7 +169,10 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
         commonClientService.setCifexRecipient(CIFEX_RECIPIENT);
         commonClientService.webClientConfigurationProvider =
                 new WebClientConfigurationProvider(new Properties());
-
+        String managerConfig = "<ehcache name='" + UUID.randomUUID() + "'></ehcache>";
+        net.sf.ehcache.CacheManager cacheManager = new net.sf.ehcache.CacheManager(new ByteArrayInputStream(managerConfig.getBytes()));
+        tableDataCache = new TableDataCache<String, Object>(cacheManager);
+        tableDataCache.initCache();
     }
 
     @Test
@@ -512,7 +520,7 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
                 {
                     prepareGetSessionToken(this);
                     allowing(httpSession).getAttribute(SessionConstants.OPENBIS_RESULT_SET_MANAGER);
-                    will(returnValue(new CachedResultSetManager<String>(
+                    will(returnValue(new CachedResultSetManager<String>(tableDataCache, 
                             new TokenBasedResultSetKeyGenerator(), new ICustomColumnsProvider()
                                 {
                                     @Override

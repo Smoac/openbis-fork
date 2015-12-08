@@ -20,6 +20,7 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.fail;
 
 import java.io.ByteArrayInputStream;
+import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.UUID;
@@ -36,6 +37,7 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.test.AssertionUtil;
+import ch.systemsx.cisd.openbis.generic.server.util.RuntimeCache;
 import ch.systemsx.cisd.openbis.util.LogRecordingUtils;
 
 /**
@@ -67,7 +69,7 @@ public class SearchCacheTest
 
         AssertionUtil
                 .assertContainsLines(
-                        "INFO  OPERATION.SearchCache - Cache size has been set to its default value."
+                        "INFO  OPERATION.RuntimeCache - Cache size has been set to its default value."
                                 + " The default value is 25% (256m) of the memory available to the JVM (1g)."
                                 + " If you would like to change this value, then please set 'ch.ethz.sis.openbis.v3.searchcache.size' system property in openbis.conf file."
                         , logRecorder.getLogContent());
@@ -80,7 +82,7 @@ public class SearchCacheTest
 
         AssertionUtil
                 .assertContainsLines(
-                        "INFO  OPERATION.SearchCache - Cache size was set to '128m' in 'ch.ethz.sis.openbis.v3.searchcache.size' system property.",
+                        "INFO  OPERATION.RuntimeCache - Cache size was set to '128m' in 'ch.ethz.sis.openbis.v3.searchcache.size' system property.",
                         logRecorder.getLogContent());
     }
 
@@ -91,7 +93,7 @@ public class SearchCacheTest
 
         AssertionUtil
                 .assertContainsLines(
-                        "INFO  OPERATION.SearchCache - Cache size was set to '10%' in 'ch.ethz.sis.openbis.v3.searchcache.size' system property."
+                        "INFO  OPERATION.RuntimeCache - Cache size was set to '10%' in 'ch.ethz.sis.openbis.v3.searchcache.size' system property."
                                 + " The memory available to the JVM is 1g which gives a cache size of 102.4m", logRecorder.getLogContent());
     }
 
@@ -202,32 +204,28 @@ public class SearchCacheTest
         String managerConfig = "<ehcache name='" + UUID.randomUUID() + "'></ehcache>";
         final CacheManager manager = new CacheManager(new ByteArrayInputStream(managerConfig.getBytes()));
 
-        SearchCache cache = new SearchCache()
-            {
-                @Override
-                protected long getMemorySize()
-                {
-                    return memorySize;
-                }
-
-                @Override
-                protected String getSystemProperty(String propertyName)
-                {
-                    if (SearchCache.CACHE_SIZE_PROPERTY_NAME.equals(propertyName))
+        SearchCache cache = new SearchCache(
+                new RuntimeCache<Serializable, Serializable>(manager, SearchCache.CACHE_NAME, 
+                        SearchCache.CACHE_SIZE_PROPERTY_NAME)
                     {
-                        return cacheSize;
-                    } else
-                    {
-                        return null;
-                    }
-                }
+                        @Override
+                        protected long getMemorySize()
+                        {
+                            return memorySize;
+                        }
 
-                @Override
-                protected CacheManager getCacheManager()
-                {
-                    return manager;
-                }
-            };
+                        @Override
+                        protected String getSystemProperty(String propertyName)
+                        {
+                            if (SearchCache.CACHE_SIZE_PROPERTY_NAME.equals(propertyName))
+                            {
+                                return cacheSize;
+                            } else
+                            {
+                                return null;
+                            }
+                        }
+                    });
         cache.initCache();
         return cache;
     }

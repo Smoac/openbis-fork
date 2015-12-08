@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.api.v3.cache;
+package ch.systemsx.cisd.openbis.generic.server.util;
 
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
@@ -29,7 +29,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 /**
  * @author pkupczyk
  */
-public class SearchCacheEventListener implements CacheEventListener
+public class RuntimeCacheEventListener implements CacheEventListener
 {
 
     private final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, getClass());
@@ -76,28 +76,17 @@ public class SearchCacheEventListener implements CacheEventListener
         operationLog.info("All search results have been removed from the cache.");
     }
 
-    @SuppressWarnings("rawtypes")
     private void logOperation(Ehcache cache, Element element, String operation)
     {
-        SearchCacheEntry entry = (SearchCacheEntry) element.getObjectValue();
+        Object entry = element.getObjectValue();
 
         if (entry != null)
         {
             if (operationLog.isInfoEnabled())
             {
                 StringBuilder sb = new StringBuilder();
-                sb.append("Cache entry " + entry.hashCode() + " that contains search result with ");
-
-                int objectsSize = entry.getObjects() != null ? entry.getObjects().size() : 0;
-
-                if (objectsSize == 1)
-                {
-                    sb.append("1 object " + operation + ".");
-                } else
-                {
-                    sb.append(objectsSize + " objects " + operation + ".");
-                }
-
+                sb.append("Cache entry " + entry.hashCode() + " that contains search result with " + entry + " " + operation + ".");
+                
                 int cacheSize = cache.getSize();
 
                 if (cacheSize == 1)
@@ -116,7 +105,7 @@ public class SearchCacheEventListener implements CacheEventListener
     @Override
     public Object clone()
     {
-        return new SearchCacheEventListener();
+        return new RuntimeCacheEventListener();
     }
 
 }
