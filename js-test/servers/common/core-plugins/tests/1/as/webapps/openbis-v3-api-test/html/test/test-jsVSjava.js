@@ -49,9 +49,9 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 		}
 		
 		//
-		// JS Level Handlers for deep verification
+		// Java VS JS Comparator
 		//
-		var defaultHandler = function(testsResults, javaClassReport, jsObject, circularDependencyConfig) {
+		var jsComparator = function(testsResults, javaClassReport, jsObject, circularDependencyConfig) {
 			//Check object returned
 			if(!jsObject) {
 				var errorResult = "JS class missing instance: " + javaClassReport.jsonObjAnnotation;
@@ -159,7 +159,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 												jsObject = containedJsObject;
 											}
 											
-											defaultHandler(testsResults, javaClassReport, jsObject, circularDependencyConfig);
+											jsComparator(testsResults, javaClassReport, jsObject, circularDependencyConfig);
 											testsResults.info.push("Java class matching JS: " + javaClassReport.name);
 											doNext();
 										};
