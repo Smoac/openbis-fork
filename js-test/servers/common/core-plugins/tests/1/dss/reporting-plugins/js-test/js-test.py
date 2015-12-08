@@ -21,7 +21,7 @@ from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto import SearchSubCriteria
 from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria import MatchClause
 from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria import MatchClauseAttribute
 from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria import SearchOperator
-from ch.ethz.sis.openbis.v3 import APIReport
+from ch.systemsx.cisd.openbis.jstest.report import V3APIReport
 
 reload(sys)
 sys.setdefaultencoding('UTF8')
@@ -39,7 +39,7 @@ def process(tr, parameters, tableBuilder):
 		tableBuilder.addHeader("STATUS")
 		tableBuilder.addHeader("RESULT")
 		row = tableBuilder.addRow()
-		report = APIReport().getReport()
+		report = V3APIReport().getReport()
 		if report is None:
 			report = "";
 			row.setCell("STATUS", "FAILED")

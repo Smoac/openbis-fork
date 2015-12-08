@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.jstest.server;
 
 import java.io.File;
-import java.io.IOException;
 
 import ch.systemsx.cisd.openbis.test.server.TestDataStoreServer;
 
@@ -37,9 +36,14 @@ public abstract class JsTestDataStoreServer extends TestDataStoreServer
         
         try
         {
-            File extraClassPath = new File("../../../targets/classes");
-            classpath += ":" + (extraClassPath).getCanonicalPath();
-        } catch (IOException e)
+            File extraClassPath = new File("../../../targets/gradle/classes/test");
+            if(extraClassPath.exists()) {
+                classpath += ":" + (extraClassPath).getCanonicalPath();
+            } else {
+                throw new RuntimeException("Classpath Missing: " + extraClassPath);
+            }
+            
+        } catch (Exception e)
         {
             e.printStackTrace();
             System.err.println("Extra classpath missing, check JsTestDataStoreServer for details.");
