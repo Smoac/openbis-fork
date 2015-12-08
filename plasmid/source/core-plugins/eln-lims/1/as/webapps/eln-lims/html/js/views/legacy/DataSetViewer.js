@@ -113,7 +113,7 @@ function DataSetViewer(containerId, profile, sample, serverFacade, datastoreDown
 				//Upload Button
 				var $uploadButton = "";
 				if(enableUpload) {
-					$uploadButton = $("<a>", { class: "btn btn-default" }).append($("<span>", { class: "glyphicon glyphicon-upload" }));
+					$uploadButton = $("<a>", { class: "btn btn-default" }).append($("<span>", { class: "glyphicon glyphicon-upload" })).append(" Upload");
 					$uploadButton.click(function() { 
 						mainController.changeView('showCreateDataSetPageFromPermId',localReference.sample.permId); //TO-DO Fix Global Access
 					});
