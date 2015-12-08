@@ -447,29 +447,24 @@ function PlateView(plateController, plateModel) {
 	
 	this._repaintWellToColor = function(row, column, rgbColor, txt, isDisabled, isAnimated) {
 		var $cell = this._gridTableCells[row][column];
-			$cell.css( { "background-color" : rgbColor });
 		this._setToolTip($cell, row, column);
 		$cell.empty();
 		if(txt) {
 			$cell.append(txt);
 		}
 		
-		if(isAnimated) {
-			if(isDisabled) {
-//				$cell.css( { "opacity" : 0.3 });
-//				$cell.fadeTo(1000, 0.3);
-				$cell.animate({ "opacity" : 0.3 }, 1000);
-			} else {
-//				$cell.css( { "opacity" : 1 });
-//				$cell.fadeTo(1000, 1);
-				$cell.animate({ "opacity" : 1 }, 1000);
-			}
+		//Opacity
+		var opacity = 1;
+		if(isAnimated && isDisabled) {
+			opacity = 0.3;
 		}
 		
 		//Redundant coding
 		var rgb = this._hexToRgb(rgbColor);
 		var fontColor = (rgb && (rgb.r*0.299 + rgb.g*0.587 + rgb.b*0.114) > 186)?"#000000":"#ffffff";
-		$cell.css({ "color" : fontColor });
+		
+		//Single Cell CSS Update
+		$cell.css({ "background-color" : rgbColor, "opacity" : opacity, "color" : fontColor });
 	}
 	
 	this._cleanGrid = function() {
