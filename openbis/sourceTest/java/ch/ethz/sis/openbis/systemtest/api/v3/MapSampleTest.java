@@ -30,6 +30,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import junit.framework.Assert;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Transformer;
 import org.testng.annotations.Test;
@@ -64,8 +66,6 @@ import ch.ethz.sis.openbis.generic.as.api.v3.dto.tag.fetchoptions.TagFetchOption
 import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
-
-import junit.framework.Assert;
 
 /**
  * @author pkupczyk
@@ -1063,7 +1063,7 @@ public class MapSampleTest extends AbstractSampleTest
         creation.setTypeId(new EntityTypePermId("CELL_PLATE"));
         creation.setSpaceId(new SpacePermId("CISD"));
 
-        List<HistoryEntry> history = testMapWithHistory(creation, null);
+        List<HistoryEntry> history = testMapWithHistory(creation, new SampleUpdate[] {});
 
         assertEquals(history, Collections.emptyList());
     }
@@ -1127,6 +1127,46 @@ public class MapSampleTest extends AbstractSampleTest
         assertTrue(entry.getValidFrom() != null);
         assertTrue(entry.getValidTo() != null);
         assertEquals(entry.getAuthor().getUserId(), TEST_USER);
+    }
+
+    @Test
+    public void testMapWithHistorySystemProperty()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        String systemPropertyCode = "$PLATE_GEOMETRY";
+        String simplePropertyCode = "PLATE_GEOMETRY";
+        String originalSystemPropertyValue = "384_WELLS_16X24";
+        String originalSimplePropertyValue = "I'm just random";
+        String sampleTypeCode = "MASTER_PLATE";
+
+        createNewPropertyType(sessionToken, sampleTypeCode, simplePropertyCode);
+
+        SampleCreation creation = new SampleCreation();
+        creation.setCode("SAMPLE_WITH_SYS_PROPERTY");
+        creation.setTypeId(new EntityTypePermId(sampleTypeCode));
+        creation.setSpaceId(new SpacePermId("CISD"));
+        creation.setProperty(systemPropertyCode, originalSystemPropertyValue);
+        creation.setProperty(simplePropertyCode, originalSimplePropertyValue);
+
+        SampleUpdate update1 = new SampleUpdate();
+        update1.setProperty(systemPropertyCode, "96_WELLS_8X12");
+
+        SampleUpdate update2 = new SampleUpdate();
+        update2.setProperty(simplePropertyCode, "I have been updated");
+
+        List<HistoryEntry> history = testMapWithHistory(creation, update1, update2);
+
+        assertEquals(history.size(), 2);
+
+        PropertyHistoryEntry entry1 = (PropertyHistoryEntry) history.get(0);
+        PropertyHistoryEntry entry2 = (PropertyHistoryEntry) history.get(1);
+
+        assertEquals(entry1.getPropertyName(), systemPropertyCode);
+        assertEquals(entry1.getPropertyValue(), originalSystemPropertyValue + " [PLATE_GEOMETRY]");
+
+        assertEquals(entry2.getPropertyName(), simplePropertyCode);
+        assertEquals(entry2.getPropertyValue(), originalSimplePropertyValue);
     }
 
     @Test
@@ -1295,16 +1335,19 @@ public class MapSampleTest extends AbstractSampleTest
         assertEquals(entry.getRelatedObjectId(), new SamplePermId("200811050919915-8"));
     }
 
-    private List<HistoryEntry> testMapWithHistory(SampleCreation creation, SampleUpdate update)
+    private List<HistoryEntry> testMapWithHistory(SampleCreation creation, SampleUpdate... updates)
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         List<SamplePermId> permIds = v3api.createSamples(sessionToken, Arrays.asList(creation));
 
-        if (update != null)
+        if (updates != null)
         {
-            update.setSampleId(permIds.get(0));
-            v3api.updateSamples(sessionToken, Arrays.asList(update));
+            for (SampleUpdate update : updates)
+            {
+                update.setSampleId(permIds.get(0));
+                v3api.updateSamples(sessionToken, Arrays.asList(update));
+            }
         }
 
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
