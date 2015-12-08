@@ -131,7 +131,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 			$formTitle.append("&nbsp;");
 			var $tableHierarchyButton = $("<a>", { 'class' : 'btn btn-default'} )
 			.append($('<img>', { 'src' : './img/hierarchy-icon.png', 'style' : 'width:16px; height:17px;' }))
-			.append(' Table');
+			.append(' T');
 			$tableHierarchyButton.click(function () {
 				mainController.changeView('showSampleHierarchyTablePage', _this._sampleFormModel.sample.permId);
 			});

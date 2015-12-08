@@ -421,7 +421,8 @@ var FormUtil = new function() {
 	
 	this.getHierarchyButton = function(permId) {
 		var $hierarchyButton = $("<a>", { 'class' : 'btn btn-default'} )
-									.append($('<img>', { 'src' : './img/hierarchy-icon.png', 'style' : 'width:16px; height:17px;' }));
+									.append($('<img>', { 'src' : './img/hierarchy-icon.png', 'style' : 'width:16px; height:17px;' }))
+									.append(' V');
 		$hierarchyButton.click(function() {
 			mainController.changeView('showSampleHierarchyPage', permId);
 		});
