@@ -6,49 +6,34 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 		QUnit.module("JS VS JAVA API");
 		
 		//
-		// Java Level Handlers to mainly ignore classes
+		// Ignore specific Java classes giving a custom message
 		//
 		var getSimpleClassName = function(fullyQualifiedClassName) {
 			var idx = fullyQualifiedClassName.lastIndexOf("."); 
 			return fullyQualifiedClassName.substring(idx+1, fullyQualifiedClassName.length);
 		};
 		
-		
-		var toBeImplementedHandler = function(testsResults, javaClassReport, callback) {
-			var warningResult = "Java class not implemented in JS: " + javaClassReport.name;
-			testsResults.warning.push(warningResult);
-			console.info(warningResult);
-			callback();
-		}
-		
-		var ignoredHandler = function(testsResults, javaClassReport, callback) {
-			var warningResult = "Java class ignored: " + javaClassReport.name;
-			testsResults.warning.push(warningResult);
-			console.info(warningResult);
-			callback();
-		}
-		
-		var javaLevelHandlers = {
-				"AbstractCollectionView" : ignoredHandler,
-				"ListView" : ignoredHandler,
-				"SetView" : ignoredHandler,
-				"NotFetchedException" : ignoredHandler,
-				"ObjectNotFoundException" : ignoredHandler,
-				"UnauthorizedObjectAccessException" : ignoredHandler,
-				"UnsupportedObjectIdException" : ignoredHandler,
-				"IApplicationServerApi" : ignoredHandler,
-				"DataSetFileDownloadInputStream" : ignoredHandler,
-				"IDataStoreServerApi" : ignoredHandler,
-				"DataSetCreation" : ignoredHandler,
-				"LinkedDataCreation" : ignoredHandler,
-				"PhysicalDataCreation" : ignoredHandler,
-				"DataSetFileDownload" : toBeImplementedHandler,
-				"DataSetFileDownloadOptions" : toBeImplementedHandler,
-				"DataSetFileDownloadReader" : toBeImplementedHandler,
-				"DataSetFileSearchCriteria" : toBeImplementedHandler,
-				"DataSetFile" : toBeImplementedHandler,
-				"DataSetFilePermId" : toBeImplementedHandler,
-				"IDataSetFileId" : toBeImplementedHandler
+		var ignoreMessages = {
+				"AbstractCollectionView" : "Java class ignored: ",
+				"ListView" : "Java class ignored: ",
+				"SetView" : "Java class ignored: ",
+				"NotFetchedException" : "Java class ignored: ",
+				"ObjectNotFoundException" : "Java class ignored: ",
+				"UnauthorizedObjectAccessException" : "Java class ignored: ",
+				"UnsupportedObjectIdException" : "Java class ignored: ",
+				"IApplicationServerApi" : "Java class ignored: ",
+				"DataSetFileDownloadInputStream" : "Java class ignored: ",
+				"IDataStoreServerApi" : "Java class ignored: ",
+				"DataSetCreation" : "Java class ignored: ",
+				"LinkedDataCreation" : "Java class ignored: ",
+				"PhysicalDataCreation" : "Java class ignored: ",
+				"DataSetFileDownload" : "Java class not implemented in JS: ",
+				"DataSetFileDownloadOptions" : "Java class not implemented in JS: ",
+				"DataSetFileDownloadReader" : "Java class not implemented in JS: ",
+				"DataSetFileSearchCriteria" : "Java class not implemented in JS: ",
+				"DataSetFile" : "Java class not implemented in JS: ",
+				"DataSetFilePermId" : "Java class not implemented in JS: ",
+				"IDataSetFileId" : "Java class not implemented in JS: "
 		}
 		
 		//
@@ -66,7 +51,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 		//
 		// JS Level Handlers for deep verification
 		//
-		var defaultHandler = function(testsResults, javaClassReport, jsObject) {
+		var defaultHandler = function(testsResults, javaClassReport, jsObject, circularDependencyConfig) {
 			//Check object returned
 			if(!jsObject) {
 				var errorResult = "JS class missing instance: " + javaClassReport.jsonObjAnnotation;
@@ -76,7 +61,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 			}
 			
 			//Check prototype available
-			if(!jsObject.prototype && !jsObject.__proto__) {
+			if(!jsObject.prototype && !circularDependencyConfig) {
 				var errorResult = "JS class missing prototype: " + javaClassReport.jsonObjAnnotation;
 				testsResults.error.push(errorResult);
 				console.info(errorResult);
@@ -84,7 +69,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 			}
 			
 			var jsPrototype = null;
-			if(jsObject.__proto__) {
+			if(circularDependencyConfig) {
 				jsPrototype = jsObject.__proto__;
 			}
 			
@@ -137,11 +122,14 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 					return function () {
 						var javaClassName = javaClassReport.name;
 						var javaSimpleClassName = getSimpleClassName(javaClassName);
-						var javaLevelHandler = javaLevelHandlers[javaSimpleClassName];
+						var ignoreMessage = ignoreMessages[javaSimpleClassName];
 						var circularDependencyConfig = circularDependencies[javaSimpleClassName];
 						
-						if(javaLevelHandler) {
-							javaLevelHandler(testsResults, javaClassReport, doNext);
+						if(ignoreMessage) {
+							var warningResult = ignoreMessage + javaClassReport.name;
+							testsResults.warning.push(warningResult);
+							console.info(warningResult);
+							doNext();
 						} else {
 							var jsClassName = null;
 							if(circularDependencyConfig) {
@@ -171,7 +159,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 												jsObject = containedJsObject;
 											}
 											
-											defaultHandler(testsResults, javaClassReport, jsObject);
+											defaultHandler(testsResults, javaClassReport, jsObject, circularDependencyConfig);
 											testsResults.info.push("Java class matching JS: " + javaClassReport.name);
 											doNext();
 										};
