@@ -214,6 +214,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 						});
 					} else {
 						c.fail("Report Missing");
+						c.finish();
 					}
 				});
 			}
