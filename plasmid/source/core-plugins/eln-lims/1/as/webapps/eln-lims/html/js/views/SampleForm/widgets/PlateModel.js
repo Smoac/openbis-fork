@@ -21,10 +21,12 @@ function PlateModel(sample, isDisabled) {
 	this.lastUsedScaleMin = null;
 	this.lastUsedScaleMax = null;
 	
-	this.sample.featureVectorsCache = {};
-	this.sample.featureVectorsCache.featureVectorDatasets = [];
-	this.sample.featureVectorsCache.featureVectorDatasetsFeatures = {};
-	this.sample.featureVectorsCache.featureVectorDatasetsFeaturesData = {};
+	if(!this.sample.featureVectorsCache) {
+		this.sample.featureVectorsCache = {};
+		this.sample.featureVectorsCache.featureVectorDatasets = [];
+		this.sample.featureVectorsCache.featureVectorDatasetsFeatures = {};
+		this.sample.featureVectorsCache.featureVectorDatasetsFeaturesData = {};
+	}
 	
 	this.isDisabled = isDisabled;
 	this.changesToDo = [];
