@@ -19,14 +19,12 @@ import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.interfaces.ICodeHolder;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.externaldms.fetchoptions.ExternalDmsFetchOptions;
 import ch.ethz.sis.openbis.generic.as.api.v3.exceptions.NotFetchedException;
 import ch.systemsx.cisd.base.annotation.JsonObject;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.io.Serializable;
 
-/**
- * Class automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+/*
+ * Class automatically generated with DtoGenerator
  */
 @JsonObject("dto.externaldms.ExternalDms")
 public class ExternalDms implements Serializable, ICodeHolder
@@ -48,20 +46,20 @@ public class ExternalDms implements Serializable, ICodeHolder
     @JsonProperty
     private Boolean openbis;
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     @JsonIgnore
     public ExternalDmsFetchOptions getFetchOptions()
     {
         return fetchOptions;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public void setFetchOptions(ExternalDmsFetchOptions fetchOptions)
     {
         this.fetchOptions = fetchOptions;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     @JsonIgnore
     @Override
     public String getCode()
@@ -69,51 +67,52 @@ public class ExternalDms implements Serializable, ICodeHolder
         return code;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public void setCode(String code)
     {
         this.code = code;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     @JsonIgnore
     public String getLabel()
     {
         return label;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public void setLabel(String label)
     {
         this.label = label;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     @JsonIgnore
     public String getUrlTemplate()
     {
         return urlTemplate;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public void setUrlTemplate(String urlTemplate)
     {
         this.urlTemplate = urlTemplate;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     @JsonIgnore
     public Boolean isOpenbis()
     {
         return openbis;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public void setOpenbis(Boolean openbis)
     {
         this.openbis = openbis;
     }
 
+    // Method automatically generated with DtoGenerator
     @Override
     public String toString()
     {

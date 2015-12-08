@@ -15,15 +15,6 @@
  */
 package ch.ethz.sis.openbis.generic.as.api.v3.dto.sample;
 
-import java.io.Serializable;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.attachment.Attachment;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.interfaces.IAttachmentsHolder;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.interfaces.ICodeHolder;
@@ -42,6 +33,8 @@ import ch.ethz.sis.openbis.generic.as.api.v3.dto.history.HistoryEntry;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.material.Material;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.person.Person;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.project.Project;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.sample.Sample;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.sample.SampleType;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.sample.fetchoptions.SampleFetchOptions;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.sample.id.SampleIdentifier;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.sample.id.SamplePermId;
@@ -49,13 +42,19 @@ import ch.ethz.sis.openbis.generic.as.api.v3.dto.space.Space;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.tag.Tag;
 import ch.ethz.sis.openbis.generic.as.api.v3.exceptions.NotFetchedException;
 import ch.systemsx.cisd.base.annotation.JsonObject;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import java.io.Serializable;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-/**
- * Class automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+/*
+ * Class automatically generated with DtoGenerator
  */
 @JsonObject("dto.sample.Sample")
-public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, IModificationDateHolder, IModifierHolder,
-        IParentChildrenHolder<Sample>, IPermIdHolder, IPropertiesHolder, IRegistrationDateHolder, IRegistratorHolder, ISpaceHolder, ITagsHolder
+public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, IModificationDateHolder, IModifierHolder, IParentChildrenHolder<Sample>, IPermIdHolder, IPropertiesHolder, IRegistrationDateHolder, IRegistratorHolder, ISpaceHolder, ITagsHolder
 {
     private static final long serialVersionUID = 1L;
 
@@ -125,20 +124,20 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, IM
     @JsonProperty
     private List<Attachment> attachments;
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     @JsonIgnore
     public SampleFetchOptions getFetchOptions()
     {
         return fetchOptions;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public void setFetchOptions(SampleFetchOptions fetchOptions)
     {
         this.fetchOptions = fetchOptions;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     @JsonIgnore
     @Override
     public SamplePermId getPermId()
@@ -146,26 +145,26 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, IM
         return permId;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public void setPermId(SamplePermId permId)
     {
         this.permId = permId;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     @JsonIgnore
     public SampleIdentifier getIdentifier()
     {
         return identifier;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public void setIdentifier(SampleIdentifier identifier)
     {
         this.identifier = identifier;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     @JsonIgnore
     @Override
     public String getCode()
@@ -173,13 +172,13 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, IM
         return code;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public void setCode(String code)
     {
         this.code = code;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     @JsonIgnore
     @Override
     public Date getRegistrationDate()
@@ -187,13 +186,13 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, IM
         return registrationDate;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public void setRegistrationDate(Date registrationDate)
     {
         this.registrationDate = registrationDate;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     @JsonIgnore
     @Override
     public Date getModificationDate()
@@ -201,13 +200,13 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, IM
         return modificationDate;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public void setModificationDate(Date modificationDate)
     {
         this.modificationDate = modificationDate;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     @JsonIgnore
     public SampleType getType()
     {
@@ -221,13 +220,13 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, IM
         }
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public void setType(SampleType type)
     {
         this.type = type;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     @JsonIgnore
     public Project getProject()
     {
@@ -241,13 +240,13 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, IM
         }
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public void setProject(Project project)
     {
         this.project = project;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     @JsonIgnore
     @Override
     public Space getSpace()
@@ -262,13 +261,13 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, IM
         }
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public void setSpace(Space space)
     {
         this.space = space;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     @JsonIgnore
     public Experiment getExperiment()
     {
@@ -282,13 +281,13 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, IM
         }
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public void setExperiment(Experiment experiment)
     {
         this.experiment = experiment;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     @JsonIgnore
     @Override
     public Map<String, String> getProperties()
@@ -303,13 +302,13 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, IM
         }
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public void setProperties(Map<String, String> properties)
     {
         this.properties = properties;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     @JsonIgnore
     @Override
     public Map<String, Material> getMaterialProperties()
@@ -324,13 +323,13 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, IM
         }
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public void setMaterialProperties(Map<String, Material> materialProperties)
     {
         this.materialProperties = materialProperties;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     @JsonIgnore
     @Override
     public List<Sample> getParents()
@@ -345,13 +344,13 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, IM
         }
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public void setParents(List<Sample> parents)
     {
         this.parents = parents;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     @JsonIgnore
     @Override
     public List<Sample> getChildren()
@@ -366,13 +365,13 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, IM
         }
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public void setChildren(List<Sample> children)
     {
         this.children = children;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     @JsonIgnore
     public Sample getContainer()
     {
@@ -386,13 +385,13 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, IM
         }
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public void setContainer(Sample container)
     {
         this.container = container;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     @JsonIgnore
     public List<Sample> getComponents()
     {
@@ -406,13 +405,13 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, IM
         }
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public void setComponents(List<Sample> components)
     {
         this.components = components;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     @JsonIgnore
     public List<DataSet> getDataSets()
     {
@@ -426,13 +425,13 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, IM
         }
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public void setDataSets(List<DataSet> dataSets)
     {
         this.dataSets = dataSets;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     @JsonIgnore
     public List<HistoryEntry> getHistory()
     {
@@ -446,13 +445,13 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, IM
         }
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public void setHistory(List<HistoryEntry> history)
     {
         this.history = history;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     @JsonIgnore
     @Override
     public Set<Tag> getTags()
@@ -467,13 +466,13 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, IM
         }
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public void setTags(Set<Tag> tags)
     {
         this.tags = tags;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     @JsonIgnore
     @Override
     public Person getRegistrator()
@@ -488,13 +487,13 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, IM
         }
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public void setRegistrator(Person registrator)
     {
         this.registrator = registrator;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     @JsonIgnore
     @Override
     public Person getModifier()
@@ -509,13 +508,13 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, IM
         }
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public void setModifier(Person modifier)
     {
         this.modifier = modifier;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     @JsonIgnore
     @Override
     public List<Attachment> getAttachments()
@@ -530,7 +529,7 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, IM
         }
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public void setAttachments(List<Attachment> attachments)
     {
         this.attachments = attachments;
@@ -548,6 +547,7 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, IM
         return getMaterialProperties() != null ? getMaterialProperties().get(propertyName) : null;
     }
 
+    // Method automatically generated with DtoGenerator
     @Override
     public String toString()
     {

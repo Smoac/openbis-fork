@@ -19,13 +19,11 @@ import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.fetchoptions.FetchOption
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.deletion.Deletion;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.deletion.fetchoptions.DeletionFetchOptions;
 import ch.systemsx.cisd.base.annotation.JsonObject;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.io.Serializable;
 
-/**
- * Class automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+/*
+ * Class automatically generated with DtoGenerator
  */
 @JsonObject("dto.deletion.fetchoptions.DeletionFetchOptions")
 public class DeletionFetchOptions extends FetchOptions<Deletion> implements Serializable
@@ -38,7 +36,7 @@ public class DeletionFetchOptions extends FetchOptions<Deletion> implements Seri
     @JsonProperty
     private DeletionSortOptions sort;
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public DeletionFetchOptions withDeletedObjects()
     {
         if (deletedObjects == null)
@@ -48,18 +46,19 @@ public class DeletionFetchOptions extends FetchOptions<Deletion> implements Seri
         return deletedObjects;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public DeletionFetchOptions withDeletedObjectsUsing(DeletionFetchOptions fetchOptions)
     {
         return deletedObjects = fetchOptions;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public boolean hasDeletedObjects()
     {
         return deletedObjects != null;
     }
 
+    // Method automatically generated with DtoGenerator
     @Override
     public DeletionSortOptions sortBy()
     {
@@ -70,6 +69,7 @@ public class DeletionFetchOptions extends FetchOptions<Deletion> implements Seri
         return sort;
     }
 
+    // Method automatically generated with DtoGenerator
     @Override
     public DeletionSortOptions getSortBy()
     {

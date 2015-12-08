@@ -21,13 +21,11 @@ import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.fetchoptions.EmptyFetchO
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.fetchoptions.FetchOptions;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.person.fetchoptions.PersonFetchOptions;
 import ch.systemsx.cisd.base.annotation.JsonObject;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.io.Serializable;
 
-/**
- * Class automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+/*
+ * Class automatically generated with DtoGenerator
  */
 @JsonObject("dto.attachment.fetchoptions.AttachmentFetchOptions")
 public class AttachmentFetchOptions extends FetchOptions<Attachment> implements Serializable
@@ -46,7 +44,7 @@ public class AttachmentFetchOptions extends FetchOptions<Attachment> implements 
     @JsonProperty
     private AttachmentSortOptions sort;
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public PersonFetchOptions withRegistrator()
     {
         if (registrator == null)
@@ -56,19 +54,19 @@ public class AttachmentFetchOptions extends FetchOptions<Attachment> implements 
         return registrator;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public PersonFetchOptions withRegistratorUsing(PersonFetchOptions fetchOptions)
     {
         return registrator = fetchOptions;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public boolean hasRegistrator()
     {
         return registrator != null;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public AttachmentFetchOptions withPreviousVersion()
     {
         if (previousVersion == null)
@@ -78,19 +76,19 @@ public class AttachmentFetchOptions extends FetchOptions<Attachment> implements 
         return previousVersion;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public AttachmentFetchOptions withPreviousVersionUsing(AttachmentFetchOptions fetchOptions)
     {
         return previousVersion = fetchOptions;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public boolean hasPreviousVersion()
     {
         return previousVersion != null;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public EmptyFetchOptions withContent()
     {
         if (content == null)
@@ -100,18 +98,19 @@ public class AttachmentFetchOptions extends FetchOptions<Attachment> implements 
         return content;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public EmptyFetchOptions withContentUsing(EmptyFetchOptions fetchOptions)
     {
         return content = fetchOptions;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public boolean hasContent()
     {
         return content != null;
     }
 
+    // Method automatically generated with DtoGenerator
     @Override
     public AttachmentSortOptions sortBy()
     {
@@ -122,6 +121,7 @@ public class AttachmentFetchOptions extends FetchOptions<Attachment> implements 
         return sort;
     }
 
+    // Method automatically generated with DtoGenerator
     @Override
     public AttachmentSortOptions getSortBy()
     {

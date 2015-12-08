@@ -19,13 +19,11 @@ import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.fetchoptions.FetchOption
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.person.fetchoptions.PersonFetchOptions;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.tag.Tag;
 import ch.systemsx.cisd.base.annotation.JsonObject;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.io.Serializable;
 
-/**
- * Class automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+/*
+ * Class automatically generated with DtoGenerator
  */
 @JsonObject("dto.tag.fetchoptions.TagFetchOptions")
 public class TagFetchOptions extends FetchOptions<Tag> implements Serializable
@@ -38,7 +36,7 @@ public class TagFetchOptions extends FetchOptions<Tag> implements Serializable
     @JsonProperty
     private TagSortOptions sort;
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public PersonFetchOptions withOwner()
     {
         if (owner == null)
@@ -48,18 +46,19 @@ public class TagFetchOptions extends FetchOptions<Tag> implements Serializable
         return owner;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public PersonFetchOptions withOwnerUsing(PersonFetchOptions fetchOptions)
     {
         return owner = fetchOptions;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public boolean hasOwner()
     {
         return owner != null;
     }
 
+    // Method automatically generated with DtoGenerator
     @Override
     public TagSortOptions sortBy()
     {
@@ -70,6 +69,7 @@ public class TagFetchOptions extends FetchOptions<Tag> implements Serializable
         return sort;
     }
 
+    // Method automatically generated with DtoGenerator
     @Override
     public TagSortOptions getSortBy()
     {

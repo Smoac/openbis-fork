@@ -21,15 +21,13 @@ import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.interfaces.IRegistration
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.datastore.fetchoptions.DataStoreFetchOptions;
 import ch.ethz.sis.openbis.generic.as.api.v3.exceptions.NotFetchedException;
 import ch.systemsx.cisd.base.annotation.JsonObject;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.io.Serializable;
 import java.util.Date;
 
-/**
- * Class automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+/*
+ * Class automatically generated with DtoGenerator
  */
 @JsonObject("dto.datastore.DataStore")
 public class DataStore implements Serializable, ICodeHolder, IModificationDateHolder, IRegistrationDateHolder
@@ -54,20 +52,20 @@ public class DataStore implements Serializable, ICodeHolder, IModificationDateHo
     @JsonProperty
     private Date modificationDate;
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     @JsonIgnore
     public DataStoreFetchOptions getFetchOptions()
     {
         return fetchOptions;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public void setFetchOptions(DataStoreFetchOptions fetchOptions)
     {
         this.fetchOptions = fetchOptions;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     @JsonIgnore
     @Override
     public String getCode()
@@ -75,39 +73,39 @@ public class DataStore implements Serializable, ICodeHolder, IModificationDateHo
         return code;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public void setCode(String code)
     {
         this.code = code;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     @JsonIgnore
     public String getDownloadUrl()
     {
         return downloadUrl;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public void setDownloadUrl(String downloadUrl)
     {
         this.downloadUrl = downloadUrl;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     @JsonIgnore
     public String getRemoteUrl()
     {
         return remoteUrl;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public void setRemoteUrl(String remoteUrl)
     {
         this.remoteUrl = remoteUrl;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     @JsonIgnore
     @Override
     public Date getRegistrationDate()
@@ -115,13 +113,13 @@ public class DataStore implements Serializable, ICodeHolder, IModificationDateHo
         return registrationDate;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public void setRegistrationDate(Date registrationDate)
     {
         this.registrationDate = registrationDate;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     @JsonIgnore
     @Override
     public Date getModificationDate()
@@ -129,12 +127,13 @@ public class DataStore implements Serializable, ICodeHolder, IModificationDateHo
         return modificationDate;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public void setModificationDate(Date modificationDate)
     {
         this.modificationDate = modificationDate;
     }
 
+    // Method automatically generated with DtoGenerator
     @Override
     public String toString()
     {

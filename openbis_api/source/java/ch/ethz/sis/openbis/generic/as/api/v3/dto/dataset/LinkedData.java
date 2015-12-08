@@ -19,14 +19,12 @@ import ch.ethz.sis.openbis.generic.as.api.v3.dto.dataset.fetchoptions.LinkedData
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.externaldms.ExternalDms;
 import ch.ethz.sis.openbis.generic.as.api.v3.exceptions.NotFetchedException;
 import ch.systemsx.cisd.base.annotation.JsonObject;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.io.Serializable;
 
-/**
- * Class automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+/*
+ * Class automatically generated with DtoGenerator
  */
 @JsonObject("dto.dataset.LinkedData")
 public class LinkedData implements Serializable
@@ -42,33 +40,33 @@ public class LinkedData implements Serializable
     @JsonProperty
     private ExternalDms externalDms;
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     @JsonIgnore
     public LinkedDataFetchOptions getFetchOptions()
     {
         return fetchOptions;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public void setFetchOptions(LinkedDataFetchOptions fetchOptions)
     {
         this.fetchOptions = fetchOptions;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     @JsonIgnore
     public String getExternalCode()
     {
         return externalCode;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public void setExternalCode(String externalCode)
     {
         this.externalCode = externalCode;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     @JsonIgnore
     public ExternalDms getExternalDms()
     {
@@ -82,12 +80,13 @@ public class LinkedData implements Serializable
         }
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public void setExternalDms(ExternalDms externalDms)
     {
         this.externalDms = externalDms;
     }
 
+    // Method automatically generated with DtoGenerator
     @Override
     public String toString()
     {

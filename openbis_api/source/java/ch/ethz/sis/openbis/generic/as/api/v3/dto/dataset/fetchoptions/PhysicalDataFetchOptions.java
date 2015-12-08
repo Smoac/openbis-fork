@@ -15,16 +15,17 @@
  */
 package ch.ethz.sis.openbis.generic.as.api.v3.dto.dataset.fetchoptions;
 
-import java.io.Serializable;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.fetchoptions.FetchOptions;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.dataset.PhysicalData;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.dataset.fetchoptions.FileFormatTypeFetchOptions;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.dataset.fetchoptions.LocatorTypeFetchOptions;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.dataset.fetchoptions.StorageFormatFetchOptions;
 import ch.systemsx.cisd.base.annotation.JsonObject;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import java.io.Serializable;
 
-/**
- * Class automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+/*
+ * Class automatically generated with DtoGenerator
  */
 @JsonObject("dto.dataset.fetchoptions.PhysicalDataFetchOptions")
 public class PhysicalDataFetchOptions extends FetchOptions<PhysicalData> implements Serializable
@@ -43,7 +44,7 @@ public class PhysicalDataFetchOptions extends FetchOptions<PhysicalData> impleme
     @JsonProperty
     private PhysicalDataSortOptions sort;
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public StorageFormatFetchOptions withStorageFormat()
     {
         if (storageFormat == null)
@@ -53,19 +54,19 @@ public class PhysicalDataFetchOptions extends FetchOptions<PhysicalData> impleme
         return storageFormat;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public StorageFormatFetchOptions withStorageFormatUsing(StorageFormatFetchOptions fetchOptions)
     {
         return storageFormat = fetchOptions;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public boolean hasStorageFormat()
     {
         return storageFormat != null;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public FileFormatTypeFetchOptions withFileFormatType()
     {
         if (fileFormatType == null)
@@ -75,19 +76,19 @@ public class PhysicalDataFetchOptions extends FetchOptions<PhysicalData> impleme
         return fileFormatType;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public FileFormatTypeFetchOptions withFileFormatTypeUsing(FileFormatTypeFetchOptions fetchOptions)
     {
         return fileFormatType = fetchOptions;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public boolean hasFileFormatType()
     {
         return fileFormatType != null;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public LocatorTypeFetchOptions withLocatorType()
     {
         if (locatorType == null)
@@ -97,18 +98,19 @@ public class PhysicalDataFetchOptions extends FetchOptions<PhysicalData> impleme
         return locatorType;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public LocatorTypeFetchOptions withLocatorTypeUsing(LocatorTypeFetchOptions fetchOptions)
     {
         return locatorType = fetchOptions;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public boolean hasLocatorType()
     {
         return locatorType != null;
     }
 
+    // Method automatically generated with DtoGenerator
     @Override
     public PhysicalDataSortOptions sortBy()
     {
@@ -119,6 +121,7 @@ public class PhysicalDataFetchOptions extends FetchOptions<PhysicalData> impleme
         return sort;
     }
 
+    // Method automatically generated with DtoGenerator
     @Override
     public PhysicalDataSortOptions getSortBy()
     {

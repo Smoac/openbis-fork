@@ -20,13 +20,11 @@ import ch.ethz.sis.openbis.generic.as.api.v3.dto.person.Person;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.person.fetchoptions.PersonFetchOptions;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.space.fetchoptions.SpaceFetchOptions;
 import ch.systemsx.cisd.base.annotation.JsonObject;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.io.Serializable;
 
-/**
- * Class automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+/*
+ * Class automatically generated with DtoGenerator
  */
 @JsonObject("dto.person.fetchoptions.PersonFetchOptions")
 public class PersonFetchOptions extends FetchOptions<Person> implements Serializable
@@ -42,7 +40,7 @@ public class PersonFetchOptions extends FetchOptions<Person> implements Serializ
     @JsonProperty
     private PersonSortOptions sort;
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public SpaceFetchOptions withSpace()
     {
         if (space == null)
@@ -52,19 +50,19 @@ public class PersonFetchOptions extends FetchOptions<Person> implements Serializ
         return space;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public SpaceFetchOptions withSpaceUsing(SpaceFetchOptions fetchOptions)
     {
         return space = fetchOptions;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public boolean hasSpace()
     {
         return space != null;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public PersonFetchOptions withRegistrator()
     {
         if (registrator == null)
@@ -74,18 +72,19 @@ public class PersonFetchOptions extends FetchOptions<Person> implements Serializ
         return registrator;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public PersonFetchOptions withRegistratorUsing(PersonFetchOptions fetchOptions)
     {
         return registrator = fetchOptions;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public boolean hasRegistrator()
     {
         return registrator != null;
     }
 
+    // Method automatically generated with DtoGenerator
     @Override
     public PersonSortOptions sortBy()
     {
@@ -96,6 +95,7 @@ public class PersonFetchOptions extends FetchOptions<Person> implements Serializ
         return sort;
     }
 
+    // Method automatically generated with DtoGenerator
     @Override
     public PersonSortOptions getSortBy()
     {

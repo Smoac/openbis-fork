@@ -18,13 +18,11 @@ package ch.ethz.sis.openbis.generic.as.api.v3.dto.material.fetchoptions;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.fetchoptions.FetchOptions;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.material.MaterialType;
 import ch.systemsx.cisd.base.annotation.JsonObject;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.io.Serializable;
 
-/**
- * Class automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+/*
+ * Class automatically generated with DtoGenerator
  */
 @JsonObject("dto.material.fetchoptions.MaterialTypeFetchOptions")
 public class MaterialTypeFetchOptions extends FetchOptions<MaterialType> implements Serializable
@@ -34,6 +32,7 @@ public class MaterialTypeFetchOptions extends FetchOptions<MaterialType> impleme
     @JsonProperty
     private MaterialTypeSortOptions sort;
 
+    // Method automatically generated with DtoGenerator
     @Override
     public MaterialTypeSortOptions sortBy()
     {
@@ -44,6 +43,7 @@ public class MaterialTypeFetchOptions extends FetchOptions<MaterialType> impleme
         return sort;
     }
 
+    // Method automatically generated with DtoGenerator
     @Override
     public MaterialTypeSortOptions getSortBy()
     {

@@ -15,17 +15,15 @@
  */
 package ch.ethz.sis.openbis.generic.as.api.v3.dto.dataset.fetchoptions;
 
-import java.io.Serializable;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.fetchoptions.FetchOptions;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.dataset.LinkedData;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.externaldms.fetchoptions.ExternalDmsFetchOptions;
 import ch.systemsx.cisd.base.annotation.JsonObject;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import java.io.Serializable;
 
-/**
- * Class automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+/*
+ * Class automatically generated with DtoGenerator
  */
 @JsonObject("dto.dataset.fetchoptions.LinkedDataFetchOptions")
 public class LinkedDataFetchOptions extends FetchOptions<LinkedData> implements Serializable
@@ -38,7 +36,7 @@ public class LinkedDataFetchOptions extends FetchOptions<LinkedData> implements 
     @JsonProperty
     private LinkedDataSortOptions sort;
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public ExternalDmsFetchOptions withExternalDms()
     {
         if (externalDms == null)
@@ -48,18 +46,19 @@ public class LinkedDataFetchOptions extends FetchOptions<LinkedData> implements 
         return externalDms;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public ExternalDmsFetchOptions withExternalDmsUsing(ExternalDmsFetchOptions fetchOptions)
     {
         return externalDms = fetchOptions;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public boolean hasExternalDms()
     {
         return externalDms != null;
     }
 
+    // Method automatically generated with DtoGenerator
     @Override
     public LinkedDataSortOptions sortBy()
     {
@@ -70,6 +69,7 @@ public class LinkedDataFetchOptions extends FetchOptions<LinkedData> implements 
         return sort;
     }
 
+    // Method automatically generated with DtoGenerator
     @Override
     public LinkedDataSortOptions getSortBy()
     {

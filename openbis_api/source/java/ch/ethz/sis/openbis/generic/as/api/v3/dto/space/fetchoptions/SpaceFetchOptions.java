@@ -21,13 +21,11 @@ import ch.ethz.sis.openbis.generic.as.api.v3.dto.project.fetchoptions.ProjectFet
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.sample.fetchoptions.SampleFetchOptions;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.space.Space;
 import ch.systemsx.cisd.base.annotation.JsonObject;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.io.Serializable;
 
-/**
- * Class automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+/*
+ * Class automatically generated with DtoGenerator
  */
 @JsonObject("dto.space.fetchoptions.SpaceFetchOptions")
 public class SpaceFetchOptions extends FetchOptions<Space> implements Serializable
@@ -46,7 +44,7 @@ public class SpaceFetchOptions extends FetchOptions<Space> implements Serializab
     @JsonProperty
     private SpaceSortOptions sort;
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public PersonFetchOptions withRegistrator()
     {
         if (registrator == null)
@@ -56,19 +54,19 @@ public class SpaceFetchOptions extends FetchOptions<Space> implements Serializab
         return registrator;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public PersonFetchOptions withRegistratorUsing(PersonFetchOptions fetchOptions)
     {
         return registrator = fetchOptions;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public boolean hasRegistrator()
     {
         return registrator != null;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public SampleFetchOptions withSamples()
     {
         if (samples == null)
@@ -78,19 +76,19 @@ public class SpaceFetchOptions extends FetchOptions<Space> implements Serializab
         return samples;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public SampleFetchOptions withSamplesUsing(SampleFetchOptions fetchOptions)
     {
         return samples = fetchOptions;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public boolean hasSamples()
     {
         return samples != null;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public ProjectFetchOptions withProjects()
     {
         if (projects == null)
@@ -100,18 +98,19 @@ public class SpaceFetchOptions extends FetchOptions<Space> implements Serializab
         return projects;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public ProjectFetchOptions withProjectsUsing(ProjectFetchOptions fetchOptions)
     {
         return projects = fetchOptions;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public boolean hasProjects()
     {
         return projects != null;
     }
 
+    // Method automatically generated with DtoGenerator
     @Override
     public SpaceSortOptions sortBy()
     {
@@ -122,6 +121,7 @@ public class SpaceFetchOptions extends FetchOptions<Space> implements Serializab
         return sort;
     }
 
+    // Method automatically generated with DtoGenerator
     @Override
     public SpaceSortOptions getSortBy()
     {

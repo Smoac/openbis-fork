@@ -19,13 +19,11 @@ import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.fetchoptions.FetchOption
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.person.fetchoptions.PersonFetchOptions;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.vocabulary.Vocabulary;
 import ch.systemsx.cisd.base.annotation.JsonObject;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.io.Serializable;
 
-/**
- * Class automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+/*
+ * Class automatically generated with DtoGenerator
  */
 @JsonObject("dto.vocabulary.fetchoptions.VocabularyFetchOptions")
 public class VocabularyFetchOptions extends FetchOptions<Vocabulary> implements Serializable
@@ -38,7 +36,7 @@ public class VocabularyFetchOptions extends FetchOptions<Vocabulary> implements 
     @JsonProperty
     private VocabularySortOptions sort;
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public PersonFetchOptions withRegistrator()
     {
         if (registrator == null)
@@ -48,18 +46,19 @@ public class VocabularyFetchOptions extends FetchOptions<Vocabulary> implements 
         return registrator;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public PersonFetchOptions withRegistratorUsing(PersonFetchOptions fetchOptions)
     {
         return registrator = fetchOptions;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public boolean hasRegistrator()
     {
         return registrator != null;
     }
 
+    // Method automatically generated with DtoGenerator
     @Override
     public VocabularySortOptions sortBy()
     {
@@ -70,6 +69,7 @@ public class VocabularyFetchOptions extends FetchOptions<Vocabulary> implements 
         return sort;
     }
 
+    // Method automatically generated with DtoGenerator
     @Override
     public VocabularySortOptions getSortBy()
     {

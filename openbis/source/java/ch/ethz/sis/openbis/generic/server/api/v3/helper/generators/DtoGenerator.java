@@ -457,6 +457,7 @@ public class DtoGenerator
             }
         }
 
+        printMethodJavaDoc();
         print("@Override");
         print("public " + className + "SortOptions sortBy()");
         startBlock();
@@ -468,6 +469,7 @@ public class DtoGenerator
         endBlock();
 
         print("");
+        printMethodJavaDoc();
         print("@Override");
         print("public " + className + "SortOptions getSortBy()");
         startBlock();
@@ -652,8 +654,8 @@ public class DtoGenerator
 
     private void printClassHeader(String className, String jsonPackage, String extendsClass, Collection<String> implementedInterfaces)
     {
-        print("/**");
-        print(" * Class automatically generated with {@link %s}", this.getClass().getName());
+        print("/*");
+        print(" * Class automatically generated with %s", this.getClass().getSimpleName());
         print(" */");
         print("@JsonObject(\"dto.%s.%s\")", jsonPackage, className);
 
@@ -677,7 +679,7 @@ public class DtoGenerator
 
     private void printMethodJavaDoc()
     {
-        print("// Method automatically generated with {@link %s}", this.getClass().getName());
+        print("// Method automatically generated with %s", this.getClass().getSimpleName());
     }
 
     private void printClassHeaderJS(String className)
@@ -801,6 +803,7 @@ public class DtoGenerator
     {
         if (toStringContent != null)
         {
+            printMethodJavaDoc();
             print("@Override");
             print("public String toString()");
             startBlock();

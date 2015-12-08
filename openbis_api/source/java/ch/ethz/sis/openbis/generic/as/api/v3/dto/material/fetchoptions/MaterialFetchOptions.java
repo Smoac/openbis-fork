@@ -24,13 +24,11 @@ import ch.ethz.sis.openbis.generic.as.api.v3.dto.person.fetchoptions.PersonFetch
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.property.fetchoptions.PropertyFetchOptions;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.tag.fetchoptions.TagFetchOptions;
 import ch.systemsx.cisd.base.annotation.JsonObject;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.io.Serializable;
 
-/**
- * Class automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+/*
+ * Class automatically generated with DtoGenerator
  */
 @JsonObject("dto.material.fetchoptions.MaterialFetchOptions")
 public class MaterialFetchOptions extends FetchOptions<Material> implements Serializable
@@ -58,7 +56,7 @@ public class MaterialFetchOptions extends FetchOptions<Material> implements Seri
     @JsonProperty
     private MaterialSortOptions sort;
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public MaterialTypeFetchOptions withType()
     {
         if (type == null)
@@ -68,19 +66,19 @@ public class MaterialFetchOptions extends FetchOptions<Material> implements Seri
         return type;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public MaterialTypeFetchOptions withTypeUsing(MaterialTypeFetchOptions fetchOptions)
     {
         return type = fetchOptions;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public boolean hasType()
     {
         return type != null;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public HistoryEntryFetchOptions withHistory()
     {
         if (history == null)
@@ -90,19 +88,19 @@ public class MaterialFetchOptions extends FetchOptions<Material> implements Seri
         return history;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public HistoryEntryFetchOptions withHistoryUsing(HistoryEntryFetchOptions fetchOptions)
     {
         return history = fetchOptions;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public boolean hasHistory()
     {
         return history != null;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public PersonFetchOptions withRegistrator()
     {
         if (registrator == null)
@@ -112,19 +110,19 @@ public class MaterialFetchOptions extends FetchOptions<Material> implements Seri
         return registrator;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public PersonFetchOptions withRegistratorUsing(PersonFetchOptions fetchOptions)
     {
         return registrator = fetchOptions;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public boolean hasRegistrator()
     {
         return registrator != null;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public PropertyFetchOptions withProperties()
     {
         if (properties == null)
@@ -134,19 +132,19 @@ public class MaterialFetchOptions extends FetchOptions<Material> implements Seri
         return properties;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public PropertyFetchOptions withPropertiesUsing(PropertyFetchOptions fetchOptions)
     {
         return properties = fetchOptions;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public boolean hasProperties()
     {
         return properties != null;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public MaterialFetchOptions withMaterialProperties()
     {
         if (materialProperties == null)
@@ -156,19 +154,19 @@ public class MaterialFetchOptions extends FetchOptions<Material> implements Seri
         return materialProperties;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public MaterialFetchOptions withMaterialPropertiesUsing(MaterialFetchOptions fetchOptions)
     {
         return materialProperties = fetchOptions;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public boolean hasMaterialProperties()
     {
         return materialProperties != null;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public TagFetchOptions withTags()
     {
         if (tags == null)
@@ -178,18 +176,19 @@ public class MaterialFetchOptions extends FetchOptions<Material> implements Seri
         return tags;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public TagFetchOptions withTagsUsing(TagFetchOptions fetchOptions)
     {
         return tags = fetchOptions;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public boolean hasTags()
     {
         return tags != null;
     }
 
+    // Method automatically generated with DtoGenerator
     @Override
     public MaterialSortOptions sortBy()
     {
@@ -200,6 +199,7 @@ public class MaterialFetchOptions extends FetchOptions<Material> implements Seri
         return sort;
     }
 
+    // Method automatically generated with DtoGenerator
     @Override
     public MaterialSortOptions getSortBy()
     {

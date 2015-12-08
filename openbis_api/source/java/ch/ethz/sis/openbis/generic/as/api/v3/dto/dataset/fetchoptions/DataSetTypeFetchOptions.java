@@ -15,16 +15,14 @@
  */
 package ch.ethz.sis.openbis.generic.as.api.v3.dto.dataset.fetchoptions;
 
-import java.io.Serializable;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.fetchoptions.FetchOptions;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.dataset.DataSetType;
 import ch.systemsx.cisd.base.annotation.JsonObject;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import java.io.Serializable;
 
-/**
- * Class automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+/*
+ * Class automatically generated with DtoGenerator
  */
 @JsonObject("dto.dataset.fetchoptions.DataSetTypeFetchOptions")
 public class DataSetTypeFetchOptions extends FetchOptions<DataSetType> implements Serializable
@@ -34,6 +32,7 @@ public class DataSetTypeFetchOptions extends FetchOptions<DataSetType> implement
     @JsonProperty
     private DataSetTypeSortOptions sort;
 
+    // Method automatically generated with DtoGenerator
     @Override
     public DataSetTypeSortOptions sortBy()
     {
@@ -44,6 +43,7 @@ public class DataSetTypeFetchOptions extends FetchOptions<DataSetType> implement
         return sort;
     }
 
+    // Method automatically generated with DtoGenerator
     @Override
     public DataSetTypeSortOptions getSortBy()
     {

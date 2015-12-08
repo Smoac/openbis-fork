@@ -30,13 +30,11 @@ import ch.ethz.sis.openbis.generic.as.api.v3.dto.sample.fetchoptions.SampleTypeF
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.space.fetchoptions.SpaceFetchOptions;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.tag.fetchoptions.TagFetchOptions;
 import ch.systemsx.cisd.base.annotation.JsonObject;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.io.Serializable;
 
-/**
- * Class automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+/*
+ * Class automatically generated with DtoGenerator
  */
 @JsonObject("dto.sample.fetchoptions.SampleFetchOptions")
 public class SampleFetchOptions extends FetchOptions<Sample> implements Serializable
@@ -94,7 +92,7 @@ public class SampleFetchOptions extends FetchOptions<Sample> implements Serializ
     @JsonProperty
     private SampleSortOptions sort;
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public SampleTypeFetchOptions withType()
     {
         if (type == null)
@@ -104,19 +102,19 @@ public class SampleFetchOptions extends FetchOptions<Sample> implements Serializ
         return type;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public SampleTypeFetchOptions withTypeUsing(SampleTypeFetchOptions fetchOptions)
     {
         return type = fetchOptions;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public boolean hasType()
     {
         return type != null;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public ProjectFetchOptions withProject()
     {
         if (project == null)
@@ -126,19 +124,19 @@ public class SampleFetchOptions extends FetchOptions<Sample> implements Serializ
         return project;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public ProjectFetchOptions withProjectUsing(ProjectFetchOptions fetchOptions)
     {
         return project = fetchOptions;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public boolean hasProject()
     {
         return project != null;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public SpaceFetchOptions withSpace()
     {
         if (space == null)
@@ -148,19 +146,19 @@ public class SampleFetchOptions extends FetchOptions<Sample> implements Serializ
         return space;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public SpaceFetchOptions withSpaceUsing(SpaceFetchOptions fetchOptions)
     {
         return space = fetchOptions;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public boolean hasSpace()
     {
         return space != null;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public ExperimentFetchOptions withExperiment()
     {
         if (experiment == null)
@@ -170,19 +168,19 @@ public class SampleFetchOptions extends FetchOptions<Sample> implements Serializ
         return experiment;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public ExperimentFetchOptions withExperimentUsing(ExperimentFetchOptions fetchOptions)
     {
         return experiment = fetchOptions;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public boolean hasExperiment()
     {
         return experiment != null;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public PropertyFetchOptions withProperties()
     {
         if (properties == null)
@@ -192,19 +190,19 @@ public class SampleFetchOptions extends FetchOptions<Sample> implements Serializ
         return properties;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public PropertyFetchOptions withPropertiesUsing(PropertyFetchOptions fetchOptions)
     {
         return properties = fetchOptions;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public boolean hasProperties()
     {
         return properties != null;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public MaterialFetchOptions withMaterialProperties()
     {
         if (materialProperties == null)
@@ -214,19 +212,19 @@ public class SampleFetchOptions extends FetchOptions<Sample> implements Serializ
         return materialProperties;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public MaterialFetchOptions withMaterialPropertiesUsing(MaterialFetchOptions fetchOptions)
     {
         return materialProperties = fetchOptions;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public boolean hasMaterialProperties()
     {
         return materialProperties != null;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public SampleFetchOptions withParents()
     {
         if (parents == null)
@@ -236,19 +234,19 @@ public class SampleFetchOptions extends FetchOptions<Sample> implements Serializ
         return parents;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public SampleFetchOptions withParentsUsing(SampleFetchOptions fetchOptions)
     {
         return parents = fetchOptions;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public boolean hasParents()
     {
         return parents != null;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public SampleFetchOptions withChildren()
     {
         if (children == null)
@@ -258,19 +256,19 @@ public class SampleFetchOptions extends FetchOptions<Sample> implements Serializ
         return children;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public SampleFetchOptions withChildrenUsing(SampleFetchOptions fetchOptions)
     {
         return children = fetchOptions;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public boolean hasChildren()
     {
         return children != null;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public SampleFetchOptions withContainer()
     {
         if (container == null)
@@ -280,19 +278,19 @@ public class SampleFetchOptions extends FetchOptions<Sample> implements Serializ
         return container;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public SampleFetchOptions withContainerUsing(SampleFetchOptions fetchOptions)
     {
         return container = fetchOptions;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public boolean hasContainer()
     {
         return container != null;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public SampleFetchOptions withComponents()
     {
         if (components == null)
@@ -302,19 +300,19 @@ public class SampleFetchOptions extends FetchOptions<Sample> implements Serializ
         return components;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public SampleFetchOptions withComponentsUsing(SampleFetchOptions fetchOptions)
     {
         return components = fetchOptions;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public boolean hasComponents()
     {
         return components != null;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public DataSetFetchOptions withDataSets()
     {
         if (dataSets == null)
@@ -324,19 +322,19 @@ public class SampleFetchOptions extends FetchOptions<Sample> implements Serializ
         return dataSets;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public DataSetFetchOptions withDataSetsUsing(DataSetFetchOptions fetchOptions)
     {
         return dataSets = fetchOptions;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public boolean hasDataSets()
     {
         return dataSets != null;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public HistoryEntryFetchOptions withHistory()
     {
         if (history == null)
@@ -346,19 +344,19 @@ public class SampleFetchOptions extends FetchOptions<Sample> implements Serializ
         return history;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public HistoryEntryFetchOptions withHistoryUsing(HistoryEntryFetchOptions fetchOptions)
     {
         return history = fetchOptions;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public boolean hasHistory()
     {
         return history != null;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public TagFetchOptions withTags()
     {
         if (tags == null)
@@ -368,19 +366,19 @@ public class SampleFetchOptions extends FetchOptions<Sample> implements Serializ
         return tags;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public TagFetchOptions withTagsUsing(TagFetchOptions fetchOptions)
     {
         return tags = fetchOptions;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public boolean hasTags()
     {
         return tags != null;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public PersonFetchOptions withRegistrator()
     {
         if (registrator == null)
@@ -390,19 +388,19 @@ public class SampleFetchOptions extends FetchOptions<Sample> implements Serializ
         return registrator;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public PersonFetchOptions withRegistratorUsing(PersonFetchOptions fetchOptions)
     {
         return registrator = fetchOptions;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public boolean hasRegistrator()
     {
         return registrator != null;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public PersonFetchOptions withModifier()
     {
         if (modifier == null)
@@ -412,19 +410,19 @@ public class SampleFetchOptions extends FetchOptions<Sample> implements Serializ
         return modifier;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public PersonFetchOptions withModifierUsing(PersonFetchOptions fetchOptions)
     {
         return modifier = fetchOptions;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public boolean hasModifier()
     {
         return modifier != null;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public AttachmentFetchOptions withAttachments()
     {
         if (attachments == null)
@@ -434,18 +432,19 @@ public class SampleFetchOptions extends FetchOptions<Sample> implements Serializ
         return attachments;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public AttachmentFetchOptions withAttachmentsUsing(AttachmentFetchOptions fetchOptions)
     {
         return attachments = fetchOptions;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public boolean hasAttachments()
     {
         return attachments != null;
     }
 
+    // Method automatically generated with DtoGenerator
     @Override
     public SampleSortOptions sortBy()
     {
@@ -456,6 +455,7 @@ public class SampleFetchOptions extends FetchOptions<Sample> implements Serializ
         return sort;
     }
 
+    // Method automatically generated with DtoGenerator
     @Override
     public SampleSortOptions getSortBy()
     {

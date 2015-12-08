@@ -18,13 +18,11 @@ package ch.ethz.sis.openbis.generic.as.api.v3.dto.sample.fetchoptions;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.fetchoptions.FetchOptions;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.sample.SampleType;
 import ch.systemsx.cisd.base.annotation.JsonObject;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.io.Serializable;
 
-/**
- * Class automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+/*
+ * Class automatically generated with DtoGenerator
  */
 @JsonObject("dto.sample.fetchoptions.SampleTypeFetchOptions")
 public class SampleTypeFetchOptions extends FetchOptions<SampleType> implements Serializable
@@ -34,6 +32,7 @@ public class SampleTypeFetchOptions extends FetchOptions<SampleType> implements 
     @JsonProperty
     private SampleTypeSortOptions sort;
 
+    // Method automatically generated with DtoGenerator
     @Override
     public SampleTypeSortOptions sortBy()
     {
@@ -44,6 +43,7 @@ public class SampleTypeFetchOptions extends FetchOptions<SampleType> implements 
         return sort;
     }
 
+    // Method automatically generated with DtoGenerator
     @Override
     public SampleTypeSortOptions getSortBy()
     {

@@ -20,13 +20,11 @@ import ch.ethz.sis.openbis.generic.as.api.v3.dto.person.fetchoptions.PersonFetch
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.vocabulary.VocabularyTerm;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.vocabulary.fetchoptions.VocabularyFetchOptions;
 import ch.systemsx.cisd.base.annotation.JsonObject;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.io.Serializable;
 
-/**
- * Class automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+/*
+ * Class automatically generated with DtoGenerator
  */
 @JsonObject("dto.vocabulary.fetchoptions.VocabularyTermFetchOptions")
 public class VocabularyTermFetchOptions extends FetchOptions<VocabularyTerm> implements Serializable
@@ -42,7 +40,7 @@ public class VocabularyTermFetchOptions extends FetchOptions<VocabularyTerm> imp
     @JsonProperty
     private VocabularyTermSortOptions sort;
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public VocabularyFetchOptions withVocabulary()
     {
         if (vocabulary == null)
@@ -52,19 +50,19 @@ public class VocabularyTermFetchOptions extends FetchOptions<VocabularyTerm> imp
         return vocabulary;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public VocabularyFetchOptions withVocabularyUsing(VocabularyFetchOptions fetchOptions)
     {
         return vocabulary = fetchOptions;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public boolean hasVocabulary()
     {
         return vocabulary != null;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public PersonFetchOptions withRegistrator()
     {
         if (registrator == null)
@@ -74,18 +72,19 @@ public class VocabularyTermFetchOptions extends FetchOptions<VocabularyTerm> imp
         return registrator;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public PersonFetchOptions withRegistratorUsing(PersonFetchOptions fetchOptions)
     {
         return registrator = fetchOptions;
     }
 
-    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.server.api.v3.helper.generators.DtoGenerator}
+    // Method automatically generated with DtoGenerator
     public boolean hasRegistrator()
     {
         return registrator != null;
     }
 
+    // Method automatically generated with DtoGenerator
     @Override
     public VocabularyTermSortOptions sortBy()
     {
@@ -96,6 +95,7 @@ public class VocabularyTermFetchOptions extends FetchOptions<VocabularyTerm> imp
         return sort;
     }
 
+    // Method automatically generated with DtoGenerator
     @Override
     public VocabularyTermSortOptions getSortBy()
     {
