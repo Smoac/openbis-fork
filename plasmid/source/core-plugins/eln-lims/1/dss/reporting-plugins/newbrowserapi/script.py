@@ -19,13 +19,13 @@ from ch.systemsx.cisd.openbis.dss.client.api.v1 import DssComponentFactory
 from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto import SearchCriteria
 from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria import MatchClause, SearchOperator, MatchClauseAttribute
 
-from ch.ethz.sis.openbis.generic.shared.api.v3 import IApplicationServerApi
-from ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sample import SampleFetchOptions;
-from ch.ethz.sis.openbis.generic.shared.api.v3.dto.search import SampleSearchCriteria;
-from ch.ethz.sis.openbis.generic.shared.api.v3.dto.search import SearchResult;
-from ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample import SampleIdentifier;
-from ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample import SamplePermId
-from ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment import ExperimentIdentifier;
+from ch.ethz.sis.openbis.generic.as.api.v3 import IApplicationServerApi
+from ch.ethz.sis.openbis.generic.as.api.v3.dto.sample.fetchoptions import SampleFetchOptions;
+from ch.ethz.sis.openbis.generic.as.api.v3.dto.sample.search import SampleSearchCriteria;
+from ch.ethz.sis.openbis.generic.as.api.v3.dto.common.search import SearchResult;
+from ch.ethz.sis.openbis.generic.as.api.v3.dto.sample.id import SampleIdentifier;
+from ch.ethz.sis.openbis.generic.as.api.v3.dto.sample.id import SamplePermId
+from ch.ethz.sis.openbis.generic.as.api.v3.dto.experiment.id import ExperimentIdentifier;
 from ch.systemsx.cisd.openbis.generic.shared.api.v3.json import GenericObjectMapper;
 
 from java.util import ArrayList
