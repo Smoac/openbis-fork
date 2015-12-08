@@ -24,6 +24,8 @@ function PlateView(plateController, plateModel) {
 	this._$exportHighlighted = null;
 	this._$scaleDropdownContainer = null;
 	this._$gridTable = null;
+	this._$gridTableContainer = $("<div>");
+	this._gridTableCells = null;
 	this._$scale = $("<span>");
 	
 	this.getPlaceHolder = function() {
@@ -379,9 +381,10 @@ function PlateView(plateController, plateModel) {
 		
 		//Paint grid
 		this._$gridTable = this.getGridTable(true);
-		$container.append($toolbar).append(this._$gridTable).append(this._$scale);
+		this._$gridTableContainer.append(this._$gridTable);
+		$container.append($toolbar).append(this._$gridTableContainer).append(this._$scale);
 		
-		//Painting default colors after populating the table
+		//Painting default colors before appending the table, increased performance
 		this._repaintGridToAnnotationsColors();
 	}
 	
@@ -406,7 +409,17 @@ function PlateView(plateController, plateModel) {
 				} else {
 					$cell = $("<td>").append("&nbsp;");
 					$cell.addClass('well');
+					
 					if(withWells) {
+						if(!this._gridTableCells) {
+							this._gridTableCells = [];
+						}
+						if(!this._gridTableCells[i]) {
+							this._gridTableCells[i] = [];
+						}
+						
+						this._gridTableCells[i][j] = $cell;
+						
 						this._setToolTip($cell, i, j);
 					}
 				}
@@ -422,12 +435,6 @@ function PlateView(plateController, plateModel) {
 	//
 	// Utility methods to handle table cells
 	//
-	this._getCell = function(row, column) {
-		var $grid = this._$gridTable;
-		var $gridRow = $(this._$gridTable.children().children()[row]);
-		var $gridColumn = $($gridRow.children()[column]);
-		return $gridColumn;
-	}
 	
 	this._hexToRgb = function(hex) {
 	    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
@@ -439,7 +446,7 @@ function PlateView(plateController, plateModel) {
 	}
 	
 	this._repaintWellToColor = function(row, column, rgbColor, txt, isDisabled, isAnimated) {
-		var $cell = this._getCell(row, column);
+		var $cell = this._gridTableCells[row][column];
 			$cell.css( { "background-color" : rgbColor });
 		this._setToolTip($cell, row, column);
 		$cell.empty();
