@@ -36,6 +36,7 @@ from ConfigParser import SafeConfigParser
 from optparse import OptionParser
 from java.io import FileOutputStream
 from org.apache.poi.hssf.usermodel import HSSFWorkbook
+from org.apache.poi.hssf.usermodel import HeaderFooter
 from org.apache.poi.poifs.filesystem import POIFSFileSystem
 from org.apache.poi.xssf.usermodel import XSSFWorkbook
 from ch.systemsx.cisd.openbis.dss.client.api.v1 import OpenbisServiceFacadeFactory
@@ -50,7 +51,7 @@ excelFormats = {"xls": "HSSFWorkbook()" , "xlsx": "XSSFWorkbook()"}
 # This list is imply used to keep the order of elements of the 'columnHeadersMap'
 columnHeadersList = ["EXTERNAL_SAMPLE_NAME", "BARCODE", "INDEX2", "CONTACT_PERSON_NAME",
                      "BIOLOGICAL_SAMPLE_ARRIVED", "PREPARED_BY", "KIT", "QC_AT_DBSSE",
-                     "CELL_PLASTICITY_SYSTEMSX",  "PRICE", "NOTES"]
+                     "NOTES"]
 
 columnHeadersMap = {"EXTERNAL_SAMPLE_NAME": "Sample Name",
                     "BARCODE": "Index",
@@ -61,8 +62,7 @@ columnHeadersMap = {"EXTERNAL_SAMPLE_NAME": "Sample Name",
                     "CONTACT_PERSON_NAME" : "Contact Person",
                     "NOTES" : "Notes",
                     "BIOLOGICAL_SAMPLE_ARRIVED": "Received",
-                    "CELL_PLASTICITY_SYSTEMSX": "Cell Plasticity",
-                    "PRICE" : "Price"}
+                    }
 
 class uniqueRow():
   '''
@@ -101,12 +101,15 @@ def getDate():
   d = datetime.now()
   return d.strftime("%A, %d-%B-%Y")
 
-def setFont(wb, configMap, fontSize=10):
+def setFont(wb, configMap, fontSize=10, boldness=False, underline=False):
   font = wb.createFont()
   font.setFontHeightInPoints(fontSize)
   font.setFontName(configMap["defaultFonts"])
   font.setItalic(False)
   font.setStrikeout(False)
+  font.setBold(boldness)
+  if underline:
+    font.setUnderline(font.U_SINGLE);
   # Fonts are set into a style so create a new one to use.
   style = wb.createCellStyle()
   style.setFont(font)
@@ -145,12 +148,12 @@ def writeExcel(myoptions, configMap, service, piName, laneDict, sampleDict, piDi
     # Write header
     row = sheet.createRow(myRows.getNextRow())
     row.createCell(0).setCellValue(configMap["facilityName"] + ", " + configMap["facilityInstitution"])
-    row.getCell(0).setCellStyle(setFont(wb, configMap, 10))
+    row.getCell(0).setCellStyle(setFont(wb, configMap, 10, True))
     row1 = sheet.createRow(myRows.getNextRow())
     row1.createCell(0).setCellValue(getDate())
-    row1.getCell(0).setCellStyle(setFont(wb, configMap, 10))
+    row1.getCell(0).setCellStyle(setFont(wb, configMap, 10, True))
 
-  def createRow(key="", value="", rowNumber=0, fontSize=10):
+  def createRow(key="", value="", rowNumber=0, fontSize=10, boldness=False, underline=False):
     '''
     '''
     if rowNumber == 0:
@@ -159,12 +162,19 @@ def writeExcel(myoptions, configMap, service, piName, laneDict, sampleDict, piDi
       row = rowNumber
     row.createCell(0).setCellValue(key)
     row.createCell(1).setCellValue(value)
-    row.getCell(0).setCellStyle(setFont(wb, configMap, fontSize))
-    row.getCell(1).setCellStyle(setFont(wb, configMap, fontSize))
+    row.getCell(0).setCellStyle(setFont(wb, configMap, fontSize, boldness, underline))
+    row.getCell(1).setCellStyle(setFont(wb, configMap, fontSize, boldness, underline))
     return row
 
-  def writeFooter(service, sheet):
+
+  def writeXLSHeader (service, sheet):
+      header = sheet.getHeader()
+      header.setCenter(configMap["facilityName"] + "\n" + datetime.now().strftime("%d-%m-%Y"))
+
+
+  def writeXLSFooter(service, sheet):
     footer = sheet.getFooter()
+    footer.setCenter( "Page " + HeaderFooter.page() + " of " + HeaderFooter.numPages() )
     footer.setRight("generated on " + datetime.now().strftime("%H:%M - %d.%m.%Y"))
 
   wb = (eval(excelFormats[format]))
@@ -174,21 +184,21 @@ def writeExcel(myoptions, configMap, service, piName, laneDict, sampleDict, piDi
   sheet.setZoom(3, 2)
 
   writeHeader()
-  createRow("Principal Investigator", piName.replace("_", " "))
-  createRow("Data Space", piSpace)
-  createRow("Run Folder Name", flowcellName)
+  createRow("Principal Investigator", piName.replace("_", " "), 0, 10, True)
+  createRow("Data Space", piSpace, 0, 10, True)
   createRow()
+  createRow("Samples", "", 0, 10, True, True)
 
   myColumns = uniqueColumn()
 
   sampleHeader = sheet.createRow(myRows.getNextRow())
   sampleHeader.createCell(myColumns.getNextColumn()).setCellValue("Flow Cell:Lane")
-  sampleHeader.getCell(myColumns.getCurrentColumn()).setCellStyle(setFont(wb, configMap, 10))
+  sampleHeader.getCell(myColumns.getCurrentColumn()).setCellStyle(setFont(wb, configMap, 10, True))
   sampleHeader.createCell(myColumns.getNextColumn()).setCellValue("Sample Code")
-  sampleHeader.getCell(myColumns.getCurrentColumn()).setCellStyle(setFont(wb, configMap, 10))
+  sampleHeader.getCell(myColumns.getCurrentColumn()).setCellStyle(setFont(wb, configMap, 10, True))
   for c in columnHeadersList:
     sampleHeader.createCell(myColumns.getNextColumn()).setCellValue(columnHeadersMap[c])
-    sampleHeader.getCell(myColumns.getCurrentColumn()).setCellStyle(setFont(wb, configMap, 10))
+    sampleHeader.getCell(myColumns.getCurrentColumn()).setCellStyle(setFont(wb, configMap, 10, True))
 
   listofLanes = piDict[piName]
   listofLanes.sort()
@@ -227,6 +237,18 @@ def writeExcel(myoptions, configMap, service, piName, laneDict, sampleDict, piDi
       singleSampleColumns = uniqueColumn()
 
   createRow()
+  createRow()
+  createRow()
+  createRow()
+  createRow("Run Folder Name", flowcellName, 0, 10, True)
+
+  createRow()
+  createRow()
+  createRow()
+  createRow()
+  createRow()
+  createRow()
+  createRow()
   createRow("Flow Cell Details", "", 0, 14)
 
   createRow("Flow Cell", flowcell)
@@ -249,9 +271,16 @@ def writeExcel(myoptions, configMap, service, piName, laneDict, sampleDict, piDi
     sheet.autoSizeColumn(i)
 
   # set layout to landscape
-  sheet.getPrintSetup().setLandscape(True)
+  #sheet.getPrintSetup().setLandscape(True)
+  
+  #left_margin_inches = sheet.getMargin(sheet.LeftMargin)
+  #right_margin_inches = sheet.getMargin(sheet.RightMargin)
 
-  writeFooter(service, sheet)
+  sheet.setMargin(sheet.LeftMargin, 0.5)
+  sheet.setMargin(sheet.RightMargin, 0.5)
+  
+  writeXLSFooter(service, sheet)
+  writeXLSHeader(service, sheet)
 
   # sanitizeString(piName) + datetime.now().strftime("_%d_%m_%Y.") + format
   #  Write the output to a file
