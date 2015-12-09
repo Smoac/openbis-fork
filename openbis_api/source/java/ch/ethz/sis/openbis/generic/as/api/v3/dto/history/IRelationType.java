@@ -16,9 +16,12 @@
 
 package ch.ethz.sis.openbis.generic.as.api.v3.dto.history;
 
+import ch.systemsx.cisd.base.annotation.JsonObject;
+
 /**
  * @author pkupczyk
  */
+@JsonObject("dto.history.IRelationType")
 public interface IRelationType
 {
 

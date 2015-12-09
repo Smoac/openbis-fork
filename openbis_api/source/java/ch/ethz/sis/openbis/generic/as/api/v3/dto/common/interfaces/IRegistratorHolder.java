@@ -17,10 +17,12 @@
 package ch.ethz.sis.openbis.generic.as.api.v3.dto.common.interfaces;
 
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.person.Person;
+import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
  * @author Jakub Straszewski
  */
+@JsonObject("dto.common.interfaces.IRegistratorHolder")
 public interface IRegistratorHolder
 {
     Person getRegistrator();

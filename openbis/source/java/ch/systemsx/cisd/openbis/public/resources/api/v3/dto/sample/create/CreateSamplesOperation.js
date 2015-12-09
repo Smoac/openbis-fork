@@ -1,7 +1,7 @@
 /**
  * @author pkupczyk
  */
-define([ "stjs", "dto/common/operation/IOperation" ], function(stjs, IOperation) {
+define([ "stjs", "dto/common/operations/IOperation" ], function(stjs, IOperation) {
 	var CreateSamplesOperation = function(creations) {
 		this.creations = creations;
 	};

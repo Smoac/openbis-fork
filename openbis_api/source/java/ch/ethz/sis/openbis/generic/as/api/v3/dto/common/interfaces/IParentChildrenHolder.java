@@ -18,9 +18,12 @@ package ch.ethz.sis.openbis.generic.as.api.v3.dto.common.interfaces;
 
 import java.util.List;
 
+import ch.systemsx.cisd.base.annotation.JsonObject;
+
 /**
  * @author Jakub Straszewski
  */
+@JsonObject("dto.common.interfaces.IParentChildrenHolder")
 public interface IParentChildrenHolder<T>
 {
     List<T> getParents();

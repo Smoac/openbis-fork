@@ -16,6 +16,8 @@
 
 package ch.ethz.sis.openbis.generic.as.api.v3.dto.common.fetchoptions;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.interfaces.ICodeHolder;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.interfaces.IModificationDateHolder;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.interfaces.IPropertiesHolder;
@@ -32,6 +34,7 @@ public class EntityWithPropertiesSortOptions<OBJECT extends ICodeHolder & IRegis
 
     private static final long serialVersionUID = 1L;
 
+    @JsonIgnore
     public static final String PROPERTY = "PROPERTY";
 
     public SortOrder property(String propertyName)

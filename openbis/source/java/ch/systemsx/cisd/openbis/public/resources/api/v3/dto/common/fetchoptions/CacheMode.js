@@ -1,10 +1,12 @@
 /**
  * @author pkupczyk
  */
-define([ "stjs" ], function(stjs) {
-	return {
-		NO_CACHE : "NO_CACHE",
-		CACHE : "CACHE",
-		RELOAD_AND_CACHE : "RELOAD_AND_CACHE"
+
+define([ "stjs", "dto/common/Enum" ], function(stjs, Enum) {
+	var CacheMode = function() {
+		Enum.call(this, [ "NO_CACHE", "CACHE", "RELOAD_AND_CACHE" ]);
 	};
+	stjs.extend(CacheMode, Enum, [ Enum ], function(constructor, prototype) {
+	}, {});
+	return new CacheMode();
 })

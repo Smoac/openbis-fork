@@ -1,13 +1,12 @@
 /**
  * @author pkupczyk
  */
-define([ "stjs" ], function(stjs) {
-	return {
-		AVAILABLE : "AVAILABLE",
-		LOCKED : "LOCKED",
-		ARCHIVED : "ARCHIVED",
-		UNARCHIVE_PENDING : "UNARCHIVE_PENDING",
-		ARCHIVE_PENDING : "ARCHIVE_PENDING",
-		BACKUP_PENDING : "BACKUP_PENDING"
+
+define([ "stjs", "dto/common/Enum" ], function(stjs, Enum) {
+	var ArchivingStatus = function() {
+		Enum.call(this, [ "AVAILABLE", "LOCKED", "ARCHIVED", "UNARCHIVE_PENDING", "ARCHIVE_PENDING", "BACKUP_PENDING" ]);
 	};
+	stjs.extend(ArchivingStatus, Enum, [ Enum ], function(constructor, prototype) {
+	}, {});
+	return new ArchivingStatus();
 })

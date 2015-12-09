@@ -1,10 +1,11 @@
 /**
  * @author pkupczyk
  */
-define([ "stjs" ], function(stjs) {
-	return {
-		YES : "YES",
-		NO : "NO",
-		UNKNOWN : "UNKNOWN"
+define([ "stjs", "dto/common/Enum" ], function(stjs, Enum) {
+	var Complete = function() {
+		Enum.call(this, [ "YES", "NO", "UNKNOWN" ]);
 	};
+	stjs.extend(Complete, Enum, [ Enum ], function(constructor, prototype) {
+	}, {});
+	return new Complete();
 })

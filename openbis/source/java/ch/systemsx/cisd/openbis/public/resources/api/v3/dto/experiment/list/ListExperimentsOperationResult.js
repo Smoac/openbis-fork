@@ -1,7 +1,7 @@
 /**
  * @author pkupczyk
  */
-define([ "stjs", "dto/common/operation/IOperationResult" ], function(stjs, IOperationResult) {
+define([ "stjs", "dto/common/operations/IOperationResult" ], function(stjs, IOperationResult) {
 	var ListExperimentsOperationResult = function() {
 	};
 	stjs.extend(ListExperimentsOperationResult, null, [ IOperationResult ], function(constructor, prototype) {

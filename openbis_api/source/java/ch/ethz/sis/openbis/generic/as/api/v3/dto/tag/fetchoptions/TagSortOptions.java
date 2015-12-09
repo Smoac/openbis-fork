@@ -16,6 +16,8 @@
 
 package ch.ethz.sis.openbis.generic.as.api.v3.dto.tag.fetchoptions;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.fetchoptions.SortOptions;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.fetchoptions.SortOrder;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.tag.Tag;
@@ -30,8 +32,10 @@ public class TagSortOptions extends SortOptions<Tag>
 
     private static final long serialVersionUID = 1L;
 
+    @JsonIgnore
     public static final String CODE = "CODE";
 
+    @JsonIgnore
     public static final String REGISTRATION_DATE = "REGISTRATION_DATE";
 
     public SortOrder code()

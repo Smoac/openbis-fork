@@ -19,10 +19,12 @@ package ch.ethz.sis.openbis.generic.as.api.v3.dto.common.interfaces;
 import java.util.Map;
 
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.material.Material;
+import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
  * @author Jakub Straszewski
  */
+@JsonObject("dto.common.interfaces.IPropertiesHolder")
 public interface IPropertiesHolder
 {
 

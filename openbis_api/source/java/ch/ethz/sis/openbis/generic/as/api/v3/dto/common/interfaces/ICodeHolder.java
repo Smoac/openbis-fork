@@ -16,9 +16,12 @@
 
 package ch.ethz.sis.openbis.generic.as.api.v3.dto.common.interfaces;
 
+import ch.systemsx.cisd.base.annotation.JsonObject;
+
 /**
  * @author pkupczyk
  */
+@JsonObject("dto.common.interfaces.ICodeHolder")
 public interface ICodeHolder
 {
 

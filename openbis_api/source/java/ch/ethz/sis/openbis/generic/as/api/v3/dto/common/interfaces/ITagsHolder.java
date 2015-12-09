@@ -19,10 +19,12 @@ package ch.ethz.sis.openbis.generic.as.api.v3.dto.common.interfaces;
 import java.util.Set;
 
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.tag.Tag;
+import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
  * @author Jakub Straszewski
  */
+@JsonObject("dto.common.interfaces.ITagsHolder")
 public interface ITagsHolder
 {
     Set<Tag> getTags();

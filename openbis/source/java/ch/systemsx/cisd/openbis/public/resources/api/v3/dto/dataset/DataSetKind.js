@@ -1,10 +1,11 @@
 /**
  * @author pkupczyk
  */
-define([ "stjs" ], function(stjs) {
-	return {
-		PHYSICAL : "PHYSICAL",
-		CONTAINER : "CONTAINER",
-		LINK : "LINK"
+define([ "stjs", "dto/common/Enum" ], function(stjs, Enum) {
+	var DataSetKind = function() {
+		Enum.call(this, [ "PHYSICAL", "CONTAINER", "LINK" ]);
 	};
+	stjs.extend(DataSetKind, Enum, [ Enum ], function(constructor, prototype) {
+	}, {});
+	return new DataSetKind();
 })

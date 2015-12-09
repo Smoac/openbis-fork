@@ -1,4 +1,5 @@
 package ch.systemsx.cisd.openbis.jstest.report;
+
 /*
  * Copyright 2015 ETH Zuerich, CISD
  *
@@ -17,7 +18,6 @@ package ch.systemsx.cisd.openbis.jstest.report;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -35,11 +35,12 @@ import org.reflections.util.ConfigurationBuilder;
 import org.reflections.util.FilterBuilder;
 import org.testng.annotations.Test;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * @author pkupczyk
@@ -114,12 +115,15 @@ public class V3APIReport
     private String getJSONObjectAnnotation(Class<?> clazz)
     {
         Annotation[] annotations = clazz.getAnnotations();
-        for(Annotation annotation:annotations) {
+        for (Annotation annotation : annotations)
+        {
             Class<? extends Annotation> type = annotation.annotationType();
             String name = type.getName();
-            if(name.equals("ch.systemsx.cisd.base.annotation.JsonObject")) {
-                
-                for (Method method : type.getDeclaredMethods()) {
+            if (name.equals("ch.systemsx.cisd.base.annotation.JsonObject"))
+            {
+
+                for (Method method : type.getDeclaredMethods())
+                {
                     try
                     {
                         Object value = method.invoke(annotation, (Object[]) null);
@@ -133,13 +137,13 @@ public class V3APIReport
         }
         return null;
     }
-    
+
     private Collection<Field> getPublicFields(Class<?> clazz)
     {
         Collection<Field> fields = new ArrayList<Field>();
         for (Field field : clazz.getDeclaredFields())
         {
-            if (Modifier.isPublic(field.getModifiers()))
+            if (Modifier.isPublic(field.getModifiers()) && field.getAnnotation(JsonIgnore.class) == null)
             {
                 fields.add(field);
             }
@@ -153,7 +157,7 @@ public class V3APIReport
 
         for (Method method : clazz.getDeclaredMethods())
         {
-            if (Modifier.isPublic(method.getModifiers()))
+            if (Modifier.isPublic(method.getModifiers()) && method.getAnnotation(JsonIgnore.class) == null)
             {
                 methods.add(method);
             }
@@ -209,9 +213,9 @@ public class V3APIReport
     static class Entry
     {
         private String Name;
-        
+
         private String jsonObjAnnotation;
-        
+
         private List<String> fields = new ArrayList<String>();
 
         private List<String> methods = new ArrayList<String>();
@@ -227,7 +231,6 @@ public class V3APIReport
             return this.Name;
         }
 
-        
         public String getJsonObjAnnotation()
         {
             return this.jsonObjAnnotation;

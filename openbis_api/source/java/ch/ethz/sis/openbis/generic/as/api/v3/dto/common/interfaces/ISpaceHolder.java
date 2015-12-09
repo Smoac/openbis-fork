@@ -17,10 +17,12 @@
 package ch.ethz.sis.openbis.generic.as.api.v3.dto.common.interfaces;
 
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.space.Space;
+import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
  * @author Jakub Straszewski
  */
+@JsonObject("dto.common.interfaces.ISpaceHolder")
 public interface ISpaceHolder
 {
     Space getSpace();
