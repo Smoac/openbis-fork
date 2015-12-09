@@ -17,6 +17,7 @@
 function SampleFormView(sampleFormController, sampleFormModel) {
 	this._sampleFormController = sampleFormController;
 	this._sampleFormModel = sampleFormModel;
+	this._$rightPanel = null;
 	
 	this.repaint = function($container) {
 		//
@@ -27,14 +28,24 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		
 		var $form = $("<span>", { "class" : "row col-md-8"});
 		
-		var $rightPanel = $("<span>", { "class" : "row col-md-4", "style" : "margin-left:20px; margin-top:20px;"});
-		
 		var $formColumn = $("<form>", { 
-			"class" : "form-horizontal", 
+			"class" : "form-horizontal form-panel-one", 
 			'role' : "form",
 			'action' : 'javascript:void(0);',
 			'onsubmit' : 'mainController.currentView.createUpdateCopySample();'
 		});
+		
+		this._$rightPanel = $("<span>", { "class" : "row col-md-4 form-panel-two", "style" : "margin-left:20px; margin-top:20px;"});
+		
+		var windowWidth = $(window).width();
+		var windowHeight = $(window).height();
+		var panelCss = {'min-height' : windowHeight + 'px', 'max-height' : windowHeight + 'px' };
+		
+		if(windowWidth > 768) { //On non tablet devices
+			$("body").css("overflow", "hidden");
+			this._$rightPanel.css(panelCss);
+			$formColumn.css(panelCss);
+		}
 		
 		$form.append($formColumn);
 		
@@ -174,13 +185,14 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 											 'class' : 'zoomableImage',
 											 'id' : 'preview-image',
 											 'src' : './img/image_loading.gif',
-											 'style' : 'max-height:300px; max-width:50%; margin-right:20px; display:none;'
+											 'style' : 'max-height:300px; display:none;'
 											});
 			$previewImage.click(function() {
 				Util.showImage($("#preview-image").attr("src"));
 			});
 			
-			$formColumn.append($previewImage);
+			this._$rightPanel.append($("<legend>").append("Preview"));
+			this._$rightPanel.append($previewImage);
 		}
 		
 		//
@@ -321,12 +333,12 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		//
 		
 		var $dataSetViewerContainer = $("<div>", { 'id' : 'dataSetViewerContainer', 'style' : 'margin-top:10px;'});
-		$rightPanel.append($dataSetViewerContainer);
+		this._$rightPanel.append($dataSetViewerContainer);
 		
 		//
 		// INIT
 		//
-		$container.append($form).append($rightPanel);
+		$container.append($form).append(this._$rightPanel);
 		//
 		// Extra content
 		//
@@ -617,9 +629,9 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 				if (data.result.length == 0) {
 					_this._updateLoadingToNotAvailableImage();
 				} else {
-					var x = "123";
 					var listFilesForDataSetCallback = 
 						function(dataFiles) {
+							var found = false;
 							if(!dataFiles.result) {
 								//DSS Is not running probably
 							} else {

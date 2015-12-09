@@ -17,6 +17,11 @@
 /* 
  * General Overrides
  */
+.form-panel-one,
+.form-panel-two {
+	overflow-y : auto;
+	overflow-x : hidden;
+}
 
 .table {
   table-layout:fixed;

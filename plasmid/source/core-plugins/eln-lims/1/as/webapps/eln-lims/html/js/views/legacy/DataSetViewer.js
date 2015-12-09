@@ -80,18 +80,12 @@ function DataSetViewer(containerId, profile, sample, serverFacade, datastoreDown
 		//
 		var $container = $("#"+this.containerId);
 		$container.empty();
-		$container.css({ 
-			"padding" : "10px",
-			"border-color" : "#e7e7e7",
-			"border-style" : "solid",
-			"border-width" : "1px"
-		});
 		
 		var $containerTitle = $("<div>", {"id" : this.containerIdTitle });
 		$container.append($containerTitle);
 		$container.append($("<div>", {"id" : this.containerIdContent }));
 		
-		$containerTitle.append($("<h2>").html("Files"));
+		$containerTitle.append($("<legend>").html("Files"));
 		$containerTitle.append($("<p>")
 							.append($("<span>", { class: "glyphicon glyphicon-info-sign" }))
 							.append(" Loading datasets."));
@@ -119,7 +113,7 @@ function DataSetViewer(containerId, profile, sample, serverFacade, datastoreDown
 					});
 				}
 				
-				$containerTitle.append($("<h2>").append("Files ").append($uploadButton));
+				$containerTitle.append($("<legend>").append("Files ").append($uploadButton));
 				
 				//Switch
 				$containerTitle.append(localReference._getSwitch());				

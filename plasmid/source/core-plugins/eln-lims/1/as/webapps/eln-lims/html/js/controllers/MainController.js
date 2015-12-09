@@ -171,9 +171,12 @@ function MainController(profile) {
 			return;
 		}
 		//
+		// Reset overflow
+		//
+		$("body").css("overflow", "auto");
 		//
 		//
-		
+		//
 		switch (newViewChange) {
 			case "showUserManagerPage":
 				document.title = "User Manager";
