@@ -468,12 +468,12 @@ table.downloads {
 	cursor : pointer;
 }
 
-#sample-form-plate-view > div > .featureToolbarOption {
+.featureToolbarOption {
 	max-width: 150px;
 	display: inline;
 }
 
-#sample-form-plate-view > div > span > .featureToolbarOptionSmall {
+.featureToolbarOptionSmall {
 	max-width: 100px;
 	display: inline;
 }

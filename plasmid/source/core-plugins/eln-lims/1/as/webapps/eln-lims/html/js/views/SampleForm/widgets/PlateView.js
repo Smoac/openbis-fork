@@ -27,6 +27,7 @@ function PlateView(plateController, plateModel) {
 	this._$gridTableContainer = $("<div>");
 	this._gridTableCells = null;
 	this._$scale = $("<span>");
+	this._$toolbar = $("<div>");
 	
 	this.getPlaceHolder = function() {
 		var minHeight = 29 * this._plateModel.numRows + 400;
@@ -47,7 +48,7 @@ function PlateView(plateController, plateModel) {
 		var _this = this;
 		
 		if(isNew) {
-			this._$scaleDropdownContainer = $("<span>", { "style" : "display:inline;" });
+			this._$scaleDropdownContainer = $("<span>");
 			
 			//Scale
 			this._$scaleDropdown = FormUtil.getDropDownForTerms(
@@ -142,12 +143,88 @@ function PlateView(plateController, plateModel) {
 			});
 			
 			//Build Set
+			
+			this._$exportHighlighted = FormUtil.getButtonWithText("Export Highlighted");
+			this._$exportHighlighted.hide();
+			this._$exportHighlighted.css({ "vertical-align" : "baseline" });
+			this._$exportHighlighted.click(function() {
+				var selectedFeatureVector = _this._$featureVectorDatasetsDropdown.val();
+				var selectedFeature = _this._$featureVectorDatasetFeaturesDropdown.val();
+				var allFeatures = _this._plateModel.sample.featureVectorsCache.featureVectorDatasetsFeaturesData[selectedFeatureVector];
+				
+				if(selectedFeatureVector && selectedFeature) {
+					var scale = {
+							min : _this._plateModel.lastUsedScaleMin,
+							max : _this._plateModel.lastUsedScaleMax
+					}
+					
+					var dataToExport = _this._getSelectedWells( selectedFeatureVector, 
+																selectedFeature,
+																scale);
+					
+					var headers = [];
+						
+					var getIdx = function(header) {
+						var idx = $.inArray(header, headers);
+						if(idx === -1) {
+							headers.push(header);
+							idx = $.inArray(header, headers);
+						}
+						return idx;
+					}
+					
+					var rows = [];
+					rows.push(headers);
+					for(var dIdx = 0; dIdx < dataToExport.length; dIdx++) {
+						var item = dataToExport[dIdx];
+						var itemRow = [];
+						
+						var sample = item.sample;
+						if(sample) {
+							itemRow[getIdx("permId")] = sample.permId;
+							itemRow[getIdx("sampleTypeCode")] = sample.sampleTypeCode;
+							itemRow[getIdx("code")] = sample.code;
+							itemRow[getIdx("identifier")] = sample.identifier;
+							itemRow[getIdx("spaceCode")] = sample.spaceCode;
+						}
+						
+						if(sample.properties) {
+							for(key in sample.properties) {
+								itemRow[getIdx(key)] = sample.properties[key];
+							}
+						}
+						var sampleFeatures = item.sampleFeatures;
+						
+						if(sampleFeatures) {
+							if(sampleFeatures.wellPosition) {
+								itemRow[getIdx("wellRow")] = sampleFeatures.wellPosition.wellRow;
+								itemRow[getIdx("wellColumn")] = sampleFeatures.wellPosition.wellColumn;
+							} 
+							
+							for(var fIdx = 0; fIdx < allFeatures.featureCodes.length; fIdx++) {
+								var fCode = allFeatures.featureCodes[fIdx];
+								if(sampleFeatures.vocabularyFeatureFlags[fIdx]) {
+									itemRow[getIdx(fCode)] = sampleFeatures.vocabularyTerms[fIdx];
+								} else {
+									itemRow[getIdx(fCode)] = sampleFeatures.values[fIdx];
+								}
+							}
+						}
+						rows.push(itemRow);
+					}
+					Util.downloadTSV(rows, "plate-" + _this._plateModel.sample.code + ".tsv");
+				}
+			});
+			
 			this._$scaleDropdownContainer
 				.append(this._$scaleDropdown)
-				.append("&nbsp;")
+				.append($("</br>"))
+				.append($("</br>"))
 				.append(this._$scaleMin)
-				.append("&nbsp;")
-				.append(this._$scaleMax);
+				.append(" ")
+				.append(this._$scaleMax)
+				.append(" ")
+				.append(this._$exportHighlighted)
 		}
 		
 		this._$scaleDropdown.empty();
@@ -155,17 +232,13 @@ function PlateView(plateController, plateModel) {
 			this._$scaleDropdown.append($("<option>").attr('value', '').text("Highlight"));
 			this._$scaleMax.hide();
 			this._$scaleMin.hide();
-			if(this._$exportHighlighted) {
-				this._$exportHighlighted.hide();
-			}
+			this._$exportHighlighted.hide();
 		} else {
 			this._$scaleDropdown.append($("<option>").attr('value', 'Min/Max').text('Min/Max'));
 			this._$scaleDropdown.append($("<option>").attr('value', '10/90').text('10/90'));
 			this._$scaleMax.show();
 			this._$scaleMin.show();
-			if(this._$exportHighlighted) {
-				this._$exportHighlighted.show();
-			}
+			this._$exportHighlighted.show();
 		}
 	}
 	
@@ -173,7 +246,6 @@ function PlateView(plateController, plateModel) {
 		var _this = this;
 		$container.empty();
 		//Paint Toolbar
-		var $toolbar = $("<div>");
 		if( this._plateModel.isDisabled &&
 			this._plateModel.sample.featureVectorsCache.featureVectorDatasets.length > 0) {
 			
@@ -296,93 +368,19 @@ function PlateView(plateController, plateModel) {
 				}
 			});
 			
-			this._$exportHighlighted = FormUtil.getButtonWithText("Export Highlighted");
-			this._$exportHighlighted.hide();
-			this._$exportHighlighted.css({ "vertical-align" : "baseline" });
-			this._$exportHighlighted.click(function() {
-				var selectedFeatureVector = _this._$featureVectorDatasetsDropdown.val();
-				var selectedFeature = _this._$featureVectorDatasetFeaturesDropdown.val();
-				var allFeatures = _this._plateModel.sample.featureVectorsCache.featureVectorDatasetsFeaturesData[selectedFeatureVector];
-				
-				if(selectedFeatureVector && selectedFeature) {
-					var scale = {
-							min : _this._plateModel.lastUsedScaleMin,
-							max : _this._plateModel.lastUsedScaleMax
-					}
-					
-					var dataToExport = _this._getSelectedWells( selectedFeatureVector, 
-																selectedFeature,
-																scale);
-					
-					var headers = [];
-						
-					var getIdx = function(header) {
-						var idx = $.inArray(header, headers);
-						if(idx === -1) {
-							headers.push(header);
-							idx = $.inArray(header, headers);
-						}
-						return idx;
-					}
-					
-					var rows = [];
-					rows.push(headers);
-					for(var dIdx = 0; dIdx < dataToExport.length; dIdx++) {
-						var item = dataToExport[dIdx];
-						var itemRow = [];
-						
-						var sample = item.sample;
-						if(sample) {
-							itemRow[getIdx("permId")] = sample.permId;
-							itemRow[getIdx("sampleTypeCode")] = sample.sampleTypeCode;
-							itemRow[getIdx("code")] = sample.code;
-							itemRow[getIdx("identifier")] = sample.identifier;
-							itemRow[getIdx("spaceCode")] = sample.spaceCode;
-						}
-						
-						if(sample.properties) {
-							for(key in sample.properties) {
-								itemRow[getIdx(key)] = sample.properties[key];
-							}
-						}
-						var sampleFeatures = item.sampleFeatures;
-						
-						if(sampleFeatures) {
-							if(sampleFeatures.wellPosition) {
-								itemRow[getIdx("wellRow")] = sampleFeatures.wellPosition.wellRow;
-								itemRow[getIdx("wellColumn")] = sampleFeatures.wellPosition.wellColumn;
-							} 
-							
-							for(var fIdx = 0; fIdx < allFeatures.featureCodes.length; fIdx++) {
-								var fCode = allFeatures.featureCodes[fIdx];
-								if(sampleFeatures.vocabularyFeatureFlags[fIdx]) {
-									itemRow[getIdx(fCode)] = sampleFeatures.vocabularyTerms[fIdx];
-								} else {
-									itemRow[getIdx(fCode)] = sampleFeatures.values[fIdx];
-								}
-							}
-						}
-						rows.push(itemRow);
-					}
-					Util.downloadTSV(rows, "plate-" + _this._plateModel.sample.code + ".tsv");
-				}
-			});
-			
 			//Build Toolbar
-			$toolbar.append(this._$featureVectorDatasetsDropdown)
-					.append("&nbsp;")
+			this._$toolbar.append(this._$featureVectorDatasetsDropdown)
+					.append(" ")
 					.append(this._$featureVectorDatasetFeaturesDropdown)
-					.append("&nbsp;")
+					.append(" ")
 					.append(this._$scaleDropdownContainer)
-					.append("&nbsp;")
-					.append($("<span>", { "style" : "display:inline;"}).append(this._$exportHighlighted))
-					.append("&nbsp;");
+					.append(" ");
 		}
 		
 		//Paint grid
 		this._$gridTable = this.getGridTable(true);
 		this._$gridTableContainer.append(this._$gridTable);
-		$container.append(this._$scale).append($toolbar).append(this._$gridTableContainer);
+		$container.append(this._$scale).append(this._$toolbar).append(this._$gridTableContainer);
 		
 		//Painting default colors before appending the table, increased performance
 		this._repaintGridToAnnotationsColors();
