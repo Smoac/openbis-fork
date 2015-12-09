@@ -418,7 +418,7 @@ function PlateView(plateController, plateModel) {
 							this._gridTableCells[i] = [];
 						}
 						
-						this._gridTableCells[i][j] = $cell;
+						this._gridTableCells[i][j] = { cell : $cell, tooltip : null };
 						
 						this._setToolTip($cell, i, j);
 					}
@@ -446,8 +446,15 @@ function PlateView(plateController, plateModel) {
 	}
 	
 	this._repaintWellToColor = function(row, column, rgbColor, txt, isDisabled) {
-		var $cell = this._gridTableCells[row][column];
-		this._setToolTip($cell, row, column);
+		var $cell = this._gridTableCells[row][column].cell;
+		var currentTooltip = this._gridTableCells[row][column].tooltip;
+		var newToolTip = this._$featureVectorDatasetsDropdown.val();
+		
+		if(currentTooltip !== newToolTip) {
+			this._setToolTip($cell, row, column);
+			this._gridTableCells[row][column].tooltip = newToolTip;
+		}
+		
 		$cell.empty();
 		if(txt) {
 			$cell.append(txt);
@@ -473,9 +480,7 @@ function PlateView(plateController, plateModel) {
 		//Clean colors
 		for(var i = 1; i <= this._plateModel.numRows; i++) {
 			for(var j = 1; j <= this._plateModel.numColumns; j++) {
-				//this._repaintWellToColor(i, j, "inherit");
-				var $cell = this._gridTableCells[i][j];
-				$cell.css({ "background-color" : "inherit", "opacity" : 1 });
+				this._repaintWellToColor(i, j, "inherit");
 				
 			}
 		}
