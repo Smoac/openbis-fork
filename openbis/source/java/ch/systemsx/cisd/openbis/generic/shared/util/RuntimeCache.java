@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.server.util;
+package ch.systemsx.cisd.openbis.generic.shared.util;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;

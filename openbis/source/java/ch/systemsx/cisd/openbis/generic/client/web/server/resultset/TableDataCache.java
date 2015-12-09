@@ -23,7 +23,7 @@ import net.sf.ehcache.CacheManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import ch.systemsx.cisd.openbis.generic.server.util.RuntimeCache;
+import ch.systemsx.cisd.openbis.generic.shared.util.RuntimeCache;
 
 /**
  * 

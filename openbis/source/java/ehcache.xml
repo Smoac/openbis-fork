@@ -26,7 +26,7 @@
 	<cache name="searchCache" eternal="false" maxBytesLocalHeap="512m"
 		overflowToDisk="false" diskPersistent="false" timeToIdleSeconds="3600"
 		timeToLiveSeconds="0" memoryStoreEvictionPolicy="LRU">
-		<cacheEventListenerFactory class="ch.systemsx.cisd.openbis.generic.server.util.RuntimeCacheEventListenerFactory" />
+		<cacheEventListenerFactory class="ch.systemsx.cisd.openbis.generic.shared.util.RuntimeCacheEventListenerFactory" />
 		<sizeOfPolicy maxDepth="10000000" maxDepthExceededBehavior="continue"/>
 	</cache>
 	-->
@@ -40,7 +40,7 @@
 	<cache name="tableDataCache" eternal="false" maxBytesLocalHeap="512m"
 		overflowToDisk="false" diskPersistent="false" timeToIdleSeconds="3600"
 		timeToLiveSeconds="0" memoryStoreEvictionPolicy="LRU">
-		<cacheEventListenerFactory class="ch.systemsx.cisd.openbis.generic.server.util.RuntimeCacheEventListenerFactory" />
+		<cacheEventListenerFactory class="ch.systemsx.cisd.openbis.generic.shared.util.RuntimeCacheEventListenerFactory" />
 		<sizeOfPolicy maxDepth="10000000" maxDepthExceededBehavior="continue"/>
 	</cache>
 	-->

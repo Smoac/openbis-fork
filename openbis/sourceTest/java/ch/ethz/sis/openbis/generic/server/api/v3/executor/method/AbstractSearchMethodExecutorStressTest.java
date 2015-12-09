@@ -54,8 +54,8 @@ import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
-import ch.systemsx.cisd.openbis.generic.server.util.RuntimeCache;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.util.RuntimeCache;
 
 import net.sf.ehcache.CacheManager;
 
