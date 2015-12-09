@@ -218,8 +218,7 @@ function PlateView(plateController, plateModel) {
 			
 			this._$scaleDropdownContainer
 				.append(this._$scaleDropdown)
-				.append($("</br>"))
-				.append($("</br>"))
+				.append(" ")
 				.append(this._$scaleMin)
 				.append(" ")
 				.append(this._$scaleMax)
@@ -372,7 +371,8 @@ function PlateView(plateController, plateModel) {
 			this._$toolbar.append(this._$featureVectorDatasetsDropdown)
 					.append(" ")
 					.append(this._$featureVectorDatasetFeaturesDropdown)
-					.append(" ")
+					.append($("</br>"))
+					.append($("</br>"))
 					.append(this._$scaleDropdownContainer)
 					.append(" ");
 		}
