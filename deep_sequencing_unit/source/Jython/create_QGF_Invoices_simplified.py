@@ -169,13 +169,13 @@ def writeExcel(myoptions, configMap, service, piName, laneDict, sampleDict, piDi
 
   def writeXLSHeader (service, sheet):
       header = sheet.getHeader()
-      header.setCenter(configMap["facilityName"] + "\n" + datetime.now().strftime("%d-%m-%Y"))
+      header.setCenter(configMap["facilityName"] + "\n" + datetime.now().strftime("%d-%B-%Y"))
 
 
   def writeXLSFooter(service, sheet):
     footer = sheet.getFooter()
     footer.setCenter( "Page " + HeaderFooter.page() + " of " + HeaderFooter.numPages() )
-    footer.setRight("generated on " + datetime.now().strftime("%H:%M - %d.%m.%Y"))
+    #footer.setRight("generated on " + datetime.now().strftime("%H:%M - %d.%m.%Y"))
 
   wb = (eval(excelFormats[format]))
   createHelper = wb.getCreationHelper()
