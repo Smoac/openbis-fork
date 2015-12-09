@@ -469,12 +469,12 @@ table.downloads {
 }
 
 #sample-form-plate-view > div > .featureToolbarOption {
-	max-width: 300px;
+	max-width: 150px;
 	display: inline;
 }
 
 #sample-form-plate-view > div > span > .featureToolbarOptionSmall {
-	max-width: 170px;
+	max-width: 100px;
 	display: inline;
 }
 

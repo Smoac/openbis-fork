@@ -29,7 +29,7 @@ function PlateView(plateController, plateModel) {
 	this._$scale = $("<span>");
 	
 	this.getPlaceHolder = function() {
-		var minHeight = 29 * this._plateModel.numRows + 284;
+		var minHeight = 29 * this._plateModel.numRows + 400;
 		var container = $("<div>", { "id" : this._plateModel.getPlaceHolderId(), "style" : "min-height: " + minHeight + "px;" });
 //		var gridTable = this.getGridTable(false);
 //		container.append(gridTable);
@@ -152,7 +152,7 @@ function PlateView(plateController, plateModel) {
 		
 		this._$scaleDropdown.empty();
 		if(isEmpty) {
-			this._$scaleDropdown.append($("<option>").attr('value', '').text("Choose a Feature"));
+			this._$scaleDropdown.append($("<option>").attr('value', '').text("Highlight"));
 			this._$scaleMax.hide();
 			this._$scaleMin.hide();
 			if(this._$exportHighlighted) {
@@ -184,7 +184,7 @@ function PlateView(plateController, plateModel) {
 			this._$featureVectorDatasetFeaturesDropdown = FormUtil.getDropDownForTerms(
 					"featureVectorDatasetFeaturesDropdown-" + this._plateModel.sample.permId,
 					[],
-					"Choose a Feature Vector Dataset first",
+					"Features",
 					false
 					);
 			this._$featureVectorDatasetFeaturesDropdown.addClass("featureToolbarOption");
@@ -250,7 +250,7 @@ function PlateView(plateController, plateModel) {
 			this._$featureVectorDatasetsDropdown = FormUtil.getDropDownForTerms(
 												"featureVectorDatasetsDropdow-" + this._plateModel.sample.permId,
 												featureVectorDatasetsDropdowTerms,
-												"Choose a Feature Vector Dataset please",
+												"Dataset",
 												false
 												);
 			this._$featureVectorDatasetsDropdown.addClass("featureToolbarOption");
@@ -382,7 +382,7 @@ function PlateView(plateController, plateModel) {
 		//Paint grid
 		this._$gridTable = this.getGridTable(true);
 		this._$gridTableContainer.append(this._$gridTable);
-		$container.append($toolbar).append(this._$gridTableContainer).append(this._$scale);
+		$container.append(this._$scale).append($toolbar).append(this._$gridTableContainer);
 		
 		//Painting default colors before appending the table, increased performance
 		this._repaintGridToAnnotationsColors();
@@ -455,11 +455,6 @@ function PlateView(plateController, plateModel) {
 			this._gridTableCells[row][column].tooltip = newToolTip;
 		}
 		
-		$cell.empty();
-		if(txt) {
-			$cell.append(txt);
-		}
-		
 		//Opacity
 		var opacity = 1;
 		if(isDisabled) {
@@ -467,8 +462,13 @@ function PlateView(plateController, plateModel) {
 		}
 		
 		//Redundant coding
-		var rgb = this._hexToRgb(rgbColor);
-		var fontColor = (rgb && (rgb.r*0.299 + rgb.g*0.587 + rgb.b*0.114) > 186)?"#000000":"#ffffff";
+		var fontColor = "#ffffff";
+//		var rgb = this._hexToRgb(rgbColor);
+//		fontColor = (rgb && (rgb.r*0.299 + rgb.g*0.587 + rgb.b*0.114) > 186)?"#000000":"#ffffff";
+//		$cell.empty();
+//		if(txt) {
+//			$cell.append(txt);
+//		}
 		
 		//Single Cell CSS Update
 		$cell.css({ "background-color" : rgbColor, "opacity" : opacity, "color" : fontColor });
@@ -709,16 +709,36 @@ function PlateView(plateController, plateModel) {
 	
 	this._repaintScale = function(shift, colorStepSize, numSteps) {
 		var $scaleTable = $("<table>", { "class" : "table table-bordered", "style" : "table-layout: fixed;" });
+		
+		var $rowIndex = $("<tr>");
+		$scaleTable.append($rowIndex);
+		var $rowValue = $("<tr>");
+		$scaleTable.append($rowValue);
+		var $rowColor = $("<tr>");
+		$scaleTable.append($rowColor);
+		
+//		for(var i = 1; i <= numSteps; i++) {
+//			$rowIndex.append($("<td>").append(i));
+//		}
+		
 		for(var i = 1; i <= numSteps; i++) {
-			var $row = $("<tr>")
-				.append($("<td>").append(i))
-				.append($("<td>", { "style" : "background-color:" + this._getColorForStepBetweenWhiteAndBlack(i, numSteps) + ";" }))
-				.append($("<td>").append(colorStepSize*i - shift));
-			$scaleTable.append($row);
+			$rowValue.append($("<td>", { "style" : "background-color:" + this._getColorForStepBetweenWhiteAndBlack(i, numSteps) + ";" }));
 		}
 		
+		for(var i = 1; i <= numSteps; i++) {
+			$rowColor.append($("<td>").append(colorStepSize*i - shift));
+		}
+		
+//		for(var i = 1; i <= numSteps; i++) {
+//			var $row = $("<tr>")
+//				.append($("<td>").append(i))
+//				.append($("<td>", { "style" : "background-color:" + this._getColorForStepBetweenWhiteAndBlack(i, numSteps) + ";" }))
+//				.append($("<td>").append(colorStepSize*i - shift));
+//			$scaleTable.append($row);
+//		}
+		
 		this._$scale.empty();
-		this._$scale.append($("<legend>").append("Scale"));
+//		this._$scale.append($("<legend>").append("Scale"));
 		this._$scale.append($scaleTable);
 	}
 	
