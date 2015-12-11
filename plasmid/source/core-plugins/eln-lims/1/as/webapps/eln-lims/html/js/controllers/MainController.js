@@ -171,9 +171,12 @@ function MainController(profile) {
 			return;
 		}
 		//
-		// Reset overflow
+		// Finalize view, used to undo mayor modifications to how layout and events are handled
 		//
-		$("body").css("overflow", "auto");
+		if(	this.currentView && 
+			this.currentView.finalize) {
+			this.currentView.finalize();
+		}
 		//
 		//
 		//

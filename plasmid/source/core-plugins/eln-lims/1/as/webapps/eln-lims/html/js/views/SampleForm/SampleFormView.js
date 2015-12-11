@@ -17,7 +17,6 @@
 function SampleFormView(sampleFormController, sampleFormModel) {
 	this._sampleFormController = sampleFormController;
 	this._sampleFormModel = sampleFormModel;
-	this._$rightPanel = null;
 	
 	this.repaint = function($container) {
 		//
@@ -35,17 +34,29 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 			'onsubmit' : 'mainController.currentView.createUpdateCopySample();'
 		});
 		
-		this._$rightPanel = $("<span>", { "class" : "row col-md-4 form-panel-two", "style" : "margin-left:20px; margin-top:20px;"});
+		var $rightPanel = $("<span>", { "class" : "row col-md-4 form-panel-two", "style" : "margin-left:20px; margin-top:20px;"});
 		
-		var windowWidth = $(window).width();
-		var windowHeight = $(window).height();
-		var panelCss = {'min-height' : windowHeight + 'px', 'max-height' : windowHeight + 'px' };
-		
-		if(windowWidth > 768) { //On non tablet devices
-			$("body").css("overflow", "hidden");
-			this._$rightPanel.css(panelCss);
-			$formColumn.css(panelCss);
+		//
+		var windowScrollManager = function($form, $rightPanel) {
+			return function() {
+				if($(window).width() > 1024) { //Min Desktop resolution
+					var scrollablePanelCss = {'min-height' : $(window).height() + 'px', 'max-height' : $(window).height() + 'px' };
+					$("body").css("overflow", "hidden");
+					$formColumn.css(scrollablePanelCss);
+					$rightPanel.css(scrollablePanelCss);
+				} else {
+					var normalPanelCss = {'min-height' : 'initial', 'max-height' : 'initial' };
+					$("body").css("overflow", "auto");
+					$formColumn.css(normalPanelCss);
+					$rightPanel.css(normalPanelCss);
+				}
+			}
 		}
+		windowScrollManager = windowScrollManager($form, $rightPanel);
+		$(window).resize(windowScrollManager);
+		this._sampleFormController._windowHandlers.push(windowScrollManager);
+		$(window).resize();
+		//
 		
 		$form.append($formColumn);
 		
@@ -191,8 +202,13 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 				Util.showImage($("#preview-image").attr("src"));
 			});
 			
-			this._$rightPanel.append($("<legend>").append("Preview"));
-			this._$rightPanel.append($previewImage);
+			if($(window).width() > 1024) { //Min Desktop resolution
+				$rightPanel.append($previewImage);
+			} else {
+				$formColumn.append($previewImage);
+			}
+			
+			
 		}
 		
 		//
@@ -333,12 +349,12 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		//
 		
 		var $dataSetViewerContainer = $("<div>", { 'id' : 'dataSetViewerContainer', 'style' : 'margin-top:10px;'});
-		this._$rightPanel.append($dataSetViewerContainer);
+		$rightPanel.append($dataSetViewerContainer);
 		
 		//
 		// INIT
 		//
-		$container.append($form).append(this._$rightPanel);
+		$container.append($form).append($rightPanel);
 		//
 		// Extra content
 		//

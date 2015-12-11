@@ -20,6 +20,7 @@ function SampleFormController(mainController, mode, sample) {
 	this._sampleFormView = new SampleFormView(this, this._sampleFormModel);
 //	this._storageControllers = [];
 	this._plateController = null;
+	this._windowHandlers = [];
 	
 	this.init = function($container) {
 		// Loading datasets
@@ -40,6 +41,13 @@ function SampleFormController(mainController, mode, sample) {
 		
 	}
 	
+	this.finalize = function() {
+		for(var whIdx = 0; whIdx < this._windowHandlers.length; whIdx++) {
+			$(window).off("resize", this._windowHandlers[whIdx]);
+		}
+		$("body").css("overflow", "auto");
+	}
+		
 	this.isDirty = function() {
 		return this._sampleFormModel.isFormDirty;
 	}
