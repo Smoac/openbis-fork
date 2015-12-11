@@ -413,6 +413,9 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		var propertyGroupPropertiesOnForm = 0;
 		for(var j = 0; j < propertyTypeGroup.propertyTypes.length; j++) {
 			var propertyType = propertyTypeGroup.propertyTypes[j];
+			if(!propertyType.showInEditViews) { //Skip
+				continue;
+			}
 			
 			if(propertyType.code === "XMLCOMMENTS") {
 				var $commentsContainer = $("<div>");
