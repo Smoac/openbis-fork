@@ -139,7 +139,7 @@ def writeExcel(myoptions, configMap, service, piName, laneDict, sampleDict, piDi
   setOfFlowcells = set ()
   try:
     # expecting the old running folder name
-    runDate, seqId, runningNumber, flowcell = flowcellName.split("_")
+    runDate, seqId, runningNumber, flowcell = flowCellProperties["RUN_NAME_FOLDER"].split("_")
     flowcell = flowcell[1:]
   except:
     flowcell = flowcellName
@@ -240,7 +240,7 @@ def writeExcel(myoptions, configMap, service, piName, laneDict, sampleDict, piDi
   createRow()
   createRow()
   createRow()
-  createRow("Run Folder Name", flowcellName, 0, 10, True)
+  createRow("Run Folder Name", flowCellProperties["RUN_NAME_FOLDER"], 0, 10, True)
 
   createRow()
   createRow()
