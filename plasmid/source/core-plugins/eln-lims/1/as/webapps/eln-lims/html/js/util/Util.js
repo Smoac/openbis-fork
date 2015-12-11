@@ -130,7 +130,7 @@ var Util = new function() {
 		};
 		
 		var bootstrapWarning = "<strong>Warning!</strong></br></br>" + text;
-		Util.blockUI(bootstrapWarning + "<br><br><br> <a class='btn btn-default' id='warningAccept'>Accept</a> <a class='btn btn-default' id='warningCancel'>Cancel</a>", css);
+		Util.blockUI(bootstrapWarning + "<br><br><br> <a class='btn btn-primary' id='warningAccept'>Accept</a> <a class='btn btn-default' id='warningCancel'>Cancel</a>", css);
 		
 		$("#warningAccept").on("click", function(event) {
 			okCallback();
