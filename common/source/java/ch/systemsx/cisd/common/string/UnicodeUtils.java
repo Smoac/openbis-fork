@@ -63,7 +63,8 @@ public final class UnicodeUtils
     {
         return Charset.forName(UnicodeUtils.DEFAULT_UNICODE_CHARSET);
     }
-
+    
+    /** @return A valid supported encoding or null */
     private final static String getEncoding(BufferedInputStream bufferedInputStream) {
         try {
             if(bufferedInputStream.markSupported()) {
@@ -89,7 +90,7 @@ public final class UnicodeUtils
     /**
      * @return {@link Reader} that uses the default Unicode encoding.
      * @throws EnvironmentFailureException if the encoding is not supported (shouldn't happen).
-     * @see #DEFAULT_UNICODE_CHARSET
+     * @see #DEFAULT_UNICODE_CHARSET #UTF_8 #UTF_16 #UTF_32
      */
     public final static Reader createReader(InputStream inputStream)
             throws EnvironmentFailureException
