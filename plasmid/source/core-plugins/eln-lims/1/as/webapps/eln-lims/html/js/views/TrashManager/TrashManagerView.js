@@ -77,7 +77,9 @@ function TrashManagerView(trashManagerController, trashManagerModel) {
 				
 				var $removeOption = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'Remove Permanently'}).append("Delete Permanently"));
 				$removeOption.click(function(e) {
-					_this._trashManagerController.deletePermanently([data.entity.id]);
+					Util.showWarning("Are you sure you want to delete the entity permanently?", function() {
+						_this._trashManagerController.deletePermanently([data.entity.id]);
+					});
 				});
 				$list.append($removeOption);
 				
@@ -180,7 +182,9 @@ function TrashManagerView(trashManagerController, trashManagerModel) {
 		//
 		var deleteAllBtn = $("<a>", { "class" : "btn btn-primary", "style" : "margin-top: 10px;"}).append("Empty Trash");
 		deleteAllBtn.click(function() {
-			_this._trashManagerController.emptyTrash();
+			Util.showWarning("Are you sure you want to empty the whole trashcan?", function() {
+				_this._trashManagerController.emptyTrash();
+			});
 		});
 		$containerColumn.append(deleteAllBtn);
 		//

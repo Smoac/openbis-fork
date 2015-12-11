@@ -118,6 +118,30 @@ var Util = new function() {
 		Util.showError(errorMessage, function() {Util.unblockUI();});
 	}
 	
+	this.showWarning = function(text, okCallback) {
+		var css = {
+				'text-align' : 'left',
+				'top' : '15%',
+				'width' : '20%',
+				'background-color' : '#fcf8e3',
+				'border-color' : '#faebcc',
+				'color' : '#8a6d3b',
+				'overflow' : 'auto'
+		};
+		
+		var bootstrapWarning = "<strong>Warning!</strong></br></br>" + text;
+		Util.blockUI(bootstrapWarning + "<br><br><br> <a class='btn btn-default' id='warningAccept'>Accept</a> <a class='btn btn-default' id='warningCancel'>Cancel</a>", css);
+		
+		$("#warningAccept").on("click", function(event) {
+			okCallback();
+			Util.unblockUI();
+		});
+		
+		$("#warningCancel").on("click", function(event) { 
+			Util.unblockUI();
+		});
+	}
+	
 	this.showError = function(withHTML, andCallback, noBlock) {
 		var isiPad = navigator.userAgent.match(/iPad/i) != null;
 		if(!isiPad) {
