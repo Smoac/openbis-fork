@@ -177,7 +177,16 @@ $.extend(Grid.prototype, {
 			var tsv = $.tsv.formatRows(arrayOfRowArrays);
 			var indexOfFirstLine = tsv.indexOf('\n');
 			var tsvWithoutNumbers = tsv.substring(indexOfFirstLine + 1);
-			var blob = new Blob([tsvWithoutNumbers], {type: 'text'});
+			
+			//
+			var csvContentEncoded = (new TextEncoder("utf-16le")).encode([tsvWithoutNumbers]);
+			var bom = new Uint8Array([0xFF, 0xFE]);
+			var out = new Uint8Array( bom.byteLength + csvContentEncoded.byteLength );
+			out.set( bom , 0 );
+			out.set( csvContentEncoded, bom.byteLength );
+			//
+			
+			var blob = new Blob([out], {type: 'text/tsv;charset=UTF-16LE;'});
 			saveAs(blob,'exportedTable' + namePrefix + '.tsv');
 		}
 		
