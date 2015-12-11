@@ -152,7 +152,7 @@ public interface IRelationshipService
 
     @Transactional(propagation = Propagation.MANDATORY)
     @RolesAllowed(value =
-    { RoleWithHierarchy.SPACE_ETL_SERVER, RoleWithHierarchy.SPACE_POWER_USER })
+    { RoleWithHierarchy.SPACE_ETL_SERVER, RoleWithHierarchy.SPACE_USER })
     @Capability("ADD_PARENT_TO_SAMPLE")
     public void addParentToSample(IAuthSession session,
             @AuthorizationGuard(name = "SAMPLE", guardClass = SamplePEPredicate.class)
