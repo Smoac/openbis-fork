@@ -182,7 +182,7 @@ function TrashManagerView(trashManagerController, trashManagerModel) {
 		//
 		var deleteAllBtn = $("<a>", { "class" : "btn btn-primary", "style" : "margin-top: 10px;"}).append("Empty Trash");
 		deleteAllBtn.click(function() {
-			Util.showWarning("Are you sure you want to empty the whole trashcan?", function() {
+			Util.showWarning("All entities will be deleted permanently. Are you sure?", function() {
 				_this._trashManagerController.emptyTrash();
 			});
 		});
