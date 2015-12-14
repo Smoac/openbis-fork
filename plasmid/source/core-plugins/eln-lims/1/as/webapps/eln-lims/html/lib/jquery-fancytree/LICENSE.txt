@@ -1,0 +1,9 @@
+Open Source - MIT License : https://github.com/mar10/fancytree/wiki/LicenseInfo
+
+artin@MBP edited this page on 17 Jan 2014 · 1 revision 
+
+You may use Fancytree under the terms of the MIT License.
+
+The MIT License is simple and easy to understand and it places almost no restrictions on what you can do with Fancytree.
+
+You are free to use Fancytree in any other project (even commercial projects) as long as the copyright header is left intact.
