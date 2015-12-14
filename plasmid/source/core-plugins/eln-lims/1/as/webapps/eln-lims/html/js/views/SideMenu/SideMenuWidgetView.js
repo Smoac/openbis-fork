@@ -293,6 +293,17 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
         	    }
         };
         
+//        var updateIcons = function(treeDataNode) {
+//        	var menuData = treeDataNode.node.data.menuData;
+//    		if(menuData.parent && (menuData.parent.uniqueId == "UTILITIES")) {
+//    			var node = treeDataNode.node;
+//    			var $span = $(node.span);
+//    			var $icon = $span.find("> span.fancytree-icon");
+//    			$icon.removeClass("glyphicon-file");
+//    			$icon.addClass("glyphicon-briefcase");
+//    		}
+//        }
+        
         tree.fancytree({
         	extensions: ["dnd", "edit", "glyph", "wide"],
         	glyph: glyph_opts,
@@ -306,8 +317,19 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
         				mainController.changeView(menuData.newViewIfSelected, menuData.newViewIfSelectedData);
         			}
         		}
+//        		updateIcons(data);
         	}
+//        	,beforeActivate: function(event, data) {
+//        		updateIcons(data);
+//        	},
+//        	deactivate: function(event, data) {
+//        		updateIcons(data);
+//        	},
+//        	renderNode: function(event, data) {
+//        		updateIcons(data);
+//        	}
         });
+        
         this._sideMenuWidgetModel.menuDOMBody.append(tree);
         
         //Expand Tree Node
