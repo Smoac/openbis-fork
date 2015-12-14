@@ -57,6 +57,10 @@ function SideMenuWidgetController(mainController) {
     	this._sideMenuWidgetView.toggleMenuSize();
     }
     
+    this.toggleNavType = function() {
+    	this._sideMenuWidgetView.toggleNavType();
+    }
+    
     this.hideSideMenu = function() {
         this._sideMenuWidgetView.hideSideMenu();
     };

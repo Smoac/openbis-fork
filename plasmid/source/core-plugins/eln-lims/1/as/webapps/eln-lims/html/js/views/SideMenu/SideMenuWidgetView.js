@@ -25,10 +25,26 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
     this._sideMenuWidgetModel = sideMenuWidgetModel;
     
     var $toggleMenuButtonIcon = null;
+    var $toggleNavButtonIcon = null;
     var toggleMenuSizeBig = false;
     var DISPLAY_NAME_LENGTH_SHORT = 15;
     var DISPLAY_NAME_LENGTH_LONG = 300;
     var cutDisplayNameAtLength = DISPLAY_NAME_LENGTH_SHORT; // Fix for long names
+    
+    this._updateNavButtonIcon = function() {
+    	if(this._sideMenuWidgetModel.isTreeNavigation) {
+    		this.$toggleNavButtonIcon.removeClass( "glyphicon-align-left" );
+    		this.$toggleNavButtonIcon.addClass( "glyphicon-list" );
+    	} else {
+    		this.$toggleNavButtonIcon.removeClass( "glyphicon-list" );
+    		this.$toggleNavButtonIcon.addClass( "glyphicon-align-left" );
+    	}
+    }
+    this.toggleNavType = function() {
+    	this._sideMenuWidgetModel.isTreeNavigation = !this._sideMenuWidgetModel.isTreeNavigation;
+    	this._updateNavButtonIcon();
+    	this.repaint();
+    }
     
     this.toggleMenuSize = function() {
     	toggleMenuSizeBig = !toggleMenuSizeBig;
@@ -89,10 +105,17 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
                         .append($("<span>", {"class": "glyphicon glyphicon-resize-full"}))
                         );
         
-        $toggleMenuButtonIcon = $("<span>", {"class": "glyphicon glyphicon-menu-right"});
+        this.$toggleMenuButtonIcon = $("<span>", {"class": "glyphicon glyphicon-menu-right"});
         var $toggleMenuButton = $("<li>")
         .append($("<a>", {"href": "javascript:mainController.sideMenu.toggleMenuSize();"})
-                .append($toggleMenuButtonIcon)
+                .append(this.$toggleMenuButtonIcon)
+                );
+        
+        this.$toggleNavButtonIcon = $("<span>", { "class" : "glyphicon" });
+        this._updateNavButtonIcon();
+        var $toggleNavButton = $("<li>")
+        .append($("<a>", {"href": "javascript:mainController.sideMenu.toggleNavType();"})
+                .append(this.$toggleNavButtonIcon)
                 );
         
         var dropDownSearch = "";
@@ -181,6 +204,7 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
         $headerItemList.append($logoutButton);
         $headerItemList.append($toggleButton);
         $headerItemList.append($toggleMenuButton);
+        $headerItemList.append($toggleNavButton);
         $headerItemList.append($searchForm);
         if(dropDownSearch !== "") {
         	$headerItemList.append($searchFormDropdown);
@@ -207,13 +231,16 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
     };
     
     this.repaint = function() {
-    	this.treeMenu();
-//    	this.repaintSliderMenu();
+    	if(this._sideMenuWidgetModel.isTreeNavigation) {
+    		this.repaintTreeMenu();
+    	} else {
+    		this.repaintListMenu();
+    	}
     }
     
-    this.treeMenu = function() {
+    this.repaintTreeMenu = function() {
     	var _this = this;
-        
+    	this._sideMenuWidgetModel.menuDOMTitle.empty();
         this._sideMenuWidgetModel.menuDOMBody.empty();
         var tree = $("<div>", { "id" : "tree" });
         
@@ -274,7 +301,7 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
         expandToParent(tree, menuToPaint, true);
     }
     
-    this.repaintSliderMenu = function() {
+    this.repaintListMenu = function() {
         var _this = this;
         var menuToPaint = this._sideMenuWidgetModel.pointerToMenuNode;
         //
