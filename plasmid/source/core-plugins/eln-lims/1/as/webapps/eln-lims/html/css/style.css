@@ -291,6 +291,10 @@ h1, h2, legend {
     border-bottom-color: transparent;
 }
 
+#sideMenuBody > div > ul {
+	overflow: hidden;	
+}
+
 /*
  * Inspector
  */
