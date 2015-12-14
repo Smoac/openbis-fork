@@ -280,7 +280,7 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
         		data.node.setExpanded(true);
         		if(menuData.isSelectable) {
         			_this._sideMenuWidgetModel.pointerToMenuNode = menuData;
-        			if(menuData.newViewIfSelected && menuData.newViewIfSelectedData) {
+        			if(menuData.newViewIfSelected) {
         				mainController.changeView(menuData.newViewIfSelected, menuData.newViewIfSelectedData);
         			}
         		}
