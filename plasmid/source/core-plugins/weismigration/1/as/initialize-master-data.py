@@ -184,6 +184,11 @@ antibodyrefnumScriptName = createScript(PATH_TO_MANAGE_PROPERTIES_SCRIPTS + "ant
                                   "Antibody ref num from code",
                                   "DYNAMIC_PROPERTY",
                                   "SAMPLE");
+antibodynameScriptName = createScript(PATH_TO_MANAGE_PROPERTIES_SCRIPTS + "antibody_name.py",
+                                  definitions.antibodynameScriptName,
+                                  "Antibody name from code",
+                                  "DYNAMIC_PROPERTY",
+                                  "SAMPLE");
 
 chemicalrefnumScriptName = createScript(PATH_TO_MANAGE_PROPERTIES_SCRIPTS + "chemical_refnum.py",
                                   definitions.chemicalrefnumScriptName,

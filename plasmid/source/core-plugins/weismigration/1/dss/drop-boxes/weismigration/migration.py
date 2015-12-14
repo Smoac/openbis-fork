@@ -1,5 +1,6 @@
 # some_file.py
 import sys
+import traceback
 import definitions
 import definitionsVoc
 import re
@@ -58,6 +59,7 @@ def process(tr):
                 else:
                     addNotMigratedEntity(adaptor.__class__.__name__, entity.getIdentifier(tr), "Already in openBIS")
             except Exception, error:
+                    print traceback.format_exc()
                     addNotMigratedEntity(adaptor.__class__.__name__, entity.getIdentifier(tr), str(error.args))
                     #print entity.getIdentifier(tr) + " - Already up to date"
         print "- ADAPTOR [" + adaptor.__class__.__name__ + "] FINISH"
@@ -72,6 +74,7 @@ def process(tr):
 ##
 def setEntityProperties(tr, definition, entity, properties):
     for origPropertyCode, propertyValue in properties.iteritems():
+            #print repr("setEntityProperties " + origPropertyCode + " : " + unicode(propertyValue))
             propertyCode = origPropertyCode;
             if propertyCode.startswith("+"):
                 propertyCode = propertyCode[1:];
@@ -79,12 +82,14 @@ def setEntityProperties(tr, definition, entity, properties):
                 continue
             
             propertyDefinition = definitions.getPropertyDefinitionByCode(definition, origPropertyCode)
-            if propertyValue is not None:
+#            print "Prop definition ", propertyDefinition
+#            print "PROP VALUE ", propertyValue
+            if propertyDefinition is not None and propertyValue is not None:
                 propertyValue =  unicode(propertyValue) 
+                print "Prop definition ", propertyDefinition, propertyValue
 
-            if propertyDefinition is not None and propertyDefinition[3] == DataType.TIMESTAMP and propertyValue is not None:
-                date_val = datetime.strptime(propertyValue, "%Y")
-                propertyValue = datetime.strftime(date_val, "%Y-%m-%d")
+
+
             if propertyDefinition is not None and propertyDefinition[3] == DataType.REAL and propertyValue is not None:
                 if propertyValue =="?":
                     propertyValue=""
@@ -99,17 +104,22 @@ def setEntityProperties(tr, definition, entity, properties):
                     labelToUse = propertyValue
                     if len(codeToUse) is 0:
                         codeToUse = "None" + str(random.random())
-                    if len(codeToUse) > 60:
+                    if len(codeToUse) > 50:
                         codeToUse = codeToUse[:50]
                     #Uses new vocabulary term
                     newTerm = definitionsVoc.createVocabularyTerm(tr, propertyDefinition[4], codeToUse, labelToUse)
                     propertyValue = newTerm.getCode()
                     print "* WARNING ENTITY [" + entity.getCode() + "]: for Vocabulary [" + propertyDefinition[4] + "], found value not in list: [" + repr(labelToUse) + "]. Created new term with code [" + codeToUse + "]"
 
-            if propertyDefinition[2] == "pKW Number":
+            if (propertyDefinition is not None) and (len(propertyDefinition) >= 2) and (propertyDefinition[2] == "pKW Number") and (propertyValue is not None):
                 propertyValue = "pKW" + propertyValue
 
-            if propertyDefinition[2] == "UC Number":
+            if (propertyDefinition is not None) and (len(propertyDefinition) >= 2) and propertyDefinition[2] == "emtpy?":
+                if propertyValue == "empty":
+                    propertyValue = "true"
+                
+
+            if (propertyDefinition is not None) and (len(propertyDefinition) >= 2) and propertyDefinition[2] == "UC Number" and (propertyValue is not None):
                 if re.search("US", propertyValue):
                     propertyValue =propertyValue.replace("US", "UC").strip(" ")                             
             
@@ -119,15 +129,13 @@ def setEntityProperties(tr, definition, entity, properties):
 
 
 
-            if propertyDefinition is not None and propertyDefinition[3] == DataType.CONTROLLEDVOCABULARY and propertyValue is not None:
+            if (propertyDefinition is not None) and (len(propertyDefinition) >= 3) and propertyDefinition[3] == DataType.CONTROLLEDVOCABULARY and propertyValue is not None:
                 possiblePropertyValue = definitionsVoc.getVocabularyTermCodeForVocabularyAndTermLabel(propertyDefinition[4], propertyValue)
                 if possiblePropertyValue is not None:
                     propertyValue = possiblePropertyValue.strip(" ")
                 else:
-                    print "MISSING VALUE for: ", propertyDefinition[0], ": VALUE ", propertyValue, "POSS VALUE:",  possiblePropertyValue
-                
-      
- 
+                    #print "MISSING VALUE for: ", propertyDefinition[0], ": VALUE ", propertyValue, "POSS VALUE:",  possiblePropertyValue
+
                     if propertyDefinition[0] =="BACTERIAL_STRAIN" and propertyValue is not None:   
                         print "BAC STRAIN", propertyDefinition[0], propertyValue 
                         if propertyValue == "XL10 Gold":
@@ -145,7 +153,7 @@ def setEntityProperties(tr, definition, entity, properties):
                             labelToUse = propertyValue
                             if len(codeToUse) is 0:
                                 codeToUse = "None" + str(random.random())
-                            if len(codeToUse) > 60:
+                            if len(codeToUse) > 50:
                                 codeToUse = codeToUse[:50]
                             #Uses new vocabulary term
                             newTerm = definitionsVoc.createVocabularyTerm(tr, propertyDefinition[4], codeToUse, labelToUse)
@@ -158,7 +166,10 @@ def setEntityProperties(tr, definition, entity, properties):
                             print "CAM IS:", propertyValue
                             entity.setPropertyValue("DRUG_RES", "CAM")
                         else:
-                             entity.setPropertyValue("DRUG_RES", propertyValue)      
+                             entity.setPropertyValue("DRUG_RES", propertyValue)  
+                             
+                             
+ 
 
             if propertyDefinition is not None: #Sometimes special fields are added for other purposes, these should not be set
                 entity.setPropertyValue(propertyCode, propertyValue)
@@ -356,6 +367,7 @@ class FileMakerEntityAdaptor(EntityAdaptor):
         
         # Default Query (All adaptors should have it)
         preparedStatement = self.connection.prepareStatement(self.selectQuery)
+        #print "EXECUTED QUERY: " + self.selectQuery
         result = preparedStatement.executeQuery()
         
         while result.next():
@@ -364,16 +376,15 @@ class FileMakerEntityAdaptor(EntityAdaptor):
                 if property[0].startswith("+"):
                     pass #Do Nothing
                 elif property[0]=="ANNOTATIONS_STATE":
-                    values[property[0]] = unicode("");
+                    values[property[0]] = "";
                 else:
                     propertyCode = property[0];
+                    propertyValue = result.getString(property[2]);
                     if property[0].startswith("+"):
                         propertyCode = property[0][1:];
                     if property[0].startswith("-"):
                         propertyCode = property[0][1:];
-                    
-                    values[propertyCode] = unicode(result.getString(property[2]))
-                    
+                    values[propertyCode] = result.getString(property[2])
             self.addEntity(values)
         result.close()
         preparedStatement.close()
@@ -400,7 +411,7 @@ class FileMakerEntityAdaptor(EntityAdaptor):
                 entityId = entity.values[self.selectQueryRepetitionsId];
                 if entityId is not None:
                     perEntityQuery = "SELECT " + fields + " FROM " + self.selectQueryRepetitions + "= '" + entityId + "'";
-                    print perEntityQuery
+                    #print "EXECUTED QUERY: " + perEntityQuery
                     preparedStatement = self.connection.prepareStatement(perEntityQuery)
                     result = preparedStatement.executeQuery()
                     
@@ -410,7 +421,7 @@ class FileMakerEntityAdaptor(EntityAdaptor):
                             if cIdx is not 0:
                                 columName = result.getMetaData().getColumnName(cIdx);
                                 fieldName = fieldsNames[cIdx];
-                                entity.values[fieldName] = unicode(result.getString(cIdx));
+                                entity.values[fieldName] = result.getString(cIdx);
                     result.close()
                     preparedStatement.close()
         #
@@ -454,7 +465,6 @@ class AntibodyOpenBISDTO(FMOpenBISDTO):
         
     def write(self, tr):
         if self.values["REF_NUM"] is not None:
-
             code = "AB" + self.values["REF_NUM"]
             if code is not None:
                 sample = getSampleForUpdate("/MATERIALS/"+code,"ANTIBODY", tr)
@@ -612,6 +622,8 @@ class ChemicalOpenBISDTO(FMOpenBISDTO):
         if code is not None:
             sample = getSampleForUpdate("/MATERIALS/"+code,"CHEMICAL", tr)
             setEntityProperties(tr, self.definition, sample, self.values);
+        else:   
+            print "CHEMICAL: Code is missing!"
     
     def getIdentifier(self, tr):
         code = "CHEM" + self.values["ID"]
@@ -660,9 +672,9 @@ adaptors = [
              #EnzymeAdaptor(fmConnString, fmUser, fmPass, "Weis_Restriction_enzymes"),
              #ChemicalAdaptor(fmConnString, fmUser, fmPass, "Weis_Chemicals"),
              #AntibodyAdaptor(fmConnString, fmUser, fmPass, "Weis _Antibodies"),
-             #OligoAdaptor(fmConnString, fmUser, fmPass, "Weis_Oligos"),
+             OligoAdaptor(fmConnString, fmUser, fmPass, "Weis_Oligos"),
              #PlasmidAdaptor(fmConnString, fmUser, fmPass, "Weis_Plasmids"),
-             StrainAdaptor(fmConnString, fmUser, fmPass, "Weis_Yeast_Strains")
+             #StrainAdaptor(fmConnString, fmUser, fmPass, "Weis_Yeast_Strains")
              ]
                        
             
