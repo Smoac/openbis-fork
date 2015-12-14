@@ -190,6 +190,10 @@ h1, h2, legend {
     background-position: 12px 5px !important;
 }
 
+.ui-fancytree {
+    color: #777;
+}
+
 /*
  * Sample Table
  */
