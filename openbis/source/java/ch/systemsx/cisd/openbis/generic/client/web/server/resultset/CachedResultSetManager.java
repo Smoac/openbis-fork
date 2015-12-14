@@ -190,13 +190,8 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         @Override
         public TableData<K, T> call() throws Exception
         {
-            List<T> rows = dataProvider.getOriginalData(Integer.MAX_VALUE);
-            List<TableModelColumnHeader> headers = dataProvider.getHeaders();
-            operationLog.info(rows.size() + " records loaded for key " + dataKey);
-            TableData<K, T> tableData =
-                    new TableData<K, T>(dataKey, rows, headers, customColumnsProvider, columnCalculator);
-            xmlPropertyTransformer.transformXMLProperties(rows);
-            cachedResultSetManager.addToCache(dataKey, tableData);
+            TableData<K, T> tableData = loadAndAddToCache(dataKey, dataProvider, customColumnsProvider, 
+                    columnCalculator, xmlPropertyTransformer, cachedResultSetManager);
             unfinishedLoadings.remove(dataKey);
             return tableData;
         }
@@ -430,15 +425,14 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
                 return fetchAndCacheResult(sessionToken, resultConfig, dataProvider);
             default:
                 TableData<K, T> tableData = tryGetCachedTableData(dataKey);
-                if (tableData != null)
+                if (tableData == null)
                 {
-                    return calculateSortAndFilterResult(sessionToken, tableData, resultConfig,
-                            dataKey, false);
-                } else
-                {
-                    return fetchAndCacheResult(sessionToken, resultConfig, dataProvider);
+                    operationLog.warn("Reference to the stale cache key " + dataKey);
+                    tableData = loadAndAddToCache(dataKey, dataProvider, customColumnsProvider, 
+                            columnCalculator, xmlPropertyTransformer, this);
                 }
-
+                return calculateSortAndFilterResult(sessionToken, tableData, resultConfig,
+                        dataKey, false);
         }
     }
     
@@ -632,7 +626,6 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         TableData<K, T> tableData = cast(tableDataCache.getTableData(dataKey));
         if (tableData == null)
         {
-            operationLog.warn("Reference to the stale cache key " + dataKey);
             return null;
         }
         return tableData;
@@ -674,6 +667,21 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
     }
     
     
+    private static <K, T> TableData<K, T> loadAndAddToCache(K dataKey, IOriginalDataProvider<T> dataProvider,
+            ICustomColumnsProvider customColumnsProvider, IColumnCalculator columnCalculator,
+            XMLPropertyTransformer xmlPropertyTransformer,
+            CachedResultSetManager<K> cachedResultSetManager)
+    {
+        List<T> rows = dataProvider.getOriginalData(Integer.MAX_VALUE);
+        List<TableModelColumnHeader> headers = dataProvider.getHeaders();
+        operationLog.info(rows.size() + " records loaded for key " + dataKey);
+        TableData<K, T> tableData =
+                new TableData<K, T>(dataKey, rows, headers, customColumnsProvider, columnCalculator);
+        xmlPropertyTransformer.transformXMLProperties(rows);
+        cachedResultSetManager.addToCache(dataKey, tableData);
+        return tableData;
+    }
+
     @Override
     protected void finalize() throws Throwable
     {
