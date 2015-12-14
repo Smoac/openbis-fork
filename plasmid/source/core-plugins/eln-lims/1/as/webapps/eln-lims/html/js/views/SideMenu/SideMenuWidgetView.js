@@ -273,7 +273,29 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
         		}
         	}
         }
+        
+        glyph_opts = {
+        	    map: {
+        	      doc: "glyphicon glyphicon-file",
+        	      docOpen: "glyphicon glyphicon-file",
+        	      checkbox: "glyphicon glyphicon-unchecked",
+        	      checkboxSelected: "glyphicon glyphicon-check",
+        	      checkboxUnknown: "glyphicon glyphicon-share",
+        	      dragHelper: "glyphicon glyphicon-play",
+        	      dropMarker: "glyphicon glyphicon-arrow-right",
+        	      error: "glyphicon glyphicon-warning-sign",
+        	      expanderClosed: "glyphicon glyphicon-plus-sign",
+        	      expanderLazy: "glyphicon glyphicon-plus-sign",  // glyphicon-expand
+        	      expanderOpen: "glyphicon glyphicon-minus-sign",  // glyphicon-collapse-down
+        	      folder: "glyphicon glyphicon-folder-close",
+        	      folderOpen: "glyphicon glyphicon-folder-open",
+        	      loading: "glyphicon glyphicon-refresh"
+        	    }
+        };
+        
         tree.fancytree({
+        	extensions: ["dnd", "edit", "glyph", "wide"],
+        	glyph: glyph_opts,
         	source: treeModel,
         	activate: function(event, data){
         		var menuData = data.node.data.menuData;
