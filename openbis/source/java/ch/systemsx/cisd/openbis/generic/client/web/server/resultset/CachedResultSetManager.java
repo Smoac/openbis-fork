@@ -156,7 +156,7 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         return (T) object;
     }
 
-    private static final class BackgroundTableDataLoading<T, K> implements Callable<TableData<T>>
+    private static final class BackgroundTableDataLoading<T, K> implements Callable<TableData<K, T>>
     {
         private final K dataKey;
 
@@ -188,13 +188,13 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         }
 
         @Override
-        public TableData<T> call() throws Exception
+        public TableData<K, T> call() throws Exception
         {
             List<T> rows = dataProvider.getOriginalData(Integer.MAX_VALUE);
             List<TableModelColumnHeader> headers = dataProvider.getHeaders();
             operationLog.info(rows.size() + " records loaded for key " + dataKey);
-            TableData<T> tableData =
-                    new TableData<T>(rows, headers, customColumnsProvider, columnCalculator);
+            TableData<K, T> tableData =
+                    new TableData<K, T>(dataKey, rows, headers, customColumnsProvider, columnCalculator);
             xmlPropertyTransformer.transformXMLProperties(rows);
             cachedResultSetManager.addToCache(dataKey, tableData);
             unfinishedLoadings.remove(dataKey);
@@ -429,7 +429,7 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
             case COMPUTE_AND_CACHE:
                 return fetchAndCacheResult(sessionToken, resultConfig, dataProvider);
             default:
-                TableData<T> tableData = tryGetCachedTableData(dataKey);
+                TableData<K, T> tableData = tryGetCachedTableData(dataKey);
                 if (tableData != null)
                 {
                     return calculateSortAndFilterResult(sessionToken, tableData, resultConfig,
@@ -461,8 +461,8 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         operationLog.info("Retrieving " + limit + " record for a new key " + dataKey);
         List<T> rows = dataProvider.getOriginalData(limit);
         final List<TableModelColumnHeader> headers = dataProvider.getHeaders();
-        final TableData<T> tableData =
-                new TableData<T>(rows, headers, customColumnsProvider, columnCalculator);
+        final TableData<K, T> tableData =
+                new TableData<K, T>(dataKey, rows, headers, customColumnsProvider, columnCalculator);
         xmlPropertyTransformer.transformXMLProperties(rows);
         addToCache(dataKey, tableData);
 
@@ -470,7 +470,7 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         if (partial)
         {
             operationLog.info("Only partially loaded data for key " + dataKey);
-            Future<TableData<T>> future = loadCompleteTableInBackground(dataProvider, dataKey);
+            Future<TableData<K, T>> future = loadCompleteTableInBackground(dataProvider, dataKey);
             unfinishedLoadings.put(dataKey, future);
             operationLog.info(unfinishedLoadings.size() + " unfinished loadings");
         }
@@ -604,14 +604,14 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         return true;
     }
 
-    private <T> Future<TableData<T>> loadCompleteTableInBackground(
+    private <T> Future<TableData<K, T>> loadCompleteTableInBackground(
             final IOriginalDataProvider<T> dataProvider, final K dataKey)
     {
         return executor.submit(new BackgroundTableDataLoading<T, K>(dataKey, unfinishedLoadings, dataProvider,
                 customColumnsProvider, columnCalculator, xmlPropertyTransformer, this));
     }
 
-    private <T> void addToCache(K dataKey, TableData<T> tableData)
+    private <T> void addToCache(K dataKey, TableData<K, T> tableData)
     {
         unlockResultSet(dataKey);
         tableDataCache.putTableData(dataKey, tableData);
@@ -619,17 +619,17 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
     }
 
     private static <K, T> IResultSet<K, T> calculateSortAndFilterResult(String sessionToken,
-            TableData<T> tableData, final IResultSetConfig<K, T> resultConfig, K dataKey,
+            TableData<K, T> tableData, final IResultSetConfig<K, T> resultConfig, K dataKey,
             boolean partial)
     {
         GridRowModels<T> data = tableData.getRows(sessionToken, resultConfig);
         return filterLimitAndSort(resultConfig, data, dataKey, partial);
     }
 
-    private <T> TableData<T> tryGetCachedTableData(K dataKey)
+    private <T> TableData<K, T> tryGetCachedTableData(K dataKey)
     {
         waitUntilAvailable(dataKey);
-        TableData<T> tableData = cast(tableDataCache.getTableData(dataKey));
+        TableData<K, T> tableData = cast(tableDataCache.getTableData(dataKey));
         if (tableData == null)
         {
             operationLog.warn("Reference to the stale cache key " + dataKey);

@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server.resultset;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -42,9 +43,12 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomColumn;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
-class TableData<T>
+class TableData<K, T>
 {
+    private final K dataKey;
+    
     private final List<T> originalData;
 
     @IgnoreSizeOf
@@ -63,9 +67,10 @@ class TableData<T>
     @IgnoreSizeOf
     private Map<String, Column> calculatedColumns = new HashMap<String, Column>();
 
-    TableData(List<T> originalData, List<TableModelColumnHeader> headers,
+    TableData(K dataKey, List<T> originalData, List<TableModelColumnHeader> headers,
             ICustomColumnsProvider customColumnsProvider, IColumnCalculator columnCalculator)
     {
+        this.dataKey = dataKey;
         this.originalData = originalData;
         this.headers = headers;
         for (final TableModelColumnHeader header : headers)
@@ -124,6 +129,30 @@ class TableData<T>
         }
         this.customColumnsProvider = customColumnsProvider;
         this.columnCalculator = columnCalculator;
+    }
+
+    @Override
+    public String toString()
+    {
+        StringBuilder builder = new StringBuilder("TableData%").append(dataKey);
+        builder.append("[columns: ").append(headers.size());
+        builder.append(", rows: ").append(originalData.size());
+        if (originalData.isEmpty() == false)
+        {
+            T firstRow = originalData.get(0);
+            Class<? extends Object> rowClass = firstRow.getClass();
+            if (firstRow instanceof TableModelRowWithObject)
+            {
+                @SuppressWarnings("rawtypes")
+                Serializable objectOrNull = ((TableModelRowWithObject) firstRow).getObjectOrNull();
+                if (objectOrNull != null)
+                {
+                    rowClass = objectOrNull.getClass();
+                }
+            }
+            builder.append(", row type: ").append(rowClass.getSimpleName());
+        }
+        return builder.append("]").toString();
     }
 
     GridRowModels<T> getRows(String sessionToken, IResultSetConfig<?, T> config)
