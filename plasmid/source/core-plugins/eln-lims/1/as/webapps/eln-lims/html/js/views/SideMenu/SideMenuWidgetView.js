@@ -96,8 +96,9 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
         //
         var $header = $("<div>", {"id": "sideMenuHeader"});
         var $headerItemList = $("<ul>", {"class": "nav navbar-nav"});
+        var $headerItemList2 = $("<ul>", {"class": "nav navbar-nav"});
         $header.append($("<nav>", {"class": "navbar navbar-default", "role": "navigation", "style": "margin:0px; border-left-width:0px; border-right-width:0px;"})
-                        .append($headerItemList)
+                        .append($headerItemList).append($("<br>")).append($headerItemList2)
                        );
 
         var $toggleButton = $("<li>")
@@ -187,6 +188,7 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
         var $searchForm = $("<li>")
                 .append($("<form>", {"class": "navbar-form", "onsubmit": "return false;", "style": "padding-right:0px;"})
                         .append(searchElement));
+        $searchForm.css({"width" : "100%"});
         var $searchFormDropdown = $("<li>")
         .append($("<form>", {"class": "navbar-form", "onsubmit": "return false;"})
                 .append(dropDownSearch));
@@ -205,9 +207,10 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
         $headerItemList.append($toggleButton);
         $headerItemList.append($toggleMenuButton);
         $headerItemList.append($toggleNavButton);
-        $headerItemList.append($searchForm);
+        
+        $headerItemList2.append($searchForm);
         if(dropDownSearch !== "") {
-        	$headerItemList.append($searchFormDropdown);
+        	$headerItemList2.append($searchFormDropdown);
         }
         
         var $body = $("<div>", {"id": "sideMenuBody"});

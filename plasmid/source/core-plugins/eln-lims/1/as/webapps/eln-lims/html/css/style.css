@@ -165,7 +165,13 @@ h1, h2, legend {
 /* 
  * Navigation bar - Search
  */
- 
+
+.navbar.navbar-default,
+.nav.navbar-nav,
+.nav.navbar-nav > ul {
+	width: 100%;
+}
+
 .navbar-form {
 	padding-left: 5px;
 }
@@ -175,8 +181,8 @@ h1, h2, legend {
     background-image: url(../img/search-icon.png);
     background-repeat: no-repeat;
     background-position: 12px 9px;
-	width: 145px;
 	border-radius: 15px 15px 15px 15px;
+	width: 80%;
 }
 
 .search-query-searching {
