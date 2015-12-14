@@ -471,7 +471,7 @@ public final class CachedResultSetManagerTest extends AssertJUnit
         context.checking(new Expectations()
             {
                 {
-                    one(keyGenerator).createKey();
+                    allowing(keyGenerator).createKey();
                     will(returnValue(KEY));
 
                     one(originalDataProvider).getOriginalData(Integer.MAX_VALUE);
@@ -1046,7 +1046,7 @@ public final class CachedResultSetManagerTest extends AssertJUnit
         context.checking(new Expectations()
             {
                 {
-                    one(keyGenerator).createKey();
+                    allowing(keyGenerator).createKey();
                     will(returnValue(KEY));
 
                     one(originalDataProvider).getOriginalData(maxSize);
