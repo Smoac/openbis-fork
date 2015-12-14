@@ -114,6 +114,9 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
 
     private final Set<K> resultSets = Collections.synchronizedSet(new HashSet<K>());
     
+    private final Map<K, IOriginalDataProvider<?>> cachedDataProviders 
+            = Collections.synchronizedMap(new HashMap<K, IOriginalDataProvider<?>>());
+    
     private final Map<K, Future<?>> unfinishedLoadings = Collections
             .synchronizedMap(new HashMap<K, Future<?>>());
     
@@ -422,27 +425,28 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
                 removeResultSet(dataKey);
                 //$FALL-THROUGH$ -
             case COMPUTE_AND_CACHE:
-                return fetchAndCacheResult(sessionToken, resultConfig, dataProvider);
+                return fetchAndCacheResultForSpecifiedKey(sessionToken, resultConfig, dataProvider,
+                        resultSetKeyProvider.createKey());
             default:
                 TableData<K, T> tableData = tryGetCachedTableData(dataKey);
                 if (tableData == null)
                 {
                     operationLog.warn("Reference to the stale cache key " + dataKey);
-                    tableData = loadAndAddToCache(dataKey, dataProvider, customColumnsProvider, 
-                            columnCalculator, xmlPropertyTransformer, this);
+                    tableData = loadAndAddToCache(dataKey, resolveDataProvider(dataKey, dataProvider),
+                            customColumnsProvider, columnCalculator, xmlPropertyTransformer, this);
                 }
                 return calculateSortAndFilterResult(sessionToken, tableData, resultConfig,
                         dataKey, false);
         }
     }
-    
-    private <T> IResultSet<K, T> fetchAndCacheResult(final String sessionToken,
-            final IResultSetConfig<K, T> resultConfig, final IOriginalDataProvider<T> dataProvider)
-    {
-        final K dataKey = resultSetKeyProvider.createKey();
-        return fetchAndCacheResultForSpecifiedKey(sessionToken, resultConfig, dataProvider, dataKey);
-    }
 
+    private <T> IOriginalDataProvider<T> resolveDataProvider(K dataKey, IOriginalDataProvider<T> defaultDataProvider)
+    {
+        @SuppressWarnings("unchecked")
+        IOriginalDataProvider<T> cachedDataProvider = (IOriginalDataProvider<T>) cachedDataProviders.get(dataKey);
+        return cachedDataProvider == null ? defaultDataProvider : cachedDataProvider;
+    }
+    
     private <T> IResultSet<K, T> fetchAndCacheResultForSpecifiedKey(final String sessionToken,
             final IResultSetConfig<K, T> resultConfig, final IOriginalDataProvider<T> dataProvider,
             final K dataKey)
@@ -458,6 +462,7 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         final TableData<K, T> tableData =
                 new TableData<K, T>(dataKey, rows, headers, customColumnsProvider, columnCalculator);
         xmlPropertyTransformer.transformXMLProperties(rows);
+        cachedDataProviders.put(dataKey, dataProvider);
         addToCache(dataKey, tableData);
 
         boolean partial = rows.size() >= limit;
@@ -702,6 +707,7 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         unlockResultSet(resultSetKey);
         assert resultSetKey != null : "Unspecified data key holder.";
         resultSets.remove(resultSetKey);
+        cachedDataProviders.remove(resultSetKey);
         if (tableDataCache.removeTableData(resultSetKey))
         {
             operationLog.info(String.format("Result set for key '%s' has been removed.", resultSetKey));
