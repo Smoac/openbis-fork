@@ -16,6 +16,7 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
@@ -64,6 +65,9 @@ import ch.ethz.sis.openbis.generic.as.api.v3.dto.sample.id.ISampleId;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.sample.id.SamplePermId;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.sample.search.SampleSearchCriteria;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.sample.update.SampleUpdate;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.service.Service;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.service.fetchoptions.ServiceFetchOptions;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.service.id.IServiceId;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.space.Space;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.space.create.SpaceCreation;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.space.delete.SpaceDeletionOptions;
@@ -334,6 +338,20 @@ public class ApplicationServerApiLogger extends AbstractServerLogger implements
     public void confirmDeletions(String sessionToken, List<? extends IDeletionId> deletionIds)
     {
         logAccess(sessionToken, "confirm-deletions", "DELETION_IDS(%s)", abbreviate(deletionIds));
+    }
+
+    @Override
+    public List<Service> listServices(String sessionToken, ServiceFetchOptions fetchOptions)
+    {
+        logAccess(sessionToken, "list-services", "FETCH_OPTIONS(%s)", fetchOptions);
+        return null;
+    }
+
+    @Override
+    public Serializable executeService(String sessionToken, IServiceId serviceId, Map<String, String> parameters)
+    {
+        logAccess(sessionToken, "execute-service", "SERVICE_ID(%s) PARAMETERS(%)", serviceId, parameters);
+        return null;
     }
 
 }

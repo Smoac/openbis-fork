@@ -16,6 +16,7 @@
 
 package ch.ethz.sis.openbis.generic.as.api.v3;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
@@ -63,6 +64,9 @@ import ch.ethz.sis.openbis.generic.as.api.v3.dto.sample.id.ISampleId;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.sample.id.SamplePermId;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.sample.search.SampleSearchCriteria;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.sample.update.SampleUpdate;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.service.Service;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.service.fetchoptions.ServiceFetchOptions;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.service.id.IServiceId;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.space.Space;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.space.create.SpaceCreation;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.space.delete.SpaceDeletionOptions;
@@ -165,5 +169,9 @@ public interface IApplicationServerApi extends IRpcService
     public void revertDeletions(String sessionToken, List<? extends IDeletionId> deletionIds);
 
     public void confirmDeletions(String sessionToken, List<? extends IDeletionId> deletionIds);
+    
+    public List<Service> listServices(String sessionToken, ServiceFetchOptions fetchOptions);
+    
+    public Serializable executeService(String sessionToken, IServiceId serviceId, Map<String, String> parameters);
 
 }

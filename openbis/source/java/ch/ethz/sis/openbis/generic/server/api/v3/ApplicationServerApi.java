@@ -16,6 +16,7 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
@@ -68,6 +69,9 @@ import ch.ethz.sis.openbis.generic.as.api.v3.dto.sample.id.ISampleId;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.sample.id.SamplePermId;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.sample.search.SampleSearchCriteria;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.sample.update.SampleUpdate;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.service.Service;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.service.fetchoptions.ServiceFetchOptions;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.service.id.IServiceId;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.space.Space;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.space.create.SpaceCreation;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.space.delete.SpaceDeletionOptions;
@@ -103,6 +107,7 @@ import ch.ethz.sis.openbis.generic.server.api.v3.executor.method.ISearchMaterial
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.method.ISearchProjectMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.method.ISearchSampleMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.method.ISearchSpaceMethodExecutor;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.method.IServiceMethodsExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.method.IUpdateDataSetMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.method.IUpdateExperimentMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.method.IUpdateMaterialMethodExecutor;
@@ -236,6 +241,9 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
 
     @Autowired
     private IConfirmDeletionMethodExecutor confirmDeletionExecutor;
+    
+    @Autowired
+    private IServiceMethodsExecutor serviceMethodsExecutor; 
 
     // Default constructor needed by Spring
     public ApplicationServerApi()
@@ -576,6 +584,22 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     public void confirmDeletions(String sessionToken, List<? extends IDeletionId> deletionIds)
     {
         confirmDeletionExecutor.confirm(sessionToken, deletionIds);
+    }
+
+    @Override
+    @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @Capability("LIST_SERVICES")
+    public List<Service> listServices(String sessionToken, ServiceFetchOptions fetchOptions)
+    {
+        return serviceMethodsExecutor.listServices(sessionToken, fetchOptions);
+    }
+
+    @Override
+    @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @Capability("EXECUTE_SERVICE")
+    public Serializable executeService(String sessionToken, IServiceId serviceId, Map<String, String> parameters)
+    {
+        return serviceMethodsExecutor.executeService(sessionToken, serviceId, parameters);
     }
 
     @Override

@@ -59,6 +59,7 @@ import ch.ethz.sis.openbis.generic.as.api.v3.dto.sample.fetchoptions.SampleFetch
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.sample.fetchoptions.SampleTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.sample.id.SampleIdentifier;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.sample.id.SamplePermId;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.service.fetchoptions.ServiceFetchOptions;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.space.fetchoptions.SpaceFetchOptions;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.space.id.SpacePermId;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.tag.fetchoptions.TagFetchOptions;
@@ -542,6 +543,18 @@ public class Generator extends AbstractGenerator
         return gen;
     }
 
+    private static DtoGenerator createServiceGenerator()
+    {
+        DtoGenerator gen = new DtoGenerator("service", "Service", ServiceFetchOptions.class);
+        addCode(gen);
+        gen.addStringField("label");
+        gen.addStringField("description");
+        
+        gen.setToStringMethod("\"Service code: \" + code");
+        
+        return gen;
+    }
+    
     public static void main(String[] args) throws FileNotFoundException
     {
         List<DtoGenerator> list = new LinkedList<DtoGenerator>();
@@ -569,6 +582,7 @@ public class Generator extends AbstractGenerator
         list.add(createDeletion());
         list.add(createDataStoreGenerator());
         list.add(createExternalDmsGenerator());
+        list.add(createServiceGenerator());
 
         for (DtoGenerator gen : list)
         {
