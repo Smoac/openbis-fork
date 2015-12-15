@@ -103,9 +103,10 @@ def addProperty(entity, propertyCode, section, propertyLabel, dataType, vocabula
 	
 	propertyAssignment = tr.assignPropertyType(entity, property);
 	propertyAssignment.setSection(section);
+	propertyAssignment.setShownEdit(True);
+	
 	if managedScript != None:
 		propertyAssignment.setManaged(True);
-		propertyAssignment.setShownEdit(True);
 		propertyAssignment.setScriptName(managedScript);
 	if dynamicScript != None:
 		propertyAssignment.setDynamic(True);
