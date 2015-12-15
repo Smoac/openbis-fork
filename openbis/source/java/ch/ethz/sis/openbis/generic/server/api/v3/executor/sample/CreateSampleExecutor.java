@@ -16,8 +16,10 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.sample;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -28,6 +30,8 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.attachment.create.AttachmentCreation;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.dataset.create.DataSetCreation;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.entitytype.id.IEntityTypeId;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.sample.create.SampleCreation;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.sample.id.SampleIdentifier;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.sample.id.SamplePermId;
@@ -36,16 +40,20 @@ import ch.ethz.sis.openbis.generic.as.api.v3.exceptions.UnauthorizedObjectAccess
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.attachment.ICreateAttachmentExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.AbstractCreateEntityExecutor;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.IMapEntityTypeByIdExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.property.IUpdateEntityPropertyExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.tag.IAddTagToEntityExecutor;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SampleByIdentiferValidator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.EntityCodeGenerator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentHolderPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityWithMetaprojects;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.util.RelationshipUtils;
@@ -59,6 +67,9 @@ public class CreateSampleExecutor extends AbstractCreateEntityExecutor<SampleCre
 
     @Autowired
     private IDAOFactory daoFactory;
+
+    @Autowired
+    private IMapEntityTypeByIdExecutor mapEntityTypeByIdExecutor;
 
     @Autowired
     private ISetSampleTypeExecutor setSampleTypeExecutor;
@@ -86,15 +97,37 @@ public class CreateSampleExecutor extends AbstractCreateEntityExecutor<SampleCre
 
     @Autowired
     private IVerifySampleExecutor verifySampleExecutor;
-
+    
     @Override
     protected List<SamplePE> createEntities(IOperationContext context, Collection<SampleCreation> creations)
     {
-        List<SamplePE> samples = new LinkedList<SamplePE>();
+        // Get Types
+        Collection<IEntityTypeId> typeIds = new HashSet<IEntityTypeId>();
 
         for (SampleCreation creation : creations)
         {
+            typeIds.add(creation.getTypeId());
+        }
+
+        Map<IEntityTypeId, EntityTypePE> types = mapEntityTypeByIdExecutor.map(context, EntityKind.SAMPLE, typeIds);
+        EntityCodeGenerator codeGenerator = new EntityCodeGenerator(daoFactory);
+        
+        // Validate Sample creations using types
+        for (SampleCreation creation : creations)
+        {
+            checkData(context, creation, (SampleTypePE) types.get(creation.getTypeId()));
+        }
+
+        // Create SamplePE objects
+        List<SamplePE> samples = new LinkedList<SamplePE>();
+        for (SampleCreation creation : creations)
+        {
             SamplePE sample = new SamplePE();
+            //Create code if is not present
+            if(StringUtils.isEmpty(creation.getCode())) {
+                SampleTypePE type = (SampleTypePE) types.get(creation.getTypeId());
+                creation.setCode(codeGenerator.generateCode(type.getGeneratedCodePrefix(), ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind.SAMPLE)); 
+            }
             sample.setCode(creation.getCode());
             String createdPermId = daoFactory.getPermIdDAO().createPermId();
             sample.setPermId(createdPermId);
@@ -106,6 +139,17 @@ public class CreateSampleExecutor extends AbstractCreateEntityExecutor<SampleCre
         return samples;
     }
 
+    private void checkData(IOperationContext context, SampleCreation creation, SampleTypePE type)
+    {
+        if(false == StringUtils.isEmpty(creation.getCode()) && (type.isAutoGeneratedCode() || creation.isAutogeneratedCode())) {
+            throw new UserFailureException("Code should be empty when auto generated code is selected.");
+        } else if(StringUtils.isEmpty(creation.getCode()) && false == type.isAutoGeneratedCode() && false == creation.isAutogeneratedCode()) {
+            throw new UserFailureException("Code cannot be empty for a non auto generated code.");
+        } else {
+            SampleIdentifierFactory.assertValidCode(creation.getCode());
+        }
+    }
+
     @Override
     protected SamplePermId createPermId(IOperationContext context, SamplePE entity)
     {
@@ -115,11 +159,7 @@ public class CreateSampleExecutor extends AbstractCreateEntityExecutor<SampleCre
     @Override
     protected void checkData(IOperationContext context, SampleCreation creation)
     {
-        if (StringUtils.isEmpty(creation.getCode()))
-        {
-            throw new UserFailureException("Code cannot be empty.");
-        }
-        SampleIdentifierFactory.assertValidCode(creation.getCode());
+
     }
 
     @Override
