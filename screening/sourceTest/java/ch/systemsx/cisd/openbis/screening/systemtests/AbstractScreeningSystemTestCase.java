@@ -36,6 +36,7 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 
 import ch.ethz.sis.openbis.generic.as.api.v3.IApplicationServerApi;
+import ch.ethz.sis.openbis.generic.server.api.v3.ApplicationServerApi;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.image.ImageHistogram;
 import ch.systemsx.cisd.common.servlet.SpringRequestContextProvider;
@@ -481,7 +482,7 @@ public abstract class AbstractScreeningSystemTestCase extends SystemTestCase
                         TestInstanceHostUtils.getOpenBISUrl(), screeningApiServer);
 
         v3api = (IApplicationServerApi) applicationContext
-                .getBean(IApplicationServerApi.INTERNAL_SERVICE_NAME);
+                .getBean(ApplicationServerApi.INTERNAL_SERVICE_NAME);
 
     }
 
