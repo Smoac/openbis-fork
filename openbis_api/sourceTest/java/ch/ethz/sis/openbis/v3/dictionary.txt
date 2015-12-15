@@ -895,8 +895,18 @@ withTypeUsing
 withVocabulary
 withVocabularyUsing
 YES
-addAdditionalMethod
-EntityWithPropertiesSortOptions
-getMaterialProperty
-getProperty
+add Additional Method
+Entity With Properties Sort Options
+get Material Property
+get Property
 property
+
+execute Service
+I Service Executor
+I Service Id
+list Services
+Service
+Service Fetch Options
+Service Perm Id
+Service Sort Options
+

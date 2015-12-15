@@ -57,9 +57,10 @@ public class EnglishDictionary
 
                 while ((line = reader.readLine()) != null)
                 {
-                    if (line.trim().length() > 0)
+                    String trimmedLine = line.trim();
+                    if (trimmedLine.length() > 0)
                     {
-                        words.add(line.trim());
+                        words.add(trimmedLine.replace(" ", ""));
                     }
                 }
 
