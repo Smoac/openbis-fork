@@ -128,10 +128,16 @@ import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedProperty
 /**
  * @author pkupczyk
  */
-@Component(IApplicationServerApi.INTERNAL_SERVICE_NAME)
+@Component(ApplicationServerApi.INTERNAL_SERVICE_NAME)
 public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> implements
         IApplicationServerApi
 {
+    /**
+     * Name of this service for which it is registered as Spring bean
+     */
+    public static final String INTERNAL_SERVICE_NAME = "application-server_INTERNAL";
+
+
     @Autowired
     private ICreateSpaceMethodExecutor createSpaceExecutor;
 

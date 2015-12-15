@@ -68,10 +68,15 @@ import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.IQueryApiServer;
 /**
  * @author Jakub Straszewski
  */
-@Component(IDataStoreServerApi.INTERNAL_SERVICE_NAME)
+@Component(DataStoreServerApi.INTERNAL_SERVICE_NAME)
 public class DataStoreServerApi extends AbstractDssServiceRpc<IDataStoreServerApi>
         implements IDataStoreServerApi
 {
+    /**
+     * Name of this service for which it is registered as Spring bean
+     */
+    public static final String INTERNAL_SERVICE_NAME = "data-store-server_INTERNAL";
+
     /**
      * Logger with {@link LogCategory#OPERATION} with name of the concrete class, needs to be static for our purpose.
      */

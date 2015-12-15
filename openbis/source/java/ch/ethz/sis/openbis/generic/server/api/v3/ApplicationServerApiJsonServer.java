@@ -41,7 +41,7 @@ public class ApplicationServerApiJsonServer extends AbstractApiJsonServiceExport
     @Resource(name = ObjectMapperResource.NAME)
     private ObjectMapper objectMapper;
 
-    @Resource(name = IApplicationServerApi.INTERNAL_SERVICE_NAME)
+    @Resource(name = ApplicationServerApi.INTERNAL_SERVICE_NAME)
     private IApplicationServerApi service;
 
     @Override

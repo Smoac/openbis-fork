@@ -35,7 +35,7 @@ import ch.systemsx.cisd.openbis.common.api.server.AbstractApiServiceExporter;
 @Controller
 public class ApplicationServerApiServer extends AbstractApiServiceExporter
 {
-    @Resource(name = IApplicationServerApi.INTERNAL_SERVICE_NAME)
+    @Resource(name = ApplicationServerApi.INTERNAL_SERVICE_NAME)
     private IApplicationServerApi service;
 
     @Override

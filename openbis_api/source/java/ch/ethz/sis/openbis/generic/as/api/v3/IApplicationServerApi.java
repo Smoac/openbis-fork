@@ -79,11 +79,6 @@ import ch.systemsx.cisd.common.api.IRpcService;
 public interface IApplicationServerApi extends IRpcService
 {
     /**
-     * Name of this service for which it is registered as Spring bean
-     */
-    public static final String INTERNAL_SERVICE_NAME = "application-server_INTERNAL";
-
-    /**
      * Name of this service for which it is registered at the RPC name server.
      */
     public static final String SERVICE_NAME = "application-server";

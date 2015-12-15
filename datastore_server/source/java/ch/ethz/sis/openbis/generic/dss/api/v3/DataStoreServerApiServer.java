@@ -37,7 +37,7 @@ public class DataStoreServerApiServer extends AbstractStreamSupportingApiService
 
     public static final String INTERNAL_BEAN_NAME = "v3-exporter";
 
-    @Resource(name = IDataStoreServerApi.INTERNAL_SERVICE_NAME)
+    @Resource(name = DataStoreServerApi.INTERNAL_SERVICE_NAME)
     private IDataStoreServerApi service;
 
     @Override
