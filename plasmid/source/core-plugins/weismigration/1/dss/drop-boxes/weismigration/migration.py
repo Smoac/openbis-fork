@@ -86,7 +86,7 @@ def setEntityProperties(tr, definition, entity, properties):
 #            print "PROP VALUE ", propertyValue
             if propertyDefinition is not None and propertyValue is not None:
                 propertyValue =  unicode(propertyValue) 
-                print "Prop definition ", propertyDefinition, propertyValue
+                
 
 
 
@@ -137,7 +137,6 @@ def setEntityProperties(tr, definition, entity, properties):
                     #print "MISSING VALUE for: ", propertyDefinition[0], ": VALUE ", propertyValue, "POSS VALUE:",  possiblePropertyValue
 
                     if propertyDefinition[0] =="BACTERIAL_STRAIN" and propertyValue is not None:   
-                        print "BAC STRAIN", propertyDefinition[0], propertyValue 
                         if propertyValue == "XL10 Gold":
                              entity.setPropertyValue("BACTERIAL_STRAIN", "XL10-GOLD")
                         elif propertyValue =="STABL2":
@@ -161,7 +160,6 @@ def setEntityProperties(tr, definition, entity, properties):
                             print "* WARNING ENTITY [" + entity.getCode() + "]: for Vocabulary [" + propertyDefinition[4] + "], found value not in list: [" + repr(labelToUse) + "]. Created new term with code [" + codeToUse + "]"  
                             
                     elif propertyDefinition[0] =="DRUG_RES" and propertyValue is not None:
-                        print  "DRUG RES is: ", propertyDefinition[0], "=",  propertyValue
                         if propertyValue == "CAM ":
                             print "CAM IS:", propertyValue
                             entity.setPropertyValue("DRUG_RES", "CAM")
@@ -181,57 +179,60 @@ def setPlasmidParents(tr, definition, entity, properties):
     for propertyCode, propertyValue in properties.iteritems():
        
             propertyDefinition = definitions.getPropertyDefinitionByCode(definition, propertyCode)
-            if propertyValue is not None and propertyDefinition[0] == "PCR_3_OLIGO" or propertyDefinition[0] == "PCR_5_OLIGO":
-                propertyValue =  unicode(propertyValue)
-                if re.match ("UC# ", propertyValue) and not re.search("/", propertyValue):
-                    parentCode = "/MATERIALS/"+ propertyValue.replace("UC# ", "UC").strip(" ")
-                    currentParentsList = entity.getParentSampleIdentifiers()
-                    currentParentsList.add(parentCode)
-                    entity.setParentSampleIdentifiers(currentParentsList)
-                elif re.match ("UC#", propertyValue) and not re.search("/", propertyValue):
-                    parentCode= "/MATERIALS/"+ propertyValue.replace("UC#", "UC").strip(" ")
-                    currentParentsList = entity.getParentSampleIdentifiers()
-                    currentParentsList.add(parentCode)
-                    entity.setParentSampleIdentifiers(currentParentsList)
-                elif re.match ("UC #", propertyValue) and not re.search("/", propertyValue):
-                    parentCode= "/MATERIALS/"+ propertyValue.replace("UC #", "UC").strip(" ")
-                    currentParentsList = entity.getParentSampleIdentifiers()
-                    currentParentsList.add(parentCode)
-                    entity.setParentSampleIdentifiers(currentParentsList)
-                elif re.match ("UC ", propertyValue) and not re.search("/", propertyValue):
-                    parentCode="/MATERIALS/"+  propertyValue.replace("UC ", "UC").strip(" ")
-                    currentParentsList = entity.getParentSampleIdentifiers()
-                    currentParentsList.add(parentCode)
-                    entity.setParentSampleIdentifiers(currentParentsList)
-                elif re.match ("UC1388cc", propertyValue):
-                    parentCode="/MATERIALS/"+  propertyValue.replace("UC1388cc", "UC1388").strip(" ")
-                    currentParentsList = entity.getParentSampleIdentifiers()
-                    currentParentsList.add(parentCode)
-                    entity.setParentSampleIdentifiers(currentParentsList) 
-                elif re.match ("UC2396c", propertyValue):
-                    parentCode="/MATERIALS/"+  propertyValue.replace("UC2396c", "UC2396").strip(" ")
-                    currentParentsList = entity.getParentSampleIdentifiers()
-                    currentParentsList.add(parentCode)
-                    entity.setParentSampleIdentifiers(currentParentsList)                                               
-                elif re.match ("UC", propertyValue) and not re.search("/", propertyValue):
-                    parentCode= "/MATERIALS/"+ propertyValue.strip(" ")
-                    currentParentsList = entity.getParentSampleIdentifiers()
-                    currentParentsList.add(parentCode)
-                    entity.setParentSampleIdentifiers(currentParentsList)
-                elif re.match ("CH", propertyValue):
-                    parentCode="/MATERIALS/"+ propertyValue.strip(" ")
-                    currentParentsList = entity.getParentSampleIdentifiers()
-                    currentParentsList.add(parentCode)
-                    entity.setParentSampleIdentifiers(currentParentsList)
-                elif re.match ("Ch", propertyValue):
-                    parentCode="/MATERIALS/"+ propertyValue.replace("Ch", "CH").strip(" ")
-                    currentParentsList = entity.getParentSampleIdentifiers()
-                    currentParentsList.add(parentCode)
-                    entity.setParentSampleIdentifiers(currentParentsList)
-                else:
-                    print  "PARENT NOT SET: ", propertyDefinition[0] , propertyValue
-             
- 
+            if (propertyDefinition is not None) and ((propertyDefinition[0] == "PCR_3_OLIGO" and propertyValue is not None) or (propertyDefinition[0] == "PCR_5_OLIGO" and propertyValue is not None)):
+                
+
+    #           if propertyValue is not None and propertyDefinition[0] == "PCR_3_OLIGO" or propertyDefinition[0] == "PCR_5_OLIGO":
+                    propertyValue =  unicode(propertyValue)
+                    if re.match ("UC# ", propertyValue) and not re.search("/", propertyValue):
+                        parentCode = "/MATERIALS/"+ propertyValue.replace("UC# ", "UC").strip(" ")
+                        currentParentsList = entity.getParentSampleIdentifiers()
+                        currentParentsList.add(parentCode)
+                        entity.setParentSampleIdentifiers(currentParentsList)
+                    elif re.match ("UC#", propertyValue) and not re.search("/", propertyValue):
+                        parentCode= "/MATERIALS/"+ propertyValue.replace("UC#", "UC").strip(" ")
+                        currentParentsList = entity.getParentSampleIdentifiers()
+                        currentParentsList.add(parentCode)
+                        entity.setParentSampleIdentifiers(currentParentsList)
+                    elif re.match ("UC #", propertyValue) and not re.search("/", propertyValue):
+                        parentCode= "/MATERIALS/"+ propertyValue.replace("UC #", "UC").strip(" ")
+                        currentParentsList = entity.getParentSampleIdentifiers()
+                        currentParentsList.add(parentCode)
+                        entity.setParentSampleIdentifiers(currentParentsList)
+                    elif re.match ("UC ", propertyValue) and not re.search("/", propertyValue):
+                        parentCode="/MATERIALS/"+  propertyValue.replace("UC ", "UC").strip(" ")
+                        currentParentsList = entity.getParentSampleIdentifiers()
+                        currentParentsList.add(parentCode)
+                        entity.setParentSampleIdentifiers(currentParentsList)
+                    elif re.match ("UC1388cc", propertyValue):
+                        parentCode="/MATERIALS/"+  propertyValue.replace("UC1388cc", "UC1388").strip(" ")
+                        currentParentsList = entity.getParentSampleIdentifiers()
+                        currentParentsList.add(parentCode)
+                        entity.setParentSampleIdentifiers(currentParentsList) 
+                    elif re.match ("UC2396c", propertyValue):
+                        parentCode="/MATERIALS/"+  propertyValue.replace("UC2396c", "UC2396").strip(" ")
+                        currentParentsList = entity.getParentSampleIdentifiers()
+                        currentParentsList.add(parentCode)
+                        entity.setParentSampleIdentifiers(currentParentsList)                                               
+                    elif re.match ("UC", propertyValue) and not re.search("/", propertyValue):
+                        parentCode= "/MATERIALS/"+ propertyValue.strip(" ")
+                        currentParentsList = entity.getParentSampleIdentifiers()
+                        currentParentsList.add(parentCode)
+                        entity.setParentSampleIdentifiers(currentParentsList)
+                    elif re.match ("CH", propertyValue):
+                        parentCode="/MATERIALS/"+ propertyValue.strip(" ")
+                        currentParentsList = entity.getParentSampleIdentifiers()
+                        currentParentsList.add(parentCode)
+                        entity.setParentSampleIdentifiers(currentParentsList)
+                    elif re.match ("Ch", propertyValue):
+                        parentCode="/MATERIALS/"+ propertyValue.replace("Ch", "CH").strip(" ")
+                        currentParentsList = entity.getParentSampleIdentifiers()
+                        currentParentsList.add(parentCode)
+                        entity.setParentSampleIdentifiers(currentParentsList)
+                    else:
+                        print  "PARENT NOT SET: ", propertyDefinition[0] , propertyValue
+                 
+     
 
 
 ##
@@ -559,6 +560,8 @@ class PlasmidOpenBISDTO(FMOpenBISDTO):
             setEntityProperties(tr, self.definition, sample, self.values)
             setPlasmidParents(tr, self.definition, sample, self.values)
             #print "SETPARENTS", setPlasmidParents(tr, self.definition, sample, self.values)
+        else:
+            print "PLASMID CODE NOT FOUND! "
     
     def getIdentifier(self, tr):
         code = "PKW" +self.values["NAME"]
@@ -592,6 +595,8 @@ class OligoOpenBISDTO(FMOpenBISDTO):
                 code = code.replace("US", "UC")
                 sample = getSampleForUpdate("/MATERIALS/"+code,"OLIGO", tr)
             setEntityProperties(tr, self.definition, sample, self.values);
+        else:
+            print "OLIGO CODE NOT FOUND! "
     
     def getIdentifier(self, tr):
         code = self.values["NAME"]
@@ -623,7 +628,7 @@ class ChemicalOpenBISDTO(FMOpenBISDTO):
             sample = getSampleForUpdate("/MATERIALS/"+code,"CHEMICAL", tr)
             setEntityProperties(tr, self.definition, sample, self.values);
         else:   
-            print "CHEMICAL: Code is missing!"
+            print "CHEMICAL CODE NOT FOUND!"
     
     def getIdentifier(self, tr):
         code = "CHEM" + self.values["ID"]
@@ -672,8 +677,8 @@ adaptors = [
              #EnzymeAdaptor(fmConnString, fmUser, fmPass, "Weis_Restriction_enzymes"),
              #ChemicalAdaptor(fmConnString, fmUser, fmPass, "Weis_Chemicals"),
              #AntibodyAdaptor(fmConnString, fmUser, fmPass, "Weis _Antibodies"),
-             OligoAdaptor(fmConnString, fmUser, fmPass, "Weis_Oligos"),
-             #PlasmidAdaptor(fmConnString, fmUser, fmPass, "Weis_Plasmids"),
+             #OligoAdaptor(fmConnString, fmUser, fmPass, "Weis_Oligos"),
+             PlasmidAdaptor(fmConnString, fmUser, fmPass, "Weis_Plasmids"),
              #StrainAdaptor(fmConnString, fmUser, fmPass, "Weis_Yeast_Strains")
              ]
                        
