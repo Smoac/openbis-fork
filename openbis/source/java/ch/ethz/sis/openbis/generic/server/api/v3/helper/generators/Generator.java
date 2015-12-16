@@ -60,6 +60,7 @@ import ch.ethz.sis.openbis.generic.as.api.v3.dto.sample.fetchoptions.SampleTypeF
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.sample.id.SampleIdentifier;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.sample.id.SamplePermId;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.service.fetchoptions.ServiceFetchOptions;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.service.id.ServiceCode;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.space.fetchoptions.SpaceFetchOptions;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.space.id.SpacePermId;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.tag.fetchoptions.TagFetchOptions;
@@ -546,7 +547,7 @@ public class Generator extends AbstractGenerator
     private static DtoGenerator createServiceGenerator()
     {
         DtoGenerator gen = new DtoGenerator("service", "Service", ServiceFetchOptions.class);
-        addCode(gen);
+        gen.addSimpleField(ServiceCode.class, "code");
         gen.addStringField("label");
         gen.addStringField("description");
         

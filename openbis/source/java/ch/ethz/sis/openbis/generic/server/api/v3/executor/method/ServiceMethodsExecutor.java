@@ -29,10 +29,12 @@ import javax.annotation.Resource;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Component;
 
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.search.SearchResult;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.service.Service;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.service.fetchoptions.ServiceFetchOptions;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.service.id.IServiceId;
-import ch.ethz.sis.openbis.generic.as.api.v3.dto.service.id.ServicePermId;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.service.id.ServiceCode;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.service.search.ServiceSearchCriteria;
 import ch.ethz.sis.openbis.generic.as.api.v3.exceptions.ObjectNotFoundException;
 import ch.ethz.sis.openbis.generic.as.api.v3.exceptions.UnsupportedObjectIdException;
 import ch.ethz.sis.openbis.generic.as.api.v3.plugin.IServiceExecutor;
@@ -75,7 +77,7 @@ public class ServiceMethodsExecutor extends AbstractMethodExecutor implements IS
             Properties properties = sectionProperties.getProperties();
             String className = PropertyUtils.getMandatoryProperty(properties, CLASS_KEY);
             Service service = new Service();
-            service.setCode(code);
+            service.setCode(new ServiceCode(code));
             service.setLabel(properties.getProperty(LABEL_KEY, code));
             service.setDescription(properties.getProperty(DESCRIPTION_KEY, ""));
             IServiceExecutor serviceExecutor = ClassUtils.create(IServiceExecutor.class, className, properties);
@@ -85,19 +87,21 @@ public class ServiceMethodsExecutor extends AbstractMethodExecutor implements IS
     }
     
     @Override
-    public List<Service> listServices(String sessionToken, ServiceFetchOptions fetchOptions)
+    public SearchResult<Service> listServices(String sessionToken, ServiceSearchCriteria searchCriteria, 
+            ServiceFetchOptions fetchOptions)
     {
-        return Collections.unmodifiableList(services);
+        // TODO filter by searchCriteria
+        return new SearchResult<>(Collections.unmodifiableList(services), services.size());
     }
 
     @Override
-    public Serializable executeService(String sessionToken, IServiceId serviceId, Map<String, String> parameters)
+    public Serializable executeService(String sessionToken, IServiceId serviceId, Map<String, Serializable> parameters)
     {
-        if (serviceId instanceof ServicePermId == false)
+        if (serviceId instanceof ServiceCode == false)
         {
             throw new UnsupportedObjectIdException(serviceId);
         }
-        ServicePermId servicePermId = (ServicePermId) serviceId;
+        ServiceCode servicePermId = (ServiceCode) serviceId;
         IServiceExecutor serviceExecutor = executors.get(servicePermId.getPermId());
         if (serviceExecutor == null)
         {

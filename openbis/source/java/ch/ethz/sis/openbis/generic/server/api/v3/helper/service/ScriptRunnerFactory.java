@@ -84,7 +84,7 @@ class ScriptRunnerFactory implements IScriptRunnerFactory
         }
 
         @Override
-        public Serializable process(Map<String, String> parameters)
+        public Serializable process(Map<String, Serializable> parameters)
         {
             Object result = evaluator.evalFunction(PROCESS_FUNCTION_NAME, parameters);
             if (result == null || result instanceof Serializable)

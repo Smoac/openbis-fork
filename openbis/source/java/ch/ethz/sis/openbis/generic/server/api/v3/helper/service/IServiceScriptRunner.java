@@ -26,5 +26,5 @@ import java.util.Map;
  */
 public interface IServiceScriptRunner
 {
-    public Serializable process(Map<String, String> parameters);
+    public Serializable process(Map<String, Serializable> parameters);
 }

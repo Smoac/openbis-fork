@@ -67,6 +67,7 @@ import ch.ethz.sis.openbis.generic.as.api.v3.dto.sample.update.SampleUpdate;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.service.Service;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.service.fetchoptions.ServiceFetchOptions;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.service.id.IServiceId;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.service.search.ServiceSearchCriteria;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.space.Space;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.space.create.SpaceCreation;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.space.delete.SpaceDeletionOptions;
@@ -154,6 +155,8 @@ public interface IApplicationServerApi extends IRpcService
 
     public SearchResult<Material> searchMaterials(String sessionToken, MaterialSearchCriteria searchCriteria, MaterialFetchOptions fetchOptions);
 
+    public SearchResult<Service> searchServices(String sessionToken, ServiceSearchCriteria searchCriteria, ServiceFetchOptions fetchOptions);
+
     public void deleteSpaces(String sessionToken, List<? extends ISpaceId> spaceIds, SpaceDeletionOptions deletionOptions);
 
     public void deleteProjects(String sessionToken, List<? extends IProjectId> projectIds, ProjectDeletionOptions deletionOptions);
@@ -172,8 +175,6 @@ public interface IApplicationServerApi extends IRpcService
 
     public void confirmDeletions(String sessionToken, List<? extends IDeletionId> deletionIds);
     
-    public List<Service> listServices(String sessionToken, ServiceFetchOptions fetchOptions);
-    
-    public Serializable executeService(String sessionToken, IServiceId serviceId, Map<String, String> parameters);
+    public Serializable executeService(String sessionToken, IServiceId serviceId, Map<String, Serializable> parameters);
 
 }

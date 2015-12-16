@@ -17,12 +17,13 @@
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.method;
 
 import java.io.Serializable;
-import java.util.List;
 import java.util.Map;
 
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.search.SearchResult;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.service.Service;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.service.fetchoptions.ServiceFetchOptions;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.service.id.IServiceId;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.service.search.ServiceSearchCriteria;
 
 /**
  * 
@@ -31,8 +32,8 @@ import ch.ethz.sis.openbis.generic.as.api.v3.dto.service.id.IServiceId;
  */
 public interface IServiceMethodsExecutor
 {
-    public List<Service> listServices(String sessionToken, ServiceFetchOptions fetchOptions);
+    public SearchResult<Service> listServices(String sessionToken, ServiceSearchCriteria searchCriteria, ServiceFetchOptions fetchOptions);
     
-    public Serializable executeService(String sessionToken, IServiceId serviceId, Map<String, String> parameters);
+    public Serializable executeService(String sessionToken, IServiceId serviceId, Map<String, Serializable> parameters);
 
 }

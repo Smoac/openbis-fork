@@ -48,7 +48,7 @@ public class JythonBasedServiceExecutor implements IServiceExecutor
     }
 
     @Override
-    public Serializable executeService(Map<String, String> parameters, ServiceContext context)
+    public Serializable executeService(Map<String, Serializable> parameters, ServiceContext context)
     {
         return factory.createServiceRunner(context).process(parameters);
     }

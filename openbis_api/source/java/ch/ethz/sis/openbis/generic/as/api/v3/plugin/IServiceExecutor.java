@@ -29,5 +29,5 @@ import ch.ethz.sis.openbis.generic.as.api.v3.plugin.context.ServiceContext;
  */
 public interface IServiceExecutor
 {
-    public Serializable executeService(Map<String, String> parameters, ServiceContext context);
+    public Serializable executeService(Map<String, Serializable> parameters, ServiceContext context);
 }

@@ -72,6 +72,7 @@ import ch.ethz.sis.openbis.generic.as.api.v3.dto.sample.update.SampleUpdate;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.service.Service;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.service.fetchoptions.ServiceFetchOptions;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.service.id.IServiceId;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.service.search.ServiceSearchCriteria;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.space.Space;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.space.create.SpaceCreation;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.space.delete.SpaceDeletionOptions;
@@ -594,16 +595,16 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
 
     @Override
     @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
-    @Capability("LIST_SERVICES")
-    public List<Service> listServices(String sessionToken, ServiceFetchOptions fetchOptions)
+    @Capability("SEARCH_SERVICES")
+    public SearchResult<Service> searchServices(String sessionToken, ServiceSearchCriteria searchCriteria, ServiceFetchOptions fetchOptions)
     {
-        return serviceMethodsExecutor.listServices(sessionToken, fetchOptions);
+        return serviceMethodsExecutor.listServices(sessionToken, searchCriteria, fetchOptions);
     }
 
     @Override
     @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("EXECUTE_SERVICE")
-    public Serializable executeService(String sessionToken, IServiceId serviceId, Map<String, String> parameters)
+    public Serializable executeService(String sessionToken, IServiceId serviceId, Map<String, Serializable> parameters)
     {
         return serviceMethodsExecutor.executeService(sessionToken, serviceId, parameters);
     }

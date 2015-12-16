@@ -15,8 +15,8 @@
  */
 package ch.ethz.sis.openbis.generic.as.api.v3.dto.service;
 
-import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.interfaces.ICodeHolder;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.service.fetchoptions.ServiceFetchOptions;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.service.id.ServiceCode;
 import ch.ethz.sis.openbis.generic.as.api.v3.exceptions.NotFetchedException;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -27,7 +27,7 @@ import java.io.Serializable;
  * Class automatically generated with DtoGenerator
  */
 @JsonObject("dto.service.Service")
-public class Service implements Serializable, ICodeHolder
+public class Service implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
@@ -35,7 +35,7 @@ public class Service implements Serializable, ICodeHolder
     private ServiceFetchOptions fetchOptions;
 
     @JsonProperty
-    private String code;
+    private ServiceCode code;
 
     @JsonProperty
     private String label;
@@ -58,14 +58,13 @@ public class Service implements Serializable, ICodeHolder
 
     // Method automatically generated with DtoGenerator
     @JsonIgnore
-    @Override
-    public String getCode()
+    public ServiceCode getCode()
     {
         return code;
     }
 
     // Method automatically generated with DtoGenerator
-    public void setCode(String code)
+    public void setCode(ServiceCode code)
     {
         this.code = code;
     }

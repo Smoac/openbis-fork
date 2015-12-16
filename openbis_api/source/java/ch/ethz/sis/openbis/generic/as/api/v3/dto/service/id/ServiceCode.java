@@ -24,21 +24,21 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
  *
  * @author Franz-Josef Elmer
  */
-@JsonObject("dto.service.id.ServicePermId")
-public class ServicePermId extends ObjectPermId implements IServiceId
+@JsonObject("dto.service.id.ServiceCode")
+public class ServiceCode extends ObjectPermId implements IServiceId
 {
     private static final long serialVersionUID = 1L;
 
-    public ServicePermId(String permId)
+    public ServiceCode(String code)
     {
-        super(permId);
+        super(code);
     }
     //
     // JSON-RPC
     //
 
     @SuppressWarnings("unused")
-    private ServicePermId()
+    private ServiceCode()
     {
     }
 }
