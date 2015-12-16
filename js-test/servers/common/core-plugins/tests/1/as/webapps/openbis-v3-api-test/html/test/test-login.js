@@ -26,14 +26,14 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 			});
 		});
 
-		QUnit.test("loginAnonymously()", function(assert) {
+		QUnit.test("loginAsAnonymousUser()", function(assert) {
 			var c = new common(assert);
 			c.start();
 
 			$.when(c.createFacade()).then(function(facade) {
 				var criteria = new c.SpaceSearchCriteria();
 				var fetchOptions = new c.SpaceFetchOptions();
-				return facade.loginAnonymously().then(function() {
+				return facade.loginAsAnonymousUser().then(function() {
 					return facade.searchSpaces(criteria, fetchOptions).then(function(spaces) {
 						c.assertTrue(spaces.getTotalCount() == 1)
 					});
