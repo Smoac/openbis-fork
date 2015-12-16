@@ -124,6 +124,7 @@ import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlu
 import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.shared.DatabaseCreateOrDeleteModification;
 import ch.systemsx.cisd.openbis.generic.shared.DatabaseUpdateModification;
+import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.IOpenBisSessionManager;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
@@ -245,6 +246,9 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     @Autowired
     private IServiceMethodsExecutor serviceMethodsExecutor; 
 
+    @Autowired
+    private ICommonServer commonServer;
+
     // Default constructor needed by Spring
     public ApplicationServerApi()
     {
@@ -265,6 +269,17 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     public String login(String userId, String password)
     {
         SessionContextDTO session = tryAuthenticate(userId, password);
+        return session == null ? null : session.getSessionToken();
+    }
+
+    @Override
+    public String loginAnonymously()
+    {
+        // We need to authenticate anonymously from the common server, as the v3
+        // service doesn't get initialized in the applicationContext.xml
+        // and there is no easy way to set the UserForAnonymousLogin property
+        // with value from from service.properties
+        SessionContextDTO session = commonServer.tryAuthenticateAnonymously();
         return session == null ? null : session.getSessionToken();
     }
 

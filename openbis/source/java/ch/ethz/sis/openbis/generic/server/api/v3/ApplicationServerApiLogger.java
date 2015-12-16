@@ -112,6 +112,12 @@ public class ApplicationServerApiLogger extends AbstractServerLogger implements
     }
 
     @Override
+    public String loginAnonymously()
+    {
+        return null;
+    }
+
+    @Override
     public String loginAs(String userId, String password, String asUser)
     {
         return null;

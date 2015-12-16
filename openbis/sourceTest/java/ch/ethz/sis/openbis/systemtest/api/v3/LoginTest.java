@@ -1,16 +1,22 @@
 package ch.ethz.sis.openbis.systemtest.api.v3;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Map;
 
-import junit.framework.Assert;
-
 import org.testng.annotations.Test;
 
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.search.SearchResult;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.experiment.fetchoptions.ExperimentFetchOptions;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.experiment.id.ExperimentPermId;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.experiment.id.IExperimentId;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.space.Space;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.space.fetchoptions.SpaceFetchOptions;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.space.search.SpaceSearchCriteria;
+import ch.systemsx.cisd.common.test.AssertionUtil;
+
+import junit.framework.Assert;
 
 public class LoginTest extends AbstractTest
 {
@@ -54,6 +60,22 @@ public class LoginTest extends AbstractTest
     {
         String sessionToken = v3api.loginAs(TEST_USER, PASSWORD, NOT_EXISTING_USER);
         Assert.assertNull(sessionToken);
+    }
+
+    @Test
+    public void testLoginAnonymousSucceeded()
+    {
+        String sessionToken = v3api.loginAnonymously();
+        Assert.assertNotNull(sessionToken);
+        AssertionUtil.assertContains("observer", sessionToken);
+
+        SearchResult<Space> spaces = v3api.searchSpaces(sessionToken, new SpaceSearchCriteria(), new SpaceFetchOptions());
+        ArrayList<String> codes = new ArrayList<String>();
+        for (Space space : spaces.getObjects())
+        {
+            codes.add(space.getCode());
+        }
+        AssertionUtil.assertCollectionContainsOnly(codes, "TESTGROUP");
     }
 
     @Test
