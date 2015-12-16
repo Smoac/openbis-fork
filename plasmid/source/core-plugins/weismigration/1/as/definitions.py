@@ -31,29 +31,12 @@ antibodynameScriptName="ANTIBODY_NAME"
 chemicalrefnumScriptName="CHEMICAL_REFNUM"
 oligonameScriptName="OLIGO_NAME"
 oligorefnumScriptName="OLIGO_REFNUM"
+oligosysnameScriptName = "SYS_NAME"
 plasmidnameScriptName="PLASMID_NAME"
 plasmidrefnumScriptName="PLASMID_REFNUM"
 strainnameScriptName="STRAIN_NAME"
 strainglycerolScriptName="STRAIN_GLYCEROL_STOCK_NUM"
 
-
-#
-# Storage 
-#
-# numberOfRepetitions = 5
-# 
-# def getRepetitionPropertyCodes():
-#     propertyCodes = [];
-#     for property in getRepetitionDefinition():
-#         propertyCodes.append(property[0]);
-#     return propertyCodes;
-# 
-# def getRepetitionDefinition():
-#     return [
-#     ["DISRUPTIONS",         "Genotype",        "disruptions",         DataType.VARCHAR,                     None, "",       None, None, False],
-#     ["MARKERS",          "Genotype",        "markers",      DataType.VARCHAR,                    None, "",        None, None, False],
-#     ["UNMARKED_MUTATIONS",       "Genotype",        "unmarked mutations",   DataType.VARCHAR,                    None, "",     None, None, False],
-# ];
 
 #
 # Experiment Types
@@ -150,7 +133,7 @@ oligoDefinition = [
     ["BY",                          "General",                  "By",                           DataType.CONTROLLEDVOCABULARY,                      "LAB_MEMBERS", "", None, None, False],
     ["+ANNOTATIONS_STATE",                "Comments",                "Annotations State",                    DataType.XML,                    None,                                "Annotations State", annotationsScriptName, None, False],
     ["+XMLCOMMENTS",                     "Comments",                "Comments List",                        DataType.XML,                    None, "Several comments can be added by different users", commentsScriptName, None, False],
-    ["SYS_NAME",                          "Information",                  "SysName",                           DataType.REAL,                      None, "", None, None, False],
+    ["+SYS_NAME",                          "Information",                  "SysName",                           DataType.VARCHAR,                      None, "", None, oligosysnameScriptName, False],
     ["OLIGO_TYPE",                          "Information",                  "Type",                           DataType.VARCHAR,                      None, "", None, None, False],
     ["STANDARD_TM",                          "Information",                  "StandardTm",                           DataType.REAL,                      None, "", None, None, False],
     ["AT",                          "Information",                  "AT%",                           DataType.INTEGER,                      None, "", None , atScriptName, False],
@@ -202,7 +185,7 @@ plasmidDefinition = [
     ["PCR_3_OLIGO",                        "Cloning Information",                  "PCR 3' oligo",                         DataType.VARCHAR,      None,  "", None, None, False],    
     ["PCR_5_OLIGO",                        "Cloning Information",                  "PCR 5' oligo",                         DataType.VARCHAR,      None,  "", None, None, False],            
     ["MUTAGENIC_OLIGO",                        "Cloning Information",                  "Mutagenic oligo",                         DataType.VARCHAR,      None,  "", None, None, False],    
-    ["-REF_NUM",                        "Storage",                  "Ref. N.",                         DataType.INTEGER,      None,  "", None, plasmidrefnumScriptName, False],    
+    ["-REF_NUM",                        "Storage",                  "Ref. N.",                         DataType.INTEGER,      None,  "", None, None, False],    
     ["+PL_REF_NUM",                        "Storage",                  "Ref. N.",                         DataType.INTEGER,      None,  "", None, plasmidrefnumScriptName, False],    
     ["MUTATION",                        "General",                  "Mutation",                         DataType.VARCHAR,      None,  "", None, None, False],    
    ];

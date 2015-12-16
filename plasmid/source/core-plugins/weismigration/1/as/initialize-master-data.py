@@ -99,13 +99,14 @@ def addProperty(entity, propertyCode, section, propertyLabel, dataType, vocabula
     propertyAssignment = tr.assignPropertyType(entity, property);
     propertyAssignment.setSection(section);
     propertyAssignment.setMandatory(isMandatory);
+    propertyAssignment.setShownEdit(True);
+    
     if managedScript != None:
         propertyAssignment.setManaged(True);
-        propertyAssignment.setShownEdit(True);
         propertyAssignment.setScriptName(managedScript);
     if dynamicScript != None:
         propertyAssignment.setDynamic(True);
-        propertyAssignment.setShownEdit(True);
+        propertyAssignment.setShownEdit(False);
         propertyAssignment.setScriptName(dynamicScript);
 
 def createProperty(propertyCode, dataType, propertyLabel, propertyDescription, vocabularyCode):
@@ -207,7 +208,13 @@ oligorefnumScriptName = createScript(PATH_TO_MANAGE_PROPERTIES_SCRIPTS + "oligo_
                                   "Oligo ref num from code",
                                   "DYNAMIC_PROPERTY",
                                   "SAMPLE");
-
+                                  
+oligosysnameScriptName = createScript(PATH_TO_MANAGE_PROPERTIES_SCRIPTS + "sysname_calculation.py",
+                                  definitions.oligosysnameScriptName,
+                                  "Oligo sys name calculation",
+                                  "DYNAMIC_PROPERTY",
+                                  "SAMPLE");
+                                  
 plasmidnameScriptName = createScript(PATH_TO_MANAGE_PROPERTIES_SCRIPTS + "plasmid_name.py",
                                   definitions.plasmidnameScriptName,
                                   "Plasmid name from code",
