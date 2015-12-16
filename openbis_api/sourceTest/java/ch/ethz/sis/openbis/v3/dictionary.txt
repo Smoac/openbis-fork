@@ -441,6 +441,7 @@ LocatorTypeSortOptions
 LOCKED
 login
 loginAs
+loginAsAnonymousUser
 logout
 LongDateFormat
 main

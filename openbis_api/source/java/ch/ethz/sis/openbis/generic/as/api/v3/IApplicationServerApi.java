@@ -98,7 +98,7 @@ public interface IApplicationServerApi extends IRpcService
 
     public String loginAs(String userId, String password, String asUserId);
 
-    public String loginAnonymously();
+    public String loginAsAnonymousUser();
 
     public void logout(String sessionToken);
 
