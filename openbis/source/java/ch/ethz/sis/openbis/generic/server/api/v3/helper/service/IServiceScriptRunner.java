@@ -14,19 +14,17 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.as.api.v3;
+package ch.ethz.sis.openbis.generic.server.api.v3.helper.service;
 
 import java.io.Serializable;
 import java.util.Map;
 
-import ch.ethz.sis.openbis.generic.as.api.v3.dto.service.Service;
-
 /**
- * Executor of a {@link Service}.
+ * 
  *
  * @author Franz-Josef Elmer
  */
-public interface IServiceExecutor
+public interface IServiceScriptRunner
 {
-    public Serializable executeService(Map<String, String> parameters);
+    public Serializable process(Map<String, String> parameters);
 }

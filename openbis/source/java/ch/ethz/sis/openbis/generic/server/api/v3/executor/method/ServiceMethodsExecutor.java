@@ -17,6 +17,9 @@
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.method;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -29,6 +32,15 @@ import org.springframework.stereotype.Component;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.service.Service;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.service.fetchoptions.ServiceFetchOptions;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.service.id.IServiceId;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.service.id.ServicePermId;
+import ch.ethz.sis.openbis.generic.as.api.v3.exceptions.ObjectNotFoundException;
+import ch.ethz.sis.openbis.generic.as.api.v3.exceptions.UnsupportedObjectIdException;
+import ch.ethz.sis.openbis.generic.as.api.v3.plugin.IServiceExecutor;
+import ch.ethz.sis.openbis.generic.as.api.v3.plugin.context.ServiceContext;
+import ch.systemsx.cisd.common.properties.PropertyParametersUtil;
+import ch.systemsx.cisd.common.properties.PropertyParametersUtil.SectionProperties;
+import ch.systemsx.cisd.common.properties.PropertyUtils;
+import ch.systemsx.cisd.common.reflection.ClassUtils;
 import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
 
 /**
@@ -39,27 +51,61 @@ import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
 @Component
 public class ServiceMethodsExecutor extends AbstractMethodExecutor implements IServiceMethodsExecutor, InitializingBean
 {
+    public static final String SERVICES_PROPERTY_KEY = "services";
+    public static final String CLASS_KEY = "class";
+    public static final String LABEL_KEY = "label";
+    public static final String DESCRIPTION_KEY = "description";
+    
+    private List<Service> services = new ArrayList<>();
+    private Map<String, IServiceExecutor> executors = new HashMap<String, IServiceExecutor>();
+    
     @Resource(name = ExposablePropertyPlaceholderConfigurer.PROPERTY_CONFIGURER_BEAN_NAME)
     protected ExposablePropertyPlaceholderConfigurer configurer;
 
     @Override
     public void afterPropertiesSet() throws Exception
     {
-        Properties props = configurer == null ? new Properties() : configurer.getResolvedProps();
+        Properties serviceProperties = configurer == null ? new Properties() : configurer.getResolvedProps();
+        SectionProperties[] sectionsProperties =
+                PropertyParametersUtil.extractSectionProperties(serviceProperties,
+                        SERVICES_PROPERTY_KEY, false);
+        for (SectionProperties sectionProperties : sectionsProperties)
+        {
+            String code = sectionProperties.getKey();
+            Properties properties = sectionProperties.getProperties();
+            String className = PropertyUtils.getMandatoryProperty(properties, CLASS_KEY);
+            Service service = new Service();
+            service.setCode(code);
+            service.setLabel(properties.getProperty(LABEL_KEY, code));
+            service.setDescription(properties.getProperty(DESCRIPTION_KEY, ""));
+            IServiceExecutor serviceExecutor = ClassUtils.create(IServiceExecutor.class, className, properties);
+            services.add(service);
+            executors.put(code, serviceExecutor);
+        }
     }
     
     @Override
     public List<Service> listServices(String sessionToken, ServiceFetchOptions fetchOptions)
     {
-        // TODO Auto-generated method stub
-        return null;
+        return Collections.unmodifiableList(services);
     }
 
     @Override
     public Serializable executeService(String sessionToken, IServiceId serviceId, Map<String, String> parameters)
     {
-        // TODO Auto-generated method stub
-        return null;
+        if (serviceId instanceof ServicePermId == false)
+        {
+            throw new UnsupportedObjectIdException(serviceId);
+        }
+        ServicePermId servicePermId = (ServicePermId) serviceId;
+        IServiceExecutor serviceExecutor = executors.get(servicePermId.getPermId());
+        if (serviceExecutor == null)
+        {
+            throw new ObjectNotFoundException(serviceId);
+        }
+        ServiceContext serviceContext = new ServiceContext();
+        serviceContext.setSessionToken(sessionToken);
+        return serviceExecutor.executeService(parameters, serviceContext);
     }
 
 }

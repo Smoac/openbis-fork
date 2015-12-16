@@ -356,7 +356,7 @@ public class ApplicationServerApiLogger extends AbstractServerLogger implements
     @Override
     public Serializable executeService(String sessionToken, IServiceId serviceId, Map<String, String> parameters)
     {
-        logAccess(sessionToken, "execute-service", "SERVICE_ID(%s) PARAMETERS(%)", serviceId, parameters);
+        logAccess(sessionToken, "execute-service", "SERVICE_ID(%s) PARAMETERS(%s)", serviceId, parameters);
         return null;
     }
 
