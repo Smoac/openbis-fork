@@ -98,6 +98,8 @@ public interface IApplicationServerApi extends IRpcService
 
     public String loginAs(String userId, String password, String asUserId);
 
+    public String loginAnonymously();
+
     public void logout(String sessionToken);
 
     public List<SpacePermId> createSpaces(String sessionToken, List<SpaceCreation> newSpaces);
