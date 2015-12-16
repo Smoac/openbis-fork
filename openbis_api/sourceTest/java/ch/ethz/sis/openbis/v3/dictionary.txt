@@ -910,4 +910,8 @@ Service
 Service Fetch Options
 Service Perm Id
 Service Sort Options
+get Session Token
+Service Context
+set Session Token
+
 
