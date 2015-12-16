@@ -905,13 +905,14 @@ property
 execute Service
 I Service Executor
 I Service Id
-list Services
 Service
 Service Fetch Options
-Service Perm Id
 Service Sort Options
 get Session Token
 Service Context
 set Session Token
+search Services
+Service Code
+Service Search Criteria
 
 
