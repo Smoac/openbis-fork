@@ -25,4 +25,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 public interface IOpenBisSessionManager extends ISessionManager<Session>
 {
     public void updateAllSessions();
+
+    public String getUserForAnonymousLogin();
 }

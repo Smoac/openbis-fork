@@ -147,6 +147,7 @@
 		<!-- Enable login with email addresses -->
 		<constructor-arg value="true" />
 		<constructor-arg ref="dao-factory" />
+		<property name="userForAnonymousLogin" value="${user-for-anonymous-login}" />
 	</bean>
 
 	<bean id="display-settings-provider"
@@ -195,7 +196,6 @@
 		<constructor-arg ref="entity-validation-factory" />
 		<constructor-arg ref="dynamic-property-calculator-factory" />
 		<constructor-arg ref="managed-property-evaluator-factory" />
-		<property name="userForAnonymousLogin" value="${user-for-anonymous-login}" />
 		<property name="CISDHelpdeskEmail" value="cisd.helpdesk@bsse.ethz.ch" />
 		<property name="defaultPutDataStoreServerCode" value="${dss-rpc.put.dss-code}" />
 	</bean>

@@ -102,12 +102,12 @@ define([ 'jquery', 'util/Json' ], function($, stjsUtil) {
 			}));
 		}
 
-		this.loginAnonymously = function() {
+		this.loginAsAnonymousUser = function() {
 			var thisFacade = this;
 			return thisFacade._private.loginCommon(user, thisFacade._private.ajaxRequest({
 				url : openbisUrl,
 				data : {
-					"method" : "loginAnonymously",
+					"method" : "loginAsAnonymousUser",
 					"params" : [  ]
 				}
 			}));

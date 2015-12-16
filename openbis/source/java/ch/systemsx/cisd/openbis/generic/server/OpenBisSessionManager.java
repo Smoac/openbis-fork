@@ -49,6 +49,8 @@ public class OpenBisSessionManager extends DefaultSessionManager<Session> implem
     
     IDAOFactory daoFactory;
 
+    private String userForAnonymousLogin;
+
     public OpenBisSessionManager(ISessionFactory<Session> sessionFactory, ILogMessagePrefixGenerator<Session> prefixGenerator,
             IAuthenticationService authenticationService, IRemoteHostProvider remoteHostProvider, int sessionExpirationPeriodMinutes,
             String sessionExpirationPeriodMinutesForNoLogin, boolean tryEmailAsUserName, IDAOFactory daoFactory)
@@ -92,5 +94,16 @@ public class OpenBisSessionManager extends DefaultSessionManager<Session> implem
                 }
             }
         }
+    }
+
+    public final void setUserForAnonymousLogin(String userID)
+    {
+        userForAnonymousLogin = AbstractServer.isResolved(userID) ? userID : null;
+    }
+
+    @Override
+    public String getUserForAnonymousLogin()
+    {
+        return userForAnonymousLogin;
     }
 }

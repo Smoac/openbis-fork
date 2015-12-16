@@ -101,7 +101,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.ServerUtils;
  */
 public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> implements IServer
 {
-	protected static ThreadPoolExecutor executor = new ThreadPoolExecutor(1, 10, 360,
+    protected static ThreadPoolExecutor executor = new ThreadPoolExecutor(1, 10, 360,
             TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
 
     private final static String ETL_SERVER_USERNAME_PREFIX = "etlserver";
@@ -163,8 +163,6 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
     @Resource(name = ComponentNames.PROPERTIES_BATCH_MANAGER)
     private IPropertiesBatchManager propertiesBatchManager;
 
-    private String userForAnonymousLogin;
-
     protected String CISDHelpdeskEmail;
 
     protected AbstractServer()
@@ -208,11 +206,6 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
     protected IPropertiesBatchManager getPropertiesBatchManager()
     {
         return propertiesBatchManager;
-    }
-
-    public final void setUserForAnonymousLogin(String userID)
-    {
-        userForAnonymousLogin = isResolved(userID) ? userID : null;
     }
 
     public final void setCISDHelpdeskEmail(String cisdHelpdeskEmail)
@@ -450,6 +443,7 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
     @Override
     public SessionContextDTO tryAuthenticateAnonymously()
     {
+        String userForAnonymousLogin = sessionManager.getUserForAnonymousLogin();
         if (userForAnonymousLogin == null)
         {
             return null;
@@ -984,7 +978,7 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
         }
     }
 
-	protected void executeASync(final String userEmail, final IASyncAction action)
+    protected void executeASync(final String userEmail, final IASyncAction action)
     {
         final IMailClient mailClient = new MailClient(mailClientParameters);
         Runnable task = new Runnable()
@@ -1012,14 +1006,14 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
             };
         executor.submit(task);
     }
-    
+
     protected void sendEmail(IMailClient mailClient, String content, String subject,
             String... recipient)
     {
         mailClient.sendMessage(subject, content, null, null, recipient);
     }
 
-	private static String getSubject(String actionName, Date startDate, boolean success)
+    private static String getSubject(String actionName, Date startDate, boolean success)
     {
         return addDate(actionName + " " + (success ? "successfully performed" : "failed"),
                 startDate);

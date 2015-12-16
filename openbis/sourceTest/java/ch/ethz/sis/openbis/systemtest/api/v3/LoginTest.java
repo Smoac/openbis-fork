@@ -65,7 +65,7 @@ public class LoginTest extends AbstractTest
     @Test
     public void testLoginAnonymousSucceeded()
     {
-        String sessionToken = v3api.loginAnonymously();
+        String sessionToken = v3api.loginAsAnonymousUser();
         Assert.assertNotNull(sessionToken);
         AssertionUtil.assertContains("observer", sessionToken);
 

@@ -124,7 +124,6 @@ import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlu
 import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.shared.DatabaseCreateOrDeleteModification;
 import ch.systemsx.cisd.openbis.generic.shared.DatabaseUpdateModification;
-import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.IOpenBisSessionManager;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
@@ -142,7 +141,6 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
      * Name of this service for which it is registered as Spring bean
      */
     public static final String INTERNAL_SERVICE_NAME = "application-server_INTERNAL";
-
 
     @Autowired
     private ICreateSpaceMethodExecutor createSpaceExecutor;
@@ -242,12 +240,9 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
 
     @Autowired
     private IConfirmDeletionMethodExecutor confirmDeletionExecutor;
-    
-    @Autowired
-    private IServiceMethodsExecutor serviceMethodsExecutor; 
 
     @Autowired
-    private ICommonServer commonServer;
+    private IServiceMethodsExecutor serviceMethodsExecutor;
 
     // Default constructor needed by Spring
     public ApplicationServerApi()
@@ -273,13 +268,9 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     }
 
     @Override
-    public String loginAnonymously()
+    public String loginAsAnonymousUser()
     {
-        // We need to authenticate anonymously from the common server, as the v3
-        // service doesn't get initialized in the applicationContext.xml
-        // and there is no easy way to set the UserForAnonymousLogin property
-        // with value from from service.properties
-        SessionContextDTO session = commonServer.tryAuthenticateAnonymously();
+        SessionContextDTO session = tryAuthenticateAnonymously();
         return session == null ? null : session.getSessionToken();
     }
 
