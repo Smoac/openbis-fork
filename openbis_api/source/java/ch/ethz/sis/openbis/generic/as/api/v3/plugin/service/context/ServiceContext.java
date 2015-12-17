@@ -14,19 +14,25 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.api.v3.executor.method;
-
-import java.io.Serializable;
-
-import ch.ethz.sis.openbis.generic.as.api.v3.dto.service.ExecutionOptions;
-import ch.ethz.sis.openbis.generic.as.api.v3.dto.service.id.IServiceId;
+package ch.ethz.sis.openbis.generic.as.api.v3.plugin.service.context;
 
 /**
  * 
  *
  * @author Franz-Josef Elmer
  */
-public interface IExecuteServiceMethodExecutor
+public class ServiceContext
 {
-    public Serializable executeService(String sessionToken, IServiceId serviceId, ExecutionOptions options);
+    private String sessionToken;
+
+    public String getSessionToken()
+    {
+        return sessionToken;
+    }
+
+    public void setSessionToken(String sessionToken)
+    {
+        this.sessionToken = sessionToken;
+    }
+    
 }

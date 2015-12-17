@@ -30,7 +30,7 @@ import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.service.Service;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.service.id.ServiceCode;
-import ch.ethz.sis.openbis.generic.as.api.v3.plugin.IServiceExecutor;
+import ch.ethz.sis.openbis.generic.as.api.v3.plugin.service.IServiceExecutor;
 import ch.systemsx.cisd.common.properties.PropertyParametersUtil;
 import ch.systemsx.cisd.common.properties.PropertyParametersUtil.SectionProperties;
 import ch.systemsx.cisd.common.properties.PropertyUtils;

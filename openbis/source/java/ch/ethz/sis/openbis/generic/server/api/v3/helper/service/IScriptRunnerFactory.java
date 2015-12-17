@@ -16,7 +16,7 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.helper.service;
 
-import ch.ethz.sis.openbis.generic.as.api.v3.plugin.context.ServiceContext;
+import ch.ethz.sis.openbis.generic.as.api.v3.plugin.service.context.ServiceContext;
 
 /**
  * 

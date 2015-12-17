@@ -19,7 +19,7 @@ package ch.ethz.sis.openbis.generic.server.api.v3.executor.method;
 import java.util.List;
 
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.service.Service;
-import ch.ethz.sis.openbis.generic.as.api.v3.plugin.IServiceExecutor;
+import ch.ethz.sis.openbis.generic.as.api.v3.plugin.service.IServiceExecutor;
 
 /**
  * 

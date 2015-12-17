@@ -14,20 +14,34 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.as.api.v3.plugin;
+package ch.ethz.sis.openbis.generic.as.api.v3.dto.service;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.Map;
 
-import ch.ethz.sis.openbis.generic.as.api.v3.dto.service.Service;
-import ch.ethz.sis.openbis.generic.as.api.v3.plugin.context.ServiceContext;
+import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
- * Executor of a {@link Service}.
+ * 
  *
  * @author Franz-Josef Elmer
  */
-public interface IServiceExecutor
+@JsonObject("dto.service.ExecutionOptions")
+public class ExecutionOptions implements Serializable
 {
-    public Serializable executeService(Map<String, Serializable> parameters, ServiceContext context);
+    private static final long serialVersionUID = 1L;
+    
+    private final Map<String, Serializable> parameters = new HashMap<String, Serializable>();
+    
+    public ExecutionOptions withParameter(String parameterName, Serializable value)
+    {
+        parameters.put(parameterName, value);
+        return this;
+    }
+    
+    public Map<String, Serializable> getParameters()
+    {
+        return parameters;
+    }
 }

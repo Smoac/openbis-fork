@@ -69,6 +69,7 @@ import ch.ethz.sis.openbis.generic.as.api.v3.dto.sample.id.ISampleId;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.sample.id.SamplePermId;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.sample.search.SampleSearchCriteria;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.sample.update.SampleUpdate;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.service.ExecutionOptions;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.service.Service;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.service.fetchoptions.ServiceFetchOptions;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.service.id.IServiceId;
@@ -608,9 +609,9 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     @Override
     @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("EXECUTE_SERVICE")
-    public Serializable executeService(String sessionToken, IServiceId serviceId, Map<String, Serializable> parameters)
+    public Serializable executeService(String sessionToken, IServiceId serviceId, ExecutionOptions options)
     {
-        return executeServiceExecutor.executeService(sessionToken, serviceId, parameters);
+        return executeServiceExecutor.executeService(sessionToken, serviceId, options);
     }
 
     @Override

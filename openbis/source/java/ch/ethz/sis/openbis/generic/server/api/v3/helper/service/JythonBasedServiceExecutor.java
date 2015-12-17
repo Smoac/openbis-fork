@@ -1,4 +1,5 @@
 /*
+
  * Copyright 2015 ETH Zuerich, SIS
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,12 +18,12 @@
 package ch.ethz.sis.openbis.generic.server.api.v3.helper.service;
 
 import java.io.Serializable;
-import java.util.Map;
 import java.util.Properties;
 
 import ch.ethz.sis.openbis.generic.as.api.v3.IApplicationServerApi;
-import ch.ethz.sis.openbis.generic.as.api.v3.plugin.IServiceExecutor;
-import ch.ethz.sis.openbis.generic.as.api.v3.plugin.context.ServiceContext;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.service.ExecutionOptions;
+import ch.ethz.sis.openbis.generic.as.api.v3.plugin.service.IServiceExecutor;
+import ch.ethz.sis.openbis.generic.as.api.v3.plugin.service.context.ServiceContext;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider;
 
@@ -48,9 +49,9 @@ public class JythonBasedServiceExecutor implements IServiceExecutor
     }
 
     @Override
-    public Serializable executeService(Map<String, Serializable> parameters, ServiceContext context)
+    public Serializable executeService(ServiceContext context, ExecutionOptions options)
     {
-        return factory.createServiceRunner(context).process(parameters);
+        return factory.createServiceRunner(context).process(options);
     }
 
 }

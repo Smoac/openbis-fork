@@ -22,12 +22,13 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.service.ExecutionOptions;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.service.id.IServiceId;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.service.id.ServiceCode;
 import ch.ethz.sis.openbis.generic.as.api.v3.exceptions.ObjectNotFoundException;
 import ch.ethz.sis.openbis.generic.as.api.v3.exceptions.UnsupportedObjectIdException;
-import ch.ethz.sis.openbis.generic.as.api.v3.plugin.IServiceExecutor;
-import ch.ethz.sis.openbis.generic.as.api.v3.plugin.context.ServiceContext;
+import ch.ethz.sis.openbis.generic.as.api.v3.plugin.service.IServiceExecutor;
+import ch.ethz.sis.openbis.generic.as.api.v3.plugin.service.context.ServiceContext;
 
 /**
  * 
@@ -41,7 +42,7 @@ public class ExecuteServiceMethodExecutor implements IExecuteServiceMethodExecut
     private IServiceProvider serviceProvider;
 
     @Override
-    public Serializable executeService(String sessionToken, IServiceId serviceId, Map<String, Serializable> parameters)
+    public Serializable executeService(String sessionToken, IServiceId serviceId, ExecutionOptions options)
     {
         if (serviceId instanceof ServiceCode == false)
         {
@@ -55,7 +56,7 @@ public class ExecuteServiceMethodExecutor implements IExecuteServiceMethodExecut
         }
         ServiceContext serviceContext = new ServiceContext();
         serviceContext.setSessionToken(sessionToken);
-        return serviceExecutor.executeService(parameters, serviceContext);
+        return serviceExecutor.executeService(serviceContext, options);
     }
 
 }

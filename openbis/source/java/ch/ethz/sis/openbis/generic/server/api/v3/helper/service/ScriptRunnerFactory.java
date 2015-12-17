@@ -17,10 +17,10 @@
 package ch.ethz.sis.openbis.generic.server.api.v3.helper.service;
 
 import java.io.Serializable;
-import java.util.Map;
 
 import ch.ethz.sis.openbis.generic.as.api.v3.IApplicationServerApi;
-import ch.ethz.sis.openbis.generic.as.api.v3.plugin.context.ServiceContext;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.service.ExecutionOptions;
+import ch.ethz.sis.openbis.generic.as.api.v3.plugin.service.context.ServiceContext;
 import ch.systemsx.cisd.common.jython.JythonUtils;
 import ch.systemsx.cisd.common.jython.evaluator.Evaluator;
 import ch.systemsx.cisd.common.jython.evaluator.EvaluatorException;
@@ -84,9 +84,9 @@ class ScriptRunnerFactory implements IScriptRunnerFactory
         }
 
         @Override
-        public Serializable process(Map<String, Serializable> parameters)
+        public Serializable process(ExecutionOptions options)
         {
-            Object result = evaluator.evalFunction(PROCESS_FUNCTION_NAME, parameters);
+            Object result = evaluator.evalFunction(PROCESS_FUNCTION_NAME, options.getParameters());
             if (result == null || result instanceof Serializable)
             {
                 return (Serializable) result;

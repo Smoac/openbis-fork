@@ -17,7 +17,8 @@
 package ch.ethz.sis.openbis.generic.server.api.v3.helper.service;
 
 import java.io.Serializable;
-import java.util.Map;
+
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.service.ExecutionOptions;
 
 /**
  * 
@@ -26,5 +27,5 @@ import java.util.Map;
  */
 public interface IServiceScriptRunner
 {
-    public Serializable process(Map<String, Serializable> parameters);
+    public Serializable process(ExecutionOptions options);
 }

@@ -65,6 +65,7 @@ import ch.ethz.sis.openbis.generic.as.api.v3.dto.sample.id.ISampleId;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.sample.id.SamplePermId;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.sample.search.SampleSearchCriteria;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.sample.update.SampleUpdate;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.service.ExecutionOptions;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.service.Service;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.service.fetchoptions.ServiceFetchOptions;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.service.id.IServiceId;
@@ -350,14 +351,14 @@ public class ApplicationServerApiLogger extends AbstractServerLogger implements
     @Override
     public SearchResult<Service> searchServices(String sessionToken, ServiceSearchCriteria searchCriteria, ServiceFetchOptions fetchOptions)
     {
-        logAccess(sessionToken, "search-services", "SEARCH_CRITERIA(%s) FETCH_OPTIONS(%s)", searchCriteria, fetchOptions);
+        logAccess(sessionToken, "search-services", "SEARCH_CRITERIA:\n%s\nFETCH_OPTIONS:\n%s\n", searchCriteria, fetchOptions);
         return null;
     }
 
     @Override
-    public Serializable executeService(String sessionToken, IServiceId serviceId, Map<String, Serializable> parameters)
+    public Serializable executeService(String sessionToken, IServiceId serviceId, ExecutionOptions options)
     {
-        logAccess(sessionToken, "execute-service", "SERVICE_ID(%s) PARAMETERS(%s)", serviceId, parameters);
+        logAccess(sessionToken, "execute-service", "SERVICE_ID(%s) EXECUTION_OPTIONS(%s)", serviceId, options);
         return null;
     }
 
