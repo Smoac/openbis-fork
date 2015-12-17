@@ -378,6 +378,17 @@ define([ 'jquery', 'util/Json' ], function($, stjsUtil) {
 				}
 			});
 		}
+		
+		this.searchServices = function(criteria, fetchOptions) {
+			var thisFacade = this;
+			return thisFacade._private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "searchServices",
+					"params" : [ thisFacade._private.sessionToken, criteria, fetchOptions ]
+				}
+			});
+		}
 
 		this.deleteSpaces = function(ids, deletionOptions) {
 			var thisFacade = this;
@@ -474,6 +485,17 @@ define([ 'jquery', 'util/Json' ], function($, stjsUtil) {
 				data : {
 					"method" : "confirmDeletions",
 					"params" : [ thisFacade._private.sessionToken, ids ]
+				}
+			});
+		}
+		
+		this.executeService = function(serviceId, parameters) {
+			var thisFacade = this;
+			return thisFacade._private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "executeService",
+					"params" : [ thisFacade._private.sessionToken, serviceId, parameters ]
 				}
 			});
 		}
