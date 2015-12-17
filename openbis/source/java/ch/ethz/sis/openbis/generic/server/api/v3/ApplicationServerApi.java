@@ -94,6 +94,7 @@ import ch.ethz.sis.openbis.generic.server.api.v3.executor.method.IDeleteMaterial
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.method.IDeleteProjectMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.method.IDeleteSampleMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.method.IDeleteSpaceMethodExecutor;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.method.IExecuteServiceMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.method.IListDeletionMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.method.IMapDataSetMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.method.IMapExperimentMethodExecutor;
@@ -107,8 +108,8 @@ import ch.ethz.sis.openbis.generic.server.api.v3.executor.method.ISearchExperime
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.method.ISearchMaterialMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.method.ISearchProjectMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.method.ISearchSampleMethodExecutor;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.method.ISearchServiceMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.method.ISearchSpaceMethodExecutor;
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.method.IServiceMethodsExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.method.IUpdateDataSetMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.method.IUpdateExperimentMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.method.IUpdateMaterialMethodExecutor;
@@ -216,6 +217,9 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     private ISearchMaterialMethodExecutor searchMaterialExecutor;
 
     @Autowired
+    private ISearchServiceMethodExecutor searchServiceExecutor;
+    
+    @Autowired
     private IDeleteSpaceMethodExecutor deleteSpaceExecutor;
 
     @Autowired
@@ -243,7 +247,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     private IConfirmDeletionMethodExecutor confirmDeletionExecutor;
 
     @Autowired
-    private IServiceMethodsExecutor serviceMethodsExecutor;
+    private IExecuteServiceMethodExecutor executeServiceExecutor;
 
     // Default constructor needed by Spring
     public ApplicationServerApi()
@@ -598,7 +602,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     @Capability("SEARCH_SERVICES")
     public SearchResult<Service> searchServices(String sessionToken, ServiceSearchCriteria searchCriteria, ServiceFetchOptions fetchOptions)
     {
-        return serviceMethodsExecutor.listServices(sessionToken, searchCriteria, fetchOptions);
+        return searchServiceExecutor.search(sessionToken, searchCriteria, fetchOptions);
     }
 
     @Override
@@ -606,7 +610,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     @Capability("EXECUTE_SERVICE")
     public Serializable executeService(String sessionToken, IServiceId serviceId, Map<String, Serializable> parameters)
     {
-        return serviceMethodsExecutor.executeService(sessionToken, serviceId, parameters);
+        return executeServiceExecutor.executeService(sessionToken, serviceId, parameters);
     }
 
     @Override

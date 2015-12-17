@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server.coreplugin;
 import java.io.IOException;
 import java.util.Properties;
 
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.method.ServiceMethodsExecutor;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.method.ServiceProvider;
 import ch.systemsx.cisd.common.maintenance.MaintenanceTaskUtils;
 import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.DataStoreServerBasedDataSourceProvider;
@@ -54,7 +54,7 @@ public class CorePluginsInjectingPropertyPlaceholderConfigurer extends
                         MaintenanceTaskUtils.DEFAULT_MAINTENANCE_PLUGINS_PROPERTY_NAME);
         PluginType services =
                 new PluginType("services",
-                        ServiceMethodsExecutor.SERVICES_PROPERTY_KEY);
+                        ServiceProvider.SERVICES_PROPERTY_KEY);
         PluginType customImports =
                 new PluginType("custom-imports",
                         CustomImport.PropertyNames.CUSTOM_IMPORTS.getName());

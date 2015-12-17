@@ -16,7 +16,6 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.method;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -29,16 +28,9 @@ import javax.annotation.Resource;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Component;
 
-import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.search.SearchResult;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.service.Service;
-import ch.ethz.sis.openbis.generic.as.api.v3.dto.service.fetchoptions.ServiceFetchOptions;
-import ch.ethz.sis.openbis.generic.as.api.v3.dto.service.id.IServiceId;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.service.id.ServiceCode;
-import ch.ethz.sis.openbis.generic.as.api.v3.dto.service.search.ServiceSearchCriteria;
-import ch.ethz.sis.openbis.generic.as.api.v3.exceptions.ObjectNotFoundException;
-import ch.ethz.sis.openbis.generic.as.api.v3.exceptions.UnsupportedObjectIdException;
 import ch.ethz.sis.openbis.generic.as.api.v3.plugin.IServiceExecutor;
-import ch.ethz.sis.openbis.generic.as.api.v3.plugin.context.ServiceContext;
 import ch.systemsx.cisd.common.properties.PropertyParametersUtil;
 import ch.systemsx.cisd.common.properties.PropertyParametersUtil.SectionProperties;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
@@ -51,14 +43,14 @@ import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
  * @author Franz-Josef Elmer
  */
 @Component
-public class ServiceMethodsExecutor extends AbstractMethodExecutor implements IServiceMethodsExecutor, InitializingBean
+public class ServiceProvider implements InitializingBean, IServiceProvider
 {
     public static final String SERVICES_PROPERTY_KEY = "services";
     public static final String CLASS_KEY = "class";
     public static final String LABEL_KEY = "label";
     public static final String DESCRIPTION_KEY = "description";
     
-    private List<Service> services = new ArrayList<>();
+    private List<Service> services;
     private Map<String, IServiceExecutor> executors = new HashMap<String, IServiceExecutor>();
     
     @Resource(name = ExposablePropertyPlaceholderConfigurer.PROPERTY_CONFIGURER_BEAN_NAME)
@@ -71,6 +63,7 @@ public class ServiceMethodsExecutor extends AbstractMethodExecutor implements IS
         SectionProperties[] sectionsProperties =
                 PropertyParametersUtil.extractSectionProperties(serviceProperties,
                         SERVICES_PROPERTY_KEY, false);
+        ArrayList<Service> list = new ArrayList<Service>();
         for (SectionProperties sectionProperties : sectionsProperties)
         {
             String code = sectionProperties.getKey();
@@ -81,35 +74,22 @@ public class ServiceMethodsExecutor extends AbstractMethodExecutor implements IS
             service.setLabel(properties.getProperty(LABEL_KEY, code));
             service.setDescription(properties.getProperty(DESCRIPTION_KEY, ""));
             IServiceExecutor serviceExecutor = ClassUtils.create(IServiceExecutor.class, className, properties);
-            services.add(service);
+            list.add(service);
             executors.put(code, serviceExecutor);
         }
+        services = Collections.unmodifiableList(list);
     }
     
     @Override
-    public SearchResult<Service> listServices(String sessionToken, ServiceSearchCriteria searchCriteria, 
-            ServiceFetchOptions fetchOptions)
+    public List<Service> getServices()
     {
-        // TODO filter by searchCriteria
-        return new SearchResult<>(Collections.unmodifiableList(services), services.size());
+        return services;
     }
-
+    
     @Override
-    public Serializable executeService(String sessionToken, IServiceId serviceId, Map<String, Serializable> parameters)
+    public IServiceExecutor tryGetExecutor(String code)
     {
-        if (serviceId instanceof ServiceCode == false)
-        {
-            throw new UnsupportedObjectIdException(serviceId);
-        }
-        ServiceCode servicePermId = (ServiceCode) serviceId;
-        IServiceExecutor serviceExecutor = executors.get(servicePermId.getPermId());
-        if (serviceExecutor == null)
-        {
-            throw new ObjectNotFoundException(serviceId);
-        }
-        ServiceContext serviceContext = new ServiceContext();
-        serviceContext.setSessionToken(sessionToken);
-        return serviceExecutor.executeService(parameters, serviceContext);
+        return executors.get(code);
     }
-
+    
 }
