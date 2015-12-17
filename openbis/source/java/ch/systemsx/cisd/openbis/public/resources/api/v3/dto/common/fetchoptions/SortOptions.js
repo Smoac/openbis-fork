@@ -23,6 +23,9 @@ define([ "require", "stjs", "dto/common/fetchoptions/SortOrder", "dto/common/fet
 			});
 			return order;
 		};
+		prototype.getSortings = function() {
+			return this.sortings;
+		};
 	}, {});
 	return SortOptions;
 })

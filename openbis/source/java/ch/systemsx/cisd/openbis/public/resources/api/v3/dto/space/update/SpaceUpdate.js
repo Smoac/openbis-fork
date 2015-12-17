@@ -9,6 +9,7 @@ define([ "stjs", "dto/common/update/FieldUpdateValue" ], function(stjs, FieldUpd
 		prototype['@type'] = 'dto.space.update.SpaceUpdate';
 		constructor.serialVersionUID = 1;
 		prototype.spaceId = null;
+		prototype.description = null;
 		prototype.getSpaceId = function() {
 			return this.spaceId;
 		};

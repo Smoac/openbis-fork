@@ -57,14 +57,18 @@ define([ "underscore" ], function(_) {
 
 	var fromJsonObjectWithTypeOrArrayOrMap = function(jsonType, jsonObject, hashedObjects, modulesMap) {
 		if (jsonObject instanceof Array) {
-			var array = [];
-			var jsonType = jsonType ? jsonType["arguments"][0] : null;
+			if (jsonType && _.isString(jsonType) && jsonObject.length == 2) {
+				return jsonObject[1];
+			} else {
+				var array = [];
+				var jsonType = jsonType ? jsonType["arguments"][0] : null;
 
-			jsonObject.forEach(function(item, index) {
-				var dto = fromJsonObjectWithTypeOrArrayOrMap(jsonType, item, hashedObjects, modulesMap);
-				array.push(dto);
-			});
-			return array;
+				jsonObject.forEach(function(item, index) {
+					var dto = fromJsonObjectWithTypeOrArrayOrMap(jsonType, item, hashedObjects, modulesMap);
+					array.push(dto);
+				});
+				return array;
+			}
 		} else if (jsonObject instanceof Object) {
 			if (jsonObject["@type"]) {
 				return fromJsonObjectWithType(jsonObject, hashedObjects, modulesMap)

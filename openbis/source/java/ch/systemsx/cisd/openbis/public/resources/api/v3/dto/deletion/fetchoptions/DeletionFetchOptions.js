@@ -10,12 +10,15 @@ define([ "require", "stjs", "dto/common/fetchoptions/FetchOptions", "dto/deletio
 		constructor.serialVersionUID = 1;
 		prototype.deletedObjects = null;
 		prototype.sort = null;
-		prototype.fetchDeletedObjects = function() {
+		prototype.withDeletedObjects = function() {
 			if (this.deletedObjects == null) {
 				var DeletedObjectFetchOptions = require("dto/deletion/fetchoptions/DeletedObjectFetchOptions");
 				this.deletedObjects = new DeletedObjectFetchOptions();
 			}
 			return this.deletedObjects;
+		};
+		prototype.withDeletedObjectsUsing = function(deletedObjects) {
+			this.deletedObjects = deletedObjects;
 		};
 		prototype.hasDeletedObjects = function() {
 			return this.deletedObjects != null;

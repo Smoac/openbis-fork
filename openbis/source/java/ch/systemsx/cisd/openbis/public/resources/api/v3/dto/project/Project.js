@@ -17,6 +17,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		prototype.modificationDate = null;
 		prototype.experiments = null;
 		prototype.samples = null;
+		prototype.history = null;
 		prototype.space = null;
 		prototype.registrator = null;
 		prototype.modifier = null;
@@ -84,6 +85,16 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		prototype.setSamples = function(samples) {
 			this.samples = samples;
 		};
+		prototype.getHistory = function() {
+			if (this.getFetchOptions().hasHistory()) {
+				return this.history;
+			} else {
+				throw new exceptions.NotFetchedException("History have not been fetched.");
+			}
+		};
+		prototype.setHistory = function(history) {
+			this.history = history;
+		};
 		prototype.getSpace = function() {
 			if (this.getFetchOptions().hasSpace()) {
 				return this.space;
@@ -143,6 +154,10 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		samples : {
 			name : "List",
 			arguments : [ "Sample" ]
+		},
+		history : {
+			name : "List",
+			arguments : [ "HistoryEntry" ]
 		},
 		experiments : {
 			name : "List",

@@ -95,7 +95,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 
 			// Java Fields found in Javascript
 			for (var fIdx = 0; fIdx < javaClassReport.fields.length; fIdx++) {
-				if (!jsPrototype[javaClassReport.fields[fIdx]]) {
+				if (jsPrototype[javaClassReport.fields[fIdx]] === undefined) {
 					var errorResult = "JS class missing field: " + javaClassReport.jsonObjAnnotation + " - " + javaClassReport.fields[fIdx];
 					testsResults.error.push(errorResult);
 					console.info(errorResult);

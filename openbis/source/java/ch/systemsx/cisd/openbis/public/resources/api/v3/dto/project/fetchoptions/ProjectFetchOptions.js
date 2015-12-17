@@ -4,7 +4,7 @@
  */
 define([ "require", "stjs", "dto/common/fetchoptions/FetchOptions", 'dto/person/fetchoptions/PersonFetchOptions', 'dto/space/fetchoptions/SpaceFetchOptions',
 		'dto/sample/fetchoptions/SampleFetchOptions', 'dto/experiment/fetchoptions/ExperimentFetchOptions', 'dto/attachment/fetchoptions/AttachmentFetchOptions',
-		'dto/project/fetchoptions/ProjectSortOptions' ], function(require, stjs, FetchOptions) {
+		'dto/project/fetchoptions/ProjectSortOptions', 'dto/history/fetchoptions/HistoryEntryFetchOptions' ], function(require, stjs, FetchOptions) {
 	var ProjectFetchOptions = function() {
 	};
 	stjs.extend(ProjectFetchOptions, FetchOptions, [ FetchOptions ], function(constructor, prototype) {
@@ -17,6 +17,7 @@ define([ "require", "stjs", "dto/common/fetchoptions/FetchOptions", 'dto/person/
 		prototype.modifier = null;
 		prototype.leader = null;
 		prototype.attachments = null;
+		prototype.history = null;
 		prototype.sort = null;
 		prototype.withExperiments = function() {
 			if (this.experiments == null) {
@@ -109,6 +110,19 @@ define([ "require", "stjs", "dto/common/fetchoptions/FetchOptions", 'dto/person/
 		prototype.hasAttachments = function() {
 			return this.attachments != null;
 		};
+		prototype.withHistory = function() {
+			if (this.history == null) {
+				var HistoryEntryFetchOptions = require("dto/history/fetchoptions/HistoryEntryFetchOptions");
+				this.history = new HistoryEntryFetchOptions();
+			}
+			return this.history;
+		};
+		prototype.withHistoryUsing = function(fetchOptions) {
+			return this.history = fetchOptions;
+		};
+		prototype.hasHistory = function() {
+			return this.history != null;
+		};
 		prototype.sortBy = function() {
 			if (this.sort == null) {
 				var ProjectSortOptions = require("dto/project/fetchoptions/ProjectSortOptions");
@@ -121,11 +135,13 @@ define([ "require", "stjs", "dto/common/fetchoptions/FetchOptions", 'dto/person/
 		};
 	}, {
 		experiments : "ExperimentFetchOptions",
+		samples : "SampleFetchOptions",
 		space : "SpaceFetchOptions",
 		registrator : "PersonFetchOptions",
 		modifier : "PersonFetchOptions",
 		leader : "PersonFetchOptions",
 		attachments : "AttachmentFetchOptions",
+		history : "HistoryEntryFetchOptions",
 		sort : "ProjectSortOptions"
 	});
 	return ProjectFetchOptions;

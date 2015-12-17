@@ -20,6 +20,9 @@ define([ "stjs", "dto/common/search/AbstractSearchCriteria", "dto/common/search/
 			this.criteria.push(criteria);
 			return criteria;
 		};
+		prototype.getOperator = function() {
+			return this.operator;
+		}
 		prototype.withOrOperator = function() {
 			this.operator = SearchOperator.OR;
 		}

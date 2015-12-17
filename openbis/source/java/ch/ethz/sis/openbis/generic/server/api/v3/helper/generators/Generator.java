@@ -29,6 +29,7 @@ import ch.ethz.sis.openbis.generic.as.api.v3.dto.dataset.fetchoptions.StorageFor
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.dataset.id.DataSetPermId;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.datastore.DataStore;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.datastore.fetchoptions.DataStoreFetchOptions;
+import ch.ethz.sis.openbis.generic.as.api.v3.dto.deletion.fetchoptions.DeletedObjectFetchOptions;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.deletion.fetchoptions.DeletionFetchOptions;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.deletion.id.IDeletionId;
 import ch.ethz.sis.openbis.generic.as.api.v3.dto.entitytype.id.EntityTypePermId;
@@ -342,7 +343,7 @@ public class Generator extends AbstractGenerator
         DtoGenerator gen = new DtoGenerator("deletion", "Deletion", DeletionFetchOptions.class);
         gen.addSimpleField(IDeletionId.class, "id");
         gen.addStringField("reason");
-        gen.addPluralFetchedField("List<DeletedObject>", List.class.getName(), "deletedObjects", "Deleted objects", DeletionFetchOptions.class);
+        gen.addPluralFetchedField("List<DeletedObject>", List.class.getName(), "deletedObjects", "Deleted objects", DeletedObjectFetchOptions.class);
 
         gen.setToStringMethod("\"Deletion \" + id");
 

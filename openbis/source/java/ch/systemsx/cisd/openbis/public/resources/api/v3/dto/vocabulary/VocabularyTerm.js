@@ -49,7 +49,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		prototype.setOrdinal = function(ordinal) {
 			this.ordinal = ordinal;
 		};
-		prototype.getOfficial = function() {
+		prototype.isOfficial = function() {
 			return this.official;
 		};
 		prototype.setOfficial = function(official) {

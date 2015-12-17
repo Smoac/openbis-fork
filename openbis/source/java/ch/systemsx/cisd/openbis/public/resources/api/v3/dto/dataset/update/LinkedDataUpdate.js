@@ -10,6 +10,9 @@ define([ "stjs", "dto/common/update/FieldUpdateValue" ], function(stjs, FieldUpd
 		prototype['@type'] = 'dto.dataset.update.LinkedDataUpdate';
 		constructor.serialVersionUID = 1;
 
+		prototype.externalCode = null;
+		prototype.externalDmsId = null;
+
 		prototype.getExternalCode = function() {
 			return this.externalCode;
 		};

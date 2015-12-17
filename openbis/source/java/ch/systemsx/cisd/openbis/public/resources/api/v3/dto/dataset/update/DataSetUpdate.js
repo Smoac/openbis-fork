@@ -6,6 +6,7 @@ define([ "stjs", "dto/common/update/FieldUpdateValue", "dto/common/update/IdList
 		this.experimentId = new FieldUpdateValue();
 		this.sampleId = new FieldUpdateValue();
 		this.physicalData = new FieldUpdateValue();
+		this.linkedData = new FieldUpdateValue();
 		this.properties = {};
 		this.tagIds = new IdListUpdateValue();
 		this.containerIds = new IdListUpdateValue();
@@ -17,6 +18,16 @@ define([ "stjs", "dto/common/update/FieldUpdateValue", "dto/common/update/IdList
 		prototype['@type'] = 'dto.dataset.update.DataSetUpdate';
 		constructor.serialVersionUID = 1;
 		prototype.dataSetId = null;
+		prototype.experimentId = null;
+		prototype.sampleId = null;
+		prototype.physicalData = null;
+		prototype.linkedData = null;
+		prototype.properties = null;
+		prototype.tagIds = null;
+		prototype.containerIds = null;
+		prototype.componentIds = null;
+		prototype.parentIds = null;
+		prototype.childIds = null;
 
 		prototype.getDataSetId = function() {
 			return this.dataSetId;
@@ -41,6 +52,12 @@ define([ "stjs", "dto/common/update/FieldUpdateValue", "dto/common/update/IdList
 		};
 		prototype.setPhysicalData = function(physicalData) {
 			this.physicalData.setValue(physicalData);
+		};
+		prototype.getLinkedData = function() {
+			return this.linkedData;
+		};
+		prototype.setLinkedData = function(linkedData) {
+			this.linkedData.setValue(linkedData);
 		};
 		prototype.setProperty = function(key, value) {
 			this.properties[key] = value;
@@ -91,6 +108,10 @@ define([ "stjs", "dto/common/update/FieldUpdateValue", "dto/common/update/IdList
 		physicalData : {
 			name : "FieldUpdateValue",
 			arguments : [ "PhysicalDataUpdate" ]
+		},
+		linkedData : {
+			name : "FieldUpdateValue",
+			arguments : [ "LinkedDataUpdate" ]
 		},
 		properties : {
 			name : "Map",

@@ -125,6 +125,10 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		prototype.setProperties = function(properties) {
 			this.properties = properties;
 		};
+		prototype.getMaterialProperty = function(propertyName) {
+			var properties = this.getMaterialProperties();
+			return properties ? properties[propertyName] : null;
+		};
 		prototype.getMaterialProperties = function() {
 			if (this.getFetchOptions().hasMaterialProperties()) {
 				return this.materialProperties;

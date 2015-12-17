@@ -51,6 +51,9 @@ define([ "stjs" ], function(stjs) {
 		prototype.getProperties = function() {
 			return this.properties;
 		};
+		prototype.setProperties = function(properties) {
+			this.properties = properties;
+		};
 	}, {
 		typeId : "IEntityTypeId",
 		creationId : "CreationId",

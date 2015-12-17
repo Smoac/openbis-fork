@@ -13,6 +13,12 @@ define([ "stjs", "dto/common/update/FieldUpdateValue", "dto/common/update/IdList
 		prototype['@type'] = 'dto.experiment.update.ExperimentUpdate';
 		constructor.serialVersionUID = 1;
 		prototype.experimentId = null;
+
+		prototype.properties = null;
+		prototype.projectId = null;
+		prototype.tagIds = null;
+		prototype.attachments = null;
+
 		prototype.getExperimentId = function() {
 			return this.experimentId;
 		};

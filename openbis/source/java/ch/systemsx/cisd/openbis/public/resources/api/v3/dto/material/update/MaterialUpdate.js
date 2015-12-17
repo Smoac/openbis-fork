@@ -9,7 +9,11 @@ define([ "stjs", "dto/common/update/IdListUpdateValue" ], function(stjs, IdListU
 	stjs.extend(MaterialUpdate, null, [], function(constructor, prototype) {
 		prototype['@type'] = 'dto.material.update.MaterialUpdate';
 		constructor.serialVersionUID = 1;
+
 		prototype.materialId = null;
+		prototype.properties = null;
+		prototype.tagIds = null;
+
 		prototype.getMaterialId = function() {
 			return this.materialId;
 		};
@@ -24,6 +28,9 @@ define([ "stjs", "dto/common/update/IdListUpdateValue" ], function(stjs, IdListU
 		};
 		prototype.getTagIds = function() {
 			return this.tagIds;
+		};
+		prototype.setTagActions = function(actions) {
+			this.tagIds.setActions(actions);
 		};
 	}, {
 		materialId : "IMaterialId",

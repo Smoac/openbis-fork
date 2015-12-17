@@ -36,6 +36,7 @@ import org.reflections.util.FilterBuilder;
 import org.testng.annotations.Test;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
@@ -143,7 +144,11 @@ public class V3APIReport
         Collection<Field> fields = new ArrayList<Field>();
         for (Field field : clazz.getDeclaredFields())
         {
-            if (Modifier.isPublic(field.getModifiers()) && field.getAnnotation(JsonIgnore.class) == null)
+            boolean isPublic = Modifier.isPublic(field.getModifiers());
+            boolean hasJsonIgnore = field.getAnnotation(JsonIgnore.class) != null;
+            boolean hasJsonProperty = field.getAnnotation(JsonProperty.class) != null;
+
+            if (hasJsonProperty || (isPublic && false == hasJsonIgnore))
             {
                 fields.add(field);
             }
@@ -157,7 +162,10 @@ public class V3APIReport
 
         for (Method method : clazz.getDeclaredMethods())
         {
-            if (Modifier.isPublic(method.getModifiers()) && method.getAnnotation(JsonIgnore.class) == null)
+            boolean isPublic = Modifier.isPublic(method.getModifiers());
+            boolean isAbstract = Modifier.isAbstract(method.getModifiers());
+
+            if (false == isAbstract && isPublic)
             {
                 methods.add(method);
             }

@@ -11,6 +11,10 @@ define([ "stjs", "dto/common/update/FieldUpdateValue", "dto/attachment/update/At
 		prototype['@type'] = 'dto.project.update.ProjectUpdate';
 		constructor.serialVersionUID = 1;
 		prototype.projectId = null;
+		prototype.spaceId = null;
+		prototype.description = null;
+		prototype.attachments = null;
+
 		prototype.getProjectId = function() {
 			return this.projectId;
 		};

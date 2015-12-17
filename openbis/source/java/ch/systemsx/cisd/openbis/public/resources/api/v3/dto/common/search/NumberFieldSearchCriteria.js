@@ -7,7 +7,7 @@ define([ "require", "stjs", "dto/common/search/AbstractFieldSearchCriteria", "dt
 	stjs.extend(NumberFieldSearchCriteria, AbstractFieldSearchCriteria, [ AbstractFieldSearchCriteria ], function(constructor, prototype) {
 		prototype['@type'] = 'dto.common.search.NumberFieldSearchCriteria';
 		constructor.serialVersionUID = 1;
-		prototype.equalTo = function(number) {
+		prototype.thatEquals = function(number) {
 			var NumberEqualToValue = require("dto/common/search/NumberEqualToValue");
 			this.setFieldValue(new NumberEqualToValue(number));
 		};
