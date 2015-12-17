@@ -41,7 +41,7 @@ public class ExecuteServiceTest extends AbstractTest
         
         Serializable result = v3api.executeService(sessionToken, new ServiceCode("simple-service"), options);
         
-        assertEquals(result, "hello 3.14159265359. Services: [Space CISD]");
+        assertEquals(result, "hello 3.14159265359. Spaces: [Space CISD]");
     }
 
 }

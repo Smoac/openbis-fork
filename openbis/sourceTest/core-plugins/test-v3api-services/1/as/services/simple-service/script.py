@@ -6,4 +6,4 @@ def process(parameters):
     searchCriteria = SpaceSearchCriteria();
     searchCriteria.withCode().thatEquals("CISD");
     result = applicationService.searchSpaces(sessionToken, searchCriteria, SpaceFetchOptions());
-    return "hello %s. Services: %s" % (name, result.objects)
+    return "hello %s. Spaces: %s" % (name, result.objects)
