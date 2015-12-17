@@ -34,4 +34,6 @@ public class Constants
     public static final int DEFAULT_SPEED_HINT = -MAX_SPEED / 2;
 
     public static final String PROJECT_SAMPLES_ENABLED_KEY = "project-samples-enabled";
+
+    public static final String CREATE_CONTINUOUS_SAMPLES_CODES_KEY = "create-continuous-sample-codes";
 }
