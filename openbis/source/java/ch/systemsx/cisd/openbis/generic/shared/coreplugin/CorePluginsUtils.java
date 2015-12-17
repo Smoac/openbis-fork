@@ -29,7 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.coreplugin.CorePluginScanner.Scan
  */
 public class CorePluginsUtils
 {
-    static final String CORE_PLUGINS_FOLDER_KEY = "core-plugins-folder";
+    public static final String CORE_PLUGINS_FOLDER_KEY = "core-plugins-folder";
 
     static final String DEFAULT_CORE_PLUGINS_FOLDER = "../core-plugins";
 

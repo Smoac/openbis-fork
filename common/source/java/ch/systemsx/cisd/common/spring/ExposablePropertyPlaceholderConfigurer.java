@@ -85,6 +85,11 @@ public class ExposablePropertyPlaceholderConfigurer extends PropertyPlaceholderC
             final String keyStr = key.toString();
             resolvedProps.setProperty(keyStr, getResolvedProperty(props, keyStr));
         }
+        injectPropertiesInto(resolvedProps);
+    }
+    
+    protected void injectPropertiesInto(Properties properties)
+    {
     }
 
     @SuppressWarnings("deprecation")
