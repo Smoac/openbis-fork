@@ -20,7 +20,7 @@ import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.id.ObjectPermId;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
- * Generic service perm id. This is the core plugin name.
+ * Generic service code. This is the name of an AS core plugin of type 'services'.
  *
  * @author Franz-Josef Elmer
  */
