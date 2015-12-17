@@ -64,6 +64,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleC
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.PropertyBuilder;
+import ch.systemsx.cisd.openbis.generic.shared.coreplugin.CorePluginsUtils;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientService;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
@@ -79,6 +80,8 @@ import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 @TransactionConfiguration(transactionManager = "transaction-manager")
 public abstract class SystemTestCase extends AbstractTransactionalTestNGSpringContextTests
 {
+    private static final String SOURCE_TEST_CORE_PLUGINS = "sourceTest/core-plugins";
+    
     protected static final String SESSION_KEY = "session-key";
 
     protected ICommonServerForInternalUse commonServer;
@@ -98,6 +101,7 @@ public abstract class SystemTestCase extends AbstractTransactionalTestNGSpringCo
     @BeforeSuite
     public void beforeSuite()
     {
+        System.setProperty(CorePluginsUtils.CORE_PLUGINS_FOLDER_KEY, SOURCE_TEST_CORE_PLUGINS);
         TestInitializer.init();
     }
 
