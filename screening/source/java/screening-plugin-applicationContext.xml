@@ -23,6 +23,6 @@
     </bean>
     
     <bean id="objectMapper-v1" class="ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.json.ScreeningObjectMapper" />
-    <bean id="objectMapper-v3" class="ch.systemsx.cisd.openbis.plugin.screening.shared.api.v3.json.ScreeningObjectMapper" />
+    <bean id="objectMapper-v3" class="ch.ethz.sis.openbis.screening.server.sharedapi.v3.json.ScreeningObjectMapper" />
     
 </beans>

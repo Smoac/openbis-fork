@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.screening.shared.api.v3.json;
+package ch.ethz.sis.openbis.screening.server.sharedapi.v3.json;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.deser.DefaultDeserializationContext;
 
+import ch.ethz.sis.openbis.generic.server.sharedapi.v3.json.EmptyJsonClassValueToClassObjectMapping;
+import ch.ethz.sis.openbis.generic.server.sharedapi.v3.json.JsonBaseTypeToSubTypesMapping;
 import ch.systemsx.cisd.openbis.common.api.server.json.deserializer.JsonDeserializerFactory;
 import ch.systemsx.cisd.openbis.common.api.server.json.introspector.JsonTypeAndClassAnnotationIntrospector;
 import ch.systemsx.cisd.openbis.common.api.server.json.resolver.JsonReflectionsSubTypeResolver;
 import ch.systemsx.cisd.openbis.common.api.server.json.serializer.JsonSerializerFactory;
-import ch.systemsx.cisd.openbis.generic.shared.api.v3.json.EmptyJsonClassValueToClassObjectMapping;
-import ch.systemsx.cisd.openbis.generic.shared.api.v3.json.JsonBaseTypeToSubTypesMapping;
 
 /**
  * Jackson library object mapper used in screening OpenBIS.

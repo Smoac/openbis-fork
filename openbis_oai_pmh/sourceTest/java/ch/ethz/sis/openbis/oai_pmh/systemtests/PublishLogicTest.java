@@ -29,10 +29,10 @@ import org.apache.commons.collections.Transformer;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import ch.ethz.sis.openbis.generic.as.api.v3.dto.entitytype.id.EntityTypePermId;
-import ch.ethz.sis.openbis.generic.as.api.v3.dto.experiment.create.ExperimentCreation;
-import ch.ethz.sis.openbis.generic.as.api.v3.dto.experiment.id.ExperimentPermId;
-import ch.ethz.sis.openbis.generic.as.api.v3.dto.project.id.ProjectIdentifier;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.create.ExperimentCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectIdentifier;
 import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;

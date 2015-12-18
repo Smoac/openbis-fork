@@ -35,8 +35,8 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 
-import ch.ethz.sis.openbis.generic.as.api.v3.IApplicationServerApi;
-import ch.ethz.sis.openbis.generic.server.api.v3.ApplicationServerApi;
+import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.ApplicationServerApi;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.image.ImageHistogram;
 import ch.systemsx.cisd.common.servlet.SpringRequestContextProvider;
