@@ -201,6 +201,10 @@ public interface IGenericServer extends IServer
     public List<String> generateCodes(String sessionToken, String prefix, EntityKind entityKind,
             int number);
 
+    @Transactional
+    public List<String> generateTemporalCodes(String sessionToken, String prefix,
+            EntityKind entityKind, int number);
+
     /**
      * Saves changed experiment.
      */

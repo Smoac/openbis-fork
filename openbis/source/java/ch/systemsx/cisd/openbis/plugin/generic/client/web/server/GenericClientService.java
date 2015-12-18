@@ -34,6 +34,7 @@ import org.springframework.stereotype.Component;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
 import ch.systemsx.cisd.openbis.common.spring.IUncheckedMultipartFile;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetUpdates;
@@ -46,6 +47,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.queue.ConsumerQueue;
 import ch.systemsx.cisd.openbis.generic.client.web.server.queue.ConsumerTask;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.UserFailureExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.exception.SampleUniqueCodeViolationExceptionAbstract;
+import ch.systemsx.cisd.openbis.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
@@ -475,8 +477,10 @@ public class GenericClientService extends AbstractClientService implements IGene
             final boolean allowExperiments, String excelSheetName, BatchOperationKind operationKind, String sessionToken)
     {
         boolean updateExisting = (operationKind == BatchOperationKind.UPDATE);
+        boolean isCreateContinuousSampleCodes =
+                PropertyUtils.getBoolean(this.getServiceProperties(), Constants.CREATE_CONTINUOUS_SAMPLES_CODES_KEY, false);
         SampleCodeGenerator sampleCodeGeneratorOrNull =
-                tryGetSampleCodeGenerator(isAutoGenerateCodes, sampleType.getGeneratedCodePrefix(), sessionToken);
+                tryGetSampleCodeGenerator(isAutoGenerateCodes, isCreateContinuousSampleCodes, sampleType.getGeneratedCodePrefix(), sessionToken);
         Collection<NamedInputStream> files = new ArrayList<NamedInputStream>(uploadedFiles.size());
         for (IUncheckedMultipartFile f : uploadedFiles.iterable())
         {
@@ -524,7 +528,7 @@ public class GenericClientService extends AbstractClientService implements IGene
     }
 
     private SampleCodeGenerator tryGetSampleCodeGenerator(boolean isAutoGenerateCodes,
-            final String codePrefix, final String sessionToken)
+            final boolean isCreateContinuousSampleCodes, final String codePrefix, final String sessionToken)
     {
         if (isAutoGenerateCodes)
         {
@@ -533,8 +537,16 @@ public class GenericClientService extends AbstractClientService implements IGene
                     @Override
                     public List<String> generateCodes(int size)
                     {
-                        return genericServer.generateCodes(sessionToken, codePrefix,
-                                EntityKind.SAMPLE, size);
+                        if (isCreateContinuousSampleCodes)
+                        {
+                            return genericServer.generateTemporalCodes(sessionToken, codePrefix,
+                                    EntityKind.SAMPLE, size);
+                        } else
+                        {
+                            return genericServer.generateCodes(sessionToken, codePrefix,
+                                    EntityKind.SAMPLE, size);
+                        }
+
                     }
                 };
         } else

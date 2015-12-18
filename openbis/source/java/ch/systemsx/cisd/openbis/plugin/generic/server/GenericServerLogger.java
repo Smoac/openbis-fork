@@ -168,6 +168,14 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
     }
 
     @Override
+    public List<String> generateTemporalCodes(String sessionToken, String prefix, EntityKind entityKind, int number)
+    {
+        logAccess(sessionToken, "generate_temporal_codes", "PREFIX(%s) ENTITY_KIND(%s) NUMBER(%s)", prefix,
+                entityKind, number);
+        return null;
+    }
+
+    @Override
     public ExperimentUpdateResult updateExperiment(String sessionToken, ExperimentUpdatesDTO updates)
     {
         logTracking(sessionToken, "edit_experiment",
@@ -300,5 +308,4 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
 
         return materials.toString();
     }
-
 }

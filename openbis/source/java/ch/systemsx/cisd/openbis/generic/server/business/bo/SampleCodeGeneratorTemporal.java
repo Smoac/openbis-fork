@@ -17,15 +17,14 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.List;
+import java.util.UUID;
 
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 
-public class SampleCodeGeneratorInternal extends EntityCodeGenerator
+public class SampleCodeGeneratorTemporal extends EntityCodeGenerator
 {
-    String transactionId;
-    
-    public SampleCodeGeneratorInternal(String transactionId, IDAOFactory daoFactory)
+    public SampleCodeGeneratorTemporal(IDAOFactory daoFactory)
     {
         super(daoFactory);
     }
@@ -33,7 +32,7 @@ public class SampleCodeGeneratorInternal extends EntityCodeGenerator
     @Override
     public List<String> generateCodes(String codePrefix, EntityKind entityKind, int numberOfCodes)
     {
-        return super.generateCodes("TEMP-" + transactionId + "-", entityKind, numberOfCodes);
+        return super.generateCodes("TEMP." + UUID.randomUUID().toString() + ".", entityKind, numberOfCodes);
     }
 
 }
