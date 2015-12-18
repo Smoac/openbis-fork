@@ -76,7 +76,7 @@ public class EntityHistoryCreator
     {
         List<EntityModification> list = new ArrayList<>(current);
         list.add(modification);
-        list.sort(new Comparator<EntityModification>()
+        Collections.sort(list, new Comparator<EntityModification>()
             {
                 @Override
                 public int compare(EntityModification o1, EntityModification o2)
