@@ -12,8 +12,8 @@ import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
 import org.testng.annotations.BeforeClass;
 
-import ch.ethz.sis.openbis.generic.dss.api.v3.IDataStoreServerApi;
-import ch.ethz.sis.openbis.generic.dss.api.v3.dto.datasetfile.DataSetFile;
+import ch.ethz.sis.openbis.generic.dssapi.v3.IDataStoreServerApi;
+import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.DataSetFile;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.openbis.datastoreserver.systemtests.SystemTestCase;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;

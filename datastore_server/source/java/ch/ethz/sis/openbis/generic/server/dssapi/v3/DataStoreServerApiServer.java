@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.dss.api.v3;
+package ch.ethz.sis.openbis.generic.server.dssapi.v3;
 
 import java.io.IOException;
 
@@ -26,6 +26,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import ch.ethz.sis.openbis.generic.dssapi.v3.IDataStoreServerApi;
 import ch.systemsx.cisd.openbis.common.api.server.AbstractStreamSupportingApiServiceExporter;
 
 /**
@@ -36,6 +37,15 @@ public class DataStoreServerApiServer extends AbstractStreamSupportingApiService
 {
 
     public static final String INTERNAL_BEAN_NAME = "v3-exporter";
+    
+    /**
+     *
+     *
+     */
+    public DataStoreServerApiServer()
+    {
+        System.out.println();
+    }
 
     @Resource(name = DataStoreServerApi.INTERNAL_SERVICE_NAME)
     private IDataStoreServerApi service;

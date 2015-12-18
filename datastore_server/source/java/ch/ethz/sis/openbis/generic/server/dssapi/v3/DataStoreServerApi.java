@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package ch.ethz.sis.openbis.generic.dss.api.v3;
+package ch.ethz.sis.openbis.generic.server.dssapi.v3;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -33,20 +33,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import ch.ethz.sis.openbis.generic.as.api.v3.IApplicationServerApi;
-import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.search.ISearchCriteria;
-import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.search.SearchOperator;
-import ch.ethz.sis.openbis.generic.as.api.v3.dto.common.search.SearchResult;
-import ch.ethz.sis.openbis.generic.as.api.v3.dto.dataset.DataSet;
-import ch.ethz.sis.openbis.generic.as.api.v3.dto.dataset.fetchoptions.DataSetFetchOptions;
-import ch.ethz.sis.openbis.generic.as.api.v3.dto.dataset.id.DataSetPermId;
-import ch.ethz.sis.openbis.generic.as.api.v3.dto.dataset.search.DataSetSearchCriteria;
-import ch.ethz.sis.openbis.generic.dss.api.v3.download.DataSetFileDownloadInputStream;
-import ch.ethz.sis.openbis.generic.dss.api.v3.dto.datasetfile.DataSetFile;
-import ch.ethz.sis.openbis.generic.dss.api.v3.dto.datasetfile.download.DataSetFileDownloadOptions;
-import ch.ethz.sis.openbis.generic.dss.api.v3.dto.datasetfile.id.DataSetFilePermId;
-import ch.ethz.sis.openbis.generic.dss.api.v3.dto.datasetfile.id.IDataSetFileId;
-import ch.ethz.sis.openbis.generic.dss.api.v3.dto.datasetfile.search.DataSetFileSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.ISearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchOperator;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.DataSetSearchCriteria;
+import ch.ethz.sis.openbis.generic.dssapi.v3.IDataStoreServerApi;
+import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.DataSetFile;
+import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.download.DataSetFileDownloadOptions;
+import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.id.DataSetFilePermId;
+import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.id.IDataSetFileId;
+import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.search.DataSetFileSearchCriteria;
+import ch.ethz.sis.openbis.generic.server.dssapi.v3.download.DataSetFileDownloadInputStream;
 import ch.systemsx.cisd.common.filesystem.IFreeSpaceProvider;
 import ch.systemsx.cisd.common.filesystem.SimpleFreeSpaceProvider;
 import ch.systemsx.cisd.common.logging.LogCategory;

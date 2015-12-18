@@ -1,12 +1,13 @@
-package ch.ethz.sis.openbis.generic.dss.api.v3;
+package ch.ethz.sis.openbis.generic.server.dssapi.v3;
 
 import java.io.InputStream;
 import java.util.List;
 
-import ch.ethz.sis.openbis.generic.dss.api.v3.dto.datasetfile.DataSetFile;
-import ch.ethz.sis.openbis.generic.dss.api.v3.dto.datasetfile.download.DataSetFileDownloadOptions;
-import ch.ethz.sis.openbis.generic.dss.api.v3.dto.datasetfile.id.IDataSetFileId;
-import ch.ethz.sis.openbis.generic.dss.api.v3.dto.datasetfile.search.DataSetFileSearchCriteria;
+import ch.ethz.sis.openbis.generic.dssapi.v3.IDataStoreServerApi;
+import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.DataSetFile;
+import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.download.DataSetFileDownloadOptions;
+import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.id.IDataSetFileId;
+import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.search.DataSetFileSearchCriteria;
 import ch.systemsx.cisd.openbis.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerLogger;
 

@@ -56,7 +56,7 @@ import org.springframework.web.context.WebApplicationContext;
 import com.googlecode.jsonrpc4j.spring.JsonServiceExporter;
 import com.marathon.util.spring.StreamSupportingHttpInvokerServiceExporter;
 
-import ch.ethz.sis.openbis.generic.dss.api.v3.IDataStoreServerApi;
+import ch.ethz.sis.openbis.generic.dssapi.v3.IDataStoreServerApi;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.api.IRpcServiceNameServer;
 import ch.systemsx.cisd.common.api.RpcServiceInterfaceVersionDTO;

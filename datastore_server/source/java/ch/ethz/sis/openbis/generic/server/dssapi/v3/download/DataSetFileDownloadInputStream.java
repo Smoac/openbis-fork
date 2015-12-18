@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.dss.api.v3.download;
+package ch.ethz.sis.openbis.generic.server.dssapi.v3.download;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -22,9 +22,9 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Map;
 
-import ch.ethz.sis.openbis.generic.as.api.v3.dto.dataset.id.DataSetPermId;
-import ch.ethz.sis.openbis.generic.dss.api.v3.dto.datasetfile.DataSetFile;
-import ch.ethz.sis.openbis.generic.dss.api.v3.dto.datasetfile.id.DataSetFilePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
+import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.DataSetFile;
+import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.id.DataSetFilePermId;
 import ch.systemsx.cisd.openbis.common.io.ConcatenatedContentInputStream;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
 

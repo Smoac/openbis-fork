@@ -7,8 +7,8 @@ import java.util.List;
 
 import org.testng.annotations.Test;
 
-import ch.ethz.sis.openbis.generic.dss.api.v3.dto.datasetfile.DataSetFile;
-import ch.ethz.sis.openbis.generic.dss.api.v3.dto.datasetfile.search.DataSetFileSearchCriteria;
+import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.DataSetFile;
+import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.search.DataSetFileSearchCriteria;
 
 public class SearchFileTest extends AbstractFileTest
 {
