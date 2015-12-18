@@ -370,10 +370,4 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
             }
         }
     }
-
-    public ExposablePropertyPlaceholderConfigurer getExposablePropertyPlaceholderConfigurer()
-    {
-        return configurer;
-    }
-
 }

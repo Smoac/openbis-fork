@@ -22,11 +22,7 @@ import java.util.List;
 import net.lemnik.eodsql.BaseQuery;
 import net.lemnik.eodsql.QueryTool;
 import net.lemnik.eodsql.Select;
-import ch.systemsx.cisd.common.properties.PropertyUtils;
-import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.DAOFactory;
-import ch.systemsx.cisd.openbis.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.dto.TableNames;
 
@@ -41,14 +37,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.TableNames;
  */
 public class EntityCodeGenerator
 {
-
-    private final IDAOFactory daoFactory;
+    protected final IDAOFactory daoFactory;
 
     private final CountQuery countQuery;
-
-    private final MaxQuery maxQuery;
-
-    private boolean isCreateContinuousSampleCodes;
 
     public static interface CountQuery extends BaseQuery
     {
@@ -69,27 +60,10 @@ public class EntityCodeGenerator
         public int getMaterialsCount(String code);
     }
 
-    public static interface MaxQuery extends BaseQuery
-    {
-        @Select(sql = "SELECT max(substr(code, length(?{1})+1)::int) "
-                + "FROM samples WHERE code similar to ?{1} || '[1234567890]+'")
-        public int getMaxCode(String prefix);
-    }
-
     public EntityCodeGenerator(IDAOFactory daoFactory)
     {
         this.daoFactory = daoFactory;
-        if (daoFactory instanceof DAOFactory)
-        {
-            ExposablePropertyPlaceholderConfigurer configurer = ((DAOFactory) daoFactory).getExposablePropertyPlaceholderConfigurer();
-            this.isCreateContinuousSampleCodes =
-                    PropertyUtils.getBoolean(configurer.getResolvedProps(), Constants.CREATE_CONTINUOUS_SAMPLES_CODES_KEY, false);
-        } else
-        {
-            this.isCreateContinuousSampleCodes = false;
-        }
         this.countQuery = QueryTool.getManagedQuery(CountQuery.class);
-        this.maxQuery = QueryTool.getManagedQuery(MaxQuery.class);
     }
 
     public String generateCode(String codePrefix, EntityKind entityKind)
@@ -107,38 +81,6 @@ public class EntityCodeGenerator
      * @param numberOfCodes Number of codes to be generated.
      */
     public List<String> generateCodes(String codePrefix, EntityKind entityKind, int numberOfCodes)
-    {
-        if (isCreateContinuousSampleCodes && entityKind == EntityKind.SAMPLE)
-        {
-            return generateContinuousSampleCodes(codePrefix, entityKind, numberOfCodes);
-        }
-        else
-        {
-            return generateCodesFromSequence(codePrefix, entityKind, numberOfCodes);
-        }
-    }
-
-    private List<String> generateContinuousSampleCodes(String codePrefix, EntityKind entityKind, int numberOfCodes)
-    {
-        int maxCode = maxQuery.getMaxCode(codePrefix);
-        final String[] codes = new String[numberOfCodes];
-        for (int i = 0; i < numberOfCodes; i++)
-        {
-            String code;
-
-            do
-            {
-                maxCode++;
-                code = codePrefix + maxCode;
-            } while (isCodeUsed(code, entityKind));
-
-            codes[i] = code;
-        }
-
-        return Arrays.asList(codes);
-    }
-
-    private List<String> generateCodesFromSequence(String codePrefix, EntityKind entityKind, int numberOfCodes)
     {
         final String[] codes = new String[numberOfCodes];
         for (int i = 0; i < numberOfCodes; i++)
@@ -159,7 +101,7 @@ public class EntityCodeGenerator
         return Arrays.asList(codes);
     }
 
-    private boolean isCodeUsed(String code, EntityKind entityKind)
+    protected boolean isCodeUsed(String code, EntityKind entityKind)
     {
         int count;
 
@@ -182,4 +124,5 @@ public class EntityCodeGenerator
 
         return count > 0;
     }
+
 }
